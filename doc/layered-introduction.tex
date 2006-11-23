@@ -1,0 +1,179 @@
+% The Layered Programming Languages
+%
+% File:         layered-introduction.tex
+% Author:       Bob Walton (walton@deas.harvard.edu)
+% Version:      1a
+  
+\documentclass[12pt]{article}
+
+\usepackage{makeidx}
+
+\makeindex
+
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\raggedbottom
+
+\pagestyle{headings}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{1ex}
+
+% Begin \tableofcontents surgery.
+
+\newcount\ATCATCODE
+\ATCATCODE=\catcode`@
+\catcode `@=11	% @ is now a letter
+
+\renewcommand{\contentsname}{}
+\renewcommand\l@section{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\l@table{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\tableofcontents{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}}%
+    \item\@starttoc{toc}%
+    \end{list}}
+\renewcommand\listoftables{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}%
+	      }%
+    \item\@starttoc{lot}%
+    \end{list}}
+
+\catcode `@=\ATCATCODE	% @ is now restored
+
+% End \tableofcontents surgery.
+
+\newcommand{\CN}[2]%	Change Notice.
+    {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
+     $^{\mbox{#1}}$#2}}
+    % Change notice.
+
+\newcommand{\key}[1]{{\em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\em #1#2}\index{#1}}
+\newcommand{\ikey}[2]{{\em #1}\index{#2}}
+\newcommand{\ttkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttfkey}[2]{{\tt #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{{\tt #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
+\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
+\newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
+\newcommand{\EOL}{\penalty \exhyphenpenalty}
+
+\newsavebox{\leftbracket}
+\begin{lrbox}{\leftbracket}
+\verb|{|
+\end{lrbox}
+
+\newsavebox{\rightbracket}
+\begin{lrbox}{\rightbracket}
+\verb|}|
+\end{lrbox}
+
+\newcommand{\ttbrackets}{
+    \renewcommand{\{}{\usebox{\leftbracket}}
+    \renewcommand{\}}{\usebox{\rightbracket}}}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.40in}
+
+\newsavebox{\figurebox}
+
+\newenvironment{boxedfigure}[1][!btp]%
+	{\begin{figure*}[#1]
+	 \begin{lrbox}{\figurebox}
+	 \begin{minipage}{\figurewidth}
+
+	 \vspace*{1ex}}%
+	{
+	 \vspace*{1ex}
+
+	 \end{minipage}
+	 \end{lrbox}
+	 \begin{center}
+	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
+	 \end{center}
+	 \end{figure*}}
+
+\newenvironment{indpar}[1][0.3in]%
+	{\begin{list}{}%
+		     {\setlength{\itemsep}{0in}%
+		      \setlength{\topsep}{0in}%
+		      \setlength{\parsep}{1ex}%
+		      \setlength{\labelwidth}{#1}%
+		      \setlength{\leftmargin}{#1}%
+		      \addtolength{\leftmargin}{\labelsep}}%
+	 \item}%
+	{\end{list}}
+
+\begin{document}
+        
+\begin{center}
+
+{\Large
+Introduction to \\[0.5ex]
+The Layered Programming Languages \\[0.5ex]
+(Draft 1a)}
+
+\medskip
+
+Robert L. Walton\footnote{This document is dedicated to the memory
+of Professor Thomas Cheatham of Harvard University.}
+
+November 23, 2006
+ 
+\end{center}
+
+{\small
+\tableofcontents 
+}
+
+\newpage
+
+\section{Overview}
+
+This introduces the Layered Programming Languages:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
+\key{L}	& The Lower Language, or L-Language. \\
+	& A machine independent reduced instruction set architecture
+	  programming language.
+\\[1ex]
+\key{M}	& The Middle Language, or M-Language. \\
+	& Similar to the C programming language but more flexible.
+\\[1ex]
+\key{H}	& The Higher Language, or H-Language. \\
+	& Implements standardized lists, symbols, arrays, etc. to extend
+	  the M-language to something comparable to LISP and shell
+	  languages.
+\end{tabular}
+\end{center}
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{layered-introduction}
+
+\printindex
+
+\end{document}

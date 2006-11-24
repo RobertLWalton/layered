@@ -7,6 +7,7 @@
 \documentclass[12pt]{article}
 
 \usepackage{makeidx}
+\usepackage{pictex}
 
 \makeindex
 
@@ -15,14 +16,21 @@
 \setlength{\textwidth}{6.5in}
 \raggedbottom
 
+\setlength{\unitlength}{1in}
+
 \pagestyle{headings}
 \setlength{\parindent}{0.0in}
 \setlength{\parskip}{1ex}
 
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\newcommand{\subsubsubsection}[1]{\paragraph[#1]{#1.}}
+\newcommand{\subsubsubsubsection}[1]{\subparagraph[#1]{#1.}}
+
 % Begin \tableofcontents surgery.
 
-\newcount\ATCATCODE
-\ATCATCODE=\catcode`@
+\newcount\AtCatcode
+\AtCatcode=\catcode`@
 \catcode `@=11	% @ is now a letter
 
 \renewcommand{\contentsname}{}
@@ -52,7 +60,7 @@
     \item\@starttoc{lot}%
     \end{list}}
 
-\catcode `@=\ATCATCODE	% @ is now restored
+\catcode `@=\AtCatcode	% @ is now restored
 
 % End \tableofcontents surgery.
 
@@ -61,35 +69,124 @@
      $^{\mbox{#1}}$#2}}
     % Change notice.
 
-\newcommand{\key}[1]{{\em #1}\index{#1}}
-\newcommand{\mkey}[2]{{\em #1}\index{#1!#2}}
-\newcommand{\skey}[2]{{\em #1#2}\index{#1}}
-\newcommand{\ikey}[2]{{\em #1}\index{#2}}
-\newcommand{\ttkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
-\newcommand{\ttmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttfkey}[2]{{\tt #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
-\newcommand{\ttakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
-\newcommand{\ttamkey}[3]{{\tt #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\key}[1]{{\bf \em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
+\newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
+% < and > do not work for \tt \bf, hence:
+\newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttdkey}[1]{{\tt \bf .#1}\index{#1@{\tt .#1}}}
+\newcommand{\ttdmkey}[2]{{\tt \bf .#1}\index{#1@{\tt .#1}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
-\newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
+\newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
+\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\figref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
-\newsavebox{\leftbracket}
-\begin{lrbox}{\leftbracket}
+\newcount\TildeCatcode
+\TildeCatcode=\catcode`\~
+\catcode`~=12
+\newcommand{\Tilde}{~}
+\catcode`~=\TildeCatcode
+
+\newcount\CircumflexCatcode
+\CircumflexCatcode=\catcode`\^
+\catcode`^=12
+\newcommand{\Circumflex}{^}
+\catcode`^=\CircumflexCatcode
+
+\newcount\CurlyBraCatcode
+\newcount\CurlyKetCatcode
+\newcount\SquareBraCatcode
+\newcount\SquareKetCatcode
+\CurlyBraCatcode=\catcode`{
+\CurlyKetCatcode=\catcode`}
+\SquareBraCatcode=\catcode`[
+\SquareKetCatcode=\catcode`]
+
+\catcode`{=\SquareBraCatcode
+\catcode`}=\SquareKetCatcode
+\catcode`[=\CurlyBraCatcode
+\catcode`]=\CurlyKetCatcode
+
+\newcommand[\CurlyBra][{]
+\newcommand[\CurlyKet][}]
+
+\catcode`{=\CurlyBraCatcode
+\catcode`}=\CurlyKetCatcode
+\catcode`[=\SquareBraCatcode
+\catcode`]=\SquareKetCatcode
+
+\newcommand{\ttbrackets}{%
+    \renewcommand{\{}{\CurlyBra}%
+    \renewcommand{\}}{\CurlyKet}}
+
+\newsavebox{\TILDEBOX}
+\begin{lrbox}{\TILDEBOX}
+\verb|~|
+\end{lrbox}
+\newcommand{\TILDE}{\usebox{\TILDEBOX}}
+
+\newsavebox{\BACKSLASHBOX}
+\begin{lrbox}{\BACKSLASHBOX}
+\verb|\|
+\end{lrbox}
+\newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
+
+\newsavebox{\LEFTBRACKETBOX}
+\begin{lrbox}{\LEFTBRACKETBOX}
 \verb|{|
 \end{lrbox}
+\newcommand{\LEFTBRACKET}{\usebox{\LEFTBRACKETBOX}}
 
-\newsavebox{\rightbracket}
-\begin{lrbox}{\rightbracket}
+\newsavebox{\RIGHTBRACKETBOX}
+\begin{lrbox}{\RIGHTBRACKETBOX}
 \verb|}|
 \end{lrbox}
+\newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
 
-\newcommand{\ttbrackets}{
-    \renewcommand{\{}{\usebox{\leftbracket}}
-    \renewcommand{\}}{\usebox{\rightbracket}}}
+\newsavebox{\UNDERLINEBOX}
+\begin{lrbox}{\UNDERLINEBOX}
+\verb|_|
+\end{lrbox}
+\newcommand{\UNDERLINE}{\usebox{\UNDERLINEBOX}}
+
+\newsavebox{\CIRCUMFLEXBOX}
+\begin{lrbox}{\CIRCUMFLEXBOX}
+\verb|^|
+\end{lrbox}
+\newcommand{\CIRCUMFLEX}{\usebox{\CIRCUMFLEXBOX}}
+
+\newsavebox{\BARBOX}
+\begin{lrbox}{\BARBOX}
+\verb/|/
+\end{lrbox}
+\newcommand{\BAR}{\usebox{\BARBOX}}
+
+\newsavebox{\LESSTHANBOX}
+\begin{lrbox}{\LESSTHANBOX}
+\verb/</
+\end{lrbox}
+\newcommand{\LESSTHAN}{\usebox{\LESSTHANBOX}}
+
+\newsavebox{\GREATERTHANBOX}
+\begin{lrbox}{\GREATERTHANBOX}
+\verb/>/
+\end{lrbox}
+\newcommand{\GREATERTHAN}{\usebox{\GREATERTHANBOX}}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -137,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 23, 2006
+November 24, 2006
  
 \end{center}
 
@@ -149,62 +246,140 @@ November 23, 2006
 
 \section{Introduction}
 
-This describes the Middle Layer Programming Language, otherwise
-known as the M-Language.  See the Introduction to the Layered
+This describes the Middle Layer Programming Language, or
+M-Language.  See the Introduction to the Layered
 Programming Languages for an overview of the related
 Lower Layer L and Higher Layer H languages.
 
 
 \section{Memory}
+\label{MEMORY}
+
+We begin with an overview of M-language memory, and then provide
+details in the following sections.
 
 M-language memory consists of blocks which are sequences of bits.
 Blocks can be contained in other blocks or can overlap.  Blocks
-can be allocated to memory or be free to be moved hither and yon
-during program execution.  Numbers, such as integers and floating
-point numbers, are blocks, and when used as arguments or returned
-as results, are free.
+have the following attributes:
 
-Some blocks allocated to memory are `movable', meaning they can be
-moved almost anytime.  Others are fixed in particular permanent
-locations.  A movable block needs a reference address, which always
-points at the movable block, and which is stored in a fixed block
-so it can always be found.  A movable block can be deallocated
+\begin{center}
+\begin{tabular}{ll}
+{\tt size}		& number of bits \\
+{\tt growth}		& {\tt up}, {\tt down}, {\tt none} \\
+{\tt alignment}		& exact divisor of bit address \\
+{\tt offset}		& offset in bits of start of block from
+			  bit address of block \\
+{\tt mobility}		& {\tt free}, {\tt fixed}, {\tt movable} \\
+{\tt operability}	& {\tt integer}, {\tt float}, {\tt address},
+			  {\tt container} \\
+{\tt status}		& {\tt constant}, {\tt variable} \\
+\end{tabular}
+\end{center}
+
+This is just enough information to allow the M-language implementation
+to allocate blocks to memory and move blocks in memory.  A {\tt growth}
+of `{\tt up}' means the {\tt size} is the minimum size and the actual size
+is larger with the block extending above its address.  Similarly for
+`{\tt down}' with the block extending below its address.  The {\tt alignment}
+and {\tt offset} only affects blocks when they are stored in memory.
+{\tt Free} blocks have no fixed address and can be moved around in
+memory; {\tt fixed} blocks have a fixed unchanging address; and
+{\tt movable} blocks have an address that can be changed in a restricted
+way (see below).  {\tt Operability} determines the kind of register
+a block is copied into, when a block is placed in a register.  {\tt Status}
+allows a block to be marked as {\tt constant} permitting its to be moved
+around with greater freedom.
+
+Both blocks and addresses are classified as `light weight'
+or `heavy weight'.  A heavy weight movable block has a reference
+pointer stored at a fixed location that points at the block and
+that changes when the block moves.  A heavy weight address has
+two parts: the address of a reference pointer, and an offset within
+the heavy weight block that is pointed at by the reference pointer.
+A light weight address is just the address of a fixed, non-movable
+block.
+
+A lightweight block is fixed block allocated to a fixed address,
+or is a subblock of another block.  It can be a subblock of a
+heavy weight block.
+A heavy weight address is used to address a light weight subblock
+of a heavy weight block.
+
+The entire heavy weight block can be
+addressed by a light weight pointer pointing at the reference pointer
+of the block, but an addresssing indirection is required to address
+the block, and such a pointer is called a `middle weight'
+pointer.  A heavy weight block that is never addressed by a heavy
+weight pointer, but only by middle weight pointers, is called a
+`middle weight block'.
+
+Reference pointers can also be held in a vector so that
+sometimes a vector index can be used in place of an address of 
+a reference pointer.  Sometimes reference pointers are allocated
+as the first thing in their movable heavyweight block, in which
+case they must be addressed and not identified by index.\footnote{
+This means the entire heavy weight block must be allocated as a
+subblock of a fixed block, so the reference pointer will be fixed.
+However, reference pointers can be garbage collected by keeping
+two copies, the old and the new, with identical contents, and
+then replacing all addresses or indices of the old pointer by
+the address or index of the new pointer.}
+
+A heavy weight movable block can be moved almost anytime by
+changing its reference pointer.  The block can be deallocated
 almost anytime by moving it to unimplemented virtual memory.
 
-Movable blocks can be allocated and deallocated at any time.
-A movable block can be a stack that grows up or down, and
+A heavy weight movable block can be a stack that grows up or down, and
 subblocks can be allocated to or deallocated from the growing
-boundary of a stack.
+boundary of a stack.  Other blocks can also be stacks; they
+must have memory above or below them reserved for allocation
+of subblocks.
 
-A variable is a sequence of blocks.  The first block in the sequence
-is the type descriptor for the variable.  Many variables have only
-two blocks: a type descriptor, and a value block.  Some have a third
-subtype descriptor block.  In principal there can be any number of
-blocks, but unless the first is a recognizable type descriptor, few
-operations can be defined on the variable.
+A value is a sequence of constant free blocks.  The initial subsequence
+of all blocks up until the last is called the `type' of the value,
+and the blocks in this type are called `descriptors'.  The first descriptor
+contains an encoding that specifies
+the `major type' of the value.  Some major types are
+32-bit signed integers, 64-bit floating point numbers, structure with
+a given list of components, etc.  If a second descriptor exists it
+generally encodes subtype information, such as bounds for an integer
+or subscript bounds for an array.
 
-Parts of a variable may become constant at different times.
-The type descriptor is often a compile time constant, meaning that
-it is constant from the time the variable is created.
-A subtype descriptor is typically in initialization constant,
-meaning it is constant after the variable is initialized at
-run time.  The value block of a variable may never be constant.
-On the other hand, all the variable's blocks may be compile time
-constants: a compile constant is in the M-Language is just a variable all
-of whose blocks became constant at compile time.
+The value that is an empty sequence is a special case that is equivalent
+to a major type descriptor that specifies that a value is a major type
+descriptor.
 
-The different components of a variable obey different protocols that
-determine when they become constant.  The {\tt wr} protocol says
-that a component is readable and writable at any time.  {\tt w/r} says
-that all writes occur before all reads.  {\tt w/a/r} says that
-writes occur first, then accumulates, then reads, where accumulates are
-operations that may be exchanged, such as incrementing the variable
-component by various amounts.
+A variable is a place that holds a value that may be changed.
+However, when changing the value, only its last block may be changed:
+the type may not be.  A variable that has an address in memory will
+be either a movable or fixed block.  A variable that has no particular
+location in memory is free.
 
-Detailed definitions of the above concepts are given in the following
-sections.
+At compile time the compiler must know a non-empty initial segment
+of the type of each value.  From this the block attributes of the
+missing part of the value must be computable.  For example, the
+compiler may know the first block of a value, the one that holds
+the major type, and this might specify that the value is a 32-bit integer.
 
+A component of a value V is a value C that can be computed from V
+by a function that takes only V as its single argument.  The components
+of a variable is just a components of the variable's value.
+Components of variables can themselves be variable if there is a
+function that changes the value that will be returned for the component.
 
+The different components of a variable obey different protocols.
+The {\tt rw} protocol says that a component is readable and writable
+at any time.  {\tt w/r} says that all writes occur before all reads.
+{\tt w/a/r} says that writes occur first, then accumulates, then reads,
+where accumulates are operations that may be exchanged, such as incrementing
+the variable component by various amounts.
+
+Components and protocols are not describe in detail until
+\secref{EXPRESSIONS}.  The other concepts just introduced are
+defined in detail in the following sections.
+
+\section{Expressions}
+\label{EXPRESSIONS}
 
 
 

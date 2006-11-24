@@ -149,9 +149,10 @@ November 23, 2006
 
 \section{Introduction}
 
-This describes the Middle Layered Programming Language, otherwise
+This describes the Middle Layer Programming Language, otherwise
 known as the M-Language.  See the Introduction to the Layered
-Programming Languages for an overview of the related L and H langauges.
+Programming Languages for an overview of the related
+Lower Layer L and Higher Layer H languages.
 
 
 \section{Memory}
@@ -163,12 +164,17 @@ during program execution.  Numbers, such as integers and floating
 point numbers, are blocks, and when used as arguments or returned
 as results, are free.
 
-Some blocks allocated to memory are `moving', meaning they can be
+Some blocks allocated to memory are `movable', meaning they can be
 moved almost anytime.  Others are fixed in particular permanent
-locations.  A moving block needs a reference address, which always
-points at the moving block, and which is stored in a fixed block
-so it can always be found.  A moving block can be deallocated
+locations.  A movable block needs a reference address, which always
+points at the movable block, and which is stored in a fixed block
+so it can always be found.  A movable block can be deallocated
 almost anytime by moving it to unimplemented virtual memory.
+
+Movable blocks can be allocated and deallocated at any time.
+A movable block can be a stack that grows up or down, and
+subblocks can be allocated to or deallocated from the growing
+boundary of a stack.
 
 A variable is a sequence of blocks.  The first block in the sequence
 is the type descriptor for the variable.  Many variables have only
@@ -194,6 +200,9 @@ that all writes occur before all reads.  {\tt w/a/r} says that
 writes occur first, then accumulates, then reads, where accumulates are
 operations that may be exchanged, such as incrementing the variable
 component by various amounts.
+
+Detailed definitions of the above concepts are given in the following
+sections.
 
 
 

@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 24, 2006
+November 26, 2006
  
 \end{center}
 
@@ -249,7 +249,7 @@ November 24, 2006
 This describes the Middle Layer Programming Language, or
 M-Language.  See the Introduction to the Layered
 Programming Languages for an overview of the related
-Lower Layer L and Higher Layer H languages.
+Lower Layer L-Language and Higher Layer H-Language.
 
 
 \section{Memory}
@@ -380,6 +380,58 @@ defined in detail in the following sections.
 
 \section{Expressions}
 \label{EXPRESSIONS}
+
+The task of an expression is to compute values from other values.
+This is straightforward except for issues in parsing, overloading,
+implicit variable creation, and protection.
+
+Parsing involves inserting implied parentheses and then rewriting
+expressions, particularly those involving operators.  Overloading
+involves picking which function to call given many functions with the
+same name.  Implicit variable creation involves creating variables to
+hold values output by one function and input by another.\footnote{
+What we call `implicit variables' are usually called `temporary variables'.
+We make the implicit variable creation process explicit for two reasons:
+first, we have a more complex situation in which one function may
+output many results, as is explained a bit further
+in the text, and second, M-language debuggers have a mode of
+operation in which instead of displaying location within the program
+code, which can be a problematic concept given all the rewriting that
+is done, they display the status of ordinary and implicit variables, making
+it important to explain implicit variables carefully to novice programmers.}
+
+Parsing begins by identifying operators in an expression.  By using
+a precedence level assigned to each operator/fixity pair (operators
+can have three fixities: prefix, infix, or postfix), implied parentheses
+are inserted.  The M-language differs from other computer languages
+in not using associativity rules in doing this, so that, for
+instance, `\verb|(0 < x <= y)|' has \underline{no} implied parentheses
+inserted, and can be rewritten later to be the equivalent of
+`\verb|(0 < x AND x <= y)|'.  After inserting implied parentheses,
+expressions are rewritten using macros.  In the example just given,
+`\verb|<|' and `\verb|<=|' have the same precedence level and invoke
+the same rewrite macro.
+
+Program code begins as text, a sequence of characters.  It is first
+scanned to become a sequence of lexemes (words and numbers and
+punctuation marks), and then parsed.  The lexemes are tagged with
+their location within the text, and with the subexpression they
+belong to after insertion of implied parentheses.  These tags
+are carried through the rewriting of expressions, and may be copied
+to new lexemes introduced during rewriting, so that eventually
+a debugger can associate operations executed when the program runs with
+particular lexemes and subexpressions in the program code text.
+
+Parsing and rewriting use data constructs and operations provided
+by the H-Language, the higher level layered language.  This language
+provides, for example, for strings used to encode lexemes and
+lists used to encode expressions.  Macros are user written H-language code
+executed by the M-language compiler.
+
+
+
+
+
 
 
 

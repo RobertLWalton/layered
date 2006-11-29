@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 26, 2006
+November 29, 2006
  
 \end{center}
 
@@ -383,7 +383,7 @@ defined in detail in the following sections.
 
 The task of an expression is to compute values from other values.
 This is straightforward except for issues in parsing, overloading,
-implicit variable creation, and protection.
+implicit variable creation, implicit typing, and protection.
 
 Parsing involves inserting implied parentheses and then rewriting
 expressions, particularly those involving operators.  Overloading
@@ -399,6 +399,11 @@ operation in which instead of displaying location within the program
 code, which can be a problematic concept given all the rewriting that
 is done, they display the status of ordinary and implicit variables, making
 it important to explain implicit variables carefully to novice programmers.}
+Implicit typing involves assigning types to variable, such as implicit
+variables, that were given no type in the code.
+Protection involves ensuring that code in a restricted protection domain
+cannot be called or referenced from another protection domain without
+explicit permission.
 
 Parsing begins by identifying operators in an expression.  By using
 a precedence level assigned to each operator/fixity pair (operators
@@ -428,11 +433,55 @@ provides, for example, for strings used to encode lexemes and
 lists used to encode expressions.  Macros are user written H-language code
 executed by the M-language compiler.
 
+Overloading, implicit variable creating, and implicit typing are all
+done together.  Each function definition has a subfunction called
+the typer which takes as input a partial description of the types
+and movement modes of the arguments of a call to the function,
+and produces as output possible completions of this information which
+would allow the function definition to be used.  The movement modes
+of an argument are `in' for an input argument, `out' for an output
+argument, and `inout' for an argument that is both input and output.
+The result of a function is treated here as an argument.
+The typer succeeds or fails when it is given enough information to
+ensure that the function definition can or cannot be used, and if it
+is not given enough information, the typer proposes additions to the
+information it is given, if it can.
 
+Specification of argument movement modes determines what implicit
+variables are needed.  Specification of argument types determines
+implicit types of both implicit variables and of explicit variables
+that are declared without types (or with incomplete types).
 
+In addition to typers for explicitly named functions,
+typers for implicitly named conversion functions are executed.
+Conversion functions convert values of one type to values of a
+different type: e.g., convert 32-bit integers to 64-bit floating
+point numbers.  Implicit conversions are inserted in the value
+flow whereever necessary and possible so that all the needed
+types can be computed.
 
+All this is a search that specifies implicit type information,
+movement modes, and implicit conversions.  The search may have
+multiple successful answers.  In this case the result is deemed
+ambiguous and a compile error.  The user who provides multiple
+definitions for a given function may elect to given them a priority
+order, so that lower priority definitions will not be examined by
+the search if a higher priority definition can be used, and ambiguity
+will not result.  Similarly conversions have priorities, and not using
+a conversion is given higher priority than using any implicit conversion.
 
+If the search fails to find any answer within a reasonable time, compilation
+fails.  If this happens, the coder can explicitly specify as many more types
+and variables as is necessary to get the search to complete within
+a reasonable time.
 
+Typer functions can be implicitly declared using M-language function
+declarations, or can be explicitly coded by the user.  The later option
+is of course more flexible.
+
+[Explicit code generation.]
+
+[Delayed compilation blocks.]
 
 
 

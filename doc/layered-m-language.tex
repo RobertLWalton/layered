@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 29, 2006
+December 5, 2006
  
 \end{center}
 
@@ -246,7 +246,7 @@ November 29, 2006
 
 \section{Introduction}
 
-This describes the Middle Layer Programming Language, or
+This document describes the Middle Layer Programming Language, or
 M-Language.  See the Introduction to the Layered
 Programming Languages for an overview of the related
 Lower Layer L-Language and Higher Layer H-Language.
@@ -256,7 +256,7 @@ Lower Layer L-Language and Higher Layer H-Language.
 \label{MEMORY}
 
 We begin with an overview of M-language memory, and then provide
-details in the following sections.
+details in the following subsections.
 
 M-language memory consists of blocks which are sequences of bits.
 Blocks can be contained in other blocks or can overlap.  Blocks
@@ -287,51 +287,57 @@ memory; {\tt fixed} blocks have a fixed unchanging address; and
 {\tt movable} blocks have an address that can be changed in a restricted
 way (see below).  {\tt Operability} determines the kind of register
 a block is copied into, when a block is placed in a register.  {\tt Status}
-allows a block to be marked as {\tt constant} permitting its to be moved
-around with greater freedom.
+allows a block to be marked as {\tt constant} permitting it to be in
+several places at once.
 
 Both blocks and addresses are classified as `light weight'
-or `heavy weight'.  A heavy weight movable block has a reference
-pointer stored at a fixed location that points at the block and
-that changes when the block moves.  A heavy weight address has
+or `heavy weight'.
+
+A heavy weight block is a movable block that
+has a reference pointer stored at a fixed location which
+points at the block and which changes when the block moves.
+A heavy weight address has
 two parts: the address of a reference pointer, and an offset within
 the heavy weight block that is pointed at by the reference pointer.
-A light weight address is just the address of a fixed, non-movable
-block.
 
-A lightweight block is fixed block allocated to a fixed address,
-or is a subblock of another block.  It can be a subblock of a
+A lightweight block is a free block,
+a fixed block allocated to a fixed address,
+or a subblock of another block.  It can be a subblock of a
 heavy weight block.
 A heavy weight address is used to address a light weight subblock
 of a heavy weight block.
+A light weight address is just the address of a fixed, non-movable
+(light weight) block.
 
 The entire heavy weight block can be
-addressed by a light weight pointer pointing at the reference pointer
+addressed by a light weight address pointing at the reference pointer
 of the block, but an addresssing indirection is required to address
-the block, and such a pointer is called a `middle weight'
-pointer.  A heavy weight block that is never addressed by a heavy
-weight pointer, but only by middle weight pointers, is called a
+the block.  Such an address, which is just a heavy weight address
+without any offset part, is called a `middle weight' address.
+A heavy weight block that is never addressed by a heavy
+weight address, but only by middle weight addresses, is called a
 `middle weight block'.
 
-Reference pointers can also be held in a vector so that
-sometimes a vector index can be used in place of an address of 
-a reference pointer.  Sometimes reference pointers are allocated
+Reference pointers can all be elements of a vector, in which case
+a vector index can be used in place of the address of 
+a reference pointer.  Alternatively reference pointers can be allocated
 as the first thing in their movable heavyweight block, in which
-case they must be addressed and not identified by index.\footnote{
-This means the entire heavy weight block must be allocated as a
-subblock of a fixed block, so the reference pointer will be fixed.
-However, reference pointers can be garbage collected by keeping
+case they must be addressed and not identified by index.  In this last
+case, the entire heavy weight block must be allocated as a
+subblock of a fixed block, so the location of the
+reference pointer will be fixed.
+However, a reference pointer can be garbage collected by keeping
 two copies, the old and the new, with identical contents, and
 then replacing all addresses or indices of the old pointer by
-the address or index of the new pointer.}
+the address or index of the new pointer.
 
-A heavy weight movable block can be moved almost anytime by
+A heavy weight block can be moved almost anytime by
 changing its reference pointer.  The block can be deallocated
 almost anytime by moving it to unimplemented virtual memory.
 
-A heavy weight movable block can be a stack that grows up or down, and
+A heavy weight block can be a stack that grows up or down, and
 subblocks can be allocated to or deallocated from the growing
-boundary of a stack.  Other blocks can also be stacks; they
+boundary of a stack.  Other blocks can also be stacks; but they
 must have memory above or below them reserved for allocation
 of subblocks.
 
@@ -340,7 +346,7 @@ of all blocks up until the last is called the `type' of the value,
 and the blocks in this type are called `descriptors'.  The first descriptor
 contains an encoding that specifies
 the `major type' of the value.  Some major types are
-32-bit signed integers, 64-bit floating point numbers, structure with
+32-bit signed integers, 64-bit floating point numbers, structures with
 a given list of components, etc.  If a second descriptor exists it
 generally encodes subtype information, such as bounds for an integer
 or subscript bounds for an array.
@@ -350,20 +356,25 @@ to a major type descriptor that specifies that a value is a major type
 descriptor.
 
 A variable is a place that holds a value that may be changed.
-However, when changing the value, only its last block may be changed:
-the type may not be.  A variable that has an address in memory will
-be either a movable or fixed block.  A variable that has no particular
-location in memory is free.
+However, when changing a variable's value, only its last block may be changed:
+the type may not be.  So a variable has a fixed type,
+and is a place to store the last block of a value of that type.
+A variable may be fixed, movable, or
+free according to whether the variable has a fixed, movable, or free
+block in which it stores the last block of its current value.
+Regardless of whether a variable is fixed, movable, or free, the
+descriptors of the variable's type are constant free blocks.
 
-At compile time the compiler must know a non-empty initial segment
-of the type of each value.  From this the block attributes of the
-missing part of the value must be computable.  For example, the
-compiler may know the first block of a value, the one that holds
-the major type, and this might specify that the value is a 32-bit integer.
+The compiler may or may not have to know something about the type
+of a variable in order to compile code that uses the variable.
+Type information is used in overloading at compile time, but as
+long as the information is sufficient to resolve overloading and
+implied conversions, compilation will be successful.
+See~\secref{EXPRESSIONS}.
 
 A component of a value V is a value C that can be computed from V
-by a function that takes only V as its single argument.  The components
-of a variable is just a components of the variable's value.
+by a function.  The components
+of a variable are just a components of the variable's value.
 Components of variables can themselves be variable if there is a
 function that changes the value that will be returned for the component.
 
@@ -376,7 +387,7 @@ the variable component by various amounts.
 
 Components and protocols are not describe in detail until
 \secref{EXPRESSIONS}.  The other concepts just introduced are
-defined in detail in the following sections.
+defined in detail in the following subsections.
 
 \section{Expressions}
 \label{EXPRESSIONS}

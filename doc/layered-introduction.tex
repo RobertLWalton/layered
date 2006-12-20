@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 19, 2006
+December 20, 2006
  
 \end{center}
 
@@ -290,10 +290,10 @@ is C/C++ compatible and is driven by the following atom tables:
 
 \begin{center}
 \begin{tabular}{l}
-lexical atom table \\
-identifier atom table \\
-number atom table \\
-quoted atom tables \\
+lexeme atom table \\
+identifier atom tables \\
+number atom tables \\
+string atom tables \\
 comment atom tables \\
 whitespace atom tables \\
 \end{tabular}
@@ -313,7 +313,7 @@ can be `horizontal tab'.
 
 Each atom table has a name, consisting of either an identifier,
 or of a quoted string followed by an identifier.  For example
-the lexical atom table is named `{\tt lexical}', and the
+the lexeme atom table is named `{\tt lexeme}', and the
 atom table for a `{\tt /* */}' style C comment is named
 `{\tt "/*" comment}'.
 
@@ -323,7 +323,8 @@ The general form of an atom table entry is:
 \begin{tabular}{rcl}
 \emkey{atom-table-entry} & ::= & {\em atom} {\em type} [{\em translation}] \\
 \emkey{atom} & ::= & {\em quoted-string} \\
-\emkey{type} & ::= & {\em identifier} \\
+\emkey{type} & ::= & [{\em qualifier}] {\em identifier} \\
+\emkey{qualifier} & ::= & {\em quoted-string} $|$ {\em identifier} \\
 \emkey{translation} & ::= & {\em quoted-string} \\
 \end{tabular}
 \end{center}
@@ -335,8 +336,10 @@ The following are some entries in the standard lexeme atom table:
 "++"    operator
 "+"     operator
 ";"     separator
-"L'"    quoted_string
-"\""    quoted_string
+"L'"    "L'" string
+"\""    quoted string
+"0"     octal number
+".0"    number
 \end{verbatim}\end{indpar}
 
 Because of these entries the input string `{\tt ++a}' will be
@@ -344,7 +347,7 @@ recogonized as consisting of the operator lexeme `{\tt ++}' followed
 by the beginning of an identifier.  `{\tt ++}' is choosen over `{\tt +}'
 because it is longer.  The input string `{\tt ++L'}', however,
 would be recognized as beginning with the operator lexeme `{\tt ++}'
-followed by the beginning of a `{\tt "L'" quoted\_string}'.
+followed by the beginning of a `{\tt "L'" string}'.
 
 The state of the scanner is just the name of the atom table the
 scanner is using.  Given input beginning with `{\tt ++a}', and the above table,
@@ -359,7 +362,7 @@ scanner ejects the accumulated string as a lexeme of the type
 named by the state.
 
 The following are some entries in the
-standard `{\tt "\BACKSLASH"" quoted\_string}' table:
+standard `{\tt quoted string}' table:
 
 \begin{indpar}\begin{verbatim}
 "a"     character
@@ -382,7 +385,7 @@ which ends the string and cannot appear at the beginning of
 a string.  Most characters, like `{\tt a}' and
 `{\tt +}', translate to themselves.
 
-In defining lexical atom table, we say that an atom is
+In defining lexeme atom table, we say that an atom is
 \ikey{accepted}{lexical atom} if it is removed from the input string, and
 \ikey{rejected}{lexical atom} if it is not.  An atom is said to be
 \ikey{accumulated}{lexical atom} if it is accepted and its translation
@@ -405,86 +408,179 @@ atoms and switch to a different state.  Translations are
 recognizable atom at the beginning of the input, a single
 character atom is accepted and output as a
 
-The following are the possible types in the lexical atom table:
+The following are the possible types in the lexeme atom table:
 
 \begin{center}
-\begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
+\begin{tabular}{l@{~~~~~~~~~~}p{3.5in}}
 \ttkey{operator}	& The atom is accepted as an operator lexeme.
 \\[1ex]
 \ttkey{separator}	& The atom is accepted as a separator lexeme.
 \\[1ex]
-\ttkey{identifier}	& The atom is rejected and the state becomes
-			  `{\tt identifier}'.
+[{\em qualifier}]
+\ttkey{identifier}	& The atom is rejected and the state becomes \\
+			& `[{\em qualifier}] {\tt identifier}'.
 \\[1ex]
-\ttkey{number}		& The atom is rejected and the state becomes
-			  `{\tt number}'.
+[{\em qualifier}]
+\ttkey{number}		& The atom is rejected and the state becomes \\
+			& `[{\em qualifier}] {\tt number}'.
 \\[1ex]
-\ttkey{quoted\_string}	& The atom $A$ is rejected and the state becomes
-			  `$A$ {\tt quoted\_string}'.
+[{\em qualifier}]
+\ttkey{string}		& The atom $A$ is rejected and the state becomes \\
+			& `[{\em qualifier}] {\tt string}'.
 \\[1ex]
-\ttkey{comment}		& The atom $A$ is rejected and the state becomes
-			  `$A$ {\tt comment}'.
+[{\em qualifier}]
+\ttkey{comment}		& The atom $A$ is rejected and the state becomes \\
+			& `[{\em qualifier}] {\tt comment}'.
 \\[1ex]
-\ttkey{whitespace}	& The atom is rejected and the state becomes
-			  `{\tt whitespace}'.
+[{\em qualifier}]
+\ttkey{whitespace}	& The atom is rejected and the state becomes \\
+			& `[{\em qualifier}] {\tt whitespace}'.
 \end{tabular}
 \end{center}
 
-\subsection{The Identifier Atom Table}
+\subsection{Identifier Atom Tables}
 
-Then the scanner is in the {\tt identifier} state, it can accumulate
+Then the scanner is in a `[{\em qualifier}] {\tt identifier}' state,
+it can accumulate
 atoms, or it can reject atoms and switch to a different state.
 Translations of accumulated atoms are appended to the current
 accumulation string, which is output as an identifier lexeme
 when the scanner leaves the {\tt identifier} state.
 If there is no recognizable atom at the beginning of the input,
-the scanner switches to the {\tt lexical} state without accepting
+the scanner switches to the {\tt lexeme} state without accepting
 any input.
 
-The following are the possible types in the identifier atom table:
+The following are the possible types in an identifier atom table:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
 \ttkey{character} & Accept and accumulate the atom.
 \\[1ex]
 \ttkey{begin}	  & Accept and accumulate the atom, but only
-		    recognize the atom if it is the first
-		    atom in the {\tt identifier} state.
+		    recognize the atom if it is the first atom.
 \\[1ex]
 \ttkey{continue}  & Accept and accumulate the atom, but only
 		    recognize the atom if it is \underline{not} the first
 		    atom in the {\tt identifier} state.
 \\[1ex]
+\ttkey{end}	  & Accept and accumulate the atom, but only
+		    recognize the atom if it is \underline{not} the first
+		    atom in the {\tt identifier} state.  After
+		    accepting the atom, switch into the {\tt lexeme} state.
+\\[1ex]
 \end{tabular}
 \end{center}
 
-\subsection{The Number Atom Table}
+\subsection{Number Atom Tables}
 
-Then the scanner is in the {\tt number} state, it can accumulate
+Then the scanner is in a `[{\em qualifier}] {\tt number}' state,
+it can accumulate
 atoms, or it can reject atoms and switch to a different state.
 Translations of accumulated atoms are appended to the current
-accumulation string, which is output as an identifier lexeme
-when the scanner leaves the {\tt identifier} state.
+accumulation string, which is output as a number lexeme
+when the scanner leaves the `[{\em qualifier}] {\tt identifier}' state.
 If there is no recognizable atom at the beginning of the input,
-the scanner switches to the {\tt lexical} state without accepting
+the scanner switches to the {\tt lexeme} state without accepting
 any input.
 
-The following are the possible types in the identifier atom table:
+The following are the possible types in a number atom table:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
-\ttkey{character} & Accept and accumulate the atom.
+\ttkey{digit}	& Accept and accumulate the atom, but only recognize
+		  the atom if it is \underline{not} after a
+		  {\tt begin exponent} atom.
 \\[1ex]
-\ttkey{begin}	  & Accept and accumulate the atom, but only
-		    recognize the atom if it is the first
-		    atom in the {\tt identifier} state.
+\ttkey{begin digit}
+		& Accept and accumulate the atom, but only
+		  recognize the atom if it is the first atom.
 \\[1ex]
-\ttkey{continue}  & Accept and accumulate the atom, but only
-		    recognize the atom if it is \underline{not} the first
-		    atom in the {\tt identifier} state.
+\ttkey{point}	& Accept and accumulate the atom, but only recognize
+                  the atom if it is not after either another {\tt point}
+		  or a {\tt begin exponent} atom.
 \\[1ex]
+\ttkey{begin exponent}
+		& Accept and accumulate the atom, but only recognize
+		  the atom if it is \underline{not} the first atom
+		  and is \underline{not} after a
+		  {\tt begin exponent} atom.
+\\[1ex]
+\ttkey{exponent digit}
+		& Accept and accumulate the atom, but only recognize
+		  the atom if it \underline{is} after a
+		  {\tt begin exponent} atom.
+
 \end{tabular}
 \end{center}
+
+Some example number atom tables are:
+
+~~{\tt hex number} atom table (for integers):
+
+\begin{indpar}\begin{verbatim}
+"0x0"   begin digit
+"0x1"   begin digit
+. . . . . . . . . .
+"0xF"   begin digit
+"0"     digit
+"1"     digit
+. . . . . . . . . .
+"F"     digit
+\end{verbatim}\end{indpar}
+
+~~{\tt number} atom table:
+
+\begin{indpar}\begin{verbatim}
+"0"     digit
+"1"     digit
+. . . . . . . . . .
+"9"     digit
+"."     point
+"E0"    begin exponent
+"E1"    begin exponent
+. . . . . . . . . .
+"E+0"   begin exponent
+"E+1"   begin exponent
+. . . . . . . . . .
+"E-0"   begin exponent
+"E-1"   begin exponent
+. . . . . . . . . .
+"e0"    begin exponent
+"e1"    begin exponent
+. . . . . . . . . .
+"e-9"   begin exponent
+"0"     exponent digit
+"1"     exponent digit
+. . . . . . . . . .
+"9"     exponent digit
+\end{verbatim}\end{indpar}
+
+\subsection{String Atom Tables}
+
+A `[{\em qualifier}] {\tt identifier}' state behaves just like
+an {\tt identifier} state, with `{\tt identifier}' replaced
+by `{\tt string}', except that if the input does not begin with
+a recognized atom, the first character of the input is accepted,
+and the state does not change.  Thus {\tt end} atoms must be used
+to end a {\tt string} scan state.
+
+\subsection{Comment Atom Tables}
+
+A `[{\em qualifier}] {\tt comment}' state behaves just like
+an {\tt string} state, with `{\tt string}' replaced
+by `{\tt comment}', except that when the scanner leaves a comment
+state the accumulated string is discarded, and \underline{not}
+made into a lexeme.
+
+\subsection{Whitespace Atom Tables}
+
+A `[{\em qualifier}] {\tt whitespace}' state behaves just like
+an {\tt comment} state, with `{\tt comment}' replaced
+by `{\tt whitespace}', except that when the input does not begin
+with a recognized atom, no input is accepted, and the scanner
+switches to {\tt lexeme} state.  When the scanner leaves a {\tt whitespace}
+state the accumulated string is discarded, and \underline{not}
+made into a lexeme.
 
 \section{Parsing}
 

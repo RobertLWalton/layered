@@ -321,13 +321,18 @@ The general form of an atom table entry is:
 
 \begin{center}
 \begin{tabular}{rcl}
-\emkey{atom-table-entry} & ::= & {\em atom} {\em type} [{\em translation}] \\
-\emkey{atom} & ::= & {\em quoted-string} \\
-\emkey{type} & ::= & [{\em qualifier}] {\em identifier} \\
-\emkey{qualifier} & ::= & {\em quoted-string} $|$ {\em identifier} \\
-\emkey{translation} & ::= & {\em quoted-string} \\
+\emkey{lexical-atom-table-entry}
+	& ::= & {\em lexical-atom} {\em lexical-atom-type} \\
+	& & ~~~~[{\em lexical-atom-translation}] {\tt ;} \\
+\emkey{lexical-atom} & ::= & {\em quoted-string} \\
+\emkey{lexical-atom-type}
+	& ::= & {\em lexical-atom-type-qualifier}$^\star$ {\em identifier} \\
+\emkey{lexical-atom-type-qualifier}
+	& ::= & {\em quoted-string} $|$ {\em identifier} \\
+\emkey{lexical-atom-translation} & ::= & {\em quoted-string} \\
 \end{tabular}
-\end{center}
+\end{center}%
+\label{LEXICAL-ATOM-TABLE-ENTRY}
 
 The following are some entries in the standard lexeme atom table:
 
@@ -336,7 +341,7 @@ The following are some entries in the standard lexeme atom table:
 "++"    operator
 "+"     operator
 ";"     separator
-"L'"    "L'" string
+"L'"    wide string
 "\""    quoted string
 "0"     octal number
 ".0"    number
@@ -499,6 +504,12 @@ The following are the possible types in a number atom table:
                   the atom if it is not after either another {\tt point}
 		  or a {\tt begin exponent} atom.
 \\[1ex]
+\ttkey{suffix}
+		& Accept and accumulate the atom, but only recognize
+		  the atom if it is \underline{not} the first atom.
+		  After accepting the atom, the scanner switches
+		  to {\tt lexeme} state.
+\\[1ex]
 \ttkey{begin exponent}
 		& Accept and accumulate the atom, but only recognize
 		  the atom if it is \underline{not} the first atom
@@ -526,6 +537,10 @@ Some example number atom tables are:
 "1"     digit
 . . . . . . . . . .
 "F"     digit
+"l"     suffix
+"u"     suffix
+. . . . . . . . . .
+"UL"     suffix
 \end{verbatim}\end{indpar}
 
 ~~{\tt number} atom table:
@@ -542,17 +557,15 @@ Some example number atom tables are:
 "E+0"   begin exponent
 "E+1"   begin exponent
 . . . . . . . . . .
-"E-0"   begin exponent
-"E-1"   begin exponent
-. . . . . . . . . .
-"e0"    begin exponent
-"e1"    begin exponent
-. . . . . . . . . .
 "e-9"   begin exponent
 "0"     exponent digit
 "1"     exponent digit
 . . . . . . . . . .
 "9"     exponent digit
+"l"     suffix
+"f"     suffix
+"L"     suffix
+"F"     suffix
 \end{verbatim}\end{indpar}
 
 \subsection{String Atom Tables}
@@ -581,6 +594,108 @@ with a recognized atom, no input is accepted, and the scanner
 switches to {\tt lexeme} state.  When the scanner leaves a {\tt whitespace}
 state the accumulated string is discarded, and \underline{not}
 made into a lexeme.
+
+\subsection{Lexeme Table Definitions}
+
+Lexeme tables for the standard lexical scanner are written in
+the \key{Lexeme Definition Language}.  This language consists
+of statements placed in a separate file and written using
+lexemes defined by the standard tables of the standard lexical
+scanner.  Lexeme Definition Language statements have the following form:
+
+
+\begin{center}
+\begin{tabular}{rrl}
+\emkey{lexical-units-definition} & ::= &
+	{\tt begin} {\tt lexical units;} \\
+	& &  ~~~~{\em lexical-unit-definition}$^\star$ \\
+	& & {\tt end} {\tt lexical units;}
+\\[1ex]
+\emkey{lexical-atom-table-definition} & ::= &
+	{\tt begin} {\em lexical-atom-type} {\tt atom table;} \\
+	& &  ~~~~{\em lexical-atom-table-entry}$^\star$ \\
+	& & {\tt end} {\em lexical-atom-type} {\tt atom table;}
+\\[1ex]
+\emkey{lexical-unit-definition} & ::= &
+	{\tt "}{\em lexical-unit-name}{\tt "} {\tt ::=} \\
+	& & ~~~~{\em lexical-unit} \{ {\tt |} {\em lexical-unit} \}$^\star$
+	    {\tt ;}
+\\[1ex]
+\emkey{lexical-unit-name} & ::= & {\tt <}\{{\em letter}$|${\tt -}\}$^+${\tt >}
+\\[1ex]
+\emkey{lexical-unit} & ::= & {\em quoted-string}
+\\[1ex]
+\emkey{lexical-atom-table-entry}
+	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
+\end{tabular}
+\end{center}
+
+\begin{boxedfigure}
+
+\begin{indpar}\begin{verbatim}
+begin lexical units;
+    "<letter>" ::= "A" | "B" | "C" | "D" | "E" | "F" | "G"
+                 | "H" | "I" | "J" | "K" | "L" | "M"
+                 | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
+                 | "U" | "V" | "W" | "X" | "Y" | "Z"
+                 | "a" | "b" | "c" | "d" | "e" | "f" | "g"
+                 | "h" | "i" | "j" | "k" | "l" | "m"
+                 | "n" | "o" | "p" | "q" | "r" | "s" | "t"
+                 | "u" | "v" | "w" | "x" | "y" | "z" ;
+    "<non-zero-digit>" ::=       "1" | "2" | "3" | "4"
+                        | "5" | "6" | "7" | "8" | "9" ;
+    "<digit>" ::= "0" | "<non-zero-digit>"
+    "<octal-digit>" ::= "0" | "1" | "2" | "3"
+                    | "4" | "5" | "6" | "7";
+    "<hexadecimal-digit>" ::= "A" | "B" | "C" | "D" | "E" | "F"
+                            | "a" | "b" | "c" | "d" | "e" | "f"
+                            | <digit>;
+    "<operator>" ::= "!" | "%" | "^" | "&" | "*"
+                   | "(" | ")" | "-" | "+" | "="
+                   | "{" | "}" | "|" | "~" | "["
+                   | "]" | ";" | ":" | "<" | ">"
+                   | "?" | "," | "/" | "/" | "->"
+                   | "++" | "--" | ".*" | "->*" | ">>"
+                   | "<<" | "<=" | ">=" | "==" | "!="
+                   | "&&" | "||" | "*=" | "/=" | "%="
+                   | "+=" | "-=" | "<<=" | ">>=" | "&="
+                   | "^=" | "|=" | "::";
+    "<whitespace>" ::= " " | "\t" | "\n" | "\r"
+                     | "\f" | "\v";
+end lexical units;
+    
+\end{verbatim}\end{indpar}
+
+\caption{Standard Lexical Units}
+\label{STANDARD-LEXICAL-UNITS}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{indpar}\begin{verbatim}
+begin lexeme atom table;
+    "<operator>"        operator;
+    "<separator>"       separator;
+    "<letter>"          identifier;
+    "0x<digit>"         hex number;
+    "0X<digit>"         hex number;
+    "0<digit>"          oct number;
+    "<non-zero-digit>"  number;
+    "L'"                wide char string;
+    "'"                 char string;
+    "L\""               wide quoted string;
+    "\""                quoted string;
+    "//"                line comment;
+    "/*"                comment;
+    "<whitespace>"      whitespace;
+end lexeme atom table;
+    
+\end{verbatim}\end{indpar}
+
+\caption{Standard Lexeme Atom Table}
+\label{STANDARD-LEXEME-ATOM-TABLE}
+\end{boxedfigure}
+
 
 \section{Parsing}
 

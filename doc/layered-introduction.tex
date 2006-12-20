@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 24, 2006
+December 19, 2006
  
 \end{center}
 
@@ -265,6 +265,228 @@ This introduces the Layered Programming Languages:
 \end{tabular}
 \end{center}
 
+This document gives a brief tutorial introduction for each
+of these languages, and then specifies the common syntax
+shared by all three languages.
+
+\section{Tutorial Introduction to the L-Language}
+
+\section{Tutorial Introduction to the M-Language}
+
+\section{Tutorial Introduction to the H-Language}
+
+\section{Lexical Scanning}
+
+The L-, M-, and H-Languages are each encoded as UTF-8 text
+files (UTF-8 is an encoding of UNICODE that extends ASCII).
+These files are read and converted to a sequence of lexemes
+by a process known as lexical scanning.  A lexeme is a UTF-8
+character string: e.g., `{\tt hello}', `{\tt +}', `{\tt ;}',
+`{\tt 9.200}' are four lexemes.
+
+The lexical scanner is written in the H-Language and can be
+replaced.  This section described the standard scanner which
+is C/C++ compatible and is driven by the following atom tables:
+
+\begin{center}
+\begin{tabular}{l}
+lexical atom table \\
+identifier atom table \\
+number atom table \\
+quoted atom tables \\
+comment atom tables \\
+whitespace atom tables \\
+\end{tabular}
+\end{center}
+
+The (standard) scanner reads left to right, and at each point
+identifies the next atom in the text, where an atom is a string
+of characters explicitly listed in one of the atom tables.
+If there are several possibilities, the longest is choosen.
+To identify atoms, the scanner looks in one of the atom tables;
+which table depends on the state of the scanner.  The table entry
+for an atom contains an atom type, which determines subsequent
+actions of the scanner.  The table entry can also contain a
+translation, which is the string of characters the atom represents,
+so that, for example, the translation of the atom `{\tt \BACKSLASH t}'
+can be `horizontal tab'.
+
+Each atom table has a name, consisting of either an identifier,
+or of a quoted string followed by an identifier.  For example
+the lexical atom table is named `{\tt lexical}', and the
+atom table for a `{\tt /* */}' style C comment is named
+`{\tt "/*" comment}'.
+
+The general form of an atom table entry is:
+
+\begin{center}
+\begin{tabular}{rcl}
+\emkey{atom-table-entry} & ::= & {\em atom} {\em type} [{\em translation}] \\
+\emkey{atom} & ::= & {\em quoted-string} \\
+\emkey{type} & ::= & {\em identifier} \\
+\emkey{translation} & ::= & {\em quoted-string} \\
+\end{tabular}
+\end{center}
+
+The following are some entries in the standard lexeme atom table:
+
+\begin{indpar}\begin{verbatim}
+"a"     identifier
+"++"    operator
+"+"     operator
+";"     separator
+"L'"    quoted_string
+"\""    quoted_string
+\end{verbatim}\end{indpar}
+
+Because of these entries the input string `{\tt ++a}' will be
+recogonized as consisting of the operator lexeme `{\tt ++}' followed
+by the beginning of an identifier.  `{\tt ++}' is choosen over `{\tt +}'
+because it is longer.  The input string `{\tt ++L'}', however,
+would be recognized as beginning with the operator lexeme `{\tt ++}'
+followed by the beginning of a `{\tt "L'" quoted\_string}'.
+
+The state of the scanner is just the name of the atom table the
+scanner is using.  Given input beginning with `{\tt ++a}', and the above table,
+the scanner accepts the atom `{\tt ++}' as a lexeme and removes
+it from the input.  Then given input beginning with `{\tt a}', the
+scanner does not accept any input, but instead just switches state to
+`{\tt identifier}' and continues by scanning identifer atoms.
+In certain states, such as the `{\tt identifier}' state, the
+scanner accumulates all the translations of the atoms accepted in
+that state, and when the scanner switches out of the state, the
+scanner ejects the accumulated string as a lexeme of the type
+named by the state.
+
+The following are some entries in the
+standard `{\tt "\BACKSLASH"" quoted\_string}' table:
+
+\begin{indpar}\begin{verbatim}
+"a"     character
+"\\t"   character    "\t"
+"\\""   character    "\""
+"+"     character
+"\""    begin        ""
+"\""    end          ""
+\end{verbatim}\end{indpar}
+
+Here the input `{\tt \BACKSLASH t}' is translated to a horizontal
+tab, the input `{\tt \BACKSLASH "}' is translated to
+a single double quote,
+and the `{\tt "}' character that is not part of another atom
+translates to the empty string.
+The `{\tt "}' character appears twice in the table, once as
+a begin atom, which can only be recognized
+at the beginning of a quoted string, and once as an end atom,
+which ends the string and cannot appear at the beginning of
+a string.  Most characters, like `{\tt a}' and
+`{\tt +}', translate to themselves.
+
+In defining lexical atom table, we say that an atom is
+\ikey{accepted}{lexical atom} if it is removed from the input string, and
+\ikey{rejected}{lexical atom} if it is not.  An atom is said to be
+\ikey{accumulated}{lexical atom} if it is accepted and its translation
+is added to the lexeme string currently being accumulated.  This string
+is output as a lexeme of the type of the current lexical scanner state
+when the scanner switches out of that state.
+
+This scheme for lexical scanning is intended to give the user
+control over the set of operators, punctuation, characters
+that can appear in identifiers, character representatives in
+quoted strings, etc.  The atom tables are quite verbose, and
+are usually compiled from a more compact representation.
+
+\subsection{The Lexeme Atom Table}
+
+Then the scanner is in the {\tt lexeme} state, it can accept
+atoms and output them as complete lexemes, or it can reject
+atoms and switch to a different state.  Translations are
+\underline{not} accumulated in this state.  If these is no
+recognizable atom at the beginning of the input, a single
+character atom is accepted and output as a
+
+The following are the possible types in the lexical atom table:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
+\ttkey{operator}	& The atom is accepted as an operator lexeme.
+\\[1ex]
+\ttkey{separator}	& The atom is accepted as a separator lexeme.
+\\[1ex]
+\ttkey{identifier}	& The atom is rejected and the state becomes
+			  `{\tt identifier}'.
+\\[1ex]
+\ttkey{number}		& The atom is rejected and the state becomes
+			  `{\tt number}'.
+\\[1ex]
+\ttkey{quoted\_string}	& The atom $A$ is rejected and the state becomes
+			  `$A$ {\tt quoted\_string}'.
+\\[1ex]
+\ttkey{comment}		& The atom $A$ is rejected and the state becomes
+			  `$A$ {\tt comment}'.
+\\[1ex]
+\ttkey{whitespace}	& The atom is rejected and the state becomes
+			  `{\tt whitespace}'.
+\end{tabular}
+\end{center}
+
+\subsection{The Identifier Atom Table}
+
+Then the scanner is in the {\tt identifier} state, it can accumulate
+atoms, or it can reject atoms and switch to a different state.
+Translations of accumulated atoms are appended to the current
+accumulation string, which is output as an identifier lexeme
+when the scanner leaves the {\tt identifier} state.
+If there is no recognizable atom at the beginning of the input,
+the scanner switches to the {\tt lexical} state without accepting
+any input.
+
+The following are the possible types in the identifier atom table:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
+\ttkey{character} & Accept and accumulate the atom.
+\\[1ex]
+\ttkey{begin}	  & Accept and accumulate the atom, but only
+		    recognize the atom if it is the first
+		    atom in the {\tt identifier} state.
+\\[1ex]
+\ttkey{continue}  & Accept and accumulate the atom, but only
+		    recognize the atom if it is \underline{not} the first
+		    atom in the {\tt identifier} state.
+\\[1ex]
+\end{tabular}
+\end{center}
+
+\subsection{The Number Atom Table}
+
+Then the scanner is in the {\tt number} state, it can accumulate
+atoms, or it can reject atoms and switch to a different state.
+Translations of accumulated atoms are appended to the current
+accumulation string, which is output as an identifier lexeme
+when the scanner leaves the {\tt identifier} state.
+If there is no recognizable atom at the beginning of the input,
+the scanner switches to the {\tt lexical} state without accepting
+any input.
+
+The following are the possible types in the identifier atom table:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
+\ttkey{character} & Accept and accumulate the atom.
+\\[1ex]
+\ttkey{begin}	  & Accept and accumulate the atom, but only
+		    recognize the atom if it is the first
+		    atom in the {\tt identifier} state.
+\\[1ex]
+\ttkey{continue}  & Accept and accumulate the atom, but only
+		    recognize the atom if it is \underline{not} the first
+		    atom in the {\tt identifier} state.
+\\[1ex]
+\end{tabular}
+\end{center}
+
+\section{Parsing}
 
 
 

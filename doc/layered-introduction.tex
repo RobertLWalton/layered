@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 20, 2006
+December 21, 2006
  
 \end{center}
 
@@ -500,8 +500,15 @@ The following are the possible types in a number atom table:
 		& Accept and accumulate the atom, but only
 		  recognize the atom if it is the first atom.
 \\[1ex]
+\ttkey{continue digit}
+		& Accept and accumulate the atom, but only
+		  recognize the atom if it is \underline{not}
+		  the first atom and \underline{not} after a
+		  {\tt begin exponent} atom.
+\\[1ex]
 \ttkey{point}	& Accept and accumulate the atom, but only recognize
-                  the atom if it is not after either another {\tt point}
+                  the atom if it is \underline{not}
+		  after either another {\tt point}
 		  or a {\tt begin exponent} atom.
 \\[1ex]
 \ttkey{suffix}
@@ -509,6 +516,14 @@ The following are the possible types in a number atom table:
 		  the atom if it is \underline{not} the first atom.
 		  After accepting the atom, the scanner switches
 		  to {\tt lexeme} state.
+\\[1ex]
+\ttkey{floating suffix}
+		& Like suffix, but \underline{must} be after a point
+		  or begin exponent.
+\\[1ex]
+\ttkey{integer suffix}
+		& Like suffix, but must \underline{not} be after a point
+		  or begin exponent.
 \\[1ex]
 \ttkey{begin exponent}
 		& Accept and accumulate the atom, but only recognize
@@ -540,7 +555,7 @@ Some example number atom tables are:
 "l"     suffix
 "u"     suffix
 . . . . . . . . . .
-"UL"     suffix
+"UL"    suffix
 \end{verbatim}\end{indpar}
 
 ~~{\tt number} atom table:
@@ -645,11 +660,11 @@ begin lexical units;
     "<non-zero-digit>" ::=       "1" | "2" | "3" | "4"
                         | "5" | "6" | "7" | "8" | "9" ;
     "<digit>" ::= "0" | "<non-zero-digit>"
-    "<octal-digit>" ::= "0" | "1" | "2" | "3"
+    "<oct-digit>" ::= "0" | "1" | "2" | "3"
                     | "4" | "5" | "6" | "7";
-    "<hexadecimal-digit>" ::= "A" | "B" | "C" | "D" | "E" | "F"
-                            | "a" | "b" | "c" | "d" | "e" | "f"
-                            | <digit>;
+    "<hex-digit>" ::= "A" | "B" | "C" | "D" | "E" | "F"
+                    | "a" | "b" | "c" | "d" | "e" | "f"
+                    | <digit>;
     "<operator>" ::= "!" | "%" | "^" | "&" | "*"
                    | "(" | ")" | "-" | "+" | "="
                    | "{" | "}" | "|" | "~" | "["
@@ -662,6 +677,10 @@ begin lexical units;
                    | "^=" | "|=" | "::";
     "<whitespace>" ::= " " | "\t" | "\n" | "\r"
                      | "\f" | "\v";
+    "<integer-suffix>" :|= "u" | "U" | "l" | "L"
+                         | "ul" | "Ul" | "uL" | "UL"
+                         | "lu" | "Lu" | "lU" | "LU";
+    "<floating-suffix>" :|= "f" | "F" | "d" | "D";
 end lexical units;
     
 \end{verbatim}\end{indpar}
@@ -677,9 +696,9 @@ begin lexeme atom table;
     "<operator>"        operator;
     "<separator>"       separator;
     "<letter>"          identifier;
-    "0x<digit>"         hex number;
-    "0X<digit>"         hex number;
-    "0<digit>"          oct number;
+    "0x<hex-digit>"     hex number;
+    "0X<hex-digit>"     hex number;
+    "0<oct-digit>"      oct number;
     "<non-zero-digit>"  number;
     "L'"                wide char string;
     "'"                 char string;
@@ -689,11 +708,50 @@ begin lexeme atom table;
     "/*"                comment;
     "<whitespace>"      whitespace;
 end lexeme atom table;
+
+// Note that C/C++ keywords are identifiers.
+//
+begin identifier atom table;
+    "<letter>"  character
+    "_"         character
+    "<digit>"   continue
+end identifier atom table;
     
 \end{verbatim}\end{indpar}
 
 \caption{Standard Lexeme Atom Table}
 \label{STANDARD-LEXEME-ATOM-TABLE}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{indpar}\begin{verbatim}
+begin hex number atom table;
+    "<hex-digit>"       continue digit;
+    "0x<hex-digit>"     begin digit;
+    "0X<hex-digit>"     begin digit;
+    "<integer-suffix>"  integer suffix;
+end hex number atom table;
+ 
+begin oct number atom table;
+    "<oct-digit>"       continue digit;
+    "0"                 begin digit;
+    "<integer-suffix>"  integer suffix;
+end oct number atom table;
+ 
+begin number atom table;
+    "<digit>"           digit;
+    "."			point;
+    "e<sign><digit>"	begin exponent;
+    "E<sign><digit>"	begin exponent;
+    "<digit>"           exponent digit;
+    "<integer-suffix>"  integer suffix;
+    "<floating-suffix>" floating suffix;
+end number atom table;
+\end{verbatim}\end{indpar}
+
+\caption{Standard Number Atom Tables}
+\label{STANDARD-NUMBER-ATOM-TABLES}
 \end{boxedfigure}
 
 

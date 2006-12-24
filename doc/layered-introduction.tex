@@ -473,6 +473,9 @@ The following are the possible types in an identifier atom table:
 		    atom in the {\tt identifier} state.  After
 		    accepting the atom, switch into the {\tt lexeme} state.
 \\[1ex]
+\ttkey{bad}	  & Accept and discard the atom, and announce that the
+		    atom is in error.
+\\[1ex]
 \end{tabular}
 \end{center}
 
@@ -535,6 +538,9 @@ The following are the possible types in a number atom table:
 		& Accept and accumulate the atom, but only recognize
 		  the atom if it \underline{is} after a
 		  {\tt begin exponent} atom.
+\\[1ex]
+\ttkey{bad}	  & Accept and discard the atom, and announce that the
+		    atom is in error.
 
 \end{tabular}
 \end{center}
@@ -677,16 +683,83 @@ begin lexical units;
                    | "^=" | "|=" | "::";
     "<whitespace>" ::= " " | "\t" | "\n" | "\r"
                      | "\f" | "\v";
-    "<integer-suffix>" :|= "u" | "U" | "l" | "L"
-                         | "ul" | "Ul" | "uL" | "UL"
-                         | "lu" | "Lu" | "lU" | "LU";
-    "<floating-suffix>" :|= "f" | "F" | "d" | "D";
 end lexical units;
     
 \end{verbatim}\end{indpar}
 
-\caption{Standard Lexical Units}
-\label{STANDARD-LEXICAL-UNITS}
+\caption{Standard Lexical Units; Part I}
+\label{STANDARD-LEXICAL-UNITS-1}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{indpar}\begin{verbatim}
+begin lexical units;
+    "<control>" ::=          "\001" | "\002" | "\003"
+                  | "\004" | "\005" | "\006" | "\007"
+                  | "\010" 
+                                    | "\016" | "\017"
+                  | "\020" | "\021" | "\022" | "\023"
+                  | "\024" | "\025" | "\026" | "\027"
+                  | "\030" | "\031" | "\032" | "\033"
+                  | "\034" | "\035" | "\036" | "\037"
+                  | "\177";
+
+    "<oct1>" ::= "<oct-digit>";
+    "<oct2>" ::= "<oct-digit><oct1>";
+    "<oct3>" ::= "<oct-digit><oct2>";
+    "<oct4>" ::= "<oct-digit><oct3>";
+    "<oct5>" ::= "<oct-digit><oct4>";
+    "<oct6>" ::= "<oct-digit><oct5>";
+    "<oct-char>" ::= "\\<oct1" | "\\<oct2>"
+                   | "\\0<oct2>" | "\\1<oct2>"
+                   | "\\2<oct2>" | "\\3<oct2>";
+    "<bad-oct-char>" ::= "\\4<oct2>" | "\\5<oct2>"
+                       | "\\6<oct2>" | "\\7<oct2>"
+                       | "\\<oct3>";
+    "<oct-wchar>" ::= "<oct-char>"
+                    | "\\<oct3>" | "\\<oct4>"
+                    | "\\<oct5>" | "\\0<oct5>"
+                    | "\\1<oct5>";
+    "<bad-oct-whar>" ::= | "\\2<oct5>" | "\\3<oct5>"
+                         | "\\4<oct5>" | "\\5<oct5>"
+                         | "\\6<oct5>" | "\\7<oct5>"
+                         | "\\<oct6>";
+end lexical units;
+    
+\end{verbatim}\end{indpar}
+
+\caption{Standard Lexical Units; Part II}
+\label{STANDARD-LEXICAL-UNITS-2}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{indpar}\begin{verbatim}
+begin lexical units;
+    "<hex1>" ::= "<hex-digit>";
+    "<hex2>" ::= "<hex-digit><hex1>";
+    "<hex3>" ::= "<hex-digit><hex2>";
+    "<hex4>" ::= "<hex-digit><hex3>";
+    "<hex5>" ::= "<hex-digit><hex4>";
+    "<hex-char>" ::= "\\x<hex1>" | "\\x<hex2>"
+                   | "\\X<hex1>" | "\\X<hex2>";
+    "<bad-hex-char>" ::= "\\x<hex3>" | "\\X<hex3>";
+    "<hex-wchar>" ::= "<hex-char>"
+                   | "\\x<hex3>" | "\\x<hex4>"
+                   | "\\X<hex3>" | "\\X<hex4>";
+    "<bad-hex-wchar>" ::= "\\x<hex5>" | "\\X<hex5>";
+
+    "<integer-suffix>" ::= "u" | "U" | "l" | "L"
+                         | "ul" | "Ul" | "uL" | "UL"
+                         | "lu" | "Lu" | "lU" | "LU";
+    "<floating-suffix>" ::= "f" | "F" | "d" | "D";
+end lexical units;
+    
+\end{verbatim}\end{indpar}
+
+\caption{Standard Lexical Units; Part III}
+\label{STANDARD-LEXICAL-UNITS-3}
 \end{boxedfigure}
 
 \begin{boxedfigure}
@@ -715,6 +788,7 @@ begin identifier atom table;
     "<letter>"  character
     "_"         character
     "<digit>"   continue
+    "<control>" bad
 end identifier atom table;
     
 \end{verbatim}\end{indpar}
@@ -731,27 +805,62 @@ begin hex number atom table;
     "0x<hex-digit>"     begin digit;
     "0X<hex-digit>"     begin digit;
     "<integer-suffix>"  integer suffix;
+    "<control>"         bad
 end hex number atom table;
  
 begin oct number atom table;
     "<oct-digit>"       continue digit;
     "0"                 begin digit;
     "<integer-suffix>"  integer suffix;
+    "<control>"         bad
 end oct number atom table;
  
 begin number atom table;
     "<digit>"           digit;
-    "."			point;
-    "e<sign><digit>"	begin exponent;
-    "E<sign><digit>"	begin exponent;
+    "."                 point;
+    "e<sign><digit>"    begin exponent;
+    "E<sign><digit>"    begin exponent;
     "<digit>"           exponent digit;
     "<integer-suffix>"  integer suffix;
     "<floating-suffix>" floating suffix;
+    "<control>"         bad
 end number atom table;
 \end{verbatim}\end{indpar}
 
 \caption{Standard Number Atom Tables}
 \label{STANDARD-NUMBER-ATOM-TABLES}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{indpar}\begin{verbatim}
+ 
+begin quoted string atom table;
+    "\""                begin;
+    "\""                end;
+    "."                 point;
+    "\\f"               continue        "\f"
+    "\\v"               continue        "\v"
+    "\\n"               continue        "\n"
+    "\\r"               continue        "\r"
+    "\\t"               continue        "\t"
+    "\\b"               continue        "\b"
+    "\\a"               continue        "\a"
+    "\\?"               continue        "\?"
+    "\\\'"              continue        "\'"
+    "\\\""              continue        "\""
+    "\\\\"              continue        "\\"
+    "<oct-char>"        continue        "<char oct-char>";
+    "<hex-char>"        continue        "<char hex-char>";
+    "<bad-oct-char>"    bad;
+    "<bad-hex-char>"    bad;
+    "\\"                bad;
+    "<control>"         bad;
+end quoted string atom table;
+\end{verbatim}\end{indpar}
+
+\caption{Standard Quoted String Atom Tables}
+\label{STANDARD-QUOTED-STRING-ATOM-TABLES}
 \end{boxedfigure}
 
 

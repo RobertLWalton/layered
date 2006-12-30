@@ -473,7 +473,7 @@ The following are the possible types in an identifier atom table:
 		    atom in the {\tt identifier} state.  After
 		    accepting the atom, switch into the {\tt lexeme} state.
 \\[1ex]
-\ttkey{bad}	  & Accept and discard the atom, and announce that the
+\ttkey{error}	  & Accept and discard the atom, and announce that the
 		    atom is in error.
 \\[1ex]
 \end{tabular}
@@ -539,7 +539,7 @@ The following are the possible types in a number atom table:
 		  the atom if it \underline{is} after a
 		  {\tt begin exponent} atom.
 \\[1ex]
-\ttkey{bad}	  & Accept and discard the atom, and announce that the
+\ttkey{error}	  & Accept and discard the atom, and announce that the
 		    atom is in error.
 
 \end{tabular}
@@ -750,10 +750,21 @@ begin lexical units;
                    | "\\X<hex3>" | "\\X<hex4>";
     "<bad-hex-wchar>" ::= "\\x<hex5>" | "\\X<hex5>";
 
+    "<backslash-char>" ::= "<oct-char>" | "<hex-char>";
+    "<backslash-wchar>" ::= "<oct-wchar>" | "<hex-wchar>";
+    "<bad-backslash-char>" ::= "<bad-oct-char>"
+                             | "<bad-hex-char>";
+    "<bad-backslash-wchar>" ::= "<bad-oct-wchar>"
+                              | "<bad-hex-wchar>";
+
     "<integer-suffix>" ::= "u" | "U" | "l" | "L"
                          | "ul" | "Ul" | "uL" | "UL"
                          | "lu" | "Lu" | "lU" | "LU";
     "<floating-suffix>" ::= "f" | "F" | "d" | "D";
+
+    "<backslash-control>" ::= "\\f" | "\\v" | "\\n" | "\\r"
+                            | "\\t" | "\\b" | "\\a" | "\\?"
+                            | "\\\'" | "\\\"" | "\\\\";
 end lexical units;
     
 \end{verbatim}\end{indpar}
@@ -788,7 +799,7 @@ begin identifier atom table;
     "<letter>"  character
     "_"         character
     "<digit>"   continue
-    "<control>" bad
+    "<control>" error
 end identifier atom table;
     
 \end{verbatim}\end{indpar}
@@ -805,14 +816,14 @@ begin hex number atom table;
     "0x<hex-digit>"     begin digit;
     "0X<hex-digit>"     begin digit;
     "<integer-suffix>"  integer suffix;
-    "<control>"         bad
+    "<control>"         error
 end hex number atom table;
  
 begin oct number atom table;
     "<oct-digit>"       continue digit;
     "0"                 begin digit;
     "<integer-suffix>"  integer suffix;
-    "<control>"         bad
+    "<control>"         error
 end oct number atom table;
  
 begin number atom table;
@@ -823,7 +834,7 @@ begin number atom table;
     "<digit>"           exponent digit;
     "<integer-suffix>"  integer suffix;
     "<floating-suffix>" floating suffix;
-    "<control>"         bad
+    "<control>"         error
 end number atom table;
 \end{verbatim}\end{indpar}
 
@@ -836,27 +847,35 @@ end number atom table;
 \begin{indpar}\begin{verbatim}
  
 begin quoted string atom table;
-    "\""                begin;
-    "\""                end;
-    "."                 point;
-    "\\f"               continue        "\f"
-    "\\v"               continue        "\v"
-    "\\n"               continue        "\n"
-    "\\r"               continue        "\r"
-    "\\t"               continue        "\t"
-    "\\b"               continue        "\b"
-    "\\a"               continue        "\a"
-    "\\?"               continue        "\?"
-    "\\\'"              continue        "\'"
-    "\\\""              continue        "\""
-    "\\\\"              continue        "\\"
-    "<oct-char>"        continue        "<char oct-char>";
-    "<hex-char>"        continue        "<char hex-char>";
-    "<bad-oct-char>"    bad;
-    "<bad-hex-char>"    bad;
-    "\\"                bad;
-    "<control>"         bad;
+    "\""                    begin;
+    "\""                    end;
+    "<backslash-control>"   continue  "<char backslash-control>";
+    "<backslash-char>"      continue  "<char backslash-char>";
+    "<bad-backslash-char>"  error;
+    "<control>"             error;
 end quoted string atom table;
+ 
+begin wide quoted string atom table;
+    "L\""                   begin;
+    "\""                    end;
+    "<backslash-control>"   continue  "<char backslash-control>";
+    "<backslash-wchar>"     continue  "<char backslash-wchar>";
+    "<bad-backslash-wchar>" error;
+    "<control>"             error;
+end quoted string atom table;
+ 
+begin char string atom table;
+    "\'"                begin;
+    "\'"                end;
+    . . . rest just like quoted string table . . .
+end char string atom table;
+ 
+begin wide char string atom table;
+    "L\'"               begin;
+    "\'"                end;
+    . . . rest just like wide quoted string table . . .
+end char string atom table;
+
 \end{verbatim}\end{indpar}
 
 \caption{Standard Quoted String Atom Tables}

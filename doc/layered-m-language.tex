@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 6, 2006
+December 20, 2006
  
 \end{center}
 
@@ -341,36 +341,50 @@ boundary of a stack.  Other blocks can also be stacks; but they
 must have memory above or below them reserved for allocation
 of subblocks.
 
-A value is a sequence of constant free blocks.  The initial subsequence
-of all blocks up until the last is called the `type' of the value,
-and the blocks in this type are called `descriptors'.  The first descriptor
-contains an encoding that specifies
-the `major type' of the value.  Some major types are
-32-bit signed integers, 64-bit floating point numbers, structures with
-a given list of components, etc.  If a second descriptor exists it
-generally encodes subtype information, such as bounds for an integer
-or subscript bounds for an array.
+A value is a sequence of blocks.  The last block is
+the proper value.  The initial subsequence of all blocks except the last
+is the `type' of the value, and is itself a value.
+The type descibes the format of the value proper, and is used
+to select function code when the value is given as an argument
+to a function.  Some example types are 
+`32-bit signed integer' and `64-bit floating point number'.
+The type must specify the attributes of the value proper; e.g.,
+the block size of the value proper.
 
-The value that is an empty sequence is a special case that is equivalent
-to a major type descriptor that specifies that a value is a major type
-descriptor.
+As a special case, an empty sequence is taken as equal to
+a particular value that is a type which specifies that the
+value proper is a type and is constant.
 
-A variable is a place that holds a value that may be changed.
-However, when changing a variable's value, only its last block may be changed:
-the type may not be.  So a variable has a fixed type,
-and is a place to store the last block of a value of that type.
-A variable may be fixed, movable, or
-free according to whether the variable has a fixed, movable, or free
-block in which it stores the last block of its current value.
-Regardless of whether a variable is fixed, movable, or free, the
-descriptors of the variable's type are constant free blocks.
+A type defines a view of a value proper.  A value proper can
+have several different views, i.e., can be the value proper
+of several different values with different types.
 
-The compiler may or may not have to know something about the type
-of a variable in order to compile code that uses the variable.
-Type information is used in overloading at compile time, but as
-long as the information is sufficient to resolve overloading and
-implied conversions, compilation will be successful.
-See~\secref{EXPRESSIONS}.
+Although a type is a value, it is constrained in many ways.
+First, it must exist both at compile time and at run time.
+Therefore itt must be possible to copy a type to an external medium
+and read it back into memory.
+Second, types must be suitable for type-inference, a process in
+which parts of the type are discovered and filled in, so
+types must be able to exhibit partial information as well
+as complete information.  Type inference is a search algorithm
+that adds information to types, and may backup up the state
+of a type to some previous state.  Asside from that actions
+of type inference, types may not change their value.
+
+A variable is a place in memory that holds a value.  A constant is just
+a variable whose value may not be changed.
+
+Normally at run time a variable is a sequence of just two blocks,
+the first being a constant type, and the second the value proper,
+which may or may not be constant, as is indicated by the type.
+Normally during type inference a variable is a sequence of three
+blocks, the first begin a constant type that indicates that the
+second is a type that is not constant and can be changed, and the
+third block being the value proper.  If the type (second block)
+indicates, the third block can be constant.  If the type (second block)
+does not have enough information, the value proper may not exist
+(e.g., if the type does not have enough information to determine the
+block size of the value proper).
 
 A component of a value V is a value C that can be computed from V
 by a function.  The components

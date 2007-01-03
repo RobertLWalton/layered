@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 6, 2006
+January 3, 2006
  
 \end{center}
 
@@ -260,13 +260,15 @@ details in the following subsections.
 
 Numbers are a basic element of L-language memory.
 Numbers are sequences of bits, and each number is one of
-four types:
+six types:
 
 \begin{center}
 unsigned integer \\
 signed integer \\
 floating point number \\
-address
+light weight address \\
+middle weight address \\
+heavy weight address \\
 \end{center}
 
 The length of a number is the number of its bits.  Numbers can have
@@ -308,6 +310,41 @@ two pages map to the same bits of RAM.
 
 The only blocks in L-language are frames, code blocks, and pages.
 Numbers may be stored in registers, frames, code blocks, or pages.
+
+There are three varieties of address.  A light weight address is
+just an address of a memory byte: i.e., a bit address that is
+an exact multiple of 8.
+
+A middle weight address is an address that
+is (usually) indirected once when used.  That is, the middle weight
+address is the byte address of memory that holds a light weight
+address.  This light weight address is called a reference pointer.
+When a middle weight address is loaded into a register,
+the reference pointer is often cached in a hardware register, so
+changing the reference pointer cannot be done except by special
+instructions that respect this cache.
+
+A heavy weight address is a pair consisting of a middle weight
+address and an offset.  When used the reference pointer designated
+by the middle weight address is added to the offset.  Again there
+are cache issues which require that updates to the reference pointer
+be made by special instructions.
+
+Light and middle weight addresses are 64-bit numbers, but some
+number of high order bits are all 0's or all 1's, depending upon
+the implementation.  A reasonable assumption is that the high
+order 17 bits are all equal, so only 48-bits of actual address
+are used.  This assumption can be used to pack an address and other
+data into a 64-bit word.  For example, an address can be inserted
+in a 64-bit floating point NaN.  The Layered Languages do
+\underline{not} depend upon this assumption, but applications may.
+
+Heavy weight addresses are 128-bits and consist of a 64-bit
+middle weight address and a 64-bit signed offset.  Implementations
+may have either byte or bit offsets.  For a byte offset the
+number stored is the bit offset divided by 8, and only bit offsets
+that are exact multiples of 8 may be stored.
+
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

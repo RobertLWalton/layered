@@ -269,6 +269,7 @@ floating point number \\
 light weight address \\
 middle weight address \\
 heavy weight address \\
+vector address \\
 \end{center}
 
 The length of a number is the number of its bits.  Numbers can have
@@ -332,18 +333,38 @@ be made by special instructions.
 
 Light and middle weight addresses are 64-bit numbers, but some
 number of high order bits are all 0's or all 1's, depending upon
-the implementation.  A reasonable assumption is that the high
-order 17 bits are all equal, so only 48-bits of actual address
-are used.  This assumption can be used to pack an address and other
-data into a 64-bit word.  For example, an address can be inserted
-in a 64-bit floating point NaN.  The Layered Languages do
-\underline{not} depend upon this assumption, but applications may.
+the implementation.  A reasonable assumption is that only the low
+order 48-bits of address are actually used.  This assumption can
+be used to put other information in the high order 16 bits
+of a 64-bit number containing an address.  For example, an address
+can be embedded in a 64-bit floating point NaN.  The Layered Languages do
+\underline{not} depend upon this assumption, but do provide instructions
+to zero or sign expand any number of low order bits in a 64-bit integer.
+However, reference pointers may \underline{not} put extra information in their
+high order bits.
 
 Heavy weight addresses are 128-bits and consist of a 64-bit
-middle weight address and a 64-bit signed offset.  Implementations
-may have either byte or bit offsets.  For a byte offset the
-number stored is the bit offset divided by 8, and only bit offsets
-that are exact multiples of 8 may be stored.
+middle weight address and a 64-bit signed byte offset.
+They represent the address made by adding the reference pointer pointed
+at by the middle weight address to the offset.  The offset is in bytes;
+only bit addresses that are an exact multiple of 8 bits may be represented.
+
+
+TBD:
+
+A vector address is a light weight address of a block of memory called
+a vector pointer.  A vector address is used to read or write a
+number.  The vector address may point to a number at an arbitrary
+bit address, and the type and length of the number are encoded in the
+vector pointer.
+
+TBD\footnote{One would like to support bit addresses as well as byte addresses,
+or at least bit offsets, but some modern computer architectures are not
+good at this, so the Layered Languages do not support it.
+Similarly it would be nice if the type
+and length of numbers could be encoded as a tag in a 64-bit address,
+so the same code could handle arrays with different number formats, but
+current architectures do not support this.}
 
 
 \bibliographystyle{plain}

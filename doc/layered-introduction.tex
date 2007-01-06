@@ -556,18 +556,19 @@ The following are the possible types in a number atom table:
 		  after either another {\tt point}
 		  or a {\tt begin exponent} atom.
 \\[1ex]
-\ttkey{suffix}
+\ttkey{end}
 		& Accumulate the atom, but only recognize
 		  the atom if it is \underline{not} the first atom.
 		  After accepting the atom, the scanner switches
 		  to {\tt lexeme} state.
 \\[1ex]
-\ttkey{floating suffix}
-		& Like suffix, but \underline{must} be after a {\tt point}
+\ttkey{floating end}
+		& Like {\tt end}, but \underline{must} be after a {\tt point}
 		  or {\tt begin exponent}.
 \\[1ex]
-\ttkey{integer suffix}
-		& Like suffix, but must \underline{not} be after a {\tt point}
+\ttkey{integer end}
+		& Like {\tt end},
+		  but must \underline{not} be after a {\tt point}
 		  or {\tt begin exponent}.
 \\[1ex]
 \ttkey{begin exponent}
@@ -600,10 +601,10 @@ Some example number atom tables are:
 "1"     digit
 . . . . . . . . . .
 "F"     digit
-"l"     suffix
-"u"     suffix
+"l"     end
+"u"     end
 . . . . . . . . . .
-"UL"    suffix
+"UL"    end
 \end{verbatim}\end{indpar}
 
 ~~{\tt number} atom table:
@@ -625,10 +626,10 @@ Some example number atom tables are:
 "1"     exponent digit
 . . . . . . . . . .
 "9"     exponent digit
-"l"     suffix
-"f"     suffix
-"L"     suffix
-"F"     suffix
+"l"     integer end
+"f"     floating end
+"L"     integer end
+"F"     floating end
 \end{verbatim}\end{indpar}
 
 \subsection{String Atom Tables}
@@ -672,7 +673,11 @@ Lexeme tables for the standard lexical scanner are written in
 the \key{Lexeme Definition Language}.  This language consists
 of statements placed in a separate file and written using
 lexemes defined by the standard tables of the standard lexical
-scanner.  Lexeme Definition Language statements have the following form:
+scanner.
+The standard lexical atom tables are defined by the file given
+in Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES}.
+
+Lexeme Definition Language statements have the following form:
 
 
 \begin{center}
@@ -701,6 +706,79 @@ scanner.  Lexeme Definition Language statements have the following form:
 \end{tabular}
 \end{center}
 
+A \emkey{lexical-unit} is a set of strings.  Definitions of
+lexical units may \underline{not} be recursive.
+
+{\em Lexical-units} appear inside quoted strings.  A
+{\em lexical-unit-name} appearing after a {\tt ::=} in a
+{\em lexical-unit-definition}, or appearing anywhere in a
+{\em lexical-atom-table-entry}, is
+\ikey{replaceable}{lexical-unit-name@{\em lexical-unit-name}}.
+The replacements for such a {\em lexical-unit-name} are the
+strings in the set of the named {\em lexical-unit}.
+
+Each entry or definition containing replacable {\em lexical-unit-name}
+is expanded to a separate copy for each replacement of the name.
+If a single name appears twice, it is replaced by the same string in
+each occurrence.  If two names or more different names appear,
+every combination of replacements generates another copy of the
+entry or definition.
+
+Thus
+
+\begin{indpar}\begin{verbatim}
+begin lexical units;
+    <digit> ::= "0" | "1";
+    <sign>  ::= "+" | "-";
+
+    <doubled-digit> ::= "<digit><digit>";
+
+    <one-digit>  ::= "<digit>";
+    <two-digits> ::= "<one-digit><digit>";
+end lexical units;
+\end{verbatim}\end{indpar}
+
+is equivalent to
+
+\begin{indpar}\begin{verbatim}
+begin lexical units;
+    <digit> ::= "0" | "1";
+
+    <doubled-digit> ::= "00" | "11";
+
+    <one-digit>  ::= "0" | "1";
+    <two-digits> ::= "00" | "01" | "10" | "11";
+end lexical units;
+\end{verbatim}\end{indpar}
+
+and
+
+\begin{indpar}\begin{verbatim}
+begin lexeme atom table;
+    "<digit><digit>"  double number "D<digit>";
+    "<digit>"         number;
+end lexeme atom table;
+\end{verbatim}\end{indpar}
+
+is equivalent to
+
+\begin{indpar}\begin{verbatim}
+begin lexeme atom table;
+    "00"              double number "D0";
+    "11"              double number "D1";
+    "0"               number;
+    "1"               number;
+end lexeme atom table;
+\end{verbatim}\end{indpar}
+
+Lexical atoms and their translations in the lexical atom tables
+are all required to be complete legal UTF-8 character strings.
+As a consequence, all recognized atoms will be such, and it will
+not matter whether the lexical analyzer actually uses 8-bit bytes
+or 16-bit UNICODE characters in its implementation.
+
+
+
 \section{Parsing}
 
 \newpage
@@ -708,6 +786,7 @@ scanner.  Lexeme Definition Language statements have the following form:
 \appendix
 
 \section{Standard Lexical Atom Tables}
+\label{STANDARD-LEXICAL-ATOM-TABLES}
 
 \begin{indpar}\begin{verbatim}
 begin lexical units;
@@ -721,12 +800,12 @@ begin lexical units;
                  | "u" | "v" | "w" | "x" | "y" | "z" ;
     "<non-zero-digit>" ::=       "1" | "2" | "3" | "4"
                         | "5" | "6" | "7" | "8" | "9" ;
-    "<digit>" ::= "0" | "<non-zero-digit>"
+    "<digit>" ::= "0" | "<non-zero-digit>" ;
     "<oct-digit>" ::= "0" | "1" | "2" | "3"
-                    | "4" | "5" | "6" | "7";
+                    | "4" | "5" | "6" | "7" ;
     "<hex-digit>" ::= "A" | "B" | "C" | "D" | "E" | "F"
                     | "a" | "b" | "c" | "d" | "e" | "f"
-                    | <digit>;
+                    | "<digit>" ;
     "<operator>" ::= "!" | "%" | "^" | "&" | "*"
                    | "(" | ")" | "-" | "+" | "="
                    | "{" | "}" | "|" | "~" | "["
@@ -736,9 +815,9 @@ begin lexical units;
                    | "<<" | "<=" | ">=" | "==" | "!="
                    | "&&" | "||" | "*=" | "/=" | "%="
                    | "+=" | "-=" | "<<=" | ">>=" | "&="
-                   | "^=" | "|=" | "::";
+                   | "^=" | "|=" | "::" ;
     "<whitespace>" ::= " " | "\t" | "\n" | "\r"
-                     | "\f" | "\v";
+                     | "\f" | "\v" ;
 end lexical units;
     
 \end{verbatim}\end{indpar}
@@ -755,7 +834,7 @@ begin lexical units;
                   | "\024" | "\025" | "\026" | "\027"
                   | "\030" | "\031" | "\032" | "\033"
                   | "\034" | "\035" | "\036" | "\037"
-                  | "\177";
+                  | "\177" ;
 
     "<oct1>" ::= "<oct-digit>";
     "<oct2>" ::= "<oct-digit><oct1>";
@@ -828,22 +907,23 @@ begin lexeme atom table;
     "0X<hex-digit>"     hex number;
     "0<oct-digit>"      oct number;
     "<non-zero-digit>"  number;
+    ".<digit>"  	number;
     "L'"                wide char string;
     "'"                 char string;
     "L\""               wide quoted string;
     "\""                quoted string;
-    "//"                line comment;
-    "/*"                comment;
+    "//"                "//" comment;
+    "/*"                "/*" comment;
     "<whitespace>"      whitespace;
 end lexeme atom table;
 
 // Note that C/C++ keywords are identifiers.
 //
 begin identifier atom table;
-    "<letter>"  character
-    "_"         character
-    "<digit>"   continue
-    "<control>" error
+    "<letter>"  accept;
+    "_"         accept;
+    "<digit>"   continue;
+    "<control>" error;
 end identifier atom table;
     
 \end{verbatim}\end{indpar}
@@ -855,14 +935,14 @@ begin hex number atom table;
     "<hex-digit>"       continue digit;
     "0x<hex-digit>"     begin digit;
     "0X<hex-digit>"     begin digit;
-    "<integer-suffix>"  integer suffix;
+    "<integer-suffix>"  end;
     "<control>"         error
 end hex number atom table;
  
 begin oct number atom table;
     "<oct-digit>"       continue digit;
     "0"                 begin digit;
-    "<integer-suffix>"  integer suffix;
+    "<integer-suffix>"  end;
     "<control>"         error
 end oct number atom table;
  
@@ -872,8 +952,8 @@ begin number atom table;
     "e<sign><digit>"    begin exponent;
     "E<sign><digit>"    begin exponent;
     "<digit>"           exponent digit;
-    "<integer-suffix>"  integer suffix;
-    "<floating-suffix>" floating suffix;
+    "<integer-suffix>"  integer end;
+    "<floating-suffix>" floating end;
     "<control>"         error
 end number atom table;
 \end{verbatim}\end{indpar}
@@ -914,7 +994,30 @@ end char string atom table;
 
 \end{verbatim}\end{indpar}
 
+\newpage
 
+\begin{indpar}\begin{verbatim}
+ 
+begin whitespace atom table;
+    " "                     accept;
+    "\t"                    accept;
+    "\n"                    accept;
+    "\f"                    accept;
+    "\v"                    accept;
+    "<control>"             error;
+end whitespace atom table;
+ 
+begin "//" comment atom table;
+    "//"                    begin;
+    "\n"                    end;
+end "//" comment atom table;
+ 
+begin "/*" comment atom table;
+    "/*"                    begin;
+    "*/"                    end;
+end "*/" comment atom table;
+
+\end{verbatim}\end{indpar}
 
 
 \bibliographystyle{plain}

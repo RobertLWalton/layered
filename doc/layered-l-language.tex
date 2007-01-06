@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 3, 2006
+January 6, 2006
  
 \end{center}
 
@@ -269,7 +269,6 @@ floating point number \\
 light weight address \\
 middle weight address \\
 heavy weight address \\
-vector address \\
 \end{center}
 
 The length of a number is the number of its bits.  Numbers can have
@@ -349,23 +348,14 @@ They represent the address made by adding the reference pointer pointed
 at by the middle weight address to the offset.  The offset is in bytes;
 only bit addresses that are an exact multiple of 8 bits may be represented.
 
+In addition to holding numbers, a virtual register can hold a specialized
+data structure called a memory pipe.  These complex structures permit pipelined
+assess to memory, and are described in their own section
+(\secref{MEMORY-PIPES}).
 
-TBD:
 
-A vector address is a light weight address of a block of memory called
-a vector pointer.  A vector address is used to read or write a
-number.  The vector address may point to a number at an arbitrary
-bit address, and the type and length of the number are encoded in the
-vector pointer.
-
-TBD\footnote{One would like to support bit addresses as well as byte addresses,
-or at least bit offsets, but some modern computer architectures are not
-good at this, so the Layered Languages do not support it.
-Similarly it would be nice if the type
-and length of numbers could be encoded as a tag in a 64-bit address,
-so the same code could handle arrays with different number formats, but
-current architectures do not support this.}
-
+\section{Memory Pipes}
+\label{MEMORY-PIPES}
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

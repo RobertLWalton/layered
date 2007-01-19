@@ -656,7 +656,8 @@ by `{\tt string}', except that if the remaining input does not begin with
 a recognized atom, the first UTF-8 character sequence of the remaining input
 is accumulated, and the state does not change.
 If the first character of the remaining input is not part of a legal
-UTF-8 sequence, that character is accumulated and the state does not change.
+UTF-8 sequence, that character is discarded and announced as an error,
+and the state does not change.
 Thus {\tt end} atoms must be used
 to end a {\tt string} scan state.
 
@@ -689,22 +690,23 @@ state the accumulated string, which is discarded, is announced as an error.
 \subsection{Lexeme Table Definitions}
 
 Lexeme tables for the standard lexical scanner are written in
-the \key{Lexeme Definition Language}.  This language consists
-of statements placed in a separate file and written using
-lexemes defined by the standard tables of the standard lexical
-scanner.
-The standard lexical atom tables are defined by the file given
-in Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES}.
+the \key{Lexeme Definition Language}.  This language defines
+a {\em lexical-definition-block} that appears in a program
+block and changes the definition of the lexemes in the program
+block that follow it.
 
-Lexeme Definition Language statements have the following form:
-
+Lexeme Definition Language blocks have the following form:
 
 \begin{center}
 \begin{tabular}{rrl}
-\emkey{lexical-units-definition} & ::= &
-	{\tt begin} {\tt lexical units;} \\
-	& &  ~~~~{\em lexical-unit-definition}$^\star$ \\
-	& & {\tt end} {\tt lexical units;}
+\emkey{lexical-definition-block} & ::= &
+	{\tt begin} {\tt lexical definition;} \\
+	& &  ~~~~{\em lexical-definition-statement}$^\star$ \\
+	& & {\tt end} {\tt lexical definition;}
+\\[1ex]
+\emkey{lexical-definition-statement}
+	& ::= & {\em lexical-unit-definition} \\
+	& $|$ & {\em lexical-atom-table-definition}
 \\[1ex]
 \emkey{lexical-atom-table-definition} & ::= &
 	{\tt begin} {\em lexical-atom-type} {\tt atom table;} \\
@@ -739,7 +741,7 @@ strings in the set of the named {\em lexical-unit}.
 Each entry or definition containing replacable {\em lexical-unit-name}
 is expanded to a separate copy for each replacement of the name.
 If a single name appears twice, it is replaced by the same string in
-each occurrence.  If two names or more different names appear,
+each occurrence.  If two or more different names appear,
 every combination of replacements generates another copy of the
 entry or definition.
 
@@ -796,7 +798,23 @@ As a consequence, all recognized atoms will be such, and it will
 not matter whether the lexical analyzer actually uses 8-bit bytes
 or 16-bit UNICODE characters in its implementation.
 
+A {\em lexical-definition-block} does not change lexical tables
+until after it itself is completely scanned.  Then it adds to the current
+tables any {\em lexical-atom-entries} it has defined.  These may replace
+previous entries with the same atom.  Similarly {\em lexical-unit-names}
+may be given new definitions.
+The identifier `\ttkey{remove}' may be used as a {\em lexical-atom-type}
+in a new {\em lexical-atom-entry} to cause an atom to be removed from
+a table.  Similary a {\em lexical-unit-name} definition may be removed
+by making it equal to {\tt "<remove>"}.
 
+A {\em lexical-definition-block} changes
+the processing of all lexemes scanned after it, until the end of the
+program block containing the {\em lexical-definition-block}.  The
+initial definition of lexical tables for any program is provided
+by a {\em lexical-definition-block} in a separate file; and this
+in turn is scanned using the standard lexical atom tables defined
+in Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES}.
 
 \section{Parsing}
 

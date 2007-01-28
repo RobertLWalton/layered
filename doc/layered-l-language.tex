@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 6, 2006
+January 27, 2006
  
 \end{center}
 
@@ -248,7 +248,7 @@ January 6, 2006
 
 This document describes the Lower Layer Programming Language, or
 L-Language.  See the Introduction to the Layered
-Programming Languages for an overview of the related
+Programming Languages for basic syntax and for an overview of the related
 Middle Layer M-Language and Higher Layer H-Language.
 
 
@@ -273,7 +273,7 @@ heavy weight address \\
 
 The length of a number is the number of its bits.  Numbers can have
 different lengths: for example, unsigned integers can have any
-length between 1 and 128.
+length between 1 and 128 bits.
 
 Numbers can be stored in registers or in random access memory (RAM).
 
@@ -284,7 +284,9 @@ RAM is a set of address/bit pairs.  Each bit of RAM has an address
 which is an integer.  It is possible for two addresses to refer to the
 same bit, or for an address to refer to no bit.  An address that
 refers to a bit is said to be allocated, and an address that refers
-to no bit is said to be deallocated.
+to no bit is said to be deallocated.  A bit that has two distinct
+addresses is said to be shared, and a bit with just one address is
+unshared.
 
 A block of RAM is a sequence consecutive increasing addresses.
 The address of the block is the address of its first bit, and the length
@@ -293,20 +295,24 @@ common factor of the address and the length of the block.
 
 A block is byte aligned if 8 bits is an alignment of the block.
 
-A block is allocated if all of its bits are allocated, and is deallocated
-if all of its bits are deallocated.
+A block is allocated if the addresses of all its bits are allocated,
+and is deallocated if the addresses of all of its bits are deallocated.
+A block is unshared if all its bits are unshared.  A block is shared if
+there is a set of several blocks (sequences of consecutive addresses)
+such that the $n$'th bit of each block in the set is the same.
 
-Registers are virtual; some are implemented by hardware registers,
-and some are implemented by a frame, which is an allocated block of RAM
-associated with the currently executing code.  Executable code is
-also organized into code blocks.
-
-The address space is divided into pages, which have a fixed length
+The address space is divided into pages, which are blocks that
+have an implementation determined length
 that is a power of two: e.g., 2048 byte = 16386 bit pages.  There
 are L-Language operations which call the operating system to
 map an address page to physical memory, thus allocating a page
 of RAM.  There are operations to deallocate a page, and to make
 two pages map to the same bits of RAM.
+
+Registers are virtual; some are implemented by hardware registers,
+and some are implemented by a frame, which is an allocated block of RAM
+associated with the currently executing code.  Executable code is
+also organized into code blocks.
 
 The only blocks in L-language are frames, code blocks, and pages.
 Numbers may be stored in registers, frames, code blocks, or pages.
@@ -317,9 +323,9 @@ an exact multiple of 8.
 
 A middle weight address is an address that
 is (usually) indirected once when used.  That is, the middle weight
-address is the byte address of memory that holds a light weight
+address is the byte address of a memory block that holds a light weight
 address.  This light weight address is called a reference pointer.
-When a middle weight address is loaded into a register,
+When a middle weight address is loaded into a virtual register,
 the reference pointer is often cached in a hardware register, so
 changing the reference pointer cannot be done except by special
 instructions that respect this cache.
@@ -349,13 +355,14 @@ at by the middle weight address to the offset.  The offset is in bytes;
 only bit addresses that are an exact multiple of 8 bits may be represented.
 
 In addition to holding numbers, a virtual register can hold a specialized
-data structure called a memory pipe.  These complex structures permit pipelined
+data structure called a memory channel.
+These complex structures permit pipelined
 assess to memory, and are described in their own section
-(\secref{MEMORY-PIPES}).
+(\secref{MEMORY-CHANNELS}).
 
 
-\section{Memory Pipes}
-\label{MEMORY-PIPES}
+\section{Memory Channels}
+\label{MEMORY-CHANNELS}
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

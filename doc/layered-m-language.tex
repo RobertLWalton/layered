@@ -261,44 +261,45 @@ We begin with an overview of M-language memory, and then provide
 details in the following subsections.
 
 \subsection{Blocks}
+\label{BLOCKS}
 
 An M-language memory \key{block} is a sequence of bits.
 Blocks can be contained in other blocks or can overlap.
 
-A block contains a subblock called the \ikey{root}{of block}
-of the block.  For many blocks the root and the block are the same.
-For blocks that can grow, the root is the part of the block that
+A block contains a subblock called the \ikey{base}{of block}
+of the block.  For many blocks the base and the block are the same.
+For blocks that can grow, the base is the part of the block that
 is always there, and which contains information telling how much
 the block has grown.
 
 When a block is stored in memory, it has a \ikey{bit address}{of block}.
 The bit address plus some constant offset is the bit address of the first
-bit of the root of the block.
+bit of the base of the block.
 
 Blocks have the following attributes:
 
 \begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
 \ttikey{size}{of block}
-    & Number of bits in the root of the block.
+    & Number of bits in the base of the block.
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
 \ttikey{growth}{of block}
     & \ttikey{up}{block growth} and/or \ttikey{down}{block growth} or neither;
-      Both {\tt up} and {\tt down} mean the block may be larger than its root.
+      Both {\tt up} and {\tt down} mean the block may be larger than its base.
       {\tt up} means there may be extra bits after the
-      root, and {\tt down} means there may be extra bits before the root.
+      base, and {\tt down} means there may be extra bits before the base.
       If the {\tt growth} of a block is neither {\tt up} nor {\tt down},
-      the block is the same as its root.
+      the block is the same as its base.
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
 \ttikey{offset}{of block}
     & Offset in bits of the bit address of the first bit of the block
-      root from the bit address of the block, when the block is stored
+      base from the bit address of the block, when the block is stored
       in RAM memory.
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
 \ttikey{alignment}{of block}
-    & Exact divisor of bit address of the first bit of the root of
+    & Exact divisor of bit address of the first bit of the base of
       the block, when the block is stored in RAM memory.
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
@@ -309,7 +310,7 @@ Blocks have the following attributes:
       A {\tt fixed} block is stored in RAM memory at a fixed address.
       A {\tt movable} block is stored in RAM memory at an address that
       may be either fixed or may be changed according to the
-      protocol defined in \secref{TBD}.
+      rules for managing heavy weight addresses below (\secref{ADDRESSES}).
       A {\tt free} block may be stored in register or RAM memory
       and moved at any time.
 \end{tabular}\end{indpar}
@@ -331,61 +332,58 @@ Blocks have the following attributes:
 \end{tabular}\end{indpar}
 
 This is just enough information to allow the M-language implementation
-to allocate blocks to memory and move blocks in memory.  A {\tt growth}
-of `{\tt up}' means the {\tt size} is the minimum size and the actual size
-is larger with the block extending above its address.  Similarly for
-`{\tt down}' with the block extending below its address.  The {\tt alignment}
-and {\tt offset} only affects blocks when they are stored in memory.
-{\tt Fixed} blocks must have a fixed unchanging address;
-{\tt movable} blocks must have an address but that can either be fixed
-or can be changeable in a restricted way (see heavy weight addresses below);
-{\tt free} blocks need not have any fixed address
-and can be moved around in memory.
-{\tt Operability} determines the kind of register
-a block is copied into, when a block is placed in a register.  {\tt Status}
-allows a block to be marked as {\tt constant} permitting it to be in
-several places at once.
+to allocate blocks to memory and move blocks in memory.
+
+\subsection{Addresses}
+\label{ADDRESSES}
 
 Both blocks and addresses are classified as `light weight'
 or `heavy weight'.
 
-A heavy weight block is a movable block that
+A \key{heavy weight block} is a movable block that
 has a reference pointer stored at a fixed location which
 points at the block and which changes when the block moves.
-A heavy weight address has
+
+A \key{heavy weight address} has
 two parts: the address of a reference pointer, and an offset within
 the heavy weight block that is pointed at by the reference pointer.
 
-A lightweight block is a free block,
+A \key{light weight block} is a free block,
 a fixed block allocated to a fixed address,
 or a subblock of another block.  It can be a subblock of a
 heavy weight block.
 A heavy weight address is used to address a light weight subblock
 of a heavy weight block.
-A light weight address is just the address of a fixed, non-movable
+
+A \key{light weight address} is just the address of a fixed, non-movable
 (light weight) block.
 
 The entire heavy weight block can be
 addressed by a light weight address pointing at the reference pointer
 of the block, but an addressing indirection is required to address
 the block.  Such an address, which is just a heavy weight address
-without any offset part, is called a `middle weight' address.
+without any offset part, is called a \key{middle weight address}.
 A heavy weight block that is never addressed by a heavy
 weight address, but only by middle weight addresses, is called a
-`middle weight block'.
+\key{middle weight block}.
 
-Reference pointers can all be elements of a vector, in which case
-a vector index can be used in place of the address of 
-a reference pointer.  Alternatively reference pointers can be allocated
-as the first thing in their movable heavyweight block, in which
-case they must be addressed and not identified by index.  In this last
-case, the entire heavy weight block must be allocated as a
-subblock of a fixed block, so the location of the
-reference pointer will be fixed.
-However, a reference pointer can be garbage collected by keeping
-two copies, the old and the new, with identical contents, and
-then replacing all addresses or indices of the old pointer by
-the address or index of the new pointer.
+Reference pointers can all be elements of a vector or other data
+structure, in which case an index can be used in place of the address of 
+a reference pointer.
+
+Alternatively reference pointers can be allocated as the first thing in
+their movable heavyweight block, in which case they must be addressed
+and not identified by index.  In this case, the entire heavy weight
+block must be allocated as a subblock of a fixed block, so the location
+of the reference pointer will be fixed.  When the heavy weight block
+is moved, the reference pointer in its old location is changed to point
+to the new location.  At this point the block has two reference pointers,
+one in its old location, and one at the beginning of its new location,
+but both have the same address.  Standard garbage collection techniques
+can be used to remove all references to the old reference pointer to
+the old block can be deallocated.  In greater generality, any reference
+pointer may be moved by allocating a duplicate and then eliminating
+all references to the original reference pointer.
 
 A heavy weight block can be moved almost anytime by
 changing its reference pointer.  The block can be deallocated
@@ -393,9 +391,39 @@ almost anytime by moving it to unimplemented virtual memory.
 
 A heavy weight block can be a stack that grows up or down, and
 subblocks can be allocated to or deallocated from the growing
-boundary of a stack.  Other blocks can also be stacks; but they
+boundary of a stack.  Fixed blocks can also be stacks; but they
 must have memory above or below them reserved for allocation
 of subblocks.
+
+\subsection{Block Groups}
+\label{BLOCK-GROUPS}
+
+A \key{block group} is a set of blocks in RAM memroy which point at each other,
+with one particular block in the set being designated as the
+\ikey{root}{of block group} of the block group.  All the other blocks
+must in the group must be reachable by following pointers from the root.
+The pointers may be addresses or may be indeces into some data structure.
+
+A block group can be copied in RAM memory by copying each of the group's
+blocks and adjusting the pointers in the copies to point at the copies
+of their original target blocks.
+
+The \ikey{address}{of block group} is the address of its root.
+
+Block groups can point at other block groups; that is, can contain pointers
+to the roots of other block groups.  When a block group is copied, these
+pointers can be adjusted to point copies of their original targets, if these
+copies exist.  Otherwise, if there is no copy of the target block group of
+a pointer, then a \key{stub} for the target may be allocated and the
+copied pointer adjusted to point at this target stub.  The stub must be
+such that if the original target block group is ever copied, it will be
+located in memory where the stub is located, and will replace the stub.
+This is made easier if the stub is a heavy weight block, as its replacment
+may be much bigger than it is.  In general, the stub is a block group
+and may have more than one block.
+
+\subsection{Values}
+\label{VALUES}
 
 A value is a sequence of blocks.  The last block is
 the proper value.  The initial subsequence of all blocks except the last

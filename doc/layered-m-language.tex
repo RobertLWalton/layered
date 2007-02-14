@@ -85,6 +85,7 @@
 \newcommand{\ttdmkey}[2]{{\tt \bf .#1}\index{#1@{\tt .#1}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\ttikey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
@@ -234,7 +235,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 1, 2007
+February 14, 2007
  
 \end{center}
 
@@ -248,7 +249,8 @@ January 1, 2007
 
 This document describes the Middle Layer Programming Language, or
 M-Language.  See the Introduction to the Layered
-Programming Languages for an overview of the related
+Programming Languages for an a description of the syntax of
+the M-Language and an overview of the related
 Lower Layer L-Language and Higher Layer H-Language.
 
 
@@ -258,23 +260,75 @@ Lower Layer L-Language and Higher Layer H-Language.
 We begin with an overview of M-language memory, and then provide
 details in the following subsections.
 
-M-language memory consists of blocks which are sequences of bits.
-Blocks can be contained in other blocks or can overlap.  Blocks
-have the following attributes:
+\subsection{Blocks}
 
-\begin{center}
-\begin{tabular}{ll}
-{\tt size}		& number of bits \\
-{\tt growth}		& {\tt up} and/or {\tt down} or neither \\
-{\tt alignment}		& exact divisor of bit address of block \\
-{\tt offset}		& offset in bits of start of block from
-			  bit address of block \\
-{\tt mobility}		& {\tt fixed}, {\tt movable}, {\tt free} \\
-{\tt operability}	& {\tt integer}, {\tt float}, {\tt address},
-			  {\tt container} \\
-{\tt status}		& {\tt constant}, {\tt variable} \\
-\end{tabular}
-\end{center}
+An M-language memory \key{block} is a sequence of bits.
+Blocks can be contained in other blocks or can overlap.
+
+A block contains a subblock called the \ikey{root}{of block}
+of the block.  For many blocks the root and the block are the same.
+For blocks that can grow, the root is the part of the block that
+is always there, and which contains information telling how much
+the block has grown.
+
+When a block is stored in memory, it has a \ikey{bit address}{of block}.
+The bit address plus some constant offset is the bit address of the first
+bit of the root of the block.
+
+Blocks have the following attributes:
+
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\ttikey{size}{of block}
+    & Number of bits in the root of the block.
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\ttikey{growth}{of block}
+    & \ttikey{up}{block growth} and/or \ttikey{down}{block growth} or neither;
+      Both {\tt up} and {\tt down} mean the block may be larger than its root.
+      {\tt up} means there may be extra bits after the
+      root, and {\tt down} means there may be extra bits before the root.
+      If the {\tt growth} of a block is neither {\tt up} nor {\tt down},
+      the block is the same as its root.
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\ttikey{offset}{of block}
+    & Offset in bits of the bit address of the first bit of the block
+      root from the bit address of the block, when the block is stored
+      in RAM memory.
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\ttikey{alignment}{of block}
+    & Exact divisor of bit address of the first bit of the root of
+      the block, when the block is stored in RAM memory.
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\ttikey{mobility}{of block}
+    & \ttikey{fixed}{block mobility},
+      \ttikey{movable}{block mobility},
+      or \ttikey{free}{block mobility}.
+      A {\tt fixed} block is stored in RAM memory at a fixed address.
+      A {\tt movable} block is stored in RAM memory at an address that
+      may be either fixed or may be changed according to the
+      protocol defined in \secref{TBD}.
+      A {\tt free} block may be stored in register or RAM memory
+      and moved at any time.
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\ttikey{operability}{of block}
+    & \ttikey{integer}{block operability},
+      \ttikey{float}{block operability},
+      \ttikey{address}{block operability}, or
+      \ttikey{container}{block operability}.
+      The {\tt operability} of a block determines the kind of
+      register the block is stored in, if the block is moved to
+      a register.
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\ttikey{status}{of block}
+    & \ttikey{constant}{block status} or
+      \ttikey{variable}{block status}.  A {\tt constant}
+      block cannot be change, while a {\tt variable} block can be.
+\end{tabular}\end{indpar}
 
 This is just enough information to allow the M-language implementation
 to allocate blocks to memory and move blocks in memory.  A {\tt growth}

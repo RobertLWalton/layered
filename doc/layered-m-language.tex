@@ -235,7 +235,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 14, 2007
+February 16, 2007
  
 \end{center}
 
@@ -334,6 +334,190 @@ Blocks have the following attributes:
 This is just enough information to allow the M-language implementation
 to allocate blocks to memory and move blocks in memory.
 
+\subsection{Block Graphs}
+\label{BLOCK-GRAPHS}
+
+A \key{pointer} is a block (typically holding just an address or an integer
+index) from which a block bit address can be computed by a function whose
+only input is the bit sequence value of the pointer.  The block whose
+bit address is computed is the \key{target} of the pointer.
+
+A \key{block graph} is:
+
+\begin{itemize}
+
+\item A set of blocks.
+
+\item For each of these blocks, a (possibly empty) set of pointers to blocks
+      in the graph.  These are the pointers of the graph.
+      Each block is the \key{source} of the pointers in its set.
+      Each block that is a target of one of these pointers must be stored
+      in RAM memory, but blocks that are not targets can be free.
+
+\item A particular subset of the blocks of the graph whose elements
+      are called the \ikey{roots}{root!of block graph} of the
+      block graph.
+
+\end{itemize}
+
+A \key{clique} is a subgraph of a block graph that consists of
+a single root block and all blocks reachable from this root
+by following graph pointers whose targets are not root blocks.
+Thus there is only one root block in a clique, which is called
+the \ikey{root}{of clique} of the clique.
+
+A clique points at another clique if some block of the first
+clique sources a graph pointer whose target is the root of
+the second clique.  A set of cliques is \ikey{closed}{set of cliques}
+if no clique in the set points at a clique outside the set.
+
+Block graph blocks that are not stored in RAM memory cannot have bit
+addresses or be targets of pointers.  Roots of cliques can be such blocks.
+All non-root blocks must be have bit addresses and be stored in RAM memory,
+as they are all pointer targets.
+
+A block graph is really a way of viewing the contents of memory.  The same
+memory contents can be viewed in many ways using different block graphs:
+in general there is no one unique block graph in a computational process.
+Blocks of memory may also be outside any block graph of the process.
+
+\subsection{Objects}
+\label{OBJECTS}
+
+An \key{object} is a clique in a block graph whose root is stored in
+RAM memory and has a bit address.
+The bit address of this root is the
+\ikey{bit address}{of object} of the object.
+
+A block graph is said to be \key{non-overlapping} if no two blocks
+in the graph overlap and no two cliques in the graph overlap.
+The latter statement is equivalent to saying that
+no non-root block in the graph is reachable from
+two different roots by following pointers whose targets are not roots.
+
+A \key{constituent} of a block is a subblock.  The larger
+block is the \ikey{container}{of constituent} of the constitutent.
+Note that elsewhere we define a \key{component} of a block to
+be a value that can be computed from the block, which is a much
+more general concept.
+
+A block graph is said to be \key{exportable} if it is non-overlapping,
+if the pointers sourced at each graph block are non-overlapping constituents
+of the block, if all its cliques are objects (all roots have bit addresses),
+if a closed set of object (cliques) can be copied to another
+memory, or to a disjoint part of the memory holding the graph,
+by copying the blocks of the
+set and then changing only the bits of the graph pointer constituents
+of these copies so the graph structure of the set of copies is the same
+as the graph structure of the copied closed set of objects.
+
+Intuitively a copy of a closed set of objects of an
+exportable block graph should have the same information content as the
+copied original.  But this cannot be rigorously defined for the general
+case.
+
+An \key{exportable object} is an object in an exportable block graph.
+
+It is possible to copy a non-closed set of objects of an exportable
+block graph using stubs.  A \key{stub} for an object
+is a copy of some of the information in the object, with enough information
+being present to identify the object.  When copying a non-closed set of
+objects, stubs can be created for any non-copied objects pointed at by
+copied objects.  If stubs already exist for these objects, they can be
+located and used instead of creating new stubs.  If an object is copied
+that already has a stub copy, that stub can be replaced by the copied object.
+
+\subsection{Values}
+\label{VALUES}
+
+A \key{value} is a sequence of cliques.  The last clique is
+the \key{value proper}.
+The initial subsequence of all cliques except the last
+is the \key{type} of the value, and is itself a value.
+
+Note that the roots of the cliques need not be stored in RAM memory,
+so the cliques need not be objects.  Also, the block graph of each clique
+in a value can be \underline{different}.
+
+The type of a value descibes the format of the value proper, and is used
+to select function code when the value is given as an argument
+to a function.  Some example types are 
+`32-bit signed integer' and `64-bit floating point number'.
+The type must specify the attributes of the root of the value proper; e.g.,
+the block size of the root.  The type must also specify the block graph
+to which the value proper belongs.
+
+Since a type is a value, its last clique is a value proper for the type,
+and the sequence of preceding cliques is the type of the type.
+As a special case, the empty sequence is taken as equal to
+a particular value that is a type that specifies that the
+associated value proper is a type and is constant.
+
+A type defines a view of a value proper.  A value proper can
+have several different views, i.e., can be the value proper
+of several different values with different types.
+
+TBD
+
+Although a type is a value, it is constrained in many ways.
+First, it must exist both at compile time and at run time.
+Therefore it must be possible to copy a type to an external medium
+and read it back into memory.
+Second, types must be suitable for type-inference, a process in
+which parts of the type are discovered and filled in, so
+types must be able to exhibit partial information as well
+as complete information.  Type inference is a search algorithm
+that adds information to types, and may backup up the state
+of a type to some previous state.  Asside from that actions
+of type inference, types may not change their value.
+
+A variable is a place in memory that holds a value.  A constant is just
+a variable whose value may not be changed.
+
+Normally at run time a variable is a sequence of just two blocks,
+the first being a constant type, and the second the value proper,
+which may or may not be constant, as is indicated by the type.
+Normally during type inference at compile time a variable is a sequence of three
+blocks, the first begin a constant type that indicates that the
+second is a type that is not constant and can be changed, and the
+third block being the value proper.  If the type (second block)
+indicates, the third block can be constant.  If the type (second block)
+does not have enough information, the value proper may not exist
+(e.g., if the type does not have enough information to determine the
+block size of the value proper).
+
+However, there is no prohibition
+against values having types that are not constant at run time, though
+the available operations on such values are few and slow.  Such
+values are well suited to compute inputs to delayed compilation
+(see~\secref{EXPRESSIONS}).
+
+A component of a value V is a value C that can be computed from V
+by a designated `read function'.  The read function may take
+agruments in addition to V, and these are called indices.
+The components of a variable are just a components of the variable's value.
+A component of a variable can itself be a variable if there is a
+designated `write function' that changes the value returned for the
+component.  Read and write functions for a component must obey
+some rules: for example, two successive reads must return the same
+value, and a read immediately following a write must return the value
+written, when the value and index arguments given to successive functions
+calls are the same.  In addition to read and write functions a component
+may have update, accumulate, and test functions.
+
+The different components of a variable obey different protocols.
+The {\tt rw} protocol says that a component is readable and writable
+at any time.  {\tt w/r} says that all writes occur before all reads.
+{\tt w/a/r} says that writes occur first, then accumulates, then reads,
+where accumulates are operations that may be exchanged, such as incrementing
+the variable component by various amounts.
+
+Types and type inference are not described in detail until
+\secref{EXPRESSIONS}.
+Components and protocols are not describe in detail until
+\secref{PROTOCOLS}.  The other concepts just introduced are
+defined in detail in the following subsections.
+
 \subsection{Addresses}
 \label{ADDRESSES}
 
@@ -394,113 +578,6 @@ subblocks can be allocated to or deallocated from the growing
 boundary of a stack.  Fixed blocks can also be stacks; but they
 must have memory above or below them reserved for allocation
 of subblocks.
-
-\subsection{Block Groups}
-\label{BLOCK-GROUPS}
-
-A \key{block group} is a set of blocks in RAM memroy which point at each other,
-with one particular block in the set being designated as the
-\ikey{root}{of block group} of the block group.  All the other blocks
-must in the group must be reachable by following pointers from the root.
-The pointers may be addresses or may be indeces into some data structure.
-
-A block group can be copied in RAM memory by copying each of the group's
-blocks and adjusting the pointers in the copies to point at the copies
-of their original target blocks.
-
-The \ikey{address}{of block group} is the address of its root.
-
-Block groups can point at other block groups; that is, can contain pointers
-to the roots of other block groups.  When a block group is copied, these
-pointers can be adjusted to point copies of their original targets, if these
-copies exist.  Otherwise, if there is no copy of the target block group of
-a pointer, then a \key{stub} for the target may be allocated and the
-copied pointer adjusted to point at this target stub.  The stub must be
-such that if the original target block group is ever copied, it will be
-located in memory where the stub is located, and will replace the stub.
-This is made easier if the stub is a heavy weight block, as its replacment
-may be much bigger than it is.  In general, the stub is a block group
-and may have more than one block.
-
-\subsection{Values}
-\label{VALUES}
-
-A value is a sequence of blocks.  The last block is
-the proper value.  The initial subsequence of all blocks except the last
-is the `type' of the value, and is itself a value.
-The type descibes the format of the value proper, and is used
-to select function code when the value is given as an argument
-to a function.  Some example types are 
-`32-bit signed integer' and `64-bit floating point number'.
-The type must specify the attributes of the value proper; e.g.,
-the block size of the value proper.
-
-As a special case, an empty sequence is taken as equal to
-a particular value that is a type which specifies that the
-value proper is a type and is constant.
-
-A type defines a view of a value proper.  A value proper can
-have several different views, i.e., can be the value proper
-of several different values with different types.
-
-Although a type is a value, it is constrained in many ways.
-First, it must exist both at compile time and at run time.
-Therefore it must be possible to copy a type to an external medium
-and read it back into memory.
-Second, types must be suitable for type-inference, a process in
-which parts of the type are discovered and filled in, so
-types must be able to exhibit partial information as well
-as complete information.  Type inference is a search algorithm
-that adds information to types, and may backup up the state
-of a type to some previous state.  Asside from that actions
-of type inference, types may not change their value.
-
-A variable is a place in memory that holds a value.  A constant is just
-a variable whose value may not be changed.
-
-Normally at run time a variable is a sequence of just two blocks,
-the first being a constant type, and the second the value proper,
-which may or may not be constant, as is indicated by the type.
-Normally during type inference at compile time a variable is a sequence of three
-blocks, the first begin a constant type that indicates that the
-second is a type that is not constant and can be changed, and the
-third block being the value proper.  If the type (second block)
-indicates, the third block can be constant.  If the type (second block)
-does not have enough information, the value proper may not exist
-(e.g., if the type does not have enough information to determine the
-block size of the value proper).
-
-However, there is no prohibition
-against values having types that are not constant at run time, though
-the available operations on such values are few and slow.  Such
-values are well suited to compute inputs to delayed compilation
-(see~\secref{EXPRESSIONS}).
-
-A component of a value V is a value C that can be computed from V
-by a designated `read function'.  The read function may take
-agruments in addition to V, and these are called indices.
-The components of a variable are just a components of the variable's value.
-A component of a variable can itself be a variable if there is a
-designated `write function' that changes the value returned for the
-component.  Read and write functions for a component must obey
-some rules: for example, two successive reads must return the same
-value, and a read immediately following a write must return the value
-written, when the value and index arguments given to successive functions
-calls are the same.  In addition to read and write functions a component
-may have update, accumulate, and test functions.
-
-The different components of a variable obey different protocols.
-The {\tt rw} protocol says that a component is readable and writable
-at any time.  {\tt w/r} says that all writes occur before all reads.
-{\tt w/a/r} says that writes occur first, then accumulates, then reads,
-where accumulates are operations that may be exchanged, such as incrementing
-the variable component by various amounts.
-
-Types and type inference are not described in detail until
-\secref{EXPRESSIONS}.
-Components and protocols are not describe in detail until
-\secref{PROTOCOLS}.  The other concepts just introduced are
-defined in detail in the following subsections.
 
 \section{Expressions}
 \label{EXPRESSIONS}

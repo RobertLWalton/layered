@@ -457,19 +457,49 @@ A type defines a view of a value proper.  A value proper can
 have several different views, i.e., can be the value proper
 of several different values with different types.
 
-TBD
+Values are partially ordered according
+how much information they contain.  This is called the
+\key{information ordering}.  Functions that input and output
+values may be \key{information monotonic}, meaning that
+if they are given inputs with more information they will
+produce outputs with more information.
 
-Although a type is a value, it is constrained in many ways.
-First, it must exist both at compile time and at run time.
-Therefore it must be possible to copy a type to an external medium
-and read it back into memory.
-Second, types must be suitable for type-inference, a process in
-which parts of the type are discovered and filled in, so
-types must be able to exhibit partial information as well
-as complete information.  Type inference is a search algorithm
-that adds information to types, and may backup up the state
-of a type to some previous state.  Asside from that actions
-of type inference, types may not change their value.
+Values can exist at both compile-time and at run-time.
+There is an operation called \key{linking} that copies
+a value from compile time to run time and must be information
+monotonic.
+
+A value whose value proper is unknown is represented for practical
+purposes by its type.  Such values are common at compile-time.
+A value whose value proper is completely known at compile-time
+is called a \key{compile-time constant}.
+
+At run-time a type is required to consist of exportable objects
+that are constants, and cannot be changed.  They may, however,
+contain pointers to changeable objects.
+
+Types are frequently computed at compile time with
+the help of type inference functions that are associated with run-time
+functions whose calls are being compiled.  Here operators are considered
+to be names of such functions.
+The \skey{type inference function}s take a set of values as input and produce
+the same set as output, thus replacing their inputs by their outputs.
+Type inference functions are required to be information monotonic.
+
+The \key{type inference algorithm} takes as input
+a set of compile-time values (typically with unknown value propers)
+and a set of calls to type inference functions, each with a subset
+of the values as input and output.  The algorithm executes the calls
+repeatedly until all calls make no changes.  The resulting values
+are called a \ikey{stable point}{of type inference}.  It can be shown
+that this is uniquely determined by the original inputs and type
+inference functions, because the latter are monotonic.
+It is a compile-time error if this algorithm
+takes to long to run, as determined in a machine independent manner.
+(It is possible of the algorithm to run indefinitely only if values
+can be indefinitely large).
+
+TBD
 
 A variable is a place in memory that holds a value.  A constant is just
 a variable whose value may not be changed.

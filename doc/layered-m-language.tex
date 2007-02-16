@@ -320,7 +320,7 @@ Blocks have the following attributes:
       \ttikey{float}{block operability},
       \ttikey{address}{block operability}, or
       \ttikey{container}{block operability}.
-      The {\tt operability} of a block determines the kind of
+      The {\tt opera\-bility} of a block determines the kind of
       register the block is stored in, if the block is moved to
       a register.
 \end{tabular}\end{indpar}
@@ -333,6 +333,82 @@ Blocks have the following attributes:
 
 This is just enough information to allow the M-language implementation
 to allocate blocks to memory and move blocks in memory.
+
+\subsection{Addresses}
+\label{ADDRESSES}
+
+Both blocks and addresses are classified as `light weight'
+or `heavy weight'.
+
+A \key{heavy weight block} is a movable block that
+has a forwarding address stored at a fixed location that
+always points at the block and that changes when the block moves.
+The block is addressed indirectly through its forwarding
+address, thus making it possible to move the block at almost
+any time.
+
+A \key{heavy weight address} has
+two parts: a pointer to a forwarding address, and an offset within
+the heavy weight block that is pointed at by the forwarding address.
+
+A \key{light weight block} is a free block,
+a fixed block allocated to a fixed address,
+or a subblock of another block.  It can be a subblock of a
+heavy weight block.
+A heavy weight address is used to address a light weight subblock
+of a heavy weight block.
+
+A \key{light weight address} is just the address of a fixed, non-movable
+(light weight) block.  Light weight addresses are integers that have
+size and alignment equal to 64, and that address bytes.  They must be
+mulitiplied by 8 to give bit addresses.
+
+A \key{pointer} is a block from which a block bit address can be
+computed by a function whose only input is the bit sequence value of
+the pointer.  The block whose bit address is computed is the
+\key{target} of the pointer.  A pointer can be a light weight address
+or it can be an index into some data structure in which light weight
+addresses are stored.  A heavy weight address contains a pointer
+to a forwarding address, and this pointer need not itself be an address.
+
+An entire heavy weight block can be
+addressed by a pointer pointing at the
+forwarding address of the block,
+but an addressing indirection is required to address
+the block.  Such a pointer, which is just a heavy weight address
+without any offset part, is called a \key{middle weight address}.
+A heavy weight block that is never addressed by a heavy
+weight address, but only by middle weight addresses, is called a
+\key{middle weight block}.
+
+A forwarding address has the same format as a light weight address.
+Forwarding addresses can all be elements of a vector or other data
+structure, in which case an index can be used in a heavy weight or
+middle weight address as a pointer to a forwarding address.
+
+Alternatively forwarding addresses can be allocated as the first thing in
+their movable heavyweight block, in which case they must be addressed
+and not identified by index.  In this case, the entire heavy weight
+block must be allocated as a subblock of a fixed block, so the location
+of the forwarding address will be fixed.  When the heavy weight block
+is moved, the forwarding address in its old location is changed to point
+to the new location.  At this point the block has two forwarding addresses,
+one in its old location, and one at the beginning of its new location,
+but both have the same address.  Standard garbage collection techniques
+can be used to remove all references so the old forwarding address to
+the old block can be deallocated.  In greater generality, any reference
+pointer may be moved by allocating a duplicate and then eliminating
+all references to the original forwarding address.
+
+A heavy weight block can be moved almost anytime by
+changing its forwarding address.  The block can be deallocated
+almost anytime by moving it to unimplemented virtual memory.
+
+A heavy weight block can be a stack that grows up or down, and
+subblocks can be allocated to or deallocated from the growing
+boundary of a stack.  Fixed blocks can also be stacks; but they
+must have memory above or below them reserved for allocation
+of subblocks.
 
 \subsection{Block Graphs}
 \label{BLOCK-GRAPHS}
@@ -499,28 +575,35 @@ takes to long to run, as determined in a machine independent manner.
 (It is possible of the algorithm to run indefinitely only if values
 can be indefinitely large).
 
-TBD
+In actual practice there are several possible sets of type inference
+functions, due to overloading, and the compiler must select which
+one to use.  Each type inference function may decide that its inputs
+are not consistent for its purposes, in which case the set of inference
+functions being tested cannot be used.  By this means a single set
+of inference functions, corresponding to a single mapping of function
+names to overloaded actual functions, is selected.
 
-A variable is a place in memory that holds a value.  A constant is just
-a variable whose value may not be changed.
-
-Normally at run time a variable is a sequence of just two blocks,
+Normally at run-time a value is a sequence of just two cliques,
 the first being a constant type, and the second the value proper,
 which may or may not be constant, as is indicated by the type.
-Normally during type inference at compile time a variable is a sequence of three
-blocks, the first begin a constant type that indicates that the
+Normally during compile-time a value is a sequence of three
+cliques, the first begin a constant type that indicates that the
 second is a type that is not constant and can be changed, and the
-third block being the value proper.  If the type (second block)
-indicates, the third block can be constant.  If the type (second block)
-does not have enough information, the value proper may not exist
-(e.g., if the type does not have enough information to determine the
-block size of the value proper).
+third block being the value proper, which is often missing.
+The compile-time value is translated to the run-time value by
+discarding its first clique and making its second into a constant
+object.
+
+TBD
 
 However, there is no prohibition
 against values having types that are not constant at run time, though
 the available operations on such values are few and slow.  Such
 values are well suited to compute inputs to delayed compilation
 (see~\secref{EXPRESSIONS}).
+
+\subsection{TBD}
+\label{TBD}
 
 A component of a value V is a value C that can be computed from V
 by a designated `read function'.  The read function may take
@@ -547,67 +630,6 @@ Types and type inference are not described in detail until
 Components and protocols are not describe in detail until
 \secref{PROTOCOLS}.  The other concepts just introduced are
 defined in detail in the following subsections.
-
-\subsection{Addresses}
-\label{ADDRESSES}
-
-Both blocks and addresses are classified as `light weight'
-or `heavy weight'.
-
-A \key{heavy weight block} is a movable block that
-has a reference pointer stored at a fixed location which
-points at the block and which changes when the block moves.
-
-A \key{heavy weight address} has
-two parts: the address of a reference pointer, and an offset within
-the heavy weight block that is pointed at by the reference pointer.
-
-A \key{light weight block} is a free block,
-a fixed block allocated to a fixed address,
-or a subblock of another block.  It can be a subblock of a
-heavy weight block.
-A heavy weight address is used to address a light weight subblock
-of a heavy weight block.
-
-A \key{light weight address} is just the address of a fixed, non-movable
-(light weight) block.
-
-The entire heavy weight block can be
-addressed by a light weight address pointing at the reference pointer
-of the block, but an addressing indirection is required to address
-the block.  Such an address, which is just a heavy weight address
-without any offset part, is called a \key{middle weight address}.
-A heavy weight block that is never addressed by a heavy
-weight address, but only by middle weight addresses, is called a
-\key{middle weight block}.
-
-Reference pointers can all be elements of a vector or other data
-structure, in which case an index can be used in place of the address of 
-a reference pointer.
-
-Alternatively reference pointers can be allocated as the first thing in
-their movable heavyweight block, in which case they must be addressed
-and not identified by index.  In this case, the entire heavy weight
-block must be allocated as a subblock of a fixed block, so the location
-of the reference pointer will be fixed.  When the heavy weight block
-is moved, the reference pointer in its old location is changed to point
-to the new location.  At this point the block has two reference pointers,
-one in its old location, and one at the beginning of its new location,
-but both have the same address.  Standard garbage collection techniques
-can be used to remove all references to the old reference pointer to
-the old block can be deallocated.  In greater generality, any reference
-pointer may be moved by allocating a duplicate and then eliminating
-all references to the original reference pointer.
-
-A heavy weight block can be moved almost anytime by
-changing its reference pointer.  The block can be deallocated
-almost anytime by moving it to unimplemented virtual memory.
-
-A heavy weight block can be a stack that grows up or down, and
-subblocks can be allocated to or deallocated from the growing
-boundary of a stack.  Fixed blocks can also be stacks; but they
-must have memory above or below them reserved for allocation
-of subblocks.
 
 \section{Expressions}
 \label{EXPRESSIONS}

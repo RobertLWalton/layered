@@ -481,6 +481,11 @@ Note that elsewhere we define a \key{component} of a block to
 be a value that can be computed from the block, which is a much
 more general concept.
 
+An object is said to be a \mkey{constant}{object}\label{CONSTANT-OBJECT}
+if no part of it changes
+except for bits in its graph pointer constituents, and if its graph does
+not change.
+
 A block graph is said to be \key{exportable} if it is non-overlapping,
 if the pointers sourced at each graph block are non-overlapping constituents
 of the block, if all its objects are RAM objects (all roots have bit addresses),
@@ -510,28 +515,27 @@ Note that in order to be able to replace a stub by an object, the root
 of the object must be heavy weight or middle weight (\secref{ADDRESSES}),
 or the stub must be as big as the root of the object.
 
-\subsection{Values}
+\subsection{Values and Types}
 \label{VALUES}
 
-A \key{value} is a sequence of cliques.  The last clique is
+A \key{value} is a sequence of objects.  The last object is
 the \key{value proper}.
-The initial subsequence of all cliques except the last
+The initial subsequence of all objects except the last
 is the \key{type} of the value, and is itself a value.
 
-Note that the roots of the cliques need not be stored in RAM,
-so the cliques need not be objects.  Also, the block graph of each clique
-in a value can be \underline{different}.
+The block graph of each object in a value can be \underline{different}.
+The objects in a value need not be RAM objects.
 
 The type of a value descibes the format of the value proper, and is used
 to select function code when the value is given as an argument
 to a function.  Some example types are 
 `32-bit signed integer' and `64-bit floating point number'.
 The type must specify the attributes of the root of the value proper; e.g.,
-the block size of the root.  The type must also specify the block graph
+the size of the root.  The type must also specify the block graph
 to which the value proper belongs.
 
-Since a type is a value, its last clique is a value proper for the type,
-and the sequence of preceding cliques is the type of the type.
+Since a type is a value, its last object is a value proper for the type,
+and the sequence of preceding objects is the type of the type.
 As a special case, the empty sequence is taken as equal to
 a particular value that is a type that specifies that the
 associated value proper is a type and is constant.
@@ -545,7 +549,8 @@ how much information they contain.  This is called the
 \key{information ordering}.  Functions that input and output
 values may be \key{information monotonic}, meaning that
 if they are given inputs with more information they will
-produce outputs with more information.
+produce outputs with more information.  These concepts are
+very important for values that are types.
 
 Values can exist at both compile-time and at run-time.
 There is an operation called \key{linking} that copies
@@ -558,8 +563,8 @@ A value whose value proper is completely known at compile-time
 is called a \key{compile-time constant}.
 
 At run-time a type is required to consist of exportable objects
-that are constants, and cannot be changed.  They may, however,
-contain pointers to changeable objects.
+that are constants.  They may, however,
+contain pointers to variable objects.
 
 Types are frequently computed at compile time with
 the help of type inference functions that are associated with run-time
@@ -590,15 +595,15 @@ functions being tested cannot be used.  By this means a single set
 of inference functions, corresponding to a single mapping of function
 names to overloaded actual functions, is selected.
 
-Normally at run-time a value is a sequence of just two cliques,
+Normally at run-time a value is a sequence of just two objects,
 the first being a constant type, and the second the value proper,
 which may or may not be constant, as is indicated by the type.
 Normally during compile-time a value is a sequence of three
-cliques, the first begin a constant type that indicates that the
+objects, the first begin a constant type that indicates that the
 second is a type that is not constant and can be changed, and the
 third block being the value proper, which is often missing.
 The compile-time value is translated to the run-time value by
-discarding its first clique and making its second into a constant
+discarding its first object and making its second into a constant
 object.
 
 TBD

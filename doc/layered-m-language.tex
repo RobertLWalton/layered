@@ -544,6 +544,9 @@ A type defines a view of a value proper.  A value proper can
 have several different views, i.e., can be the value proper
 of several different values with different types.
 
+A value all of whose objects are constant is called a
+\key{constant value}.  Other values are called \skey{variable value}s.
+
 Values are partially ordered according
 how much information they contain.  This is called the
 \key{information ordering}.  Functions that input and output
@@ -552,67 +555,61 @@ if they are given inputs with more information they will
 produce outputs with more information.  These concepts are
 very important for values that are types.
 
-Values can exist at both compile-time and at run-time.
-There is an operation called \key{linking} that copies
-a value from compile time to run time and must be information
-monotonic.
+Various operations on values are classified as \ikey{compile-time}{operation}
+or \ikey{run-time}{operation}.  An operation may be both.
+A value is called \key{run-time} if it can be input to a run-time operation.
+All values can be input to compile-time operations.
 
 A value whose value proper is unknown is represented for practical
-purposes by its type.  Such values are common at compile-time.
-A value whose value proper is completely known at compile-time
-is called a \key{compile-time constant}.
+purposes by its type.  Such values are not run-time values.
 
-At run-time a type is required to consist of exportable objects
-that can only change in information increasing ways.
-They may, however, contain pointers to variable objects.
+A run-time value must have a constant exportable type.
 
-Types are computed at compile time with
+Types are computed by compile-time operations with
 the help of type inference functions that are associated with run-time
-functions whose calls are being compiled.  Here operators are considered
-to be names of such functions.
-The \skey{type inference function}s take a set of values as input and produce
+operations whose invocations are being compiled.
+The \skey{type inference function}s are compile-time operations that
+take a set of values as input and produce
 the same set as output, thus replacing their inputs by their outputs.
 Type inference functions are required to be information monotonic.
 
 The \key{type inference algorithm} takes as input
-a set of compile-time values (typically with unknown value propers)
+a set of values (typically with unknown value propers)
 and a set of calls to type inference functions, each with a subset
 of the values as input and output.  The algorithm executes the calls
 repeatedly until all calls make no changes.  The resulting values
 are called a \ikey{stable point}{of type inference}.  It can be shown
 that this is uniquely determined by the original inputs and type
 inference functions, because the latter are monotonic.
-It is a compile-time error if this algorithm
-takes to long to run, as determined in a machine independent manner.
+It is an error if this algorithm
+takes too long to run, as determined in a machine independent manner.
 (It is possible of the algorithm to run indefinitely only if values
 can be indefinitely large).
 
 In actual practice there are several possible sets of type inference
-functions, due to overloading, and the compiler must select which
+functions, due to overloading of run-time operation names,
+and the compiler must select which
 one to use.  Each type inference function may decide that its inputs
 are not consistent for its purposes, in which case the set of inference
 functions being tested cannot be used.  By this means a single set
-of inference functions, corresponding to a single mapping of function
-names to overloaded actual functions, is selected.
+of inference functions, corresponding to a single mapping of run-time
+operation names to overloaded actual run-time operations,
+must be selected, or the type inference
+algorithm will be in error.
 
-Normally at run-time a value is a sequence of just two objects,
+Commonly a run-time value is a sequence of just two objects,
 the first being a constant type, and the second the value proper,
 which may or may not be constant, as is indicated by the type.
-Normally during compile-time a value is a sequence of three
-objects, the first begin a constant type that indicates that the
-second is a type that is not constant and can be changed, and the
-third block being the value proper, which is often missing.
-The compile-time value is translated to the run-time value by
-discarding its first object and making its second into a constant
-object.
+Both objects must be known.
 
-TBD
-
-However, there is no prohibition
-against values having types that are not constant at run time, though
-the available operations on such values are few and slow.  Such
-values are well suited to compute inputs to delayed compilation
-(see~\secref{EXPRESSIONS}).
+Non-run-time types are commonly a sequence of two
+objects, the first being a constant that indicates that the
+second is a variable, with the second indicating that any
+value proper associated with the type is unknown.  Such a type
+is translated to be a run-time value by an information monotonic
+operation known as \key{linking}.  This discards the first
+object and makes the second into a constant object that indicates
+any associated value proper is known.
 
 \subsection{TBD}
 \label{TBD}

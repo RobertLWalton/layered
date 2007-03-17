@@ -563,10 +563,10 @@ A value whose value proper is completely known at compile-time
 is called a \key{compile-time constant}.
 
 At run-time a type is required to consist of exportable objects
-that are constants.  They may, however,
-contain pointers to variable objects.
+that can only change in information increasing ways.
+They may, however, contain pointers to variable objects.
 
-Types are frequently computed at compile time with
+Types are computed at compile time with
 the help of type inference functions that are associated with run-time
 functions whose calls are being compiled.  Here operators are considered
 to be names of such functions.

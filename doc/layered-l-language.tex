@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 27, 2006
+April 7, 2007
  
 \end{center}
 
@@ -258,64 +258,149 @@ Middle Layer M-Language and Higher Layer H-Language.
 We begin with an overview of L-language memory, and then provide
 details in the following subsections.
 
-Numbers are a basic element of L-language memory.
+TBD
+
+\subsection{Numbers}
+
+\ikey{Numbers}{number} are a basic element of L-language memory.
 Numbers are sequences of bits, and each number is one of
-six types:
+five types:
 
 \begin{center}
-unsigned integer \\
-signed integer \\
-floating point number \\
-light weight address \\
-middle weight address \\
-heavy weight address \\
+\begin{tabular}{l@{~~~~~~}l}
+\bf Number Type & \bf Length \\[2ex]
+unsigned integer & 1 to 128 bits \\
+signed integer & 1 to 128 bits \\
+floating point number & 16, 32, 64, or 128 bits \\
+direct address & 64 bits \\
+\end{tabular}
 \end{center}
 
-The length of a number is the number of its bits.  Numbers can have
+The \mkey{length}{of number}
+of a number is the number of its bits.  Numbers can have
 different lengths: for example, unsigned integers can have any
 length between 1 and 128 bits.
 
 Numbers can be stored in registers or in random access memory (RAM).
 
-A register holds just a single number.  Each register has a type
-and a length, and can hold only numbers of that type and length.
+An \key{unsigned integer} of length $L$ is a binary integer with
+$L$ binary digits (\skey{bit}s).
 
-RAM is a set of address/bit pairs.  Each bit of RAM has an address
-which is an integer.  It is possible for two addresses to refer to the
-same bit, or for an address to refer to no bit.  An address that
-refers to a bit is said to be allocated, and an address that refers
+A \key{signed integer} of length $L$ is a two's complement integer
+of length $L$.  This represents an integer $I$
+by the unsigned $L$-bit integer $I~\mbox{modulo}~2^L$.
+
+A \key{floating point integer} of length $L$ is a floating point number
+represented according to the IEEE 754 standard.  The sizes of exponents
+and mantissas for various floating point number sizes is as follows:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
+\bf Floating Point \\
+\bf Number Size & \bf Exponent Size & \bf Mantissa Size \\[2ex]
+16 bits & 5 bits & 10 bits \\
+32 bits & 8 bits & 23 bits \\
+64 bits & 11 bits & 52 bits \\
+128 bits & 15 bits & 112 bits \\
+\end{tabular}
+\end{center}
+
+A \key{direct address} holds a RAM byte address.
+A direct address is a 64-bit unsigned integer, but some
+of high order bits are all 0's or all 1's, depending upon
+the implementation.  A reasonable assumption is that only the low
+order 48-bits of the direct address are actually used.  This assumption can
+be used to put other information in the high order 16 bits
+of a 64-bit number containing a direct address.  For example, an address
+can be embedded in a 64-bit floating point NaN.  The Layered Languages do
+\underline{not} depend upon this assumption, but do provide instructions
+to zero or sign expand any number of low order bits in a 64-bit integer.
+
+\subsection{Random Access Memory (RAM) and Blocks}
+
+\ikey{RAM}{Random Access Memory}\index{random access memory!RAM}
+is a set of address/bit pairs.  Each bit of RAM has \key{bit address}
+that is a unsigned integer.  It is possible for two addresses to refer to the
+same bit, or for an address to refer to no bit.  A bit address that
+refers to a bit is said to be allocated, and a bit address that refers
 to no bit is said to be deallocated.  A bit that has two distinct
 addresses is said to be shared, and a bit with just one address is
 unshared.
 
-A block of RAM is a sequence consecutive increasing addresses.
-The address of the block is the address of its first bit, and the length
-of the block is the number of bits.  An alignment of the block is any
-common factor of the address and the length of the block.
+A \ikey{block}{of RAM} of RAM is a sequence of consecutive increasing addresses.
+The \ikey{bit address}{of block} of the block is the address of its first bit,
+and the \ikey{bit length}{of block} of the block is the number of bits.
+An \ikey{alignment}{of block} of the block is any
+common factor of the bit address and the bit length of the block.
 
-A block is byte aligned if 8 bits is an alignment of the block.
+A block is \key{byte aligned} if 8 bits is an alignment of the block.
+The \ikey{byte address}{of block} of a byte aligned block is the
+bit address of the block divided by 8.  The
+\ikey{byte length} of such a block is its bit length divided by 8.
 
-A block is allocated if the addresses of all its bits are allocated,
-and is deallocated if the addresses of all of its bits are deallocated.
-A block is unshared if all its bits are unshared.  A block is shared if
-there is a set of several blocks (sequences of consecutive addresses)
+A block is \ikey{allocated}{block}
+if the addresses of all its bits are allocated,
+and is \ikey{deallocated}{block} if the addresses of all of its bits
+are deallocated.
+A block is \ikey{unshared}{block} if all its bits are unshared.
+A block is \ikey{shared}{block} if
+it is one of a set of several blocks (sequences of consecutive addresses)
 such that the $n$'th bit of each block in the set is the same.
+Note that a block can be neither shared nor unshared.
 
-The address space is divided into pages, which are blocks that
+The address space is divided into \skey{page}s, which are blocks that
 have an implementation determined length
 that is a power of two: e.g., 2048 byte = 16386 bit pages.  There
 are L-Language operations which call the operating system to
 map an address page to physical memory, thus allocating a page
 of RAM.  There are operations to deallocate a page, and to make
-two pages map to the same bits of RAM.
+two pages be shared (map to the same bits of RAM).
+
+The only way for two blocks to share a bit is for the blocks to
+overlap shared pages.
+
+The only blocks in L-language are frames (\pagref{FRAMES}),
+code blocks(\pagref{CODE-BLOCKS}), and pages.
+Numbers may be stored in registers, frames, code blocks, or pages.
+
+\subsection{Registers}
+
+A \key{register} can hold any of the following:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l}
+\bf Register Type & \bf Type Parameters \\[2ex]
+unsigned integer & length \\
+signed integer & length \\
+floating point number & length \\
+direct address \\
+indirect address & level \\
+linear channel & block-size window-size dimensions \\
+chained channel & block-size window-size dimensions  \\
+direct channel & block-size window-size dimensions \\
+indirect channel & block-size window-size dimensions \\
+\end{tabular}
+\end{center}
+
+Registers with a number type can only hold numbers of the given register
+type and register length.
+
+An indirect address is consists of a direct address and a sequence of
+zero or more offsets, each of which is a signed 64 bit integer.  The
+number of offsets is the level of the indirect address.
+
+A channel is a mechanism for caching a window of memory.  The window
+consists of a linear array of blocks which are addressed by various
+different means.  The block-size parameter specifies the maximum block
+size, the window-size parameter the maximum size of any window dimension, 
+and the dimensions parameter the number of dimensions in the window array.
 
 Registers are virtual; some are implemented by hardware registers,
-and some are implemented by a frame, which is an allocated block of RAM
-associated with the currently executing code.  Executable code is
-also organized into code blocks.
+and some are implemented by a \key{frame}\label{FRAMES},
+which is an allocated block of RAM
+associated with the currently executing code.
 
-The only blocks in L-language are frames, code blocks, and pages.
-Numbers may be stored in registers, frames, code blocks, or pages.
+\subsection{Indirect Addresses}
 
 There are three varieties of address.  A light weight address is
 just an address of a memory byte: i.e., a bit address that is
@@ -336,18 +421,6 @@ by the middle weight address is added to the offset.  Again there
 are cache issues which require that updates to the reference pointer
 be made by special instructions.
 
-Light and middle weight addresses are 64-bit numbers, but some
-number of high order bits are all 0's or all 1's, depending upon
-the implementation.  A reasonable assumption is that only the low
-order 48-bits of address are actually used.  This assumption can
-be used to put other information in the high order 16 bits
-of a 64-bit number containing an address.  For example, an address
-can be embedded in a 64-bit floating point NaN.  The Layered Languages do
-\underline{not} depend upon this assumption, but do provide instructions
-to zero or sign expand any number of low order bits in a 64-bit integer.
-However, reference pointers may \underline{not} put extra information in their
-high order bits.
-
 Heavy weight addresses are 128-bits and consist of a 64-bit
 middle weight address and a 64-bit signed byte offset.
 They represent the address made by adding the reference pointer pointed
@@ -363,6 +436,9 @@ assess to memory, and are described in their own section
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}
+
+\section{Code Blocks}
+\label{CODE-BLOCKS}
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

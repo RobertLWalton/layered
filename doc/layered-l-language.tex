@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 7, 2007
+April 8, 2007
  
 \end{center}
 
@@ -327,23 +327,23 @@ to no bit is said to be deallocated.  A bit that has two distinct
 addresses is said to be shared, and a bit with just one address is
 unshared.
 
-A \ikey{block}{of RAM} of RAM is a sequence of consecutive increasing addresses.
-The \ikey{bit address}{of block} of the block is the address of its first bit,
-and the \ikey{bit length}{of block} of the block is the number of bits.
-An \ikey{alignment}{of block} of the block is any
+A \mkey{block}{of RAM} of RAM is a sequence of consecutive increasing addresses.
+The \mkey{bit address}{of block} of the block is the address of its first bit,
+and the \mkey{bit length}{of block} of the block is the number of bits.
+An \mkey{alignment}{of block} of the block is any
 common factor of the bit address and the bit length of the block.
 
 A block is \key{byte aligned} if 8 bits is an alignment of the block.
-The \ikey{byte address}{of block} of a byte aligned block is the
+The \mkey{byte address}{of block} of a byte aligned block is the
 bit address of the block divided by 8.  The
-\ikey{byte length} of such a block is its bit length divided by 8.
+\mkey{byte length}{of block} of such a block is its bit length divided by 8.
 
-A block is \ikey{allocated}{block}
+A block is \mkey{allocated}{block}
 if the addresses of all its bits are allocated,
-and is \ikey{deallocated}{block} if the addresses of all of its bits
+and is \mkey{deallocated}{block} if the addresses of all of its bits
 are deallocated.
-A block is \ikey{unshared}{block} if all its bits are unshared.
-A block is \ikey{shared}{block} if
+A block is \mkey{unshared}{block} if all its bits are unshared.
+A block is \mkey{shared}{block} if
 it is one of a set of several blocks (sequences of consecutive addresses)
 such that the $n$'th bit of each block in the set is the same.
 Note that a block can be neither shared nor unshared.
@@ -365,7 +365,9 @@ Numbers may be stored in registers, frames, code blocks, or pages.
 
 \subsection{Registers}
 
-A \key{register} can hold any of the following:
+A \key{register} is assigned a \mkey{type}{of register}
+and some optional \mkey{type parameters}{of register}
+and can hold any of the following:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l}
@@ -378,9 +380,11 @@ indirect address & level \\
 linear channel & block-size window-size dimensions \\
 chained channel & block-size window-size dimensions  \\
 direct channel & block-size window-size dimensions \\
-indirect channel & block-size window-size dimensions \\
 \end{tabular}
 \end{center}
+
+The type parameters are unsigned integers that
+determine the sized of the register.
 
 Registers with a number type can only hold numbers of the given register
 type and register length.
@@ -393,7 +397,8 @@ A channel is a mechanism for caching a window of memory.  The window
 consists of a linear array of blocks which are addressed by various
 different means.  The block-size parameter specifies the maximum block
 size, the window-size parameter the maximum size of any window dimension, 
-and the dimensions parameter the number of dimensions in the window array.
+and the dimensions parameter the maximum
+number of dimensions in the window array.
 
 Registers are virtual; some are implemented by hardware registers,
 and some are implemented by a \key{frame}\label{FRAMES},
@@ -402,43 +407,74 @@ associated with the currently executing code.
 
 \subsection{Indirect Addresses}
 
-There are three varieties of address.  A light weight address is
-just an address of a memory byte: i.e., a bit address that is
-an exact multiple of 8.
+An \key{indirect address} consists of a direct address $A$
+and $L$ offsets, $O_1$, $O_2$, \ldots, $O_L$, where $L\geq 0$ is the
+\mkey{level}{of indirect address} of the indirect address.
+The indirect address represents the \mkey{target address}{of indirect address}:
 
-A middle weight address is an address that
-is (usually) indirected once when used.  That is, the middle weight
-address is the byte address of a memory block that holds a light weight
-address.  This light weight address is called a reference pointer.
-When a middle weight address is loaded into a virtual register,
-the reference pointer is often cached in a hardware register, so
-changing the reference pointer cannot be done except by special
-instructions that respect this cache.
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l}
+\bf Level & \bf Target Address \\[2ex]
+0 & $(*A)$ \\
+1 & $((*A)+O_1)$ \\
+2 & $(*((*A)+O_1)+O_2)$ \\
+3 & $(*(*((*A)+O_1)+O_2)+O_3)$ \\
+\ldots & \ldots
+\end{tabular}
+\end{center}
 
-A heavy weight address is a pair consisting of a middle weight
-address and an offset.  When used the reference pointer designated
-by the middle weight address is added to the offset.  Again there
-are cache issues which require that updates to the reference pointer
-be made by special instructions.
+where $*$ is the \key{indirect addressing operation}
+that takes the direct address $D$ of another direct address $B$ stored
+in RAM, and returns $B$.  $B$, which is called the \key{base address},
+is a number and a block, and as a block
+is required to have 64 bits as both its length and alignment.
 
-Heavy weight addresses are 128-bits and consist of a 64-bit
-middle weight address and a 64-bit signed byte offset.
-They represent the address made by adding the reference pointer pointed
-at by the middle weight address to the offset.  The offset is in bytes;
-only bit addresses that are an exact multiple of 8 bits may be represented.
+The important thing about an indirect address is that the base addresses
+it accesses are permitted to change at most times, as long as they
+are changed according to a protocol (\pagref{INDIRECT-ADDRESS-PROTOCOL}).
+The base addresses point at blocks that can be moved in memory at
+any time the base addresses are permited to change.  Moving blocks in
+memory is part of memory compaction, which in turn is part of garbage
+collection, so indirect addresses enable real-time garbage collection.
 
-In addition to holding numbers, a virtual register can hold a specialized
-data structure called a memory channel.
-These complex structures permit pipelined
-assess to memory, and are described in their own section
-(\secref{MEMORY-CHANNELS}).
+The offsets of an indirect address are 64-bit integers whose
+units are bytes.  The $+$ operator in the target address computation
+is treated as addition modulo $2^{64}$ of unsigned integers, so the offsets
+can be either unsigned or signed.  Addition overflow is not possible.
 
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}
 
+A \key{memory channel} is a mechanism for accessing a set of blocks in RAM
+that permits blocks to be announced substantially in advance of being
+accessed.  Thus memory channels implement `\key{look ahead}' for
+memory accesses.
+
+A memory channel implements a \key{window}, which is a
+multi-dimensional array of block descriptors.
+A \key{block descriptor} contains the address and length of a block to be
+accessed.  Block descriptors can also be marked as
+\mkey{empty}{block descriptor}, meaning there is no block to be accessed.
+There are shift operations on the window that move all its rows or columns
+(or other dimension) over and fill in with empty block descriptors.
+
+Memory channels differ in how block descriptors are computed.  A
+linear memory channel assumes that blocks are addressed in memory according
+to a linear scheme, and automatically fills in block descriptors when
+the window is shifted.  A chained channel is similar except it assumes
+each block points at its neighbors.  A direct channel requires programmed
+instructions to load block descriptors.
+
+
+
 \section{Code Blocks}
 \label{CODE-BLOCKS}
+
+\section{To Do}
+
+Indirect address protocol.
+\label{INDIRECT-ADDRESS-PROTOCOL}
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

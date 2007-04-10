@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 8, 2007
+April 10, 2007
  
 \end{center}
 
@@ -313,8 +313,16 @@ order 48-bits of the direct address are actually used.  This assumption can
 be used to put other information in the high order 16 bits
 of a 64-bit number containing a direct address.  For example, an address
 can be embedded in a 64-bit floating point NaN.  The Layered Languages do
-\underline{not} depend upon this assumption, but do provide instructions
-to zero or sign expand any number of low order bits in a 64-bit integer.
+\underline{not} depend upon this assumption, but do provide an instruction
+with two parameters, $L$ and $S$, which takes as input
+a 64-bit integer and returns a 64-bit direct address containing
+the byte address equal to the low order $L$ bits of the input integer
+left shifted by $S$.  The output may have undefined high order bits if
+the hardare ignores them when using the output to address memory.
+If the hardware ignores the high order 20 bits, and uses only the
+low order 44 bits,
+this instruction would just copy its input to its output
+if $L\geq 44$ and $S=0$.
 
 \subsection{Random Access Memory (RAM) and Blocks}
 
@@ -405,6 +413,8 @@ and some are implemented by a \key{frame}\label{FRAMES},
 which is an allocated block of RAM
 associated with the currently executing code.
 
+[TBD: Add register pointers and register sharing.]
+
 \subsection{Indirect Addresses}
 
 An \key{indirect address} consists of a direct address $A$
@@ -426,7 +436,7 @@ The indirect address represents the \mkey{target address}{of indirect address}:
 where $*$ is the \key{indirect addressing operation}
 that takes the direct address $D$ of another direct address $B$ stored
 in RAM, and returns $B$.  $B$, which is called the \key{base address},
-is a number and a block, and as a block
+is both a direct address number and a block, and as a block
 is required to have 64 bits as both its length and alignment.
 
 The important thing about an indirect address is that the base addresses
@@ -443,7 +453,7 @@ is treated as addition modulo $2^{64}$ of unsigned integers, so the offsets
 can be either unsigned or signed.  Addition overflow is not possible.
 
 
-\section{Memory Channels}
+\subsection{Memory Channels}
 \label{MEMORY-CHANNELS}
 
 A \key{memory channel} is a mechanism for accessing a set of blocks in RAM
@@ -459,13 +469,55 @@ accessed.  Block descriptors can also be marked as
 There are shift operations on the window that move all its rows or columns
 (or other dimension) over and fill in with empty block descriptors.
 
+A memory channel is stored in a register, but the register may be shared.
+The type and type parameters of the register determine the type of the
+channel and determine how much actual memory is allocated to the register.
+
+The window of a memory channel
+is organized in the same way for all memory channels.
+It consists of a rectangular array of block descriptors, with the number
+of dimensions in the array being that given by the
+`\mkey{dimensions}{of window}' register type parameter.  The size of
+each dimension is determined when the memory channel is initialized at
+run time, but must not be greater than the `\mkey{window-size}{of window}'
+register type parameter.
+Similarly the size of each block is determined when the block descriptor
+is created, but must not be greater than the `\mkey{block-size}{of window}'
+register type parameter.
+
+For all types of memory channel the window appears to be a subarray of
+a larger square array.  The window has a \mkey{reference point}{of window}
+that can be shifted along any of its dimensions.  Or the reference point
+can be completely reset.  For most kinds of memory channels, window
+block descriptors are computed automatically from the block descriptor
+and in some cases block contents of an adjacent window position.
+Typically once an initial reference point
+block descriptor has been loaded into the memory channel, all other
+block descriptors are computed automatically by this mechanism, and
+typically the reference point is only moved by shifting it.
+
 Memory channels differ in how block descriptors are computed.  A
 linear memory channel assumes that blocks are addressed in memory according
 to a linear scheme, and automatically fills in block descriptors when
 the window is shifted.  A chained channel is similar except it assumes
 each block points at its neighbors.  A direct channel requires programmed
-instructions to load block descriptors.
+instructions to load block descriptors.  In this last case, a block
+descriptor may hold an instruction for computing it from the contents
+of an adjacent block, so the instruction need not be delayed if the
+adjacent block contents are not yet available.
 
+
+\subsubsection{Linear Memory Channels}
+
+Linear memory channels access multi-dimensional arrays of blocks
+whose addresses are computable from a linear equation of the form:
+
+\begin{center}
+$\mbox{\em address} = \mbox{\em base-address}
+		    + \sum_{n=1}^N \mbox{\em offset}_n\cdot i_n$
+\\[2ex]
+where $0\leq i_n < \mbox{\em dimension-size}_n$ for $1\leq n \leq N$
+\end{center}
 
 
 \section{Code Blocks}

@@ -227,7 +227,7 @@
 \begin{center}
 
 {\Large
-The Layered Middle (M) Programming Language \\[0.5ex]
+The Middle (M) Layer Programming Language \\[0.5ex]
 (Draft 1a)}
 
 \medskip
@@ -235,7 +235,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 16, 2007
+April 28, 2007
  
 \end{center}
 
@@ -265,7 +265,7 @@ TBD
 \subsection{Blocks}
 \label{BLOCKS}
 
-An M-language memory \key{block} is a sequence of bits.
+An M-language memory \key{block} is a sequence of consecutive bit addresses.
 Blocks can be contained in other blocks or can overlap.
 
 A block contains a subblock called the \ikey{base}{of block}
@@ -321,17 +321,24 @@ Blocks have the following attributes:
 \ttikey{operability}{of block}
     & \ttikey{integer}{block operability},
       \ttikey{float}{block operability},
-      \ttikey{address}{block operability}, or
-      \ttikey{container}{block operability}.
+      \ttikey{address}{block operability},
+      \ttikey{container}{block operability}, or
+      \ttikey{memory-channel}{block operability}.
       The {\tt opera\-bility} of a block determines the kind of
       register the block is stored in, if the block is moved to
-      a register.  The block must be {\tt free}.
+      a register.  The block must be {\tt free}, but non-{\tt free}
+      blocks also have operability in case their contents are moved
+      to a register.
+
+      Note that if the {\tt operability} is `{\tt address}', the
+      {\tt size} of the block determines the weight of the address
+      (see~\pagref{WEIGHT}).
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
 \ttikey{status}{of block}
     & \ttikey{constant}{block status} or
       \ttikey{variable}{block status}.  A {\tt constant}
-      block cannot be change, while a {\tt variable} block can be.
+      block cannot be changed, while a {\tt variable} block can be.
 \end{tabular}\end{indpar}
 
 This is just enough information to allow the M-language implementation
@@ -651,7 +658,8 @@ and protection.
 Parsing involves inserting implied parentheses and then rewriting
 expressions, particularly those involving operators.  Overloading
 involves picking which function to call given many functions with the
-same name.  Implicit variable creation involves creating variables to
+same name and parsing properties.
+Implicit variable creation involves creating variables to
 hold values output by one function and input by another.\footnote{
 What we call `implicit variables' are usually called `temporary variables'.
 We make the implicit variable creation process explicit for two reasons:
@@ -782,6 +790,9 @@ cache and not recompiled.
 
 \subsection{Block Movement Protocol}
 \label{BLOCK-MOVEMENT-PROTOCOL}
+
+\section{TBD}
+Add discussion of indirect addresses and weight.\label{WEIGHT}
 
 
 \bibliographystyle{plain}

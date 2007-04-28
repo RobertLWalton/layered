@@ -226,7 +226,7 @@
 \begin{center}
 
 {\Large
-The Layered Middle (M) Programming Language \\[0.5ex]
+The Lower (L) Layered Programming Language \\[0.5ex]
 (Draft 1a)}
 
 \medskip
@@ -234,7 +234,7 @@ The Layered Middle (M) Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 10, 2007
+April 28, 2007
  
 \end{center}
 
@@ -491,7 +491,7 @@ that can be shifted along any of its dimensions.  Or the reference point
 can be completely reset.  For most kinds of memory channels, window
 block descriptors are computed automatically from the block descriptor
 and in some cases block contents of an adjacent window position.
-Typically once an initial reference point
+In the typical case, once an initial reference point
 block descriptor has been loaded into the memory channel, all other
 block descriptors are computed automatically by this mechanism, and
 typically the reference point is only moved by shifting it.
@@ -506,6 +506,12 @@ descriptor may hold an instruction for computing it from the contents
 of an adjacent block, so the instruction need not be delayed if the
 adjacent block contents are not yet available.
 
+When a window is shifted, block descriptors may be computed automatically
+for new window elements, and the referenced blocks may be loaded into
+a cache.  The part of the window for which blocks are loaded into the
+cache in advance of any specific instruction referencing the blocks
+is called the lookahead window, and is a subarray of the full window.
+
 
 \subsubsection{Linear Memory Channels}
 
@@ -518,6 +524,12 @@ $\mbox{\em address} = \mbox{\em base-address}
 \\[2ex]
 where $0\leq i_n < \mbox{\em dimension-size}_n$ for $1\leq n \leq N$
 \end{center}
+
+\subsubsection{Chained Memory Channels}
+
+For a chained memory channel there are a fixed set of instructions
+that tell how to compute the address of a block from the contents
+of adjacent blocks.
 
 
 \section{Code Blocks}

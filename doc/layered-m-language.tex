@@ -235,7 +235,7 @@ The Middle (M) Layer Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 28, 2007
+May 1, 2007
  
 \end{center}
 
@@ -280,11 +280,11 @@ bit of the base of the block.
 
 Blocks have the following attributes:
 
-\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.5in}}
 \ttikey{size}{of block}
     & Number of bits in the base of the block.
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.5in}}
 \ttikey{growth}{of block}
     & \ttikey{up}{block growth} and/or \ttikey{down}{block growth} or neither;
       Both {\tt up} and {\tt down} mean the block may be larger than its base.
@@ -293,19 +293,19 @@ Blocks have the following attributes:
       If the {\tt growth} of a block is neither {\tt up} nor {\tt down},
       the block is the same as its base.
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.5in}}
 \ttikey{offset}{of block}
     & Offset in bits of the bit address of the first bit of the block
       base from the bit address of the block, when the block is stored
       in RAM.
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.5in}}
 \ttikey{alignment}{of block}
     & A strictly positive integer, the exact divisor of the block bit address,
       when the block is stored in RAM.  Usually a power of 2, frequently
       at least 8.
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.5in}}
 \ttikey{mobility}{of block}
     & \ttikey{fixed}{block mobility},
       \ttikey{movable}{block mobility},
@@ -313,28 +313,26 @@ Blocks have the following attributes:
       A {\tt fixed} block is stored in RAM at a fixed address.
       A {\tt movable} block is stored in RAM at an address that
       may be either fixed or may be changed according to the
-      rules for managing heavy weight addresses below (\secref{ADDRESSES}).
+      rules for managing indirect addresses below
+      (\secref{BLOCK-MOVEMENT-PROTOCOL}).
       A {\tt free} block may be stored in register or RAM
       and moved at any time.
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.5in}}
 \ttikey{operability}{of block}
     & \ttikey{integer}{block operability},
       \ttikey{float}{block operability},
-      \ttikey{address}{block operability},
-      \ttikey{container}{block operability}, or
+      \ttikey{direct-address}{block operability},
+      \ttikey{indirect-address}{block operability},
+      \ttikey{contain\-er}{block operability}, or
       \ttikey{memory-channel}{block operability}.
       The {\tt opera\-bility} of a block determines the kind of
       register the block is stored in, if the block is moved to
       a register.  The block must be {\tt free}, but non-{\tt free}
-      blocks also have operability in case their contents are moved
-      to a register.
-
-      Note that if the {\tt operability} is `{\tt address}', the
-      {\tt size} of the block determines the weight of the address
-      (see~\pagref{WEIGHT}).
+      blocks also have operability in case their contents are copied
+      to another block in a register.
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{p{1.0in}p{4.0in}}
+\begin{indpar}\begin{tabular}{p{1.0in}p{4.5in}}
 \ttikey{status}{of block}
     & \ttikey{constant}{block status} or
       \ttikey{variable}{block status}.  A {\tt constant}
@@ -344,94 +342,31 @@ Blocks have the following attributes:
 This is just enough information to allow the M-language implementation
 to allocate blocks to memory and move blocks in memory.
 
-\subsection{Addresses}
-\label{ADDRESSES}
+Blocks with `{\tt integer}', `{\tt float}', or `{\tt direct-address}'
+{\tt operability}
+are numbers.  The block {\tt size} is the size of the number, and is
+constrained by the {\tt operability}: for example, all
+`{\tt direct-address}' blocks must have {\tt size} {\tt 64}.
+These numbers are as described in the `Numbers' section of the
+Lower (L) Layer Programming Language manual.
 
-Both blocks and addresses are classified as `light weight'
-or `heavy weight'.
+Similarly blocks with `{\tt indirect-address}' {\tt operability}
+are as described in the `Indirect Addresses' section of the
+Lower (L) Layer Programming Language manual.  Here the {\tt size}
+is {\tt 64} times the weight of the indirect address.
 
-A \key{heavy weight block} is a movable block that
-has a \key{forwarding address} stored at a fixed location that
-always points at the block and that changes when the block moves.
-The block is addressed indirectly through its forwarding
-address, thus making it possible to move the block at almost
-any time (see~\secref{BLOCK-MOVEMENT-PROTOCOL}).
+Lastly blocks with `{\tt memory-channel}' {\tt operability}
+are as described in the `Memory Channel' section of the
+Lower (L) Layer Programming Language manual.
 
-A \key{heavy weight address} has
-two parts: a pointer to a forwarding address, and an offset within
-the heavy weight block that is pointed at by the forwarding address.
-
-A \key{light weight block} is a free block,
-a fixed block allocated to a fixed address,
-or a subblock of another block.  It can be a subblock of a
-heavy weight block.
-A heavy weight address is used to address a light weight subblock
-of a heavy weight block.
-
-A \key{light weight address} is just the address of a fixed, non-movable
-(light weight) block.  Light weight addresses are integers that have
-size and alignment equal to 64, and that address bytes.  They must be
-mulitiplied by 8 to give bit addresses.
+\subsection{Block Graphs}
+\label{BLOCK-GRAPHS}
 
 A \key{pointer} is a list of constant free blocks
 from which a block bit address can be
 computed by some \key{pointer function}.
 The block whose bit address is computed is the
-\key{target} of the pointer.  A pointer can be a light weight address,
-it can be an index into some data structure in which light weight
-addresses are stored, or it can be a list of such indices.
-A heavy weight address contains a pointer
-to a forwarding address, and this pointer need not itself be an address.
-
-There may be different kinds of pointer, and the pointer
-functions used to translate pointers into a block bit addresses will
-be different for each kind of pointer.  The only arguments to a pointer
-function are the elements of the pointer (viewed as a list),
-but the pointer function may reference other
-data structures implicitly.
-
-An entire heavy weight block can be
-addressed by a pointer pointing at the
-forwarding address of the block,
-but an addressing indirection is required to address
-the block.  Such a pointer, which is just a heavy weight address
-without any offset part, is called a \key{middle weight address}.
-A heavy weight block that is never addressed by a heavy
-weight address, but only by middle weight addresses, is called a
-\key{middle weight block}.
-
-A \key{forwarding address} has the same format as a light weight address.
-Forwarding addresses can all be elements of a vector or other data
-structure, in which case an index can be used in a heavy weight or
-middle weight address as a pointer to a forwarding address.
-
-Alternatively forwarding addresses can be allocated as the first thing in
-their movable heavyweight block, in which case they must be addressed
-and not identified by index.  In this case, the entire heavy weight
-block must be allocated as a fixed block, so the location
-of the forwarding address will be fixed.  When the heavy weight block
-is moved, the forwarding address in its old location is changed to point
-to the new location.  At this point the block has two forwarding addresses,
-one in its old location, and one at the beginning of its new location,
-but both contain the same value.  Standard garbage collection techniques
-can be used to remove all references to the old forwarding address
-so that the old forwarding address and the old block containing it
-can be deallocated.  In greater generality, any forwarding
-address may be moved by allocating a duplicate and then eliminating
-all references to the original forwarding address.
-
-A heavy weight block can be moved almost anytime by
-changing its forwarding address.  The block can be deallocated
-almost anytime by moving it to unimplemented virtual memory.
-
-A heavy weight block can be a stack that grows up or down, and
-subblocks can be allocated to or deallocated from the growing
-boundary of a stack.  Fixed blocks can also be stacks; but they
-must have RAM above or below them reserved for allocation
-of subblocks.
-
-\subsection{Block Graphs}
-\label{BLOCK-GRAPHS}
+\key{target} of the pointer.
 
 A \key{block graph} is:
 
@@ -519,7 +454,8 @@ copied objects.  If stubs already exist for these objects, they can be
 located and used instead of creating new stubs.  If an object is copied
 that already has a stub copy, that stub can be replaced by the copied object.
 Note that in order to be able to replace a stub by an object, the root
-of the object must be heavy weight or middle weight (\secref{ADDRESSES}),
+of the object must be heavy weight or middle weight
+(\secref{ADDRESSES}),
 or the stub must be as big as the root of the object.
 
 \subsection{Values and Types}

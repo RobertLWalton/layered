@@ -342,18 +342,61 @@ Blocks have the following attributes:
 This is just enough information to allow the M-language implementation
 to allocate blocks to memory and move blocks in memory.
 
+If any bit address is a multiple of 8, then the bit address divided by
+8 is its corresponding \key{byte address}.  If the alignment of a block
+is a multiple of 8, the byte address of the block is its bit address
+divided by 8.
+
 Blocks with `{\tt integer}', `{\tt float}', or `{\tt direct-address}'
 {\tt operability}
 are numbers.  The block {\tt size} is the size of the number, and is
 constrained by the {\tt operability}: for example, all
 `{\tt direct-address}' blocks must have {\tt size} {\tt 64}.
 These numbers are as described in the `Numbers' section of the
-Lower (L) Layer Programming Language manual.
+Lower (L) Layer Programming Language manual.  Recall that direct
+addresses are 64 bit integers that hold byte addresses in their
+low order bits (typically the low order 44 bits, but there is no
+standard for how many low order bits are used).
+
 
 Similarly blocks with `{\tt indirect-address}' {\tt operability}
 are as described in the `Indirect Addresses' section of the
 Lower (L) Layer Programming Language manual.  Here the {\tt size}
-is {\tt 64} times the weight of the indirect address.
+is {\tt 64} times the `level' of the indirect address.
+
+Recall that as stated in the
+Lower (L) Layer Programming Language manual, an
+\key{indirect address} consists of a direct address $A$
+and $L$ offsets, $O_1$, $O_2$, \ldots, $O_L$, where $L\geq 0$ is the
+\mkey{level}{of indirect address} of the indirect address.
+The indirect address represents the \mkey{target address}{of indirect address}:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l}
+\bf Level & \bf Target Address \\[2ex]
+0 & $(*A)$ \\
+1 & $((*A)+O_1)$ \\
+2 & $(*((*A)+O_1)+O_2)$ \\
+3 & $(*(*((*A)+O_1)+O_2)+O_3)$ \\
+\ldots & \ldots
+\end{tabular}
+\end{center}
+
+where $*$ is the \key{indirect addressing operation}
+that takes the direct address $D$ of another direct address $F$ stored
+in RAM, and returns $F$.  $F$, which is called the \key{forwarding address},
+is both a direct address number and a block, and as a block
+is required to have 64 bits as both its length and alignment.
+Recall that all direct addresses are byte addresses, and the the offsets
+in an indirect address are offsets in bytes.
+
+Recall that forwarding
+addresses are permitted to change at most times, as long as they
+change according to a particular protocol.
+Moveable blocks must be pointed at by indirect addresses, hence by
+forwarding addresses, except for
+short pieces of code during which block movement is prohibited.
+See~\secref{BLOCK-MOVEMENT-PROTOCOL} for details.
 
 Lastly blocks with `{\tt memory-channel}' {\tt operability}
 are as described in the `Memory Channel' section of the
@@ -367,6 +410,10 @@ from which a block bit address can be
 computed by some \key{pointer function}.
 The block whose bit address is computed is the
 \key{target} of the pointer.
+
+A direct or indirect address can be used as a pointer.  A pointer
+can also be in integer that is an index into some structure holding
+direct or indirect addresses, for example.
 
 A \key{block graph} is:
 
@@ -399,12 +446,22 @@ if no object in the set points at a object outside the set.
 
 Block graph blocks that are not stored in RAM cannot have bit
 addresses or be targets of pointers.  Roots of objects can be such blocks.
-All non-root blocks must be have bit addresses and be stored in RAM,
+All non-root blocks in an object
+must be have bit addresses and be stored in RAM,
 as they are all pointer targets.
 
 An object whose root is stored in RAM is called a \key{RAM object}.
 The \mkey{bit address}{of RAM object}
 of a RAM object is the bit address of its root.
+The \mkey{byte address}{of RAM object}
+of a RAM object is the byte address of its root, if that exists
+(e.g., if the root block has an alignment that is a multiple of 8).
+
+An object is called {\tt moveable}, {\tt fixed}, or {\tt free}
+according to whether or not its root is {\tt moveable},
+{\tt fixed}, or {\tt free}.  Pointers to {\tt moveable} objects
+are either indirect addresses, or themselves indirectly reference
+indirect addresses.
 
 A block graph is really a way of viewing the contents of memory.  The same
 memory contents can be viewed in many ways using different block graphs:
@@ -423,9 +480,14 @@ Note that elsewhere we define a \key{component} of a block to
 be a value that can be computed from the block, which is a much
 more general concept.
 
+The pointers sourced by a block may be constituents of the block,
+or may be components -- i.e., values that can be computed from the
+block.
+
 An object is said to be a \mkey{constant}{object}\label{CONSTANT-OBJECT}
 if no part of it changes
-except for bits in its graph pointer constituents, and if its graph does
+except for bits in any graph pointer constituents it contains,
+and if its graph does
 not change.
 
 A block graph is said to be \key{exportable} if it is non-overlapping,
@@ -441,7 +503,8 @@ as the graph structure of the copied closed set of objects.
 Intuitively a copy of a closed set of objects of an
 exportable block graph should have the same information content as the
 copied original.  But this cannot be rigorously defined for the general
-case.
+case.  All we can do is rigorously define the copy operation, and assert
+that the copy can be used to provide the same information as the original.
 
 An \key{exportable object} is an object in an exportable block graph.
 
@@ -453,10 +516,9 @@ objects, stubs can be created for any non-copied objects pointed at by
 copied objects.  If stubs already exist for these objects, they can be
 located and used instead of creating new stubs.  If an object is copied
 that already has a stub copy, that stub can be replaced by the copied object.
-Note that in order to be able to replace a stub by an object, the root
-of the object must be heavy weight or middle weight
-(\secref{ADDRESSES}),
-or the stub must be as big as the root of the object.
+Note that in order to be able to replace a stub by an object, either the
+stub must be as big as the root of the object, or the object must be
+moveable (have a moveable stub and root) so the root can be expanded.
 
 \subsection{Values and Types}
 \label{VALUES}
@@ -481,32 +543,36 @@ Since a type is a value, its last object is a value proper for the type,
 and the sequence of preceding objects is the type of the type.
 As a special case, the empty sequence is taken as equal to
 a particular value that is a type that specifies that the
-associated value proper is a type and is constant.
+associated value proper is a type.
 
 A type defines a view of a value proper.  A value proper can
 have several different views, i.e., can be the value proper
 of several different values with different types.
 
-A value all of whose objects are constant is called a
-\key{constant value}.  Other values are called \skey{variable value}s.
+A type has some special properties.  First, there is a partial order
+relation on types, such that if type $T_2$ is greater than
+type $T_1$, then $T_2$ contains all the information $T_1$ does and
+more.  Second, there is a component of each type that tells whether
+the type is `\ikey{constant}{type}', which means the type may not
+be changed.  In particular, information cannot be added to a constant
+type.  However, some types are never constant in the sense for the {\tt status}
+block attribute, as if they were the component that says they are constant
+could not be set.
 
-Values are partially ordered according
-how much information they contain.  This is called the
-\key{information ordering}.  Functions that input and output
-values may be \key{information monotonic}, meaning that
-if they are given inputs with more information they will
-produce outputs with more information.  These concepts are
-very important for values that are types.
+Types must be exportable.
 
-Various operations on values are classified as \ikey{compile-time}{operation}
-or \ikey{run-time}{operation}.  An operation may be both.
-A value is called \key{run-time} if it can be input to a run-time operation.
-All values can be input to compile-time operations.
+When code is compiled that uses a value, the compilation makes the
+type of the value constant, if it is not already constant.
+Compilation may first run the `type inference algorithm', described below,
+that adds information to the type.  Any value used by compiled
+always has a constant type.
 
-A value whose value proper is unknown is represented for practical
-purposes by its type.  Such values are not run-time values.
-
-A run-time value must have a constant exportable type.
+A type may specify that any associated value proper is a constant that
+may not change.  What is meant by this is that the bits of the blocks
+in the value proper (which is an object) will not change, except that
+pointer constituents may change, as long as the graph of the object
+does not change.  A value with such a type is called a \key{constant}.
+Other values are called \skey{variable}s.
 
 Types are computed by compile-time operations with
 the help of type inference functions that are associated with run-time
@@ -514,7 +580,24 @@ operations whose invocations are being compiled.
 The \skey{type inference function}s are compile-time operations that
 take a set of values as input and produce
 the same set as output, thus replacing their inputs by their outputs.
-Type inference functions are required to be information monotonic.
+The values may be incomplete, in that information is missing from
+their types, and that their value proper may be missing.
+The type inference functions add information to make the values
+more complete.
+
+To support type inference, the partial order of on types is extended
+to a partial order on values.  Usually this is done by using the
+vacuous ordering on value propers: each value proper is neither greater than
+nor less than any other value proper.  However, a missing value proper is always
+less than a present value proper.
+
+Given the partial order on values, the type inference functions are required
+to be monotonic, in that they may only replace values by greater values,
+in the sense of the information partial order on values.  Remember that by this
+order 3 is neither greater than nor less than 2;
+these two values a not compatible pieces of information,
+and therefore they are not orderable using the
+information partial ordering.
 
 The \key{type inference algorithm} takes as input
 a set of values (typically with unknown value propers)
@@ -526,8 +609,12 @@ that this is uniquely determined by the original inputs and type
 inference functions, because the latter are monotonic.
 It is an error if this algorithm
 takes too long to run, as determined in a machine independent manner.
-(It is possible of the algorithm to run indefinitely only if values
-can be indefinitely large).
+Such an error can be corrected by supplying more direct type (and sometimes
+value) information in the program being compiled, so that the type
+inference algorithm needs to add less information.
+Note that it is not possible for the type inference
+algorithm to run indenfinitely without the values becoming
+indefinitely large.
 
 In actual practice there are several possible sets of type inference
 functions, due to overloading of run-time operation names,
@@ -539,20 +626,6 @@ of inference functions, corresponding to a single mapping of run-time
 operation names to overloaded actual run-time operations,
 must be selected, or the type inference
 algorithm will be in error.
-
-Commonly a run-time value is a sequence of just two objects,
-the first being a constant type, and the second the value proper,
-which may or may not be constant, as is indicated by the type.
-Both objects must be known.
-
-Non-run-time types are commonly a sequence of two
-objects, the first being a constant that indicates that the
-second is a variable, with the second indicating that any
-value proper associated with the type is unknown.  Such a type
-is translated to be a run-time value by an information monotonic
-operation known as \key{linking}.  This discards the first
-object and makes the second into a constant object that indicates
-any associated value proper is known.
 
 \subsection{TBD}
 \label{TBD}

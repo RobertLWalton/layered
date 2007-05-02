@@ -234,7 +234,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 28, 2007
+May 2, 2007
  
 \end{center}
 
@@ -434,16 +434,16 @@ The indirect address represents the \mkey{target address}{of indirect address}:
 \end{center}
 
 where $*$ is the \key{indirect addressing operation}
-that takes the direct address $D$ of another direct address $B$ stored
-in RAM, and returns $B$.  $B$, which is called the \key{base address},
+that takes the direct address $D$ of another direct address $F$ stored
+in RAM, and returns $F$.  $F$, which is called the \key{forwarding address},
 is both a direct address number and a block, and as a block
 is required to have 64 bits as both its length and alignment.
 
-The important thing about an indirect address is that the base addresses
+The important thing about an indirect address is that the forwarding addresses
 it accesses are permitted to change at most times, as long as they
 are changed according to a protocol (\pagref{INDIRECT-ADDRESS-PROTOCOL}).
-The base addresses point at blocks that can be moved in memory at
-any time the base addresses are permited to change.  Moving blocks in
+The forwarding addresses point at blocks that can be moved in memory at
+any time the forwarding addresses are permited to change.  Moving blocks in
 memory is part of memory compaction, which in turn is part of garbage
 collection, so indirect addresses enable real-time garbage collection.
 

@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 19, 2007
+July 4, 2007
  
 \end{center}
 
@@ -314,11 +314,11 @@ can be `the horizontal tab character'.
 Each lexical atom table has a name consisting of sequence of
 identifiers and quoted strings ending with an identifier.  The table
 name must be `{\tt lexeme}' or must be a \key{lexeme type}, and in the
-latter case the table names is also the type name of any lexemes recognized
+latter case the table name is also the type name of any lexemes recognized
 using the table.
 
-Lexeme
-types are sequences of identifiers and quoted strings ending with
+More specifically, lexeme type names
+are sequences of identifiers and quoted strings ending with
 a \key{lexeme class} identifier, which is one of:
 
 \begin{center}
@@ -351,9 +351,10 @@ The general form of an atom table entry is:
 	& & ~~~~[{\em lexical-atom-translation}] {\tt ;} \\
 \emkey{lexical-atom} & ::= & {\em quoted-string} \\
 \emkey{lexical-atom-type}
-	& ::= & {\em lexical-atom-type-qualifier}$^\star$ {\em identifier} \\
+	& ::= & {\em lexical-atom-type-qualifier}$^\star$ {\em lexical-class} \\
 \emkey{lexical-atom-type-qualifier}
 	& ::= & {\em quoted-string} $|$ {\em identifier} \\
+\emkey{lexical-class} & ::= & {\em identifier} \\
 \emkey{lexical-atom-translation} & ::= & {\em quoted-string} \\
 \end{tabular}
 \end{center}%
@@ -382,8 +383,11 @@ would be recognized as beginning with the operator lexeme `{\tt ++}'
 followed by the beginning of a `{\tt wide char string}'.
 
 The state of the scanner is just the name of the atom table the
-scanner is using.  Given input beginning with `{\tt ++a}', and the above table,
-the scanner accepts the atom `{\tt ++}' as a lexeme and removes
+scanner is using.  The default state is `{\tt lexeme}', which uses
+the {\tt lexeme} atom table.
+Given input beginning with `{\tt ++a}', and the above entries in the
+{\tt lexeme} atom table,
+the scanner accepts the atom `{\tt ++}' as an operator lexeme and removes
 it from the input.  Then given input beginning with `{\tt a}', the
 scanner does not accept any input, but instead just switches state to
 `{\tt identifier}' and continues by scanning identifer atoms.
@@ -405,8 +409,8 @@ standard `{\tt quoted string}' table:
 
 Here the input `{\tt \BACKSLASH t}' is translated to a horizontal
 tab, the input `{\tt \BACKSLASH "}' is translated to
-a single double quote,
-and the `{\tt "}' character that is not part of another atom
+a single double quote, and
+the `{\tt "}' character, if it is not part of another atom,
 translates to the empty string.  By default an atom translates to itself.
 
 The `{\tt "}' character appears twice in the table, once as
@@ -444,7 +448,7 @@ are usually compiled from a more compact representation.
 
 \subsection{The Lexeme Atom Table}
 
-Then the scanner is in the {\tt lexeme} state, it can accept
+When the scanner is in the {\tt lexeme} state, it can accept
 atoms and output their translations as complete lexemes, or it can reject
 atoms and switch to a different state.  Translations are
 \underline{not} accumulated in this state.  If there is no
@@ -453,7 +457,7 @@ character sequence is discarded and announced as an error.
 If the next character is not part of a legal UTF-8 character sequence,
 it is discarded and announced as an error.
 
-The following are the possible types in the lexeme atom table:
+The following are the possible lexical atom types in the lexeme atom table:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~~~~~}p{3.5in}}
@@ -497,7 +501,7 @@ The following are the possible types in the lexeme atom table:
 
 When the scanner is in a `{\em qualifier}$^\star$ {\tt identifier}' state,
 it can accumulate
-atoms, or it can reject atoms and switch to a different state.
+atoms, or it can reject atoms and switch to the {\tt lexeme} state.
 Translations of accumulated atoms are appended to the current
 accumulation string.
 If at any time there is no recognizable atom at the beginning of the
@@ -506,7 +510,7 @@ the scanner switches to the {\tt lexeme} state without accepting
 any further input, and outputs its accumulated string as a
 `{\em qualifier}$^\star$ {\tt identifier}' lexeme.
 
-The following are the possible types in an identifier atom table:
+The following are the possible lexical atom types in an identifier atom table:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
@@ -535,7 +539,7 @@ The following are the possible types in an identifier atom table:
 
 Then the scanner is in a `{\em qualifier}$^\star$ {\tt number}' state,
 it can accumulate
-atoms, or it can reject atoms and switch to a different state.
+atoms, or it can reject atoms and switch to the {\tt lexeme} state.
 Translations of accumulated atoms are appended to the current
 accumulation string.
 If at any time there is no recognizable atom at the beginning of the
@@ -544,7 +548,7 @@ the scanner switches to the {\tt lexeme} state without accepting
 any further input, and outputs its accumulated string as a
 `{\em qualifier}$^\star$ {\tt number}' lexeme.
 
-The following are the possible types in a number atom table:
+The following are the possible lexical atom types in a number atom table:
 
 \begin{indpar}
 \begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
@@ -613,10 +617,10 @@ Some example number atom tables are:
 "0x1"   begin digit
 . . . . . . . . . .
 "0xF"   begin digit
-"0"     digit
-"1"     digit
+"0"     continue digit
+"1"     continue digit
 . . . . . . . . . .
-"F"     digit
+"F"     continue digit
 "l"     end
 "u"     end
 . . . . . . . . . .
@@ -650,7 +654,7 @@ Some example number atom tables are:
 
 \subsection{String Atom Tables}
 
-A `{\em qualifier}$^\star$ {\tt identifier}' state behaves just like
+A `{\em qualifier}$^\star$ {\tt string}' state behaves just like
 an {\tt identifier} state, with `{\tt identifier}' replaced
 by `{\tt string}', except that if the remaining input does not begin with
 a recognized atom, the first UTF-8 character sequence of the remaining input
@@ -681,8 +685,8 @@ made into a lexeme.
 
 \subsection{Error Atom Tables}
 
-A `{\em qualifier}$^\star$ {\tt whitespace}' state behaves just like
-a {\tt comment} state, with `{\tt comment}' replaced
+A `{\em qualifier}$^\star$ {\tt error}' state behaves just like
+a {\tt whitespace} state, with `{\tt whitespace}' replaced
 by `{\tt error}', except that 
 when the scanner leaves an {\tt error}
 state the accumulated string, which is discarded, is announced as an error.
@@ -691,30 +695,28 @@ state the accumulated string, which is discarded, is announced as an error.
 
 Lexeme tables for the standard lexical scanner are written in
 the \key{Lexeme Definition Language}.  This language defines
-a {\em lexical-definition-block} that appears in a program
-block and changes the definition of the lexemes in the program
-block that follow it.
+a {\em lexical-groups} that are sets of lexical atom tables.
+These groups can be referenced from code when the currently effective
+set of lexical atom tables needs to be changed.
 
-Lexeme Definition Language blocks have the following form:
+Lexeme Definition Language consists of {\em lexical-definitions} with
+the following syntax:
 
 \begin{center}
 \begin{tabular}{rrl}
-\emkey{lexical-definition-block} & ::= &
-	{\tt begin} {\tt lexical definition;} \\
-	& &  ~~~~{\em lexical-definition-statement}$^\star$ \\
-	& & {\tt end} {\tt lexical definition;}
+\emkey{lexical-definition}
+	& ::= & {\em lexical-units-block} \\
+	& $|$ & {\em lexical-atom-table-definition} \\
+	& $|$ & {\em lexical-class-definition} \\
+	& $|$ & {\em lexical-group-definition}
 \\[1ex]
-\emkey{lexical-definition-statement}
-	& ::= & {\em lexical-unit-definition} \\
-	& $|$ & {\em lexical-atom-table-definition}
-\\[1ex]
-\emkey{lexical-atom-table-definition} & ::= &
-	{\tt begin} {\em lexical-atom-type} {\tt atom table;} \\
-	& &  ~~~~{\em lexical-atom-table-entry}$^\star$ \\
-	& & {\tt end} {\em lexical-atom-type} {\tt atom table;}
+\emkey{lexical-units-block} & ::= &
+	{\tt begin lexical units;}\\
+	& &  ~~~~{\em lexical-unit-definition}$^\star$ \\
+	& & {\tt end lexical units;}
 \\[1ex]
 \emkey{lexical-unit-definition} & ::= &
-	{\tt "}{\em lexical-unit-name}{\tt "} {\tt ::=} \\
+	{\tt "}{\em lexical-unit-name}{\tt "} \underline{\tt ::=} \\
 	& & ~~~~{\em lexical-unit} \{ {\tt |} {\em lexical-unit} \}$^\star$
 	    {\tt ;}
 \\[1ex]
@@ -722,8 +724,43 @@ Lexeme Definition Language blocks have the following form:
 \\[1ex]
 \emkey{lexical-unit} & ::= & {\em quoted-string}
 \\[1ex]
+\emkey{lexical-atom-table-block} & ::= &
+	{\tt begin} {\em lexeme-type}
+		    \begin{tabular}[t]{@{}l@{}}
+		    {\tt atom table} \\
+		    {\em lexical-options}{\tt ;}
+		    \end{tabular}\\
+	& &  ~~~~{\em lexical-atom-table-entry}$^\star$ \\
+	& & {\tt end} {\em lexeme-type} {\tt atom table;}
+\\[1ex]
+\emkey{lexical-options} & ::= & {\em empty} $|$ {\tt ( )} \\
+			& $|$ & {\tt (} {\em lexical-option}
+				       \{ {\tt ,} {\em lexical-option} \}
+			               {\tt )}
+\\[1ex]
+\emkey{lexical-option} & ::= & \ttkey{discard} $|$ \ttkey{continue}
+					       $|$ \ttkey{announce}
+					       $|$ \ttkey{atomic} \\
+		       & $|$ & {\em lexical-type}
+\\[1ex]
 \emkey{lexical-atom-table-entry}
 	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
+\\[1ex]
+\emkey{lexical-class-definition}
+	& ::= & {\tt lexical} {\em lexical-class} {\tt class}
+				    {\em lexical-options}{\tt ;}
+\\[1ex]
+\emkey{lexical-class} & ::= & {\em identifier}
+\\[1ex]
+\emkey{lexical-group-definition}
+	& ::= & \begin{tabular}[t]{@{}l@{}}
+	        {\tt lexical} {\em lexical-group} {\tt group} \\
+		~~~~ {\tt (} {\em lexeme-type} \{ {\tt ,} {\em lexeme-type} \}
+		         {\tt );}
+		\end{tabular}
+\\[1ex]
+\emkey{lexical-group} & ::= & {\em lexeme-type}
+				    
 \end{tabular}
 \end{center}
 

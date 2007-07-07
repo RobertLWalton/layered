@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 6, 2007
+July 7, 2007
  
 \end{center}
 
@@ -738,9 +738,10 @@ the following syntax:
 			               {\tt )}
 \\[1ex]
 \emkey{lexical-option} & ::= & \ttkey{discard} $|$ \ttkey{continue}
-					       $|$ \ttkey{announce}
+					       $|$ \ttkey{error}
 					       $|$ \ttkey{atomic} \\
-		       & $|$ & \ttkey{remove} $|$ {\em lexeme-type}
+		       & $|$ & \ttkey{announce} $|$ \ttkey{remove}
+		                                $|$ {\em lexeme-type}
 \\[1ex]
 \emkey{lexical-atom-table-entry}
 	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
@@ -905,6 +906,7 @@ begin lexical units;
     "<hex-digit>" ::= "A" | "B" | "C" | "D" | "E" | "F"
                     | "a" | "b" | "c" | "d" | "e" | "f"
                     | "<digit>" ;
+    "<sign>" ::= "+" | "-" ;
     "<operator>" ::= "!" | "%" | "^" | "&" | "*"
                    | "(" | ")" | "-" | "+" | "="
                    | "{" | "}" | "|" | "~" | "["
@@ -941,20 +943,21 @@ begin lexical units;
     "<oct4>" ::= "<oct-digit><oct3>";
     "<oct5>" ::= "<oct-digit><oct4>";
     "<oct6>" ::= "<oct-digit><oct5>";
-    "<oct-char>" ::= "\\<oct1" | "\\<oct2>"
+    "<oct7>" ::= "<oct-digit><oct6>";
+    "<oct-char>" ::= "\\<oct1>"  | "\\<oct2>"
                    | "\\0<oct2>" | "\\1<oct2>"
                    | "\\2<oct2>" | "\\3<oct2>";
     "<bad-oct-char>" ::= "\\4<oct2>" | "\\5<oct2>"
                        | "\\6<oct2>" | "\\7<oct2>"
-                       | "\\<oct3>";
-    "<oct-wchar>" ::= "<oct-char>"
+                       | "\\<oct4>";
+    "<oct-wchar>" ::= "\\<oct1>" | "\\<oct2>"
                     | "\\<oct3>" | "\\<oct4>"
                     | "\\<oct5>" | "\\0<oct5>"
                     | "\\1<oct5>";
     "<bad-oct-whar>" ::= | "\\2<oct5>" | "\\3<oct5>"
                          | "\\4<oct5>" | "\\5<oct5>"
                          | "\\6<oct5>" | "\\7<oct5>"
-                         | "\\<oct6>";
+                         | "\\<oct7>";
 end lexical units;
     
 \end{verbatim}\end{indpar}
@@ -998,6 +1001,16 @@ end lexical units;
 \newpage
 
 \begin{indpar}\begin{verbatim}
+lexical lexeme class ( announce );
+lexical operator class ( atomic );
+lexical separator class ( atomic );
+lexical identifier class ( announce, lexeme );
+lexical number class ( error, lexeme );
+lexical string class ( continue, error, lexeme );
+lexical comment class ( discard, continue, error, lexeme );
+lexical whitespace class ( discard, error, lexeme );
+lexical error class ( announce, discard, lexeme );
+
 begin lexeme atom table;
     "<operator>"        operator;
     "<separator>"       separator;
@@ -1006,7 +1019,7 @@ begin lexeme atom table;
     "0X<hex-digit>"     hex number;
     "0<oct-digit>"      oct number;
     "<non-zero-digit>"  number;
-    ".<digit>"  	number;
+    ".<digit>"          number;
     "L'"                wide char string;
     "'"                 char string;
     "L\""               wide quoted string;
@@ -1048,6 +1061,8 @@ end oct number atom table;
 begin number atom table;
     "<digit>"           digit;
     "."                 point;
+    "e<digit>"          begin exponent;
+    "E<digit>"          begin exponent;
     "e<sign><digit>"    begin exponent;
     "E<sign><digit>"    begin exponent;
     "<digit>"           exponent digit;

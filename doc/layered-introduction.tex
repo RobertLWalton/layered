@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 4, 2007
+July 6, 2007
  
 \end{center}
 
@@ -302,7 +302,7 @@ The (standard) scanner reads left to right, and at each point
 identifies the next lexical atom in the text,
 where a \key{lexical atom} is a string
 of characters explicitly listed in one of the \skey{lexical atom table}s.
-If there are several possibilities, the longest is choosen.
+If there are several possibilities, the longest is chosen.
 To identify atoms, the scanner looks in one of the atom tables;
 which table depends on the state of the scanner.  The table entry
 for an atom contains an atom type, which determines subsequent
@@ -376,8 +376,8 @@ The following are some entries in the standard {\tt lexeme} atom table:
 \end{verbatim}\end{indpar}
 
 Because of these entries the input string `{\tt ++a}' will be
-recogonized as consisting of the operator lexeme `{\tt ++}' followed
-by the beginning of an identifier.  `{\tt ++}' is choosen over `{\tt +}'
+recognized as consisting of the operator lexeme `{\tt ++}' followed
+by the beginning of an identifier.  `{\tt ++}' is chosen over `{\tt +}'
 because it is longer.  The input string `{\tt ++L'}', however,
 would be recognized as beginning with the operator lexeme `{\tt ++}'
 followed by the beginning of a `{\tt wide char string}'.
@@ -390,7 +390,7 @@ Given input beginning with `{\tt ++a}', and the above entries in the
 the scanner accepts the atom `{\tt ++}' as an operator lexeme and removes
 it from the input.  Then given input beginning with `{\tt a}', the
 scanner does not accept any input, but instead just switches state to
-`{\tt identifier}' and continues by scanning identifer atoms.
+`{\tt identifier}' and continues by scanning identifier atoms.
 In certain states, such as the `{\tt identifier}' state, the
 scanner accumulates all the translations of the atoms accepted in
 that state, and when the scanner switches out of the state, the
@@ -702,28 +702,27 @@ set of lexical atom tables needs to be changed.
 Lexeme Definition Language consists of {\em lexical-definitions} with
 the following syntax:
 
-\begin{center}
-\begin{tabular}{rrl}
+\begin{tabular}{p{2in}rl}
 \emkey{lexical-definition}
 	& ::= & {\em lexical-units-block} \\
 	& $|$ & {\em lexical-atom-table-definition} \\
 	& $|$ & {\em lexical-class-definition} \\
 	& $|$ & {\em lexical-group-definition}
-\\[1ex]
+\end{tabular} \\
+\begin{tabular}{p{2in}rl}
 \emkey{lexical-units-block} & ::= &
 	{\tt begin lexical units;}\\
 	& &  ~~~~{\em lexical-unit-definition}$^\star$ \\
 	& & {\tt end lexical units;}
 \\[1ex]
 \emkey{lexical-unit-definition} & ::= &
-	{\tt "}{\em lexical-unit-name}{\tt "} \underline{\tt ::=} \\
-	& & ~~~~{\em lexical-unit} \{ {\tt |} {\em lexical-unit} \}$^\star$
+	{\tt "}{\em lexical-unit}{\tt "} \underline{\tt ::=} \\
+	& & ~~~~{\em quoted-string} \{ {\tt |} {\em quoted-string} \}$^\star$
 	    {\tt ;}
 \\[1ex]
-\emkey{lexical-unit-name} & ::= & {\tt <}\{{\em letter}$|${\tt -}\}$^+${\tt >}
-\\[1ex]
-\emkey{lexical-unit} & ::= & {\em quoted-string}
-\\[1ex]
+\emkey{lexical-unit} & ::= & {\tt <}\{{\em letter}$|${\tt -}\}$^+${\tt >}
+\end{tabular} \\
+\begin{tabular}{p{2in}rl}
 \emkey{lexical-atom-table-block} & ::= &
 	{\tt begin} {\em lexeme-type}
 		    \begin{tabular}[t]{@{}l@{}}
@@ -741,41 +740,55 @@ the following syntax:
 \emkey{lexical-option} & ::= & \ttkey{discard} $|$ \ttkey{continue}
 					       $|$ \ttkey{announce}
 					       $|$ \ttkey{atomic} \\
-		       & $|$ & {\em lexical-type}
+		       & $|$ & \ttkey{remove} $|$ {\em lexeme-type}
 \\[1ex]
 \emkey{lexical-atom-table-entry}
 	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
-\\[1ex]
+\end{tabular} \\
+\begin{tabular}{p{2in}rl}
 \emkey{lexical-class-definition}
 	& ::= & {\tt lexical} {\em lexical-class} {\tt class}
 				    {\em lexical-options}{\tt ;}
 \\[1ex]
 \emkey{lexical-class} & ::= & {\em identifier}
-\\[1ex]
+\end{tabular} \\
+\begin{tabular}{p{2in}rl}
 \emkey{lexical-group-definition}
 	& ::= & \begin{tabular}[t]{@{}l@{}}
-	        {\tt lexical} {\em lexical-group} {\tt group} \\
-		~~~~ {\tt (} {\em lexeme-type} \{ {\tt ,} {\em lexeme-type} \}
-		         {\tt );}
+	        {\tt lexical} {\em new-lexical-group} {\tt group} \\
+		~~~~ {\tt (} {\em lexical-group} \{ {\tt ,}
+				{\em lexical-group} \} {\tt );}
 		\end{tabular}
 \\[1ex]
-\emkey{lexical-group} & ::= & {\em lexeme-type}
+\emkey{new-lexical-group}
+    & ::= & \{ {\em identifier} $|$ {\em quoted-string} \}$^\star$
+             {\em identifier}
+\\[1ex]
+\emkey{lexical-group} & ::= & {\em new-lexical-group} $|$ {\em lexeme-type}
 				    
 \end{tabular}
-\end{center}
 
-A \emkey{lexical-unit} is a set of strings.  Definitions of
+{\em Lexical-units} are used to abbreviate sets of lexical atom tables.
+{\em Lexical-classes} are used in {\em lexeme-types}, which name
+lexical atom tables.  They are a way of setting default
+{\em lexical-options} for the tables.  {\em Lexical-groups} are named sets
+of lexical atom tables.  Lexical atom tables are generally defined in
+a separate file, and {\em lexical-groups} are used in other files
+as names of sets of the tables.
+
+A \emkey{lexical-unit} names a set of quoted strings.  Definitions of
 lexical units may \underline{not} be recursive.
 
-{\em Lexical-units} appear inside quoted strings.  A
-{\em lexical-unit-name} appearing after a {\tt ::=} in a
-{\em lexical-unit-definition}, or appearing anywhere in a
+A {\em Lexical-unit} begins with `\verb|<|' and ends with `\verb|>|'
+and appears inside quoted strings.  A
+{\em lexical-unit} appearing in a quoted string after a {\tt ::=} in a
+{\em lexical-unit-definition}, or anywhere in a
 {\em lexical-atom-table-entry}, is
 \ikey{replaceable}{lexical-unit-name@{\em lexical-unit-name}}.
-The replacements for such a {\em lexical-unit-name} are the
-strings in the set of the named {\em lexical-unit}.
+The replacements for such a {\em lexical-unit} are the
+strings in the set it names.
 
-Each entry or definition containing replacable {\em lexical-unit-name}
+Each entry or definition containing replaceable {\em lexical-unit}
 is expanded to a separate copy for each replacement of the name.
 If a single name appears twice, it is replaced by the same string in
 each occurrence.  If two or more different names appear,
@@ -786,13 +799,13 @@ Thus
 
 \begin{indpar}\begin{verbatim}
 begin lexical units;
-    <digit> ::= "0" | "1";
-    <sign>  ::= "+" | "-";
+    "<digit>" ::= "0" | "1";
+    "<sign>"  ::= "+" | "-";
 
-    <doubled-digit> ::= "<digit><digit>";
+    "<doubled-digit>" ::= "<digit><digit>";
 
-    <one-digit>  ::= "<digit>";
-    <two-digits> ::= "<one-digit><digit>";
+    "<one-digit>"  ::= "<digit>";
+    "<two-digits>" ::= "<one-digit><digit>";
 end lexical units;
 \end{verbatim}\end{indpar}
 
@@ -800,12 +813,12 @@ is equivalent to
 
 \begin{indpar}\begin{verbatim}
 begin lexical units;
-    <digit> ::= "0" | "1";
+    "<digit>" ::= "0" | "1";
 
-    <doubled-digit> ::= "00" | "11";
+    "<doubled-digit>" ::= "00" | "11";
 
-    <one-digit>  ::= "0" | "1";
-    <two-digits> ::= "00" | "01" | "10" | "11";
+    "<one-digit>"  ::= "0" | "1";
+    "<two-digits>" ::= "00" | "01" | "10" | "11";
 end lexical units;
 \end{verbatim}\end{indpar}
 
@@ -835,22 +848,34 @@ As a consequence, all recognized atoms will be such, and it will
 not matter whether the lexical analyzer actually uses 8-bit bytes
 or 16-bit UNICODE characters in its implementation.
 
-A {\em lexical-definition-block} does not change lexical tables
-until after it itself is completely scanned.  Then it adds to the current
-tables any {\em lexical-atom-entries} it has defined.  These may replace
-previous entries with the same atom.  Similarly {\em lexical-unit-names}
-may be given new definitions.
-The identifier `\ttkey{remove}' may be used as a {\em lexical-atom-type}
-in a new {\em lexical-atom-entry} to cause an atom to be removed from
-a table.  Similary a {\em lexical-unit-name} definition may be removed
-by making it equal to {\tt "<remove>"}.
+A \key{lexical context} consists of a stack of {\em lexical-definitions}.
+If definitions in the stack have the same name,
+the topmost is used, where atom tables are named by {\em lexeme-types}.
+The operations that change a lexical context are defined elsewhere,
+but generally consist of adding definitions to or removing definitions from
+the top of the context stack.  A file containing {\em lexical-definitions}
+defines a lexical context into which is pushed each definition as it
+occurs.  The lexical context used to scan such a file is different from
+the lexical context being defined by the file, so the definitions themselves
+are \underline{not} scanned using the context they define.
+However, the definitions use the context being defined to look up
+names, e.g., {\em lexical-units} in quoted strings
+and {\em lexeme-types} in {\em lexical-group-definitions}.
 
-A {\em lexical-definition-block} changes
-the processing of all lexemes scanned after it, until the end of the
-program block containing the {\em lexical-definition-block}.  The
-initial definition of lexical tables for any program is provided
-by a {\em lexical-definition-block} in a separate file; and this
-in turn is scanned using the standard lexical atom tables defined
+If a {\em lexical-unit} is defined that
+is equal to {\tt "<remove>"}, this has the effect of removing the
+{\em lexical-unit} from the set of {\em lexical-units} defined by a context.
+If a lexical atom table with the `{\tt remove}' option is defined, it
+has the effect of removing its {\em lexeme-type} name from the set of
+defined {\em lexeme-types}.  Similarly for {\em lexical-classes}.
+If a {\em lexical-group} is to be the singleton set
+`{\tt remove}', this has the effect
+of removing the {\em lexical-class} from the set of
+defined {\em lexical-classes}.
+
+The \key{default lexical context}\index{lexical context!default}%
+\index{context!lexical default} is defined using standard
+{\em lexical-definitions} given
 in Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES}.
 
 \section{Parsing}

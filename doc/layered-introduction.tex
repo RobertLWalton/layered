@@ -80,12 +80,14 @@
 \newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
 \newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
+\newcommand{\ttnbakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
 \newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
 \newcommand{\ttdkey}[1]{{\tt \bf .#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{{\tt \bf .#1}\index{#1@{\tt .#1}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
+\newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
 \newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
@@ -235,7 +237,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 7, 2007
+July 8, 2007
  
 \end{center}
 
@@ -527,7 +529,7 @@ The following are the possible lexical atom types in an identifier atom table:
 \ttkey{end}	  & Accumulate the atom, but only
 		    recognize the atom if it is \underline{not} the first
 		    atom in the {\tt identifier} state.  After
-		    accepting the atom, switch into the {\tt lexeme} state.
+		    accumulating the atom, switch into the {\tt lexeme} state.
 \\[1ex]
 \ttkey{error}	  & Discard the atom, and announce that the
 		    atom is in error.
@@ -577,7 +579,7 @@ The following are the possible lexical atom types in a number atom table:
 \ttkey{end}
 		& Accumulate the atom, but only recognize
 		  the atom if it is \underline{not} the first atom.
-		  After accepting the atom, the scanner switches
+		  After accumulating the atom, the scanner switches
 		  to {\tt lexeme} state.
 \\[1ex]
 \ttkey{floating end}
@@ -691,7 +693,7 @@ by `{\tt error}', except that
 when the scanner leaves an {\tt error}
 state the accumulated string, which is discarded, is announced as an error.
 
-\subsection{Lexeme Table Definitions}
+\subsection{The Lexeme Definition Language}
 
 Lexeme tables for the standard lexical scanner are written in
 the \key{Lexeme Definition Language}.  This language defines
@@ -702,14 +704,14 @@ set of lexical atom tables needs to be changed.
 Lexeme Definition Language consists of {\em lexical-definitions} with
 the following syntax:
 
-\begin{tabular}{p{2in}rl}
+\begin{tabular}{p{2.5in}rl}
 \emkey{lexical-definition}
 	& ::= & {\em lexical-units-block} \\
 	& $|$ & {\em lexical-atom-table-definition} \\
 	& $|$ & {\em lexical-class-definition} \\
 	& $|$ & {\em lexical-group-definition}
 \end{tabular} \\
-\begin{tabular}{p{2in}rl}
+\begin{tabular}{p{2.5in}rl}
 \emkey{lexical-units-block} & ::= &
 	{\tt begin lexical units;}\\
 	& &  ~~~~{\em lexical-unit-definition}$^\star$ \\
@@ -722,8 +724,8 @@ the following syntax:
 \\[1ex]
 \emkey{lexical-unit} & ::= & {\tt <}\{{\em letter}$|${\tt -}\}$^+${\tt >}
 \end{tabular} \\
-\begin{tabular}{p{2in}rl}
-\emkey{lexical-atom-table-block} & ::= &
+\begin{tabular}{p{2.5in}rl}
+\emkey{lexical-atom-table-definition} & ::= &
 	{\tt begin} {\em lexeme-type}
 		    \begin{tabular}[t]{@{}l@{}}
 		    {\tt atom table} \\
@@ -746,14 +748,14 @@ the following syntax:
 \emkey{lexical-atom-table-entry}
 	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
 \end{tabular} \\
-\begin{tabular}{p{2in}rl}
+\begin{tabular}{p{2.5in}rl}
 \emkey{lexical-class-definition}
 	& ::= & {\tt lexical} {\em lexical-class} {\tt class}
 				    {\em lexical-options}{\tt ;}
 \\[1ex]
 \emkey{lexical-class} & ::= & {\em identifier}
 \end{tabular} \\
-\begin{tabular}{p{2in}rl}
+\begin{tabular}{p{2.5in}rl}
 \emkey{lexical-group-definition}
 	& ::= & \begin{tabular}[t]{@{}l@{}}
 	        {\tt lexical} {\em new-lexical-group} {\tt group} \\
@@ -766,16 +768,21 @@ the following syntax:
              {\em identifier}
 \\[1ex]
 \emkey{lexical-group} & ::= & {\em new-lexical-group} $|$ {\em lexeme-type}
+\\[1ex]
+\emkey{lexeme-type}
+	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
 				    
 \end{tabular}
 
 {\em Lexical-units} are used to abbreviate sets of lexical atom tables.
 {\em Lexical-classes} are used in {\em lexeme-types}, which name
 lexical atom tables.  They are a way of setting default
-{\em lexical-options} for the tables.  {\em Lexical-groups} are named sets
+{\em lexical-options} for the tables.  {\em Lexical-groups} name sets
 of lexical atom tables.  Lexical atom tables are generally defined in
 a separate file, and {\em lexical-groups} are used in other files
-as names of sets of the tables.
+as names of sets of the tables.  The {\em lexeme-type} that names
+a lexical atom table can also be used as a {\em lexical-group}
+naming the set whose only element is just that table.
 
 A \emkey{lexical-unit} names a set of quoted strings.  Definitions of
 lexical units may \underline{not} be recursive.
@@ -823,12 +830,13 @@ begin lexical units;
 end lexical units;
 \end{verbatim}\end{indpar}
 
-and
+and given these {\em lexical-unit-definitions},
 
 \begin{indpar}\begin{verbatim}
 begin lexeme atom table;
-    "<digit><digit>"  double number "D<digit>";
-    "<digit>"         number;
+    "<digit>"                 number;
+    "<digit><digit>"          double number "D<digit>";
+    "<digit><one-digit>"      two digit number;
 end lexeme atom table;
 \end{verbatim}\end{indpar}
 
@@ -836,10 +844,14 @@ is equivalent to
 
 \begin{indpar}\begin{verbatim}
 begin lexeme atom table;
-    "00"              double number "D0";
-    "11"              double number "D1";
-    "0"               number;
-    "1"               number;
+    "0"                       number;
+    "1"                       number;
+    "00"                      double number "D0";
+    "11"                      double number "D1";
+    "00"                      two digit number;
+    "01"                      two digit number;
+    "10"                      two digit number;
+    "11"                      two digit number;
 end lexeme atom table;
 \end{verbatim}\end{indpar}
 
@@ -851,10 +863,15 @@ or 16-bit UNICODE characters in its implementation.
 
 A \key{lexical context} consists of a stack of {\em lexical-definitions}.
 If definitions in the stack have the same name,
-the topmost is used, where atom tables are named by {\em lexeme-types}.
-The operations that change a lexical context are defined elsewhere,
-but generally consist of adding definitions to or removing definitions from
-the top of the context stack.  A file containing {\em lexical-definitions}
+the topmost is used.  Note that names of different kinds of definitions
+do \underline{not} conflict: the same identifier can be used as a
+{\em lexeme-type} that names a lexical atom
+table and as a {\em lexical-class}.  Here a {\em lexical-atom-table-definition}
+also serves as a {\em lexical-group-definition} defining its
+{\em lexeme-type} as a {\em lexical-group} naming the set consisting of
+just the table.
+
+A file containing {\em lexical-definitions}
 defines a lexical context into which is pushed each definition as it
 occurs.  The lexical context used to scan such a file is different from
 the lexical context being defined by the file, so the definitions themselves
@@ -864,13 +881,16 @@ names, e.g., {\em lexical-units} in quoted strings
 and {\em lexeme-types} in {\em lexical-group-definitions}.
 
 If a {\em lexical-unit} is defined that
-is equal to {\tt "<remove>"}, this has the effect of removing the
+is equal to \ttnbakey{"\LESSTHAN remove\GREATERTHAN"}{remove},
+this has the effect of removing the
 {\em lexical-unit} from the set of {\em lexical-units} defined by a context.
-If a lexical atom table with the `{\tt remove}' option is defined, it
+It is as if the unit had never been defined.
+If a lexical atom table with the `\ttkey{remove}' option\label{REMOVE}
+is defined, it
 has the effect of removing its {\em lexeme-type} name from the set of
 defined {\em lexeme-types}.  Similarly for {\em lexical-classes}.
-If a {\em lexical-group} is to be the singleton set
-`{\tt remove}', this has the effect
+If a {\em lexical-group} is defined to be the singleton set
+`\ttkey{remove}', this has the effect
 of removing the {\em lexical-class} from the set of
 defined {\em lexical-classes}.
 
@@ -878,6 +898,209 @@ The \key{default lexical context}\index{lexical context!default}%
 \index{context!lexical default} is defined using standard
 {\em lexical-definitions} given
 in Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES}.
+This is normally used to scan files containing lexical definitions.
+
+Other layered programming languages use lexical contexts that consist
+of nothing but a stack of lexical atom tables, each table being treated
+as equivalent to a definition of the table.  These are
+modified by importing {\em lexical-groups} within a code block.
+When a {\em lexical-group} is imported, its lexical atom tables are pushed
+into the current lexical context.  At the end of the code block into which the
+group is imported, the tables are popped from the context.
+A table with the `{\tt remove}' option can be used to temporarily
+hide all tables with the same name.
+
+\subsubsection{Lexical Options}
+
+A lexical atom table has \emskey{lexical-option}s that control the behavior
+of the table.  A {\em lexical-class} has {\em lexical-options} that become
+the default set of options for any table whose naming {\em lexeme-type} ends
+with the {\em lexical-class}.
+Tables whose definitions do not give a parenthesized list
+of options inherit their options from their class.
+
+The following are the effects of the different {\em lexical-options}:
+
+\begin{indpar}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\emkey{lexeme-type}
+		& This is the \key{default exit state}\label{DEFAULT-EXIT-STATE}
+		  of the table.
+		  The current scanning state is change to this state
+		  under various circumstances described in the following
+		  options.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{continue}& By default, if no atom can be recognized by the
+                  table, the state is changed to the default exit
+		  state of the table.  This `{\tt continue}' option
+		  causes the first legal UTF-8 character string
+		  in the remaining input to be recognized as an atom
+		  and accepted, instead.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{error}   & By default, if the beginning of the remaining input
+		  does not hold a legal UTF-8 character string (one that
+		  encodes a 16-bit UNICODE character), the state
+		  is changed to the default exit state of the table.
+		  This `{\tt error}' options causes characters to be
+		  removed from the remaining input until the input
+		  begins with a legal UTF-8 charcter string, and
+		  an error to be announced concerting these characters,
+		  without changing the state.  The removed characters
+		  are effectively discarded and not include in any
+		  lexeme.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{discard}	& By default, any string accumulated by the action of
+		  the table is emitted as a lexeme when the state
+		  is changed to exit the table.
+		  This `{\tt discard}' option causes the
+		  string to be discarded instead.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{error}	& By default, any string accumulated by the action of
+		  the table is not announced as an error the state
+		  is changed to exit the table.  This `{\tt error}'
+		  option causes the string to be announced as an error
+		  instead.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{atomic}	& This is a {\em lexical-class} option only.  It specifies
+		  that there is no lexical atom table for {\em lexeme-types}
+		  of this class, and instead each atom whose
+		  {\em lexical-atom-type} is the given {\em lexeme-type}
+		  should be emitted as a lexeme of the given {\em lexeme-type}.
+		  E.g., the standard `{\tt separator}' class.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{remove}	& See \pagref{REMOVE}.
+\end{tabular}
+
+\end{indpar}
+
+\subsubsection{Lexical Atom Types}
+
+A \emkey{lexical-atom-type} is the part of the
+{\em lexical-atom-table-entry} (\pagref{LEXICAL-ATOM-TABLE-ENTRY})
+that specifies the action to take when a lexical atom appears
+at the beginning of the remainder of the input.  The {\em lexical-atom-types}
+normally used with the standard {\em lexical-classes} are described with
+each standard class above.  However, any {\em lexical-atom-type} can
+be used with any class.  The following is a complete list of
+{\em lexical-atom-types} and their actions:
+
+
+\begin{indpar}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+{\em lexeme-type}	& If the {\em lexeme-type}'s {\em lexical-class}
+			  has the `{\tt atomic}' option,
+			  emit the atom as a lexeme of the {\em lexeme-type}
+			  and do not change the state.  Otherwise
+			  reject the atom and change the state to that
+			  named by the {\em lexeme-type}.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{accept}	& Accumulate the atom.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{begin}	  & Accumulate the atom, but only
+		    recognize the atom if it is the first atom
+		    in the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{continue}  & Accumulate the atom, but only
+		    recognize the atom if it is \underline{not} the first
+		    atom of the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{end}	  & Accumulate the atom, but only
+		    recognize the atom if it is \underline{not} the first
+		    atom in the current state.  After
+		    accumulating the atom, switch into the
+		    default exit state (\pagref{DEFAULT-EXIT-STATE}).
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{begin end}
+		  & Accumulate the atom, but only
+		    recognize the atom if it is the first atom
+		    in the current state.  After
+		    accumulating the atom, switch into the
+		    default exit state (\pagref{DEFAULT-EXIT-STATE}).
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{error}	  & Discard the atom, and announce that the
+		    atom is in error.  Do not accumulate the atom
+		    or change the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{digit}	& Accumulate the atom, but only recognize
+		  the atom if it is \underline{not} after a
+		  {\tt begin exponent} atom recognized in the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{continue digit}
+		& Accumulate the atom, but only
+		  recognize the atom if it is \underline{not}
+		  the first atom of the current state
+		  and \underline{not} after a
+		  {\tt begin exponent} atom recognized in the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{point}	& Accumulate the atom, but only recognize
+                  the atom if it is \underline{not}
+		  after either another {\tt point}
+		  or a {\tt begin exponent} atom recognized in the current
+		  state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{begin exponent}
+		& Accumulate the atom, but only recognize
+		  the atom if it is \underline{not} the first atom
+		  of the current state
+		  and is \underline{not} after a
+		  {\tt begin exponent} atom recognized in the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{exponent digit}
+		& Accumulate the atom, but only recognize
+		  the atom if it \underline{is} after a
+		  {\tt begin exponent} atom recognized in the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{floating end}
+		& Like {\tt end}, but \underline{must} be after a {\tt point}
+		  or {\tt begin exponent} atom recognized in the current state.
+\end{tabular}
+
+\begin{tabular}{p{1.3in}@{~~~~~~~~~~}p{4.0in}}
+\ttkey{integer end}
+		& Like {\tt end},
+		  but must \underline{not} be after a {\tt point}
+		  or {\tt begin exponent} atom recognized in the current state.
+\end{tabular}
+
+\end{indpar}
 
 \section{Parsing}
 

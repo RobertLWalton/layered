@@ -910,6 +910,63 @@ group is imported, the tables are popped from the context.
 A table with the `{\tt remove}' option can be used to temporarily
 hide all tables with the same name.
 
+\subsubsection{Lexical Unit Translators}
+
+The Standard {\em lexical-definitions} given in
+Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES} include
+the following entries in the `{\em quoted string atom}' table:
+
+\begin{indpar}\begin{verbatim}
+    "<backslash-control>"   continue  "<char backslash-control>";
+    "<backslash-char>"      continue  "<char backslash-char>";
+\end{verbatim}\end{indpar}
+
+These entries invoke the `{\tt char translator}' which does things
+like translate the string {\tt "\BACKSLASH\BACKSLASH n"}
+to {\tt "\BACKSLASH n"}.  Here the first
+string is a backslash character followed by the letter `{\tt n}',
+and the second string is just a single line feed character.
+As a consequence, when `{\tt \BACKSLASH n}' (represented
+by {\tt "\BACKSLASH\BACKSLASH n"}) is substituted for
+`{\tt <backslash-control>}' in the first
+entry above, `{\em line-feed}\,' (represented by
+by {\tt "\BACKSLASH n"}) is substituted for
+`{\tt <char backslash-control>}' in entry.
+This produces:
+
+\begin{indpar}\begin{verbatim}
+    "\\n"   continue  "\n";
+\end{verbatim}\end{indpar}
+
+A \key{lexical translator} is a lexical atom table whose lexical
+class is `\ttkey{translator}'.  It can be used in
+{\em translated-lexical-units} which have names of the form:
+
+\begin{indpar}
+\begin{tabular}{p{2.0in}rl}
+\emkey{translated-lexical-unit}
+	& ::= & {\tt <}{\em lexical-translator}
+		{\em lexical-unit-name}{\tt >}
+\\[1ex]
+\emkey{lexical-translator} & ::= & \{{\em letter}$|${\tt -}\}$^+$
+\\[1ex]
+\emkey{lexical-unit-name} & ::= & \{{\em letter}$|${\tt -}\}$^+$
+\end{tabular}
+\end{indpar}
+
+The strings of the translated lexical unit
+    {\tt <}{\em lexical-translator} {\em lexical-unit-name}{\tt >}
+are the strings of the lexical unit
+    {\tt <}{\em lexical-unit-name}{\tt >}
+run through a translation process that uses just the lexical atom
+table named `{\em lexical-translator} {\tt translator}' (this is
+the {\em lexeme-type} of the table).  To translate a string,
+a lexical scan is made with the string as input and the
+`{\em lexical-translator} {\tt translator}' table as the only
+lexical atom table and only state.  The string accumulated in this
+state is the translation.  The translation ends when the input
+string ends.
+
 \subsubsection{Lexical Options}
 
 A lexical atom table has \emskey{lexical-option}s that control the behavior
@@ -1234,6 +1291,44 @@ lexical comment class ( discard, continue, error, lexeme );
 lexical whitespace class ( discard, error, lexeme );
 lexical error class ( announce, discard, lexeme );
 
+begin char translator atom table;
+    // Accept all ASCII characters except \.
+    "\x0000"	accept;
+    "\x0001"	accept;
+    . . . entries omitted . . .
+    "\x005B"	accept;
+    // Skip \x005C which is backslash
+    "\x005D"	accept;
+    . . . entries omitted . . .
+    "\x007F"	accept;
+
+    // Decode all \x Unicode characters to UTF-8.
+    "\\x0000"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\x007F"	accept	"\x7F";
+    "\\x0080"	accept	"\xC1\x80";
+    . . . entries omitted . . .
+    "\\xFFFF"	accept	"\xEF\xBF\xBF";
+    "\\x00"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\x7F"	accept	"\x7F";
+    "\\x80"	accept	"\xC1\x80";
+    . . . entries omitted . . .
+    "\\xFF"	accept	"\xC3\xBF";
+
+    // Ditto for \X.
+    "\\X0000"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\XFF"	accept	"\xC3\xBF";
+
+end char translator atom table;
+
+\end{verbatim}\end{indpar}
+
+\newpage
+
+\begin{indpar}\begin{verbatim}
+
 begin lexeme atom table;
     "<operator>"        operator;
     "<separator>"       separator;
@@ -1260,7 +1355,7 @@ begin identifier atom table;
     "<digit>"   continue;
     "<control>" error;
 end identifier atom table;
-    
+
 \end{verbatim}\end{indpar}
 
 \newpage

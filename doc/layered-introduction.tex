@@ -90,6 +90,8 @@
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
+\newcommand{\itemref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\ttitemref}[1]{{\tt \ref{#1} ({p\pageref{#1}})}}
 \newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
@@ -237,7 +239,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 8, 2007
+July 10, 2007
  
 \end{center}
 
@@ -911,8 +913,9 @@ A table with the `{\tt remove}' option can be used to temporarily
 hide all tables with the same name.
 
 \subsubsection{Lexical Unit Translators}
+\label{LEXICAL-UNIT-TRANSLATORS}
 
-The Standard {\em lexical-definitions} given in
+The standard {\em lexical-definitions} given in
 Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES} include
 the following entries in the `{\em quoted string atom}' table:
 
@@ -966,6 +969,18 @@ a lexical scan is made with the string as input and the
 lexical atom table and only state.  The string accumulated in this
 state is the translation.  The translation ends when the input
 string ends.
+
+The standard {\em lexical-definitions} given in
+Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES} include
+a single {\tt translator} table, `{\tt char translator}' which provides
+for the translations needed elsewhere in the standard definitions.
+This table translates character sequences that can appear in a standard
+quoted string into their UTF-8 equivalents.  For example,
+\verb|"\\xFFFF"| is translated to \verb|"\xEF\xBF\xBF"|,
+and \verb|"\\n"| is translated to \verb|"\n"|,
+while \verb|"A"| is translated to \verb|"A"|.
+In order to accommodate variants such as \verb|"\\xffff"|
+and \verb|"XFFFF"| this table has several million entries.
 
 \subsubsection{Lexical Options}
 
@@ -1169,6 +1184,102 @@ be used with any class.  The following is a complete list of
 \label{STANDARD-LEXICAL-ATOM-TABLES}
 
 \begin{indpar}\begin{verbatim}
+lexical lexeme class ( announce );
+lexical operator class ( atomic );
+lexical separator class ( atomic );
+lexical identifier class ( announce, lexeme );
+lexical number class ( error, lexeme );
+lexical string class ( continue, error, lexeme );
+lexical comment class ( discard, continue, error, lexeme );
+lexical whitespace class ( discard, error, lexeme );
+lexical error class ( announce, discard, lexeme );
+\end{verbatim}
+
+\verb|// The following is described in |%
+\ttitemref{LEXICAL-UNIT-TRANSLATORS}{\tt .}
+\begin{verbatim}
+begin char translator atom table;
+
+    // Accept all ASCII characters except \.
+    "\x0000"	accept;
+    "\x0001"	accept;
+    . . . entries omitted . . .
+    "\x005B"	accept;
+    // Skip \x005C which is backslash
+    "\x005D"	accept;
+    . . . entries omitted . . .
+    "\x007F"	accept;
+
+    // Decode all \x Unicode characters to UTF-8.
+    "\\x0000"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\x007f"	accept	"\x7F";
+    "\\x007F"	accept	"\x7F";
+    "\\x0080"	accept	"\xC1\x80";
+    . . . entries omitted . . .
+    "\\xffff"	accept	"\xEF\xBF\xBF";
+    "\\xfffF"	accept	"\xEF\xBF\xBF";
+    "\\xffFf"	accept	"\xEF\xBF\xBF";
+    "\\xffFF"	accept	"\xEF\xBF\xBF";
+    . . . entries omitted . . .
+    "\\xFFFf"	accept	"\xEF\xBF\xBF";
+    "\\xFFFF"	accept	"\xEF\xBF\xBF";
+    "\\x000"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\x07f"	accept	"\x7F";
+    "\\x07F"	accept	"\x7F";
+    "\\x080"	accept	"\xC1\x80";
+    . . . entries omitted . . .
+    "\\xFFF"	accept	"\xE0\xBF\xBF";
+    "\\x00"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\x7f"	accept	"\x7F";
+    "\\x7F"	accept	"\x7F";
+    "\\x80"	accept	"\xC1\x80";
+    . . . entries omitted . . .
+    "\\xFF"	accept	"\xC3\xBF";
+    "\\x0"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\xf"	accept	"\x0F";
+
+    // Ditto for \X.
+    "\\X0000"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\XFF"	accept	"\xC3\xBF";
+
+    // Ditto for \0.
+    "\\000000"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\177777"	accept	"\xEF\xBF\xBF";
+    . . . entries omitted . . .
+    "\\00000"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\77777"	accept	"\xE7\xBF\xBF";
+    . . . entries omitted . . .
+    "\\0"	accept	"\x00";
+    . . . entries omitted . . .
+    "\\7"	accept	"\x07";
+
+    // Standard abbreviations.
+    "\\n"	accept "\n";
+    "\\f"	accept "\f";
+    "\\v"	accept "\v";
+    "\\t"	accept "\t";
+    "\\r"	accept "\r";
+    "\\b"	accept "\b";
+    "\\a"	accept "\a";
+    "\\?"	accept "\?";
+    "\\'"	accept "\'";
+    "\\\""	accept "\"";
+    "\\r"	accept "\r";
+    "\\\\"	accept "\\";
+
+end char translator atom table;
+\end{verbatim}\end{indpar}
+
+\newpage
+
+\begin{indpar}\begin{verbatim}
 begin lexical units;
     "<letter>" ::= "A" | "B" | "C" | "D" | "E" | "F" | "G"
                  | "H" | "I" | "J" | "K" | "L" | "M"
@@ -1276,53 +1387,6 @@ begin lexical units;
                             | "\\\'" | "\\\"" | "\\\\";
 end lexical units;
     
-\end{verbatim}\end{indpar}
-
-\newpage
-
-\begin{indpar}\begin{verbatim}
-lexical lexeme class ( announce );
-lexical operator class ( atomic );
-lexical separator class ( atomic );
-lexical identifier class ( announce, lexeme );
-lexical number class ( error, lexeme );
-lexical string class ( continue, error, lexeme );
-lexical comment class ( discard, continue, error, lexeme );
-lexical whitespace class ( discard, error, lexeme );
-lexical error class ( announce, discard, lexeme );
-
-begin char translator atom table;
-    // Accept all ASCII characters except \.
-    "\x0000"	accept;
-    "\x0001"	accept;
-    . . . entries omitted . . .
-    "\x005B"	accept;
-    // Skip \x005C which is backslash
-    "\x005D"	accept;
-    . . . entries omitted . . .
-    "\x007F"	accept;
-
-    // Decode all \x Unicode characters to UTF-8.
-    "\\x0000"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\x007F"	accept	"\x7F";
-    "\\x0080"	accept	"\xC1\x80";
-    . . . entries omitted . . .
-    "\\xFFFF"	accept	"\xEF\xBF\xBF";
-    "\\x00"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\x7F"	accept	"\x7F";
-    "\\x80"	accept	"\xC1\x80";
-    . . . entries omitted . . .
-    "\\xFF"	accept	"\xC3\xBF";
-
-    // Ditto for \X.
-    "\\X0000"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\XFF"	accept	"\xC3\xBF";
-
-end char translator atom table;
-
 \end{verbatim}\end{indpar}
 
 \newpage

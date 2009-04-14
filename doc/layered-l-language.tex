@@ -234,7 +234,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 2, 2007
+April 13, 2009
  
 \end{center}
 
@@ -264,13 +264,13 @@ TBD
 
 \ikey{Numbers}{number} are a basic element of L-language memory.
 Numbers are sequences of bits, and each number is one of
-five types:
+four types:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l}
 \bf Number Type & \bf Length \\[2ex]
-unsigned integer & 1 to 128 bits \\
-signed integer & 1 to 128 bits \\
+unsigned integer & 8, 16, 32, 64, or 128 bits \\
+signed integer & 8, 16, 32, 64, or 128 bits \\
 floating point number & 16, 32, 64, or 128 bits \\
 direct address & 64 bits \\
 \end{tabular}
@@ -279,9 +279,9 @@ direct address & 64 bits \\
 The \mkey{length}{of number}
 of a number is the number of its bits.  Numbers can have
 different lengths: for example, unsigned integers can have any
-length between 1 and 128 bits.
+lengths of 8, 16, 32, 64, or 128 bits.
 
-Numbers can be stored in registers or in random access memory (RAM).
+Numbers are stored in random access memory (RAM).
 
 An \key{unsigned integer} of length $L$ is a binary integer with
 $L$ binary digits (\skey{bit}s).
@@ -367,9 +367,182 @@ two pages be shared (map to the same bits of RAM).
 The only way for two blocks to share a bit is for the blocks to
 overlap shared pages.
 
-The only blocks in L-language are frames (\pagref{FRAMES}),
+The only blocks in L-language are frame blocks (\pagref{FRAMES}),
 code blocks(\pagref{CODE-BLOCKS}), and pages.
-Numbers may be stored in registers, frames, code blocks, or pages.
+Numbers are stored in these blocks.
+
+\subsection{Memory Access}
+\label{MEMORY-ACCESS}
+
+Memory is accessed through typed pointers defined by declarations
+such as:
+\begin{indpar}\begin{verbatim}
+int32 * ip;
+uns128 & u128;
+float64 ** fpp;
+uns8 &* u8p;
+int16 && i16;
+\end{verbatim}\end{indpar}
+
+Here
+
+\begin{enumerate}
+
+\item The variable {\tt ip} holds a 64 bit direct address of a 32 bit signed
+integer.
+The expression `\verb|ip|' names the 64 bit direct address of the
+32 bit integer.
+The expression `\verb|* ip|' names the 32 bit integer.
+
+\item The variable {\tt u128} holds a 64 bit direct address of a 128 bit
+unsigned integer.
+The expression `\verb|& u128|' names the 64 bit direct address of the
+128 bit integer.
+The expression `\verb|u128|' names the 128 bit integer.
+
+\item The variable {\tt fpp} holds a 64 bit direct address of
+a 64 bit direct address of a 64 bit floating point number.
+The expression `\verb|fpp|' names the 64 bit direct address of
+the 64 bit direct address of the 64 bit floating point number.
+The expression `\verb|* fpp|' names the 64 bit direct address of
+the 64 bit floating point number.
+The expression `\verb|* * fpp|' names
+the 64 bit floating point number.
+
+\item The variable {\tt u8p} holds a 64 bit direct address of
+a 64 bit direct address of a 8 bit unsigned integer.
+The expression `\verb|& u8p|' names the 64 bit direct address of
+the 64 bit direct address of the 8 bit unsigned integer.
+The expression `\verb|u8p|' names the 64 bit direct address of
+the 8 bit unsigned integer.
+The expression `\verb|* u8p|' names
+the 8 bit unsigned integer.
+
+\item The variable {\tt i16p} holds a 64 bit direct address of
+a 64 bit direct address of a 16 bit signed integer.
+The expression `\verb|& & i16p|' names the 64 bit direct address of
+the 64 bit direct address of the 16 bit signed integer.
+The expression `\verb|& i16p|' names the 64 bit direct address of
+the 16 bit signed integer.
+The expression `\verb|i16p|' names
+the 16 bit signed integer.
+
+\end{enumerate}
+
+Access to data blocks that are not single numbers is done with
+the help of unchecked pointer computation functions.  For
+example
+\begin{indpar}\begin{verbatim}
+definetype mytype (12,4);
+unchecked uns16   & .member1 ( mytype & m ) = m.0;
+unchecked int16   & .member2 ( mytype & m ) = m.2;
+unchecked int32   & .member3 ( mytype & m ) = m.4;
+unchecked float32 & .member4 ( mytype & m ) = m.8;
+. . . . .
+mytype x;
+x.member1 = 9;
+x.member2 = -19;
+x.member3 = 190;
+x.member4 = -0.01 * x.member3;
+\end{verbatim}\end{indpar}
+
+\subsection{Caches}
+\label{CACHES}
+
+\begin{indpar}
+
+\hspace*{-1em}\ttkey{const}~~The memory is constant and cannot
+be modified except by the constructor function that initialized
+the memory.
+
+\hspace*{-1em}\ttkey{local}~~Local memory must be allocated to
+a function frame (see Frames, \pagref{FRAMES}) and only accessed
+by the function execution associated with the frame.  An address
+referencing local memory cannot be passed as an argument or result
+value to an outline function or stored in global memory.
+This is the default for memory allocated as part of a function frame.
+
+\hspace*{-1em}\ttkey{global}~~Global memory can be accessed by
+any function execution.  This is the default for memory allocated
+to the heap.  Memory allocated to the stack must be explicitly
+declared global if its address is to be passed as an argument or result
+to an outline function
+or if its address is to be stored in global memory.
+
+\end{indpar}
+
+
+\subsection{Frames}
+\label{FRAMES}
+
+A \key{frame} is a set of non-overlapping
+data blocks associated with a function
+execution (see Functions, \pagref{FUNCTIONS}).  The blocks of a frame,
+which are called \skey{frame block}s,
+are allocated (come into existence) when the function execution begins,
+and are deallocated (cease to exist) when the function execution ends.
+
+There are three types of frame blocks:
+
+\begin{indpar}
+
+\hspace*{-1em}{\bf Local}.~~A \key{local frame block}
+can only be accessed by the frame's function.
+It cannot be accessed during calls made by this function,
+or by functions running in parallel with this function.
+
+\hspace*{-1em}{\bf Cache}.~~A \key{cache frame block}
+can only be accessed by the frame's function or during calls
+made by this function.  It cannot be accessed by functions running
+in parallel with the frame's function.
+Furthermore, if the block is modified during a call made by the
+frame's function,
+bits called `\skey{modification bit}s' are set in the block,
+or in another cache block in the same frame.
+
+\hspace*{-1em}{\bf Global}.~~A \key{global frame block}
+can be accessed by the frame's function or during calls
+made by this function.  It cannot be accessed by functions running
+in parallel with the frame's function.
+
+\end{indpar}
+
+Note that parallel function calls cannot access blocks in a function's
+frame.
+
+\subsection{Heaps}
+\label{HEAPS}
+
+A \key{heap} is a set of non-overlapping data blocks \underline{not}
+associated with any function execution.  The blocks of a heap,
+which are called \skey{heap block}s.  Each heap is associated with
+functions that allocate and deallocate blocks in the heap.
+
+There are three types of heap blocks:
+
+\begin{indpar}
+
+\hspace*{-1em}{\bf Cache}.~~A \key{cache heap block}
+is associated with a thread (see Threads, \pagref{THREADS}) and
+can only be accessed by the function executions in that thread.
+It cannot be accessed by function executions in other threads.
+Furthermore, if the block is modified during a function execution,
+bits called `\skey{modification bit}s' are set in the block,
+or in another cache block associated with the same thread
+in the same heap.
+
+\hspace*{-1em}{\bf Global}.~~A \key{global heap block}
+is associated with a thread and
+can only be accessed by the function executions in that thread.
+It cannot be accessed by function executions in other threads.
+
+\hspace*{-1em}{\bf Parallel}.~~A \key{parallel heap block}
+can only be accessed by function executions in any thread.
+
+\end{indpar}
+
+Note that parallel function calls cannot access blocks in a function's
+frame.
 
 \subsection{Registers}
 
@@ -409,7 +582,7 @@ and the dimensions parameter the maximum
 number of dimensions in the window array.
 
 Registers are virtual; some are implemented by hardware registers,
-and some are implemented by a \key{frame}\label{FRAMES},
+and some are implemented by a \key{frame}
 which is an allocated block of RAM
 associated with the currently executing code.
 

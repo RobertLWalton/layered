@@ -264,21 +264,33 @@ TBD
 
 \ikey{Numbers}{number} are a basic element of L-language memory.
 Numbers are sequences of bits, and each number is one of
-four types:
+four types, unsigned integer, signed integer, floating point number,
+and direct address:
 
 \begin{center}
-\begin{tabular}{l@{~~~~~~}l}
-\bf Number Type & \bf Length \\[2ex]
-unsigned integer & 8, 16, 32, 64, or 128 bits \\
-signed integer & 8, 16, 32, 64, or 128 bits \\
-floating point number & 16, 32, 64, or 128 bits \\
-direct address & 64 bits \\
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
+\bf Name & \bf Kind & \bf Length \\[2ex]
+\ttkey{uns8}		& unsigned integer & 8 bits \\
+\ttkey{uns16}		& unsigned integer & 16 bits \\
+\ttkey{uns32}		& unsigned integer & 32 bits \\
+\ttkey{uns64}		& unsigned integer & 64 bits \\
+\ttkey{uns128}		& unsigned integer & 128 bits \\
+\ttkey{int8}		& signed integer & 8 bits \\
+\ttkey{int16}		& signed integer & 16 bits \\
+\ttkey{int32}		& signed integer & 32 bits \\
+\ttkey{int64}		& signed integer & 64 bits \\
+\ttkey{int128}		& signed integer & 128 bits \\
+\ttkey{float16}		& IEEE floating point number & 16 bits \\
+\ttkey{float32}		& IEEE floating point number & 32 bits \\
+\ttkey{float64}		& IEEE floating point number & 64 bits \\
+\ttkey{float128}	& IEEE floating point number & 128 bits \\
+(see text)		& direct address & 64 bits \\
 \end{tabular}
 \end{center}
 
 The \mkey{length}{of number}
 of a number is the number of its bits.  Numbers can have
-different lengths: for example, unsigned integers can have any
+different lengths: for example, unsigned integers can have
 lengths of 8, 16, 32, 64, or 128 bits.
 
 Numbers are stored in random access memory (RAM).
@@ -288,9 +300,9 @@ $L$ binary digits (\skey{bit}s).
 
 A \key{signed integer} of length $L$ is a two's complement integer
 of length $L$.  This represents an integer $I$
-by the unsigned $L$-bit integer $I~\mbox{modulo}~2^L$.
+by the unsigned $L$-bit integer equal to $I~\mbox{modulo}~2^L$.
 
-A \key{floating point integer} of length $L$ is a floating point number
+A \key{floating point number} of length $L$ is a floating point number
 represented according to the IEEE 754 standard.  The sizes of exponents
 and mantissas for various floating point number sizes is as follows:
 
@@ -313,16 +325,74 @@ order 48-bits of the direct address are actually used.  This assumption can
 be used to put other information in the high order 16 bits
 of a 64-bit number containing a direct address.  For example, an address
 can be embedded in a 64-bit floating point NaN.  The Layered Languages do
-\underline{not} depend upon this assumption, but do provide an instruction
-with two parameters, $L$ and $S$, which takes as input
-a 64-bit integer and returns a 64-bit direct address containing
+\underline{not} depend upon this assumption, but do provide a builtin function
+that takes as input a 64-bit integer and two small integers, $L$ and $S$,
+and returns a 64-bit direct address containing
 the byte address equal to the low order $L$ bits of the input integer
 left shifted by $S$.  The output may have undefined high order bits if
-the hardare ignores them when using the output to address memory.
-If the hardware ignores the high order 20 bits, and uses only the
+the hardware ignores them when using the output to address memory.
+For example, if the hardware ignores the high order 20 bits, and uses only the
 low order 44 bits,
-this instruction would just copy its input to its output
+this function would just copy its input 64-bit integer to its output
 if $L\geq 44$ and $S=0$.
+
+Variables can be declared to be of non-address numeric type
+by declarations of the form
+\begin{center}
+{\em type-name} {\em variable-name} {\tt ;}
+\end{center}
+For example,
+\begin{indpar}\begin{verbatim}
+int32 i;
+uns128 u;
+float64 f;
+\end{verbatim}\end{indpar}
+
+Variables can be declared to be of address type by declarations of the
+form
+\begin{center}
+{\em type-name} {\tt \&}$^\star$ {\tt *}$^\star$ {\em variable-name} {\tt ;}
+\end{center}
+in which there is at least one {\tt \&} or {\tt *}.
+For example,
+\begin{indpar}\begin{verbatim}
+int32 * ip;
+int32 & i;
+\end{verbatim}\end{indpar}
+are both variables that reference a direct address of an {\tt int32} type
+integer stored in memory.  However, `\verb|ip|' and `\verb|& i|' reference
+the direct address variable, and `\verb|* ip|' and `\verb|i|' reference
+the {\tt int32} integer.
+
+In general if there are $N$ {\tt \&}'s and {\tt *}'s, the variable is
+the direct address of the direct address of \ldots{} the direct address
+of the non-address type, where there are $N$ direct addresses in all.
+If there are no {\tt \&}'s, the variable name references the first of
+these direct addresses, and the variable name with $M$ {\tt *}'s in
+front of it references the $M+1$'st of the addresses, or the non-address
+number of $M=N$.  If instead there are $M$ {\tt \&}'s in the declaration,
+the variable name references the $M+1$'st direct address, or the non-address
+number if $M=N$, and to get previous direct addresses one must put a
+{\tt \&} in front of the variable name, whereas to get subsequent direct
+addresses one puts a {\tt *} in front.
+
+For example,
+\begin{indpar}\begin{verbatim}
+int32 *** ippp;
+int32 &** ipp;
+int32 &&* ip;
+int32 &&& i;
+\end{verbatim}\end{indpar}
+are all variables referencing a direct address of a direct address of a
+direct address of an {\tt int32} number stored in memory.
+The first of these direct addresses is accessed with
+`\verb|ippp|', `\verb|& ipp|', `\verb|& & ip|', or `\verb|& & & i|'.
+The second of these direct addresses is accessed with
+`\verb|* ippp|', `\verb|ipp|', `\verb|& ip|', or `\verb|& & i|'.
+The third of these direct addresses is accessed with
+`\verb|* * ippp|', `\verb|* ipp|', `\verb|ip|', or `\verb|& i|'.
+The {\tt int32} number is accessed with
+`\verb|* * * ippp|', `\verb|* * ipp|', `\verb|* ip|', or `\verb|i|'.
 
 \subsection{Random Access Memory (RAM) and Blocks}
 

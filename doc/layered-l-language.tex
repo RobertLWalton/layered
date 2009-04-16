@@ -234,7 +234,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 13, 2009
+April 16, 2009
  
 \end{center}
 
@@ -365,16 +365,16 @@ the direct address variable, and `\verb|* ip|' and `\verb|i|' reference
 the {\tt int32} integer.
 
 In general if there are $N$ {\tt \&}'s and {\tt *}'s, the variable is
-the direct address of the direct address of \ldots{} the direct address
+the direct address of the direct address of the \ldots{} of the direct address
 of the non-address type, where there are $N$ direct addresses in all.
 If there are no {\tt \&}'s, the variable name references the first of
 these direct addresses, and the variable name with $M$ {\tt *}'s in
 front of it references the $M+1$'st of the addresses, or the non-address
 number of $M=N$.  If instead there are $M$ {\tt \&}'s in the declaration,
 the variable name references the $M+1$'st direct address, or the non-address
-number if $M=N$, and to get previous direct addresses one must put a
-{\tt \&} in front of the variable name, whereas to get subsequent direct
-addresses one puts a {\tt *} in front.
+number if $M=N$, and to get a previous direct address one must put a
+{\tt \&} in front of the variable name, whereas to get a subsequent direct
+address one puts a {\tt *} in front.
 
 For example,
 \begin{indpar}\begin{verbatim}
@@ -393,37 +393,33 @@ The third of these direct addresses is accessed with
 `\verb|* * ippp|', `\verb|* ipp|', `\verb|ip|', or `\verb|& i|'.
 The {\tt int32} number is accessed with
 `\verb|* * * ippp|', `\verb|* * ipp|', `\verb|* ip|', or `\verb|i|'.
+Also note that in `\verb|* &|' the operators cancel each other out:
+e.g., `\verb|* ip|', `\verb|* * & ip|', and `\verb|* * * & & ip|'
+all reference the same thing.
 
 \subsection{Random Access Memory (RAM) and Blocks}
 
 \ikey{RAM}{Random Access Memory}\index{random access memory!RAM}
-is a set of address/bit pairs.  Each bit of RAM has \key{bit address}
+is a set of address/byte pairs.  Each 8-bit byte of RAM has an \key{address}
 that is a unsigned integer.  It is possible for two addresses to refer to the
-same bit, or for an address to refer to no bit.  A bit address that
-refers to a bit is said to be allocated, and a bit address that refers
-to no bit is said to be deallocated.  A bit that has two distinct
-addresses is said to be shared, and a bit with just one address is
-unshared.
+same byte, or for an address to refer to no byte.  An address that
+refers to a byte is said to be \key{allocated}, and an address that refers
+to no byte is said to be \key{deallocated}.  A byte that has two distinct
+addresses is said to be \key{shared}, and a byte with just one address is
+\key{unshared}.
 
 A \mkey{block}{of RAM} of RAM is a sequence of consecutive increasing addresses.
-The \mkey{bit address}{of block} of the block is the address of its first bit,
-and the \mkey{bit length}{of block} of the block is the number of bits.
-An \mkey{alignment}{of block} of the block is any
-common factor of the bit address and the bit length of the block.
-
-A block is \key{byte aligned} if 8 bits is an alignment of the block.
-The \mkey{byte address}{of block} of a byte aligned block is the
-bit address of the block divided by 8.  The
-\mkey{byte length}{of block} of such a block is its bit length divided by 8.
+The \mkey{origin}{of block} of the block is the address of its first byte,
+and the \mkey{length}{of block} of the block is the number of bytes.
 
 A block is \mkey{allocated}{block}
-if the addresses of all its bits are allocated,
-and is \mkey{deallocated}{block} if the addresses of all of its bits
+if the addresses of all its bytes are allocated,
+and is \mkey{deallocated}{block} if the addresses of all of its bytes
 are deallocated.
-A block is \mkey{unshared}{block} if all its bits are unshared.
+A block is \mkey{unshared}{block} if all its bytes are unshared.
 A block is \mkey{shared}{block} if
 it is one of a set of several blocks (sequences of consecutive addresses)
-such that the $n$'th bit of each block in the set is the same.
+such that the $n$'th byte of each block in the set is the same.
 Note that a block can be neither shared nor unshared.
 
 The address space is divided into \skey{page}s, which are blocks that
@@ -432,72 +428,84 @@ that is a power of two: e.g., 2048 byte = 16386 bit pages.  There
 are L-Language operations which call the operating system to
 map an address page to physical memory, thus allocating a page
 of RAM.  There are operations to deallocate a page, and to make
-two pages be shared (map to the same bits of RAM).
+two pages be shared (map to the same bytes of RAM).
 
-The only way for two blocks to share a bit is for the blocks to
+The only way for two blocks to share a byte is for the blocks to
 overlap shared pages.
 
 The only blocks in L-language are frame blocks (\pagref{FRAMES}),
 code blocks(\pagref{CODE-BLOCKS}), and pages.
 Numbers are stored in these blocks.
 
-\subsection{Memory Access}
-\label{MEMORY-ACCESS}
+Block data types are declared by declarations of the form
+\begin{center}
+\ttkey{deftype} {\em type-name} {\tt (} {\em length}{\tt ,}
+				        {\em alignment}{\tt ,}
+				        {\em offset}
+					{\tt )} {\tt ;}
+\end{center}
 
-Memory is accessed through typed pointers defined by declarations
-such as:
-\begin{indpar}\begin{verbatim}
-int32 * ip;
-uns128 & u128;
-float64 ** fpp;
-uns8 &* u8p;
-int16 && i16;
-\end{verbatim}\end{indpar}
+The layout of a block of the defined type in memory is:
 
-Here
+\begin{center}
+\begin{picture}(4.0,1.6)
+\put(2.0,1.5){\framebox(0.1,0.1){}}
+\put(0.0,1.5){\makebox(1.5,0.1)[r]{origin}}
+\put(1.6,1.55){\vector(1,0){0.3}}
+\put(2.7,1.55){\vector(-1,0){0.5}}
+\put(2.0,1.4){\framebox(0.1,0.1){}}
+\put(2.0,1.13){\makebox(0.1,0.3){\vdots}}
+\put(2.0,1.0){\framebox(0.1,0.1){}}
+\put(2.0,0.9){\framebox(0.1,0.1){}}
+\put(0.0,0.9){\makebox(1.5,0.1)[r]{address}}
+\put(1.6,0.95){\vector(1,0){0.3}}
+\put(2.5,0.95){\vector(-1,0){0.3}}
+\put(2.4,1.25){\vector(0,1){0.3}}
+\put(2.4,1.25){\vector(0,-1){0.3}}
+\put(2.4,1.25){\line(1,0){0.6}}
+\put(3.1,1.20){\makebox(0.5,0.1)[l]{\em offset}}
+\put(2.0,0.8){\framebox(0.1,0.1){}}
+\put(2.0,0.7){\framebox(0.1,0.1){}}
 
-\begin{enumerate}
+\put(2.0,0.43){\makebox(0.1,0.3){\vdots}}
+\put(2.0,0.3){\framebox(0.1,0.1){}}
+\put(2.0,0.2){\framebox(0.1,0.1){}}
+\put(2.7,0.15){\vector(-1,0){0.5}}
+\put(2.6,0.85){\vector(0,1){0.7}}
+\put(2.6,0.85){\vector(0,-1){0.7}}
+\put(2.6,0.85){\line(1,0){0.4}}
+\put(3.1,0.80){\makebox(0.5,0.1)[l]{\em length}}
+\end{picture}
+\\[1ex]
+address modulo {\em alignment} = 0
+\end{center}
 
-\item The variable {\tt ip} holds a 64 bit direct address of a 32 bit signed
-integer.
-The expression `\verb|ip|' names the 64 bit direct address of the
-32 bit integer.
-The expression `\verb|* ip|' names the 32 bit integer.
+The \mkey{address}{of block} of the block is offset from the origin
+of the block by the \mkey{offset}{of block} of block.  This address must be an
+exact multiple of the \mkey{alignment}{of block} of the block.
+The length of the block is an unsigned integer.  The alignment is an
+unsigned integer equal to a power of two that defaults to {\tt 1}.
+The offset is a signed integer that defaults to {\tt 0}.
 
-\item The variable {\tt u128} holds a 64 bit direct address of a 128 bit
-unsigned integer.
-The expression `\verb|& u128|' names the 64 bit direct address of the
-128 bit integer.
-The expression `\verb|u128|' names the 128 bit integer.
+A block can actually have bytes both before and ofter those described by
+its type.  Thus the type specifies that every allocated block of the
+type will contain allocate bytes at the addresses
 
-\item The variable {\tt fpp} holds a 64 bit direct address of
-a 64 bit direct address of a 64 bit floating point number.
-The expression `\verb|fpp|' names the 64 bit direct address of
-the 64 bit direct address of the 64 bit floating point number.
-The expression `\verb|* fpp|' names the 64 bit direct address of
-the 64 bit floating point number.
-The expression `\verb|* * fpp|' names
-the 64 bit floating point number.
+\begin{center}
+\begin{tabular}{l}
+address - offset \\
+address - offset + 1 \\
+address - offset + 2 \\
+\ldots\ldots\\
+address - offset + length - 1
+\end{tabular}
+\end{center}
 
-\item The variable {\tt u8p} holds a 64 bit direct address of
-a 64 bit direct address of a 8 bit unsigned integer.
-The expression `\verb|& u8p|' names the 64 bit direct address of
-the 64 bit direct address of the 8 bit unsigned integer.
-The expression `\verb|u8p|' names the 64 bit direct address of
-the 8 bit unsigned integer.
-The expression `\verb|* u8p|' names
-the 8 bit unsigned integer.
+but the block may contain allocated bytes both before and after these
+addresses.
 
-\item The variable {\tt i16p} holds a 64 bit direct address of
-a 64 bit direct address of a 16 bit signed integer.
-The expression `\verb|& & i16p|' names the 64 bit direct address of
-the 64 bit direct address of the 16 bit signed integer.
-The expression `\verb|& i16p|' names the 64 bit direct address of
-the 16 bit signed integer.
-The expression `\verb|i16p|' names
-the 16 bit signed integer.
+TBD
 
-\end{enumerate}
 
 Access to data blocks that are not single numbers is done with
 the help of unchecked pointer computation functions.  For

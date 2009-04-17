@@ -72,6 +72,7 @@
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
 % < and > do not work for \tt \bf, hence:
@@ -234,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 16, 2009
+April 17, 2009
  
 \end{center}
 
@@ -501,28 +502,65 @@ address - offset + length - 1
 \end{tabular}
 \end{center}
 
-but the block may contain allocated bytes both before and after these
-addresses.
+These are the \smkey{required byte}s{of a block} of the block.
+In addition the block may contain \smkey{optional byte}s{of a block}
+either before or after the required bytes.
 
-TBD
+Note that if the {\em offset} is negative, the block address does not
+address a required byte, and may not address any block byte.  Similarly
+if the {\em offset} is greater than the required block {\em length}.
 
 
-Access to data blocks that are not single numbers is done with
-the help of unchecked pointer computation functions.  For
-example
+Blocks contain numbers and addresses.  Access to these is provided by
+unchecked pointer computation functions.  For example
 \begin{indpar}\begin{verbatim}
-definetype mytype (12,4);
-unchecked uns16   & .member1 ( mytype & m ) = m.0;
-unchecked int16   & .member2 ( mytype & m ) = m.2;
-unchecked int32   & .member3 ( mytype & m ) = m.4;
-unchecked float32 & .member4 ( mytype & m ) = m.8;
+deftype mytype (24,4);
+unchecked uns16   &   .member1 ( mytype & m ) = m@0;
+unchecked int16   &   .member2 ( mytype & m ) = m@2;
+unchecked int32   &   .member3 ( mytype & m ) = m@4;
+unchecked float32 &   .member4 ( mytype & m ) = m@8;
+unchecked mytype  & * .member5 ( mytype & m ) = m@16;
 . . . . .
 mytype x;
 x.member1 = 9;
 x.member2 = -19;
 x.member3 = 190;
 x.member4 = -0.01 * x.member3;
+x.member5 = & x;
 \end{verbatim}\end{indpar}
+
+Here $x${\tt @}$y$ is an operation that takes the byte address of
+$x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
+stores it in a temporary variable of type `{\tt void \&}'.  In an
+{\tt unchecked} function the {\tt void} type can be converted to
+any other type.
+
+\subsection{Access Flags}
+\label{ACCESS-FLAGS}
+
+The L-Language controls the way data types are used, in order to
+protect the integrity of memory.  Access flags are its principal
+method of doing this.
+
+However, the L-Language does not control the declaration of data types.
+The problem is that the set of useful data types has unbounded complexity,
+and no one declaration system can encompass all useful types.
+
+So the L-Language provides tools for {\tt unchecked} declaration of
+types, and also provides a powerful macro facility that permits
+programmers to write macros which provide type declaration
+facilities that protect memory.  Thus the L-Language facilitates
+two-layer programming: an inner unprotected layer in which
+data declaration macros are written, and an outer protected layer
+which protects the integrity of memory both when data types are used
+and when they are declared.  The outer layer, though usually adequate,
+is always incomplete, and will not be able to handle some reasonable
+programs.  But it can always be extended by writing more
+unprotected inner layer macro code, though the writer of such code
+must be very careful to preserve the protection properties of the
+outer layer the macro code is extending.
+
+TBD
 
 \subsection{Caches}
 \label{CACHES}

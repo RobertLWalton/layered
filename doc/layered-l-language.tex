@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 17, 2009
+April 22, 2009
  
 \end{center}
 
@@ -251,6 +251,43 @@ This document describes the Lower Layer Programming Language, or
 L-Language.  See the Introduction to the Layered
 Programming Languages for basic syntax and for an overview of the related
 Middle Layer M-Language and Higher Layer H-Language.
+
+Here we will give brief overviews of some of the principle issues
+addressed by the L-Language.
+
+
+\subsection{Code Targetting}
+
+The L-Language is intended to be a target language for compilers of
+higher level languages.  As such it is optimized first to be an easy to 
+use and adequate target language, and second to be reasonably easy to
+compile into efficient assembly language code.
+
+The L-Language is roughly like basic LISP with the type system and
+syntax of C, and with additional features intended to give
+more control over compilation and type safety.
+
+\subsection{Code Computation}
+
+The L-Language permits code to be computed by executing programs, and then
+compiled and run.  The computed code can be an entire function, or can
+be embedded within a function.
+
+A main reason for this is to support scientific computing in which
+code specific to a task must be computed and then optimized.
+
+\subsection{Data Declaration}
+
+The L-Language supports low level declaration of data and fairly high
+level typesafe optimized usage of declared data.  The L-Language also
+supports macros written in the L-Language itself, permitting very
+capable macros to be written by users to give users high level data
+declaration facilities taylored to specific kinds of data.
+
+The thesis here is that a high level data declaration language that is
+typesafe and efficient for all kinds of data is not practical.
+So instead tools are provided to create data declaration sublanguages that are
+typesafe and efficient for more limited kinds of data.
 
 
 \section{Memory}
@@ -535,48 +572,159 @@ stores it in a temporary variable of type `{\tt void \&}'.  In an
 {\tt unchecked} function the {\tt void} type can be converted to
 any other type.
 
-\subsection{Access Flags}
-\label{ACCESS-FLAGS}
+\subsection{Qualifiers}
+\label{QUALIFIERS}
 
-The L-Language controls the way data types are used, in order to
-protect the integrity of memory.  Access flags are its principal
-method of doing this.
+The L-Language controls the way memory is accessed via \skey{qualifiers}s.
+A qualifier has a name that is an identifier, just as variable and functions
+have names that are identifiers.
 
-However, the L-Language does not control the declaration of data types.
-The problem is that the set of useful data types has unbounded complexity,
-and no one declaration system can encompass all useful types.
+There are several types of qualifiers.
 
-So the L-Language provides tools for {\tt unchecked} declaration of
-types, and also provides a powerful macro facility that permits
-programmers to write macros which provide type declaration
-facilities that protect memory.  Thus the L-Language facilitates
-two-layer programming: an inner unprotected layer in which
-data declaration macros are written, and an outer protected layer
-which protects the integrity of memory both when data types are used
-and when they are declared.  The outer layer, though usually adequate,
-is always incomplete, and will not be able to handle some reasonable
-programs.  But it can always be extended by writing more
-unprotected inner layer macro code, though the writer of such code
-must be very careful to preserve the protection properties of the
-outer layer the macro code is extending.
+\ikey{Caching qualifiers}{caching qualifier}
+control the movement of memory locations into registers.  A register
+that holds the contents of a memory location is refered to in this
+document as a software cache (of the memory location).  Such software
+caches have to be flushed appropriately.  Software caching qualifiers
+contain information necessary to do this.
 
-TBD
+For example, the `{\tt local}' qualifier states that a memory datum
+is allocated to a function frame and is only accessed by the function
+execution associated with that frame.  Such a datum may be cached
+in a register for the entire lifetime of the function execution.
 
-\subsection{Caches}
-\label{CACHES}
+Another example is the `{\tt stack}' qualifier, which states that a memory
+datum is allocated to a function frame and can only be accessed by the
+function execution associated by that frame or by functions called by this
+function execution which are passed the address of the memory location
+as a argument.  Such a memory location can be cached in a register, but
+this software cache must be flushed when a function is called that has
+the address of the memory location as an argument.
+
+A third example is the `{\tt constant}' qualifier which states that a memory
+location will no longer be modified.  Such a memory location can be cached
+in registers that need never be flushed.
+
+A different kind of qualifier is the \key{protection qualifier}.  Most of
+these are specifically declared in the program and not built into the
+langauge.  A memory location with protection qualifier $X$ can only be
+accessed by functions which have qualifier $X$.
+
+Memory locations can be assigned qualifier expressions that are logical
+combinations of qualifier names and the operators `\verb/|/' and
+`\verb/&/'.  For example, a memory location may be assigned the expression
+`$X$\verb/|constant/' where $X$ is a protection qualifier.  A function
+with qualifier $X$ will be able to access such a memory location to both
+read and write it, but a function without qualifier $X$ will treat the
+function as having the `\verb|constant|' qualifier, will not be able
+to write the location, and will be able to assume that the location will
+not be written by others.  In order for this to work properly, the functions
+with qualifier $X$ that are permitted to write the location must be called
+first, before functions without qualifier $X$ are allowed to access the
+location.  See below for more details.
+
+Yet another kind of qualifier is the \key{alias qualifier}.  In general,
+memory locations that are referenced differently are assumed by the
+L-Language to be different memory locations.  But they might not be,
+and to specify this, two memory locations may be given the same alias
+qualifier, indicating they might be the same location.  Aliased locations
+may not be able to use software caching.
+
+A last kind of qualifier is the \key{parallel qualifier}.  This qualifier
+is attached to memory locations that can be accessed in parallel by
+several hardware central processing units.  Parallel qualifiers are used
+to identify memory locations whose software \underline{and hardware}
+caches are to be flushed by explicit cache flusing statements in the
+L-Language.
+
+
+\subsubsection{Caching Qualifiers}
+\label{CACHING-QUALIFIERS}
+
+The following are the caching qualifiers.
 
 \begin{indpar}
 
-\hspace*{-1em}\ttkey{const}~~The memory is constant and cannot
-be modified except by the constructor function that initialized
-the memory.
+\hspace*{-1em}\ttkey{constant}~~The memory location is constant and will not
+be modified at all.
 
-\hspace*{-1em}\ttkey{local}~~Local memory must be allocated to
-a function frame (see Frames, \pagref{FRAMES}) and only accessed
-by the function execution associated with the frame.  An address
-referencing local memory cannot be passed as an argument or result
-value to an outline function or stored in global memory.
-This is the default for memory allocated as part of a function frame.
+The memory location can be cached in registers without
+restriction, and there are no restrictions on where an address to the
+location can be stored or whether it can be passed as an argument or result,
+as long as the address type indicates the location is constant.
+However a `{\tt constant}' location may also have other qualifiers that
+place restrictions on the location.
+
+Memory locations declared `{\tt constant}' must be written during their
+initialization.  This is managed by not declaring these locations to be
+`{\tt constant}' when they are passed to
+initialization functions, such as constructors.
+
+The following code has some examples:
+\begin{indpar}\begin{verbatim}
+int function1 ( constant & arg1 );
+int function2 ( & arg1 );
+int function3 ( void )
+{
+   constant int value1 = 5;
+       // Permitted: constructor(int) ( int & value1, 5 ) is called.
+   value1 = 10; 
+       // Erroneous: assign(int) ( constant & value1, 10 ) is called.
+   function1 ( value1 );  // Permitted.
+   function2 ( value1 );  // Erroneous.
+}
+\end{verbatim}\end{indpar}
+
+\hspace*{-1em}\ttkey{local}~~The memory location must be allocated to
+a function frame (see Frames, \pagref{FRAMES}) and the location
+may be accessed only by the function execution associated with the frame.
+
+The address of the memory location cannot passed as an argument or result
+value to an out-of-line function or stored in global memory.
+
+The `{\tt local}' qualifier is assigned by the default to memory locations
+that are part of a function frame.  The `{\tt local}' qualifier cannot
+be assigned to a memory location which has the `{\tt stack}' or
+`{\tt global}' qualifiers (see below).
+
+The following code has some examples (see `{\tt stack}' below):
+\begin{indpar}\begin{verbatim}
+int function1 ( local int & arg1 );
+    // `local' forces function1 to be inline.
+extern int function2 ( stack int & arg1 );
+    // `extern' forces function2 to be outline.
+int function3 ( void )
+{
+   int value1;  // value1 is `local' by default.
+   function1 ( value1 );  // Inline call.
+   function2 ( value1 );  // Erroneous.
+   int & value3 = value1;  // value3 is `local' by default.
+   stack int & value4 = value1;  // Erroneous.
+   function2 ( value4 );  // OK.
+}
+\end{verbatim}\end{indpar}
+
+\begin{center}
+\end{center}
+is in error as {\tt arg1} would be local to the caller.
+
+\hspace*{-1em}\ttkey{stack}~~If the memory location is being allocated
+to a function frame, this qualifier specifies that the location may be
+accessed by the function execution associated with the frame, or by
+functions called by this function execution.  The address of the location
+may be passed as an argument but may not be returned as a result.
+
+If the memory location is being passed into a function execution via an address
+datum (e.g., an argument),
+the qualifier specifies that the memory location will only
+be accessed by the function execution or by functions called by this function
+execution.  The memory location, if it is allocated to a function frame,
+must have that `{\tt stack}' qualifier when it is allocated.  But the
+memory location may also be `{\tt global}'.  In this case the memory location
+may also be returned as a function result (of a function execution that did
+not allocate the location).
+
+TBD: should be two different qualifiers?
 
 \hspace*{-1em}\ttkey{global}~~Global memory can be accessed by
 any function execution.  This is the default for memory allocated
@@ -828,6 +976,12 @@ of adjacent blocks.
 
 Indirect address protocol.
 \label{INDIRECT-ADDRESS-PROTOCOL}
+
+Functions.
+\label{FUNCTIONS}
+
+Threads.
+\label{THREADS}
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

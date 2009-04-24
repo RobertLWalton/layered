@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 22, 2009
+April 23, 2009
  
 \end{center}
 
@@ -389,13 +389,13 @@ float64 f;
 Variables can be declared to be of address type by declarations of the
 form
 \begin{center}
-{\em type-name} {\tt \&}$^\star$ {\tt *}$^\star$ {\em variable-name} {\tt ;}
+{\tt \&}$^\star$ {\em type-name} {\tt *}$^\star$ {\em variable-name} {\tt ;}
 \end{center}
 in which there is at least one {\tt \&} or {\tt *}.
 For example,
 \begin{indpar}\begin{verbatim}
 int32 * ip;
-int32 & i;
+& int32 i;
 \end{verbatim}\end{indpar}
 are both variables that reference a direct address of an {\tt int32} type
 integer stored in memory.  However, `\verb|ip|' and `\verb|& i|' reference
@@ -412,14 +412,14 @@ number of $M=N$.  If instead there are $M$ {\tt \&}'s in the declaration,
 the variable name references the $M+1$'st direct address, or the non-address
 number if $M=N$, and to get a previous direct address one must put a
 {\tt \&} in front of the variable name, whereas to get a subsequent direct
-address one puts a {\tt *} in front.
+address or the non-address number one puts a {\tt *} in front.
 
 For example,
 \begin{indpar}\begin{verbatim}
 int32 *** ippp;
-int32 &** ipp;
-int32 &&* ip;
-int32 &&& i;
+& int32 ** ipp;
+&& int32 * ip;
+&&& int32 i;
 \end{verbatim}\end{indpar}
 are all variables referencing a direct address of a direct address of a
 direct address of an {\tt int32} number stored in memory.
@@ -551,14 +551,14 @@ if the {\em offset} is greater than the required block {\em length}.
 Blocks contain numbers and addresses.  Access to these is provided by
 unchecked pointer computation functions.  For example
 \begin{indpar}\begin{verbatim}
-deftype mytype (24,4);
-unchecked uns16   &   .member1 ( mytype & m ) = m@0;
-unchecked int16   &   .member2 ( mytype & m ) = m@2;
-unchecked int32   &   .member3 ( mytype & m ) = m@4;
-unchecked float32 &   .member4 ( mytype & m ) = m@8;
-unchecked mytype  & * .member5 ( mytype & m ) = m@16;
+deftype type1 (24,4);
+unchecked & uns16   .member1 ( & type1 m ) = m@0;
+unchecked & int16   .member2 ( & type1 m ) = m@2;
+unchecked & int32   .member3 ( & type1 m ) = m@4;
+unchecked & float32 .member4 ( & type1 m ) = m@8;
+unchecked & type1 * .member5 ( & type1 m ) = m@16;
 . . . . .
-mytype x;
+type1 x;
 x.member1 = 9;
 x.member2 = -19;
 x.member3 = 190;
@@ -568,7 +568,7 @@ x.member5 = & x;
 
 Here $x${\tt @}$y$ is an operation that takes the byte address of
 $x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
-stores it in a temporary variable of type `{\tt void \&}'.  In an
+stores it in a temporary variable of type `{\tt \& void}'.  In an
 {\tt unchecked} function the {\tt void} type can be converted to
 any other type.
 
@@ -586,28 +586,15 @@ control the movement of memory locations into registers.  A register
 that holds the contents of a memory location is refered to in this
 document as a software cache (of the memory location).  Such software
 caches have to be flushed appropriately.  Software caching qualifiers
-contain information necessary to do this.
+contain information necessary to do this.  These qualifiers are
+built into the language: they are `{\tt local}', `{\tt stack}',
+`{\tt global}', and `{\tt constant}'.
 
-For example, the `{\tt local}' qualifier states that a memory datum
-is allocated to a function frame and is only accessed by the function
-execution associated with that frame.  Such a datum may be cached
-in a register for the entire lifetime of the function execution.
-
-Another example is the `{\tt stack}' qualifier, which states that a memory
-datum is allocated to a function frame and can only be accessed by the
-function execution associated by that frame or by functions called by this
-function execution which are passed the address of the memory location
-as a argument.  Such a memory location can be cached in a register, but
-this software cache must be flushed when a function is called that has
-the address of the memory location as an argument.
-
-A third example is the `{\tt constant}' qualifier which states that a memory
-location will no longer be modified.  Such a memory location can be cached
-in registers that need never be flushed.
-
-A different kind of qualifier is the \key{protection qualifier}.  Most of
-these are specifically declared in the program and not built into the
-langauge.  A memory location with protection qualifier $X$ can only be
+\ikey{Protection qualifiers}{protection qualifier} control which
+functions can access a memory location.
+These qualifiers are declared in the program and not built into the
+language.
+A memory location with protection qualifier $X$ can only be
 accessed by functions which have qualifier $X$.
 
 Memory locations can be assigned qualifier expressions that are logical
@@ -623,25 +610,32 @@ with qualifier $X$ that are permitted to write the location must be called
 first, before functions without qualifier $X$ are allowed to access the
 location.  See below for more details.
 
-Yet another kind of qualifier is the \key{alias qualifier}.  In general,
-memory locations that are referenced differently are assumed by the
-L-Language to be different memory locations.  But they might not be,
-and to specify this, two memory locations may be given the same alias
-qualifier, indicating they might be the same location.  Aliased locations
+\ikey{Alias qualifiers}{alias qualifier} indicate that memory locations
+may overlap.
+These qualifiers are declared in the program and not built into the
+language.
+Normally memory locations that are referenced differently are assumed by the
+L-Language to be different memory locations that do not overlap.
+To specify that two memory locations might overlap, they must
+be given the same alias qualifier.  Aliased locations
 may not be able to use software caching.
 
-A last kind of qualifier is the \key{parallel qualifier}.  This qualifier
-is attached to memory locations that can be accessed in parallel by
-several hardware central processing units.  Parallel qualifiers are used
-to identify memory locations whose software \underline{and hardware}
-caches are to be flushed by explicit cache flusing statements in the
+\ikey{Parallel qualifiers}{parallel qualifier} should be attached
+to memory locations whose software \underline{and hardware}
+caches are to be flushed by explicit cache flushing statements in the
 L-Language.
+These qualifiers are declared in the program and not built into the
+language.
+They are used for memory locations shared between different hardware
+processing units (e.g., between a central processing unit and an
+IO device, or between two different central processing units).
 
 
 \subsubsection{Caching Qualifiers}
 \label{CACHING-QUALIFIERS}
 
-The following are the caching qualifiers.
+The caching qualifiers are all builtin.  They are `{\tt constant}',
+`{\tt stack}', and `{\tt global}'.
 
 \begin{indpar}
 
@@ -649,7 +643,9 @@ The following are the caching qualifiers.
 be modified at all.
 
 The memory location can be cached in registers without
-restriction, and there are no restrictions on where an address to the
+restriction
+
+This qualifier imposes no restrictions on where an address to the
 location can be stored or whether it can be passed as an argument or result,
 as long as the address type indicates the location is constant.
 However a `{\tt constant}' location may also have other qualifiers that
@@ -657,81 +653,54 @@ place restrictions on the location.
 
 Memory locations declared `{\tt constant}' must be written during their
 initialization.  This is managed by not declaring these locations to be
-`{\tt constant}' when they are passed to
-initialization functions, such as constructors.
+`{\tt constant}' when they are passed to constructors.
 
 The following code has some examples:
-\begin{indpar}\begin{verbatim}
-int function1 ( constant & arg1 );
-int function2 ( & arg1 );
+\begin{indpar}[0.5em]\begin{verbatim}
+int function1 ( & stack constant arg1 );
+int function2 ( & stack arg1 );
 int function3 ( void )
 {
    constant int value1 = 5;
-       // Permitted: constructor(int) ( int & value1, 5 ) is called.
+       // Permitted:
+       //   & stack int .constructor. ( 5 ) is called.
    value1 = 10; 
-       // Erroneous: assign(int) ( constant & value1, 10 ) is called.
-   function1 ( value1 );  // Permitted.
-   function2 ( value1 );  // Erroneous.
+       // Erroneous:
+       //   & stack constant int .assign. ( 10 ) is called.
+   function1 ( value1 );  // Permitted; arg1 constant.
+   function2 ( value1 );  // Erroneous; arg1 NOT constant.
 }
 \end{verbatim}\end{indpar}
 
-\hspace*{-1em}\ttkey{local}~~The memory location must be allocated to
-a function frame (see Frames, \pagref{FRAMES}) and the location
-may be accessed only by the function execution associated with the frame.
+\hspace*{-1em}\ttkey{stack}~~The memory location is or may be allocated
+to a function frame, and it will or may be accessed by the function
+execution of that frame and all functions called by that function
+execution.
 
-The address of the memory location cannot passed as an argument or result
-value to an out-of-line function or stored in global memory.
+The memory location may be cached in a register, but this cache must
+be flushed when the address of the location is passed as an argument
+to a function.
 
-The `{\tt local}' qualifier is assigned by the default to memory locations
-that are part of a function frame.  The `{\tt local}' qualifier cannot
-be assigned to a memory location which has the `{\tt stack}' or
-`{\tt global}' qualifiers (see below).
-
-The following code has some examples (see `{\tt stack}' below):
-\begin{indpar}\begin{verbatim}
-int function1 ( local int & arg1 );
-    // `local' forces function1 to be inline.
-extern int function2 ( stack int & arg1 );
-    // `extern' forces function2 to be outline.
-int function3 ( void )
-{
-   int value1;  // value1 is `local' by default.
-   function1 ( value1 );  // Inline call.
-   function2 ( value1 );  // Erroneous.
-   int & value3 = value1;  // value3 is `local' by default.
-   stack int & value4 = value1;  // Erroneous.
-   function2 ( value4 );  // OK.
-}
+If the `{\tt stack}' qualifier is applied to the value returned by a
+function call, the memory location is allocated by the caller and not
+the called function.  There must be a `{\tt \&}' preceeding the
+`{\tt stack}' qualifier in the return value type.  For example:
+\begin{indpar}[0.5em]\begin{verbatim}
+int function1 ( int arg1 );
+    // Returns a int value in a register.
+& global int function2 ( int arg1 );
+    // Returns an address of int value in a register.
+& stack int function3 ( int arg1 );
+    // Returns an int value in a location whose address is passed
+    // by the caller to the called function3.
 \end{verbatim}\end{indpar}
 
-\begin{center}
-\end{center}
-is in error as {\tt arg1} would be local to the caller.
-
-\hspace*{-1em}\ttkey{stack}~~If the memory location is being allocated
-to a function frame, this qualifier specifies that the location may be
-accessed by the function execution associated with the frame, or by
-functions called by this function execution.  The address of the location
-may be passed as an argument but may not be returned as a result.
-
-If the memory location is being passed into a function execution via an address
-datum (e.g., an argument),
-the qualifier specifies that the memory location will only
-be accessed by the function execution or by functions called by this function
-execution.  The memory location, if it is allocated to a function frame,
-must have that `{\tt stack}' qualifier when it is allocated.  But the
-memory location may also be `{\tt global}'.  In this case the memory location
-may also be returned as a function result (of a function execution that did
-not allocate the location).
-
-TBD: should be two different qualifiers?
+When used in an argument or return value type, a `{\tt stack}' memory location
+may be either located in a function frame or may be `{\tt global}'.
 
 \hspace*{-1em}\ttkey{global}~~Global memory can be accessed by
 any function execution.  This is the default for memory allocated
-to the heap.  Memory allocated to the stack must be explicitly
-declared global if its address is to be passed as an argument or result
-to an outline function
-or if its address is to be stored in global memory.
+to the heap.
 
 \end{indpar}
 

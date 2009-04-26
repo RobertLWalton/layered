@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 23, 2009
+April 26, 2009
  
 \end{center}
 
@@ -576,19 +576,39 @@ any other type.
 \label{QUALIFIERS}
 
 The L-Language controls the way memory is accessed via \skey{qualifiers}s.
-A qualifier has a name that is an identifier, just as variable and functions
-have names that are identifiers.
+A qualifier has a name that is an identifier with optional type parameters,
+just as a function has a name that is an identifier with optional
+type parameters.
 
 There are several types of qualifiers.
 
-\ikey{Caching qualifiers}{caching qualifier}
-control the movement of memory locations into registers.  A register
-that holds the contents of a memory location is refered to in this
-document as a software cache (of the memory location).  Such software
-caches have to be flushed appropriately.  Software caching qualifiers
-contain information necessary to do this.  These qualifiers are
-built into the language: they are `{\tt local}', `{\tt stack}',
-`{\tt global}', and `{\tt constant}'.
+\ikey{Lifetime qualifiers}{lifetime qualifier}
+specify the lifetime of a memory location.  The {\tt stack} qualifier
+specifies that the location may only last as long as the caller of
+a function, or that the location is allocated to the frame of the
+function.  The {\tt unlimited} qualifier specifies that the location
+has unlimited lifetime, though the location may be garbage collectable.
+Additional \skey{collectable qualifier}s may be specified that
+indicate that the location is garbage collectable and its address needs
+to be protected against collection.
+
+\ikey{Caching qualifiers}{caching qualifier} specify when memory locations
+may be changed, and thence when they may be cached in registers.  The
+`{\tt constant}' qualifier specifies that a location will not be changed,
+and may be cached indefinitely in registers.
+Additional \skey{alias qualifier}s may be declared to indicate when
+memory locations may overlap.
+Normally memory locations that are referenced differently are assumed by the
+L-Language to be different memory locations that do not overlap.
+To specify that two memory locations might overlap, they must
+be given the same alias qualifier.
+Additional \skey{parallel qualifier}s may be declared to
+identify memory locations whose register \underline{and hardware}
+caches are to be flushed by explicit cache flushing statements in the
+L-Language.
+These are used for memory locations shared between different hardware
+processing units (e.g., between a central processing unit and an
+IO device, or between two different central processing units).
 
 \ikey{Protection qualifiers}{protection qualifier} control which
 functions can access a memory location.
@@ -608,34 +628,74 @@ to write the location, and will be able to assume that the location will
 not be written by others.  In order for this to work properly, the functions
 with qualifier $X$ that are permitted to write the location must be called
 first, before functions without qualifier $X$ are allowed to access the
-location.  See below for more details.
+location.
 
-\ikey{Alias qualifiers}{alias qualifier} indicate that memory locations
-may overlap.
-These qualifiers are declared in the program and not built into the
-language.
-Normally memory locations that are referenced differently are assumed by the
-L-Language to be different memory locations that do not overlap.
-To specify that two memory locations might overlap, they must
-be given the same alias qualifier.  Aliased locations
-may not be able to use software caching.
 
-\ikey{Parallel qualifiers}{parallel qualifier} should be attached
-to memory locations whose software \underline{and hardware}
-caches are to be flushed by explicit cache flushing statements in the
-L-Language.
-These qualifiers are declared in the program and not built into the
-language.
-They are used for memory locations shared between different hardware
-processing units (e.g., between a central processing unit and an
-IO device, or between two different central processing units).
+\subsubsection{Lifetime Qualifiers}
+\label{LIFETIME-QUALIFIERS}
 
+Two lifetime qualifiers are builtin:  `{\tt stack}', and `{\tt unlimited}'.
+One kind of lifetime qualifier is declarable: collectable qualifiers.
+
+\begin{indpar}
+
+\hspace*{-1em}\ttkey{stack}~~When used in an argument or return type,
+indicates that a memory location lifetime is at least as long as the
+lifetime of the calling function execution's stack frame.  When used
+for a memory location allocated by the current function execution,
+indicates that the memory location lifetime is that of the current
+function execution.
+
+If the `{\tt stack}' qualifier is applied to the value returned by a
+function call, the memory location is allocated by the caller and not
+the called function.  There must be a `{\tt \&}' preceeding the
+`{\tt stack}' qualifier in the return value type.  For example:
+\begin{indpar}[0.5em]\begin{verbatim}
+int function1 ( int arg1 );
+    // Returns a int value in a register.
+& global int function2 ( int arg1 );
+    // Returns an address of int value in a register.
+& stack int function3 ( int arg1 );
+    // Returns an int value in a location whose address is passed
+    // by the caller to the called function3.
+\end{verbatim}\end{indpar}
+
+A `{\tt stack}' memory location may be cached in a register,
+but this cache must
+be flushed when the address of the location is passed
+to a called function.
+
+The address of a `{\tt stack}' memory location may only be stored
+by a function execution in its frame, or passed to called functions
+whose argument or return value types indicate they accept `{\tt stack}'
+locations.
+
+\hspace*{-1em}\ttkey{unlimited}~~Unlimited memory locations can be
+accessed by any function execution and their addresses may be stored
+in any place.
+
+\hspace*{-1em}\ikey{Collectable Qualifiers}%
+{collectable qualifier}~~Collectable
+qualifiers are declared by the programmer and are used to tag
+memory locations can be garbage collected.  When the address of a garbage
+collectable memory location is returned by a function, it is registered
+with the garbage collector, so it will not be collected.  This is usually
+done by placing a pointer to the location in a stack.  The stack is
+popped when a function that may have pushed addresses into the stack
+returns.
+
+Like unlimited memory locations, collectable locations can be
+accessed by any function execution and their addresses may be stored
+in any place.
+
+
+
+\end{indpar}
 
 \subsubsection{Caching Qualifiers}
-\label{CACHING-QUALIFIERS}
+\label{Caching-QUALIFIERS}
 
-The caching qualifiers are all builtin.  They are `{\tt constant}',
-`{\tt stack}', and `{\tt global}'.
+One caching qualifier is builtin: `{\tt constant}'.
 
 \begin{indpar}
 
@@ -643,13 +703,7 @@ The caching qualifiers are all builtin.  They are `{\tt constant}',
 be modified at all.
 
 The memory location can be cached in registers without
-restriction
-
-This qualifier imposes no restrictions on where an address to the
-location can be stored or whether it can be passed as an argument or result,
-as long as the address type indicates the location is constant.
-However a `{\tt constant}' location may also have other qualifiers that
-place restrictions on the location.
+restriction.
 
 Memory locations declared `{\tt constant}' must be written during their
 initialization.  This is managed by not declaring these locations to be
@@ -672,38 +726,8 @@ int function3 ( void )
 }
 \end{verbatim}\end{indpar}
 
-\hspace*{-1em}\ttkey{stack}~~The memory location is or may be allocated
-to a function frame, and it will or may be accessed by the function
-execution of that frame and all functions called by that function
-execution.
-
-The memory location may be cached in a register, but this cache must
-be flushed when the address of the location is passed as an argument
-to a function.
-
-If the `{\tt stack}' qualifier is applied to the value returned by a
-function call, the memory location is allocated by the caller and not
-the called function.  There must be a `{\tt \&}' preceeding the
-`{\tt stack}' qualifier in the return value type.  For example:
-\begin{indpar}[0.5em]\begin{verbatim}
-int function1 ( int arg1 );
-    // Returns a int value in a register.
-& global int function2 ( int arg1 );
-    // Returns an address of int value in a register.
-& stack int function3 ( int arg1 );
-    // Returns an int value in a location whose address is passed
-    // by the caller to the called function3.
-\end{verbatim}\end{indpar}
-
-When used in an argument or return value type, a `{\tt stack}' memory location
-may be either located in a function frame or may be `{\tt global}'.
-
-\hspace*{-1em}\ttkey{global}~~Global memory can be accessed by
-any function execution.  This is the default for memory allocated
-to the heap.
 
 \end{indpar}
-
 
 \subsection{Frames}
 \label{FRAMES}

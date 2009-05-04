@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 3, 2009
+May 4, 2009
  
 \end{center}
 
@@ -389,26 +389,28 @@ float64 f;
 Variables can be declared to be of address type by declarations of the
 form
 \begin{center}
-{\tt \&}$^\star$ {\em type-name} {\tt *}$^\star$ {\em variable-name} {\tt ;}
+{\em type-name} {\tt *}$^\star$ {\tt \&}$^\star$ {\em variable-name} {\tt ;}
 \end{center}
-in which there is at least one {\tt \&} or {\tt *}.
+in which there is at least one {\tt *} and there are at least as many
+{\tt *}'s as {\tt \&}'s.
 For example,
 \begin{indpar}\begin{verbatim}
 int32 * ip;
-& int32 i;
+int32 * & i;
 \end{verbatim}\end{indpar}
 are both variables that reference a direct address of an {\tt int32} type
 integer stored in memory.  However, `\verb|ip|' and `\verb|& i|' reference
 the direct address variable, and `\verb|* ip|' and `\verb|i|' reference
 the {\tt int32} integer.
 
-In general if there are $N$ {\tt \&}'s and {\tt *}'s, the variable is
+In general if there are $N$ {\tt *}'s, the variable is
 the direct address of the direct address of the \ldots{} of the direct address
 of the non-address type, where there are $N$ direct addresses in all.
 If there are no {\tt \&}'s, the variable name references the first of
 these direct addresses, and the variable name with $M$ {\tt *}'s in
 front of it references the $M+1$'st of the addresses, or the non-address
 number of $M=N$.  If instead there are $M$ {\tt \&}'s in the declaration,
+$M\leq N$,
 the variable name references the $M+1$'st direct address, or the non-address
 number if $M=N$, and to get a previous direct address one must put a
 {\tt \&} in front of the variable name, whereas to get a subsequent direct
@@ -417,9 +419,9 @@ address or the non-address number one puts a {\tt *} in front.
 For example,
 \begin{indpar}\begin{verbatim}
 int32 *** ippp;
-& int32 ** ipp;
-&& int32 * ip;
-&&& int32 i;
+int32 *** & ipp;
+int32 *** && ip;
+int32 *** &&& i;
 \end{verbatim}\end{indpar}
 are all variables referencing a direct address of a direct address of a
 direct address of an {\tt int32} number stored in memory.
@@ -650,13 +652,15 @@ For example:
 int function1 ( int * stack * arg1 );
     // Argument is a pointer to a caller allocated location holding a
     // pointer to an int.  The caller need not provide a useful value
-    // in this location, and function2 can return a pointer to an int
-    // value in this location but cannot reset the argument.
+    // in this location, and function2 can use `* arg1 = value' to
+    // return a pointer to an int value in this location, but cannot
+    // use `arg1 = value' to reset the argument.
 int function2 ( stack int * stack * arg1 );
     // Argument is a pointer to caller allocated location holding a 
     // pointer to a caller allocated location holding an int.  
     // Both pointers must be provided by the caller and cannot be
-    // reset by function2.
+    // reset by function2.  The caller can use `**arg1 = value' but
+    // not `*arg1 = value' or `arg1 = value'.
 int function3 ( stack int * * arg1 );
     // Illegal; a pointer not set by the caller cannot point to a
     // pointer that can only be set by the caller.
@@ -666,7 +670,7 @@ int * stack * function4 ( int arg1 );
     // the syntax `return value' is illegal in function4 as it would
     // reset the pointer to the stack location.  `* return = value'
     // can be used instead.
-int & stack * function5 ( int arg1 );
+int * stack * & function5 ( int arg1 );
     // Same as function4 but `return value' is legal and sets the
     // pointer to int.
 stack int * stack * function6 ( int arg1 );
@@ -683,8 +687,7 @@ must provide the `{\tt stack}' location, but the location need not be
 in a frame, and may be `{\tt global}' or collectible instead.  Asserting
 that such a location is `{\tt stack}' is only a promise by the called
 function not to store the location's address anywhere but in its
-frame or pass the address to another function where the location is
-declared `{\tt stack}'.  TBD
+frame or in a `pointer to {\tt stack} location' argument to a function it calls.
 
 A `{\tt stack}' memory location may be cached in a register,
 but this cache must be flushed when an out-of-line function is called,
@@ -693,7 +696,7 @@ passed to the out-of-line function.
 
 Such a proof is most easily accomplished if the memory location is
 allocated to the frame of the caller, in which case the caller will
-know exactly where the address of the frame may be stored.  If the
+know exactly where the address of the location may be stored.  If the
 location is a `{\tt stack}' location passed to the caller as an
 argument or return value, the caller can only prove that its address
 is not passed if no address passed by the caller's caller is passed.

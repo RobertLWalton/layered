@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 4, 2009
+May 8, 2009
  
 \end{center}
 
@@ -554,11 +554,11 @@ Blocks contain numbers and addresses.  Access to these is provided by
 unchecked pointer computation functions.  For example
 \begin{indpar}\begin{verbatim}
 deftype type1 (24,4);
-unchecked & uns16   .member1 ( & type1 m ) = m@0;
-unchecked & int16   .member2 ( & type1 m ) = m@2;
-unchecked & int32   .member3 ( & type1 m ) = m@4;
-unchecked & float32 .member4 ( & type1 m ) = m@8;
-unchecked & type1 * .member5 ( & type1 m ) = m@16;
+uns16 *&   .member1 ( & type1 m ) unchecked = m@0;
+int16 *&   .member2 ( & type1 m ) unchecked = m@2;
+int32 *&   .member3 ( & type1 m ) unchecked = m@4;
+float32 *& .member4 ( & type1 m ) unchecked = m@8;
+type1 * *& .member5 ( & type1 m ) unchecked = m@16;
 . . . . .
 type1 x;
 x.member1 = 9;
@@ -570,7 +570,7 @@ x.member5 = & x;
 
 Here $x${\tt @}$y$ is an operation that takes the byte address of
 $x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
-stores it in a temporary variable of type `{\tt \& void}'.  In an
+stores it in a temporary variable of type `{\tt *\& void}'.  In an
 {\tt unchecked} function the {\tt void} type can be converted to
 any other type.
 
@@ -727,6 +727,7 @@ in any place.
 \label{Caching-QUALIFIERS}
 
 One caching qualifier is builtin: `{\tt constant}'.
+Two kinds are declarable: alias qualifiers and parallel qualifiers.
 
 \begin{indpar}
 
@@ -742,21 +743,87 @@ initialization.  This is managed by not declaring these locations to be
 
 The following code has some examples:
 \begin{indpar}[0.5em]\begin{verbatim}
-int function1 ( & stack constant arg1 );
-int function2 ( & stack arg1 );
+int function1 ( stack constant *& arg1 );
+int function2 ( stack *& arg1 );
 int function3 ( void )
 {
    constant int value1 = 5;
        // Permitted:
-       //   & stack int .constructor. ( 5 ) is called.
+       //   stack int *& .constructor. ( 5 ) is called.
    value1 = 10; 
        // Erroneous:
-       //   & stack constant int .assign. ( 10 ) is called.
+       //   stack constant int *& .assign. ( 10 ) is called.
    function1 ( value1 );  // Permitted; arg1 constant.
    function2 ( value1 );  // Erroneous; arg1 NOT constant.
 }
 \end{verbatim}\end{indpar}
 
+Note that the `{\tt constant}' qualifier in an argument type is a promise
+that \underline{no code} will modify the location.  In C/C++
+the `{\tt const}' qualifier in an argument type is a promise that the
+\underline{called code} will not modify the location, but not that
+some other code will modify the location.  This difference has an
+effect on how the location may be cached in registers.
+
+Outside constructors `{\tt constant}' memory locations can be
+cached in registers without restriction.
+
+\hspace*{-1em}\ikey{Alias Qualifiers}%
+{alias qualifier}~~Alias
+qualifiers are declared by the programmer and are used to tag
+memory locations that may be aliased with each other.
+
+At compile time the L-Language converts location
+addresses into a form that is the
+sum of a compile time integer `\key{offset}\,' and an
+expression called the `\key{address expression}\,' whose value cannot be
+computed at compile time.  In addition the location may have associated
+alias qualifiers.  The L-Language assumes two locations do not overlap
+unless they have a common alias qualifier, or unless the locations have
+identical address expressions and their offsets indicate they overlap.
+
+For example:
+\begin{indpar}[0.5em]\begin{verbatim}
+void copy1 ( uns8 source[length],
+             uns8 destination[length],
+             uns32 length )
+{
+    uns32 i = 0;
+    loop: {
+        if ( i >= length ) break loop;
+        destination[i] = source[i];
+        ++ i;
+    }
+}
+alias qualifier same_data;
+void copy2 ( same_data uns8 source[length],
+             same_data uns8 destination[length],
+             uns32 length )
+{
+    uns32 i = 0;
+    loop: {
+        if ( i >= length ) break loop;
+        destination[i] = source[i];
+        ++ i;
+    }
+}
+uns8 x[16];
+x[0] = 0;
+copy1 ( x[0 .. 14], x[1 .. 15], 15 );   // Erroneous.
+copy2 ( x[0 .. 14], x[1 .. 15], 15 );   // Zeros x.
+\end{verbatim}\end{indpar}
+
+The call to {\tt copy1} is erroneous because the compiler can determine
+that arguments that are not supposed to be aliased are in fact aliased.
+
+\hspace*{-1em}\ikey{Parallel Qualifiers}%
+{parallel qualifier}~~Parallel
+qualifiers are declared by the programmer and are used to tag
+memory locations that may be flushed from software and hardware
+caches in order to permit separate central processing units
+to communicate through shared memory.
+
+TBD
 
 \end{indpar}
 

@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 8, 2009
+May 9, 2009
  
 \end{center}
 
@@ -724,7 +724,7 @@ in any place.
 \end{indpar}
 
 \subsubsection{Caching Qualifiers}
-\label{Caching-QUALIFIERS}
+\label{CACHING-QUALIFIERS}
 
 One caching qualifier is builtin: `{\tt constant}'.
 Two kinds are declarable: alias qualifiers and parallel qualifiers.
@@ -823,7 +823,47 @@ memory locations that may be flushed from software and hardware
 caches in order to permit separate central processing units
 to communicate through shared memory.
 
-TBD
+There are three L-Language statements that flush caches.  Each gives
+a list of parallel qualifiers that names all the locations known to
+the current function that are tagged with these qualifiers.  An
+example is:
+\begin{indpar}[0.5em]\begin{verbatim}
+parallel qualifier pdata, pflag;
+pdata float64 x[3];
+pflag bool done_flag = false;
+. . . . . . .
+// Output data
+x[0] = 35,87;
+x[1] = -2.90;
+parallel flush write pdata;
+// Set flag indicating data output
+done_flag = true;
+parallel flush write pflag;
+// Wait for data to be consumed
+loop: {
+    spin ( 5000 ); // 5000 nanosecond spin
+    parallel flush read pflag;
+    if ( done_flag = false ) break loop;
+}
+// Data has been consumed
+\end{verbatim}\end{indpar}
+
+\end{indpar}
+
+\subsubsection{Protection Qualifiers}
+\label{PROTECTION-QUALIFIERS}
+
+Four protection qualifier are builtin:
+`{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', and `{\tt noaccess}'.
+These are used only in qualifier expressions that include declared
+protection qualifiers.
+
+\begin{indpar}
+
+\hspace*{-1em}\ikey{Protection Qualifiers}%
+{protection qualifier}~~Non-builtin protection
+qualifiers are declared by the programmer and are used to tag
+memory locations that may be accessed only by particular pieces of code.
 
 \end{indpar}
 

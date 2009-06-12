@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 9, 2009
+June 12, 2009
  
 \end{center}
 
@@ -280,7 +280,8 @@ code specific to a task must be computed and then optimized.
 
 The L-Language supports low level declaration of data and fairly high
 level typesafe optimized usage of declared data.  The L-Language also
-supports macros written in the L-Language itself, permitting very
+supports macros written in the high level H-Language that extends the
+L-Language, permitting very
 capable macros to be written by users to give users high level data
 declaration facilities taylored to specific kinds of data.
 
@@ -312,17 +313,20 @@ and direct address:
 \ttkey{uns16}		& unsigned integer & 16 bits \\
 \ttkey{uns32}		& unsigned integer & 32 bits \\
 \ttkey{uns64}		& unsigned integer & 64 bits \\
-\ttkey{uns128}		& unsigned integer & 128 bits \\
+\ttkey{uns128}		& unsigned integer & 128 bits
+\\[1ex]
 \ttkey{int8}		& signed integer & 8 bits \\
 \ttkey{int16}		& signed integer & 16 bits \\
 \ttkey{int32}		& signed integer & 32 bits \\
 \ttkey{int64}		& signed integer & 64 bits \\
-\ttkey{int128}		& signed integer & 128 bits \\
+\ttkey{int128}		& signed integer & 128 bits
+\\[1ex]
 \ttkey{float16}		& IEEE floating point number & 16 bits \\
 \ttkey{float32}		& IEEE floating point number & 32 bits \\
 \ttkey{float64}		& IEEE floating point number & 64 bits \\
-\ttkey{float128}	& IEEE floating point number & 128 bits \\
-(see text)		& direct address & 64 bits \\
+\ttkey{float128}	& IEEE floating point number & 128 bits
+\\[1ex]
+(see text)		& direct address & 32 bits or 64 bits (see text) \\
 \end{tabular}
 \end{center}
 
@@ -356,9 +360,12 @@ and mantissas for various floating point number sizes is as follows:
 \end{center}
 
 A \key{direct address} holds a RAM byte address.
-A direct address is a 64-bit unsigned integer, but some
-of high order bits are all 0's or all 1's, depending upon
-the implementation.  A reasonable assumption is that only the low
+A direct address is a 32-bit or 64-bit unsigned integer whose size
+is determined by the target machine.  Some of high order bits may be
+required to be all 0's or all 1's, depending upon
+the target machine.
+
+A reasonable assumption for 64-bit addresses is that only the low
 order 48-bits of the direct address are actually used.  This assumption can
 be used to put other information in the high order 16 bits
 of a 64-bit number containing a direct address.  For example, an address
@@ -444,7 +451,8 @@ is a set of address/byte pairs.  Each 8-bit byte of RAM has an \key{address}
 that is a unsigned integer.  It is possible for two addresses to refer to the
 same byte, or for an address to refer to no byte.  An address that
 refers to a byte is said to be \key{allocated}, and an address that refers
-to no byte is said to be \key{deallocated}.  A byte that has two distinct
+to no byte is said to be \key{deallocated}.  A byte that has two (or more)
+distinct
 addresses is said to be \key{shared}, and a byte with just one address is
 \key{unshared}.
 
@@ -460,24 +468,33 @@ A block is \mkey{unshared}{block} if all its bytes are unshared.
 A block is \mkey{shared}{block} if
 it is one of a set of several blocks (sequences of consecutive addresses)
 such that the $n$'th byte of each block in the set is the same.
-Note that a block can be neither shared nor unshared.
+Note that a block can be neither allocated or deallocated or
+neither shared nor unshared; i.e., some of the block's bytes may be
+allocated and some deallocated, or some may be shared and some unshared.
 
 The address space is divided into \skey{page}s, which are blocks that
 have an implementation determined length
-that is a power of two: e.g., 2048 byte = 16386 bit pages.  There
+that is a power of two: e.g., 4096 byte pages.  There
 are L-Language operations which call the operating system to
 map an address page to physical memory, thus allocating a page
 of RAM.  There are operations to deallocate a page, and to make
 two pages be shared (map to the same bytes of RAM).
 
-The only way for two blocks to share a byte is for the blocks to
-overlap shared pages.
+Pages are the units of allocation and sharing.  Each page of the
+address space is either allocated or deallocated, and each page is
+either shared or unshared.  The only way for an abitrary block to
+have allocated bytes is to overlap an allocated page, and similarly
+for deallocated bytes, shared bytes, and unshared bytes.
 
-The only blocks in L-language are frame blocks (\pagref{FRAMES}),
-code blocks(\pagref{CODE-BLOCKS}), and pages.
-Numbers are stored in these blocks.
+A \key{segment} is a contiguous sequence of pages all of which have
+the same allocation and sharing status.
 
-Block data types are declared by declarations of the form
+The builtin blocks in L-language are frame blocks (\pagref{FRAMES}),
+code blocks(\pagref{CODE-BLOCKS}), numbers, and segments.  All non-segment
+blocks are contained within segments.  User defined blocks can be 
+contained within segments.
+
+Block data types may be declared by declarations of the form
 \begin{center}
 \ttkey{deftype} {\em type-name} {\tt (} {\em length}{\tt ,}
 				        {\em alignment}{\tt ,}
@@ -527,9 +544,9 @@ The length of the block is an unsigned integer.  The alignment is an
 unsigned integer equal to a power of two that defaults to {\tt 1}.
 The offset is a signed integer that defaults to {\tt 0}.
 
-A block can actually have bytes both before and ofter those described by
+A block can actually have bytes both before and after those described by
 its type.  Thus the type specifies that every allocated block of the
-type will contain allocate bytes at the addresses
+type will contain allocated bytes at the addresses
 
 \begin{center}
 \begin{tabular}{l}
@@ -547,10 +564,11 @@ either before or after the required bytes.
 
 Note that if the {\em offset} is negative, the block address does not
 address a required byte, and may not address any block byte.  Similarly
-if the {\em offset} is greater than the required block {\em length}.
+if the {\em offset} is greater than the block {\em length}.
 
 
-Blocks contain numbers and addresses.  Access to these is provided by
+Blocks contain numbers (including direct addresses) and subblocks.
+Access to these is provided by
 unchecked pointer computation functions.  For example
 \begin{indpar}\begin{verbatim}
 deftype type1 (24,4);
@@ -570,7 +588,7 @@ x.member5 = & x;
 
 Here $x${\tt @}$y$ is an operation that takes the byte address of
 $x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
-stores it in a temporary variable of type `{\tt *\& void}'.  In an
+returns it as a value of type `{\tt *\& void}'.  In an
 {\tt unchecked} function the {\tt void} type can be converted to
 any other type.
 
@@ -580,17 +598,19 @@ any other type.
 The L-Language controls the way memory is accessed via \skey{qualifiers}s.
 A qualifier has a name that is an identifier with optional type parameters,
 just as a function has a name that is an identifier with optional
-type parameters.
+type parameters.  The type parameter part of the name can be useful
+in applications where only certain functions are allowed to write
+a datum of a particular type, or where languages are being compiled that
+wish to enforce the rule that only data of the same type can be aliased.
 
 There are several types of qualifiers.
 
 \ikey{Lifetime qualifiers}{lifetime qualifier}
-specify the lifetime of a memory location.  The {\tt stack} qualifier
+specify the lifetime of a memory location.  The `{\tt stack}' qualifier
 specifies that the location may only last as long as the caller of
-a function, or that the location is allocated to the frame of the
-function.  The {\tt global} qualifier specifies that the location
+a function.  The `{\tt global}' qualifier specifies that the location
 has unlimited lifetime.
-Additional \skey{collectable qualifier}s may be specified that
+\ikey{Collectable qualifiers}{collectible qualifier} may be declared that
 indicate that the location is garbage collectable and its address needs
 to be protected against collection.
 
@@ -598,13 +618,13 @@ to be protected against collection.
 may be changed, and thence when they may be cached in registers.  The
 `{\tt constant}' qualifier specifies that a location will not be changed,
 and may be cached indefinitely in registers.
-Additional \skey{alias qualifier}s may be declared to indicate when
+\ikey{Alias qualifiers}{alias qualifier} may be declared to indicate when
 memory locations may overlap.
 Normally memory locations that are referenced differently are assumed by the
 L-Language to be different memory locations that do not overlap.
 To specify that two memory locations might overlap, they must
 be given the same alias qualifier.
-Additional \skey{parallel qualifier}s may be declared to
+\ikey{Parallel qualifiers}{parallel qualifier} may be declared to
 identify memory locations whose register \underline{and hardware}
 caches are to be flushed by explicit cache flushing statements in the
 L-Language.
@@ -612,10 +632,10 @@ These are used for memory locations shared between different hardware
 processing units (e.g., between a central processing unit and an
 IO device, or between two different central processing units).
 
-\ikey{Protection qualifiers}{protection qualifier} control which
-functions can access a memory location.
-These qualifiers are declared in the program and not built into the
-language.
+Note that the `{\tt stack}' lifetime qualifier also affects caching.
+
+\ikey{Protection qualifiers}{protection qualifier} may be declared
+to control which functions can access a memory location.
 A memory location with protection qualifier $X$ can only be
 accessed by functions which have qualifier $X$.
 
@@ -630,7 +650,9 @@ to write the location, and will be able to assume that the location will
 not be written by others.  In order for this to work properly, the functions
 with qualifier $X$ that are permitted to write the location must be called
 first, before functions without qualifier $X$ are allowed to access the
-location.
+location.  Alternatively, `{\tt constant}' can be replaced by `{\tt readonly}',
+which forbids writing the location but does \underline{not} promise that
+other code will not write the location.
 
 
 \subsubsection{Lifetime Qualifiers}
@@ -641,26 +663,28 @@ One kind of lifetime qualifier is declarable: collectable qualifiers.
 
 \begin{indpar}
 
-\hspace*{-1em}\ttkey{stack}~~Specifies that no function execution is to store
+\hspace*{-1em}\ttkey{stack}~~~~~Specifies that no function execution is to store
 the address of the location anywhere but in the function execution's own
 frame.  Furthermore, if used in a function argument or return value type,
+`{\tt stack}'
 specifies that the called function is not to allocate the memory location,
 but rather the caller is responsible for allocating it.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
 int function1 ( int * stack * arg1 );
-    // Argument is a pointer to a caller allocated location holding a
-    // pointer to an int.  The caller need not provide a useful value
-    // in this location, and function2 can use `* arg1 = value' to
-    // return a pointer to an int value in this location, but cannot
-    // use `arg1 = value' to reset the argument.
+    // The argument is a pointer to a caller allocated location
+    // holding a pointer to an int.  The caller need not provide a
+    // useful value in this location, and function1 can use
+    // `* arg1 = value' to return a pointer to an int value in
+    // this location, but cannot use `arg1 = value' to reset the
+    // argument.
 int function2 ( stack int * stack * arg1 );
-    // Argument is a pointer to caller allocated location holding a 
-    // pointer to a caller allocated location holding an int.  
-    // Both pointers must be provided by the caller and cannot be
-    // reset by function2.  The caller can use `**arg1 = value' but
-    // not `*arg1 = value' or `arg1 = value'.
+    // The argument is a pointer to caller allocated location
+    // holding a pointer to a caller allocated location holding
+    // an int.  Both pointers must be provided by the caller and
+    // cannot be reset by function2.  function2 can use
+    // `**arg1 = value' but not `*arg1 = value' or `arg1 = value'.
 int function3 ( stack int * * arg1 );
     // Illegal; a pointer not set by the caller cannot point to a
     // pointer that can only be set by the caller.
@@ -701,12 +725,12 @@ location is a `{\tt stack}' location passed to the caller as an
 argument or return value, the caller can only prove that its address
 is not passed if no address passed by the caller's caller is passed.
 
-\hspace*{-1em}\ttkey{global}~~Global memory locations can be
+\hspace*{-1em}\ttkey{global}~~~~~Global memory locations can be
 accessed by any function execution and their addresses may be stored
 in any place.
 
 \hspace*{-1em}\ikey{Collectable Qualifiers}%
-{collectable qualifier}~~Collectable
+{collectable qualifier}~~~~~Collectable
 qualifiers are declared by the programmer and are used to tag
 memory locations can be garbage collected.  When the address of a garbage
 collectable memory location is returned by a function, it is registered
@@ -731,7 +755,7 @@ Two kinds are declarable: alias qualifiers and parallel qualifiers.
 
 \begin{indpar}
 
-\hspace*{-1em}\ttkey{constant}~~The memory location is constant and will not
+\hspace*{-1em}\ttkey{constant}~~~~~The memory location is constant and will not
 be modified at all.
 
 The memory location can be cached in registers without
@@ -769,7 +793,7 @@ Outside constructors `{\tt constant}' memory locations can be
 cached in registers without restriction.
 
 \hspace*{-1em}\ikey{Alias Qualifiers}%
-{alias qualifier}~~Alias
+{alias qualifier}~~~~~Alias
 qualifiers are declared by the programmer and are used to tag
 memory locations that may be aliased with each other.
 
@@ -817,7 +841,7 @@ The call to {\tt copy1} is erroneous because the compiler can determine
 that arguments that are not supposed to be aliased are in fact aliased.
 
 \hspace*{-1em}\ikey{Parallel Qualifiers}%
-{parallel qualifier}~~Parallel
+{parallel qualifier}~~~~~Parallel
 qualifiers are declared by the programmer and are used to tag
 memory locations that may be flushed from software and hardware
 caches in order to permit separate central processing units
@@ -861,7 +885,7 @@ protection qualifiers.
 \begin{indpar}
 
 \hspace*{-1em}\ikey{Protection Qualifiers}%
-{protection qualifier}~~Non-builtin protection
+{protection qualifier}~~~~~Non-builtin protection
 qualifiers are declared by the programmer and are used to tag
 memory locations that may be accessed only by particular pieces of code.
 

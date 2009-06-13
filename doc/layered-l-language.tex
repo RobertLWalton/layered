@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 12, 2009
+June 13, 2009
  
 \end{center}
 
@@ -725,25 +725,39 @@ location is a `{\tt stack}' location passed to the caller as an
 argument or return value, the caller can only prove that its address
 is not passed if no address passed by the caller's caller is passed.
 
-\hspace*{-1em}\ttkey{global}~~~~~Global memory locations can be
-accessed by any function execution and their addresses may be stored
-in any place.
-
 \hspace*{-1em}\ikey{Collectable Qualifiers}%
 {collectable qualifier}~~~~~Collectable
 qualifiers are declared by the programmer and are used to tag
-memory locations can be garbage collected.  When the address of a garbage
-collectable memory location is returned by a function, it is registered
-with the garbage collector, so it will not be collected.  This is usually
-done by placing a pointer to the location in a stack.  The stack is
-popped when a function that may have pushed addresses into the stack
-returns.
+memory locations can be garbage collected.
 
-Like global memory locations, collectable locations can be
-accessed by any function execution and their addresses may be stored
-in any place.
+Addresses of
+collectable locations are like addresses of `{\tt stack}' locations, except
+that collectable locations may be accessed by any out-of-line function,
+even if their addresses are not passed via arguments, so caches to
+collectable locations must be flushed whenever any out-of-line function
+is called.
 
+An address of a location with a particular collectable
+qualifier may \underline{not} be converted to an address with the `{\tt stack}'
+qualifier, or vice veras.  An address of a location with one collectable
+qualifier may \underline{not} be converted to an address of a location with a
+different collectable qualifier.  Addresses of collectable locations
+may only be written to or read from stack frames.
 
+Special user-written {\tt unchecked} functions may store
+collectable addresses in global memory and read these addresses from
+global memory.  These functions generally have to perform
+other operations related to garbage collection, such as pushing the
+any addresses read into a special stack of addresses to be protected
+from garbage collection, and maintaining reference counts when addresses
+are written.
+
+One application is to apply a collectable qualifier to all locations
+of a particular type when locations of that type are only
+allocated to the stack and where such locations are put on a global
+list when allocated and removed from the list when deallocated (from the stack).
+Such locations are passed as implicit arguments to every called
+out-of-line function, and therefore cannot be declared as `{\tt stack}'.
 
 \end{indpar}
 
@@ -768,8 +782,9 @@ initialization.  This is managed by not declaring these locations to be
 The following code has some examples:
 \begin{indpar}[0.5em]\begin{verbatim}
 int function1 ( stack constant *& arg1 );
-int function2 ( stack *& arg1 );
-int function3 ( void )
+int function2 ( stack readonly *& arg1 );
+int function3 ( stack *& arg1 );
+int function4 ( void )
 {
    constant int value1 = 5;
        // Permitted:
@@ -778,16 +793,18 @@ int function3 ( void )
        // Erroneous:
        //   stack constant int *& .assign. ( 10 ) is called.
    function1 ( value1 );  // Permitted; arg1 constant.
-   function2 ( value1 );  // Erroneous; arg1 NOT constant.
+   function2 ( value1 );  // Permitted; arg1 readonly.
+   function3 ( value1 );  // Erroneous; arg1 NOT constant.
 }
 \end{verbatim}\end{indpar}
 
 Note that the `{\tt constant}' qualifier in an argument type is a promise
-that \underline{no code} will modify the location.  In C/C++
-the `{\tt const}' qualifier in an argument type is a promise that the
-\underline{called code} will not modify the location, but not that
-some other code will modify the location.  This difference has an
-effect on how the location may be cached in registers.
+that \underline{no code} will ever modify the location.  By contrast
+a `{\tt readonly}' argument qualifier (like `{\tt const}' in C/C++)
+is a promise only that the location will not be modified during
+the course of the call.  The difference is that a called function
+may construct a long-lived cache of a `{\tt constant}' location
+but not of a `{\tt readonly}' location.
 
 Outside constructors `{\tt constant}' memory locations can be
 cached in registers without restriction.
@@ -857,7 +874,7 @@ pdata float64 x[3];
 pflag bool done_flag = false;
 . . . . . . .
 // Output data
-x[0] = 35,87;
+x[0] = 35.87;
 x[1] = -2.90;
 parallel flush write pdata;
 // Set flag indicating data output
@@ -877,10 +894,8 @@ loop: {
 \subsubsection{Protection Qualifiers}
 \label{PROTECTION-QUALIFIERS}
 
-Four protection qualifier are builtin:
+Four protection qualifiers are builtin:
 `{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', and `{\tt noaccess}'.
-These are used only in qualifier expressions that include declared
-protection qualifiers.
 
 \begin{indpar}
 

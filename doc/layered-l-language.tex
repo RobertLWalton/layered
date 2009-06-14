@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 13, 2009
+June 14, 2009
  
 \end{center}
 
@@ -728,7 +728,7 @@ is not passed if no address passed by the caller's caller is passed.
 \hspace*{-1em}\ikey{Collectable Qualifiers}%
 {collectable qualifier}~~~~~Collectable
 qualifiers are declared by the programmer and are used to tag
-memory locations can be garbage collected.
+memory locations that can be garbage collected.
 
 Addresses of
 collectable locations are like addresses of `{\tt stack}' locations, except
@@ -784,18 +784,16 @@ The following code has some examples:
 int function1 ( stack constant *& arg1 );
 int function2 ( stack readonly *& arg1 );
 int function3 ( stack *& arg1 );
-int function4 ( void )
-{
-   constant int value1 = 5;
-       // Permitted:
-       //   stack int *& .constructor. ( 5 ) is called.
-   value1 = 10; 
-       // Erroneous:
-       //   stack constant int *& .assign. ( 10 ) is called.
-   function1 ( value1 );  // Permitted; arg1 constant.
-   function2 ( value1 );  // Permitted; arg1 readonly.
-   function3 ( value1 );  // Erroneous; arg1 NOT constant.
-}
+. . . . . . . . . .
+constant int value1 = 5;
+   // Permitted:
+   //   stack int *& .constructor. ( 5 ) is called.
+value1 = 10; 
+   // Erroneous:
+   //   stack constant int *& .assign. ( 10 ) is called.
+function1 ( value1 );  // Permitted; arg1 constant.
+function2 ( value1 );  // Permitted; arg1 readonly.
+function3 ( value1 );  // Erroneous; arg1 NOT constant.
 \end{verbatim}\end{indpar}
 
 Note that the `{\tt constant}' qualifier in an argument type is a promise
@@ -836,7 +834,7 @@ void copy1 ( uns8 source[length],
         ++ i;
     }
 }
-alias qualifier same_data;
+declare alias qualifier same_data;
 void copy2 ( same_data uns8 source[length],
              same_data uns8 destination[length],
              uns32 length )
@@ -869,7 +867,7 @@ a list of parallel qualifiers that names all the locations known to
 the current function that are tagged with these qualifiers.  An
 example is:
 \begin{indpar}[0.5em]\begin{verbatim}
-parallel qualifier pdata, pflag;
+declare parallel qualifier pdata, pflag;
 pdata float64 x[3];
 pflag bool done_flag = false;
 . . . . . . .
@@ -896,13 +894,21 @@ loop: {
 
 Four protection qualifiers are builtin:
 `{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', and `{\tt noaccess}'.
+Additional protection qualifiers may be declared.
 
 \begin{indpar}
 
+\hspace*{-1em}\ttkey{readwrite}, \ttkey{readonly}, \ttkey{writeonly},
+\ttkey{noaccess}~~~~~Specifies whether a function execution may read or
+write a location.
+
 \hspace*{-1em}\ikey{Protection Qualifiers}%
 {protection qualifier}~~~~~Non-builtin protection
-qualifiers are declared by the programmer and are used to tag
+qualifiers may be declared by the programmer and used to tag
 memory locations that may be accessed only by particular pieces of code.
+
+Note that other qualifiers may also be used to restrict location
+access in the same way as declared protection qualifiers.
 
 \end{indpar}
 
@@ -978,86 +984,6 @@ can only be accessed by function executions in any thread.
 Note that parallel function calls cannot access blocks in a function's
 frame.
 
-\subsection{Registers}
-
-A \key{register} is assigned a \mkey{type}{of register}
-and some optional \mkey{type parameters}{of register}
-and can hold any of the following:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l}
-\bf Register Type & \bf Type Parameters \\[2ex]
-unsigned integer & length \\
-signed integer & length \\
-floating point number & length \\
-direct address \\
-indirect address & level \\
-linear channel & block-size window-size dimensions \\
-chained channel & block-size window-size dimensions  \\
-direct channel & block-size window-size dimensions \\
-\end{tabular}
-\end{center}
-
-The type parameters are unsigned integers that
-determine the sized of the register.
-
-Registers with a number type can only hold numbers of the given register
-type and register length.
-
-An indirect address is consists of a direct address and a sequence of
-zero or more offsets, each of which is a signed 64 bit integer.  The
-number of offsets is the level of the indirect address.
-
-A channel is a mechanism for caching a window of memory.  The window
-consists of a linear array of blocks which are addressed by various
-different means.  The block-size parameter specifies the maximum block
-size, the window-size parameter the maximum size of any window dimension, 
-and the dimensions parameter the maximum
-number of dimensions in the window array.
-
-Registers are virtual; some are implemented by hardware registers,
-and some are implemented by a \key{frame}
-which is an allocated block of RAM
-associated with the currently executing code.
-
-[TBD: Add register pointers and register sharing.]
-
-\subsection{Indirect Addresses}
-
-An \key{indirect address} consists of a direct address $A$
-and $L$ offsets, $O_1$, $O_2$, \ldots, $O_L$, where $L\geq 0$ is the
-\mkey{level}{of indirect address} of the indirect address.
-The indirect address represents the \mkey{target address}{of indirect address}:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l}
-\bf Level & \bf Target Address \\[2ex]
-0 & $(*A)$ \\
-1 & $((*A)+O_1)$ \\
-2 & $(*((*A)+O_1)+O_2)$ \\
-3 & $(*(*((*A)+O_1)+O_2)+O_3)$ \\
-\ldots & \ldots
-\end{tabular}
-\end{center}
-
-where $*$ is the \key{indirect addressing operation}
-that takes the direct address $D$ of another direct address $F$ stored
-in RAM, and returns $F$.  $F$, which is called the \key{forwarding address},
-is both a direct address number and a block, and as a block
-is required to have 64 bits as both its length and alignment.
-
-The important thing about an indirect address is that the forwarding addresses
-it accesses are permitted to change at most times, as long as they
-are changed according to a protocol (\pagref{INDIRECT-ADDRESS-PROTOCOL}).
-The forwarding addresses point at blocks that can be moved in memory at
-any time the forwarding addresses are permited to change.  Moving blocks in
-memory is part of memory compaction, which in turn is part of garbage
-collection, so indirect addresses enable real-time garbage collection.
-
-The offsets of an indirect address are 64-bit integers whose
-units are bytes.  The $+$ operator in the target address computation
-is treated as addition modulo $2^{64}$ of unsigned integers, so the offsets
-can be either unsigned or signed.  Addition overflow is not possible.
 
 
 \subsection{Memory Channels}

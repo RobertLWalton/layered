@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 14, 2009
+June 22, 2009
  
 \end{center}
 
@@ -263,7 +263,7 @@ higher level languages.  As such it is optimized first to be an easy to
 use and adequate target language, and second to be reasonably easy to
 compile into efficient assembly language code.
 
-The L-Language is roughly like basic LISP with the type system and
+The L-Language is roughly like basic LISP but with the type system and
 syntax of C, and with additional features intended to give
 more control over compilation and type safety.
 
@@ -456,8 +456,9 @@ distinct
 addresses is said to be \key{shared}, and a byte with just one address is
 \key{unshared}.
 
-A \mkey{block}{of RAM} of RAM is a sequence of consecutive increasing addresses.
-The \mkey{origin}{of block} of the block is the address of its first byte,
+A \mkey{block}{of RAM} of RAM is a sequence of bytes with
+consecutively increasing addresses.
+The \mkey{origin}{of block} of the block is the first address,
 and the \mkey{length}{of block} of the block is the number of bytes.
 
 A block is \mkey{allocated}{block}
@@ -494,7 +495,7 @@ code blocks(\pagref{CODE-BLOCKS}), numbers, and segments.  All non-segment
 blocks are contained within segments.  User defined blocks can be 
 contained within segments.
 
-Block data types may be declared by declarations of the form
+User defined block data types may be declared by declarations of the form
 \begin{center}
 \ttkey{deftype} {\em type-name} {\tt (} {\em length}{\tt ,}
 				        {\em alignment}{\tt ,}
@@ -595,7 +596,7 @@ any other type.
 \subsection{Qualifiers}
 \label{QUALIFIERS}
 
-The L-Language controls the way memory is accessed via \skey{qualifiers}s.
+The L-Language controls the way memory is accessed via \skey{qualifier}s.
 A qualifier has a name that is an identifier with optional type parameters,
 just as a function has a name that is an identifier with optional
 type parameters.  The type parameter part of the name can be useful
@@ -603,7 +604,7 @@ in applications where only certain functions are allowed to write
 a datum of a particular type, or where languages are being compiled that
 wish to enforce the rule that only data of the same type can be aliased.
 
-There are several types of qualifiers.
+There are several kinds of qualifiers.
 
 \ikey{Lifetime qualifiers}{lifetime qualifier}
 specify the lifetime of a memory location.  The `{\tt stack}' qualifier
@@ -616,7 +617,7 @@ to be protected against collection.
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
 may be changed, and thence when they may be cached in registers.  The
-`{\tt constant}' qualifier specifies that a location will not be changed,
+`{\tt constant}' qualifier specifies that a location will never be changed,
 and may be cached indefinitely in registers.
 \ikey{Alias qualifiers}{alias qualifier} may be declared to indicate when
 memory locations may overlap.
@@ -672,36 +673,36 @@ but rather the caller is responsible for allocating it.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
-int function1 ( int * stack * arg1 );
+int32 function1 ( int32 * stack * arg1 );
     // The argument is a pointer to a caller allocated location
-    // holding a pointer to an int.  The caller need not provide a
-    // useful value in this location, and function1 can use
-    // `* arg1 = value' to return a pointer to an int value in
+    // holding a pointer to an int32.  The caller need not provide
+    // a useful value in this location, and function1 can use
+    // `* arg1 = value' to return a pointer to an int32 value in
     // this location, but cannot use `arg1 = value' to reset the
     // argument.
-int function2 ( stack int * stack * arg1 );
+int32 function2 ( stack int32 * stack * arg1 );
     // The argument is a pointer to caller allocated location
     // holding a pointer to a caller allocated location holding
-    // an int.  Both pointers must be provided by the caller and
+    // an int32.  Both pointers must be provided by the caller and
     // cannot be reset by function2.  function2 can use
     // `**arg1 = value' but not `*arg1 = value' or `arg1 = value'.
-int function3 ( stack int * * arg1 );
+int32 function3 ( stack int32 * * arg1 );
     // Illegal; a pointer not set by the caller cannot point to a
     // pointer that can only be set by the caller.
-int * stack * function4 ( int arg1 );
+int32 * stack * function4 ( int32 arg1 );
     // The result behaves like an extra argument passed to function4
     // which has the same properties as arg1 in function1.  However
     // the syntax `return value' is illegal in function4 as it would
-    // reset the pointer to the stack location.  `* return = value'
+    // reset the pointer to the stack location.  `* retval = value'
     // can be used instead.
-int * stack * & function5 ( int arg1 );
+int32 * stack * & function5 ( int32 arg1 );
     // Same as function4 but `return value' is legal and sets the
-    // pointer to int.
-stack int * stack * function6 ( int arg1 );
+    // pointer to int32.
+stack int32 * stack * function6 ( int32 arg1 );
     // The result behaves like an extra argument passed to function6
     // which has the same properties as arg1 in function2.
-    // `** return = value' must be used to return an integer.
-stack int * * function7 ( int arg1 );
+    // `** retval = value' must be used to return an integer.
+stack int32 * * function7 ( int32 arg1 );
     // Illegal; the result behaves like an extra argument passed to
     // function7 which has the same properties as arg1 in function3.
 \end{verbatim}\end{indpar}
@@ -781,19 +782,19 @@ initialization.  This is managed by not declaring these locations to be
 
 The following code has some examples:
 \begin{indpar}[0.5em]\begin{verbatim}
-int function1 ( stack constant *& arg1 );
-int function2 ( stack readonly *& arg1 );
-int function3 ( stack *& arg1 );
+int32 function1 ( stack constant *& arg1 );
+int32 function2 ( stack readonly *& arg1 );
+int32 function3 ( stack *& arg1 );
 . . . . . . . . . .
-constant int value1 = 5;
+constant int32 value1 = 5;
    // Permitted:
-   //   stack int *& .constructor. ( 5 ) is called.
+   //   stack int32 *& .constructor. ( 5 ) is called.
 value1 = 10; 
    // Erroneous:
-   //   stack constant int *& .assign. ( 10 ) is called.
+   //   stack constant int32 *& .assign. ( 10 ) is called.
 function1 ( value1 );  // Permitted; arg1 constant.
 function2 ( value1 );  // Permitted; arg1 readonly.
-function3 ( value1 );  // Erroneous; arg1 NOT constant.
+function3 ( value1 );  // Erroneous; arg1 NOT constant or readonly.
 \end{verbatim}\end{indpar}
 
 Note that the `{\tt constant}' qualifier in an argument type is a promise
@@ -899,16 +900,36 @@ Additional protection qualifiers may be declared.
 \begin{indpar}
 
 \hspace*{-1em}\ttkey{readwrite}, \ttkey{readonly}, \ttkey{writeonly},
-\ttkey{noaccess}~~~~~Specifies whether a function execution may read or
-write a location.
+\ttkey{noaccess}~~~~~Specifies whether execution may read or write a location.
 
 \hspace*{-1em}\ikey{Protection Qualifiers}%
 {protection qualifier}~~~~~Non-builtin protection
-qualifiers may be declared by the programmer and used to tag
-memory locations that may be accessed only by particular pieces of code.
+qualifiers may be declared by the programmer and used to qualify
+functions.  They may then be used in `\skey{qualifier expression}s'
+to qualify memory locations.
 
-Note that other qualifiers may also be used to restrict location
-access in the same way as declared protection qualifiers.
+A \key{qualifier expression} is an expression composed of qualifiers,
+the operators `\ttmkey{\BAR}{in qualifier expression}'
+and `\ttmkey{\&}{in qualifier expression}', and parentheses.
+In order for a memory location to be accessible by a function,
+each of the location's qualifier expression must evaluate to true
+according to the following rules.  First, each protection qualifier
+is given the value true if it qualifies the function and false otherwise.
+Second, every other qualifier is given the value true if and only if
+doing so is necessary and sufficient to make the expression true, and
+is otherwise given the value false.  Any non-protection qualifiers
+given the value true for any qualifier expression of the location then
+qualify the location when it is accessed by the function.
+
+TBD
+
+For example, given the code
+\begin{indpar}[0.5em]\begin{verbatim}
+deftype type1 (24,4);
+declare protection qualifier constructor(type1);
+(constructor(type1)|constant) type1 my_data;
+. . . . . . .
+\end{verbatim}\end{indpar}
 
 \end{indpar}
 

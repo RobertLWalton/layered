@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 22, 2009
+June 23, 2009
  
 \end{center}
 
@@ -393,8 +393,7 @@ uns128 u;
 float64 f;
 \end{verbatim}\end{indpar}
 
-Variables can be declared to be of address type by declarations of the
-form
+Variables can be declared to be of address type by declarations of the form
 \begin{center}
 {\em type-name} {\tt *}$^\star$ {\tt \&}$^\star$ {\em variable-name} {\tt ;}
 \end{center}
@@ -593,6 +592,65 @@ returns it as a value of type `{\tt *\& void}'.  In an
 {\tt unchecked} function the {\tt void} type can be converted to
 any other type.
 
+\subsection{Arrays}
+\label{ARRAYS}
+
+Array variables can be declared by declarations of the form
+\begin{center}
+{\em type-name} {\tt *}$^\star$ {\tt \&}$^\star$ {\em variable-name}
+	{\tt [} {\em dimension-spec}
+	       \{ {\tt ,} {\em dimension-spec} \}$^\star$ {\tt ]}{\tt ;}
+\end{center}
+where
+\begin{indpar}
+{\em dimension-spec} ::= {\em bound-spec}~~{\em step-spec-option} \\[1ex]
+{\em bound-spec} ::= {\em length}
+    $|$ {\em lower-limit}~~{\tt ..}~~{\em upper-limit} \\[1ex]
+{\em step-spec} ::= {\tt +@} {\em step}
+\end{indpar}
+For example,
+\begin{indpar}\begin{verbatim}
+int32 iarray[5];
+int32 * piarray[1 .. 5];
+int32 * & irarray[10,20];
+int32 * & tirarray[10+@1,20+@10];
+\end{verbatim}\end{indpar}
+
+Here
+\begin{itemize}
+\item {\tt iarray[i]} is an {\tt int32} variable for {\tt i} =
+{\tt 0}, {\tt 1}, {\tt 2}, {\tt 3}, and {\tt 4}.  The {\tt length} which is
+{\tt 5} specifies the number of elements in the array's one dimension,
+and array indexing begins at {\tt 0}.
+
+\item {\tt piarray[i]} is a `direct address of {\tt int32}'
+variable for {\tt i} =
+{\tt 1}, {\tt 2}, {\tt 3}, {\tt 4}, and {\tt 5}.  The {\em lower-limit}
+and {\em upper-limit} of the dimension index, {\tt 1} and {\tt 5} respectively,
+are given.
+
+\item {\tt \& irarray[i,j]}
+is a `direct address of {\tt int32} variable', and
+{\tt irarray[i,j]} is the {\tt int32} location so addressed,
+for {\tt i} = {\tt 0}, {\tt 1}, \ldots, {\tt 9} and
+for {\tt j} = {\tt 0}, {\tt 1}, \ldots, {\tt 19}, where the two
+dimension {\em lengths} are given, respectively {\tt 10} and {\tt 20}.
+The elements of the array are stored in {\tt 10*20} consecutive
+memory locations that in memory order
+have indices {\tt (0,0), (0,1), \ldots, (0,19),
+(1,0), (1,1), \ldots, (9,19)}, with the last index {\tt j} varying
+most rapidly.  This means that the implied step size of the first
+dimension is {\tt 20} and of the second dimension is {\tt 1}.
+
+\item {\tt tirarray[i,j]} is just like {\tt irarray[i,j]} but the
+elements are stored in memory in transposed order:
+{\tt (0,0), (1,0), \ldots, (9,0),
+(0,1), (1,1), \ldots, (9,19)}, with the first index {\tt i} varying
+most rapidly.  The step size of the first dimension is
+given as {\tt 1} and of the second is given as {\tt 10}.
+
+\end{itemize}
+
 \subsection{Qualifiers}
 \label{QUALIFIERS}
 
@@ -689,19 +747,20 @@ int32 function2 ( stack int32 * stack * arg1 );
 int32 function3 ( stack int32 * * arg1 );
     // Illegal; a pointer not set by the caller cannot point to a
     // pointer that can only be set by the caller.
-int32 * stack * function4 ( int32 arg1 );
-    // The result behaves like an extra argument passed to function4
-    // which has the same properties as arg1 in function1.  However
-    // the syntax `return value' is illegal in function4 as it would
-    // reset the pointer to the stack location.  `* retval = value'
-    // can be used instead.
+(int32 * stack * res1) = function4 ( int32 arg1 );
+    // Here the result behaves like an extra argument named res1
+    // passed to function4 which has the same properties as arg1 in
+    // function1.  The statement `return value' is illegal here
+    // as it would be equivalent to `return res1 = value' and
+    // reset the pointer to the stack location.  However
+    // `return * res1 = value' is legal.
 int32 * stack * & function5 ( int32 arg1 );
     // Same as function4 but `return value' is legal and sets the
     // pointer to int32.
-stack int32 * stack * function6 ( int32 arg1 );
+(stack int32 * stack * res1) = function6 ( int32 arg1 );
     // The result behaves like an extra argument passed to function6
     // which has the same properties as arg1 in function2.
-    // `** retval = value' must be used to return an integer.
+    // `return ** res1 = value' must be used to return an integer.
 stack int32 * * function7 ( int32 arg1 );
     // Illegal; the result behaves like an extra argument passed to
     // function7 which has the same properties as arg1 in function3.
@@ -906,30 +965,58 @@ Additional protection qualifiers may be declared.
 {protection qualifier}~~~~~Non-builtin protection
 qualifiers may be declared by the programmer and used to qualify
 functions.  They may then be used in `\skey{qualifier expression}s'
-to qualify memory locations.
+that qualify memory locations.
 
 A \key{qualifier expression} is an expression composed of qualifiers,
 the operators `\ttmkey{\BAR}{in qualifier expression}'
 and `\ttmkey{\&}{in qualifier expression}', and parentheses.
 In order for a memory location to be accessible by a function,
-each of the location's qualifier expression must evaluate to true
+each of the location's qualifier expressions must evaluate to true
 according to the following rules.  First, each protection qualifier
 is given the value true if it qualifies the function and false otherwise.
-Second, every other qualifier is given the value true if and only if
-doing so is necessary and sufficient to make the expression true, and
-is otherwise given the value false.  Any non-protection qualifiers
+Second, every non-protection qualifier is given the value true if and only if
+doing so is necessary and sufficient to make all
+the subexpressions containing the non-protection
+qualifier true.  This last rule is applied from left to right.
+Any non-protection qualifiers
 given the value true for any qualifier expression of the location then
-qualify the location when it is accessed by the function.
-
-TBD
+qualify the location when it is accessed by the function, while
+non-protection qualifiers given the value false are ignored.
 
 For example, given the code
 \begin{indpar}[0.5em]\begin{verbatim}
 deftype type1 (24,4);
 declare protection qualifier constructor(type1);
 (constructor(type1)|constant) type1 my_data;
+void function1 ( type1 *& arg1 );
+void function2 ( constant type1 *& arg1 );
+void function3 ( type1 *& arg1 ) constructor(type1);
 . . . . . . .
+function1 ( my_data);   // Erroneous; my_data is constant for
+                        // function1.
+function2 ( my_data);   // Legal; my_data is constant for
+                        // function2 and so is arg1.
+function3 ( my_data);   // Legal; my_data is NOT constant for
+                        // function3.
 \end{verbatim}\end{indpar}
+
+Note the left-to-right clause in the rule for evaluating non-protection
+qualifiers.  For example, given the code:
+\begin{indpar}[0.5em]\begin{verbatim}
+deftype type1 (24,4);
+declare protection qualifier A;
+((A&readonly)|constant) type1 my_data1;
+((A&readonly)|(A&readwrite)|constant) type1 my_data2;
+\end{verbatim}\end{indpar}
+
+then to a function with protection qualifier {\tt A}, {\tt my\_data1}
+is {\tt readonly} and \underline{not}
+{\tt constant}, whereas to all other functions, {\tt my\_data1}
+is {\tt constant} and \underline{not} {\tt readonly}.  {\tt My\_data2}
+behaves just like {\tt my\_data1}, as the subexpression `{\tt (A\&readwrite)}'
+can never have any effect.
+
+[TBD: are there ambiguous situations?]
 
 \end{indpar}
 

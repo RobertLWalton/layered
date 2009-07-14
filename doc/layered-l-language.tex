@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 12, 2009
+July 14, 2009
  
 \end{center}
 
@@ -769,7 +769,7 @@ int64 first = ...
 uns32 step = ...
 
 int32 x[number];
-int32 y[first .. first + number - 1 +@ step ];
+int32 y[first .. first + number - 1 +@ step];
 \end{verbatim}\end{indpar}
 
 \subsection{Qualifiers}
@@ -920,7 +920,7 @@ is called.
 
 An address of a location with a particular collectable
 qualifier may \underline{not} be converted to an address with the `{\tt stack}'
-qualifier, or vice veras.  An address of a location with one collectable
+qualifier, or vice versa.  An address of a location with one collectable
 qualifier may \underline{not} be converted to an address of a location with a
 different collectable qualifier.  Addresses of collectable locations
 may only be written to or read from stack frames.
@@ -928,7 +928,7 @@ may only be written to or read from stack frames.
 Special user-written {\tt unchecked} functions may store
 collectable addresses in global memory and read these addresses from
 global memory.  These functions generally have to perform
-other operations related to garbage collection, such as pushing the
+other operations related to garbage collection, such as pushing
 any addresses read into a special stack of addresses to be protected
 from garbage collection, and maintaining reference counts when addresses
 are written.

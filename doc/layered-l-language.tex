@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 15, 2009
+July 18, 2009
  
 \end{center}
 
@@ -592,6 +592,20 @@ returns it as a value of type `{\tt *\& void}'.  In an
 {\tt unchecked} function the {\tt void} type can be converted to
 any other type.
 
+\subsection{Tuples}
+\label{TUPLES}
+
+A tuple is a sequence of zero or more values, where the values
+need not all have the same type.  A tuple is \underline{not}
+a first class datum; it cannot be stored in most kinds of memory.
+Tuples are temporary data used to pass values to functions and
+return values from functions.  A call to a function involves
+two tuples, one holding the input arguments and one holding the
+output arguments.
+
+[TBD: what is the difference between input and output?]
+
+TBD: flattening.
 \subsection{Arrays}
 \label{ARRAYS}
 
@@ -792,6 +806,37 @@ uns32 step = ...
 int32 x[number];
 int32 y[first .. first + number - 1 +@ step];
 \end{verbatim}\end{indpar}
+
+An array can be passed to a function and returned as the value
+of a function.  Some examples are:
+\begin{indpar}\begin{verbatim}
+void sort ( int64 vector[length], int32 length );
+void transpose ( float64 array[lb .. ub +@ step1, lb .. ub +@ step2],
+                 int64 lb, int64 ub, int64 step1, int64 step2 );
+(float64 array[length,length]) unit ( uns32 length );
+(string output[olength], uns32 olength) sort
+        ( string input[ilength], uns32 ilength );
+\end{verbatim}\end{indpar}
+
+When an array is passed to a function, the parameters needed to
+describe the array must be expressions computatable from parameters
+passed to the function.  When an array is returned by a function,
+the parameters needed to describe tha array must be expressions
+computable from parameters either passed to or returned from the
+function.
+
+Checked functions can only allocate arrays to static or stack
+memory.  Unchecked functions can be written to allocate arrays
+in a heap and return them.
+
+The parameters of an array need not be constants: they can be
+variables.  However, the variables must be qualified (see
+\secref{QUALIFIERS}) in such a way that checked code cannot
+modify them.  Unchecked code may then be written to change the
+array parameter variables and reconfigure the array: e.g., the
+array may be expanded.  An example is:
+
+TBD
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}

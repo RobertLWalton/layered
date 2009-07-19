@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 18, 2009
+July 19, 2009
  
 \end{center}
 
@@ -605,7 +605,35 @@ output arguments.
 
 [TBD: what is the difference between input and output?]
 
-TBD: flattening.
+TBD: flattening??
+
+\subsection{Memories}
+\label{MEMORIES}
+
+There are three basic kinds of memories: static memories,
+stack memories, and heap memories.
+
+Locations allocated to \ikey{static memories}{static memory} 
+are never deallocated.
+
+Locations allocated to \ikey{stack memories}{stack memory} 
+are allocated during the execution of a block of code and
+deallocated when the block terminates.  Each thread
+has an associated stack memory to which blocks executed
+by the thread allocate memory locations.
+
+Locations allocated to \ikey{heap memories}{heap memory} 
+are garbage collected.  For each heap there is a list of
+static memory locations that might hold pointers to
+locations in the heap.  And for each heap and each stack
+memory there is a separate stack of pointers to locations
+in the heap that executing code blocks the the stack's
+thread may access.
+
+
+
+
+
 \subsection{Arrays}
 \label{ARRAYS}
 

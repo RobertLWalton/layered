@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 19, 2009
+September 19, 2009
  
 \end{center}
 
@@ -263,9 +263,12 @@ higher level languages.  As such it is optimized first to be an easy to
 use and adequate target language, and second to be reasonably easy to
 compile into efficient assembly language code.
 
-The L-Language is roughly like basic LISP but with the type system and
-syntax of C, and with additional features intended to give
-more control over compilation and type safety.
+The L-Language is similar to the C programming language
+but has additional features intended to give
+more control over compilation and more type safety in the use, but
+not the declation, of data.  The L-Language depends upon its powerful
+macro facility to allow users to define type safe data declaration
+macros.
 
 \subsection{Code Computation}
 
@@ -294,14 +297,14 @@ typesafe and efficient for more limited kinds of data.
 \section{Memory}
 \label{MEMORY}
 
-We begin with an overview of L-language memory, and then provide
+We begin with an overview of L-Language memory, and then provide
 details in the following subsections.
 
 TBD
 
 \subsection{Numbers}
 
-\ikey{Numbers}{number} are a basic element of L-language memory.
+\ikey{Numbers}{number} are a basic element of L-Language memory.
 Numbers are sequences of bits, and each number is one of
 four types, unsigned integer, signed integer, floating point number,
 and direct address:
@@ -489,7 +492,7 @@ for deallocated bytes, shared bytes, and unshared bytes.
 A \key{segment} is a contiguous sequence of pages all of which have
 the same allocation and sharing status.
 
-The builtin blocks in L-language are frame blocks (\pagref{FRAMES}),
+The builtin blocks in L-Language are frame blocks (\pagref{FRAMES}),
 code blocks(\pagref{CODE-BLOCKS}), numbers, and segments.  All non-segment
 blocks are contained within segments.  User defined blocks can be 
 contained within segments.
@@ -538,7 +541,7 @@ address modulo {\em alignment} = 0
 \end{center}
 
 The \mkey{address}{of block} of the block is offset from the origin
-of the block by the \mkey{offset}{of block} of block.  This address must be an
+of the block by the \mkey{offset}{of block} of block.  The address must be an
 exact multiple of the \mkey{alignment}{of block} of the block.
 The length of the block is an unsigned integer.  The alignment is an
 unsigned integer equal to a power of two that defaults to {\tt 1}.
@@ -571,12 +574,12 @@ Blocks contain numbers (including direct addresses) and subblocks.
 Access to these is provided by
 unchecked pointer computation functions.  For example
 \begin{indpar}\begin{verbatim}
-deftype type1 (24,4);
-uns16 *&   .member1 ( & type1 m ) unchecked = m@0;
-int16 *&   .member2 ( & type1 m ) unchecked = m@2;
-int32 *&   .member3 ( & type1 m ) unchecked = m@4;
-float32 *& .member4 ( & type1 m ) unchecked = m@8;
-type1 * *& .member5 ( & type1 m ) unchecked = m@16;
+deftype type1 (48,8);
+uns16 *&   .member1 ( *& type1 m ) unchecked = m@0;
+int16 *&   .member2 ( *& type1 m ) unchecked = m@2;
+int32 *&   .member3 ( *& type1 m ) unchecked = m@4;
+float32 *& .member4 ( *& type1 m ) unchecked = m@8;
+type1 * *& .member5 ( *& type1 m ) unchecked = m@16;
 . . . . .
 type1 x;
 x.member1 = 9;
@@ -648,21 +651,21 @@ where
 {\em dimension-spec} ::= {\em bound-spec}~~{\em step-spec-option} \\[1ex]
 {\em bound-spec} ::= {\em length}
     $|$ {\em lower-bound}~~{\tt ..}~~{\em upper-bound} \\[1ex]
-{\em step-spec} ::= {\tt +@} {\em step}
+{\em step-spec} ::= {\tt +>} {\em step}
 \end{indpar}
 For example,
 \begin{indpar}\begin{verbatim}
 int32 iarray[5];
 int32 * piarray[1 .. 5];
 int32 * & irarray[10,20];
-int32 * & tirarray[10+@1,20+@10];
+int32 * & tirarray[10+>1,20+>10];
 \end{verbatim}\end{indpar}
 
 Here
 \begin{itemize}
 \item {\tt iarray[i]} is an {\tt int32} variable for {\tt i} =
-{\tt 0}, {\tt 1}, {\tt 2}, {\tt 3}, and {\tt 4}.  The {\tt length} which is
-{\tt 5} specifies the number of elements in the array's one dimension,
+{\tt 0}, {\tt 1}, {\tt 2}, {\tt 3}, and {\tt 4}.  The {\tt length}, which is
+{\tt 5}, specifies the number of elements in the array's one dimension,
 and array indexing begins at {\tt 0}.
 
 \item {\tt piarray[i]} is a `direct address of {\tt int32}'
@@ -752,17 +755,17 @@ as {\tt 0} subscripts may not be within bounds.
 \item[\key{step}{$[i]$}] The multiplier
 of the $i+1$'st subscript of the array for the purpose of determining
 the address offset of the element in the array.
-May be negative.
+An integer (may be negative).
 The unit of these multipliers is the size of the array element.
 
 \item[\key{lower\_bound}{$[i]$}] The lower bound (smallest value)
 of the $i+1$'st
 subscript of the array.
-May be negative.
+An integer (may be negative).
 
 \item[\key{upper\_bound}{$[i]$}] The upper bound (largest value)
 of the $i+1$'st subscript of the array.
-May be negative.
+An integer (may be negative).
 
 \end{list}
 
@@ -777,7 +780,7 @@ Given the example from above;
 int32 iarray[5];
 int32 * piarray[1 .. 5];
 int32 * & irarray[10,20];
-int32 * & tirarray[10+@1,20+@10];
+int32 * & tirarray[10+>1,20+>10];
 \end{verbatim}\end{indpar}
 we have
 \begin{indpar}\begin{verbatim}
@@ -809,11 +812,11 @@ tirarray.length == 200
 
 \end{verbatim}\end{indpar}
 
-When an array is allocated to the stack or to global or static memory,
+When an array is allocated to the stack or to static memory,
 the length of the array is just enough to include all the elements of the
 array.  There can be unused elements.  Thus given
 \begin{indpar}\begin{verbatim}
-int32 x[1 .. 4 +@ 3];
+int32 x[1 .. 4 +> 3];
 \end{verbatim}\end{indpar}
 then in memory the array {\tt x} is laid out as
 \begin{center}
@@ -832,14 +835,14 @@ int64 first = ...
 uns32 step = ...
 
 int32 x[number];
-int32 y[first .. first + number - 1 +@ step];
+int32 y[first .. first + number - 1 +> step];
 \end{verbatim}\end{indpar}
 
 An array can be passed to a function and returned as the value
 of a function.  Some examples are:
 \begin{indpar}\begin{verbatim}
 void sort ( int64 vector[length], int32 length );
-void transpose ( float64 array[lb .. ub +@ step1, lb .. ub +@ step2],
+void transpose ( float64 array[lb .. ub +> step1, lb .. ub +> step2],
                  int64 lb, int64 ub, int64 step1, int64 step2 );
 (float64 array[length,length]) unit ( uns32 length );
 (string output[olength], uns32 olength) sort
@@ -860,11 +863,40 @@ in a heap and return them.
 The parameters of an array need not be constants: they can be
 variables.  However, the variables must be qualified (see
 \secref{QUALIFIERS}) in such a way that checked code cannot
-modify them.  Unchecked code may then be written to change the
+modify them.  Unchecked functions may then be written to change the
 array parameter variables and reconfigure the array: e.g., the
 array may be expanded.  An example is:
 
-TBD
+\begin{indpar}\begin{verbatim}
+deftype arraytype (16,8);
+uns64 .n ( *& arraytype a ) unchecked = a@0;
+float64[1 .. a.n] .void ( *& arraytype a ) unchecked = a@8;
+*& arraytype .constructor.() unchecked
+{
+    arraytype *& a = new arraytype;
+    a.n = 0;
+    a.void = NULL;
+}
+void push ( *& arraytype a, float64 value ) unchecked
+{
+    uns64 n = a.n;
+    float64 * ap = new float64[n+1];
+    if ( a.void != NULL )
+        memcpy ( ap, a.void, n * sizeof ( float64 ) );
+    delete[] a.void;
+    a.void = ap;
+    ap[a.n] = value;
+    ++ a.n;
+}
+
+arraytype a;
+push ( a, 1.0 );
+push ( a, 2.0 );
+a[1]; // Equals 1.0.
+a[2]; // Equals 2.0.
+a[0]; // Run time error.
+a[3]; // Run time error.
+\end{verbatim}\end{indpar}
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}
@@ -877,21 +909,38 @@ in applications where only certain functions are allowed to write
 a datum of a particular type, or where languages are being compiled that
 wish to enforce the rule that only data of the same type can be aliased.
 
+Qualifiers are applied to locations of memory.  These
+locations are specified as a specific set of bytes.  Note that unlike
+the C programming language, and L-Language does not specify arrays by
+simply giving a single pointer; there is always a specification of
+array extent.
+
+Qualifiers are also applied to functions.  For example, if a protection
+qualifier is applied to some locations, this means that only functions
+to which this qualifier is applied may access these locations.
+
 There are several kinds of qualifiers.
 
 \ikey{Lifetime qualifiers}{lifetime qualifier}
-specify the lifetime of a memory location.  The `{\tt stack}' qualifier
+specify the lifetime of a memory location.  The `{\tt caller}' qualifier
 specifies that the location may only last as long as the caller of
-a function.  The `{\tt global}' qualifier specifies that the location
+a function.  The `{\tt static}' qualifier specifies that the location
 has unlimited lifetime.
 \ikey{Collectable qualifiers}{collectible qualifier} may be declared that
 indicate that the location is garbage collectable and its address needs
 to be protected against collection.
+Pointers to collectable locations may only be stored in non-stack
+locations by appropriately privileged functions.
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
 may be changed, and thence when they may be cached in registers.  The
 `{\tt constant}' qualifier specifies that a location will never be changed,
 and may be cached indefinitely in registers.
+The `{\tt stack}' qualifier specifies that a location is in the stack of
+the current thread and cannot be changed by a function call unless the
+location is explicitly passed to the function as an argument.
+The `{\tt stack}' cache qualifier also implies the `{\tt caller}'
+lifetime qualifier.
 \ikey{Alias qualifiers}{alias qualifier} may be declared to indicate when
 memory locations may overlap.
 Normally memory locations that are referenced differently are assumed by the
@@ -905,8 +954,6 @@ L-Language.
 These are used for memory locations shared between different hardware
 processing units (e.g., between a central processing unit and an
 IO device, or between two different central processing units).
-
-Note that the `{\tt stack}' lifetime qualifier also affects caching.
 
 \ikey{Protection qualifiers}{protection qualifier} may be declared
 to control which functions can access a memory location.
@@ -932,104 +979,97 @@ other code will not write the location.
 \subsubsection{Lifetime Qualifiers}
 \label{LIFETIME-QUALIFIERS}
 
-Two lifetime qualifiers are builtin:  `{\tt stack}', and `{\tt global}'.
+Lifetime qualifiers determine where pointers to locations can be stored.
+Two lifetime qualifiers are builtin:  `{\tt caller}', and `{\tt static}'.
 One kind of lifetime qualifier is declarable: collectable qualifiers.
+If no lifetime qualifier is supplied for a location, `{\tt caller}'
+is assumed.
 
 \begin{indpar}
 
-\hspace*{-1em}\ttkey{stack}~~~~~Specifies that no function execution is to store
+\hspace*{-1em}\ttkey{caller}~~~~~Specifies
+that a function execution is not to store
 the address of the location anywhere but in the function execution's own
 frame.  Furthermore, if used in a function argument or return value type,
-`{\tt stack}'
+`{\tt caller}'
 specifies that the called function is not to allocate the memory location,
 but rather the caller is responsible for allocating it.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 function1 ( int32 * stack * arg1 );
+int32 function1 ( static int32 * caller * arg1 );
     // The argument is a pointer to a caller allocated location
-    // holding a pointer to an int32.  The caller need not provide
-    // a useful value in this location, and function1 can use
-    // `* arg1 = value' to return a pointer to an int32 value in
-    // this location, but cannot use `arg1 = value' to reset the
-    // argument.
-int32 function2 ( stack int32 * stack * arg1 );
+    // holding a static pointer to an int32.  The caller need not
+    // provide a useful value in the caller allocated location,
+    // and function1 can use `* arg1 = value' to return a pointer
+    // to a static int32 value in this location, but cannot use
+    // `arg1 = value' to reset the argument.
+int32 function2 ( caller int32 * caller * arg1 );
     // The argument is a pointer to caller allocated location
     // holding a pointer to a caller allocated location holding
     // an int32.  Both pointers must be provided by the caller and
     // cannot be reset by function2.  function2 can use
     // `**arg1 = value' but not `*arg1 = value' or `arg1 = value'.
-int32 function3 ( stack int32 * * arg1 );
+int32 function3 ( caller int32 * * arg1 );
     // Illegal; a pointer not set by the caller cannot point to a
     // pointer that can only be set by the caller.
-(int32 * stack * res1) = function4 ( int32 arg1 );
+(static int32 * caller * res1) = function4 ( int32 arg1 );
     // Here the result behaves like an extra argument named res1
     // passed to function4 which has the same properties as arg1 in
     // function1.  The statement `return value' is illegal here
     // as it would be equivalent to `return res1 = value' and
-    // reset the pointer to the stack location.  However
+    // reset the pointer to the caller location.  However
     // `return * res1 = value' is legal.
-int32 * stack * & function5 ( int32 arg1 );
+static int32 * caller *& function5 ( int32 arg1 );
     // Same as function4 but `return value' is legal and sets the
     // pointer to int32.
-(stack int32 * stack * res1) = function6 ( int32 arg1 );
+(caller int32 * caller * res1) = function6 ( int32 arg1 );
     // The result behaves like an extra argument passed to function6
     // which has the same properties as arg1 in function2.
     // `return ** res1 = value' must be used to return an integer.
-stack int32 * * function7 ( int32 arg1 );
+caller int32 * * function7 ( int32 arg1 );
     // Illegal; the result behaves like an extra argument passed to
     // function7 which has the same properties as arg1 in function3.
 \end{verbatim}\end{indpar}
 
-If `{\tt stack}' is used in a function value or return type, the caller
-must provide the `{\tt stack}' location, but the location need not be
-in a frame, and may be `{\tt global}' or collectible instead.  Asserting
-that such a location is `{\tt stack}' is only a promise by the called
+If `{\tt caller}' is used in a function value or return type, the caller
+must provide the `{\tt caller}' location, but the location need not be
+in a frame, and may be `{\tt static}' or collectible instead.  Asserting
+that such a location is `{\tt caller}' is only a promise by the called
 function not to store the location's address anywhere but in its
-frame or in a `pointer to {\tt stack} location' argument to a function it calls.
+frame or in a `pointer to {\tt caller} location'
+argument to a function it calls.
 
-A `{\tt stack}' memory location may be cached in a register,
-but this cache must be flushed when an out-of-line function is called,
-unless the caller can prove that the memory location address is not
-passed to the out-of-line function.
-
-Such a proof is most easily accomplished if the memory location is
-allocated to the frame of the caller, in which case the caller will
-know exactly where the address of the location may be stored.  If the
-location is a `{\tt stack}' location passed to the caller as an
-argument or return value, the caller can only prove that its address
-is not passed if no address passed by the caller's caller is passed.
+The `{\tt caller}' lifetime qualifier is implied by the `{\tt stack}'
+cache qualifier (see below).  The `{\tt caller}' lifetime qualifier
+is the default lifetime qualifier for any location that has no
+lifetime qualifier.  Thus in the above example the `{\tt caller}'
+qualifiers could have been omitted.
 
 \hspace*{-1em}\ikey{Collectable Qualifiers}%
 {collectable qualifier}~~~~~Collectable
 qualifiers are declared by the programmer and are used to tag
 memory locations that can be garbage collected.
 
-Addresses of
-collectable locations are like addresses of `{\tt stack}' locations, except
-that collectable locations may be accessed by any out-of-line function,
-even if their addresses are not passed via arguments, so caches to
-collectable locations must be flushed whenever any out-of-line function
-is called.
+Addresses of collectable locations are like addresses of `{\tt caller}'
+locations, and may only be written to stack frames.  An exception
+is that functions which are given the collectable qualifier may write
+such addresses to any location.
+These functions generally have to perform
+other operations related to garbage collection, such as
+maintaining reference counts or garbage collection flags
+when addresses are written.
 
 An address of a location with a particular collectable
-qualifier may \underline{not} be converted to an address with the `{\tt stack}'
+qualifier may \underline{not} be converted to an address with the `{\tt caller}'
 qualifier, or vice versa.  An address of a location with one collectable
 qualifier may \underline{not} be converted to an address of a location with a
 different collectable qualifier.  Addresses of collectable locations
 may only be written to or read from stack frames.
 
-Special user-written {\tt unchecked} functions may store
-collectable addresses in global memory and read these addresses from
-global memory.  These functions generally have to perform
-other operations related to garbage collection, such as pushing
-any addresses read into a special stack of addresses to be protected
-from garbage collection, and maintaining reference counts when addresses
-are written.
-
 One application is to apply a collectable qualifier to all locations
 of a particular type when locations of that type are only
-allocated to the stack and where such locations are put on a global
+allocated to the stack and where such locations are put on a static
 list when allocated and removed from the list when deallocated (from the stack).
 Such locations are passed as implicit arguments to every called
 out-of-line function, and therefore cannot be declared as `{\tt stack}'.
@@ -1081,6 +1121,17 @@ but not of a `{\tt readonly}' location.
 
 Outside constructors `{\tt constant}' memory locations can be
 cached in registers without restriction.
+
+\hspace*{-1em}\ttkey{stack}~~~~~The memory location is in the stack of
+the current thread.
+
+A `{\tt stack}' memory location may be cached in a register.
+This cache must be flushed when an out-of-line function is called
+only if the address of the location is passed to the out-of-line
+function.
+
+A `{\tt stack}' cache qualifier implies a `{\tt caller}' lifetime
+qualifier and is incompatible with other lifetime qualifiers.
 
 \hspace*{-1em}\ikey{Alias Qualifiers}%
 {alias qualifier}~~~~~Alias

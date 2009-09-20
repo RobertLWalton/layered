@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 19, 2009
+September 20, 2009
  
 \end{center}
 
@@ -868,16 +868,16 @@ array parameter variables and reconfigure the array: e.g., the
 array may be expanded.  An example is:
 
 \begin{indpar}\begin{verbatim}
-deftype arraytype (16,8);
-uns64 .n ( *& arraytype a ) unchecked = a@0;
-float64[1 .. a.n] .void ( *& arraytype a ) unchecked = a@8;
-*& arraytype .constructor.() unchecked
+deftype myarray (16,8);
+uns64 *& .n ( *& myarray a ) unchecked = a@0;
+float64 (*&b) [1 .. a.n] .void ( *& myarray a ) unchecked = a@8;
+myarray *& .constructor.() unchecked
 {
-    arraytype *& a = new arraytype;
+    myarray *& a = new myarray;
     a.n = 0;
     a.void = NULL;
 }
-void push ( *& arraytype a, float64 value ) unchecked
+void push ( *& myarray a, float64 value ) unchecked
 {
     uns64 n = a.n;
     float64 * ap = new float64[n+1];
@@ -889,7 +889,7 @@ void push ( *& arraytype a, float64 value ) unchecked
     ++ a.n;
 }
 
-arraytype a;
+myarray a;
 push ( a, 1.0 );
 push ( a, 2.0 );
 a[1]; // Equals 1.0.
@@ -897,6 +897,25 @@ a[2]; // Equals 2.0.
 a[0]; // Run time error.
 a[3]; // Run time error.
 \end{verbatim}\end{indpar}
+
+Note that the name of an array us used to name the `{\tt .base}'
+of the array, and that unchecked code can use this name to change
+the base of the array.  In the above example the `{\tt .void}'
+function returns its output parameter `{\tt b}' which because of
+the `{\tt *\&}' is a pointer
+to a location holding the base of the array.  Thus resetting
+`{\tt a.void}' in `{\tt push}' resets the base of the array.
+
+Note also that `\verb|float64 (*&b) [1 .. a.n]|' differs from
+`\verb|float64 *&b [1 .. a.n]|' which is equivalent to
+`\verb|float64 *& (b [1 .. a.n])|'.  The first subexpression
+means that the value returned is a pointer to the location holding
+the base of an array whose elements are {\tt float64} values.
+The last subexpression means that the value returned is the base
+of an array whose elements are pointers to `{\tt float64}' values
+(and {\tt b[i]} refers to the `{\tt float64}' value pointed at by the
+array element indexed by {\tt i}).
+
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}
@@ -909,15 +928,62 @@ in applications where only certain functions are allowed to write
 a datum of a particular type, or where languages are being compiled that
 wish to enforce the rule that only data of the same type can be aliased.
 
-Qualifiers are applied to locations of memory.  These
-locations are specified as a specific set of bytes.  Note that unlike
+Qualifiers are applied to locations of memory.  For example,
+the following declarations apply the qualifier {\tt Q}
+to various memory locations:
+\begin{indpar}[0.5em]\begin{verbatim}
+                     // Q is applied to:
+Q int32 x;           // x
+Q int32 * x;         // * x;
+int32 * Q x;         // x;
+Q int32 a[5];        // a[i] for i = 0 .. 4
+int32 (Q a)[5];      // a (== a.base)
+\end{verbatim}\end{indpar}
+Locations specify as a specific set of bytes.  Note that unlike
 the C programming language, and L-Language does not specify arrays by
 simply giving a single pointer; there is always a specification of
 array extent.
 
-Qualifiers are also applied to functions.  For example, if a protection
-qualifier is applied to some locations, this means that only functions
-to which this qualifier is applied may access these locations.
+Qualifiers may be given in type definitions, and apply to all
+locations of the defined type.  For example, if {\tt Q} is a qualifier,
+\begin{indpar}[0.5em]\begin{verbatim}
+deftype Q type1 (48,8);
+type1 x;
+type1 * y;
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}[0.5em]\begin{verbatim}
+deftype type1 (48,8);
+Q type1 x;
+Q type1 * y;
+\end{verbatim}\end{indpar}
+
+Qualifiers may also be applied to functions.  A qualifier after the
+name of the function in a function definition applies to the code in the
+body of a function.  For example, if {\tt Q} is a qualifier,
+\begin{indpar}[0.5em]\begin{verbatim}
+int32 function1 () Q = ... ;
+int32 function2 () Q
+{
+   . . .
+}
+\end{verbatim}\end{indpar}
+A qualifier just before the name of a function in a function definition
+or declaration applies to calls to the function.  Such qualifiers are
+generally protection qualifiers.  For example,
+\begin{indpar}[0.5em]\begin{verbatim}
+int32 Q function3 ();
+int32 *& Q function4 ();
+\end{verbatim}\end{indpar}
+Note that in this last case qualifiers appearing before function names
+in function definitions and declarations are always assumed to apply
+to the function and not the returned value.
+
+If in the above examples applying {\tt Q} to functions we assume that
+{\tt Q} is a protection qualivier, then {\tt function3}
+and {\tt function4} can only be called by functions whose bodies have
+the {\tt Q} qualifier, and in particular these functions can be called
+by {\tt function1} and {\tt function2}.
 
 There are several kinds of qualifiers.
 

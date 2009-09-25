@@ -939,7 +939,7 @@ int32 * Q x;         // x;
 Q int32 a[5];        // a[i] for i = 0 .. 4
 int32 (Q a)[5];      // a (== a.base)
 \end{verbatim}\end{indpar}
-Locations specify as a specific set of bytes.  Note that unlike
+Locations specify a specific set of bytes.  Note that unlike
 the C programming language, and L-Language does not specify arrays by
 simply giving a single pointer; there is always a specification of
 array extent.
@@ -968,6 +968,8 @@ int32 function2 () Q
    . . .
 }
 \end{verbatim}\end{indpar}
+apply {\tt Q} to the body of the functions.
+
 A qualifier just before the name of a function in a function definition
 or declaration applies to calls to the function.  Such qualifiers are
 generally protection qualifiers.  For example,
@@ -975,12 +977,13 @@ generally protection qualifiers.  For example,
 int32 Q function3 ();
 int32 *& Q function4 ();
 \end{verbatim}\end{indpar}
-Note that in this last case qualifiers appearing before function names
+Note that in this last case qualifiers appearing immediately
+before function names
 in function definitions and declarations are always assumed to apply
 to the function and not the returned value.
 
-If in the above examples applying {\tt Q} to functions we assume that
-{\tt Q} is a protection qualivier, then {\tt function3}
+If in the above examples we assume that
+{\tt Q} is a protection qualifier, then {\tt function3}
 and {\tt function4} can only be called by functions whose bodies have
 the {\tt Q} qualifier, and in particular these functions can be called
 by {\tt function1} and {\tt function2}.
@@ -1022,9 +1025,15 @@ processing units (e.g., between a central processing unit and an
 IO device, or between two different central processing units).
 
 \ikey{Protection qualifiers}{protection qualifier} may be declared
-to control which functions can access a memory location.
+to control which functions can access a memory location or call other
+functions.
 A memory location with protection qualifier $X$ can only be
-accessed by functions which have qualifier $X$.
+accessed by functions whose bodies have qualifier $X$, and
+a function with qualifier $X$ can only be called by functions
+whose bodies have qualifier $X$.  There is one builting protection
+qualifier, `{\tt unchecked}', which permits access to various
+builtin operations that explicitly or implicitly involve type
+casting.
 
 Memory locations can be assigned qualifier expressions that are logical
 combinations of qualifier names and the operators `\verb/|/' and
@@ -1056,7 +1065,9 @@ is assumed.
 \hspace*{-1em}\ttkey{caller}~~~~~Specifies
 that a function execution is not to store
 the address of the location anywhere but in the function execution's own
-frame.  Furthermore, if used in a function argument or return value type,
+frame, or in a `{\tt caller}' qualified
+argument to another function called by the function
+execution.  Furthermore, if used in a function argument or return value type,
 `{\tt caller}'
 specifies that the called function is not to allocate the memory location,
 but rather the caller is responsible for allocating it.
@@ -1119,8 +1130,9 @@ memory locations that can be garbage collected.
 
 Addresses of collectable locations are like addresses of `{\tt caller}'
 locations, and may only be written to stack frames.  An exception
-is that functions which are given the collectable qualifier may write
-such addresses to any location.
+to this rule
+is that functions whose bodies are given the collectable qualifier may write
+such addresses to any otherwise legal location.
 These functions generally have to perform
 other operations related to garbage collection, such as
 maintaining reference counts or garbage collection flags
@@ -1128,24 +1140,24 @@ when addresses are written.
 
 An address of a location with a particular collectable
 qualifier may \underline{not} be converted to an address with the `{\tt caller}'
-qualifier, or vice versa.  An address of a location with one collectable
+or `{\tt static}'
+qualifiers, or vice versa.  An address of a location with one collectable
 qualifier may \underline{not} be converted to an address of a location with a
-different collectable qualifier.  Addresses of collectable locations
-may only be written to or read from stack frames.
-
-One application is to apply a collectable qualifier to all locations
-of a particular type when locations of that type are only
-allocated to the stack and where such locations are put on a static
-list when allocated and removed from the list when deallocated (from the stack).
-Such locations are passed as implicit arguments to every called
-out-of-line function, and therefore cannot be declared as `{\tt stack}'.
+different collectable qualifier.
 
 \end{indpar}
 
 \subsubsection{Caching Qualifiers}
 \label{CACHING-QUALIFIERS}
 
-One caching qualifier is builtin: `{\tt constant}'.
+When a memory location is moved into a register, the register becomes
+a \key{software cache}\index{cache!software}
+of the memory location.  Thus memory locations
+are cached in registers under the control of software, and not hardware.
+Unfortunately this makes things very difficult for the compiler
+(the ultimate fix is a radical change in computer architecture).
+
+Two caching qualifiers are builtin: `{\tt constant}' and `{\tt stack}.
 Two kinds are declarable: alias qualifiers and parallel qualifiers.
 
 \begin{indpar}
@@ -1178,15 +1190,19 @@ function3 ( value1 );  // Erroneous; arg1 NOT constant or readonly.
 \end{verbatim}\end{indpar}
 
 Note that the `{\tt constant}' qualifier in an argument type is a promise
-that \underline{no code} will ever modify the location.  By contrast
+that \underline{no code} will \underline{ever} modify the location.  By contrast
 a `{\tt readonly}' argument qualifier (like `{\tt const}' in C/C++)
 is a promise only that the location will not be modified during
 the course of the call.  The difference is that a called function
 may construct a long-lived cache of a `{\tt constant}' location
 but not of a `{\tt readonly}' location.
 
-Outside constructors `{\tt constant}' memory locations can be
-cached in registers without restriction.
+`{\tt constant}' memory locations can be cached in registers
+without restriction.
+
+The `{\tt constant}' qualifier obeys the following special rule:
+it is removed from a location passed to the {\tt .constructor.}
+function as the result location.
 
 \hspace*{-1em}\ttkey{stack}~~~~~The memory location is in the stack of
 the current thread.
@@ -1198,6 +1214,12 @@ function.
 
 A `{\tt stack}' cache qualifier implies a `{\tt caller}' lifetime
 qualifier and is incompatible with other lifetime qualifiers.
+It differs from the `{\tt caller}' lifetime qualifier in that it
+promises that the address of the stack location cannot be passed
+to a called function except as an argument or as a result location
+of the called function, whereas the address of a arbitrary `{\tt caller}'
+location might be placed in static memory accessible to any called
+function.
 
 \hspace*{-1em}\ikey{Alias Qualifiers}%
 {alias qualifier}~~~~~Alias
@@ -1205,13 +1227,21 @@ qualifiers are declared by the programmer and are used to tag
 memory locations that may be aliased with each other.
 
 At compile time the L-Language converts location
-addresses into a form that is the
-sum of a compile time integer `\key{offset}\,' and an
-expression called the `\key{address expression}\,' whose value cannot be
-computed at compile time.  In addition the location may have associated
+addresses into a form that is the sum
+of a \key{base address} and an integer \key{offset}.
+In addition the location may have associated
 alias qualifiers.  The L-Language assumes two locations do not overlap
 unless they have a common alias qualifier, or unless the locations have
-identical address expressions and their offsets indicate they overlap.
+identical base addresses and their offsets indicate they overlap.
+
+A base address is one of the following:
+
+\begin{enumerate}
+\item The address of a memory block allocated by the loader.
+\item An address passed into the current function as the location
+of an argument or return value.
+\item An address returned from a function call or builtin operation.
+\end{enumerate}
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
@@ -1244,8 +1274,11 @@ copy1 ( x[0 .. 14], x[1 .. 15], 15 );   // Erroneous.
 copy2 ( x[0 .. 14], x[1 .. 15], 15 );   // Zeros x.
 \end{verbatim}\end{indpar}
 
-The call to {\tt copy1} is erroneous because the compiler can determine
-that arguments that are not supposed to be aliased are in fact aliased.
+The call to {\tt copy1} is erroneous because
+arguments that are not supposed to be aliased are in fact aliased.
+
+Aliasing is checked as necessary by the compiler and at run time.
+The run-time checks can be suppressed by compilation switches.
 
 \hspace*{-1em}\ikey{Parallel Qualifiers}%
 {parallel qualifier}~~~~~Parallel

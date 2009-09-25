@@ -1033,7 +1033,7 @@ a function with qualifier $X$ can only be called by functions
 whose bodies have qualifier $X$.  There is one builting protection
 qualifier, `{\tt unchecked}', which permits access to various
 builtin operations that explicitly or implicitly involve type
-casting.
+conversion.
 
 Memory locations can be assigned qualifier expressions that are logical
 combinations of qualifier names and the operators `\verb/|/' and
@@ -1288,8 +1288,8 @@ caches in order to permit separate central processing units
 to communicate through shared memory.
 
 There are three L-Language statements that flush caches.  Each gives
-a list of parallel qualifiers that names all the locations known to
-the current function that are tagged with these qualifiers.  An
+a list of parallel qualifiers that names all the locations accessible
+at the point of the statement that are tagged with these qualifiers.  An
 example is:
 \begin{indpar}[0.5em]\begin{verbatim}
 declare parallel qualifier pdata, pflag;
@@ -1317,8 +1317,9 @@ loop: {
 \subsubsection{Protection Qualifiers}
 \label{PROTECTION-QUALIFIERS}
 
-Four protection qualifiers are builtin:
-`{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', and `{\tt noaccess}'.
+Five protection qualifiers are builtin:
+`{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', `{\tt noaccess}',
+and `{\tt unchecked}'.
 Additional protection qualifiers may be declared.
 
 \begin{indpar}
@@ -1326,11 +1327,17 @@ Additional protection qualifiers may be declared.
 \hspace*{-1em}\ttkey{readwrite}, \ttkey{readonly}, \ttkey{writeonly},
 \ttkey{noaccess}~~~~~Specifies whether execution may read or write a location.
 
+\hspace*{-1em}\ttkey{unchecked}~~~~~Specifies that an execution may
+invoke builtin operators that perform explicit or implicit
+type conversions.
+
 \hspace*{-1em}\ikey{Protection Qualifiers}%
 {protection qualifier}~~~~~Non-builtin protection
 qualifiers may be declared by the programmer and used to qualify
 functions.  They may then be used in `\skey{qualifier expression}s'
 that qualify memory locations.
+
+\end{indpar}
 
 A \key{qualifier expression} is an expression composed of qualifiers,
 the operators `\ttmkey{\BAR}{in qualifier expression}'
@@ -1382,8 +1389,6 @@ behaves just like {\tt my\_data1}, as the subexpression `{\tt (A\&readwrite)}'
 can never have any effect.
 
 [TBD: are there ambiguous situations?]
-
-\end{indpar}
 
 \subsection{Frames}
 \label{FRAMES}

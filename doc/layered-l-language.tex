@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 20, 2009
+October 21, 2009
  
 \end{center}
 
@@ -292,6 +292,15 @@ The thesis here is that a high level data declaration language that is
 typesafe and efficient for all kinds of data is not practical.
 So instead tools are provided to create data declaration sublanguages that are
 typesafe and efficient for more limited kinds of data.
+
+One way of explaining our approach is to say that we are taking the normal
+division of programming into two layers, \key{system programming}
+and \key{application programming}, and we are adding a third
+layer in-between: \key{application system programming}.  This last
+kind of programming uses basic and sometimes type unsafe tools to build
+advanced and type safe tools for a particular application area, such
+scientific programming, business accounting,
+programming with particular data structures, and so forth.
 
 
 \section{Memory}
@@ -575,11 +584,11 @@ Access to these is provided by
 unchecked pointer computation functions.  For example
 \begin{indpar}\begin{verbatim}
 deftype type1 (48,8);
-uns16 *&   .member1 ( *& type1 m ) unchecked = m@0;
-int16 *&   .member2 ( *& type1 m ) unchecked = m@2;
-int32 *&   .member3 ( *& type1 m ) unchecked = m@4;
-float32 *& .member4 ( *& type1 m ) unchecked = m@8;
-type1 * *& .member5 ( *& type1 m ) unchecked = m@16;
+uns16 *&   .member1 ( *& type1 @ m ) unchecked = m@0;
+int16 *&   .member2 ( *& type1 @ m ) unchecked = m@2;
+int32 *&   .member3 ( *& type1 @ m ) unchecked = m@4;
+float32 *& .member4 ( *& type1 @ m ) unchecked = m@8;
+type1 * *& .member5 ( *& type1 @ m ) unchecked = m@16;
 . . . . .
 type1 x;
 x.member1 = 9;
@@ -593,7 +602,15 @@ Here $x${\tt @}$y$ is an operation that takes the byte address of
 $x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
 returns it as a value of type `{\tt *\& void}'.  In an
 {\tt unchecked} function the {\tt void} type can be converted to
-any other type.
+any other type.  The `{\tt @}' before the `{\tt m}' indicates
+that the return value is a subblock of the block denoted by `{\tt m}',
+and as such, inherits certain qualifiers from `{\tt m}', as we
+will describe later.  There is also a commonly used abbreviation
+for function definitions such as the above, of which
+\begin{indpar}\begin{verbatim}
+uns16 *&   .member1 ( *& type1 m ) unchecked @= 0;
+\end{verbatim}\end{indpar}
+is representative.  This is also described below.
 
 \subsection{Tuples}
 \label{TUPLES}
@@ -614,27 +631,25 @@ TBD: flattening??
 \label{MEMORIES}
 
 There are three basic kinds of memories: static memories,
-stack memories, and heap memories.
+stack memories, and heap memories.  Each of these memories
+consists of disjoint blocks (which in turn can contain
+subblocks).
 
-Locations allocated to \ikey{static memories}{static memory} 
+Blocks allocated to \ikey{static memories}{static memory} 
 are never deallocated.
 
-Locations allocated to \ikey{stack memories}{stack memory} 
+Blocks allocated to \ikey{stack memories}{stack memory} 
 are allocated during the execution of a block of code and
 deallocated when the block terminates.  Each thread
 has an associated stack memory to which blocks executed
 by the thread allocate memory locations.
 
-Locations allocated to \ikey{heap memories}{heap memory} 
+Blocks allocated to \ikey{heap memories}{heap memory} 
 are garbage collected.  For each heap there is a list of
-static memory locations that might hold pointers to
-locations in the heap.  And for each heap and each stack
-memory there is a separate stack of pointers to locations
-in the heap that executing code blocks the the stack's
-thread may access.
-
-
-
+static memory locations that might hold pointers into
+blocks in the heap.  And for each heap and each stack
+memory there is a separate list of stack memory locations
+that might hold pointers into blocks in the heap.
 
 
 \subsection{Arrays}
@@ -728,7 +743,7 @@ $array${\tt .lower\_bound[}$n-1${\tt 1]}
 
 \end{center}
 
-These parameters are
+The array parameters are
 
 \begin{indpar}
 
@@ -775,7 +790,7 @@ All the parameters except {\tt .first} and {\tt .length}
 are given to describe an array.  The {\tt .first} and {\tt .length}
 parameters are then computed from the other parameters.
 
-Given the example from above;
+Given the example from above,
 \begin{indpar}\begin{verbatim}
 int32 iarray[5];
 int32 * piarray[1 .. 5];
@@ -830,13 +845,18 @@ and we have {\tt x.length == 10}.
 The parameters of an array can be any expression that evaluates
 to an integer at the time the array is allocated.  For example,
 \begin{indpar}\begin{verbatim}
-uns32 number = ...
-int64 first = ...
-uns32 step = ...
+uns32 constant number = ...
+int64 constant first = ...
+uns32 constant step = ...
 
 int32 x[number];
 int32 y[first .. first + number - 1 +> step];
 \end{verbatim}\end{indpar}
+
+The variables used to determine the parameters
+of an array must be `{\tt constant}' or
+`{\tt readonly}' so that checked code cannot modify them.
+More on this below.
 
 An array can be passed to a function and returned as the value
 of a function.  Some examples are:
@@ -852,9 +872,10 @@ void transpose ( float64 array[lb .. ub +> step1, lb .. ub +> step2],
 When an array is passed to a function, the parameters needed to
 describe the array must be expressions computatable from parameters
 passed to the function.  When an array is returned by a function,
-the parameters needed to describe tha array must be expressions
+the parameters needed to describe the array must be expressions
 computable from parameters either passed to or returned from the
-function.
+function.  Note that integer function parameters are `{\tt constant}'
+by default.
 
 Checked functions can only allocate arrays to static or stack
 memory.  Unchecked functions can be written to allocate arrays
@@ -869,11 +890,10 @@ array may be expanded.  An example is:
 
 \begin{indpar}\begin{verbatim}
 deftype myarray (16,8);
-uns64 *& .n ( *& myarray a ) unchecked = a@0;
+readonly uns64 *& .n ( *& myarray @ a ) unchecked = a@0;
 float64 (*&b) [1 .. a.n] .void ( *& myarray a ) unchecked = a@8;
 myarray *& .constructor.() unchecked
 {
-    myarray *& a = new myarray;
     a.n = 0;
     a.void = NULL;
 }
@@ -1197,12 +1217,15 @@ the course of the call.  The difference is that a called function
 may construct a long-lived cache of a `{\tt constant}' location
 but not of a `{\tt readonly}' location.
 
-`{\tt constant}' memory locations can be cached in registers
-without restriction.
-
-The `{\tt constant}' qualifier obeys the following special rule:
-it is removed from a location passed to the {\tt .constructor.}
+The `{\tt constant}' qualifier obeys the following special rules:
+\begin{enumerate}
+\item
+`{\tt constant}' is removed from a location passed to the {\tt .constructor.}
 function as the result location.
+\item
+`{\tt constant}' is the default cache qualifier for function parameters
+that are passed by value and not by reference.
+\end{enumerate}
 
 \hspace*{-1em}\ttkey{stack}~~~~~The memory location is in the stack of
 the current thread.

@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 21, 2009
+October 24, 2009
  
 \end{center}
 
@@ -743,19 +743,22 @@ $array${\tt .lower\_bound[}$n-1${\tt 1]}
 
 \end{center}
 
-The array parameters are
+The parameters of an array whose element type is $T$ and whose
+inheritable qualifiers are $Q$ are
 
 \begin{indpar}
 
 \begin{list}{}{}
 
-\item[\key{first}] The address of the first element of the array,
+\item[\ttdkey{first}] Type: `$Q$ $X$ {\tt *}'.
+The address of the first element of the array,
 that is, the lowest addressed array element that can be accessed
 using subscripts within the range indicated by the subscript bounds.
 {\tt NULL} if there are no accessible elements (i.e., if some
 upper bound is not at least as great as the corresponding lower bound).
 
-\item[\key{length}] The total number of elements in the array.
+\item[\ttdkey{length}] Type: `{\tt readonly uns64}'.
+The total number of elements in the array.
 The last used element of the array has address
 \begin{center}
 $array${\tt .first} + ( $array${\tt .length} - 1 ) * {\em element-size}
@@ -763,22 +766,29 @@ $array${\tt .first} + ( $array${\tt .length} - 1 ) * {\em element-size}
 
 {\tt 0} if the array has no accessible elements.
 
-\item[\key{base}] The address of the {\tt [0,0,}\ldots{\tt ,0]}
+\item[\ttdkey{base}] Type: `{\tt noaccess} $X$ {\tt *}'.
+The address of the {\tt [0,0,}\ldots{\tt ,0]}
 element of the array.  This may not actually be inside the array,
 as {\tt 0} subscripts may not be within bounds.
 
-\item[\key{step}{$[i]$}] The multiplier
+\item[\ttdkey{step}{$[i]$}]
+Type: any `{\tt readonly}' integer type.
+The multiplier
 of the $i+1$'st subscript of the array for the purpose of determining
 the address offset of the element in the array.
 An integer (may be negative).
 The unit of these multipliers is the size of the array element.
 
-\item[\key{lower\_bound}{$[i]$}] The lower bound (smallest value)
+\item[\ttdkey{lower\_bound}{$[i]$}]
+Type: any `{\tt readonly}' integer type.
+The lower bound (smallest value)
 of the $i+1$'st
 subscript of the array.
 An integer (may be negative).
 
-\item[\key{upper\_bound}{$[i]$}] The upper bound (largest value)
+\item[\ttdkey{upper\_bound}{$[i]$}]
+Type: any `{\tt readonly}' integer type.
+The upper bound (largest value)
 of the $i+1$'st subscript of the array.
 An integer (may be negative).
 
@@ -895,16 +905,17 @@ float64 (*&b) [1 .. a.n] .void ( *& myarray a ) unchecked = a@8;
 myarray *& .constructor.() unchecked
 {
     a.n = 0;
-    a.void = NULL;
+    a.void.base = NULL;
 }
 void push ( *& myarray a, float64 value ) unchecked
 {
     uns64 n = a.n;
     float64 * ap = new float64[n+1];
     if ( a.void != NULL )
-        memcpy ( ap, a.void, n * sizeof ( float64 ) );
-    delete[] a.void;
-    a.void = ap;
+        memcpy ( ap, a.void.base,
+	         n * sizeof ( float64 ) );
+    delete[] a.void.base;
+    a.void.base = ap;
     ap[a.n] = value;
     ++ a.n;
 }
@@ -918,13 +929,41 @@ a[0]; // Run time error.
 a[3]; // Run time error.
 \end{verbatim}\end{indpar}
 
-Note that the name of an array us used to name the `{\tt .base}'
-of the array, and that unchecked code can use this name to change
-the base of the array.  In the above example the `{\tt .void}'
-function returns its output parameter `{\tt b}' which because of
-the `{\tt *\&}' is a pointer
-to a location holding the base of the array.  Thus resetting
-`{\tt a.void}' in `{\tt push}' resets the base of the array.
+There are a number of language features introduced in the above code.
+
+First, {\tt a@8} is of type `{\tt void *\&}' which is
+converted to type `{\tt float (*\&) [1 .. a.n]}' by the
+`{\tt unchecked}' code of the {\tt .void} function.
+
+Second, an array is essentually a pointer.  Viewed as the
+element of an object, {\tt a.void} is just a pointer (in
+our case we are assuming pointers are 8 bytes long and
+aligned on 8 byte boundaries).
+
+Third, if $Y$ is an array of type `$X$ $Y${\tt [ ... ]}' then
+$Y${\tt .base} is a value of type `{\tt noaccess} $X$ {\tt *}'.  If an array
+is being returned, what is actually returned is its {\tt .base}.
+Unchecked code can store a pointer of type `$X$ {\tt *}'
+in $Y${\tt .base}.  The line `{\tt a.void.base = ap;}' above
+does just this.  Unchecked code can also read the base, as in
+the line `{\tt memcpy ( ap, a.void.base, n );}', and implicitly
+convert the base to a pointer to a `{\tt readwrite}' value.  Checked code
+can also read the base, but the value returned will be given
+the type `noaccess $X$ {\tt *}' since base pointers may not
+point at real memory (e.g., given $Y${\tt [1 .. 2]} then
+$Y${\tt .base} points to an unusable location just before
+the first element).
+
+Fourth, `{\tt unchecked}' code can use a pointer as if it were
+a 1-dimensional array with step {\tt +1} and no bounds.  This is
+done in the statement `{\tt ap[a.n] = value;}' above.
+
+Fifth, `{\tt .base}' when applied to an array,
+and `{\tt .void}' can always be omitted, as long as the
+result can be disambiguated.  Thus in the above
+`{\tt a.void.base}' could be replaced by either
+`{\tt a.void}' or just `{\tt a}'.  In the code at the end
+after the functions, `{\tt a.void}' is replaced by `{\tt a}'.
 
 Note also that `\verb|float64 (*&b) [1 .. a.n]|' differs from
 `\verb|float64 *&b [1 .. a.n]|' which is equivalent to
@@ -935,6 +974,75 @@ The last subexpression means that the value returned is the base
 of an array whose elements are pointers to `{\tt float64}' values
 (and {\tt b[i]} refers to the `{\tt float64}' value pointed at by the
 array element indexed by {\tt i}).
+
+If you want to copy entire arrays you have to apply the `{\tt *}'
+operator to them.  Thus
+\begin{indpar}\begin{verbatim}
+declare alias qualifier same_data;
+same_data int32 x[1 .. 10];
+same_data int32 y[1 .. 10] = x;
+// Now x and y are the same piece of memory.  This would not be
+// legal without the alias qualifier (described later).
+y[1] = ..., etc.
+int32 z[1 .. 10];
+* z = * y;
+// Now the elements of x (and y) have been copied to
+// the elements of z.
+\end{verbatim}\end{indpar}
+
+Subarrays can be computed by expressions of the form
+\begin{center}
+{\em array-expression}
+	{\tt [} {\em selector-spec}
+	       \{ {\tt ,} {\em selector-spec} \}$^\star$ {\tt ]}{\tt ;}
+\end{center}
+where
+\begin{indpar}
+{\em selector-spec} ::=
+    {\em lower-bound}~~{\tt ..}~~{\em upper-bound}~~{\em step-spec-option}
+\end{indpar}
+
+Here the bounds are valid subscripts for the given array, and the
+steps are increments in these valid subsecripts.
+
+For example,
+\begin{indpar}\begin{verbatim}
+declare alias qualifier first_half, second_half;
+first_half second_half int32 x[1 .. 10];
+first_half int32 x1[1 .. 5] = x[1 .. 5];
+second_half int32 x2[1 .. 5] = x[6 .. 10];
+
+declare alias qualifier odd_half, even_half;
+odd_half even_half int32 y[1 .. 10];
+odd_half int32 y1[1 .. 5] = y[1 .. 9 +> 2];
+even_half int32 y2[1 .. 5] = x[2 .. 10 +> 2];
+\end{verbatim}\end{indpar}
+
+Here {\tt x1} is the first half of {\tt x} and is the second
+half.  Similarly {\tt y1} is all the elements of {\tt y} with
+odd subscripts, and {\tt y2} is all the elements with even
+subscripts.
+
+The `{\tt =}' operator used with arrays overlays and does not
+copy.  It can only be used to initialize subarray names, and
+only requires that the arrays involved have equal numbers of
+subscripts in each dimension.
+
+In somewhat more generality a subarray of an array may be
+given a \key{linear view} defined by any linear map between
+arbitrary subscripts and the subscripts of the array.  For
+example:
+\begin{indpar}\begin{verbatim}
+declare alias same_data;
+same_data int32 x[1 .. 70];
+same_data int32 y[1 .. 10, 1 .. 7] = ([i,j] ===> x[(i-1)*7 + j]);
+same_data int32 z[1 .. y, 1 .. 10] = ([i,j] ===> y[j,i]);
+same_data int32 w[1 .. 6] = ([i] ===> y[i,i+1]);
+\end{verbatim}\end{indpar}
+
+Here {\tt y} is a 2-dimensional array overlayed on the vector {\tt x},
+{\tt z} is the transpose of {\tt y}, and {\tt w} is a subdiagonal of
+{\tt y}.
 
 
 \subsection{Qualifiers}

@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 24, 2009
+October 30, 2009
  
 \end{center}
 
@@ -1036,7 +1036,7 @@ example:
 declare alias same_data;
 same_data int32 x[1 .. 70];
 same_data int32 y[1 .. 10, 1 .. 7] = ([i,j] ===> x[(i-1)*7 + j]);
-same_data int32 z[1 .. y, 1 .. 10] = ([i,j] ===> y[j,i]);
+same_data int32 z[1 .. 7, 1 .. 10] = ([i,j] ===> y[j,i]);
 same_data int32 w[1 .. 6] = ([i] ===> y[i,i+1]);
 \end{verbatim}\end{indpar}
 
@@ -1108,7 +1108,12 @@ int32 *& Q function4 ();
 Note that in this last case qualifiers appearing immediately
 before function names
 in function definitions and declarations are always assumed to apply
-to the function and not the returned value.
+to the function and not the returned value.  If you want
+qualifiers to apply to the returned values, you may want to put
+return values in parentheses like an argument list.  For example,
+\begin{indpar}[0.5em]\begin{verbatim}
+(int32 Q *& a, int32 * Q b) function5 ();
+\end{verbatim}\end{indpar}
 
 If in the above examples we assume that
 {\tt Q} is a protection qualifier, then {\tt function3}
@@ -1178,6 +1183,19 @@ location.  Alternatively, `{\tt constant}' can be replaced by `{\tt readonly}',
 which forbids writing the location but does \underline{not} promise that
 other code will not write the location.
 
+\ikey{Containing qualifiers}{containing qualifier} specify that a location
+might contains a encoded value, such as a pointer to a collectable location.
+For example, a value possibly containing an encoded pointer to
+the collectable location will be restricted as if it were a pointer to
+a collectable location.
+
+\ikey{Traceable qualifiers}{traceable qualifier} may be applied to
+stack locations.  All stack locations with a particular traceable
+qualifier may be found code that uses builtin L-language primitives.
+For example, if values of a particular type may hold pointers
+to garbage collectable locations, making these values
+traceable permits all these value allocated to the stack to
+be located by the garbage collector.
 
 \subsubsection{Lifetime Qualifiers}
 \label{LIFETIME-QUALIFIERS}

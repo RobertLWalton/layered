@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 30, 2009
+November 4, 2009
  
 \end{center}
 
@@ -1141,7 +1141,8 @@ and may be cached indefinitely in registers.
 The `{\tt stack}' qualifier specifies that a location is in the stack of
 the current thread and cannot be changed by a function call unless the
 location is explicitly passed to the function as an argument.
-The `{\tt stack}' cache qualifier also implies the `{\tt caller}'
+The `{\tt stack}' cache qualifier applied to a function argument or
+return value also implies the `{\tt caller}'
 lifetime qualifier.
 \ikey{Alias qualifiers}{alias qualifier} may be declared to indicate when
 memory locations may overlap.
@@ -1171,11 +1172,11 @@ conversion.
 Memory locations can be assigned qualifier expressions that are logical
 combinations of qualifier names and the operators `\verb/|/' and
 `\verb/&/'.  For example, a memory location may be assigned the expression
-`$X$\verb/|constant/' where $X$ is a protection qualifier.  A function
+`$X$\verb/|constant/' where $X$ is a protection qualifier.  A function body
 with qualifier $X$ will be able to access such a memory location to both
-read and write it, but a function without qualifier $X$ will treat the
-function as having the `\verb|constant|' qualifier, will not be able
-to write the location, and will be able to assume that the location will
+read and write it, but a function body without qualifier $X$ will treat the
+location as having the `\verb|constant|' qualifier, will not be able
+to write the location, and will assume that the location will
 not be written by others.  In order for this to work properly, the functions
 with qualifier $X$ that are permitted to write the location must be called
 first, before functions without qualifier $X$ are allowed to access the
@@ -1184,49 +1185,56 @@ which forbids writing the location but does \underline{not} promise that
 other code will not write the location.
 
 \ikey{Containing qualifiers}{containing qualifier} specify that a location
-might contains a encoded value, such as a pointer to a collectable location.
+might contain an encoded value, such as a pointer to a collectable location.
 For example, a value possibly containing an encoded pointer to
 the collectable location will be restricted as if it were a pointer to
 a collectable location.
 
 \ikey{Traceable qualifiers}{traceable qualifier} may be applied to
 stack locations.  All stack locations with a particular traceable
-qualifier may be found code that uses builtin L-language primitives.
+qualifier may be found by code via builtin L-language primitives.
 For example, if values of a particular type may hold pointers
 to garbage collectable locations, making these values
-traceable permits all these value allocated to the stack to
+traceable permits all such values allocated to the stack to
 be located by the garbage collector.
+
+A single qualifier may be of several types at once.  For example,
+a qualifier may be collectable, containing, and traceable.
 
 \subsubsection{Lifetime Qualifiers}
 \label{LIFETIME-QUALIFIERS}
 
 Lifetime qualifiers determine where pointers to locations can be stored.
-Two lifetime qualifiers are builtin:  `{\tt caller}', and `{\tt static}'.
+Two lifetime qualifiers are builtin:  `{\tt static}', and `{\tt caller}'.
 One kind of lifetime qualifier is declarable: collectable qualifiers.
 If no lifetime qualifier is supplied for a location, `{\tt caller}'
 is assumed.
 
 \begin{indpar}
 
-\hspace*{-1em}\ttkey{caller}~~~~~Specifies
-that a function execution is not to store
-the address of the location anywhere but in the function execution's own
-frame, or in a `{\tt caller}' qualified
-argument to another function called by the function
-execution.  Furthermore, if used in a function argument or return value type,
-`{\tt caller}'
-specifies that the called function is not to allocate the memory location,
-but rather the caller is responsible for allocating it.
+\hspace*{-1em}\ttkey{static}~~~~~Specifies
+the location lives forever.  Locations allocated at load time
+or at program initialization time may be declared static.
+
+\hspace*{-1em}\ttkey{caller}~~~~~Only
+used in a function $F$'s value or return type to qualify a location
+whose address is passed to the function.  Specifies the function's caller
+must provide the `{\tt caller}' location, but the location need not be
+in a frame, and may be `{\tt static}' or collectible instead.  Asserting
+that such a location is `{\tt caller}' is only a promise by the
+function $F$ not to store the location's address anywhere but in its
+frame or in a `pointer to {\tt caller} location'
+argument to or return value from another function it calls.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 function1 ( static int32 * caller * arg1 );
     // The argument is a pointer to a caller allocated location
-    // holding a static pointer to an int32.  The caller need not
-    // provide a useful value in the caller allocated location,
-    // and function1 can use `* arg1 = value' to return a pointer
-    // to a static int32 value in this location, but cannot use
-    // `arg1 = value' to reset the argument.
+    // holding a pointer to a statically allocated int32.  The
+    // caller need not provide a useful value in the caller
+    // allocated location, and function1 can use `* arg1 = value'
+    // to return a pointer to a static int32 value in this location,
+    // but cannot use `arg1 = value' to reset the argument.
 int32 function2 ( caller int32 * caller * arg1 );
     // The argument is a pointer to caller allocated location
     // holding a pointer to a caller allocated location holding
@@ -1254,14 +1262,6 @@ caller int32 * * function7 ( int32 arg1 );
     // Illegal; the result behaves like an extra argument passed to
     // function7 which has the same properties as arg1 in function3.
 \end{verbatim}\end{indpar}
-
-If `{\tt caller}' is used in a function value or return type, the caller
-must provide the `{\tt caller}' location, but the location need not be
-in a frame, and may be `{\tt static}' or collectible instead.  Asserting
-that such a location is `{\tt caller}' is only a promise by the called
-function not to store the location's address anywhere but in its
-frame or in a `pointer to {\tt caller} location'
-argument to a function it calls.
 
 The `{\tt caller}' lifetime qualifier is implied by the `{\tt stack}'
 cache qualifier (see below).  The `{\tt caller}' lifetime qualifier
@@ -1539,6 +1539,12 @@ can never have any effect.
 
 [TBD: are there ambiguous situations?]
 
+\subsubsection{Containing Qualifiers}
+\label{CONTAINING-QUALIFIERS}
+
+\subsubsection{Traceable Qualifiers}
+\label{TRACEABLE-QUALIFIERS}
+
 \subsection{Frames}
 \label{FRAMES}
 
@@ -1696,6 +1702,8 @@ of adjacent blocks.
 \label{CODE-BLOCKS}
 
 \section{To Do}
+
+How can dynamically initialized locations be static.
 
 Indirect address protocol.
 \label{INDIRECT-ADDRESS-PROTOCOL}

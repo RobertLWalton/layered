@@ -235,7 +235,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 5, 2009
+November 6, 2009
  
 \end{center}
 
@@ -1392,9 +1392,11 @@ A base address is one of the following:
 
 \begin{enumerate}
 \item The address of a memory block allocated by the loader.
+\item The address of a memory block allocated to the current function frame.
 \item An address passed into the current function as the location
 of an argument or return value.
-\item An address returned from a function call or builtin operation.
+\item An address returned from a function call or builtin operation,
+      including addresses read from memory locations.
 \end{enumerate}
 
 For example:
@@ -1481,7 +1483,8 @@ Additional protection qualifiers may be declared.
 \hspace*{-1em}\ttkey{readwrite}, \ttkey{readonly}, \ttkey{writeonly},
 \ttkey{noaccess}~~~~~Specifies whether execution may read or write a location.
 
-\hspace*{-1em}\ttkey{unchecked}~~~~~Specifies that an execution may
+\hspace*{-1em}\ttkey{unchecked}~~~~~Specifies that the execution of
+a function body may
 invoke builtin operators that perform explicit or implicit
 type conversions.
 
@@ -1542,7 +1545,36 @@ is {\tt constant} and \underline{not} {\tt readonly}.  {\tt My\_data2}
 behaves just like {\tt my\_data1}, as the subexpression `{\tt (A\&readwrite)}'
 can never have any effect.
 
-[TBD: are there ambiguous situations?]
+The precise specification for evaluating qualifier expressions
+is as follows:
+
+\begin{enumerate}
+\item
+A protection qualifier evaluates to true or false according to whether
+the invoking code has or does not have the qualifier.
+\item
+Any other qualifier evaluates to true when it is evaluated.
+When this happens the qualifier is asserted for the
+location qualified by the qualifier expression.  Note that evaluation
+may skip over subexpressions and thereby not encounter qualifiers
+therein.
+\item
+Evaluation of the subexpression $x$\verb/|/$y$ evaluates $x$ first.
+If $x$ evaluates to true, the subexpression evaluates to true and
+evaluation of $y$ is skipped.  If $x$ evaluates to false, $y$ is
+evaluated and its value becomes the value of the subexpression.
+Note that \verb/|/ is left associative:
+$x$\verb/|/$y$\verb/|/$z$ $\equiv$
+($x$\verb/|/$y$)\verb/|/$z$.
+\item
+Evaluation of the subexpression $x$\verb/&/$y$ evaluates $x$ first.
+If $x$ evaluates to false, the subexpression evaluates to false and
+evaluation of $y$ is skipped.  If $x$ evaluates to true, $y$ is
+evaluated and its value becomes the value of the subexpression.
+Note that \verb/&/ is left associative:
+$x$\verb/&/$y$\verb/&/$z$ $\equiv$
+($x$\verb/&/$y$)\verb/&/$z$.
+\end{enumerate}
 
 \subsubsection{Containing Qualifiers}
 \label{CONTAINING-QUALIFIERS}

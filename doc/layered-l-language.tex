@@ -1318,8 +1318,9 @@ The memory location can be cached in registers without
 restriction.
 
 Memory locations declared `{\tt constant}' must be written during their
-initialization.  This is managed by not declaring these locations to be
-`{\tt constant}' when they are passed to constructors.
+initialization.  This is managed by not declaring a location to be
+`{\tt constant}' when it is passed as a result value to the function
+that initializes the location.
 
 The following code has some examples:
 \begin{indpar}[0.5em]\begin{verbatim}
@@ -1329,7 +1330,7 @@ int32 function3 ( stack *& arg1 );
 . . . . . . . . . .
 constant int32 value1 = 5;
    // Permitted:
-   //   stack int32 *& .constructor. ( 5 ) is called.
+   //   stack int32 *& .assign. ( 5 ) is called.
 value1 = 10; 
    // Erroneous:
    //   stack constant int32 *& .assign. ( 10 ) is called.
@@ -1349,8 +1350,9 @@ but not of a `{\tt readonly}' location.
 The `{\tt constant}' qualifier obeys the following special rules:
 \begin{enumerate}
 \item
-`{\tt constant}' is removed from a location passed to the {\tt .constructor.}
-function as the result location.
+`{\tt constant}' is removed from a location passed to a
+function as the result location in the initializer statement
+of the location.
 \item
 `{\tt constant}' is the default cache qualifier for function parameters
 that are passed by value and not by reference.
@@ -1366,12 +1368,12 @@ function.
 
 A `{\tt stack}' cache qualifier implies a `{\tt caller}' lifetime
 qualifier and is incompatible with other lifetime qualifiers.
-It differs from the `{\tt caller}' lifetime qualifier in that it
-promises that the address of the stack location cannot be passed
-to a called function except as an argument or as a result location
-of the called function, whereas the address of a arbitrary `{\tt caller}'
-location might be placed in static memory accessible to any called
-function.
+Note, however, that `{\tt static}' locations can also be type-recast
+as `{\tt caller}' locations, so a location known merely to be
+a `{\tt caller}' location might be passed to a function via
+addresses in static locations instead of by arguments, whereas
+a location known to be `{\tt stack}' can only be passed by addresses
+in arguments.
 
 \hspace*{-1em}\ikey{Alias Qualifiers}%
 {alias qualifier}~~~~~Alias

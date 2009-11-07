@@ -235,13 +235,11 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 6, 2009
+November 7, 2009
  
 \end{center}
 
-{\small
-\tableofcontents 
-}
+{\small \tableofcontents}
 
 \newpage
 
@@ -501,7 +499,7 @@ for deallocated bytes, shared bytes, and unshared bytes.
 A \key{segment} is a contiguous sequence of pages all of which have
 the same allocation and sharing status.
 
-The builtin blocks in L-Language are frame blocks (\pagref{FRAMES}),
+The builtin blocks in L-Language are frame blocks (\pagref{FRAME-BLOCKS}),
 code blocks(\pagref{CODE-BLOCKS}), numbers, and segments.  All non-segment
 blocks are contained within segments.  User defined blocks can be 
 contained within segments.
@@ -1582,82 +1580,13 @@ $x$\verb/&/$y$\verb/&/$z$ $\equiv$
 \subsubsection{Traceable Qualifiers}
 \label{TRACEABLE-QUALIFIERS}
 
-\subsection{Frames}
-\label{FRAMES}
-
-A \key{frame} is a set of non-overlapping
-data blocks associated with a function
-execution (see Functions, \pagref{FUNCTIONS}).  The blocks of a frame,
-which are called \skey{frame block}s,
-are allocated (come into existence) when the function execution begins,
-and are deallocated (cease to exist) when the function execution ends.
-
-There are three types of frame blocks:
-
-\begin{indpar}
-
-\hspace*{-1em}{\bf Local}.~~A \key{local frame block}
-can only be accessed by the frame's function.
-It cannot be accessed during calls made by this function,
-or by functions running in parallel with this function.
-
-\hspace*{-1em}{\bf Cache}.~~A \key{cache frame block}
-can only be accessed by the frame's function or during calls
-made by this function.  It cannot be accessed by functions running
-in parallel with the frame's function.
-Furthermore, if the block is modified during a call made by the
-frame's function,
-bits called `\skey{modification bit}s' are set in the block,
-or in another cache block in the same frame.
-
-\hspace*{-1em}{\bf Global}.~~A \key{global frame block}
-can be accessed by the frame's function or during calls
-made by this function.  It cannot be accessed by functions running
-in parallel with the frame's function.
-
-\end{indpar}
-
-Note that parallel function calls cannot access blocks in a function's
-frame.
-
-\subsection{Heaps}
-\label{HEAPS}
-
-A \key{heap} is a set of non-overlapping data blocks \underline{not}
-associated with any function execution.  The blocks of a heap,
-which are called \skey{heap block}s.  Each heap is associated with
-functions that allocate and deallocate blocks in the heap.
-
-There are three types of heap blocks:
-
-\begin{indpar}
-
-\hspace*{-1em}{\bf Cache}.~~A \key{cache heap block}
-is associated with a thread (see Threads, \pagref{THREADS}) and
-can only be accessed by the function executions in that thread.
-It cannot be accessed by function executions in other threads.
-Furthermore, if the block is modified during a function execution,
-bits called `\skey{modification bit}s' are set in the block,
-or in another cache block associated with the same thread
-in the same heap.
-
-\hspace*{-1em}{\bf Global}.~~A \key{global heap block}
-is associated with a thread and
-can only be accessed by the function executions in that thread.
-It cannot be accessed by function executions in other threads.
-
-\hspace*{-1em}{\bf Parallel}.~~A \key{parallel heap block}
-can only be accessed by function executions in any thread.
-
-\end{indpar}
-
-Note that parallel function calls cannot access blocks in a function's
-frame.
 
 
 
 \subsection{Memory Channels}
 \label{MEMORY-CHANNELS}
+
+TBD
 
 A \key{memory channel} is a mechanism for accessing a set of blocks in RAM
 that permits blocks to be announced substantially in advance of being
@@ -1734,6 +1663,9 @@ For a chained memory channel there are a fixed set of instructions
 that tell how to compute the address of a block from the contents
 of adjacent blocks.
 
+
+\section{Frame Blocks}
+\label{FRAME-BLOCKS}
 
 \section{Code Blocks}
 \label{CODE-BLOCKS}

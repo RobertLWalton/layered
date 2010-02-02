@@ -94,6 +94,7 @@
 \newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\figref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
+\newcommand{\TBDref}[1]{??}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
@@ -235,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 7, 2009
+February 2, 2010
  
 \end{center}
 
@@ -283,8 +284,8 @@ The L-Language supports low level declaration of data and fairly high
 level typesafe optimized usage of declared data.  The L-Language also
 supports macros written in the high level H-Language that extends the
 L-Language, permitting very
-capable macros to be written by users to give users high level data
-declaration facilities taylored to specific kinds of data.
+capable macros to be written by users to give users high level
+type-safe data declaration facilities taylored to specific kinds of data.
 
 The thesis here is that a high level data declaration language that is
 typesafe and efficient for all kinds of data is not practical.
@@ -337,6 +338,8 @@ and direct address:
 \ttkey{float128}	& IEEE floating point number & 128 bits
 \\[1ex]
 (see text)		& direct address & 32 bits or 64 bits (see text) \\
+\ttkey{unsptr}		& unsigned integer & size of direct address \\
+\ttkey{intptr}		& signed integer & size of direct address \\
 \end{tabular}
 \end{center}
 
@@ -369,11 +372,13 @@ and mantissas for various floating point number sizes is as follows:
 \end{tabular}
 \end{center}
 
-A \key{direct address} holds a RAM byte address.
+A \key{direct address} (a.k.a. a `\key{pointer}') holds a RAM byte address.
 A direct address is a 32-bit or 64-bit unsigned integer whose size
 is determined by the target machine.  Some of high order bits may be
 required to be all 0's or all 1's, depending upon
-the target machine.
+the target machine.  The \verb|unsptr| and \verb|intptr|
+unsigned and signed integer types of the same size
+as a direct address are provided for storing indices and offsets.
 
 A reasonable assumption for 64-bit addresses is that only the low
 order 48-bits of the direct address are actually used.  This assumption can
@@ -483,8 +488,9 @@ neither shared nor unshared; i.e., some of the block's bytes may be
 allocated and some deallocated, or some may be shared and some unshared.
 
 The address space is divided into \skey{page}s, which are blocks that
-have an implementation determined length
-that is a power of two: e.g., 4096 byte pages.  There
+have an implementation determined length that is a power of two,
+e.g., 4096 byte pages, and an address that is an exact multiple of
+this length.  There
 are L-Language operations which call the operating system to
 map an address page to physical memory, thus allocating a page
 of RAM.  There are operations to deallocate a page, and to make
@@ -599,16 +605,17 @@ x.member5 = & x;
 Here $x${\tt @}$y$ is an operation that takes the byte address of
 $x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
 returns it as a value of type `{\tt *\& void}'.  In an
-{\tt unchecked} function the {\tt void} type can be converted to
-any other type.  The `{\tt @}' before the `{\tt m}' indicates
+{\tt unchecked} function the {\tt void} type can be implicitly converted to
+any other type.  The `{\tt @}' before the `{\tt m}' in the argument
+list indicates
 that the return value is a subblock of the block denoted by `{\tt m}',
 and as such, inherits certain qualifiers from `{\tt m}', as we
-will describe later.  There is also a commonly used abbreviation
+will describe in \TBDref{TBD}.  There is also a commonly used abbreviation
 for function definitions such as the above, of which
 \begin{indpar}\begin{verbatim}
 uns16 *&   .member1 ( *& type1 m ) unchecked @= 0;
 \end{verbatim}\end{indpar}
-is representative.  This is also described below.
+is representative.  This is described in \TBDref{TBD}.
 
 \subsection{Tuples}
 \label{TUPLES}
@@ -664,14 +671,14 @@ where
 {\em dimension-spec} ::= {\em bound-spec}~~{\em step-spec-option} \\[1ex]
 {\em bound-spec} ::= {\em length}
     $|$ {\em lower-bound}~~{\tt ..}~~{\em upper-bound} \\[1ex]
-{\em step-spec} ::= {\tt +>} {\em step}
+{\em step-spec} ::= {\tt ++} {\em step}
 \end{indpar}
 For example,
 \begin{indpar}\begin{verbatim}
 int32 iarray[5];
 int32 * piarray[1 .. 5];
 int32 * & irarray[10,20];
-int32 * & tirarray[10+>1,20+>10];
+int32 * & tirarray[10++1,20++10];
 \end{verbatim}\end{indpar}
 
 Here
@@ -741,21 +748,24 @@ $array${\tt .lower\_bound[}$n-1${\tt 1]}
 
 \end{center}
 
-The parameters of an array whose element type is $T$ and whose
+[TBD: array mapping function that would allow, e.g., symmetric arrays.]
+
+The parameters of an array $A$ whose element type is $T$ and whose
 inheritable qualifiers are $Q$ are
 
 \begin{indpar}
 
 \begin{list}{}{}
 
-\item[\ttdkey{first}] Type: `$Q$ $X$ {\tt *}'.
-The address of the first element of the array,
+\item[\ttdkey{first}] Type: `$Q$ $X$ {\tt *\&}'.
+The first element of the array,
 that is, the lowest addressed array element that can be accessed
 using subscripts within the range indicated by the subscript bounds.
-{\tt NULL} if there are no accessible elements (i.e., if some
+`\verb|& |$A$\verb|.first|' is {\tt NULL} if there are no
+accessible elements (i.e., if some
 upper bound is not at least as great as the corresponding lower bound).
 
-\item[\ttdkey{length}] Type: `{\tt readonly uns64}'.
+\item[\ttdkey{length}] Type: `{\tt unsptr}'.
 The total number of elements in the array.
 The last used element of the array has address
 \begin{center}
@@ -770,7 +780,7 @@ element of the array.  This may not actually be inside the array,
 as {\tt 0} subscripts may not be within bounds.
 
 \item[\ttdkey{step}{$[i]$}]
-Type: any `{\tt readonly}' integer type.
+Type: any integer type.
 The multiplier
 of the $i+1$'st subscript of the array for the purpose of determining
 the address offset of the element in the array.
@@ -778,14 +788,14 @@ An integer (may be negative).
 The unit of these multipliers is the size of the array element.
 
 \item[\ttdkey{lower\_bound}{$[i]$}]
-Type: any `{\tt readonly}' integer type.
+Type: any integer type.
 The lower bound (smallest value)
 of the $i+1$'st
 subscript of the array.
 An integer (may be negative).
 
 \item[\ttdkey{upper\_bound}{$[i]$}]
-Type: any `{\tt readonly}' integer type.
+Type: any integer type.
 The upper bound (largest value)
 of the $i+1$'st subscript of the array.
 An integer (may be negative).
@@ -796,14 +806,17 @@ An integer (may be negative).
 
 All the parameters except {\tt .first} and {\tt .length}
 are given to describe an array.  The {\tt .first} and {\tt .length}
-parameters are then computed from the other parameters.
+parameters are then computed from the other parameters.\footnote{
+Note that these are functions and not C language members, and as
+such only {\tt .first} returns an lvalue in the sense of the
+C language.}
 
 Given the example from above,
 \begin{indpar}\begin{verbatim}
 int32 iarray[5];
 int32 * piarray[1 .. 5];
 int32 * & irarray[10,20];
-int32 * & tirarray[10+>1,20+>10];
+int32 * & tirarray[10++1,20++10];
 \end{verbatim}\end{indpar}
 we have
 \begin{indpar}\begin{verbatim}
@@ -839,16 +852,17 @@ When an array is allocated to the stack or to static memory,
 the length of the array is just enough to include all the elements of the
 array.  There can be unused elements.  Thus given
 \begin{indpar}\begin{verbatim}
-int32 x[1 .. 4 +> 3];
+int32 x[1 .. 4 ++ 3];
 \end{verbatim}\end{indpar}
 then in memory the array {\tt x} is laid out as
 \begin{center}
-{\tt x[0]}, unused, unused,
 {\tt x[1]}, unused, unused,
 {\tt x[2]}, unused, unused,
-{\tt x[3]}
+{\tt x[3]}, unused, unused,
+{\tt x[4]}
 \end{center}
-and we have {\tt x.length == 10}.
+and we have {\tt x.length == 10}, {\tt x.first == x[1]},
+{\tt x.base == \&x[1] - 3}.
 
 The parameters of an array can be any expression that evaluates
 to an integer at the time the array is allocated.  For example,
@@ -858,7 +872,7 @@ int64 constant first = ...
 uns32 constant step = ...
 
 int32 x[number];
-int32 y[first .. first + number - 1 +> step];
+int32 y[first .. first + number - 1 ++ step];
 \end{verbatim}\end{indpar}
 
 The variables used to determine the parameters
@@ -866,11 +880,14 @@ of an array must be `{\tt constant}' or
 `{\tt readonly}' so that checked code cannot modify them.
 More on this below.
 
+\subsubsection{Array Function Parameters}
+\label{ARRAY-FUNCTION-PARAMETERS}
+
 An array can be passed to a function and returned as the value
 of a function.  Some examples are:
 \begin{indpar}\begin{verbatim}
 void sort ( int64 vector[length], int32 length );
-void transpose ( float64 array[lb .. ub +> step1, lb .. ub +> step2],
+void transpose ( float64 array[lb .. ub ++ step1, lb .. ub ++ step2],
                  int64 lb, int64 ub, int64 step1, int64 step2 );
 (float64 array[length,length]) unit ( uns32 length );
 (string output[olength], uns32 olength) sort
@@ -884,6 +901,28 @@ the parameters needed to describe the array must be expressions
 computable from parameters either passed to or returned from the
 function.  Note that integer function parameters are `{\tt constant}'
 by default.
+
+When a function that takes arrays as input parameters or computes
+arrays as output results is called, the array parameters that are
+function parameters or results may be implicitly specified.  Examples using
+the function declarations above are:
+\begin{indpar}\begin{verbatim}
+int64 x[1 .. 100];
+. . . compute x . . .
+sort ( x[] );   // length implictly passed.
+float y[1 .. 5][1 .. 5];
+. . . compute y . . .
+transpose ( y[] );    // lb, ub, step1, step 2 implicitly passed.
+float z[] = unit ( 10 );    // computes z and its parameters.
+string s[10];
+. . . compute s . . .
+string t[] = sort ( s[] );    // ilength and olength implicitly passed.
+                              // computes t and its parameters.
+\end{verbatim}\end{indpar}
+
+In order to indicate that implicit array parameter passing is
+desired, the empty brackets `\ttkey{[]}' must be appended to the
+array name.
 
 Checked functions can only allocate arrays to static or stack
 memory.  Unchecked functions can be written to allocate arrays
@@ -908,11 +947,11 @@ myarray *& .constructor.() unchecked
 void push ( *& myarray a, float64 value ) unchecked
 {
     uns64 n = a.n;
-    float64 * ap = new float64[n+1];
+    float64 * ap = malloc ( sizeof ( float64 ) * ( n+1 ) );
     if ( a.void != NULL )
         memcpy ( ap, a.void.base,
-	         n * sizeof ( float64 ) );
-    delete[] a.void.base;
+                 n * sizeof ( float64 ) );
+    mfree ( a.void.base );
     a.void.base = ap;
     ap[a.n] = value;
     ++ a.n;
@@ -933,10 +972,11 @@ First, {\tt a@8} is of type `{\tt void *\&}' which is
 converted to type `{\tt float (*\&) [1 .. a.n]}' by the
 `{\tt unchecked}' code of the {\tt .void} function.
 
-Second, an array is essentually a pointer.  Viewed as the
-element of an object, {\tt a.void} is just a pointer (in
-our case we are assuming pointers are 8 bytes long and
-aligned on 8 byte boundaries).
+Second, an array value is just a pointer.  Viewed as the
+element of an object, {\tt a.void} is a pointer.  Here
+we treat pointers as being 8 byte long values that are
+aligned on 8 byte boundaries, but as 4 byte pointers will
+fit into 8 bytes, the code will work even with 4 byte pointers.
 
 Third, if $Y$ is an array of type `$X$ $Y${\tt [ ... ]}' then
 $Y${\tt .base} is a value of type `{\tt noaccess} $X$ {\tt *}'.  If an array
@@ -957,7 +997,8 @@ a 1-dimensional array with step {\tt +1} and no bounds.  This is
 done in the statement `{\tt ap[a.n] = value;}' above.
 
 Fifth, `{\tt .base}' when applied to an array,
-and `{\tt .void}' can always be omitted, as long as the
+and `{\tt .void}' applied to any expression,
+can always be omitted, as long as the
 result can be disambiguated.  Thus in the above
 `{\tt a.void.base}' could be replaced by either
 `{\tt a.void}' or just `{\tt a}'.  In the code at the end
@@ -968,10 +1009,13 @@ Note also that `\verb|float64 (*&b) [1 .. a.n]|' differs from
 `\verb|float64 *& (b [1 .. a.n])|'.  The first subexpression
 means that the value returned is a pointer to the location holding
 the base of an array whose elements are {\tt float64} values.
-The last subexpression means that the value returned is the base
+The second subexpression means that the value returned is the base
 of an array whose elements are pointers to `{\tt float64}' values
 (and {\tt b[i]} refers to the `{\tt float64}' value pointed at by the
 array element indexed by {\tt i}).
+
+\subsubsection{Copying Arrays}
+\label{COPYING-ARRAYS}
 
 If you want to copy entire arrays you have to apply the `{\tt *}'
 operator to them.  Thus
@@ -987,6 +1031,9 @@ int32 z[1 .. 10];
 // Now the elements of x (and y) have been copied to
 // the elements of z.
 \end{verbatim}\end{indpar}
+
+\subsubsection{Subarrays}
+\label{SUBARRAYS}
 
 Subarrays can be computed by expressions of the form
 \begin{center}
@@ -1012,8 +1059,8 @@ second_half int32 x2[1 .. 5] = x[6 .. 10];
 
 declare alias qualifier odd_half, even_half;
 odd_half even_half int32 y[1 .. 10];
-odd_half int32 y1[1 .. 5] = y[1 .. 9 +> 2];
-even_half int32 y2[1 .. 5] = x[2 .. 10 +> 2];
+odd_half int32 y1[1 .. 5] = y[1 .. 9 ++ 2];
+even_half int32 y2[1 .. 5] = x[2 .. 10 ++ 2];
 \end{verbatim}\end{indpar}
 
 Here {\tt x1} is the first half of {\tt x} and is the second
@@ -1042,6 +1089,9 @@ Here {\tt y} is a 2-dimensional array overlayed on the vector {\tt x},
 {\tt z} is the transpose of {\tt y}, and {\tt w} is a subdiagonal of
 {\tt y}.
 
+[TBD: is there any way of having a non-linear view?  The problem
+is passing arrays as arguments and results of functions that are
+not inlined.]
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}
@@ -1066,7 +1116,7 @@ Q int32 a[5];        // a[i] for i = 0 .. 4
 int32 (Q a)[5];      // a (== a.base)
 \end{verbatim}\end{indpar}
 Locations specify a specific set of bytes.  Note that unlike
-the C programming language, and L-Language does not specify arrays by
+the C programming language, L-Language does not specify arrays by
 simply giving a single pointer; there is always a specification of
 array extent.
 
@@ -1122,32 +1172,45 @@ by {\tt function1} and {\tt function2}.
 There are several kinds of qualifiers.
 
 \ikey{Lifetime qualifiers}{lifetime qualifier}
-specify the lifetime of a memory location.  The `{\tt caller}' qualifier
-specifies that the location may only last as long as the caller of
-a function.  The `{\tt static}' qualifier specifies that the location
+specify the lifetime of a memory location.  This in turn controls where
+addresses of the memory location may be stored: the address of a location
+must not be stored by checked code in a place that will exists after the
+location ceases to exist.
+
+The `{\tt static}' qualifier specifies that the location
 has unlimited lifetime.
+The `{\tt stack}' qualifier specifies that the location
+is in the stack of the current thread.
+The `{\tt caller}' qualifier
+specifies that the location will last at least as long as the caller of
+a function.
 \ikey{Collectable qualifiers}{collectible qualifier} may be declared that
 indicate that the location is garbage collectable and its address needs
 to be protected against collection.
-Pointers to collectable locations may only be stored in non-stack
-locations by appropriately privileged functions.
+Generally a block of code
+may store the address of a location in the code block's
+stack frame as long as the block knows the location will exist until
+the end of the block's execution.  Addresses of static locations can
+be stored anywhere.  Addresses of collectible locations can be stored
+in a block's stack frame if there is reason to believe the locations
+will not be garbage collected while the code block is running.
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
 may be changed, and thence when they may be cached in registers.  The
 `{\tt constant}' qualifier specifies that a location will never be changed,
 and may be cached indefinitely in registers.
-The `{\tt stack}' qualifier specifies that a location is in the stack of
-the current thread and cannot be changed by a function call unless the
-location is explicitly passed to the function as an argument.
-The `{\tt stack}' cache qualifier applied to a function argument or
-return value also implies the `{\tt caller}'
-lifetime qualifier.
+The `{\tt unique}' qualifier specifies that a location has no overlaps
+with other locations that are not known to the currently executing
+function, and, in particular, that a location passed from a caller to
+a called function does not overlap with any other location so passed
+or with any location accessible from global data.
 \ikey{Alias qualifiers}{alias qualifier} may be declared to indicate when
-memory locations may overlap.
+memory locations may overlap because they have compatible types.
 Normally memory locations that are referenced differently are assumed by the
 L-Language to be different memory locations that do not overlap.
 To specify that two memory locations might overlap, they must
-be given the same alias qualifier.
+be given overlapping alias qualifiers.  Checking code checks for illegal
+overlaps.
 \ikey{Parallel qualifiers}{parallel qualifier} may be declared to
 identify memory locations whose register \underline{and hardware}
 caches are to be flushed by explicit cache flushing statements in the
@@ -1167,6 +1230,8 @@ qualifier, `{\tt unchecked}', which permits access to various
 builtin operations that explicitly or implicitly involve type
 conversion.
 
+
+[TBD: delete this?
 Memory locations can be assigned qualifier expressions that are logical
 combinations of qualifier names and the operators `\verb/|/' and
 `\verb/&/'.  For example, a memory location may be assigned the expression
@@ -1180,7 +1245,7 @@ with qualifier $X$ that are permitted to write the location must be called
 first, before functions without qualifier $X$ are allowed to access the
 location.  Alternatively, `{\tt constant}' can be replaced by `{\tt readonly}',
 which forbids writing the location but does \underline{not} promise that
-other code will not write the location.
+other code will not write the location.]
 
 \ikey{Containing qualifiers}{containing qualifier} specify that a location
 might contain an encoded value, such as a pointer to a collectable location.
@@ -1196,7 +1261,7 @@ to garbage collectable locations, making these values
 traceable permits all such values allocated to the stack to
 be located by the garbage collector.
 
-A single qualifier may be of several types at once.  For example,
+A single qualifier may be of several kinds at once.  For example,
 a qualifier may be collectable, containing, and traceable.
 
 \subsubsection{Lifetime Qualifiers}

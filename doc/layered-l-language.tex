@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 2, 2010
+February 3, 2010
  
 \end{center}
 
@@ -1268,10 +1268,14 @@ a qualifier may be collectable, containing, and traceable.
 \label{LIFETIME-QUALIFIERS}
 
 Lifetime qualifiers determine where pointers to locations can be stored.
-Two lifetime qualifiers are builtin:  `{\tt static}', and `{\tt caller}'.
+Three lifetime qualifiers are builtin:  `{\tt static}', `{\tt stack}',
+and `{\tt caller}'.
 One kind of lifetime qualifier is declarable: collectable qualifiers.
-If no lifetime qualifier is supplied for a location, `{\tt caller}'
-is assumed.
+Checked code can only allocate to static or stack memory, and locations
+allocated by checked code are given the `{\tt static}' or
+`{\tt stack}' qualifier accordingly.
+Locations that are part of a function argument or return value
+are given the `{\tt caller}' lifetime qualifier by default.
 
 \begin{indpar}
 
@@ -1279,15 +1283,21 @@ is assumed.
 the location lives forever.  Locations allocated at load time
 or at program initialization time may be declared static.
 
+\hspace*{-1em}\ttkey{stack}~~~~~Specifies
+the location is in the stack frame of the currently executing
+function or one of its code blocks.  Such locations are precisely known
+to the compiler of the function.
+Addresses to the location cannot be stored in places that will continue
+to exist after the stack frame has been deallocated.
+
 \hspace*{-1em}\ttkey{caller}~~~~~Only
 used in a function $F$'s value or return type to qualify a location
 whose address is passed to the function.  Specifies the function's caller
 must provide the `{\tt caller}' location, but the location need not be
 in a frame, and may be `{\tt static}' or collectible instead.  Asserting
-that such a location is `{\tt caller}' is only a promise by the
-function $F$ not to store the location's address anywhere but in its
-frame or in a `pointer to {\tt caller} location'
-argument to or return value from another function it calls.
+that such a location is `{\tt caller}' is a promise by the
+function $F$ not to store the location's address anywhere that will
+still exist when the function returns.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
@@ -1315,8 +1325,8 @@ int32 function3 ( caller int32 * static * arg1 );
     // reset the pointer to the caller location.  However
     // `return * res1 = value' is legal.
 static int32 * caller *& function5 ( int32 arg1 );
-    // Same as function4 but `return value' is legal and sets the
-    // pointer to the statically allocated int32.
+    // Same as function4 but `return value' is legal and stores a
+    // pointer to some statically allocated int32.
 (caller int32 * caller * res1) = function6 ( int32 arg1 );
     // The result behaves like an extra argument passed to function6
     // which has the same properties as arg1 in function2.
@@ -1326,22 +1336,32 @@ caller int32 * static * function7 ( int32 arg1 );
     // function7 which has the same properties as arg1 in function3.
 \end{verbatim}\end{indpar}
 
-The `{\tt caller}' lifetime qualifier is implied by the `{\tt stack}'
-cache qualifier (see below).  The `{\tt caller}' lifetime qualifier
-is the default lifetime qualifier for any location that has no
+The `{\tt caller}' lifetime qualifier is the default
+lifetime qualifier for any argument or return value location that has no
 lifetime qualifier.  Thus in the above example the `{\tt caller}'
 qualifiers could have been omitted.
+
+The `{\tt caller}' lifetime qualifier may \underline{not} be used
+except in function argument and return value declarations.
 
 \hspace*{-1em}\ikey{Collectable Qualifiers}%
 {collectable qualifier}~~~~~Collectable
 qualifiers are declared by the programmer and are used to tag
 memory locations that can be garbage collected.
 
-Addresses of collectable locations are like addresses of `{\tt caller}'
-locations, and may only be written to stack frames.  An exception
-to this rule
-is that functions whose bodies are given the collectable qualifier may write
-such addresses to any otherwise legal location.
+Addresses of collectable locations may only be written by checked
+code into stack locations
+that are declared to be collectable locations with the same collectible
+qualifier.  Such locations can be generated in the stack by checked
+code to hold addresses temporarily, or may be explicitly allocated
+to the stack.  Often addresses of collectable locations are made
+traceable so the garbage collector can find them in the stack:
+see \secref{TRACEABLE-QUALIFIERS}.
+
+Functions whose bodies are given a collectable qualifier may write
+addresses to locations with this qualifier addresses to non-stack
+locations declared as containing an address to a location with
+the same collectable qualifier.
 These functions generally have to perform
 other operations related to garbage collection, such as
 maintaining reference counts or garbage collection flags
@@ -1369,7 +1389,7 @@ are cached in registers under the control of software, and not hardware.
 Unfortunately this makes things very difficult for the compiler
 (the ultimate fix is a radical change in computer architecture).
 
-Two caching qualifiers are builtin: `{\tt constant}' and `{\tt stack}.
+Two caching qualifiers are builtin: `{\tt constant}' and `{\tt unique}.
 Two kinds are declarable: alias qualifiers and parallel qualifiers.
 
 \begin{indpar}
@@ -1393,13 +1413,22 @@ int32 function3 ( stack *& arg1 );
 . . . . . . . . . .
 constant int32 value1 = 5;
    // Permitted:
-   //   stack int32 *& .assign. ( 5 ) is called.
-value1 = 10; 
-   // Erroneous:
-   //   stack constant int32 *& .assign. ( 10 ) is called.
-function1 ( value1 );  // Permitted; arg1 constant.
-function2 ( value1 );  // Permitted; arg1 readonly.
-function3 ( value1 );  // Erroneous; arg1 NOT constant or readonly.
+   //   caller int32 *& .assign. ( 5 ) is called.
+... my_function ( ... )
+{
+    value1 = 10; 
+       // Erroneous:
+       //   stack constant int32 *& .assign. ( 10 ) is called.
+    function1 ( value1 );  // Permitted; arg1 constant.
+    function2 ( value1 );  // Permitted; arg1 readonly.
+    function3 ( value1 );  // Erroneous; arg1 NOT constant
+                           // or readonly.
+    int32 value2 = 15;
+    function1 ( value2 );  // Erroneous.  Function1 might make
+                           // a long term cache of value2 which
+                           // might then be changed.
+    . . . . . . . . . .
+}
 \end{verbatim}\end{indpar}
 
 Note that the `{\tt constant}' qualifier in an argument type is a promise
@@ -1417,26 +1446,26 @@ The `{\tt constant}' qualifier obeys the following special rules:
 function as the result location in the initializer statement
 of the location.
 \item
-`{\tt constant}' is the default cache qualifier for function parameters
-that are passed by value and not by reference.
+`{\tt constant}' is the default cache qualifier for locations of
+function arguments that are passed by value and not by reference.
 \end{enumerate}
 
-\hspace*{-1em}\ttkey{stack}~~~~~The memory location is in the stack of
-the current thread.
+\hspace*{-1em}\ttkey{unique}~~~~~The memory location does not overlap
+any other memory location passed to a function as an argument,
+return value location, or global location.
 
-A `{\tt stack}' memory location may be cached in a register.
+TBD
+
+A `{\tt unique}' memory location may be cached in a register.
 This cache must be flushed when an out-of-line function is called
 only if the address of the location is passed to the out-of-line
-function.
+function and the location is not readonly to the function.
 
-A `{\tt stack}' cache qualifier implies a `{\tt caller}' lifetime
-qualifier and is incompatible with other lifetime qualifiers.
-Note, however, that `{\tt static}' locations can also be type-recast
-as `{\tt caller}' locations, so a location known merely to be
-a `{\tt caller}' location might be passed to a function via
-addresses in static locations instead of by arguments, whereas
-a location known to be `{\tt stack}' can only be passed by addresses
-in arguments.
+However, if a `{\tt unique}' memory location is addressed via global
+memory, it may not be passed as a function argument or return result,
+as it will not be unique to the function into which it is passed,
+since it can be found through either the argument or return result or
+through global memory.
 
 \hspace*{-1em}\ikey{Alias Qualifiers}%
 {alias qualifier}~~~~~Alias
@@ -1498,6 +1527,62 @@ arguments that are not supposed to be aliased are in fact aliased.
 
 Aliasing is checked as necessary by the compiler and at run time.
 The run-time checks can be suppressed by compilation switches.
+
+Simple alias qualifiers are just names.  Complex alias qualifiers
+contain a \key{type overlap expression} as follows:
+
+\begin{indpar}
+{\em complex-alias-qualifier} ::=
+    {\em alias-name} \verb|(| {\em type-overlap-expression} \verb|)| \\[1ex]
+{\em type-overlap-expression} ::=
+    {\em type-inclusion-sequence}
+    \{ \verb/|/ {\em type-inclusion-sequence} \}$^\star$ \\[1ex]
+{\em type-inclusion-sequence} ::=
+    {\em type-factor}
+    \{ \verb/<</ {\em type-specifier} \}$^\star$ \\[1ex]
+{\em type-factor} ::= {\em type}
+                  $|$ \verb|(| {\em type-overlap-expression} \verb|)|
+\end{indpar}
+
+A cannonical {\em type-overlap-expression} is one with no parenthesized
+{\em type-factor}, and any {\em type-overlap-expression} can be made
+cannonical by the rewrite:
+
+\begin{indpar}
+\ldots \verb|<<| \verb|(| $t$ \verb/|/ \ldots \verb|)| \verb|<<| \ldots
+~~$\Longrightarrow$~~
+\ldots \verb|<<| $t$ \verb|<<| \ldots \verb/|/
+\ldots \verb|<<| \verb|(| \ldots \verb|)| \verb|<<| \ldots
+\end{indpar}
+
+A {\em type} $t$ represents any data block of the given type.
+Two types overlap if they are equal as types.
+
+A {\em type-inclusion-sequence} $t_1$\verb|<<|$t_2$ represents a data
+block of type $t_1$ included in a data block of type $t_2$.
+Two canonical {\em type-inclusion-sequences} overlap if there is an
+order preserving map of either into the other, where \verb|<<| is the
+order relation.  For example,
+\begin{center}
+\verb|t1<<t3| overlaps \verb|t0<<t1<<t2<<t3<<t4|, \\
+\verb|t1<<t3| does not overlap \verb|t0<<t1<<t2<<t4|. \\
+\end{center}
+
+A {\em type-overlap-expression} $t_1$\verb/|/$t_2$ represents a data
+block of either type $t_1$ or type $t_2$.
+Two canonical {\em type-overlap-expressions} overlap if any
+{\em type-inclusion-sequence} of the first overlaps any
+{\em type-inclusion-sequence} of the second.  For example,
+\begin{center}
+\verb/t1<<t3|t4<<t5/ overlaps \verb/t1<<t5|t1<<t2<<t3<<t4/, \\
+\verb/t1<<t3|t4<<t5/ does not overlap \verb/t1<<t5|t1<<t2<<t4/, \\
+\end{center}
+
+Two alias qualifiers overlap if both have the same alias qualifier name
+and either one is simple (not-complex), or the two qualifier
+{\em type-overlap-expressions} overlap.
+
+TBD: include fixed integer offsets as part of inclusion?
 
 \hspace*{-1em}\ikey{Parallel Qualifiers}%
 {parallel qualifier}~~~~~Parallel

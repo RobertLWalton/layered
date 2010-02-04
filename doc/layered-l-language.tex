@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 3, 2010
+February 4, 2010
  
 \end{center}
 
@@ -1450,22 +1450,18 @@ of the location.
 function arguments that are passed by value and not by reference.
 \end{enumerate}
 
-\hspace*{-1em}\ttkey{unique}~~~~~The memory location does not overlap
-any other memory location passed to a function as an argument,
-return value location, or global location.
-
-TBD
+\hspace*{-1em}\ttkey{unique}~~~~~The memory location is in a stack
+frame of the currently executing function, or is in the stack
+frame of the current thread and was passed to the currently executing
+function as an argument or return value location, and, furthermore,
+the location
+does not overlap any other location passed in this way or accessible
+from global memory.
 
 A `{\tt unique}' memory location may be cached in a register.
 This cache must be flushed when an out-of-line function is called
 only if the address of the location is passed to the out-of-line
-function and the location is not readonly to the function.
-
-However, if a `{\tt unique}' memory location is addressed via global
-memory, it may not be passed as a function argument or return result,
-as it will not be unique to the function into which it is passed,
-since it can be found through either the argument or return result or
-through global memory.
+function.
 
 \hspace*{-1em}\ikey{Alias Qualifiers}%
 {alias qualifier}~~~~~Alias

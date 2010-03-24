@@ -1188,14 +1188,13 @@ Also, what about scaling, offsetting, and clipping array values.  I.e.,
 \label{QUALIFIERS}
 
 The L-Language controls the way memory is accessed via \skey{qualifier}s.
-A qualifier has a name that is an identifier with optional type parameters,
-just as a function has a name that is an identifier with optional
-type parameters.  The type parameter part of the name can be useful
-in applications where only certain functions are allowed to write
-a datum of a particular type, or where languages are being compiled that
-wish to enforce the rule that only data of the same type can be aliased.
+A qualifier is either a qualifier name followed by optional
+parameters in parentheses, or is a parentheses surrounded
+qualifier expression.
+Qualifier parameters may be expressions written
+in a sublanguage special to the type of qualifier.
 
-Qualifiers are applied to locations of memory.  For example,
+Qualifiers may be applied to locations of memory.  For example,
 the following declarations apply the qualifier {\tt Q}
 to various memory locations:
 \begin{indpar}[0.5em]\begin{verbatim}

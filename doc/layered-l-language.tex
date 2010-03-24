@@ -384,8 +384,8 @@ A reasonable assumption for 64-bit addresses is that only the low
 order 48-bits of the direct address are actually used.  This assumption can
 be used to put other information in the high order 16 bits
 of a 64-bit number containing a direct address.  For example, an address
-can be embedded in a 64-bit floating point NaN.  The Layered Languages do
-\underline{not} depend upon this assumption, but do provide a builtin function
+can be embedded in a 64-bit floating point NaN.  The L-Language does
+\underline{not} depend upon this assumption, but does provide a builtin function
 that takes as input a 64-bit integer and two small integers, $L$ and $S$,
 and returns a 64-bit direct address containing
 the byte address equal to the low order $L$ bits of the input integer
@@ -430,7 +430,7 @@ of the non-address type, where there are $N$ direct addresses in all.
 If there are no {\tt \&}'s, the variable name references the first of
 these direct addresses, and the variable name with $M$ {\tt *}'s in
 front of it references the $M+1$'st of the addresses, or the non-address
-number of $M=N$.  If instead there are $M$ {\tt \&}'s in the declaration,
+number if $M=N$.  If instead there are $M$ {\tt \&}'s in the declaration,
 $M\leq N$,
 the variable name references the $M+1$'st direct address, or the non-address
 number if $M=N$, and to get a previous direct address one must put a
@@ -470,24 +470,24 @@ distinct
 addresses is said to be \key{shared}, and a byte with just one address is
 \key{unshared}.
 
-A \mkey{block}{of RAM} of RAM is a sequence of bytes with
+A \key{RAM block}\index{block!of RAM} is a sequence of RAM bytes with
 consecutively increasing addresses.
 The \mkey{origin}{of block} of the block is the first address,
 and the \mkey{length}{of block} of the block is the number of bytes.
 
-A block is \mkey{allocated}{block}
+A RAM block is \mkey{allocated}{block}
 if the addresses of all its bytes are allocated,
 and is \mkey{deallocated}{block} if the addresses of all of its bytes
 are deallocated.
-A block is \mkey{unshared}{block} if all its bytes are unshared.
-A block is \mkey{shared}{block} if
+A RAM block is \mkey{unshared}{block} if all its bytes are unshared.
+A RAM block is \mkey{shared}{block} if
 it is one of a set of several blocks (sequences of consecutive addresses)
 such that the $n$'th byte of each block in the set is the same.
-Note that a block can be neither allocated or deallocated or
+Note that a RAM block can be neither allocated or deallocated or
 neither shared nor unshared; i.e., some of the block's bytes may be
 allocated and some deallocated, or some may be shared and some unshared.
 
-The address space is divided into \skey{page}s, which are blocks that
+The address space is divided into \skey{page}s, which are RAM blocks that
 have an implementation determined length that is a power of two,
 e.g., 4096 byte pages, and an address that is an exact multiple of
 this length.  There
@@ -498,17 +498,19 @@ two pages be shared (map to the same bytes of RAM).
 
 Pages are the units of allocation and sharing.  Each page of the
 address space is either allocated or deallocated, and each page is
-either shared or unshared.  The only way for an abitrary block to
+either shared or unshared.  The only way for an abitrary RAM block to
 have allocated bytes is to overlap an allocated page, and similarly
 for deallocated bytes, shared bytes, and unshared bytes.
 
 A \key{segment} is a contiguous sequence of pages all of which have
 the same allocation and sharing status.
 
-The builtin blocks in L-Language are frame blocks (\pagref{FRAME-BLOCKS}),
-code blocks(\pagref{CODE-BLOCKS}), numbers, and segments.  All non-segment
-blocks are contained within segments.  User defined blocks can be 
-contained within segments.
+The builtin RAM blocks in L-Language are link blocks,
+frame blocks (\pagref{CODE-AND-FRAME-BLOCKS}),
+code blocks(\pagref{CODE-AND-FRAME-BLOCKS}), numbers, and segments.
+All non-segment
+blocks are contained within segments.  User defined (i.e., non-builtin)
+blocks can be contained within segments.
 
 User defined block data types may be declared by declarations of the form
 \begin{center}
@@ -580,7 +582,7 @@ either before or after the required bytes.
 
 Note that if the {\em offset} is negative, the block address does not
 address a required byte, and may not address any block byte.  Similarly
-if the {\em offset} is greater than the block {\em length}.
+if the {\em offset} is equal to or greater than the block {\em length}.
 
 
 Blocks contain numbers (including direct addresses) and subblocks.
@@ -602,7 +604,7 @@ x.member4 = -0.01 * x.member3;
 x.member5 = & x;
 \end{verbatim}\end{indpar}
 
-Here $x${\tt @}$y$ is an operation that takes the byte address of
+Here $x${\tt @}$y$ is an unchecked operation that takes the byte address of
 $x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
 returns it as a value of type `{\tt *\& void}'.  In an
 {\tt unchecked} function the {\tt void} type can be implicitly converted to
@@ -617,6 +619,42 @@ uns16 *&   .member1 ( *& type1 m ) unchecked @= 0;
 \end{verbatim}\end{indpar}
 is representative.  This is described in \TBDref{TBD}.
 
+\subsection{Code and Frame Blocks}
+\label{CODE-AND-FRAME-BLOCKS}
+
+A \key{code block} is a sequence of executable program statements
+and code subblocks.  Some code blocks are nested inside other
+code blocks, and some are not.
+
+A function is a code block whose execution is initiated by a
+call statement.  The execution of the code block containing
+the call statement is interrupted in order to execute the function
+code block.  When the call returns, the interrupted execution
+resumes.
+
+Code block executions are grouped into threads.  At any time, only one code
+block at a time may be executing statements within a given thread.
+
+When a code block begins executing, a \key{frame}
+is allocated to the \mkey{stack}{of thread} of the thread containing
+the code block execution.  This frame is a RAM block that holds
+data for the code block execution.  Thus there is a
+1-1 correspondence between code block executions and frame blocks.
+The frame block size can change during the code block execution.
+
+A thread stack is a RAM block, and a frame is a
+RAM subblock of the stack of
+the thread that contains the code block execution associated with
+the frame.  During the code block execution the end of this frame
+is the end of the thread stack, and it is this end which can increase
+or decrease thereby changing the size of both the stack and the frame.
+
+Code blocks are sequences of lexemes, and are \underline{not} RAM blocks.
+Associated with each code block is a \key{code RAM block} which is
+the code block translated into machine code.  The code RAM block of
+a code subblock need not be part of the code RAM block of the containing
+code block, but must be associated with the latter.
+
 \subsection{Tuples}
 \label{TUPLES}
 
@@ -628,34 +666,47 @@ return values from functions.  A call to a function involves
 two tuples, one holding the input arguments and one holding the
 output arguments.
 
+It is also possible for one code block to transfer to another.
+This is like a call in which the first code block execution
+terminates just as the second code block execution begins.
+A tuple can be transferred along with control.
+
 [TBD: what is the difference between input and output?]
 
 TBD: flattening??
 
-\subsection{Memories}
-\label{MEMORIES}
+\subsection{Block Types}
+\label{BLOCK-TYPES}
 
-There are three basic kinds of memories: static memories,
-stack memories, and heap memories.  Each of these memories
-consists of disjoint blocks (which in turn can contain
-subblocks).
+There are three basic kinds of blocks: static blocks,
+stack blocks, and heap blocks.
 
-Blocks allocated to \ikey{static memories}{static memory} 
-are never deallocated.
+\ikey{Static blocks}{static block}
+are never deallocated or relocated.  They can be \skey{link block}s that
+are allocated when a program is loaded, or they can be
+user allocated blocks that are never deallocated or relocated.
 
-Blocks allocated to \ikey{stack memories}{stack memory} 
-are allocated during the execution of a block of code and
-deallocated when the block terminates.  Each thread
-has an associated stack memory to which blocks executed
-by the thread allocate memory locations.
+\ikey{Stack blocks}{stack block}
+are allocated to thread stacks.  Frames
+(\pagref{CODE-AND-FRAME-BLOCKS}) are stack blocks.
+Stack blocks are allocated by a code block execution, and cannot
+be deallocated until the code block execution terminates.
+In some run-time systems frame blocks may be relocated.
 
-Blocks allocated to \ikey{heap memories}{heap memory} 
-are garbage collected.  For each heap there is a list of
-static memory locations that might hold pointers into
-blocks in the heap.  And for each heap and each stack
-memory there is a separate list of stack memory locations
+\ikey{Heap blocks}{heap block}
+are user allocated blocks that may be deallocated or relocated.
+Usually they are garbage collectable.
+
+All the heap blocks that are garbage collectable by the
+same garbage collection algorithm are grouped together into
+a `\key{heap}'.
+For each heap there is a list of
+static block locations that might hold pointers into
+blocks in the heap.  And for each heap and each thread stack
+there is a separate list of stack block locations
 that might hold pointers into blocks in the heap.
 
+Code RAM blocks may be static, stack, or heap blocks.
 
 \subsection{Arrays}
 \label{ARRAYS}
@@ -742,7 +793,7 @@ $array${\tt .lower\_bound[1]} $\leq$ $i_1$ $\leq$ $array${\tt .upper\_bound[1]}
 \\
 \ldots\ldots
 \\
-$array${\tt .lower\_bound[}$n-1${\tt 1]}
+$array${\tt .lower\_bound[}$n-1${\tt ]}
     $\leq$ $i_{n-1}$ $\leq$ $array${\tt .upper\_bound[}$n-1${\tt ]}
 \end{tabular}
 
@@ -757,7 +808,7 @@ inheritable qualifiers are $Q$ are
 
 \begin{list}{}{}
 
-\item[\ttdkey{first}] Type: `$Q$ $X$ {\tt *\&}'.
+\item[\ttdkey{first}] Type: `$Q$ $T$ {\tt *\&}'.
 The first element of the array,
 that is, the lowest addressed array element that can be accessed
 using subscripts within the range indicated by the subscript bounds.
@@ -767,17 +818,27 @@ upper bound is not at least as great as the corresponding lower bound).
 
 \item[\ttdkey{length}] Type: `{\tt unsptr}'.
 The total number of elements in the array.
-The last used element of the array has address
+The last used element of the array, namely
 \begin{center}
-$array${\tt .first} + ( $array${\tt .length} - 1 ) * {\em element-size}
+{\tt (} $Q$ $T$ {\tt *\&)}
+    $A${\tt .first @ (} $A${\tt .length - 1 ) * }{\em element-size}
 \end{center}
 
-{\tt 0} if the array has no accessible elements.
+(This is an unchecked expression that could be written to access the
+last array element).
+`\verb|& |$A$\verb|.last|' is {\tt NULL} if there are no
+accessible array elements.
 
-\item[\ttdkey{base}] Type: `{\tt noaccess} $X$ {\tt *}'.
+\item[\ttdkey{base}] Type:
+`{\tt noaccess} $T$ {\tt * (unchecked || readonly) * \&}'.
 The address of the {\tt [0,0,}\ldots{\tt ,0]}
 element of the array.  This may not actually be inside the array,
 as {\tt 0} subscripts may not be within bounds.
+
+It is possible for unchecked code
+to store into the {\tt .base} in order to relocate
+the array.  When an array is passed to or returned from a function, it is
+actually the {\tt .base} that is passed or returned.
 
 \item[\ttdkey{step}{$[i]$}]
 Type: any integer type.
@@ -936,26 +997,41 @@ array parameter variables and reconfigure the array: e.g., the
 array may be expanded.  An example is:
 
 \begin{indpar}\begin{verbatim}
-deftype myarray (16,8);
-readonly uns64 *& .n ( *& myarray @ a ) unchecked = a@0;
-float64 (*&b) [1 .. a.n] .void ( *& myarray a ) unchecked = a@8;
+// Implement myarray:
+
+deftype myarray (32,8);
+readonly unsptr *& .n ( *& myarray @ a ) unchecked = a@0;
+readonly unsptr *& .max_n ( *& myarray @ a ) unchecked = a@8;
+readonly unsptr *& .inc_max ( *& myarray @ a ) unchecked = a@16;
+float64 (readonly *&b) [1 .. a.n] .void ( *& myarray a )
+    unchecked = a@24;
 myarray *& .constructor.() unchecked
 {
     a.n = 0;
+    a.max_n = 0;
+    a.inc_max = 30;
     a.void.base = NULL;
 }
 void push ( *& myarray a, float64 value ) unchecked
 {
-    uns64 n = a.n;
-    float64 * ap = malloc ( sizeof ( float64 ) * ( n+1 ) );
-    if ( a.void != NULL )
-        memcpy ( ap, a.void.base,
-                 n * sizeof ( float64 ) );
-    mfree ( a.void.base );
-    a.void.base = ap;
+    unsptr n = a.n;
+    if ( n >= a.max_n )
+    {
+        a.max_n += a.inc_max;
+        float64 * ap =
+            malloc ( sizeof ( float64 ) * ( max_n ) );
+        if ( a.void != NULL )
+            memcpy ( ap, a.void.base,
+                     n * sizeof ( float64 ) );
+        mfree ( a.void.base );
+        a.void.base = ap;
+    }
     ap[a.n] = value;
     ++ a.n;
+
 }
+
+// Use myarray:
 
 myarray a;
 push ( a, 1.0 );
@@ -972,24 +1048,23 @@ First, {\tt a@8} is of type `{\tt void *\&}' which is
 converted to type `{\tt float (*\&) [1 .. a.n]}' by the
 `{\tt unchecked}' code of the {\tt .void} function.
 
-Second, an array value is just a pointer.  Viewed as the
-element of an object, {\tt a.void} is a pointer.  Here
+Second, an array value is just its {\tt .base}, which is
+just a pointer.  Viewed as the
+element of an object, {\tt a.void} is its {\tt .base} pointer, and just enough
+space to store this pointer must be allocated to it.  Here
 we treat pointers as being 8 byte long values that are
 aligned on 8 byte boundaries, but as 4 byte pointers will
 fit into 8 bytes, the code will work even with 4 byte pointers.
 
-Third, if $Y$ is an array of type `$X$ $Y${\tt [ ... ]}' then
-$Y${\tt .base} is a value of type `{\tt noaccess} $X$ {\tt *}'.  If an array
-is being returned, what is actually returned is its {\tt .base}.
-Unchecked code can store a pointer of type `$X$ {\tt *}'
-in $Y${\tt .base}.  The line `{\tt a.void.base = ap;}' above
+Third, unchecked code can store a pointer of type `$T$ {\tt *}'
+into $X${\tt .base}.  The line `{\tt a.void.base = ap;}' above
 does just this.  Unchecked code can also read the base, as in
 the line `{\tt memcpy ( ap, a.void.base, n );}', and implicitly
 convert the base to a pointer to a `{\tt readwrite}' value.  Checked code
 can also read the base, but the value returned will be given
-the type `noaccess $X$ {\tt *}' since base pointers may not
-point at real memory (e.g., given $Y${\tt [1 .. 2]} then
-$Y${\tt .base} points to an unusable location just before
+the type `noaccess $T$ {\tt *}' since base pointers may not
+point at real memory (e.g., given $X${\tt [1 ..~2]} then
+$X${\tt .base} points to an unusable location just before
 the first element).
 
 Fourth, `{\tt unchecked}' code can use a pointer as if it were
@@ -1004,7 +1079,7 @@ result can be disambiguated.  Thus in the above
 `{\tt a.void}' or just `{\tt a}'.  In the code at the end
 after the functions, `{\tt a.void}' is replaced by `{\tt a}'.
 
-Note also that `\verb|float64 (*&b) [1 .. a.n]|' differs from
+Sixth, `\verb|float64 (*&b) [1 .. a.n]|' differs from
 `\verb|float64 *&b [1 .. a.n]|' which is equivalent to
 `\verb|float64 *& (b [1 .. a.n])|'.  The first subexpression
 means that the value returned is a pointer to the location holding
@@ -1013,6 +1088,15 @@ The second subexpression means that the value returned is the base
 of an array whose elements are pointers to `{\tt float64}' values
 (and {\tt b[i]} refers to the `{\tt float64}' value pointed at by the
 array element indexed by {\tt i}).
+In the expression `\verb|float64| \verb|(readonly *&b)| \verb|[1 .. a.n]|'
+it is the array {\tt .base} that is read-only, not the array elements.
+
+Seventh, the code above contains both an implementation of
+{\tt myarray} and a use of {\tt myarray}.  We remind the reader that
+the implementation is intended to be written by macros which are called
+by the end user and which ensure that
+the unchecked code generated is in fact type-safe, while the code that
+uses {\tt myarray} is intended to be written by the end user.
 
 \subsubsection{Copying Arrays}
 \label{COPYING-ARRAYS}
@@ -1091,7 +1175,14 @@ Here {\tt y} is a 2-dimensional array overlayed on the vector {\tt x},
 
 [TBD: is there any way of having a non-linear view?  The problem
 is passing arrays as arguments and results of functions that are
-not inlined.]
+not inlined.
+
+Also, what about scaling, offsetting, and clipping array values.  I.e.,
+\begin{center}
+\tt x[i,j] = max ( x.lower, min ( x.upper, y[i,j] * x.scale + x.offset ) )
+\end{center}
+]
+
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}
@@ -1808,13 +1899,6 @@ where $0\leq i_n < \mbox{\em dimension-size}_n$ for $1\leq n \leq N$
 For a chained memory channel there are a fixed set of instructions
 that tell how to compute the address of a block from the contents
 of adjacent blocks.
-
-
-\section{Frame Blocks}
-\label{FRAME-BLOCKS}
-
-\section{Code Blocks}
-\label{CODE-BLOCKS}
 
 \section{To Do}
 

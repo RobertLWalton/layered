@@ -225,6 +225,12 @@
 	 \item}%
 	{\end{list}}
 
+\newenvironment{itemlist}[1][0.5in]%
+	{\begin{list}{}{\setlength{\labelwidth}{#1}%
+	                \setlength{\leftmargin}{#1}%
+		        \addtolength{\leftmargin}{\labelsep}}}%
+	{\end{list}}
+
 \begin{document}
         
 \begin{center}
@@ -239,7 +245,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 10, 2007
+March 27, 2010
  
 \end{center}
 
@@ -289,18 +295,7 @@ character string: e.g., `{\tt hello}', `{\tt +}', `{\tt ;}',
 
 The lexical scanner is written in the H-Language and can be
 replaced.  This section describes the standard scanner which
-is C/C++ compatible and is driven by the following lexical atom tables:
-
-\begin{center}
-\begin{tabular}{l}
-lexeme atom table \\
-identifier atom tables \\
-number atom tables \\
-string atom tables \\
-comment atom tables \\
-whitespace atom tables \\
-\end{tabular}
-\end{center}
+is C/C++ compatible and is driven by the lexical atom tables.
 
 The (standard) scanner reads left to right, and at each point
 identifies the next lexical atom in the text,
@@ -309,60 +304,147 @@ of characters explicitly listed in one of the \skey{lexical atom table}s.
 If there are several possibilities, the longest is chosen.
 To identify atoms, the scanner looks in one of the atom tables;
 which table depends on the state of the scanner.  The table entry
-for an atom contains an atom type, which determines subsequent
-actions of the scanner.  The table entry can also contain a
-translation, which is the string of characters the atom represents,
-so that, for example, the translation of the atom `{\tt \BACKSLASH t}'
-can be `the horizontal tab character'.
+for an atom determines subsequent actions of the scanner.
+The atom can be accumulated in a lexeme buffer, discarded, or left
+along while the scanner changes state.
+The atom can be truncated and can be replaced in the lexeme
+buffer by a different character string known as the translation of the
+atom.  The scanner state may be changed, and the current lexeme buffer
+may be ejected as a lexeme, discarded, or announced as an error.
 
 Each lexical atom table has a name consisting of sequence of
-identifiers and quoted strings ending with an identifier.  The table
-name must be `{\tt lexeme}' or must be a \key{lexeme type}, and in the
-latter case the table name is also the type name of any lexemes recognized
-using the table.
+identifiers and quoted strings ending with an identifier.  The table named
+`{\tt lexeme}' is special in that it is the starting table and is the
+table returned to after each lexeme is processed.
 
-More specifically, lexeme type names
-are sequences of identifiers and quoted strings ending with
-a \key{lexeme class} identifier, which is one of:
+The scanner has the following state:
+
+\begin{itemlist}
+\item[\key{scanning type}] The type of lexeme, whitespace, or error string,
+being scanned.  This is the name of the last non-continuation
+atom table to be current.
+
+\item[\key{scanning table}] The name of the current atom table.
+This may be the same as the scanning type or may be a continuation table name.
+\end{itemlist}
+
+Atom tables may have the following modes:
 
 \begin{center}
-\begin{tabular}{l}
-\tt separator \\
-\tt operator \\
-\tt identifier \\
-\tt string \\
-\tt comment \\
-\tt whitespace \\
-\tt error \\
+\begin{tabular}{rcl}
+\emkey{lexical-atom-table-mode}
+	& ::= & {\em lexical-atom-table-class} $|$ {\tt continuation} \\
+\emkey{lexical-atom-table-class} & ::= &
+		{\tt master} $|$ {\tt lexeme} $|$ {\tt whitespace} $|$
+		{\tt error} \\
 \end{tabular}
-\end{center}
+\end{center}%
+\label{LEXICAL-ATOM-TABLE-MODE}
 
-There are no actual lexemes of classes {\tt comment}, {\tt whitespace},
-and {\tt error}; strings that might be lexemes of these types are
-discarded.
 
-For example, the standard lexical atom table for an identifier 
-is named `{\tt identifier}', and the
-lexical atom table for a `{\tt /* */}' style C comment is named
-`{\tt "/*" comment}'.
+
+\begin{itemlist}[1.4in]
+\item[\bf master]  The atom table uses the next atom to determine the
+type of the next lexeme, without removing the atom from the input.
+
+\item[\bf lexeme] The atom table handles lexemes
+whose type is given by the table's name.  When the lexeme is done,
+the lexeme buffer is emitted as a lexeme with this type.
+
+\item[\bf whitespace] The atom table handles whitespace
+whose type is given by the table's name.  When the whitespace is done,
+the lexeme buffer is discarded.  Comments may be treated as whitespace.
+
+\item[\bf error] The atom table handles error strings
+whose type is given by the table's name.
+When the error string is done,
+the lexeme buffer is announced as an error of the given type.
+
+\item[\bf continuation] The atom table handles a continuation of
+a lexeme, whitespace, or error string.
+
+\end{itemlist}
+
+Then the scanning type is changed, the lexeme buffer
+is emptied according to the class of the previous scanning type.
+If the class is `{\tt lexeme}', the lexeme buffer contents are
+emitted as a lexeme whose type is given by the previous scanning type.
+If the class is `{\tt whitespace}', the lexeme buffer contents are
+simply discarded.
+If the class is `{\tt error}', the lexeme buffer contents are
+announced as an error string whose type is given by the previous scanning type.
+
+Changing the current atom table to a new non-continuation table changes
+the scanning type to the name of the new table.
+Changing the current atom table to a new
+continuation table does not change the scanning type.
 
 The general form of an atom table entry is:
 
 \begin{center}
 \begin{tabular}{rcl}
 \emkey{lexical-atom-table-entry}
-	& ::= & {\em lexical-atom} {\em lexical-atom-type} \\
-	& & ~~~~[{\em lexical-atom-translation}] {\tt ;} \\
+	& ::= & {\em lexical-atom} {\em lexical-atom-operation}$^\star$
+	        {\tt ;} \\
 \emkey{lexical-atom} & ::= & {\em quoted-string} \\
-\emkey{lexical-atom-type}
-	& ::= & {\em lexical-atom-type-qualifier}$^\star$ {\em lexical-class} \\
-\emkey{lexical-atom-type-qualifier}
-	& ::= & {\em quoted-string} $|$ {\em identifier} \\
-\emkey{lexical-class} & ::= & {\em identifier} \\
-\emkey{lexical-atom-translation} & ::= & {\em quoted-string} \\
+\emkey{lexical-atom-operation}
+	& ::= & {\em lexical-atom-disposition} \\
+	& $|$ & {\em lexical-atom-modifier} \\
+	& $|$ & {\em lexical-atom-state-change} \\
+\emkey{lexical-atom-disposition}
+	& ::= & {\tt accept} $|$ {\tt discard} $|$ {\tt keep} \\
+\emkey{lexical-atom-modification}
+	& ::= & {\tt truncate} {\em number-of-characters} \\
+	& $|$ & {\tt translate} {\em quoted-string} \\
+\emkey{lexical-state-change}
+	& ::= & {\tt goto} {\em lexical-atom-table-name} \\
+	& $|$ & {\em lexical-atom-table-class} {\em lexical-atom-table-name} \\
 \end{tabular}
 \end{center}%
 \label{LEXICAL-ATOM-TABLE-ENTRY}
+
+The {\em lexical-atom} is a {\em quoted-string} equal to the atom.
+
+The operations act as follows:
+
+\begin{itemlist}[1.0in]
+
+\item[\key{accept}]  The atom is removed from the input and copied to
+the end of the lexeme buffer.
+
+\item[\key{discard}]  The atom is removed from the input and discarded.
+
+\item[\key{keep}]  The atom is left in the input, and neither discarded
+nor copied.
+
+\item[\key{truncate}]  Before anything else is done, the atom is
+shortened to the given number of UTF-8 encoded UNICODE characters.
+The tail of the atom that is not included in these characters remains
+at the beginning of the input and will be rescanned.
+
+\item[\key{translate}]  After any truncation, but before anything
+further is done, the atom is replaced by the given {\em quoted-string}.
+
+\item[\key{goto}]  After everything else is done the current lexical atom table
+is changed to the named table.
+
+\item[\em lexical-atom-table-class]  This is a shorthand for what could
+otherwise be accomplished by constructing a separate lexical atom table
+of the given name and of `{\tt lexeme}' class that just processed one
+atom.
+
+Before the current atom is processed, the scanning type is changed to
+the given lexical atom table name, which can be thought of as the name
+of a virtual lexical atom table.  This virtual table is taken to have the
+given lexical atom table class as its mode.
+Changing the scanning type empties the lexeme buffer.
+Then the atom is processed.  Then the scanning type is change back to
+its original value, thereby emptying the lexeme buffer again.
+This can be used to emit a one atom lexeme, skip an atom of whitespace,
+or announce a one atom error string, without having to use a separate
+lexical atom table.
+
+\end{itemlist}
 
 The following are some entries in the standard {\tt lexeme} atom table:
 

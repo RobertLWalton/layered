@@ -302,17 +302,18 @@ identifies the next lexical atom in the text,
 where a \key{lexical atom} is a string
 of characters explicitly listed in one of the \skey{lexical atom table}s.
 If there are several possibilities, the longest is chosen.
-To identify atoms, the scanner looks in one of the atom tables;
+To identify atoms, the scanner looks in one of the lexical atom tables;
 which table depends on the state of the scanner.  The table entry
 for an atom determines subsequent actions of the scanner.
 The atom can be accumulated in a lexeme buffer, discarded, or left
-along while the scanner changes state.
+alone while the scanner changes state.
 The atom can be truncated and can be replaced in the lexeme
 buffer by a different character string known as the translation of the
 atom.  The scanner state may be changed, and the current lexeme buffer
 may be ejected as a lexeme, discarded, or announced as an error.
 
-Each lexical atom table has a name consisting of sequence of
+Each lexical atom table has a \mkey{name}{of lexical atom table}
+consisting of sequence of
 identifiers and quoted strings ending with an identifier.  The table named
 `{\tt lexeme}' is special in that it is the starting table and is the
 table returned to after each lexeme is processed.
@@ -322,13 +323,13 @@ The scanner has the following state:
 \begin{itemlist}
 \item[\key{scanning type}] The type of lexeme, whitespace, or error string,
 being scanned.  This is the name of the last non-continuation
-atom table to be current.
+lexical atom table to be current.
 
-\item[\key{scanning table}] The name of the current atom table.
+\item[\key{scanning table}] The name of the current lexical atom table.
 This may be the same as the scanning type or may be a continuation table name.
 \end{itemlist}
 
-Atom tables may have the following modes:
+Lexical atom tables may have the following modes:
 
 \begin{center}
 \begin{tabular}{rcl}
@@ -529,7 +530,7 @@ is currently using.
 This scheme for lexical scanning is intended to give the user
 control over the set of operators, punctuation, characters
 that can appear in identifiers, character representatives in
-quoted strings, etc.  The atom tables are quite verbose, and
+quoted strings, etc.  The lexical atom tables are quite verbose, and
 are usually compiled from a more compact representation.
 
 \subsection{The Lexeme Atom Table}
@@ -694,7 +695,7 @@ The following are the possible lexical atom types in a number atom table:
 \end{tabular}
 \end{indpar}
 
-Some example number atom tables are:
+Some example number lexical atom tables are:
 
 ~~{\tt hex number} atom table (for integers):
 

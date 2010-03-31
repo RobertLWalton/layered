@@ -255,7 +255,7 @@ Here we will give brief overviews of some of the principle issues
 addressed by the L-Language.
 
 
-\subsection{Code Targetting}
+\subsection{Code Targeting}
 
 The L-Language is intended to be a target language for compilers of
 higher level languages.  As such it is optimized first to be an easy to 
@@ -265,7 +265,7 @@ compile into efficient assembly language code.
 The L-Language is similar to the C programming language
 but has additional features intended to give
 more control over compilation and more type safety in the use, but
-not the declation, of data.  The L-Language depends upon its powerful
+not the declaration, of data.  The L-Language depends upon its powerful
 macro facility to allow users to define type safe data declaration
 macros.
 
@@ -281,16 +281,16 @@ code specific to a task must be computed and then optimized.
 \subsection{Data Declaration}
 
 The L-Language supports low level declaration of data and fairly high
-level typesafe optimized usage of declared data.  The L-Language also
+level type safe optimized usage of declared data.  The L-Language also
 supports macros written in the high level H-Language that extends the
 L-Language, permitting very
 capable macros to be written by users to give users high level
-type-safe data declaration facilities taylored to specific kinds of data.
+type-safe data declaration facilities tailored to specific kinds of data.
 
 The thesis here is that a high level data declaration language that is
-typesafe and efficient for all kinds of data is not practical.
+type safe and efficient for all kinds of data is not practical.
 So instead tools are provided to create data declaration sublanguages that are
-typesafe and efficient for more limited kinds of data.
+type safe and efficient for more limited kinds of data.
 
 One way of explaining our approach is to say that we are taking the normal
 division of programming into two layers, \key{system programming}
@@ -498,7 +498,7 @@ two pages be shared (map to the same bytes of RAM).
 
 Pages are the units of allocation and sharing.  Each page of the
 address space is either allocated or deallocated, and each page is
-either shared or unshared.  The only way for an abitrary RAM block to
+either shared or unshared.  The only way for an arbitrary RAM block to
 have allocated bytes is to overlap an allocated page, and similarly
 for deallocated bytes, shared bytes, and unshared bytes.
 
@@ -695,9 +695,9 @@ In some run-time systems frame blocks may be relocated.
 
 \ikey{Heap blocks}{heap block}
 are user allocated blocks that may be deallocated or relocated.
-Usually they are garbage collectable.
+Usually they are garbage collectible.
 
-All the heap blocks that are garbage collectable by the
+All the heap blocks that are garbage collectible by the
 same garbage collection algorithm are grouped together into
 a `\key{heap}'.
 For each heap there is a list of
@@ -956,7 +956,7 @@ void transpose ( float64 array[lb .. ub ++ step1, lb .. ub ++ step2],
 \end{verbatim}\end{indpar}
 
 When an array is passed to a function, the parameters needed to
-describe the array must be expressions computatable from parameters
+describe the array must be expressions computable from parameters
 passed to the function.  When an array is returned by a function,
 the parameters needed to describe the array must be expressions
 computable from parameters either passed to or returned from the
@@ -970,7 +970,7 @@ the function declarations above are:
 \begin{indpar}\begin{verbatim}
 int64 x[1 .. 100];
 . . . compute x . . .
-sort ( x[] );   // length implictly passed.
+sort ( x[] );   // length implicitly passed.
 float y[1 .. 5][1 .. 5];
 . . . compute y . . .
 transpose ( y[] );    // lb, ub, step1, step 2 implicitly passed.
@@ -1132,7 +1132,7 @@ where
 \end{indpar}
 
 Here the bounds are valid subscripts for the given array, and the
-steps are increments in these valid subsecripts.
+steps are increments in these valid subscripts.
 
 For example,
 \begin{indpar}\begin{verbatim}
@@ -1169,7 +1169,7 @@ same_data int32 z[1 .. 7, 1 .. 10] = ([i,j] ===> y[j,i]);
 same_data int32 w[1 .. 6] = ([i] ===> y[i,i+1]);
 \end{verbatim}\end{indpar}
 
-Here {\tt y} is a 2-dimensional array overlayed on the vector {\tt x},
+Here {\tt y} is a 2-dimensional array overlaid on the vector {\tt x},
 {\tt z} is the transpose of {\tt y}, and {\tt w} is a subdiagonal of
 {\tt y}.
 
@@ -1260,7 +1260,7 @@ and {\tt function4} can only be called by functions whose bodies have
 the {\tt Q} qualifier, and in particular these functions can be called
 by {\tt function1} and {\tt function2}.
 
-A qualifier immediately preceeding a \verb|{ }| bracketted code block
+A qualifier immediately preceding a \verb|{ }| bracketed code block
 inside a function applies to the code block.  For example,
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 function3 ()
@@ -1289,8 +1289,8 @@ is in the stack of the current thread.
 The `{\tt caller}' qualifier
 specifies that the location will last at least as long as the caller of
 a function.
-\ikey{Collectable qualifiers}{collectible qualifier} may be declared that
-indicate that the location is garbage collectable and its address needs
+\ikey{Collectible qualifiers}{collectible qualifier} may be declared that
+indicate that the location is garbage collectible and its address needs
 to be protected against collection.
 Generally a code block
 may store the address of a location in the code block's
@@ -1330,7 +1330,7 @@ functions.
 A memory location with protection qualifier $X$ can only be
 accessed by functions whose bodies have qualifier $X$, and
 a function with qualifier $X$ can only be called by functions
-whose bodies have qualifier $X$.  There is one builting protection
+whose bodies have qualifier $X$.  There is one builtin protection
 qualifier, `{\tt unchecked}', which permits access to various
 builtin operations that explicitly or implicitly involve type
 conversion.
@@ -1353,16 +1353,16 @@ which forbids writing the location but does \underline{not} promise that
 other code will not write the location.
 
 \ikey{Containing qualifiers}{containing qualifier} specify that a location
-might contain an encoded value, such as a pointer to a collectable location.
+might contain an encoded value, such as a pointer to a collectible location.
 For example, a value possibly containing an encoded pointer to
-the collectable location will be restricted as if it were a pointer to
-a collectable location.
+the collectible location will be restricted as if it were a pointer to
+a collectible location.
 
 \ikey{Traceable qualifiers}{traceable qualifier} may be applied to
 stack locations.  All stack locations with a particular traceable
 qualifier may be found by code via builtin L-language primitives.
 For example, if values of a particular type may hold pointers
-to garbage collectable locations, making these values
+to garbage collectible locations, making these values
 traceable permits all such values allocated to the stack to
 be located by the garbage collector.
 
@@ -1384,7 +1384,7 @@ See \secref{QUALIFIER-INHERITANCE}.
 Lifetime qualifiers determine where pointers to locations can be stored.
 Three lifetime qualifiers are builtin:  `{\tt static}', `{\tt stack}',
 and `{\tt caller}'.
-One kind of lifetime qualifier is declarable: collectable qualifiers.
+One kind of lifetime qualifier is declarable: collectible qualifiers.
 Checked code can only allocate to static or stack memory, and locations
 allocated by checked code are given the `{\tt static}' or
 `{\tt stack}' qualifier accordingly.
@@ -1458,25 +1458,25 @@ qualifiers could have been omitted.
 The `{\tt caller}' lifetime qualifier may \underline{not} be used
 except in function argument and return value declarations.
 
-\hspace*{-1em}\ikey{Collectable Qualifiers}%
-{collectable qualifier}~~~~~Collectable
+\hspace*{-1em}\ikey{Collectible Qualifiers}%
+{collectible qualifier}~~~~~Collectible
 qualifiers are declared by the programmer and are used to tag
 memory locations that can be garbage collected.
 
-Addresses of collectable locations may only be written by checked
+Addresses of collectible locations may only be written by checked
 code into stack locations
 that are declared to be addresses of
 locations with the same collectible
 qualifier.  Such locations can be generated in the stack by checked
 code to hold addresses temporarily, or may be explicitly allocated
-to the stack.  Often addresses of collectable locations are made
+to the stack.  Often addresses of collectible locations are made
 traceable so the garbage collector can find them in the stack:
 see \secref{TRACEABLE-QUALIFIERS}.
 
-Functions whose bodies are given a collectable qualifier may write
+Functions whose bodies are given a collectible qualifier may write
 addresses to locations with this qualifier to non-stack
 locations declared as containing an address to a location with
-the same collectable qualifier.
+the same collectible qualifier.
 These functions generally have to perform
 other operations related to garbage collection, such as
 maintaining reference counts or garbage collection flags
@@ -1488,12 +1488,12 @@ An address of a location with any lifetime qualifier
 (including the default `{\tt caller}')
 may \underline{not} be re-cast as the address of a location
 with a different lifetime qualifier (here two different
-collectable qualifiers are considered to be different),
+collectible qualifiers are considered to be different),
 with the exception that the address of a location with
-a `{\tt static}', `{\tt stack}', or collectable qualifier
+a `{\tt static}', `{\tt stack}', or collectible qualifier
 \underline{may} be re-cast as the an address of a location with a
 `{\tt caller}' qualifier.  Note that this means that a location
-with collectable qualifier whose address is passed by a caller
+with collectible qualifier whose address is passed by a caller
 to a called function must be protected from garbage collection
 by the caller.
 
@@ -1668,10 +1668,10 @@ contain a \key{type overlap expression} as follows:
                   $|$ \verb|(| {\em type-overlap-expression} \verb|)|
 \end{indpar}
 
-A cannonical {\em type-overlap-expression} is one with no parenthesized
+A canonical {\em type-overlap-expression} is one with no parenthesized
 {\em type-\EOL overlap-\EOL sub\-expres\-sions},
 and any {\em type-\EOL overlap-\EOL expression} can be made
-cannonical by distributing \verb/|/ over \verb|>>| as in
+canonical by distributing \verb/|/ over \verb|>>| as in
 
 \begin{indpar}
 \ldots{} \verb|>>| \verb|(| $e_1$ \verb/|/ $e_2$ \verb/)/ \verb|>>| \ldots{}
@@ -1706,10 +1706,10 @@ For example `\verb|mydata>>subdata1>int|' and `\verb|mydata>>subdata1|'
 overlap but `\verb|mydata>>subdata1>int|' and `\verb|mydata>>subdata2>>int|'
 do not.
 
-Intuitively a cannonical {\em type-overlap-expression} $e_1$\verb/|/$e_2$
+Intuitively a canonical {\em type-overlap-expression} $e_1$\verb/|/$e_2$
 describes a data block that can be described by either of the
 {\em type-inclusion-sequences} $e_1$ or $e_2$.  Formally,
-two cannonical {\em type-overlap-expressions} overlap if only
+two canonical {\em type-overlap-expressions} overlap if only
 {\em type-including-sequence} from the first overlaps any
 {\em type-including-sequence} from the second.
 
@@ -1926,7 +1926,7 @@ When a window is shifted, block descriptors may be computed automatically
 for new window elements, and the referenced blocks may be loaded into
 a cache.  The part of the window for which blocks are loaded into the
 cache in advance of any specific instruction referencing the blocks
-is called the lookahead window, and is a subarray of the full window.
+is called the look ahead window, and is a subarray of the full window.
 
 
 \subsubsection{Linear Memory Channels}

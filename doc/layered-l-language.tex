@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 4, 2010
+March 31, 2010
  
 \end{center}
 
@@ -1224,9 +1224,10 @@ Q type1 x;
 Q type1 * y;
 \end{verbatim}\end{indpar}
 
-Qualifiers may also be applied to functions.  A qualifier after the
+Qualifiers may also be applied to code blocks.  A qualifier after the
 name of the function in a function definition applies to the code in the
-body of a function.  For example, if {\tt Q} is a qualifier,
+body of a function.
+For example, if {\tt Q} is a qualifier,
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 function1 () Q = ... ;
 int32 function2 () Q
@@ -1259,12 +1260,26 @@ and {\tt function4} can only be called by functions whose bodies have
 the {\tt Q} qualifier, and in particular these functions can be called
 by {\tt function1} and {\tt function2}.
 
-There are several kinds of qualifiers.
+A qualifier immediately preceeding a \verb|{ }| bracketted code block
+inside a function applies to the code block.  For example,
+\begin{indpar}[0.5em]\begin{verbatim}
+int32 function3 ()
+{
+   . . .
+   Q {
+       . . . a code block . . .
+   }
+}
+\end{verbatim}\end{indpar}
+applies {\tt Q} to the code block.
+
+There are several kinds of qualifiers.  We summarize these here, and
+give details in following sections.
 
 \ikey{Lifetime qualifiers}{lifetime qualifier}
 specify the lifetime of a memory location.  This in turn controls where
 addresses of the memory location may be stored: the address of a location
-must not be stored by checked code in a place that will exists after the
+must not be stored by checked code in a place that will exist after the
 location ceases to exist.
 
 The `{\tt static}' qualifier specifies that the location
@@ -1277,10 +1292,10 @@ a function.
 \ikey{Collectable qualifiers}{collectible qualifier} may be declared that
 indicate that the location is garbage collectable and its address needs
 to be protected against collection.
-Generally a block of code
+Generally a code block
 may store the address of a location in the code block's
-stack frame as long as the block knows the location will exist until
-the end of the block's execution.  Addresses of static locations can
+stack frame as long as the code block knows the location will exist until
+the end of the code block's execution.  Addresses of static locations can
 be stored anywhere.  Addresses of collectible locations can be stored
 in a block's stack frame if there is reason to believe the locations
 will not be garbage collected while the code block is running.
@@ -1290,12 +1305,12 @@ may be changed, and thence when they may be cached in registers.  The
 `{\tt constant}' qualifier specifies that a location will never be changed,
 and may be cached indefinitely in registers.
 The `{\tt unique}' qualifier specifies that a location has no overlaps
-with other locations that are not known to the currently executing
-function, and, in particular, that a location passed from a caller to
+with other locations, and,
+in particular, that a location passed from a caller to
 a called function does not overlap with any other location so passed
-or with any location accessible from global data.
+or with any location accessible from other data.
 \ikey{Alias qualifiers}{alias qualifier} may be declared to indicate when
-memory locations may overlap because they have compatible types.
+memory locations may overlap.
 Normally memory locations that are referenced differently are assumed by the
 L-Language to be different memory locations that do not overlap.
 To specify that two memory locations might overlap, they must
@@ -1321,11 +1336,11 @@ builtin operations that explicitly or implicitly involve type
 conversion.
 
 
-[TBD: delete this?
 Memory locations can be assigned qualifier expressions that are logical
 combinations of qualifier names and the operators `\verb/|/' and
 `\verb/&/'.  For example, a memory location may be assigned the expression
-`$X$\verb/|constant/' where $X$ is a protection qualifier.  A function body
+`\verb/(/$X$\verb/|constant)/' where $X$ is a protection qualifier.
+A function body
 with qualifier $X$ will be able to access such a memory location to both
 read and write it, but a function body without qualifier $X$ will treat the
 location as having the `\verb|constant|' qualifier, will not be able
@@ -1335,7 +1350,7 @@ with qualifier $X$ that are permitted to write the location must be called
 first, before functions without qualifier $X$ are allowed to access the
 location.  Alternatively, `{\tt constant}' can be replaced by `{\tt readonly}',
 which forbids writing the location but does \underline{not} promise that
-other code will not write the location.]
+other code will not write the location.
 
 \ikey{Containing qualifiers}{containing qualifier} specify that a location
 might contain an encoded value, such as a pointer to a collectable location.
@@ -1352,7 +1367,16 @@ traceable permits all such values allocated to the stack to
 be located by the garbage collector.
 
 A single qualifier may be of several kinds at once.  For example,
-a qualifier may be collectable, containing, and traceable.
+a qualifier may be containing and traceable.
+
+Qualifiers may also be inherited.  For example, in
+\begin{indpar}\begin{verbatim}
+readonly unsptr *& .n ( *& myarray @ a ) unchecked = a@0;
+\end{verbatim}\end{indpar}
+the `\verb|@|' in the argument declaration `\verb|*& myarray @ a|'
+specifies that inheritable qualifiers applied to the argument location
+should become qualifiers of the returned value.
+See \secref{QUALIFIER-INHERITANCE}.
 
 \subsubsection{Lifetime Qualifiers}
 \label{LIFETIME-QUALIFIERS}
@@ -1441,7 +1465,8 @@ memory locations that can be garbage collected.
 
 Addresses of collectable locations may only be written by checked
 code into stack locations
-that are declared to be collectable locations with the same collectible
+that are declared to be addresses of
+locations with the same collectible
 qualifier.  Such locations can be generated in the stack by checked
 code to hold addresses temporarily, or may be explicitly allocated
 to the stack.  Often addresses of collectable locations are made
@@ -1449,7 +1474,7 @@ traceable so the garbage collector can find them in the stack:
 see \secref{TRACEABLE-QUALIFIERS}.
 
 Functions whose bodies are given a collectable qualifier may write
-addresses to locations with this qualifier addresses to non-stack
+addresses to locations with this qualifier to non-stack
 locations declared as containing an address to a location with
 the same collectable qualifier.
 These functions generally have to perform
@@ -1464,10 +1489,13 @@ An address of a location with any lifetime qualifier
 may \underline{not} be re-cast as the address of a location
 with a different lifetime qualifier (here two different
 collectable qualifiers are considered to be different),
-with the exception that
-the address of a location with a `{\tt static}' qualifier
+with the exception that the address of a location with
+a `{\tt static}', `{\tt stack}', or collectable qualifier
 \underline{may} be re-cast as the an address of a location with a
-`{\tt caller}' qualifier.
+`{\tt caller}' qualifier.  Note that this means that a location
+with collectable qualifier whose address is passed by a caller
+to a called function must be protected from garbage collection
+by the caller.
 
 \subsubsection{Caching Qualifiers}
 \label{CACHING-QUALIFIERS}
@@ -1478,6 +1506,16 @@ of the memory location.  Thus memory locations
 are cached in registers under the control of software, and not hardware.
 Unfortunately this makes things very difficult for the compiler
 (the ultimate fix is a radical change in computer architecture).
+
+Memory locations may also be placed in hardware caches.  In hardware
+system with memory shared among multiple central processing units,
+each central processing unit has its own hardware cache that is
+\underline{not} automatically synchronized with shared memory or
+the caches of other central processing units.  Special instructions
+are used to synchronize these hardware caches with shared memory.
+
+Caching qualifiers determine when to invalidate and when to write
+software and hardware caches.
 
 Two caching qualifiers are builtin: `{\tt constant}' and `{\tt unique}.
 Two kinds are declarable: alias qualifiers and parallel qualifiers.
@@ -1625,48 +1663,55 @@ contain a \key{type overlap expression} as follows:
     \{ \verb/|/ {\em type-inclusion-sequence} \}$^\star$ \\[1ex]
 {\em type-inclusion-sequence} ::=
     {\em type-factor}
-    \{ \verb/<</ {\em type-specifier} \}$^\star$ \\[1ex]
+    \{ \verb/>>/ {\em type-factor} \}$^\star$ \\[1ex]
 {\em type-factor} ::= {\em type}
                   $|$ \verb|(| {\em type-overlap-expression} \verb|)|
 \end{indpar}
 
 A cannonical {\em type-overlap-expression} is one with no parenthesized
-{\em type-factor}, and any {\em type-overlap-expression} can be made
-cannonical by the rewrite:
+{\em type-\EOL overlap-\EOL sub\-expres\-sions},
+and any {\em type-\EOL overlap-\EOL expression} can be made
+cannonical by distributing \verb/|/ over \verb|>>| as in
 
 \begin{indpar}
-\ldots \verb|<<| \verb|(| $t$ \verb/|/ \ldots \verb|)| \verb|<<| \ldots
+\ldots{} \verb|>>| \verb|(| $e_1$ \verb/|/ $e_2$ \verb/)/ \verb|>>| \ldots{}
 ~~$\Longrightarrow$~~
-\ldots \verb|<<| $t$ \verb|<<| \ldots \verb/|/
-\ldots \verb|<<| \verb|(| \ldots \verb|)| \verb|<<| \ldots
+\ldots{} \verb|>>| $e_1$ \verb|>>| \ldots{} \verb/|/
+\ldots{} \verb|>>| $e_2$ \verb|>>| \ldots{}
 \end{indpar}
 
-A {\em type} $t$ represents any data block of the given type.
-Two types overlap if they are equal as types.
-
-A {\em type-inclusion-sequence} $t_1$\verb|<<|$t_2$ represents a data
-block of type $t_1$ included in a data block of type $t_2$.
-Two canonical {\em type-inclusion-sequences} overlap if there is an
-order preserving map of either into the other, where \verb|<<| is the
-order relation.  For example,
+A {\em type-inclusion-sequence}
 \begin{center}
-\verb|t1<<t3| overlaps \verb|t0<<t1<<t2<<t3<<t4|, \\
-\verb|t1<<t3| does not overlap \verb|t0<<t1<<t2<<t4|. \\
+$t_1$\verb|>>|$t_2$\verb|>>|$t_3$\verb|>>|\ldots\verb|>>|$t_n$
 \end{center}
+intuitively
+describes a hierarchical data block structure: a date block $b_1$ of type
+$t_1$ contains a subblock $b_2$ of type $t_2$ and this contains a
+subblock $b_3$ of type $t_3$, etc., until we get to the smallest
+data block $b_n$ of type $t_n$ which in turn contains the location
+being qualified.  Furthermore, $b_1$ is allocated
+to the stack memory, to static memory, or to a heap memory,
+and is disjoint from every other data block so allocated
+that has a type incompatible with $t_1$.
+Similarly $b_2$ is a child of $b_1$ in the hierarchical
+containment scheme, and is disjoint from every other child subblock
+of $b_1$ that has a type incompatible with $t_2$.   Etc. through $b_n$
+and $t_n$.
 
-A {\em type-overlap-expression} $t_1$\verb/|/$t_2$ represents a data
-block of either type $t_1$ or type $t_2$.
-Two canonical {\em type-overlap-expressions} overlap if any
-{\em type-inclusion-sequence} of the first overlaps any
-{\em type-inclusion-sequence} of the second.  For example,
-\begin{center}
-\verb/t1<<t3|t4<<t5/ overlaps \verb/t1<<t5|t1<<t2<<t3<<t4/, \\
-\verb/t1<<t3|t4<<t5/ does not overlap \verb/t1<<t5|t1<<t2<<t4/, \\
-\end{center}
+Formally two data types overlap if they are compatible, which means
+that a location of one type may be viewed as having the other type.
+Two {\em type-inclusion-sequences} overlap if one is an initial
+segment of the other, where compatible types are viewed as being equal.
+For example `\verb|mydata>>subdata1>int|' and `\verb|mydata>>subdata1|'
+overlap but `\verb|mydata>>subdata1>int|' and `\verb|mydata>>subdata2>>int|'
+do not.
 
-Two alias qualifiers overlap if both have the same alias qualifier name
-and either one is simple (not-complex), or the two qualifier
-{\em type-overlap-expressions} overlap.
+Intuitively a cannonical {\em type-overlap-expression} $e_1$\verb/|/$e_2$
+describes a data block that can be described by either of the
+{\em type-inclusion-sequences} $e_1$ or $e_2$.  Formally,
+two cannonical {\em type-overlap-expressions} overlap if only
+{\em type-including-sequence} from the first overlaps any
+{\em type-including-sequence} from the second.
 
 TBD: include fixed integer offsets as part of inclusion?
 
@@ -1790,7 +1835,7 @@ the invoking code has or does not have the qualifier.
 Any other qualifier evaluates to true when it is evaluated.
 When this happens the qualifier is asserted for the
 location qualified by the qualifier expression.  Note that evaluation
-may skip over subexpressions and thereby not encounter qualifiers
+may skip over subexpressions and thereby not evaluate qualifiers
 therein.
 \item
 Evaluation of the subexpression $x$\verb/|/$y$ evaluates $x$ first.
@@ -1815,6 +1860,9 @@ $x$\verb/&/$y$\verb/&/$z$ $\equiv$
 
 \subsubsection{Traceable Qualifiers}
 \label{TRACEABLE-QUALIFIERS}
+
+\subsubsection{Qualifier Inheritance}
+\label{QUALIFIER-INHERITANCE}
 
 
 
@@ -1911,6 +1959,9 @@ Functions.
 
 Threads.
 \label{THREADS}
+
+Function calls should be able to serve as lvalues so
+\verb|x[i]=z| can update gc flags.
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

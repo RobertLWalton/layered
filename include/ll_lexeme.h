@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Tue Apr  6 20:26:02 EDT 2010
+// Date:	Wed Apr  7 03:44:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 00:39:09 $
+//   $Date: 2010/04/07 07:44:33 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents
 //
@@ -121,12 +121,13 @@ namespace ll { namespace lexeme {
     //
     uns32 create_atom_table ( uns8 mode );
 
-    // Create a sorted dispatcher with given maximum
-    // number of breakpoints.  Return the new sorted
+    // Create a dispatcher with given maximum numbers of
+    // breakpoints and types.  Return the new
     // dispatcher's ID.
     //
-    uns32 create_sorted_dispatcher
-	    ( uns32 max_breakpointers );
+    uns32 create_dispatcher
+	    ( uns32 max_breakpointers,
+	      uns32 max_types );
 
     // Create a type table for characters in the range
     // cmin .. cmax.  Return the type table ID.
@@ -136,18 +137,13 @@ namespace ll { namespace lexeme {
 
     // Set type table entries for characters cmin ..
     // cmax to type t.  Return 0 and do nothing if
-    // some of these are already set.  Otherwise
-    // return 1.
+    // some of these are already set of if cmin or
+    // cmax are out of range of the type table.
+    // Otherwise return 1.
     //
     uns32 set_type_table
 	    ( uns32 type_table_ID,
 	      uns32 cmin, uns32 cmax, uns8 t );
-
-    // Create a type dispatcher for types 0 .. tmax.
-    // Return the type dispatcher ID.
-    //
-    uns32 create_type_dispatcher
-	    ( uns32 tmax );
 
     // Instruction opcodes:
     //
@@ -168,12 +164,6 @@ namespace ll { namespace lexeme {
     // translation after truncation and before anything
     // else is done.
     //
-    // Return 1 if there are no errors.  Return 0 if
-    // the instruction cannot be attached because
-    // an instruction or type dispatcher is already
-    // attached to some of the characters in the
-    // cmin .. cmax range.
-    //
     uns32 create_instruction
 	    ( uns8 operation,
 	      uns32 goto_atom_table = 0,
@@ -181,14 +171,23 @@ namespace ll { namespace lexeme {
 	      uns32 * translation = NULL,
 	      uns32 translation_size = 0 );
 
-    // Attach a sorted dispatcher to an atom table,
-    // or a type table to a sorted dispatcher, or
-    // a type dispatcher to a sorted dispatcher,
-    // or an instruction to a type dispatcher,
-    // or a sorted dispatcher to a type dispatcher.
+    // Attach a dispatcher to an atom table, or a type
+    // table to a dispatcher.  Return 1 if no error.
+    // Return 0 and do nothing if there is a conflict
+    // with the desired attachment.
     //
-    void attach
-    	    ( uns32 attach_to_item_ID,
+    uns32 attach
+    	    ( uns32 item_being_attached_to_ID,
     	      uns32 attached_item_ID );
+
+    // Attach a dispatcher or an instruction to type t
+    // of a dispatcher.  Return 1 if no error.
+    // Return 0 and do nothing if there is a conflict
+    // with the desired attachment.
+    //
+    uns32 attach
+    	    ( uns32 item_being_attached_to_ID,
+    	      uns32 attached_item_ID,
+	      uns32 t );
 
 # endif // LL_LEXEME_H

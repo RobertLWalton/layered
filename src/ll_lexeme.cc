@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr  7 06:16:00 EDT 2010
+// Date:	Wed Apr  7 07:54:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,15 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 11:11:43 $
+//   $Date: 2010/04/07 17:28:21 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents
 //
 //	Usage and Setup
 //	Data Definitions
-//	Functions
+//	Program Creation
 
 // Usage and Setup
 // ----- --- -----
@@ -39,13 +39,15 @@ uns32 LLLEX::length;
 uns32 LLLEX::max_length;
 uns32 LLLEX::length_increment = 1000;
 
+inline uns32 * & program ( void )
+    { return * LLLEX::program_pointer; }
+
 enum {
     PROGRAM			= 1,
     ATOM_TABLE			= 2,
-    TYPE_TABLE			= 3,
-    SORTED_DISPATCHER		= 4,
-    TYPE_DISPATCHER		= 5,
-    INSTRUCTION			= 6
+    TYPE_MAP			= 3,
+    DISPATCHER			= 4,
+    INSTRUCTION			= 5
 };
 
 struct program_header {
@@ -79,7 +81,7 @@ const uns32 atom_table_header_length = 4;
 // A character c maps to the break element for which
 // cmin <= c <= cmax.  The character is then further
 // mapped to the type given in the break element if that
-// is non-zero, or is mapped by the type table whose
+// is non-zero, or is mapped by the type map whose
 // ID is given in the break element, if that ID is non-
 // zero.
 //
@@ -92,33 +94,37 @@ const uns32 atom_table_header_length = 4;
 //
 struct dispatcher_header {
     uns32 type;
-    uns32 elements;
-    uns32 max_elements;
-    uns32 max_types;
+    uns32 break_elements;
+    uns32 max_break_elements;
+    uns32 max_type;
 };
 const uns32 dispatcher_header_length = 4;
 struct break_element {
     uns32 cmin;
-    uns32 type;
-    uns32 type_table_ID;
+    uns32 type_map_ID;
 };
-const uns32 break_element_length = 3;
+const uns32 break_element_length = 2;
 struct map_element {
     uns32 dispatcher_ID;
     uns32 instruction_ID;
 };
 const uns32 map_element_length = 2;
 
-// A type table is a vector of uns8 elements,
-// such that character c maps to base[c-cmin],
-// where base is the uns8 * pointer to the first
-// byte after the type table header.
+// A type map maps a character range to either
+// a singleton_type is that is non-zero, or to
+// map[c-cmin] otherwise, where may is the uns8 *
+// pointer to the first byte after the type map
+// header.
 //
-struct type_table_header {
+struct type_map_header {
     uns32 type;
-    uns32 cmin, cmax;	// Character range.
+    uns32 cmin, cmax;	    // Character range.
+    uns32 singleton_type;   // If 0 use vector.
 };
-const uns32 type_table_header_length = 3;
+const uns32 type_map_header_length = 4;
+
+// Program Creation
+// ------- --------
 
 static uns32 allocate_to_program ( uns32 needed_size )
 {
@@ -142,8 +148,8 @@ uns32 LLLEX::create_atom_table ( uns8 mode )
         * (atom_table_header *) & program()[ID];
     h.type = ATOM_TABLE;
     h.mode = mode;
-    h.dispatcher = 0;
-    h.instruction = 0;
+    h.dispatcher_ID = 0;
+    h.instruction_ID = 0;
     return ID;
 }
 
@@ -154,6 +160,7 @@ uns32 LLLEX::create_program ( void )
 	    program_length();
     uns32 ID = allocate_to_program
     		   ( program_table_header_length );
+    assert ( ID == LLLEX::header_length );
     program_table_header & h =
         * (program_table_header *) & program()[ID];
     h.type = PROGRAM_TABLE;
@@ -161,335 +168,149 @@ uns32 LLLEX::create_program ( void )
     return h.atom_table;
 }
 
-// Create a sorted dispatcher with the given maximum
-// number of breakpoints and return its ID.
-//
-static uns32 create_sorted_dispatcher
-	( uns32 breakpoints )
+uns32 LLLEX::create_dispatcher
+	( uns32 max_breakpoints,
+	  uns32 max_type )
 {
     uns32 length =
-          sorted_dispatcher_header_length
-	+   sorted_dispatcher_element_length
-	  * ( breakpoints + 1 );
+          dispatcher_header_length
+	+   break_element_length
+	  * ( max_breakpoints + 1 )
+	+   map_element_length
+	  * ( max_type + 1 );
     uns32 ID = allocate_to_program ( length );
-    sorted_dispatcher_header & h =
-        * (sorted_dispatcher_header *)
+    dispatcher_header & h =
+        * (dispatcher_header *)
 	& program()[ID];
-    h.type = SORTED_DISPATCHER;
-    h.elements = 1;
-    h.max_elements = breakpoints + 1;
+    h.type = DISPATCHER;
+    h.break_elements = 1;
+    h.max_break_elements = max_breakpoints + 1;
+    h.max_type = max_type;
+
     memset ( & h + 1, 0,
                sizeof ( uns32 )
 	     * (   length
-	         - sorted_dispatcher_header_length ) );
+	         - dispatcher_header_length ) );
     return ID;
 }
 
-uns32 LLLEX::create_sorted_dispatcher
-	( uns32 atom_table_ID, uns32 breakpoints )
+uns32 LLLEX::create_type_map
+	( uns32 cmin, uns32 cmax, uns8 * map )
 {
-    atom_table_header & ath =
-        * (atom_table_header *)
-	& program()[atom_table_ID];
-    assert ( ath.dispatcher == 0 );
-    ath.dispatcher =
-        create_sorted_dispatcher ( breakpoints );
-    return ath.dispatcher;
+    uns32 length = cmin - cmax + 1;
+    uns32 ID = allocate_to_program
+    	(   type_table_header_length
+	  + ( length + 3 ) / 4 ) );
+    type_map_header & h =
+        * (type_map_header) & program[ID];
+    h.type = TYPE_TABLE;
+    h.cmin = cmin;
+    h.cmax = cmax;
+    h.singleton_type = 0;
+    memcpy ( & h + 1, map, length );
+    return ID;
 }
 
-// Shift the elements of the sorted dispatcher up in
-// memory, beginning with the element at address
-// program()[p] and producing space for n new
-// elements beginning at that address.  Return 1 if
-// this succeeds and 0 if for the dispatcher
-// elements + n > max_elements.
+uns32 LLLEX::create_type_map
+	( uns32 cmin, uns32 cmax, uns8 type )
+{
+    uns32 length = cmin - cmax + 1;
+    uns32 ID = allocate_to_program
+    	( type_table_header_length );
+    type_map_header & h =
+        * (type_map_header) & program[ID];
+    h.type = TYPE_TABLE;
+    h.cmin = cmin;
+    h.cmax = cmax;
+    assert ( type != 0 );
+    h.singleton_type = type;
+    return ID;
+}
+
+// This function is LLLEX::attach for the difficult
+// case where break elements may need to be inserted
+// into the dispatcher.
 //
-static void upshift_sorted_dispatcher
-	( uns32 sorted_dispatcher_ID,
-	  uns32 p, uns32 n )
+static uns32 attach_type_map_to_dispatcher
+	( uns32 dispatcher_ID,
+	  uns32 type_map_ID )
 {
-    sorted_dispatcher_header & h =
-        * (sorted_dispatcher_header *)
-	& program()[sorted_dispatcher_ID];
-    assert ( h.elements + n <= h.max_elements );
-    uns32 endp = sorted_dispatcher_ID
-               + sorted_dispatcher_header_length
-               +   sorted_dispatcher_element_length
-	         * h.elements;
-    memcpy ( & program()
-                 [p + n
-		    * sorted_dispatcher_element_length],
-	     & program()[p],
-	       sizeof ( uns32 )
-	     * ( endp - p ) );
-    return 0;
-}
+    dispatcher_header & dh =
+        * (dispatcher_header *)
+	& program()[dispatcher_ID];
+    assert ( dh.type == DISPATCHER );
+    type_map_header & mh =
+        * (type_map_header *)
+	& program()[type_map_ID];
+    assert ( mh.type == TYPE_MAP );
 
-
-static const char * set_sorted_dispatcher
-	( uns32 sorted_dispatcher_ID,
-	  uns32 cmin, uns32 cmax,
-	  uns32 value_ID )
-{
-    bool value_is_instruction =
-        ( program()[value_ID] == INSTRUCTION );
-
-    sorted_dispatcher_header & h =
-        * (sorted_dispatcher_header *)
-	& program()[sorted_dispatcher_ID];
-    assert ( h.type == SORTED_DISPATCHER );
-    uns32 beginp = sorted_dispatcher_ID
-            + sorted_dispatcher_header_length;
+    uns32 beginp = dispatcher_ID
+                 + dispatcher_header_length;
     uns32 endp = beginp
-               +   sorted_dispatcher_element_length
-	         * h.elements;
+               +   break_element_length
+	         * dh.elements;
     uns32 p = beginp;
     uns32 nextp;
     while ( true )
     {
         nextp =
-	    p + sorted_dispatcher_element_length;
+	    p + break_element_length;
 	if ( nextp >= endp ) break;
-	sorted_dispatcher_element & nexte =
-	    * (sorted_dispatcher_element *)
+	break_element & nexte =
+	    * (break_element *)
 	    & program()[nextp];
-	if ( nexte.cmin > cmin ) break;
+	if ( nexte.cmin > mh.cmin ) break;
 	p = nextp;
     }
-    sorted_dispatcher_element * ep =
-	(sorted_dispatcher_element *)
+
+    bool split_next = nextp == endp ?
+                      mh.cmax != (uns32) -1 :
+		      mh.cmax != nextp->cmin;
+
+    break_element * bep =
+	(break_element *)
 	& program()[p];
-    sorted_dispatcher_element * nextep =
-	(sorted_dispatcher_element *)
+    break_element * nextbep =
+        nextp == endp ? NULL :
+	(break_element *)
 	& program()[nextp];
-    if ( value_is_instruction ?
-	 ep->instruction != 0 :
-	 ep->dispatchers != 0 )
-	return 0;
+
+    if ( bep->type_map_ID != 0 )
+        return 0;
+
+    if ( nextp != endp
+         &&
+	 nextbep.cmin < mh.cmin )
+        return 0;
 
     uns32 n = 2
-    if ( e->cmin == cmin ) -- n;
-    bool split_next = nextp == endp ?
-                      cmax != (uns32) -1 :
-		      cmax != nextp->cmin;
+    if ( bep->cmin == mh.cmin ) -- n;
     if ( ! split_next ) -- n;
-    if ( h.elements + n > h.max_elements )
+    if ( dh.break_elements + n > dh.max_break_elements )
 	return 0;
+
     if ( nextp != endp && n != 0 )
-        upshift_sorted_dispatcher
-	    ( sorted_dispatcher_ID, p, n );
-    if ( ep->cmin < cmin )
+        memmove ( bep + n, bep,
+	          break_element_length * ( endp - p ) );
+    if ( bep->cmin < mp.cmin )
     {
-	nextep->cmin = cmin;
-	nextep->instruction = ep->instruction;
-	nextep->dispatcher  = ep->dispatcher;
-	ep = nextep;
-	nextep =
-	    (sorted_dispatcher_element *)
+	nextbep->cmin = mp.cmin;
+	nextbep->type_map_ID  = 0;
+	bep = nextbep;
+	nextbep =
+	    (break_element *)
 	    & program()
 	    [  nextp
-	     + sorted_dispatcher_element_length];
+	     + break_element_length];
     }
 
     if ( split_next )
     {
-	nextep->cmin = cmax + 1;
-	nextep->instruction = ep->instruction;
-	nextep->dispatcher  = ep->dispatcher;
+	nextbep->cmin = mh.cmax + 1;
+	nextbep->type_map_ID  = 0;
     }
 
-    h.elements += n;
+    dh.break_elements += n;
 
-    if ( value_is_instruction )
-        ep->instruction = value_ID;
-    else
-        ep->dispatcher = value_ID;
+    bep->type_map_id = type_map_id;
 }
-
-
-uns32 LLLEX::new_type_table ( uns32 size )
-{
-    uns32 length = ( size + 3 ) / 4;
-    uns32 ID = allocate_to_program
-    	( length + type_table_header_length );
-    type_table_header & h =
-        * (type_table_header) & program[ID];
-    h.type = TYPE_TABLE;
-    h.length = length;
-    memset ( & h + 1, 4 * length );
-    return ID;
-}
-
-void LLLEX::set_type_table
-     ( uns32 ID, uns32 n1, uns32 n2, uns8 t )
-{
-    type_table_header & h =
-        * (type_table_header) & program[ID];
-    assert ( h.type == TYPE_TABLE );
-    uns8 * p = (uns8 *) ( & h + 1 );
-    while ( n1 <= n2 )
-    {
-        assert ( n1 < h.length );
-	p[n1] = t;
-	++ n1;
-    }
-}
-
-// Ditto but attach to another sorted dispatcher in
-// the range min_character .. max_character.
-//
-uns32 LLLEX::create_sorted_dispatcher
-	( uns32 sorted_dispatcher_ID,
-	  uns32 min_character, uns32 max_character,
-	  uns32 n );
-
-// Ditto but attach to a type dispatcher at type t.
-//
-uns32 LLLEX::create_sorted_dispatcher
-	( uns32 type_dispatcher_ID,
-	  uns8 t, uns32 n );
-
-// Create a type dispatcher and attach it to a
-// sorted dispatcher in the range min_character ..
-// max_character.  The type dispatcher is to permit
-// types in the range 0 .. t-1.  Return new type
-// dispatcher ID.
-//
-uns32 LLLEX::create_type_dispatcher
-	( uns32 sorted_dispatcher_ID,
-	  uns32 min_character, uns32 max_character,
-	  uns32 t );
-
-// Instruction operations:
-//
-enum {
-    ACCEPT		= 1,
-    DISCARD		= 2,
-    KEEP		= 3
-};
-
-// Attach instruction to sorted dispatcher in the
-// range min_character .. max_character.  The
-// instruction has the given operation operation.
-// If it has a non-zero goto_atom_table, that is
-// the atom table changed to by the instruction.
-// If it has a non-zero truncation_size, the
-// atom is truncated to the given number of
-// characters before anything else is done.
-// If the instruction has a non-NULL translation
-// the atom is replaced by the translation after
-// truncation and before anything else is done.
-//
-uns32 LLLEX::create_instruction
-	( uns32 sorted_dispatcher_ID,
-	  uns32 min_character, uns32 max_character,
-	  uns8 operation,
-	  uns32 goto_atom_table = 0,
-	  uns32 truncation_size = 0,
-	  uns32 * translation = NULL,
-	  uns32 translation_size = 0 );
-
-// Ditto but attach to type dispatcher at type t.
-//
-uns32 LLLEX::create_instruction
-	( uns32 type_dispatcher_ID,
-	  uns32 t,
-	  uns8 operation,
-	  uns32 goto_atom_table = 0,
-	  uns32 truncation_size = 0,
-	  uns32 * translation = NULL,
-	  uns32 translation_size = 0 );
-
-
-
-
-
-    // Create a sorted dispatcher with n breakpoints and
-    // attach it to the atom table with the given table
-    // ID.  Return new sorted dispatcher ID.
-    //
-    uns32 create_sorted_dispatcher
-	    ( uns32 atom_table_ID, uns32 n );
-
-    // Ditto but attach to another sorted dispatcher in
-    // the range cmin .. cmax.
-    //
-    uns32 create_sorted_dispatcher
-	    ( uns32 sorted_dispatcher_ID,
-	      uns32 cmin, uns32 cmax,
-	      uns32 n );
-
-    // Ditto but attach to a type dispatcher at type t.
-    //
-    uns32 create_sorted_dispatcher
-	    ( uns32 type_dispatcher_ID,
-	      uns8 t, uns32 n );
-
-    // Create a type table for characters in the range
-    // cmin .. cmax and types in the
-    // range 0 .. tsize-1.  Return the type table ID.
-    //
-    uns32 new_type_table ( uns32 size );
-	    ( uns32 cmin, uns32 cmax,
-	      uns32 tsize );
-
-    // Set type table entries for characters cmin ..
-    // cmax to type t.
-    //
-    void set_type_table
-	     ( uns32 type_table_ID,
-	       uns32 cmin, uns32 cmax, uns8 t );
-
-    // Create a type dispatcher and attach it to a
-    // sorted dispatcher in the range cmin ..
-    // cmax.  The type dispatcher uses the
-    // type table with the given ID.  Return new type
-    // dispatcher ID.
-    //
-    uns32 create_type_dispatcher
-	    ( uns32 sorted_dispatcher_ID,
-	      uns32 cmin, uns32 cmax,
-	      uns32 type_table_ID );
-
-    // Instruction operations:
-    //
-    enum {
-    	ACCEPT		= 1,
-	DISCARD		= 2,
-	KEEP		= 3
-    };
-
-    // Attach instruction to sorted dispatcher in the
-    // range cmin .. cmax.  The
-    // instruction has the given operation operation.
-    // If it has a non-zero goto_atom_table, that is
-    // the atom table changed to by the instruction.
-    // If it has a non-zero truncation_size, the
-    // atom is truncated to the given number of
-    // characters before anything else is done.
-    // If the instruction has a non-NULL translation
-    // the atom is replaced by the translation after
-    // truncation and before anything else is done.
-    //
-    uns32 create_instruction
-	    ( uns32 sorted_dispatcher_ID,
-	      uns32 cmin, uns32 cmax,
-	      uns8 operation,
-	      uns32 goto_atom_table = 0,
-	      uns32 truncation_size = 0,
-	      uns32 * translation = NULL,
-	      uns32 translation_size = 0 );
-
-    // Ditto but attach to type dispatcher at type t.
-    //
-    uns32 create_instruction
-	    ( uns32 type_dispatcher_ID,
-	      uns32 t,
-	      uns8 operation,
-	      uns32 goto_atom_table = 0,
-	      uns32 truncation_size = 0,
-	      uns32 * translation = NULL,
-	      uns32 translation_size = 0 );
-
-
-# endif // LL_LEXEME_H

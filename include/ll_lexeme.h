@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr  7 06:14:16 EDT 2010
+// Date:	Wed Apr  7 07:12:38 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 10:15:24 $
+//   $Date: 2010/04/07 11:12:48 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents
 //
@@ -171,10 +171,10 @@ namespace ll { namespace lexeme {
 	      uns32 * translation = NULL,
 	      uns32 translation_length = 0 );
 
-    // Attach a dispatcher to an atom table, or a type
-    // table to a dispatcher.  Return 1 if no error.
-    // Return 0 and do nothing if there is a conflict
-    // with the desired attachment.
+    // Attach a dispatcher or an instruction to an atom
+    // table, or a type table to a dispatcher.  Return 1
+    // if no error.  Return 0 and do nothing if there is
+    // a conflict with the desired attachment.
     //
     uns32 attach
     	    ( uns32 item_being_attached_to_ID,

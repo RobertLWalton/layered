@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr  2 17:59:15 EDT 2010
+// Date:	Wed Apr  7 06:16:00 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 15:46:13 $
+//   $Date: 2010/04/07 11:11:43 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents
 //
 //	Usage and Setup
-//	MIN Interface
+//	Data Definitions
+//	Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -27,6 +28,10 @@
 # define LLLEX ll::lexeme
 using LLLEX::uns8;
 using LLLEX::uns32;
+
+
+// Data Definitions
+// ---- -----------
 
 uns32 ** LLLEX::program_pointer;
 uns32 LLLEX::header_length;
@@ -52,40 +57,68 @@ const uns32 program_header_length = 2;
 struct atom_table_header {
     uns32 type;
     uns32 mode;
-    uns32 dispatcher;	// ID of sorted dispatcher or 0.
-    uns32 instruction;	// Instruction if no atom
-    			// matched.
+    uns32 dispatcher_ID;
+    uns32 instruction_ID;
 };
 const uns32 atom_table_header_length = 4;
 
-struct sorted_dispatcher_header {
+// The format of a dispatcher is
+//
+//	dispatcher header
+//	vector of dispatcher break elements
+//	vector of dispatcher map elements
+//
+// If there are n breakpoints in a dispatcher there are
+// n+1 break elements in the dispatcher.  Each break
+// element applies to the range of characters cmin ..
+// cmax, where cmin is a member of the break element,
+// and cmax = next break element's cmin - 1, if there
+// is a next break element, or = 0xFFFFFFFF if there
+// is no next break element.
+//
+// A character c maps to the break element for which
+// cmin <= c <= cmax.  The character is then further
+// mapped to the type given in the break element if that
+// is non-zero, or is mapped by the type table whose
+// ID is given in the break element, if that ID is non-
+// zero.
+//
+// If a character is mapped to type t, it is mapped to
+// the t+1'st map element.  This optionally gives a
+// dispatcher to be used to see if the current atom can
+// be extended beyond the current character, and an
+// instruction to be used if the current character is
+// found to be the last character of the current atom.
+//
+struct dispatcher_header {
     uns32 type;
     uns32 elements;
     uns32 max_elements;
+    uns32 max_types;
 };
-const uns32 sorted_dispatcher_header_length = 3;
-
-// If there are n breakpoints in a sorted dispatcher
-// there are n+1 elements in the dispatcher.  The
-// first always has cmin == 0 and applies to the
-// first character range.  Each but the last applies
-// to the range cmin .. cmax where cmin is given by
-// the element and cmax = next element cmin - 1.
-// For the last element cmax = 0xFFFFFFFF.
-//
-struct sorted_dispatcher_element {
+const uns32 dispatcher_header_length = 4;
+struct break_element {
     uns32 cmin;
-    uns32 instruction;
-    uns32 dispatcher;
+    uns32 type;
+    uns32 type_table_ID;
 };
-const uns32 sorted_dispatcher_element_length = 3;
+const uns32 break_element_length = 3;
+struct map_element {
+    uns32 dispatcher_ID;
+    uns32 instruction_ID;
+};
+const uns32 map_element_length = 2;
 
+// A type table is a vector of uns8 elements,
+// such that character c maps to base[c-cmin],
+// where base is the uns8 * pointer to the first
+// byte after the type table header.
+//
 struct type_table_header {
     uns32 type;
     uns32 cmin, cmax;	// Character range.
-    uns32 tsize;	// Number of types.
 };
-const uns32 type_table_header_length = 4;
+const uns32 type_table_header_length = 3;
 
 static uns32 allocate_to_program ( uns32 needed_size )
 {

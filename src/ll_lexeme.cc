@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr  7 07:54:30 EDT 2010
+// Date:	Wed Apr  7 13:43:35 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 17:28:21 $
+//   $Date: 2010/04/07 18:38:30 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents
 //
@@ -122,6 +122,18 @@ struct type_map_header {
     uns32 singleton_type;   // If 0 use vector.
 };
 const uns32 type_map_header_length = 4;
+
+// Instruction.  If operation & TRANSLATE != 0,
+// this is followed by translation_length uns32
+// characters of the translation.
+//
+struct instruction_header {
+    uns32 operation,
+    uns32 goto_atom_table,
+    uns32 truncation_length,
+    uns32 translation_length
+};
+const uns32 instruction_header_length = 4;
 
 // Program Creation
 // ------- --------
@@ -227,6 +239,56 @@ uns32 LLLEX::create_type_map
     return ID;
 }
 
+uns32 LLLEX::create_instruction
+	( uns32 operation,
+	  uns32 goto_atom_table_ID,
+	  uns32 truncation_length,
+	  uns32 * translation,
+	  uns32 translation_length )
+{
+    assert ( ( operation & ( ACCEPT + DISCARD ) )
+             !=
+	     ( ACCEPT + DISCARD ) );
+
+    assert ( ( operation & ( GOTO + SINGLETON ) )
+             !=
+	     ( GOTO + SINGLETON ) );
+
+    if ( operation & ( GOTO + SINGLETON ) )
+        assert ( goto_atom_table_ID != 0 );
+    else
+        assert ( goto_atom_table_ID == 0 );
+        
+    if ( operation & TRANSLATE )
+        assert ( translation_length == 0
+	         ||
+		 translation != NULL );
+    else
+        assert ( translation_length == 0
+	         &&
+		 translation == NULL );
+    if ( ( operation & TRUNCATE ) == 0 )
+        assert ( truncation_length == 0 );
+
+    uns32 ID = allocate_to_program
+    	(   instruction_header_length
+	  + translation_length );
+    instruction_header & h =
+        * (instruction_header) & program[ID];
+    h.type = INSTRUCTION;
+    h.operation = operation;
+    h.goto_atom_table_ID = goto_atom_table_ID;
+    h.truncation_length = truncation_length;
+    h.translation_length = translation_length;
+    if ( translation_length > 0 )
+    {
+        uns32 * p = (uns32 *) ( & h + 1 );
+	while ( translation_length -- )
+	    * p ++ = * translation ++;
+    }
+    return ID;
+}
+
 // This function is LLLEX::attach for the difficult
 // case where break elements may need to be inserted
 // into the dispatcher.
@@ -311,6 +373,85 @@ static uns32 attach_type_map_to_dispatcher
     }
 
     dh.break_elements += n;
-
     bep->type_map_id = type_map_id;
+    return 1;
+}
+
+uns32 LLLEX::attach
+	( uns32 target_ID,
+	  uns32 item_ID )
+{
+    uns32 target_type = program()[target_ID];
+    uns32 item_type = program()[item_ID];
+
+    if ( target_type == ATOM_TABLE )
+    {
+	atom_table_header & h =
+	    * (atom_table_header *)
+	    & program()[target_ID];
+
+        if ( item_type == DISPATCHER )
+	{
+	    if ( h.dispatcher_ID != 0 )
+	        return 0;
+	    h.dispatcher_ID = item_ID;
+	    return 1;
+	}
+        else if ( item_type == INSTRUCTION )
+	{
+	    if ( h.instruction_ID != 0 )
+	        return 0;
+	    h.instruction_ID = item_ID;
+	    return 1;
+	}
+	else abort();
+    }
+    else if ( target_type == DISPATCHER
+              &&
+	      item_type == TYPE_MAP )
+        return attach_type_map_to_dispatcher
+		   ( target_ID, item_ID );
+    else
+        abort();
+}
+
+uns32 LLLEX::attach
+    	    ( uns32 target_ID,
+    	      uns32 item_ID,
+	      uns32 t )
+{
+    dispatcher_header & h =
+        * (dispatcher_header *)
+	& program()[target_ID];
+    assert ( h.type == DISPATCHER );
+
+    uns32 item_type = program()[item_ID];
+    assert ( item_type == DISPATCHER
+             ||
+	     item_type == INSTRUCTION );
+    assert ( t <= h.max_type );
+    map_element & me =
+        * (map_element *)
+	& program()[  target_ID
+	            + dispatcher_header_length
+		    +   break_element_length
+		      * h.max_break_elements
+		    +   map_element_length
+		      * t];
+
+    if ( item_type == DISPATCHER )
+    {
+	if ( me.dispatcher_ID != 0 )
+	    return 0;
+	me.dispatcher_ID = item_ID;
+	return 1;
+    }
+    else if ( item_type == INSTRUCTION )
+    {
+	if ( me.instruction_ID != 0 )
+	    return 0;
+	me.instruction_ID = item_ID;
+	return 1;
+    }
+    else abort();
 }

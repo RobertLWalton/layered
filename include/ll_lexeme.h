@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr  7 12:51:29 EDT 2010
+// Date:	Wed Apr  Wed Apr  7 14:02:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 17:30:03 $
+//   $Date: 2010/04/07 18:38:45 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents
 //
@@ -152,9 +152,13 @@ namespace ll { namespace lexeme {
     // Instruction opcodes:
     //
     enum {
-    	ACCEPT		= 1,
-	DISCARD		= 2,
-	KEEP		= 3
+    	ACCEPT		= ( 1 << 0 ),
+	DISCARD		= ( 1 << 1 ),
+	KEEP		= 0,
+	TRUNCATE	= ( 1 << 2 ),
+	TRANSLATE	= ( 1 << 3 ),
+	GOTO		= ( 1 << 4 ),
+	SINGLETON	= ( 1 << 5 ),
     };
 
     // Create an instruction.  The instruction has the
@@ -169,29 +173,30 @@ namespace ll { namespace lexeme {
     // else is done.
     //
     uns32 create_instruction
-	    ( uns8 operation,
-	      uns32 goto_atom_table = 0,
+	    ( uns32 operation,
+	      uns32 goto_atom_table_ID = 0,
 	      uns32 truncation_length = 0,
 	      uns32 * translation = NULL,
 	      uns32 translation_length = 0 );
 
-    // Attach a dispatcher or an instruction to an atom
-    // table, or a type map to a dispatcher.  Return 1
-    // if no error.  Return 0 and do nothing if there is
-    // a conflict with the desired attachment.
+    // Attach a dispatcher or an instruction item to an
+    // atom table target, or a type map item to a
+    // dispatcher target.  Return 1 if no error.  Return
+    // 0 and do nothing if there is a conflict with a
+    // previous attachment.
     //
     uns32 attach
-    	    ( uns32 item_being_attached_to_ID,
-    	      uns32 attached_item_ID );
+    	    ( uns32 target_ID,
+    	      uns32 item_ID );
 
-    // Attach a dispatcher or an instruction to type t
-    // of a dispatcher.  Return 1 if no error.
-    // Return 0 and do nothing if there is a conflict
-    // with the desired attachment.
+    // Attach a dispatcher or an instruction item to
+    // type t of a dispatcher target.  Return 1 if no
+    // error.  Return 0 and do nothing if there is a
+    // conflict with a previous attachment.
     //
     uns32 attach
-    	    ( uns32 item_being_attached_to_ID,
-    	      uns32 attached_item_ID,
+    	    ( uns32 target_ID,
+    	      uns32 item_ID,
 	      uns32 t );
 
 # endif // LL_LEXEME_H

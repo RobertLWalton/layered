@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr  7 07:12:38 EDT 2010
+// Date:	Wed Apr  7 12:33:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 11:12:48 $
+//   $Date: 2010/04/07 16:33:26 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents
 //
@@ -130,20 +130,14 @@ namespace ll { namespace lexeme {
 	      uns32 max_types );
 
     // Create a type table for characters in the range
-    // cmin .. cmax.  Return the type table ID.
+    // cmin .. cmax.  Return the type table ID.  Copy
+    // vector[0..(cmax-cmin-1)] into type table, so
+    // the table will give character c the type
+    // vector[c-cmin].
     //
     uns32 create_type_table
-	    ( uns32 cmin, uns32 cmax );
-
-    // Set type table entries for characters cmin ..
-    // cmax to type t.  Return 0 and do nothing if
-    // some of these are already set of if cmin or
-    // cmax are out of range of the type table.
-    // Otherwise return 1.
-    //
-    uns32 set_type_table
-	    ( uns32 type_table_ID,
-	      uns32 cmin, uns32 cmax, uns8 t );
+	    ( uns32 cmin, uns32 cmax,
+	      uns8 * vector );
 
     // Instruction opcodes:
     //

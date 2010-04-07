@@ -1,8 +1,8 @@
 // Layers Language Lexical Analyzer
 //
 // File:	ll_lexeme.h
-// Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr  3 06:55:01 EDT 2010
+// Author:	Bob Walton (walton@seas.harvard.edu)
+// Date:	Tue Apr  6 20:26:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 02:24:54 $
+//   $Date: 2010/04/07 00:39:09 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents
 //
@@ -81,8 +81,10 @@ namespace ll { namespace lexeme {
     // offset ID in the program.
     //
     // header_length is the number of uns32 elements
-    // in the header part fo the program (which is
-    // not under the control of ll::lexeme).
+    // in the header part of the program (which is
+    // not under the control of ll::lexeme).  This is
+    // always > 0, so no part of the program may have
+    // ID == 0.
     //
     // length is the current number of uns32 elements
     // of the program that are used.  max_length is
@@ -119,42 +121,18 @@ namespace ll { namespace lexeme {
     //
     uns32 create_atom_table ( uns8 mode );
 
-    // Create a sorted dispatcher with given number of
-    // breakpoints and attach it to the atom table with
-    // the given table ID.  Return new sorted dispatcher
-    // ID.
+    // Create a sorted dispatcher with given maximum
+    // number of breakpoints.  Return the new sorted
+    // dispatcher's ID.
     //
     uns32 create_sorted_dispatcher
-	    ( uns32 atom_table_ID,
-	      uns32 breakpointers );
-
-    // Ditto but attach to another sorted dispatcher in
-    // the range cmin .. cmax.   Return 0 and do nothing
-    // if cmin .. cmax range overlaps existing sorted
-    // dispatcher table character range.
-    //
-    uns32 create_sorted_dispatcher
-	    ( uns32 sorted_dispatcher_ID,
-	      uns32 cmin, uns32 cmax,
-	      uns32 breakpoints );
-
-    // Ditto but attach to a type dispatcher at type t.
-    // See type dispatchers below.
-    //
-    // Return 0 and do nothing is another sorted
-    // dispatcher is already attached to type t.
-    //
-    uns32 create_sorted_dispatcher
-	    ( uns32 type_dispatcher_ID,
-	      uns8 t, uns32 breakpoints );
+	    ( uns32 max_breakpointers );
 
     // Create a type table for characters in the range
-    // cmin .. cmax and types in the range 0 .. tsize-1.
-    // Return the type table ID.
+    // cmin .. cmax.  Return the type table ID.
     //
-    uns32 new_type_table
-	    ( uns32 cmin, uns32 cmax,
-	      uns32 tsize );
+    uns32 create_type_table
+	    ( uns32 cmin, uns32 cmax );
 
     // Set type table entries for characters cmin ..
     // cmax to type t.  Return 0 and do nothing if
@@ -162,23 +140,14 @@ namespace ll { namespace lexeme {
     // return 1.
     //
     uns32 set_type_table
-	     ( uns32 type_table_ID,
-	       uns32 cmin, uns32 cmax, uns8 t );
+	    ( uns32 type_table_ID,
+	      uns32 cmin, uns32 cmax, uns8 t );
 
-    // Create a type dispatcher and attach it to a
-    // sorted dispatcher.  The type dispatcher uses the
-    // type table with the given ID, and the range of
-    // characters dispatched is that of the type table.
-    // Return new type dispatcher ID.
-    //
-    // Return 0 and do nothing the character range of
-    // the type table overlaps a character range of
-    // the sorted dispatcher that is already has
-    // an instruction or dispatcher attached.
+    // Create a type dispatcher for types 0 .. tmax.
+    // Return the type dispatcher ID.
     //
     uns32 create_type_dispatcher
-	    ( uns32 sorted_dispatcher_ID,
-	      uns32 type_table_ID );
+	    ( uns32 tmax );
 
     // Instruction opcodes:
     //
@@ -188,8 +157,7 @@ namespace ll { namespace lexeme {
 	KEEP		= 3
     };
 
-    // Attach instruction to sorted dispatcher in the
-    // range cmin .. cmax.  The instruction has the
+    // Create an instruction.  The instruction has the
     // given operation opcode.  If it has a non-zero
     // goto_atom_table, that is the atom table changed
     // to by the instruction.  If it has a non-zero
@@ -207,24 +175,20 @@ namespace ll { namespace lexeme {
     // cmin .. cmax range.
     //
     uns32 create_instruction
-	    ( uns32 sorted_dispatcher_ID,
-	      uns32 cmin, uns32 cmax,
-	      uns8 operation,
+	    ( uns8 operation,
 	      uns32 goto_atom_table = 0,
 	      uns32 truncation_size = 0,
 	      uns32 * translation = NULL,
 	      uns32 translation_size = 0 );
 
-    // Ditto but attach to type dispatcher at type t.
+    // Attach a sorted dispatcher to an atom table,
+    // or a type table to a sorted dispatcher, or
+    // a type dispatcher to a sorted dispatcher,
+    // or an instruction to a type dispatcher,
+    // or a sorted dispatcher to a type dispatcher.
     //
-    uns32 create_instruction
-	    ( uns32 type_dispatcher_ID,
-	      uns32 t,
-	      uns8 operation,
-	      uns32 goto_atom_table = 0,
-	      uns32 truncation_size = 0,
-	      uns32 * translation = NULL,
-	      uns32 translation_size = 0 );
-
+    void attach
+    	    ( uns32 attach_to_item_ID,
+    	      uns32 attached_item_ID );
 
 # endif // LL_LEXEME_H

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr  7 12:33:11 EDT 2010
+// Date:	Wed Apr  7 12:51:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 16:33:26 $
+//   $Date: 2010/04/07 17:30:03 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents
 //
@@ -122,22 +122,32 @@ namespace ll { namespace lexeme {
     uns32 create_atom_table ( uns8 mode );
 
     // Create a dispatcher with given maximum numbers of
-    // breakpoints and types.  Return the new
-    // dispatcher's ID.
+    // breakpoints and the maximum type.  Return the new
+    // dispatcher's ID.  Note that legal types are 0 ..
+    // max_type, and 0 is the default type for any
+    // character not mapped by a type map.
     //
     uns32 create_dispatcher
 	    ( uns32 max_breakpointers,
-	      uns32 max_types );
+	      uns32 max_type );
 
-    // Create a type table for characters in the range
-    // cmin .. cmax.  Return the type table ID.  Copy
-    // vector[0..(cmax-cmin-1)] into type table, so
-    // the table will give character c the type
-    // vector[c-cmin].
+    // Create a type map for characters in the range
+    // cmin .. cmax.  Return the type map ID.  Copy
+    // map[0..(cmax-cmin-1)] into type map, so the map
+    // will give character c the type map[c-cmin].
     //
-    uns32 create_type_table
+    uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
-	      uns8 * vector );
+	      uns8 * map );
+
+    // Create a type map for characters in the range
+    // cmin .. cmax.  Return the type map ID.  This
+    // form of type map will map all characters in the
+    // range to the given type, which must not be 0.
+    //
+    uns32 create_type_map
+	    ( uns32 cmin, uns32 cmax,
+	      uns32 type );
 
     // Instruction opcodes:
     //
@@ -166,7 +176,7 @@ namespace ll { namespace lexeme {
 	      uns32 translation_length = 0 );
 
     // Attach a dispatcher or an instruction to an atom
-    // table, or a type table to a dispatcher.  Return 1
+    // table, or a type map to a dispatcher.  Return 1
     // if no error.  Return 0 and do nothing if there is
     // a conflict with the desired attachment.
     //

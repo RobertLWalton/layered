@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr  7 03:44:18 EDT 2010
+// Date:	Wed Apr  7 06:14:16 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 07:44:33 $
+//   $Date: 2010/04/07 10:15:24 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -157,7 +157,7 @@ namespace ll { namespace lexeme {
     // given operation opcode.  If it has a non-zero
     // goto_atom_table, that is the atom table changed
     // to by the instruction.  If it has a non-zero
-    // truncation_size, the atom is truncated to the
+    // truncation_length, the atom is truncated to the
     // given number of characters before anything else
     // is done.  If the instruction has a non-NULL
     // translation the atom is replaced by the
@@ -167,9 +167,9 @@ namespace ll { namespace lexeme {
     uns32 create_instruction
 	    ( uns8 operation,
 	      uns32 goto_atom_table = 0,
-	      uns32 truncation_size = 0,
+	      uns32 truncation_length = 0,
 	      uns32 * translation = NULL,
-	      uns32 translation_size = 0 );
+	      uns32 translation_length = 0 );
 
     // Attach a dispatcher to an atom table, or a type
     // table to a dispatcher.  Return 1 if no error.

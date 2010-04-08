@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr  Wed Apr  7 14:02:36 EDT 2010
+// Date:	Thu Apr  8 04:01:19 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 18:38:45 $
+//   $Date: 2010/04/08 09:27:26 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents
 //
 //	Usage and Setup
-//	MIN Interface
+//	External Interface
 //	LL Lexeme Program Construction
 
 // Usage and Setup
@@ -27,43 +27,92 @@
 # ifndef LL_LEXEME_H
 # define LL_LEXEME_H
 
-// MIN Interface
-// --- ---------
+// External Interface
+// -------- ---------
 
-// If LL_LEXEME_INTERFACE is defined, that is included.
-// Otherwise various types and functions are defined
-// as follows.
-//
-#ifdef LL_LEXEME_INTERFACE
-#   include <LL_LEXEME_INTERFACE>
-#else
-#   include <min>
-    namespace ll { namespace lexeme {
-	// Unsigned integer 8-bit and 32-bit types.
-	//
-	typedef min::uns8 uns8;
-	typedef min::uns32 uns32;
+namespace ll { namespace lexeme {
 
-	// Allocate a vector of uns32 elements, whose
-	// initial elements are a header that cannot be
-	// used to store the program.
-	//
-	uns32 ** allocate_program ( void );
+    // Unsigned integer 8-bit and 32-bit types.
+    //
+    typedef unsigned char uns8;
+    typedef unsigned uns32;
 
-	// Number of uns32 elements in program.
-	//
-	uns32 program_length ( void );
+    // Characters are stored in uns32 integers.
+    // This is more than sufficient for UNICODE.
 
-	// Resize the program.  Length may not be set
-	// less than initial length (i.e., the header).
-	//
-	resize_program ( uns32 new_length );
+    // Type of data that records character position
+    // of character in input text.
+    //
+    typedef unsigned long long pos;
 
-	// Deallocate the program vector.
-	//
-	void deallocate_program ( void );
-    } }
-#endif
+    // Allocate a vector of uns32 elements, whose
+    // initial elements are a header that cannot be
+    // used to store the program.
+    //
+    uns32 ** allocate_program ( void );
+
+    // Number of uns32 elements in program.
+    //
+    uns32 program_length ( void );
+
+    // Resize the program.  Length may not be set
+    // less than initial length (i.e., the header).
+    //
+    resize_program ( uns32 new_length );
+
+    // Deallocate the program vector.
+    //
+    void deallocate_program ( void );
+
+    // Type of data buffer element.
+    //
+    struct chardatum
+    {
+        pos	position;
+	uns32	character;
+    };
+
+    // Allocate a vector of chardatum elements, whose
+    // initial elements are a header that cannot be
+    // used to store data.
+    //
+    chardatum ** allocate_data_buffer ( void );
+
+    // Number of chardatum elements in data buffer.
+    //
+    uns32 data_buffer_length ( void );
+
+    // Resize the data buffer.  Length may not be set
+    // less than initial length (i.e., the header).
+    //
+    resize_data_buffer ( uns32 new_length );
+
+    // Deallocate the data buffer vector.
+    //
+    void deallocate_data_buffer ( void );
+
+    // Input one or more chardata elements to the end
+    // of the data buffer, thereby increasing the length
+    // of the buffer.  Return 0 if this is done, and
+    // 1 if end of file.
+    //
+    uns32 input_data_buffer ( void );
+
+    // Output an item: i.e., a lexeme, an error string,
+    // or whitespace string.  The first and last
+    // positions in the data buffer are given (e.g., the
+    // first element is (* p)[first] where p is the
+    // value of allocate_data_buffer).  The item length,
+    // last - first + 1, is always >= 1.  The item class
+    // is given: LEXEME, ERROR, or WHITESPACE (see
+    // below).  The label of the atom table that
+    // generated the item is given (this typically
+    // serves to type a lexeme).
+    //
+    void output_data_buffer
+            ( uns32 first, uns32 last,
+	      uns32 item_class, uns32 item_label );
+} }
 
 // LL Lexeme Program Construction
 // -- ------ ------- ------------
@@ -80,11 +129,12 @@ namespace ll { namespace lexeme {
     // (* program_pointer)[ID] is uns32 element at
     // offset ID in the program.
     //
+    // ID's are never 0, so ID == 0 is used to denote
+    // a missing ID.
+    //
     // header_length is the number of uns32 elements
     // in the header part of the program (which is
-    // not under the control of ll::lexeme).  This is
-    // always > 0, so no part of the program may have
-    // ID == 0.
+    // not under the control of ll::lexeme).
     //
     // length is the current number of uns32 elements
     // of the program that are used.  max_length is
@@ -106,20 +156,24 @@ namespace ll { namespace lexeme {
     enum {
         // Classes (which are also modes).
 	//
-        MASTER		= 1,
-	LEXEME		= 2,
-	WHITESPACE	= 3,
-	ERROR		= 4,
+	LEXEME		= 1,
+	WHITESPACE	= 2,
+	ERROR		= 3,
 
 	// Modes that are not classes.
 	//
+        MASTER		= 4,
 	CONTINUATION	= 5
     };
 
     // Create the atom table with the given mode and
-    // return its ID.
+    // label and return its ID.  The label is a user
+    // provided value that is returned to the user when
+    // an item (LEXEME, ERROR, or WHITESPACE) is
+    // recognized by the analyzer via the atom table.
+    // It can serve to type a lexeme, for example.
     //
-    uns32 create_atom_table ( uns8 mode );
+    uns32 create_atom_table ( uns8 mode, uns32 label );
 
     // Create a dispatcher with given maximum numbers of
     // breakpoints and the maximum type.  Return the new
@@ -158,23 +212,64 @@ namespace ll { namespace lexeme {
 	TRUNCATE	= ( 1 << 2 ),
 	TRANSLATE	= ( 1 << 3 ),
 	GOTO		= ( 1 << 4 ),
-	SINGLETON	= ( 1 << 5 ),
+	SHORTCUT	= ( 1 << 5 ),
     };
 
     // Create an instruction.  The instruction has the
-    // given operation opcode.  If it has a non-zero
-    // goto_atom_table, that is the atom table changed
-    // to by the instruction.  If it has a non-zero
-    // truncation_length, the atom is truncated to the
-    // given number of characters before anything else
-    // is done.  If the instruction has a non-NULL
-    // translation the atom is replaced by the
-    // translation after truncation and before anything
-    // else is done.
+    // given operation flag bits interpreted as follows:
+    //
+    //	 ACCEPT:	Move atom to output item.
+    //	 DISCARD:	Discard atom.
+    //	 KEEP:		Neither of the above.
+    //			(ACCEPT and DISCARD are
+    //			 exclusive).
+    //
+    //   TRUNCATE:	Truncate atom to truncate_length
+    //			before any other processing.
+    //			The `discarded' end of the atom
+    //			is retained as input to be
+    //			rescanned.  (Truncate_length
+    //			may be 0; it cannot be non-zero
+    //			if there is no TRUNCATE flag.)
+    //
+    //	 TRANSLATE	Translate the atom to the
+    //			characters given in the
+    //			translation vector which is of
+    //			translation_length.  The
+    //		        translation replaces the
+    //			atom characters in the buffer
+    //			immediately after truncation.
+    //			The position of each translation
+    //			character is set to the position
+    //			of the first original character.
+    //			(Translation_length may be 0;
+    //			if there is no TRANSLATE flag,
+    //			translation_length must be 0 and
+    //			translation must be NULL.)
+    //
+    //	 GOTO		After all other processing,
+    //			switch the current atom table
+    //			to that indicated by atom_table_
+    //			ID.
+    //
+    //    SHORTCUT	Process as if analyzer had
+    //			switched to the atom table
+    //			specified by atom_table_ID
+    //			just before inputting the atom,
+    //			and then did a GOTO back to the
+    //			original atom table at the end
+    //			of processing the atom.  This
+    //			speeds handling of one-atom
+    //			items, e.g., separators.
+    //
+    //			(GOTO and SHORTCUT are
+    //			exclusive.  If neither is given
+    //			atom_table_ID must be zero;
+    //			otherwise it must be non-zero.)
     //
     uns32 create_instruction
 	    ( uns32 operation,
-	      uns32 goto_atom_table_ID = 0,
+	      uns32 atom_table_ID = 0,
 	      uns32 truncation_length = 0,
 	      uns32 * translation = NULL,
 	      uns32 translation_length = 0 );

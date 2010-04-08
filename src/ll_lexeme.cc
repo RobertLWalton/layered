@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr  7 13:43:35 EDT 2010
+// Date:	Thu Apr  8 05:27:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/07 18:38:30 $
+//   $Date: 2010/04/08 09:33:33 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -59,10 +59,11 @@ const uns32 program_header_length = 2;
 struct atom_table_header {
     uns32 type;
     uns32 mode;
+    uns32 label;
     uns32 dispatcher_ID;
     uns32 instruction_ID;
 };
-const uns32 atom_table_header_length = 4;
+const uns32 atom_table_header_length = 5;
 
 // The format of a dispatcher is
 //
@@ -152,7 +153,8 @@ static uns32 allocate_to_program ( uns32 needed_size )
     return result;
 }
 
-uns32 LLLEX::create_atom_table ( uns8 mode )
+uns32 LLLEX::create_atom_table
+	( uns8 mode, uns32 label )
 {
     uns32 ID = allocate_to_program
     		   ( atom_table_header_length );
@@ -160,6 +162,7 @@ uns32 LLLEX::create_atom_table ( uns8 mode )
         * (atom_table_header *) & program()[ID];
     h.type = ATOM_TABLE;
     h.mode = mode;
+    h.label = label;
     h.dispatcher_ID = 0;
     h.instruction_ID = 0;
     return ID;
@@ -173,6 +176,10 @@ uns32 LLLEX::create_program ( void )
     uns32 ID = allocate_to_program
     		   ( program_table_header_length );
     assert ( ID == LLLEX::header_length );
+
+    // Program_table_header might be at ID == 0
+    // but no other header an have ID == 0.
+
     program_table_header & h =
         * (program_table_header *) & program()[ID];
     h.type = PROGRAM_TABLE;
@@ -250,11 +257,11 @@ uns32 LLLEX::create_instruction
              !=
 	     ( ACCEPT + DISCARD ) );
 
-    assert ( ( operation & ( GOTO + SINGLETON ) )
+    assert ( ( operation & ( GOTO + SHORTCUT ) )
              !=
-	     ( GOTO + SINGLETON ) );
+	     ( GOTO + SHORTCUT ) );
 
-    if ( operation & ( GOTO + SINGLETON ) )
+    if ( operation & ( GOTO + SHORTCUT ) )
         assert ( goto_atom_table_ID != 0 );
     else
         assert ( goto_atom_table_ID == 0 );

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Thu Apr  8 04:01:19 EDT 2010
+// Date:	Thu Apr  8 09:31:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/08 09:27:26 $
+//   $Date: 2010/04/08 13:35:36 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents
 //
@@ -93,25 +93,30 @@ namespace ll { namespace lexeme {
 
     // Input one or more chardata elements to the end
     // of the data buffer, thereby increasing the length
-    // of the buffer.  Return 0 if this is done, and
-    // 1 if end of file.
+    // of the buffer.  Return 1 if this is done, and
+    // 0 if end of file.
     //
     uns32 input_data_buffer ( void );
 
-    // Output an item: i.e., a lexeme, an error string,
-    // or whitespace string.  The first and last
-    // positions in the data buffer are given (e.g., the
-    // first element is (* p)[first] where p is the
-    // value of allocate_data_buffer).  The item length,
-    // last - first + 1, is always >= 1.  The item class
-    // is given: LEXEME, ERROR, or WHITESPACE (see
-    // below).  The label of the atom table that
-    // generated the item is given (this typically
-    // serves to type a lexeme).
+    // Scan the input and return the next item (lexeme,
+    // error string, whitespace, or EOF).
     //
-    void output_data_buffer
-            ( uns32 first, uns32 last,
-	      uns32 item_class, uns32 item_label );
+    // The first and last positions in the data buffer
+    // are returned, i.e., the item is in
+    //
+    //		(* p)[first .. last]
+    //
+    // where p is the value of allocate_data_buffer.
+    // The item length, last - first + 1, is always
+    // >= 1.  The item class is returned as the
+    // value of the scan function, or 0 is returned
+    // if there is no item because on an end-of-file.
+    // The label of the atom table that generated the
+    // item is returned.
+    //
+    uns32 scan
+            ( uns32 & first, & uns32 last,
+	      uns32 & label );
 } }
 
 // LL Lexeme Program Construction

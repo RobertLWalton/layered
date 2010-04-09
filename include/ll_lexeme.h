@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Thu Apr  8 21:05:42 EDT 2010
+// Date:	Fri Apr  9 09:18:33 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/09 01:08:39 $
+//   $Date: 2010/04/09 14:43:24 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents
 //
@@ -32,64 +32,43 @@
 
 namespace ll { namespace lexeme {
 
-    // Unsigned integer 8-bit and 32-bit types.
+    // Unsigned integer 8-bit, 32-bit, and 64-bit types.
     //
     typedef unsigned char uns8;
     typedef unsigned uns32;
+    typedef unsigned long long uns64;
 
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
 
-    // Type of data that records character position
-    // of character in input text.
-    //
-    typedef unsigned long long pos;
+    // Character positions are stored in uns64 integers.
 
-    // Allocate a vector of uns32 elements, whose
-    // initial elements are a header that cannot be
-    // used to store the program.
-    //
-    uns32 ** allocate_program ( void );
+    // A buffer holds a vector of elements of type T,
+    // where T should be a C language number or struct.
 
-    // Number of uns32 elements in program.
-    //
-    uns32 program_length ( void );
+    template < typename T >
+    struct buffer
+    {
+        uns8 ** base;
+	uns32 header_size;
+	uns32 length;
+	void resize ( uns32 new_length );
 
-    // Resize the program.  Length may not be set
-    // less than initial length (i.e., the header).
-    //
-    resize_program ( uns32 new_length );
+	T & operator[] ( uns32 index )
+	{
+	    return * (T *) (* base + header_size)
+	}
+    };
 
-    // Deallocate the program vector.
-    //
-    void deallocate_program ( void );
-
-    // Type of data buffer element.
-    //
     struct chardatum
     {
-        pos	position;
+        uns64	position;
 	uns32	character;
     };
 
-    // Allocate a vector of chardatum elements, whose
-    // initial elements are a header that cannot be
-    // used to store data.
-    //
-    chardatum ** allocate_data_buffer ( void );
-
-    // Number of chardatum elements in data buffer.
-    //
-    uns32 data_buffer_length ( void );
-
-    // Resize the data buffer.  Length may not be set
-    // less than initial length (i.e., the header).
-    //
-    resize_data_buffer ( uns32 new_length );
-
-    // Deallocate the data buffer vector.
-    //
-    void deallocate_data_buffer ( void );
+    extern buffer<uns32> program;
+    extern buffer<chardatum> input_buffer;
+    extern buffer<uns32> translation_buffer;
 
     // Input one or more chardata elements to the end
     // of the data buffer, thereby increasing the length

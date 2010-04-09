@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri Apr  9 09:18:33 EDT 2010
+// Date:	Fri Apr  9 12:55:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/09 14:43:24 $
+//   $Date: 2010/04/09 17:13:59 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents
 //
@@ -45,19 +45,43 @@ namespace ll { namespace lexeme {
 
     // A buffer holds a vector of elements of type T,
     // where T should be a C language number or struct.
-
+    //
     template < typename T >
     struct buffer
     {
         uns8 ** base;
-	uns32 header_size;
-	uns32 length;
-	void resize ( uns32 new_length );
+	    // Base address of buffer.
 
+	uns32 header_size;
+	    // Size of header at beginning of buffer
+	    // in bytes.  The header is not available
+	    // to store vector elements.
+
+	uns32 length;
+	    // Number of elements currently used in
+	    // the buffer vector.
+
+	uns32 max_length;
+	    // Number of elements in the buffer vector.
+
+	// b[i] is the i+1'st vector element, if b is
+	// of type buffer<T>.  &b[0] is the address of
+	// the beginning of the buffer and &b[length] is
+	// the address of the first location after the
+	// end of the buffer.
+	//
 	T & operator[] ( uns32 index )
 	{
 	    return * (T *) (* base + header_size)
 	}
+
+	// Change the buffer vector max_length.
+	//
+	// Changing the max_length to 0 effectively
+	// deallocates the buffer.
+	//
+	void resize ( uns32 new_max_length );
+
     };
 
     struct chardatum
@@ -67,13 +91,17 @@ namespace ll { namespace lexeme {
     };
 
     extern buffer<uns32> program;
+        // Program.
     extern buffer<chardatum> input_buffer;
+        // Scanner input buffer.
     extern buffer<uns32> translation_buffer;
+        // Scanner translation buffer.
 
     // Input one or more chardata elements to the end
-    // of the data buffer, thereby increasing the length
-    // of the buffer.  Return 1 if this is done, and
-    // 0 if end of file.
+    // of the input buffer vector, increasing the length
+    // of the buffer.  Return 1 if this is done, and 0
+    // if there are no more characters because we are
+    // at the end of file.
     //
     uns32 input_data_buffer ( void );
 } }
@@ -88,33 +116,15 @@ namespace ll { namespace lexeme {
     // table is the initial table of the program,
     // and has the MASTER mode.
     //
+    // This function resets the program buffer vector
+    // length to 0 and then adds a program header
+    // to the beginning of the buffer, followed by
+    // the atom table.  Subsequent functions add
+    // more things to the end of the program buffer
+    // vector.
+    //
     uns32 create_program ( void );
 
-    // (* program_pointer)[ID] is uns32 element at
-    // offset ID in the program.
-    //
-    // ID's are never 0, so ID == 0 is used to denote
-    // a missing ID.
-    //
-    // header_length is the number of uns32 elements
-    // in the header part of the program (which is
-    // not under the control of ll::lexeme).
-    //
-    // length is the current number of uns32 elements
-    // of the program that are used.  max_length is
-    // the current number of uns32 element in the
-    // program.
-    //
-    // length_increment is the number of unused uns32
-    // elements allocated whenever the program is
-    // resized.
-    //
-    extern uns32 ** program_pointer;
-    extern uns32 header_length;
-    extern uns32 length;
-    extern uns32 max_length;
-    extern uns32 length_increment;
-        
     // Atom table classes and modes.
     //
     enum {
@@ -190,22 +200,23 @@ namespace ll { namespace lexeme {
     //
     //   TRUNCATE:	Truncate atom to truncate_length
     //			before any other processing.
-    //			The `discarded' end of the atom
-    //			is retained as input to be
-    //			rescanned.  (Truncate_length
-    //			may be 0; it cannot be non-zero
-    //			if there is no TRUNCATE flag.)
+    //			Truncation is done in the input
+    //			buffer before any other process-
+    //			ing of the atom.  The discarded
+    //			end of the atom is retained as
+    //			input to be rescanned.
     //
-    //	 TRANSLATE	Translate the atom to the
-    //			characters given in the
-    //			translation vector which is of
-    //			translation_length.  The
-    //		        translation replaces the
-    //			atom characters in the buffer
-    //			immediately after truncation.
-    //			The position of each translation
-    //			character is set to the position
-    //			of the first original character.
+    //			(Truncate_length may be 0; it
+    //			cannot be non-zero if there is
+    //			no TRUNCATE flag.)
+    //
+    //	 TRANSLATE	Instead of copying the atom into
+    //			the translation buffer, copy the
+    //			characters given in the transla-
+    //			tion vector instead.  This vec-
+    //			tor has translation_length char-
+    //			acters.
+    //
     //			(Translation_length may be 0;
     //			if there is no TRANSLATE flag,
     //			translation_length must be 0 and

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Thu Apr  8 09:31:39 EDT 2010
+// Date:	Thu Apr  8 21:05:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/08 13:35:36 $
+//   $Date: 2010/04/09 01:08:39 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents
 //
@@ -97,26 +97,6 @@ namespace ll { namespace lexeme {
     // 0 if end of file.
     //
     uns32 input_data_buffer ( void );
-
-    // Scan the input and return the next item (lexeme,
-    // error string, whitespace, or EOF).
-    //
-    // The first and last positions in the data buffer
-    // are returned, i.e., the item is in
-    //
-    //		(* p)[first .. last]
-    //
-    // where p is the value of allocate_data_buffer.
-    // The item length, last - first + 1, is always
-    // >= 1.  The item class is returned as the
-    // value of the scan function, or 0 is returned
-    // if there is no item because on an end-of-file.
-    // The label of the atom table that generated the
-    // item is returned.
-    //
-    uns32 scan
-            ( uns32 & first, & uns32 last,
-	      uns32 & label );
 } }
 
 // LL Lexeme Program Construction
@@ -298,5 +278,33 @@ namespace ll { namespace lexeme {
     	    ( uns32 target_ID,
     	      uns32 item_ID,
 	      uns32 t );
+
+    // Initialize lexical scan.  The program must be
+    // stored in the vector returned by allocate_
+    // program.  It must have been created by the
+    // above functions, but may have been dumped into
+    // a file after creation and restored from the file.
+    //
+    void init_scan ( void );
+
+    // Scan the input and return the next item (lexeme,
+    // error string, whitespace, or EOF).
+    //
+    // The first and last positions in the data buffer
+    // are returned, i.e., the item is in
+    //
+    //		(* p)[first .. last]
+    //
+    // where p is the value of allocate_data_buffer.
+    // The item length, last - first + 1, is always
+    // >= 1.  The item class is returned as the
+    // value of the scan function, or 0 is returned
+    // if there is no item because on an end-of-file.
+    // The label of the atom table that generated the
+    // item is returned.
+    //
+    uns32 scan
+            ( uns32 & first, & uns32 last,
+	      uns32 & label );
 
 # endif // LL_LEXEME_H

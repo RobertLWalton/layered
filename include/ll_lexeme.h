@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 10 09:46:54 EDT 2010
+// Date:	Sat Apr 10 12:13:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/10 15:31:02 $
+//   $Date: 2010/04/10 16:30:24 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents
 //
@@ -28,6 +28,7 @@
 # define LL_LEXEME_H
 
 # include <iostream>
+# include <cassert>
 
 // External Interface
 // -------- ---------
@@ -262,41 +263,39 @@ namespace ll { namespace lexeme {
     const uns32 TRANSLATE_LENGTH_SHIFT = 22;
     const uns32 TRANSLATE_LENGTH_MASK = 0x3F;
     const uns32 PREFIX_LENGTH_SHIFT = 22;
-    const uns32 PREFIX_LENGTH_MASK = 01F;
+    const uns32 PREFIX_LENGTH_MASK = 0x1F;
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
-    const uns32 POSTFIX_LENGTH_MASK = 01F;
+    const uns32 POSTFIX_LENGTH_MASK = 0x1F;
 
     // Composite operations.
     //
-    inline uns32 TRUNCATE ( uns32 translate_length )
+    inline uns32 TRUNCATE ( uns32 truncate_length )
     {
-        assert ( translate_length < 64 );
+        assert
+	  ( truncate_length <= TRUNCATE_LENGTH_MASK );
 	return TRUNCATE_FLAG
-	     + ( translate_length << TRUNCATE_LENGTH_SHIFT );
+	     + (    truncate_length
+	         << TRUNCATE_LENGTH_SHIFT );
     }
     inline uns32 TRANSLATE ( uns32 translate_length )
     {
-        assert ( translate_length < 64 );
+        assert
+	  ( translate_length <= TRANSLATE_LENGTH_MASK );
 	return TRANSLATE_FLAG
-	     + ( translate_length << TRANSLATE_LENGTH_SHIFT );
+	     + (    translate_length
+	         << TRANSLATE_LENGTH_SHIFT );
     }
     inline uns32 TRANSLATE_HEX
     	( uns32 prefix_length, uns32 postfix_length )
     {
-        assert ( prefix_length < 32 );
-        assert ( postfix_length < 32 );
+        assert
+	  ( prefix_length <= PREFIX_LENGTH_MASK );
+        assert
+	  ( postfix_length <= POSTFIX_LENGTH_MASK );
 	return TRANSLATE_HEX_FLAG
 	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
-	     + ( postfix_length << POSTFIX_LENGTH_SHIFT );
-    }
-    inline uns32 TRANSLATE_OCT
-    	( uns32 prefix_length, uns32 postfix_length )
-    {
-        assert ( prefix_length < 32 );
-        assert ( postfix_length < 32 );
-	return TRANSLATE_OCT_FLAG
-	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
-	     + ( postfix_length << POSTFIX_LENGTH_SHIFT );
+	     + (    postfix_length
+	         << POSTFIX_LENGTH_SHIFT );
     }
 
     // Create an instruction.  The instruction is the

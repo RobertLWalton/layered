@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr  9 20:27:15 EDT 2010
+// Date:	Sat Apr 10 12:09:19 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/10 01:27:22 $
+//   $Date: 2010/04/10 16:30:10 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents
 //
@@ -24,140 +24,22 @@
 // Usage and Setup
 // ----- --- -----
 
-# include <ll_lexeme.h>
+# include <ll_lexeme_program.h>
 # include <cstring>
 # include <cassert>
 # define LLLEX ll::lexeme
 using LLLEX::uns8;
 using LLLEX::uns32;
+using namespace LLLEX::program_data;
 
-
-// Data Definitions
-// ---- -----------
-
-static uns32 length_increment = 1000;
-
-enum {
-    PROGRAM			= 1,
-    ATOM_TABLE			= 2,
-    TYPE_MAP			= 3,
-    DISPATCHER			= 4,
-    INSTRUCTION			= 4
-};
-
-struct program_header {
-    uns32 type;
-    uns32 atom_table_ID;
-};
-const uns32 program_header_length = 2;
-
-struct atom_table_header {
-    uns32 type;
-    uns32 mode;
-    uns32 label;
-    uns32 dispatcher_ID;
-    uns32 instruction_ID;
-};
-const uns32 atom_table_header_length = 5;
-
-// The format of a dispatcher is
-//
-//	dispatcher header
-//	vector of dispatcher break elements
-//	vector of dispatcher map elements
-//
-// If there are n breakpoints in a dispatcher there are
-// n+1 break elements in the dispatcher.  Each break
-// element applies to the range of characters cmin ..
-// cmax, where cmin is a member of the break element,
-// and cmax = next break element's cmin - 1, if there
-// is a next break element, or = 0xFFFFFFFF if there
-// is no next break element.
-//
-// A character c maps to the break element for which
-// cmin <= c <= cmax.  The character is then further
-// mapped to the type given in the break element if that
-// is non-zero, or is mapped by the type map whose
-// ID is given in the break element, if that ID is non-
-// zero.
-//
-// If a character is mapped to type t, it is mapped to
-// the t+1'st map element.  This optionally gives a
-// dispatcher to be used to see if the current atom can
-// be extended beyond the current character, and an
-// instruction to be used if the current character is
-// found to be the last character of the current atom.
-//
-struct dispatcher_header {
-    uns32 type;
-    uns32 break_elements;
-    uns32 max_break_elements;
-    uns32 max_type;
-};
-const uns32 dispatcher_header_length = 4;
-struct break_element {
-    uns32 cmin;
-    uns32 type_map_ID;
-};
-const uns32 break_element_length = 2;
-struct map_element {
-    uns32 dispatcher_ID;
-    uns32 instruction_ID;
-};
-const uns32 map_element_length = 2;
-
-// A type map maps a character range to either
-// a singleton_type is that is non-zero, or to
-// map[c-cmin] otherwise, where may is the uns8 *
-// pointer to the first byte after the type map
-// header.
-//
-struct type_map_header {
-    uns32 type;
-    uns32 cmin, cmax;	    // Character range.
-    uns32 singleton_type;   // If 0 use vector.
-};
-const uns32 type_map_header_length = 4;
-
-// Instruction.  If operation & TRANSLATE != 0,
-// this is followed by translation_length uns32
-// characters of the translation.
-//
-struct instruction_header {
-    uns32 type;
-    uns32 operation;
-    uns32 atom_table_ID;
-    uns32 truncation_length;
-    uns32 translation_length;
-};
-const uns32 instruction_header_length = 5;
 
 // Program Creation
 // ------- --------
 
-static uns32 allocate_to_program ( uns32 needed_size )
-{
-    uns32 available = LLLEX::program.max_length
-                     - LLLEX::program.length;
-
-    if ( needed_size > available )
-    {
-        uns32 new_max_length =
-	      LLLEX::program.max_length
-	    + ( needed_size - available )
-	    + length_increment;
-	LLLEX::program.resize ( new_max_length );
-
-    }
-    uns32 result = LLLEX::program.length;
-    LLLEX::program.length += needed_size;
-    return result;
-}
-
 uns32 LLLEX::create_atom_table
 	( uns8 mode, uns32 label )
 {
-    uns32 ID = allocate_to_program
+    uns32 ID = program.allocate
     		   ( atom_table_header_length );
     atom_table_header & h =
         * (atom_table_header *) & program[ID];
@@ -172,7 +54,7 @@ uns32 LLLEX::create_atom_table
 uns32 LLLEX::create_program ( void )
 {
     program.resize ( 0 );
-    uns32 ID = allocate_to_program
+    uns32 ID = program.allocate
     		   ( program_header_length );
     assert ( ID == 0 );
 
@@ -193,7 +75,7 @@ uns32 LLLEX::create_dispatcher
 	  * ( max_breakpoints + 1 )
 	+   map_element_length
 	  * ( max_type + 1 );
-    uns32 ID = allocate_to_program ( length );
+    uns32 ID = program.allocate ( length );
     dispatcher_header & h =
         * (dispatcher_header *)
 	& program[ID];
@@ -213,7 +95,7 @@ uns32 LLLEX::create_type_map
 	( uns32 cmin, uns32 cmax, uns8 * map )
 {
     uns32 length = cmin - cmax + 1;
-    uns32 ID = allocate_to_program
+    uns32 ID = program.allocate
     	(   type_map_header_length
 	  + ( length + 3 ) / 4 );
     type_map_header & h =
@@ -230,7 +112,7 @@ uns32 LLLEX::create_type_map
 	( uns32 cmin, uns32 cmax, uns32 type )
 {
     uns32 length = cmin - cmax + 1;
-    uns32 ID = allocate_to_program
+    uns32 ID = program.allocate
     	( type_map_header_length );
     type_map_header & h =
         * (type_map_header *) & program[ID];
@@ -245,9 +127,7 @@ uns32 LLLEX::create_type_map
 uns32 LLLEX::create_instruction
 	( uns32 operation,
 	  uns32 atom_table_ID,
-	  uns32 truncation_length,
-	  uns32 * translation,
-	  uns32 translation_length )
+	  uns32 * translation_vector )
 {
     assert ( ( operation & ( ACCEPT + DISCARD ) )
              !=
@@ -257,23 +137,26 @@ uns32 LLLEX::create_instruction
              !=
 	     ( GOTO + SHORTCUT ) );
 
+    assert ( ( ( operation & TRANSLATE_FLAG ) != 0 )
+	     +
+             ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
+	     +
+             ( ( operation & TRANSLATE_OCT_FLAG ) != 0 )
+	     <= 1 );
+
     if ( operation & ( GOTO + SHORTCUT ) )
         assert ( atom_table_ID != 0 );
     else
         assert ( atom_table_ID == 0 );
-        
-    if ( operation & TRANSLATE )
-        assert ( translation_length == 0
-	         ||
-		 translation != NULL );
-    else
-        assert ( translation_length == 0
-	         &&
-		 translation == NULL );
-    if ( ( operation & TRUNCATE ) == 0 )
-        assert ( truncation_length == 0 );
 
-    uns32 ID = allocate_to_program
+    uns32 translation_length = 0;
+    if ( operation & TRANSLATE_FLAG )
+        translation_length =
+	      ( operation >> TRANSLATE_LENGTH_SHIFT )
+	    & TRANSLATE_LENGTH_MASK;
+    else assert ( translation_vector == NULL );
+        
+    uns32 ID = program.allocate
     	(   instruction_header_length
 	  + translation_length );
     instruction_header & h =
@@ -281,13 +164,12 @@ uns32 LLLEX::create_instruction
     h.type = INSTRUCTION;
     h.operation = operation;
     h.atom_table_ID = atom_table_ID;
-    h.truncation_length = truncation_length;
-    h.translation_length = translation_length;
     if ( translation_length > 0 )
     {
-        uns32 * p = (uns32 *) ( & h + 1 );
+	assert ( translation_vector != NULL );
+	uns32 * p = (uns32 *) ( & h + 1 );
 	while ( translation_length -- )
-	    * p ++ = * translation ++;
+	    * p ++ = * translation_vector ++;
     }
     return ID;
 }

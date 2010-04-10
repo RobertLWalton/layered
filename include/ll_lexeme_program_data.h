@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 10 11:58:40 EDT 2010
+// Date:	Sat Apr 10 12:16:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/10 16:09:00 $
+//   $Date: 2010/04/10 16:30:24 $
 //   $RCSfile: ll_lexeme_program_data.h,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents
 //
@@ -27,13 +27,14 @@
 # define LL_LEXEME_PROGRAM_H
 
 # include <ll_lexeme.h>
-using LLLEX::uns8;
-using LLLEX::uns32;
+using ll::lexeme::uns8;
+using ll::lexeme::uns32;
 
 // LL Lexeme Program Data
 // -- ------ ------- ----
 
-namespace ll { namespace lexeme { namespace program
+namespace ll { namespace lexeme
+    { namespace program_data {
 
 // Program item types.
 //
@@ -145,6 +146,6 @@ struct instruction_header {
 };
 const uns32 instruction_header_length = 3;
 
-} }
+} } }
 
 # endif // LL_LEXEME_PROGRAM_H

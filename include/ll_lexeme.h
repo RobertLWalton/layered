@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri Apr  9 12:55:05 EDT 2010
+// Date:	Fri Apr  9 20:34:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/09 17:13:59 $
+//   $Date: 2010/04/10 01:27:35 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents
 //
@@ -26,6 +26,8 @@
 
 # ifndef LL_LEXEME_H
 # define LL_LEXEME_H
+
+# include <cstring>
 
 // External Interface
 // -------- ---------
@@ -50,19 +52,24 @@ namespace ll { namespace lexeme {
     struct buffer
     {
         uns8 ** base;
-	    // Base address of buffer.
+	    // Base address of buffer.  Reset by
+	    // resize function when max_length is
+	    // changed to or from 0.
 
 	uns32 header_size;
 	    // Size of header at beginning of buffer
 	    // in bytes.  The header is not available
-	    // to store vector elements.
+	    // to store vector elements.  Reset when
+	    // base is reset.
 
 	uns32 length;
 	    // Number of elements currently used in
-	    // the buffer vector.
+	    // the buffer vector.  Maintained by user
+	    // of buffer.
 
 	uns32 max_length;
 	    // Number of elements in the buffer vector.
+	    // Reset only by resize function.
 
 	// b[i] is the i+1'st vector element, if b is
 	// of type buffer<T>.  &b[0] is the address of
@@ -72,13 +79,16 @@ namespace ll { namespace lexeme {
 	//
 	T & operator[] ( uns32 index )
 	{
-	    return * (T *) (* base + header_size)
+	    return * (T *) (* base + header_size);
 	}
 
 	// Change the buffer vector max_length.
 	//
 	// Changing the max_length to 0 effectively
-	// deallocates the buffer.
+	// deallocates the buffer vector, and changing
+	// from 0 effectively allocates the buffer
+	// vector.  Other changes may relocate the
+	// buffer vector.
 	//
 	void resize ( uns32 new_max_length );
 
@@ -294,7 +304,9 @@ namespace ll { namespace lexeme {
     // item is returned.
     //
     uns32 scan
-            ( uns32 & first, & uns32 last,
+            ( uns32 & first, uns32 & last,
 	      uns32 & label );
+
+} }
 
 # endif // LL_LEXEME_H

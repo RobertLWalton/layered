@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Apr  8 05:27:57 EDT 2010
+// Date:	Fri Apr  9 20:27:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/08 09:33:33 $
+//   $Date: 2010/04/10 01:27:22 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents
 //
@@ -24,7 +24,9 @@
 // Usage and Setup
 // ----- --- -----
 
-# include <ll_lexeme>
+# include <ll_lexeme.h>
+# include <cstring>
+# include <cassert>
 # define LLLEX ll::lexeme
 using LLLEX::uns8;
 using LLLEX::uns32;
@@ -33,26 +35,19 @@ using LLLEX::uns32;
 // Data Definitions
 // ---- -----------
 
-uns32 ** LLLEX::program_pointer;
-uns32 LLLEX::header_length;
-uns32 LLLEX::length;
-uns32 LLLEX::max_length;
-uns32 LLLEX::length_increment = 1000;
-
-inline uns32 * & program ( void )
-    { return * LLLEX::program_pointer; }
+static uns32 length_increment = 1000;
 
 enum {
     PROGRAM			= 1,
     ATOM_TABLE			= 2,
     TYPE_MAP			= 3,
     DISPATCHER			= 4,
-    INSTRUCTION			= 5
+    INSTRUCTION			= 4
 };
 
 struct program_header {
     uns32 type;
-    uns32 initial_atom_table_ID;
+    uns32 atom_table_ID;
 };
 const uns32 program_header_length = 2;
 
@@ -129,27 +124,33 @@ const uns32 type_map_header_length = 4;
 // characters of the translation.
 //
 struct instruction_header {
-    uns32 operation,
-    uns32 goto_atom_table,
-    uns32 truncation_length,
-    uns32 translation_length
+    uns32 type;
+    uns32 operation;
+    uns32 atom_table_ID;
+    uns32 truncation_length;
+    uns32 translation_length;
 };
-const uns32 instruction_header_length = 4;
+const uns32 instruction_header_length = 5;
 
 // Program Creation
 // ------- --------
 
 static uns32 allocate_to_program ( uns32 needed_size )
 {
-    uns32 available = LLLEX::max_length - LLLEX::length;
+    uns32 available = LLLEX::program.max_length
+                     - LLLEX::program.length;
+
     if ( needed_size > available )
     {
-        LLLEX::max_length += ( needed_size - available )
-		           + LLLEX::length_increment;
-	LLLEX::resize_program ( LLLEX::max_length );
+        uns32 new_max_length =
+	      LLLEX::program.max_length
+	    + ( needed_size - available )
+	    + length_increment;
+	LLLEX::program.resize ( new_max_length );
+
     }
-    uns32 result = LLLEX::length;
-    LLLEX::length += needed_size;
+    uns32 result = LLLEX::program.length;
+    LLLEX::program.length += needed_size;
     return result;
 }
 
@@ -159,7 +160,7 @@ uns32 LLLEX::create_atom_table
     uns32 ID = allocate_to_program
     		   ( atom_table_header_length );
     atom_table_header & h =
-        * (atom_table_header *) & program()[ID];
+        * (atom_table_header *) & program[ID];
     h.type = ATOM_TABLE;
     h.mode = mode;
     h.label = label;
@@ -170,21 +171,16 @@ uns32 LLLEX::create_atom_table
 
 uns32 LLLEX::create_program ( void )
 {
-    program_pointer = allocate_program();
-    max_length = length = header_length =
-	    program_length();
+    program.resize ( 0 );
     uns32 ID = allocate_to_program
-    		   ( program_table_header_length );
-    assert ( ID == LLLEX::header_length );
+    		   ( program_header_length );
+    assert ( ID == 0 );
 
-    // Program_table_header might be at ID == 0
-    // but no other header an have ID == 0.
-
-    program_table_header & h =
-        * (program_table_header *) & program()[ID];
-    h.type = PROGRAM_TABLE;
-    h.atom_table = create_atom_table ( MASTER );
-    return h.atom_table;
+    program_header & h =
+        * (program_header *) & program[ID];
+    h.type = PROGRAM;
+    h.atom_table_ID = create_atom_table ( MASTER, 0 );
+    return h.atom_table_ID;
 }
 
 uns32 LLLEX::create_dispatcher
@@ -200,7 +196,7 @@ uns32 LLLEX::create_dispatcher
     uns32 ID = allocate_to_program ( length );
     dispatcher_header & h =
         * (dispatcher_header *)
-	& program()[ID];
+	& program[ID];
     h.type = DISPATCHER;
     h.break_elements = 1;
     h.max_break_elements = max_breakpoints + 1;
@@ -218,11 +214,11 @@ uns32 LLLEX::create_type_map
 {
     uns32 length = cmin - cmax + 1;
     uns32 ID = allocate_to_program
-    	(   type_table_header_length
-	  + ( length + 3 ) / 4 ) );
+    	(   type_map_header_length
+	  + ( length + 3 ) / 4 );
     type_map_header & h =
-        * (type_map_header) & program[ID];
-    h.type = TYPE_TABLE;
+        * (type_map_header *) & program[ID];
+    h.type = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
     h.singleton_type = 0;
@@ -231,14 +227,14 @@ uns32 LLLEX::create_type_map
 }
 
 uns32 LLLEX::create_type_map
-	( uns32 cmin, uns32 cmax, uns8 type )
+	( uns32 cmin, uns32 cmax, uns32 type )
 {
     uns32 length = cmin - cmax + 1;
     uns32 ID = allocate_to_program
-    	( type_table_header_length );
+    	( type_map_header_length );
     type_map_header & h =
-        * (type_map_header) & program[ID];
-    h.type = TYPE_TABLE;
+        * (type_map_header *) & program[ID];
+    h.type = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
     assert ( type != 0 );
@@ -248,7 +244,7 @@ uns32 LLLEX::create_type_map
 
 uns32 LLLEX::create_instruction
 	( uns32 operation,
-	  uns32 goto_atom_table_ID,
+	  uns32 atom_table_ID,
 	  uns32 truncation_length,
 	  uns32 * translation,
 	  uns32 translation_length )
@@ -262,9 +258,9 @@ uns32 LLLEX::create_instruction
 	     ( GOTO + SHORTCUT ) );
 
     if ( operation & ( GOTO + SHORTCUT ) )
-        assert ( goto_atom_table_ID != 0 );
+        assert ( atom_table_ID != 0 );
     else
-        assert ( goto_atom_table_ID == 0 );
+        assert ( atom_table_ID == 0 );
         
     if ( operation & TRANSLATE )
         assert ( translation_length == 0
@@ -281,10 +277,10 @@ uns32 LLLEX::create_instruction
     	(   instruction_header_length
 	  + translation_length );
     instruction_header & h =
-        * (instruction_header) & program[ID];
+        * (instruction_header *) & program[ID];
     h.type = INSTRUCTION;
     h.operation = operation;
-    h.goto_atom_table_ID = goto_atom_table_ID;
+    h.atom_table_ID = atom_table_ID;
     h.truncation_length = truncation_length;
     h.translation_length = translation_length;
     if ( translation_length > 0 )
@@ -306,18 +302,18 @@ static uns32 attach_type_map_to_dispatcher
 {
     dispatcher_header & dh =
         * (dispatcher_header *)
-	& program()[dispatcher_ID];
+	& LLLEX::program[dispatcher_ID];
     assert ( dh.type == DISPATCHER );
     type_map_header & mh =
         * (type_map_header *)
-	& program()[type_map_ID];
+	& LLLEX::program[type_map_ID];
     assert ( mh.type == TYPE_MAP );
 
     uns32 beginp = dispatcher_ID
                  + dispatcher_header_length;
     uns32 endp = beginp
                +   break_element_length
-	         * dh.elements;
+	         * dh.break_elements;
     uns32 p = beginp;
     uns32 nextp;
     while ( true )
@@ -327,32 +323,32 @@ static uns32 attach_type_map_to_dispatcher
 	if ( nextp >= endp ) break;
 	break_element & nexte =
 	    * (break_element *)
-	    & program()[nextp];
+	    & LLLEX::program[nextp];
 	if ( nexte.cmin > mh.cmin ) break;
 	p = nextp;
     }
 
-    bool split_next = nextp == endp ?
-                      mh.cmax != (uns32) -1 :
-		      mh.cmax != nextp->cmin;
-
     break_element * bep =
 	(break_element *)
-	& program()[p];
+	& LLLEX::program[p];
     break_element * nextbep =
         nextp == endp ? NULL :
 	(break_element *)
-	& program()[nextp];
+	& LLLEX::program[nextp];
+
+    bool split_next = nextp == endp ?
+                      mh.cmax != (uns32) -1 :
+		      mh.cmax != nextbep->cmin;
 
     if ( bep->type_map_ID != 0 )
         return 0;
 
     if ( nextp != endp
          &&
-	 nextbep.cmin < mh.cmin )
+	 nextbep->cmin < mh.cmin )
         return 0;
 
-    uns32 n = 2
+    uns32 n = 2;
     if ( bep->cmin == mh.cmin ) -- n;
     if ( ! split_next ) -- n;
     if ( dh.break_elements + n > dh.max_break_elements )
@@ -361,16 +357,15 @@ static uns32 attach_type_map_to_dispatcher
     if ( nextp != endp && n != 0 )
         memmove ( bep + n, bep,
 	          break_element_length * ( endp - p ) );
-    if ( bep->cmin < mp.cmin )
+    if ( bep->cmin < mh.cmin )
     {
-	nextbep->cmin = mp.cmin;
+	nextbep->cmin = mh.cmin;
 	nextbep->type_map_ID  = 0;
 	bep = nextbep;
 	nextbep =
 	    (break_element *)
-	    & program()
-	    [  nextp
-	     + break_element_length];
+	    & LLLEX::program [  nextp
+	                      + break_element_length];
     }
 
     if ( split_next )
@@ -380,7 +375,7 @@ static uns32 attach_type_map_to_dispatcher
     }
 
     dh.break_elements += n;
-    bep->type_map_id = type_map_id;
+    bep->type_map_ID = type_map_ID;
     return 1;
 }
 
@@ -388,14 +383,14 @@ uns32 LLLEX::attach
 	( uns32 target_ID,
 	  uns32 item_ID )
 {
-    uns32 target_type = program()[target_ID];
-    uns32 item_type = program()[item_ID];
+    uns32 target_type = program[target_ID];
+    uns32 item_type = program[item_ID];
 
     if ( target_type == ATOM_TABLE )
     {
 	atom_table_header & h =
 	    * (atom_table_header *)
-	    & program()[target_ID];
+	    & program[target_ID];
 
         if ( item_type == DISPATCHER )
 	{
@@ -411,7 +406,7 @@ uns32 LLLEX::attach
 	    h.instruction_ID = item_ID;
 	    return 1;
 	}
-	else abort();
+	else assert ( ! "bad attach arguments" );
     }
     else if ( target_type == DISPATCHER
               &&
@@ -419,7 +414,7 @@ uns32 LLLEX::attach
         return attach_type_map_to_dispatcher
 		   ( target_ID, item_ID );
     else
-        abort();
+	assert ( ! "bad attach arguments" );
 }
 
 uns32 LLLEX::attach
@@ -429,22 +424,22 @@ uns32 LLLEX::attach
 {
     dispatcher_header & h =
         * (dispatcher_header *)
-	& program()[target_ID];
+	& program[target_ID];
     assert ( h.type == DISPATCHER );
 
-    uns32 item_type = program()[item_ID];
+    uns32 item_type = program[item_ID];
     assert ( item_type == DISPATCHER
              ||
 	     item_type == INSTRUCTION );
     assert ( t <= h.max_type );
     map_element & me =
         * (map_element *)
-	& program()[  target_ID
-	            + dispatcher_header_length
-		    +   break_element_length
-		      * h.max_break_elements
-		    +   map_element_length
-		      * t];
+	& program[  target_ID
+	          + dispatcher_header_length
+		  +   break_element_length
+		    * h.max_break_elements
+		  +   map_element_length
+		    * t];
 
     if ( item_type == DISPATCHER )
     {
@@ -460,5 +455,6 @@ uns32 LLLEX::attach
 	me.instruction_ID = item_ID;
 	return 1;
     }
-    else abort();
+    else
+	assert ( ! "bad attach arguments" );
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri Apr  9 20:34:07 EDT 2010
+// Date:	Sat Apr 10 09:46:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/10 01:27:35 $
+//   $Date: 2010/04/10 15:31:02 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents
 //
@@ -27,7 +27,7 @@
 # ifndef LL_LEXEME_H
 # define LL_LEXEME_H
 
-# include <cstring>
+# include <iostream>
 
 // External Interface
 // -------- ---------
@@ -46,15 +46,22 @@ namespace ll { namespace lexeme {
     // Character positions are stored in uns64 integers.
 
     // A buffer holds a vector of elements of type T,
-    // where T should be a C language number or struct.
+    // where T should be a C language number or struct,
+    // and must not have a constructor or destructor
+    // or any preferred initial value, and must be
+    // copyable with memcpy.
     //
     template < typename T >
     struct buffer
     {
+        // Members read-only to user.
+
         uns8 ** base;
-	    // Base address of buffer.  Reset by
-	    // resize function when max_length is
-	    // changed to or from 0.
+	    // Pointer to location storing address of
+	    // buffer vector.  Reset by resize function
+	    // when max_length is changed to or from 0.
+	    // * base is the address of the buffer
+	    // vector.
 
 	uns32 header_size;
 	    // Size of header at beginning of buffer
@@ -64,37 +71,72 @@ namespace ll { namespace lexeme {
 
 	uns32 length;
 	    // Number of elements currently used in
-	    // the buffer vector.  Maintained by user
-	    // of buffer.
+	    // the buffer vector.  Reset by allocate
+	    // and deallocate.
 
 	uns32 max_length;
 	    // Number of elements in the buffer vector.
-	    // Reset only by resize function.
+	    // max_length - length elements are unused.
+	    // Reset by resize function.
+
+        // Members read-write for user.
+
+	uns32 length_increment;
+	    // When allocate must call resize, it
+	    // provides for length_increment unused
+	    // elements after the allocate is done.
+	    // Defaults to 1000.
 
 	// b[i] is the i+1'st vector element, if b is
 	// of type buffer<T>.  &b[0] is the address of
-	// the beginning of the buffer and &b[length] is
+	// the beginning of the vector and &b[length] is
 	// the address of the first location after the
-	// end of the buffer.
+	// end of the vector.
 	//
 	T & operator[] ( uns32 index )
 	{
 	    return * (T *) (* base + header_size);
 	}
 
-	// Change the buffer vector max_length.
+	// Allocate n elements from the end of the
+	// buffer vector.
+	//
+	// Adds n to length, and returns the original
+	// length, which is the index of the first
+	// element allocated.
+	//
+	// If necessary calls resize (below) to ensure
+	// that max_length > length.  In this case sets
+	//
+	//	max_length = new_length
+	//		   + length_increment
+	//
+	// Returns old value of length, which is the
+	// index of the first element allocated.
+	//
+	uns32 allocate ( uns32 n );
+
+	// Deallocates n elements from the end of the
+	// buffer vector.  Just sets length -= n.
+	// Returns new value of length.
+	//
+	uns32 deallocate ( uns32 n );
+
+	// Change the buffer vector max_length.  The
+	// max_length can be increased or decreased.
+	// The buffer vector will be relocated in
+	// memory.
 	//
 	// Changing the max_length to 0 effectively
 	// deallocates the buffer vector, and changing
 	// from 0 effectively allocates the buffer
-	// vector.  Other changes may relocate the
-	// buffer vector.
+	// vector.
 	//
 	void resize ( uns32 new_max_length );
 
     };
 
-    struct chardatum
+    struct inchar
     {
         uns64	position;
 	uns32	character;
@@ -102,7 +144,7 @@ namespace ll { namespace lexeme {
 
     extern buffer<uns32> program;
         // Program.
-    extern buffer<chardatum> input_buffer;
+    extern buffer<inchar> input_buffer;
         // Scanner input buffer.
     extern buffer<uns32> translation_buffer;
         // Scanner translation buffer.
@@ -121,10 +163,22 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
+    // Error message describing the last error.  Can
+    // be reset to "" indicating there is no error by
+    // ll::lexeme::error_message[0] = 0.  Users should
+    // not write into this otherwise.
+    //
+    // The error message is a sequence of '\n' termina-
+    // ted lines each no longer than 72 characters.  It
+    // may be used in conjunction with the print_program
+    // output.
+    //
+    extern char * error_message;
+
     // Create a new program and an atom table, and
     // return the ID of the atom table.  The atom
     // table is the initial table of the program,
-    // and has the MASTER mode.
+    // and has the MASTER mode and 0 label.
     //
     // This function resets the program buffer vector
     // length to 0 and then adds a program header
@@ -135,16 +189,16 @@ namespace ll { namespace lexeme {
     //
     uns32 create_program ( void );
 
-    // Atom table classes and modes.
+    // Atom table kinds and modes.
     //
     enum {
-        // Classes (which are also modes).
+        // Kinds (which are also modes).
 	//
 	LEXEME		= 1,
 	WHITESPACE	= 2,
 	ERROR		= 3,
 
-	// Modes that are not classes.
+	// Modes that are not kinds.
 	//
         MASTER		= 4,
 	CONTINUATION	= 5
@@ -190,47 +244,117 @@ namespace ll { namespace lexeme {
     // Instruction opcodes:
     //
     enum {
-    	ACCEPT		= ( 1 << 0 ),
-	DISCARD		= ( 1 << 1 ),
-	KEEP		= 0,
-	TRUNCATE	= ( 1 << 2 ),
-	TRANSLATE	= ( 1 << 3 ),
-	GOTO		= ( 1 << 4 ),
-	SHORTCUT	= ( 1 << 5 ),
+    	ACCEPT			= ( 1 << 0 ),
+	DISCARD			= ( 1 << 1 ),
+	KEEP			= 0,
+	TRUNCATE_FLAG		= ( 1 << 2 ),
+	TRANSLATE_FLAG		= ( 1 << 3 ),
+	TRANSLATE_HEX_FLAG	= ( 1 << 4 ),
+	TRANSLATE_OCT_FLAG	= ( 1 << 5 ),
+	GOTO			= ( 1 << 6 ),
+	SHORTCUT		= ( 1 << 7 ),
     };
 
-    // Create an instruction.  The instruction has the
-    // given operation flag bits interpreted as follows:
+    // Instruction shifts and masks
     //
-    //	 ACCEPT:	Move atom to output item.
+    const uns32 TRUNCATE_LENGTH_SHIFT = 16;
+    const uns32 TRUNCATE_LENGTH_MASK = 0x3F;
+    const uns32 TRANSLATE_LENGTH_SHIFT = 22;
+    const uns32 TRANSLATE_LENGTH_MASK = 0x3F;
+    const uns32 PREFIX_LENGTH_SHIFT = 22;
+    const uns32 PREFIX_LENGTH_MASK = 01F;
+    const uns32 POSTFIX_LENGTH_SHIFT = 27;
+    const uns32 POSTFIX_LENGTH_MASK = 01F;
+
+    // Composite operations.
+    //
+    inline uns32 TRUNCATE ( uns32 translate_length )
+    {
+        assert ( translate_length < 64 );
+	return TRUNCATE_FLAG
+	     + ( translate_length << TRUNCATE_LENGTH_SHIFT );
+    }
+    inline uns32 TRANSLATE ( uns32 translate_length )
+    {
+        assert ( translate_length < 64 );
+	return TRANSLATE_FLAG
+	     + ( translate_length << TRANSLATE_LENGTH_SHIFT );
+    }
+    inline uns32 TRANSLATE_HEX
+    	( uns32 prefix_length, uns32 postfix_length )
+    {
+        assert ( prefix_length < 32 );
+        assert ( postfix_length < 32 );
+	return TRANSLATE_HEX_FLAG
+	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
+	     + ( postfix_length << POSTFIX_LENGTH_SHIFT );
+    }
+    inline uns32 TRANSLATE_OCT
+    	( uns32 prefix_length, uns32 postfix_length )
+    {
+        assert ( prefix_length < 32 );
+        assert ( postfix_length < 32 );
+	return TRANSLATE_OCT_FLAG
+	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
+	     + ( postfix_length << POSTFIX_LENGTH_SHIFT );
+    }
+
+    // Create an instruction.  The instruction is the
+    // some of some of the following:
+    //
+    //	 ACCEPT:	Move atom to output item and to
+    //			translation buffer.
     //	 DISCARD:	Discard atom.
     //	 KEEP:		Neither of the above.
     //			(ACCEPT and DISCARD are
     //			 exclusive).
     //
-    //   TRUNCATE:	Truncate atom to truncate_length
-    //			before any other processing.
-    //			Truncation is done in the input
-    //			buffer before any other process-
-    //			ing of the atom.  The discarded
-    //			end of the atom is retained as
-    //			input to be rescanned.
+    //   TRUNCATE(n):	Truncate atom to n uns32 char-
+    //			acters before any other proces-
+    //			sing.  Truncation is done in the
+    //			input buffer before any other
+    //			processing of the atom.  The
+    //			discarded end of the atom is re-
+    //			tained as input to be rescanned.
+    //			n may be 0.
     //
-    //			(Truncate_length may be 0; it
-    //			cannot be non-zero if there is
-    //			no TRUNCATE flag.)
-    //
-    //	 TRANSLATE	Instead of copying the atom into
+    //	 TRANSLATE(n)	Instead of copying the atom into
     //			the translation buffer, copy the
     //			characters given in the transla-
     //			tion vector instead.  This vec-
-    //			tor has translation_length char-
-    //			acters.
+    //			tor has n characters, where n
+    //			may be 0 (if n is 0, the trans-
+    //			lation vector address may be
+    //			NULL).
     //
-    //			(Translation_length may be 0;
-    //			if there is no TRANSLATE flag,
-    //			translation_length must be 0 and
-    //			translation must be NULL.)
+    //   TRANSLATE_HEX(prefix,postfix)
+    //   TRANSLATE_OCT(prefix,postfix)
+    //			Instead of copying the atom into
+    //   		the translation buffer, convert
+    //		        some of the atom characters from
+    //			a hexadecimal or octal number
+    //			representation to an uns32 value
+    //			equal to one UNICODE character,
+    //			and put that character into the
+    //			translation buffer.
+    //
+    //			If p points at the atom, the
+    //			characters converted are
+    //			p[begin .. end] where
+    //			    begin = prefix
+    //			    end = atom length
+    //				- postfix - 1
+    //
+    //			The prefix and/or postfix may be
+    //			0.
+    //
+    //			(TRANSLATE, TRANSLATE_HEX, and
+    //			TRANSLATE_OCT are mutually ex-
+    //			clusive.  The translate_vector
+    //			address must be non-NULL for
+    //			TRANSLATE(n) with n > 0, and
+    //			must be NULL if there is no
+    //			TRANSLATE.)
     //
     //	 GOTO		After all other processing,
     //			switch the current atom table
@@ -250,14 +374,14 @@ namespace ll { namespace lexeme {
     //			(GOTO and SHORTCUT are
     //			exclusive.  If neither is given
     //			atom_table_ID must be zero;
-    //			otherwise it must be non-zero.)
+    //			otherwise it must be non-zero.
+    //			Note that ID's of program compo-
+    //			nents are never zero.)
     //
     uns32 create_instruction
 	    ( uns32 operation,
 	      uns32 atom_table_ID = 0,
-	      uns32 truncation_length = 0,
-	      uns32 * translation = NULL,
-	      uns32 translation_length = 0 );
+	      uns32 * translation_vector = NULL );
 
     // Attach a dispatcher or an instruction item to an
     // atom table target, or a type map item to a
@@ -280,32 +404,51 @@ namespace ll { namespace lexeme {
 	      uns32 t );
 
     // Initialize lexical scan.  The program must be
-    // stored in the vector returned by allocate_
-    // program.  It must have been created by the
-    // above functions, but may have been dumped into
-    // a file after creation and restored from the file.
+    // stored in the program buffer.  It must have been
+    // created by the above functions, but may have been
+    // dumped into a file after creation and restored
+    // from the file.
     //
     void init_scan ( void );
 
     // Scan the input and return the next item (lexeme,
     // error string, whitespace, or EOF).
     //
-    // The first and last positions in the data buffer
+    // The first and last positions in the input buffer
     // are returned, i.e., the item is in
     //
-    //		(* p)[first .. last]
+    //		input_buffer[first .. last]
     //
-    // where p is the value of allocate_data_buffer.
     // The item length, last - first + 1, is always
-    // >= 1.  The item class is returned as the
+    // >= 1.  The item kind is returned as the
     // value of the scan function, or 0 is returned
-    // if there is no item because on an end-of-file.
+    // if there is no item because of an end-of-file.
     // The label of the atom table that generated the
-    // item is returned.
+    // item is returned.  The translated item is
+    // returned in the translation buffer if there is
+    // no end-of-file.
     //
     uns32 scan
             ( uns32 & first, uns32 & last,
 	      uns32 & label );
+
+    // Print a representation of the program to the
+    // output stream.
+    //
+    void print_program ( std::ostream & out );
+
+    // Convert the program to the endianhood of this
+    // computer.  This is necessary when the program is
+    // read from a binary file.  The first uns32 element
+    // of the program determines the program's endian-
+    // hood (it is known constant that appears correct
+    // if and only if the program's current endianhood
+    // is correct).  Note that the program contains
+    // embedded byte vectors which must not be changed
+    // by endianhood conversion, so one cannot simply
+    // convert all the uns32 elements of the program.
+    //
+    void convert_program_endianhood ( void );
 
 } }
 

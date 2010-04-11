@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sun Apr 11 03:30:39 EDT 2010
+// Date:	Sun Apr 11 11:36:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 07:32:33 $
+//   $Date: 2010/04/11 15:51:39 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents
 //
@@ -133,7 +133,7 @@ namespace ll { namespace lexeme {
 	// from 0 effectively allocates the buffer
 	// vector.
 	//
-	void resize ( uns32 new_max_length );
+	virtual void resize ( uns32 new_max_length );
 
     };
 

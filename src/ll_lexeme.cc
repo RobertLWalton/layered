@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 10 20:07:06 EDT 2010
+// Date:	Sun Apr 11 03:32:03 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 00:08:01 $
+//   $Date: 2010/04/11 07:32:26 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents
 //
@@ -34,8 +34,9 @@
 using std::cout;
 using std::endl;
 using std::setw;
-using LLLEX::uns8;
-using LLLEX::uns32;
+using std::ios;
+using std::ostream;
+using namespace LLLEX;
 using namespace LLLEX::program_data;
 
 
@@ -347,20 +348,172 @@ uns32 LLLEX::attach
 	assert ( ! "bad attach arguments" );
 }
 
-void LLLEX::print_program ( std::ostream & out )
+// cout << pchar ( uns32 c, width, {LEFT,RIGHT} )
+// outputs a character c either with no padding if
+// width == 0 or with padding and the indicated adjust-
+// ment (default RIGHT).  Format is 1 character for
+// printable non-space ASCII characters, \uXXXX for
+// other characters <= 0xFFFF, and \UXXXXXXXX
+// otherwise.
+//
+enum { LEFT = 1, RIGHT = 0 };
+struct pchar
+{
+    uns32 c;
+    unsigned width;
+    bool left_adjust;
+    pchar ( uns32 c,
+            unsigned width = 0,
+	    bool left_adjust = RIGHT ) :
+        c ( c ), width ( width ),
+	left_adjust ( left_adjust ) {}
+};
+
+static ostream & operator << ( ostream & s, const pchar & pc )
+{
+    char buffer[20];
+    if ( 33 <= pc.c && pc.c <= 126 )
+        sprintf ( buffer, "%c", (char) pc.c );
+    else if ( pc.c <= 0xFFFF )
+        sprintf ( buffer, "\\\\u%04X", pc.c );
+    else
+        sprintf ( buffer, "\\\\U%08X", pc.c );
+
+    if ( pc.width > 0 && pc.left_adjust )
+        s << setiosflags ( ios::left );
+    if ( pc.width > 0 ) s << setw ( pc.width );
+    s << buffer;
+    if ( pc.width > 0 && pc.left_adjust )
+        s << resetiosflags ( ios::left );
+    return s;
+}
+
+// Print the instruction at program[ID] with the given
+// indent, if ID is non-zero.  Otherwise do nothing.
+// If ID is non-zero, return ID repositioned just after
+// instuction (else return 0).  However, if program[ID]
+// does not == INSTRUCTION, print ILLEGAL instruction
+// message and return 0xFFFFFFFF.
+//
+static uns32 print_instruction
+    ( uns32 ID, unsigned indent = 12 )
+{
+    if ( ID == 0 ) return 0;
+    if ( indent > 0 ) cout << setw ( indent ) << " ";
+
+    instruction_header & h =
+        * (instruction_header *) & program[ID];
+    uns32 translate_length = 0;
+
+    if ( h.type != INSTRUCTION )
+    {
+        cout << "ILLEGAL INSTRUCTION TYPE ("
+	     << h.type << ")" << endl;
+	return 0xFFFFFFFF;
+    }
+    if ( ( ( h.operation & ACCEPT ) != 0 )
+	 +
+         ( ( h.operation & DISCARD ) != 0 )
+	 > 1 ) cout << "ILLEGAL: ";
+    else
+    if ( ( ( h.operation & TRANSLATE_FLAG ) != 0 )
+	 +
+         ( ( h.operation & TRANSLATE_HEX_FLAG ) != 0 )
+	 +
+         ( ( h.operation & TRANSLATE_OCT_FLAG ) != 0 )
+	 > 1 ) cout << "ILLEGAL: ";
+    else
+    if ( ( ( h.operation & GOTO ) != 0 )
+	 +
+         ( ( h.operation & SHORTCUT ) != 0 )
+	 > 1 ) cout << "ILLEGAL: ";
+
+    switch ( h.operation & ( ACCEPT + DISCARD ) )
+    {
+    case ACCEPT: cout << "ACCEPT"; break;
+    case DISCARD: cout << "DISCARD"; break;
+    case 0: cout << "KEEP"; break;
+    default: cout << "ACCEPT, DISCARD"; break;
+    }
+
+    if ( h.operation & TRUNCATE_FLAG )
+        cout << ", TRUNCATE("
+	     << (   (    h.operation
+	              >> TRUNCATE_LENGTH_SHIFT )
+		  & TRUNCATE_LENGTH_MASK )
+	     << ")";
+    if ( h.operation & TRANSLATE_FLAG )
+    {
+        translate_length =
+	      (    h.operation
+	        >> TRANSLATE_LENGTH_SHIFT )
+	    & TRANSLATE_LENGTH_MASK;
+        cout << ", TRANSLATE(" << translate_length;
+	if ( translate_length > 0 )
+	{
+	    cout << ",";
+	    for ( uns32 p =
+	            ID + instruction_header_length;
+		  0 < translate_length;
+		  ++ p, -- translate_length )
+	        cout << pchar ( program[p] );
+	}
+	cout << ")";
+    }
+    if ( h.operation & TRANSLATE_HEX_FLAG )
+        cout << ", TRANSLATE_HEX("
+	     << (   (    h.operation
+	              >> PREFIX_LENGTH_SHIFT )
+		  & PREFIX_LENGTH_MASK )
+		<< ","
+	     << (   (    h.operation
+	              >> POSTFIX_LENGTH_SHIFT )
+		  & POSTFIX_LENGTH_MASK )
+	     << ")";
+    if ( h.operation & TRANSLATE_OCT_FLAG )
+        cout << ", TRANSLATE_OCT("
+	     << (   (    h.operation
+	              >> PREFIX_LENGTH_SHIFT )
+		  & PREFIX_LENGTH_MASK )
+		<< ","
+	     << (   (    h.operation
+	              >> POSTFIX_LENGTH_SHIFT )
+		  & POSTFIX_LENGTH_MASK )
+	     << ")";
+    if ( h.operation & GOTO )
+        cout << ", GOTO(" << h.atom_table_ID << ")";
+    if ( h.operation & SHORTCUT )
+        cout << ", SHORTCUT(" << h.atom_table_ID << ")";
+
+    return ID + instruction_header_length
+              + translate_length;
+}
+
+// Print the dispatcher at program[ID] with the given
+// indent, if ID is non-zero in the cooked format.
+// Return ID pointing after dispatcher.  If ID is zero,
+// do nothing but return 0.
+//
+static uns32 print_cooked_dispatcher
+    ( uns32 ID, unsigned indent = 12 )
+{
+    if ( ID == 0 ) return 0;
+}
+
+void LLLEX::print_program
+	( std::ostream & out, bool cooked )
 {
     uns32 ID = 0;
     bool error = false;
     char buffer[100];
     while ( ! error && ID < program.length )
     {
-	cout << setw ( 11 ) << ID << ": ";
-
         switch ( program[ID] )
 	{
 	case PROGRAM:
 	{
-	    cout << "PROGRAM" << endl;
+	    cout << setw ( 11 ) << ID << ": "
+	         << "PROGRAM" << endl;
 	    program_header & h =
 	        * (program_header *) & program[ID];
 	    cout << "            Atom Table ID: "
@@ -370,7 +523,8 @@ void LLLEX::print_program ( std::ostream & out )
 	}
 	case ATOM_TABLE:
 	{
-	    cout << "ATOM_TABLE" << endl;
+	    cout << setw ( 11 ) << ID << ": "
+	         << "ATOM_TABLE" << endl;
 	    atom_table_header & h =
 	        * (atom_table_header *) & program[ID];
 	    cout << "            Mode: ";
@@ -394,14 +548,22 @@ void LLLEX::print_program ( std::ostream & out )
 	         << h.label << endl;
 	    cout << "            Dispatcher ID: "
 	         << h.dispatcher_ID << endl;
-	    cout << "            Instruction ID: "
-	         << h.instruction_ID << endl;
+	    if ( cooked )
+	        print_instruction
+		    ( h.instruction_ID );
+	    else
+		cout << "            Instruction ID: "
+		     << h.instruction_ID << endl;
 	    ID += atom_table_header_length;
 	    break;
 	}
 	case DISPATCHER:
+	    cout << setw ( 11 ) << ID << ": "
+	         << "DISPATCHER" << endl;
+	if ( cooked )
+	    ID = print_cooked_dispatcher ( ID );
+	else
 	{
-	    cout << "DISPATCHER" << endl;
 	    dispatcher_header & h =
 	        * (dispatcher_header *) & program[ID];
 	    cout << "            Break Elements: "
@@ -467,10 +629,78 @@ void LLLEX::print_program ( std::ostream & out )
 	        * ( h.max_type + 1 );
 	    break;
 	}
-
+	case INSTRUCTION:
+	    if ( ! cooked )
+	    {
+		cout << setw ( 11 ) << ID << ": ";
+		ID = print_instruction ( ID, 0 );
+	    }
+	    break;
+	case TYPE_MAP:
+	if ( ! cooked )
+	{
+	    cout << setw ( 11 ) << ID << ": "
+	         << "TYPE_MAP" << endl;
+	    type_map_header & h =
+	        * (type_map_header *) & program[ID];
+	    ID += type_map_header_length;
+	    if ( h.singleton_type > 0 )
+	        cout << setw ( 16 ) << h.singleton_type
+		     << ": " << pchar ( h.cmin )
+		     << "-" << pchar ( h.cmax ) << endl;
+	    else
+	    {
+		char * map = (char *) ( & h + 1 );
+		ID += ( h.cmax - h.cmin + 4 ) / 4;
+		for ( unsigned t = 0; t < 256; ++ t )
+		{
+		    bool found = false;
+		    bool last = false;
+		    for ( uns32 c = h.cmin;
+			  c <= h.cmax; ++ c )
+		    {
+			if ( map[c - h.cmin] != t )
+			{
+			    if ( last )
+			    {
+			        cout << "-"
+				     << pchar ( c - 1 );
+				last = false;
+			    }
+			}
+			else
+			{
+			    if ( ! found )
+			        cout << setw ( 16 ) << t
+				     << ": ";
+			    if ( ! last )
+			    {
+			        if ( found ) cout << ",";
+			        cout << pchar ( c );
+				last = true;
+			    }
+			    found = true;
+			}
+		    }
+		    if ( found ) cout << endl;
+		}
+	    }
+        }
+	else
+	{
+	    type_map_header & h =
+	        * (type_map_header *) & program[ID];
+	    ID += type_map_header_length;
+	    if ( h.singleton_type == 0 )
+	        ID += ( h.cmax - h.cmin + 4 ) / 4;
+	}
+	    break;
+	default:
+	    cout << "ILLEGAL ITEM TYPE("
+	         << program[ID] << ")" << endl;
+	    return;
 	}
     }
-    
 }
 
 void LLLEX::convert_program_endianhood ( void )

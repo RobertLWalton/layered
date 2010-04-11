@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sun Apr 11 11:36:54 EDT 2010
+// Date:	Sun Apr 11 12:03:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 15:51:39 $
+//   $Date: 2010/04/11 16:06:11 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents
 //
@@ -293,6 +293,18 @@ namespace ll { namespace lexeme {
         assert
 	  ( postfix_length <= POSTFIX_LENGTH_MASK );
 	return TRANSLATE_HEX_FLAG
+	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
+	     + (    postfix_length
+	         << POSTFIX_LENGTH_SHIFT );
+    }
+    inline uns32 TRANSLATE_OCT
+    	( uns32 prefix_length, uns32 postfix_length )
+    {
+        assert
+	  ( prefix_length <= PREFIX_LENGTH_MASK );
+        assert
+	  ( postfix_length <= POSTFIX_LENGTH_MASK );
+	return TRANSLATE_OCT_FLAG
 	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
 	     + (    postfix_length
 	         << POSTFIX_LENGTH_SHIFT );

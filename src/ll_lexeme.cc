@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 11 03:32:03 EDT 2010
+// Date:	Sun Apr 11 12:06:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 07:32:26 $
+//   $Date: 2010/04/11 16:08:36 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents
 //
 //	Usage and Setup
-//	Data Definitions
+//	External Interface
 //	Program Creation
 
 // Usage and Setup
@@ -38,7 +38,40 @@ using std::ios;
 using std::ostream;
 using namespace LLLEX;
 using namespace LLLEX::program_data;
+
+// External Interface
+// -------- ---------
 
+template < typename T >
+uns32 LLLEX::buffer<T>::allocate ( uns32 n )
+{
+    uns32 available = max_length - length;
+    if ( available < n )
+    {
+        uns32 new_max_length =
+	    max_length + n - available
+	               + length_increment;
+	resize ( new_max_length );
+    }
+    uns32 location = length;
+    length += n;
+    return location;
+}
+template 
+uns32 LLLEX::buffer<uns32>::allocate ( uns32 n );
+template 
+uns32 LLLEX::buffer<inchar>::allocate ( uns32 n );
+
+template < typename T >
+uns32 LLLEX::buffer<T>::deallocate ( uns32 n )
+{
+    assert ( length >= n );
+    length -= n;
+}
+template 
+uns32 LLLEX::buffer<uns32>::deallocate ( uns32 n );
+template 
+uns32 LLLEX::buffer<inchar>::deallocate ( uns32 n );
 
 // Program Creation
 // ------- --------

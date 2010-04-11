@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 10 12:13:15 EDT 2010
+// Date:	Sun Apr 11 03:30:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/10 16:30:24 $
+//   $Date: 2010/04/11 07:32:33 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents
 //
@@ -432,9 +432,15 @@ namespace ll { namespace lexeme {
 	      uns32 & label );
 
     // Print a representation of the program to the
-    // output stream.
+    // output stream.  There are two output formats:
+    // cooked which prints dispatcher table maps
+    // from character ranges to instruction/dispatcher
+    // IDs but does not separately print out type
+    // maps and instructions, and raw, that prints
+    // out everything separately.
     //
-    void print_program ( std::ostream & out );
+    void print_program
+        ( std::ostream & out, bool cooked = true );
 
     // Convert the program to the endianhood of this
     // computer.  This is necessary when the program is

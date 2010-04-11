@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 10 12:09:19 EDT 2010
+// Date:	Sat Apr 10 20:07:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/10 16:30:10 $
+//   $Date: 2010/04/11 00:08:01 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents
 //
@@ -24,10 +24,16 @@
 // Usage and Setup
 // ----- --- -----
 
-# include <ll_lexeme_program.h>
+# include <ll_lexeme_program_data.h>
+# include <iostream>
+# include <iomanip>
+# include <cstdlib>
 # include <cstring>
 # include <cassert>
 # define LLLEX ll::lexeme
+using std::cout;
+using std::endl;
+using std::setw;
 using LLLEX::uns8;
 using LLLEX::uns32;
 using namespace LLLEX::program_data;
@@ -339,4 +345,134 @@ uns32 LLLEX::attach
     }
     else
 	assert ( ! "bad attach arguments" );
+}
+
+void LLLEX::print_program ( std::ostream & out )
+{
+    uns32 ID = 0;
+    bool error = false;
+    char buffer[100];
+    while ( ! error && ID < program.length )
+    {
+	cout << setw ( 11 ) << ID << ": ";
+
+        switch ( program[ID] )
+	{
+	case PROGRAM:
+	{
+	    cout << "PROGRAM" << endl;
+	    program_header & h =
+	        * (program_header *) & program[ID];
+	    cout << "            Atom Table ID: "
+	         << h.atom_table_ID << endl;
+	    ID += program_header_length;
+	    break;
+	}
+	case ATOM_TABLE:
+	{
+	    cout << "ATOM_TABLE" << endl;
+	    atom_table_header & h =
+	        * (atom_table_header *) & program[ID];
+	    cout << "            Mode: ";
+	    switch ( h.mode )
+	    {
+	    case LEXEME:
+	        cout << "LEXEME"; break;
+	    case WHITESPACE:
+	        cout << "WHITESPACE"; break;
+	    case ERROR:
+	        cout << "ERROR"; break;
+	    case MASTER:
+	        cout << "MASTER"; break;
+	    case CONTINUATION:
+	        cout << "CONTINUATION"; break;
+	    default:
+	    	cout << "ILLEGAL (" << h.mode << ")";
+	    }
+	    cout << endl;
+	    cout << "            Label: "
+	         << h.label << endl;
+	    cout << "            Dispatcher ID: "
+	         << h.dispatcher_ID << endl;
+	    cout << "            Instruction ID: "
+	         << h.instruction_ID << endl;
+	    ID += atom_table_header_length;
+	    break;
+	}
+	case DISPATCHER:
+	{
+	    cout << "DISPATCHER" << endl;
+	    dispatcher_header & h =
+	        * (dispatcher_header *) & program[ID];
+	    cout << "            Break Elements: "
+	         << h.break_elements << endl;
+	    cout << "            Max Break Elements: "
+	         << h.max_break_elements << endl;
+	    cout << "            Max Type: "
+	         << h.max_type << endl;
+	    cout << "     Breaks:"
+	         << "        cmin"
+	         << " type_map_ID"
+	         << endl;
+	    ID += dispatcher_header_length;
+	    uns32 p, n;
+	    for ( p = ID, n = 0;
+	          n < h.break_elements;
+		  p += break_element_length, ++ n )
+	    {
+		break_element & be =
+		    * (break_element *) & program[ID];
+		cout << "            ";
+		if ( 33 <= be.cmin && be.cmin <= 126 )
+		    cout << (sprintf ( buffer,
+		                       "         %c -",
+			               (char ) be.cmin ),
+			     buffer);
+		if ( be.cmin <= 0xFFFF )
+		    cout << (sprintf ( buffer,
+		                       "    %#04X -",
+			               be.cmin ),
+			     buffer);
+		else
+		    cout << (sprintf ( buffer,
+		                       "%#08X -",
+			               be.cmin ),
+			     buffer);
+		cout << setw ( 12 ) << be.type_map_ID
+		     << endl;
+	    }
+	    ID += break_element_length
+	        * h.max_break_elements;
+	    cout << "     Map:"
+	         << "type"
+	         << "   dispatcher_ID"
+	         << "  instruction_ID"
+	         << endl;
+	    uns32 t;
+	    for ( p = ID, t = 0;
+	          t <= h.max_type;
+		  p += map_element_length, ++ n )
+	    {
+		map_element & me =
+		    * (map_element *) & program[ID];
+		cout << "            "
+		     << setw ( 4 ) << t
+		     << setw ( 16 )
+		     << me.dispatcher_ID
+		     << setw ( 16 )
+		     << me.instruction_ID
+		     << endl;
+	    }
+	    ID += map_element_length
+	        * ( h.max_type + 1 );
+	    break;
+	}
+
+	}
+    }
+    
+}
+
+void LLLEX::convert_program_endianhood ( void )
+{
 }

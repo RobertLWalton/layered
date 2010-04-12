@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Mon Apr 12 09:40:21 EDT 2010
+// Date:	Mon Apr 12 10:46:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 14:08:13 $
+//   $Date: 2010/04/12 18:06:45 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents
 //
@@ -156,6 +156,10 @@ namespace ll { namespace lexeme {
 
     };
 
+    // The program is a sequence of program components.
+    //
+    extern buffer<uns32> & program;
+
     // The input buffer is a vector of inchar elements
     // each holding a character and the position of that
     // character in the input text.
@@ -165,21 +169,24 @@ namespace ll { namespace lexeme {
         uns64	position;
 	uns32	character;
     };
-
-    extern buffer<uns32> & program;
-        // Program.
     extern buffer<inchar> & input_buffer;
-        // Scanner input buffer.
-    extern buffer<uns32> & translation_buffer;
-        // Scanner translation buffer.
 
-    // Input one or more chardata elements to the end
+    // The translation buffer holds the translation of
+    // the current item.  For example, if the item is
+    // a quoted string lexeme, the quotes may be removed
+    // from the translation, and special character
+    // representation sequences may be replaced in the
+    // translation by the represented characters.
+    //
+    extern buffer<uns32> & translation_buffer;
+
+    // Input one or more inchar elements to the end
     // of the input buffer vector, increasing the length
     // of the buffer.  Return 1 if this is done, and 0
     // if there are no more characters because we are
     // at the end of file.
     //
-    uns32 input_data_buffer ( void );
+    uns32 read_input ( void );
 } }
 
 // LL Lexeme Program Construction

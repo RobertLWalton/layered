@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Mon Apr 12 04:52:38 EDT 2010
+// Date:	Mon Apr 12 09:40:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 10:56:02 $
+//   $Date: 2010/04/12 14:08:13 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // Table of Contents
 //
@@ -156,6 +156,10 @@ namespace ll { namespace lexeme {
 
     };
 
+    // The input buffer is a vector of inchar elements
+    // each holding a character and the position of that
+    // character in the input text.
+    //
     struct inchar
     {
         uns64	position;
@@ -206,8 +210,8 @@ namespace ll { namespace lexeme {
     // length to 0 and then adds a program header
     // to the beginning of the buffer, followed by
     // the atom table.  Subsequent functions add
-    // more things to the end of the program buffer
-    // vector.
+    // more program compnents to the end of the
+    // program buffer vector.
     //
     uns32 create_program ( void );
 
@@ -235,8 +239,8 @@ namespace ll { namespace lexeme {
     //
     uns32 create_atom_table ( uns8 mode, uns32 label );
 
-    // Create a dispatcher with given maximum numbers of
-    // breakpoints and the maximum type.  Return the new
+    // Create a dispatcher with given maximum number of
+    // breakpoints and maximum type.  Return the new
     // dispatcher's ID.  Note that legal types are 0 ..
     // max_type, and 0 is the default type for any
     // character not mapped by a type map.
@@ -247,7 +251,7 @@ namespace ll { namespace lexeme {
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  Copy
-    // map[0..(cmax-cmin-1)] into type map, so the map
+    // map[0..(cmax-cmin)] into type map, so the map
     // will give character c the type map[c-cmin].
     //
     uns32 create_type_map
@@ -263,7 +267,92 @@ namespace ll { namespace lexeme {
 	    ( uns32 cmin, uns32 cmax,
 	      uns32 type );
 
-    // Instruction opcodes:
+    // An instruction consists of an uns32 operation,
+    // an atom_table_ID (which may be 0 if unused),
+    // and a uns32 * translation_vector (which may be
+    // NULL if unused).
+    // 
+    // The operation is the sum of some of the
+    // following:
+    //
+    //	 ACCEPT:	Move atom to output item and to
+    //			translation buffer.
+    //	 DISCARD:	Discard atom.
+    //	 KEEP:		Neither of the above.
+    //			(ACCEPT and DISCARD are
+    //			 exclusive).
+    //
+    //   TRUNCATE(n):	Truncate atom to n uns32 char-
+    //			acters before any other proces-
+    //			sing.  Truncation is done in the
+    //			input buffer before any other
+    //			processing of the atom.  The
+    //			discarded end of the atom is re-
+    //			tained as input to be rescanned.
+    //			n may be 0.
+    //
+    //	 TRANSLATE(n)	Instead of copying the atom into
+    //			the translation buffer, copy the
+    //			characters given in the transla-
+    //			tion vector instead.  This vec-
+    //			tor has n characters, where n
+    //			may be 0 (if n is 0, the trans-
+    //			lation vector address may be
+    //			NULL).
+    //
+    //   TRANSLATE_HEX(prefix,postfix)
+    //   TRANSLATE_OCT(prefix,postfix)
+    //			Instead of copying the atom into
+    //   		the translation buffer, convert
+    //		        some of the atom characters from
+    //			a hexadecimal or octal number
+    //			representation to an uns32 value
+    //			equal to one UNICODE character,
+    //			and put that character into the
+    //			translation buffer.
+    //
+    //			If p points at the atom, the
+    //			characters converted are
+    //			p[begin .. end] where
+    //			    begin = prefix
+    //			    end = atom length
+    //				- postfix - 1
+    //
+    //			The prefix and/or postfix may be
+    //			0.
+    //
+    //			(TRANSLATE, TRANSLATE_HEX, and
+    //			TRANSLATE_OCT are mutually ex-
+    //			clusive.  The translate_vector
+    //			address must be non-NULL for
+    //			TRANSLATE(n) with n > 0, and
+    //			must be NULL if there is no
+    //			TRANSLATE.)
+    //
+    //	 GOTO		After all other atom processing,
+    //			switch the current atom table
+    //			to that indicated by atom_table_
+    //			ID.
+    //
+    //    SHORTCUT	Process atom as if analyzer had
+    //			switched to the atom table
+    //			specified by atom_table_ID
+    //			just before inputting the atom,
+    //			and then did a GOTO back to the
+    //			original atom table at the end
+    //			of processing the atom.  This
+    //			speeds handling of one-atom
+    //			items, e.g., separators.
+    //
+    //			(GOTO and SHORTCUT are
+    //			exclusive.  If neither is given
+    //			atom_table_ID must be zero;
+    //			otherwise it must be non-zero.
+    //			Note that ID's of program compo-
+    //			nents are never zero.)
+
+
+    // Instruction operation flags:
     //
     enum {
     	ACCEPT			= ( 1 << 0 ),
@@ -356,109 +445,34 @@ namespace ll { namespace lexeme {
 	         << POSTFIX_LENGTH_SHIFT );
     }
 
-    // Create an instruction.  The instruction is the
-    // some of some of the following:
-    //
-    //	 ACCEPT:	Move atom to output item and to
-    //			translation buffer.
-    //	 DISCARD:	Discard atom.
-    //	 KEEP:		Neither of the above.
-    //			(ACCEPT and DISCARD are
-    //			 exclusive).
-    //
-    //   TRUNCATE(n):	Truncate atom to n uns32 char-
-    //			acters before any other proces-
-    //			sing.  Truncation is done in the
-    //			input buffer before any other
-    //			processing of the atom.  The
-    //			discarded end of the atom is re-
-    //			tained as input to be rescanned.
-    //			n may be 0.
-    //
-    //	 TRANSLATE(n)	Instead of copying the atom into
-    //			the translation buffer, copy the
-    //			characters given in the transla-
-    //			tion vector instead.  This vec-
-    //			tor has n characters, where n
-    //			may be 0 (if n is 0, the trans-
-    //			lation vector address may be
-    //			NULL).
-    //
-    //   TRANSLATE_HEX(prefix,postfix)
-    //   TRANSLATE_OCT(prefix,postfix)
-    //			Instead of copying the atom into
-    //   		the translation buffer, convert
-    //		        some of the atom characters from
-    //			a hexadecimal or octal number
-    //			representation to an uns32 value
-    //			equal to one UNICODE character,
-    //			and put that character into the
-    //			translation buffer.
-    //
-    //			If p points at the atom, the
-    //			characters converted are
-    //			p[begin .. end] where
-    //			    begin = prefix
-    //			    end = atom length
-    //				- postfix - 1
-    //
-    //			The prefix and/or postfix may be
-    //			0.
-    //
-    //			(TRANSLATE, TRANSLATE_HEX, and
-    //			TRANSLATE_OCT are mutually ex-
-    //			clusive.  The translate_vector
-    //			address must be non-NULL for
-    //			TRANSLATE(n) with n > 0, and
-    //			must be NULL if there is no
-    //			TRANSLATE.)
-    //
-    //	 GOTO		After all other processing,
-    //			switch the current atom table
-    //			to that indicated by atom_table_
-    //			ID.
-    //
-    //    SHORTCUT	Process as if analyzer had
-    //			switched to the atom table
-    //			specified by atom_table_ID
-    //			just before inputting the atom,
-    //			and then did a GOTO back to the
-    //			original atom table at the end
-    //			of processing the atom.  This
-    //			speeds handling of one-atom
-    //			items, e.g., separators.
-    //
-    //			(GOTO and SHORTCUT are
-    //			exclusive.  If neither is given
-    //			atom_table_ID must be zero;
-    //			otherwise it must be non-zero.
-    //			Note that ID's of program compo-
-    //			nents are never zero.)
+    // Create an instruction.
     //
     uns32 create_instruction
 	    ( uns32 operation,
 	      uns32 atom_table_ID = 0,
 	      uns32 * translation_vector = NULL );
 
-    // Attach a dispatcher or an instruction item to an
-    // atom table target, or a type map item to a
-    // dispatcher target.  Return 1 if no error.  Return
-    // 0 and do nothing if there is a conflict with a
-    // previous attachment.
+    // Attach a dispatcher or an instruction component
+    // to an atom table target, or a type map component
+    // to a dispatcher target.  Return 1 if no error.
+    // Return 0 and do nothing but write error_message
+    // if there is a conflict with a previous
+    // attachment.
     //
     uns32 attach
     	    ( uns32 target_ID,
-    	      uns32 item_ID );
+    	      uns32 component_ID );
 
-    // Attach a dispatcher or an instruction item to
-    // type t of a dispatcher target.  Return 1 if no
-    // error.  Return 0 and do nothing if there is a
-    // conflict with a previous attachment.
+    // Attach a dispatcher or an instruction component
+    // to type t of a dispatcher target.  Return 1 if no
+    // error.  Return 0 and do nothing but write error_
+    // message if there is a conflict with a previous
+    // attachment.
     //
     uns32 attach
     	    ( uns32 target_ID,
     	      uns32 t,
-	      uns32 item_ID );
+	      uns32 component_ID );
 
     // Initialize lexical scan.  The program must be
     // stored in the program buffer.  It must have been
@@ -500,11 +514,19 @@ namespace ll { namespace lexeme {
     void print_program
         ( std::ostream & out, bool cooked = true );
 
+    // Ditto but just print the program component with
+    // the given ID.  Return the length of the component
+    // in uns32 vector elements.
+    //
+    uns32 print_program_component
+        ( std::ostream & out,
+	  uns32 ID, bool cooked = true );
+
     // Convert the program to the endianhood of this
     // computer.  This is necessary when the program is
     // read from a binary file.  The first uns32 element
     // of the program determines the program's endian-
-    // hood (it is known constant that appears correct
+    // hood (it is a known constant that appears correct
     // if and only if the program's current endianhood
     // is correct).  Note that the program contains
     // embedded byte vectors which must not be changed

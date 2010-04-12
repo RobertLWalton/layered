@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 12 04:51:04 EDT 2010
+// Date:	Mon Apr 12 09:44:03 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 10:56:40 $
+//   $Date: 2010/04/12 14:09:32 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents
 //
@@ -299,10 +299,10 @@ static uns32 attach_type_map_to_dispatcher
 
 uns32 LLLEX::attach
 	( uns32 target_ID,
-	  uns32 item_ID )
+	  uns32 component_ID )
 {
     uns32 target_type = program[target_ID];
-    uns32 item_type = program[item_ID];
+    uns32 component_type = program[component_ID];
 
     if ( target_type == ATOM_TABLE )
     {
@@ -310,7 +310,7 @@ uns32 LLLEX::attach
 	    * (atom_table_header *)
 	    & program[target_ID];
 
-        if ( item_type == DISPATCHER )
+        if ( component_type == DISPATCHER )
 	{
 	    if ( h.dispatcher_ID != 0 )
 	    {
@@ -320,14 +320,14 @@ uns32 LLLEX::attach
 			  "conflicts with previous"
 			  " attachment of dispatcher"
 			  " %d",
-			  item_ID, target_ID,
+			  component_ID, target_ID,
 			  h.dispatcher_ID );
 	        return 0;
 	    }
-	    h.dispatcher_ID = item_ID;
+	    h.dispatcher_ID = component_ID;
 	    return 1;
 	}
-        else if ( item_type == INSTRUCTION )
+        else if ( component_type == INSTRUCTION )
 	{
 	    if ( h.instruction_ID != 0 )
 	    {
@@ -338,38 +338,38 @@ uns32 LLLEX::attach
 			  "conflicts with previous"
 			  " attachment of instruction"
 			  " %d",
-			  item_ID, target_ID,
+			  component_ID, target_ID,
 			  h.instruction_ID );
 	        return 0;
 	    }
-	    h.instruction_ID = item_ID;
+	    h.instruction_ID = component_ID;
 	    return 1;
 	}
-	else assert ( ! "bad attach item types" );
+	else assert ( ! "bad attach component types" );
     }
     else if ( target_type == DISPATCHER
               &&
-	      item_type == TYPE_MAP )
+	      component_type == TYPE_MAP )
         return attach_type_map_to_dispatcher
-		   ( target_ID, item_ID );
+		   ( target_ID, component_ID );
     else
-	assert ( ! "bad attach item types" );
+	assert ( ! "bad attach component types" );
 }
 
 uns32 LLLEX::attach
     	    ( uns32 target_ID,
     	      uns32 t,
-	      uns32 item_ID )
+	      uns32 component_ID )
 {
     dispatcher_header & h =
         * (dispatcher_header *)
 	& program[target_ID];
     assert ( h.type == DISPATCHER );
 
-    uns32 item_type = program[item_ID];
-    assert ( item_type == DISPATCHER
+    uns32 component_type = program[component_ID];
+    assert ( component_type == DISPATCHER
              ||
-	     item_type == INSTRUCTION );
+	     component_type == INSTRUCTION );
     assert ( t <= h.max_type );
     map_element & me =
         * (map_element *)
@@ -380,7 +380,7 @@ uns32 LLLEX::attach
 		  +   map_element_length
 		    * t];
 
-    if ( item_type == DISPATCHER )
+    if ( component_type == DISPATCHER )
     {
 	if ( me.dispatcher_ID != 0 )
 	{
@@ -390,14 +390,14 @@ uns32 LLLEX::attach
 		      "conflicts with previous"
 		      " attachment of dispatcher"
 		      " %d",
-		      item_ID, target_ID, t,
+		      component_ID, target_ID, t,
 		      me.dispatcher_ID );
 	    return 0;
 	}
-	me.dispatcher_ID = item_ID;
+	me.dispatcher_ID = component_ID;
 	return 1;
     }
-    else if ( item_type == INSTRUCTION )
+    else if ( component_type == INSTRUCTION )
     {
 	if ( me.instruction_ID != 0 )
 	{
@@ -407,11 +407,11 @@ uns32 LLLEX::attach
 		      "conflicts with previous"
 		      " attachment of instruction"
 		      " %d",
-		      item_ID, target_ID, t,
+		      component_ID, target_ID, t,
 		      me.instruction_ID );
 	    return 0;
 	}
-	me.instruction_ID = item_ID;
+	me.instruction_ID = component_ID;
 	return 1;
     }
     else
@@ -512,8 +512,6 @@ inline ostream & operator <<
     }
 }
 
-
-
 // Print the instruction at program[ID] with the given
 // indent and endl, if ID is non-zero, and return ID
 // repositioned just after instuction.  However, if
@@ -609,14 +607,14 @@ static uns32 print_instruction
         cout << ", SHORTCUT(" << h.atom_table_ID << ")";
     cout << endl;
 
-    return ID + instruction_header_length
-              + translate_length;
+    return instruction_header_length
+         + translate_length;
 }
 
 // Print the dispatcher at program[ID] with the given
 // indent, if ID is non-zero in the cooked format.
-// Return ID pointing after dispatcher.  If ID is zero,
-// do nothing but return 0.
+// Return length of dispatcher component.  If ID is
+// zero, do nothing but return 0.
 //
 static uns32 print_cooked_dispatcher
     ( uns32 ID, unsigned indent = 12 )
@@ -624,219 +622,235 @@ static uns32 print_cooked_dispatcher
     if ( ID == 0 ) return 0;
 }
 
+uns32 LLLEX::print_program_component
+	( std::ostream & out, uns32 ID, bool cooked )
+{
+    char buffer[100];
+    switch ( program[ID] )
+    {
+    case PROGRAM:
+    {
+	cout << pID ( ID ) << "PROGRAM" << endl;
+	program_header & h =
+	    * (program_header *) & program[ID];
+	cout << INDENT << "Atom Table ID: "
+	     << h.atom_table_ID << endl;
+	return program_header_length;
+    }
+    case ATOM_TABLE:
+    {
+	cout << pID ( ID ) << "ATOM_TABLE" << endl;
+	atom_table_header & h =
+	    * (atom_table_header *) & program[ID];
+	cout << INDENT << "Mode: "
+	     << pmode ( h.mode ) << endl;
+	cout << INDENT << "Label: "
+	     << h.label << endl;
+	cout << INDENT << "Dispatcher ID: "
+	     << h.dispatcher_ID << endl;
+	if ( cooked )
+	    print_instruction
+		( h.instruction_ID );
+	else
+	    cout << INDENT << "Instruction ID: "
+		 << h.instruction_ID << endl;
+	return atom_table_header_length;
+    }
+    case DISPATCHER:
+	cout << pID ( ID ) << "DISPATCHER" << endl;
+    if ( cooked )
+	return print_cooked_dispatcher ( ID );
+    else
+    {
+	dispatcher_header & h =
+	    * (dispatcher_header *) & program[ID];
+	cout << INDENT << "Break Elements: "
+	     << h.break_elements << endl;
+	cout << INDENT << "Max Break Elements: "
+	     << h.max_break_elements << endl;
+	cout << INDENT << "Max Type: "
+	     << h.max_type << endl;
+	cout << INDENT << "Breaks: "
+	     << setw ( 16 ) << "cmin"
+	     << setw ( 16 ) << "type_map_ID"
+	     << endl;
+	uns32 length = dispatcher_header_length;
+	uns32 p, n;
+	for ( p = ID + length, n = 0;
+	      n < h.break_elements;
+	      p += break_element_length, ++ n )
+	{
+	    break_element & be =
+		* (break_element *) & program[p];
+	    cout << INDENT
+		 << pchar ( be.cmin, 24 )
+		 << setw ( 16 ) << be.type_map_ID
+		 << endl;
+	}
+	length += break_element_length
+	        * h.max_break_elements;
+	cout << INDENT << "Map:    type: "
+	     << setw ( 16 ) << "dispatcher_ID"
+	     << setw ( 16 ) << "instruction_ID"
+	     << endl;
+	uns32 t;
+	for ( p = ID + length, t = 0;
+	      t <= h.max_type;
+	      p += map_element_length, ++ t )
+	{
+	    map_element & me =
+		* (map_element *) & program[p];
+	    cout << INDENT
+		 << setw ( 12 ) << t << ": "
+		 << setw ( 16 )
+		 << me.dispatcher_ID
+		 << setw ( 16 )
+		 << me.instruction_ID
+		 << endl;
+	}
+	length += map_element_length
+	        * ( h.max_type + 1 );
+	return length;
+    }
+    case INSTRUCTION:
+    {
+	cout << pID ( ID );
+	return print_instruction ( ID, 0 );
+    }
+    case TYPE_MAP:
+    {
+	cout << pID ( ID ) << "TYPE_MAP" << endl;
+	type_map_header & h =
+	    * (type_map_header *) & program[ID];
+	uns32 length = type_map_header_length;
+	if ( h.singleton_type > 0 )
+	    cout << setw ( IDwidth + 4 )
+		 << h.singleton_type
+		 << ": " << pchar ( h.cmin )
+		 << "-" << pchar ( h.cmax ) << endl;
+	else
+	{
+	    uns8 * map = (uns8 *) ( & h + 1 );
+	    length += ( h.cmax - h.cmin + 4 ) / 4;
+	    for ( unsigned t = 0; t < 256; ++ t )
+	    {
+		bool found = false;
+		uns32 range = 0;
+		unsigned columns = 72 - IDwidth - 6;
+		for ( uns32 c = h.cmin;
+		      c <= h.cmax; ++ c )
+		{
+		    if ( map[c - h.cmin] == t )
+		    {
+			if ( ! found )
+			    cout << setw ( IDwidth
+					   + 4 )
+				 << t << ": ";
+			if ( range == 0 )
+			{
+			    if ( columns
+				 <
+				   columnschar ( c )
+				 + 4
+				   // allows for
+				   // ", " and "-"
+				   // and line
+				   // ending ","
+				 + columnschar
+				     ( 0xFFFFFFFF )
+			       )
+			    {
+				assert
+				  ( columns >= 0 );
+				cout << "," << endl
+				     << setw
+					  ( IDwidth
+					    + 6 )
+				     << "";
+				columns = 72
+					- IDwidth
+					- 6;
+			    }
+			    else if ( found )
+			    {
+				cout << ", ";
+				columns -= 2;
+			    }
+			    cout << pchar ( c );
+			    columns -=
+				columnschar ( c );
+			}
+			found = true;
+			++ range;
+		    }
+		    else
+		    {
+			if ( range > 1 )
+			{
+			    cout << "-"
+				 << pchar ( c - 1 );
+			    columns -=
+				1 + columnschar
+					( c - 1 );
+			    assert ( columns >= 0 );
+			}
+			range = 0;
+		    }
+		}
+		if ( found ) cout << endl;
+	    }
+	}
+	return length;
+    }
+    default:
+    {
+	cout << pID ( ID ) << "ILLEGAL ITEM TYPE("
+	     << program[ID] << ")" << endl;
+	return program.length - ID;
+    }
+    }
+}
+
 void LLLEX::print_program
 	( std::ostream & out, bool cooked )
 {
     uns32 ID = 0;
-    char buffer[100];
     while ( ID < program.length )
     {
-        switch ( program[ID] )
+	// If cooked skip some components.
+	//
+        if ( cooked ) switch ( program[ID] )
 	{
-	case PROGRAM:
-	{
-	    cout << pID ( ID ) << "PROGRAM" << endl;
-	    program_header & h =
-	        * (program_header *) & program[ID];
-	    cout << INDENT << "Atom Table ID: "
-	         << h.atom_table_ID << endl;
-	    ID += program_header_length;
-	    break;
-	}
-	case ATOM_TABLE:
-	{
-	    cout << pID ( ID ) << "ATOM_TABLE" << endl;
-	    atom_table_header & h =
-	        * (atom_table_header *) & program[ID];
-	    cout << INDENT << "Mode: "
-	         << pmode ( h.mode ) << endl;
-	    cout << INDENT << "Label: "
-	         << h.label << endl;
-	    cout << INDENT << "Dispatcher ID: "
-	         << h.dispatcher_ID << endl;
-	    if ( cooked )
-	        print_instruction
-		    ( h.instruction_ID );
-	    else
-		cout << INDENT << "Instruction ID: "
-		     << h.instruction_ID << endl;
-	    ID += atom_table_header_length;
-	    break;
-	}
-	case DISPATCHER:
-	    cout << pID ( ID ) << "DISPATCHER" << endl;
-	if ( cooked )
-	    ID = print_cooked_dispatcher ( ID );
-	else
-	{
-	    dispatcher_header & h =
-	        * (dispatcher_header *) & program[ID];
-	    cout << INDENT << "Break Elements: "
-	         << h.break_elements << endl;
-	    cout << INDENT << "Max Break Elements: "
-	         << h.max_break_elements << endl;
-	    cout << INDENT << "Max Type: "
-	         << h.max_type << endl;
-	    cout << INDENT << "Breaks: "
-	         << setw ( 16 ) << "cmin"
-	         << setw ( 16 ) << "type_map_ID"
-	         << endl;
-	    ID += dispatcher_header_length;
-	    uns32 p, n;
-	    for ( p = ID, n = 0;
-	          n < h.break_elements;
-		  p += break_element_length, ++ n )
-	    {
-		break_element & be =
-		    * (break_element *) & program[p];
-		cout << INDENT
-		     << pchar ( be.cmin, 24 )
-		     << setw ( 16 ) << be.type_map_ID
-		     << endl;
-	    }
-	    ID += break_element_length
-	        * h.max_break_elements;
-	    cout << INDENT << "Map:    type: "
-	         << setw ( 16 ) << "dispatcher_ID"
-	         << setw ( 16 ) << "instruction_ID"
-	         << endl;
-	    uns32 t;
-	    for ( p = ID, t = 0;
-	          t <= h.max_type;
-		  p += map_element_length, ++ t )
-	    {
-		map_element & me =
-		    * (map_element *) & program[p];
-		cout << INDENT
-		     << setw ( 12 ) << t << ": "
-		     << setw ( 16 )
-		     << me.dispatcher_ID
-		     << setw ( 16 )
-		     << me.instruction_ID
-		     << endl;
-	    }
-	    ID += map_element_length
-	        * ( h.max_type + 1 );
-	    break;
-	}
 	case INSTRUCTION:
-	    if ( ! cooked )
-	    {
-		cout << pID ( ID );
-		ID = print_instruction ( ID, 0 );
-	    }
-	    else
-	    {
-		instruction_header & h =
-		    * (instruction_header *)
-		    & program[ID];
-	        ID += instruction_header_length;
-		if (   h.operation
-		     & LLLEX::TRANSLATE_FLAG )
-		    ID += LLLEX::translate_length
-		   		( h.operation );
-	    }
-	    break;
+	{
+	    instruction_header & h =
+		* (instruction_header *)
+		& program[ID];
+	    ID += instruction_header_length;
+	    if (   h.operation
+		 & LLLEX::TRANSLATE_FLAG )
+		ID += LLLEX::translate_length
+			    ( h.operation );
+	    continue;
+	}
 	case TYPE_MAP:
-	if ( ! cooked )
-	{
-	    cout << pID ( ID ) << "TYPE_MAP" << endl;
-	    type_map_header & h =
-	        * (type_map_header *) & program[ID];
-	    ID += type_map_header_length;
-	    if ( h.singleton_type > 0 )
-	        cout << setw ( IDwidth + 4 )
-		     << h.singleton_type
-		     << ": " << pchar ( h.cmin )
-		     << "-" << pchar ( h.cmax ) << endl;
-	    else
-	    {
-		uns8 * map = (uns8 *) ( & h + 1 );
-		ID += ( h.cmax - h.cmin + 4 ) / 4;
-		for ( unsigned t = 0; t < 256; ++ t )
-		{
-		    bool found = false;
-		    uns32 range = 0;
-		    unsigned columns = 72 - IDwidth - 6;
-		    for ( uns32 c = h.cmin;
-			  c <= h.cmax; ++ c )
-		    {
-			if ( map[c - h.cmin] == t )
-			{
-			    if ( ! found )
-			        cout << setw ( IDwidth
-				               + 4 )
-				     << t << ": ";
-			    if ( range == 0 )
-			    {
-				if ( columns
-				     <
-				       columnschar ( c )
-				     + 4
-				       // allows for
-				       // ", " and "-"
-				       // and line
-				       // ending ","
-				     + columnschar
-				         ( 0xFFFFFFFF )
-				   )
-				{
-				    assert
-				      ( columns >= 0 );
-				    cout << "," << endl
-				         << setw
-					      ( IDwidth
-					        + 6 )
-					 << "";
-				    columns = 72
-				            - IDwidth
-					    - 6;
-				}
-			        else if ( found )
-				{
-				    cout << ", ";
-				    columns -= 2;
-				}
-			        cout << pchar ( c );
-				columns -=
-				    columnschar ( c );
-			    }
-			    found = true;
-			    ++ range;
-			}
-			else
-			{
-			    if ( range > 1 )
-			    {
-			        cout << "-"
-				     << pchar ( c - 1 );
-				columns -=
-				    1 + columnschar
-				            ( c - 1 );
-				assert ( columns >= 0 );
-			    }
-			    range = 0;
-			}
-		    }
-		    if ( found ) cout << endl;
-		}
-	    }
-        }
-	else
 	{
 	    type_map_header & h =
-	        * (type_map_header *) & program[ID];
+		* (type_map_header *) & program[ID];
 	    ID += type_map_header_length;
 	    if ( h.singleton_type == 0 )
-	        ID += ( h.cmax - h.cmin + 4 ) / 4;
+		ID += ( h.cmax - h.cmin + 4 ) / 4;
+	    continue;
 	}
-	    break;
-	default:
-	    cout << pID ( ID ) << "ILLEGAL ITEM TYPE("
-	         << program[ID] << ")" << endl;
-	    return;
 	}
+
+        ID += print_program_component
+	    ( out, ID, cooked );
     }
+
+    if ( ID > program.length )
+        out << "  ILLEGALLY TRUNCATED LAST PROGRAM"
+	       " COMPONENT" << endl;
 }
 
 void LLLEX::convert_program_endianhood ( void )

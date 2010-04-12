@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sun Apr 11 21:56:46 EDT 2010
+// Date:	Mon Apr 12 04:52:38 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 01:56:56 $
+//   $Date: 2010/04/12 10:56:02 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents
 //
@@ -96,7 +96,8 @@ namespace ll { namespace lexeme {
 	//
 	T & operator[] ( uns32 index )
 	{
-	    return * (T *) (* base + header_size);
+	    return ( (T *) (* base + header_size) )
+	           [index];
 	}
 
 	// Allocate n elements from the end of the
@@ -115,13 +116,30 @@ namespace ll { namespace lexeme {
 	// Returns old value of length, which is the
 	// index of the first element allocated.
 	//
-	uns32 allocate ( uns32 n );
+	uns32 allocate ( uns32 n )
+	{
+	    uns32 available = max_length - length;
+	    if ( available < n )
+	    {
+		uns32 new_max_length =
+		    max_length + n - available
+			       + length_increment;
+		resize ( new_max_length );
+	    }
+	    uns32 location = length;
+	    length += n;
+	    return location;
+	}
 
 	// Deallocates n elements from the end of the
 	// buffer vector.  Just sets length -= n.
 	// Returns new value of length.
 	//
-	uns32 deallocate ( uns32 n );
+	uns32 deallocate ( uns32 n )
+	{
+	    assert ( length >= n );
+	    length -= n;
+	}
 
 	// Change the buffer vector max_length.  The
 	// max_length can be increased or decreased.
@@ -133,7 +151,8 @@ namespace ll { namespace lexeme {
 	// from 0 effectively allocates the buffer
 	// vector.
 	//
-	virtual void resize ( uns32 new_max_length ) = 0;
+	virtual void resize ( uns32 new_max_length )
+	    = 0;
 
     };
 
@@ -169,12 +188,14 @@ namespace ll { namespace lexeme {
     // ll::lexeme::error_message[0] = 0.  Users should
     // not write into this otherwise.
     //
-    // The error message is a sequence of '\n' termina-
-    // ted lines each no longer than 72 characters.  It
-    // may be used in conjunction with the print_program
-    // output.
+    // The error message is a sequence of lines each no
+    // no longer than 72 characters.  All lines but the
+    // last are `\n' terminated: it may be printed with
+    // cout << ll::lexeme::error_message << endl.  It
+    // may be used in conjunction with the output of
+    // print_program ( false ) (uncooked program print).
     //
-    extern char * error_message;
+    extern char error_message[];
 
     // Create a new program and an atom table, and
     // return the ID of the atom table.  The atom
@@ -266,6 +287,31 @@ namespace ll { namespace lexeme {
     const uns32 PREFIX_LENGTH_MASK = 0x1F;
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
     const uns32 POSTFIX_LENGTH_MASK = 0x1F;
+
+    inline uns32 truncate_length ( uns32 operation )
+    {
+        return ( operation >> TRUNCATE_LENGTH_SHIFT )
+	       &
+	       TRUNCATE_LENGTH_MASK;
+    }
+    inline uns32 translate_length ( uns32 operation )
+    {
+        return ( operation >> TRANSLATE_LENGTH_SHIFT )
+	       &
+	       TRANSLATE_LENGTH_MASK;
+    }
+    inline uns32 prefix_length ( uns32 operation )
+    {
+        return ( operation >> PREFIX_LENGTH_SHIFT )
+	       &
+	       PREFIX_LENGTH_MASK;
+    }
+    inline uns32 postfix_length ( uns32 operation )
+    {
+        return ( operation >> POSTFIX_LENGTH_SHIFT )
+	       &
+	       POSTFIX_LENGTH_MASK;
+    }
 
     // Composite operations.
     //
@@ -411,8 +457,8 @@ namespace ll { namespace lexeme {
     //
     uns32 attach
     	    ( uns32 target_ID,
-    	      uns32 item_ID,
-	      uns32 t );
+    	      uns32 t,
+	      uns32 item_ID );
 
     // Initialize lexical scan.  The program must be
     // stored in the program buffer.  It must have been

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 11 12:08:58 EDT 2010
+// Date:	Mon Apr 12 06:10:08 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 16:09:12 $
+//   $Date: 2010/04/12 10:57:05 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents
 //
@@ -56,6 +56,7 @@ static void create_program_1 ( void )
     using LLLEX::SHORTCUT;
 
     uns32 master = LLLEX::create_program();
+
     uns32 atable1 =
         LLLEX::create_atom_table ( LLLEX::LEXEME, 1 );
     uns32 dispatcher1 =
@@ -72,9 +73,12 @@ static void create_program_1 ( void )
 	    ( ACCEPT+TRUNCATE(1)+TRANSLATE(3)+GOTO,
 	      atable1,
 	      translation );
+
     LLLEX::attach ( atable1, instruction1 );
     LLLEX::attach ( atable1, dispatcher1 );
+
     LLLEX::attach ( dispatcher1, tmap1 );
+
     LLLEX::attach ( dispatcher1, 1, instruction1 );
     LLLEX::attach ( dispatcher1, 2, dispatcher1 );
 }

@@ -1,0 +1,36 @@
+         0: PROGRAM
+            Atom Table ID: 2
+         2: ATOM_TABLE
+            Mode: MASTER
+            Label: 0
+            Dispatcher ID: 0
+            Instruction ID: 0
+         7: ATOM_TABLE
+            Mode: LEXEME
+            Label: 1
+            Dispatcher ID: 12
+            Instruction ID: 58
+        12: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 11
+            Max Type: 4
+            Breaks:             cmin     type_map_ID
+                              \u0000               0
+                                   0              48
+                                   6               0
+            Map:    type:    dispatcher_ID  instruction_ID
+                       0:                0               0
+                       1:                0              58
+                       2:               12               0
+                       3:                0               0
+                       4:                0               0
+        48: TYPE_MAP
+               0: 0
+               1: 1
+               2: 2
+               3: 3
+               4: 4
+               5: 5
+        54: TYPE_MAP
+               9: a-z
+        58: ACCEPT, TRUNCATE(1), TRANSLATE(3,XYZ), GOTO(7)

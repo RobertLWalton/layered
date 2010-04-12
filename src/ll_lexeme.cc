@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 11 12:06:31 EDT 2010
+// Date:	Sun Apr 11 21:52:12 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 16:08:36 $
+//   $Date: 2010/04/12 01:56:31 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents
 //
@@ -134,7 +134,8 @@ uns32 LLLEX::create_dispatcher
 uns32 LLLEX::create_type_map
 	( uns32 cmin, uns32 cmax, uns8 * map )
 {
-    uns32 length = cmin - cmax + 1;
+    assert ( cmax >= cmin );
+    uns32 length = cmax - cmin + 1;
     uns32 ID = program.allocate
     	(   type_map_header_length
 	  + ( length + 3 ) / 4 );
@@ -151,7 +152,8 @@ uns32 LLLEX::create_type_map
 uns32 LLLEX::create_type_map
 	( uns32 cmin, uns32 cmax, uns32 type )
 {
-    uns32 length = cmin - cmax + 1;
+    assert ( cmax >= cmin );
+    uns32 length = cmax - cmin + 1;
     uns32 ID = program.allocate
     	( type_map_header_length );
     type_map_header & h =

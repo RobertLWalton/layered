@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sun Apr 11 12:03:49 EDT 2010
+// Date:	Sun Apr 11 21:56:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 16:06:11 $
+//   $Date: 2010/04/12 01:56:56 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents
 //
@@ -133,7 +133,7 @@ namespace ll { namespace lexeme {
 	// from 0 effectively allocates the buffer
 	// vector.
 	//
-	virtual void resize ( uns32 new_max_length );
+	virtual void resize ( uns32 new_max_length ) = 0;
 
     };
 
@@ -143,11 +143,11 @@ namespace ll { namespace lexeme {
 	uns32	character;
     };
 
-    extern buffer<uns32> program;
+    extern buffer<uns32> & program;
         // Program.
-    extern buffer<inchar> input_buffer;
+    extern buffer<inchar> & input_buffer;
         // Scanner input buffer.
-    extern buffer<uns32> translation_buffer;
+    extern buffer<uns32> & translation_buffer;
         // Scanner translation buffer.
 
     // Input one or more chardata elements to the end

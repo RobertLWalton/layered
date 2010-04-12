@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Sun Apr 11 11:44:30 EDT 2010
+# Date:		Sun Apr 11 20:40:27 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2010/04/11 15:52:08 $
+#   $Date: 2010/04/12 01:56:22 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.1 $
+#   $Revision: 1.2 $
 
 # We need the following to mask RCS lines
 #
@@ -77,17 +77,24 @@ ll_lexeme.o:	\
 		../src/ll_lexeme.cc \
 		../include/ll_lexeme.h \
 		../include/ll_lexeme_program_data.h
-	g++ -I ../include -c ../src/ll_lexeme.cc
+	g++ -g -I ../include -c ../src/ll_lexeme.cc
+
+ll_lexeme_test_runtime.o:	\
+		ll_lexeme_test_runtime.cc \
+		../include/ll_lexeme.h
+	g++ -g -I ../include -c ll_lexeme_test_runtime.cc
 
 
 ll_lexeme_test:		\
 		ll_lexeme_test.cc \
 		ll_lexeme.o \
+		ll_lexeme_test_runtime.o \
 		Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    ll_lexeme.o \
+	    ll_lexeme_test_runtime.o \
 	    ll_lexeme_test.cc
 
 clean:

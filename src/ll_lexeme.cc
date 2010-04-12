@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 12 09:44:03 EDT 2010
+// Date:	Mon Apr 12 10:10:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,17 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 14:09:32 $
+//   $Date: 2010/04/12 18:06:35 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents
 //
 //	Usage and Setup
 //	Program Creation
+//	Program Printing
+//	Program Conversion
+//	Scanning
 
 // Usage and Setup
 // ----- --- -----
@@ -417,6 +420,9 @@ uns32 LLLEX::attach
     else
 	assert ( ! "assert failure" );
 }
+
+// Program Printing
+// ------- --------
 
 // cout << pchar ( uns32 c, width, {LEFT,RIGHT} )
 // outputs a character c either with no padding if
@@ -852,7 +858,279 @@ void LLLEX::print_program
         out << "  ILLEGALLY TRUNCATED LAST PROGRAM"
 	       " COMPONENT" << endl;
 }
+
+// Program Conversion
+// ------- ----------
+
 
 void LLLEX::convert_program_endianhood ( void )
 {
+}
+
+// Scanning
+// --------
+
+// Scanner state.
+//
+static uns32 first, next;
+    // First character of current item is in
+    // input_buffer[first] and the first character
+    // of the next atom not yet fully scanned is in
+    // input_buffer[next].  If no atoms have been
+    // scanned next == first.  When an item is
+    // complete, last = next - 1.
+static uns32 master_atom_table_ID;
+    // ID of atom table that is the initial atom table
+    // or is the last non-continuation atom table
+    // gone to.  Used to output the kind and label for
+    // an item.
+static uns32 current_atom_table_ID;
+    // ID of the atom table currently being used to
+    // scan atoms.  Either == master_atom_table_ID or
+    // is for a CONTINUATION table.
+
+void LLLEX::init_scan ( void )
+{
+    input_buffer.resize ( 0 );
+    translation_buffer.resize ( 0 );
+
+    next = 0;
+    program_header & h = * (program_header *)
+    			 & program[0];
+    master_atom_table_ID = h.atom_table_ID;
+    current_atom_table_ID = h.atom_table_ID;
+}
+
+uns32 LLLEX::scan
+	( uns32 & first, uns32 & last, uns32 & label )
+{
+    if ( next >= input_buffer.length_increment )
+    {
+        // If next has gotten to be as large as
+	// length_increment shift the input_buffer
+	// down, eliminating characters in items
+	// already returned.
+	//
+        memmove ( & input_buffer[0],
+	          & input_buffer[next],
+		    ( input_buffer.length - next )
+		  * sizeof ( LLLEX::inchar ) );
+	input_buffer.deallocate ( next );
+	next = 0;
+    }
+
+    ::first = next;
+    translation_buffer.deallocate
+	( translation_buffer.length );
+
+    while ( true )
+    {
+        // Scan an atom.
+
+	atom_table_header & ath =
+	    * (atom_table_header *)
+	    & program[master_atom_table_ID];
+
+	uns32 instruction_ID = ath.instruction_ID;
+	uns32 atom_length = 0;
+	    // Length and instruction_ID for the
+	    // last atom recoginized.
+	uns32 length = 0;
+	    // Number of characters scanned so far
+	    // starting at input_buffer[next].
+	uns32 dispatcher_ID = ath.dispatcher_ID;
+	    // Current dispatcher.
+
+	while ( true )
+	{
+	    // Dispatch the next character.
+
+	    if ( dispatcher_ID == 0 ) break;
+
+	    if ( next + length >= input_buffer.length
+	         &&
+		 ! read_input() )
+	        break;	// End of file.
+
+	    assert
+	        ( next + length < input_buffer.length );
+	    uns32 c =
+	        input_buffer[next + length].character;
+	    ++ length;
+
+	    dispatcher_header & dh =
+	        * (dispatcher_header *)
+		& program[dispatcher_ID];
+
+	    break_element * bep =
+	        (break_element *)
+		& program[  dispatcher_ID
+		          + dispatcher_header_length];
+	    uns32 low = 0, high = dh.break_elements,
+	          mid;
+	    // Invariant:
+	    //     bep[low].cmin <= c < bep[high].cmin
+	    // where bep[high].cmin = infinity if
+	    // high == dh.break_elements.
+	    //
+	    while ( high - low >= 2 )
+	    {
+	        mid = ( high + low ) / 2;
+		if ( bep[mid].cmin <= c )
+		    low = mid;
+		else
+		    high = mid;
+	    }
+	    uns32 type_map_ID = bep[low].type_map_ID;
+	    if ( type_map_ID == 0 ) break;
+	    type_map_header & tmh =
+	        * (type_map_header *)
+		& program[type_map_ID];
+	    uns32 type = tmh.singleton_type;
+	    if ( type == 0 )
+	        type = ( (uns8 *) ( & tmh + 1 ) )
+		       [c - tmh.cmin];
+	    map_element * mep =
+	        (map_element *)
+		& program[  dispatcher_ID
+		          + dispatcher_header_length
+			  +   break_element_length
+			    * dh.max_break_elements];
+	    if ( mep[type].instruction_ID != 0 )
+	    {
+	        instruction_ID =
+		    mep[type].instruction_ID;
+		atom_length = length;
+	    }
+	    dispatcher_ID = mep[type].dispatcher_ID;
+	}
+
+	if ( instruction_ID != 0 )
+	{
+	    instruction_header & ih =
+	        * (instruction_header *)
+		& program[instruction_ID];
+	    uns32 op = ih.operation;
+	    if ( op & TRUNCATE_FLAG )
+	    {
+	        uns32 truncate_length =
+		    LLLEX::truncate_length ( op );
+		if ( truncate_length < atom_length )
+		    atom_length = truncate_length;
+	    }
+	    if ( op & TRANSLATE_FLAG )
+	    {
+	        uns32 translate_length =
+		    LLLEX::translate_length ( op );
+		if ( translate_length > 0 )
+		{
+		    uns32 q =
+		        translation_buffer.allocate
+			    ( translate_length );
+		    memcpy ( & translation_buffer[q],
+		             & ih + 1,
+			       translate_length
+			     * sizeof ( uns32 ) );
+		}
+	    }
+	    else if ( op & TRANSLATE_HEX_FLAG )
+	    {
+		uns32 p = next
+		        + LLLEX::prefix_length ( op );
+		uns32 endp = next + atom_length
+		           - LLLEX::postfix_length
+			         ( op );
+		uns32 tc = 0;
+		while ( p < endp )
+		{
+		    tc <<= 4;
+		    uns32 d =
+		        input_buffer[p++].character;
+		    if ( '0' <= d && d <= '9' )
+		        tc += d - '0';
+		    else if ( 'a' <= d && d <= 'f' )
+		        tc += d - 'a' + 10;
+		    else if ( 'A' <= d && d <= 'F' )
+		        tc += d - 'A' + 10;
+		}
+		translation_buffer[translation_buffer
+		                    .allocate ( 1 )]
+		    = tc;
+	    }
+	    else if ( op & TRANSLATE_OCT_FLAG )
+	    {
+		uns32 p = next
+		        + LLLEX::prefix_length ( op );
+		uns32 endp = next + atom_length
+		           - LLLEX::postfix_length
+			         ( op );
+		uns32 tc = 0;
+		while ( p < endp )
+		{
+		    tc <<= 3;
+		    uns32 d =
+		        input_buffer[p++].character;
+		    if ( '0' <= d && d <= '7' )
+		        tc += d - '0';
+		}
+		translation_buffer[translation_buffer
+		                    .allocate ( 1 )]
+		    = tc;
+	    }
+	    else
+	    {
+		uns32 q =
+		    translation_buffer.allocate
+			    ( atom_length );
+		uns32 p = next;
+		for ( uns32 i = 0;
+		      i < atom_length; ++ i )
+		    translation_buffer[q++] =
+		        input_buffer[p++].character;
+	    }
+
+	    next += atom_length;
+
+	    if ( op & GOTO )
+	    {
+	        atom_table_header & nath =
+		    * (atom_table_header *)
+		    & program[ih.atom_table_ID];
+		assert ( nath.type == ATOM_TABLE );
+		current_atom_table_ID =
+		    ih.atom_table_ID;
+		if ( nath.mode != CONTINUATION )
+		{
+		    atom_table_header & math =
+			* (atom_table_header *)
+			& program[master_atom_table_ID];
+		    master_atom_table_ID =
+		        current_atom_table_ID;
+		    if ( next != :: first )
+		    {
+			first = ::first;
+			last  = next - 1;
+			label = math.label;
+			return math.mode;
+		    }
+		}
+	    }
+	    else if ( op & SHORTCUT )
+	    {
+	        atom_table_header & nath =
+		    * (atom_table_header *)
+		    & program[ih.atom_table_ID];
+		assert ( nath.type == ATOM_TABLE );
+		current_atom_table_ID =
+		    master_atom_table_ID;
+		if ( next != :: first )
+		{
+		    first = ::first;
+		    last  = next - 1;
+		    label = nath.label;
+		    return nath.mode;
+		}
+	    }
+	}
+    }
 }

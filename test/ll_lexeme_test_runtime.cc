@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test_runtime.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 11 21:55:58 EDT 2010
+// Date:	Mon Apr 12 14:04:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 01:56:22 $
+//   $Date: 2010/04/12 18:05:57 $
 //   $RCSfile: ll_lexeme_test_runtime.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents
 //
@@ -95,3 +95,7 @@ LLLEX::buffer<inchar> & LLLEX::input_buffer =
     ext_input_buffer;
 LLLEX::buffer<uns32> & LLLEX::translation_buffer =
     ext_translation_buffer;
+
+uns32 LLLEX::read_input ( void )
+{
+}

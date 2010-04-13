@@ -33,4 +33,4 @@
                5: 5
         54: TYPE_MAP
                9: a-z
-        58: ACCEPT, TRUNCATE(1), TRANSLATE(3,XYZ), GOTO(7)
+        58: KEEP(1), TRANSLATE(3,XYZ), GOTO(7)

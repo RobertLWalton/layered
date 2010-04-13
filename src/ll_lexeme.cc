@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 12 20:28:21 EDT 2010
+// Date:	Mon Apr 12 21:37:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/13 01:06:30 $
+//   $Date: 2010/04/13 01:43:04 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents
 //
@@ -140,10 +140,6 @@ uns32 LEX::create_instruction
 	  uns32 atom_table_ID,
 	  uns32 * translation_vector )
 {
-    assert ( ( operation & ( ACCEPT + DISCARD ) )
-             !=
-	     ( ACCEPT + DISCARD ) );
-
     assert ( ( operation & ( GOTO + SHORTCUT ) )
              !=
 	     ( GOTO + SHORTCUT ) );
@@ -542,11 +538,6 @@ static uns32 print_instruction
 	     << h.type << ")" << endl;
 	return 0xFFFFFFFF;
     }
-    if ( ( ( h.operation & ACCEPT ) != 0 )
-	 +
-         ( ( h.operation & DISCARD ) != 0 )
-	 > 1 ) cout << "ILLEGAL: ";
-    else
     if ( ( ( h.operation & TRANSLATE_FLAG ) != 0 )
 	 +
          ( ( h.operation & TRANSLATE_HEX_FLAG ) != 0 )
@@ -567,23 +558,18 @@ static uns32 print_instruction
          &&
 	 h.atom_table_ID != 0 ) cout << "ILLEGAL: ";
 
-    switch ( h.operation & ( ACCEPT + DISCARD ) )
-    {
-    case ACCEPT: cout << "ACCEPT"; break;
-    case DISCARD: cout << "DISCARD"; break;
-    case 0: cout << "KEEP"; break;
-    default: cout << "ACCEPT, DISCARD"; break;
-    }
-
-    if ( h.operation & TRUNCATE_FLAG )
-        cout << ", TRUNCATE("
-	     << LEX::truncate_length ( h.operation )
+    bool first = true;
+#   define COUT ( first ? ( first = false, cout ) : \
+                          cout << ", " )
+    if ( h.operation & KEEP_FLAG )
+        COUT << "KEEP("
+	     << LEX::keep_length ( h.operation )
 	     << ")";
     if ( h.operation & TRANSLATE_FLAG )
     {
         translate_length =
 	     LEX::translate_length ( h.operation );
-        cout << ", TRANSLATE(" << translate_length;
+        COUT << "TRANSLATE(" << translate_length;
 	if ( translate_length > 0 )
 	{
 	    cout << ",";
@@ -596,22 +582,23 @@ static uns32 print_instruction
 	cout << ")";
     }
     if ( h.operation & TRANSLATE_HEX_FLAG )
-        cout << ", TRANSLATE_HEX("
+        COUT << "TRANSLATE_HEX("
 	     << LEX::prefix_length ( h.operation )
 	     << ","
 	     << LEX::postfix_length ( h.operation )
 	     << ")";
     if ( h.operation & TRANSLATE_OCT_FLAG )
-        cout << ", TRANSLATE_OCT("
+        COUT << "TRANSLATE_OCT("
 	     << LEX::prefix_length ( h.operation )
 	     << ","
 	     << LEX::postfix_length ( h.operation )
 	     << ")";
     if ( h.operation & GOTO )
-        cout << ", GOTO(" << h.atom_table_ID << ")";
+        COUT << "GOTO(" << h.atom_table_ID << ")";
     if ( h.operation & SHORTCUT )
-        cout << ", SHORTCUT(" << h.atom_table_ID << ")";
+        COUT << "SHORTCUT(" << h.atom_table_ID << ")";
     cout << endl;
+#   undef COUT
 
     return instruction_header_length
          + translate_length;
@@ -1011,12 +998,12 @@ uns32 LEX::scan
 	        * (instruction_header *)
 		& program[instruction_ID];
 	    uns32 op = ih.operation;
-	    if ( op & TRUNCATE_FLAG )
+	    if ( op & KEEP_FLAG )
 	    {
-	        uns32 truncate_length =
-		    LEX::truncate_length ( op );
-		if ( truncate_length < atom_length )
-		    atom_length = truncate_length;
+	        uns32 keep_length =
+		    LEX::keep_length ( op );
+		if ( keep_length < atom_length )
+		    atom_length = keep_length;
 	    }
 	    if ( op & TRANSLATE_FLAG )
 	    {

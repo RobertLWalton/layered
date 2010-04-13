@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 12 20:29:46 EDT 2010
+// Date:	Mon Apr 12 21:37:48 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/13 01:06:11 $
+//   $Date: 2010/04/13 01:43:18 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -39,10 +39,7 @@ using std::ostream;
 using LEX::uns8;
 using LEX::uns32;
 
-using LEX::ACCEPT;
-using LEX::DISCARD;
 using LEX::KEEP;
-using LEX::TRUNCATE;
 using LEX::TRANSLATE;
 using LEX::TRANSLATE_HEX;
 using LEX::TRANSLATE_OCT;
@@ -71,7 +68,7 @@ static void create_program_1 ( void )
     uns32 translation[3] = { 'X', 'Y', 'Z' };
     uns32 instruction1 =
         LEX::create_instruction
-	    ( ACCEPT+TRUNCATE(1)+TRANSLATE(3)+GOTO,
+	    ( KEEP(1)+TRANSLATE(3)+GOTO,
 	      atable1,
 	      translation );
 

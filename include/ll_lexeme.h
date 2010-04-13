@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Mon Apr 12 10:46:02 EDT 2010
+// Date:	Mon Apr 12 21:29:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 18:06:45 $
+//   $Date: 2010/04/13 01:42:49 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents
 //
@@ -222,19 +222,24 @@ namespace ll { namespace lexeme {
     //
     uns32 create_program ( void );
 
-    // Atom table kinds and modes.
+    // Atom table kinds, modes, and return values.
     //
     enum {
-        // Kinds (which are also modes).
+        // Kinds that are also modes and return values.
 	//
 	LEXEME		= 1,
 	WHITESPACE	= 2,
 	ERROR		= 3,
 
-	// Modes that are not kinds.
+	// Return values that are not kinds or modes.
 	//
-        MASTER		= 4,
-	CONTINUATION	= 5
+	END_OF_FILE	= 4,
+	SCAN_ERROR	= 5,
+
+	// Modes that are not kinds or return values.
+	//
+        MASTER		= 6,
+	CONTINUATION	= 7
     };
 
     // Create the atom table with the given mode and
@@ -282,14 +287,7 @@ namespace ll { namespace lexeme {
     // The operation is the sum of some of the
     // following:
     //
-    //	 ACCEPT:	Move atom to output item and to
-    //			translation buffer.
-    //	 DISCARD:	Discard atom.
-    //	 KEEP:		Neither of the above.
-    //			(ACCEPT and DISCARD are
-    //			 exclusive).
-    //
-    //   TRUNCATE(n):	Truncate atom to n uns32 char-
+    //   KEEP(n):	Truncate atom to n uns32 char-
     //			acters before any other proces-
     //			sing.  Truncation is done in the
     //			input buffer before any other
@@ -336,12 +334,12 @@ namespace ll { namespace lexeme {
     //			must be NULL if there is no
     //			TRANSLATE.)
     //
-    //	 GOTO		After all other atom processing,
+    //   GOTO		After all other atom processing,
     //			switch the current atom table
     //			to that indicated by atom_table_
     //			ID.
     //
-    //    SHORTCUT	Process atom as if analyzer had
+    //   SHORTCUT	Process atom as if analyzer had
     //			switched to the atom table
     //			specified by atom_table_ID
     //			just before inputting the atom,
@@ -362,21 +360,18 @@ namespace ll { namespace lexeme {
     // Instruction operation flags:
     //
     enum {
-    	ACCEPT			= ( 1 << 0 ),
-	DISCARD			= ( 1 << 1 ),
-	KEEP			= 0,
-	TRUNCATE_FLAG		= ( 1 << 2 ),
-	TRANSLATE_FLAG		= ( 1 << 3 ),
-	TRANSLATE_HEX_FLAG	= ( 1 << 4 ),
-	TRANSLATE_OCT_FLAG	= ( 1 << 5 ),
-	GOTO			= ( 1 << 6 ),
-	SHORTCUT		= ( 1 << 7 ),
+	KEEP_FLAG		= ( 1 << 0 ),
+	TRANSLATE_FLAG		= ( 1 << 1 ),
+	TRANSLATE_HEX_FLAG	= ( 1 << 2 ),
+	TRANSLATE_OCT_FLAG	= ( 1 << 3 ),
+	GOTO			= ( 1 << 4 ),
+	SHORTCUT		= ( 1 << 5 ),
     };
 
     // Instruction shifts and masks
     //
-    const uns32 TRUNCATE_LENGTH_SHIFT = 16;
-    const uns32 TRUNCATE_LENGTH_MASK = 0x3F;
+    const uns32 KEEP_LENGTH_SHIFT = 16;
+    const uns32 KEEP_LENGTH_MASK = 0x3F;
     const uns32 TRANSLATE_LENGTH_SHIFT = 22;
     const uns32 TRANSLATE_LENGTH_MASK = 0x3F;
     const uns32 PREFIX_LENGTH_SHIFT = 22;
@@ -384,11 +379,11 @@ namespace ll { namespace lexeme {
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
     const uns32 POSTFIX_LENGTH_MASK = 0x1F;
 
-    inline uns32 truncate_length ( uns32 operation )
+    inline uns32 keep_length ( uns32 operation )
     {
-        return ( operation >> TRUNCATE_LENGTH_SHIFT )
+        return ( operation >> KEEP_LENGTH_SHIFT )
 	       &
-	       TRUNCATE_LENGTH_MASK;
+	       KEEP_LENGTH_MASK;
     }
     inline uns32 translate_length ( uns32 operation )
     {
@@ -411,13 +406,13 @@ namespace ll { namespace lexeme {
 
     // Composite operations.
     //
-    inline uns32 TRUNCATE ( uns32 truncate_length )
+    inline uns32 KEEP ( uns32 keep_length )
     {
         assert
-	  ( truncate_length <= TRUNCATE_LENGTH_MASK );
-	return TRUNCATE_FLAG
-	     + (    truncate_length
-	         << TRUNCATE_LENGTH_SHIFT );
+	  ( keep_length <= KEEP_LENGTH_MASK );
+	return KEEP_FLAG
+	     + (    keep_length
+	         << KEEP_LENGTH_SHIFT );
     }
     inline uns32 TRANSLATE ( uns32 translate_length )
     {
@@ -498,13 +493,17 @@ namespace ll { namespace lexeme {
     //		input_buffer[first .. last]
     //
     // The item length, last - first + 1, is always
-    // >= 1.  The item kind is returned as the
-    // value of the scan function, or 0 is returned
-    // if there is no item because of an end-of-file.
-    // The label of the atom table that generated the
-    // item is returned.  The translated item is
-    // returned in the translation buffer if there is
-    // no end-of-file.
+    // >= 1.  The item kind is returned as the value
+    // of the scan function.  The translated item is
+    // returned in the translation buffer.
+    //
+    // If there is an end of file, END_OF_FILE is
+    // returned instead of an item kind.  If there is an
+    // error in the lexical scanning program, SCAN_ERROR
+    // is returned instead of an item kind, and an error
+    // message diagnostic is placed in error_message.
+    // In these two cases first, last, label, and the
+    // translation buffer are not set.
     //
     uns32 scan
             ( uns32 & first, uns32 & last,

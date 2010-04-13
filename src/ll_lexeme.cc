@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 12 10:10:18 EDT 2010
+// Date:	Mon Apr 12 20:28:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/12 18:06:35 $
+//   $Date: 2010/04/13 01:06:30 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents
 //
@@ -32,21 +32,21 @@
 # include <cstdlib>
 # include <cstring>
 # include <cassert>
-# define LLLEX ll::lexeme
+# define LEX ll::lexeme
 using std::cout;
 using std::endl;
 using std::setw;
 using std::ios;
 using std::ostream;
-using namespace LLLEX;
-using namespace LLLEX::program_data;
+using namespace LEX;
+using namespace LEX::program_data;
 
-char LLLEX::error_message[1000];
+char LEX::error_message[1000];
 
 // Program Creation
 // ------- --------
 
-uns32 LLLEX::create_atom_table
+uns32 LEX::create_atom_table
 	( uns8 mode, uns32 label )
 {
     uns32 ID = program.allocate
@@ -61,7 +61,7 @@ uns32 LLLEX::create_atom_table
     return ID;
 }
 
-uns32 LLLEX::create_program ( void )
+uns32 LEX::create_program ( void )
 {
     program.resize ( 0 );
     uns32 ID = program.allocate
@@ -75,7 +75,7 @@ uns32 LLLEX::create_program ( void )
     return h.atom_table_ID;
 }
 
-uns32 LLLEX::create_dispatcher
+uns32 LEX::create_dispatcher
 	( uns32 max_breakpoints,
 	  uns32 max_type )
 {
@@ -101,7 +101,7 @@ uns32 LLLEX::create_dispatcher
     return ID;
 }
 
-uns32 LLLEX::create_type_map
+uns32 LEX::create_type_map
 	( uns32 cmin, uns32 cmax, uns8 * map )
 {
     assert ( cmax >= cmin );
@@ -119,7 +119,7 @@ uns32 LLLEX::create_type_map
     return ID;
 }
 
-uns32 LLLEX::create_type_map
+uns32 LEX::create_type_map
 	( uns32 cmin, uns32 cmax, uns32 type )
 {
     assert ( cmax >= cmin );
@@ -135,7 +135,7 @@ uns32 LLLEX::create_type_map
     return ID;
 }
 
-uns32 LLLEX::create_instruction
+uns32 LEX::create_instruction
 	( uns32 operation,
 	  uns32 atom_table_ID,
 	  uns32 * translation_vector )
@@ -163,7 +163,7 @@ uns32 LLLEX::create_instruction
     uns32 translate_length = 0;
     if ( operation & TRANSLATE_FLAG )
         translate_length =
-	    LLLEX::translate_length ( operation );
+	    LEX::translate_length ( operation );
     else assert ( translation_vector == NULL );
         
     uns32 ID = program.allocate
@@ -184,7 +184,7 @@ uns32 LLLEX::create_instruction
     return ID;
 }
 
-// This function is LLLEX::attach for the difficult
+// This function is LEX::attach for the difficult
 // case where break elements may need to be inserted
 // into the dispatcher.
 //
@@ -194,11 +194,11 @@ static uns32 attach_type_map_to_dispatcher
 {
     dispatcher_header & dh =
         * (dispatcher_header *)
-	& LLLEX::program[dispatcher_ID];
+	& LEX::program[dispatcher_ID];
     assert ( dh.type == DISPATCHER );
     type_map_header & mh =
         * (type_map_header *)
-	& LLLEX::program[type_map_ID];
+	& LEX::program[type_map_ID];
     assert ( mh.type == TYPE_MAP );
 
     uns32 beginp = dispatcher_ID
@@ -215,17 +215,17 @@ static uns32 attach_type_map_to_dispatcher
 	if ( nextp >= endp ) break;
 	break_element & nexte =
 	    * (break_element *)
-	    & LLLEX::program[nextp];
+	    & LEX::program[nextp];
 	if ( nexte.cmin > mh.cmin ) break;
 	p = nextp;
     }
 
     break_element * bep =
 	(break_element *)
-	& LLLEX::program[p];
+	& LEX::program[p];
     break_element * nextbep =
 	(break_element *)
-	& LLLEX::program[nextp];
+	& LEX::program[nextp];
 
     bool split_next = nextp == endp ?
                       mh.cmax != (uns32) -1 :
@@ -286,7 +286,7 @@ static uns32 attach_type_map_to_dispatcher
 	bep = nextbep;
 	nextbep =
 	    (break_element *)
-	    & LLLEX::program [nextp];
+	    & LEX::program [nextp];
     }
 
     if ( split_next )
@@ -300,7 +300,7 @@ static uns32 attach_type_map_to_dispatcher
     return 1;
 }
 
-uns32 LLLEX::attach
+uns32 LEX::attach
 	( uns32 target_ID,
 	  uns32 component_ID )
 {
@@ -359,7 +359,7 @@ uns32 LLLEX::attach
 	assert ( ! "bad attach component types" );
 }
 
-uns32 LLLEX::attach
+uns32 LEX::attach
     	    ( uns32 target_ID,
     	      uns32 t,
 	      uns32 component_ID )
@@ -577,12 +577,12 @@ static uns32 print_instruction
 
     if ( h.operation & TRUNCATE_FLAG )
         cout << ", TRUNCATE("
-	     << LLLEX::truncate_length ( h.operation )
+	     << LEX::truncate_length ( h.operation )
 	     << ")";
     if ( h.operation & TRANSLATE_FLAG )
     {
         translate_length =
-	     LLLEX::translate_length ( h.operation );
+	     LEX::translate_length ( h.operation );
         cout << ", TRANSLATE(" << translate_length;
 	if ( translate_length > 0 )
 	{
@@ -597,15 +597,15 @@ static uns32 print_instruction
     }
     if ( h.operation & TRANSLATE_HEX_FLAG )
         cout << ", TRANSLATE_HEX("
-	     << LLLEX::prefix_length ( h.operation )
+	     << LEX::prefix_length ( h.operation )
 	     << ","
-	     << LLLEX::postfix_length ( h.operation )
+	     << LEX::postfix_length ( h.operation )
 	     << ")";
     if ( h.operation & TRANSLATE_OCT_FLAG )
         cout << ", TRANSLATE_OCT("
-	     << LLLEX::prefix_length ( h.operation )
+	     << LEX::prefix_length ( h.operation )
 	     << ","
-	     << LLLEX::postfix_length ( h.operation )
+	     << LEX::postfix_length ( h.operation )
 	     << ")";
     if ( h.operation & GOTO )
         cout << ", GOTO(" << h.atom_table_ID << ")";
@@ -628,7 +628,7 @@ static uns32 print_cooked_dispatcher
     if ( ID == 0 ) return 0;
 }
 
-uns32 LLLEX::print_program_component
+uns32 LEX::print_program_component
 	( std::ostream & out, uns32 ID, bool cooked )
 {
     char buffer[100];
@@ -817,7 +817,7 @@ uns32 LLLEX::print_program_component
     }
 }
 
-void LLLEX::print_program
+void LEX::print_program
 	( std::ostream & out, bool cooked )
 {
     uns32 ID = 0;
@@ -834,8 +834,8 @@ void LLLEX::print_program
 		& program[ID];
 	    ID += instruction_header_length;
 	    if (   h.operation
-		 & LLLEX::TRANSLATE_FLAG )
-		ID += LLLEX::translate_length
+		 & LEX::TRANSLATE_FLAG )
+		ID += LEX::translate_length
 			    ( h.operation );
 	    continue;
 	}
@@ -863,7 +863,7 @@ void LLLEX::print_program
 // ------- ----------
 
 
-void LLLEX::convert_program_endianhood ( void )
+void LEX::convert_program_endianhood ( void )
 {
 }
 
@@ -889,7 +889,7 @@ static uns32 current_atom_table_ID;
     // scan atoms.  Either == master_atom_table_ID or
     // is for a CONTINUATION table.
 
-void LLLEX::init_scan ( void )
+void LEX::init_scan ( void )
 {
     input_buffer.resize ( 0 );
     translation_buffer.resize ( 0 );
@@ -901,7 +901,7 @@ void LLLEX::init_scan ( void )
     current_atom_table_ID = h.atom_table_ID;
 }
 
-uns32 LLLEX::scan
+uns32 LEX::scan
 	( uns32 & first, uns32 & last, uns32 & label )
 {
     if ( next >= input_buffer.length_increment )
@@ -914,7 +914,7 @@ uns32 LLLEX::scan
         memmove ( & input_buffer[0],
 	          & input_buffer[next],
 		    ( input_buffer.length - next )
-		  * sizeof ( LLLEX::inchar ) );
+		  * sizeof ( LEX::inchar ) );
 	input_buffer.deallocate ( next );
 	next = 0;
     }
@@ -1014,14 +1014,14 @@ uns32 LLLEX::scan
 	    if ( op & TRUNCATE_FLAG )
 	    {
 	        uns32 truncate_length =
-		    LLLEX::truncate_length ( op );
+		    LEX::truncate_length ( op );
 		if ( truncate_length < atom_length )
 		    atom_length = truncate_length;
 	    }
 	    if ( op & TRANSLATE_FLAG )
 	    {
 	        uns32 translate_length =
-		    LLLEX::translate_length ( op );
+		    LEX::translate_length ( op );
 		if ( translate_length > 0 )
 		{
 		    uns32 q =
@@ -1036,9 +1036,9 @@ uns32 LLLEX::scan
 	    else if ( op & TRANSLATE_HEX_FLAG )
 	    {
 		uns32 p = next
-		        + LLLEX::prefix_length ( op );
+		        + LEX::prefix_length ( op );
 		uns32 endp = next + atom_length
-		           - LLLEX::postfix_length
+		           - LEX::postfix_length
 			         ( op );
 		uns32 tc = 0;
 		while ( p < endp )
@@ -1060,9 +1060,9 @@ uns32 LLLEX::scan
 	    else if ( op & TRANSLATE_OCT_FLAG )
 	    {
 		uns32 p = next
-		        + LLLEX::prefix_length ( op );
+		        + LEX::prefix_length ( op );
 		uns32 endp = next + atom_length
-		           - LLLEX::postfix_length
+		           - LEX::postfix_length
 			         ( op );
 		uns32 tc = 0;
 		while ( p < endp )

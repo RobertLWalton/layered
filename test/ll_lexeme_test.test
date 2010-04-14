@@ -1,3 +1,5 @@
+Uncooked Program 1:
+
          0: PROGRAM
             Atom Table ID: 2
          2: ATOM_TABLE
@@ -9,28 +11,54 @@
             Mode: LEXEME
             Label: 1
             Dispatcher ID: 12
-            Instruction ID: 58
+            Instruction ID: 59
         12: DISPATCHER
-            Break Elements: 3
+            Break Elements: 5
             Max Break Elements: 11
             Max Type: 4
             Breaks:             cmin     type_map_ID
                               \u0000               0
                                    0              48
-                                   6               0
+                                   :               0
+                                   a              55
+                                   {               0
             Map:    type:    dispatcher_ID  instruction_ID
                        0:                0               0
-                       1:                0              58
+                       1:                0              59
                        2:               12               0
                        3:                0               0
-                       4:                0               0
+                       4:                0              65
         48: TYPE_MAP
                0: 0
-               1: 1
-               2: 2
-               3: 3
-               4: 4
+               1: 1 9
+               2: 2 8
+               3: 3 7
+               4: 4 6
                5: 5
-        54: TYPE_MAP
-               9: a-z
-        58: KEEP(1), TRANSLATE(3,XYZ), GOTO(7)
+        55: TYPE_MAP
+               4: a-z
+        59: KEEP(1), TRANSLATE(3,XYZ), GOTO(7)
+        65: ACCEPT
+Cooked Program 1:
+
+         0: PROGRAM
+            Atom Table ID: 2
+         2: ATOM_TABLE
+            Mode: MASTER
+            Label: 0
+            Dispatcher ID: 0
+         7: ATOM_TABLE
+            Mode: LEXEME
+            Label: 1
+            Dispatcher ID: 12
+            KEEP(1), TRANSLATE(3,XYZ), GOTO(7)
+        12: DISPATCHER
+            Break Elements: 5
+            Max Break Elements: 11
+            Max Type: 4
+            1 9
+                KEEP(1), TRANSLATE(3,XYZ), GOTO(7)
+            2 8
+                Dispatcher ID: 12
+            4 6 a-z
+                ACCEPT

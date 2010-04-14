@@ -11,17 +11,16 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/13 14:18:06 $
+//   $Date: 2010/04/14 02:34:18 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents
 //
 //	Usage and Setup
-//	Program Creation
-//	Program Printing
-//	Program Conversion
+//	Program Construction
 //	Scanning
+//	Printing
 
 // Usage and Setup
 // ----- --- -----
@@ -43,8 +42,8 @@ using namespace LEX::program_data;
 
 char LEX::error_message[1000];
 
-// Program Creation
-// ------- --------
+// Program Construction
+// ------- ------------
 
 uns32 LEX::create_atom_table
 	( uns8 mode, uns32 label )
@@ -416,56 +415,524 @@ uns32 LEX::attach
     else
 	assert ( ! "assert failure" );
 }
-
-// Program Printing
-// ------- --------
 
-// cout << pchar ( uns32 c, width, {LEFT,RIGHT} )
-// outputs a character c either with no padding if
-// width == 0 or with padding and the indicated adjust-
-// ment (default RIGHT).  Format is 1 character for
-// printable non-space ASCII characters, \uXXXX for
-// other characters <= 0xFFFF, and \UXXXXXXXX
-// otherwise.
-//
-// columnschar ( c ) is the number of columns taken by
-// pchar when width == 0.
-//
-// pchar actually returns a pointer to a static
-// buffer in which it has written the formatted
-// character.  It can also be used as an sprintf
-// argument.
-//
-// WARNING: do not use pchar MORE THAN ONCE in a
-// statement, as it may be evaluated twice before
-// its output is used.  E.g., DO NOT:
-//	cout << ... << pchar (...)
-//           << ... << pchar (...) ... << endl;
-//
-enum { LEFT = 1, RIGHT = 0 };
-
-static const char * pchar
-	( uns32 c,
-          unsigned width = 0,
-	  bool left_adjust = RIGHT )
+void LEX::convert_program_endianhood ( void )
 {
-    static char buffer[20];
-    static char adjusted_buffer[101];
-    assert ( width <= 100 );
+}
+
+// Scanning
+// --------
 
-    if ( 33 <= c && c <= 126 )
-        sprintf ( buffer, "%c", (char) c );
-    else if ( c <= 0xFFFF )
-        sprintf ( buffer, "\\u%04X", c );
-    else
-        sprintf ( buffer, "\\U%08X", c );
-    if ( width == 0 ) return buffer;
-    sprintf ( adjusted_buffer, ( left_adjust ?
-                                 "%-*s" : "%*s" ),
-	      width, buffer );
-    return adjusted_buffer;
+static const char * pmode ( uns32 mode );
+
+// Scanner state.
+//
+static uns32 first, next;
+    // First character of current item is in
+    // input_buffer[first] and the first character
+    // of the next atom not yet fully scanned is in
+    // input_buffer[next].  If no atoms have been
+    // scanned next == first.  When an item is
+    // complete, last = next - 1.
+static uns32 master_atom_table_ID;
+    // ID of atom table that is the initial atom table
+    // or is the last non-continuation atom table
+    // gone to.  Used to output the kind and label for
+    // an item.
+static uns32 current_atom_table_ID;
+    // ID of the atom table currently being used to
+    // scan atoms.  Either == master_atom_table_ID or
+    // is for a CONTINUATION table.
+
+// We assume the program is well formed, in that an
+// XXX_ID actually points at a program component of
+// type XXX.  We check this with asserts (the attach
+// statements check this).  Everything else found
+// wrong with the program is a SCAN_ERROR.
+
+void LEX::init_scan ( void )
+{
+    input_buffer.resize ( 0 );
+    translation_buffer.resize ( 0 );
+
+    next = 0;
+    assert ( program[0] == PROGRAM );
+    program_header & h = * (program_header *)
+    			 & program[0];
+    assert ( program[h.atom_table_ID] == ATOM_TABLE );
+    master_atom_table_ID = h.atom_table_ID;
+    current_atom_table_ID = h.atom_table_ID;
 }
 
+// Write input_buffer[f..l] to a static buffer and
+// return it.  If more than 10 characters, write
+// only the first and last 5 and put ... in the
+// middle.  Use pchar to print a character.
+//
+static char * pinput_buffer ( uns32 f, uns32 l )
+{
+    static char buffer[1000];
+    uns32 n = l - f + 1;
+    char * p = buffer;
+    for ( uns32 i = 0; i < n; ++ i )
+    {
+	if ( i >= 5 && i < n - 5 )
+	{
+	    if ( i == 5 )
+	        p += sprintf ( p, "..." );
+	    continue;
+	}
+	uns32 c = input_buffer[f + i].character;
+        p += pcharf ( p, c );
+    }
+    return buffer;
+}
+
+// Write a character using pcharf to a static buffer
+// and return the static buffer.
+//
+static const char * pchars ( uns32 c )
+{
+    static char buffer[20];
+    pcharf ( buffer, c );
+    return buffer;
+}
+
+// Write the beginning of a scan error message into
+// error message and return a pointer to the next
+// location in error message.  Usage is:
+//
+//	sprintf ( scan_error ( length ), ... )
+//
+// `length' is the number of characters scanned after
+// `next'.
+//
+static char * scan_error ( uns32 length )
+{
+    return error_message + sprintf
+        ( error_message,
+	  "MASTER_ATOM_TABLE(%u) CURRENT_ATOM_TABLE(%u)"
+	  " POS(%llu)\nSTRING(%s)",
+	  master_atom_table_ID,
+	  current_atom_table_ID,
+	  input_buffer[next].position,
+	  pinput_buffer ( next, next + length - 1 ) );
+}
+
+uns32 LEX::scan
+	( uns32 & first, uns32 & last, uns32 & label )
+{
+    if ( next >= input_buffer.length_increment )
+    {
+        // If next has gotten to be as large as
+	// length_increment, shift the input_buffer
+	// down, eliminating characters in items
+	// already returned.
+	//
+        memmove ( & input_buffer[0],
+	          & input_buffer[next],
+		    ( input_buffer.length - next )
+		  * sizeof ( LEX::inchar ) );
+	input_buffer.deallocate ( next );
+	next = 0;
+    }
+
+    // Initialize ::first and next and translation
+    // buffer and current atom table.
+    //
+    ::first = next;
+    translation_buffer.deallocate
+	( translation_buffer.length );
+    current_atom_table_ID = master_atom_table_ID;
+
+    // We scan atoms until we get a current atom table
+    // that is not a CONTINUATION table and is not
+    // the same as the master table.  We may get this
+    // via a GOTO or a SHORTCUT.  In the latter
+    // case `shortcut' is set true.
+    // 
+    // A scan error is when we have no viable
+    // instruction or dispatch table that will allow us
+    // to continue.  We just immediately return
+    // SCAN_ERROR after writing error_message.
+    //
+    // If we encounter an end of file without scanning
+    // any input, we just return END_OF_FILE.  Other
+    // end of files may or may not force a scan error.
+    // 
+    bool shortcut = false;
+    while ( ! shortcut )
+    {
+        // Scan an atom.
+
+	atom_table_header & cath =
+	    * (atom_table_header *)
+	    & program[current_atom_table_ID];
+
+	if (    current_atom_table_ID
+	     != master_atom_table_ID
+	    &&
+	    cath.mode != CONTINUATION )
+    	    break;
+
+	// As we scan we recognize longer and longer
+	// atoms.  If at any point we cannot continue,
+	// we revert to the longest atom recognized
+	// so far (if none, we have a scan error).
+
+	uns32 instruction_ID = cath.instruction_ID;
+	uns32 atom_length = 0;
+	    // Length and instruction_ID for the
+	    // longest atom recognized so far.
+	uns32 length = 0;
+	    // Number of characters scanned so far
+	    // starting at input_buffer[next].
+	uns32 dispatcher_ID = cath.dispatcher_ID;
+	    // Current dispatcher.
+	assert ( instruction_ID == 0
+	         ||
+		    program[instruction_ID]
+		 == INSTRUCTION );
+	assert ( dispatcher_ID == 0
+	         ||
+		    program[dispatcher_ID]
+		 == DISPATCHER );
+
+	while ( true )
+	{
+	    // Dispatch the next character.  Stop when
+	    // we have no next dispatcher or no next
+	    // character (due to end of file).
+
+	    if ( dispatcher_ID == 0 ) break;
+
+	    if ( next + length >= input_buffer.length
+	         &&
+		 ! read_input() )
+	    {
+	        // End of file.
+		//
+		if ( next + length == ::first )
+		    return END_OF_FILE;
+		else break;
+	    }
+
+	    assert
+	        ( next + length < input_buffer.length );
+	    uns32 c =
+	        input_buffer[next + length].character;
+	    ++ length;
+
+	    dispatcher_header & dh =
+	        * (dispatcher_header *)
+		& program[dispatcher_ID];
+
+	    break_element * bep =
+	        (break_element *)
+		& program[  dispatcher_ID
+		          + dispatcher_header_length];
+
+	    // Binary search of break elements.
+	    //
+	    // Invariant:
+	    //     bep[low].cmin <= c < bep[high].cmin
+	    // where bep[high].cmin = infinity if
+	    // high == dh.break_elements.
+	    //
+	    uns32 low = 0,
+	          high = dh.break_elements,
+	          mid;
+	    while ( high - low >= 2 )
+	    {
+	        mid = ( high + low ) / 2;
+		if ( bep[mid].cmin <= c )
+		    low = mid;
+		else
+		    high = mid;
+	    }
+
+	    // Compute type from bep[low].
+	    //
+	    uns32 type_map_ID = bep[low].type_map_ID;
+	    assert ( program[type_map_ID] == TYPE_MAP );
+	    uns32 type = 0;
+	    if ( type_map_ID != 0 )
+	    {
+		type_map_header & tmh =
+		    * (type_map_header *)
+		    & program[type_map_ID];
+		uns32 type = tmh.singleton_type;
+		if ( type == 0 )
+		    type = ( (uns8 *) ( & tmh + 1 ) )
+			   [c - tmh.cmin];
+	    }
+	    if ( type > dh.max_type )
+	    {
+	        sprintf ( scan_error ( length ),
+		          "type %d computed for"
+			  " character %s is too large"
+			  " for dispatcher %d",
+			  type, pchars ( c ),
+			  dispatcher_ID );
+		return SCAN_ERROR;
+	    }
+
+	    // Map to next dispatcher and current
+	    // instruction.  If there is a current
+	    // instruction, we have recognized a longer
+	    // atom.
+	    //
+	    map_element * mep =
+	        (map_element *)
+		& program[  dispatcher_ID
+		          + dispatcher_header_length
+			  +   break_element_length
+			    * dh.max_break_elements];
+	    if ( mep[type].instruction_ID != 0 )
+	    {
+	        instruction_ID =
+		    mep[type].instruction_ID;
+		assert ( program[instruction_ID]
+		         == INSTRUCTION );
+		atom_length = length;
+	    }
+	    dispatcher_ID = mep[type].dispatcher_ID;
+	    assert ( dispatcher_ID == 0
+	             ||
+		        program[dispatcher_ID]
+		     == DISPATCHER );
+	}
+
+	// We are done dispatching characters.
+
+	// If we found no instruction it is a scan
+	// error.
+
+	if ( instruction_ID == 0 )
+	{
+	    assert ( atom_length == 0 );
+	    sprintf ( scan_error ( length ),
+		      "no instruction found" );
+	    return SCAN_ERROR;
+	}
+
+	instruction_header & ih =
+	    * (instruction_header *)
+	    & program[instruction_ID];
+	uns32 op = ih.operation;
+	if ( op & KEEP_FLAG )
+	{
+	    uns32 keep_length =
+		LEX::keep_length ( op );
+	    if ( keep_length > atom_length )
+	    {
+		sprintf ( scan_error ( length ),
+			  "keep length(%u) greater than"
+			  " atom length(%u)",
+			  keep_length, atom_length );
+		return SCAN_ERROR;
+	    }
+	    atom_length = keep_length;
+	}
+
+	if ( op & TRANSLATE_FLAG )
+	{
+	    uns32 translate_length =
+		LEX::translate_length ( op );
+	    if ( translate_length > 0 )
+	    {
+		uns32 q =
+		    translation_buffer.allocate
+			( translate_length );
+		memcpy ( & translation_buffer[q],
+			 & ih + 1,
+			   translate_length
+			 * sizeof ( uns32 ) );
+	    }
+	}
+	else if ( op & TRANSLATE_HEX_FLAG )
+	{
+	    uns32 p = next
+		    + LEX::prefix_length ( op );
+	    uns32 endp = next + atom_length
+		       - LEX::postfix_length
+			     ( op );
+	    uns32 tc = 0;
+	    while ( p < endp )
+	    {
+		tc <<= 4;
+		uns32 d =
+		    input_buffer[p++].character;
+		if ( '0' <= d && d <= '9' )
+		    tc += d - '0';
+		else if ( 'a' <= d && d <= 'f' )
+		    tc += d - 'a' + 10;
+		else if ( 'A' <= d && d <= 'F' )
+		    tc += d - 'A' + 10;
+		else
+		{
+		    sprintf ( scan_error ( length ),
+			      "bad hexadecimal"
+			      " digit(%s)"
+			      " for TRANSLATE_HEX",
+			      pchars ( d ) );
+		    return SCAN_ERROR;
+		}
+	    }
+	    translation_buffer[translation_buffer
+				.allocate ( 1 )]
+		= tc;
+	}
+	else if ( op & TRANSLATE_OCT_FLAG )
+	{
+	    uns32 p = next
+		    + LEX::prefix_length ( op );
+	    uns32 endp = next + atom_length
+		       - LEX::postfix_length
+			     ( op );
+	    uns32 tc = 0;
+	    while ( p < endp )
+	    {
+		tc <<= 3;
+		uns32 d =
+		    input_buffer[p++].character;
+		if ( '0' <= d && d <= '7' )
+		    tc += d - '0';
+		else
+		{
+		    sprintf ( scan_error ( length ),
+			      "bad octal digit(%s)"
+			      " for TRANSLATE_OCT",
+			      pchars ( d ) );
+		    return SCAN_ERROR;
+		}
+	    }
+	    translation_buffer[translation_buffer
+				.allocate ( 1 )]
+		= tc;
+	}
+	else
+	{
+	    uns32 q =
+		translation_buffer.allocate
+			( atom_length );
+	    uns32 p = next;
+	    for ( uns32 i = 0;
+		  i < atom_length; ++ i )
+		translation_buffer[q++] =
+		    input_buffer[p++].character;
+	}
+
+	next += atom_length;
+
+	if ( atom_length == 0
+	     &&
+	     ( ih.atom_table_ID == 0
+	       ||
+	          ih.atom_table_ID
+	       == current_atom_table_ID ) )
+	{
+	    sprintf ( scan_error ( length ),
+		      "no atom scanned and"
+		      " current atom table not"
+		      " changed" );
+	    return SCAN_ERROR;
+	}
+
+	if ( op & GOTO )
+	    current_atom_table_ID = ih.atom_table_ID;
+	else if ( op & SHORTCUT )
+	{
+	    shortcut = true;
+	    current_atom_table_ID = ih.atom_table_ID;
+	}
+	assert (    program[current_atom_table_ID]
+		 == ATOM_TABLE );
+
+	next += atom_length;
+    }
+
+    uns32 atom_table_ID =
+	shortcut ? current_atom_table_ID :
+		   master_atom_table_ID;
+    atom_table_header & ath =
+	* (atom_table_header *)
+	& program[atom_table_ID];
+
+    first = ::first;
+    last = ::next - 1;
+    label = ath.label;
+
+    if ( ! shortcut )
+        master_atom_table_ID = current_atom_table_ID;
+
+    switch ( ath.mode )
+    {
+    case LEXEME:
+    case ERROR:
+    case WHITESPACE:
+        break;
+    default:
+    {
+	sprintf ( error_message,
+		  "MASTER ATOM TABLE(%u),\n"
+		  "STRING(%s)\n"
+		  "returning item with bad kind(%s)"
+		  " from atom table %u",
+		  master_atom_table_ID,
+		  pinput_buffer ( first, last ),
+		  pmode ( ath.mode ),
+		  atom_table_ID );
+	return SCAN_ERROR;
+    }
+    }
+
+    return ath.mode;
+}
+
+// Printing
+// --------
+
+int LEX::pcharf ( char * buffer, uns32 c )
+{
+    if ( 33 <= c && c <= 126 )
+        return sprintf ( buffer, "%c", (char) c );
+    else if ( c <= 0xFFFF )
+        return sprintf ( buffer, "\\u%04X", c );
+    else
+        return sprintf ( buffer, "\\U%08X", c );
+}
+
+int LEX::pcharf ( char * buffer,
+                  const uns32 * p, uns32 n,
+		  uns32 b, uns32 e )
+{
+    int count = 0;
+    for ( uns32 i = 0; i < n; ++ i )
+    {
+        if ( i >= b && i < n - e )
+	{
+	    if ( i == b )
+	        count += sprintf
+		    ( buffer + count, "..." );
+	    continue;
+	}
+	count += pcharf ( buffer + count, p[i] );
+    }
+    return count;
+}
+
+ostream & operator <<
+	( ostream & out, const LEX::pchar & pc )
+{
+    char buffer[10*(pc.b+pc.e+5)];
+    pcharf ( buffer, pc.p, pc.n, pc.b, pc.e );
+    return out << buffer;
+}
+
+// columnschar ( c ) is the number of columns taken by
+// pchar.
+//
 inline unsigned columnschar ( uns32 c )
 {
     return ( 33 <= c && c <= 126 ) ? 1 :
@@ -679,7 +1146,7 @@ uns32 LEX::print_program_component
 	    break_element & be =
 		* (break_element *) & program[p];
 	    cout << INDENT
-		 << pchar ( be.cmin, 24 )
+		 << setw ( 24 ) << pchar ( be.cmin )
 		 << setw ( 16 ) << be.type_map_ID
 		 << endl;
 	}
@@ -726,8 +1193,8 @@ uns32 LEX::print_program_component
 	    //
 	    cout << setw ( IDwidth + 4 )
 		 << h.singleton_type
-		 << ": " << pchar ( h.cmin );
-	    cout << "-" << pchar ( h.cmax ) << endl;
+		 << ": " << pchar ( h.cmin )
+	         << "-" << pchar ( h.cmax ) << endl;
 	}
 	else
 	{
@@ -852,470 +1319,4 @@ void LEX::print_program
     if ( ID > program.length )
         out << "  ILLEGALLY TRUNCATED LAST PROGRAM"
 	       " COMPONENT" << endl;
-}
-
-// Program Conversion
-// ------- ----------
-
-
-void LEX::convert_program_endianhood ( void )
-{
-}
-
-// Scanning
-// --------
-
-// Scanner state.
-//
-static uns32 first, next;
-    // First character of current item is in
-    // input_buffer[first] and the first character
-    // of the next atom not yet fully scanned is in
-    // input_buffer[next].  If no atoms have been
-    // scanned next == first.  When an item is
-    // complete, last = next - 1.
-static uns32 master_atom_table_ID;
-    // ID of atom table that is the initial atom table
-    // or is the last non-continuation atom table
-    // gone to.  Used to output the kind and label for
-    // an item.
-static uns32 current_atom_table_ID;
-    // ID of the atom table currently being used to
-    // scan atoms.  Either == master_atom_table_ID or
-    // is for a CONTINUATION table.
-
-// We assume the program is well formed, in that an
-// XXX_ID actually points at a program component of
-// type XXX.  We check this with asserts (the attach
-// statements check this).  Everything else found
-// wrong with the program is a SCAN_ERROR.
-
-void LEX::init_scan ( void )
-{
-    input_buffer.resize ( 0 );
-    translation_buffer.resize ( 0 );
-
-    next = 0;
-    assert ( program[0] == PROGRAM );
-    program_header & h = * (program_header *)
-    			 & program[0];
-    assert ( program[h.atom_table_ID] == ATOM_TABLE );
-    master_atom_table_ID = h.atom_table_ID;
-    current_atom_table_ID = h.atom_table_ID;
-}
-
-// Write input_buffer[f..l] to a static buffer and
-// return it.  If more than 10 characters, write
-// only the first and last 5 and put ... in the
-// middle.  Use pchar to print a character.
-//
-static char * pinput_buffer ( uns32 f, uns32 l )
-{
-    static char buffer[1000];
-    uns32 n = l - f + 1;
-    char * p = buffer;
-    for ( uns32 i = 0; i < n; ++ i )
-    {
-	if ( i >= 5 && i < n - 5 )
-	{
-	    if ( i == 5 )
-	        p += sprintf ( p, "..." );
-	    continue;
-	}
-	uns32 c = input_buffer[f + i].character;
-        p += sprintf ( p, "%s", pchar ( c ) );
-    }
-    return buffer;
-}
-
-// Write the beginning of a scan error message into
-// error message and return a pointer to the next
-// location in error message.  Usage is:
-//
-//	sprintf ( scan_error ( length ), ... )
-//
-// `length' is the number of characters scanned after
-// `next'.
-//
-static char * scan_error ( uns32 length )
-{
-    return error_message + sprintf 
-        ( error_message,
-	  "MASTER_ATOM_TABLE(%u) CURRENT_ATOM_TABLE(%u)"
-	  " POS(%llu)\nSTRING(%s)",
-	  master_atom_table_ID,
-	  current_atom_table_ID,
-	  input_buffer[next].position,
-	  pinput_buffer ( next, next + length - 1 ) );
-}
-
-uns32 LEX::scan
-	( uns32 & first, uns32 & last, uns32 & label )
-{
-    if ( next >= input_buffer.length_increment )
-    {
-        // If next has gotten to be as large as
-	// length_increment, shift the input_buffer
-	// down, eliminating characters in items
-	// already returned.
-	//
-        memmove ( & input_buffer[0],
-	          & input_buffer[next],
-		    ( input_buffer.length - next )
-		  * sizeof ( LEX::inchar ) );
-	input_buffer.deallocate ( next );
-	next = 0;
-    }
-
-    // Initialize ::first and next and translation
-    // buffer and current atom table.
-    //
-    ::first = next;
-    translation_buffer.deallocate
-	( translation_buffer.length );
-    current_atom_table_ID = master_atom_table_ID;
-
-    // We scan atoms until we get a current atom table
-    // that is not a CONTINUATION table and is not
-    // the same as the master table.  We may get this
-    // via a GOTO or a SHORTCUT.  In the latter
-    // case `shortcut' is set true.
-    // 
-    // A scan error is when we have no viable
-    // instruction or dispatch table that will allow us
-    // to continue.  We just immediately return
-    // SCAN_ERROR after writing error_message.
-    //
-    // If we encounter an end of file without scanning
-    // any input, we just return END_OF_FILE.  Other
-    // end of files may or may not force a scan error.
-    // 
-    bool shortcut = false;
-    while ( ! shortcut )
-    {
-        // Scan an atom.
-
-	atom_table_header & cath =
-	    * (atom_table_header *)
-	    & program[current_atom_table_ID];
-
-	if (    current_atom_table_ID
-	     != master_atom_table_ID
-	    &&
-	    cath.mode != CONTINUATION )
-    	    break;
-
-	// As we scan we recognize longer and longer
-	// atoms.  If at any point we cannot continue,
-	// we revert to the longest atom recognized
-	// so far (if none, we have a scan error).
-
-	uns32 instruction_ID = cath.instruction_ID;
-	uns32 atom_length = 0;
-	    // Length and instruction_ID for the
-	    // longest atom recognized so far.
-	uns32 length = 0;
-	    // Number of characters scanned so far
-	    // starting at input_buffer[next].
-	uns32 dispatcher_ID = cath.dispatcher_ID;
-	    // Current dispatcher.
-	assert ( instruction_ID == 0
-	         ||
-		    program[instruction_ID]
-		 == INSTRUCTION );
-	assert ( dispatcher_ID == 0
-	         ||
-		    program[dispatcher_ID]
-		 == DISPATCHER );
-
-	while ( true )
-	{
-	    // Dispatch the next character.  Stop when
-	    // we have no next dispatcher or no next
-	    // character (due to end of file).
-
-	    if ( dispatcher_ID == 0 ) break;
-
-	    if ( next + length >= input_buffer.length
-	         &&
-		 ! read_input() )
-	    {
-	        // End of file.
-		//
-		if ( next + length == ::first )
-		    return END_OF_FILE;
-		else break;
-	    }
-
-	    assert
-	        ( next + length < input_buffer.length );
-	    uns32 c =
-	        input_buffer[next + length].character;
-	    ++ length;
-
-	    dispatcher_header & dh =
-	        * (dispatcher_header *)
-		& program[dispatcher_ID];
-
-	    break_element * bep =
-	        (break_element *)
-		& program[  dispatcher_ID
-		          + dispatcher_header_length];
-
-	    // Binary search of break elements.
-	    //
-	    // Invariant:
-	    //     bep[low].cmin <= c < bep[high].cmin
-	    // where bep[high].cmin = infinity if
-	    // high == dh.break_elements.
-	    //
-	    uns32 low = 0,
-	          high = dh.break_elements,
-	          mid;
-	    while ( high - low >= 2 )
-	    {
-	        mid = ( high + low ) / 2;
-		if ( bep[mid].cmin <= c )
-		    low = mid;
-		else
-		    high = mid;
-	    }
-
-	    // Compute type from bep[low].
-	    //
-	    uns32 type_map_ID = bep[low].type_map_ID;
-	    assert ( program[type_map_ID] == TYPE_MAP );
-	    uns32 type = 0;
-	    if ( type_map_ID != 0 )
-	    {
-		type_map_header & tmh =
-		    * (type_map_header *)
-		    & program[type_map_ID];
-		uns32 type = tmh.singleton_type;
-		if ( type == 0 )
-		    type = ( (uns8 *) ( & tmh + 1 ) )
-			   [c - tmh.cmin];
-	    }
-	    if ( type > dh.max_type )
-	    {
-	        sprintf ( scan_error ( length ),
-		          "type %d computed for"
-			  " character %s is too large"
-			  " for dispatcher %d",
-			  type, pchar ( c ),
-			  dispatcher_ID );
-		return SCAN_ERROR;
-	    }
-
-	    // Map to next dispatcher and current
-	    // instruction.  If there is a current
-	    // instruction, we have recognized a longer
-	    // atom.
-	    //
-	    map_element * mep =
-	        (map_element *)
-		& program[  dispatcher_ID
-		          + dispatcher_header_length
-			  +   break_element_length
-			    * dh.max_break_elements];
-	    if ( mep[type].instruction_ID != 0 )
-	    {
-	        instruction_ID =
-		    mep[type].instruction_ID;
-		assert ( program[instruction_ID]
-		         == INSTRUCTION );
-		atom_length = length;
-	    }
-	    dispatcher_ID = mep[type].dispatcher_ID;
-	    assert ( dispatcher_ID == 0
-	             ||
-		        program[dispatcher_ID]
-		     == DISPATCHER );
-	}
-
-	// We are done dispatching characters.
-
-	// If we found no instruction it is a scan
-	// error.
-
-	if ( instruction_ID == 0 )
-	{
-	    assert ( atom_length == 0 );
-	    sprintf ( scan_error ( length ),
-		      "no instruction found" );
-	    return SCAN_ERROR;
-	}
-
-	instruction_header & ih =
-	    * (instruction_header *)
-	    & program[instruction_ID];
-	uns32 op = ih.operation;
-	if ( op & KEEP_FLAG )
-	{
-	    uns32 keep_length =
-		LEX::keep_length ( op );
-	    if ( keep_length > atom_length )
-	    {
-		sprintf ( scan_error ( length ),
-			  "keep length(%u) greater than"
-			  " atom length(%u)",
-			  keep_length, atom_length );
-		return SCAN_ERROR;
-	    }
-	    atom_length = keep_length;
-	}
-
-	if ( op & TRANSLATE_FLAG )
-	{
-	    uns32 translate_length =
-		LEX::translate_length ( op );
-	    if ( translate_length > 0 )
-	    {
-		uns32 q =
-		    translation_buffer.allocate
-			( translate_length );
-		memcpy ( & translation_buffer[q],
-			 & ih + 1,
-			   translate_length
-			 * sizeof ( uns32 ) );
-	    }
-	}
-	else if ( op & TRANSLATE_HEX_FLAG )
-	{
-	    uns32 p = next
-		    + LEX::prefix_length ( op );
-	    uns32 endp = next + atom_length
-		       - LEX::postfix_length
-			     ( op );
-	    uns32 tc = 0;
-	    while ( p < endp )
-	    {
-		tc <<= 4;
-		uns32 d =
-		    input_buffer[p++].character;
-		if ( '0' <= d && d <= '9' )
-		    tc += d - '0';
-		else if ( 'a' <= d && d <= 'f' )
-		    tc += d - 'a' + 10;
-		else if ( 'A' <= d && d <= 'F' )
-		    tc += d - 'A' + 10;
-		else
-		{
-		    sprintf ( scan_error ( length ),
-			      "bad hexadecimal"
-			      " digit(%s)"
-			      " for TRANSLATE_HEX",
-			      pchar ( d ) );
-		    return SCAN_ERROR;
-		}
-	    }
-	    translation_buffer[translation_buffer
-				.allocate ( 1 )]
-		= tc;
-	}
-	else if ( op & TRANSLATE_OCT_FLAG )
-	{
-	    uns32 p = next
-		    + LEX::prefix_length ( op );
-	    uns32 endp = next + atom_length
-		       - LEX::postfix_length
-			     ( op );
-	    uns32 tc = 0;
-	    while ( p < endp )
-	    {
-		tc <<= 3;
-		uns32 d =
-		    input_buffer[p++].character;
-		if ( '0' <= d && d <= '7' )
-		    tc += d - '0';
-		else
-		{
-		    sprintf ( scan_error ( length ),
-			      "bad octal digit(%s)"
-			      " for TRANSLATE_OCT",
-			      pchar ( d ) );
-		    return SCAN_ERROR;
-		}
-	    }
-	    translation_buffer[translation_buffer
-				.allocate ( 1 )]
-		= tc;
-	}
-	else
-	{
-	    uns32 q =
-		translation_buffer.allocate
-			( atom_length );
-	    uns32 p = next;
-	    for ( uns32 i = 0;
-		  i < atom_length; ++ i )
-		translation_buffer[q++] =
-		    input_buffer[p++].character;
-	}
-
-	next += atom_length;
-
-	if ( atom_length == 0
-	     &&
-	     ( ih.atom_table_ID == 0
-	       ||
-	          ih.atom_table_ID
-	       == current_atom_table_ID ) )
-	{
-	    sprintf ( scan_error ( length ),
-		      "no atom scanned and"
-		      " current atom table not"
-		      " changed" );
-	    return SCAN_ERROR;
-	}
-
-	if ( op & GOTO )
-	    current_atom_table_ID = ih.atom_table_ID;
-	else if ( op & SHORTCUT )
-	{
-	    shortcut = true;
-	    current_atom_table_ID = ih.atom_table_ID;
-	}
-	assert (    program[current_atom_table_ID]
-		 == ATOM_TABLE );
-
-	next += atom_length;
-    }
-
-    uns32 atom_table_ID =
-	shortcut ? current_atom_table_ID :
-		   master_atom_table_ID;
-    atom_table_header & ath =
-	* (atom_table_header *)
-	& program[atom_table_ID];
-
-    first = ::first;
-    last = ::next - 1;
-    label = ath.label;
-
-    if ( ! shortcut )
-        master_atom_table_ID = current_atom_table_ID;
-
-    switch ( ath.mode )
-    {
-    case LEXEME:
-    case ERROR:
-    case WHITESPACE:
-        break;
-    default:
-    {
-	sprintf ( error_message,
-		  "MASTER ATOM TABLE(%u),\n"
-		  "STRING(%s)\n"
-		  "returning item with bad kind(%s)"
-		  " from atom table %u",
-		  master_atom_table_ID,
-		  pinput_buffer ( first, last ),
-		  pmode ( ath.mode ),
-		  atom_table_ID );
-	return SCAN_ERROR;
-    }
-    }
-
-    return ath.mode;
 }

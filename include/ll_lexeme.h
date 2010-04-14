@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Mon Apr 12 21:29:41 EDT 2010
+// Date:	Tue Apr 13 22:31:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,15 +11,17 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/13 01:42:49 $
+//   $Date: 2010/04/14 02:32:24 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // Table of Contents
 //
 //	Usage and Setup
 //	External Interface
-//	LL Lexeme Program Construction
+//	Program Construction
+//	Scanning
+//	Printing
 
 // Usage and Setup
 // ----- --- -----
@@ -189,8 +191,8 @@ namespace ll { namespace lexeme {
     uns32 read_input ( void );
 } }
 
-// LL Lexeme Program Construction
-// -- ------ ------- ------------
+// Program Construction
+// ------- ------------
 
 namespace ll { namespace lexeme {
 
@@ -476,6 +478,25 @@ namespace ll { namespace lexeme {
     	      uns32 t,
 	      uns32 component_ID );
 
+    // Convert the program to the endianhood of this
+    // computer.  This is necessary when the program is
+    // read from a binary file.  The first uns32 element
+    // of the program determines the program's endian-
+    // hood (it is a known constant that appears correct
+    // if and only if the program's current endianhood
+    // is correct).  Note that the program contains
+    // embedded byte vectors which must not be changed
+    // by endianhood conversion, so one cannot simply
+    // convert all the uns32 elements of the program.
+    //
+    void convert_program_endianhood ( void );
+} }
+
+// Scanning
+// --------
+
+namespace ll { namespace lexeme {
+
     // Initialize lexical scan.  The program must be
     // stored in the program buffer.  It must have been
     // created by the above functions, but may have been
@@ -508,6 +529,64 @@ namespace ll { namespace lexeme {
     uns32 scan
             ( uns32 & first, uns32 & last,
 	      uns32 & label );
+} }
+
+// Printing
+// --------
+
+namespace ll { namespace lexeme {
+
+    // Print an uns32 UNICODE character into the buffer.
+    //
+    // If the uns32 character c is in the range 33 ..
+    // 126 it is simply put in the buffer.  Otherwise if
+    // it is <= 0xFFFF then \uXXXX is put in the buffer,
+    // where XXXX is the hexadecimal representation of
+    // the uns32 value.  Otherwise \UXXXXXXXX is put in
+    // the buffer where XXXXXXXX is the hexadecimal
+    // representation of the character.  A NUL is put
+    // at the end of the characters written into the
+    // buffer, and the number of characters written
+    // exclusive of the NUL is returned.
+    //
+    int pcharf ( char * buffer, uns32 c );
+
+    // Ditto but print a string of n characters.
+    //
+    // If there are more than b+e characters, print only
+    // the first b and last e characters and put ... in
+    // the middle.
+    //
+    int pcharf ( char * buffer,
+                 const uns32 * p, uns32 n,
+                 uns32 b = 5, uns32 e = 5 );
+
+    //		cout << pchar ( c )
+    // and
+    //		cout << pchar ( p, n, b, e )
+    //
+    // perform the same function as pcharf but write to
+    // an output stream and not a buffer.
+    //
+    struct pchar {
+        uns32 c, n, b, e;
+	const uns32 * p;
+	pchar ( uns32 c ) :
+	    c ( c ), p ( NULL ),
+	    n ( 1 ), b ( 1 ), e ( 1 )
+	{    this->p = & this->c; }
+	pchar ( const uns32 * p, uns32 n,
+	        uns32 b = 5, uns32 e = 5 ) :
+	    c ( 0 ), p ( p ),
+	    n ( n ), b ( b ), e ( e ) {}
+    };
+} }
+
+std::ostream & operator <<
+    ( std::ostream & out,
+      const ll::lexeme::pchar & pc );
+
+namespace ll { namespace lexeme {
 
     // Print a representation of the program to the
     // output stream.  There are two output formats:
@@ -527,19 +606,6 @@ namespace ll { namespace lexeme {
     uns32 print_program_component
         ( std::ostream & out,
 	  uns32 ID, bool cooked = true );
-
-    // Convert the program to the endianhood of this
-    // computer.  This is necessary when the program is
-    // read from a binary file.  The first uns32 element
-    // of the program determines the program's endian-
-    // hood (it is a known constant that appears correct
-    // if and only if the program's current endianhood
-    // is correct).  Note that the program contains
-    // embedded byte vectors which must not be changed
-    // by endianhood conversion, so one cannot simply
-    // convert all the uns32 elements of the program.
-    //
-    void convert_program_endianhood ( void );
 
 } }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 12 21:37:17 EDT 2010
+// Date:	Tue Apr 13 22:40:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/14 02:34:18 $
+//   $Date: 2010/04/14 02:49:12 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents
 //
@@ -229,10 +229,10 @@ static uns32 attach_type_map_to_dispatcher
     if ( bep->type_map_ID != 0 )
     {
         sprintf ( error_message,
-	          "Attempt to attach type map %d"
-		  " to dispatcher %d\n"
+	          "Attempt to attach type map %u"
+		  " to dispatcher %u\n"
 		  "conflicts with previous attachment"
-		  " of type map %d",
+		  " of type map %u",
 		  type_map_ID, dispatcher_ID,
 		  bep->type_map_ID );
         return 0;
@@ -244,10 +244,10 @@ static uns32 attach_type_map_to_dispatcher
     {
         assert ( bep->type_map_ID != 0 );
         sprintf ( error_message,
-	          "Attempt to attach type map %d"
-		  " to dispatcher %d\n"
+	          "Attempt to attach type map %u"
+		  " to dispatcher %u\n"
 		  "conflicts with previous attachment"
-		  " of type map %d",
+		  " of type map %u",
 		  type_map_ID, dispatcher_ID,
 		  nextbep->type_map_ID );
         return 0;
@@ -259,8 +259,8 @@ static uns32 attach_type_map_to_dispatcher
     if ( dh.break_elements + n > dh.max_break_elements )
     {
         sprintf ( error_message,
-	          "Attempt to attach type map %d"
-		  " to dispatcher %d\n"
+	          "Attempt to attach type map %u"
+		  " to dispatcher %u\n"
 		  "fails because dispatcher already has"
 		  " too many breaks",
 		  type_map_ID, dispatcher_ID );
@@ -314,10 +314,10 @@ uns32 LEX::attach
 	    {
 		sprintf ( error_message,
 			  "Attempt to attach dispatcher"
-			  " %d to atom table %d\n"
+			  " %u to atom table %u\n"
 			  "conflicts with previous"
 			  " attachment of dispatcher"
-			  " %d",
+			  " %u",
 			  component_ID, target_ID,
 			  h.dispatcher_ID );
 	        return 0;
@@ -331,11 +331,11 @@ uns32 LEX::attach
 	    {
 		sprintf ( error_message,
 			  "Attempt to attach"
-			  " instruction %d to atom"
-			  " table %d\n"
+			  " instruction %u to atom"
+			  " table %u\n"
 			  "conflicts with previous"
 			  " attachment of instruction"
-			  " %d",
+			  " %u",
 			  component_ID, target_ID,
 			  h.instruction_ID );
 	        return 0;
@@ -384,10 +384,10 @@ uns32 LEX::attach
 	{
 	    sprintf ( error_message,
 		      "Attempt to attach dispatcher"
-		      " %d to dispatcher %d type %d\n"
+		      " %u to dispatcher %u type %u\n"
 		      "conflicts with previous"
 		      " attachment of dispatcher"
-		      " %d",
+		      " %u",
 		      component_ID, target_ID, t,
 		      me.dispatcher_ID );
 	    return 0;
@@ -401,10 +401,10 @@ uns32 LEX::attach
 	{
 	    sprintf ( error_message,
 		      "Attempt to attach instruction"
-		      " %d to dispatcher %d type %d\n"
+		      " %u to dispatcher %u type %u\n"
 		      "conflicts with previous"
 		      " attachment of instruction"
-		      " %d",
+		      " %u",
 		      component_ID, target_ID, t,
 		      me.instruction_ID );
 	    return 0;
@@ -427,13 +427,9 @@ static const char * pmode ( uns32 mode );
 
 // Scanner state.
 //
-static uns32 first, next;
-    // First character of current item is in
-    // input_buffer[first] and the first character
-    // of the next atom not yet fully scanned is in
-    // input_buffer[next].  If no atoms have been
-    // scanned next == first.  When an item is
-    // complete, last = next - 1.
+static uns32 next;
+    // input_buffer[next] is the first character of the
+    // first yet unscanned atom.
 static uns32 master_atom_table_ID;
     // ID of atom table that is the initial atom table
     // or is the last non-continuation atom table
@@ -461,7 +457,6 @@ void LEX::init_scan ( void )
     			 & program[0];
     assert ( program[h.atom_table_ID] == ATOM_TABLE );
     master_atom_table_ID = h.atom_table_ID;
-    current_atom_table_ID = h.atom_table_ID;
 }
 
 // Write input_buffer[f..l] to a static buffer and
@@ -537,10 +532,10 @@ uns32 LEX::scan
 	next = 0;
     }
 
-    // Initialize ::first and next and translation
+    // Initialize first and next and translation
     // buffer and current atom table.
     //
-    ::first = next;
+    first = next;
     translation_buffer.deallocate
 	( translation_buffer.length );
     current_atom_table_ID = master_atom_table_ID;
@@ -561,7 +556,7 @@ uns32 LEX::scan
     // end of files may or may not force a scan error.
     // 
     bool shortcut = false;
-    while ( ! shortcut )
+    while ( true )
     {
         // Scan an atom.
 
@@ -578,7 +573,7 @@ uns32 LEX::scan
 	// As we scan we recognize longer and longer
 	// atoms.  If at any point we cannot continue,
 	// we revert to the longest atom recognized
-	// so far (if none, we have a scan error).
+	// so far (if none, we may have a scan error).
 
 	uns32 instruction_ID = cath.instruction_ID;
 	uns32 atom_length = 0;
@@ -612,7 +607,7 @@ uns32 LEX::scan
 	    {
 	        // End of file.
 		//
-		if ( next + length == ::first )
+		if ( next + length == first )
 		    return END_OF_FILE;
 		else break;
 	    }
@@ -654,10 +649,11 @@ uns32 LEX::scan
 	    // Compute type from bep[low].
 	    //
 	    uns32 type_map_ID = bep[low].type_map_ID;
-	    assert ( program[type_map_ID] == TYPE_MAP );
 	    uns32 type = 0;
 	    if ( type_map_ID != 0 )
 	    {
+		assert (    program[type_map_ID]
+		         == TYPE_MAP );
 		type_map_header & tmh =
 		    * (type_map_header *)
 		    & program[type_map_ID];
@@ -669,9 +665,9 @@ uns32 LEX::scan
 	    if ( type > dh.max_type )
 	    {
 	        sprintf ( scan_error ( length ),
-		          "type %d computed for"
+		          "type %u computed for"
 			  " character %s is too large"
-			  " for dispatcher %d",
+			  " for dispatcher %u",
 			  type, pchars ( c ),
 			  dispatcher_ID );
 		return SCAN_ERROR;
@@ -823,8 +819,6 @@ uns32 LEX::scan
 		    input_buffer[p++].character;
 	}
 
-	next += atom_length;
-
 	if ( atom_length == 0
 	     &&
 	     ( ih.atom_table_ID == 0
@@ -859,8 +853,8 @@ uns32 LEX::scan
 	* (atom_table_header *)
 	& program[atom_table_ID];
 
-    first = ::first;
-    last = ::next - 1;
+    first = first;
+    last = next - 1;
     label = ath.label;
 
     if ( ! shortcut )
@@ -979,7 +973,7 @@ static const char * pmode ( uns32 mode )
     case CONTINUATION:
 	strcpy ( buffer, "CONTINUATION" ); break;
     default:
-	sprintf ( buffer, "ILLEGAL MODE (%d)", mode );
+	sprintf ( buffer, "ILLEGAL MODE (%u)", mode );
     }
     return buffer;
 }

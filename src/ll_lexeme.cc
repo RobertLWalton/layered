@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 14 04:20:15 EDT 2010
+// Date:	Wed Apr 14 09:30:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/14 13:15:51 $
+//   $Date: 2010/04/14 13:30:44 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents
 //
@@ -1061,6 +1061,7 @@ static uns32 print_instruction
         COUT << "GOTO(" << h.atom_table_ID << ")";
     if ( h.operation & SHORTCUT )
         COUT << "SHORTCUT(" << h.atom_table_ID << ")";
+    if ( first ) COUT << "ACCEPT";
     cout << endl;
 #   undef COUT
 
@@ -1318,11 +1319,11 @@ uns32 LEX::print_program_component
 	return atom_table_header_length;
     }
     case DISPATCHER:
-	cout << pID ( ID ) << "DISPATCHER" << endl;
     if ( cooked )
 	return print_cooked_dispatcher ( ID );
     else
     {
+	cout << pID ( ID ) << "DISPATCHER" << endl;
 	dispatcher_header & h =
 	    * (dispatcher_header *) & program[ID];
 	cout << INDENT << "Break Elements: "

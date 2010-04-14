@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Tue Apr 13 22:31:49 EDT 2010
+// Date:	Wed Apr 14 09:22:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/14 02:32:24 $
+//   $Date: 2010/04/14 13:22:27 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // Table of Contents
 //
@@ -298,6 +298,9 @@ namespace ll { namespace lexeme {
     //			tained as input to be rescanned.
     //			n may be 0.
     //
+    //   ACCEPT		Equals 0; use if KEEP and
+    //			TRANSLATE... are not used.
+    //
     //	 TRANSLATE(n)	Instead of copying the atom into
     //			the translation buffer, copy the
     //			characters given in the transla-
@@ -362,6 +365,7 @@ namespace ll { namespace lexeme {
     // Instruction operation flags:
     //
     enum {
+	ACCEPT			= 0,
 	KEEP_FLAG		= ( 1 << 0 ),
 	TRANSLATE_FLAG		= ( 1 << 1 ),
 	TRANSLATE_HEX_FLAG	= ( 1 << 2 ),

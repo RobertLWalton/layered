@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr 13 22:40:54 EDT 2010
+// Date:	Wed Apr 14 04:20:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/14 02:49:12 $
+//   $Date: 2010/04/14 13:15:51 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents
 //
@@ -1068,15 +1068,219 @@ static uns32 print_instruction
          + translate_length;
 }
 
+// Iterator that prints out a list of characters
+// within 72 columns.  `nonempty' if the list is
+// non-empty.  The list is indented by the given
+// amount.  The user is responsible for the indent of
+// the first line if user_indent is true.
+//
+struct pclist {
+    int indent;
+        // Indent set by constructor.
+    bool user_indent;
+        // User will indent first line:
+	// set by constructor.
+    bool empty;
+        // True if list empty so far.
+    int columns;
+        // Number of columns remaining on current
+	// line; 72 - indent columns are available
+	// for each line.
+
+    uns32 c1, c2;
+        // If not empty then the range c1-c2 (or just c1
+	// if c1 == c2) needs to be printed.  This is
+	// delayed to allow c2 to grow.
+
+    pclist ( int indent, bool user_indent = false )
+	: indent ( indent ), user_indent ( user_indent )
+    {
+	assert ( 72 - indent >= 30 );
+        empty = true;
+	columns = 72 - indent;
+    }
+
+    // Print c1-c2 (or just c1 if c1 == c2 ).  Precede
+    // by a ' ' or a '\n' and indent ' 's if not first
+    // thing on line.
+    //
+    void flush ( void )
+    {
+        if ( empty ) return;
+
+        int needed = columnschar ( c1 );
+	if ( c2 != c1 )
+	{
+	    needed += 1;
+	    if ( c2 != 0xFFFFFFFF )
+	        needed += columnschar ( c2 );
+	}
+
+	if ( columns == 72 - indent )
+	{
+	    // If nothing on line, its our first line.
+	    //
+	    if ( ! user_indent )
+	        cout << setw ( indent ) << "";
+	    columns -= needed;
+	}
+	else if ( columns >= 1 + needed )
+	{
+	    cout << " ";
+	    columns -= 1 + needed;
+	}
+	else
+	{
+	    cout << endl << setw ( indent ) << "";
+	    columns = 72 - indent - needed;
+	}
+
+	cout << pchar ( c1 );
+	if ( c2 != c1 )
+	{
+	    cout << "-";
+	    if ( c2 != 0xFFFFFFFF)
+	        cout << pchar ( c2 );
+	}
+    }
+
+    // Add c1-c2 to the list of characters printed.
+    // c1 == c2 is possible.  Must be called in order
+    // of increasing c; c2 >= c1 required.
+    //
+    void add ( uns32 c1, uns32 c2 )
+    {
+	assert ( empty || this->c2 < c1 );
+	assert ( c1 <= c2 );
+
+        if ( ! empty && c1 == this->c2 + 1 )
+	    this->c2 = c2;
+	else
+	{
+	    flush();
+	    this->c1 = c1;
+	    this->c2 = c2;
+	    empty = false;
+	}
+    }
+};
+
 // Print the dispatcher at program[ID] with the given
 // indent, if ID is non-zero in the cooked format.
 // Return length of dispatcher component.  If ID is
 // zero, do nothing but return 0.
 //
 static uns32 print_cooked_dispatcher
-    ( uns32 ID, unsigned indent = 12 )
+    ( uns32 ID, unsigned indent = IDwidth )
 {
     if ( ID == 0 ) return 0;
+
+    cout << pID ( ID ) << "DISPATCHER" << endl;
+
+    dispatcher_header & h =
+	* (dispatcher_header *) & program[ID];
+
+    uns32 length = dispatcher_header_length;
+    break_element * bep =
+        (break_element *)
+        & program[ID + length];
+    length += break_element_length
+	    * h.max_break_elements;
+    map_element * mep =
+        (map_element *)
+        & program[ID + length];
+    length += map_element_length
+	    * ( h.max_type + 1 );
+
+    cout << INDENT << "Break Elements: "
+	 << h.break_elements << endl;
+    cout << INDENT << "Max Break Elements: "
+	 << h.max_break_elements << endl;
+    cout << INDENT << "Max Type: "
+	 << h.max_type << endl;
+
+    // Construct tmap so that t2 = tmap[t1] iff t2 is
+    // the smallest type such that mep[t2] == mep[t1].
+    //
+    uns32 tmap[h.max_type+1];
+    for ( uns32 t1 = 0; t1 <= h.max_type; ++ t1 )
+    {
+        uns32 t2 = 0;
+	while (    mep[t2].instruction_ID
+	        != mep[t1].instruction_ID
+		||
+		   mep[t2].dispatcher_ID
+		!= mep[t1].dispatcher_ID ) ++ t2;
+	tmap[t1] = t2;
+    }
+
+    // For each t such that tmap[t] == t, mep[t] has
+    // a non-zero dispatcher_ID or instruction_ID, and
+    // some characters map to t, print the list all
+    // characters that map to to t and instruction and
+    // dispatcher_ID if there are non-zero.
+    //
+    for ( uns32 t = 0; t <= h.max_type; ++ t )
+    {
+        if ( t != tmap[t] ) continue;
+	if ( mep[t].instruction_ID == 0
+	     &&
+	     mep[t].dispatcher_ID == 0 )
+	    continue;
+
+	pclist pcl ( IDwidth );
+	for ( uns32 b = 0; b <= h.break_elements; ++ b )
+	{
+	    uns32 cmin = bep[b].cmin;
+	    uns32 cmax = b == h.break_elements ?
+	                 0xFFFFFFFF : bep[b+1].cmin - 1;
+
+	    uns32 type_map_ID = bep[b].type_map_ID;
+
+	    if ( type_map_ID == 0 )
+	    {
+	        if ( tmap[0] == t )
+		    pcl.add ( cmin, cmax );
+	    }
+	    else
+	    {
+	        assert (    program[type_map_ID]
+		         == TYPE_MAP );
+		type_map_header & mh =
+		    * (type_map_header *)
+		    & program[type_map_ID];
+		uns32 type = mh.singleton_type;
+		if ( type != 0 )
+		{
+		    if ( tmap[type] == t )
+			pcl.add ( cmin, cmax );
+		}
+		else
+		{
+		    uns8 * p = (uns8 *) ( & mh + 1 );
+		    for ( uns32 c = cmin;
+		          c <= cmax; ++ c )
+		    {
+		        if ( tmap[p[c-cmin]] == t )
+			    pcl.add ( c, c );
+		    }
+		}
+	    }
+	}
+
+	if ( pcl.empty ) continue;
+
+	pcl.flush();
+	cout << endl;
+
+	print_instruction
+	    ( mep[t].instruction_ID, IDwidth + 4 );
+	if ( mep[t].dispatcher_ID != 0 )
+	    cout << INDENT << "    Dispatcher ID: "
+	         << mep[t].dispatcher_ID << endl;
+    }
+
+    return length;
 }
 
 uns32 LEX::print_program_component
@@ -1196,70 +1400,21 @@ uns32 LEX::print_program_component
 	    length += ( h.cmax - h.cmin + 4 ) / 4;
 	    for ( unsigned t = 0; t < 256; ++ t )
 	    {
-		bool found = false;
-		uns32 range = 0;
-		unsigned columns = 72 - IDwidth - 6;
+		pclist pcl ( IDwidth + 6, true );
 		for ( uns32 c = h.cmin;
 		      c <= h.cmax; ++ c )
 		{
 		    if ( map[c - h.cmin] == t )
 		    {
-			if ( ! found )
+		        if ( pcl.empty )
 			    cout << setw ( IDwidth
 					   + 4 )
 				 << t << ": ";
-			if ( range == 0 )
-			{
-			    if ( columns
-				 <
-				   columnschar ( c )
-				 + 4
-				   // allows for
-				   // ", " and "-"
-				   // and line
-				   // ending ","
-				 + columnschar
-				     ( 0xFFFFFFFF )
-			       )
-			    {
-				assert
-				  ( columns >= 0 );
-				cout << "," << endl
-				     << setw
-					  ( IDwidth
-					    + 6 )
-				     << "";
-				columns = 72
-					- IDwidth
-					- 6;
-			    }
-			    else if ( found )
-			    {
-				cout << ", ";
-				columns -= 2;
-			    }
-			    cout << pchar ( c );
-			    columns -=
-				columnschar ( c );
-			}
-			found = true;
-			++ range;
-		    }
-		    else
-		    {
-			if ( range > 1 )
-			{
-			    cout << "-"
-				 << pchar ( c - 1 );
-			    columns -=
-				1 + columnschar
-					( c - 1 );
-			    assert ( columns >= 0 );
-			}
-			range = 0;
+			pcl.add ( c, c );
 		    }
 		}
-		if ( found ) cout << endl;
+		pcl.flush();
+		if ( ! pcl.empty ) cout << endl;
 	    }
 	}
 	return length;

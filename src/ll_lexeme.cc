@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 16 03:47:31 EDT 2010
+// Date:	Fri Apr 16 09:04:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 07:47:47 $
+//   $Date: 2010/04/16 14:47:20 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents
 //
@@ -196,37 +196,22 @@ static uns32 attach_type_map_to_dispatcher
 	& LEX::program[type_map_ID];
     assert ( mh.type == TYPE_MAP );
 
-    uns32 beginp = dispatcher_ID
-                 + dispatcher_header_length;
-    uns32 endp = beginp
-               +   break_element_length
-	         * dh.break_elements;
-    uns32 p = beginp;
-    uns32 nextp;
-    while ( true )
-    {
-        nextp =
-	    p + break_element_length;
-	if ( nextp >= endp ) break;
-	break_element & nexte =
-	    * (break_element *)
-	    & LEX::program[nextp];
-	if ( nexte.cmin > mh.cmin ) break;
-	p = nextp;
-    }
-
     break_element * bep =
-	(break_element *)
-	& LEX::program[p];
-    break_element * nextbep =
-	(break_element *)
-	& LEX::program[nextp];
+        (break_element *)
+	& LEX::program[  dispatcher_ID
+                       + dispatcher_header_length ];
 
-    bool split_next = nextp == endp ?
-                      mh.cmax != (uns32) -1 :
-		      mh.cmax != nextbep->cmin;
+    uns32 i = 0;
+    for ( ; i + 1 < dh.break_elements
+            &&
+	    bep[i+1].cmin <= mh.cmin;
+	    ++ i );
 
-    if ( bep->type_map_ID != 0 )
+    bool split_next = ( i == dh.break_elements - 1 ?
+                        mh.cmax != 0xFFFFFFFF :
+		        mh.cmax != bep[i+1].cmin );
+
+    if ( bep[i].type_map_ID != 0 )
     {
         sprintf ( error_message,
 	          "Attempt to attach type map %u"
@@ -234,27 +219,27 @@ static uns32 attach_type_map_to_dispatcher
 		  "conflicts with previous attachment"
 		  " of type map %u",
 		  type_map_ID, dispatcher_ID,
-		  bep->type_map_ID );
+		  bep[i].type_map_ID );
         return 0;
     }
 
-    if ( nextp != endp
+    if ( i + 1 != dh.break_elements
          &&
-	 nextbep->cmin < mh.cmin )
+	 bep[i+1].cmin < mh.cmin )
     {
-        assert ( bep->type_map_ID != 0 );
+        assert ( bep[i+1].type_map_ID != 0 );
         sprintf ( error_message,
 	          "Attempt to attach type map %u"
 		  " to dispatcher %u\n"
 		  "conflicts with previous attachment"
 		  " of type map %u",
 		  type_map_ID, dispatcher_ID,
-		  nextbep->type_map_ID );
+		  bep[i+1].type_map_ID );
         return 0;
     }
 
     uns32 n = 2; // Number of new break elements needed.
-    if ( bep->cmin == mh.cmin ) -- n;
+    if ( bep[i].cmin == mh.cmin ) -- n;
     if ( ! split_next ) -- n;
     if ( dh.break_elements + n > dh.max_break_elements )
     {
@@ -267,31 +252,25 @@ static uns32 attach_type_map_to_dispatcher
 	return 0;
     }
 
-    if ( nextp != endp && n != 0 )
-        memmove ( bep + n, bep,
-	            break_element_length
-		  * ( endp - p )
-		  * sizeof ( uns32 ) );
-    if ( bep->cmin < mh.cmin )
+    if ( n != 0 )
+        memmove ( & bep[i+n], & bep[i],
+		    ( dh.break_elements - i )
+		  * sizeof ( break_element ) );
+    if ( bep[i].cmin < mh.cmin )
     {
-	nextbep->cmin = mh.cmin;
-	nextbep->type_map_ID  = 0;
-	p = nextp;
-	nextp += break_element_length;
-	bep = nextbep;
-	nextbep =
-	    (break_element *)
-	    & LEX::program [nextp];
+	++ i;
+	bep[i].cmin = mh.cmin;
+	bep[i].type_map_ID  = 0;
     }
 
     if ( split_next )
     {
-	nextbep->cmin = mh.cmax + 1;
-	nextbep->type_map_ID  = 0;
+	bep[i+1].cmin = mh.cmax + 1;
+	bep[i+1].type_map_ID  = 0;
     }
 
     dh.break_elements += n;
-    bep->type_map_ID = type_map_ID;
+    bep[i].type_map_ID = type_map_ID;
     return 1;
 }
 
@@ -885,13 +864,19 @@ int LEX::spchar ( char * buffer, uns32 c )
     else if ( 33 <= c && c <= 126 )
         return sprintf ( buffer, "%c", (char) c );
     else if ( c == ' ' )
-        return sprintf ( buffer, "\\ " );
+        return sprintf ( buffer, "\\~" );
     else if ( c == '\n' )
         return sprintf ( buffer, "\\n" );
     else if ( c == '\t' )
         return sprintf ( buffer, "\\t" );
     else if ( c == '\f' )
         return sprintf ( buffer, "\\f" );
+    else if ( c == '\v' )
+        return sprintf ( buffer, "\\v" );
+    else if ( c == '\b' )
+        return sprintf ( buffer, "\\b" );
+    else if ( c == '\r' )
+        return sprintf ( buffer, "\\r" );
     else if ( c <= 0xFFFF )
         return sprintf ( buffer, "\\u%04X", c );
     else
@@ -1113,6 +1098,7 @@ struct pclist {
 	    if ( c2 != 0xFFFFFFFF )
 	        p += spchar ( p, c2 );
 	}
+	* p = 0;
 	int needed = p - buffer;
 
 	if ( columns == LINE - indent )
@@ -1222,11 +1208,12 @@ static uns32 print_cooked_dispatcher
 	    continue;
 
 	pclist pcl ( IDwidth );
-	for ( uns32 b = 0; b <= h.break_elements; ++ b )
+	for ( uns32 b = 0; b < h.break_elements; ++ b )
 	{
 	    uns32 cmin = bep[b].cmin;
-	    uns32 cmax = b == h.break_elements ?
-	                 0xFFFFFFFF : bep[b+1].cmin - 1;
+	    uns32 cmax = ( b == h.break_elements - 1 ?
+	                   0xFFFFFFFF :
+			   bep[b+1].cmin - 1 );
 
 	    uns32 type_map_ID = bep[b].type_map_ID;
 

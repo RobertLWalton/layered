@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri Apr 16 02:45:43 EDT 2010
+// Date:	Fri Apr 16 09:16:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 07:32:02 $
+//   $Date: 2010/04/16 14:46:49 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // Table of Contents
 //
@@ -549,15 +549,15 @@ namespace ll { namespace lexeme {
     // Print an uns32 UNICODE character into the buffer.
     //
     // If the uns32 character c is ' ', '\\', '\n',
-    // '\f', or '\t' put "\ ", "\\", etc in the buffer.
-    // Otherwise if c is in the range 33 ..  126 put
-    // c itself in the buffer.  Otherwise if c is <=
-    // 0xFFFF then \uXXXX is put in the buffer, where
-    // XXXX is the hexadecimal representation of
-    // the uns32 value.  Otherwise \UXXXXXXXX is put in
-    // the buffer where XXXXXXXX is the hexadecimal
-    // representation of the character.  A NUL is put
-    // at the end of the characters written into the
+    // '\f', '\t', '\v', '\b', or '\r' put "\~", "\\",
+    // etc in the buffer.  Otherwise if c is in the
+    // range 33 ..  126 put c itself in the buffer.
+    // Otherwise if c is <= 0xFFFF then \uXXXX is put in
+    // the buffer, where XXXX is the hexadecimal
+    // representation of the uns32 value c.  Otherwise
+    // \UXXXXXXXX is put in the buffer where XXXXXXXX is
+    // the hexadecimal representation of c.  A NUL is
+    // put at the end of the characters written into the
     // buffer, and the number of characters written
     // exclusive of the NUL is returned.
     //

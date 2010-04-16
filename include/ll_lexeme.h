@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr 14 09:27:56 EDT 2010
+// Date:	Fri Apr 16 02:45:43 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/14 13:28:36 $
+//   $Date: 2010/04/16 07:32:02 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // Table of Contents
 //
@@ -202,10 +202,10 @@ namespace ll { namespace lexeme {
     // not write into this otherwise.
     //
     // The error message is a sequence of lines each no
-    // no longer than 72 characters.  All lines but the
-    // last are `\n' terminated: it may be printed with
-    // cout << ll::lexeme::error_message << endl.  It
-    // may be used in conjunction with the output of
+    // no longer than LINE characters.  All lines but
+    // the last are `\n' terminated: it may be printed
+    // with cout << ll::lexeme::error_message << endl.
+    // It may be used in conjunction with the output of
     // print_program ( false ) (uncooked program print).
     //
     extern char error_message[];
@@ -541,12 +541,19 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
+    // Nominal length of a line for diagnostic messages.
+    // Normally set at the limit for email messages.
+    //
+    const int LINE = 72;
+
     // Print an uns32 UNICODE character into the buffer.
     //
-    // If the uns32 character c is in the range 33 ..
-    // 126 it is simply put in the buffer.  Otherwise if
-    // it is <= 0xFFFF then \uXXXX is put in the buffer,
-    // where XXXX is the hexadecimal representation of
+    // If the uns32 character c is ' ', '\\', '\n',
+    // '\f', or '\t' put "\ ", "\\", etc in the buffer.
+    // Otherwise if c is in the range 33 ..  126 put
+    // c itself in the buffer.  Otherwise if c is <=
+    // 0xFFFF then \uXXXX is put in the buffer, where
+    // XXXX is the hexadecimal representation of
     // the uns32 value.  Otherwise \UXXXXXXXX is put in
     // the buffer where XXXXXXXX is the hexadecimal
     // representation of the character.  A NUL is put
@@ -554,36 +561,14 @@ namespace ll { namespace lexeme {
     // buffer, and the number of characters written
     // exclusive of the NUL is returned.
     //
-    int pcharf ( char * buffer, uns32 c );
+    int spchar ( char * buffer, uns32 c );
 
-    // Ditto but print a string of n characters.
-    //
-    // If there are more than b+e characters, print only
-    // the first b and last e characters and put ... in
-    // the middle.
-    //
-    int pcharf ( char * buffer,
-                 const uns32 * p, uns32 n,
-                 uns32 b = 5, uns32 e = 5 );
-
-    //		cout << pchar ( c )
-    // and
-    //		cout << pchar ( p, n, b, e )
-    //
-    // perform the same function as pcharf but write to
-    // an output stream and not a buffer.
+    // cout << pchar ( c ) does the same thing as spchar
+    // but prints to an output stream.
     //
     struct pchar {
-        uns32 c, n, b, e;
-	const uns32 * p;
-	pchar ( uns32 c ) :
-	    c ( c ), p ( NULL ),
-	    n ( 1 ), b ( 1 ), e ( 1 )
-	{    this->p = & this->c; }
-	pchar ( const uns32 * p, uns32 n,
-	        uns32 b = 5, uns32 e = 5 ) :
-	    c ( 0 ), p ( p ),
-	    n ( n ), b ( b ), e ( e ) {}
+        uns32 c;
+	pchar ( uns32 c ) : c ( c ) {}
     };
 } }
 
@@ -592,6 +577,14 @@ std::ostream & operator <<
       const ll::lexeme::pchar & pc );
 
 namespace ll { namespace lexeme {
+
+    // Print ll::lexeme::input_buffer[first .. last]
+    // to one or more lines in the buffer.  The \n for
+    // the last line is NOT put in the buffer.  Return
+    // the number of characters put in the buffer.
+    //
+    int spinput ( char * buffer,
+                  uns32 first, uns32 last );
 
     // Print a representation of the program to the
     // output stream.  There are two output formats:

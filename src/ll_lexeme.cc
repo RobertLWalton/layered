@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 14 09:30:24 EDT 2010
+// Date:	Fri Apr 16 02:47:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/14 13:30:44 $
+//   $Date: 2010/04/16 07:34:07 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents
 //
@@ -459,37 +459,35 @@ void LEX::init_scan ( void )
     master_atom_table_ID = h.atom_table_ID;
 }
 
-// Write input_buffer[f..l] to a static buffer and
-// return it.  If more than 10 characters, write
-// only the first and last 5 and put ... in the
-// middle.  Use pchar to print a character.
-//
-static char * pinput_buffer ( uns32 f, uns32 l )
+int LEX::spinput
+	( char * buffer, uns32 first, uns32 last )
 {
-    static char buffer[1000];
-    uns32 n = l - f + 1;
+    assert ( first <= last );
+    int columns = LINE;
     char * p = buffer;
-    for ( uns32 i = 0; i < n; ++ i )
+    while ( first <= last )
     {
-	if ( i >= 5 && i < n - 5 )
+	uns32 c = input_buffer[first++].character;
+	int count = spchar ( p, c );
+	if ( count > columns )
 	{
-	    if ( i == 5 )
-	        p += sprintf ( p, "..." );
-	    continue;
+	    * p ++ = '\n';
+	    columns = LINE;
+	    spchar ( p, c );
 	}
-	uns32 c = input_buffer[f + i].character;
-        p += pcharf ( p, c );
+	p += count;
+	columns -= count;
     }
-    return buffer;
+    return p - buffer;
 }
 
-// Write a character using pcharf to a static buffer
+// Write a character using spchar to a static buffer
 // and return the static buffer.
 //
-static const char * pchars ( uns32 c )
+static const char * sbpchar ( uns32 c )
 {
     static char buffer[20];
-    pcharf ( buffer, c );
+    spchar ( buffer, c );
     return buffer;
 }
 
@@ -504,14 +502,17 @@ static const char * pchars ( uns32 c )
 //
 static char * scan_error ( uns32 length )
 {
-    return error_message + sprintf
-        ( error_message,
+    char * p = error_message;
+    p += sprintf
+        ( p,
 	  "MASTER_ATOM_TABLE(%u) CURRENT_ATOM_TABLE(%u)"
-	  " POS(%llu)\nSTRING(%s)",
+	  " POS(%llu) INPUT_BUFFER:\n",
 	  master_atom_table_ID,
 	  current_atom_table_ID,
-	  input_buffer[next].position,
-	  pinput_buffer ( next, next + length - 1 ) );
+	  input_buffer[next].position );
+    p += spinput ( p, next, next + length - 1 );
+    * p ++ = '\n';
+    return p;
 }
 
 uns32 LEX::scan
@@ -668,7 +669,7 @@ uns32 LEX::scan
 		          "type %u computed for"
 			  " character %s is too large"
 			  " for dispatcher %u",
-			  type, pchars ( c ),
+			  type, sbpchar ( c ),
 			  dispatcher_ID );
 		return SCAN_ERROR;
 	    }
@@ -771,7 +772,7 @@ uns32 LEX::scan
 			      "bad hexadecimal"
 			      " digit(%s)"
 			      " for TRANSLATE_HEX",
-			      pchars ( d ) );
+			      sbpchar ( d ) );
 		    return SCAN_ERROR;
 		}
 	    }
@@ -799,7 +800,7 @@ uns32 LEX::scan
 		    sprintf ( scan_error ( length ),
 			      "bad octal digit(%s)"
 			      " for TRANSLATE_OCT",
-			      pchars ( d ) );
+			      sbpchar ( d ) );
 		    return SCAN_ERROR;
 		}
 	    }
@@ -868,15 +869,15 @@ uns32 LEX::scan
         break;
     default:
     {
-	sprintf ( error_message,
-		  "MASTER ATOM TABLE(%u),\n"
-		  "STRING(%s)\n"
-		  "returning item with bad kind(%s)"
-		  " from atom table %u",
+	int count = sprintf ( error_message,
+		  "MASTER ATOM TABLE(%u)"
+		  " returning item with bad kind(%s)"
+		  " from atom table %u; ATOM:\n",
 		  master_atom_table_ID,
-		  pinput_buffer ( first, last ),
 		  pmode ( ath.mode ),
 		  atom_table_ID );
+	count += spinput ( error_message + count,
+	                   first, last );
 	return SCAN_ERROR;
     }
     }
@@ -887,50 +888,32 @@ uns32 LEX::scan
 // Printing
 // --------
 
-int LEX::pcharf ( char * buffer, uns32 c )
+int LEX::spchar ( char * buffer, uns32 c )
 {
-    if ( 33 <= c && c <= 126 )
+    if ( c == '\\' )
+        return sprintf ( buffer, "\\\\" );
+    else if ( 33 <= c && c <= 126 )
         return sprintf ( buffer, "%c", (char) c );
+    else if ( c == ' ' )
+        return sprintf ( buffer, "\\ " );
+    else if ( c == '\n' )
+        return sprintf ( buffer, "\\n" );
+    else if ( c == '\t' )
+        return sprintf ( buffer, "\\t" );
+    else if ( c == '\f' )
+        return sprintf ( buffer, "\\f" );
     else if ( c <= 0xFFFF )
         return sprintf ( buffer, "\\u%04X", c );
     else
         return sprintf ( buffer, "\\U%08X", c );
 }
 
-int LEX::pcharf ( char * buffer,
-                  const uns32 * p, uns32 n,
-		  uns32 b, uns32 e )
-{
-    int count = 0;
-    for ( uns32 i = 0; i < n; ++ i )
-    {
-        if ( i >= b && i < n - e )
-	{
-	    if ( i == b )
-	        count += sprintf
-		    ( buffer + count, "..." );
-	    continue;
-	}
-	count += pcharf ( buffer + count, p[i] );
-    }
-    return count;
-}
-
 ostream & operator <<
 	( ostream & out, const LEX::pchar & pc )
 {
-    char buffer[10*(pc.b+pc.e+5)];
-    pcharf ( buffer, pc.p, pc.n, pc.b, pc.e );
+    char buffer[20];
+    spchar ( buffer, pc.c );
     return out << buffer;
-}
-
-// columnschar ( c ) is the number of columns taken by
-// pchar.
-//
-inline unsigned columnschar ( uns32 c )
-{
-    return ( 33 <= c && c <= 126 ) ? 1 :
-           ( c <= 0xFFFF ) ? 6 : 10;
 }
 
 const unsigned IDwidth = 12;
@@ -1070,7 +1053,7 @@ static uns32 print_instruction
 }
 
 // Iterator that prints out a list of characters
-// within 72 columns.  `nonempty' if the list is
+// within LINE columns.  `nonempty' if the list is
 // non-empty.  The list is indented by the given
 // amount.  The user is responsible for the indent of
 // the first line if user_indent is true.
@@ -1085,7 +1068,7 @@ struct pclist {
         // True if list empty so far.
     int columns;
         // Number of columns remaining on current
-	// line; 72 - indent columns are available
+	// line; LINE - indent columns are available
 	// for each line.
 
     uns32 c1, c2;
@@ -1096,9 +1079,9 @@ struct pclist {
     pclist ( int indent, bool user_indent = false )
 	: indent ( indent ), user_indent ( user_indent )
     {
-	assert ( 72 - indent >= 30 );
+	assert ( LINE - indent >= 30 );
         empty = true;
-	columns = 72 - indent;
+	columns = LINE - indent;
     }
 
     // Print c1-c2 (or just c1 if c1 == c2 ).  Precede
@@ -1109,15 +1092,18 @@ struct pclist {
     {
         if ( empty ) return;
 
-        int needed = columnschar ( c1 );
+	char buffer[40];
+	char * p = buffer;
+        p += spchar ( p, c1 );
 	if ( c2 != c1 )
 	{
-	    needed += 1;
+	    * p ++ = '-';
 	    if ( c2 != 0xFFFFFFFF )
-	        needed += columnschar ( c2 );
+	        p += spchar ( p, c2 );
 	}
+	int needed = p - buffer;
 
-	if ( columns == 72 - indent )
+	if ( columns == LINE - indent )
 	{
 	    // If nothing on line, its our first line.
 	    //
@@ -1133,16 +1119,10 @@ struct pclist {
 	else
 	{
 	    cout << endl << setw ( indent ) << "";
-	    columns = 72 - indent - needed;
+	    columns = LINE - indent - needed;
 	}
 
-	cout << pchar ( c1 );
-	if ( c2 != c1 )
-	{
-	    cout << "-";
-	    if ( c2 != 0xFFFFFFFF)
-	        cout << pchar ( c2 );
-	}
+	cout << buffer;
     }
 
     // Add c1-c2 to the list of characters printed.
@@ -1387,9 +1367,6 @@ uns32 LEX::print_program_component
 	uns32 length = type_map_header_length;
 	if ( h.singleton_type > 0 )
 	{
-	    // DO NOT use pchar more than once in
-	    // a statement.
-	    //
 	    cout << setw ( IDwidth + 4 )
 		 << h.singleton_type
 		 << ": " << pchar ( h.cmin )

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 16 02:47:04 EDT 2010
+// Date:	Fri Apr 16 03:47:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 07:34:07 $
+//   $Date: 2010/04/16 07:47:47 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // Table of Contents
 //
@@ -435,10 +435,6 @@ static uns32 master_atom_table_ID;
     // or is the last non-continuation atom table
     // gone to.  Used to output the kind and label for
     // an item.
-static uns32 current_atom_table_ID;
-    // ID of the atom table currently being used to
-    // scan atoms.  Either == master_atom_table_ID or
-    // is for a CONTINUATION table.
 
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
@@ -459,38 +455,6 @@ void LEX::init_scan ( void )
     master_atom_table_ID = h.atom_table_ID;
 }
 
-int LEX::spinput
-	( char * buffer, uns32 first, uns32 last )
-{
-    assert ( first <= last );
-    int columns = LINE;
-    char * p = buffer;
-    while ( first <= last )
-    {
-	uns32 c = input_buffer[first++].character;
-	int count = spchar ( p, c );
-	if ( count > columns )
-	{
-	    * p ++ = '\n';
-	    columns = LINE;
-	    spchar ( p, c );
-	}
-	p += count;
-	columns -= count;
-    }
-    return p - buffer;
-}
-
-// Write a character using spchar to a static buffer
-// and return the static buffer.
-//
-static const char * sbpchar ( uns32 c )
-{
-    static char buffer[20];
-    spchar ( buffer, c );
-    return buffer;
-}
-
 // Write the beginning of a scan error message into
 // error message and return a pointer to the next
 // location in error message.  Usage is:
@@ -500,20 +464,20 @@ static const char * sbpchar ( uns32 c )
 // `length' is the number of characters scanned after
 // `next'.
 //
-static char * scan_error ( uns32 length )
-{
-    char * p = error_message;
-    p += sprintf
-        ( p,
-	  "MASTER_ATOM_TABLE(%u) CURRENT_ATOM_TABLE(%u)"
-	  " POS(%llu) INPUT_BUFFER:\n",
-	  master_atom_table_ID,
-	  current_atom_table_ID,
-	  input_buffer[next].position );
-    p += spinput ( p, next, next + length - 1 );
-    * p ++ = '\n';
-    return p;
-}
+static char * scan_error ( uns32 length );
+
+// Write a character using spchar to a static buffer
+// and return the static buffer.
+//
+static const char * sbpchar ( uns32 c );
+
+static uns32 current_atom_table_ID;
+    // ID of the atom table currently being used to
+    // scan atoms.  Either == master_atom_table_ID or
+    // is for a CONTINUATION table.
+    //
+    // This is a global variable because it is output
+    // by scan_error.
 
 uns32 LEX::scan
 	( uns32 & first, uns32 & last, uns32 & label )
@@ -884,6 +848,32 @@ uns32 LEX::scan
 
     return ath.mode;
 }
+
+// See documentation above.
+//
+static const char * sbpchar ( uns32 c )
+{
+    static char buffer[20];
+    spchar ( buffer, c );
+    return buffer;
+}
+
+// See documentation above.
+//
+static char * scan_error ( uns32 length )
+{
+    char * p = error_message;
+    p += sprintf
+        ( p,
+	  "MASTER_ATOM_TABLE(%u) CURRENT_ATOM_TABLE(%u)"
+	  " POS(%llu) INPUT_BUFFER:\n",
+	  master_atom_table_ID,
+	  current_atom_table_ID,
+	  input_buffer[next].position );
+    p += spinput ( p, next, next + length - 1 );
+    * p ++ = '\n';
+    return p;
+}
 
 // Printing
 // --------
@@ -914,6 +904,28 @@ ostream & operator <<
     char buffer[20];
     spchar ( buffer, pc.c );
     return out << buffer;
+}
+
+int LEX::spinput
+	( char * buffer, uns32 first, uns32 last )
+{
+    assert ( first <= last );
+    int columns = LINE;
+    char * p = buffer;
+    while ( first <= last )
+    {
+	uns32 c = input_buffer[first++].character;
+	int count = spchar ( p, c );
+	if ( count > columns )
+	{
+	    * p ++ = '\n';
+	    columns = LINE;
+	    spchar ( p, c );
+	}
+	p += count;
+	columns -= count;
+    }
+    return p - buffer;
 }
 
 const unsigned IDwidth = 12;

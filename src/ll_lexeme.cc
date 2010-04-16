@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 14:47:20 $
+//   $Date: 2010/04/16 17:42:54 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents
 //
@@ -209,7 +209,7 @@ static uns32 attach_type_map_to_dispatcher
 
     bool split_next = ( i == dh.break_elements - 1 ?
                         mh.cmax != 0xFFFFFFFF :
-		        mh.cmax != bep[i+1].cmin );
+		        mh.cmax != bep[i+1].cmin - 1 );
 
     if ( bep[i].type_map_ID != 0 )
     {
@@ -238,7 +238,7 @@ static uns32 attach_type_map_to_dispatcher
         return 0;
     }
 
-    uns32 n = 2; // Number of new break elements needed.
+    int n = 2; // Number of new break elements needed.
     if ( bep[i].cmin == mh.cmin ) -- n;
     if ( ! split_next ) -- n;
     if ( dh.break_elements + n > dh.max_break_elements )

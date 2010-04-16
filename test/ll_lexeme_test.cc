@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 16 08:49:17 EDT 2010
+// Date:	Fri Apr 16 12:39:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 14:51:10 $
+//   $Date: 2010/04/16 17:43:55 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents
 //
@@ -359,6 +359,68 @@ static void create_program_2 ( void )
     	           master_instruction );
     check_attach ( fraction_dispatcher, 1,
     	           fraction_instruction );
+
+    uns32 whitespace_dispatcher =
+        LEX::create_dispatcher ( 3, 10 );
+    check_attach ( whitespace, whitespace_dispatcher );
+    check_attach ( whitespace_dispatcher, tmap );
+    check_attach ( whitespace_dispatcher, 0,
+                   master_instruction );
+    check_attach ( whitespace_dispatcher, white,
+                   whitespace_instruction );
+    check_attach ( whitespace_dispatcher, letter,
+                   master_instruction );
+    check_attach ( whitespace_dispatcher, digit,
+                   master_instruction );
+    check_attach ( whitespace_dispatcher, point,
+                   master_instruction );
+    check_attach ( whitespace_dispatcher, sep,
+                   master_instruction );
+    check_attach ( whitespace_dispatcher, op,
+                   master_instruction );
+
+    uns32 operation_dispatcher =
+        LEX::create_dispatcher ( 9, 10 );
+    check_attach ( oper, operation_dispatcher );
+    uns32 plus_map =
+        LEX::create_type_map ( '+', '+', 1 );
+    uns32 minus_map =
+        LEX::create_type_map ( '-', '-', 2 );
+    uns32 divide_map =
+        LEX::create_type_map ( '/', '/', 3 );
+    uns32 times_map =
+        LEX::create_type_map ( '*', '*', 3 );
+    uns32 master_accept =
+        LEX::create_instruction
+	    ( ACCEPT+GOTO, master );
+    uns32 plus_dispatcher =
+        LEX::create_dispatcher ( 9, 10 );
+    uns32 minus_dispatcher =
+        LEX::create_dispatcher ( 9, 10 );
+    check_attach ( operation_dispatcher, plus_map );
+    check_attach ( operation_dispatcher, minus_map );
+    check_attach ( operation_dispatcher, divide_map );
+    check_attach ( operation_dispatcher, times_map );
+    check_attach ( operation_dispatcher, 0,
+                   master_instruction );
+    check_attach ( operation_dispatcher, 1,
+                   plus_dispatcher );
+    check_attach ( operation_dispatcher, 2,
+                   minus_dispatcher );
+    check_attach ( operation_dispatcher, 3,
+                   master_accept );
+    check_attach ( plus_dispatcher, plus_map );
+    check_attach ( plus_dispatcher, 0,
+                   master_instruction );
+    check_attach ( plus_dispatcher, 1,
+                   master_accept );
+    check_attach ( minus_dispatcher, minus_map );
+    check_attach ( minus_dispatcher, 0,
+                   master_instruction );
+    check_attach ( minus_dispatcher, 1,
+                   master_instruction );
+    check_attach ( minus_dispatcher, 2,
+                   master_accept );
 
     cout << "Cooked Program 2:" << endl << endl;
     LEX::print_program ( cout, true );

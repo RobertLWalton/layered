@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 16 04:16:03 EDT 2010
+// Date:	Fri Apr 16 08:49:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 08:21:59 $
+//   $Date: 2010/04/16 14:51:10 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents
 //
@@ -51,6 +51,24 @@ using LEX::SHORTCUT;
 // Program Construction Test
 // ------- ------------ ----
 
+static void check_attach
+        ( uns32 target_ID, uns32 component_ID )
+{
+    if ( ! LEX::attach ( target_ID, component_ID ) )
+        cout << "ATTACH_ERROR" << endl
+	     << LEX::error_message << endl;
+}
+
+static void check_attach
+        ( uns32 target_ID, uns32 type,
+	  uns32 component_ID )
+{
+    if ( ! LEX::attach
+              ( target_ID, type, component_ID ) )
+        cout << "ATTACH_ERROR" << endl
+	     << LEX::error_message << endl;
+}
+
 static void create_program_1 ( void )
 {
 
@@ -75,15 +93,15 @@ static void create_program_1 ( void )
     uns32 instruction2 =
         LEX::create_instruction ( ACCEPT );
 
-    LEX::attach ( atable1, instruction1 );
-    LEX::attach ( atable1, dispatcher1 );
+    check_attach ( atable1, instruction1 );
+    check_attach ( atable1, dispatcher1 );
 
-    LEX::attach ( dispatcher1, tmap1 );
-    LEX::attach ( dispatcher1, tmap2 );
+    check_attach ( dispatcher1, tmap1 );
+    check_attach ( dispatcher1, tmap2 );
 
-    LEX::attach ( dispatcher1, 1, instruction1 );
-    LEX::attach ( dispatcher1, 2, dispatcher1 );
-    LEX::attach ( dispatcher1, 4, instruction2 );
+    check_attach ( dispatcher1, 1, instruction1 );
+    check_attach ( dispatcher1, 2, dispatcher1 );
+    check_attach ( dispatcher1, 4, instruction2 );
 
     cout << "Uncooked Program 1:" << endl << endl;
     LEX::print_program ( cout, false );
@@ -101,10 +119,12 @@ static void create_program_2 ( void )
         LEX::create_atom_table ( LEX::LEXEME, 2 );
     uns32 number =
         LEX::create_atom_table ( LEX::LEXEME, 3 );
-    uns32 separator =
+    uns32 oper =
         LEX::create_atom_table ( LEX::LEXEME, 4 );
+    uns32 separator =
+        LEX::create_atom_table ( LEX::LEXEME, 5 );
     uns32 error =
-        LEX::create_atom_table ( LEX::ERROR, 5 );
+        LEX::create_atom_table ( LEX::ERROR, 6 );
 
     const uns8 white = 1;
     const uns8 letter = 2;
@@ -244,17 +264,101 @@ static void create_program_2 ( void )
             0,		// ~
             0,		// DEL
         };
+
     uns32 tmap = LEX::create_type_map ( 0, 127, cmap );
     uns32 master_dispatcher =
         LEX::create_dispatcher ( 3, 10 );
-    LEX::attach ( master, master_dispatcher );
-    LEX::attach ( master_dispatcher, tmap );
+    check_attach ( master, master_dispatcher );
+    check_attach ( master_dispatcher, tmap );
     uns32 symbol_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO, symbol );
-    LEX::attach ( master_dispatcher, letter,
-                  symbol_instruction );
+	    ( ACCEPT+GOTO, symbol );
+    uns32 number_instruction =
+        LEX::create_instruction
+	    ( KEEP(0)+GOTO, number );
+    uns32 whitespace_instruction =
+        LEX::create_instruction
+	    ( ACCEPT+GOTO, whitespace );
+    uns32 operator_instruction =
+        LEX::create_instruction
+	    ( KEEP(0)+GOTO, oper );
+    uns32 separator_instruction =
+        LEX::create_instruction
+	    ( ACCEPT+SHORTCUT, separator );
+    uns32 error_instruction =
+        LEX::create_instruction
+	    ( ACCEPT+SHORTCUT, error );
+    check_attach ( master_dispatcher, 0,
+                   error_instruction );
+    check_attach ( master_dispatcher, white,
+                   whitespace_instruction );
+    check_attach ( master_dispatcher, letter,
+                   symbol_instruction );
+    check_attach ( master_dispatcher, digit,
+                   number_instruction );
+    check_attach ( master_dispatcher, point,
+                   number_instruction );
+    check_attach ( master_dispatcher, sep,
+                   separator_instruction );
+    check_attach ( master_dispatcher, op,
+                   operator_instruction );
 
+    uns32 master_instruction =
+        LEX::create_instruction
+	    ( KEEP(0)+GOTO, master );
+
+    uns32 symbol_dispatcher =
+        LEX::create_dispatcher ( 3, 10 );
+    check_attach ( symbol, symbol_dispatcher );
+    check_attach ( symbol_dispatcher, tmap );
+    check_attach ( symbol_dispatcher, letter,
+                   symbol_instruction );
+    check_attach ( symbol_dispatcher, digit,
+                   symbol_instruction );
+    check_attach ( symbol_dispatcher, 0,
+                   master_instruction );
+    check_attach ( symbol_dispatcher, white,
+                   master_instruction );
+    check_attach ( symbol_dispatcher, point,
+                   master_instruction );
+    check_attach ( symbol_dispatcher, sep,
+                   master_instruction );
+    check_attach ( symbol_dispatcher, op,
+                   master_instruction );
+
+    uns32 fraction =
+        LEX::create_atom_table ( LEX::CONTINUATION, 3 );
+    uns32 fraction_instruction =
+        LEX::create_instruction
+	    ( ACCEPT+GOTO, fraction );
+
+    uns32 digit_instruction =
+        LEX::create_instruction
+	    ( ACCEPT+GOTO, number );
+    uns32 number_dispatcher =
+        LEX::create_dispatcher ( 5, 10 );
+    uns32 digit_map =
+        LEX::create_type_map ( '0', '9', 1 );
+    uns32 point_map =
+        LEX::create_type_map ( '.', '.', 2 );
+    check_attach ( number, number_dispatcher );
+    check_attach ( number_dispatcher, digit_map );
+    check_attach ( number_dispatcher, point_map );
+    check_attach ( number_dispatcher, 0,
+    	           master_instruction );
+    check_attach ( number_dispatcher, 1,
+    	           digit_instruction );
+    check_attach ( number_dispatcher, 2,
+    	           fraction_instruction );
+
+    uns32 fraction_dispatcher =
+        LEX::create_dispatcher ( 3, 10 );
+    check_attach ( fraction, fraction_dispatcher );
+    check_attach ( fraction_dispatcher, digit_map );
+    check_attach ( fraction_dispatcher, 0,
+    	           master_instruction );
+    check_attach ( fraction_dispatcher, 1,
+    	           fraction_instruction );
 
     cout << "Cooked Program 2:" << endl << endl;
     LEX::print_program ( cout, true );

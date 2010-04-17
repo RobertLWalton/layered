@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test_runtime.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 12 14:04:46 EDT 2010
+// Date:	Sat Apr 17 06:08:51 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/13 01:06:11 $
+//   $Date: 2010/04/17 16:15:32 $
 //   $RCSfile: ll_lexeme_test_runtime.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -96,8 +96,8 @@ LEX::buffer<inchar> & LEX::input_buffer =
 LEX::buffer<uns32> & LEX::translation_buffer =
     ext_translation_buffer;
 
-uns32 * lex_input = NULL;
-uns32   lex_input_length = 0;
+static uns32 * lex_input = NULL;
+static uns32   lex_input_length = 0;
 
 void set_lex_input ( uns32 * input, uns32 length )
 {
@@ -110,8 +110,11 @@ uns32 LEX::read_input ( void )
 
     uns32 p = LEX::input_buffer.allocate
     		( lex_input_length );
-    memcpy ( & LEX::input_buffer[p], lex_input,
-    	     lex_input_length * sizeof ( uns32 ) );
+    for ( uns32 i = 0; i < lex_input_length; ++ i )
+    {
+        LEX::input_buffer[p+i].character = lex_input[i];
+        LEX::input_buffer[p+i].position = i;
+    }
     lex_input = NULL;
     return 1;
 }

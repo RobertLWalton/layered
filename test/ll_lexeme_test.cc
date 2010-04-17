@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 17 12:23:51 EDT 2010
+// Date:	Sat Apr 17 17:45:03 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 16:27:02 $
+//   $Date: 2010/04/17 21:48:58 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents
 //
@@ -442,9 +442,17 @@ int main ( int argc )
 {
     create_program_1();
     create_program_2();
-    uns32 input1[10] = {
+    uns32 input1[14] = {
         ' ', 'a', 'b',
 	' ', '3', '.', '4',
-	' ', ' ', ' ' };
-    test_program ( input1, 10 );
+	' ', 'x', '+', 'y', '+', '+', 'z' };
+    test_program ( input1, 14 );
+    uns32 input2[24] = {
+        '*', 'a', '*', '*',
+        'b', '+', '+', '+',
+	'c', '(', '+', 'd',
+	'%', 'e', '0',
+	'-', '-', '1', '.', '2', '.', '3',
+	0, 1 };
+    test_program ( input2, 24 );
 }

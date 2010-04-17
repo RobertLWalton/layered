@@ -171,11 +171,39 @@ Cooked Program 2:
                 GOTO(2)
 
 Testing Lexical Scan of:
-\~ab\~3.4\~\~\~
+\~ab\~3.4\~x+y++z
 
 Scan Returned WHITESPACE Label 1 Input Buffer: \~
 Scan Returned LEXEME Label 2 Input Buffer: ab
 Scan Returned WHITESPACE Label 1 Input Buffer: \~
 Scan Returned LEXEME Label 3 Input Buffer: 3.4
-Scan Returned WHITESPACE Label 1 Input Buffer: \~\~\~
+Scan Returned WHITESPACE Label 1 Input Buffer: \~
+Scan Returned LEXEME Label 2 Input Buffer: x
+Scan Returned LEXEME Label 4 Input Buffer: +
+Scan Returned LEXEME Label 2 Input Buffer: y
+Scan Returned LEXEME Label 4 Input Buffer: ++
+Scan Returned LEXEME Label 2 Input Buffer: z
+Scan Returned END_OF_FILE
+
+Testing Lexical Scan of:
+*a**b+++c(+d%e0--1.2.3\u0000\u0001
+
+Scan Returned LEXEME Label 4 Input Buffer: *
+Scan Returned LEXEME Label 2 Input Buffer: a
+Scan Returned LEXEME Label 4 Input Buffer: *
+Scan Returned LEXEME Label 4 Input Buffer: *
+Scan Returned LEXEME Label 2 Input Buffer: b
+Scan Returned LEXEME Label 4 Input Buffer: ++
+Scan Returned LEXEME Label 4 Input Buffer: +
+Scan Returned LEXEME Label 2 Input Buffer: c
+Scan Returned LEXEME Label 5 Input Buffer: (
+Scan Returned LEXEME Label 4 Input Buffer: +
+Scan Returned LEXEME Label 2 Input Buffer: d
+Scan Returned ERROR Label 6 Input Buffer: %
+Scan Returned LEXEME Label 2 Input Buffer: e0
+Scan Returned LEXEME Label 4 Input Buffer: --
+Scan Returned LEXEME Label 3 Input Buffer: 1.2
+Scan Returned LEXEME Label 3 Input Buffer: .3
+Scan Returned ERROR Label 6 Input Buffer: \u0000
+Scan Returned ERROR Label 6 Input Buffer: \u0001
 Scan Returned END_OF_FILE

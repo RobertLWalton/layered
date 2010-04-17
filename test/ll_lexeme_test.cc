@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 16 12:39:06 EDT 2010
+// Date:	Sat Apr 17 12:15:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 06:35:20 $
+//   $Date: 2010/04/17 16:15:31 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents
 //
@@ -315,24 +315,15 @@ static void create_program_2 ( void )
     uns32 symbol_dispatcher =
         LEX::create_dispatcher ( 3, 10 );
     check_attach ( symbol, symbol_dispatcher );
+    check_attach ( symbol, master_instruction );
     check_attach ( symbol_dispatcher, tmap );
     check_attach ( symbol_dispatcher, letter,
                    symbol_instruction );
     check_attach ( symbol_dispatcher, digit,
                    symbol_instruction );
-    check_attach ( symbol_dispatcher, 0,
-                   master_instruction );
-    check_attach ( symbol_dispatcher, white,
-                   master_instruction );
-    check_attach ( symbol_dispatcher, point,
-                   master_instruction );
-    check_attach ( symbol_dispatcher, sep,
-                   master_instruction );
-    check_attach ( symbol_dispatcher, op,
-                   master_instruction );
 
     uns32 fraction =
-        LEX::create_atom_table ( LEX::CONTINUATION, 3 );
+        LEX::create_atom_table ( LEX::LEXEME, 3 );
     uns32 fraction_instruction =
         LEX::create_instruction
 	    ( ACCEPT+GOTO, fraction );
@@ -347,10 +338,9 @@ static void create_program_2 ( void )
     uns32 point_map =
         LEX::create_type_map ( '.', '.', 2 );
     check_attach ( number, number_dispatcher );
+    check_attach ( number, master_instruction );
     check_attach ( number_dispatcher, digit_map );
     check_attach ( number_dispatcher, point_map );
-    check_attach ( number_dispatcher, 0,
-    	           master_instruction );
     check_attach ( number_dispatcher, 1,
     	           digit_instruction );
     check_attach ( number_dispatcher, 2,
@@ -359,34 +349,23 @@ static void create_program_2 ( void )
     uns32 fraction_dispatcher =
         LEX::create_dispatcher ( 3, 10 );
     check_attach ( fraction, fraction_dispatcher );
+    check_attach ( fraction, master_instruction );
     check_attach ( fraction_dispatcher, digit_map );
-    check_attach ( fraction_dispatcher, 0,
-    	           master_instruction );
     check_attach ( fraction_dispatcher, 1,
     	           fraction_instruction );
 
     uns32 whitespace_dispatcher =
         LEX::create_dispatcher ( 3, 10 );
     check_attach ( whitespace, whitespace_dispatcher );
+    check_attach ( whitespace, master_instruction );
     check_attach ( whitespace_dispatcher, tmap );
-    check_attach ( whitespace_dispatcher, 0,
-                   master_instruction );
     check_attach ( whitespace_dispatcher, white,
                    whitespace_instruction );
-    check_attach ( whitespace_dispatcher, letter,
-                   master_instruction );
-    check_attach ( whitespace_dispatcher, digit,
-                   master_instruction );
-    check_attach ( whitespace_dispatcher, point,
-                   master_instruction );
-    check_attach ( whitespace_dispatcher, sep,
-                   master_instruction );
-    check_attach ( whitespace_dispatcher, op,
-                   master_instruction );
 
     uns32 operation_dispatcher =
         LEX::create_dispatcher ( 9, 10 );
     check_attach ( oper, operation_dispatcher );
+    check_attach ( oper, master_instruction );
     uns32 plus_map =
         LEX::create_type_map ( '+', '+', 1 );
     uns32 minus_map =
@@ -406,24 +385,20 @@ static void create_program_2 ( void )
     check_attach ( operation_dispatcher, minus_map );
     check_attach ( operation_dispatcher, divide_map );
     check_attach ( operation_dispatcher, times_map );
-    check_attach ( operation_dispatcher, 0,
-                   master_instruction );
     check_attach ( operation_dispatcher, 1,
                    plus_dispatcher );
+    check_attach ( operation_dispatcher, 1,
+                   master_accept );
     check_attach ( operation_dispatcher, 2,
                    minus_dispatcher );
+    check_attach ( operation_dispatcher, 2,
+                   master_accept );
     check_attach ( operation_dispatcher, 3,
                    master_accept );
     check_attach ( plus_dispatcher, plus_map );
-    check_attach ( plus_dispatcher, 0,
-                   master_instruction );
     check_attach ( plus_dispatcher, 1,
                    master_accept );
     check_attach ( minus_dispatcher, minus_map );
-    check_attach ( minus_dispatcher, 0,
-                   master_instruction );
-    check_attach ( minus_dispatcher, 1,
-                   master_instruction );
     check_attach ( minus_dispatcher, 2,
                    master_accept );
 
@@ -451,7 +426,7 @@ void test_program ( uns32 * input, uns32 length )
 	    cout << endl << LEX::error_message << endl;
 	    break;
 	}
-	cout << " Input Buffer:" << endl;
+	cout << " Label " << label << " Input Buffer: ";
 	LEX::spinput ( buffer, first, last );
 	cout << buffer << endl;
     }

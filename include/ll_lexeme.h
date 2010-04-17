@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 17 02:16:49 EDT 2010
+// Date:	Sat Apr 17 12:20:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 06:34:15 $
+//   $Date: 2010/04/17 16:21:08 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // Table of Contents
 //
@@ -240,8 +240,7 @@ namespace ll { namespace lexeme {
 
 	// Modes that are not kinds or return values.
 	//
-        MASTER		= 6,
-	CONTINUATION	= 7
+        MASTER		= 6
     };
 
     // Create the atom table with the given mode and
@@ -509,6 +508,11 @@ namespace ll { namespace lexeme {
     // from the file.
     //
     void init_scan ( void );
+
+    // Output stream for tracing the scan.  Set by
+    // user.  If NULL, there is no tracing.
+    //
+    extern std::ostream * scan_trace_out;
 
     // Scan the input and return the next item (lexeme,
     // error string, whitespace, or EOF).

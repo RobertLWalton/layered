@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 17 02:07:14 EDT 2010
+// Date:	Sat Apr 17 12:15:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 06:34:42 $
+//   $Date: 2010/04/17 16:22:24 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // Table of Contents
 //
@@ -407,11 +407,8 @@ void LEX::convert_program_endianhood ( void )
 static uns32 next;
     // input_buffer[next] is the first character of the
     // first yet unscanned atom.
-static uns32 master_atom_table_ID;
-    // ID of atom table that is the initial atom table
-    // or is the last non-continuation atom table
-    // gone to.  Used to output the kind and label for
-    // an item.
+static uns32 current_atom_table_ID;
+    // Current atom table.
 
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
@@ -429,7 +426,7 @@ void LEX::init_scan ( void )
     program_header & h = * (program_header *)
     			 & program[0];
     assert ( program[h.atom_table_ID] == ATOM_TABLE );
-    master_atom_table_ID = h.atom_table_ID;
+    current_atom_table_ID = h.atom_table_ID;
 }
 
 // Write the beginning of a scan error message into
@@ -453,13 +450,22 @@ static const char * sbpchar ( uns32 c );
 //
 static const char * sbpmode ( uns32 mode );
 
-static uns32 current_atom_table_ID;
-    // ID of the atom table currently being used to
-    // scan atoms.  Either == master_atom_table_ID or
-    // is for a CONTINUATION table.
-    //
-    // This is a global variable because it is output
-    // by scan_error.
+// Print the instruction at program[ID] with the given
+// indent and endl, if ID is non-zero, and return ID
+// repositioned just after instuction.  However, if
+// program[ID] does not == INSTRUCTION, print ILLEGAL
+// instruction message and return 0.
+//
+// If ID == 0 do nothing but return 0.
+//
+static uns32 print_instruction
+    ( std::ostream & out, uns32 ID, unsigned indent );
+
+// Set non-NULL to enable scan tracing
+// (see ll_lexeme.h).
+//
+std::ostream * LEX::scan_trace_out = NULL;
+# define TOUT if ( scan_trace_out ) (* scan_trace_out)
 
 uns32 LEX::scan
 	( uns32 & first, uns32 & last, uns32 & label )
@@ -485,13 +491,13 @@ uns32 LEX::scan
     first = next;
     translation_buffer.deallocate
 	( translation_buffer.length );
-    current_atom_table_ID = master_atom_table_ID;
 
-    // We scan atoms until we get a current atom table
-    // that is not a CONTINUATION table and is not
-    // the same as the master table.  We may get this
-    // via a GOTO or a SHORTCUT.  In the latter
-    // case `shortcut' is set true.
+    // We scan atoms until we get to a point where the
+    // current atom table != the next atom table and
+    // the next atom table has mode MASTER or the next
+    // atom table was set by a SHORTCUT.  Here the next
+    // atom table is set by GOTO and SHORTCUT, and
+    // SHORTCUT also sets the `shortcut' bool.
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
@@ -502,20 +508,25 @@ uns32 LEX::scan
     // any input, we just return END_OF_FILE.  Other
     // end of files may or may not force a scan error.
     // 
+    uns32 next_atom_table_ID = current_atom_table_ID;
     bool shortcut = false;
-    while ( true )
+    while ( ! shortcut )
     {
         // Scan an atom.
 
 	atom_table_header & cath =
 	    * (atom_table_header *)
-	    & program[current_atom_table_ID];
+	    & program[next_atom_table_ID];
 
-	if (    current_atom_table_ID
-	     != master_atom_table_ID
+	if (    next_atom_table_ID
+	     != current_atom_table_ID
 	    &&
-	    cath.mode != CONTINUATION )
+	    cath.mode == MASTER )
     	    break;
+
+	current_atom_table_ID = next_atom_table_ID;
+	TOUT << "Start atom scan: atom table = "
+	     << current_atom_table_ID << endl;
 
 	// As we scan we recognize longer and longer
 	// atoms.  If at any point we cannot continue,
@@ -565,6 +576,9 @@ uns32 LEX::scan
 	        input_buffer[next + length].character;
 	    ++ length;
 
+	    TOUT << "  Character = " << pchar ( c )
+	         << " Dispatcher = " << dispatcher_ID;
+
 	    dispatcher_header & dh =
 	        * (dispatcher_header *)
 		& program[dispatcher_ID];
@@ -601,14 +615,16 @@ uns32 LEX::scan
 	    {
 		assert (    program[type_map_ID]
 		         == TYPE_MAP );
+		TOUT << " Type Map = " << type_map_ID;
 		type_map_header & tmh =
 		    * (type_map_header *)
 		    & program[type_map_ID];
-		uns32 type = tmh.singleton_type;
+		type = tmh.singleton_type;
 		if ( type == 0 )
 		    type = ( (uns8 *) ( & tmh + 1 ) )
 			   [c - tmh.cmin];
 	    }
+	    TOUT << " Type = " << type << endl;
 	    if ( type > dh.max_type )
 	    {
 	        sprintf ( scan_error ( length ),
@@ -658,6 +674,11 @@ uns32 LEX::scan
 		      "no instruction found" );
 	    return SCAN_ERROR;
 	}
+
+	if ( scan_trace_out )
+	    print_instruction ( * scan_trace_out,
+	    			instruction_ID,
+				2 );
 
 	instruction_header & ih =
 	    * (instruction_header *)
@@ -771,7 +792,7 @@ uns32 LEX::scan
 	     ( ih.atom_table_ID == 0
 	       ||
 	          ih.atom_table_ID
-	       == current_atom_table_ID ) )
+	       == next_atom_table_ID ) )
 	{
 	    sprintf ( scan_error ( length ),
 		      "no atom scanned and"
@@ -781,21 +802,21 @@ uns32 LEX::scan
 	}
 
 	if ( op & GOTO )
-	    current_atom_table_ID = ih.atom_table_ID;
+	    next_atom_table_ID = ih.atom_table_ID;
 	else if ( op & SHORTCUT )
 	{
 	    shortcut = true;
-	    current_atom_table_ID = ih.atom_table_ID;
+	    next_atom_table_ID = ih.atom_table_ID;
 	}
-	assert (    program[current_atom_table_ID]
+	assert (    program[next_atom_table_ID]
 		 == ATOM_TABLE );
 
 	next += atom_length;
     }
 
     uns32 atom_table_ID =
-	shortcut ? current_atom_table_ID :
-		   master_atom_table_ID;
+	shortcut ? next_atom_table_ID :
+		   current_atom_table_ID;
     atom_table_header & ath =
 	* (atom_table_header *)
 	& program[atom_table_ID];
@@ -805,7 +826,7 @@ uns32 LEX::scan
     label = ath.label;
 
     if ( ! shortcut )
-        master_atom_table_ID = current_atom_table_ID;
+        current_atom_table_ID = next_atom_table_ID;
 
     switch ( ath.mode )
     {
@@ -816,10 +837,8 @@ uns32 LEX::scan
     default:
     {
 	int count = sprintf ( error_message,
-		  "MASTER ATOM TABLE(%u)"
 		  " returning item with bad kind(%s)"
 		  " from atom table %u; ATOM:\n",
-		  master_atom_table_ID,
 		  sbpmode ( ath.mode ),
 		  atom_table_ID );
 	count += spinput ( error_message + count,
@@ -856,12 +875,16 @@ static char * scan_error ( uns32 length )
     char * p = error_message;
     p += sprintf
         ( p,
-	  "MASTER_ATOM_TABLE(%u) CURRENT_ATOM_TABLE(%u)"
-	  " POS(%llu) INPUT_BUFFER:\n",
-	  master_atom_table_ID,
+	  "CURRENT_ATOM_TABLE(%u) POS(%llu)",
 	  current_atom_table_ID,
 	  input_buffer[next].position );
-    p += spinput ( p, next, next + length - 1 );
+    if ( length > 0 )
+    {
+        p += sprintf ( p, " INPUT BUFFER: \n");
+	p += spinput ( p, next, next + length - 1 );
+    }
+    else
+        p += sprintf ( p, " NO INPUT SCANNED" );
     * p ++ = '\n';
     return p;
 }
@@ -937,8 +960,6 @@ int LEX::spmode ( char * buffer, uns32 mode )
 	return sprintf ( buffer, "ERROR" );
     case MASTER:
 	return sprintf ( buffer, "MASTER" );
-    case CONTINUATION:
-	return sprintf ( buffer, "CONTINUATION" );
     case END_OF_FILE:
 	return sprintf ( buffer, "END_OF_FILE" );
     case SCAN_ERROR:
@@ -976,19 +997,14 @@ inline ostream & operator <<
 //
 #define INDENT setw ( IDwidth ) << ""
 
-// Print the instruction at program[ID] with the given
-// indent and endl, if ID is non-zero, and return ID
-// repositioned just after instuction.  However, if
-// program[ID] does not == INSTRUCTION, print ILLEGAL
-// instruction message and return 0.
-//
-// If ID == 0 do nothing but return 0.
+// See documentation above.
 //
 static uns32 print_instruction
-    ( uns32 ID, unsigned indent = IDwidth )
+    ( std::ostream & out, uns32 ID,
+      unsigned indent = IDwidth )
 {
     if ( ID == 0 ) return 0;
-    if ( indent > 0 ) cout << setw ( indent ) << "";
+    if ( indent > 0 ) out << setw ( indent ) << "";
 
     instruction_header & h =
         * (instruction_header *) & program[ID];
@@ -996,8 +1012,8 @@ static uns32 print_instruction
 
     if ( h.type != INSTRUCTION )
     {
-        cout << "ILLEGAL INSTRUCTION TYPE ("
-	     << h.type << ")" << endl;
+        out << "ILLEGAL INSTRUCTION TYPE ("
+	    << h.type << ")" << endl;
 	return 0xFFFFFFFF;
     }
     if ( ( ( h.operation & TRANSLATE_FLAG ) != 0 )
@@ -1005,63 +1021,63 @@ static uns32 print_instruction
          ( ( h.operation & TRANSLATE_HEX_FLAG ) != 0 )
 	 +
          ( ( h.operation & TRANSLATE_OCT_FLAG ) != 0 )
-	 > 1 ) cout << "ILLEGAL: ";
+	 > 1 ) out << "ILLEGAL: ";
     else
     if ( ( ( h.operation & GOTO ) != 0 )
 	 +
          ( ( h.operation & SHORTCUT ) != 0 )
-	 > 1 ) cout << "ILLEGAL: ";
+	 > 1 ) out << "ILLEGAL: ";
     else
     if ( ( h.operation & ( GOTO + SHORTCUT ) )
          &&
-	 h.atom_table_ID == 0 ) cout << "ILLEGAL: ";
+	 h.atom_table_ID == 0 ) out << "ILLEGAL: ";
     else
     if ( ( h.operation & ( GOTO + SHORTCUT ) ) == 0
          &&
-	 h.atom_table_ID != 0 ) cout << "ILLEGAL: ";
+	 h.atom_table_ID != 0 ) out << "ILLEGAL: ";
 
     bool first = true;
-#   define COUT ( first ? ( first = false, cout ) : \
-                          cout << ", " )
+#   define OUT ( first ? ( first = false, out ) : \
+                         out << ", " )
     if ( h.operation & KEEP_FLAG )
-        COUT << "KEEP("
+        OUT << "KEEP("
 	     << LEX::keep_length ( h.operation )
 	     << ")";
     if ( h.operation & TRANSLATE_FLAG )
     {
         translate_length =
 	     LEX::translate_length ( h.operation );
-        COUT << "TRANSLATE(" << translate_length;
+        OUT << "TRANSLATE(" << translate_length;
 	if ( translate_length > 0 )
 	{
-	    cout << ",";
+	    out << ",";
 	    uns32 n = translate_length;
 	    for ( uns32 p =
 	            ID + instruction_header_length;
 		  0 < n; ++ p, -- n )
-	        cout << pchar ( program[p] );
+	        out << pchar ( program[p] );
 	}
-	cout << ")";
+	out << ")";
     }
     if ( h.operation & TRANSLATE_HEX_FLAG )
-        COUT << "TRANSLATE_HEX("
-	     << LEX::prefix_length ( h.operation )
-	     << ","
-	     << LEX::postfix_length ( h.operation )
-	     << ")";
+        OUT << "TRANSLATE_HEX("
+	    << LEX::prefix_length ( h.operation )
+	    << ","
+	    << LEX::postfix_length ( h.operation )
+	    << ")";
     if ( h.operation & TRANSLATE_OCT_FLAG )
-        COUT << "TRANSLATE_OCT("
-	     << LEX::prefix_length ( h.operation )
-	     << ","
-	     << LEX::postfix_length ( h.operation )
-	     << ")";
+        OUT << "TRANSLATE_OCT("
+	    << LEX::prefix_length ( h.operation )
+	    << ","
+	    << LEX::postfix_length ( h.operation )
+	    << ")";
     if ( h.operation & GOTO )
-        COUT << "GOTO(" << h.atom_table_ID << ")";
+        OUT << "GOTO(" << h.atom_table_ID << ")";
     if ( h.operation & SHORTCUT )
-        COUT << "SHORTCUT(" << h.atom_table_ID << ")";
-    if ( first ) COUT << "ACCEPT";
-    cout << endl;
-#   undef COUT
+        OUT << "SHORTCUT(" << h.atom_table_ID << ")";
+    if ( first ) OUT << "ACCEPT";
+    out << endl;
+#   undef OUT
 
     return instruction_header_length
          + translate_length;
@@ -1272,7 +1288,8 @@ static uns32 print_cooked_dispatcher
 	cout << endl;
 
 	print_instruction
-	    ( mep[t].instruction_ID, IDwidth + 4 );
+	    ( cout, mep[t].instruction_ID,
+	            IDwidth + 4 );
 	if ( mep[t].dispatcher_ID != 0 )
 	    cout << INDENT << "    Dispatcher ID: "
 	         << mep[t].dispatcher_ID << endl;
@@ -1309,7 +1326,7 @@ uns32 LEX::print_program_component
 	     << h.dispatcher_ID << endl;
 	if ( cooked )
 	    print_instruction
-		( h.instruction_ID );
+		( cout, h.instruction_ID, IDwidth );
 	else
 	    cout << INDENT << "Instruction ID: "
 		 << h.instruction_ID << endl;
@@ -1374,7 +1391,7 @@ uns32 LEX::print_program_component
     case INSTRUCTION:
     {
 	cout << pID ( ID );
-	return print_instruction ( ID, 0 );
+	return print_instruction ( cout, ID, 0 );
     }
     case TYPE_MAP:
     {

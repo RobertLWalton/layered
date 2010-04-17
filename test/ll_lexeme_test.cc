@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 17 12:15:09 EDT 2010
+// Date:	Sat Apr 17 12:23:51 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 16:15:31 $
+//   $Date: 2010/04/17 16:27:02 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents
 //
@@ -408,6 +408,12 @@ static void create_program_2 ( void )
 
 void test_program ( uns32 * input, uns32 length )
 {
+    cout << endl
+         << "Testing Lexical Scan of:" << endl;
+    for ( uns32 i = 0; i < length; ++ i )
+        cout << LEX::pchar ( input[i] );
+    cout << endl << endl;
+
     set_lex_input ( input, length );
     LEX::init_scan();
     char buffer[1000];

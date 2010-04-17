@@ -74,18 +74,22 @@ Cooked Program 2:
             Mode: WHITESPACE
             Label: 1
             Dispatcher ID: 253
+            KEEP(0), GOTO(2)
         12: ATOM_TABLE
             Mode: LEXEME
             Label: 2
             Dispatcher ID: 128
+            KEEP(0), GOTO(2)
         17: ATOM_TABLE
             Mode: LEXEME
             Label: 3
             Dispatcher ID: 173
+            KEEP(0), GOTO(2)
         22: ATOM_TABLE
             Mode: LEXEME
             Label: 4
             Dispatcher ID: 287
+            KEEP(0), GOTO(2)
         27: ATOM_TABLE
             Mode: LEXEME
             Label: 5
@@ -114,20 +118,17 @@ Cooked Program 2:
             Break Elements: 2
             Max Break Elements: 4
             Max Type: 10
-            \u0000-/ :-@ [-` {-
-                KEEP(0), GOTO(2)
             0-9 A-Z a-z
                 GOTO(12)
        162: ATOM_TABLE
-            Mode: CONTINUATION
+            Mode: LEXEME
             Label: 3
             Dispatcher ID: 219
+            KEEP(0), GOTO(2)
        173: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max Type: 10
-            \u0000-- / :-
-                KEEP(0), GOTO(2)
             0-9
                 GOTO(17)
             .
@@ -136,27 +137,23 @@ Cooked Program 2:
             Break Elements: 3
             Max Break Elements: 4
             Max Type: 10
-            \u0000-/ :-
-                KEEP(0), GOTO(2)
             0-9
                 GOTO(162)
        253: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max Type: 10
-            \u0000-\b \u000E-\u001F !-
-                KEEP(0), GOTO(2)
             \t-\r \~
                 GOTO(7)
        287: DISPATCHER
             Break Elements: 8
             Max Break Elements: 10
             Max Type: 10
-            \u0000-) , . 0-
-                KEEP(0), GOTO(2)
             +
+                GOTO(2)
                 Dispatcher ID: 352
             -
+                GOTO(2)
                 Dispatcher ID: 398
             * /
                 GOTO(2)
@@ -164,15 +161,21 @@ Cooked Program 2:
             Break Elements: 3
             Max Break Elements: 10
             Max Type: 10
-            \u0000-* ,-
-                KEEP(0), GOTO(2)
             +
                 GOTO(2)
        398: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max Type: 10
-            \u0000-, .-
-                KEEP(0), GOTO(2)
             -
                 GOTO(2)
+
+Testing Lexical Scan of:
+\~ab\~3.4\~\~\~
+
+Scan Returned WHITESPACE Label 1 Input Buffer: \~
+Scan Returned LEXEME Label 2 Input Buffer: ab
+Scan Returned WHITESPACE Label 1 Input Buffer: \~
+Scan Returned LEXEME Label 3 Input Buffer: 3.4
+Scan Returned WHITESPACE Label 1 Input Buffer: \~\~\~
+Scan Returned END_OF_FILE

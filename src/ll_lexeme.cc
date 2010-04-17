@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 16 09:04:52 EDT 2010
+// Date:	Sat Apr 17 02:07:14 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 17:42:54 $
+//   $Date: 2010/04/17 06:34:42 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // Table of Contents
 //
@@ -402,8 +402,6 @@ void LEX::convert_program_endianhood ( void )
 // Scanning
 // --------
 
-static const char * pmode ( uns32 mode );
-
 // Scanner state.
 //
 static uns32 next;
@@ -449,6 +447,11 @@ static char * scan_error ( uns32 length );
 // and return the static buffer.
 //
 static const char * sbpchar ( uns32 c );
+
+// Write a mode or return value using spchar to a static
+// buffer and return the static buffer.
+//
+static const char * sbpmode ( uns32 mode );
 
 static uns32 current_atom_table_ID;
     // ID of the atom table currently being used to
@@ -817,7 +820,7 @@ uns32 LEX::scan
 		  " returning item with bad kind(%s)"
 		  " from atom table %u; ATOM:\n",
 		  master_atom_table_ID,
-		  pmode ( ath.mode ),
+		  sbpmode ( ath.mode ),
 		  atom_table_ID );
 	count += spinput ( error_message + count,
 	                   first, last );
@@ -834,6 +837,15 @@ static const char * sbpchar ( uns32 c )
 {
     static char buffer[20];
     spchar ( buffer, c );
+    return buffer;
+}
+
+// See documentation above.
+//
+static const char * sbpmode ( uns32 mode )
+{
+    static char buffer[40];
+    spmode ( buffer, mode );
     return buffer;
 }
 
@@ -913,6 +925,38 @@ int LEX::spinput
     return p - buffer;
 }
 
+int LEX::spmode ( char * buffer, uns32 mode )
+{
+    switch ( mode )
+    {
+    case LEXEME:
+	return sprintf ( buffer, "LEXEME" );
+    case WHITESPACE:
+	return sprintf ( buffer, "WHITESPACE" );
+    case ERROR:
+	return sprintf ( buffer, "ERROR" );
+    case MASTER:
+	return sprintf ( buffer, "MASTER" );
+    case CONTINUATION:
+	return sprintf ( buffer, "CONTINUATION" );
+    case END_OF_FILE:
+	return sprintf ( buffer, "END_OF_FILE" );
+    case SCAN_ERROR:
+	return sprintf ( buffer, "SCAN_ERROR" );
+    default:
+	return sprintf
+	    ( buffer, "ILLEGAL MODE (%u)", mode );
+    }
+}
+
+ostream & operator <<
+	( ostream & out, const LEX::pmode & pm )
+{
+    char buffer[40];
+    spmode ( buffer, pm.mode );
+    return out << buffer;
+}
+
 const unsigned IDwidth = 12;
     // Width of field containing ID at the beginning
     // of each print_program line.
@@ -931,32 +975,6 @@ inline ostream & operator <<
 // cout << INDENT prints a blank field of width IDwidth.
 //
 #define INDENT setw ( IDwidth ) << ""
-
-// cout << pmode ( mode ) prints a mode.  pmode ( mode )
-// actually returns a pointer to a static buffer that
-// holds the formatted mode, and can be used as an
-// sprintf argument.
-//
-static const char * pmode ( uns32 mode )
-{
-    static char buffer[60];
-    switch ( mode )
-    {
-    case LEXEME:
-	strcpy ( buffer, "LEXEME" ); break;
-    case WHITESPACE:
-	strcpy ( buffer, "WHITESPACE" ); break;
-    case ERROR:
-	strcpy ( buffer, "ERROR" ); break;
-    case MASTER:
-	strcpy ( buffer, "MASTER" ); break;
-    case CONTINUATION:
-	strcpy ( buffer, "CONTINUATION" ); break;
-    default:
-	sprintf ( buffer, "ILLEGAL MODE (%u)", mode );
-    }
-    return buffer;
-}
 
 // Print the instruction at program[ID] with the given
 // indent and endl, if ID is non-zero, and return ID

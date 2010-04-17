@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri Apr 16 09:16:22 EDT 2010
+// Date:	Sat Apr 17 02:16:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 14:46:49 $
+//   $Date: 2010/04/17 06:34:15 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.30 $
+//   $Revision: 1.31 $
 
 // Table of Contents
 //
@@ -570,11 +570,28 @@ namespace ll { namespace lexeme {
         uns32 c;
 	pchar ( uns32 c ) : c ( c ) {}
     };
+
+    // Print the atom table mode or scanner return value
+    // into the buffer, and return the number of
+    // characters used.
+    //
+    int spmode ( char * buffer, uns32 mode );
+
+    // cout << pmode ( m ) does the same thing as spmode
+    // but prints to an output stream.
+    //
+    struct pmode {
+        uns32 mode;
+	pmode ( uns32 mode ) : mode ( mode ) {}
+    };
 } }
 
 std::ostream & operator <<
     ( std::ostream & out,
       const ll::lexeme::pchar & pc );
+std::ostream & operator <<
+    ( std::ostream & out,
+      const ll::lexeme::pmode & pm );
 
 namespace ll { namespace lexeme {
 

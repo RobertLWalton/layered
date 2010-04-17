@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/16 17:43:55 $
+//   $Date: 2010/04/17 06:35:20 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents
 //
@@ -46,6 +46,11 @@ using LEX::TRANSLATE_HEX;
 using LEX::TRANSLATE_OCT;
 using LEX::GOTO;
 using LEX::SHORTCUT;
+
+// Setup input to lexical scanner to read the given
+// string of characters and then return end of file.
+//
+void set_lex_input ( uns32 * input, uns32 length );
 
 
 // Program Construction Test
@@ -426,8 +431,39 @@ static void create_program_2 ( void )
     LEX::print_program ( cout, true );
 }
 
+void test_program ( uns32 * input, uns32 length )
+{
+    set_lex_input ( input, length );
+    LEX::init_scan();
+    char buffer[1000];
+    while ( true )
+    {
+	uns32 first, last, label;
+        uns32 kind = LEX::scan ( first, last, label );
+	cout << "Scan Returned " << LEX::pmode ( kind );
+	if ( kind == LEX::END_OF_FILE )
+	{
+	    cout << endl;
+	    break;
+	}
+	else if ( kind == LEX::SCAN_ERROR )
+	{
+	    cout << endl << LEX::error_message << endl;
+	    break;
+	}
+	cout << " Input Buffer:" << endl;
+	LEX::spinput ( buffer, first, last );
+	cout << buffer << endl;
+    }
+}
+
 int main ( int argc )
 {
     create_program_1();
     create_program_2();
+    uns32 input1[10] = {
+        ' ', 'a', 'b',
+	' ', '3', '.', '4',
+	' ', ' ', ' ' };
+    test_program ( input1, 10 );
 }

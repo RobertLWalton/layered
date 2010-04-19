@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 17 12:15:54 EDT 2010
+// Date:	Mon Apr 19 15:01:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 16:22:24 $
+//   $Date: 2010/04/19 19:53:43 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.27 $
+//   $Revision: 1.28 $
 
 // Table of Contents
 //
@@ -45,8 +45,7 @@ char LEX::error_message[1000];
 // Program Construction
 // ------- ------------
 
-uns32 LEX::create_atom_table
-	( uns8 mode, uns32 label )
+uns32 LEX::create_atom_table ( uns32 mode )
 {
     uns32 ID = program.allocate
     		   ( atom_table_header_length );
@@ -54,7 +53,6 @@ uns32 LEX::create_atom_table
         * (atom_table_header *) & program[ID];
     h.type = ATOM_TABLE;
     h.mode = mode;
-    h.label = label;
     h.dispatcher_ID = 0;
     h.instruction_ID = 0;
     return ID;
@@ -70,7 +68,7 @@ uns32 LEX::create_program ( void )
     program_header & h =
         * (program_header *) & program[ID];
     h.type = PROGRAM;
-    h.atom_table_ID = create_atom_table ( MASTER, 0 );
+    h.atom_table_ID = create_atom_table ( MASTER );
     return h.atom_table_ID;
 }
 
@@ -136,7 +134,7 @@ uns32 LEX::create_type_map
 
 uns32 LEX::create_instruction
 	( uns32 operation,
-	  uns32 atom_table_ID,
+	  uns32 ID_or_kind,
 	  uns32 * translation_vector )
 {
     assert ( ( operation & ( GOTO + SHORTCUT ) )
@@ -151,9 +149,9 @@ uns32 LEX::create_instruction
 	     <= 1 );
 
     if ( operation & ( GOTO + SHORTCUT ) )
-        assert ( atom_table_ID != 0 );
+        assert ( ID_or_kind != 0 );
     else
-        assert ( atom_table_ID == 0 );
+        assert ( ID_or_kind == 0 );
 
     uns32 translate_length = 0;
     if ( operation & TRANSLATE_FLAG )
@@ -168,7 +166,7 @@ uns32 LEX::create_instruction
         * (instruction_header *) & program[ID];
     h.type = INSTRUCTION;
     h.operation = operation;
-    h.atom_table_ID = atom_table_ID;
+    h.ID_or_kind = ID_or_kind;
     if ( translate_length > 0 )
     {
 	assert ( translation_vector != NULL );
@@ -467,14 +465,13 @@ static uns32 print_instruction
 std::ostream * LEX::scan_trace_out = NULL;
 # define TOUT if ( scan_trace_out ) (* scan_trace_out)
 
-uns32 LEX::scan
-	( uns32 & first, uns32 & last, uns32 & label )
+uns32 LEX::scan ( uns32 & first, uns32 & last )
 {
     if ( next >= input_buffer.length_increment )
     {
         // If next has gotten to be as large as
 	// length_increment, shift the input_buffer
-	// down, eliminating characters in items
+	// down, eliminating characters in lexemes
 	// already returned.
 	//
         memmove ( & input_buffer[0],
@@ -494,10 +491,9 @@ uns32 LEX::scan
 
     // We scan atoms until we get to a point where the
     // current atom table != the next atom table and
-    // the next atom table has mode MASTER or the next
-    // atom table was set by a SHORTCUT.  Here the next
-    // atom table is set by GOTO and SHORTCUT, and
-    // SHORTCUT also sets the `shortcut' bool.
+    // the next atom table has mode MASTER or `shortcut'
+    // is set.  Here the next atom table is set by GOTO
+    // and `shortcut' is set by SHORTCUT.
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
@@ -505,14 +501,15 @@ uns32 LEX::scan
     // SCAN_ERROR after writing error_message.
     //
     // If we encounter an end of file without scanning
-    // any input, we just return END_OF_FILE.  Other
-    // end of files may or may not force a scan error.
+    // any input, we immediately return END_OF_FILE.
+    // Other end of files end the current lexeme (it
+    // is a scan error if this is of zero length).
     // 
     uns32 next_atom_table_ID = current_atom_table_ID;
-    bool shortcut = false;
-    while ( ! shortcut )
+    uns32 shortcut = 0;
+    while ( shortcut == 0 )
     {
-        // Scan an atom.
+        // Scan next atom of current lexeme.
 
 	atom_table_header & cath =
 	    * (atom_table_header *)
@@ -567,6 +564,13 @@ uns32 LEX::scan
 		//
 		if ( next + length == first )
 		    return END_OF_FILE;
+		else if ( first == next )
+		{
+		    sprintf ( scan_error ( length ),
+			      "incomplete atom at"
+			      " end of file" );
+		    return SCAN_ERROR;
+		}
 		else break;
 	    }
 
@@ -787,12 +791,24 @@ uns32 LEX::scan
 		    input_buffer[p++].character;
 	}
 
+	if ( op & GOTO )
+	{
+	    next_atom_table_ID = ih.ID_or_kind;
+	    assert (    program[next_atom_table_ID]
+		     == ATOM_TABLE );
+	}
+	else if ( op & SHORTCUT )
+	{
+	    shortcut = ih.ID_or_kind;
+	}
+
+	next += atom_length;
+
 	if ( atom_length == 0
 	     &&
-	     ( ih.atom_table_ID == 0
-	       ||
-	          ih.atom_table_ID
-	       == next_atom_table_ID ) )
+	     ( current_atom_table_ID
+	       ==
+	       next_atom_table_ID ) )
 	{
 	    sprintf ( scan_error ( length ),
 		      "no atom scanned and"
@@ -800,54 +816,42 @@ uns32 LEX::scan
 		      " changed" );
 	    return SCAN_ERROR;
 	}
-
-	if ( op & GOTO )
-	    next_atom_table_ID = ih.atom_table_ID;
-	else if ( op & SHORTCUT )
-	{
-	    shortcut = true;
-	    next_atom_table_ID = ih.atom_table_ID;
-	}
-	assert (    program[next_atom_table_ID]
-		 == ATOM_TABLE );
-
-	next += atom_length;
     }
 
-    uns32 atom_table_ID =
-	shortcut ? next_atom_table_ID :
-		   current_atom_table_ID;
-    atom_table_header & ath =
-	* (atom_table_header *)
-	& program[atom_table_ID];
+    uns32 kind = shortcut;
+    if ( kind == 0 )
+    {
+	atom_table_header & cath =
+	    * (atom_table_header *)
+	    & program[current_atom_table_ID];
+	kind = cath.mode;
+    }
 
     first = first;
     last = next - 1;
-    label = ath.label;
+    assert ( first <= last );
 
-    if ( ! shortcut )
-        current_atom_table_ID = next_atom_table_ID;
 
-    switch ( ath.mode )
+    switch ( kind )
     {
-    case LEXEME:
-    case ERROR:
-    case WHITESPACE:
-        break;
-    default:
+    case MASTER:
+    case END_OF_FILE:
+    case SCAN_ERROR:
     {
 	int count = sprintf ( error_message,
-		  " returning item with bad kind(%s)"
+		  " returning lexeme with bad kind(%s)"
 		  " from atom table %u; ATOM:\n",
-		  sbpmode ( ath.mode ),
-		  atom_table_ID );
+		  sbpmode ( kind ),
+		  current_atom_table_ID );
 	count += spinput ( error_message + count,
 	                   first, last );
 	return SCAN_ERROR;
     }
     }
 
-    return ath.mode;
+    current_atom_table_ID = next_atom_table_ID;
+
+    return kind;
 }
 
 // See documentation above.
@@ -952,8 +956,6 @@ int LEX::spmode ( char * buffer, uns32 mode )
 {
     switch ( mode )
     {
-    case LEXEME:
-	return sprintf ( buffer, "LEXEME" );
     case WHITESPACE:
 	return sprintf ( buffer, "WHITESPACE" );
     case ERROR:
@@ -966,7 +968,7 @@ int LEX::spmode ( char * buffer, uns32 mode )
 	return sprintf ( buffer, "SCAN_ERROR" );
     default:
 	return sprintf
-	    ( buffer, "ILLEGAL MODE (%u)", mode );
+	    ( buffer, "KIND (%u)", mode );
     }
 }
 
@@ -1030,11 +1032,11 @@ static uns32 print_instruction
     else
     if ( ( h.operation & ( GOTO + SHORTCUT ) )
          &&
-	 h.atom_table_ID == 0 ) out << "ILLEGAL: ";
+	 h.ID_or_kind == 0 ) out << "ILLEGAL: ";
     else
     if ( ( h.operation & ( GOTO + SHORTCUT ) ) == 0
          &&
-	 h.atom_table_ID != 0 ) out << "ILLEGAL: ";
+	 h.ID_or_kind != 0 ) out << "ILLEGAL: ";
 
     bool first = true;
 #   define OUT ( first ? ( first = false, out ) : \
@@ -1072,9 +1074,9 @@ static uns32 print_instruction
 	    << LEX::postfix_length ( h.operation )
 	    << ")";
     if ( h.operation & GOTO )
-        OUT << "GOTO(" << h.atom_table_ID << ")";
+        OUT << "GOTO(" << h.ID_or_kind << ")";
     if ( h.operation & SHORTCUT )
-        OUT << "SHORTCUT(" << h.atom_table_ID << ")";
+        OUT << "SHORTCUT(" << h.ID_or_kind << ")";
     if ( first ) OUT << "ACCEPT";
     out << endl;
 #   undef OUT
@@ -1320,8 +1322,6 @@ uns32 LEX::print_program_component
 	    * (atom_table_header *) & program[ID];
 	cout << INDENT << "Mode: "
 	     << pmode ( h.mode ) << endl;
-	cout << INDENT << "Label: "
-	     << h.label << endl;
 	cout << INDENT << "Dispatcher ID: "
 	     << h.dispatcher_ID << endl;
 	if ( cooked )

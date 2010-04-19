@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 10 20:07:35 EDT 2010
+// Date:	Mon Apr 19 15:00:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/11 00:07:49 $
+//   $Date: 2010/04/19 19:50:23 $
 //   $RCSfile: ll_lexeme_program_data.h,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents
 //
@@ -36,7 +36,7 @@ using ll::lexeme::uns32;
 namespace ll { namespace lexeme
     { namespace program_data {
 
-// Program item types.
+// Program component types.
 //
 enum {
     PROGRAM			= 1,
@@ -66,11 +66,10 @@ const uns32 program_header_length = 2;
 struct atom_table_header {
     uns32 type;			// == ATOM_TABLE
     uns32 mode;
-    uns32 label;
     uns32 dispatcher_ID;
     uns32 instruction_ID;
 };
-const uns32 atom_table_header_length = 5;
+const uns32 atom_table_header_length = 4;
 
 // The format of a dispatcher is
 //
@@ -142,7 +141,7 @@ const uns32 type_map_header_length = 4;
 struct instruction_header {
     uns32 type;			// == INSTRUCTION
     uns32 operation;
-    uns32 atom_table_ID;
+    uns32 ID_or_kind;
 };
 const uns32 instruction_header_length = 3;
 

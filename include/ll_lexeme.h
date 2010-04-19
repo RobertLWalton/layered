@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 17 12:20:52 EDT 2010
+// Date:	Mon Apr 19 15:00:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 16:21:08 $
+//   $Date: 2010/04/19 19:50:23 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // Table of Contents
 //
@@ -174,11 +174,12 @@ namespace ll { namespace lexeme {
     extern buffer<inchar> & input_buffer;
 
     // The translation buffer holds the translation of
-    // the current item.  For example, if the item is
-    // a quoted string lexeme, the quotes may be removed
-    // from the translation, and special character
-    // representation sequences may be replaced in the
-    // translation by the represented characters.
+    // the current lexeme.  For example, if the lexeme
+    // is a quoted string lexeme, the quotes may be
+    // removed from the translation, and special
+    // character representation sequences may be
+    // replaced in the translation by the represented
+    // characters.
     //
     extern buffer<uns32> & translation_buffer;
 
@@ -213,7 +214,7 @@ namespace ll { namespace lexeme {
     // Create a new program and an atom table, and
     // return the ID of the atom table.  The atom
     // table is the initial table of the program,
-    // and has the MASTER mode and 0 label.
+    // and has the MASTER mode.
     //
     // This function resets the program buffer vector
     // length to 0 and then adds a program header
@@ -227,30 +228,30 @@ namespace ll { namespace lexeme {
     // Atom table kinds, modes, and return values.
     //
     enum {
-        // Kinds that are also modes and return values.
-	//
-	LEXEME		= 1,
-	WHITESPACE	= 2,
-	ERROR		= 3,
 
 	// Return values that are not kinds or modes.
 	//
-	END_OF_FILE	= 4,
-	SCAN_ERROR	= 5,
+	END_OF_FILE	= 0,
+	SCAN_ERROR	= 1,
+
+        // Standard kinds:
+	//
+	ERROR		= 2,
+	WHITESPACE	= 3,
 
 	// Modes that are not kinds or return values.
 	//
-        MASTER		= 6
+        MASTER		= 0xFFFFFFFF
     };
 
     // Create the atom table with the given mode and
-    // label and return its ID.  The label is a user
-    // provided value that is returned to the user when
-    // an item (LEXEME, ERROR, or WHITESPACE) is
-    // recognized by the analyzer via the atom table.
-    // It can serve to type a lexeme, for example.
+    // return its ID.  The mode may be a kind, which
+    // is a user defined value that is returned to the
+    // user when a lexeme is recognized by the analyzer
+    // via the atom table.  It can serve to type a
+    // lexeme.
     //
-    uns32 create_atom_table ( uns8 mode, uns32 label );
+    uns32 create_atom_table ( uns32 mode );
 
     // Create a dispatcher with given maximum number of
     // breakpoints and maximum type.  Return the new
@@ -281,9 +282,9 @@ namespace ll { namespace lexeme {
 	      uns32 type );
 
     // An instruction consists of an uns32 operation,
-    // an atom_table_ID (which may be 0 if unused),
-    // and a uns32 * translation_vector (which may be
-    // NULL if unused).
+    // an ID_or_kind (which may be 0 if unused), and an
+    // uns32 * translation_vector (which may be NULL if
+    // unused).
     // 
     // The operation is the sum of some of the
     // following:
@@ -341,22 +342,23 @@ namespace ll { namespace lexeme {
     //
     //   GOTO		After all other atom processing,
     //			switch the current atom table
-    //			to that indicated by atom_table_
-    //			ID.
+    //			to that whose ID equals the
+    //			instruction ID_or_kind.
     //
     //   SHORTCUT	Process atom as if analyzer had
-    //			switched to the atom table
-    //			specified by atom_table_ID
-    //			just before inputting the atom,
-    //			and then did a GOTO back to the
-    //			original atom table at the end
-    //			of processing the atom.  This
-    //			speeds handling of one-atom
-    //			items, e.g., separators.
+    //			switched to the atom table of
+    //			mode equal to the instruction
+    //			ID_or_kind just before inputting
+    //			the atom, and then did a GOTO
+    //			back to the original atom table
+    //			at the end of processing the
+    //			atom.  This speeds handling of
+    //			one-atom lexemes, e.g.,
+    //			separators.
     //
     //			(GOTO and SHORTCUT are
     //			exclusive.  If neither is given
-    //			atom_table_ID must be zero;
+    //			ID_or_kind must be zero;
     //			otherwise it must be non-zero.
     //			Note that ID's of program compo-
     //			nents are never zero.)
@@ -457,7 +459,7 @@ namespace ll { namespace lexeme {
     //
     uns32 create_instruction
 	    ( uns32 operation,
-	      uns32 atom_table_ID = 0,
+	      uns32 ID_or_kind = 0,
 	      uns32 * translation_vector = NULL );
 
     // Attach a dispatcher or an instruction component
@@ -514,30 +516,31 @@ namespace ll { namespace lexeme {
     //
     extern std::ostream * scan_trace_out;
 
-    // Scan the input and return the next item (lexeme,
-    // error string, whitespace, or EOF).
+    // Scan the input and return the next lexeme, END_
+    // OF_FILE or SCAN_ERROR.
     //
-    // The first and last positions in the input buffer
-    // are returned, i.e., the item is in
+    // When a lexeme is returned, the first and last
+    // positions in the input buffer are returned, i.e.,
+    // the lexeme is in
     //
     //		input_buffer[first .. last]
     //
-    // The item length, last - first + 1, is always
-    // >= 1.  The item kind is returned as the value
-    // of the scan function.  The translated item is
+    // The lexeme length, last - first + 1, is always
+    // >= 1.  The lexeme kind is returned as the value
+    // of the scan function.  The translated lexeme is
     // returned in the translation buffer.
     //
-    // If there is an end of file, END_OF_FILE is
-    // returned instead of an item kind.  If there is an
-    // error in the lexical scanning program, SCAN_ERROR
-    // is returned instead of an item kind, and an error
-    // message diagnostic is placed in error_message.
-    // In these two cases first, last, label, and the
-    // translation buffer are not set.
+    // If there is an end of file instead of a lexeme,
+    // END_OF_FILE is returned instead of a lexeme kind.
+    // If there is an error in the lexical scanning
+    // program, SCAN_ERROR is returned instead of a
+    // lexeme kind, and an error message diagnostic is
+    // placed in error_message.  In these two cases
+    // first and last and the translation buffer are not
+    // set.
     //
     uns32 scan
-            ( uns32 & first, uns32 & last,
-	      uns32 & label );
+            ( uns32 & first, uns32 & last );
 } }
 
 // Printing

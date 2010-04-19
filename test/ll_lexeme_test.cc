@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 17 17:45:03 EDT 2010
+// Date:	Mon Apr 19 15:26:35 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/17 21:48:58 $
+//   $Date: 2010/04/19 19:55:40 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents
 //
@@ -80,7 +80,7 @@ static void create_program_1 ( void )
     uns32 master = LEX::create_program();
 
     uns32 atable1 =
-        LEX::create_atom_table ( LEX::LEXEME, 1 );
+        LEX::create_atom_table ( 5 );
     uns32 dispatcher1 =
         LEX::create_dispatcher ( 10, 4 );
     uns8 map1[10] = { 0, 1, 2, 3, 4, 5, 4, 3, 2, 1 };
@@ -119,17 +119,15 @@ static void create_program_2 ( void )
 
     uns32 master = LEX::create_program();
     uns32 whitespace =
-        LEX::create_atom_table ( LEX::WHITESPACE, 1 );
+        LEX::create_atom_table ( LEX::WHITESPACE );
     uns32 symbol =
-        LEX::create_atom_table ( LEX::LEXEME, 2 );
+        LEX::create_atom_table ( 5 );
     uns32 number =
-        LEX::create_atom_table ( LEX::LEXEME, 3 );
+        LEX::create_atom_table ( 6 );
     uns32 oper =
-        LEX::create_atom_table ( LEX::LEXEME, 4 );
-    uns32 separator =
-        LEX::create_atom_table ( LEX::LEXEME, 5 );
-    uns32 error =
-        LEX::create_atom_table ( LEX::ERROR, 6 );
+        LEX::create_atom_table ( 7 );
+    uns32 separator = 8;
+        // Separator kind for SHORTCUT.
 
     const uns8 white = 1;
     const uns8 letter = 2;
@@ -292,7 +290,7 @@ static void create_program_2 ( void )
 	    ( ACCEPT+SHORTCUT, separator );
     uns32 error_instruction =
         LEX::create_instruction
-	    ( ACCEPT+SHORTCUT, error );
+	    ( ACCEPT+SHORTCUT, LEX::ERROR );
     check_attach ( master_dispatcher, 0,
                    error_instruction );
     check_attach ( master_dispatcher, white,
@@ -322,8 +320,7 @@ static void create_program_2 ( void )
     check_attach ( symbol_dispatcher, digit,
                    symbol_instruction );
 
-    uns32 fraction =
-        LEX::create_atom_table ( LEX::LEXEME, 3 );
+    uns32 fraction = LEX::create_atom_table ( 6 );
     uns32 fraction_instruction =
         LEX::create_instruction
 	    ( ACCEPT+GOTO, fraction );
@@ -419,8 +416,8 @@ void test_program ( uns32 * input, uns32 length )
     char buffer[1000];
     while ( true )
     {
-	uns32 first, last, label;
-        uns32 kind = LEX::scan ( first, last, label );
+	uns32 first, last;
+        uns32 kind = LEX::scan ( first, last );
 	cout << "Scan Returned " << LEX::pmode ( kind );
 	if ( kind == LEX::END_OF_FILE )
 	{
@@ -432,7 +429,9 @@ void test_program ( uns32 * input, uns32 length )
 	    cout << endl << LEX::error_message << endl;
 	    break;
 	}
-	cout << " Label " << label << " Input Buffer: ";
+	else
+	    cout << " Input Buffer: ";
+
 	LEX::spinput ( buffer, first, last );
 	cout << buffer << endl;
     }
@@ -454,5 +453,7 @@ int main ( int argc )
 	'%', 'e', '0',
 	'-', '-', '1', '.', '2', '.', '3',
 	0, 1 };
+    test_program ( input2, 24 );
+    LEX::scan_trace_out= & cout;
     test_program ( input2, 24 );
 }

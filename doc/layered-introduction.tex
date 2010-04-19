@@ -245,7 +245,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 27, 2010
+April 19, 2010
  
 \end{center}
 
@@ -295,11 +295,72 @@ character string: e.g., `{\tt hello}', `{\tt +}', `{\tt ;}',
 
 The lexical scanner is written in the H-Language and can be
 replaced.  This section describes the standard scanner which
-is C/C++ compatible and is driven by the lexical atom tables.
+is driven by the atom tables and is capable scanning
+lexemes of common languages such as C and C++.
 
-The (standard) scanner reads left to right, and at each point
-identifies the next lexical atom in the text,
-where a \key{lexical atom} is a string
+The standard scanner attempts to be both machine and human
+efficient.  It attempts to be machine efficient by being
+deterministic\footnote{Unlike regular expression scanners}
+and attempts to be human efficient by supporting algorithms
+that people can readily understand and hopefully quickly
+learn to mimic.\footnote{A possibly non-verifiable goal.}
+
+The (standard) scanner reads left to right, and
+identifies lexical atoms in the text.
+A \key{lexical atom} is a single character (e.g., the letters
+in an identifier or symbol) or a short string of characters
+(e.g., the characters \verb|\n| in a quoted string).
+Lexical atoms are grouped by the scanner into \skey{lexeme}s
+which are the output of the scanner.
+
+The scanner has a state consisting of a current point 
+in the input and the name of an atom table.  An
+\key{atom table} is a set of atom patterns
+that match lexical atoms, and for each pattern an
+instruction that determines what to do when the pattern is matched.
+
+An \key{atom pattern}\index{pattern!lexical atom} is a fixed
+length sequence of character patterns, and matches any sequence of
+UNICODE characters of the same length as the atom pattern
+each character of the sequence is matched by the corresponding
+character pattern.  A \key{character pattern} is simply a
+specification of a set of characters, e.g., letters or digits.
+Thus one can construct an atom pattern that will recognize
+a single letters, or one that will recognize the sequence of
+characters \verb|\u<hexdigit><hexdigit><hexdigit><hexdigit>|.
+
+The atom patterns of a single atom table may not conflict:
+no character string can be recognized by two atom patterns of the
+same atom table.
+
+The scanner has a state consisting of a point in the current
+input stream of UNICODE characters
+and the identifier of a lexical atom table.
+The longest sequence of characters beginning at the input
+point that matches an atom pattern of the atom table is selected
+to become the next atom, and an instruction associated in the
+atom table with the atom pattern is then executed.  This
+instruction can optionally reduce the length of the atom
+and optionally change the current atom table.  If no atom
+is recognized in the current scanner state, an instruction
+associated with the atom table is executed (this normally
+changes the atom table).
+
+Atom tables have modes that are either lexeme kinds or
+are the special mode `\ttmkey{master}{mode}'.  When the
+current lexical atom table is changed to a new table of
+`\verb|master|' mode, any non-zero length lexeme accumulated
+so far is output as a lexeme whose kind is determined by the
+previous current atom table.  Thus if an atom table of
+mode `\verb|whitespace|' cannot recognized any atom and
+the instruction associated with it that is executed in this
+case changes the current atom table to one of `\verb|master|'
+mode, any non-zero length lexeme accumulated so far will
+be output as a lexeme of kind `\verb|whitespace|'.
+
+TBD
+
+\ikey{Lexemes}{lexeme} consist of strings of lexical atoms.
 of characters explicitly listed in one of the \skey{lexical atom table}s.
 If there are several possibilities, the longest is chosen.
 To identify atoms, the scanner looks in one of the lexical atom tables;

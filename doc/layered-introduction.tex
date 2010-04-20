@@ -305,24 +305,27 @@ and attempts to be human efficient by supporting algorithms
 that people can readily understand and hopefully quickly
 learn to mimic.\footnote{A possibly non-verifiable goal.}
 
-The (standard) scanner reads left to right, and
-identifies lexical atoms in the text.
+The standard scanner identifies lexical atoms in the text.
 A \key{lexical atom} is a single character (e.g., the letters
 in an identifier or symbol) or a short string of characters
 (e.g., the characters \verb|\n| in a quoted string).
-Lexical atoms are grouped by the scanner into \skey{lexeme}s
+Lexical atoms are read left to right and
+grouped by the scanner into \skey{lexeme}s,
 which are the output of the scanner.
 
 The scanner has a state consisting of a current point 
-in the input and the name of an atom table.  An
+in the input UNICODE character stream and a current atom table identifier.  An
 \key{atom table} is a set of atom patterns
 that match lexical atoms, and for each pattern an
 instruction that determines what to do when the pattern is matched.
+There is also an instruction associated with the atom table that
+determines what to do when no table pattern matches the next characters
+in the input stream.
 
 An \key{atom pattern}\index{pattern!lexical atom} is a fixed
 length sequence of character patterns, and matches any sequence of
 UNICODE characters of the same length as the atom pattern
-each character of the sequence is matched by the corresponding
+if each character of the sequence matches the corresponding
 character pattern.  A \key{character pattern} is simply a
 specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
@@ -333,30 +336,43 @@ The atom patterns of a single atom table may not conflict:
 no character string can be recognized by two atom patterns of the
 same atom table.
 
-The scanner has a state consisting of a point in the current
-input stream of UNICODE characters
-and the identifier of a lexical atom table.
-The longest sequence of characters beginning at the input
-point that matches an atom pattern of the atom table is selected
-to become the next atom, and an instruction associated in the
-atom table with the atom pattern is then executed.  This
-instruction can optionally reduce the length of the atom
-and optionally change the current atom table.  If no atom
-is recognized in the current scanner state, an instruction
-associated with the atom table is executed (this normally
-changes the atom table).
+The scanner operates by identifying the
+longest sequence of characters beginning at the current input character
+stream point that matches an atom pattern of the current atom.
+This sequence of characters becomes
+the next atom, and an instruction associated with its matching
+atom pattern is then executed.  If no atom pattern can be matched,
+the instruction associated with the atom table is executed instead.
+
+An atom pattern or atom table
+instruction can optionally reduce the length of a matched atom
+and optionally change the current atom table.
 
 Atom tables have modes that are either lexeme kinds or
 are the special mode `\ttmkey{master}{mode}'.  When the
 current lexical atom table is changed to a new table of
 `\verb|master|' mode, any non-zero length lexeme accumulated
-so far is output as a lexeme whose kind is determined by the
-previous current atom table.  Thus if an atom table of
+so far is output as a lexeme whose \mkey{kind}{lexeme} equals
+the mode of the previous current atom table.  Thus if an atom table of
 mode `\verb|whitespace|' cannot recognized any atom and
 the instruction associated with it that is executed in this
 case changes the current atom table to one of `\verb|master|'
 mode, any non-zero length lexeme accumulated so far will
 be output as a lexeme of kind `\verb|whitespace|'.
+
+The lexeme output consists of a sequence of characters in the
+input character stream.  In addition there is a translation
+of this lexeme.  Each atom is translated by the
+instruction that is executed when the atom is recognized.
+By default atoms are not changed by translation but merely copied to the end
+of current lexeme's translation.  But any set of characters can be
+included in the instruction and
+copied instead.  For example, for the lexeme \verb|"a line\n"| the
+\verb|"| atoms can be translated to zero length strings and the
+\verb|\n| atom can be translated to a single line feed character.
+If the other characters are copied as is to the translation, then
+the translation will contain 5 letters, one single space character,
+and one line feed character.
 
 TBD
 

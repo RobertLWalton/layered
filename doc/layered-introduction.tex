@@ -374,6 +374,89 @@ If the other characters are copied as is to the translation, then
 the translation will contain 5 letters, one single space character,
 and one line feed character.
 
+A \key{lexical program} is a set of character pattern definitions,
+atom pattern definitions, and atom tables, with a designated atom
+table to serve as initial state.  A lexical program can include
+another lexical program.
+
+\subsection{Lexical Program Syntax}
+
+\begin{tabular}{p{2.2in}rl}
+\emkey{name}
+    & ::= & {\em identifier}
+            \{ {\em identifier} $|$ {\em quoted-string} \}$^\star$
+\end{tabular}
+
+\begin{tabular}{p{2.2in}rl}
+\emkey{lexical-program} & ::= &
+	{\tt begin} {\em program-name} {\tt lexical program;}\\
+	& &  ~~~~{\em lexical-program-unit}$^\star$ \\
+	& & {\tt end} {\em program-name} {\tt lexical program};
+\\[1ex]
+\emkey{program-name} & ::= & {\em name}
+\\[1ex]
+\emkey{lexical-program-unit}
+	& ::= & {\em cpat-definition} \\
+	& $|$ & {\em atom-table-definition} \\
+	& $|$ & {\em program-inclusion}
+\end{tabular}
+\begin{center}
+`{\em cpat}' abbreviates {\em character-pattern}
+\end{center}
+\begin{tabular}{p{2.2in}rl}
+\emkey{cpat-definition} & ::= &
+	{\tt "}{\em cpat-name}{\tt "} \underline{\tt ::=}
+		{\em cpat-expression} {\tt ;}
+\\[1ex]
+\emkey{cpat-name} & ::= &
+	{\tt <}{\em letter}$^+$\{{\tt -}{\em letter}$^+$\}$^\star${\tt >}
+\\[1ex]
+\emkey{cpat-expression} & ::= &
+	{\em cpat-term}
+	\{ {\tt |} {\em cpat-term} \}$^\star$ \\
+       & $|$ &
+	{\em cpat-term}
+	\{ {\tt \&} {\em cpat-term} \}$^\star$
+\\[1ex]
+\emkey{cpat-term} & ::= & {\em cpat-factor} \\
+		       & $|$ & \TILDE {\em cpat-factor}
+\\[1ex]
+\emkey{cpat-factor} & ::= & {\em quoted-character} \\
+		       & $|$ & {\tt "} {\em cpat-name} {\tt "} \\
+		       & $|$ & {\tt (} {\em cpat-expression}
+		                {\tt )}
+\end{tabular} \\
+\begin{tabular}{p{2.2in}rl}
+\emkey{atom-table-definition} & ::= &
+	{\tt begin} {\em atom-table-name}
+		    {\tt atom table}
+		    {\em mode}{\tt ;} \\
+	& &  ~~~~{\em atom-table-entry}$^\star$ \\
+	& & {\tt end} {\em atom-table-name} {\tt atom table;}
+\\[1ex]
+\emkey{mode} & ::= & {\em kind} $|$ {\tt master}
+\\[1ex]
+\emkey{kind} & ::= & {\em name}
+\\[1ex]
+\emkey{atom-table-entry}
+	& ::= & {\em atom-pattern} {\em instruction-component}$^\star$
+	        {\tt ;}
+\\[1ex]
+\emkey{atom-pattern} & ::= &
+	{\tt "}\{{\em apat-character}$|${\em cpat-name}\}$^\star${\tt "}
+\\[1ex]
+\emkey{apat-character} & ::= &  any UNICODE character except {\tt "}
+				or \verb|<| or \verb|>|
+\\[1ex]
+\emkey{instruction-component}
+	& ::= & {\tt keep} {\em natural-number} \\
+	& $|$ & {\tt translate} {\em quoted-string} \\
+	& $|$ & {\tt translate-hex} {\em natural-number} {\em natural-number} \\
+	& $|$ & {\tt translate-oct} {\em natural-number} {\em natural-number} \\
+	& $|$ & {\tt goto} {\em atom-table-name} \\
+	& $|$ & {\tt singleton} {\em kind} \\
+\end{tabular}
+
 TBD
 
 \ikey{Lexemes}{lexeme} consist of strings of lexical atoms.
@@ -409,15 +492,7 @@ This may be the same as the scanning type or may be a continuation table name.
 Lexical atom tables may have the following modes:
 
 \begin{center}
-\begin{tabular}{rcl}
-\emkey{lexical-atom-table-mode}
-	& ::= & {\em lexical-atom-table-class} $|$ {\tt continuation} \\
-\emkey{lexical-atom-table-class} & ::= &
-		{\tt master} $|$ {\tt lexeme} $|$ {\tt whitespace} $|$
-		{\tt error} \\
-\end{tabular}
-\end{center}%
-\label{LEXICAL-ATOM-TABLE-MODE}
+\end{center}
 
 
 
@@ -460,26 +535,7 @@ continuation table does not change the scanning type.
 The general form of an atom table entry is:
 
 \begin{center}
-\begin{tabular}{rcl}
-\emkey{lexical-atom-table-entry}
-	& ::= & {\em lexical-atom} {\em lexical-atom-operation}$^\star$
-	        {\tt ;} \\
-\emkey{lexical-atom} & ::= & {\em quoted-string} \\
-\emkey{lexical-atom-operation}
-	& ::= & {\em lexical-atom-disposition} \\
-	& $|$ & {\em lexical-atom-modifier} \\
-	& $|$ & {\em lexical-atom-state-change} \\
-\emkey{lexical-atom-disposition}
-	& ::= & {\tt accept} $|$ {\tt discard} $|$ {\tt keep} \\
-\emkey{lexical-atom-modification}
-	& ::= & {\tt truncate} {\em number-of-characters} \\
-	& $|$ & {\tt translate} {\em quoted-string} \\
-\emkey{lexical-state-change}
-	& ::= & {\tt goto} {\em lexical-atom-table-name} \\
-	& $|$ & {\em lexical-atom-table-class} {\em lexical-atom-table-name} \\
-\end{tabular}
-\end{center}%
-\label{LEXICAL-ATOM-TABLE-ENTRY}
+\end{center}
 
 The {\em lexical-atom} is a {\em quoted-string} equal to the atom.
 
@@ -866,75 +922,6 @@ set of lexical atom tables needs to be changed.
 Lexeme Definition Language consists of {\em lexical-definitions} with
 the following syntax:
 
-\begin{tabular}{p{2.5in}rl}
-\emkey{lexical-definition}
-	& ::= & {\em lexical-units-block} \\
-	& $|$ & {\em lexical-atom-table-definition} \\
-	& $|$ & {\em lexical-class-definition} \\
-	& $|$ & {\em lexical-group-definition}
-\end{tabular} \\
-\begin{tabular}{p{2.5in}rl}
-\emkey{lexical-units-block} & ::= &
-	{\tt begin lexical units;}\\
-	& &  ~~~~{\em lexical-unit-definition}$^\star$ \\
-	& & {\tt end lexical units;}
-\\[1ex]
-\emkey{lexical-unit-definition} & ::= &
-	{\tt "}{\em lexical-unit}{\tt "} \underline{\tt ::=} \\
-	& & ~~~~{\em quoted-string} \{ {\tt |} {\em quoted-string} \}$^\star$
-	    {\tt ;}
-\\[1ex]
-\emkey{lexical-unit} & ::= & {\tt <}\{{\em letter}$|${\tt -}\}$^+${\tt >}
-\end{tabular} \\
-\begin{tabular}{p{2.5in}rl}
-\emkey{lexical-atom-table-definition} & ::= &
-	{\tt begin} {\em lexeme-type}
-		    \begin{tabular}[t]{@{}l@{}}
-		    {\tt atom table} \\
-		    {\em lexical-options}{\tt ;}
-		    \end{tabular}\\
-	& &  ~~~~{\em lexical-atom-table-entry}$^\star$ \\
-	& & {\tt end} {\em lexeme-type} {\tt atom table;}
-\\[1ex]
-\emkey{lexical-options} & ::= & {\em empty} $|$ {\tt ( )} \\
-			& $|$ & {\tt (} {\em lexical-option}
-				       \{ {\tt ,} {\em lexical-option} \}
-			               {\tt )}
-\\[1ex]
-\emkey{lexical-option} & ::= & \ttkey{discard} $|$ \ttkey{continue}
-					       $|$ \ttkey{error}
-					       $|$ \ttkey{atomic} \\
-		       & $|$ & \ttkey{announce} $|$ \ttkey{remove}
-		                                $|$ {\em lexeme-type}
-\\[1ex]
-\emkey{lexical-atom-table-entry}
-	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
-\end{tabular} \\
-\begin{tabular}{p{2.5in}rl}
-\emkey{lexical-class-definition}
-	& ::= & {\tt lexical} {\em lexical-class} {\tt class}
-				    {\em lexical-options}{\tt ;}
-\\[1ex]
-\emkey{lexical-class} & ::= & {\em identifier}
-\end{tabular} \\
-\begin{tabular}{p{2.5in}rl}
-\emkey{lexical-group-definition}
-	& ::= & \begin{tabular}[t]{@{}l@{}}
-	        {\tt lexical} {\em new-lexical-group} {\tt group} \\
-		~~~~ {\tt (} {\em lexical-group} \{ {\tt ,}
-				{\em lexical-group} \} {\tt );}
-		\end{tabular}
-\\[1ex]
-\emkey{new-lexical-group}
-    & ::= & \{ {\em identifier} $|$ {\em quoted-string} \}$^\star$
-             {\em identifier}
-\\[1ex]
-\emkey{lexical-group} & ::= & {\em new-lexical-group} $|$ {\em lexeme-type}
-\\[1ex]
-\emkey{lexeme-type}
-	& ::= & see page \pageref{LEXICAL-ATOM-TABLE-ENTRY}
-				    
-\end{tabular}
 
 {\em Lexical-units} are used to abbreviate sets of lexical atom tables.
 {\em Lexical-classes} are used in {\em lexeme-types}, which name
@@ -1106,15 +1093,6 @@ class is `\ttkey{translator}'.  It can be used in
 {\em translated-lexical-units} which have names of the form:
 
 \begin{indpar}
-\begin{tabular}{p{2.0in}rl}
-\emkey{translated-lexical-unit}
-	& ::= & {\tt <}{\em lexical-translator}
-		{\em lexical-unit-name}{\tt >}
-\\[1ex]
-\emkey{lexical-translator} & ::= & \{{\em letter}$|${\tt -}\}$^+$
-\\[1ex]
-\emkey{lexical-unit-name} & ::= & \{{\em letter}$|${\tt -}\}$^+$
-\end{tabular}
 \end{indpar}
 
 The strings of the translated lexical unit

@@ -245,7 +245,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 19, 2010
+April 21, 2010
  
 \end{center}
 
@@ -1046,7 +1046,7 @@ defined {\em lexical-classes}.
 The \key{default lexical context}\index{lexical context!default}%
 \index{context!lexical default} is defined using standard
 {\em lexical-definitions} given
-in Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES}.
+in Appendix~\secref{STANDARD-LEXICAL-PROGRAM}.
 This is normally used to scan files containing lexical definitions.
 
 Other layered programming languages use lexical contexts that consist
@@ -1063,7 +1063,7 @@ hide all tables with the same name.
 \label{LEXICAL-UNIT-TRANSLATORS}
 
 The standard {\em lexical-definitions} given in
-Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES} include
+Appendix~\secref{STANDARD-LEXICAL-PROGRAM} include
 the following entries in the `{\em quoted string atom}' table:
 
 \begin{indpar}\begin{verbatim}
@@ -1109,7 +1109,7 @@ state is the translation.  The translation ends when the input
 string ends.
 
 The standard {\em lexical-definitions} given in
-Appendix~\secref{STANDARD-LEXICAL-ATOM-TABLES} include
+Appendix~\secref{STANDARD-LEXICAL-PROGRAM} include
 a single {\tt translator} table, `{\tt char translator}' which provides
 for the translations needed elsewhere in the standard definitions.
 This table translates character sequences that can appear in a standard
@@ -1318,104 +1318,209 @@ be used with any class.  The following is a complete list of
 
 \appendix
 
-\section{Standard Lexical Atom Tables}
-\label{STANDARD-LEXICAL-ATOM-TABLES}
+\section{Standard Lexical Program}
+\label{STANDARD-LEXICAL-PROGRAM}
 
-\begin{indpar}\begin{verbatim}
-lexical lexeme class ( announce );
-lexical operator class ( atomic );
-lexical separator class ( atomic );
-lexical identifier class ( announce, lexeme );
-lexical number class ( error, lexeme );
-lexical string class ( continue, error, lexeme );
-lexical comment class ( discard, continue, error, lexeme );
-lexical whitespace class ( discard, error, lexeme );
-lexical error class ( announce, discard, lexeme );
+\begin{indpar}
+\begin{verbatim}
+begin standard lexical program;
+
+"<ascii-letter>" = "a-z" | "A-Z";
+"<digit>" = "0-9";
+"<oct-digit>" = "0-7";
+"<hex-digit>" = "0-9" | "a-f" | "A-F";
+
+"<non-digit>" = ~ "<digit>";
+
+
+// The following list of language specific letters is taken
+// from Annex E of the Working Paper for Draft Proposed
+// International Standard for Information Systems—Programming
+// Language C++, 1996.
+
+"<latin-letter>" = "\u00c0-\n00d6" | "\u00d8-\u00f6"
+                 | "\u00f8-\u01f5" | "\u01fa-\u0217"
+                 | "\u0250-\u02a8" | "\u1ea0-\u1ef9";
+
+. . . . . letter character pattern definitions omitted . . . . .
+
+"<CJK-letter>" = "\uf900-\ufa2d" | . . .  // Details omitted
+
+// Context sensitive character classifications, e.g.,
+// classifying ' as a word character if it is followed by
+// a letter, cannot be included in character pattern
+// definitions, but are noted in comments.  They are
+// accounted for by separate atom table entries below.
+
+"<letter>" = "<ascii-letter>" | "<latin-letter>"
+           | . . . | "<CJK-letter>";   // Details omitted
+
+"<non-letter>" = ~ "<letter>";
+
+"<mark-char>" = "+" | "-" | "*" | "~" | "@" | "#" | "$" | "%"
+              | "^" | "&" | "=" | "|" | "<" | ">" | "_" | "!"
+	      | "?" | ":";
+	      //
+	      // Also \ not followed by u or U,
+	      //      . not followed by a digit
+	      //      / not surrounded by digits
+
+"<separator-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";" | "`";
+              //
+	      // Also , not surrounded by digits
+	      //      ' not followed by a letter
+
+"<whitespace-char>" = " " | "\n" | "\v" | "\f" | "\t" | "\r";
+
+"<quotable-char>" = "\u0010-\u003e" & ~ "\"" & ~ "\\";
+
+"<error-in-quote-char>" = ~ "<quotable-char>" & ~ "\"";
+
+"<error-char>" = ~ "\u0020-\u007e" & ~ "<whitespace-char> & ~ "<letter>";
+
+
+begin master atom table;
+
+   "//" goto comment;
+
+   "<whitespace-char>" goto whitespace;
+
+   "<word-char>" goto word;
+   "'<letter>" keep 1 goto word;
+
+   "<mark-char>" goto mark;
+   ".<non-digit>" keep 1 goto mark;
+   "/" goto mark;
+
+   "<digit>" keep 0 goto number;
+   ".<digit>" keep 1 goto number;
+
+   "<separator-char>" singleton separator;
+   "," singleton separator;
+   "'<non-letter>" keep 1 singleton separator;
+
+   "\"" "" goto quoted string;
+
+   "<error-char>" singleton error;
+
+end master atom table;
+
+// The below tables are enterred from the master table
+// with the first character scanned.
+
+
+begin comment atom table;
+
+   "<non-line-feed>" goto comment;
+   goto whitespace;
+       // On end-of-file goto whitespace.
+
+end comment atom table;
+
+
+begin whitespace atom table;
+
+   "<whitespace-char>" goto whitespace;
+   "//" goto comment;
+   goto master;
+       // On end-of-file goto master even though the
+       // line has not ended.
+
+end whitespace atom table;
+
+
+begin word atom table;
+
+   "<word-char>" goto word;
+   "'<letter>" keep 1 goto word;
+   goto master;
+
+end word atom table;
+
+
+begin mark atom table;
+
+   "<mark-char>" goto mark;
+   ".<non-digit>" keep 1 goto mark;
+   "/" goto mark;
+   goto master;
+
+end mark atom table;
+
+
+begin number atom table;
+
+   // In order to recognize , and / entries to this
+   // table upon recognizing "X<digit>" must do a
+   // `keep 1' so the digit will be left to be
+   // recognized with a following /<digit> or ,<digit>.
+
+   // Alternatively we could have a separate table
+   // for the state where the last atom ended with
+   // a digit.
+
+   "<digit>" goto number;
+   ".<digit>" keep 1 goto number;
+   "<digit>/<digit>" keep 2 goto number;
+   "<digit>,<digit>" keep 2 goto number;
+   goto master;
+
+end number atom table;
+
+
+begin quoted string atom table;
+
+    "\"" "" goto master;	// End quoted string.
+
+    "\\\"" "\"" goto quoted string;
+    "\\\n" "\n" goto quoted string;
+    "\\\r" "\r" goto quoted string;
+    "\\\t" "\t" goto quoted string;
+    "\\\b" "\b" goto quoted string;
+    "\\\f" "\f" goto quoted string;
+    "\\\v" "\v" goto quoted string;
+    "\\\\" "\\" goto quoted string;
+    "\\ "  " "  goto quoted string;
+    "\\x<hex-digit><hex-digit>" translate-hex 2 0
+                                goto quoted string;
+    "\\<oct-digit><oct-digit><oct-digit>" translate-oct 1 0
+                                goto quoted string;
+    "\\<whitespace-char>" "" goto whitespace in quoted string;
+    "<quotable-character>" goto quoted string;
+    "<other>" goto error in quoted string;
+    goto end of file in quoted string;
+
+end quoted string atom table;
+
+
+begin whitespace in quoted string atom table;
+
+    "<whitespace-char>" "" goto whitespace in quoted string;
+    "<other>" keep 0 goto whitespace;
+    goto end of file in quoted string;
+
+end whitespace in quoted string atom table;
+
+
+begin end of file in quoted string atom table kind error;
+
+    goto master;
+
+end end of file in quoted string atom table;
+
+
+begin error in quoted string atom table kind error;
+
+    goto master;
+
+end error in quoted string atom table;
+
 \end{verbatim}
 
-\verb|// The following is described in |%
-\ttitemref{LEXICAL-UNIT-TRANSLATORS}{\tt .}
-\begin{verbatim}
-begin char translator atom table;
-
-    // Accept all ASCII characters except \.
-    "\x0000"	accept;
-    "\x0001"	accept;
-    . . . entries omitted . . .
-    "\x005B"	accept;
-    // Skip \x005C which is backslash
-    "\x005D"	accept;
-    . . . entries omitted . . .
-    "\x007F"	accept;
-
-    // Decode all \x Unicode characters to UTF-8.
-    "\\x0000"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\x007f"	accept	"\x7F";
-    "\\x007F"	accept	"\x7F";
-    "\\x0080"	accept	"\xC1\x80";
-    . . . entries omitted . . .
-    "\\xffff"	accept	"\xEF\xBF\xBF";
-    "\\xfffF"	accept	"\xEF\xBF\xBF";
-    "\\xffFf"	accept	"\xEF\xBF\xBF";
-    "\\xffFF"	accept	"\xEF\xBF\xBF";
-    . . . entries omitted . . .
-    "\\xFFFf"	accept	"\xEF\xBF\xBF";
-    "\\xFFFF"	accept	"\xEF\xBF\xBF";
-    "\\x000"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\x07f"	accept	"\x7F";
-    "\\x07F"	accept	"\x7F";
-    "\\x080"	accept	"\xC1\x80";
-    . . . entries omitted . . .
-    "\\xFFF"	accept	"\xE0\xBF\xBF";
-    "\\x00"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\x7f"	accept	"\x7F";
-    "\\x7F"	accept	"\x7F";
-    "\\x80"	accept	"\xC1\x80";
-    . . . entries omitted . . .
-    "\\xFF"	accept	"\xC3\xBF";
-    "\\x0"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\xf"	accept	"\x0F";
-
-    // Ditto for \X.
-    "\\X0000"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\XFF"	accept	"\xC3\xBF";
-
-    // Ditto for \0.
-    "\\000000"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\177777"	accept	"\xEF\xBF\xBF";
-    . . . entries omitted . . .
-    "\\00000"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\77777"	accept	"\xE7\xBF\xBF";
-    . . . entries omitted . . .
-    "\\0"	accept	"\x00";
-    . . . entries omitted . . .
-    "\\7"	accept	"\x07";
-
-    // Standard abbreviations.
-    "\\n"	accept "\n";
-    "\\f"	accept "\f";
-    "\\v"	accept "\v";
-    "\\t"	accept "\t";
-    "\\r"	accept "\r";
-    "\\b"	accept "\b";
-    "\\a"	accept "\a";
-    "\\?"	accept "\?";
-    "\\'"	accept "\'";
-    "\\\""	accept "\"";
-    "\\r"	accept "\r";
-    "\\\\"	accept "\\";
-
-end char translator atom table;
-\end{verbatim}\end{indpar}
-
 \newpage
+
+\section{C++ Lexical Program}
+\label{C++-LEXICAL-PROGRAM}
 
 \begin{indpar}\begin{verbatim}
 begin lexical units;

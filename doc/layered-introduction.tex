@@ -381,10 +381,14 @@ another lexical program.
 
 \subsection{Lexical Program Syntax}
 
+The syntax of a lexical program is given on
+\pagref{LEXEME-PROGRAM-SYNTAX}.
+
+\begin{figure*}[!p]
 \begin{tabular}{p{2.2in}rl}
 \emkey{name}
-    & ::= & {\em identifier}
-            \{ {\em identifier} $|$ {\em quoted-string} \}$^\star$
+    & ::= & {\em word}
+            \{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
 \end{tabular}
 
 \begin{tabular}{p{2.2in}rl}
@@ -399,13 +403,11 @@ another lexical program.
 	& ::= & {\em cpat-definition} \\
 	& $|$ & {\em atom-table-definition} \\
 	& $|$ & {\em program-inclusion}
-\end{tabular}
-\begin{center}
-`{\em cpat}' abbreviates {\em character-pattern}
-\end{center}
-\begin{tabular}{p{2.2in}rl}
+\\[1ex]
+\multicolumn{3}{l}{~~~~~~~~`{\em cpat}' abbreviates `{\em character-pattern}'}
+\\[1ex]
 \emkey{cpat-definition} & ::= &
-	{\tt "}{\em cpat-name}{\tt "} \underline{\tt ::=}
+	{\tt "}{\em cpat-name}{\tt "} {\tt =}
 		{\em cpat-expression} {\tt ;}
 \\[1ex]
 \emkey{cpat-name} & ::= &
@@ -418,44 +420,64 @@ another lexical program.
 	{\em cpat-term}
 	\{ {\tt \&} {\em cpat-term} \}$^\star$
 \\[1ex]
-\emkey{cpat-term} & ::= & {\em cpat-factor} \\
-		       & $|$ & \TILDE {\em cpat-factor}
+\emkey{cpat-term} & ::= & {\em cpat-factor} $|$ \TILDE {\em cpat-factor}
 \\[1ex]
-\emkey{cpat-factor} & ::= & {\em quoted-character} \\
-		       & $|$ & {\tt "} {\em cpat-name} {\tt "} \\
-		       & $|$ & {\tt (} {\em cpat-expression}
+\emkey{cpat-factor} & ::= & {\tt "}{\em quotable-character}{\tt "} \\
+		    & $|$ & {\tt "}{\em quotable-character}{\tt -}%
+		                   {\em quotable-character}{\tt "} \\
+		    & $|$ & {\tt "}{\em cpat-name}{\tt "} \\
+		    & $|$ & {\tt (} {\em cpat-expression}
 		                {\tt )}
-\end{tabular} \\
-\begin{tabular}{p{2.2in}rl}
+\\[1ex]
+\emkey{quotable-character} & ::= & 
+	any quotable UNICODE character representative
+\\[1ex]
 \emkey{atom-table-definition} & ::= &
 	{\tt begin} {\em atom-table-name}
-		    {\tt atom table}
-		    {\em mode}{\tt ;} \\
+		    {\tt atom table} {\tt ;} \\
+	& &  ~~~~{\em mode-option} \\
 	& &  ~~~~{\em atom-table-entry}$^\star$ \\
+	& &  ~~~~{\em goto-option} \\
 	& & {\tt end} {\em atom-table-name} {\tt atom table;}
 \\[1ex]
-\emkey{mode} & ::= & {\em kind} $|$ {\tt master}
+\emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode-name}
+                                        $|$ {\tt kind} {\em kind-name}
 \\[1ex]
-\emkey{kind} & ::= & {\em name}
+\emkey{kind-name} & ::= & {\em name} except {\tt master} or {\tt end of file}
+						    or {\tt scan error}
+\\[1ex]
+\emkey{mode-name} & ::= &  {\tt master} $|$ {\em kind-name}
+\\[1ex]
+\emkey{goto-option} & ::= &  {\em empty} $|$ {\tt goto} {\em atom-table-name}
 \\[1ex]
 \emkey{atom-table-entry}
-	& ::= & {\em atom-pattern} {\em instruction-component}$^\star$
-	        {\tt ;}
+	& ::= & {\em atom-pattern} {\em instruction-option} {\tt ;}
+\\[1ex]
+\emkey{instruction-option} & ::= &
+    {\em empty} $|$ {\em instruction-component}$^+$
 \\[1ex]
 \emkey{atom-pattern} & ::= &
-	{\tt "}\{{\em apat-character}$|${\em cpat-name}\}$^\star${\tt "}
-\\[1ex]
-\emkey{apat-character} & ::= &  any UNICODE character except {\tt "}
-				or \verb|<| or \verb|>|
+	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^\star${\tt "}
 \\[1ex]
 \emkey{instruction-component}
 	& ::= & {\tt keep} {\em natural-number} \\
-	& $|$ & {\tt translate} {\em quoted-string} \\
-	& $|$ & {\tt translate-hex} {\em natural-number} {\em natural-number} \\
-	& $|$ & {\tt translate-oct} {\em natural-number} {\em natural-number} \\
+	& $|$ & {\em translation} \\
+	& $|$ & {\tt translate-hex} {\em natural-number} {\em natural-number}
+		{\em cpat-option} \\
+	& $|$ & {\tt translate-oct} {\em natural-number} {\em natural-number}
+		{\em cpat-option} \\
+	& $|$ & {\tt erroneous atom} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
-	& $|$ & {\tt singleton} {\em kind} \\
+	& $|$ & {\tt singleton} {\em kind-name}
+\\[1ex]
+\emkey{translation} & ::= & {\em quoted-string}
+\\[1ex]
+\emkey{cpat-option} & ::= & {\em empty} $|$ {\tt "}{\em cpat-name}{\tt "}
+\\[1ex]
+\emkey{program-inclusion} & ::= & {\tt include} {\em program-name} {\tt ;}
 \end{tabular}
+\label{LEXEME-PROGRAM-SYNTAX}
+\end{figure*}
 
 TBD
 
@@ -1359,34 +1381,36 @@ begin standard lexical program;
 
 "<mark-char>" = "+" | "-" | "*" | "~" | "@" | "#" | "$" | "%"
               | "^" | "&" | "=" | "|" | "<" | ">" | "_" | "!"
-	      | "?" | ":";
-	      //
-	      // Also \ not followed by u or U,
-	      //      . not followed by a digit
-	      //      / not surrounded by digits
+              | "?" | ":";
+              //
+              // Also \ not followed by u or U,
+              //      . not followed by a digit
+              //      / not surrounded by digits
 
 "<separator-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";" | "`";
               //
-	      // Also , not surrounded by digits
-	      //      ' not followed by a letter
+              // Also , not surrounded by digits
+              //      ' not followed by a letter
 
 "<whitespace-char>" = " " | "\n" | "\v" | "\f" | "\t" | "\r";
+
+"<non-line-break-char>" = ~ "\n" & ~ "\v" & ~ "\f";
 
 "<quotable-char>" = "\u0010-\u003e" & ~ "\"" & ~ "\\";
 
 "<error-in-quote-char>" = ~ "<quotable-char>" & ~ "\"";
 
-"<error-char>" = ~ "\u0020-\u007e" & ~ "<whitespace-char> & ~ "<letter>";
-
-
 begin master atom table;
+
+   // We assume that the preceding text is not a digit
+   // or the current input is not / or , followed by a digit.
 
    "//" goto comment;
 
    "<whitespace-char>" goto whitespace;
 
    "<word-char>" goto word;
-   "'<letter>" keep 1 goto word;
+   "'<letter>" goto word;
 
    "<mark-char>" goto mark;
    ".<non-digit>" keep 1 goto mark;
@@ -1401,19 +1425,21 @@ begin master atom table;
 
    "\"" "" goto quoted string;
 
-   "<error-char>" singleton error;
+   "<other>" singleton error;
 
 end master atom table;
 
 // The below tables are enterred from the master table
-// with the first character scanned.
+// with the first one or two characters scanned.
 
-
+// Comments are treated as whitespace lexemes or parts
+// thereof.
+//
 begin comment atom table;
 
-   "<non-line-feed>" goto comment;
+   "<non-line-break-char>" goto comment;
    goto whitespace;
-       // On end-of-file goto whitespace.
+       // On line break or end-of-file goto whitespace.
 
 end comment atom table;
 
@@ -1423,8 +1449,6 @@ begin whitespace atom table;
    "<whitespace-char>" goto whitespace;
    "//" goto comment;
    goto master;
-       // On end-of-file goto master even though the
-       // line has not ended.
 
 end whitespace atom table;
 
@@ -1432,7 +1456,7 @@ end whitespace atom table;
 begin word atom table;
 
    "<word-char>" goto word;
-   "'<letter>" keep 1 goto word;
+   "'<letter>" goto word;
    goto master;
 
 end word atom table;
@@ -1450,10 +1474,11 @@ end mark atom table;
 
 begin number atom table;
 
-   // In order to recognize , and / entries to this
-   // table upon recognizing "X<digit>" must do a
-   // `keep 1' so the digit will be left to be
-   // recognized with a following /<digit> or ,<digit>.
+   // In order to recognize , and / surrounded by digits
+   // as number atoms, entries to this table upon
+   // recognizing "X<digit>" must do a `keep 1' so the
+   // digit will be left to be recognized by
+   // <digit>/<digit> or <digit>,<digit>.
 
    // Alternatively we could have a separate table
    // for the state where the last atom ended with
@@ -1470,7 +1495,7 @@ end number atom table;
 
 begin quoted string atom table;
 
-    "\"" "" goto master;	// End quoted string.
+    "\"" "" goto master;        // End quoted string.
 
     "\\\"" "\"" goto quoted string;
     "\\\n" "\n" goto quoted string;
@@ -1480,42 +1505,33 @@ begin quoted string atom table;
     "\\\f" "\f" goto quoted string;
     "\\\v" "\v" goto quoted string;
     "\\\\" "\\" goto quoted string;
-    "\\ "  " "  goto quoted string;
+    "\\~"  " "  goto quoted string;
     "\\x<hex-digit><hex-digit>" translate-hex 2 0
                                 goto quoted string;
     "\\<oct-digit><oct-digit><oct-digit>" translate-oct 1 0
                                 goto quoted string;
-    "\\<whitespace-char>" "" goto whitespace in quoted string;
+    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+                                translate-hex 2 0
+                                goto quoted string;
+    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+                                translate-hex 2 0
+                                goto quoted string;
     "<quotable-character>" goto quoted string;
-    "<other>" goto error in quoted string;
+    "<other>" "" erroneous atom goto quoted string;
     goto end of file in quoted string;
 
 end quoted string atom table;
 
 
-begin whitespace in quoted string atom table;
 
-    "<whitespace-char>" "" goto whitespace in quoted string;
-    "<other>" keep 0 goto whitespace;
-    goto end of file in quoted string;
-
-end whitespace in quoted string atom table;
-
-
-begin end of file in quoted string atom table kind error;
-
+begin end of file in quoted string atom table;
+    kind error;
     goto master;
-
 end end of file in quoted string atom table;
 
-
-begin error in quoted string atom table kind error;
-
-    goto master;
-
-end error in quoted string atom table;
-
 \end{verbatim}
+\end{indpar}
 
 \newpage
 

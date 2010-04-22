@@ -88,6 +88,7 @@
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
+\newcommand{\emsmkey}[3]{{\bf \em #1#2}\index{#1@{\em #1}!#3}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
 \newcommand{\itemref}[1]{\ref{#1}$^{p\pageref{#1}}$}
@@ -245,7 +246,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 21, 2010
+April 22, 2010
  
 \end{center}
 
@@ -379,10 +380,11 @@ atom pattern definitions, and atom tables, with a designated atom
 table to serve as initial state.  A lexical program can include
 another lexical program.
 
-\subsection{Lexical Program Syntax}
+\subsection{Lexical Programs}
 
 The syntax of a lexical program is given on
-\pagref{LEXEME-PROGRAM-SYNTAX}.
+\pagref{LEXEME-PROGRAM-SYNTAX-1} and
+\pagref{LEXEME-PROGRAM-SYNTAX-2}.
 
 \begin{figure*}[!p]
 \begin{tabular}{p{2.2in}rl}
@@ -403,6 +405,12 @@ The syntax of a lexical program is given on
 	& ::= & {\em cpat-definition} \\
 	& $|$ & {\em atom-table-definition} \\
 	& $|$ & {\em program-inclusion}
+\\[1ex]
+\emkey{program-inclusion} & ::= & {\tt include} {\em program-name}
+				  {\em remove-clause}$^\star$ {\tt ;}
+\\[1ex]
+\emkey{remove-clause} & ::= & {\tt remove} {\em atom-table-name} \\
+                      & $|$ & {\tt remove} {\tt "}{\em cpat-name}{\tt "}
 \\[1ex]
 \multicolumn{3}{l}{~~~~~~~~`{\em cpat}' abbreviates `{\em character-pattern}'}
 \\[1ex]
@@ -443,13 +451,15 @@ The syntax of a lexical program is given on
 \emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode-name}
                                         $|$ {\tt kind} {\em kind-name}
 \\[1ex]
-\emkey{kind-name} & ::= & {\em name} except {\tt master} or {\tt end of file}
-						    or {\tt scan error}
-\\[1ex]
 \emkey{mode-name} & ::= &  {\tt master} $|$ {\em kind-name}
 \\[1ex]
 \emkey{goto-option} & ::= &  {\em empty} $|$ {\tt goto} {\em atom-table-name}
-\\[1ex]
+\end{tabular}
+\label{LEXEME-PROGRAM-SYNTAX-1}
+\end{figure*}
+
+\begin{figure*}[!t]
+\begin{tabular}{p{2.2in}rl}
 \emkey{atom-table-entry}
 	& ::= & {\em atom-pattern} {\em instruction-option} {\tt ;}
 \\[1ex]
@@ -462,26 +472,51 @@ The syntax of a lexical program is given on
 \emkey{instruction-component}
 	& ::= & {\tt keep} {\em natural-number} \\
 	& $|$ & {\em translation} \\
-	& $|$ & {\tt translate-hex} {\em natural-number} {\em natural-number}
-		{\em cpat-option} \\
-	& $|$ & {\tt translate-oct} {\em natural-number} {\em natural-number}
-		{\em cpat-option} \\
+	& $|$ & {\tt translate-hex} \begin{tabular}[t]{l}
+			{\em natural-number} {\em natural-number} \\
+		        {\em cpat-option}
+			\end{tabular} \\
+	& $|$ & {\tt translate-oct} \begin{tabular}[t]{l}
+			{\em natural-number} {\em natural-number} \\
+		        {\em cpat-option}
+			\end{tabular} \\
 	& $|$ & {\tt erroneous} {\em kind-name} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
 	& $|$ & {\tt singleton} {\em kind-name}
 \\[1ex]
 \emkey{translation} & ::= & {\em quoted-string}
 \\[1ex]
-\emkey{cpat-option} & ::= & {\em empty}
-                      $|$ {\tt "}{\em cpat-name}{\tt "}
-		          {\tt else} {\em instruction-component}$^+$
+\emkey{cpat-option} & ::= & {\em empty} \\
+                    & $|$ & {\tt "}{\em cpat-name}{\tt "}
+		            {\tt else} {\em instruction-component}$^+$
 \\[1ex]
-\emkey{program-inclusion} & ::= & {\tt include} {\em program-name} {\tt ;}
+\emkey{kind-name} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
+                                     except & {\tt master} \\
+				         or & {\tt end of file} \\
+					 or & {\tt scan error} \\[1ex]
+				    \end{tabular}
 \end{tabular}
-\label{LEXEME-PROGRAM-SYNTAX}
+\label{LEXEME-PROGRAM-SYNTAX-2}
 \end{figure*}
 
-TBD
+A \emkey{lexical-program} consists of a sequence of
+{\em character-\EOL pattern-\EOL defi\-ni\-tions},
+{\em atom-\EOL table-\EOL defi\-ni\-tions},
+and {\em program-inclusions}.  These define character pattern sets
+and atom tables, and include in the lexical program definitions from
+other previously defined lexical programs.
+
+A \emkey{program-inclusion} names a previously defined lexical program
+whose definitions are to be included in the current lexical program
+at the point of the {\em program-inclusion}.  Identical definitions
+may be repeated without error,
+as can happen when one program includes two each of
+which include the same third program.
+A {\em program-inclusion} can have
+\emsmkey{remove-clause}s{in {\em program-inclusion}}
+each of which removes a named definition from the set of included
+definitions.  This is the only way to resolve conflicts between
+definitions.
 
 \subsection{The Lexeme Definition Language}
 
@@ -1080,6 +1115,7 @@ begin end of file in quoted string atom table;
     goto master;
 end end of file in quoted string atom table;
 
+end standard lexical program;
 \end{verbatim}
 \end{indpar}
 

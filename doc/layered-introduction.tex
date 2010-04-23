@@ -88,6 +88,7 @@
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
+\newcommand{\emmkey}[2]{{\bf \em #1}\index{#1@{\em #1}!#2}}
 \newcommand{\emsmkey}[3]{{\bf \em #1#2}\index{#1@{\em #1}!#3}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
@@ -353,7 +354,8 @@ Atom tables have modes that are either lexeme kinds or
 are the special mode `\ttmkey{master}{mode}'.  When the
 current lexical atom table is changed to a new table of
 `\verb|master|' mode, any non-zero length lexeme accumulated
-so far is output as a lexeme whose \mkey{kind}{lexeme} equals
+so far is output as a lexeme whose \mkey{kind}{lexeme}\label{KIND-OUTPUT}
+equals
 the mode of the previous current atom table.  Thus if an atom table of
 mode `\verb|whitespace|' cannot recognized any atom and
 the instruction associated with it that is executed in this
@@ -448,10 +450,10 @@ The syntax of a lexical program is given on
 	& &  ~~~~{\em goto-option} \\
 	& & {\tt end} {\em atom-table-name} {\tt atom table;}
 \\[1ex]
-\emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode-name}
-                                        $|$ {\tt kind} {\em kind-name}
+\emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode} {\tt ;}
+                                        $|$ {\tt kind} {\em kind} {\tt ;}
 \\[1ex]
-\emkey{mode-name} & ::= &  {\tt master} $|$ {\em kind-name}
+\emkey{mode} & ::= &  {\tt master} $|$ {\em kind}
 \\[1ex]
 \emkey{goto-option} & ::= &  {\em empty} $|$ {\tt goto} {\em atom-table-name}
 \end{tabular}
@@ -480,9 +482,9 @@ The syntax of a lexical program is given on
 			{\em natural-number} {\em natural-number} \\
 		        {\em cpat-option}
 			\end{tabular} \\
-	& $|$ & {\tt erroneous} {\em kind-name} \\
+	& $|$ & {\tt erroneous} {\em kind} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
-	& $|$ & {\tt singleton} {\em kind-name}
+	& $|$ & {\tt singleton} {\em kind}
 \\[1ex]
 \emkey{translation} & ::= & {\em quoted-string}
 \\[1ex]
@@ -490,7 +492,7 @@ The syntax of a lexical program is given on
                     & $|$ & {\tt "}{\em cpat-name}{\tt "}
 		            {\tt else} {\em instruction-component}$^+$
 \\[1ex]
-\emkey{kind-name} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
+\emkey{kind} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
                                      except & {\tt master} \\
 				         or & {\tt end of file} \\
 					 or & {\tt scan error} \\[1ex]
@@ -517,6 +519,97 @@ A {\em program-inclusion} can have
 each of which removes a named definition from the set of included
 definitions.  This is the only way to resolve conflicts between
 definitions.
+
+A \emkey{character-pattern-definition} (abbreviated as
+\emkey{cpat-definition}) assigns a set of characters to a
+{\em character-pattern-name}.  The latter is just a string of
+letters and hyphens (\verb|-|) surrounded by angle brackets (\verb|< >|)
+with hyphens occuring only between letters.  Examples:
+\verb|<digit>| and \verb|<line-break>|.
+
+The character set is denoted by a \emkey{character-pattern-expression}.
+The simplest character pattern
+expression is just a single {\em quotable-character} in quotes, which denotes
+the character set containing only the quoted character.  Examples:
+\verb|"0"| and \verb|"+"|.  The next simplest is two {\em quotable-characters}
+separated by a hyphen (\verb|-|) denoting the character set consisting
+of all characters in the range from the first to the second of the two
+characters.  Examples: \verb|"0-9"| and \verb|"A-Z"|.  The characters
+are ordered according to their 32 bit unsigned UNICODE value, and the
+second of the two characters must not be smaller than the first.
+
+A {\em quotable-character} is a representative of a single UNICODE
+character that can be used inside quotes (\verb|"|).
+Printable ASCII characters represent themselves.  Other characters
+are represented by sequences started with backslash (\verb|\|).
+For example, a line feed can be represented by any of the
+following: \verb|\n|, \verb|\012|, \verb|\x0a|,
+\verb|\u000a|, or \verb|\U0000000a|.
+
+A quoted {\em character-pattern-name} denotes the character set associated
+with that name by a previous {\em character-pattern-definition}.
+
+The \verb/|/, \verb|&|, and \verb|~| operators and can be used to take
+the union, intersection, and complements of character sets.  The complement
+is relative to the universe of all 32 bit unsigned integer UNICODE
+character codes.  Thus \verb|~ "b-y"| denotes the same character set as
+\verb/"\x00-a" | "z-\Uffffffff"/.
+
+Parentheses may be used in {\em character-pattern-expressions} as is
+normal in algebraic expressions.
+Note that the \verb/|/ and \verb|&| operators cannot be used together
+in the same expression without intervening parentheses as neither
+takes precedence over the other.  This is done to prevent ambiguity.
+
+An {\em atom-table-definition} specifies an {\em atom-table-name},
+a {\em mode} for the table, a set of {\em atom-table-entries}
+each containing an {\em atom-pattern} and an {\em instruction},
+and an optional default {\tt goto} instruction for use when
+no atom is recognized by any of the table entries.
+
+The {\em mode} of an atom table can be either a {\em kind} or can be
+the special `\ttmkey{master}{atom table mode}' mode.  If it is a
+{\em kind} then it is used as the {\em kind} of any lexeme recognized
+by the table (not all tables recognize lexemes).  See
+\pagref{KIND-OUTPUT} for a description of how modes and kinds are used
+
+The {\em mode} of an atom table is the same as the {\em atom-table-name}
+unless a non-empty {\em mode-option} is given at the beginning of the
+{\em atom-table-definition}.
+
+Each \emkey{atom-table-entry} contains an {\em atom-pattern} and
+an {\em instruction}.  The \emkey{atom-pattern} is matched against
+the remaining input characters.  The pattern consists of a sequence
+of {\em quotable-characters}, each of which match only themselves,
+and {\em character-pattern-names}, each of which match any character
+in the named set of characters.  Thus
+\begin{center}
+\verb|"\\x<hex-digit><hex-digit>"|
+\end{center}
+matches 4-character atoms consisting of a \verb|\| followed by an
+\verb|x| followed by two characters each in the character set
+named by \verb|<hex-digit>|.  Note that each {\em atom-pattern}
+only matches atoms of a particular length.
+
+The \emmkey{instruction}{in atom-table-entry} in an {\em atom-table-entry}
+specifies actions to be taken when an atom is recognized by the
+{\em atom-pattern} of the entry.  The {\em instruction} consists of
+a set of {\em instruction-components} each of which controls part of the
+atom processing.  If there are no components, the default actions are
+performed, which consist of just skipping over the atom in the input and
+copying the atom to the translation buffer.
+
+The `{\tt keep} $n$' {\em instruction-component} causes the atom length
+to be shortened to $n$.  For example, the entry
+\begin{center}
+\verb|",<digit>" keep 1|
+\end{center}
+will recognize a 1-character atom consisting of just a comma as long as
+the comma is followed by character in the \verb|<digit>| character pattern
+character set.  Atoms may only be shortened by this {\em instruction-component}.
+
+TBD translation ...
+
 
 \subsection{The Lexeme Definition Language}
 

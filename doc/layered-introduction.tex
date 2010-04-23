@@ -414,7 +414,7 @@ The syntax of a lexical program is given on
 \emkey{remove-clause} & ::= & {\tt remove} {\em atom-table-name} \\
                       & $|$ & {\tt remove} {\tt "}{\em cpat-name}{\tt "}
 \\[1ex]
-\multicolumn{3}{l}{~~~~~~~~`{\em cpat}' abbreviates `{\em character-pattern}'}
+\multicolumn{3}{l}{~~~~~~~~`{\em cpat}\,' abbreviates `{\em character-pattern}\,'}
 \\[1ex]
 \emkey{cpat-definition} & ::= &
 	{\tt "}{\em cpat-name}{\tt "} {\tt =}
@@ -488,7 +488,7 @@ The syntax of a lexical program is given on
 			{\em natural-number} {\em natural-number} \\
 		        {\em cpat-option}
 			\end{tabular} \\
-	& $|$ & {\tt erroneous} {\em kind} \\
+	& $|$ & {\tt error} {\em kind} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
 	& $|$ & {\tt singleton} {\em kind}
 \\[1ex]
@@ -681,10 +681,33 @@ which might be used to process an atom of the form \verb|\uXXXX| in
 an identifier, accepting the atom as a legitimate representation of a
 character if that character is a letter, and otherwise designating
 the atom as an error and not putting anything in the translation buffer
-(here \verb|""| is a {\em translation-string} applied if the character
+(see below for the definition of the `{\tt error}' instruction component;
+here \verb|""| is a {\em translation-string} applied if the character
 is not a letter).
 
-TBD translation ...
+A `\ttmkey{error}{in lexical program} {\em kind}\,' {\em instruction-component}
+outputs the current atom as an erroneous atom of the given {\em kind}.
+What is put in the translation buffer is governed
+independently by translation instruction components.
+An erroneous atom is different from an erroneous lexeme.
+An erroneous atom can occur in the middle of a lexeme and is usually announced
+and otherwise ignored (it has \verb|""| as its {\em translation-string}).
+It is not a lexeme.
+An erroneous lexeme is simply a lexeme whose {\em kind}
+indicates to the user of the lexical scanner that the lexeme is ill-formed.
+As such it an erroneous lexeme is
+handled by the lexical scanner just as any other lexeme would be.
+
+A `\ttmkey{goto}{in lexical program} {\em atom-table-name}\,'
+{\em instruction-component} switches the current atom table after
+the current atom is processed.  If the table switches from a table
+of non-{\tt master} mode to one of {\tt master} mode the current
+lexeme, if it has non-zero length,
+is output with the {\em kind} of the non-{\tt master} mode
+table: see \pagref{KIND-OUTPUT}.
+
+
+
 
 
 \subsection{The Lexeme Definition Language}

@@ -247,7 +247,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 22, 2010
+April 23, 2010
  
 \end{center}
 
@@ -447,7 +447,7 @@ The syntax of a lexical program is given on
 		    {\tt atom table} {\tt ;} \\
 	& &  ~~~~{\em mode-option} \\
 	& &  ~~~~{\em atom-table-entry}$^\star$ \\
-	& &  ~~~~{\em goto-option} \\
+	& &  ~~~~{\em goto-instruction-option} \\
 	& & {\tt end} {\em atom-table-name} {\tt atom table;}
 \\[1ex]
 \emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode} {\tt ;}
@@ -455,7 +455,8 @@ The syntax of a lexical program is given on
 \\[1ex]
 \emkey{mode} & ::= &  {\tt master} $|$ {\em kind}
 \\[1ex]
-\emkey{goto-option} & ::= &  {\em empty} $|$ {\tt goto} {\em atom-table-name}
+\emkey{goto-instruction-option}
+	& ::= &  {\em empty} $|$ {\tt goto} {\em atom-table-name}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
@@ -463,17 +464,22 @@ The syntax of a lexical program is given on
 \begin{figure*}[!t]
 \begin{tabular}{p{2.2in}rl}
 \emkey{atom-table-entry}
-	& ::= & {\em atom-pattern} {\em instruction-option} {\tt ;}
+	& ::= & {\em atom-pattern} {\em instruction-group} {\tt ;}
 \\[1ex]
-\emkey{instruction-option} & ::= &
-    {\em empty} $|$ {\em instruction-component}$^+$
+\emkey{instruction-group}
+	& ::= & {\em instruction}
+	        \{ {\tt else} {\em instruction} \}$^\star$
+
+\\[1ex]
+\emkey{instruction} & ::= & {\em instruction-component}$^\star$
 \\[1ex]
 \emkey{atom-pattern} & ::= &
 	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^\star${\tt "}
 \\[1ex]
 \emkey{instruction-component}
-	& ::= & {\tt keep} {\em natural-number} \\
-	& $|$ & {\em translation} \\
+	& ::= & {\tt accept} \\
+	& $|$ & {\tt keep} {\em natural-number} \\
+	& $|$ & {\em translation-string} \\
 	& $|$ & {\tt translate-hex} \begin{tabular}[t]{l}
 			{\em natural-number} {\em natural-number} \\
 		        {\em cpat-option}
@@ -486,11 +492,9 @@ The syntax of a lexical program is given on
 	& $|$ & {\tt goto} {\em atom-table-name} \\
 	& $|$ & {\tt singleton} {\em kind}
 \\[1ex]
-\emkey{translation} & ::= & {\em quoted-string}
+\emkey{translation-string} & ::= & {\em quoted-string}
 \\[1ex]
-\emkey{cpat-option} & ::= & {\em empty} \\
-                    & $|$ & {\tt "}{\em cpat-name}{\tt "}
-		            {\tt else} {\em instruction-component}$^+$
+\emkey{cpat-option} & ::= & {\em empty} $|$ {\tt "}{\em cpat-name}{\tt "}
 \\[1ex]
 \emkey{kind} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
                                      except & {\tt master} \\
@@ -578,7 +582,7 @@ unless a non-empty {\em mode-option} is given at the beginning of the
 {\em atom-table-definition}.
 
 Each \emkey{atom-table-entry} contains an {\em atom-pattern} and
-an {\em instruction}.  The \emkey{atom-pattern} is matched against
+an {\em instruction-group}.  The \emkey{atom-pattern} is matched against
 the remaining input characters.  The pattern consists of a sequence
 of {\em quotable-characters}, each of which match only themselves,
 and {\em character-pattern-names}, each of which match any character
@@ -591,7 +595,7 @@ matches 4-character atoms consisting of a \verb|\| followed by an
 named by \verb|<hex-digit>|.  Note that each {\em atom-pattern}
 only matches atoms of a particular length.
 
-The \emmkey{instruction}{in atom-table-entry} in an {\em atom-table-entry}
+An \emmkey{instruction}{in atom-table-entry} in an {\em atom-table-entry}
 specifies actions to be taken when an atom is recognized by the
 {\em atom-pattern} of the entry.  The {\em instruction} consists of
 a set of {\em instruction-components} each of which controls part of the
@@ -599,14 +603,86 @@ atom processing.  If there are no components, the default actions are
 performed, which consist of just skipping over the atom in the input and
 copying the atom to the translation buffer.
 
-The `{\tt keep} $n$' {\em instruction-component} causes the atom length
-to be shortened to $n$.  For example, the entry
+The \ttmkey{accept}{in lexical program} {\em instruction-component}
+accepts the
+atom without translation or length change, skips over the atom in the
+input, and copies the atom characters to the translation buffer.
+It is incompatible with the {\tt keep} and translation instruction
+components.
+
+The `\ttmkey{keep}{in lexical program} $n$'
+{\em instruction-component} causes the atom length
+to be shortened to $n$.  For example, the atom table entry
 \begin{center}
-\verb|",<digit>" keep 1|
+\verb|",<digit>" keep 1;|
 \end{center}
 will recognize a 1-character atom consisting of just a comma as long as
 the comma is followed by character in the \verb|<digit>| character pattern
-character set.  Atoms may only be shortened by this {\em instruction-component}.
+character set.  Atoms may not be lengthened by {\tt keep}.
+
+There are three possible translation {\em instruction-components}, at most
+one of which may be used.  These affect how the atom is placed into
+the translation buffer, and are applied to the atom \underline{after}
+any {\tt keep} is applied.
+
+A \emmkey{translation-string}{in lexical program}
+{\em instruction-component}
+is just a {\em quoted-string} of characters
+that is copied into the translation buffer instead of the atom.
+A {\em translation-string} may be empty, as in the atom table entry
+\begin{center}
+\verb|"\"" "" goto master;|
+\end{center}
+which can be used to recognize the last \verb|"| of a quoted string, avoid
+copying anything into the translation buffer, and then switch to the
+`{\tt master}' atom table.
+
+The `\ttmkey{translate-hex}{in lexical program} $m$ $n$'
+{\em instruction-component} ignores the
+first $m$ and last $n$ characters of the atom and viewing the rest as
+hexadecimal digits, converts these into an 32 bit unsigned integer
+UNICODE character code, which is placed into the translation buffer
+instead of the atom.  An example is the the atom table entry
+\begin{center}
+\verb|"\\x<hex-digit><hex-digit>" translate-hex 2 0;|
+\end{center}
+which might be used to accept a character representative in a quoted string
+and copies the appropriate hexadecimally related character code into
+the translation buffer.
+
+The `\ttmkey{translate-oct}{in lexical program} $m$ $n$'
+{\em instruction-component} is identical but
+views the rest of the characters as octal and not hexadecimal.
+An example use would be the atom table entry
+\begin{center}
+\verb|"\\<oct-digit><oct-digit><oct-digit>" translate-hex 1 0;|
+\end{center}
+
+The {\tt translate-hex} and {\tt translate-oct} components may end with
+a {\em character-pattern} that tests the 32 bit unsigned character code
+produced by the translation.  Such a test should only appear in an
+{\em instruction} which is followed by an `{\tt else}' in an
+\emmkey{instruction-group}{in lexical program}.
+If the 32 bit unsigned character code is in
+the character set defined by the {\em character-pattern}, the {\em instruction}
+containing the {\em character-pattern} is executed and the rest of the
+{\em instruction-group}, the part after the next `{\tt else}', is ignored.
+But if the character code is not in the character set the instruction
+containing the {\em character-pattern} is turned into a no-operation and
+the first {\em instruction} after the next `{\tt else}' is executed in
+its place.
+
+An example use would be the atom table entry
+\begin{center}
+\verb|"\\u<hex-digit><hex-digit><hex-digit><hex-digit>" translate-hex 2 0|
+\verb|    "<letter>" else "" error bad character in identifier;|
+\end{center}
+which might be used to process an atom of the form \verb|\uXXXX| in
+an identifier, accepting the atom as a legitimate representation of a
+character if that character is a letter, and otherwise designating
+the atom as an error and not putting anything in the translation buffer
+(here \verb|""| is a {\em translation-string} applied if the character
+is not a letter).
 
 TBD translation ...
 

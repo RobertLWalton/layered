@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 19 15:01:54 EDT 2010
+// Date:	Fri Apr 23 13:59:16 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/19 19:53:43 $
+//   $Date: 2010/04/23 18:59:39 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // Table of Contents
 //
@@ -406,7 +406,7 @@ static uns32 next;
     // input_buffer[next] is the first character of the
     // first yet unscanned atom.
 static uns32 current_atom_table_ID;
-    // Current atom table.
+    // Current atom table ID.
 
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
@@ -490,38 +490,39 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	( translation_buffer.length );
 
     // We scan atoms until we get to a point where the
-    // current atom table != the next atom table and
-    // the next atom table has mode MASTER or `shortcut'
-    // is set.  Here the next atom table is set by GOTO
-    // and `shortcut' is set by SHORTCUT.
+    // atom table is to be changed from a table with
+    // mode != MASTER to one with mode == MASTER and
+    // next != first, or `shortcut' is set.
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
     // to continue.  We just immediately return
     // SCAN_ERROR after writing error_message.
     //
-    // If we encounter an end of file without scanning
-    // any input, we immediately return END_OF_FILE.
-    // Other end of files end the current lexeme (it
-    // is a scan error if this is of zero length).
+    // If we encounter an end of file when next == first
+    // and we have not scanned a partial atom we
+    // immediately return END_OF_FILE.  Otherwise we end
+    // the current atom (which might be of zero length).
     // 
-    uns32 next_atom_table_ID = current_atom_table_ID;
     uns32 shortcut = 0;
+    uns32 last_mode = MASTER;
     while ( shortcut == 0 )
     {
         // Scan next atom of current lexeme.
 
 	atom_table_header & cath =
 	    * (atom_table_header *)
-	    & program[next_atom_table_ID];
+	    & program[current_atom_table_ID];
 
-	if (    next_atom_table_ID
-	     != current_atom_table_ID
-	    &&
-	    cath.mode == MASTER )
-    	    break;
+	if ( last_mode != MASTER
+	     &&
+	     cath.mode == MASTER
+	     &&
+	     first != next )
+	    break;
 
-	current_atom_table_ID = next_atom_table_ID;
+	last_mode = cath.mode;
+
 	TOUT << "Start atom scan: atom table = "
 	     << current_atom_table_ID << endl;
 
@@ -564,13 +565,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		//
 		if ( next + length == first )
 		    return END_OF_FILE;
-		else if ( first == next )
-		{
-		    sprintf ( scan_error ( length ),
-			      "incomplete atom at"
-			      " end of file" );
-		    return SCAN_ERROR;
-		}
 		else break;
 	    }
 
@@ -791,6 +785,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    input_buffer[p++].character;
 	}
 
+	uns32 next_atom_table_ID =
+	    current_atom_table_ID;
 	if ( op & GOTO )
 	{
 	    next_atom_table_ID = ih.ID_or_kind;
@@ -800,15 +796,23 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	else if ( op & SHORTCUT )
 	{
 	    shortcut = ih.ID_or_kind;
+	    if ( cath.mode != MASTER )
+	    {
+		sprintf ( scan_error ( length ),
+			  "shortcut instruction in"
+			  " atom table %d of non-master"
+			  " mode",
+			  current_atom_table_ID );
+		return SCAN_ERROR;
+	    }
 	}
 
 	next += atom_length;
 
-	if ( atom_length == 0
-	     &&
-	     ( current_atom_table_ID
-	       ==
-	       next_atom_table_ID ) )
+	if (    next_atom_table_ID
+	     != current_atom_table_ID)
+	    current_atom_table_ID = next_atom_table_ID;
+	else if ( atom_length == 0 )
 	{
 	    sprintf ( scan_error ( length ),
 		      "no atom scanned and"
@@ -818,19 +822,14 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	}
     }
 
-    uns32 kind = shortcut;
-    if ( kind == 0 )
-    {
-	atom_table_header & cath =
-	    * (atom_table_header *)
-	    & program[current_atom_table_ID];
-	kind = cath.mode;
-    }
-
     first = first;
     last = next - 1;
     assert ( first <= last );
 
+
+    uns32 kind = shortcut != 0 ?
+                 shortcut :
+		 last_mode;
 
     switch ( kind )
     {
@@ -848,8 +847,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	return SCAN_ERROR;
     }
     }
-
-    current_atom_table_ID = next_atom_table_ID;
 
     return kind;
 }

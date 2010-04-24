@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 23 21:24:42 EDT 2010
+// Date:	Sat Apr 24 04:51:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 01:30:00 $
+//   $Date: 2010/04/24 09:22:27 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents
 //
@@ -44,6 +44,8 @@ using LEX::KEEP;
 using LEX::TRANSLATE;
 using LEX::TRANSLATE_HEX;
 using LEX::TRANSLATE_OCT;
+using LEX::ELSE;
+using LEX::ERRONEOUS_ATOM;
 using LEX::GOTO;
 using LEX::SHORTCUT;
 
@@ -135,6 +137,7 @@ static void create_program_2 ( void )
     const uns8 point = 4;
     const uns8 sep = 5;
     const uns8 op = 6;
+    const uns8 err_atom = 7;
 
     uns8 cmap[128] =
         {
@@ -265,7 +268,7 @@ static void create_program_2 ( void )
             0,		// |
             sep,	// }
             0,		// ~
-            0,		// DEL
+            err_atom	// DEL
         };
 
     uns32 tmap = LEX::create_type_map ( 0, 127, cmap );
@@ -291,6 +294,9 @@ static void create_program_2 ( void )
     uns32 error_instruction =
         LEX::create_instruction
 	    ( ACCEPT+SHORTCUT, 0, LEX::ERROR );
+    uns32 err_atom_instruction =
+        LEX::create_instruction
+	    ( ERRONEOUS_ATOM+TRANSLATE(0), 0, 100 );
     check_attach ( master_dispatcher, 0,
                    error_instruction );
     check_attach ( master_dispatcher, white,
@@ -319,6 +325,8 @@ static void create_program_2 ( void )
                    symbol_instruction );
     check_attach ( symbol_dispatcher, digit,
                    symbol_instruction );
+    check_attach ( symbol_dispatcher, err_atom,
+                   err_atom_instruction );
 
     uns32 fraction = LEX::create_atom_table ( 6 );
     uns32 fraction_instruction =
@@ -403,8 +411,20 @@ static void create_program_2 ( void )
     LEX::print_program ( cout, true );
 }
 
+static void erroneous_atom
+    ( uns32 first, uns32 last, uns32 kind )
+{
+    char buffer[1000];
+    LEX::spinput ( buffer, first, last );
+    cout << "Erroneous Atom, Kind = "
+         << LEX::pmode ( kind )
+         << " Atom = " << buffer << endl;
+}
+
 void test_program ( uns32 * input, uns32 length )
 {
+    LEX::erroneous_atom = ::erroneous_atom;
+
     cout << endl
          << "Testing Lexical Scan of:" << endl;
     for ( uns32 i = 0; i < length; ++ i )
@@ -433,7 +453,12 @@ void test_program ( uns32 * input, uns32 length )
 	    cout << " Input Buffer: ";
 
 	LEX::spinput ( buffer, first, last );
-	cout << buffer << endl;
+	cout << buffer << " Translation: ";
+	for ( uns32 i = 0;
+	      i < LEX::translation_buffer.length; ++ i )
+	    cout << LEX::pchar
+	              ( LEX::translation_buffer[i] );
+	cout << endl;
     }
 }
 
@@ -446,14 +471,14 @@ int main ( int argc )
 	' ', '3', '.', '4',
 	' ', 'x', '+', 'y', '+', '+', 'z' };
     test_program ( input1, 14 );
-    uns32 input2[24] = {
+    uns32 input2[26] = {
         '*', 'a', '*', '*',
         'b', '+', '+', '+',
-	'c', '(', '+', 'd',
-	'%', 'e', '0',
+	'c', '(', '+', 'd', 0177, 'e',
+	'%', 'f', '0',
 	'-', '-', '1', '.', '2', '.', '3',
 	0, 1 };
-    test_program ( input2, 24 );
+    test_program ( input2, 26 );
     LEX::scan_trace_out= & cout;
-    test_program ( input2, 24 );
+    test_program ( input2, 26 );
 }

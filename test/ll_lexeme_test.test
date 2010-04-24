@@ -67,25 +67,25 @@ Cooked Program 2:
             Dispatcher ID: 58
          6: ATOM_TABLE
             Mode: WHITESPACE
-            Dispatcher ID: 246
+            Dispatcher ID: 250
             KEEP(0), GOTO(2)
         10: ATOM_TABLE
             Mode: KIND (5)
-            Dispatcher ID: 120
+            Dispatcher ID: 124
             KEEP(0), GOTO(2)
         14: ATOM_TABLE
             Mode: KIND (6)
-            Dispatcher ID: 166
+            Dispatcher ID: 170
             KEEP(0), GOTO(2)
         18: ATOM_TABLE
             Mode: KIND (7)
-            Dispatcher ID: 280
+            Dispatcher ID: 284
             KEEP(0), GOTO(2)
         58: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max Type: 10
-            \u0000-\b \u000E-\u001F !-' : <-@ \\ ^-` | ~-
+            \u0000-\b \u000E-\u001F !-' : <-@ \\ ^-` | ~ \u0080-
                 SHORTCUT(2)
             \t-\r \~
                 GOTO(6)
@@ -97,55 +97,57 @@ Cooked Program 2:
                 SHORTCUT(8)
             *-+ - /
                 KEEP(0), GOTO(18)
-       120: DISPATCHER
+       124: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max Type: 10
             0-9 A-Z a-z
                 GOTO(10)
-       154: ATOM_TABLE
+            \u007F
+                ERRONEOUS_ATOM(100)
+       158: ATOM_TABLE
             Mode: KIND (6)
-            Dispatcher ID: 212
+            Dispatcher ID: 216
             KEEP(0), GOTO(2)
-       166: DISPATCHER
+       170: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max Type: 10
             0-9
                 GOTO(14)
             .
-                GOTO(154)
-       212: DISPATCHER
+                GOTO(158)
+       216: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max Type: 10
             0-9
-                GOTO(154)
-       246: DISPATCHER
+                GOTO(158)
+       250: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max Type: 10
             \t-\r \~
                 GOTO(6)
-       280: DISPATCHER
+       284: DISPATCHER
             Break Elements: 8
             Max Break Elements: 10
             Max Type: 10
             +
                 GOTO(2)
-                Dispatcher ID: 346
+                Dispatcher ID: 350
             -
                 GOTO(2)
-                Dispatcher ID: 392
+                Dispatcher ID: 396
             * /
                 GOTO(2)
-       346: DISPATCHER
+       350: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max Type: 10
             +
                 GOTO(2)
-       392: DISPATCHER
+       396: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max Type: 10
@@ -197,58 +199,58 @@ Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = * Dispatcher = 280 Type Map = 338 Type = 3
+  Character = * Dispatcher = 284 Type Map = 342 Type = 3
   GOTO(2)
 Scan Returned KIND (7) Input Buffer: *
 Start atom scan: atom table = 2
   Character = a Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
-  Character = * Dispatcher = 120 Type Map = 22 Type = 6
+  Character = * Dispatcher = 124 Type Map = 22 Type = 6
   KEEP(0), GOTO(2)
 Scan Returned KIND (5) Input Buffer: a
 Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = * Dispatcher = 280 Type Map = 338 Type = 3
+  Character = * Dispatcher = 284 Type Map = 342 Type = 3
   GOTO(2)
 Scan Returned KIND (7) Input Buffer: *
 Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = * Dispatcher = 280 Type Map = 338 Type = 3
+  Character = * Dispatcher = 284 Type Map = 342 Type = 3
   GOTO(2)
 Scan Returned KIND (7) Input Buffer: *
 Start atom scan: atom table = 2
   Character = b Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
-  Character = + Dispatcher = 120 Type Map = 22 Type = 6
+  Character = + Dispatcher = 124 Type Map = 22 Type = 6
   KEEP(0), GOTO(2)
 Scan Returned KIND (5) Input Buffer: b
 Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = + Dispatcher = 280 Type Map = 326 Type = 1
-  Character = + Dispatcher = 346 Type Map = 326 Type = 1
+  Character = + Dispatcher = 284 Type Map = 330 Type = 1
+  Character = + Dispatcher = 350 Type Map = 330 Type = 1
   GOTO(2)
 Scan Returned KIND (7) Input Buffer: ++
 Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = + Dispatcher = 280 Type Map = 326 Type = 1
-  Character = c Dispatcher = 346 Type = 0
+  Character = + Dispatcher = 284 Type Map = 330 Type = 1
+  Character = c Dispatcher = 350 Type = 0
   GOTO(2)
 Scan Returned KIND (7) Input Buffer: +
 Start atom scan: atom table = 2
   Character = c Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
-  Character = ( Dispatcher = 120 Type Map = 22 Type = 5
+  Character = ( Dispatcher = 124 Type Map = 22 Type = 5
   KEEP(0), GOTO(2)
 Scan Returned KIND (5) Input Buffer: c
 Start atom scan: atom table = 2
@@ -259,15 +261,15 @@ Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = + Dispatcher = 280 Type Map = 326 Type = 1
-  Character = d Dispatcher = 346 Type = 0
+  Character = + Dispatcher = 284 Type Map = 330 Type = 1
+  Character = d Dispatcher = 350 Type = 0
   GOTO(2)
 Scan Returned KIND (7) Input Buffer: +
 Start atom scan: atom table = 2
   Character = d Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
-  Character = % Dispatcher = 120 Type Map = 22 Type = 0
+  Character = % Dispatcher = 124 Type Map = 22 Type = 0
   KEEP(0), GOTO(2)
 Scan Returned KIND (5) Input Buffer: d
 Start atom scan: atom table = 2
@@ -278,47 +280,47 @@ Start atom scan: atom table = 2
   Character = e Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
-  Character = 0 Dispatcher = 120 Type Map = 22 Type = 3
+  Character = 0 Dispatcher = 124 Type Map = 22 Type = 3
   GOTO(10)
 Start atom scan: atom table = 10
-  Character = - Dispatcher = 120 Type Map = 22 Type = 6
+  Character = - Dispatcher = 124 Type Map = 22 Type = 6
   KEEP(0), GOTO(2)
 Scan Returned KIND (5) Input Buffer: e0
 Start atom scan: atom table = 2
   Character = - Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = - Dispatcher = 280 Type Map = 330 Type = 2
-  Character = - Dispatcher = 392 Type Map = 330 Type = 2
+  Character = - Dispatcher = 284 Type Map = 334 Type = 2
+  Character = - Dispatcher = 396 Type Map = 334 Type = 2
   GOTO(2)
 Scan Returned KIND (7) Input Buffer: --
 Start atom scan: atom table = 2
   Character = 1 Dispatcher = 58 Type Map = 22 Type = 3
   KEEP(0), GOTO(14)
 Start atom scan: atom table = 14
-  Character = 1 Dispatcher = 166 Type Map = 204 Type = 1
+  Character = 1 Dispatcher = 170 Type Map = 208 Type = 1
   GOTO(14)
 Start atom scan: atom table = 14
-  Character = . Dispatcher = 166 Type Map = 208 Type = 2
-  GOTO(154)
-Start atom scan: atom table = 154
-  Character = 2 Dispatcher = 212 Type Map = 204 Type = 1
-  GOTO(154)
-Start atom scan: atom table = 154
-  Character = . Dispatcher = 212 Type = 0
+  Character = . Dispatcher = 170 Type Map = 212 Type = 2
+  GOTO(158)
+Start atom scan: atom table = 158
+  Character = 2 Dispatcher = 216 Type Map = 208 Type = 1
+  GOTO(158)
+Start atom scan: atom table = 158
+  Character = . Dispatcher = 216 Type = 0
   KEEP(0), GOTO(2)
 Scan Returned KIND (6) Input Buffer: 1.2
 Start atom scan: atom table = 2
   Character = . Dispatcher = 58 Type Map = 22 Type = 4
   KEEP(0), GOTO(14)
 Start atom scan: atom table = 14
-  Character = . Dispatcher = 166 Type Map = 208 Type = 2
-  GOTO(154)
-Start atom scan: atom table = 154
-  Character = 3 Dispatcher = 212 Type Map = 204 Type = 1
-  GOTO(154)
-Start atom scan: atom table = 154
-  Character = \u0000 Dispatcher = 212 Type = 0
+  Character = . Dispatcher = 170 Type Map = 212 Type = 2
+  GOTO(158)
+Start atom scan: atom table = 158
+  Character = 3 Dispatcher = 216 Type Map = 208 Type = 1
+  GOTO(158)
+Start atom scan: atom table = 158
+  Character = \u0000 Dispatcher = 216 Type = 0
   KEEP(0), GOTO(2)
 Scan Returned KIND (6) Input Buffer: .3
 Start atom scan: atom table = 2

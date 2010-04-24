@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 05:33:05 EDT 2010
+// Date:	Sat Apr 24 11:47:16 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 09:44:18 $
+//   $Date: 2010/04/24 16:18:39 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // Table of Contents
 //
@@ -173,7 +173,9 @@ uns32 LEX::create_instruction
         assert ( kind == 0 );
 
     if ( operation & ( ELSE ) )
-        assert ( else_dispatcher_ID != 0 );
+        assert ( else_dispatcher_ID != 0
+	         &&
+		 else_instruction_ID != 0 );
     else
         assert ( else_dispatcher_ID == 0
 	         &&
@@ -731,168 +733,201 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	// We are done dispatching characters.
 
-	// If we found no instruction it is a scan
-	// error.
+	// Loop to process instructions that may
+	// have ELSE flags that lead to other
+	// instructions.
 
-	if ( instruction_ID == 0 )
+        while ( true )
 	{
-	    assert ( atom_length == 0 );
-	    sprintf ( scan_error ( length ),
-		      "no instruction found" );
-	    return SCAN_ERROR;
-	}
+	    // If we found no instruction it is a scan
+	    // error.
 
-	if ( scan_trace_out )
-	    print_instruction ( * scan_trace_out,
-	    			instruction_ID,
-				2 );
-
-	instruction_header & ih =
-	    * (instruction_header *)
-	    & program[instruction_ID];
-	uns32 op = ih.operation;
-	if ( op & KEEP_FLAG )
-	{
-	    uns32 keep_length =
-		LEX::keep_length ( op );
-	    if ( keep_length > atom_length )
+	    if ( instruction_ID == 0 )
 	    {
+		assert ( atom_length == 0 );
 		sprintf ( scan_error ( length ),
-			  "keep length(%u) greater than"
-			  " atom length(%u)",
-			  keep_length, atom_length );
+			  "no instruction found" );
 		return SCAN_ERROR;
 	    }
-	    atom_length = keep_length;
-	}
 
-	if ( op & TRANSLATE_FLAG )
-	{
-	    uns32 translate_length =
-		LEX::translate_length ( op );
-	    if ( translate_length > 0 )
+	    if ( scan_trace_out )
+		print_instruction ( * scan_trace_out,
+				    instruction_ID,
+				    2 );
+
+	    instruction_header & ih =
+		* (instruction_header *)
+		& program[instruction_ID];
+	    uns32 op = ih.operation;
+
+	    uns32 keep_length = atom_length;
+	        // Keep_length becomes the effective
+		// atom_length until we are sure we
+		// are not no-oping the instruction
+		// for the sake of an ELSE.
+
+	    if ( op & KEEP_FLAG )
+	    {
+		keep_length = LEX::keep_length ( op );
+		if ( keep_length > atom_length )
+		{
+		    sprintf ( scan_error ( length ),
+			      "keep length(%u) greater than"
+			      " atom length(%u)",
+			      keep_length, atom_length );
+		    return SCAN_ERROR;
+		}
+	    }
+
+	    if ( op & ( TRANSLATE_HEX_FLAG
+	                |
+			TRANSLATE_OCT_FLAG ) )
+	    {
+		uns32 p = next
+			+ LEX::prefix_length ( op );
+		uns32 endp = next + keep_length
+			   - LEX::postfix_length
+				 ( op );
+		uns32 tc = 0;
+
+		if ( op & TRANSLATE_HEX_FLAG )
+		    while ( p < endp )
+		    {
+			tc <<= 4;
+			uns32 d =
+			    input_buffer[p++].character;
+			if ( '0' <= d && d <= '9' )
+			    tc += d - '0';
+			else if ( 'a' <= d && d <= 'f' )
+			    tc += d - 'a' + 10;
+			else if ( 'A' <= d && d <= 'F' )
+			    tc += d - 'A' + 10;
+			else
+			{
+			    sprintf ( scan_error ( length ),
+				      "bad hexadecimal"
+				      " digit(%s)"
+				      " for TRANSLATE_HEX",
+				      sbpchar ( d ) );
+			    return SCAN_ERROR;
+			}
+		    }
+		else if ( op & TRANSLATE_OCT_FLAG )
+		    while ( p < endp )
+		    {
+			tc <<= 3;
+			uns32 d =
+			    input_buffer[p++].character;
+			if ( '0' <= d && d <= '7' )
+			    tc += d - '0';
+			else
+			{
+			    sprintf ( scan_error ( length ),
+				      "bad octal digit(%s)"
+				      " for TRANSLATE_OCT",
+				      sbpchar ( d ) );
+			    return SCAN_ERROR;
+			}
+		    }
+
+		if ( op & ELSE )
+		{
+		    else_instruction & ei =
+		        * (else_instruction *)
+			& program
+			  [  instruction_ID
+			   + instruction_header_length];
+		    uns32 dispatcher_ID =
+		        ei.else_dispatcher_ID;
+		    assert (    program[dispatcher_ID]
+			     == DISPATCHER );
+		    if ( ! ::type
+		              ( dispatcher_ID, tc ) )
+		    {
+		        instruction_ID =
+			    ei.else_instruction_ID;
+			assert (    program
+				        [instruction_ID]
+				 == INSTRUCTION );
+		        continue;
+		    }
+		}
+
+		translation_buffer[translation_buffer
+				    .allocate ( 1 )]
+		    = tc;
+	    }
+	    else if ( op & TRANSLATE_FLAG )
+	    {
+		uns32 translate_length =
+		    LEX::translate_length ( op );
+		if ( translate_length > 0 )
+		{
+		    uns32 q =
+			translation_buffer.allocate
+			    ( translate_length );
+		    memcpy ( & translation_buffer[q],
+			     & ih + 1,
+			       translate_length
+			     * sizeof ( uns32 ) );
+		}
+	    }
+	    else
 	    {
 		uns32 q =
 		    translation_buffer.allocate
-			( translate_length );
-		memcpy ( & translation_buffer[q],
-			 & ih + 1,
-			   translate_length
-			 * sizeof ( uns32 ) );
+			    ( keep_length );
+		uns32 p = next;
+		for ( uns32 i = 0;
+		      i < keep_length; ++ i )
+		    translation_buffer[q++] =
+			input_buffer[p++].character;
 	    }
-	}
-	else if ( op & TRANSLATE_HEX_FLAG )
-	{
-	    uns32 p = next
-		    + LEX::prefix_length ( op );
-	    uns32 endp = next + atom_length
-		       - LEX::postfix_length
-			     ( op );
-	    uns32 tc = 0;
-	    while ( p < endp )
+
+	    atom_length = keep_length;
+
+	    if ( op & ERRONEOUS_ATOM
+		 &&
+		 atom_length > 0 )
 	    {
-		tc <<= 4;
-		uns32 d =
-		    input_buffer[p++].character;
-		if ( '0' <= d && d <= '9' )
-		    tc += d - '0';
-		else if ( 'a' <= d && d <= 'f' )
-		    tc += d - 'a' + 10;
-		else if ( 'A' <= d && d <= 'F' )
-		    tc += d - 'A' + 10;
-		else
+		if ( erroneous_atom == NULL )
 		{
 		    sprintf ( scan_error ( length ),
-			      "bad hexadecimal"
-			      " digit(%s)"
-			      " for TRANSLATE_HEX",
-			      sbpchar ( d ) );
+			      "ERRONEOUS_ATOM in"
+			      " instruction %d executed"
+			      " by atom table %d but"
+			      " no erroneous_atom function",
+			      instruction_ID,
+			      current_atom_table_ID );
+		    return SCAN_ERROR;
+		}
+		else
+		    (*erroneous_atom)
+			( next, next + atom_length - 1,
+			  ih.kind );
+	    }
+
+	    if ( op & GOTO )
+	    {
+		current_atom_table_ID = ih.atom_table_ID;
+		assert (    program[current_atom_table_ID]
+			 == ATOM_TABLE );
+	    }
+	    else if ( op & SHORTCUT )
+	    {
+		shortcut = ih.kind;
+		if ( cath.mode != MASTER )
+		{
+		    sprintf ( scan_error ( length ),
+			      "shortcut instruction in"
+			      " atom table %d of non-master"
+			      " mode",
+			      current_atom_table_ID );
 		    return SCAN_ERROR;
 		}
 	    }
-	    translation_buffer[translation_buffer
-				.allocate ( 1 )]
-		= tc;
-	}
-	else if ( op & TRANSLATE_OCT_FLAG )
-	{
-	    uns32 p = next
-		    + LEX::prefix_length ( op );
-	    uns32 endp = next + atom_length
-		       - LEX::postfix_length
-			     ( op );
-	    uns32 tc = 0;
-	    while ( p < endp )
-	    {
-		tc <<= 3;
-		uns32 d =
-		    input_buffer[p++].character;
-		if ( '0' <= d && d <= '7' )
-		    tc += d - '0';
-		else
-		{
-		    sprintf ( scan_error ( length ),
-			      "bad octal digit(%s)"
-			      " for TRANSLATE_OCT",
-			      sbpchar ( d ) );
-		    return SCAN_ERROR;
-		}
-	    }
-	    translation_buffer[translation_buffer
-				.allocate ( 1 )]
-		= tc;
-	}
-	else
-	{
-	    uns32 q =
-		translation_buffer.allocate
-			( atom_length );
-	    uns32 p = next;
-	    for ( uns32 i = 0;
-		  i < atom_length; ++ i )
-		translation_buffer[q++] =
-		    input_buffer[p++].character;
-	}
 
-	if ( op & ERRONEOUS_ATOM
-	     &&
-	     atom_length > 0 )
-	{
-	    if ( erroneous_atom == NULL )
-	    {
-		sprintf ( scan_error ( length ),
-			  "ERRONEOUS_ATOM in"
-			  " instruction %d executed"
-			  " by atom table %d but"
-			  " no erroneous_atom function",
-			  instruction_ID,
-			  current_atom_table_ID );
-		return SCAN_ERROR;
-	    }
-	    else
-	        (*erroneous_atom)
-		    ( next, next + atom_length - 1,
-		      ih.kind );
-	}
-
-	if ( op & GOTO )
-	{
-	    current_atom_table_ID = ih.atom_table_ID;
-	    assert (    program[current_atom_table_ID]
-		     == ATOM_TABLE );
-	}
-	else if ( op & SHORTCUT )
-	{
-	    shortcut = ih.kind;
-	    if ( cath.mode != MASTER )
-	    {
-		sprintf ( scan_error ( length ),
-			  "shortcut instruction in"
-			  " atom table %d of non-master"
-			  " mode",
-			  current_atom_table_ID );
-		return SCAN_ERROR;
-	    }
+	    break;
 	}
 
 	if ( atom_length > 0 )
@@ -1094,6 +1129,7 @@ static uns32 print_instruction
     instruction_header & h =
         * (instruction_header *) & program[ID];
     uns32 translate_length = 0;
+    uns32 else_instruction_ID = 0;
 
     if ( h.type != INSTRUCTION )
     {
@@ -1120,6 +1156,7 @@ static uns32 print_instruction
     if ( ( h.operation & GOTO ) == 0
          &&
 	 h.atom_table_ID != 0 ) out << "ILLEGAL: ";
+    else
     if ( ( h.operation & ( ERRONEOUS_ATOM + SHORTCUT ) )
          &&
 	 h.kind == 0 ) out << "ILLEGAL: ";
@@ -1128,6 +1165,23 @@ static uns32 print_instruction
            & ( ERRONEOUS_ATOM + SHORTCUT ) ) == 0
          &&
 	 h.kind != 0 ) out << "ILLEGAL: ";
+    else
+    if ( ( h.operation & ELSE )
+         &&
+         (   h.operation
+           & (   TRANSLATE_HEX_FLAG
+	       | TRANSLATE_OCT_FLAG ) ) == 0 )
+	out << "ILLEGAL: ";
+    else
+    if ( h.operation & ELSE )
+    {
+        else_instruction & ei =
+	    * (else_instruction *)
+	    & program[ID + instruction_header_length];
+	if (   ei.else_dispatcher_ID == 0
+	    || ei.else_instruction_ID == 0 )
+	    out << "ILLEGAL: ";
+    }
 
     bool first = true;
 #   define OUT ( first ? ( first = false, out ) : \
@@ -1170,8 +1224,26 @@ static uns32 print_instruction
         OUT << "GOTO(" << h.atom_table_ID << ")";
     if ( h.operation & SHORTCUT )
         OUT << "SHORTCUT(" << h.kind << ")";
-    if ( first ) OUT << "ACCEPT";
-    out << endl;
+    if ( h.operation & ELSE )
+    {
+        else_instruction & ei =
+	    * (else_instruction *)
+	    & program[ID + instruction_header_length];
+	translate_length = else_instruction_length;
+
+        OUT << "ELSE(" << ei.else_dispatcher_ID
+	    << "):";
+	else_instruction_ID = ei.else_instruction_ID;
+    }
+
+    if ( first ) OUT << "ACCEPT" << endl;
+    else if ( else_instruction_ID != 0 )
+    {
+        out << endl;
+	print_instruction
+	    ( out, else_instruction_ID, indent + 2 );
+    }
+    else out << endl;
 #   undef OUT
 
     return instruction_header_length
@@ -1526,7 +1598,7 @@ uns32 LEX::print_program_component
     }
     default:
     {
-	cout << pID ( ID ) << "ILLEGAL ITEM TYPE("
+	cout << pID ( ID ) << "ILLEGAL COMPONENT TYPE("
 	     << program[ID] << ")" << endl;
 	return program.length - ID;
     }
@@ -1553,6 +1625,8 @@ void LEX::print_program
 		 & LEX::TRANSLATE_FLAG )
 		ID += LEX::translate_length
 			    ( h.operation );
+	    else if ( h.operation & LEX::ELSE )
+		ID += else_instruction_length;
 	    continue;
 	}
 	case TYPE_MAP:

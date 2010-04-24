@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri Apr 23 21:29:19 EDT 2010
+// Date:	Sat Apr 24 11:57:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 01:29:31 $
+//   $Date: 2010/04/24 16:18:44 $
 //   $RCSfile: ll_lexeme_program_data.h,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents
 //
@@ -151,6 +151,7 @@ struct else_instruction {
     uns32 else_dispatcher_ID;
     uns32 else_instruction_ID;
 };
+const uns32 else_instruction_length = 2;
 
 } } }
 

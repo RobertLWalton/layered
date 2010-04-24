@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 04:51:18 EDT 2010
+// Date:	Sat Apr 24 11:22:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 09:22:27 $
+//   $Date: 2010/04/24 16:18:12 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents
 //
@@ -137,7 +137,8 @@ static void create_program_2 ( void )
     const uns8 point = 4;
     const uns8 sep = 5;
     const uns8 op = 6;
-    const uns8 err_atom = 7;
+    const uns8 escape = 7;
+    const uns8 err_atom = 8;
 
     uns8 cmap[128] =
         {
@@ -233,7 +234,7 @@ static void create_program_2 ( void )
             letter,	// Y
             letter,	// Z
             sep,	// [
-            0,		// \  ’\\’
+            escape,	// \  ’\\’
             sep,	// ]
             0,		// ^
             0,		// _
@@ -278,7 +279,7 @@ static void create_program_2 ( void )
     check_attach ( master_dispatcher, tmap );
     uns32 symbol_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO, symbol );
+	    ( KEEP(0)+GOTO, symbol );
     uns32 number_instruction =
         LEX::create_instruction
 	    ( KEEP(0)+GOTO, number );
@@ -303,6 +304,8 @@ static void create_program_2 ( void )
                    whitespace_instruction );
     check_attach ( master_dispatcher, letter,
                    symbol_instruction );
+    check_attach ( master_dispatcher, escape,
+                   symbol_instruction );
     check_attach ( master_dispatcher, digit,
                    number_instruction );
     check_attach ( master_dispatcher, point,
@@ -315,18 +318,58 @@ static void create_program_2 ( void )
     uns32 master_instruction =
         LEX::create_instruction
 	    ( KEEP(0)+GOTO, master );
+    uns32 accept_instruction =
+        LEX::create_instruction ( ACCEPT );
 
     uns32 symbol_dispatcher =
         LEX::create_dispatcher ( 3, 10 );
+    check_attach ( symbol_dispatcher, tmap );
+
     check_attach ( symbol, symbol_dispatcher );
     check_attach ( symbol, master_instruction );
-    check_attach ( symbol_dispatcher, tmap );
     check_attach ( symbol_dispatcher, letter,
-                   symbol_instruction );
+                   accept_instruction );
     check_attach ( symbol_dispatcher, digit,
-                   symbol_instruction );
+                   accept_instruction );
     check_attach ( symbol_dispatcher, err_atom,
                    err_atom_instruction );
+
+    // Arrange so /ooo can appear in a symbol if
+    // ooo encodes a letter.
+    //
+    uns32 letter_dispatcher =
+        LEX::create_dispatcher ( 5, 2 );
+    uns32 letter_tmap1 =
+        LEX::create_type_map ( 'a', 'z', 1 );
+    uns32 letter_tmap2 =
+        LEX::create_type_map ( 'A', 'Z', 1 );
+    check_attach ( letter_dispatcher, letter_tmap1 );
+    check_attach ( letter_dispatcher, letter_tmap2 );
+
+    uns32 oct_tmap =
+        LEX::create_type_map ( '0', '7', 1 );
+    uns32 oct_dispatcher1 =
+        LEX::create_dispatcher ( 3, 2 );
+    check_attach ( oct_dispatcher1, oct_tmap );
+    uns32 oct_dispatcher2 =
+        LEX::create_dispatcher ( 3, 2 );
+    check_attach ( oct_dispatcher2, oct_tmap );
+    uns32 oct_dispatcher3 =
+        LEX::create_dispatcher ( 3, 2 );
+    check_attach ( oct_dispatcher3, oct_tmap );
+    check_attach ( symbol_dispatcher,
+                   escape, oct_dispatcher1 );
+    check_attach ( oct_dispatcher1,
+                   1, oct_dispatcher2 );
+    check_attach ( oct_dispatcher2,
+                   1, oct_dispatcher3 );
+    uns32 translate_oct_instruction =
+        LEX::create_instruction
+	    ( TRANSLATE_OCT(1,0)+ELSE,
+	      0, 0, NULL, letter_dispatcher,
+	                  err_atom_instruction );
+    check_attach ( oct_dispatcher3,
+                   1, translate_oct_instruction );
 
     uns32 fraction = LEX::create_atom_table ( 6 );
     uns32 fraction_instruction =

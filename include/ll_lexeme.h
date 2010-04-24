@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Mon Apr 19 15:00:09 EDT 2010
+// Date:	Fri Apr 23 15:04:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/19 19:50:23 $
+//   $Date: 2010/04/24 00:52:13 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // Table of Contents
 //
@@ -282,9 +282,15 @@ namespace ll { namespace lexeme {
 	      uns32 type );
 
     // An instruction consists of an uns32 operation,
-    // an ID_or_kind (which may be 0 if unused), and an
-    // uns32 * translation_vector (which may be NULL if
-    // unused).
+    // an atom_table_ID for GOTO (which may be 0 if
+    // unused), a kind for SHORTCUT or ERRONEOUS_ATOM
+    // (which may be 0 if unused), an uns32 *
+    // translation_vector for TRANSLATE_FLAG (which may
+    // be NULL if unused), and an uns32 else_dispatcher_
+    // ID and uns32 else_instruction_ID for ELSE (which
+    // may be 0 if unused).  ELSE requires a TRANSLATE_
+    // {HEX/OCT}_FLAG and these are exclusive of
+    // TRANSLATE_FLAG.
     // 
     // The operation is the sum of some of the
     // following:
@@ -305,7 +311,7 @@ namespace ll { namespace lexeme {
     //	 TRANSLATE(n)	Instead of copying the atom into
     //			the translation buffer, copy the
     //			characters given in the transla-
-    //			tion vector instead.  This vec-
+    //			tion_vector instead.  This vec-
     //			tor has n characters, where n
     //			may be 0 (if n is 0, the trans-
     //			lation vector address may be
@@ -340,29 +346,51 @@ namespace ll { namespace lexeme {
     //			must be NULL if there is no
     //			TRANSLATE.)
     //
+    //	 ELSE		Use with TRANSLATE_{HEX/OCT} to
+    //			indicate the presence of an
+    //			else_dispatcher_ID and an else_
+    //			instruction_ID.  These must be
+    //			zero if ELSE is not given.  ELSE
+    //			requires that TRANSLATE_{HEX/
+    //			OCT} be given.
+    //
+    //			If an else flag is present, the
+    //			character produced by TRANSLATE_
+    //			{HEX/OCT} is put into the else_
+    //			dispatcher to determine a type.
+    //			If the type is 0 the current
+    //			instruction is turned into a
+    //			no-operation and is replaced
+    //			by the else_instruction.
+    //
+    //   ERRONEOUS_ATOM	Indicates the current atom is
+    //			erroneous and is to be delivered
+    //			to the erroneous_atom function
+    //			with the instruction kind.
+    //
     //   GOTO		After all other atom processing,
     //			switch the current atom table
     //			to that whose ID equals the
-    //			instruction ID_or_kind.
+    //			instruction atom_table_ID.
     //
     //   SHORTCUT	Process atom as if analyzer had
     //			switched to the atom table of
     //			mode equal to the instruction
-    //			ID_or_kind just before inputting
-    //			the atom, and then did a GOTO
-    //			back to the original atom table
-    //			at the end of processing the
-    //			atom.  This speeds handling of
-    //			one-atom lexemes, e.g.,
-    //			separators.
+    //			kind just before inputting the
+    //			atom, and then did a GOTO back
+    //			to the original atom table at
+    //			the end of processing the atom.
+    //			This speeds handling of one-atom
+    //			lexemes, e.g., separators.
     //
-    //			(GOTO and SHORTCUT are
+    //			(ERRONEOUS_ATOM and SHORTCUT are
     //			exclusive.  If neither is given
-    //			ID_or_kind must be zero;
-    //			otherwise it must be non-zero.
-    //			Note that ID's of program compo-
-    //			nents are never zero.)
-
+    //			kind must be zero; otherwise it
+    //			must be non-zero.  Note kinds
+    //			are never zero.)
+    //
+    //			(GOTO and SHORTCUT are also
+    //			exclusive).
 
     // Instruction operation flags:
     //
@@ -372,8 +400,10 @@ namespace ll { namespace lexeme {
 	TRANSLATE_FLAG		= ( 1 << 1 ),
 	TRANSLATE_HEX_FLAG	= ( 1 << 2 ),
 	TRANSLATE_OCT_FLAG	= ( 1 << 3 ),
-	GOTO			= ( 1 << 4 ),
-	SHORTCUT		= ( 1 << 5 ),
+	ELSE			= ( 1 << 4 ),
+	ERRONEOUS_ATOM		= ( 1 << 5 ),
+	GOTO			= ( 1 << 6 ),
+	SHORTCUT		= ( 1 << 7 ),
     };
 
     // Instruction shifts and masks
@@ -459,8 +489,11 @@ namespace ll { namespace lexeme {
     //
     uns32 create_instruction
 	    ( uns32 operation,
-	      uns32 ID_or_kind = 0,
-	      uns32 * translation_vector = NULL );
+	      uns32 atom_table_ID = 0,
+	      uns32 kind = 0,
+	      uns32 * translation_vector = NULL,
+	      uns32 else_dispatcher_ID = 0,
+	      uns32 else_instruction_ID = 0 );
 
     // Attach a dispatcher or an instruction component
     // to an atom table target, or a type map component
@@ -515,6 +548,19 @@ namespace ll { namespace lexeme {
     // user.  If NULL, there is no tracing.
     //
     extern std::ostream * scan_trace_out;
+
+    // Function to call with an error atom as per
+    // ERRONEOUS_ATOM instruction flag.  The atom is in
+    //
+    //		input_buffer[first .. last]
+    //
+    // and the instruction `kind' is given as an
+    // argument.  If the address of this function is
+    // NULL, execution of an instruction with an
+    // ERRONEOUS_ATOM flag is a scan error.
+    //
+    extern void (* erroneous_atom)
+	( uns32 first, uns32 last, uns32 kind );
 
     // Scan the input and return the next lexeme, END_
     // OF_FILE or SCAN_ERROR.

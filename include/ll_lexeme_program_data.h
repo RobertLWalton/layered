@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Mon Apr 19 15:00:52 EDT 2010
+// Date:	Fri Apr 23 15:16:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/19 19:50:23 $
+//   $Date: 2010/04/24 00:52:13 $
 //   $RCSfile: ll_lexeme_program_data.h,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -136,14 +136,21 @@ const uns32 type_map_header_length = 4;
 
 // Instruction.  If operation includes TRANSLATE(n)
 // this is followed by the n uns32 characters of the
-// translation.
+// translation.  If operation includes ELSE this is
+// followed by the instruction_else struct.
 //
 struct instruction_header {
     uns32 type;			// == INSTRUCTION
     uns32 operation;
-    uns32 ID_or_kind;
+    uns32 atom_table_ID;	// for GOTO
+    uns32 kind;			// for error or shortcut
 };
-const uns32 instruction_header_length = 3;
+const uns32 instruction_header_length = 4;
+
+struct instruction_else {
+    uns32 else_dispatcher_ID;
+    uns32 else_instruction_ID;
+};
 
 } } }
 

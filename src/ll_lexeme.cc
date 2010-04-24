@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 23 13:59:16 EDT 2010
+// Date:	Fri Apr 23 21:00:00 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/23 18:59:39 $
+//   $Date: 2010/04/24 01:29:45 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // Table of Contents
 //
@@ -134,12 +134,20 @@ uns32 LEX::create_type_map
 
 uns32 LEX::create_instruction
 	( uns32 operation,
-	  uns32 ID_or_kind,
-	  uns32 * translation_vector )
+	  uns32 atom_table_ID,
+	  uns32 kind,
+	  uns32 * translation_vector,
+	  uns32 else_dispatcher_ID,
+	  uns32 else_instruction_ID )
 {
     assert ( ( operation & ( GOTO + SHORTCUT ) )
              !=
 	     ( GOTO + SHORTCUT ) );
+
+    assert ( (   operation
+               & ( ERRONEOUS_ATOM + SHORTCUT ) )
+             !=
+	     ( ERRONEOUS_ATOM + SHORTCUT ) );
 
     assert ( ( ( operation & TRANSLATE_FLAG ) != 0 )
 	     +
@@ -148,10 +156,28 @@ uns32 LEX::create_instruction
              ( ( operation & TRANSLATE_OCT_FLAG ) != 0 )
 	     <= 1 );
 
-    if ( operation & ( GOTO + SHORTCUT ) )
-        assert ( ID_or_kind != 0 );
+    assert ( ( operation & ELSE ) == 0
+             ||
+	     ( operation & TRANSLATE_HEX_FLAG )
+             ||
+	     ( operation & TRANSLATE_OCT_FLAG ) );
+
+    if ( operation & ( GOTO ) )
+        assert ( atom_table_ID != 0 );
     else
-        assert ( ID_or_kind == 0 );
+        assert ( atom_table_ID == 0 );
+
+    if ( operation & ( ERRONEOUS_ATOM + SHORTCUT ) )
+        assert ( kind != 0 );
+    else
+        assert ( kind == 0 );
+
+    if ( operation & ( ELSE ) )
+        assert ( else_dispatcher_ID != 0 );
+    else
+        assert ( else_dispatcher_ID == 0
+	         &&
+		 else_instruction_ID == 0 );
 
     uns32 translate_length = 0;
     if ( operation & TRANSLATE_FLAG )
@@ -161,18 +187,28 @@ uns32 LEX::create_instruction
         
     uns32 ID = program.allocate
     	(   instruction_header_length
-	  + translate_length );
+	  + translate_length
+	  + ( ( operation & ELSE ) ? 2 : 0 ) );
     instruction_header & h =
         * (instruction_header *) & program[ID];
     h.type = INSTRUCTION;
     h.operation = operation;
-    h.ID_or_kind = ID_or_kind;
+    h.atom_table_ID = atom_table_ID;
+    h.kind = kind;
     if ( translate_length > 0 )
     {
 	assert ( translation_vector != NULL );
 	uns32 * p = (uns32 *) ( & h + 1 );
 	while ( translate_length -- )
 	    * p ++ = * translation_vector ++;
+    }
+    else if ( operation & ELSE )
+    {
+        else_instruction & ei =
+	    * (else_instruction *)
+	    & program[ID + instruction_header_length];
+	ei.else_dispatcher_ID = else_dispatcher_ID;
+	ei.else_instruction_ID = else_instruction_ID;
     }
     return ID;
 }
@@ -459,6 +495,12 @@ static const char * sbpmode ( uns32 mode );
 static uns32 print_instruction
     ( std::ostream & out, uns32 ID, unsigned indent );
 
+// If non-NULL, function to call on executing
+// instruction with ERRONEOUS_ATOM flag.
+//
+void (* LEX::erroneous_atom)
+    ( uns32 first, uns32 last, uns32 kind ) = NULL;
+
 // Set non-NULL to enable scan tracing
 // (see ll_lexeme.h).
 //
@@ -503,9 +545,20 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // and we have not scanned a partial atom we
     // immediately return END_OF_FILE.  Otherwise we end
     // the current atom (which might be of zero length).
+    //
+    // We decrement loop_count whenever we find no atom
+    // and signal a scan error if it goes to zero.  We
+    // set loop_count to a number at least as large as
+    // the total number of atom tables, in this case
+    // program.length, whenever we find an atom.  If it
+    // goes to zero we must be in a loop changing atom
+    // tables and not finding an atom.
     // 
     uns32 shortcut = 0;
     uns32 last_mode = MASTER;
+    uns32 loop_count = program.length;
+        // Set to max number of atom tables in order
+	// to detect endless loops.
     while ( shortcut == 0 )
     {
         // Scan next atom of current lexeme.
@@ -785,17 +838,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    input_buffer[p++].character;
 	}
 
-	uns32 next_atom_table_ID =
-	    current_atom_table_ID;
 	if ( op & GOTO )
 	{
-	    next_atom_table_ID = ih.ID_or_kind;
-	    assert (    program[next_atom_table_ID]
+	    current_atom_table_ID = ih.atom_table_ID;
+	    assert (    program[current_atom_table_ID]
 		     == ATOM_TABLE );
 	}
 	else if ( op & SHORTCUT )
 	{
-	    shortcut = ih.ID_or_kind;
+	    shortcut = ih.kind;
 	    if ( cath.mode != MASTER )
 	    {
 		sprintf ( scan_error ( length ),
@@ -807,17 +858,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    }
 	}
 
-	next += atom_length;
-
-	if (    next_atom_table_ID
-	     != current_atom_table_ID)
-	    current_atom_table_ID = next_atom_table_ID;
-	else if ( atom_length == 0 )
+	if ( atom_length > 0 )
+	{
+	    next += atom_length;
+	    loop_count = program.length;
+	}
+	else if ( -- loop_count == 0 )
 	{
 	    sprintf ( scan_error ( length ),
-		      "no atom scanned and"
-		      " current atom table not"
-		      " changed" );
+		      "endless loop in scanner" );
 	    return SCAN_ERROR;
 	}
     }
@@ -1027,13 +1076,21 @@ static uns32 print_instruction
          ( ( h.operation & SHORTCUT ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
     else
-    if ( ( h.operation & ( GOTO + SHORTCUT ) )
+    if ( ( h.operation & GOTO )
          &&
-	 h.ID_or_kind == 0 ) out << "ILLEGAL: ";
+	 h.atom_table_ID == 0 ) out << "ILLEGAL: ";
     else
-    if ( ( h.operation & ( GOTO + SHORTCUT ) ) == 0
+    if ( ( h.operation & GOTO ) == 0
          &&
-	 h.ID_or_kind != 0 ) out << "ILLEGAL: ";
+	 h.atom_table_ID != 0 ) out << "ILLEGAL: ";
+    if ( ( h.operation & ( ERRONEOUS_ATOM + SHORTCUT ) )
+         &&
+	 h.kind == 0 ) out << "ILLEGAL: ";
+    else
+    if ( (   h.operation
+           & ( ERRONEOUS_ATOM + SHORTCUT ) ) == 0
+         &&
+	 h.kind != 0 ) out << "ILLEGAL: ";
 
     bool first = true;
 #   define OUT ( first ? ( first = false, out ) : \
@@ -1071,9 +1128,9 @@ static uns32 print_instruction
 	    << LEX::postfix_length ( h.operation )
 	    << ")";
     if ( h.operation & GOTO )
-        OUT << "GOTO(" << h.ID_or_kind << ")";
+        OUT << "GOTO(" << h.atom_table_ID << ")";
     if ( h.operation & SHORTCUT )
-        OUT << "SHORTCUT(" << h.ID_or_kind << ")";
+        OUT << "SHORTCUT(" << h.kind << ")";
     if ( first ) OUT << "ACCEPT";
     out << endl;
 #   undef OUT

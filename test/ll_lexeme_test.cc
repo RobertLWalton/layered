@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Apr 19 15:26:35 EDT 2010
+// Date:	Fri Apr 23 21:24:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/19 19:55:40 $
+//   $Date: 2010/04/24 01:30:00 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents
 //
@@ -93,7 +93,7 @@ static void create_program_1 ( void )
     uns32 instruction1 =
         LEX::create_instruction
 	    ( KEEP(1)+TRANSLATE(3)+GOTO,
-	      atable1,
+	      atable1, 0,
 	      translation );
     uns32 instruction2 =
         LEX::create_instruction ( ACCEPT );
@@ -287,10 +287,10 @@ static void create_program_2 ( void )
 	    ( KEEP(0)+GOTO, oper );
     uns32 separator_instruction =
         LEX::create_instruction
-	    ( ACCEPT+SHORTCUT, separator );
+	    ( ACCEPT+SHORTCUT, 0, separator );
     uns32 error_instruction =
         LEX::create_instruction
-	    ( ACCEPT+SHORTCUT, LEX::ERROR );
+	    ( ACCEPT+SHORTCUT, 0, LEX::ERROR );
     check_attach ( master_dispatcher, 0,
                    error_instruction );
     check_attach ( master_dispatcher, white,

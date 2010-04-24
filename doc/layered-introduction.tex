@@ -480,11 +480,11 @@ The syntax of a lexical program is given on
 	& ::= & {\tt accept} \\
 	& $|$ & {\tt keep} {\em natural-number} \\
 	& $|$ & {\em translation-string} \\
-	& $|$ & {\tt translate-hex} \begin{tabular}[t]{l}
+	& $|$ & {\tt translate hex} \begin{tabular}[t]{l}
 			{\em natural-number} {\em natural-number} \\
 		        {\em cpat-option}
 			\end{tabular} \\
-	& $|$ & {\tt translate-oct} \begin{tabular}[t]{l}
+	& $|$ & {\tt translate oct} \begin{tabular}[t]{l}
 			{\em natural-number} {\em natural-number} \\
 		        {\em cpat-option}
 			\end{tabular} \\
@@ -637,28 +637,28 @@ which can be used to recognize the last \verb|"| of a quoted string, avoid
 copying anything into the translation buffer, and then switch to the
 `{\tt master}' atom table.
 
-The `\ttmkey{translate-hex}{in lexical program} $m$ $n$'
+The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
 {\em instruction-component} ignores the
 first $m$ and last $n$ characters of the atom and viewing the rest as
 hexadecimal digits, converts these into an 32 bit unsigned integer
 UNICODE character code, which is placed into the translation buffer
 instead of the atom.  An example is the the atom table entry
 \begin{center}
-\verb|"\\x<hex-digit><hex-digit>" translate-hex 2 0;|
+\verb|"\\x<hex-digit><hex-digit>" translate hex 2 0;|
 \end{center}
 which might be used to accept a character representative in a quoted string
 and copies the appropriate hexadecimally related character code into
 the translation buffer.
 
-The `\ttmkey{translate-oct}{in lexical program} $m$ $n$'
+The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 {\em instruction-component} is identical but
 views the rest of the characters as octal and not hexadecimal.
 An example use would be the atom table entry
 \begin{center}
-\verb|"\\<oct-digit><oct-digit><oct-digit>" translate-hex 1 0;|
+\verb|"\\<oct-digit><oct-digit><oct-digit>" translate hex 1 0;|
 \end{center}
 
-The {\tt translate-hex} and {\tt translate-oct} components may end with
+The {\tt translate hex} and {\tt translate oct} components may end with
 a {\em character-pattern} that tests the 32 bit unsigned character code
 produced by the translation.  Such a test should only appear in an
 {\em instruction} which is followed by an `{\tt else}' in an
@@ -674,7 +674,7 @@ its place.
 
 An example use would be the atom table entry
 \begin{center}
-\verb|"\\u<hex-digit><hex-digit><hex-digit><hex-digit>" translate-hex 2 0|
+\verb|"\\u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0|
 \verb|    "<letter>" else "" error bad character in identifier;|
 \end{center}
 which might be used to process an atom of the form \verb|\uXXXX| in
@@ -739,7 +739,6 @@ begin standard lexical program;
 
 "<non-digit>" = ~ "<digit>";
 
-
 // The following list of language specific letters is taken
 // from Annex E of the Working Paper for Draft Proposed
 // International Standard for Information Systems—Programming
@@ -781,7 +780,7 @@ begin standard lexical program;
 
 "<non-line-break-char>" = ~ "\n" & ~ "\v" & ~ "\f";
 
-"<quotable-char>" = "\u0010-\u003e" & ~ "\"" & ~ "\\";
+"<quotable-char>" = "\u0020-\u007e" & ~ "\"" & ~ "\\";
 
 "<error-in-quote-char>" = ~ "<quotable-char>" & ~ "\"";
 
@@ -891,16 +890,16 @@ begin quoted string atom table;
     "\\\v" "\v" goto quoted string;
     "\\\\" "\\" goto quoted string;
     "\\~"  " "  goto quoted string;
-    "\\x<hex-digit><hex-digit>" translate-hex 2 0
+    "\\x<hex-digit><hex-digit>" translate hex 2 0
                                 goto quoted string;
-    "\\<oct-digit><oct-digit><oct-digit>" translate-oct 1 0
+    "\\<oct-digit><oct-digit><oct-digit>" translate oct 1 0
                                 goto quoted string;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-                                translate-hex 2 0
+                                translate hex 2 0
                                 goto quoted string;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-                                translate-hex 2 0
+                                translate hex 2 0
                                 goto quoted string;
     "<quotable-character>" goto quoted string;
     "<other>" "" erroneous atom goto quoted string;
@@ -925,239 +924,68 @@ end standard lexical program;
 \label{C++-LEXICAL-PROGRAM}
 
 \begin{indpar}\begin{verbatim}
-begin lexical units;
-    "<letter>" ::= "A" | "B" | "C" | "D" | "E" | "F" | "G"
-                 | "H" | "I" | "J" | "K" | "L" | "M"
-                 | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
-                 | "U" | "V" | "W" | "X" | "Y" | "Z"
-                 | "a" | "b" | "c" | "d" | "e" | "f" | "g"
-                 | "h" | "i" | "j" | "k" | "l" | "m"
-                 | "n" | "o" | "p" | "q" | "r" | "s" | "t"
-                 | "u" | "v" | "w" | "x" | "y" | "z" ;
-    "<non-zero-digit>" ::=       "1" | "2" | "3" | "4"
-                        | "5" | "6" | "7" | "8" | "9" ;
-    "<digit>" ::= "0" | "<non-zero-digit>" ;
-    "<oct-digit>" ::= "0" | "1" | "2" | "3"
-                    | "4" | "5" | "6" | "7" ;
-    "<hex-digit>" ::= "A" | "B" | "C" | "D" | "E" | "F"
-                    | "a" | "b" | "c" | "d" | "e" | "f"
-                    | "<digit>" ;
-    "<sign>" ::= "+" | "-" ;
-    "<operator>" ::= "!" | "%" | "^" | "&" | "*"
-                   | "(" | ")" | "-" | "+" | "="
-                   | "{" | "}" | "|" | "~" | "["
-                   | "]" | ";" | ":" | "<" | ">"
-                   | "?" | "," | "/" | "/" | "->"
-                   | "++" | "--" | ".*" | "->*" | ">>"
-                   | "<<" | "<=" | ">=" | "==" | "!="
-                   | "&&" | "||" | "*=" | "/=" | "%="
-                   | "+=" | "-=" | "<<=" | ">>=" | "&="
-                   | "^=" | "|=" | "::" ;
-    "<whitespace>" ::= " " | "\t" | "\n" | "\r"
-                     | "\f" | "\v" ;
-end lexical units;
-    
-\end{verbatim}\end{indpar}
+begin c++ lexical program;
 
-\newpage
+"<ascii-letter>" = "a-z" | "A-Z";
+"<digit>" = "0-9";
+"<oct-digit>" = "0-7";
+"<hex-digit>" = "0-9" | "a-f" | "A-F";
 
-\begin{indpar}\begin{verbatim}
-begin lexical units;
-    "<control>" ::=          "\001" | "\002" | "\003"
-                  | "\004" | "\005" | "\006" | "\007"
-                  | "\010" 
-                                    | "\016" | "\017"
-                  | "\020" | "\021" | "\022" | "\023"
-                  | "\024" | "\025" | "\026" | "\027"
-                  | "\030" | "\031" | "\032" | "\033"
-                  | "\034" | "\035" | "\036" | "\037"
-                  | "\177" ;
+"<non-digit>" = ~ "<digit>";
+"<non-zero-digit>" = "1-9";
 
-    "<oct1>" ::= "<oct-digit>";
-    "<oct2>" ::= "<oct-digit><oct1>";
-    "<oct3>" ::= "<oct-digit><oct2>";
-    "<oct4>" ::= "<oct-digit><oct3>";
-    "<oct5>" ::= "<oct-digit><oct4>";
-    "<oct6>" ::= "<oct-digit><oct5>";
-    "<oct7>" ::= "<oct-digit><oct6>";
-    "<oct-char>" ::= "\\<oct1>"  | "\\<oct2>"
-                   | "\\0<oct2>" | "\\1<oct2>"
-                   | "\\2<oct2>" | "\\3<oct2>";
-    "<bad-oct-char>" ::= "\\4<oct2>" | "\\5<oct2>"
-                       | "\\6<oct2>" | "\\7<oct2>"
-                       | "\\<oct4>";
-    "<oct-wchar>" ::= "\\<oct1>" | "\\<oct2>"
-                    | "\\<oct3>" | "\\<oct4>"
-                    | "\\<oct5>" | "\\0<oct5>"
-                    | "\\1<oct5>";
-    "<bad-oct-whar>" ::= | "\\2<oct5>" | "\\3<oct5>"
-                         | "\\4<oct5>" | "\\5<oct5>"
-                         | "\\6<oct5>" | "\\7<oct5>"
-                         | "\\<oct7>";
-end lexical units;
-    
-\end{verbatim}\end{indpar}
+// The following list of language specific letters is taken
+// from Annex E of the Working Paper for Draft Proposed
+// International Standard for Information Systems—Programming
+// Language C++, 1996.
 
-\newpage
+"<latin-letter>" = "\u00c0-\n00d6" | "\u00d8-\u00f6"
+                 | "\u00f8-\u01f5" | "\u01fa-\u0217"
+                 | "\u0250-\u02a8" | "\u1ea0-\u1ef9";
 
-\begin{indpar}\begin{verbatim}
-begin lexical units;
-    "<hex1>" ::= "<hex-digit>";
-    "<hex2>" ::= "<hex-digit><hex1>";
-    "<hex3>" ::= "<hex-digit><hex2>";
-    "<hex4>" ::= "<hex-digit><hex3>";
-    "<hex5>" ::= "<hex-digit><hex4>";
-    "<hex-char>" ::= "\\x<hex1>" | "\\x<hex2>"
-                   | "\\X<hex1>" | "\\X<hex2>";
-    "<bad-hex-char>" ::= "\\x<hex3>" | "\\X<hex3>";
-    "<hex-wchar>" ::= "<hex-char>"
-                   | "\\x<hex3>" | "\\x<hex4>"
-                   | "\\X<hex3>" | "\\X<hex4>";
-    "<bad-hex-wchar>" ::= "\\x<hex5>" | "\\X<hex5>";
+. . . . . letter character pattern definitions omitted . . . . .
 
-    "<backslash-char>" ::= "<oct-char>" | "<hex-char>";
-    "<backslash-wchar>" ::= "<oct-wchar>" | "<hex-wchar>";
-    "<bad-backslash-char>" ::= "<bad-oct-char>"
-                             | "<bad-hex-char>";
-    "<bad-backslash-wchar>" ::= "<bad-oct-wchar>"
-                              | "<bad-hex-wchar>";
+"<CJK-letter>" = "\uf900-\ufa2d" | . . .  // Details omitted
 
-    "<integer-suffix>" ::= "u" | "U" | "l" | "L"
-                         | "ul" | "Ul" | "uL" | "UL"
-                         | "lu" | "Lu" | "lU" | "LU";
-    "<floating-suffix>" ::= "f" | "F" | "d" | "D";
+"<letter>" = "<ascii-letter>" | "<latin-letter>"
+           | . . . | "<CJK-letter>";   // Details omitted
 
-    "<backslash-control>" ::= "\\f" | "\\v" | "\\n" | "\\r"
-                            | "\\t" | "\\b" | "\\a" | "\\?"
-                            | "\\\'" | "\\\"" | "\\\\";
-end lexical units;
-    
-\end{verbatim}\end{indpar}
+"<sign>" ::= "+" | "-" ;
 
-\newpage
+begin master atom table;
+    "0" goto octal literal;
+    "<non-zero-digit>" goto decimal literal;
+    "0x" goto hexadecimal literal;
+    "0X" goto hexadecimal literal;
+    "'" "" goto character literal;
+    "L'" "" goto wide character literal;
+    "\"" "" goto string literal;
+    "L\"" "" goto wide string literal;
+    "<letter>" goto identifier;
+    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+	    translate hex 2 0 goto identifier
+	    "<letter>" else shortcut non-letter UNICODE error;
+    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+	    translate hex 2 0 goto identifier
+	    "<letter>" else shortcut non-letter UNICODE error;
+    "{" shortcut punctuation;
+    "}" shortcut punctuation;
+end master atom table;
 
-\begin{indpar}\begin{verbatim}
-
-begin lexeme atom table;
-    "<operator>"        operator;
-    "<separator>"       separator;
-    "<letter>"          identifier;
-    "0x<hex-digit>"     hex number;
-    "0X<hex-digit>"     hex number;
-    "0<oct-digit>"      oct number;
-    "<non-zero-digit>"  number;
-    ".<digit>"          number;
-    "L'"                wide char string;
-    "'"                 char string;
-    "L\""               wide quoted string;
-    "\""                quoted string;
-    "//"                "//" comment;
-    "/*"                "/*" comment;
-    "<whitespace>"      whitespace;
-end lexeme atom table;
-
-// Note that C/C++ keywords are identifiers.
-//
 begin identifier atom table;
-    "<letter>"  accept;
-    "_"         accept;
-    "<digit>"   continue;
-    "<control>" error;
+    "<letter>" accept;
+    "<digit>" accept;
+    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+	    translate hex 2 0
+	    "<letter>" else keep 0 goto master;
+    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+	    translate hex 2 0
+	    "<letter>" else keep 0 goto master;
 end identifier atom table;
 
-\end{verbatim}\end{indpar}
-
-\newpage
-
-\begin{indpar}\begin{verbatim}
-begin hex number atom table;
-    "<hex-digit>"       continue digit;
-    "0x<hex-digit>"     begin digit;
-    "0X<hex-digit>"     begin digit;
-    "<integer-suffix>"  end;
-    "<control>"         error
-end hex number atom table;
- 
-begin oct number atom table;
-    "<oct-digit>"       continue digit;
-    "0"                 begin digit;
-    "<integer-suffix>"  end;
-    "<control>"         error
-end oct number atom table;
- 
-begin number atom table;
-    "<digit>"           digit;
-    "."                 point;
-    "e<digit>"          begin exponent;
-    "E<digit>"          begin exponent;
-    "e<sign><digit>"    begin exponent;
-    "E<sign><digit>"    begin exponent;
-    "<digit>"           exponent digit;
-    "<integer-suffix>"  integer end;
-    "<floating-suffix>" floating end;
-    "<control>"         error
-end number atom table;
-\end{verbatim}\end{indpar}
-
-\newpage
-
-\begin{indpar}\begin{verbatim}
- 
-begin quoted string atom table;
-    "\""                    begin;
-    "\""                    end;
-    "<backslash-control>"   continue  "<char backslash-control>";
-    "<backslash-char>"      continue  "<char backslash-char>";
-    "<bad-backslash-char>"  error;
-    "<control>"             error;
-end quoted string atom table;
- 
-begin wide quoted string atom table;
-    "L\""                   begin;
-    "\""                    end;
-    "<backslash-control>"   continue  "<char backslash-control>";
-    "<backslash-wchar>"     continue  "<char backslash-wchar>";
-    "<bad-backslash-wchar>" error;
-    "<control>"             error;
-end quoted string atom table;
- 
-begin char string atom table;
-    "\'"                begin;
-    "\'"                end;
-    . . . rest just like quoted string table . . .
-end char string atom table;
- 
-begin wide char string atom table;
-    "L\'"               begin;
-    "\'"                end;
-    . . . rest just like wide quoted string table . . .
-end char string atom table;
-
-\end{verbatim}\end{indpar}
-
-\newpage
-
-\begin{indpar}\begin{verbatim}
- 
-begin whitespace atom table;
-    " "                     accept;
-    "\t"                    accept;
-    "\n"                    accept;
-    "\f"                    accept;
-    "\v"                    accept;
-    "<control>"             error;
-end whitespace atom table;
- 
-begin "//" comment atom table;
-    "//"                    begin;
-    "\n"                    end;
-end "//" comment atom table;
- 
-begin "/*" comment atom table;
-    "/*"                    begin;
-    "*/"                    end;
-end "*/" comment atom table;
-
+end c++ lexical program;
 \end{verbatim}\end{indpar}
 
 

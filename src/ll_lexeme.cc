@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 23 21:00:00 EDT 2010
+// Date:	Sat Apr 24 05:22:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 01:29:45 $
+//   $Date: 2010/04/24 09:23:16 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.30 $
+//   $Revision: 1.31 $
 
 // Table of Contents
 //
@@ -838,6 +838,27 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    input_buffer[p++].character;
 	}
 
+	if ( op & ERRONEOUS_ATOM
+	     &&
+	     atom_length > 0 )
+	{
+	    if ( erroneous_atom == NULL )
+	    {
+		sprintf ( scan_error ( length ),
+			  "ERRONEOUS_ATOM in"
+			  " instruction %d executed"
+			  " by atom table %d but"
+			  " no erroneous_atom function",
+			  instruction_ID,
+			  current_atom_table_ID );
+		return SCAN_ERROR;
+	    }
+	    else
+	        (*erroneous_atom)
+		    ( next, next + atom_length - 1,
+		      ih.kind );
+	}
+
 	if ( op & GOTO )
 	{
 	    current_atom_table_ID = ih.atom_table_ID;
@@ -1127,6 +1148,8 @@ static uns32 print_instruction
 	    << ","
 	    << LEX::postfix_length ( h.operation )
 	    << ")";
+    if ( h.operation & ERRONEOUS_ATOM )
+        OUT << "ERRONEOUS_ATOM(" << h.kind << ")";
     if ( h.operation & GOTO )
         OUT << "GOTO(" << h.atom_table_ID << ")";
     if ( h.operation & SHORTCUT )

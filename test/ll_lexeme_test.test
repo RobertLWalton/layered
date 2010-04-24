@@ -104,7 +104,7 @@ Cooked Program 2:
             0-9 A-Z a-z
                 GOTO(10)
             \u007F
-                ERRONEOUS_ATOM(100)
+                TRANSLATE(0), ERRONEOUS_ATOM(100)
        158: ATOM_TABLE
             Mode: KIND (6)
             Dispatcher ID: 216
@@ -157,43 +157,44 @@ Cooked Program 2:
 Testing Lexical Scan of:
 \~ab\~3.4\~x+y++z
 
-Scan Returned WHITESPACE Input Buffer: \~
-Scan Returned KIND (5) Input Buffer: ab
-Scan Returned WHITESPACE Input Buffer: \~
-Scan Returned KIND (6) Input Buffer: 3.4
-Scan Returned WHITESPACE Input Buffer: \~
-Scan Returned KIND (5) Input Buffer: x
-Scan Returned KIND (7) Input Buffer: +
-Scan Returned KIND (5) Input Buffer: y
-Scan Returned KIND (7) Input Buffer: ++
-Scan Returned KIND (5) Input Buffer: z
+Scan Returned WHITESPACE Input Buffer: \~ Translation: \~
+Scan Returned KIND (5) Input Buffer: ab Translation: ab
+Scan Returned WHITESPACE Input Buffer: \~ Translation: \~
+Scan Returned KIND (6) Input Buffer: 3.4 Translation: 3.4
+Scan Returned WHITESPACE Input Buffer: \~ Translation: \~
+Scan Returned KIND (5) Input Buffer: x Translation: x
+Scan Returned KIND (7) Input Buffer: + Translation: +
+Scan Returned KIND (5) Input Buffer: y Translation: y
+Scan Returned KIND (7) Input Buffer: ++ Translation: ++
+Scan Returned KIND (5) Input Buffer: z Translation: z
 Scan Returned END_OF_FILE
 
 Testing Lexical Scan of:
-*a**b+++c(+d%e0--1.2.3\u0000\u0001
+*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001
 
-Scan Returned KIND (7) Input Buffer: *
-Scan Returned KIND (5) Input Buffer: a
-Scan Returned KIND (7) Input Buffer: *
-Scan Returned KIND (7) Input Buffer: *
-Scan Returned KIND (5) Input Buffer: b
-Scan Returned KIND (7) Input Buffer: ++
-Scan Returned KIND (7) Input Buffer: +
-Scan Returned KIND (5) Input Buffer: c
-Scan Returned KIND (8) Input Buffer: (
-Scan Returned KIND (7) Input Buffer: +
-Scan Returned KIND (5) Input Buffer: d
-Scan Returned ERROR Input Buffer: %
-Scan Returned KIND (5) Input Buffer: e0
-Scan Returned KIND (7) Input Buffer: --
-Scan Returned KIND (6) Input Buffer: 1.2
-Scan Returned KIND (6) Input Buffer: .3
-Scan Returned ERROR Input Buffer: \u0000
-Scan Returned ERROR Input Buffer: \u0001
+Scan Returned KIND (7) Input Buffer: * Translation: *
+Scan Returned KIND (5) Input Buffer: a Translation: a
+Scan Returned KIND (7) Input Buffer: * Translation: *
+Scan Returned KIND (7) Input Buffer: * Translation: *
+Scan Returned KIND (5) Input Buffer: b Translation: b
+Scan Returned KIND (7) Input Buffer: ++ Translation: ++
+Scan Returned KIND (7) Input Buffer: + Translation: +
+Scan Returned KIND (5) Input Buffer: c Translation: c
+Scan Returned KIND (8) Input Buffer: ( Translation: (
+Scan Returned KIND (7) Input Buffer: + Translation: +
+Erroneous Atom, Kind = KIND (100) Atom = \u007F
+Scan Returned KIND (5) Input Buffer: d\u007Fe Translation: de
+Scan Returned ERROR Input Buffer: % Translation: %
+Scan Returned KIND (5) Input Buffer: f0 Translation: f0
+Scan Returned KIND (7) Input Buffer: -- Translation: --
+Scan Returned KIND (6) Input Buffer: 1.2 Translation: 1.2
+Scan Returned KIND (6) Input Buffer: .3 Translation: .3
+Scan Returned ERROR Input Buffer: \u0000 Translation: \u0000
+Scan Returned ERROR Input Buffer: \u0001 Translation: \u0001
 Scan Returned END_OF_FILE
 
 Testing Lexical Scan of:
-*a**b+++c(+d%e0--1.2.3\u0000\u0001
+*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001
 
 Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 Type = 6
@@ -201,35 +202,35 @@ Start atom scan: atom table = 2
 Start atom scan: atom table = 18
   Character = * Dispatcher = 284 Type Map = 342 Type = 3
   GOTO(2)
-Scan Returned KIND (7) Input Buffer: *
+Scan Returned KIND (7) Input Buffer: * Translation: *
 Start atom scan: atom table = 2
   Character = a Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
   Character = * Dispatcher = 124 Type Map = 22 Type = 6
   KEEP(0), GOTO(2)
-Scan Returned KIND (5) Input Buffer: a
+Scan Returned KIND (5) Input Buffer: a Translation: a
 Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
   Character = * Dispatcher = 284 Type Map = 342 Type = 3
   GOTO(2)
-Scan Returned KIND (7) Input Buffer: *
+Scan Returned KIND (7) Input Buffer: * Translation: *
 Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
   Character = * Dispatcher = 284 Type Map = 342 Type = 3
   GOTO(2)
-Scan Returned KIND (7) Input Buffer: *
+Scan Returned KIND (7) Input Buffer: * Translation: *
 Start atom scan: atom table = 2
   Character = b Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
   Character = + Dispatcher = 124 Type Map = 22 Type = 6
   KEEP(0), GOTO(2)
-Scan Returned KIND (5) Input Buffer: b
+Scan Returned KIND (5) Input Buffer: b Translation: b
 Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
@@ -237,7 +238,7 @@ Start atom scan: atom table = 18
   Character = + Dispatcher = 284 Type Map = 330 Type = 1
   Character = + Dispatcher = 350 Type Map = 330 Type = 1
   GOTO(2)
-Scan Returned KIND (7) Input Buffer: ++
+Scan Returned KIND (7) Input Buffer: ++ Translation: ++
 Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
@@ -245,18 +246,18 @@ Start atom scan: atom table = 18
   Character = + Dispatcher = 284 Type Map = 330 Type = 1
   Character = c Dispatcher = 350 Type = 0
   GOTO(2)
-Scan Returned KIND (7) Input Buffer: +
+Scan Returned KIND (7) Input Buffer: + Translation: +
 Start atom scan: atom table = 2
   Character = c Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
   Character = ( Dispatcher = 124 Type Map = 22 Type = 5
   KEEP(0), GOTO(2)
-Scan Returned KIND (5) Input Buffer: c
+Scan Returned KIND (5) Input Buffer: c Translation: c
 Start atom scan: atom table = 2
   Character = ( Dispatcher = 58 Type Map = 22 Type = 5
   SHORTCUT(8)
-Scan Returned KIND (8) Input Buffer: (
+Scan Returned KIND (8) Input Buffer: ( Translation: (
 Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
@@ -264,20 +265,27 @@ Start atom scan: atom table = 18
   Character = + Dispatcher = 284 Type Map = 330 Type = 1
   Character = d Dispatcher = 350 Type = 0
   GOTO(2)
-Scan Returned KIND (7) Input Buffer: +
+Scan Returned KIND (7) Input Buffer: + Translation: +
 Start atom scan: atom table = 2
   Character = d Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
+  Character = \u007F Dispatcher = 124 Type Map = 22 Type = 7
+  TRANSLATE(0), ERRONEOUS_ATOM(100)
+Erroneous Atom, Kind = KIND (100) Atom = \u007F
+Start atom scan: atom table = 10
+  Character = e Dispatcher = 124 Type Map = 22 Type = 2
+  GOTO(10)
+Start atom scan: atom table = 10
   Character = % Dispatcher = 124 Type Map = 22 Type = 0
   KEEP(0), GOTO(2)
-Scan Returned KIND (5) Input Buffer: d
+Scan Returned KIND (5) Input Buffer: d\u007Fe Translation: de
 Start atom scan: atom table = 2
   Character = % Dispatcher = 58 Type Map = 22 Type = 0
   SHORTCUT(2)
-Scan Returned ERROR Input Buffer: %
+Scan Returned ERROR Input Buffer: % Translation: %
 Start atom scan: atom table = 2
-  Character = e Dispatcher = 58 Type Map = 22 Type = 2
+  Character = f Dispatcher = 58 Type Map = 22 Type = 2
   GOTO(10)
 Start atom scan: atom table = 10
   Character = 0 Dispatcher = 124 Type Map = 22 Type = 3
@@ -285,7 +293,7 @@ Start atom scan: atom table = 10
 Start atom scan: atom table = 10
   Character = - Dispatcher = 124 Type Map = 22 Type = 6
   KEEP(0), GOTO(2)
-Scan Returned KIND (5) Input Buffer: e0
+Scan Returned KIND (5) Input Buffer: f0 Translation: f0
 Start atom scan: atom table = 2
   Character = - Dispatcher = 58 Type Map = 22 Type = 6
   KEEP(0), GOTO(18)
@@ -293,7 +301,7 @@ Start atom scan: atom table = 18
   Character = - Dispatcher = 284 Type Map = 334 Type = 2
   Character = - Dispatcher = 396 Type Map = 334 Type = 2
   GOTO(2)
-Scan Returned KIND (7) Input Buffer: --
+Scan Returned KIND (7) Input Buffer: -- Translation: --
 Start atom scan: atom table = 2
   Character = 1 Dispatcher = 58 Type Map = 22 Type = 3
   KEEP(0), GOTO(14)
@@ -309,7 +317,7 @@ Start atom scan: atom table = 158
 Start atom scan: atom table = 158
   Character = . Dispatcher = 216 Type = 0
   KEEP(0), GOTO(2)
-Scan Returned KIND (6) Input Buffer: 1.2
+Scan Returned KIND (6) Input Buffer: 1.2 Translation: 1.2
 Start atom scan: atom table = 2
   Character = . Dispatcher = 58 Type Map = 22 Type = 4
   KEEP(0), GOTO(14)
@@ -322,14 +330,14 @@ Start atom scan: atom table = 158
 Start atom scan: atom table = 158
   Character = \u0000 Dispatcher = 216 Type = 0
   KEEP(0), GOTO(2)
-Scan Returned KIND (6) Input Buffer: .3
+Scan Returned KIND (6) Input Buffer: .3 Translation: .3
 Start atom scan: atom table = 2
   Character = \u0000 Dispatcher = 58 Type Map = 22 Type = 0
   SHORTCUT(2)
-Scan Returned ERROR Input Buffer: \u0000
+Scan Returned ERROR Input Buffer: \u0000 Translation: \u0000
 Start atom scan: atom table = 2
   Character = \u0001 Dispatcher = 58 Type Map = 22 Type = 0
   SHORTCUT(2)
-Scan Returned ERROR Input Buffer: \u0001
+Scan Returned ERROR Input Buffer: \u0001 Translation: \u0001
 Start atom scan: atom table = 2
 Scan Returned END_OF_FILE

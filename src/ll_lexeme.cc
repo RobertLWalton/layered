@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 05:22:53 EDT 2010
+// Date:	Sat Apr 24 05:33:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 09:23:16 $
+//   $Date: 2010/04/24 09:44:18 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // Table of Contents
 //
@@ -507,6 +507,65 @@ void (* LEX::erroneous_atom)
 std::ostream * LEX::scan_trace_out = NULL;
 # define TOUT if ( scan_trace_out ) (* scan_trace_out)
 
+// Given a dispatcher_ID and a character c return the
+// type that the dispatcher maps c onto.
+//
+static uns32 type ( uns32 dispatcher_ID, uns32 c )
+{
+    TOUT << "  Character = " << pchar ( c )
+	 << " Dispatcher = " << dispatcher_ID;
+
+    dispatcher_header & dh =
+	* (dispatcher_header *)
+	& program[dispatcher_ID];
+
+    break_element * bep =
+	(break_element *)
+	& program[  dispatcher_ID
+		  + dispatcher_header_length];
+
+    // Binary search of break elements.
+    //
+    // Invariant:
+    //     bep[low].cmin <= c < bep[high].cmin
+    // where bep[high].cmin = infinity if
+    // high == dh.break_elements.
+    //
+    uns32 low = 0,
+	  high = dh.break_elements,
+	  mid;
+    while ( high - low >= 2 )
+    {
+	mid = ( high + low ) / 2;
+	if ( bep[mid].cmin <= c )
+	    low = mid;
+	else
+	    high = mid;
+    }
+
+    // Compute type from bep[low].
+    //
+    uns32 type_map_ID = bep[low].type_map_ID;
+    uns32 type = 0;
+    if ( type_map_ID != 0 )
+    {
+	assert (    program[type_map_ID]
+		 == TYPE_MAP );
+	TOUT << " Type Map = " << type_map_ID;
+	type_map_header & tmh =
+	    * (type_map_header *)
+	    & program[type_map_ID];
+	type = tmh.singleton_type;
+	if ( type == 0 )
+	    type = ( (uns8 *) ( & tmh + 1 ) )
+		   [c - tmh.cmin];
+    }
+
+    TOUT << " Type = " << type << endl;
+
+    return type;
+}
+
 uns32 LEX::scan ( uns32 & first, uns32 & last )
 {
     if ( next >= input_buffer.length_increment )
@@ -627,55 +686,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	        input_buffer[next + length].character;
 	    ++ length;
 
-	    TOUT << "  Character = " << pchar ( c )
-	         << " Dispatcher = " << dispatcher_ID;
+	    uns32 type = ::type ( dispatcher_ID, c );
 
 	    dispatcher_header & dh =
 	        * (dispatcher_header *)
 		& program[dispatcher_ID];
 
-	    break_element * bep =
-	        (break_element *)
-		& program[  dispatcher_ID
-		          + dispatcher_header_length];
-
-	    // Binary search of break elements.
-	    //
-	    // Invariant:
-	    //     bep[low].cmin <= c < bep[high].cmin
-	    // where bep[high].cmin = infinity if
-	    // high == dh.break_elements.
-	    //
-	    uns32 low = 0,
-	          high = dh.break_elements,
-	          mid;
-	    while ( high - low >= 2 )
-	    {
-	        mid = ( high + low ) / 2;
-		if ( bep[mid].cmin <= c )
-		    low = mid;
-		else
-		    high = mid;
-	    }
-
-	    // Compute type from bep[low].
-	    //
-	    uns32 type_map_ID = bep[low].type_map_ID;
-	    uns32 type = 0;
-	    if ( type_map_ID != 0 )
-	    {
-		assert (    program[type_map_ID]
-		         == TYPE_MAP );
-		TOUT << " Type Map = " << type_map_ID;
-		type_map_header & tmh =
-		    * (type_map_header *)
-		    & program[type_map_ID];
-		type = tmh.singleton_type;
-		if ( type == 0 )
-		    type = ( (uns8 *) ( & tmh + 1 ) )
-			   [c - tmh.cmin];
-	    }
-	    TOUT << " Type = " << type << endl;
 	    if ( type > dh.max_type )
 	    {
 	        sprintf ( scan_error ( length ),

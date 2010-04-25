@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri Apr 23 15:04:27 EDT 2010
+// Date:	Sat Apr 24 21:40:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 00:52:13 $
+//   $Date: 2010/04/25 01:58:29 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.34 $
+//   $Revision: 1.35 $
 
 // Table of Contents
 //
@@ -283,7 +283,7 @@ namespace ll { namespace lexeme {
 
     // An instruction consists of an uns32 operation,
     // an atom_table_ID for GOTO (which may be 0 if
-    // unused), a kind for SHORTCUT or ERRONEOUS_ATOM
+    // unused), a kind for SINGLETON or ERRONEOUS_ATOM
     // (which may be 0 if unused), an uns32 *
     // translation_vector for TRANSLATE_FLAG (which may
     // be NULL if unused), and an uns32 else_dispatcher_
@@ -373,7 +373,7 @@ namespace ll { namespace lexeme {
     //			to that whose ID equals the
     //			instruction atom_table_ID.
     //
-    //   SHORTCUT	Process atom as if analyzer had
+    //   SINGLETON	Process atom as if analyzer had
     //			switched to the atom table of
     //			mode equal to the instruction
     //			kind just before inputting the
@@ -383,13 +383,13 @@ namespace ll { namespace lexeme {
     //			This speeds handling of one-atom
     //			lexemes, e.g., separators.
     //
-    //			(ERRONEOUS_ATOM and SHORTCUT are
-    //			exclusive.  If neither is given
-    //			kind must be zero; otherwise it
-    //			must be non-zero.  Note kinds
-    //			are never zero.)
+    //			(ERRONEOUS_ATOM and SINGLETON
+    //			are exclusive.  If neither is
+    //			given kind must be zero; other-
+    //			wise it must be non-zero.  Note
+    //			real kinds are never zero.)
     //
-    //			(GOTO and SHORTCUT are also
+    //			(GOTO and SINGLETON are also
     //			exclusive).
 
     // Instruction operation flags:
@@ -403,7 +403,7 @@ namespace ll { namespace lexeme {
 	ELSE			= ( 1 << 4 ),
 	ERRONEOUS_ATOM		= ( 1 << 5 ),
 	GOTO			= ( 1 << 6 ),
-	SHORTCUT		= ( 1 << 7 ),
+	SINGLETON		= ( 1 << 7 ),
     };
 
     // Instruction shifts and masks

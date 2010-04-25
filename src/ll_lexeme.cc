@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 11:47:16 EDT 2010
+// Date:	Sat Apr 24 21:42:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 16:18:39 $
+//   $Date: 2010/04/25 01:58:23 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // Table of Contents
 //
@@ -140,14 +140,14 @@ uns32 LEX::create_instruction
 	  uns32 else_dispatcher_ID,
 	  uns32 else_instruction_ID )
 {
-    assert ( ( operation & ( GOTO + SHORTCUT ) )
+    assert ( ( operation & ( GOTO + SINGLETON ) )
              !=
-	     ( GOTO + SHORTCUT ) );
+	     ( GOTO + SINGLETON ) );
 
     assert ( (   operation
-               & ( ERRONEOUS_ATOM + SHORTCUT ) )
+               & ( ERRONEOUS_ATOM + SINGLETON ) )
              !=
-	     ( ERRONEOUS_ATOM + SHORTCUT ) );
+	     ( ERRONEOUS_ATOM + SINGLETON ) );
 
     assert ( ( ( operation & TRANSLATE_FLAG ) != 0 )
 	     +
@@ -167,7 +167,7 @@ uns32 LEX::create_instruction
     else
         assert ( atom_table_ID == 0 );
 
-    if ( operation & ( ERRONEOUS_ATOM + SHORTCUT ) )
+    if ( operation & ( ERRONEOUS_ATOM + SINGLETON ) )
         assert ( kind != 0 );
     else
         assert ( kind == 0 );
@@ -595,7 +595,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // We scan atoms until we get to a point where the
     // atom table is to be changed from a table with
     // mode != MASTER to one with mode == MASTER and
-    // next != first, or `shortcut' is set.
+    // next != first, or `singleton' is set.
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
@@ -615,12 +615,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // goes to zero we must be in a loop changing atom
     // tables and not finding an atom.
     // 
-    uns32 shortcut = 0;
+    uns32 singleton = 0;
     uns32 last_mode = MASTER;
     uns32 loop_count = program.length;
         // Set to max number of atom tables in order
 	// to detect endless loops.
-    while ( shortcut == 0 )
+    while ( singleton == 0 )
     {
         // Scan next atom of current lexeme.
 
@@ -772,9 +772,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		if ( keep_length > atom_length )
 		{
 		    sprintf ( scan_error ( length ),
-			      "keep length(%u) greater than"
-			      " atom length(%u)",
-			      keep_length, atom_length );
+			      "keep length(%u) greater"
+			      " than atom length(%u)",
+			      keep_length,
+			      atom_length );
 		    return SCAN_ERROR;
 		}
 	    }
@@ -804,11 +805,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			    tc += d - 'A' + 10;
 			else
 			{
-			    sprintf ( scan_error ( length ),
-				      "bad hexadecimal"
-				      " digit(%s)"
-				      " for TRANSLATE_HEX",
-				      sbpchar ( d ) );
+			    sprintf
+			        ( scan_error ( length ),
+				  "bad hexadecimal"
+				  " digit(%s)"
+				  " for TRANSLATE_HEX",
+				  sbpchar ( d ) );
 			    return SCAN_ERROR;
 			}
 		    }
@@ -822,10 +824,11 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			    tc += d - '0';
 			else
 			{
-			    sprintf ( scan_error ( length ),
-				      "bad octal digit(%s)"
-				      " for TRANSLATE_OCT",
-				      sbpchar ( d ) );
+			    sprintf
+			        ( scan_error ( length ),
+				  "bad octal digit(%s)"
+				  " for TRANSLATE_OCT",
+				  sbpchar ( d ) );
 			    return SCAN_ERROR;
 			}
 		    }
@@ -896,7 +899,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			      "ERRONEOUS_ATOM in"
 			      " instruction %d executed"
 			      " by atom table %d but"
-			      " no erroneous_atom function",
+			      " no erroneous_atom"
+			      " function",
 			      instruction_ID,
 			      current_atom_table_ID );
 		    return SCAN_ERROR;
@@ -909,19 +913,21 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	    if ( op & GOTO )
 	    {
-		current_atom_table_ID = ih.atom_table_ID;
-		assert (    program[current_atom_table_ID]
-			 == ATOM_TABLE );
+		current_atom_table_ID =
+		    ih.atom_table_ID;
+		assert
+		    (    program[current_atom_table_ID]
+		      == ATOM_TABLE );
 	    }
-	    else if ( op & SHORTCUT )
+	    else if ( op & SINGLETON )
 	    {
-		shortcut = ih.kind;
+		singleton = ih.kind;
 		if ( cath.mode != MASTER )
 		{
 		    sprintf ( scan_error ( length ),
-			      "shortcut instruction in"
-			      " atom table %d of non-master"
-			      " mode",
+			      "singleton instruction in"
+			      " atom table %d of"
+			      " non-master mode",
 			      current_atom_table_ID );
 		    return SCAN_ERROR;
 		}
@@ -948,8 +954,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     assert ( first <= last );
 
 
-    uns32 kind = shortcut != 0 ?
-                 shortcut :
+    uns32 kind = singleton != 0 ?
+                 singleton :
 		 last_mode;
 
     switch ( kind )
@@ -1146,7 +1152,7 @@ static uns32 print_instruction
     else
     if ( ( ( h.operation & GOTO ) != 0 )
 	 +
-         ( ( h.operation & SHORTCUT ) != 0 )
+         ( ( h.operation & SINGLETON ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
     else
     if ( ( h.operation & GOTO )
@@ -1157,12 +1163,13 @@ static uns32 print_instruction
          &&
 	 h.atom_table_ID != 0 ) out << "ILLEGAL: ";
     else
-    if ( ( h.operation & ( ERRONEOUS_ATOM + SHORTCUT ) )
+    if ( (  h.operation
+           & ( ERRONEOUS_ATOM + SINGLETON ) )
          &&
 	 h.kind == 0 ) out << "ILLEGAL: ";
     else
     if ( (   h.operation
-           & ( ERRONEOUS_ATOM + SHORTCUT ) ) == 0
+           & ( ERRONEOUS_ATOM + SINGLETON ) ) == 0
          &&
 	 h.kind != 0 ) out << "ILLEGAL: ";
     else
@@ -1222,8 +1229,8 @@ static uns32 print_instruction
         OUT << "ERRONEOUS_ATOM(" << h.kind << ")";
     if ( h.operation & GOTO )
         OUT << "GOTO(" << h.atom_table_ID << ")";
-    if ( h.operation & SHORTCUT )
-        OUT << "SHORTCUT(" << h.kind << ")";
+    if ( h.operation & SINGLETON )
+        OUT << "SINGLETON(" << h.kind << ")";
     if ( h.operation & ELSE )
     {
         else_instruction & ei =

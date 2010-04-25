@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 16:42:34 EDT 2010
+// Date:	Sat Apr 24 21:46:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/25 01:27:12 $
+//   $Date: 2010/04/25 01:58:04 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents
 //
@@ -47,7 +47,7 @@ using LEX::TRANSLATE_OCT;
 using LEX::ELSE;
 using LEX::ERRONEOUS_ATOM;
 using LEX::GOTO;
-using LEX::SHORTCUT;
+using LEX::SINGLETON;
 
 // Setup input to lexical scanner to read the given
 // string of characters and then return end of file.
@@ -129,7 +129,7 @@ static void create_program_2 ( void )
     uns32 oper =
         LEX::create_atom_table ( 7 );
     uns32 separator = 8;
-        // Separator kind for SHORTCUT.
+        // Separator kind for SINGLETON.
 
     const uns8 white = 1;
     const uns8 letter = 2;
@@ -142,20 +142,20 @@ static void create_program_2 ( void )
 
     uns8 cmap[128] =
         {
-            0,		// NUL ’\0’
+            0,          // NUL '\0'
             0,		// SOH (start of heading)
             0,		// STX (start of text)
             0,		// ETX (end of text)
             0,		// EOT (end of transmission)
             0,		// ENQ (enquiry)
             0,		// ACK (acknowledge)
-            0,		// BEL ’\a’ (bell)
-            0,		// BS  ’\b’ (backspace)
-            white,	// HT  ’\t’ (horizontal tab)
-            white,	// LF  ’\n’ (new line)
-            white,	// VT  ’\v’ (vertical tab)
-            white,	// FF  ’\f’ (form feed)
-            white,	// CR  ’\r’ (carriage ret)
+            0,		// BEL '\a' (bell)
+            0,		// BS  '\b' (backspace)
+            white,	// HT  '\t' (horizontal tab)
+            white,	// LF  '\n' (new line)
+            white,	// VT  '\v' (vertical tab)
+            white,	// FF  '\f' (form feed)
+            white,	// CR  '\r' (carriage ret)
             0,		// SO  (shift out)
             0,		// SI  (shift in)
             0,		// DLE (data link escape)
@@ -181,7 +181,7 @@ static void create_program_2 ( void )
             0,		// $
             0,		// %
             0,		// &
-            0,		// ’
+            0,		// '
             sep,	// (
             sep,	// )
             op,		// *
@@ -234,7 +234,7 @@ static void create_program_2 ( void )
             letter,	// Y
             letter,	// Z
             sep,	// [
-            escape,	// \  ’\\’
+            escape,	// \  '\\'
             sep,	// ]
             0,		// ^
             0,		// _
@@ -291,10 +291,10 @@ static void create_program_2 ( void )
 	    ( KEEP(0)+GOTO, oper );
     uns32 separator_instruction =
         LEX::create_instruction
-	    ( ACCEPT+SHORTCUT, 0, separator );
+	    ( ACCEPT+SINGLETON, 0, separator );
     uns32 error_instruction =
         LEX::create_instruction
-	    ( ACCEPT+SHORTCUT, 0, LEX::ERROR );
+	    ( ACCEPT+SINGLETON, 0, LEX::ERROR );
     uns32 err_atom_instruction =
         LEX::create_instruction
 	    ( ERRONEOUS_ATOM+TRANSLATE(0), 0, 100 );

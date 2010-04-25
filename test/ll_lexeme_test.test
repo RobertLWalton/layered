@@ -86,7 +86,7 @@ Cooked Program 2:
             Max Break Elements: 4
             Max Type: 10
             \u0000-\b \u000E-\u001F !-' : <-@ ^-` | ~ \u0080-
-                SHORTCUT(2)
+                SINGLETON(2)
             \t-\r \~
                 GOTO(6)
             A-Z \\ a-z
@@ -94,7 +94,7 @@ Cooked Program 2:
             . 0-9
                 KEEP(0), GOTO(14)
             (-) , ; [ ] { }
-                SHORTCUT(8)
+                SINGLETON(8)
             *-+ - /
                 KEEP(0), GOTO(18)
        128: DISPATCHER
@@ -292,7 +292,7 @@ Start atom scan: atom table = 10
 Scan Returned KIND (5) Input Buffer: c Translation: c
 Start atom scan: atom table = 2
   Character = ( Dispatcher = 58 Type Map = 22 Type = 5
-  SHORTCUT(8)
+  SINGLETON(8)
 Scan Returned KIND (8) Input Buffer: ( Translation: (
 Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 Type = 6
@@ -321,7 +321,7 @@ Start atom scan: atom table = 10
 Scan Returned KIND (5) Input Buffer: d\u007Fe Translation: de
 Start atom scan: atom table = 2
   Character = % Dispatcher = 58 Type Map = 22 Type = 0
-  SHORTCUT(2)
+  SINGLETON(2)
 Scan Returned ERROR Input Buffer: % Translation: %
 Start atom scan: atom table = 2
   Character = f Dispatcher = 58 Type Map = 22 Type = 2
@@ -375,11 +375,11 @@ Start atom scan: atom table = 256
 Scan Returned KIND (6) Input Buffer: .3 Translation: .3
 Start atom scan: atom table = 2
   Character = \u0000 Dispatcher = 58 Type Map = 22 Type = 0
-  SHORTCUT(2)
+  SINGLETON(2)
 Scan Returned ERROR Input Buffer: \u0000 Translation: \u0000
 Start atom scan: atom table = 2
   Character = \u0001 Dispatcher = 58 Type Map = 22 Type = 0
-  SHORTCUT(2)
+  SINGLETON(2)
 Scan Returned ERROR Input Buffer: \u0001 Translation: \u0001
 Start atom scan: atom table = 2
   Character = A Dispatcher = 58 Type Map = 22 Type = 2

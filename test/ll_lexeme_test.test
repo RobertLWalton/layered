@@ -195,7 +195,7 @@ Scan Returned KIND (5) Input Buffer: z Translation: z
 Scan Returned END_OF_FILE
 
 Testing Lexical Scan of:
-*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001
+*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001A\\102C\\100D
 
 Scan Returned KIND (7) Input Buffer: * Translation: *
 Scan Returned KIND (5) Input Buffer: a Translation: a
@@ -216,10 +216,12 @@ Scan Returned KIND (6) Input Buffer: 1.2 Translation: 1.2
 Scan Returned KIND (6) Input Buffer: .3 Translation: .3
 Scan Returned ERROR Input Buffer: \u0000 Translation: \u0000
 Scan Returned ERROR Input Buffer: \u0001 Translation: \u0001
+Erroneous Atom, Kind = KIND (100) Atom = \\100
+Scan Returned KIND (5) Input Buffer: A\\102C\\100D Translation: ABCD
 Scan Returned END_OF_FILE
 
 Testing Lexical Scan of:
-*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001
+*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001A\\102C\\100D
 
 Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 Type = 6
@@ -379,5 +381,38 @@ Start atom scan: atom table = 2
   Character = \u0001 Dispatcher = 58 Type Map = 22 Type = 0
   SHORTCUT(2)
 Scan Returned ERROR Input Buffer: \u0001 Translation: \u0001
+Start atom scan: atom table = 2
+  Character = A Dispatcher = 58 Type Map = 22 Type = 2
+  KEEP(0), GOTO(10)
+Start atom scan: atom table = 10
+  Character = A Dispatcher = 128 Type Map = 22 Type = 2
+  ACCEPT
+Start atom scan: atom table = 10
+  Character = \\ Dispatcher = 128 Type Map = 22 Type = 7
+  Character = 1 Dispatcher = 196 Type Map = 192 Type = 1
+  Character = 0 Dispatcher = 214 Type Map = 192 Type = 1
+  Character = 2 Dispatcher = 232 Type Map = 192 Type = 1
+  TRANSLATE_OCT(1,0), ELSE(162):
+    TRANSLATE(0), ERRONEOUS_ATOM(100)
+  Character = B Dispatcher = 162 Type Map = 188 Type = 1
+Start atom scan: atom table = 10
+  Character = C Dispatcher = 128 Type Map = 22 Type = 2
+  ACCEPT
+Start atom scan: atom table = 10
+  Character = \\ Dispatcher = 128 Type Map = 22 Type = 7
+  Character = 1 Dispatcher = 196 Type Map = 192 Type = 1
+  Character = 0 Dispatcher = 214 Type Map = 192 Type = 1
+  Character = 0 Dispatcher = 232 Type Map = 192 Type = 1
+  TRANSLATE_OCT(1,0), ELSE(162):
+    TRANSLATE(0), ERRONEOUS_ATOM(100)
+  Character = @ Dispatcher = 162 Type = 0
+  TRANSLATE(0), ERRONEOUS_ATOM(100)
+Erroneous Atom, Kind = KIND (100) Atom = \\100
+Start atom scan: atom table = 10
+  Character = D Dispatcher = 128 Type Map = 22 Type = 2
+  ACCEPT
+Start atom scan: atom table = 10
+  KEEP(0), GOTO(2)
+Scan Returned KIND (5) Input Buffer: A\\102C\\100D Translation: ABCD
 Start atom scan: atom table = 2
 Scan Returned END_OF_FILE

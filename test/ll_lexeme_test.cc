@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 11:22:53 EDT 2010
+// Date:	Sat Apr 24 16:42:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 16:18:12 $
+//   $Date: 2010/04/25 01:27:12 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents
 //
@@ -514,14 +514,17 @@ int main ( int argc )
 	' ', '3', '.', '4',
 	' ', 'x', '+', 'y', '+', '+', 'z' };
     test_program ( input1, 14 );
-    uns32 input2[26] = {
+    uns32 input2[37] = {
         '*', 'a', '*', '*',
         'b', '+', '+', '+',
 	'c', '(', '+', 'd', 0177, 'e',
 	'%', 'f', '0',
 	'-', '-', '1', '.', '2', '.', '3',
-	0, 1 };
-    test_program ( input2, 26 );
+	0, 1,
+	'A', '\\', '1', '0', '2',
+	'C', '\\', '1', '0', '0',
+	'D' };
+    test_program ( input2, 37 );
     LEX::scan_trace_out= & cout;
-    test_program ( input2, 26 );
+    test_program ( input2, 37 );
 }

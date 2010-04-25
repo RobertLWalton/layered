@@ -953,7 +953,6 @@ begin c++ lexical program;
     | "<whitespace-char>";
 
 "<sign>" = "+" | "-" ;
-"<exponent-indicator>" = "e" | "E";
 
 // The following list of language specific letters is
 // taken from Annex E of the Working Paper for Draft
@@ -1006,13 +1005,19 @@ begin c++ lexical program;
 //
 // The whitespace lexeme kinds are:
 //
-//    line feed
+//    line feed (lexeme is "\n")
 //    horizontal space
-//    "/*" comment
+//    "/*" comment (include /* and */)
 //    "//" comment (does not include ending line feed)
+//    end of file (lexeme is "")
+//    premature line feed (lexeme is "\n")
+//    premature end of file (lexeme is "")
 //
 // This allows line feeds to be used to end pp control
-// lines.
+// lines.  The `premature' lexemes are errors: the
+// previous lexeme is treated as if there were no error
+// (i.e., as if there were a ", ', */, etc.) and the
+// next lexeme is a `premature ...' lexeme.
 
 begin horizontal space atom table;
     "<horizontal-space-char>" accept;
@@ -1033,8 +1038,15 @@ end "//" comment atom table;
 
 begin premature end of file master atom table;
     mode master;
+    mode master;
     "" output premature end of file;
 end premature end of file master atom table;
+
+begin premature end of line master atom table;
+    mode master;
+    "\n" output premature newline
+    	        goto pp group master;
+end premature end of line master atom table;
 
 begin pp group master atom table;
     mode master;
@@ -1074,21 +1086,73 @@ begin include header name master atom table;
     "<horizontal-space-char>" goto horizontal space;
     "/*" goto "/*" comment;
     "<" translate "" goto bracketted header name;
+    "\"" translate "" goto quoted header name;
     goto normal line master;
 end include header name master atom table;
 
 begin bracketted header name atom table;
+    ">" translate "" goto normal line master;
+    "\n" keep 0 goto premature end of line master;
+    "'" error bad character in header name;
+    "\"" error bad character in header name;
+    "\\" error bad character in header name;
+    "//" error bad character pair in header name;
+    "/*" error bad character pair in header name;
+    "<other>" accept;
+    goto premature end of file master;
 end bracketted header name atom table;
+
+// Quoted header names are not the same as quoted
+// strings, and cannot have escape sequences.
+//
+begin quoted header name atom table;
+    "\"" translate "" goto normal line master;
+    "\n" keep 0 goto premature end of line master;
+    "'" error bad character in header name;
+    "\\" error bad character in header name;
+    "//" error bad character pair in header name;
+    "/*" error bad character pair in header name;
+    "<other>" accept;
+    goto premature end of file master;
+end quoted header name atom table;
+
+begin define identifier master atom table;
+    mode master;
+    "<horizontal-space-char>" goto horizontal space;
+    "/*" goto "/*" comment;
+    "<nondigit>" goto defined identifier;
+    goto normal line master;
+end define identifier master atom table;
+
+begin defined identifier atom table;
+    kind identifier;
+    "<nondigit>" accept;
+    "<digit>" accept;
+    "(" keep 0 goto lparen master;
+    goto normal line master;
+end defined identifier atom table;
+
+begin lparen master;
+    mode master;
+    "(" output lparen goto normal line master;
+end lparen master;
 
 begin normal line master atom table;
     mode master;
+    "<horizontal-space-char>" goto horizontal space;
+    "/*" goto "/*" comment;
+    "//" goto "//" comment;
+
     "<non-digit>" goto identifier;
+
     "<digit>" goto number;
     ".<digit>" goto number;
+
     "'" translate "" goto character literal;
     "L'" translate "" goto wide character literal;
     "\"" translate "" goto string literal;
     "L\"" translate "" goto wide string literal;
+
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
 	    translate hex 2 0 goto identifier
 	    "<letter>"
@@ -1098,11 +1162,7 @@ begin normal line master atom table;
 	    translate hex 2 0 goto identifier
 	    "<letter>"
 	    else output non-letter UNICODE error;
-    "/*" goto "/*" comment;
-    "//" goto "//" comment;
-end master atom table;
 
-begin operator and punctuation atom table;
     "{" output punctuation;
     "}" output punctuation;
     "[" output punctuation;
@@ -1112,7 +1172,12 @@ begin operator and punctuation atom table;
     ")" output punctuation;
     "#" output punctuation;
     "##" output punctuation;
-begin operator and punctuation atom table;
+    "+" output operator;
+    "++" output operator;
+    . . . other punctuation and operators omitted . . .
+
+    "<other>" output erroneous character;
+begin normal line master atom table;
 
 begin identifier atom table;
     "<letter>" accept;
@@ -1125,6 +1190,15 @@ begin identifier atom table;
 	    translate hex 2 0
 	    "<letter>" else keep 0 goto master;
 end identifier atom table;
+
+begin number atom table;
+    "<digit>" accept;
+    "<nondigit>" accept;
+    "e<sign>" accept;
+    "E<sign>" accept;
+    "." accept;
+    goto normal line master;
+end number atom table;
 
 end c++ lexical program;
 \end{verbatim}\end{indpar}

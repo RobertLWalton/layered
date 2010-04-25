@@ -479,7 +479,7 @@ The syntax of a lexical program is given on
 \emkey{instruction-component}
 	& ::= & {\tt accept} \\
 	& $|$ & {\tt keep} {\em natural-number} \\
-	& $|$ & {\em translation-string} \\
+	& $|$ & {\tt translate} {\em translation-string} \\
 	& $|$ & {\tt translate hex} \begin{tabular}[t]{l}
 			{\em natural-number} {\em natural-number} \\
 		        {\em cpat-option}
@@ -625,13 +625,14 @@ one of which may be used.  These affect how the atom is placed into
 the translation buffer, and are applied to the atom \underline{after}
 any {\tt keep} is applied.
 
-A \emmkey{translation-string}{in lexical program}
+A `\ttmkey{translate}{in lexical program}
+\emmkey{translation-string}{in lexical program}'
 {\em instruction-component}
-is just a {\em quoted-string} of characters
+specifies a {\em quoted-string} of characters
 that is copied into the translation buffer instead of the atom.
 A {\em translation-string} may be empty, as in the atom table entry
 \begin{center}
-\verb|"\"" "" goto master;|
+\verb|"\"" translate "" goto master;|
 \end{center}
 which can be used to recognize the last \verb|"| of a quoted string, avoid
 copying anything into the translation buffer, and then switch to the
@@ -706,7 +707,7 @@ lexeme, if it has non-zero length,
 is output with the {\em kind} of the non-{\tt master} mode
 table: see \pagref{KIND-OUTPUT}.
 
-A `\ttmkey{shortcut}{in lexical program} {\em kind}\,'
+A `\ttmkey{singleton}{in lexical program} {\em kind}\,'
 {\em instruction-component} emits the current atom as a lexeme
 of the given {\em kind}.  It can only be used if the current atom
 table has `{\tt master}' mode.  It does what `{\tt goto} {\em kind}\,'
@@ -716,7 +717,7 @@ would do were there an atom table defined as
 \verb|      goto |{\em current-atom-table-name}{\tt ;} \\
 \verb|end |{\em kind}\verb| atom table;|
 \end{indpar}
-The {\tt shortcut} {\em instruction-component} is useful for
+The {\tt singleton} {\em instruction-component} is useful for
 one atom lexemes that can be recognized in a master mode atom table.
 
 \section{Parsing}
@@ -807,7 +808,7 @@ begin master atom table;
    "," singleton separator;
    "'<non-letter>" keep 1 singleton separator;
 
-   "\"" "" goto quoted string;
+   "\"" translate "" goto quoted string;
 
    "<other>" singleton error;
 
@@ -820,39 +821,31 @@ end master atom table;
 // thereof.
 //
 begin comment atom table;
-
-   "<non-line-break-char>" goto comment;
+   "<non-line-break-char>" accept;
    goto whitespace;
        // On line break or end-of-file goto whitespace.
-
 end comment atom table;
 
 
 begin whitespace atom table;
-
-   "<whitespace-char>" goto whitespace;
+   "<whitespace-char>" accept;
    "//" goto comment;
    goto master;
-
 end whitespace atom table;
 
 
 begin word atom table;
-
-   "<word-char>" goto word;
-   "'<letter>" goto word;
+   "<word-char>" accept;
+   "'<letter>" accept;
    goto master;
-
 end word atom table;
 
 
 begin mark atom table;
-
-   "<mark-char>" goto mark;
-   ".<non-digit>" keep 1 goto mark;
-   "/" goto mark;
+   "<mark-char>" accept;
+   ".<non-digit>" keep 1;
+   "/" accept;
    goto master;
-
 end mark atom table;
 
 
@@ -868,10 +861,10 @@ begin number atom table;
    // for the state where the last atom ended with
    // a digit.
 
-   "<digit>" goto number;
-   ".<digit>" keep 1 goto number;
-   "<digit>/<digit>" keep 2 goto number;
-   "<digit>,<digit>" keep 2 goto number;
+   "<digit>" accept;
+   ".<digit>" keep 1;
+   "<digit>/<digit>" keep 2;
+   "<digit>,<digit>" keep 2;
    goto master;
 
 end number atom table;
@@ -879,7 +872,7 @@ end number atom table;
 
 begin quoted string atom table;
 
-    "\"" "" goto master;        // End quoted string.
+    "\"" translate "" goto master;   // End quoted string.
 
     "\\\"" "\"" goto quoted string;
     "\\\n" "\n" goto quoted string;
@@ -890,24 +883,18 @@ begin quoted string atom table;
     "\\\v" "\v" goto quoted string;
     "\\\\" "\\" goto quoted string;
     "\\~"  " "  goto quoted string;
-    "\\x<hex-digit><hex-digit>" translate hex 2 0
-                                goto quoted string;
-    "\\<oct-digit><oct-digit><oct-digit>" translate oct 1 0
-                                goto quoted string;
+    "\\x<hex-digit><hex-digit>" translate hex 2 0;
+    "\\<oct-digit><oct-digit><oct-digit>" translate oct 1 0;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-                                translate hex 2 0
-                                goto quoted string;
+                                translate hex 2 0;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-                                translate hex 2 0
-                                goto quoted string;
-    "<quotable-character>" goto quoted string;
-    "<other>" "" erroneous atom goto quoted string;
+                                translate hex 2 0;
+    "<quotable-character>" accept;
+    "<other>" translate "" erroneous atom goto quoted string;
     goto end of file in quoted string;
 
 end quoted string atom table;
-
-
 
 begin end of file in quoted string atom table;
     kind error;
@@ -926,13 +913,18 @@ end standard lexical program;
 \begin{indpar}\begin{verbatim}
 begin c++ lexical program;
 
+// Before this lexical program is used the input should be
+// preprocessed to replace trigraph sequences, eliminate
+// carriage returns next to newlines, and eliminate backslash
+// newline pairs.  Also any source file character that is not
+// a basic character must be replaced by a universal character
+// name (\uXXXX or \UXXXXXXXX).
+
 "<ascii-letter>" = "a-z" | "A-Z";
 "<digit>" = "0-9";
 "<oct-digit>" = "0-7";
 "<hex-digit>" = "0-9" | "a-f" | "A-F";
-
-"<non-digit>" = ~ "<digit>";
-"<non-zero-digit>" = "1-9";
+"<non-digit>" = "_" | "a-z" | "A-Z";  // I.e., in identifier.
 
 // The following list of language specific letters is taken
 // from Annex E of the Working Paper for Draft Proposed
@@ -950,7 +942,22 @@ begin c++ lexical program;
 "<letter>" = "<ascii-letter>" | "<latin-letter>"
            | . . . | "<CJK-letter>";   // Details omitted
 
-"<sign>" ::= "+" | "-" ;
+"<source-character>" =
+    ( "\u0020-\u007e" & ~ "$" & ~ "@" & ~ "`" )
+    | "\t" | "\v" | "\f" | "\n";
+
+"<sign>" = "+" | "-" ;
+
+// This master table scans at the beginning of lines
+// for pp control directives.
+//
+begin pp group master atom table;
+    mode master;
+    "<horizontal-whitespace-char>" goto whitespace;
+    "##" keep 0 goto non pp control master;
+    "#" goto pp control sign;
+    "<other>" goto non pp control master;
+end pp group master atom table;
 
 begin master atom table;
     "0" goto octal literal;
@@ -964,13 +971,13 @@ begin master atom table;
     "<letter>" goto identifier;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
 	    translate hex 2 0 goto identifier
-	    "<letter>" else shortcut non-letter UNICODE error;
+	    "<letter>" else singleton non-letter UNICODE error;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
 	    translate hex 2 0 goto identifier
-	    "<letter>" else shortcut non-letter UNICODE error;
-    "{" shortcut punctuation;
-    "}" shortcut punctuation;
+	    "<letter>" else singleton non-letter UNICODE error;
+    "{" singleton punctuation;
+    "}" singleton punctuation;
 end master atom table;
 
 begin identifier atom table;

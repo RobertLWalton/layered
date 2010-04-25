@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 24 11:57:57 EDT 2010
+// Date:	Sat Apr 24 21:42:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/24 16:18:44 $
+//   $Date: 2010/04/25 01:58:29 $
 //   $RCSfile: ll_lexeme_program_data.h,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents
 //
@@ -140,10 +140,10 @@ const uns32 type_map_header_length = 4;
 // followed by the else_instruction struct.
 //
 struct instruction_header {
-    uns32 type;			// == INSTRUCTION
+    uns32 type;		    // == INSTRUCTION
     uns32 operation;
-    uns32 atom_table_ID;	// for GOTO
-    uns32 kind;			// for error or shortcut
+    uns32 atom_table_ID;    // for GOTO
+    uns32 kind;		    // for error or singleton
 };
 const uns32 instruction_header_length = 4;
 

@@ -490,7 +490,7 @@ The syntax of a lexical program is given on
 			\end{tabular} \\
 	& $|$ & {\tt error} {\em kind} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
-	& $|$ & {\tt singleton} {\em kind}
+	& $|$ & {\tt output} {\em kind}
 \\[1ex]
 \emkey{translation-string} & ::= & {\em quoted-string}
 \\[1ex]
@@ -581,6 +581,10 @@ The {\em mode} of an atom table is the same as the {\em atom-table-name}
 unless a non-empty {\em mode-option} is given at the beginning of the
 {\em atom-table-definition}.
 
+The first atom table in a lexical program must have `{\tt master}'
+mode, and will become the current atom table when the scanner
+is initialized.
+
 Each \emkey{atom-table-entry} contains an {\em atom-pattern} and
 an {\em instruction-group}.  The \emkey{atom-pattern} is matched against
 the remaining input characters.  The pattern consists of a sequence
@@ -594,6 +598,16 @@ matches 4-character atoms consisting of a \verb|\| followed by an
 \verb|x| followed by two characters each in the character set
 named by \verb|<hex-digit>|.  Note that each {\em atom-pattern}
 only matches atoms of a particular length.
+
+There are two special kinds of atom patterns.  The first is a
+pattern containing the special character pattern
+\verb|"<other>"|\index{other@{\tt \LESSTHAN other\GREATERTHAN}}.
+This pattern matches any character, but an atom pattern containing
+it will be matched only if no atom pattern in the atom table
+that does not contain \verb|"<other>"| is matched.
+The second special atom pattern is \verb|""| that matches an end of file.
+The empty lexeme (lexeme with no characters) serves as the end of file
+lexeme.
 
 An \emmkey{instruction}{in atom-table-entry} in an {\em atom-table-entry}
 specifies actions to be taken when an atom is recognized by the
@@ -707,18 +721,11 @@ lexeme, if it has non-zero length,
 is output with the {\em kind} of the non-{\tt master} mode
 table: see \pagref{KIND-OUTPUT}.
 
-A `\ttmkey{singleton}{in lexical program} {\em kind}\,'
-{\em instruction-component} emits the current atom as a lexeme
-of the given {\em kind}.  It can only be used if the current atom
-table has `{\tt master}' mode.  It does what `{\tt goto} {\em kind}\,'
-would do were there an atom table defined as
-\begin{indpar}
-\verb|begin |{\em kind}\verb| atom table;| \\
-\verb|      goto |{\em current-atom-table-name}{\tt ;} \\
-\verb|end |{\em kind}\verb| atom table;|
-\end{indpar}
-The {\tt singleton} {\em instruction-component} is useful for
-one atom lexemes that can be recognized in a master mode atom table.
+A `\ttmkey{output}{in lexical program} {\em kind}\,'
+{\em instruction-component} emits the current lexeme
+with the given {\em kind}.  It must either be used
+in a master mode atom table or combined with a 
+{\tt goto} transfering to a master mode atom table.
 
 \section{Parsing}
 
@@ -804,13 +811,13 @@ begin master atom table;
    "<digit>" keep 0 goto number;
    ".<digit>" keep 1 goto number;
 
-   "<separator-char>" singleton separator;
-   "," singleton separator;
-   "'<non-letter>" keep 1 singleton separator;
+   "<separator-char>" output separator;
+   "," output separator;
+   "'<non-letter>" keep 1 output separator;
 
    "\"" translate "" goto quoted string;
 
-   "<other>" singleton error;
+   "<other>" output error;
 
 end master atom table;
 
@@ -913,72 +920,199 @@ end standard lexical program;
 \begin{indpar}\begin{verbatim}
 begin c++ lexical program;
 
-// Before this lexical program is used the input should be
-// preprocessed to replace trigraph sequences, eliminate
-// carriage returns next to newlines, and eliminate backslash
-// newline pairs.  Also any source file character that is not
-// a basic character must be replaced by a universal character
-// name (\uXXXX or \UXXXXXXXX).
+// Before this lexical program is used the input should
+// be preprocessed to
+//
+//    (1) Replace trigraph sequences.
+//    (2) Eliminate carriage returns next to newlines.
+//    (3) Eliminate backslash newline pairs.
+//    (4) Replace any source file character that is not
+//        one of the 96 `source characters' by a univer-
+//        sal character name (\uXXXX or \UXXXXXXXX).
+//
+// After this lexical program is used the output should
+// be postprocessed to
+//
+//    (5) Perform C/C++ macro preprocessing (macro
+//        expansion.
+//    (6) Concatenate adjacent ordinary quoted strings
+//        and adjacent wide quoted strings.
 
-"<ascii-letter>" = "a-z" | "A-Z";
 "<digit>" = "0-9";
 "<oct-digit>" = "0-7";
 "<hex-digit>" = "0-9" | "a-f" | "A-F";
-"<non-digit>" = "_" | "a-z" | "A-Z";  // I.e., in identifier.
+"<non-digit>" = "_" | "a-z" | "A-Z";
+    // I.e., in identifier.
 
-// The following list of language specific letters is taken
-// from Annex E of the Working Paper for Draft Proposed
-// International Standard for Information Systems—Programming
-// Language C++, 1996.
+"<ascii-letter>" = "a-z" | "A-Z";
+
+"<space-char>" = " " | "\t" | "\v" | "\f";
+
+"<source-character>" =
+    ( "\u0020-\u007e" & ~ "$" & ~ "@" & ~ "`" )
+    | "<whitespace-char>";
+
+"<sign>" = "+" | "-" ;
+"<exponent-indicator>" = "e" | "E";
+
+// The following list of language specific letters is
+// taken from Annex E of the Working Paper for Draft
+// Proposed International Standard for Information
+// Systems—Programming Language C++, 1996.
 
 "<latin-letter>" = "\u00c0-\n00d6" | "\u00d8-\u00f6"
                  | "\u00f8-\u01f5" | "\u01fa-\u0217"
                  | "\u0250-\u02a8" | "\u1ea0-\u1ef9";
 
-. . . . . letter character pattern definitions omitted . . . . .
+. . . letter character pattern definitions omitted . . .
 
-"<CJK-letter>" = "\uf900-\ufa2d" | . . .  // Details omitted
+"<CJK-letter>" = "\uf900-\ufa2d" | . . .
+    // Details omitted
 
 "<letter>" = "<ascii-letter>" | "<latin-letter>"
-           | . . . | "<CJK-letter>";   // Details omitted
+           | . . . | "<CJK-letter>";
+    // Details omitted
 
-"<source-character>" =
-    ( "\u0020-\u007e" & ~ "$" & ~ "@" & ~ "`" )
-    | "\t" | "\v" | "\f" | "\n";
+// Alternative operators that are not identifiers are
+// translated.  E.g., <: becomes [ in the translation
+// buffer.  An exc
 
-"<sign>" = "+" | "-" ;
-
-// This master table scans at the beginning of lines
-// for pp control directives.
+// C/C++ preprocessing is hereafter abbreviated as `pp'.
 //
+// Because of pp control lines, lexical scanning is
+// slightly context dependent.  There are several
+// contexts, each corresponding to a different master
+// atom table:
+//
+//    pp group master (initial master)
+//        Used in line beginning situations to recognize
+//        the # token that introduces a pp control line.
+//    pp control line beginning master
+//        Used to scan the beginning of a pp control
+//        line.
+//    pp include header name master
+//        Used to scan the header name of an #include
+//	  statement.
+//    pp define identifier name master
+//        Used to scan the 
+//	  statement.
+//    pp control line master
+//        Used to scan the remainder of a pp control
+//	  line.  Recognizes the line ending line feed.
+//    normal line master
+//        Used to scan a non pp control line or the rest
+//	  of a pp control line that consists of just pp
+//	  tokens.
+//
+// The whitespace lexeme kinds are:
+//
+//    line feed
+//    horizontal space
+//    "/*" comment
+//    "//" comment (does not include ending line feed)
+//
+// This allows line feeds to be used to end pp control
+// lines.
+
+begin horizontal space atom table;
+    "<horizontal-space-char>" accept;
+    goto last master;
+end horizontal space atom table;
+
+begin "/*" comment atom table;
+    "*/" goto last master;
+    "<other>" accept;
+    goto premature end of file master;
+end "/*" comment atom table;
+
+begin "//" comment atom table;
+    "\n" keep 0 goto last master;
+    "<other>" accept;
+    goto premature end of file master;
+end "//" comment atom table;
+
+begin premature end of file master atom table;
+    mode master;
+    "" output premature end of file;
+end premature end of file master atom table;
+
 begin pp group master atom table;
     mode master;
-    "<horizontal-whitespace-char>" goto whitespace;
-    "##" keep 0 goto non pp control master;
-    "#" goto pp control sign;
-    "<other>" goto non pp control master;
+    "<horizontal-space-char>"
+        goto horizontal space;
+    "/*" goto "/*" comment;
+    "##" output operator
+         goto normal line master;
+    "%:%:" translate "##" output operator
+                          goto normal line master;
+    "#" output punctuation
+        goto pp control master;
+    "%:" translate "#" output punctuation
+                       goto pp control master;
+    goto normal line master;
 end pp group master atom table;
 
-begin master atom table;
-    "0" goto octal literal;
-    "<non-zero-digit>" goto decimal literal;
-    "0x" goto hexadecimal literal;
-    "0X" goto hexadecimal literal;
-    "'" "" goto character literal;
-    "L'" "" goto wide character literal;
-    "\"" "" goto string literal;
-    "L\"" "" goto wide string literal;
-    "<letter>" goto identifier;
+begin pp control master atom table;
+    mode master;
+    "<horizontal-space-char>" goto horizontal space;
+    "/*" goto "/*" comment;
+    "include<horizontal-space-char>" keep 7
+        output identifier
+    	goto pp include header name master;
+    "include/*" keep 7 output identifier
+    	goto pp include header name master;
+    "define<horizontal-space-char>" keep 6
+        output identifier
+    	goto pp define identifier master;
+    "define/*" keep 6 output identifier
+    	goto pp define identifier master;
+    goto normal line master;
+end pp control master atom table;
+
+begin include header name master atom table;
+    mode master;
+    "<horizontal-space-char>" goto horizontal space;
+    "/*" goto "/*" comment;
+    "<" translate "" goto bracketted header name;
+    goto normal line master;
+end include header name master atom table;
+
+begin bracketted header name atom table;
+end bracketted header name atom table;
+
+begin normal line master atom table;
+    mode master;
+    "<non-digit>" goto identifier;
+    "<digit>" goto number;
+    ".<digit>" goto number;
+    "'" translate "" goto character literal;
+    "L'" translate "" goto wide character literal;
+    "\"" translate "" goto string literal;
+    "L\"" translate "" goto wide string literal;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
 	    translate hex 2 0 goto identifier
-	    "<letter>" else singleton non-letter UNICODE error;
+	    "<letter>"
+	    else output non-letter UNICODE error;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
 	    translate hex 2 0 goto identifier
-	    "<letter>" else singleton non-letter UNICODE error;
-    "{" singleton punctuation;
-    "}" singleton punctuation;
+	    "<letter>"
+	    else output non-letter UNICODE error;
+    "/*" goto "/*" comment;
+    "//" goto "//" comment;
 end master atom table;
+
+begin operator and punctuation atom table;
+    "{" output punctuation;
+    "}" output punctuation;
+    "[" output punctuation;
+    "]" output punctuation;
+    "(" output punctuation;
+    ")" output punctuation;
+    ")" output punctuation;
+    "#" output punctuation;
+    "##" output punctuation;
+begin operator and punctuation atom table;
 
 begin identifier atom table;
     "<letter>" accept;

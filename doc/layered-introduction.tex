@@ -338,7 +338,8 @@ Lexical atoms are read left to right and
 grouped by the scanner into \skey{lexeme}s.
 
 The scanner has a state containing a current point 
-in the input UNICODE character stream and a current atom table identifier.  An
+in the input UNICODE character stream
+and a \key{current atom table} identifier.  An
 \key{atom table} is a set of atom patterns
 that match lexical atoms, and for each pattern an
 instruction that determines what to do when the pattern is matched.
@@ -380,7 +381,7 @@ instruction can optionally reduce the length of a matched atom
 and optionally change the current atom table.  It can also do other
 things described below.
 
-Atom tables have modes that are either lexeme kinds or
+Atom tables have \skey{mode}s that are either lexeme kinds or
 are the special mode `\ttmkey{master}{mode}'.
 Non-master mode tables, whose modes are kinds,
 are typically dedicated to recognizing lexemes
@@ -566,6 +567,60 @@ The syntax of a lexical program is given on
 \label{LEXEME-PROGRAM-SYNTAX-2}
 \end{figure*}
 
+A simple lexical program that recognizes
+whitespace and quoted strings without escapes is given
+at the top of \pagref{EXAMPLE-LEXEME-PROGRAM}.
+
+\begin{figure*}[!p]
+\addtolength{\baselineskip}{-0.4ex}
+\begin{indpar}\begin{verbatim}
+begin premature tables lexical program;
+    // Stuff to include.
+
+begin premature end of line;
+    mode master;
+    "\n" output premature end of line
+         goto master;
+end premature end of line;
+
+begin premature end of file;
+    mode master;
+    output premature end of file;
+end premature end of file;
+
+end premature tables lexical program;
+
+begin example lexical program;
+    // Main program.
+
+"<whitespace-char>" = " " | "\n" | "\t" | "\v" | "\f";
+
+begin master atom table;
+    "<whitespace-char>" goto whitespace;
+    "\"" translate "" goto quoted string;
+    "<other>" output bad character;
+    output end of file;
+end master atom table;
+
+begin whitespace atom table;
+    "<whitespace-char>" accept;
+    goto master;
+end whitespace atom table;
+
+begin quoted string atom table;
+    "\"" translate "" goto master;
+    "\n" keep 0 goto premature end of line;
+    "<other>" accept;
+    goto premature end of file;
+end quoted string atom table;
+
+include premature tables;
+
+end example lexical program;
+\end{verbatim}\end{indpar}
+\label{EXAMPLE-LEXEME-PROGRAM}
+\end{figure*}
+
 A \emkey{lexical-program} consists of a sequence of
 {\em character-\EOL pattern-\EOL defi\-ni\-tions},
 {\em atom-\EOL table-\EOL defi\-ni\-tions},
@@ -575,7 +630,10 @@ other previously defined lexical programs.
 
 A \emkey{program-inclusion} names a previously defined lexical program
 whose definitions are to be included in the current lexical program
-at the point of the {\em program-inclusion}.  Identical definitions
+at the point of the {\em program-inclusion}.
+There is a simple example of a program inclusion at the bottom of
+\pagref{EXAMPLE-LEXEME-PROGRAM}.
+Identical definitions
 may be repeated without error,
 as can happen when one program includes two each of
 which include the same third program.
@@ -626,10 +684,22 @@ Note that the \verb/|/ and \verb|&| operators cannot be used together
 in the same expression without intervening parentheses as neither
 takes precedence over the other.  This is done to prevent ambiguity.
 
+Some example {\em character-pattern-definitions} are:
+
+\begin{indpar}\begin{verbatim}
+"<hex-digit>" = "0-9" | "a-f" | "A-F";
+"<non-line-break-char>" = ~ "\n" & ~ "\v" & ~ "\f";
+"<quotable-char>" = "\u0020-\u007e" & ~ "\"" & ~ "\\";
+"<whitespace-char>" = " " | "\n" | "\v" | "\f" | "\t" | "\r";
+"<source-character>" =
+    ( "\u0020-\u007e" & ~ "$" & ~ "@" & ~ "`" )
+    | "<whitespace-char>";
+\end{verbatim}\end{indpar}
+
 An {\em atom-table-definition} specifies an {\em atom-table-name},
 a {\em mode} for the table, a set of {\em atom-table-entries}
 each containing an {\em atom-pattern} and an {\em instruction},
-and an optional default {\tt goto} instruction for use when
+and an optional default instruction for use when
 no atom is recognized by any of the table entries.
 
 The {\em mode} of an atom table can be either a {\em kind} or can be
@@ -640,11 +710,15 @@ by the table (not all tables recognize lexemes).  See
 
 The {\em mode} of an atom table is the same as the {\em atom-table-name}
 unless a non-empty {\em mode-option} is given at the beginning of the
-{\em atom-table-definition}.
+{\em atom-table-definition}.  The `{\tt premature end of line}' atom
+table at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} is an example
+of an atom table with a {\em mode-option}.
 
 The first atom table in a lexical program must have `{\tt master}'
 mode, and will become the current atom table when the scanner
-is initialized.
+is initialized.  This table is typically named `{\tt master}',
+as it is in the example on
+\pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 Each \emkey{atom-table-entry} contains an {\em atom-pattern} and
 an {\em instruction-group}.  The \emkey{atom-pattern} is matched against

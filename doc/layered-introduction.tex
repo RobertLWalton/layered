@@ -247,7 +247,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 24, 2010
+April 26, 2010
  
 \end{center}
 
@@ -391,8 +391,7 @@ The syntax of a lexical program is given on
 \begin{figure*}[!p]
 \begin{tabular}{p{2.2in}rl}
 \emkey{name}
-    & ::= & {\em word}
-            \{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
+    & ::= & \{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^+$
 \end{tabular}
 
 \begin{tabular}{p{2.2in}rl}
@@ -447,7 +446,7 @@ The syntax of a lexical program is given on
 		    {\tt atom table} {\tt ;} \\
 	& &  ~~~~{\em mode-option} \\
 	& &  ~~~~{\em atom-table-entry}$^\star$ \\
-	& &  ~~~~{\em goto-instruction-option} \\
+	& &  ~~~~{\em default-instruction-option} \\
 	& & {\tt end} {\em atom-table-name} {\tt atom table;}
 \\[1ex]
 \emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode} {\tt ;}
@@ -455,8 +454,8 @@ The syntax of a lexical program is given on
 \\[1ex]
 \emkey{mode} & ::= &  {\tt master} $|$ {\em kind}
 \\[1ex]
-\emkey{goto-instruction-option}
-	& ::= &  {\em empty} $|$ {\tt goto} {\em atom-table-name}
+\emkey{default-instruction-option}
+	& ::= &  {\em empty} $|$ {\em instruction}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
@@ -599,15 +598,13 @@ matches 4-character atoms consisting of a \verb|\| followed by an
 named by \verb|<hex-digit>|.  Note that each {\em atom-pattern}
 only matches atoms of a particular length.
 
-There are two special kinds of atom patterns.  The first is a
-pattern containing the special character pattern
-\verb|"<other>"|\index{other@{\tt \LESSTHAN other\GREATERTHAN}}.
-This pattern matches any character, but an atom pattern containing
+
+The special character pattern
+\verb|"<other>"|\index{other@{\tt \LESSTHAN other\GREATERTHAN}}
+can be used in an atom pattern to match any character,
+but an atom pattern containing
 it will be matched only if no atom pattern in the atom table
 that does not contain \verb|"<other>"| is matched.
-The second special atom pattern is \verb|""| that matches an end of file.
-The empty lexeme (lexeme with no characters) serves as the end of file
-lexeme.
 
 An \emmkey{instruction}{in atom-table-entry} in an {\em atom-table-entry}
 specifies actions to be taken when an atom is recognized by the
@@ -723,9 +720,19 @@ table: see \pagref{KIND-OUTPUT}.
 
 A `\ttmkey{output}{in lexical program} {\em kind}\,'
 {\em instruction-component} emits the current lexeme
-with the given {\em kind}.  It must either be used
+with the given {\em kind}.  This
+{\em instruction-component} must either be used
 in a master mode atom table or combined with a 
 {\tt goto} transfering to a master mode atom table.
+
+An {\em atom-table} ends with an optional {\em instruction},
+called the {\em default-instruction},
+that executes if no atom is recognized by any {\em atom-pattern}
+in the table.
+
+Note that if \verb|"<other>"| is an {\em atom-pattern} in an atom table
+then any default instruction for the table will only be executed
+if the current input consists of an end of file.
 
 \section{Parsing}
 
@@ -991,17 +998,17 @@ begin c++ lexical program;
 //        line.
 //    pp include header name master
 //        Used to scan the header name of an #include
-//	  statement.
+//        statement.
 //    pp define identifier name master
 //        Used to scan the 
-//	  statement.
+//        statement.
 //    pp control line master
 //        Used to scan the remainder of a pp control
-//	  line.  Recognizes the line ending line feed.
+//        line.  Recognizes the line ending line feed.
 //    normal line master
 //        Used to scan a non pp control line or the rest
-//	  of a pp control line that consists of just pp
-//	  tokens.
+//        of a pp control line that consists of just pp
+//        tokens.
 //
 // The whitespace lexeme kinds are:
 //
@@ -1019,40 +1026,46 @@ begin c++ lexical program;
 // (i.e., as if there were a ", ', */, etc.) and the
 // next lexeme is a `premature ...' lexeme.
 
+// Initial master is used only to start at pp group
+// master.
+//
+begin initial master atom table;
+    goto pp group master;
+end initial master atom table;
+
 begin horizontal space atom table;
     "<horizontal-space-char>" accept;
-    goto last master;
+    return;
 end horizontal space atom table;
 
 begin "/*" comment atom table;
-    "*/" goto last master;
+    "*/" return;
     "<other>" accept;
     goto premature end of file master;
 end "/*" comment atom table;
 
 begin "//" comment atom table;
-    "\n" keep 0 goto last master;
+    "\n" keep 0 return;
     "<other>" accept;
     goto premature end of file master;
 end "//" comment atom table;
 
 begin premature end of file master atom table;
     mode master;
-    mode master;
-    "" output premature end of file;
+    output premature end of file;
 end premature end of file master atom table;
 
 begin premature end of line master atom table;
     mode master;
     "\n" output premature newline
-    	        goto pp group master;
+                goto pp group master;
 end premature end of line master atom table;
 
 begin pp group master atom table;
     mode master;
     "<horizontal-space-char>"
-        goto horizontal space;
-    "/*" goto "/*" comment;
+        call horizontal space;
+    "/*" call "/*" comment;
     "##" output operator
          goto normal line master;
     "%:%:" translate "##" output operator
@@ -1066,25 +1079,25 @@ end pp group master atom table;
 
 begin pp control master atom table;
     mode master;
-    "<horizontal-space-char>" goto horizontal space;
-    "/*" goto "/*" comment;
+    "<horizontal-space-char>" call horizontal space;
+    "/*" call "/*" comment;
     "include<horizontal-space-char>" keep 7
         output identifier
-    	goto pp include header name master;
+        goto pp include header name master;
     "include/*" keep 7 output identifier
-    	goto pp include header name master;
+        goto pp include header name master;
     "define<horizontal-space-char>" keep 6
         output identifier
-    	goto pp define identifier master;
+        goto pp define identifier master;
     "define/*" keep 6 output identifier
-    	goto pp define identifier master;
+        goto pp define identifier master;
     goto normal line master;
 end pp control master atom table;
 
 begin include header name master atom table;
     mode master;
-    "<horizontal-space-char>" goto horizontal space;
-    "/*" goto "/*" comment;
+    "<horizontal-space-char>" call horizontal space;
+    "/*" call "/*" comment;
     "<" translate "" goto bracketted header name;
     "\"" translate "" goto quoted header name;
     goto normal line master;
@@ -1118,8 +1131,8 @@ end quoted header name atom table;
 
 begin define identifier master atom table;
     mode master;
-    "<horizontal-space-char>" goto horizontal space;
-    "/*" goto "/*" comment;
+    "<horizontal-space-char>" call horizontal space;
+    "/*" call "/*" comment;
     "<nondigit>" goto defined identifier;
     goto normal line master;
 end define identifier master atom table;
@@ -1139,9 +1152,9 @@ end lparen master;
 
 begin normal line master atom table;
     mode master;
-    "<horizontal-space-char>" goto horizontal space;
-    "/*" goto "/*" comment;
-    "//" goto "//" comment;
+    "<horizontal-space-char>" call horizontal space;
+    "/*" call "/*" comment;
+    "//" call "//" comment;
 
     "<non-digit>" goto identifier;
 
@@ -1154,14 +1167,14 @@ begin normal line master atom table;
     "L\"" translate "" goto wide string literal;
 
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-	    translate hex 2 0 goto identifier
-	    "<letter>"
-	    else output non-letter UNICODE error;
+            translate hex 2 0 goto identifier
+            "<letter>"
+            else output non-letter UNICODE error;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-	    translate hex 2 0 goto identifier
-	    "<letter>"
-	    else output non-letter UNICODE error;
+            translate hex 2 0 goto identifier
+            "<letter>"
+            else output non-letter UNICODE error;
 
     "{" output punctuation;
     "}" output punctuation;
@@ -1183,12 +1196,13 @@ begin identifier atom table;
     "<letter>" accept;
     "<digit>" accept;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-	    translate hex 2 0
-	    "<letter>" else keep 0 goto master;
+            translate hex 2 0 "<letter>"
+	    else keep 0 goto normal line master;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-	    translate hex 2 0
-	    "<letter>" else keep 0 goto master;
+            translate hex 2 0 "<letter>"
+	    else keep 0 goto normal line master;
+    goto normal line master;
 end identifier atom table;
 
 begin number atom table;
@@ -1199,6 +1213,96 @@ begin number atom table;
     "." accept;
     goto normal line master;
 end number atom table;
+
+begin character literal atom table;
+    "'" translate "" goto normal line master;
+    "\n" keep 0 goto premature end of line master;
+    "\\" keep 0 call escape character;
+    "<other>" accept;
+    goto premature end of file master;
+end character literal atom table;
+
+begin wide character literal atom table;
+    "'" translate "" goto normal line master;
+    "\n" keep 0 goto premature end of line master;
+    "\\" keep 0 call escape character;
+    "<other>" accept;
+    goto premature end of file master;
+end wide character literal atom table;
+
+begin string literal atom table;
+    "\"" translate "" goto normal line master;
+    "\n" keep 0 goto premature end of line master;
+    "\\" keep 0 call escape character;
+    "<other>" accept;
+    goto premature end of file master;
+end string literal atom table;
+
+begin wide string literal atom table;
+    "\"" translate "" goto normal line master;
+    "\n" keep 0 goto premature end of line master;
+    "\\" keep 0 call escape character;
+    "<other>" accept;
+    goto premature end of file master;
+end wide string literal atom table;
+
+// This atom table is called when the next atom
+// begins with \ and is in a character or string
+// literal.
+//
+// We allow only a maximum of 8 hexadecimal digits
+// after \x; 9 digits is an error.  The C++ standard
+// permits any number of hexadecimal digits.
+//
+begin escape character atom table;
+    "\\n" translate "\n" return;
+    "\\t" translate "\t" return;
+    "\\v" translate "\v" return;
+    "\\b" translate "\b" return;
+    "\\r" translate "\r" return;
+    "\\f" translate "\f" return;
+    "\\a" translate "\a" return;
+    "\\\\" translate "\\" return;
+    "\\?" translate "\?" return;
+    "\\\"" translate "\"" return;
+    "\\'" translate "'" return;
+    "\\<oct-digit>"
+        translate-oct 1 0 return;
+    "\\<oct-digit><oct-digit>"
+        translate-oct 1 0 return;
+    "\\<oct-digit><oct-digit><oct-digit>"
+        translate-oct 1 0 return;
+    "\\x<hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit>"
+        error too many hex digits after "\\x" return;
+    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate-hex 2 0 return;
+    "\\<other>" error bad escape sequence return;
+end escape character atom table;
 
 end c++ lexical program;
 \end{verbatim}\end{indpar}

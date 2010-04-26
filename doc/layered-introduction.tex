@@ -307,80 +307,140 @@ and attempts to be human efficient by supporting algorithms
 that people can readily understand and hopefully quickly
 learn to mimic.\footnote{A possibly non-verifiable goal.}
 
-The standard scanner identifies lexical atoms in the text.
+The standard scanner operates on an input stream of 32-bit
+UNICODE characters.  Each character is associated with
+a position value that specifies from where the character
+came.  For example, a position value may encode a file name,
+line within file number, and column within line number.
+When the standard scanner identifies a lexeme, it a sequence
+of input stream UNICODE 32-bit characters each with a
+corresponding position value.
+
+The standard scanner also produces a translation of each
+lexeme.  This may just be a copy of the 32-bit characters
+in the lexeme, or it may have some changes, or `translations',
+of some of these characters.  For example, the lexeme
+\verb|"a line\n"| may have a translation that omits the
+\verb|"|'s and converts the two characters \verb|\n| into
+a single linefeed character.
+
+When the standard scanner identifies a lexeme it also identifies
+a `\mkey{kind}{of lexeme}' that serves to type the lexeme.
+For example, the lexeme \verb|9.35| may have kind `{\tt number}'
+while the lexeme \verb|"abc"| may have the kind `{\tt quoted string}'.
+
+At its most fundamental level the
+standard scanner identifies lexical atoms in the input text.
 A \key{lexical atom} is a single character (e.g., the letters
 in an identifier or symbol) or a short string of characters
 (e.g., the characters \verb|\n| in a quoted string).
 Lexical atoms are read left to right and
-grouped by the scanner into \skey{lexeme}s,
-which are the output of the scanner.
+grouped by the scanner into \skey{lexeme}s.
 
-The scanner has a state consisting of a current point 
+The scanner has a state containing a current point 
 in the input UNICODE character stream and a current atom table identifier.  An
 \key{atom table} is a set of atom patterns
 that match lexical atoms, and for each pattern an
 instruction that determines what to do when the pattern is matched.
-There is also an instruction associated with the atom table that
+There is also a \key{default instruction} associated with the atom table that
 determines what to do when no table pattern matches the next characters
 in the input stream.
 
 An \key{atom pattern}\index{pattern!lexical atom} is a fixed
 length sequence of character patterns, and matches any sequence of
-UNICODE characters of the same length as the atom pattern
-if each character of the sequence matches the corresponding
+input characters of the same length as the atom pattern
+if each input character of the sequence matches the corresponding
 character pattern.  A \key{character pattern} is simply a
 specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
-a single letters, or one that will recognize the sequence of
-characters \verb|\u<hexdigit><hexdigit><hexdigit><hexdigit>|.
+single letters, or one that will recognize the sequence of
+characters such as the 2-character sequence \verb|\n| which matches
+the atom pattern \verb|"\\n"|
+or the 6-character sequence \verb|u000a| which matches the atom pattern
+\begin{center}
+\verb|"\\u<hex-digit><hex-digit><hex-digit><hex-digit>"|
+\end{center}
+where \verb|<hex-digit>| names a character pattern matching characters
+in the ranges \verb|0-9|, \verb|a-f|, and \verb|A-F|.
 
-The atom patterns of a single atom table may not conflict:
+The atom patterns of a single atom table must not conflict:
 no character string can be recognized by two atom patterns of the
 same atom table.
 
 The scanner operates by identifying the
 longest sequence of characters beginning at the current input character
-stream point that matches an atom pattern of the current atom.
+stream point that matches an atom pattern of the current atom table.
 This sequence of characters becomes
 the next atom, and an instruction associated with its matching
 atom pattern is then executed.  If no atom pattern can be matched,
-the instruction associated with the atom table is executed instead.
+the default instruction associated with the atom table is executed instead.
 
-An atom pattern or atom table
+An atom table
 instruction can optionally reduce the length of a matched atom
-and optionally change the current atom table.
+and optionally change the current atom table.  It can also do other
+things described below.
 
 Atom tables have modes that are either lexeme kinds or
-are the special mode `\ttmkey{master}{mode}'.  When the
-current lexical atom table is changed to a new table of
-`\verb|master|' mode, any non-zero length lexeme accumulated
-so far is output as a lexeme whose \mkey{kind}{lexeme}\label{KIND-OUTPUT}
+are the special mode `\ttmkey{master}{mode}'.
+Non-master mode tables, whose modes are kinds,
+are typically dedicated to recognizing lexemes
+of the indicate kind.  Master mode atom tables are used to
+dispatch to non-master mode tables.
+
+When the current lexical atom table is changed from a non-master mode
+table to a master mode table, any non-zero length lexeme accumulated
+so far is output as a lexeme whose kind\label{KIND-OUTPUT}
 equals
-the mode of the previous current atom table.  Thus if an atom table of
+the mode of the non-master mode table.  Thus if an atom table of
 mode `\verb|whitespace|' cannot recognized any atom and
-the instruction associated with it that is executed in this
-case changes the current atom table to one of `\verb|master|'
-mode, any non-zero length lexeme accumulated so far will
+the default instruction associated with it
+changes the current atom table to a master mode table,
+any non-zero length lexeme accumulated so far will
 be output as a lexeme of kind `\verb|whitespace|'.
 
-The lexeme output consists of a sequence of characters in the
-input character stream.  In addition there is a translation
-of this lexeme.  Each atom is translated by the
-instruction that is executed when the atom is recognized.
-By default atoms are not changed by translation but merely copied to the end
-of current lexeme's translation.  But any set of characters can be
-included in the instruction and
-copied instead.  For example, for the lexeme \verb|"a line\n"| the
-\verb|"| atoms can be translated to zero length strings and the
-\verb|\n| atom can be translated to a single line feed character.
-If the other characters are copied as is to the translation, then
-the translation will contain 5 letters, one single space character,
-and one line feed character.
+When it is between lexemes that current atom table in the scanner state
+is always a master mode table.  Master mode tables correspond to lexical
+contexts.  A well designed language has only one main master mode
+table, plus a few small master mode tables to handle error situations
+such a premature new-line and premature end-of-file;
+see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.
+Legacy languages
+may have more master mode tables: C/C++ has several to handle
+special lexical scanning of preprocessing lexemes;
+see Appendix \itemref{C++-LEXICAL-PROGRAM}.
 
-A \key{lexical program} is a set of character pattern definitions,
-atom pattern definitions, and atom tables, with a designated atom
-table to serve as initial state.  A lexical program can include
+The standard scanner can report errors in one of two ways.  It may
+simply output a lexeme with a kind that indicates an error.  For
+example, the character \verb|\| appearing outside a quoted string
+might be returned as a 1-character lexeme of kind `{\tt errnoneous
+character}'.  Alternatively a single atom may be reported as an
+error of a given kind without interrupting the normal operation
+of the scanner.  For example, if \verb|\h| appears in a quoted
+string, it may be reported as an erroneous atom of kind
+`{\tt bad escape sequence}'.  Otherwise this atom is processed
+normally; it might, for example, be omitted from the lexeme
+translation or be represented in that translation by the DEL
+character (\verb|\u007F|).
+
+\ikey{Instructions}{instruction!in lexical program}
+that are associated with atom patterns can optionally do any
+of the following:
+\begin{itemize}
+\item reduce the length of the matched atom
+\item translate the reduced length atom to a different
+character string within the lexeme translation
+\item announce the reduced length atom as an erroneous atom of a given kind
+\item output the atoms accumulated so far as a lexeme of a given kind
+\item change the current atom table
+\end{itemize}
+
+More details and examples are given in the next section.
+
+A \key{lexical program} is a set of character pattern definitions
+and atom tables, with a designated master-mode atom
+table to serve as the initial atom table.  A lexical program can include
 another lexical program.
+
 
 \subsection{Lexical Programs}
 
@@ -488,8 +548,10 @@ The syntax of a lexical program is given on
 		        {\em cpat-option}
 			\end{tabular} \\
 	& $|$ & {\tt error} {\em kind} \\
+	& $|$ & {\tt output} {\em kind} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
-	& $|$ & {\tt output} {\em kind}
+	& $|$ & {\tt call} {\em atom-table-name} \\
+	& $|$ & {\tt return} \\
 \\[1ex]
 \emkey{translation-string} & ::= & {\em quoted-string}
 \\[1ex]

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 21:42:36 EDT 2010
+// Date:	Wed Apr 28 09:24:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/25 01:58:23 $
+//   $Date: 2010/04/28 13:24:57 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.34 $
+//   $Revision: 1.35 $
 
 // Table of Contents
 //
@@ -140,14 +140,10 @@ uns32 LEX::create_instruction
 	  uns32 else_dispatcher_ID,
 	  uns32 else_instruction_ID )
 {
-    assert ( ( operation & ( GOTO + SINGLETON ) )
-             !=
-	     ( GOTO + SINGLETON ) );
-
     assert ( (   operation
-               & ( ERRONEOUS_ATOM + SINGLETON ) )
+               & ( ERRONEOUS_ATOM + OUTPUT ) )
              !=
-	     ( ERRONEOUS_ATOM + SINGLETON ) );
+	     ( ERRONEOUS_ATOM + OUTPUT ) );
 
     assert ( ( ( operation & TRANSLATE_FLAG ) != 0 )
 	     +
@@ -167,7 +163,7 @@ uns32 LEX::create_instruction
     else
         assert ( atom_table_ID == 0 );
 
-    if ( operation & ( ERRONEOUS_ATOM + SINGLETON ) )
+    if ( operation & ( ERRONEOUS_ATOM + OUTPUT ) )
         assert ( kind != 0 );
     else
         assert ( kind == 0 );
@@ -474,7 +470,8 @@ void LEX::init_scan ( void )
 // `length' is the number of characters scanned after
 // `next'.
 //
-static char * scan_error ( uns32 length );
+static char * scan_error
+        ( uns32 length, uns32 next = ::next );
 
 // Write a character using spchar to a static buffer
 // and return the static buffer.
@@ -595,7 +592,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // We scan atoms until we get to a point where the
     // atom table is to be changed from a table with
     // mode != MASTER to one with mode == MASTER and
-    // next != first, or `singleton' is set.
+    // next != first, or `output_kind' is set.
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
@@ -615,12 +612,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // goes to zero we must be in a loop changing atom
     // tables and not finding an atom.
     // 
-    uns32 singleton = 0;
+    uns32 output_kind = 0;
     uns32 last_mode = MASTER;
     uns32 loop_count = program.length;
         // Set to max number of atom tables in order
 	// to detect endless loops.
-    while ( singleton == 0 )
+    while ( true )
     {
         // Scan next atom of current lexeme.
 
@@ -634,6 +631,22 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	     &&
 	     first != next )
 	    break;
+
+	if ( output_kind != 0 )
+	{
+	    if ( last_mode != MASTER )
+	    {
+	        sprintf ( scan_error ( last + 1 - first,
+		                       first ),
+		          "attempt to OUTPUT when the"
+			  " next atom table %d is not"
+			  " MASTER-mode",
+			  current_atom_table_ID );
+		return SCAN_ERROR;
+	    }
+
+	    break;
+	}
 
 	last_mode = cath.mode;
 
@@ -919,19 +932,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    (    program[current_atom_table_ID]
 		      == ATOM_TABLE );
 	    }
-	    else if ( op & SINGLETON )
-	    {
-		singleton = ih.kind;
-		if ( cath.mode != MASTER )
-		{
-		    sprintf ( scan_error ( length ),
-			      "singleton instruction in"
-			      " atom table %d of"
-			      " non-master mode",
-			      current_atom_table_ID );
-		    return SCAN_ERROR;
-		}
-	    }
+	    else if ( op & OUTPUT )
+		output_kind = ih.kind;
 
 	    break;
 	}
@@ -951,11 +953,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
     first = first;
     last = next - 1;
-    assert ( first <= last );
 
-
-    uns32 kind = singleton != 0 ?
-                 singleton :
+    uns32 kind = output_kind != 0 ?
+                 output_kind :
 		 last_mode;
 
     switch ( kind )
@@ -998,7 +998,7 @@ static const char * sbpmode ( uns32 mode )
 
 // See documentation above.
 //
-static char * scan_error ( uns32 length )
+static char * scan_error ( uns32 length, uns32 next )
 {
     char * p = error_message;
     p += sprintf
@@ -1057,7 +1057,9 @@ ostream & operator <<
 int LEX::spinput
 	( char * buffer, uns32 first, uns32 last )
 {
-    assert ( first <= last );
+    if ( first > last )
+        return sprintf ( buffer, "<empty>" );
+
     int columns = LINE;
     char * p = buffer;
     while ( first <= last )
@@ -1152,24 +1154,24 @@ static uns32 print_instruction
     else
     if ( ( ( h.operation & GOTO ) != 0 )
 	 +
-         ( ( h.operation & SINGLETON ) != 0 )
+         ( ( h.operation & CALLRETURN ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
     else
     if ( ( h.operation & GOTO )
          &&
 	 h.atom_table_ID == 0 ) out << "ILLEGAL: ";
     else
-    if ( ( h.operation & GOTO ) == 0
+    if ( ( h.operation & ( GOTO + CALLRETURN ) ) == 0
          &&
 	 h.atom_table_ID != 0 ) out << "ILLEGAL: ";
     else
     if ( (  h.operation
-           & ( ERRONEOUS_ATOM + SINGLETON ) )
+           & ( ERRONEOUS_ATOM + OUTPUT ) )
          &&
 	 h.kind == 0 ) out << "ILLEGAL: ";
     else
     if ( (   h.operation
-           & ( ERRONEOUS_ATOM + SINGLETON ) ) == 0
+           & ( ERRONEOUS_ATOM + OUTPUT ) ) == 0
          &&
 	 h.kind != 0 ) out << "ILLEGAL: ";
     else
@@ -1227,10 +1229,17 @@ static uns32 print_instruction
 	    << ")";
     if ( h.operation & ERRONEOUS_ATOM )
         OUT << "ERRONEOUS_ATOM(" << h.kind << ")";
+    if ( h.operation & OUTPUT )
+        OUT << "OUTPUT(" << h.kind << ")";
     if ( h.operation & GOTO )
         OUT << "GOTO(" << h.atom_table_ID << ")";
-    if ( h.operation & SINGLETON )
-        OUT << "SINGLETON(" << h.kind << ")";
+    if ( h.operation & CALLRETURN )
+    {
+        if ( h.atom_table_ID != 0 )
+	    OUT << "GOTO(" << h.atom_table_ID << ")";
+	else
+	    OUT << "RETURN";
+    }
     if ( h.operation & ELSE )
     {
         else_instruction & ei =

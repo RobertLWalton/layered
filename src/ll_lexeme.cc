@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 28 09:24:41 EDT 2010
+// Date:	Wed Apr 28 11:35:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/28 13:24:57 $
+//   $Date: 2010/04/28 15:46:13 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // Table of Contents
 //
@@ -617,6 +617,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     uns32 loop_count = program.length;
         // Set to max number of atom tables in order
 	// to detect endless loops.
+    uns32 return_stack[8];
+    uns32 * return_stack_p = return_stack;
+    uns32 * return_stack_endp = return_stack + 8;
     while ( true )
     {
         // Scan next atom of current lexeme.
@@ -647,6 +650,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	    break;
 	}
+
+	if ( cath.mode == MASTER )
+	    return_stack_p = return_stack;
 
 	last_mode = cath.mode;
 
@@ -922,6 +928,54 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    (*erroneous_atom)
 			( next, next + atom_length - 1,
 			  ih.kind );
+	    }
+
+	    if ( op & CALLRETURN )
+	    {
+	        if ( ih.atom_table_ID == 0 )
+		{
+		    if (    return_stack_p
+		         == return_stack )
+		    {
+			sprintf ( scan_error ( length ),
+				  "RETURN in"
+				  " instruction %d"
+				  " executed by atom"
+				  " table %d but"
+				  " return stack is"
+				  " empty",
+				  instruction_ID,
+				  current_atom_table_ID );
+			return SCAN_ERROR;
+		    }
+		    current_atom_table_ID =
+		        * -- return_stack_p;
+		}
+		else
+		{
+		    if (    return_stack_p
+		         == return_stack_endp )
+		    {
+			sprintf ( scan_error ( length ),
+				  "CALL in"
+				  " instruction %d"
+				  " executed by atom"
+				  " table %d but"
+				  " return stack is"
+				  " full",
+				  instruction_ID,
+				  current_atom_table_ID );
+			return SCAN_ERROR;
+		    }
+		    * return_stack_p ++ =
+			current_atom_table_ID;
+		    current_atom_table_ID =
+			ih.atom_table_ID;
+		    assert
+			(    program
+			         [current_atom_table_ID]
+			  == ATOM_TABLE );
+		}
 	    }
 
 	    if ( op & GOTO )

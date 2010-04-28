@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr 24 21:46:27 EDT 2010
+// Date:	Wed Apr 28 08:53:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/25 01:58:04 $
+//   $Date: 2010/04/28 13:25:02 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents
 //
@@ -47,7 +47,7 @@ using LEX::TRANSLATE_OCT;
 using LEX::ELSE;
 using LEX::ERRONEOUS_ATOM;
 using LEX::GOTO;
-using LEX::SINGLETON;
+using LEX::OUTPUT;
 
 // Setup input to lexical scanner to read the given
 // string of characters and then return end of file.
@@ -129,7 +129,7 @@ static void create_program_2 ( void )
     uns32 oper =
         LEX::create_atom_table ( 7 );
     uns32 separator = 8;
-        // Separator kind for SINGLETON.
+        // Separator kind for OUTPUT.
 
     const uns8 white = 1;
     const uns8 letter = 2;
@@ -291,10 +291,10 @@ static void create_program_2 ( void )
 	    ( KEEP(0)+GOTO, oper );
     uns32 separator_instruction =
         LEX::create_instruction
-	    ( ACCEPT+SINGLETON, 0, separator );
+	    ( ACCEPT+OUTPUT, 0, separator );
     uns32 error_instruction =
         LEX::create_instruction
-	    ( ACCEPT+SINGLETON, 0, LEX::ERROR );
+	    ( ACCEPT+OUTPUT, 0, LEX::ERROR );
     uns32 err_atom_instruction =
         LEX::create_instruction
 	    ( ERRONEOUS_ATOM+TRANSLATE(0), 0, 100 );

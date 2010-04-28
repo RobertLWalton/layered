@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat Apr 24 21:40:52 EDT 2010
+// Date:	Wed Apr 28 08:37:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/25 01:58:29 $
+//   $Date: 2010/04/28 13:24:08 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // Table of Contents
 //
@@ -282,8 +282,8 @@ namespace ll { namespace lexeme {
 	      uns32 type );
 
     // An instruction consists of an uns32 operation,
-    // an atom_table_ID for GOTO (which may be 0 if
-    // unused), a kind for SINGLETON or ERRONEOUS_ATOM
+    // an atom_table_ID for GOTO or CALL (which may be 0
+    // if unused), a kind for OUTPUT or ERRONEOUS_ATOM
     // (which may be 0 if unused), an uns32 *
     // translation_vector for TRANSLATE_FLAG (which may
     // be NULL if unused), and an uns32 else_dispatcher_
@@ -373,24 +373,34 @@ namespace ll { namespace lexeme {
     //			to that whose ID equals the
     //			instruction atom_table_ID.
     //
-    //   SINGLETON	Process atom as if analyzer had
-    //			switched to the atom table of
-    //			mode equal to the instruction
-    //			kind just before inputting the
-    //			atom, and then did a GOTO back
-    //			to the original atom table at
-    //			the end of processing the atom.
-    //			This speeds handling of one-atom
-    //			lexemes, e.g., separators.
+    //   CALL		Ditto but also push the current
+    //			atom table ID (i.e., the ID
+    //			before the switch) into the
+    //			return stack.
     //
-    //			(ERRONEOUS_ATOM and SINGLETON
+    //     Note: CALL is encoded as a CALLRETURN with
+    //		 non-zero atom_table_ID.
+    //
+    //	 RETURN		Like GOTO but get the new atom
+    //			table ID by popping the return
+    //			stack.
+    //
+    //     Note: RETURN is encoded as a RETURN with a
+    //		 zero atom_table_ID.
+    //
+    //   OUTPUT		After KEEP and TRANSLATE...
+    //			atom processing, output the
+    //			current lexeme with the
+    //			instruction provided kind.
+    //			The current atom table must
+    //			be or become a master mode
+    //			table.
+    //
+    //			(ERRONEOUS_ATOM and OUTPUT
     //			are exclusive.  If neither is
     //			given kind must be zero; other-
     //			wise it must be non-zero.  Note
     //			real kinds are never zero.)
-    //
-    //			(GOTO and SINGLETON are also
-    //			exclusive).
 
     // Instruction operation flags:
     //
@@ -403,7 +413,8 @@ namespace ll { namespace lexeme {
 	ELSE			= ( 1 << 4 ),
 	ERRONEOUS_ATOM		= ( 1 << 5 ),
 	GOTO			= ( 1 << 6 ),
-	SINGLETON		= ( 1 << 7 ),
+	CALLRETURN		= ( 1 << 7 ),
+	OUTPUT			= ( 1 << 8 ),
     };
 
     // Instruction shifts and masks

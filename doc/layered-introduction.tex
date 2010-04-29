@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 27, 2010
+April 29, 2010
  
 \end{center}
 
@@ -1035,35 +1035,52 @@ begin standard lexical program;
               //      . not followed by a digit
               //      / not surrounded by digits
 
+"<non-u-char>" = ~ "u" & ~ "U";
+
 "<separator-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";" | "`";
               //
               // Also , not surrounded by digits
               //      ' not followed by a letter
 
-"<whitespace-char>" = " " | "\n" | "\v" | "\f" | "\t" | "\r";
+"<line-break-char>" = "\n" | "\v" | "\f" | "\r";
 
-"<non-line-break-char>" = ~ "\n" & ~ "\v" & ~ "\f";
+"<non-line-break-char>" = ~ "<line-break-character>";
 
-"<quotable-char>" = "\u0020-\u007e" & ~ "\"" & ~ "\\";
-
-"<error-in-quote-char>" = ~ "<quotable-char>" & ~ "\"";
+"<horizontal-space-char>" = " " | "\t";
 
 begin master atom table;
 
-   // We assume that the preceding text is not a digit
-   // or the current input is not / or , followed by a digit.
-
+   // Whitespace is separated out into 3 kinds of lexeme:
+   //
+   //	`horizontal space'  spaces and horizontal tabs
+   //	`line break'	    linefeeds, carriage returns,
+   //			    form feeds, and vertical
+   //			    tabs
+   //   `comments'          `//' up to just before next
+   //                       line break
+   //
    "//" goto comment;
-
-   "<whitespace-char>" goto whitespace;
+   "<horizontal-space-char>" goto horizontal space;
+   "<line-break-char>" goto line break;
 
    "<word-char>" goto word;
    "'<letter>" goto word;
+    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate hex 2 0 "<letter"> goto word
+	else keep 1 output bad escape sequences;
+    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate hex 2 0 "<letter"> goto word
+	else keep 1 output bad escape sequences;
 
    "<mark-char>" goto mark;
    ".<non-digit>" keep 1 goto mark;
    "/" goto mark;
+   "\\<non-u-char>" keep 1 goto mark;
 
+   // We assume that the preceding text is not a digit
+   // or the current input is not / or , followed by a digit.
+   //
    "<digit>" keep 0 goto number;
    ".<digit>" keep 1 goto number;
 
@@ -1073,41 +1090,52 @@ begin master atom table;
 
    "\"" translate "" goto quoted string;
 
-   "<other>" output error;
+   "<other>" output bad character;
+   output end of file;
 
 end master atom table;
+
 
 // The below tables are entered from the master table
 // with the first one or two characters scanned.
 
-// Comments are treated as whitespace lexemes or parts
-// thereof.
-//
+
 begin comment atom table;
    "<non-line-break-char>" accept;
-   goto whitespace;
-       // On line break or end-of-file goto whitespace.
+   goto master;
 end comment atom table;
 
 
-begin whitespace atom table;
-   "<whitespace-char>" accept;
-   "//" goto comment;
+begin horizontal space atom table;
+   "<horizontal-space-char>" accept;
    goto master;
-end whitespace atom table;
+end horizontal space atom table;
+
+
+begin line break atom table;
+   "<line-break-char>" accept;
+   goto master;
+end line break atom table;
 
 
 begin word atom table;
    "<word-char>" accept;
    "'<letter>" accept;
+    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate hex 2 0 "<letter">
+	else keep 0 goto master
+    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+        translate hex 2 0 "<letter">
+	else keep 0 goto master
    goto master;
 end word atom table;
-
 
 begin mark atom table;
    "<mark-char>" accept;
    ".<non-digit>" keep 1;
    "/" accept;
+   "\\<non-u-char>" keep 1;
    goto master;
 end mark atom table;
 
@@ -1137,15 +1165,15 @@ begin quoted string atom table;
 
     "\"" translate "" goto master;   // End quoted string.
 
-    "\\\"" "\"" goto quoted string;
-    "\\\n" "\n" goto quoted string;
-    "\\\r" "\r" goto quoted string;
-    "\\\t" "\t" goto quoted string;
-    "\\\b" "\b" goto quoted string;
-    "\\\f" "\f" goto quoted string;
-    "\\\v" "\v" goto quoted string;
-    "\\\\" "\\" goto quoted string;
-    "\\~"  " "  goto quoted string;
+    "\\\"" translate "\"";
+    "\\\n" translate "\n";
+    "\\\r" translate "\r";
+    "\\\t" translate "\t";
+    "\\\b" translate "\b";
+    "\\\f" translate "\f";
+    "\\\v" translate "\v";
+    "\\\\" translate "\\";
+    "\\~"  translate " " ;
     "\\x<hex-digit><hex-digit>" translate hex 2 0;
     "\\<oct-digit><oct-digit><oct-digit>" translate oct 1 0;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
@@ -1153,16 +1181,31 @@ begin quoted string atom table;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
                                 translate hex 2 0;
-    "<quotable-character>" accept;
-    "<other>" translate "" erroneous atom goto quoted string;
-    goto end of file in quoted string;
+
+    "<line-break-char>"
+        goto premature end of line in quoted string;
+    "\\" error bad escape sequence in quoted string;
+
+    "<other>" accept;
+
+    goto premature end of file in quoted string;
 
 end quoted string atom table;
 
-begin end of file in quoted string atom table;
-    kind error;
-    goto master;
-end end of file in quoted string atom table;
+
+begin premature end of line in quoted string;
+    mode master;
+    output premature end of line in quoted string
+    	   goto master;
+end premature end of line in quoted string;
+
+
+begin premature end of file in quoted string;
+    mode master;
+    output premature end of file in quoted string
+    	   goto master;
+end premature end of file in quoted string;
+
 
 end standard lexical program;
 \end{verbatim}

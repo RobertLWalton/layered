@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 29, 2010
+May 4, 2010
  
 \end{center}
 
@@ -984,6 +984,46 @@ But for certain languages these instruction components
 substantially reduce the size of the lexical program.
 
 \section{Parsing}
+
+The parser is a sequence of passes each of which takes an input
+stream and produces and output stream.  The components of the
+streams can be lexemes, subexpressions, or expression components
+such as numbers, operators, and punctuation.  For better
+modularity all stream components are called \skey{token}s,
+and the data is organized as streams of tokens.
+
+A token can have any of the following components.
+
+\begin{indpar}
+\begin{tabular}{p{1in}p{4in}}
+type	& The type of the token.  One of: \\
+        & ~~~~\begin{tabular}{l}
+	      the type of a lexeme \\
+	      bracketted expression \\[1ex]
+	      \end{tabular} \\
+\end{tabular} \\[1ex]
+\begin{tabular}{p{1in}p{4in}}
+string	& The character string of the token, if the token is
+	  a lexeme and not a symbol.  Otherwise missing.
+\\[1ex]
+symbol	& A value unique to the character string of the token.
+	  No two lexemes with the same character string
+	  can have the same symbol.  This is used to quickly
+	  compare identifiers, operators, punctuation marks, etc.
+	  The character string of a token may be retrieved
+	  using the symbol.
+\\[1ex]
+hash	& A 32 bit unsigned integer that is a randomized hash of
+          the character string of a symbol.
+\end{tabular} \\[1ex]
+\begin{tabular}{p{1in}p{4in}}
+positions
+	& The positions of the first and last character of the
+	  token in the input tex.
+\end{tabular}
+\end{indpar}
+
+
 
 \newpage
 

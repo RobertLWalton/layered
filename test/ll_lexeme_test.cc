@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 28 08:53:44 EDT 2010
+// Date:	Wed May  5 12:28:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/28 13:25:02 $
+//   $Date: 2010/05/05 17:15:21 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents
 //
@@ -47,6 +47,7 @@ using LEX::TRANSLATE_OCT;
 using LEX::ELSE;
 using LEX::ERRONEOUS_ATOM;
 using LEX::GOTO;
+using LEX::CALLRETURN;
 using LEX::OUTPUT;
 
 // Setup input to lexical scanner to read the given
@@ -279,7 +280,7 @@ static void create_program_2 ( void )
     check_attach ( master_dispatcher, tmap );
     uns32 symbol_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO, symbol );
+	    ( KEEP(0)+CALLRETURN, symbol );
     uns32 number_instruction =
         LEX::create_instruction
 	    ( KEEP(0)+GOTO, number );
@@ -318,6 +319,9 @@ static void create_program_2 ( void )
     uns32 master_instruction =
         LEX::create_instruction
 	    ( KEEP(0)+GOTO, master );
+    uns32 return_instruction =
+        LEX::create_instruction
+	    ( KEEP(0)+CALLRETURN, 0 );
     uns32 accept_instruction =
         LEX::create_instruction ( ACCEPT );
 
@@ -326,7 +330,7 @@ static void create_program_2 ( void )
     check_attach ( symbol_dispatcher, tmap );
 
     check_attach ( symbol, symbol_dispatcher );
-    check_attach ( symbol, master_instruction );
+    check_attach ( symbol, return_instruction );
     check_attach ( symbol_dispatcher, letter,
                    accept_instruction );
     check_attach ( symbol_dispatcher, digit,
@@ -334,7 +338,7 @@ static void create_program_2 ( void )
     check_attach ( symbol_dispatcher, err_atom,
                    err_atom_instruction );
 
-    // Arrange so /ooo can appear in a symbol if
+    // Arrange so \ooo can appear in a symbol if
     // ooo encodes a letter.
     //
     uns32 letter_dispatcher =

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 28 11:35:05 EDT 2010
+// Date:	Wed May  5 13:01:28 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/28 15:46:13 $
+//   $Date: 2010/05/05 17:05:32 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.36 $
+//   $Revision: 1.37 $
 
 // Table of Contents
 //
@@ -158,9 +158,10 @@ uns32 LEX::create_instruction
              ||
 	     ( operation & TRANSLATE_OCT_FLAG ) );
 
-    if ( operation & ( GOTO ) )
+    if ( operation & GOTO )
         assert ( atom_table_ID != 0 );
-    else
+
+    if ( ( operation & ( GOTO | CALLRETURN ) ) == 0 )
         assert ( atom_table_ID == 0 );
 
     if ( operation & ( ERRONEOUS_ATOM + OUTPUT ) )
@@ -1290,7 +1291,7 @@ static uns32 print_instruction
     if ( h.operation & CALLRETURN )
     {
         if ( h.atom_table_ID != 0 )
-	    OUT << "GOTO(" << h.atom_table_ID << ")";
+	    OUT << "CALL(" << h.atom_table_ID << ")";
 	else
 	    OUT << "RETURN";
     }

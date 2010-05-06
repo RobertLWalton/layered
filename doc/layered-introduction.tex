@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 4, 2010
+May 6, 2010
  
 \end{center}
 
@@ -1092,10 +1092,10 @@ begin master atom table;
 
    // Whitespace is separated out into 3 kinds of lexeme:
    //
-   //	`horizontal space'  spaces and horizontal tabs
-   //	`line break'	    linefeeds, carriage returns,
-   //			    form feeds, and vertical
-   //			    tabs
+   //   `horizontal space'  spaces and horizontal tabs
+   //   `line break'        linefeeds, carriage returns,
+   //                       form feeds, and vertical
+   //                       tabs
    //   `comments'          `//' up to just before next
    //                       line break
    //
@@ -1107,11 +1107,11 @@ begin master atom table;
    "'<letter>" goto word;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter"> goto word
-	else keep 1 output bad escape sequences;
+        else keep 1 output bad escape sequence;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter"> goto word
-	else keep 1 output bad escape sequences;
+        else keep 1 output bad escape sequence;
 
    "<mark-char>" goto mark;
    ".<non-digit>" keep 1 goto mark;
@@ -1163,11 +1163,11 @@ begin word atom table;
    "'<letter>" accept;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter">
-	else keep 0 goto master
+        else keep 0 goto master
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter">
-	else keep 0 goto master
+        else keep 0 goto master
    goto master;
 end word atom table;
 
@@ -1223,28 +1223,28 @@ begin quoted string atom table;
                                 translate hex 2 0;
 
     "<line-break-char>"
-        goto premature end of line in quoted string;
-    "\\" error bad escape sequence in quoted string;
+        goto bad end of line;
+    "\\" error bad escape sequence;
 
     "<other>" accept;
 
-    goto premature end of file in quoted string;
+    goto bad end of file;
 
 end quoted string atom table;
 
 
-begin premature end of line in quoted string;
+begin bad end of line;
     mode master;
-    output premature end of line in quoted string
-    	   goto master;
-end premature end of line in quoted string;
+    output bad end of line
+           goto master;
+end bad end of line;
 
 
-begin premature end of file in quoted string;
+begin bad end of file;
     mode master;
-    output premature end of file in quoted string
-    	   goto master;
-end premature end of file in quoted string;
+    output bad end of file
+           goto master;
+end bad end of file;
 
 
 end standard lexical program;
@@ -1529,11 +1529,11 @@ begin identifier atom table;
     "<digit>" accept;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
             translate hex 2 0 "<letter>"
-	    else keep 0 goto normal line master;
+            else keep 0 goto normal line master;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
             translate hex 2 0 "<letter>"
-	    else keep 0 goto normal line master;
+            else keep 0 goto normal line master;
     goto normal line master;
 end identifier atom table;
 

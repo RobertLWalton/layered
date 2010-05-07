@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 6, 2010
+May 7, 2010
  
 \end{center}
 
@@ -1099,36 +1099,36 @@ begin master atom table;
    //   `comments'          `//' up to just before next
    //                       line break
    //
-   "//" goto comment;
-   "<horizontal-space-char>" goto horizontal space;
-   "<line-break-char>" goto line break;
+   "//" call comment;
+   "<horizontal-space-char>" call horizontal space;
+   "<line-break-char>" call line break;
 
-   "<word-char>" goto word;
-   "'<letter>" goto word;
+   "<word-char>" call word;
+   "'<letter>" call word;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate hex 2 0 "<letter"> goto word
+        translate hex 2 0 "<letter"> call word
         else keep 1 output bad escape sequence;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate hex 2 0 "<letter"> goto word
+        translate hex 2 0 "<letter"> call word
         else keep 1 output bad escape sequence;
 
-   "<mark-char>" goto mark;
-   ".<non-digit>" keep 1 goto mark;
-   "/" goto mark;
-   "\\<non-u-char>" keep 1 goto mark;
+   "<mark-char>" call mark;
+   ".<non-digit>" keep 1 call mark;
+   "/" call mark;
+   "\\<non-u-char>" keep 1 call mark;
 
    // We assume that the preceding text is not a digit
    // or the current input is not / or , followed by a digit.
    //
-   "<digit>" keep 0 goto number;
-   ".<digit>" keep 1 goto number;
+   "<digit>" keep 0 call natural number;
+   ".<digit>" keep 1 call number;
 
    "<separator-char>" output separator;
    "," output separator;
    "'<non-letter>" keep 1 output separator;
 
-   "\"" translate "" goto quoted string;
+   "\"" translate "" call quoted string;
 
    "<other>" output bad character;
    output end of file;
@@ -1142,19 +1142,19 @@ end master atom table;
 
 begin comment atom table;
    "<non-line-break-char>" accept;
-   goto master;
+   return;
 end comment atom table;
 
 
 begin horizontal space atom table;
    "<horizontal-space-char>" accept;
-   goto master;
+   return;
 end horizontal space atom table;
 
 
 begin line break atom table;
    "<line-break-char>" accept;
-   goto master;
+   return;
 end line break atom table;
 
 
@@ -1163,12 +1163,12 @@ begin word atom table;
    "'<letter>" accept;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter">
-        else keep 0 goto master
+        else keep 0 return
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter">
-        else keep 0 goto master
-   goto master;
+        else keep 0 return
+   return;
 end word atom table;
 
 begin mark atom table;
@@ -1176,9 +1176,18 @@ begin mark atom table;
    ".<non-digit>" keep 1;
    "/" accept;
    "\\<non-u-char>" keep 1;
-   goto master;
+   return;
 end mark atom table;
 
+begin natural number atom table;
+
+   "<digit>" accept;
+   ".<digit>" keep 1 goto number;
+   "<digit>/<digit>" keep 2 goto number;
+   "<digit>,<digit>" keep 2 goto number;
+   return;
+
+end natural number atom table;
 
 begin number atom table;
 
@@ -1196,14 +1205,14 @@ begin number atom table;
    ".<digit>" keep 1;
    "<digit>/<digit>" keep 2;
    "<digit>,<digit>" keep 2;
-   goto master;
+   return;
 
 end number atom table;
 
 
 begin quoted string atom table;
 
-    "\"" translate "" goto master;   // End quoted string.
+    "\"" translate "" return;   // End quoted string.
 
     "\\\"" translate "\"";
     "\\\n" translate "\n";

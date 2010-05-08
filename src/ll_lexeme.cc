@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May  5 13:01:28 EDT 2010
+// Date:	Sat May  8 04:59:16 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/05 17:05:32 $
+//   $Date: 2010/05/08 09:23:39 $
 //   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // Table of Contents
 //
@@ -51,7 +51,7 @@ uns32 LEX::create_atom_table ( uns32 mode )
     		   ( atom_table_header_length );
     atom_table_header & h =
         * (atom_table_header *) & program[ID];
-    h.type = ATOM_TABLE;
+    h.pctype = ATOM_TABLE;
     h.mode = mode;
     h.dispatcher_ID = 0;
     h.instruction_ID = 0;
@@ -67,29 +67,29 @@ uns32 LEX::create_program ( void )
 
     program_header & h =
         * (program_header *) & program[ID];
-    h.type = PROGRAM;
+    h.pctype = PROGRAM;
     h.atom_table_ID = create_atom_table ( MASTER );
     return h.atom_table_ID;
 }
 
 uns32 LEX::create_dispatcher
 	( uns32 max_breakpoints,
-	  uns32 max_type )
+	  uns32 max_ctype )
 {
     uns32 length =
           dispatcher_header_length
 	+   break_element_length
 	  * ( max_breakpoints + 1 )
 	+   map_element_length
-	  * ( max_type + 1 );
+	  * ( max_ctype + 1 );
     uns32 ID = program.allocate ( length );
     dispatcher_header & h =
         * (dispatcher_header *)
 	& program[ID];
-    h.type = DISPATCHER;
+    h.pctype = DISPATCHER;
     h.break_elements = 1;
     h.max_break_elements = max_breakpoints + 1;
-    h.max_type = max_type;
+    h.max_ctype = max_ctype;
 
     memset ( & h + 1, 0,
                sizeof ( uns32 )
@@ -108,34 +108,34 @@ uns32 LEX::create_type_map
 	  + ( length + 3 ) / 4 );
     type_map_header & h =
         * (type_map_header *) & program[ID];
-    h.type = TYPE_MAP;
+    h.pctype = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
-    h.singleton_type = 0;
+    h.singleton_ctype = 0;
     memcpy ( & h + 1, map, length );
     return ID;
 }
 
 uns32 LEX::create_type_map
-	( uns32 cmin, uns32 cmax, uns32 type )
+	( uns32 cmin, uns32 cmax, uns32 ctype )
 {
     assert ( cmax >= cmin );
     uns32 ID = program.allocate
     	( type_map_header_length );
     type_map_header & h =
         * (type_map_header *) & program[ID];
-    h.type = TYPE_MAP;
+    h.pctype = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
-    assert ( type != 0 );
-    h.singleton_type = type;
+    assert ( ctype != 0 );
+    h.singleton_ctype = ctype;
     return ID;
 }
 
 uns32 LEX::create_instruction
 	( uns32 operation,
 	  uns32 atom_table_ID,
-	  uns32 kind,
+	  uns32 type,
 	  uns32 * translation_vector,
 	  uns32 else_dispatcher_ID,
 	  uns32 else_instruction_ID )
@@ -165,9 +165,9 @@ uns32 LEX::create_instruction
         assert ( atom_table_ID == 0 );
 
     if ( operation & ( ERRONEOUS_ATOM + OUTPUT ) )
-        assert ( kind != 0 );
+        assert ( type != 0 );
     else
-        assert ( kind == 0 );
+        assert ( type == 0 );
 
     if ( operation & ( ELSE ) )
         assert ( else_dispatcher_ID != 0
@@ -190,10 +190,10 @@ uns32 LEX::create_instruction
 	  + ( ( operation & ELSE ) ? 2 : 0 ) );
     instruction_header & h =
         * (instruction_header *) & program[ID];
-    h.type = INSTRUCTION;
+    h.pctype = INSTRUCTION;
     h.operation = operation;
     h.atom_table_ID = atom_table_ID;
-    h.kind = kind;
+    h.type = type;
     if ( translate_length > 0 )
     {
 	assert ( translation_vector != NULL );
@@ -223,11 +223,11 @@ static uns32 attach_type_map_to_dispatcher
     dispatcher_header & dh =
         * (dispatcher_header *)
 	& LEX::program[dispatcher_ID];
-    assert ( dh.type == DISPATCHER );
+    assert ( dh.pctype == DISPATCHER );
     type_map_header & mh =
         * (type_map_header *)
 	& LEX::program[type_map_ID];
-    assert ( mh.type == TYPE_MAP );
+    assert ( mh.pctype == TYPE_MAP );
 
     break_element * bep =
         (break_element *)
@@ -311,16 +311,16 @@ uns32 LEX::attach
 	( uns32 target_ID,
 	  uns32 component_ID )
 {
-    uns32 target_type = program[target_ID];
-    uns32 component_type = program[component_ID];
+    uns32 target_pctype = program[target_ID];
+    uns32 component_pctype = program[component_ID];
 
-    if ( target_type == ATOM_TABLE )
+    if ( target_pctype == ATOM_TABLE )
     {
 	atom_table_header & h =
 	    * (atom_table_header *)
 	    & program[target_ID];
 
-        if ( component_type == DISPATCHER )
+        if ( component_pctype == DISPATCHER )
 	{
 	    if ( h.dispatcher_ID != 0 )
 	    {
@@ -337,7 +337,7 @@ uns32 LEX::attach
 	    h.dispatcher_ID = component_ID;
 	    return 1;
 	}
-        else if ( component_type == INSTRUCTION )
+        else if ( component_pctype == INSTRUCTION )
 	{
 	    if ( h.instruction_ID != 0 )
 	    {
@@ -355,32 +355,33 @@ uns32 LEX::attach
 	    h.instruction_ID = component_ID;
 	    return 1;
 	}
-	else assert ( ! "bad attach component types" );
+	else assert
+	    ( ! "bad attach component pctypes" );
     }
-    else if ( target_type == DISPATCHER
+    else if ( target_pctype == DISPATCHER
               &&
-	      component_type == TYPE_MAP )
+	      component_pctype == TYPE_MAP )
         return attach_type_map_to_dispatcher
 		   ( target_ID, component_ID );
     else
-	assert ( ! "bad attach component types" );
+	assert ( ! "bad attach component pctypes" );
 }
 
 uns32 LEX::attach
     	    ( uns32 target_ID,
-    	      uns32 t,
+    	      uns32 ctype,
 	      uns32 component_ID )
 {
     dispatcher_header & h =
         * (dispatcher_header *)
 	& program[target_ID];
-    assert ( h.type == DISPATCHER );
+    assert ( h.pctype == DISPATCHER );
 
-    uns32 component_type = program[component_ID];
-    assert ( component_type == DISPATCHER
+    uns32 component_pctype = program[component_ID];
+    assert ( component_pctype == DISPATCHER
              ||
-	     component_type == INSTRUCTION );
-    assert ( t <= h.max_type );
+	     component_pctype == INSTRUCTION );
+    assert ( ctype <= h.max_ctype );
     map_element & me =
         * (map_element *)
 	& program[  target_ID
@@ -388,36 +389,36 @@ uns32 LEX::attach
 		  +   break_element_length
 		    * h.max_break_elements
 		  +   map_element_length
-		    * t];
+		    * ctype];
 
-    if ( component_type == DISPATCHER )
+    if ( component_pctype == DISPATCHER )
     {
 	if ( me.dispatcher_ID != 0 )
 	{
 	    sprintf ( error_message,
 		      "Attempt to attach dispatcher"
-		      " %u to dispatcher %u type %u\n"
+		      " %u to dispatcher %u ctype %u\n"
 		      "conflicts with previous"
 		      " attachment of dispatcher"
 		      " %u",
-		      component_ID, target_ID, t,
+		      component_ID, target_ID, ctype,
 		      me.dispatcher_ID );
 	    return 0;
 	}
 	me.dispatcher_ID = component_ID;
 	return 1;
     }
-    else if ( component_type == INSTRUCTION )
+    else if ( component_pctype == INSTRUCTION )
     {
 	if ( me.instruction_ID != 0 )
 	{
 	    sprintf ( error_message,
 		      "Attempt to attach instruction"
-		      " %u to dispatcher %u type %u\n"
+		      " %u to dispatcher %u ctype %u\n"
 		      "conflicts with previous"
 		      " attachment of instruction"
 		      " %u",
-		      component_ID, target_ID, t,
+		      component_ID, target_ID, ctype,
 		      me.instruction_ID );
 	    return 0;
 	}
@@ -445,7 +446,7 @@ static uns32 current_atom_table_ID;
 
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
-// type XXX.  We check this with asserts (the attach
+// pctype XXX.  We check this with asserts (the attach
 // statements check this).  Everything else found
 // wrong with the program is a SCAN_ERROR.
 
@@ -499,7 +500,7 @@ static uns32 print_instruction
 // instruction with ERRONEOUS_ATOM flag.
 //
 void (* LEX::erroneous_atom)
-    ( uns32 first, uns32 last, uns32 kind ) = NULL;
+    ( uns32 first, uns32 last, uns32 type ) = NULL;
 
 // Set non-NULL to enable scan tracing
 // (see ll_lexeme.h).
@@ -508,9 +509,9 @@ std::ostream * LEX::scan_trace_out = NULL;
 # define TOUT if ( scan_trace_out ) (* scan_trace_out)
 
 // Given a dispatcher_ID and a character c return the
-// type that the dispatcher maps c onto.
+// ctype that the dispatcher maps c onto.
 //
-static uns32 type ( uns32 dispatcher_ID, uns32 c )
+static uns32 ctype ( uns32 dispatcher_ID, uns32 c )
 {
     TOUT << "  Character = " << pchar ( c )
 	 << " Dispatcher = " << dispatcher_ID;
@@ -543,10 +544,10 @@ static uns32 type ( uns32 dispatcher_ID, uns32 c )
 	    high = mid;
     }
 
-    // Compute type from bep[low].
+    // Compute ctype from bep[low].
     //
     uns32 type_map_ID = bep[low].type_map_ID;
-    uns32 type = 0;
+    uns32 ctype = 0;
     if ( type_map_ID != 0 )
     {
 	assert (    program[type_map_ID]
@@ -555,15 +556,15 @@ static uns32 type ( uns32 dispatcher_ID, uns32 c )
 	type_map_header & tmh =
 	    * (type_map_header *)
 	    & program[type_map_ID];
-	type = tmh.singleton_type;
-	if ( type == 0 )
-	    type = ( (uns8 *) ( & tmh + 1 ) )
-		   [c - tmh.cmin];
+	ctype = tmh.singleton_ctype;
+	if ( ctype == 0 )
+	    ctype = ( (uns8 *) ( & tmh + 1 ) )
+		    [c - tmh.cmin];
     }
 
-    TOUT << " Type = " << type << endl;
+    TOUT << " CType = " << ctype << endl;
 
-    return type;
+    return ctype;
 }
 
 uns32 LEX::scan ( uns32 & first, uns32 & last )
@@ -593,7 +594,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // We scan atoms until we get to a point where the
     // atom table is to be changed from a table with
     // mode != MASTER to one with mode == MASTER and
-    // next != first, or `output_kind' is set.
+    // next != first, or `output_type' is set.
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
@@ -613,7 +614,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // goes to zero we must be in a loop changing atom
     // tables and not finding an atom.
     // 
-    uns32 output_kind = 0;
+    uns32 output_type = 0;
     uns32 last_mode = MASTER;
     uns32 loop_count = program.length;
         // Set to max number of atom tables in order
@@ -636,7 +637,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	     first != next )
 	    break;
 
-	if ( output_kind != 0 )
+	if ( output_type != 0 )
 	{
 	    if ( last_mode != MASTER )
 	    {
@@ -708,19 +709,19 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	        input_buffer[next + length].character;
 	    ++ length;
 
-	    uns32 type = ::type ( dispatcher_ID, c );
+	    uns32 ctype = ::ctype ( dispatcher_ID, c );
 
 	    dispatcher_header & dh =
 	        * (dispatcher_header *)
 		& program[dispatcher_ID];
 
-	    if ( type > dh.max_type )
+	    if ( ctype > dh.max_ctype )
 	    {
 	        sprintf ( scan_error ( length ),
-		          "type %u computed for"
+		          "ctype %u computed for"
 			  " character %s is too large"
 			  " for dispatcher %u",
-			  type, sbpchar ( c ),
+			  ctype, sbpchar ( c ),
 			  dispatcher_ID );
 		return SCAN_ERROR;
 	    }
@@ -736,15 +737,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		          + dispatcher_header_length
 			  +   break_element_length
 			    * dh.max_break_elements];
-	    if ( mep[type].instruction_ID != 0 )
+	    if ( mep[ctype].instruction_ID != 0 )
 	    {
 	        instruction_ID =
-		    mep[type].instruction_ID;
+		    mep[ctype].instruction_ID;
 		assert ( program[instruction_ID]
 		         == INSTRUCTION );
 		atom_length = length;
 	    }
-	    dispatcher_ID = mep[type].dispatcher_ID;
+	    dispatcher_ID = mep[ctype].dispatcher_ID;
 	    assert ( dispatcher_ID == 0
 	             ||
 		        program[dispatcher_ID]
@@ -864,7 +865,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		        ei.else_dispatcher_ID;
 		    assert (    program[dispatcher_ID]
 			     == DISPATCHER );
-		    if ( ! ::type
+		    if ( ! ::ctype
 		              ( dispatcher_ID, tc ) )
 		    {
 		        instruction_ID =
@@ -928,7 +929,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		else
 		    (*erroneous_atom)
 			( next, next + atom_length - 1,
-			  ih.kind );
+			  ih.type );
 	    }
 
 	    if ( op & CALLRETURN )
@@ -938,15 +939,14 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    if (    return_stack_p
 		         == return_stack )
 		    {
-			sprintf ( scan_error ( length ),
-				  "RETURN in"
-				  " instruction %d"
-				  " executed by atom"
-				  " table %d but"
-				  " return stack is"
-				  " empty",
-				  instruction_ID,
-				  current_atom_table_ID );
+			sprintf
+			    ( scan_error ( length ),
+			      "RETURN in instruction %d"
+			      " executed by atom table"
+			      " %d but return stack is"
+			      " empty",
+			      instruction_ID,
+			      current_atom_table_ID );
 			return SCAN_ERROR;
 		    }
 		    current_atom_table_ID =
@@ -957,15 +957,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    if (    return_stack_p
 		         == return_stack_endp )
 		    {
-			sprintf ( scan_error ( length ),
-				  "CALL in"
-				  " instruction %d"
-				  " executed by atom"
-				  " table %d but"
-				  " return stack is"
-				  " full",
-				  instruction_ID,
-				  current_atom_table_ID );
+			sprintf
+			    ( scan_error ( length ),
+			      "CALL in"
+			      " instruction %d"
+			      " executed by atom table"
+			      " %d but return stack is"
+			      " full",
+			      instruction_ID,
+			      current_atom_table_ID );
 			return SCAN_ERROR;
 		    }
 		    * return_stack_p ++ =
@@ -988,7 +988,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		      == ATOM_TABLE );
 	    }
 	    else if ( op & OUTPUT )
-		output_kind = ih.kind;
+		output_type = ih.type;
 
 	    break;
 	}
@@ -1009,20 +1009,20 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     first = first;
     last = next - 1;
 
-    uns32 kind = output_kind != 0 ?
-                 output_kind :
+    uns32 type = output_type != 0 ?
+                 output_type :
 		 last_mode;
 
-    switch ( kind )
+    switch ( type )
     {
     case MASTER:
     case END_OF_FILE:
     case SCAN_ERROR:
     {
 	int count = sprintf ( error_message,
-		  " returning lexeme with bad kind(%s)"
+		  " returning lexeme with bad type(%s)"
 		  " from atom table %u; ATOM:\n",
-		  sbpmode ( kind ),
+		  sbpmode ( type ),
 		  current_atom_table_ID );
 	count += spinput ( error_message + count,
 	                   first, last );
@@ -1030,7 +1030,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     }
     }
 
-    return kind;
+    return type;
 }
 
 // See documentation above.
@@ -1149,7 +1149,7 @@ int LEX::spmode ( char * buffer, uns32 mode )
 	return sprintf ( buffer, "SCAN_ERROR" );
     default:
 	return sprintf
-	    ( buffer, "KIND (%u)", mode );
+	    ( buffer, "TYPE (%u)", mode );
     }
 }
 
@@ -1194,10 +1194,10 @@ static uns32 print_instruction
     uns32 translate_length = 0;
     uns32 else_instruction_ID = 0;
 
-    if ( h.type != INSTRUCTION )
+    if ( h.pctype != INSTRUCTION )
     {
         out << "ILLEGAL INSTRUCTION TYPE ("
-	    << h.type << ")" << endl;
+	    << h.pctype << ")" << endl;
 	return 0xFFFFFFFF;
     }
     if ( ( ( h.operation & TRANSLATE_FLAG ) != 0 )
@@ -1223,12 +1223,12 @@ static uns32 print_instruction
     if ( (  h.operation
            & ( ERRONEOUS_ATOM + OUTPUT ) )
          &&
-	 h.kind == 0 ) out << "ILLEGAL: ";
+	 h.type == 0 ) out << "ILLEGAL: ";
     else
     if ( (   h.operation
            & ( ERRONEOUS_ATOM + OUTPUT ) ) == 0
          &&
-	 h.kind != 0 ) out << "ILLEGAL: ";
+	 h.type != 0 ) out << "ILLEGAL: ";
     else
     if ( ( h.operation & ELSE )
          &&
@@ -1283,9 +1283,9 @@ static uns32 print_instruction
 	    << LEX::postfix_length ( h.operation )
 	    << ")";
     if ( h.operation & ERRONEOUS_ATOM )
-        OUT << "ERRONEOUS_ATOM(" << h.kind << ")";
+        OUT << "ERRONEOUS_ATOM(" << h.type << ")";
     if ( h.operation & OUTPUT )
-        OUT << "OUTPUT(" << h.kind << ")";
+        OUT << "OUTPUT(" << h.type << ")";
     if ( h.operation & GOTO )
         OUT << "GOTO(" << h.atom_table_ID << ")";
     if ( h.operation & CALLRETURN )
@@ -1441,20 +1441,20 @@ static uns32 print_cooked_dispatcher
         (map_element *)
         & program[ID + length];
     length += map_element_length
-	    * ( h.max_type + 1 );
+	    * ( h.max_ctype + 1 );
 
     cout << INDENT << "Break Elements: "
 	 << h.break_elements << endl;
     cout << INDENT << "Max Break Elements: "
 	 << h.max_break_elements << endl;
-    cout << INDENT << "Max Type: "
-	 << h.max_type << endl;
+    cout << INDENT << "Max CType: "
+	 << h.max_ctype << endl;
 
     // Construct tmap so that t2 = tmap[t1] iff t2 is
-    // the smallest type such that mep[t2] == mep[t1].
+    // the smallest ctype such that mep[t2] == mep[t1].
     //
-    uns32 tmap[h.max_type+1];
-    for ( uns32 t1 = 0; t1 <= h.max_type; ++ t1 )
+    uns32 tmap[h.max_ctype+1];
+    for ( uns32 t1 = 0; t1 <= h.max_ctype; ++ t1 )
     {
         uns32 t2 = 0;
 	while (    mep[t2].instruction_ID
@@ -1471,7 +1471,7 @@ static uns32 print_cooked_dispatcher
     // characters that map to to t and instruction and
     // dispatcher_ID if there are non-zero.
     //
-    for ( uns32 t = 0; t <= h.max_type; ++ t )
+    for ( uns32 t = 0; t <= h.max_ctype; ++ t )
     {
         if ( t != tmap[t] ) continue;
 	if ( mep[t].instruction_ID == 0
@@ -1501,10 +1501,10 @@ static uns32 print_cooked_dispatcher
 		type_map_header & mh =
 		    * (type_map_header *)
 		    & program[type_map_ID];
-		uns32 type = mh.singleton_type;
-		if ( type != 0 )
+		uns32 ctype = mh.singleton_ctype;
+		if ( ctype != 0 )
 		{
-		    if ( tmap[type] == t )
+		    if ( tmap[ctype] == t )
 			pcl.add ( cmin, cmax );
 		}
 		else
@@ -1580,8 +1580,8 @@ uns32 LEX::print_program_component
 	     << h.break_elements << endl;
 	cout << INDENT << "Max Break Elements: "
 	     << h.max_break_elements << endl;
-	cout << INDENT << "Max Type: "
-	     << h.max_type << endl;
+	cout << INDENT << "Max CType: "
+	     << h.max_ctype << endl;
 	cout << INDENT << "Breaks: "
 	     << setw ( 16 ) << "cmin"
 	     << setw ( 16 ) << "type_map_ID"
@@ -1601,13 +1601,13 @@ uns32 LEX::print_program_component
 	}
 	length += break_element_length
 	        * h.max_break_elements;
-	cout << INDENT << "Map:    type: "
+	cout << INDENT << "Map:   CType: "
 	     << setw ( 16 ) << "dispatcher_ID"
 	     << setw ( 16 ) << "instruction_ID"
 	     << endl;
 	uns32 t;
 	for ( p = ID + length, t = 0;
-	      t <= h.max_type;
+	      t <= h.max_ctype;
 	      p += map_element_length, ++ t )
 	{
 	    map_element & me =
@@ -1621,7 +1621,7 @@ uns32 LEX::print_program_component
 		 << endl;
 	}
 	length += map_element_length
-	        * ( h.max_type + 1 );
+	        * ( h.max_ctype + 1 );
 	return length;
     }
     case INSTRUCTION:
@@ -1635,10 +1635,10 @@ uns32 LEX::print_program_component
 	type_map_header & h =
 	    * (type_map_header *) & program[ID];
 	uns32 length = type_map_header_length;
-	if ( h.singleton_type > 0 )
+	if ( h.singleton_ctype > 0 )
 	{
 	    cout << setw ( IDwidth + 4 )
-		 << h.singleton_type
+		 << h.singleton_ctype
 		 << ": " << pchar ( h.cmin )
 	         << "-" << pchar ( h.cmax ) << endl;
 	}
@@ -1705,7 +1705,7 @@ void LEX::print_program
 	    type_map_header & h =
 		* (type_map_header *) & program[ID];
 	    ID += type_map_header_length;
-	    if ( h.singleton_type == 0 )
+	    if ( h.singleton_ctype == 0 )
 		ID += ( h.cmax - h.cmin + 4 ) / 4;
 	    continue;
 	}

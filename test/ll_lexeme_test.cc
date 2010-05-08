@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May  5 12:28:11 EDT 2010
+// Date:	Sat May  8 05:10:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/05 17:15:21 $
+//   $Date: 2010/05/08 09:24:11 $
 //   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents
 //
@@ -68,11 +68,11 @@ static void check_attach
 }
 
 static void check_attach
-        ( uns32 target_ID, uns32 type,
+        ( uns32 target_ID, uns32 ctype,
 	  uns32 component_ID )
 {
     if ( ! LEX::attach
-              ( target_ID, type, component_ID ) )
+              ( target_ID, ctype, component_ID ) )
         cout << "ATTACH_ERROR" << endl
 	     << LEX::error_message << endl;
 }
@@ -130,7 +130,7 @@ static void create_program_2 ( void )
     uns32 oper =
         LEX::create_atom_table ( 7 );
     uns32 separator = 8;
-        // Separator kind for OUTPUT.
+        // Separator type for OUTPUT.
 
     const uns8 white = 1;
     const uns8 letter = 2;
@@ -459,12 +459,12 @@ static void create_program_2 ( void )
 }
 
 static void erroneous_atom
-    ( uns32 first, uns32 last, uns32 kind )
+    ( uns32 first, uns32 last, uns32 type )
 {
     char buffer[1000];
     LEX::spinput ( buffer, first, last );
     cout << "Erroneous Atom, Kind = "
-         << LEX::pmode ( kind )
+         << LEX::pmode ( type )
          << " Atom = " << buffer << endl;
 }
 
@@ -484,14 +484,14 @@ void test_program ( uns32 * input, uns32 length )
     while ( true )
     {
 	uns32 first, last;
-        uns32 kind = LEX::scan ( first, last );
-	cout << "Scan Returned " << LEX::pmode ( kind );
-	if ( kind == LEX::END_OF_FILE )
+        uns32 type = LEX::scan ( first, last );
+	cout << "Scan Returned " << LEX::pmode ( type );
+	if ( type == LEX::END_OF_FILE )
 	{
 	    cout << endl;
 	    break;
 	}
-	else if ( kind == LEX::SCAN_ERROR )
+	else if ( type == LEX::SCAN_ERROR )
 	{
 	    cout << endl << LEX::error_message << endl;
 	    break;

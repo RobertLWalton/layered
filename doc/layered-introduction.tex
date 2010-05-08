@@ -996,30 +996,46 @@ A token can have any of the following components.
 
 \begin{indpar}
 \begin{tabular}{p{1in}p{4in}}
-type	& The type of the token.  One of: \\
-        & ~~~~\begin{tabular}{l}
-	      the type of a lexeme \\
-	      bracketted expression \\[1ex]
-	      \end{tabular} \\
+\tt kind	& One of: \\
+        	& ~~~~{\tt lexeme} \\
+        	& ~~~~{\tt name} \\
+        	& ~~~~{\tt expression}
+\\[1ex]
+		& A {\tt name} is a symbol such as `{\tt x}'
+		  or `{\tt +}', or a natural number, or a
+		  list of names (called a label).
+\\[1ex]
+\tt type	& For lexemes, the type of the lexeme. \\[0.3ex]
+		& For names, one of: \\
+		& ~~~~{\tt symbol} \\
+		& ~~~~{\tt natural\_number} \\
+		& ~~~~{\tt label} \\
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
-string	& The character string of the token, if the token is
-	  a lexeme and not a symbol.  Otherwise missing.
+\tt string	& For lexemes, the character string of the lexeme.
 \\[1ex]
-symbol	& A value unique to the character string of the token.
-	  No two lexemes with the same character string
-	  can have the same symbol.  This is used to quickly
-	  compare identifiers, operators, punctuation marks, etc.
-	  The character string of a token may be retrieved
-	  using the symbol.
+\tt ident	& For names, a 32 or 64 bit numeric or pointer denotational
+		  value that represents the name.
+		  Two different names have different idents, so
+		  names can be compared by comparing their idents.
 \\[1ex]
-hash	& A 32 bit unsigned integer that is a randomized hash of
-          the character string of a symbol.
+		& It is also possible to recover from the ident of
+		  a name the character string of a symbol, the value of
+		  a natural number, or the name list of a label.
+		  But this is rarely done.
+\\[1ex]
+\tt hash	& A 32 bit unsigned integer that is a randomized hash of
+          	  the character string of a symbol, the value of a
+		  natural number, or the names of a label.  Usable to
+		  make hash tables in which names are keys.
+\\[1ex]
+\tt value	& A 32 bit unsigned integer that is the value of a
+                  natural number name, or is missing if the natural
+		  number is too large.
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
-positions
-	& The positions of the first and last character of the
-	  token in the input tex.
+\tt positions	& The positions of the first and last character of the
+	          token in the input tex.
 \end{tabular}
 \end{indpar}
 

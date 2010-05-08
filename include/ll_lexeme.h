@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Wed Apr 28 08:37:18 EDT 2010
+// Date:	Sat May  8 04:56:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/28 13:24:08 $
+//   $Date: 2010/05/08 09:19:59 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.36 $
+//   $Revision: 1.37 $
 
 // Table of Contents
 //
@@ -225,27 +225,27 @@ namespace ll { namespace lexeme {
     //
     uns32 create_program ( void );
 
-    // Atom table kinds, modes, and return values.
+    // Atom table types, modes, and return values.
     //
     enum {
 
-	// Return values that are not kinds or modes.
+	// Return values that are not types or modes.
 	//
 	END_OF_FILE	= 0,
 	SCAN_ERROR	= 1,
 
-        // Standard kinds:
+        // Standard types:
 	//
 	ERROR		= 2,
 	WHITESPACE	= 3,
 
-	// Modes that are not kinds or return values.
+	// Modes that are not types or return values.
 	//
         MASTER		= 0xFFFFFFFF
     };
 
     // Create the atom table with the given mode and
-    // return its ID.  The mode may be a kind, which
+    // return its ID.  The mode may be a type, which
     // is a user defined value that is returned to the
     // user when a lexeme is recognized by the analyzer
     // via the atom table.  It can serve to type a
@@ -254,19 +254,19 @@ namespace ll { namespace lexeme {
     uns32 create_atom_table ( uns32 mode );
 
     // Create a dispatcher with given maximum number of
-    // breakpoints and maximum type.  Return the new
-    // dispatcher's ID.  Note that legal types are 0 ..
-    // max_type, and 0 is the default type for any
+    // breakpoints and maximum ctype.  Return the new
+    // dispatcher's ID.  Note that legal ctypes are 0 ..
+    // max_ctype, and 0 is the default ctype for any
     // character not mapped by a type map.
     //
     uns32 create_dispatcher
 	    ( uns32 max_breakpointers,
-	      uns32 max_type );
+	      uns32 max_ctype );
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  Copy
     // map[0..(cmax-cmin)] into type map, so the map
-    // will give character c the type map[c-cmin].
+    // will give character c the ctype map[c-cmin].
     //
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
@@ -275,15 +275,15 @@ namespace ll { namespace lexeme {
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  This
     // form of type map will map all characters in the
-    // range to the given type, which must not be 0.
+    // range to the given ctype, which must not be 0.
     //
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
-	      uns32 type );
+	      uns32 ctype );
 
     // An instruction consists of an uns32 operation,
     // an atom_table_ID for GOTO or CALL (which may be 0
-    // if unused), a kind for OUTPUT or ERRONEOUS_ATOM
+    // if unused), a type for OUTPUT or ERRONEOUS_ATOM
     // (which may be 0 if unused), an uns32 *
     // translation_vector for TRANSLATE_FLAG (which may
     // be NULL if unused), and an uns32 else_dispatcher_
@@ -357,8 +357,8 @@ namespace ll { namespace lexeme {
     //			If an else flag is present, the
     //			character produced by TRANSLATE_
     //			{HEX/OCT} is put into the else_
-    //			dispatcher to determine a type.
-    //			If the type is 0 the current
+    //			dispatcher to determine a ctype.
+    //			If the ctype is 0 the current
     //			instruction is turned into a
     //			no-operation and is replaced
     //			by the else_instruction.
@@ -366,7 +366,8 @@ namespace ll { namespace lexeme {
     //   ERRONEOUS_ATOM	Indicates the current atom is
     //			erroneous and is to be delivered
     //			to the erroneous_atom function
-    //			with the instruction kind.
+    //			with the instruction provided
+    //			type.
     //
     //   GOTO		After all other atom processing,
     //			switch the current atom table
@@ -391,16 +392,16 @@ namespace ll { namespace lexeme {
     //   OUTPUT		After KEEP and TRANSLATE...
     //			atom processing, output the
     //			current lexeme with the
-    //			instruction provided kind.
+    //			instruction provided type.
     //			The current atom table must
     //			be or become a master mode
     //			table.
     //
     //			(ERRONEOUS_ATOM and OUTPUT
     //			are exclusive.  If neither is
-    //			given kind must be zero; other-
+    //			given type must be zero; other-
     //			wise it must be non-zero.  Note
-    //			real kinds are never zero.)
+    //			real types are never zero.)
 
     // Instruction operation flags:
     //
@@ -501,7 +502,7 @@ namespace ll { namespace lexeme {
     uns32 create_instruction
 	    ( uns32 operation,
 	      uns32 atom_table_ID = 0,
-	      uns32 kind = 0,
+	      uns32 type = 0,
 	      uns32 * translation_vector = NULL,
 	      uns32 else_dispatcher_ID = 0,
 	      uns32 else_instruction_ID = 0 );
@@ -518,14 +519,14 @@ namespace ll { namespace lexeme {
     	      uns32 component_ID );
 
     // Attach a dispatcher or an instruction component
-    // to type t of a dispatcher target.  Return 1 if no
-    // error.  Return 0 and do nothing but write error_
-    // message if there is a conflict with a previous
-    // attachment.
+    // to a ctype of a dispatcher target.  Return 1 if
+    // no error.  Return 0 and do nothing but write
+    // error_message if there is a conflict with a
+    // previous attachment.
     //
     uns32 attach
     	    ( uns32 target_ID,
-    	      uns32 t,
+    	      uns32 ctype,
 	      uns32 component_ID );
 
     // Convert the program to the endianhood of this
@@ -565,13 +566,13 @@ namespace ll { namespace lexeme {
     //
     //		input_buffer[first .. last]
     //
-    // and the instruction `kind' is given as an
+    // and the instruction provided type is given as an
     // argument.  If the address of this function is
     // NULL, execution of an instruction with an
     // ERRONEOUS_ATOM flag is a scan error.
     //
     extern void (* erroneous_atom)
-	( uns32 first, uns32 last, uns32 kind );
+	( uns32 first, uns32 last, uns32 type );
 
     // Scan the input and return the next lexeme, END_
     // OF_FILE or SCAN_ERROR.
@@ -583,15 +584,15 @@ namespace ll { namespace lexeme {
     //		input_buffer[first .. last]
     //
     // The lexeme length, last - first + 1, is always
-    // >= 1.  The lexeme kind is returned as the value
+    // >= 1.  The lexeme type is returned as the value
     // of the scan function.  The translated lexeme is
     // returned in the translation buffer.
     //
     // If there is an end of file instead of a lexeme,
-    // END_OF_FILE is returned instead of a lexeme kind.
+    // END_OF_FILE is returned instead of a lexeme type.
     // If there is an error in the lexical scanning
     // program, SCAN_ERROR is returned instead of a
-    // lexeme kind, and an error message diagnostic is
+    // lexeme type, and an error message diagnostic is
     // placed in error_message.  In these two cases
     // first and last and the translation buffer are not
     // set.

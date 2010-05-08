@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 7, 2010
+May 8, 2010
  
 \end{center}
 
@@ -331,9 +331,9 @@ of some of these characters.  For example, the lexeme
 a single linefeed character.
 
 When the standard scanner identifies a lexeme it also identifies
-a `\mkey{kind}{of lexeme}' that serves to type the lexeme.
-For example, the lexeme \verb|9.35| may have kind `{\tt number}'
-while the lexeme \verb|"abc"| may have the kind `{\tt quoted string}'.
+a `\mkey{type}{of lexeme}' for the lexeme.
+For example, the lexeme \verb|9.35| may have type `{\tt number}'
+while the lexeme \verb|"abc"| may have the type `{\tt quoted string}'.
 
 At its most fundamental level the
 standard scanner identifies lexical atoms in the input text.
@@ -387,23 +387,23 @@ instruction can optionally reduce the length of a matched atom
 and optionally change the current atom table.  It can also do other
 things described below.
 
-Atom tables have \skey{mode}s that are either lexeme kinds or
+Atom tables have \skey{mode}s that are either lexeme types or
 are the special mode `\ttmkey{master}{mode}'.
-Non-master mode tables, whose modes are kinds,
+Non-master mode tables, whose modes are types,
 are typically dedicated to recognizing lexemes
-of the indicate kind.  Master mode atom tables are used to
+of the indicate type.  Master mode atom tables are used to
 dispatch to non-master mode tables.
 
 When the current lexical atom table is changed from a non-master mode
 table to a master mode table, any non-zero length lexeme accumulated
-so far is output as a lexeme whose kind\label{KIND-OUTPUT}
+so far is output as a lexeme whose type\label{KIND-OUTPUT}
 equals
 the mode of the non-master mode table.  Thus if an atom table of
 mode `\verb|whitespace|' cannot recognized any atom and
 the default instruction associated with it
 changes the current atom table to a master mode table,
 any non-zero length lexeme accumulated so far will
-be output as a lexeme of kind `\verb|whitespace|'.
+be output as a lexeme of type `\verb|whitespace|'.
 
 When it is between lexemes that current atom table in the scanner state
 is always a master mode table.  Master mode tables correspond to lexical
@@ -417,13 +417,13 @@ special lexical scanning of preprocessing lexemes;
 see Appendix \itemref{C++-LEXICAL-PROGRAM}.
 
 The standard scanner can report errors in one of two ways.  It may
-simply output a lexeme with a kind that indicates an error.  For
+simply output a lexeme with a type that indicates an error.  For
 example, the character \verb|\| appearing outside a quoted string
-might be returned as a 1-character lexeme of kind `{\tt erroneous
+might be returned as a 1-character lexeme of type `{\tt erroneous
 character}'.  Alternatively a single atom may be reported as an
-error of a given kind without interrupting the normal operation
+error of a given type without interrupting the normal operation
 of the scanner.  For example, if \verb|\h| appears in a quoted
-string, it may be reported as an erroneous atom of kind
+string, it may be reported as an erroneous atom of type
 `{\tt bad escape sequence}'.  Otherwise this atom is processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the DEL
@@ -436,8 +436,8 @@ of the following:
 \item reduce the length of the matched atom
 \item translate the reduced length atom to a different
 character string within the lexeme translation
-\item announce the reduced length atom as an erroneous atom of a given kind
-\item output the atoms accumulated so far as a lexeme of a given kind
+\item announce the reduced length atom as an erroneous atom of a given type
+\item output the atoms accumulated so far as a lexeme of a given type
 \item change the current atom table
 \end{itemize}
 
@@ -517,9 +517,9 @@ The syntax of a lexical program is given on
 	& & {\tt end} {\em atom-table-name} {\tt atom table;}
 \\[1ex]
 \emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode} {\tt ;}
-                                        $|$ {\tt kind} {\em kind} {\tt ;}
+                                        $|$ {\tt type} {\em type} {\tt ;}
 \\[1ex]
-\emkey{mode} & ::= &  {\tt master} $|$ {\em kind}
+\emkey{mode} & ::= &  {\tt master} $|$ {\em type}
 \\[1ex]
 \emkey{default-instruction-option}
 	& ::= &  {\em empty} $|$ {\em instruction}
@@ -554,8 +554,8 @@ The syntax of a lexical program is given on
 			{\em natural-number} {\em natural-number} \\
 		        {\em cpat-option}
 			\end{tabular} \\
-	& $|$ & {\tt error} {\em kind} \\
-	& $|$ & {\tt output} {\em kind} \\
+	& $|$ & {\tt error} {\em type} \\
+	& $|$ & {\tt output} {\em type} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
 	& $|$ & {\tt call} {\em atom-table-name} \\
 	& $|$ & {\tt return} \\
@@ -564,7 +564,7 @@ The syntax of a lexical program is given on
 \\[1ex]
 \emkey{cpat-option} & ::= & {\em empty} $|$ {\tt "}{\em cpat-name}{\tt "}
 \\[1ex]
-\emkey{kind} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
+\emkey{type} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
                                      except & {\tt master} \\
 				         or & {\tt end of file} \\
 					 or & {\tt scan error} \\[1ex]
@@ -708,11 +708,11 @@ each containing an {\em atom-pattern} and an {\em instruction},
 and an optional {\em default-instruction} that is executed when
 no atom is recognized by any of the table entries.
 
-The {\em mode} of an atom table can be either a {\em kind} or can be
+The {\em mode} of an atom table can be either a {\em type} or can be
 the special `\ttmkey{master}{atom table mode}' mode.  If it is a
-{\em kind} then it is used as the {\em kind} of any lexeme recognized
+{\em type} then it is used as the {\em type} of any lexeme recognized
 by the table (not all tables recognize lexemes).  See
-\pagref{KIND-OUTPUT} for a description of how modes and kinds are used
+\pagref{KIND-OUTPUT} for a description of how modes and types are used
 
 The {\em mode} of an atom table is the same as the {\em atom-table-name}
 unless a non-empty {\em mode-option} is given at the beginning of the
@@ -864,8 +864,8 @@ character if that character is a letter, and otherwise designating
 the atom as an error and not putting anything in the translation buffer
 (see below for the definition of the `{\tt error}' instruction component).
 
-A `\ttmkey{error}{in lexical program} {\em kind}\,' {\em instruction-component}
-announces the current atom as an erroneous atom of the given {\em kind}.
+A `\ttmkey{error}{in lexical program} {\em type}\,' {\em instruction-component}
+announces the current atom as an erroneous atom of the given {\em type}.
 The atom remains part of the current lexeme,
 and what is put in the translation buffer is governed
 independently by translation instruction components.
@@ -904,16 +904,16 @@ prevent the character after the backslash from being included
 in the error announcement.
 
 An erroneous atom is different from an erroneous lexeme.
-An erroneous lexeme is simply a lexeme whose {\em kind}
+An erroneous lexeme is simply a lexeme whose {\em type}
 indicates to the user of the lexical scanner that the lexeme is erroneous.
 As such an erroneous lexeme is
 handled by the lexical scanner just as any other lexeme would be:
 i.e., the lexical scanner has no special knowledge of erroneous lexemes
 and no special operations for detecting or announcing them.
 
-A `\ttmkey{output}{in lexical program} {\em kind}\,'
+A `\ttmkey{output}{in lexical program} {\em type}\,'
 {\em instruction-component} emits the current lexeme
-with the given {\em kind}.  This
+with the given {\em type}.  This
 {\em instruction-component} must either be used
 in a master mode atom table or combined with a 
 {\tt goto} transferring to a master mode atom table.
@@ -922,7 +922,7 @@ It may be used in the {\em default-instruction} of an atom table;
 for example, at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} the
 {\tt master} atom table has `{\tt output end of file;}' as its
 {\em default-instruction}, thereby outputting a zero length
-lexeme with `{\tt end of file}' kind whenever the input is at the
+lexeme with `{\tt end of file}' type whenever the input is at the
 end of file.
 
 As an example, the `{\tt master}' atom table at the top of
@@ -931,7 +931,7 @@ As an example, the `{\tt master}' atom table at the top of
 \verb|"<other>" output bad character;|
 \end{verbatim}\end{indpar}
 which causes an unrecognized character to be treated as a 1-character
-lexeme of kind `{\tt bad character}'.  The translation of this lexeme is
+lexeme of type `{\tt bad character}'.  The translation of this lexeme is
 the character itself, but if the entry:
 \begin{indpar}\begin{verbatim}
 \verb|"<other>" translate "\u007F" output bad character;|
@@ -943,7 +943,7 @@ A `\ttmkey{goto}{in lexical program} {\em atom-table-name}\,'
 the current atom is processed.  If the table switches from a table
 of non-{\tt master} mode to one of {\tt master} mode the current
 lexeme, if it has non-zero length,
-is output with the {\em kind} of the non-{\tt master} mode
+is output with the {\em type} of the non-{\tt master} mode
 table: see \pagref{KIND-OUTPUT}.
 
 A `\ttmkey{call}{in lexical program} {\em atom-table-name}\,'
@@ -972,7 +972,7 @@ The `{\tt call}' and `{\tt return}' instruction components
 also permit a non-master atom table to be shared among different
 non-master tables.  For example, table to scan escape sequences
 may be shared among several atom tables dedicated to scanning
-different kinds of quoted strings.
+different types of quoted strings.
 Again Appendix \itemref{C++-LEXICAL-PROGRAM} has examples.
 
 The `{\tt call}' and `{\tt return}' instruction components
@@ -1090,7 +1090,7 @@ begin standard lexical program;
 
 begin master atom table;
 
-   // Whitespace is separated out into 3 kinds of lexeme:
+   // Whitespace is separated out into 3 types of lexeme:
    //
    //   `horizontal space'  spaces and horizontal tabs
    //   `line break'        linefeeds, carriage returns,
@@ -1351,7 +1351,7 @@ begin c++ lexical program;
 //        of a pp control line that consists of just pp
 //        tokens.
 //
-// The whitespace lexeme kinds are:
+// The whitespace lexeme types are:
 //
 //    line feed (lexeme is "\n")
 //    horizontal space
@@ -1479,7 +1479,7 @@ begin define identifier master atom table;
 end define identifier master atom table;
 
 begin defined identifier atom table;
-    kind identifier;
+    type identifier;
     "<non-digit>" accept;
     "<digit>" accept;
     "(" keep 0 goto lparen master;

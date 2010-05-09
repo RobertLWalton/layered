@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat May  8 21:39:53 EDT 2010
+// Date:	Sat May  8 22:47:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/09 01:40:19 $
+//   $Date: 2010/05/09 03:29:39 $
 //   $RCSfile: ll_lexeme_standard.cc,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents
 //
@@ -175,6 +175,15 @@ void ll::lexeme::standard::create_standard_program
     uns32 natural_number =
         create_atom_table ( natural_number_t );
     uns32 number = create_atom_table ( number_t );
+
+    uns32 accept_instruction =
+        create_instruction ( ACCEPT );
+    uns32 return_instruction =
+        create_instruction ( CALLRETURN );
+    uns32 keep_0_return_instruction =
+        create_instruction ( KEEP(0) + CALLRETURN );
+    uns32 keep_1_instruction =
+        create_instruction ( KEEP(2) );
 
     // begin master atom table;
     //
@@ -634,8 +643,6 @@ void ll::lexeme::standard::create_standard_program
     uns32 error_bad_escape_sequence =
         create_instruction
 	    ( ERRONEOUS_ATOM, bad_escape_sequence_t );
-    ATTACH ( master_dispatcher2_backslash,
-             0, error_bad_escape_sequence );
 
     uns8 hex_digit_cmap[128] =
         {
@@ -771,6 +778,8 @@ void ll::lexeme::standard::create_standard_program
     uns32 hex_digit_tmap =
         create_type_map ( 0, 127, hex_digit_cmap );
 
+    ATTACH ( master_dispatcher2_backslash,
+             u_type, error_bad_escape_sequence );
     uns32 master_dispatcher_u =
         master_dispatcher2_backslash;
     uns32 u_type = u_c;
@@ -799,6 +808,8 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( master_dispatcher_u,
              1, master_translate_uU );
 
+    ATTACH ( master_dispatcher2_backslash,
+             U_type, error_bad_escape_sequence );
     uns32 master_dispatcher_U =
         master_dispatcher2_backslash;
     uns32 U_type = U_c;
@@ -824,6 +835,8 @@ void ll::lexeme::standard::create_standard_program
     //    "<non-line-break-char>" accept;
     //    return;
     // end comment atom table;
+
+    ATTACH ( comment, return_instruction );
 
     uns32 comment_dispatcher =
         create_dispatcher ( 2, 2 );
@@ -963,11 +976,16 @@ void ll::lexeme::standard::create_standard_program
     uns32 line_break_tmap =
         create_type_map ( 0, 127, line_break_cmap );
     ATTACH ( comment_dispatcher, line_break_tmap );
+    ATTACH ( comment_dispatcher,
+             1, accept_instruction );
 
     // begin horizontal space atom table;
     //    "<horizontal-space-char>" accept;
     //    return;
     // end horizontal space atom table;
+
+    ATTACH ( horizontal_space,
+             return_instruction );
 
     uns32 horizontal_space_dispatcher =
         create_dispatcher ( 2, 2 );
@@ -1110,20 +1128,27 @@ void ll::lexeme::standard::create_standard_program
 	    ( 0, 127, horizontal_space_cmap );
     ATTACH ( horizontal_space_dispatcher,
              horizontal_space_tmap );
+    ATTACH ( horizontal_space_dispatcher,
+             1, accept_instruction );
 
     // begin line break atom table;
     //    "<line-break-char>" accept;
     //    return;
     // end line break atom table;
 
+    ATTACH ( line_break, return_instruction );
     uns32 line_break_dispatcher =
         create_dispatcher ( 2, 2 );
     ATTACH ( line_break, line_break_dispatcher );
     ATTACH ( line_break_dispatcher, line_break_tmap );
+    ATTACH ( line_break_dispatcher,
+             1, accept_instruction );
 
     // begin word atom table;
+    //
     //    "<word-char>" accept;
     //    "'<letter>" accept;
+    //
     //     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
     //         translate hex 2 0 "<letter">
     //         else keep 0 return
@@ -1131,11 +1156,14 @@ void ll::lexeme::standard::create_standard_program
     //       "<hex-digit><hex-digit><hex-digit><hex-digit>"
     //        translate hex 2 0 "<letter">
     //         else keep 0 return
+    //
     //   return;
+    //
     // end word atom table;
 
-    uns32 word_dispatcher = create_dispatcher ( 500, 4 );
-    ATTACH ( word, word_break_dispatcher );
+    ATTACH ( word, return_instruction );
+    uns32 word_dispatcher1 = create_dispatcher ( 500, 4 );
+    ATTACH ( word, word_dispatcher1 );
 
     const uns32 word_c            = 1;  // Must be 1.
     const uns32 word_q_c          = 2;
@@ -1274,8 +1302,10 @@ void ll::lexeme::standard::create_standard_program
         };
     uns32 word_tmap =
         create_type_map ( 0, 127, word_cmap );
-    ATTACH ( word_dispatcher, word_tmap );
-    attach_letter_tmaps ( word_dispatcher, true );
+    ATTACH ( word_dispatcher1, word_tmap );
+    attach_letter_tmaps ( word_dispatcher1, true );
+    ATTACH ( word_dispatcher1,
+             word_c, accept_instruction );
 
     uns32 word_dispatcher2_q =
         create_dispatcher ( 500, 2 );
@@ -1283,6 +1313,8 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( word_dispatcher1,
              word_dispatcher2_q,
 	     word_q_c );
+    ATTACH ( word_dispatcher2_q,
+             1, accept_instruction );
 
     uns32 word_dispatcher2_backslash =
         create_dispatcher ( 2, 3 );
@@ -1307,6 +1339,14 @@ void ll::lexeme::standard::create_standard_program
 	word_dispatcher_u = hex_digit_dispatcher;
 	word_u_type = 1;
     }
+    uns32 word_translate_uU =
+        create_instruction
+	    ( TRANSLATE_HEX(2,0) + ELSE,
+	      0, 0, NULL,
+	      letter_dispatcher,
+	      keep_0_return_instruction );
+    ATTACH ( word_dispatcher_u,
+             1, word_translate_uU );
 
     uns32 word_dispatcher_U =
         word_dispatcher2_backslash;
@@ -1323,6 +1363,8 @@ void ll::lexeme::standard::create_standard_program
 	word_dispatcher_U = hex_digit_dispatcher;
 	word_U_type = 1;
     }
+    ATTACH ( word_dispatcher_U,
+             1, word_translate_uU );
 
     // begin mark atom table;
     //    "<mark-char>" accept;
@@ -1332,13 +1374,16 @@ void ll::lexeme::standard::create_standard_program
     //    return;
     // end mark atom table;
 
+    ATTACH ( mark, return_instruction );
+
     uns32 mark_dispatcher1 =
-        create_dispatcher ( 2, 2 );
+        create_dispatcher ( 2, 5 );
     ATTACH ( mark, mark_dispatcher1 );
 
     const uns32 mark_m_c          = 1;
     const uns32 mark_point_c      = 2;
-    const uns32 mark_backslash_c  = 3;
+    const uns32 mark_slash_c  	  = 3;
+    const uns32 mark_backslash_c  = 4;
     uns8 mark_cmap[128] =
         {
             0,              // NUL '\0'
@@ -1388,7 +1433,7 @@ void ll::lexeme::standard::create_standard_program
             0,		    // ,
             mark_m_c,	    // -
             mark_point_c,   // .
-            mark_m_c,	    // /
+            mark_slash_c,   // /
             0,		    // 0
             0,		    // 1
             0,		    // 2
@@ -1474,6 +1519,8 @@ void ll::lexeme::standard::create_standard_program
     uns32 mark_tmap =
         create_type_map ( 0, 127, mark_cmap );
     ATTACH ( mark_dispatcher1, mark_tmap );
+    ATTACH ( mark_dispatcher1,
+             mark_m_c, accept_instruction );
 
     uns32 mark_dispatcher2_point =
         create_dispatcher ( 3, 2 );
@@ -1482,6 +1529,18 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( mark_dispatcher1,
              mark_dispatcher2_point,
 	     mark_point_c );
+    ATTACH ( mark_dispatcher2_point,
+             0, keep_1_instruction );
+
+    uns32 mark_dispatcher2_slash =
+        create_dispatcher ( 3, 2 );
+    ATTACH ( mark_dispatcher2_slash,
+             slash_tmap );
+    ATTACH ( mark_dispatcher1,
+             mark_dispatcher2_slash,
+	     mark_slash_c );
+    ATTACH ( mark_dispatcher2_slash,
+             0, keep_1_instruction );
 
     uns32 mark_dispatcher2_backslash =
         create_dispatcher ( 3, 2 );
@@ -1490,6 +1549,10 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( mark_dispatcher1,
              mark_dispatcher2_backslash,
 	     mark_backslash_c );
+    ATTACH ( mark_dispatcher2_backslash,
+             0, keep_1_instruction );
+
+TBD
 
     // begin natural number atom table;
     //

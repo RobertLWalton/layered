@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat May  8 22:47:41 EDT 2010
+// Date:	Sun May  9 05:38:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/09 03:29:39 $
+//   $Date: 2010/05/09 12:18:00 $
 //   $RCSfile: ll_lexeme_standard.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -77,6 +77,21 @@ static void attach_letter_type_maps
 
 // Program Construction
 // ------- ------------
+
+static create_dispatcher_cascade
+	( uns32 & dispatcher, uns32 ctype,
+	  uns32 type_map, uns32 count )
+{
+    for ( uns32 i = 0; i < count; ++ i )
+    {
+        uns32 next_dispatcher =
+	    create_dispatcher ( 2, 1 );
+	ATTACH ( next_dispatcher, type_map );
+	ATTACH ( dispatcher, next_dispatcher, ctype );
+	dispatcher = next_dispatcher;
+	ctype = 1;
+    }
+}
 
 void ll::lexeme::standard::create_standard_program
 	( void )
@@ -157,7 +172,7 @@ void ll::lexeme::standard::create_standard_program
     // sequences.
     //
     uns32 letter_dispatcher =
-        create_dispatcher ( 500, 2 );
+        create_dispatcher ( 500, 1 );
     attach_letter_type_maps ( letter_dispatcher );
 
     // All the atom tables are created first so
@@ -175,6 +190,12 @@ void ll::lexeme::standard::create_standard_program
     uns32 natural_number =
         create_atom_table ( natural_number_t );
     uns32 number = create_atom_table ( number_t );
+    uns32 quoted_string =
+        create_atom_table ( quoted_string_t );
+    uns32 bad_end_of_line =
+        create_atom_table ( MASTER );
+    uns32 bad_end_of_file =
+        create_atom_table ( MASTER );
 
     uns32 accept_instruction =
         create_instruction ( ACCEPT );
@@ -242,7 +263,7 @@ void ll::lexeme::standard::create_standard_program
     // end master atom table;
 
     uns32 end_of_file_instruction =
-        create_instruction ( OUTPUT, end_of_file_t );
+        create_instruction ( OUTPUT, 0, end_of_file_t );
     ATTACH ( master, end_of_file_instruction );
 
     uns32 master_dispatcher1 =
@@ -440,7 +461,7 @@ void ll::lexeme::standard::create_standard_program
 
     uns32 output_separator =
         create_instruction
-	    ( OUTPUT, separator_t );
+	    ( OUTPUT, 0, separator_t );
     ATTACH ( master_dispatcher1, sep_c,
              output_separator );
     ATTACH ( master_dispatcher1, single_q_c,
@@ -454,12 +475,12 @@ void ll::lexeme::standard::create_standard_program
 
     uns32 output_bad_character =
         create_instruction
-	    ( OUTPUT, bad_character_t );
+	    ( OUTPUT, 0, bad_character_t );
     ATTACH ( master_dispatcher1, 0,
              output_bad_character );
 
     uns32 master_dispatcher2_slash =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     uns32 slash_tmap =
         create_type_map ( '/', '/', 1 );
     ATTACH ( master_dispatcher2_slash,
@@ -474,7 +495,7 @@ void ll::lexeme::standard::create_standard_program
              1, call_comment );
 
     uns32 master_dispatcher2_single_q =
-        create_dispatcher ( 500, 2 );
+        create_dispatcher ( 500, 1 );
     attach_letter_type_maps
         ( master_dispatcher2_single_q );
     ATTACH ( master_dispatcher1,
@@ -484,7 +505,7 @@ void ll::lexeme::standard::create_standard_program
              1, call_word );
 
     uns32 master_dispatcher2_point =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     uns32 digit_tmap =
         create_type_map ( '0', '9', 1 );
     ATTACH ( master_dispatcher2_point,
@@ -633,7 +654,7 @@ void ll::lexeme::standard::create_standard_program
         };
 
     uns32 master_dispatcher2_backslash =
-        create_dispatcher ( 2, 3 );
+        create_dispatcher ( 2, 2 );
     uns32 Uu_tmap =
         create_type_map ( 0, 127, Uu_cmap );
     ATTACH ( master_dispatcher2_backslash, Uu_tmap );
@@ -642,7 +663,7 @@ void ll::lexeme::standard::create_standard_program
 	     backslash_c );
     uns32 error_bad_escape_sequence =
         create_instruction
-	    ( ERRONEOUS_ATOM, bad_escape_sequence_t );
+	    ( ERRONEOUS_ATOM, 0 bad_escape_sequence_t );
 
     uns8 hex_digit_cmap[128] =
         {
@@ -782,19 +803,9 @@ void ll::lexeme::standard::create_standard_program
              u_type, error_bad_escape_sequence );
     uns32 master_dispatcher_u =
         master_dispatcher2_backslash;
-    uns32 u_type = u_c;
-    for ( uns32 i = 0; i < 4; ++ i )
-    {
-        uns32 hex_digit_dispatcher =
-	    create_dispatcher ( 2, 2 );
-	ATTACH ( hex_digit_dispatcher,
-	         hex_digit_tmap );
-	ATTACH ( master_dispatcher_u,
-	         hex_digit_dispatcher,
-		 u_type );
-	master_dispatcher_u = hex_digit_dispatcher;
-	u_type = 1;
-    }
+    create_dispatcher_cascade
+        ( master_dispatcher_u, u_c,
+	  hex_digit_tmap, 4 );
     uns32 keep_2_error_bad_escape_sequence =
         create_instruction
 	    ( ERRONEOUS_ATOM + KEEP(2),
@@ -812,19 +823,9 @@ void ll::lexeme::standard::create_standard_program
              U_type, error_bad_escape_sequence );
     uns32 master_dispatcher_U =
         master_dispatcher2_backslash;
-    uns32 U_type = U_c;
-    for ( uns32 i = 0; i < 8; ++ i )
-    {
-        uns32 hex_digit_dispatcher =
-	    create_dispatcher ( 2, 2 );
-	ATTACH ( hex_digit_dispatcher,
-	         hex_digit_tmap );
-	ATTACH ( master_dispatcher_U,
-	         hex_digit_dispatcher,
-		 U_type );
-	master_dispatcher_U = hex_digit_dispatcher;
-	U_type = 1;
-    }
+    create_dispatcher_cascade
+        ( master_dispatcher_U, U_c,
+	  hex_digit_tmap, 8 );
     ATTACH ( master_dispatcher_U,
              1, master_translate_uU );
 
@@ -839,7 +840,7 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( comment, return_instruction );
 
     uns32 comment_dispatcher =
-        create_dispatcher ( 2, 2 );
+        create_dispatcher ( 2, 1 );
     ATTACH ( comment, comment_dispatcher );
 
     uns8 line_break_cmap[128] =
@@ -988,7 +989,7 @@ void ll::lexeme::standard::create_standard_program
              return_instruction );
 
     uns32 horizontal_space_dispatcher =
-        create_dispatcher ( 2, 2 );
+        create_dispatcher ( 2, 1 );
     ATTACH ( horizontal_space,
              horizontal_space_dispatcher );
 
@@ -1138,7 +1139,7 @@ void ll::lexeme::standard::create_standard_program
 
     ATTACH ( line_break, return_instruction );
     uns32 line_break_dispatcher =
-        create_dispatcher ( 2, 2 );
+        create_dispatcher ( 2, 1 );
     ATTACH ( line_break, line_break_dispatcher );
     ATTACH ( line_break_dispatcher, line_break_tmap );
     ATTACH ( line_break_dispatcher,
@@ -1162,7 +1163,7 @@ void ll::lexeme::standard::create_standard_program
     // end word atom table;
 
     ATTACH ( word, return_instruction );
-    uns32 word_dispatcher1 = create_dispatcher ( 500, 4 );
+    uns32 word_dispatcher1 = create_dispatcher ( 500, 3 );
     ATTACH ( word, word_dispatcher1 );
 
     const uns32 word_c            = 1;  // Must be 1.
@@ -1308,7 +1309,7 @@ void ll::lexeme::standard::create_standard_program
              word_c, accept_instruction );
 
     uns32 word_dispatcher2_q =
-        create_dispatcher ( 500, 2 );
+        create_dispatcher ( 500, 1 );
     attach_letter_type_maps ( word_dispatcher2_q );
     ATTACH ( word_dispatcher1,
              word_dispatcher2_q,
@@ -1317,7 +1318,7 @@ void ll::lexeme::standard::create_standard_program
              1, accept_instruction );
 
     uns32 word_dispatcher2_backslash =
-        create_dispatcher ( 2, 3 );
+        create_dispatcher ( 2, 2 );
     ATTACH ( word_dispatcher2_backslash,
              Uu_tmap );
     ATTACH ( word_dispatcher1,
@@ -1326,19 +1327,9 @@ void ll::lexeme::standard::create_standard_program
 
     uns32 word_dispatcher_u =
         word_dispatcher2_backslash;
-    uns32 word_u_type = u_c;
-    for ( uns32 i = 0; i < 4; ++ i )
-    {
-        uns32 hex_digit_dispatcher =
-	    create_dispatcher ( 2, 2 );
-	ATTACH ( hex_digit_dispatcher,
-	         hex_digit_tmap );
-	ATTACH ( word_dispatcher_u,
-	         hex_digit_dispatcher,
-		 word_u_type );
-	word_dispatcher_u = hex_digit_dispatcher;
-	word_u_type = 1;
-    }
+    create_dispatcher_cascade
+        ( word_dispatcher_u, u_c,
+	  hex_digit_tmap, 4 );
     uns32 word_translate_uU =
         create_instruction
 	    ( TRANSLATE_HEX(2,0) + ELSE,
@@ -1350,19 +1341,9 @@ void ll::lexeme::standard::create_standard_program
 
     uns32 word_dispatcher_U =
         word_dispatcher2_backslash;
-    uns32 word_U_type = U_c;
-    for ( uns32 i = 0; i < 8; ++ i )
-    {
-        uns32 hex_digit_dispatcher =
-	    create_dispatcher ( 2, 2 );
-	ATTACH ( hex_digit_dispatcher,
-	         hex_digit_tmap );
-	ATTACH ( word_dispatcher_U,
-	         hex_digit_dispatcher,
-		 word_U_type );
-	word_dispatcher_U = hex_digit_dispatcher;
-	word_U_type = 1;
-    }
+    create_dispatcher_cascade
+        ( word_dispatcher_U, U_c,
+	  hex_digit_tmap, 8 );
     ATTACH ( word_dispatcher_U,
              1, word_translate_uU );
 
@@ -1377,7 +1358,7 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( mark, return_instruction );
 
     uns32 mark_dispatcher1 =
-        create_dispatcher ( 2, 5 );
+        create_dispatcher ( 2, 4 );
     ATTACH ( mark, mark_dispatcher1 );
 
     const uns32 mark_m_c          = 1;
@@ -1523,7 +1504,7 @@ void ll::lexeme::standard::create_standard_program
              mark_m_c, accept_instruction );
 
     uns32 mark_dispatcher2_point =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     ATTACH ( mark_dispatcher2_point,
              digit_tmap );
     ATTACH ( mark_dispatcher1,
@@ -1533,7 +1514,7 @@ void ll::lexeme::standard::create_standard_program
              0, keep_1_instruction );
 
     uns32 mark_dispatcher2_slash =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     ATTACH ( mark_dispatcher2_slash,
              slash_tmap );
     ATTACH ( mark_dispatcher1,
@@ -1552,8 +1533,6 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( mark_dispatcher2_backslash,
              0, keep_1_instruction );
 
-TBD
-
     // begin natural number atom table;
     //
     //    "<digit>" accept;
@@ -1563,6 +1542,8 @@ TBD
     //    return;
     //
     // end natural number atom table;
+
+    ATTACH ( natural_number, return_instruction );
 
     uns32 natural_number_dispatcher1 =
         create_dispatcher ( 2, 2 );
@@ -1703,18 +1684,24 @@ TBD
         };
     uns32 number_tmap =
         create_type_map ( 0, 127, number_cmap );
-    ATTACH ( number_dispatcher1, number_tmap );
+    ATTACH ( natural_number_dispatcher1, number_tmap );
+    ATTACH ( natural_number_dispatcher1,
+             number_digit_c, accept_instruction );
 
     uns32 natural_number_dispatcher2_point =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     ATTACH ( natural_number_dispatcher2_point,
              digit_tmap );
     ATTACH ( natural_number_dispatcher1,
              natural_number_dispatcher2_point,
-	     natural_number_point_c );
+	     number_point_c );
+    uns32 keep_1_goto_number =
+        create_instruction ( KEEP(1)+GOTO, number );
+    ATTACH ( natural_number_dispatcher2_point,
+             1, keep1_goto_number );
 
     uns32 natural_number_dispatcher2 =
-        create_dispatcher ( 2, 2 );
+        create_dispatcher ( 2, 1 );
     ATTACH ( natural_number_dispatcher1,
              natural_number_dispatcher2,
 	     number_digit_c );
@@ -1851,15 +1838,20 @@ TBD
         };
     uns32 slash_comma_tmap =
         create_type_map ( 0, 127, slash_comma_cmap );
-    ATTACH ( number_dispatcher2, slash_comma_tmap );
+    ATTACH ( natural_number_dispatcher2,
+             slash_comma_tmap );
 
     uns32 natural_number_dispatcher3 =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     ATTACH ( natural_number_dispatcher3,
              digit_tmap );
-    ATTACH ( natural_number_dispatcher1,
+    ATTACH ( natural_number_dispatcher2,
              natural_number_dispatcher3,
 	     1 );
+    uns32 keep_2_goto_number =
+        create_instruction ( KEEP(2)+GOTO, number );
+    ATTACH ( natural_number_dispatcher3,
+             1, keep_2_goto_number ); 
 
     // begin number atom table;
     //
@@ -1881,34 +1873,42 @@ TBD
     //
     // end number atom table;
 
+    ATTACH ( number, return_instruction );
+
     uns32 number_dispatcher1 =
         create_dispatcher ( 2, 2 );
     ATTACH ( number,
              number_dispatcher1 );
     ATTACH ( number_dispatcher1, number_tmap );
+    ATTACH ( number_dispatcher1,
+             number_digit_c, accept_instruction );
 
     uns32 number_dispatcher2_point =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     ATTACH ( number_dispatcher2_point,
              digit_tmap );
     ATTACH ( number_dispatcher1,
              number_dispatcher2_point,
 	     number_point_c );
+    ATTACH ( number_dispatcher2_point,
+             1, keep1_goto_number );
 
     uns32 number_dispatcher2 =
-        create_dispatcher ( 2, 2 );
+        create_dispatcher ( 2, 1 );
     ATTACH ( number_dispatcher1,
              number_dispatcher2,
 	     number_digit_c );
     ATTACH ( number_dispatcher2, slash_comma_tmap );
 
     uns32 number_dispatcher3 =
-        create_dispatcher ( 3, 2 );
+        create_dispatcher ( 3, 1 );
     ATTACH ( number_dispatcher3,
              digit_tmap );
-    ATTACH ( number_dispatcher1,
+    ATTACH ( number_dispatcher2,
              number_dispatcher3,
 	     1 );
+    ATTACH ( number_dispatcher3,
+             1, keep_2_goto_number ); 
 
     // begin quoted string atom table;
     //
@@ -1923,17 +1923,18 @@ TBD
     //     "\\\v" translate "\v";
     //     "\\\\" translate "\\";
     //     "\\~"  translate " " ;
-    //     "\\x<hex-digit><hex-digit>" translate hex 2 0;
-    //     "\\<oct-digit><oct-digit><oct-digit>" translate oct 1 0;
     //     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
     //                                 translate hex 2 0;
     //     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
     //        "<hex-digit><hex-digit><hex-digit><hex-digit>"
     //                                 translate hex 2 0;
+    //     "\\<line-break-char>"
+    //		keep 1 error bad escape sequence
+    //		goto bad end of line;
+    //     "\\<other>" error bad escape sequence;
     //
     //     "<line-break-char>"
     //         goto bad end of line;
-    //     "\\<other>" error bad escape sequence;
     //
     //     "<other>" accept;
     //
@@ -1941,12 +1942,411 @@ TBD
     //
     // end quoted string atom table;
 
+    uns32 goto_bad_end_of_file =
+        create_instruction ( GOTO, bad_end_of_file );
+    ATTACH ( quoted_string, goto_bad_end_of_file );
+
+    uns32 quoted_string_dispatcher1 =
+        create_dispatcher ( 2, 3 );
+    ATTACH ( quoted_string, quoted_string_dispatcher1 );
+    uns8 q_q_c	 = 1;
+    uns8 q_backslash_c = 2;
+    uns8 q_linebreak_c = 3;
+    uns8 q_cmap[128] =
+        {
+            0,              // NUL '\0'
+            0,		    // SOH (start of heading)
+            0,		    // STX (start of text)
+            0,		    // ETX (end of text)
+            0,		    // EOT (end of transmission)
+            0,		    // ENQ (enquiry)
+            0,		    // ACK (acknowledge)
+            0,		    // BEL '\a' (bell)
+            0,		    // BS  '\b' (backspace)
+            0,		    // HT  '\t' (horizontal tab)
+            q_linebreak_c,  // LF  '\n' (new line)
+            q_linebreak_c,  // VT  '\v' (vertical tab)
+            q_linebreak_c,  // FF  '\f' (form feed)
+            q_linebreak_c,  // CR  '\r' (carriage ret)
+            0,		    // SO  (shift out)
+            0,		    // SI  (shift in)
+            0,		    // DLE (data link escape)
+            0,		    // DC1 (device control 1)
+            0,		    // DC2 (device control 2)
+            0,		    // DC3 (device control 3)
+            0,		    // DC4 (device control 4)
+            0,		    // NAK (negative ack.)
+            0,		    // SYN (synchronous idle)
+            0,		    // ETB (end of trans. blk)
+            0,		    // CAN (cancel)
+            0,		    // EM  (end of medium)
+            0,		    // SUB (substitute)
+            0,		    // ESC (escape)
+            0,		    // FS  (file separator)
+            0,		    // GS  (group separator)
+            0,		    // RS  (record separator)
+            0,		    // US  (unit separator)
+            0,		    // SPACE
+            0,		    // !
+            q_q_c,	    // "
+            0,		    // #
+            0,		    // $
+            0,		    // %
+            0,		    // &
+            0,		    // '
+            0,		    // (
+            0,		    // )
+            0,		    // *
+            0,		    // +
+            0,		    // ,
+            0,		    // -
+            0,		    // .
+            0,		    // /
+            0,		    // 0
+            0,		    // 1
+            0,		    // 2
+            0,		    // 3
+            0,		    // 4
+            0,		    // 5
+            0,		    // 6
+            0,		    // 7
+            0,		    // 8
+            0,		    // 9
+            0,		    // :
+            0,		    // ;
+            0,		    // <
+            0,		    // =
+            0,		    // >
+            0,		    // ?
+            0,		    // @
+            0,		    // A
+            0,		    // B
+            0,		    // C
+            0,		    // D
+            0,		    // E
+            0,		    // F
+            0,		    // G
+            0,		    // H
+            0,		    // I
+            0,		    // J
+            0,		    // K
+            0,		    // L
+            0,		    // M
+            0,		    // N
+            0,		    // O
+            0,		    // P
+            0,		    // Q
+            0,		    // R
+            0,		    // S
+            0,		    // T
+            0,		    // U
+            0,		    // V
+            0,		    // W
+            0,		    // X
+            0,		    // Y
+            0,		    // Z
+            0,		    // [
+            q_backslash_c,  // \  '\\'
+            0,		    // ]
+            0,		    // ^
+            0,		    // _
+            0,		    // `
+            0,		    // a
+            0,		    // b
+            0,		    // c
+            0,		    // d
+            0,		    // e
+            0,		    // f
+            0,		    // g
+            0,		    // h
+            0,		    // i
+            0,		    // j
+            0,		    // k
+            0,		    // l
+            0,		    // m
+            0,		    // n
+            0,		    // o
+            0,		    // p
+            0,		    // q
+            0,		    // r
+            0,		    // s
+            0,		    // t
+            0,		    // u
+            0,		    // v
+            0,		    // w
+            0,		    // x
+            0,		    // y
+            0,		    // z
+            0,		    // {
+            0,		    // |
+            0,		    // }
+            0,		    // ~
+            0	    	    // DEL
+        };
+    uns32 q_tmap =
+        create_type_map ( 0, 127, q_cmap );
+    ATTACH ( quoted_string_dispatcher1, q_tmap );
+
+    ATTACH ( quoted_string_dispatcher1,
+             0, accept_instruction );
+    uns32 translate_empty_return =
+        create_instruction ( TRANSLATE(0)+CALLRETURN );
+    ATTACH ( quoted_string_dispatcher1,
+             q_q_c, translate_empty_return );
+
+    uns32 goto_bad_end_of_line =
+        create_instruction ( GOTO, bad_end_of_line );
+    ATTACH ( quoted_string_dispatcher1,
+             q_linebreak_c, goto_bad_end_of_line );
+
+    uns32 quoted_string_dispatcher2 =
+        create_dispatcher ( 2, 20 );
+    ATTACH ( quoted_string_dispatcher1,
+             q_backslash_c, quoted_string_dispatcher2 );
+    uns8 q_b_q_c	 = 1;
+    uns8 q_b_n_c	 = 2;
+    uns8 q_b_r_c	 = 3;
+    uns8 q_b_t_c	 = 4;
+    uns8 q_b_b_c	 = 5;
+    uns8 q_b_f_c	 = 6;
+    uns8 q_b_v_c	 = 7;
+    uns8 q_b_backslash_c = 8;
+    uns8 q_b_tilde_c	 = 9;
+    uns8 q_b_u_c	 = 10;
+    uns8 q_b_U_c	 = 11;
+    uns8 q_b_linebreak_c = 12;
+    uns8 q_b_cmap[128] =
+        {
+            0,              // NUL '\0'
+            0,		    // SOH (start of heading)
+            0,		    // STX (start of text)
+            0,		    // ETX (end of text)
+            0,		    // EOT (end of transmission)
+            0,		    // ENQ (enquiry)
+            0,		    // ACK (acknowledge)
+            0,		    // BEL '\a' (bell)
+            0,		    // BS  '\b' (backspace)
+            0,		    // HT  '\t' (horizontal tab)
+            q_b_linebreak_c, // LF  '\n' (new line)
+            q_b_linebreak_c, // VT  '\v' (vertical tab)
+            q_b_linebreak_c, // FF  '\f' (form feed)
+            q_b_linebreak_c, // CR  '\r' (carriage ret)
+            0,		    // SO  (shift out)
+            0,		    // SI  (shift in)
+            0,		    // DLE (data link escape)
+            0,		    // DC1 (device control 1)
+            0,		    // DC2 (device control 2)
+            0,		    // DC3 (device control 3)
+            0,		    // DC4 (device control 4)
+            0,		    // NAK (negative ack.)
+            0,		    // SYN (synchronous idle)
+            0,		    // ETB (end of trans. blk)
+            0,		    // CAN (cancel)
+            0,		    // EM  (end of medium)
+            0,		    // SUB (substitute)
+            0,		    // ESC (escape)
+            0,		    // FS  (file separator)
+            0,		    // GS  (group separator)
+            0,		    // RS  (record separator)
+            0,		    // US  (unit separator)
+            0,		    // SPACE
+            0,		    // !
+            q_b_q_c,	    // "
+            0,		    // #
+            0,		    // $
+            0,		    // %
+            0,		    // &
+            0,		    // '
+            0,		    // (
+            0,		    // )
+            0,		    // *
+            0,		    // +
+            0,		    // ,
+            0,		    // -
+            0,		    // .
+            0,		    // /
+            0,	            // 0
+            0,	            // 1
+            0,	            // 2
+            0,	            // 3
+            0,	            // 4
+            0,	            // 5
+            0,	            // 6
+            0,	            // 7
+            0,		    // 8
+            0,		    // 9
+            0,		    // :
+            0,		    // ;
+            0,		    // <
+            0,		    // =
+            0,		    // >
+            0,		    // ?
+            0,		    // @
+            0,		    // A
+            0,		    // B
+            0,		    // C
+            0,		    // D
+            0,		    // E
+            0,		    // F
+            0,		    // G
+            0,		    // H
+            0,		    // I
+            0,		    // J
+            0,		    // K
+            0,		    // L
+            0,		    // M
+            0,		    // N
+            0,		    // O
+            0,		    // P
+            0,		    // Q
+            0,		    // R
+            0,		    // S
+            0,		    // T
+            q_b_U_c,	    // U
+            0,		    // V
+            0,		    // W
+            0,		    // X
+            0,		    // Y
+            0,		    // Z
+            0,		    // [
+            q_b_backslash_c, // \  '\\'
+            0,		    // ]
+            0,		    // ^
+            0,		    // _
+            0,		    // `
+            0,		    // a
+            q_b_b_c,	    // b
+            0,		    // c
+            0,		    // d
+            0,		    // e
+            q_b_f_c,	    // f
+            0,		    // g
+            0,		    // h
+            0,		    // i
+            0,		    // j
+            0,		    // k
+            0,		    // l
+            0,		    // m
+            q_b_n_c,	    // n
+            0,		    // o
+            0,		    // p
+            0,		    // q
+            q_b_r_c,	    // r
+            0,		    // s
+            q_b_t_c,	    // t
+            q_b_u_c,	    // u
+            q_b_v_c,	    // v
+            0,		    // w
+            0,		    // x
+            0,		    // y
+            0,		    // z
+            0,		    // {
+            0,		    // |
+            0,		    // }
+            q_b_tilde_c,    // ~
+            0	    	    // DEL
+        };
+    uns32 q_tmap =
+        create_type_map ( 0, 127, q_cmap );
+    ATTACH ( quoted_string_dispatcher2, q_tmap );
+
+    uns32 translate_q_vector[1] = { '"' };
+    uns32 translate_q =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0, translate_q_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_q_c, translate_q );
+    uns32 translate_n_vector[1] = { '\n' };
+    uns32 translate_n =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0, translate_n_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_n_c, translate_n );
+    uns32 translate_r_vector[1] = { '\r' };
+    uns32 translate_r =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0, translate_r_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_r_c, translate_r );
+    uns32 translate_t_vector[1] = { '\t' };
+    uns32 translate_t =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0, translate_t_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_t_c, translate_t );
+    uns32 translate_b_vector[1] = { '\b' };
+    uns32 translate_b =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0, translate_b_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_b_c, translate_b );
+    uns32 translate_f_vector[1] = { '\f' };
+    uns32 translate_f =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0, translate_f_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_f_c, translate_f );
+    uns32 translate_v_vector[1] = { '\v' };
+    uns32 translate_v =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0, translate_v_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_v_c, translate_v );
+    uns32 translate_backslash_vector[1] = { '\\' };
+    uns32 translate_backslash =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0,
+	      translate_backslash_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_backslash_c, translate_backslash );
+    uns32 translate_tilde_vector[1] = { ' ' };
+    uns32 translate_tilde =
+        create_instruction
+	    ( TRANSLATE(1), 0, 0,
+	      translate_tilde_vector );
+    ATTACH ( quoted_string_dispatcher_2,
+             q_b_tilde_c, translate_tilde );
+
+    uns32 quoted_string_translate_uU =
+        create_instruction ( TRANSLATE_HEX(2,0) );
+
+    uns32 quoted_string_dispatcher_u =
+        quoted_string_dispatcher2_backslash;
+    create_dispatcher_cascade
+        ( quoted_string_dispatcher_u, q_u_c,
+	  hex_digit_tmap, 4 );
+    ATTACH ( quoted_string_dispatcher_u,
+             1, quoted_string_translate_uU );
+
+    uns32 quoted_string_dispatcher_U =
+        quoted_string_dispatcher2_backslash;
+    create_dispatcher_cascade
+        ( quoted_string_dispatcher_U, q_U_c,
+	  hex_digit_tmap, 8 );
+    ATTACH ( quoted_string_dispatcher_U,
+             1, quoted_string_translate_uU );
+
+    uns32 keep_1_goto_bad_end_of_line =
+        create_instruction
+	    ( KEEP(1)+ERRONEOUS_ATOM+GOTO,
+	      bad_end_of_line,
+	      bad_escape_sequence_t );
+    ATTACH ( quoted_string_dispatcher2_backslash,
+             q_b_linebreak_c,
+	     keep_1_goto_bad_end_of_line );
 
     // begin bad end of line;
     //     mode master;
     //     output bad end of line
     //     	   goto master;
     // end bad end of line;
+
+    uns32 output_bad_end_of_line_goto_master =
+        create_instruction
+	    ( OUTPUT+GOTO,
+	      master, bad_end_of_line_t );
+    ATTACH ( bad_end_of_line,
+             output_bad_end_of_line_goto_master );
 
 
     // begin bad end of file;
@@ -1955,5 +2355,14 @@ TBD
     //     	   goto master;
     // end bad end of file;
 
+    uns32 output_bad_end_of_file_goto_master =
+        create_instruction
+	    ( OUTPUT+GOTO,
+	      master, bad_end_of_file_t );
+    ATTACH ( bad_end_of_file,
+             output_bad_end_of_file_goto_master );
 
     // end standard lexical program;
+
+    assert ( error_count == 0 );
+}

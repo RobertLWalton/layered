@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sun May  9 05:38:55 EDT 2010
+// Date:	Sun May  9 08:20:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/09 12:18:00 $
+//   $Date: 2010/05/09 12:21:12 $
 //   $RCSfile: ll_lexeme_standard.cc,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents
 //
@@ -1929,8 +1929,7 @@ void ll::lexeme::standard::create_standard_program
     //        "<hex-digit><hex-digit><hex-digit><hex-digit>"
     //                                 translate hex 2 0;
     //     "\\<line-break-char>"
-    //		keep 1 error bad escape sequence
-    //		goto bad end of line;
+    //		keep 1 error bad escape sequence;
     //     "\\<other>" error bad escape sequence;
     //
     //     "<line-break-char>"
@@ -2326,14 +2325,13 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( quoted_string_dispatcher_U,
              1, quoted_string_translate_uU );
 
-    uns32 keep_1_goto_bad_end_of_line =
+    uns32 keep_1_error_bad_escape_sequence =
         create_instruction
-	    ( KEEP(1)+ERRONEOUS_ATOM+GOTO,
-	      bad_end_of_line,
-	      bad_escape_sequence_t );
+	    ( KEEP(1)+ERRONEOUS_ATOM,
+	      0, bad_escape_sequence_t );
     ATTACH ( quoted_string_dispatcher2_backslash,
              q_b_linebreak_c,
-	     keep_1_goto_bad_end_of_line );
+	     keep_1_error_bad_escape_sequence );
 
     // begin bad end of line;
     //     mode master;

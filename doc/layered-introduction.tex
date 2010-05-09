@@ -1185,8 +1185,10 @@ end line break atom table;
 
 
 begin word atom table;
+
    "<word-char>" accept;
    "'<letter>" accept;
+
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter">
         else keep 0 return
@@ -1194,7 +1196,9 @@ begin word atom table;
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter">
         else keep 0 return
+
    return;
+
 end word atom table;
 
 begin mark atom table;

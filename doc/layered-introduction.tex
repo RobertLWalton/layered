@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 8, 2010
+May 9, 2010
  
 \end{center}
 
@@ -1007,7 +1007,7 @@ A token can have any of the following components.
 \\[1ex]
 		& An {\tt expression} is a list of names and
 		  expressions and in addition a map from names
-		  to names and expressions.
+		  to values that are names or expressions.
 \\[1ex]
 \tt type	& For lexemes, the type of the lexeme. \\[0.3ex]
 		& For names, one of: \\
@@ -1030,7 +1030,7 @@ A token can have any of the following components.
 		  a name the character string of a symbol, the value of
 		  a natural number, or the name list of a label.
 		  It is possible to recover from the ident of
-		  an expression the list elements and key/value map
+		  an expression the list elements and the name/value map
 		  of the expression.
 		  But these things are rarely done by the parser.
 \\[1ex]
@@ -1041,9 +1041,15 @@ A token can have any of the following components.
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
 \tt positions	& The positions of the first and last character of the
-	          token in the input tex.
+	          token in the input tex.  It is possible to recover
+		  from a position the column number within a line
+		  and a line ident, where two line idents are equal
+		  if and only if the file lines the denote are the same.
+		  A printed representation of a line ident may also
+		  be obtained for error messages.
 \end{tabular}
 \end{indpar}
+
 
 
 
@@ -1253,13 +1259,13 @@ begin quoted string atom table;
     "\\\v" translate "\v";
     "\\\\" translate "\\";
     "\\~"  translate " " ;
-    "\\x<hex-digit><hex-digit>" translate hex 2 0;
-    "\\<oct-digit><oct-digit><oct-digit>" translate oct 1 0;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
                                 translate hex 2 0;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
                                 translate hex 2 0;
+    "\\<line-break-char>"
+        keep 1 error bad escape sequence;
 
     "<line-break-char>"
         goto bad end of line;

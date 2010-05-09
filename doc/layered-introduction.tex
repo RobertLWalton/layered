@@ -1005,6 +1005,10 @@ A token can have any of the following components.
 		  or `{\tt +}', or a natural number, or a
 		  list of names (called a label).
 \\[1ex]
+		& An {\tt expression} is a list of names and
+		  expressions and in addition a map from names
+		  to names and expressions.
+\\[1ex]
 \tt type	& For lexemes, the type of the lexeme. \\[0.3ex]
 		& For names, one of: \\
 		& ~~~~{\tt symbol} \\
@@ -1014,24 +1018,26 @@ A token can have any of the following components.
 \begin{tabular}{p{1in}p{4in}}
 \tt string	& For lexemes, the character string of the lexeme.
 \\[1ex]
-\tt ident	& For names, a 32 or 64 bit numeric or pointer denotational
-		  value that represents the name.
-		  Two different names have different idents, so
+\tt ident	& For names and expressions,
+                  a 32 or 64 bit numeric or pointer
+		  value that denotes the name or expression.
+		  Two names are different if and only if they
+		  have different idents, so
 		  names can be compared by comparing their idents.
+		  No name can have the same ident as an expression.
 \\[1ex]
-		& It is also possible to recover from the ident of
+		& It is possible to recover from the ident of
 		  a name the character string of a symbol, the value of
 		  a natural number, or the name list of a label.
-		  But this is rarely done.
+		  It is possible to recover from the ident of
+		  an expression the list elements and key/value map
+		  of the expression.
+		  But these things are rarely done by the parser.
 \\[1ex]
 \tt hash	& A 32 bit unsigned integer that is a randomized hash of
-          	  the character string of a symbol, the value of a
-		  natural number, or the names of a label.  Usable to
+          	  the character string of a symbol, a hash of the value of a
+		  natural number, or a hash of the names of a label.  Usable to
 		  make hash tables in which names are keys.
-\\[1ex]
-\tt value	& A 32 bit unsigned integer that is the value of a
-                  natural number name, or is missing if the natural
-		  number is too large.
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
 \tt positions	& The positions of the first and last character of the
@@ -1092,6 +1098,7 @@ begin standard lexical program;
               //      / not surrounded by digits
 
 "<non-u-char>" = ~ "u" & ~ "U";
+"<non-slash-char>" = ~ ";";
 
 "<separator-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";" | "`";
               //
@@ -1123,16 +1130,19 @@ begin master atom table;
    "'<letter>" call word;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter"> call word
-        else keep 1 output bad escape sequence;
+        else keep 2 error bad escape sequence;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0 "<letter"> call word
-        else keep 1 output bad escape sequence;
+        else keep 2 error bad escape sequence;
+
+    "\\u" error bad escape sequence;
+    "\\U" error bad escape sequence;
 
    "<mark-char>" call mark;
-   ".<non-digit>" keep 1 call mark;
-   "/" call mark;
-   "\\<non-u-char>" keep 1 call mark;
+   "." call mark;  // ".<non-digit>"
+   "/" call mark;  // "/<non-slash-char>"
+   "\\" call mark; // "\\<non-u-char>"
 
    // We assume that the preceding text is not a digit
    // or the current input is not / or , followed by a digit.
@@ -1142,7 +1152,7 @@ begin master atom table;
 
    "<separator-char>" output separator;
    "," output separator;
-   "'<non-letter>" keep 1 output separator;
+   "'" output separator;        // "'<non-letter>"
 
    "\"" translate "" call quoted string;
 
@@ -1190,7 +1200,7 @@ end word atom table;
 begin mark atom table;
    "<mark-char>" accept;
    ".<non-digit>" keep 1;
-   "/" accept;
+   "/<non-slash-char>" keep 1;
    "\\<non-u-char>" keep 1;
    return;
 end mark atom table;
@@ -1249,7 +1259,7 @@ begin quoted string atom table;
 
     "<line-break-char>"
         goto bad end of line;
-    "\\" error bad escape sequence;
+    "\\<other>" error bad escape sequence;
 
     "<other>" accept;
 

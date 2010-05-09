@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Fri May  7 07:35:32 EDT 2010
+// Date:	Sat May  8 21:39:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/07 15:57:53 $
+//   $Date: 2010/05/09 01:40:19 $
 //   $RCSfile: ll_lexeme_standard.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents
 //
@@ -101,17 +101,17 @@ void ll::lexeme::standard::create_standard_program
     // 1996.
     //
     // "<latin-letter>" = "\u00c0-\n00d6"
-    //			| "\u00d8-\u00f6"
+    //                  | "\u00d8-\u00f6"
     //                  | "\u00f8-\u01f5"
-    //			| "\u01fa-\u0217"
+    //                  | "\u01fa-\u0217"
     //                  | "\u0250-\u02a8"
-    //			| "\u1ea0-\u1ef9";
+    //                  | "\u1ea0-\u1ef9";
     //
     // . . . . . letter character pattern definitions
     //           omitted . . . . .
     //
     // "<CJK-letter>" = "\uf900-\ufa2d"
-    //		      | . . .  // Details omitted
+    //                | . . .  // Details omitted
     //
     // Context sensitive character classifications,
     // e.g., classifying ' as a word character if it is
@@ -136,6 +136,7 @@ void ll::lexeme::standard::create_standard_program
     //               //      / not surrounded by digits
     //
     // "<non-u-char>" = ~ "u" & ~ "U";
+    // "<non-slash-char>" = ~ "/";
     //
     // "<separator-char>" = "(" | ")" | "[" | "]" | "{"
     //                    | "}" | ";" | "`";
@@ -159,6 +160,22 @@ void ll::lexeme::standard::create_standard_program
         create_dispatcher ( 500, 2 );
     attach_letter_type_maps ( letter_dispatcher );
 
+    // All the atom tables are created first so
+    // instructions can be created which do not do
+    // forward references.
+    //
+    uns32 master = create_atom_table ( MASTER );
+    uns32 comment = create_atom_table ( comment_t );
+    uns32 horizontal_space =
+	create_atom_table ( horizontal_space_t );
+    uns32 line_break =
+        create_atom_table ( line_break_t );
+    uns32 word = create_atom_table ( word_t );
+    uns32 mark = create_atom_table ( mark_t );
+    uns32 natural_number =
+        create_atom_table ( natural_number_t );
+    uns32 number = create_atom_table ( number_t );
+
     // begin master atom table;
     //
     //   // Whitespace is separated out into 3 kinds of
@@ -181,18 +198,21 @@ void ll::lexeme::standard::create_standard_program
     //     "\\u<hex-digit><hex-digit>"
     //        "<hex-digit><hex-digit>"
     //         translate hex 2 0 "<letter"> call word
-    //         else keep 1 output bad escape sequences;
+    //         else keep 2 error bad escape sequence;
     //     "\\U<hex-digit><hex-digit>"
     //        "<hex-digit><hex-digit>"
     //        "<hex-digit><hex-digit>"
     //        "<hex-digit><hex-digit>"
     //         translate hex 2 0 "<letter"> call word
-    //         else keep 1 output bad escape sequences;
+    //         else keep 2 error bad escape sequence;
+    //
+    //     "\\u" error bad escape sequence;
+    //     "\\U" error bad escape sequence;
     //
     //    "<mark-char>" call mark;
-    //    ".<non-digit>" keep 1 call mark;
-    //    "/" call mark;
-    //    "\\<non-u-char>" keep 1 call mark;
+    //    "." call mark;        // ".<non-digit>"
+    //    "/" call mark;        // "/<non-slash-char>"
+    //    "\\" call mark;       // "\\<non-u-char>"
     //
     //    // We assume that the preceding text is not a
     //    // digit or the current input is not / or ,
@@ -203,7 +223,7 @@ void ll::lexeme::standard::create_standard_program
     //
     //    "<separator-char>" output separator;
     //    "," output separator;
-    //    "'<non-letter>" keep 1 output separator;
+    //    "'" output separator; // "'<non-letter>"
     //
     //    "\"" translate "" call quoted string;
     //
@@ -212,7 +232,9 @@ void ll::lexeme::standard::create_standard_program
     //
     // end master atom table;
 
-    uns32 master = create_atom_table ( MASTER );
+    uns32 end_of_file_instruction =
+        create_instruction ( OUTPUT, end_of_file_t );
+    ATTACH ( master, end_of_file_instruction );
 
     uns32 master_dispatcher1 =
         create_dispatcher ( 500, 20 );
@@ -227,12 +249,11 @@ void ll::lexeme::standard::create_standard_program
     const uns32 sep_c        = 4;
     const uns32 line_break_c = 5;
     const uns32 h_space_c    = 6;
-    const uns32 comma_c      = 7;
-    const uns32 point_c      = 8;
-    const uns32 slash_c      = 9;
-    const uns32 backslash_c  = 10;
-    const uns32 single_q_c   = 11;
-    const uns32 double_q_c   = 12;
+    const uns32 point_c      = 7;
+    const uns32 slash_c      = 8;
+    const uns32 backslash_c  = 9;
+    const uns32 single_q_c   = 10;
+    const uns32 double_q_c   = 11;
 
     uns8 master_cmap[128] =
         {
@@ -280,7 +301,7 @@ void ll::lexeme::standard::create_standard_program
             sep_c,	    // )
             mark_c,	    // *
             mark_c,	    // +
-            comma_c,	    // ,
+            sep_c,	    // ,
             mark_c,	    // -
             point_c,	    // .
             slash_c,	    // /
@@ -372,13 +393,61 @@ void ll::lexeme::standard::create_standard_program
     attach_letter_type_maps
         ( master_dispatcher1, true );
 
-    uns32 master_dispatcher2_single_q =
-        create_dispatcher ( 500, 2 );
-    attach_letter_type_maps
-        ( master_dispatcher2_single_q );
-    ATTACH ( master_dispatcher1,
-             master_dispatcher2_single_q,
-	     single_q_c );
+    uns32 call_horizontal_space =
+        create_instruction
+	    ( CALLRETURN, horizontal_space );
+    ATTACH ( master_dispatcher1, h_space_c,
+             call_horizontal_space );
+
+    uns32 call_line_break =
+        create_instruction
+	    ( CALLRETURN, line_break );
+    ATTACH ( master_dispatcher1, line_break_c,
+             call_line_break );
+
+    uns32 call_word =
+        create_instruction
+	    ( CALLRETURN, word );
+    ATTACH ( master_dispatcher1, word_c,
+             call_word );
+
+    uns32 call_mark =
+        create_instruction
+	    ( CALLRETURN, mark );
+    ATTACH ( master_dispatcher1, mark_c,
+             call_mark );
+    ATTACH ( master_dispatcher1, point_c,
+             call_mark );
+    ATTACH ( master_dispatcher1, slash_c,
+             call_mark );
+    ATTACH ( master_dispatcher1, backslash_c,
+             call_mark );
+
+    uns32 call_natural_number =
+        create_instruction
+	    ( CALLRETURN, natural_number );
+    ATTACH ( master_dispatcher1, digit_c,
+             call_natural_number );
+
+    uns32 output_separator =
+        create_instruction
+	    ( OUTPUT, separator_t );
+    ATTACH ( master_dispatcher1, sep_c,
+             output_separator );
+    ATTACH ( master_dispatcher1, single_q_c,
+             output_separator );
+
+    uns32 call_quoted_string =
+        create_instruction
+	    ( CALLRETURN, quoted_string );
+    ATTACH ( master_dispatcher1, double_q_c,
+             call_quoted_string );
+
+    uns32 output_bad_character =
+        create_instruction
+	    ( OUTPUT, bad_character_t );
+    ATTACH ( master_dispatcher1, 0,
+             output_bad_character );
 
     uns32 master_dispatcher2_slash =
         create_dispatcher ( 3, 2 );
@@ -389,6 +458,21 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( master_dispatcher1,
              master_dispatcher2_slash,
 	     slash_c );
+    uns32 call_comment =
+        create_instruction
+	    ( CALLRETURN, comment );
+    ATTACH ( master_dispatcher2_slash,
+             1, call_comment );
+
+    uns32 master_dispatcher2_single_q =
+        create_dispatcher ( 500, 2 );
+    attach_letter_type_maps
+        ( master_dispatcher2_single_q );
+    ATTACH ( master_dispatcher1,
+             master_dispatcher2_single_q,
+	     single_q_c );
+    ATTACH ( master_dispatcher2_single_q,
+             1, call_word );
 
     uns32 master_dispatcher2_point =
         create_dispatcher ( 3, 2 );
@@ -399,6 +483,11 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( master_dispatcher1,
              master_dispatcher2_point,
 	     point_c );
+    uns32 call_number =
+        create_instruction
+	    ( CALLRETURN, number );
+    ATTACH ( master_dispatcher2_point,
+             1, call_number );
 
     uns8 u_c = 1;
     uns8 U_c = 2;
@@ -542,6 +631,11 @@ void ll::lexeme::standard::create_standard_program
     ATTACH ( master_dispatcher1,
              master_dispatcher2_backslash,
 	     backslash_c );
+    uns32 error_bad_escape_sequence =
+        create_instruction
+	    ( ERRONEOUS_ATOM, bad_escape_sequence_t );
+    ATTACH ( master_dispatcher2_backslash,
+             0, error_bad_escape_sequence );
 
     uns8 hex_digit_cmap[128] =
         {
@@ -692,6 +786,18 @@ void ll::lexeme::standard::create_standard_program
 	master_dispatcher_u = hex_digit_dispatcher;
 	u_type = 1;
     }
+    uns32 keep_2_error_bad_escape_sequence =
+        create_instruction
+	    ( ERRONEOUS_ATOM + KEEP(2),
+	      0, bad_escape_sequence_t );
+    uns32 master_translate_uU =
+        create_instruction
+	    ( TRANSLATE_HEX(2,0) + CALLRETURN + ELSE,
+	      word, 0, NULL,
+	      letter_dispatcher,
+	      keep_2_error_bad_escape_sequence );
+    ATTACH ( master_dispatcher_u,
+             1, master_translate_uU );
 
     uns32 master_dispatcher_U =
         master_dispatcher2_backslash;
@@ -708,6 +814,8 @@ void ll::lexeme::standard::create_standard_program
 	master_dispatcher_U = hex_digit_dispatcher;
 	U_type = 1;
     }
+    ATTACH ( master_dispatcher_U,
+             1, master_translate_uU );
 
     // The below tables are entered from the master table
     // with the first one or two characters scanned.
@@ -716,8 +824,6 @@ void ll::lexeme::standard::create_standard_program
     //    "<non-line-break-char>" accept;
     //    return;
     // end comment atom table;
-
-    uns32 comment = create_atom_table ( comment_t );
 
     uns32 comment_dispatcher =
         create_dispatcher ( 2, 2 );
@@ -862,9 +968,6 @@ void ll::lexeme::standard::create_standard_program
     //    "<horizontal-space-char>" accept;
     //    return;
     // end horizontal space atom table;
-
-    uns32 horizontal_space =
-	create_atom_table ( horizontal_space_t );
 
     uns32 horizontal_space_dispatcher =
         create_dispatcher ( 2, 2 );
@@ -1013,9 +1116,6 @@ void ll::lexeme::standard::create_standard_program
     //    return;
     // end line break atom table;
 
-    uns32 line_break =
-        create_atom_table ( line_break_t );
-
     uns32 line_break_dispatcher =
         create_dispatcher ( 2, 2 );
     ATTACH ( line_break, line_break_dispatcher );
@@ -1033,8 +1133,6 @@ void ll::lexeme::standard::create_standard_program
     //         else keep 0 return
     //   return;
     // end word atom table;
-
-    uns32 word = create_atom_table ( word_t );
 
     uns32 word_dispatcher = create_dispatcher ( 500, 4 );
     ATTACH ( word, word_break_dispatcher );
@@ -1229,12 +1327,10 @@ void ll::lexeme::standard::create_standard_program
     // begin mark atom table;
     //    "<mark-char>" accept;
     //    ".<non-digit>" keep 1;
-    //    "/" accept;
+    //    "/<non-slash-char>" keep 1;
     //    "\\<non-u-char>" keep 1;
     //    return;
     // end mark atom table;
-
-    uns32 mark = create_atom_table ( mark_t );
 
     uns32 mark_dispatcher1 =
         create_dispatcher ( 2, 2 );
@@ -1404,9 +1500,6 @@ void ll::lexeme::standard::create_standard_program
     //    return;
     //
     // end natural number atom table;
-
-    uns32 natural_number =
-        create_atom_table ( natural_number_t );
 
     uns32 natural_number_dispatcher1 =
         create_dispatcher ( 2, 2 );
@@ -1725,9 +1818,6 @@ void ll::lexeme::standard::create_standard_program
     //
     // end number atom table;
 
-    uns32 number =
-        create_atom_table ( number_t );
-
     uns32 number_dispatcher1 =
         create_dispatcher ( 2, 2 );
     ATTACH ( number,
@@ -1780,7 +1870,7 @@ void ll::lexeme::standard::create_standard_program
     //
     //     "<line-break-char>"
     //         goto bad end of line;
-    //     "\\" error bad escape sequence;
+    //     "\\<other>" error bad escape sequence;
     //
     //     "<other>" accept;
     //

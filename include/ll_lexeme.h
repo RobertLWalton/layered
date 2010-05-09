@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Sat May  8 04:56:36 EDT 2010
+// Date:	Sat May  8 21:30:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/08 09:19:59 $
+//   $Date: 2010/05/09 01:41:51 $
 //   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // Table of Contents
 //
@@ -386,8 +386,8 @@ namespace ll { namespace lexeme {
     //			table ID by popping the return
     //			stack.
     //
-    //     Note: RETURN is encoded as a RETURN with a
-    //		 zero atom_table_ID.
+    //     Note: RETURN is encoded as a CALLRETURN with
+    //		 a zero atom_table_ID.
     //
     //   OUTPUT		After KEEP and TRANSLATE...
     //			atom processing, output the

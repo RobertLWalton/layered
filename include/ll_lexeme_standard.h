@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@seas.harvard.edu)
-// Date:	Thu May  6 07:00:55 EDT 2010
+// Date:	Sat May  8 18:49:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/06 12:51:51 $
+//   $Date: 2010/05/09 01:41:51 $
 //   $RCSfile: ll_lexeme_standard.h,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents
 //
@@ -47,12 +47,12 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 comment_t		= 7;
     const uns32 horizontal_space_t	= 8;
     const uns32 line_break_t		= 9;
-    const uns32 end_of_file		= 10;
+    const uns32 end_of_file_t		= 10;
 
-    const uns32 bad_end_of_line		= 11;
-    const uns32 bad_end_of_file		= 12;
-    const uns32 bad_character		= 13;
-    const uns32 bad_escape_sequence	= 14;
+    const uns32 bad_end_of_line_t	= 11;
+    const uns32 bad_end_of_file_t	= 12;
+    const uns32 bad_character_t		= 13;
+    const uns32 bad_escape_sequence_t	= 14;
 
 } } }
 

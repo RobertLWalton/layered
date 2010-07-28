@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 9, 2010
+July 27, 2010
  
 \end{center}
 
@@ -301,14 +301,14 @@ by a process known as lexical scanning.  A lexeme is a UTF-8
 character string: e.g., `{\tt hello}', `{\tt +}', `{\tt ;}',
 `{\tt 9.200}' are four lexemes.
 
-The lexical scanner is written in the H-Language and can be
+The lexical scanner is written in the M-Language and can be
 replaced.  This section describes the standard scanner which
 is driven by the atom tables and is capable scanning
 lexemes of common languages such as C and C++.
 
 The standard scanner attempts to be both machine and human
 efficient.  It attempts to be machine efficient by being
-deterministic\footnote{Unlike regular expression scanners}
+deterministic\footnote{Unlike regular expression scanners.}
 and attempts to be human efficient by supporting algorithms
 that people can readily understand and hopefully quickly
 learn to mimic.\footnote{A possibly non-verifiable goal.}
@@ -317,8 +317,8 @@ The standard scanner operates on an input stream of 32-bit
 UNICODE characters.  Each character is associated with
 a position value that specifies from where the character
 came.  For example, a position value may encode a file name,
-line within file number, and column within line number.
-When the standard scanner identifies a lexeme, it a sequence
+line-within-file number, and column-within-line number.
+The standard scanner identifies a lexeme as a sequence
 of input stream UNICODE 32-bit characters each with a
 corresponding position value.
 
@@ -363,7 +363,7 @@ Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
 characters such as the 2-character sequence \verb|\n| which matches
 the atom pattern \verb|"\\n"|
-or the 6-character sequence \verb|u000a| which matches the atom pattern
+or the 6-character sequence \verb|\u000a| which matches the atom pattern
 \begin{center}
 \verb|"\\u<hex-digit><hex-digit><hex-digit><hex-digit>"|
 \end{center}
@@ -393,6 +393,11 @@ Non-master mode tables, whose modes are types,
 are typically dedicated to recognizing lexemes
 of the indicate type.  Master mode atom tables are used to
 dispatch to non-master mode tables.
+
+Thus a simple scanner might have
+one master table that dispatches to different non-master tables,
+one to recognize identifiers, one to recognize numbers, one to
+recognize whitespace, and one to recognize comments.
 
 When the current lexical atom table is changed from a non-master mode
 table to a master mode table, any non-zero length lexeme accumulated
@@ -444,9 +449,9 @@ character string within the lexeme translation
 More details and examples are given in the next section.
 
 A \key{lexical program} is a set of character pattern definitions
-and atom tables, with a designated master-mode atom
-table to serve as the initial atom table.  A lexical program can include
-another lexical program.
+and atom tables.  A lexical program can include another lexical program.
+The top level lexical program must begin with a master-mode atom
+table that serves as the initial atom table.
 
 
 \subsection{Lexical Programs}

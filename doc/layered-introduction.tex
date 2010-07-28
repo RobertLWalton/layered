@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 27, 2010
+July 28, 2010
  
 \end{center}
 
@@ -463,7 +463,8 @@ The syntax of a lexical program is given on
 \begin{figure*}[!p]
 \begin{tabular}{p{2.2in}rl}
 \emkey{name}
-    & ::= & \{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^+$
+    & ::= & \{ {\em word} $|$ {\em quoted-string} \} \\
+    &     & \{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
 \end{tabular}
 
 \begin{tabular}{p{2.2in}rl}
@@ -521,21 +522,32 @@ The syntax of a lexical program is given on
 	& &  ~~~~{\em default-instruction-option} \\
 	& & {\tt end} {\em atom-table-name} {\tt atom table;}
 \\[1ex]
-\emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode} {\tt ;}
-                                        $|$ {\tt type} {\em type} {\tt ;}
+\emkey{atom-table-name} & ::= & {\em mode} $|$ {\em type}
 \\[1ex]
-\emkey{mode} & ::= &  {\tt master} $|$ {\em type}
-\\[1ex]
-\emkey{default-instruction-option}
-	& ::= &  {\em empty} $|$ {\em instruction}
+\emkey{type} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
+                                     except & {\tt master} \\
+				         or & {\tt end of file} \\
+					 or & {\tt scan error} \\[1ex]
+				    \end{tabular}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
 
 \begin{figure*}[!t]
 \begin{tabular}{p{2.2in}rl}
+\emkey{mode} & ::= &  {\tt master} $|$ {\em type}
+\\[1ex]
+\emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode} {\tt ;}
+                                        $|$ {\tt type} {\em type} {\tt ;}
+\\[1ex]
+\emkey{default-instruction-option}
+	& ::= &  {\em empty} $|$ {\em instruction}
+\\[1ex]
 \emkey{atom-table-entry}
 	& ::= & {\em atom-pattern} {\em instruction-group} {\tt ;}
+\\[1ex]
+\emkey{atom-pattern} & ::= &
+	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^\star${\tt "}
 \\[1ex]
 \emkey{instruction-group}
 	& ::= & {\em instruction}
@@ -543,9 +555,6 @@ The syntax of a lexical program is given on
 
 \\[1ex]
 \emkey{instruction} & ::= & {\em instruction-component}$^+$
-\\[1ex]
-\emkey{atom-pattern} & ::= &
-	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^\star${\tt "}
 \\[1ex]
 \emkey{instruction-component}
 	& ::= & {\tt accept} \\
@@ -568,19 +577,13 @@ The syntax of a lexical program is given on
 \emkey{translation-string} & ::= & {\em quoted-string}
 \\[1ex]
 \emkey{cpat-option} & ::= & {\em empty} $|$ {\tt "}{\em cpat-name}{\tt "}
-\\[1ex]
-\emkey{type} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
-                                     except & {\tt master} \\
-				         or & {\tt end of file} \\
-					 or & {\tt scan error} \\[1ex]
-				    \end{tabular}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-2}
 \end{figure*}
 
-A simple lexical program that recognizes
+An example lexical program that recognizes
 whitespace and quoted strings without escapes is given
-at the top of \pagref{EXAMPLE-LEXEME-PROGRAM}.
+on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 \begin{figure*}[!p]
 \addtolength{\baselineskip}{-0.4ex}
@@ -681,7 +684,7 @@ following: \verb|\n|, \verb|\012|, \verb|\x0a|,
 \verb|\u000a|, or \verb|\U0000000a|.
 
 A quoted {\em character-pattern-name} denotes the character set associated
-with that name by a previous {\em character-pattern-definition}.
+with that name by a \underline{previous} {\em character-pattern-definition}.
 
 The \verb/|/, \verb|&|, and \verb|~| operators and can be used to take
 the union, intersection, and complements of character sets.  The complement
@@ -756,6 +759,15 @@ it will be matched only if no atom pattern in the atom table
 that does not contain \verb|<other>| is matched.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
+There must be no sequence of characters that matches the
+{\em atom-patterns} of two distinct {\em atom-table-entries}
+in the same {\em atom} table.  Since {\em atom-patterns} can only
+match atoms of a particular length, it is permissible for
+a sequence of characters that matches one pattern to have a proper
+initial segement that matches another pattern; in this case the
+longer pattern takes precedence.  The order of {\em atom-table-entries}
+in an {\em atom-table} is not significant.
+
 The atom pattern \verb|""| which would recognize zero length atoms is
 \underline{not} permitted, but the {\em default-instruction} at the
 end of the atom table executes in the equivalent case where no atom
@@ -787,11 +799,11 @@ The \ttmkey{accept}{in lexical program} {\em instruction-component}
 accepts the
 atom without translation or length change, skips over the atom in the
 input, and copies the atom characters to the translation buffer.
-It is incompatible with the {\tt keep} and {\tt translate}\ldots{} instruction
+It is incompatible with the {\tt keep} and {\tt translate} instruction
 components.
 
-In the absence of any {\tt accept}, {\tt keep}, or {\tt translate}
-instruction components, {\tt accept} is assumed.
+In the absence of any {\tt keep} or {\tt translate}
+instruction components, {\tt accept} must be given.
 
 The `\ttmkey{keep}{in lexical program} $n$'
 {\em instruction-component} causes the atom length

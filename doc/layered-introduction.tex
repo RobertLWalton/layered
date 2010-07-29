@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 28, 2010
+July 29, 2010
  
 \end{center}
 
@@ -823,7 +823,8 @@ the atom is copied `as-is' to the translation buffer.
 
 A `\ttmkey{translate}{in lexical program} {\em translation-string}'
 {\em instruction-component}
-specifies a {\em quoted-string} of characters
+specifies a {\em quoted-string} of characters,
+the {\em translation-string},
 that is copied into the translation buffer instead of the atom.
 A {\em translation-string} may be empty, as in the atom table entry
 \begin{center}
@@ -845,7 +846,9 @@ instead of the atom.  An example is the the atom table entry
 which might be used to accept a character representative in a quoted string
 and copy the appropriate hexadecimally related character code into
 the translation buffer.  It is a scanner error if characters that
-are supposed to be hexadecimal digits are not.
+are supposed to be hexadecimal digits are not (but in our example
+this cannot happen because the definition of \verb|<hex-digit>|
+restricts these characters appropriately).
 
 The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 {\em instruction-component} is identical but
@@ -871,10 +874,11 @@ the first {\em instruction} after the next `{\tt else}' is executed in
 its place.
 
 An example use would be the atom table entry
-\begin{center}
-\verb|"\\u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0|
-\verb|    "<letter>" else translate "" error bad character in identifier;|
-\end{center}
+\begin{indpar}
+\verb|"\\u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0| \\
+\verb|    "<letter>" else| \\
+\verb|    translate "" error bad character in identifier;|
+\end{indpar}
 which might be used to process an atom of the form \verb|\uXXXX| in
 an identifier, accepting the atom as a legitimate representation of a
 character if that character is a letter, and otherwise designating
@@ -892,7 +896,7 @@ The following are some examples:
 "\\<other>" translate "" error bad escape sequence;
 "\\<other>" translate "\u007f" error bad escape sequence;
 \end{verbatim}\end{indpar}
-There might be entries in an atom table for a quoted string.
+These might be entries in an atom table for a quoted string.
 All identify an atom consisting of a backslash followed by any
 character, as long as the atom is not recognized by another entry
 that does not have the \verb|<other>| character pattern (see
@@ -945,13 +949,13 @@ end of file.
 As an example, the `{\tt master}' atom table at the top of
 \pagref{EXAMPLE-LEXEME-PROGRAM} contains the entry:
 \begin{indpar}\begin{verbatim}
-\verb|"<other>" output bad character;|
+"<other>" output bad character;
 \end{verbatim}\end{indpar}
 which causes an unrecognized character to be treated as a 1-character
 lexeme of type `{\tt bad character}'.  The translation of this lexeme is
 the character itself, but if the entry:
 \begin{indpar}\begin{verbatim}
-\verb|"<other>" translate "\u007F" output bad character;|
+"<other>" translate "\u007F" output bad character;
 \end{verbatim}\end{indpar}
 had been used instead the translation would have been the DEL character.
 

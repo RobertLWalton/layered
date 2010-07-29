@@ -962,9 +962,10 @@ had been used instead the translation would have been the DEL character.
 A `\ttmkey{goto}{in lexical program} {\em atom-table-name}\,'
 {\em instruction-component} switches the current atom table after
 the current atom is processed.  If the table switches from a table
-of non-{\tt master} mode to one of {\tt master} mode the current
-lexeme, if it has non-zero length,
-is output with the {\em type} of the non-{\tt master} mode
+of non-{\tt master} mode to one of {\tt master} mode,
+if the instruction contains no `{\tt output}' component,
+and if the current lexeme is of non-zero length, then the current
+lexeme is output with the {\em type} of the non-{\tt master} mode
 table: see \pagref{KIND-OUTPUT}.
 
 A `\ttmkey{call}{in lexical program} {\em atom-table-name}\,'
@@ -978,7 +979,7 @@ A `\ttmkey{return}{in lexical program}'
 {\em instruction-component} is just like `{\tt goto}' except
 that uses the atom table identifier at the top of the return
 stack to determine the next atom table.  This identifier is
-also popped from from the stack.
+also popped from the stack.
 
 The return stack is emptied whenever the current atom table
 becomes a master mode table.
@@ -986,12 +987,12 @@ becomes a master mode table.
 The `{\tt call}' and `{\tt return}' instruction components
 permit a non-master atom table to be shared among different
 master tables.  For example, a non-master table to scan
-a comment lexeme may be shared among several master table;
+a comment lexeme may be shared among several master tables;
 see Appendix \itemref{C++-LEXICAL-PROGRAM} for examples.
 
 The `{\tt call}' and `{\tt return}' instruction components
 also permit a non-master atom table to be shared among different
-non-master tables.  For example, table to scan escape sequences
+non-master tables.  For example, a table to scan escape sequences
 may be shared among several atom tables dedicated to scanning
 different types of quoted strings.
 Again Appendix \itemref{C++-LEXICAL-PROGRAM} has examples.
@@ -1012,6 +1013,8 @@ streams can be lexemes, subexpressions, or expression components
 such as numbers, operators, and punctuation.  For better
 modularity all stream components are called \skey{token}s,
 and the data is organized as streams of tokens.
+
+\subsection{Token Streams}
 
 A token can have any of the following components.
 
@@ -1062,16 +1065,106 @@ A token can have any of the following components.
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
 \tt positions	& The positions of the first and last character of the
-	          token in the input tex.  It is possible to recover
+	          token in the input text.  It is possible to recover
 		  from a position the column number within a line
 		  and a line ident, where two line idents are equal
-		  if and only if the file lines the denote are the same.
+		  if and only if the file lines they denote are the same.
 		  A printed representation of a line ident may also
 		  be obtained for error messages.
 \end{tabular}
 \end{indpar}
 
+Tokens of `name' kind are called \skey{name token}s, or
+just plain `names'.
+Tokens of `expression' kind are called \skey{subexpression token}s, or
+just plain `subexpressions'.  The parser passes may take a sequence of tokens
+and replace it by a name or subexpression token, but once this is done,
+the parser passes never break the name or subexpression tokens apart to
+look at their components.  Name and subexpression tokens may be be broken
+apart in error messages, however.
 
+\subsection{Token Streams}
+
+Tokens are organized into bidirectional \skey{token list}s and
+into `\skey{token stream}s' that are segments of token lists.
+
+Tokens are linked together bidirectionally into token lists.  It is
+actually possible to design a parser that is a set of passes all of
+which put tokens in the same token list.
+
+A token stream has the following components:
+
+\begin{indpar}
+\begin{tabular}{p{1in}p{4in}}
+\tt first	& Pointer at the first token in the stream.
+\\[1ex]
+\tt last	& Pointer at the current last token in the stream.
+\\[1ex]
+\tt eos		& True if the last token is really the last token
+		  of the stream, and false if there may be more
+		  tokens.
+\\[1ex]
+\tt get		& Function to call to get more tokens and add them
+		  to the end of the stream, if {\tt eos} is false.
+\end{tabular}
+\end{indpar}
+
+A parser pass receives a stream as input and another as output.
+It may move tokens from input to output by merely adjusting the
+`{\tt first}' and `{\tt last}' components of the streams.
+
+\subsection{Parser Passes}
+
+A \key{parser pass} is a function that takes as input a stream (i.e., a
+sequence) of tokens and produces as output a stream of tokens.
+Parser passes call other parser passes to process streams of tokens.
+
+The LL standard parser passes are:
+
+\begin{indpar}
+\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
+operator & Parses expressions with computational operators (e.g., \verb|+| and
+\verb|*|).
+\\[1ex]
+text & Parses text expressions containing named brackets
+and \verb|<>| operators (e.g.
+\verb/<b|/\ldots\verb/|b>/ and \verb/<p>/).
+\end{tabular} \\
+\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
+explicit subexpression & Identifies explicitly bracketted subexpressions.
+\\[1ex]
+lexeme replacement & Replaces sequences of lexemes with other
+sequences of lexemes (e.g., replaces plurals by singulars).
+\end{tabular} \\
+\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
+radix number recognition & Recognizes numbers with non-decimal radices.
+\\[1ex]
+scientific number recognition & Recognizes numbers with exponents.
+\\[1ex]
+number pair recognition & Recognizes pairs of numbers (e.g., \verb|4 1/2|).
+\end{tabular} \\
+\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
+number unit grouping & Groups numbers and numeric units
+(e.g., \verb|4ft 5in|).
+\\[1ex]
+\begin{tabular}[t]{@{}l@{}}
+unit multiplication \\
+insertion 
+\end{tabular} & Inserts multipliers between numbers and
+numeric units (e.g., \verb|4*ft| and \verb|$*4.99|).
+\end{tabular}
+\end{indpar}
+
+
+A parser pass can call another parser pass.  For example,
+the explicit subexpression parser recursively calls itself when
+it recognizes an explicit subexpression beginning bracket.
+
+The input and output of a parser pass is a stream of tokens.
+When one parser pass calls another, it can provide the second
+pass with a stream that holds the initial tokens in the input
+stream to the second pass, while also providing a function for
+the second pass to call to get more tokens in its input stream.
 
 
 \newpage

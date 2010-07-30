@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 29, 2010
+July 30, 2010
  
 \end{center}
 
@@ -764,7 +764,7 @@ There must be no sequence of characters that matches the
 in the same {\em atom} table.  Since {\em atom-patterns} can only
 match atoms of a particular length, it is permissible for
 a sequence of characters that matches one pattern to have a proper
-initial segement that matches another pattern; in this case the
+initial segment that matches another pattern; in this case the
 longer pattern takes precedence.  The order of {\em atom-table-entries}
 in an {\em atom-table} is not significant.
 
@@ -1106,12 +1106,25 @@ A token stream has the following components:
 \\[1ex]
 \tt get		& Function to call to get more tokens and add them
 		  to the end of the stream, if {\tt eos} is false.
+		  A parser pass provides this function to users of
+		  streams the pass produces, and much of the execution
+		  of the parser pass actually occurs inside this function.
 \end{tabular}
 \end{indpar}
 
-A parser pass receives a stream as input and another as output.
-It may move tokens from input to output by merely adjusting the
-`{\tt first}' and `{\tt last}' components of the streams.
+At any given time a token must be in exactly one token stream.
+
+All the tokens in one token stream are in the same token list.
+
+A parser pass receives a stream as input produces a stream as output.
+If the parser pass decides to use its input stream token list as its
+output stream token list, it may move tokens from input to output
+by merely adjusting the `{\tt first}' and `{\tt last}' components
+of the streams.
+
+Because streams are highly tailored by the parser passes that produce
+them, the token stream class is an abstract base class ith the `{\tt get}'
+function as a virtual function.
 
 \subsection{Parser Passes}
 
@@ -1131,13 +1144,13 @@ and \verb|<>| operators (e.g.
 \verb/<b|/\ldots\verb/|b>/ and \verb/<p>/).
 \end{tabular} \\
 \begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
-explicit subexpression & Identifies explicitly bracketted subexpressions.
+explicit subexpression & Identifies explicitly bracketed subexpressions.
 \\[1ex]
 lexeme replacement & Replaces sequences of lexemes with other
 sequences of lexemes (e.g., replaces plurals by singulars).
 \end{tabular} \\
 \begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
-radix number recognition & Recognizes numbers with non-decimal radices.
+radix number recognition & Recognizes numbers with non-decimal radixes.
 \\[1ex]
 scientific number recognition & Recognizes numbers with exponents.
 \\[1ex]
@@ -1161,10 +1174,11 @@ the explicit subexpression parser recursively calls itself when
 it recognizes an explicit subexpression beginning bracket.
 
 The input and output of a parser pass is a stream of tokens.
-When one parser pass calls another, it can provide the second
-pass with a stream that holds the initial tokens in the input
-stream to the second pass, while also providing a function for
-the second pass to call to get more tokens in its input stream.
+When a parser pass P1 calls another parser pass P2, P1 provides the P2
+with an input stream that holds tokens at the beginning
+of the stream and provides a `{\tt get}' function that can be called by P2
+to add tokens to the end of its input stream.  This `{\tt get}' function
+is actually a continuation function for pass P1.
 
 
 \newpage

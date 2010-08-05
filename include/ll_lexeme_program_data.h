@@ -1,7 +1,7 @@
 // Layers Language Lexical Analyzer Program Data
 //
 // File:	ll_lexeme_program_data.h
-// Author:	Bob Walton (walton@seas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Sat May  8 04:40:19 EDT 2010
 //
 // The authors have placed this program in the public

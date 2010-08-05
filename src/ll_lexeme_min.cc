@@ -1,7 +1,7 @@
 // Layered Language Lexical Analyzer MIN Interface
 //
 // File:	ll_lexeme_min.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Fri Apr  2 18:12:57 EDT 2010
 //
 // The authors have placed this program in the public

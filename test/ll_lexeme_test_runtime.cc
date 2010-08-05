@@ -1,7 +1,7 @@
 // Layers Language Lexical Analyzer Test Runtime
 //
 // File:	ll_lexeme_test_runtime.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Sat Apr 17 06:08:51 EDT 2010
 //
 // The authors have placed this program in the public

@@ -1,7 +1,7 @@
 # Layered Language Makefile
 #
 # File:		Makefile
-# Author:	Bob Walton (walton@deas.harvard.edu)
+# Author:	Bob Walton (walton@acm.org)
 # Date:		Sun Apr 11 20:40:27 EDT 2010
 #
 # The authors have placed this program in the public

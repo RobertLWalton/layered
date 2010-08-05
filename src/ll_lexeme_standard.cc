@@ -1,7 +1,7 @@
 // Layers Language Standard Lexical Analyzer
 //
 // File:	ll_lexeme_standard.cc
-// Author:	Bob Walton (walton@seas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Sun May  9 08:20:57 EDT 2010
 //
 // The authors have placed this program in the public

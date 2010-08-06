@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Apr 11 20:40:27 EDT 2010
+# Date:		Fri Aug  6 07:45:23 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -19,6 +19,10 @@
 #
 D = $$
 
+# The following locates the MIN source code.
+#
+MIN = ~/min
+
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
 
@@ -26,11 +30,7 @@ D = $$
 #
 OPTIMIZE = -O3
 
-LIBRARIES =
-
-TEST_CASES = lexeme
-
-PROGRAMS = ll_lexeme_test
+PROGRAMS = ll_lexeme_test ll_standard_lexeme_test
 
 TESTS = ${PROGRAMS}
 
@@ -96,6 +96,39 @@ ll_lexeme_test:		\
 	    ll_lexeme.o \
 	    ll_lexeme_test_runtime.o \
 	    ll_lexeme_test.cc
+
+min.o:	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	${MIN}/src/min.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ${MIN}/src/min.cc
+
+min_os.o:	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+        ${MIN}/include/min_os.h \
+	${MIN}/src/min_os.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ${MIN}/src/min_os.cc
+
+min_acc.o:	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+        ${MIN}/include/min_acc.h \
+        ${MIN}/include/min_acc_parameters.h \
+        ${MIN}/include/min_os.h \
+	${MIN}/src/min_acc.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ${MIN}/src/min_acc.cc
+
+ll_lexeme_min.o:	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	../include/ll_lexeme.h \
+	../src/ll_lexeme_min.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_lexeme_min.cc
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o

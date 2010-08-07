@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Aug  6 07:45:23 EDT 2010
+# Date:		Fri Aug  6 20:17:53 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -79,22 +79,14 @@ ll_lexeme.o:	\
 		../include/ll_lexeme_program_data.h
 	g++ -g -I ../include -c ../src/ll_lexeme.cc
 
-ll_lexeme_test_runtime.o:	\
-		ll_lexeme_test_runtime.cc \
-		../include/ll_lexeme.h
-	g++ -g -I ../include -c ll_lexeme_test_runtime.cc
-
-
 ll_lexeme_test:		\
 		ll_lexeme_test.cc \
 		ll_lexeme.o \
-		ll_lexeme_test_runtime.o \
 		Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    ll_lexeme.o \
-	    ll_lexeme_test_runtime.o \
 	    ll_lexeme_test.cc
 
 min.o:	${MIN}/include/min.h \

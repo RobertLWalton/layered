@@ -48,7 +48,7 @@ struct ext_buffer : public LEX::buffer<T>
 
     pvt pvtype;
 
-    min::packed_vec<pvheader,T>::insertable_pointer pvp;
+    min::packed_vec_insertable_pointer<pvheader,T> pvp;
         // Invariant:
 	//   this->length <= this->max_length
 	//                == pvp->length

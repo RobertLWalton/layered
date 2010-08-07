@@ -41,6 +41,7 @@ using namespace LEX;
 using namespace LEX::program_data;
 
 char LEX::error_message[1000];
+LEX::uns32 (* LEX::read_input_function) ( void );
 
 // Program Construction
 // ------- ------------

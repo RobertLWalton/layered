@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  9 08:20:57 EDT 2010
+// Date:	Sat Aug  7 08:23:01 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,15 @@ using namespace ll::lexeme::standard;
 //
 static uns32 error_count = 0;
 
+inline void ATTACH ( uns32 x, uns32 y )
+{
+    if ( ! attach ( x, y ) ) ++ error_count;
+}
+inline void ATTACH ( uns32 x, uns32 y, uns32 z )
+{
+    if ( ! attach ( x, y, z ) ) ++ error_count;
+}
+
 // Type maps mapping letters to type 1.  The first two
 // are for 'a'-'z' and 'A'-'Z' and may be handled
 // otherwise in some dispatchers.
@@ -65,20 +74,16 @@ static void attach_letter_type_maps
 {
     create_letter_type_map_IDs();
 
-    for ( uns32 i = ( not_ascii ? 2, 0 );
+    for ( uns32 i = ( not_ascii ? 2: 0 );
           i < letter_type_map_IDs; ++ i )
     {
-        if ( ! attach ( letter_dispatcher,
+        if ( ! attach ( dispatcher_ID,
 	                letter_type_map_ID[i] ) )
 	    ++ error_count;
     }
 }
 
-
-// Program Construction
-// ------- ------------
-
-static create_dispatcher_cascade
+static void create_dispatcher_cascade
 	( uns32 & dispatcher, uns32 ctype,
 	  uns32 type_map, uns32 count )
 {
@@ -93,78 +98,87 @@ static create_dispatcher_cascade
     }
 }
 
+
+// Program Construction
+// ------- ------------
+
 void ll::lexeme::standard::create_standard_program
 	( void )
 {
     error_count = 0;
-#   define ATTACH(x,y) \
-        if ( ! attach ( x, y ) ) ++ error_count
 
     // begin standard lexical program;
     //
-    // "<ascii-letter>" = "a-z" | "A-Z";
-    // "<digit>" = "0-9";
-    // "<oct-digit>" = "0-7";
-    // "<hex-digit>" = "0-9" | "a-f" | "A-F";
-    //
-    // "<non-digit>" = ~ "<digit>";
-    //
-    // The following list of language specific letters
-    // is taken from Annex E of the Working Paper for
-    // Draft Proposed International Standard for
-    // Information Systems—Programming Language C++,
-    // 1996.
-    //
-    // "<latin-letter>" = "\u00c0-\n00d6"
-    //                  | "\u00d8-\u00f6"
-    //                  | "\u00f8-\u01f5"
-    //                  | "\u01fa-\u0217"
-    //                  | "\u0250-\u02a8"
-    //                  | "\u1ea0-\u1ef9";
-    //
-    // . . . . . letter character pattern definitions
-    //           omitted . . . . .
-    //
-    // "<CJK-letter>" = "\uf900-\ufa2d"
-    //                | . . .  // Details omitted
-    //
-    // Context sensitive character classifications,
-    // e.g., classifying ' as a word character if it is
-    // followed by a letter, cannot be included in
-    // character pattern definitions, but are noted in
-    // comments.  They are accounted for by separate atom
-    // table entries below.
-    //
-    // "<letter>" = "<ascii-letter>" | "<latin-letter>"
-    //            | . . . | "<CJK-letter>";
-    //            // Details omitted
-    //
-    // "<non-letter>" = ~ "<letter>";
-    //
-    // "<mark-char>" = "+" | "-" | "*" | "~" | "@" | "#"
-    //               | "$" | "%" | "^" | "&" | "=" | "|"
-    //               | "<" | ">" | "_" | "!" | "?"
-    //               | ":";
-    //               //
-    //               // Also \ not followed by u or U,
-    //               //      . not followed by a digit
-    //               //      / not surrounded by digits
-    //
-    // "<non-u-char>" = ~ "u" & ~ "U";
-    // "<non-slash-char>" = ~ "/";
-    //
-    // "<separator-char>" = "(" | ")" | "[" | "]" | "{"
-    //                    | "}" | ";" | "`";
-    //               //
-    //               // Also , not surrounded by digits
-    //               //      ' not followed by a letter
-    //
-    // "<line-break-char>" = "\n" | "\v" | "\f" | "\r";
-    //
-    // "<non-line-break-char>" =
-    //     ~ "<line-break-character>";
-    //
-    // "<horizontal-space-char>" = " " | "\t";
+    create_program();
+
+    //// "<ascii-letter>" = "a-z" | "A-Z";
+    //// "<digit>" = "0-9";
+    //// "<oct-digit>" = "0-7";
+    //// "<hex-digit>" = "0-9" | "a-f" | "A-F";
+    ////
+    //// "<non-digit>" = ~ "<digit>";
+    ////
+    //// The following list of language specific letters
+    //// is taken from Annex E of the Working Paper for
+    //// Draft Proposed International Standard for
+    //// Information Systems—Programming Language C++,
+    //// 1996.
+    ////
+    //// "<latin-letter>" = "\u00c0-\n00d6"
+    ////                  | "\u00d8-\u00f6"
+    ////                  | "\u00f8-\u01f5"
+    ////                  | "\u01fa-\u0217"
+    ////                  | "\u0250-\u02a8"
+    ////                  | "\u1ea0-\u1ef9";
+    ////
+    //// . . . . . letter character pattern definitions
+    ////           omitted . . . . .
+    ////
+    //// "<CJK-letter>" = "\uf900-\ufa2d"
+    ////                | . . .  // Details omitted
+    ////
+    //// Context sensitive character classifications,
+    //// e.g., classifying ' as a word character if it
+    //// is followed by a letter, cannot be included in
+    //// character pattern definitions, but are noted in
+    //// comments.  They are accounted for by separate
+    //// atom table entries below.
+    ////
+    //// "<letter>" = "<ascii-letter>"
+    ////            | "<latin-letter>"
+    ////            | . . . | "<CJK-letter>";
+    ////            // Details omitted
+    ////
+    //// "<non-letter>" = ~ "<letter>";
+    ////
+    //// "<mark-char>" = "+" | "-" | "*" | "~" | "@"
+    ////               | "#" | "$" | "%" | "^" | "&"
+    ////               | "=" | "|" | "<" | ">" | "_"
+    ////               | "!" | "?" | ":";
+    ////               //
+    ////               // Also \ not followed by u or U,
+    ////               //      . not followed by a digit
+    ////               //      / not surrounded by
+    ////               //        digits
+    ////
+    //// "<non-u-char>" = ~ "u" & ~ "U";
+    //// "<non-slash-char>" = ~ "/";
+    ////
+    //// "<separator-char>" = "(" | ")" | "[" | "]"
+    ////                    | "{" | "}" | ";" | "`";
+    ////               //
+    ////               // Also , not surrounded by
+    ////               //        digits
+    ////               //      ' not followed by a
+    ////               //        letter
+    ////
+    //// "<line-break-char>" = "\n" | "\v" | "\f"
+    ////                     | "\r";
+    ////
+    //// "<non-line-break-char>" =
+    ////     ~ "<line-break-character>";
+    ////
+    //// "<horizontal-space-char>" = " " | "\t";
 
     // Dispatcher that maps letters to 1 and other
     // characters to 0.  Implements letter character
@@ -438,7 +452,7 @@ void ll::lexeme::standard::create_standard_program
     uns32 call_word =
         create_instruction
 	    ( CALLRETURN, word );
-    ATTACH ( master_dispatcher1, word_c,
+    ATTACH ( master_dispatcher1, letter_c,
              call_word );
 
     uns32 call_mark =

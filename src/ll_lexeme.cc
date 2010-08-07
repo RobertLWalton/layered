@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  8 04:59:16 EDT 2010
+// Date:	Sat Aug  7 03:57:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1059,9 +1059,10 @@ static char * scan_error ( uns32 length, uns32 next )
     char * p = error_message;
     p += sprintf
         ( p,
-	  "CURRENT_ATOM_TABLE(%u) POS(%llu)",
+	  "CURRENT_ATOM_TABLE(%u) LINE(%u) COLUMN(%u)",
 	  current_atom_table_ID,
-	  input_buffer[next].position );
+	  input_buffer[next].line,
+	  input_buffer[next].column );
     if ( length > 0 )
     {
         p += sprintf ( p, " INPUT BUFFER: \n");

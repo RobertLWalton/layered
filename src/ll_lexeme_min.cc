@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  6 00:40:52 EDT 2010
+// Date:	Fri Aug  6 21:08:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,7 +62,7 @@ struct ext_buffer : public LEX::buffer<T>
         pv ( holder[0] )
     {
 	this->base = NULL;
-	this->header_size = 0;
+	this->header_size = pvtype.header_size;
 	this->length = 0;
 	this->max_length = 0;
 	this->length_increment = 1000;
@@ -84,7 +84,7 @@ void ext_buffer<T>::resize ( LEX::uns32 new_max_length )
         pv = pvtype.new_gen ( new_max_length );
 	min::initialize ( pvp, pv );
 	this->base = (LEX::uns8 **)
-	    MUP::pointer_ref_of
+	    & MUP::pointer_ref_of
 	        ( MUP::stub_of ( pv ) );
     }
     else if ( new_max_length == 0 )
@@ -98,7 +98,7 @@ void ext_buffer<T>::resize ( LEX::uns32 new_max_length )
     this->max_length = new_max_length;
     if ( this->length > this->max_length )
 	this->length = this->max_length;
-    else
+    else if ( this->length < this->max_length )
         min::push ( pvp, this->max_length
 			 -
 			 this->length,

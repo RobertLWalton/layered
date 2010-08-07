@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  8 21:30:36 EDT 2010
+// Date:	Fri Aug  6 19:06:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -189,7 +189,43 @@ namespace ll { namespace lexeme {
     // if there are no more characters because we are
     // at the end of file.
     //
-    uns32 read_input ( void );
+    extern uns32 (*read_input_function) ( void );
+    inline uns32 read_input ( void )
+    {
+        return (*read_input_function)();
+    }
+
+    // Default read_input_function.  This function reads
+    // UTF-8 characters from the standard input.  It
+    // assigns each character three position numbers:
+    //
+    //	   line number	starts at 0
+    //			incremented by line feed
+    //
+    //	   character	position within line
+    //	   number	starts at 0
+    //			zeroed by line feed
+    //			incremented by 1 for every non-
+    //			    line feed byte read
+    //
+    //	   column	first column of character
+    //	   number	starts at 0
+    //			zeroed by line and form feed
+    //			  and vertical tab
+    //		 	tabs are every 8 columns
+    //			all other characters are 1
+    //			  column wide
+    //
+    // These numbers are encoded in the min::uns64
+    // position as follows:
+    //
+    //	   bits
+    //
+    //	   63-32	line number
+    //	   31-16	character number
+    //     15-0		column number
+    // 
+    inline uns32 default_read_input ( void );
 } }
 
 // Program Construction

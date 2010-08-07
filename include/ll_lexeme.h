@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  6 19:06:09 EDT 2010
+// Date:	Sat Aug  7 03:39:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,8 +45,6 @@ namespace ll { namespace lexeme {
 
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
-
-    // Character positions are stored in uns64 integers.
 
     // A buffer holds a vector of elements of type T,
     // where T should be a C language number or struct,
@@ -163,12 +161,16 @@ namespace ll { namespace lexeme {
     extern buffer<uns32> & program;
 
     // The input buffer is a vector of inchar elements
-    // each holding a character and the position of that
-    // character in the input text.
+    // each holding a character and the location of that
+    // character in the input text.  The location, con-
+    // sisting of a line, an index, and a column, is
+    // not used by the lexeme scanner.
     //
     struct inchar
     {
-        uns64	position;
+        uns32	line;
+        uns32	index;
+        uns32	column;
 	uns32	character;
     };
     extern buffer<inchar> & input_buffer;
@@ -197,35 +199,39 @@ namespace ll { namespace lexeme {
 
     // Default read_input_function.  This function reads
     // UTF-8 characters from the standard input.  It
-    // assigns each character three position numbers:
+    // assigns line, index, and column as follows:
     //
-    //	   line number	starts at 0
-    //			incremented by line feed
-    //
-    //	   character	position within line
-    //	   number	starts at 0
-    //			zeroed by line feed
-    //			incremented by 1 for every non-
-    //			    line feed byte read
+    //	   line		starts at 0
+    //			incremented by 1 after a line
+    //			  feed is added to the input
+    //			  buffer
+    //			
+    //	   index	index of character within line
+    //			(treating the line as a uns8 *
+    //			vector)
+    //			starts at 0
+    //			set to 0 after a line feed is
+    //			  added to the input buffer
+    //			incremented by the number of
+    //			  UTF-8 characters that encode
+    //			  the UNICODE character after
+    //			  every non-line-feed UNICODE
+    //			  character is added to the
+    //			  input buffer
     //
     //	   column	first column of character
-    //	   number	starts at 0
-    //			zeroed by line and form feed
-    //			  and vertical tab
-    //		 	tabs are every 8 columns
-    //			all other characters are 1
-    //			  column wide
+    //			starts at 0
+    //			zeroed after adding a line feed,
+    //			  form feed, or vertical tab to
+    //			  the input buffer
+    //		 	set to next multiple of 8 after
+    //			  adding a tab to the input
+    //			  buffer
+    //			incremented by 1 after adding
+    //			  any other single UNICODE
+    //			  character to the input buffer
     //
-    // These numbers are encoded in the min::uns64
-    // position as follows:
-    //
-    //	   bits
-    //
-    //	   63-32	line number
-    //	   31-16	character number
-    //     15-0		column number
-    // 
-    inline uns32 default_read_input ( void );
+    uns32 default_read_input ( void );
 } }
 
 // Program Construction

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  6 20:18:37 EDT 2010
+// Date:	Sat Aug  7 03:57:23 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -114,11 +114,17 @@ LEX::buffer<uns32> & LEX::translation_buffer =
 
 static uns32 * lex_input = NULL;
 static uns32   lex_input_length = 0;
+static uns32   lex_line = 0;
+static uns32   lex_index = 0;
+static uns32   lex_column = 0;
 
 void set_lex_input ( uns32 * input, uns32 length )
 {
     lex_input = input;
     lex_input_length = length;
+    lex_line = 0;
+    lex_index = 0;
+    lex_column = 0;
 }
 static uns32 read_input ( void )
 {
@@ -129,7 +135,20 @@ static uns32 read_input ( void )
     for ( uns32 i = 0; i < lex_input_length; ++ i )
     {
         LEX::input_buffer[p+i].character = lex_input[i];
-        LEX::input_buffer[p+i].position = i;
+        LEX::input_buffer[p+i].line = lex_line;
+        LEX::input_buffer[p+i].index = lex_index;
+        LEX::input_buffer[p+i].column = lex_column;
+
+	if ( lex_input[i] == '\n' ) ++ lex_line;
+
+	if ( lex_input[i] == '\n' ) lex_column = 0;
+	else if ( lex_input[i] == '\f' ) lex_column = 0;
+	else if ( lex_input[i] == '\v' ) lex_column = 0;
+	else if ( lex_input[i] == '\t' )
+	    lex_column += 8 - ( lex_column % 8 ); 
+	else
+	    ++ lex_column;
+	++ lex_index;
     }
     lex_input = NULL;
     return 1;

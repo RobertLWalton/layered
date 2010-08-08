@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  8 08:38:22 EDT 2010
+// Date:	Sun Aug  8 12:01:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,7 +55,7 @@
 //
 //   <atom-table-name> ::= C++ variable name
 //	// Atom tables must be declared first to
-//      // avoid forward references in goto and
+//      // avoid forward references in jump and
 //      // call statements.
 //
 //   <mode> ::= MASTER | <type-name>
@@ -79,7 +79,7 @@
 //       // character pattern if they are not also in
 //	 // <excluded-chars>
 //
-//   <included-chars> ::=
+//   <excluded-chars> ::=
 //           C++ const char * quoted string expression
 //       // See <included-chars>.
 //
@@ -165,7 +165,7 @@
 //		// type.
 //
 //    <transfer-component> ::=
-//	  | goto ( <atom-table-name> );
+//	  | jump ( <atom-table-name> );
 //		// Go to atom table.  If switching from
 //		// non-master to master table and there
 //		// is no instruction `output()'
@@ -173,9 +173,9 @@
 //		// lexeme with type of the table being
 //		// gone from.
 //	  | call ( <atom-table-name> );
-//		// Like goto but allows return.
+//		// Like jump but allows return.
 //		// Atom table gone to cannot be MASTER.
-//	  | return();
+//	  | ret();
 //		// Goto to table at top of return stack.
 //		// Return stack is cleard when a MASTER
 //		// table is gone to.
@@ -199,6 +199,50 @@
 
 namespace ll { namespace lexeme { namespace ndl {
 
+    using ll::lexeme::min32;
+
+    void begin_program ( void );
+    void end_program ( void );
+
+    uns32 new_atom_table ( uns32 mode );
+    using ll::lexeme::MASTER;
+
+    void begin_character_pattern
+	( const char * included_chars = "",
+	  const char * excluded_chars = "" );
+    void end_character_pattern ( void );
+
+    void add_characters
+	( const char * included_chars = "",
+	  const char * excluded_chars = "" );
+    void add_characters
+        ( uns32 min_char, uns32 max_char );
+
+    void begin_atom_table ( uns32 atom_table_name );
+    void end_atom_table ( void );
+
+    void begin_dispatch
+	( const char * included_chars = "",
+	  const char * excluded_chars = "" );
+    void end_dispatch ( void );
+
+    void accept ( void );
+    void keep ( uns32 n );
+
+    void translate ( const char * translation_string );
+    void translate ( const uns32 * translation_string );
+    void translate_oct ( uns32 m, uns32 n );
+    void translate_hex ( uns32 m, uns32 n );
+
+    void erroneous_atom ( uns32 type_name );
+
+    void output ( uns32 type_name );
+
+    void jump ( uns32 atom_table_name );
+    void call ( uns32 atom_table_name );
+    void ret ( void );
+
+    void else_if_not ( uns32 character_pattern_name );
 
 } }
 

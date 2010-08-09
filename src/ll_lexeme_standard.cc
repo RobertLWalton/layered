@@ -297,28 +297,81 @@
     //// 
     //// 
     //// begin comment atom table;
+    //
+    NDL::begin_atom_table ( comment_atom_table );
+
     ////    "<non-line-break-char>" accept;
     ////    return;
+    //
+        NDL::begin_dispatcher ( cp_line_break );
+	    NDL::ret();
+	NDL::end_dispatcher();
+
+	NDL::accept();
+
     //// end comment atom table;
     //// 
+    NDL::end_atom_table();
+
     //// 
     //// begin horizontal space atom table;
+    //
+    NDL::begin_atom_table
+	( horizontal_space_atom_table );
+
     ////    "<horizontal-space-char>" accept;
+    //
+        NDL::begin_dispatcher ( cp_horizontal_space );
+	    NDL::accept();
+	NDL::end_dispatcher();
+
     ////    return;
+    //
+        NDL::ret();
+
     //// end horizontal space atom table;
     //// 
+    NDL::end_atom_table();
+
     //// 
     //// begin line break atom table;
+    //
+    NDL::begin_atom_table ( line_break_atom_table );
+
     ////    "<line-break-char>" accept;
+    //
+        NDL::begin_dispatcher ( cp_line_break );
+	    NDL::accept();
+	NDL::end_dispatcher();
+
     ////    return;
+    //
+        NDL::ret();
+
     //// end line break atom table;
     //// 
+    NDL::end_atom_table();
+
     //// 
     //// begin word atom table;
     //// 
-    ////    "<word-char>" accept;
+    NDL::begin_atom_table ( word_atom_table );
+
+    ////    "<letter>" accept;
+        NDL::begin_dispatcher ( cp_ascii_letter );
+	    add_non_ascii_letters();
+	    NDL::accept();
+	NDL::end_dispatcher();
+
     ////    "'<letter>" accept;
     //// 
+        NDL::begin_dispatcher ( "'" );
+	    NDL::begin_dispatcher ( cp_ascii_letter );
+		add_non_ascii_letters();
+		NDL::accept();
+	    NDL::end_dispatcher();
+	NDL::end_dispatcher();
+
     ////     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
     ////         translate hex 2 0 "<letter">
     ////         else keep 0 return

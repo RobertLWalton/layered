@@ -38,36 +38,44 @@ namespace ll { namespace lexeme
     using ll::lexeme::uns8;
 
     // Various things are pushed into and popped from
-    // the stack.
+    // the stacks.
     //
-    //     translate ( n, const uns32 * p )
-    //	       pushes p[0], p[1], ..., p[n-1], the
-    //	       translate vector.
-    //	   implicit end_instruction()
-    //	       pops translate vectors
-    //     add_character ( min_char, max_char)
-    //	       pushes min_char, max_char
-    //	       and increments type_map_count
-    //	   begin_dispatch()
-    //	       increments max_type_code
-    //	   end_dispatch()
-    //	       pops max_type_code triples:
-    //		   dispatch_ID
-    //		   instruction_ID
-    //		   type_map_count
-    //	       and for each triple pops type_map_count
-    //	       pairs:
-    //		   min_char
-    //		   max_char
-    //	       and uses them to create a dispatcher;
+    // A begin_atom_table, begin_dispatcher, and begin_
+    // character_pattern push a dispatcher to the
+    // dispatchers stack and in instruction to the
+    // instructions stack.  The corresponding ends
+    // pop these stacks.  Else_no_if's push additional
+    // instructions to the instructions stack.
     //
-    //	       it then pushes
-    //		   dispatch_ID
-    //		   instruction_ID
-    //		   type_map_count
-    //		      
+    // When the dispatchers and instructions stacks are
+    // popped, the uns32_stack has the following in order,
+    // where d is the dispatcher at the top of the
+    // dispatchers stack before popping that stack:
+    //    
+    //	  d.type_map count pairs:
+    //		char_min
+    //		char_max
+    //    for each instruction in the instruction stack,
+    //	      translate_length uns32's giving the
+    //	      translate vector in memory order
+    //    for each subdispatcher:
+    //	      sub_type_map_count pairs:
+    //		char_min
+    //		char_max
+    //	      the triple:
+    //		sub_dispatcher_ID
+    //		sub_instruction_ID
+    //		sub_type_map_count
     //
-    extern ll::lexeme::buffer<uns32> & stack;
+    // Popping the dispatchers and instructions stacks
+    // removes the instruction and subdispatcher
+    // elements and pushes a new triple:
+    //		dispatcher_ID
+    //		instruction_ID
+    //		type_map_count
+    //
+    // describing the popped dispatcher and instruction.
+    extern ll::lexeme::buffer<uns32> & uns_stack;
 
 
     // Accumulated information use to construct a
@@ -97,10 +105,6 @@ namespace ll { namespace lexeme
 	    // the stack for the type code this
 	    // dispatcher will be attached to.
 	    // Used by parent of this dispatcher.
-	uns32 instruction_ID;
-	    // Id of instruction to be attached along
-	    // with this dispatcher to the parent of
-	    // this dispatcher.
     };
 
     extern ll::lexeme::buffer<dispatcher> & dispatchers;
@@ -128,6 +132,8 @@ namespace ll { namespace lexeme
 	    // follows a else_not_if, and in this case
 	    // is the dispatcher ID given by the char-
 	    // acter pattern name.
+	bool accept;
+	    // True if accept instruction.
     };
 
     extern ll::lexeme::buffer<instruction> & instructions;

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Aug  7 04:40:36 EDT 2010
+# Date:		Mon Aug  9 08:26:32 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -140,6 +140,13 @@ ll_lexeme_min_test:		\
 	    min_acc.o \
 	    -D LL_NO_DATA_DEFINITIONS=1 \
 	    ll_lexeme_test.cc
+
+ll_lexeme_ndl.o:	\
+		../src/ll_lexeme_ndl.cc \
+		../include/ll_lexeme.h \
+		../include/ll_lexeme_ndl.h \
+		../include/ll_lexeme_ndl_data.h
+	g++ -g -I ../include -c ../src/ll_lexeme_ndl.cc
 
 ll_lexeme_standard.o:	\
 		../src/ll_lexeme_standard.cc \

@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  8 12:43:54 EDT 2010
+// Date:	Mon Aug  9 09:16:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,9 +33,10 @@
 // ----
 
 namespace ll { namespace lexeme
-    { namespace ndl { namespace data
+    { namespace ndl { namespace data {
 
     using ll::lexeme::uns8;
+    using ll::lexeme::uns32;
 
     // Various things are pushed into and popped from
     // the stacks.
@@ -75,7 +76,8 @@ namespace ll { namespace lexeme
     //		type_map_count
     //
     // describing the popped dispatcher and instruction.
-    extern ll::lexeme::buffer<uns32> & uns_stack;
+    //
+    extern ll::lexeme::buffer<uns32> & uns32_stack;
 
 
     // Accumulated information use to construct a
@@ -136,7 +138,8 @@ namespace ll { namespace lexeme
 	    // True if accept instruction.
     };
 
-    extern ll::lexeme::buffer<instruction> & instructions;
+    extern ll::lexeme::buffer<instruction>
+           & instructions;
 
 } } } }
 

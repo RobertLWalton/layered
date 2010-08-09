@@ -19,7 +19,7 @@
 //
 //	Usage and Setup
 //	Syntax
-//	Declarations
+//	NDL Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -41,17 +41,17 @@
 // The syntax of Lexical NDL is:
 //
 //   <ndl-program> ::=
-//	begin_program();
+//	NDL begin_program();
 //	<declaration>*
 //	<atom-table-definition>*
-//	end_program();
+//	NDL end_program();
 //
 //   <declaration> := <atom-table-declaration>
 //		    | <character-pattern-declaration>
 //
 //   <atom-table-declaration> ::=
 //	uns32 <atom-table-name> =
-//	    new_atom_table ( <mode> );
+//	    NDL new_atom_table ( <mode> );
 //
 //   <atom-table-name> ::= C++ variable name
 //	// Atom tables must be declared first to
@@ -67,11 +67,11 @@
 //
 //   <character-pattern-declaration> ::=
 //	uns32 <character-pattern-name> =
-//	    begin_character_pattern
+//	    NDL begin_character_pattern
 //	        ( [<included-chars>
 //		      [, <excluded-chars>] ] );
 //	        <character-adder>*
-//	    end_character_pattern();
+//	    NDL end_character_pattern();
 //
 //   <included-chars> ::=
 //           C++ const char * quoted string expression
@@ -84,10 +84,10 @@
 //       // See <included-chars>.
 //
 //   <character-adder> :=
-//	   add_characters
+//	   NDL add_characters
 //	       ( [<included-chars>
 //		     [, <excluded-chars>] ] );
-//	 | add_characters
+//	 | NDL add_characters
 //	       ( <min-char>, <max-char> );
 //
 //   <min-char> ::= C++ uns32 UNICODE character code
@@ -96,19 +96,19 @@
 //      // of UNICODE characters
 //
 //   <atom-table-definition> ::=
-//       begin_atom_table ( <atom-table-name> );
+//       NDL begin_atom_table ( <atom-table-name> );
 //	     [<instruction>]
 //	     <dispatch>*
-//       end_atom_table();
+//       NDL end_atom_table();
 //
 //   <dispatch> :=
-//	 begin_dispatch
+//	 NDL begin_dispatch
 //	     ( [<included-chars>
 //	           [, <excluded-chars>] ] );
 //	        <character-adder>*
 //	        [<instruction>]
 //	        <dispatch>*
-//	 end_dispatch();
+//	 NDL end_dispatch();
 //
 //    // A <dispatch> tells what to do when the NEXT
 //    // character of an atom matches a character
@@ -125,22 +125,22 @@
 //			         [atom-error-component]
 //			         [output-component]
 //			         [transfer-component]
-//			       | accept();
+//			       | NDL accept();
 //	  // An <instruction> must have at least one
 //	  // optional component or be `accept();'.
 //
 //    <keep-component> ::=
-//	  keep(<n>);
+//	  NDL keep(<n>);
 //		// Keep only first <n> characters of
 //		// the atom.
 //
 //    <translate-component> ::=
-//	    translate ( <translation-string> );
+//	    NDL translate ( <translation-string> );
 //		// Put <translation-string> into the
 //		// translation buffer instead of the
 //		// atom.
-//	  | translate_oct ( <m>, <n> );
-//	  | translate_hex ( <m>, <n> );
+//	  | NDL translate_oct ( <m>, <n> );
+//	  | NDL translate_hex ( <m>, <n> );
 //		// Put an oct or hex conversion of
 //		// interior of atom into the translation
 //		// buffer instead of the atom.  The
@@ -154,34 +154,34 @@
 //                            | C++ const uns32 * string
 //
 //    <atom-error-component> ::=
-//	  erroneous_atom ( <type-name> );
+//	  NDL erroneous_atom ( <type-name> );
 //		// Output atom as erroneous atom of the
 //		// given type.
 //
 //    <output-component> ::=
-//	  output ( <type-name> );
+//	  NDL output ( <type-name> );
 //		// After processing atom, output accum-
 //		// ulated lexeme as a lexeme of given
 //		// type.
 //
 //    <transfer-component> ::=
-//	  | jump ( <atom-table-name> );
+//	  | NDL jump ( <atom-table-name> );
 //		// Go to atom table.  If switching from
 //		// non-master to master table and there
 //		// is no instruction `output()'
 //		// component, output the accumulated
 //		// lexeme with type of the table being
 //		// gone from.
-//	  | call ( <atom-table-name> );
+//	  | NDL call ( <atom-table-name> );
 //		// Like jump but allows return.
 //		// Atom table gone to cannot be MASTER.
-//	  | ret();
+//	  | NDL ret();
 //		// Goto to table at top of return stack.
 //		// Return stack is cleard when a MASTER
 //		// table is gone to.
 //
 //    <else-instruction> ::=
-//	  else_if_not ( <character-pattern-name> );
+//	  NDL else_if_not ( <character-pattern-name> );
 //        <instruction>
 //            // Only permitted if last instruction had
 //	      // a translate_oct/hex component.  The
@@ -194,12 +194,21 @@
 //            // pattern.
 
 
-// Declarations
-// ------------
+// NDL Functions
+// --- ---------
+
 
 namespace ll { namespace lexeme { namespace ndl {
 
-    using ll::lexeme::min32;
+    using ll::lexeme::uns32;
+    using ll::lexeme::MASTER;
+
+    extern const char * file;
+    extern uns32 line;
+
+#   define NDL (ll::lexeme::ndl::file = __FILE__, \
+                ll::lexeme::ndl::line = __LINE__), \
+	       lexeme::ndl::
 
     void begin_program ( void );
     void end_program ( void );

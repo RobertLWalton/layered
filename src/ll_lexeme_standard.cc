@@ -4,6 +4,8 @@
 
     uns32 master_atom_table =
         NDL::new_atom_table ( MASTER );
+    uns32 escaped_letter_atom_table =
+        NDL::new_atom_table ( 0 );
     uns32 word_atom_table =
         NDL::new_atom_table ( word_t );
     uns32 natural_number_atom_table =
@@ -184,21 +186,8 @@
     //// 
 	NDL::begin_dispatch ( "\\" );
 	  NDL::begin_dispatch ( "u" );
-	    NDL::begin_dispatch ( cp_hex_digit );
-	    NDL::begin_dispatch ( cp_hex_digit );
-	    NDL::begin_dispatch ( cp_hex_digit );
-	    NDL::begin_dispatch ( cp_hex_digit );
-	      NDL::translate_hex(2,0);
-	      NDL::call ( word_atom_table );
-	      NDL::else_if_not ( letter_pattern );
-	        NDL::keep(2);
-	  	NDL::output ( bad_escape_sequence_t );
-	    NDL::end_dispatch();
-	    NDL::end_dispatch();
-	    NDL::end_dispatch();
-	    NDL::end_dispatch();
+	      NDL::keep(0);
 
-	    NDL::output ( bad_escape_sequence_t );
 	  NDL::end_dispatch();
 
 	  NDL::begin_dispatch ( "U" );
@@ -288,6 +277,87 @@
     //// 
         NDL::output ( end_of_file_t );
     //// end master atom table;
+    //// 
+    NDL::end_atom_table();
+
+    //// // The following atom table is enterred to scan a
+    //// // \u.... or \U........ letter.  On error it
+    //// // emits an error atom and returns.  On no error,
+    //// // it accepts atom (converting the letter in the
+    //// // translation buffer) and goes to the word atom
+    //// // table.
+    ////
+    //// begin escaped letter atom table;
+    //// 
+    NDL::begin_atom_table ( escaped_letter_atom_table );
+
+    ////     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+    ////         translate hex 2 0 "<letter"> goto word
+    ////         else keep 2 error bad escape sequence return;
+    ////     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+    ////        "<hex-digit><hex-digit><hex-digit><hex-digit>"
+    ////         translate hex 2 0 "<letter"> goto word
+    ////         else keep 2 error bad escape sequence return;
+    //// 
+    ////     "\\u" error bad escape sequence return;
+    ////     "\\U" error bad escape sequence return;
+    //// 
+	NDL::begin_dispatch ( "\\" );
+	  NDL::begin_dispatch ( "u" );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	      NDL::translate_hex(2,0);
+	      NDL::jump ( word_atom_table );
+	      NDL::else_if_not ( letter_pattern );
+	        NDL::keep(2);
+	  	NDL::erroneous_atom
+		         ( bad_escape_sequence_t );
+		NDL::ret();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+
+	    NDL::erroneous_atom
+		     ( bad_escape_sequence_t );
+	    NDL::ret();
+	  NDL::end_dispatch();
+
+	  NDL::begin_dispatch ( "U" );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	    NDL::begin_dispatch ( cp_hex_digit );
+	      NDL::translate_hex(2,0);
+	      NDL::call ( word_atom_table );
+	      NDL::else_if_not ( letter_pattern );
+	        NDL::keep(2);
+	  	NDL::erroneous_atom
+		         ( bad_escape_sequence_t );
+		NDL::ret();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+	    NDL::end_dispatch();
+
+	    NDL::erroneous_atom
+	             ( bad_escape_sequence_t );
+	    NDL::ret();
+
+	  NDL::end_dispatch();
+	NDL::end_dispatch();
+
+    //// end escaped letter atom table;
     //// 
     NDL::end_atom_table();
 

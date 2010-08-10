@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  9 09:16:19 EDT 2010
+// Date:	Mon Aug  9 20:58:10 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,6 +47,10 @@
 // with `ll::lexeme::ndl' to qualify the following name.
 //
 //   <ndl-program> ::=
+//      using ll::lexeme::ndl::MASTER;
+//      using ll::lexeme::ndl::OTHER;
+//      using ll::lexeme::ndl::uns32;
+//
 //	NDL::begin_program();
 //	<declaration>*
 //	<atom-table-definition>*
@@ -67,13 +71,14 @@
 //   <mode> ::= MASTER | <type-name>
 //	// Mode of atom table
 //
-//   <type-name> ::= C++ variable name
-//	// The variable value is the type returned for
-//	// a lexeme by the scanner
+//   <type-name> ::= C++ uns32 expression
+//	// The type returned by the scanner for a
+//	// lexeme.
 //
 //   <character-pattern-declaration> ::=
+//       uns32 <character-pattern-name>;
 //	 NDL::begin_character_pattern
-//	     ( <character_pattern_name>,
+//	     ( <character-pattern-name>,
 //             [<included-chars>
 //		      [, <excluded-chars>] ] );
 //	     <character-adder>*
@@ -81,9 +86,9 @@
 //
 //   <included-chars> ::=
 //           C++ const char * quoted string expression
-//       // List of characters that are included in the
-//       // character pattern if they are not also in
-//	 // <excluded-chars>
+//       // List of ASCII characters that are included
+//       // in the // character pattern if they are not
+//       // also in <excluded-chars>
 //
 //   <excluded-chars> ::=
 //           C++ const char * quoted string expression
@@ -99,12 +104,13 @@
 //   <min-char> ::= C++ uns32 UNICODE character code
 //   <max-char> ::= C++ uns32 UNICODE character code
 //	// Minimum and maximum characters in a range
-//      // of UNICODE characters
+//      // of UNICODE characters to be added to a
+//      // character pattern.
 //
 //   <atom-table-definition> ::=
 //       NDL::begin_atom_table ( <atom-table-name> );
-//	     [<instruction>]
 //	     <dispatch>*
+//	     [<instruction>]
 //       NDL::end_atom_table();
 //
 //   <dispatch> :=
@@ -112,8 +118,13 @@
 //	     ( [<included-chars>
 //	           [, <excluded-chars>] ] );
 //	        <character-adder>*
-//	        [<instruction>]
 //	        <dispatch>*
+//	        [<instruction>]
+//	 NDL::end_dispatch();
+//     |
+//       NDL::begin_dispatch ( OTHER );
+//	        <dispatch>*
+//	        [<instruction>]
 //	 NDL::end_dispatch();
 //
 //    // A <dispatch> tells what to do when the NEXT
@@ -123,17 +134,22 @@
 //    // and nested dispatches to be made on the
 //    // following character in the atom.
 //
+//    // In the OTHER case the pattern includes just
+//    // those characters not in the patterns of other
+//    // dispatchers for the same atom character (i.e.,
+//    // other sybling dispatchers).
+//
 //    <instruction> ::= <non-else-instruction>
 //			[<else-instruction>]
 //
 //    <non-else-instruction> ::= [<keep-component>]
 //			         [translate-component]
-//			         [atom-error-component]
 //			         [output-component]
 //			         [transfer-component]
 //			       | NDL::accept();
-//	  // An <instruction> must have at least one
+//	  // An <instruction>s must have at least one
 //	  // optional component or be `accept();'.
+//	  // Optional components may be in any order.
 //
 //    <keep-component> ::=
 //	  NDL::keep(<n>);
@@ -166,16 +182,16 @@
 //     <UNICODE-translation-string> ::=
 //         C++ const uns32 * string
 //
-//    <atom-error-component> ::=
-//	  NDL::erroneous_atom ( <type-name> );
-//		// Output atom as erroneous atom of the
-//		// given type.
 //
 //    <output-component> ::=
 //	  NDL::output ( <type-name> );
 //		// After processing atom, output accum-
 //		// ulated lexeme as a lexeme of given
 //		// type.
+//	| NDL::erroneous_atom ( <type-name> );
+//		// Output atom as erroneous atom of the
+//		// given type.  The atom may be in the
+//		// middle of a lexeme.
 //
 //    <transfer-component> ::=
 //	  | NDL::jump ( <atom-table-name> );
@@ -214,6 +230,8 @@ namespace ll { namespace lexeme { namespace ndl {
 
     using ll::lexeme::uns32;
     using ll::lexeme::MASTER;
+
+    extern char OTHER[];
 
     extern const char * file;
     extern uns32 line;

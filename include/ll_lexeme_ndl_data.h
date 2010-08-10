@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  9 09:16:30 EDT 2010
+// Date:	Tue Aug 10 04:24:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,7 @@ namespace ll { namespace lexeme
     //
     // A begin_atom_table, begin_dispatcher, and begin_
     // character_pattern push a dispatcher to the
-    // dispatchers stack and in instruction to the
+    // dispatchers stack and an instruction to the
     // instructions stack.  The corresponding ends
     // pop these stacks.  Else_no_if's push additional
     // instructions to the instructions stack.
@@ -53,69 +53,100 @@ namespace ll { namespace lexeme
     // where d is the dispatcher at the top of the
     // dispatchers stack before popping that stack:
     //    
-    //	  d.type_map count pairs:
+    //	  d.type_map_count pairs from add_characters
+    //        calls for this dispatcher:
     //		char_min
     //		char_max
-    //    for each instruction in the instruction stack,
-    //	      translate_length uns32's giving the
-    //	      translate vector in memory order
-    //    for each subdispatcher:
-    //	      sub_type_map_count pairs:
+    //    for each non-OTHERS subdispatcher (child of
+    //		  this dispatcher):
+    //	      subdispatcher type_map_count pairs:
     //		char_min
     //		char_max
     //	      the triple:
-    //		sub_dispatcher_ID
-    //		sub_instruction_ID
-    //		sub_type_map_count
+    //		subdispatcher dispatcher_ID
+    //		subdispatcher instruction_ID
+    //		subdispatcher type_map_count
+    //    for each instruction in the instruction stack,
+    //	      translate_length uns32's giving the
+    //	      translate vector in memory order
     //
-    // Popping the dispatchers and instructions stacks
-    // removes the instruction and subdispatcher
-    // elements and pushes a new triple:
+    // Popping a dispatcher pops an instruction from
+    // the instruction stack and removes the instruction
+    // and subdispatcher elements from the uns32_stack
+    // and pushes into this stack the new triple:
+    //
     //		dispatcher_ID
     //		instruction_ID
     //		type_map_count
     //
     // describing the popped dispatcher and instruction.
+    // However, if the popped dispatcher is an OTHERS
+    // dispatcher, this last triple is not pushed, and
+    // the dispatcher_ID adn instruction_ID are instead
+    // copied to the parent dispatcher (the type_map_
+    // count will be zero).
+    //
+    // Note that `popping an instruction' means popping
+    // all the instructions in a sequence
+    //
+    //	 <non-else-instruction>
+    //   { else_if_not(...) <non-else-instruction> }*.
+    //
+    // Note that begin/end_character_pattern pushes and
+    // pops two dispatchers as if it were a begin/end_
+    // atom_table with a single nested begin/end_dis-
+    // patcher.
     //
     extern ll::lexeme::buffer<uns32> & uns32_stack;
 
-
     // Accumulated information use to construct a
     // dispatch table for an atom table or <dispatch>.
-    // Also the type code and instruction that goes
-    // with the dispatch table.
-    //
-    // Pushed into the dispatchers stack by begin_atom_
-    // table() or begin_dispatcher(), and popped by the
-    // corresponding end_atom_table() or end_
-    // dispatcher().
     // 
     struct dispatcher
     {
         uns8 ascii_map[128];
 	    // Type codes of ASCII characters.
-	    // 0 if none.  Added to be the begin_
-	    // dispatcher that starts a child dispat-
-	    // cher, and by the add_characters for
-	    // that child.
+	    // 0 if none.  Subdispatchers modify this
+	    // when they add ASCII characters to their
+	    // character patterns via their begin_
+	    // dispatcher call or add_characters calls
+	    // with ASCII quoted strings.
 	uns8 max_type_code;
 	    // Last type code assigned to this dispat-
 	    // cher.  Incremented by the begin_dispat-
-	    // ch() that starts a sub-dispatcher.
+	    // ch() that starts a non-OTHER's sub-
+	    // dispatcher; the subdispatcher that
+	    // increments this will use the new value
+	    // of this as the type code to attach to.
+	    // OTHER's subdispatchers attach to type
+	    // code 0.
 	uns32 type_map_count;
 	    // Number of min_char,max_char pairs in
-	    // the stack for the type code this
+	    // the uns32_stack for the type code in
+	    // this dispatcher's parent that this
 	    // dispatcher will be attached to.
-	    // Used by parent of this dispatcher.
+	    // Pushed into the uns32_stack with the
+	    // other data from this dispatcher for
+	    // use by its parent dispatcher.
+	    //
+	    // Must be 0 for an OTHER's dispatcher.
+	uns32 others_dispatcher_ID;
+	uns32 others_instruction_ID;
+	    // Data from an OTHER's subdispatcher.
+	    // Attached to type code 0 of this
+	    // dispatcher.
+	bool is_others_dispatcher;
+	    // True if and only if this is an OTHER's
+	    // dispatcher.
     };
 
     extern ll::lexeme::buffer<dispatcher> & dispatchers;
 
     // Accumulated information to use in constructing
     // an instruction.  Pushed into the instructions
-    // stack by begin_atom_table() or begin_dispatcher()
-    // and by else_if_not().  Popped from the stack by
-    // implicit end_instruction().
+    // stack when a new dispatcher is pushed into the
+    // dispatcher stack, and also pushed by else_if_
+    // not().  Popped when a dispatcher is popped.
     //
     struct instruction
     {
@@ -126,7 +157,10 @@ namespace ll { namespace lexeme
 	    // instruction.  If ll::lexeme::translate_
 	    // length ( operation ) is > 0, then it is
 	    // the number of uns32's in the stack that
-	    // represent the translation vector.
+	    // represent the translation vector.  Note
+	    // that the ELSE flag is NOT included but
+	    // must be added when an instruction with
+	    // a non-zero else_dispatcher_ID is created.
 	uns32 else_dispatcher_ID;
 	    // Else_dispatcher_ID argument for the
 	    // PREVIOUS instruction in the instructions
@@ -135,7 +169,8 @@ namespace ll { namespace lexeme
 	    // is the dispatcher ID given by the char-
 	    // acter pattern name.
 	bool accept;
-	    // True if accept instruction.
+	    // True if and only if this is an accept
+	    // instruction.
     };
 
     extern ll::lexeme::buffer<instruction>

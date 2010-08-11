@@ -2,18 +2,11 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Aug  9 08:26:32 EDT 2010
+# Date:		Wed Aug 11 09:39:17 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
 # for this program.
-#
-# RCS Info (may not be true date or author):
-#
-#   $Author: walton $
-#   $Date: 2010/04/12 01:56:22 $
-#   $RCSfile: Makefile,v $
-#   $Revision: 1.2 $
 
 # We need the following to mask RCS lines
 #

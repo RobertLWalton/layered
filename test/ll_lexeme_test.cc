@@ -2,18 +2,11 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 06:46:04 EDT 2010
+// Date:	Wed Aug 11 09:39:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/05/08 09:24:11 $
-//   $RCSfile: ll_lexeme_test.cc,v $
-//   $Revision: 1.22 $
 
 // Table of Contents
 //

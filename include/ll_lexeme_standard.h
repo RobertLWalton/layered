@@ -2,18 +2,11 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  8 18:49:06 EDT 2010
+// Date:	Wed Aug 11 09:38:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/05/09 01:41:51 $
-//   $RCSfile: ll_lexeme_standard.h,v $
-//   $Revision: 1.2 $
 
 // Table of Contents
 //

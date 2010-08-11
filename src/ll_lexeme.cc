@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 06:38:41 EDT 2010
+// Date:	Wed Aug 11 08:35:35 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -604,8 +604,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	next = 0;
     }
 
-    // Initialize first and next and translation
-    // buffer and current atom table.
+    // Initialize first and translation buffer.
     //
     first = next;
     translation_buffer.deallocate
@@ -639,9 +638,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     uns32 loop_count = program.length;
         // Set to max number of atom tables in order
 	// to detect endless loops.
-    uns32 return_stack[8];
-    uns32 * return_stack_p = return_stack;
-    uns32 * return_stack_endp = return_stack + 8;
+    struct return_element
+    {
+        uns32 atom_table_ID;
+	uns32 instruction_ID;
+    } return_stack[8];
+    return_element * return_stack_p =
+        return_stack;
+    return_element * return_stack_endp =
+        return_stack + 8;
     while ( true )
     {
         // Scan next atom of current lexeme.
@@ -659,7 +664,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	if ( output_type != 0 )
 	{
-	    if ( last_mode != MASTER )
+	    if ( cath.mode != MASTER )
 	    {
 	        sprintf ( scan_error ( last + 1 - first,
 		                       first ),
@@ -930,11 +935,20 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	    atom_length = keep_length;
 
-	    if ( op & ERRONEOUS_ATOM
-		 &&
-		 atom_length > 0 )
+	    if ( op & ERRONEOUS_ATOM )
 	    {
-		if ( erroneous_atom == NULL )
+		if ( atom_length == 0 )
+		{
+		    sprintf ( scan_error ( length ),
+			      "ERRONEOUS_ATOM in"
+			      " instruction %d executed"
+			      " by atom table %d but"
+			      " atom is of zero length",
+			      instruction_ID,
+			      current_atom_table_ID );
+		    return SCAN_ERROR;
+		}
+		else if ( erroneous_atom == NULL )
 		{
 		    sprintf ( scan_error ( length ),
 			      "ERRONEOUS_ATOM in"
@@ -951,11 +965,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			( next, next + atom_length - 1,
 			  ih.type );
 	    }
+	    else if ( op & OUTPUT )
+		output_type = ih.type;
 
 	    if ( op & RETURN_FLAG )
 	    {
-		if (    return_stack_p
-		     == return_stack )
+		if ( return_stack_p == return_stack )
 		{
 		    sprintf
 			( scan_error ( length ),
@@ -967,8 +982,57 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			  current_atom_table_ID );
 		    return SCAN_ERROR;
 		}
-		current_atom_table_ID =
-		    * -- return_stack_p;
+		-- return_stack_p;
+		uns32 return_index =
+		    LEX::return_index ( op );
+		if ( return_index == 0 )
+		    current_atom_table_ID =
+			return_stack_p->atom_table_ID;
+		else
+		{
+		    instruction_header & cih =
+			* (instruction_header *)
+			& program[return_stack_p->
+			              instruction_ID];
+		    assert (    cih.pctype
+			     == INSTRUCTION );
+		    uns32 cop = cih.operation;
+		    assert ( cop & CALL_FLAG );
+		    uns32 call_length =
+		        LEX::call_length ( cop );
+		    if ( return_index > call_length )
+		    {
+			sprintf
+			    ( scan_error ( length ),
+			      "RETURN(%d) in"
+			      " instruction %d"
+			      " executed by atom table"
+			      " %d\n  attempted return"
+			      " to CALL(%d) instruction"
+			      " %d in atom table %d"
+			      "\n  return index > call"
+			      " length",
+			      return_index,
+			      instruction_ID,
+			      current_atom_table_ID,
+			      call_length,
+			      return_stack_p->
+			          instruction_ID,
+			      return_stack_p->
+			          atom_table_ID );
+			return SCAN_ERROR;
+		    }
+		    uns32 * p = (uns32 *) ( & cih + 1 );
+		    if ( cop & TRANSLATE_FLAG )
+			p += LEX::translate_length
+			         ( cop );
+		    if ( cop & ELSE ) p += 2;
+		    current_atom_table_ID =
+		        p[return_index-1];
+		}
+		assert
+		    (    program[current_atom_table_ID]
+		      == ATOM_TABLE );
 	    }
 	    else if ( op & CALL_FLAG )
 	    {
@@ -986,8 +1050,13 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			  current_atom_table_ID );
 		    return SCAN_ERROR;
 		}
-		* return_stack_p ++ =
+
+		return_stack_p->atom_table_ID =
 		    current_atom_table_ID;
+		return_stack_p->instruction_ID =
+		    instruction_ID;
+		return_stack_p ++;
+
 		current_atom_table_ID =
 		    ih.atom_table_ID;
 		assert
@@ -1003,8 +1072,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    (    program[current_atom_table_ID]
 		      == ATOM_TABLE );
 	    }
-	    else if ( op & OUTPUT )
-		output_type = ih.type;
 
 	    break;
 	}
@@ -1212,7 +1279,7 @@ static uns32 print_instruction
     uns32 else_dispatcher_ID = 0;
     uns32 else_instruction_ID = 0;
     uns32 call_length = 0;
-    uns32 return_length = 0;
+    uns32 return_index = 0;
     uns32 instruction_length =
         instruction_header_length;
 
@@ -1238,8 +1305,8 @@ static uns32 print_instruction
 	instruction_length += call_length;
     }
     if ( h.operation & RETURN_FLAG )
-        return_length =
-	    LEX::return_length ( h.operation );
+        return_index =
+	    LEX::return_index ( h.operation );
 
     if ( h.pctype != INSTRUCTION )
     {
@@ -1351,7 +1418,7 @@ static uns32 print_instruction
             << "(" << h.atom_table_ID << ")";
 
     if ( h.operation & RETURN_FLAG )
-        OUT << "RETURN(" << return_length << ")";
+        OUT << "RETURN(" << return_index << ")";
 
     if ( h.operation & ELSE )
         OUT << "ELSE(" << else_dispatcher_ID << "):";

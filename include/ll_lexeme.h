@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 08:51:34 EDT 2010
+// Date:	Wed Aug 11 19:08:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -429,7 +429,9 @@ namespace ll { namespace lexeme {
     //                  tion into the return stack.  The
     //                  CALL instruction contains a
     //                  return vector of n atom_table_
-    //                  ID's (n may be 0).
+    //                  ID's (n may be 0).  The target
+    //			of a CALL (unlike GOTO) must NOT
+    //			be a MASTER atom table.
     //
     //	 RETURN(n)	Like GOTO but gets the new atom
     //			table ID by popping the return

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  7 03:39:31 EDT 2010
+// Date:	Tue Aug 10 19:42:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -324,15 +324,16 @@ namespace ll { namespace lexeme {
 	      uns32 ctype );
 
     // An instruction consists of an uns32 operation,
-    // an atom_table_ID for GOTO or CALL (which may be 0
-    // if unused), a type for OUTPUT or ERRONEOUS_ATOM
-    // (which may be 0 if unused), an uns32 *
-    // translation_vector for TRANSLATE_FLAG (which may
-    // be NULL if unused), and an uns32 else_dispatcher_
-    // ID and uns32 else_instruction_ID for ELSE (which
-    // may be 0 if unused).  ELSE requires a TRANSLATE_
-    // {HEX/OCT}_FLAG and these are exclusive of
-    // TRANSLATE_FLAG.
+    // an atom_table_ID for GOTO or a CALL with 1
+    // return (which may be 0 if unused), a type for
+    // OUTPUT or ERRONEOUS_ATOM (which may be 0 if
+    // unused), an uns32 * translation_vector for
+    // TRANSLATE_FLAG (which may be NULL if unused), an
+    // uns32 else_dispatcher_ID and uns32 else_
+    // instruction_ID for ELSE (which may be 0 if
+    // unused), and an uns32 * return_vector for CALL
+    // with more than 1 return (which may be NULL if
+    // unused).
     // 
     // The operation is the sum of some of the
     // following:
@@ -411,26 +412,6 @@ namespace ll { namespace lexeme {
     //			with the instruction provided
     //			type.
     //
-    //   GOTO		After all other atom processing,
-    //			switch the current atom table
-    //			to that whose ID equals the
-    //			instruction atom_table_ID.
-    //
-    //   CALL		Ditto but also push the current
-    //			atom table ID (i.e., the ID
-    //			before the switch) into the
-    //			return stack.
-    //
-    //     Note: CALL is encoded as a CALLRETURN with
-    //		 non-zero atom_table_ID.
-    //
-    //	 RETURN		Like GOTO but get the new atom
-    //			table ID by popping the return
-    //			stack.
-    //
-    //     Note: RETURN is encoded as a CALLRETURN with
-    //		 a zero atom_table_ID.
-    //
     //   OUTPUT		After KEEP and TRANSLATE...
     //			atom processing, output the
     //			current lexeme with the
@@ -444,6 +425,32 @@ namespace ll { namespace lexeme {
     //			given type must be zero; other-
     //			wise it must be non-zero.  Note
     //			real types are never zero.)
+    //
+    //   GOTO		After all other atom processing,
+    //			switch the current atom table
+    //			to that whose ID equals the
+    //			instruction atom_table_ID.
+    //
+    //   CALL(n)	Ditto but also push a pointer
+    //			to the CALL instruction into the
+    //			return stack.  The CALL
+    //			instruction contains an return
+    //			vector of n atom_table_ID's.
+    //
+    //	 RETURN(n)	Like GOTO but gets the new atom
+    //			table ID by popping the return
+    //			stack and picking n'th element
+    //			of the return vector in the
+    //			CALL instruction pointed at by
+    //			the popped return stack element.
+    //
+    //			(GOTO, CALL, and RETURN are
+    //			exclusive.  Unless GOTO or
+    //			CALL(1) is given, atom_table_ID
+    //			must be zero; otherwise it must
+    //			be non-zero.  CALL(n) for n>1
+    //			requires return_vector to be
+    //			non-NULL; otherwise it is NULL.)
 
     // Instruction operation flags:
     //
@@ -455,13 +462,18 @@ namespace ll { namespace lexeme {
 	TRANSLATE_OCT_FLAG	= ( 1 << 3 ),
 	ELSE			= ( 1 << 4 ),
 	ERRONEOUS_ATOM		= ( 1 << 5 ),
-	GOTO			= ( 1 << 6 ),
-	CALLRETURN		= ( 1 << 7 ),
-	OUTPUT			= ( 1 << 8 ),
+	OUTPUT			= ( 1 << 6 ),
+	GOTO			= ( 1 << 7 ),
+	CALL_FLAG		= ( 1 << 8 ),
+	RETURN_FLAG		= ( 1 << 9 ),
     };
 
     // Instruction shifts and masks
     //
+    const uns32 CALL_LENGTH_SHIFT = 12;
+    const uns32 CALL_LENGTH_MASK = 0xF;
+    const uns32 RETURN_LENGTH_SHIFT = 13;
+    const uns32 RETURN_LENGTH_MASK = 0xF;
     const uns32 KEEP_LENGTH_SHIFT = 16;
     const uns32 KEEP_LENGTH_MASK = 0x3F;
     const uns32 TRANSLATE_LENGTH_SHIFT = 22;
@@ -471,6 +483,18 @@ namespace ll { namespace lexeme {
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
     const uns32 POSTFIX_LENGTH_MASK = 0x1F;
 
+    inline uns32 call_length ( uns32 operation )
+    {
+        return ( operation >> CALL_LENGTH_SHIFT )
+	       &
+	       CALL_LENGTH_MASK;
+    }
+    inline uns32 return_length ( uns32 operation )
+    {
+        return ( operation >> RETURN_LENGTH_SHIFT )
+	       &
+	       RETURN_LENGTH_MASK;
+    }
     inline uns32 keep_length ( uns32 operation )
     {
         return ( operation >> KEEP_LENGTH_SHIFT )
@@ -498,6 +522,14 @@ namespace ll { namespace lexeme {
 
     // Composite operations.
     //
+    inline uns32 CALL ( uns32 call_length )
+    {
+        assert
+	  ( call_length <= CALLRETURN_LENGTH_MASK );
+	return KEEP_FLAG
+	     + (    call_length
+	         << KEEP_LENGTH_SHIFT );
+    }
     inline uns32 KEEP ( uns32 keep_length )
     {
         assert
@@ -547,7 +579,8 @@ namespace ll { namespace lexeme {
 	      uns32 type = 0,
 	      uns32 * translation_vector = NULL,
 	      uns32 else_dispatcher_ID = 0,
-	      uns32 else_instruction_ID = 0 );
+	      uns32 else_instruction_ID = 0,
+	      uns32 * return_vector = NULL );
 
     // Attach a dispatcher or an instruction component
     // to an atom table target, or a type map component

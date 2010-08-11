@@ -2,18 +2,11 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 10 21:01:57 EDT 2010
+// Date:	Wed Aug 11 06:38:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/05/08 09:23:39 $
-//   $RCSfile: ll_lexeme.cc,v $
-//   $Revision: 1.38 $
 
 // Table of Contents
 //
@@ -142,11 +135,6 @@ uns32 LEX::create_instruction
 	  uns32 else_instruction_ID,
 	  uns32 * return_vector )
 {
-    assert ( (   operation
-               & ( ERRONEOUS_ATOM + OUTPUT ) )
-             !=
-	     ( ERRONEOUS_ATOM + OUTPUT ) );
-
     assert ( ( ( operation & TRANSLATE_FLAG ) != 0 )
 	     +
              ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
@@ -160,6 +148,11 @@ uns32 LEX::create_instruction
              ||
 	     ( operation & TRANSLATE_OCT_FLAG ) );
 
+    assert ( ( ( operation & ERRONEOUS_ATOM ) != 0 )
+	     +
+             ( ( operation & OUTPUT ) != 0 )
+	     <= 1 );
+
     assert ( ( ( operation & GOTO ) != 0 )
              +
 	     ( ( operation & CALL_FLAG ) != 0 )
@@ -167,26 +160,27 @@ uns32 LEX::create_instruction
 	     ( ( operation & RETURN_FLAG ) != 0 )
 	     <= 1 );
 
-    uns32 call_length = ( operation & CALL_FLAG ) ?
-                        call_length ( operation ) :
-			0;
-
     if ( ( operation & GOTO ) != 0
          ||
-	 call_length == 1 )
+	 ( operation & CALL_FLAG ) != 0 )
         assert ( atom_table_ID != 0 );
     else
         assert ( atom_table_ID == 0 );
-
-    if ( call_length > 1 )
-        assert ( return_vector != NULL );
-    else
-        assert ( return_vector == NULL );
 
     if ( operation & ( ERRONEOUS_ATOM + OUTPUT ) )
         assert ( type != 0 );
     else
         assert ( type == 0 );
+
+    uns32 translate_length =
+        ( operation & TRANSLATE_FLAG ) ?
+	  LEX::translate_length ( operation ) :
+	0;
+
+    if ( translate_length > 0 )
+        assert ( translation_vector != NULL );
+    else
+        assert ( translation_vector == NULL );
 
     if ( operation & ( ELSE ) )
         assert ( else_dispatcher_ID != 0
@@ -197,12 +191,15 @@ uns32 LEX::create_instruction
 	         &&
 		 else_instruction_ID == 0 );
 
-    uns32 translate_length = 0;
-    if ( operation & TRANSLATE_FLAG )
-        translate_length =
-	    LEX::translate_length ( operation );
-    else assert ( translation_vector == NULL );
-        
+    uns32 call_length = ( operation & CALL_FLAG ) ?
+                        LEX::call_length ( operation ) :
+			0;
+
+    if ( call_length > 0 )
+        assert ( return_vector != NULL );
+    else
+        assert ( return_vector == NULL );
+
     uns32 ID = program.allocate
     	(   instruction_header_length
 	  + translate_length
@@ -217,12 +214,8 @@ uns32 LEX::create_instruction
 
     uns32 * p = (uns32 *) ( & h + 1 );
 
-    if ( translate_length > 0 )
-    {
-	assert ( translation_vector != NULL );
-	while ( translate_length -- )
-	    * p ++ = * translation_vector ++;
-    }
+    while ( translate_length -- )
+	* p ++ = * translation_vector ++;
 
     if ( operation & ELSE )
     {
@@ -233,11 +226,8 @@ uns32 LEX::create_instruction
 	p += else_instruction_length;
     }
 
-    if ( call_length == 1 )
-        * p ++ = atom_table_ID;
-    else if ( call_length > 1 )
-        while ( call_length -- )
-	    * p ++ = * return_vector ++;
+    while ( call_length -- )
+	* p ++ = * return_vector ++;
 
     return ID;
 }
@@ -962,54 +952,50 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			  ih.type );
 	    }
 
-	    if ( op & CALLRETURN )
+	    if ( op & RETURN_FLAG )
 	    {
-	        if ( ih.atom_table_ID == 0 )
+		if (    return_stack_p
+		     == return_stack )
 		{
-		    if (    return_stack_p
-		         == return_stack )
-		    {
-			sprintf
-			    ( scan_error ( length ),
-			      "RETURN in instruction %d"
-			      " executed by atom table"
-			      " %d but return stack is"
-			      " empty",
-			      instruction_ID,
-			      current_atom_table_ID );
-			return SCAN_ERROR;
-		    }
-		    current_atom_table_ID =
-		        * -- return_stack_p;
+		    sprintf
+			( scan_error ( length ),
+			  "RETURN in instruction %d"
+			  " executed by atom table"
+			  " %d but return stack is"
+			  " empty",
+			  instruction_ID,
+			  current_atom_table_ID );
+		    return SCAN_ERROR;
 		}
-		else
-		{
-		    if (    return_stack_p
-		         == return_stack_endp )
-		    {
-			sprintf
-			    ( scan_error ( length ),
-			      "CALL in"
-			      " instruction %d"
-			      " executed by atom table"
-			      " %d but return stack is"
-			      " full",
-			      instruction_ID,
-			      current_atom_table_ID );
-			return SCAN_ERROR;
-		    }
-		    * return_stack_p ++ =
-			current_atom_table_ID;
-		    current_atom_table_ID =
-			ih.atom_table_ID;
-		    assert
-			(    program
-			         [current_atom_table_ID]
-			  == ATOM_TABLE );
-		}
+		current_atom_table_ID =
+		    * -- return_stack_p;
 	    }
-
-	    if ( op & GOTO )
+	    else if ( op & CALL_FLAG )
+	    {
+		if (    return_stack_p
+		     == return_stack_endp )
+		{
+		    sprintf
+			( scan_error ( length ),
+			  "CALL in"
+			  " instruction %d"
+			  " executed by atom table"
+			  " %d but return stack is"
+			  " full",
+			  instruction_ID,
+			  current_atom_table_ID );
+		    return SCAN_ERROR;
+		}
+		* return_stack_p ++ =
+		    current_atom_table_ID;
+		current_atom_table_ID =
+		    ih.atom_table_ID;
+		assert
+		    (    program
+			     [current_atom_table_ID]
+		      == ATOM_TABLE );
+	    }
+	    else if ( op & GOTO )
 	    {
 		current_atom_table_ID =
 		    ih.atom_table_ID;
@@ -1223,7 +1209,37 @@ static uns32 print_instruction
     instruction_header & h =
         * (instruction_header *) & program[ID];
     uns32 translate_length = 0;
+    uns32 else_dispatcher_ID = 0;
     uns32 else_instruction_ID = 0;
+    uns32 call_length = 0;
+    uns32 return_length = 0;
+    uns32 instruction_length =
+        instruction_header_length;
+
+    if ( h.operation & TRANSLATE_FLAG )
+    {
+        translate_length =
+	    LEX::translate_length ( h.operation );
+	instruction_length += translate_length;
+    }
+    if ( h.operation & ELSE )
+    {
+        else_instruction & ei =
+	    * (else_instruction *)
+	    & program[ID + instruction_header_length];
+	else_dispatcher_ID = ei.else_dispatcher_ID;
+	else_instruction_ID = ei.else_instruction_ID;
+	instruction_length += 2;
+    }
+    if ( h.operation & CALL_FLAG )
+    {
+        call_length =
+	    LEX::call_length ( h.operation );
+	instruction_length += call_length;
+    }
+    if ( h.operation & RETURN_FLAG )
+        return_length =
+	    LEX::return_length ( h.operation );
 
     if ( h.pctype != INSTRUCTION )
     {
@@ -1238,21 +1254,35 @@ static uns32 print_instruction
          ( ( h.operation & TRANSLATE_OCT_FLAG ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
     else
-    if ( ( ( h.operation & GOTO ) != 0 )
+    if ( ( ( h.operation & OUTPUT ) != 0 )
 	 +
-         ( ( h.operation & CALLRETURN ) != 0 )
+         ( ( h.operation & ERRONEOUS_ATOM ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
     else
-    if ( ( h.operation & GOTO )
+    if ( ( ( h.operation & GOTO ) != 0 )
+	 +
+         ( ( h.operation & CALL_FLAG ) != 0 )
+	 +
+         ( ( h.operation & RETURN_FLAG ) != 0 )
+	 > 1 ) out << "ILLEGAL: ";
+    else
+    if ( ( h.operation & ELSE )
+         &&
+         (   h.operation
+           & (   TRANSLATE_HEX_FLAG
+	       | TRANSLATE_OCT_FLAG ) ) == 0 )
+	out << "ILLEGAL: ";
+    else
+    if ( ( h.operation & ( GOTO + CALL_FLAG ) ) != 0
          &&
 	 h.atom_table_ID == 0 ) out << "ILLEGAL: ";
     else
-    if ( ( h.operation & ( GOTO + CALLRETURN ) ) == 0
+    if ( ( h.operation & ( GOTO + CALL_FLAG ) ) == 0
          &&
 	 h.atom_table_ID != 0 ) out << "ILLEGAL: ";
     else
-    if ( (  h.operation
-           & ( ERRONEOUS_ATOM + OUTPUT ) )
+    if ( (   h.operation
+           & ( ERRONEOUS_ATOM + OUTPUT ) ) != 0
          &&
 	 h.type == 0 ) out << "ILLEGAL: ";
     else
@@ -1263,20 +1293,10 @@ static uns32 print_instruction
     else
     if ( ( h.operation & ELSE )
          &&
-         (   h.operation
-           & (   TRANSLATE_HEX_FLAG
-	       | TRANSLATE_OCT_FLAG ) ) == 0 )
+	 ( else_dispatcher_ID == 0
+	   ||
+	   else_instruction_ID == 0 ) )
 	out << "ILLEGAL: ";
-    else
-    if ( h.operation & ELSE )
-    {
-        else_instruction & ei =
-	    * (else_instruction *)
-	    & program[ID + instruction_header_length];
-	if (   ei.else_dispatcher_ID == 0
-	    || ei.else_instruction_ID == 0 )
-	    out << "ILLEGAL: ";
-    }
 
     bool first = true;
 #   define OUT ( first ? ( first = false, out ) : \
@@ -1285,6 +1305,7 @@ static uns32 print_instruction
         OUT << "KEEP("
 	     << LEX::keep_length ( h.operation )
 	     << ")";
+
     if ( h.operation & TRANSLATE_FLAG )
     {
         translate_length =
@@ -1301,55 +1322,57 @@ static uns32 print_instruction
 	}
 	out << ")";
     }
+
     if ( h.operation & TRANSLATE_HEX_FLAG )
         OUT << "TRANSLATE_HEX("
 	    << LEX::prefix_length ( h.operation )
 	    << ","
 	    << LEX::postfix_length ( h.operation )
 	    << ")";
+
     if ( h.operation & TRANSLATE_OCT_FLAG )
         OUT << "TRANSLATE_OCT("
 	    << LEX::prefix_length ( h.operation )
 	    << ","
 	    << LEX::postfix_length ( h.operation )
 	    << ")";
+
     if ( h.operation & ERRONEOUS_ATOM )
         OUT << "ERRONEOUS_ATOM(" << h.type << ")";
+
     if ( h.operation & OUTPUT )
         OUT << "OUTPUT(" << h.type << ")";
+
     if ( h.operation & GOTO )
         OUT << "GOTO(" << h.atom_table_ID << ")";
-    if ( h.operation & CALLRETURN )
-    {
-        if ( h.atom_table_ID != 0 )
-	    OUT << "CALL(" << h.atom_table_ID << ")";
-	else
-	    OUT << "RETURN";
-    }
-    if ( h.operation & ELSE )
-    {
-        else_instruction & ei =
-	    * (else_instruction *)
-	    & program[ID + instruction_header_length];
-	translate_length = else_instruction_length;
 
-        OUT << "ELSE(" << ei.else_dispatcher_ID
-	    << "):";
-	else_instruction_ID = ei.else_instruction_ID;
-    }
+    if ( h.operation & CALL_FLAG )
+        OUT << "CALL(" << call_length << ")"
+            << "(" << h.atom_table_ID << ")";
+
+    if ( h.operation & RETURN_FLAG )
+        OUT << "RETURN(" << return_length << ")";
+
+    if ( h.operation & ELSE )
+        OUT << "ELSE(" << else_dispatcher_ID << "):";
 
     if ( first ) OUT << "ACCEPT" << endl;
-    else if ( else_instruction_ID != 0 )
+    else if ( h.operation & ELSE )
     {
         out << endl;
-	print_instruction
-	    ( out, else_instruction_ID, indent + 2 );
+	if ( else_instruction_ID != 0 )
+	    print_instruction
+		( out, else_instruction_ID,
+		       indent + 2 );
+	else
+            out << setw ( indent + 2 ) << ""
+	        << "MISSING ELSE INSTRUCTION"
+		<< endl;
     }
     else out << endl;
 #   undef OUT
 
-    return instruction_header_length
-         + translate_length;
+    return instruction_length;
 }
 
 // Iterator that prints out a list of characters

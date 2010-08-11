@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  7 03:57:23 EDT 2010
+// Date:	Wed Aug 11 06:46:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,9 +47,10 @@ using LEX::TRANSLATE_HEX;
 using LEX::TRANSLATE_OCT;
 using LEX::ELSE;
 using LEX::ERRONEOUS_ATOM;
-using LEX::GOTO;
-using LEX::CALLRETURN;
 using LEX::OUTPUT;
+using LEX::GOTO;
+using LEX::CALL;
+using LEX::RETURN;
 
 // External Runtime
 // -------- -------
@@ -378,7 +379,7 @@ static void create_program_2 ( void )
     check_attach ( master_dispatcher, tmap );
     uns32 symbol_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+CALLRETURN, symbol );
+	    ( KEEP(0)+CALL(0), symbol );
     uns32 number_instruction =
         LEX::create_instruction
 	    ( KEEP(0)+GOTO, number );
@@ -419,7 +420,7 @@ static void create_program_2 ( void )
 	    ( KEEP(0)+GOTO, master );
     uns32 return_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+CALLRETURN, 0 );
+	    ( KEEP(0)+RETURN(0), 0 );
     uns32 accept_instruction =
         LEX::create_instruction ( ACCEPT );
 

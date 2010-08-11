@@ -2,18 +2,11 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 10 20:41:39 EDT 2010
+// Date:	Wed Aug 11 05:44:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/05/08 09:19:59 $
-//   $RCSfile: ll_lexeme_program_data.h,v $
-//   $Revision: 1.10 $
 
 // Table of Contents
 //
@@ -157,7 +150,7 @@ const uns32 type_map_header_length = 4;
 struct instruction_header {
     uns32 pctype;	    // == INSTRUCTION
     uns32 operation;
-    uns32 atom_table_ID;    // for GOTO
+    uns32 atom_table_ID;    // for GOTO or CALL
     uns32 type;		    // for ERRONEOUS_ATOM or
     			    //     OUTPUT
 };

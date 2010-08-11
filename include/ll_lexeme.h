@@ -2,18 +2,11 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 10 19:42:04 EDT 2010
+// Date:	Wed Aug 11 06:04:37 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/05/09 01:41:51 $
-//   $RCSfile: ll_lexeme.h,v $
-//   $Revision: 1.38 $
 
 // Table of Contents
 //
@@ -324,15 +317,14 @@ namespace ll { namespace lexeme {
 	      uns32 ctype );
 
     // An instruction consists of an uns32 operation,
-    // an atom_table_ID for GOTO or a CALL with 1
-    // return (which may be 0 if unused), a type for
-    // OUTPUT or ERRONEOUS_ATOM (which may be 0 if
-    // unused), an uns32 * translation_vector for
-    // TRANSLATE_FLAG (which may be NULL if unused), an
-    // uns32 else_dispatcher_ID and uns32 else_
-    // instruction_ID for ELSE (which may be 0 if
-    // unused), and an uns32 * return_vector for CALL
-    // with more than 1 return (which may be NULL if
+    // an atom_table_ID for GOTO or CALL (which must be
+    // 0 if unused), a type for OUTPUT or ERRONEOUS_ATOM
+    // (which must be 0 if unused), an uns32 * transla-
+    // tion_vector for TRANSLATE_FLAG (which must be
+    // NULL if unused), an uns32 else_dispatcher_ID and
+    // uns32 else_instruction_ID for ELSE (which must be
+    // 0 if unused), and an uns32 * return_vector for
+    // CALL(n) with n > 0 (which must be NULL if
     // unused).
     // 
     // The operation is the sum of some of the
@@ -432,25 +424,30 @@ namespace ll { namespace lexeme {
     //			instruction atom_table_ID.
     //
     //   CALL(n)	Ditto but also push a pointer
-    //			to the CALL instruction into the
-    //			return stack.  The CALL
-    //			instruction contains an return
-    //			vector of n atom_table_ID's.
+    //			to the current atom table and
+    //                  a pointer to the CALL instruc-
+    //                  tion into the return stack.  The
+    //                  CALL instruction contains a
+    //                  return vector of n atom_table_
+    //                  ID's (n may be 0).
     //
     //	 RETURN(n)	Like GOTO but gets the new atom
     //			table ID by popping the return
-    //			stack and picking n'th element
-    //			of the return vector in the
+    //			stack and picking the atom table
+    //			in the popped return stack ele-
+    //			ment if n == 0 or the n'th ele-
+    //			ment of the return vector in the
     //			CALL instruction pointed at by
-    //			the popped return stack element.
+    //			the popped return stack element
+    //			if n > 0.
     //
     //			(GOTO, CALL, and RETURN are
-    //			exclusive.  Unless GOTO or
-    //			CALL(1) is given, atom_table_ID
-    //			must be zero; otherwise it must
-    //			be non-zero.  CALL(n) for n>1
-    //			requires return_vector to be
-    //			non-NULL; otherwise it is NULL.)
+    //			exclusive.  Unless GOTO or CALL
+    //			is given, atom_table_ID must be
+    //			zero; otherwise it must be non-
+    //			zero.  CALL(n) for n>0 requires
+    //			return_vector to be non-NULL;
+    //			otherwise it is NULL.)
 
     // Instruction operation flags:
     //
@@ -474,6 +471,7 @@ namespace ll { namespace lexeme {
     const uns32 CALL_LENGTH_MASK = 0xF;
     const uns32 RETURN_LENGTH_SHIFT = 13;
     const uns32 RETURN_LENGTH_MASK = 0xF;
+        // CALL and RETURN overlap.
     const uns32 KEEP_LENGTH_SHIFT = 16;
     const uns32 KEEP_LENGTH_MASK = 0x3F;
     const uns32 TRANSLATE_LENGTH_SHIFT = 22;
@@ -482,6 +480,7 @@ namespace ll { namespace lexeme {
     const uns32 PREFIX_LENGTH_MASK = 0x1F;
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
     const uns32 POSTFIX_LENGTH_MASK = 0x1F;
+        // TRANSLATE overlaps with PREFIX and POSTFIX.
 
     inline uns32 call_length ( uns32 operation )
     {
@@ -525,10 +524,18 @@ namespace ll { namespace lexeme {
     inline uns32 CALL ( uns32 call_length )
     {
         assert
-	  ( call_length <= CALLRETURN_LENGTH_MASK );
-	return KEEP_FLAG
+	  ( call_length <= CALL_LENGTH_MASK );
+	return CALL_FLAG
 	     + (    call_length
-	         << KEEP_LENGTH_SHIFT );
+	         << CALL_LENGTH_SHIFT );
+    }
+    inline uns32 RETURN ( uns32 return_length )
+    {
+        assert
+	  ( return_length <= RETURN_LENGTH_MASK );
+	return RETURN_FLAG
+	     + (    return_length
+	         << RETURN_LENGTH_SHIFT );
     }
     inline uns32 KEEP ( uns32 keep_length )
     {

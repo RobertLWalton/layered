@@ -72,7 +72,7 @@ Cooked Program 2:
         10: ATOM_TABLE
             Mode: TYPE (5)
             Dispatcher ID: 132
-            KEEP(0), RETURN
+            KEEP(0), RETURN(0)
         14: ATOM_TABLE
             Mode: TYPE (6)
             Dispatcher ID: 272
@@ -90,7 +90,7 @@ Cooked Program 2:
             \t-\r \~
                 GOTO(6)
             A-Z \\ a-z
-                KEEP(0), CALL(10)
+                KEEP(0), CALL(0)(10)
             . 0-9
                 KEEP(0), GOTO(14)
             (-) , ; [ ] { }
@@ -232,13 +232,13 @@ Start atom scan: atom table = 18
 Scan Returned TYPE (7) Input Buffer: * Translation: *
 Start atom scan: atom table = 2
   Character = a Dispatcher = 58 Type Map = 22 CType = 2
-  KEEP(0), CALL(10)
+  KEEP(0), CALL(0)(10)
 Start atom scan: atom table = 10
   Character = a Dispatcher = 132 Type Map = 22 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
   Character = * Dispatcher = 132 Type Map = 22 CType = 6
-  KEEP(0), RETURN
+  KEEP(0), RETURN(0)
 Scan Returned TYPE (5) Input Buffer: a Translation: a
 Start atom scan: atom table = 2
   Character = * Dispatcher = 58 Type Map = 22 CType = 6
@@ -256,13 +256,13 @@ Start atom scan: atom table = 18
 Scan Returned TYPE (7) Input Buffer: * Translation: *
 Start atom scan: atom table = 2
   Character = b Dispatcher = 58 Type Map = 22 CType = 2
-  KEEP(0), CALL(10)
+  KEEP(0), CALL(0)(10)
 Start atom scan: atom table = 10
   Character = b Dispatcher = 132 Type Map = 22 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
   Character = + Dispatcher = 132 Type Map = 22 CType = 6
-  KEEP(0), RETURN
+  KEEP(0), RETURN(0)
 Scan Returned TYPE (5) Input Buffer: b Translation: b
 Start atom scan: atom table = 2
   Character = + Dispatcher = 58 Type Map = 22 CType = 6
@@ -282,13 +282,13 @@ Start atom scan: atom table = 18
 Scan Returned TYPE (7) Input Buffer: + Translation: +
 Start atom scan: atom table = 2
   Character = c Dispatcher = 58 Type Map = 22 CType = 2
-  KEEP(0), CALL(10)
+  KEEP(0), CALL(0)(10)
 Start atom scan: atom table = 10
   Character = c Dispatcher = 132 Type Map = 22 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
   Character = ( Dispatcher = 132 Type Map = 22 CType = 5
-  KEEP(0), RETURN
+  KEEP(0), RETURN(0)
 Scan Returned TYPE (5) Input Buffer: c Translation: c
 Start atom scan: atom table = 2
   Character = ( Dispatcher = 58 Type Map = 22 CType = 5
@@ -304,7 +304,7 @@ Start atom scan: atom table = 18
 Scan Returned TYPE (7) Input Buffer: + Translation: +
 Start atom scan: atom table = 2
   Character = d Dispatcher = 58 Type Map = 22 CType = 2
-  KEEP(0), CALL(10)
+  KEEP(0), CALL(0)(10)
 Start atom scan: atom table = 10
   Character = d Dispatcher = 132 Type Map = 22 CType = 2
   ACCEPT
@@ -317,7 +317,7 @@ Start atom scan: atom table = 10
   ACCEPT
 Start atom scan: atom table = 10
   Character = % Dispatcher = 132 Type Map = 22 CType = 0
-  KEEP(0), RETURN
+  KEEP(0), RETURN(0)
 Scan Returned TYPE (5) Input Buffer: d\u007Fe Translation: de
 Start atom scan: atom table = 2
   Character = % Dispatcher = 58 Type Map = 22 CType = 0
@@ -325,7 +325,7 @@ Start atom scan: atom table = 2
 Scan Returned ERROR Input Buffer: % Translation: %
 Start atom scan: atom table = 2
   Character = f Dispatcher = 58 Type Map = 22 CType = 2
-  KEEP(0), CALL(10)
+  KEEP(0), CALL(0)(10)
 Start atom scan: atom table = 10
   Character = f Dispatcher = 132 Type Map = 22 CType = 2
   ACCEPT
@@ -334,7 +334,7 @@ Start atom scan: atom table = 10
   ACCEPT
 Start atom scan: atom table = 10
   Character = - Dispatcher = 132 Type Map = 22 CType = 6
-  KEEP(0), RETURN
+  KEEP(0), RETURN(0)
 Scan Returned TYPE (5) Input Buffer: f0 Translation: f0
 Start atom scan: atom table = 2
   Character = - Dispatcher = 58 Type Map = 22 CType = 6
@@ -383,7 +383,7 @@ Start atom scan: atom table = 2
 Scan Returned ERROR Input Buffer: \u0001 Translation: \u0001
 Start atom scan: atom table = 2
   Character = A Dispatcher = 58 Type Map = 22 CType = 2
-  KEEP(0), CALL(10)
+  KEEP(0), CALL(0)(10)
 Start atom scan: atom table = 10
   Character = A Dispatcher = 132 Type Map = 22 CType = 2
   ACCEPT
@@ -412,7 +412,7 @@ Start atom scan: atom table = 10
   Character = D Dispatcher = 132 Type Map = 22 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  KEEP(0), RETURN
+  KEEP(0), RETURN(0)
 Scan Returned TYPE (5) Input Buffer: A\\102C\\100D Translation: ABCD
 Start atom scan: atom table = 2
 Scan Returned END_OF_FILE

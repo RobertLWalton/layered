@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 06:04:37 EDT 2010
+// Date:	Wed Aug 11 08:51:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -469,9 +469,9 @@ namespace ll { namespace lexeme {
     //
     const uns32 CALL_LENGTH_SHIFT = 12;
     const uns32 CALL_LENGTH_MASK = 0xF;
-    const uns32 RETURN_LENGTH_SHIFT = 13;
-    const uns32 RETURN_LENGTH_MASK = 0xF;
-        // CALL and RETURN overlap.
+    const uns32 RETURN_INDEX_SHIFT = 13;
+    const uns32 RETURN_INDEX_MASK = 0xF;
+        // CALL_LENGTH and RETURN_INDEX overlap.
     const uns32 KEEP_LENGTH_SHIFT = 16;
     const uns32 KEEP_LENGTH_MASK = 0x3F;
     const uns32 TRANSLATE_LENGTH_SHIFT = 22;
@@ -480,7 +480,8 @@ namespace ll { namespace lexeme {
     const uns32 PREFIX_LENGTH_MASK = 0x1F;
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
     const uns32 POSTFIX_LENGTH_MASK = 0x1F;
-        // TRANSLATE overlaps with PREFIX and POSTFIX.
+        // TRANSLATE_LENGTH overlaps with PREFIX_LENGTH
+	// and POSTFIX_LENGTH.
 
     inline uns32 call_length ( uns32 operation )
     {
@@ -488,11 +489,11 @@ namespace ll { namespace lexeme {
 	       &
 	       CALL_LENGTH_MASK;
     }
-    inline uns32 return_length ( uns32 operation )
+    inline uns32 return_index ( uns32 operation )
     {
-        return ( operation >> RETURN_LENGTH_SHIFT )
+        return ( operation >> RETURN_INDEX_SHIFT )
 	       &
-	       RETURN_LENGTH_MASK;
+	       RETURN_INDEX_MASK;
     }
     inline uns32 keep_length ( uns32 operation )
     {
@@ -529,13 +530,13 @@ namespace ll { namespace lexeme {
 	     + (    call_length
 	         << CALL_LENGTH_SHIFT );
     }
-    inline uns32 RETURN ( uns32 return_length )
+    inline uns32 RETURN ( uns32 return_index )
     {
         assert
-	  ( return_length <= RETURN_LENGTH_MASK );
+	  ( return_index <= RETURN_INDEX_MASK );
 	return RETURN_FLAG
-	     + (    return_length
-	         << RETURN_LENGTH_SHIFT );
+	     + (    return_index
+	         << RETURN_INDEX_SHIFT );
     }
     inline uns32 KEEP ( uns32 keep_length )
     {

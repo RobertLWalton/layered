@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  7 03:57:04 EDT 2010
+// Date:	Tue Aug 10 21:01:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -139,7 +139,8 @@ uns32 LEX::create_instruction
 	  uns32 type,
 	  uns32 * translation_vector,
 	  uns32 else_dispatcher_ID,
-	  uns32 else_instruction_ID )
+	  uns32 else_instruction_ID,
+	  uns32 * return_vector )
 {
     assert ( (   operation
                & ( ERRONEOUS_ATOM + OUTPUT ) )
@@ -159,11 +160,28 @@ uns32 LEX::create_instruction
              ||
 	     ( operation & TRANSLATE_OCT_FLAG ) );
 
-    if ( operation & GOTO )
-        assert ( atom_table_ID != 0 );
+    assert ( ( ( operation & GOTO ) != 0 )
+             +
+	     ( ( operation & CALL_FLAG ) != 0 )
+             +
+	     ( ( operation & RETURN_FLAG ) != 0 )
+	     <= 1 );
 
-    if ( ( operation & ( GOTO | CALLRETURN ) ) == 0 )
+    uns32 call_length = ( operation & CALL_FLAG ) ?
+                        call_length ( operation ) :
+			0;
+
+    if ( ( operation & GOTO ) != 0
+         ||
+	 call_length == 1 )
+        assert ( atom_table_ID != 0 );
+    else
         assert ( atom_table_ID == 0 );
+
+    if ( call_length > 1 )
+        assert ( return_vector != NULL );
+    else
+        assert ( return_vector == NULL );
 
     if ( operation & ( ERRONEOUS_ATOM + OUTPUT ) )
         assert ( type != 0 );
@@ -188,28 +206,39 @@ uns32 LEX::create_instruction
     uns32 ID = program.allocate
     	(   instruction_header_length
 	  + translate_length
-	  + ( ( operation & ELSE ) ? 2 : 0 ) );
+	  + ( ( operation & ELSE ) ? 2 : 0 )
+	  + call_length );
     instruction_header & h =
         * (instruction_header *) & program[ID];
     h.pctype = INSTRUCTION;
     h.operation = operation;
     h.atom_table_ID = atom_table_ID;
     h.type = type;
+
+    uns32 * p = (uns32 *) ( & h + 1 );
+
     if ( translate_length > 0 )
     {
 	assert ( translation_vector != NULL );
-	uns32 * p = (uns32 *) ( & h + 1 );
 	while ( translate_length -- )
 	    * p ++ = * translation_vector ++;
     }
-    else if ( operation & ELSE )
+
+    if ( operation & ELSE )
     {
         else_instruction & ei =
-	    * (else_instruction *)
-	    & program[ID + instruction_header_length];
+	    * (else_instruction *) p;
 	ei.else_dispatcher_ID = else_dispatcher_ID;
 	ei.else_instruction_ID = else_instruction_ID;
+	p += else_instruction_length;
     }
+
+    if ( call_length == 1 )
+        * p ++ = atom_table_ID;
+    else if ( call_length > 1 )
+        while ( call_length -- )
+	    * p ++ = * return_vector ++;
+
     return ID;
 }
 

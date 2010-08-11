@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 09:38:07 EDT 2010
+// Date:	Wed Aug 11 16:28:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,7 +58,7 @@
 //
 //   <atom-table-name> ::= C++ variable name
 //	// Atom tables must be declared first to
-//      // avoid forward references in jump and
+//      // avoid forward references in go and
 //      // call statements.
 //
 //   <mode> ::= MASTER | <type-name>
@@ -187,20 +187,32 @@
 //		// middle of a lexeme.
 //
 //    <transfer-component> ::=
-//	  | NDL::jump ( <atom-table-name> );
+//	  | NDL::go ( <atom-table-name> );
 //		// Go to atom table.  If switching from
 //		// non-master to master table and there
 //		// is no instruction `output()'
 //		// component, output the accumulated
 //		// lexeme with type of the table being
 //		// gone from.
-//	  | NDL::call ( <atom-table-name> );
-//		// Like jump but allows return.
-//		// Atom table gone to cannot be MASTER.
-//	  | NDL::ret();
-//		// Goto to table at top of return stack.
-//		// Return stack is cleard when a MASTER
-//		// table is gone to.
+//	  | NDL::call ( <atom-table-name>,
+//			<atom-table-name-1>,
+//			<atom-table-name-2>, ... );
+//		// Like `go' but allows return to the
+//		// atom table containing the instruction
+//		// with the `call' component via
+//		// return(0), or to one of the atom-
+//		// table-n values via return(n).  The
+//		// atom table called cannot have mode
+//		// MASTER.  A return stack entry holds
+//		// the ID of the atom table containing
+//		// the instruction with the `call' com-
+//		// ponent, plus the ID of that instruc-
+//		// tion.
+//	  | NDL::ret ( <n> );
+//		// See `call' above.  The return stack
+//		// is popped.  The return stack is
+//		// cleared when a MASTER table is gone
+//		// to by any means.
 //
 //    <else-instruction> ::=
 //	  NDL::else_if_not ( <character-pattern-name> );
@@ -271,9 +283,23 @@ namespace ll { namespace lexeme { namespace ndl {
 
     void output ( uns32 type_name );
 
-    void jump ( uns32 atom_table_name );
+    void go ( uns32 atom_table_name );
     void call ( uns32 atom_table_name );
-    void ret ( void );
+    void call ( uns32 atom_table_name,
+                uns32 atom_table_name );
+    void call ( uns32 atom_table_name,
+                uns32 atom_table_name,
+                uns32 atom_table_name );
+    void call ( uns32 atom_table_name,
+                uns32 atom_table_name,
+                uns32 atom_table_name,
+                uns32 atom_table_name );
+    void call ( uns32 atom_table_name,
+                uns32 atom_table_name,
+                uns32 atom_table_name,
+                uns32 atom_table_name,
+                uns32 atom_table_name );
+    void ret ( uns32 return_index );
 
     void else_if_not ( uns32 character_pattern_name );
 

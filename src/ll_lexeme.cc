@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 08:35:35 EDT 2010
+// Date:	Wed Aug 11 19:00:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1059,10 +1059,24 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 		current_atom_table_ID =
 		    ih.atom_table_ID;
-		assert
-		    (    program
-			     [current_atom_table_ID]
-		      == ATOM_TABLE );
+
+		atom_table_header & cath =
+		    * (atom_table_header *)
+		    & program[current_atom_table_ID];
+		assert ( cath.pctype == ATOM_TABLE );
+		if ( cath.mode == MASTER )
+		{
+		    sprintf
+			( scan_error ( length ),
+			  "CALL in"
+			  " instruction %d"
+			  " executed by atom table"
+			  " %d targets MASTER atom"
+			  " table",
+			  instruction_ID,
+			  current_atom_table_ID );
+		    return SCAN_ERROR;
+		}
 	    }
 	    else if ( op & GOTO )
 	    {

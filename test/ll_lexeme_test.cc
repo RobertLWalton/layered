@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 09:39:07 EDT 2010
+// Date:	Thu Aug 12 08:10:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -603,7 +603,7 @@ void test_program ( uns32 * input, uns32 length )
 
 int main ( int argc )
 {
-    LEX::read_input_function = & ::read_input;
+    LEX::read_input = & ::read_input;
 
     create_program_1();
     create_program_2();

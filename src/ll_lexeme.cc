@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 19:00:57 EDT 2010
+// Date:	Thu Aug 12 08:10:45 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Program Construction
 //	Scanning
+//	Reading
 //	Printing
 
 // Usage and Setup
@@ -34,7 +35,6 @@ using namespace LEX;
 using namespace LEX::program_data;
 
 char LEX::error_message[1000];
-LEX::uns32 (* LEX::read_input_function) ( void );
 
 // Program Construction
 // ------- ------------
@@ -719,7 +719,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	    if ( next + length >= input_buffer.length
 	         &&
-		 ! read_input() )
+		 ! (*read_input)() )
 	    {
 	        // End of file.
 		//
@@ -1169,6 +1169,123 @@ static char * scan_error ( uns32 length, uns32 next )
     * p ++ = '\n';
     return p;
 }
+
+// Reading
+// -------
+
+static uns32 default_read_input ( void )
+{
+    uns32 i = input_buffer.allocate ( 100 );
+    uns32 endi = i + 100;
+    while ( i < endi )
+    {
+        int c = read_input_istream->get();
+	unsigned bytes_read = 1;
+
+	if ( c == EOF )
+	{
+	    input_buffer.deallocate ( endi - i );
+	    return ( endi - i < 100 );
+	}
+
+	c &= 0xFF;
+
+	uns32 unicode = c;
+	unsigned extra_characters = 0;
+	if ( c <= 0x7F ) ; // Do nothing;
+	else if ( c < 0xE0 )
+	{
+	    unicode &= 0x1F;
+	    extra_characters = 1;
+	}
+	else if ( c < 0xF0 )
+	{
+	    unicode &= 0x0F;
+	    extra_characters = 2;
+	}
+	else if ( c < 0xF8 )
+	{
+	    unicode &= 0x07;
+	    extra_characters = 3;
+	}
+	else if ( c < 0xFC )
+	{
+	    unicode &= 0x03;
+	    extra_characters = 4;
+	}
+	else if ( c < 0xFE )
+	{
+	    unicode &= 0x01;
+	    extra_characters = 5;
+	}
+	else if ( c < 0xFF )
+	{
+	    unicode &= 0x00;
+	    extra_characters = 6;
+	}
+	else
+	{
+	    unicode = 0xFFFFFFFF;
+	}
+
+	while ( extra_characters -- )
+	{
+	    c = read_input_istream->get();
+
+	    if ( c == EOF )
+	    {
+	        unicode = 0xFFFFFFFF;
+		break;
+	    }
+
+	    ++ bytes_read;
+	    
+	    c &= 0xFF;
+	    if ( c < 0x80 || 0xBF < c )
+	    {
+	        unicode = 0xFFFFFFFF;
+		break;
+	    }
+	    unicode <<= 6;
+	    unicode |= ( c & 0x3F );
+	}
+
+	read_input_inchar.character = unicode;
+	input_buffer[i++] = read_input_inchar;
+
+	read_input_inchar.index += bytes_read;
+
+	switch ( unicode )
+	{
+	case '\n':
+	    ++ read_input_inchar.line;
+	    read_input_inchar.column = 0;
+	    read_input_inchar.index = 0;
+	    break;
+
+	case '\f':
+	case '\v':
+	    read_input_inchar.column = 0;
+	    break;
+
+	case '\t':
+	    read_input_inchar.column +=
+	        8 - read_input_inchar.column % 8;
+	    break;
+
+	default:
+	    ++ read_input_inchar.column;
+	    break;
+	}
+    }
+    return 1;
+}
+
+LEX::uns32 (* LEX::read_input) ( void ) =
+    ::default_read_input;
+std::istream * LEX::read_input_istream =
+    & std::cin;
+LEX::inchar LEX::read_input_inchar;
 
 // Printing
 // --------

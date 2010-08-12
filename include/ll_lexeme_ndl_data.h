@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 09:38:19 EDT 2010
+// Date:	Thu Aug 12 02:04:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,9 +42,9 @@ namespace ll { namespace lexeme
     // instructions to the instructions stack.
     //
     // When the dispatchers and instructions stacks are
-    // popped, the uns32_stack has the following in order,
-    // where d is the dispatcher at the top of the
-    // dispatchers stack before popping that stack:
+    // popped, the uns32_stack has the following in
+    // order, where d is the dispatcher at the top of
+    // the dispatchers stack before popping that stack:
     //    
     //	  d.type_map_count pairs from add_characters
     //        calls for this dispatcher:
@@ -62,6 +62,8 @@ namespace ll { namespace lexeme
     //    for each instruction in the instruction stack,
     //	      translate_length uns32's giving the
     //	      translate vector in memory order
+    //	      followed by call_length uns32's giving
+    //        the return_vector in memory order
     //
     // Popping a dispatcher pops an instruction from
     // the instruction stack and removes the instruction

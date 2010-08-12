@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 16:28:41 EDT 2010
+// Date:	Thu Aug 12 02:04:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -156,7 +156,8 @@
 //              // the translation buffer instead of
 //		// the atom.
 //	  | NDL::translate
-//                  ( <n>, <UNICODE-translation-string> );
+//                  ( <n>,
+//                    <UNICODE-translation-string> );
 //		// Ditto but for <n> UNICODE character
 //              // string.
 //	  | NDL::translate_oct ( <m>, <n> );
@@ -195,24 +196,28 @@
 //		// lexeme with type of the table being
 //		// gone from.
 //	  | NDL::call ( <atom-table-name>,
-//			<atom-table-name-1>,
-//			<atom-table-name-2>, ... );
+//			<n>, <return-vector> );
 //		// Like `go' but allows return to the
 //		// atom table containing the instruction
 //		// with the `call' component via
-//		// return(0), or to one of the atom-
-//		// table-n values via return(n).  The
-//		// atom table called cannot have mode
-//		// MASTER.  A return stack entry holds
-//		// the ID of the atom table containing
-//		// the instruction with the `call' com-
-//		// ponent, plus the ID of that instruc-
-//		// tion.
-//	  | NDL::ret ( <n> );
+//		// return(0), or to <return-vector>[i]
+//		// via return(i).  The atom table called
+//              // cannot have mode MASTER.  A return
+//              // stack entry holds the ID of the atom
+//		// table containing the instruction with
+//              // the `call' component, plus the ID of
+//              // that instruction.  The return stack
+//		// depth is limited so recursive calls
+//              // are not allowed.
+//	  | NDL::ret ( <i> );
 //		// See `call' above.  The return stack
 //		// is popped.  The return stack is
 //		// cleared when a MASTER table is gone
 //		// to by any means.
+//
+//     <return-vector> ::= C++ const uns32 * vector of
+//			   <atom-table-name>s
+//     <i> ::= C++ uns32 integer
 //
 //    <else-instruction> ::=
 //	  NDL::else_if_not ( <character-pattern-name> );
@@ -284,22 +289,10 @@ namespace ll { namespace lexeme { namespace ndl {
     void output ( uns32 type_name );
 
     void go ( uns32 atom_table_name );
-    void call ( uns32 atom_table_name );
     void call ( uns32 atom_table_name,
-                uns32 atom_table_name );
-    void call ( uns32 atom_table_name,
-                uns32 atom_table_name,
-                uns32 atom_table_name );
-    void call ( uns32 atom_table_name,
-                uns32 atom_table_name,
-                uns32 atom_table_name,
-                uns32 atom_table_name );
-    void call ( uns32 atom_table_name,
-                uns32 atom_table_name,
-                uns32 atom_table_name,
-                uns32 atom_table_name,
-                uns32 atom_table_name );
-    void ret ( uns32 return_index );
+                uns32 n = 0,
+		const uns32 * return_vector = NULL );
+    void ret ( uns32 i );
 
     void else_if_not ( uns32 character_pattern_name );
 

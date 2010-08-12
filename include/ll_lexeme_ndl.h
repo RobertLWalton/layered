@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 02:46:05 EDT 2010
+// Date:	Thu Aug 12 04:16:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,8 @@
 // error messages (only a macro can do this) and ends
 // with `ll::lexeme::ndl' to qualify the following name.
 //
+// Note: None of the NDL::... functions return a value.
+//
 //   <ndl-program> ::=
 //      using ll::lexeme::ndl::MASTER;
 //      using ll::lexeme::ndl::OTHER;
@@ -53,8 +55,9 @@
 //		    | <character-pattern-declaration>
 //
 //   <atom-table-declaration> ::=
-//	uns32 <atom-table-name> =
-//	    NDL::new_atom_table ( <mode> );
+//       uns32 <atom_table-name>;
+//	 NDL::new_atom_table ( <atom_table-name>,
+//                             [<mode>] );
 //
 //   <atom-table-name> ::= C++ variable name
 //	// Atom tables must be declared first to
@@ -248,12 +251,16 @@ namespace ll { namespace lexeme { namespace ndl {
 
 #   define NDL (ll::lexeme::ndl::file = __FILE__, \
                 ll::lexeme::ndl::line = __LINE__), \
-	       lexeme::ndl
+	       ll::lexeme::ndl
+
+    // Warning: NDL does NOT permit return values, so
+    // all of the below must have void return type.
 
     void begin_program ( void );
     void end_program ( void );
 
-    uns32 new_atom_table ( uns32 mode );
+    void new_atom_table
+        ( uns32 & atom_table_name, uns32 mode = 0 );
 
     void begin_character_pattern
 	( uns32 & character_pattern_name,

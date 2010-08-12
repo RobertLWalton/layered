@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 19:08:29 EDT 2010
+// Date:	Thu Aug 12 08:08:16 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	External Interface
 //	Program Construction
 //	Scanning
+//	Reading
 //	Printing
 
 // Usage and Setup
@@ -177,54 +178,6 @@ namespace ll { namespace lexeme {
     // characters.
     //
     extern buffer<uns32> & translation_buffer;
-
-    // Input one or more inchar elements to the end
-    // of the input buffer vector, increasing the length
-    // of the buffer.  Return 1 if this is done, and 0
-    // if there are no more characters because we are
-    // at the end of file.
-    //
-    extern uns32 (*read_input_function) ( void );
-    inline uns32 read_input ( void )
-    {
-        return (*read_input_function)();
-    }
-
-    // Default read_input_function.  This function reads
-    // UTF-8 characters from the standard input.  It
-    // assigns line, index, and column as follows:
-    //
-    //	   line		starts at 0
-    //			incremented by 1 after a line
-    //			  feed is added to the input
-    //			  buffer
-    //			
-    //	   index	index of character within line
-    //			(treating the line as a uns8 *
-    //			vector)
-    //			starts at 0
-    //			set to 0 after a line feed is
-    //			  added to the input buffer
-    //			incremented by the number of
-    //			  UTF-8 characters that encode
-    //			  the UNICODE character after
-    //			  every non-line-feed UNICODE
-    //			  character is added to the
-    //			  input buffer
-    //
-    //	   column	first column of character
-    //			starts at 0
-    //			zeroed after adding a line feed,
-    //			  form feed, or vertical tab to
-    //			  the input buffer
-    //		 	set to next multiple of 8 after
-    //			  adding a tab to the input
-    //			  buffer
-    //			incremented by 1 after adding
-    //			  any other single UNICODE
-    //			  character to the input buffer
-    //
-    uns32 default_read_input ( void );
 } }
 
 // Program Construction
@@ -684,6 +637,62 @@ namespace ll { namespace lexeme {
     //
     uns32 scan
             ( uns32 & first, uns32 & last );
+} }
+
+// Reading
+// -------
+
+namespace ll { namespace lexeme {
+
+    // Input one or more inchar elements to the end
+    // of the input buffer vector, increasing the length
+    // of the buffer.  Return 1 if this is done, and 0
+    // if there are no more characters because we are
+    // at the end of file.  Initialized to the default
+    // value described below.
+    //
+    extern uns32 (*read_input) ( void );
+
+    // The default value of read_input reads UTF-8 char-
+    // acters from the read_input_istream and assigns
+    // the UNICODE characters produced the line, index,
+    // and column numbers in read_input_inchar.  After
+    // putting a UNICODE character into the input_
+    // buffer, the line, index, and column numbers in
+    // read_input_inchar are updated as follows:
+    //
+    //	   line	    Incremented by 1 after a line feed
+    //		    is added to the input buffer.
+    //			
+    //	   index    Set to 0 after a line feed is added
+    //		    to the input buffer; otherwise
+    //		    incremented by the number of UTF-8
+    //              bytes that encode the UNICODE
+    //              character added to the input buffer.
+    //
+    //	   column   Set to 0 after adding a line feed,
+    //		    form feed, or vertical tab to the
+    //              input buffer; set to next multiple
+    //              of 8 after adding a tab to the input
+    //		    buffer; incremented by the character
+    //		    width after adding any other UNICODE
+    //		    character to the input buffer.
+    //
+    // Read_input_istream is initialized to `& cin' and
+    // read_input_inchar is initialized to all zeroes.
+    //
+    // It is possible to save the state of the input
+    // and restore it by saving and restoring the
+    // contents of:
+    //
+    //		input_buffer
+    //		read_input
+    //		read_input_istream
+    //		read_input_inchar
+    //
+    extern std::istream * read_input_istream;
+    extern inchar read_input_inchar;
+
 } }
 
 // Printing

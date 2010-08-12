@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 02:04:42 EDT 2010
+// Date:	Thu Aug 12 02:46:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -292,7 +292,7 @@ namespace ll { namespace lexeme { namespace ndl {
     void call ( uns32 atom_table_name,
                 uns32 n = 0,
 		const uns32 * return_vector = NULL );
-    void ret ( uns32 i );
+    void ret ( uns32 i = 0 );
 
     void else_if_not ( uns32 character_pattern_name );
 

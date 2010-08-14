@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 04:05:39 EDT 2010
+// Date:	Sat Aug 14 15:29:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,13 +19,40 @@
 # include <ll_lexeme_ndl.h>
 # include <ll_lexeme_standard.h>
 using namespace ll::lexeme::ndl;
+# define LEX ll::lexeme
 
 // Program Construction
 // ------- ------------
 
+static const uns32 MAX_TYPE = 14;
+static const char * type_name[MAX_TYPE+1] = {
+    "WORD",
+    "NATURAL_NUMBER",
+    "NUMBER",
+    "MARK",
+    "QUOTED_STRING",
+    "SEPARATOR",
+    "COMMENT",
+    "HORIZONTAL_SPACE",
+    "LINE_BREAK",
+    "END_OF_FILE",
+    "BAD_END_OF_LINE",
+    "BAD_END_OF_FILE",
+    "BAD_CHARACTER",
+    "BAD_ESCAPE_SEQUENCE" };
+
+void add_non_ascii_letters ( void )
+{
+}
+
 void ll::lexeme::standard::create_standard_program
 	( void )
 {
+    // Set up type names.
+    //
+    LEX::type_name = ::type_name;
+    LEX::max_type = ::MAX_TYPE;
+
     //// begin standard lexical program;
     //// 
     NDL::begin_program();
@@ -218,7 +245,7 @@ void ll::lexeme::standard::create_standard_program
 		NDL::call ( word_atom_table );
 	    NDL::end_dispatch();
 
-	    NDL::output ( sep_t );
+	    NDL::output ( separator_t );
 	NDL::end_dispatch();
 
     ////     "\\<u-char>"
@@ -252,7 +279,7 @@ void ll::lexeme::standard::create_standard_program
     ////    //
     ////    "<digit>" keep 0 call natural number;
     //
-    	NDL::begin_dispatch ( cp_mark );
+    	NDL::begin_dispatch ( cp_digit );
 	    NDL::keep(0);
 	    NDL::call ( natural_number_atom_table );
 	NDL::end_dispatch();
@@ -260,11 +287,11 @@ void ll::lexeme::standard::create_standard_program
     ////    ".<digit>" keep 1 call number;
     //// 
     	NDL::begin_dispatch ( "." );
-	    NDL::call ( mark_atom_table );
 	    NDL::begin_dispatch ( "." );
 		NDL::keep(1);
 		NDL::call ( number_atom_table );
 	    NDL::end_dispatch();
+	    NDL::call ( mark_atom_table );
 	NDL::end_dispatch();
 
     ////    "<separator-char>" output separator;
@@ -272,7 +299,7 @@ void ll::lexeme::standard::create_standard_program
     //
     	NDL::begin_dispatch ( cp_separator );
 	    NDL::add_characters ( "," );
-	    NDL::output ( sep_t );
+	    NDL::output ( separator_t );
 	NDL::end_dispatch();
 
     ////    "'" output separator;    // "'<non-letter>"

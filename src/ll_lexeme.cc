@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 08:10:45 EDT 2010
+// Date:	Sat Aug 14 06:47:48 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -620,10 +620,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // to continue.  We just immediately return
     // SCAN_ERROR after writing error_message.
     //
-    // If we encounter an end of file when next == first
-    // and we have not scanned a partial atom we
-    // immediately return END_OF_FILE.  Otherwise we end
-    // the current atom (which might be of zero length).
+    // If we encounter an end of file we end the current
+    // atom (which might be of zero length).
     //
     // We decrement loop_count whenever we find no atom
     // and signal a scan error if it goes to zero.  We
@@ -655,13 +653,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    * (atom_table_header *)
 	    & program[current_atom_table_ID];
 
-	if ( last_mode != MASTER
-	     &&
-	     cath.mode == MASTER
-	     &&
-	     first != next )
-	    break;
-
 	if ( output_type != 0 )
 	{
 	    if ( cath.mode != MASTER )
@@ -677,6 +668,13 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	    break;
 	}
+
+	if ( last_mode != MASTER
+	     &&
+	     cath.mode == MASTER
+	     &&
+	     first != next )
+	    break;
 
 	if ( cath.mode == MASTER )
 	    return_stack_p = return_stack;
@@ -720,13 +718,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    if ( next + length >= input_buffer.length
 	         &&
 		 ! (*read_input)() )
-	    {
-	        // End of file.
-		//
-		if ( next + length == first )
-		    return END_OF_FILE;
-		else break;
-	    }
+	        break; // End of file.
 
 	    assert
 	        ( next + length < input_buffer.length );
@@ -1113,7 +1105,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     switch ( type )
     {
     case MASTER:
-    case END_OF_FILE:
     case SCAN_ERROR:
     {
 	int count = sprintf ( error_message,
@@ -1348,18 +1339,22 @@ int LEX::spinput
     return p - buffer;
 }
 
+const char * const * LEX::type_name = NULL;
+LEX::uns32 LEX::max_type = 0;
+
 int LEX::spmode ( char * buffer, uns32 mode )
 {
+
+    if (    LEX::type_name != NULL
+         && mode <= LEX::max_type
+         && LEX::type_name[mode] != NULL )
+        return sprintf
+	    ( buffer, "%s", LEX::type_name[mode] );
+        
     switch ( mode )
     {
-    case WHITESPACE:
-	return sprintf ( buffer, "WHITESPACE" );
-    case ERROR:
-	return sprintf ( buffer, "ERROR" );
     case MASTER:
 	return sprintf ( buffer, "MASTER" );
-    case END_OF_FILE:
-	return sprintf ( buffer, "END_OF_FILE" );
     case SCAN_ERROR:
 	return sprintf ( buffer, "SCAN_ERROR" );
     default:

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 08:10:15 EDT 2010
+// Date:	Sat Aug 14 07:00:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,25 @@ using LEX::OUTPUT;
 using LEX::GOTO;
 using LEX::CALL;
 using LEX::RETURN;
+
+enum {
+    WHITESPACE,
+    ERROR,
+    END_OF_FILE,
+    SYMBOL,
+    NUMBER,
+    OPERATOR,
+    SEPARATOR,
+    MAX_TYPE = SEPARATOR };
+static const char * const type_name[MAX_TYPE+1] = {
+   "WHITESPACE",
+   "ERROR",
+   "END_OF_FILE",
+   "SYMBOL",
+   "NUMBER",
+   "OPERATOR",
+   "SEPARATOR" };
+
 
 // External Runtime
 // -------- -------
@@ -175,7 +194,7 @@ static void create_program_1 ( void )
     uns32 master = LEX::create_program();
 
     uns32 atable1 =
-        LEX::create_atom_table ( 5 );
+        LEX::create_atom_table ( SYMBOL );
     uns32 dispatcher1 =
         LEX::create_dispatcher ( 10, 4 );
     uns8 map1[10] = { 0, 1, 2, 3, 4, 5, 4, 3, 2, 1 };
@@ -214,15 +233,13 @@ static void create_program_2 ( void )
 
     uns32 master = LEX::create_program();
     uns32 whitespace =
-        LEX::create_atom_table ( LEX::WHITESPACE );
+        LEX::create_atom_table ( WHITESPACE );
     uns32 symbol =
-        LEX::create_atom_table ( 5 );
+        LEX::create_atom_table ( SYMBOL );
     uns32 number =
-        LEX::create_atom_table ( 6 );
+        LEX::create_atom_table ( NUMBER );
     uns32 oper =
-        LEX::create_atom_table ( 7 );
-    uns32 separator = 8;
-        // Separator type for OUTPUT.
+        LEX::create_atom_table ( OPERATOR );
 
     const uns8 white = 1;
     const uns8 letter = 2;
@@ -232,6 +249,11 @@ static void create_program_2 ( void )
     const uns8 op = 6;
     const uns8 escape = 7;
     const uns8 err_atom = 8;
+
+    uns32 end_of_file_instruction =
+        LEX::create_instruction
+	    ( ACCEPT+OUTPUT, 0, END_OF_FILE );
+    check_attach ( master, end_of_file_instruction );
 
     uns8 cmap[128] =
         {
@@ -384,10 +406,10 @@ static void create_program_2 ( void )
 	    ( KEEP(0)+GOTO, oper );
     uns32 separator_instruction =
         LEX::create_instruction
-	    ( ACCEPT+OUTPUT, 0, separator );
+	    ( ACCEPT+OUTPUT, 0, SEPARATOR );
     uns32 error_instruction =
         LEX::create_instruction
-	    ( ACCEPT+OUTPUT, 0, LEX::ERROR );
+	    ( ACCEPT+OUTPUT, 0, ERROR );
     uns32 err_atom_instruction =
         LEX::create_instruction
 	    ( ERRONEOUS_ATOM+TRANSLATE(0), 0, 100 );
@@ -467,7 +489,7 @@ static void create_program_2 ( void )
     check_attach ( oct_dispatcher3,
                    1, translate_oct_instruction );
 
-    uns32 fraction = LEX::create_atom_table ( 6 );
+    uns32 fraction = LEX::create_atom_table ( NUMBER );
     uns32 fraction_instruction =
         LEX::create_instruction
 	    ( ACCEPT+GOTO, fraction );
@@ -578,7 +600,7 @@ void test_program ( uns32 * input, uns32 length )
 	uns32 first, last;
         uns32 type = LEX::scan ( first, last );
 	cout << "Scan Returned " << LEX::pmode ( type );
-	if ( type == LEX::END_OF_FILE )
+	if ( type == END_OF_FILE )
 	{
 	    cout << endl;
 	    break;
@@ -604,6 +626,8 @@ void test_program ( uns32 * input, uns32 length )
 int main ( int argc )
 {
     LEX::read_input = & ::read_input;
+    LEX::type_name = ::type_name;
+    LEX::max_type = MAX_TYPE;
 
     create_program_1();
     create_program_2();

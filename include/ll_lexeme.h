@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 08:08:16 EDT 2010
+// Date:	Sat Aug 14 06:28:48 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -219,13 +219,7 @@ namespace ll { namespace lexeme {
 
 	// Return values that are not types or modes.
 	//
-	END_OF_FILE	= 0,
-	SCAN_ERROR	= 1,
-
-        // Standard types:
-	//
-	ERROR		= 2,
-	WHITESPACE	= 3,
+	SCAN_ERROR	= 0xFFFFFFFE,
 
 	// Modes that are not types or return values.
 	//
@@ -424,7 +418,7 @@ namespace ll { namespace lexeme {
     //
     const uns32 CALL_LENGTH_SHIFT = 12;
     const uns32 CALL_LENGTH_MASK = 0xF;
-    const uns32 RETURN_INDEX_SHIFT = 13;
+    const uns32 RETURN_INDEX_SHIFT = 12;
     const uns32 RETURN_INDEX_MASK = 0xF;
         // CALL_LENGTH and RETURN_INDEX overlap.
     const uns32 KEEP_LENGTH_SHIFT = 16;
@@ -729,6 +723,13 @@ namespace ll { namespace lexeme {
         uns32 c;
 	pchar ( uns32 c ) : c ( c ) {}
     };
+
+    // type_name[t] is the name of lexeme type t, if
+    // type_name != NULL and t <= max_type.  Used by
+    // spmode and pmode below.  Defaults: NULL and 0.
+    // 
+    extern const char * const * type_name;
+    extern uns32 max_type;
 
     // Print the atom table mode or scanner return value
     // into the buffer, and return the number of

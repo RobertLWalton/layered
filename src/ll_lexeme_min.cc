@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 09:36:53 EDT 2010
+// Date:	Sat Aug 14 18:54:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,9 +18,11 @@
 
 # include <min.h>
 # include <ll_lexeme.h>
+# include <ll_lexeme_ndl_data.h>
 
 # define MUP min::unprotected
 # define LEX ll::lexeme
+# define LEXNDLDATA ll::lexeme::ndl::data
 
 // Buffer Implementation
 // ------ --------------
@@ -102,9 +104,9 @@ template void ext_buffer<LEX::uns32>::resize
 template void ext_buffer<LEX::inchar>::resize
 	( LEX::uns32 new_max_length );
 
-ext_buffer<LEX::uns32> ext_program;
-ext_buffer<LEX::inchar> ext_input_buffer;
-ext_buffer<LEX::uns32> ext_translation_buffer;
+static ext_buffer<LEX::uns32> ext_program;
+static ext_buffer<LEX::inchar> ext_input_buffer;
+static ext_buffer<LEX::uns32> ext_translation_buffer;
 
 LEX::buffer<LEX::uns32> & LEX::program =
     ext_program;
@@ -112,3 +114,16 @@ LEX::buffer<LEX::inchar> & LEX::input_buffer =
     ext_input_buffer;
 LEX::buffer<LEX::uns32> & LEX::translation_buffer =
     ext_translation_buffer;
+
+static ext_buffer<LEX::uns32> ext_uns32_stack;
+static ext_buffer<LEXNDLDATA::dispatcher>
+    ext_dispatchers;
+static ext_buffer<LEXNDLDATA::instruction>
+    ext_instructions;
+
+LEX::buffer<LEX::uns32> & LEXNDLDATA::uns32_stack =
+    ext_uns32_stack;
+LEX::buffer<LEXNDLDATA::dispatcher> &
+    LEXNDLDATA::dispatchers = ext_dispatchers;
+LEX::buffer<LEXNDLDATA::instruction>
+    & LEXNDLDATA::instructions = ext_instructions;

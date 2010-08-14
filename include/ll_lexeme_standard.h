@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 08:40:58 EDT 2010
+// Date:	Sat Aug 14 15:29:14 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,7 +35,7 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 number_t		= 3;
     const uns32 mark_t			= 4;
     const uns32 quoted_string_t		= 5;
-    const uns32 sep_t			= 6;
+    const uns32 separator_t		= 6;
 
     const uns32 comment_t		= 7;
     const uns32 horizontal_space_t	= 8;

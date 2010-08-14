@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Aug 11 09:39:17 EDT 2010
+# Date:		Sat Aug 14 19:42:29 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -23,7 +23,9 @@ MIN = ~/min
 #
 OPTIMIZE = -O3
 
-PROGRAMS = ll_lexeme_test ll_lexeme_min_test
+PROGRAMS = ll_lexeme_test \
+           ll_lexeme_min_test \
+           ll_lexeme_standard_test
 
 TESTS = ${PROGRAMS}
 
@@ -147,6 +149,29 @@ ll_lexeme_standard.o:	\
 		../include/ll_lexeme_standard.h
 	g++ -g -I ../include -c \
 	    ../src/ll_lexeme_standard.cc
+
+ll_lexeme_standard_test:		\
+		ll_lexeme_standard_test.cc \
+		ll_lexeme.o \
+		ll_lexeme_min.o \
+		ll_lexeme_ndl.o \
+		ll_lexeme_standard.o \
+		min.o \
+		min_os.o \
+		min_acc.o \
+		Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_min.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    -D LL_NO_DATA_DEFINITIONS=1 \
+	    ll_lexeme_standard_test.cc
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o

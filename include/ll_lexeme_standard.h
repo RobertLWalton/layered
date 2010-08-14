@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 09:38:31 EDT 2010
+// Date:	Sat Aug 14 08:40:58 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,10 @@ namespace ll { namespace lexeme { namespace standard {
 
 namespace ll { namespace lexeme { namespace standard {
 
+    // Create a standard program and set the
+    // LEX::type_name and LEX::max_type variables to
+    // print the programs types.
+    //
     void create_standard_program ( void );
 
 } } }

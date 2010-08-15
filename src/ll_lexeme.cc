@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 06:47:48 EDT 2010
+// Date:	Sun Aug 15 02:48:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1540,8 +1540,18 @@ static uns32 print_instruction
         OUT << "GOTO(" << h.atom_table_ID << ")";
 
     if ( h.operation & CALL_FLAG )
-        OUT << "CALL(" << call_length << ")"
-            << "(" << h.atom_table_ID << ")";
+    {
+        uns32 * p = (uns32 *) & h
+	          + instruction_length
+		  - call_length;
+        OUT << "CALL(" << h.atom_table_ID << ")[";
+	for ( uns32 i = 0; i < call_length; ++ i )
+	{
+	    if ( i != 0 ) out << ",";
+	    out << p[i];
+	}
+	out << "]";
+    }
 
     if ( h.operation & RETURN_FLAG )
         OUT << "RETURN(" << return_index << ")";
@@ -1943,8 +1953,11 @@ void LEX::print_program
 		 & LEX::TRANSLATE_FLAG )
 		ID += LEX::translate_length
 			    ( h.operation );
-	    else if ( h.operation & LEX::ELSE )
+	    if ( h.operation & LEX::ELSE )
 		ID += else_instruction_length;
+	    if ( h.operation & LEX::CALL_FLAG )
+		ID += LEX::call_length
+			    ( h.operation );
 	    continue;
 	}
 	case TYPE_MAP:

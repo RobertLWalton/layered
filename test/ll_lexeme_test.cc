@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 07:00:22 EDT 2010
+// Date:	Sun Aug 15 07:28:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,6 +32,8 @@ using std::ostream;
 using LEX::uns8;
 using LEX::uns32;
 using LEX::inchar;
+
+using LEX::MASTER;
 
 using LEX::ACCEPT;
 using LEX::KEEP;
@@ -191,7 +193,8 @@ static void check_attach
 static void create_program_1 ( void )
 {
 
-    uns32 master = LEX::create_program();
+    LEX::create_program();
+    uns32 master = LEX::create_atom_table ( MASTER );
 
     uns32 atable1 =
         LEX::create_atom_table ( SYMBOL );
@@ -230,8 +233,9 @@ static void create_program_1 ( void )
 
 static void create_program_2 ( void )
 {
+    LEX::create_program();
+    uns32 master = LEX::create_atom_table ( MASTER );
 
-    uns32 master = LEX::create_program();
     uns32 whitespace =
         LEX::create_atom_table ( WHITESPACE );
     uns32 symbol =

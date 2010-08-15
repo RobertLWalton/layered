@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 15:29:04 EDT 2010
+// Date:	Sun Aug 15 13:32:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@ using namespace ll::lexeme::ndl;
 
 static const uns32 MAX_TYPE = 14;
 static const char * type_name[MAX_TYPE+1] = {
+    NULL,
     "WORD",
     "NATURAL_NUMBER",
     "NUMBER",

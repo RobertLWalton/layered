@@ -91,7 +91,7 @@ Cooked Program 2:
             \t-\r \~
                 GOTO(6)
             A-Z \\ a-z
-                KEEP(0), CALL(0)(10)
+                KEEP(0), CALL(10)[]
             . 0-9
                 KEEP(0), GOTO(14)
             (-) , ; [ ] { }
@@ -233,7 +233,7 @@ Start atom scan: atom table = 18
 Scan Returned OPERATOR Input Buffer: * Translation: *
 Start atom scan: atom table = 2
   Character = a Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(0)(10)
+  KEEP(0), CALL(10)[]
 Start atom scan: atom table = 10
   Character = a Dispatcher = 136 Type Map = 26 CType = 2
   ACCEPT
@@ -257,7 +257,7 @@ Start atom scan: atom table = 18
 Scan Returned OPERATOR Input Buffer: * Translation: *
 Start atom scan: atom table = 2
   Character = b Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(0)(10)
+  KEEP(0), CALL(10)[]
 Start atom scan: atom table = 10
   Character = b Dispatcher = 136 Type Map = 26 CType = 2
   ACCEPT
@@ -283,7 +283,7 @@ Start atom scan: atom table = 18
 Scan Returned OPERATOR Input Buffer: + Translation: +
 Start atom scan: atom table = 2
   Character = c Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(0)(10)
+  KEEP(0), CALL(10)[]
 Start atom scan: atom table = 10
   Character = c Dispatcher = 136 Type Map = 26 CType = 2
   ACCEPT
@@ -305,7 +305,7 @@ Start atom scan: atom table = 18
 Scan Returned OPERATOR Input Buffer: + Translation: +
 Start atom scan: atom table = 2
   Character = d Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(0)(10)
+  KEEP(0), CALL(10)[]
 Start atom scan: atom table = 10
   Character = d Dispatcher = 136 Type Map = 26 CType = 2
   ACCEPT
@@ -326,7 +326,7 @@ Start atom scan: atom table = 2
 Scan Returned ERROR Input Buffer: % Translation: %
 Start atom scan: atom table = 2
   Character = f Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(0)(10)
+  KEEP(0), CALL(10)[]
 Start atom scan: atom table = 10
   Character = f Dispatcher = 136 Type Map = 26 CType = 2
   ACCEPT
@@ -384,7 +384,7 @@ Start atom scan: atom table = 2
 Scan Returned ERROR Input Buffer: \u0001 Translation: \u0001
 Start atom scan: atom table = 2
   Character = A Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(0)(10)
+  KEEP(0), CALL(10)[]
 Start atom scan: atom table = 10
   Character = A Dispatcher = 136 Type Map = 26 CType = 2
   ACCEPT

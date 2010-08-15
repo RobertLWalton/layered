@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 18:53:26 EDT 2010
+// Date:	Sun Aug 15 13:32:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,6 +59,7 @@ static char message_buffer[500];
 //          has been executed.  This is useful for
 //          ASSERT error message, as MESSAGE will
 //          not execute in the absence of an error.
+//	ATTACH(...) equals `assert(LEX::attach(...))'
 //
 # define FUNCTION(name) function_name = name
 # define ASSERT(test,message) \
@@ -66,6 +67,7 @@ static char message_buffer[500];
 # define MESSAGE(...) \
     ( sprintf ( message_buffer, __VA_ARGS__ ), \
       message_buffer )
+# define ATTACH(...) assert(LEX::attach(__VA_ARGS__))
 
 // Called by ASSERT macro to print error message and
 // exit.
@@ -314,17 +316,17 @@ uns32 pop_dispatcher ( void )
 	      d.max_type_code );
 
     if ( ascii_used )
-        LEX::attach ( dispatcher_ID,
-	              LEX::create_type_map
-		          ( cmin, cmax,
-		            d.ascii_map + cmin ) );
+        ATTACH ( dispatcher_ID,
+	         LEX::create_type_map
+		     ( cmin, cmax,
+		       d.ascii_map + cmin ) );
 
     if ( d.others_dispatcher_ID != 0 )
-        LEX::attach ( dispatcher_ID, 0,
-	              d.others_dispatcher_ID );
+        ATTACH ( dispatcher_ID, 0,
+	         d.others_dispatcher_ID );
     if ( d.others_instruction_ID != 0 )
-        LEX::attach ( dispatcher_ID, 0,
-	              d.others_instruction_ID );
+        ATTACH ( dispatcher_ID, 0,
+	         d.others_instruction_ID );
 
     for ( uns32 tcode = d.max_type_code;
           0 < tcode; -- tcode )
@@ -333,22 +335,21 @@ uns32 pop_dispatcher ( void )
 	uns32 sub_instruction_ID = pop_uns32();
 	uns32 sub_dispatcher_ID = pop_uns32();
 
-	LEX::attach ( dispatcher_ID, tcode,
-	              sub_dispatcher_ID );
+	ATTACH ( dispatcher_ID, tcode,
+	         sub_dispatcher_ID );
 
 	if ( sub_instruction_ID != 0 )
-	    LEX::attach ( dispatcher_ID, tcode,
-		          sub_instruction_ID );
+	    ATTACH ( dispatcher_ID, tcode,
+		     sub_instruction_ID );
 
 	for ( uns32 i = 0;
 	      i < sub_type_map_count; ++ i )
 	{
 	    uns32 max_char = pop_uns32();
 	    uns32 min_char = pop_uns32();
-	    LEX::attach ( dispatcher_ID,
-	                  LEX::create_type_map
-		             ( min_char, max_char,
-			       tcode ) );
+	    ATTACH ( dispatcher_ID,
+	             LEX::create_type_map
+		        ( min_char, max_char, tcode ) );
 	}
     }
 
@@ -404,9 +405,9 @@ void LEXNDL::end_atom_table ( void )
     assert ( instructions.length == 0 );
     assert ( uns32_stack.length == 0 );
 
-    LEX::attach ( atom_table_name, dispatcher_ID );
+    ATTACH ( atom_table_name, dispatcher_ID );
     if ( instruction_ID != 0 )
-	LEX::attach ( atom_table_name, instruction_ID );
+	ATTACH ( atom_table_name, instruction_ID );
     assert ( type_map_count == 0 );
 
     state = INSIDE_PROGRAM;

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 06:28:48 EDT 2010
+// Date:	Sun Aug 15 09:52:59 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -199,19 +199,15 @@ namespace ll { namespace lexeme {
     //
     extern char error_message[];
 
-    // Create a new program and an atom table, and
-    // return the ID of the atom table.  The atom
-    // table is the initial table of the program,
-    // and has the MASTER mode.
+    // Create a new program.
     //
     // This function resets the program buffer vector
     // length to 0 and then adds a program header
-    // to the beginning of the buffer, followed by
-    // the atom table.  Subsequent functions add
-    // more program compnents to the end of the
-    // program buffer vector.
+    // to the beginning of the buffer.  Subsequent
+    // functions add more program components to the
+    // end of the program buffer vector.
     //
-    uns32 create_program ( void );
+    void create_program ( void );
 
     // Atom table types, modes, and return values.
     //
@@ -232,6 +228,10 @@ namespace ll { namespace lexeme {
     // user when a lexeme is recognized by the analyzer
     // via the atom table.  It can serve to type a
     // lexeme.
+    //
+    // The first atom table created after a create_
+    // program becomes the initial atom table of the
+    // program.  It must have MASTER mode.
     //
     uns32 create_atom_table ( uns32 mode );
 

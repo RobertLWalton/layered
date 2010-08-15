@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 02:48:44 EDT 2010
+// Date:	Sun Aug 15 13:33:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,10 +49,22 @@ uns32 LEX::create_atom_table ( uns32 mode )
     h.mode = mode;
     h.dispatcher_ID = 0;
     h.instruction_ID = 0;
+
+    // First atom table is attached to program, and
+    // must have MASTER mode.
+    //
+    program_header & ph =
+        * (program_header *) & program[0];
+    if ( ph.atom_table_ID == 0 )
+    {
+        assert ( mode == MASTER );
+	ph.atom_table_ID = ID;
+    }
+
     return ID;
 }
 
-uns32 LEX::create_program ( void )
+void LEX::create_program ( void )
 {
     program.resize ( 0 );
     uns32 ID = program.allocate
@@ -62,8 +74,6 @@ uns32 LEX::create_program ( void )
     program_header & h =
         * (program_header *) & program[ID];
     h.pctype = PROGRAM;
-    h.atom_table_ID = create_atom_table ( MASTER );
-    return h.atom_table_ID;
 }
 
 uns32 LEX::create_dispatcher

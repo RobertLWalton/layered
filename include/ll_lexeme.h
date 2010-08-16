@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 09:52:59 EDT 2010
+// Date:	Mon Aug 16 06:50:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -82,16 +82,18 @@ namespace ll { namespace lexeme {
 	    // elements after the allocate is done.
 	    // Defaults to 1000.
 
+	// (T *) of buffer can be used to extract a
+	// vector of T's.
+	// 
 	// b[i] is the i+1'st vector element, if b is
 	// of type buffer<T>.  &b[0] is the address of
 	// the beginning of the vector and &b[length] is
 	// the address of the first location after the
 	// end of the vector.
 	//
-	T & operator[] ( uns32 index )
+	operator T * ( void )
 	{
-	    return ( (T *) (* base + header_size) )
-	           [index];
+	    return (T *) ( * base + header_size );
 	}
 
 	// Allocate n elements from the end of the
@@ -694,10 +696,12 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
-    // Nominal length of a line for diagnostic messages.
-    // Normally set at the limit for email messages.
+    // Nominal length and indent for diagnostic mes-
+    // sages.  Line length normally set at the limit for
+    // email messages.
     //
-    const int LINE = 72;
+    extern unsigned line_length;  // Default 72
+    extern unsigned indent;       // Default 4
 
     // Print an uns32 UNICODE character into the buffer.
     //
@@ -758,10 +762,80 @@ namespace ll { namespace lexeme {
     // Print ll::lexeme::input_buffer[first .. last]
     // to one or more lines in the buffer.  The \n for
     // the last line is NOT put in the buffer.  Return
-    // the number of characters put in the buffer.
+    // the number of characters put in the buffer.  Put
+    // a NUL character after these characters, NOT
+    // including this NUL in the returned count.
     //
-    int spinput ( char * buffer,
-                  uns32 first, uns32 last );
+    // Preface_with_space is true if the output is to
+    // be prefaced with a ` ' character unless it is
+    // prefaced with a \n because its beginning will
+    // not fit in the remainder of the first line.
+    // The next column number to be printed is in the
+    // `column' variable; 0 is the first column.  The
+    // maximum length of the line is given, and the
+    // indent to use after a \n is inserted in the
+    // buffer.
+    //
+    unsigned spinput ( char * buffer,
+                       uns32 first, uns32 last,
+		       unsigned & column,
+		       bool preface_with_space = false,
+		       unsigned indent = indent,
+		       unsigned line_length =
+		           line_length );
+
+    // Ditto but print ll::lexeme::translation_buffer in
+    // its entirety.
+    //
+    unsigned sptranslation
+    		( char * buffer,
+		  unsigned & column,
+		  bool preface_with_space = false,
+		  unsigned indent = indent,
+		  unsigned line_length = line_length );
+
+    // Ditto but print the current lexeme, given its
+    // first, last, and type.  Include the position and
+    // type, and if the translation is inexact, also
+    // include the translation.
+    //
+    unsigned splexeme
+	    ( char * buffer,
+              uns32 first, uns32 last, uns32 type,
+	      unsigned & column,
+	      bool preface_with_space = false,
+	      unsigned indent = indent,
+	      unsigned line_length = line_length );
+
+    // Ditto but print the current erroneous atom.  The
+    // translation is not relevant in this case.
+    //
+    unsigned sperroneous_atom
+	    ( char * buffer,
+              uns32 first, uns32 last, uns32 type,
+	      unsigned & column,
+	      bool preface_with_space = false,
+	      unsigned indent = indent,
+	      unsigned line_length = line_length );
+
+    // Ditto but print the given string all on the
+    // same line.  n is the length of the string,
+    // which need not be NUL terminated.
+    //
+    unsigned spstring
+	    ( char * buffer,
+	      const char * string,
+	      unsigned n,
+	      unsigned & column,
+	      bool preface_with_space = false,
+	      unsigned indent = indent,
+	      unsigned line_length = line_length );
+
+    // Return true if the translation buffer holds a
+    // copy of ll::lexeme::input_buffer[first .. last].
+    //
+    bool translation_is_exact
+	    ( uns32 first, uns32 last );
 
     // Print a representation of the program to the
     // output stream.  There are two output formats:

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 07:28:30 EDT 2010
+// Date:	Mon Aug 16 10:04:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -580,10 +580,13 @@ static void erroneous_atom
     ( uns32 first, uns32 last, uns32 type )
 {
     char buffer[1000];
-    LEX::spinput ( buffer, first, last );
-    cout << "Erroneous Atom, Kind = "
-         << LEX::pmode ( type )
-         << " Atom = " << buffer << endl;
+    char * p = buffer;
+    p += sprintf ( p, "Erroneous Atom:" );
+    unsigned column = p - buffer;
+    p += LEX::sperroneous_atom
+	    ( p, first, last, type,
+	      column, true );
+    cout << buffer << endl;
 }
 
 void test_program ( uns32 * input, uns32 length )
@@ -603,27 +606,22 @@ void test_program ( uns32 * input, uns32 length )
     {
 	uns32 first, last;
         uns32 type = LEX::scan ( first, last );
-	cout << "Scan Returned " << LEX::pmode ( type );
-	if ( type == END_OF_FILE )
+	char * p = buffer;
+	p += sprintf ( p, "Scan Returned:" );
+	unsigned column = p - buffer;
+
+	if ( type == LEX::SCAN_ERROR )
 	{
-	    cout << endl;
-	    break;
-	}
-	else if ( type == LEX::SCAN_ERROR )
-	{
-	    cout << endl << LEX::error_message << endl;
+	    cout << buffer << " Scan Error:" << endl
+	         << LEX::error_message << endl;
 	    break;
 	}
 	else
-	    cout << " Input Buffer: ";
+	    p += LEX::splexeme ( p, first, last, type,
+	                         column, true );
+	cout << buffer << endl;
 
-	LEX::spinput ( buffer, first, last );
-	cout << buffer << " Translation: ";
-	for ( uns32 i = 0;
-	      i < LEX::translation_buffer.length; ++ i )
-	    cout << LEX::pchar
-	              ( LEX::translation_buffer[i] );
-	cout << endl;
+	if ( type == END_OF_FILE ) break;
     }
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 13:33:34 EDT 2010
+// Date:	Mon Aug 16 07:30:25 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,8 @@ using std::ostream;
 using namespace LEX;
 using namespace LEX::program_data;
 
+unsigned LEX::line_length = 72;
+unsigned LEX::indent = 4;
 char LEX::error_message[1000];
 
 // Program Construction
@@ -1117,13 +1119,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     case MASTER:
     case SCAN_ERROR:
     {
-	int count = sprintf ( error_message,
-		  " returning lexeme with bad type(%s)"
-		  " from atom table %u; ATOM:\n",
-		  sbpmode ( type ),
-		  current_atom_table_ID );
-	count += spinput ( error_message + count,
-	                   first, last );
+	sprintf ( scan_error ( last - first + 1,
+	                       first ),
+		  "returning lexeme with bad type(%s)",
+		  sbpmode ( type ) );
 	return SCAN_ERROR;
     }
     }
@@ -1144,7 +1143,7 @@ static const char * sbpchar ( uns32 c )
 //
 static const char * sbpmode ( uns32 mode )
 {
-    static char buffer[40];
+    static char buffer[400];
     spmode ( buffer, mode );
     return buffer;
 }
@@ -1154,19 +1153,20 @@ static const char * sbpmode ( uns32 mode )
 static char * scan_error ( uns32 length, uns32 next )
 {
     char * p = error_message;
-    p += sprintf
-        ( p,
-	  "CURRENT_ATOM_TABLE(%u) LINE(%u) COLUMN(%u)",
-	  current_atom_table_ID,
-	  input_buffer[next].line,
-	  input_buffer[next].column );
-    if ( length > 0 )
-    {
-        p += sprintf ( p, " INPUT BUFFER: \n");
-	p += spinput ( p, next, next + length - 1 );
-    }
+    p += sprintf ( p, "CURRENT_ATOM_TABLE %u",
+	              current_atom_table_ID );
+    if ( next < input_buffer.length )
+	p += sprintf
+	    ( p, " POSITION %u(%u)%u:",
+	      input_buffer[next].line,
+	      input_buffer[next].index,
+	      input_buffer[next].column );
     else
-        p += sprintf ( p, " NO INPUT SCANNED" );
+        p += sprintf ( p, ":" );
+
+    unsigned column = p - error_message;
+    p += spinput ( p, next, next + length - 1,
+		   column, true );
     * p ++ = '\n';
     return p;
 }
@@ -1325,28 +1325,166 @@ ostream & operator <<
     return out << buffer;
 }
 
-int LEX::spinput
-	( char * buffer, uns32 first, uns32 last )
+
+unsigned LEX::spstring
+	( char * buffer,
+	  const char * string, unsigned n,
+	  unsigned & column,
+	  bool preface_with_space,
+	  unsigned indent, unsigned line_length )
+{
+    char * p = buffer;
+    if (    column + preface_with_space + n
+         >= line_length )
+    {
+        * p ++ = '\n';
+	while ( indent -- ) * p ++ = ' ';
+	column = indent;
+    }
+    else if ( preface_with_space )
+        * p ++ = ' ', ++ column;
+    strncpy ( p, string, n );
+    p += n, column += n;
+    * p = 0;
+    return p - buffer;
+}
+
+unsigned LEX::spinput
+	( char * buffer, uns32 first, uns32 last,
+	  unsigned & column,
+	  bool preface_with_space,
+	  unsigned indent, unsigned line_length )
 {
     if ( first > last )
-        return sprintf ( buffer, "<empty>" );
+        return spstring ( buffer, "<empty>", 7,
+	                  column,
+			  preface_with_space,
+			  indent, line_length );
 
-    int columns = LINE;
     char * p = buffer;
     while ( first <= last )
     {
 	uns32 c = input_buffer[first++].character;
-	int count = spchar ( p, c );
-	if ( count > columns )
-	{
-	    * p ++ = '\n';
-	    columns = LINE;
-	    spchar ( p, c );
-	}
-	p += count;
-	columns -= count;
+	char buffer2[40];
+	int n = spchar ( buffer2, c );
+	p += spstring ( p, buffer2, n,
+	                column,
+			preface_with_space,
+			indent, line_length );
+	preface_with_space = false;
     }
     return p - buffer;
+}
+
+unsigned LEX::sptranslation
+	( char * buffer,
+	  unsigned & column,
+	  bool preface_with_space,
+	  unsigned indent, unsigned line_length )
+{
+    if ( translation_buffer.length == 0 )
+        return spstring ( buffer, "<empty>", 7,
+	                  column,
+			  preface_with_space,
+			  indent, line_length );
+
+    char * p = buffer;
+    for ( unsigned i = 0;
+          i < translation_buffer.length; ++ i )
+    {
+	uns32 c = translation_buffer[i];
+	char buffer2[40];
+	int n = spchar ( buffer2, c );
+	p += spstring ( p, buffer2, n,
+	                column,
+			preface_with_space,
+			indent, line_length );
+	preface_with_space = false;
+    }
+    return p - buffer;
+}
+
+unsigned LEX::splexeme
+	( char * buffer,
+	  uns32 first, uns32 last, uns32 type,
+	  unsigned & column,
+	  bool preface_with_space,
+	  unsigned indent, unsigned line_length )
+{
+    char buffer2[500];
+    char * p2 = buffer2;
+    p2 += spmode ( p2, type );
+    * p2 ++ = ':';
+
+    if ( first <= last )
+    {
+	inchar & ic = input_buffer[first];
+	p2 += sprintf ( p2, "%u(%u)%u:",
+	                ic.line, ic.index, ic.column );
+    }
+
+    char * p = buffer;
+    p += spstring ( p, buffer2, p2 - buffer2,
+                    column,
+		    preface_with_space,
+		    indent, line_length );
+    p += spinput ( p, first, last,
+                   column, true, indent, line_length );
+    if ( ! translation_is_exact ( first, last ) )
+    {
+        p += spstring ( p, "translated to:", 14,
+	                column, true,
+			indent, line_length );
+	p += sptranslation ( p, column, true,
+	                     indent, line_length );
+    }
+    return p - buffer;
+}
+
+unsigned LEX::sperroneous_atom
+	( char * buffer,
+	  uns32 first, uns32 last, uns32 type,
+	  unsigned & column,
+	  bool preface_with_space,
+	  unsigned indent, unsigned line_length )
+{
+    char buffer2[500];
+    char * p2 = buffer2;
+    p2 += spmode ( p2, type );
+    * p2 ++ = ':';
+
+    if ( first <= last )
+    {
+	inchar & ic = input_buffer[first];
+	p2 += sprintf ( p2, "%u(%u)%u:",
+	                ic.line, ic.index, ic.column );
+    }
+
+    char * p = buffer;
+    p += spstring ( p, buffer2, p2 - buffer2,
+                    column,
+		    preface_with_space,
+		    indent, line_length );
+    p += spinput ( p, first, last,
+                   column, true, indent, line_length );
+    return p - buffer;
+}
+
+bool LEX::translation_is_exact
+	( uns32 first, uns32 last )
+{
+    uns32 i = 0;
+    if (    translation_buffer.length
+         != last - first + 1 )
+        return false;
+    while ( first <= last )
+    {
+        if (    input_buffer[first].character
+	     != translation_buffer[i] )
+	    return false;
+	++ first, ++ i;
+    }
+    return true;
 }
 
 const char * const * LEX::type_name = NULL;
@@ -1588,8 +1726,8 @@ static uns32 print_instruction
     return instruction_length;
 }
 
-// Iterator that prints out a list of characters
-// within LINE columns.  `nonempty' if the list is
+// Iterator that prints out a list of characters within
+// LEX::line_length columns.  `nonempty' if the list is
 // non-empty.  The list is indented by the given
 // amount.  The user is responsible for the indent of
 // the first line if user_indent is true.
@@ -1604,8 +1742,8 @@ struct pclist {
         // True if list empty so far.
     int columns;
         // Number of columns remaining on current
-	// line; LINE - indent columns are available
-	// for each line.
+	// line; line_length - indent columns are
+	// available for each line.
 
     uns32 c1, c2;
         // If not empty then the range c1-c2 (or just c1
@@ -1615,9 +1753,9 @@ struct pclist {
     pclist ( int indent, bool user_indent = false )
 	: indent ( indent ), user_indent ( user_indent )
     {
-	assert ( LINE - indent >= 30 );
+	assert ( line_length - indent >= 30 );
         empty = true;
-	columns = LINE - indent;
+	columns = line_length - indent;
     }
 
     // Print c1-c2 (or just c1 if c1 == c2 ).  Precede
@@ -1640,7 +1778,7 @@ struct pclist {
 	* p = 0;
 	int needed = p - buffer;
 
-	if ( columns == LINE - indent )
+	if ( columns == line_length - indent )
 	{
 	    // If nothing on line, its our first line.
 	    //
@@ -1656,7 +1794,7 @@ struct pclist {
 	else
 	{
 	    cout << endl << setw ( indent ) << "";
-	    columns = LINE - indent - needed;
+	    columns = line_length - indent - needed;
 	}
 
 	cout << buffer;

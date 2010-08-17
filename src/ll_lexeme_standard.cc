@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 13:32:46 EDT 2010
+// Date:	Mon Aug 16 23:55:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -649,6 +649,7 @@ void ll::lexeme::standard::create_standard_program
     ////              // End quoted string.
     //// 
         NDL::begin_dispatch ( "\"" );
+	    NDL::translate ( "" );
 	    NDL::ret();
         NDL::end_dispatch();
 

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Aug 14 19:42:29 EDT 2010
+# Date:		Tue Aug 17 00:05:09 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -172,6 +172,12 @@ ll_lexeme_standard_test:		\
 	    min_acc.o \
 	    -D LL_NO_DATA_DEFINITIONS=1 \
 	    ll_lexeme_standard_test.cc
+
+ll_lexeme_standard_test.out:		\
+	    ll_lexeme_standard_test \
+	    ll_lexeme_standard_test.in
+	rm -f $*.out
+	${RUNENV} $* < $*.in > $*.out
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o

@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 30, 2010
+August 21, 2010
  
 \end{center}
 
@@ -526,7 +526,6 @@ The syntax of a lexical program is given on
 \\[1ex]
 \emkey{type} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
                                      except & {\tt master} \\
-				         or & {\tt end of file} \\
 					 or & {\tt scan error} \\[1ex]
 				    \end{tabular}
 \end{tabular}
@@ -571,12 +570,20 @@ The syntax of a lexical program is given on
 	& $|$ & {\tt error} {\em type} \\
 	& $|$ & {\tt output} {\em type} \\
 	& $|$ & {\tt goto} {\em atom-table-name} \\
-	& $|$ & {\tt call} {\em atom-table-name} \\
-	& $|$ & {\tt return} \\
+	& $|$ & {\tt call} {\em atom-table-name} {\em return-vector-option} \\
+	& $|$ & {\tt return} {\em return-index-option} \\
 \\[1ex]
 \emkey{translation-string} & ::= & {\em quoted-string}
 \\[1ex]
 \emkey{cpat-option} & ::= & {\em empty} $|$ {\tt "}{\em cpat-name}{\tt "}
+\\[1ex]
+\emkey{return-vector-option}
+    & ::= & {\em empty} \\
+    & $|$ & {\tt (}{\em atom-table-name}
+                      \{ {\tt ,} {\em atom-table-name} \}$^\star$ {\tt )}
+\\[1ex]
+\emkey{return-index-option}
+    & ::= & {\em empty} $|$ {\tt (} {\em natural-number} {\tt )}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-2}
 \end{figure*}
@@ -983,6 +990,20 @@ also popped from the stack.
 
 The return stack is emptied whenever the current atom table
 becomes a master mode table.
+
+A `{\tt call}' instruction can have an optional \key{return-vector}
+which is used by a `{\tt return}' instruction with a \key{return-index}.
+A {\em return-vector} is a list of {\em atom-table-names}.
+A {\em return-index} is a natural number, {\tt 1}, {\tt 2}, etc., that
+selects the corresponding element of the {\em return-vector} of the
+`{\tt call}' instruction to which the `{\tt return}' instruction is
+returning.  This permits the `{\tt return}' instruction to return to
+an atom table other than the one containing the `{\tt call}' instruction.
+For example, if `{\tt call t(x,y,z)}' called an atom table, in that
+table `{\tt return}' would return to the atom table containing the
+`{\tt call}' instruction, while `{\tt return(2)}' would return to
+atom table {\tt y}.
+
 
 The `{\tt call}' and `{\tt return}' instruction components
 permit a non-master atom table to be shared among different

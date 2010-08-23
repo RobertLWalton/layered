@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 21, 2010
+August 22, 2010
  
 \end{center}
 
@@ -1201,6 +1201,62 @@ of the stream and provides a `{\tt get}' function that can be called by P2
 to add tokens to the end of its input stream.  This `{\tt get}' function
 is actually a continuation function for pass P1.
 
+\subsection{Parser Symbol Table}
+
+The \key{parser symbol table} is conceptually a stack of
+\skey{parser definition}s.  Each parser definition has the following
+components:
+
+\begin{indpar}
+\begin{tabular}{p{1in}p{4in}}
+\tt key		& A sequence of names that identifies the definition.
+\\[1ex]
+\tt type	& The type of the definition.
+\\[1ex]
+\tt selectors	& A set of \skey{parsing selector}s that determine if
+		  the definition is active.
+\\[1ex]
+\tt next	& Pointer to the next definition in the stack that
+                  has the same key.
+\end{tabular}
+\end{indpar}
+
+Tokens that are lexemes are converted to names if possible before the
+first parser pass.  To use definitions, in most cases
+a parser pass simply takes the sequence of name tokens
+beginning at the current point the pass's input token stream
+and looks it up in the symbol table.  The parser pass also has
+at any given time a selector set, and it checks a definition to
+see if the parser pass and the definition share a selector.  If yes,
+the definition is used by the pass, and is said to be
+\mkey{active}{definition}.
+If no, the definition is said to be \mkey{inactive}{definition},
+and the next definition
+in the definition stack with the same key is examined.
+
+If there are several sequences of name tokens that match active definitions
+at the current point in the token stream, the longest is used.  If the
+token at the current point in the token stream is not a name, then
+\underline{no} definition can be referenced.
+
+A hash table is maintained to permit passes to quickly look up
+parsing definitions given the named tokens at the pass's current
+token stream position.
+
+A Parser pass also generally ignores definitions that are not of
+a type appropriate to the pass.
+Some parser passes do not use the current tokens as a key to look up in
+the symbol table, but look up all definitions of a particular type.
+An example is the lexeme replacement pass, that uses lexeme
+replacement definitions, which
+provide their own
+mechanisms for determining whether or not the tokens beginning
+at the current token stream position should be replaced.
+For efficiency this pass
+keeps a separate hash table that memoizes the results
+for tokens that have been recently seen.  One consequence of this is
+that making changes to lexeme replacement definitions is less efficient
+than making changes to other kinds of definitions.
 
 \newpage
 

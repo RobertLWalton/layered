@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 31, 2010
+August 24, 2010
  
 \end{center}
 
@@ -655,26 +655,6 @@ the code block translated into machine code.  The code RAM block of
 a code subblock need not be part of the code RAM block of the containing
 code block, but must be associated with the latter.
 
-\subsection{Tuples}
-\label{TUPLES}
-
-A tuple is a sequence of zero or more values, where the values
-need not all have the same type.  A tuple is \underline{not}
-a first class datum; it cannot be stored in most kinds of memory.
-Tuples are temporary data used to pass values to functions and
-return values from functions.  A call to a function involves
-two tuples, one holding the input arguments and one holding the
-output arguments.
-
-It is also possible for one code block to transfer to another.
-This is like a call in which the first code block execution
-terminates just as the second code block execution begins.
-A tuple can be transferred along with control.
-
-[TBD: what is the difference between input and output?]
-
-TBD: flattening??
-
 \subsection{Block Types}
 \label{BLOCK-TYPES}
 
@@ -707,6 +687,37 @@ there is a separate list of stack block locations
 that might hold pointers into blocks in the heap.
 
 Code RAM blocks may be static, stack, or heap blocks.
+
+\subsection{Tuples}
+\label{TUPLES}
+
+A \key{tuple} is a sequence of zero or more values, where the values
+need not all have the same type.  A tuple is \underline{not}
+a first class datum; it cannot be stored in most kinds of memory.
+Tuples are temporary data used to pass values to functions and
+return values from functions.  A call to a function involves
+at least two tuples, one holding the
+\smkey{argument}s{of function} of the function
+and another holding the \smkey{return value}s{of function} of the function.
+
+It is also possible for one code block to transfer to another.
+This is like a call in which the first code block execution
+terminates just as the second code block execution begins.
+A tuple can be transferred along with control.
+
+[TBD: what is the difference between input and output?]
+
+TBD: flattening??
+
+\subsection{Clusters}
+\label{CLUSTERS}
+
+A \key{cluster} is a group of related variables.  One variable of
+the cluster is the \mkey{base variable} of the cluster, and the
+other variables have names that are the name of the base variable
+followed by `{\tt .}' followed by another name.  Thus a cluster
+is like a structure, but it is a set of variables and not a
+piece of memory.  The variables are each allocated separately.
 
 \subsection{Arrays}
 \label{ARRAYS}

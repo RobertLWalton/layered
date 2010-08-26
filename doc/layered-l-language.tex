@@ -317,31 +317,37 @@ Numbers are sequences of bits, and each number is one of
 four types, unsigned integer, signed integer, floating point number,
 and direct address:
 
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
+\begin{indpar}
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \bf Name & \bf Kind & \bf Length \\[2ex]
 \ttkey{uns8}		& unsigned integer & 8 bits \\
 \ttkey{uns16}		& unsigned integer & 16 bits \\
 \ttkey{uns32}		& unsigned integer & 32 bits \\
 \ttkey{uns64}		& unsigned integer & 64 bits \\
 \ttkey{uns128}		& unsigned integer & 128 bits
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \ttkey{int8}		& signed integer & 8 bits \\
 \ttkey{int16}		& signed integer & 16 bits \\
 \ttkey{int32}		& signed integer & 32 bits \\
 \ttkey{int64}		& signed integer & 64 bits \\
 \ttkey{int128}		& signed integer & 128 bits
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \ttkey{float16}		& IEEE floating point number & 16 bits \\
 \ttkey{float32}		& IEEE floating point number & 32 bits \\
 \ttkey{float64}		& IEEE floating point number & 64 bits \\
 \ttkey{float128}	& IEEE floating point number & 128 bits
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
 (see text)		& direct address & 32 bits or 64 bits (see text) \\
 \ttkey{unsptr}		& unsigned integer & size of direct address \\
 \ttkey{intptr}		& signed integer & size of direct address \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 The \mkey{length}{of number}
 of a number is the number of its bits.  Numbers can have
@@ -713,11 +719,99 @@ TBD: flattening??
 \label{CLUSTERS}
 
 A \key{cluster} is a group of related variables.  One variable of
-the cluster is the \mkey{base variable} of the cluster, and the
-other variables have names that are the name of the base variable
-followed by `{\tt .}' followed by another name.  Thus a cluster
+the cluster is the \mkey{base variable}{of cluster} of the cluster, and the
+other variables have names that are derived from the
+name of the base variable using the syntax:
+
+
+\begin{indpar}
+{\em variable-name} ::=
+    {\em base-name} {\em member-selector}$^\star$ \\[1ex]
+{\em member-selector} \begin{tabular}[t]{@{}rl}
+    ::= & {\tt .}{\em member-name} \\
+    $|$ & {\tt [}{\em member-index}{\tt ]}
+    \end{tabular} \\[1ex]
+{\em member-index} ::= {\em integer-constant-expression}
+\end{indpar}
+
+Thus a cluster
 is like a structure, but it is a set of variables and not a
-piece of memory.  The variables are each allocated separately.
+piece of memory.
+
+More specifically, the members of the cluster can be named by
+adding either `{\tt .}' followed by a member name or
+an integer constant subscript in `{\tt []}' brackets to
+either the base name of the cluster or to another member name
+of the cluster.  Two variable names with different base names
+belong to different clusters.  Two variable names allocated in
+different scopes are in different clusters (a scope is a function,
+a block within the function, or the part of a package external to
+functions).  Two variable
+names with the same base name and scope are in the same cluster.
+
+Clusters can be passed to functions and returned from functions.
+For example:
+\begin{indpar}\begin{verbatim}
+// WARNING: This code is not completely type safe
+//          because it does not use protection qualifiers.
+//
+// pp is a `pointer pair'
+//   pp.begin points at the first element
+//   pp.end points just AFTER the last element
+//
+// Function to allocate a vector of n int32's.
+//
+(void pp, int32 * pp.begin, int32 * pp.end )
+    allocate ( uns32 n );
+//
+// Prefix operator to dereference a pointer pair.
+//
+int32 *& "*"
+        ( void pp, int32 **& pp.begin, int32 **& pp.end )
+    unchecked
+{
+    if ( pp.begin < pp.end ) return * pp.begin;
+    else return * (int 32 *) NULL;
+}
+//
+// Prefix operator to increment the begin pointer of a pointer
+// pair.
+//
+(void pp = pp ) "++" ( void pp, int32 **& pp.begin )
+    unchecked
+{
+    ++ pp.begin;
+}
+//
+// Example usage:
+//
+void my_function ( void )
+{
+    // Vector of 2 element is allocated and the elements
+    // are set equal to 100 and 101.
+    //
+    void pp = allocate ( 2 );
+    * pp = 100;
+    * ++ pp = 101;
+    . . . .
+}
+
+\end{verbatim}\end{indpar}
+
+This code is a bit extreme in that the base variable has type
+{\tt void} indicating it has no actual value.  In this code
+the {\tt allocate} function returns the cluster, and in the
+example usage `{\tt void pp = allocate ( 2 );}' constructs
+\underline{all} the members of the cluster returned by {\tt allocate}.
+The member arguments to the prefix {\tt *} and {\tt ++} operators
+are not given explicit values in calls to the operator functions,
+but are implicitly defined from the first cluster base argument.
+The prefix {\tt ++} operator is unusual in that its declaration
+indicates that it returns its first argument exactly, so that
+the cluster base variable name is in effect returned.  This is
+a stronger statement than just returning a {\tt *\&} value that
+happens without the compiler's knowning it to be equal to the
+{\tt *\&} value of the first argument.
 
 \subsection{Arrays}
 \label{ARRAYS}

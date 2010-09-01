@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 22, 2010
+September 1, 2010
  
 \end{center}
 
@@ -760,10 +760,14 @@ The special character pattern
 {\tt \bf \LESSTHAN other\GREATERTHAN}%
 \index{other@{\tt \LESSTHAN other\GREATERTHAN}}%
 \label{<OTHER>}
-can be used in an atom pattern to match any character,
-but an atom pattern containing
-it will be matched only if no atom pattern in the atom table
-that does not contain \verb|<other>| is matched.
+can be used in an atom pattern to match any character not otherwise
+matched.  More explicitly, in the atom pattern
+\verb|"|$P$\verb|<other>|$Q$\verb|"|,
+the prefix $P$\verb|<other>| matches any sequence of characters not matched by
+any atom pattern of the form
+\verb|"|$PCQ$\verb|"| in the same atom table,
+where $C$ is a character pattern other than
+\verb|<other>|.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 There must be no sequence of characters that matches the

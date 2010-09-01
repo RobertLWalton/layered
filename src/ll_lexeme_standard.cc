@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 02:37:08 EDT 2010
+// Date:	Wed Sep  1 13:49:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -282,7 +282,7 @@ void ll::lexeme::standard::create_standard_program
     ///    ".<digit>" keep 1 call number;
     /// 
     	NDL::begin_dispatch ( "." );
-	    NDL::begin_dispatch ( "." );
+	    NDL::begin_dispatch ( cp_digit );
 		NDL::keep(1);
 		NDL::call ( number_atom_table );
 	    NDL::end_dispatch();

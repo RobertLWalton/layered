@@ -8,5 +8,19 @@
 // domain; they make no warranty and accept no liability
 // for this data.
 
-a 3.4 (x,y)
-hello "hi"
+abc 3.4+z (x,y)
+"hi" "ho\tx y\\z\n"
+'tis noth'ng `but' a h'dache.
+a.1.2.3.b.c e5f x7+y6(5z)
+12.3 .4 5. 6/7
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
++-*~@#$%^&=|<>_!?:"foo"x\9\n\z/
+.foo /foo 3/x x/3 3.x x.3// comment \u89 "'
+a(b,c) d{e;f} g[h,i] ``foobar' fum'
+// form feed 
+// vertical tab 
+// carriage return 
+z	x // horizontal tab
+all 	
+control ABC

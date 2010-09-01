@@ -687,7 +687,7 @@ COMMENT:2(0)0: //\~File:\tll_lexeme_standard_test.in
 LINE_BREAK:2(35)42: \n
 COMMENT:3(0)0: //\~Author:\tBob\~Walton\~(walton@acm.org)
 LINE_BREAK:3(38)43: \n
-COMMENT:4(0)0: //\~Date:\tTue\~Aug\~17\~00:09:25\~EDT\~2010
+COMMENT:4(0)0: //\~Date:\tWed\~Sep\~\~1\~16:14:06\~EDT\~2010
 LINE_BREAK:4(37)44: \n
 COMMENT:5(0)0: //
 LINE_BREAK:5(2)2: \n
@@ -870,4 +870,11 @@ BAD_CHARACTER:25(11)11: \u0002
 WORD:25(12)12: C
 BAD_CHARACTER:25(13)13: \u0003
 LINE_BREAK:25(14)14: \n
+QUOTED_STRING:26(0)0: "\\"\\n\\r\\t\\b\\f\\v\\\\\\~" translated to: "\n
+    \r\t\b\f\v\\\~
+LINE_BREAK:26(20)20: \n
+ERRONEOUS ATOM: BAD_ESCAPE_SEQUENCE:27(2)2: \\a
+ERRONEOUS ATOM: BAD_ESCAPE_SEQUENCE:27(6)6: \\c
+QUOTED_STRING:27(0)0: "~\\a\\b\\c\\f" translated to: ~\\a\b\\c\f
+LINE_BREAK:27(11)11: \n
 END_OF_FILE: <empty>

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 17 00:14:43 EDT 2010
+// Date:	Wed Sep  1 02:37:08 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,8 +54,8 @@ void ll::lexeme::standard::create_standard_program
     LEX::type_name = ::type_name;
     LEX::max_type = ::MAX_TYPE;
 
-    //// begin standard lexical program;
-    //// 
+    /// begin standard lexical program;
+    /// 
     NDL::begin_program();
 
     uns32 master_atom_table;
@@ -83,106 +83,100 @@ void ll::lexeme::standard::create_standard_program
     uns32 line_break_atom_table;
     NDL::new_atom_table ( line_break_atom_table,
                           line_break_t );
-    uns32 bad_end_of_line_atom_table;
-    NDL::new_atom_table ( bad_end_of_line_atom_table,
-                          MASTER );
-    uns32 bad_end_of_file_atom_table;
-    NDL::new_atom_table ( bad_end_of_file_atom_table,
-                          MASTER );
 
-    //// "<ascii-letter>" = "a-z" | "A-Z";
+    /// "<ascii-letter>" = "a-z" | "A-Z";
     //
     static const char * cp_ascii_letter =
         "abcdefghijklmnopqrstuvwxyz"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    //// "<digit>" = "0-9";
+    /// "<digit>" = "0-9";
     //
     static const char * cp_digit = "0123456789";
 
-    //// "<oct-digit>" = "0-7";
+    /// "<oct-digit>" = "0-7";
     //
     static const char * cp_oct_digit = "01234567";
 
-    //// "<hex-digit>" = "0-9" | "a-f" | "A-F";
-    //// 
+    /// "<hex-digit>" = "0-9" | "a-f" | "A-F";
+    /// 
     static const char * cp_hex_digit =
         "0123456789abcdefABCDEF";
 
-    //// "<non-digit>" = ~ "<digit>";
-    //// 
-    //// // The following list of language specific
-    //// // letters is taken from Annex E of the Working
-    //// // Paper for Draft Proposed International
-    //// // Standard for Information Systems-Programming
-    //// // Language C++, 1996.
-    //// 
-    //// "<latin-letter>" = "\u00c0-\n00d6"
-    ////                  | "\u00d8-\u00f6"
-    ////                  | "\u00f8-\u01f5"
-    ////                  | "\u01fa-\u0217"
-    ////                  | "\u0250-\u02a8"
-    ////                  | "\u1ea0-\u1ef9";
-    //// 
-    //// . . . letter pattern definitions omitted . . .
-    //// 
-    //// "<CJK-letter>" = "\uf900-\ufa2d" | . . .
-    ////                  // Details omitted
-    //// 
-    //// // Context sensitive character classifications,
-    //// // e.g., classifying ' as a word character if
-    //// // it is followed by a letter, cannot be
-    //// // included in character pattern definitions,
-    //// // but are noted in comments.  They are
-    //// // accounted for by separate atom table entries
-    //// // below.
-    //// 
-    //// "<letter>" = "<ascii-letter>"
-    ////            | "<latin-letter>"
-    ////            | . . .
-    ////            | "<CJK-letter>"; // Details omitted
-    //// 
+    /// "<non-digit>" = ~ "<digit>";
+    /// 
+    /// // The following list of language specific
+    /// // letters is taken from Annex E of the Working
+    /// // Paper for Draft Proposed International
+    /// // Standard for Information Systems-Programming
+    /// // Language C++, 1996.
+    /// 
+    /// "<latin-letter>" = "\u00c0-\n00d6"
+    ///                  | "\u00d8-\u00f6"
+    ///                  | "\u00f8-\u01f5"
+    ///                  | "\u01fa-\u0217"
+    ///                  | "\u0250-\u02a8"
+    ///                  | "\u1ea0-\u1ef9";
+    /// 
+    /// . . . letter pattern definitions omitted . . .
+    /// 
+    /// "<CJK-letter>" = "\uf900-\ufa2d" | . . .
+    ///                  // Details omitted
+    /// 
+    /// // Context sensitive character classifications,
+    /// // e.g., classifying ' as a word character if
+    /// // it is followed by a letter, cannot be
+    /// // included in character pattern definitions,
+    /// // but are noted in comments.  They are
+    /// // accounted for by separate atom table entries
+    /// // below.
+    /// 
+    /// "<letter>" = "<ascii-letter>"
+    ///            | "<latin-letter>"
+    ///            | . . .
+    ///            | "<CJK-letter>"; // Details omitted
+    /// 
     void add_non_ascii_letters ( void );
 
-    //// "<non-letter>" = ~ "<letter>";
-    //// 
-    //// "<mark-char>" = "+" | "-" | "*" | "~" | "@"
-    ////               | "#" | "$" | "%" | "^" | "&"
-    ////               | "=" | "|" | "<" | ">" | "_"
-    ////               | "!" | "?" | ":";
-    ////               //
-    ////               // Also \ not followed by u or U,
-    ////               //      . not followed by a digit
-    ////               //      / not surrounded by
-    ////	       //        digits or part of //
-    ////               //        comment beginning
-    //// 
+    /// "<non-letter>" = ~ "<letter>";
+    /// 
+    /// "<mark-char>" = "+" | "-" | "*" | "~" | "@"
+    ///               | "#" | "$" | "%" | "^" | "&"
+    ///               | "=" | "|" | "<" | ">" | "_"
+    ///               | "!" | "?" | ":";
+    ///               //
+    ///               // Also \ not followed by u or U,
+    ///               //      . not followed by a digit
+    ///               //      / not surrounded by
+    ///	              //        digits or part of //
+    ///               //        comment beginning
+    /// 
     static const char * cp_mark = "+-*~@#$%^&=|<>_!?:";
 
-    //// "<u-char>" = "u" | "U";
-    //// "<non-u-char>" = ~ "u" & ~ "U";
-    //// "<non-slash-char>" = ~ ";";
-    //// 
-    //// "<separator-char>" = "(" | ")" | "[" | "]"
-    ////                    | "{" | "}" | ";" | "`";
-    ////               //
-    ////               // Also , not surrounded by
-    ////               //        digits
-    ////               //      ' not followed by a
-    ////               //        letter
-    //// 
+    /// "<u-char>" = "u" | "U";
+    /// "<non-u-char>" = ~ "u" & ~ "U";
+    /// "<non-slash-char>" = ~ "/";
+    /// 
+    /// "<separator-char>" = "(" | ")" | "[" | "]"
+    ///                    | "{" | "}" | ";" | "`";
+    ///               //
+    ///               // Also , not surrounded by
+    ///               //        digits
+    ///               //      ' not followed by a
+    ///               //        letter
+    /// 
     static const char * cp_separator = "()[]{};`";
 
-    //// "<line-break-char>" = "\n" | "\v" | "\f"
-    ////                     | "\r";
-    //// 
+    /// "<line-break-char>" = "\n" | "\v" | "\f"
+    ///                     | "\r";
+    /// 
     static const char * cp_line_break = "\n\v\f\r";
 
-    //// "<non-line-break-char>" =
-    ////     ~ "<line-break-character>";
-    //// 
-    //// "<horizontal-space-char>" = " " | "\t";
-    //// 
+    /// "<non-line-break-char>" =
+    ///     ~ "<line-break-character>";
+    /// 
+    /// "<horizontal-space-char>" = " " | "\t";
+    /// 
     static const char * cp_horizontal_space = " \t";
 
     uns32 letter_pattern;
@@ -191,24 +185,24 @@ void ll::lexeme::standard::create_standard_program
         add_non_ascii_letters();
     NDL::end_character_pattern();
 
-    //// begin master atom table;
-    //// 
+    /// begin master atom table;
+    /// 
     NDL::begin_atom_table ( master_atom_table );
 
-    ////    // Whitespace is separated out into 3 types
-    ////    // of lexeme:
-    ////    //
-    ////    //   `horizontal space'  spaces and horizon-
-    ////    //                       tal tabs
-    ////    //   `line break'        linefeeds, carriage
-    ////    //                       returns, form
-    ////    //                       feeds, and vertical
-    ////    //                       tabs
-    ////    //   `comments'          `//' up to just
-    ////    //                       before next line
-    ////    //                       break
-    ////    //
-    ////    "//" call comment;
+    ///    // Whitespace is separated out into 3 types
+    ///    // of lexeme:
+    ///    //
+    ///    //   `horizontal space'  spaces and horizon-
+    ///    //                       tal tabs
+    ///    //   `line break'        linefeeds, carriage
+    ///    //                       returns, form
+    ///    //                       feeds, and vertical
+    ///    //                       tabs
+    ///    //   `comments'          `//' up to just
+    ///    //                       before next line
+    ///    //                       break
+    ///    //
+    ///    "//" call comment;
     //
     	NDL::begin_dispatch ( "/" );
 	    NDL::begin_dispatch ( "/" );
@@ -218,42 +212,42 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::call ( mark_atom_table );
 	NDL::end_dispatch();
 
-    ////    "<horizontal-space-char>"
-    ////        call horizontal space;
+    ///    "<horizontal-space-char>"
+    ///        call horizontal space;
     //
     	NDL::begin_dispatch ( cp_horizontal_space );
 	    NDL::call ( horizontal_space_atom_table );
 	NDL::end_dispatch();
 
-    ////    "<line-break-char>" call line break;
-    //// 
+    ///    "<line-break-char>" call line break;
+    /// 
     	NDL::begin_dispatch ( cp_line_break );
 	    NDL::call ( line_break_atom_table );
 	NDL::end_dispatch();
 
-    ////    "<letter>" call word;
+    ///    "<letter>" goto word;
     //
     	NDL::begin_dispatch ( cp_ascii_letter );
 	    add_non_ascii_letters();
-	    NDL::call ( word_atom_table );
+	    NDL::go ( word_atom_table );
 	NDL::end_dispatch();
 
-    ////    "'<letter>" call word;
+    ///    "'<letter>" goto word;
     //
 	NDL::begin_dispatch ( "'" );
 	    NDL::begin_dispatch ( cp_ascii_letter );
 		add_non_ascii_letters();
-		NDL::call ( word_atom_table );
+		NDL::go ( word_atom_table );
 	    NDL::end_dispatch();
 
 	    NDL::output ( separator_t );
 	NDL::end_dispatch();
 
-    ////     "\\<u-char>"
-    ////         keep 0
-    ////         call ( escaped letter atom table,
-    ////                word atom table );
-    //// 
+    ///     "\\<u-char>"
+    ///         keep 0
+    ///         call escaped letter atom table
+    ///              ( word atom table );
+    /// 
         NDL::begin_dispatch ( "\\" );
 	    NDL::begin_dispatch ( "uU" );
 		NDL::keep(0);
@@ -264,29 +258,29 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::call ( mark_atom_table );
 	NDL::end_dispatch();
 
-    ////    "<mark-char>" call mark;
+    ///    "<mark-char>" call mark;
     //
     	NDL::begin_dispatch ( cp_mark );
 	    NDL::call ( mark_atom_table );
 	NDL::end_dispatch();
 
-    ////    "." call mark;  // ".<non-digit>"
-    ////    "/" call mark;  // "/<non-slash-char>"
-    ////    "\\" call mark; // "\\<non-u-char>"
-    //// 
-    ////    // We assume that the preceding text is not
-    ////    // a digit or the current input is not / or
-    ////    // , followed by a digit.
-    ////    //
-    ////    "<digit>" keep 0 call natural number;
+    ///    "." call mark;  // ".<non-digit>"
+    ///    "/" call mark;  // "/<non-slash-char>"
+    ///    "\\" call mark; // "\\<non-u-char>"
+    /// 
+    ///    // We assume that the preceding text is not
+    ///    // a digit or the current input is not / or
+    ///    // , followed by a digit.
+    ///    //
+    ///    "<digit>" keep 0 call natural number;
     //
     	NDL::begin_dispatch ( cp_digit );
 	    NDL::keep(0);
 	    NDL::call ( natural_number_atom_table );
 	NDL::end_dispatch();
 
-    ////    ".<digit>" keep 1 call number;
-    //// 
+    ///    ".<digit>" keep 1 call number;
+    /// 
     	NDL::begin_dispatch ( "." );
 	    NDL::begin_dispatch ( "." );
 		NDL::keep(1);
@@ -295,63 +289,63 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::call ( mark_atom_table );
 	NDL::end_dispatch();
 
-    ////    "<separator-char>" output separator;
-    ////    "," output separator;
+    ///    "<separator-char>" output separator;
+    ///    "," output separator;
     //
     	NDL::begin_dispatch ( cp_separator );
 	    NDL::add_characters ( "," );
 	    NDL::output ( separator_t );
 	NDL::end_dispatch();
 
-    ////    "'" output separator;    // "'<non-letter>"
-    //// 
-    ////    "\"" translate "" call quoted string;
-    //// 
+    ///    "'" output separator;    // "'<non-letter>"
+    /// 
+    ///    "\"" translate "" call quoted string;
+    /// 
     	NDL::begin_dispatch ( "\"" );
 	    NDL::translate ( "" );
 	    NDL::call ( quoted_string_atom_table );
 	NDL::end_dispatch();
 
-    ////    "<other>" output bad character;
+    ///    "<other>" output bad character;
     //
     	NDL::begin_dispatch ( OTHER );
 	    NDL::output ( bad_character_t );
 	NDL::end_dispatch();
 
-    ////    output end of file;
-    //// 
+    ///    output end of file;
+    /// 
         NDL::output ( end_of_file_t );
-    //// end master atom table;
-    //// 
+    /// end master atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// // The following atom table is enterred to
-    //// // scan a \u.... or \U........ letter.  On
-    //// // error it emits an error atom and does
-    //// // return(0).  On no error, it accepts atom
-    //// // (converting the letter in the translation
-    //// // buffer) and does return(1).
-    ////
-    //// begin escaped letter atom table;
-    //// 
+    /// // The following atom table is enterred to
+    /// // scan a \u.... or \U........ letter.  On
+    /// // error it emits an error atom and does
+    /// // return.  On no error, it accepts atom
+    /// // (converting the letter in the translation
+    /// // buffer) and does return(1).
+    ///
+    /// begin escaped letter atom table;
+    /// 
     NDL::begin_atom_table ( escaped_letter_atom_table );
 
-    ////     "\\u<hex-digit><hex-digit>"
-    ////         "<hex-digit><hex-digit>"
-    ////         translate hex 2 0 "<letter"> return(1)
-    ////         else keep 2 error bad escape sequence
-    ////         return(0);
-    ////     "\\U<hex-digit><hex-digit>"
-    ////         "<hex-digit><hex-digit>"
-    ////         "<hex-digit><hex-digit>"
-    ////         "<hex-digit><hex-digit>"
-    ////         translate hex 2 0 "<letter"> return(1)
-    ////         else keep 2 error bad escape sequence
-    ////         return(0);
-    //// 
-    ////     "\\u" error bad escape sequence return(0);
-    ////     "\\U" error bad escape sequence return(0);
-    //// 
+    ///     "\\u<hex-digit><hex-digit>"
+    ///         "<hex-digit><hex-digit>"
+    ///         translate hex 2 0 "<letter"> return(1)
+    ///         else keep 2 error bad escape sequence
+    ///         return;
+    ///     "\\U<hex-digit><hex-digit>"
+    ///         "<hex-digit><hex-digit>"
+    ///         "<hex-digit><hex-digit>"
+    ///         "<hex-digit><hex-digit>"
+    ///         translate hex 2 0 "<letter"> return(1)
+    ///         else keep 2 error bad escape sequence
+    ///         return;
+    /// 
+    ///     "\\u" error bad escape sequence return;
+    ///     "\\U" error bad escape sequence return;
+    /// 
 	NDL::begin_dispatch ( "\\" );
 	  NDL::begin_dispatch ( "u" );
 	    NDL::begin_dispatch ( cp_hex_digit );
@@ -407,22 +401,22 @@ void ll::lexeme::standard::create_standard_program
 	  NDL::end_dispatch();
 	NDL::end_dispatch();
 
-    //// end escaped letter atom table;
-    //// 
+    /// end escaped letter atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// 
-    //// // The below tables are entered from the master
-    //// // table with the first one or two characters
-    //// // scanned.
-    //// 
-    //// 
-    //// begin comment atom table;
+    /// 
+    /// // The below tables are entered from the master
+    /// // table with the first one or two characters
+    /// // scanned.
+    /// 
+    /// 
+    /// begin comment atom table;
     //
     NDL::begin_atom_table ( comment_atom_table );
 
-    ////    "<non-line-break-char>" accept;
-    ////    return;
+    ///    "<non-line-break-char>" accept;
+    ///    return;
     //
         NDL::begin_dispatch ( cp_line_break );
 	NDL::end_dispatch();
@@ -432,62 +426,68 @@ void ll::lexeme::standard::create_standard_program
 
 	NDL::ret();
 
-    //// end comment atom table;
-    //// 
+    /// end comment atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// 
-    //// begin horizontal space atom table;
+    /// 
+    /// begin horizontal space atom table;
     //
     NDL::begin_atom_table
 	( horizontal_space_atom_table );
 
-    ////    "<horizontal-space-char>" accept;
+    ///    "<horizontal-space-char>" accept;
     //
         NDL::begin_dispatch ( cp_horizontal_space );
 	    NDL::accept();
 	NDL::end_dispatch();
 
-    ////    return;
+    ///    return;
     //
         NDL::ret();
 
-    //// end horizontal space atom table;
-    //// 
+    /// end horizontal space atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// 
-    //// begin line break atom table;
+    /// 
+    /// begin line break atom table;
     //
     NDL::begin_atom_table ( line_break_atom_table );
 
-    ////    "<line-break-char>" accept;
+    ///    "<line-break-char>" accept;
     //
         NDL::begin_dispatch ( cp_line_break );
 	    NDL::accept();
 	NDL::end_dispatch();
 
-    ////    return;
+    ///    return;
     //
         NDL::ret();
 
-    //// end line break atom table;
-    //// 
+    /// end line break atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// 
-    //// begin word atom table;
-    //// 
+    /// 
+    /// // The word atom table is entered by goto and
+    /// // NOT by call, because a call to escaped letter
+    /// // atom table with indexed return going to the
+    /// // word atom table is used by the master atom
+    /// // table.
+    ///
+    /// begin word atom table;
+    /// 
     NDL::begin_atom_table ( word_atom_table );
 
-    ////    "<letter>" accept;
+    ///    "<letter>" accept;
         NDL::begin_dispatch ( cp_ascii_letter );
 	    add_non_ascii_letters();
 	    NDL::accept();
 	NDL::end_dispatch();
 
-    ////    "'<letter>" accept;
-    //// 
+    ///    "'<letter>" accept;
+    /// 
         NDL::begin_dispatch ( "'" );
 	    NDL::begin_dispatch ( cp_ascii_letter );
 		add_non_ascii_letters();
@@ -495,10 +495,10 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::end_dispatch();
 	NDL::end_dispatch();
 
-    ////     "\\<u-char>"
-    ////         keep 0
-    ////         call ( escaped letter atom table,
-    ////                word atom table );
+    ///     "\\<u-char>"
+    ///         keep 0
+    ///         call escaped letter atom table,
+    ///              ( word atom table );
         NDL::begin_dispatch ( "\\" );
 	    NDL::begin_dispatch ( "uU" );
 		NDL::keep(0);
@@ -508,25 +508,25 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::end_dispatch();
 	NDL::end_dispatch();
 
-    ////    return;
-    //// 
-        NDL::ret();
+    ///    goto master atom table;
+    /// 
+        NDL::go ( master_atom_table );
 
-    //// end word atom table;
-    //// 
+    /// end word atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// begin mark atom table;
+    /// begin mark atom table;
     //
     NDL::begin_atom_table ( mark_atom_table );
 
-    ////    "<mark-char>" accept;
+    ///    "<mark-char>" accept;
     //
         NDL::begin_dispatch ( cp_mark );
 	    NDL::accept();
         NDL::end_dispatch();
 
-    ////    ".<non-digit>" keep 1;
+    ///    ".<non-digit>" keep 1;
     //
         NDL::begin_dispatch ( "." );
 	    NDL::begin_dispatch ( cp_digit );
@@ -536,7 +536,7 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::end_dispatch();
         NDL::end_dispatch();
 
-    ////    "/<non-slash-char>" keep 1;
+    ///    "/<non-slash-char>" keep 1;
     //
         NDL::begin_dispatch ( "/" );
 	    NDL::begin_dispatch ( "/" );
@@ -546,7 +546,7 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::end_dispatch();
         NDL::end_dispatch();
 
-    ////    "\\<non-u-char>" keep 1;
+    ///    "\\<non-u-char>" keep 1;
     //
         NDL::begin_dispatch ( "\\" );
 	    NDL::begin_dispatch ( "uU" );
@@ -556,21 +556,21 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::end_dispatch();
         NDL::end_dispatch();
 
-    ////    return;
+    ///    return;
     //
         NDL::ret();
 
-    //// end mark atom table;
-    //// 
+    /// end mark atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// begin natural number atom table;
-    //// 
+    /// begin natural number atom table;
+    /// 
     NDL::begin_atom_table ( natural_number_atom_table );
 
-    ////    "<digit>" accept;
-    ////    "<digit>/<digit>" keep 2 goto number;
-    ////    "<digit>,<digit>" keep 2 goto number;
+    ///    "<digit>" accept;
+    ///    "<digit>/<digit>" keep 2 goto number;
+    ///    "<digit>,<digit>" keep 2 goto number;
     //
         NDL::begin_dispatch ( cp_digit );
 	    NDL::begin_dispatch ( "/," );
@@ -582,7 +582,7 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::accept();
         NDL::end_dispatch();
 
-    ////    ".<digit>" keep 1 goto number;
+    ///    ".<digit>" keep 1 goto number;
     //
         NDL::begin_dispatch ( "." );
 	    NDL::begin_dispatch ( cp_digit );
@@ -591,32 +591,32 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::end_dispatch();
         NDL::end_dispatch();
 
-    ////    return;
-    ////
+    ///    return;
+    ///
         NDL::ret();
 
-    //// end natural number atom table;
-    //// 
+    /// end natural number atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// begin number atom table;
-    //// 
+    /// begin number atom table;
+    /// 
     NDL::begin_atom_table ( number_atom_table );
 
-    ////    // In order to recognize , and / surrounded
-    ////    // by digits as number atoms, entries to
-    ////    // this table upon recognizing "X<digit>"
-    ////    // must do a `keep 1' so the digit will be
-    ////    // left to be recognized by <digit>/<digit>
-    ////    // or <digit>,<digit>.
-    //// 
-    ////    // Alternatively we could have a separate
-    ////    // table for the state where the last atom
-    ////    // ended with // a digit.
-    //// 
-    ////    "<digit>" accept;
-    ////    "<digit>/<digit>" keep 2;
-    ////    "<digit>,<digit>" keep 2;
+    ///    // In order to recognize , and / surrounded
+    ///    // by digits as number atoms, entries to
+    ///    // this table upon recognizing "X<digit>"
+    ///    // must do a `keep 1' so the digit will be
+    ///    // left to be recognized by <digit>/<digit>
+    ///    // or <digit>,<digit>.
+    /// 
+    ///    // Alternatively we could have a separate
+    ///    // table for the state where the last atom
+    ///    // ended with a digit.
+    /// 
+    ///    "<digit>" accept;
+    ///    "<digit>/<digit>" keep 2;
+    ///    "<digit>,<digit>" keep 2;
     //
         NDL::begin_dispatch ( cp_digit );
 	    NDL::begin_dispatch ( "/," );
@@ -627,7 +627,7 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::accept();
         NDL::end_dispatch();
 
-    ////    ".<digit>" keep 1;
+    ///    ".<digit>" keep 1;
     //
         NDL::begin_dispatch ( "." );
 	    NDL::begin_dispatch ( cp_digit );
@@ -635,35 +635,35 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::end_dispatch();
         NDL::end_dispatch();
 
-    ////    return;
-    //// 
+    ///    return;
+    /// 
         NDL::ret();
 
-    //// end number atom table;
-    //// 
+    /// end number atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// begin quoted string atom table;
-    //// 
+    /// begin quoted string atom table;
+    /// 
     NDL::begin_atom_table ( quoted_string_atom_table );
 
-    ////     "\"" translate "" return;
-    ////              // End quoted string.
-    //// 
+    ///     "\"" translate "" return;
+    ///              // End quoted string.
+    /// 
         NDL::begin_dispatch ( "\"" );
 	    NDL::translate ( "" );
 	    NDL::ret();
         NDL::end_dispatch();
 
-    ////     "\\\"" translate "\"";
-    ////     "\\\n" translate "\n";
-    ////     "\\\r" translate "\r";
-    ////     "\\\t" translate "\t";
-    ////     "\\\b" translate "\b";
-    ////     "\\\f" translate "\f";
-    ////     "\\\v" translate "\v";
-    ////     "\\\\" translate "\\";
-    ////     "\\~"  translate " " ;
+    ///     "\\\"" translate "\"";
+    ///     "\\\n" translate "\n";
+    ///     "\\\r" translate "\r";
+    ///     "\\\t" translate "\t";
+    ///     "\\\b" translate "\b";
+    ///     "\\\f" translate "\f";
+    ///     "\\\v" translate "\v";
+    ///     "\\\\" translate "\\";
+    ///     "\\~"  translate " " ;
     //
         NDL::begin_dispatch ( "\\" );
 	    NDL::begin_dispatch ( "\"" );
@@ -694,14 +694,14 @@ void ll::lexeme::standard::create_standard_program
 	        NDL::translate ( " " );
 	    NDL::end_dispatch();
 
-    ////     "\\u<hex-digit><hex-digit>"
-    ////        "<hex-digit><hex-digit>"
-    ////        translate hex 2 0;
-    ////     "\\U<hex-digit><hex-digit>"
-    ////        "<hex-digit><hex-digit>"
-    ////        "<hex-digit><hex-digit>"
-    ////        "<hex-digit><hex-digit>"
-    ////        translate hex 2 0;
+    ///     "\\u<hex-digit><hex-digit>"
+    ///        "<hex-digit><hex-digit>"
+    ///        translate hex 2 0;
+    ///     "\\U<hex-digit><hex-digit>"
+    ///        "<hex-digit><hex-digit>"
+    ///        "<hex-digit><hex-digit>"
+    ///        "<hex-digit><hex-digit>"
+    ///        translate hex 2 0;
     //
 	    NDL::begin_dispatch ( "u" );
 	        NDL::begin_dispatch ( cp_hex_digit );
@@ -735,8 +735,8 @@ void ll::lexeme::standard::create_standard_program
 	        NDL::end_dispatch();
 	    NDL::end_dispatch();
 
-    ////     "\\<line-break-char>"
-    ////         keep 1 error bad escape sequence;
+    ///     "\\<line-break-char>"
+    ///         keep 1 error bad escape sequence;
     //
 	    NDL::begin_dispatch ( cp_line_break );
 		NDL::keep(1);
@@ -744,78 +744,50 @@ void ll::lexeme::standard::create_standard_program
 		    ( bad_escape_sequence_t );
 	    NDL::end_dispatch();
 
-    ////     "\\<other>" error bad escape sequence;
+    ///     "\\<other>" error bad escape sequence;
     //
 	    NDL::begin_dispatch ( OTHER );
 		NDL::erroneous_atom
 		    ( bad_escape_sequence_t );
 	    NDL::end_dispatch();
 
-    ////     "\\" error bad escape sequence;
-    ////             // I.e., "\\<end-of-file>"
+    ///     "\\" error bad escape sequence;
+    ///             // I.e., "\\<end-of-file>"
     //
 	    NDL::erroneous_atom
 		( bad_escape_sequence_t );
 
-    //// 
+    /// 
         NDL::end_dispatch();  // End of "\\".
 
-    ////     "<line-break-char>"
-    ////         goto bad end of line;
+    ///     "<line-break-char>"
+    ///         output bad end of line;
+    ///		goto master atom table;
     //
 	NDL::begin_dispatch ( cp_line_break );
-	    NDL::go ( bad_end_of_line_atom_table );
+	    NDL::output ( bad_end_of_line_t );
+	    NDL::go ( master_atom_table );
 	NDL::end_dispatch();
 
-    //// 
-    ////     "<other>" accept;
-    //// 
+    /// 
+    ///     "<other>" accept;
+    /// 
 	NDL::begin_dispatch ( OTHER );
 	    NDL::accept();
 	NDL::end_dispatch();
 
-    ////     goto bad end of file;
-    //// 
-	NDL::go ( bad_end_of_file_atom_table );
-
-    //// end quoted string atom table;
-    //// 
-    NDL::end_atom_table();
-
-    //// begin bad end of line;
-    ////     mode master;
-    //
-    NDL::begin_atom_table
-	( bad_end_of_line_atom_table );
-
-    ////     output bad end of line
-    ////            goto master;
-    //
-        NDL::output ( bad_end_of_line_t );
+    ///     output bad end of file;
+    ///     goto master atom table;
+    /// 
+	NDL::output ( bad_end_of_file_t );
 	NDL::go ( master_atom_table );
 
-    //// end bad end of line;
-    //// 
+    /// end quoted string atom table;
+    /// 
     NDL::end_atom_table();
 
-    //// begin bad end of file;
-    ////     mode master;
-    //
-    NDL::begin_atom_table
-	( bad_end_of_file_atom_table );
-
-    ////     output bad end of file
-    ////            goto master;
-    //
-        NDL::output ( bad_end_of_file_t );
-	NDL::go ( master_atom_table );
-
-    //// end bad end of file;
-    //// 
-    NDL::end_atom_table();
-
-    //// 
-    //// end standard lexical program;
+    /// 
+    /// end standard lexical program;
     //
     NDL::end_program();
 }

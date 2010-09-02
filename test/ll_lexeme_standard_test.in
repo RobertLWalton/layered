@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 16:14:06 EDT 2010
+// Date:	Wed Sep  1 17:27:17 EDT 2010
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -26,3 +26,6 @@ all 	
 control ABC
 "\"\n\r\t\b\f\v\\\~"
 "~\a\b\c\f"
+\u0041\U00000042C D\U00000045\u0046G
+\u0041\U00000002C D\U00000045\u0006G
+

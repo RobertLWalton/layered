@@ -175,7 +175,7 @@
             Max CType: 1
             0-9 A-F a-f
                 TRANSLATE_HEX(2,0), RETURN(1), ELSE(50):
-                  KEEP(2), ERRONEOUS_ATOM(14), RETURN(0)
+                  TRANSLATE(0), ERRONEOUS_ATOM(15), RETURN(0)
                 Dispatcher ID: 426
        466: DISPATCHER
             Break Elements: 3
@@ -205,7 +205,7 @@
             Max CType: 1
             0-9 A-F a-f
                 TRANSLATE_HEX(2,0), RETURN(1), ELSE(50):
-                  KEEP(2), ERRONEOUS_ATOM(14), RETURN(0)
+                  TRANSLATE(0), ERRONEOUS_ATOM(15), RETURN(0)
                 Dispatcher ID: 576
        616: DISPATCHER
             Break Elements: 3
@@ -687,7 +687,7 @@ COMMENT:2(0)0: //\~File:\tll_lexeme_standard_test.in
 LINE_BREAK:2(35)42: \n
 COMMENT:3(0)0: //\~Author:\tBob\~Walton\~(walton@acm.org)
 LINE_BREAK:3(38)43: \n
-COMMENT:4(0)0: //\~Date:\tWed\~Sep\~\~1\~16:14:06\~EDT\~2010
+COMMENT:4(0)0: //\~Date:\tWed\~Sep\~\~1\~17:27:17\~EDT\~2010
 LINE_BREAK:4(37)44: \n
 COMMENT:5(0)0: //
 LINE_BREAK:5(2)2: \n
@@ -877,4 +877,14 @@ ERRONEOUS ATOM: BAD_ESCAPE_SEQUENCE:27(2)2: \\a
 ERRONEOUS ATOM: BAD_ESCAPE_SEQUENCE:27(6)6: \\c
 QUOTED_STRING:27(0)0: "~\\a\\b\\c\\f" translated to: ~\\a\b\\c\f
 LINE_BREAK:27(11)11: \n
+WORD:28(0)0: \\u0041\\U00000042C translated to: ABC
+HORIZONTAL_SPACE:28(17)17: \~
+WORD:28(18)18: D\\U00000045\\u0046G translated to: DEFG
+LINE_BREAK:28(36)36: \n
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:29(6)6: \\U00000002
+WORD:29(0)0: \\u0041\\U00000002C translated to: AC
+HORIZONTAL_SPACE:29(17)17: \~
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:29(29)29: \\u0006
+WORD:29(18)18: D\\U00000045\\u0006G translated to: DEG
+LINE_BREAK:29(36)36: \n\n
 END_OF_FILE: <empty>

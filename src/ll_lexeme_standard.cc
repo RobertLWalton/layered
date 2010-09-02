@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 13:49:42 EDT 2010
+// Date:	Wed Sep  1 19:46:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,7 +24,7 @@ using namespace ll::lexeme::ndl;
 // Program Construction
 // ------- ------------
 
-static const uns32 MAX_TYPE = 14;
+static const uns32 MAX_TYPE = 15;
 static const char * type_name[MAX_TYPE+1] = {
     NULL,
     "WORD",
@@ -40,7 +40,8 @@ static const char * type_name[MAX_TYPE+1] = {
     "BAD_END_OF_LINE",
     "BAD_END_OF_FILE",
     "BAD_CHARACTER",
-    "BAD_ESCAPE_SEQUENCE" };
+    "BAD_ESCAPE_SEQUENCE",
+    "NON_LETTER_ESCAPE_SEQUENCE" };
 
 void add_non_ascii_letters ( void )
 {
@@ -333,14 +334,16 @@ void ll::lexeme::standard::create_standard_program
     ///     "\\u<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
     ///         translate hex 2 0 "<letter"> return(1)
-    ///         else keep 2 error bad escape sequence
+    ///         else translate ""
+    ///              error bad letter escape sequence
     ///         return;
     ///     "\\U<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
     ///         translate hex 2 0 "<letter"> return(1)
-    ///         else keep 2 error bad escape sequence
+    ///         else translate ""
+    ///              error bad letter escape sequence
     ///         return;
     /// 
     ///     "\\u" error bad escape sequence return;
@@ -355,9 +358,9 @@ void ll::lexeme::standard::create_standard_program
 	      NDL::translate_hex(2,0);
 	      NDL::ret(1);
 	      NDL::else_if_not ( letter_pattern );
-	        NDL::keep(2);
+		NDL::translate ( "" );
 	  	NDL::erroneous_atom
-		         ( bad_escape_sequence_t );
+		     ( non_letter_escape_sequence_t );
 		NDL::ret(0);
 	    NDL::end_dispatch();
 	    NDL::end_dispatch();
@@ -381,9 +384,9 @@ void ll::lexeme::standard::create_standard_program
 	      NDL::translate_hex(2,0);
 	      NDL::ret(1);
 	      NDL::else_if_not ( letter_pattern );
-	        NDL::keep(2);
+		NDL::translate ( "" );
 	  	NDL::erroneous_atom
-		         ( bad_escape_sequence_t );
+		     ( non_letter_escape_sequence_t );
 		NDL::ret(0);
 	    NDL::end_dispatch();
 	    NDL::end_dispatch();

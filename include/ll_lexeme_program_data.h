@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 11 05:44:54 EDT 2010
+// Date:	Fri Sep  3 19:49:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,8 +16,8 @@
 // Usage and Setup
 // ----- --- -----
 
-# ifndef LL_LEXEME_PROGRAM_H
-# define LL_LEXEME_PROGRAM_H
+# ifndef LL_LEXEME_PROGRAM_DATA_H
+# define LL_LEXEME_PROGRAM_DATA_H
 
 # include <ll_lexeme.h>
 using ll::lexeme::uns8;
@@ -164,4 +164,4 @@ const uns32 else_instruction_length = 2;
 
 } } }
 
-# endif // LL_LEXEME_PROGRAM_H
+# endif // LL_LEXEME_PROGRAM_DATA_H

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 16 07:30:25 EDT 2010
+// Date:	Sat Sep  4 08:19:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -625,7 +625,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // We scan atoms until we get to a point where the
     // atom table is to be changed from a table with
     // mode != MASTER to one with mode == MASTER and
-    // next != first, or `output_type' is set.
+    // next != first, or `output_type' is set (in this
+    // case next == first is allowed).
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us

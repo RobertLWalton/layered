@@ -1,0 +1,2 @@
+*.aux *.dvi *.idx *.ilg *.ind *.log *.toc
+*.o *_test

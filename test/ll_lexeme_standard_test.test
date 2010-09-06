@@ -2,42 +2,42 @@
             Atom Table ID: 2
          2: ATOM_TABLE
             Mode: MASTER
-            Dispatcher ID: 348
+            Dispatcher ID: 347
             OUTPUT(10)
          6: ATOM_TABLE
             Mode: TYPE (0)
-            Dispatcher ID: 873
+            Dispatcher ID: 876
         10: ATOM_TABLE
             Mode: WORD
-            Dispatcher ID: 1111
-            GOTO(2)
+            Dispatcher ID: 1113
+            RETURN(0)
         14: ATOM_TABLE
             Mode: NATURAL_NUMBER
-            Dispatcher ID: 1438
+            Dispatcher ID: 1440
             RETURN(0)
         18: ATOM_TABLE
             Mode: NUMBER
-            Dispatcher ID: 1554
+            Dispatcher ID: 1556
             RETURN(0)
         22: ATOM_TABLE
             Mode: MARK
-            Dispatcher ID: 1297
+            Dispatcher ID: 1299
             RETURN(0)
         26: ATOM_TABLE
             Mode: QUOTED_STRING
-            Dispatcher ID: 2240
+            Dispatcher ID: 2242
             OUTPUT(12), GOTO(2)
         30: ATOM_TABLE
             Mode: COMMENT
-            Dispatcher ID: 916
+            Dispatcher ID: 919
             RETURN(0)
         34: ATOM_TABLE
             Mode: HORIZONTAL_SPACE
-            Dispatcher ID: 951
+            Dispatcher ID: 954
             RETURN(0)
         38: ATOM_TABLE
             Mode: LINE_BREAK
-            Dispatcher ID: 991
+            Dispatcher ID: 994
             RETURN(0)
         42: DISPATCHER
             Break Elements: 1
@@ -81,57 +81,57 @@
             Max Break Elements: 3
             Max CType: 1
             A-Z a-z
-                GOTO(10)
+                CALL(10)[]
                 Dispatcher ID: 158
-       208: DISPATCHER
+       207: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       220: DISPATCHER
+       219: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             U u
-                KEEP(0), CALL(6)[10]
-                Dispatcher ID: 208
-       251: DISPATCHER
+                KEEP(0), CALL(10)[]
+                Dispatcher ID: 207
+       250: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       263: DISPATCHER
+       262: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       275: DISPATCHER
+       274: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       287: DISPATCHER
+       286: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
                 KEEP(1), CALL(18)[]
-                Dispatcher ID: 275
-       312: DISPATCHER
+                Dispatcher ID: 274
+       311: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       324: DISPATCHER
+       323: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       336: DISPATCHER
+       335: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       348: DISPATCHER
+       347: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 11
             \u0000-\b \u000E-\u001F \u007F-
                 OUTPUT(13)
-                Dispatcher ID: 336
+                Dispatcher ID: 335
             /
                 CALL(22)[]
                 Dispatcher ID: 99
@@ -142,29 +142,29 @@
                 CALL(38)[]
                 Dispatcher ID: 134
             A-Z a-z
-                GOTO(10)
+                CALL(10)[]
                 Dispatcher ID: 146
             '
                 OUTPUT(6)
                 Dispatcher ID: 170
             \\
                 CALL(22)[]
-                Dispatcher ID: 220
+                Dispatcher ID: 219
             ! #-& *-+ - : <-@ ^-_ | ~
                 CALL(22)[]
-                Dispatcher ID: 251
+                Dispatcher ID: 250
             0-9
                 KEEP(0), CALL(14)[]
-                Dispatcher ID: 263
+                Dispatcher ID: 262
             .
                 CALL(22)[]
-                Dispatcher ID: 287
+                Dispatcher ID: 286
             (-) , ; [ ] ` { }
                 OUTPUT(6)
-                Dispatcher ID: 312
+                Dispatcher ID: 311
             "
                 TRANSLATE(0), CALL(26)[]
-                Dispatcher ID: 324
+                Dispatcher ID: 323
        426: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
@@ -174,8 +174,8 @@
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                TRANSLATE_HEX(2,0), RETURN(1), ELSE(50):
-                  TRANSLATE(0), ERRONEOUS_ATOM(15), RETURN(0)
+                TRANSLATE_HEX(2,0), RETURN(0), ELSE(50):
+                  TRANSLATE(1,?), ERRONEOUS_ATOM(15), RETURN(0)
                 Dispatcher ID: 426
        466: DISPATCHER
             Break Elements: 3
@@ -189,495 +189,495 @@
             Max CType: 1
             0-9 A-F a-f
                 Dispatcher ID: 466
-       534: DISPATCHER
+       535: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
                 Dispatcher ID: 498
-       576: DISPATCHER
+       578: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       584: DISPATCHER
+       586: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                TRANSLATE_HEX(2,0), RETURN(1), ELSE(50):
-                  TRANSLATE(0), ERRONEOUS_ATOM(15), RETURN(0)
-                Dispatcher ID: 576
-       616: DISPATCHER
+                TRANSLATE_HEX(2,0), RETURN(0), ELSE(50):
+                  TRANSLATE(1,?), ERRONEOUS_ATOM(15), RETURN(0)
+                Dispatcher ID: 578
+       618: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 584
-       648: DISPATCHER
+                Dispatcher ID: 586
+       650: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 616
-       680: DISPATCHER
+                Dispatcher ID: 618
+       682: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 648
-       712: DISPATCHER
+                Dispatcher ID: 650
+       714: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 680
-       744: DISPATCHER
+                Dispatcher ID: 682
+       746: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 712
-       776: DISPATCHER
+                Dispatcher ID: 714
+       778: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 744
-       812: DISPATCHER
+                Dispatcher ID: 746
+       815: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 776
-       844: DISPATCHER
+                Dispatcher ID: 778
+       847: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             u
-                ERRONEOUS_ATOM(14), RETURN(0)
-                Dispatcher ID: 534
+                TRANSLATE(1,?), ERRONEOUS_ATOM(14), RETURN(0)
+                Dispatcher ID: 535
             U
-                ERRONEOUS_ATOM(14), RETURN(0)
-                Dispatcher ID: 812
-       873: DISPATCHER
+                TRANSLATE(1,?), ERRONEOUS_ATOM(14), RETURN(0)
+                Dispatcher ID: 815
+       876: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             \\
-                Dispatcher ID: 844
-       892: DISPATCHER
+                Dispatcher ID: 847
+       895: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       904: DISPATCHER
+       907: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       916: DISPATCHER
+       919: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             \u0000-\t \u000E-
                 ACCEPT
-                Dispatcher ID: 904
+                Dispatcher ID: 907
             \n-\r
-                Dispatcher ID: 892
-       939: DISPATCHER
+                Dispatcher ID: 895
+       942: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       951: DISPATCHER
+       954: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             \t \~
                 ACCEPT
-                Dispatcher ID: 939
-       979: DISPATCHER
+                Dispatcher ID: 942
+       982: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-       991: DISPATCHER
+       994: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             \n-\r
                 ACCEPT
-                Dispatcher ID: 979
-      1014: DISPATCHER
+                Dispatcher ID: 982
+      1017: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1026: DISPATCHER
+      1029: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1034: DISPATCHER
+      1037: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             A-Z a-z
                 ACCEPT
-                Dispatcher ID: 1026
-      1072: DISPATCHER
+                Dispatcher ID: 1029
+      1074: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1080: DISPATCHER
+      1082: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             U u
-                KEEP(0), CALL(6)[10]
-                Dispatcher ID: 1072
-      1111: DISPATCHER
+                KEEP(0), CALL(6)[]
+                Dispatcher ID: 1074
+      1113: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 3
             A-Z a-z
                 ACCEPT
-                Dispatcher ID: 1014
+                Dispatcher ID: 1017
             '
-                Dispatcher ID: 1034
+                Dispatcher ID: 1037
             \\
-                Dispatcher ID: 1080
-      1158: DISPATCHER
+                Dispatcher ID: 1082
+      1160: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1166: DISPATCHER
+      1168: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1178: DISPATCHER
+      1180: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1186: DISPATCHER
+      1188: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             \u0000-/ :-
                 KEEP(1)
-                Dispatcher ID: 1178
+                Dispatcher ID: 1180
             0-9
-                Dispatcher ID: 1166
-      1207: DISPATCHER
+                Dispatcher ID: 1168
+      1209: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1219: DISPATCHER
+      1221: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1227: DISPATCHER
+      1229: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             \u0000-. 0-
                 KEEP(1)
-                Dispatcher ID: 1219
+                Dispatcher ID: 1221
             /
-                Dispatcher ID: 1207
-      1246: DISPATCHER
+                Dispatcher ID: 1209
+      1248: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1258: DISPATCHER
+      1260: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1266: DISPATCHER
+      1268: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             \u0000-T V-t v-
                 KEEP(1)
-                Dispatcher ID: 1258
+                Dispatcher ID: 1260
             U u
-                Dispatcher ID: 1246
-      1297: DISPATCHER
+                Dispatcher ID: 1248
+      1299: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 4
             ! #-& *-+ - : <-@ ^-_ | ~
                 ACCEPT
-                Dispatcher ID: 1158
+                Dispatcher ID: 1160
             .
-                Dispatcher ID: 1186
+                Dispatcher ID: 1188
             /
-                Dispatcher ID: 1227
+                Dispatcher ID: 1229
             \\
-                Dispatcher ID: 1266
-      1349: DISPATCHER
+                Dispatcher ID: 1268
+      1351: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1357: DISPATCHER
+      1359: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
                 KEEP(2), GOTO(18)
-                Dispatcher ID: 1349
-      1382: DISPATCHER
+                Dispatcher ID: 1351
+      1384: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             , /
-                Dispatcher ID: 1357
-      1405: DISPATCHER
+                Dispatcher ID: 1359
+      1407: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1413: DISPATCHER
+      1415: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
                 KEEP(1), GOTO(18)
-                Dispatcher ID: 1405
-      1438: DISPATCHER
+                Dispatcher ID: 1407
+      1440: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9
                 ACCEPT
-                Dispatcher ID: 1382
+                Dispatcher ID: 1384
             .
-                Dispatcher ID: 1413
-      1465: DISPATCHER
+                Dispatcher ID: 1415
+      1467: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1473: DISPATCHER
+      1475: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
                 KEEP(2)
-                Dispatcher ID: 1465
-      1498: DISPATCHER
+                Dispatcher ID: 1467
+      1500: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             , /
-                Dispatcher ID: 1473
-      1521: DISPATCHER
+                Dispatcher ID: 1475
+      1523: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1529: DISPATCHER
+      1531: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
                 KEEP(1)
-                Dispatcher ID: 1521
-      1554: DISPATCHER
+                Dispatcher ID: 1523
+      1556: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9
                 ACCEPT
-                Dispatcher ID: 1498
+                Dispatcher ID: 1500
             .
-                Dispatcher ID: 1529
-      1581: DISPATCHER
+                Dispatcher ID: 1531
+      1583: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1594: DISPATCHER
+      1596: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1607: DISPATCHER
+      1609: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1620: DISPATCHER
+      1622: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1633: DISPATCHER
+      1635: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1646: DISPATCHER
+      1648: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1659: DISPATCHER
+      1661: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1672: DISPATCHER
+      1674: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1685: DISPATCHER
+      1687: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1698: DISPATCHER
+      1700: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1710: DISPATCHER
+      1712: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1718: DISPATCHER
+      1720: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
                 TRANSLATE_HEX(2,0)
-                Dispatcher ID: 1710
-      1750: DISPATCHER
+                Dispatcher ID: 1712
+      1752: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1718
-      1782: DISPATCHER
+                Dispatcher ID: 1720
+      1784: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1750
-      1814: DISPATCHER
+                Dispatcher ID: 1752
+      1816: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1782
-      1850: DISPATCHER
+                Dispatcher ID: 1784
+      1852: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      1858: DISPATCHER
+      1860: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
                 TRANSLATE_HEX(2,0)
-                Dispatcher ID: 1850
-      1890: DISPATCHER
+                Dispatcher ID: 1852
+      1892: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1858
-      1922: DISPATCHER
+                Dispatcher ID: 1860
+      1924: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1890
-      1954: DISPATCHER
+                Dispatcher ID: 1892
+      1956: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1922
-      1986: DISPATCHER
+                Dispatcher ID: 1924
+      1988: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1954
-      2018: DISPATCHER
+                Dispatcher ID: 1956
+      2020: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 1986
-      2050: DISPATCHER
+                Dispatcher ID: 1988
+      2052: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 2018
-      2082: DISPATCHER
+                Dispatcher ID: 2020
+      2084: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9 A-F a-f
-                Dispatcher ID: 2050
-      2118: DISPATCHER
+                Dispatcher ID: 2052
+      2120: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      2130: DISPATCHER
+      2132: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      2142: DISPATCHER
+      2144: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 12
             \u0000-\t \u000E-! #-T V-[ ]-a c-e g-m o-q s w-} \u007F-
                 ERRONEOUS_ATOM(14)
-                Dispatcher ID: 2130
+                Dispatcher ID: 2132
             "
                 TRANSLATE(1,")
-                Dispatcher ID: 1594
+                Dispatcher ID: 1596
             n
                 TRANSLATE(1,\n)
-                Dispatcher ID: 1607
+                Dispatcher ID: 1609
             r
                 TRANSLATE(1,\r)
-                Dispatcher ID: 1620
+                Dispatcher ID: 1622
             t
                 TRANSLATE(1,\t)
-                Dispatcher ID: 1633
+                Dispatcher ID: 1635
             b
                 TRANSLATE(1,\b)
-                Dispatcher ID: 1646
+                Dispatcher ID: 1648
             f
                 TRANSLATE(1,\f)
-                Dispatcher ID: 1659
+                Dispatcher ID: 1661
             v
                 TRANSLATE(1,\v)
-                Dispatcher ID: 1672
+                Dispatcher ID: 1674
             \\
                 TRANSLATE(1,\\)
-                Dispatcher ID: 1685
+                Dispatcher ID: 1687
             ~
                 TRANSLATE(1,\~)
-                Dispatcher ID: 1698
+                Dispatcher ID: 1700
             u
-                Dispatcher ID: 1814
+                Dispatcher ID: 1816
             U
-                Dispatcher ID: 2082
+                Dispatcher ID: 2084
             \n-\r
                 KEEP(1), ERRONEOUS_ATOM(14)
-                Dispatcher ID: 2118
-      2216: DISPATCHER
+                Dispatcher ID: 2120
+      2218: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      2228: DISPATCHER
+      2230: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      2240: DISPATCHER
+      2242: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 3
             \u0000-\t \u000E-! #-[ ]-
                 ACCEPT
-                Dispatcher ID: 2228
+                Dispatcher ID: 2230
             "
                 TRANSLATE(0), RETURN(0)
-                Dispatcher ID: 1581
+                Dispatcher ID: 1583
             \\
                 ERRONEOUS_ATOM(14)
-                Dispatcher ID: 2142
+                Dispatcher ID: 2144
             \n-\r
                 OUTPUT(11), GOTO(2)
-                Dispatcher ID: 2216
+                Dispatcher ID: 2218
 COMMENT:0(0)0: //\~Layers\~Language\~Standard\~Lexical\~Analyzer\~Test
     \~Data
 LINE_BREAK:0(54)54: \n
@@ -882,9 +882,18 @@ HORIZONTAL_SPACE:28(17)17: \~
 WORD:28(18)18: D\\U00000045\\u0046G translated to: DEFG
 LINE_BREAK:28(36)36: \n
 ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:29(6)6: \\U00000002
-WORD:29(0)0: \\u0041\\U00000002C translated to: AC
+WORD:29(0)0: \\u0041\\U00000002C translated to: A?C
 HORIZONTAL_SPACE:29(17)17: \~
 ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:29(29)29: \\u0006
-WORD:29(18)18: D\\U00000045\\u0006G translated to: DEG
-LINE_BREAK:29(36)36: \n\n
+WORD:29(18)18: D\\U00000045\\u0006G translated to: DE?G
+LINE_BREAK:29(36)36: \n
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:30(0)0: \\u0001
+WORD:30(0)0: \\u0001\\U00000042C translated to: ?BC
+HORIZONTAL_SPACE:30(17)17: \~
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:30(18)18: \\U00000004
+WORD:30(18)18: \\U00000004E\\u0046G translated to: ?EFG
+LINE_BREAK:30(36)36: \n
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:31(0)0: \\u0001
+WORD:31(0)0: \\u0001 translated to: ?
+LINE_BREAK:31(6)6: \n
 END_OF_FILE: <empty>

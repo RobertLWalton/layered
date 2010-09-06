@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 19:46:39 EDT 2010
+// Date:	Mon Sep  6 04:28:35 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -226,35 +226,31 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::call ( line_break_atom_table );
 	NDL::end_dispatch();
 
-    ///    "<letter>" goto word;
+    ///    "<letter>" call word;
     //
     	NDL::begin_dispatch ( cp_ascii_letter );
 	    add_non_ascii_letters();
-	    NDL::go ( word_atom_table );
+	    NDL::call ( word_atom_table );
 	NDL::end_dispatch();
 
-    ///    "'<letter>" goto word;
+    ///    "'<letter>" call word;
     //
 	NDL::begin_dispatch ( "'" );
 	    NDL::begin_dispatch ( cp_ascii_letter );
 		add_non_ascii_letters();
-		NDL::go ( word_atom_table );
+		NDL::call ( word_atom_table );
 	    NDL::end_dispatch();
 
 	    NDL::output ( separator_t );
 	NDL::end_dispatch();
 
     ///     "\\<u-char>"
-    ///         keep 0
-    ///         call escaped letter atom table
-    ///              ( word atom table );
+    ///         keep 0 call word;
     /// 
         NDL::begin_dispatch ( "\\" );
 	    NDL::begin_dispatch ( "uU" );
 		NDL::keep(0);
-		uns32 rv1[1] = { word_atom_table };
-		NDL::call ( escaped_letter_atom_table,
-		            1, rv1 );
+		NDL::call ( word_atom_table );
 	    NDL::end_dispatch();
 	    NDL::call ( mark_atom_table );
 	NDL::end_dispatch();
@@ -320,12 +316,12 @@ void ll::lexeme::standard::create_standard_program
     /// 
     NDL::end_atom_table();
 
-    /// // The following atom table is enterred to
-    /// // scan a \u.... or \U........ letter.  On
-    /// // error it emits an error atom and does
-    /// // return.  On no error, it accepts atom
-    /// // (converting the letter in the translation
-    /// // buffer) and does return(1).
+    /// // The following atom table is entered to scan
+    /// // a \u.... or \U........ letter.  On error it
+    /// // emits an error atom and translates \uXXXX,
+    /// // \UXXXXXXXX, \u, or \U to ?.  On no error, it
+    /// // accepts atom, converting the letter in the
+    /// // translation buffer.
     ///
     /// begin escaped letter atom table;
     /// 
@@ -333,21 +329,23 @@ void ll::lexeme::standard::create_standard_program
 
     ///     "\\u<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
-    ///         translate hex 2 0 "<letter"> return(1)
-    ///         else translate ""
+    ///         translate hex 2 0 "<letter"> return
+    ///         else translate "?"
     ///              error bad letter escape sequence
     ///         return;
     ///     "\\U<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
     ///         "<hex-digit><hex-digit>"
-    ///         translate hex 2 0 "<letter"> return(1)
-    ///         else translate ""
+    ///         translate hex 2 0 "<letter"> return
+    ///         else translate "?"
     ///              error bad letter escape sequence
     ///         return;
     /// 
-    ///     "\\u" error bad escape sequence return;
-    ///     "\\U" error bad escape sequence return;
+    ///     "\\u" error bad escape sequence
+    ///           translate "?" return;
+    ///     "\\U" error bad escape sequence
+    ///           translate "?" return;
     /// 
 	NDL::begin_dispatch ( "\\" );
 	  NDL::begin_dispatch ( "u" );
@@ -356,12 +354,12 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::begin_dispatch ( cp_hex_digit );
 	    NDL::begin_dispatch ( cp_hex_digit );
 	      NDL::translate_hex(2,0);
-	      NDL::ret(1);
+	      NDL::ret();
 	      NDL::else_if_not ( letter_pattern );
-		NDL::translate ( "" );
+		NDL::translate ( "?" );
 	  	NDL::erroneous_atom
 		     ( non_letter_escape_sequence_t );
-		NDL::ret(0);
+		NDL::ret();
 	    NDL::end_dispatch();
 	    NDL::end_dispatch();
 	    NDL::end_dispatch();
@@ -369,7 +367,8 @@ void ll::lexeme::standard::create_standard_program
 
 	    NDL::erroneous_atom
 		     ( bad_escape_sequence_t );
-	    NDL::ret(0);
+	    NDL::translate ( "?" );
+	    NDL::ret();
 	  NDL::end_dispatch();
 
 	  NDL::begin_dispatch ( "U" );
@@ -382,12 +381,12 @@ void ll::lexeme::standard::create_standard_program
 	    NDL::begin_dispatch ( cp_hex_digit );
 	    NDL::begin_dispatch ( cp_hex_digit );
 	      NDL::translate_hex(2,0);
-	      NDL::ret(1);
+	      NDL::ret();
 	      NDL::else_if_not ( letter_pattern );
-		NDL::translate ( "" );
+		NDL::translate ( "?" );
 	  	NDL::erroneous_atom
 		     ( non_letter_escape_sequence_t );
-		NDL::ret(0);
+		NDL::ret();
 	    NDL::end_dispatch();
 	    NDL::end_dispatch();
 	    NDL::end_dispatch();
@@ -399,7 +398,8 @@ void ll::lexeme::standard::create_standard_program
 
 	    NDL::erroneous_atom
 	             ( bad_escape_sequence_t );
-	    NDL::ret(0);
+	    NDL::translate ( "?" );
+	    NDL::ret();
 
 	  NDL::end_dispatch();
 	NDL::end_dispatch();
@@ -472,12 +472,6 @@ void ll::lexeme::standard::create_standard_program
     /// 
     NDL::end_atom_table();
 
-    /// 
-    /// // The word atom table is entered by goto and
-    /// // NOT by call, because a call to escaped letter
-    /// // atom table with indexed return going to the
-    /// // word atom table is used by the master atom
-    /// // table.
     ///
     /// begin word atom table;
     /// 
@@ -500,20 +494,17 @@ void ll::lexeme::standard::create_standard_program
 
     ///     "\\<u-char>"
     ///         keep 0
-    ///         call escaped letter atom table,
-    ///              ( word atom table );
+    ///         call escaped letter;
         NDL::begin_dispatch ( "\\" );
 	    NDL::begin_dispatch ( "uU" );
 		NDL::keep(0);
-		uns32 rv2[1] = { word_atom_table };
-		NDL::call ( escaped_letter_atom_table,
-		            1, rv2 );
+		NDL::call ( escaped_letter_atom_table );
 	    NDL::end_dispatch();
 	NDL::end_dispatch();
 
-    ///    goto master atom table;
-    /// 
-        NDL::go ( master_atom_table );
+    ///    return;
+    //
+        NDL::ret();
 
     /// end word atom table;
     /// 

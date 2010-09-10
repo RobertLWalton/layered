@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 24, 2010
+September 10, 2010
  
 \end{center}
 
@@ -711,9 +711,12 @@ This is like a call in which the first code block execution
 terminates just as the second code block execution begins.
 A tuple can be transferred along with control.
 
-[TBD: what is the difference between input and output?]
+Tuples may be \key{flattened}.  For example, 
+`{\tt (1, 2, (3, 4), 5)}' is equivalent to
+`{\tt (1, 2, 3, 4, 5)}'.  [TBD: more discussion, and special
+treatment for cluster members.]
 
-TBD: flattening??
+[TBD: what is the difference between input and output?]
 
 \subsection{Clusters}
 \label{CLUSTERS}
@@ -745,8 +748,8 @@ either the base name of the cluster or to another member name
 of the cluster.  Two variable names with different base names
 belong to different clusters.  Two variable names allocated in
 different scopes are in different clusters (a scope is a function,
-a block within the function, or the part of a package external to
-functions).  Two variable
+a block within the function, the part of a package external to
+functions, or a tuple).  Two variable
 names with the same base name and scope are in the same cluster.
 
 Clusters can be passed to functions and returned from functions.
@@ -806,6 +809,10 @@ example usage `{\tt void pp = allocate ( 2 );}' constructs
 The member arguments to the prefix {\tt *} and {\tt ++} operators
 are not given explicit values in calls to the operator functions,
 but are implicitly defined from the first cluster base argument.
+The argument list of a function is a tuple that is a scope so
+clusters can be defined \underline{within} the argument list.
+Similarly for the return value list.
+
 The prefix {\tt ++} operator is unusual in that its declaration
 indicates that it returns its first argument exactly, so that
 the cluster base variable name is in effect returned.  This is
@@ -872,7 +879,7 @@ given as {\tt 1} and of the second is given as {\tt 10}.
 
 \end{itemize}
 
-An array has parameters such that
+An array is a cluster such that
 
 \begin{center}
 \begin{tabular}[t]{lrl}
@@ -904,8 +911,8 @@ $array${\tt .lower\_bound[}$n-1${\tt ]}
 
 \end{center}
 
-[TBD: array mapping function that would allow, e.g., symmetric arrays.]
-
+The members of an array cluster are called the
+\smkey{parmeter}s{of array} of the array.
 The parameters of an array $A$ whose element type is $T$ and whose
 inheritable qualifiers are $Q$ are
 
@@ -923,16 +930,15 @@ upper bound is not at least as great as the corresponding lower bound).
 
 \item[\ttdkey{length}] Type: `{\tt unsptr}'.
 The total number of elements in the array.
-The last used element of the array, namely
+The last used element of the array is
 \begin{center}
 {\tt (} $Q$ $T$ {\tt *\&)}
     $A${\tt .first @ (} $A${\tt .length - 1 ) * }{\em element-size}
 \end{center}
 
-(This is an unchecked expression that could be written to access the
-last array element).
-`\verb|& |$A$\verb|.last|' is {\tt NULL} if there are no
-accessible array elements.
+This is an unchecked expression that could be written to access the
+last array element.  The {\tt .length} is \verb|0| if there are no array
+elements.
 
 \item[\ttdkey{base}] Type:
 `{\tt noaccess} $T$ {\tt * (unchecked || readonly) * \&}'.
@@ -955,14 +961,14 @@ The unit of these multipliers is the size of the array element.
 
 \item[\ttdkey{lower\_bound}{$[i]$}]
 Type: any integer type.
-The lower bound (smallest value)
+The lower bound (smallest legal value)
 of the $i+1$'st
 subscript of the array.
 An integer (may be negative).
 
 \item[\ttdkey{upper\_bound}{$[i]$}]
 Type: any integer type.
-The upper bound (largest value)
+The upper bound (largest legal value)
 of the $i+1$'st subscript of the array.
 An integer (may be negative).
 
@@ -1105,29 +1111,28 @@ array may be expanded.  An example is:
 // Implement myarray:
 
 deftype myarray (32,8);
-readonly unsptr *& .n ( *& myarray @ a ) unchecked = a@0;
-readonly unsptr *& .max_n ( *& myarray @ a ) unchecked = a@8;
-readonly unsptr *& .inc_max ( *& myarray @ a ) unchecked = a@16;
-float64 (readonly *&b) [1 .. a.n] .void ( *& myarray a )
+readonly unsptr *& .n ( myarray *& @ a ) unchecked = a@0;
+readonly unsptr *& .max_n ( myarray *& @ a ) unchecked = a@8;
+readonly unsptr *& .inc_max ( myarray *& @ a ) unchecked = a@16;
+noaccess float64 (readonly *&b) [1 .. a.n] .void ( myarray *& @ a )
     unchecked = a@24;
-myarray *& .constructor.() unchecked
+(myarray *& @ a) .constructor.() unchecked
 {
     a.n = 0;
     a.max_n = 0;
     a.inc_max = 30;
     a.void.base = NULL;
 }
-void push ( *& myarray a, float64 value ) unchecked
+void push ( myarray *& a, float64 value ) unchecked
 {
-    unsptr n = a.n;
-    if ( n >= a.max_n )
+    if ( a.n >= a.max_n )
     {
         a.max_n += a.inc_max;
         float64 * ap =
-            malloc ( sizeof ( float64 ) * ( max_n ) );
+            malloc ( sizeof ( float64 ) * ( a.max_n ) );
         if ( a.void != NULL )
             memcpy ( ap, a.void.base,
-                     n * sizeof ( float64 ) );
+                     a.n * sizeof ( float64 ) );
         mfree ( a.void.base );
         a.void.base = ap;
     }
@@ -1149,13 +1154,14 @@ a[3]; // Run time error.
 
 There are a number of language features introduced in the above code.
 
-First, {\tt a@8} is of type `{\tt void *\&}' which is
-converted to type `{\tt float (*\&) [1 .. a.n]}' by the
+First, {\tt a@24} is of type `{\tt void *\&}' which is
+converted to type `{\tt float64 (*\&) [1 .. a.n]}' by the
 `{\tt unchecked}' code of the {\tt .void} function.
 
 Second, an array value is just its {\tt .base}, which is
 just a pointer.  Viewed as the
-element of an object, {\tt a.void} is its {\tt .base} pointer, and just enough
+element of an object, {\tt a.void} is just a {\tt .base} pointer,
+and just enough
 space to store this pointer must be allocated to it.  Here
 we treat pointers as being 8 byte long values that are
 aligned on 8 byte boundaries, but as 4 byte pointers will
@@ -1182,7 +1188,7 @@ can always be omitted, as long as the
 result can be disambiguated.  Thus in the above
 `{\tt a.void.base}' could be replaced by either
 `{\tt a.void}' or just `{\tt a}'.  In the code at the end
-after the functions, `{\tt a.void}' is replaced by `{\tt a}'.
+after the functions, `{\tt a.void[...]}' is replaced by `{\tt a[...]}'.
 
 Sixth, `\verb|float64 (*&b) [1 .. a.n]|' differs from
 `\verb|float64 *&b [1 .. a.n]|' which is equivalent to
@@ -1201,7 +1207,8 @@ Seventh, the code above contains both an implementation of
 the implementation is intended to be written by macros which are called
 by the end user and which ensure that
 the unchecked code generated is in fact type-safe, while the code that
-uses {\tt myarray} is intended to be written by the end user.
+uses {\tt myarray} is intended to be written by the end user and
+should be type-safe in its own right.
 
 \subsubsection{Copying Arrays}
 \label{COPYING-ARRAYS}
@@ -1252,7 +1259,7 @@ odd_half int32 y1[1 .. 5] = y[1 .. 9 ++ 2];
 even_half int32 y2[1 .. 5] = x[2 .. 10 ++ 2];
 \end{verbatim}\end{indpar}
 
-Here {\tt x1} is the first half of {\tt x} and is the second
+Here {\tt x1} is the first half of {\tt x} and {\tt x2} is the second
 half.  Similarly {\tt y1} is all the elements of {\tt y} with
 odd subscripts, and {\tt y2} is all the elements with even
 subscripts.
@@ -1278,16 +1285,25 @@ Here {\tt y} is a 2-dimensional array overlaid on the vector {\tt x},
 {\tt z} is the transpose of {\tt y}, and {\tt w} is a subdiagonal of
 {\tt y}.
 
-[TBD: is there any way of having a non-linear view?  The problem
-is passing arrays as arguments and results of functions that are
-not inlined.
+\subsubsection{Array Maps}
+\label{ARRAY-MAPS}
 
-Also, what about scaling, offsetting, and clipping array values.  I.e.,
-\begin{center}
-\tt x[i,j] = max ( x.lower, min ( x.upper, y[i,j] * x.scale + x.offset ) )
-\end{center}
-]
+Special forms of array can be defined by adding parameters to the
+array and defining special operators.  For example, a symmetric
+array can be defined by:
+\begin{indpar}\begin{verbatim}
+int32 x[28];
+uns32 x.size = 7;
+int32 *& x[int32 i, int32 j]
+{
+    assert ( 0 <= i < size && 0 <= j < size );
+    return x[i*(i+1)/2 + j];
+}
+\end{verbatim}\end{indpar}
 
+Here `{\tt .size}' is an extra member of the cluster {\tt x}
+and `{\tt x[ ]}' is just a function that surrounds it arguments
+with `{\tt [ ]}' instead of `{\tt ( )}'.
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}

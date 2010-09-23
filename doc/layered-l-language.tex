@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 10, 2010
+September 22, 2010
  
 \end{center}
 
@@ -1329,7 +1329,7 @@ int32 (Q a)[5];      // a (== a.base)
 Locations specify a specific set of bytes.  Note that unlike
 the C programming language, L-Language does not specify arrays by
 simply giving a single pointer; there is always a specification of
-array extent.
+array extent (except for unchecked code).
 
 Qualifiers may be given in type definitions, and apply to all
 locations of the defined type.  For example, if {\tt Q} is a qualifier,
@@ -1345,9 +1345,10 @@ Q type1 x;
 Q type1 * y;
 \end{verbatim}\end{indpar}
 
-Qualifiers may also be applied to code blocks.  A qualifier after the
-name of the function in a function definition applies to the code in the
-body of a function.
+Qualifiers may also be applied to code blocks.  A qualifier just before the
+{\tt =} or \LEFTBRACKET{} that introduces the function body in a
+function definition applies to the code in the
+body.
 For example, if {\tt Q} is a qualifier,
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 function1 () Q = ... ;
@@ -1410,16 +1411,16 @@ is in the stack of the current thread.
 The `{\tt caller}' qualifier
 specifies that the location will last at least as long as the caller of
 a function.
-\ikey{Collectible qualifiers}{collectible qualifier} may be declared that
-indicate that the location is garbage collectible and its address needs
-to be protected against collection.
-Generally a code block
-may store the address of a location in the code block's
-stack frame as long as the code block knows the location will exist until
-the end of the code block's execution.  Addresses of static locations can
-be stored anywhere.  Addresses of collectible locations can be stored
-in a block's stack frame if there is reason to believe the locations
-will not be garbage collected while the code block is running.
+
+\ikey{Traceable qualifiers}{traceable qualifier} may be declared that
+indicate that either a location or the value stored in a location
+must be known to garbage collectors or similar system maintenance
+activities.  There are two kinds of traceable qualifiers:
+\skey{traceable location qualifier}s specify that a location stored in
+static memory or a thread stack must be findable by system activities,
+and \skey{traceable value qualifier}s specify that a location can only
+hold values of which copies appear in static or thread stack locations
+that are finable by system activities.
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
 may be changed, and thence when they may be cached in registers.  The

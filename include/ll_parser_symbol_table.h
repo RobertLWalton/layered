@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_symbol_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 19:48:21 EDT 2010
+// Date:	Mon Oct 18 06:53:25 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,38 +29,57 @@ namespace ll { namespace parser
 
 // All symbol table entries begin with a root.
 //
+struct key_prefix;
 struct root
 {
+    min::uns32 type;
+    	// Packed structure type.
     min::gen key_element;
-        // Next element of key.
-    min::gen type;
-        // Type.  
+        // This element of key.
+    key_prefix ** prefix;
+        // Prefix specifying previous elements of the
+	// key, or NULL if no previous elements.
+    root ** next;
+        // Next entry in the stack with the same
+	// key_element and prefix
+
     min::uns64 selectors;
         // Selector bits.
-    root ** next;
-        // Next entry in the stack with the same key.
 };
 
 // A key prefix points at the next key element in a
 // multi-element key.
 //
-extern min::gen KEY_PREFIX;
+extern min::uns32 KEY_PREFIX;
 struct key_prefix
 {
-    root r;  // Type == KEY_PREFIX.
+    root r;
+        // Type is KEY_PREFIX.
 
-    root ** next_element;
-       // This key_prefix represents a prefix of a key
-       // and the next_element represents the 
+    min::uns32 hash;
+        // Hash of the label that is the prefix
+	// ending with this element.  Computed using
+	// min::next_label_hash.
+
+    min::uns32 count;
+        // Number of possible next elements.
+
+    root ** next_element[5];
+        // If count <= 5, the next elements in
+	// order.  Otherwise not used, and the
+	// next elements are looked up by
+	//   min::next_label_hash
+	//       ( hash-of-next-key-element,
+	//	   this->hash );
 
 };
 
 // Bracket definition.
 //
-extern min::gen BRACKET;
+extern min::uns32 BRACKET;
 struct bracket
 {
-    root r;  // Type == BRACKET.
+    root r;  // Type is BRACKET.
 
     bracket ** opposing_bracket;
         // The opposing bracket of the opening bracket

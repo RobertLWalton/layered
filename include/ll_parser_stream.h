@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_stream.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 18 11:51:54 EDT 2010
+// Date:	Mon Oct 18 20:20:12 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,17 @@ struct token
     	// Packed structure type.  Is TOKEN.
     min::uns32 subtype;
         // Token type.
+
+    min::uns32 begin_line;
+    min::uns32 begin_index;
+    min::uns32 begin_column;
+        // Position of the first character of the token.
+
+    min::uns32 end_line;
+    min::uns32 end_index;
+    min::uns32 end_column;
+        // Position of the first character AFTER the
+	// token, or the end of input.
 };
 
 } } }

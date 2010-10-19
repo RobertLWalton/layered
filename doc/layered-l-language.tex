@@ -1417,10 +1417,18 @@ indicate that either a location or the value stored in a location
 must be known to garbage collectors or similar system maintenance
 activities.  There are two kinds of traceable qualifiers:
 \skey{traceable location qualifier}s specify that a location stored in
-static memory or a thread stack must be findable by system activities,
+static memory or a thread stack must be findable by system maintenance
+activities,
 and \skey{traceable value qualifier}s specify that a location can only
 hold values of which copies appear in static or thread stack locations
-that are finable by system activities.
+that are findable by system maintenance activities.
+
+All locations with a particular traceable
+qualifier may be found via builtin L-language primitives.
+For example, if values of a particular type may hold pointers
+to garbage collectible locations, making these values
+traceable permits all such values allocated to the stack or static
+memory to be located by the garbage collector.
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
 may be changed, and thence when they may be cached in registers.  The
@@ -1474,24 +1482,17 @@ location.  Alternatively, `{\tt constant}' can be replaced by `{\tt readonly}',
 which forbids writing the location but does \underline{not} promise that
 other code will not write the location.
 
-\ikey{Containing qualifiers}{containing qualifier} specify that a location
-might contain an encoded value, such as a pointer to a collectible location.
-For example, a value possibly containing an encoded pointer to
-the collectible location will be restricted as if it were a pointer to
-a collectible location.
+\ikey{Inline qualifiers}{inline qualifier} specify that functions called
+from a particular block of code are to be inlined, or that a particular
+block of code is to be out-of-line even if code surrounding it is
+being inlined.  Inlining is necessary to get full optimization.
 
-\ikey{Traceable qualifiers}{traceable qualifier} may be applied to
-stack locations.  All stack locations with a particular traceable
-qualifier may be found by code via builtin L-language primitives.
-For example, if values of a particular type may hold pointers
-to garbage collectible locations, making these values
-traceable permits all such values allocated to the stack to
-be located by the garbage collector.
+Qualifiers may \ikey{imply}{qualifiers}
+other qualifiers.  There can be qualifiers that
+are not themselves in any of the above categories, but which imply
+other qualifiers that are.
 
-A single qualifier may be of several kinds at once.  For example,
-a qualifier may be containing and traceable.
-
-Qualifiers may also be inherited.  For example, in
+Qualifiers may also be \ikey{inherited}{qualifiers}.  For example, in
 \begin{indpar}\begin{verbatim}
 readonly unsptr *& .n ( *& myarray @ a ) unchecked = a@0;
 \end{verbatim}\end{indpar}

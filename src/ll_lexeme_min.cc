@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 18:54:40 EDT 2010
+// Date:	Wed Oct 27 08:24:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,7 @@ struct ext_buffer : public LEX::buffer<T>
 
     pvt pvtype;
 
-    min::packed_vec_insertable_pointer<pvheader,T> pvp;
+    min::packed_vec_insptr<pvheader,T> pvp;
         // Invariant:
 	//   this->length <= this->max_length
 	//                == pvp->length
@@ -77,14 +77,13 @@ void ext_buffer<T>::resize ( LEX::uns32 new_max_length )
     else if ( this->max_length == 0 )
     {
         pv = pvtype.new_gen ( new_max_length );
-	min::initialize ( pvp, pv );
+	pvp = pv;
 	this->base = (LEX::uns8 **)
-	    & MUP::pointer_ref_of
-	        ( MUP::stub_of ( pv ) );
+	    & MUP::ptr_ref_of ( MUP::stub_of ( pv ) );
     }
     else if ( new_max_length == 0 )
     {
-        min::deinitialize ( pvp );
+	pvp = min::NULL_STUB;
 	min::deallocate ( MUP::stub_of ( pv ) );
     }
     else

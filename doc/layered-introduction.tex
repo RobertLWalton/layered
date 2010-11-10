@@ -1442,13 +1442,13 @@ begin standard lexical program;
 // International Standard for Information Systems—Programming
 // Language C++, 1996.
 
-"<latin-letter>" = "\u00c0-\n00d6" | "\u00d8-\u00f6"
-                 | "\u00f8-\u01f5" | "\u01fa-\u0217"
-                 | "\u0250-\u02a8" | "\u1ea0-\u1ef9";
+"<latin-letter>" = "\00c0/-\00d6/" | "\00d8/-\00f6/"
+                 | "\00f8/-\01f5/" | "\01fa/-\0217/"
+                 | "\0250/-\02a8/" | "\01ea0/-\01ef9/";
 
 . . . . . letter character pattern definitions omitted . . . . .
 
-"<CJK-letter>" = "\uf900-\ufa2d" | . . .  // Details omitted
+"<CJK-letter>" = "\0f900/-\0fa2d/" | . . .  // Details omitted
 
 // Context sensitive character classifications, e.g.,
 // classifying ' as a word character if it is followed by
@@ -1477,11 +1477,11 @@ begin standard lexical program;
               // Also , not surrounded by digits
               //      ' not followed by a letter
 
-"<line-break-char>" = "\n" | "\v" | "\f" | "\r";
+"<line-break-char>" = "\lf/" | "\vt/" | "\ff/" | "\cr/";
 
 "<non-line-break-char>" = ~ "<line-break-character>";
 
-"<horizontal-space-char>" = " " | "\t";
+"<horizontal-space-char>" = " " | "\ht/";
 
 begin master atom table;
 
@@ -1494,39 +1494,32 @@ begin master atom table;
    //   `comments'          `//' up to just before next
    //                       line break
    //
-   "//" call comment;
-   "<horizontal-space-char>" call horizontal space;
-   "<line-break-char>" call line break;
+   "//" goto comment;
+   "<horizontal-space-char>" goto horizontal space;
+   "<line-break-char>" goto line break;
 
-   "<word-char>" call word;
-   "'<letter>" call word;
-    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate hex 2 0 "<letter"> call word
-        else keep 2 error bad escape sequence;
-    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate hex 2 0 "<letter"> call word
-        else keep 2 error bad escape sequence;
+   "<word-char>" goto word;
+   "'<letter>" goto word;
+    "\\/" translate escaped character representative
+          require "<letter>" goto word
+          else goto bad escape sequence;
 
-    "\\u" error bad escape sequence;
-    "\\U" error bad escape sequence;
-
-   "<mark-char>" call mark;
-   "." call mark;  // ".<non-digit>"
-   "/" call mark;  // "/<non-slash-char>"
-   "\\" call mark; // "\\<non-u-char>"
+   "<mark-char>" goto mark;
+   "." goto mark;  // ".<non-digit>"
+   "/" goto mark;  // "/<non-slash-char>"
+   "\\" goto mark; // "\\<non-u-char>"
 
    // We assume that the preceding text is not a digit
    // or the current input is not / or , followed by a digit.
    //
-   "<digit>" keep 0 call natural number;
-   ".<digit>" keep 1 call number;
+   "<digit>" keep 0 goto natural number;
+   ".<digit>" keep 1 goto number;
 
    "<separator-char>" output separator;
    "," output separator;
    "'" output separator;        // "'<non-letter>"
 
-   "\"" translate "" call quoted string;
+   "\"" translate "" goto quoted string;
 
    "<other>" output bad character;
    output end of file;
@@ -1540,19 +1533,19 @@ end master atom table;
 
 begin comment atom table;
    "<non-line-break-char>" accept;
-   return;
+   goto master;
 end comment atom table;
 
 
 begin horizontal space atom table;
    "<horizontal-space-char>" accept;
-   return;
+   goto master;
 end horizontal space atom table;
 
 
 begin line break atom table;
    "<line-break-char>" accept;
-   return;
+   goto master;
 end line break atom table;
 
 
@@ -1560,15 +1553,9 @@ begin word atom table;
 
    "<word-char>" accept;
    "'<letter>" accept;
-
-    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate hex 2 0 "<letter">
-        else keep 0 return
-    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate hex 2 0 "<letter">
-        else keep 0 return
-
+    "\\/" translate escaped character representative
+          require "<letter>" goto word
+          else goto master;
    return;
 
 end word atom table;
@@ -1578,7 +1565,7 @@ begin mark atom table;
    ".<non-digit>" keep 1;
    "/<non-slash-char>" keep 1;
    "\\<non-u-char>" keep 1;
-   return;
+   goto master;
 end mark atom table;
 
 begin natural number atom table;
@@ -1587,7 +1574,7 @@ begin natural number atom table;
    ".<digit>" keep 1 goto number;
    "<digit>/<digit>" keep 2 goto number;
    "<digit>,<digit>" keep 2 goto number;
-   return;
+   goto master;
 
 end natural number atom table;
 
@@ -1607,35 +1594,20 @@ begin number atom table;
    ".<digit>" keep 1;
    "<digit>/<digit>" keep 2;
    "<digit>,<digit>" keep 2;
-   return;
+   goto master;
 
 end number atom table;
 
 
 begin quoted string atom table;
 
-    "\"" translate "" return;   // End quoted string.
+    "\"/" translate "" return;   // End quoted string.
 
-    "\\\"" translate "\"";
-    "\\\n" translate "\n";
-    "\\\r" translate "\r";
-    "\\\t" translate "\t";
-    "\\\b" translate "\b";
-    "\\\f" translate "\f";
-    "\\\v" translate "\v";
-    "\\\\" translate "\\";
-    "\\~"  translate " " ;
-    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-                                translate hex 2 0;
-    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
-                                translate hex 2 0;
-    "\\<line-break-char>"
-        keep 1 error bad escape sequence;
+    "\\/" translate escaped character representative
+          else error bad escape character
 
     "<line-break-char>"
         goto bad end of line;
-    "\\<other>" error bad escape sequence;
 
     "<other>" accept;
 
@@ -1644,18 +1616,61 @@ begin quoted string atom table;
 end quoted string atom table;
 
 
-begin bad end of line;
+begin escaped character representative translation table
+
+    "\\/\"/" translate "\"/";
+    "\\/\lf/" translate "\lf/";
+    "\\/\cr/" translate "\cr/";
+    "\\/\ht/" translate "\ht/";
+    "\\/\bs/" translate "\bs/";
+    "\\/\ff/" translate "\ff/";
+    "\\/\vt/" translate "\vt/";
+    "\\/\\//" translate "\\/";
+    "\\/~"  translate " " ;
+    "\\/0/" translate "\0/";
+    "\\/0<hex-digit>/"
+              translate hex 2 1
+    "\\/0<hex-digit><hex-digit>/"
+              translate hex 2 1
+    "\\/0<hex-digit><hex-digit><hex-digit>/"
+              translate hex 2 1
+    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>/"
+              translate hex 2 1
+    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit>/"
+              translate hex 2 1
+    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit>/"
+              translate hex 2 1
+    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit><hex-digit>/"
+              translate hex 2 1
+    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit><hex-digit><hex-digit>/"
+              translate hex 2 1
+    fail
+end escaped character representative translation table
+
+
+begin bad escape sequence atom table;
+    "<line-break>" goto master;
+    "/" goto master;
+    "<other>" accept;
+    goto master;
+end bad escape sequence atom table;
+
+begin bad end of line atom table;
     mode master;
     output bad end of line
            goto master;
-end bad end of line;
+end bad end of line atom table;
 
 
-begin bad end of file;
+begin bad end of file; atom table
     mode master;
     output bad end of file
            goto master;
-end bad end of file;
+end bad end of file atom table;
 
 
 end standard lexical program;
@@ -1699,7 +1714,7 @@ begin c++ lexical program;
 "<space-char>" = " " | "\t" | "\v" | "\f";
 
 "<source-character>" =
-    ( "\u0020-\u007e" & ~ "$" & ~ "@" & ~ "`" )
+    ( "\0020/-\007e/" & ~ "$" & ~ "@" & ~ "`" )
     | "<whitespace-char>";
 
 "<sign>" = "+" | "-" ;
@@ -1709,13 +1724,13 @@ begin c++ lexical program;
 // Proposed International Standard for Information
 // Systems—Programming Language C++, 1996.
 
-"<latin-letter>" = "\u00c0-\n00d6" | "\u00d8-\u00f6"
-                 | "\u00f8-\u01f5" | "\u01fa-\u0217"
-                 | "\u0250-\u02a8" | "\u1ea0-\u1ef9";
+"<latin-letter>" = "\00c0/-\00d6/" | "\00d8/-\00f6/"
+                 | "\00f8/-\01f5/" | "\01fa/-\0217/"
+                 | "\0250/-\02a8/" | "\01ea0/-\01ef9/";
 
 . . . letter character pattern definitions omitted . . .
 
-"<CJK-letter>" = "\uf900-\ufa2d" | . . .
+"<CJK-letter>" = "\0f900/-\0fa2d/" | . . .
     // Details omitted
 
 "<letter>" = "<ascii-letter>" | "<latin-letter>"
@@ -1755,12 +1770,12 @@ begin c++ lexical program;
 //
 // The whitespace lexeme types are:
 //
-//    line feed (lexeme is "\n")
+//    line feed (lexeme is "\lf/")
 //    horizontal space
 //    "/*" comment (include /* and */)
 //    "//" comment (does not include ending line feed)
 //    end of file (lexeme is "")
-//    premature line feed (lexeme is "\n")
+//    premature line feed (lexeme is "\lf/")
 //    premature end of file (lexeme is "")
 //
 // This allows line feeds to be used to end pp control
@@ -1788,7 +1803,7 @@ begin "/*" comment atom table;
 end "/*" comment atom table;
 
 begin "//" comment atom table;
-    "\n" keep 0 return;
+    "\lf/" keep 0 return;
     "<other>" accept;
     goto premature end of file master;
 end "//" comment atom table;
@@ -1800,8 +1815,8 @@ end premature end of file master atom table;
 
 begin premature end of line master atom table;
     mode master;
-    "\n" output premature newline
-                goto pp group master;
+    "\lf/" output premature newline
+                  goto pp group master;
 end premature end of line master atom table;
 
 begin pp group master atom table;
@@ -1842,16 +1857,16 @@ begin include header name master atom table;
     "<horizontal-space-char>" call horizontal space;
     "/*" call "/*" comment;
     "<" translate "" goto bracketed header name;
-    "\"" translate "" goto quoted header name;
+    "\"/" translate "" goto quoted header name;
     goto normal line master;
 end include header name master atom table;
 
 begin bracketed header name atom table;
     ">" translate "" goto normal line master;
-    "\n" keep 0 goto premature end of line master;
+    "\lf/" keep 0 goto premature end of line master;
     "'" error bad character in header name;
     "\"" error bad character in header name;
-    "\\" error bad character in header name;
+    "\\/" error bad character in header name;
     "//" error bad character pair in header name;
     "/*" error bad character pair in header name;
     "<other>" accept;
@@ -1862,10 +1877,10 @@ end bracketed header name atom table;
 // strings, and cannot have escape sequences.
 //
 begin quoted header name atom table;
-    "\"" translate "" goto normal line master;
-    "\n" keep 0 goto premature end of line master;
+    "\"/" translate "" goto normal line master;
+    "\lf/" keep 0 goto premature end of line master;
     "'" error bad character in header name;
-    "\\" error bad character in header name;
+    "\\/" error bad character in header name;
     "//" error bad character pair in header name;
     "/*" error bad character pair in header name;
     "<other>" accept;
@@ -1906,14 +1921,14 @@ begin normal line master atom table;
 
     "'" translate "" goto character literal;
     "L'" translate "" goto wide character literal;
-    "\"" translate "" goto string literal;
-    "L\"" translate "" goto wide string literal;
+    "\"/" translate "" goto string literal;
+    "L\"/" translate "" goto wide string literal;
 
-    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
             translate hex 2 0 goto identifier
             "<letter>"
             else output non-letter UNICODE error;
-    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
             translate hex 2 0 goto identifier
             "<letter>"
@@ -1938,11 +1953,11 @@ begin normal line master atom table;
 begin identifier atom table;
     "<letter>" accept;
     "<digit>" accept;
-    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
             translate hex 2 0 "<letter>"
             else keep 0 goto normal line master;
-    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit><hex-digit><hex-digit>"
             translate hex 2 0 "<letter>"
             else keep 0 goto normal line master;
     goto normal line master;
@@ -1959,37 +1974,41 @@ end number atom table;
 
 begin character literal atom table;
     "'" translate "" goto normal line master;
-    "\n" keep 0 goto premature end of line master;
-    "\\" keep 0 call escape character;
+    "\lf/" keep 0 goto premature end of line master;
+    "\\/" translate escaped character representation
+          else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
 end character literal atom table;
 
 begin wide character literal atom table;
     "'" translate "" goto normal line master;
-    "\n" keep 0 goto premature end of line master;
-    "\\" keep 0 call escape character;
+    "\lf/" keep 0 goto premature end of line master;
+    "\\/" translate escaped character representation
+          else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
 end wide character literal atom table;
 
 begin string literal atom table;
-    "\"" translate "" goto normal line master;
-    "\n" keep 0 goto premature end of line master;
-    "\\" keep 0 call escape character;
+    "\"/" translate "" goto normal line master;
+    "\lf/" keep 0 goto premature end of line master;
+    "\\/" translate escaped character representation
+          else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
 end string literal atom table;
 
 begin wide string literal atom table;
-    "\"" translate "" goto normal line master;
-    "\n" keep 0 goto premature end of line master;
-    "\\" keep 0 call escape character;
+    "\"/" translate "" goto normal line master;
+    "\lf/" keep 0 goto premature end of line master;
+    "\\/" translate escaped character representation
+          else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
 end wide string literal atom table;
 
-// This atom table is called when the next atom
+// This translation table is used when the next atom
 // begins with \ and is in a character or string
 // literal.
 //
@@ -1997,55 +2016,54 @@ end wide string literal atom table;
 // after \x; 9 digits is an error.  The C++ standard
 // permits any number of hexadecimal digits.
 //
-begin escape character atom table;
-    "\\n" translate "\n" return;
-    "\\t" translate "\t" return;
-    "\\v" translate "\v" return;
-    "\\b" translate "\b" return;
-    "\\r" translate "\r" return;
-    "\\f" translate "\f" return;
-    "\\a" translate "\a" return;
-    "\\\\" translate "\\" return;
-    "\\?" translate "\?" return;
-    "\\\"" translate "\"" return;
-    "\\'" translate "'" return;
+begin escaped character representation translation table;
+    "\\n" translate "\n";
+    "\\t" translate "\t";
+    "\\v" translate "\v";
+    "\\b" translate "\b";
+    "\\r" translate "\r";
+    "\\f" translate "\f";
+    "\\a" translate "\a";
+    "\\\\" translate "\\";
+    "\\?" translate "\?";
+    "\\\"" translate "\"";
+    "\\'" translate "'";
     "\\<oct-digit>"
-        translate-oct 1 0 return;
+        translate-oct 1 0;
     "\\<oct-digit><oct-digit>"
-        translate-oct 1 0 return;
+        translate-oct 1 0;
     "\\<oct-digit><oct-digit><oct-digit>"
-        translate-oct 1 0 return;
+        translate-oct 1 0;
     "\\x<hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit>"
-        error too many hex digits after "\\x" return;
+       "<hex-digit>" fail;
     "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0 return;
+        translate-hex 2 0;
     "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0 return;
-    "\\<other>" error bad escape sequence return;
-end escape character atom table;
+        translate-hex 2 0;
+    fail;
+end escaped character representation translation table;
 
 end c++ lexical program;
 \end{verbatim}\end{indpar}

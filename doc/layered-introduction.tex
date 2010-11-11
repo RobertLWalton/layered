@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 10, 2010
+November 11, 2010
  
 \end{center}
 
@@ -1689,11 +1689,11 @@ begin c++ lexical program;
 // be preprocessed to
 //
 //    (1) Replace trigraph sequences.
-//    (2) Eliminate carriage returns next to newlines.
-//    (3) Eliminate backslash newline pairs.
-//    (4) Replace any source file character that is not
+//    (2) Replace any source file character that is not
 //        one of the 96 `source characters' by a univer-
 //        sal character name (\uXXXX or \UXXXXXXXX).
+//    (3) Eliminate carriage returns next to newlines.
+//    (4) Eliminate backslash newline pairs.
 //
 // After this lexical program is used the output should
 // be post-processed to
@@ -1748,25 +1748,20 @@ begin c++ lexical program;
 // contexts, each corresponding to a different master
 // atom table:
 //
-//    pp group master (initial master)
+//    initial master
 //        Used in line beginning situations to recognize
 //        the # token that introduces a pp control line.
-//    pp control line beginning master
+//    pp beginning master
 //        Used to scan the beginning of a pp control
-//        line.
-//    pp include header name master
-//        Used to scan the header name of an #include
-//        statement.
-//    pp define identifier name master
-//        Used to scan the 
-//        statement.
-//    pp control line master
-//        Used to scan the remainder of a pp control
-//        line.  Recognizes the line ending line feed.
-//    normal line master
+//        line after the # has been scanned but before
+//	  anything else is scanned.
+//    pp include master
+//        Used to scan tokens in a #include line after
+//	  #include has been scanned.  Recognizes
+//	  `header' pp-tokens.
+//    normal master
 //        Used to scan a non pp control line or the rest
-//        of a pp control line that consists of just pp
-//        tokens.
+//        of a non-#include pp control line.
 //
 // The whitespace lexeme types are:
 //
@@ -1787,142 +1782,122 @@ begin c++ lexical program;
 // Initial master is used only to start at pp group
 // master.
 //
-begin initial master atom table;
-    goto pp group master;
-end initial master atom table;
-
-begin horizontal space atom table;
-    "<horizontal-space-char>" accept;
-    return;
-end horizontal space atom table;
-
-begin "/*" comment atom table;
-    "*/" return;
-    "<other>" accept;
-    goto premature end of file master;
-end "/*" comment atom table;
-
-begin "//" comment atom table;
-    "\lf/" keep 0 return;
-    "<other>" accept;
-    goto premature end of file master;
-end "//" comment atom table;
-
-begin premature end of file master atom table;
-    mode master;
-    output premature end of file;
-end premature end of file master atom table;
-
-begin premature end of line master atom table;
-    mode master;
-    "\lf/" output premature newline
-                  goto pp group master;
-end premature end of line master atom table;
-
-begin pp group master atom table;
-    mode master;
+begin initial master table;
     "<horizontal-space-char>"
         call horizontal space;
     "/*" call "/*" comment;
     "##" output operator
-         goto normal line master;
+         goto normal;
     "%:%:" translate "##" output operator
-                          goto normal line master;
+                          goto normal;
     "#" output punctuation
-        goto pp control master;
+        goto pp beginning;
     "%:" translate "#" output punctuation
-                       goto pp control master;
-    goto normal line master;
-end pp group master atom table;
+                       goto pp beginning;
+    goto normal;
+end initial master table;
 
-begin pp control master atom table;
+begin horizontal space lexeme table;
+    "<horizontal-space-char>" accept;
+    return;
+end horizontal space lexeme table;
+
+begin "/*" comment lexeme table;
+    "*/" return;
+    "<other>" accept;
+    goto premature end of file;
+end "/*" comment lexeme table;
+
+begin "//" comment lexeme table;
+    "\lf/" keep 0 return;
+    "<other>" accept;
+    goto premature end of file;
+end "//" comment lexeme table;
+
+begin premature end of file master table;
+    output premature end of file;
+end premature end of file master table;
+
+begin premature end of line master table;
+    "\lf/" output premature newline
+                  goto initial master;
+end premature end of line master table;
+
+begin pp beginning master table;
+    "<horizontal-space-char>" call horizontal space;
+    "/*" call "/*" comment;
+    "include<non-digit>" keep 0 goto normal;
+    "include" output identifier goto pp include;
+    goto normal;
+end pp beginning master table;
+
+begin pp include master table;
     mode master;
     "<horizontal-space-char>" call horizontal space;
     "/*" call "/*" comment;
-    "include<horizontal-space-char>" keep 7
-        output identifier
-        goto pp include header name master;
-    "include/*" keep 7 output identifier
-        goto pp include header name master;
-    "define<horizontal-space-char>" keep 6
-        output identifier
-        goto pp define identifier master;
-    "define/*" keep 6 output identifier
-        goto pp define identifier master;
-    goto normal line master;
-end pp control master atom table;
 
-begin include header name master atom table;
-    mode master;
-    "<horizontal-space-char>" call horizontal space;
-    "/*" call "/*" comment;
-    "<" translate "" goto bracketed header name;
-    "\"/" translate "" goto quoted header name;
-    goto normal line master;
-end include header name master atom table;
+    "<" translate "" call bracketed header name;
+    "\"/" translate "" call quoted header name;
 
-begin bracketed header name atom table;
-    ">" translate "" goto normal line master;
-    "\lf/" keep 0 goto premature end of line master;
+    "<non-digit>" call identifier
+    "\\/" translate escaped letter call identifier
+          else translate universal character
+	       output unrecognized universal character
+          else output unrecognized character
+
+    "<digit>" call integer
+    ".<digit>" call fraction
+
+    "'" translate "" call character literal;
+    "L'" translate "" call wide character literal;
+    "\"/" translate "" call string literal;
+    "L\"/" translate "" call wide string literal;
+
+    "<op-char>" translate operator output operator
+          else output unrecognized character
+    goto normal;  // Handles line ends
+pp end include master table;
+
+begin bracketed header name lexeme table;
+    ">" translate "" goto normal;
+    "\lf/" keep 0 goto premature end of line;
     "'" error bad character in header name;
-    "\"" error bad character in header name;
+    "\"/" error bad character in header name;
     "\\/" error bad character in header name;
     "//" error bad character pair in header name;
     "/*" error bad character pair in header name;
     "<other>" accept;
-    goto premature end of file master;
-end bracketed header name atom table;
+    goto premature end of file;
+end bracketed header name lexeme table;
 
 // Quoted header names are not the same as quoted
 // strings, and cannot have escape sequences.
 //
 begin quoted header name atom table;
-    "\"/" translate "" goto normal line master;
-    "\lf/" keep 0 goto premature end of line master;
+    "\"/" translate "" goto normal;
+    "\lf/" keep 0 goto premature end of line;
     "'" error bad character in header name;
     "\\/" error bad character in header name;
     "//" error bad character pair in header name;
     "/*" error bad character pair in header name;
     "<other>" accept;
-    goto premature end of file master;
+    goto premature end of file;
 end quoted header name atom table;
 
-begin define identifier master atom table;
-    mode master;
-    "<horizontal-space-char>" call horizontal space;
-    "/*" call "/*" comment;
-    "<non-digit>" goto defined identifier;
-    goto normal line master;
-end define identifier master atom table;
-
-begin defined identifier atom table;
-    type identifier;
-    "<non-digit>" accept;
-    "<digit>" accept;
-    "(" keep 0 goto lparen master;
-    goto normal line master;
-end defined identifier atom table;
-
-begin lparen master;
-    mode master;
-    "(" output lparen goto normal line master;
-end lparen master;
-
-begin normal line master atom table;
-    mode master;
+begin normal master table;
     "<horizontal-space-char>" call horizontal space;
     "/*" call "/*" comment;
     "//" call "//" comment;
 
-    "<non-digit>" goto identifier;
+    "<non-digit>" call identifier;
 
-    "<digit>" goto number;
-    ".<digit>" goto number;
+    "<digit>" call number;
+    ".<digit>" call number;
 
-    "'" translate "" goto character literal;
-    "L'" translate "" goto wide character literal;
-    "\"/" translate "" goto string literal;
-    "L\"/" translate "" goto wide string literal;
+    "'" translate "" call character literal;
+    "L'" translate "" call wide character literal;
+    "\"/" translate "" call string literal;
+    "L\"/" translate "" call wide string literal;
 
     "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
             translate hex 2 0 goto identifier
@@ -1948,7 +1923,7 @@ begin normal line master atom table;
     . . . other punctuation and operators omitted . . .
 
     "<other>" output erroneous character;
-begin normal line master atom table;
+begin normal master table;
 
 begin identifier atom table;
     "<letter>" accept;
@@ -2017,50 +1992,50 @@ end wide string literal atom table;
 // permits any number of hexadecimal digits.
 //
 begin escaped character representation translation table;
-    "\\n" translate "\n";
-    "\\t" translate "\t";
-    "\\v" translate "\v";
-    "\\b" translate "\b";
-    "\\r" translate "\r";
-    "\\f" translate "\f";
-    "\\a" translate "\a";
-    "\\\\" translate "\\";
-    "\\?" translate "\?";
-    "\\\"" translate "\"";
-    "\\'" translate "'";
-    "\\<oct-digit>"
+    "\\/n" translate "\lf/";
+    "\\/t" translate "\ht/";
+    "\\/v" translate "\vt/";
+    "\\/b" translate "\bs/";
+    "\\/r" translate "\cr/";
+    "\\/f" translate "\ff/";
+    "\\/a" translate "\bel/";
+    "\\/\\/" translate "\\/";
+    "\\/?" translate "?";
+    "\\/\"/" translate "\"/";
+    "\\/'" translate "'";
+    "\\/<oct-digit>"
         translate-oct 1 0;
-    "\\<oct-digit><oct-digit>"
+    "\\/<oct-digit><oct-digit>"
         translate-oct 1 0;
-    "\\<oct-digit><oct-digit><oct-digit>"
+    "\\/<oct-digit><oct-digit><oct-digit>"
         translate-oct 1 0;
-    "\\x<hex-digit>"
+    "\\/x<hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit>"
+    "\\/x<hex-digit><hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit><hex-digit>"
+    "\\/x<hex-digit><hex-digit><hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit>"
+    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit>"
+    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit>"
+    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit><hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate-hex 2 0;
-    "\\x<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit>" fail;
-    "\\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit>" fail;
+    "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate-hex 2 0;
-    "\\U<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
+        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate-hex 2 0;
     fail;
 end escaped character representation translation table;

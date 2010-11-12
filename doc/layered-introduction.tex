@@ -1719,6 +1719,15 @@ begin c++ lexical program;
 
 "<sign>" = "+" | "-" ;
 
+// The following can begin an operator, a separator,
+// or either.
+//
+"<op-char>" = "#" | "<" | ">" | ":" | "%" |
+            | "." | "?" | "+" | "-" | "*" | "/"
+	    | "^" | "&" | "|" | "~" | "!" | ",";
+"<sep-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";";
+"<opsep-char>" = "<op-char>" | "<sep-char>";
+
 // The following list of language specific letters is
 // taken from Annex E of the Working Paper for Draft
 // Proposed International Standard for Information
@@ -1778,22 +1787,24 @@ begin c++ lexical program;
 // previous lexeme is treated as if there were no error
 // (i.e., as if there were a ", ', */, etc.) and the
 // next lexeme is a `premature ...' lexeme.
-
-// Initial master is used only to start at pp group
-// master.
 //
+// Characters that are not part of any C++ lexeme and
+// universal characters that are not part of any C++
+// lexeme are made into 1-character lexemes of the types:
+//
+//    unrecognized character
+//    unrecognized universal character
+//
+// The character in question is the translation of these
+// lexemes.
+
 begin initial master table;
-    "<horizontal-space-char>"
-        call horizontal space;
+    "<horizontal-space-char>" call horizontal space;
     "/*" call "/*" comment;
-    "##" output operator
-         goto normal;
-    "%:%:" translate "##" output operator
-                          goto normal;
-    "#" output punctuation
-        goto pp beginning;
-    "%:" translate "#" output punctuation
-                       goto pp beginning;
+    "##" output operator goto normal;
+    "%:%:" translate "##" output operator goto normal;
+    "#" output punctuation goto pp beginning;
+    "%:" translate "#" output punctuation goto pp beginning;
     goto normal;
 end initial master table;
 
@@ -1815,12 +1826,11 @@ begin "//" comment lexeme table;
 end "//" comment lexeme table;
 
 begin premature end of file master table;
-    output premature end of file;
+    output premature end of file goto initial;
 end premature end of file master table;
 
 begin premature end of line master table;
-    "\lf/" output premature newline
-                  goto initial master;
+    "\lf/" output premature newline goto initial;
 end premature end of line master table;
 
 begin pp beginning master table;
@@ -1831,10 +1841,12 @@ begin pp beginning master table;
     goto normal;
 end pp beginning master table;
 
+"<opsep-char-except-<>" = "<opsep-char>" & ~ "<";
+
 begin pp include master table;
-    mode master;
     "<horizontal-space-char>" call horizontal space;
     "/*" call "/*" comment;
+    "//" call "//" comment;
 
     "<" translate "" call bracketed header name;
     "\"/" translate "" call quoted header name;
@@ -1845,27 +1857,26 @@ begin pp include master table;
 	       output unrecognized universal character
           else output unrecognized character
 
-    "<digit>" call integer
-    ".<digit>" call fraction
+    "<digit>" call integer;
+    ".<digit>" call fraction;
 
     "'" translate "" call character literal;
     "L'" translate "" call wide character literal;
     "\"/" translate "" call string literal;
     "L\"/" translate "" call wide string literal;
 
-    "<op-char>" translate operator output operator
+    "<opsep-char-except-<>" translate operator
+    			    output operator
           else output unrecognized character
-    goto normal;  // Handles line ends
+
+    "\lf/" output line feed goto initial
+    "<other>" output unrecognized character goto initial
+    output end of file goto initial
 pp end include master table;
 
 begin bracketed header name lexeme table;
     ">" translate "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "'" error bad character in header name;
-    "\"/" error bad character in header name;
-    "\\/" error bad character in header name;
-    "//" error bad character pair in header name;
-    "/*" error bad character pair in header name;
     "<other>" accept;
     goto premature end of file;
 end bracketed header name lexeme table;
@@ -1873,115 +1884,170 @@ end bracketed header name lexeme table;
 // Quoted header names are not the same as quoted
 // strings, and cannot have escape sequences.
 //
-begin quoted header name atom table;
+begin quoted header name lexeme table;
     "\"/" translate "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "'" error bad character in header name;
-    "\\/" error bad character in header name;
-    "//" error bad character pair in header name;
-    "/*" error bad character pair in header name;
     "<other>" accept;
     goto premature end of file;
-end quoted header name atom table;
+end quoted header name lexeme table;
 
 begin normal master table;
     "<horizontal-space-char>" call horizontal space;
     "/*" call "/*" comment;
     "//" call "//" comment;
 
-    "<non-digit>" call identifier;
+    "<non-digit>" call identifier
+    "\\/" translate escaped letter call identifier
+          else translate universal character
+	       output unrecognized universal character
+          else output unrecognized character
 
-    "<digit>" call number;
-    ".<digit>" call number;
+    "<digit>" call integer;
+    ".<digit>" call fraction;
 
     "'" translate "" call character literal;
     "L'" translate "" call wide character literal;
     "\"/" translate "" call string literal;
     "L\"/" translate "" call wide string literal;
 
-    "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
-            translate hex 2 0 goto identifier
-            "<letter>"
-            else output non-letter UNICODE error;
-    "\\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
-            translate hex 2 0 goto identifier
-            "<letter>"
-            else output non-letter UNICODE error;
+    "<opsep-char>" translate operator output operator
+                   else output unrecognized character
 
-    "{" output punctuation;
-    "}" output punctuation;
-    "[" output punctuation;
-    "]" output punctuation;
-    "(" output punctuation;
-    ")" output punctuation;
-    ")" output punctuation;
-    "#" output punctuation;
-    "##" output punctuation;
-    "+" output operator;
-    "++" output operator;
-    . . . other punctuation and operators omitted . . .
+    "\lf/" output line feed goto initial
+    "<other>" output unrecognized character goto initial
+    output end of file goto initial
+end normal master table;
 
-    "<other>" output erroneous character;
-begin normal master table;
-
-begin identifier atom table;
-    "<letter>" accept;
-    "<digit>" accept;
-    "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
-            translate hex 2 0 "<letter>"
-            else keep 0 goto normal line master;
-    "\\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-            translate hex 2 0 "<letter>"
-            else keep 0 goto normal line master;
-    goto normal line master;
-end identifier atom table;
-
-begin number atom table;
-    "<digit>" accept;
+begin identifier lexeme table;
     "<non-digit>" accept;
-    "e<sign>" accept;
-    "E<sign>" accept;
-    "." accept;
-    goto normal line master;
-end number atom table;
+    "\\/" translate escaped letter accept
+          else translate universal character
+	       error unrecognized universal character
+          else keep 0 return
+    goto normal;
+end identifier lexeme table;
 
-begin character literal atom table;
+"<non-digit-except-lLuU> =
+    <non-digit> & ~ "l" & ~ "u" & ~ "L" & ~ "U";
+
+begin integer lexeme table;
+    "<digit>" accept;
+    "." goto fraction;
+    "e<sign><digit>" goto exponent;
+    "E<sign>"<digit> goto exponent;
+    "ul" goto done integer;
+    "uL" goto done integer;
+    "Ul" goto done integer;
+    "UL" goto done integer;
+    "lu" goto done integer;
+    "lU" goto done integer;
+    "Lu" goto done integer;
+    "LU" goto done integer;
+    "u"  goto done integer;
+    "U"  goto done integer;
+    "l"  goto done integer;
+    "L"  goto done integer;
+    "e<sign>" goto pp number;
+    "E<sign>" goto pp number;
+    "<non-digit-except-lLuU>" goto pp number;
+    output integer return;
+end integer lexeme table;
+
+begin done integer lexeme table;
+    "<digit>" goto pp number;
+    "e<sign>" goto pp number;
+    "E<sign>" goto pp number;
+    "<non-digit>" goto pp number;
+    "." goto pp number;
+    output integer return;
+end done integer lexeme table;
+
+"<non-digit-except-lLfF> =
+    <non-digit> & ~ "l" & ~ "f" & ~ "L" & ~ "F";
+
+begin fraction lexeme table;
+    "<digit>" accept;
+    "." goto pp number;
+    "e<sign><digit>" goto exponent;
+    "E<sign>"<digit> goto exponent;
+    "f"  goto done floating point;
+    "F"  goto done floating point;
+    "l"  goto done floating point;
+    "L"  goto done floating point;
+    "e<sign><digit>" goto exponent;
+    "E<sign><digit>" goto exponent;
+    "e<sign>" goto pp number;
+    "E<sign>" goto pp number;
+    "<non-digit-except-lLfF>" goto pp number;
+    output floating point return;
+end fraction lexeme table;
+
+begin exponent lexeme table;
+    "<digit>" accept;
+    "." goto pp number;
+    "f"  goto done floating point;
+    "F"  goto done floating point;
+    "l"  goto done floating point;
+    "L"  goto done floating point;
+    "e<sign>" goto pp number;
+    "E<sign>" goto pp number;
+    "<non-digit-except-lLfF>" goto pp number;
+    output floating point return;
+end exponent lexeme table;
+
+begin floating point done lexeme table;
+    "<digit>" goto pp number;
+    "e<sign>" goto pp number;
+    "E<sign>" goto pp number;
+    "<non-digit>" goto pp number;
+    "." goto pp number;
+    output floating point return;
+end floating point done lexeme table;
+
+begin pp number lexeme table;
+    "<digit>" goto pp number;
+    "e<sign>" goto pp number;
+    "E<sign>" goto pp number;
+    "<non-digit>" goto pp number;
+    "." goto pp number;
+    output pp number return;
+end pp number lexeme table;
+
+begin character literal lexeme table;
     "'" translate "" goto normal line master;
     "\lf/" keep 0 goto premature end of line master;
     "\\/" translate escaped character representation
           else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
-end character literal atom table;
+end character literal lexeme table;
 
-begin wide character literal atom table;
+begin wide character literal lexeme table;
     "'" translate "" goto normal line master;
     "\lf/" keep 0 goto premature end of line master;
     "\\/" translate escaped character representation
           else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
-end wide character literal atom table;
+end wide character literal lexeme table;
 
-begin string literal atom table;
+begin string literal lexeme table;
     "\"/" translate "" goto normal line master;
     "\lf/" keep 0 goto premature end of line master;
     "\\/" translate escaped character representation
           else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
-end string literal atom table;
+end string literal lexeme table;
 
-begin wide string literal atom table;
+begin wide string literal lexeme table;
     "\"/" translate "" goto normal line master;
     "\lf/" keep 0 goto premature end of line master;
     "\\/" translate escaped character representation
           else error bad escape character;
     "<other>" accept;
     goto premature end of file master;
-end wide string literal atom table;
+end wide string literal lexeme table;
 
 // This translation table is used when the next atom
 // begins with \ and is in a character or string

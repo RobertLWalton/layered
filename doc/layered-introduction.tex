@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 11, 2010
+November 12, 2010
  
 \end{center}
 
@@ -761,11 +761,11 @@ end main master table;
 
 begin whitespace lexeme table;
     "<whitespace-char>" accept;
-    goto master;
+    goto main;
 end whitespace lexeme table;
 
 begin quoted string lexeme table;
-    "\"/" translate "" goto master;
+    "\"/" translate "" goto main;
     "\lf/" keep 0 goto premature end of line;
     "<other>" accept;
     goto premature end of file;
@@ -778,16 +778,14 @@ end example lexical program;
 begin premature tables lexical program;
     // Stuff to include.
 
-begin premature end of line;
-    mode master;
+begin premature end of line master table;
     "\lf/" output premature end of line
-         goto master;
-end premature end of line;
+         goto main;
+end premature end of line master table;
 
-begin premature end of file;
-    mode master;
+begin premature end of file master table;
     output premature end of file;
-end premature end of file;
+end premature end of file master table;
 
 end premature tables lexical program;
 \end{verbatim}\end{indpar}
@@ -800,6 +798,8 @@ A \emkey{lexical-program} consists of a sequence of units that are
 or {\em program-inclusions}.  These respectively define character pattern sets
 and lexical tables, and include lexical program units of
 previously defined lexical programs.
+
+\subsubsection{Lexical Program Inclusion}
 
 A \emkey{program-inclusion} names a previously defined lexical program
 whose units are to be included in the current lexical program
@@ -816,6 +816,8 @@ A {\em program-inclusion} can have
 each of which removes a named definition from the set of included
 definitions.  This is the only way to resolve conflicts between
 definitions.
+
+\subsubsection{Character Pattern Definitions}
 
 A \emkey{character-pattern-definition} (abbreviated as
 \emkey{cpat-definition}) assigns a set of characters to a
@@ -871,34 +873,43 @@ Some example {\em character-pattern-definitions} are:
     | "<whitespace-char>";
 \end{verbatim}\end{indpar}
 
-TBD
+\subsubsection{Lexical Tables}
 
-An {\em lexical-table-definition} specifies an {\em lexical-table-name},
-a {\em mode} for the table, a set of {\em lexical-table-entries}
-each containing an {\em atom-pattern} and an {\em instruction},
+An {\em lexical-table-definition} specifies a {\em lexical-table-name},
+the {\em lexical-table-kind} of the table,
+a set of {\em lexical-table-entries}
+each containing an {\em atom-pattern} and optionally an {\em instruction},
 and an optional {\em default-instruction} that is executed when
 no atom is recognized by any of the table entries.
 
-The {\em mode} of an lexical table can be either a {\em type} or can be
-the special `\ttmkey{master}{lexical table mode}' mode.  If it is a
-{\em type} then it is used as the {\em type} of any lexeme recognized
-by the table (not all tables recognize lexemes).  See
-\pagref{KIND-OUTPUT} for a description of how modes and types are used
+The {\em lexical-table-kinds} are
+\mkey{master}{lexical table kind},
+\mkey{lexeme}{lexical table kind}, or
+\mkey{translation}{lexical table kind}.
+In a master table {\em atom-patterns} are typically associated
+with {\tt goto} instructions that change the current table from the
+master table to a lexeme table.  In a lexeme table {\em atom-patterns}
+are typically associated with {\tt accept} instructions which
+accept the matched atom as part of the current lexeme.  In a lexeme
+table the default instruction is typically a {\tt goto} back to a
+master table, and because this changes the current lexical table
+from a lexeme table to a master table, it causes any non-zero length
+accumulated lexeme to be output with its lexeme type being determined
+by the lexeme table.
 
-The {\em mode} of an lexical table is the same as the {\em lexical-table-name}
-unless a non-empty {\em mode-option} is given at the beginning of the
-{\em lexical-table-definition}.  The `{\tt premature end of line}' lexical
-table on \pagref{EXAMPLE-LEXEME-PROGRAM} is an example
-of an lexical table with a {\em mode-option}.
+Translation tables permit sets of atom patterns to be used in
+several places without copying all the patterns.  Details are
+on \pagref{TRANSLATION-TABLE}.
 
 The first lexical table in a lexical program must have `{\tt master}'
 mode, and will become the current lexical table when the scanner
-is initialized.  This table is typically named `{\tt master}',
+is initialized.  This table is typically named `{\tt main}',
 as it is in the {\tt example} lexical program on
 \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
-Each \emkey{lexical-table-entry} contains an {\em atom-pattern} and
-an {\em instruction-group}.  The \emkey{atom-pattern} is matched against
+A lexical table consists of {\em lexical-table-entries}%
+\emindex{lexical-table-entry} each containing an {\em atom-pattern} and
+an {\em instruc\-tion-group}.  The \emkey{atom-pattern} is matched against
 the remaining input characters.  The pattern consists of a sequence
 of {\em quotable-characters}, each of which match only themselves,
 and {\em character-pattern-names}, each of which match any character
@@ -934,7 +945,7 @@ match atoms of a particular length, it is permissible for
 a sequence of characters that matches one pattern to have a proper
 initial segment that matches another pattern; in this case the
 longer pattern takes precedence.  The order of {\em lexical-table-entries}
-in an {\em lexical-table} is not significant.
+in a {\em lexical-table} is not significant.
 
 The atom pattern \verb|""| which would recognize zero length atoms is
 \underline{not} permitted, but the {\em default-instruction} at the
@@ -943,6 +954,10 @@ pattern in the table matches the remaining input.  In particular
 the {\em default-instruction} always executes if the input has reached
 an end of file.  This fact is used in the `{\tt quoted string lexical table}'
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+
+\subsubsection{Lexical Instructions}
+
+TBD
 
 An {\em atom-pattern} in an lexical table is associated with an
 {\em instruction-group} that consists of one or more {\em instructions}

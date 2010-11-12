@@ -303,7 +303,7 @@ character string: e.g., `{\tt hello}', `{\tt +}', `{\tt ;}',
 
 The lexical scanner is written in the M-Language and can be
 replaced.  This section describes the standard scanner which
-is driven by the atom tables and is capable scanning
+is driven by the lexical tables and is capable scanning
 lexemes of common languages such as C and C++.
 
 The standard scanner attempts to be both machine and human
@@ -327,7 +327,7 @@ lexeme.  This may just be a copy of the 32-bit characters
 in the lexeme, or it may have some changes, or `translations',
 of some of these characters.  For example, the lexeme
 \verb|"a line\lf/"| may have a translation that omits the
-\verb|"|'s and converts the three characters \verb|\lf/| into
+\verb|"|'s and converts the four characters \verb|\lf/| into
 a single linefeed character.
 
 When the standard scanner identifies a lexeme it also identifies
@@ -343,13 +343,17 @@ in an identifier or symbol) or a short string of characters
 Lexical atoms are read left to right and
 grouped by the scanner into \skey{lexeme}s.
 
+Lexical atoms have fixed small lengths.  Lexemes, in contrast,
+can be of arbitrary length.
+
 The scanner has a state containing a current point 
 in the input UNICODE character stream
-and a \key{current atom table} identifier.  An
-\key{atom table} is a set of atom patterns
-that match lexical atoms, and for each pattern an
+and a \key{current lexical table} identifier.  A
+\key{lexical table} is a set of atom patterns
+that match atoms, and for each pattern an
 instruction that determines what to do when the pattern is matched.
-There is also a \key{default instruction} associated with the atom table that
+There is also a \key{default instruction} associated with
+the lexical table that
 determines what to do when no table pattern matches the next characters
 in the input stream.
 
@@ -361,59 +365,64 @@ character pattern.  A \key{character pattern} is simply a
 specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
-characters such as the 3-character sequence \verb|\lf/| which matches
-the atom pattern \verb|"\/lf/"|
+characters such as the 4-character sequence \verb|\lf/| which matches
+the atom pattern \verb|"\\/lf/"|
 or the 7-character sequence \verb|\0a/| which matches the atom pattern
 \begin{center}
-\verb|"\/0<hex-digit>/"|
+\verb|"\\/0<hex-digit>/"|
 \end{center}
 where \verb|<hex-digit>| names a character pattern matching characters
 in the ranges \verb|0-9|, \verb|a-f|, and \verb|A-F|.
 
-The atom patterns of a single atom table must not conflict:
+The atom patterns of a single lexical table must not conflict:
 no character string can be recognized by two atom patterns of the
-same atom table.
+same lexical table.  However, a shorter atom pattern in a
+table may match the initial segment of an atom matched by a longer
+atom pattern in the table, in which case the longer pattern is
+used for the atom.
 
 The scanner operates by identifying the
 longest sequence of characters beginning at the current input character
-stream point that matches an atom pattern of the current atom table.
+stream point that matches an atom pattern of the current lexical table.
 This sequence of characters becomes
 the next atom, and an instruction associated with its matching
 atom pattern is then executed.  If no atom pattern can be matched,
-the default instruction associated with the atom table is executed instead.
+the default instruction associated with the lexical table is executed instead.
 
-An atom table
+A lexical table
 instruction can optionally reduce the length of a matched atom
-and optionally change the current atom table.  It can also do other
+and optionally change the current lexical table.  It can also do other
 things described below.
 
-Atom tables have \skey{mode}s that are either lexeme types or
-are the special mode `\ttmkey{master}{mode}'.
-Non-master mode tables, whose modes are types,
-are typically dedicated to recognizing lexemes
-of the indicate type.  Master mode atom tables are used to
-dispatch to non-master mode tables.
+There are three kinds of lexical tables:
+\mkey{master}{lexical table} tables,
+\mkey{lexeme}{lexical table} tables, and
+\mkey{translation}{lexical table} tables.
+Master tables are used to dispatch to lexeme tables which
+typically recognize lexemes.  Translation tables are used
+to recognize atoms whose patterns are logically the union
+of a finite set of patterns.
 
 Thus a simple scanner might have
-one master table that dispatches to different non-master tables,
+one master table that dispatches to different lexeme tables,
 one to recognize identifiers, one to recognize numbers, one to
 recognize whitespace, and one to recognize comments.
 
-When the current lexical atom table is changed from a non-master mode
-table to a master mode table, any non-zero length lexeme accumulated
+Lexeme tables have \ikey{types}{type!of lexeme table}.
+When the current lexical table is changed from a lexeme
+table to a master table, any non-zero length lexeme accumulated
 so far is output as a lexeme whose type\label{KIND-OUTPUT}
-equals
-the mode of the non-master mode table.  Thus if an atom table of
-mode `\verb|whitespace|' cannot recognized any atom and
+is the type of the lexeme table.  Thus if an lexical table of
+type `\verb|whitespace|' cannot recognized any atom and
 the default instruction associated with it
-changes the current atom table to a master mode table,
+changes the current lexical table to a master table,
 any non-zero length lexeme accumulated so far will
 be output as a lexeme of type `\verb|whitespace|'.
 
-When it is between lexemes that current atom table in the scanner state
-is always a master mode table.  Master mode tables correspond to lexical
-contexts.  A well designed language has only one main master mode
-table, plus a few small master mode tables to handle error situations
+When it is between lexemes that current lexical table in the scanner state
+is always a master table.  Master tables correspond to lexical
+contexts.  A well designed language has only one main master
+table, plus a few small master tables to handle error situations
 such a premature new-line and premature end-of-file;
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.
 Legacy languages
@@ -424,34 +433,38 @@ see Appendix \itemref{C++-LEXICAL-PROGRAM}.
 The standard scanner can report errors in one of two ways.  It may
 simply output a lexeme with a type that indicates an error.  For
 example, the character \verb|\| appearing outside a quoted string
-might be returned as a 1-character lexeme of type `{\tt erroneous
+might be returned as a 1-character lexeme of type `{\tt unrecognized
 character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
-of the scanner.  For example, if \verb|\h| appears in a quoted
+of the scanner.  For example, if \verb|\h/| appears in a quoted
 string, it may be reported as an erroneous atom of type
-`{\tt bad escape sequence}'.  Otherwise this atom is processed
+`{\tt unrecognized escape sequence}'.  Otherwise this atom is processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the DEL
 character (\verb|\u007F|).
 
 \ikey{Instructions}{instruction!in lexical program}
-that are associated with atom patterns can optionally do any
-of the following:
+that are associated with atom patterns contain optional instruction
+components that can do the following:
 \begin{itemize}
+\raggedright
+\item invoke a translation table to replace the matched atom
 \item reduce the length of the matched atom
 \item translate the reduced length atom to a different
 character string within the lexeme translation
 \item announce the reduced length atom as an erroneous atom of a given type
 \item output the atoms accumulated so far as a lexeme of a given type
-\item change the current atom table
+\item change the current lexical table
+\item make non-translating instruction components conditional
+      on the translated atom matching an atom pattern
 \end{itemize}
 
-More details and examples are given in the next section.
+Details and examples are given in the next section.
 
 A \key{lexical program} is a set of character pattern definitions
-and atom tables.  A lexical program can include another lexical program.
-The top level lexical program must begin with a master-mode atom
-table that serves as the initial atom table.
+and lexical tables.  A lexical program can include another lexical program.
+The top level lexical program must begin with a master
+table that serves as the initial lexical table.
 
 
 \subsection{Lexical Programs}
@@ -632,13 +645,13 @@ and the syntax of a lexical program is specified on
 \\[1ex]
 \emkey{lexical-program-unit}
 	& ::= & {\em cpat-definition} \\
-	& $|$ & {\em atom-table-definition} \\
+	& $|$ & {\em lexical-table-definition} \\
 	& $|$ & {\em program-inclusion}
 \\[1ex]
 \emkey{program-inclusion} & ::= & {\tt include} {\em program-name}
 				  {\em remove-clause}$^\star$ {\tt ;}
 \\[1ex]
-\emkey{remove-clause} & ::= & {\tt remove} {\em atom-table-name} \\
+\emkey{remove-clause} & ::= & {\tt remove} {\em lexical-table-name} \\
                       & $|$ & {\tt remove} {\tt "}{\em cpat-name}{\tt "}
 \\[1ex]
 \multicolumn{3}{l}{~~~~~~Note: `{\em cpat}\,' abbreviates
@@ -670,35 +683,30 @@ and the syntax of a lexical program is specified on
 \emkey{quotable-character} & ::= & 
 	any quotable UNICODE character representative
 \\[1ex]
-\emkey{atom-table-definition} & ::= &
-	{\tt begin} {\em atom-table-name}
-		    {\tt atom table} {\tt ;} \\
-	& &  ~~~~{\em mode-option} \\
-	& &  ~~~~{\em atom-table-entry}$^\star$ \\
+\emkey{lexical-table-definition} & ::= &
+	{\tt begin} {\em lexical-table-name}
+		    {\em lexical-table-kind} {\tt table} {\tt ;} \\
+	& &  ~~~~{\em lexical-table-entry}$^\star$ \\
 	& &  ~~~~{\em default-instruction-option} \\
-	& & {\tt end} {\em atom-table-name} {\tt atom table;}
+	& & {\tt end} {\em lexical-table-name}
+		      {\em lexical-table-kind} {\tt table} {\tt ;}
 \\[1ex]
-\emkey{atom-table-name} & ::= & {\em mode} $|$ {\em type}
+\emkey{lexical-table-kind} & ::= &
+    {\tt master} $|$ {\tt lexeme} $|$ {\tt translation}
 \\[1ex]
-\emkey{type} & ::= & {\em name} \begin{tabular}[t]{@{}r@{~}l@{}}
-                                     except & {\tt master} \\
-					 or & {\tt scan error} \\[1ex]
-				    \end{tabular}
+\emkey{lexical-table-name} & ::= & {\em type}
+\\[1ex]
+\emkey{type} & ::= & {\em name} except {\tt scan error}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
 
 \begin{figure*}[!t]
 \begin{tabular}{p{2.2in}rl}
-\emkey{mode} & ::= &  {\tt master} $|$ {\em type}
-\\[1ex]
-\emkey{mode-option} & ::= & {\em empty} $|$ {\tt mode} {\em mode} {\tt ;}
-                                        $|$ {\tt type} {\em type} {\tt ;}
-\\[1ex]
 \emkey{default-instruction-option}
 	& ::= &  {\em empty} $|$ {\em instruction}
 \\[1ex]
-\emkey{atom-table-entry}
+\emkey{lexical-table-entry}
 	& ::= & {\em atom-pattern} {\em instruction-group} {\tt ;}
 \\[1ex]
 \emkey{atom-pattern} & ::= &
@@ -714,32 +722,21 @@ and the syntax of a lexical program is specified on
 \emkey{instruction-component}
 	& ::= & {\tt accept} \\
 	& $|$ & {\tt keep} {\em natural-number} \\
-	& $|$ & {\tt translate} {\em translation-string} \\
-	& $|$ & {\tt translate hex} \begin{tabular}[t]{l}
+	& $|$ & {\tt translate} {\em lexical-table-name} \\
+	& $|$ & {\tt translate to} {\em translation-string} \\
+	& $|$ & {\tt translate hex}
 			{\em natural-number} {\em natural-number} \\
-		        {\em cpat-option}
-			\end{tabular} \\
-	& $|$ & {\tt translate oct} \begin{tabular}[t]{l}
+	& $|$ & {\tt translate oct}
 			{\em natural-number} {\em natural-number} \\
-		        {\em cpat-option}
-			\end{tabular} \\
+	& $|$ & {\tt require} {\em atom-pattern} \\
 	& $|$ & {\tt error} {\em type} \\
 	& $|$ & {\tt output} {\em type} \\
-	& $|$ & {\tt goto} {\em atom-table-name} \\
-	& $|$ & {\tt call} {\em atom-table-name} {\em return-vector-option} \\
-	& $|$ & {\tt return} {\em return-index-option} \\
+	& $|$ & {\tt goto} {\em lexical-table-name} \\
+	& $|$ & {\tt call} {\em lexical-table-name} \\
+	& $|$ & {\tt return} \\
+	& $|$ & {\tt fail} \\
 \\[1ex]
 \emkey{translation-string} & ::= & {\em quoted-string}
-\\[1ex]
-\emkey{cpat-option} & ::= & {\em empty} $|$ {\tt "}{\em cpat-name}{\tt "}
-\\[1ex]
-\emkey{return-vector-option}
-    & ::= & {\em empty} \\
-    & $|$ & {\tt (}{\em atom-table-name}
-                      \{ {\tt ,} {\em atom-table-name} \}$^\star$ {\tt )}
-\\[1ex]
-\emkey{return-index-option}
-    & ::= & {\em empty} $|$ {\tt (} {\em natural-number} {\tt )}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-2}
 \end{figure*}
@@ -755,24 +752,24 @@ begin example lexical program;
 
 "<whitespace-char>" = " " | "\lf/" | "\ht/" | "\vt/" | "\ff/";
 
-begin master atom table;
+begin main master table;
     "<whitespace-char>" goto whitespace;
     "\"/" translate "" goto quoted string;
     "<other>" output bad character;
     output end of file;
-end master atom table;
+end main master table;
 
-begin whitespace atom table;
+begin whitespace lexeme table;
     "<whitespace-char>" accept;
     goto master;
-end whitespace atom table;
+end whitespace lexeme table;
 
-begin quoted string atom table;
+begin quoted string lexeme table;
     "\"/" translate "" goto master;
     "\lf/" keep 0 goto premature end of line;
     "<other>" accept;
     goto premature end of file;
-end quoted string atom table;
+end quoted string lexeme table;
 
 include premature tables;
 
@@ -797,15 +794,15 @@ end premature tables lexical program;
 \label{EXAMPLE-LEXEME-PROGRAM}
 \end{figure*}
 
-A \emkey{lexical-program} consists of a sequence of
+A \emkey{lexical-program} consists of a sequence of units that are
 {\em character-\EOL pattern-\EOL defi\-ni\-tions},
-{\em atom-\EOL table-\EOL defi\-ni\-tions},
-and {\em program-inclusions}.  These define character pattern sets
-and atom tables, and include in the lexical program definitions from
-other previously defined lexical programs.
+{\em lexical-\EOL table-\EOL defi\-ni\-tions},
+or {\em program-inclusions}.  These respectively define character pattern sets
+and lexical tables, and include lexical program units of
+previously defined lexical programs.
 
 A \emkey{program-inclusion} names a previously defined lexical program
-whose definitions are to be included in the current lexical program
+whose units are to be included in the current lexical program
 at the point of the {\em program-inclusion}.
 There is a simple example of a program inclusion at the end of
 the {\tt example} lexical program on
@@ -841,10 +838,11 @@ second of the two characters must not be smaller than the first.
 A {\em quotable-character} is a representative of a single UNICODE
 character that can be used inside quotes (\verb|"|).
 Printable ASCII characters represent themselves.  Other characters
-are represented by sequences started with backslash (\verb|\|).
+are represented by character sequences surrounded by backslash (\verb|\|)
+and slash (\verb|/|).
 For example, a line feed can be represented by any of the
-following: \verb|\n|, \verb|\0a|,
-\verb|\00a|, \ldots, or \verb|\00000000a|.
+following: \verb|\lf/|, \verb|\0a/|,
+\verb|\00a/|, \ldots, or \verb|\00000000a/|.
 
 A quoted {\em character-pattern-name} denotes the character set associated
 with that name by a \underline{previous} {\em character-pattern-definition}.
@@ -873,31 +871,33 @@ Some example {\em character-pattern-definitions} are:
     | "<whitespace-char>";
 \end{verbatim}\end{indpar}
 
-An {\em atom-table-definition} specifies an {\em atom-table-name},
-a {\em mode} for the table, a set of {\em atom-table-entries}
+TBD
+
+An {\em lexical-table-definition} specifies an {\em lexical-table-name},
+a {\em mode} for the table, a set of {\em lexical-table-entries}
 each containing an {\em atom-pattern} and an {\em instruction},
 and an optional {\em default-instruction} that is executed when
 no atom is recognized by any of the table entries.
 
-The {\em mode} of an atom table can be either a {\em type} or can be
-the special `\ttmkey{master}{atom table mode}' mode.  If it is a
+The {\em mode} of an lexical table can be either a {\em type} or can be
+the special `\ttmkey{master}{lexical table mode}' mode.  If it is a
 {\em type} then it is used as the {\em type} of any lexeme recognized
 by the table (not all tables recognize lexemes).  See
 \pagref{KIND-OUTPUT} for a description of how modes and types are used
 
-The {\em mode} of an atom table is the same as the {\em atom-table-name}
+The {\em mode} of an lexical table is the same as the {\em lexical-table-name}
 unless a non-empty {\em mode-option} is given at the beginning of the
-{\em atom-table-definition}.  The `{\tt premature end of line}' atom
+{\em lexical-table-definition}.  The `{\tt premature end of line}' lexical
 table on \pagref{EXAMPLE-LEXEME-PROGRAM} is an example
-of an atom table with a {\em mode-option}.
+of an lexical table with a {\em mode-option}.
 
-The first atom table in a lexical program must have `{\tt master}'
-mode, and will become the current atom table when the scanner
+The first lexical table in a lexical program must have `{\tt master}'
+mode, and will become the current lexical table when the scanner
 is initialized.  This table is typically named `{\tt master}',
 as it is in the {\tt example} lexical program on
 \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
-Each \emkey{atom-table-entry} contains an {\em atom-pattern} and
+Each \emkey{lexical-table-entry} contains an {\em atom-pattern} and
 an {\em instruction-group}.  The \emkey{atom-pattern} is matched against
 the remaining input characters.  The pattern consists of a sequence
 of {\em quotable-characters}, each of which match only themselves,
@@ -922,29 +922,29 @@ matched.  More explicitly, in the atom pattern
 \verb|"|$P$\verb|<other>|$Q$\verb|"|,
 the prefix $P$\verb|<other>| matches any sequence of characters not matched by
 any atom pattern of the form
-\verb|"|$PCQ$\verb|"| in the same atom table,
+\verb|"|$PCQ$\verb|"| in the same lexical table,
 where $C$ is a character pattern other than
 \verb|<other>|.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 There must be no sequence of characters that matches the
-{\em atom-patterns} of two distinct {\em atom-table-entries}
+{\em atom-patterns} of two distinct {\em lexical-table-entries}
 in the same {\em atom} table.  Since {\em atom-patterns} can only
 match atoms of a particular length, it is permissible for
 a sequence of characters that matches one pattern to have a proper
 initial segment that matches another pattern; in this case the
-longer pattern takes precedence.  The order of {\em atom-table-entries}
-in an {\em atom-table} is not significant.
+longer pattern takes precedence.  The order of {\em lexical-table-entries}
+in an {\em lexical-table} is not significant.
 
 The atom pattern \verb|""| which would recognize zero length atoms is
 \underline{not} permitted, but the {\em default-instruction} at the
-end of the atom table executes in the equivalent case where no atom
+end of the lexical table executes in the equivalent case where no atom
 pattern in the table matches the remaining input.  In particular
 the {\em default-instruction} always executes if the input has reached
-an end of file.  This fact is used in the `{\tt quoted string atom table}'
+an end of file.  This fact is used in the `{\tt quoted string lexical table}'
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
-An {\em atom-pattern} in an atom table is associated with an
+An {\em atom-pattern} in an lexical table is associated with an
 {\em instruction-group} that consists of one or more {\em instructions}
 separated by {\tt else}'s.  Most {\em instruction-groups} contain just
 a single {\em instruction}, so we will explain this first.
@@ -952,7 +952,7 @@ a single {\em instruction}, so we will explain this first.
 with {\em cpat-options} of {\tt translate} {\tt hex}/{\tt oct}
 instruction components.
 
-An \emmkey{instruction}{in atom-table-entry} in an {\em atom-table-entry}
+An \emmkey{instruction}{in lexical-table-entry} in an {\em lexical-table-entry}
 specifies actions to be taken when an atom is recognized by the
 {\em atom-pattern} of the entry.  The {\em instruction} consists of
 a set of {\em instruction-components} each of which controls part of the
@@ -960,7 +960,7 @@ atom processing.  If there are no components, the default actions are
 performed, which consist of just skipping over the atom in the input and
 copying the atom to the translation buffer.
 
-The {\em default-instruction} at the end of an atom table behaves as
+The {\em default-instruction} at the end of an lexical table behaves as
 if a zero length atom had been recognized.
 
 The \ttmkey{accept}{in lexical program} {\em instruction-component}
@@ -975,7 +975,7 @@ instruction components, {\tt accept} must be given.
 
 The `\ttmkey{keep}{in lexical program} $n$'
 {\em instruction-component} causes the atom length
-to be shortened to $n$.  For example, the atom table entry
+to be shortened to $n$.  For example, the lexical table entry
 \begin{center}
 \verb|",<digit>" keep 1;|
 \end{center}
@@ -994,20 +994,20 @@ A `\ttmkey{translate}{in lexical program} {\em translation-string}'
 specifies a {\em quoted-string} of characters,
 the {\em translation-string},
 that is copied into the translation buffer instead of the atom.
-A {\em translation-string} may be empty, as in the atom table entry
+A {\em translation-string} may be empty, as in the lexical table entry
 \begin{center}
 \verb|"\"" translate "" goto master;|
 \end{center}
 which can be used to recognize the last \verb|"| of a quoted string, avoid
 copying anything into the translation buffer, and then switch to the
-`{\tt master}' atom table.  See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+`{\tt master}' lexical table.  See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
 {\em instruction-component} ignores the
 first $m$ and last $n$ characters of the atom and viewing the rest as
 hexadecimal digits, converts these into an 32 bit unsigned integer
 UNICODE character code, which is placed into the translation buffer
-instead of the atom.  An example is the the atom table entry
+instead of the atom.  An example is the the lexical table entry
 \begin{center}
 \verb|"\\/0<hex-digit><hex-digit>/" translate hex 2 1;|
 \end{center}
@@ -1021,7 +1021,7 @@ restricts these characters appropriately).
 The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 {\em instruction-component} is identical but
 views the rest of the characters as octal and not hexadecimal.
-An example use would be the atom table entry
+An example use would be the lexical table entry
 \begin{center}
 \verb|"\\/o<oct-digit><oct-digit><oct-digit>/" translate oct 2 1;|
 \end{center}
@@ -1041,7 +1041,7 @@ containing the {\em character-pattern} is turned into a no-operation and
 the first {\em instruction} after the next `{\tt else}' is executed in
 its place.
 
-An example use would be the atom table entry
+An example use would be the lexical table entry
 \begin{indpar}
 \verb|"\\/0<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 1| \\
 \verb|    "<letter>" else| \\
@@ -1064,7 +1064,7 @@ The following are some examples:
 "\\<other>" translate "" error bad escape sequence;
 "\\<other>" translate "\del/" error bad escape sequence;
 \end{verbatim}\end{indpar}
-These might be entries in an atom table for a quoted string.
+These might be entries in an lexical table for a quoted string.
 All identify an atom consisting of a backslash followed by any
 character, as long as the atom is not recognized by another entry
 that does not have the \verb|<other>| character pattern (see
@@ -1104,17 +1104,17 @@ A `\ttmkey{output}{in lexical program} {\em type}\,'
 {\em instruction-component} emits the current lexeme
 with the given {\em type}.  This
 {\em instruction-component} must either be used
-in a master mode atom table or combined with a 
-{\tt goto} transferring to a master mode atom table.
+in a master mode lexical table or combined with a 
+{\tt goto} transferring to a master mode lexical table.
 This works even if the current lexeme is of zero length.
-It may be used in the {\em default-instruction} of an atom table;
+It may be used in the {\em default-instruction} of an lexical table;
 for example, at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} the
-{\tt master} atom table has `{\tt output end of file;}' as its
+{\tt master} lexical table has `{\tt output end of file;}' as its
 {\em default-instruction}, thereby outputting a zero length
 lexeme with `{\tt end of file}' type whenever the input is at the
 end of file.
 
-As an example, the `{\tt master}' atom table at the top of
+As an example, the `{\tt master}' lexical table at the top of
 \pagref{EXAMPLE-LEXEME-PROGRAM} contains the entry:
 \begin{indpar}\begin{verbatim}
 "<other>" output bad character;
@@ -1127,8 +1127,8 @@ the character itself, but if the entry:
 \end{verbatim}\end{indpar}
 had been used instead the translation would have been the DEL character.
 
-A `\ttmkey{goto}{in lexical program} {\em atom-table-name}\,'
-{\em instruction-component} switches the current atom table after
+A `\ttmkey{goto}{in lexical program} {\em lexical-table-name}\,'
+{\em instruction-component} switches the current lexical table after
 the current atom is processed.  If the table switches from a table
 of non-{\tt master} mode to one of {\tt master} mode,
 if the instruction contains no `{\tt output}' component,
@@ -1136,46 +1136,46 @@ and if the current lexeme is of non-zero length, then the current
 lexeme is output with the {\em type} of the non-{\tt master} mode
 table: see \pagref{KIND-OUTPUT}.
 
-A `\ttmkey{call}{in lexical program} {\em atom-table-name}\,'
+A `\ttmkey{call}{in lexical program} {\em lexical-table-name}\,'
 {\em instruction-component} is just like `{\tt goto}' except
-that it also pushes the identifier of the atom table in which
+that it also pushes the identifier of the lexical table in which
 the `{\tt call}' occurs (the `caller') into the return stack.
-The \key{return stack} is a stack of up to 8 atom table identifiers
+The \key{return stack} is a stack of up to 8 lexical table identifiers
 used by the `{\tt call}' and `{\tt return}' instruction components.
 
 A `\ttmkey{return}{in lexical program}'
 {\em instruction-component} is just like `{\tt goto}' except
-that uses the atom table identifier at the top of the return
-stack to determine the next atom table.  This identifier is
+that uses the lexical table identifier at the top of the return
+stack to determine the next lexical table.  This identifier is
 also popped from the stack.
 
-The return stack is emptied whenever the current atom table
+The return stack is emptied whenever the current lexical table
 becomes a master mode table.
 
 A `{\tt call}' instruction can have an optional \key{return-vector}
 which is used by a `{\tt return}' instruction with a \key{return-index}.
-A {\em return-vector} is a list of {\em atom-table-names}.
+A {\em return-vector} is a list of {\em lexical-table-names}.
 A {\em return-index} is a natural number, {\tt 1}, {\tt 2}, etc., that
 selects the corresponding element of the {\em return-vector} of the
 `{\tt call}' instruction to which the `{\tt return}' instruction is
 returning.  This permits the `{\tt return}' instruction to return to
-an atom table other than the one containing the `{\tt call}' instruction.
-For example, if `{\tt call t(x,y,z)}' called an atom table, in that
-table `{\tt return}' would return to the atom table containing the
+an lexical table other than the one containing the `{\tt call}' instruction.
+For example, if `{\tt call t(x,y,z)}' called an lexical table, in that
+table `{\tt return}' would return to the lexical table containing the
 `{\tt call}' instruction, while `{\tt return(2)}' would return to
-atom table {\tt y}.
+lexical table {\tt y}.
 
 
 The `{\tt call}' and `{\tt return}' instruction components
-permit a non-master atom table to be shared among different
+permit a non-master lexical table to be shared among different
 master tables.  For example, a non-master table to scan
 a comment lexeme may be shared among several master tables;
 see Appendix \itemref{C++-LEXICAL-PROGRAM} for examples.
 
 The `{\tt call}' and `{\tt return}' instruction components
-also permit a non-master atom table to be shared among different
+also permit a non-master lexical table to be shared among different
 non-master tables.  For example, a table to scan escape sequences
-may be shared among several atom tables dedicated to scanning
+may be shared among several lexical tables dedicated to scanning
 different types of quoted strings.
 Again Appendix \itemref{C++-LEXICAL-PROGRAM} has examples.
 
@@ -1454,7 +1454,7 @@ begin standard lexical program;
 // classifying ' as a word character if it is followed by
 // a letter, cannot be included in character pattern
 // definitions, but are noted in comments.  They are
-// accounted for by separate atom table entries below.
+// accounted for by separate lexeme table entries below.
 
 "<letter>" = "<ascii-letter>" | "<latin-letter>"
            | . . . | "<CJK-letter>";   // Details omitted
@@ -1465,12 +1465,10 @@ begin standard lexical program;
               | "^" | "&" | "=" | "|" | "<" | ">" | "_" | "!"
               | "?" | ":";
               //
-              // Also \ not followed by u or U,
-              //      . not followed by a digit
+              // Also . not followed by a digit
               //      / not surrounded by digits
 
-"<non-u-char>" = ~ "u" & ~ "U";
-"<non-slash-char>" = ~ ";";
+"<non-slash-char>" = ~ "/";
 
 "<separator-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";" | "`";
               //
@@ -1483,7 +1481,7 @@ begin standard lexical program;
 
 "<horizontal-space-char>" = " " | "\ht/";
 
-begin master atom table;
+begin main master table;
 
    // Whitespace is separated out into 3 types of lexeme:
    //
@@ -1494,15 +1492,17 @@ begin master atom table;
    //   `comments'          `//' up to just before next
    //                       line break
    //
-   "//" goto comment;
-   "<horizontal-space-char>" goto horizontal space;
-   "<line-break-char>" goto line break;
+   "//" call comment;
+   "<horizontal-space-char>" call horizontal space;
+   "<line-break-char>" call line break;
 
-   "<word-char>" goto word;
-   "'<letter>" goto word;
-    "\\/" translate escaped character representative
-          require "<letter>" goto word
-          else goto bad escape sequence;
+   "<word-char>" call word;
+   "'<letter>" call word;
+    "\\/" translate escaped character
+          require "<letter>" call word
+          else translate bad escape sequence
+	       output unrecognized escape sequence
+          else output unrecognized escape character;
 
    "<mark-char>" goto mark;
    "." goto mark;  // ".<non-digit>"
@@ -1516,69 +1516,66 @@ begin master atom table;
    ".<digit>" keep 1 goto number;
 
    "<separator-char>" output separator;
-   "," output separator;
+   "," output separator;	// "<non-digit>,"
    "'" output separator;        // "'<non-letter>"
 
-   "\"" translate "" goto quoted string;
+   "\"/" translate "" goto quoted string;
 
-   "<other>" output bad character;
+   "<other>" output unrecognized character;
    output end of file;
 
-end master atom table;
+end main master table;
 
 
 // The below tables are entered from the master table
 // with the first one or two characters scanned.
 
 
-begin comment atom table;
+begin comment lexeme table;
    "<non-line-break-char>" accept;
-   goto master;
-end comment atom table;
+   return;
+end comment lexeme table;
 
 
-begin horizontal space atom table;
+begin horizontal space lexeme table;
    "<horizontal-space-char>" accept;
-   goto master;
-end horizontal space atom table;
+   return;
+end horizontal space lexeme table;
 
 
-begin line break atom table;
+begin line break lexeme table;
    "<line-break-char>" accept;
-   goto master;
-end line break atom table;
+   return;
+end line break lexeme table;
 
 
-begin word atom table;
+begin word lexeme table;
 
    "<word-char>" accept;
    "'<letter>" accept;
-    "\\/" translate escaped character representative
-          require "<letter>" goto word
-          else goto master;
+    "\\/" translate escaped character
+          require "<letter>"
+          else keep 0 return;
    return;
 
-end word atom table;
+end word lexeme table;
 
-begin mark atom table;
+begin mark lexeme table;
    "<mark-char>" accept;
    ".<non-digit>" keep 1;
    "/<non-slash-char>" keep 1;
-   "\\<non-u-char>" keep 1;
-   goto master;
-end mark atom table;
+   return;
+end mark lexeme table;
 
-begin natural number atom table;
-
+begin natural number lexeme table;
    "<digit>" accept;
    ".<digit>" keep 1 goto number;
    "<digit>/<digit>" keep 2 goto number;
    "<digit>,<digit>" keep 2 goto number;
-   goto master;
+   return;
+end natural number lexeme table;
 
-end natural number atom table;
-
-begin number atom table;
+begin number lexeme table;
 
    // In order to recognize , and / surrounded by digits
    // as number atoms, entries to this table upon
@@ -1594,17 +1591,19 @@ begin number atom table;
    ".<digit>" keep 1;
    "<digit>/<digit>" keep 2;
    "<digit>,<digit>" keep 2;
-   goto master;
+   return;
 
-end number atom table;
+end number lexeme table;
 
 
-begin quoted string atom table;
+begin quoted string lexeme table;
 
     "\"/" translate "" return;   // End quoted string.
 
-    "\\/" translate escaped character representative
-          else error bad escape character
+    "\\/" translate escaped character
+          else translate bad escape sequence
+	       error unrecognized escape sequence
+          else error unrecognized character;
 
     "<line-break-char>"
         goto bad end of line;
@@ -1613,10 +1612,9 @@ begin quoted string atom table;
 
     goto bad end of file;
 
-end quoted string atom table;
+end quoted string lexeme table;
 
-
-begin escaped character representative translation table
+begin escaped character translation table;
 
     "\\/\"/" translate "\"/";
     "\\/\lf/" translate "\lf/";
@@ -1629,48 +1627,74 @@ begin escaped character representative translation table
     "\\/~"  translate " " ;
     "\\/0/" translate "\0/";
     "\\/0<hex-digit>/"
-              translate hex 2 1
+              translate hex 2 1;
     "\\/0<hex-digit><hex-digit>/"
-              translate hex 2 1
+              translate hex 2 1;
     "\\/0<hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1
+              translate hex 2 1;
     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1
+              translate hex 2 1;
     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit>/"
-              translate hex 2 1
+              translate hex 2 1;
     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit>/"
-              translate hex 2 1
+              translate hex 2 1;
     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1
+              translate hex 2 1;
     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1
-    fail
-end escaped character representative translation table
+              translate hex 2 1;
+    fail;
+end escaped character translation table;
+
+"<escaped-char>" = ~ "/" & ~ "<line-break-char>";
+
+begin bad escape sequence translation table;
+
+    "\\//";
+    "\\/<escaped-char>/";
+    "\\/<escaped-char><escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char>/";
+    "\\/<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>"
+       "<escaped-char><escaped-char>/";
+    fail;
+end bad escape sequence translation table;
+
+begin bad end of line master table;
+    output bad end of line goto main;
+end bad end of line master table;
 
 
-begin bad escape sequence atom table;
-    "<line-break>" goto master;
-    "/" goto master;
-    "<other>" accept;
-    goto master;
-end bad escape sequence atom table;
-
-begin bad end of line atom table;
-    mode master;
-    output bad end of line
-           goto master;
-end bad end of line atom table;
-
-
-begin bad end of file; atom table
-    mode master;
-    output bad end of file
-           goto master;
-end bad end of file atom table;
+begin bad end of file master table;
+    output bad end of file goto main;
+end bad end of file master table;
 
 
 end standard lexical program;
@@ -1755,7 +1779,7 @@ begin c++ lexical program;
 // Because of pp control lines, lexical scanning is
 // slightly context dependent.  There are several
 // contexts, each corresponding to a different master
-// atom table:
+// table:
 //
 //    initial master
 //        Used in line beginning situations to recognize
@@ -1851,11 +1875,11 @@ begin pp include master table;
     "<" translate "" call bracketed header name;
     "\"/" translate "" call quoted header name;
 
-    "<non-digit>" call identifier
+    "<non-digit>" call identifier;
     "\\/" translate escaped letter call identifier
           else translate universal character
 	       output unrecognized universal character
-          else output unrecognized character
+          else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
@@ -1867,11 +1891,11 @@ begin pp include master table;
 
     "<op-char-except-<>" translate operator
     			 output operator
-          else output unrecognized character
+          else output unrecognized character;
 
-    "\lf/" output line feed goto initial
-    "<other>" output unrecognized character goto initial
-    output end of file goto initial
+    "\lf/" output line feed goto initial;
+    "<other>" output unrecognized character goto initial;
+    output end of file goto initial;
 pp end include master table;
 
 begin bracketed header name lexeme table;
@@ -1896,12 +1920,12 @@ begin normal master table;
     "/*" call "/*" comment;
     "//" call "//" comment;
 
-    "<non-digit>" call identifier
+    "<non-digit>" call identifier;
     "\\/<u-or-U>" translate escaped character
                   require "<letter>" call identifier
                   else translate escaped character
 	               output unrecognized universal character
-                  else output unrecognized character
+                  else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
@@ -1912,14 +1936,14 @@ begin normal master table;
     "L\"/" translate "" call wide string literal;
 
     "<op-char>" translate operator output operator
-                else output unrecognized character
+                else output unrecognized character;
 
-    "\lf/" output line feed goto initial
-    "<other>" output unrecognized character goto initial
-    output end of file goto initial
+    "\lf/" output line feed goto initial;
+    "<other>" output unrecognized character goto initial;
+    output end of file goto initial;
 end normal master table;
 
-begin operator translation table
+begin operator translation table;
     "(";
     ")";
     "[";
@@ -1959,7 +1983,7 @@ begin operator translation table
     // etc.
 
     fail;
-end operator translation table
+end operator translation table;
 
 
 "<u-or-U>" = "u" | "U";
@@ -1968,7 +1992,7 @@ begin identifier lexeme table;
     "<non-digit>" accept;
     "\\/<u-or-U>" translate escaped character
                   require "<letter>"
-                  else keep 0 return
+                  else keep 0 return;
     goto normal;
 end identifier lexeme table;
 

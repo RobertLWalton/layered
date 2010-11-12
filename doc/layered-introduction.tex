@@ -867,7 +867,7 @@ Some example {\em character-pattern-definitions} are:
 "<hex-digit>" = "0-9" | "a-f" | "A-F";
 "<non-line-break-char>" = ~ "\lf/" & ~ "\vt/" & ~ "\ff/";
 "<quotable-char>" = "\020/-\07e/" & ~ "\"/" & ~ "\\/";
-"<whitespace-char>" = " " | "\lf/" | "\vt/" | "\ff/" | "\ht/" | "\cr/";
+"<whitespace-char>" = " " | "\lf/" | "\vt/" | "\ff/" | "\ht/";
 "<source-character>" =
     ( "\020/-\07e/" & ~ "$" & ~ "@" & ~ "`" )
     | "<whitespace-char>";
@@ -1713,7 +1713,7 @@ begin c++ lexical program;
 
 "<space-char>" = " " | "\t" | "\v" | "\f";
 
-"<source-character>" =
+"<source-char>" =
     ( "\0020/-\007e/" & ~ "$" & ~ "@" & ~ "`" )
     | "<whitespace-char>";
 
@@ -1724,9 +1724,9 @@ begin c++ lexical program;
 //
 "<op-char>" = "#" | "<" | ">" | ":" | "%" |
             | "." | "?" | "+" | "-" | "*" | "/"
-	    | "^" | "&" | "|" | "~" | "!" | ",";
-"<sep-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";";
-"<opsep-char>" = "<op-char>" | "<sep-char>";
+	    | "^" | "&" | "|" | "~" | "!" | ","
+            | "(" | ")" | "[" | "]" | "{" | "}"
+	    | ";";
 
 // The following list of language specific letters is
 // taken from Annex E of the Working Paper for Draft
@@ -1841,7 +1841,7 @@ begin pp beginning master table;
     goto normal;
 end pp beginning master table;
 
-"<opsep-char-except-<>" = "<opsep-char>" & ~ "<";
+"<op-char-except-<>" = "<op-char>" & ~ "<";
 
 begin pp include master table;
     "<horizontal-space-char>" call horizontal space;
@@ -1865,8 +1865,8 @@ begin pp include master table;
     "\"/" translate "" call string literal;
     "L\"/" translate "" call wide string literal;
 
-    "<opsep-char-except-<>" translate operator
-    			    output operator
+    "<op-char-except-<>" translate operator
+    			 output operator
           else output unrecognized character
 
     "\lf/" output line feed goto initial
@@ -1897,10 +1897,11 @@ begin normal master table;
     "//" call "//" comment;
 
     "<non-digit>" call identifier
-    "\\/" translate escaped letter call identifier
-          else translate universal character
-	       output unrecognized universal character
-          else output unrecognized character
+    "\\/<u-or-U>" translate escaped character
+                  require "<letter>" call identifier
+                  else translate escaped character
+	               output unrecognized universal character
+                  else output unrecognized character
 
     "<digit>" call integer;
     ".<digit>" call fraction;
@@ -1910,20 +1911,64 @@ begin normal master table;
     "\"/" translate "" call string literal;
     "L\"/" translate "" call wide string literal;
 
-    "<opsep-char>" translate operator output operator
-                   else output unrecognized character
+    "<op-char>" translate operator output operator
+                else output unrecognized character
 
     "\lf/" output line feed goto initial
     "<other>" output unrecognized character goto initial
     output end of file goto initial
 end normal master table;
 
+begin operator translation table
+    "(";
+    ")";
+    "[";
+    "]";
+    "{";
+    "}";
+    "#";
+    "##";
+    "<:";
+    ":>";
+    "<%";
+    "%>";
+    "%:";
+    "%:%:";
+    ";";
+    ":";
+    "...";
+    "?";
+    "::";
+    ".";
+    ".*";
+    "+";
+    "-";
+    "*";
+    "/";
+    "%";
+    "^";
+    "&";
+    "|";
+    "~";
+    "!";
+    "=";
+    "<";
+    ">";
+    "+=";
+    "-=";
+    // etc.
+
+    fail;
+end operator translation table
+
+
+"<u-or-U>" = "u" | "U";
+
 begin identifier lexeme table;
     "<non-digit>" accept;
-    "\\/" translate escaped letter accept
-          else translate universal character
-	       error unrecognized universal character
-          else keep 0 return
+    "\\/<u-or-U>" translate escaped character
+                  require "<letter>"
+                  else keep 0 return
     goto normal;
 end identifier lexeme table;
 
@@ -2013,40 +2058,50 @@ begin pp number lexeme table;
     output pp number return;
 end pp number lexeme table;
 
+"<character-literal-char>" =
+    "<source-char>" & ~ "'" & ~ "\\/" & ~ "\lf/";
+
 begin character literal lexeme table;
-    "'" translate "" goto normal line master;
-    "\lf/" keep 0 goto premature end of line master;
-    "\\/" translate escaped character representation
+    "'" translate "" goto normal;
+    "\lf/" keep 0 goto premature end of line;
+    "\\/" translate escaped character
           else error bad escape character;
-    "<other>" accept;
-    goto premature end of file master;
+    "<character-literal-char>" accept;
+    "<other>" error bad character literal character;
+    goto premature end of file;
 end character literal lexeme table;
 
 begin wide character literal lexeme table;
-    "'" translate "" goto normal line master;
-    "\lf/" keep 0 goto premature end of line master;
-    "\\/" translate escaped character representation
+    "'" translate "" goto normal;
+    "\lf/" keep 0 goto premature end of line;
+    "\\/" translate escaped character
           else error bad escape character;
-    "<other>" accept;
-    goto premature end of file master;
+    "<character-literal-char>" accept;
+    "<other>" error bad character literal character;
+    goto premature end of file;
 end wide character literal lexeme table;
 
+"<string-literal-char>" =
+    "<source-char>" & ~ "\"/" & ~ "\\/" & ~ "\lf/";
+
 begin string literal lexeme table;
-    "\"/" translate "" goto normal line master;
-    "\lf/" keep 0 goto premature end of line master;
-    "\\/" translate escaped character representation
+    "\"/" translate "" goto normal;
+    "\lf/" keep 0 goto premature end of line;
+    "\\/" translate escaped character
           else error bad escape character;
-    "<other>" accept;
-    goto premature end of file master;
+    "<string-literal-char>" accept;
+    "<other>" error bad character literal character;
+    goto premature end of file;
 end string literal lexeme table;
 
 begin wide string literal lexeme table;
     "\"/" translate "" goto normal line master;
     "\lf/" keep 0 goto premature end of line master;
-    "\\/" translate escaped character representation
+    "\\/" translate escaped character
           else error bad escape character;
-    "<other>" accept;
-    goto premature end of file master;
+    "<string-literal-char>" accept;
+    "<other>" error bad character literal character;
+    goto premature end of file;
 end wide string literal lexeme table;
 
 // This translation table is used when the next atom
@@ -2057,7 +2112,7 @@ end wide string literal lexeme table;
 // after \x; 9 digits is an error.  The C++ standard
 // permits any number of hexadecimal digits.
 //
-begin escaped character representation translation table;
+begin escaped character translation table;
     "\\/n" translate "\lf/";
     "\\/t" translate "\ht/";
     "\\/v" translate "\vt/";
@@ -2104,7 +2159,7 @@ begin escaped character representation translation table;
         "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate-hex 2 0;
     fail;
-end escaped character representation translation table;
+end escaped character translation table;
 
 end c++ lexical program;
 \end{verbatim}\end{indpar}

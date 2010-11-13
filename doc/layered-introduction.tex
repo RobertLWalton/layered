@@ -707,7 +707,8 @@ and the syntax of a lexical program is specified on
 	& ::= &  {\em empty} $|$ {\em instruction}
 \\[1ex]
 \emkey{lexical-table-entry}
-	& ::= & {\em atom-pattern} {\em instruction-group} {\tt ;}
+	& ::= & {\em atom-pattern} {\em instruction-group} {\tt ;} \\
+	& $|$ & {\em atom-pattern} {\tt ;}
 \\[1ex]
 \emkey{atom-pattern} & ::= &
 	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^\star${\tt "}
@@ -957,26 +958,26 @@ on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 \subsubsection{Lexical Instructions}
 
-TBD
-
-An {\em atom-pattern} in an lexical table is associated with an
-{\em instruction-group} that consists of one or more {\em instructions}
+A \emkey{lexical-table-entry} contains an
+{\em atom-pattern} and an optional
+\emkey{instruction-group} that consists of one or more {\em instructions}
 separated by {\tt else}'s.  Most {\em instruction-groups} contain just
 a single {\em instruction}, so we will explain this first.
 {\em Instruction-groups} with more than one instruction are associated
-with {\em cpat-options} of {\tt translate} {\tt hex}/{\tt oct}
-instruction components.
+{\tt translate} instruction components, which can fail, causing
+the instruction containing them to become a no-operation and the
+next instruction in the instruction group to be executed instead.
 
 An \emmkey{instruction}{in lexical-table-entry} in an {\em lexical-table-entry}
 specifies actions to be taken when an atom is recognized by the
 {\em atom-pattern} of the entry.  The {\em instruction} consists of
 a set of {\em instruction-components} each of which controls part of the
-atom processing.  If there are no components, the default actions are
-performed, which consist of just skipping over the atom in the input and
-copying the atom to the translation buffer.
+atom processing.
 
 The {\em default-instruction} at the end of an lexical table behaves as
-if a zero length atom had been recognized.
+if a it was associated with the {\em atom-pattern} \verb|""|
+that recognizes zero length atoms.  Note that actual {\em atom-patterns}
+are not allowed to be \verb|""|.
 
 The \ttmkey{accept}{in lexical program} {\em instruction-component}
 accepts the
@@ -985,8 +986,10 @@ input, and copies the atom characters to the translation buffer.
 It is incompatible with the {\tt keep} and {\tt translate} instruction
 components.
 
-In the absence of any {\tt keep} or {\tt translate}
-instruction components, {\tt accept} must be given.
+If none of {\tt accept}, {\tt keep}, or {\tt translate}
+are given, {\tt accept} is implied.  If no {\em instruction-group}
+is given in a {\em lexical-table-entry}, {\tt accept} is the implied
+{\em instruction}.
 
 The `\ttmkey{keep}{in lexical program} $n$'
 {\em instruction-component} causes the atom length
@@ -997,6 +1000,8 @@ to be shortened to $n$.  For example, the lexical table entry
 will recognize a 1-character atom consisting of just a comma as long as
 the comma is followed by character in the \verb|<digit>| character pattern
 character set.  Atoms may not be lengthened by {\tt keep}.
+
+TBD
 
 There are three possible translate {\em instruction-components}, at most
 one of which may be used.  These affect how the atom is placed into

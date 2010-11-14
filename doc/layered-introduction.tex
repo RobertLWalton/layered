@@ -1588,22 +1588,22 @@ begin main master table;
 	       output unrecognized escape sequence
           else output unrecognized escape character;
 
-   "<mark-char>" goto mark;
-   "." goto mark;  // ".<non-digit>"
-   "/" goto mark;  // "/<non-slash-char>"
-   "\\" goto mark; // "\\<non-u-char>"
+   "<mark-char>" call mark;
+   "." call mark;  // ".<non-digit>"
+   "/" call mark;  // "/<non-slash-char>"
+   "\\" call mark; // "\\<non-u-char>"
 
    // We assume that the preceding text is not a digit
    // or the current input is not / or , followed by a digit.
    //
-   "<digit>" keep 0 goto natural number;
-   ".<digit>" keep 1 goto number;
+   "<digit>" keep 0 call natural number;
+   ".<digit>" keep 1 call number;
 
    "<separator-char>" output separator;
    "," output separator;	// "<non-digit>,"
    "'" output separator;        // "'<non-letter>"
 
-   "\"/" translate "" goto quoted string;
+   "\"/" translate "" call quoted string;
 
    "<other>" output unrecognized character;
    output end of file;

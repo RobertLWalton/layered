@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 12, 2010
+November 13, 2010
  
 \end{center}
 
@@ -687,7 +687,7 @@ and the syntax of a lexical program is specified on
 	{\tt begin} {\em lexical-table-name}
 		    {\em lexical-table-kind} {\tt table} {\tt ;} \\
 	& &  ~~~~{\em lexical-table-entry}$^\star$ \\
-	& &  ~~~~{\em default-instruction-option} \\
+	& &  ~~~~{\em default-instruction-group} \\
 	& & {\tt end} {\em lexical-table-name}
 		      {\em lexical-table-kind} {\tt table} {\tt ;}
 \\[1ex]
@@ -703,8 +703,8 @@ and the syntax of a lexical program is specified on
 
 \begin{figure*}[!t]
 \begin{tabular}{p{2.2in}rl}
-\emkey{default-instruction-option}
-	& ::= &  {\em empty} $|$ {\em instruction}
+\emkey{default-instruction-group}
+	& ::= &  {\em empty} $|$ {\em instruction-group}
 \\[1ex]
 \emkey{lexical-table-entry}
 	& ::= & {\em atom-pattern} {\em instruction-group} {\tt ;} \\
@@ -723,7 +723,7 @@ and the syntax of a lexical program is specified on
 \emkey{instruction-component}
 	& ::= & {\tt accept} \\
 	& $|$ & {\tt keep} {\em natural-number} \\
-	& $|$ & {\tt translate} {\em lexical-table-name} \\
+	& $|$ & {\tt translate} {\em translation-table-name} \\
 	& $|$ & {\tt translate to} {\em translation-string} \\
 	& $|$ & {\tt translate hex}
 			{\em natural-number} {\em natural-number} \\
@@ -732,10 +732,17 @@ and the syntax of a lexical program is specified on
 	& $|$ & {\tt require} {\em atom-pattern} \\
 	& $|$ & {\tt error} {\em type} \\
 	& $|$ & {\tt output} {\em type} \\
-	& $|$ & {\tt goto} {\em lexical-table-name} \\
-	& $|$ & {\tt call} {\em lexical-table-name} \\
+	& $|$ & {\tt goto} {\em master-table-name} \\
+	& $|$ & {\tt goto} {\em lexeme-table-name} \\
+	& $|$ & {\tt call} {\em lexeme-table-name} \\
 	& $|$ & {\tt return} \\
 	& $|$ & {\tt fail} \\
+\\[1ex]
+\emkey{translation-table-name} & ::= & {\em lexical-table-name}
+\\[1ex]
+\emkey{lexeme-table-name} & ::= & {\em lexical-table-name}
+\\[1ex]
+\emkey{master-table-name} & ::= & {\em lexical-table-name}
 \\[1ex]
 \emkey{translation-string} & ::= & {\em quoted-string}
 \end{tabular}
@@ -880,7 +887,7 @@ An {\em lexical-table-definition} specifies a {\em lexical-table-name},
 the {\em lexical-table-kind} of the table,
 a set of {\em lexical-table-entries}
 each containing an {\em atom-pattern} and optionally an {\em instruction},
-and an optional {\em default-instruction} that is executed when
+and an optional {\em default-instruction-group} that is executed when
 no atom is recognized by any of the table entries.
 
 The {\em lexical-table-kinds} are
@@ -949,10 +956,10 @@ longer pattern takes precedence.  The order of {\em lexical-table-entries}
 in a {\em lexical-table} is not significant.
 
 The atom pattern \verb|""| which would recognize zero length atoms is
-\underline{not} permitted, but the {\em default-instruction} at the
+\underline{not} permitted, but the {\em default-instruction-group} at the
 end of the lexical table executes in the equivalent case where no atom
 pattern in the table matches the remaining input.  In particular
-the {\em default-instruction} always executes if the input has reached
+the {\em default-instruction-group} always executes if the input has reached
 an end of file.  This fact is used in the `{\tt quoted string lexical table}'
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
@@ -974,17 +981,29 @@ specifies actions to be taken when an atom is recognized by the
 a set of {\em instruction-components} each of which controls part of the
 atom processing.
 
-The {\em default-instruction} at the end of an lexical table behaves as
+The {\em default-instruction-group} at the end of an lexical table behaves as
 if a it was associated with the {\em atom-pattern} \verb|""|
 that recognizes zero length atoms.  Note that actual {\em atom-patterns}
 are not allowed to be \verb|""|.
 
-The \ttmkey{accept}{in lexical program} {\em instruction-component}
+The order of processing instruction components in an instruction is:
+\begin{center}
+{\tt accept} or {\tt keep} \\
+{\tt translate}\\
+{\tt require} \\
+{\tt error} or {\tt output} \\
+{\tt goto}, {\tt call}, {\tt return}, or {\tt fail} \\
+\end{center}
+
+\subsubsubsection{Accept and Keep Instruction Components}
+
+The \ttmkey{accept}{in lexical program} {\em instruction-com\-po\-nent}
 accepts the
 atom without translation or length change, skips over the atom in the
 input, and copies the atom characters to the translation buffer.
 It is incompatible with the {\tt keep} and {\tt translate} instruction
-components.
+components, but it is actually equivalent to `{\tt keep} $n$' where
+$n$ is the length of the matched atom.
 
 If none of {\tt accept}, {\tt keep}, or {\tt translate}
 are given, {\tt accept} is implied.  If no {\em instruction-group}
@@ -1001,26 +1020,38 @@ will recognize a 1-character atom consisting of just a comma as long as
 the comma is followed by character in the \verb|<digit>| character pattern
 character set.  Atoms may not be lengthened by {\tt keep}.
 
-TBD
+\subsubsubsection{Translate Instruction Components}
 
-There are three possible translate {\em instruction-components}, at most
+There are four possible translate {\em in\-struc\-tion-com\-po\-nents}, at most
 one of which may be used.  These affect how the atom is placed into
-the translation buffer, and are applied to the atom \underline{after}
-any {\tt keep} is applied.  In the absence of any of these components,
+the translation buffer, and they may also fail, in which case the
+{\em instruction} containing them becomes a no-operation and the next
+{\em instruction} in the {\em instruction-group} (i.e., the {\em instruction}
+after the `{\tt else}' following the failed {\em instruction}) is
+executed.
+
+In the absence of any of translate component,
 the atom is copied `as-is' to the translation buffer.
 
-A `\ttmkey{translate}{in lexical program} {\em translation-string}'
+The `{\tt translate to}', `{\tt translate hex}', and `{\tt translate oct}'
+{\em instruction-components} are applied \underline{after}
+any {\tt keep} is applied.
+The other possible translate component invokes a translation table and
+is described separately below.
+
+A `\ttmkey{translate to}{in lexical program} {\em translation-string}'
 {\em instruction-component}
 specifies a {\em quoted-string} of characters,
 the {\em translation-string},
 that is copied into the translation buffer instead of the atom.
 A {\em translation-string} may be empty, as in the lexical table entry
 \begin{center}
-\verb|"\"" translate "" goto master;|
+\verb|"\"/" translate "" goto main;|
 \end{center}
 which can be used to recognize the last \verb|"| of a quoted string, avoid
 copying anything into the translation buffer, and then switch to the
-`{\tt master}' lexical table.  See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+`{\tt main}' lexical table.
+See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
 {\em instruction-component} ignores the
@@ -1043,41 +1074,76 @@ The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 views the rest of the characters as octal and not hexadecimal.
 An example use would be the lexical table entry
 \begin{center}
-\verb|"\\/o<oct-digit><oct-digit><oct-digit>/" translate oct 2 1;|
+\verb|"\\/<oct-digit><oct-digit><oct-digit>" translate oct 2 0;|
 \end{center}
 
-The {\tt translate hex} and {\tt translate oct} components may end with
-a {\em character-pattern} (the {\em cpat-option})
-that tests the 32 bit unsigned character code
-produced by the translation.  Such a test should only appear in an
+The `\ttmkey{translate}{in lexical program} {\em translation-table-name}'
+{\em instruction-component} invokes the named
+\key{translation table}\label{TRANSLATION-TABLE}
+to recognize an atom.  The previously matched atom is ignored, and
+the translation table patterns are used to rematch the current atom,
+provide a translation of the atom in the atom buffer, and determine
+whether the containing {\em instruction} fails.
+
+Translation tables match only a single atom and implicitly return
+to their invoking instruction after matching one atom.  The
+{\tt error}, {\tt output}, {\tt goto}, {\tt call}, and {\tt return}
+{\em instruction-components} \underline{cannot} be used in a
+translation table.  However, the {\tt fail} {\em instruction-component}
+may only be used in a translation table, and when executed indicates
+that the invoking {\em instruction} has failed.
+
+{\tt accept}, {\tt keep}, {\tt require}, and
+any of the {\tt translate} {\em instruction-components} can be used in
+a translation table {\em instruction}.  A translation table
+instruction may invoke another translation table, but recursion
+is prohibited.
+Note that if an instruction invokes a translation table and
+the instruction does not fail,
+the original atom match that caused the instruction
+to be executed is discarded, but if the instruction fails, this
+original atom match is reinstated (the instruction becomes a
+no-operation) before the next {\em instruction} in the {\em instruction group}
+executes.
+
+Translation tables may have a {\em default-instruction-group}.
+
+\subsubsubsection{Require Instruction Component}
+
+The `\ttmkey{require}{in lexical program} {\em atom-pattern}'
+{\em instruction-component} tests whether the atom in the
+\underline{translation buffer} matches the given {\em atom-pattern},
+and if \underline{no}, causes the {\em instruction} to fail.
+A {\tt require} should only appear in an
 {\em instruction} which is followed by an `{\tt else}' in an
-\emmkey{instruction-group}{in lexical program}.
-If the 32 bit unsigned character code is in
-the character set defined by the {\em character-pattern}, the {\em instruction}
-containing the {\em character-pattern} is executed and the rest of the
-{\em instruction-group}, the part after the next `{\tt else}', is ignored.
-But if the character code is not in the character set the instruction
-containing the {\em character-pattern} is turned into a no-operation and
-the first {\em instruction} after the next `{\tt else}' is executed in
-its place.
+{\em instruction-group}.
 
 An example use would be the lexical table entry
 \begin{indpar}
-\verb|"\\/0<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 1| \\
-\verb|    "<letter>" else| \\
+\verb|"\\/u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0| \\
+\verb|    require "<letter>" else| \\
 \verb|    translate "" error bad character in identifier;|
 \end{indpar}
-which might be used to process an atom of the form \verb|\0XXXX| in
+which might be used to process an atom of the form \verb|\uXXXX| in
 an identifier, accepting the atom as a legitimate representation of a
 character if that character is a letter, and otherwise designating
 the atom as an error and not putting anything in the translation buffer
 (see below for the definition of the `{\tt error}' instruction component).
 
+A {\tt require} {\em instruction-component} is redundant unless
+there is a {\tt translate hex}, {\tt translate oct}, or
+`{\tt translate} {\em translation-table-name}' instruction component.
+
+The last {\em instruction} in an {\em instruction-group} must
+never fail, and so cannot contain a {\tt require} {\em instruction-component}.
+
+\subsubsubsection{Error and Output Instruction Components}
+
 A `\ttmkey{error}{in lexical program} {\em type}\,' {\em instruction-component}
 announces the current atom as an erroneous atom of the given {\em type}.
 The atom remains part of the current lexeme,
 and what is put in the translation buffer is governed
-independently by translation instruction components.
+independently by {\tt translate} instruction components.
 The following are some examples:
 \begin{indpar}\begin{verbatim}
 "\\<other>" error bad escape sequence;
@@ -1123,18 +1189,19 @@ and no special operations for detecting or announcing them.
 A `\ttmkey{output}{in lexical program} {\em type}\,'
 {\em instruction-component} emits the current lexeme
 with the given {\em type}.  This
-{\em instruction-component} must either be used
-in a master mode lexical table or combined with a 
-{\tt goto} transferring to a master mode lexical table.
-This works even if the current lexeme is of zero length.
-It may be used in the {\em default-instruction} of an lexical table;
+{\em instruction-component} may only be used if the next
+current lexical table is a master table.
+
+The {\tt output} {\em instruction-component}
+works even if the current lexeme is of zero length,
+and may be used in the {\em default-instruction-group} of an lexical table;
 for example, at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} the
 {\tt master} lexical table has `{\tt output end of file;}' as its
-{\em default-instruction}, thereby outputting a zero length
+{\em default-instruction-group}, thereby outputting a zero length
 lexeme with `{\tt end of file}' type whenever the input is at the
 end of file.
 
-As an example, the `{\tt master}' lexical table at the top of
+As an example, the `{\tt main}' master table at the top of
 \pagref{EXAMPLE-LEXEME-PROGRAM} contains the entry:
 \begin{indpar}\begin{verbatim}
 "<other>" output bad character;
@@ -1147,21 +1214,31 @@ the character itself, but if the entry:
 \end{verbatim}\end{indpar}
 had been used instead the translation would have been the DEL character.
 
+Whenever the current lexical table is changed from a lexeme table
+to a master table, if no {\tt output} {\em instruction-component}
+is present in the {\em instruction} that made the change, and if
+the current lexeme is not of zero length, then
+an implicit {\tt output} is executed with the name of the lexeme
+table as its type.
+
+\subsubsubsection{Goto, Call, Return, and Fail Instruction Components}
+
 A `\ttmkey{goto}{in lexical program} {\em lexical-table-name}\,'
 {\em instruction-component} switches the current lexical table after
-the current atom is processed.  If the table switches from a table
-of non-{\tt master} mode to one of {\tt master} mode,
+the current atom is processed.  If the table switches from a lexeme table
+to a master table,
 if the instruction contains no `{\tt output}' component,
 and if the current lexeme is of non-zero length, then the current
-lexeme is output with the {\em type} of the non-{\tt master} mode
-table: see \pagref{KIND-OUTPUT}.
+lexeme is output with the {\em type} of the lexeme table.
 
-A `\ttmkey{call}{in lexical program} {\em lexical-table-name}\,'
+A `\ttmkey{call}{in lexical program} {\em lexeme-table-name}\,'
 {\em instruction-component} is just like `{\tt goto}' except
 that it also pushes the identifier of the lexical table in which
 the `{\tt call}' occurs (the `caller') into the return stack.
-The \key{return stack} is a stack of up to 8 lexical table identifiers
-used by the `{\tt call}' and `{\tt return}' instruction components.
+The \key{return stack} is a stack of up to 64 lexical table identifiers
+used by the `{\tt call}' and `{\tt return}' instruction components
+and also by the `{\tt translate} {\em translation-table-name}'
+instruction components.  Recursive calls are prohibited.
 
 A `\ttmkey{return}{in lexical program}'
 {\em instruction-component} is just like `{\tt goto}' except
@@ -1170,42 +1247,29 @@ stack to determine the next lexical table.  This identifier is
 also popped from the stack.
 
 The return stack is emptied whenever the current lexical table
-becomes a master mode table.
-
-A `{\tt call}' instruction can have an optional \key{return-vector}
-which is used by a `{\tt return}' instruction with a \key{return-index}.
-A {\em return-vector} is a list of {\em lexical-table-names}.
-A {\em return-index} is a natural number, {\tt 1}, {\tt 2}, etc., that
-selects the corresponding element of the {\em return-vector} of the
-`{\tt call}' instruction to which the `{\tt return}' instruction is
-returning.  This permits the `{\tt return}' instruction to return to
-an lexical table other than the one containing the `{\tt call}' instruction.
-For example, if `{\tt call t(x,y,z)}' called an lexical table, in that
-table `{\tt return}' would return to the lexical table containing the
-`{\tt call}' instruction, while `{\tt return(2)}' would return to
-lexical table {\tt y}.
-
+becomes a master mode table.  A {\tt call} \underline{cannot} be used
+to call a master or translation table.  A {\tt return} can only
+appear in a lexeme table.
 
 The `{\tt call}' and `{\tt return}' instruction components
-permit a non-master lexical table to be shared among different
-master tables.  For example, a non-master table to scan
+permit a lexeme table to be shared among different
+master and lexeme tables.  For example, a lexeme table to scan
 a comment lexeme may be shared among several master tables;
 see Appendix \itemref{C++-LEXICAL-PROGRAM} for examples.
 
 The `{\tt call}' and `{\tt return}' instruction components
-also permit a non-master lexical table to be shared among different
-non-master tables.  For example, a table to scan escape sequences
-may be shared among several lexical tables dedicated to scanning
-different types of quoted strings.
-Again Appendix \itemref{C++-LEXICAL-PROGRAM} has examples.
-
-The `{\tt call}' and `{\tt return}' instruction components
 add nothing new to the lexical scanning language, since they
-cannot be used recursively (due to limits on the size of the
-return stack), and they can always be eliminated by making
+cannot be used recursively,
+and they can always be eliminated by making
 copies of the called tables with hard coded returns.
 But for certain languages these instruction components
 substantially reduce the size of the lexical program.
+
+A `\ttmkey{fail}{in lexical program}'
+{\em instruction-component} can only be used in a translation
+table and causes the instruction invoking the translation table to fail.
+The `{\tt goto}', `{\tt call}', and `{\tt return}' instruction components
+\underline{cannot} be used in a translation table.
 
 \section{Parsing}
 

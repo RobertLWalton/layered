@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 19:49:18 EDT 2010
+// Date:	Tue Nov 16 00:42:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,7 +33,7 @@ namespace ll { namespace lexeme
 //
 enum {
     PROGRAM			= 1,
-    ATOM_TABLE			= 2,
+    TABLE			= 2,
     TYPE_MAP			= 3,
     DISPATCHER			= 4,
     INSTRUCTION			= 5
@@ -43,26 +43,27 @@ enum {
 // `ID' == 0 always, but this is never returned to the
 // user.  The pctype can be used to tell whether the
 // program is in proper endianhood or needs endianhood
-// conversion.
+// conversion.  The initial_table_ID is the ID of the
+// initial master table.
 //
 struct program_header {
     uns32 pctype;		// == PROGRAM
-    uns32 atom_table_ID;	// Initial atom table.
+    uns32 initial_table_ID;	// Initial master table.
 };
 const uns32 program_header_length = 2;
 
-// An atom table consists of just a header which records
-// the mode and label, and the dispatcher for the first
-// character of an atom, and the instruction to be used
-// if no atom is recognized.
+// A (lexical) table consists of just a header which
+// records the mode, the dispatcher for the first char-
+// acter of an atom, and the default instruction to be
+// used if no atom is recognized.
 //
-struct atom_table_header {
-    uns32 pctype;		// == ATOM_TABLE
+struct table_header {
+    uns32 pctype;		// == TABLE
     uns32 mode;
     uns32 dispatcher_ID;
     uns32 instruction_ID;
 };
-const uns32 atom_table_header_length = 4;
+const uns32 table_header_length = 4;
 
 // The format of a dispatcher is
 //
@@ -141,26 +142,18 @@ const uns32 type_map_header_length = 4;
 
 // Instruction.  If operation includes TRANSLATE(n)
 // this is followed by the n uns32 characters of the
-// translation.  If operation includes ELSE this is
-// followed by the else_instruction struct.  If the
-// operation includes a CALL(n) this is followed by
-// a transfer vector that contains n uns32 atom table
-// IDs.
+// translation.
 //
 struct instruction_header {
     uns32 pctype;	    // == INSTRUCTION
     uns32 operation;
-    uns32 atom_table_ID;    // for GOTO or CALL
-    uns32 type;		    // for ERRONEOUS_ATOM or
-    			    //     OUTPUT
-};
-const uns32 instruction_header_length = 4;
-
-struct else_instruction {
-    uns32 else_dispatcher_ID;
+    uns32 translate_table_ID;
+    uns32 require_dispatcher_ID;
     uns32 else_instruction_ID;
+    uns32 output_error_type;
+    uns32 goto_call_table_ID;
 };
-const uns32 else_instruction_length = 2;
+const uns32 instruction_header_length = 7;
 
 } } }
 

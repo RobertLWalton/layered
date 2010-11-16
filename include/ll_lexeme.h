@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 16 06:50:39 EDT 2010
+// Date:	Tue Nov 16 00:56:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -211,31 +211,31 @@ namespace ll { namespace lexeme {
     //
     void create_program ( void );
 
-    // Atom table types, modes, and return values.
+    // Table modes and return values.
+    //
+    // A mode is defined to be either the kind MASTER
+    // or TRANSLATION or the type of a lexeme table.
     //
     enum {
 
-	// Return values that are not types or modes.
+	// Return values that are not types or kinds.
 	//
-	SCAN_ERROR	= 0xFFFFFFFE,
+	SCAN_ERROR	= 0xFFFFFFFF,
 
-	// Modes that are not types or return values.
+	// Kinds that are not types or return values.
 	//
-        MASTER		= 0xFFFFFFFF
+        MASTER		= 0xFFFFFFFE,
+	TRANSLATION	= 0xFFFFFFFD
     };
 
-    // Create the atom table with the given mode and
-    // return its ID.  The mode may be a type, which
-    // is a user defined value that is returned to the
-    // user when a lexeme is recognized by the analyzer
-    // via the atom table.  It can serve to type a
-    // lexeme.
+    // Create the table with the given mode and return
+    // its ID.  The mode may be MASTER or TRANSLATION or
+    // the type of a lexeme table.
     //
-    // The first atom table created after a create_
-    // program becomes the initial atom table of the
-    // program.  It must have MASTER mode.
+    // The first MASTER table created after a create_
+    // program becomes the initial table of the program.
     //
-    uns32 create_atom_table ( uns32 mode );
+    uns32 create_table ( uns32 mode );
 
     // Create a dispatcher with given maximum number of
     // breakpoints and maximum ctype.  Return the new
@@ -266,18 +266,11 @@ namespace ll { namespace lexeme {
 	      uns32 ctype );
 
     // An instruction consists of an uns32 operation,
-    // an atom_table_ID for GOTO or CALL (which must be
-    // 0 if unused), a type for OUTPUT or ERRONEOUS_ATOM
-    // (which must be 0 if unused), an uns32 * transla-
-    // tion_vector for TRANSLATE_FLAG (which must be
-    // NULL if unused), an uns32 else_dispatcher_ID and
-    // uns32 else_instruction_ID for ELSE (which must be
-    // 0 if unused), and an uns32 * return_vector for
-    // CALL(n) with n > 0 (which must be NULL if
-    // unused).
+    // various optional IDs, and an uns32 * translation_
+    // vector for the TRANSLATE_TO flag.
     // 
-    // The operation is the sum of some of the
-    // following:
+    // The operation is the sum of some of the follow-
+    // ing:
     //
     //   KEEP(n):	Truncate atom to n uns32 char-
     //			acters before any other proces-
@@ -286,20 +279,21 @@ namespace ll { namespace lexeme {
     //			processing of the atom.  The
     //			discarded end of the atom is re-
     //			tained as input to be rescanned.
-    //			n may be 0.
+    //			0 <= n < 32.
     //
     //   ACCEPT		Equals 0; use if operation is
     //			completely 0 (has no other
     //			components).
     //
-    //	 TRANSLATE(n)	Instead of copying the atom into
+    //	 TRANSLATE_TO(n)
+    //			Instead of copying the atom into
     //			the translation buffer, copy the
     //			characters given in the transla-
     //			tion_vector instead.  This vec-
     //			tor has n characters, where n
     //			may be 0 (if n is 0, the trans-
-    //			lation vector address may be
-    //			NULL).
+    //			lation vector address should be
+    //			NULL).  0 <= n < 32.
     //
     //   TRANSLATE_HEX(prefix,postfix)
     //   TRANSLATE_OCT(prefix,postfix)
@@ -319,114 +313,93 @@ namespace ll { namespace lexeme {
     //			    end = atom length
     //				- postfix - 1
     //
-    //			The prefix and/or postfix may be
-    //			0.
+    //			0 <= prefix,postfix < 32.  
     //
-    //			(TRANSLATE, TRANSLATE_HEX, and
-    //			TRANSLATE_OCT are mutually ex-
-    //			clusive.  The translate_vector
-    //			address must be non-NULL for
-    //			TRANSLATE(n) with n > 0, and
-    //			must be NULL if there is no
-    //			TRANSLATE.)
+    //			If conversion fails because one
+    //			of the digits is not hexa-deci-
+    //			mal or octal, the instruction
+    //			fails.
     //
-    //	 ELSE		Use with TRANSLATE_{HEX/OCT} to
-    //			indicate the presence of an
-    //			else_dispatcher_ID and an else_
-    //			instruction_ID.  These must be
-    //			zero if ELSE is not given.  ELSE
-    //			requires that TRANSLATE_{HEX/
-    //			OCT} be given.
+    //	 TRANSLATE	Invoke the translation table
+    //			specified by the translate_
+    //			table_ID.  This may succeed or
+    //			fail.
     //
-    //			If an else flag is present, the
-    //			character produced by TRANSLATE_
-    //			{HEX/OCT} is put into the else_
-    //			dispatcher to determine a ctype.
-    //			If the ctype is 0 the current
-    //			instruction is turned into a
-    //			no-operation and is replaced
-    //			by the else_instruction.
+    //   REQUIRE	Require the atom translation to
+    //			match the atom pattern defined
+    //			by the require_dispatcher_ID.
+    //			The match is done the same way
+    //			as matching for lexical tables,
+    //			with success being defined as
+    //			getting to a point with no
+    //			further dispatcher table, and
+    //			failure as failing match in
+    //			one of the dispatcher tables.
+    //			If the match fails, the instruc-
+    //			tion fails.
     //
     //   ERRONEOUS_ATOM	Indicates the current atom is
     //			erroneous and is to be delivered
     //			to the erroneous_atom function
-    //			with the instruction provided
-    //			type.
+    //			with the output_error_type.
     //
     //   OUTPUT		After KEEP and TRANSLATE...
-    //			atom processing, output the
-    //			current lexeme with the
-    //			instruction provided type.
-    //			The current atom table must
-    //			be or become a master mode
-    //			table.
-    //
-    //			(ERRONEOUS_ATOM and OUTPUT
-    //			are exclusive.  If neither is
-    //			given type must be zero; other-
-    //			wise it must be non-zero.  Note
-    //			real types are never zero.)
+    //			processing, output the current
+    //			lexeme with the output_error_
+    //			type.  The next lexical table
+    //			must be a master table.  The
+    //			lexeme may be zero length.
     //
     //   GOTO		After all other atom processing,
-    //			switch the current atom table
-    //			to that whose ID equals the
-    //			instruction atom_table_ID.
+    //			switch the current lexical table
+    //			to the goto_call_table_ID table,
+    //			which must be a master or lexeme
+    //			table.
     //
-    //   CALL(n)	Ditto but also push a pointer
-    //			to the current atom table and
-    //                  a pointer to the CALL instruc-
-    //                  tion into the return stack.  The
-    //                  CALL instruction contains a
-    //                  return vector of n atom_table_
-    //                  ID's (n may be 0).  The target
-    //			of a CALL (unlike GOTO) must NOT
-    //			be a MASTER atom table.
+    //   CALL		Ditto but also push a pointer
+    //			to the current atom table into
+    //                  into the return stack.  The
+    //                  target of the CALL (unlike GOTO)
+    //			must be a lexeme table.
     //
-    //	 RETURN(n)	Like GOTO but gets the new atom
+    //	 RETURN		Like GOTO but gets the new atom
     //			table ID by popping the return
-    //			stack and picking the atom table
-    //			in the popped return stack ele-
-    //			ment if n == 0 or the n'th ele-
-    //			ment of the return vector in the
-    //			CALL instruction pointed at by
-    //			the popped return stack element
-    //			if n > 0.
+    //			stack.
     //
-    //			(GOTO, CALL, and RETURN are
-    //			exclusive.  Unless GOTO or CALL
-    //			is given, atom_table_ID must be
-    //			zero; otherwise it must be non-
-    //			zero.  CALL(n) for n>0 requires
-    //			return_vector to be non-NULL;
-    //			otherwise it is NULL.)
+    //	 FAIL		Used in a translation table to
+    //			indicate the table failed to
+    //			find an atom.
+    //
+    //	 ELSE		If the instruction fails, then
+    //			execute the instruction at the
+    //			else_instruction_ID.
+    //
 
     // Instruction operation flags:
     //
     enum {
 	ACCEPT			= 0,
 	KEEP_FLAG		= ( 1 << 0 ),
-	TRANSLATE_FLAG		= ( 1 << 1 ),
+	TRANSLATE_TO_FLAG	= ( 1 << 1 ),
 	TRANSLATE_HEX_FLAG	= ( 1 << 2 ),
 	TRANSLATE_OCT_FLAG	= ( 1 << 3 ),
-	ELSE			= ( 1 << 4 ),
-	ERRONEOUS_ATOM		= ( 1 << 5 ),
-	OUTPUT			= ( 1 << 6 ),
-	GOTO			= ( 1 << 7 ),
-	CALL_FLAG		= ( 1 << 8 ),
-	RETURN_FLAG		= ( 1 << 9 ),
+	TRANSLATE		= ( 1 << 4 ),
+	REQUIRE			= ( 1 << 5 ),
+	ERRONEOUS_ATOM		= ( 1 << 6 ),
+	OUTPUT			= ( 1 << 7 ),
+	GOTO			= ( 1 << 8 ),
+	CALL			= ( 1 << 9 ),
+	RETURN			= ( 1 << 10 ),
+	FAIL			= ( 1 << 11 ),
+	ELSE			= ( 1 << 12 ),
     };
 
     // Instruction shifts and masks
     //
-    const uns32 CALL_LENGTH_SHIFT = 12;
-    const uns32 CALL_LENGTH_MASK = 0xF;
-    const uns32 RETURN_INDEX_SHIFT = 12;
-    const uns32 RETURN_INDEX_MASK = 0xF;
-        // CALL_LENGTH and RETURN_INDEX overlap.
     const uns32 KEEP_LENGTH_SHIFT = 16;
     const uns32 KEEP_LENGTH_MASK = 0x3F;
-    const uns32 TRANSLATE_LENGTH_SHIFT = 22;
-    const uns32 TRANSLATE_LENGTH_MASK = 0x3F;
+    const uns32 TRANSLATE_TO_LENGTH_SHIFT = 22;
+    const uns32 TRANSLATE_TO_LENGTH_MASK = 0x3F;
     const uns32 PREFIX_LENGTH_SHIFT = 22;
     const uns32 PREFIX_LENGTH_MASK = 0x1F;
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
@@ -434,29 +407,18 @@ namespace ll { namespace lexeme {
         // TRANSLATE_LENGTH overlaps with PREFIX_LENGTH
 	// and POSTFIX_LENGTH.
 
-    inline uns32 call_length ( uns32 operation )
-    {
-        return ( operation >> CALL_LENGTH_SHIFT )
-	       &
-	       CALL_LENGTH_MASK;
-    }
-    inline uns32 return_index ( uns32 operation )
-    {
-        return ( operation >> RETURN_INDEX_SHIFT )
-	       &
-	       RETURN_INDEX_MASK;
-    }
     inline uns32 keep_length ( uns32 operation )
     {
         return ( operation >> KEEP_LENGTH_SHIFT )
 	       &
 	       KEEP_LENGTH_MASK;
     }
-    inline uns32 translate_length ( uns32 operation )
+    inline uns32 translate_to_length ( uns32 operation )
     {
-        return ( operation >> TRANSLATE_LENGTH_SHIFT )
+        return (    operation
+	         >> TRANSLATE_TO_LENGTH_SHIFT )
 	       &
-	       TRANSLATE_LENGTH_MASK;
+	       TRANSLATE_TO_LENGTH_MASK;
     }
     inline uns32 prefix_length ( uns32 operation )
     {
@@ -473,22 +435,6 @@ namespace ll { namespace lexeme {
 
     // Composite operations.
     //
-    inline uns32 CALL ( uns32 call_length )
-    {
-        assert
-	  ( call_length <= CALL_LENGTH_MASK );
-	return CALL_FLAG
-	     + (    call_length
-	         << CALL_LENGTH_SHIFT );
-    }
-    inline uns32 RETURN ( uns32 return_index )
-    {
-        assert
-	  ( return_index <= RETURN_INDEX_MASK );
-	return RETURN_FLAG
-	     + (    return_index
-	         << RETURN_INDEX_SHIFT );
-    }
     inline uns32 KEEP ( uns32 keep_length )
     {
         assert
@@ -497,13 +443,13 @@ namespace ll { namespace lexeme {
 	     + (    keep_length
 	         << KEEP_LENGTH_SHIFT );
     }
-    inline uns32 TRANSLATE ( uns32 translate_length )
+    inline uns32 TRANSLATE_TO ( uns32 translate_length )
     {
-        assert
-	  ( translate_length <= TRANSLATE_LENGTH_MASK );
-	return TRANSLATE_FLAG
+        assert (    translate_length
+	         <= TRANSLATE_TO_LENGTH_MASK );
+	return TRANSLATE_TO_FLAG
 	     + (    translate_length
-	         << TRANSLATE_LENGTH_SHIFT );
+	         << TRANSLATE_TO_LENGTH_SHIFT );
     }
     inline uns32 TRANSLATE_HEX
     	( uns32 prefix_length, uns32 postfix_length )
@@ -534,18 +480,18 @@ namespace ll { namespace lexeme {
     //
     uns32 create_instruction
 	    ( uns32 operation,
-	      uns32 atom_table_ID = 0,
-	      uns32 type = 0,
 	      uns32 * translation_vector = NULL,
-	      uns32 else_dispatcher_ID = 0,
+	      uns32 translate_table_ID = 0,
+	      uns32 require_dispatcher_ID = 0,
 	      uns32 else_instruction_ID = 0,
-	      uns32 * return_vector = NULL );
+	      uns32 output_error_type = 0,
+	      uns32 goto_call_table_ID = 0 );
 
     // Attach a dispatcher or an instruction component
-    // to an atom table target, or a type map component
-    // to a dispatcher target.  Return 1 if no error.
-    // Return 0 and do nothing but write error_message
-    // if there is a conflict with a previous
+    // to a lexical table target, or a type map compo-
+    // nent to a dispatcher target.  Return 1 if no
+    // error.  Return 0 and do nothing but write error_
+    // message if there is a conflict with a previous
     // attachment.
     //
     uns32 attach

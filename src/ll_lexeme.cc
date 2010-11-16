@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 16 00:52:19 EST 2010
+// Date:	Tue Nov 16 07:14:41 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -640,25 +640,19 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // We decrement loop_count whenever we find no atom
     // and signal a scan error if it goes to zero.  We
     // set loop_count to a number at least as large as
-    // the total number of atom tables, in this case
-    // program.length, whenever we find an atom.  If it
-    // goes to zero we must be in a loop changing atom
-    // tables and not finding an atom.
+    // the total number of tables, in this case program
+    // .length, whenever we find an atom.  If it goes to
+    // zero we must be in a loop changing tables and not
+    // finding an atom.
     // 
     uns32 output_type = 0;
     uns32 last_mode = MASTER;
     uns32 loop_count = program.length;
-        // Set to max number of atom tables in order
-	// to detect endless loops.
-    struct return_element
-    {
-        uns32 table_ID;
-	uns32 instruction_ID;
-    } return_stack[8];
-    return_element * return_stack_p =
-        return_stack;
-    return_element * return_stack_endp =
-        return_stack + 8;
+        // Set to max number of tables in order to
+	// detect endless loops.
+    uns32 return_stack[64],
+          * return_stack_p = return_stack,
+          * return_stack_endp = return_stack + 64;
     while ( true )
     {
         // Scan next atom of current lexeme.
@@ -666,6 +660,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	table_header & cath =
 	    * (table_header *)
 	    & program[current_table_ID];
+
+	// First check lexeme ending conditions.
 
 	if ( output_type != 0 )
 	{
@@ -690,10 +686,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	     first != next )
 	    break;
 
+	last_mode = cath.mode;
+
+	// Reset return stack if current mode is master.
+
 	if ( cath.mode == MASTER )
 	    return_stack_p = return_stack;
-
-	last_mode = cath.mode;
 
 	TOUT << "Start atom scan: atom table = "
 	     << current_table_ID << endl;
@@ -712,6 +710,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    // starting at input_buffer[next].
 	uns32 dispatcher_ID = cath.dispatcher_ID;
 	    // Current dispatcher.
+
 	assert ( instruction_ID == 0
 	         ||
 		    program[instruction_ID]
@@ -885,29 +884,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			}
 		    }
 
-		if ( op & ELSE )
-		{
-		    else_instruction & ei =
-		        * (else_instruction *)
-			& program
-			  [  instruction_ID
-			   + instruction_header_length];
-		    uns32 dispatcher_ID =
-		        ei.else_dispatcher_ID;
-		    assert (    program[dispatcher_ID]
-			     == DISPATCHER );
-		    if ( ! ::ctype
-		              ( dispatcher_ID, tc ) )
-		    {
-		        instruction_ID =
-			    ei.else_instruction_ID;
-			assert (    program
-				        [instruction_ID]
-				 == INSTRUCTION );
-		        continue;
-		    }
-		}
-
 		translation_buffer[translation_buffer
 				    .allocate ( 1 )]
 		    = tc;
@@ -969,10 +945,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		else
 		    (*erroneous_atom)
 			( next, next + atom_length - 1,
-			  ih.type );
+			  ih.output_error_type );
 	    }
 	    else if ( op & OUTPUT )
-		output_type = ih.type;
+		output_type = ih.output_error_type;
 
 	    if ( op & RETURN )
 	    {
@@ -988,57 +964,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			  current_table_ID );
 		    return SCAN_ERROR;
 		}
-		-- return_stack_p;
-		uns32 return_index =
-		    LEX::return_index ( op );
-		if ( return_index == 0 )
-		    current_table_ID =
-			return_stack_p->table_ID;
-		else
-		{
-		    instruction_header & cih =
-			* (instruction_header *)
-			& program[return_stack_p->
-			              instruction_ID];
-		    assert (    cih.pctype
-			     == INSTRUCTION );
-		    uns32 cop = cih.operation;
-		    assert ( cop & CALL );
-		    uns32 call_length =
-		        LEX::call_length ( cop );
-		    if ( return_index > call_length )
-		    {
-			sprintf
-			    ( scan_error ( length ),
-			      "RETURN(%d) in"
-			      " instruction %d"
-			      " executed by atom table"
-			      " %d\n  attempted return"
-			      " to CALL(%d) instruction"
-			      " %d in atom table %d"
-			      "\n  return index > call"
-			      " length",
-			      return_index,
-			      instruction_ID,
-			      current_table_ID,
-			      call_length,
-			      return_stack_p->
-			          instruction_ID,
-			      return_stack_p->
-			          table_ID );
-			return SCAN_ERROR;
-		    }
-		    uns32 * p = (uns32 *) ( & cih + 1 );
-		    if ( cop & TRANSLATE_TO_FLAG )
-			p += LEX::translate_to_length
-			         ( cop );
-		    if ( cop & ELSE ) p += 2;
-		    current_table_ID =
-		        p[return_index-1];
-		}
-		assert
-		    (    program[current_table_ID]
-		      == TABLE );
+		current_table_ID = * -- return_stack_p;
+		assert (    program[current_table_ID]
+		         == TABLE );
 	    }
 	    else if ( op & CALL )
 	    {
@@ -1057,14 +985,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		    return SCAN_ERROR;
 		}
 
-		return_stack_p->table_ID =
-		    current_table_ID;
-		return_stack_p->instruction_ID =
-		    instruction_ID;
-		return_stack_p ++;
+		* return_stack_p ++ = current_table_ID;
 
 		current_table_ID =
-		    ih.table_ID;
+		    ih.goto_call_table_ID;
 
 		table_header & cath =
 		    * (table_header *)
@@ -1087,10 +1011,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    else if ( op & GOTO )
 	    {
 		current_table_ID =
-		    ih.table_ID;
-		assert
-		    (    program[current_table_ID]
-		      == TABLE );
+		    ih.goto_call_table_ID;
+		assert (    program[current_table_ID]
+		         == TABLE );
 	    }
 
 	    break;
@@ -1713,14 +1636,11 @@ static uns32 print_instruction
 
     if ( h.operation & TRANSLATE )
         OUT << "TRANSLATE("
-	    << h.translate_table_ID << "):";
+	    << h.translate_table_ID << ")";
 
     if ( h.operation & REQUIRE )
         OUT << "REQUIRE("
-	    << h.require_dispatcher_ID << "):";
-
-    if ( h.operation & ELSE )
-        OUT << "ELSE(" << h.else_instruction_ID << ")";
+	    << h.require_dispatcher_ID << ")";
 
     if ( h.operation & ERRONEOUS_ATOM )
         OUT << "ERRONEOUS_ATOM("
@@ -1742,7 +1662,15 @@ static uns32 print_instruction
     if ( h.operation & FAIL )
         OUT << "FAIL";
 
-    if ( first ) OUT << "ACCEPT" << endl;
+    if ( h.operation & ELSE )
+    {
+        OUT << "ELSE:" << endl;
+	print_instruction
+	    ( out, h.else_instruction_ID, indent );
+    }
+
+    if ( first ) out << "ACCEPT" << endl;
+    else out << endl;
 #   undef OUT
 
     return instruction_length;

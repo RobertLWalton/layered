@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 16 23:55:38 EST 2010
+// Date:	Wed Nov 17 00:55:38 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -600,6 +600,363 @@ static uns32 ctype ( uns32 dispatcher_ID, uns32 c )
     return ctype;
 }
 
+// Scan atom given current table.  Process instruction
+// group but not
+//
+//	ERRONEOUS_ATOM
+//	OUTPUT
+//	GOTO
+//	CALL
+//	RETURN
+//	FAIL
+//
+// and return instruction.  Return 0 if error, leaving
+// error message in error message.  Return atom_length
+// and add translation of atom to translation buffer.
+//
+uns32 scan_atom ( uns32 & atom_length )
+{
+    const uns32 SCAN_ERROR = 0;
+        // Local version of SCAN_ERROR.
+
+    TOUT << "Start atom scan: atom table = "
+	 << current_table_ID << endl;
+
+    table_header & cath =
+	* (table_header *)
+	& program[current_table_ID];
+
+    // As we scan we recognize longer and longer atoms.
+    // If at any point we cannot continue, we revert to
+    // the longest atom recognized so far (if none, we
+    // may have a scan error).
+
+    uns32 instruction_ID = cath.instruction_ID;
+    atom_length = 0;
+	// Length and instruction_ID for the longest
+	// atom recognized so far.
+    uns32 length = 0;
+	// Number of characters scanned so far starting
+	// at input_buffer[next].
+    uns32 dispatcher_ID = cath.dispatcher_ID;
+	// Current dispatcher.
+    uns32 tnext = translation_buffer.length;
+	// Save of current translation buffer position
+	// for REQUIRE and ELSE.
+
+    assert ( instruction_ID == 0
+	     ||
+		program[instruction_ID]
+	     == INSTRUCTION );
+    assert ( dispatcher_ID == 0
+	     ||
+		program[dispatcher_ID]
+	     == DISPATCHER );
+
+    while ( true )
+    {
+	// Dispatch the next character.  Stop when
+	// we have no next dispatcher or no next
+	// character (due to end of file).
+
+	if ( dispatcher_ID == 0 ) break;
+
+	if ( next + length >= input_buffer.length
+	     &&
+	     ! (*read_input)() )
+	    break; // End of file.
+
+	assert
+	    ( next + length < input_buffer.length );
+	uns32 c =
+	    input_buffer[next + length].character;
+	++ length;
+
+	uns32 ctype = ::ctype ( dispatcher_ID, c );
+
+	dispatcher_header & dh =
+	    * (dispatcher_header *)
+	    & program[dispatcher_ID];
+
+	if ( ctype > dh.max_ctype )
+	{
+	    sprintf ( scan_error ( length ),
+		      "ctype %u computed for character"
+		      " %s is too large for dispatcher"
+		      " %u",
+		      ctype, sbpchar ( c ),
+		      dispatcher_ID );
+	    return SCAN_ERROR;
+	}
+
+	// Map to next dispatcher and current
+	// instruction.  If there is a current
+	// instruction, we have recognized a longer
+	// atom.
+	//
+	map_element * mep =
+	    (map_element *)
+	    & program[  dispatcher_ID
+		      + dispatcher_header_length
+		      +   break_element_length
+			* dh.max_break_elements];
+	if ( mep[ctype].instruction_ID != 0 )
+	{
+	    instruction_ID = mep[ctype].instruction_ID;
+	    assert ( program[instruction_ID]
+		     == INSTRUCTION );
+	    atom_length = length;
+	}
+	dispatcher_ID = mep[ctype].dispatcher_ID;
+	assert ( dispatcher_ID == 0
+		 ||
+		    program[dispatcher_ID]
+		 == DISPATCHER );
+    }
+
+    // We are done dispatching characters.
+
+    // Loop to process instruction group.
+    //
+    while ( true )
+    {
+	// If we found no instruction it is a scan
+	// error.
+
+	if ( instruction_ID == 0 )
+	{
+	    assert ( atom_length == 0 );
+	    sprintf ( scan_error ( length ),
+		      "no instruction found" );
+	    return SCAN_ERROR;
+	}
+
+	if ( scan_trace_out )
+	    print_instruction ( * scan_trace_out,
+				instruction_ID,
+				2 );
+
+	bool fail = false;
+
+	instruction_header & ih =
+	    * (instruction_header *)
+	    & program[instruction_ID];
+	uns32 op = ih.operation;
+
+	uns32 keep_length = atom_length;
+	    // Keep_length becomes the effective atom_
+	    // length until we are sure we are not
+	    // no-oping the instruction for the sake
+	    // of an ELSE.
+
+	if ( op & KEEP_FLAG )
+	{
+	    keep_length = LEX::keep_length ( op );
+	    if ( keep_length > atom_length )
+	    {
+		sprintf ( scan_error ( length ),
+			  "keep length(%u) greater"
+			  " than atom length(%u)",
+			  keep_length,
+			  atom_length );
+		return SCAN_ERROR;
+	    }
+	}
+
+	if ( op & ( TRANSLATE_HEX_FLAG
+		    |
+		    TRANSLATE_OCT_FLAG ) )
+	{
+	    uns32 p = next
+		    + LEX::prefix_length ( op );
+	    uns32 endp = next + keep_length
+		       - LEX::postfix_length
+			     ( op );
+	    uns32 tc = 0;
+
+	    if ( op & TRANSLATE_HEX_FLAG )
+		while ( p < endp )
+		{
+		    tc <<= 4;
+		    uns32 d =
+			input_buffer[p++].character;
+		    if ( '0' <= d && d <= '9' )
+			tc += d - '0';
+		    else if ( 'a' <= d && d <= 'f' )
+			tc += d - 'a' + 10;
+		    else if ( 'A' <= d && d <= 'F' )
+			tc += d - 'A' + 10;
+		    else
+		    {
+			fail = true;
+			break;
+		    }
+		}
+	    else if ( op & TRANSLATE_OCT_FLAG )
+		while ( p < endp )
+		{
+		    tc <<= 3;
+		    uns32 d =
+			input_buffer[p++].character;
+		    if ( '0' <= d && d <= '7' )
+			tc += d - '0';
+		    else
+		    {
+			fail = true;
+			break;
+		    }
+		}
+
+	    if ( ! fail )
+		translation_buffer
+		    [translation_buffer.allocate ( 1 )]
+		    = tc;
+	}
+	else if ( op & TRANSLATE_TO_FLAG )
+	{
+	    uns32 translate_to_length =
+		LEX::translate_to_length ( op );
+	    if ( translate_to_length > 0 )
+	    {
+		uns32 q =
+		    translation_buffer.allocate
+			( translate_to_length );
+		memcpy ( & translation_buffer[q],
+			 & ih + 1,
+			   translate_to_length
+			 * sizeof ( uns32 ) );
+	    }
+	}
+	else
+	{
+	    uns32 q =
+		translation_buffer.allocate
+			( keep_length );
+	    uns32 p = next;
+	    for ( uns32 i = 0; i < keep_length; ++ i )
+		translation_buffer[q++] =
+		    input_buffer[p++].character;
+	}
+
+	if ( ! fail && ( op & REQUIRE ) )
+	{
+	    uns32 dispatcher_ID =
+		ih.require_dispatcher_ID;
+	    uns32 tlength = 0;
+	    while ( true )
+	    {
+		// Dispatch the next translate_buffer
+		// character.  Stop with if we have
+		// no next dispatcher or run out of
+		// translation buffer characters.
+
+		if ( dispatcher_ID == 0 )
+		{
+		    fail = (    tnext + tlength
+			     != translation_buffer
+				    .length );
+		    break;
+		}
+		assert (    program[dispatcher_ID]
+			 == DISPATCHER );
+
+		if (    tnext + tlength
+		     >= translation_buffer.length )
+		{
+		    fail = true;
+		    break;
+		}
+
+		uns32 c = translation_buffer
+			      [tnext + tlength];
+		++ tlength;
+
+		uns32 ctype =
+		    ::ctype ( dispatcher_ID, c );
+
+		dispatcher_header & dh =
+		    * (dispatcher_header *)
+		    & program[dispatcher_ID];
+
+		if ( ctype > dh.max_ctype )
+		{
+		    sprintf ( scan_error ( length ),
+			      "ctype %u computed for"
+			      " character %s is too "
+			      " large for dispatcher"
+			      " %u",
+			      ctype, sbpchar ( c ),
+			      dispatcher_ID );
+		    return SCAN_ERROR;
+		}
+
+		if ( ctype == 0 )
+		{
+		    fail = true;
+		    break;
+		}
+
+		// Map to next dispatcher.
+		//
+		map_element * mep =
+		    (map_element *)
+		    & program
+		          [  dispatcher_ID
+			   + dispatcher_header_length
+			   +   break_element_length
+			     * dh.max_break_elements];
+
+		dispatcher_ID =
+		    mep[ctype].dispatcher_ID;
+	    }
+	}
+
+	if ( fail )
+	{
+	    translation_buffer.resize ( tnext );
+	    if ( op & ELSE )
+	    {
+		instruction_ID =
+		    ih.else_instruction_ID;
+		if ( instruction_ID == 0 )
+		{
+		    sprintf ( scan_error ( length ),
+			      "no instruction for ELSE"
+			      " in failed instruction"
+			      " %d executed by atom"
+			      " table %d",
+			      instruction_ID,
+			      current_table_ID );
+		    return SCAN_ERROR;
+		}
+		assert (    program[instruction_ID]
+			 == INSTRUCTION );
+
+		// Loop to next instruction.
+		//
+		continue;
+	    }
+	    else
+	    {
+		sprintf ( scan_error ( length ),
+			  "no ELSE in failed"
+			  " instruction %d executed by"
+			  " atom table %d",
+			  instruction_ID,
+			  current_table_ID );
+		return SCAN_ERROR;
+	    }
+	}
+
+	// We are at un-failed instruction of
+	// instruction group.
+	//
+	atom_length = keep_length;
+
+	return instruction_ID;
+    }
+}
+
 uns32 LEX::scan ( uns32 & first, uns32 & last )
 {
     if ( next >= input_buffer.length_increment )
@@ -693,429 +1050,116 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	if ( cath.mode == MASTER )
 	    return_stack_p = return_stack;
 
-	TOUT << "Start atom scan: atom table = "
-	     << current_table_ID << endl;
-
-	// As we scan we recognize longer and longer
-	// atoms.  If at any point we cannot continue,
-	// we revert to the longest atom recognized
-	// so far (if none, we may have a scan error).
-
-	uns32 instruction_ID = cath.instruction_ID;
-	uns32 atom_length = 0;
-	    // Length and instruction_ID for the
-	    // longest atom recognized so far.
-	uns32 length = 0;
-	    // Number of characters scanned so far
-	    // starting at input_buffer[next].
-	uns32 dispatcher_ID = cath.dispatcher_ID;
-	    // Current dispatcher.
-	uns32 tnext = translation_buffer.length;
-	    // Save of current translation buffer
-	    // position for REQUIRE and ELSE.
-
-	assert ( instruction_ID == 0
-	         ||
-		    program[instruction_ID]
-		 == INSTRUCTION );
-	assert ( dispatcher_ID == 0
-	         ||
-		    program[dispatcher_ID]
-		 == DISPATCHER );
-
-	while ( true )
-	{
-	    // Dispatch the next character.  Stop when
-	    // we have no next dispatcher or no next
-	    // character (due to end of file).
-
-	    if ( dispatcher_ID == 0 ) break;
-
-	    if ( next + length >= input_buffer.length
-	         &&
-		 ! (*read_input)() )
-	        break; // End of file.
-
-	    assert
-	        ( next + length < input_buffer.length );
-	    uns32 c =
-	        input_buffer[next + length].character;
-	    ++ length;
-
-	    uns32 ctype = ::ctype ( dispatcher_ID, c );
-
-	    dispatcher_header & dh =
-	        * (dispatcher_header *)
-		& program[dispatcher_ID];
-
-	    if ( ctype > dh.max_ctype )
-	    {
-	        sprintf ( scan_error ( length ),
-		          "ctype %u computed for"
-			  " character %s is too large"
-			  " for dispatcher %u",
-			  ctype, sbpchar ( c ),
-			  dispatcher_ID );
-		return SCAN_ERROR;
-	    }
-
-	    // Map to next dispatcher and current
-	    // instruction.  If there is a current
-	    // instruction, we have recognized a longer
-	    // atom.
-	    //
-	    map_element * mep =
-	        (map_element *)
-		& program[  dispatcher_ID
-		          + dispatcher_header_length
-			  +   break_element_length
-			    * dh.max_break_elements];
-	    if ( mep[ctype].instruction_ID != 0 )
-	    {
-	        instruction_ID =
-		    mep[ctype].instruction_ID;
-		assert ( program[instruction_ID]
-		         == INSTRUCTION );
-		atom_length = length;
-	    }
-	    dispatcher_ID = mep[ctype].dispatcher_ID;
-	    assert ( dispatcher_ID == 0
-	             ||
-		        program[dispatcher_ID]
-		     == DISPATCHER );
-	}
-
-	// We are done dispatching characters.
-
-	// Loop to process instruction group.
+	// Scan atom.  Return atom length and
+	// instruction.
 	//
-        while ( true )
-	{
-	    // If we found no instruction it is a scan
-	    // error.
+	uns32 atom_length;
+	uns32 instruction_ID =
+	    scan_atom ( atom_length );
+	if ( instruction_ID == 0 ) return SCAN_ERROR;
 
-	    if ( instruction_ID == 0 )
+	instruction_header & ih =
+	    * (instruction_header *)
+	    & program[instruction_ID];
+        uns32 op = ih.operation;
+
+	if ( op & ERRONEOUS_ATOM )
+	{
+	    if ( atom_length == 0 )
 	    {
-		assert ( atom_length == 0 );
-		sprintf ( scan_error ( length ),
-			  "no instruction found" );
+		sprintf ( scan_error ( atom_length ),
+			  "ERRONEOUS_ATOM in"
+			  " instruction %d executed"
+			  " by atom table %d but"
+			  " atom is of zero length",
+			  instruction_ID,
+			  current_table_ID );
 		return SCAN_ERROR;
 	    }
-
-	    if ( scan_trace_out )
-		print_instruction ( * scan_trace_out,
-				    instruction_ID,
-				    2 );
-
-	    bool fail = false;
-
-	    instruction_header & ih =
-		* (instruction_header *)
-		& program[instruction_ID];
-	    uns32 op = ih.operation;
-
-	    uns32 keep_length = atom_length;
-	        // Keep_length becomes the effective
-		// atom_length until we are sure we
-		// are not no-oping the instruction
-		// for the sake of an ELSE.
-
-	    if ( op & KEEP_FLAG )
+	    else if ( erroneous_atom == NULL )
 	    {
-		keep_length = LEX::keep_length ( op );
-		if ( keep_length > atom_length )
-		{
-		    sprintf ( scan_error ( length ),
-			      "keep length(%u) greater"
-			      " than atom length(%u)",
-			      keep_length,
-			      atom_length );
-		    return SCAN_ERROR;
-		}
-	    }
-
-	    if ( op & ( TRANSLATE_HEX_FLAG
-	                |
-			TRANSLATE_OCT_FLAG ) )
-	    {
-		uns32 p = next
-			+ LEX::prefix_length ( op );
-		uns32 endp = next + keep_length
-			   - LEX::postfix_length
-				 ( op );
-		uns32 tc = 0;
-
-		if ( op & TRANSLATE_HEX_FLAG )
-		    while ( p < endp )
-		    {
-			tc <<= 4;
-			uns32 d =
-			    input_buffer[p++].character;
-			if ( '0' <= d && d <= '9' )
-			    tc += d - '0';
-			else if ( 'a' <= d && d <= 'f' )
-			    tc += d - 'a' + 10;
-			else if ( 'A' <= d && d <= 'F' )
-			    tc += d - 'A' + 10;
-			else
-			{
-			    fail = true;
-			    break;
-			}
-		    }
-		else if ( op & TRANSLATE_OCT_FLAG )
-		    while ( p < endp )
-		    {
-			tc <<= 3;
-			uns32 d =
-			    input_buffer[p++].character;
-			if ( '0' <= d && d <= '7' )
-			    tc += d - '0';
-			else
-			{
-			    fail = true;
-			    break;
-			}
-		    }
-
-		if ( ! fail )
-		    translation_buffer
-		        [translation_buffer
-			     .allocate ( 1 )]
-			= tc;
-	    }
-	    else if ( op & TRANSLATE_TO_FLAG )
-	    {
-		uns32 translate_to_length =
-		    LEX::translate_to_length ( op );
-		if ( translate_to_length > 0 )
-		{
-		    uns32 q =
-			translation_buffer.allocate
-			    ( translate_to_length );
-		    memcpy ( & translation_buffer[q],
-			     & ih + 1,
-			       translate_to_length
-			     * sizeof ( uns32 ) );
-		}
+		sprintf ( scan_error ( atom_length ),
+			  "ERRONEOUS_ATOM in"
+			  " instruction %d executed"
+			  " by atom table %d but"
+			  " no erroneous_atom"
+			  " function",
+			  instruction_ID,
+			  current_table_ID );
+		return SCAN_ERROR;
 	    }
 	    else
+		(*erroneous_atom)
+		    ( next, next + atom_length - 1,
+		      ih.output_error_type );
+	}
+	else if ( op & OUTPUT )
+	    output_type = ih.output_error_type;
+
+	if ( op & RETURN )
+	{
+	    if ( return_stack_p == return_stack )
 	    {
-		uns32 q =
-		    translation_buffer.allocate
-			    ( keep_length );
-		uns32 p = next;
-		for ( uns32 i = 0;
-		      i < keep_length; ++ i )
-		    translation_buffer[q++] =
-			input_buffer[p++].character;
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "RETURN in instruction %d"
+		      " executed by atom table"
+		      " %d but return stack is"
+		      " empty",
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
+	    }
+	    current_table_ID = * -- return_stack_p;
+	    assert (    program[current_table_ID]
+		     == TABLE );
+	}
+	else if ( op & CALL )
+	{
+	    if (    return_stack_p
+		 == return_stack_endp )
+	    {
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "CALL in"
+		      " instruction %d"
+		      " executed by atom table"
+		      " %d but return stack is"
+		      " full",
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
 	    }
 
-	    if ( ! fail && ( op & REQUIRE ) )
+	    * return_stack_p ++ = current_table_ID;
+
+	    current_table_ID =
+		ih.goto_call_table_ID;
+
+	    table_header & cath =
+		* (table_header *)
+		& program[current_table_ID];
+	    assert ( cath.pctype == TABLE );
+	    if ( cath.mode == MASTER )
 	    {
-		uns32 dispatcher_ID =
-		    ih.require_dispatcher_ID;
-		uns32 tlength = 0;
-		while ( true )
-		{
-		    // Dispatch the next translate_buffer
-		    // character.  Stop with if we have
-		    // no next dispatcher or run out of
-		    // translation buffer characters.
-
-		    if ( dispatcher_ID == 0 )
-		    {
-		        fail = (    tnext + tlength
-			         != translation_buffer
-				        .length );
-			break;
-		    }
-		    assert (    program[dispatcher_ID]
-			     == DISPATCHER );
-
-		    if (    tnext + tlength
-		         >= translation_buffer.length )
-		    {
-		        fail = true;
-			break;
-		    }
-
-		    uns32 c = translation_buffer
-		                  [tnext + tlength];
-		    ++ tlength;
-
-		    uns32 ctype =
-		        ::ctype ( dispatcher_ID, c );
-
-		    dispatcher_header & dh =
-			* (dispatcher_header *)
-			& program[dispatcher_ID];
-
-		    if ( ctype > dh.max_ctype )
-		    {
-			sprintf ( scan_error ( length ),
-				  "ctype %u computed"
-				  " for character %s is"
-				  " too large for"
-				  " dispatcher %u",
-				  ctype, sbpchar ( c ),
-				  dispatcher_ID );
-			return SCAN_ERROR;
-		    }
-
-		    if ( ctype == 0 )
-		    {
-		        fail = true;
-			break;
-		    }
-
-		    // Map to next dispatcher.
-		    //
-		    map_element * mep =
-			(map_element *)
-			& program[  dispatcher_ID
-				  + dispatcher_header_length
-				  +   break_element_length
-				    * dh.max_break_elements];
-
-		    dispatcher_ID =
-		        mep[ctype].dispatcher_ID;
-		}
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "CALL in"
+		      " instruction %d"
+		      " executed by atom table"
+		      " %d targets MASTER atom"
+		      " table",
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
 	    }
-
-	    if ( fail )
-	    {
-		translation_buffer.resize ( tnext );
-	        if ( op & ELSE )
-		{
-		    instruction_ID =
-		        ih.else_instruction_ID;
-		    assert ( instruction_ID == 0
-			     ||
-				program[instruction_ID]
-			     == INSTRUCTION );
-
-		    // Loop to next instruction.
-		    //
-		    continue;
-		}
-		else
-		{
-		    sprintf ( scan_error ( length ),
-			      "no ELSE in failed"
-			      " instruction %d executed"
-			      " by atom table %d",
-			      instruction_ID,
-			      current_table_ID );
-		    return SCAN_ERROR;
-		}
-	    }
-
-	    atom_length = keep_length;
-
-	    if ( op & ERRONEOUS_ATOM )
-	    {
-		if ( atom_length == 0 )
-		{
-		    sprintf ( scan_error ( length ),
-			      "ERRONEOUS_ATOM in"
-			      " instruction %d executed"
-			      " by atom table %d but"
-			      " atom is of zero length",
-			      instruction_ID,
-			      current_table_ID );
-		    return SCAN_ERROR;
-		}
-		else if ( erroneous_atom == NULL )
-		{
-		    sprintf ( scan_error ( length ),
-			      "ERRONEOUS_ATOM in"
-			      " instruction %d executed"
-			      " by atom table %d but"
-			      " no erroneous_atom"
-			      " function",
-			      instruction_ID,
-			      current_table_ID );
-		    return SCAN_ERROR;
-		}
-		else
-		    (*erroneous_atom)
-			( next, next + atom_length - 1,
-			  ih.output_error_type );
-	    }
-	    else if ( op & OUTPUT )
-		output_type = ih.output_error_type;
-
-	    if ( op & RETURN )
-	    {
-		if ( return_stack_p == return_stack )
-		{
-		    sprintf
-			( scan_error ( length ),
-			  "RETURN in instruction %d"
-			  " executed by atom table"
-			  " %d but return stack is"
-			  " empty",
-			  instruction_ID,
-			  current_table_ID );
-		    return SCAN_ERROR;
-		}
-		current_table_ID = * -- return_stack_p;
-		assert (    program[current_table_ID]
-		         == TABLE );
-	    }
-	    else if ( op & CALL )
-	    {
-		if (    return_stack_p
-		     == return_stack_endp )
-		{
-		    sprintf
-			( scan_error ( length ),
-			  "CALL in"
-			  " instruction %d"
-			  " executed by atom table"
-			  " %d but return stack is"
-			  " full",
-			  instruction_ID,
-			  current_table_ID );
-		    return SCAN_ERROR;
-		}
-
-		* return_stack_p ++ = current_table_ID;
-
-		current_table_ID =
-		    ih.goto_call_table_ID;
-
-		table_header & cath =
-		    * (table_header *)
-		    & program[current_table_ID];
-		assert ( cath.pctype == TABLE );
-		if ( cath.mode == MASTER )
-		{
-		    sprintf
-			( scan_error ( length ),
-			  "CALL in"
-			  " instruction %d"
-			  " executed by atom table"
-			  " %d targets MASTER atom"
-			  " table",
-			  instruction_ID,
-			  current_table_ID );
-		    return SCAN_ERROR;
-		}
-	    }
-	    else if ( op & GOTO )
-	    {
-		current_table_ID =
-		    ih.goto_call_table_ID;
-		assert (    program[current_table_ID]
-		         == TABLE );
-	    }
-
-	    // Instruction did NOT fail, so terminate
-	    // processing instruction group.
-	    //
-	    break;
+	}
+	else if ( op & GOTO )
+	{
+	    current_table_ID =
+		ih.goto_call_table_ID;
+	    assert (    program[current_table_ID]
+		     == TABLE );
 	}
 
 	if ( atom_length > 0 )
@@ -1125,7 +1169,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	}
 	else if ( -- loop_count == 0 )
 	{
-	    sprintf ( scan_error ( length ),
+	    sprintf ( scan_error ( atom_length ),
 		      "endless loop in scanner" );
 	    return SCAN_ERROR;
 	}

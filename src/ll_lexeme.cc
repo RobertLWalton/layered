@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 16 07:14:41 EST 2010
+// Date:	Tue Nov 16 23:55:38 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -710,6 +710,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    // starting at input_buffer[next].
 	uns32 dispatcher_ID = cath.dispatcher_ID;
 	    // Current dispatcher.
+	uns32 tnext = translation_buffer.length;
+	    // Save of current translation buffer
+	    // position for REQUIRE and ELSE.
 
 	assert ( instruction_ID == 0
 	         ||
@@ -784,10 +787,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	// We are done dispatching characters.
 
-	// Loop to process instructions that may
-	// have ELSE flags that lead to other
-	// instructions.
-
+	// Loop to process instruction group.
+	//
         while ( true )
 	{
 	    // If we found no instruction it is a scan
@@ -805,6 +806,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		print_instruction ( * scan_trace_out,
 				    instruction_ID,
 				    2 );
+
+	    bool fail = false;
 
 	    instruction_header & ih =
 		* (instruction_header *)
@@ -856,13 +859,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			    tc += d - 'A' + 10;
 			else
 			{
-			    sprintf
-			        ( scan_error ( length ),
-				  "bad hexadecimal"
-				  " digit(%s)"
-				  " for TRANSLATE_HEX",
-				  sbpchar ( d ) );
-			    return SCAN_ERROR;
+			    fail = true;
+			    break;
 			}
 		    }
 		else if ( op & TRANSLATE_OCT_FLAG )
@@ -875,18 +873,16 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			    tc += d - '0';
 			else
 			{
-			    sprintf
-			        ( scan_error ( length ),
-				  "bad octal digit(%s)"
-				  " for TRANSLATE_OCT",
-				  sbpchar ( d ) );
-			    return SCAN_ERROR;
+			    fail = true;
+			    break;
 			}
 		    }
 
-		translation_buffer[translation_buffer
-				    .allocate ( 1 )]
-		    = tc;
+		if ( ! fail )
+		    translation_buffer
+		        [translation_buffer
+			     .allocate ( 1 )]
+			= tc;
 	    }
 	    else if ( op & TRANSLATE_TO_FLAG )
 	    {
@@ -913,6 +909,106 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		      i < keep_length; ++ i )
 		    translation_buffer[q++] =
 			input_buffer[p++].character;
+	    }
+
+	    if ( ! fail && ( op & REQUIRE ) )
+	    {
+		uns32 dispatcher_ID =
+		    ih.require_dispatcher_ID;
+		uns32 tlength = 0;
+		while ( true )
+		{
+		    // Dispatch the next translate_buffer
+		    // character.  Stop with if we have
+		    // no next dispatcher or run out of
+		    // translation buffer characters.
+
+		    if ( dispatcher_ID == 0 )
+		    {
+		        fail = (    tnext + tlength
+			         != translation_buffer
+				        .length );
+			break;
+		    }
+		    assert (    program[dispatcher_ID]
+			     == DISPATCHER );
+
+		    if (    tnext + tlength
+		         >= translation_buffer.length )
+		    {
+		        fail = true;
+			break;
+		    }
+
+		    uns32 c = translation_buffer
+		                  [tnext + tlength];
+		    ++ tlength;
+
+		    uns32 ctype =
+		        ::ctype ( dispatcher_ID, c );
+
+		    dispatcher_header & dh =
+			* (dispatcher_header *)
+			& program[dispatcher_ID];
+
+		    if ( ctype > dh.max_ctype )
+		    {
+			sprintf ( scan_error ( length ),
+				  "ctype %u computed"
+				  " for character %s is"
+				  " too large for"
+				  " dispatcher %u",
+				  ctype, sbpchar ( c ),
+				  dispatcher_ID );
+			return SCAN_ERROR;
+		    }
+
+		    if ( ctype == 0 )
+		    {
+		        fail = true;
+			break;
+		    }
+
+		    // Map to next dispatcher.
+		    //
+		    map_element * mep =
+			(map_element *)
+			& program[  dispatcher_ID
+				  + dispatcher_header_length
+				  +   break_element_length
+				    * dh.max_break_elements];
+
+		    dispatcher_ID =
+		        mep[ctype].dispatcher_ID;
+		}
+	    }
+
+	    if ( fail )
+	    {
+		translation_buffer.resize ( tnext );
+	        if ( op & ELSE )
+		{
+		    instruction_ID =
+		        ih.else_instruction_ID;
+		    assert ( instruction_ID == 0
+			     ||
+				program[instruction_ID]
+			     == INSTRUCTION );
+
+		    // Loop to next instruction.
+		    //
+		    continue;
+		}
+		else
+		{
+		    sprintf ( scan_error ( length ),
+			      "no ELSE in failed"
+			      " instruction %d executed"
+			      " by atom table %d",
+			      instruction_ID,
+			      current_table_ID );
+		    return SCAN_ERROR;
+		}
 	    }
 
 	    atom_length = keep_length;
@@ -1016,6 +1112,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		         == TABLE );
 	    }
 
+	    // Instruction did NOT fail, so terminate
+	    // processing instruction group.
+	    //
 	    break;
 	}
 

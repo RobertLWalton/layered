@@ -1,12 +1,12 @@
 Uncooked Program 1:
 
          0: PROGRAM
-            Atom Table ID: 2
-         2: ATOM_TABLE
+            Initial Table ID: 2
+         2: TABLE
             Mode: MASTER
             Dispatcher ID: 0
             Instruction ID: 0
-         6: ATOM_TABLE
+         6: TABLE
             Mode: SYMBOL
             Dispatcher ID: 10
             Instruction ID: 57
@@ -25,7 +25,7 @@ Uncooked Program 1:
                        1:                0              57
                        2:               10               0
                        3:                0               0
-                       4:                0              64
+                       4:                0              67
         46: TYPE_MAP
                0: 0
                1: 1 9
@@ -35,25 +35,25 @@ Uncooked Program 1:
                5: 5
         53: TYPE_MAP
                4: a-z
-        57: KEEP(1), TRANSLATE(3,XYZ), GOTO(6)
-        64: ACCEPT
+        57: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(6)
+        67: ACCEPT
 Cooked Program 1:
 
          0: PROGRAM
-            Atom Table ID: 2
-         2: ATOM_TABLE
+            Initial Table ID: 2
+         2: TABLE
             Mode: MASTER
             Dispatcher ID: 0
-         6: ATOM_TABLE
+         6: TABLE
             Mode: SYMBOL
             Dispatcher ID: 10
-            KEEP(1), TRANSLATE(3,XYZ), GOTO(6)
+            KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(6)
         10: DISPATCHER
             Break Elements: 5
             Max Break Elements: 11
             Max CType: 4
             1 9
-                KEEP(1), TRANSLATE(3,XYZ), GOTO(6)
+                KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(6)
             2 8
                 Dispatcher ID: 10
             4 6 a-z
@@ -61,28 +61,28 @@ Cooked Program 1:
 Cooked Program 2:
 
          0: PROGRAM
-            Atom Table ID: 2
-         2: ATOM_TABLE
+            Initial Table ID: 2
+         2: TABLE
             Mode: MASTER
-            Dispatcher ID: 62
+            Dispatcher ID: 65
             OUTPUT(2)
-         6: ATOM_TABLE
+         6: TABLE
             Mode: WHITESPACE
-            Dispatcher ID: 356
+            Dispatcher ID: 396
             KEEP(0), GOTO(2)
-        10: ATOM_TABLE
+        10: TABLE
             Mode: SYMBOL
-            Dispatcher ID: 136
-            KEEP(0), RETURN(0)
-        14: ATOM_TABLE
+            Dispatcher ID: 169
+            KEEP(0), RETURN
+        14: TABLE
             Mode: NUMBER
-            Dispatcher ID: 276
+            Dispatcher ID: 316
             KEEP(0), GOTO(2)
-        18: ATOM_TABLE
+        18: TABLE
             Mode: OPERATOR
-            Dispatcher ID: 390
+            Dispatcher ID: 430
             KEEP(0), GOTO(2)
-        62: DISPATCHER
+        65: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
@@ -91,89 +91,90 @@ Cooked Program 2:
             \t-\r \~
                 GOTO(6)
             A-Z \\ a-z
-                KEEP(0), CALL(10)[]
+                KEEP(0), CALL(10)
             . 0-9
                 KEEP(0), GOTO(14)
             (-) , ; [ ] { }
                 OUTPUT(6)
             *-+ - /
                 KEEP(0), GOTO(18)
-       136: DISPATCHER
+       169: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
             0-9 A-Z a-z
                 ACCEPT
             \\
-                Dispatcher ID: 204
+                Dispatcher ID: 237
             \u007F
-                TRANSLATE(0), ERRONEOUS_ATOM(100)
-       170: DISPATCHER
+                TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+       203: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max CType: 2
-       204: DISPATCHER
+       237: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                Dispatcher ID: 222
-       222: DISPATCHER
+                Dispatcher ID: 255
+       255: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                Dispatcher ID: 240
-       240: DISPATCHER
+                Dispatcher ID: 273
+       273: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                TRANSLATE_OCT(1,0), ELSE(170):
-                  TRANSLATE(0), ERRONEOUS_ATOM(100)
-       264: ATOM_TABLE
+                TRANSLATE_OCT(1,0), REQUIRE(203), ELSE:
+                TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+
+       298: TABLE
             Mode: NUMBER
-            Dispatcher ID: 322
+            Dispatcher ID: 362
             KEEP(0), GOTO(2)
-       276: DISPATCHER
+       316: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max CType: 10
             0-9
                 GOTO(14)
             .
-                GOTO(264)
-       322: DISPATCHER
+                GOTO(298)
+       362: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 10
             0-9
-                GOTO(264)
-       356: DISPATCHER
+                GOTO(298)
+       396: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
             \t-\r \~
                 GOTO(6)
-       390: DISPATCHER
+       430: DISPATCHER
             Break Elements: 8
             Max Break Elements: 10
             Max CType: 10
             +
                 GOTO(2)
-                Dispatcher ID: 456
+                Dispatcher ID: 499
             -
                 GOTO(2)
-                Dispatcher ID: 502
+                Dispatcher ID: 545
             * /
                 GOTO(2)
-       456: DISPATCHER
+       499: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max CType: 10
             +
                 GOTO(2)
-       502: DISPATCHER
+       545: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max CType: 10
@@ -225,195 +226,197 @@ Testing Lexical Scan of:
 *a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001A\\102C\\100D
 
 Start atom scan: atom table = 2
-  Character = * Dispatcher = 62 Type Map = 26 CType = 6
+  Character = * Dispatcher = 65 Type Map = 29 CType = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = * Dispatcher = 390 Type Map = 448 CType = 3
+  Character = * Dispatcher = 430 Type Map = 488 CType = 3
   GOTO(2)
 Scan Returned: OPERATOR:0(0)0: *
 Start atom scan: atom table = 2
-  Character = a Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(10)[]
+  Character = a Dispatcher = 65 Type Map = 29 CType = 2
+  KEEP(0), CALL(10)
 Start atom scan: atom table = 10
-  Character = a Dispatcher = 136 Type Map = 26 CType = 2
+  Character = a Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = * Dispatcher = 136 Type Map = 26 CType = 6
-  KEEP(0), RETURN(0)
+  Character = * Dispatcher = 169 Type Map = 29 CType = 6
+  KEEP(0), RETURN
 Scan Returned: SYMBOL:0(1)1: a
 Start atom scan: atom table = 2
-  Character = * Dispatcher = 62 Type Map = 26 CType = 6
+  Character = * Dispatcher = 65 Type Map = 29 CType = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = * Dispatcher = 390 Type Map = 448 CType = 3
+  Character = * Dispatcher = 430 Type Map = 488 CType = 3
   GOTO(2)
 Scan Returned: OPERATOR:0(2)2: *
 Start atom scan: atom table = 2
-  Character = * Dispatcher = 62 Type Map = 26 CType = 6
+  Character = * Dispatcher = 65 Type Map = 29 CType = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = * Dispatcher = 390 Type Map = 448 CType = 3
+  Character = * Dispatcher = 430 Type Map = 488 CType = 3
   GOTO(2)
 Scan Returned: OPERATOR:0(3)3: *
 Start atom scan: atom table = 2
-  Character = b Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(10)[]
+  Character = b Dispatcher = 65 Type Map = 29 CType = 2
+  KEEP(0), CALL(10)
 Start atom scan: atom table = 10
-  Character = b Dispatcher = 136 Type Map = 26 CType = 2
+  Character = b Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = + Dispatcher = 136 Type Map = 26 CType = 6
-  KEEP(0), RETURN(0)
+  Character = + Dispatcher = 169 Type Map = 29 CType = 6
+  KEEP(0), RETURN
 Scan Returned: SYMBOL:0(4)4: b
 Start atom scan: atom table = 2
-  Character = + Dispatcher = 62 Type Map = 26 CType = 6
+  Character = + Dispatcher = 65 Type Map = 29 CType = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = + Dispatcher = 390 Type Map = 436 CType = 1
-  Character = + Dispatcher = 456 Type Map = 436 CType = 1
+  Character = + Dispatcher = 430 Type Map = 476 CType = 1
+  Character = + Dispatcher = 499 Type Map = 476 CType = 1
   GOTO(2)
 Scan Returned: OPERATOR:0(5)5: ++
 Start atom scan: atom table = 2
-  Character = + Dispatcher = 62 Type Map = 26 CType = 6
+  Character = + Dispatcher = 65 Type Map = 29 CType = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = + Dispatcher = 390 Type Map = 436 CType = 1
-  Character = c Dispatcher = 456 CType = 0
+  Character = + Dispatcher = 430 Type Map = 476 CType = 1
+  Character = c Dispatcher = 499 CType = 0
   GOTO(2)
 Scan Returned: OPERATOR:0(7)7: +
 Start atom scan: atom table = 2
-  Character = c Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(10)[]
+  Character = c Dispatcher = 65 Type Map = 29 CType = 2
+  KEEP(0), CALL(10)
 Start atom scan: atom table = 10
-  Character = c Dispatcher = 136 Type Map = 26 CType = 2
+  Character = c Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = ( Dispatcher = 136 Type Map = 26 CType = 5
-  KEEP(0), RETURN(0)
+  Character = ( Dispatcher = 169 Type Map = 29 CType = 5
+  KEEP(0), RETURN
 Scan Returned: SYMBOL:0(8)8: c
 Start atom scan: atom table = 2
-  Character = ( Dispatcher = 62 Type Map = 26 CType = 5
+  Character = ( Dispatcher = 65 Type Map = 29 CType = 5
   OUTPUT(6)
 Scan Returned: SEPARATOR:0(9)9: (
 Start atom scan: atom table = 2
-  Character = + Dispatcher = 62 Type Map = 26 CType = 6
+  Character = + Dispatcher = 65 Type Map = 29 CType = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = + Dispatcher = 390 Type Map = 436 CType = 1
-  Character = d Dispatcher = 456 CType = 0
+  Character = + Dispatcher = 430 Type Map = 476 CType = 1
+  Character = d Dispatcher = 499 CType = 0
   GOTO(2)
 Scan Returned: OPERATOR:0(10)10: +
 Start atom scan: atom table = 2
-  Character = d Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(10)[]
+  Character = d Dispatcher = 65 Type Map = 29 CType = 2
+  KEEP(0), CALL(10)
 Start atom scan: atom table = 10
-  Character = d Dispatcher = 136 Type Map = 26 CType = 2
+  Character = d Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = \u007F Dispatcher = 136 Type Map = 26 CType = 8
-  TRANSLATE(0), ERRONEOUS_ATOM(100)
+  Character = \u007F Dispatcher = 169 Type Map = 29 CType = 8
+  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 Erroneous Atom: TYPE (100):0(12)12: \u007F
 Start atom scan: atom table = 10
-  Character = e Dispatcher = 136 Type Map = 26 CType = 2
+  Character = e Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = % Dispatcher = 136 Type Map = 26 CType = 0
-  KEEP(0), RETURN(0)
+  Character = % Dispatcher = 169 Type Map = 29 CType = 0
+  KEEP(0), RETURN
 Scan Returned: SYMBOL:0(11)11: d\u007Fe translated to: de
 Start atom scan: atom table = 2
-  Character = % Dispatcher = 62 Type Map = 26 CType = 0
+  Character = % Dispatcher = 65 Type Map = 29 CType = 0
   OUTPUT(1)
 Scan Returned: ERROR:0(14)14: %
 Start atom scan: atom table = 2
-  Character = f Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(10)[]
+  Character = f Dispatcher = 65 Type Map = 29 CType = 2
+  KEEP(0), CALL(10)
 Start atom scan: atom table = 10
-  Character = f Dispatcher = 136 Type Map = 26 CType = 2
+  Character = f Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = 0 Dispatcher = 136 Type Map = 26 CType = 3
+  Character = 0 Dispatcher = 169 Type Map = 29 CType = 3
   ACCEPT
 Start atom scan: atom table = 10
-  Character = - Dispatcher = 136 Type Map = 26 CType = 6
-  KEEP(0), RETURN(0)
+  Character = - Dispatcher = 169 Type Map = 29 CType = 6
+  KEEP(0), RETURN
 Scan Returned: SYMBOL:0(15)15: f0
 Start atom scan: atom table = 2
-  Character = - Dispatcher = 62 Type Map = 26 CType = 6
+  Character = - Dispatcher = 65 Type Map = 29 CType = 6
   KEEP(0), GOTO(18)
 Start atom scan: atom table = 18
-  Character = - Dispatcher = 390 Type Map = 440 CType = 2
-  Character = - Dispatcher = 502 Type Map = 440 CType = 2
+  Character = - Dispatcher = 430 Type Map = 480 CType = 2
+  Character = - Dispatcher = 545 Type Map = 480 CType = 2
   GOTO(2)
 Scan Returned: OPERATOR:0(17)17: --
 Start atom scan: atom table = 2
-  Character = 1 Dispatcher = 62 Type Map = 26 CType = 3
+  Character = 1 Dispatcher = 65 Type Map = 29 CType = 3
   KEEP(0), GOTO(14)
 Start atom scan: atom table = 14
-  Character = 1 Dispatcher = 276 Type Map = 314 CType = 1
+  Character = 1 Dispatcher = 316 Type Map = 354 CType = 1
   GOTO(14)
 Start atom scan: atom table = 14
-  Character = . Dispatcher = 276 Type Map = 318 CType = 2
-  GOTO(264)
-Start atom scan: atom table = 264
-  Character = 2 Dispatcher = 322 Type Map = 314 CType = 1
-  GOTO(264)
-Start atom scan: atom table = 264
-  Character = . Dispatcher = 322 CType = 0
+  Character = . Dispatcher = 316 Type Map = 358 CType = 2
+  GOTO(298)
+Start atom scan: atom table = 298
+  Character = 2 Dispatcher = 362 Type Map = 354 CType = 1
+  GOTO(298)
+Start atom scan: atom table = 298
+  Character = . Dispatcher = 362 CType = 0
   KEEP(0), GOTO(2)
 Scan Returned: NUMBER:0(19)19: 1.2
 Start atom scan: atom table = 2
-  Character = . Dispatcher = 62 Type Map = 26 CType = 4
+  Character = . Dispatcher = 65 Type Map = 29 CType = 4
   KEEP(0), GOTO(14)
 Start atom scan: atom table = 14
-  Character = . Dispatcher = 276 Type Map = 318 CType = 2
-  GOTO(264)
-Start atom scan: atom table = 264
-  Character = 3 Dispatcher = 322 Type Map = 314 CType = 1
-  GOTO(264)
-Start atom scan: atom table = 264
-  Character = \u0000 Dispatcher = 322 CType = 0
+  Character = . Dispatcher = 316 Type Map = 358 CType = 2
+  GOTO(298)
+Start atom scan: atom table = 298
+  Character = 3 Dispatcher = 362 Type Map = 354 CType = 1
+  GOTO(298)
+Start atom scan: atom table = 298
+  Character = \u0000 Dispatcher = 362 CType = 0
   KEEP(0), GOTO(2)
 Scan Returned: NUMBER:0(22)22: .3
 Start atom scan: atom table = 2
-  Character = \u0000 Dispatcher = 62 Type Map = 26 CType = 0
+  Character = \u0000 Dispatcher = 65 Type Map = 29 CType = 0
   OUTPUT(1)
 Scan Returned: ERROR:0(24)24: \u0000
 Start atom scan: atom table = 2
-  Character = \u0001 Dispatcher = 62 Type Map = 26 CType = 0
+  Character = \u0001 Dispatcher = 65 Type Map = 29 CType = 0
   OUTPUT(1)
 Scan Returned: ERROR:0(25)25: \u0001
 Start atom scan: atom table = 2
-  Character = A Dispatcher = 62 Type Map = 26 CType = 2
-  KEEP(0), CALL(10)[]
+  Character = A Dispatcher = 65 Type Map = 29 CType = 2
+  KEEP(0), CALL(10)
 Start atom scan: atom table = 10
-  Character = A Dispatcher = 136 Type Map = 26 CType = 2
+  Character = A Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = \\ Dispatcher = 136 Type Map = 26 CType = 7
-  Character = 1 Dispatcher = 204 Type Map = 200 CType = 1
-  Character = 0 Dispatcher = 222 Type Map = 200 CType = 1
-  Character = 2 Dispatcher = 240 Type Map = 200 CType = 1
-  TRANSLATE_OCT(1,0), ELSE(170):
-    TRANSLATE(0), ERRONEOUS_ATOM(100)
-  Character = B Dispatcher = 170 Type Map = 196 CType = 1
+  Character = \\ Dispatcher = 169 Type Map = 29 CType = 7
+  Character = 1 Dispatcher = 237 Type Map = 233 CType = 1
+  Character = 0 Dispatcher = 255 Type Map = 233 CType = 1
+  Character = 2 Dispatcher = 273 Type Map = 233 CType = 1
+  TRANSLATE_OCT(1,0), REQUIRE(203), ELSE:
+  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+
+  Character = B Dispatcher = 203 Type Map = 229 CType = 1
 Start atom scan: atom table = 10
-  Character = C Dispatcher = 136 Type Map = 26 CType = 2
+  Character = C Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  Character = \\ Dispatcher = 136 Type Map = 26 CType = 7
-  Character = 1 Dispatcher = 204 Type Map = 200 CType = 1
-  Character = 0 Dispatcher = 222 Type Map = 200 CType = 1
-  Character = 0 Dispatcher = 240 Type Map = 200 CType = 1
-  TRANSLATE_OCT(1,0), ELSE(170):
-    TRANSLATE(0), ERRONEOUS_ATOM(100)
-  Character = @ Dispatcher = 170 CType = 0
-  TRANSLATE(0), ERRONEOUS_ATOM(100)
+  Character = \\ Dispatcher = 169 Type Map = 29 CType = 7
+  Character = 1 Dispatcher = 237 Type Map = 233 CType = 1
+  Character = 0 Dispatcher = 255 Type Map = 233 CType = 1
+  Character = 0 Dispatcher = 273 Type Map = 233 CType = 1
+  TRANSLATE_OCT(1,0), REQUIRE(203), ELSE:
+  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+
+  Character = @ Dispatcher = 203 CType = 0
+  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 Erroneous Atom: TYPE (100):0(32)32: \\100
 Start atom scan: atom table = 10
-  Character = D Dispatcher = 136 Type Map = 26 CType = 2
+  Character = D Dispatcher = 169 Type Map = 29 CType = 2
   ACCEPT
 Start atom scan: atom table = 10
-  KEEP(0), RETURN(0)
+  KEEP(0), RETURN
 Scan Returned: SYMBOL:0(26)26: A\\102C\\100D translated to: ABCD
 Start atom scan: atom table = 2
   OUTPUT(2)

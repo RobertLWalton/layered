@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 02:04:24 EDT 2010
+// Date:	Wed Nov 17 12:39:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,12 +34,13 @@ namespace ll { namespace lexeme
     // Various things are pushed into and popped from
     // the stacks.
     //
-    // A begin_atom_table, begin_dispatcher, and begin_
-    // character_pattern push a dispatcher to the
-    // dispatchers stack and an instruction to the
-    // instructions stack.  The corresponding ends
-    // pop these stacks.  Else_no_if's push additional
-    // instructions to the instructions stack.
+    // A begin_table, begin_dispatcher, and begin_atom_
+    // pattern push a dispatcher to the dispatchers
+    // stack.  Begin_table and begin_dispatcher push
+    // an instruction to the instructions stack, and
+    // ELSE's push additional instructions to the
+    // instructions stack.  An end_table, end_dispat-
+    // cher, and end_atom_pattern pop these stacks.
     //
     // When the dispatchers and instructions stacks are
     // popped, the uns32_stack has the following in
@@ -62,35 +63,34 @@ namespace ll { namespace lexeme
     //    for each instruction in the instruction stack,
     //	      translate_length uns32's giving the
     //	      translate vector in memory order
-    //	      followed by call_length uns32's giving
-    //        the return_vector in memory order
     //
-    // Popping a dispatcher pops an instruction from
-    // the instruction stack and removes the instruction
-    // and subdispatcher elements from the uns32_stack
-    // and pushes into this stack the new triple:
+    // Popping a dispatcher in a table pops an instruc-
+    // tion group from the instruction stack and removes
+    // the instruction and subdispatcher elements from
+    // the uns32_stack and pushes into this stack the
+    // new triple:
     //
     //		dispatcher_ID
     //		instruction_ID
     //		type_map_count
     //
-    // describing the popped dispatcher and instruction.
-    // However, if the popped dispatcher is an OTHERS
-    // dispatcher, this last triple is not pushed, and
-    // the dispatcher_ID adn instruction_ID are instead
-    // copied to the parent dispatcher (the type_map_
-    // count will be zero).
+    // describing the popped dispatcher and instruction
+    // group.  However, if the popped dispatcher is an
+    // OTHERS dispatcher, this last triple is not pushed,
+    // and the dispatcher_ID and instruction_ID are
+    // instead copied to the parent dispatcher (the
+    // type_map_count will be zero).
     //
-    // Note that `popping an instruction' means popping
-    // all the instructions in a sequence
+    // Note that `popping an instruction group' means
+    // popping all the instructions in a sequence
     //
-    //	 <non-else-instruction>
-    //   { else_if_not(...) <non-else-instruction> }*.
+    //	 <instruction> { ELSE(); <instruction> }*.
     //
-    // Note that begin/end_character_pattern pushes and
-    // pops two dispatchers as if it were a begin/end_
-    // atom_table with a single nested begin/end_dis-
-    // patcher.
+    // Note that begin/end_atom_pattern pushes and pops
+    // two dispatchers as if it were a begin/end_table
+    // with a single nested begin/end_dispatcher.  Each
+    // { NEXT(...); <add-characters>*} creates a single
+    // nested subdispatcher.
     //
     extern ll::lexeme::buffer<uns32> & uns32_stack;
 
@@ -133,6 +133,9 @@ namespace ll { namespace lexeme
 	bool is_others_dispatcher;
 	    // True if and only if this is an OTHER's
 	    // dispatcher.
+	bool in_atom_pattern;
+	    // True if this dispatcher is in an atom
+	    // pattern and not part of a table.
     };
 
     extern ll::lexeme::buffer<dispatcher> & dispatchers;
@@ -146,23 +149,16 @@ namespace ll { namespace lexeme
     struct instruction
     {
 	uns32 operation;
-	uns32 atom_table_ID;
-	uns32 type;
+	uns32 translation_table_ID;
+	uns32 require_table_ID;
+	uns32 else_instruction_ID;
+	uns32 output_error_type;
+	uns32 goto_call_table_ID;
 	    // Arguments for ll::lexeme::create_
 	    // instruction.  If ll::lexeme::translate_
 	    // length ( operation ) is > 0, then it is
 	    // the number of uns32's in the stack that
-	    // represent the translation vector.  Note
-	    // that the ELSE flag is NOT included but
-	    // must be added when an instruction with
-	    // a non-zero else_dispatcher_ID is created.
-	uns32 else_dispatcher_ID;
-	    // Else_dispatcher_ID argument for the
-	    // PREVIOUS instruction in the instructions
-	    // stack.  Non-zero only if this instruction
-	    // follows a else_not_if, and in this case
-	    // is the dispatcher ID given by the char-
-	    // acter pattern name.
+	    // represent the translation vector.
 	bool accept;
 	    // True if and only if this is an accept
 	    // instruction.

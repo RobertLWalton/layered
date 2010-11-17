@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 16 08:25:42 EST 2010
+// Date:	Wed Nov 17 08:07:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -238,6 +238,50 @@ static void create_program_2 ( void )
     LEX::create_program();
     uns32 master = LEX::create_table ( MASTER );
 
+    // Create translation table for \ooo octal
+    // character representations.
+    //
+    uns32 oct_translation =
+        LEX::create_table ( TRANSLATION );
+
+    uns32 escape_tmap =
+        LEX::create_type_map ( '\\', '\\', 1 );
+    uns32 oct_tmap =
+        LEX::create_type_map ( '0', '7', 1 );
+
+    uns32 escape_dispatcher =
+        LEX::create_dispatcher ( 3, 2 );
+    check_attach ( escape_dispatcher, escape_tmap );
+    uns32 oct_dispatcher1 =
+        LEX::create_dispatcher ( 3, 2 );
+    check_attach ( oct_dispatcher1, oct_tmap );
+    uns32 oct_dispatcher2 =
+        LEX::create_dispatcher ( 3, 2 );
+    check_attach ( oct_dispatcher2, oct_tmap );
+    uns32 oct_dispatcher3 =
+        LEX::create_dispatcher ( 3, 2 );
+    check_attach ( oct_dispatcher3, oct_tmap );
+
+    check_attach ( oct_translation,
+                   escape_dispatcher );
+    check_attach ( escape_dispatcher,
+                   1, oct_dispatcher1 );
+    check_attach ( oct_dispatcher1,
+                   1, oct_dispatcher2 );
+    check_attach ( oct_dispatcher2,
+                   1, oct_dispatcher3 );
+
+    uns32 fail_instruction =
+        LEX::create_instruction ( FAIL );
+    uns32 translate_oct_instruction =
+        LEX::create_instruction
+	    ( TRANSLATE_OCT(1,0)+ELSE,
+	      NULL, 0, 0, fail_instruction );
+    check_attach ( oct_dispatcher3,
+                   1, translate_oct_instruction );
+    check_attach ( oct_translation,
+                   fail_instruction );
+
     uns32 whitespace = LEX::create_table ( WHITESPACE );
     uns32 symbol = LEX::create_table ( SYMBOL );
     uns32 number = LEX::create_table ( NUMBER );
@@ -403,7 +447,8 @@ static void create_program_2 ( void )
 	    ( KEEP(0)+GOTO, NULL, 0, 0, 0, 0, number );
     uns32 whitespace_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO, NULL, 0, 0, 0, 0, whitespace );
+	    ( ACCEPT+GOTO, NULL, 0, 0, 0, 0,
+	                   whitespace );
     uns32 operator_instruction =
         LEX::create_instruction
 	    ( KEEP(0)+GOTO, NULL, 0, 0, 0, 0, oper );
@@ -467,31 +512,14 @@ static void create_program_2 ( void )
         LEX::create_type_map ( 'A', 'Z', 1 );
     check_attach ( letter_dispatcher, letter_tmap1 );
     check_attach ( letter_dispatcher, letter_tmap2 );
-
-    uns32 oct_tmap =
-        LEX::create_type_map ( '0', '7', 1 );
-    uns32 oct_dispatcher1 =
-        LEX::create_dispatcher ( 3, 2 );
-    check_attach ( oct_dispatcher1, oct_tmap );
-    uns32 oct_dispatcher2 =
-        LEX::create_dispatcher ( 3, 2 );
-    check_attach ( oct_dispatcher2, oct_tmap );
-    uns32 oct_dispatcher3 =
-        LEX::create_dispatcher ( 3, 2 );
-    check_attach ( oct_dispatcher3, oct_tmap );
-    check_attach ( symbol_dispatcher,
-                   escape, oct_dispatcher1 );
-    check_attach ( oct_dispatcher1,
-                   1, oct_dispatcher2 );
-    check_attach ( oct_dispatcher2,
-                   1, oct_dispatcher3 );
-    uns32 translate_oct_instruction =
+    uns32 escape_instruction =
         LEX::create_instruction
-	    ( TRANSLATE_OCT(1,0)+REQUIRE+ELSE,
-	      NULL, 0, letter_dispatcher,
-	               err_atom_instruction );
-    check_attach ( oct_dispatcher3,
-                   1, translate_oct_instruction );
+	    ( TRANSLATE+REQUIRE+ELSE,
+	      NULL, oct_translation,
+	            letter_dispatcher,
+	            err_atom_instruction );
+    check_attach ( symbol_dispatcher, escape,
+                   escape_instruction );
 
     uns32 fraction = LEX::create_table ( NUMBER );
     uns32 fraction_instruction =
@@ -638,7 +666,7 @@ int main ( int argc )
 	' ', '3', '.', '4',
 	' ', 'x', '+', 'y', '+', '+', 'z' };
     test_program ( input1, 14 );
-    uns32 input2[37] = {
+    uns32 input2[41] = {
         '*', 'a', '*', '*',
         'b', '+', '+', '+',
 	'c', '(', '+', 'd', 0177, 'e',
@@ -647,8 +675,9 @@ int main ( int argc )
 	0, 1,
 	'A', '\\', '1', '0', '2',
 	'C', '\\', '1', '0', '0',
-	'D' };
-    test_program ( input2, 37 );
+	'D', '\\', '1', '0',
+	'E' };
+    test_program ( input2, 41 );
     LEX::scan_trace_out= & cout;
-    test_program ( input2, 37 );
+    test_program ( input2, 41 );
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 17 03:16:23 EST 2010
+// Date:	Wed Nov 17 08:11:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -765,7 +765,67 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    // no-oping the instruction for the sake
 	    // of an ELSE.
 
-	if ( op & KEEP_FLAG )
+	if ( op & TRANSLATE )
+	{
+	    table_header & th =
+		* (table_header *)
+		& program[ih.translate_table_ID];
+	    assert ( cath.pctype == TABLE );
+	    if ( th.mode != TRANSLATION )
+	    {
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "TRANSLATE in"
+		      " instruction %d executed by"
+		      " table %d targets"
+		      " non-translation table",
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
+	    }
+	    else if (    return_stack_p
+		      == return_stack_endp )
+	    {
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "TRANSLATE in"
+		      " instruction %d executed by"
+		      " table %d but return stack is"
+		      " full",
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
+	    }
+
+	    * return_stack_p ++ = current_table_ID;
+
+	    if ( is_recursive
+	             ( ih.translate_table_ID ) )
+	    {
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "recursive TRANSLATE to table %d"
+		      " in instruction %d executed"
+		      " by table %d",
+		      ih.translate_table_ID,
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
+	    }
+
+	    current_table_ID = ih.translate_table_ID;
+	    uns32 tinstruction_ID =
+	        scan_atom ( keep_length );
+	    current_table_ID = * -- return_stack_p;
+
+	    instruction_header & tih =
+		* (instruction_header *)
+		& program[tinstruction_ID];
+	    if ( tih.operation & FAIL )
+	    	fail = true;
+	}
+
+	if ( ! fail & ( op & KEEP_FLAG ) )
 	{
 	    keep_length = LEX::keep_length ( op );
 	    if ( keep_length > atom_length )
@@ -779,9 +839,10 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    }
 	}
 
-	if ( op & ( TRANSLATE_HEX_FLAG
-		    |
-		    TRANSLATE_OCT_FLAG ) )
+	if ( fail ) ; // Do nothing
+	else if ( op & ( TRANSLATE_HEX_FLAG
+		         |
+		         TRANSLATE_OCT_FLAG ) )
 	{
 	    uns32 p = next
 		    + LEX::prefix_length ( op );
@@ -843,7 +904,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 			 * sizeof ( uns32 ) );
 	    }
 	}
-	else
+	else if ( ! ( op & TRANSLATE ) )
 	{
 	    uns32 q =
 		translation_buffer.allocate

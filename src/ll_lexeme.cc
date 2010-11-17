@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 17 00:55:38 EST 2010
+// Date:	Wed Nov 17 03:16:23 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -359,7 +359,7 @@ uns32 LEX::attach
 	    {
 		sprintf ( error_message,
 			  "Attempt to attach dispatcher"
-			  " %u to atom table %u\n"
+			  " %u to table %u\n"
 			  "conflicts with previous"
 			  " attachment of dispatcher"
 			  " %u",
@@ -376,8 +376,8 @@ uns32 LEX::attach
 	    {
 		sprintf ( error_message,
 			  "Attempt to attach"
-			  " instruction %u to atom"
-			  " table %u\n"
+			  " instruction %u to table"
+			  " %u\n"
 			  "conflicts with previous"
 			  " attachment of instruction"
 			  " %u",
@@ -476,6 +476,22 @@ static uns32 next;
     // first yet unscanned atom.
 static uns32 current_table_ID;
     // Current table ID.
+static uns32 return_stack[64],
+      * return_stack_p = return_stack,
+      * return_stack_endp = return_stack + 64;
+    // Return stack.
+
+// Return true if table_ID is in return_stack.
+//
+static bool is_recursive ( uns32 table_ID )
+{
+    uns32 * p = return_stack;
+    while ( p < return_stack_p )
+    {
+        if ( * p ++ == table_ID ) return true;
+    }
+    return false;
+}
 
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
@@ -614,7 +630,7 @@ static uns32 ctype ( uns32 dispatcher_ID, uns32 c )
 // error message in error message.  Return atom_length
 // and add translation of atom to translation buffer.
 //
-uns32 scan_atom ( uns32 & atom_length )
+static uns32 scan_atom ( uns32 & atom_length )
 {
     const uns32 SCAN_ERROR = 0;
         // Local version of SCAN_ERROR.
@@ -923,8 +939,8 @@ uns32 scan_atom ( uns32 & atom_length )
 		    sprintf ( scan_error ( length ),
 			      "no instruction for ELSE"
 			      " in failed instruction"
-			      " %d executed by atom"
-			      " table %d",
+			      " %d executed by table"
+			      " %d",
 			      instruction_ID,
 			      current_table_ID );
 		    return SCAN_ERROR;
@@ -941,7 +957,7 @@ uns32 scan_atom ( uns32 & atom_length )
 		sprintf ( scan_error ( length ),
 			  "no ELSE in failed"
 			  " instruction %d executed by"
-			  " atom table %d",
+			  " table %d",
 			  instruction_ID,
 			  current_table_ID );
 		return SCAN_ERROR;
@@ -1004,12 +1020,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // 
     uns32 output_type = 0;
     uns32 last_mode = MASTER;
+    return_stack_p = return_stack;
     uns32 loop_count = program.length;
         // Set to max number of tables in order to
 	// detect endless loops.
-    uns32 return_stack[64],
-          * return_stack_p = return_stack,
-          * return_stack_endp = return_stack + 64;
     while ( true )
     {
         // Scan next atom of current lexeme.
@@ -1027,8 +1041,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	        sprintf ( scan_error ( last + 1 - first,
 		                       first ),
 		          "attempt to OUTPUT when the"
-			  " next atom table %d is not"
-			  " MASTER-mode",
+			  " next table %d is not a"
+			  " master table",
 			  current_table_ID );
 		return SCAN_ERROR;
 	    }
@@ -1070,8 +1084,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		sprintf ( scan_error ( atom_length ),
 			  "ERRONEOUS_ATOM in"
 			  " instruction %d executed"
-			  " by atom table %d but"
-			  " atom is of zero length",
+			  " by table %d but atom is of"
+			  " zero length",
 			  instruction_ID,
 			  current_table_ID );
 		return SCAN_ERROR;
@@ -1081,9 +1095,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		sprintf ( scan_error ( atom_length ),
 			  "ERRONEOUS_ATOM in"
 			  " instruction %d executed"
-			  " by atom table %d but"
-			  " no erroneous_atom"
-			  " function",
+			  " by table %d but"
+			  " erroneous_atom function"
+			  " does not exist",
 			  instruction_ID,
 			  current_table_ID );
 		return SCAN_ERROR;
@@ -1103,9 +1117,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		sprintf
 		    ( scan_error ( atom_length ),
 		      "RETURN in instruction %d"
-		      " executed by atom table"
-		      " %d but return stack is"
-		      " empty",
+		      " executed by table %d but"
+		      " return stack is empty",
 		      instruction_ID,
 		      current_table_ID );
 		return SCAN_ERROR;
@@ -1122,9 +1135,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		sprintf
 		    ( scan_error ( atom_length ),
 		      "CALL in"
-		      " instruction %d"
-		      " executed by atom table"
-		      " %d but return stack is"
+		      " instruction %d executed by"
+		      " table %d but return stack is"
 		      " full",
 		      instruction_ID,
 		      current_table_ID );
@@ -1133,6 +1145,20 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	    * return_stack_p ++ = current_table_ID;
 
+	    if ( is_recursive
+	             ( ih.goto_call_table_ID ) )
+	    {
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "recursive CALL to table %d"
+		      " in instruction %d executed"
+		      " by table %d",
+		      ih.goto_call_table_ID,
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
+	    }
+
 	    current_table_ID =
 		ih.goto_call_table_ID;
 
@@ -1140,14 +1166,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		* (table_header *)
 		& program[current_table_ID];
 	    assert ( cath.pctype == TABLE );
-	    if ( cath.mode == MASTER )
+	    if ( cath.mode == MASTER
+	         ||
+		 cath.mode == TRANSLATION )
 	    {
 		sprintf
 		    ( scan_error ( atom_length ),
 		      "CALL in"
-		      " instruction %d"
-		      " executed by atom table"
-		      " %d targets MASTER atom"
+		      " instruction %d executed by"
+		      " table %d targets non-lexeme"
 		      " table",
 		      instruction_ID,
 		      current_table_ID );
@@ -1158,8 +1185,23 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	{
 	    current_table_ID =
 		ih.goto_call_table_ID;
-	    assert (    program[current_table_ID]
-		     == TABLE );
+	    table_header & cath =
+		* (table_header *)
+		& program[current_table_ID];
+	    assert ( cath.pctype == TABLE );
+	    if ( cath.mode == TRANSLATION )
+
+	    {
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "GOTO in"
+		      " instruction %d executed by"
+		      " table %d targets translation"
+		      " table",
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
+	    }
 	}
 
 	if ( atom_length > 0 )

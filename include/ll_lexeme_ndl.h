@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 12 04:16:46 EDT 2010
+// Date:	Wed Nov 17 02:41:53 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,48 +43,57 @@
 //
 //   <ndl-program> ::=
 //      using ll::lexeme::ndl::MASTER;
+//      using ll::lexeme::ndl::TRANSLATION;
 //      using ll::lexeme::ndl::OTHER;
 //      using ll::lexeme::ndl::uns32;
 //
 //	NDL::begin_program();
 //	<declaration>*
-//	<atom-table-definition>*
+//	<table-definition>*
 //	NDL::end_program();
 //
-//   <declaration> := <atom-table-declaration>
-//		    | <character-pattern-declaration>
+//   <declaration> := <table-declaration>
+//		    | <atom-pattern-declaration>
 //
-//   <atom-table-declaration> ::=
-//       uns32 <atom_table-name>;
-//	 NDL::new_atom_table ( <atom_table-name>,
-//                             [<mode>] );
+//   <table-declaration> ::=
+//       uns32 <table-name>;
+//	 NDL::new_table ( <table-name>, [<mode>] );
 //
-//   <atom-table-name> ::= C++ variable name
-//	// Atom tables must be declared first to
-//      // avoid forward references in go and
-//      // call statements.
+//   <table-name> ::= C++ variable name
+//	// Tables must be declared first to avoid
+//	// forward references in go, call, and
+//      // translate statements.
 //
-//   <mode> ::= MASTER | <type-name>
-//	// Mode of atom table
+//   <mode> ::= MASTER | TRANSLATION | <type-name>
+//	// Mode of table
 //
 //   <type-name> ::= C++ uns32 expression
 //	// The type returned by the scanner for a
-//	// lexeme.
+//	// lexeme, and type type of a lexeme table.
 //
-//   <character-pattern-declaration> ::=
-//       uns32 <character-pattern-name>;
-//	 NDL::begin_character_pattern
-//	     ( <character-pattern-name>,
+//   <atom-pattern-declaration> ::=
+//       uns32 <atom-pattern-name>;
+//	 NDL::begin_atom_pattern
+//	     ( <atom-pattern-name>,
 //             [<included-chars>
 //		      [, <excluded-chars>] ] );
 //	     <character-adder>*
-//	 NDL::end_character_pattern();
+//	     {
+//	       NDL::NEXT();
+//	           ( [<included-chars>
+//		            [, <excluded-chars>] ] );
+//	       <character-adder>*
+//	     }*
+//	 NDL::end_atom_pattern();
+//
+//   // An atom pattern consists of one or more
+//   // character patterns separated by `NDL::NEXT();'.
 //
 //   <included-chars> ::=
 //           C++ const char * quoted string expression
 //       // List of ASCII characters that are included
-//       // in the // character pattern if they are not
-//       // also in <excluded-chars>
+//       // in the current character pattern if they are
+//	 // not also in <excluded-chars>
 //
 //   <excluded-chars> ::=
 //           C++ const char * quoted string expression
@@ -100,14 +109,14 @@
 //   <min-char> ::= C++ uns32 UNICODE character code
 //   <max-char> ::= C++ uns32 UNICODE character code
 //	// Minimum and maximum characters in a range
-//      // of UNICODE characters to be added to a
-//      // character pattern.
+//      // of UNICODE characters to be added to the
+//      // current character pattern.
 //
-//   <atom-table-definition> ::=
-//       NDL::begin_atom_table ( <atom-table-name> );
+//   <table-definition> ::=
+//       NDL::begin_table ( <table-name> );
 //	     <dispatch>*
-//	     [<instruction>]
-//       NDL::end_atom_table();
+//	     [<instruction-group>]
+//       NDL::end_table();
 //
 //   <dispatch> :=
 //	 NDL::begin_dispatch
@@ -115,12 +124,12 @@
 //	           [, <excluded-chars>] ] );
 //	        <character-adder>*
 //	        <dispatch>*
-//	        [<instruction>]
+//	        [<instruction-group>]
 //	 NDL::end_dispatch();
 //     |
 //       NDL::begin_dispatch ( OTHER );
 //	        <dispatch>*
-//	        [<instruction>]
+//	        [<instruction-group>]
 //	 NDL::end_dispatch();
 //
 //    // A <dispatch> tells what to do when the NEXT
@@ -130,19 +139,23 @@
 //    // and nested dispatches to be made on the
 //    // following character in the atom.
 //
+//    // Two <dispatch>es at the same nesting level
+//    // cannot both match the same character.
+//
 //    // In the OTHER case the pattern includes just
 //    // those characters not in the patterns of other
 //    // dispatchers for the same atom character (i.e.,
 //    // other sybling dispatchers).
 //
-//    <instruction> ::= <non-else-instruction>
-//			[<else-instruction>]
+//    <instruction-group> ::=
+//	  <instruction> { NDL::ELSE(); <instruction> }*
 //
-//    <non-else-instruction> ::= [<keep-component>]
-//			         [translate-component]
-//			         [output-component]
-//			         [transfer-component]
-//			       | NDL::accept();
+//    <instruction> ::= [<keep-component>]
+//		        [<translate-component>]
+//		        [<require-component>]
+//		        [<output-component>]
+//		        [<transfer-component>]
+//		      | NDL::accept();
 //	  // An <instruction>s must have at least one
 //	  // optional component or be `accept();'.
 //	  // Optional components may be in any order.
@@ -153,12 +166,12 @@
 //		// the atom.
 //
 //    <translate-component> ::=
-//	    NDL::translate
+//	    NDL::translate_to
 //                  ( <ascii-translation-string> );
 //		// Put <ascii-translation-string> into
 //              // the translation buffer instead of
 //		// the atom.
-//	  | NDL::translate
+//	  | NDL::translate_to
 //                  ( <n>,
 //                    <UNICODE-translation-string> );
 //		// Ditto but for <n> UNICODE character
@@ -171,6 +184,10 @@
 //		// first <m> and last <n> characters of
 //		// the atom are ignored and the rest is
 //		// the converted interior.
+//	  | NDL::translate ( <table-name> );
+//		// Invoke named translation table, which
+//		// either recognizes and translates one
+//		// atom, or fails.
 //
 //     <m> ::= C++ uns32 integer
 //     <n> ::= C++ uns32 integer
@@ -179,6 +196,10 @@
 //     <UNICODE-translation-string> ::=
 //         C++ const uns32 * string
 //
+//    <require-component> ::=
+//	  | NDL::require ( <atom-pattern-name> );
+//		// Fail if the TRANSLATED atom does
+//		// not match the given atom pattern.
 //
 //    <output-component> ::=
 //	  NDL::output ( <type-name> );
@@ -191,49 +212,37 @@
 //		// middle of a lexeme.
 //
 //    <transfer-component> ::=
-//	  | NDL::go ( <atom-table-name> );
-//		// Go to atom table.  If switching from
-//		// non-master to master table and there
-//		// is no instruction `output()'
-//		// component, output the accumulated
-//		// lexeme with type of the table being
-//		// gone from.
-//	  | NDL::call ( <atom-table-name>,
-//			<n>, <return-vector> );
+//	  | NDL::go ( <table-name> );
+//		// Go to master or lexeme table.  If
+//		// switching from a lexeme to a master
+//		// table and there is no instruction
+//		// `output()' component and the accum-
+//		// ulated lexeme is of non-zero length,
+//		// output the accumulated lexeme with
+//		// type of the lexeme table.
+//	  | NDL::call ( table-name> )
 //		// Like `go' but allows return to the
-//		// atom table containing the instruction
-//		// with the `call' component via
-//		// return(0), or to <return-vector>[i]
-//		// via return(i).  The atom table called
-//              // cannot have mode MASTER.  A return
-//              // stack entry holds the ID of the atom
-//		// table containing the instruction with
-//              // the `call' component, plus the ID of
-//              // that instruction.  The return stack
-//		// depth is limited so recursive calls
-//              // are not allowed.
-//	  | NDL::ret ( <i> );
+//		// table containing the call instruction
+//		// via return.  The table called must be
+//		// a lexeme table.  A return stack entry
+//		// holds the ID of the table containing
+//		// the call instruction.  Recursive
+//		// calls are not allowed.
+//	  | NDL::ret();
 //		// See `call' above.  The return stack
 //		// is popped.  The return stack is
 //		// cleared when a MASTER table is gone
 //		// to by any means.
+//	  | NDL::fail();
+//		// In a translation table, causes the
+//		// translation provided by the table
+//		// to fail.
 //
-//     <return-vector> ::= C++ const uns32 * vector of
-//			   <atom-table-name>s
-//     <i> ::= C++ uns32 integer
-//
-//    <else-instruction> ::=
-//	  NDL::else_if_not ( <character-pattern-name> );
-//        <instruction>
-//            // Only permitted if last instruction had
-//	      // a translate_oct/hex component.  The
-//            // preceding <instruction> is turned into
-//            // a no-operation and the following
-//            // <instruction> is executed if the
-//            // UNICODE character produced by the
-//            // preceding <instruction>'s translate_
-//            // oct/hex is NOT in the character
-//            // pattern.
+//    // The <instruction>s in an <instruction-group>
+//    // are separated by `NDL::ELSE();' statements.
+//    // If one of the <instruction>s fails, it becomes
+//    // a no-operation and the next <instruction> is
+//    // exeucted.
 
 
 // NDL Functions
@@ -243,6 +252,7 @@ namespace ll { namespace lexeme { namespace ndl {
 
     using ll::lexeme::uns32;
     using ll::lexeme::MASTER;
+    using ll::lexeme::TRANSLATION;
 
     extern char OTHER[];
 
@@ -259,14 +269,17 @@ namespace ll { namespace lexeme { namespace ndl {
     void begin_program ( void );
     void end_program ( void );
 
-    void new_atom_table
-        ( uns32 & atom_table_name, uns32 mode = 0 );
+    void new_table
+        ( uns32 & table_name, uns32 mode = 0 );
 
-    void begin_character_pattern
-	( uns32 & character_pattern_name,
+    void begin_atom_pattern
+	( uns32 & atom_pattern_name,
 	  const char * included_chars = "",
 	  const char * excluded_chars = "" );
-    void end_character_pattern ( void );
+    void NEXT
+	( const char * included_chars = "",
+	  const char * excluded_chars = "" );
+    void end_atom_pattern ( void );
 
     void add_characters
 	( const char * included_chars = "",
@@ -274,8 +287,8 @@ namespace ll { namespace lexeme { namespace ndl {
     void add_characters
         ( uns32 min_char, uns32 max_char );
 
-    void begin_atom_table ( uns32 atom_table_name );
-    void end_atom_table ( void );
+    void begin_table ( uns32 table_name );
+    void end_table ( void );
 
     void begin_dispatch
 	( const char * included_chars = "",
@@ -285,23 +298,25 @@ namespace ll { namespace lexeme { namespace ndl {
     void accept ( void );
     void keep ( uns32 n );
 
-    void translate ( const char * translation_string );
-    void translate ( uns32 n,
-                     const uns32 * translation_string );
+    void translate_to
+        ( const char * translation_string );
+    void translate_to
+        ( uns32 n, const uns32 * translation_string );
     void translate_oct ( uns32 m, uns32 n );
     void translate_hex ( uns32 m, uns32 n );
+    void translate ( uns32 table_name );
+
+    void require ( uns32 atom_pattern_name );
+
+    void ELSE ( void );
 
     void erroneous_atom ( uns32 type_name );
-
     void output ( uns32 type_name );
 
-    void go ( uns32 atom_table_name );
-    void call ( uns32 atom_table_name,
-                uns32 n = 0,
-		const uns32 * return_vector = NULL );
-    void ret ( uns32 i = 0 );
-
-    void else_if_not ( uns32 character_pattern_name );
+    void go ( uns32 table_name );
+    void call ( uns32 table_name );
+    void ret ( void );
+    void fail ( void );
 
 } } }
 

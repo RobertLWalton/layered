@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 13:32:24 EDT 2010
+// Date:	Thu Nov 18 00:49:44 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -90,13 +90,13 @@ static bool error
 enum STATE {
     OUTSIDE_PROGRAM,
     INSIDE_PROGRAM,
-    INSIDE_CHARACTER_PATTERN,
-    INSIDE_ATOM_TABLE };
+    INSIDE_ATOM_PATTERN,
+    INSIDE_TABLE };
 
 static STATE state;
 
-// Substates in the order they appear inside an
-// atom table, character pattern, or dispatcher.
+// Substates in the order they appear inside a
+// table, atom pattern, or dispatcher.
 //
 enum SUBSTATE {
     ADD_CHARACTERS,
@@ -178,13 +178,13 @@ void LEXNDL::end_program ( void )
     assert ( instructions.length == 0 );
 }
 
-void LEXNDL::new_atom_table
-	( uns32 & atom_table_name, uns32 mode )
+void LEXNDL::new_table
+	( uns32 & table_name, uns32 mode )
 {
-    FUNCTION ( "new_atom_table" );
+    FUNCTION ( "new_table" );
     ASSERT ( state == INSIDE_PROGRAM,
-             "new_atom_table() misplaced" );
-    atom_table_name = LEX::create_atom_table ( mode );
+             "new_table() misplaced" );
+    table_name = LEX::create_table ( mode );
 }
 
 // Push a new dispatcher and instruction on the
@@ -195,7 +195,8 @@ void LEXNDL::new_atom_table
 // However, if is_others is true, set the substate to
 // DISPATCHERS (add_characters is not allowed in an
 // OTHER's dispatcher), do NOT increment the parent
-// max_type_code, and set is_others_dispatcher true.
+// max_type_code, and set is_others_dispatcher true
+// in the pushed dispatcher.
 //
 void push_dispatcher ( bool is_others = false )
 {
@@ -213,80 +214,66 @@ void push_dispatcher ( bool is_others = false )
     d.is_others_dispatcher = is_others;
 
     instructions.allocate ( 1 );
-    instruction & i = current_instruction();
+    instruction & ci = current_instruction();
 
-    i.operation = 0;
-    i.atom_table_ID = 0;
-    i.type = 0;
-    i.else_dispatcher_ID = 0;
-    i.accept = false;
+    ci.operation = 0;
+    ci.translate_table_ID = 0;
+    ci.require_dispatcher_ID = 0;
+    ci.output_error_type = 0;
+    ci.goto_call_table_ID = 0;
+    ci.accept = false;
 
     substate = is_others ? DISPATCHERS
                          : ADD_CHARACTERS;
 }
 
-// Pop an instruction (or instructions if there are
-// else_not_if instructions) from the instructions
-// stack and return its instruction_ID, or return 0 if
-// there is no instruction.
+// Pop an instruction group from the instructions stack
+// and return the instruction_ID of its first instruc-
+// tion, or return 0 if there is no instruction group.
 //
-static uns32 pop_instruction ( void )
+static uns32 pop_instruction_group ( void )
 {
     uns32 instruction_ID = 0;
-    uns32 else_dispatcher_ID = 0;
     while ( true )
     {
-	instruction & i = current_instruction();
+	instruction & ci = current_instruction();
 
-	uns32 translate_length = 0;
-	uns32 call_length = 0;
-	if ( i.operation & LEX::TRANSLATE_FLAG )
-	    translate_length =
-	        LEX::translate_length ( i.operation );
-	if ( i.operation & LEX::CALL_FLAG )
-	    call_length =
-	        LEX::call_length ( i.operation );
+	uns32 translate_to_length = 0;
+	if ( ci.operation & LEX::TRANSLATE_TO_FLAG )
+	    translate_to_length =
+	        LEX::translate_to_length
+		    ( ci.operation );
 
         uns32 * translation_vector = NULL;
-        uns32 * return_vector = NULL;
 	uns32 length = uns32_stack.length;
-	assert (    translate_length + call_length
-	         <= length );
-	if ( translate_length > 0 )
+	assert ( translate_to_length <= length );
+	if ( translate_to_length > 0 )
 	    translation_vector =
 	        & uns32_stack
-		    [length - translate_length
-		            - call_length];
-	if ( call_length > 0 )
-	    return_vector =
-	        & uns32_stack[length - call_length];
+		    [length - translate_to_length];
 
-	if ( else_dispatcher_ID != 0 )
-	    i.operation |= LEX::ELSE;
-
-	if ( i.operation != 0 || i.accept )
+	if ( ci.operation != 0 || ci.accept )
 	    instruction_ID = LEX::create_instruction
-		( i.operation,
-		  i.atom_table_ID,
-		  i.type,
+		( ci.operation,
 		  translation_vector,
-		  else_dispatcher_ID,
+		  ci.translate_table_ID,
+		  ci.require_dispatcher_ID,
 		  instruction_ID,
-		  return_vector );
-	else
-	    ASSERT ( i.else_dispatcher_ID == 0,
-	             "no instruction component after"
-		     " else_if_not" );
+		  ci.output_error_type,
+		  ci.goto_call_table_ID );
 
-	if ( translate_length + call_length > 0 )
+	if ( translate_to_length > 0 )
 	    uns32_stack.deallocate
-	        ( translate_length + call_length );
-
-	else_dispatcher_ID = i.else_dispatcher_ID;
+	        ( translate_to_length );
 
 	instructions.deallocate ( 1 );
 
-	if ( else_dispatcher_ID == 0 ) break;
+	if ( ! ( current_instruction().operation
+	         & LEX::ELSE ) )
+	    break;
+
+	ASSERT ( instruction_ID != 0,
+		 "no instruction after ELSE()" );
     }
     return instruction_ID;
 }
@@ -298,7 +285,7 @@ static uns32 pop_instruction ( void )
 //
 uns32 pop_dispatcher ( void )
 {
-    uns32 instruction_ID = pop_instruction();
+    uns32 instruction_ID = pop_instruction_group();
 
     dispatcher & d = current_dispatcher();
 
@@ -372,14 +359,23 @@ uns32 pop_dispatcher ( void )
     substate = DISPATCHERS;
 }
 
-static uns32 atom_table_name;
-void LEXNDL::begin_atom_table ( uns32 atom_table_name )
+static uns32 table_name;
+static uns32 table_mode;
+void LEXNDL::begin_table ( uns32 table_name )
 {
-    FUNCTION ( "begin_atom_table" );
+    FUNCTION ( "begin_table" );
     ASSERT ( state == INSIDE_PROGRAM,
-             "begin_atom_table() misplaced" );
-    state = INSIDE_ATOM_TABLE;
-    ::atom_table_name = atom_table_name;
+             "begin_table() misplaced" );
+    state = INSIDE_TABLE;
+    ::table_name = table_name;
+
+    ASSERT (    LEX::program[table_name]
+             == LEXDATA::TABLE,
+             "table_name does not reference a table" );
+    LEXDATA::table_header & th =
+        * (LEXDATA::table_header *)
+	& LEX::program[table_name];
+    ::table_mode = th.mode;
 
     assert ( dispatchers.length == 0 );
     assert ( instructions.length == 0 );
@@ -387,13 +383,13 @@ void LEXNDL::begin_atom_table ( uns32 atom_table_name )
     substate = DISPATCHERS;
 }
 
-void LEXNDL::end_atom_table ( void )
+void LEXNDL::end_table ( void )
 {
-    FUNCTION ( "end_atom_table" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
-             "end_atom_table() misplaced" );
+    FUNCTION ( "end_table" );
+    ASSERT ( state == INSIDE_TABLE,
+             "end_table() misplaced" );
     ASSERT ( dispatchers.length == 1,
-             "end_atom_table() misplaced" );
+             "end_table() misplaced" );
 
     pop_dispatcher();
 
@@ -405,9 +401,9 @@ void LEXNDL::end_atom_table ( void )
     assert ( instructions.length == 0 );
     assert ( uns32_stack.length == 0 );
 
-    ATTACH ( atom_table_name, dispatcher_ID );
+    ATTACH ( table_name, dispatcher_ID );
     if ( instruction_ID != 0 )
-	ATTACH ( atom_table_name, instruction_ID );
+	ATTACH ( table_name, instruction_ID );
     assert ( type_map_count == 0 );
 
     state = INSIDE_PROGRAM;
@@ -435,36 +431,53 @@ static void internal_add_characters
     }
 }
 
-static uns32 * character_pattern_name_p;
-void LEXNDL::begin_character_pattern
-	( uns32 & character_pattern_name,
+static uns32 * atom_pattern_name_p;
+void LEXNDL::begin_atom_pattern
+	( uns32 & atom_pattern_name,
 	  const char * include_chars,
 	  const char * exclude_chars )
 {
-    FUNCTION ( "begin_character_pattern" );
+    FUNCTION ( "begin_atom_pattern" );
     ASSERT ( state == INSIDE_PROGRAM,
-             "begin_character_pattern() misplaced" );
-    state = INSIDE_CHARACTER_PATTERN;
+             "begin_atom_pattern() misplaced" );
+    state = INSIDE_ATOM_PATTERN;
 
     push_dispatcher();
     push_dispatcher();
     internal_add_characters
         ( include_chars, exclude_chars );
 
-    character_pattern_name_p = & character_pattern_name;
+    atom_pattern_name_p = & atom_pattern_name;
 }
 
-void LEXNDL::end_character_pattern ( void )
+void LEXNDL::NEXT
+	( const char * include_chars,
+	  const char * exclude_chars )
 {
-    FUNCTION ( "end_character_pattern" );
-    ASSERT ( state == INSIDE_CHARACTER_PATTERN,
-             "end_character_pattern() misplaced" );
+    FUNCTION ( "NEXT" );
+    ASSERT ( state == INSIDE_ATOM_PATTERN,
+             "NEXT() misplaced" );
 
-    assert ( dispatchers.length == 2 );
-    pop_dispatcher();
-    pop_dispatcher();
+    push_dispatcher();
+    internal_add_characters
+	( include_chars, exclude_chars );
+}
 
-    * character_pattern_name_p = uns32_stack[0];
+void LEXNDL::end_atom_pattern ( void )
+{
+    FUNCTION ( "end_atom_pattern" );
+    ASSERT ( state == INSIDE_ATOM_PATTERN,
+             "end_atom_pattern() misplaced" );
+
+    push_uns32 ( 0 );
+    push_uns32 ( 0 );
+    push_uns32 ( 0 );
+    dispatchers.deallocate ( 1 );
+
+    while ( dispatchers.length > 0)
+	pop_dispatcher();
+
+    * atom_pattern_name_p = uns32_stack[0];
 
     uns32_stack.deallocate ( 3 );
 
@@ -480,9 +493,9 @@ void LEXNDL::add_characters
 	  const char * exclude_chars )
 {
     FUNCTION ( "add_characters" );
-    ASSERT ( state == INSIDE_ATOM_TABLE
+    ASSERT ( state == INSIDE_TABLE
              ||
-	     state == INSIDE_CHARACTER_PATTERN,
+	     state == INSIDE_ATOM_PATTERN,
              "add_characters() misplaced" );
     ASSERT ( substate == ADD_CHARACTERS,
              "add_characters() misplaced" );
@@ -495,9 +508,9 @@ void LEXNDL::add_characters
 	( uns32 min_char, uns32 max_char )
 {
     FUNCTION ( "add_characters" );
-    ASSERT ( state == INSIDE_ATOM_TABLE
+    ASSERT ( state == INSIDE_TABLE
              ||
-	     state == INSIDE_CHARACTER_PATTERN,
+	     state == INSIDE_ATOM_PATTERN,
              "add_characters() misplaced" );
     ASSERT ( substate == ADD_CHARACTERS,
              "add_characters() misplaced" );
@@ -515,7 +528,7 @@ void LEXNDL::begin_dispatch
 	  const char * exclude_chars )
 {
     FUNCTION ( "begin_dispatch" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "begin_dispatch() misplaced" );
     ASSERT ( substate <= DISPATCHERS,
              "begin_dispatch() misplaced" );
@@ -543,7 +556,7 @@ void LEXNDL::begin_dispatch
 void LEXNDL::end_dispatch ( void )
 {
     FUNCTION ( "end_dispatch" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "end_dispatch() misplaced" );
     ASSERT ( dispatchers.length >= 2,
              "end_dispatch() misplaced" );
@@ -553,75 +566,75 @@ void LEXNDL::end_dispatch ( void )
 void LEXNDL::accept ( void )
 {
     FUNCTION ( "accept" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "accept() misplaced" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "accept() conflicts with another"
 	     " accept()" );
-    ASSERT ( i.operation == 0,
+    ASSERT ( ci.operation == 0,
              "accept() conflicts with another"
 	     " instruction component" );
 
-    i.accept = true;
+    ci.accept = true;
 }
 
 void LEXNDL::keep ( uns32 n )
 {
     FUNCTION ( "keep" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "accept() misplaced" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "keep() conflicts with  accept()" );
-    ASSERT ( ( i.operation & LEX::KEEP_FLAG ) == 0,
+    ASSERT ( ! ( ci.operation & LEX::KEEP_FLAG ),
              "keep() conflicts with another keep()" );
     ASSERT ( n <= LEX::KEEP_LENGTH_MASK,
              "keep() length too large" );
 
-    i.operation |= LEX::KEEP ( n );
+    ci.operation |= LEX::KEEP ( n );
 }
 
-void LEXNDL::translate
+void LEXNDL::translate_to
 	( const char * translation_string )
 {
     uns32 length = strlen ( translation_string );
     uns32 buffer[length];
     for ( uns32 i = 0; i < length; ++ i )
         buffer[i] = translation_string[i];
-    LEXNDL::translate ( length, buffer );
+    LEXNDL::translate_to ( length, buffer );
 }
-void LEXNDL::translate
+void LEXNDL::translate_to
 	( uns32 n, const uns32 * translation_string )
 {
-    FUNCTION ( "translate" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
-             "translate() misplaced" );
+    FUNCTION ( "translate_to" );
+    ASSERT ( state == INSIDE_TABLE,
+             "translate_to() misplaced" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
-             "translate() conflicts with  accept()" );
-    ASSERT ( (   i.operation
-               & (   LEX::TRANSLATE_FLAG
-	           | LEX::TRANSLATE_OCT_FLAG
-	           | LEX::TRANSLATE_HEX_FLAG ) )
-	     == 0,
-             "translate() conflicts with another"
-	     " translate_...()" );
-    ASSERT ( n <= LEX::TRANSLATE_LENGTH_MASK,
-             "translate() translation_string length"
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
+             "translate_to() conflicts with accept()" );
+    ASSERT ( ! (   ci.operation
+                 & (   LEX::TRANSLATE_TO_FLAG
+	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_HEX_FLAG
+	             | LEX::TRANSLATE ) ),
+             "translate_to() conflicts with another"
+	     " translate...()" );
+    ASSERT ( n <= LEX::TRANSLATE_TO_LENGTH_MASK,
+             "translate_to() translation_string length"
 	     " too large" );
     if ( n > 0 )
 	ASSERT ( translation_string != NULL,
-	         "n > 0 but translation_string"
-		 " == NULL" );
+	         "translate_to n > 0 but"
+		 " translation_string == NULL" );
 
-    i.operation |= LEX::TRANSLATE ( n );
+    ci.operation |= LEX::TRANSLATE_TO ( n );
     while ( n -- )
         push_uns32 ( * translation_string ++ );
 }
@@ -629,21 +642,21 @@ void LEXNDL::translate
 void LEXNDL::translate_oct ( uns32 m, uns32 n )
 {
     FUNCTION ( "translate_oct" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "translate_oct() misplaced" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "translate_oct() conflicts with"
 	     " accept()" );
-    ASSERT ( (   i.operation
-               & (   LEX::TRANSLATE_FLAG
-	           | LEX::TRANSLATE_OCT_FLAG
-	           | LEX::TRANSLATE_HEX_FLAG ) )
-	     == 0,
+    ASSERT ( ! (   ci.operation
+                 & (   LEX::TRANSLATE_TO_FLAG
+	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_HEX_FLAG
+	             | LEX::TRANSLATE ) ),
              "translate_oct() conflicts with another"
-	     " translate_...()" );
+	     " translate...()" );
     ASSERT ( m <= LEX::PREFIX_LENGTH_MASK,
              "translate_oct() prefix length"
 	     " too large" );
@@ -651,27 +664,27 @@ void LEXNDL::translate_oct ( uns32 m, uns32 n )
              "translate_oct() postfix length"
 	     " too large" );
 
-    i.operation |= LEX::TRANSLATE_OCT ( m, n );
+    ci.operation |= LEX::TRANSLATE_OCT ( m, n );
 }
 
 void LEXNDL::translate_hex ( uns32 m, uns32 n )
 {
     FUNCTION ( "translate_hex" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "translate_hex() misplaced" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "translate_hex() conflicts with"
 	     " accept()" );
-    ASSERT ( (   i.operation
-               & (   LEX::TRANSLATE_FLAG
-	           | LEX::TRANSLATE_OCT_FLAG
-	           | LEX::TRANSLATE_HEX_FLAG ) )
-	     == 0,
+    ASSERT ( ! (   ci.operation
+                 & (   LEX::TRANSLATE_TO_FLAG
+	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_HEX_FLAG
+	             | LEX::TRANSLATE ) ),
              "translate_hex() conflicts with another"
-	     " translate_...()" );
+	     " translate...()" );
     ASSERT ( m <= LEX::PREFIX_LENGTH_MASK,
              "translate_hex() prefix length"
 	     " too large" );
@@ -679,171 +692,230 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
              "translate_hex() postfix length"
 	     " too large" );
 
-    i.operation |= LEX::TRANSLATE_HEX ( m, n );
+    ci.operation |= LEX::TRANSLATE_HEX ( m, n );
+}
+
+void LEXNDL::translate ( uns32 table_name )
+{
+    FUNCTION ( "TRANSLATE" );
+    ASSERT ( state == INSIDE_TABLE,
+             "translate() misplaced" );
+    substate = INSTRUCTION;
+
+    instruction & ci = current_instruction();
+
+    ASSERT ( ! ci.accept,
+             "translate() conflicts with"
+	     " accept()" );
+    ASSERT ( ! (   ci.operation
+                 & (   LEX::TRANSLATE_TO_FLAG
+	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_HEX_FLAG
+	             | LEX::TRANSLATE ) ),
+             "translate() conflicts with another"
+	     " translate...()" );
+
+    ASSERT (    LEX::program[table_name]
+             == LEXDATA::TABLE,
+             "table_name does not reference a table" );
+
+    ci.operation |= LEX::TRANSLATE;
+    ci.translate_table_ID = table_name;
+}
+
+void LEXNDL::require ( uns32 atom_pattern_name )
+{
+    FUNCTION ( "REQUIRE" );
+    ASSERT ( state == INSIDE_TABLE,
+             "require() misplaced" );
+    substate = INSTRUCTION;
+
+    ASSERT (    LEX::program[atom_pattern_name]
+             == LEXDATA::DISPATCHER,
+             "atom_pattern_name does not reference an"
+	     " atom pattern" );
+
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
+             "require() conflicts with accept()" );
+    ASSERT ( ! ( ci.operation & REQUIRE ),
+             "multiple require()'s in instruction" );
+    ASSERT (   ci.operation
+             & (   LEX::TRANSLATE_OCT_FLAG
+	         | LEX::TRANSLATE_HEX_FLAG
+	         | LEX::TRANSLATE ),
+             "require() is not after a"
+	     " translate...()" );
+
+    ci.operation |= LEX::REQUIRE;
+    ci.require_dispatcher_ID = atom_pattern_name;
 }
 
 void LEXNDL::erroneous_atom ( uns32 type_name )
 {
     FUNCTION ( "erroneous_atom" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "erroneous_atom() misplaced" );
+    ASSERT ( table_mode != LEX::TRANSLATION,
+             "erroneous_atom() in translation table" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "erroneous_atom() conflicts with"
 	     " accept()" );
-    ASSERT ( ( i.operation & LEX::ERRONEOUS_ATOM ) == 0,
+    ASSERT ( ! ( ci.operation & LEX::ERRONEOUS_ATOM ),
              "erroneous_atom() conflicts with another"
 	     " erroneous_atom()" );
-    ASSERT ( ( i.operation & LEX::OUTPUT ) == 0,
+    ASSERT ( ! ( ci.operation & LEX::OUTPUT ),
              "erroneous_atom() conflicts with"
 	     " output()" );
 
-    i.operation |= LEX::ERRONEOUS_ATOM;
-    i.type = type_name;
+    ci.operation |= LEX::ERRONEOUS_ATOM;
+    ci.output_error_type = type_name;
 }
 
 void LEXNDL::output ( uns32 type_name )
 {
     FUNCTION ( "output" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "output() misplaced" );
+    ASSERT ( table_mode != LEX::TRANSLATION,
+             "output() in translation table" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "output() conflicts with accept()" );
-    ASSERT ( ( i.operation & LEX::OUTPUT ) == 0,
+    ASSERT ( ! ( ci.operation & LEX::OUTPUT ),
              "output() conflicts with another"
 	     " output()" );
-    ASSERT ( ( i.operation & LEX::ERRONEOUS_ATOM ) == 0,
+    ASSERT ( ! ( ci.operation & LEX::ERRONEOUS_ATOM ),
              "output() conflicts with"
 	     " erroneous_atom()" );
 
-    i.operation |= LEX::OUTPUT;
-    i.type = type_name;
+    ci.operation |= LEX::OUTPUT;
+    ci.output_error_type = type_name;
 }
 
-void LEXNDL::go ( uns32 atom_table_name )
+void LEXNDL::go ( uns32 table_name )
 {
     FUNCTION ( "go" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "go() misplaced" );
+    ASSERT ( table_mode != LEX::TRANSLATION,
+             "goto() in translation table" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "go() conflicts with accept()" );
-    ASSERT ( (   i.operation
-               & (   LEX::GOTO
-	           | LEX::CALL_FLAG
-	           | LEX::RETURN_FLAG ) )
-	     == 0,
+    ASSERT ( ! (   ci.operation
+                 & (   LEX::GOTO
+	             | LEX::CALL
+	             | LEX::RETURN ) ),
              "go() conflicts with another go() or"
 	     " with call() or ret()" );
 
-    ASSERT (    LEX::program[atom_table_name]
-             == LEXDATA::ATOM_TABLE,
-             "atom_table_name does not reference an"
-	     " atom table" );
+    ASSERT (    LEX::program[table_name]
+             == LEXDATA::TABLE,
+             "table_name does not reference an"
+	     " table" );
 
-    i.operation |= LEX::GOTO;
-    i.atom_table_ID = atom_table_name;
+    ci.operation |= LEX::GOTO;
+    ci.goto_call_table_ID = table_name;
 }
 
-void LEXNDL::call ( uns32 atom_table_name,
-		    uns32 n,
-		    const uns32 * return_vector )
+void LEXNDL::call ( uns32 table_name )
 {
     FUNCTION ( "call" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "call() misplaced" );
+    ASSERT ( table_mode != LEX::TRANSLATION,
+             "call() in translation table" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( ! i.accept,
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
              "call() conflicts with accept()" );
-    ASSERT ( (   i.operation
-               & (   LEX::GOTO
-	           | LEX::CALL_FLAG
-	           | LEX::RETURN_FLAG ) )
-	     == 0,
+    ASSERT ( ! (   ci.operation
+                 & (   LEX::GOTO
+	             | LEX::CALL
+	             | LEX::RETURN ) ),
              "call() conflicts with another call() or"
 	     " with ret() or go()" );
 
-    ASSERT ( n <= LEX::CALL_LENGTH_MASK,
-             "return_vector size n is too large" );
-    if ( n > 0 )
-	ASSERT ( return_vector != NULL,
-	         "n > 0 but return_vector == NULL" );
-
-    ASSERT (    LEX::program[atom_table_name]
-             == LEXDATA::ATOM_TABLE,
-             "atom_table_name does not reference an"
-	     " atom table" );
-    for ( uns32 i = 0; i < n; ++ i )
-	ASSERT (    LEX::program[return_vector[i]]
-		 == LEXDATA::ATOM_TABLE,
-		 MESSAGE ( "return_vector[%d] does not"
-		           " reference an atom table",
-			   i ) );
-
-    i.operation |= LEX::CALL(n);
-    i.atom_table_ID = atom_table_name;
-    for ( uns32 i = 0; i < n; ++ i )
-        push_uns32 ( * return_vector ++ );
+    ASSERT (    LEX::program[table_name]
+             == LEXDATA::TABLE,
+             "table_name does not reference an"
+	     " table" );
+    ci.operation |= LEX::CALL;
+    ci.goto_call_table_ID = table_name;
 }
 
-void LEXNDL::ret ( uns32 i )
+void LEXNDL::ret ( void )
 {
     FUNCTION ( "ret" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
+    ASSERT ( state == INSIDE_TABLE,
              "ret() misplaced" );
+    ASSERT ( table_mode != LEX::TRANSLATION,
+             "ret() in translation table" );
     substate = INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
              "ret() conflicts with accept()" );
-    ASSERT ( (   ci.operation
-               & (   LEX::GOTO
-	           | LEX::CALL_FLAG
-	           | LEX::RETURN_FLAG ) )
-	     == 0,
+    ASSERT ( ! (   ci.operation
+                 & (   LEX::GOTO
+	             | LEX::CALL
+	             | LEX::RETURN ) ),
              "ret() conflicts with another ret() or"
 	     " with call() or go()" );
-    ASSERT ( i <= LEX::RETURN_INDEX_MASK,
-             "return index i is too large" );
 
-    ci.operation |= LEX::RETURN(i);
-    ci.atom_table_ID = 0;
+    ci.operation |= LEX::RETURN;
 }
 
-void LEXNDL::else_if_not
-	( uns32 character_pattern_name )
+void LEXNDL::fail ( void )
 {
-    FUNCTION ( "else_if_not" );
-    ASSERT ( state == INSIDE_ATOM_TABLE,
-             "else_if_not() misplaced" );
+    FUNCTION ( "fail" );
+    ASSERT ( state == INSIDE_TABLE,
+             "fail() misplaced" );
+    ASSERT ( table_mode == LEX::TRANSLATION,
+             "fail() in non-translation table" );
     substate = INSTRUCTION;
 
-    instruction & i = current_instruction();
-    ASSERT ( (   i.operation
-               & (   LEX::TRANSLATE_OCT_FLAG
-	           | LEX::TRANSLATE_HEX_FLAG ) )
-	     != 0,
-             "else_if_not() is not after a"
-	     " translate_oct/hex()" );
-    ASSERT (    LEX::program[character_pattern_name]
-             == LEXDATA::DISPATCHER,
-             "atom_table_name does not reference a"
-	     " character_pattern" );
+    instruction & ci = current_instruction();
+    ASSERT ( ! ci.accept,
+             "fail() conflicts with accept()" );
+    ASSERT ( ! ( ci.operation & LEX::FAIL ),
+             "fail() conflicts with another fail()" );
+
+    ci.operation |= LEX::FAIL;
+}
+
+void LEXNDL::ELSE ( void )
+{
+    FUNCTION ( "ELSE" );
+    ASSERT ( state == INSIDE_TABLE,
+             "ELSE() misplaced" );
+    substate = INSTRUCTION;
+
+    instruction & ci = current_instruction();
+    ASSERT (   ci.operation
+             & (   LEX::TRANSLATE_OCT_FLAG
+	         | LEX::TRANSLATE_HEX_FLAG
+	         | LEX::TRANSLATE
+		 | LEX::REQUIRE ),
+             "ELSE() is not after a translate...()"
+	     " or require()" );
+    ci.operation |= LEX::ELSE;
 
     instructions.allocate ( 1 );
     instruction & i2 = current_instruction();
     i2.operation = 0;
-    i2.atom_table_ID = 0;
-    i2.type = 0;
-    i2.else_dispatcher_ID = character_pattern_name;
+    i2.translate_table_ID = 0;
+    i2.require_dispatcher_ID = 0;
+    i2.output_error_type = 0;
+    i2.goto_call_table_ID = 0;
     i2.accept = false;
 }

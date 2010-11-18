@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 17 12:39:34 EST 2010
+// Date:	Thu Nov 18 00:49:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,13 @@ namespace ll { namespace lexeme
     // instructions stack.  An end_table, end_dispat-
     // cher, and end_atom_pattern pop these stacks.
     //
+    // Begin_atom_pattern actually pushes 2 dispatchers
+    // into the dispatcher stack, because add_characters
+    // edits the second to topmost dispatcher.  NEXT
+    // pushes another dispatcher, and end_atom_pattern
+    // discards the topmost dispatcher in the dispatcher
+    // stack.
+    //
     // When the dispatchers and instructions stacks are
     // popped, the uns32_stack has the following in
     // order, where d is the dispatcher at the top of
@@ -61,7 +68,7 @@ namespace ll { namespace lexeme
     //		subdispatcher instruction_ID
     //		subdispatcher type_map_count
     //    for each instruction in the instruction stack,
-    //	      translate_length uns32's giving the
+    //	      translate_to_length uns32's giving the
     //	      translate vector in memory order
     //
     // Popping a dispatcher in a table pops an instruc-
@@ -76,9 +83,9 @@ namespace ll { namespace lexeme
     //
     // describing the popped dispatcher and instruction
     // group.  However, if the popped dispatcher is an
-    // OTHERS dispatcher, this last triple is not pushed,
-    // and the dispatcher_ID and instruction_ID are
-    // instead copied to the parent dispatcher (the
+    // OTHERS dispatcher, this last triple is not
+    // pushed, and the dispatcher_ID and instruction_ID
+    // are instead copied to the parent dispatcher (the
     // type_map_count will be zero).
     //
     // Note that `popping an instruction group' means
@@ -86,16 +93,16 @@ namespace ll { namespace lexeme
     //
     //	 <instruction> { ELSE(); <instruction> }*.
     //
-    // Note that begin/end_atom_pattern pushes and pops
-    // two dispatchers as if it were a begin/end_table
-    // with a single nested begin/end_dispatcher.  Each
-    // { NEXT(...); <add-characters>*} creates a single
-    // nested subdispatcher.
-    //
     extern ll::lexeme::buffer<uns32> & uns32_stack;
 
     // Accumulated information use to construct a
     // dispatch table for an atom table or <dispatch>.
+    //
+    // Add_characters calls edit the SECOND TO TOPMOST
+    // dispatcher on the dispatcher stack to map the
+    // characters indicated to the max_type_code.  When
+    // the topmost dispatcher is popped, this max_type_
+    // code is incremented.
     // 
     struct dispatcher
     {
@@ -133,9 +140,6 @@ namespace ll { namespace lexeme
 	bool is_others_dispatcher;
 	    // True if and only if this is an OTHER's
 	    // dispatcher.
-	bool in_atom_pattern;
-	    // True if this dispatcher is in an atom
-	    // pattern and not part of a table.
     };
 
     extern ll::lexeme::buffer<dispatcher> & dispatchers;
@@ -149,16 +153,21 @@ namespace ll { namespace lexeme
     struct instruction
     {
 	uns32 operation;
-	uns32 translation_table_ID;
-	uns32 require_table_ID;
-	uns32 else_instruction_ID;
+	uns32 translate_table_ID;
+	uns32 require_dispatcher_ID;
 	uns32 output_error_type;
 	uns32 goto_call_table_ID;
 	    // Arguments for ll::lexeme::create_
 	    // instruction.  If ll::lexeme::translate_
-	    // length ( operation ) is > 0, then it is
-	    // the number of uns32's in the stack that
-	    // represent the translation vector.
+	    // to_length ( operation ) is > 0, then it
+	    // is the number of uns32's in the stack
+	    // that represent the translation vector.
+	    //
+	    // Else_instruction_ID is not stored here
+	    // but is set from the last instruction
+	    // popped from the instruction stack when
+	    // an instruction containing an ELSE flag
+	    // is popped.
 	bool accept;
 	    // True if and only if this is an accept
 	    // instruction.

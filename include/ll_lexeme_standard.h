@@ -44,8 +44,8 @@ namespace ll { namespace lexeme { namespace standard {
 
     const uns32 bad_end_of_line_t		= 11;
     const uns32 bad_end_of_file_t		= 12;
-    const uns32 bad_character_t			= 13;
-    const uns32 bad_escape_sequence_t		= 14;
+    const uns32 unrecognized_character_t	= 13;
+    const uns32 unrecognized_escape_sequence_t	= 14;
     const uns32 non_letter_escape_sequence_t	= 15;
 
 } } }

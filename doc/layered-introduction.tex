@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 13, 2010
+November 18, 2010
  
 \end{center}
 
@@ -1580,7 +1580,7 @@ begin main master table;
    "<horizontal-space-char>" call horizontal space;
    "<line-break-char>" call line break;
 
-   "<word-char>" call word;
+   "<letter>" call word;
    "'<letter>" call word;
     "\\/" translate escaped character
           require "<letter>" call word
@@ -1591,7 +1591,6 @@ begin main master table;
    "<mark-char>" call mark;
    "." call mark;  // ".<non-digit>"
    "/" call mark;  // "/<non-slash-char>"
-   "\\" call mark; // "\\<non-u-char>"
 
    // We assume that the preceding text is not a digit
    // or the current input is not / or , followed by a digit.
@@ -1635,7 +1634,7 @@ end line break lexeme table;
 
 begin word lexeme table;
 
-   "<word-char>" accept;
+   "<letter>" accept;
    "'<letter>" accept;
     "\\/" translate escaped character
           require "<letter>"

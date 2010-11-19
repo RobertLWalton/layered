@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 17 08:11:03 EST 2010
+// Date:	Fri Nov 19 11:04:21 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,6 +63,12 @@ uns32 LEX::create_table ( uns32 mode )
     }
 
     return ID;
+}
+
+uns32 LEX::table_mode ( uns32 ID )
+{
+    table_header & h = * (table_header *) & program[ID];
+    return h.mode;
 }
 
 void LEX::create_program ( void )

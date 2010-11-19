@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 18 00:49:17 EST 2010
+// Date:	Fri Nov 19 10:12:08 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,18 +36,20 @@ namespace ll { namespace lexeme
     //
     // A begin_table, begin_dispatcher, and begin_atom_
     // pattern push a dispatcher to the dispatchers
-    // stack.  Begin_table and begin_dispatcher push
-    // an instruction to the instructions stack, and
-    // ELSE's push additional instructions to the
-    // instructions stack.  An end_table, end_dispat-
-    // cher, and end_atom_pattern pop these stacks.
+    // stack.  Whenever a dispatcher is pushed an
+    // instruction is simultaneously pushed into the
+    // instructions stack, and ELSE's push additional
+    // instructions into that stack.  An end_table,
+    // end_dispatcher, and end_atom_pattern pop these
+    // stacks.
     //
     // Begin_atom_pattern actually pushes 2 dispatchers
     // into the dispatcher stack, because add_characters
     // edits the second to topmost dispatcher.  NEXT
     // pushes another dispatcher, and end_atom_pattern
     // discards the topmost dispatcher in the dispatcher
-    // stack.
+    // stack.  Instructions in the instruction stack are
+    // discarded by atom patterns.
     //
     // When the dispatchers and instructions stacks are
     // popped, the uns32_stack has the following in
@@ -96,7 +98,7 @@ namespace ll { namespace lexeme
     extern ll::lexeme::buffer<uns32> & uns32_stack;
 
     // Accumulated information use to construct a
-    // dispatch table for an atom table or <dispatch>.
+    // dispatch table for an atom pattern or <dispatch>.
     //
     // Add_characters calls edit the SECOND TO TOPMOST
     // dispatcher on the dispatcher stack to map the
@@ -115,13 +117,12 @@ namespace ll { namespace lexeme
 	    // with ASCII quoted strings.
 	uns8 max_type_code;
 	    // Last type code assigned to this dispat-
-	    // cher.  Incremented by the begin_dispat-
-	    // ch() that starts a non-OTHER's sub-
-	    // dispatcher; the subdispatcher that
-	    // increments this will use the new value
-	    // of this as the type code to attach to.
-	    // OTHER's subdispatchers attach to type
-	    // code 0.
+	    // cher.  Incremented when a non-OTHER's
+	    // subdispatcher is pushed into the dispat-
+	    // chers stack.  This subdispatcher uses the
+	    // incremented value as the type code to
+	    // attach to.  OTHER's subdispatchers attach
+	    // to type code 0.
 	uns32 type_map_count;
 	    // Number of min_char,max_char pairs in
 	    // the uns32_stack for the type code in
@@ -147,8 +148,10 @@ namespace ll { namespace lexeme
     // Accumulated information to use in constructing
     // an instruction.  Pushed into the instructions
     // stack when a new dispatcher is pushed into the
-    // dispatcher stack, and also pushed by else_if_
-    // not().  Popped when a dispatcher is popped.
+    // dispatcher stack.  Also pushed by ELSE() to form
+    // a multi-instruction instruction group.  The top-
+    // most instruction group is popped when a dispat-
+    // cher is popped.
     //
     struct instruction
     {

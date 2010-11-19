@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 18, 2010
+November 19, 2010
  
 \end{center}
 
@@ -1582,11 +1582,11 @@ begin main master table;
 
    "<letter>" call word;
    "'<letter>" call word;
-    "\\/" translate escaped character
-          require "<letter>" call word
-          else translate bad escape sequence
-	       output unrecognized escape sequence
-          else output unrecognized escape character;
+   "\\/" translate escaped character
+         require "<letter>" call word
+         else translate bad escape sequence
+	      output unrecognized escape sequence
+         else output unrecognized escape character;
 
    "<mark-char>" call mark;
    "." call mark;  // ".<non-digit>"

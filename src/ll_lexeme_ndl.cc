@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 18 00:49:44 EST 2010
+// Date:	Fri Nov 19 11:08:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,12 +18,10 @@
 
 # include <ll_lexeme_ndl.h>
 # include <ll_lexeme_ndl_data.h>
-# include <ll_lexeme_program_data.h>
 # include <iostream>
 # include <cstring>
 # include <cassert>
 # define LEX ll::lexeme
-# define LEXDATA ll::lexeme::program_data
 # define LEXNDL ll::lexeme::ndl
 # define LEXNDLDATA ll::lexeme::ndl::data
 using std::cout;
@@ -46,27 +44,24 @@ static char message_buffer[500];
 //	FUNCTION(<function-name>) is at the beginning
 //	    of each NDL function to register its name
 //	    for possible error message use.
-//	ASSERT(<test>,<message>) signals an error if
+//	ASSERT(<test>,<format>,...) signals an error if
 //	    the <test> expression is false.  The
 //	    error message includes the function name,
 //	    file name and line number of the call as
 //	    stored in LEXNDL::file/line by the NDL
-//	    macro, the error <message> which is a
-//	    const char *, and a copy of the <test>.
-//       MESSAGE(format,...) returns the contents of
-//	    a static message_buffer for which
-//	      sprintf(message_buffer,format,...)
-//          has been executed.  This is useful for
-//          ASSERT error message, as MESSAGE will
-//          not execute in the absence of an error.
+//	    macro, an error message produced by passing
+//	    <format>,... to sprintf, and the submessage
+//	    `( <test> FAILED! )'.
 //	ATTACH(...) equals `assert(LEX::attach(...))'
+//          Note this uses `assert' and NOT `ASSERT'.
 //
 # define FUNCTION(name) function_name = name
-# define ASSERT(test,message) \
-    ( (test) ? true : ::error ( #test, message ))
-# define MESSAGE(...) \
-    ( sprintf ( message_buffer, __VA_ARGS__ ), \
-      message_buffer )
+# define ASSERT(test,...) \
+    ( (test) ? true : \
+      ::error ( #test, \
+                ( sprintf ( message_buffer, \
+		            __VA_ARGS__ ), \
+		  message_buffer ) ) )
 # define ATTACH(...) assert(LEX::attach(__VA_ARGS__))
 
 // Called by ASSERT macro to print error message and
@@ -80,7 +75,7 @@ static bool error
 	 << " FUNCTION: " << function_name
 	 << ":" << endl
 	 << "    " << message << endl
-	 << "    (" << test << ")" <<endl;
+	 << "    (" << test << " FAILED! )" <<endl;
     exit ( 1 );
 }
 
@@ -268,7 +263,9 @@ static uns32 pop_instruction_group ( void )
 
 	instructions.deallocate ( 1 );
 
-	if ( ! ( current_instruction().operation
+	if ( instructions.length == 0
+	     ||
+	     ! ( current_instruction().operation
 	         & LEX::ELSE ) )
 	    break;
 
@@ -283,11 +280,28 @@ static uns32 pop_instruction_group ( void )
 // dispatcher_ID.  See stack description in ll_lexeme_
 // ndl_data.h.  Set substate to DISPATCHERS.
 //
-uns32 pop_dispatcher ( void )
+// If discard_dispatcher is true the dispatcher is not
+// created but is discarded, but its added characters
+// are mapped to the character type the dispatcher would
+// have had (used by end_atom_pattern).
+//
+uns32 pop_dispatcher ( bool discard_dispatcher = false )
 {
     uns32 instruction_ID = pop_instruction_group();
 
     dispatcher & d = current_dispatcher();
+
+    if ( discard_dispatcher )
+    {
+	push_uns32 ( 0 );
+	push_uns32 ( instruction_ID );
+	push_uns32 ( d.type_map_count );
+
+	dispatchers.deallocate ( 1 );
+
+	substate = DISPATCHERS;
+    	return 0;
+    }
 
     uns32 cmin = 0;
     uns32 cmax = 127;
@@ -369,13 +383,10 @@ void LEXNDL::begin_table ( uns32 table_name )
     state = INSIDE_TABLE;
     ::table_name = table_name;
 
-    ASSERT (    LEX::program[table_name]
-             == LEXDATA::TABLE,
+    ASSERT (    component_type ( table_name )
+             == LEX::TABLE,
              "table_name does not reference a table" );
-    LEXDATA::table_header & th =
-        * (LEXDATA::table_header *)
-	& LEX::program[table_name];
-    ::table_mode = th.mode;
+    ::table_mode = LEX::table_mode ( table_name );
 
     assert ( dispatchers.length == 0 );
     assert ( instructions.length == 0 );
@@ -424,9 +435,9 @@ static void internal_add_characters
 	         "non-ASCII character in"
 		 " include_chars" );
         ASSERT ( d.ascii_map[c] == 0,
-	         MESSAGE ( "character %c in use by"
-		           " previous dispatcher",
-			   (char) c ) );
+	         "character %c in use by"
+		 " previous dispatcher",
+	         (char) c );
 	d.ascii_map[c] = d.max_type_code;
     }
 }
@@ -469,10 +480,7 @@ void LEXNDL::end_atom_pattern ( void )
     ASSERT ( state == INSIDE_ATOM_PATTERN,
              "end_atom_pattern() misplaced" );
 
-    push_uns32 ( 0 );
-    push_uns32 ( 0 );
-    push_uns32 ( 0 );
-    dispatchers.deallocate ( 1 );
+    pop_dispatcher ( true );
 
     while ( dispatchers.length > 0)
 	pop_dispatcher();
@@ -568,7 +576,7 @@ void LEXNDL::accept ( void )
     FUNCTION ( "accept" );
     ASSERT ( state == INSIDE_TABLE,
              "accept() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -586,15 +594,16 @@ void LEXNDL::keep ( uns32 n )
     FUNCTION ( "keep" );
     ASSERT ( state == INSIDE_TABLE,
              "accept() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
-             "keep() conflicts with  accept()" );
+             "keep() conflicts with accept()" );
     ASSERT ( ! ( ci.operation & LEX::KEEP_FLAG ),
              "keep() conflicts with another keep()" );
     ASSERT ( n <= LEX::KEEP_LENGTH_MASK,
-             "keep() length too large" );
+             "keep() length (%d) too large (> %d)",
+	     n, LEX::KEEP_LENGTH_MASK );
 
     ci.operation |= LEX::KEEP ( n );
 }
@@ -605,7 +614,7 @@ void LEXNDL::translate_to
     uns32 length = strlen ( translation_string );
     uns32 buffer[length];
     for ( uns32 i = 0; i < length; ++ i )
-        buffer[i] = translation_string[i];
+        buffer[i] = (uns8) translation_string[i];
     LEXNDL::translate_to ( length, buffer );
 }
 void LEXNDL::translate_to
@@ -614,7 +623,7 @@ void LEXNDL::translate_to
     FUNCTION ( "translate_to" );
     ASSERT ( state == INSIDE_TABLE,
              "translate_to() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -627,8 +636,9 @@ void LEXNDL::translate_to
              "translate_to() conflicts with another"
 	     " translate...()" );
     ASSERT ( n <= LEX::TRANSLATE_TO_LENGTH_MASK,
-             "translate_to() translation_string length"
-	     " too large" );
+             "translate_to() translation_string"
+	     " length (%d) too large (> %d)",
+	     n, LEX::TRANSLATE_TO_LENGTH_MASK );
     if ( n > 0 )
 	ASSERT ( translation_string != NULL,
 	         "translate_to n > 0 but"
@@ -644,7 +654,7 @@ void LEXNDL::translate_oct ( uns32 m, uns32 n )
     FUNCTION ( "translate_oct" );
     ASSERT ( state == INSIDE_TABLE,
              "translate_oct() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -658,11 +668,13 @@ void LEXNDL::translate_oct ( uns32 m, uns32 n )
              "translate_oct() conflicts with another"
 	     " translate...()" );
     ASSERT ( m <= LEX::PREFIX_LENGTH_MASK,
-             "translate_oct() prefix length"
-	     " too large" );
+             "translate_oct() prefix length (%d)"
+	     " too large (> %d)",
+	     m, LEX::PREFIX_LENGTH_MASK );
     ASSERT ( n <= LEX::POSTFIX_LENGTH_MASK,
-             "translate_oct() postfix length"
-	     " too large" );
+             "translate_oct() postfix length (%d)"
+	     " too large (> %d)",
+	     n, LEX::POSTFIX_LENGTH_MASK );
 
     ci.operation |= LEX::TRANSLATE_OCT ( m, n );
 }
@@ -672,7 +684,7 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
     FUNCTION ( "translate_hex" );
     ASSERT ( state == INSIDE_TABLE,
              "translate_hex() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -686,11 +698,13 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
              "translate_hex() conflicts with another"
 	     " translate...()" );
     ASSERT ( m <= LEX::PREFIX_LENGTH_MASK,
-             "translate_hex() prefix length"
-	     " too large" );
+             "translate_hex() prefix length (%d)"
+	     " too large (> %d)",
+	     m, LEX::PREFIX_LENGTH_MASK );
     ASSERT ( n <= LEX::POSTFIX_LENGTH_MASK,
-             "translate_hex() postfix length"
-	     " too large" );
+             "translate_hex() postfix length (%d)"
+	     " too large (> %d)",
+	     n, LEX::POSTFIX_LENGTH_MASK );
 
     ci.operation |= LEX::TRANSLATE_HEX ( m, n );
 }
@@ -700,7 +714,7 @@ void LEXNDL::translate ( uns32 table_name )
     FUNCTION ( "TRANSLATE" );
     ASSERT ( state == INSIDE_TABLE,
              "translate() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
 
@@ -715,8 +729,8 @@ void LEXNDL::translate ( uns32 table_name )
              "translate() conflicts with another"
 	     " translate...()" );
 
-    ASSERT (    LEX::program[table_name]
-             == LEXDATA::TABLE,
+    ASSERT (    LEX::component_type ( table_name )
+             == LEX::TABLE,
              "table_name does not reference a table" );
 
     ci.operation |= LEX::TRANSLATE;
@@ -728,10 +742,11 @@ void LEXNDL::require ( uns32 atom_pattern_name )
     FUNCTION ( "REQUIRE" );
     ASSERT ( state == INSIDE_TABLE,
              "require() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
-    ASSERT (    LEX::program[atom_pattern_name]
-             == LEXDATA::DISPATCHER,
+    ASSERT (    LEX::component_type
+                     ( atom_pattern_name )
+             == LEX::DISPATCHER,
              "atom_pattern_name does not reference an"
 	     " atom pattern" );
 
@@ -745,7 +760,7 @@ void LEXNDL::require ( uns32 atom_pattern_name )
 	         | LEX::TRANSLATE_HEX_FLAG
 	         | LEX::TRANSLATE ),
              "require() is not after a"
-	     " translate...()" );
+	     " translate() or translate_oct/hex()" );
 
     ci.operation |= LEX::REQUIRE;
     ci.require_dispatcher_ID = atom_pattern_name;
@@ -756,9 +771,9 @@ void LEXNDL::erroneous_atom ( uns32 type_name )
     FUNCTION ( "erroneous_atom" );
     ASSERT ( state == INSIDE_TABLE,
              "erroneous_atom() misplaced" );
-    ASSERT ( table_mode != LEX::TRANSLATION,
+    ASSERT ( ::table_mode != LEX::TRANSLATION,
              "erroneous_atom() in translation table" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -780,9 +795,9 @@ void LEXNDL::output ( uns32 type_name )
     FUNCTION ( "output" );
     ASSERT ( state == INSIDE_TABLE,
              "output() misplaced" );
-    ASSERT ( table_mode != LEX::TRANSLATION,
+    ASSERT ( ::table_mode != LEX::TRANSLATION,
              "output() in translation table" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -803,9 +818,9 @@ void LEXNDL::go ( uns32 table_name )
     FUNCTION ( "go" );
     ASSERT ( state == INSIDE_TABLE,
              "go() misplaced" );
-    ASSERT ( table_mode != LEX::TRANSLATION,
+    ASSERT ( ::table_mode != LEX::TRANSLATION,
              "goto() in translation table" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -817,9 +832,13 @@ void LEXNDL::go ( uns32 table_name )
              "go() conflicts with another go() or"
 	     " with call() or ret()" );
 
-    ASSERT (    LEX::program[table_name]
-             == LEXDATA::TABLE,
+    ASSERT (    LEX::component_type ( table_name )
+             == LEX::TABLE,
              "table_name does not reference an"
+	     " table" );
+    ASSERT (    LEX::table_mode ( table_name )
+             != LEX::TRANSLATION,
+             "table_name references a TRANSLATION"
 	     " table" );
 
     ci.operation |= LEX::GOTO;
@@ -831,9 +850,9 @@ void LEXNDL::call ( uns32 table_name )
     FUNCTION ( "call" );
     ASSERT ( state == INSIDE_TABLE,
              "call() misplaced" );
-    ASSERT ( table_mode != LEX::TRANSLATION,
+    ASSERT ( ::table_mode != LEX::TRANSLATION,
              "call() in translation table" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -845,9 +864,17 @@ void LEXNDL::call ( uns32 table_name )
              "call() conflicts with another call() or"
 	     " with ret() or go()" );
 
-    ASSERT (    LEX::program[table_name]
-             == LEXDATA::TABLE,
+    ASSERT (    LEX::component_type ( table_name )
+             == LEX::TABLE,
              "table_name does not reference an"
+	     " table" );
+    ASSERT (    LEX::table_mode ( table_name )
+             != LEX::MASTER,
+             "table_name references a MASTER"
+	     " table" );
+    ASSERT (    LEX::table_mode ( table_name )
+             != LEX::TRANSLATION,
+             "table_name references a TRANSLATION"
 	     " table" );
     ci.operation |= LEX::CALL;
     ci.goto_call_table_ID = table_name;
@@ -858,9 +885,9 @@ void LEXNDL::ret ( void )
     FUNCTION ( "ret" );
     ASSERT ( state == INSIDE_TABLE,
              "ret() misplaced" );
-    ASSERT ( table_mode != LEX::TRANSLATION,
+    ASSERT ( ::table_mode != LEX::TRANSLATION,
              "ret() in translation table" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -880,9 +907,9 @@ void LEXNDL::fail ( void )
     FUNCTION ( "fail" );
     ASSERT ( state == INSIDE_TABLE,
              "fail() misplaced" );
-    ASSERT ( table_mode == LEX::TRANSLATION,
+    ASSERT ( ::table_mode == LEX::TRANSLATION,
              "fail() in non-translation table" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT ( ! ci.accept,
@@ -898,7 +925,7 @@ void LEXNDL::ELSE ( void )
     FUNCTION ( "ELSE" );
     ASSERT ( state == INSIDE_TABLE,
              "ELSE() misplaced" );
-    substate = INSTRUCTION;
+    substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();
     ASSERT (   ci.operation
@@ -906,8 +933,8 @@ void LEXNDL::ELSE ( void )
 	         | LEX::TRANSLATE_HEX_FLAG
 	         | LEX::TRANSLATE
 		 | LEX::REQUIRE ),
-             "ELSE() is not after a translate...()"
-	     " or require()" );
+             "ELSE() is not after a translate(),"
+	     " translate_oct/hex(), or require()" );
     ci.operation |= LEX::ELSE;
 
     instructions.allocate ( 1 );

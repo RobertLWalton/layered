@@ -1584,7 +1584,7 @@ begin main master table;
    "'<letter>" call word;
    "\\/" translate escaped character
          require "<letter>" call word
-         else translate bad escape sequence
+         else translate unrecognized escape sequence
 	      output unrecognized escape sequence
          else output unrecognized escape character;
 
@@ -1652,9 +1652,9 @@ end mark lexeme table;
 
 begin natural number lexeme table;
    "<digit>" accept;
-   ".<digit>" keep 1 goto number;
    "<digit>/<digit>" keep 2 goto number;
    "<digit>,<digit>" keep 2 goto number;
+   ".<digit>" keep 1 goto number;
    return;
 end natural number lexeme table;
 
@@ -1671,9 +1671,9 @@ begin number lexeme table;
    // a digit.
 
    "<digit>" accept;
-   ".<digit>" keep 1;
    "<digit>/<digit>" keep 2;
    "<digit>,<digit>" keep 2;
+   ".<digit>" keep 1;
    return;
 
 end number lexeme table;
@@ -1684,7 +1684,7 @@ begin quoted string lexeme table;
     "\"/" translate "" return;   // End quoted string.
 
     "\\/" translate escaped character
-          else translate bad escape sequence
+          else translate unrecognized escape sequence
 	       error unrecognized escape sequence
           else error unrecognized character;
 
@@ -1699,15 +1699,17 @@ end quoted string lexeme table;
 
 begin escaped character translation table;
 
-    "\\/\"/" translate "\"/";
     "\\/\lf/" translate "\lf/";
     "\\/\cr/" translate "\cr/";
     "\\/\ht/" translate "\ht/";
     "\\/\bs/" translate "\bs/";
     "\\/\ff/" translate "\ff/";
     "\\/\vt/" translate "\vt/";
+
+    "\\/\"/" translate "\"/";
     "\\/\\//" translate "\\/";
-    "\\/~"  translate " " ;
+    "\\/~/"  translate " " ;
+
     "\\/0/" translate "\0/";
     "\\/0<hex-digit>/"
               translate hex 2 1;
@@ -1734,7 +1736,7 @@ end escaped character translation table;
 
 "<escaped-char>" = ~ "/" & ~ "<line-break-char>";
 
-begin bad escape sequence translation table;
+begin unrecognized escape sequence translation table;
 
     "\\//";
     "\\/<escaped-char>/";
@@ -1768,7 +1770,7 @@ begin bad escape sequence translation table;
        "<escaped-char><escaped-char>"
        "<escaped-char><escaped-char>/";
     fail;
-end bad escape sequence translation table;
+end unrecognized escape sequence translation table;
 
 begin bad end of line master table;
     output bad end of line goto main;

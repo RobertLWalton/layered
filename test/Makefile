@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Aug 17 00:05:09 EDT 2010
+# Date:		Fri Nov 19 10:58:00 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -146,6 +146,7 @@ ll_lexeme_ndl.o:	\
 ll_lexeme_standard.o:	\
 		../src/ll_lexeme_standard.cc \
 		../include/ll_lexeme.h \
+		../include/ll_lexeme_ndl.h \
 		../include/ll_lexeme_standard.h
 	g++ -g -I ../include -c \
 	    ../src/ll_lexeme_standard.cc

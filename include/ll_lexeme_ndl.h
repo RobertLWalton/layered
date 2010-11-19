@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 17 02:41:53 EST 2010
+// Date:	Fri Nov 19 10:27:02 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,7 +28,7 @@
 // The Lexical Nested Description Language (Lexical NDL)
 // is a mid-level language for describing Lexical Pro-
 // grams.  It is easier to write and much easier to
-// proofread then the low level Program Construction
+// proofread than the low level Program Construction
 // functions of ll_lexeme.h.
 //
 // The syntax of the Lexical Nested Description Language
@@ -69,7 +69,7 @@
 //
 //   <type-name> ::= C++ uns32 expression
 //	// The type returned by the scanner for a
-//	// lexeme, and type type of a lexeme table.
+//	// lexeme, or the type of a lexeme table.
 //
 //   <atom-pattern-declaration> ::=
 //       uns32 <atom-pattern-name>;
@@ -79,7 +79,7 @@
 //		      [, <excluded-chars>] ] );
 //	     <character-adder>*
 //	     {
-//	       NDL::NEXT();
+//	       NDL::NEXT
 //	           ( [<included-chars>
 //		            [, <excluded-chars>] ] );
 //	       <character-adder>*
@@ -89,22 +89,25 @@
 //   // An atom pattern consists of one or more
 //   // character patterns separated by `NDL::NEXT();'.
 //
+//   // NEXT(incl,excl) is equivalent to
+//   // `NEXT(); add_characters(incl,excl)'.
+//
 //   <included-chars> ::=
-//           C++ const char * quoted string expression
-//       // List of ASCII characters that are included
-//       // in the current character pattern if they are
-//	 // not also in <excluded-chars>
+//          C++ const char * quoted string expression
+//      // List of ASCII characters that are included
+//      // in the current character pattern if they are
+//	// not also in <excluded-chars>
 //
 //   <excluded-chars> ::=
-//           C++ const char * quoted string expression
-//       // See <included-chars>.
+//          C++ const char * quoted string expression
+//      // See <included-chars>.
 //
 //   <character-adder> :=
-//	   NDL::add_characters
-//	       ( [<included-chars>
-//		     [, <excluded-chars>] ] );
-//	 | NDL::add_characters
-//	       ( <min-char>, <max-char> );
+//	  NDL::add_characters
+//	      ( [<included-chars>
+//		    [, <excluded-chars>] ] );
+//	| NDL::add_characters
+//	      ( <min-char>, <max-char> );
 //
 //   <min-char> ::= C++ uns32 UNICODE character code
 //   <max-char> ::= C++ uns32 UNICODE character code
@@ -113,136 +116,142 @@
 //      // current character pattern.
 //
 //   <table-definition> ::=
-//       NDL::begin_table ( <table-name> );
-//	     <dispatch>*
-//	     [<instruction-group>]
-//       NDL::end_table();
+//      NDL::begin_table ( <table-name> );
+//	    <dispatch>*
+//	    [<instruction-group>]
+//      NDL::end_table();
 //
 //   <dispatch> :=
-//	 NDL::begin_dispatch
+//	NDL::begin_dispatch
 //	     ( [<included-chars>
 //	           [, <excluded-chars>] ] );
 //	        <character-adder>*
 //	        <dispatch>*
 //	        [<instruction-group>]
-//	 NDL::end_dispatch();
-//     |
-//       NDL::begin_dispatch ( OTHER );
+//	NDL::end_dispatch();
+//    |
+//      NDL::begin_dispatch ( OTHER );
 //	        <dispatch>*
 //	        [<instruction-group>]
-//	 NDL::end_dispatch();
+//	NDL::end_dispatch();
 //
-//    // A <dispatch> tells what to do when the NEXT
-//    // character of an atom matches a character
-//    // pattern.  There is an optional instruction to
-//    // execute if the atom ends with this character
-//    // and nested dispatches to be made on the
-//    // following character in the atom.
+//   // A <dispatch> tells what to do when the NEXT
+//   // character of an atom matches a character
+//   // pattern.  There is an optional instruction to
+//   // execute if the atom ends with this character
+//   // and nested dispatches to be made on the
+//   // following character in the atom.
 //
-//    // Two <dispatch>es at the same nesting level
-//    // cannot both match the same character.
+//   // begin_dispatch(incl,excl) is equivalent to
+//   // `begin_dispatch(); add_characters(incl,excl)'.
 //
-//    // In the OTHER case the pattern includes just
-//    // those characters not in the patterns of other
-//    // dispatchers for the same atom character (i.e.,
-//    // other sybling dispatchers).
+//   // Two <dispatch>es at the same nesting level
+//   // cannot both match the same character.
 //
-//    <instruction-group> ::=
-//	  <instruction> { NDL::ELSE(); <instruction> }*
+//   // In the OTHER case the pattern includes just
+//   // those characters not in the patterns of other
+//   // dispatchers for the same atom character (i.e.,
+//   // other sybling dispatchers).
 //
-//    <instruction> ::= [<keep-component>]
-//		        [<translate-component>]
-//		        [<require-component>]
-//		        [<output-component>]
-//		        [<transfer-component>]
-//		      | NDL::accept();
-//	  // An <instruction>s must have at least one
-//	  // optional component or be `accept();'.
-//	  // Optional components may be in any order.
+//   <instruction-group> ::=
+//	<instruction> { NDL::ELSE(); <instruction> }*
 //
-//    <keep-component> ::=
+//   <instruction> ::= [<keep-component>]
+//		       [<translate-component>]
+//		       [<require-component>]
+//		       [<output-component>]
+//		       [<transfer-component>]
+//		     | NDL::accept();
+//	// An <instruction>s must have at least one
+//	// optional component or be `accept();'.
+//	// Optional components may be in any order.
+//
+//   <keep-component> ::=
 //	  NDL::keep(<n>);
-//		// Keep only first <n> characters of
-//		// the atom.
+//	     // Keep only first <n> characters of the
+//	     // atom.
 //
-//    <translate-component> ::=
-//	    NDL::translate_to
+//   <translate-component> ::=
+//	  NDL::translate_to
 //                  ( <ascii-translation-string> );
-//		// Put <ascii-translation-string> into
-//              // the translation buffer instead of
-//		// the atom.
-//	  | NDL::translate_to
+//	     // Put <ascii-translation-string> into the
+//           // translation buffer instead of the atom.
+//      | NDL::translate_to
 //                  ( <n>,
 //                    <UNICODE-translation-string> );
-//		// Ditto but for <n> UNICODE character
-//              // string.
-//	  | NDL::translate_oct ( <m>, <n> );
-//	  | NDL::translate_hex ( <m>, <n> );
-//		// Put an oct or hex conversion of
-//		// interior of atom into the translation
-//		// buffer instead of the atom.  The
-//		// first <m> and last <n> characters of
-//		// the atom are ignored and the rest is
-//		// the converted interior.
-//	  | NDL::translate ( <table-name> );
-//		// Invoke named translation table, which
-//		// either recognizes and translates one
-//		// atom, or fails.
+//	     // Ditto but for <n> UNICODE character
+//           // string.
+//	| NDL::translate_oct ( <m>, <n> );
+//	| NDL::translate_hex ( <m>, <n> );
+//	     // Put an oct or hex conversion of the in-
+//	     // terior of the atom into the translation
+//	     // buffer instead of the atom.  The first
+//	     // <m> and last <n> characters of the atom
+//	     // are ignored and the rest is the conver-
+//	     // ted interior.
+//	| NDL::translate ( <table-name> );
+//	     // Invoke named translation table, which
+//	     // either recognizes and translates one
+//	     // atom, or fails.
 //
-//     <m> ::= C++ uns32 integer
-//     <n> ::= C++ uns32 integer
-//     <ascii-translation-string> ::=
+//   <m> ::= C++ uns32 integer
+//   <n> ::= C++ uns32 integer
+//   <ascii-translation-string> ::=
 //         C++ const char * string
-//     <UNICODE-translation-string> ::=
+//   <UNICODE-translation-string> ::=
 //         C++ const uns32 * string
 //
-//    <require-component> ::=
-//	  | NDL::require ( <atom-pattern-name> );
-//		// Fail if the TRANSLATED atom does
-//		// not match the given atom pattern.
+//   <require-component> ::=
+//	  NDL::require ( <atom-pattern-name> );
+//	     // Fail if the TRANSLATED atom does not
+//	     // match the given atom pattern.
+//	     //
+//           // require() must appear after translate(),
+//	     // translate_oct(), or translate_hex() in
+//	     // an <instruction>.
 //
-//    <output-component> ::=
+//   <output-component> ::=
 //	  NDL::output ( <type-name> );
-//		// After processing atom, output accum-
-//		// ulated lexeme as a lexeme of given
-//		// type.
+//	     // After processing atom, output accum-
+//	     // ulated lexeme as a lexeme of given type.
 //	| NDL::erroneous_atom ( <type-name> );
-//		// Output atom as erroneous atom of the
-//		// given type.  The atom may be in the
-//		// middle of a lexeme.
+//	     // Output atom as erroneous atom of the
+//	     // given type.  The atom may be in the
+//	     // middle of a lexeme.
 //
-//    <transfer-component> ::=
-//	  | NDL::go ( <table-name> );
-//		// Go to master or lexeme table.  If
-//		// switching from a lexeme to a master
-//		// table and there is no instruction
-//		// `output()' component and the accum-
-//		// ulated lexeme is of non-zero length,
-//		// output the accumulated lexeme with
-//		// type of the lexeme table.
-//	  | NDL::call ( table-name> )
-//		// Like `go' but allows return to the
-//		// table containing the call instruction
-//		// via return.  The table called must be
-//		// a lexeme table.  A return stack entry
-//		// holds the ID of the table containing
-//		// the call instruction.  Recursive
-//		// calls are not allowed.
-//	  | NDL::ret();
-//		// See `call' above.  The return stack
-//		// is popped.  The return stack is
-//		// cleared when a MASTER table is gone
-//		// to by any means.
-//	  | NDL::fail();
-//		// In a translation table, causes the
-//		// translation provided by the table
-//		// to fail.
+//   <transfer-component> ::=
+//	  NDL::go ( <table-name> );
+//	     // Go to master or lexeme table.  If
+//	     // switching from a lexeme to a master
+//	     // table and there is no instruction
+//	     // `output()' component and the accum-
+//	     // ulated lexeme is of non-zero length,
+//	     // output the accumulated lexeme with type
+//	     // of the lexeme table.
+//	| NDL::call ( table-name> )
+//	     // Like `go' but allows return to the
+//	     // table containing the call instruction
+//	     // via return.  The table called must be
+//	     // a lexeme table.  A return stack entry
+//	     // holds the ID of the table containing
+//	     // the call instruction.  Recursive
+//	     // calls are not allowed.
+//	| NDL::ret();
+//	     // See `call' above.  The return stack is
+//	     // popped.  The return stack is cleared
+//	     // when a master table is gone to by any
+//	     // means.  Otherwise ret() is like go().
+//	| NDL::fail();
+//	     // In a translation table, causes the
+//	     // instruction invoking the translation
+//	     // table to fail.
 //
-//    // The <instruction>s in an <instruction-group>
-//    // are separated by `NDL::ELSE();' statements.
-//    // If one of the <instruction>s fails, it becomes
-//    // a no-operation and the next <instruction> is
-//    // exeucted.
+//   // The <instruction>s in an <instruction-group>
+//   // are separated by `NDL::ELSE();' statements.
+//   // These <instruction>s are executed first-to-last
+//   // until one of them does NOT fail, and then the
+//   // following instructions are ignored.  A failed
+//   // <instruction> behaves as a no-operation.
 
 
 // NDL Functions

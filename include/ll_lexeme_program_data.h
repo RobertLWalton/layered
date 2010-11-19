@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 16 00:42:17 EST 2010
+// Date:	Fri Nov 19 11:00:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,15 +29,9 @@ using ll::lexeme::uns32;
 namespace ll { namespace lexeme
     { namespace program_data {
 
-// Program component types (aka `pctypes').
-//
-enum {
-    PROGRAM			= 1,
-    TABLE			= 2,
-    TYPE_MAP			= 3,
-    DISPATCHER			= 4,
-    INSTRUCTION			= 5
-};
+// All component headers begin with a program component
+// type, a.k.a. `pctype'.  See ll_lexeme.h for the
+// definitions of program component types.
 
 // A program begins with a program header.  This is
 // `ID' == 0 always, but this is never returned to the

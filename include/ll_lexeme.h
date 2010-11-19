@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 16 00:56:20 EST 2010
+// Date:	Fri Nov 19 11:04:07 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -201,6 +201,24 @@ namespace ll { namespace lexeme {
     //
     extern char error_message[];
 
+    // Program component types:
+    //
+    enum {
+	PROGRAM			= 1,
+	TABLE			= 2,
+	TYPE_MAP			= 3,
+	DISPATCHER			= 4,
+	INSTRUCTION			= 5
+    };
+
+    // Return the type of the component at the given
+    // ID.
+    //
+    inline uns32 component_type ( uns32 ID )
+    {
+        return program[ID];
+    }
+
     // Create a new program.
     //
     // This function resets the program buffer vector
@@ -236,6 +254,10 @@ namespace ll { namespace lexeme {
     // program becomes the initial table of the program.
     //
     uns32 create_table ( uns32 mode );
+
+    // Return the mode of a table with the given ID.
+    //
+    uns32 table_mode ( uns32 ID );
 
     // Create a dispatcher with given maximum number of
     // breakpoints and maximum ctype.  Return the new

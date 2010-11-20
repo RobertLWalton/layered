@@ -517,7 +517,7 @@ void ll::lexeme::standard::create_standard_program
 
     /// begin number lexeme table;
     ///
-    NDL::begin_table ( natural_number );
+    NDL::begin_table ( number );
 
     ///    // In order to recognize , and / surrounded by digits
     ///    // as number atoms, entries to this table upon
@@ -698,16 +698,6 @@ void ll::lexeme::standard::create_standard_program
 	    end_dispatch();
 
     ///     "\\/0/" translate "\0/";
-    //
-    	    begin_dispatch ( "0" );
-		begin_dispatch ( "/" );
-		{
-		    static uns32 nul_char[1] = { 0 };
-		    NDL::translate_to ( 1, nul_char );
-		}
-		end_dispatch();
-	    end_dispatch();
-
     ///     "\\/0<hex-digit>/"
     ///               translate hex 2 1;
     ///     "\\/0<hex-digit><hex-digit>/"
@@ -769,6 +759,12 @@ void ll::lexeme::standard::create_standard_program
 		    begin_dispatch ( "/" );
 			NDL::translate_hex ( 2, 1 );
 		    end_dispatch();
+		end_dispatch();
+		begin_dispatch ( "/" );
+		{
+		    static uns32 nul_char[1] = { 0 };
+		    NDL::translate_to ( 1, nul_char );
+		}
 		end_dispatch();
 	    end_dispatch();
 

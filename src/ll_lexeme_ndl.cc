@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 19 11:08:30 EST 2010
+// Date:	Sat Nov 20 06:52:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,8 +52,8 @@ static char message_buffer[500];
 //	    macro, an error message produced by passing
 //	    <format>,... to sprintf, and the submessage
 //	    `( <test> FAILED! )'.
-//	ATTACH(...) equals `assert(LEX::attach(...))'
-//          Note this uses `assert' and NOT `ASSERT'.
+//	ATTACH(...) executes `LEX::attach(...)' and
+//	    issues an error message if this fails.
 //
 # define FUNCTION(name) function_name = name
 # define ASSERT(test,...) \
@@ -62,7 +62,8 @@ static char message_buffer[500];
                 ( sprintf ( message_buffer, \
 		            __VA_ARGS__ ), \
 		  message_buffer ) ) )
-# define ATTACH(...) assert(LEX::attach(__VA_ARGS__))
+# define ATTACH(...) ( LEX::attach(__VA_ARGS__) ? 0 : \
+    attach_error ( __FILE__, __LINE__ ) )
 
 // Called by ASSERT macro to print error message and
 // exit.
@@ -76,6 +77,23 @@ static bool error
 	 << ":" << endl
 	 << "    " << message << endl
 	 << "    (" << test << " FAILED! )" <<endl;
+    exit ( 1 );
+}
+
+// Called by ATTACH macro to print attach failure
+// error message.
+//
+static int attach_error
+	( const char * file, uns32 line )
+{
+    cout << "NDL SYSTEM ERROR: ATTACH FAILED: FILE: "
+         << file << " LINE: " << line << endl
+	 << "   CALLED FROM FILE: " << LEXNDL::file
+	 << " LINE: " << LEXNDL::line << endl
+	 << LEX::error_message << endl
+	 << "    NOTE: possible causes:" << endl
+	 << "          begin_table ( name ) called"
+	             " twice for a given name" << endl;
     exit ( 1 );
 }
 
@@ -285,7 +303,7 @@ static uns32 pop_instruction_group ( void )
 // are mapped to the character type the dispatcher would
 // have had (used by end_atom_pattern).
 //
-uns32 pop_dispatcher ( bool discard_dispatcher = false )
+static uns32 pop_dispatcher ( bool discard_dispatcher = false )
 {
     uns32 instruction_ID = pop_instruction_group();
 
@@ -311,9 +329,17 @@ uns32 pop_dispatcher ( bool discard_dispatcher = false )
         -- cmax;
     bool ascii_used = ( cmin <= cmax );
 
+    uns32 total_type_map_count = 0;
+    uns32 * stack_endp =
+        & uns32_stack[uns32_stack.length];
+    for ( uns32 tcode = d.max_type_code;
+          0 < tcode; -- tcode )
+        total_type_map_count +=
+	    stack_endp[2 - 3 * (int) tcode];
+
     uns32 dispatcher_ID =
         LEX::create_dispatcher
-	    ( 2 * ( d.type_map_count + ascii_used ),
+	    ( 2 * ( total_type_map_count + ascii_used ),
 	      d.max_type_code );
 
     if ( ascii_used )
@@ -336,8 +362,12 @@ uns32 pop_dispatcher ( bool discard_dispatcher = false )
 	uns32 sub_instruction_ID = pop_uns32();
 	uns32 sub_dispatcher_ID = pop_uns32();
 
-	ATTACH ( dispatcher_ID, tcode,
-	         sub_dispatcher_ID );
+	// In the special case of an atom pattern
+	// sub_dispatcher_ID == 0 is possible.
+	//
+	if ( sub_dispatcher_ID != 0 )
+	    ATTACH ( dispatcher_ID, tcode,
+		     sub_dispatcher_ID );
 
 	if ( sub_instruction_ID != 0 )
 	    ATTACH ( dispatcher_ID, tcode,

@@ -2,21 +2,21 @@
 //
 // File:	ll_lexeme_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 17:27:17 EDT 2010
+// Date:	Sat Nov 20 08:34:30 EST 2010
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
 abc 3.4+z (x,y)
-"hi" "ho\tx y\\z\n"
+"hi" "ho\ht/x y\\/z\lf/"
 'tis noth'ng `but' a h'dache.
 a.1.2.3.b.c e5f x7+y6(5z)
 12.3 .4 5. 6/7
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
-+-*~@#$%^&=|<>_!?:"foo"x\9\n\z/
-.foo /foo 3/x x/3 3.x x.3// comment \u89 "'
++-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
+.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 // form feed 
 // vertical tab 
@@ -24,9 +24,9 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum'
 z	x // horizontal tab
 all 	
 control ABC
-"\"\n\r\t\b\f\v\\\~"
-"~\a\b\c\f"
-\u0041\U00000042C D\U00000045\u0046G
-\u0041\U00000002C D\U00000045\u0006G
-\u0001\U00000042C \U00000004E\u0046G
-\u0001
+"\"/\lf/\cr/\ht/\bs/\ff/\vt/\\/\~/"
+"~\a/\b/\c/\ff/"
+\0041/\00000042C/ D\00000045/\0046/G
+\0041/\00000002C/ D\00000045/\0006/G
+\0001/\00000042C/ \00000004E/\0046/G
+\0001/

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 19 11:04:21 EST 2010
+// Date:	Sat Nov 20 17:35:46 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -157,8 +157,6 @@ uns32 LEX::create_instruction
              ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
 	     +
              ( ( operation & TRANSLATE_OCT_FLAG ) != 0 )
-	     +
-             ( ( operation & TRANSLATE ) != 0 )
 	     <= 1 );
 
     assert ( ( operation & REQUIRE ) == 0
@@ -829,20 +827,30 @@ static uns32 scan_atom ( uns32 & atom_length )
 		& program[tinstruction_ID];
 	    if ( tih.operation & FAIL )
 	    	fail = true;
+	    else if ( op & ( TRANSLATE_TO_FLAG
+	                     |
+			     TRANSLATE_HEX_FLAG
+	                     |
+			     TRANSLATE_OCT_FLAG ) )
+		translation_buffer.resize ( tnext );
 	}
 
-	if ( ! fail & ( op & KEEP_FLAG ) )
+	if ( ! fail && ( op & KEEP_FLAG ) )
 	{
-	    keep_length = LEX::keep_length ( op );
-	    if ( keep_length > atom_length )
+	    // Due to possible TRANSLATE, actual atom
+	    // length is in keep_length.
+	    //
+	    uns32 keep = LEX::keep_length ( op );
+	    if ( keep > keep_length )
 	    {
 		sprintf ( scan_error ( length ),
 			  "keep length(%u) greater"
 			  " than atom length(%u)",
-			  keep_length,
-			  atom_length );
+			  keep,
+			  keep_length );
 		return SCAN_ERROR;
 	    }
+	    keep_length = keep;
 	}
 
 	if ( fail ) ; // Do nothing
@@ -1696,7 +1704,7 @@ ostream & operator <<
     return out << buffer;
 }
 
-const unsigned IDwidth = 12;
+static const unsigned IDwidth = 12;
     // Width of field containing ID at the beginning
     // of each print_program line.
 
@@ -1747,8 +1755,6 @@ static uns32 print_instruction
          ( ( h.operation & TRANSLATE_HEX_FLAG ) != 0 )
 	 +
          ( ( h.operation & TRANSLATE_OCT_FLAG ) != 0 )
-	 +
-         ( ( h.operation & TRANSLATE ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
     else
     if ( ( h.operation & REQUIRE ) != 0

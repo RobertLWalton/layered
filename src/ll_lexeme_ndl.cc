@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 20 06:52:15 EST 2010
+// Date:	Sat Nov 20 13:53:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -309,8 +309,22 @@ static uns32 pop_dispatcher ( bool discard_dispatcher = false )
 
     dispatcher & d = current_dispatcher();
 
+    uns32 cmin = 0;
+    uns32 cmax = 127;
+    while ( cmin <= cmax && d.ascii_map[cmin] == 0 )
+        ++ cmin;
+    while ( cmin <= cmax && d.ascii_map[cmax] == 0 )
+        -- cmax;
+    bool ascii_used = ( cmin <= cmax );
+
     if ( discard_dispatcher )
     {
+        assert ( d.max_type_code == 0 );
+        assert ( instruction_ID == 0 );
+	assert ( ! ascii_used );
+	assert ( d.others_dispatcher_ID == 0 );
+	assert ( d.others_instruction_ID == 0 );
+
 	push_uns32 ( 0 );
 	push_uns32 ( instruction_ID );
 	push_uns32 ( d.type_map_count );
@@ -321,21 +335,15 @@ static uns32 pop_dispatcher ( bool discard_dispatcher = false )
     	return 0;
     }
 
-    uns32 cmin = 0;
-    uns32 cmax = 127;
-    while ( cmin <= cmax && d.ascii_map[cmin] == 0 )
-        ++ cmin;
-    while ( cmin <= cmax && d.ascii_map[cmax] == 0 )
-        -- cmax;
-    bool ascii_used = ( cmin <= cmax );
-
     uns32 total_type_map_count = 0;
-    uns32 * stack_endp =
-        & uns32_stack[uns32_stack.length];
+    uns32 * p = & uns32_stack[uns32_stack.length];
     for ( uns32 tcode = d.max_type_code;
           0 < tcode; -- tcode )
-        total_type_map_count +=
-	    stack_endp[2 - 3 * (int) tcode];
+    {
+        uns32 sub_type_map_count = p[-1];
+        total_type_map_count += sub_type_map_count;
+	p -= 3 + 2 * sub_type_map_count;
+    }
 
     uns32 dispatcher_ID =
         LEX::create_dispatcher

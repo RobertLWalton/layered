@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 20 06:35:34 EST 2010
+// Date:	Sat Nov 20 14:00:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -279,6 +279,7 @@ void ll::lexeme::standard::create_standard_program
     ///    "<digit>" keep 0 call natural number;
     //
     	   NDL::begin_dispatch ( digit_char );
+	      NDL::keep ( 0 );
 	      NDL::call ( natural_number );
     	   NDL::end_dispatch();
 
@@ -316,6 +317,7 @@ void ll::lexeme::standard::create_standard_program
     ///    "\"/" translate "" call quoted string;
     ///
     	   NDL::begin_dispatch ( "\"" );
+	      NDL::translate_to ( "" );
 	      NDL::call ( quoted_string );
     	   NDL::end_dispatch();
 
@@ -568,7 +570,8 @@ void ll::lexeme::standard::create_standard_program
     ///     "\"/" translate "" return;   // End quoted string.
     ///
            NDL::begin_dispatch ( "\"" );
-	       NDL::ret();
+	      NDL::translate_to ( "" );
+	      NDL::ret();
 	   NDL::end_dispatch();
 
     ///     "\\/" translate escaped character
@@ -821,7 +824,10 @@ void ll::lexeme::standard::create_standard_program
 	       NDL::begin_dispatch ( "/" );
 	          NDL::accept();
 	       NDL::end_dispatch();
-	       NDL::begin_dispatch();
+	       NDL::begin_dispatch ( line_break_char );
+		  NDL::fail();
+	       NDL::end_dispatch();
+	       NDL::begin_dispatch( OTHER );
 		  NDL::begin_dispatch ( "/" );
 		     NDL::accept();
 		  NDL::end_dispatch();

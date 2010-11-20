@@ -2,11 +2,14 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 19 02:38:37 EST 2010
+// Date:	Sat Nov 20 06:35:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
+
+// Note: This code uses 80 columns (instead of the system
+// default 56).
 
 // Table of Contents
 //
@@ -784,6 +787,8 @@ void ll::lexeme::standard::create_standard_program
     ///
     /// begin unrecognized escape sequence translation table;
     ///
+    NDL::begin_table ( unrecognized_escape_sequence );
+
     ///     "\\//";
     ///     "\\/<escaped-char>/";
     ///     "\\/<escaped-char><escaped-char>/";
@@ -815,18 +820,135 @@ void ll::lexeme::standard::create_standard_program
     ///        "<escaped-char><escaped-char>"
     ///        "<escaped-char><escaped-char>"
     ///        "<escaped-char><escaped-char>/";
+    //
+            NDL::begin_dispatch ( "\\" );
+	       NDL::begin_dispatch ( "/" );
+	          NDL::accept();
+	       NDL::end_dispatch();
+	       NDL::begin_dispatch();
+		  NDL::begin_dispatch ( "/" );
+		     NDL::accept();
+		  NDL::end_dispatch();
+		  NDL::begin_dispatch ( line_break_char );
+		     NDL::fail();
+		  NDL::end_dispatch();
+	          NDL::begin_dispatch ( OTHER );
+		     NDL::begin_dispatch ( "/" );
+			NDL::accept();
+		     NDL::end_dispatch();
+		     NDL::begin_dispatch ( line_break_char );
+			NDL::fail();
+		     NDL::end_dispatch();
+		     NDL::begin_dispatch ( OTHER );
+			NDL::begin_dispatch ( "/" );
+			   NDL::accept();
+			NDL::end_dispatch();
+			NDL::begin_dispatch ( line_break_char );
+			   NDL::fail();
+			NDL::end_dispatch();
+			NDL::begin_dispatch ( OTHER );
+			   NDL::begin_dispatch ( "/" );
+			      NDL::accept();
+			   NDL::end_dispatch();
+			   NDL::begin_dispatch ( line_break_char );
+			      NDL::fail();
+			   NDL::end_dispatch();
+			   NDL::begin_dispatch ( OTHER );
+			      NDL::begin_dispatch ( "/" );
+				 NDL::accept();
+			      NDL::end_dispatch();
+			      NDL::begin_dispatch ( line_break_char );
+				 NDL::fail();
+			      NDL::end_dispatch();
+			      NDL::begin_dispatch ( OTHER );
+				 NDL::begin_dispatch ( "/" );
+				    NDL::accept();
+				 NDL::end_dispatch();
+				 NDL::begin_dispatch ( line_break_char );
+				    NDL::fail();
+				 NDL::end_dispatch();
+				 NDL::begin_dispatch ( OTHER );
+				    NDL::begin_dispatch ( "/" );
+				       NDL::accept();
+				    NDL::end_dispatch();
+				    NDL::begin_dispatch ( line_break_char );
+				       NDL::fail();
+				    NDL::end_dispatch();
+				    NDL::begin_dispatch ( OTHER );
+				       NDL::begin_dispatch ( "/" );
+					  NDL::accept();
+				       NDL::end_dispatch();
+				       NDL::begin_dispatch ( line_break_char );
+					  NDL::fail();
+				       NDL::end_dispatch();
+				       NDL::begin_dispatch ( OTHER );
+					  NDL::begin_dispatch ( "/" );
+					     NDL::accept();
+					  NDL::end_dispatch();
+					  NDL::begin_dispatch
+					        ( line_break_char );
+					     NDL::fail();
+					  NDL::end_dispatch();
+					  NDL::begin_dispatch ( OTHER );
+					     NDL::begin_dispatch ( "/" );
+						NDL::accept();
+					     NDL::end_dispatch();
+					     NDL::begin_dispatch
+					           ( line_break_char );
+						NDL::fail();
+					     NDL::end_dispatch();
+					     NDL::begin_dispatch ( OTHER );
+						NDL::begin_dispatch ( "/" );
+						   NDL::accept();
+						NDL::end_dispatch();
+					     NDL::end_dispatch();
+					  NDL::end_dispatch();
+				       NDL::end_dispatch();
+				    NDL::end_dispatch();
+				 NDL::end_dispatch();
+			      NDL::end_dispatch();
+			   NDL::end_dispatch();
+			NDL::end_dispatch();
+		     NDL::end_dispatch();
+	          NDL::end_dispatch();
+	       NDL::end_dispatch();
+            NDL::end_dispatch();
+
     ///     fail;
+    //
+    	    NDL::fail();
+
     /// end unrecognized escape sequence translation table;
     ///
+    NDL::end_table();
+
     /// begin bad end of line master table;
+    //
+    NDL::begin_table ( bad_end_of_line );
+
     ///     output bad end of line goto main;
+    //
+            NDL::output ( bad_end_of_line_t );
+	    NDL::go ( main );
+
     /// end bad end of line master table;
     ///
+    NDL::end_table();
+
     ///
     /// begin bad end of file master table;
+    //
+    NDL::begin_table ( bad_end_of_file );
+
     ///     output bad end of file goto main;
+    //
+            NDL::output ( bad_end_of_file_t );
+	    NDL::go ( main );
+
     /// end bad end of file master table;
     ///
+    NDL::end_table();
+
     ///
     /// end standard lexical program;
     //

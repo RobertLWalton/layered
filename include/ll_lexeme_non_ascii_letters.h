@@ -2,13 +2,14 @@
 //
 // File:	ll_lexeme_non_ascii_letters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 18 08:10:57 EST 2010
+// Date:	Sat Nov 20 17:48:47 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
-// UNICODE ranges of characters to be treated as letters.
+// UNICODE ranges of characters to be treated as
+// letters.
 //
 // Taken from Doc no. WG21/N3146, 2004 Proposal for a
 // set of allowed letters.

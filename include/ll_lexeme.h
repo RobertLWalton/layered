@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 19 11:04:07 EST 2010
+// Date:	Sat Nov 20 17:41:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -294,18 +294,24 @@ namespace ll { namespace lexeme {
     // The operation is the sum of some of the follow-
     // ing:
     //
-    //   KEEP(n):	Truncate atom to n uns32 char-
-    //			acters before any other proces-
-    //			sing.  Truncation is done in the
-    //			input buffer before any other
-    //			processing of the atom.  The
-    //			discarded end of the atom is re-
-    //			tained as input to be rescanned.
-    //			0 <= n < 32.
+    //	 TRANSLATE	Invoke the translation table
+    //			specified by the translate_
+    //			table_ID.  This may succeed or
+    //			fail.  If it succeeds, it
+    //			replaces the matched atom and
+    //			provides a translation.  The
+    //			matched atom can be shortened
+    //			by KEEP and the translation can
+    //			be overriden by TRANSLATE_{TO/
+    //			HEX/OCT}.
     //
-    //   ACCEPT		Equals 0; use if operation is
-    //			completely 0 (has no other
-    //			components).
+    //   KEEP(n):	Truncate atom to n uns32 char-
+    //			acters.  The discarded end of
+    //			the atom is retained as input to
+    //			be rescanned.  0 <= n < 32.
+    //
+    //   ACCEPT		Equals 0; use if operation has
+    //			no other components.
     //
     //	 TRANSLATE_TO(n)
     //			Instead of copying the atom into
@@ -342,11 +348,6 @@ namespace ll { namespace lexeme {
     //			mal or octal, the instruction
     //			fails.
     //
-    //	 TRANSLATE	Invoke the translation table
-    //			specified by the translate_
-    //			table_ID.  This may succeed or
-    //			fail.
-    //
     //   REQUIRE	Require the atom translation to
     //			match the atom pattern defined
     //			by the require_dispatcher_ID.
@@ -365,12 +366,15 @@ namespace ll { namespace lexeme {
     //			to the erroneous_atom function
     //			with the output_error_type.
     //
-    //   OUTPUT		After KEEP and TRANSLATE...
-    //			processing, output the current
-    //			lexeme with the output_error_
-    //			type.  The next lexical table
-    //			must be a master table.  The
-    //			lexeme may be zero length.
+    //   OUTPUT		After finishing atom processing
+    //			and translation, output the
+    //			current lexeme with the output_
+    //			error_type.  The next lexical
+    //			table must be a master table.
+    //			The lexeme may be zero length
+    //			if the instruction is in the
+    //			default instruction group of
+    //			a table.
     //
     //   GOTO		After all other atom processing,
     //			switch the current lexical table

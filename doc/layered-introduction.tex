@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 19, 2010
+November 21, 2010
  
 \end{center}
 
@@ -346,6 +346,13 @@ grouped by the scanner into \skey{lexeme}s.
 Lexical atoms have fixed small lengths.  Lexemes, in contrast,
 can be of arbitrary length.
 
+Each atom is translated individually to produce an
+\key{atom translation}.  Just as the sequence of atoms in a lexeme
+comprise the lexeme, the sequence of their atom translations
+comprises the translation of the lexeme.  An atom translation
+may be the empty string, in effect omitting the atom from the
+lexeme translation.
+
 The scanner has a state containing a current point 
 in the input UNICODE character stream
 and a \key{current lexical table} identifier.  A
@@ -367,7 +374,7 @@ Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
 characters such as the 4-character sequence \verb|\lf/| which matches
 the atom pattern \verb|"\\/lf/"|
-or the 7-character sequence \verb|\0a/| which matches the atom pattern
+or the 4-character sequence \verb|\0a/| which matches the atom pattern
 \begin{center}
 \verb|"\\/0<hex-digit>/"|
 \end{center}
@@ -397,9 +404,9 @@ things described below.
 There are three kinds of lexical tables:
 \mkey{master}{lexical table} tables,
 \mkey{lexeme}{lexical table} tables, and
-\mkey{translation}{lexical table} tables.
+\mkey{atom}{lexical table} tables.
 Master tables are used to dispatch to lexeme tables which
-typically recognize lexemes.  Translation tables are used
+typically recognize lexemes.  Atom tables are used
 to recognize atoms whose patterns are logically the union
 of a finite set of patterns.
 
@@ -419,7 +426,7 @@ changes the current lexical table to a master table,
 any non-zero length lexeme accumulated so far will
 be output as a lexeme of type `\verb|whitespace|'.
 
-When it is between lexemes that current lexical table in the scanner state
+When it is between lexemes the current lexical table in the scanner state
 is always a master table.  Master tables correspond to lexical
 contexts.  A well designed language has only one main master
 table, plus a few small master tables to handle error situations
@@ -441,33 +448,40 @@ string, it may be reported as an erroneous atom of type
 `{\tt unrecognized escape sequence}'.  Otherwise this atom is processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the DEL
-character (\verb|\u007F|).
+character (hex code \verb|7f|).
 
 \ikey{Instructions}{instruction!in lexical program}
 that are associated with atom patterns contain optional instruction
 components that can do the following:
 \begin{itemize}
 \raggedright
-\item invoke a translation table to replace the matched atom
+\item invoke an atom table to replace the matched atom and translate it
 \item reduce the length of the matched atom
-\item translate the reduced length atom to a different
-character string within the lexeme translation
+\item translate the reduced length atom to a different character string
+(otherwise the translation of an atom is a copy of the atom)
+\item make instruction success conditional
+      on the translated atom matching an atom pattern
 \item announce the reduced length atom as an erroneous atom of a given type
 \item output the atoms accumulated so far as a lexeme of a given type
 \item change the current lexical table
-\item make non-translating instruction components conditional
-      on the translated atom matching an atom pattern
+\item force a containing atom table to fail to match any atom
 \end{itemize}
 
+An instruction can fail while invoking an atom table or making
+a translation of the atom or if the translation does not match
+an atom pattern.  An instruction group is a sequence of instructions
+such that the first successful instruction will be the effective
+instruction in the group.
+
 Details and examples are given in the next section.
+
+
+\subsection{Lexical Programs}
 
 A \key{lexical program} is a set of character pattern definitions
 and lexical tables.  A lexical program can include another lexical program.
 The top level lexical program must begin with a master
 table that serves as the initial lexical table.
-
-
-\subsection{Lexical Programs}
 
 The lexemes in a lexical program are specified on
 \pagref{LEXEME-PROGRAM-LEXEMES} and
@@ -629,12 +643,13 @@ and the syntax of a lexical program is specified on
 \end{figure*}
 
 \begin{figure*}[!p]
-\begin{tabular}{p{2.2in}rl}
-\emkey{name}
-    & ::= & \{ {\em word} $|$ {\em quoted-string} \} \\
-    &     & \{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
+\begin{tabular}{l}
+\emkey{name} ::= 
+	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
+	{\em word}
+	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
 \end{tabular}
-
+\\[1ex]
 \begin{tabular}{p{2.2in}rl}
 \emkey{lexical-program} & ::= &
 	{\tt begin} {\em program-name} {\tt lexical program;}\\
@@ -680,8 +695,7 @@ and the syntax of a lexical program is specified on
 		    & $|$ & {\tt (} {\em cpat-expression}
 		                {\tt )}
 \\[1ex]
-\emkey{quotable-character} & ::= & 
-	any quotable UNICODE character representative
+\emkey{quotable-character} & ::= & {\em character-representative}
 \\[1ex]
 \emkey{lexical-table-definition} & ::= &
 	{\tt begin} {\em lexical-table-name}
@@ -692,7 +706,7 @@ and the syntax of a lexical program is specified on
 		      {\em lexical-table-kind} {\tt table} {\tt ;}
 \\[1ex]
 \emkey{lexical-table-kind} & ::= &
-    {\tt master} $|$ {\tt lexeme} $|$ {\tt translation}
+    {\tt master} $|$ {\tt lexeme} $|$ {\tt atom}
 \\[1ex]
 \emkey{lexical-table-name} & ::= & {\em type}
 \\[1ex]
@@ -711,7 +725,7 @@ and the syntax of a lexical program is specified on
 	& $|$ & {\em atom-pattern} {\tt ;}
 \\[1ex]
 \emkey{atom-pattern} & ::= &
-	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^\star${\tt "}
+	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^+${\tt "}
 \\[1ex]
 \emkey{instruction-group}
 	& ::= & {\em instruction}
@@ -722,8 +736,8 @@ and the syntax of a lexical program is specified on
 \\[1ex]
 \emkey{instruction-component}
 	& ::= & {\tt accept} \\
+	& $|$ & {\tt match} {\em atom-table-name} \\
 	& $|$ & {\tt keep} {\em natural-number} \\
-	& $|$ & {\tt translate} {\em translation-table-name} \\
 	& $|$ & {\tt translate to} {\em translation-string} \\
 	& $|$ & {\tt translate hex}
 			{\em natural-number} {\em natural-number} \\
@@ -738,7 +752,7 @@ and the syntax of a lexical program is specified on
 	& $|$ & {\tt return} \\
 	& $|$ & {\tt fail} \\
 \\[1ex]
-\emkey{translation-table-name} & ::= & {\em lexical-table-name}
+\emkey{atom-table-name} & ::= & {\em lexical-table-name}
 \\[1ex]
 \emkey{lexeme-table-name} & ::= & {\em lexical-table-name}
 \\[1ex]
@@ -817,7 +831,7 @@ the {\tt example} lexical program on
 \pagref{EXAMPLE-LEXEME-PROGRAM}.
 Identical definitions
 may be repeated without error,
-as can happen when one program includes two each of
+as can happen when one program includes two programs each of
 which include the same third program.
 A {\em program-inclusion} can have
 \emsmkey{remove-clause}s{in {\em program-inclusion}}
@@ -883,7 +897,7 @@ Some example {\em character-pattern-definitions} are:
 
 \subsubsection{Lexical Tables}
 
-An {\em lexical-table-definition} specifies a {\em lexical-table-name},
+A {\em lexical-table-definition} specifies a {\em lexical-table-name},
 the {\em lexical-table-kind} of the table,
 a set of {\em lexical-table-entries}
 each containing an {\em atom-pattern} and optionally an {\em instruction},
@@ -893,24 +907,26 @@ no atom is recognized by any of the table entries.
 The {\em lexical-table-kinds} are
 \mkey{master}{lexical table kind},
 \mkey{lexeme}{lexical table kind}, or
-\mkey{translation}{lexical table kind}.
+\mkey{atom}{lexical table kind}.
 In a master table {\em atom-patterns} are typically associated
-with {\tt goto} instructions that change the current table from the
+with {\tt goto} or {\tt call} instructions
+that change the current table from the
 master table to a lexeme table.  In a lexeme table {\em atom-patterns}
 are typically associated with {\tt accept} instructions which
 accept the matched atom as part of the current lexeme.  In a lexeme
-table the default instruction is typically a {\tt goto} back to a
+table the default instruction is typically a {\tt goto} or {\tt return}
+back to a
 master table, and because this changes the current lexical table
 from a lexeme table to a master table, it causes any non-zero length
 accumulated lexeme to be output with its lexeme type being determined
 by the lexeme table.
 
-Translation tables permit sets of atom patterns to be used in
+Atom tables permit sets of atom patterns to be used in
 several places without copying all the patterns.  Details are
-on \pagref{TRANSLATION-TABLE}.
+on \pagref{ATOM-TABLE}.
 
-The first lexical table in a lexical program must have `{\tt master}'
-mode, and will become the current lexical table when the scanner
+The first master table in a lexical program
+becomes the current lexical table when the scanner
 is initialized.  This table is typically named `{\tt main}',
 as it is in the {\tt example} lexical program on
 \pagref{EXAMPLE-LEXEME-PROGRAM}.
@@ -941,14 +957,14 @@ matched.  More explicitly, in the atom pattern
 \verb|"|$P$\verb|<other>|$Q$\verb|"|,
 the prefix $P$\verb|<other>| matches any sequence of characters not matched by
 any atom pattern of the form
-\verb|"|$PCQ$\verb|"| in the same lexical table,
+\verb|"|$PCR$\verb|"| in the same lexical table,
 where $C$ is a character pattern other than
 \verb|<other>|.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 There must be no sequence of characters that matches the
 {\em atom-patterns} of two distinct {\em lexical-table-entries}
-in the same {\em atom} table.  Since {\em atom-patterns} can only
+in the same {\em lexical-table}.  Since {\em atom-patterns} can only
 match atoms of a particular length, it is permissible for
 a sequence of characters that matches one pattern to have a proper
 initial segment that matches another pattern; in this case the
@@ -960,7 +976,8 @@ The atom pattern \verb|""| which would recognize zero length atoms is
 end of the lexical table executes in the equivalent case where no atom
 pattern in the table matches the remaining input.  In particular
 the {\em default-instruction-group} always executes if the input has reached
-an end of file.  This fact is used in the `{\tt quoted string lexical table}'
+an end of file.  This fact is used in both the `{\tt main master table}'
+and `{\tt quoted string lexeme table}'
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 \subsubsection{Lexical Instructions}
@@ -970,9 +987,9 @@ A \emkey{lexical-table-entry} contains an
 \emkey{instruction-group} that consists of one or more {\em instructions}
 separated by {\tt else}'s.  Most {\em instruction-groups} contain just
 a single {\em instruction}, so we will explain this first.
-{\em Instruction-groups} with more than one instruction are associated
-{\tt translate} instruction components, which can fail, causing
-the instruction containing them to become a no-operation and the
+{\em Instruction-groups} with more than one instruction contain
+instructions that can fail, causing
+the failing instruction to become a no-operation and the
 next instruction in the instruction group to be executed instead.
 
 An \emmkey{instruction}{in lexical-table-entry} in an {\em lexical-table-entry}
@@ -986,29 +1003,67 @@ if a it was associated with the {\em atom-pattern} \verb|""|
 that recognizes zero length atoms.  Note that actual {\em atom-patterns}
 are not allowed to be \verb|""|.
 
-The order of processing instruction components in an instruction is:
+The order of processing {\em instruction-components} in an {\em instruction}
+is:
 \begin{center}
-{\tt accept} or {\tt keep} \\
+{\tt match} \\
+{\tt keep} \\
 {\tt translate}\\
 {\tt require} \\
 {\tt error} or {\tt output} \\
 {\tt goto}, {\tt call}, {\tt return}, or {\tt fail} \\
 \end{center}
 
-\subsubsubsection{Accept and Keep Instruction Components}
+An {\em instruction} with no {\em instruction-components} simply accepts
+the matched atom and copies it into the translation.  In order to
+indicate this, the instruction may be written as if it had a single
+`{\tt accept}' instruction component.  If this component is present
+in an {\em instruction}, no other {\em instruction-components}
+may be present in the {\em instruction}.
 
-The \ttmkey{accept}{in lexical program} {\em instruction-com\-po\-nent}
-accepts the
-atom without translation or length change, skips over the atom in the
-input, and copies the atom characters to the translation buffer.
-It is incompatible with the {\tt keep} and {\tt translate} instruction
-components, but it is actually equivalent to `{\tt keep} $n$' where
-$n$ is the length of the matched atom.
+\subsubsubsection{Match Instruction Components and Atom Tables}
 
-If none of {\tt accept}, {\tt keep}, or {\tt translate}
-are given, {\tt accept} is implied.  If no {\em instruction-group}
-is given in a {\em lexical-table-entry}, {\tt accept} is the implied
-{\em instruction}.
+The `\ttmkey{match}{in lexical program} {\em atom-table-name}'
+{\em instruction-component} invokes the named
+\key{atom table}\label{ATOM-TABLE}
+to recognize an atom.  The previously matched atom is ignored, and
+the atom table {\em atom-patterns} are used to rematch the current atom,
+provide a translation of the atom, and determine
+whether the containing {\em instruction} fails.
+
+Atom tables match only a single atom and implicitly return
+to their invoking instruction after matching one atom.  The
+{\tt error}, {\tt output}, {\tt goto}, {\tt call}, and {\tt return}
+{\em instruction-components} \underline{cannot} be used in an
+atom table.  However, the {\tt fail} {\em instruction-component}
+can only be used in an atom table, and when executed indicates
+that the atom table invoking {\em instruction} has failed, so that
+{\em instruction} becomes a no-operation and the next
+{\em instruction} in the {\em instruction-group} (i.e., the {\em instruction}
+after the `{\tt else}' following the failed {\em instruction}) is
+executed.
+
+{\tt accept}, {\tt match}, {\tt keep}, {\tt require}, and
+any of the {\tt translate} {\em instruction-components} can be used in
+an atom table {\em instruction}.  An atom table
+instruction may invoke another atom table, but recursion
+is prohibited.
+Note that if an instruction invokes an atom table and
+the instruction does not fail,
+the original atom match that caused the instruction
+to be executed is discarded, but if the instruction fails, this
+original atom match is reinstated (the instruction becomes a
+no-operation) before the next {\em instruction} in the {\em instruction group}
+executes.
+
+Atom tables may have a {\em default-instruction-group}.
+However, this only makes sense if it is just a `{\tt fail}', or
+if it is contains {\tt match} components.  If an atom table
+is invoked and none of its {\em atom-patterns} match an atom,
+and if the table has \underline{no} {\em default-instruction-group},
+then a scan error is signalled.
+
+\subsubsubsection{Keep Instruction Components}
 
 The `\ttmkey{keep}{in lexical program} $n$'
 {\em instruction-component} causes the atom length
@@ -1020,52 +1075,61 @@ will recognize a 1-character atom consisting of just a comma as long as
 the comma is followed by character in the \verb|<digit>| character pattern
 character set.  Atoms may not be lengthened by {\tt keep}.
 
+A {\tt keep} component used with a {\tt match} component
+applies to the atom matched by the atom table invoked by the {\tt match}
+component.
+
 \subsubsubsection{Translate Instruction Components}
 
-There are four possible translate {\em in\-struc\-tion-com\-po\-nents}, at most
-one of which may be used.  These affect how the atom is placed into
-the translation buffer, and they may also fail, in which case the
+There are three possible translate {\em in\-struc\-tion-com\-po\-nents}, at most
+one of which may be used.  These determine that atom translation,
+and they may also fail, in which case the
 {\em instruction} containing them becomes a no-operation and the next
 {\em instruction} in the {\em instruction-group} (i.e., the {\em instruction}
 after the `{\tt else}' following the failed {\em instruction}) is
 executed.
 
-In the absence of any of translate component,
-the atom is copied `as-is' to the translation buffer.
+If a translate component is used in the same {\em instruction} as a
+{\tt match} component, the translate component applies to the atom
+matched by the atom table invoked by the {\tt match} component.
+The translation provided by the invoked atom table is discarded and
+replaced by the translation provided by the translate component.
 
-The `{\tt translate to}', `{\tt translate hex}', and `{\tt translate oct}'
-{\em instruction-components} are applied \underline{after}
-any {\tt keep} is applied.
-The other possible translate component invokes a translation table and
-is described separately below.
+In the absence of any {\tt match} or translate component,
+a copy of the atom becomes the translation of the atom.
+
+The translate components are applied \underline{after}
+any {\tt keep} is applied, and so may be applied to an atom
+shorter than the original matched atom.
 
 A `\ttmkey{translate to}{in lexical program} {\em translation-string}'
 {\em instruction-component}
 specifies a {\em quoted-string} of characters,
 the {\em translation-string},
-that is copied into the translation buffer instead of the atom.
+that becomes the translation of the atom.
 A {\em translation-string} may be empty, as in the lexical table entry
 \begin{center}
-\verb|"\"/" translate "" goto main;|
+\verb|"\"/" translate to "" goto main;|
 \end{center}
 which can be used to recognize the last \verb|"| of a quoted string, avoid
-copying anything into the translation buffer, and then switch to the
+copying anything into the lexeme translation, and then switch to the
 `{\tt main}' lexical table.
 See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
 {\em instruction-component} ignores the
-first $m$ and last $n$ characters of the atom and viewing the rest as
+first $m$ and last $n$ characters of the atom and, viewing the rest as
 hexadecimal digits, converts these into an 32 bit unsigned integer
-UNICODE character code, which is placed into the translation buffer
-instead of the atom.  An example is the the lexical table entry
+UNICODE character code, which becomes the 1-character atom translation.
+An example is the the lexical table entry
 \begin{center}
 \verb|"\\/0<hex-digit><hex-digit>/" translate hex 2 1;|
 \end{center}
 which might be used to accept a character representative in a quoted string
 and copy the appropriate hexadecimally related character code into
-the translation buffer.  It is a scanner error if characters that
-are supposed to be hexadecimal digits are not (but in our example
+the lexeme translation.  If characters that
+are supposed to be hexadecimal digits are not, the {\tt translate-hex}
+component fails (but in our example
 this cannot happen because the definition of \verb|<hex-digit>|
 restricts these characters appropriately).
 
@@ -1074,45 +1138,14 @@ The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 views the rest of the characters as octal and not hexadecimal.
 An example use would be the lexical table entry
 \begin{center}
-\verb|"\\/<oct-digit><oct-digit><oct-digit>" translate oct 2 0;|
+\verb|"\\/<oct-digit><oct-digit><oct-digit>" translate oct 1 0;|
 \end{center}
-
-The `\ttmkey{translate}{in lexical program} {\em translation-table-name}'
-{\em instruction-component} invokes the named
-\key{translation table}\label{TRANSLATION-TABLE}
-to recognize an atom.  The previously matched atom is ignored, and
-the translation table patterns are used to rematch the current atom,
-provide a translation of the atom in the atom buffer, and determine
-whether the containing {\em instruction} fails.
-
-Translation tables match only a single atom and implicitly return
-to their invoking instruction after matching one atom.  The
-{\tt error}, {\tt output}, {\tt goto}, {\tt call}, and {\tt return}
-{\em instruction-components} \underline{cannot} be used in a
-translation table.  However, the {\tt fail} {\em instruction-component}
-may only be used in a translation table, and when executed indicates
-that the invoking {\em instruction} has failed.
-
-{\tt accept}, {\tt keep}, {\tt require}, and
-any of the {\tt translate} {\em instruction-components} can be used in
-a translation table {\em instruction}.  A translation table
-instruction may invoke another translation table, but recursion
-is prohibited.
-Note that if an instruction invokes a translation table and
-the instruction does not fail,
-the original atom match that caused the instruction
-to be executed is discarded, but if the instruction fails, this
-original atom match is reinstated (the instruction becomes a
-no-operation) before the next {\em instruction} in the {\em instruction group}
-executes.
-
-Translation tables may have a {\em default-instruction-group}.
 
 \subsubsubsection{Require Instruction Component}
 
 The `\ttmkey{require}{in lexical program} {\em atom-pattern}'
-{\em instruction-component} tests whether the atom in the
-\underline{translation buffer} matches the given {\em atom-pattern},
+{\em instruction-component} tests whether the atom translation
+matches the given {\em atom-pattern},
 and if \underline{no}, causes the {\em instruction} to fail.
 A {\tt require} should only appear in an
 {\em instruction} which is followed by an `{\tt else}' in an
@@ -1122,17 +1155,17 @@ An example use would be the lexical table entry
 \begin{indpar}
 \verb|"\\/u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0| \\
 \verb|    require "<letter>" else| \\
-\verb|    translate "" error bad character in identifier;|
+\verb|    translate to "" error bad character in identifier;|
 \end{indpar}
 which might be used to process an atom of the form \verb|\uXXXX| in
 an identifier, accepting the atom as a legitimate representation of a
 character if that character is a letter, and otherwise designating
-the atom as an error and not putting anything in the translation buffer
+the atom as an error while not putting anything in the lexeme translation
 (see below for the definition of the `{\tt error}' instruction component).
 
-A {\tt require} {\em instruction-component} is redundant unless
+A {\tt require} {\em instruction-component} is only permitted if
 there is a {\tt translate hex}, {\tt translate oct}, or
-`{\tt translate} {\em translation-table-name}' instruction component.
+`{\tt match} {\em atom-table-name}' instruction component.
 
 The last {\em instruction} in an {\em instruction-group} must
 never fail, and so cannot contain a {\tt require} {\em instruction-component}.
@@ -1142,30 +1175,30 @@ never fail, and so cannot contain a {\tt require} {\em instruction-component}.
 A `\ttmkey{error}{in lexical program} {\em type}\,' {\em instruction-component}
 announces the current atom as an erroneous atom of the given {\em type}.
 The atom remains part of the current lexeme,
-and what is put in the translation buffer is governed
-independently by {\tt translate} instruction components.
+and its translation is governed
+independently by {\tt match} and translate instruction components.
 The following are some examples:
 \begin{indpar}\begin{verbatim}
-"\\<other>" error bad escape sequence;
-"\\<other>" translate "" error bad escape sequence;
-"\\<other>" translate "\del/" error bad escape sequence;
+"\\/<other>" error bad escape sequence;
+"\\/<other>" translate to "" error bad escape sequence;
+"\\/<other>" translate to "\del/" error bad escape sequence;
 \end{verbatim}\end{indpar}
 These might be entries in an lexical table for a quoted string.
 All identify an atom consisting of a backslash followed by any
 character, as long as the atom is not recognized by another entry
-that does not have the \verb|<other>| character pattern (see
-\pagref{<OTHER>}).
+that has the form \verb|"\\/|C\ldots\verb|"| where C is a character
+pattern other than \verb|<other>| (see \pagref{<OTHER>}).
 The first entry copies the entire 2-character atom, including the
-backslash, into the translation buffer.  The second entry copies
-nothing (the empty string \verb|""|) into the translation buffer.
+backslash, into the lexeme translation.  The second entry copies
+nothing (the empty string \verb|""|) into the lexeme translation.
 The third entry copies the DEL character (hex code \verb|7f|)
-into the translation buffer.  An alternative is the entry
+into the lexeme translation.  An alternative is the entry
 \begin{indpar}\begin{verbatim}
 "\\<other>" keep 1 error bad escape;
 \end{verbatim}\end{indpar}
 that reduces the atom size to 1 character, just the backslash,
 which is announced as an error without its following character,
-and copied to the translation buffer.  The character following
+and copied to the lexeme translation.  The character following
 the backslash remains in the input and will part of the next
 atom recognized.
 
@@ -1210,7 +1243,7 @@ which causes an unrecognized character to be treated as a 1-character
 lexeme of type `{\tt bad character}'.  The translation of this lexeme is
 the character itself, but if the entry:
 \begin{indpar}\begin{verbatim}
-"<other>" translate "\del/" output bad character;
+"<other>" translate to "\del/" output bad character;
 \end{verbatim}\end{indpar}
 had been used instead the translation would have been the DEL character.
 
@@ -1856,8 +1889,8 @@ begin c++ lexical program;
     // Details omitted
 
 // Alternative operators that are not identifiers are
-// translated.  E.g., <: becomes [ in the translation
-// buffer.
+// translated.  E.g., <: becomes [ in the lexeme
+// translation.
 
 // C/C++ preprocessing is hereafter abbreviated as `pp'.
 //

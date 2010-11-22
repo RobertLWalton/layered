@@ -15,7 +15,7 @@ Uncooked Program 1:
             Max Break Elements: 11
             Max CType: 4
             Breaks:             cmin     type_map_ID
-                              \u0000               0
+                                \00/               0
                                    0              46
                                    :               0
                                    a              53
@@ -74,7 +74,7 @@ Cooked Program 2:
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
-            \\
+            \/
                 Dispatcher ID: 36
         36: DISPATCHER
             Break Elements: 3
@@ -116,11 +116,11 @@ Cooked Program 2:
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
-            \u0000-\b \u000E-\u001F !-' : <-@ ^-` | ~ \u0080-
+            \00/-\bs/ \0E/-\01F/ !-' : <-@ ^-` | ~ \080/-
                 OUTPUT(1)
-            \t-\r \~
+            \ht/-\cr/ \~/
                 GOTO(108)
-            A-Z \\ a-z
+            A-Z \/ a-z
                 KEEP(0), CALL(112)
             . 0-9
                 KEEP(0), GOTO(116)
@@ -134,11 +134,11 @@ Cooked Program 2:
             Max CType: 10
             0-9 A-Z a-z
                 ACCEPT
-            \\
+            \/
                 MATCH(6), REQUIRE(327), ELSE:
                 TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
-            \u007F
+            \07F/
                 TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
        327: DISPATCHER
             Break Elements: 5
@@ -166,7 +166,7 @@ Cooked Program 2:
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
-            \t-\r \~
+            \ht/-\cr/ \~/
                 GOTO(108)
        502: DISPATCHER
             Break Elements: 8
@@ -194,13 +194,13 @@ Cooked Program 2:
                 GOTO(2)
 
 Testing Lexical Scan of:
-\~ab\~3.4\~x+y++z
+\~/ab\~/3.4\~/x+y++z
 
-Scan Returned: WHITESPACE:0(0)0: \~
+Scan Returned: WHITESPACE:0(0)0: \~/
 Scan Returned: SYMBOL:0(1)1: ab
-Scan Returned: WHITESPACE:0(3)3: \~
+Scan Returned: WHITESPACE:0(3)3: \~/
 Scan Returned: NUMBER:0(4)4: 3.4
-Scan Returned: WHITESPACE:0(7)7: \~
+Scan Returned: WHITESPACE:0(7)7: \~/
 Scan Returned: SYMBOL:0(8)8: x
 Scan Returned: OPERATOR:0(9)9: +
 Scan Returned: SYMBOL:0(10)10: y
@@ -209,7 +209,7 @@ Scan Returned: SYMBOL:0(13)13: z
 Scan Returned: END_OF_FILE: <empty>
 
 Testing Lexical Scan of:
-*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001A\\102C\\100D\\10E
+*a**b+++c(+d\07F/e%f0--1.2.3\00/\01/A\/102C\/100D\/10E
 
 Scan Returned: OPERATOR:0(0)0: *
 Scan Returned: SYMBOL:0(1)1: a
@@ -221,23 +221,23 @@ Scan Returned: OPERATOR:0(7)7: +
 Scan Returned: SYMBOL:0(8)8: c
 Scan Returned: SEPARATOR:0(9)9: (
 Scan Returned: OPERATOR:0(10)10: +
-Erroneous Atom: TYPE (100):0(12)12: \u007F
-Scan Returned: SYMBOL:0(11)11: d\u007Fe translated to: de
+Erroneous Atom: TYPE (100):0(12)12: \07F/
+Scan Returned: SYMBOL:0(11)11: d\07F/e translated to: de
 Scan Returned: ERROR:0(14)14: %
 Scan Returned: SYMBOL:0(15)15: f0
 Scan Returned: OPERATOR:0(17)17: --
 Scan Returned: NUMBER:0(19)19: 1.2
 Scan Returned: NUMBER:0(22)22: .3
-Scan Returned: ERROR:0(24)24: \u0000
-Scan Returned: ERROR:0(25)25: \u0001
-Erroneous Atom: TYPE (100):0(32)32: \\
-Erroneous Atom: TYPE (100):0(37)37: \\
-Scan Returned: SYMBOL:0(26)26: A\\102C\\100D\\10E translated to: ABC100
+Scan Returned: ERROR:0(24)24: \00/
+Scan Returned: ERROR:0(25)25: \01/
+Erroneous Atom: TYPE (100):0(32)32: \/
+Erroneous Atom: TYPE (100):0(37)37: \/
+Scan Returned: SYMBOL:0(26)26: A\/102C\/100D\/10E translated to: ABC100
     D10E
 Scan Returned: END_OF_FILE: <empty>
 
 Testing Lexical Scan of:
-*a**b+++c(+d\u007Fe%f0--1.2.3\u0000\u0001A\\102C\\100D\\10E
+*a**b+++c(+d\07F/e%f0--1.2.3\00/\01/A\/102C\/100D\/10E
 
 Start atom scan: atom table = 2
   Character = * Dispatcher = 169 Type Map = 133 CType = 6
@@ -325,16 +325,16 @@ Start atom scan: atom table = 112
   Character = d Dispatcher = 293 Type Map = 133 CType = 2
   ACCEPT
 Start atom scan: atom table = 112
-  Character = \u007F Dispatcher = 293 Type Map = 133 CType = 8
+  Character = \07F/ Dispatcher = 293 Type Map = 133 CType = 8
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(12)12: \u007F
+Erroneous Atom: TYPE (100):0(12)12: \07F/
 Start atom scan: atom table = 112
   Character = e Dispatcher = 293 Type Map = 133 CType = 2
   ACCEPT
 Start atom scan: atom table = 112
   Character = % Dispatcher = 293 Type Map = 133 CType = 0
   KEEP(0), RETURN
-Scan Returned: SYMBOL:0(11)11: d\u007Fe translated to: de
+Scan Returned: SYMBOL:0(11)11: d\07F/e translated to: de
 Start atom scan: atom table = 2
   Character = % Dispatcher = 169 Type Map = 133 CType = 0
   OUTPUT(1)
@@ -386,17 +386,17 @@ Start atom scan: atom table = 366
   Character = 3 Dispatcher = 434 Type Map = 426 CType = 1
   GOTO(366)
 Start atom scan: atom table = 366
-  Character = \u0000 Dispatcher = 434 CType = 0
+  Character = \00/ Dispatcher = 434 CType = 0
   KEEP(0), GOTO(2)
 Scan Returned: NUMBER:0(22)22: .3
 Start atom scan: atom table = 2
-  Character = \u0000 Dispatcher = 169 Type Map = 133 CType = 0
+  Character = \00/ Dispatcher = 169 Type Map = 133 CType = 0
   OUTPUT(1)
-Scan Returned: ERROR:0(24)24: \u0000
+Scan Returned: ERROR:0(24)24: \00/
 Start atom scan: atom table = 2
-  Character = \u0001 Dispatcher = 169 Type Map = 133 CType = 0
+  Character = \01/ Dispatcher = 169 Type Map = 133 CType = 0
   OUTPUT(1)
-Scan Returned: ERROR:0(25)25: \u0001
+Scan Returned: ERROR:0(25)25: \01/
 Start atom scan: atom table = 2
   Character = A Dispatcher = 169 Type Map = 133 CType = 2
   KEEP(0), CALL(112)
@@ -404,12 +404,12 @@ Start atom scan: atom table = 112
   Character = A Dispatcher = 293 Type Map = 133 CType = 2
   ACCEPT
 Start atom scan: atom table = 112
-  Character = \\ Dispatcher = 293 Type Map = 133 CType = 7
+  Character = \/ Dispatcher = 293 Type Map = 133 CType = 7
   MATCH(6), REQUIRE(327), ELSE:
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
 Start atom scan: atom table = 6
-  Character = \\ Dispatcher = 18 Type Map = 10 CType = 1
+  Character = \/ Dispatcher = 18 Type Map = 10 CType = 1
   Character = 1 Dispatcher = 36 Type Map = 14 CType = 1
   Character = 0 Dispatcher = 54 Type Map = 14 CType = 1
   Character = 2 Dispatcher = 72 Type Map = 14 CType = 1
@@ -421,12 +421,12 @@ Start atom scan: atom table = 112
   Character = C Dispatcher = 293 Type Map = 133 CType = 2
   ACCEPT
 Start atom scan: atom table = 112
-  Character = \\ Dispatcher = 293 Type Map = 133 CType = 7
+  Character = \/ Dispatcher = 293 Type Map = 133 CType = 7
   MATCH(6), REQUIRE(327), ELSE:
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
 Start atom scan: atom table = 6
-  Character = \\ Dispatcher = 18 Type Map = 10 CType = 1
+  Character = \/ Dispatcher = 18 Type Map = 10 CType = 1
   Character = 1 Dispatcher = 36 Type Map = 14 CType = 1
   Character = 0 Dispatcher = 54 Type Map = 14 CType = 1
   Character = 0 Dispatcher = 72 Type Map = 14 CType = 1
@@ -435,7 +435,7 @@ Start atom scan: atom table = 6
 
   Character = @ Dispatcher = 327 CType = 0
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(32)32: \\
+Erroneous Atom: TYPE (100):0(32)32: \/
 Start atom scan: atom table = 112
   Character = 1 Dispatcher = 293 Type Map = 133 CType = 3
   ACCEPT
@@ -449,18 +449,18 @@ Start atom scan: atom table = 112
   Character = D Dispatcher = 293 Type Map = 133 CType = 2
   ACCEPT
 Start atom scan: atom table = 112
-  Character = \\ Dispatcher = 293 Type Map = 133 CType = 7
+  Character = \/ Dispatcher = 293 Type Map = 133 CType = 7
   MATCH(6), REQUIRE(327), ELSE:
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
 Start atom scan: atom table = 6
-  Character = \\ Dispatcher = 18 Type Map = 10 CType = 1
+  Character = \/ Dispatcher = 18 Type Map = 10 CType = 1
   Character = 1 Dispatcher = 36 Type Map = 14 CType = 1
   Character = 0 Dispatcher = 54 Type Map = 14 CType = 1
   Character = E Dispatcher = 72 CType = 0
   FAIL
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(37)37: \\
+Erroneous Atom: TYPE (100):0(37)37: \/
 Start atom scan: atom table = 112
   Character = 1 Dispatcher = 293 Type Map = 133 CType = 3
   ACCEPT
@@ -472,7 +472,7 @@ Start atom scan: atom table = 112
   ACCEPT
 Start atom scan: atom table = 112
   KEEP(0), RETURN
-Scan Returned: SYMBOL:0(26)26: A\\102C\\100D\\10E translated to: ABC100
+Scan Returned: SYMBOL:0(26)26: A\/102C\/100D\/10E translated to: ABC100
     D10E
 Start atom scan: atom table = 2
   OUTPUT(2)

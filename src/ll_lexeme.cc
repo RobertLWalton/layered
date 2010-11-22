@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 09:30:26 EST 2010
+// Date:	Mon Nov 22 10:11:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1490,27 +1490,39 @@ LEX::inchar LEX::read_input_inchar;
 int LEX::spchar ( char * buffer, uns32 c )
 {
     if ( c == '\\' )
-        return sprintf ( buffer, "\\\\" );
+        return sprintf ( buffer, "\\/" );
     else if ( 33 <= c && c <= 126 )
         return sprintf ( buffer, "%c", (char) c );
     else if ( c == ' ' )
-        return sprintf ( buffer, "\\~" );
+        return sprintf ( buffer, "\\~/" );
     else if ( c == '\n' )
-        return sprintf ( buffer, "\\n" );
+        return sprintf ( buffer, "\\lf/" );
     else if ( c == '\t' )
-        return sprintf ( buffer, "\\t" );
+        return sprintf ( buffer, "\\ht/" );
     else if ( c == '\f' )
-        return sprintf ( buffer, "\\f" );
+        return sprintf ( buffer, "\\ff/" );
     else if ( c == '\v' )
-        return sprintf ( buffer, "\\v" );
+        return sprintf ( buffer, "\\vt/" );
     else if ( c == '\b' )
-        return sprintf ( buffer, "\\b" );
+        return sprintf ( buffer, "\\bs/" );
     else if ( c == '\r' )
-        return sprintf ( buffer, "\\r" );
+        return sprintf ( buffer, "\\cr/" );
+    else if ( c <= 0xF )
+        return sprintf ( buffer, "\\%02X/", c );
+    else if ( c <= 0xFF )
+        return sprintf ( buffer, "\\%03X/", c );
+    else if ( c <= 0xFFF )
+        return sprintf ( buffer, "\\%04X/", c );
     else if ( c <= 0xFFFF )
-        return sprintf ( buffer, "\\u%04X", c );
+        return sprintf ( buffer, "\\%05X/", c );
+    else if ( c <= 0xFFFFF )
+        return sprintf ( buffer, "\\%06X/", c );
+    else if ( c <= 0xFFFFFF )
+        return sprintf ( buffer, "\\%07X/", c );
+    else if ( c <= 0xFFFFFFF )
+        return sprintf ( buffer, "\\%08X/", c );
     else
-        return sprintf ( buffer, "\\U%08X", c );
+        return sprintf ( buffer, "\\%09X/", c );
 }
 
 ostream & operator <<

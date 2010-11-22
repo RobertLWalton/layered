@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 07:10:42 EST 2010
+// Date:	Mon Nov 22 10:34:45 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -307,7 +307,8 @@ static uns32 pop_instruction_group ( void )
 // are mapped to the character type the dispatcher would
 // have had (used by end_atom_pattern).
 //
-static uns32 pop_dispatcher ( bool discard_dispatcher = false )
+static uns32 pop_dispatcher
+	( bool discard_dispatcher = false )
 {
     uns32 instruction_ID = pop_instruction_group();
 

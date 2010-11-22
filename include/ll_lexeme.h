@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 05:26:00 EST 2010
+// Date:	Mon Nov 22 10:11:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -686,17 +686,15 @@ namespace ll { namespace lexeme {
     // Print an uns32 UNICODE character into the buffer.
     //
     // If the uns32 character c is ' ', '\\', '\n',
-    // '\f', '\t', '\v', '\b', or '\r' put "\~", "\\",
-    // etc in the buffer.  Otherwise if c is in the
-    // range 33 ..  126 put c itself in the buffer.
-    // Otherwise if c is <= 0xFFFF then \uXXXX is put in
-    // the buffer, where XXXX is the hexadecimal
-    // representation of the uns32 value c.  Otherwise
-    // \UXXXXXXXX is put in the buffer where XXXXXXXX is
-    // the hexadecimal representation of c.  A NUL is
-    // put at the end of the characters written into the
-    // buffer, and the number of characters written
-    // exclusive of the NUL is returned.
+    // '\f', '\t', '\v', '\b', or '\r' put "\~/", "\\/",
+    // "\lf/", etc. in the buffer.  Otherwise if c is in
+    // the range 33 ..  126 put c itself in the buffer.
+    // Otherwise "\0X...X/" is put in the buffer, where
+    // X...X are hexadecimal digits representing the
+    // uns32 value c.  A NUL is put at the end of the
+    // characters written into the buffer, and the
+    // number of characters written exclusive of the
+    // NUL is returned.
     //
     int spchar ( char * buffer, uns32 c );
 

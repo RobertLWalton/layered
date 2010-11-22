@@ -373,10 +373,10 @@ specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
 characters such as the 4-character sequence \verb|\lf/| which matches
-the atom pattern \verb|"\\/lf/"|
+the atom pattern \verb|"\/lf/"|
 or the 4-character sequence \verb|\0a/| which matches the atom pattern
 \begin{center}
-\verb|"\\/0<hex-digit>/"|
+\verb|"\/0<hex-digit>/"|
 \end{center}
 where \verb|<hex-digit>| names a character pattern matching characters
 in the ranges \verb|0-9|, \verb|a-f|, and \verb|A-F|.
@@ -888,7 +888,7 @@ Some example {\em character-pattern-definitions} are:
 \begin{indpar}\begin{verbatim}
 "<hex-digit>" = "0-9" | "a-f" | "A-F";
 "<non-line-break-char>" = ~ "\lf/" & ~ "\vt/" & ~ "\ff/";
-"<quotable-char>" = "\020/-\07e/" & ~ "\"/" & ~ "\\/";
+"<quotable-char>" = "\020/-\07e/" & ~ "\"/" & ~ "\/";
 "<whitespace-char>" = " " | "\lf/" | "\vt/" | "\ff/" | "\ht/";
 "<source-character>" =
     ( "\020/-\07e/" & ~ "$" & ~ "@" & ~ "`" )
@@ -939,7 +939,7 @@ of {\em quotable-characters}, each of which match only themselves,
 and {\em character-pattern-names}, each of which match any character
 in the named set of characters.  Thus
 \begin{center}
-\verb|"\\/0<hex-digit><hex-digit>/"|
+\verb|"\/0<hex-digit><hex-digit>/"|
 \end{center}
 matches 5-character atoms consisting of a \verb|\| followed by an
 \verb|0| followed by two characters each in the character set
@@ -1123,7 +1123,7 @@ hexadecimal digits, converts these into an 32 bit unsigned integer
 UNICODE character code, which becomes the 1-character atom translation.
 An example is the the lexical table entry
 \begin{center}
-\verb|"\\/0<hex-digit><hex-digit>/" translate hex 2 1;|
+\verb|"\/0<hex-digit><hex-digit>/" translate hex 2 1;|
 \end{center}
 which might be used to accept a character representative in a quoted string
 and copy the appropriate hexadecimally related character code into
@@ -1138,7 +1138,7 @@ The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 views the rest of the characters as octal and not hexadecimal.
 An example use would be the lexical table entry
 \begin{center}
-\verb|"\\/<oct-digit><oct-digit><oct-digit>" translate oct 1 0;|
+\verb|"\/<oct-digit><oct-digit><oct-digit>" translate oct 1 0;|
 \end{center}
 
 \subsubsubsection{Require Instruction Component}
@@ -1153,7 +1153,7 @@ A {\tt require} should only appear in an
 
 An example use would be the lexical table entry
 \begin{indpar}
-\verb|"\\/u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0| \\
+\verb|"\/u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0| \\
 \verb|    require "<letter>" else| \\
 \verb|    translate to "" error bad character in identifier;|
 \end{indpar}
@@ -1179,14 +1179,14 @@ and its translation is governed
 independently by {\tt match} and translate instruction components.
 The following are some examples:
 \begin{indpar}\begin{verbatim}
-"\\/<other>" error bad escape sequence;
-"\\/<other>" translate to "" error bad escape sequence;
-"\\/<other>" translate to "\del/" error bad escape sequence;
+"\/<other>" error bad escape sequence;
+"\/<other>" translate to "" error bad escape sequence;
+"\/<other>" translate to "\del/" error bad escape sequence;
 \end{verbatim}\end{indpar}
 These might be entries in an lexical table for a quoted string.
 All identify an atom consisting of a backslash followed by any
 character, as long as the atom is not recognized by another entry
-that has the form \verb|"\\/|C\ldots\verb|"| where C is a character
+that has the form \verb|"\/|C\ldots\verb|"| where C is a character
 pattern other than \verb|<other>| (see \pagref{<OTHER>}).
 The first entry copies the entire 2-character atom, including the
 backslash, into the lexeme translation.  The second entry copies
@@ -1194,7 +1194,7 @@ nothing (the empty string \verb|""|) into the lexeme translation.
 The third entry copies the DEL character (hex code \verb|7f|)
 into the lexeme translation.  An alternative is the entry
 \begin{indpar}\begin{verbatim}
-"\\/<other>" keep 1 error bad escape;
+"\/<other>" keep 1 error bad escape;
 \end{verbatim}\end{indpar}
 that reduces the atom size to 1 character, just the backslash,
 which is announced as an error without its following character,
@@ -1626,11 +1626,11 @@ begin main master table;
 
    "<letter>" call word;
    "'<letter>" call word;
-   "\\/" match escaped character
-         require "<letter>" call word
-         else match unrecognized escape sequence
-	      output unrecognized escape sequence
-         else output unrecognized escape character;
+   "\/" match escaped character
+        require "<letter>" call word
+        else match unrecognized escape sequence
+	     output unrecognized escape sequence
+        else output unrecognized escape character;
 
    "<mark-char>" call mark;
    "." call mark;  // ".<non-digit>"
@@ -1680,15 +1680,15 @@ begin word lexeme table;
 
    "<letter>" accept;
    "'<letter>" accept;
-    "\\/" match escaped character
-          require "<letter>"
-	  else match escaped character
-	       error non letter escape sequence
-	       translate to "?"
-	  else match unrecognized escape sequence
-	       error unrecognized escape sequence
-	       translate to "?"
-          else keep 0 return;
+    "\/" match escaped character
+         require "<letter>"
+	 else match escaped character
+	      error non letter escape sequence
+	      translate to "?"
+	 else match unrecognized escape sequence
+	      error unrecognized escape sequence
+	      translate to "?"
+         else keep 0 return;
    return;
 
 end word lexeme table;
@@ -1733,10 +1733,10 @@ begin quoted string lexeme table;
 
     "\"/" translate to "" return;   // End quoted string.
 
-    "\\/" match escaped character
-          else match unrecognized escape sequence
-	       error unrecognized escape sequence
-          else error unrecognized character;
+    "\/" match escaped character
+         else match unrecognized escape sequence
+	      error unrecognized escape sequence
+         else error unrecognized character;
 
     "<line-break-char>"
         goto bad end of line;
@@ -1749,36 +1749,37 @@ end quoted string lexeme table;
 
 begin escaped character atom table;
 
-    "\\/\lf/" translate to "\lf/";
-    "\\/\cr/" translate to "\cr/";
-    "\\/\ht/" translate to "\ht/";
-    "\\/\bs/" translate to "\bs/";
-    "\\/\ff/" translate to "\ff/";
-    "\\/\vt/" translate to "\vt/";
+    "\/\lf/" translate to "\lf/";
+    "\/\cr/" translate to "\cr/";
+    "\/\ht/" translate to "\ht/";
+    "\/\bs/" translate to "\bs/";
+    "\/\ff/" translate to "\ff/";
+    "\/\vt/" translate to "\vt/";
 
-    "\\/\"/" translate to "\"/";
-    "\\/\\//" translate to "\\/";
-    "\\/~/"  translate to " " ;
+    "\/\"/" translate to "\"/";
+    "\/~/"  translate to " " ;
 
-    "\\/0/" translate to "\0/";
-    "\\/0<hex-digit>/"
+    "\//"   translate to "\/";
+
+    "\/0/" translate to "\0/";
+    "\/0<hex-digit>/"
               translate hex 2 1;
-    "\\/0<hex-digit><hex-digit>/"
+    "\/0<hex-digit><hex-digit>/"
               translate hex 2 1;
-    "\\/0<hex-digit><hex-digit><hex-digit>/"
+    "\/0<hex-digit><hex-digit><hex-digit>/"
               translate hex 2 1;
-    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>/"
+    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>/"
               translate hex 2 1;
-    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit>/"
               translate hex 2 1;
-    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit>/"
               translate hex 2 1;
-    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit>/"
               translate hex 2 1;
-    "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit><hex-digit>/"
               translate hex 2 1;
     fail;
@@ -1788,37 +1789,37 @@ end escaped character atom table;
 
 begin unrecognized escape sequence atom table;
 
-    "\\//";
-    "\\/<escaped-char>/";
-    "\\/<escaped-char><escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char>/";
-    "\\/<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>"
-       "<escaped-char><escaped-char>/";
+    "\//";
+    "\/<escaped-char>/";
+    "\/<escaped-char><escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char>/";
+    "\/<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>"
+      "<escaped-char><escaped-char>/";
     fail;
 end unrecognized escape sequence atom table;
 
@@ -2011,10 +2012,10 @@ begin pp include master table;
     "\"/" translate to "" call quoted header name;
 
     "<non-digit>" call identifier;
-    "\\/" match escaped letter call identifier
-          else match universal character
-	       output unrecognized universal character
-          else output unrecognized character;
+    "\/" match escaped letter call identifier
+         else match universal character
+	      output unrecognized universal character
+         else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
@@ -2056,11 +2057,11 @@ begin normal master table;
     "//" call "//" comment;
 
     "<non-digit>" call identifier;
-    "\\/<u-or-U>" match escaped character
-                  require "<letter>" call identifier
-                  else match escaped character
-	               output unrecognized universal character
-                  else output unrecognized character;
+    "\/<u-or-U>" match escaped character
+                 require "<letter>" call identifier
+                 else match escaped character
+	              output unrecognized universal character
+                 else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
@@ -2125,9 +2126,9 @@ end operator atom table;
 
 begin identifier lexeme table;
     "<non-digit>" accept;
-    "\\/<u-or-U>" match escaped character
-                  require "<letter>"
-                  else keep 0 return;
+    "\/<u-or-U>" match escaped character
+                 require "<letter>"
+                 else keep 0 return;
     goto normal;
 end identifier lexeme table;
 
@@ -2218,13 +2219,13 @@ begin pp number lexeme table;
 end pp number lexeme table;
 
 "<character-literal-char>" =
-    "<source-char>" & ~ "'" & ~ "\\/" & ~ "\lf/";
+    "<source-char>" & ~ "'" & ~ "\/" & ~ "\lf/";
 
 begin character literal lexeme table;
     "'" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "\\/" match escaped character
-          else error bad escape character;
+    "\/" match escaped character
+         else error bad escape character;
     "<character-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
@@ -2233,21 +2234,21 @@ end character literal lexeme table;
 begin wide character literal lexeme table;
     "'" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "\\/" match escaped character
-          else error bad escape character;
+    "\/" match escaped character
+         else error bad escape character;
     "<character-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
 end wide character literal lexeme table;
 
 "<string-literal-char>" =
-    "<source-char>" & ~ "\"/" & ~ "\\/" & ~ "\lf/";
+    "<source-char>" & ~ "\"/" & ~ "\/" & ~ "\lf/";
 
 begin string literal lexeme table;
     "\"/" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "\\/" match escaped character
-          else error bad escape character;
+    "\/" match escaped character
+         else error bad escape character;
     "<string-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
@@ -2256,8 +2257,8 @@ end string literal lexeme table;
 begin wide string literal lexeme table;
     "\"/" translate to "" goto normal line master;
     "\lf/" keep 0 goto premature end of line master;
-    "\\/" match escaped character
-          else error bad escape character;
+    "\/" match escaped character
+         else error bad escape character;
     "<string-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
@@ -2272,50 +2273,50 @@ end wide string literal lexeme table;
 // permits any number of hexadecimal digits.
 //
 begin escaped character atom table;
-    "\\/n" translate to "\lf/";
-    "\\/t" translate to "\ht/";
-    "\\/v" translate to "\vt/";
-    "\\/b" translate to "\bs/";
-    "\\/r" translate to "\cr/";
-    "\\/f" translate to "\ff/";
-    "\\/a" translate to "\bel/";
-    "\\/\\/" translate to "\\/";
-    "\\/?" translate to "?";
-    "\\/\"/" translate to "\"/";
-    "\\/'" translate to "'";
-    "\\/<oct-digit>"
+    "\/n" translate to "\lf/";
+    "\/t" translate to "\ht/";
+    "\/v" translate to "\vt/";
+    "\/b" translate to "\bs/";
+    "\/r" translate to "\cr/";
+    "\/f" translate to "\ff/";
+    "\/a" translate to "\bel/";
+    "\/\/" translate to "\/";
+    "\/?" translate to "?";
+    "\/\"/" translate to "\"/";
+    "\/'" translate to "'";
+    "\/<oct-digit>"
         translate oct 1 0;
-    "\\/<oct-digit><oct-digit>"
+    "\/<oct-digit><oct-digit>"
         translate oct 1 0;
-    "\\/<oct-digit><oct-digit><oct-digit>"
+    "\/<oct-digit><oct-digit><oct-digit>"
         translate oct 1 0;
-    "\\/x<hex-digit>"
+    "\/x<hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit>"
+    "\/x<hex-digit><hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit><hex-digit>"
+    "\/x<hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit>"
+    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit>"
+    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit><hex-digit>"
+    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit>" fail;
-    "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit>" fail;
+    "\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
     fail;
 end escaped character atom table;

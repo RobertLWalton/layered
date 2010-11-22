@@ -2,14 +2,17 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 21 22:10:40 EST 2010
+// Date:	Mon Nov 22 10:34:31 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
-// Note: This code uses 80 columns (instead of the system
-// default 56).
+// Lines beginning with `    /// ' are the same as in
+// the Standard Lexical Program appendix of ../doc/
+// layered-introduction.tex.  As a consequence, this
+// file uses 80 columns instead of the system default 56
+// columns.
 
 // Table of Contents
 //
@@ -245,11 +248,11 @@ void ll::lexeme::standard::create_standard_program
 	      NDL::end_dispatch();
 	   NDL::end_dispatch();
 
-    ///   "\\/" match escaped character
-    ///          require "<letter>" call word
-    ///          else match unrecognized escape sequence
-    /// 	      output unrecognized escape sequence
-    ///          else output unrecognized escape character;
+    ///   "\/" match escaped character
+    ///        require "<letter>" call word
+    ///        else match unrecognized escape sequence
+    /// 	    output unrecognized escape sequence
+    ///        else output unrecognized escape character;
     ///
     	   NDL::begin_dispatch ( "\\" );
 		 NDL::match ( escaped_character );
@@ -418,15 +421,15 @@ void ll::lexeme::standard::create_standard_program
 	      NDL::end_dispatch();
 	   NDL::end_dispatch();
 
-    ///     "\\/" match escaped character
-    ///           require "<letter>"
-    ///           else match escaped character
-    ///                error non letter escape sequence
-    ///                translate to "?"
-    ///           else match unrecognized escape sequence
-    ///                error unrecognized escape sequence
-    ///                translate to "?"
-    ///           else keep 0 return;
+    ///     "\/" match escaped character
+    ///          require "<letter>"
+    ///          else match escaped character
+    ///               error non letter escape sequence
+    ///               translate to "?"
+    ///          else match unrecognized escape sequence
+    ///               error unrecognized escape sequence
+    ///               translate to "?"
+    ///          else keep 0 return;
     //
 	   NDL::begin_dispatch ( "\\" );
 		 NDL::match ( escaped_character );
@@ -590,10 +593,10 @@ void ll::lexeme::standard::create_standard_program
 	      NDL::ret();
 	   NDL::end_dispatch();
 
-    ///     "\\/" match escaped character
-    ///           else match unrecognized escape sequence
-    /// 	       error unrecognized escape sequence
-    ///           else error unrecognized character;
+    ///     "\/" match escaped character
+    ///          else match unrecognized escape sequence
+    /// 	      error unrecognized escape sequence
+    ///          else error unrecognized character;
     ///
 	   NDL::begin_dispatch ( "\\" );
 		 NDL::match ( escaped_character );
@@ -632,7 +635,13 @@ void ll::lexeme::standard::create_standard_program
     NDL::begin_table ( escaped_character );
        NDL::begin_dispatch ( "\\" );
 
-    ///     "\\/\lf/" translate to "\lf/";
+    ///     "\//" translate to "\/";
+    //
+    	    begin_dispatch ( "/" );
+		NDL::translate_to ( "\\" );
+	    end_dispatch();
+
+    ///     "\/lf/" translate to "\lf/";
     //
     	    begin_dispatch ( "l" );
 		begin_dispatch ( "f" );
@@ -642,7 +651,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/\cr/" translate to "\cr/";
+    ///     "\/cr/" translate to "\cr/";
     //
     	    begin_dispatch ( "c" );
 		begin_dispatch ( "r" );
@@ -652,7 +661,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/\ht/" translate to "\ht/";
+    ///     "\/ht/" translate to "\ht/";
     //
     	    begin_dispatch ( "h" );
 		begin_dispatch ( "t" );
@@ -662,7 +671,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/\bs/" translate to "\bs/";
+    ///     "\/bs/" translate to "\bs/";
     //
     	    begin_dispatch ( "b" );
 		begin_dispatch ( "s" );
@@ -672,7 +681,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/\ff/" translate to "\ff/";
+    ///     "\/ff/" translate to "\ff/";
     //
     	    begin_dispatch ( "f" );
 		begin_dispatch ( "f" );
@@ -682,7 +691,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/\vt/" translate to "\vt/";
+    ///     "\/vt/" translate to "\vt/";
     ///
     	    begin_dispatch ( "v" );
 		begin_dispatch ( "t" );
@@ -692,7 +701,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/\"/" translate to "\"/";
+    ///     "\/"/" translate to "\"/";
     //
     	    begin_dispatch ( "\"" );
 		begin_dispatch ( "/" );
@@ -700,15 +709,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/\\//" translate to "\\/";
-    //
-    	    begin_dispatch ( "\\" );
-		begin_dispatch ( "/" );
-		    NDL::translate_to ( "\\" );
-		end_dispatch();
-	    end_dispatch();
-
-    ///     "\\/~/"   translate to " " ;
+    ///     "\/~/"   translate to " " ;
     ///
     	    begin_dispatch ( "~" );
 		begin_dispatch ( "/" );
@@ -716,26 +717,26 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/0/" translate to "\0/";
-    ///     "\\/0<hex-digit>/"
+    ///     "\/0/" translate to "\0/";
+    ///     "\/0<hex-digit>/"
     ///               translate hex 2 1;
-    ///     "\\/0<hex-digit><hex-digit>/"
+    ///     "\/0<hex-digit><hex-digit>/"
     ///               translate hex 2 1;
-    ///     "\\/0<hex-digit><hex-digit><hex-digit>/"
+    ///     "\/0<hex-digit><hex-digit><hex-digit>/"
     ///               translate hex 2 1;
-    ///     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>/"
+    ///     "\/0<hex-digit><hex-digit><hex-digit><hex-digit>/"
     ///               translate hex 2 1;
-    ///     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-    ///         "<hex-digit>/"
+    ///     "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    ///        "<hex-digit>/"
     ///               translate hex 2 1;
-    ///     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-    ///         "<hex-digit><hex-digit>/"
+    ///     "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    ///        "<hex-digit><hex-digit>/"
     ///               translate hex 2 1;
-    ///     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-    ///         "<hex-digit><hex-digit><hex-digit>/"
+    ///     "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    ///        "<hex-digit><hex-digit><hex-digit>/"
     ///               translate hex 2 1;
-    ///     "\\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-    ///         "<hex-digit><hex-digit><hex-digit><hex-digit>/"
+    ///     "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
+    ///        "<hex-digit><hex-digit><hex-digit><hex-digit>/"
     ///               translate hex 2 1;
     //
     	    begin_dispatch ( "0" );
@@ -804,37 +805,37 @@ void ll::lexeme::standard::create_standard_program
     ///
     NDL::begin_table ( unrecognized_escape_sequence );
 
-    ///     "\\//";
-    ///     "\\/<escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char>/";
-    ///     "\\/<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>"
-    ///        "<escaped-char><escaped-char>/";
+    ///     "\//";
+    ///     "\/<escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char>/";
+    ///     "\/<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>"
+    ///       "<escaped-char><escaped-char>/";
     //
             NDL::begin_dispatch ( "\\" );
 	       NDL::begin_dispatch ( "/" );

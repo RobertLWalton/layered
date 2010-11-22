@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 21 21:53:54 EST 2010
+// Date:	Mon Nov 22 05:34:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -144,10 +144,12 @@ struct instruction_header {
     uns32 atom_table_ID;
     uns32 require_dispatcher_ID;
     uns32 else_instruction_ID;
-    uns32 output_error_type;
-    uns32 goto_call_table_ID;
+    uns32 erroneous_atom_type;
+    uns32 output_type;
+    uns32 goto_table_ID;
+    uns32 call_table_ID;
 };
-const uns32 instruction_header_length = 7;
+const uns32 instruction_header_length = 9;
 
 } } }
 

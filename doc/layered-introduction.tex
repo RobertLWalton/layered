@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 21, 2010
+November 22, 2010
  
 \end{center}
 
@@ -1682,6 +1682,12 @@ begin word lexeme table;
    "'<letter>" accept;
     "\\/" match escaped character
           require "<letter>"
+	  else match escaped character
+	       error non letter escape sequence
+	       translate to "?"
+	  else match unrecognized escape sequence
+	       error unrecognized escape sequence
+	       translate to "?"
           else keep 0 return;
    return;
 

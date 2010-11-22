@@ -1170,7 +1170,7 @@ there is a {\tt translate hex}, {\tt translate oct}, or
 The last {\em instruction} in an {\em instruction-group} must
 never fail, and so cannot contain a {\tt require} {\em instruction-component}.
 
-\subsubsubsection{Error and Output Instruction Components}
+\subsubsubsection{Error Instruction Component}
 
 A `\ttmkey{error}{in lexical program} {\em type}\,' {\em instruction-component}
 announces the current atom as an erroneous atom of the given {\em type}.
@@ -1194,7 +1194,7 @@ nothing (the empty string \verb|""|) into the lexeme translation.
 The third entry copies the DEL character (hex code \verb|7f|)
 into the lexeme translation.  An alternative is the entry
 \begin{indpar}\begin{verbatim}
-"\\<other>" keep 1 error bad escape;
+"\\/<other>" keep 1 error bad escape;
 \end{verbatim}\end{indpar}
 that reduces the atom size to 1 character, just the backslash,
 which is announced as an error without its following character,
@@ -1205,7 +1205,7 @@ atom recognized.
 The routine that announces an error atom is given the position
 of the atom in the input stream, so characters surrounding the
 atom may also be included in the announcement.  For example,
-the line containing the atom may be printed with marks on the
+the line containing the atom may be printed with marks under the
 characters of the atom.  So the fact that the erroneous atom
 proper in the last example is just the backslash does not
 prevent the character after the backslash from being included
@@ -1219,7 +1219,9 @@ handled by the lexical scanner just as any other lexeme would be:
 i.e., the lexical scanner has no special knowledge of erroneous lexemes
 and no special operations for detecting or announcing them.
 
-A `\ttmkey{output}{in lexical program} {\em type}\,'
+\subsubsubsection{Output Instruction Component}
+
+\hfill A `\ttmkey{output}{in lexical program} {\em type}\,'
 {\em instruction-component} emits the current lexeme
 with the given {\em type}.  This
 {\em instruction-component} may only be used if the next
@@ -1229,12 +1231,12 @@ The {\tt output} {\em instruction-component}
 works even if the current lexeme is of zero length,
 and may be used in the {\em default-instruction-group} of an lexical table;
 for example, at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} the
-{\tt master} lexical table has `{\tt output end of file;}' as its
+{\tt main} master table has `{\tt output end of file;}' as its
 {\em default-instruction-group}, thereby outputting a zero length
 lexeme with `{\tt end of file}' type whenever the input is at the
 end of file.
 
-As an example, the `{\tt main}' master table at the top of
+As another example, the `{\tt main}' master table at the top of
 \pagref{EXAMPLE-LEXEME-PROGRAM} contains the entry:
 \begin{indpar}\begin{verbatim}
 "<other>" output bad character;
@@ -1270,7 +1272,7 @@ that it also pushes the identifier of the lexical table in which
 the `{\tt call}' occurs (the `caller') into the return stack.
 The \key{return stack} is a stack of up to 64 lexical table identifiers
 used by the `{\tt call}' and `{\tt return}' instruction components
-and also by the `{\tt translate} {\em translation-table-name}'
+and also by the `{\tt match} {\em atom-table-name}'
 instruction components.  Recursive calls are prohibited.
 
 A `\ttmkey{return}{in lexical program}'
@@ -1279,10 +1281,19 @@ that uses the lexical table identifier at the top of the return
 stack to determine the next lexical table.  This identifier is
 also popped from the stack.
 
-The return stack is emptied whenever the current lexical table
-becomes a master mode table.  A {\tt call} \underline{cannot} be used
-to call a master or translation table.  A {\tt return} can only
+The return stack is set to empty whenever the current lexical table
+becomes a master mode table.
+A {\tt call} \underline{cannot} be used
+to call a master or atom table.  A {\tt return} can only
 appear in a lexeme table.
+A {\tt goto} \underline{cannot} be used to go to an atom table.
+
+The `{\tt call}' and `{\tt goto}' instruction components
+can both be used in the same {\em instruction}, in 
+which case the {\tt goto} lexical table identifier is pushed into the
+return stack instead of the current lexical table identifier.
+The `{\tt return}' instruction component cannot be used with
+`{\tt call}' or `{\tt goto}'.
 
 The `{\tt call}' and `{\tt return}' instruction components
 permit a lexeme table to be shared among different
@@ -1299,10 +1310,10 @@ But for certain languages these instruction components
 substantially reduce the size of the lexical program.
 
 A `\ttmkey{fail}{in lexical program}'
-{\em instruction-component} can only be used in a translation
-table and causes the instruction invoking the translation table to fail.
+{\em instruction-component} can only be used in an atom
+table and causes the instruction invoking the atom table to fail.
 The `{\tt goto}', `{\tt call}', and `{\tt return}' instruction components
-\underline{cannot} be used in a translation table.
+\underline{cannot} be used in an atom table.
 
 \section{Parsing}
 
@@ -1615,9 +1626,9 @@ begin main master table;
 
    "<letter>" call word;
    "'<letter>" call word;
-   "\\/" translate escaped character
+   "\\/" match escaped character
          require "<letter>" call word
-         else translate unrecognized escape sequence
+         else match unrecognized escape sequence
 	      output unrecognized escape sequence
          else output unrecognized escape character;
 
@@ -1635,7 +1646,7 @@ begin main master table;
    "," output separator;	// "<non-digit>,"
    "'" output separator;        // "'<non-letter>"
 
-   "\"/" translate "" call quoted string;
+   "\"/" translate to "" call quoted string;
 
    "<other>" output unrecognized character;
    output end of file;
@@ -1669,7 +1680,7 @@ begin word lexeme table;
 
    "<letter>" accept;
    "'<letter>" accept;
-    "\\/" translate escaped character
+    "\\/" match escaped character
           require "<letter>"
           else keep 0 return;
    return;
@@ -1714,10 +1725,10 @@ end number lexeme table;
 
 begin quoted string lexeme table;
 
-    "\"/" translate "" return;   // End quoted string.
+    "\"/" translate to "" return;   // End quoted string.
 
-    "\\/" translate escaped character
-          else translate unrecognized escape sequence
+    "\\/" match escaped character
+          else match unrecognized escape sequence
 	       error unrecognized escape sequence
           else error unrecognized character;
 
@@ -1730,20 +1741,20 @@ begin quoted string lexeme table;
 
 end quoted string lexeme table;
 
-begin escaped character translation table;
+begin escaped character atom table;
 
-    "\\/\lf/" translate "\lf/";
-    "\\/\cr/" translate "\cr/";
-    "\\/\ht/" translate "\ht/";
-    "\\/\bs/" translate "\bs/";
-    "\\/\ff/" translate "\ff/";
-    "\\/\vt/" translate "\vt/";
+    "\\/\lf/" translate to "\lf/";
+    "\\/\cr/" translate to "\cr/";
+    "\\/\ht/" translate to "\ht/";
+    "\\/\bs/" translate to "\bs/";
+    "\\/\ff/" translate to "\ff/";
+    "\\/\vt/" translate to "\vt/";
 
-    "\\/\"/" translate "\"/";
-    "\\/\\//" translate "\\/";
-    "\\/~/"  translate " " ;
+    "\\/\"/" translate to "\"/";
+    "\\/\\//" translate to "\\/";
+    "\\/~/"  translate to " " ;
 
-    "\\/0/" translate "\0/";
+    "\\/0/" translate to "\0/";
     "\\/0<hex-digit>/"
               translate hex 2 1;
     "\\/0<hex-digit><hex-digit>/"
@@ -1765,11 +1776,11 @@ begin escaped character translation table;
         "<hex-digit><hex-digit><hex-digit><hex-digit>/"
               translate hex 2 1;
     fail;
-end escaped character translation table;
+end escaped character atom table;
 
 "<escaped-char>" = ~ "/" & ~ "<line-break-char>";
 
-begin unrecognized escape sequence translation table;
+begin unrecognized escape sequence atom table;
 
     "\\//";
     "\\/<escaped-char>/";
@@ -1803,7 +1814,7 @@ begin unrecognized escape sequence translation table;
        "<escaped-char><escaped-char>"
        "<escaped-char><escaped-char>/";
     fail;
-end unrecognized escape sequence translation table;
+end unrecognized escape sequence atom table;
 
 begin bad end of line master table;
     output bad end of line goto main;
@@ -1944,9 +1955,9 @@ begin initial master table;
     "<horizontal-space-char>" call horizontal space;
     "/*" call "/*" comment;
     "##" output operator goto normal;
-    "%:%:" translate "##" output operator goto normal;
+    "%:%:" translate to "##" output operator goto normal;
     "#" output punctuation goto pp beginning;
-    "%:" translate "#" output punctuation goto pp beginning;
+    "%:" translate to "#" output punctuation goto pp beginning;
     goto normal;
 end initial master table;
 
@@ -1990,24 +2001,24 @@ begin pp include master table;
     "/*" call "/*" comment;
     "//" call "//" comment;
 
-    "<" translate "" call bracketed header name;
-    "\"/" translate "" call quoted header name;
+    "<" translate to "" call bracketed header name;
+    "\"/" translate to "" call quoted header name;
 
     "<non-digit>" call identifier;
-    "\\/" translate escaped letter call identifier
-          else translate universal character
+    "\\/" match escaped letter call identifier
+          else match universal character
 	       output unrecognized universal character
           else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
 
-    "'" translate "" call character literal;
-    "L'" translate "" call wide character literal;
-    "\"/" translate "" call string literal;
-    "L\"/" translate "" call wide string literal;
+    "'" translate to "" call character literal;
+    "L'" translate to "" call wide character literal;
+    "\"/" translate to "" call string literal;
+    "L\"/" translate to "" call wide string literal;
 
-    "<op-char-except-<>" translate operator
+    "<op-char-except-<>" translate to operator
     			 output operator
           else output unrecognized character;
 
@@ -2017,7 +2028,7 @@ begin pp include master table;
 pp end include master table;
 
 begin bracketed header name lexeme table;
-    ">" translate "" goto normal;
+    ">" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
     "<other>" accept;
     goto premature end of file;
@@ -2027,7 +2038,7 @@ end bracketed header name lexeme table;
 // strings, and cannot have escape sequences.
 //
 begin quoted header name lexeme table;
-    "\"/" translate "" goto normal;
+    "\"/" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
     "<other>" accept;
     goto premature end of file;
@@ -2039,21 +2050,21 @@ begin normal master table;
     "//" call "//" comment;
 
     "<non-digit>" call identifier;
-    "\\/<u-or-U>" translate escaped character
+    "\\/<u-or-U>" match escaped character
                   require "<letter>" call identifier
-                  else translate escaped character
+                  else match escaped character
 	               output unrecognized universal character
                   else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
 
-    "'" translate "" call character literal;
-    "L'" translate "" call wide character literal;
-    "\"/" translate "" call string literal;
-    "L\"/" translate "" call wide string literal;
+    "'" translate to "" call character literal;
+    "L'" translate to "" call wide character literal;
+    "\"/" translate to "" call string literal;
+    "L\"/" translate to "" call wide string literal;
 
-    "<op-char>" translate operator output operator
+    "<op-char>" match operator output operator
                 else output unrecognized character;
 
     "\lf/" output line feed goto initial;
@@ -2061,7 +2072,7 @@ begin normal master table;
     output end of file goto initial;
 end normal master table;
 
-begin operator translation table;
+begin operator atom table;
     "(";
     ")";
     "[";
@@ -2101,14 +2112,14 @@ begin operator translation table;
     // etc.
 
     fail;
-end operator translation table;
+end operator atom table;
 
 
 "<u-or-U>" = "u" | "U";
 
 begin identifier lexeme table;
     "<non-digit>" accept;
-    "\\/<u-or-U>" translate escaped character
+    "\\/<u-or-U>" match escaped character
                   require "<letter>"
                   else keep 0 return;
     goto normal;
@@ -2204,9 +2215,9 @@ end pp number lexeme table;
     "<source-char>" & ~ "'" & ~ "\\/" & ~ "\lf/";
 
 begin character literal lexeme table;
-    "'" translate "" goto normal;
+    "'" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "\\/" translate escaped character
+    "\\/" match escaped character
           else error bad escape character;
     "<character-literal-char>" accept;
     "<other>" error bad character literal character;
@@ -2214,9 +2225,9 @@ begin character literal lexeme table;
 end character literal lexeme table;
 
 begin wide character literal lexeme table;
-    "'" translate "" goto normal;
+    "'" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "\\/" translate escaped character
+    "\\/" match escaped character
           else error bad escape character;
     "<character-literal-char>" accept;
     "<other>" error bad character literal character;
@@ -2227,9 +2238,9 @@ end wide character literal lexeme table;
     "<source-char>" & ~ "\"/" & ~ "\\/" & ~ "\lf/";
 
 begin string literal lexeme table;
-    "\"/" translate "" goto normal;
+    "\"/" translate to "" goto normal;
     "\lf/" keep 0 goto premature end of line;
-    "\\/" translate escaped character
+    "\\/" match escaped character
           else error bad escape character;
     "<string-literal-char>" accept;
     "<other>" error bad character literal character;
@@ -2237,16 +2248,16 @@ begin string literal lexeme table;
 end string literal lexeme table;
 
 begin wide string literal lexeme table;
-    "\"/" translate "" goto normal line master;
+    "\"/" translate to "" goto normal line master;
     "\lf/" keep 0 goto premature end of line master;
-    "\\/" translate escaped character
+    "\\/" match escaped character
           else error bad escape character;
     "<string-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
 end wide string literal lexeme table;
 
-// This translation table is used when the next atom
+// This atom table is used when the next atom
 // begins with \ and is in a character or string
 // literal.
 //
@@ -2254,54 +2265,54 @@ end wide string literal lexeme table;
 // after \x; 9 digits is an error.  The C++ standard
 // permits any number of hexadecimal digits.
 //
-begin escaped character translation table;
-    "\\/n" translate "\lf/";
-    "\\/t" translate "\ht/";
-    "\\/v" translate "\vt/";
-    "\\/b" translate "\bs/";
-    "\\/r" translate "\cr/";
-    "\\/f" translate "\ff/";
-    "\\/a" translate "\bel/";
-    "\\/\\/" translate "\\/";
-    "\\/?" translate "?";
-    "\\/\"/" translate "\"/";
-    "\\/'" translate "'";
+begin escaped character atom table;
+    "\\/n" translate to "\lf/";
+    "\\/t" translate to "\ht/";
+    "\\/v" translate to "\vt/";
+    "\\/b" translate to "\bs/";
+    "\\/r" translate to "\cr/";
+    "\\/f" translate to "\ff/";
+    "\\/a" translate to "\bel/";
+    "\\/\\/" translate to "\\/";
+    "\\/?" translate to "?";
+    "\\/\"/" translate to "\"/";
+    "\\/'" translate to "'";
     "\\/<oct-digit>"
-        translate-oct 1 0;
+        translate oct 1 0;
     "\\/<oct-digit><oct-digit>"
-        translate-oct 1 0;
+        translate oct 1 0;
     "\\/<oct-digit><oct-digit><oct-digit>"
-        translate-oct 1 0;
+        translate oct 1 0;
     "\\/x<hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit>" fail;
     "\\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     "\\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
         "<hex-digit><hex-digit><hex-digit><hex-digit>"
-        translate-hex 2 0;
+        translate hex 2 0;
     fail;
-end escaped character translation table;
+end escaped character atom table;
 
 end c++ lexical program;
 \end{verbatim}\end{indpar}

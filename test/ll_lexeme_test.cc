@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 17 08:07:14 EST 2010
+// Date:	Sun Nov 21 21:57:51 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,14 +34,14 @@ using LEX::uns32;
 using LEX::inchar;
 
 using LEX::MASTER;
-using LEX::TRANSLATION;
+using LEX::ATOM;
 
 using LEX::ACCEPT;
+using LEX::MATCH;
 using LEX::KEEP;
 using LEX::TRANSLATE_TO;
 using LEX::TRANSLATE_HEX;
 using LEX::TRANSLATE_OCT;
-using LEX::TRANSLATE;
 using LEX::REQUIRE;
 using LEX::ELSE;
 using LEX::ERRONEOUS_ATOM;
@@ -238,11 +238,11 @@ static void create_program_2 ( void )
     LEX::create_program();
     uns32 master = LEX::create_table ( MASTER );
 
-    // Create translation table for \ooo octal
+    // Create atom table for \ooo octal
     // character representations.
     //
-    uns32 oct_translation =
-        LEX::create_table ( TRANSLATION );
+    uns32 oct_atom =
+        LEX::create_table ( ATOM );
 
     uns32 escape_tmap =
         LEX::create_type_map ( '\\', '\\', 1 );
@@ -262,7 +262,7 @@ static void create_program_2 ( void )
         LEX::create_dispatcher ( 3, 2 );
     check_attach ( oct_dispatcher3, oct_tmap );
 
-    check_attach ( oct_translation,
+    check_attach ( oct_atom,
                    escape_dispatcher );
     check_attach ( escape_dispatcher,
                    1, oct_dispatcher1 );
@@ -279,7 +279,7 @@ static void create_program_2 ( void )
 	      NULL, 0, 0, fail_instruction );
     check_attach ( oct_dispatcher3,
                    1, translate_oct_instruction );
-    check_attach ( oct_translation,
+    check_attach ( oct_atom,
                    fail_instruction );
 
     uns32 whitespace = LEX::create_table ( WHITESPACE );
@@ -514,8 +514,8 @@ static void create_program_2 ( void )
     check_attach ( letter_dispatcher, letter_tmap2 );
     uns32 escape_instruction =
         LEX::create_instruction
-	    ( TRANSLATE+REQUIRE+ELSE,
-	      NULL, oct_translation,
+	    ( MATCH+REQUIRE+ELSE,
+	      NULL, oct_atom,
 	            letter_dispatcher,
 	            err_atom_instruction );
     check_attach ( symbol_dispatcher, escape,

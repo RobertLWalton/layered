@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 19 11:00:43 EST 2010
+// Date:	Sun Nov 21 21:53:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -134,14 +134,14 @@ struct type_map_header {
 };
 const uns32 type_map_header_length = 4;
 
-// Instruction.  If operation includes TRANSLATE(n)
+// Instruction.  If operation includes TRANSLATE_TO(n)
 // this is followed by the n uns32 characters of the
 // translation.
 //
 struct instruction_header {
     uns32 pctype;	    // == INSTRUCTION
     uns32 operation;
-    uns32 translate_table_ID;
+    uns32 atom_table_ID;
     uns32 require_dispatcher_ID;
     uns32 else_instruction_ID;
     uns32 output_error_type;

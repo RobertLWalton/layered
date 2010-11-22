@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 19 10:27:02 EST 2010
+// Date:	Sun Nov 21 22:02:31 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,7 @@
 //
 //   <ndl-program> ::=
 //      using ll::lexeme::ndl::MASTER;
-//      using ll::lexeme::ndl::TRANSLATION;
+//      using ll::lexeme::ndl::ATOM;
 //      using ll::lexeme::ndl::OTHER;
 //      using ll::lexeme::ndl::uns32;
 //
@@ -62,9 +62,9 @@
 //   <table-name> ::= C++ variable name
 //	// Tables must be declared first to avoid
 //	// forward references in go, call, and
-//      // translate statements.
+//      // match statements.
 //
-//   <mode> ::= MASTER | TRANSLATION | <type-name>
+//   <mode> ::= MASTER | ATOM | <type-name>
 //	// Mode of table
 //
 //   <type-name> ::= C++ uns32 expression
@@ -156,7 +156,8 @@
 //   <instruction-group> ::=
 //	<instruction> { NDL::ELSE(); <instruction> }*
 //
-//   <instruction> ::= [<keep-component>]
+//   <instruction> ::= [<match-component>]
+//		       [<keep-component>]
 //		       [<translate-component>]
 //		       [<require-component>]
 //		       [<output-component>]
@@ -170,6 +171,12 @@
 //	  NDL::keep(<n>);
 //	     // Keep only first <n> characters of the
 //	     // atom.
+//
+//   <match-component> ::=
+//	  NDL::match ( <table-name> );
+//	     // Invoke named atom table, which either
+//	     // recognizes and translates one atom, or
+//	     // fails.
 //
 //   <translate-component> ::=
 //	  NDL::translate_to
@@ -189,10 +196,6 @@
 //	     // <m> and last <n> characters of the atom
 //	     // are ignored and the rest is the conver-
 //	     // ted interior.
-//	| NDL::translate ( <table-name> );
-//	     // Invoke named translation table, which
-//	     // either recognizes and translates one
-//	     // atom, or fails.
 //
 //   <m> ::= C++ uns32 integer
 //   <n> ::= C++ uns32 integer
@@ -206,7 +209,7 @@
 //	     // Fail if the TRANSLATED atom does not
 //	     // match the given atom pattern.
 //	     //
-//           // require() must appear after translate(),
+//           // require() must appear after match(),
 //	     // translate_oct(), or translate_hex() in
 //	     // an <instruction>.
 //
@@ -261,7 +264,7 @@ namespace ll { namespace lexeme { namespace ndl {
 
     using ll::lexeme::uns32;
     using ll::lexeme::MASTER;
-    using ll::lexeme::TRANSLATION;
+    using ll::lexeme::ATOM;
 
     extern char OTHER[];
 
@@ -313,7 +316,7 @@ namespace ll { namespace lexeme { namespace ndl {
         ( uns32 n, const uns32 * translation_string );
     void translate_oct ( uns32 m, uns32 n );
     void translate_hex ( uns32 m, uns32 n );
-    void translate ( uns32 table_name );
+    void match ( uns32 table_name );
 
     void require ( uns32 atom_pattern_name );
 

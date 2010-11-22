@@ -135,7 +135,7 @@ Cooked Program 2:
             0-9 A-Z a-z
                 ACCEPT
             \\
-                TRANSLATE(6), REQUIRE(301), ELSE:
+                MATCH(6), REQUIRE(301), ELSE:
                 TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
             \u007F
@@ -405,7 +405,7 @@ Start atom scan: atom table = 108
   ACCEPT
 Start atom scan: atom table = 108
   Character = \\ Dispatcher = 267 Type Map = 127 CType = 7
-  TRANSLATE(6), REQUIRE(301), ELSE:
+  MATCH(6), REQUIRE(301), ELSE:
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
 Start atom scan: atom table = 6
@@ -422,7 +422,7 @@ Start atom scan: atom table = 108
   ACCEPT
 Start atom scan: atom table = 108
   Character = \\ Dispatcher = 267 Type Map = 127 CType = 7
-  TRANSLATE(6), REQUIRE(301), ELSE:
+  MATCH(6), REQUIRE(301), ELSE:
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
 Start atom scan: atom table = 6
@@ -450,7 +450,7 @@ Start atom scan: atom table = 108
   ACCEPT
 Start atom scan: atom table = 108
   Character = \\ Dispatcher = 267 Type Map = 127 CType = 7
-  TRANSLATE(6), REQUIRE(301), ELSE:
+  MATCH(6), REQUIRE(301), ELSE:
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
 Start atom scan: atom table = 6

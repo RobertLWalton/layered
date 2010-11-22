@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 21 21:38:59 EST 2010
+// Date:	Mon Nov 22 05:26:00 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -294,6 +294,9 @@ namespace ll { namespace lexeme {
     // The operation is the sum of some of the follow-
     // ing:
     //
+    //   ACCEPT		Equals 0; use if operation has
+    //			no other components.
+    //
     //	 MATCH		Invoke the atom table specified
     //			by the atom_table_ID.  This may
     //			succeed or fail.  If it suc-
@@ -308,9 +311,6 @@ namespace ll { namespace lexeme {
     //			acters.  The discarded end of
     //			the atom is retained as input to
     //			be rescanned.  0 <= n < 32.
-    //
-    //   ACCEPT		Equals 0; use if operation has
-    //			no other components.
     //
     //	 TRANSLATE_TO(n)
     //			Instead of copying the atom into
@@ -363,33 +363,39 @@ namespace ll { namespace lexeme {
     //   ERRONEOUS_ATOM	Indicates the current atom is
     //			erroneous and is to be delivered
     //			to the erroneous_atom function
-    //			with the output_error_type.
+    //			with the erroneous_atom_type.
     //
     //   OUTPUT		After finishing atom processing
     //			and translation, output the
     //			current lexeme with the output_
-    //			error_type.  The next lexical
-    //			table must be a master table.
-    //			The lexeme may be zero length
-    //			if the instruction is in the
-    //			default instruction group of
-    //			a table.
+    //			type.  The next lexical table
+    //			must be a master table.  The
+    //			lexeme may be zero length if the
+    //			instruction is in the default
+    //			instruction group of a table.
     //
     //   GOTO		After all other atom processing,
-    //			switch the current lexical table
-    //			to the goto_call_table_ID table,
-    //			which must be a master or lexeme
-    //			table.
+    //			switch the current table to the
+    //			goto_table_ID table, which must
+    //			be a master or lexeme table.
     //
-    //   CALL		Ditto but also push a pointer
-    //			to the current atom table into
-    //                  into the return stack.  The
-    //                  target of the CALL (unlike GOTO)
-    //			must be a lexeme table.
+    //   CALL		Ditto but also push the current
+    //			current table ID into the return
+    //			stack and switch to the call_
+    //			table_ID table.  The target of
+    //			the CALL (unlike GOTO) must be a
+    //			lexeme table.
     //
-    //	 RETURN		Like GOTO but gets the new atom
-    //			table ID by popping the return
-    //			stack.
+    //			If GOTO and CALL are BOTH in the
+    //			instruction, the goto_table_ID
+    //			is pushed into the return stack
+    //			in place of the current table
+    //			ID.
+    //
+    //	 RETURN		Like GOTO but gets the new table
+    //			ID by popping the return stack.
+    //			CANNOT be used with CALL or
+    //			GOTO.
     //
     //	 FAIL		Used in a translation table to
     //			indicate the table failed to
@@ -510,8 +516,10 @@ namespace ll { namespace lexeme {
 	      uns32 atom_table_ID = 0,
 	      uns32 require_dispatcher_ID = 0,
 	      uns32 else_instruction_ID = 0,
-	      uns32 output_error_type = 0,
-	      uns32 goto_call_table_ID = 0 );
+	      uns32 erroneous_atom_type = 0,
+	      uns32 output_type = 0,
+	      uns32 goto_table_ID = 0,
+	      uns32 call_table_ID = 0 );
 
     // Attach a dispatcher or an instruction component
     // to a lexical table target, or a type map compo-

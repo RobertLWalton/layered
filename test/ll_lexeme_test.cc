@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 21 21:57:51 EST 2010
+// Date:	Mon Nov 22 06:34:12 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -213,7 +213,7 @@ static void create_program_1 ( void )
     uns32 instruction1 =
         LEX::create_instruction
 	    ( KEEP(1)+TRANSLATE_TO(3)+GOTO,
-	      translation, 0, 0, 0, 0, atable1 );
+	      translation, 0, 0, 0, 0, 0, atable1 );
     uns32 instruction2 =
         LEX::create_instruction ( ACCEPT );
 
@@ -299,7 +299,7 @@ static void create_program_2 ( void )
     uns32 end_of_file_instruction =
         LEX::create_instruction
 	    ( ACCEPT+OUTPUT,
-	      NULL, 0, 0, 0, END_OF_FILE );
+	      NULL, 0, 0, 0, 0, END_OF_FILE );
     check_attach ( master, end_of_file_instruction );
 
     uns8 cmap[128] =
@@ -441,23 +441,26 @@ static void create_program_2 ( void )
     check_attach ( master_dispatcher, tmap );
     uns32 symbol_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+CALL, NULL, 0, 0, 0, 0, symbol );
+	    ( KEEP(0)+CALL,
+	      NULL, 0, 0, 0, 0, 0, 0, symbol );
     uns32 number_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO, NULL, 0, 0, 0, 0, number );
+	    ( KEEP(0)+GOTO,
+	      NULL, 0, 0, 0, 0, 0, number );
     uns32 whitespace_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO, NULL, 0, 0, 0, 0,
-	                   whitespace );
+	    ( ACCEPT+GOTO,
+	      NULL, 0, 0, 0, 0, 0, whitespace );
     uns32 operator_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO, NULL, 0, 0, 0, 0, oper );
+	    ( KEEP(0)+GOTO, NULL, 0, 0, 0, 0, 0, oper );
     uns32 separator_instruction =
         LEX::create_instruction
-	    ( ACCEPT+OUTPUT, NULL, 0, 0, 0, SEPARATOR );
+	    ( ACCEPT+OUTPUT,
+	      NULL, 0, 0, 0, 0, SEPARATOR );
     uns32 error_instruction =
         LEX::create_instruction
-	    ( ACCEPT+OUTPUT, NULL, 0, 0, 0, ERROR );
+	    ( ACCEPT+OUTPUT, NULL, 0, 0, 0, 0, ERROR );
     uns32 err_atom_instruction =
         LEX::create_instruction
 	    ( ERRONEOUS_ATOM+TRANSLATE_TO(0),
@@ -481,7 +484,8 @@ static void create_program_2 ( void )
 
     uns32 master_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO, NULL, 0, 0, 0, 0, master );
+	    ( KEEP(0)+GOTO,
+	      NULL, 0, 0, 0, 0, 0, master );
     uns32 return_instruction =
         LEX::create_instruction
 	    ( KEEP(0)+RETURN );
@@ -524,11 +528,13 @@ static void create_program_2 ( void )
     uns32 fraction = LEX::create_table ( NUMBER );
     uns32 fraction_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO, NULL, 0, 0, 0, 0, fraction );
+	    ( ACCEPT+GOTO,
+	      NULL, 0, 0, 0, 0, 0, fraction );
 
     uns32 digit_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO, NULL, 0, 0, 0, 0, number );
+	    ( ACCEPT+GOTO,
+	      NULL, 0, 0, 0, 0, 0, number );
     uns32 number_dispatcher =
         LEX::create_dispatcher ( 5, 10 );
     uns32 digit_map =
@@ -574,7 +580,8 @@ static void create_program_2 ( void )
         LEX::create_type_map ( '*', '*', 3 );
     uns32 master_accept =
         LEX::create_instruction
-	    ( ACCEPT+GOTO, NULL, 0, 0, 0, 0, master );
+	    ( ACCEPT+GOTO,
+	      NULL, 0, 0, 0, 0, 0, master );
     uns32 plus_dispatcher =
         LEX::create_dispatcher ( 9, 10 );
     uns32 minus_dispatcher =

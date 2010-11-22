@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 21 21:57:30 EST 2010
+// Date:	Mon Nov 22 06:06:13 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -149,8 +149,10 @@ uns32 LEX::create_instruction
 	  uns32 atom_table_ID,
 	  uns32 require_dispatcher_ID,
 	  uns32 else_instruction_ID,
-	  uns32 output_error_type,
-	  uns32 goto_call_table_ID )
+	  uns32 erroneous_atom_type,
+	  uns32 output_type,
+	  uns32 goto_table_ID,
+	  uns32 call_table_ID )
 {
     assert ( ( ( operation & TRANSLATE_TO_FLAG ) != 0 )
 	     +
@@ -177,14 +179,12 @@ uns32 LEX::create_instruction
              ||
 	     ( operation & REQUIRE ) );
 
-    assert ( ( ( operation & ERRONEOUS_ATOM ) != 0 )
-	     +
-             ( ( operation & OUTPUT ) != 0 )
-	     <= 1 );
-
     assert ( ( ( operation & GOTO ) != 0 )
              +
-	     ( ( operation & CALL ) != 0 )
+	     ( ( operation & RETURN ) != 0 )
+	     <= 1 );
+
+    assert ( ( ( operation & CALL ) != 0 )
              +
 	     ( ( operation & RETURN ) != 0 )
 	     <= 1 );
@@ -214,19 +214,25 @@ uns32 LEX::create_instruction
     else
         assert ( else_instruction_ID == 0 );
 
-    if ( ( operation & OUTPUT )
-         ||
-	 ( operation & ERRONEOUS_ATOM ) )
-        assert ( output_error_type != 0 );
+    if ( operation & ERRONEOUS_ATOM )
+        assert ( erroneous_atom_type != 0 );
     else
-        assert ( output_error_type == 0 );
+        assert ( erroneous_atom_type == 0 );
 
-    if ( ( operation & GOTO )
-         ||
-	 ( operation & CALL ) )
-        assert ( goto_call_table_ID != 0 );
+    if ( operation & OUTPUT )
+        assert ( output_type != 0 );
     else
-        assert ( goto_call_table_ID == 0 );
+        assert ( output_type == 0 );
+
+    if ( operation & GOTO )
+        assert ( goto_table_ID != 0 );
+    else
+        assert ( goto_table_ID == 0 );
+
+    if ( operation & CALL )
+        assert ( call_table_ID != 0 );
+    else
+        assert ( call_table_ID == 0 );
 
     uns32 ID = program.allocate
     	(   instruction_header_length
@@ -238,8 +244,10 @@ uns32 LEX::create_instruction
     h.atom_table_ID = atom_table_ID;
     h.require_dispatcher_ID = require_dispatcher_ID;
     h.else_instruction_ID = else_instruction_ID;
-    h.output_error_type = output_error_type;
-    h.goto_call_table_ID = goto_call_table_ID;
+    h.erroneous_atom_type = erroneous_atom_type;
+    h.output_type = output_type;
+    h.goto_table_ID = goto_table_ID;
+    h.call_table_ID = call_table_ID;
 
     uns32 * p = (uns32 *) ( & h + 1 );
 
@@ -782,7 +790,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 		      "MATCH in"
 		      " instruction %d executed by"
 		      " table %d targets"
-		      " non-translation table",
+		      " non-atom table",
 		      instruction_ID,
 		      current_table_ID );
 		return SCAN_ERROR;
@@ -1180,10 +1188,11 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    else
 		(*erroneous_atom)
 		    ( next, next + atom_length - 1,
-		      ih.output_error_type );
+		      ih.erroneous_atom_type );
 	}
-	else if ( op & OUTPUT )
-	    output_type = ih.output_error_type;
+
+	if ( op & OUTPUT )
+	    output_type = ih.output_type;
 
 	if ( op & RETURN )
 	{
@@ -1202,7 +1211,29 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    assert (    program[current_table_ID]
 		     == TABLE );
 	}
-	else if ( op & CALL )
+	else if ( op & GOTO )
+	{
+	    current_table_ID = ih.goto_table_ID;
+	    table_header & cath =
+		* (table_header *)
+		& program[current_table_ID];
+	    assert ( cath.pctype == TABLE );
+	    if ( cath.mode == ATOM )
+
+	    {
+		sprintf
+		    ( scan_error ( atom_length ),
+		      "GOTO in"
+		      " instruction %d executed by"
+		      " table %d targets atom"
+		      " table",
+		      instruction_ID,
+		      current_table_ID );
+		return SCAN_ERROR;
+	    }
+	}
+
+	if ( op & CALL )
 	{
 	    if (    return_stack_p
 		 == return_stack_endp )
@@ -1221,21 +1252,20 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    * return_stack_p ++ = current_table_ID;
 
 	    if ( is_recursive
-	             ( ih.goto_call_table_ID ) )
+	             ( ih.call_table_ID ) )
 	    {
 		sprintf
 		    ( scan_error ( atom_length ),
 		      "recursive CALL to table %d"
 		      " in instruction %d executed"
 		      " by table %d",
-		      ih.goto_call_table_ID,
+		      ih.call_table_ID,
 		      instruction_ID,
 		      current_table_ID );
 		return SCAN_ERROR;
 	    }
 
-	    current_table_ID =
-		ih.goto_call_table_ID;
+	    current_table_ID = ih.call_table_ID;
 
 	    table_header & cath =
 		* (table_header *)
@@ -1250,28 +1280,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		      "CALL in"
 		      " instruction %d executed by"
 		      " table %d targets non-lexeme"
-		      " table",
-		      instruction_ID,
-		      current_table_ID );
-		return SCAN_ERROR;
-	    }
-	}
-	else if ( op & GOTO )
-	{
-	    current_table_ID =
-		ih.goto_call_table_ID;
-	    table_header & cath =
-		* (table_header *)
-		& program[current_table_ID];
-	    assert ( cath.pctype == TABLE );
-	    if ( cath.mode == ATOM )
-
-	    {
-		sprintf
-		    ( scan_error ( atom_length ),
-		      "GOTO in"
-		      " instruction %d executed by"
-		      " table %d targets translation"
 		      " table",
 		      instruction_ID,
 		      current_table_ID );
@@ -1777,14 +1785,12 @@ static uns32 print_instruction
 	 ( h.operation & REQUIRE ) == 0 )
         out << "ILLEGAL: ";
     else
-    if ( ( ( h.operation & OUTPUT ) != 0 )
-	 +
-         ( ( h.operation & ERRONEOUS_ATOM ) != 0 )
-	 > 1 ) out << "ILLEGAL: ";
-    else
     if ( ( ( h.operation & GOTO ) != 0 )
 	 +
-         ( ( h.operation & CALL ) != 0 )
+         ( ( h.operation & RETURN ) != 0 )
+	 > 1 ) out << "ILLEGAL: ";
+    else
+    if ( ( ( h.operation & CALL ) != 0 )
 	 +
          ( ( h.operation & RETURN ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
@@ -1818,39 +1824,44 @@ static uns32 print_instruction
          &&
          h.else_instruction_ID != 0 )
 	out << "ILLEGAL: ";
+    if ( ( h.operation & ERRONEOUS_ATOM )
+         &&
+         h.erroneous_atom_type == 0 )
+	out << "ILLEGAL: ";
+    else
+    if ( ( h.operation & ERRONEOUS_ATOM ) == 0
+         &&
+         h.erroneous_atom_type != 0 )
+	out << "ILLEGAL: ";
     else
     if ( ( h.operation & OUTPUT )
          &&
-         h.output_error_type == 0 )
-	out << "ILLEGAL: ";
-    else
-    if ( ( h.operation & ERRONEOUS_ATOM )
-         &&
-         h.output_error_type == 0 )
+         h.output_type == 0 )
 	out << "ILLEGAL: ";
     else
     if ( ( h.operation & OUTPUT ) == 0
-	 &&
-         ( h.operation & ERRONEOUS_ATOM ) == 0
          &&
-         h.output_error_type != 0 )
+         h.output_type != 0 )
 	out << "ILLEGAL: ";
     else
     if ( ( h.operation & GOTO )
          &&
-         h.goto_call_table_ID == 0 )
+         h.goto_table_ID == 0 )
+	out << "ILLEGAL: ";
+    else
+    if ( ( h.operation & GOTO ) == 0
+         &&
+         h.goto_table_ID != 0 )
 	out << "ILLEGAL: ";
     else
     if ( ( h.operation & CALL )
          &&
-         h.goto_call_table_ID == 0 )
+         h.call_table_ID == 0 )
 	out << "ILLEGAL: ";
     else
-    if ( ( h.operation & GOTO ) == 0
-	 &&
-         ( h.operation & CALL ) == 0
+    if ( ( h.operation & CALL ) == 0
          &&
-         h.goto_call_table_ID != 0 )
+         h.call_table_ID != 0 )
 	out << "ILLEGAL: ";
 
     bool first = true;
@@ -1902,17 +1913,17 @@ static uns32 print_instruction
 
     if ( h.operation & ERRONEOUS_ATOM )
         OUT << "ERRONEOUS_ATOM("
-	    << h.output_error_type << ")";
+	    << h.erroneous_atom_type << ")";
 
     if ( h.operation & OUTPUT )
         OUT << "OUTPUT("
-	    << h.output_error_type << ")";
+	    << h.output_type << ")";
 
     if ( h.operation & GOTO )
-        OUT << "GOTO(" << h.goto_call_table_ID << ")";
+        OUT << "GOTO(" << h.goto_table_ID << ")";
 
     if ( h.operation & CALL )
-        OUT << "CALL(" << h.goto_call_table_ID << ")";
+        OUT << "CALL(" << h.call_table_ID << ")";
 
     if ( h.operation & RETURN )
         OUT << "RETURN";

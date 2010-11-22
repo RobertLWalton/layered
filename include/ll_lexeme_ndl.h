@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 21 22:02:31 EST 2010
+// Date:	Mon Nov 22 07:10:12 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -160,29 +160,35 @@
 //		       [<keep-component>]
 //		       [<translate-component>]
 //		       [<require-component>]
+//		       [<erroneous-atom-component>]
 //		       [<output-component>]
-//		       [<transfer-component>]
+//		       [<goto-component>]
+//		       [<call-component>]
+//		       [<return-component>]
+//		       [<fail-component>]
 //		     | NDL::accept();
 //	// An <instruction>s must have at least one
 //	// optional component or be `accept();'.
 //	// Optional components may be in any order.
 //
-//   <keep-component> ::=
-//	  NDL::keep(<n>);
-//	     // Keep only first <n> characters of the
-//	     // atom.
-//
 //   <match-component> ::=
 //	  NDL::match ( <table-name> );
 //	     // Invoke named atom table, which either
-//	     // recognizes and translates one atom, or
+//	     // matches and translates one atom, or
 //	     // fails.
+//
+//   <keep-component> ::=
+//	  NDL::keep(<n>);
+//	     // Keep only first <n> characters of the
+//	     // matched atom.
 //
 //   <translate-component> ::=
 //	  NDL::translate_to
 //                  ( <ascii-translation-string> );
 //	     // Put <ascii-translation-string> into the
 //           // translation buffer instead of the atom.
+//	     // Overrides any translation made by
+//	     // `match'.
 //      | NDL::translate_to
 //                  ( <n>,
 //                    <UNICODE-translation-string> );
@@ -191,11 +197,13 @@
 //	| NDL::translate_oct ( <m>, <n> );
 //	| NDL::translate_hex ( <m>, <n> );
 //	     // Put an oct or hex conversion of the in-
-//	     // terior of the atom into the translation
-//	     // buffer instead of the atom.  The first
+//	     // terior of the matched atom (modified by
+//	     // keep) into the translation buffer
+//	     // instead of the matched atom.  The first
 //	     // <m> and last <n> characters of the atom
 //	     // are ignored and the rest is the conver-
-//	     // ted interior.
+//	     // ted interior.  Overrides any translation
+//	     // made by `match'.
 //
 //   <m> ::= C++ uns32 integer
 //   <n> ::= C++ uns32 integer
@@ -213,16 +221,18 @@
 //	     // translate_oct(), or translate_hex() in
 //	     // an <instruction>.
 //
-//   <output-component> ::=
-//	  NDL::output ( <type-name> );
-//	     // After processing atom, output accum-
-//	     // ulated lexeme as a lexeme of given type.
-//	| NDL::erroneous_atom ( <type-name> );
+//   <erroneous-atom-component> ::=
+//	  NDL::erroneous_atom ( <type-name> );
 //	     // Output atom as erroneous atom of the
 //	     // given type.  The atom may be in the
 //	     // middle of a lexeme.
 //
-//   <transfer-component> ::=
+//   <output-component> ::=
+//	  NDL::output ( <type-name> );
+//	     // After processing atom, output accum-
+//	     // ulated lexeme as a lexeme of given type.
+//
+//   <goto-component> ::=
 //	  NDL::go ( <table-name> );
 //	     // Go to master or lexeme table.  If
 //	     // switching from a lexeme to a master
@@ -231,23 +241,36 @@
 //	     // ulated lexeme is of non-zero length,
 //	     // output the accumulated lexeme with type
 //	     // of the lexeme table.
-//	| NDL::call ( table-name> )
+//
+//   <call-component> ::=
+//	  NDL::call ( table-name> )
 //	     // Like `go' but allows return to the
 //	     // table containing the call instruction
 //	     // via return.  The table called must be
 //	     // a lexeme table.  A return stack entry
 //	     // holds the ID of the table containing
-//	     // the call instruction.  Recursive
-//	     // calls are not allowed.
-//	| NDL::ret();
+//	     // the call instruction, and this is used
+//	     // by `ret' below.
+//	     //
+//	     // Recursive calls are not allowed.
+//	     //
+//	     // If `go' and `call' are BOTH in an in-
+//	     // struction, the return stack entry is
+//	     // set to the `go' table name ID instead
+//	     // of the table ID of the table holding
+//	     // the `call' instruction.
+//
+//   <return-component> ::=
+//	  NDL::ret();
 //	     // See `call' above.  The return stack is
 //	     // popped.  The return stack is cleared
 //	     // when a master table is gone to by any
 //	     // means.  Otherwise ret() is like go().
-//	| NDL::fail();
-//	     // In a translation table, causes the
-//	     // instruction invoking the translation
-//	     // table to fail.
+//
+//   <fail-component> ::=
+//	  NDL::fail();
+//	     // In an atom table, causes the instruction
+//	     // invoking the atom table to fail.
 //
 //   // The <instruction>s in an <instruction-group>
 //   // are separated by `NDL::ELSE();' statements.

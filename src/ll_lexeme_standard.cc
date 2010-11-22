@@ -420,11 +420,27 @@ void ll::lexeme::standard::create_standard_program
 
     ///     "\\/" match escaped character
     ///           require "<letter>"
+    ///           else match escaped character
+    ///                error non letter escape sequence
+    ///                translate to "?"
+    ///           else match unrecognized escape sequence
+    ///                error unrecognized escape sequence
+    ///                translate to "?"
     ///           else keep 0 return;
     //
 	   NDL::begin_dispatch ( "\\" );
 		 NDL::match ( escaped_character );
 		 NDL::require ( letter );
+	      NDL::ELSE();
+		 NDL::match ( escaped_character );
+		 NDL::erroneous_atom
+		     ( non_letter_escape_sequence_t );
+		 NDL::translate_to ( "?" );
+	      NDL::ELSE();
+		 NDL::match ( unrecognized_escape_sequence );
+		 NDL::erroneous_atom
+		     ( unrecognized_escape_sequence_t );
+		 NDL::translate_to ( "?" );
 	      NDL::ELSE();
 		 NDL::keep ( 0 );
 		 NDL::ret();

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 06:06:13 EST 2010
+// Date:	Mon Nov 22 09:30:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -840,7 +840,9 @@ static uns32 scan_atom ( uns32 & atom_length )
 			     TRANSLATE_HEX_FLAG
 	                     |
 			     TRANSLATE_OCT_FLAG ) )
-		translation_buffer.resize ( tnext );
+		translation_buffer.deallocate
+		    (   translation_buffer.length
+		      - tnext );
 	}
 
 	if ( ! fail && ( op & KEEP_FLAG ) )
@@ -1012,7 +1014,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	if ( fail )
 	{
-	    translation_buffer.resize ( tnext );
+	    translation_buffer.deallocate
+		( translation_buffer.length - tnext );
 	    if ( op & ELSE )
 	    {
 		instruction_ID =

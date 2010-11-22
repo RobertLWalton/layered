@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 21 22:05:54 EST 2010
+// Date:	Mon Nov 22 07:10:42 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -232,8 +232,10 @@ void push_dispatcher ( bool is_others = false )
     ci.operation = 0;
     ci.atom_table_ID = 0;
     ci.require_dispatcher_ID = 0;
-    ci.output_error_type = 0;
-    ci.goto_call_table_ID = 0;
+    ci.erroneous_atom_type = 0;
+    ci.output_type = 0;
+    ci.goto_table_ID = 0;
+    ci.call_table_ID = 0;
     ci.accept = false;
 
     substate = is_others ? DISPATCHERS
@@ -272,8 +274,10 @@ static uns32 pop_instruction_group ( void )
 		  ci.atom_table_ID,
 		  ci.require_dispatcher_ID,
 		  instruction_ID,
-		  ci.output_error_type,
-		  ci.goto_call_table_ID );
+		  ci.erroneous_atom_type,
+		  ci.output_type,
+		  ci.goto_table_ID,
+		  ci.call_table_ID );
 
 	if ( translate_to_length > 0 )
 	    uns32_stack.deallocate
@@ -809,12 +813,9 @@ void LEXNDL::erroneous_atom ( uns32 type_name )
     ASSERT ( ! ( ci.operation & LEX::ERRONEOUS_ATOM ),
              "erroneous_atom() conflicts with another"
 	     " erroneous_atom()" );
-    ASSERT ( ! ( ci.operation & LEX::OUTPUT ),
-             "erroneous_atom() conflicts with"
-	     " output()" );
 
     ci.operation |= LEX::ERRONEOUS_ATOM;
-    ci.output_error_type = type_name;
+    ci.erroneous_atom_type = type_name;
 }
 
 void LEXNDL::output ( uns32 type_name )
@@ -832,12 +833,9 @@ void LEXNDL::output ( uns32 type_name )
     ASSERT ( ! ( ci.operation & LEX::OUTPUT ),
              "output() conflicts with another"
 	     " output()" );
-    ASSERT ( ! ( ci.operation & LEX::ERRONEOUS_ATOM ),
-             "output() conflicts with"
-	     " erroneous_atom()" );
 
     ci.operation |= LEX::OUTPUT;
-    ci.output_error_type = type_name;
+    ci.output_type = type_name;
 }
 
 void LEXNDL::go ( uns32 table_name )
@@ -854,10 +852,9 @@ void LEXNDL::go ( uns32 table_name )
              "go() conflicts with accept()" );
     ASSERT ( ! (   ci.operation
                  & (   LEX::GOTO
-	             | LEX::CALL
 	             | LEX::RETURN ) ),
              "go() conflicts with another go() or"
-	     " with call() or ret()" );
+	     " with ret()" );
 
     ASSERT (    LEX::component_type ( table_name )
              == LEX::TABLE,
@@ -869,7 +866,7 @@ void LEXNDL::go ( uns32 table_name )
 	     " table" );
 
     ci.operation |= LEX::GOTO;
-    ci.goto_call_table_ID = table_name;
+    ci.goto_table_ID = table_name;
 }
 
 void LEXNDL::call ( uns32 table_name )
@@ -885,11 +882,10 @@ void LEXNDL::call ( uns32 table_name )
     ASSERT ( ! ci.accept,
              "call() conflicts with accept()" );
     ASSERT ( ! (   ci.operation
-                 & (   LEX::GOTO
-	             | LEX::CALL
+                 & (   LEX::CALL
 	             | LEX::RETURN ) ),
              "call() conflicts with another call() or"
-	     " with ret() or go()" );
+	     " with ret()" );
 
     ASSERT (    LEX::component_type ( table_name )
              == LEX::TABLE,
@@ -904,7 +900,7 @@ void LEXNDL::call ( uns32 table_name )
              "table_name references an atom"
 	     " table" );
     ci.operation |= LEX::CALL;
-    ci.goto_call_table_ID = table_name;
+    ci.call_table_ID = table_name;
 }
 
 void LEXNDL::ret ( void )
@@ -969,7 +965,9 @@ void LEXNDL::ELSE ( void )
     i2.operation = 0;
     i2.atom_table_ID = 0;
     i2.require_dispatcher_ID = 0;
-    i2.output_error_type = 0;
-    i2.goto_call_table_ID = 0;
+    i2.erroneous_atom_type = 0;
+    i2.output_type = 0;
+    i2.goto_table_ID = 0;
+    i2.call_table_ID = 0;
     i2.accept = false;
 }

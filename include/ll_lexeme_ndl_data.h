@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 19 10:12:08 EST 2010
+// Date:	Sun Nov 21 22:05:35 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -156,7 +156,7 @@ namespace ll { namespace lexeme
     struct instruction
     {
 	uns32 operation;
-	uns32 translate_table_ID;
+	uns32 atom_table_ID;
 	uns32 require_dispatcher_ID;
 	uns32 output_error_type;
 	uns32 goto_call_table_ID;

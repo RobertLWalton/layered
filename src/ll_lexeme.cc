@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 20 17:35:46 EST 2010
+// Date:	Sun Nov 21 21:57:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -146,7 +146,7 @@ uns32 LEX::create_type_map
 uns32 LEX::create_instruction
 	( uns32 operation,
 	  uns32 * translation_vector,
-	  uns32 translate_table_ID,
+	  uns32 atom_table_ID,
 	  uns32 require_dispatcher_ID,
 	  uns32 else_instruction_ID,
 	  uns32 output_error_type,
@@ -165,7 +165,7 @@ uns32 LEX::create_instruction
              ||
 	     ( operation & TRANSLATE_OCT_FLAG )
              ||
-	     ( operation & TRANSLATE ) );
+	     ( operation & MATCH ) );
 
     assert ( ( operation & ELSE ) == 0
              ||
@@ -173,7 +173,7 @@ uns32 LEX::create_instruction
              ||
 	     ( operation & TRANSLATE_OCT_FLAG )
              ||
-	     ( operation & TRANSLATE )
+	     ( operation & MATCH )
              ||
 	     ( operation & REQUIRE ) );
 
@@ -199,10 +199,10 @@ uns32 LEX::create_instruction
     else
         assert ( translation_vector == NULL );
 
-    if ( operation & TRANSLATE )
-        assert ( translate_table_ID != 0 );
+    if ( operation & MATCH )
+        assert ( atom_table_ID != 0 );
     else
-        assert ( translate_table_ID == 0 );
+        assert ( atom_table_ID == 0 );
 
     if ( operation & REQUIRE )
         assert ( require_dispatcher_ID != 0 );
@@ -235,7 +235,7 @@ uns32 LEX::create_instruction
         * (instruction_header *) & program[ID];
     h.pctype = INSTRUCTION;
     h.operation = operation;
-    h.translate_table_ID = translate_table_ID;
+    h.atom_table_ID = atom_table_ID;
     h.require_dispatcher_ID = require_dispatcher_ID;
     h.else_instruction_ID = else_instruction_ID;
     h.output_error_type = output_error_type;
@@ -769,17 +769,17 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    // no-oping the instruction for the sake
 	    // of an ELSE.
 
-	if ( op & TRANSLATE )
+	if ( op & MATCH )
 	{
 	    table_header & th =
 		* (table_header *)
-		& program[ih.translate_table_ID];
+		& program[ih.atom_table_ID];
 	    assert ( cath.pctype == TABLE );
-	    if ( th.mode != TRANSLATION )
+	    if ( th.mode != ATOM )
 	    {
 		sprintf
 		    ( scan_error ( atom_length ),
-		      "TRANSLATE in"
+		      "MATCH in"
 		      " instruction %d executed by"
 		      " table %d targets"
 		      " non-translation table",
@@ -792,7 +792,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    {
 		sprintf
 		    ( scan_error ( atom_length ),
-		      "TRANSLATE in"
+		      "MATCH in"
 		      " instruction %d executed by"
 		      " table %d but return stack is"
 		      " full",
@@ -804,20 +804,20 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    * return_stack_p ++ = current_table_ID;
 
 	    if ( is_recursive
-	             ( ih.translate_table_ID ) )
+	             ( ih.atom_table_ID ) )
 	    {
 		sprintf
 		    ( scan_error ( atom_length ),
-		      "recursive TRANSLATE to table %d"
+		      "recursive MATCH to table %d"
 		      " in instruction %d executed"
 		      " by table %d",
-		      ih.translate_table_ID,
+		      ih.atom_table_ID,
 		      instruction_ID,
 		      current_table_ID );
 		return SCAN_ERROR;
 	    }
 
-	    current_table_ID = ih.translate_table_ID;
+	    current_table_ID = ih.atom_table_ID;
 	    uns32 tinstruction_ID =
 	        scan_atom ( keep_length );
 	    current_table_ID = * -- return_stack_p;
@@ -837,7 +837,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	if ( ! fail && ( op & KEEP_FLAG ) )
 	{
-	    // Due to possible TRANSLATE, actual atom
+	    // Due to possible MATCH, actual atom
 	    // length is in keep_length.
 	    //
 	    uns32 keep = LEX::keep_length ( op );
@@ -918,7 +918,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 			 * sizeof ( uns32 ) );
 	    }
 	}
-	else if ( ! ( op & TRANSLATE ) )
+	else if ( ! ( op & MATCH ) )
 	{
 	    uns32 q =
 		translation_buffer.allocate
@@ -1243,7 +1243,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	    assert ( cath.pctype == TABLE );
 	    if ( cath.mode == MASTER
 	         ||
-		 cath.mode == TRANSLATION )
+		 cath.mode == ATOM )
 	    {
 		sprintf
 		    ( scan_error ( atom_length ),
@@ -1264,7 +1264,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		* (table_header *)
 		& program[current_table_ID];
 	    assert ( cath.pctype == TABLE );
-	    if ( cath.mode == TRANSLATION )
+	    if ( cath.mode == ATOM )
 
 	    {
 		sprintf
@@ -1763,7 +1763,7 @@ static uns32 print_instruction
          &&
 	 ( h.operation & TRANSLATE_OCT_FLAG ) == 0
          &&
-	 ( h.operation & TRANSLATE ) == 0 )
+	 ( h.operation & MATCH ) == 0 )
         out << "ILLEGAL: ";
     else
     if ( ( h.operation & ELSE ) != 0
@@ -1772,7 +1772,7 @@ static uns32 print_instruction
          &&
 	 ( h.operation & TRANSLATE_OCT_FLAG ) == 0
          &&
-	 ( h.operation & TRANSLATE ) == 0
+	 ( h.operation & MATCH ) == 0
          &&
 	 ( h.operation & REQUIRE ) == 0 )
         out << "ILLEGAL: ";
@@ -1789,14 +1789,14 @@ static uns32 print_instruction
          ( ( h.operation & RETURN ) != 0 )
 	 > 1 ) out << "ILLEGAL: ";
     else
-    if ( ( h.operation & TRANSLATE )
+    if ( ( h.operation & MATCH )
          &&
-         h.translate_table_ID == 0 )
+         h.atom_table_ID == 0 )
 	out << "ILLEGAL: ";
     else
-    if ( ( h.operation & TRANSLATE ) == 0
+    if ( ( h.operation & MATCH ) == 0
          &&
-         h.translate_table_ID != 0 )
+         h.atom_table_ID != 0 )
 	out << "ILLEGAL: ";
     else
     if ( ( h.operation & REQUIRE )
@@ -1892,9 +1892,9 @@ static uns32 print_instruction
 	    << LEX::postfix_length ( h.operation )
 	    << ")";
 
-    if ( h.operation & TRANSLATE )
-        OUT << "TRANSLATE("
-	    << h.translate_table_ID << ")";
+    if ( h.operation & MATCH )
+        OUT << "MATCH("
+	    << h.atom_table_ID << ")";
 
     if ( h.operation & REQUIRE )
         OUT << "REQUIRE("

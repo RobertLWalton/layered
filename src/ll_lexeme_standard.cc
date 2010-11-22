@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 20 14:00:26 EST 2010
+// Date:	Sun Nov 21 22:10:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,9 +99,9 @@ void ll::lexeme::standard::create_standard_program
     uns32 bad_end_of_file;
     NDL::new_table ( bad_end_of_file, MASTER );
     uns32 escaped_character;
-    NDL::new_table ( escaped_character, TRANSLATION );
+    NDL::new_table ( escaped_character, ATOM );
     uns32 unrecognized_escape_sequence;
-    NDL::new_table ( unrecognized_escape_sequence, TRANSLATION );
+    NDL::new_table ( unrecognized_escape_sequence, ATOM );
 
 
     /// "<ascii-letter>" = "a-z" | "A-Z";
@@ -245,18 +245,18 @@ void ll::lexeme::standard::create_standard_program
 	      NDL::end_dispatch();
 	   NDL::end_dispatch();
 
-    ///   "\\/" translate escaped character
+    ///   "\\/" match escaped character
     ///          require "<letter>" call word
-    ///          else translate unrecognized escape sequence
+    ///          else match unrecognized escape sequence
     /// 	      output unrecognized escape sequence
     ///          else output unrecognized escape character;
     ///
     	   NDL::begin_dispatch ( "\\" );
-		 NDL::translate ( escaped_character );
+		 NDL::match ( escaped_character );
 		 NDL::require ( letter );
 		 NDL::call ( word );
 	      NDL::ELSE();
-	      	 NDL::translate ( unrecognized_escape_sequence );
+	      	 NDL::match ( unrecognized_escape_sequence );
 		 NDL::output ( unrecognized_escape_sequence_t );
 	      NDL::ELSE();
 	         NDL::output ( unrecognized_escape_character_t );
@@ -314,7 +314,7 @@ void ll::lexeme::standard::create_standard_program
     ///
     //         See "'<letter>" call word; above.
 
-    ///    "\"/" translate "" call quoted string;
+    ///    "\"/" translate to "" call quoted string;
     ///
     	   NDL::begin_dispatch ( "\"" );
 	      NDL::translate_to ( "" );
@@ -418,12 +418,12 @@ void ll::lexeme::standard::create_standard_program
 	      NDL::end_dispatch();
 	   NDL::end_dispatch();
 
-    ///     "\\/" translate escaped character
+    ///     "\\/" match escaped character
     ///           require "<letter>"
     ///           else keep 0 return;
     //
 	   NDL::begin_dispatch ( "\\" );
-		 NDL::translate ( escaped_character );
+		 NDL::match ( escaped_character );
 		 NDL::require ( letter );
 	      NDL::ELSE();
 		 NDL::keep ( 0 );
@@ -567,22 +567,22 @@ void ll::lexeme::standard::create_standard_program
     ///
     NDL::begin_table ( quoted_string );
 
-    ///     "\"/" translate "" return;   // End quoted string.
+    ///     "\"/" translate to "" return;   // End quoted string.
     ///
            NDL::begin_dispatch ( "\"" );
 	      NDL::translate_to ( "" );
 	      NDL::ret();
 	   NDL::end_dispatch();
 
-    ///     "\\/" translate escaped character
-    ///           else translate unrecognized escape sequence
+    ///     "\\/" match escaped character
+    ///           else match unrecognized escape sequence
     /// 	       error unrecognized escape sequence
     ///           else error unrecognized character;
     ///
 	   NDL::begin_dispatch ( "\\" );
-		 NDL::translate ( escaped_character );
+		 NDL::match ( escaped_character );
 	      NDL::ELSE();
-		 NDL::translate ( unrecognized_escape_sequence );
+		 NDL::match ( unrecognized_escape_sequence );
 		 NDL::erroneous_atom
 		    ( unrecognized_escape_sequence_t );
 	      NDL::ELSE();
@@ -611,7 +611,7 @@ void ll::lexeme::standard::create_standard_program
     ///
     NDL::end_table();
 
-    /// begin escaped character translation table;
+    /// begin escaped character atom table;
     ///
     NDL::begin_table ( escaped_character );
        NDL::begin_dispatch ( "\\" );
@@ -700,7 +700,7 @@ void ll::lexeme::standard::create_standard_program
 		end_dispatch();
 	    end_dispatch();
 
-    ///     "\\/0/" translate "\0/";
+    ///     "\\/0/" translate to "\0/";
     ///     "\\/0<hex-digit>/"
     ///               translate hex 2 1;
     ///     "\\/0<hex-digit><hex-digit>/"
@@ -778,13 +778,13 @@ void ll::lexeme::standard::create_standard_program
     //
     	    NDL::fail();
 
-    /// end escaped character translation table;
+    /// end escaped character atom table;
     ///
     NDL::end_table();
 
     /// "<escaped-char>" = ~ "/" & ~ "<line-break-char>";
     ///
-    /// begin unrecognized escape sequence translation table;
+    /// begin unrecognized escape sequence atom table;
     ///
     NDL::begin_table ( unrecognized_escape_sequence );
 
@@ -920,7 +920,7 @@ void ll::lexeme::standard::create_standard_program
     //
     	    NDL::fail();
 
-    /// end unrecognized escape sequence translation table;
+    /// end unrecognized escape sequence atom table;
     ///
     NDL::end_table();
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 20 17:41:17 EST 2010
+// Date:	Sun Nov 21 21:38:59 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -232,7 +232,7 @@ namespace ll { namespace lexeme {
     // Table modes and return values.
     //
     // A mode is defined to be either the kind MASTER
-    // or TRANSLATION or the type of a lexeme table.
+    // or ATOM or the type of a lexeme table.
     //
     enum {
 
@@ -243,12 +243,12 @@ namespace ll { namespace lexeme {
 	// Kinds that are not types or return values.
 	//
         MASTER		= 0xFFFFFFFE,
-	TRANSLATION	= 0xFFFFFFFD
+	ATOM		= 0xFFFFFFFD
     };
 
     // Create the table with the given mode and return
-    // its ID.  The mode may be MASTER or TRANSLATION or
-    // the type of a lexeme table.
+    // its ID.  The mode may be MASTER or ATOM or the
+    // type of a lexeme table.
     //
     // The first MASTER table created after a create_
     // program becomes the initial table of the program.
@@ -294,16 +294,15 @@ namespace ll { namespace lexeme {
     // The operation is the sum of some of the follow-
     // ing:
     //
-    //	 TRANSLATE	Invoke the translation table
-    //			specified by the translate_
-    //			table_ID.  This may succeed or
-    //			fail.  If it succeeds, it
-    //			replaces the matched atom and
-    //			provides a translation.  The
-    //			matched atom can be shortened
-    //			by KEEP and the translation can
-    //			be overriden by TRANSLATE_{TO/
-    //			HEX/OCT}.
+    //	 MATCH		Invoke the atom table specified
+    //			by the atom_table_ID.  This may
+    //			succeed or fail.  If it suc-
+    //			ceeds, it replaces the matched
+    //			atom and provides a translation.
+    //			The matched atom can be shorten-
+    //			ed by KEEP and the translation
+    //			can be overriden by TRANSLATE_
+    //			{TO/HEX/OCT}.
     //
     //   KEEP(n):	Truncate atom to n uns32 char-
     //			acters.  The discarded end of
@@ -405,11 +404,11 @@ namespace ll { namespace lexeme {
     //
     enum {
 	ACCEPT			= 0,
-	KEEP_FLAG		= ( 1 << 0 ),
-	TRANSLATE_TO_FLAG	= ( 1 << 1 ),
-	TRANSLATE_HEX_FLAG	= ( 1 << 2 ),
-	TRANSLATE_OCT_FLAG	= ( 1 << 3 ),
-	TRANSLATE		= ( 1 << 4 ),
+	MATCH			= ( 1 << 0 ),
+	KEEP_FLAG		= ( 1 << 1 ),
+	TRANSLATE_TO_FLAG	= ( 1 << 2 ),
+	TRANSLATE_HEX_FLAG	= ( 1 << 3 ),
+	TRANSLATE_OCT_FLAG	= ( 1 << 4 ),
 	REQUIRE			= ( 1 << 5 ),
 	ERRONEOUS_ATOM		= ( 1 << 6 ),
 	OUTPUT			= ( 1 << 7 ),
@@ -430,8 +429,8 @@ namespace ll { namespace lexeme {
     const uns32 PREFIX_LENGTH_MASK = 0x1F;
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
     const uns32 POSTFIX_LENGTH_MASK = 0x1F;
-        // TRANSLATE_LENGTH overlaps with PREFIX_LENGTH
-	// and POSTFIX_LENGTH.
+        // TRANSLATE_TO_LENGTH overlaps with
+	// PREFIX_LENGTH and POSTFIX_LENGTH.
 
     inline uns32 keep_length ( uns32 operation )
     {
@@ -469,12 +468,13 @@ namespace ll { namespace lexeme {
 	     + (    keep_length
 	         << KEEP_LENGTH_SHIFT );
     }
-    inline uns32 TRANSLATE_TO ( uns32 translate_length )
+    inline uns32 TRANSLATE_TO
+	    ( uns32 translate_to_length )
     {
-        assert (    translate_length
+        assert (    translate_to_length
 	         <= TRANSLATE_TO_LENGTH_MASK );
 	return TRANSLATE_TO_FLAG
-	     + (    translate_length
+	     + (    translate_to_length
 	         << TRANSLATE_TO_LENGTH_SHIFT );
     }
     inline uns32 TRANSLATE_HEX
@@ -507,7 +507,7 @@ namespace ll { namespace lexeme {
     uns32 create_instruction
 	    ( uns32 operation,
 	      uns32 * translation_vector = NULL,
-	      uns32 translate_table_ID = 0,
+	      uns32 atom_table_ID = 0,
 	      uns32 require_dispatcher_ID = 0,
 	      uns32 else_instruction_ID = 0,
 	      uns32 output_error_type = 0,

@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 22, 2010
+November 28, 2010
  
 \end{center}
 
@@ -693,6 +693,47 @@ there is a separate list of stack block locations
 that might hold pointers into blocks in the heap.
 
 Code RAM blocks may be static, stack, or heap blocks.
+
+\subsection{Pointer Types}
+\label{Pointer Types}
+
+The standard pointer type is denoted by `{\tt *}', but
+additional pointer types may be defined by
+\begin{center}
+\ttkey{defptr} {\em type-name} {\tt (} {\em length}{\tt ,}
+				       {\em alignment}{\tt ,}
+				       {\em offset}
+				       {\tt )} {\tt ;}
+\end{center}
+
+This works just like {\tt deftype} but additionally declares
+the defined type to be a pointer type.  As such it can be used
+with that same syntax as `{\tt *}'.  An example is:
+
+\begin{indpar}\begin{verbatim}
+defptr "<-" ( 64, 64, 0 );
+void function1 ( int32 <- x, mystruct <-& y );
+\end{verbatim}\end{indpar}
+
+Here the first argument to {\tt function1},
+{\tt x}, is a \verb|<-| type pointer to an {\tt int32} value,
+and the second argument is similarly a \verb|<-| type pointer
+to a {\tt mystruct} value designated by {\tt y}.
+
+Conversion functions can be defined between pointer types.
+
+\begin{indpar}\begin{verbatim}
+"*" .conversion. ( "<-" p );
+"<-" .conversion. ( "*" p );
+uns32 x;
+uns32 <- xp = & x;  // Implied conversion from "*" to "<-".
+uns32 y = * xp;     // Implied conversion from "<-" to "*".
+\end{verbatim}\end{indpar}
+
+Pointer types can be used to store pointers in special formats.
+They can also be used to attach qualifiers to some pointers
+that are stored in standard format: see \pagref{TRACEABLE-QUALIFIERS}.
+
 
 \subsection{Tuples}
 \label{TUPLES}
@@ -1505,14 +1546,15 @@ See \secref{QUALIFIER-INHERITANCE}.
 \label{LIFETIME-QUALIFIERS}
 
 Lifetime qualifiers determine where pointers to locations can be stored.
-Three lifetime qualifiers are builtin:  `{\tt static}', `{\tt stack}',
-and `{\tt caller}'.
-One kind of lifetime qualifier is declarable: collectible qualifiers.
+The four lifetime qualifiers are all builtin:  `{\tt static}', `{\tt stack}',
+`{\tt caller}', and `{\tt heap}'.
 Checked code can only allocate to static or stack memory, and locations
 allocated by checked code are given the `{\tt static}' or
 `{\tt stack}' qualifier accordingly.
 Locations that are part of a function argument or return value
 are given the `{\tt caller}' lifetime qualifier by default.
+
+TBD
 
 \begin{indpar}
 
@@ -1619,6 +1661,9 @@ a `{\tt static}', `{\tt stack}', or collectible qualifier
 with collectible qualifier whose address is passed by a caller
 to a called function must be protected from garbage collection
 by the caller.
+
+\subsubsection{Traceable Qualifiers}
+\label{TRACEABLE-QUALIFIERS}
 
 \subsubsection{Caching Qualifiers}
 \label{CACHING-QUALIFIERS}
@@ -1978,12 +2023,6 @@ $x$\verb/&/$y$\verb/&/$z$ $\equiv$
 ($x$\verb/&/$y$)\verb/&/$z$.
 \end{enumerate}
 
-\subsubsection{Containing Qualifiers}
-\label{CONTAINING-QUALIFIERS}
-
-\subsubsection{Traceable Qualifiers}
-\label{TRACEABLE-QUALIFIERS}
-
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}
 
@@ -2085,6 +2124,58 @@ Threads.
 
 Function calls should be able to serve as lvalues so
 \verb|x[i]=z| can update gc flags.
+
+\appendix
+
+\section{Aliasing Hardware}
+
+The ultimate solution to the aliasing problem is new hardware.
+At its simplest, registers, which currently hold a datum,
+are replaced by triples of registers which hold a datum,
+an address, and selection codes.  The register datum equals the value
+of the memory location at the register address.  The selection
+codes determine which part of this memory location is read or written
+when the register is read or written.  If any memory location is
+changed, the address of the location is checked against all the
+register addresses, and if any match, the corresponding register
+data are changed.
+
+This is, however, not sufficient, because sometimes one register
+address is a function of another register's datum.  For example,
+consider the unchecked code:
+\begin{indpar}[0.5em]\begin{verbatim}
+struct S { ...; int32 m; ... };
+S * * x;
+S * *& y = * x;
+int32 *& z = y->m;
+\end{verbatim}\end{indpar}
+If we consider {\tt x}, {\tt y}, and {\tt z} to be registers,
+the address of {\tt y} equals the value of {\tt x}, and the
+address of {\tt z} equals the value of {\tt y} plus the offset of
+{\tt m} in {\tt S}.
+
+If the value of {\tt x} changes, this changes the address of {\tt y},
+which may change the datum of {\tt y} and that may change the value
+of {\tt y}.  If the value of {\tt y} changes, this changes the address
+of {\tt z}, which may change the datum and value of {\tt z}.
+
+The way we accommodate this is to use the selector codes of {\tt y}
+to specify that the address of {\tt y} is the value of {\tt x}, so
+that if the value of {\tt x} is changed by adding $\Delta${\tt x}
+then the address of {\tt y} should be changed by adding $\Delta${\tt x}.
+And similarly the selector of {\tt z} specifies that the address of {\tt z}
+contains the value of {\tt y} as an additive component.
+
+So why should we bother with automatically updating
+additive inclusions of one value in the
+address of another value, and not bother with other expressions.
+The reason is that expressions such as
+`\verb|(*x)->m|' are likely to be reused frequently in code (actually,
+in automatically generated code) and
+therefore need to be cached, whereas an expressions of the form
+`\verb|c*d|' will be reused comparatively very rarely code
+and therefore are not worth special hardware.
+
 
 \bibliographystyle{plain}
 \bibliography{layered-l-language}

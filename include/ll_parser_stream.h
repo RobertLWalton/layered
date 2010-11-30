@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_stream.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 20 00:54:58 EDT 2010
+// Date:	Fri Nov 26 02:16:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,7 +60,9 @@ min::uns32 large_string_length;
 //
 const min::uns32 FREE_FLAG = 1 << 31;
 
-exterm min::uns32 STRING_BLOCK;
+struct string_block;
+typedef min::packed_vec_ptr<string_block,min::uns32>
+        string_block_ptr;
 struct string_block
 {
     min::uns32 type;
@@ -71,8 +73,8 @@ struct string_block
     min::uns32 max_length;
         // Maximum length of vector.
 
-    string_block ** previous;
-    string_block ** next;
+    string_block_ptr previous;
+    string_block_ptr next;
         // Pointers to maintain circular list of
 	// string blocks.
 
@@ -80,20 +82,54 @@ struct string_block
     // values.
 };
 
-extern string_block * current_string_block;
-extern min:uns32 current_string_block_offset;
-    // Pointer to next point in circular memory composed
-    // of string blocks to allocate a new string.
+// Pointer to a string in circular string memory.
+//
+struct string_pointer
+{
+    string_block_ptr block;
+    min::uns32 offset;
+};
+
+// Allocate a new string and return a pointer to it.
+//
+string_ptr new_string
+	( min::uns32 n, uns32 * string );
+
+// Free a string.
+//
+void free_string ( const string_ptr & sp );
 
 extern min::uns32 TOKEN;
+struct token;
+typedef min::packed_struct_ptr<token> token_ptr;
 struct token
 {
     min::uns32 type;
     	// Packed structure type.  Is TOKEN.
-    min::uns32 token_type;  // One of:
+    min::uns32 kind;  // One of:
     enum
     {
-    }
+    	LEXEME		= 1,
+	NAME		= 2,
+	EXPRESSION	= 3
+    };
+    min::uns32 type;  // One of:
+    enum
+    {
+        // For lexemes: the type.
+
+	// For names:
+	//
+    	SYMBOL		= 0xFFFFFFFF,
+	NATURAL_NUMBER	= 0xFFFFFFFE,
+	LABEL		= 0xFFFFFFFD
+    };
+
+    min::gen value;
+        // Value for names and expressions.
+
+    string_ptr string;
+        // Character string for lexemes.
 
     min::uns32 begin_line;
     min::uns32 begin_index;
@@ -105,6 +141,10 @@ struct token
     min::uns32 end_column;
         // Position of the first character AFTER the
 	// token, or the end of input.
+
+    token_ptr next, previous;
+        // Doubly linked list pointers for streams,
+	// which are circular lists of tokens.
 };
 
 } }

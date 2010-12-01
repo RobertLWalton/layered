@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  1 03:11:24 EST 2010
+// Date:	Wed Dec  1 13:39:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -160,6 +160,10 @@ struct pass
 {
     min::uns32 type;
     	// Packed structure type.
+
+    pass_ptr in;
+        // Pass from which this pass gets its input
+	// tokens.
 
     token_ptr first;
     token_ptr_last;

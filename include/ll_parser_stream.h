@@ -1,8 +1,8 @@
-// Layers Language Parser Stream
+// Layers Language Parser Pass
 //
-// File:	ll_parser_stream.h
+// File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 26 02:16:16 EST 2010
+// Date:	Wed Dec  1 03:11:24 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,8 +17,8 @@
 // Usage and Setup
 // ----- --- -----
 
-# ifndef LL_PARSER_STREAM_H
-# define LL_PARSER_STREAM_H
+# ifndef LL_PARSER_PASS_H
+# define LL_PARSER_PASS_H
 
 # include <min.h>
 
@@ -66,7 +66,7 @@ typedef min::packed_vec_ptr<string_block,min::uns32>
 struct string_block
 {
     min::uns32 type;
-    	// Packed vector type.  Is STRING_BLOCK.
+    	// Packed vector type.
     min::uns32 length;
         // Length of vector.  For string blocks,
 	// always equals the max_length.
@@ -88,6 +88,9 @@ struct string_pointer
 {
     string_block_ptr block;
     min::uns32 offset;
+        // block[offset] is the length of the string and
+	// the uns32 characters of the string follow the
+	// length in memory.
 };
 
 // Allocate a new string and return a pointer to it.
@@ -99,13 +102,13 @@ string_ptr new_string
 //
 void free_string ( const string_ptr & sp );
 
-extern min::uns32 TOKEN;
 struct token;
 typedef min::packed_struct_ptr<token> token_ptr;
 struct token
 {
     min::uns32 type;
-    	// Packed structure type.  Is TOKEN.
+    	// Packed structure type.
+
     min::uns32 kind;  // One of:
     enum
     {
@@ -113,6 +116,7 @@ struct token
 	NAME		= 2,
 	EXPRESSION	= 3
     };
+
     min::uns32 type;  // One of:
     enum
     {
@@ -143,10 +147,54 @@ struct token
 	// token, or the end of input.
 
     token_ptr next, previous;
-        // Doubly linked list pointers for streams,
+        // Doubly linked list pointers for passes,
 	// which are circular lists of tokens.
 };
 
+// The pass struct is the base for packed structs that
+// are specific kinds of passes.
+//
+struct pass;
+typedef min::packed_struct_ptr<pass> pass_ptr;
+struct pass
+{
+    min::uns32 type;
+    	// Packed structure type.
+
+    token_ptr first;
+    token_ptr_last;
+        // First and last token in pass.  NULL if pass
+	// empty.
+
+    bool eop;
+        // True if pass is at the end and no more tokens
+	// can be obtained from the pass.
+
+    min::uns32 (*get) ( pass_ptr out, pass_ptr in);
+        // Function to call with this pass as the `in'
+	// argument to get tokens from this pass and
+	// copy them to the end the `out' pass token
+	// list.  (We cannot use virtual functions in a
+	// min::packed_struct.)  Returns the number of
+	// tokens gotten.  Retuns 0 if at end of `in'
+	// pass.
+};
+
+inline min::uns32 get ( pass_ptr out, pass_ptr in)
+{
+    return in->get ( out, in );
+}
+
+// Note: strings and tokens are explicitly deallocated,
+// but this does not mean that their stubs will be
+// garbage collected.  Passes must be protected against
+// garbage collection by storing pass_ptrs in static/
+// stack_stub locations.  Tokens are protected iff they
+// are part of some protected pass.   Token character
+// strings are protected iff they are part of a
+// protected token.
+
+
 } }
 
-# endif // LL_PARSER_STREAM_H
+# endif // LL_PARSER_PASS_H

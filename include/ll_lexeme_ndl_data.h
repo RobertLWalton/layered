@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 07:09:03 EST 2010
+// Date:	Thu Dec  2 02:09:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,7 +95,7 @@ namespace ll { namespace lexeme
     //
     //	 <instruction> { ELSE(); <instruction> }*.
     //
-    extern ll::lexeme::buffer<uns32> & uns32_stack;
+    extern ll::lexeme::buffer_ptr<uns32> uns32_stack;
 
     // Accumulated information use to construct a
     // dispatch table for an atom pattern or <dispatch>.
@@ -143,7 +143,8 @@ namespace ll { namespace lexeme
 	    // dispatcher.
     };
 
-    extern ll::lexeme::buffer<dispatcher> & dispatchers;
+    extern ll::lexeme::buffer_ptr<dispatcher>
+           dispatchers;
 
     // Accumulated information to use in constructing
     // an instruction.  Pushed into the instructions
@@ -178,8 +179,8 @@ namespace ll { namespace lexeme
 	    // instruction.
     };
 
-    extern ll::lexeme::buffer<instruction>
-           & instructions;
+    extern ll::lexeme::buffer_ptr<instruction>
+           instructions;
 
 } } } }
 

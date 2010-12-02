@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Dec  2 00:53:00 EST 2010
+# Date:		Thu Dec  2 01:56:18 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -123,15 +123,18 @@ ll_lexeme_ndl.o:	\
 		../include/ll_lexeme.h \
 		../include/ll_lexeme_ndl.h \
 		../include/ll_lexeme_ndl_data.h
-	g++ -g -I ../include -c ../src/ll_lexeme_ndl.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_lexeme_ndl.cc
 
 ll_lexeme_standard.o:	\
 		../src/ll_lexeme_standard.cc \
 		../include/ll_lexeme.h \
 		../include/ll_lexeme_ndl.h \
 		../include/ll_lexeme_standard.h
-	g++ -g -I ../include -c \
-	    ../src/ll_lexeme_standard.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_lexeme_standard.cc
 
 ll_lexeme_standard_test:		\
 		ll_lexeme_standard_test.cc \
@@ -143,7 +146,7 @@ ll_lexeme_standard_test:		\
 		min_acc.o \
 		Makefile
 	g++ -g ${GFLAGS} \
-	    -I ../include \
+	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
 	    ll_lexeme_ndl.o \
@@ -151,7 +154,6 @@ ll_lexeme_standard_test:		\
 	    min.o \
 	    min_os.o \
 	    min_acc.o \
-	    -D LL_NO_DATA_DEFINITIONS=1 \
 	    ll_lexeme_standard_test.cc
 
 ll_lexeme_standard_test.out:		\

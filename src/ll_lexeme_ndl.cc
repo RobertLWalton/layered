@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 10:34:45 EST 2010
+// Date:	Thu Dec  2 02:07:12 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Data
 //	NDL Functions
 
 // Usage and Setup
@@ -27,8 +28,35 @@
 using std::cout;
 using std::endl;
 using namespace LEXNDLDATA;
+
+// Data
+// ----
 
-// Global data (stacks are in ll_lexeme_min.cc).
+// Stacks
+
+static min::packed_vec<LEX::buffer_header,LEX::uns32>
+       uns32_buffer_type
+           ( "ll::lexeme::ndl::uns32_buffer" );
+static min::packed_vec<LEX::buffer_header,
+                       LEXNDLDATA::dispatcher>
+       dispatcher_buffer_type
+           ( "ll::lexeme::ndl::dispatcher_buffer" );
+static min::packed_vec<LEX::buffer_header,
+                       LEXNDLDATA::instruction>
+       instruction_buffer_type
+           ( "ll::lexeme::ndl::instruction_buffer" );
+
+LEX::buffer_ptr<LEX::uns32>
+    LEXNDLDATA::uns32_stack
+	( uns32_buffer_type.new_gen() );
+LEX::buffer_ptr<LEXNDLDATA::dispatcher>
+    LEXNDLDATA::dispatchers
+	( dispatcher_buffer_type.new_gen() );
+LEX::buffer_ptr<LEXNDLDATA::instruction>
+    LEXNDLDATA::instructions
+	( instruction_buffer_type.new_gen() );
+
+// Other global data.
 //
 char LEXNDL::OTHER[1];
 
@@ -118,13 +146,13 @@ enum SUBSTATE {
 
 static SUBSTATE substate;
 
-// Depth of dispatcher is dispatchers.length.
+// Depth of dispatcher is dispatchers->length.
 
 // Push one uns32 onto the uns32_stack.
 //
 inline void push_uns32 ( uns32 value )
 {
-    uns32 i = uns32_stack.allocate ( 1 );
+    uns32 i = allocate ( uns32_stack, 1 );
     uns32_stack[i] = value;
 }
 
@@ -132,10 +160,10 @@ inline void push_uns32 ( uns32 value )
 //
 inline uns32 pop_uns32 ( void )
 {
-    uns32 i = uns32_stack.length;
+    uns32 i = uns32_stack->length;
     assert ( i > 0 );
     uns32 value = uns32_stack[--i];
-    uns32_stack.deallocate ( 1 );
+    deallocate ( uns32_stack, 1 );
     return value;
 }
 
@@ -143,19 +171,19 @@ inline uns32 pop_uns32 ( void )
 //
 inline dispatcher & current_dispatcher ( void )
 {
-    uns32 dindex = dispatchers.length;
+    uns32 dindex = dispatchers->length;
     assert ( dindex >= 1 );
     return dispatchers[dindex-1];
 }
 inline dispatcher & parent_dispatcher ( void )
 {
-    uns32 dindex = dispatchers.length;
+    uns32 dindex = dispatchers->length;
     assert ( dindex >= 2 );
     return dispatchers[dindex-2];
 }
 inline instruction & current_instruction ( void )
 {
-    uns32 iindex = instructions.length;
+    uns32 iindex = instructions->length;
     assert ( iindex >= 1 );
     return instructions[iindex-1];
 }
@@ -172,9 +200,9 @@ void LEXNDL::begin_program ( void )
              "misplaced begin_program()" );
     state = INSIDE_PROGRAM;
 
-    uns32_stack.resize ( 0 );
-    dispatchers.resize ( 0 );
-    instructions.resize ( 0 );
+    reset ( uns32_stack );
+    reset ( dispatchers );
+    reset ( instructions );
 
     LEX::create_program();
 }
@@ -186,9 +214,9 @@ void LEXNDL::end_program ( void )
              "misplaced end_program()" );
     state = OUTSIDE_PROGRAM;
 
-    assert ( uns32_stack.length == 0 );
-    assert ( dispatchers.length == 0 );
-    assert ( instructions.length == 0 );
+    assert ( uns32_stack->length == 0 );
+    assert ( dispatchers->length == 0 );
+    assert ( instructions->length == 0 );
 }
 
 void LEXNDL::new_table
@@ -213,10 +241,10 @@ void LEXNDL::new_table
 //
 void push_dispatcher ( bool is_others = false )
 {
-    if ( dispatchers.length > 0 && ! is_others )
+    if ( dispatchers->length > 0 && ! is_others )
         ++ current_dispatcher().max_type_code;
 
-    dispatchers.allocate ( 1 );
+    allocate ( dispatchers, 1 );
     dispatcher & d = current_dispatcher();
 
     memset ( d.ascii_map, 0, 128 );
@@ -226,7 +254,7 @@ void push_dispatcher ( bool is_others = false )
     d.others_instruction_ID = 0;
     d.is_others_dispatcher = is_others;
 
-    instructions.allocate ( 1 );
+    allocate ( instructions, 1 );
     instruction & ci = current_instruction();
 
     ci.operation = 0;
@@ -260,7 +288,7 @@ static uns32 pop_instruction_group ( void )
 		    ( ci.operation );
 
         uns32 * translation_vector = NULL;
-	uns32 length = uns32_stack.length;
+	uns32 length = uns32_stack->length;
 	assert ( translate_to_length <= length );
 	if ( translate_to_length > 0 )
 	    translation_vector =
@@ -280,12 +308,12 @@ static uns32 pop_instruction_group ( void )
 		  ci.call_table_ID );
 
 	if ( translate_to_length > 0 )
-	    uns32_stack.deallocate
-	        ( translate_to_length );
+	    deallocate ( uns32_stack,
+	                 translate_to_length );
 
-	instructions.deallocate ( 1 );
+	deallocate ( instructions, 1 );
 
-	if ( instructions.length == 0
+	if ( instructions->length == 0
 	     ||
 	     ! ( current_instruction().operation
 	         & LEX::ELSE ) )
@@ -334,14 +362,14 @@ static uns32 pop_dispatcher
 	push_uns32 ( instruction_ID );
 	push_uns32 ( d.type_map_count );
 
-	dispatchers.deallocate ( 1 );
+	deallocate ( dispatchers, 1 );
 
 	substate = DISPATCHERS;
     	return 0;
     }
 
     uns32 total_type_map_count = 0;
-    uns32 * p = & uns32_stack[uns32_stack.length];
+    const uns32 * p = uns32_stack.end_ptr();
     for ( uns32 tcode = d.max_type_code;
           0 < tcode; -- tcode )
     {
@@ -411,7 +439,7 @@ static uns32 pop_dispatcher
 	push_uns32 ( d.type_map_count );
     }
 
-    dispatchers.deallocate ( 1 );
+    deallocate ( dispatchers, 1 );
 
     substate = DISPATCHERS;
 }
@@ -431,8 +459,8 @@ void LEXNDL::begin_table ( uns32 table_name )
              "table_name does not reference a table" );
     ::table_mode = LEX::table_mode ( table_name );
 
-    assert ( dispatchers.length == 0 );
-    assert ( instructions.length == 0 );
+    assert ( dispatchers->length == 0 );
+    assert ( instructions->length == 0 );
     push_dispatcher();
     substate = DISPATCHERS;
 }
@@ -442,7 +470,7 @@ void LEXNDL::end_table ( void )
     FUNCTION ( "end_table" );
     ASSERT ( state == INSIDE_TABLE,
              "end_table() misplaced" );
-    ASSERT ( dispatchers.length == 1,
+    ASSERT ( dispatchers->length == 1,
              "end_table() misplaced" );
 
     pop_dispatcher();
@@ -451,9 +479,9 @@ void LEXNDL::end_table ( void )
     uns32 instruction_ID = pop_uns32();
     uns32 dispatcher_ID = pop_uns32();
 
-    assert ( dispatchers.length == 0 );
-    assert ( instructions.length == 0 );
-    assert ( uns32_stack.length == 0 );
+    assert ( dispatchers->length == 0 );
+    assert ( instructions->length == 0 );
+    assert ( uns32_stack->length == 0 );
 
     ATTACH ( table_name, dispatcher_ID );
     if ( instruction_ID != 0 )
@@ -525,16 +553,16 @@ void LEXNDL::end_atom_pattern ( void )
 
     pop_dispatcher ( true );
 
-    while ( dispatchers.length > 0)
+    while ( dispatchers->length > 0)
 	pop_dispatcher();
 
     * atom_pattern_name_p = uns32_stack[0];
 
-    uns32_stack.deallocate ( 3 );
+    deallocate ( uns32_stack, 3 );
 
-    assert ( dispatchers.length == 0 );
-    assert ( instructions.length == 0 );
-    assert ( uns32_stack.length == 0 );
+    assert ( dispatchers->length == 0 );
+    assert ( instructions->length == 0 );
+    assert ( uns32_stack->length == 0 );
 
     state = INSIDE_PROGRAM;
 }
@@ -609,7 +637,7 @@ void LEXNDL::end_dispatch ( void )
     FUNCTION ( "end_dispatch" );
     ASSERT ( state == INSIDE_TABLE,
              "end_dispatch() misplaced" );
-    ASSERT ( dispatchers.length >= 2,
+    ASSERT ( dispatchers->length >= 2,
              "end_dispatch() misplaced" );
     pop_dispatcher();
 }
@@ -961,7 +989,7 @@ void LEXNDL::ELSE ( void )
 	     " translate_oct/hex(), or require()" );
     ci.operation |= LEX::ELSE;
 
-    instructions.allocate ( 1 );
+    allocate ( instructions, 1 );
     instruction & i2 = current_instruction();
     i2.operation = 0;
     i2.atom_table_ID = 0;

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 10:11:30 EST 2010
+// Date:	Thu Dec  2 00:07:36 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Data
 //	Program Construction
 //	Scanning
 //	Reading
@@ -38,12 +39,31 @@ unsigned LEX::line_length = 72;
 unsigned LEX::indent = 4;
 char LEX::error_message[1000];
 
+// Data
+// ----
+
+static min::packed_vec<LEX::buffer_header,LEX::uns32>
+       uns32_buffer_type
+           ( "ll::lexeme::uns32_buffer" );
+static min::packed_vec<LEX::buffer_header,LEX::inchar>
+       inchar_buffer_type
+           ( "ll::lexeme::inchar_buffer" );
+
+LEX::buffer_ptr<LEX::uns32> LEX::program
+    ( uns32_buffer_type.new_gen() );
+LEX::buffer_ptr<LEX::inchar> LEX::input_buffer
+    ( inchar_buffer_type.new_gen() );
+LEX::buffer_ptr<LEX::uns32> LEX::translation_buffer
+    ( uns32_buffer_type.new_gen() );
+
+
 // Program Construction
 // ------- ------------
 
 uns32 LEX::create_table ( uns32 mode )
 {
-    uns32 ID = program.allocate ( table_header_length );
+    uns32 ID =
+        allocate ( program, table_header_length );
     table_header & h = * (table_header *) & program[ID];
     h.pctype = TABLE;
     h.mode = mode;
@@ -73,9 +93,9 @@ uns32 LEX::table_mode ( uns32 ID )
 
 void LEX::create_program ( void )
 {
-    program.resize ( 0 );
-    uns32 ID = program.allocate
-    		   ( program_header_length );
+    reset ( program );
+    uns32 ID =
+        allocate ( program, program_header_length );
     assert ( ID == 0 );
 
     program_header & h =
@@ -93,7 +113,7 @@ uns32 LEX::create_dispatcher
 	  * ( max_breakpoints + 1 )
 	+   map_element_length
 	  * ( max_ctype + 1 );
-    uns32 ID = program.allocate ( length );
+    uns32 ID = allocate ( program, length );
     dispatcher_header & h =
         * (dispatcher_header *)
 	& program[ID];
@@ -114,9 +134,9 @@ uns32 LEX::create_type_map
 {
     assert ( cmax >= cmin );
     uns32 length = cmax - cmin + 1;
-    uns32 ID = program.allocate
-    	(   type_map_header_length
-	  + ( length + 3 ) / 4 );
+    uns32 ID = allocate ( program,
+    	                    type_map_header_length
+	                  + ( length + 3 ) / 4 );
     type_map_header & h =
         * (type_map_header *) & program[ID];
     h.pctype = TYPE_MAP;
@@ -131,8 +151,8 @@ uns32 LEX::create_type_map
 	( uns32 cmin, uns32 cmax, uns32 ctype )
 {
     assert ( cmax >= cmin );
-    uns32 ID = program.allocate
-    	( type_map_header_length );
+    uns32 ID =
+        allocate ( program, type_map_header_length );
     type_map_header & h =
         * (type_map_header *) & program[ID];
     h.pctype = TYPE_MAP;
@@ -234,9 +254,9 @@ uns32 LEX::create_instruction
     else
         assert ( call_table_ID == 0 );
 
-    uns32 ID = program.allocate
-    	(   instruction_header_length
-	  + translate_to_length );
+    uns32 ID = allocate ( program,
+    	                    instruction_header_length
+	                  + translate_to_length );
     instruction_header & h =
         * (instruction_header *) & program[ID];
     h.pctype = INSTRUCTION;
@@ -513,8 +533,8 @@ static bool is_recursive ( uns32 table_ID )
 
 void LEX::init_scan ( void )
 {
-    input_buffer.resize ( 0 );
-    translation_buffer.resize ( 0 );
+    reset ( input_buffer );
+    reset ( translation_buffer );
 
     next = 0;
     assert ( program[0] == PROGRAM );
@@ -668,7 +688,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 	// at input_buffer[next].
     uns32 dispatcher_ID = cath.dispatcher_ID;
 	// Current dispatcher.
-    uns32 tnext = translation_buffer.length;
+    uns32 tnext = translation_buffer->length;
 	// Save of current translation buffer position
 	// for REQUIRE and ELSE.
 
@@ -689,13 +709,13 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	if ( dispatcher_ID == 0 ) break;
 
-	if ( next + length >= input_buffer.length
+	if ( next + length >= input_buffer->length
 	     &&
 	     ! (*read_input)() )
 	    break; // End of file.
 
 	assert
-	    ( next + length < input_buffer.length );
+	    ( next + length < input_buffer->length );
 	uns32 c =
 	    input_buffer[next + length].character;
 	++ length;
@@ -840,8 +860,9 @@ static uns32 scan_atom ( uns32 & atom_length )
 			     TRANSLATE_HEX_FLAG
 	                     |
 			     TRANSLATE_OCT_FLAG ) )
-		translation_buffer.deallocate
-		    (   translation_buffer.length
+		deallocate
+		    ( translation_buffer,
+		        translation_buffer->length
 		      - tnext );
 	}
 
@@ -910,7 +931,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	    if ( ! fail )
 		translation_buffer
-		    [translation_buffer.allocate ( 1 )]
+		    [allocate ( translation_buffer, 1 )]
 		    = tc;
 	}
 	else if ( op & TRANSLATE_TO_FLAG )
@@ -920,8 +941,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    if ( translate_to_length > 0 )
 	    {
 		uns32 q =
-		    translation_buffer.allocate
-			( translate_to_length );
+		    allocate ( translation_buffer,
+			       translate_to_length );
 		memcpy ( & translation_buffer[q],
 			 & ih + 1,
 			   translate_to_length
@@ -931,8 +952,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 	else if ( ! ( op & MATCH ) )
 	{
 	    uns32 q =
-		translation_buffer.allocate
-			( keep_length );
+		allocate ( translation_buffer,
+			   keep_length );
 	    uns32 p = next;
 	    for ( uns32 i = 0; i < keep_length; ++ i )
 		translation_buffer[q++] =
@@ -955,14 +976,14 @@ static uns32 scan_atom ( uns32 & atom_length )
 		{
 		    fail = (    tnext + tlength
 			     != translation_buffer
-				    .length );
+				    ->length );
 		    break;
 		}
 		assert (    program[dispatcher_ID]
 			 == DISPATCHER );
 
 		if (    tnext + tlength
-		     >= translation_buffer.length )
+		     >= translation_buffer->length )
 		{
 		    fail = true;
 		    break;
@@ -1014,8 +1035,9 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	if ( fail )
 	{
-	    translation_buffer.deallocate
-		( translation_buffer.length - tnext );
+	    deallocate ( translation_buffer,
+		           translation_buffer->length
+			 - tnext );
 	    if ( op & ELSE )
 	    {
 		instruction_ID =
@@ -1061,26 +1083,26 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 uns32 LEX::scan ( uns32 & first, uns32 & last )
 {
-    if ( next >= input_buffer.length_increment )
+    if ( next >= inchar_buffer_type.max_increment )
     {
         // If next has gotten to be as large as
-	// length_increment, shift the input_buffer
+	// max_increment, shift the input_buffer
 	// down, eliminating characters in lexemes
 	// already returned.
 	//
         memmove ( & input_buffer[0],
 	          & input_buffer[next],
-		    ( input_buffer.length - next )
+		    ( input_buffer->length - next )
 		  * sizeof ( LEX::inchar ) );
-	input_buffer.deallocate ( next );
+	deallocate ( input_buffer, next );
 	next = 0;
     }
 
     // Initialize first and translation buffer.
     //
     first = next;
-    translation_buffer.deallocate
-	( translation_buffer.length );
+    deallocate ( translation_buffer,
+                 translation_buffer->length );
 
     // We scan atoms until we get to a point where the
     // atom table is to be changed from a table with
@@ -1100,14 +1122,14 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // and signal a scan error if it goes to zero.  We
     // set loop_count to a number at least as large as
     // the total number of tables, in this case program
-    // .length, whenever we find an atom.  If it goes to
-    // zero we must be in a loop changing tables and not
-    // finding an atom.
+    // ->length, whenever we find an atom.  If it goes
+    // to zero we must be in a loop changing tables and
+    // not finding an atom.
     // 
     uns32 output_type = 0;
     uns32 last_mode = MASTER;
     return_stack_p = return_stack;
-    uns32 loop_count = program.length;
+    uns32 loop_count = program->length;
         // Set to max number of tables in order to
 	// detect endless loops.
     while ( true )
@@ -1293,7 +1315,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	if ( atom_length > 0 )
 	{
 	    next += atom_length;
-	    loop_count = program.length;
+	    loop_count = program->length;
 	}
 	else if ( -- loop_count == 0 )
 	{
@@ -1351,7 +1373,7 @@ static char * scan_error ( uns32 length, uns32 next )
     char * p = error_message;
     p += sprintf ( p, "CURRENT_TABLE %u",
 	              current_table_ID );
-    if ( next < input_buffer.length )
+    if ( next < input_buffer->length )
 	p += sprintf
 	    ( p, " POSITION %u(%u)%u:",
 	      input_buffer[next].line,
@@ -1372,7 +1394,7 @@ static char * scan_error ( uns32 length, uns32 next )
 
 static uns32 default_read_input ( void )
 {
-    uns32 i = input_buffer.allocate ( 100 );
+    uns32 i = allocate ( input_buffer, 100 );
     uns32 endi = i + 100;
     while ( i < endi )
     {
@@ -1381,7 +1403,7 @@ static uns32 default_read_input ( void )
 
 	if ( c == EOF )
 	{
-	    input_buffer.deallocate ( endi - i );
+	    deallocate ( input_buffer, endi - i );
 	    return ( endi - i < 100 );
 	}
 
@@ -1590,7 +1612,7 @@ unsigned LEX::sptranslation
 	  bool preface_with_space,
 	  unsigned indent, unsigned line_length )
 {
-    if ( translation_buffer.length == 0 )
+    if ( translation_buffer->length == 0 )
         return spstring ( buffer, "<empty>", 7,
 	                  column,
 			  preface_with_space,
@@ -1598,7 +1620,7 @@ unsigned LEX::sptranslation
 
     char * p = buffer;
     for ( unsigned i = 0;
-          i < translation_buffer.length; ++ i )
+          i < translation_buffer->length; ++ i )
     {
 	uns32 c = translation_buffer[i];
 	char buffer2[40];
@@ -1682,7 +1704,7 @@ bool LEX::translation_is_exact
 	( uns32 first, uns32 last )
 {
     uns32 i = 0;
-    if (    translation_buffer.length
+    if (    translation_buffer->length
          != last - first + 1 )
         return false;
     while ( first <= last )
@@ -2310,7 +2332,7 @@ uns32 LEX::print_program_component
     {
 	cout << pID ( ID ) << "ILLEGAL COMPONENT TYPE("
 	     << program[ID] << ")" << endl;
-	return program.length - ID;
+	return program->length - ID;
     }
     }
 }
@@ -2319,7 +2341,7 @@ void LEX::print_program
 	( std::ostream & out, bool cooked )
 {
     uns32 ID = 0;
-    while ( ID < program.length )
+    while ( ID < program->length )
     {
 	// If cooked skip some components.
 	//
@@ -2352,7 +2374,7 @@ void LEX::print_program
 	    ( out, ID, cooked );
     }
 
-    if ( ID > program.length )
+    if ( ID > program->length )
         out << "  ILLEGALLY TRUNCATED LAST PROGRAM"
 	       " COMPONENT" << endl;
 }

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Nov 19 10:58:00 EST 2010
+# Date:		Thu Dec  2 00:53:00 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -24,7 +24,6 @@ MIN = ~/min
 OPTIMIZE = -O3
 
 PROGRAMS = ll_lexeme_test \
-           ll_lexeme_min_test \
            ll_lexeme_standard_test
 
 TESTS = ${PROGRAMS}
@@ -68,22 +67,6 @@ test:		${PROGRAMS:=.test}
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
-ll_lexeme.o:	\
-		../src/ll_lexeme.cc \
-		../include/ll_lexeme.h \
-		../include/ll_lexeme_program_data.h
-	g++ -g -I ../include -c ../src/ll_lexeme.cc
-
-ll_lexeme_test:		\
-		ll_lexeme_test.cc \
-		ll_lexeme.o \
-		Makefile
-	g++ -g ${GFLAGS} \
-	    -I ../include \
-	    -o $@ \
-	    ll_lexeme.o \
-	    ll_lexeme_test.cc
-
 min.o:	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	${MIN}/src/min.cc
@@ -109,31 +92,30 @@ min_acc.o:	${MIN}/include/min.h \
 	    -I ../include -I ${MIN}/include \
 	    -c ${MIN}/src/min_acc.cc
 
-ll_lexeme_min.o:	${MIN}/include/min.h \
+ll_lexeme.o:	\
+	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	../include/ll_lexeme.h \
-	../src/ll_lexeme_min.cc
+	../include/ll_lexeme_program_data.h \
+	../src/ll_lexeme.cc
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_lexeme_min.cc
+	    -c ../src/ll_lexeme.cc
 
-ll_lexeme_min_test:		\
+ll_lexeme_test:		\
 		ll_lexeme_test.cc \
 		ll_lexeme.o \
-		ll_lexeme_min.o \
 		min.o \
 		min_os.o \
 		min_acc.o \
 		Makefile
 	g++ -g ${GFLAGS} \
-	    -I ../include \
+	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
-	    ll_lexeme_min.o \
 	    min.o \
 	    min_os.o \
 	    min_acc.o \
-	    -D LL_NO_DATA_DEFINITIONS=1 \
 	    ll_lexeme_test.cc
 
 ll_lexeme_ndl.o:	\
@@ -154,7 +136,6 @@ ll_lexeme_standard.o:	\
 ll_lexeme_standard_test:		\
 		ll_lexeme_standard_test.cc \
 		ll_lexeme.o \
-		ll_lexeme_min.o \
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		min.o \
@@ -165,7 +146,6 @@ ll_lexeme_standard_test:		\
 	    -I ../include \
 	    -o $@ \
 	    ll_lexeme.o \
-	    ll_lexeme_min.o \
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    min.o \

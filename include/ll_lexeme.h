@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 10:11:16 EST 2010
+// Date:	Wed Dec  1 23:59:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	External Interface
+//	Data
 //	Program Construction
 //	Scanning
 //	Reading
@@ -23,138 +23,75 @@
 # ifndef LL_LEXEME_H
 # define LL_LEXEME_H
 
+# include <min.h>
 # include <iostream>
 # include <cassert>
 
-// External Interface
-// -------- ---------
+// Data
+// ----
 
 namespace ll { namespace lexeme {
 
     // Unsigned integer 8-bit, 32-bit, and 64-bit types.
     //
-    typedef unsigned char uns8;
-    typedef unsigned uns32;
-    typedef unsigned long long uns64;
+    typedef min::uns8 uns8;
+    typedef min::uns32 uns32;
+    typedef min::uns64 uns64;
 
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
 
-    // A buffer holds a vector of elements of type T,
-    // where T should be a C language number or struct,
-    // and must not have a constructor or destructor
-    // or any preferred initial value, and must be
-    // copyable with memcpy.
+    // A buffer is a vector of elements of type T.
     //
-    template < typename T >
-    struct buffer
+    struct buffer_header
     {
-        // Members read-only to user.
-
-        uns8 ** base;
-	    // Pointer to location storing address of
-	    // buffer vector.  Reset by resize function
-	    // when max_length is changed to or from 0.
-	    // * base is the address of the buffer
-	    // vector.
-
-	uns32 header_size;
-	    // Size of header at beginning of buffer
-	    // in bytes.  The header is not available
-	    // to store vector elements.  Reset when
-	    // base is reset.
-
-	uns32 length;
-	    // Number of elements currently used in
-	    // the buffer vector.  Reset by allocate
-	    // and deallocate.
-
-	uns32 max_length;
-	    // Number of elements in the buffer vector.
-	    // max_length - length elements are unused.
-	    // Reset by resize function.
-
-        // Members read-write for user.
-
-	uns32 length_increment;
-	    // When allocate must call resize, it
-	    // provides for length_increment unused
-	    // elements after the allocate is done.
-	    // Defaults to 1000.
-
-	// (T *) of buffer can be used to extract a
-	// vector of T's.
-	// 
-	// b[i] is the i+1'st vector element, if b is
-	// of type buffer<T>.  &b[0] is the address of
-	// the beginning of the vector and &b[length] is
-	// the address of the first location after the
-	// end of the vector.
-	//
-	operator T * ( void )
-	{
-	    return (T *) ( * base + header_size );
-	}
-
-	// Allocate n elements from the end of the
-	// buffer vector.
-	//
-	// Adds n to length, and returns the original
-	// length, which is the index of the first
-	// element allocated.
-	//
-	// If necessary calls resize (below) to ensure
-	// that max_length > length.  In this case sets
-	//
-	//	max_length = new_length
-	//		   + length_increment
-	//
-	// Returns old value of length, which is the
-	// index of the first element allocated.
-	//
-	uns32 allocate ( uns32 n )
-	{
-	    uns32 available = max_length - length;
-	    if ( available < n )
-	    {
-		uns32 new_max_length =
-		    max_length + n - available
-			       + length_increment;
-		resize ( new_max_length );
-	    }
-	    uns32 location = length;
-	    length += n;
-	    return location;
-	}
-
-	// Deallocates n elements from the end of the
-	// buffer vector.  Just sets length -= n.
-	// Returns new value of length.
-	//
-	uns32 deallocate ( uns32 n )
-	{
-	    assert ( length >= n );
-	    length -= n;
-	}
-
-	// Change the buffer vector max_length.  The
-	// max_length can be increased or decreased.
-	// The buffer vector will be relocated in
-	// memory.
-	//
-	// Changing the max_length to 0 effectively
-	// deallocates the buffer vector, and changing
-	// from 0 effectively allocates the buffer
-	// vector.
-	//
-	virtual void resize ( uns32 new_max_length )
-	    = 0;
-
+        const uns32 type;
+	const uns32 length;
+	const uns32 max_length;
     };
+    template <typename T>
+    struct buffer_ptr
+        : public min::packed_vec_insptr<buffer_header,T>
+    {
+        buffer_ptr ( min::gen v )
+	    : min::packed_vec_insptr<buffer_header,T>
+	        ( v ) {}
+    };
+
+    // Allocate n elements in a buffer and return the
+    // index of the first element.
+    //
+    template <typename T>
+    inline uns32 allocate ( buffer_ptr<T> p, uns32 n )
+    {
+        uns32 ID = p->length;
+	min::push ( p, n, (T * ) NULL );
+	return ID;
+    }
+
+    // Deallocate n elements from the end of a buffer
+    // and returns the new length of the buffer.
+    //
+    template <typename T>
+    inline uns32 deallocate ( buffer_ptr<T> p, uns32 n )
+    {
+	min::pop ( p, n, (T *) NULL );
+	return p->length;
+    }
+
+    // Reset a buffer to zero length.
+    //
+    template <typename T>
+    inline void reset ( buffer_ptr<T> p )
+    {
+	min::pop ( p, p->length, (T *) NULL );
+	min::resize ( p, 1000 );
+    }
+
 
     // The program is a sequence of program components.
     //
-    extern buffer<uns32> & program;
+    extern buffer_ptr<uns32> program;
 
     // The input buffer is a vector of inchar elements
     // each holding a character and the location of that
@@ -169,7 +106,7 @@ namespace ll { namespace lexeme {
         uns32	column;
 	uns32	character;
     };
-    extern buffer<inchar> & input_buffer;
+    extern buffer_ptr<inchar> input_buffer;
 
     // The translation buffer holds the translation of
     // the current lexeme.  For example, if the lexeme
@@ -179,7 +116,8 @@ namespace ll { namespace lexeme {
     // replaced in the translation by the represented
     // characters.
     //
-    extern buffer<uns32> & translation_buffer;
+    extern buffer_ptr<uns32> translation_buffer;
+
 } }
 
 // Program Construction

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 06:34:12 EST 2010
+// Date:	Thu Dec  2 00:53:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	External Runtime
+//	Test Runtime
 //	Program Construction Test
 
 // Usage and Setup
@@ -70,66 +70,8 @@ static const char * const type_name[MAX_TYPE+1] = {
    "SEPARATOR" };
 
 
-// External Runtime
-// -------- -------
-
-# ifndef  LL_NO_DATA_DEFINITIONS
-
-template < typename T >
-struct ext_buffer : public LEX::buffer<T>
-{
-    T * vector;
-
-    ext_buffer ( void )
-    {
-	vector = NULL;
-	this->base = (uns8 **) & vector;
-	this->header_size = 0;
-	this->length = 0;
-	this->max_length = 0;
-	this->length_increment = 1000;
-    }
-    ~ ext_buffer ( void )
-    {
-        delete [] vector;
-    }
-    void resize ( uns32 new_max_length );
-};
-
-template < typename T >
-void ext_buffer<T>::resize ( uns32 new_max_length )
-{
-    if ( this->length > new_max_length )
-        this->length = new_max_length;
-
-    T * new_vector = NULL;
-    if ( new_max_length > 0 )
-    {
-        new_vector = new T[new_max_length];
-	memcpy ( new_vector, vector,
-		 this->length * sizeof ( T ) );
-    }
-    delete [] vector;
-    vector = new_vector;
-    this->max_length = new_max_length;
-}
-template void ext_buffer<uns32>::resize
-	( uns32 new_max_length );
-template void ext_buffer<inchar>::resize
-	( uns32 new_max_length );
-
-ext_buffer<uns32> ext_program;
-ext_buffer<inchar> ext_input_buffer;
-ext_buffer<uns32> ext_translation_buffer;
-
-LEX::buffer<uns32> & LEX::program =
-    ext_program;
-LEX::buffer<inchar> & LEX::input_buffer =
-    ext_input_buffer;
-LEX::buffer<uns32> & LEX::translation_buffer =
-    ext_translation_buffer;
-
-# endif  // LL_NO_DATA_DEFINITIONS
+// Test Runtime
+// ---- -------
 
 static uns32 * lex_input = NULL;
 static uns32   lex_input_length = 0;
@@ -137,7 +79,7 @@ static uns32   lex_line = 0;
 static uns32   lex_index = 0;
 static uns32   lex_column = 0;
 
-void set_lex_input ( uns32 * input, uns32 length )
+static void set_lex_input ( uns32 * input, uns32 length )
 {
     lex_input = input;
     lex_input_length = length;
@@ -149,8 +91,8 @@ static uns32 read_input ( void )
 {
     if ( lex_input == NULL ) return 0;
 
-    uns32 p = LEX::input_buffer.allocate
-    		( lex_input_length );
+    uns32 p = LEX::allocate
+        ( LEX::input_buffer, lex_input_length );
     for ( uns32 i = 0; i < lex_input_length; ++ i )
     {
         LEX::input_buffer[p+i].character = lex_input[i];

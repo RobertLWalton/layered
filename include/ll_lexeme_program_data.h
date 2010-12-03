@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 07:43:40 EST 2010
+// Date:	Fri Dec  3 13:02:56 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,17 +53,17 @@ namespace ll { namespace lexeme
 //
 // computes the type name corresponding to t.
 //
-// program[header_length] is the first location after
+// program[component_length] is the first location after
 // the program header, i.e., after the type name
 // strings.  The type name UTF-8 strings therefore
-// occupy header_length - program_header_length - 1
+// occupy component_length - program_header_length - 1
 // - max_type uns32 elements.
 //
 struct program_header {
     uns32 pctype;		// == PROGRAM
     uns32 initial_table_ID;	// Initial master table.
     uns32 max_type;
-    uns32 header_length;
+    uns32 component_length;
 };
 const uns32 program_header_length = 4;
 
@@ -146,7 +146,9 @@ const uns32 map_element_length = 2;
 // a singleton_ctype is that is non-zero, or to
 // map[c-cmin] otherwise, where map is the uns8 *
 // pointer to the first byte after the type map
-// header.
+// header.  The component length is type_map_
+// header_length + ( cmax - cmin + 4 ) / 4 if
+// singleton_ctype is zero.
 //
 struct type_map_header {
     uns32 pctype;	    // == TYPE_MAP

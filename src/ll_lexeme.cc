@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 07:44:11 EST 2010
+// Date:	Fri Dec  3 18:55:09 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,8 @@ using std::ios;
 using std::ostream;
 using namespace LEX;
 using namespace LEX::program_data;
+
+#define FOR(i,n) for ( uns32 i = 0; i < (n); ++ i )
 
 unsigned LEX::line_length = 72;
 unsigned LEX::indent = 4;
@@ -133,7 +135,7 @@ void LEX::create_program
         * (program_header *) & program[ID];
     h.pctype = PROGRAM;
     h.max_type = max_type;
-    h.header_length = header_length;
+    h.component_length = header_length;
 
     for ( uns32 t = 0; t <= max_type; ++ t )
     {
@@ -570,11 +572,89 @@ uns32 LEX::attach
 	assert ( ! "assert failure" );
 }
 
-void LEX::convert_program_endianhood
+inline uns32 conv ( uns32 & v )
+{
+    uns32 b0 = v >> 24;
+    uns32 b1 = ( v >> 16 ) & 0xFF;
+    uns32 b2 = ( v >>  8 ) & 0xFF;
+    uns32 b3 = v & 0xFF;
+    v = ( b3 << 24 ) + ( b2 << 16 )
+      + ( b1 << 8 ) + b0;
+    return v;
+}
+
+bool LEX::convert_program_endianhood
 	( scanner_ptr scanner )
 {
     program_ptr program = scanner->program;
 
+    if ( program[0] == PROGRAM ) return true;
+
+    uns32 ID = 0;
+#   define NEXT conv(program[ID++])
+    while ( ID < program->length )
+    {
+        uns32 cID = ID;
+
+        switch ( NEXT )
+	{
+	case PROGRAM:
+	{
+	    FOR(i,program_header_length-1) NEXT;
+	    program_header & ph =
+	        * (program_header *)
+		& program[cID];
+	    FOR(i,ph.max_type+1) NEXT;
+	    ID = cID + ph.component_length;
+	    break;
+	}
+	case TABLE:
+	{
+	    FOR(i,table_header_length-1) NEXT;
+	    break;
+	}
+	case DISPATCHER:
+	{
+	    FOR(i,dispatcher_header_length-1) NEXT;
+
+	    dispatcher_header & dh =
+		* (dispatcher_header *) & program[cID];
+	    FOR(i,  break_element_length
+		  * dh.max_break_elements) NEXT;
+	    FOR(i,  map_element_length
+		  * ( dh.max_ctype + 1 )) NEXT;
+	    break;
+	}
+	case TYPE_MAP:
+	{
+	    FOR(i,type_map_header_length-1) NEXT;
+
+	    type_map_header & tmh =
+		* (type_map_header *) & program[cID];
+	    if ( tmh.singleton_ctype == 0 )
+		ID += ( tmh.cmax - tmh.cmin + 4 ) / 4;
+	    break;
+	}
+	case INSTRUCTION:
+	{
+	    FOR(i,instruction_header_length-1) NEXT;
+	    
+	    instruction_header & ih =
+		* (instruction_header *)
+		& program[cID];
+	    if (   ih.operation
+		 & LEX::TRANSLATE_TO_FLAG )
+		FOR(i,LEX::translate_to_length
+			    ( ih.operation ))
+		    NEXT;
+	    break;
+	}
+	default:
+	    return false;
+	}
+    }
+#   undef NEXT
+    return true;
 }
 
 // Scanning
@@ -2456,7 +2536,7 @@ uns32 LEX::print_program_component
 	        << (const char *) & program[ID] + offset
 		<< endl;
 	}
-	return h.header_length;
+	return h.component_length;
     }
     case TABLE:
     {

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  2 00:07:36 EST 2010
+// Date:	Fri Dec  3 03:03:46 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,31 +37,31 @@ using namespace LEX::program_data;
 
 unsigned LEX::line_length = 72;
 unsigned LEX::indent = 4;
-char LEX::error_message[1000];
 
 // Data
 // ----
 
+static min::packed_struct<LEX::scanner_struct>
+       scanner_type
+           ( "ll::lexeme::scanner" );
 static min::packed_vec<LEX::buffer_header,LEX::uns32>
        uns32_buffer_type
-           ( "ll::lexeme::uns32_buffer" );
+           ( "ll::lexeme::buffer<uns32>" );
 static min::packed_vec<LEX::buffer_header,LEX::inchar>
        inchar_buffer_type
-           ( "ll::lexeme::inchar_buffer" );
+           ( "ll::lexeme::buffer<inchar>" );
 
-LEX::buffer_ptr<LEX::uns32> LEX::program
-    ( uns32_buffer_type.new_gen() );
-LEX::buffer_ptr<LEX::inchar> LEX::input_buffer
-    ( inchar_buffer_type.new_gen() );
-LEX::buffer_ptr<LEX::uns32> LEX::translation_buffer
-    ( uns32_buffer_type.new_gen() );
+LEX::scanner_ptr LEX::default_scanner = LEX::NULL_STUB;
 
 
 // Program Construction
 // ------- ------------
 
-uns32 LEX::create_table ( uns32 mode )
+uns32 LEX::create_table
+	( uns32 mode, scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     uns32 ID =
         allocate ( program, table_header_length );
     table_header & h = * (table_header *) & program[ID];
@@ -85,15 +85,24 @@ uns32 LEX::create_table ( uns32 mode )
     return ID;
 }
 
-uns32 LEX::table_mode ( uns32 ID )
+uns32 LEX::table_mode
+	( uns32 ID, scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     table_header & h = * (table_header *) & program[ID];
     return h.mode;
 }
 
-void LEX::create_program ( void )
+void LEX::create_program ( scanner_ptr scanner )
 {
-    reset ( program );
+    program_ptr & program = scanner->program;
+
+    if ( program == NULL_STUB )
+        program = uns32_buffer_type.new_gen();
+    else
+	reset ( program );
+
     uns32 ID =
         allocate ( program, program_header_length );
     assert ( ID == 0 );
@@ -105,8 +114,11 @@ void LEX::create_program ( void )
 
 uns32 LEX::create_dispatcher
 	( uns32 max_breakpoints,
-	  uns32 max_ctype )
+	  uns32 max_ctype,
+	  scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     uns32 length =
           dispatcher_header_length
 	+   break_element_length
@@ -130,8 +142,12 @@ uns32 LEX::create_dispatcher
 }
 
 uns32 LEX::create_type_map
-	( uns32 cmin, uns32 cmax, uns8 * map )
+	( uns32 cmin, uns32 cmax,
+	  uns8 * map,
+	  scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     assert ( cmax >= cmin );
     uns32 length = cmax - cmin + 1;
     uns32 ID = allocate ( program,
@@ -148,8 +164,12 @@ uns32 LEX::create_type_map
 }
 
 uns32 LEX::create_type_map
-	( uns32 cmin, uns32 cmax, uns32 ctype )
+	( uns32 cmin, uns32 cmax,
+	  uns32 ctype,
+	  scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     assert ( cmax >= cmin );
     uns32 ID =
         allocate ( program, type_map_header_length );
@@ -172,8 +192,11 @@ uns32 LEX::create_instruction
 	  uns32 erroneous_atom_type,
 	  uns32 output_type,
 	  uns32 goto_table_ID,
-	  uns32 call_table_ID )
+	  uns32 call_table_ID,
+	  scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     assert ( ( ( operation & TRANSLATE_TO_FLAG ) != 0 )
 	     +
              ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
@@ -282,22 +305,25 @@ uns32 LEX::create_instruction
 // into the dispatcher.
 //
 static uns32 attach_type_map_to_dispatcher
-	( uns32 dispatcher_ID,
+	( scanner_ptr scanner,
+	  uns32 dispatcher_ID,
 	  uns32 type_map_ID )
 {
+    program_ptr program = scanner->program;
+
     dispatcher_header & dh =
         * (dispatcher_header *)
-	& LEX::program[dispatcher_ID];
+	& program[dispatcher_ID];
     assert ( dh.pctype == DISPATCHER );
     type_map_header & mh =
         * (type_map_header *)
-	& LEX::program[type_map_ID];
+	& program[type_map_ID];
     assert ( mh.pctype == TYPE_MAP );
 
     break_element * bep =
         (break_element *)
-	& LEX::program[  dispatcher_ID
-                       + dispatcher_header_length ];
+	& program[  dispatcher_ID
+                  + dispatcher_header_length ];
 
     uns32 i = 0;
     for ( ; i + 1 < dh.break_elements
@@ -311,7 +337,7 @@ static uns32 attach_type_map_to_dispatcher
 
     if ( bep[i].type_map_ID != 0 )
     {
-        sprintf ( error_message,
+        sprintf ( scanner->error_message,
 	          "Attempt to attach type map %u"
 		  " to dispatcher %u\n"
 		  "conflicts with previous attachment"
@@ -326,7 +352,7 @@ static uns32 attach_type_map_to_dispatcher
 	 bep[i+1].cmin < mh.cmin )
     {
         assert ( bep[i+1].type_map_ID != 0 );
-        sprintf ( error_message,
+        sprintf ( scanner->error_message,
 	          "Attempt to attach type map %u"
 		  " to dispatcher %u\n"
 		  "conflicts with previous attachment"
@@ -341,7 +367,7 @@ static uns32 attach_type_map_to_dispatcher
     if ( ! split_next ) -- n;
     if ( dh.break_elements + n > dh.max_break_elements )
     {
-        sprintf ( error_message,
+        sprintf ( scanner->error_message,
 	          "Attempt to attach type map %u"
 		  " to dispatcher %u\n"
 		  "fails because dispatcher already has"
@@ -374,8 +400,11 @@ static uns32 attach_type_map_to_dispatcher
 
 uns32 LEX::attach
 	( uns32 target_ID,
-	  uns32 component_ID )
+	  uns32 component_ID,
+	  scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     uns32 target_pctype = program[target_ID];
     uns32 component_pctype = program[component_ID];
 
@@ -389,7 +418,7 @@ uns32 LEX::attach
 	{
 	    if ( h.dispatcher_ID != 0 )
 	    {
-		sprintf ( error_message,
+		sprintf ( scanner->error_message,
 			  "Attempt to attach dispatcher"
 			  " %u to table %u\n"
 			  "conflicts with previous"
@@ -406,7 +435,7 @@ uns32 LEX::attach
 	{
 	    if ( h.instruction_ID != 0 )
 	    {
-		sprintf ( error_message,
+		sprintf ( scanner->error_message,
 			  "Attempt to attach"
 			  " instruction %u to table"
 			  " %u\n"
@@ -427,16 +456,19 @@ uns32 LEX::attach
               &&
 	      component_pctype == TYPE_MAP )
         return attach_type_map_to_dispatcher
-		   ( target_ID, component_ID );
+		   ( scanner, target_ID, component_ID );
     else
 	assert ( ! "bad attach component pctypes" );
 }
 
 uns32 LEX::attach
-    	    ( uns32 target_ID,
-    	      uns32 ctype,
-	      uns32 component_ID )
+	( uns32 target_ID,
+	  uns32 ctype,
+	  uns32 component_ID,
+	  scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
     dispatcher_header & h =
         * (dispatcher_header *)
 	& program[target_ID];
@@ -460,7 +492,7 @@ uns32 LEX::attach
     {
 	if ( me.dispatcher_ID != 0 )
 	{
-	    sprintf ( error_message,
+	    sprintf ( scanner->error_message,
 		      "Attempt to attach dispatcher"
 		      " %u to dispatcher %u ctype %u\n"
 		      "conflicts with previous"
@@ -477,7 +509,7 @@ uns32 LEX::attach
     {
 	if ( me.instruction_ID != 0 )
 	{
-	    sprintf ( error_message,
+	    sprintf ( scanner->error_message,
 		      "Attempt to attach instruction"
 		      " %u to dispatcher %u ctype %u\n"
 		      "conflicts with previous"
@@ -494,33 +526,26 @@ uns32 LEX::attach
 	assert ( ! "assert failure" );
 }
 
-void LEX::convert_program_endianhood ( void )
+void LEX::convert_program_endianhood
+	( scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+
 }
 
 // Scanning
 // --------
 
-// Scanner state.
-//
-static uns32 next;
-    // input_buffer[next] is the first character of the
-    // first yet unscanned atom.
-static uns32 current_table_ID;
-    // Current table ID.
-static uns32 return_stack[64],
-      * return_stack_p = return_stack,
-      * return_stack_endp = return_stack + 64;
-    // Return stack.
-
 // Return true if table_ID is in return_stack.
 //
-static bool is_recursive ( uns32 table_ID )
+static bool is_recursive
+	( scanner_ptr scanner, uns32 table_ID )
 {
-    uns32 * p = return_stack;
-    while ( p < return_stack_p )
+    for ( uns32 i = 0;
+          i < scanner->return_stack_p; ++ i )
     {
-        if ( * p ++ == table_ID ) return true;
+        if ( scanner->return_stack[i] == table_ID )
+	    return true;
     }
     return false;
 }
@@ -531,69 +556,121 @@ static bool is_recursive ( uns32 table_ID )
 // statements check this).  Everything else found
 // wrong with the program is a SCAN_ERROR.
 
-void LEX::init_scan ( void )
+static uns32 default_read_input
+	( LEX::scanner_ptr scanner );
+void LEX::init_scanner
+	( scanner_ptr & scanner,
+	  program_ptr program )
 {
-    reset ( input_buffer );
-    reset ( translation_buffer );
+    if ( scanner == NULL_STUB )
+    {
+        scanner = scanner_type.new_gen();
+	scanner->input_buffer =
+	    inchar_buffer_type.new_gen();
+	scanner->translation_buffer =
+	    uns32_buffer_type.new_gen();
+	scanner->program = NULL_STUB;
+    }
+    else
+    {
+	reset ( scanner->input_buffer );
+	reset ( scanner->translation_buffer );
+    }
+    if ( program != NULL_STUB )
+	scanner->program = program;
 
-    next = 0;
-    assert ( program[0] == PROGRAM );
-    program_header & h = * (program_header *)
-    			 & program[0];
-    assert ( program[h.initial_table_ID] == TABLE );
-    current_table_ID = h.initial_table_ID;
+    scanner->read_input = ::default_read_input;
+    scanner->read_input_istream = & std::cin;
+    memset ( & scanner->read_input_inchar, 0,
+             sizeof ( scanner->read_input_inchar ) );
+
+    scanner->scan_trace_out = NULL;
+    scanner->erroneous_atom = NULL;
+    scanner->type_name = NULL;
+    scanner->max_type = 0;
+
+    scanner->next = 0;
+
+    if ( scanner->program != NULL_STUB )
+    {
+	assert ( scanner->program[0] == PROGRAM );
+	program_header & h = * (program_header *)
+			     & scanner->program[0];
+	assert (    scanner->program[h.initial_table_ID]
+		 == TABLE );
+	scanner->current_table_ID = h.initial_table_ID;
+    }
+    else
+	scanner->current_table_ID = 0;
+
+    scanner->return_stack_p = 0;
+    memset ( scanner->return_stack, 0,
+             sizeof ( scanner->return_stack ) );
+
+    memset ( scanner->error_message, 0,
+             sizeof ( scanner->error_message ) );
+
+    memset ( scanner->work, 0,
+             sizeof ( scanner->work ) );
 }
 
 // Write the beginning of a scan error message into
 // error message and return a pointer to the next
 // location in error message.  Usage is:
 //
-//	sprintf ( scan_error ( length ), ... )
+//    sprintf
+//      ( scan_error ( scanner, length, next ), ... )
 //
 // `length' is the number of characters scanned after
-// `next'.
+// `next'.  `next' defaults to scanner->next.
 //
 static char * scan_error
-        ( uns32 length, uns32 next = ::next );
+        ( scanner_ptr scanner,
+	  uns32 length, uns32 next );
+inline char * scan_error
+        ( scanner_ptr scanner,
+	  uns32 length )
+{
+    return scan_error
+        ( scanner, length, scanner->next );
+}
 
-// Write a character using spchar to a static buffer
-// and return the static buffer.
+// Write a character using spchar to scanner->work
+// and return a pointer to scanner->work.
 //
-static const char * sbpchar ( uns32 c );
+static const char * sbpchar
+	( scanner_ptr scanner, uns32 c );
 
-// Write a mode or return value using spchar to a static
-// buffer and return the static buffer.
+// Write a mode or return value to scanner->work and
+// return a pointer to scanner->work.
 //
-static const char * sbpmode ( uns32 mode );
+static const char * sbpmode
+	( scanner_ptr scanner, uns32 mode );
 
-// Print the instruction at program[ID] with the given
-// indent and endl, if ID is non-zero, and return ID
-// repositioned just after instuction.  However, if
-// program[ID] does not == INSTRUCTION, print ILLEGAL
-// instruction message and return 0.
+// Print the instruction at scanner->program[ID] with
+// the given indent and endl, if ID is non-zero, and
+// return ID repositioned just after instuction.  How-
+// ever, if scanner->program[ID] does not ==
+// INSTRUCTION, print ILLEGAL instruction message and
+// return 0.
 //
 // If ID == 0 do nothing but return 0.
 //
 static uns32 print_instruction
-    ( std::ostream & out, uns32 ID, unsigned indent );
+    ( scanner_ptr scanner,
+      std::ostream & out, uns32 ID, unsigned indent );
 
-// If non-NULL, function to call on executing
-// instruction with ERRONEOUS_ATOM flag.
-//
-void (* LEX::erroneous_atom)
-    ( uns32 first, uns32 last, uns32 type ) = NULL;
-
-// Set non-NULL to enable scan tracing
-// (see ll_lexeme.h).
-//
-std::ostream * LEX::scan_trace_out = NULL;
-# define TOUT if ( scan_trace_out ) (* scan_trace_out)
+# define TOUT if ( scanner->scan_trace_out ) \
+                 (* scanner->scan_trace_out)
 
 // Given a dispatcher_ID and a character c return the
 // ctype that the dispatcher maps c onto.
 //
-static uns32 ctype ( uns32 dispatcher_ID, uns32 c )
+static uns32 ctype ( scanner_ptr scanner,
+                     uns32 dispatcher_ID, uns32 c )
 {
+    program_ptr program = scanner->program;
+
     TOUT << "  Character = " << pchar ( c )
 	 << " Dispatcher = " << dispatcher_ID;
 
@@ -662,8 +739,20 @@ static uns32 ctype ( uns32 dispatcher_ID, uns32 c )
 // error message in error message.  Return atom_length
 // and add translation of atom to translation buffer.
 //
-static uns32 scan_atom ( uns32 & atom_length )
+static uns32 scan_atom
+    ( scanner_ptr scanner, uns32 & atom_length )
 {
+    program_ptr program =
+        scanner->program;
+    buffer_ptr<inchar> input_buffer =
+        scanner->input_buffer;
+    buffer_ptr<uns32> translation_buffer =
+        scanner->translation_buffer;
+    uns32 & next =
+        scanner->next;
+    uns32 & current_table_ID =
+        scanner->current_table_ID;
+
     const uns32 SCAN_ERROR = 0;
         // Local version of SCAN_ERROR.
 
@@ -711,7 +800,7 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	if ( next + length >= input_buffer->length
 	     &&
-	     ! (*read_input)() )
+	     ! (*scanner->read_input) ( scanner ) )
 	    break; // End of file.
 
 	assert
@@ -720,7 +809,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    input_buffer[next + length].character;
 	++ length;
 
-	uns32 ctype = ::ctype ( dispatcher_ID, c );
+	uns32 ctype =
+	    ::ctype ( scanner, dispatcher_ID, c );
 
 	dispatcher_header & dh =
 	    * (dispatcher_header *)
@@ -728,11 +818,11 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	if ( ctype > dh.max_ctype )
 	{
-	    sprintf ( scan_error ( length ),
+	    sprintf ( scan_error ( scanner, length ),
 		      "ctype %u computed for character"
 		      " %s is too large for dispatcher"
 		      " %u",
-		      ctype, sbpchar ( c ),
+		      ctype, sbpchar ( scanner, c ),
 		      dispatcher_ID );
 	    return SCAN_ERROR;
 	}
@@ -774,15 +864,16 @@ static uns32 scan_atom ( uns32 & atom_length )
 	if ( instruction_ID == 0 )
 	{
 	    assert ( atom_length == 0 );
-	    sprintf ( scan_error ( length ),
+	    sprintf ( scan_error ( scanner, length ),
 		      "no instruction found" );
 	    return SCAN_ERROR;
 	}
 
-	if ( scan_trace_out )
-	    print_instruction ( * scan_trace_out,
-				instruction_ID,
-				2 );
+	if ( scanner->scan_trace_out )
+	    print_instruction
+	        ( scanner,
+	          * scanner->scan_trace_out,
+		  instruction_ID, 2 );
 
 	bool fail = false;
 
@@ -806,7 +897,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    if ( th.mode != ATOM )
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+		        ( scanner, atom_length ),
 		      "MATCH in"
 		      " instruction %d executed by"
 		      " table %d targets"
@@ -815,11 +907,12 @@ static uns32 scan_atom ( uns32 & atom_length )
 		      current_table_ID );
 		return SCAN_ERROR;
 	    }
-	    else if (    return_stack_p
-		      == return_stack_endp )
+	    else if (    scanner->return_stack_p
+		      == LEX::return_stack_size )
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+		        ( scanner, atom_length ),
 		      "MATCH in"
 		      " instruction %d executed by"
 		      " table %d but return stack is"
@@ -829,13 +922,16 @@ static uns32 scan_atom ( uns32 & atom_length )
 		return SCAN_ERROR;
 	    }
 
-	    * return_stack_p ++ = current_table_ID;
+	    scanner->return_stack
+	        [scanner->return_stack_p++] =
+	            current_table_ID;
 
 	    if ( is_recursive
-	             ( ih.atom_table_ID ) )
+	             ( scanner, ih.atom_table_ID ) )
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+		        ( scanner, atom_length ),
 		      "recursive MATCH to table %d"
 		      " in instruction %d executed"
 		      " by table %d",
@@ -847,8 +943,10 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 	    current_table_ID = ih.atom_table_ID;
 	    uns32 tinstruction_ID =
-	        scan_atom ( keep_length );
-	    current_table_ID = * -- return_stack_p;
+	        scan_atom ( scanner, keep_length );
+	    current_table_ID =
+		scanner->return_stack
+		    [--scanner->return_stack_p];
 
 	    instruction_header & tih =
 		* (instruction_header *)
@@ -874,7 +972,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    uns32 keep = LEX::keep_length ( op );
 	    if ( keep > keep_length )
 	    {
-		sprintf ( scan_error ( length ),
+		sprintf ( scan_error
+		              ( scanner, length ),
 			  "keep length(%u) greater"
 			  " than atom length(%u)",
 			  keep,
@@ -994,7 +1093,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 		++ tlength;
 
 		uns32 ctype =
-		    ::ctype ( dispatcher_ID, c );
+		    ::ctype ( scanner,
+		              dispatcher_ID, c );
 
 		dispatcher_header & dh =
 		    * (dispatcher_header *)
@@ -1002,12 +1102,14 @@ static uns32 scan_atom ( uns32 & atom_length )
 
 		if ( ctype > dh.max_ctype )
 		{
-		    sprintf ( scan_error ( length ),
+		    sprintf ( scan_error
+		                ( scanner, length ),
 			      "ctype %u computed for"
 			      " character %s is too "
 			      " large for dispatcher"
 			      " %u",
-			      ctype, sbpchar ( c ),
+			      ctype,
+			      sbpchar ( scanner, c ),
 			      dispatcher_ID );
 		    return SCAN_ERROR;
 		}
@@ -1044,7 +1146,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 		    ih.else_instruction_ID;
 		if ( instruction_ID == 0 )
 		{
-		    sprintf ( scan_error ( length ),
+		    sprintf ( scan_error
+		                ( scanner, length ),
 			      "no instruction for ELSE"
 			      " in failed instruction"
 			      " %d executed by table"
@@ -1062,7 +1165,8 @@ static uns32 scan_atom ( uns32 & atom_length )
 	    }
 	    else
 	    {
-		sprintf ( scan_error ( length ),
+		sprintf ( scan_error
+			      ( scanner, length ),
 			  "no ELSE in failed"
 			  " instruction %d executed by"
 			  " table %d",
@@ -1081,8 +1185,20 @@ static uns32 scan_atom ( uns32 & atom_length )
     }
 }
 
-uns32 LEX::scan ( uns32 & first, uns32 & last )
+uns32 LEX::scan ( uns32 & first, uns32 & last,
+                  scanner_ptr scanner )
 {
+    program_ptr program =
+        scanner->program;
+    buffer_ptr<inchar> input_buffer =
+        scanner->input_buffer;
+    buffer_ptr<uns32> translation_buffer =
+        scanner->translation_buffer;
+    uns32 & next =
+        scanner->next;
+    uns32 & current_table_ID =
+        scanner->current_table_ID;
+
     if ( next >= inchar_buffer_type.max_increment )
     {
         // If next has gotten to be as large as
@@ -1128,7 +1244,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     // 
     uns32 output_type = 0;
     uns32 last_mode = MASTER;
-    return_stack_p = return_stack;
+    scanner->return_stack_p = 0;
     uns32 loop_count = program->length;
         // Set to max number of tables in order to
 	// detect endless loops.
@@ -1146,7 +1262,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	{
 	    if ( cath.mode != MASTER )
 	    {
-	        sprintf ( scan_error ( last + 1 - first,
+	        sprintf ( scan_error ( scanner,
+		                       last + 1 - first,
 		                       first ),
 		          "attempt to OUTPUT when the"
 			  " next table %d is not a"
@@ -1170,14 +1287,14 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	// Reset return stack if current mode is master.
 
 	if ( cath.mode == MASTER )
-	    return_stack_p = return_stack;
+	    scanner->return_stack_p = 0;
 
 	// Scan atom.  Return atom length and
 	// instruction.
 	//
 	uns32 atom_length;
 	uns32 instruction_ID =
-	    scan_atom ( atom_length );
+	    scan_atom ( scanner, atom_length );
 	if ( instruction_ID == 0 ) return SCAN_ERROR;
 
 	instruction_header & ih =
@@ -1189,7 +1306,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	{
 	    if ( atom_length == 0 )
 	    {
-		sprintf ( scan_error ( atom_length ),
+		sprintf ( scan_error
+		              ( scanner, atom_length ),
 			  "ERRONEOUS_ATOM in"
 			  " instruction %d executed"
 			  " by table %d but atom is of"
@@ -1198,9 +1316,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 			  current_table_ID );
 		return SCAN_ERROR;
 	    }
-	    else if ( erroneous_atom == NULL )
+	    else if ( scanner->erroneous_atom == NULL )
 	    {
-		sprintf ( scan_error ( atom_length ),
+		sprintf ( scan_error
+		              ( scanner, atom_length ),
 			  "ERRONEOUS_ATOM in"
 			  " instruction %d executed"
 			  " by table %d but"
@@ -1211,9 +1330,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		return SCAN_ERROR;
 	    }
 	    else
-		(*erroneous_atom)
+		(*scanner->erroneous_atom)
 		    ( next, next + atom_length - 1,
-		      ih.erroneous_atom_type );
+		      ih.erroneous_atom_type,
+		      scanner );
 	}
 
 	if ( op & OUTPUT )
@@ -1221,10 +1341,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	if ( op & RETURN )
 	{
-	    if ( return_stack_p == return_stack )
+	    if (    scanner->return_stack_p
+	         == LEX::return_stack_size )
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+			  ( scanner, atom_length ),
 		      "RETURN in instruction %d"
 		      " executed by table %d but"
 		      " return stack is empty",
@@ -1232,7 +1354,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		      current_table_ID );
 		return SCAN_ERROR;
 	    }
-	    current_table_ID = * -- return_stack_p;
+	    current_table_ID =
+		scanner->return_stack
+		    [--scanner->return_stack_p];
 	    assert (    program[current_table_ID]
 		     == TABLE );
 	}
@@ -1247,7 +1371,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+			  ( scanner, atom_length ),
 		      "GOTO in"
 		      " instruction %d executed by"
 		      " table %d targets atom"
@@ -1260,11 +1385,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 	if ( op & CALL )
 	{
-	    if (    return_stack_p
-		 == return_stack_endp )
+	    if (    scanner->return_stack_p
+		 == LEX::return_stack_size )
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+			  ( scanner, atom_length ),
 		      "CALL in"
 		      " instruction %d executed by"
 		      " table %d but return stack is"
@@ -1274,13 +1400,16 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		return SCAN_ERROR;
 	    }
 
-	    * return_stack_p ++ = current_table_ID;
+	    scanner->return_stack
+	        [scanner->return_stack_p++] =
+	        current_table_ID;
 
 	    if ( is_recursive
-	             ( ih.call_table_ID ) )
+	             ( scanner, ih.call_table_ID ) )
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+			  ( scanner, atom_length ),
 		      "recursive CALL to table %d"
 		      " in instruction %d executed"
 		      " by table %d",
@@ -1301,7 +1430,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 		 cath.mode == ATOM )
 	    {
 		sprintf
-		    ( scan_error ( atom_length ),
+		    ( scan_error
+			  ( scanner, atom_length ),
 		      "CALL in"
 		      " instruction %d executed by"
 		      " table %d targets non-lexeme"
@@ -1319,7 +1449,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 	}
 	else if ( -- loop_count == 0 )
 	{
-	    sprintf ( scan_error ( atom_length ),
+	    sprintf ( scan_error
+			  ( scanner, atom_length ),
 		      "endless loop in scanner" );
 	    return SCAN_ERROR;
 	}
@@ -1335,12 +1466,14 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
     switch ( type )
     {
     case MASTER:
+    case ATOM:
     case SCAN_ERROR:
     {
-	sprintf ( scan_error ( last - first + 1,
+	sprintf ( scan_error ( scanner,
+	                       last - first + 1,
 	                       first ),
 		  "returning lexeme with bad type(%s)",
-		  sbpmode ( type ) );
+		  sbpmode ( scanner, type ) );
 	return SCAN_ERROR;
     }
     }
@@ -1350,41 +1483,44 @@ uns32 LEX::scan ( uns32 & first, uns32 & last )
 
 // See documentation above.
 //
-static const char * sbpchar ( uns32 c )
+static const char * sbpchar
+	( scanner_ptr scanner, uns32 c )
 {
-    static char buffer[20];
-    spchar ( buffer, c );
-    return buffer;
+    spchar ( scanner->work, c );
+    return scanner->work;
 }
 
 // See documentation above.
 //
-static const char * sbpmode ( uns32 mode )
+static const char * sbpmode
+	( scanner_ptr scanner, uns32 mode )
 {
-    static char buffer[400];
-    spmode ( buffer, mode );
-    return buffer;
+    spmode ( scanner->work, mode, scanner );
+    return scanner->work;
 }
 
 // See documentation above.
 //
-static char * scan_error ( uns32 length, uns32 next )
+static char * scan_error
+        ( scanner_ptr scanner,
+	  uns32 length, uns32 next )
 {
-    char * p = error_message;
+    char * p = scanner->error_message;
     p += sprintf ( p, "CURRENT_TABLE %u",
-	              current_table_ID );
-    if ( next < input_buffer->length )
+	              scanner->current_table_ID );
+    if ( scanner->next < scanner->input_buffer->length )
 	p += sprintf
 	    ( p, " POSITION %u(%u)%u:",
-	      input_buffer[next].line,
-	      input_buffer[next].index,
-	      input_buffer[next].column );
+	      scanner->input_buffer[next].line,
+	      scanner->input_buffer[next].index,
+	      scanner->input_buffer[next].column );
     else
         p += sprintf ( p, ":" );
 
-    unsigned column = p - error_message;
+    unsigned column = p - scanner->error_message;
     p += spinput ( p, next, next + length - 1,
-		   column, true );
+		   column, true, LEX::indent,
+		   LEX::line_length, scanner );
     * p ++ = '\n';
     return p;
 }
@@ -1392,13 +1528,19 @@ static char * scan_error ( uns32 length, uns32 next )
 // Reading
 // -------
 
-static uns32 default_read_input ( void )
+static uns32 default_read_input
+	( LEX::scanner_ptr scanner )
 {
+    LEX::buffer_ptr<LEX::inchar> input_buffer =
+        scanner->input_buffer;
+    LEX::inchar & read_input_inchar =
+        scanner->read_input_inchar;
+
     uns32 i = allocate ( input_buffer, 100 );
     uns32 endi = i + 100;
     while ( i < endi )
     {
-        int c = read_input_istream->get();
+        int c = scanner->read_input_istream->get();
 	unsigned bytes_read = 1;
 
 	if ( c == EOF )
@@ -1449,7 +1591,7 @@ static uns32 default_read_input ( void )
 
 	while ( extra_characters -- )
 	{
-	    c = read_input_istream->get();
+	    c = scanner->read_input_istream->get();
 
 	    if ( c == EOF )
 	    {
@@ -1499,12 +1641,6 @@ static uns32 default_read_input ( void )
     }
     return 1;
 }
-
-LEX::uns32 (* LEX::read_input) ( void ) =
-    ::default_read_input;
-std::istream * LEX::read_input_istream =
-    & std::cin;
-LEX::inchar LEX::read_input_inchar;
 
 // Printing
 // --------
@@ -1555,7 +1691,6 @@ ostream & operator <<
     return out << buffer;
 }
 
-
 unsigned LEX::spstring
 	( char * buffer,
 	  const char * string, unsigned n,
@@ -1583,7 +1718,8 @@ unsigned LEX::spinput
 	( char * buffer, uns32 first, uns32 last,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length )
+	  unsigned indent, unsigned line_length,
+	  scanner_ptr scanner )
 {
     if ( first > last )
         return spstring ( buffer, "<empty>", 7,
@@ -1594,7 +1730,8 @@ unsigned LEX::spinput
     char * p = buffer;
     while ( first <= last )
     {
-	uns32 c = input_buffer[first++].character;
+	uns32 c = scanner->input_buffer[first++]
+	                  .character;
 	char buffer2[40];
 	int n = spchar ( buffer2, c );
 	p += spstring ( p, buffer2, n,
@@ -1610,8 +1747,12 @@ unsigned LEX::sptranslation
 	( char * buffer,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length )
+	  unsigned indent, unsigned line_length,
+	  scanner_ptr scanner )
 {
+    buffer_ptr<uns32> translation_buffer =
+        scanner->translation_buffer;
+
     if ( translation_buffer->length == 0 )
         return spstring ( buffer, "<empty>", 7,
 	                  column,
@@ -1639,11 +1780,15 @@ unsigned LEX::splexeme
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length )
+	  unsigned indent, unsigned line_length,
+	  scanner_ptr scanner )
 {
+    buffer_ptr<inchar> input_buffer =
+        scanner->input_buffer;
+    
     char buffer2[500];
     char * p2 = buffer2;
-    p2 += spmode ( p2, type );
+    p2 += spmode ( p2, type, scanner );
     * p2 ++ = ':';
 
     if ( first <= last )
@@ -1660,13 +1805,15 @@ unsigned LEX::splexeme
 		    indent, line_length );
     p += spinput ( p, first, last,
                    column, true, indent, line_length );
-    if ( ! translation_is_exact ( first, last ) )
+    if ( ! translation_is_exact
+               ( first, last, scanner ) )
     {
         p += spstring ( p, "translated to:", 14,
 	                column, true,
 			indent, line_length );
 	p += sptranslation ( p, column, true,
-	                     indent, line_length );
+	                     indent, line_length,
+			     scanner );
     }
     return p - buffer;
 }
@@ -1676,11 +1823,15 @@ unsigned LEX::sperroneous_atom
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length )
+	  unsigned indent, unsigned line_length,
+	  scanner_ptr scanner )
 {
+    buffer_ptr<inchar> input_buffer =
+        scanner->input_buffer;
+
     char buffer2[500];
     char * p2 = buffer2;
-    p2 += spmode ( p2, type );
+    p2 += spmode ( p2, type, scanner );
     * p2 ++ = ':';
 
     if ( first <= last )
@@ -1696,13 +1847,20 @@ unsigned LEX::sperroneous_atom
 		    preface_with_space,
 		    indent, line_length );
     p += spinput ( p, first, last,
-                   column, true, indent, line_length );
+                   column, true, indent, line_length,
+		   scanner );
     return p - buffer;
 }
 
 bool LEX::translation_is_exact
-	( uns32 first, uns32 last )
+	( uns32 first, uns32 last,
+	  scanner_ptr scanner )
 {
+    buffer_ptr<inchar> input_buffer =
+        scanner->input_buffer;
+    buffer_ptr<uns32> translation_buffer =
+        scanner->translation_buffer;
+
     uns32 i = 0;
     if (    translation_buffer->length
          != last - first + 1 )
@@ -1717,22 +1875,22 @@ bool LEX::translation_is_exact
     return true;
 }
 
-const char * const * LEX::type_name = NULL;
-LEX::uns32 LEX::max_type = 0;
-
-int LEX::spmode ( char * buffer, uns32 mode )
+int LEX::spmode ( char * buffer, uns32 mode,
+                  scanner_ptr scanner )
 {
 
-    if (    LEX::type_name != NULL
-         && mode <= LEX::max_type
-         && LEX::type_name[mode] != NULL )
+    if (    scanner->type_name != NULL
+         && mode <= scanner->max_type
+         && scanner->type_name[mode] != NULL )
         return sprintf
-	    ( buffer, "%s", LEX::type_name[mode] );
+	    ( buffer, "%s", scanner->type_name[mode] );
         
     switch ( mode )
     {
     case MASTER:
 	return sprintf ( buffer, "MASTER" );
+    case ATOM:
+	return sprintf ( buffer, "ATOM" );
     case SCAN_ERROR:
 	return sprintf ( buffer, "SCAN_ERROR" );
     default:
@@ -1744,16 +1902,17 @@ int LEX::spmode ( char * buffer, uns32 mode )
 ostream & operator <<
 	( ostream & out, const LEX::pmode & pm )
 {
-    char buffer[40];
-    spmode ( buffer, pm.mode );
-    return out << buffer;
+    scanner_ptr scanner = pm.scanner;
+
+    spmode ( scanner->work, pm.mode, scanner );
+    return out << scanner->work;
 }
 
 static const unsigned IDwidth = 12;
     // Width of field containing ID at the beginning
     // of each print_program line.
 
-// cout << pID ( ID ) prints `ID: ' right adjusted in
+// out << pID ( ID ) prints `ID: ' right adjusted in
 // a field of width IDwidth.
 //
 struct pID { uns32 ID;
@@ -1771,9 +1930,12 @@ inline ostream & operator <<
 // See documentation above.
 //
 static uns32 print_instruction
-    ( std::ostream & out, uns32 ID,
+    ( scanner_ptr scanner,
+      std::ostream & out, uns32 ID,
       unsigned indent = IDwidth )
 {
+    LEX::program_ptr program = scanner->program;
+
     if ( ID == 0 ) return 0;
     if ( indent > 0 ) out << setw ( indent ) << "";
 
@@ -1972,7 +2134,8 @@ static uns32 print_instruction
     {
         OUT << "ELSE:" << endl;
 	print_instruction
-	    ( out, h.else_instruction_ID, indent );
+	    ( scanner, out, h.else_instruction_ID,
+	               indent );
     }
 
     if ( first ) out << "ACCEPT" << endl;
@@ -1989,6 +2152,8 @@ static uns32 print_instruction
 // the first line if user_indent is true.
 //
 struct pclist {
+    std::ostream & out;
+        // Output stream.
     int indent;
         // Indent set by constructor.
     bool user_indent;
@@ -2006,8 +2171,10 @@ struct pclist {
 	// if c1 == c2) needs to be printed.  This is
 	// delayed to allow c2 to grow.
 
-    pclist ( int indent, bool user_indent = false )
-	: indent ( indent ), user_indent ( user_indent )
+    pclist ( std::ostream & out,
+             int indent, bool user_indent = false )
+	: out ( out ),
+	  indent ( indent ), user_indent ( user_indent )
     {
 	assert ( line_length - indent >= 30 );
         empty = true;
@@ -2039,21 +2206,21 @@ struct pclist {
 	    // If nothing on line, its our first line.
 	    //
 	    if ( ! user_indent )
-	        cout << setw ( indent ) << "";
+	        out << setw ( indent ) << "";
 	    columns -= needed;
 	}
 	else if ( columns >= 1 + needed )
 	{
-	    cout << " ";
+	    out << " ";
 	    columns -= 1 + needed;
 	}
 	else
 	{
-	    cout << endl << setw ( indent ) << "";
+	    out << endl << setw ( indent ) << "";
 	    columns = line_length - indent - needed;
 	}
 
-	cout << buffer;
+	out << buffer;
     }
 
     // Add c1-c2 to the list of characters printed.
@@ -2083,11 +2250,14 @@ struct pclist {
 // zero, do nothing but return 0.
 //
 static uns32 print_cooked_dispatcher
-    ( uns32 ID, unsigned indent = IDwidth )
+    ( scanner_ptr scanner, std::ostream & out,
+      uns32 ID, unsigned indent = IDwidth )
 {
+    LEX::program_ptr program = scanner->program;
+
     if ( ID == 0 ) return 0;
 
-    cout << pID ( ID ) << "DISPATCHER" << endl;
+    out << pID ( ID ) << "DISPATCHER" << endl;
 
     dispatcher_header & h =
 	* (dispatcher_header *) & program[ID];
@@ -2104,12 +2274,12 @@ static uns32 print_cooked_dispatcher
     length += map_element_length
 	    * ( h.max_ctype + 1 );
 
-    cout << INDENT << "Break Elements: "
-	 << h.break_elements << endl;
-    cout << INDENT << "Max Break Elements: "
-	 << h.max_break_elements << endl;
-    cout << INDENT << "Max CType: "
-	 << h.max_ctype << endl;
+    out << INDENT << "Break Elements: "
+	<< h.break_elements << endl;
+    out << INDENT << "Max Break Elements: "
+	<< h.max_break_elements << endl;
+    out << INDENT << "Max CType: "
+	<< h.max_ctype << endl;
 
     // Construct tmap so that t2 = tmap[t1] iff t2 is
     // the smallest ctype such that mep[t2] == mep[t1].
@@ -2140,7 +2310,7 @@ static uns32 print_cooked_dispatcher
 	     mep[t].dispatcher_ID == 0 )
 	    continue;
 
-	pclist pcl ( IDwidth );
+	pclist pcl ( out, IDwidth );
 	for ( uns32 b = 0; b < h.break_elements; ++ b )
 	{
 	    uns32 cmin = bep[b].cmin;
@@ -2184,69 +2354,74 @@ static uns32 print_cooked_dispatcher
 	if ( pcl.empty ) continue;
 
 	pcl.flush();
-	cout << endl;
+	out << endl;
 
 	print_instruction
-	    ( cout, mep[t].instruction_ID,
-	            IDwidth + 4 );
+	    ( scanner, out, mep[t].instruction_ID,
+	               IDwidth + 4 );
 	if ( mep[t].dispatcher_ID != 0 )
-	    cout << INDENT << "    Dispatcher ID: "
-	         << mep[t].dispatcher_ID << endl;
+	    out << INDENT << "    Dispatcher ID: "
+	        << mep[t].dispatcher_ID << endl;
     }
 
     return length;
 }
 
 uns32 LEX::print_program_component
-	( std::ostream & out, uns32 ID, bool cooked )
+	( std::ostream & out, uns32 ID, bool cooked,
+	  scanner_ptr scanner )
 {
+    LEX::program_ptr program = scanner->program;
+
     char buffer[100];
     switch ( program[ID] )
     {
     case PROGRAM:
     {
-	cout << pID ( ID ) << "PROGRAM" << endl;
+	out << pID ( ID ) << "PROGRAM" << endl;
 	program_header & h =
 	    * (program_header *) & program[ID];
-	cout << INDENT << "Initial Table ID: "
-	     << h.initial_table_ID << endl;
+	out << INDENT << "Initial Table ID: "
+	    << h.initial_table_ID << endl;
 	return program_header_length;
     }
     case TABLE:
     {
-	cout << pID ( ID ) << "TABLE" << endl;
+	out << pID ( ID ) << "TABLE" << endl;
 	table_header & h =
 	    * (table_header *) & program[ID];
-	cout << INDENT << "Mode: "
-	     << pmode ( h.mode ) << endl;
-	cout << INDENT << "Dispatcher ID: "
-	     << h.dispatcher_ID << endl;
+	out << INDENT << "Mode: "
+	    << pmode ( h.mode, scanner ) << endl;
+	out << INDENT << "Dispatcher ID: "
+	    << h.dispatcher_ID << endl;
 	if ( cooked )
 	    print_instruction
-		( cout, h.instruction_ID, IDwidth );
+		( scanner, out,
+		  h.instruction_ID, IDwidth );
 	else
-	    cout << INDENT << "Instruction ID: "
-		 << h.instruction_ID << endl;
+	    out << INDENT << "Instruction ID: "
+		<< h.instruction_ID << endl;
 	return table_header_length;
     }
     case DISPATCHER:
     if ( cooked )
-	return print_cooked_dispatcher ( ID );
+	return print_cooked_dispatcher
+	           ( scanner, out, ID );
     else
     {
-	cout << pID ( ID ) << "DISPATCHER" << endl;
+	out << pID ( ID ) << "DISPATCHER" << endl;
 	dispatcher_header & h =
 	    * (dispatcher_header *) & program[ID];
-	cout << INDENT << "Break Elements: "
-	     << h.break_elements << endl;
-	cout << INDENT << "Max Break Elements: "
-	     << h.max_break_elements << endl;
-	cout << INDENT << "Max CType: "
-	     << h.max_ctype << endl;
-	cout << INDENT << "Breaks: "
-	     << setw ( 16 ) << "cmin"
-	     << setw ( 16 ) << "type_map_ID"
-	     << endl;
+	out << INDENT << "Break Elements: "
+	    << h.break_elements << endl;
+	out << INDENT << "Max Break Elements: "
+	    << h.max_break_elements << endl;
+	out << INDENT << "Max CType: "
+	    << h.max_ctype << endl;
+	out << INDENT << "Breaks: "
+	    << setw ( 16 ) << "cmin"
+	    << setw ( 16 ) << "type_map_ID"
+	    << endl;
 	uns32 length = dispatcher_header_length;
 	uns32 p, n;
 	for ( p = ID + length, n = 0;
@@ -2255,17 +2430,17 @@ uns32 LEX::print_program_component
 	{
 	    break_element & be =
 		* (break_element *) & program[p];
-	    cout << INDENT
-		 << setw ( 24 ) << pchar ( be.cmin )
-		 << setw ( 16 ) << be.type_map_ID
-		 << endl;
+	    out << INDENT
+		<< setw ( 24 ) << pchar ( be.cmin )
+		<< setw ( 16 ) << be.type_map_ID
+		<< endl;
 	}
 	length += break_element_length
 	        * h.max_break_elements;
-	cout << INDENT << "Map:   CType: "
-	     << setw ( 16 ) << "dispatcher_ID"
-	     << setw ( 16 ) << "instruction_ID"
-	     << endl;
+	out << INDENT << "Map:   CType: "
+	    << setw ( 16 ) << "dispatcher_ID"
+	    << setw ( 16 ) << "instruction_ID"
+	    << endl;
 	uns32 t;
 	for ( p = ID + length, t = 0;
 	      t <= h.max_ctype;
@@ -2273,13 +2448,13 @@ uns32 LEX::print_program_component
 	{
 	    map_element & me =
 		* (map_element *) & program[p];
-	    cout << INDENT
-		 << setw ( 12 ) << t << ": "
-		 << setw ( 16 )
-		 << me.dispatcher_ID
-		 << setw ( 16 )
-		 << me.instruction_ID
-		 << endl;
+	    out << INDENT
+		<< setw ( 12 ) << t << ": "
+		<< setw ( 16 )
+		<< me.dispatcher_ID
+		<< setw ( 16 )
+		<< me.instruction_ID
+		<< endl;
 	}
 	length += map_element_length
 	        * ( h.max_ctype + 1 );
@@ -2287,21 +2462,22 @@ uns32 LEX::print_program_component
     }
     case INSTRUCTION:
     {
-	cout << pID ( ID );
-	return print_instruction ( cout, ID, 0 );
+	out << pID ( ID );
+	return print_instruction
+	    ( scanner, out, ID, 0 );
     }
     case TYPE_MAP:
     {
-	cout << pID ( ID ) << "TYPE_MAP" << endl;
+	out << pID ( ID ) << "TYPE_MAP" << endl;
 	type_map_header & h =
 	    * (type_map_header *) & program[ID];
 	uns32 length = type_map_header_length;
 	if ( h.singleton_ctype > 0 )
 	{
-	    cout << setw ( IDwidth + 4 )
-		 << h.singleton_ctype
-		 << ": " << pchar ( h.cmin )
-	         << "-" << pchar ( h.cmax ) << endl;
+	    out << setw ( IDwidth + 4 )
+		<< h.singleton_ctype
+		<< ": " << pchar ( h.cmin )
+	        << "-" << pchar ( h.cmax ) << endl;
 	}
 	else
 	{
@@ -2309,37 +2485,40 @@ uns32 LEX::print_program_component
 	    length += ( h.cmax - h.cmin + 4 ) / 4;
 	    for ( unsigned t = 0; t < 256; ++ t )
 	    {
-		pclist pcl ( IDwidth + 6, true );
+		pclist pcl ( out, IDwidth + 6, true );
 		for ( uns32 c = h.cmin;
 		      c <= h.cmax; ++ c )
 		{
 		    if ( map[c - h.cmin] == t )
 		    {
 		        if ( pcl.empty )
-			    cout << setw ( IDwidth
-					   + 4 )
-				 << t << ": ";
+			    out << setw ( IDwidth
+					  + 4 )
+				<< t << ": ";
 			pcl.add ( c, c );
 		    }
 		}
 		pcl.flush();
-		if ( ! pcl.empty ) cout << endl;
+		if ( ! pcl.empty ) out << endl;
 	    }
 	}
 	return length;
     }
     default:
     {
-	cout << pID ( ID ) << "ILLEGAL COMPONENT TYPE("
-	     << program[ID] << ")" << endl;
+	out << pID ( ID ) << "ILLEGAL COMPONENT TYPE("
+	    << program[ID] << ")" << endl;
 	return program->length - ID;
     }
     }
 }
 
 void LEX::print_program
-	( std::ostream & out, bool cooked )
+	( std::ostream & out, bool cooked,
+	  scanner_ptr scanner )
 {
+    LEX::program_ptr program = scanner->program;
+
     uns32 ID = 0;
     while ( ID < program->length )
     {

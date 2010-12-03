@@ -67,7 +67,7 @@ Cooked Program 2:
             Dispatcher ID: 169
             OUTPUT(2)
          6: TABLE
-            Mode: TYPE (4294967293)
+            Mode: ATOM
             Dispatcher ID: 18
             FAIL
         18: DISPATCHER

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 01:20:42 EST 2010
+// Date:	Fri Dec  3 07:23:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -219,14 +219,6 @@ namespace ll { namespace lexeme {
 	    ( uns32 first, uns32 last, uns32 type,
 	      scanner_ptr s );
 
-	// type_name[t] is the name of lexeme type t, if
-	// type_name != NULL and t <= max_type.  Used by
-	// spmode and pmode below.  Defaults: NULL and
-	// 0.
-	// 
-	const char * const * type_name;
-	uns32 max_type;
-
 	// Error message describing the last error.  Can
 	// be reset to "" indicating there is no error
 	// by error_message[0] = 0.  Users should not
@@ -286,11 +278,6 @@ namespace ll { namespace lexeme {
     // before constructing a program.  After construc-
     // ting a program, init_scanner must be recalled
     // before using the scanner to scan lexemes.
-    //
-    // In order to print programs properly, scanner->
-    // type_names and scanner->max_type should be set.
-    // Other scanner parameters are not needed for
-    // program construction.
 
     // Program component types:
     //
@@ -321,8 +308,19 @@ namespace ll { namespace lexeme {
     // program does not exist (it equals NULL_STUB), it
     // is created.
     //
+    // The header contains a map of lexeme types to type
+    // names that is used for printouts.  Lexeme type
+    // t maps to name type_name[t].  This may be NULL
+    // if t is not used.
+    //
+    // If type_name is NULL, no type names are given.
+    // If max_type != 0, all lexeme types are required
+    // to be <= max_type.
+    //
     void create_program
-	    ( scanner_ptr scanner = default_scanner );
+	    ( const char * const * type_name = NULL,
+	      uns32 max_type = 0,
+	      scanner_ptr scanner = default_scanner );
 
     // Table modes and return values.
     //

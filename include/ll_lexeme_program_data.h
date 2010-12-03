@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 05:34:34 EST 2010
+// Date:	Fri Dec  3 07:43:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,11 +40,32 @@ namespace ll { namespace lexeme
 // conversion.  The initial_table_ID is the ID of the
 // initial master table.
 //
+// The lexeme types are 0 .. max_type.  The program
+// header is followed by a vector of max_type+1 uns32
+// values which are indices of type names.  This vector
+// is followed by the type names as NUL terminated UTF-8
+// character strings.  Given type t then
+//
+//	uns32 offset = program[program_header_length+t];
+//	const char * type_name =
+//	    offset == 0 ? NULL :
+//	        (const char *) & program[0] + offset;
+//
+// computes the type name corresponding to t.
+//
+// program[header_length] is the first location after
+// the program header, i.e., after the type name
+// strings.  The type name UTF-8 strings therefore
+// occupy header_length - program_header_length - 1
+// - max_type uns32 elements.
+//
 struct program_header {
     uns32 pctype;		// == PROGRAM
     uns32 initial_table_ID;	// Initial master table.
+    uns32 max_type;
+    uns32 header_length;
 };
-const uns32 program_header_length = 2;
+const uns32 program_header_length = 4;
 
 // A (lexical) table consists of just a header which
 // records the mode, the dispatcher for the first char-

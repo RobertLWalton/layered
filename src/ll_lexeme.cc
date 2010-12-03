@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 03:03:46 EST 2010
+// Date:	Fri Dec  3 05:12:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,10 +96,11 @@ uns32 LEX::table_mode
 
 void LEX::create_program ( scanner_ptr scanner )
 {
-    program_ptr & program = scanner->program;
+    program_ptr program = scanner->program;
 
     if ( program == NULL_STUB )
-        program = uns32_buffer_type.new_gen();
+        program = scanner->program =
+	    uns32_buffer_type.new_gen();
     else
 	reset ( program );
 
@@ -748,20 +749,16 @@ static uns32 scan_atom
         scanner->input_buffer;
     buffer_ptr<uns32> translation_buffer =
         scanner->translation_buffer;
-    uns32 & next =
-        scanner->next;
-    uns32 & current_table_ID =
-        scanner->current_table_ID;
 
     const uns32 SCAN_ERROR = 0;
         // Local version of SCAN_ERROR.
 
     TOUT << "Start atom scan: atom table = "
-	 << current_table_ID << endl;
+	 << scanner->current_table_ID << endl;
 
     table_header & cath =
 	* (table_header *)
-	& program[current_table_ID];
+	& program[scanner->current_table_ID];
 
     // As we scan we recognize longer and longer atoms.
     // If at any point we cannot continue, we revert to
@@ -798,15 +795,18 @@ static uns32 scan_atom
 
 	if ( dispatcher_ID == 0 ) break;
 
-	if ( next + length >= input_buffer->length
+	if (    scanner->next + length
+	     >= input_buffer->length
 	     &&
 	     ! (*scanner->read_input) ( scanner ) )
 	    break; // End of file.
 
 	assert
-	    ( next + length < input_buffer->length );
+	    (   scanner->next + length
+	      < input_buffer->length );
 	uns32 c =
-	    input_buffer[next + length].character;
+	    input_buffer[scanner->next + length]
+	                .character;
 	++ length;
 
 	uns32 ctype =
@@ -904,7 +904,7 @@ static uns32 scan_atom
 		      " table %d targets"
 		      " non-atom table",
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 	    else if (    scanner->return_stack_p
@@ -918,13 +918,13 @@ static uns32 scan_atom
 		      " table %d but return stack is"
 		      " full",
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 
 	    scanner->return_stack
 	        [scanner->return_stack_p++] =
-	            current_table_ID;
+	            scanner->current_table_ID;
 
 	    if ( is_recursive
 	             ( scanner, ih.atom_table_ID ) )
@@ -937,14 +937,16 @@ static uns32 scan_atom
 		      " by table %d",
 		      ih.atom_table_ID,
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 
-	    current_table_ID = ih.atom_table_ID;
+	    scanner->current_table_ID =
+	        ih.atom_table_ID;
 	    uns32 tinstruction_ID =
 	        scan_atom ( scanner, keep_length );
-	    current_table_ID =
+
+	    scanner->current_table_ID =
 		scanner->return_stack
 		    [--scanner->return_stack_p];
 
@@ -988,9 +990,9 @@ static uns32 scan_atom
 		         |
 		         TRANSLATE_OCT_FLAG ) )
 	{
-	    uns32 p = next
+	    uns32 p = scanner->next
 		    + LEX::prefix_length ( op );
-	    uns32 endp = next + keep_length
+	    uns32 endp = scanner->next + keep_length
 		       - LEX::postfix_length
 			     ( op );
 	    uns32 tc = 0;
@@ -1053,7 +1055,7 @@ static uns32 scan_atom
 	    uns32 q =
 		allocate ( translation_buffer,
 			   keep_length );
-	    uns32 p = next;
+	    uns32 p = scanner->next;
 	    for ( uns32 i = 0; i < keep_length; ++ i )
 		translation_buffer[q++] =
 		    input_buffer[p++].character;
@@ -1153,7 +1155,8 @@ static uns32 scan_atom
 			      " %d executed by table"
 			      " %d",
 			      instruction_ID,
-			      current_table_ID );
+			      scanner->current_table_ID
+			    );
 		    return SCAN_ERROR;
 		}
 		assert (    program[instruction_ID]
@@ -1171,7 +1174,7 @@ static uns32 scan_atom
 			  " instruction %d executed by"
 			  " table %d",
 			  instruction_ID,
-			  current_table_ID );
+			  scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 	}
@@ -1183,6 +1186,7 @@ static uns32 scan_atom
 
 	return instruction_ID;
     }
+    abort();
 }
 
 uns32 LEX::scan ( uns32 & first, uns32 & last,
@@ -1194,12 +1198,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
         scanner->input_buffer;
     buffer_ptr<uns32> translation_buffer =
         scanner->translation_buffer;
-    uns32 & next =
-        scanner->next;
-    uns32 & current_table_ID =
-        scanner->current_table_ID;
 
-    if ( next >= inchar_buffer_type.max_increment )
+    if (    scanner->next
+         >= inchar_buffer_type.max_increment )
     {
         // If next has gotten to be as large as
 	// max_increment, shift the input_buffer
@@ -1207,16 +1208,17 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 	// already returned.
 	//
         memmove ( & input_buffer[0],
-	          & input_buffer[next],
-		    ( input_buffer->length - next )
+	          & input_buffer[scanner->next],
+		    (   input_buffer->length
+		      - scanner->next )
 		  * sizeof ( LEX::inchar ) );
-	deallocate ( input_buffer, next );
-	next = 0;
+	deallocate ( input_buffer, scanner->next );
+	scanner->next = 0;
     }
 
     // Initialize first and translation buffer.
     //
-    first = next;
+    first = scanner->next;
     deallocate ( translation_buffer,
                  translation_buffer->length );
 
@@ -1254,7 +1256,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 
 	table_header & cath =
 	    * (table_header *)
-	    & program[current_table_ID];
+	    & program[scanner->current_table_ID];
 
 	// First check lexeme ending conditions.
 
@@ -1268,7 +1270,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 		          "attempt to OUTPUT when the"
 			  " next table %d is not a"
 			  " master table",
-			  current_table_ID );
+			  scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 
@@ -1279,7 +1281,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 	     &&
 	     cath.mode == MASTER
 	     &&
-	     first != next )
+	     first != scanner->next )
 	    break;
 
 	last_mode = cath.mode;
@@ -1293,9 +1295,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 	// instruction.
 	//
 	uns32 atom_length;
+
 	uns32 instruction_ID =
 	    scan_atom ( scanner, atom_length );
-	if ( instruction_ID == 0 ) return SCAN_ERROR;
+
+	if ( instruction_ID == 0 )
+	    return SCAN_ERROR;
 
 	instruction_header & ih =
 	    * (instruction_header *)
@@ -1313,7 +1318,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 			  " by table %d but atom is of"
 			  " zero length",
 			  instruction_ID,
-			  current_table_ID );
+			  scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 	    else if ( scanner->erroneous_atom == NULL )
@@ -1326,14 +1331,17 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 			  " erroneous_atom function"
 			  " does not exist",
 			  instruction_ID,
-			  current_table_ID );
+			  scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 	    else
+	    {
 		(*scanner->erroneous_atom)
-		    ( next, next + atom_length - 1,
+		    ( scanner->next,
+		      scanner->next + atom_length - 1,
 		      ih.erroneous_atom_type,
 		      scanner );
+	    }
 	}
 
 	if ( op & OUTPUT )
@@ -1351,21 +1359,23 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 		      " executed by table %d but"
 		      " return stack is empty",
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
-	    current_table_ID =
+	    scanner->current_table_ID =
 		scanner->return_stack
 		    [--scanner->return_stack_p];
-	    assert (    program[current_table_ID]
+	    assert (    program
+	                    [scanner->current_table_ID]
 		     == TABLE );
 	}
 	else if ( op & GOTO )
 	{
-	    current_table_ID = ih.goto_table_ID;
+	    scanner->current_table_ID =
+	        ih.goto_table_ID;
 	    table_header & cath =
 		* (table_header *)
-		& program[current_table_ID];
+		& program[scanner->current_table_ID];
 	    assert ( cath.pctype == TABLE );
 	    if ( cath.mode == ATOM )
 
@@ -1378,7 +1388,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 		      " table %d targets atom"
 		      " table",
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 	}
@@ -1396,13 +1406,13 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 		      " table %d but return stack is"
 		      " full",
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 
 	    scanner->return_stack
 	        [scanner->return_stack_p++] =
-	        current_table_ID;
+	        scanner->current_table_ID;
 
 	    if ( is_recursive
 	             ( scanner, ih.call_table_ID ) )
@@ -1415,15 +1425,16 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 		      " by table %d",
 		      ih.call_table_ID,
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 
-	    current_table_ID = ih.call_table_ID;
+	    scanner->current_table_ID =
+	        ih.call_table_ID;
 
 	    table_header & cath =
 		* (table_header *)
-		& program[current_table_ID];
+		& program[scanner->current_table_ID];
 	    assert ( cath.pctype == TABLE );
 	    if ( cath.mode == MASTER
 	         ||
@@ -1437,14 +1448,14 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 		      " table %d targets non-lexeme"
 		      " table",
 		      instruction_ID,
-		      current_table_ID );
+		      scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
 	}
 
 	if ( atom_length > 0 )
 	{
-	    next += atom_length;
+	    scanner->next += atom_length;
 	    loop_count = program->length;
 	}
 	else if ( -- loop_count == 0 )
@@ -1457,7 +1468,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
     }
 
     first = first;
-    last = next - 1;
+    last = scanner->next - 1;
 
     uns32 type = output_type != 0 ?
                  output_type :
@@ -1533,7 +1544,7 @@ static uns32 default_read_input
 {
     LEX::buffer_ptr<LEX::inchar> input_buffer =
         scanner->input_buffer;
-    LEX::inchar & read_input_inchar =
+    LEX::inchar read_input_inchar =
         scanner->read_input_inchar;
 
     uns32 i = allocate ( input_buffer, 100 );
@@ -1546,6 +1557,8 @@ static uns32 default_read_input
 	if ( c == EOF )
 	{
 	    deallocate ( input_buffer, endi - i );
+	    scanner->read_input_inchar =
+		read_input_inchar;
 	    return ( endi - i < 100 );
 	}
 
@@ -1639,6 +1652,7 @@ static uns32 default_read_input
 	    break;
 	}
     }
+    scanner->read_input_inchar = read_input_inchar;
     return 1;
 }
 

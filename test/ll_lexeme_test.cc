@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 00:33:56 EST 2010
+// Date:	Fri Dec  3 08:10:31 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -144,7 +144,7 @@ static void check_attach
 static void create_program_1 ( void )
 {
 
-    LEX::create_program();
+    LEX::create_program ( type_name, MAX_TYPE );
     uns32 master = LEX::create_table ( MASTER );
 
     uns32 atable1 = LEX::create_table ( SYMBOL );
@@ -182,7 +182,7 @@ static void create_program_1 ( void )
 
 static void create_program_2 ( void )
 {
-    LEX::create_program();
+    LEX::create_program ( type_name, MAX_TYPE );
     uns32 master = LEX::create_table ( MASTER );
 
     // Create atom table for \ooo octal
@@ -587,8 +587,6 @@ void test_program
 
     LEX::init_scanner();
     LEX::default_scanner->read_input = & ::read_input;
-    LEX::default_scanner->type_name = ::type_name;
-    LEX::default_scanner->max_type = MAX_TYPE;
     LEX::default_scanner->erroneous_atom =
         ::erroneous_atom;
     if ( trace )
@@ -623,9 +621,6 @@ void test_program
 int main ( int argc )
 {
     LEX::init_scanner();
-
-    LEX::default_scanner->type_name = ::type_name;
-    LEX::default_scanner->max_type = MAX_TYPE;
 
     create_program_1();
     create_program_2();

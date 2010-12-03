@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 05:12:40 EST 2010
+// Date:	Fri Dec  3 07:44:11 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,6 +62,14 @@ uns32 LEX::create_table
 {
     program_ptr program = scanner->program;
 
+    if ( mode != ATOM && mode != MASTER )
+    {
+	program_header & ph =
+	    * (program_header *) & program[0];
+	assert (    ph.max_type == 0
+	         || mode <= ph.max_type );
+    }
+
     uns32 ID =
         allocate ( program, table_header_length );
     table_header & h = * (table_header *) & program[ID];
@@ -94,7 +102,10 @@ uns32 LEX::table_mode
     return h.mode;
 }
 
-void LEX::create_program ( scanner_ptr scanner )
+void LEX::create_program
+	( const char * const * type_name,
+	  uns32 max_type,
+	  scanner_ptr scanner )
 {
     program_ptr program = scanner->program;
 
@@ -104,13 +115,38 @@ void LEX::create_program ( scanner_ptr scanner )
     else
 	reset ( program );
 
-    uns32 ID =
-        allocate ( program, program_header_length );
+    uns32 origin = 4 * (   program_header_length
+                         + 1 + max_type );
+    uns32 length = origin;
+    for ( uns32 t = 0; t <= max_type; ++ t )
+    {
+	if ( type_name == NULL || type_name[t] == NULL )
+	    continue;
+	length += strlen ( type_name[t] ) + 1;
+    }
+    uns32 header_length = ( length + 3 ) / 4;
+
+    uns32 ID = allocate ( program, header_length );
     assert ( ID == 0 );
 
     program_header & h =
         * (program_header *) & program[ID];
     h.pctype = PROGRAM;
+    h.max_type = max_type;
+    h.header_length = header_length;
+
+    for ( uns32 t = 0; t <= max_type; ++ t )
+    {
+	if ( type_name == NULL || type_name[t] == NULL )
+	{
+	    program[program_header_length + t] = 0;
+	    continue;
+	}
+	program[program_header_length + t] = origin;
+	strcpy ( (char *) & program[0] + origin,
+	         type_name[t] );
+	origin += strlen ( type_name[t] ) + 1;
+    }
 }
 
 uns32 LEX::create_dispatcher
@@ -264,7 +300,14 @@ uns32 LEX::create_instruction
         assert ( erroneous_atom_type == 0 );
 
     if ( operation & OUTPUT )
+    {
         assert ( output_type != 0 );
+
+	program_header & ph =
+	    * (program_header *) & program[0];
+	assert (    ph.max_type == 0
+		 || output_type <= ph.max_type );
+    }
     else
         assert ( output_type == 0 );
 
@@ -587,8 +630,6 @@ void LEX::init_scanner
 
     scanner->scan_trace_out = NULL;
     scanner->erroneous_atom = NULL;
-    scanner->type_name = NULL;
-    scanner->max_type = 0;
 
     scanner->next = 0;
 
@@ -753,7 +794,7 @@ static uns32 scan_atom
     const uns32 SCAN_ERROR = 0;
         // Local version of SCAN_ERROR.
 
-    TOUT << "Start atom scan: atom table = "
+    TOUT << "Start atom scan: table = "
 	 << scanner->current_table_ID << endl;
 
     table_header & cath =
@@ -1223,10 +1264,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
                  translation_buffer->length );
 
     // We scan atoms until we get to a point where the
-    // atom table is to be changed from a table with
-    // mode != MASTER to one with mode == MASTER and
-    // next != first, or `output_type' is set (in this
-    // case next == first is allowed).
+    // table is to be changed from a table with mode !=
+    // MASTER to one with mode == MASTER and next !=
+    // first, or `output_type' is set (in this case next
+    // == first is allowed).
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
@@ -1892,13 +1933,20 @@ bool LEX::translation_is_exact
 int LEX::spmode ( char * buffer, uns32 mode,
                   scanner_ptr scanner )
 {
+    program_ptr program = scanner->program;
+    program_header & ph =
+        * (program_header *) & program[0];
+    if ( mode <= ph.max_type )
+    {
+        uns32 offset =
+	    program[program_header_length + mode];
+	if ( offset != 0 )
+	    return sprintf
+		( buffer, "%s",
+		    (const char *) & program[0]
+		  + offset );
+    }
 
-    if (    scanner->type_name != NULL
-         && mode <= scanner->max_type
-         && scanner->type_name[mode] != NULL )
-        return sprintf
-	    ( buffer, "%s", scanner->type_name[mode] );
-        
     switch ( mode )
     {
     case MASTER:
@@ -2397,7 +2445,18 @@ uns32 LEX::print_program_component
 	    * (program_header *) & program[ID];
 	out << INDENT << "Initial Table ID: "
 	    << h.initial_table_ID << endl;
-	return program_header_length;
+	out << INDENT << "Max Type: "
+	    << h.max_type << endl;
+	for ( uns32 t = 0; t <= h.max_type; ++ t )
+	{
+	    uns32 offset =
+	        program[ID+program_header_length+t];
+	    if ( offset == 0 ) continue;
+	    out << INDENT << setw ( 6 ) << t << ": "
+	        << (const char *) & program[ID] + offset
+		<< endl;
+	}
+	return h.header_length;
     }
     case TABLE:
     {

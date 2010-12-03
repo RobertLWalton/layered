@@ -657,7 +657,13 @@ namespace ll { namespace lexeme {
     // by endianhood conversion, so one cannot simply
     // convert all the uns32 elements of the program.
     //
-    void convert_program_endianhood
+    // If a program formatting error is found while
+    // changing the program's endianhood, false is
+    // returned.  Otherwise true is returned.  Many
+    // program formatting errors cannot be found this
+    // way.
+    //
+    bool convert_program_endianhood
 	    ( scanner_ptr scanner = default_scanner );
 } }
 

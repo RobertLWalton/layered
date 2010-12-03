@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  2 00:53:30 EST 2010
+// Date:	Fri Dec  3 00:33:56 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,18 +87,21 @@ static void set_lex_input ( uns32 * input, uns32 length )
     lex_index = 0;
     lex_column = 0;
 }
-static uns32 read_input ( void )
+static uns32 read_input ( LEX::scanner_ptr scanner )
 {
     if ( lex_input == NULL ) return 0;
 
+    LEX::buffer_ptr<LEX::inchar> input_buffer =
+        scanner->input_buffer;
+
     uns32 p = LEX::allocate
-        ( LEX::input_buffer, lex_input_length );
+        ( input_buffer, lex_input_length );
     for ( uns32 i = 0; i < lex_input_length; ++ i )
     {
-        LEX::input_buffer[p+i].character = lex_input[i];
-        LEX::input_buffer[p+i].line = lex_line;
-        LEX::input_buffer[p+i].index = lex_index;
-        LEX::input_buffer[p+i].column = lex_column;
+        input_buffer[p+i].character = lex_input[i];
+        input_buffer[p+i].line = lex_line;
+        input_buffer[p+i].index = lex_index;
+        input_buffer[p+i].column = lex_column;
 
 	if ( lex_input[i] == '\n' ) ++ lex_line;
 
@@ -123,7 +126,8 @@ static void check_attach
 {
     if ( ! LEX::attach ( target_ID, component_ID ) )
         cout << "ATTACH_ERROR" << endl
-	     << LEX::error_message << endl;
+	     << LEX::default_scanner->error_message
+	     << endl;
 }
 
 static void check_attach
@@ -133,7 +137,8 @@ static void check_attach
     if ( ! LEX::attach
               ( target_ID, ctype, component_ID ) )
         cout << "ATTACH_ERROR" << endl
-	     << LEX::error_message << endl;
+	     << LEX::default_scanner->error_message
+	     << endl;
 }
 
 static void create_program_1 ( void )
@@ -554,7 +559,8 @@ static void create_program_2 ( void )
 }
 
 static void erroneous_atom
-    ( uns32 first, uns32 last, uns32 type )
+    ( uns32 first, uns32 last, uns32 type,
+      LEX::scanner_ptr scanner )
 {
     char buffer[1000];
     char * p = buffer;
@@ -562,14 +568,15 @@ static void erroneous_atom
     unsigned column = p - buffer;
     p += LEX::sperroneous_atom
 	    ( p, first, last, type,
-	      column, true );
+	      column, true,
+	      LEX::indent, LEX::line_length,
+	      scanner );
     cout << buffer << endl;
 }
 
-void test_program ( uns32 * input, uns32 length )
+void test_program
+    ( uns32 * input, uns32 length, bool trace = false )
 {
-    LEX::erroneous_atom = ::erroneous_atom;
-
     cout << endl
          << "Testing Lexical Scan of:" << endl;
     for ( uns32 i = 0; i < length; ++ i )
@@ -577,7 +584,17 @@ void test_program ( uns32 * input, uns32 length )
     cout << endl << endl;
 
     set_lex_input ( input, length );
-    LEX::init_scan();
+
+    LEX::init_scanner();
+    LEX::default_scanner->read_input = & ::read_input;
+    LEX::default_scanner->type_name = ::type_name;
+    LEX::default_scanner->max_type = MAX_TYPE;
+    LEX::default_scanner->erroneous_atom =
+        ::erroneous_atom;
+    if ( trace )
+	LEX::default_scanner->scan_trace_out= & cout;
+
+
     char buffer[1000];
     while ( true )
     {
@@ -590,7 +607,8 @@ void test_program ( uns32 * input, uns32 length )
 	if ( type == LEX::SCAN_ERROR )
 	{
 	    cout << buffer << " Scan Error:" << endl
-	         << LEX::error_message << endl;
+	         << LEX::default_scanner->error_message
+		 << endl;
 	    break;
 	}
 	else
@@ -604,9 +622,10 @@ void test_program ( uns32 * input, uns32 length )
 
 int main ( int argc )
 {
-    LEX::read_input = & ::read_input;
-    LEX::type_name = ::type_name;
-    LEX::max_type = MAX_TYPE;
+    LEX::init_scanner();
+
+    LEX::default_scanner->type_name = ::type_name;
+    LEX::default_scanner->max_type = MAX_TYPE;
 
     create_program_1();
     create_program_2();
@@ -627,6 +646,5 @@ int main ( int argc )
 	'D', '\\', '1', '0',
 	'E' };
     test_program ( input2, 41 );
-    LEX::scan_trace_out= & cout;
-    test_program ( input2, 41 );
+    test_program ( input2, 41, true );
 }

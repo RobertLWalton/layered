@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  1 23:59:55 EST 2010
+// Date:	Fri Dec  3 01:20:42 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,6 @@
 //	Data
 //	Program Construction
 //	Scanning
-//	Reading
 //	Printing
 
 // Usage and Setup
@@ -38,6 +37,8 @@ namespace ll { namespace lexeme {
     typedef min::uns32 uns32;
     typedef min::uns64 uns64;
 
+    const min::stub * const NULL_STUB = min::NULL_STUB;
+
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
 
@@ -56,6 +57,12 @@ namespace ll { namespace lexeme {
         buffer_ptr ( min::gen v )
 	    : min::packed_vec_insptr<buffer_header,T>
 	        ( v ) {}
+        buffer_ptr ( const min::stub * s )
+	    : min::packed_vec_insptr<buffer_header,T>
+	        ( s ) {}
+        buffer_ptr ( void )
+	    : min::packed_vec_insptr<buffer_header,T>
+	        () {}
     };
 
     // Allocate n elements in a buffer and return the
@@ -88,35 +95,174 @@ namespace ll { namespace lexeme {
 	min::resize ( p, 1000 );
     }
 
+    typedef buffer_ptr<uns32> program_ptr;
+        // Type of a pointer to a program.
 
-    // The program is a sequence of program components.
-    //
-    extern buffer_ptr<uns32> program;
-
-    // The input buffer is a vector of inchar elements
-    // each holding a character and the location of that
-    // character in the input text.  The location, con-
-    // sisting of a line, an index, and a column, is
-    // not used by the lexeme scanner.
-    //
     struct inchar
+        // Element of input_buffer: see below.
     {
-        uns32	line;
-        uns32	index;
-        uns32	column;
+	uns32	line;
+	uns32	index;
+	uns32	column;
 	uns32	character;
     };
-    extern buffer_ptr<inchar> input_buffer;
 
-    // The translation buffer holds the translation of
-    // the current lexeme.  For example, if the lexeme
-    // is a quoted string lexeme, the quotes may be
-    // removed from the translation, and special
-    // character representation sequences may be
-    // replaced in the translation by the represented
-    // characters.
-    //
-    extern buffer_ptr<uns32> translation_buffer;
+    struct scanner_struct;
+    typedef min::packed_struct_updptr<scanner_struct>
+            scanner_ptr;
+    const uns32 return_stack_size = 64;
+    struct scanner_struct
+    {
+        const uns32 type;
+	    // Packed structure type.
+
+	// The program is a sequence of program
+	// components.  Defaults to NULL_STUB.
+	//
+	program_ptr program;
+
+	// The input buffer is a vector of inchar
+	// elements each holding a character and the
+	// location of that character in the input text.
+	// The location, consisting of a line, an index,
+	// and a column, is not used by the scanner.
+	// Created by init_scanner.
+	//
+	buffer_ptr<inchar> input_buffer;
+
+	// The translation buffer holds the translation
+	// of the current lexeme.  For example, if the
+	// lexeme is a quoted string lexeme, the quotes
+	// may be removed from the translation, and
+	// special character representation sequences
+	// may be replaced in the translation by the
+	// represented characters.  Created by init_
+	// scanner.
+	//
+	buffer_ptr<uns32> translation_buffer;
+
+	// Input one or more inchar elements to the end
+	// of the input buffer vector, increasing the
+	// length of the buffer as neccessary.  Return 1
+	// if this is done, and 0 if there are no more
+	// characters because we are at the end of file.
+	// Initialized to the default value described
+	// below.
+	//
+	uns32 (*read_input) ( scanner_ptr s );
+
+	// The default value of read_input reads UTF-8
+	// characters from the read_input_istream and
+	// assigns the UNICODE characters produced the
+	// line, index, and column numbers in read_
+	// input_inchar.  After putting a UNICODE char-
+	// acter into the input_buffer, the line, index,
+	// and column numbers in read_input_inchar are
+	// updated as follows:
+	//
+	//   line   Incremented by 1 after a line feed
+	//	    is added to the input buffer.
+	//
+	//   index  Set to 0 after a line feed is added
+	//	    to the input buffer; otherwise
+	//	    incremented by the number of UTF-8
+	//          bytes that encode the UNICODE
+	//          character added to the input buffer.
+	//
+	//   column Set to 0 after adding a line feed,
+	//	    form feed, or vertical tab to the
+	//          input buffer; set to next multiple
+	//          of 8 after adding a tab to the input
+	//	    buffer; incremented by the character
+	//	    width after adding any other UNICODE
+	//	    character to the input buffer.
+	//
+	// Read_input_istream is initialized to `& cin'
+	// and read_input_inchar is initialized to all
+	// zeroes.
+	//
+	// It is possible to save the state of the input
+	// and restore it by saving and restoring the
+	// contents of:
+	//
+	//		read_input
+	//		read_input_istream
+	//		read_input_inchar
+	//
+	// This may be done when including files.  Care
+	// must be taken that the input_buffer ends
+	// with the last character of the file include
+	// statement, or else input_buffer[next ...]
+	// should also be saved and restored.
+	//
+	std::istream * read_input_istream;
+	inchar read_input_inchar;
+
+	// Output stream for tracing the scan.  If NULL,
+	// there is no tracing.  Defaults to NULL.
+	//
+	std::ostream * scan_trace_out;
+
+	// Function to call with an error atom as per
+	// ERRONEOUS_ATOM instruction flag.  The atom is
+	// in
+	//
+	//	input_buffer[first .. last]
+	//
+	// and the instruction provided type is given as
+	// an argument.  If the address of this function
+	// is NULL, execution of an instruction with an
+	// ERRONEOUS_ATOM flag is a scan error.
+	// Defaults to NULL.
+	//
+	void (* erroneous_atom)
+	    ( uns32 first, uns32 last, uns32 type,
+	      scanner_ptr s );
+
+	// type_name[t] is the name of lexeme type t, if
+	// type_name != NULL and t <= max_type.  Used by
+	// spmode and pmode below.  Defaults: NULL and
+	// 0.
+	// 
+	const char * const * type_name;
+	uns32 max_type;
+
+	// Error message describing the last error.  Can
+	// be reset to "" indicating there is no error
+	// by error_message[0] = 0.  Users should not
+	// write into this otherwise.
+	//
+	// The error message is a sequence of lines each
+	// no longer than LEX::line_length characters.
+	// All lines but the last are `\n' terminated:
+	// it may be printed with cout << error_message
+	// << endl.
+	//
+	// Program construction error messages may be
+	// used in conjunction with the output of print_
+	// program ( false ) (uncooked program print).
+	//
+	char error_message [2000];
+
+	// Scanner state:
+
+	uns32 next;
+	    // input_buffer[next] is the first character
+	    // of the first yet unscanned atom.
+	uns32 current_table_ID;
+	    // Current table ID.
+	uns32 return_stack[return_stack_size];
+	uns32 return_stack_p;
+	    // Return stack containing return_stack_p
+	    // elements (0 is first and return_stack_p
+	    // - 1 element is top).
+
+	char work[400];
+	    // Working buffer for producing components
+	    // of error_message.
+    };
+
+    extern scanner_ptr default_scanner;
 
 } }
 
@@ -125,19 +271,26 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
-    // Error message describing the last error.  Can
-    // be reset to "" indicating there is no error by
-    // ll::lexeme::error_message[0] = 0.  Users should
-    // not write into this otherwise.
+    // The program being constructed is
     //
-    // The error message is a sequence of lines each no
-    // no longer than LINE characters.  All lines but
-    // the last are `\n' terminated: it may be printed
-    // with cout << ll::lexeme::error_message << endl.
-    // It may be used in conjunction with the output of
-    // print_program ( false ) (uncooked program print).
+    //		scanner->program
     //
-    extern char error_message[];
+    // which defaults to
+    //
+    //		LEX::default_scanner->program.
+    //
+    // The scanner also provides scanner->error_message
+    // as a place to put error messages.
+    //
+    // The scanner must be initialized with init_scanner
+    // before constructing a program.  After construc-
+    // ting a program, init_scanner must be recalled
+    // before using the scanner to scan lexemes.
+    //
+    // In order to print programs properly, scanner->
+    // type_names and scanner->max_type should be set.
+    // Other scanner parameters are not needed for
+    // program construction.
 
     // Program component types:
     //
@@ -152,20 +305,24 @@ namespace ll { namespace lexeme {
     // Return the type of the component at the given
     // ID.
     //
-    inline uns32 component_type ( uns32 ID )
+    inline uns32 component_type
+	    ( uns32 ID,
+	      scanner_ptr scanner = default_scanner )
     {
-        return program[ID];
+        return scanner->program[ID];
     }
 
     // Create a new program.
     //
-    // This function resets the program buffer vector
-    // length to 0 and then adds a program header
-    // to the beginning of the buffer.  Subsequent
-    // functions add more program components to the
-    // end of the program buffer vector.
+    // This function resets scanner->program to 0 length
+    // and then adds a program header to its beginning.
+    // Subsequent functions add more program components
+    // to the end of the scanner->program.  If scanner->
+    // program does not exist (it equals NULL_STUB), it
+    // is created.
     //
-    void create_program ( void );
+    void create_program
+	    ( scanner_ptr scanner = default_scanner );
 
     // Table modes and return values.
     //
@@ -191,11 +348,15 @@ namespace ll { namespace lexeme {
     // The first MASTER table created after a create_
     // program becomes the initial table of the program.
     //
-    uns32 create_table ( uns32 mode );
+    uns32 create_table
+	    ( uns32 mode,
+	      scanner_ptr scanner = default_scanner );
 
     // Return the mode of a table with the given ID.
     //
-    uns32 table_mode ( uns32 ID );
+    uns32 table_mode
+	    ( uns32 ID,
+	      scanner_ptr scanner = default_scanner );
 
     // Create a dispatcher with given maximum number of
     // breakpoints and maximum ctype.  Return the new
@@ -205,7 +366,8 @@ namespace ll { namespace lexeme {
     //
     uns32 create_dispatcher
 	    ( uns32 max_breakpointers,
-	      uns32 max_ctype );
+	      uns32 max_ctype,
+	      scanner_ptr scanner = default_scanner );
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  Copy
@@ -214,7 +376,8 @@ namespace ll { namespace lexeme {
     //
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
-	      uns8 * map );
+	      uns8 * map,
+	      scanner_ptr scanner = default_scanner );
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  This
@@ -223,7 +386,8 @@ namespace ll { namespace lexeme {
     //
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
-	      uns32 ctype );
+	      uns32 ctype,
+	      scanner_ptr scanner = default_scanner );
 
     // An instruction consists of an uns32 operation,
     // various optional IDs, and an uns32 * translation_
@@ -457,7 +621,8 @@ namespace ll { namespace lexeme {
 	      uns32 erroneous_atom_type = 0,
 	      uns32 output_type = 0,
 	      uns32 goto_table_ID = 0,
-	      uns32 call_table_ID = 0 );
+	      uns32 call_table_ID = 0,
+	      scanner_ptr scanner = default_scanner );
 
     // Attach a dispatcher or an instruction component
     // to a lexical table target, or a type map compo-
@@ -468,7 +633,8 @@ namespace ll { namespace lexeme {
     //
     uns32 attach
     	    ( uns32 target_ID,
-    	      uns32 component_ID );
+    	      uns32 component_ID,
+	      scanner_ptr scanner = default_scanner );
 
     // Attach a dispatcher or an instruction component
     // to a ctype of a dispatcher target.  Return 1 if
@@ -479,7 +645,8 @@ namespace ll { namespace lexeme {
     uns32 attach
     	    ( uns32 target_ID,
     	      uns32 ctype,
-	      uns32 component_ID );
+	      uns32 component_ID,
+	      scanner_ptr scanner = default_scanner );
 
     // Convert the program to the endianhood of this
     // computer.  This is necessary when the program is
@@ -492,7 +659,8 @@ namespace ll { namespace lexeme {
     // by endianhood conversion, so one cannot simply
     // convert all the uns32 elements of the program.
     //
-    void convert_program_endianhood ( void );
+    void convert_program_endianhood
+	    ( scanner_ptr scanner = default_scanner );
 } }
 
 // Scanning
@@ -500,31 +668,17 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
-    // Initialize lexical scan.  The program must be
-    // stored in the program buffer.  It must have been
-    // created by the above functions, but may have been
-    // dumped into a file after creation and restored
-    // from the file.
+    // Initialize scanner.  If scanner == NULL_STUB,
+    // creates a new scanner.  Scanner must be
+    // initialized before program construction and
+    // then again before use as a lexical scanner.
     //
-    void init_scan ( void );
-
-    // Output stream for tracing the scan.  Set by
-    // user.  If NULL, there is no tracing.
+    // Scanner->program is set from program only if
+    // program argument is not NULL_STUB.
     //
-    extern std::ostream * scan_trace_out;
-
-    // Function to call with an error atom as per
-    // ERRONEOUS_ATOM instruction flag.  The atom is in
-    //
-    //		input_buffer[first .. last]
-    //
-    // and the instruction provided type is given as an
-    // argument.  If the address of this function is
-    // NULL, execution of an instruction with an
-    // ERRONEOUS_ATOM flag is a scan error.
-    //
-    extern void (* erroneous_atom)
-	( uns32 first, uns32 last, uns32 type );
+    void init_scanner
+	    ( scanner_ptr & scanner = default_scanner,
+              program_ptr program = NULL_STUB );
 
     // Scan the input and return the next lexeme, END_
     // OF_FILE or SCAN_ERROR.
@@ -550,63 +704,8 @@ namespace ll { namespace lexeme {
     // set.
     //
     uns32 scan
-            ( uns32 & first, uns32 & last );
-} }
-
-// Reading
-// -------
-
-namespace ll { namespace lexeme {
-
-    // Input one or more inchar elements to the end
-    // of the input buffer vector, increasing the length
-    // of the buffer.  Return 1 if this is done, and 0
-    // if there are no more characters because we are
-    // at the end of file.  Initialized to the default
-    // value described below.
-    //
-    extern uns32 (*read_input) ( void );
-
-    // The default value of read_input reads UTF-8 char-
-    // acters from the read_input_istream and assigns
-    // the UNICODE characters produced the line, index,
-    // and column numbers in read_input_inchar.  After
-    // putting a UNICODE character into the input_
-    // buffer, the line, index, and column numbers in
-    // read_input_inchar are updated as follows:
-    //
-    //	   line	    Incremented by 1 after a line feed
-    //		    is added to the input buffer.
-    //			
-    //	   index    Set to 0 after a line feed is added
-    //		    to the input buffer; otherwise
-    //		    incremented by the number of UTF-8
-    //              bytes that encode the UNICODE
-    //              character added to the input buffer.
-    //
-    //	   column   Set to 0 after adding a line feed,
-    //		    form feed, or vertical tab to the
-    //              input buffer; set to next multiple
-    //              of 8 after adding a tab to the input
-    //		    buffer; incremented by the character
-    //		    width after adding any other UNICODE
-    //		    character to the input buffer.
-    //
-    // Read_input_istream is initialized to `& cin' and
-    // read_input_inchar is initialized to all zeroes.
-    //
-    // It is possible to save the state of the input
-    // and restore it by saving and restoring the
-    // contents of:
-    //
-    //		input_buffer
-    //		read_input
-    //		read_input_istream
-    //		read_input_inchar
-    //
-    extern std::istream * read_input_istream;
-    extern inchar read_input_inchar;
-
+            ( uns32 & first, uns32 & last,
+	      scanner_ptr scanner = default_scanner );
 } }
 
 // Printing
@@ -644,25 +743,23 @@ namespace ll { namespace lexeme {
 	pchar ( uns32 c ) : c ( c ) {}
     };
 
-    // type_name[t] is the name of lexeme type t, if
-    // type_name != NULL and t <= max_type.  Used by
-    // spmode and pmode below.  Defaults: NULL and 0.
-    // 
-    extern const char * const * type_name;
-    extern uns32 max_type;
-
     // Print the atom table mode or scanner return value
     // into the buffer, and return the number of
     // characters used.
     //
-    int spmode ( char * buffer, uns32 mode );
+    int spmode
+	    ( char * buffer, uns32 mode,
+	      scanner_ptr scanner = default_scanner );
 
     // cout << pmode ( m ) does the same thing as spmode
     // but prints to an output stream.
     //
     struct pmode {
         uns32 mode;
-	pmode ( uns32 mode ) : mode ( mode ) {}
+	scanner_ptr scanner;
+	pmode ( uns32 mode,
+	        scanner_ptr scanner = default_scanner )
+	    : mode ( mode ), scanner ( scanner ) {}
     };
 } }
 
@@ -675,12 +772,12 @@ std::ostream & operator <<
 
 namespace ll { namespace lexeme {
 
-    // Print ll::lexeme::input_buffer[first .. last]
-    // to one or more lines in the buffer.  The \n for
-    // the last line is NOT put in the buffer.  Return
-    // the number of characters put in the buffer.  Put
-    // a NUL character after these characters, NOT
-    // including this NUL in the returned count.
+    // Print scanner->input_buffer[first .. last] to one
+    // or more lines in the buffer.  The \n for the last
+    // line is NOT put in the buffer.  Return the number
+    // of characters put in the buffer.  Put a NUL
+    // character after these characters, NOT including
+    // this NUL in the returned count.
     //
     // Preface_with_space is true if the output is to
     // be prefaced with a ` ' character unless it is
@@ -692,23 +789,25 @@ namespace ll { namespace lexeme {
     // indent to use after a \n is inserted in the
     // buffer.
     //
-    unsigned spinput ( char * buffer,
-                       uns32 first, uns32 last,
-		       unsigned & column,
-		       bool preface_with_space = false,
-		       unsigned indent = indent,
-		       unsigned line_length =
-		           line_length );
+    unsigned spinput
+	    ( char * buffer,
+              uns32 first, uns32 last,
+	      unsigned & column,
+	      bool preface_with_space = false,
+	      unsigned indent = indent,
+	      unsigned line_length = line_length,
+	      scanner_ptr scanner = default_scanner );
 
-    // Ditto but print ll::lexeme::translation_buffer in
+    // Ditto but print scanner->translation_buffer in
     // its entirety.
     //
     unsigned sptranslation
-    		( char * buffer,
-		  unsigned & column,
-		  bool preface_with_space = false,
-		  unsigned indent = indent,
-		  unsigned line_length = line_length );
+	    ( char * buffer,
+	      unsigned & column,
+	      bool preface_with_space = false,
+	      unsigned indent = indent,
+	      unsigned line_length = line_length,
+	      scanner_ptr scanner = default_scanner );
 
     // Ditto but print the current lexeme, given its
     // first, last, and type.  Include the position and
@@ -721,7 +820,8 @@ namespace ll { namespace lexeme {
 	      unsigned & column,
 	      bool preface_with_space = false,
 	      unsigned indent = indent,
-	      unsigned line_length = line_length );
+	      unsigned line_length = line_length,
+	      scanner_ptr scanner = default_scanner );
 
     // Ditto but print the current erroneous atom.  The
     // translation is not relevant in this case.
@@ -732,7 +832,8 @@ namespace ll { namespace lexeme {
 	      unsigned & column,
 	      bool preface_with_space = false,
 	      unsigned indent = indent,
-	      unsigned line_length = line_length );
+	      unsigned line_length = line_length,
+	      scanner_ptr scanner = default_scanner );
 
     // Ditto but print the given string all on the
     // same line.  n is the length of the string,
@@ -748,10 +849,11 @@ namespace ll { namespace lexeme {
 	      unsigned line_length = line_length );
 
     // Return true if the translation buffer holds a
-    // copy of ll::lexeme::input_buffer[first .. last].
+    // copy of scanner->input_buffer[first .. last].
     //
     bool translation_is_exact
-	    ( uns32 first, uns32 last );
+	    ( uns32 first, uns32 last,
+	      scanner_ptr scanner = default_scanner );
 
     // Print a representation of the program to the
     // output stream.  There are two output formats:
@@ -762,7 +864,8 @@ namespace ll { namespace lexeme {
     // out everything separately.
     //
     void print_program
-        ( std::ostream & out, bool cooked = true );
+        ( std::ostream & out, bool cooked = true,
+	  scanner_ptr scanner = default_scanner );
 
     // Ditto but just print the program component with
     // the given ID.  Return the length of the component
@@ -770,7 +873,8 @@ namespace ll { namespace lexeme {
     //
     uns32 print_program_component
         ( std::ostream & out,
-	  uns32 ID, bool cooked = true );
+	  uns32 ID, bool cooked = true,
+	  scanner_ptr scanner = default_scanner );
 
 } }
 

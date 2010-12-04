@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  2 02:07:12 EST 2010
+// Date:	Fri Dec  3 22:28:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -118,7 +118,7 @@ static int attach_error
          << file << " LINE: " << line << endl
 	 << "   CALLED FROM FILE: " << LEXNDL::file
 	 << " LINE: " << LEXNDL::line << endl
-	 << LEX::error_message << endl
+	 << LEX::default_scanner->error_message << endl
 	 << "    NOTE: possible causes:" << endl
 	 << "          begin_table ( name ) called"
 	             " twice for a given name" << endl;
@@ -193,18 +193,21 @@ inline instruction & current_instruction ( void )
 // NDL Functions
 // --- ---------
 
-void LEXNDL::begin_program ( void )
+void LEXNDL::begin_program
+	( const char * const * type_name,
+	  uns32 max_type )
 {
     FUNCTION ( "begin_program" );
     ASSERT ( state == OUTSIDE_PROGRAM,
-             "misplaced begin_program()" );
+             "misplaced begin_program(...)" );
     state = INSIDE_PROGRAM;
 
     reset ( uns32_stack );
     reset ( dispatchers );
     reset ( instructions );
 
-    LEX::create_program();
+    LEX::init_scanner();
+    LEX::create_program ( type_name, max_type );
 }
 
 void LEXNDL::end_program ( void )

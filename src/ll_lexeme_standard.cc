@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 10:34:31 EST 2010
+// Date:	Fri Dec  3 22:30:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,7 +31,7 @@ using namespace ll::lexeme::ndl;
 // ------- ------------
 
 static const uns32 MAX_TYPE = 16;
-static const char * type_name[MAX_TYPE+1] = {
+static const char * const type_name[MAX_TYPE+1] = {
     NULL,
     "WORD",
     "NATURAL_NUMBER",
@@ -68,14 +68,9 @@ static void add_non_ascii_letters ( void )
 void ll::lexeme::standard::create_standard_program
 	( void )
 {
-    // Set up type names.
-    //
-    LEX::type_name = ::type_name;
-    LEX::max_type = ::MAX_TYPE;
-
     /// begin standard lexical program;
     ///
-    begin_program();
+    begin_program ( type_name, MAX_TYPE );
 
     uns32 main;
     NDL::new_table ( main, MASTER );

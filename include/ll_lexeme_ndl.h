@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 22 07:10:12 EST 2010
+// Date:	Fri Dec  3 22:43:28 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,16 +41,31 @@
 //
 // Note: None of the NDL::... functions return a value.
 //
+// Note: The LEX::default_scanner is used to construct
+// the lexical program.  LEX::init_scanner() is called
+// and the result is left in LEX::default_scanner->
+// program.
+//
 //   <ndl-program> ::=
 //      using ll::lexeme::ndl::MASTER;
 //      using ll::lexeme::ndl::ATOM;
 //      using ll::lexeme::ndl::OTHER;
 //      using ll::lexeme::ndl::uns32;
 //
-//	NDL::begin_program();
+//	const uns32 max_type = ...
+//	const char * const type_name[max_type+1] =
+//	    { "xxx", "yyy", ..., NULL, "zzz", ... };
+//
+//	NDL::begin_program ( type_name, max_type );
 //	<declaration>*
 //	<table-definition>*
 //	NDL::end_program();
+//
+//   // type_name[t] is the printable name of <type-
+//   // name> t (see below), where t <= max_type.  One
+//   // can omit the type_name and max_type arguments to
+//   // NDL::begin_program if one wants to print numbers
+//   // instead of names for <type-name>s.
 //
 //   <declaration> := <table-declaration>
 //		    | <atom-pattern-declaration>
@@ -301,7 +316,9 @@ namespace ll { namespace lexeme { namespace ndl {
     // Warning: NDL does NOT permit return values, so
     // all of the below must have void return type.
 
-    void begin_program ( void );
+    void begin_program
+	    ( const char * const * type_name,
+	      uns32 max_type );
     void end_program ( void );
 
     void new_table

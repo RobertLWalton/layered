@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 16:36:03 EDT 2010
+// Date:	Fri Dec  3 22:51:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,13 +31,16 @@ using std::endl;
 using LEX::uns32;
 
 static void erroneous_atom
-	( uns32 first, uns32 last, uns32 type )
+	( uns32 first, uns32 last, uns32 type,
+	  LEX::scanner_ptr scanner )
 {
     char buffer[2000];
     uns32 column =
         sprintf ( buffer, "ERRONEOUS ATOM: " );
     LEX::sperroneous_atom
-        ( buffer + column, first, last, type, column );
+        ( buffer + column, first, last, type, column,
+	  false, LEX::indent, LEX::line_length,
+	  scanner );
     cout << buffer << endl;
 }
 
@@ -45,8 +48,9 @@ int main ( int argc )
 {
     LEXSTD::create_standard_program();
     LEX::print_program ( cout, true );
-    LEX::init_scan();
-    LEX::erroneous_atom = ::erroneous_atom;
+    LEX::init_scanner();
+    LEX::default_scanner->erroneous_atom =
+        ::erroneous_atom;
     char buffer[2000];
     while ( true )
     {
@@ -55,7 +59,8 @@ int main ( int argc )
 	if ( type == LEX::SCAN_ERROR )
 	{
 	    cout << "Scan Error" << endl
-	         << LEX::error_message << endl;
+	         << LEX::default_scanner->error_message
+		 << endl;
 	}
 	else
 	{

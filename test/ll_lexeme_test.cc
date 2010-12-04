@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 08:10:31 EST 2010
+// Date:	Fri Dec  3 23:21:25 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -568,9 +568,7 @@ static void erroneous_atom
     unsigned column = p - buffer;
     p += LEX::sperroneous_atom
 	    ( p, first, last, type,
-	      column, true,
-	      LEX::indent, LEX::line_length,
-	      scanner );
+	      column, true, scanner );
     cout << buffer << endl;
 }
 

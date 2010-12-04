@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 22:51:34 EST 2010
+// Date:	Fri Dec  3 23:21:49 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,8 +39,7 @@ static void erroneous_atom
         sprintf ( buffer, "ERRONEOUS ATOM: " );
     LEX::sperroneous_atom
         ( buffer + column, first, last, type, column,
-	  false, LEX::indent, LEX::line_length,
-	  scanner );
+	  false, scanner );
     cout << buffer << endl;
 }
 

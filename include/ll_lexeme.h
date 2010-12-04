@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 07:23:14 EST 2010
+// Date:	Fri Dec  3 23:27:05 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -225,9 +225,9 @@ namespace ll { namespace lexeme {
 	// write into this otherwise.
 	//
 	// The error message is a sequence of lines each
-	// no longer than LEX::line_length characters.
-	// All lines but the last are `\n' terminated:
-	// it may be printed with cout << error_message
+	// no longer than line_length characters.  All
+	// lines but the last are `\n' terminated: it
+	// may be printed with cout << error_message
 	// << endl.
 	//
 	// Program construction error messages may be
@@ -235,6 +235,13 @@ namespace ll { namespace lexeme {
 	// program ( false ) (uncooked program print).
 	//
 	char error_message [2000];
+
+	// Nominal length and indent for error messages.
+	// Line length normally set at the limit for
+	// email messages.
+	//
+	uns32 line_length;  // Default 72
+	uns32 indent;       // Default 4
 
 	// Scanner state:
 
@@ -717,13 +724,6 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
-    // Nominal length and indent for diagnostic mes-
-    // sages.  Line length normally set at the limit for
-    // email messages.
-    //
-    extern unsigned line_length;  // Default 72
-    extern unsigned indent;       // Default 4
-
     // Print an uns32 UNICODE character into the buffer.
     //
     // If the uns32 character c is ' ', '\\', '\n',
@@ -789,17 +789,15 @@ namespace ll { namespace lexeme {
     // not fit in the remainder of the first line.
     // The next column number to be printed is in the
     // `column' variable; 0 is the first column.  The
-    // maximum length of the line is given, and the
-    // indent to use after a \n is inserted in the
-    // buffer.
+    // scanner provides the maximum length of the line
+    // and the indent to use after a \n is inserted in
+    // the buffer.
     //
     unsigned spinput
 	    ( char * buffer,
               uns32 first, uns32 last,
 	      unsigned & column,
 	      bool preface_with_space = false,
-	      unsigned indent = indent,
-	      unsigned line_length = line_length,
 	      scanner_ptr scanner = default_scanner );
 
     // Ditto but print scanner->translation_buffer in
@@ -809,8 +807,6 @@ namespace ll { namespace lexeme {
 	    ( char * buffer,
 	      unsigned & column,
 	      bool preface_with_space = false,
-	      unsigned indent = indent,
-	      unsigned line_length = line_length,
 	      scanner_ptr scanner = default_scanner );
 
     // Ditto but print the current lexeme, given its
@@ -823,8 +819,6 @@ namespace ll { namespace lexeme {
               uns32 first, uns32 last, uns32 type,
 	      unsigned & column,
 	      bool preface_with_space = false,
-	      unsigned indent = indent,
-	      unsigned line_length = line_length,
 	      scanner_ptr scanner = default_scanner );
 
     // Ditto but print the current erroneous atom.  The
@@ -835,8 +829,6 @@ namespace ll { namespace lexeme {
               uns32 first, uns32 last, uns32 type,
 	      unsigned & column,
 	      bool preface_with_space = false,
-	      unsigned indent = indent,
-	      unsigned line_length = line_length,
 	      scanner_ptr scanner = default_scanner );
 
     // Ditto but print the given string all on the
@@ -849,8 +841,7 @@ namespace ll { namespace lexeme {
 	      unsigned n,
 	      unsigned & column,
 	      bool preface_with_space = false,
-	      unsigned indent = indent,
-	      unsigned line_length = line_length );
+	      scanner_ptr scanner = default_scanner );
 
     // Return true if the translation buffer holds a
     // copy of scanner->input_buffer[first .. last].

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 18:55:09 EST 2010
+// Date:	Fri Dec  3 23:15:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,9 +36,6 @@ using namespace LEX;
 using namespace LEX::program_data;
 
 #define FOR(i,n) for ( uns32 i = 0; i < (n); ++ i )
-
-unsigned LEX::line_length = 72;
-unsigned LEX::indent = 4;
 
 // Data
 // ----
@@ -710,6 +707,8 @@ void LEX::init_scanner
 
     scanner->scan_trace_out = NULL;
     scanner->erroneous_atom = NULL;
+    scanner->line_length = 72;
+    scanner->indent = 4;
 
     scanner->next = 0;
 
@@ -1651,8 +1650,7 @@ static char * scan_error
 
     unsigned column = p - scanner->error_message;
     p += spinput ( p, next, next + length - 1,
-		   column, true, LEX::indent,
-		   LEX::line_length, scanner );
+		   column, true, scanner );
     * p ++ = '\n';
     return p;
 }
@@ -1831,11 +1829,12 @@ unsigned LEX::spstring
 	  const char * string, unsigned n,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length )
+	  scanner_ptr scanner )
 {
+    uns32 indent = scanner->indent;
     char * p = buffer;
     if (    column + preface_with_space + n
-         >= line_length )
+         >= scanner->line_length )
     {
         * p ++ = '\n';
 	while ( indent -- ) * p ++ = ' ';
@@ -1853,14 +1852,13 @@ unsigned LEX::spinput
 	( char * buffer, uns32 first, uns32 last,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length,
 	  scanner_ptr scanner )
 {
     if ( first > last )
         return spstring ( buffer, "<empty>", 7,
 	                  column,
 			  preface_with_space,
-			  indent, line_length );
+			  scanner );
 
     char * p = buffer;
     while ( first <= last )
@@ -1872,7 +1870,7 @@ unsigned LEX::spinput
 	p += spstring ( p, buffer2, n,
 	                column,
 			preface_with_space,
-			indent, line_length );
+			scanner );
 	preface_with_space = false;
     }
     return p - buffer;
@@ -1882,7 +1880,6 @@ unsigned LEX::sptranslation
 	( char * buffer,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length,
 	  scanner_ptr scanner )
 {
     buffer_ptr<uns32> translation_buffer =
@@ -1892,7 +1889,7 @@ unsigned LEX::sptranslation
         return spstring ( buffer, "<empty>", 7,
 	                  column,
 			  preface_with_space,
-			  indent, line_length );
+			  scanner );
 
     char * p = buffer;
     for ( unsigned i = 0;
@@ -1904,7 +1901,7 @@ unsigned LEX::sptranslation
 	p += spstring ( p, buffer2, n,
 	                column,
 			preface_with_space,
-			indent, line_length );
+			scanner );
 	preface_with_space = false;
     }
     return p - buffer;
@@ -1915,7 +1912,6 @@ unsigned LEX::splexeme
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length,
 	  scanner_ptr scanner )
 {
     buffer_ptr<inchar> input_buffer =
@@ -1937,18 +1933,15 @@ unsigned LEX::splexeme
     p += spstring ( p, buffer2, p2 - buffer2,
                     column,
 		    preface_with_space,
-		    indent, line_length );
+		    scanner );
     p += spinput ( p, first, last,
-                   column, true, indent, line_length );
+                   column, true, scanner );
     if ( ! translation_is_exact
                ( first, last, scanner ) )
     {
         p += spstring ( p, "translated to:", 14,
-	                column, true,
-			indent, line_length );
-	p += sptranslation ( p, column, true,
-	                     indent, line_length,
-			     scanner );
+	                column, true, scanner );
+	p += sptranslation ( p, column, true, scanner );
     }
     return p - buffer;
 }
@@ -1958,7 +1951,6 @@ unsigned LEX::sperroneous_atom
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
 	  bool preface_with_space,
-	  unsigned indent, unsigned line_length,
 	  scanner_ptr scanner )
 {
     buffer_ptr<inchar> input_buffer =
@@ -1980,10 +1972,9 @@ unsigned LEX::sperroneous_atom
     p += spstring ( p, buffer2, p2 - buffer2,
                     column,
 		    preface_with_space,
-		    indent, line_length );
+		    scanner );
     p += spinput ( p, first, last,
-                   column, true, indent, line_length,
-		   scanner );
+                   column, true, scanner );
     return p - buffer;
 }
 
@@ -2288,14 +2279,16 @@ static uns32 print_instruction
 }
 
 // Iterator that prints out a list of characters within
-// LEX::line_length columns.  `nonempty' if the list is
-// non-empty.  The list is indented by the given
+// scanner->line_length columns.  `nonempty' if the list
+// is non-empty.  The list is indented by the given
 // amount.  The user is responsible for the indent of
 // the first line if user_indent is true.
 //
 struct pclist {
     std::ostream & out;
         // Output stream.
+    LEX::scanner_ptr scanner;
+        // Scanner that provides line_length.
     int indent;
         // Indent set by constructor.
     bool user_indent;
@@ -2314,13 +2307,14 @@ struct pclist {
 	// delayed to allow c2 to grow.
 
     pclist ( std::ostream & out,
+             LEX::scanner_ptr scanner,
              int indent, bool user_indent = false )
-	: out ( out ),
+	: out ( out ), scanner ( scanner ),
 	  indent ( indent ), user_indent ( user_indent )
     {
-	assert ( line_length - indent >= 30 );
+	assert ( scanner->line_length - indent >= 30 );
         empty = true;
-	columns = line_length - indent;
+	columns = scanner->line_length - indent;
     }
 
     // Print c1-c2 (or just c1 if c1 == c2 ).  Precede
@@ -2343,7 +2337,7 @@ struct pclist {
 	* p = 0;
 	int needed = p - buffer;
 
-	if ( columns == line_length - indent )
+	if ( columns == scanner->line_length - indent )
 	{
 	    // If nothing on line, its our first line.
 	    //
@@ -2359,7 +2353,8 @@ struct pclist {
 	else
 	{
 	    out << endl << setw ( indent ) << "";
-	    columns = line_length - indent - needed;
+	    columns = scanner->line_length
+	            - indent - needed;
 	}
 
 	out << buffer;
@@ -2452,7 +2447,7 @@ static uns32 print_cooked_dispatcher
 	     mep[t].dispatcher_ID == 0 )
 	    continue;
 
-	pclist pcl ( out, IDwidth );
+	pclist pcl ( out, scanner, IDwidth );
 	for ( uns32 b = 0; b < h.break_elements; ++ b )
 	{
 	    uns32 cmin = bep[b].cmin;
@@ -2638,7 +2633,8 @@ uns32 LEX::print_program_component
 	    length += ( h.cmax - h.cmin + 4 ) / 4;
 	    for ( unsigned t = 0; t < 256; ++ t )
 	    {
-		pclist pcl ( out, IDwidth + 6, true );
+		pclist pcl ( out, scanner,
+		             IDwidth + 6, true );
 		for ( uns32 c = h.cmin;
 		      c <= h.cmax; ++ c )
 		{

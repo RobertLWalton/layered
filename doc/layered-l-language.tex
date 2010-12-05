@@ -1386,7 +1386,8 @@ Q type1 x;
 Q type1 * y;
 \end{verbatim}\end{indpar}
 
-Qualifiers may also be applied to code blocks.  A qualifier just before the
+Qualifiers may also be applied to code blocks.  Such are called
+`\skey{code qualifier}s'.  A qualifier just before the
 {\tt =} or \LEFTBRACKET{} that introduces the function body in a
 function definition applies to the code in the
 body.
@@ -1401,8 +1402,10 @@ int32 function2 () Q
 apply {\tt Q} to the body of the functions.
 
 A qualifier just before the name of a function in a function definition
-or declaration applies to calls to the function.  Such qualifiers are
-generally protection qualifiers.  For example,
+or declaration applies to calls to the function, and is said to be
+a `\key{call qualifier}' of the function.  Such qualifiers are
+generally protection qualifiers, inline qualifiers, or the
+`{\tt pure}' qualifier.  For example,
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 Q function3 ();
 int32 *& Q function4 ();
@@ -1453,8 +1456,9 @@ The `{\tt caller}' qualifier
 specifies that the location will last at least as long as the caller of
 a function.
 The `{\tt temp}' qualifier
-specifies that the location will last as long as no out-of-line function
-is called.
+specifies that the location will last as long as no `{\tt impure} function
+is called.  The `{\tt pure}' and `{\tt impure}' call qualifiers specify
+how function calls interact with `{\tt temp}' locations.
 
 \ikey{Traceable qualifiers}{traceable qualifier} may be declared that
 indicate that either a location or the value stored in a location
@@ -1557,6 +1561,8 @@ allocated by checked code are given the `{\tt static}' or
 Locations that are part of a function argument or return value
 are given the `{\tt caller}' lifetime qualifier by default.
 Other locations are given the `{\tt temp}' lifetime qualifier by default.
+The `{\tt temp}' qualifier makes use of two associated function 
+call qualifiers, `{\tt impure}' and `{\tt pure}.
 
 \begin{indpar}
 
@@ -1626,51 +1632,37 @@ The `{\tt caller}' lifetime qualifier may \underline{not} be used
 except in function argument and return value declarations.
 
 \hspace*{-1em}\ttkey{temp}~~~~~Specifies
-the location is valid until an out-of-line function is called.
-Only out-of-line functions may deallocate or reallocate the location.
+the location is valid until an `{\tt impure}' function is called.
+Only `{\tt impure}' functions may deallocate or reallocate the location.
 A function may return a `{\tt temp}' location to its caller,
-or pass a `{\tt temp}' location to a called function.  In the
-latter case the called function must not deallocate or reallocate
-any location except by itself calling an out-of-line function.
+or pass a `{\tt temp}' location to a called function.
 
-\hspace*{-1em}\ikey{Collectible Qualifiers}%
-{collectible qualifier}~~~~~Collectible
-qualifiers are declared by the programmer and are used to tag
-memory locations that can be garbage collected.
+Out-of-line functions are `{\tt impure}' by default.  A `{\tt pure}'
+function may \underline{not} call an `{\tt impure}' function, and
+in particular, cannot suffer an interrupt or exception.  Inlined
+functions are by default neither `{\tt pure}' or `{\tt impure}'; they
+are simply inserted as if they were part of their caller, and may
+contain calls to either `{\tt pure}' or `{\tt impure}' functions.
 
-Addresses of collectible locations may only be written by checked
-code into stack locations
-that are declared to be addresses of
-locations with the same collectible
-qualifier.  Such locations can be generated in the stack by checked
-code to hold addresses temporarily, or may be explicitly allocated
-to the stack.  Often addresses of collectible locations are made
-traceable so the garbage collector can find them in the stack:
-see \secref{TRACEABLE-QUALIFIERS}.
+The assumption is that only `{\tt impure}' functions can deallocate
+or reallocate locations.  It is further assumed that interrupts
+are the equivalent of out-of-line function calls.  In actual practice,
+only `{\tt unchecked}' functions can deallocate or reallocate locations,
+so it is up to the user to declare all such functions `{\tt impure}'
+or `{\tt outline}'.
 
-Functions whose bodies are given a collectible qualifier may write
-addresses to locations with this qualifier to non-stack
-locations declared as containing an address to a location with
-the same collectible qualifier.
-These functions generally have to perform
-other operations related to garbage collection, such as
-maintaining reference counts or garbage collection flags
-when addresses are written.
 
 \end{indpar}
 
 An address of a location with any lifetime qualifier
-(including the default `{\tt caller}')
 may \underline{not} be re-cast as the address of a location
-with a different lifetime qualifier (here two different
-collectible qualifiers are considered to be different),
+with a different lifetime qualifier,
 with the exception that the address of a location with
 a `{\tt static}', `{\tt stack}', or collectible qualifier
 \underline{may} be re-cast as the an address of a location with a
-`{\tt caller}' qualifier.  Note that this means that a location
-with collectible qualifier whose address is passed by a caller
-to a called function must be protected from garbage collection
-by the caller.
+`{\tt caller}' qualifier, and the address of a location with
+any lifetime qualifier may be re-cast as the an address of a location
+with a `{\tt temp}' qualifier.
 
 \subsubsection{Traceable Qualifiers}
 \label{TRACEABLE-QUALIFIERS}

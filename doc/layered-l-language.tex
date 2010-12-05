@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 4, 2010
+December 5, 2010
  
 \end{center}
 
@@ -695,7 +695,7 @@ that might hold pointers into blocks in the heap.
 Code RAM blocks may be static, stack, or heap blocks.
 
 \subsection{Pointer Types}
-\label{Pointer Types}
+\label{POINTER-TYPES}
 
 The standard pointer type is denoted by `{\tt *}', but
 additional pointer types may be defined by
@@ -1459,11 +1459,11 @@ is called.
 \ikey{Traceable qualifiers}{traceable qualifier} may be declared that
 indicate that either a location or the value stored in a location
 must be known to garbage collectors or similar system maintenance
-activities.  There are two kinds of traceable qualifiers:
-\skey{traceable location qualifier}s specify that a location stored in
+activities.  There are two builtin traceable qualifiers:
+The `{\tt traceable location}' qualifier specifies that a location stored in
 static memory or a thread stack must be findable by system maintenance
 activities,
-and \skey{traceable value qualifier}s specify that a location can only
+and the `{traceable value}' qualifier specifies that a location can only
 hold values of which copies appear in static or thread stack locations
 that are findable by system maintenance activities.
 
@@ -1674,6 +1674,34 @@ by the caller.
 
 \subsubsection{Traceable Qualifiers}
 \label{TRACEABLE-QUALIFIERS}
+
+There are two builtin traceable qualifiers: 
+
+\begin{indpar}
+
+\hspace*{-1em}\ttkey{traceable location}~~~~~Specifies
+the location can be found by the appropriate trace operations.
+The location must also have either the `{\tt static}' or `{\tt stack}'
+qualifiers.  The traceable location qualifier is used to find
+data that must be modified in certain circumstances.
+
+\hspace*{-1em}\ttkey{traceable value}~~~~~Specifies that if the value
+of the location is stored in some `{\tt static}', `{\tt stack}',
+or `{\tt caller}' location, then the value
+can be found by the appropriate trace operations.
+In this case a traceable location datum is established implicitly that holds
+the value.  Once stored in a single implicit traceable location datum,
+a traceable value can be copied to many other locations
+in the stack or static memory.
+
+Traceable value locations are used to store pointers to garbage collectible
+data.  The `{\tt traceable value}' qualifier is usually attached to the
+types of such data.  A pointer type (\pagref{POINTER-TYPES})
+may be defined specifically so pointers of the given type
+may be identified as traceable values by qualifying the type
+with `{\tt traceable value}'.
+
+\end{indpar}
 
 \subsubsection{Caching Qualifiers}
 \label{CACHING-QUALIFIERS}

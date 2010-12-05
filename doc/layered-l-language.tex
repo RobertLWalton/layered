@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 28, 2010
+December 4, 2010
  
 \end{center}
 
@@ -1452,6 +1452,9 @@ is in the stack of the current thread.
 The `{\tt caller}' qualifier
 specifies that the location will last at least as long as the caller of
 a function.
+The `{\tt temp}' qualifier
+specifies that the location will last as long as no out-of-line function
+is called.
 
 \ikey{Traceable qualifiers}{traceable qualifier} may be declared that
 indicate that either a location or the value stored in a location
@@ -1547,14 +1550,13 @@ See \secref{QUALIFIER-INHERITANCE}.
 
 Lifetime qualifiers determine where pointers to locations can be stored.
 The four lifetime qualifiers are all builtin:  `{\tt static}', `{\tt stack}',
-`{\tt caller}', and `{\tt heap}'.
+`{\tt caller}', and `{\tt temp}'.
 Checked code can only allocate to static or stack memory, and locations
 allocated by checked code are given the `{\tt static}' or
 `{\tt stack}' qualifier accordingly.
 Locations that are part of a function argument or return value
 are given the `{\tt caller}' lifetime qualifier by default.
-
-TBD
+Other locations are given the `{\tt temp}' lifetime qualifier by default.
 
 \begin{indpar}
 
@@ -1622,6 +1624,14 @@ qualifiers could have been omitted.
 
 The `{\tt caller}' lifetime qualifier may \underline{not} be used
 except in function argument and return value declarations.
+
+\hspace*{-1em}\ttkey{temp}~~~~~Specifies
+the location is valid until an out-of-line function is called.
+Only out-of-line functions may deallocate or reallocate the location.
+A function may return a `{\tt temp}' location to its caller,
+or pass a `{\tt temp}' location to a called function.  In the
+latter case the called function must not deallocate or reallocate
+any location except by itself calling an out-of-line function.
 
 \hspace*{-1em}\ikey{Collectible Qualifiers}%
 {collectible qualifier}~~~~~Collectible
@@ -2022,6 +2032,9 @@ Note that \verb/&/ is left associative:
 $x$\verb/&/$y$\verb/&/$z$ $\equiv$
 ($x$\verb/&/$y$)\verb/&/$z$.
 \end{enumerate}
+
+\subsubsection{Inline Qualifiers}
+\label{INLINE-QUALIFIERS}
 
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}

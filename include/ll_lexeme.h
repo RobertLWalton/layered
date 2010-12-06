@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:27:05 EST 2010
+// Date:	Mon Dec  6 06:50:23 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	Data
 //	Program Construction
 //	Scanning
+//	Input Files
 //	Printing
 
 // Usage and Setup
@@ -107,6 +108,11 @@ namespace ll { namespace lexeme {
 	uns32	character;
     };
 
+    struct file_struct;
+    typedef min::packed_vec_insptr<file_struct,uns32>
+            file_ptr;
+        // See Input Files below.
+
     struct scanner_struct;
     typedef min::packed_struct_updptr<scanner_struct>
             scanner_ptr;
@@ -196,7 +202,7 @@ namespace ll { namespace lexeme {
 	// should also be saved and restored.
 	//
 	std::istream * read_input_istream;
-	inchar read_input_inchar;
+	file_ptr input_file;
 
 	// Output stream for tracing the scan.  If NULL,
 	// there is no tracing.  Defaults to NULL.
@@ -259,6 +265,10 @@ namespace ll { namespace lexeme {
 	char work[400];
 	    // Working buffer for producing components
 	    // of error_message.
+
+	// Working data for default_read_input.
+	//
+	inchar read_input_inchar;
     };
 
     extern scanner_ptr default_scanner;
@@ -717,6 +727,63 @@ namespace ll { namespace lexeme {
     uns32 scan
             ( uns32 & first, uns32 & last,
 	      scanner_ptr scanner = default_scanner );
+} }
+
+// Input Files
+// ----- -----
+
+namespace ll { namespace lexeme {
+
+    // A file is data char vector containing lines as
+    // NUL terminated UTF-8 character strings, plus
+    // another vector containing the offsets in the
+    // data vector of each file line.  A file may be
+    // presented in its entirety, or it may be presented
+    // as an std::istream that is read in one line at a
+    // time.  In the later case all the lines read so
+    // far may be saved in the file data, or only the
+    // last N lines may be saved, where N is called the
+    // `spool length'.
+    //
+    struct file_struct
+        // Header for vector containing line offsets.
+	// All other file information is stored in this
+	// header or in the data vector it points to.
+    {
+	const uns32 type;
+	const uns32 length;
+	const uns32 max_length;
+
+        min::gen file_name;
+	    // String naming file, or "stdin" etc.
+
+	buffer_ptr<char> data;
+	    // File data.
+
+	std::istream * istream;
+	    // If not NULL, data is read from this
+	    // istream and appended to the file data,
+	    // as necessary.  If NULL, entire file must
+	    // be stored in file data when file is
+	    // initialized.
+
+	uns32 spool_length;
+	    // If istream is not NULL, then if this is
+	    // 0 all file lines are stored in file data.
+	    // Otherwise must the last spool_length
+	    // lines are stored, and data is a circular
+	    // buffer (but lines are not split across
+	    // boundaries).  In this last case max_
+	    // length == spool_length.
+
+	uns32 line_number;
+	    // Line number of next line to be read from
+	    // istream, if istream != NULL.
+
+	uns32 offset;
+	    // Offset of next data element to be written
+	    // from istream input, if istream != NULL.
+    };
 } }
 
 // Printing

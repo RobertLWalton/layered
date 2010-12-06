@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  6 06:50:23 EST 2010
+// Date:	Mon Dec  6 10:06:37 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -784,6 +784,32 @@ namespace ll { namespace lexeme {
 	    // Offset of next data element to be written
 	    // from istream input, if istream != NULL.
     };
+
+    // Read an entire file into an input file.  Previous
+    // contents of the input file are lost, the input
+    // file istream is set NULL, and the input file
+    // spool_length is set to 0.
+    //
+    // If an error occurs, an error message is output to
+    // std::error and false is returned.  If there is no
+    // error, true is returned.
+    //
+    bool read ( file_ptr file, const char * file_name );
+
+    // Ditto but on an error put an error message into
+    // the given buffer instead of printing the message.
+    //
+    bool read ( file_ptr file,
+                char * buffer, uns32 buffer_size );
+
+    // Initialize an input file to read from the given
+    // std::istream.  Set the file name of the input
+    // file and the spool_length.
+    //
+    bool init_read ( file_ptr file,
+    		     std::istream & istream,
+                     const char * file_name,
+		     uns32 spool_length );
 } }
 
 // Printing

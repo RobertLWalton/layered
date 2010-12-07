@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  6 20:38:30 EST 2010
+// Date:	Tue Dec  7 10:04:01 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1836,6 +1836,8 @@ bool LEX::read_file
     file->line_number = 0;
     file->offset = 0;
 
+    min::resize
+	( file, uns32_buffer_type.initial_max_length );
     min::pop ( file, file->length, (uns32 *) NULL );
 
     // We use FILE IO because it is standard for C
@@ -1879,6 +1881,34 @@ bool LEX::read_file
     return true;
 }
 
+void LEX::init_stream ( file_ptr file,
+			std::istream & istream,
+			const char * file_name,
+			uns32 spool_length )
+{
+    file->file_name = min::new_str_gen ( file_name );
+    if ( file->data == NULL_STUB )
+         file->data =
+	     char_buffer_type.new_gen ();
+    else
+    {
+        min::resize
+	    ( file->data,
+	      char_buffer_type.initial_max_length );
+	min::pop
+	    ( file->data, file->data->length,
+	                  (char *) NULL );
+    }
+
+    file->istream = & istream;
+    file->spool_length = spool_length;
+    file->line_number = 0;
+    file->offset = 0;
+
+    min::resize
+	( file, uns32_buffer_type.initial_max_length );
+    min::pop ( file, file->length, (uns32 *) NULL );
+}
 
 // Printing
 // --------

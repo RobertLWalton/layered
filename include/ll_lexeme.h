@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  6 20:35:20 EST 2010
+// Date:	Tue Dec  7 10:04:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -809,7 +809,7 @@ namespace ll { namespace lexeme {
     // file and the spool_length.  The file is initial-
     // ized to the first line.
     //
-    bool init_stream ( file_ptr file,
+    void init_stream ( file_ptr file,
     		       std::istream & istream,
                        const char * file_name,
 		       uns32 spool_length );
@@ -818,7 +818,7 @@ namespace ll { namespace lexeme {
     // and have the given file name.  The data is NUL
     // terminated.
     //
-    bool init_string ( file_ptr file,
+    void init_string ( file_ptr file,
                        const char * file_name,
 		       const char * data );
 

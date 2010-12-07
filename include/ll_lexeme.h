@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  6 10:06:37 EST 2010
+// Date:	Mon Dec  6 20:35:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -777,39 +777,62 @@ namespace ll { namespace lexeme {
 	    // length == spool_length.
 
 	uns32 line_number;
-	    // Line number of next line to be read from
-	    // istream, if istream != NULL.
+	    // Line number of next line to be read.
 
 	uns32 offset;
-	    // Offset of next data element to be written
-	    // from istream input, if istream != NULL.
+	    // Offset of first data element of the next
+	    // line to be read.  If istream != NULL then
+	    // the line has not yet actually been read
+	    // from istream and put in data.
     };
+
+    // Create a new input file.
+    //
+    file_ptr create_file ( void );
 
     // Read an entire file into an input file.  Previous
     // contents of the input file are lost, the input
     // file istream is set NULL, and the input file
-    // spool_length is set to 0.
+    // spool_length is set to 0.  The file is initial-
+    // ized to the first line of the file.
     //
-    // If an error occurs, an error message is output to
-    // std::error and false is returned.  If there is no
-    // error, true is returned.
+    // If an error occurs, an error message is put into
+    // the buffer and std::error is returned.  If there
+    // is no error, true is returned.
     //
-    bool read ( file_ptr file, const char * file_name );
-
-    // Ditto but on an error put an error message into
-    // the given buffer instead of printing the message.
-    //
-    bool read ( file_ptr file,
-                char * buffer, uns32 buffer_size );
+    bool read_file ( file_ptr file,
+                     const char * file_name,
+                     char error_message[512] );
 
     // Initialize an input file to read from the given
     // std::istream.  Set the file name of the input
-    // file and the spool_length.
+    // file and the spool_length.  The file is initial-
+    // ized to the first line.
     //
-    bool init_read ( file_ptr file,
-    		     std::istream & istream,
-                     const char * file_name,
-		     uns32 spool_length );
+    bool init_stream ( file_ptr file,
+    		       std::istream & istream,
+                       const char * file_name,
+		       uns32 spool_length );
+
+    // Initialize file to contain the given data string
+    // and have the given file name.  The data is NUL
+    // terminated.
+    //
+    bool init_string ( file_ptr file,
+                       const char * file_name,
+		       const char * data );
+
+    // Return next line.  Return NULL if end of file
+    // or error.
+    //
+    const char * next_line ( file_ptr file );
+
+    // Return the line with the given line number.
+    // If the line is has not yet been read with next_
+    // line, return NULL.
+    //
+    const char * line ( file_ptr file,
+    			uns32 line_number );
 } }
 
 // Printing

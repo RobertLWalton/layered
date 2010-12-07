@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:15:34 EST 2010
+// Date:	Mon Dec  6 20:38:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,16 +15,20 @@
 //	Program Construction
 //	Scanning
 //	Reading
+//	Input Files
 //	Printing
 
 // Usage and Setup
 // ----- --- -----
 
 # include <ll_lexeme_program_data.h>
+# include <min_os.h>
 # include <iostream>
 # include <iomanip>
 # include <cstdlib>
 # include <cstring>
+# include <cstdio>
+# include <cerrno>
 # include <cassert>
 # define LEX ll::lexeme
 using std::cout;
@@ -43,6 +47,12 @@ using namespace LEX::program_data;
 static min::packed_struct<LEX::scanner_struct>
        scanner_type
            ( "ll::lexeme::scanner" );
+static min::packed_vec<LEX::file_struct,LEX::uns32>
+       file_type
+           ( "ll::lexeme::file" );
+static min::packed_vec<LEX::buffer_header,char>
+       char_buffer_type
+           ( "ll::lexeme::buffer<char>" );
 static min::packed_vec<LEX::buffer_header,LEX::uns32>
        uns32_buffer_type
            ( "ll::lexeme::buffer<uns32>" );
@@ -1774,6 +1784,101 @@ static uns32 default_read_input
     scanner->read_input_inchar = read_input_inchar;
     return 1;
 }
+
+// Input Files
+// ----- -----
+
+file_ptr LEX::create_file ( void )
+{
+   return file_ptr ( file_type.new_gen() );
+}
+
+bool LEX::read_file
+	( file_ptr file,
+	  const char * file_name,
+	  char error_message[512] )
+{
+    // Use OS independent min::os::file_size.
+    //
+    min::uns64 file_size;
+    if ( ! min::os::file_size
+               ( file_size, file_name, error_message ) )
+        return false;
+
+    if ( file_size >= ( 1ull << 32 ) )
+    {
+        sprintf ( error_message,
+	          "ERROR: file %s too large (%llu)",
+		  file_name, file_size );
+	return false;
+    }
+
+    file->file_name = min::new_str_gen ( file_name );
+    if ( file->data == NULL_STUB )
+         file->data =
+	     char_buffer_type.new_gen
+	         ( (min::uns32) file_size,
+		   (min::uns32) file_size );
+    else
+    {
+        min::resize
+	    ( file->data, (min::uns32) file_size );
+	min::pop
+	    ( file->data, file->data->length,
+	                  (char *) NULL );
+	min::push
+	    ( file->data, file->data->max_length,
+	                  (const char *) NULL );
+    }
+
+    file->istream = NULL;
+    file->spool_length = 0;
+    file->line_number = 0;
+    file->offset = 0;
+
+    min::pop ( file, file->length, (uns32 *) NULL );
+
+    // We use FILE IO because it is standard for C
+    // while open/read is OS dependent.
+
+    FILE * in = fopen ( file_name, "r" );
+
+    if ( in == NULL )
+    {
+        sprintf ( error_message,
+	          "ERROR: opening file %s\n"
+	          "       %s",
+		  file_name,
+		  strerror ( errno ) );
+	return false;
+    }
+
+    errno = 0;
+    min::uns64 bytes =
+        fread ( & file->data[0], 1,
+	        (size_t) file_size, in );
+    if ( bytes != file_size )
+    {
+	if ( errno != 0 )
+	    sprintf ( error_message,
+		      "ERROR: reading file %s\n"
+		      "       %s",
+		      file_name,
+		      strerror ( errno ) );
+	else
+	    sprintf ( error_message,
+		      "ERROR: reading file %s\n"
+		      "       only %llu bytes"
+		            " out of %llu read",
+		      file_name, bytes, file_size );
+	fclose ( in );
+	return false;
+    }
+
+    fclose ( in );
+    return true;
+}
+
 
 // Printing
 // --------

@@ -60,8 +60,9 @@ static min::packed_vec<LEX::buffer_header,LEX::inchar>
        inchar_buffer_type
            ( "ll::lexeme::buffer<inchar>" );
 
-LEX::scanner_ptr LEX::default_scanner = LEX::NULL_STUB;
-
+static min::static_stub<1> default_scanner_stub;
+LEX::scanner_ptr & LEX::default_scanner =
+    * (LEX::scanner_ptr *) & default_scanner_stub[0];
 
 // Program Construction
 // ------- ------------

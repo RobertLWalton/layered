@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 00:54:30 EST 2010
+// Date:	Wed Dec  8 01:05:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -271,7 +271,7 @@ namespace ll { namespace lexeme {
 	inchar read_input_inchar;
     };
 
-    extern scanner_ptr default_scanner;
+    extern scanner_ptr & default_scanner;
 
 } }
 

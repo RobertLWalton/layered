@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 10:04:01 EST 2010
+// Date:	Tue Dec  7 17:26:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1805,7 +1805,7 @@ bool LEX::read_file
                ( file_size, file_name, error_message ) )
         return false;
 
-    if ( file_size >= ( 1ull << 32 ) )
+    if ( file_size >= ( 1ull << 32 ) - 1 )
     {
         sprintf ( error_message,
 	          "ERROR: file %s too large (%llu)",
@@ -1817,17 +1817,17 @@ bool LEX::read_file
     if ( file->data == NULL_STUB )
          file->data =
 	     char_buffer_type.new_gen
-	         ( (min::uns32) file_size,
+	         ( (min::uns32) file_size + 1,
 		   (min::uns32) file_size );
     else
     {
         min::resize
-	    ( file->data, (min::uns32) file_size );
+	    ( file->data, (min::uns32) file_size + 1 );
 	min::pop
 	    ( file->data, file->data->length,
 	                  (char *) NULL );
 	min::push
-	    ( file->data, file->data->max_length,
+	    ( file->data, file_size,
 	                  (const char *) NULL );
     }
 
@@ -1878,6 +1878,7 @@ bool LEX::read_file
     }
 
     fclose ( in );
+    min::push ( file->data, (char) 0 );
     return true;
 }
 
@@ -1908,6 +1909,66 @@ void LEX::init_stream ( file_ptr file,
     min::resize
 	( file, uns32_buffer_type.initial_max_length );
     min::pop ( file, file->length, (uns32 *) NULL );
+}
+
+void LEX::init_string ( file_ptr file,
+			const char * file_name,
+			const char * data )
+{
+    file->file_name = min::new_str_gen ( file_name );
+    uns64 length = strlen ( data );
+
+    assert ( length <( 1ull << 32 ) - 1 );
+
+    if ( file->data == NULL_STUB )
+         file->data =
+	     char_buffer_type.new_gen
+	         ( (min::uns32) length + 1 );
+    else
+    {
+        min::resize
+	    ( file->data, (min::uns32) length + 1 );
+	min::pop
+	    ( file->data, file->data->length,
+	                  (char *) NULL );
+    }
+    min::push ( file->data,
+                (min::uns32) length + 1, data );
+
+    file->istream = NULL;
+    file->spool_length = 0;
+    file->line_number = 0;
+    file->offset = 0;
+
+    min::resize
+	( file, uns32_buffer_type.initial_max_length );
+    min::pop ( file, file->length, (uns32 *) NULL );
+}
+
+uns32 LEX::next_line ( file_ptr file )
+{
+    uns32 length;
+    if ( file->istream != NULL )
+    {
+    }
+    else
+    {
+        if ( file->offset == file->data->length )
+	    return NO_LINE;
+
+        char * p = & file->data[file->offset];
+	char * q = p;
+	while ( * p && * p != '\n' ) ++ *p;
+	* p = 0;
+	length = p - q;
+    }
+
+    uns32 offset = file->offset;
+    min::push ( file, offset );
+    file->offset += length + 1;
+    assert ( file->offset <= file->data->length );
+    ++ file->line_number;
+    return offset;
 }
 
 // Printing

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 10:04:43 EST 2010
+// Date:	Wed Dec  8 00:54:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -822,17 +822,24 @@ namespace ll { namespace lexeme {
                        const char * file_name,
 		       const char * data );
 
-    // Return next line.  Return NULL if end of file
-    // or error.
+    // NO_LINE denotes a missing line, possibly caused
+    // by an end of file, in cases where a char vector
+    // offset is returned.
     //
-    const char * next_line ( file_ptr file );
+    const uns32 NO_LINE = 0xFFFFFFFF;
 
-    // Return the line with the given line number.
-    // If the line is has not yet been read with next_
-    // line, return NULL.
+    // Return offset of next line in file->data.  Return
+    // NO_LINE if end of file or input error.
     //
-    const char * line ( file_ptr file,
-    			uns32 line_number );
+    uns32 next_line ( file_ptr file );
+
+    // Return offset in file->data of the line with the
+    // given line number.  If the line is has not yet
+    // been read with next_line, or is no longer in the
+    // spool when istream != NULL and spool_length > 0,
+    // return NO_LINE.
+    //
+    uns32 line ( file_ptr file, uns32 line_number );
 } }
 
 // Printing

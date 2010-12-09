@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 01:05:26 EST 2010
+// Date:	Wed Dec  8 21:28:51 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,6 +65,18 @@ namespace ll { namespace lexeme {
 	    : min::packed_vec_insptr<buffer_header,T>
 	        () {}
     };
+
+    template < typename S, typename T >
+    inline uns32 DISP ( buffer_ptr<T> S::* d )
+    {
+        buffer_ptr<T> * p = (buffer_ptr<T> *) NULL;
+	uns32 offset = (char *)
+	               (min::packed_vec_insptr
+			         <buffer_header,T> *) p
+		     - (char *) p;
+
+        return min::OFFSETOF ( d ) + offset;
+    }
 
     // Allocate n elements in a buffer and return the
     // index of the first element.

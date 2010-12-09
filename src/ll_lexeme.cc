@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 17:26:55 EST 2010
+// Date:	Wed Dec  8 21:28:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,12 +44,31 @@ using namespace LEX::program_data;
 // Data
 // ----
 
+static uns32 scanner_stub_disp[] =
+    { LEX::DISP ( & LEX::scanner_struct::program ),
+      LEX::DISP ( & LEX::scanner_struct::input_buffer ),
+      LEX::DISP ( & LEX::scanner_struct
+                       ::translation_buffer ),
+      min::DISP ( & LEX::scanner_struct::input_file ),
+      min::DISP_END };
+
 static min::packed_struct<LEX::scanner_struct>
        scanner_type
-           ( "ll::lexeme::scanner" );
+           ( "ll::lexeme::scanner",
+	     NULL, ::scanner_stub_disp );
+
+static uns32 file_gen_disp[] =
+    { min::DISP ( & LEX::file_struct::file_name ),
+      min::DISP_END };
+static uns32 file_stub_disp[] =
+    { LEX::DISP ( & LEX::file_struct::data ),
+      min::DISP_END };
+
 static min::packed_vec<LEX::file_struct,LEX::uns32>
        file_type
-           ( "ll::lexeme::file" );
+           ( "ll::lexeme::file",
+	     ::file_gen_disp, ::file_stub_disp );
+
 static min::packed_vec<LEX::buffer_header,char>
        char_buffer_type
            ( "ll::lexeme::buffer<char>" );

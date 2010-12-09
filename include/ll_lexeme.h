@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 21:28:51 EST 2010
+// Date:	Thu Dec  9 05:10:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -843,6 +843,11 @@ namespace ll { namespace lexeme {
     // Return offset of next line in file->data.  Return
     // NO_LINE if end of file or input error.
     //
+    // If file->instream != NULL and file->spool_length
+    // > 0, the returned value remains valid ONLY until
+    // the next call to next_line, as these calls shift
+    // lines in file->data.
+    //
     uns32 next_line ( file_ptr file );
 
     // Return offset in file->data of the line with the
@@ -850,6 +855,11 @@ namespace ll { namespace lexeme {
     // been read with next_line, or is no longer in the
     // spool when istream != NULL and spool_length > 0,
     // return NO_LINE.
+    //
+    // If file->instream != NULL and file->spool_length
+    // > 0, the returned value remains valid ONLY until
+    // the next call to next_line, as these calls shift
+    // lines in file->data.
     //
     uns32 line ( file_ptr file, uns32 line_number );
 } }

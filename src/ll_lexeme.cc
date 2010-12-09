@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 21:28:30 EST 2010
+// Date:	Thu Dec  9 05:15:24 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1970,6 +1970,46 @@ uns32 LEX::next_line ( file_ptr file )
     uns32 length;
     if ( file->istream != NULL )
     {
+	uns32 file_offset =
+	    file->length - file->spool_length;
+
+	if (    file->spool_length > 0
+	     && file->spool_length <= file->length
+	     &&     2 * file[file_offset]
+	        >=  file->data->length )
+	{
+	    // Perform downshift of file vector and
+	    // file->data.
+	    //
+	    uns32 data_offset = file[file_offset];
+	    memcpy ( & file->data[0],
+	             & file->data[data_offset],
+		     file->data->length - data_offset );
+	    min::pop ( file->data, data_offset,
+	               (char *) NULL );
+	    memcpy ( & file[0], & file[file_offset],
+	               sizeof ( uns32 )
+		     * file->spool_length );
+	    min::pop ( file, file_offset,
+	               (uns32 *) NULL );
+	    for ( uns32 i = 0; i < file->length; ++ i )
+	        file[i] -= data_offset;
+	    file->offset = file->data->length;
+	}
+
+	// Input line.
+	//
+    	length = 0;
+	int c;
+	while ( c = file->istream->get(),
+	        c != EOF && c != '\n' )
+	{
+	    min::push ( file->data, (char) c );
+	    ++ length;
+	}
+	if ( length == 0 && c == EOF )
+	    return NO_LINE;
+	min::push ( file->data, (char) 0 );
     }
     else
     {

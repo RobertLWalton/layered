@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  9 05:10:20 EST 2010
+// Date:	Thu Dec  9 16:55:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -790,12 +790,17 @@ namespace ll { namespace lexeme {
 
 	uns32 line_number;
 	    // Line number of next line to be read.
+	    // Equals number of lines read so far by
+	    // next_line.
 
 	uns32 offset;
 	    // Offset of first data element of the next
 	    // line to be read.  If istream != NULL then
-	    // the line has not yet actually been read
-	    // from istream and put in data.
+	    // this equals data->length and the line has
+	    // not yet actually been read from istream
+	    // and put in data.  If istream == NULL then
+	    // this equals data->length iff there are no
+	    // more lines in the input.
     };
 
     // Create a new input file.

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  9 05:15:24 EST 2010
+// Date:	Thu Dec  9 16:57:44 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1967,19 +1967,26 @@ void LEX::init_string ( file_ptr file,
 
 uns32 LEX::next_line ( file_ptr file )
 {
-    uns32 length;
+    uns32 length;  // Length of next line.
+
     if ( file->istream != NULL )
     {
 	uns32 file_offset =
 	    file->length - file->spool_length;
 
+	// If spooling and unused data is 1/2 of total
+	// data perform downshift to eliminate unused
+	// data and file elements.
+	//
 	if (    file->spool_length > 0
 	     && file->spool_length <= file->length
 	     &&     2 * file[file_offset]
 	        >=  file->data->length )
 	{
 	    // Perform downshift of file vector and
-	    // file->data.
+	    // file->data.  First file_offset elements
+	    // of file vector are unused and eliminated,
+	    // as are first data_offset chars of data.
 	    //
 	    uns32 data_offset = file[file_offset];
 	    memcpy ( & file->data[0],
@@ -1999,14 +2006,12 @@ uns32 LEX::next_line ( file_ptr file )
 
 	// Input line.
 	//
-    	length = 0;
 	int c;
 	while ( c = file->istream->get(),
 	        c != EOF && c != '\n' )
-	{
 	    min::push ( file->data, (char) c );
-	    ++ length;
-	}
+
+	length = file->data->length - file->offset;
 	if ( length == 0 && c == EOF )
 	    return NO_LINE;
 	min::push ( file->data, (char) 0 );
@@ -2029,6 +2034,23 @@ uns32 LEX::next_line ( file_ptr file )
     assert ( file->offset <= file->data->length );
     ++ file->line_number;
     return offset;
+}
+
+uns32 LEX::line ( file_ptr file, uns32 line_number )
+{
+    if ( line_number >= file->line_number )
+        return NO_LINE;
+    else if ( file->spool_length == 0 )
+        return file[line_number];
+    else if ( file->spool_length >= file->length )
+        return file[line_number];
+    else if (   file->spool_length
+              < file->line_number - line_number )
+        return NO_LINE;
+    else
+        return file[  file->length
+	            - (   file->line_number
+		        - line_number)];
 }
 
 // Printing

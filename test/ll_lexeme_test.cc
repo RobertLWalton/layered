@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:21:25 EST 2010
+// Date:	Fri Dec 10 11:53:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,44 +79,6 @@ static uns32   lex_line = 0;
 static uns32   lex_index = 0;
 static uns32   lex_column = 0;
 
-static void set_lex_input ( uns32 * input, uns32 length )
-{
-    lex_input = input;
-    lex_input_length = length;
-    lex_line = 0;
-    lex_index = 0;
-    lex_column = 0;
-}
-static uns32 read_input ( LEX::scanner_ptr scanner )
-{
-    if ( lex_input == NULL ) return 0;
-
-    LEX::buffer_ptr<LEX::inchar> input_buffer =
-        scanner->input_buffer;
-
-    uns32 p = LEX::allocate
-        ( input_buffer, lex_input_length );
-    for ( uns32 i = 0; i < lex_input_length; ++ i )
-    {
-        input_buffer[p+i].character = lex_input[i];
-        input_buffer[p+i].line = lex_line;
-        input_buffer[p+i].index = lex_index;
-        input_buffer[p+i].column = lex_column;
-
-	if ( lex_input[i] == '\n' ) ++ lex_line;
-
-	if ( lex_input[i] == '\n' ) lex_column = 0;
-	else if ( lex_input[i] == '\f' ) lex_column = 0;
-	else if ( lex_input[i] == '\v' ) lex_column = 0;
-	else if ( lex_input[i] == '\t' )
-	    lex_column += 8 - ( lex_column % 8 ); 
-	else
-	    ++ lex_column;
-	++ lex_index;
-    }
-    lex_input = NULL;
-    return 1;
-}
 
 // Program Construction Test
 // ------- ------------ ----
@@ -573,18 +535,17 @@ static void erroneous_atom
 }
 
 void test_program
-    ( uns32 * input, uns32 length, bool trace = false )
+    ( const char * input, bool trace = false )
 {
     cout << endl
          << "Testing Lexical Scan of:" << endl;
-    for ( uns32 i = 0; i < length; ++ i )
-        cout << LEX::pchar ( input[i] );
+    for ( const char * p = input; * p; ++ p )
+        cout << LEX::pchar ( * p );
     cout << endl << endl;
 
-    set_lex_input ( input, length );
-
     LEX::init_scanner();
-    LEX::default_scanner->read_input = & ::read_input;
+    LEX::init_string ( LEX::default_scanner->input_file,
+                       "test", input );
     LEX::default_scanner->erroneous_atom =
         ::erroneous_atom;
     if ( trace )
@@ -622,22 +583,11 @@ int main ( int argc )
 
     create_program_1();
     create_program_2();
-    uns32 input1[14] = {
-        ' ', 'a', 'b',
-	' ', '3', '.', '4',
-	' ', 'x', '+', 'y', '+', '+', 'z' };
-    test_program ( input1, 14 );
-    uns32 input2[41] = {
-        '*', 'a', '*', '*',
-        'b', '+', '+', '+',
-	'c', '(', '+', 'd', 0177, 'e',
-	'%', 'f', '0',
-	'-', '-', '1', '.', '2', '.', '3',
-	0, 1,
-	'A', '\\', '1', '0', '2',
-	'C', '\\', '1', '0', '0',
-	'D', '\\', '1', '0',
-	'E' };
-    test_program ( input2, 41 );
-    test_program ( input2, 41, true );
+    const char * input1 = " ab 3.4 x+y++z";
+    test_program ( input1 );
+    const char * input2 = "*a**b+++c(+d\177e"
+                          "%f0--1.2.3\001\002"
+			  "A\\102C\\100D\\10E";
+    test_program ( input2 );
+    test_program ( input2, true );
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  9 16:57:44 EST 2010
+// Date:	Fri Dec 10 01:04:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -707,15 +707,19 @@ static bool is_recursive
 // statements check this).  Everything else found
 // wrong with the program is a SCAN_ERROR.
 
-static uns32 default_read_input
+static bool default_read_input
 	( LEX::scanner_ptr scanner );
 void LEX::init_scanner
 	( scanner_ptr & scanner,
 	  program_ptr program )
 {
+    min::static_stub<1> scanner_vec;
+
     if ( scanner == NULL_STUB )
     {
         scanner = scanner_type.new_gen();
+	scanner_vec[0] = scanner;
+
 	scanner->input_buffer =
 	    inchar_buffer_type.new_gen();
 	scanner->translation_buffer =
@@ -724,16 +728,21 @@ void LEX::init_scanner
     }
     else
     {
+	scanner_vec[0] = scanner;
 	reset ( scanner->input_buffer );
 	reset ( scanner->translation_buffer );
     }
+
     if ( program != NULL_STUB )
 	scanner->program = program;
 
     scanner->read_input = ::default_read_input;
-    scanner->read_input_istream = & std::cin;
-    memset ( & scanner->read_input_inchar, 0,
-             sizeof ( scanner->read_input_inchar ) );
+
+    if ( scanner->input_file == NULL_STUB )
+	scanner->input_file = create_file();
+    init_stream
+        ( scanner->input_file,
+	  std::cin, "standard input", 0 );
 
     scanner->scan_trace_out = NULL;
     scanner->erroneous_atom = NULL;
@@ -1688,28 +1697,26 @@ static char * scan_error
 // Reading
 // -------
 
-static uns32 default_read_input
+static bool default_read_input
 	( LEX::scanner_ptr scanner )
 {
+    LEX::file_ptr file = scanner->input_file;
+
+    LEX::uns32 offset = LEX::next_line ( file );
+    if ( offset == LEX::NO_LINE ) return false;
+
     LEX::buffer_ptr<LEX::inchar> input_buffer =
         scanner->input_buffer;
-    LEX::inchar read_input_inchar =
-        scanner->read_input_inchar;
 
-    uns32 i = allocate ( input_buffer, 100 );
-    uns32 endi = i + 100;
-    while ( i < endi )
+    LEX::inchar ic;
+    ic.line = file->line_number - 1;
+    ic.index = 0;
+    ic.column = 0;
+
+    int c;
+    while ( c = file->data[offset++] )
     {
-        int c = scanner->read_input_istream->get();
 	unsigned bytes_read = 1;
-
-	if ( c == EOF )
-	{
-	    deallocate ( input_buffer, endi - i );
-	    scanner->read_input_inchar =
-		read_input_inchar;
-	    return ( endi - i < 100 );
-	}
 
 	c &= 0xFF;
 
@@ -1753,9 +1760,9 @@ static uns32 default_read_input
 
 	while ( extra_characters -- )
 	{
-	    c = scanner->read_input_istream->get();
+	    c = file->data[offset++];
 
-	    if ( c == EOF )
+	    if ( c == 0 )
 	    {
 	        unicode = 0xFFFFFFFF;
 		break;
@@ -1773,36 +1780,35 @@ static uns32 default_read_input
 	    unicode |= ( c & 0x3F );
 	}
 
-	read_input_inchar.character = unicode;
-	input_buffer[i++] = read_input_inchar;
+	ic.character = unicode;
+	min::push ( input_buffer, ic );
 
-	read_input_inchar.index += bytes_read;
+	ic.index += bytes_read;
 
 	switch ( unicode )
 	{
-	case '\n':
-	    ++ read_input_inchar.line;
-	    read_input_inchar.column = 0;
-	    read_input_inchar.index = 0;
-	    break;
-
 	case '\f':
 	case '\v':
-	    read_input_inchar.column = 0;
 	    break;
 
 	case '\t':
-	    read_input_inchar.column +=
-	        8 - read_input_inchar.column % 8;
+	    ic.column += 8 - ic.column % 8;
 	    break;
 
 	default:
-	    ++ read_input_inchar.column;
+	    ++ ic.column;
 	    break;
 	}
+
+	// Handle premature end of UTF-8 encode UNICODE
+	// character.
+	//
+	if ( c == 0 ) break;
     }
-    scanner->read_input_inchar = read_input_inchar;
-    return 1;
+
+    ic.character = '\n';
+    min::push ( input_buffer, ic );
+    return true;
 }
 
 // Input Files
@@ -2023,7 +2029,7 @@ uns32 LEX::next_line ( file_ptr file )
 
         char * p = & file->data[file->offset];
 	char * q = p;
-	while ( * p && * p != '\n' ) ++ *p;
+	while ( * p && * p != '\n' ) ++ p;
 	* p = 0;
 	length = p - q;
     }

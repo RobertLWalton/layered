@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  9 16:55:55 EST 2010
+// Date:	Thu Dec  9 22:50:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -161,59 +161,40 @@ namespace ll { namespace lexeme {
 
 	// Input one or more inchar elements to the end
 	// of the input buffer vector, increasing the
-	// length of the buffer as neccessary.  Return 1
-	// if this is done, and 0 if there are no more
-	// characters because we are at the end of file.
-	// Initialized to the default value described
-	// below.
+	// length of the buffer as neccessary.  Return
+	// true if this is done, and false if there are
+	// no more characters because we are at the end
+	// of file.  Initialized to the default value
+	// described below.
 	//
-	uns32 (*read_input) ( scanner_ptr s );
+	bool (*read_input) ( scanner_ptr s );
 
 	// The default value of read_input reads UTF-8
-	// characters from the read_input_istream and
-	// assigns the UNICODE characters produced the
-	// line, index, and column numbers in read_
-	// input_inchar.  After putting a UNICODE char-
-	// acter into the input_buffer, the line, index,
-	// and column numbers in read_input_inchar are
-	// updated as follows:
+	// lines from the input_file and assigns each
+	// UNICODE character a line, index, and column
+	// number as follows:
 	//
-	//   line   Incremented by 1 after a line feed
-	//	    is added to the input buffer.
+	//   line   input_file->line_number - 1 after
+	//	    calling next_line(input_file).
 	//
-	//   index  Set to 0 after a line feed is added
-	//	    to the input buffer; otherwise
+	//   index  Set to 0 at beginning of line and
 	//	    incremented by the number of UTF-8
-	//          bytes that encode the UNICODE
+	//          bytes that encode each UNICODE
 	//          character added to the input buffer.
 	//
-	//   column Set to 0 after adding a line feed,
-	//	    form feed, or vertical tab to the
-	//          input buffer; set to next multiple
-	//          of 8 after adding a tab to the input
-	//	    buffer; incremented by the character
-	//	    width after adding any other UNICODE
-	//	    character to the input buffer.
+	//   column Set to 0 at the beginning of a line;
+	//          set to next multiple of 8 after add-
+	//	    ing a tab to the input buffer;
+	//	    incremented by the character width
+	//	    after adding any other UNICODE char-
+	//	    acter to the input buffer.
 	//
-	// Read_input_istream is initialized to `& cin'
-	// and read_input_inchar is initialized to all
-	// zeroes.
+	// Input_file should be set using create_file
+	// and one of read_file, init_stream, or init_
+	// string.  Its default value is set by init_
+	// stream with istream cin, file name "standard
+	// input", and spool_length == 0.
 	//
-	// It is possible to save the state of the input
-	// and restore it by saving and restoring the
-	// contents of:
-	//
-	//		read_input
-	//		read_input_istream
-	//		read_input_inchar
-	//
-	// This may be done when including files.  Care
-	// must be taken that the input_buffer ends
-	// with the last character of the file include
-	// statement, or else input_buffer[next ...]
-	// should also be saved and restored.
-	//
-	std::istream * read_input_istream;
 	file_ptr input_file;
 
 	// Output stream for tracing the scan.  If NULL,
@@ -274,13 +255,11 @@ namespace ll { namespace lexeme {
 	    // elements (0 is first and return_stack_p
 	    // - 1 element is top).
 
+	// Work areas:
+
 	char work[400];
 	    // Working buffer for producing components
 	    // of error_message.
-
-	// Working data for default_read_input.
-	//
-	inchar read_input_inchar;
     };
 
     extern scanner_ptr & default_scanner;

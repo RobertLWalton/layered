@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 5, 2010
+December 11, 2010
  
 \end{center}
 
@@ -2055,6 +2055,18 @@ $x$\verb/&/$y$\verb/&/$z$ $\equiv$
 
 \subsubsection{Inline Qualifiers}
 \label{INLINE-QUALIFIERS}
+
+To `\key{inline}' a function is to replace the code calling the function
+with the code of the function body.
+For optimal performance functions should be inlined, so that
+is the default.
+
+Inlining is controlled by two builtin qualifiers: `\ttkey{inline}' and
+`\ttkey{outline}'.  These are applied to function bodies and other
+code blocks.  An `{\tt inline}' code block is inlined and an
+`{\tt outline}' block not inlined.  An `{\tt outline}' block may
+be nested inside an `{\tt inline}' block, but an `{\tt inline}'
+block may \underline{not} be nested inside an `{\tt outline}' block.
 
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}

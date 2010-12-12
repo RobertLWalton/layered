@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 11, 2010
+December 12, 2010
  
 \end{center}
 
@@ -2067,6 +2067,55 @@ code blocks.  An `{\tt inline}' code block is inlined and an
 `{\tt outline}' block not inlined.  An `{\tt outline}' block may
 be nested inside an `{\tt inline}' block, but an `{\tt inline}'
 block may \underline{not} be nested inside an `{\tt outline}' block.
+
+An example is:
+\begin{indpar}[0.5em]\begin{verbatim}
+void function1 ( int32 x ) inline { ... }
+void function2 ( int32 x ) outline { ... }
+void function3 ( int32 x ) inline
+{
+    if ( x > 0 )
+    {
+        ... inlined code ...
+    }
+    else outline
+    {
+        ... outlined code ...
+    }
+}
+\end{verbatim}\end{indpar}
+
+Calls to {\tt function1} are inlined, those to
+{\tt function2} are not, while those to {\tt function3}
+are inlined except for the part executed when {\tt x<=0}
+which is treated as an out-of-line function.
+
+Recursive inlining is permitted provided it does not
+lead to unbounded code.  For example:
+\begin{indpar}[0.5em]\begin{verbatim}
+int32 function1 ( int32 n ) inline { ... }
+int32 recurse ( int32 n ) inline
+{
+    if ( n == 0 ) return 0;
+    else return function1 ( n ) + recurse ( n - 1 );
+}
+int32 function2 ( void ) outline
+{
+    return recurse ( 5 );
+        // Works, inlining recurse 6 times.
+}
+int32 function3 ( int32 n ) outline
+{
+    return recurse ( n );
+        // Fails by producing an unbounded amount of code.
+}
+\end{verbatim}\end{indpar}
+
+Inlining recursion works because while inlining code
+the compiler computes compile time constant expressions
+and uses the results to eliminate conditionalized code.
+
+TBD
 
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 23:53:59 EST 2010
+// Date:	Tue Dec 14 07:27:38 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -81,21 +81,17 @@ struct token_struct
     min::uns32 kind;  // One of:
     enum
     {
-    	LEXEME		= 1,
-	NAME		= 2,
-	EXPRESSION	= 3
-    };
-
-    min::uns32 type;  // One of:
-    enum
-    {
-        // For lexemes: the type.
+        // For lexemes: the lexeme type.
 
 	// For names:
 	//
     	SYMBOL		= 0xFFFFFFFF,
 	NATURAL_NUMBER	= 0xFFFFFFFE,
-	LABEL		= 0xFFFFFFFD
+	LABEL		= 0xFFFFFFFD,
+
+	// For expressions:
+	//
+    	EXPRESSION	= 0xFFFFFFFC
     };
 
     min::gen value;
@@ -118,9 +114,25 @@ struct token_struct
     token_ptr next, previous;
         // Doubly linked list pointers for tokens.
 };
+
+// Allocate a new token of the given kind.  Value is set
+// to min:MISSING and string to NULL_STUB.
+//
+token_ptr new_token ( uns32 kind );
+
+// Free token.  Token is put on internal free list after
+// its value is set to min:MISSING and its string to
+// NULL_STUB.
+//
+void free_token ( token_ptr token );
+
+} }
+
 
 // Parser Passes
 // ------ ------
+
+namespace ll { namespace parser {
 
 // The pass struct is the base for packed structs that
 // are specific kinds of passes.

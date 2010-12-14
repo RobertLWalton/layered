@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 11 03:37:21 EST 2010
+// Date:	Mon Dec 13 23:53:59 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -71,9 +71,9 @@ string_ptr new_string
 //
 string_ptr free_string ( string_ptr sp );
 
-struct token;
-typedef min::packed_struct_ptr<token> token_ptr;
-struct token
+struct token_struct;
+typedef min::packed_struct_ptr<token_struct> token_ptr;
+struct token_struct
 {
     min::uns32 type;
     	// Packed structure type.

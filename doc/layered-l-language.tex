@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 12, 2010
+December 15, 2010
  
 \end{center}
 
@@ -1567,22 +1567,26 @@ call qualifiers, `{\tt impure}' and `{\tt pure}.
 \begin{indpar}
 
 \hspace*{-1em}\ttkey{static}~~~~~Specifies
-the location lives forever.  Locations allocated at load time
+the location lives forever and may not be relocated.
+Locations allocated at load time
 or at program initialization time may be declared static.
 
 \hspace*{-1em}\ttkey{stack}~~~~~Specifies
 the location is in the stack frame of the currently executing
-function or one of its code blocks.  Such locations are precisely known
+function or one of its code blocks, and may not be relocated.
+Such locations are precisely known
 to the compiler of the function.
 Addresses to the location cannot be stored in places that will continue
 to exist after the stack frame has been deallocated.
 
 \hspace*{-1em}\ttkey{caller}~~~~~Only
-used in a function $F$'s value or return type to qualify a location
+used in a function $F$'s argument or return value types to qualify a location
 whose address is passed to the function.  Specifies the function's caller
-must provide the `{\tt caller}' location, but the location need not be
-in a frame, and may be `{\tt static}' or collectible instead.  Asserting
-that such a location is `{\tt caller}' is a promise by the
+must provide the `{\tt caller}' location, and the location cannot be
+deallocated or relocated until after control returns to the caller.
+Within the caller the location may be `{\tt stack}',
+`{\tt static}', or `{\tt caller}'.
+Asserting that such a location is `{\tt caller}' is a promise by the
 function $F$ not to store the location's address anywhere that will
 still exist when the function returns.
 
@@ -1646,7 +1650,8 @@ contain calls to either `{\tt pure}' or `{\tt impure}' functions.
 
 The assumption is that only `{\tt impure}' functions can deallocate
 or reallocate locations.  It is further assumed that interrupts
-are the equivalent of out-of-line function calls.  In actual practice,
+are the equivalent to calls to out-of-line `{\tt impure}' functions.
+In actual practice,
 only `{\tt unchecked}' functions can deallocate or reallocate locations,
 so it is up to the user to declare all such functions `{\tt impure}'
 or `{\tt outline}'.
@@ -1703,9 +1708,10 @@ a \key{software cache}\index{cache!software}
 of the memory location.  Thus memory locations
 are cached in registers under the control of software, and not hardware.
 Unfortunately this makes things very difficult for the compiler
-(the ultimate fix is a radical change in computer architecture).
+(the ultimate fix is a radical change in computer architecture;
+see Appendix~\secref{ALIASING-HARDWARE}).
 
-Memory locations may also be placed in hardware caches.  In hardware
+Memory locations may also be placed in hardware caches.  In a hardware
 system with memory shared among multiple central processing units,
 each central processing unit has its own hardware cache that is
 \underline{not} automatically synchronized with shared memory or
@@ -1715,7 +1721,7 @@ are used to synchronize these hardware caches with shared memory.
 Caching qualifiers determine when to invalidate and when to write
 software and hardware caches.
 
-Two caching qualifiers are builtin: `{\tt constant}' and `{\tt unique}.
+Two caching qualifiers are builtin: `{\tt constant}' and `{\tt unique}'.
 Two kinds are declarable: alias qualifiers and parallel qualifiers.
 
 \begin{indpar}
@@ -1744,7 +1750,7 @@ constant int32 value1 = 5;
 {
     value1 = 10; 
        // Erroneous:
-       //   stack constant int32 *& .assign. ( 10 ) is called.
+       //   caller constant int32 *& .assign. ( 10 ) is called.
     function1 ( value1 );  // Permitted; arg1 constant.
     function2 ( value1 );  // Permitted; arg1 readonly.
     function3 ( value1 );  // Erroneous; arg1 NOT constant
@@ -1753,8 +1759,9 @@ constant int32 value1 = 5;
     function1 ( value2 );  // Erroneous.  Function1 might make
                            // a long term cache of value2 which
                            // might then be changed.
+    function2 ( value2 );  // Permitted.  Function2 merely
+                           // promises not to write value2.
     . . . . . . . . . .
-}
 \end{verbatim}\end{indpar}
 
 Note that the `{\tt constant}' qualifier in an argument type is a promise
@@ -1775,6 +1782,15 @@ of the location.
 `{\tt constant}' is the default cache qualifier for locations of
 function arguments that are passed by value and not by reference.
 \end{enumerate}
+
+The `{\tt constant}' qualifier is automatically applied to temporary
+values.  Thus continuing the above example:
+\begin{indpar}[0.5em]\begin{verbatim}
+    function1 ( value1 + value2 );
+        // Permitted; value1 + value2 is a `constant' int32
+        // temporary value.
+\end{verbatim}\end{indpar}
+
 
 \hspace*{-1em}\ttkey{unique}~~~~~The memory location is in a stack
 frame of the currently executing function, or is in the stack
@@ -1900,14 +1916,21 @@ Formally two data types overlap if they are compatible, which means
 that a location of one type may be viewed as having the other type.
 Two {\em type-inclusion-sequences} overlap if one is an initial
 segment of the other, where compatible types are viewed as being equal.
-For example `\verb|mydata>>subdata1>int|' and `\verb|mydata>>subdata1|'
-overlap but `\verb|mydata>>subdata1>int|' and `\verb|mydata>>subdata2>>int|'
-do not.
+For example `\verb|mydata>>subdata1>>int|' and `\verb|mydata>>subdata1|'
+overlap but `\verb|mydata>>subdata1>>int|' and `\verb|mydata>>subdata2>>int|'
+do not, assuming that \verb|subdata1| and \verb|subdata2| are
+incompatible types.
+
+Note that `\verb|type1>>type2|' refers to a datum of \verb|type2| located
+inside a datum of \verb|type1| \underline{without} any intervening
+data; i.e., there is \underline{no} \verb|type12| such that
+`{\tt type1\verb|>>|\EOL type12\verb|>>|\EOL type2}'
+can also be used to describe the datum.
 
 Intuitively a canonical {\em type-overlap-expression} $e_1$\verb/|/$e_2$
 describes a data block that can be described by either of the
 {\em type-inclusion-sequences} $e_1$ or $e_2$.  Formally,
-two canonical {\em type-overlap-expressions} overlap if only
+two canonical {\em type-overlap-expressions} overlap if any
 {\em type-including-sequence} from the first overlaps any
 {\em type-including-sequence} from the second.
 
@@ -1933,19 +1956,23 @@ pflag bool done_flag = false;
 x[0] = 35.87;
 x[1] = -2.90;
 parallel flush write pdata;
-// Set flag indicating data output
+// Set done_flag indicating data has been output
 done_flag = true;
 parallel flush write pflag;
 // Wait for data to be consumed
+// Consumer clears done_flag after consuming data
 loop: {
     spin ( 5000 ); // 5000 nanosecond spin
     parallel flush read pflag;
-    if ( done_flag = false ) break loop;
+    if ( done_flag == false ) break loop;
 }
 // Data has been consumed
 \end{verbatim}\end{indpar}
 
 \end{indpar}
+
+The `{\tt parallel flush}' command flushes \underline{both}
+software and hardware caches.
 
 \subsubsection{Protection Qualifiers}
 \label{PROTECTION-QUALIFIERS}
@@ -1965,34 +1992,44 @@ a function body may
 invoke builtin operators that perform explicit or implicit
 type conversions.
 
-\hspace*{-1em}\ikey{Protection Qualifiers}%
-{protection qualifier}~~~~~Non-builtin protection
+\hspace*{-1em}\ikey{Code Block Qualifiers}%
+{code block qualifier}~~~~~Code block
 qualifiers may be declared by the programmer and used to qualify
-functions.  They may then be used in `\skey{qualifier expression}s'
-that qualify memory locations.
+code blocks.
+They may then be used in `\skey{qualifier expression}s'
+that serve as function call qualifiers or memory location qualifiers.
 
 \end{indpar}
+
+Examples of protection qualifiers are given in the next section.
+
+\subsubsection{Qualifier Expressions}
+\label{QUALIFIER-EXPRESSIONS}
 
 A \key{qualifier expression} is an expression composed of qualifiers,
 the operators `\ttmkey{\BAR}{in qualifier expression}'
 and `\ttmkey{\&}{in qualifier expression}', and parentheses.
-In order for a memory location to be accessible by a function,
-each of the location's qualifier expressions must evaluate to true
-according to the following rules.  First, each protection qualifier
-is given the value true if it qualifies the function and false otherwise.
-Second, every non-protection qualifier is given the value true if and only if
+In order for a function to be callable
+or memory location to be accessible by a code block,
+each of the function's call qualifier expressions
+or location's qualifier expressions
+must evaluate to true
+according to the following rules.  First, each code block qualifier
+is given the value true if it qualifies the code block and false otherwise.
+Second, every non-code-block qualifier is given the value true if and only if
 doing so is necessary and sufficient to make all
-the subexpressions containing the non-protection
+the subexpressions containing the non-code-block
 qualifier true.  This last rule is applied from left to right.
-Any non-protection qualifiers
-given the value true for any qualifier expression of the location then
-qualify the location when it is accessed by the function, while
-non-protection qualifiers given the value false are ignored.
+Any non-code-block qualifiers
+given the value true for any qualifier expression
+then qualify the function call or location when it is accessed by
+the code block, while
+non-code-block qualifiers given the value false are ignored.
 
 For example, given the code
 \begin{indpar}[0.5em]\begin{verbatim}
 deftype type1 (24,4);
-declare protection qualifier constructor(type1);
+declare code block qualifier constructor(type1);
 (constructor(type1)|constant) type1 my_data;
 void function1 ( type1 *& arg1 );
 void function2 ( constant type1 *& arg1 );
@@ -2006,16 +2043,16 @@ function3 ( my_data);   // Legal; my_data is NOT constant for
                         // function3.
 \end{verbatim}\end{indpar}
 
-Note the left-to-right clause in the rule for evaluating non-protection
+Note the left-to-right clause in the rule for evaluating non-code-block
 qualifiers.  For example, given the code:
 \begin{indpar}[0.5em]\begin{verbatim}
 deftype type1 (24,4);
-declare protection qualifier A;
+declare code block qualifier A;
 ((A&readonly)|constant) type1 my_data1;
 ((A&readonly)|(A&readwrite)|constant) type1 my_data2;
 \end{verbatim}\end{indpar}
 
-then to a function with protection qualifier {\tt A}, {\tt my\_data1}
+then to a function with code block qualifier {\tt A}, {\tt my\_data1}
 is {\tt readonly} and \underline{not}
 {\tt constant}, whereas to all other functions, {\tt my\_data1}
 is {\tt constant} and \underline{not} {\tt readonly}.  {\tt My\_data2}
@@ -2027,12 +2064,12 @@ is as follows:
 
 \begin{enumerate}
 \item
-A protection qualifier evaluates to true or false according to whether
+A code block qualifier evaluates to true or false according to whether
 the invoking code has or does not have the qualifier.
 \item
 Any other qualifier evaluates to true when it is evaluated.
-When this happens the qualifier is asserted for the
-location qualified by the qualifier expression.  Note that evaluation
+When this happens the qualifier is asserted for the function
+or location qualified by the qualifier expression.  Note that evaluation
 may skip over subexpressions and thereby not evaluate qualifiers
 therein.
 \item
@@ -2222,6 +2259,7 @@ Function calls should be able to serve as lvalues so
 \appendix
 
 \section{Aliasing Hardware}
+\label{ALIASING-HARDWARE}
 
 The ultimate solution to the aliasing problem is new hardware.
 At its simplest, registers, which currently hold a datum,

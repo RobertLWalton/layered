@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 15, 2010
+December 17, 2010
  
 \end{center}
 
@@ -1387,7 +1387,7 @@ Q type1 * y;
 \end{verbatim}\end{indpar}
 
 Qualifiers may also be applied to code blocks.  Such are called
-`\skey{code qualifier}s'.  A qualifier just before the
+`\skey{code block qualifier}s'.  A qualifier just before the
 {\tt =} or \LEFTBRACKET{} that introduces the function body in a
 function definition applies to the code in the
 body.
@@ -1403,9 +1403,7 @@ apply {\tt Q} to the body of the functions.
 
 A qualifier just before the name of a function in a function definition
 or declaration applies to calls to the function, and is said to be
-a `\key{call qualifier}' of the function.  Such qualifiers are
-generally protection qualifiers, inline qualifiers, or the
-`{\tt pure}' qualifier.  For example,
+a `\key{function access qualifier}'.  For example,
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 Q function3 ();
 int32 *& Q function4 ();
@@ -1502,17 +1500,25 @@ These are used for memory locations shared between different hardware
 processing units (e.g., between a central processing unit and an
 IO device, or between two different central processing units).
 
-\ikey{Protection qualifiers}{protection qualifier} may be declared
+\ikey{Access qualifiers}{access qualifier} may be declared
 to control which functions can access a memory location or call other
-functions.
+functions.  Access qualifiers may or may not be
+\skey{protection qualifier}s.
+The builtin non-protection access qualifiers are
+`{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', and `{\tt noaccess}'.
+The buitin protection qualifiers are `{\tt pure}', `{\tt impure}'
+and `{\tt unchecked}'.
+Protection qualifiers may also be defined by the user.
+
 A memory location with protection qualifier $X$ can only be
 accessed by functions whose bodies have qualifier $X$, and
-a function with qualifier $X$ can only be called by functions
-whose bodies have qualifier $X$.  There is one builtin protection
-qualifier, `{\tt unchecked}', which permits access to various
+a function with access qualifier $X$ can only be called by functions
+whose bodies have qualifier $X$.  The builtin access
+qualifier `{\tt unchecked}' permits access to various
 builtin operations that explicitly or implicitly involve type
-conversion.
-
+conversion.  The builtin access qualifier `{\tt impure}' permits
+access to operations that allocate and reallocate memory
+and check for interrupts.
 
 Memory locations can be assigned qualifier expressions that are logical
 combinations of qualifier names and the operators `\verb/|/' and
@@ -1561,8 +1567,7 @@ allocated by checked code are given the `{\tt static}' or
 Locations that are part of a function argument or return value
 are given the `{\tt caller}' lifetime qualifier by default.
 Other locations are given the `{\tt temp}' lifetime qualifier by default.
-The `{\tt temp}' qualifier makes use of two associated function 
-call qualifiers, `{\tt impure}' and `{\tt pure}.
+The `{\tt temp}' qualifier makes use of the `{\tt impure}' protection qualifier.
 
 \begin{indpar}
 
@@ -1974,34 +1979,62 @@ loop: {
 The `{\tt parallel flush}' command flushes \underline{both}
 software and hardware caches.
 
-\subsubsection{Protection Qualifiers}
-\label{PROTECTION-QUALIFIERS}
+\subsubsection{Access Qualifiers}
+\label{ACCESS-QUALIFIERS}
 
-Five protection qualifiers are builtin:
+Six access qualifiers are builtin:
 `{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', `{\tt noaccess}',
-and `{\tt unchecked}'.
-Additional protection qualifiers may be declared.
+`{\tt impure}', and `{\tt unchecked}'.
+The last two are protection qualifiers;
+additional protection qualifiers may be declared.
+In addition the `{\tt pure}' builtin qualifier must be used to prevent the
+`{\tt impure}' qualifier from being applied by default.
 
 \begin{indpar}
 
 \hspace*{-1em}\ttkey{readwrite}, \ttkey{readonly}, \ttkey{writeonly},
 \ttkey{noaccess}~~~~~Specifies whether execution may read or write a location.
 
-\hspace*{-1em}\ttkey{unchecked}~~~~~Specifies that the execution of
-a function body may
-invoke builtin operators that perform explicit or implicit
+\hspace*{-1em}\ttkey{unchecked}~~~~~A builtin protection qualifier
+that is required to access the builtin operators that
+perform explicit or implicit
 type conversions.
 
-\hspace*{-1em}\ikey{Code Block Qualifiers}%
-{code block qualifier}~~~~~Code block
-qualifiers may be declared by the programmer and used to qualify
-code blocks.
-They may then be used in `\skey{qualifier expression}s'
-that serve as function call qualifiers or memory location qualifiers.
+\hspace*{-1em}\ttkey{impure}~~~~~A builtin protection qualifier
+that is required to access the builtin operators and that
+may deallocate or reallocate memory locations.  Note that interrupts
+may deallocate or reallocate memory locations, so functions that
+are not `{\tt impure}' are not interruptable.
+
+This qualifier is
+transitive: if used as a function access qualifier, it is also
+applied to the function body.  It is also a default function
+access qualifier,
+whose negation, the `\ttkey{pure}' qualifier, must be used as a
+function access qualifier to
+specify that a function does not have the `{\tt impure}' access qualifier.
+
+\hspace*{-1em}\ikey{Protection Qualifiers}%
+{protection qualifier}~~~~~Protection
+qualifiers may be declared by the programmer.
+Protection qualifiers may have names of the form
+\begin{center}
+{\em protection-qualifier-name} \verb|(| {\em type-expression} \verb|)|
+\end{center}
+
+A code block may call a function only if every protection qualifier
+of the function is also protection qualifier of the code block, or
+the special `{\tt unchecked}' qualifier is a qualifier of the code block.
+Similarly a code block may access a memory location only if every
+protection qualifier of the location is also a protection qualifier
+of the code block, or
+the special `{\tt unchecked}' qualifier is a qualifier of the code block.
 
 \end{indpar}
 
-Examples of protection qualifiers are given in the next section.
+Often qualifier expressions containing protection qualifiers are
+used as function and memory location access qualifiers.  For this
+reason, examples of access qualifiers are given in the next section.
 
 \subsubsection{Qualifier Expressions}
 \label{QUALIFIER-EXPRESSIONS}
@@ -2009,27 +2042,29 @@ Examples of protection qualifiers are given in the next section.
 A \key{qualifier expression} is an expression composed of qualifiers,
 the operators `\ttmkey{\BAR}{in qualifier expression}'
 and `\ttmkey{\&}{in qualifier expression}', and parentheses.
+Qualifier expressions can be used as function access
+qualifiers and memory location qualifiers.
+
 In order for a function to be callable
 or memory location to be accessible by a code block,
-each of the function's call qualifier expressions
-or location's qualifier expressions
-must evaluate to true
-according to the following rules.  First, each code block qualifier
+all of the function's access qualifier expressions
+or the location's qualifier expressions must evaluate to true
+according to the following rules.  First, each protection qualifier
 is given the value true if it qualifies the code block and false otherwise.
-Second, every non-code-block qualifier is given the value true if and only if
+Second, every non-protection qualifier is given the value true if and only if
 doing so is necessary and sufficient to make all
-the subexpressions containing the non-code-block
+the subexpressions containing the non-protection
 qualifier true.  This last rule is applied from left to right.
-Any non-code-block qualifiers
+Any non-protection qualifiers
 given the value true for any qualifier expression
 then qualify the function call or location when it is accessed by
 the code block, while
-non-code-block qualifiers given the value false are ignored.
+non-protection qualifiers given the value false are ignored.
 
 For example, given the code
 \begin{indpar}[0.5em]\begin{verbatim}
 deftype type1 (24,4);
-declare code block qualifier constructor(type1);
+declare protection qualifier constructor(type1);
 (constructor(type1)|constant) type1 my_data;
 void function1 ( type1 *& arg1 );
 void function2 ( constant type1 *& arg1 );
@@ -2043,16 +2078,16 @@ function3 ( my_data);   // Legal; my_data is NOT constant for
                         // function3.
 \end{verbatim}\end{indpar}
 
-Note the left-to-right clause in the rule for evaluating non-code-block
+Note the left-to-right clause in the rule for evaluating non-protection
 qualifiers.  For example, given the code:
 \begin{indpar}[0.5em]\begin{verbatim}
 deftype type1 (24,4);
-declare code block qualifier A;
+declare protection qualifier A;
 ((A&readonly)|constant) type1 my_data1;
 ((A&readonly)|(A&readwrite)|constant) type1 my_data2;
 \end{verbatim}\end{indpar}
 
-then to a function with code block qualifier {\tt A}, {\tt my\_data1}
+then to a function with protection qualifier {\tt A}, {\tt my\_data1}
 is {\tt readonly} and \underline{not}
 {\tt constant}, whereas to all other functions, {\tt my\_data1}
 is {\tt constant} and \underline{not} {\tt readonly}.  {\tt My\_data2}
@@ -2064,11 +2099,11 @@ is as follows:
 
 \begin{enumerate}
 \item
-A code block qualifier evaluates to true or false according to whether
-the invoking code has or does not have the qualifier.
+A protection qualifier evaluates to true or false according to whether
+the invoking code block has or does not have the qualifier.
 \item
 Any other qualifier evaluates to true when it is evaluated.
-When this happens the qualifier is asserted for the function
+When this happens the qualifier is asserted for the function access
 or location qualified by the qualifier expression.  Note that evaluation
 may skip over subexpressions and thereby not evaluate qualifiers
 therein.
@@ -2153,6 +2188,9 @@ the compiler computes compile time constant expressions
 and uses the results to eliminate conditionalized code.
 
 TBD
+
+\subsubsection{Qualifier Transitivity and Defaults}
+\label{QUALIFIER-TRANSITIVITY-AND-DEFAULTS}
 
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}
@@ -2291,11 +2329,13 @@ which may change the datum of {\tt y} and that may change the value
 of {\tt y}.  If the value of {\tt y} changes, this changes the address
 of {\tt z}, which may change the datum and value of {\tt z}.
 
-The way we accommodate this is to use the selector codes of {\tt y}
-to specify that the address of {\tt y} is the value of {\tt x}, so
+The way we accommodate this is to use the selection codes of {\tt y}
+to specify that the address of {\tt y} contains the value of {\tt x}
+as an additive component, so
 that if the value of {\tt x} is changed by adding $\Delta${\tt x}
 then the address of {\tt y} should be changed by adding $\Delta${\tt x}.
-And similarly the selector of {\tt z} specifies that the address of {\tt z}
+And similarly the selection codes
+of {\tt z} specify that the address of {\tt z}
 contains the value of {\tt y} as an additive component.
 
 So why should we bother with automatically updating
@@ -2305,7 +2345,7 @@ The reason is that expressions such as
 `\verb|(*x)->m|' are likely to be reused frequently in code (actually,
 in automatically generated code) and
 therefore need to be cached, whereas an expressions of the form
-`\verb|c*d|' will be reused comparatively very rarely code
+`\verb|c*d|' will be reused comparatively rarely code
 and therefore are not worth special hardware.
 
 

@@ -2187,7 +2187,39 @@ Inlining recursion works because while inlining code
 the compiler computes compile time constant expressions
 and uses the results to eliminate conditionalized code.
 
-TBD
+It is possible to control inlining to some degree
+by associating compile time constant integers with
+the `{\tt inline}' and `{\tt outline}' qualifiers.  If
+a code block with qualifier `\verb|outline(|$m$\verb|)|'
+calls a function whose code block has
+qualifier `\verb|inline(|$n$\verb|)|', then the function
+code block is inlined if and only if $m\geq n$.  Thus a
+higher $m$ associated with and `{\tt output}' code block inlines more
+code into the out-of-line block, and a higher $n$ associated
+with an `{\tt inline}' code block makes it less likely the
+code block will be inlined.
+
+For example:
+\begin{indpar}[0.5em]\begin{verbatim}
+int32 function1 ( int32 n ) inline(1) { ... }
+int32 function2 ( int32 n ) inline(2) { ... }
+int32 function3 ( int32 n ) outline(1)
+{
+    function1(...); // Inlined.
+    function2(...); // NOT inlined.
+}
+int32 function4 ( int32 n ) outline(2)
+{
+    function1(...); // Inlined.
+    function2(...); // Inlined.
+}
+\end{verbatim}\end{indpar}
+
+The numbers associated with the `{\tt inline}' and
+`{\tt outline}' qualifiers are called
+\key{optimization indices}.   Optimization indeces
+default to the value {\tt 1}; e.g., `{\tt inline}'
+is equivalent to `{\tt inline(1)}'.
 
 \subsubsection{Qualifier Transitivity and Defaults}
 \label{QUALIFIER-TRANSITIVITY-AND-DEFAULTS}

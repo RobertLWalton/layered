@@ -2295,52 +2295,30 @@ referred to by $M$\verb|[|$i_0$\verb|,|$i_1$\verb|,|\ldots\verb|]|,
 with $M$\verb|[0,0,|\ldots\verb|]| being the \key{reference point}.
 
 The reference point can be shifted along any of the window's
-dimensions, or the reference point can be completely reset.
+dimensions by the command
+$M$\ttdkey{center}{\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]}, which shifts
+the window so that what was
+$M${\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]} becomes
+$M${\tt [0,0,}\ldots{\tt ]}.
+
+Creating memory channels and completely reseting their reference points
+are specific to the type of memory channel, and are not covered in
+this section.
+
+For most kinds of memory channels, block descriptors are computed
+automatically when channel is created, when the window is
+shifted, or when a neighboring element is read from memory.
+Immediately after a block descriptor is created, a read-ahead of
+the block is initiated.  This read-ahead overlaps computation that
+does not use the block contents.
+
+Some memory channels access arrays stored in memory.  For these
+the block descriptors can be computed from the array coordinates
+of the reference point.  Other memory channels use the contents
+of a block to compute the block descriptors of neighboring blocks
+in the window.
 
 TBD
-
-For most kinds of memory channels, window
-block descriptors are computed automatically from the block descriptor
-and in some cases block contents of an adjacent window position.
-In the typical case, once an initial reference point
-block descriptor has been loaded into the memory channel, all other
-block descriptors are computed automatically by this mechanism, and
-typically the reference point is only moved by shifting it.
-
-Memory channels differ in how block descriptors are computed.  A
-linear memory channel assumes that blocks are addressed in memory according
-to a linear scheme, and automatically fills in block descriptors when
-the window is shifted.  A chained channel is similar except it assumes
-each block points at its neighbors.  A direct channel requires programmed
-instructions to load block descriptors.  In this last case, a block
-descriptor may hold an instruction for computing it from the contents
-of an adjacent block, so the instruction need not be delayed if the
-adjacent block contents are not yet available.
-
-When a window is shifted, block descriptors may be computed automatically
-for new window elements, and the referenced blocks may be loaded into
-a cache.  The part of the window for which blocks are loaded into the
-cache in advance of any specific instruction referencing the blocks
-is called the look ahead window, and is a subarray of the full window.
-
-
-\subsubsection{Linear Memory Channels}
-
-Linear memory channels access multi-dimensional arrays of blocks
-whose addresses are computable from a linear equation of the form:
-
-\begin{center}
-$\mbox{\em address} = \mbox{\em base-address}
-		    + \sum_{n=1}^N \mbox{\em offset}_n\cdot i_n$
-\\[2ex]
-where $0\leq i_n < \mbox{\em dimension-size}_n$ for $1\leq n \leq N$
-\end{center}
-
-\subsubsection{Chained Memory Channels}
-
-For a chained memory channel there are a fixed set of instructions
-that tell how to compute the address of a block from the contents
-of adjacent blocks.
 
 \section{To Do}
 

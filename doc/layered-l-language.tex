@@ -992,6 +992,9 @@ to store into the {\tt .base} in order to relocate
 the array.  When an array is passed to or returned from a function, it is
 actually the {\tt .base} that is passed or returned.
 
+\item[\ttdkey{dimensions}] Type: any unsigned integer type.
+The number of dimensions (subscripts) of the array.
+
 \item[\ttdkey{step}{$[i]$}]
 Type: any integer type.
 The multiplier
@@ -2241,7 +2244,8 @@ its counter qualifier.  Were it not implicitly declared to have
 these properties, it could be declared to have them by:
 \begin{indpar}[0.5em]\begin{verbatim}
 declare transitive qualifier impure;
-declare default function access qualifier impure with counter qualifier pure;
+declare default function access qualifier impure
+        with counter qualifier pure;
 \end{verbatim}\end{indpar}
 
 Usually it is protection qualifiers that are declared to be transitive
@@ -2250,13 +2254,8 @@ or default function access qualifiers.
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}
 
-
-
-
 \subsection{Memory Channels}
 \label{MEMORY-CHANNELS}
-
-TBD
 
 A \key{memory channel} is a mechanism for accessing a set of blocks in RAM
 that permits blocks to be announced substantially in advance of being
@@ -2271,26 +2270,36 @@ accessed.  Block descriptors can also be marked as
 There are shift operations on the window that move all its rows or columns
 (or other dimension) over and fill in with empty block descriptors.
 
-A memory channel is stored in a register, but the register may be shared.
-The type and type parameters of the register determine the type of the
-channel and determine how much actual memory is allocated to the register.
+Although we talk about blocks here, a block can be just a numeric array
+element, and can be as small as a single bit.  Although we talk about
+each element of a memory channel window having its own block descriptor,
+an actual memory channel may use only block group descriptors, each of
+which functions as a group of more than one individual element
+block descriptor.
 
-The window of a memory channel
-is organized in the same way for all memory channels.
-It consists of a rectangular array of block descriptors, with the number
-of dimensions in the array being that given by the
-`\mkey{dimensions}{of window}' register type parameter.  The size of
-each dimension is determined when the memory channel is initialized at
-run time, but must not be greater than the `\mkey{window-size}{of window}'
-register type parameter.
-Similarly the size of each block is determined when the block descriptor
-is created, but must not be greater than the `\mkey{block-size}{of window}'
-register type parameter.
+A memory channel is stored in a cluster.  As such it is mostly an
+inline construction, though it can be passed to or returned from a
+function, and the function can be all or partly out-of-line.
 
-For all types of memory channel the window appears to be a subarray of
-a larger square array.  The window has a \mkey{reference point}{of window}
-that can be shifted along any of its dimensions.  Or the reference point
-can be completely reset.  For most kinds of memory channels, window
+The window of a memory channel is organized in the same way
+for all standard memory channels, though user defined memory channels
+may have a different organization.  In the standard organization,
+which described here, the window appears to be an array with
+\ttdmkey{dimensions}{of memory channel},
+\ttdmkey{lower\_bound}{of memory channel}{\tt [}$i${\tt ]},
+and \ttdmkey{upper\_bound}{of memory channel}{\tt [}$i${\tt ]}
+being defined members.  The elements of the window each have a
+value and an associated \mkey{block descriptor}{of memory channel}.
+If the memory channel cluster name is $M$, the window elements are
+referred to by $M$\verb|[|$i_0$\verb|,|$i_1$\verb|,|\ldots\verb|]|,
+with $M$\verb|[0,0,|\ldots\verb|]| being the \key{reference point}.
+
+The reference point can be shifted along any of the window's
+dimensions, or the reference point can be completely reset.
+
+TBD
+
+For most kinds of memory channels, window
 block descriptors are computed automatically from the block descriptor
 and in some cases block contents of an adjacent window position.
 In the typical case, once an initial reference point

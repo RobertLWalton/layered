@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 17, 2010
+December 18, 2010
  
 \end{center}
 
@@ -2223,6 +2223,29 @@ is equivalent to `{\tt inline(1)}'.
 
 \subsubsection{Qualifier Transitivity and Defaults}
 \label{QUALIFIER-TRANSITIVITY-AND-DEFAULTS}
+
+A qualifier may be declared to be \key{transitive qualifier},
+meaning that if the qualifier is given as a function access
+qualifier it will automatically be attached as a code block
+qualifier of the function body.
+
+A qualifier may be declared to be \ikey{default function access qualifier},
+meaning that it is applied as a function access qualifier by
+default to all functions that do not have a given
+\key{counter qualifier}.  The counter qualifier merely specifies
+that the default does not apply to a particular function.
+
+The `{\tt impure}' qualifier is a builtin qualifier that is
+transitive and default function access and has `{\tt pure}' as
+its counter qualifier.  Were it not implicitly declared to have
+these properties, it could be declared to have them by:
+\begin{indpar}[0.5em]\begin{verbatim}
+declare transitive qualifier impure;
+declare default function access qualifier impure with counter qualifier pure;
+\end{verbatim}\end{indpar}
+
+Usually it is protection qualifiers that are declared to be transitive
+or default function access qualifiers.
 
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}

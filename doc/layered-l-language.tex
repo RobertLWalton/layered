@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 18, 2010
+December 20, 2010
  
 \end{center}
 
@@ -2263,12 +2263,15 @@ accessed.  Thus memory channels implement `\key{look ahead}' for
 memory accesses.
 
 A memory channel implements a \key{window}, which is a
-multi-dimensional array of block descriptors.
-A \key{block descriptor} contains the address and length of a block to be
-accessed.  Block descriptors can also be marked as
+structured set of elements each associated with a member of
+some data set.  Each window element contains a
+\key{block descriptor} that holds the address and length of the
+memory block that contains the data associated with the element.
+Block descriptors can also be marked as
 \mkey{empty}{block descriptor}, meaning there is no block to be accessed.
-There are shift operations on the window that move all its rows or columns
-(or other dimension) over and fill in with empty block descriptors.
+The window has a \key{reference point}, and window elements are addressed
+relative to this reference point.  There are shift operations that move
+the reference point to a nearby window element.
 
 Although we talk about blocks here, a block can be just a numeric array
 element, and can be as small as a single bit.  Although we talk about
@@ -2281,15 +2284,12 @@ A memory channel is stored in a cluster.  As such it is mostly an
 inline construction, though it can be passed to or returned from a
 function, and the function can be all or partly out-of-line.
 
-The window of a memory channel is organized in the same way
-for all standard memory channels, though user defined memory channels
-may have a different organization.  In the standard organization,
-which described here, the window appears to be an array with
-\ttdmkey{dimensions}{of memory channel},
+The most common type of memory channel has a window that appears to be
+an array with \ttdmkey{dimensions}{of memory channel},
 \ttdmkey{lower\_bound}{of memory channel}{\tt [}$i${\tt ]},
 and \ttdmkey{upper\_bound}{of memory channel}{\tt [}$i${\tt ]}
-being defined members.  The elements of the window each have a
-value and an associated \mkey{block descriptor}{of memory channel}.
+being defined memory channel members.  Such are called
+\key{array windows}.
 If the memory channel cluster name is $M$, the window elements are
 referred to by $M$\verb|[|$i_0$\verb|,|$i_1$\verb|,|\ldots\verb|]|,
 with $M$\verb|[0,0,|\ldots\verb|]| being the \key{reference point}.
@@ -2312,13 +2312,31 @@ Immediately after a block descriptor is created, a read-ahead of
 the block is initiated.  This read-ahead overlaps computation that
 does not use the block contents.
 
-Some memory channels access arrays stored in memory.  For these
-the block descriptors can be computed from the array coordinates
+If a memory channel accesses arrays stored in memory,
+the channel block descriptors can be computed from the array coordinates
 of the reference point.  Other memory channels use the contents
 of a block to compute the block descriptors of neighboring blocks
 in the window.
 
-TBD
+An example of the latter is a binary tree memory channel.
+Let $M$ be such a channel, and let `{\tt .L}' denote the left
+child of a binary tree element, `{\tt .R}' the right child, and
+`{\tt .P}' the parent.  Then $M${\tt .L.R} denotes the right
+child of the left child of the reference point, $M${\tt .P.L}
+denotes the left child of the parent of the reference point,
+and $M${\.P.L.center} moves the reference point to this last element.
+The window of such a memory channel might contain the depth 2
+subtree of the reference point plus that closest 4 ancestors of the
+reference point if these have been visited.  When the reference
+point is moved, as soon as the reference point element has been
+read from memory, the descriptors for its children are built and
+the read of the children is initiated in parallel with other
+computation.  When the children arrive from memory, the descriptors
+of their children are built and reads of the data pointed at
+are initiated.
+
+Some standard memory channel types are built into the L-Language.
+Others can be defined by users.
 
 \section{To Do}
 

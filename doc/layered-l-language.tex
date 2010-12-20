@@ -2307,7 +2307,8 @@ this section.
 
 For most kinds of memory channels, block descriptors are computed
 automatically when channel is created, when the window is
-shifted, or when a neighboring element is read from memory.
+shifted, or when the data of
+a neighboring window element is arrives from memory.
 Immediately after a block descriptor is created, a read-ahead of
 the block is initiated.  This read-ahead overlaps computation that
 does not use the block contents.
@@ -2321,10 +2322,10 @@ in the window.
 An example of the latter is a binary tree memory channel.
 Let $M$ be such a channel, and let `{\tt .L}' denote the left
 child of a binary tree element, `{\tt .R}' the right child, and
-`{\tt .P}' the parent.  Then $M${\tt .L.R} denotes the right
-child of the left child of the reference point, $M${\tt .P.L}
+`{\tt .P}' the parent.  Then $M\!$\verb|.L.R| denotes the right
+child of the left child of the reference point, $M\!$\verb|.P.L|
 denotes the left child of the parent of the reference point,
-and $M${\.P.L.center} moves the reference point to this last element.
+and $M\!$\verb|.P.L.center| moves the reference point to this last element.
 The window of such a memory channel might contain the depth 2
 subtree of the reference point plus that closest 4 ancestors of the
 reference point if these have been visited.  When the reference
@@ -2333,7 +2334,12 @@ read from memory, the descriptors for its children are built and
 the read of the children is initiated in parallel with other
 computation.  When the children arrive from memory, the descriptors
 of their children are built and reads of the data pointed at
-are initiated.
+are initiated.\footnote{All this can actually be done with modern
+hardware: code is executed to read the reference point children and initiate the
+reads of their children, and a modern processor will automatically
+save the code that
+executes when a read of a reference point child completes and execute
+other code in parallel until the read does complete.}
 
 Some standard memory channel types are built into the L-Language.
 Others can be defined by users.

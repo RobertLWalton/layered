@@ -2,7 +2,7 @@
 //
 // File:	ll_input_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 19:30:45 EST 2010
+// Date:	Mon Dec 20 13:57:13 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,18 +25,33 @@
 
 # include <ll_lexeme_standard.h>
 # include <ll_parser_pass.h>
-# define PARS ll::parser
+# include <ll_parser_standard.h>
+# define LEX ll::lexeme
+# define PAR ll::parser
 
 // Input Parser Data
 // ----- ------ ----
 
-namespace ll { namespace parser {
-
-struct input_parser : public pass_struct
+struct input_parser : public PAR::pass_struct
 {
-    ll::lexeme::scanner_ptr scanner;
+    LEX::scanner_ptr scanner;
 };
+
+static min::uns32 input_parser_stub_disp[] =
+{
+    min::DISP ( & PAR::pass_struct::first ),
+    min::DISP ( & input_parser::scanner ),
+    min::DISP_END
+};
+
+// min::packed_struct<input_parser> iptype
+    // ( "input_parser",
+      // NULL, ::input_parser_stub_disp );
 
 // Input Parser
 // ----- ------
 
+PAR::pass_ptr PAR::standard::create_input_pass
+    ( LEX::scanner_ptr scanner )
+{
+}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 07:27:38 EST 2010
+// Date:	Mon Dec 20 13:56:47 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,7 +65,7 @@ struct string_struct
 // Allocate a new string and return a pointer to it.
 //
 string_ptr new_string
-	( min::uns32 n, uns32 * string );
+	( min::uns32 n, min::uns32 * string );
 
 // Free a string and return NULL_STUB.
 //
@@ -118,7 +118,7 @@ struct token_struct
 // Allocate a new token of the given kind.  Value is set
 // to min:MISSING and string to NULL_STUB.
 //
-token_ptr new_token ( uns32 kind );
+token_ptr new_token ( min::uns32 kind );
 
 // Free token.  Token is put on internal free list after
 // its value is set to min:MISSING and its string to

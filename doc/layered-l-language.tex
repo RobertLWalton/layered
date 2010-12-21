@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 20, 2010
+December 21, 2010
  
 \end{center}
 
@@ -773,7 +773,11 @@ name of the base variable using the syntax:
     {\em base-name} {\em member-selector}$^\star$ \\[1ex]
 {\em member-selector} \begin{tabular}[t]{@{}rl}
     ::= & {\tt .}{\em member-name} \\
-    $|$ & {\tt [}{\em member-index}{\tt ]}
+    $|$ & {\tt [}{\em member-index-list}{\tt ]}
+    \end{tabular} \\[1ex]
+{\em member-index-list} \begin{tabular}[t]{@{}rl}
+    ::= & {\em member-index} \\
+    $|$ & {\em member-index} {\tt ,} {\em member-index-list}
     \end{tabular} \\[1ex]
 {\em member-index} ::= {\em integer-constant-expression}
 \end{indpar}
@@ -783,8 +787,9 @@ is like a structure, but it is a set of variables and not a
 piece of memory.
 
 More specifically, the members of the cluster can be named by
-adding either `{\tt .}' followed by a member name or
-an integer constant subscript in `{\tt []}' brackets to
+adding either a member name preceded by `{\tt .}' or a
+`{\tt []}' bracketed list of
+integer constant subscripts to
 either the base name of the cluster or to another member name
 of the cluster.  Two variable names with different base names
 belong to different clusters.  Two variable names allocated in
@@ -815,7 +820,7 @@ int32 *& "*"
     unchecked
 {
     if ( pp.begin < pp.end ) return * pp.begin;
-    else return * (int 32 *) NULL;
+    else return * (int32 *) NULL;
 }
 //
 // Prefix operator to increment the begin pointer of a pointer
@@ -831,7 +836,7 @@ int32 *& "*"
 //
 void my_function ( void )
 {
-    // Vector of 2 element is allocated and the elements
+    // Vector of 2 elements is allocated and the elements
     // are set equal to 100 and 101.
     //
     void pp = allocate ( 2 );

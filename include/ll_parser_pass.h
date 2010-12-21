@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 20 13:56:47 EST 2010
+// Date:	Tue Dec 21 08:58:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,8 @@ namespace ll { namespace parser {
 struct string_struct;
 typedef min::packed_vec_ptr<string_struct,min::uns32>
         string_ptr;
+typedef min::packed_vec_updptr<string_struct,min::uns32>
+        string_updptr;
 struct string_struct
 {
     min::uns32 type;
@@ -53,7 +55,7 @@ struct string_struct
     min::uns32 max_length;
         // Maximum length of vector.
 
-    string_ptr next;
+    string_updptr next;
         // Pointer to next block on free list, if string
 	// is on free list.  List is NULL_STUB termina-
 	// ted.
@@ -72,7 +74,8 @@ string_ptr new_string
 string_ptr free_string ( string_ptr sp );
 
 struct token_struct;
-typedef min::packed_struct_ptr<token_struct> token_ptr;
+typedef min::packed_struct_updptr<token_struct>
+    token_ptr;
 struct token_struct
 {
     min::uns32 type;
@@ -125,6 +128,65 @@ token_ptr new_token ( min::uns32 kind );
 // NULL_STUB.
 //
 void free_token ( token_ptr token );
+
+// Put a token just before a given token t on a list of
+// tokens.
+//
+void put_before ( token_ptr t, token_ptr token )
+{
+    token->next = t;
+    token->previous = t->previous;
+    token->previous->next = t;
+    token->next->previous = t;
+}
+
+// Put a token on the end of a token list with given
+// first element.
+//
+void put_at_end ( token_ptr & first,
+                  token_ptr token )
+{
+    if ( first == min::NULL_STUB )
+    {
+        first = token;
+	token->previous = token->next = token;
+    }
+    else put_before ( first, token );
+}
+
+// Remove token from the token list with given first
+// token and return the token removed.
+//
+token_ptr remove ( token_ptr & first, token_ptr token )
+{
+
+    if ( token == first )
+    {
+        first = token->next;
+	if ( first == token )
+	{
+	    first = min::NULL_STUB;
+	    return token;
+	}
+    }
+    token->previous->next = token->next;
+    token->next->previous = token->previous;
+    return token;
+}
+
+// Remove first token from a list of tokens with given
+// first token.  Return min::NULL_STUB if list empty.
+//
+token_ptr remove ( token_ptr & first )
+{
+    if ( first == min::NULL_STUB )
+        return min::NULL_STUB;
+    else
+    	remove ( first, first );
+}
+
+// Remove first token fr
+
 
 } }
 

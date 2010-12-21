@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Dec 20 13:11:48 EST 2010
+# Date:		Tue Dec 21 08:57:59 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -161,6 +161,15 @@ ll_lexeme_standard_test.out:		\
 	    ll_lexeme_standard_test.in
 	rm -f $*.out
 	${RUNENV} $* < $*.in > $*.out
+
+ll_parser_pass.o:	\
+	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	../include/ll_parser_pass.h \
+	../src/ll_parser_pass.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_parser_pass.cc
 
 ll_input_parser.o:	\
 	${MIN}/include/min.h \

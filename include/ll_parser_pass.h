@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 21 08:58:26 EST 2010
+// Date:	Fri Dec 24 09:06:46 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -128,6 +128,12 @@ token_ptr new_token ( min::uns32 kind );
 // NULL_STUB.
 //
 void free_token ( token_ptr token );
+
+// Set the maximum number of tokens on the free list.
+// Set to 0 to make list empty.  Set to < 0 if there is
+// no limit.  Defaults to 1000.
+//
+void set_max_token_free_list_size ( int n );
 
 // Put a token just before a given token t on a list of
 // tokens.

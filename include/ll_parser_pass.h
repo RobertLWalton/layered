@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 24 09:06:46 EST 2010
+// Date:	Fri Dec 24 17:39:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,8 +44,8 @@ namespace ll { namespace parser {
 struct string_struct;
 typedef min::packed_vec_ptr<string_struct,min::uns32>
         string_ptr;
-typedef min::packed_vec_updptr<string_struct,min::uns32>
-        string_updptr;
+typedef min::packed_vec_insptr<string_struct,min::uns32>
+        string_insptr;
 struct string_struct
 {
     min::uns32 type;
@@ -55,7 +55,7 @@ struct string_struct
     min::uns32 max_length;
         // Maximum length of vector.
 
-    string_updptr next;
+    string_insptr next;
         // Pointer to next block on free list, if string
 	// is on free list.  List is NULL_STUB termina-
 	// ted.
@@ -72,6 +72,12 @@ string_ptr new_string
 // Free a string and return NULL_STUB.
 //
 string_ptr free_string ( string_ptr sp );
+
+// Set the maximum number of strings on the free list.
+// Set to 0 to make list empty.  Set to < 0 if there is
+// no limit.  Defaults to 100.
+//
+void set_max_string_free_list_size ( int n );
 
 struct token_struct;
 typedef min::packed_struct_updptr<token_struct>

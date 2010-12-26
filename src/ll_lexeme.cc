@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 10 01:04:40 EST 2010
+// Date:	Sun Dec 26 07:41:10 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -717,7 +717,7 @@ void LEX::init_scanner
 
     if ( scanner == NULL_STUB )
     {
-        scanner = scanner_type.new_gen();
+        scanner = scanner_type.new_stub();
 	scanner_vec[0] = scanner;
 
 	scanner->input_buffer =
@@ -725,6 +725,7 @@ void LEX::init_scanner
 	scanner->translation_buffer =
 	    uns32_buffer_type.new_gen();
 	scanner->program = NULL_STUB;
+	scanner->print_mode = default_print_mode;
     }
     else
     {
@@ -2062,49 +2063,119 @@ uns32 LEX::line ( file_ptr file, uns32 line_number )
 // Printing
 // --------
 
-int LEX::spchar ( char * buffer, uns32 c )
+min::uns32 LEX::default_print_mode = LEX::ASCIIGRAPHIC;
+
+int LEX::spchar ( char * buffer, uns32 c,
+                  uns32 print_mode )
 {
-    if ( c == '\\' )
-        return sprintf ( buffer, "\\/" );
-    else if ( 33 <= c && c <= 126 )
-        return sprintf ( buffer, "%c", (char) c );
-    else if ( c == ' ' )
-        return sprintf ( buffer, "\\~/" );
-    else if ( c == '\n' )
-        return sprintf ( buffer, "\\lf/" );
-    else if ( c == '\t' )
-        return sprintf ( buffer, "\\ht/" );
-    else if ( c == '\f' )
-        return sprintf ( buffer, "\\ff/" );
-    else if ( c == '\v' )
-        return sprintf ( buffer, "\\vt/" );
-    else if ( c == '\b' )
-        return sprintf ( buffer, "\\bs/" );
-    else if ( c == '\r' )
-        return sprintf ( buffer, "\\cr/" );
-    else if ( c <= 0xF )
-        return sprintf ( buffer, "\\%02X/", c );
-    else if ( c <= 0xFF )
-        return sprintf ( buffer, "\\%03X/", c );
-    else if ( c <= 0xFFF )
-        return sprintf ( buffer, "\\%04X/", c );
-    else if ( c <= 0xFFFF )
-        return sprintf ( buffer, "\\%05X/", c );
-    else if ( c <= 0xFFFFF )
-        return sprintf ( buffer, "\\%06X/", c );
-    else if ( c <= 0xFFFFFF )
-        return sprintf ( buffer, "\\%07X/", c );
-    else if ( c <= 0xFFFFFFF )
-        return sprintf ( buffer, "\\%08X/", c );
-    else
-        return sprintf ( buffer, "\\%09X/", c );
+    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
+        print_mode = LEX::default_print_mode;
+
+    switch ( print_mode )
+    {
+    case UTF8PRINT:
+        if ( c <= 0x1f )
+	{
+	    if ( c == '\r' || c == '\n' || c == '\f'
+	                   || c == '\v' || c == '\t' )
+	    {
+	        * buffer ++ = (char) c;
+		* buffer = 0;
+		return 1;
+	    }
+	}
+    case UTF8GRAPHIC:
+        if ( c == 0x7F ) c = 0x2421;
+	else if ( c == '\n' ) c = 0x2424;
+	else if ( c == ' ' ) c = 0x2423;
+	else if ( c <= 0x1F ) c += 0x2400;
+    case UTF8:
+    {
+        if ( c <= 0x7F )
+	{
+	    * buffer ++ = (char) c;
+	    * buffer = 0;
+	    return 1;
+	}
+	int shift;
+	char * p = buffer;
+	if ( c <= 0x7FF )
+	    * p ++ = 0xC0 + ( c >> 6 ), shift = 0;
+	else if ( c <= 0xFFFF )
+	    * p ++ = 0xE0 + ( c >> 12 ), shift = 6;
+	else if ( c <= 0x1FFFFF )
+	    * p ++ = 0xF0 + ( c >> 18 ), shift = 12;
+	else if ( c <= 0x3FFFFFF )
+	    * p ++ = 0xF8 + ( c >> 24 ), shift = 18;
+	else if ( c <= 0x7FFFFFFF )
+	    * p ++ = 0xFC + ( c >> 30 ), shift = 24;
+	else 
+	    * p ++ = 0xFE, shift = 30;
+	while ( true )
+	{
+	    * p ++ = 0x80 + ( ( c >> shift ) & 0x3F );
+	    if ( shift == 0 ) break;
+	    shift -= 6;
+	}
+	* p = 0;
+	return p - buffer;
+    }
+    case ASCIIPRINT:
+        if ( c <= 0x1f )
+	{
+	    if ( c == '\r' || c == '\n' || c == '\f'
+	                   || c == '\v' || c == '\t' )
+	    {
+	        * buffer ++ = (char) c;
+		* buffer = 0;
+		return 1;
+	    }
+	}
+    case ASCIIGRAPHIC:
+	if ( c == '\\' )
+	    return sprintf ( buffer, "\\/" );
+	else if ( 33 <= c && c <= 126 )
+	    return sprintf ( buffer, "%c", (char) c );
+	else if ( c == ' ' )
+	    return sprintf ( buffer, "\\~/" );
+	else if ( c == '\n' )
+	    return sprintf ( buffer, "\\lf/" );
+	else if ( c == '\t' )
+	    return sprintf ( buffer, "\\ht/" );
+	else if ( c == '\f' )
+	    return sprintf ( buffer, "\\ff/" );
+	else if ( c == '\v' )
+	    return sprintf ( buffer, "\\vt/" );
+	else if ( c == '\b' )
+	    return sprintf ( buffer, "\\bs/" );
+	else if ( c == '\r' )
+	    return sprintf ( buffer, "\\cr/" );
+	else if ( c <= 0xF )
+	    return sprintf ( buffer, "\\%02X/", c );
+	else if ( c <= 0xFF )
+	    return sprintf ( buffer, "\\%03X/", c );
+	else if ( c <= 0xFFF )
+	    return sprintf ( buffer, "\\%04X/", c );
+	else if ( c <= 0xFFFF )
+	    return sprintf ( buffer, "\\%05X/", c );
+	else if ( c <= 0xFFFFF )
+	    return sprintf ( buffer, "\\%06X/", c );
+	else if ( c <= 0xFFFFFF )
+	    return sprintf ( buffer, "\\%07X/", c );
+	else if ( c <= 0xFFFFFFF )
+	    return sprintf ( buffer, "\\%08X/", c );
+	else
+	    return sprintf ( buffer, "\\%09X/", c );
+    default:
+        abort();
+    }
 }
 
 ostream & operator <<
 	( ostream & out, const LEX::pchar & pc )
 {
     char buffer[20];
-    spchar ( buffer, pc.c );
+    spchar ( buffer, pc.c, pc.print_mode );
     return out << buffer;
 }
 
@@ -2136,8 +2207,12 @@ unsigned LEX::spinput
 	( char * buffer, uns32 first, uns32 last,
 	  unsigned & column,
 	  bool preface_with_space,
-	  scanner_ptr scanner )
+	  scanner_ptr scanner,
+	  uns32 print_mode )
 {
+    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
+        print_mode = scanner->print_mode;
+
     if ( first > last )
         return spstring ( buffer, "<empty>", 7,
 	                  column,
@@ -2150,7 +2225,7 @@ unsigned LEX::spinput
 	uns32 c = scanner->input_buffer[first++]
 	                  .character;
 	char buffer2[40];
-	int n = spchar ( buffer2, c );
+	int n = spchar ( buffer2, c, print_mode );
 	p += spstring ( p, buffer2, n,
 	                column,
 			preface_with_space,
@@ -2164,8 +2239,12 @@ unsigned LEX::sptranslation
 	( char * buffer,
 	  unsigned & column,
 	  bool preface_with_space,
-	  scanner_ptr scanner )
+	  scanner_ptr scanner,
+	  uns32 print_mode )
 {
+    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
+        print_mode = scanner->print_mode;
+
     buffer_ptr<uns32> translation_buffer =
         scanner->translation_buffer;
 
@@ -2181,7 +2260,7 @@ unsigned LEX::sptranslation
     {
 	uns32 c = translation_buffer[i];
 	char buffer2[40];
-	int n = spchar ( buffer2, c );
+	int n = spchar ( buffer2, c, print_mode );
 	p += spstring ( p, buffer2, n,
 	                column,
 			preface_with_space,
@@ -2196,8 +2275,12 @@ unsigned LEX::splexeme
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
 	  bool preface_with_space,
-	  scanner_ptr scanner )
+	  scanner_ptr scanner,
+	  uns32 print_mode )
 {
+    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
+        print_mode = scanner->print_mode;
+
     buffer_ptr<inchar> input_buffer =
         scanner->input_buffer;
     
@@ -2219,13 +2302,15 @@ unsigned LEX::splexeme
 		    preface_with_space,
 		    scanner );
     p += spinput ( p, first, last,
-                   column, true, scanner );
+                   column, true, scanner, print_mode );
     if ( ! translation_is_exact
                ( first, last, scanner ) )
     {
         p += spstring ( p, "translated to:", 14,
-	                column, true, scanner );
-	p += sptranslation ( p, column, true, scanner );
+	                column, true,
+			scanner );
+	p += sptranslation ( p, column, true,
+	                     scanner, print_mode );
     }
     return p - buffer;
 }
@@ -2235,8 +2320,12 @@ unsigned LEX::sperroneous_atom
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
 	  bool preface_with_space,
-	  scanner_ptr scanner )
+	  scanner_ptr scanner,
+	  uns32 print_mode )
 {
+    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
+        print_mode = scanner->print_mode;
+
     buffer_ptr<inchar> input_buffer =
         scanner->input_buffer;
 
@@ -2258,7 +2347,7 @@ unsigned LEX::sperroneous_atom
 		    preface_with_space,
 		    scanner );
     p += spinput ( p, first, last,
-                   column, true, scanner );
+                   column, true, scanner, print_mode );
     return p - buffer;
 }
 

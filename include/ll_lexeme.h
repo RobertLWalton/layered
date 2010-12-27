@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 25 07:59:13 EST 2010
+// Date:	Mon Dec 27 00:57:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -932,7 +932,19 @@ namespace ll { namespace lexeme {
     //
     int spchar
 	    ( char * buffer, uns32 c,
-              uns32 print_mode = DEFAULT_PRINT_MODE );
+              uns32 print_mode = default_print_mode );
+
+    // Return the `width' of the character in the given
+    // print_mode.  The `width' is the number of columns
+    // required by the character rendering.
+    //
+    // If the returned width is 0, the character is a
+    // control character rendered as itself.  In parti-
+    // cular if the character is `\t' and the width is 0
+    // the number of columns is 8 - (starting column)%8.
+    //
+    int wchar ( uns32 c,
+                uns32 print_mode = default_print_mode );
 
     // cout << pchar ( c, print_mode ) does the same
     // thing as spchar but prints to an output stream.
@@ -940,7 +952,7 @@ namespace ll { namespace lexeme {
     struct pchar {
         uns32 c, print_mode;
 	pchar ( uns32 c,
-	        uns32 print_mode = DEFAULT_PRINT_MODE )
+	        uns32 print_mode = default_print_mode )
 	    : c ( c ), print_mode ( print_mode ) {}
     };
 

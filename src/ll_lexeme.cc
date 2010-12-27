@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 26 07:41:10 EST 2010
+// Date:	Mon Dec 27 01:11:23 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2068,9 +2068,6 @@ min::uns32 LEX::default_print_mode = LEX::ASCIIGRAPHIC;
 int LEX::spchar ( char * buffer, uns32 c,
                   uns32 print_mode )
 {
-    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
-        print_mode = LEX::default_print_mode;
-
     switch ( print_mode )
     {
     case UTF8PRINT:
@@ -2166,6 +2163,72 @@ int LEX::spchar ( char * buffer, uns32 c,
 	    return sprintf ( buffer, "\\%08X/", c );
 	else
 	    return sprintf ( buffer, "\\%09X/", c );
+    default:
+        abort();
+    }
+}
+
+int LEX::wchar ( uns32 c, uns32 print_mode )
+{
+    switch ( print_mode )
+    {
+    case UTF8PRINT:
+        if ( c <= 0x1f )
+	{
+	    if ( c == '\r' || c == '\n' || c == '\f'
+	                   || c == '\v' || c == '\t' )
+	        return 0;
+	}
+    case UTF8GRAPHIC:
+        if ( c == 0x7F ) return 1;
+	else if ( c <= 0x1F ) return 1;
+    case UTF8:
+    {
+        if ( c <= 0x1F ) return 0;
+	else return 1;
+    }
+    case ASCIIPRINT:
+        if ( c <= 0x1f )
+	{
+	    if ( c == '\r' || c == '\n' || c == '\f'
+	                   || c == '\v' || c == '\t' )
+	        return 0;
+	}
+    case ASCIIGRAPHIC:
+	if ( c == '\\' )
+	    return 2;
+	else if ( 33 <= c && c <= 126 )
+	    return 1;
+	else if ( c == ' ' )
+	    return 3;
+	else if ( c == '\n' )
+	    return 4;
+	else if ( c == '\t' )
+	    return 4;
+	else if ( c == '\f' )
+	    return 4;
+	else if ( c == '\v' )
+	    return 4;
+	else if ( c == '\b' )
+	    return 4;
+	else if ( c == '\r' )
+	    return 4;
+	else if ( c <= 0xF )
+	    return 4;
+	else if ( c <= 0xFF )
+	    return 5;
+	else if ( c <= 0xFFF )
+	    return 6;
+	else if ( c <= 0xFFFF )
+	    return 7;
+	else if ( c <= 0xFFFFF )
+	    return 8;
+	else if ( c <= 0xFFFFFF )
+	    return 9;
+	else if ( c <= 0xFFFFFFF )
+	    return 10;
+	else
+	    return 11;
     default:
         abort();
     }

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 01:11:23 EST 2010
+// Date:	Mon Dec 27 01:44:33 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -749,6 +749,10 @@ void LEX::init_scanner
     scanner->erroneous_atom = NULL;
     scanner->line_length = 72;
     scanner->indent = 4;
+    scanner->next_position.line = 0;
+    scanner->next_position.index = 0;
+    scanner->next_position.column = 0;
+    scanner->next_position.character = 0;
 
     scanner->next = 0;
 
@@ -1709,7 +1713,7 @@ static bool default_read_input
     LEX::buffer_ptr<LEX::inchar> input_buffer =
         scanner->input_buffer;
 
-    LEX::inchar ic;
+    LEX::inchar & ic = scanner->next_position;
     ic.line = file->line_number - 1;
     ic.index = 0;
     ic.column = 0;
@@ -1783,25 +1787,15 @@ static bool default_read_input
 
 	ic.character = unicode;
 	min::push ( input_buffer, ic );
-
 	ic.index += bytes_read;
-
-	switch ( unicode )
-	{
-	case '\f':
-	case '\v':
-	    break;
-
-	case '\t':
+	min::uns32 width =
+	    LEX::wchar ( unicode, scanner->print_mode );
+	if ( width == 0 && unicode == '\t' )
 	    ic.column += 8 - ic.column % 8;
-	    break;
+	else
+	    ic.column += width;
 
-	default:
-	    ++ ic.column;
-	    break;
-	}
-
-	// Handle premature end of UTF-8 encode UNICODE
+	// Handle premature end of UTF-8 encoded UNICODE
 	// character.
 	//
 	if ( c == 0 ) break;
@@ -1809,6 +1803,10 @@ static bool default_read_input
 
     ic.character = '\n';
     min::push ( input_buffer, ic );
+    ++ ic.line;
+    ic.index = 0;
+    ic.column = 0;
+
     return true;
 }
 

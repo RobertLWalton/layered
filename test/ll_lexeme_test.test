@@ -221,16 +221,16 @@ Testing Lexical Scan of:
 \~/ab\~/3.4\~/x+y++z
 
 Scan Returned: WHITESPACE:0(0)0: \~/
-Scan Returned: SYMBOL:0(1)1: ab
-Scan Returned: WHITESPACE:0(3)3: \~/
-Scan Returned: NUMBER:0(4)4: 3.4
-Scan Returned: WHITESPACE:0(7)7: \~/
-Scan Returned: SYMBOL:0(8)8: x
-Scan Returned: OPERATOR:0(9)9: +
-Scan Returned: SYMBOL:0(10)10: y
-Scan Returned: OPERATOR:0(11)11: ++
-Scan Returned: SYMBOL:0(13)13: z
-Scan Returned: WHITESPACE:0(14)14: \lf/
+Scan Returned: SYMBOL:0(1)3: ab
+Scan Returned: WHITESPACE:0(3)5: \~/
+Scan Returned: NUMBER:0(4)8: 3.4
+Scan Returned: WHITESPACE:0(7)11: \~/
+Scan Returned: SYMBOL:0(8)14: x
+Scan Returned: OPERATOR:0(9)15: +
+Scan Returned: SYMBOL:0(10)16: y
+Scan Returned: OPERATOR:0(11)17: ++
+Scan Returned: SYMBOL:0(13)19: z
+Scan Returned: WHITESPACE:0(14)20: \lf/
 Scan Returned: END_OF_FILE: <empty>
 
 Testing Lexical Scan of:
@@ -248,18 +248,18 @@ Scan Returned: SEPARATOR:0(9)9: (
 Scan Returned: OPERATOR:0(10)10: +
 Erroneous Atom: TYPE (100):0(12)12: \07F/
 Scan Returned: SYMBOL:0(11)11: d\07F/e translated to: de
-Scan Returned: ERROR:0(14)14: %
-Scan Returned: SYMBOL:0(15)15: f0
-Scan Returned: OPERATOR:0(17)17: --
-Scan Returned: NUMBER:0(19)19: 1.2
-Scan Returned: NUMBER:0(22)22: .3
-Scan Returned: ERROR:0(24)24: \01/
-Scan Returned: ERROR:0(25)25: \02/
-Erroneous Atom: TYPE (100):0(32)32: \/
-Erroneous Atom: TYPE (100):0(37)37: \/
-Scan Returned: SYMBOL:0(26)26: A\/102C\/100D\/10E translated to: ABC100
+Scan Returned: ERROR:0(14)18: %
+Scan Returned: SYMBOL:0(15)19: f0
+Scan Returned: OPERATOR:0(17)21: --
+Scan Returned: NUMBER:0(19)23: 1.2
+Scan Returned: NUMBER:0(22)26: .3
+Scan Returned: ERROR:0(24)28: \01/
+Scan Returned: ERROR:0(25)32: \02/
+Erroneous Atom: TYPE (100):0(32)43: \/
+Erroneous Atom: TYPE (100):0(37)49: \/
+Scan Returned: SYMBOL:0(26)36: A\/102C\/100D\/10E translated to: ABC100
     D10E
-Scan Returned: WHITESPACE:0(41)41: \lf/
+Scan Returned: WHITESPACE:0(41)54: \lf/
 Scan Returned: END_OF_FILE: <empty>
 
 Testing Lexical Scan of:
@@ -364,7 +364,7 @@ Scan Returned: SYMBOL:0(11)11: d\07F/e translated to: de
 Start atom scan: table = 27
   Character = % Dispatcher = 194 Type Map = 158 CType = 0
   OUTPUT(1)
-Scan Returned: ERROR:0(14)14: %
+Scan Returned: ERROR:0(14)18: %
 Start atom scan: table = 27
   Character = f Dispatcher = 194 Type Map = 158 CType = 2
   KEEP(0), CALL(137)
@@ -377,7 +377,7 @@ Start atom scan: table = 137
 Start atom scan: table = 137
   Character = - Dispatcher = 318 Type Map = 158 CType = 6
   KEEP(0), RETURN
-Scan Returned: SYMBOL:0(15)15: f0
+Scan Returned: SYMBOL:0(15)19: f0
 Start atom scan: table = 27
   Character = - Dispatcher = 194 Type Map = 158 CType = 6
   KEEP(0), GOTO(145)
@@ -385,7 +385,7 @@ Start atom scan: table = 145
   Character = - Dispatcher = 527 Type Map = 577 CType = 2
   Character = - Dispatcher = 644 Type Map = 577 CType = 2
   GOTO(27)
-Scan Returned: OPERATOR:0(17)17: --
+Scan Returned: OPERATOR:0(17)21: --
 Start atom scan: table = 27
   Character = 1 Dispatcher = 194 Type Map = 158 CType = 3
   KEEP(0), GOTO(141)
@@ -401,7 +401,7 @@ Start atom scan: table = 391
 Start atom scan: table = 391
   Character = . Dispatcher = 459 CType = 0
   KEEP(0), GOTO(27)
-Scan Returned: NUMBER:0(19)19: 1.2
+Scan Returned: NUMBER:0(19)23: 1.2
 Start atom scan: table = 27
   Character = . Dispatcher = 194 Type Map = 158 CType = 4
   KEEP(0), GOTO(141)
@@ -414,15 +414,15 @@ Start atom scan: table = 391
 Start atom scan: table = 391
   Character = \01/ Dispatcher = 459 CType = 0
   KEEP(0), GOTO(27)
-Scan Returned: NUMBER:0(22)22: .3
+Scan Returned: NUMBER:0(22)26: .3
 Start atom scan: table = 27
   Character = \01/ Dispatcher = 194 Type Map = 158 CType = 0
   OUTPUT(1)
-Scan Returned: ERROR:0(24)24: \01/
+Scan Returned: ERROR:0(24)28: \01/
 Start atom scan: table = 27
   Character = \02/ Dispatcher = 194 Type Map = 158 CType = 0
   OUTPUT(1)
-Scan Returned: ERROR:0(25)25: \02/
+Scan Returned: ERROR:0(25)32: \02/
 Start atom scan: table = 27
   Character = A Dispatcher = 194 Type Map = 158 CType = 2
   KEEP(0), CALL(137)
@@ -461,7 +461,7 @@ Start atom scan: table = 31
 
   Character = @ Dispatcher = 352 CType = 0
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(32)32: \/
+Erroneous Atom: TYPE (100):0(32)43: \/
 Start atom scan: table = 137
   Character = 1 Dispatcher = 318 Type Map = 158 CType = 3
   ACCEPT
@@ -486,7 +486,7 @@ Start atom scan: table = 31
   Character = E Dispatcher = 97 CType = 0
   FAIL
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(37)37: \/
+Erroneous Atom: TYPE (100):0(37)49: \/
 Start atom scan: table = 137
   Character = 1 Dispatcher = 318 Type Map = 158 CType = 3
   ACCEPT
@@ -499,14 +499,14 @@ Start atom scan: table = 137
 Start atom scan: table = 137
   Character = \lf/ Dispatcher = 318 Type Map = 158 CType = 1
   KEEP(0), RETURN
-Scan Returned: SYMBOL:0(26)26: A\/102C\/100D\/10E translated to: ABC100
+Scan Returned: SYMBOL:0(26)36: A\/102C\/100D\/10E translated to: ABC100
     D10E
 Start atom scan: table = 27
   Character = \lf/ Dispatcher = 194 Type Map = 158 CType = 1
   GOTO(133)
 Start atom scan: table = 133
   KEEP(0), GOTO(27)
-Scan Returned: WHITESPACE:0(41)41: \lf/
+Scan Returned: WHITESPACE:0(41)54: \lf/
 Start atom scan: table = 27
   OUTPUT(2)
 Scan Returned: END_OF_FILE: <empty>

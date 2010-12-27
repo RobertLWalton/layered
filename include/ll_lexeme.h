@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 00:57:16 EST 2010
+// Date:	Mon Dec 27 01:44:05 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -206,6 +206,15 @@ namespace ll { namespace lexeme {
 	//
 	buffer_ptr<inchar> input_buffer;
 
+	// The line, index, and column of the character
+	// that will be put next at the end of the input
+	// buffer.  May be used to delimit the end of
+	// the last character in the input buffer.
+	//
+	// The .character member is unused.
+	//
+	inchar next_position;
+
 	// The translation buffer holds the translation
 	// of the current lexeme.  For example, if the
 	// lexeme is a quoted string lexeme, the quotes
@@ -242,19 +251,25 @@ namespace ll { namespace lexeme {
 	//   line   input_file->line_number - 1 after
 	//	    calling next_line(input_file).
 	//
-	//   index  Set to 0 at beginning of line and
-	//	    incremented by the number of UTF-8
-	//          bytes that encode each UNICODE
-	//          character added to the input buffer.
+	//   index  Set to 0 at beginning of line, i.e.,
+	//	    when `\n' is added to the input
+	//	    buffer; otherwise incremented by the
+	//	    number of UTF-8 bytes that encode
+	//	    the character added to the input
+	//	    buffer.
 	//
-	//   column Set to 0 at the beginning of a line;
-	//          set to next multiple of 8 after add-
-	//	    ing a tab to the input buffer;
-	//	    incremented by the character width
-	//	    after adding any other UNICODE char-
-	//	    acter to the input buffer.  The
-	//	    character width is computed using
-	//	    the print_mode.
+	//   column Set to 0 at the beginning of a line,
+	//	    i.e., when `\n' is added to the
+	//	    input buffer; otherwise incremented
+	//	    by
+	//
+	//		wchar ( c, print_mode )
+	//
+	//	    where c is the UNICODE character
+	//	    added to the input buffer, unless
+	//	    wchar returns 0 and c == `\t', in
+	//	    which case the column is set to the
+	//	    next multiple of 8.
 	//
 	// Input_file should be set using create_file
 	// and one of read_file, init_stream, or init_

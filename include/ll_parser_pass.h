@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 24 17:39:54 EST 2010
+// Date:	Mon Dec 27 22:43:57 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -82,26 +82,31 @@ void set_max_string_free_list_size ( int n );
 struct token_struct;
 typedef min::packed_struct_updptr<token_struct>
     token_ptr;
+enum // Token kinds (see below).
+{
+    SYMBOL		= 0xFFFFFFFF,
+    NATURAL_NUMBER	= 0xFFFFFFFE,
+    LABEL		= 0xFFFFFFFD,
+    EXPRESSION		= 0xFFFFFFFC
+};
 struct token_struct
 {
     min::uns32 type;
     	// Packed structure type.
 
     min::uns32 kind;  // One of:
-    enum
-    {
+	//
         // For lexemes: the lexeme type.
-
+	//
 	// For names:
 	//
-    	SYMBOL		= 0xFFFFFFFF,
-	NATURAL_NUMBER	= 0xFFFFFFFE,
-	LABEL		= 0xFFFFFFFD,
-
+    	//	SYMBOL
+	//	NATURAL_NUMBER
+	//	LABEL
+	//
 	// For expressions:
 	//
-    	EXPRESSION	= 0xFFFFFFFC
-    };
+    	//	EXPRESSION
 
     min::gen value;
         // Value for names and expressions.

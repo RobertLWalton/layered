@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 01:44:05 EST 2010
+// Date:	Mon Dec 27 13:47:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -774,8 +774,8 @@ namespace ll { namespace lexeme {
 	    ( scanner_ptr & scanner = default_scanner,
               program_ptr program = NULL_STUB );
 
-    // Scan the input and return the next lexeme, END_
-    // OF_FILE or SCAN_ERROR.
+    // Scan the input and return the next lexeme or
+    // SCAN_ERROR.
     //
     // When a lexeme is returned, the first and last
     // positions in the input buffer are returned, i.e.,
@@ -788,8 +788,6 @@ namespace ll { namespace lexeme {
     // of the scan function.  The translated lexeme is
     // returned in the translation buffer.
     //
-    // If there is an end of file instead of a lexeme,
-    // END_OF_FILE is returned instead of a lexeme type.
     // If there is an error in the lexical scanning
     // program, SCAN_ERROR is returned instead of a
     // lexeme type, and an error message diagnostic is

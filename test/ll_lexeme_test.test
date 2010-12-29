@@ -257,8 +257,8 @@ Scan Returned: ERROR:0(24)28: \01/
 Scan Returned: ERROR:0(25)32: \02/
 Erroneous Atom: TYPE (100):0(32)43: \/
 Erroneous Atom: TYPE (100):0(37)49: \/
-Scan Returned: SYMBOL:0(26)36: A\/102C\/100D\/10E translated to: ABC100
-    D10E
+Scan Returned: SYMBOL:0(26)36: A\/102C\/100D\/10E translated to: ABC100D
+    10E
 Scan Returned: WHITESPACE:0(41)54: \lf/
 Scan Returned: END_OF_FILE: <empty>
 
@@ -499,8 +499,8 @@ Start atom scan: table = 137
 Start atom scan: table = 137
   Character = \lf/ Dispatcher = 318 Type Map = 158 CType = 1
   KEEP(0), RETURN
-Scan Returned: SYMBOL:0(26)36: A\/102C\/100D\/10E translated to: ABC100
-    D10E
+Scan Returned: SYMBOL:0(26)36: A\/102C\/100D\/10E translated to: ABC100D
+    10E
 Start atom scan: table = 27
   Character = \lf/ Dispatcher = 194 Type Map = 158 CType = 1
   GOTO(133)

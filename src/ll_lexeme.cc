@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 01:44:33 EST 2010
+// Date:	Wed Dec 29 04:30:28 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,75 @@ using namespace LEX;
 using namespace LEX::program_data;
 
 #define FOR(i,n) for ( uns32 i = 0; i < (n); ++ i )
+
+// Read a UTF-8 encoded UNCODE character c from a buffer
+// and return the number of buffer bytes read.
+//
+// On an invalid encoding, return c == 0xFFFFFFFF and
+// either the number of bytes read before the first
+// invalid byte, or 1 if the first byte is invalid.
+//
+int read_utf8 ( min::uns32 & c, const char * buffer )
+{
+    uns32 unicode = buffer[0] & 0xFF;
+    int bytes_read = 1;
+    if ( unicode <= 0x7F ) ; // Do nothing;
+    else if ( unicode < 0xC0 )
+    {
+        c = 0xFFFFFFFF;
+	return 1;
+    }
+    else if ( unicode < 0xE0 )
+    {
+	unicode &= 0x1F;
+	bytes_read = 2;
+    }
+    else if ( unicode < 0xF0 )
+    {
+	unicode &= 0x0F;
+	bytes_read = 3;
+    }
+    else if ( unicode < 0xF8 )
+    {
+	unicode &= 0x07;
+	bytes_read = 4;
+    }
+    else if ( unicode < 0xFC )
+    {
+	unicode &= 0x03;
+	bytes_read = 5;
+    }
+    else if ( unicode < 0xFE )
+    {
+	unicode &= 0x01;
+	bytes_read = 6;
+    }
+    else if ( unicode < 0xFF )
+    {
+	unicode &= 0x00;
+	bytes_read = 7;
+    }
+    else
+    {
+	c = 0xFFFFFFFF;
+	return 1;
+    }
+
+    for ( int i = 1; i < bytes_read; ++ i )
+    {
+	unsigned ch = buffer[i] & 0xFF;
+	if ( ch < 0x80 || 0xBF < ch )
+	{
+	    c = 0xFFFFFFFF;
+	    return i;
+	}
+	unicode <<= 6;
+	unicode |= ( ch & 0x3F );
+    }
+
+    c = unicode;
+    return bytes_read;
+}
 
 // Data
 // ----
@@ -1718,72 +1787,12 @@ static bool default_read_input
     ic.index = 0;
     ic.column = 0;
 
-    int c;
-    while ( c = file->data[offset++] )
+    while ( file->data[offset] != 0 )
     {
-	unsigned bytes_read = 1;
-
-	c &= 0xFF;
-
-	uns32 unicode = c;
-	unsigned extra_characters = 0;
-	if ( c <= 0x7F ) ; // Do nothing;
-	else if ( c < 0xE0 )
-	{
-	    unicode &= 0x1F;
-	    extra_characters = 1;
-	}
-	else if ( c < 0xF0 )
-	{
-	    unicode &= 0x0F;
-	    extra_characters = 2;
-	}
-	else if ( c < 0xF8 )
-	{
-	    unicode &= 0x07;
-	    extra_characters = 3;
-	}
-	else if ( c < 0xFC )
-	{
-	    unicode &= 0x03;
-	    extra_characters = 4;
-	}
-	else if ( c < 0xFE )
-	{
-	    unicode &= 0x01;
-	    extra_characters = 5;
-	}
-	else if ( c < 0xFF )
-	{
-	    unicode &= 0x00;
-	    extra_characters = 6;
-	}
-	else
-	{
-	    unicode = 0xFFFFFFFF;
-	}
-
-	while ( extra_characters -- )
-	{
-	    c = file->data[offset++];
-
-	    if ( c == 0 )
-	    {
-	        unicode = 0xFFFFFFFF;
-		break;
-	    }
-
-	    ++ bytes_read;
-	    
-	    c &= 0xFF;
-	    if ( c < 0x80 || 0xBF < c )
-	    {
-	        unicode = 0xFFFFFFFF;
-		break;
-	    }
-	    unicode <<= 6;
-	    unicode |= ( c & 0x3F );
-	}
+	uns32 unicode;
+	int bytes_read =
+	    read_utf8 ( unicode, & file->data[offset] );
+	offset += bytes_read;
 
 	ic.character = unicode;
 	min::push ( input_buffer, ic );
@@ -1794,11 +1803,6 @@ static bool default_read_input
 	    ic.column += 8 - ic.column % 8;
 	else
 	    ic.column += width;
-
-	// Handle premature end of UTF-8 encoded UNICODE
-	// character.
-	//
-	if ( c == 0 ) break;
     }
 
     ic.character = '\n';
@@ -2066,6 +2070,15 @@ min::uns32 LEX::default_print_mode = LEX::ASCIIGRAPHIC;
 int LEX::spchar ( char * buffer, uns32 c,
                   uns32 print_mode )
 {
+    // Optimization
+    //
+    if ( 0x21 <= c && c <= 0x7E && c != '\\' )
+    {
+        * buffer ++ = (char) c;
+	* buffer = 0;
+	return 1;
+    }
+
     switch ( print_mode )
     {
     case UTF8PRINT:
@@ -2116,7 +2129,7 @@ int LEX::spchar ( char * buffer, uns32 c,
 	return p - buffer;
     }
     case ASCIIPRINT:
-        if ( c <= 0x1f )
+        if ( c <= 0x1F )
 	{
 	    if ( c == '\r' || c == '\n' || c == '\f'
 	                   || c == '\v' || c == '\t' )
@@ -2129,7 +2142,7 @@ int LEX::spchar ( char * buffer, uns32 c,
     case ASCIIGRAPHIC:
 	if ( c == '\\' )
 	    return sprintf ( buffer, "\\/" );
-	else if ( 33 <= c && c <= 126 )
+	else if ( 0x21 <= c && c <= 0x7E )
 	    return sprintf ( buffer, "%c", (char) c );
 	else if ( c == ' ' )
 	    return sprintf ( buffer, "\\~/" );
@@ -2168,6 +2181,11 @@ int LEX::spchar ( char * buffer, uns32 c,
 
 int LEX::wchar ( uns32 c, uns32 print_mode )
 {
+    // Optimization
+    //
+    if ( 0x21 <= c && c <= 0x7E && c != '\\' )
+        return 1;
+
     switch ( print_mode )
     {
     case UTF8PRINT:
@@ -2240,34 +2258,142 @@ ostream & operator <<
     return out << buffer;
 }
 
-unsigned LEX::spstring
-	( char * buffer,
-	  const char * string, unsigned n,
+int LEX::spchar
+	( char * buffer, uns32 c,
 	  unsigned & column,
-	  bool preface_with_space,
-	  scanner_ptr scanner )
+	  uns32 space_mode,
+	  scanner_ptr scanner,
+	  uns32 print_mode )
 {
-    uns32 indent = scanner->indent;
-    char * p = buffer;
-    if (    column + preface_with_space + n
-         >= scanner->line_length )
+    // Optimization
+    //
+    if ( 0x21 <= c && c <= 0x7E && c != '\\' )
     {
-        * p ++ = '\n';
-	while ( indent -- ) * p ++ = ' ';
-	column = indent;
+	switch ( space_mode )
+	{
+	case ENFORCE_LINE_LENGTH:
+	    if ( column >= scanner->line_length )
+	        break;
+	case 0:
+	    * buffer ++ = (char) c;
+	    ++ column;
+	    * buffer = 0;
+	    return 1;
+	case PREFACE_WITH_SPACE + ENFORCE_LINE_LENGTH:
+	    if ( column + 1 >= scanner->line_length )
+	        break;
+	case PREFACE_WITH_SPACE:
+	    * buffer ++ = ' ';
+	    ++ column;
+	    * buffer ++ = (char) c;
+	    ++ column;
+	    * buffer = 0;
+	    return 2;
+	}
     }
-    else if ( preface_with_space )
-        * p ++ = ' ', ++ column;
-    strncpy ( p, string, n );
-    p += n, column += n;
-    * p = 0;
+
+    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
+        print_mode = scanner->print_mode;
+
+    int width = wchar ( c, print_mode ); 
+    bool is_tab = ( width == 0 && c == '\t' );
+    if ( is_tab ) width = column += 8 - column % 8;
+
+    char * p = buffer;
+    switch ( space_mode )
+    {
+    case ENFORCE_LINE_LENGTH:
+	if ( column + width >= scanner->line_length )
+	{
+	    p += sprintf ( p, "\n%*s",
+		           scanner->indent, "" );
+	    column = scanner->indent;
+	}
+	break;
+    case PREFACE_WITH_SPACE + ENFORCE_LINE_LENGTH:
+	if (    column + width + 1
+	     >= scanner->line_length )
+	{
+	    p += sprintf ( p, "\n%*s",
+		           scanner->indent, "" );
+	    column = scanner->indent;
+	    break;
+	}
+    case PREFACE_WITH_SPACE:
+	* p ++ = ' ';
+	++ column;
+	break;
+    }
+    p += spchar ( p, c, print_mode );
+    if ( is_tab ) width = column += 8 - column % 8;
+    column += width;
     return p - buffer;
 }
 
-unsigned LEX::spinput
+int LEX::spword
+	( char * buffer, const char * word,
+	  unsigned & column,
+	  uns32 space_mode,
+	  scanner_ptr scanner )
+{
+    int width = strlen ( word );
+    char * p = buffer;
+    switch ( space_mode )
+    {
+    case ENFORCE_LINE_LENGTH:
+	if ( column + width >= scanner->line_length )
+	{
+	    p += sprintf ( p, "\n%*s",
+		           scanner->indent, "" );
+	    column = scanner->indent;
+	}
+	break;
+    case PREFACE_WITH_SPACE + ENFORCE_LINE_LENGTH:
+	if ( column + width + 1 >= scanner->line_length )
+	{
+	    p += sprintf ( p, "\n%*s",
+		           scanner->indent, "" );
+	    column = scanner->indent;
+	    break;
+	}
+    case PREFACE_WITH_SPACE:
+	* p ++ = ' ';
+	++ column;
+	break;
+    }
+    strcpy ( p, word );
+    p += width;
+    column += width;
+    return p - buffer;
+}
+
+int LEX::spstring
+	( char * buffer,
+	  const char * string,
+	  unsigned & column,
+	  uns32 space_mode,
+	  scanner_ptr scanner,
+	  uns32 print_mode )
+{
+    if ( print_mode == LEX::DEFAULT_PRINT_MODE )
+        print_mode = scanner->print_mode;
+
+    uns32 c;
+    char * p = buffer;
+    while ( * string )
+    {
+        string += read_utf8 ( c, string );
+	p += spchar ( p, c, column,
+	              space_mode, scanner, print_mode );
+	space_mode &= ~ PREFACE_WITH_SPACE;
+    }
+    return p - buffer;
+}
+
+int LEX::spinput
 	( char * buffer, uns32 first, uns32 last,
 	  unsigned & column,
-	  bool preface_with_space,
+	  uns32 space_mode,
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
@@ -2275,31 +2401,25 @@ unsigned LEX::spinput
         print_mode = scanner->print_mode;
 
     if ( first > last )
-        return spstring ( buffer, "<empty>", 7,
-	                  column,
-			  preface_with_space,
-			  scanner );
+        return spword ( buffer, "<empty>", column,
+			space_mode, scanner );
 
     char * p = buffer;
     while ( first <= last )
     {
 	uns32 c = scanner->input_buffer[first++]
 	                  .character;
-	char buffer2[40];
-	int n = spchar ( buffer2, c, print_mode );
-	p += spstring ( p, buffer2, n,
-	                column,
-			preface_with_space,
-			scanner );
-	preface_with_space = false;
+	p += spchar ( p, c, column,
+	              space_mode, scanner, print_mode );
+	space_mode &= ~ PREFACE_WITH_SPACE;
     }
     return p - buffer;
 }
 
-unsigned LEX::sptranslation
+int LEX::sptranslation
 	( char * buffer,
 	  unsigned & column,
-	  bool preface_with_space,
+	  uns32 space_mode,
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
@@ -2310,32 +2430,26 @@ unsigned LEX::sptranslation
         scanner->translation_buffer;
 
     if ( translation_buffer->length == 0 )
-        return spstring ( buffer, "<empty>", 7,
-	                  column,
-			  preface_with_space,
-			  scanner );
+        return spword ( buffer, "<empty>", column,
+			space_mode, scanner );
 
     char * p = buffer;
     for ( unsigned i = 0;
           i < translation_buffer->length; ++ i )
     {
 	uns32 c = translation_buffer[i];
-	char buffer2[40];
-	int n = spchar ( buffer2, c, print_mode );
-	p += spstring ( p, buffer2, n,
-	                column,
-			preface_with_space,
-			scanner );
-	preface_with_space = false;
+	p += spchar ( p, c, column,
+	              space_mode, scanner, print_mode );
+	space_mode &= ~ PREFACE_WITH_SPACE;
     }
     return p - buffer;
 }
 
-unsigned LEX::splexeme
+int LEX::splexeme
 	( char * buffer,
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
-	  bool preface_with_space,
+	  uns32 space_mode,
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
@@ -2353,34 +2467,39 @@ unsigned LEX::splexeme
     if ( first <= last )
     {
 	inchar & ic = input_buffer[first];
-	p2 += sprintf ( p2, "%u(%u)%u:",
-	                ic.line, ic.index, ic.column );
+	sprintf ( p2, "%u(%u)%u:",
+	          ic.line, ic.index, ic.column );
     }
+    else * p2 = 0;
 
     char * p = buffer;
-    p += spstring ( p, buffer2, p2 - buffer2,
-                    column,
-		    preface_with_space,
-		    scanner );
+    p += spword ( p, buffer2, column,
+                  space_mode, scanner );
     p += spinput ( p, first, last,
-                   column, true, scanner, print_mode );
+		   column,
+		   space_mode | PREFACE_WITH_SPACE,
+		   scanner, print_mode );
+
     if ( ! translation_is_exact
                ( first, last, scanner ) )
     {
-        p += spstring ( p, "translated to:", 14,
-	                column, true,
-			scanner );
-	p += sptranslation ( p, column, true,
-	                     scanner, print_mode );
+        p += spword ( p, "translated to:",
+	              column,
+		      space_mode | PREFACE_WITH_SPACE,
+		      scanner );
+	p += sptranslation
+	         ( p, column,
+		   space_mode | PREFACE_WITH_SPACE,
+		   scanner, print_mode );
     }
     return p - buffer;
 }
 
-unsigned LEX::sperroneous_atom
+int LEX::sperroneous_atom
 	( char * buffer,
 	  uns32 first, uns32 last, uns32 type,
 	  unsigned & column,
-	  bool preface_with_space,
+	  uns32 space_mode,
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
@@ -2398,17 +2517,18 @@ unsigned LEX::sperroneous_atom
     if ( first <= last )
     {
 	inchar & ic = input_buffer[first];
-	p2 += sprintf ( p2, "%u(%u)%u:",
-	                ic.line, ic.index, ic.column );
+	sprintf ( p2, "%u(%u)%u:",
+	          ic.line, ic.index, ic.column );
     }
+    else * p2 = 0;
 
     char * p = buffer;
-    p += spstring ( p, buffer2, p2 - buffer2,
-                    column,
-		    preface_with_space,
-		    scanner );
+    p += spword ( p, buffer2, column,
+                  space_mode, scanner );
     p += spinput ( p, first, last,
-                   column, true, scanner, print_mode );
+                   column,
+		   space_mode | PREFACE_WITH_SPACE,
+		   scanner, print_mode );
     return p - buffer;
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 13:47:06 EST 2010
+// Date:	Wed Dec 29 04:16:32 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,6 +158,11 @@ namespace ll { namespace lexeme {
     //   the range 0x21 ... 0x7e), it is rendered as
     //   "\0X...X/", where X...X are hexadecimal digits
     //   representing the uns32 value c.
+    //
+    // Note: ASCII characters in the range 0x21 .. 0x7E
+    // except \ are always rendered as themselves and
+    // are always 1 column wide.  This can be used in
+    // optimizations.
     //
     enum {
 	DEFAULT_PRINT_MODE = 0,
@@ -998,38 +1003,92 @@ std::ostream & operator <<
 
 namespace ll { namespace lexeme {
 
-    // Print scanner->input_buffer[first .. last] to one
-    // or more lines in the buffer.  The \n for the last
-    // line is NOT put in the buffer.  Return the number
-    // of characters put in the buffer.  Put a NUL
-    // character after these characters, NOT including
-    // this NUL in the returned count.
+    // Print character as per spchar above, but use the
+    // space_mode and scanner to limit line length.
     //
-    // Preface_with_space is true if the output is to
-    // be prefaced with a ` ' character unless it is
-    // prefaced with a \n because its beginning will
-    // not fit in the remainder of the first line.
-    // The next column number to be printed is in the
-    // `column' variable; 0 is the first column.  The
-    // scanner provides the maximum length of the line
-    // and the indent to use after a \n is inserted in
-    // the buffer.
+    // The possible space_mode values are the sum of:
     //
-    unsigned spinput
+    enum {
+    	ENFORCE_LINE_LENGTH = 1,
+	    // If output column would exceed scanner->
+	    // line_length, precede output by a new
+	    // line followed by scanner->indent
+	    // spaces.
+	PREFACE_WITH_SPACE = 2,
+	    // Output is preceded by a single space
+	    // unless ENFORCE_LINE_LENGTH is also
+	    // present and the output column with the
+	    // single space included would excede
+	    // scanner->line_length, in which case the
+	    // output is precded by a new line followed
+	    // by scanner->indent spaces.
+    };
+    //
+    // Note: you must give space_mode, as it is
+    // necessary to avoid calls ambiguous with
+    // spchar above.
+    //
+    int spchar
+	    ( char * buffer, uns32 c,
+	      unsigned & column,
+	      uns32 space_mode,
+	      scanner_ptr scanner = default_scanner,
+	      uns32 print_mode = DEFAULT_PRINT_MODE );
+
+    // Like spchar but print the `word' as if it were
+    // the translation of a character.  That is, `word'
+    // will not be broken between lines.  Here `word'
+    // must be an ASCII string of non-control charac-
+    // ters (single space IS ALLOWED) and is printed in
+    // UTF-8 mode (which is equivalent to ASCIIPRINT in
+    // this case except for \).
+    //
+    int spword
+	    ( char * buffer, const char * word,
+	      unsigned & column,
+	      uns32 space_mode = ENFORCE_LINE_LENGTH,
+	      scanner_ptr scanner = default_scanner );
+
+    // Print the given NUL terminated UTF-8 string.
+    // The string is copied to the buffer as if it were
+    // converted to UNICODE characters that are then
+    // printed with spchar.
+    //
+    // PREFACE_WITH_SPACE is applied only to the first
+    // character output.
+    //
+    // The number of bytes added to the buffer is
+    // returned.
+    //
+    int spstring
+	    ( char * buffer,
+	      const char * string,
+	      unsigned & column,
+	      uns32 space_mode = ENFORCE_LINE_LENGTH,
+	      scanner_ptr scanner = default_scanner,
+	      uns32 print_mode = DEFAULT_PRINT_MODE );
+
+    // Ditto but print the characters of scanner->input_
+    // buffer[first .. last] instead of printing a UTF-8
+    // string.  If first > last use spword to print
+    // "<empty>" instead.
+    //
+    int spinput
 	    ( char * buffer,
               uns32 first, uns32 last,
 	      unsigned & column,
-	      bool preface_with_space = false,
+	      uns32 space_mode = ENFORCE_LINE_LENGTH,
 	      scanner_ptr scanner = default_scanner,
 	      uns32 print_mode = DEFAULT_PRINT_MODE );
 
     // Ditto but print scanner->translation_buffer in
-    // its entirety.
+    // its entirety.  If translation_buffer is empty,
+    // print "<empty>" instead.
     //
-    unsigned sptranslation
+    int sptranslation
 	    ( char * buffer,
 	      unsigned & column,
-	      bool preface_with_space = false,
+	      uns32 space_mode = ENFORCE_LINE_LENGTH,
 	      scanner_ptr scanner = default_scanner,
 	      uns32 print_mode = DEFAULT_PRINT_MODE );
 
@@ -1038,40 +1097,24 @@ namespace ll { namespace lexeme {
     // type, and if the translation is inexact, also
     // include the translation.
     //
-    unsigned splexeme
+    int splexeme
 	    ( char * buffer,
               uns32 first, uns32 last, uns32 type,
 	      unsigned & column,
-	      bool preface_with_space = false,
+	      uns32 space_mode = ENFORCE_LINE_LENGTH,
 	      scanner_ptr scanner = default_scanner,
 	      uns32 print_mode = DEFAULT_PRINT_MODE );
 
     // Ditto but print the current erroneous atom.  The
     // translation is not relevant in this case.
     //
-    unsigned sperroneous_atom
+    int sperroneous_atom
 	    ( char * buffer,
               uns32 first, uns32 last, uns32 type,
 	      unsigned & column,
-	      bool preface_with_space = false,
+	      uns32 space_mode = ENFORCE_LINE_LENGTH,
 	      scanner_ptr scanner = default_scanner,
 	      uns32 print_mode = DEFAULT_PRINT_MODE );
-
-    // Ditto but print the given string all on the
-    // same line.  n is the length of the string,
-    // which need not be NUL terminated.  The
-    // string is copied to the buffer as if it
-    // where printed in ASCIIPRINT mode and had no
-    // control characters that are not rendered as
-    // themselves.
-    //
-    unsigned spstring
-	    ( char * buffer,
-	      const char * string,
-	      unsigned n,
-	      unsigned & column,
-	      bool preface_with_space = false,
-	      scanner_ptr scanner = default_scanner );
 
     // Return true if the translation buffer holds a
     // copy of scanner->input_buffer[first .. last].

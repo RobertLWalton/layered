@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 10 11:53:43 EST 2010
+// Date:	Wed Dec 29 12:58:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -528,9 +528,12 @@ static void erroneous_atom
     char * p = buffer;
     p += sprintf ( p, "Erroneous Atom:" );
     unsigned column = p - buffer;
-    p += LEX::sperroneous_atom
-	    ( p, first, last, type,
-	      column, true, scanner );
+    LEX::sperroneous_atom
+	( p, first, last, type,
+	  column,
+	    LEX::ENFORCE_LINE_LENGTH
+	  + LEX::PREFACE_WITH_SPACE,
+	  scanner );
     cout << buffer << endl;
 }
 
@@ -538,21 +541,21 @@ void test_program
     ( const char * input, bool trace = false )
 {
     cout << endl
-         << "Testing Lexical Scan of:" << endl;
+	 << "Testing Lexical Scan of:" << endl;
     for ( const char * p = input; * p; ++ p )
-        cout << LEX::pchar ( * p );
+	cout << LEX::pchar ( * p );
     cout << endl << endl;
 
     LEX::init_scanner();
     LEX::init_string ( LEX::default_scanner->input_file,
-                       "test", input );
+		       "test", input );
     LEX::default_scanner->erroneous_atom =
-        ::erroneous_atom;
+	::erroneous_atom;
     if ( trace )
 	LEX::default_scanner->scan_trace_out= & cout;
 
 
-    char buffer[1000];
+    char buffer[10000];
     while ( true )
     {
 	uns32 first, last;
@@ -569,8 +572,11 @@ void test_program
 	    break;
 	}
 	else
-	    p += LEX::splexeme ( p, first, last, type,
-	                         column, true );
+	    LEX::splexeme
+		( p, first, last, type, column,
+		    LEX::ENFORCE_LINE_LENGTH
+		  + LEX::PREFACE_WITH_SPACE );
+
 	cout << buffer << endl;
 
 	if ( type == END_OF_FILE ) break;

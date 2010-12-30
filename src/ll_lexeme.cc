@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 29 04:30:28 EST 2010
+// Date:	Thu Dec 30 09:03:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -133,20 +133,17 @@ static uns32 file_stub_disp[] =
     { LEX::DISP ( & LEX::file_struct::data ),
       min::DISP_END };
 
-static min::packed_vec<LEX::file_struct,LEX::uns32>
+static min::packed_vec<LEX::uns32,LEX::file_struct>
        file_type
            ( "ll::lexeme::file",
 	     ::file_gen_disp, ::file_stub_disp );
 
-static min::packed_vec<LEX::buffer_header,char>
-       char_buffer_type
-           ( "ll::lexeme::buffer<char>" );
-static min::packed_vec<LEX::buffer_header,LEX::uns32>
-       uns32_buffer_type
-           ( "ll::lexeme::buffer<uns32>" );
-static min::packed_vec<LEX::buffer_header,LEX::inchar>
-       inchar_buffer_type
-           ( "ll::lexeme::buffer<inchar>" );
+static min::packed_vec<char> char_vec_type
+           ( "ll::lexeme::char_vec" );
+static min::packed_vec<LEX::uns32> uns32_vec_type
+           ( "ll::lexeme::uns32_vec" );
+static min::packed_vec<LEX::inchar> inchar_vec_type
+           ( "ll::lexeme::inchar_vec" );
 
 static min::static_stub<1> default_scanner_stub;
 LEX::scanner_ptr & LEX::default_scanner =
@@ -209,7 +206,7 @@ void LEX::create_program
 
     if ( program == NULL_STUB )
         program = scanner->program =
-	    uns32_buffer_type.new_gen();
+	    uns32_vec_type.new_gen();
     else
 	reset ( program );
 
@@ -790,9 +787,9 @@ void LEX::init_scanner
 	scanner_vec[0] = scanner;
 
 	scanner->input_buffer =
-	    inchar_buffer_type.new_gen();
+	    inchar_vec_type.new_gen();
 	scanner->translation_buffer =
-	    uns32_buffer_type.new_gen();
+	    uns32_vec_type.new_gen();
 	scanner->program = NULL_STUB;
 	scanner->print_mode = default_print_mode;
     }
@@ -978,9 +975,9 @@ static uns32 scan_atom
 {
     program_ptr program =
         scanner->program;
-    buffer_ptr<inchar> input_buffer =
+    min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
-    buffer_ptr<uns32> translation_buffer =
+    min::packed_vec_insptr<uns32> translation_buffer =
         scanner->translation_buffer;
 
     const uns32 SCAN_ERROR = 0;
@@ -1427,13 +1424,13 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 {
     program_ptr program =
         scanner->program;
-    buffer_ptr<inchar> input_buffer =
+    min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
-    buffer_ptr<uns32> translation_buffer =
+    min::packed_vec_insptr<uns32> translation_buffer =
         scanner->translation_buffer;
 
     if (    scanner->next
-         >= inchar_buffer_type.max_increment )
+         >= inchar_vec_type.max_increment )
     {
         // If next has gotten to be as large as
 	// max_increment, shift the input_buffer
@@ -1779,7 +1776,7 @@ static bool default_read_input
     LEX::uns32 offset = LEX::next_line ( file );
     if ( offset == LEX::NO_LINE ) return false;
 
-    LEX::buffer_ptr<LEX::inchar> input_buffer =
+    min::packed_vec_insptr<LEX::inchar> input_buffer =
         scanner->input_buffer;
 
     LEX::inchar & ic = scanner->next_position;
@@ -1845,7 +1842,7 @@ bool LEX::read_file
     file->file_name = min::new_str_gen ( file_name );
     if ( file->data == NULL_STUB )
          file->data =
-	     char_buffer_type.new_gen
+	     char_vec_type.new_gen
 	         ( (min::uns32) file_size + 1,
 		   (min::uns32) file_size );
     else
@@ -1866,7 +1863,7 @@ bool LEX::read_file
     file->offset = 0;
 
     min::resize
-	( file, uns32_buffer_type.initial_max_length );
+	( file, uns32_vec_type.initial_max_length );
     min::pop ( file, file->length, (uns32 *) NULL );
 
     // We use FILE IO because it is standard for C
@@ -1919,12 +1916,12 @@ void LEX::init_stream ( file_ptr file,
     file->file_name = min::new_str_gen ( file_name );
     if ( file->data == NULL_STUB )
          file->data =
-	     char_buffer_type.new_gen ();
+	     char_vec_type.new_gen ();
     else
     {
         min::resize
 	    ( file->data,
-	      char_buffer_type.initial_max_length );
+	      char_vec_type.initial_max_length );
 	min::pop
 	    ( file->data, file->data->length,
 	                  (char *) NULL );
@@ -1936,7 +1933,7 @@ void LEX::init_stream ( file_ptr file,
     file->offset = 0;
 
     min::resize
-	( file, uns32_buffer_type.initial_max_length );
+	( file, uns32_vec_type.initial_max_length );
     min::pop ( file, file->length, (uns32 *) NULL );
 }
 
@@ -1951,7 +1948,7 @@ void LEX::init_string ( file_ptr file,
 
     if ( file->data == NULL_STUB )
          file->data =
-	     char_buffer_type.new_gen
+	     char_vec_type.new_gen
 	         ( (min::uns32) length + 1 );
     else
     {
@@ -1970,7 +1967,7 @@ void LEX::init_string ( file_ptr file,
     file->offset = 0;
 
     min::resize
-	( file, uns32_buffer_type.initial_max_length );
+	( file, uns32_vec_type.initial_max_length );
     min::pop ( file, file->length, (uns32 *) NULL );
 }
 
@@ -2426,7 +2423,7 @@ int LEX::sptranslation
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
         print_mode = scanner->print_mode;
 
-    buffer_ptr<uns32> translation_buffer =
+    min::packed_vec_insptr<uns32> translation_buffer =
         scanner->translation_buffer;
 
     if ( translation_buffer->length == 0 )
@@ -2456,7 +2453,7 @@ int LEX::splexeme
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
         print_mode = scanner->print_mode;
 
-    buffer_ptr<inchar> input_buffer =
+    min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
     
     char buffer2[500];
@@ -2506,7 +2503,7 @@ int LEX::sperroneous_atom
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
         print_mode = scanner->print_mode;
 
-    buffer_ptr<inchar> input_buffer =
+    min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
 
     char buffer2[500];
@@ -2536,9 +2533,9 @@ bool LEX::translation_is_exact
 	( uns32 first, uns32 last,
 	  scanner_ptr scanner )
 {
-    buffer_ptr<inchar> input_buffer =
+    min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
-    buffer_ptr<uns32> translation_buffer =
+    min::packed_vec_insptr<uns32> translation_buffer =
         scanner->translation_buffer;
 
     uns32 i = 0;

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 07:35:09 EST 2010
+// Date:	Thu Dec 30 07:46:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,9 @@
 using std::cout;
 using std::endl;
 using LEX::uns32;
+
+// Basic Input Test
+// ----- ----- ----
 
 static void basic_erroneous_atom
 	( uns32 first, uns32 last, uns32 type,
@@ -70,6 +73,55 @@ void LEX::basic_test_input
 	    LEX::splexeme
 	        ( buffer, first, last, type, column );
 	    cout << buffer << endl;
+	}
+	if ( type == end_of_file_t ) break;
+    }
+}
+
+// Input Test
+// ----- ----
+
+
+
+min::static_stub<2> input_vec;
+static min::packed_vec_insptr<char>
+    & lexeme_codes =
+        * (min::packed_vec_insptr<char> *) input_vec[0];
+static min::packed_vec_insptr<char>
+    & erroneous_atom_codes =
+        * (min::packed_vec_insptr<char> *) input_vec[1];
+
+static void erroneous_atom
+	( uns32 first, uns32 last, uns32 type,
+	  LEX::scanner_ptr scanner )
+{
+}
+
+void LEX::test_input
+	( const char * type_code,
+	  std::istream & in,
+	  const char * file_name,
+	  uns32 end_of_file_t )
+{
+    init_scanner();
+    default_scanner->erroneous_atom =
+        ::erroneous_atom;
+    init_stream ( default_scanner->input_file,
+                  in, file_name, 0 );
+
+    while ( true )
+    {
+	uns32 first, last;
+        uns32 type = LEX::scan ( first, last );
+	if ( type == LEX::SCAN_ERROR )
+	{
+	    cout << "Scan Error" << endl
+	         << LEX::default_scanner->error_message
+		 << endl;
+	    return;
+	}
+	else
+	{
 	}
 	if ( type == end_of_file_t ) break;
     }

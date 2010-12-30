@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 22:28:06 EST 2010
+// Date:	Thu Dec 30 09:02:52 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,27 +34,25 @@ using namespace LEXNDLDATA;
 
 // Stacks
 
-static min::packed_vec<LEX::buffer_header,LEX::uns32>
-       uns32_buffer_type
-           ( "ll::lexeme::ndl::uns32_buffer" );
-static min::packed_vec<LEX::buffer_header,
-                       LEXNDLDATA::dispatcher>
-       dispatcher_buffer_type
-           ( "ll::lexeme::ndl::dispatcher_buffer" );
-static min::packed_vec<LEX::buffer_header,
-                       LEXNDLDATA::instruction>
-       instruction_buffer_type
-           ( "ll::lexeme::ndl::instruction_buffer" );
+static min::packed_vec<LEX::uns32>
+       uns32_vec_type
+           ( "ll::lexeme::ndl::uns32_vec" );
+static min::packed_vec<LEXNDLDATA::dispatcher>
+       dispatcher_vec_type
+           ( "ll::lexeme::ndl::dispatcher_vec" );
+static min::packed_vec<LEXNDLDATA::instruction>
+       instruction_vec_type
+           ( "ll::lexeme::ndl::instruction_vec" );
 
-LEX::buffer_ptr<LEX::uns32>
+min::packed_vec_insptr<LEX::uns32>
     LEXNDLDATA::uns32_stack
-	( uns32_buffer_type.new_gen() );
-LEX::buffer_ptr<LEXNDLDATA::dispatcher>
+	( uns32_vec_type.new_gen() );
+min::packed_vec_insptr<LEXNDLDATA::dispatcher>
     LEXNDLDATA::dispatchers
-	( dispatcher_buffer_type.new_gen() );
-LEX::buffer_ptr<LEXNDLDATA::instruction>
+	( dispatcher_vec_type.new_gen() );
+min::packed_vec_insptr<LEXNDLDATA::instruction>
     LEXNDLDATA::instructions
-	( instruction_buffer_type.new_gen() );
+	( instruction_vec_type.new_gen() );
 
 // Other global data.
 //
@@ -152,7 +150,7 @@ static SUBSTATE substate;
 //
 inline void push_uns32 ( uns32 value )
 {
-    uns32 i = allocate ( uns32_stack, 1 );
+    uns32 i = LEX::allocate ( uns32_stack, 1 );
     uns32_stack[i] = value;
 }
 
@@ -163,7 +161,7 @@ inline uns32 pop_uns32 ( void )
     uns32 i = uns32_stack->length;
     assert ( i > 0 );
     uns32 value = uns32_stack[--i];
-    deallocate ( uns32_stack, 1 );
+    LEX::deallocate ( uns32_stack, 1 );
     return value;
 }
 
@@ -242,12 +240,12 @@ void LEXNDL::new_table
 // max_type_code, and set is_others_dispatcher true
 // in the pushed dispatcher.
 //
-void push_dispatcher ( bool is_others = false )
+static void push_dispatcher ( bool is_others = false )
 {
     if ( dispatchers->length > 0 && ! is_others )
         ++ current_dispatcher().max_type_code;
 
-    allocate ( dispatchers, 1 );
+    LEX::allocate ( dispatchers, 1 );
     dispatcher & d = current_dispatcher();
 
     memset ( d.ascii_map, 0, 128 );
@@ -257,7 +255,7 @@ void push_dispatcher ( bool is_others = false )
     d.others_instruction_ID = 0;
     d.is_others_dispatcher = is_others;
 
-    allocate ( instructions, 1 );
+    LEX::allocate ( instructions, 1 );
     instruction & ci = current_instruction();
 
     ci.operation = 0;
@@ -311,10 +309,10 @@ static uns32 pop_instruction_group ( void )
 		  ci.call_table_ID );
 
 	if ( translate_to_length > 0 )
-	    deallocate ( uns32_stack,
-	                 translate_to_length );
+	    LEX::deallocate ( uns32_stack,
+	                      translate_to_length );
 
-	deallocate ( instructions, 1 );
+	LEX::deallocate ( instructions, 1 );
 
 	if ( instructions->length == 0
 	     ||
@@ -365,7 +363,7 @@ static uns32 pop_dispatcher
 	push_uns32 ( instruction_ID );
 	push_uns32 ( d.type_map_count );
 
-	deallocate ( dispatchers, 1 );
+	LEX::deallocate ( dispatchers, 1 );
 
 	substate = DISPATCHERS;
     	return 0;
@@ -442,7 +440,7 @@ static uns32 pop_dispatcher
 	push_uns32 ( d.type_map_count );
     }
 
-    deallocate ( dispatchers, 1 );
+    LEX::deallocate ( dispatchers, 1 );
 
     substate = DISPATCHERS;
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 00:13:06 EST 2010
+// Date:	Thu Dec 30 07:46:23 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,7 +63,7 @@ namespace ll { namespace lexeme {
     // test_input above.
     //
     void test_input
-	    ( const char * type_code ,
+	    ( const char * type_code,
 	      std::istream & in,
 	      const char * file_name,
 	      uns32 end_of_file_t );
@@ -71,4 +71,3 @@ namespace ll { namespace lexeme {
 } }
 
 # endif // LL_LEXEME_TEST_H
-

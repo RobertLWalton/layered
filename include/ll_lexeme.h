@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 29 04:16:32 EST 2010
+// Date:	Thu Dec 30 09:03:36 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,36 +43,13 @@ namespace ll { namespace lexeme {
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
 
-    // A buffer is a vector of elements of type T.
-    //
-    struct buffer_header
-    {
-        const uns32 type;
-	const uns32 length;
-	const uns32 max_length;
-    };
-    template <typename T>
-    struct buffer_ptr
-        : public min::packed_vec_insptr<buffer_header,T>
-    {
-        buffer_ptr ( min::gen v )
-	    : min::packed_vec_insptr<buffer_header,T>
-	        ( v ) {}
-        buffer_ptr ( const min::stub * s )
-	    : min::packed_vec_insptr<buffer_header,T>
-	        ( s ) {}
-        buffer_ptr ( void )
-	    : min::packed_vec_insptr<buffer_header,T>
-	        () {}
-    };
-
     template < typename S, typename T >
-    inline uns32 DISP ( buffer_ptr<T> S::* d )
+    inline uns32 DISP ( min::packed_vec_insptr<T> S::* d )
     {
-        buffer_ptr<T> * p = (buffer_ptr<T> *) NULL;
+        min::packed_vec_insptr<T> * p =
+	    (min::packed_vec_insptr<T> *) NULL;
 	uns32 offset = (char *)
-	               (min::packed_vec_insptr
-			         <buffer_header,T> *) p
+	               (min::packed_vec_insptr<T> *) p
 		     - (char *) p;
 
         return min::OFFSETOF ( d ) + offset;
@@ -82,7 +59,8 @@ namespace ll { namespace lexeme {
     // index of the first element.
     //
     template <typename T>
-    inline uns32 allocate ( buffer_ptr<T> p, uns32 n )
+    inline uns32 allocate
+	    ( min::packed_vec_insptr<T> p, uns32 n )
     {
         uns32 ID = p->length;
 	min::push ( p, n, (T * ) NULL );
@@ -93,7 +71,8 @@ namespace ll { namespace lexeme {
     // and returns the new length of the buffer.
     //
     template <typename T>
-    inline uns32 deallocate ( buffer_ptr<T> p, uns32 n )
+    inline uns32 deallocate
+	    ( min::packed_vec_insptr<T> p, uns32 n )
     {
 	min::pop ( p, n, (T *) NULL );
 	return p->length;
@@ -102,13 +81,13 @@ namespace ll { namespace lexeme {
     // Reset a buffer to zero length.
     //
     template <typename T>
-    inline void reset ( buffer_ptr<T> p )
+    inline void reset ( min::packed_vec_insptr<T> p )
     {
 	min::pop ( p, p->length, (T *) NULL );
 	min::resize ( p, 1000 );
     }
 
-    typedef buffer_ptr<uns32> program_ptr;
+    typedef min::packed_vec_insptr<uns32> program_ptr;
         // Type of a pointer to a program.
 
     // Print modes.  These determine how a character c
@@ -184,7 +163,7 @@ namespace ll { namespace lexeme {
     };
 
     struct file_struct;
-    typedef min::packed_vec_insptr<file_struct,uns32>
+    typedef min::packed_vec_insptr<uns32,file_struct>
             file_ptr;
         // See Input Files below.
 
@@ -194,8 +173,8 @@ namespace ll { namespace lexeme {
     const uns32 return_stack_size = 64;
     struct scanner_struct
     {
-        const uns32 type;
-	    // Packed structure type.
+        const uns32 control;
+	    // Packed structure control word.
 
 	// The program is a sequence of program
 	// components.  Defaults to NULL_STUB.
@@ -209,7 +188,7 @@ namespace ll { namespace lexeme {
 	// and a column, is not used by the scanner.
 	// Created by init_scanner.
 	//
-	buffer_ptr<inchar> input_buffer;
+	min::packed_vec_insptr<inchar> input_buffer;
 
 	// The line, index, and column of the character
 	// that will be put next at the end of the input
@@ -229,7 +208,7 @@ namespace ll { namespace lexeme {
 	// represented characters.  Created by init_
 	// scanner.
 	//
-	buffer_ptr<uns32> translation_buffer;
+	min::packed_vec_insptr<uns32> translation_buffer;
 
 	// Print mode.  One of UTF8, UTF8PRINT, UTF8-
 	// GRAPHIC, or ASCIIPRINT, or ASCIIGRAPHIC.
@@ -826,14 +805,14 @@ namespace ll { namespace lexeme {
 	// All other file information is stored in this
 	// header or in the data vector it points to.
     {
-	const uns32 type;
+	const uns32 control;
 	const uns32 length;
 	const uns32 max_length;
 
         min::gen file_name;
 	    // String naming file, or "stdin" etc.
 
-	buffer_ptr<char> data;
+	min::packed_vec_insptr<char> data;
 	    // File data.
 
 	std::istream * istream;

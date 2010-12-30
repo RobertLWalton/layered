@@ -1,8 +1,8 @@
 // Layers Language Lexical Analyzer Test
 //
-// File:	ll_lexeme_test.cc
+// File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 29 12:58:54 EST 2010
+// Date:	Thu Dec 30 07:14:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability

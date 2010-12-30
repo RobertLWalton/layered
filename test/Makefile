@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Dec 21 08:57:59 EST 2010
+# Date:		Thu Dec 30 07:15:44 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -23,7 +23,7 @@ MIN = ~/min
 #
 OPTIMIZE = -O3
 
-PROGRAMS = ll_lexeme_test \
+PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_standard_test
 
 TESTS = ${PROGRAMS}
@@ -102,8 +102,18 @@ ll_lexeme.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme.cc
 
-ll_lexeme_test:		\
-		ll_lexeme_test.cc \
+ll_lexeme_test.o:	\
+	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	../include/ll_lexeme.h \
+	../include/ll_lexeme_program_data.h \
+	../src/ll_lexeme_test.cc
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_lexeme_test.cc
+
+ll_lexeme_basic_test:		\
+		ll_lexeme_basic_test.cc \
 		ll_lexeme.o \
 		min.o \
 		min_os.o \
@@ -116,7 +126,7 @@ ll_lexeme_test:		\
 	    min.o \
 	    min_os.o \
 	    min_acc.o \
-	    ll_lexeme_test.cc
+	    ll_lexeme_basic_test.cc
 
 ll_lexeme_ndl.o:	\
 		../src/ll_lexeme_ndl.cc \
@@ -139,6 +149,7 @@ ll_lexeme_standard.o:	\
 ll_lexeme_standard_test:		\
 		ll_lexeme_standard_test.cc \
 		ll_lexeme.o \
+		ll_lexeme_test.o \
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		min.o \
@@ -149,6 +160,7 @@ ll_lexeme_standard_test:		\
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
+	    ll_lexeme_test.o \
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    min.o \

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 06:07:14 EST 2010
+// Date:	Thu Dec 30 07:35:09 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,6 +18,7 @@
 // ----- --- -----
 
 # include <ll_lexeme.h>
+# include <ll_lexeme_test.h>
 # include <iostream>
 # include <cassert>
 # define LEX ll::lexeme
@@ -40,7 +41,7 @@ static void basic_erroneous_atom
     cout << buffer << endl;
 }
 
-void basic_input_test
+void LEX::basic_test_input
 	( std::istream & in,
 	  const char * file_name,
 	  uns32 end_of_file_t )
@@ -48,7 +49,8 @@ void basic_input_test
     init_scanner();
     default_scanner->erroneous_atom =
         ::basic_erroneous_atom;
-    init_stream ( scanner->file, in, file_name );
+    init_stream ( default_scanner->input_file,
+                  in, file_name, 0 );
 
     char buffer[10000];
     while ( true )

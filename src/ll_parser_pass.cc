@@ -2,7 +2,7 @@
 //
 // File:	ll__parser_pass.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 14:00:46 EST 2010
+// Date:	Fri Dec 31 02:38:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,7 +37,7 @@ static min::uns32 string_stub_disp[] =
 };
 
 static min::packed_vec<min::uns32,PAR::string_struct>
-    string_type ( "ll::parser::string",
+    string_type ( "ll::parser::string_type",
                   NULL, ::string_stub_disp );
 
 // Free list of strings.

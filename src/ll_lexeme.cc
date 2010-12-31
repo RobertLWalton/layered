@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 09:03:06 EST 2010
+// Date:	Fri Dec 31 02:38:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -123,7 +123,7 @@ static uns32 scanner_stub_disp[] =
 
 static min::packed_struct<LEX::scanner_struct>
        scanner_type
-           ( "ll::lexeme::scanner",
+           ( "ll::lexeme::scanner_type",
 	     NULL, ::scanner_stub_disp );
 
 static uns32 file_gen_disp[] =
@@ -135,15 +135,15 @@ static uns32 file_stub_disp[] =
 
 static min::packed_vec<LEX::uns32,LEX::file_struct>
        file_type
-           ( "ll::lexeme::file",
+           ( "ll::lexeme::file_type",
 	     ::file_gen_disp, ::file_stub_disp );
 
 static min::packed_vec<char> char_vec_type
-           ( "ll::lexeme::char_vec" );
+           ( "ll::lexeme::char_vec_type" );
 static min::packed_vec<LEX::uns32> uns32_vec_type
-           ( "ll::lexeme::uns32_vec" );
+           ( "ll::lexeme::uns32_vec_type" );
 static min::packed_vec<LEX::inchar> inchar_vec_type
-           ( "ll::lexeme::inchar_vec" );
+           ( "ll::lexeme::inchar_vec_type" );
 
 static min::static_stub<1> default_scanner_stub;
 LEX::scanner_ptr & LEX::default_scanner =

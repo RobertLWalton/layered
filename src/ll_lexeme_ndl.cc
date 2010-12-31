@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 09:02:52 EST 2010
+// Date:	Fri Dec 31 02:37:01 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,13 +36,13 @@ using namespace LEXNDLDATA;
 
 static min::packed_vec<LEX::uns32>
        uns32_vec_type
-           ( "ll::lexeme::ndl::uns32_vec" );
+           ( "ll::lexeme::ndl::uns32_vec_type" );
 static min::packed_vec<LEXNDLDATA::dispatcher>
        dispatcher_vec_type
-           ( "ll::lexeme::ndl::dispatcher_vec" );
+           ( "ll::lexeme::ndl::dispatcher_vec_type" );
 static min::packed_vec<LEXNDLDATA::instruction>
        instruction_vec_type
-           ( "ll::lexeme::ndl::instruction_vec" );
+           ( "ll::lexeme::ndl::instruction_vec_type" );
 
 min::packed_vec_insptr<LEX::uns32>
     LEXNDLDATA::uns32_stack

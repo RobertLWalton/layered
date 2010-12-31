@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 09:03:36 EST 2010
+// Date:	Fri Dec 31 08:47:36 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,7 +63,7 @@ namespace ll { namespace lexeme {
 	    ( min::packed_vec_insptr<T> p, uns32 n )
     {
         uns32 ID = p->length;
-	min::push ( p, n, (T * ) NULL );
+	min::push ( p, n );
 	return ID;
     }
 
@@ -71,11 +71,10 @@ namespace ll { namespace lexeme {
     // and returns the new length of the buffer.
     //
     template <typename T>
-    inline uns32 deallocate
+    inline void deallocate
 	    ( min::packed_vec_insptr<T> p, uns32 n )
     {
-	min::pop ( p, n, (T *) NULL );
-	return p->length;
+	min::pop ( p, n );
     }
 
     // Reset a buffer to zero length.

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 02:38:34 EST 2010
+// Date:	Fri Dec 31 08:48:07 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1792,7 +1792,7 @@ static bool default_read_input
 	offset += bytes_read;
 
 	ic.character = unicode;
-	min::push ( input_buffer, ic );
+	min::push(input_buffer) = ic;
 	ic.index += bytes_read;
 	min::uns32 width =
 	    LEX::wchar ( unicode, scanner->print_mode );
@@ -1803,7 +1803,7 @@ static bool default_read_input
     }
 
     ic.character = '\n';
-    min::push ( input_buffer, ic );
+    min::push(input_buffer) = ic;
     ++ ic.line;
     ic.index = 0;
     ic.column = 0;
@@ -1849,12 +1849,8 @@ bool LEX::read_file
     {
         min::resize
 	    ( file->data, (min::uns32) file_size + 1 );
-	min::pop
-	    ( file->data, file->data->length,
-	                  (char *) NULL );
-	min::push
-	    ( file->data, file_size,
-	                  (const char *) NULL );
+	min::pop ( file->data, file->data->length );
+	min::push ( file->data, file_size );
     }
 
     file->istream = NULL;
@@ -1904,7 +1900,7 @@ bool LEX::read_file
     }
 
     fclose ( in );
-    min::push ( file->data, (char) 0 );
+    min::push(file->data) = 0;
     return true;
 }
 
@@ -2015,12 +2011,12 @@ uns32 LEX::next_line ( file_ptr file )
 	int c;
 	while ( c = file->istream->get(),
 	        c != EOF && c != '\n' )
-	    min::push ( file->data, (char) c );
+	    min::push(file->data) = (char) c;
 
 	length = file->data->length - file->offset;
 	if ( length == 0 && c == EOF )
 	    return NO_LINE;
-	min::push ( file->data, (char) 0 );
+	min::push(file->data) = 0;
     }
     else
     {
@@ -2035,7 +2031,7 @@ uns32 LEX::next_line ( file_ptr file )
     }
 
     uns32 offset = file->offset;
-    min::push ( file, offset );
+    min::push(file) = offset;
     file->offset += length + 1;
     assert ( file->offset <= file->data->length );
     ++ file->line_number;

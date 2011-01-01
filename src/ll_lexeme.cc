@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 08:48:07 EST 2010
+// Date:	Fri Dec 31 19:29:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -165,9 +165,11 @@ uns32 LEX::create_table
 	         || mode <= ph.max_type );
     }
 
-    uns32 ID =
-        allocate ( program, table_header_length );
-    table_header & h = * (table_header *) & program[ID];
+    uns32 ID = program->length;
+    table_header & h = * (table_header *)
+        & min::push ( program, table_header_length );
+    assert ( sizeof ( h ) ==   table_header_length
+                             * sizeof ( uns32 ) );
     h.pctype = TABLE;
     h.mode = mode;
     h.dispatcher_ID = 0;
@@ -208,7 +210,10 @@ void LEX::create_program
         program = scanner->program =
 	    uns32_vec_type.new_gen();
     else
-	reset ( program );
+    {
+	min::pop ( program, program->length );
+	min::resize ( program, 1000 );
+    }
 
     uns32 origin = 4 * (   program_header_length
                          + 1 + max_type );
@@ -221,11 +226,13 @@ void LEX::create_program
     }
     uns32 header_length = ( length + 3 ) / 4;
 
-    uns32 ID = allocate ( program, header_length );
+    uns32 ID = program->length;
     assert ( ID == 0 );
-
     program_header & h =
-        * (program_header *) & program[ID];
+        * (program_header *)
+	& min::push ( program, header_length );
+    assert ( sizeof ( h ) ==   program_header_length
+                             * sizeof ( uns32 ) );
     h.pctype = PROGRAM;
     h.max_type = max_type;
     h.component_length = header_length;
@@ -257,10 +264,18 @@ uns32 LEX::create_dispatcher
 	  * ( max_breakpoints + 1 )
 	+   map_element_length
 	  * ( max_ctype + 1 );
-    uns32 ID = allocate ( program, length );
+    uns32 ID = program->length;
     dispatcher_header & h =
         * (dispatcher_header *)
-	& program[ID];
+	& min::push ( program, length );
+    assert ( sizeof ( h ) ==   dispatcher_header_length
+                             * sizeof ( uns32 ) );
+    assert (    sizeof ( break_element )
+             ==   break_element_length
+                * sizeof ( uns32 ) );
+    assert (    sizeof ( map_element )
+             ==   map_element_length
+                * sizeof ( uns32 ) );
     h.pctype = DISPATCHER;
     h.break_elements = 1;
     h.max_break_elements = max_breakpoints + 1;
@@ -282,11 +297,14 @@ uns32 LEX::create_type_map
 
     assert ( cmax >= cmin );
     uns32 length = cmax - cmin + 1;
-    uns32 ID = allocate ( program,
-    	                    type_map_header_length
-	                  + ( length + 3 ) / 4 );
+    uns32 ID = program->length;
     type_map_header & h =
-        * (type_map_header *) & program[ID];
+        * (type_map_header *)
+        & min::push ( program,
+    	                type_map_header_length
+	              + ( length + 3 ) / 4 );
+    assert ( sizeof ( h ) ==   type_map_header_length
+                             * sizeof ( uns32 ) );
     h.pctype = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
@@ -303,10 +321,12 @@ uns32 LEX::create_type_map
     program_ptr program = scanner->program;
 
     assert ( cmax >= cmin );
-    uns32 ID =
-        allocate ( program, type_map_header_length );
+    uns32 ID = program->length;
     type_map_header & h =
-        * (type_map_header *) & program[ID];
+        * (type_map_header *)
+        & min::push ( program, type_map_header_length );
+    assert ( sizeof ( h ) ==   type_map_header_length
+                             * sizeof ( uns32 ) );
     h.pctype = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
@@ -416,11 +436,14 @@ uns32 LEX::create_instruction
     else
         assert ( call_table_ID == 0 );
 
-    uns32 ID = allocate ( program,
-    	                    instruction_header_length
-	                  + translate_to_length );
+    uns32 ID = program->length;
     instruction_header & h =
-        * (instruction_header *) & program[ID];
+        * (instruction_header *)
+	& min::push ( program,
+    	                instruction_header_length
+	              + translate_to_length );
+    assert ( sizeof ( h ) ==   instruction_header_length
+                             * sizeof ( uns32 ) );
     h.pctype = INSTRUCTION;
     h.operation = operation;
     h.atom_table_ID = atom_table_ID;
@@ -796,8 +819,14 @@ void LEX::init_scanner
     else
     {
 	scanner_vec[0] = scanner;
-	reset ( scanner->input_buffer );
-	reset ( scanner->translation_buffer );
+	min::pop ( scanner->input_buffer,
+	           scanner->input_buffer->length );
+	min::resize ( scanner->input_buffer, 1000 );
+	min::pop
+	    ( scanner->translation_buffer,
+	      scanner->translation_buffer->length );
+	min::resize
+	    ( scanner->translation_buffer, 1000 );
     }
 
     if ( program != NULL_STUB )
@@ -1190,7 +1219,7 @@ static uns32 scan_atom
 			     TRANSLATE_HEX_FLAG
 	                     |
 			     TRANSLATE_OCT_FLAG ) )
-		deallocate
+		min::pop
 		    ( translation_buffer,
 		        translation_buffer->length
 		      - tnext );
@@ -1261,33 +1290,22 @@ static uns32 scan_atom
 		}
 
 	    if ( ! fail )
-		translation_buffer
-		    [allocate ( translation_buffer, 1 )]
-		    = tc;
+		min::push(translation_buffer) = tc;
 	}
 	else if ( op & TRANSLATE_TO_FLAG )
 	{
 	    uns32 translate_to_length =
 		LEX::translate_to_length ( op );
 	    if ( translate_to_length > 0 )
-	    {
-		uns32 q =
-		    allocate ( translation_buffer,
-			       translate_to_length );
-		memcpy ( & translation_buffer[q],
-			 & ih + 1,
-			   translate_to_length
-			 * sizeof ( uns32 ) );
-	    }
+		min::push ( translation_buffer,
+			    translate_to_length,
+			    (uns32 *) ( & ih + 1 ) );
 	}
 	else if ( ! ( op & MATCH ) )
 	{
-	    uns32 q =
-		allocate ( translation_buffer,
-			   keep_length );
 	    uns32 p = scanner->next;
 	    for ( uns32 i = 0; i < keep_length; ++ i )
-		translation_buffer[q++] =
+		min::push(translation_buffer) =
 		    input_buffer[p++].character;
 	}
 
@@ -1369,9 +1387,9 @@ static uns32 scan_atom
 
 	if ( fail )
 	{
-	    deallocate ( translation_buffer,
-		           translation_buffer->length
-			 - tnext );
+	    min::pop ( translation_buffer,
+		         translation_buffer->length
+		       - tnext );
 	    if ( op & ELSE )
 	    {
 		instruction_ID =
@@ -1442,15 +1460,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 		    (   input_buffer->length
 		      - scanner->next )
 		  * sizeof ( LEX::inchar ) );
-	deallocate ( input_buffer, scanner->next );
+	min::pop ( input_buffer, scanner->next );
 	scanner->next = 0;
     }
 
     // Initialize first and translation buffer.
     //
     first = scanner->next;
-    deallocate ( translation_buffer,
-                 translation_buffer->length );
+    min::pop ( translation_buffer,
+               translation_buffer->length );
 
     // We scan atoms until we get to a point where the
     // table is to be changed from a table with mode !=
@@ -1860,7 +1878,7 @@ bool LEX::read_file
 
     min::resize
 	( file, uns32_vec_type.initial_max_length );
-    min::pop ( file, file->length, (uns32 *) NULL );
+    min::pop ( file, file->length );
 
     // We use FILE IO because it is standard for C
     // while open/read is OS dependent.
@@ -1918,9 +1936,7 @@ void LEX::init_stream ( file_ptr file,
         min::resize
 	    ( file->data,
 	      char_vec_type.initial_max_length );
-	min::pop
-	    ( file->data, file->data->length,
-	                  (char *) NULL );
+	min::pop ( file->data, file->data->length );
     }
 
     file->istream = & istream;
@@ -1930,7 +1946,7 @@ void LEX::init_stream ( file_ptr file,
 
     min::resize
 	( file, uns32_vec_type.initial_max_length );
-    min::pop ( file, file->length, (uns32 *) NULL );
+    min::pop ( file, file->length );
 }
 
 void LEX::init_string ( file_ptr file,
@@ -1950,9 +1966,7 @@ void LEX::init_string ( file_ptr file,
     {
         min::resize
 	    ( file->data, (min::uns32) length + 1 );
-	min::pop
-	    ( file->data, file->data->length,
-	                  (char *) NULL );
+	min::pop ( file->data, file->data->length );
     }
     min::push ( file->data,
                 (min::uns32) length + 1, data );
@@ -1964,7 +1978,7 @@ void LEX::init_string ( file_ptr file,
 
     min::resize
 	( file, uns32_vec_type.initial_max_length );
-    min::pop ( file, file->length, (uns32 *) NULL );
+    min::pop ( file, file->length );
 }
 
 uns32 LEX::next_line ( file_ptr file )
@@ -1994,13 +2008,11 @@ uns32 LEX::next_line ( file_ptr file )
 	    memcpy ( & file->data[0],
 	             & file->data[data_offset],
 		     file->data->length - data_offset );
-	    min::pop ( file->data, data_offset,
-	               (char *) NULL );
+	    min::pop ( file->data, data_offset );
 	    memcpy ( & file[0], & file[file_offset],
 	               sizeof ( uns32 )
 		     * file->spool_length );
-	    min::pop ( file, file_offset,
-	               (uns32 *) NULL );
+	    min::pop ( file, file_offset );
 	    for ( uns32 i = 0; i < file->length; ++ i )
 	        file[i] -= data_offset;
 	    file->offset = file->data->length;
@@ -2342,7 +2354,8 @@ int LEX::spword
 	}
 	break;
     case PREFACE_WITH_SPACE + ENFORCE_LINE_LENGTH:
-	if ( column + width + 1 >= scanner->line_length )
+	if (    column + width + 1
+	     >= scanner->line_length )
 	{
 	    p += sprintf ( p, "\n%*s",
 		           scanner->indent, "" );

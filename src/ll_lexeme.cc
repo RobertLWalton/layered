@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 19:29:15 EST 2010
+// Date:	Sat Jan  1 07:45:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -114,9 +114,9 @@ int read_utf8 ( min::uns32 & c, const char * buffer )
 // ----
 
 static uns32 scanner_stub_disp[] =
-    { LEX::DISP ( & LEX::scanner_struct::program ),
-      LEX::DISP ( & LEX::scanner_struct::input_buffer ),
-      LEX::DISP ( & LEX::scanner_struct
+    { min::DISP ( & LEX::scanner_struct::program ),
+      min::DISP ( & LEX::scanner_struct::input_buffer ),
+      min::DISP ( & LEX::scanner_struct
                        ::translation_buffer ),
       min::DISP ( & LEX::scanner_struct::input_file ),
       min::DISP_END };
@@ -130,7 +130,7 @@ static uns32 file_gen_disp[] =
     { min::DISP ( & LEX::file_struct::file_name ),
       min::DISP_END };
 static uns32 file_stub_disp[] =
-    { LEX::DISP ( & LEX::file_struct::data ),
+    { min::DISP ( & LEX::file_struct::data ),
       min::DISP_END };
 
 static min::packed_vec<LEX::uns32,LEX::file_struct>
@@ -815,6 +815,15 @@ void LEX::init_scanner
 	    uns32_vec_type.new_gen();
 	scanner->program = NULL_STUB;
 	scanner->print_mode = default_print_mode;
+	scanner->line_length = 72;
+	scanner->indent = 4;
+	scanner->read_input = ::default_read_input;
+	scanner->input_file = create_file();
+	init_stream
+	    ( scanner->input_file,
+	      std::cin, "standard input", 0 );
+	scanner->scan_trace_out = NULL;
+	scanner->erroneous_atom = NULL;
     }
     else
     {
@@ -832,18 +841,6 @@ void LEX::init_scanner
     if ( program != NULL_STUB )
 	scanner->program = program;
 
-    scanner->read_input = ::default_read_input;
-
-    if ( scanner->input_file == NULL_STUB )
-	scanner->input_file = create_file();
-    init_stream
-        ( scanner->input_file,
-	  std::cin, "standard input", 0 );
-
-    scanner->scan_trace_out = NULL;
-    scanner->erroneous_atom = NULL;
-    scanner->line_length = 72;
-    scanner->indent = 4;
     scanner->next_position.line = 0;
     scanner->next_position.index = 0;
     scanner->next_position.column = 0;

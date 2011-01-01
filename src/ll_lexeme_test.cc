@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  1 03:18:27 EST 2011
+// Date:	Sat Jan  1 08:26:11 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -148,11 +148,9 @@ static void set_line ( uns32 line )
 	::line_width = 0;
 	uns32 boffset =
 	    LEX::spstring ( buffer, p,
-	                    ::line_width, 0, scanner,
-			    LEX::UTF8GRAPHIC );
+	                    ::line_width, 0, scanner );
 	LEX::spstring ( buffer + boffset, "\n",
-	                ::line_width, 0, scanner,
-			LEX::UTF8GRAPHIC );
+	                ::line_width, 0, scanner );
 	++ ::next_line;
     }
 

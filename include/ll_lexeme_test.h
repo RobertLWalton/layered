@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 07:46:23 EST 2010
+// Date:	Sat Jan  1 08:27:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,7 +47,7 @@ namespace ll { namespace lexeme {
 	      const char * file_name,
 	      uns32 end_of_file_t );
 
-    // Print the given input lines using UTF8GRAPHIC
+    // Print the given input lines using the scanner
     // print mode, scan each line, and print under each
     // line another line containing the type codes of
     // the lexemes in the line.  Under a character in a

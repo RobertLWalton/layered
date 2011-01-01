@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 22:43:57 EST 2010
+// Date:	Fri Dec 31 19:19:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,8 @@
 
 namespace ll { namespace parser {
 
+using min::uns32;
+
 // Token character strings are optional parts of tokens.
 // A token character string is allocated when its token
 // is allocated and freed when its token is freed.  As
@@ -42,17 +44,17 @@ namespace ll { namespace parser {
 // memory usage.
 
 struct string_struct;
-typedef min::packed_vec_ptr<string_struct,min::uns32>
+typedef min::packed_vec_ptr<uns32,string_struct>
         string_ptr;
-typedef min::packed_vec_insptr<string_struct,min::uns32>
+typedef min::packed_vec_insptr<uns32,string_struct>
         string_insptr;
 struct string_struct
 {
-    min::uns32 type;
-    	// Packed vector type.
-    min::uns32 length;
+    uns32 control;
+    	// Packed vector control word.
+    uns32 length;
         // Length of vector.
-    min::uns32 max_length;
+    uns32 max_length;
         // Maximum length of vector.
 
     string_insptr next;
@@ -60,14 +62,13 @@ struct string_struct
 	// is on free list.  List is NULL_STUB termina-
 	// ted.
 
-    // The elements of a string are min::uns32 UNICODE
+    // The elements of a string are uns32 UNICODE
     // characters.
 };
 
 // Allocate a new string and return a pointer to it.
 //
-string_ptr new_string
-	( min::uns32 n, min::uns32 * string );
+string_ptr new_string ( uns32 n, uns32 * string );
 
 // Free a string and return NULL_STUB.
 //
@@ -91,10 +92,10 @@ enum // Token kinds (see below).
 };
 struct token_struct
 {
-    min::uns32 type;
-    	// Packed structure type.
+    uns32 control;
+    	// Packed structure control word.
 
-    min::uns32 kind;  // One of:
+    uns32 kind;  // One of:
 	//
         // For lexemes: the lexeme type.
 	//
@@ -114,14 +115,14 @@ struct token_struct
     string_ptr string;
         // Character string for lexemes.
 
-    min::uns32 begin_line;
-    min::uns32 begin_index;
-    min::uns32 begin_column;
+    uns32 begin_line;
+    uns32 begin_index;
+    uns32 begin_column;
         // Position of the first character of the token.
 
-    min::uns32 end_line;
-    min::uns32 end_index;
-    min::uns32 end_column;
+    uns32 end_line;
+    uns32 end_index;
+    uns32 end_column;
         // Position of the first character AFTER the
 	// token, or the end of input.
 
@@ -132,7 +133,7 @@ struct token_struct
 // Allocate a new token of the given kind.  Value is set
 // to min:MISSING and string to NULL_STUB.
 //
-token_ptr new_token ( min::uns32 kind );
+token_ptr new_token ( uns32 kind );
 
 // Free token.  Token is put on internal free list after
 // its value is set to min:MISSING and its string to
@@ -220,8 +221,8 @@ struct pass_struct;
 typedef min::packed_struct_ptr<pass_struct> pass_ptr;
 struct pass_struct
 {
-    min::uns32 type;
-    	// Packed structure type.
+    uns32 control;
+    	// Packed structure control word.
 
     pass_ptr in;
         // Pass from which this pass gets its input
@@ -236,7 +237,7 @@ struct pass_struct
         // True if pass is at the end and no more tokens
 	// can be obtained from the pass.
 
-    min::uns32 (*get) ( pass_ptr out, pass_ptr in);
+    uns32 (*get) ( pass_ptr out, pass_ptr in);
         // Function to call with this pass as the `in'
 	// argument to get tokens from this pass and
 	// copy them to the end the `out' pass token
@@ -246,7 +247,7 @@ struct pass_struct
 	// pass.
 };
 
-inline min::uns32 get ( pass_ptr out, pass_ptr in)
+inline uns32 get ( pass_ptr out, pass_ptr in)
 {
     return in->get ( out, in );
 }

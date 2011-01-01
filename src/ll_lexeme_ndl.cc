@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 02:37:01 EST 2010
+// Date:	Fri Dec 31 19:31:09 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -146,25 +146,6 @@ static SUBSTATE substate;
 
 // Depth of dispatcher is dispatchers->length.
 
-// Push one uns32 onto the uns32_stack.
-//
-inline void push_uns32 ( uns32 value )
-{
-    uns32 i = LEX::allocate ( uns32_stack, 1 );
-    uns32_stack[i] = value;
-}
-
-// Pop one uns32 from the uns32_stack.
-//
-inline uns32 pop_uns32 ( void )
-{
-    uns32 i = uns32_stack->length;
-    assert ( i > 0 );
-    uns32 value = uns32_stack[--i];
-    LEX::deallocate ( uns32_stack, 1 );
-    return value;
-}
-
 // Return current or parent dispatcher or instruction.
 //
 inline dispatcher & current_dispatcher ( void )
@@ -200,9 +181,12 @@ void LEXNDL::begin_program
              "misplaced begin_program(...)" );
     state = INSIDE_PROGRAM;
 
-    reset ( uns32_stack );
-    reset ( dispatchers );
-    reset ( instructions );
+    min::pop ( uns32_stack, uns32_stack->length );
+    min::resize ( uns32_stack, 1000 );
+    min::pop ( dispatchers, dispatchers->length );
+    min::resize ( dispatchers, 20 );
+    min::pop ( instructions, instructions->length );
+    min::resize ( instructions, 40 );
 
     LEX::init_scanner();
     LEX::create_program ( type_name, max_type );
@@ -245,8 +229,7 @@ static void push_dispatcher ( bool is_others = false )
     if ( dispatchers->length > 0 && ! is_others )
         ++ current_dispatcher().max_type_code;
 
-    LEX::allocate ( dispatchers, 1 );
-    dispatcher & d = current_dispatcher();
+    dispatcher & d = min::push ( dispatchers );
 
     memset ( d.ascii_map, 0, 128 );
     d.max_type_code = 0;
@@ -255,8 +238,7 @@ static void push_dispatcher ( bool is_others = false )
     d.others_instruction_ID = 0;
     d.is_others_dispatcher = is_others;
 
-    LEX::allocate ( instructions, 1 );
-    instruction & ci = current_instruction();
+    instruction & ci = min::push ( instructions );
 
     ci.operation = 0;
     ci.atom_table_ID = 0;
@@ -309,10 +291,10 @@ static uns32 pop_instruction_group ( void )
 		  ci.call_table_ID );
 
 	if ( translate_to_length > 0 )
-	    LEX::deallocate ( uns32_stack,
-	                      translate_to_length );
+	    min::pop ( uns32_stack,
+	               translate_to_length );
 
-	LEX::deallocate ( instructions, 1 );
+	min::pop ( instructions );
 
 	if ( instructions->length == 0
 	     ||
@@ -359,11 +341,11 @@ static uns32 pop_dispatcher
 	assert ( d.others_dispatcher_ID == 0 );
 	assert ( d.others_instruction_ID == 0 );
 
-	push_uns32 ( 0 );
-	push_uns32 ( instruction_ID );
-	push_uns32 ( d.type_map_count );
+	min::push(uns32_stack) = 0;
+	min::push(uns32_stack) = instruction_ID;
+	min::push(uns32_stack) = d.type_map_count;
 
-	LEX::deallocate ( dispatchers, 1 );
+	min::pop ( dispatchers );
 
 	substate = DISPATCHERS;
     	return 0;
@@ -400,9 +382,12 @@ static uns32 pop_dispatcher
     for ( uns32 tcode = d.max_type_code;
           0 < tcode; -- tcode )
     {
-        uns32 sub_type_map_count = pop_uns32();
-	uns32 sub_instruction_ID = pop_uns32();
-	uns32 sub_dispatcher_ID = pop_uns32();
+        uns32 sub_type_map_count =
+	    min::pop ( uns32_stack );
+	uns32 sub_instruction_ID =
+	    min::pop ( uns32_stack );
+	uns32 sub_dispatcher_ID =
+	    min::pop ( uns32_stack );
 
 	// In the special case of an atom pattern
 	// sub_dispatcher_ID == 0 is possible.
@@ -418,8 +403,8 @@ static uns32 pop_dispatcher
 	for ( uns32 i = 0;
 	      i < sub_type_map_count; ++ i )
 	{
-	    uns32 max_char = pop_uns32();
-	    uns32 min_char = pop_uns32();
+	    uns32 max_char = min::pop ( uns32_stack );
+	    uns32 min_char = min::pop ( uns32_stack );
 	    ATTACH ( dispatcher_ID,
 	             LEX::create_type_map
 		        ( min_char, max_char, tcode ) );
@@ -435,12 +420,12 @@ static uns32 pop_dispatcher
     }
     else
     {
-	push_uns32 ( dispatcher_ID );
-	push_uns32 ( instruction_ID );
-	push_uns32 ( d.type_map_count );
+	min::push(uns32_stack) = dispatcher_ID;
+	min::push(uns32_stack) = instruction_ID;
+	min::push(uns32_stack) = d.type_map_count;
     }
 
-    LEX::deallocate ( dispatchers, 1 );
+    min::pop ( dispatchers );
 
     substate = DISPATCHERS;
 }
@@ -476,9 +461,9 @@ void LEXNDL::end_table ( void )
 
     pop_dispatcher();
 
-    uns32 type_map_count = pop_uns32();
-    uns32 instruction_ID = pop_uns32();
-    uns32 dispatcher_ID = pop_uns32();
+    uns32 type_map_count = min::pop ( uns32_stack );
+    uns32 instruction_ID = min::pop ( uns32_stack );
+    uns32 dispatcher_ID  = min::pop ( uns32_stack );
 
     assert ( dispatchers->length == 0 );
     assert ( instructions->length == 0 );
@@ -559,7 +544,7 @@ void LEXNDL::end_atom_pattern ( void )
 
     * atom_pattern_name_p = uns32_stack[0];
 
-    deallocate ( uns32_stack, 3 );
+    min::pop ( uns32_stack, 3 );
 
     assert ( dispatchers->length == 0 );
     assert ( instructions->length == 0 );
@@ -599,8 +584,8 @@ void LEXNDL::add_characters
 
     dispatcher & d = current_dispatcher();
     ++ d.type_map_count;
-    push_uns32 ( min_char );
-    push_uns32 ( max_char );
+    min::push(uns32_stack) = min_char;
+    min::push(uns32_stack) = max_char;
 }
 
 void LEXNDL::begin_dispatch
@@ -717,7 +702,8 @@ void LEXNDL::translate_to
 
     ci.operation |= LEX::TRANSLATE_TO ( n );
     while ( n -- )
-        push_uns32 ( * translation_string ++ );
+        min::push(uns32_stack) =
+	    * translation_string ++;
 }
 
 void LEXNDL::translate_oct ( uns32 m, uns32 n )
@@ -990,8 +976,7 @@ void LEXNDL::ELSE ( void )
 	     " translate_oct/hex(), or require()" );
     ci.operation |= LEX::ELSE;
 
-    allocate ( instructions, 1 );
-    instruction & i2 = current_instruction();
+    instruction & i2 = min::push ( instructions );
     i2.operation = 0;
     i2.atom_table_ID = 0;
     i2.require_dispatcher_ID = 0;

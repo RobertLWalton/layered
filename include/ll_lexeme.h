@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 08:47:36 EST 2010
+// Date:	Fri Dec 31 19:16:00 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,9 +34,9 @@ namespace ll { namespace lexeme {
 
     // Unsigned integer 8-bit, 32-bit, and 64-bit types.
     //
-    typedef min::uns8 uns8;
-    typedef min::uns32 uns32;
-    typedef min::uns64 uns64;
+    using min::uns8;
+    using min::uns32;
+    using min::uns64;
 
     const min::stub * const NULL_STUB = min::NULL_STUB;
 
@@ -53,37 +53,6 @@ namespace ll { namespace lexeme {
 		     - (char *) p;
 
         return min::OFFSETOF ( d ) + offset;
-    }
-
-    // Allocate n elements in a buffer and return the
-    // index of the first element.
-    //
-    template <typename T>
-    inline uns32 allocate
-	    ( min::packed_vec_insptr<T> p, uns32 n )
-    {
-        uns32 ID = p->length;
-	min::push ( p, n );
-	return ID;
-    }
-
-    // Deallocate n elements from the end of a buffer
-    // and returns the new length of the buffer.
-    //
-    template <typename T>
-    inline void deallocate
-	    ( min::packed_vec_insptr<T> p, uns32 n )
-    {
-	min::pop ( p, n );
-    }
-
-    // Reset a buffer to zero length.
-    //
-    template <typename T>
-    inline void reset ( min::packed_vec_insptr<T> p )
-    {
-	min::pop ( p, p->length, (T *) NULL );
-	min::resize ( p, 1000 );
     }
 
     typedef min::packed_vec_insptr<uns32> program_ptr;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 18 11:50:35 EDT 2010
+// Date:	Fri Dec 31 19:19:44 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,8 +32,8 @@ namespace ll { namespace parser
 struct key_prefix;
 struct root
 {
-    min::uns32 type;
-    	// Packed structure type.
+    min::uns32 control;
+    	// Packed structure control word.
     min::gen key_element;
         // This element of key.
     key_prefix ** prefix;

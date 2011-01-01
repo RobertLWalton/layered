@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 19:16:00 EST 2010
+// Date:	Sat Jan  1 07:45:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,18 +42,6 @@ namespace ll { namespace lexeme {
 
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
-
-    template < typename S, typename T >
-    inline uns32 DISP ( min::packed_vec_insptr<T> S::* d )
-    {
-        min::packed_vec_insptr<T> * p =
-	    (min::packed_vec_insptr<T> *) NULL;
-	uns32 offset = (char *)
-	               (min::packed_vec_insptr<T> *) p
-		     - (char *) p;
-
-        return min::OFFSETOF ( d ) + offset;
-    }
 
     typedef min::packed_vec_insptr<uns32> program_ptr;
         // Type of a pointer to a program.
@@ -176,14 +164,37 @@ namespace ll { namespace lexeme {
 	// represented characters.  Created by init_
 	// scanner.
 	//
-	min::packed_vec_insptr<uns32> translation_buffer;
+	min::packed_vec_insptr<uns32>
+	    translation_buffer;
+
+	// The scanner parameters are
+	//
+	//	print_mode
+	//	line_length
+	//	indent
+	//	read_input
+	//	input_file
+	//	scan_trace_out
+	//	erroneous_atom
+	//
+	// These are set to defaults when a scanner is
+	// created by init_scanner().
 
 	// Print mode.  One of UTF8, UTF8PRINT, UTF8-
 	// GRAPHIC, or ASCIIPRINT, or ASCIIGRAPHIC.
 	// See above and also see default read_input
 	// function below.
 	//
-	uns32 print_mode;
+	uns32 print_mode;   // Default:
+			    //   ll::lexeme
+			    //     ::default_print_mode
+
+	// Nominal length and indent for printing.  Line
+	// length defaults to the limit for email mes-
+	// sages.
+	//
+	uns32 line_length;  // Default 72
+	uns32 indent;       // Default 4
 
 	// Input one or more inchar elements to the end
 	// of the input buffer vector, increasing the
@@ -252,6 +263,8 @@ namespace ll { namespace lexeme {
 	    ( uns32 first, uns32 last, uns32 type,
 	      scanner_ptr s );
 
+	// Scanner state:
+
 	// Error message describing the last error.  Can
 	// be reset to "" indicating there is no error
 	// by error_message[0] = 0.  Users should not
@@ -268,15 +281,6 @@ namespace ll { namespace lexeme {
 	// program ( false ) (uncooked program print).
 	//
 	char error_message [2000];
-
-	// Nominal length and indent for error messages.
-	// Line length normally set at the limit for
-	// email messages.
-	//
-	uns32 line_length;  // Default 72
-	uns32 indent;       // Default 4
-
-	// Scanner state:
 
 	uns32 next;
 	    // input_buffer[next] is the first character
@@ -721,6 +725,13 @@ namespace ll { namespace lexeme {
     //
     // Scanner->program is set from program only if
     // program argument is not NULL_STUB.
+    //
+    // When a new scanner is created, scanner parameters
+    // such as print_mode, line_length, indent, read_
+    // input, input_file, etc. are set to defaults.
+    // Otherwise these are left untouched, and can be
+    // set either before or immediately after the call
+    // to init_scanner.
     //
     void init_scanner
 	    ( scanner_ptr & scanner = default_scanner,

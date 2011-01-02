@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  2 06:21:34 EST 2011
+// Date:	Sun Jan  2 07:22:31 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@ using std::cout;
 int main ( int argc )
 {
     LEXSTD::create_standard_program();
+    LEX::default_scanner->print_mode = LEX::UTF8GRAPHIC;
     LEX::print_program ( cout, true );
     LEX::test_input ( LEXSTD::type_code,
                       LEXSTD::end_of_file_t );

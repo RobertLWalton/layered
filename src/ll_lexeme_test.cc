@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  2 06:14:31 EST 2011
+// Date:	Sun Jan  2 07:17:43 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -170,11 +170,16 @@ static void set_codes
 {
     LEX::scanner_ptr scanner = LEX::default_scanner;
 
-    uns32 line = scanner->input_buffer[first].line;
+    uns32 line =
+        first < scanner->input_buffer->length ?
+        scanner->input_buffer[first].line :
+	scanner->next_position.line;
     if ( ::next_line <= line ) set_line ( line );
 
     uns32 begin_column =
-        scanner->input_buffer[first].column;
+        first < scanner->input_buffer->length ?
+        scanner->input_buffer[first].column :
+	scanner->next_position.column;
     uns32 end_column =
         last + 1 < scanner->input_buffer->length ?
         scanner->input_buffer[last+1].column :

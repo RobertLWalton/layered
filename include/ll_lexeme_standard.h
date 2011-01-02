@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 00:19:42 EST 2010
+// Date:	Sun Jan  2 06:23:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,6 +48,9 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 unrecognized_escape_character_t	= 14;
     const uns32 unrecognized_escape_sequence_t	= 15;
     const uns32 non_letter_escape_sequence_t	= 16;
+
+    extern const char * type_code;
+        // Type codes for ll:lexeme::test_input.
 
 } } }
 

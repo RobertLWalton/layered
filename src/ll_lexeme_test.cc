@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  1 19:44:06 EST 2011
+// Date:	Sun Jan  2 06:14:31 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,10 +79,10 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
 min::static_stub<2> input_vec;
 static min::packed_vec_insptr<char>
     & lexeme_codes =
-        * (min::packed_vec_insptr<char> *) input_vec[0];
+        * (min::packed_vec_insptr<char> *) & input_vec[0];
 static min::packed_vec_insptr<char>
     & erroneous_atom_codes =
-        * (min::packed_vec_insptr<char> *) input_vec[1];
+        * (min::packed_vec_insptr<char> *) & input_vec[1];
 
 static min::packed_vec<char> codes_type
     ( "ll::lexeme::codes_type" );
@@ -103,45 +103,26 @@ static LEX::uns32 line_width;
 //
 static void flush_codes ( void )
 {
-    if ( ::next_line == 0 && ! ::eof_reached )
+    for ( uns32 i = 0;
+	  i < erroneous_atom_codes->length; ++ i )
     {
-	if ( lexeme_codes == min::NULL_STUB )
-	{
-	    lexeme_codes = codes_type.new_stub();
-	    erroneous_atom_codes =
-	        codes_type.new_stub();
-	}
-	else
-	{
-	    min::pop ( lexeme_codes,
-	               lexeme_codes->length );
-	    min::pop ( erroneous_atom_codes,
-	               erroneous_atom_codes->length );
-	}
+	char c = erroneous_atom_codes[i];
+	if ( c == ' ' ) continue;
+	while ( i >= lexeme_codes->length )
+	    min::push(lexeme_codes) = ' ';
+	lexeme_codes[i] = c;
     }
-    else
+    min::pop ( erroneous_atom_codes,
+	       erroneous_atom_codes->length );
+    if ( lexeme_codes->length > 0 )
     {
-        for ( uns32 i = 0;
-	      i < erroneous_atom_codes->length; ++ i )
-	{
-	    char c = erroneous_atom_codes[i];
-	    if ( c == ' ' ) continue;
-	    while ( i >= lexeme_codes->length )
-	        min::push(lexeme_codes) = ' ';
-	    lexeme_codes[i] = c;
-	}
-	min::pop ( erroneous_atom_codes,
-	           erroneous_atom_codes->length );
-	if ( lexeme_codes->length > 0 )
-	{
-	    if ( ::eof_reached )
-	        cout << "<END OF FILE>" << endl;
+	if ( ::eof_reached )
+	    cout << "<END OF FILE>" << endl;
 
-	    min::push(lexeme_codes) = 0;
-	    cout << & lexeme_codes[0] << endl;
-	    min::pop ( lexeme_codes,
-	               lexeme_codes->length );
-	}
+	min::push(lexeme_codes) = 0;
+	cout << & lexeme_codes[0] << endl;
+	min::pop ( lexeme_codes,
+		   lexeme_codes->length );
     }
 }
 
@@ -170,7 +151,7 @@ void set_line ( LEX::uns32 line )
 
 	const char * p =
 	    & scanner->input_file->data[offset];
-	char buffer [10 + 4 * strlen ( p )];
+	char buffer [10 + 12 * strlen ( p )];
 	uns32 boffset =
 	    LEX::spstring ( buffer, p,
 	                    ::line_width, 0, scanner );
@@ -190,7 +171,7 @@ static void set_codes
     LEX::scanner_ptr scanner = LEX::default_scanner;
 
     uns32 line = scanner->input_buffer[first].line;
-    if ( line <= ::next_line ) set_line ( line );
+    if ( ::next_line <= line ) set_line ( line );
 
     uns32 begin_column =
         scanner->input_buffer[first].column;
@@ -235,6 +216,20 @@ void LEX::test_input
     scanner_ptr scanner = LEX::default_scanner;
     scanner->erroneous_atom = ::erroneous_atom;
     scanner->read_input = LEX::default_read_input;
+
+    if ( lexeme_codes == min::NULL_STUB )
+    {
+	lexeme_codes = codes_type.new_stub();
+	erroneous_atom_codes =
+	    codes_type.new_stub();
+    }
+    else if ( ::next_line == 0 && ! ::eof_reached )
+    {
+	min::pop ( lexeme_codes,
+		   lexeme_codes->length );
+	min::pop ( erroneous_atom_codes,
+		   erroneous_atom_codes->length );
+    }
 
     while ( true )
     {

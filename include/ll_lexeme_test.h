@@ -34,18 +34,13 @@ namespace ll { namespace lexeme {
     // printed and terminate the test function.
     //
     // The ll::lexeme::default_scanner is used and
-    // must have its program, max_type, and type_name
-    // members preset.
+    // must have all its parameters preset except for
+    // erroneous_atom, which is set by this function.
     //
-    // The `in' stream and file_name are passed to
-    // ll::lexeme::init_stream.  This function termina-
-    // tes after printing a lexeme of type end_of_
-    // file_t.
+    // This function terminates after printing a lexeme
+    // of type end_of_file_t.
     //
-    void basic_test_input
-	    ( std::istream & in,
-	      const char * file_name,
-	      uns32 end_of_file_t );
+    void basic_test_input ( uns32 end_of_file_t );
 
     // Print the given input lines using the scanner
     // print mode, scan each line, and print under each
@@ -57,15 +52,18 @@ namespace ll { namespace lexeme {
     // printed in the same place, the erroneous atom
     // code take precedence.
     //
-    // The ll::lexeme::default_scanner is used and must
-    // have its program preset.  The `in', file_name,
-    // and end_of_file_t arguments are as for basic_
-    // test_input above.
+    // The ll::lexeme::default_scanner is used and
+    // must have all its parameters preset except for
+    // erroneous_atom and read_input, which are set by
+    // this function.  Read_input is set to ll::lexeme::
+    // default_read_input, and the input_file parameter
+    // must be properly preset.
+    //
+    // This function terminates after printing a lexeme
+    // of type end_of_file_t.
     //
     void test_input
 	    ( const char * type_code,
-	      std::istream & in,
-	      const char * file_name,
 	      uns32 end_of_file_t );
 
 } }

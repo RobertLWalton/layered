@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 07:31:52 EST 2010
+// Date:	Sat Jan  1 19:27:24 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,5 @@ int main ( int argc )
 {
     LEXSTD::create_standard_program();
     LEX::print_program ( cout, true );
-    LEX::basic_test_input
-	( std::cin, "standard input",
-	  LEXSTD::end_of_file_t );
+    LEX::basic_test_input ( LEXSTD::end_of_file_t );
 }

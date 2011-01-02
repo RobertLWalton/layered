@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  1 07:45:50 EST 2011
+// Date:	Sat Jan  1 19:40:32 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -796,8 +796,6 @@ static bool is_recursive
 // statements check this).  Everything else found
 // wrong with the program is a SCAN_ERROR.
 
-static bool default_read_input
-	( LEX::scanner_ptr scanner );
 void LEX::init_scanner
 	( scanner_ptr & scanner,
 	  program_ptr program )
@@ -817,7 +815,7 @@ void LEX::init_scanner
 	scanner->print_mode = default_print_mode;
 	scanner->line_length = 72;
 	scanner->indent = 4;
-	scanner->read_input = ::default_read_input;
+	scanner->read_input = default_read_input;
 	scanner->input_file = create_file();
 	init_stream
 	    ( scanner->input_file,
@@ -1783,7 +1781,7 @@ static char * scan_error
 // Reading
 // -------
 
-static bool default_read_input
+bool LEX::default_read_input
 	( LEX::scanner_ptr scanner )
 {
     LEX::file_ptr file = scanner->input_file;
@@ -1834,7 +1832,7 @@ file_ptr LEX::create_file ( void )
    return file_ptr ( file_type.new_gen() );
 }
 
-bool LEX::read_file
+bool LEX::init_file
 	( file_ptr file,
 	  const char * file_name,
 	  char error_message[512] )

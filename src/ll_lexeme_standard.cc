@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 22:30:14 EST 2010
+// Date:	Sun Jan  2 06:28:21 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@
 # include <ll_lexeme_standard.h>
 using namespace ll::lexeme::ndl;
 # define LEX ll::lexeme
+# define LEXSTD ll::lexeme::standard
 
 // Program Construction
 // ------- ------------
@@ -50,6 +51,9 @@ static const char * const type_name[MAX_TYPE+1] = {
     "UNRECOGNIZED_ESCAPE_SEQUENCE",
     "NON_LETTER_ESCAPE_SEQUENCE" };
 
+const char * LEXSTD::type_code =
+    "Xwn#mqschbeLFCESN";
+
 struct char_range { uns32 min, max; }
     non_ascii_letters[] =
 {
@@ -65,7 +69,7 @@ static void add_non_ascii_letters ( void )
 	NDL::add_characters ( p->min, p->max );
 }
 
-void ll::lexeme::standard::create_standard_program
+void LEXSTD::create_standard_program
 	( void )
 {
     /// begin standard lexical program;

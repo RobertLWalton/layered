@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  1 19:40:32 EST 2011
+// Date:	Sun Jan  2 17:40:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1978,6 +1978,8 @@ void LEX::init_string ( file_ptr file,
 
 uns32 LEX::next_line ( file_ptr file )
 {
+    if ( file->offset == NO_LINE ) return NO_LINE;
+
     uns32 length;  // Length of next line.
 
     if ( file->istream != NULL )
@@ -2022,13 +2024,13 @@ uns32 LEX::next_line ( file_ptr file )
 
 	length = file->data->length - file->offset;
 	if ( length == 0 && c == EOF )
-	    return NO_LINE;
+	    return file->offset = NO_LINE;
 	min::push(file->data) = 0;
     }
     else
     {
         if ( file->offset == file->data->length )
-	    return NO_LINE;
+	    return file->offset = NO_LINE;
 
         char * p = & file->data[file->offset];
 	char * q = p;

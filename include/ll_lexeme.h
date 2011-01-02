@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  1 19:36:52 EST 2011
+// Date:	Sun Jan  2 17:49:42 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -824,10 +824,19 @@ namespace ll { namespace lexeme {
 	    // line to be read.  If istream != NULL then
 	    // this equals data->length and the line has
 	    // not yet actually been read from istream
-	    // and put in data.  If istream == NULL then
-	    // this equals data->length iff there are no
-	    // more lines in the input.
+	    // and put in data.
+	    //
+	    // Set to NO_LINE by next_line() when it
+	    // returns NO_LINE because there are no more
+	    // lines to be read from the file.  In this
+	    // case line_number is the total number of
+	    // lines in the file.
     };
+
+    // NO_LINE denotes a missing line, possibly caused
+    // by an end of file, for char vector offset values.
+    //
+    const uns32 NO_LINE = 0xFFFFFFFF;
 
     // Create a new input file.
     //
@@ -864,12 +873,6 @@ namespace ll { namespace lexeme {
     void init_string ( file_ptr file,
                        const char * file_name,
 		       const char * data );
-
-    // NO_LINE denotes a missing line, possibly caused
-    // by an end of file, in cases where a char vector
-    // offset is returned.
-    //
-    const uns32 NO_LINE = 0xFFFFFFFF;
 
     // Return offset of next line in file->data.  Return
     // NO_LINE if end of file or input error.

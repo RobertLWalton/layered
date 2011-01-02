@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  1 07:45:37 EST 2011
+// Date:	Sat Jan  1 19:36:52 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -202,14 +202,15 @@ namespace ll { namespace lexeme {
 	// true if this is done, and false if there are
 	// no more characters because we are at the end
 	// of file.  Initialized to the default value
-	// described below.
+	// described immediately below.
 	//
 	bool (*read_input) ( scanner_ptr s );
 
-	// The default value of read_input reads UTF-8
-	// lines from the input_file and assigns each
-	// UNICODE character a line, index, and column
-	// number as follows:
+	// ll::lexeme::default_read_input, the default
+	// value of read_input, reads UTF-8 lines from
+	// the input_file and assigns each UNICODE
+	// character a line, index, and column number
+	// as follows:
 	//
 	//   line   input_file->line_number - 1 after
 	//	    calling next_line(input_file).
@@ -299,6 +300,9 @@ namespace ll { namespace lexeme {
 	    // Working buffer for producing components
 	    // of error_message.
     };
+
+    bool default_read_input ( scanner_ptr s );
+        // See read_input above.
 
     extern scanner_ptr & default_scanner;
 
@@ -836,10 +840,10 @@ namespace ll { namespace lexeme {
     // ized to the first line of the file.
     //
     // If an error occurs, an error message is put into
-    // the buffer and std::error is returned.  If there
-    // is no error, true is returned.
+    // the buffer and false is returned.  If there is no
+    // error, true is returned.
     //
-    bool read_file ( file_ptr file,
+    bool init_file ( file_ptr file,
                      const char * file_name,
                      char error_message[512] );
 

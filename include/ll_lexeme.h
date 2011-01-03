@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  2 17:49:42 EST 2011
+// Date:	Sun Jan  2 19:16:07 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -896,6 +896,22 @@ namespace ll { namespace lexeme {
     // lines in file->data.
     //
     uns32 line ( file_ptr file, uns32 line_number );
+
+    // Print a line from scanner->input_file to an
+    // output stream using scanner->print_mode.  If
+    // the latter is xxxGRAPHIC, append a line feed to
+    // the printed line.  Return the number of columns
+    // printed.
+    //
+    // If the line_number designates the line just after
+    // the file, print "<END-OF-FILE>".
+    //
+    // If the line_number designates a line not
+    // available, do nothing but return NO_LINE.
+    //
+    uns32 print_line
+        ( std::ostream & out,
+	  scanner_ptr scanner, uns32 line_number );
 } }
 
 // Printing

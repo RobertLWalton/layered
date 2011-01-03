@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  2 17:40:34 EST 2011
+// Date:	Mon Jan  3 06:03:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2062,6 +2062,34 @@ uns32 LEX::line ( file_ptr file, uns32 line_number )
         return file[  file->length
 	            - (   file->line_number
 		        - line_number)];
+}
+
+uns32 LEX::print_line
+	( std::ostream & out,
+	  scanner_ptr scanner, uns32 line_number )
+{
+    file_ptr file = scanner->input_file;
+    if ( file->offset == NO_LINE
+         &&
+	 line_number == file->line_number )
+    {
+        out << "<END-OF-FILE>" << endl;
+	return 13;
+    }
+    uns32 offset = line ( file, line_number );
+    if ( offset == NO_LINE ) return NO_LINE;
+
+    const char * p = & file->data[offset];
+    uns32 n = strlen ( p );
+    char buffer [ 10 + 12 * n ];
+    uns32 width = 0;
+    n = spstring ( buffer, p, width, 0, scanner );
+    uns32 pmode = scanner->print_mode;
+    if ( pmode == ASCIIGRAPHIC || pmode == UTF8GRAPHIC )
+        spstring
+	    ( buffer + n, "\n", width, 0, scanner );
+    out << buffer << endl;
+    return width;
 }
 
 // Printing

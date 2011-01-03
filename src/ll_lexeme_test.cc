@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  2 07:17:43 EST 2011
+// Date:	Mon Jan  3 05:50:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,9 +93,6 @@ static const char * type_code;
 static LEX::uns32 next_line;
     // Line number of next line to be printed.
     // 0 if no lines printed yet.
-static bool eof_reached;
-    // True if end of file reached and there is no
-    // printed last line.
 static LEX::uns32 line_width;
     // Line width of last line printed.
 
@@ -116,9 +113,6 @@ static void flush_codes ( void )
 	       erroneous_atom_codes->length );
     if ( lexeme_codes->length > 0 )
     {
-	if ( ::eof_reached )
-	    cout << "<END OF FILE>" << endl;
-
 	min::push(lexeme_codes) = 0;
 	cout << & lexeme_codes[0] << endl;
 	min::pop ( lexeme_codes,
@@ -126,9 +120,7 @@ static void flush_codes ( void )
     }
 }
 
-// Set ::next_line == line + 1, unless end of file is
-// reached, in which case set ::eof_reached, set
-// ::line_width = 0, and return.
+// Set ::next_line == line + 1.
 //
 void set_line ( LEX::uns32 line )
 {
@@ -136,32 +128,11 @@ void set_line ( LEX::uns32 line )
 
     flush_codes();
 
-    if ( ::eof_reached ) return;
-
     LEX::scanner_ptr scanner = LEX::default_scanner;
-    while ( ::next_line <= line )
-    {
-        uns32 offset =
-	    LEX::line ( scanner->input_file,
-	                ::next_line );
-
-	::eof_reached = ( offset == LEX::NO_LINE );
-	::line_width = 0;
-	if ( ::eof_reached ) return;
-
-	const char * p =
-	    & scanner->input_file->data[offset];
-	char buffer [10 + 12 * strlen ( p )];
-	uns32 boffset =
-	    LEX::spstring ( buffer, p,
-	                    ::line_width, 0, scanner );
-	LEX::spstring ( buffer + boffset, "\n",
-	                ::line_width, 0, scanner );
-	cout << buffer << endl;
-	++ ::next_line;
-    }
-
-    assert ( next_line == line + 1 );
+    for ( ; ::next_line <= line; ++ ::next_line )
+        ::line_width =
+	    LEX::print_line
+	        ( cout, scanner, ::next_line );
 }
 
 static void set_codes
@@ -186,13 +157,7 @@ static void set_codes
 	scanner->next_position.column;
 
     if ( end_column <= begin_column )
-    {
-	if (    ::eof_reached
-	     || begin_column >= ::line_width )
-	    end_column = begin_column + 1;
-	else
 	    end_column = ::line_width;
-    }
 
     while ( codes->length < end_column )
         min::push(codes) = ' ';
@@ -215,7 +180,6 @@ void LEX::test_input
 {
     ::type_code = type_code;
     ::next_line = 0;
-    ::eof_reached = false;
 
     init_scanner();
     scanner_ptr scanner = LEX::default_scanner;
@@ -228,7 +192,7 @@ void LEX::test_input
 	erroneous_atom_codes =
 	    codes_type.new_stub();
     }
-    else if ( ::next_line == 0 && ! ::eof_reached )
+    else
     {
 	min::pop ( lexeme_codes,
 		   lexeme_codes->length );

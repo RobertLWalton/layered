@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 19:19:44 EST 2010
+// Date:	Tue Jan  4 17:05:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,59 +29,54 @@ namespace ll { namespace parser
 
 // All table entries begin with a root.
 //
-struct key_prefix;
-struct root
+struct root_struct;
+min::packed_struct_insptr<root_struct> root_ptr;
+struct root_struct
 {
     min::uns32 control;
     	// Packed structure control word.
-    min::gen key_element;
-        // This element of key.
-    key_prefix ** prefix;
-        // Prefix specifying previous elements of the
-	// key, or NULL if no previous elements.
-    root ** next;
-        // Next entry in the stack with the same
-	// key_element and prefix
-
+    min::gen key;
+        // Key of this entry.
+    min::uns32 hash;
+        // Hash of key.
+    root_ptr next;
+        // Next entry in the stack with the same key.
     min::uns64 selectors;
         // Selector bits.
 };
 
-// A key prefix points at the next key element in a
-// multi-element key.
+// A multi-element key has two table entries.  Lower in
+// the stack is a normal entry.  Higher (toward the top)
+// is a suffix entry that contains the breakdown of the
+// key, which is a label, into an initial segment and a
+// final element.  This higher level entry points via
+// its `next' element at the normal lower level entry.
 //
-extern min::uns32 KEY_PREFIX;
-struct key_prefix
+// The suffix entry permits lookup without computing
+// new label objects.  It has no other function.
+//
+extern min::uns32 KEY_SUFFIX;
+struct key_suffix_struct;
+min::packed_struct_insptr<key_suffix_struct>
+    key_suffix_ptr;
+struct key_suffix_struct : public root_struct
 {
-    root r;
-        // Type is KEY_PREFIX.
-
-    min::uns32 hash;
-        // Hash of the label that is the prefix
-	// ending with this element.  Computed using
-	// min::next_label_hash.
-
-    min::uns32 count;
-        // Number of possible next elements.
-
-    root ** next_element[5];
-        // If count <= 5, the next elements in
-	// order.  Otherwise not used, and the
-	// next elements are looked up by
-	//   min::next_label_hash
-	//       ( hash-of-next-key-element,
-	//	   this->hash );
-
+    root_ptr key_prefix;
+        // Entry for key minus last element.
+    min::gen last_key_element;
+        // Last element of key.
 };
 
 // Bracket definition.
 //
+struct bracket_struct;
+min::packed_struct_insptr<bracket_struct> root_ptr;
 extern min::uns32 BRACKET;
-struct bracket
+struct bracket_struct : public root_struct
 {
-    root r;  // Type is BRACKET.
+    // Packed structure type is BRACKET.
 
-    bracket ** opposing_bracket;
+    bracket_ptr opposing_bracket;
         // The opposing bracket of the opening bracket
 	// is the closing bracket, and vice versa.
 

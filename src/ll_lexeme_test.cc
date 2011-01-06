@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  3 05:50:56 EST 2011
+// Date:	Thu Jan  6 02:51:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -132,7 +132,7 @@ void set_line ( LEX::uns32 line )
     for ( ; ::next_line <= line; ++ ::next_line )
         ::line_width =
 	    LEX::print_line
-	        ( cout, scanner, ::next_line );
+	        ( cout, scanner, ::next_line, true );
 }
 
 static void set_codes

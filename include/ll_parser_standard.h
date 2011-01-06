@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 21:44:07 EST 2010
+// Date:	Thu Jan  6 03:10:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,10 @@ namespace ll { namespace parser { namespace standard {
 
     // Create an input pass that outputs a stream of
     // lexemes as read from a standard lexeme scanner.
+    // Error messages are printed on the err stream.
+    // The scanner->erronous_atom parameter is set by
+    // this function.
+    //
     // The lexeme types as in ll_lexeme_standard.h are
     // processed as follows:
     //
@@ -43,15 +47,19 @@ namespace ll { namespace parser { namespace standard {
     //    mark_t	    SYMBOL, string value
     //    quoted_string_t   quoted_string_t, string
     //    separator_t	    SYMBOL, string value
+    //
     //    comment_t	    no token
     //    horizontal_space_t
     //			    no token
-    //    line_break_t      line_break_t, string
-    //    end_of_file_t     end_of_file_t, string
-    //    bad_end_of_line_t line_break_t, string,
+    //
+    //    line_break_t      line_break_t
+    //    end_of_file_t     end_of_file_t
+    //
+    //    bad_end_of_line_t line_break_t
     //			    output error message
-    //    bad_end_of_file_t no token,
+    //    bad_end_of_file_t end_of_file_t
     //			    output error message
+    //
     //    unrecognized_character_t
     //			    no token,
     //			    output error message
@@ -77,7 +85,8 @@ namespace ll { namespace parser { namespace standard {
     // ll::parser::string for lexeme type kinds.
     //
     pass_ptr create_input_pass
-        ( ll::lexeme::scanner_ptr scanner );
+        ( ll::lexeme::scanner_ptr scanner,
+	  std::ostream & err = std::cerr );
 
 } } }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_input_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 27 07:07:26 EST 2010
+// Date:	Thu Jan  6 03:15:06 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,7 @@
 struct input_parser : public PAR::pass_struct
 {
     LEX::scanner_ptr scanner;
+    std::ostream * err;  // Error message stream.
 };
 typedef min::packed_struct_updptr<input_parser>
     input_parser_ptr;
@@ -45,19 +46,67 @@ min::packed_struct<input_parser> input_parser_type
     ( "input_parser",
       NULL, ::input_parser_stub_disp );
 
+static void erroneous_atom
+	( min::uns32 first, min::uns32 last,
+	  min::uns32 type, LEX::scanner_ptr scanner );
 static min::uns32 input_parser_get
 	( PAR::pass_ptr out, PAR::pass_ptr in );
 PAR::pass_ptr PAR::standard::create_input_pass
-    ( LEX::scanner_ptr scanner )
+    ( LEX::scanner_ptr scanner,
+      std::ostream * err )
 {
     input_parser_ptr pass =
         input_parser_type.new_stub();
     pass->scanner = scanner;
+    pass->err = & err;
     pass->get = ::input_parser_get;
+    scanner->erroneous_atom = ::erroneous_atom;
 }
 
 // Input Parser
 // ----- ------
+
+static void print_error
+	( LEX::scanner_ptr scanner,
+	  min::uns32 first, min::uns32 last,
+	  const char * message )
+{
+    min::packed_vec_insptr<LEX::inchar> input_buffer =
+        scanner->input_buffer;
+    uns32 line = first < input_buffer->length ?
+                 input_buffer[first].line :
+		 scanner->next_position.line;
+    uns32 line_width = 0;
+    uns32 fcolumn = first < input_buffer->length ?
+                    input_buffer[first].column :
+		    scanner->next_position.column;
+}
+
+static void erroneous_atom
+	( min::uns32 first, min::uns32 last,
+	  min::uns32 type, LEX::scanner_ptr scanner )
+{
+    switch ( type )
+    {
+    case LEXSTD::unrecognized_escape_character_t;
+	print_error ( scanner, first, last,
+		      "unrecognized escape character" );
+	break;
+    case LEXSTD::unrecognized_escape_sequence_t;
+	print_error ( scanner, first, last,
+		      "unrecognized escape sequence" );
+	break;
+    case LEXSTD::non_letter_escape_sequence_t;
+	print_error ( scanner, first, last,
+		      "non-letter escape sequence" );
+	break;
+    default:
+	print_error ( scanner, first, last,
+		      "system error: bad erroneous"
+		      " atom type" );
+	break;
+    }
+}
 
 static min::uns32 input_parser_get
 	( PAR::pass_ptr out, PAR::pass_ptr in )
@@ -69,8 +118,38 @@ static min::uns32 input_parser_get
     {
         min::uns32 type =
 	    LEX::scan ( first, last, scanner );
-	if ( type == LEX::SCAN_ERROR )
+	switch ( type )
 	{
+	case LEX::SCAN_ERROR:
+	{
+	}
+	case LEXSTD::comment_t:
+	case LEXSTD::horizontal_space_t:
+	    continue;
+	case LEXSTD::bad_end_of_line_t:
+	    print_error ( scanner, first, last,
+	                  "bad end of line" );
+	    type = LEXSTD::line_break_t;
+	    break;
+	case LEXSTD::bad_end_of_file_t:
+	    print_error ( scanner, first, last,
+	                  "bad end of file" );
+	    type = LEXSTD::end_of_file_t;
+	    break;
+	case LEXSTD::unrecognized_character_t:
+	    print_error ( scanner, first, last,
+	                  "unrecognized character" );
+	    continue;
+	case LEXSTD::unrecognized_escape_character_t:
+	    print_error ( scanner, first, last,
+	                  "unrecognized escape"
+			  " character" );
+	    continue;
+        case LEXSTD::unrecognized_escape_sequence_t:
+	    print_error ( scanner, first, last,
+	                  "unrecognized escape"
+			  " sequence" );
+	    continue;
 	}
 
 	PAR::token_ptr token = PAR::new_token( type );
@@ -139,8 +218,6 @@ static min::uns32 input_parser_get
 	}
 	case LEXSTD::quoted_string_t:
 	case LEXSTD::number_t:
-	case LEXSTD::line_break_t:
-	case LEXSTD::end_of_file_t:
 	{
 	    int length =
 	        scanner->translation_buffer->length;
@@ -151,6 +228,9 @@ static min::uns32 input_parser_get
 	        PAR::new_string ( length, p );
 	    break;
 	}
+	case LEXSTD::line_break_t:
+	case LEXSTD::end_of_file_t:
+	    break;
 	}
     }
     return count;

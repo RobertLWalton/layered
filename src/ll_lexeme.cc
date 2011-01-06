@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  3 06:03:35 EST 2011
+// Date:	Thu Jan  6 02:50:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -118,6 +118,10 @@ static uns32 scanner_stub_disp[] =
       min::DISP ( & LEX::scanner_struct::input_buffer ),
       min::DISP ( & LEX::scanner_struct
                        ::translation_buffer ),
+      min::DISP ( & LEX::scanner_struct
+                       ::read_input_data ),
+      min::DISP ( & LEX::scanner_struct
+                       ::erroneous_atom_data ),
       min::DISP ( & LEX::scanner_struct::input_file ),
       min::DISP_END };
 
@@ -2066,7 +2070,8 @@ uns32 LEX::line ( file_ptr file, uns32 line_number )
 
 uns32 LEX::print_line
 	( std::ostream & out,
-	  scanner_ptr scanner, uns32 line_number )
+	  scanner_ptr scanner, uns32 line_number,
+	  bool append_line_feed )
 {
     file_ptr file = scanner->input_file;
     if ( file->offset == NO_LINE
@@ -2085,7 +2090,10 @@ uns32 LEX::print_line
     uns32 width = 0;
     n = spstring ( buffer, p, width, 0, scanner );
     uns32 pmode = scanner->print_mode;
-    if ( pmode == ASCIIGRAPHIC || pmode == UTF8GRAPHIC )
+    if ( append_line_feed
+         &&
+	 (    pmode == ASCIIGRAPHIC
+	   || pmode == UTF8GRAPHIC ) )
         spstring
 	    ( buffer + n, "\n", width, 0, scanner );
     out << buffer << endl;

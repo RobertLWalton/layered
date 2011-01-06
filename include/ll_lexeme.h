@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  2 19:16:07 EST 2011
+// Date:	Thu Jan  6 03:06:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -173,6 +173,7 @@ namespace ll { namespace lexeme {
 	//	line_length
 	//	indent
 	//	read_input
+	//	read_input_data
 	//	input_file
 	//	scan_trace_out
 	//	erroneous_atom
@@ -204,7 +205,14 @@ namespace ll { namespace lexeme {
 	// of file.  Initialized to the default value
 	// described immediately below.
 	//
+	// read_input_data is for pointing at auxilary
+	// data needed by a particular read_input
+	// function, and may only be set when read_input
+	// is set and used by the read_input function.
+	// It defaults to NULL_STUB.
+	//
 	bool (*read_input) ( scanner_ptr s );
+	const min::stub * read_input_data;
 
 	// ll::lexeme::default_read_input, the default
 	// value of read_input, reads UTF-8 lines from
@@ -241,6 +249,10 @@ namespace ll { namespace lexeme {
 	// stream with istream cin, file name "standard
 	// input", and spool_length == 0.
 	//
+	// The default_read_input function does NOT use
+	// read_input_data, which may be set for use
+	// by the erroneous_atom function.
+	//
 	file_ptr input_file;
 
 	// Output stream for tracing the scan.  If NULL,
@@ -260,9 +272,17 @@ namespace ll { namespace lexeme {
 	// ERRONEOUS_ATOM flag is a scan error.
 	// Defaults to NULL.
 	//
+	// erroneous_atom_data is for pointing at auxi-
+	// lary data needed by a particular erroneous_
+	// atom function, and may only be set when
+	// erroneous_atom is set and used by the erron-
+	// eous_atom function.  It defaults to NULL_
+	// STUB.
+	//
 	void (* erroneous_atom)
 	    ( uns32 first, uns32 last, uns32 type,
 	      scanner_ptr s );
+	const min::stub * erroneous_atom_data;
 
 	// Scanner state:
 
@@ -899,9 +919,10 @@ namespace ll { namespace lexeme {
 
     // Print a line from scanner->input_file to an
     // output stream using scanner->print_mode.  If
-    // the latter is xxxGRAPHIC, append a line feed to
-    // the printed line.  Return the number of columns
-    // printed.
+    // append_line_feed is true, append a line feed
+    // if the scanner->print_mode is xxxGRAPHIC (so
+    // the line feed prints as graphic characters).
+    // Return the number of columns printed.
     //
     // If the line_number designates the line just after
     // the file, print "<END-OF-FILE>".
@@ -911,7 +932,26 @@ namespace ll { namespace lexeme {
     //
     uns32 print_line
         ( std::ostream & out,
-	  scanner_ptr scanner, uns32 line_number );
+	  scanner_ptr scanner,
+	  uns32 line_number,
+	  bool append_line_feed = false );
+
+    // Print the lines containing the lexeme identified
+    // by first and last, and print ^^^^'s under the
+    // columns containing the lexeme.  Multi-line
+    // lexemes are allowed.
+    //
+    // Return NO_LINE and do nothing if the first line
+    // is not available.  It is required that if the
+    // first line is available, all lines before the
+    // end of file must be available (else this function
+    // crashes).  Otherwise return the first column
+    // of the lexeme on the last line printed.
+    //
+    uns32 print_lexeme
+        ( std::ostream & out,
+	  scanner_ptr scanner,
+	  uns32 first, uns32 last );
 } }
 
 // Printing

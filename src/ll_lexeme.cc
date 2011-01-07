@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  6 02:50:38 EST 2011
+// Date:	Fri Jan  7 08:31:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -846,7 +846,6 @@ void LEX::init_scanner
     scanner->next_position.line = 0;
     scanner->next_position.index = 0;
     scanner->next_position.column = 0;
-    scanner->next_position.character = 0;
 
     scanner->next = 0;
 
@@ -1796,7 +1795,7 @@ bool LEX::default_read_input
     min::packed_vec_insptr<LEX::inchar> input_buffer =
         scanner->input_buffer;
 
-    LEX::inchar & ic = scanner->next_position;
+    LEX::inchar ic;
     ic.line = file->line_number - 1;
     ic.index = 0;
     ic.column = 0;
@@ -1824,6 +1823,8 @@ bool LEX::default_read_input
     ++ ic.line;
     ic.index = 0;
     ic.column = 0;
+
+    scanner->next_position = * (LEX::position *) & ic;
 
     return true;
 }

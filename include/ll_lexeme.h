@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  6 03:06:12 EST 2011
+// Date:	Fri Jan  7 07:55:24 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -109,12 +109,18 @@ namespace ll { namespace lexeme {
     //
     extern uns32 default_print_mode;
 
-    struct inchar
-        // Element of input_buffer: see below.
+    struct position
+        // Position of an element of the input_buffer:
+	// see below.
     {
 	uns32	line;
 	uns32	index;
 	uns32	column;
+    };
+
+    struct inchar : public position
+        // Element of input_buffer: see below.
+    {
 	uns32	character;
     };
 
@@ -148,12 +154,12 @@ namespace ll { namespace lexeme {
 
 	// The line, index, and column of the character
 	// that will be put next at the end of the input
-	// buffer.  May be used to delimit the end of
-	// the last character in the input buffer.
+	// buffer.  May be used to delimit the position
+	// just after the last character that is to be
+	// put into the input buffer, i.e., the position
+	// of the end of file.
 	//
-	// The .character member is unused.
-	//
-	inchar next_position;
+	position next_position;
 
 	// The translation buffer holds the translation
 	// of the current lexeme.  For example, if the
@@ -937,9 +943,9 @@ namespace ll { namespace lexeme {
 	  bool append_line_feed = false );
 
     // Print the lines containing the lexeme identified
-    // by first and last, and print ^^^^'s under the
-    // columns containing the lexeme.  Multi-line
-    // lexemes are allowed.
+    // by first and last, and print the given mark char-
+    // acter (default '^') under the columns containing
+    // the lexeme.  Multi-line lexemes are allowed.
     //
     // Return NO_LINE and do nothing if the first line
     // is not available.  It is required that if the
@@ -948,10 +954,45 @@ namespace ll { namespace lexeme {
     // crashes).  Otherwise return the first column
     // of the lexeme on the last line printed.
     //
-    uns32 print_lexeme
+    uns32 print_lexeme_lines
         ( std::ostream & out,
 	  scanner_ptr scanner,
-	  uns32 first, uns32 last );
+	  uns32 first, uns32 last,
+	  char mark = '^' );
+
+    // Ditto but print the lines containing an item
+    // identified by begin and end.  Begin is the posi-
+    // tion of the first column to be marked, and end is
+    // the position JUST AFTER the last column to be
+    // marked.
+    //
+    uns32 print_item_lines
+        ( std::ostream & out,
+	  scanner_ptr scanner,
+	  const position & begin,
+	  const position & end,
+	  char mark = '^' );
+
+    // Print the given message in a format suitable for
+    // use as a message about a lexeme or item whose
+    // marked lines were just printed by print_lexeme_
+    // lines or print_item_lines.
+    //
+    // The message must contain just ASCII graphic
+    // characters; single space is allowed but horizon-
+    // tal tab is not.  The message will be broken
+    // across lines so it can be indented by scanner->
+    // indent and constrained by scanner->line_length.
+    // Some part of the message will be placed under the
+    // given column, which can be the first column of
+    // the lexeme or item as returned by print_lexeme_
+    // lines or print_item_lines.
+    //
+    uns32 print_message
+        ( std::ostream & out,
+	  scanner_ptr scanner,
+	  uns32 column,
+	  const char * message );
 } }
 
 // Printing

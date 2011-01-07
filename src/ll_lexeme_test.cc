@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  6 02:51:35 EST 2011
+// Date:	Fri Jan  7 08:35:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,10 +79,12 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
 min::static_stub<2> input_vec;
 static min::packed_vec_insptr<char>
     & lexeme_codes =
-        * (min::packed_vec_insptr<char> *) & input_vec[0];
+        * (min::packed_vec_insptr<char> *)
+	& input_vec[0];
 static min::packed_vec_insptr<char>
     & erroneous_atom_codes =
-        * (min::packed_vec_insptr<char> *) & input_vec[1];
+        * (min::packed_vec_insptr<char> *)
+	& input_vec[1];
 
 static min::packed_vec<char> codes_type
     ( "ll::lexeme::codes_type" );

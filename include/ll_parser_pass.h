@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 19:19:54 EST 2010
+// Date:	Sat Jan  8 10:15:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,7 @@
 # define LL_PARSER_PASS_H
 
 # include <min.h>
+# include <ll_lexeme.h>
 
 // Parser Tokens
 // ------ ------
@@ -115,16 +116,10 @@ struct token_struct
     string_ptr string;
         // Character string for lexemes.
 
-    uns32 begin_line;
-    uns32 begin_index;
-    uns32 begin_column;
+    ll::lexeme::position begin, end;
         // Position of the first character of the token.
-
-    uns32 end_line;
-    uns32 end_index;
-    uns32 end_column;
-        // Position of the first character AFTER the
-	// token, or the end of input.
+        // and of the first character AFTER the token,
+	// or the end of input.
 
     token_ptr next, previous;
         // Doubly linked list pointers for tokens.

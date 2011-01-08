@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  7 07:55:24 EST 2011
+// Date:	Sat Jan  8 00:50:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -958,6 +958,7 @@ namespace ll { namespace lexeme {
         ( std::ostream & out,
 	  scanner_ptr scanner,
 	  uns32 first, uns32 last,
+	  bool append_line_feed = false,
 	  char mark = '^' );
 
     // Ditto but print the lines containing an item
@@ -971,6 +972,7 @@ namespace ll { namespace lexeme {
 	  scanner_ptr scanner,
 	  const position & begin,
 	  const position & end,
+	  bool append_line_feed = false,
 	  char mark = '^' );
 
     // Print the given message in a format suitable for
@@ -988,11 +990,16 @@ namespace ll { namespace lexeme {
     // the lexeme or item as returned by print_lexeme_
     // lines or print_item_lines.
     //
-    uns32 print_message
+    // If the first line of the message is not naturally
+    // underneath the given column, the line is extended
+    // using the mark character (which defaults to '+').
+    //
+    void print_message
         ( std::ostream & out,
 	  scanner_ptr scanner,
 	  uns32 column,
-	  const char * message );
+	  const char * message,
+	  char mark = '+' );
 } }
 
 // Printing

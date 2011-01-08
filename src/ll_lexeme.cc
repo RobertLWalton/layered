@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  7 08:31:57 EST 2011
+// Date:	Sat Jan  8 00:09:25 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1824,7 +1824,7 @@ bool LEX::default_read_input
     ic.index = 0;
     ic.column = 0;
 
-    scanner->next_position = * (LEX::position *) & ic;
+    scanner->next_position = (LEX::position) ic;
 
     return true;
 }
@@ -2099,6 +2099,125 @@ uns32 LEX::print_line
 	    ( buffer + n, "\n", width, 0, scanner );
     out << buffer << endl;
     return width;
+}
+
+uns32 LEX::print_item_lines
+    ( std::ostream & out,
+      scanner_ptr scanner,
+      const position & begin,
+      const position & end,
+      bool append_line_feed,
+      char mark )
+{
+    assert ( end.line >= begin.line );
+
+    uns32 line = begin.line;
+    uns32 column = begin.column;
+    uns32 width = print_line
+	( out, scanner, line, append_line_feed );
+    if ( width == NO_LINE ) return NO_LINE;
+
+    while ( true )
+    {
+        for ( uns32 i = 0; i < column; ++ i )
+	    out << ' ';
+	uns32 end_column =
+	    end.line == line ? end.column :
+	                       width;
+	if ( end_column <= column )
+	    end_column = width;
+	if ( end_column <= column )
+	    end_column = column + 1;
+        for ( uns32 i = column; i < end_column; ++ i )
+	    out << mark;
+	out << endl;
+
+	if ( line == end.line ) break;
+
+	++ line;
+	column = 0;
+
+	width = print_line
+	    ( out, scanner, line, append_line_feed );
+	assert ( width != NO_LINE );
+    }
+    return column;
+}
+
+uns32 LEX::print_lexeme_lines
+    ( std::ostream & out,
+      scanner_ptr scanner,
+      uns32 first, uns32 last,
+      bool append_line_feed,
+      char mark )
+{
+    min::packed_vec_insptr<inchar> input_buffer =
+        scanner->input_buffer;
+    position begin;
+    position end;
+    if ( first < input_buffer->length )
+        begin = (position) input_buffer[first];
+    else
+        begin = scanner->next_position;
+    if ( last + 1 < input_buffer->length )
+        end = (position) input_buffer[last+1];
+    else
+        end = scanner->next_position;
+    return print_item_lines
+        ( out, scanner, begin, end,
+	  append_line_feed, mark );
+}
+
+void LEX::print_message
+    ( std::ostream & out,
+      scanner_ptr scanner,
+      uns32 column,
+      const char * message,
+      char mark )
+{
+    uns32 indent = scanner->indent;
+    uns32 line_length = scanner->line_length;
+    if ( column < indent )
+    {
+        for ( uns32 i = 0; i < column; ++ i )
+	    out << ' ';
+        for ( uns32 i = column; i < indent; ++ i )
+	    out << mark;
+    }
+    else for ( uns32 i = 0; i < indent; ++ i )
+        out << ' ';
+
+    uns32 col = indent;
+    bool first = true;
+    while ( * message )
+    {
+        const char * q1 = message;
+	while ( * q1 == ' ' ) ++ q1;
+	const char * q2 = q1;
+	while ( * q2 && * q2 != ' ' ) ++ q2;
+	if ( q2 == q1 ) break;
+
+	if ( col + ( q2 - message ) > line_length )
+	{
+	    if ( first )
+	    {
+	        first = false;
+		for ( uns32 i = col; i <= column; ++ i )
+		    out << mark;
+	    }
+	    out << endl;
+	    for ( uns32 i = 0; i < indent; ++ i )
+		out << ' ';
+	    col = indent;
+	    message = q1;
+	}
+	while ( message < q2 ) out << * message ++;
+	message = q2;
+    }
+    if ( first )
+	for ( uns32 i = col; i <= column; ++ i )
+	    out << mark;
+    out << endl;
 }
 
 // Printing

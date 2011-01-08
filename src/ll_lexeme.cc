@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  8 00:09:25 EST 2011
+// Date:	Sat Jan  8 10:09:10 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2136,6 +2136,9 @@ uns32 LEX::print_item_lines
 
 	++ line;
 	column = 0;
+
+	if ( line == end.line && 0 == end.column )
+	    break;
 
 	width = print_line
 	    ( out, scanner, line, append_line_feed );

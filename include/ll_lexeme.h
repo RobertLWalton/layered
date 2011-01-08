@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  8 00:50:57 EST 2011
+// Date:	Sat Jan  8 09:01:58 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -183,6 +183,7 @@ namespace ll { namespace lexeme {
 	//	input_file
 	//	scan_trace_out
 	//	erroneous_atom
+	//	erroneous_atom_data
 	//
 	// These are set to defaults when a scanner is
 	// created by init_scanner().

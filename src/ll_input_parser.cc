@@ -2,7 +2,7 @@
 //
 // File:	ll_input_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  9 19:45:39 EST 2011
+// Date:	Mon Jan 10 08:08:23 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,6 @@ using namespace PAR;
 struct input_parser : public PAR::pass_struct
 {
     LEX::scanner_ptr scanner;
-    std::ostream * err;  // Error message stream.
 };
 typedef min::packed_struct_updptr<input_parser>
     input_parser_ptr;
@@ -92,8 +91,8 @@ static void erroneous_atom
     }
     input_parser_ptr pass =
         (input_parser_ptr) scanner->erroneous_atom_data;
-    std::ostream * err = pass->err;
-    if ( err == NULL ) err = pass->trace;
+    std::ostream * err = pass->trace;
+    if ( err == NULL ) err = pass->err;
     if ( err != NULL )
     {
 	uns32 column = LEX::print_lexeme_lines
@@ -120,8 +119,8 @@ static min::uns32 input_parser_get
 	{
 	case LEX::SCAN_ERROR:
 	{
-	    std::ostream * err = pass->err;
-	    if ( err == NULL ) err = pass->trace;
+	    std::ostream * err = pass->trace;
+	    if ( err == NULL ) err = pass->err;
 	    if ( err != NULL )
 	        (* err) << scanner->error_message
 		        << std::endl;
@@ -152,8 +151,8 @@ static min::uns32 input_parser_get
 	}
 	if ( message != NULL )
 	{
-	    std::ostream * err = pass->err;
-	    if ( err == NULL ) err = pass->trace;
+	    std::ostream * err = pass->trace;
+	    if ( err == NULL ) err = pass->err;
 	    if ( err != NULL )
 	    {
 		uns32 column = LEX::print_lexeme_lines
@@ -238,6 +237,38 @@ static min::uns32 input_parser_get
 	case LEXSTD::end_of_file_t:
 	    break;
 	}
+
+	if ( trace == NULL ) continue;
+	uns32 column = LEX::print_item_lines
+	    ( * trace, scanner,
+	      token->begin, token->end );
+	if ( token->value == min::MISSING
+	     &&
+	     token->string == NULL_STUB )
+	{
+	    LEX::print_message
+	        ( * trace, scanner, column,
+		  LEXSTD::type_name[type] );
+	    continue;
+	}
+
+	char buffer
+	    [ 80 + scanner->indent
+	      +
+	        12
+	      * scanner->translation_buffer->length ];
+        char * p = buffer;
+	for ( uns32 i = 0; i < scanner->indent; ++ i )
+	    * p ++ = ' ';
+	column = scanner->indent;
+	column += sprintf ( buffer + column, "%s: ",
+	                    LEXSTD::type_name[type] );
+	p = buffer + column
+	  + sptranslation ( buffer + column, column,
+	                    LEX::ENFORCE_LINE_LENGTH,
+			    scanner );
+	* p = 0;
+	* trace << buffer << std::endl;
     }
     return count;
 }

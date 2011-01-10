@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  2 06:28:21 EST 2011
+// Date:	Mon Jan 10 08:24:40 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,12 +27,12 @@
 using namespace ll::lexeme::ndl;
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
+using namespace LEXSTD;
 
 // Program Construction
 // ------- ------------
 
-static const uns32 MAX_TYPE = 16;
-static const char * const type_name[MAX_TYPE+1] = {
+const char * const LEXSTD::type_name[MAX_TYPE+1] = {
     NULL,
     "WORD",
     "NATURAL_NUMBER",

@@ -2,7 +2,7 @@
 //
 // File:	ll_input_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  8 10:10:15 EST 2011
+// Date:	Sun Jan  9 19:45:39 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -92,10 +92,15 @@ static void erroneous_atom
     }
     input_parser_ptr pass =
         (input_parser_ptr) scanner->erroneous_atom_data;
-    uns32 column = LEX::print_lexeme_lines
-	( * pass->err, scanner, first, last );
-    LEX::print_message
-        ( * pass->err, scanner, column, message );
+    std::ostream * err = pass->err;
+    if ( err == NULL ) err = pass->trace;
+    if ( err != NULL )
+    {
+	uns32 column = LEX::print_lexeme_lines
+	    ( * err, scanner, first, last );
+	LEX::print_message
+	    ( * err, scanner, column, message );
+    }
 }
 
 static min::uns32 input_parser_get
@@ -104,6 +109,7 @@ static min::uns32 input_parser_get
     min::uns32 first, last, count = 0;
     input_parser_ptr pass = (input_parser_ptr) in;
     LEX::scanner_ptr scanner = pass->scanner;
+    std::ostream * trace = pass->trace;
     while ( true )
     {
         min::uns32 type =
@@ -114,6 +120,12 @@ static min::uns32 input_parser_get
 	{
 	case LEX::SCAN_ERROR:
 	{
+	    std::ostream * err = pass->err;
+	    if ( err == NULL ) err = pass->trace;
+	    if ( err != NULL )
+	        (* err) << scanner->error_message
+		        << std::endl;
+	    break;
 	}
 	case LEXSTD::comment_t:
 	case LEXSTD::horizontal_space_t:
@@ -140,11 +152,15 @@ static min::uns32 input_parser_get
 	}
 	if ( message != NULL )
 	{
-	    uns32 column = LEX::print_lexeme_lines
-		( * pass->err, scanner, first, last );
-	    LEX::print_message
-		( * pass->err, scanner,
-		  column, message );
+	    std::ostream * err = pass->err;
+	    if ( err == NULL ) err = pass->trace;
+	    if ( err != NULL )
+	    {
+		uns32 column = LEX::print_lexeme_lines
+		    ( * err, scanner, first, last );
+		LEX::print_message
+		    ( * err, scanner, column, message );
+	    }
 	    if ( skip ) continue;
 	}
 

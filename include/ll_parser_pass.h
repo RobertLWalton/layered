@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  8 10:15:01 EST 2011
+// Date:	Sun Jan  9 17:42:40 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -240,6 +240,16 @@ struct pass_struct
 	// min::packed_struct.)  Returns the number of
 	// tokens gotten.  Retuns 0 if at end of `in'
 	// pass.
+
+    std::ostream * trace;
+        // If not NULL, the `get' function should output
+	// trace messages listing the tokens it outputs
+	// and other appropriate information to this
+	// ostream.
+
+    std::ostream * err;
+        // If not NULL, output error messages to this
+	// ostream.
 };
 
 inline uns32 get ( pass_ptr out, pass_ptr in)

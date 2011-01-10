@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  6 01:00:44 EST 2011
+// Date:	Mon Jan 10 08:54:30 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,6 +56,10 @@ namespace ll { namespace lexeme { namespace standard {
     // Erroneous Atom Types
     //
     const uns32 non_letter_escape_sequence_t	= 16;
+
+    const unsigned MAX_TYPE = 16;
+
+    extern const char * const type_name[MAX_TYPE+1];
 
     extern const char * type_code;
         // Type codes for ll:lexeme::test_input.

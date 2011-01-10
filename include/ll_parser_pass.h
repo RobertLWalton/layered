@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  9 17:42:40 EST 2011
+// Date:	Mon Jan 10 08:27:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@
 namespace ll { namespace parser {
 
 using min::uns32;
+using min::NULL_STUB;
 
 // Token character strings are optional parts of tokens.
 // A token character string is allocated when its token
@@ -249,7 +250,8 @@ struct pass_struct
 
     std::ostream * err;
         // If not NULL, output error messages to this
-	// ostream.
+	// ostream.  Note that `trace' takes precedence
+	// over `err' for printing error messages.
 };
 
 inline uns32 get ( pass_ptr out, pass_ptr in)

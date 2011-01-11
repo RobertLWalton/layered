@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  8 10:09:10 EST 2011
+// Date:	Tue Jan 11 07:05:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2087,7 +2087,7 @@ uns32 LEX::print_line
 
     const char * p = & file->data[offset];
     uns32 n = strlen ( p );
-    char buffer [ 10 + 12 * n ];
+    char buffer [ 10 + MAX_UNICODE_BYTES * n ];
     uns32 width = 0;
     n = spstring ( buffer, p, width, 0, scanner );
     uns32 pmode = scanner->print_mode;
@@ -2414,7 +2414,7 @@ int LEX::wchar ( uns32 c, uns32 print_mode )
 ostream & operator <<
 	( ostream & out, const LEX::pchar & pc )
 {
-    char buffer[20];
+    char buffer[10+LEX::MAX_UNICODE_BYTES];
     spchar ( buffer, pc.c, pc.print_mode );
     return out << buffer;
 }
@@ -3041,7 +3041,7 @@ struct pclist {
     {
         if ( empty ) return;
 
-	char buffer[40];
+	char buffer[20+2*LEX::MAX_UNICODE_BYTES];
 	char * p = buffer;
         p += spchar ( p, c1 );
 	if ( c2 != c1 )
@@ -3226,7 +3226,6 @@ uns32 LEX::print_program_component
 {
     LEX::program_ptr program = scanner->program;
 
-    char buffer[100];
     switch ( program[ID] )
     {
     case PROGRAM:

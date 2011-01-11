@@ -2,7 +2,7 @@
 //
 // File:	ll_input_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 10 08:08:23 EST 2011
+// Date:	Tue Jan 11 07:14:08 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,15 +54,18 @@ static min::uns32 input_parser_get
 	( PAR::pass_ptr out, PAR::pass_ptr in );
 PAR::pass_ptr PARSTD::create_input_pass
     ( LEX::scanner_ptr scanner,
-      std::ostream & err )
+      std::ostream & err,
+      std::ostream & trace )
 {
     input_parser_ptr pass =
         input_parser_type.new_stub();
     pass->scanner = scanner;
     pass->err = & err;
+    pass->trace = & trace;
     pass->get = ::input_parser_get;
     scanner->erroneous_atom = ::erroneous_atom;
     scanner->erroneous_atom_data = pass;
+    return (pass_ptr) pass;
 }
 
 // Input Parser
@@ -105,10 +108,13 @@ static void erroneous_atom
 static min::uns32 input_parser_get
 	( PAR::pass_ptr out, PAR::pass_ptr in )
 {
-    min::uns32 first, last, count = 0;
     input_parser_ptr pass = (input_parser_ptr) in;
+    if ( pass->eop ) return 0;
+
     LEX::scanner_ptr scanner = pass->scanner;
     std::ostream * trace = pass->trace;
+
+    min::uns32 first, last, count = 0;
     while ( true )
     {
         min::uns32 type =
@@ -124,7 +130,8 @@ static min::uns32 input_parser_get
 	    if ( err != NULL )
 	        (* err) << scanner->error_message
 		        << std::endl;
-	    break;
+	    pass->eop = true;
+	    return count;
 	}
 	case LEXSTD::comment_t:
 	case LEXSTD::horizontal_space_t:
@@ -201,7 +208,12 @@ static min::uns32 input_parser_get
 	    int length =
 	        scanner->translation_buffer->length;
 	    assert ( length > 0 );
-	    if ( length <= 9 )
+	    if ( length <= 9
+	         &&
+		 ( length == 1
+		   ||
+		   scanner->translation_buffer[0] != '0'
+		 ) )
 	    {
 		min::uns32 v = 0;
 		for ( min::uns32 i = 0;
@@ -219,7 +231,11 @@ static min::uns32 input_parser_get
 		        min::new_num_gen ( (int) v );
 		    break;
 		}
+		// else fall through if >= (1<28).
 	    }
+	    // else fall through if number has a high
+	    // order `0' digit or length indicates
+	    // number must be >= (10**9) > (1<28).
 	}
 	case LEXSTD::quoted_string_t:
 	case LEXSTD::number_t:
@@ -234,9 +250,13 @@ static min::uns32 input_parser_get
 	    break;
 	}
 	case LEXSTD::line_break_t:
+	    break;
 	case LEXSTD::end_of_file_t:
+	    pass->eop = true;
 	    break;
 	}
+
+	PAR::put_at_end ( out->first, token );
 
 	if ( trace == NULL ) continue;
 	uns32 column = LEX::print_item_lines

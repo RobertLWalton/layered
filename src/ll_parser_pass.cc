@@ -2,7 +2,7 @@
 //
 // File:	ll__parser_pass.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 02:38:16 EST 2010
+// Date:	Tue Jan 11 06:56:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,7 @@ static min::packed_vec<min::uns32,PAR::string_struct>
 // Free list of strings.
 //
 static min::static_stub<1> string_vec;
-PAR::string_insptr & free_strings =
+static PAR::string_insptr & free_strings =
     * ( PAR::string_insptr *) & string_vec[0];
 
 static int number_free_strings = 0;
@@ -53,7 +53,7 @@ static int max_string_free_list_size = 100;
 static int min_string_length = 80;
 
 PAR::string_ptr PAR::new_string
-	( min::uns32 n, min::uns32 * string )
+	( min::uns32 n, const min::uns32 * string )
 {
     string_insptr str = ::free_strings;
     if ( str == min::NULL_STUB )
@@ -68,12 +68,11 @@ PAR::string_ptr PAR::new_string
         -- ::number_free_strings;
 	::free_strings = str->next;
 	if ( str->length < n )
-	    resize ( str, n );
-	pop ( str, str->length,
-	      (min::uns32 *) NULL );
+	    min::resize ( str, n );
+	min::pop ( str, str->length );
     }
     str->next = min::NULL_STUB;
-    push ( str, n, string );
+    min::push ( str, n, string );
     return (string_ptr) str;
 }
 
@@ -132,7 +131,7 @@ static min::packed_struct<PAR::token_struct>
 // Free list of tokens.
 //
 static min::static_stub<1> token_vec;
-PAR::token_ptr & free_tokens =
+static PAR::token_ptr & free_tokens =
     * ( PAR::token_ptr *) & token_vec[0];
 
 static int number_free_tokens = 0;
@@ -181,3 +180,6 @@ void PAR::set_max_token_free_list_size ( int n )
 
 // Passes
 // ------
+
+std::ostream * PAR::default_err = & std::cerr;
+std::ostream * PAR::default_trace = NULL;

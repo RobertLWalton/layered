@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  8 09:01:58 EST 2011
+// Date:	Tue Jan 11 07:29:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -108,6 +108,12 @@ namespace ll { namespace lexeme {
 	ASCIIGRAPHIC = 5 };
     //
     extern uns32 default_print_mode;
+
+    // Maximum number of bytes required to represent a
+    // UNICODE character in any of the above print
+    // modes.
+    //
+    const unsigned MAX_UNICODE_BYTES = 12;
 
     struct position
         // Position of an element of the input_buffer:
@@ -1128,7 +1134,8 @@ namespace ll { namespace lexeme {
     // character output.
     //
     // The number of bytes added to the buffer is
-    // returned.
+    // returned, not counting the NUL that is the last
+    // byte added.
     //
     int spstring
 	    ( char * buffer,

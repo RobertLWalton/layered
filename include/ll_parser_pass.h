@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 10 08:27:02 EST 2011
+// Date:	Tue Jan 11 07:38:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,8 +11,9 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Parser Tokens
-//	Parser Passes
+//	Strings
+//	Tokens
+//	Passes
 
 // Usage and Setup
 // ----- --- -----
@@ -22,14 +23,19 @@
 
 # include <min.h>
 # include <ll_lexeme.h>
-
-// Parser Tokens
-// ------ ------
 
 namespace ll { namespace parser {
 
 using min::uns32;
 using min::NULL_STUB;
+
+} }
+
+
+// Strings
+// -------
+
+namespace ll { namespace parser {
 
 // Token character strings are optional parts of tokens.
 // A token character string is allocated when its token
@@ -70,7 +76,7 @@ struct string_struct
 
 // Allocate a new string and return a pointer to it.
 //
-string_ptr new_string ( uns32 n, uns32 * string );
+string_ptr new_string ( uns32 n, const uns32 * string );
 
 // Free a string and return NULL_STUB.
 //
@@ -81,6 +87,13 @@ string_ptr free_string ( string_ptr sp );
 // no limit.  Defaults to 100.
 //
 void set_max_string_free_list_size ( int n );
+
+} }
+
+// Tokens
+// ------
+
+namespace ll { namespace parser {
 
 struct token_struct;
 typedef min::packed_struct_updptr<token_struct>
@@ -150,8 +163,8 @@ void put_before ( token_ptr t, token_ptr token )
 {
     token->next = t;
     token->previous = t->previous;
-    token->previous->next = t;
-    token->next->previous = t;
+    token->previous->next = token;
+    token->next->previous = token;
 }
 
 // Put a token on the end of a token list with given
@@ -199,14 +212,11 @@ token_ptr remove ( token_ptr & first )
     	remove ( first, first );
 }
 
-// Remove first token fr
-
-
 } }
 
 
-// Parser Passes
-// ------ ------
+// Passes
+// ------
 
 namespace ll { namespace parser {
 
@@ -214,7 +224,7 @@ namespace ll { namespace parser {
 // are specific kinds of passes.
 //
 struct pass_struct;
-typedef min::packed_struct_ptr<pass_struct> pass_ptr;
+typedef min::packed_struct_updptr<pass_struct> pass_ptr;
 struct pass_struct
 {
     uns32 control;
@@ -258,6 +268,13 @@ inline uns32 get ( pass_ptr out, pass_ptr in)
 {
     return in->get ( out, in );
 }
+
+// Default error and trace streams for pass creation.
+// Default_err defaults to & std::cerr while default_
+// trace defaults to NULL.
+//
+extern std::ostream * default_err;
+extern std::ostream * default_trace;
 
 // Note: strings and tokens are explicitly deallocated,
 // but this does not mean that their stubs will be

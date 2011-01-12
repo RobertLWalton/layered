@@ -2,7 +2,7 @@
 //
 // File:	ll_input_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 11 07:14:08 EST 2011
+// Date:	Wed Jan 12 06:12:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,13 +38,15 @@ typedef min::packed_struct_updptr<input_parser>
 
 static min::uns32 input_parser_stub_disp[] =
 {
+    min::DISP ( & PAR::pass_struct::in ),
     min::DISP ( & PAR::pass_struct::first ),
     min::DISP ( & input_parser::scanner ),
     min::DISP_END
 };
 
-min::packed_struct<input_parser> input_parser_type
-    ( "input_parser",
+static min::packed_struct<input_parser>
+    input_parser_type
+    ( "ll::parser::standard::input_parser_type",
       NULL, ::input_parser_stub_disp );
 
 static void erroneous_atom
@@ -199,7 +201,7 @@ static min::uns32 input_parser_get
 	        p += spchar
 		    ( p, scanner->translation_buffer[i],
 		         LEX::UTF8 );
-	    token->kind = PAR::SYMBOL;
+	    token->type = PAR::SYMBOL;
 	    token->value = min::new_str_gen ( buffer );
 	    break;
 	}
@@ -225,7 +227,7 @@ static min::uns32 input_parser_get
 		}
 		if ( v < (1<<28) )
 		{
-		    token->kind =
+		    token->type =
 		        PAR::NATURAL_NUMBER;
 		    token->value =
 		        min::new_num_gen ( (int) v );
@@ -258,37 +260,49 @@ static min::uns32 input_parser_get
 
 	PAR::put_at_end ( out->first, token );
 
-	if ( trace == NULL ) continue;
-	uns32 column = LEX::print_item_lines
-	    ( * trace, scanner,
-	      token->begin, token->end );
-	if ( token->value == min::MISSING
-	     &&
-	     token->string == NULL_STUB )
+	if ( trace != trace )
 	{
-	    LEX::print_message
-	        ( * trace, scanner, column,
-		  LEXSTD::type_name[type] );
-	    continue;
+	    uns32 column = LEX::print_item_lines
+		( * trace, scanner,
+		  token->begin, token->end );
+	    if ( token->value == min::MISSING
+		 &&
+		 token->string == NULL_STUB )
+	    {
+		LEX::print_message
+		    ( * trace, scanner, column,
+		      LEXSTD::type_name[type] );
+	    }
+	    else
+	    {
+		char buffer
+		    [ 80 + scanner->indent
+		      +
+			LEX::MAX_UNICODE_BYTES
+		      * scanner->translation_buffer
+		               ->length ];
+		char * p = buffer;
+		for ( uns32 i = 0;
+		      i < scanner->indent; ++ i )
+		    * p ++ = ' ';
+		column = scanner->indent;
+		column += sprintf
+		    ( buffer + column, "%s: ",
+		      LEXSTD::type_name[type] );
+		p = buffer + column
+		  + sptranslation
+		        ( buffer + column, column,
+		          LEX::ENFORCE_LINE_LENGTH,
+			  scanner );
+		* p = 0;
+		* trace << buffer << std::endl;
+	    }
 	}
 
-	char buffer
-	    [ 80 + scanner->indent
-	      +
-	        12
-	      * scanner->translation_buffer->length ];
-        char * p = buffer;
-	for ( uns32 i = 0; i < scanner->indent; ++ i )
-	    * p ++ = ' ';
-	column = scanner->indent;
-	column += sprintf ( buffer + column, "%s: ",
-	                    LEXSTD::type_name[type] );
-	p = buffer + column
-	  + sptranslation ( buffer + column, column,
-	                    LEX::ENFORCE_LINE_LENGTH,
-			    scanner );
-	* p = 0;
-	* trace << buffer << std::endl;
+	if ( token->type == LEXSTD::end_of_file_t
+	     ||
+	     token->type == LEXSTD::line_break_t )
+	    break;
     }
     return count;
 }

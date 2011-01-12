@@ -1,8 +1,8 @@
 // Layers Language Standard Input Parser
 //
-// File:	ll_input_parser.cc
+// File:	ll_input_pass.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 12 06:12:44 EST 2011
+// Date:	Wed Jan 12 15:15:14 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,42 +29,42 @@ using namespace PAR;
 // Input Parser Data
 // ----- ------ ----
 
-struct input_parser : public PAR::pass_struct
+struct input_pass_struct : public PAR::pass_struct
 {
     LEX::scanner_ptr scanner;
 };
-typedef min::packed_struct_updptr<input_parser>
-    input_parser_ptr;
+typedef min::packed_struct_updptr<input_pass_struct>
+    input_pass_ptr;
 
-static min::uns32 input_parser_stub_disp[] =
+static min::uns32 input_pass_stub_disp[] =
 {
     min::DISP ( & PAR::pass_struct::in ),
     min::DISP ( & PAR::pass_struct::first ),
-    min::DISP ( & input_parser::scanner ),
+    min::DISP ( & input_pass_struct::scanner ),
     min::DISP_END
 };
 
-static min::packed_struct<input_parser>
-    input_parser_type
-    ( "ll::parser::standard::input_parser_type",
-      NULL, ::input_parser_stub_disp );
+static min::packed_struct<input_pass_struct>
+    input_pass_type
+    ( "ll::parser::standard::input_pass_type",
+      NULL, ::input_pass_stub_disp );
 
 static void erroneous_atom
 	( min::uns32 first, min::uns32 last,
 	  min::uns32 type, LEX::scanner_ptr scanner );
-static min::uns32 input_parser_get
+static min::uns32 input_pass_get
 	( PAR::pass_ptr out, PAR::pass_ptr in );
 PAR::pass_ptr PARSTD::create_input_pass
     ( LEX::scanner_ptr scanner,
       std::ostream & err,
       std::ostream & trace )
 {
-    input_parser_ptr pass =
-        input_parser_type.new_stub();
+    input_pass_ptr pass =
+        input_pass_type.new_stub();
     pass->scanner = scanner;
     pass->err = & err;
     pass->trace = & trace;
-    pass->get = ::input_parser_get;
+    pass->get = ::input_pass_get;
     scanner->erroneous_atom = ::erroneous_atom;
     scanner->erroneous_atom_data = pass;
     return (pass_ptr) pass;
@@ -94,8 +94,8 @@ static void erroneous_atom
 		  " atom type";
 	break;
     }
-    input_parser_ptr pass =
-        (input_parser_ptr) scanner->erroneous_atom_data;
+    input_pass_ptr pass =
+        (input_pass_ptr) scanner->erroneous_atom_data;
     std::ostream * err = pass->trace;
     if ( err == NULL ) err = pass->err;
     if ( err != NULL )
@@ -107,10 +107,10 @@ static void erroneous_atom
     }
 }
 
-static min::uns32 input_parser_get
+static min::uns32 input_pass_get
 	( PAR::pass_ptr out, PAR::pass_ptr in )
 {
-    input_parser_ptr pass = (input_parser_ptr) in;
+    input_pass_ptr pass = (input_pass_ptr) in;
     if ( pass->eop ) return 0;
 
     LEX::scanner_ptr scanner = pass->scanner;

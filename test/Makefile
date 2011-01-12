@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Jan  2 06:16:32 EST 2011
+# Date:		Wed Jan 12 15:18:38 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -25,7 +25,8 @@ OPTIMIZE = -O3
 
 PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_standard_basic_test \
-           ll_lexeme_standard_test
+           ll_lexeme_standard_test \
+	   ll_input_pass_test
 
 TESTS = ${PROGRAMS}
 
@@ -214,17 +215,41 @@ ll_parser_pass.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_pass.cc
 
-ll_input_parser.o:	\
+ll_input_pass.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	../include/ll_lexeme.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_parser_pass.h \
 	../include/ll_parser_standard.h \
-	../src/ll_input_parser.cc
+	../src/ll_input_pass.cc
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_input_parser.cc
+	    -c ../src/ll_input_pass.cc
+
+ll_input_pass_test:		\
+		ll_input_pass_test.cc \
+		ll_lexeme.o \
+		ll_lexeme_ndl.o \
+		ll_lexeme_standard.o \
+		ll_parser_pass.o \
+		ll_input_pass.o \
+		min.o \
+		min_os.o \
+		min_acc.o \
+		Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser_pass.o \
+	    ll_input_pass.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    ll_input_pass_test.cc
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 11 22:46:28 EST 2011
+// Date:	Wed Jan 12 15:23:26 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -97,7 +97,8 @@ namespace ll { namespace parser { namespace standard {
     // position may be the beginning of the next line.
     //
     pass_ptr create_input_pass
-        ( ll::lexeme::scanner_ptr scanner,
+        ( ll::lexeme::scanner_ptr scanner =
+	      ll::lexeme::default_scanner,
 	  std::ostream & err = * default_err,
 	  std::ostream & trace = * default_trace );
 

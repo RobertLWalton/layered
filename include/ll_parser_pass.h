@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 12 05:57:45 EST 2011
+// Date:	Wed Jan 12 15:28:58 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -159,7 +159,7 @@ void set_max_token_free_list_size ( int n );
 // Put a token just before a given token t on a list of
 // tokens.
 //
-void put_before ( token_ptr t, token_ptr token )
+inline void put_before ( token_ptr t, token_ptr token )
 {
     token->next = t;
     token->previous = t->previous;
@@ -170,8 +170,8 @@ void put_before ( token_ptr t, token_ptr token )
 // Put a token on the end of a token list with given
 // first element.
 //
-void put_at_end ( token_ptr & first,
-                  token_ptr token )
+inline void put_at_end
+	( token_ptr & first, token_ptr token )
 {
     if ( first == min::NULL_STUB )
     {
@@ -184,7 +184,8 @@ void put_at_end ( token_ptr & first,
 // Remove token from the token list with given first
 // token and return the token removed.
 //
-token_ptr remove ( token_ptr & first, token_ptr token )
+inline token_ptr remove
+	( token_ptr & first, token_ptr token )
 {
 
     if ( token == first )
@@ -204,7 +205,7 @@ token_ptr remove ( token_ptr & first, token_ptr token )
 // Remove first token from a list of tokens with given
 // first token.  Return min::NULL_STUB if list empty.
 //
-token_ptr remove ( token_ptr & first )
+inline token_ptr remove ( token_ptr & first )
 {
     if ( first == min::NULL_STUB )
         return min::NULL_STUB;

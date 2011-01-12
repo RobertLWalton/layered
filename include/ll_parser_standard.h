@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 11 07:16:08 EST 2011
+// Date:	Tue Jan 11 22:46:28 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,8 +83,18 @@ namespace ll { namespace parser { namespace standard {
     // SYMBOL or NATURAL_NUMBER.
     //
     // The translation_buffer is recorded as either
-    // a min::gen `string value' for SYMBOLs or a
-    // ll::parser::string for lexeme type kinds.
+    // a min::gen `string value' for SYMBOLs, a min::gen
+    // `number value' for NATURAL_NUMBERs, or a ll::
+    // parser::string for lexeme type kinds.  Some
+    // tokens, such as line_break_t tokens, do not
+    // record the translation_buffer at all.
+    //
+    // Note that indentation and line breaks are
+    // implicitly encoded in the token `begin' and
+    // `end' positions.  Also note that all tokens
+    // output by this pass are on a single line, though
+    // in the case of line_break_t tokens the `end'
+    // position may be the beginning of the next line.
     //
     pass_ptr create_input_pass
         ( ll::lexeme::scanner_ptr scanner,

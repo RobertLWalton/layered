@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_pass.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 11 07:38:02 EST 2011
+// Date:	Wed Jan 12 05:57:45 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -98,7 +98,7 @@ namespace ll { namespace parser {
 struct token_struct;
 typedef min::packed_struct_updptr<token_struct>
     token_ptr;
-enum // Token kinds (see below).
+enum // Token types (see below).
 {
     SYMBOL		= 0xFFFFFFFF,
     NATURAL_NUMBER	= 0xFFFFFFFE,
@@ -110,7 +110,7 @@ struct token_struct
     uns32 control;
     	// Packed structure control word.
 
-    uns32 kind;  // One of:
+    uns32 type;  // One of:
 	//
         // For lexemes: the lexeme type.
 	//
@@ -139,10 +139,10 @@ struct token_struct
         // Doubly linked list pointers for tokens.
 };
 
-// Allocate a new token of the given kind.  Value is set
+// Allocate a new token of the given type.  Value is set
 // to min:MISSING and string to NULL_STUB.
 //
-token_ptr new_token ( uns32 kind );
+token_ptr new_token ( uns32 type );
 
 // Free token.  Token is put on internal free list after
 // its value is set to min:MISSING and its string to
@@ -250,7 +250,7 @@ struct pass_struct
 	// list.  (We cannot use virtual functions in a
 	// min::packed_struct.)  Returns the number of
 	// tokens gotten.  Retuns 0 if at end of `in'
-	// pass.
+	// pass (in->eop must be set).
 
     std::ostream * trace;
         // If not NULL, the `get' function should output
@@ -264,9 +264,14 @@ struct pass_struct
 	// over `err' for printing error messages.
 };
 
-inline uns32 get ( pass_ptr out, pass_ptr in)
+// Get tokens from `pass->in' and put them on the end of
+// the `pass' token list.  Returns the number of tokens
+// gotten.  Returns 0 only if `pass->in->eop' is set
+// (indicating `end of pass').
+//
+inline uns32 get ( pass_ptr pass )
 {
-    return in->get ( out, in );
+    return pass->in->get ( pass, pass->in );
 }
 
 // Default error and trace streams for pass creation.
@@ -275,6 +280,14 @@ inline uns32 get ( pass_ptr out, pass_ptr in)
 //
 extern std::ostream * default_err;
 extern std::ostream * default_trace;
+
+// Create minimal pass that is useful as an output pass
+// for testing purposes.  Tokens CANNOT be gotten FROM
+// this pass, but may be gotten INTO this pass.  The
+// input pass for this pass is given (and if in->trace
+// is set will trace the tokens gotten into this pass).
+//
+pass_ptr create_output_pass ( pass_ptr in );
 
 // Note: strings and tokens are explicitly deallocated,
 // but this does not mean that their stubs will be

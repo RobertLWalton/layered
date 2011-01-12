@@ -2,7 +2,7 @@
 //
 // File:	ll__parser_pass.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 11 06:56:04 EST 2011
+// Date:	Wed Jan 12 06:20:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -138,7 +138,7 @@ static int number_free_tokens = 0;
 
 static int max_token_free_list_size = 1000;
 
-PAR::token_ptr PAR::new_token ( min::uns32 kind )
+PAR::token_ptr PAR::new_token ( min::uns32 type )
 {
     token_ptr token = remove ( ::free_tokens );
     if ( token == min::NULL_STUB )
@@ -147,7 +147,7 @@ PAR::token_ptr PAR::new_token ( min::uns32 kind )
         -- ::number_free_tokens;
     token->value = min::MISSING;
     token->string = min::NULL_STUB;
-    token->kind = kind;
+    token->type = type;
     return token;
 }
 
@@ -183,3 +183,22 @@ void PAR::set_max_token_free_list_size ( int n )
 
 std::ostream * PAR::default_err = & std::cerr;
 std::ostream * PAR::default_trace = NULL;
+
+static min::uns32 output_pass_stub_disp[] =
+{
+    min::DISP ( & PAR::pass_struct::in ),
+    min::DISP ( & PAR::pass_struct::first ),
+    min::DISP_END
+};
+
+static min::packed_struct<PAR::pass_struct>
+    output_pass_type
+    ( "ll::parser::output_pass_type",
+      NULL, ::output_pass_stub_disp );
+
+PAR::pass_ptr PAR::create_output_pass ( pass_ptr in )
+{
+    pass_ptr pass = ::output_pass_type.new_stub();
+    pass->in = in;
+    return pass;
+}

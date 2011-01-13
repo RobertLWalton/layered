@@ -2,7 +2,7 @@
 //
 // File:	ll_input_pass.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 12 15:15:14 EST 2011
+// Date:	Thu Jan 13 09:14:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,7 +47,8 @@ static min::uns32 input_pass_stub_disp[] =
 static min::packed_struct<input_pass_struct>
     input_pass_type
     ( "ll::parser::standard::input_pass_type",
-      NULL, ::input_pass_stub_disp );
+      NULL, ::input_pass_stub_disp,
+      min::packed_struct<PAR::pass_struct>::id );
 
 static void erroneous_atom
 	( min::uns32 first, min::uns32 last,

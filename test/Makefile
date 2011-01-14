@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Jan 12 15:18:38 EST 2011
+# Date:		Fri Jan 14 00:36:33 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -250,6 +250,13 @@ ll_input_pass_test:		\
 	    min_os.o \
 	    min_acc.o \
 	    ll_input_pass_test.cc
+
+ll_input_pass_test.out:		\
+	    ll_input_pass_test \
+	    ll_lexeme_standard_test.in
+	rm -f $*.out
+	${RUNENV} $* < ll_lexeme_standard_test.in \
+	             > $*.out
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o

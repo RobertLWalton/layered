@@ -2,7 +2,7 @@
 //
 // File:	ll_input_pass.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 13 09:14:35 EST 2011
+// Date:	Fri Jan 14 00:39:47 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -197,8 +197,7 @@ static min::uns32 input_pass_get
 	    assert ( length > 0 );
 	    char buffer[8*length+1];
 	    char * p = buffer;
-	    for ( min::uns32 i = first;
-	          i <= last; ++ i )
+	    for ( min::uns32 i = 0; i < length; ++ i )
 	        p += spchar
 		    ( p, scanner->translation_buffer[i],
 		         LEX::UTF8 );
@@ -300,9 +299,11 @@ static min::uns32 input_pass_get
 	    }
 	}
 
-	if ( token->type == LEXSTD::end_of_file_t
-	     ||
-	     token->type == LEXSTD::line_break_t )
+	if ( ( token->type == LEXSTD::end_of_file_t
+	       ||
+	       token->type == LEXSTD::line_break_t )
+	     &&
+	     count > 0 )
 	    break;
     }
     return count;

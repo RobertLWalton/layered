@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 11 07:29:09 EST 2011
+// Date:	Fri Jan 14 18:52:39 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -954,19 +954,21 @@ namespace ll { namespace lexeme {
     // acter (default '^') under the columns containing
     // the lexeme.  Multi-line lexemes are allowed.
     //
-    // Return NO_LINE and do nothing if the first line
-    // is not available.  It is required that if the
-    // first line is available, all lines before the
-    // end of file must be available (else this function
-    // crashes).  Otherwise return the first column
-    // of the lexeme on the last line printed.
+    // Return 0 and do nothing if the first line is not
+    // available.  It is required that if the first line
+    // is available, all lines before the end of file
+    // must be available (else this function crashes).
+    // Otherwise store the first and last column of the
+    // part of the lexeme that is in the last line and
+    // return the number of lines printed, which is > 0.
     //
     uns32 print_lexeme_lines
         ( std::ostream & out,
+	  uns32 & first_column, uns32 & last_column,
 	  scanner_ptr scanner,
 	  uns32 first, uns32 last,
 	  bool append_line_feed = false,
-	  char mark = '^' );
+	  char mark = '+' );
 
     // Ditto but print the lines containing an item
     // identified by begin and end.  Begin is the posi-
@@ -976,11 +978,12 @@ namespace ll { namespace lexeme {
     //
     uns32 print_item_lines
         ( std::ostream & out,
+	  uns32 & first_column, uns32 & last_column,
 	  scanner_ptr scanner,
 	  const position & begin,
 	  const position & end,
 	  bool append_line_feed = false,
-	  char mark = '^' );
+	  char mark = '+' );
 
     // Print the given message in a format suitable for
     // use as a message about a lexeme or item whose
@@ -992,19 +995,19 @@ namespace ll { namespace lexeme {
     // tal tab is not.  The message will be broken
     // across lines so it can be indented by scanner->
     // indent and constrained by scanner->line_length.
-    // Some part of the message will be placed under the
-    // given column, which can be the first column of
-    // the lexeme or item as returned by print_lexeme_
-    // lines or print_item_lines.
     //
-    // If the first line of the message is not naturally
-    // underneath the given column, the line is extended
-    // using the mark character (which defaults to '+').
+    // If the part of the message on the first line
+    // begins after first_column or ends before last_
+    // column, the part on the first line is extended
+    // with the mark character, so the extended part
+    // is under all the columns from first_column
+    // through last_column.
     //
     void print_message
         ( std::ostream & out,
+	  const uns32 & first_column,
+	  const uns32 & last_column,
 	  scanner_ptr scanner,
-	  uns32 column,
 	  const char * message,
 	  char mark = '+' );
 } }

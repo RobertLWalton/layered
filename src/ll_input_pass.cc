@@ -2,7 +2,7 @@
 //
 // File:	ll_input_pass.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 14 00:39:47 EST 2011
+// Date:	Fri Jan 14 19:06:36 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,10 +101,13 @@ static void erroneous_atom
     if ( err == NULL ) err = pass->err;
     if ( err != NULL )
     {
-	uns32 column = LEX::print_lexeme_lines
-	    ( * err, scanner, first, last );
-	LEX::print_message
-	    ( * err, scanner, column, message );
+	uns32 first_column, last_column;
+	if ( LEX::print_lexeme_lines
+	         ( * err, first_column, last_column,
+		   scanner, first, last ) )
+	    LEX::print_message
+		( * err, first_column, last_column,
+	          scanner, message );
     }
 }
 
@@ -165,10 +168,15 @@ static min::uns32 input_pass_get
 	    if ( err == NULL ) err = pass->err;
 	    if ( err != NULL )
 	    {
-		uns32 column = LEX::print_lexeme_lines
-		    ( * err, scanner, first, last );
-		LEX::print_message
-		    ( * err, scanner, column, message );
+		uns32 first_column, last_column;
+		if ( LEX::print_lexeme_lines
+			 ( * err,
+			   first_column, last_column,
+			   scanner, first, last ) )
+		    LEX::print_message
+			( * err,
+			  first_column, last_column,
+			  scanner, message );
 	    }
 	    if ( skip ) continue;
 	}
@@ -259,18 +267,23 @@ static min::uns32 input_pass_get
 	}
 
 	PAR::put_at_end ( out->first, token );
+	++ count;
 
-	if ( trace != trace )
-	{
-	    uns32 column = LEX::print_item_lines
-		( * trace, scanner,
-		  token->begin, token->end );
+	uns32 first_column, last_column;
+	if ( trace != NULL
+	     &&
+	     LEX::print_item_lines
+		( * trace, first_column, last_column,
+		  scanner, token->begin, token->end ) )
+        {
 	    if ( token->value == min::MISSING
 		 &&
 		 token->string == NULL_STUB )
 	    {
 		LEX::print_message
-		    ( * trace, scanner, column,
+		    ( * trace,
+		      first_column, last_column,
+		      scanner,
 		      LEXSTD::type_name[type] );
 	    }
 	    else
@@ -285,7 +298,7 @@ static min::uns32 input_pass_get
 		for ( uns32 i = 0;
 		      i < scanner->indent; ++ i )
 		    * p ++ = ' ';
-		column = scanner->indent;
+		uns32 column = scanner->indent;
 		column += sprintf
 		    ( buffer + column, "%s: ",
 		      LEXSTD::type_name[type] );

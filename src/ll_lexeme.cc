@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 11 07:05:34 EST 2011
+// Date:	Fri Jan 14 19:04:10 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2103,6 +2103,7 @@ uns32 LEX::print_line
 
 uns32 LEX::print_item_lines
     ( std::ostream & out,
+      uns32 & first_column, uns32 & last_column,
       scanner_ptr scanner,
       const position & begin,
       const position & end,
@@ -2112,43 +2113,51 @@ uns32 LEX::print_item_lines
     assert ( end.line >= begin.line );
 
     uns32 line = begin.line;
-    uns32 column = begin.column;
     uns32 width = print_line
 	( out, scanner, line, append_line_feed );
-    if ( width == NO_LINE ) return NO_LINE;
+    if ( width == NO_LINE ) return 0;
 
+    first_column = begin.column;
     while ( true )
     {
-        for ( uns32 i = 0; i < column; ++ i )
+        for ( uns32 i = 0; i < first_column; ++ i )
 	    out << ' ';
+
+	// We must be careful not to subtract 1 from 0
+	// so we compute end_column = last_column + 1.
+	//
 	uns32 end_column =
-	    end.line == line ? end.column :
-	                       width;
-	if ( end_column <= column )
+	    end.line == line ? end.column : width;
+	if ( end_column <= first_column )
 	    end_column = width;
-	if ( end_column <= column )
-	    end_column = column + 1;
-        for ( uns32 i = column; i < end_column; ++ i )
+	if ( end_column <= first_column )
+	    end_column = first_column + 1;
+	assert ( end_column > 0 );
+	last_column = end_column - 1;
+
+        for ( uns32 i = first_column;
+	      i <= last_column; ++ i )
 	    out << mark;
 	out << endl;
 
-	if ( line == end.line ) break;
+	if ( line == end.line )
+	    return line - begin.line + 1;
 
 	++ line;
-	column = 0;
 
 	if ( line == end.line && 0 == end.column )
-	    break;
+	    return line - begin.line;
 
+	first_column = 0;
 	width = print_line
 	    ( out, scanner, line, append_line_feed );
 	assert ( width != NO_LINE );
     }
-    return column;
 }
 
 uns32 LEX::print_lexeme_lines
     ( std::ostream & out,
+      uns32 & first_column, uns32 & last_column,
       scanner_ptr scanner,
       uns32 first, uns32 last,
       bool append_line_feed,
@@ -2167,24 +2176,26 @@ uns32 LEX::print_lexeme_lines
     else
         end = scanner->next_position;
     return print_item_lines
-        ( out, scanner, begin, end,
+        ( out, first_column, last_column,
+	  scanner, begin, end,
 	  append_line_feed, mark );
 }
 
 void LEX::print_message
     ( std::ostream & out,
+      const uns32 & first_column,
+      const uns32 & last_column,
       scanner_ptr scanner,
-      uns32 column,
       const char * message,
       char mark )
 {
     uns32 indent = scanner->indent;
     uns32 line_length = scanner->line_length;
-    if ( column < indent )
+    if ( first_column < indent )
     {
-        for ( uns32 i = 0; i < column; ++ i )
+        for ( uns32 i = 0; i < first_column; ++ i )
 	    out << ' ';
-        for ( uns32 i = column; i < indent; ++ i )
+        for ( uns32 i = first_column; i < indent; ++ i )
 	    out << mark;
     }
     else for ( uns32 i = 0; i < indent; ++ i )
@@ -2205,7 +2216,8 @@ void LEX::print_message
 	    if ( first )
 	    {
 	        first = false;
-		for ( uns32 i = col; i <= column; ++ i )
+		for ( uns32 i = col;
+		      i <= last_column; ++ i )
 		    out << mark;
 	    }
 	    out << endl;
@@ -2214,11 +2226,12 @@ void LEX::print_message
 	    col = indent;
 	    message = q1;
 	}
-	while ( message < q2 ) out << * message ++;
+	while ( message < q2 )
+	    ++ col, out << * message ++;
 	message = q2;
     }
     if ( first )
-	for ( uns32 i = col; i <= column; ++ i )
+	for ( uns32 i = col; i <= last_column; ++ i )
 	    out << mark;
     out << endl;
 }
@@ -2542,6 +2555,7 @@ int LEX::spstring
 
     uns32 c;
     char * p = buffer;
+    * p = 0;
     while ( * string )
     {
         string += read_utf8 ( c, string );

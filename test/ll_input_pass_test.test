@@ -1,0 +1,488 @@
+//\~/Layers\~/Language\~/Standard\~/Lexical\~/Analyzer\~/Test\~/Data
+                                                                    +
+    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+  +
+  ++LINE_BREAK
+//\~/File:\ht/ll_lexeme_standard_test.in
+                                        +
+    LINE_BREAK+++++++++++++++++++++++++++
+//\~/Author:\ht/Bob\~/Walton\~/(walton@acm.org)
+                                               +
+    LINE_BREAK++++++++++++++++++++++++++++++++++
+//\~/Date:\ht/Mon\~/Nov\~/22\~/10:22:20\~/EST\~/2010
+                                                    +
+    LINE_BREAK+++++++++++++++++++++++++++++++++++++++
+//
+  +
+  ++LINE_BREAK
+//\~/The\~/authors\~/have\~/placed\~/this\~/data\~/in\~/the\~/public
+                                                                    +
+    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//\~/domain;\~/they\~/make\~/no\~/warranty\~/and\~/accept\~/no\~/liability
+                                                                          +
+    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//\~/for\~/this\~/data.
+                       +
+
++
+++++LINE_BREAK
+abc\~/3.4+z\~/(x,y)
++++
+    WORD: abc
+abc\~/3.4+z\~/(x,y)
+      +++
+    NUMBER: 3.4
+abc\~/3.4+z\~/(x,y)
+         +
+    MARK: +
+abc\~/3.4+z\~/(x,y)
+          +
+    WORD: z
+abc\~/3.4+z\~/(x,y)
+              +
+    SEPARATOR: (
+abc\~/3.4+z\~/(x,y)
+               +
+    WORD: x
+abc\~/3.4+z\~/(x,y)
+                +
+    SEPARATOR: ,
+abc\~/3.4+z\~/(x,y)
+                 +
+    WORD: y
+abc\~/3.4+z\~/(x,y)
+                  +
+    SEPARATOR: )
+abc\~/3.4+z\~/(x,y)
+                   +
+    LINE_BREAK++++++
+"hi"\~/"ho\/ht/x\~/y\//z\/lf/"
+++++
+    QUOTED_STRING: hi
+"hi"\~/"ho\/ht/x\~/y\//z\/lf/"
+       +++++++++++++++++++++++
+    QUOTED_STRING: ho\ht/x\~/y\/z\lf/
+"hi"\~/"ho\/ht/x\~/y\//z\/lf/"
+                              +
+    LINE_BREAK+++++++++++++++++
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+++++
+    WORD: 'tis
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+       +++++++
+    WORD: noth'ng
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+                 +
+    SEPARATOR: `
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+                  +++
+    WORD: but
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+                     +
+    SEPARATOR: '
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+                         +
+    WORD: a
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+                             +++++++
+    WORD: h'dache
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+                                    +
+    MARK: .
+'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
+                                     +
+    LINE_BREAK++++++++++++++++++++++++
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
++
+    WORD: a
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+ ++++++
+    NUMBER: .1.2.3
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+       +
+    MARK: .
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+        +
+    WORD: b
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+         +
+    MARK: .
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+          +
+    WORD: c
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+              +
+    WORD: e
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+               +
+    NATURAL_NUMBER: 5
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                +
+    WORD: f
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                    +
+    WORD: x
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                     +
+    NATURAL_NUMBER: 7
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                      +
+    MARK: +
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                       +
+    WORD: y
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                        +
+    NATURAL_NUMBER: 6
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                         +
+    SEPARATOR: (
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                          +
+    NATURAL_NUMBER: 5
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                           +
+    WORD: z
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                            +
+    SEPARATOR: )
+a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
+                             +
+    LINE_BREAK++++++++++++++++
+12.3\~/.4\~/5.\~/6/7
+++++
+    NUMBER: 12.3
+12.3\~/.4\~/5.\~/6/7
+       ++
+    NUMBER: .4
+12.3\~/.4\~/5.\~/6/7
+            +
+    NATURAL_NUMBER: 5
+12.3\~/.4\~/5.\~/6/7
+             +
+    MARK: .
+12.3\~/.4\~/5.\~/6/7
+                 +++
+    NUMBER: 6/7
+12.3\~/.4\~/5.\~/6/7
+                    +
+    LINE_BREAK+++++++
+1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
+++++++++
+    NUMBER: 1,23,456
+1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
+           +++++++++++
+    NUMBER: 1,234/6,789
+1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
+                         +++++++++++++++++
+    NUMBER: 1/2/3/4,5/6,7,8/9
+1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
+                                             +++++++++++
+    NUMBER: 8888.12,3,4
+1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
+                                                        +
+    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
++
+    MARK: /
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+ +
+    NATURAL_NUMBER: 3
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+     +++++++
+    NUMBER: 6.34.56
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+            +
+    MARK: /
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                +
+    NATURAL_NUMBER: 3
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                 +
+    SEPARATOR: ,
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                     +
+    NATURAL_NUMBER: 4
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                      +
+    SEPARATOR: ,
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                          +
+    SEPARATOR: ,
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                           +
+    NATURAL_NUMBER: 5
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                               +
+    SEPARATOR: ,
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                                +++++++
+    NUMBER: 6.7,8.9
+/3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
+                                       +
+    LINE_BREAK++++++++++++++++++++++++++
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+++++++++++++++++++
+    MARK: +-*~@#$%^&=|<>_!?:
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+                  +++++
+    QUOTED_STRING: foo
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+                        ++++
+    unrecognized escape sequence
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+                            +++++
+    non-letter escape sequence+++
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+                                 ++++
+    unrecognized escape sequence+++++
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+                       ++++++++++++++
+    WORD: x???
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+                                     +
+    MARK: /
++-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
+                                      +
+    LINE_BREAK+++++++++++++++++++++++++
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
++
+    MARK: .
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+ +++
+    WORD: foo
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+       +
+    MARK: /
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+        +++
+    WORD: foo
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+              +
+    NATURAL_NUMBER: 3
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+               +
+    MARK: /
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                +
+    WORD: x
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                    +
+    WORD: x
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                     +
+    MARK: /
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                      +
+    NATURAL_NUMBER: 3
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                          +
+    NATURAL_NUMBER: 3
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                           +
+    MARK: .
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                            +
+    WORD: x
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                                +
+    WORD: x
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                                 ++
+    NUMBER: .3
+.foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
+                                                             +
+    LINE_BREAK++++++++++++++++++++++++++++++++++++++++++++++++
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
++
+    WORD: a
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+ +
+    SEPARATOR: (
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+  +
+    WORD: b
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+   +
+    SEPARATOR: ,
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+    +
+    WORD: c
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+     +
+    SEPARATOR: )
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+         +
+    WORD: d
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+          +
+    SEPARATOR: {
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+           +
+    WORD: e
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+            +
+    SEPARATOR: ;
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+             +
+    WORD: f
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+              +
+    SEPARATOR: }
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                  +
+    WORD: g
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                   +
+    SEPARATOR: [
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                    +
+    WORD: h
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                     +
+    SEPARATOR: ,
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                      +
+    WORD: i
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                       +
+    SEPARATOR: ]
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                           +
+    SEPARATOR: `
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                            +
+    SEPARATOR: `
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                             ++++++
+    WORD: foobar
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                                   +
+    SEPARATOR: '
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                                       +++
+    WORD: fum
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                                          +
+    SEPARATOR: '
+a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
+                                           +
+    LINE_BREAK++++++++++++++++++++++++++++++
+//\~/form\~/feed\~/\ff/
+                   ++++
+    LINE_BREAK+++++++++
+//\~/vertical\~/tab\~/\vt/
+                      ++++
+    LINE_BREAK++++++++++++
+//\~/carriage\~/return\~/\cr/
+                         ++++
+    LINE_BREAK+++++++++++++++
+z\ht/x\~///\~/horizontal\~/tab
++
+    WORD: z
+z\ht/x\~///\~/horizontal\~/tab
+     +
+    WORD: x
+z\ht/x\~///\~/horizontal\~/tab
+                              +
+    LINE_BREAK+++++++++++++++++
+all\~/\ht/\ff/\vt/\cr/
++++
+    WORD: all
+all\~/\ht/\ff/\vt/\cr/
+          ++++++++++++
+    LINE_BREAK++++++++
+control\~/A\01/B\02/C\03/
++++++++
+    WORD: control
+control\~/A\01/B\02/C\03/
+          +
+    WORD: A
+control\~/A\01/B\02/C\03/
+           ++++
+    unrecognized character
+control\~/A\01/B\02/C\03/
+               +
+    WORD: B
+control\~/A\01/B\02/C\03/
+                ++++
+    unrecognized character
+control\~/A\01/B\02/C\03/
+                    +
+    WORD: C
+control\~/A\01/B\02/C\03/
+                     ++++
+    unrecognized character
+control\~/A\01/B\02/C\03/
+                         +
+    LINE_BREAK++++++++++++
+"\/"/\/lf/\/cr/\/ht/\/bs/\/ff/\/vt/\//\/~/"
++++++++++++++++++++++++++++++++++++++++++++
+    QUOTED_STRING: "\lf/\cr/\ht/\bs/\ff/\vt/\/\~/
+"\/"/\/lf/\/cr/\/ht/\/bs/\/ff/\/vt/\//\/~/"
+                                           +
+    LINE_BREAK++++++++++++++++++++++++++++++
+"~\/a/\/b/\/c/\/ff/"
+  ++++
+  ++unrecognized escape sequence
+"~\/a/\/b/\/c/\/ff/"
+      ++++
+    unrecognized escape sequence
+"~\/a/\/b/\/c/\/ff/"
+          ++++
+    unrecognized escape sequence
+"~\/a/\/b/\/c/\/ff/"
+++++++++++++++++++++
+    QUOTED_STRING: ~\/a/\/b/\/c/\ff/
+"~\/a/\/b/\/c/\/ff/"
+                    +
+    LINE_BREAK+++++++
+\/0041/\/00000042/C\~/D\/00000045/\/0046/G
++++++++++++++++++++
+    WORD: ABC
+\/0041/\/00000042/C\~/D\/00000045/\/0046/G
+                      ++++++++++++++++++++
+    WORD: DEFG
+\/0041/\/00000042/C\~/D\/00000045/\/0046/G
+                                          +
+    LINE_BREAK+++++++++++++++++++++++++++++
+\/0041/\/00000002/C\~/D\/00000045/\/0006/G
+       +++++++++++
+    non-letter escape sequence
+\/0041/\/00000002/C\~/D\/00000045/\/0006/G
++++++++++++++++++++
+    WORD: A?C
+\/0041/\/00000002/C\~/D\/00000045/\/0006/G
+                                  +++++++
+    non-letter escape sequence+++++++++++
+\/0041/\/00000002/C\~/D\/00000045/\/0006/G
+                      ++++++++++++++++++++
+    WORD: DE?G
+\/0041/\/00000002/C\~/D\/00000045/\/0006/G
+                                          +
+    LINE_BREAK+++++++++++++++++++++++++++++
+\/0001/\/00000042/C\~/\/00000004/E\/0046/G
++++++++
+++++unrecognized escape sequence
+\/0001/\/00000042/C\~/\/00000004/E\/0046/G
+       ++++++++++++
+    WORD: BC
+\/0001/\/00000042/C\~/\/00000004/E\/0046/G
+                      +++++++++++
+    unrecognized escape sequence+
+\/0001/\/00000042/C\~/\/00000004/E\/0046/G
+                                 +++++++++
+    WORD: EFG
+\/0001/\/00000042/C\~/\/00000004/E\/0046/G
+                                          +
+    LINE_BREAK+++++++++++++++++++++++++++++
+\/0001/
++++++++
+++++unrecognized escape sequence
+\/0001/
+       +
+    LINE_BREAK
+<END-OF-FILE>
++++++++++++++
+++++END_OF_FILE

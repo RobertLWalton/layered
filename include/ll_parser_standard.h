@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Parser Definition Stack
 //	Pass Construction
 
 // Usage and Setup
@@ -21,6 +22,53 @@
 
 # include <ll_lexeme.h>
 # include <ll_parser_pass.h>
+# include <ll_parser_table.h>
+
+// Parser Definition Stack
+// ------ ---------- -----
+
+namespace ll { namespace parser { namespace standard {
+
+// There is one subexpression struct for each current
+// subexpression.
+//
+struct subexpression_struct
+{
+    // Pass that recognizes explicit subexpressions.
+    //
+    pass_ptr explicit_subexpression_pass;
+};
+
+struct definition_stack_struct;
+typedef min::packed_struct_updptr
+	    <definition_stack_struct>
+    definition_stack_ptr;
+struct definition_stack_struct
+{
+    uns32 control;
+
+    // Lexical scanner with standard program.
+    //
+    LEX::scanner_ptr scanner;
+
+    // Input pass that outputs lexemes.
+    //
+    pass_ptr input_pass;
+
+    // Explict subexpression parsing pass stack.
+    // There is one explicit subexpression parsing pass
+    // for each current explicit subexpression.
+    //
+    min::packed_vec_insptr<pass_ptr>
+        explicit_subexpression_pass;
+
+
+
+
+
+};
+
+} } }
 
 // Pass Construction
 // ---- ------------

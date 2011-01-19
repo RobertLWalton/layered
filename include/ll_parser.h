@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 12 15:23:26 EST 2011
+// Date:	Tue Jan 18 19:01:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,9 +22,17 @@
 # include <ll_lexeme.h>
 # include <ll_parser_token.h>
 # include <ll_parser_table.h>
+
+namespace ll { namespace parser {
+
+    using min::uns32;
+    using min::NULL_STUB;
+
+} }
+
 
-// Parser Definition Stack
-// ------ ---------- -----
+// Parser
+// ------
 
 namespace ll { namespace parser {
 
@@ -64,6 +72,26 @@ struct parser_struct
 	// ostream.  However `trace' takes precedence
 	// over `err' for printing error messages.
 };
+
+extern parser_ptr default_parser;
+
+// Create a parser.  Before using the parser the scanner
+// program must be set (either before or just after
+// creating the parser), and after creating the parser
+// the parser definition stack must be set.
+//
+parser_ptr create_parser
+	( ll::lexeme::scanner_ptr scanner =
+	      ll::lexeme::default_scannter,
+	  std::ostream & trace =
+	      * (std::ostream *) NULL,
+	  std::ostream & err = std::cerr );
+
+// Run a parser.  At the end of this function each top
+// level expression is one token in the parser token
+// list.
+//
+void parse ( parser_ptr parser = default_parser );
 
 } }
 

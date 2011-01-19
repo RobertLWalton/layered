@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 18 19:01:04 EST 2011
+// Date:	Wed Jan 19 01:17:13 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,16 +36,81 @@ namespace ll { namespace parser {
 
 namespace ll { namespace parser {
 
+// The parser performs explict subexpression recognition
+// and calls the passes in the pass stack for each
+// recognized subexpression.
+
+struct input_struct;
+typedef min::packed_struct_updptr<input_struct>
+    input_ptr;
+struct pass_struct;
+typedef min::packed_struct_updptr<pass_struct>
+    pass_ptr;
 struct parser_struct;
 typedef min::packed_struct_updptr<parser_struct>
     parser_ptr;
+
+struct input_struct
+    // Closure to call to read lexemes and convert them
+    // into tokens that are put on the end of the parser
+    // list of tokens.
+{
+    uns32 control;
+
+    // Function to add tokens to the end of the parser
+    // token list (virtual functions are not permitted
+    // in packed structures).  The number of tokens
+    // added is returned.  This is 0 if there are no
+    // more tokens due to end of file (also, parser->eof
+    // is set by this function in this case).  Tracing
+    // to parser->trace is enabled by the `trace'
+    // member.
+    //
+    uns32 (*run) ( parser_ptr parser, input_ptr input );
+
+    bool trace;
+        // Output to parser->trace a description of each
+	// token added to the parser token list.  Also
+	// send error messages to parser->trace instead
+	// of to parser->err.
+};
+
+struct pass_struct
+    // Closure to call to execute a pass on a subexpres-
+    // sion.  These are organized in a list called the
+    // `pass stack'.
+{
+    uns32 control;
+
+    pass_ptr next;
+        // Next pass in the pass stack, or NULL_STUB.
+	// The parser executes passes in `next-later'
+	// order on a subexpression.
+
+    // Function to execute the pass (virtual functions
+    // are not permitted in packed structures).
+    //
+    // The pass is run on the subexpression whose
+    // first token is given.  The `end' token is the
+    // token immediately after the first token.  The
+    // tokens may be edited, and `first' reset.  If
+    // first == end the subexpression is or became
+    // empty.
+    //
+    uns32 (*run) ( parser_ptr parser, pass_ptr pass,
+    		   token_ptr & first, token_ptr end );
+
+    bool trace;
+        // Output to parser->trace a description of each
+	// token change made in the parser token list.
+	// Also send error messages to parser->trace
+	// instead of to parser->err.
+};
+
 struct parser_struct
 {
     uns32 control;
         // Packed structure control word.
-
-    LEX::scanner_ptr scanner;
-	// Lexical scanner with standard program.
 
     token_ptr first;
         // First token in token list.  The tokens are a
@@ -53,8 +118,15 @@ struct parser_struct
 	// is empty.
 	//
 	// Tokens are added to the end of the list when
-	// the scanner is called.   Tokens may be dele-
+	// the input is called.   Tokens may be dele-
 	// ted from the list or replaced in the list.
+
+    input_ptr input;
+        // Closure to call to get more tokens.
+
+    pass_ptr pass_stack;
+        // List of passes to call for each subexpres-
+	// sion.
 
     bool eof;
         // True if scanner has delivered an end-of-file
@@ -78,7 +150,8 @@ extern parser_ptr default_parser;
 // Create a parser.  Before using the parser the scanner
 // program must be set (either before or just after
 // creating the parser), and after creating the parser
-// the parser definition stack must be set.
+// the parser definition stack members of the parser
+// must be set.
 //
 parser_ptr create_parser
 	( ll::lexeme::scanner_ptr scanner =

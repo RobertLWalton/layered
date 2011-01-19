@@ -1,8 +1,8 @@
 // Layers Language Standard Input Parser
 //
-// File:	ll_input_pass.cc
+// File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 14 19:06:36 EST 2011
+// Date:	Wed Jan 19 03:26:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,19 +11,17 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Input Parser Data
-//	Input Parser
+//	Parser Input Data
+//	Parser Input
 
 // Usage and Setup
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
-# include <ll_parser_pass.h>
-# include <ll_parser_standard.h>
+# include <ll_parser_input.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
-# define PARSTD ll::parser::standard
 using namespace PAR;
 
 // Input Parser Data

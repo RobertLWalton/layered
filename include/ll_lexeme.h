@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 14 18:52:39 EST 2011
+// Date:	Wed Jan 19 22:34:25 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -316,6 +316,9 @@ namespace ll { namespace lexeme {
 	//
 	char error_message [2000];
 
+	bool reinitialize;
+	    // Set to true if scanner is to be
+	    // reinitialized on the next call to scan.
 	uns32 next;
 	    // input_buffer[next] is the first character
 	    // of the first yet unscanned atom.
@@ -338,6 +341,8 @@ namespace ll { namespace lexeme {
         // See read_input above.
 
     extern scanner_ptr & default_scanner;
+        // Default scanner.  This variable is locatable
+	// by the garbage collector.
 
 } }
 
@@ -755,13 +760,17 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
-    // Initialize scanner.  If scanner == NULL_STUB,
-    // creates a new scanner.  Scanner must be
-    // initialized before program construction and
-    // then again before use as a lexical scanner.
+    // There are several parameters that when set cause
+    // a scanner to be (re)initialized.  These are all
+    // settable by init_scanner functions.  For these
+    // the scanner is specified by a variable, and if
+    // this == NULL_STUB, a new scanner is created and a
+    // pointer to it is stored in the variable.  This
+    // variable MUST BE locatable by the garbage collec-
+    // tor.
     //
-    // Scanner->program is set from program only if
-    // program argument is not NULL_STUB.
+    // Note that a scanner must be created before a new
+    // program can be constructed using the scanner.
     //
     // When a new scanner is created, scanner parameters
     // such as print_mode, line_length, indent, read_
@@ -769,10 +778,49 @@ namespace ll { namespace lexeme {
     // Otherwise these are left untouched, and can be
     // set either before or immediately after the call
     // to init_scanner.
+
+    // Simply (re)initialize a scanner.
     //
     void init_scanner
-	    ( scanner_ptr & scanner = default_scanner,
-              program_ptr program = NULL_STUB );
+	    ( scanner_ptr & scanner = default_scanner );
+
+    // Set the scanner program and reinitialize the
+    // scanner.
+    //
+    void init_scanner
+            ( program_ptr program,
+	      scanner_ptr & scanner = default_scanner );
+
+    // Set the scanner input_file to equal the contents
+    // of the named file.  Return true if no error and
+    // false if error.  If there is an error, an error
+    // message is put in scanner->error_message.
+    // (Re)initialize scanner.
+    //
+    // See init_file below for more details.
+    //
+    bool init_scanner
+	    ( const char * file_name,
+	      scanner_ptr & scanner = default_scanner );
+
+    // Ditto but initialize input_file to input from an
+    // istream and have the given spool_length.  See
+    // init_file below for details.
+    //
+    void init_scanner
+	    ( std::istream & istream,
+	      const char * file_name,
+	      uns32 spool_length,
+	      scanner_ptr & scanner = default_scanner );
+
+    // Ditto but initialize input_file to the contents
+    // of a data string.  See init_file below for
+    // details.
+    //
+    void init_scanner
+	    ( const char * file_name,
+	      const char * data,
+	      scanner_ptr & scanner = default_scanner );
 
     // Scan the input and return the next lexeme or
     // SCAN_ERROR.
@@ -871,9 +919,12 @@ namespace ll { namespace lexeme {
     //
     const uns32 NO_LINE = 0xFFFFFFFF;
 
-    // Create a new input file.
-    //
-    file_ptr create_file ( void );
+    // Init_file functions are used to initialize an
+    // input file.  For these the file is specified by
+    // a variable, and if this == NULL_STUB, a new
+    // input_file is created and a pointer to it is
+    // stored in the variable.  This variable MUST BE
+    // locatable by the garbage collector.
 
     // Read an entire file into an input file.  Previous
     // contents of the input file are lost, the input
@@ -885,27 +936,31 @@ namespace ll { namespace lexeme {
     // the buffer and false is returned.  If there is no
     // error, true is returned.
     //
-    bool init_file ( file_ptr file,
-                     const char * file_name,
-                     char error_message[512] );
+    bool init_file ( const char * file_name,
+                     char error_message[512],
+		     file_ptr & file );
 
     // Initialize an input file to read from the given
     // std::istream.  Set the file name of the input
     // file and the spool_length.  The file is initial-
     // ized to the first line.
     //
-    void init_stream ( file_ptr file,
-    		       std::istream & istream,
+    void init_file ( std::istream & istream,
                        const char * file_name,
-		       uns32 spool_length );
+		       uns32 spool_length,
+		       file_ptr & file );
 
     // Initialize file to contain the given data string
     // and have the given file name.  The data is NUL
     // terminated.
     //
-    void init_string ( file_ptr file,
-                       const char * file_name,
-		       const char * data );
+    // WARNING: this function is distinguished from the
+    // function that reads an entire file ONLY by the
+    // fact that the second argument is `CONST char'.
+    //
+    void init_file ( const char * file_name,
+		     const char * data,
+		     file_ptr & file );
 
     // Return offset of next line in file->data.  Return
     // NO_LINE if end of file or input error.

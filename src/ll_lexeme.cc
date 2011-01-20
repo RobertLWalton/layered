@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 14 19:04:10 EST 2011
+// Date:	Wed Jan 19 23:37:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -794,82 +794,84 @@ static bool is_recursive
     return false;
 }
 
+// Create scanner.  Scanner variable must be locatable
+// by garbage collector.
+//
+static void create_scanner
+	( LEX::scanner_ptr & scanner )
+{
+    scanner = scanner_type.new_stub();
+
+    scanner->input_buffer =
+	inchar_vec_type.new_gen();
+    scanner->translation_buffer =
+	uns32_vec_type.new_gen();
+
+    scanner->program = NULL_STUB;
+    scanner->print_mode = default_print_mode;
+    scanner->line_length = 72;
+    scanner->indent = 4;
+    scanner->read_input = default_read_input;
+    init_file
+	( std::cin, "standard input", 0,
+	  scanner->input_file );
+    scanner->scan_trace_out = NULL;
+    scanner->erroneous_atom = NULL;
+    scanner->reinitialize = true;
+}
+
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
 // pctype XXX.  We check this with asserts (the attach
 // statements check this).  Everything else found
 // wrong with the program is a SCAN_ERROR.
 
-void LEX::init_scanner
-	( scanner_ptr & scanner,
-	  program_ptr program )
+void LEX::init_scanner ( scanner_ptr & scanner )
 {
-    min::static_stub<1> scanner_vec;
 
     if ( scanner == NULL_STUB )
-    {
-        scanner = scanner_type.new_stub();
-	scanner_vec[0] = scanner;
+        create_scanner ( scanner );
+    scanner->reinitialize = true;
+}
 
-	scanner->input_buffer =
-	    inchar_vec_type.new_gen();
-	scanner->translation_buffer =
-	    uns32_vec_type.new_gen();
-	scanner->program = NULL_STUB;
-	scanner->print_mode = default_print_mode;
-	scanner->line_length = 72;
-	scanner->indent = 4;
-	scanner->read_input = default_read_input;
-	scanner->input_file = create_file();
-	init_stream
-	    ( scanner->input_file,
-	      std::cin, "standard input", 0 );
-	scanner->scan_trace_out = NULL;
-	scanner->erroneous_atom = NULL;
-    }
-    else
-    {
-	scanner_vec[0] = scanner;
-	min::pop ( scanner->input_buffer,
-	           scanner->input_buffer->length );
-	min::resize ( scanner->input_buffer, 1000 );
-	min::pop
-	    ( scanner->translation_buffer,
-	      scanner->translation_buffer->length );
-	min::resize
-	    ( scanner->translation_buffer, 1000 );
-    }
+void LEX::init_scanner
+	( program_ptr program,
+	  scanner_ptr & scanner )
+{
+    init_scanner ( scanner );
+    scanner->program = program;
+}
 
-    if ( program != NULL_STUB )
-	scanner->program = program;
+bool LEX::init_scanner
+	( const char * file_name,
+	  scanner_ptr & scanner )
+{
+    init_scanner ( scanner );
+    return init_file
+        ( file_name, scanner->error_message,
+	  scanner->input_file );
+}
 
-    scanner->next_position.line = 0;
-    scanner->next_position.index = 0;
-    scanner->next_position.column = 0;
+void LEX::init_scanner
+	( std::istream & istream,
+	  const char * file_name,
+	  uns32 spool_length,
+	  scanner_ptr & scanner )
+{
+    init_scanner ( scanner );
+    init_file
+        ( istream, file_name, spool_length,
+	  scanner->input_file );
+}
 
-    scanner->next = 0;
-
-    if ( scanner->program != NULL_STUB )
-    {
-	assert ( scanner->program[0] == PROGRAM );
-	program_header & h = * (program_header *)
-			     & scanner->program[0];
-	assert (    scanner->program[h.initial_table_ID]
-		 == TABLE );
-	scanner->current_table_ID = h.initial_table_ID;
-    }
-    else
-	scanner->current_table_ID = 0;
-
-    scanner->return_stack_p = 0;
-    memset ( scanner->return_stack, 0,
-             sizeof ( scanner->return_stack ) );
-
-    memset ( scanner->error_message, 0,
-             sizeof ( scanner->error_message ) );
-
-    memset ( scanner->work, 0,
-             sizeof ( scanner->work ) );
+void LEX::init_scanner
+	( const char * file_name,
+	  const char * data,
+	  scanner_ptr & scanner )
+{
+    init_scanner ( scanner );
+    init_file
+        ( file_name, data, scanner->input_file );
 }
 
 // Write the beginning of a scan error message into
@@ -1438,6 +1440,55 @@ static uns32 scan_atom
 uns32 LEX::scan ( uns32 & first, uns32 & last,
                   scanner_ptr scanner )
 {
+    if ( scanner->reinitialize )
+    {
+	min::pop ( scanner->input_buffer,
+		   scanner->input_buffer->length );
+	min::resize ( scanner->input_buffer, 1000 );
+	min::pop
+	    ( scanner->translation_buffer,
+	      scanner->translation_buffer->length );
+	min::resize
+	    ( scanner->translation_buffer, 1000 );
+
+	scanner->next_position.line = 0;
+	scanner->next_position.index = 0;
+	scanner->next_position.column = 0;
+
+	scanner->next = 0;
+
+	if ( scanner->program == NULL_STUB )
+	{
+	    sprintf ( scanner->error_message,
+		      "no program" );
+	    return SCAN_ERROR;
+	}
+	else if ( scanner->program[0] != PROGRAM )
+	{
+	    sprintf ( scanner->error_message,
+		      "illegal program" );
+	    return SCAN_ERROR;
+	}
+
+	program_header & h = * (program_header *)
+			     & scanner->program[0];
+	assert (    scanner->program[h.initial_table_ID]
+		 == TABLE );
+	scanner->current_table_ID = h.initial_table_ID;
+
+	scanner->return_stack_p = 0;
+	memset ( scanner->return_stack, 0,
+		 sizeof ( scanner->return_stack ) );
+
+	memset ( scanner->error_message, 0,
+		 sizeof ( scanner->error_message ) );
+
+	memset ( scanner->work, 0,
+		 sizeof ( scanner->work ) );
+
+        scanner->reinitialize = false;
+    }
+
     program_ptr program =
         scanner->program;
     min::packed_vec_insptr<inchar> input_buffer =
@@ -1832,16 +1883,18 @@ bool LEX::default_read_input
 // Input Files
 // ----- -----
 
-file_ptr LEX::create_file ( void )
+static void create_file ( LEX::file_ptr & file  )
 {
-   return file_ptr ( file_type.new_gen() );
+   file = LEX::file_ptr ( file_type.new_gen() );
 }
 
 bool LEX::init_file
-	( file_ptr file,
-	  const char * file_name,
-	  char error_message[512] )
+	( const char * file_name,
+	  char error_message[512],
+	  file_ptr & file )
 {
+    if ( file == NULL_STUB ) create_file ( file );
+
     // Use OS independent min::os::file_size.
     //
     min::uns64 file_size;
@@ -1922,11 +1975,13 @@ bool LEX::init_file
     return true;
 }
 
-void LEX::init_stream ( file_ptr file,
-			std::istream & istream,
+void LEX::init_file ( std::istream & istream,
 			const char * file_name,
-			uns32 spool_length )
+			uns32 spool_length,
+		        file_ptr & file )
 {
+    if ( file == NULL_STUB ) create_file ( file );
+
     file->file_name = min::new_str_gen ( file_name );
     if ( file->data == NULL_STUB )
          file->data =
@@ -1949,10 +2004,12 @@ void LEX::init_stream ( file_ptr file,
     min::pop ( file, file->length );
 }
 
-void LEX::init_string ( file_ptr file,
-			const char * file_name,
-			const char * data )
+void LEX::init_file ( const char * file_name,
+			const char * data,
+		        file_ptr & file )
 {
+    if ( file == NULL_STUB ) create_file ( file );
+
     file->file_name = min::new_str_gen ( file_name );
     uns64 length = strlen ( data );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 19 22:34:25 EST 2011
+// Date:	Thu Jan 20 08:22:29 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -138,6 +138,18 @@ namespace ll { namespace lexeme {
     struct scanner_struct;
     typedef min::packed_struct_updptr<scanner_struct>
             scanner_ptr;
+	// See scanner_struct below.
+
+    struct input_struct;
+    typedef min::packed_struct_updptr<input_struct>
+            input_ptr;
+	// See input_struct below.
+
+    struct erroneous_struct;
+    typedef min::packed_struct_updptr<erroneous_struct>
+            erroneous_ptr;
+	// See erroneous_struct below.
+
     const uns32 return_stack_size = 64;
     struct scanner_struct
     {
@@ -185,11 +197,10 @@ namespace ll { namespace lexeme {
 	//	line_length
 	//	indent
 	//	read_input
-	//	read_input_data
 	//	input_file
+	//	err
 	//	scan_trace_out
 	//	erroneous_atom
-	//	erroneous_atom_data
 	//
 	// These are set to defaults when a scanner is
 	// created by init_scanner().
@@ -210,22 +221,16 @@ namespace ll { namespace lexeme {
 	uns32 line_length;  // Default 72
 	uns32 indent;       // Default 4
 
-	// Input one or more inchar elements to the end
-	// of the input buffer vector, increasing the
-	// length of the buffer as neccessary.  Return
-	// true if this is done, and false if there are
-	// no more characters because we are at the end
-	// of file.  Initialized to the default value
-	// described immediately below.
+	// Closure to call to input one or more inchar
+	// elements to the end of the input buffer
+	// vector, increasing the length of the buffer
+	// as neccessary.  Return true if this is done,
+	// and false if there are no more characters
+	// because we are at the end of file.  Initial-
+	// ized to the default value described immedia-
+	// tely below.
 	//
-	// read_input_data is for pointing at auxilary
-	// data needed by a particular read_input
-	// function, and may only be set when read_input
-	// is set and used by the read_input function.
-	// It defaults to NULL_STUB.
-	//
-	bool (*read_input) ( scanner_ptr s );
-	const min::stub * read_input_data;
+	input_ptr read_input;
 
 	// ll::lexeme::default_read_input, the default
 	// value of read_input, reads UTF-8 lines from
@@ -256,24 +261,24 @@ namespace ll { namespace lexeme {
 	//	    which case the column is set to the
 	//	    next multiple of 8.
 	//
-	// Input_file should be set using create_file
-	// and one of read_file, init_stream, or init_
-	// string.  Its default value is set by init_
-	// stream with istream cin, file name "standard
-	// input", and spool_length == 0.
-	//
-	// The default_read_input function does NOT use
-	// read_input_data, which may be set for use
-	// by the erroneous_atom function.
+	// Input_file should be set using init_file.
+	// Its default value is set to input from cin
+	// with file name "standard input", and spool_
+	// length == 0.
 	//
 	file_ptr input_file;
+
+	// Output stream for default_erroneous.
+	// Defaults to & std::cerr.
+	//
+	std::ostream * err;
 
 	// Output stream for tracing the scan.  If NULL,
 	// there is no tracing.  Defaults to NULL.
 	//
 	std::ostream * scan_trace_out;
 
-	// Function to call with an error atom as per
+	// Closure to call with an error atom as per
 	// ERRONEOUS_ATOM instruction flag.  The atom is
 	// in
 	//
@@ -283,19 +288,9 @@ namespace ll { namespace lexeme {
 	// an argument.  If the address of this function
 	// is NULL, execution of an instruction with an
 	// ERRONEOUS_ATOM flag is a scan error.
-	// Defaults to NULL.
+	// Defaults to NULL_STUB.
 	//
-	// erroneous_atom_data is for pointing at auxi-
-	// lary data needed by a particular erroneous_
-	// atom function, and may only be set when
-	// erroneous_atom is set and used by the erron-
-	// eous_atom function.  It defaults to NULL_
-	// STUB.
-	//
-	void (* erroneous_atom)
-	    ( uns32 first, uns32 last, uns32 type,
-	      scanner_ptr s );
-	const min::stub * erroneous_atom_data;
+	erroneous_ptr erroneous_atom;
 
 	// Scanner state:
 
@@ -336,9 +331,6 @@ namespace ll { namespace lexeme {
 	    // Working buffer for producing components
 	    // of error_message.
     };
-
-    bool default_read_input ( scanner_ptr s );
-        // See read_input above.
 
     extern scanner_ptr & default_scanner;
         // Default scanner.  This variable is locatable
@@ -753,6 +745,74 @@ namespace ll { namespace lexeme {
     //
     bool convert_program_endianhood
 	    ( scanner_ptr scanner = default_scanner );
+} }
+
+// Scanner Closures
+// ------- --------
+
+namespace ll { namespace lexeme {
+
+    struct input_struct
+        // Closure to add inchar elements to the end of
+	// the input buffer vector.
+    {
+    	uns32 control;
+	bool (*get) ( scanner_ptr scanner,
+	              input_ptr input );
+	    // See scanner->read_input.
+    };
+
+    extern input_ptr & default_read_input;
+        // Default value for scanner->read_input.
+	// See scanner->read_input AND scanner->input_
+	// file below.
+	//
+	// Note: This variable is not set until the first
+	// scanner is created (first call to init_
+	// scanner).
+
+    // Set input closure function.  If `input' is NULL_
+    // STUB, create closure and set `input' to a pointer
+    // to the created closure.  `input' must be loca-
+    // table by garbage collector.
+    //
+    void init_input
+	    ( bool (*get) ( scanner_ptr scanner,
+	                    input_ptr input ),
+	      input_ptr & input = default_read_input );
+
+    struct erroneous_struct
+        // Closure to add announce errors, such as erro-
+	// neous atoms.
+    {
+    	uns32 control;
+	void (* announce )
+	    ( uns32 first, uns32 last, uns32 type,
+	      scanner_ptr scanner,
+	      erroneous_ptr erroneous );
+	    // See scanner->erroneous_atom.
+    };
+
+    extern erroneous_ptr & default_erroneous_atom;
+        // Default value for scanner->erroneous_atom.
+	// Prints error message to scanner->err.
+	//
+	// Note: This variable is not set until the first
+	// scanner is created (first call to init_
+	// scanner).
+
+    // Set erroneous closure function.  If `erroneous'
+    // is NULL_STUB, create closure and set `erroneous'
+    // to a pointer to the created closure.  `erroneous'
+    // must be locatable by garbage collector.
+    //
+    void init_erroneous
+	    ( void (* announce )
+		( uns32 first, uns32 last, uns32 type,
+		  scanner_ptr scanner,
+		  erroneous_ptr erroneous ),
+	      erroneous_ptr & erroneous =
+	          default_erroneous_atom );
 } }
 
 // Scanning

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jan 15 12:51:44 EST 2011
+# Date:		Wed Jan 19 22:33:44 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -25,8 +25,7 @@ OPTIMIZE = -O3
 
 PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_standard_basic_test \
-           ll_lexeme_standard_test \
-	   ll_input_pass_test
+           ll_lexeme_standard_test
 
 TESTS = ${PROGRAMS}
 

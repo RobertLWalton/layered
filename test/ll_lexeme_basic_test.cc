@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 07:14:34 EST 2010
+// Date:	Thu Jan 20 00:16:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -546,9 +546,7 @@ void test_program
 	cout << LEX::pchar ( * p );
     cout << endl << endl;
 
-    LEX::init_scanner();
-    LEX::init_string ( LEX::default_scanner->input_file,
-		       "test", input );
+    LEX::init_scanner ( "test", input );
     LEX::default_scanner->erroneous_atom =
 	::erroneous_atom;
     if ( trace )

@@ -246,7 +246,7 @@ Scan Returned: OPERATOR:0(7)7: +
 Scan Returned: SYMBOL:0(8)8: c
 Scan Returned: SEPARATOR:0(9)9: (
 Scan Returned: OPERATOR:0(10)10: +
-Erroneous Atom: TYPE (100):0(12)12: \07F/
+ERRONEOUS ATOM: TYPE (100):0(12)12: \07F/
 Scan Returned: SYMBOL:0(11)11: d\07F/e translated to: de
 Scan Returned: ERROR:0(14)18: %
 Scan Returned: SYMBOL:0(15)19: f0
@@ -255,8 +255,8 @@ Scan Returned: NUMBER:0(19)23: 1.2
 Scan Returned: NUMBER:0(22)26: .3
 Scan Returned: ERROR:0(24)28: \01/
 Scan Returned: ERROR:0(25)32: \02/
-Erroneous Atom: TYPE (100):0(32)43: \/
-Erroneous Atom: TYPE (100):0(37)49: \/
+ERRONEOUS ATOM: TYPE (100):0(32)43: \/
+ERRONEOUS ATOM: TYPE (100):0(37)49: \/
 Scan Returned: SYMBOL:0(26)36: A\/102C\/100D\/10E translated to: ABC100D
     10E
 Scan Returned: WHITESPACE:0(41)54: \lf/
@@ -353,7 +353,7 @@ Start atom scan: table = 137
 Start atom scan: table = 137
   Character = \07F/ Dispatcher = 318 Type Map = 158 CType = 8
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(12)12: \07F/
+ERRONEOUS ATOM: TYPE (100):0(12)12: \07F/
 Start atom scan: table = 137
   Character = e Dispatcher = 318 Type Map = 158 CType = 2
   ACCEPT
@@ -461,7 +461,7 @@ Start atom scan: table = 31
 
   Character = @ Dispatcher = 352 CType = 0
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(32)43: \/
+ERRONEOUS ATOM: TYPE (100):0(32)43: \/
 Start atom scan: table = 137
   Character = 1 Dispatcher = 318 Type Map = 158 CType = 3
   ACCEPT
@@ -486,7 +486,7 @@ Start atom scan: table = 31
   Character = E Dispatcher = 97 CType = 0
   FAIL
   TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-Erroneous Atom: TYPE (100):0(37)49: \/
+ERRONEOUS ATOM: TYPE (100):0(37)49: \/
 Start atom scan: table = 137
   Character = 1 Dispatcher = 318 Type Map = 158 CType = 3
   ACCEPT

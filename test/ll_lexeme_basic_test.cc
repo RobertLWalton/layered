@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 20 00:16:01 EST 2011
+// Date:	Thu Jan 20 12:55:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -520,23 +520,6 @@ static void create_program_2 ( void )
     LEX::print_program ( cout, true );
 }
 
-static void erroneous_atom
-    ( uns32 first, uns32 last, uns32 type,
-      LEX::scanner_ptr scanner )
-{
-    char buffer[1000];
-    char * p = buffer;
-    p += sprintf ( p, "Erroneous Atom:" );
-    unsigned column = p - buffer;
-    LEX::sperroneous_atom
-	( p, first, last, type,
-	  column,
-	    LEX::ENFORCE_LINE_LENGTH
-	  + LEX::PREFACE_WITH_SPACE,
-	  scanner );
-    cout << buffer << endl;
-}
-
 void test_program
     ( const char * input, bool trace = false )
 {
@@ -547,8 +530,7 @@ void test_program
     cout << endl << endl;
 
     LEX::init_scanner ( "test", input );
-    LEX::default_scanner->erroneous_atom =
-	::erroneous_atom;
+    LEX::default_scanner->err = & std::cout;
     if ( trace )
 	LEX::default_scanner->scan_trace_out= & cout;
 

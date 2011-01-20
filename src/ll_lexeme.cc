@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 19 23:37:02 EST 2011
+// Date:	Thu Jan 20 08:22:22 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,8 +13,8 @@
 //	Usage and Setup
 //	Data
 //	Program Construction
+//	Scanner Closures
 //	Scanning
-//	Reading
 //	Input Files
 //	Printing
 
@@ -119,9 +119,9 @@ static uns32 scanner_stub_disp[] =
       min::DISP ( & LEX::scanner_struct
                        ::translation_buffer ),
       min::DISP ( & LEX::scanner_struct
-                       ::read_input_data ),
+                       ::read_input ),
       min::DISP ( & LEX::scanner_struct
-                       ::erroneous_atom_data ),
+                       ::erroneous_atom ),
       min::DISP ( & LEX::scanner_struct::input_file ),
       min::DISP_END };
 
@@ -142,16 +142,24 @@ static min::packed_vec<LEX::uns32,LEX::file_struct>
            ( "ll::lexeme::file_type",
 	     ::file_gen_disp, ::file_stub_disp );
 
-static min::packed_vec<char> char_vec_type
-           ( "ll::lexeme::char_vec_type" );
-static min::packed_vec<LEX::uns32> uns32_vec_type
-           ( "ll::lexeme::uns32_vec_type" );
-static min::packed_vec<LEX::inchar> inchar_vec_type
-           ( "ll::lexeme::inchar_vec_type" );
+static min::packed_vec<char>
+    char_vec_type ( "ll::lexeme::char_vec_type" );
+static min::packed_vec<LEX::uns32>
+    uns32_vec_type ( "ll::lexeme::uns32_vec_type" );
+static min::packed_vec<LEX::inchar>
+    inchar_vec_type ( "ll::lexeme::inchar_vec_type" );
+static min::packed_struct<LEX::input_struct>
+    input_type ( "ll::lexeme::input_type" );
+static min::packed_struct<LEX::erroneous_struct>
+    erroneous_type ( "ll::lexeme::erroneous_type" );
 
-static min::static_stub<1> default_scanner_stub;
+static min::static_stub<3> default_stub;
+LEX::input_ptr & LEX::default_read_input =
+    * (LEX::input_ptr *) & default_stub[0];
+LEX::erroneous_ptr & LEX::default_erroneous_atom =
+    * (LEX::erroneous_ptr *) & default_stub[1];
 LEX::scanner_ptr & LEX::default_scanner =
-    * (LEX::scanner_ptr *) & default_scanner_stub[0];
+    * (LEX::scanner_ptr *) & default_stub[2];
 
 // Program Construction
 // ------- ------------
@@ -777,6 +785,93 @@ bool LEX::convert_program_endianhood
     return true;
 }
 
+// Scanner Closures
+// ------- --------
+
+void LEX::init_input
+	( bool (*get) ( scanner_ptr scanner,
+			input_ptr input ),
+	  input_ptr & input )
+{
+    if ( input == NULL_STUB )
+        input = ::input_type.new_stub();
+    input->get = get;
+}
+
+void LEX::init_erroneous
+	( void (* announce )
+	    ( uns32 first, uns32 last, uns32 type,
+	      scanner_ptr scanner,
+	      erroneous_ptr erroneous ),
+	  erroneous_ptr & erroneous )
+{
+    if ( erroneous == NULL_STUB )
+        erroneous = ::erroneous_type.new_stub();
+    erroneous->announce = announce;
+}
+
+static bool default_read_input_get
+	( LEX::scanner_ptr scanner,
+	  LEX::input_ptr input )
+{
+    LEX::file_ptr file = scanner->input_file;
+
+    LEX::uns32 offset = LEX::next_line ( file );
+    if ( offset == LEX::NO_LINE ) return false;
+
+    min::packed_vec_insptr<LEX::inchar> input_buffer =
+        scanner->input_buffer;
+
+    LEX::inchar ic;
+    ic.line = file->line_number - 1;
+    ic.index = 0;
+    ic.column = 0;
+
+    while ( file->data[offset] != 0 )
+    {
+	uns32 unicode;
+	int bytes_read =
+	    read_utf8 ( unicode, & file->data[offset] );
+	offset += bytes_read;
+
+	ic.character = unicode;
+	min::push(input_buffer) = ic;
+	ic.index += bytes_read;
+	min::uns32 width =
+	    LEX::wchar ( unicode, scanner->print_mode );
+	if ( width == 0 && unicode == '\t' )
+	    ic.column += 8 - ic.column % 8;
+	else
+	    ic.column += width;
+    }
+
+    ic.character = '\n';
+    min::push(input_buffer) = ic;
+    ++ ic.line;
+    ic.index = 0;
+    ic.column = 0;
+
+    scanner->next_position = (LEX::position) ic;
+
+    return true;
+}
+
+static void default_erroneous_atom_announce
+	( uns32 first, uns32 last, uns32 type,
+	  LEX::scanner_ptr scanner,
+	  LEX::erroneous_ptr erroneous )
+{
+    char buffer[1000];
+    uns32 column =
+        sprintf ( buffer, "ERRONEOUS ATOM:" );
+    LEX::sperroneous_atom
+        ( buffer + column, first, last, type, column,
+	    LEX::ENFORCE_LINE_LENGTH
+	  + LEX::PREFACE_WITH_SPACE,
+	  scanner );
+    (* scanner->err ) << buffer << endl;
+}
+
 // Scanning
 // --------
 
@@ -800,6 +895,11 @@ static bool is_recursive
 static void create_scanner
 	( LEX::scanner_ptr & scanner )
 {
+    init_input
+	( ::default_read_input_get );
+    init_erroneous
+	( ::default_erroneous_atom_announce );
+
     scanner = scanner_type.new_stub();
 
     scanner->input_buffer =
@@ -815,8 +915,9 @@ static void create_scanner
     init_file
 	( std::cin, "standard input", 0,
 	  scanner->input_file );
+    scanner->err = & std::cerr;
     scanner->scan_trace_out = NULL;
-    scanner->erroneous_atom = NULL;
+    scanner->erroneous_atom = default_erroneous_atom;
     scanner->reinitialize = true;
 }
 
@@ -1057,7 +1158,8 @@ static uns32 scan_atom
 	if (    scanner->next + length
 	     >= input_buffer->length
 	     &&
-	     ! (*scanner->read_input) ( scanner ) )
+	     ! (*scanner->read_input->get)
+	         ( scanner, scanner->read_input ) )
 	    break; // End of file.
 
 	assert
@@ -1618,7 +1720,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 			  scanner->current_table_ID );
 		return SCAN_ERROR;
 	    }
-	    else if ( scanner->erroneous_atom == NULL )
+	    else if (    scanner->erroneous_atom
+	              == NULL_STUB )
 	    {
 		sprintf ( scan_error
 		              ( scanner, atom_length ),
@@ -1633,11 +1736,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & last,
 	    }
 	    else
 	    {
-		(*scanner->erroneous_atom)
+		(*scanner->erroneous_atom->announce)
 		    ( scanner->next,
 		      scanner->next + atom_length - 1,
 		      ih.erroneous_atom_type,
-		      scanner );
+		      scanner,
+		      scanner->erroneous_atom );
 	    }
 	}
 
@@ -1830,54 +1934,6 @@ static char * scan_error
 		   column, true, scanner );
     * p ++ = '\n';
     return p;
-}
-
-// Reading
-// -------
-
-bool LEX::default_read_input
-	( LEX::scanner_ptr scanner )
-{
-    LEX::file_ptr file = scanner->input_file;
-
-    LEX::uns32 offset = LEX::next_line ( file );
-    if ( offset == LEX::NO_LINE ) return false;
-
-    min::packed_vec_insptr<LEX::inchar> input_buffer =
-        scanner->input_buffer;
-
-    LEX::inchar ic;
-    ic.line = file->line_number - 1;
-    ic.index = 0;
-    ic.column = 0;
-
-    while ( file->data[offset] != 0 )
-    {
-	uns32 unicode;
-	int bytes_read =
-	    read_utf8 ( unicode, & file->data[offset] );
-	offset += bytes_read;
-
-	ic.character = unicode;
-	min::push(input_buffer) = ic;
-	ic.index += bytes_read;
-	min::uns32 width =
-	    LEX::wchar ( unicode, scanner->print_mode );
-	if ( width == 0 && unicode == '\t' )
-	    ic.column += 8 - ic.column % 8;
-	else
-	    ic.column += width;
-    }
-
-    ic.character = '\n';
-    min::push(input_buffer) = ic;
-    ++ ic.line;
-    ic.index = 0;
-    ic.column = 0;
-
-    scanner->next_position = (LEX::position) ic;
-
-    return true;
 }
 
 // Input Files

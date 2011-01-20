@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  7 08:35:38 EST 2011
+// Date:	Thu Jan 20 08:37:52 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,26 +29,10 @@ using LEX::uns32;
 // Basic Input Test
 // ----- ----- ----
 
-static void basic_erroneous_atom
-	( uns32 first, uns32 last, uns32 type,
-	  LEX::scanner_ptr scanner )
-{
-    char buffer[1000];
-    uns32 column =
-        sprintf ( buffer, "ERRONEOUS ATOM:" );
-    LEX::sperroneous_atom
-        ( buffer + column, first, last, type, column,
-	    LEX::ENFORCE_LINE_LENGTH
-	  + LEX::PREFACE_WITH_SPACE,
-	  scanner );
-    cout << buffer << endl;
-}
-
 void LEX::basic_test_input ( uns32 end_of_file_t )
 {
     init_scanner();
-    default_scanner->erroneous_atom =
-        ::basic_erroneous_atom;
+    default_scanner->err = & std::cout;
 
     char buffer[10000];
     while ( true )
@@ -76,7 +60,7 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
 // Input Test
 // ----- ----
 
-min::static_stub<2> input_vec;
+static min::static_stub<2> input_vec;
 static min::packed_vec_insptr<char>
     & lexeme_codes =
         * (min::packed_vec_insptr<char> *)
@@ -167,9 +151,10 @@ static void set_codes
         codes[i] = ::type_code[type];
 }
 
-static void erroneous_atom
+static void erroneous_atom_announce
 	( uns32 first, uns32 last, uns32 type,
-	  LEX::scanner_ptr scanner )
+	  LEX::scanner_ptr scanner,
+	  LEX::erroneous_ptr erroneous )
 {
     assert ( scanner == LEX::default_scanner );
     set_codes ( ::erroneous_atom_codes,
@@ -184,9 +169,9 @@ void LEX::test_input
     ::next_line = 0;
 
     init_scanner();
+    init_erroneous ( ::erroneous_atom_announce );
+
     scanner_ptr scanner = LEX::default_scanner;
-    scanner->erroneous_atom = ::erroneous_atom;
-    scanner->read_input = LEX::default_read_input;
 
     if ( lexeme_codes == min::NULL_STUB )
     {

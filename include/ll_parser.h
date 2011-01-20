@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 19 11:19:47 EST 2011
+// Date:	Thu Jan 20 13:27:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,12 +79,6 @@ struct input_struct
 	// token added to the parser token list.  Also
 	// send error messages to parser->trace instead
 	// of to parser->err.
-
-    ll::lexeme::scanner_ptr scanner;
-        // Scanner for those parser inputs that use a
-	// scanner (such as the standard_input: see
-	// ll_parser_input.h).  A scanner need NOT be
-	// used by a parser input.
 };
 
 struct output_struct
@@ -204,9 +198,20 @@ struct parser_struct
 	// sages.  However, if tracing is in effect,
 	// error messages are output to `trace'
 	// instead.  Defaults to std::cerr.
+
+    ll::lexeme::scanner_ptr scanner;
+        // Scanner for those parser inputs that use a
+	// scanner (such as the standard_input: see
+	// ll_parser_input.h).  A scanner need NOT be
+	// used by a parser input.
+
+    ll::lexeme::file_ptr input_file;
+        // Input file used to print messages.  If a
+	// scanner is used, this is the same as
+	// scanner->input_file.
 };
 
-extern parser_ptr default_parser;
+extern parser_ptr & default_parser;
 
 // Create a parser.  Before using the parser the input
 // must be set.  If the input variable equals NULL_STUB,

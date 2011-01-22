@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 03:09:50 EST 2011
+// Date:	Sat Jan 22 09:07:47 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -73,10 +73,9 @@ struct input_struct
     // returns the last token (typically and end of file
     // token).
     //
-    // Error messages are sent to parser->err or
-    // parser->trace (see `trace' member below). Trac-
-    // ing to parser->trace is enabled by the `trace'
-    // member.
+    // Error messages are sent to parser->print->err.
+    // Tracing to parser->print->trace is enabled by
+    // `parcer->trace' flags.
     //
     uns32 (*add_tokens)
         ( parser_ptr parser, input_ptr input );
@@ -85,12 +84,6 @@ struct input_struct
     //
     void (*init)
         ( parser_ptr parser, input_ptr input );
-
-    bool trace;
-        // Output to parser->trace a description of each
-	// token added to the parser token list.  Also
-	// send input error messages to parser->trace
-	// instead of to parser->err.
 };
 
 extern input_ptr & default_input;
@@ -129,8 +122,7 @@ struct output_struct
     // permitted in packed structures).  The number of
     // finished tokens in the token list is maintained
     // in parser->finished_tokens, which may be changed
-    // by this function.  Tracing to parser->trace is
-    // enabled by the `trace' member.
+    // by this function.
     //
     // This function is called whenever parser->
     // finished_tokens is incremented by +1.
@@ -141,6 +133,10 @@ struct output_struct
     // as parser->finished_tokens and parser->first are
     // maintained and unfinished tokens are not changed.
     //
+    // Error messages are sent to parser->print->err.
+    // Tracing to parser->print->trace is enabled by
+    // `parcer->trace' flags.
+    //
     void (*remove_tokens)
 	( parser_ptr parser, output_ptr output );
 
@@ -148,12 +144,6 @@ struct output_struct
     //
     void (*init)
         ( parser_ptr parser, input_ptr input );
-
-    bool trace;
-        // Output to parser->trace a description of each
-	// token removed from the parser token list.
-	// Also send error messages to parser->trace
-	// instead of to parser->err.
 };
 
 struct pass_struct
@@ -182,6 +172,8 @@ struct pass_struct
     // If first == end the subexpression is or became
     // empty.
     //
+    // Error messages are sent to parser->print->err.
+    //
     uns32 (*run) ( parser_ptr parser, pass_ptr pass,
     		   token_ptr & first, token_ptr end );
 
@@ -194,11 +186,10 @@ struct pass_struct
     void (*init)
         ( parser_ptr parser, pass_ptr pass );
 
-    bool trace;
-        // Output to parser->trace a description of each
-	// token change made in the parser token list.
-	// Also send error messages to parser->trace
-	// instead of to parser->err.
+    uns32 trace;
+        // Trace flags that output to parser->print->
+	// trace a description of each token change made
+	// in the parser token list.
 };
 
 } }
@@ -232,15 +223,9 @@ struct parser_struct
 	// set after parser is created to the desired
 	// pass stack.
 
-    std::ostream * trace;
-        // Stream to which parser outputs trace
-	// messages.  Defaults to & std::cout.
-
-    std::ostream * err;
-        // Stream to which parser outputs error mes-
-	// sages.  However, if tracing is in effect,
-	// error messages are output to `trace'
-	// instead.  Defaults to & std::cerr.
+    uns32 trace;
+        // Trace flags.  Tracing is done to print->
+	// trace.
 
     ll::lexeme::scanner_ptr scanner;
         // Scanner for those parser inputs that use a
@@ -255,6 +240,11 @@ struct parser_struct
         // Input file used to print messages.  If a
 	// scanner is used, this is the same as
 	// scanner->input_file.
+
+    ll::lexeme::print_ptr print;
+        // Print parameters used in conjunction with
+	// input_file to print messages.  If a scanner
+	// is used, this is the same as scanner->print.
 
     // Parser state:
 

@@ -28,10 +28,7 @@
 namespace ll { namespace parser {
 
 // Set a parser input to produce a stream of lexemes
-// read from a standard lexeme scanner.  Error messages
-// are printed on the parser->err stream unless input->
-// trace is true, in which case they are printed on the
-// parser->trace stream.
+// read from a standard lexeme scanner.
 //
 // The lexeme types as in ll_lexeme_standard.h are
 // processed as follows:
@@ -93,25 +90,20 @@ namespace ll { namespace parser {
 // tokens the `end' position may be the beginning of the
 // next line.
 //
-// If a scanner == NULL_STUB is given, a scanner is
-// created with default parameters and standard lexeme
-// program (see ll_lexeme_standard.h), and a pointer to
-// the new scanner is stored in the argument.  The
-// erroneous_atom function of the new scanner is set.
+// Init_scanner ( parser->scanner ) is called and then
+// the scanner program is set to the standard lexeme
+// program (see ll_lexeme_standard.h).  If parser->
+// input file does not exist it is created and
+// parser->scanner->input_file is set equal to it.
+// Ditto for parser->print.
 //
-void init_input
-	( input_ptr & input = default_input );
-
-// Set a scanner to the standard lexeme program (see
-// ll_lexeme_standard.h) and initialize the scanner.
-// Create the scanner if its variable is NULL_STUB.
-// Equivalent to ll::lexeme::init_scanner followed
-// by installing the standand lexeme program in the
-// scanner.
+// Scanner->erroneous_atom is set to print erroneous
+// atoms using parser->input_file and parser->print.
 //
-void init_scanner
-	( ll::lexeme::scanner_ptr & scanner =
-	      ll::lexeme::default_scanner );
+// Parser->input is set to get tokens by scanning them
+// from parser->scanner.
+// 
+void init_standard_input ( parser_ptr parser );
 
 } }
 

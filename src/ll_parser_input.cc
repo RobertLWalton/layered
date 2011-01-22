@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 01:07:48 EST 2011
+// Date:	Sat Jan 22 11:24:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Input
+//	Standard Input Parser
+//	Announce
 //	Add Tokens
 
 // Usage and Setup
@@ -25,8 +26,8 @@
 # define PAR ll::parser
 using namespace PAR;
 
-// Input Parser Data
-// ----- ------ ----
+// Standard Input Parser
+// -------- ----- ------ ----
 
 static min::uns32 input_add_tokens
 	( PAR::parser_ptr parser, PAR::input_ptr input )
@@ -35,13 +36,36 @@ static void erroneous_announce
 	  min::uns32 type, LEX::scanner_ptr scanner,
 	  LEX::erroneous_ptr erroneous );
 
-void PAR::init_input ( input_ptr & input )
+void PAR::init_standard_input ( parser_ptr parser )
 {
-    init_input ( ::input_add_tokens, NULL, input );
+    LEX::standard::create_standard_program();
+    LEX::init_scanner ( parser->scanner,
+                        LEX::default_scanner->program );
+
+    if ( parser->input_file != NULL_STUB )
+        parser->scanner->input_file =
+	    parser->input_file;
+    else
+	parser->input_file =
+	    parser->scanner->input_file;
+
+    if ( parser->print != NULL_STUB )
+        parser->scanner->print =
+	    parser->print;
+    else
+	parser->print =
+	    parser->scanner->print;
+
+    scanner->erroneous_atom = NULL_STUB;
+    init_erroneous ( ::erroneous_announce,
+                     parser->scanner->erroneous_atom );
+    parser->input = NULL_STUB;
+    init_input ( ::input_add_tokens, NULL,
+                 parser->input );
 }
 
-// Input Parser
-// ----- ------
+// Announce
+// --------
 
 static void erroneous_announce
 	( min::uns32 first, min::uns32 last,
@@ -65,10 +89,7 @@ static void erroneous_announce
 		  " atom type";
 	break;
     }
-    input_pass_ptr pass =
-        (input_pass_ptr) scanner->erroneous_atom_data;
-    std::ostream * err = pass->trace;
-    if ( err == NULL ) err = pass->err;
+    std::ostream * err = scanner->print->err;
     if ( err != NULL )
     {
 	uns32 first_column, last_column;
@@ -77,10 +98,12 @@ static void erroneous_announce
 		   scanner, first, last ) )
 	    LEX::print_message
 		( * err, first_column, last_column,
-	          scanner, message );
+	          scanner->print, message );
     }
 }
-
+
+// Add Tokens
+// --- ------
 static min::uns32 input_add_tokens
 	( PAR::parser_ptr parser, PAR::input_ptr input )
 {

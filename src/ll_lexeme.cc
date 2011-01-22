@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 20 08:22:22 EST 2011
+// Date:	Sat Jan 22 03:34:25 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -126,9 +126,8 @@ static uns32 scanner_stub_disp[] =
       min::DISP_END };
 
 static min::packed_struct<LEX::scanner_struct>
-       scanner_type
-           ( "ll::lexeme::scanner_type",
-	     NULL, ::scanner_stub_disp );
+   scanner_type ( "ll::lexeme::scanner_type",
+	          NULL, ::scanner_stub_disp );
 
 static uns32 file_gen_disp[] =
     { min::DISP ( & LEX::file_struct::file_name ),
@@ -138,9 +137,11 @@ static uns32 file_stub_disp[] =
       min::DISP_END };
 
 static min::packed_vec<LEX::uns32,LEX::file_struct>
-       file_type
-           ( "ll::lexeme::file_type",
-	     ::file_gen_disp, ::file_stub_disp );
+   file_type ( "ll::lexeme::file_type",
+	       ::file_gen_disp, ::file_stub_disp );
+
+static min::packed_struct<LEX::print_struct>
+   print_type ( "ll::lexeme::print_type" );
 
 static min::packed_vec<char>
     char_vec_type ( "ll::lexeme::char_vec_type" );
@@ -153,13 +154,15 @@ static min::packed_struct<LEX::input_struct>
 static min::packed_struct<LEX::erroneous_struct>
     erroneous_type ( "ll::lexeme::erroneous_type" );
 
-static min::static_stub<3> default_stub;
+static min::static_stub<4> default_stub;
+LEX::print_ptr & LEX::default_print =
+    * (LEX::print_ptr *) & default_stub[0];
 LEX::input_ptr & LEX::default_read_input =
-    * (LEX::input_ptr *) & default_stub[0];
+    * (LEX::input_ptr *) & default_stub[1];
 LEX::erroneous_ptr & LEX::default_erroneous_atom =
-    * (LEX::erroneous_ptr *) & default_stub[1];
+    * (LEX::erroneous_ptr *) & default_stub[2];
 LEX::scanner_ptr & LEX::default_scanner =
-    * (LEX::scanner_ptr *) & default_stub[2];
+    * (LEX::scanner_ptr *) & default_stub[3];
 
 // Program Construction
 // ------- ------------
@@ -838,7 +841,8 @@ static bool default_read_input_get
 	min::push(input_buffer) = ic;
 	ic.index += bytes_read;
 	min::uns32 width =
-	    LEX::wchar ( unicode, scanner->print_mode );
+	    LEX::wchar ( unicode,
+	                 scanner->print->mode );
 	if ( width == 0 && unicode == '\t' )
 	    ic.column += 8 - ic.column % 8;
 	else
@@ -869,7 +873,7 @@ static void default_erroneous_atom_announce
 	    LEX::ENFORCE_LINE_LENGTH
 	  + LEX::PREFACE_WITH_SPACE,
 	  scanner );
-    (* scanner->err ) << buffer << endl;
+    (* scanner->print->err ) << buffer << endl;
 }
 
 // Scanning
@@ -895,6 +899,8 @@ static bool is_recursive
 static void create_scanner
 	( LEX::scanner_ptr & scanner )
 {
+    init_print
+        ( LEX::default_print );
     init_input
 	( ::default_read_input_get );
     init_erroneous
@@ -908,15 +914,11 @@ static void create_scanner
 	uns32_vec_type.new_gen();
 
     scanner->program = NULL_STUB;
-    scanner->print_mode = default_print_mode;
-    scanner->line_length = 72;
-    scanner->indent = 4;
+    init_print ( scanner->print );
     scanner->read_input = default_read_input;
     init_file
 	( std::cin, "standard input", 0,
 	  scanner->input_file );
-    scanner->err = & std::cerr;
-    scanner->scan_trace_out = NULL;
     scanner->erroneous_atom = default_erroneous_atom;
     scanner->reinitialize = true;
 }
@@ -1021,9 +1023,6 @@ static uns32 print_instruction
     ( scanner_ptr scanner,
       std::ostream & out, uns32 ID, unsigned indent );
 
-# define TOUT if ( scanner->scan_trace_out ) \
-                 (* scanner->scan_trace_out)
-
 // Given a dispatcher_ID and a character c return the
 // ctype that the dispatcher maps c onto.
 //
@@ -1032,8 +1031,12 @@ static uns32 ctype ( scanner_ptr scanner,
 {
     program_ptr program = scanner->program;
 
-    TOUT << "  Character = " << pchar ( c )
-	 << " Dispatcher = " << dispatcher_ID;
+    bool trace =
+        ( scanner->trace & LEX::TRACE_DISPATCH );
+    if ( trace )
+	* scanner->print->trace
+	    << "  Character = " << pchar ( c )
+	    << " Dispatcher = " << dispatcher_ID;
 
     dispatcher_header & dh =
 	* (dispatcher_header *)
@@ -1071,7 +1074,9 @@ static uns32 ctype ( scanner_ptr scanner,
     {
 	assert (    program[type_map_ID]
 		 == TYPE_MAP );
-	TOUT << " Type Map = " << type_map_ID;
+	if ( trace )
+	    * scanner->print->trace
+	        << " Type Map = " << type_map_ID;
 	type_map_header & tmh =
 	    * (type_map_header *)
 	    & program[type_map_ID];
@@ -1081,7 +1086,9 @@ static uns32 ctype ( scanner_ptr scanner,
 		    [c - tmh.cmin];
     }
 
-    TOUT << " CType = " << ctype << endl;
+    if ( trace )
+	* scanner->print->trace
+	    << " CType = " << ctype << endl;
 
     return ctype;
 }
@@ -1113,8 +1120,10 @@ static uns32 scan_atom
     const uns32 SCAN_ERROR = 0;
         // Local version of SCAN_ERROR.
 
-    TOUT << "Start atom scan: table = "
-	 << scanner->current_table_ID << endl;
+    if ( scanner->trace & LEX::TRACE_TABLE )
+        * scanner->print->trace
+	    << "Start atom scan: table = "
+	    << scanner->current_table_ID << endl;
 
     table_header & cath =
 	* (table_header *)
@@ -1230,10 +1239,10 @@ static uns32 scan_atom
 	    return SCAN_ERROR;
 	}
 
-	if ( scanner->scan_trace_out )
+	if ( scanner->trace & LEX::TRACE_INSTRUCTION )
 	    print_instruction
 	        ( scanner,
-	          * scanner->scan_trace_out,
+	          * scanner->print->trace,
 		  instruction_ID, 2 );
 
 	bool fail = false;
@@ -2184,10 +2193,11 @@ uns32 LEX::line ( file_ptr file, uns32 line_number )
 
 uns32 LEX::print_line
 	( std::ostream & out,
-	  scanner_ptr scanner, uns32 line_number,
+	  file_ptr file,
+	  uns32 line_number,
+	  uns32 print_mode,
 	  bool append_line_feed )
 {
-    file_ptr file = scanner->input_file;
     if ( file->offset == NO_LINE
          &&
 	 line_number == file->line_number )
@@ -2202,14 +2212,15 @@ uns32 LEX::print_line
     uns32 n = strlen ( p );
     char buffer [ 10 + MAX_UNICODE_BYTES * n ];
     uns32 width = 0;
-    n = spstring ( buffer, p, width, 0, scanner );
-    uns32 pmode = scanner->print_mode;
+    n = spstring ( buffer, p, width,
+                   0, NULL_STUB, print_mode );
     if ( append_line_feed
          &&
-	 (    pmode == ASCIIGRAPHIC
-	   || pmode == UTF8GRAPHIC ) )
+	 (    print_mode == ASCIIGRAPHIC
+	   || print_mode == UTF8GRAPHIC ) )
         spstring
-	    ( buffer + n, "\n", width, 0, scanner );
+	    ( buffer + n, "\n", width,
+	      0, NULL_STUB, print_mode );
     out << buffer << endl;
     return width;
 }
@@ -2227,7 +2238,9 @@ uns32 LEX::print_item_lines
 
     uns32 line = begin.line;
     uns32 width = print_line
-	( out, scanner, line, append_line_feed );
+	( out, scanner->input_file, line,
+	       scanner->print->mode,
+	       append_line_feed );
     if ( width == NO_LINE ) return 0;
 
     first_column = begin.column;
@@ -2263,7 +2276,9 @@ uns32 LEX::print_item_lines
 
 	first_column = 0;
 	width = print_line
-	    ( out, scanner, line, append_line_feed );
+	    ( out, scanner->input_file, line,
+	           scanner->print->mode,
+		   append_line_feed );
 	assert ( width != NO_LINE );
     }
 }
@@ -2298,12 +2313,12 @@ void LEX::print_message
     ( std::ostream & out,
       const uns32 & first_column,
       const uns32 & last_column,
-      scanner_ptr scanner,
+      print_ptr print,
       const char * message,
       char mark )
 {
-    uns32 indent = scanner->indent;
-    uns32 line_length = scanner->line_length;
+    uns32 indent = print->indent;
+    uns32 line_length = print->line_length;
     if ( first_column < indent )
     {
         for ( uns32 i = 0; i < first_column; ++ i )
@@ -2353,6 +2368,19 @@ void LEX::print_message
 // --------
 
 min::uns32 LEX::default_print_mode = LEX::ASCIIGRAPHIC;
+
+void LEX::init_print ( print_ptr & print )
+{
+    if ( print == NULL_STUB )
+    {
+        print = ::print_type.new_stub();
+	print->mode = LEX::default_print_mode;
+	print->line_length = 72;
+	print->indent = 4;
+	print->err = & std::cerr;
+	print->trace = & std::cout;
+    }
+}
 
 int LEX::spchar ( char * buffer, uns32 c,
                   uns32 print_mode )
@@ -2549,7 +2577,7 @@ int LEX::spchar
 	( char * buffer, uns32 c,
 	  unsigned & column,
 	  uns32 space_mode,
-	  scanner_ptr scanner,
+	  print_ptr print,
 	  uns32 print_mode )
 {
     // Optimization
@@ -2559,7 +2587,7 @@ int LEX::spchar
 	switch ( space_mode )
 	{
 	case ENFORCE_LINE_LENGTH:
-	    if ( column >= scanner->line_length )
+	    if ( column >= print->line_length )
 	        break;
 	case 0:
 	    * buffer ++ = (char) c;
@@ -2567,7 +2595,7 @@ int LEX::spchar
 	    * buffer = 0;
 	    return 1;
 	case PREFACE_WITH_SPACE + ENFORCE_LINE_LENGTH:
-	    if ( column + 1 >= scanner->line_length )
+	    if ( column + 1 >= print->line_length )
 	        break;
 	case PREFACE_WITH_SPACE:
 	    * buffer ++ = ' ';
@@ -2580,7 +2608,7 @@ int LEX::spchar
     }
 
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
-        print_mode = scanner->print_mode;
+        print_mode = print->mode;
 
     int width = wchar ( c, print_mode ); 
     bool is_tab = ( width == 0 && c == '\t' );
@@ -2590,20 +2618,20 @@ int LEX::spchar
     switch ( space_mode )
     {
     case ENFORCE_LINE_LENGTH:
-	if ( column + width >= scanner->line_length )
+	if ( column + width >= print->line_length )
 	{
 	    p += sprintf ( p, "\n%*s",
-		           scanner->indent, "" );
-	    column = scanner->indent;
+		           print->indent, "" );
+	    column = print->indent;
 	}
 	break;
     case PREFACE_WITH_SPACE + ENFORCE_LINE_LENGTH:
 	if (    column + width + 1
-	     >= scanner->line_length )
+	     >= print->line_length )
 	{
 	    p += sprintf ( p, "\n%*s",
-		           scanner->indent, "" );
-	    column = scanner->indent;
+		           print->indent, "" );
+	    column = print->indent;
 	    break;
 	}
     case PREFACE_WITH_SPACE:
@@ -2621,27 +2649,27 @@ int LEX::spword
 	( char * buffer, const char * word,
 	  unsigned & column,
 	  uns32 space_mode,
-	  scanner_ptr scanner )
+	  print_ptr print )
 {
     int width = strlen ( word );
     char * p = buffer;
     switch ( space_mode )
     {
     case ENFORCE_LINE_LENGTH:
-	if ( column + width >= scanner->line_length )
+	if ( column + width >= print->line_length )
 	{
 	    p += sprintf ( p, "\n%*s",
-		           scanner->indent, "" );
-	    column = scanner->indent;
+		           print->indent, "" );
+	    column = print->indent;
 	}
 	break;
     case PREFACE_WITH_SPACE + ENFORCE_LINE_LENGTH:
 	if (    column + width + 1
-	     >= scanner->line_length )
+	     >= print->line_length )
 	{
 	    p += sprintf ( p, "\n%*s",
-		           scanner->indent, "" );
-	    column = scanner->indent;
+		           print->indent, "" );
+	    column = print->indent;
 	    break;
 	}
     case PREFACE_WITH_SPACE:
@@ -2660,11 +2688,11 @@ int LEX::spstring
 	  const char * string,
 	  unsigned & column,
 	  uns32 space_mode,
-	  scanner_ptr scanner,
+	  print_ptr print,
 	  uns32 print_mode )
 {
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
-        print_mode = scanner->print_mode;
+        print_mode = print->mode;
 
     uns32 c;
     char * p = buffer;
@@ -2673,7 +2701,7 @@ int LEX::spstring
     {
         string += read_utf8 ( c, string );
 	p += spchar ( p, c, column,
-	              space_mode, scanner, print_mode );
+	              space_mode, print, print_mode );
 	space_mode &= ~ PREFACE_WITH_SPACE;
     }
     return p - buffer;
@@ -2686,12 +2714,14 @@ int LEX::spinput
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
+    print_ptr print = scanner->print;
+
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
-        print_mode = scanner->print_mode;
+        print_mode = print->mode;
 
     if ( first > last )
         return spword ( buffer, "<empty>", column,
-			space_mode, scanner );
+			space_mode, print );
 
     char * p = buffer;
     while ( first <= last )
@@ -2699,7 +2729,7 @@ int LEX::spinput
 	uns32 c = scanner->input_buffer[first++]
 	                  .character;
 	p += spchar ( p, c, column,
-	              space_mode, scanner, print_mode );
+	              space_mode, print, print_mode );
 	space_mode &= ~ PREFACE_WITH_SPACE;
     }
     return p - buffer;
@@ -2712,15 +2742,17 @@ int LEX::sptranslation
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
+    print_ptr print = scanner->print;
+
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
-        print_mode = scanner->print_mode;
+        print_mode = print->mode;
 
     min::packed_vec_insptr<uns32> translation_buffer =
         scanner->translation_buffer;
 
     if ( translation_buffer->length == 0 )
         return spword ( buffer, "<empty>", column,
-			space_mode, scanner );
+			space_mode, print );
 
     char * p = buffer;
     for ( unsigned i = 0;
@@ -2728,7 +2760,7 @@ int LEX::sptranslation
     {
 	uns32 c = translation_buffer[i];
 	p += spchar ( p, c, column,
-	              space_mode, scanner, print_mode );
+	              space_mode, print, print_mode );
 	space_mode &= ~ PREFACE_WITH_SPACE;
     }
     return p - buffer;
@@ -2742,8 +2774,10 @@ int LEX::splexeme
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
+    print_ptr print = scanner->print;
+
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
-        print_mode = scanner->print_mode;
+        print_mode = print->mode;
 
     min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
@@ -2763,7 +2797,7 @@ int LEX::splexeme
 
     char * p = buffer;
     p += spword ( p, buffer2, column,
-                  space_mode, scanner );
+                  space_mode, print );
     p += spinput ( p, first, last,
 		   column,
 		   space_mode | PREFACE_WITH_SPACE,
@@ -2775,7 +2809,7 @@ int LEX::splexeme
         p += spword ( p, "translated to:",
 	              column,
 		      space_mode | PREFACE_WITH_SPACE,
-		      scanner );
+		      print );
 	p += sptranslation
 	         ( p, column,
 		   space_mode | PREFACE_WITH_SPACE,
@@ -2792,8 +2826,10 @@ int LEX::sperroneous_atom
 	  scanner_ptr scanner,
 	  uns32 print_mode )
 {
+    print_ptr print = scanner->print;
+
     if ( print_mode == LEX::DEFAULT_PRINT_MODE )
-        print_mode = scanner->print_mode;
+        print_mode = print->mode;
 
     min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
@@ -2813,7 +2849,7 @@ int LEX::sperroneous_atom
 
     char * p = buffer;
     p += spword ( p, buffer2, column,
-                  space_mode, scanner );
+                  space_mode, print );
     p += spinput ( p, first, last,
                    column,
 		   space_mode | PREFACE_WITH_SPACE,
@@ -3122,7 +3158,7 @@ static uns32 print_instruction
 }
 
 // Iterator that prints out a list of characters within
-// scanner->line_length columns.  `nonempty' if the list
+// print->line_length columns.  `nonempty' if the list
 // is non-empty.  The list is indented by the given
 // amount.  The user is responsible for the indent of
 // the first line if user_indent is true.
@@ -3130,8 +3166,8 @@ static uns32 print_instruction
 struct pclist {
     std::ostream & out;
         // Output stream.
-    LEX::scanner_ptr scanner;
-        // Scanner that provides line_length.
+    LEX::print_ptr print;
+        // Print parameters that provide line_length.
     int indent;
         // Indent set by constructor.
     bool user_indent;
@@ -3150,14 +3186,14 @@ struct pclist {
 	// delayed to allow c2 to grow.
 
     pclist ( std::ostream & out,
-             LEX::scanner_ptr scanner,
+             LEX::print_ptr print,
              int indent, bool user_indent = false )
-	: out ( out ), scanner ( scanner ),
+	: out ( out ), print ( print ),
 	  indent ( indent ), user_indent ( user_indent )
     {
-	assert ( scanner->line_length - indent >= 30 );
+	assert ( print->line_length - indent >= 30 );
         empty = true;
-	columns = scanner->line_length - indent;
+	columns = print->line_length - indent;
     }
 
     // Print c1-c2 (or just c1 if c1 == c2 ).  Precede
@@ -3180,7 +3216,7 @@ struct pclist {
 	* p = 0;
 	int needed = p - buffer;
 
-	if ( columns == scanner->line_length - indent )
+	if ( columns == print->line_length - indent )
 	{
 	    // If nothing on line, its our first line.
 	    //
@@ -3196,7 +3232,7 @@ struct pclist {
 	else
 	{
 	    out << endl << setw ( indent ) << "";
-	    columns = scanner->line_length
+	    columns = print->line_length
 	            - indent - needed;
 	}
 
@@ -3290,7 +3326,7 @@ static uns32 print_cooked_dispatcher
 	     mep[t].dispatcher_ID == 0 )
 	    continue;
 
-	pclist pcl ( out, scanner, IDwidth );
+	pclist pcl ( out, scanner->print, IDwidth );
 	for ( uns32 b = 0; b < h.break_elements; ++ b )
 	{
 	    uns32 cmin = bep[b].cmin;
@@ -3475,7 +3511,7 @@ uns32 LEX::print_program_component
 	    length += ( h.cmax - h.cmin + 4 ) / 4;
 	    for ( unsigned t = 0; t < 256; ++ t )
 	    {
-		pclist pcl ( out, scanner,
+		pclist pcl ( out, scanner->print,
 		             IDwidth + 6, true );
 		for ( uns32 c = h.cmin;
 		      c <= h.cmax; ++ c )

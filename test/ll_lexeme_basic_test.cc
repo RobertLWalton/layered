@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 20 12:55:19 EST 2011
+// Date:	Sat Jan 22 08:06:58 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -530,9 +530,9 @@ void test_program
     cout << endl << endl;
 
     LEX::init_scanner ( "test", input );
-    LEX::default_scanner->err = & std::cout;
+    LEX::default_scanner->print->err = & std::cout;
     if ( trace )
-	LEX::default_scanner->scan_trace_out= & cout;
+	LEX::default_scanner->trace= LEX::TRACE;
 
 
     char buffer[10000];

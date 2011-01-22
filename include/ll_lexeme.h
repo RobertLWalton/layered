@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 21 05:27:34 EST 2011
+// Date:	Sat Jan 22 03:10:46 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,83 +38,17 @@ namespace ll { namespace lexeme {
     using min::uns8;
     using min::uns32;
     using min::uns64;
+    using min::NULL_STUB;
 
-    const min::stub * const NULL_STUB = min::NULL_STUB;
+    // Trace value with all trace bits on.
+    //
+    const uns32 TRACE = (uns32) -1;
 
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
 
     typedef min::packed_vec_insptr<uns32> program_ptr;
         // Type of a pointer to a program.
-
-    // Print modes.  These determine how a character c
-    // in a line is rendered when the line is printed.
-    // This in turn determines the `width' of c in the
-    // printed line, i.e., the number of columns
-    // occupied by the rendering of c.  For example,
-    // character 0x01 is rendered as itself and has
-    // width 0 in UTF8 mode, is rendered as a UNICODE
-    // control picture character of width 1 in UTF8PRINT
-    // or UTF8GRAPHIC mode, and is rendered as \01/ and
-    // has width 4 in ASCIIGRAPHIC mode.
-    //
-    // DEFAULT_PRINT_MODE:
-    //   The print mode is the default, which is the
-    //   print mode of any scanner or parser pass asso-
-    //   ciated with the print operation, or is
-    //   ll::lexeme::default_print_mode otherwise.
-    // UTF8:
-    //   Character c is rendered as itself (i.e., is
-    //   converted to UTF8).
-    // UTF8PRINT:
-    //   Character c is rendered as itself, unless the
-    //   character is a control character other than
-    //   new line, carriage return, form feed, vertical
-    //   tab, or horizontal tab, in which case c is
-    //   rendered as per UTF8GRAPHIC.
-    // UTF8GRAPHIC:
-    //   Character c is rendered as itself if it is a
-    //   graphic character, and otherwise is rendered
-    //   to a UNICODE control code picture character
-    //   (0x24yy character).  Characters from 0x00 to
-    //   0x1f, single space, and DELETE are the `non-
-    //   graphic' characters.
-    // ASCIIPRINT:
-    //   Character c is rendered as itself, unless the
-    //   character is a control character other than
-    //   new line, carriage return, form feed, vertical
-    //   tab, or horizontal tab, OR c is not an ASCII
-    //   character (has code >= 0x80), in which case c
-    //   is rendered as per ASCIIGRAPHIC.
-    // ASCIIGRAPHIC:
-    //   If the uns32 character c is ' ', '\\', '\n',
-    //   '\f', '\t', '\v', '\b', or '\r' it is rendered
-    //   as "\~/", "\\/", "\lf/", etc.  Otherwise if c
-    //   is not an ASCII graphic character (is NOT in
-    //   the range 0x21 ... 0x7e), it is rendered as
-    //   "\0X...X/", where X...X are hexadecimal digits
-    //   representing the uns32 value c.
-    //
-    // Note: ASCII characters in the range 0x21 .. 0x7E
-    // except \ are always rendered as themselves and
-    // are always 1 column wide.  This can be used in
-    // optimizations.
-    //
-    enum {
-	DEFAULT_PRINT_MODE = 0,
-        UTF8 = 1,
-        UTF8PRINT = 2,
-	UTF8GRAPHIC = 3,
-	ASCIIPRINT = 4,
-	ASCIIGRAPHIC = 5 };
-    //
-    extern uns32 default_print_mode;
-
-    // Maximum number of bytes required to represent a
-    // UNICODE character in any of the above print
-    // modes.
-    //
-    const unsigned MAX_UNICODE_BYTES = 12;
 
     struct position
         // Position of an element of the input_buffer:
@@ -136,6 +70,11 @@ namespace ll { namespace lexeme {
             file_ptr;
         // See Input Files below.
 
+    struct print_struct;
+    typedef min::packed_struct_updptr<print_struct>
+            print_ptr;
+        // See Printing below.
+
     struct scanner_struct;
     typedef min::packed_struct_updptr<scanner_struct>
             scanner_ptr;
@@ -150,6 +89,17 @@ namespace ll { namespace lexeme {
     typedef min::packed_struct_updptr<erroneous_struct>
             erroneous_ptr;
 	// See erroneous_struct below.
+
+    enum {
+        // Scanner trace flags:
+
+	TRACE_DISPATCH		= (1 << 0),
+	    // Trace character dispatches.
+	TRACE_TABLE		= (1 << 2),
+	    // Trace table invocations.
+	TRACE_INSTRUCTION	= (1 << 3)
+	    // Trace instructions executed.
+    };
 
     const uns32 return_stack_size = 64;
     struct scanner_struct
@@ -194,33 +144,20 @@ namespace ll { namespace lexeme {
 
 	// The scanner parameters are
 	//
-	//	print_mode
-	//	line_length
-	//	indent
+	//	print
 	//	read_input
 	//	input_file
-	//	err
-	//	scan_trace_out
 	//	erroneous_atom
+	//	trace
 	//
 	// These are set to defaults when a scanner is
 	// created by init_scanner().
 
-	// Print mode.  One of UTF8, UTF8PRINT, UTF8-
-	// GRAPHIC, or ASCIIPRINT, or ASCIIGRAPHIC.
-	// See above and also see default read_input
-	// function below.
+	// Print parameters.  Default: a new print
+	// parameters struct with parameters set to
+	// defaults.
 	//
-	uns32 print_mode;   // Default:
-			    //   ll::lexeme
-			    //     ::default_print_mode
-
-	// Nominal length and indent for printing.  Line
-	// length defaults to the limit for email mes-
-	// sages.
-	//
-	uns32 line_length;  // Default 72
-	uns32 indent;       // Default 4
+	print_ptr print;
 
 	// Closure to call to input one or more inchar
 	// elements to the end of the input buffer
@@ -254,7 +191,7 @@ namespace ll { namespace lexeme {
 	//	    input buffer; otherwise incremented
 	//	    by
 	//
-	//		wchar ( c, print_mode )
+	//		wchar ( c, print->mode )
 	//
 	//	    where c is the UNICODE character
 	//	    added to the input buffer, unless
@@ -269,16 +206,6 @@ namespace ll { namespace lexeme {
 	//
 	file_ptr input_file;
 
-	// Output stream for default_erroneous.
-	// Defaults to & std::cerr.
-	//
-	std::ostream * err;
-
-	// Output stream for tracing the scan.  If NULL,
-	// there is no tracing.  Defaults to NULL.
-	//
-	std::ostream * scan_trace_out;
-
 	// Closure to call with an error atom as per
 	// ERRONEOUS_ATOM instruction flag.  The atom is
 	// in
@@ -292,6 +219,10 @@ namespace ll { namespace lexeme {
 	// Defaults to NULL_STUB.
 	//
 	erroneous_ptr erroneous_atom;
+
+	// Scanner trace flags (see above for values).
+	//
+	uns32 trace;
 
 	// Scanner state:
 
@@ -768,8 +699,8 @@ namespace ll { namespace lexeme {
 	// See scanner->read_input AND scanner->input_
 	// file below.
 	//
-	// Note: This variable is not set until the first
-	// scanner is created (first call to init_
+	// Note: This variable is not set until the
+	// first scanner is created (first call to init_
 	// scanner).
 
     // Set input closure function.  If `input' is NULL_
@@ -798,8 +729,8 @@ namespace ll { namespace lexeme {
         // Default value for scanner->erroneous_atom.
 	// Prints error message to scanner->err.
 	//
-	// Note: This variable is not set until the first
-	// scanner is created (first call to init_
+	// Note: This variable is not set until the
+	// first scanner is created (first call to init_
 	// scanner).
 
     // Set erroneous closure function.  If `erroneous'
@@ -834,11 +765,10 @@ namespace ll { namespace lexeme {
     // program can be constructed using the scanner.
     //
     // When a new scanner is created, scanner parameters
-    // such as print_mode, line_length, indent, read_
-    // input, input_file, etc. are set to defaults.
-    // Otherwise these are left untouched, and can be
-    // set either before or immediately after the call
-    // to init_scanner.
+    // such as print, read_input, input_file, etc. are
+    // set to defaults.  Otherwise these are left
+    // untouched, and can be set either before or
+    // immediately after the call to init_scanner.
 
     // Simply (re)initialize a scanner.
     //
@@ -1046,12 +976,12 @@ namespace ll { namespace lexeme {
     //
     uns32 line ( file_ptr file, uns32 line_number );
 
-    // Print a line from scanner->input_file to an
-    // output stream using scanner->print_mode.  If
-    // append_line_feed is true, append a line feed
-    // if the scanner->print_mode is xxxGRAPHIC (so
-    // the line feed prints as graphic characters).
-    // Return the number of columns printed.
+    // Print a line from file to an output stream using
+    // the given print_mode.  If append_line_feed is
+    // true, append a line feed if the print_mode is
+    // xxxGRAPHIC (so the line feed prints as graphic
+    // characters).  Return the number of columns
+    // printed.
     //
     // If the line_number designates the line just after
     // the file, print "<END-OF-FILE>".
@@ -1061,8 +991,9 @@ namespace ll { namespace lexeme {
     //
     uns32 print_line
         ( std::ostream & out,
-	  scanner_ptr scanner,
+	  file_ptr file,
 	  uns32 line_number,
+	  uns32 print_mode,
 	  bool append_line_feed = false );
 
     // Print the lines containing the lexeme identified
@@ -1123,7 +1054,7 @@ namespace ll { namespace lexeme {
         ( std::ostream & out,
 	  const uns32 & first_column,
 	  const uns32 & last_column,
-	  scanner_ptr scanner,
+	  print_ptr print,
 	  const char * message,
 	  char mark = '+' );
 } }
@@ -1132,6 +1063,120 @@ namespace ll { namespace lexeme {
 // --------
 
 namespace ll { namespace lexeme {
+
+    // Print modes.  These determine how a character c
+    // in a line is rendered when the line is printed.
+    // This in turn determines the `width' of c in the
+    // printed line, i.e., the number of columns
+    // occupied by the rendering of c.  For example,
+    // character 0x01 is rendered as itself and has
+    // width 0 in UTF8 mode, is rendered as a UNICODE
+    // control picture character of width 1 in UTF8PRINT
+    // or UTF8GRAPHIC mode, and is rendered as \01/ and
+    // has width 4 in ASCIIGRAPHIC mode.
+    //
+    // DEFAULT_PRINT_MODE:
+    //   The print mode is the default, which is the
+    //   print mode of any print parameters such as
+    //   scanner->print associated with the print
+    //   operation, or is ll::lexeme::default_print_
+    //   mode otherwise.
+    // UTF8:
+    //   Character c is rendered as itself (i.e., is
+    //   converted to UTF8).
+    // UTF8PRINT:
+    //   Character c is rendered as itself, unless the
+    //   character is a control character other than
+    //   new line, carriage return, form feed, vertical
+    //   tab, or horizontal tab, in which case c is
+    //   rendered as per UTF8GRAPHIC.
+    // UTF8GRAPHIC:
+    //   Character c is rendered as itself if it is a
+    //   graphic character, and otherwise is rendered
+    //   to a UNICODE control code picture character
+    //   (0x24yy character).  Characters from 0x00 to
+    //   0x1f, single space, and DELETE are the `non-
+    //   graphic' characters.
+    // ASCIIPRINT:
+    //   Character c is rendered as itself, unless the
+    //   character is a control character other than
+    //   new line, carriage return, form feed, vertical
+    //   tab, or horizontal tab, OR c is not an ASCII
+    //   character (has code >= 0x80), in which case c
+    //   is rendered as per ASCIIGRAPHIC.
+    // ASCIIGRAPHIC:
+    //   If the uns32 character c is ' ', '\\', '\n',
+    //   '\f', '\t', '\v', '\b', or '\r' it is rendered
+    //   as "\~/", "\\/", "\lf/", etc.  Otherwise if c
+    //   is not an ASCII graphic character (is NOT in
+    //   the range 0x21 ... 0x7e), it is rendered as
+    //   "\0X...X/", where X...X are hexadecimal digits
+    //   representing the uns32 value c.
+    //
+    // Note: ASCII characters in the range 0x21 .. 0x7E
+    // except \ are always rendered as themselves and
+    // are always 1 column wide.  This can be used in
+    // optimizations.
+    //
+    enum {
+	DEFAULT_PRINT_MODE = 0,
+        UTF8 = 1,
+        UTF8PRINT = 2,
+	UTF8GRAPHIC = 3,
+	ASCIIPRINT = 4,
+	ASCIIGRAPHIC = 5 };
+    //
+    extern uns32 default_print_mode;
+
+    // Maximum number of bytes required to represent a
+    // UNICODE character in any of the above print
+    // modes.
+    //
+    const unsigned MAX_UNICODE_BYTES = 12;
+
+    struct print_struct
+        // Print parameters.
+    {
+        uns32 control;
+
+	// Print mode.  One of UTF8, UTF8PRINT, UTF8-
+	// GRAPHIC, or ASCIIPRINT, or ASCIIGRAPHIC.
+	// See above.
+	//
+	uns32 mode;   // Default: ll::lexeme
+		      //            ::default_print_mode
+
+	// Nominal length and indent for printing.  Line
+	// length defaults to the limit for email mes-
+	// sages.
+	//
+	uns32 line_length;  // Default 72
+	uns32 indent;       // Default 4
+
+	// Output stream for errors.  Defaults to
+	// & std::cerr.
+	//
+	std::ostream * err;
+
+	// Output stream for tracing.  Defaults to
+	// & std::cout;
+	//
+	std::ostream * trace;
+    };
+
+    // If `print' variable is NULL_STUB, create a print
+    // struct with default members and store a pointer
+    // to it in the variable.  The `print' variable must
+    // be locatable by the garbage collector.
+    //
+    // Otherwise do nothing.
+    //
+    void init_print ( print_ptr & print );
+
+    // Default print parameters.  Not set until init_
+    // scanner is called.  Members are set to defaults.
+    //
+    extern print_ptr & default_print;
 
     // Print an uns32 UNICODE character into the buffer,
     // rendering the character in UTF-8 according to the
@@ -1223,11 +1268,16 @@ namespace ll { namespace lexeme {
     // necessary to avoid calls ambiguous with
     // spchar above.
     //
+    // If space_mode does NOT have ENFORCE_LINE_LENGTH
+    // and print_mode is NOT DEFAULT_PRINT_MODE, then
+    // `print' can be NULL_STUB.
+    // 
+    //
     int spchar
 	    ( char * buffer, uns32 c,
 	      unsigned & column,
 	      uns32 space_mode,
-	      scanner_ptr scanner = default_scanner,
+	      print_ptr print = default_print,
 	      uns32 print_mode = DEFAULT_PRINT_MODE );
 
     // Like spchar but print the `word' as if it were
@@ -1236,13 +1286,15 @@ namespace ll { namespace lexeme {
     // must be an ASCII string of non-control charac-
     // ters (single space IS ALLOWED) and is printed in
     // UTF-8 mode (which is equivalent to ASCIIPRINT in
-    // this case except for \).
+    // this case except for \).  `print' can be NULL_
+    // STUB if space_mode does NOT have ENFORCE_LINE_
+    // LENGTH.
     //
     int spword
 	    ( char * buffer, const char * word,
 	      unsigned & column,
 	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      scanner_ptr scanner = default_scanner );
+	      print_ptr print = default_print );
 
     // Print the given NUL terminated UTF-8 string.
     // The string is copied to the buffer as if it were
@@ -1256,18 +1308,23 @@ namespace ll { namespace lexeme {
     // returned, not counting the NUL that is the last
     // byte added.
     //
+    // If space_mode does NOT have ENFORCE_LINE_LENGTH
+    // and print_mode is NOT DEFAULT_PRINT_MODE, then
+    // `print' can be NULL_STUB.
+    //
     int spstring
 	    ( char * buffer,
 	      const char * string,
 	      unsigned & column,
 	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      scanner_ptr scanner = default_scanner,
+	      print_ptr print = default_print,
 	      uns32 print_mode = DEFAULT_PRINT_MODE );
 
     // Ditto but print the characters of scanner->input_
     // buffer[first .. last] instead of printing a UTF-8
     // string.  If first > last use spword to print
-    // "<empty>" instead.
+    // "<empty>" instead.  Use scanner->print for
+    // print parameters.
     //
     int spinput
 	    ( char * buffer,

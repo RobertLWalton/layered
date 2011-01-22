@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 19 03:26:12 EST 2011
+// Date:	Sat Jan 22 01:07:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,13 +11,14 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Parser Input Data
-//	Parser Input
+//	Input
+//	Add Tokens
 
 // Usage and Setup
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
+# include <ll_parser.h>
 # include <ll_parser_input.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
@@ -27,54 +28,25 @@ using namespace PAR;
 // Input Parser Data
 // ----- ------ ----
 
-struct input_pass_struct : public PAR::pass_struct
-{
-    LEX::scanner_ptr scanner;
-};
-typedef min::packed_struct_updptr<input_pass_struct>
-    input_pass_ptr;
-
-static min::uns32 input_pass_stub_disp[] =
-{
-    min::DISP ( & PAR::pass_struct::in ),
-    min::DISP ( & PAR::pass_struct::first ),
-    min::DISP ( & input_pass_struct::scanner ),
-    min::DISP_END
-};
-
-static min::packed_struct<input_pass_struct>
-    input_pass_type
-    ( "ll::parser::standard::input_pass_type",
-      NULL, ::input_pass_stub_disp,
-      min::packed_struct<PAR::pass_struct>::id );
-
-static void erroneous_atom
+static min::uns32 input_add_tokens
+	( PAR::parser_ptr parser, PAR::input_ptr input )
+static void erroneous_announce
 	( min::uns32 first, min::uns32 last,
-	  min::uns32 type, LEX::scanner_ptr scanner );
-static min::uns32 input_pass_get
-	( PAR::pass_ptr out, PAR::pass_ptr in );
-PAR::pass_ptr PARSTD::create_input_pass
-    ( LEX::scanner_ptr scanner,
-      std::ostream & err,
-      std::ostream & trace )
+	  min::uns32 type, LEX::scanner_ptr scanner,
+	  LEX::erroneous_ptr erroneous );
+
+void PAR::init_input ( input_ptr & input )
 {
-    input_pass_ptr pass =
-        input_pass_type.new_stub();
-    pass->scanner = scanner;
-    pass->err = & err;
-    pass->trace = & trace;
-    pass->get = ::input_pass_get;
-    scanner->erroneous_atom = ::erroneous_atom;
-    scanner->erroneous_atom_data = pass;
-    return (pass_ptr) pass;
+    init_input ( ::input_add_tokens, NULL, input );
 }
 
 // Input Parser
 // ----- ------
 
-static void erroneous_atom
+static void erroneous_announce
 	( min::uns32 first, min::uns32 last,
-	  min::uns32 type, LEX::scanner_ptr scanner )
+	  min::uns32 type, LEX::scanner_ptr scanner,
+	  LEX::erroneous_ptr erroneous )
 {
     const char * message;
     switch ( type )
@@ -109,14 +81,16 @@ static void erroneous_atom
     }
 }
 
-static min::uns32 input_pass_get
-	( PAR::pass_ptr out, PAR::pass_ptr in )
+static min::uns32 input_add_tokens
+	( PAR::parser_ptr parser, PAR::input_ptr input )
 {
-    input_pass_ptr pass = (input_pass_ptr) in;
-    if ( pass->eop ) return 0;
+    if ( parser->eof ) return 0;
 
-    LEX::scanner_ptr scanner = pass->scanner;
-    std::ostream * trace = pass->trace;
+    LEX::scanner_ptr scanner = parser->scanner;
+    std::ostream * trace =
+    	input->trace ? parser->trace : NULL;
+    std::ostream * err =
+        trace == NULL ? parser->err : trace;
 
     min::uns32 first, last, count = 0;
     while ( true )
@@ -129,12 +103,10 @@ static min::uns32 input_pass_get
 	{
 	case LEX::SCAN_ERROR:
 	{
-	    std::ostream * err = pass->trace;
-	    if ( err == NULL ) err = pass->err;
 	    if ( err != NULL )
 	        (* err) << scanner->error_message
 		        << std::endl;
-	    pass->eop = true;
+	    parser->eof = true;
 	    return count;
 	}
 	case LEXSTD::comment_t:
@@ -162,8 +134,6 @@ static min::uns32 input_pass_get
 	}
 	if ( message != NULL )
 	{
-	    std::ostream * err = pass->trace;
-	    if ( err == NULL ) err = pass->err;
 	    if ( err != NULL )
 	    {
 		uns32 first_column, last_column;
@@ -260,11 +230,11 @@ static min::uns32 input_pass_get
 	case LEXSTD::line_break_t:
 	    break;
 	case LEXSTD::end_of_file_t:
-	    pass->eop = true;
+	    parser->eof = true;
 	    break;
 	}
 
-	PAR::put_at_end ( out->first, token );
+	PAR::put_at_end ( parser->first, token );
 	++ count;
 
 	uns32 first_column, last_column;

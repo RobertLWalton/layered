@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 21 06:48:29 EST 2011
+// Date:	Sat Jan 22 03:09:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -113,7 +113,7 @@ void init_input
 	      ( parser_ptr parser, input_ptr input ),
 	  void (*init)
 	      ( parser_ptr parser, input_ptr input ),
-	  input_ptr & input = default_read_input );
+	  input_ptr & input = default_input );
 
 struct output_struct
     // Closure called to process tokens the parser has

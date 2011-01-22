@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 20 08:37:52 EST 2011
+// Date:	Sat Jan 22 08:07:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,7 @@ using LEX::uns32;
 void LEX::basic_test_input ( uns32 end_of_file_t )
 {
     init_scanner();
-    default_scanner->err = & std::cout;
+    default_scanner->print->err = & std::cout;
 
     char buffer[10000];
     while ( true )
@@ -118,7 +118,9 @@ void set_line ( LEX::uns32 line )
     for ( ; ::next_line <= line; ++ ::next_line )
         ::line_width =
 	    LEX::print_line
-	        ( cout, scanner, ::next_line, true );
+	        ( cout, scanner->input_file,
+		  ::next_line,
+		  scanner->print->mode, true );
 }
 
 static void set_codes

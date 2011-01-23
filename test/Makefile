@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Jan 19 22:33:44 EST 2011
+# Date:		Sat Jan 22 22:55:02 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -205,26 +205,24 @@ ll_lexeme_standard_test.out:		\
 	${RUNENV} $* < ll_lexeme_standard_test.in \
 	             > $*.out
 
-ll_parser_pass.o:	\
+ll_parser.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
-	../include/ll_parser_pass.h \
-	../src/ll_parser_pass.cc
+	../include/ll_parser.h \
+	../src/ll_parser.cc
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_parser_pass.cc
+	    -c ../src/ll_parser.cc
 
-ll_input_pass.o:	\
+ll_parser_input.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
-	../include/ll_lexeme.h \
-	../include/ll_lexeme_standard.h \
-	../include/ll_parser_pass.h \
-	../include/ll_parser_standard.h \
-	../src/ll_input_pass.cc
+	../include/ll_parser.h \
+	../include/ll_parser_input.h \
+	../src/ll_parser_input.cc
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_input_pass.cc
+	    -c ../src/ll_parser_input.cc
 
 ll_input_pass_test:		\
 		ll_input_pass_test.cc \

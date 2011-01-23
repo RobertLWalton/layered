@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 09:07:47 EST 2011
+// Date:	Sat Jan 22 18:06:54 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Strings
+//	Tokens
 //	Parser Closures
 //	Parser
 
@@ -21,8 +23,6 @@
 # define LL_PARSER_H
 
 # include <ll_lexeme.h>
-# include <ll_parser_token.h>
-# include <ll_parser_table.h>
 
 namespace ll { namespace parser {
 
@@ -31,6 +31,189 @@ namespace ll { namespace parser {
 
 } }
 
+
+// Strings
+// -------
+
+namespace ll { namespace parser {
+
+// Token character strings are optional parts of tokens.
+// A token character string is allocated when its token
+// is allocated and freed when its token is freed.  As
+// the lifetime of a token character string may be
+// short, freed token character strings are put on a
+// special free list.  These token character strings
+// start out being long enought to hold a typical maxi-
+// mum length line (80 characters) and may grow if
+// necessary to hold longer character strings.
+//
+// Some token character strings are kept a long time
+// before they are freed.  These are resized to optimize
+// memory usage.
+
+struct string_struct;
+typedef min::packed_vec_ptr<uns32,string_struct>
+        string_ptr;
+typedef min::packed_vec_insptr<uns32,string_struct>
+        string_insptr;
+struct string_struct
+{
+    uns32 control;
+    	// Packed vector control word.
+    uns32 length;
+        // Length of vector.
+    uns32 max_length;
+        // Maximum length of vector.
+
+    string_insptr next;
+        // Pointer to next block on free list, if string
+	// is on free list.  List is NULL_STUB termina-
+	// ted.
+
+    // The elements of a string are uns32 UNICODE
+    // characters.
+};
+
+// Allocate a new string and return a pointer to it.
+//
+string_ptr new_string ( uns32 n, const uns32 * string );
+
+// Free a string and return NULL_STUB.
+//
+string_ptr free_string ( string_ptr sp );
+
+// Set the maximum number of strings on the free list.
+// Set to 0 to make list empty.  Set to < 0 if there is
+// no limit.  Defaults to 100.
+//
+void set_max_string_free_list_size ( int n );
+
+} }
+
+// Tokens
+// ------
+
+namespace ll { namespace parser {
+
+struct token_struct;
+typedef min::packed_struct_updptr<token_struct>
+    token_ptr;
+enum // Token types (see below).
+{
+    SYMBOL		= 0xFFFFFFFF,
+    NATURAL_NUMBER	= 0xFFFFFFFE,
+    LABEL		= 0xFFFFFFFD,
+    EXPRESSION		= 0xFFFFFFFC
+};
+struct token_struct
+{
+    uns32 control;
+    	// Packed structure control word.
+
+    uns32 type;  // One of:
+	//
+        // For lexemes: the lexeme type.
+	//
+	// For names:
+	//
+    	//	SYMBOL
+	//	NATURAL_NUMBER
+	//	LABEL
+	//
+	// For expressions:
+	//
+    	//	EXPRESSION
+
+    min::gen value;
+        // Value for names and expressions.
+
+    string_ptr string;
+        // Character string for lexemes.
+
+    ll::lexeme::position begin, end;
+        // Position of the first character of the token.
+        // and of the first character AFTER the token,
+	// or the end of input.
+
+    token_ptr next, previous;
+        // Doubly linked list pointers for tokens.
+};
+
+// Allocate a new token of the given type.  Value is set
+// to min:MISSING and string to NULL_STUB.
+//
+token_ptr new_token ( uns32 type );
+
+// Free token.  Token is put on internal free list after
+// its value is set to min:MISSING and its string to
+// NULL_STUB.
+//
+void free_token ( token_ptr token );
+
+// Set the maximum number of tokens on the free list.
+// Set to 0 to make list empty.  Set to < 0 if there is
+// no limit.  Defaults to 1000.
+//
+void set_max_token_free_list_size ( int n );
+
+// Put a token just before a given token t on a list of
+// tokens.
+//
+inline void put_before ( token_ptr t, token_ptr token )
+{
+    token->next = t;
+    token->previous = t->previous;
+    token->previous->next = token;
+    token->next->previous = token;
+}
+
+// Put a token on the end of a token list with given
+// first element.
+//
+inline void put_at_end
+	( token_ptr & first, token_ptr token )
+{
+    if ( first == min::NULL_STUB )
+    {
+        first = token;
+	token->previous = token->next = token;
+    }
+    else put_before ( first, token );
+}
+
+// Remove token from the token list with given first
+// token and return the token removed.
+//
+inline token_ptr remove
+	( token_ptr & first, token_ptr token )
+{
+
+    if ( token == first )
+    {
+        first = token->next;
+	if ( first == token )
+	{
+	    first = min::NULL_STUB;
+	    return token;
+	}
+    }
+    token->previous->next = token->next;
+    token->next->previous = token->previous;
+    return token;
+}
+
+// Remove first token from a list of tokens with given
+// first token.  Return min::NULL_STUB if list empty.
+//
+inline token_ptr remove ( token_ptr & first )
+{
+    if ( first == min::NULL_STUB )
+        return min::NULL_STUB;
+    else
+    	remove ( first, first );
+}
+
+} }
 
 // Parser Closures
 // ------ --------
@@ -198,6 +381,19 @@ struct pass_struct
 // ------
 
 namespace ll { namespace parser {
+
+// Parser Trace Flags:
+//
+enum {
+
+    TRACE_INPUT		= ( 1 << 0 ),
+        // Trace each token input by the parser->input
+	// closure (e.g. from the lexical scanner).
+
+    TRACE_OUTPUT	= ( 1 << 1 )
+        // Trace processing by the parser->output
+	// closure.
+};
 
 struct parser_struct
 {

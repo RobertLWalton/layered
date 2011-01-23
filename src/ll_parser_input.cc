@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 11:24:33 EST 2011
+// Date:	Sat Jan 22 22:53:52 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,8 @@ using namespace PAR;
 // -------- ----- ------ ----
 
 static min::uns32 input_add_tokens
-	( PAR::parser_ptr parser, PAR::input_ptr input )
+	( PAR::parser_ptr parser,
+	  PAR::input_ptr input );
 static void erroneous_announce
 	( min::uns32 first, min::uns32 last,
 	  min::uns32 type, LEX::scanner_ptr scanner,
@@ -39,8 +40,8 @@ static void erroneous_announce
 void PAR::init_standard_input ( parser_ptr parser )
 {
     LEX::standard::create_standard_program();
-    LEX::init_scanner ( parser->scanner,
-                        LEX::default_scanner->program );
+    LEX::init_scanner ( LEX::default_scanner->program,
+    			parser->scanner );
 
     if ( parser->input_file != NULL_STUB )
         parser->scanner->input_file =
@@ -56,7 +57,7 @@ void PAR::init_standard_input ( parser_ptr parser )
 	parser->print =
 	    parser->scanner->print;
 
-    scanner->erroneous_atom = NULL_STUB;
+    parser->scanner->erroneous_atom = NULL_STUB;
     init_erroneous ( ::erroneous_announce,
                      parser->scanner->erroneous_atom );
     parser->input = NULL_STUB;
@@ -111,9 +112,8 @@ static min::uns32 input_add_tokens
 
     LEX::scanner_ptr scanner = parser->scanner;
     std::ostream * trace =
-    	input->trace ? parser->trace : NULL;
-    std::ostream * err =
-        trace == NULL ? parser->err : trace;
+        ( parser->trace & PAR::TRACE_INPUT ) ?
+	parser->print->trace : NULL;
 
     min::uns32 first, last, count = 0;
     while ( true )
@@ -126,9 +126,10 @@ static min::uns32 input_add_tokens
 	{
 	case LEX::SCAN_ERROR:
 	{
-	    if ( err != NULL )
-	        (* err) << scanner->error_message
-		        << std::endl;
+	    if ( parser->print->err != NULL )
+	        (* parser->print->err)
+		    << scanner->error_message
+		    << std::endl;
 	    parser->eof = true;
 	    return count;
 	}
@@ -157,17 +158,17 @@ static min::uns32 input_add_tokens
 	}
 	if ( message != NULL )
 	{
-	    if ( err != NULL )
+	    if ( parser->print->err != NULL )
 	    {
 		uns32 first_column, last_column;
 		if ( LEX::print_lexeme_lines
-			 ( * err,
+			 ( * parser->print->err,
 			   first_column, last_column,
 			   scanner, first, last ) )
 		    LEX::print_message
-			( * err,
+			( * parser->print->err,
 			  first_column, last_column,
-			  scanner, message );
+			  parser->print, message );
 	    }
 	    if ( skip ) continue;
 	}
@@ -274,22 +275,22 @@ static min::uns32 input_add_tokens
 		LEX::print_message
 		    ( * trace,
 		      first_column, last_column,
-		      scanner,
+		      parser->print,
 		      LEXSTD::type_name[type] );
 	    }
 	    else
 	    {
 		char buffer
-		    [ 80 + scanner->indent
+		    [ 80 + parser->print->indent
 		      +
 			LEX::MAX_UNICODE_BYTES
 		      * scanner->translation_buffer
 		               ->length ];
 		char * p = buffer;
 		for ( uns32 i = 0;
-		      i < scanner->indent; ++ i )
+		      i < parser->print->indent; ++ i )
 		    * p ++ = ' ';
-		uns32 column = scanner->indent;
+		uns32 column = parser->print->indent;
 		column += sprintf
 		    ( buffer + column, "%s: ",
 		      LEXSTD::type_name[type] );

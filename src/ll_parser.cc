@@ -1,18 +1,12 @@
 // Layers Language Parser Pass Functions
 //
-// File:	ll__parser_pass.cc
+// File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 12 06:20:48 EST 2011
+// Date:	Sat Jan 22 22:56:31 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-
-// Lines beginning with `    /// ' are the same as in
-// the Standard Lexical Program appendix of ../doc/
-// layered-introduction.tex.  As a consequence, this
-// file uses 80 columns instead of the system default 56
-// columns.
 
 // Table of Contents
 //
@@ -24,7 +18,9 @@
 // Usage and Setup
 // ----- --- -----
 
-# include <ll_parser_pass.h>
+# include <ll_parser.h>
+# include <ll_parser_input.h>
+# define LEX ll::lexeme
 # define PAR ll::parser
 
 // Strings
@@ -178,27 +174,95 @@ void PAR::set_max_token_free_list_size ( int n )
     }
 }
 
-// Passes
+// Parser Closures
+// ------ --------
+
+static min::packed_struct<PAR::input_struct>
+    input_type ( "ll::parser::input_type" );
+
+void PAR::init_input
+	( uns32 (*add_tokens)
+	      ( parser_ptr parser, input_ptr input ),
+	  void (*init)
+	      ( parser_ptr parser, input_ptr input ),
+	  input_ptr & input )
+{
+    if ( input == NULL_STUB )
+        input = ::input_type.new_stub();
+
+    input->add_tokens = add_tokens;
+    input->init = init;
+}
+
+// Parser
 // ------
 
-std::ostream * PAR::default_err = & std::cerr;
-std::ostream * PAR::default_trace = NULL;
-
-static min::uns32 output_pass_stub_disp[] =
+static min::uns32 parser_stub_disp[] =
 {
-    min::DISP ( & PAR::pass_struct::in ),
-    min::DISP ( & PAR::pass_struct::first ),
+    min::DISP ( & PAR::parser_struct::input ),
+    min::DISP ( & PAR::parser_struct::output ),
+    min::DISP ( & PAR::parser_struct::pass_stack ),
+    min::DISP ( & PAR::parser_struct::scanner ),
+    min::DISP ( & PAR::parser_struct::input_file ),
+    min::DISP ( & PAR::parser_struct::print ),
+    min::DISP ( & PAR::parser_struct::first ),
     min::DISP_END
 };
 
-static min::packed_struct<PAR::pass_struct>
-    output_pass_type
-    ( "ll::parser::output_pass_type",
-      NULL, ::output_pass_stub_disp );
+static min::packed_struct<PAR::parser_struct>
+    parser_type ( "ll::parser::parser_type",
+                  NULL, ::parser_stub_disp );
 
-PAR::pass_ptr PAR::create_output_pass ( pass_ptr in )
+static min::static_stub<1> default_stub;
+PAR::parser_ptr & PAR::default_parser =
+    * (PAR::parser_ptr *) & default_stub[0];
+
+void PAR::init_parser ( parser_ptr & parser )
 {
-    pass_ptr pass = ::output_pass_type.new_stub();
-    pass->in = in;
-    return pass;
+    if ( parser == NULL_STUB )
+    {
+        parser = ::parser_type.new_stub();
+	init_standard_input ( parser );
+    }
+    parser->first = NULL_STUB;
+    parser->eof = false;
+    parser->finished_tokens = 0;
+}
+
+bool PAR::init_parser
+	( const char * file_name,
+	  parser_ptr & parser )
+{
+    init_parser ( parser );
+    return LEX::init_file ( file_name,
+                            parser->error_message,
+		            parser->input_file );
+}
+
+void PAR::init_parser
+	( std::istream & istream,
+	  const char * file_name,
+	  uns32 spool_length,
+	  parser_ptr & parser )
+{
+    init_parser ( parser );
+    LEX::init_file ( istream, file_name, spool_length,
+                     parser->input_file );
+}
+
+void PAR::init_parser
+	( const char * file_name,
+	  const char * data,
+	  parser_ptr & parser )
+{
+    init_parser ( parser );
+    LEX::init_file ( file_name, data,
+                     parser->input_file );
+}
+
+void PAR::parse ( parser_ptr parser )
+{
+    while ( ! parser->eof )
+        parser->input->add_tokens
+	    ( parser, parser->input );
 }

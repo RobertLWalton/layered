@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 18:06:54 EST 2011
+// Date:	Sun Jan 23 00:55:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -269,16 +269,6 @@ struct input_struct
         ( parser_ptr parser, input_ptr input );
 };
 
-extern input_ptr & default_input;
-    // Default value for parser->input.  This variable
-    // is not set until the first parser is created
-    // (first call to init_parser).
-    //
-    // This input expects parser->scanner to have a
-    // standard lexeme program (see ll_lexeme_standard)
-    // and returns lexemes produced by that scanner as
-    // per ll_parser_input.h.
-
 // Set input closure functions.  If `input' is NULL_
 // STUB, create closure and set `input' to a pointer
 // to the created closure.  `input' must be loca-
@@ -289,7 +279,7 @@ void init_input
 	      ( parser_ptr parser, input_ptr input ),
 	  void (*init)
 	      ( parser_ptr parser, input_ptr input ),
-	  input_ptr & input = default_input );
+	  input_ptr & input );
 
 struct output_struct
     // Closure called to process tokens the parser has
@@ -404,7 +394,9 @@ struct parser_struct
 
     input_ptr input;
         // Closure to call to get more tokens.  Defaults
-	// to ll::parser::default_input.
+	// to an input that inputs standard lexemes
+	// using the default scanner: see ll_parser_
+	// input.h.
 
     output_ptr output;
         // Closure to call to remove finished tokens
@@ -463,6 +455,9 @@ struct parser_struct
 	// of the input list.  The `parse' function
 	// produces finished tokens and calls `output'
 	// to remove them.
+
+    char error_message[512];
+        // Buffer for error messages for fatal errors.
 };
 
 extern parser_ptr & default_parser;
@@ -485,11 +480,10 @@ extern parser_ptr & default_parser;
 void init_parser
 	( parser_ptr & parser = default_parser );
 
-// Set the parser input_file to equal the contents
-// of the named file.  Return true if no error and
-// false if error.  If there is an error, an error
-// message is put in parser->scanner->error_message.
-// (Re)initialize parser.
+// Set the parser input_file to equal the contents of
+// the named file.  Return true if no error and false
+// if error.  If there is an error, an error message is
+// put in parser->error_message.  (Re)initialize parser.
 //
 // See init_file in ll_lexeme.h for more details.
 //

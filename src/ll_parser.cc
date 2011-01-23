@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 22:56:31 EST 2011
+// Date:	Sun Jan 23 01:06:28 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -224,6 +224,9 @@ void PAR::init_parser ( parser_ptr & parser )
         parser = ::parser_type.new_stub();
 	init_standard_input ( parser );
     }
+    else if ( parser->scanner != NULL_STUB )
+        LEX::init_scanner ( parser->scanner );
+
     parser->first = NULL_STUB;
     parser->eof = false;
     parser->finished_tokens = 0;

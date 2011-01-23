@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Jan 23 00:50:24 EST 2011
+# Date:		Sun Jan 23 01:09:24 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -25,7 +25,8 @@ OPTIMIZE = -O3
 
 PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_standard_basic_test \
-           ll_lexeme_standard_test
+           ll_lexeme_standard_test \
+	   ll_parser_input_test
 
 TESTS = ${PROGRAMS}
 
@@ -225,13 +226,13 @@ ll_parser_input.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_input.cc
 
-ll_input_pass_test:		\
-		ll_input_pass_test.cc \
+ll_parser_input_test:		\
+		ll_parser_input_test.cc \
 		ll_lexeme.o \
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
-		ll_parser_pass.o \
-		ll_input_pass.o \
+		ll_parser.o \
+		ll_parser_input.o \
 		min.o \
 		min_os.o \
 		min_acc.o \
@@ -242,15 +243,15 @@ ll_input_pass_test:		\
 	    ll_lexeme.o \
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
-	    ll_parser_pass.o \
-	    ll_input_pass.o \
+	    ll_parser.o \
+	    ll_parser_input.o \
 	    min.o \
 	    min_os.o \
 	    min_acc.o \
-	    ll_input_pass_test.cc
+	    ll_parser_input_test.cc
 
-ll_input_pass_test.out:		\
-	    ll_input_pass_test \
+ll_parser_input_test.out:		\
+	    ll_parser_input_test \
 	    ll_lexeme_standard_test.in
 	rm -f $*.out
 	${RUNENV} $* < ll_lexeme_standard_test.in \

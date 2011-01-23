@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 15 12:13:04 EST 2011
+// Date:	Sun Jan 23 12:16:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Root and Suffix
+//	Brackets
 
 // Usage and Setup
 // ----- --- -----
@@ -38,4 +39,10 @@ TAB::root_ptr TAB::find
     }
     return NULL_STUB;
 }
+
+// Brackets
+// --------
 
+static min::packed_struct_with_base
+	<TAB::bracket_struct, TAB::root_struct>
+    bracket_type ( "ll::parser::table::bracket_type" );

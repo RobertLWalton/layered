@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 15 08:26:13 EST 2011
+// Date:	Mon Jan 24 09:33:05 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Root and Suffix
 //	Brackets
+//	Indentation Marks
 
 // Usage and Setup
 // ----- --- -----
@@ -63,12 +64,14 @@ struct root_struct
 // The suffix entry permits lookup without computing
 // new label objects.  It has no other function.
 //
-extern min::uns32 KEY_SUFFIX;
+extern const min::uns32 & KEY_SUFFIX;
 struct key_suffix_struct;
 typedef min::packed_struct_updptr<key_suffix_struct>
         key_suffix_ptr;
 struct key_suffix_struct : public root_struct
 {
+    // Packed structure subtype is KEY_SUFFIX.
+
     root_ptr key_prefix;
         // Entry for key minus last element.  If that
 	// key has a key_prefix entry, this points at
@@ -78,26 +81,21 @@ struct key_suffix_struct : public root_struct
 };
 
 // A Hash table is just a vector of root_ptr values.
+// This is just a vector whose `length' MUST BE a
+// power of two.
 //
-typedef min::packed_vec_updptr<root_ptr>
-        table_ptr;
-
-// Default hash table.
-//
-extern table_ptr default_table;
+typedef min::packed_vec_updptr<root_ptr> table_ptr;
 
 // Return the topmost table element with the given key,
 // or return NULL_STUB if none.
 //
-root_ptr find ( min::gen key,
-                table_ptr table = default_table );
+root_ptr find ( min::gen key, table_ptr table );
 
 // Push the given entry into the table.  Return the
 // entry if the key is not a label, or the key_suffix
 // created for the key if the key is a label.
 //
-root_ptr push ( root_ptr entry,
-	        table_ptr table = default_table );
+root_ptr push ( root_ptr entry, table_ptr table );
 
 // Brackets
 // --------
@@ -107,14 +105,43 @@ root_ptr push ( root_ptr entry,
 struct bracket_struct;
 typedef min::packed_struct_updptr<bracket_struct>
         bracket_ptr;
-extern min::uns32 BRACKET;
+extern const min::uns32 & OPENING_BRACKET;
+extern const min::uns32 & CLOSING_BRACKET;
 struct bracket_struct : public root_struct
 {
-    // Packed structure type is BRACKET.
+    // Packed structure subtype is
+    // {OPENING,CLOSING}BRACKET.
 
     bracket_ptr opposing_bracket;
         // The opposing bracket of the opening bracket
 	// is the closing bracket, and vice versa.
+
+};
+
+// Indentation Marks
+// ----------- -----
+
+// Indentation mark definition.
+//
+struct indentation_mark_struct;
+typedef min::packed_vec_updptr
+	    <min::uns8,indentation_mark_struct>
+        indentation_mark_ptr;
+extern const min::uns32 & INDENTATION_MARK;
+struct indentation_mark_struct : public root_struct
+{
+    // Packed vector subtype is INDENTATION_MARK.
+
+    // The vector is the indentation mark in UTF-8.
+    // Lexemes at the end of a line can be checked
+    // to see if they end with this.  The last
+    // byte is used as a hash in the indentation
+    // mark table, so, for example, most line ending
+    // lexemes (e.g. those ending in letters) will
+    // not need to be checked (while those ending in
+    // `:' probably will be checked).
+
+    uns32 length, max_length;
 
 };
 

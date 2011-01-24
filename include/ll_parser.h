@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 23 00:55:56 EST 2011
+// Date:	Mon Jan 24 10:13:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,7 @@
 # define LL_PARSER_H
 
 # include <ll_lexeme.h>
+# include <ll_parser_table.h>
 
 namespace ll { namespace parser {
 
@@ -433,6 +434,17 @@ struct parser_struct
         // Print parameters used in conjunction with
 	// input_file to print messages.  If a scanner
 	// is used, this is the same as scanner->print.
+
+    ll::parser::table::table_ptr hash_table;
+        // Hash table for brackets and indentation
+	// marks.
+
+    ll::parser::table::table_ptr indentation_mark_table;
+        // Table for indentation marks that can be
+	// split.  Has 256 elements, and the entry for
+	// an indentation mark whose list uns8 byte is b
+	// is recorded in the indentation_mark_table[b]
+	// list.
 
     // Parser state:
 

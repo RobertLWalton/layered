@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 23 01:06:28 EST 2011
+// Date:	Mon Jan 24 09:51:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -205,6 +205,9 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::scanner ),
     min::DISP ( & PAR::parser_struct::input_file ),
     min::DISP ( & PAR::parser_struct::print ),
+    min::DISP ( & PAR::parser_struct::hash_table ),
+    min::DISP ( & PAR::parser_struct
+                     ::indentation_mark_table ),
     min::DISP ( & PAR::parser_struct::first ),
     min::DISP_END
 };

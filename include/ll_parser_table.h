@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 24 09:33:05 EST 2011
+// Date:	Tue Jan 25 05:24:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Root and Suffix
+//	Root and Key Suffix
 //	Brackets
 //	Indentation Marks
 
@@ -25,12 +25,16 @@
 
 namespace ll { namespace parser { namespace table {
 
+    using min::uns8;
     using min::uns32;
+    using min::uns64;
     using min::NULL_STUB;
+
+    typedef min::uns64 selectors;
 } } }
 
-// Root and Suffix
-// ---- --- ------
+// Root and Key Suffix
+// ---- --- --- ------
 
 namespace ll { namespace parser { namespace table {
 
@@ -39,18 +43,19 @@ namespace ll { namespace parser { namespace table {
 struct root_struct;
 typedef min::packed_struct_updptr<root_struct>
         root_ptr;
+extern const uns32 & ROOT;
 struct root_struct
 {
-    min::uns32 control;
+    uns32 control;
     	// Packed structure control word.
     min::gen key;
         // Key of this entry.
-    min::uns32 hash;
+    uns32 hash;
         // Hash of key.
     root_ptr next;
         // Next entry in the stack with the same key.
 	// NULL_STUB if no next entry.
-    min::uns64 selectors;
+    uns64 selectors;
         // Selector bits.
 };
 
@@ -64,10 +69,10 @@ struct root_struct
 // The suffix entry permits lookup without computing
 // new label objects.  It has no other function.
 //
-extern const min::uns32 & KEY_SUFFIX;
 struct key_suffix_struct;
 typedef min::packed_struct_updptr<key_suffix_struct>
         key_suffix_ptr;
+extern const uns32 & KEY_SUFFIX;
 struct key_suffix_struct : public root_struct
 {
     // Packed structure subtype is KEY_SUFFIX.
@@ -86,37 +91,72 @@ struct key_suffix_struct : public root_struct
 //
 typedef min::packed_vec_updptr<root_ptr> table_ptr;
 
+// Push the given entry into the table.
+//
+void push ( root_ptr entry, table_ptr table );
+
 // Return the topmost table element with the given key,
 // or return NULL_STUB if none.
 //
 root_ptr find ( min::gen key, table_ptr table );
 
-// Push the given entry into the table.  Return the
-// entry if the key is not a label, or the key_suffix
-// created for the key if the key is a label.
-//
-root_ptr push ( root_ptr entry, table_ptr table );
+struct new_selectors
+     // Upon encountering opening bracket or indentation
+     // mark, new-selectors =
+     //	    ( ( old_selectors | or_selectors )
+     //		    & ~ not_selectors )
+     //		    ^ xor_selectors
+     //
+     // where
+     //		( or_selectors & not_selectors ) = 0
+     //		( or_selectors & xor_selectors ) = 0
+     //		( not_selectors & xor_selectors ) = 0
+{
+    selectors	or_selectors;
+    selectors	not_selectors;
+    selectors	xor_selectors;
+};
 
 // Brackets
 // --------
 
 // Bracket definition.
 //
-struct bracket_struct;
-typedef min::packed_struct_updptr<bracket_struct>
-        bracket_ptr;
-extern const min::uns32 & OPENING_BRACKET;
-extern const min::uns32 & CLOSING_BRACKET;
-struct bracket_struct : public root_struct
+struct opening_bracket_struct;
+typedef min::packed_struct_updptr
+	    <opening_bracket_struct>
+        opening_bracket_ptr;
+extern const uns32 & OPENING_BRACKET;
+struct closing_bracket_struct;
+typedef min::packed_struct_updptr
+	    <closing_bracket_struct>
+        closing_bracket_ptr;
+extern const uns32 & CLOSING_BRACKET;
+struct opening_bracket_struct : public root_struct
 {
-    // Packed structure subtype is
-    // {OPENING,CLOSING}BRACKET.
+    // Packed structure subtype is OPENING_BRACKET.
 
-    bracket_ptr opposing_bracket;
-        // The opposing bracket of the opening bracket
-	// is the closing bracket, and vice versa.
+    closing_bracket_ptr closing_bracket;
+        // The opposing bracket of the opening bracket.
+
+    new_selectors new_select;
+    	// New selectors associated with this opening
+	// bracket.
 
 };
+struct closing_bracket_struct : public root_struct
+{
+    // Packed structure subtype is CLOSING_BRACKET.
+
+    closing_bracket_ptr opening_bracket;
+        // The opposing bracket of the closing bracket.
+};
+
+void push_brackets
+	( min::gen opening_label,
+	  min::gen closing_label,
+	  selectors select,
+	  const new_selectors & new_select );
 
 // Indentation Marks
 // ----------- -----
@@ -125,12 +165,16 @@ struct bracket_struct : public root_struct
 //
 struct indentation_mark_struct;
 typedef min::packed_vec_updptr
-	    <min::uns8,indentation_mark_struct>
+	    <uns8,indentation_mark_struct>
         indentation_mark_ptr;
-extern const min::uns32 & INDENTATION_MARK;
+extern const uns32 & INDENTATION_MARK;
 struct indentation_mark_struct : public root_struct
 {
     // Packed vector subtype is INDENTATION_MARK.
+
+    new_selectors new_select;
+
+    bool is_gluing;
 
     // The vector is the indentation mark in UTF-8.
     // Lexemes at the end of a line can be checked
@@ -144,6 +188,12 @@ struct indentation_mark_struct : public root_struct
     uns32 length, max_length;
 
 };
+
+void push_indentation_mark
+	( min::gen label,
+	  selectors select,
+	  const new_selectors & new_select,
+	  bool is_gluing );
 
 } } }
 

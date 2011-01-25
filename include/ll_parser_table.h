@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 25 05:24:37 EST 2011
+// Date:	Tue Jan 25 07:35:03 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Root and Key Suffix
+//	Root
+//	Key Element
 //	Brackets
 //	Indentation Marks
 
@@ -33,8 +34,8 @@ namespace ll { namespace parser { namespace table {
     typedef min::uns64 selectors;
 } } }
 
-// Root and Key Suffix
-// ---- --- --- ------
+// Root 
+// ----
 
 namespace ll { namespace parser { namespace table {
 
@@ -48,55 +49,77 @@ struct root_struct
 {
     uns32 control;
     	// Packed structure control word.
-    min::gen key;
-        // Key of this entry.
-    uns32 hash;
-        // Hash of key.
     root_ptr next;
         // Next entry in the stack with the same key.
 	// NULL_STUB if no next entry.
     uns64 selectors;
         // Selector bits.
 };
+
+// Key Element
+// --- -------
 
-// A multi-element key has two table entries.  Lower in
-// the stack is a normal entry.  Higher (toward the top)
-// is a suffix entry that contains the breakdown of the
-// key, which is a label, into an initial segment and a
-// final element.  This higher level entry points via
-// its `next' element at the normal lower level entry.
+// A hash table maps keys, which are symbols, integers
+// in the range 0 .. (2^28)-1, or multi-element labels,
+// to stacks of hash entries.  If a key is a symbol or
+// integer, it is a 1-element key, with the element
+// being the symbol or integer.  If the key is a label,
+// it must have more than one element, and each element
+// must be a symbol or integer in the range 0 ..
+// (2^28)-1.
 //
-// The suffix entry permits lookup without computing
-// new label objects.  It has no other function.
+// A hash table lookup takes a sequence of key elements
+// (encoded in tokens usually) and finds the hash table
+// entry corresponding to the longest initial segment
+// of the key element sequence for which there is a hash
+// table entry.  This entry may later be rejected, in
+// which case the entry for the next longest sequence
+// for which there is an entry is found.
 //
-struct key_suffix_struct;
-typedef min::packed_struct_updptr<key_suffix_struct>
-        key_suffix_ptr;
-extern const uns32 & KEY_SUFFIX;
-struct key_suffix_struct : public root_struct
+// A hash table contains key_prefix entries, one for
+// each non-empty initial segment of each label in the
+// hash table.  Given the sequence of key elements to
+// look up, these are looked up consecutively beginning
+// with the first key element and continuing till
+// lookup fails.  A key element hash is the hash code
+// of the label prefix that ends with the key element.
+// If this prefix is a symbol or integer, it is the
+// hash of the symbol or integer.  Otherwise it is
+// the hash of the multi-element label made from the
+// key elements of the prefix.
+//
+struct key_prefix_struct;
+typedef min::packed_struct_updptr<key_prefix_struct>
+        key_prefix_ptr;
+extern const uns32 & KEY_PREFIX;
+struct key_prefix_struct
 {
-    // Packed structure subtype is KEY_SUFFIX.
-
-    root_ptr key_prefix;
-        // Entry for key minus last element.  If that
-	// key has a key_prefix entry, this points at
-	// the key_prefix.
-    min::gen last_key_element;
-        // Last element of key.
+    uns32 control;
+	// Packed structure subtype is KEY_PREFIX.
+    min::gen key_element;
+        // Key element of this entry.
+    key_prefix_ptr previous;
+        // Entry for label prefix ending just before
+	// this key element, or NULL_STUB if none,
+	// i.e., if this is the first key of the label.
+    root_ptr first;
+        // First hash table entry whose label ends with
+	// this key element, or NULL_STUB if none.
 };
 
-// A Hash table is just a vector of root_ptr values.
-// This is just a vector whose `length' MUST BE a
+// A Hash table is just a vector of key_prefix_ptr
+// values.  The `length' of this vector MUST BE a
 // power of two.
 //
-typedef min::packed_vec_updptr<root_ptr> table_ptr;
+typedef min::packed_vec_updptr<key_element_ptr>
+    table_ptr;
 
-// Push the given entry into the table.
+// Push the given hash table entry into a hash table.
 //
 void push ( root_ptr entry, table_ptr table );
 
-// Return the topmost table element with the given key,
-// or return NULL_STUB if none.
+// Return the topmost table hash table element with
+// the given key, or return NULL_STUB if none.
 //
 root_ptr find ( min::gen key, table_ptr table );
 

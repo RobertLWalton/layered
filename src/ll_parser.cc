@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 24 09:51:35 EST 2011
+// Date:	Wed Jan 26 06:53:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,8 @@
 //	Usage and Setup
 //	Strings
 //	Tokens
-//	Passes
+//	Parser Closures
+//	Parser
 
 // Usage and Setup
 // ----- --- -----
@@ -22,6 +23,7 @@
 # include <ll_parser_input.h>
 # define LEX ll::lexeme
 # define PAR ll::parser
+# define TAB ll::parser::table
 
 // Strings
 // -------
@@ -271,4 +273,81 @@ void PAR::parse ( parser_ptr parser )
     while ( ! parser->eof )
         parser->input->add_tokens
 	    ( parser, parser->input );
+}
+
+TAB::key_prefix_ptr PAR::find
+	( parser_ptr parser,
+	  token_ptr first, token_ptr end,
+	  TAB::table_ptr table )
+{
+    uns32 hash;
+    uns32 table_len = table->length;
+    uns32 mask = table_len - 1;
+    MIN_ASSERT ( ( table_len & mask ) == 0 );
+    TAB::key_prefix_ptr previous = NULL_STUB;
+    while ( true )
+    {
+        if ( first->type != SYMBOL )
+	    return previous;
+
+	min::gen e = first->value;
+	uns32 ehash;
+	if ( min::is_str ( e ) )
+	    ehash = min::strhash ( e );
+	else if ( min::is_num ( e ) )
+	{
+	    int v = min::int_of ( e );
+	    MIN_ASSERT ( 0 <= v && v < (1<<28) );
+	    ehash = min::numhash ( e );
+	}
+	else
+	    MIN_ABORT ( "bad key element type" );
+
+	// Compute hash of this element's key prefix.
+	//
+	if ( previous == NULL_STUB )
+	    hash = ehash;
+	else
+	    hash = min::labhash ( hash, ehash );
+
+	// Locate key prefix.
+	//
+	TAB::key_prefix_ptr kprefix =
+	    table[hash & mask];
+	while ( kprefix != NULL_STUB )
+	{
+	    if ( kprefix->key_element == e
+	         &&
+		 kprefix->previous == previous )
+	        break;
+	    kprefix = kprefix->next;
+	}
+	if ( kprefix == NULL_STUB )
+	    return previous;
+
+	if ( previous == NULL_STUB )
+	    hash = min::labhash ( 1009, hash );
+
+	previous = kprefix;
+
+        if ( first->next == parser->first )
+	{
+	    if ( end == NULL_STUB )
+	    {
+	        if ( parser->eof )
+		    break;
+		parser->input->add_tokens
+		    ( parser, parser->input);
+		first = first->next;
+		if ( first == parser->first )
+		    break;
+	    }
+	}
+	else
+	{
+	    first = first->next;
+	    if ( first == end ) break;
+	}
+    }
+    return previous;
 }

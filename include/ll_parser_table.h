@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 25 07:35:03 EST 2011
+// Date:	Wed Jan 26 02:46:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -105,23 +105,30 @@ struct key_prefix_struct
     root_ptr first;
         // First hash table entry whose label ends with
 	// this key element, or NULL_STUB if none.
+    key_prefix_ptr next;
+        // Next key prefix in hash list.
 };
 
 // A Hash table is just a vector of key_prefix_ptr
 // values.  The `length' of this vector MUST BE a
 // power of two.
 //
-typedef min::packed_vec_updptr<key_element_ptr>
+typedef min::packed_vec_updptr<key_prefix_ptr>
     table_ptr;
 
-// Push the given hash table entry into a hash table.
+// Return the hash table key_prefix with the given key.
+// If none and `create' is true, create key_prefix.
+// If none and `create' is false, return NULL_STUB.
 //
-void push ( root_ptr entry, table_ptr table );
+key_prefix_ptr find
+	( min::gen key, table_ptr table,
+	  bool create = false );
 
-// Return the topmost table hash table element with
-// the given key, or return NULL_STUB if none.
+// Push the given hash table entry into a hash table
+// stack for the given key.
 //
-root_ptr find ( min::gen key, table_ptr table );
+void push ( min::gen key, root_ptr entry,
+            table_ptr table );
 
 struct new_selectors
      // Upon encountering opening bracket or indentation

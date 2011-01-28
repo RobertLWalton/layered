@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 26 05:25:11 EST 2011
+// Date:	Fri Jan 28 05:39:03 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,6 +15,7 @@
 //	Tokens
 //	Parser Closures
 //	Parser
+//	Parser Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -529,6 +530,9 @@ void init_parser
 // modified these tokens and parser->finished_tokens.
 //
 void parse ( parser_ptr parser = default_parser );
+
+// Parser Functions
+// ------ ---------
 
 // Locate the key prefix in the hash table that
 // corresponds to the longest available string of tokens

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 26 06:53:50 EST 2011
+// Date:	Fri Jan 28 05:38:54 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,6 +15,7 @@
 //	Tokens
 //	Parser Closures
 //	Parser
+//	Parser Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -268,12 +269,71 @@ void PAR::init_parser
                      parser->input_file );
 }
 
+// Parse an explicit subexpression that begins with the
+// `first' token (which is just after the opening
+// bracket or indentation mark).
+//
+// If closing_bracket is NULL_STUB, the expression was
+// begun by an indentation mark.  The first token set
+// the indentation associated with the indentation mark.
+// Otherwise, if closing_bracket != NULL_STUB, the
+// expression was begun by the opening bracket corres-
+// ponding to the closing bracket.
+//
+// This function identifies all the tokens in the sub-
+// expression and returns pointers to the first of these
+// in `first' and to the first token after those in the
+// subexpression in `end' (note that here is always an
+// end-of-file token so there will always be such a 
+// token).  SUBSUBexpresions are converted to an
+// EXPRESSION token whose value is a list.  If there are
+// no tokens in the subexpression `first' is set equal
+// to `end'.
+//
+// Finding a token with indentation <= indent terminates
+// the subexpression.  If a closing_bracket != NULL_
+// STUB, this also produces an error message.
+//
+// Finding a closing bracket other than closing_bracket
+// produces an error message and terminates the expres-
+// sion.
+//
+// This function calls itself recursively if it finds
+// an opening bracket or an indentation mark.  The
+// selectors determine which bracket and indentation
+// mark definitions are active.
+//
+// Line_break tokens are deleted.  parser->input is
+// called as necessary to get more tokens.  Gluing in-
+// dentation marks are split from line-ending tokens.
+// Bracket recognition preceeds token splitting and
+// line_break deletion: so the last lexeme of a bracket
+// cannot be the first part of a split token, and
+// multi-lexeme brackets cannot straddle line_breaks.
+//
+// This function is called at the top level with
+// indent = a very negative integer and closing_
+// bracket = NULL_STUB.
+//
+static void parse_explicit_subexpression
+	( PAR::parser_ptr,
+	  PAR::token_ptr & first,
+	  TAB::closing_bracket_ptr closing_bracket,
+	  int32 indent,
+	  PAR::selector sel )
+{
+}
+
+
 void PAR::parse ( parser_ptr parser )
 {
     while ( ! parser->eof )
         parser->input->add_tokens
 	    ( parser, parser->input );
 }
+
+// Parser Functions
+// ------ ---------
 
 TAB::key_prefix_ptr PAR::find
 	( parser_ptr parser,

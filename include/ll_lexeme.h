@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 03:10:46 EST 2011
+// Date:	Sat Jan 29 11:01:47 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -976,6 +976,26 @@ namespace ll { namespace lexeme {
     //
     uns32 line ( file_ptr file, uns32 line_number );
 
+    // Print `<preface>Line Numbers m-n:' or something
+    // similar on one or more lines to identify lines
+    // m through n of the given input file.  If line
+    // numbers can correspond lines in different disk
+    // files, the disk file names are printed.  If more
+    // than one line is required to print all this,
+    // `print' is used to determine indentation of all
+    // but the first line and maximum line length.
+    // Preface must consist of ASCII graphics and single
+    // spaces.
+    //
+    // Return the number of lines printed.
+    //
+    uns32 print_line_numbers
+        ( std::ostream & out,
+	  print_ptr print,
+	  file_ptr file,
+	  uns32 m, uns32 n,
+	  const char * preface = "ERROR: " );
+
     // Print a line from file to an output stream using
     // the given print_mode.  If append_line_feed is
     // true, append a line feed if the print_mode is
@@ -1026,7 +1046,8 @@ namespace ll { namespace lexeme {
     uns32 print_item_lines
         ( std::ostream & out,
 	  uns32 & first_column, uns32 & last_column,
-	  scanner_ptr scanner,
+	  file_ptr file,
+	  uns32 print_mode,
 	  const position & begin,
 	  const position & end,
 	  bool append_line_feed = false,

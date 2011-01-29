@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 22:53:52 EST 2011
+// Date:	Sat Jan 29 06:06:20 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -266,7 +266,9 @@ static min::uns32 input_add_tokens
 	     &&
 	     LEX::print_item_lines
 		( * trace, first_column, last_column,
-		  scanner, token->begin, token->end ) )
+		  parser->input_file,
+		  parser->print->mode,
+		  token->begin, token->end ) )
         {
 	    if ( token->value == min::MISSING
 		 &&

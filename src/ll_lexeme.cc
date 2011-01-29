@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 03:34:25 EST 2011
+// Date:	Sat Jan 29 06:05:42 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2191,6 +2191,23 @@ uns32 LEX::line ( file_ptr file, uns32 line_number )
 		        - line_number)];
 }
 
+LEX::uns32 LEX::print_line_numbers
+        ( std::ostream & out,
+	  print_ptr print,
+	  file_ptr file,
+	  uns32 m, uns32 n,
+	  const char * preface )
+{
+    // Current code assumes everything fits on one line.
+    //
+    out << preface;
+    if ( m == n )
+        out << "Line " << m << endl;
+    else
+        out << "Lines " << m << "-" << n << endl;
+    return 1;
+}
+
 uns32 LEX::print_line
 	( std::ostream & out,
 	  file_ptr file,
@@ -2228,7 +2245,8 @@ uns32 LEX::print_line
 uns32 LEX::print_item_lines
     ( std::ostream & out,
       uns32 & first_column, uns32 & last_column,
-      scanner_ptr scanner,
+      file_ptr file,
+      uns32 print_mode,
       const position & begin,
       const position & end,
       bool append_line_feed,
@@ -2238,8 +2256,7 @@ uns32 LEX::print_item_lines
 
     uns32 line = begin.line;
     uns32 width = print_line
-	( out, scanner->input_file, line,
-	       scanner->print->mode,
+	( out, file, line, print_mode,
 	       append_line_feed );
     if ( width == NO_LINE ) return 0;
 
@@ -2276,8 +2293,7 @@ uns32 LEX::print_item_lines
 
 	first_column = 0;
 	width = print_line
-	    ( out, scanner->input_file, line,
-	           scanner->print->mode,
+	    ( out, file, line, print_mode,
 		   append_line_feed );
 	assert ( width != NO_LINE );
     }
@@ -2305,8 +2321,9 @@ uns32 LEX::print_lexeme_lines
         end = scanner->next_position;
     return print_item_lines
         ( out, first_column, last_column,
-	  scanner, begin, end,
-	  append_line_feed, mark );
+	  scanner->input_file,
+	  scanner->print->mode,
+	  begin, end, append_line_feed, mark );
 }
 
 void LEX::print_message

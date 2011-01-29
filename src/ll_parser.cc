@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 28 05:38:54 EST 2011
+// Date:	Sat Jan 29 11:01:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,9 +20,11 @@
 // Usage and Setup
 // ----- --- -----
 
+# include <ll_lexeme_standard.h>
 # include <ll_parser.h>
 # include <ll_parser_input.h>
 # define LEX ll::lexeme
+# define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
 
@@ -271,14 +273,17 @@ void PAR::init_parser
 
 // Parse an explicit subexpression that begins with the
 // `first' token (which is just after the opening
-// bracket or indentation mark).
+// bracket or indentation mark).  If more tokens are
+// needed, call parser->input.
 //
 // If closing_bracket is NULL_STUB, the expression was
-// begun by an indentation mark.  The first token set
-// the indentation associated with the indentation mark.
-// Otherwise, if closing_bracket != NULL_STUB, the
-// expression was begun by the opening bracket corres-
-// ponding to the closing bracket.
+// begun by an indentation mark.  The first token is the
+// token after the indentation mark.  The next non-line-
+// -break token sets the indentation associated with the
+// indentation mark.  Otherwise, if closing_bracket !=
+// NULL_STUB, the expression was begun by the opening
+// bracket corresponding to the closing bracket, and the
+// first token is the token after the opening bracket.
 //
 // This function identifies all the tokens in the sub-
 // expression and returns pointers to the first of these
@@ -301,27 +306,78 @@ void PAR::init_parser
 // This function calls itself recursively if it finds
 // an opening bracket or an indentation mark.  The
 // selectors determine which bracket and indentation
-// mark definitions are active.
+// mark definitions are active.  When this function
+// calls itself recursively, upon return is wraps all
+// the tokens of the sub-subexpression found into a
+// single EXPRESSION token.
 //
-// Line_break tokens are deleted.  parser->input is
-// called as necessary to get more tokens.  Gluing in-
-// dentation marks are split from line-ending tokens.
-// Bracket recognition preceeds token splitting and
-// line_break deletion: so the last lexeme of a bracket
-// cannot be the first part of a split token, and
-// multi-lexeme brackets cannot straddle line_breaks.
+// Line_break tokens are deleted.  Gluing indentation
+// marks are split from line-ending tokens.  Bracket
+// recognition preceeds token splitting and line_break
+// deletion: so the last lexeme of a bracket cannot be
+// the first part of a split token, and multi-lexeme
+// brackets cannot straddle line_breaks.
 //
 // This function is called at the top level with
 // indent = a very negative integer and closing_
 // bracket = NULL_STUB.
 //
 static void parse_explicit_subexpression
-	( PAR::parser_ptr,
+	( PAR::parser_ptr parser,
 	  PAR::token_ptr & first,
+	  PAR::token_ptr & end,
 	  TAB::closing_bracket_ptr closing_bracket,
-	  int32 indent,
-	  PAR::selector sel )
+	  min::int32 indent,
+	  TAB::selectors sel )
 {
+    PAR::token_ptr next = first;
+    bool is_first = true;
+    while ( true )
+    {
+	// If we have run off end of parser token list,
+	// get more tokens.
+	//
+        if ( next == parser->first )
+	{
+	    assert ( ! parser->eof );
+	    next = next->previous;
+	    parser->input->add_tokens
+		( parser, parser->input );
+	    next = next->next;
+	    assert ( next != parser->first );
+	    if ( is_first ) first = next;
+	}
+
+	// Delete line breaks.
+	//
+	if ( next->type = LEXSTD::line_break_t )
+	{
+	    if ( is_first ) first = next->next;
+	    remove ( parser->first, next );
+	    continue;
+	}
+
+	// Truncate subexpression if token is at or
+	// before indent.
+	//
+	if (    (min::int32) first->begin.column
+	     <= indent + parser->indent_offset )
+	{
+	    if (   indent - parser->indent_offset
+	         < (min::int32) first->begin.column
+	         &&
+		   (min::int32) first->begin.column
+		 < indent + parser->indent_offset )
+	    {
+	    }
+	}
+
+
+
+
+	    
+	    
+    }
 }
 
 

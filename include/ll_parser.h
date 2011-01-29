@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 28 05:39:03 EST 2011
+// Date:	Sat Jan 29 11:02:11 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@
 namespace ll { namespace parser {
 
     using min::uns32;
+    using min::int32;
     using min::NULL_STUB;
 
 } }
@@ -446,6 +447,11 @@ struct parser_struct
 	// an indentation mark whose list uns8 byte is b
 	// is recorded in the indentation_mark_table[b]
 	// list.
+
+    int32 indent_offset;
+        // Amount the indentation of a line has to be
+	// offset from the indentation of an indented
+	// paragraph in order to avoid error messages.
 
     // Parser state:
 

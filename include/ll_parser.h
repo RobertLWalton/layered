@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 29 11:02:11 EST 2011
+// Date:	Sun Jan 30 07:35:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -452,6 +452,7 @@ struct parser_struct
         // Amount the indentation of a line has to be
 	// offset from the indentation of an indented
 	// paragraph in order to avoid error messages.
+	// Defaults to 2.
 
     // Parser state:
 

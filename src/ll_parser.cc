@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 29 11:01:19 EST 2011
+// Date:	Sun Jan 30 06:43:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -231,6 +231,7 @@ void PAR::init_parser ( parser_ptr & parser )
     {
         parser = ::parser_type.new_stub();
 	init_standard_input ( parser );
+	parser->indent_offset = 2;
     }
     else if ( parser->scanner != NULL_STUB )
         LEX::init_scanner ( parser->scanner );
@@ -357,27 +358,43 @@ static void parse_explicit_subexpression
 	    continue;
 	}
 
+	// Complain if token indent is too near
+	// paragraph indent.
+	//
+	int near = (min::int32) first->begin.column
+	         - indent;
+	if ( near < 0 ) near = - near;
+	if (    near != 0
+	     && near < parser->indent_offset )
+	{
+	    char message[256];
+	    sprintf ( message,
+		      "ERROR: lexeme indent %d too near"
+		      " paragraph indent %d; ",
+		      first->begin.column, indent );
+	    LEX::print_item_message_and_lines
+		( * parser->print->err,
+		  message,
+		  parser->print,
+		  parser->input_file,
+		  first->begin,
+		  first->end );
+	}
+
 	// Truncate subexpression if token is at or
 	// before indent.
 	//
 	if (    (min::int32) first->begin.column
 	     <= indent + parser->indent_offset )
 	{
-	    if (   indent - parser->indent_offset
-	         < (min::int32) first->begin.column
-	         &&
-		   (min::int32) first->begin.column
-		 < indent + parser->indent_offset )
+	    if ( closing_bracket != min::NULL_STUB )
 	    {
 	    }
+
 	}
-
-
-
-
-	    
-	    
     }
+    if ( is_first ) first = next;
+    end = next;
 }
 
 

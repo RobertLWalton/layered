@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 29 11:01:47 EST 2011
+// Date:	Sun Jan 30 00:09:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -976,37 +976,23 @@ namespace ll { namespace lexeme {
     //
     uns32 line ( file_ptr file, uns32 line_number );
 
-    // Print `<preface>Line Numbers m-n:' or something
-    // similar on one or more lines to identify lines
-    // m through n of the given input file.  If line
-    // numbers can correspond lines in different disk
-    // files, the disk file names are printed.  If more
-    // than one line is required to print all this,
-    // `print' is used to determine indentation of all
-    // but the first line and maximum line length.
-    // Preface must consist of ASCII graphics and single
-    // spaces.
-    //
-    // Return the number of lines printed.
-    //
-    uns32 print_line_numbers
-        ( std::ostream & out,
-	  print_ptr print,
-	  file_ptr file,
-	  uns32 m, uns32 n,
-	  const char * preface = "ERROR: " );
-
     // Print a line from file to an output stream using
     // the given print_mode.  If append_line_feed is
     // true, append a line feed if the print_mode is
     // xxxGRAPHIC (so the line feed prints as graphic
-    // characters).  Return the number of columns
-    // printed.
+    // characters).
+    //
+    // If the line contains no characters, OR if it con-
+    // tains only single space and horizontal tabs and
+    // the print_mode is NOT xxxGRAPHIC, print blank_
+    // line in place of the line.
     //
     // If the line_number designates the line just after
     // the file, print "<END-OF-FILE>".
     //
-    // If the line_number designates a line not
+    // Return the number of columns printed.
+    //
+    // But if the line_number designates a line not
     // available, do nothing but return NO_LINE.
     //
     uns32 print_line
@@ -1014,70 +1000,115 @@ namespace ll { namespace lexeme {
 	  file_ptr file,
 	  uns32 line_number,
 	  uns32 print_mode,
-	  bool append_line_feed = false );
-
-    // Print the lines containing the lexeme identified
-    // by first and last, and print the given mark char-
-    // acter (default '^') under the columns containing
-    // the lexeme.  Multi-line lexemes are allowed.
-    //
-    // Return 0 and do nothing if the first line is not
-    // available.  It is required that if the first line
-    // is available, all lines before the end of file
-    // must be available (else this function crashes).
-    // Otherwise store the first and last column of the
-    // part of the lexeme that is in the last line and
-    // return the number of lines printed, which is > 0.
-    //
-    uns32 print_lexeme_lines
-        ( std::ostream & out,
-	  uns32 & first_column, uns32 & last_column,
-	  scanner_ptr scanner,
-	  uns32 first, uns32 last,
 	  bool append_line_feed = false,
-	  char mark = '+' );
+	  const char * blank_line = "<BLANK-LINE>" );
 
-    // Ditto but print the lines containing an item
-    // identified by begin and end.  Begin is the posi-
-    // tion of the first column to be marked, and end is
-    // the position JUST AFTER the last column to be
-    // marked.
+    // Print an message involving an input item defined
+    // by file, begin, and end.  The item can extend
+    // across several lines.  The message is broken
+    // across lines as necessary using the line_length 
+    // and indent of `print'.  Line numbers are added to
+    // the message if line_number_postfix (default ":")
+    // is not NULL: what is added is-
+    //
+    //	   "Line Number mmm<line-number-postfix>"
+    // or  "Line Numbers mmm-nnn<line-number-postfix>"
+    //
+    // A typical message format is
+    //
+    //	   "ERROR: xxx xxx xxx ... xxx; "
+    //
+    // Then the lines are printed with mark characters
+    // (default: '^') underneath the item.  The lines
+    // are rendered using print->mode.  A rendering of
+    // the line feed at the end of each line is output
+    // if append_line_feed is true and print->mode is
+    // xxxGRAPHIC.  Blank lines are rendered as
+    // `blank_line' (default "<BLANK-LINE>") unless
+    // print->mode is xxxGRAPHIC and either the line
+    // is non-empty or append_line_feed is true.
+    //
+    // If end.column == 0 it is assumed the item ends
+    // just after the end of line previous to end.line.
+    //
+    // If the first line is not available, a line con-
+    // taining "<LINE(S)-NOT-AVAILABLE>" is printed.
+    // If a line is just after the last line in the
+    // file, "<END-OF-FILE>" is printed.
+    //
+    // `message' and `blank_line' must contain only
+    // ASCII graphic characters and single spaces.
+    //
+    // Return the total number of lines printed (i.e.,
+    // lines including message, file lines, and marks).
+    //
+    uns32 print_item_message_and_lines
+        ( std::ostream & out,
+	  const char * message,
+	  print_ptr print,
+	  file_ptr file,
+	  const position & begin,
+	  const position & end,
+	  const char * line_number_postfix = ":",
+	  bool append_line_feed = false,
+	  char mark = '^',
+	  const char * blank_line = "<BLANK-LINE>" );
+
+    // Ditto but print only the message and not the
+    // lines containing the item.
+    //
+    uns32 print_item_message
+        ( std::ostream & out,
+	  const char * message,
+	  print_ptr print,
+	  file_ptr file,
+	  const position & begin,
+	  const position & end,
+	  const char * line_number_postfix = ":" );
+
+    // Ditto but print only the lines containing the
+    // item, and not the message.
     //
     uns32 print_item_lines
         ( std::ostream & out,
-	  uns32 & first_column, uns32 & last_column,
-	  file_ptr file,
 	  uns32 print_mode,
+	  file_ptr file,
 	  const position & begin,
 	  const position & end,
 	  bool append_line_feed = false,
-	  char mark = '+' );
+	  char mark = '^',
+	  const char * blank_line = "<BLANK-LINE>" );
 
-    // Print the given message in a format suitable for
-    // use as a message about a lexeme or item whose
-    // marked lines were just printed by print_lexeme_
-    // lines or print_item_lines.
+    // print_lexeme_xxx is like print_item_xxx except
+    // the item is a lexeme scanned by the scanner.  The
+    // first character of the lexeme is scanner->input_
+    // buffer[first] and the first character after the
+    // lexeme is scanner->input_buffer[next] (if this
+    // does not exist, use scanner->next_position as
+    // its position).
     //
-    // The message must contain just ASCII graphic
-    // characters; single space is allowed but horizon-
-    // tal tab is not.  The message will be broken
-    // across lines so it can be indented by scanner->
-    // indent and constrained by scanner->line_length.
-    //
-    // If the part of the message on the first line
-    // begins after first_column or ends before last_
-    // column, the part on the first line is extended
-    // with the mark character, so the extended part
-    // is under all the columns from first_column
-    // through last_column.
-    //
-    void print_message
+    uns32 print_lexeme_message_and_lines
         ( std::ostream & out,
-	  const uns32 & first_column,
-	  const uns32 & last_column,
-	  print_ptr print,
 	  const char * message,
-	  char mark = '+' );
+	  scanner_ptr scanner,
+	  uns32 first, uns32 next,
+	  const char * line_number_postfix = ":",
+	  bool append_line_feed = false,
+	  char mark = '^',
+	  const char * blank_line = "<BLANK-LINE>" );
+    uns32 print_lexeme_message
+        ( std::ostream & out,
+	  const char * message,
+	  scanner_ptr scanner,
+	  uns32 first, uns32 next,
+	  const char * line_number_postfix = ":" );
+    uns32 print_lexeme_lines
+        ( std::ostream & out,
+	  scanner_ptr scanner,
+	  uns32 first, uns32 next,
+	  bool append_line_feed = false,
+	  char mark = '^',
+	  const char * blank_line = "<BLANK-LINE>" );
 } }
 
 // Printing

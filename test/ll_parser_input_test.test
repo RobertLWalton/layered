@@ -1,488 +1,488 @@
+LINE_BREAK; Line Number 0:
 //\~/Layers\~/Language\~/Standard\~/Lexical\~/Analyzer\~/Test\~/Data
-                                                                    +
-    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                                    ^
+LINE_BREAK; Line Number 1:
 //
-  +
-  ++LINE_BREAK
+  ^
+LINE_BREAK; Line Number 2:
 //\~/File:\ht/ll_lexeme_standard_test.in
-                                        +
-    LINE_BREAK+++++++++++++++++++++++++++
+                                        ^
+LINE_BREAK; Line Number 3:
 //\~/Author:\ht/Bob\~/Walton\~/(walton@acm.org)
-                                               +
-    LINE_BREAK++++++++++++++++++++++++++++++++++
+                                               ^
+LINE_BREAK; Line Number 4:
 //\~/Date:\ht/Mon\~/Nov\~/22\~/10:22:20\~/EST\~/2010
-                                                    +
-    LINE_BREAK+++++++++++++++++++++++++++++++++++++++
+                                                    ^
+LINE_BREAK; Line Number 5:
 //
-  +
-  ++LINE_BREAK
+  ^
+LINE_BREAK; Line Number 6:
 //\~/The\~/authors\~/have\~/placed\~/this\~/data\~/in\~/the\~/public
-                                                                    +
-    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                                    ^
+LINE_BREAK; Line Number 7:
 //\~/domain;\~/they\~/make\~/no\~/warranty\~/and\~/accept\~/no\~/liability
-                                                                          +
-    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                                          ^
+LINE_BREAK; Line Numbers 8-9:
 //\~/for\~/this\~/data.
-                       +
-
-+
-++++LINE_BREAK
+                       ^
+<BLANK-LINE>
+^^^^^^^^^^^^
+WORD: abc; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-+++
-    WORD: abc
+^^^
+NUMBER: 3.4; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-      +++
-    NUMBER: 3.4
+      ^^^
+MARK: +; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-         +
-    MARK: +
+         ^
+WORD: z; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-          +
-    WORD: z
+          ^
+SEPARATOR: (; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-              +
-    SEPARATOR: (
+              ^
+WORD: x; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-               +
-    WORD: x
+               ^
+SEPARATOR: ,; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-                +
-    SEPARATOR: ,
+                ^
+WORD: y; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-                 +
-    WORD: y
+                 ^
+SEPARATOR: ); Line Number 10:
 abc\~/3.4+z\~/(x,y)
-                  +
-    SEPARATOR: )
+                  ^
+LINE_BREAK; Line Number 10:
 abc\~/3.4+z\~/(x,y)
-                   +
-    LINE_BREAK++++++
+                   ^
+QUOTED_STRING: hi; Line Number 11:
 "hi"\~/"ho\/ht/x\~/y\//z\/lf/"
-++++
-    QUOTED_STRING: hi
+^^^^
+QUOTED_STRING: ho\ht/x\~/y\/z\lf/; Line Number 11:
 "hi"\~/"ho\/ht/x\~/y\//z\/lf/"
-       +++++++++++++++++++++++
-    QUOTED_STRING: ho\ht/x\~/y\/z\lf/
+       ^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK; Line Number 11:
 "hi"\~/"ho\/ht/x\~/y\//z\/lf/"
-                              +
-    LINE_BREAK+++++++++++++++++
+                              ^
+WORD: 'tis; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-++++
-    WORD: 'tis
+^^^^
+WORD: noth'ng; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-       +++++++
-    WORD: noth'ng
+       ^^^^^^^
+SEPARATOR: `; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-                 +
-    SEPARATOR: `
+                 ^
+WORD: but; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-                  +++
-    WORD: but
+                  ^^^
+SEPARATOR: '; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-                     +
-    SEPARATOR: '
+                     ^
+WORD: a; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-                         +
-    WORD: a
+                         ^
+WORD: h'dache; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-                             +++++++
-    WORD: h'dache
+                             ^^^^^^^
+MARK: .; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-                                    +
-    MARK: .
+                                    ^
+LINE_BREAK; Line Number 12:
 'tis\~/noth'ng\~/`but'\~/a\~/h'dache.
-                                     +
-    LINE_BREAK++++++++++++++++++++++++
+                                     ^
+WORD: a; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-+
-    WORD: a
+^
+NUMBER: .1.2.3; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
- ++++++
-    NUMBER: .1.2.3
+ ^^^^^^
+MARK: .; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-       +
-    MARK: .
+       ^
+WORD: b; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-        +
-    WORD: b
+        ^
+MARK: .; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-         +
-    MARK: .
+         ^
+WORD: c; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-          +
-    WORD: c
+          ^
+WORD: e; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-              +
-    WORD: e
+              ^
+NATURAL_NUMBER: 5; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-               +
-    NATURAL_NUMBER: 5
+               ^
+WORD: f; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                +
-    WORD: f
+                ^
+WORD: x; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                    +
-    WORD: x
+                    ^
+NATURAL_NUMBER: 7; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                     +
-    NATURAL_NUMBER: 7
+                     ^
+MARK: +; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                      +
-    MARK: +
+                      ^
+WORD: y; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                       +
-    WORD: y
+                       ^
+NATURAL_NUMBER: 6; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                        +
-    NATURAL_NUMBER: 6
+                        ^
+SEPARATOR: (; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                         +
-    SEPARATOR: (
+                         ^
+NATURAL_NUMBER: 5; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                          +
-    NATURAL_NUMBER: 5
+                          ^
+WORD: z; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                           +
-    WORD: z
+                           ^
+SEPARATOR: ); Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                            +
-    SEPARATOR: )
+                            ^
+LINE_BREAK; Line Number 13:
 a.1.2.3.b.c\~/e5f\~/x7+y6(5z)
-                             +
-    LINE_BREAK++++++++++++++++
+                             ^
+NUMBER: 12.3; Line Number 14:
 12.3\~/.4\~/5.\~/6/7
-++++
-    NUMBER: 12.3
+^^^^
+NUMBER: .4; Line Number 14:
 12.3\~/.4\~/5.\~/6/7
-       ++
-    NUMBER: .4
+       ^^
+NATURAL_NUMBER: 5; Line Number 14:
 12.3\~/.4\~/5.\~/6/7
-            +
-    NATURAL_NUMBER: 5
+            ^
+MARK: .; Line Number 14:
 12.3\~/.4\~/5.\~/6/7
-             +
-    MARK: .
+             ^
+NUMBER: 6/7; Line Number 14:
 12.3\~/.4\~/5.\~/6/7
-                 +++
-    NUMBER: 6/7
+                 ^^^
+LINE_BREAK; Line Number 14:
 12.3\~/.4\~/5.\~/6/7
-                    +
-    LINE_BREAK+++++++
+                    ^
+NUMBER: 1,23,456; Line Number 15:
 1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
-++++++++
-    NUMBER: 1,23,456
+^^^^^^^^
+NUMBER: 1,234/6,789; Line Number 15:
 1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
-           +++++++++++
-    NUMBER: 1,234/6,789
+           ^^^^^^^^^^^
+NUMBER: 1/2/3/4,5/6,7,8/9; Line Number 15:
 1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
-                         +++++++++++++++++
-    NUMBER: 1/2/3/4,5/6,7,8/9
+                         ^^^^^^^^^^^^^^^^^
+NUMBER: 8888.12,3,4; Line Number 15:
 1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
-                                             +++++++++++
-    NUMBER: 8888.12,3,4
+                                             ^^^^^^^^^^^
+LINE_BREAK; Line Number 15:
 1,23,456\~/1,234/6,789\~/1/2/3/4,5/6,7,8/9\~/8888.12,3,4
-                                                        +
-    LINE_BREAK+++++++++++++++++++++++++++++++++++++++++++
+                                                        ^
+MARK: /; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-+
-    MARK: /
+^
+NATURAL_NUMBER: 3; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
- +
-    NATURAL_NUMBER: 3
+ ^
+NUMBER: 6.34.56; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-     +++++++
-    NUMBER: 6.34.56
+     ^^^^^^^
+MARK: /; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-            +
-    MARK: /
+            ^
+NATURAL_NUMBER: 3; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                +
-    NATURAL_NUMBER: 3
+                ^
+SEPARATOR: ,; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                 +
-    SEPARATOR: ,
+                 ^
+NATURAL_NUMBER: 4; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                     +
-    NATURAL_NUMBER: 4
+                     ^
+SEPARATOR: ,; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                      +
-    SEPARATOR: ,
+                      ^
+SEPARATOR: ,; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                          +
-    SEPARATOR: ,
+                          ^
+NATURAL_NUMBER: 5; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                           +
-    NATURAL_NUMBER: 5
+                           ^
+SEPARATOR: ,; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                               +
-    SEPARATOR: ,
+                               ^
+NUMBER: 6.7,8.9; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                                +++++++
-    NUMBER: 6.7,8.9
+                                ^^^^^^^
+LINE_BREAK; Line Number 16:
 /3\~/6.34.56/\~/3,\~/4,\~/,5\~/,6.7,8.9
-                                       +
-    LINE_BREAK++++++++++++++++++++++++++
+                                       ^
+MARK: +-*~@#$%^&=|<>_!?:; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-++++++++++++++++++
-    MARK: +-*~@#$%^&=|<>_!?:
+^^^^^^^^^^^^^^^^^^
+QUOTED_STRING: foo; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-                  +++++
-    QUOTED_STRING: foo
+                  ^^^^^
+ERROR: unrecognized escape sequence; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-                        ++++
-    unrecognized escape sequence
+                        ^^^^
+ERROR: non-letter escape sequence; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-                            +++++
-    non-letter escape sequence+++
+                            ^^^^^
+ERROR: unrecognized escape sequence; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-                                 ++++
-    unrecognized escape sequence+++++
+                                 ^^^^
+WORD: x???; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-                       ++++++++++++++
-    WORD: x???
+                       ^^^^^^^^^^^^^^
+MARK: /; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-                                     +
-    MARK: /
+                                     ^
+LINE_BREAK; Line Number 17:
 +-*~@#$%^&=|<>_!?:"foo"x\/9/\/lf/\/z//
-                                      +
-    LINE_BREAK+++++++++++++++++++++++++
+                                      ^
+MARK: .; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-+
-    MARK: .
+^
+WORD: foo; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
- +++
-    WORD: foo
+ ^^^
+MARK: /; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-       +
-    MARK: /
+       ^
+WORD: foo; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-        +++
-    WORD: foo
+        ^^^
+NATURAL_NUMBER: 3; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-              +
-    NATURAL_NUMBER: 3
+              ^
+MARK: /; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-               +
-    MARK: /
+               ^
+WORD: x; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                +
-    WORD: x
+                ^
+WORD: x; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                    +
-    WORD: x
+                    ^
+MARK: /; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                     +
-    MARK: /
+                     ^
+NATURAL_NUMBER: 3; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                      +
-    NATURAL_NUMBER: 3
+                      ^
+NATURAL_NUMBER: 3; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                          +
-    NATURAL_NUMBER: 3
+                          ^
+MARK: .; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                           +
-    MARK: .
+                           ^
+WORD: x; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                            +
-    WORD: x
+                            ^
+WORD: x; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                                +
-    WORD: x
+                                ^
+NUMBER: .3; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                                 ++
-    NUMBER: .3
+                                 ^^
+LINE_BREAK; Line Number 18:
 .foo\~//foo\~/3/x\~/x/3\~/3.x\~/x.3//\~/comment\~/\/089/\~/"'
-                                                             +
-    LINE_BREAK++++++++++++++++++++++++++++++++++++++++++++++++
+                                                             ^
+WORD: a; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-+
-    WORD: a
+^
+SEPARATOR: (; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
- +
-    SEPARATOR: (
+ ^
+WORD: b; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-  +
-    WORD: b
+  ^
+SEPARATOR: ,; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-   +
-    SEPARATOR: ,
+   ^
+WORD: c; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-    +
-    WORD: c
+    ^
+SEPARATOR: ); Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-     +
-    SEPARATOR: )
+     ^
+WORD: d; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-         +
-    WORD: d
+         ^
+SEPARATOR: {; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-          +
-    SEPARATOR: {
+          ^
+WORD: e; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-           +
-    WORD: e
+           ^
+SEPARATOR: ;; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-            +
-    SEPARATOR: ;
+            ^
+WORD: f; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-             +
-    WORD: f
+             ^
+SEPARATOR: }; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-              +
-    SEPARATOR: }
+              ^
+WORD: g; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                  +
-    WORD: g
+                  ^
+SEPARATOR: [; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                   +
-    SEPARATOR: [
+                   ^
+WORD: h; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                    +
-    WORD: h
+                    ^
+SEPARATOR: ,; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                     +
-    SEPARATOR: ,
+                     ^
+WORD: i; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                      +
-    WORD: i
+                      ^
+SEPARATOR: ]; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                       +
-    SEPARATOR: ]
+                       ^
+SEPARATOR: `; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                           +
-    SEPARATOR: `
+                           ^
+SEPARATOR: `; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                            +
-    SEPARATOR: `
+                            ^
+WORD: foobar; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                             ++++++
-    WORD: foobar
+                             ^^^^^^
+SEPARATOR: '; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                                   +
-    SEPARATOR: '
+                                   ^
+WORD: fum; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                                       +++
-    WORD: fum
+                                       ^^^
+SEPARATOR: '; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                                          +
-    SEPARATOR: '
+                                          ^
+LINE_BREAK; Line Number 19:
 a(b,c)\~/d{e;f}\~/g[h,i]\~/``foobar'\~/fum'
-                                           +
-    LINE_BREAK++++++++++++++++++++++++++++++
+                                           ^
+LINE_BREAK; Line Number 20:
 //\~/form\~/feed\~/\ff/
-                   ++++
-    LINE_BREAK+++++++++
+                   ^^^^
+LINE_BREAK; Line Number 21:
 //\~/vertical\~/tab\~/\vt/
-                      ++++
-    LINE_BREAK++++++++++++
+                      ^^^^
+LINE_BREAK; Line Number 22:
 //\~/carriage\~/return\~/\cr/
-                         ++++
-    LINE_BREAK+++++++++++++++
+                         ^^^^
+WORD: z; Line Number 23:
 z\ht/x\~///\~/horizontal\~/tab
-+
-    WORD: z
+^
+WORD: x; Line Number 23:
 z\ht/x\~///\~/horizontal\~/tab
-     +
-    WORD: x
+     ^
+LINE_BREAK; Line Number 23:
 z\ht/x\~///\~/horizontal\~/tab
-                              +
-    LINE_BREAK+++++++++++++++++
+                              ^
+WORD: all; Line Number 24:
 all\~/\ht/\ff/\vt/\cr/
-+++
-    WORD: all
+^^^
+LINE_BREAK; Line Number 24:
 all\~/\ht/\ff/\vt/\cr/
-          ++++++++++++
-    LINE_BREAK++++++++
+          ^^^^^^^^^^^^
+WORD: control; Line Number 25:
 control\~/A\01/B\02/C\03/
-+++++++
-    WORD: control
+^^^^^^^
+WORD: A; Line Number 25:
 control\~/A\01/B\02/C\03/
-          +
-    WORD: A
+          ^
+ERROR: unrecognized character; Line Number 25:
 control\~/A\01/B\02/C\03/
-           ++++
-    unrecognized character
+           ^^^^
+WORD: B; Line Number 25:
 control\~/A\01/B\02/C\03/
-               +
-    WORD: B
+               ^
+ERROR: unrecognized character; Line Number 25:
 control\~/A\01/B\02/C\03/
-                ++++
-    unrecognized character
+                ^^^^
+WORD: C; Line Number 25:
 control\~/A\01/B\02/C\03/
-                    +
-    WORD: C
+                    ^
+ERROR: unrecognized character; Line Number 25:
 control\~/A\01/B\02/C\03/
-                     ++++
-    unrecognized character
+                     ^^^^
+LINE_BREAK; Line Number 25:
 control\~/A\01/B\02/C\03/
-                         +
-    LINE_BREAK++++++++++++
+                         ^
+QUOTED_STRING: "\lf/\cr/\ht/\bs/\ff/\vt/\/\~/; Line Number 26:
 "\/"/\/lf/\/cr/\/ht/\/bs/\/ff/\/vt/\//\/~/"
-+++++++++++++++++++++++++++++++++++++++++++
-    QUOTED_STRING: "\lf/\cr/\ht/\bs/\ff/\vt/\/\~/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK; Line Number 26:
 "\/"/\/lf/\/cr/\/ht/\/bs/\/ff/\/vt/\//\/~/"
-                                           +
-    LINE_BREAK++++++++++++++++++++++++++++++
+                                           ^
+ERROR: unrecognized escape sequence; Line Number 27:
 "~\/a/\/b/\/c/\/ff/"
-  ++++
-  ++unrecognized escape sequence
+  ^^^^
+ERROR: unrecognized escape sequence; Line Number 27:
 "~\/a/\/b/\/c/\/ff/"
-      ++++
-    unrecognized escape sequence
+      ^^^^
+ERROR: unrecognized escape sequence; Line Number 27:
 "~\/a/\/b/\/c/\/ff/"
-          ++++
-    unrecognized escape sequence
+          ^^^^
+QUOTED_STRING: ~\/a/\/b/\/c/\ff/; Line Number 27:
 "~\/a/\/b/\/c/\/ff/"
-++++++++++++++++++++
-    QUOTED_STRING: ~\/a/\/b/\/c/\ff/
+^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK; Line Number 27:
 "~\/a/\/b/\/c/\/ff/"
-                    +
-    LINE_BREAK+++++++
+                    ^
+WORD: ABC; Line Number 28:
 \/0041/\/00000042/C\~/D\/00000045/\/0046/G
-+++++++++++++++++++
-    WORD: ABC
+^^^^^^^^^^^^^^^^^^^
+WORD: DEFG; Line Number 28:
 \/0041/\/00000042/C\~/D\/00000045/\/0046/G
-                      ++++++++++++++++++++
-    WORD: DEFG
+                      ^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK; Line Number 28:
 \/0041/\/00000042/C\~/D\/00000045/\/0046/G
-                                          +
-    LINE_BREAK+++++++++++++++++++++++++++++
+                                          ^
+ERROR: non-letter escape sequence; Line Number 29:
 \/0041/\/00000002/C\~/D\/00000045/\/0006/G
-       +++++++++++
-    non-letter escape sequence
+       ^^^^^^^^^^^
+WORD: A?C; Line Number 29:
 \/0041/\/00000002/C\~/D\/00000045/\/0006/G
-+++++++++++++++++++
-    WORD: A?C
+^^^^^^^^^^^^^^^^^^^
+ERROR: non-letter escape sequence; Line Number 29:
 \/0041/\/00000002/C\~/D\/00000045/\/0006/G
-                                  +++++++
-    non-letter escape sequence+++++++++++
+                                  ^^^^^^^
+WORD: DE?G; Line Number 29:
 \/0041/\/00000002/C\~/D\/00000045/\/0006/G
-                      ++++++++++++++++++++
-    WORD: DE?G
+                      ^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK; Line Number 29:
 \/0041/\/00000002/C\~/D\/00000045/\/0006/G
-                                          +
-    LINE_BREAK+++++++++++++++++++++++++++++
+                                          ^
+ERROR: unrecognized escape sequence; Line Number 30:
 \/0001/\/00000042/C\~/\/00000004/E\/0046/G
-+++++++
-++++unrecognized escape sequence
+^^^^^^^
+WORD: BC; Line Number 30:
 \/0001/\/00000042/C\~/\/00000004/E\/0046/G
-       ++++++++++++
-    WORD: BC
+       ^^^^^^^^^^^^
+ERROR: unrecognized escape sequence; Line Number 30:
 \/0001/\/00000042/C\~/\/00000004/E\/0046/G
-                      +++++++++++
-    unrecognized escape sequence+
+                      ^^^^^^^^^^^
+WORD: EFG; Line Number 30:
 \/0001/\/00000042/C\~/\/00000004/E\/0046/G
-                                 +++++++++
-    WORD: EFG
+                                 ^^^^^^^^^
+LINE_BREAK; Line Number 30:
 \/0001/\/00000042/C\~/\/00000004/E\/0046/G
-                                          +
-    LINE_BREAK+++++++++++++++++++++++++++++
+                                          ^
+ERROR: unrecognized escape sequence; Line Number 31:
 \/0001/
-+++++++
-++++unrecognized escape sequence
+^^^^^^^
+LINE_BREAK; Line Number 31:
 \/0001/
-       +
-    LINE_BREAK
+       ^
+END_OF_FILE; Line Number 32:
 <END-OF-FILE>
-+++++++++++++
-++++END_OF_FILE
+^^^^^^^^^^^^^

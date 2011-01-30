@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 29 06:06:20 EST 2011
+// Date:	Sun Jan 30 02:26:32 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,30 +77,26 @@ static void erroneous_announce
     switch ( type )
     {
     case LEXSTD::unrecognized_escape_character_t:
-	message = "unrecognized escape character";
+	message = "ERROR: unrecognized escape"
+	          " character; ";
 	break;
     case LEXSTD::unrecognized_escape_sequence_t:
-	message = "unrecognized escape sequence";
+	message = "ERROR: unrecognized escape"
+	          " sequence; ";
 	break;
     case LEXSTD::non_letter_escape_sequence_t:
-	message = "non-letter escape sequence";
+	message = "ERROR: non-letter escape sequence; ";
 	break;
     default:
-	message = "system error: bad erroneous"
-		  " atom type";
+	message = "ERROR: system error: bad erroneous"
+		  " atom type; ";
 	break;
     }
     std::ostream * err = scanner->print->err;
     if ( err != NULL )
-    {
-	uns32 first_column, last_column;
-	if ( LEX::print_lexeme_lines
-	         ( * err, first_column, last_column,
-		   scanner, first, last ) )
-	    LEX::print_message
-		( * err, first_column, last_column,
-	          scanner->print, message );
-    }
+	LEX::print_lexeme_message_and_lines
+	     ( * err, message,
+	       scanner, first, last+1 );
 }
 
 // Add Tokens
@@ -137,39 +133,34 @@ static min::uns32 input_add_tokens
 	case LEXSTD::horizontal_space_t:
 	    continue;
 	case LEXSTD::bad_end_of_line_t:
-	    message = "bad end of line";
+	    message = "ERROR: bad end of line; ";
 	    type = LEXSTD::line_break_t;
 	    skip = false;
 	    break;
 	case LEXSTD::bad_end_of_file_t:
-	    message = "bad end of file";
+	    message = "ERROR: bad end of file; ";
 	    type = LEXSTD::end_of_file_t;
 	    skip = false;
 	    break;
 	case LEXSTD::unrecognized_character_t:
-	    message = "unrecognized character";
+	    message = "ERROR: unrecognized character; ";
 	    break;
 	case LEXSTD::unrecognized_escape_character_t:
-	    message = "unrecognized escape character";
+	    message = "ERROR: unrecognized escape"
+	              " character; ";
 	    break;
         case LEXSTD::unrecognized_escape_sequence_t:
-	    message = "unrecognized escape sequence";
+	    message = "ERROR: unrecognized escape"
+	              " sequence; ";
 	    break;
 	}
 	if ( message != NULL )
 	{
 	    if ( parser->print->err != NULL )
-	    {
-		uns32 first_column, last_column;
-		if ( LEX::print_lexeme_lines
-			 ( * parser->print->err,
-			   first_column, last_column,
-			   scanner, first, last ) )
-		    LEX::print_message
-			( * parser->print->err,
-			  first_column, last_column,
-			  parser->print, message );
-	    }
+		LEX::print_lexeme_message_and_lines
+		     ( * parser->print->err,
+		       message,
+		       scanner, first, last + 1 );
 	    if ( skip ) continue;
 	}
 
@@ -261,49 +252,40 @@ static min::uns32 input_add_tokens
 	PAR::put_at_end ( parser->first, token );
 	++ count;
 
-	uns32 first_column, last_column;
-	if ( trace != NULL
+	if ( token->value == min::MISSING
 	     &&
-	     LEX::print_item_lines
-		( * trace, first_column, last_column,
+	     token->string == NULL_STUB )
+	{
+	    char message[200];
+	    sprintf ( message, "%s; ",
+	              LEXSTD::type_name[type] );
+	    LEX::print_item_message_and_lines
+		( * trace, message,
+		  parser->print,
 		  parser->input_file,
-		  parser->print->mode,
-		  token->begin, token->end ) )
-        {
-	    if ( token->value == min::MISSING
-		 &&
-		 token->string == NULL_STUB )
-	    {
-		LEX::print_message
-		    ( * trace,
-		      first_column, last_column,
-		      parser->print,
-		      LEXSTD::type_name[type] );
-	    }
-	    else
-	    {
-		char buffer
-		    [ 80 + parser->print->indent
-		      +
-			LEX::MAX_UNICODE_BYTES
-		      * scanner->translation_buffer
-		               ->length ];
-		char * p = buffer;
-		for ( uns32 i = 0;
-		      i < parser->print->indent; ++ i )
-		    * p ++ = ' ';
-		uns32 column = parser->print->indent;
-		column += sprintf
-		    ( buffer + column, "%s: ",
-		      LEXSTD::type_name[type] );
-		p = buffer + column
-		  + sptranslation
-		        ( buffer + column, column,
-		          LEX::ENFORCE_LINE_LENGTH,
-			  scanner );
-		* p = 0;
-		* trace << buffer << std::endl;
-	    }
+		  token->begin, token->end );
+	}
+	else
+	{
+	    char message
+		[ 80 +   LEX::MAX_UNICODE_BYTES
+		       * scanner->translation_buffer
+			        ->length ];
+	    char * p = message;
+	    uns32 column = 0;
+	    column += sprintf
+		( message + column, "%s: ",
+		  LEXSTD::type_name[type] );
+	    p = message + column
+	      + sptranslation
+		    ( message + column, column, 0,
+		      scanner );
+	    sprintf ( p, "; " );
+	    LEX::print_item_message_and_lines
+		( * trace, message,
+		  parser->print,
+		  parser->input_file,
+		  token->begin, token->end );
 	}
 
 	if ( ( token->type == LEXSTD::end_of_file_t

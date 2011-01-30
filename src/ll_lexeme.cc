@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 29 06:05:42 EST 2011
+// Date:	Sun Jan 30 00:09:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2191,29 +2191,13 @@ uns32 LEX::line ( file_ptr file, uns32 line_number )
 		        - line_number)];
 }
 
-LEX::uns32 LEX::print_line_numbers
-        ( std::ostream & out,
-	  print_ptr print,
-	  file_ptr file,
-	  uns32 m, uns32 n,
-	  const char * preface )
-{
-    // Current code assumes everything fits on one line.
-    //
-    out << preface;
-    if ( m == n )
-        out << "Line " << m << endl;
-    else
-        out << "Lines " << m << "-" << n << endl;
-    return 1;
-}
-
 uns32 LEX::print_line
 	( std::ostream & out,
 	  file_ptr file,
 	  uns32 line_number,
 	  uns32 print_mode,
-	  bool append_line_feed )
+	  bool append_line_feed,
+	  const char * blank_line )
 {
     if ( file->offset == NO_LINE
          &&
@@ -2222,10 +2206,35 @@ uns32 LEX::print_line
         out << "<END-OF-FILE>" << endl;
 	return 13;
     }
+
     uns32 offset = line ( file, line_number );
     if ( offset == NO_LINE ) return NO_LINE;
 
     const char * p = & file->data[offset];
+
+    // Blank line check.
+    //
+    if ( print_mode == ASCIIGRAPHIC
+	 ||
+	 print_mode == UTF8GRAPHIC )
+    {
+        if ( * p == 0 && ! append_line_feed )
+	{
+	    out << blank_line << endl;
+	    return strlen ( blank_line );
+	}
+    }
+    else
+    {
+        const char * q = p;
+	if ( * q == ' ' || * q == '\t' ) ++ q;
+	if ( * q == 0 )
+	{
+	    out << blank_line << endl;
+	    return strlen ( blank_line );
+	}
+    }
+
     uns32 n = strlen ( p );
     char buffer [ 10 + MAX_UNICODE_BYTES * n ];
     uns32 width = 0;
@@ -2242,25 +2251,109 @@ uns32 LEX::print_line
     return width;
 }
 
+uns32 LEX::print_item_message
+    ( std::ostream & out,
+      const char * message,
+      print_ptr print,
+      file_ptr file,
+      const position & begin,
+      const position & end,
+      const char * line_number_postfix )
+{
+    uns32 indent = print->indent;
+    uns32 line_length = print->line_length;
+
+    // Add line numbers to message and point p at
+    // message.
+    //
+    int length = strlen ( message );
+    const char * p = message;
+    char buffer [length + 200];
+    if ( line_number_postfix != NULL )
+    {
+	uns32 last_line = end.line;
+	if ( end.column == 0 && last_line > begin.line )
+	    -- last_line;
+	if ( begin.line == last_line )
+	    sprintf ( buffer, "%sLine Number %u%s",
+	    	      message,
+		      (unsigned) begin.line,
+		      line_number_postfix );
+	else
+	    sprintf ( buffer, "%sLine Numbers %u-%u%s",
+	    	      message,
+		      (unsigned) begin.line,
+		      (unsigned) last_line,
+		      line_number_postfix );
+	p = buffer;
+    }
+
+    uns32 column = 0;
+    while ( * p )
+    {
+	// Point q1 at next non-space,
+	// q2 at next space or NUL after that.
+	//
+        const char * q1 = p;
+	while ( * q1 == ' ' ) ++ q1;
+	const char * q2 = q1;
+	while ( * q2 && * q2 != ' ' ) ++ q2;
+
+	if ( q2 == q1 ) break;
+
+	// If p .. q2 will not fit on line, output
+	// endl and indent.
+	//
+	if ( column + ( q2 - p ) > line_length )
+	{
+	    out << endl;
+	    for ( uns32 i = 0; i < indent; ++ i )
+		out << ' ';
+	    column = indent;
+	    p = q1;
+	}
+
+	// Output through q2.
+	//
+	while ( p < q2 )
+	    out << * p ++, ++ column;
+	p = q2;
+    }
+    out << endl;
+}
+
 uns32 LEX::print_item_lines
     ( std::ostream & out,
-      uns32 & first_column, uns32 & last_column,
-      file_ptr file,
       uns32 print_mode,
+      file_ptr file,
       const position & begin,
       const position & end,
       bool append_line_feed,
-      char mark )
+      char mark,
+      const char * blank_line )
 {
     assert ( end.line >= begin.line );
 
     uns32 line = begin.line;
+    uns32 first_column = begin.column;
+    uns32 line_count = 0;
+
     uns32 width = print_line
 	( out, file, line, print_mode,
-	       append_line_feed );
-    if ( width == NO_LINE ) return 0;
+	       append_line_feed, blank_line );
+    if ( width == NO_LINE )
+    {
+	uns32 last_line = end.line;
+	if ( end.column == 0 && last_line > line )
+        -- last_line;
+        if ( line == last_line )
+	    out << "<LINE-NOT-AVAILABLE>" << endl;
+	else
+	    out << "<LINES-NOT-AVAILABLE>" << endl;
+        return 1;
+    }
+    ++ line_count;
 
-    first_column = begin.column;
     while ( true )
     {
         for ( uns32 i = 0; i < first_column; ++ i )
@@ -2276,36 +2369,59 @@ uns32 LEX::print_item_lines
 	if ( end_column <= first_column )
 	    end_column = first_column + 1;
 	assert ( end_column > 0 );
-	last_column = end_column - 1;
 
         for ( uns32 i = first_column;
-	      i <= last_column; ++ i )
+	      i < end_column; ++ i )
 	    out << mark;
 	out << endl;
+	++ line_count;
 
 	if ( line == end.line )
-	    return line - begin.line + 1;
+	    return line_count;
 
 	++ line;
 
 	if ( line == end.line && 0 == end.column )
-	    return line - begin.line;
+	    return line_count;
 
 	first_column = 0;
 	width = print_line
 	    ( out, file, line, print_mode,
 		   append_line_feed );
 	assert ( width != NO_LINE );
+	++ line_count;
     }
 }
 
-uns32 LEX::print_lexeme_lines
+uns32 LEX::print_item_message_and_lines
     ( std::ostream & out,
-      uns32 & first_column, uns32 & last_column,
-      scanner_ptr scanner,
-      uns32 first, uns32 last,
+      const char * message,
+      print_ptr print,
+      file_ptr file,
+      const position & begin,
+      const position & end,
+      const char * line_number_postfix,
       bool append_line_feed,
-      char mark )
+      char mark,
+      const char * blank_line )
+{
+    uns32 line_count =
+	print_item_message
+	    ( out, message, print, file, begin, end,
+	      line_number_postfix );
+    line_count +=
+	print_item_lines
+	    ( out, print->mode, file, begin, end,
+	      append_line_feed, mark, blank_line );
+    return line_count;
+}
+
+uns32 LEX::print_lexeme_message
+    ( std::ostream & out,
+      const char * message,
+      scanner_ptr scanner,
+      uns32 first, uns32 next,
+      const char * line_number_postfix )
 {
     min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
@@ -2315,70 +2431,75 @@ uns32 LEX::print_lexeme_lines
         begin = (position) input_buffer[first];
     else
         begin = scanner->next_position;
-    if ( last + 1 < input_buffer->length )
-        end = (position) input_buffer[last+1];
+    if ( next < input_buffer->length )
+        end = (position) input_buffer[next];
+    else
+        end = scanner->next_position;
+    return print_item_message
+        ( out, message,
+	  scanner->print,
+	  scanner->input_file,
+	  begin, end,
+	  line_number_postfix );
+}
+
+uns32 LEX::print_lexeme_lines
+    ( std::ostream & out,
+      scanner_ptr scanner,
+      uns32 first, uns32 next,
+      bool append_line_feed,
+      char mark,
+      const char * blank_line )
+{
+    min::packed_vec_insptr<inchar> input_buffer =
+        scanner->input_buffer;
+    position begin;
+    position end;
+    if ( first < input_buffer->length )
+        begin = (position) input_buffer[first];
+    else
+        begin = scanner->next_position;
+    if ( next < input_buffer->length )
+        end = (position) input_buffer[next];
     else
         end = scanner->next_position;
     return print_item_lines
-        ( out, first_column, last_column,
-	  scanner->input_file,
+        ( out,
 	  scanner->print->mode,
-	  begin, end, append_line_feed, mark );
+	  scanner->input_file,
+	  begin, end,
+	  append_line_feed, mark, blank_line );
 }
 
-void LEX::print_message
+uns32 LEX::print_lexeme_message_and_lines
     ( std::ostream & out,
-      const uns32 & first_column,
-      const uns32 & last_column,
-      print_ptr print,
       const char * message,
-      char mark )
+      scanner_ptr scanner,
+      uns32 first, uns32 next,
+      const char * line_number_postfix,
+      bool append_line_feed,
+      char mark,
+      const char * blank_line )
 {
-    uns32 indent = print->indent;
-    uns32 line_length = print->line_length;
-    if ( first_column < indent )
-    {
-        for ( uns32 i = 0; i < first_column; ++ i )
-	    out << ' ';
-        for ( uns32 i = first_column; i < indent; ++ i )
-	    out << mark;
-    }
-    else for ( uns32 i = 0; i < indent; ++ i )
-        out << ' ';
-
-    uns32 col = indent;
-    bool first = true;
-    while ( * message )
-    {
-        const char * q1 = message;
-	while ( * q1 == ' ' ) ++ q1;
-	const char * q2 = q1;
-	while ( * q2 && * q2 != ' ' ) ++ q2;
-	if ( q2 == q1 ) break;
-
-	if ( col + ( q2 - message ) > line_length )
-	{
-	    if ( first )
-	    {
-	        first = false;
-		for ( uns32 i = col;
-		      i <= last_column; ++ i )
-		    out << mark;
-	    }
-	    out << endl;
-	    for ( uns32 i = 0; i < indent; ++ i )
-		out << ' ';
-	    col = indent;
-	    message = q1;
-	}
-	while ( message < q2 )
-	    ++ col, out << * message ++;
-	message = q2;
-    }
-    if ( first )
-	for ( uns32 i = col; i <= last_column; ++ i )
-	    out << mark;
-    out << endl;
+    min::packed_vec_insptr<inchar> input_buffer =
+        scanner->input_buffer;
+    position begin;
+    position end;
+    if ( first < input_buffer->length )
+        begin = (position) input_buffer[first];
+    else
+        begin = scanner->next_position;
+    if ( next < input_buffer->length )
+        end = (position) input_buffer[next];
+    else
+        end = scanner->next_position;
+    return print_item_message_and_lines
+        ( out, message,
+	  scanner->print,
+	  scanner->input_file,
+	  begin, end,
+	  line_number_postfix,
+	  append_line_feed, mark, blank_line );
 }
 
 // Printing

@@ -65,16 +65,6 @@ namespace ll { namespace lexeme {
 	uns32	character;
     };
 
-    struct file_struct;
-    typedef min::packed_vec_insptr<uns32,file_struct>
-            file_ptr;
-        // See Input Files below.
-
-    struct print_struct;
-    typedef min::packed_struct_updptr<print_struct>
-            print_ptr;
-        // See Printing below.
-
     struct scanner_struct;
     typedef min::packed_struct_updptr<scanner_struct>
             scanner_ptr;
@@ -117,7 +107,7 @@ namespace ll { namespace lexeme {
 	// location of that character in the input text.
 	// The location, consisting of a line, an index,
 	// and a column, is not used by the scanner.
-	// Created by init_scanner.
+	// Created by init ( scanner ).
 	//
 	min::packed_vec_insptr<inchar> input_buffer;
 
@@ -144,20 +134,14 @@ namespace ll { namespace lexeme {
 
 	// The scanner parameters are
 	//
-	//	print
 	//	read_input
 	//	input_file
 	//	erroneous_atom
 	//	trace
+	//	printer
 	//
 	// These are set to defaults when a scanner is
-	// created by init_scanner().
-
-	// Print parameters.  Default: a new print
-	// parameters struct with parameters set to
-	// defaults.
-	//
-	print_ptr print;
+	// created by init ( scanner ).
 
 	// Closure to call to input one or more inchar
 	// elements to the end of the input buffer
@@ -204,18 +188,23 @@ namespace ll { namespace lexeme {
 	// with file name "standard input", and spool_
 	// length == 0.
 	//
-	file_ptr input_file;
+	min::file input_file;
+
+	// Copy of input_file->print_flags if that
+	// exists.  Otherwise defaults to 0.
+	//
+	min::uns32 print_flags;
 
 	// Closure to call with an error atom as per
 	// ERRONEOUS_ATOM instruction flag.  The atom is
 	// in
 	//
-	//	input_buffer[first .. last]
+	//	input_buffer[first .. next-1]
 	//
 	// and the instruction provided type is given as
-	// an argument.  If the address of this function
-	// is NULL, execution of an instruction with an
-	// ERRONEOUS_ATOM flag is a scan error.
+	// an argument.  If the value of this closure is
+	// NULL_STUB, execution of an instruction with
+	// an ERRONEOUS_ATOM flag is a scan error.
 	// Defaults to NULL_STUB.
 	//
 	erroneous_ptr erroneous_atom;
@@ -224,24 +213,16 @@ namespace ll { namespace lexeme {
 	//
 	uns32 trace;
 
-	// Scanner state:
+	// Printer for scanner error messages and
+	// tracing.
+	//
+	// Default is NULL_STUB.  If this is the value
+	// when the printer is needed, printing is
+	// suppressed.
+	//
+	min::printer printer;
 
-	// Error message describing the last error.  Can
-	// be reset to "" indicating there is no error
-	// by error_message[0] = 0.  Users should not
-	// write into this otherwise.
-	//
-	// The error message is a sequence of lines each
-	// no longer than line_length characters.  All
-	// lines but the last are `\n' terminated: it
-	// may be printed with cout << error_message
-	// << endl.
-	//
-	// Program construction error messages may be
-	// used in conjunction with the output of print_
-	// program ( false ) (uncooked program print).
-	//
-	char error_message [2000];
+	// Scanner state:
 
 	bool reinitialize;
 	    // Set to true if scanner is to be
@@ -256,12 +237,6 @@ namespace ll { namespace lexeme {
 	    // Return stack containing return_stack_p
 	    // elements (0 is first and return_stack_p
 	    // - 1 element is top).
-
-	// Work areas:
-
-	char work[400];
-	    // Working buffer for producing components
-	    // of error_message.
     };
 
     extern scanner_ptr & default_scanner;
@@ -283,13 +258,14 @@ namespace ll { namespace lexeme {
     //
     //		LEX::default_scanner->program.
     //
-    // The scanner also provides scanner->error_message
-    // as a place to put error messages.
+    // The scanner also provides scanner->printer as a
+    // place to write error messages.
     //
-    // The scanner must be initialized with init_scanner
-    // before constructing a program.  After construc-
-    // ting a program, init_scanner must be recalled
-    // before using the scanner to scan lexemes.
+    // The scanner must be initialized with
+    // init ( scanner ) before constructing a program.
+    // After constructing a program, init ( scanner )
+    // must be recalled before using the scanner to scan
+    // lexemes.
 
     // Program component types:
     //
@@ -637,9 +613,9 @@ namespace ll { namespace lexeme {
     // Attach a dispatcher or an instruction component
     // to a lexical table target, or a type map compo-
     // nent to a dispatcher target.  Return 1 if no
-    // error.  Return 0 and do nothing but write error_
-    // message if there is a conflict with a previous
-    // attachment.
+    // error.  Return 0 and do nothing but write an
+    // error message if there is a conflict with a
+    // previous attachment.
     //
     uns32 attach
     	    ( uns32 target_ID,
@@ -649,7 +625,7 @@ namespace ll { namespace lexeme {
     // Attach a dispatcher or an instruction component
     // to a ctype of a dispatcher target.  Return 1 if
     // no error.  Return 0 and do nothing but write
-    // error_message if there is a conflict with a
+    // an error message if there is a conflict with a
     // previous attachment.
     //
     uns32 attach
@@ -719,7 +695,7 @@ namespace ll { namespace lexeme {
     {
     	uns32 control;
 	void (* announce )
-	    ( uns32 first, uns32 last, uns32 type,
+	    ( uns32 first, uns32 next, uns32 type,
 	      scanner_ptr scanner,
 	      erroneous_ptr erroneous );
 	    // See scanner->erroneous_atom.
@@ -740,7 +716,7 @@ namespace ll { namespace lexeme {
     //
     void init_erroneous
 	    ( void (* announce )
-		( uns32 first, uns32 last, uns32 type,
+		( uns32 first, uns32 next, uns32 type,
 		  scanner_ptr scanner,
 		  erroneous_ptr erroneous ),
 	      erroneous_ptr & erroneous =
@@ -754,9 +730,9 @@ namespace ll { namespace lexeme {
 
     // There are several parameters that when set cause
     // a scanner to be (re)initialized.  These are all
-    // settable by init_scanner functions.  For these
-    // the scanner is specified by a variable, and if
-    // this == NULL_STUB, a new scanner is created and a
+    // settable by init_... functions.  For these the
+    // scanner is specified by a variable, and if this
+    // == NULL_STUB, a new scanner is created and a
     // pointer to it is stored in the variable.  This
     // variable MUST BE locatable by the garbage collec-
     // tor.
@@ -765,350 +741,84 @@ namespace ll { namespace lexeme {
     // program can be constructed using the scanner.
     //
     // When a new scanner is created, scanner parameters
-    // such as print, read_input, input_file, etc. are
+    // such as printer, read_input, input_file, etc. are
     // set to defaults.  Otherwise these are left
-    // untouched, and can be set either before or
-    // immediately after the call to init_scanner.
+    // untouched, and can be set either immediately
+    // before or immediately after the call to init_
+    // scanner.  They should not be changed otherwise,
+    // except for the trace parameter, which may be
+    // changed at any time.
 
     // Simply (re)initialize a scanner.
     //
-    void init_scanner
-	    ( scanner_ptr & scanner = default_scanner );
+    void init ( scanner_ptr & scanner );
 
-    // Set the scanner program and reinitialize the
-    // scanner.
+    // Set initialize the scanner and set the scanner
+    // program.
     //
-    void init_scanner
-            ( program_ptr program,
-	      scanner_ptr & scanner = default_scanner );
+    void init_program
+	    ( scanner_ptr & scanner,
+              program_ptr program );
 
-    // Set the scanner input_file to equal the contents
-    // of the named file.  Return true if no error and
-    // false if error.  If there is an error, an error
-    // message is put in scanner->error_message.
-    // (Re)initialize scanner.
+    // Reinitialize the scanner and set the scanner
+    // printer.  If the printer is specified as NULL_
+    // STUB and does not previously exist, create a
+    // printer that flushes to std::cout.  Otherwise
+    // to NOT initialize the printer.
     //
-    // See init_file below for more details.
-    //
-    bool init_scanner
-	    ( const char * file_name,
-	      scanner_ptr & scanner = default_scanner );
+    void init_printer
+	    ( scanner_ptr & scanner,
+              min::printer printer = NULL_STUB );
 
-    // Ditto but initialize input_file to input from an
-    // istream and have the given spool_length.  See
-    // init_file below for details.
+    // Reinitialized the scanner and set the scanner
+    // input_file as per min:: function of the same
+    // name.  Note scanner->printer is used when a
+    // printer is required.
     //
-    void init_scanner
-	    ( std::istream & istream,
-	      const char * file_name,
-	      uns32 spool_length,
-	      scanner_ptr & scanner = default_scanner );
+    bool init_input_named_file
+	    ( scanner_ptr & scanner,
+	      min::gen file_name,
+	      uns32 print_flags = 0,
+	      uns32 spool_lines = min::ALL_LINES );
 
-    // Ditto but initialize input_file to the contents
-    // of a data string.  See init_file below for
-    // details.
-    //
-    void init_scanner
-	    ( const char * file_name,
+    void init_input_stream
+	    ( scanner_ptr & scanner,
+	      std::istream & istream,
+	      min::gen file_name = min::MISSING,
+	      uns32 print_flags = 0,
+	      uns32 spool_lines = min::ALL_LINES );
+
+    void init_input_string
+	    ( scanner_ptr & scanner,
 	      const char * data,
-	      scanner_ptr & scanner = default_scanner );
+	      min::gen file_name = min::MISSING,
+	      uns32 print_flags = 0,
+	      uns32 spool_lines = min::ALL_LINES );
 
     // Scan the input and return the next lexeme or
     // SCAN_ERROR.
     //
-    // When a lexeme is returned, the first and last
+    // When a lexeme is returned, the first and next
     // positions in the input buffer are returned, i.e.,
     // the lexeme is in
     //
-    //		input_buffer[first .. last]
+    //		input_buffer[first .. next-1]
     //
-    // The lexeme length, last - first + 1, is always
-    // >= 1.  The lexeme type is returned as the value
-    // of the scan function.  The translated lexeme is
-    // returned in the translation buffer.
+    // The lexeme length, next - first, is always >= 0,
+    // The lexeme type is returned as the value of the
+    // scan function.  The translated lexeme is returned
+    // in the translation buffer.
     //
     // If there is an error in the lexical scanning
     // program, SCAN_ERROR is returned instead of a
     // lexeme type, and an error message diagnostic is
-    // placed in error_message.  In these two cases
-    // first and last and the translation buffer are not
+    // printed in scanner->printer.  In these two cases
+    // first and next and the translation buffer are not
     // set.
     //
     uns32 scan
-            ( uns32 & first, uns32 & last,
+            ( uns32 & first, uns32 & next,
 	      scanner_ptr scanner = default_scanner );
-} }
-
-// Input Files
-// ----- -----
-
-namespace ll { namespace lexeme {
-
-    // A file is data char vector containing lines as
-    // NUL terminated UTF-8 character strings, plus
-    // another vector containing the offsets in the
-    // data vector of each file line.  A file may be
-    // presented in its entirety, or it may be presented
-    // as an std::istream that is read in one line at a
-    // time.  In the later case all the lines read so
-    // far may be saved in the file data, or only the
-    // last N lines may be saved, where N is called the
-    // `spool length'.
-    //
-    struct file_struct
-        // Header for vector containing line offsets.
-	// All other file information is stored in this
-	// header or in the data vector it points to.
-    {
-	const uns32 control;
-	const uns32 length;
-	const uns32 max_length;
-
-        min::gen file_name;
-	    // String naming file, or "stdin" etc.
-
-	min::packed_vec_insptr<char> data;
-	    // File data.
-
-	std::istream * istream;
-	    // If not NULL, data is read from this
-	    // istream and appended to the file data,
-	    // as necessary.  If NULL, entire file must
-	    // be stored in file data when file is
-	    // initialized.
-
-	uns32 spool_length;
-	    // If istream is not NULL, then if this is
-	    // 0 all file lines are stored in file data.
-	    // Otherwise must the last spool_length
-	    // lines are stored, and data is a circular
-	    // buffer (but lines are not split across
-	    // boundaries).  In this last case max_
-	    // length == spool_length.
-
-	uns32 line_number;
-	    // Line number of next line to be read.
-	    // Equals number of lines read so far by
-	    // next_line.
-
-	uns32 offset;
-	    // Offset of first data element of the next
-	    // line to be read.  If istream != NULL then
-	    // this equals data->length and the line has
-	    // not yet actually been read from istream
-	    // and put in data.
-	    //
-	    // Set to NO_LINE by next_line() when it
-	    // returns NO_LINE because there are no more
-	    // lines to be read from the file.  In this
-	    // case line_number is the total number of
-	    // lines in the file.
-    };
-
-    // NO_LINE denotes a missing line, possibly caused
-    // by an end of file, for char vector offset values.
-    //
-    const uns32 NO_LINE = 0xFFFFFFFF;
-
-    // Init_file functions are used to initialize an
-    // input file.  For these the file is specified by
-    // a variable, and if this == NULL_STUB, a new
-    // input_file is created and a pointer to it is
-    // stored in the variable.  This variable MUST BE
-    // locatable by the garbage collector.
-
-    // Read an entire file into an input file.  Previous
-    // contents of the input file are lost, the input
-    // file istream is set NULL, and the input file
-    // spool_length is set to 0.  The file is initial-
-    // ized to the first line of the file.
-    //
-    // If an error occurs, an error message is put into
-    // the buffer and false is returned.  If there is no
-    // error, true is returned.
-    //
-    bool init_file ( const char * file_name,
-                     char error_message[512],
-		     file_ptr & file );
-
-    // Initialize an input file to read from the given
-    // std::istream.  Set the file name of the input
-    // file and the spool_length.  The file is initial-
-    // ized to the first line.
-    //
-    void init_file ( std::istream & istream,
-                       const char * file_name,
-		       uns32 spool_length,
-		       file_ptr & file );
-
-    // Initialize file to contain the given data string
-    // and have the given file name.  The data is NUL
-    // terminated.
-    //
-    // WARNING: this function is distinguished from the
-    // function that reads an entire file ONLY by the
-    // fact that the second argument is `CONST char'.
-    //
-    void init_file ( const char * file_name,
-		     const char * data,
-		     file_ptr & file );
-
-    // Return offset of next line in file->data.  Return
-    // NO_LINE if end of file or input error.
-    //
-    // If file->instream != NULL and file->spool_length
-    // > 0, the returned value remains valid ONLY until
-    // the next call to next_line, as these calls shift
-    // lines in file->data.
-    //
-    uns32 next_line ( file_ptr file );
-
-    // Return offset in file->data of the line with the
-    // given line number.  If the line is has not yet
-    // been read with next_line, or is no longer in the
-    // spool when istream != NULL and spool_length > 0,
-    // return NO_LINE.
-    //
-    // If file->instream != NULL and file->spool_length
-    // > 0, the returned value remains valid ONLY until
-    // the next call to next_line, as these calls shift
-    // lines in file->data.
-    //
-    uns32 line ( file_ptr file, uns32 line_number );
-
-    // Print a line from file to an output stream using
-    // the given print_mode.  If append_line_feed is
-    // true, append a line feed if the print_mode is
-    // xxxGRAPHIC (so the line feed prints as graphic
-    // characters).
-    //
-    // If the line contains no characters, OR if it con-
-    // tains only single space and horizontal tabs and
-    // the print_mode is NOT xxxGRAPHIC, print blank_
-    // line in place of the line.
-    //
-    // If the line_number designates the line just after
-    // the file, print "<END-OF-FILE>".
-    //
-    // Return the number of columns printed.
-    //
-    // But if the line_number designates a line not
-    // available, do nothing but return NO_LINE.
-    //
-    uns32 print_line
-        ( std::ostream & out,
-	  file_ptr file,
-	  uns32 line_number,
-	  uns32 print_mode,
-	  bool append_line_feed = false,
-	  const char * blank_line = "<BLANK-LINE>" );
-
-    // Print an message involving an input item defined
-    // by file, begin, and end.  The item can extend
-    // across several lines.  The message is broken
-    // across lines as necessary using the line_length 
-    // and indent of `print'.  Line numbers are added to
-    // the message if line_number_postfix (default ":")
-    // is not NULL: what is added is-
-    //
-    //	   "Line Number mmm<line-number-postfix>"
-    // or  "Line Numbers mmm-nnn<line-number-postfix>"
-    //
-    // A typical message format is
-    //
-    //	   "ERROR: xxx xxx xxx ... xxx; "
-    //
-    // Then the lines are printed with mark characters
-    // (default: '^') underneath the item.  The lines
-    // are rendered using print->mode.  A rendering of
-    // the line feed at the end of each line is output
-    // if append_line_feed is true and print->mode is
-    // xxxGRAPHIC.  Blank lines are rendered as
-    // `blank_line' (default "<BLANK-LINE>") unless
-    // print->mode is xxxGRAPHIC and either the line
-    // is non-empty or append_line_feed is true.
-    //
-    // If end.column == 0 it is assumed the item ends
-    // just after the end of line previous to end.line.
-    //
-    // If the first line is not available, a line con-
-    // taining "<LINE(S)-NOT-AVAILABLE>" is printed.
-    // If a line is just after the last line in the
-    // file, "<END-OF-FILE>" is printed.
-    //
-    // `message' and `blank_line' must contain only
-    // ASCII graphic characters and single spaces.
-    //
-    // Return the total number of lines printed (i.e.,
-    // lines including message, file lines, and marks).
-    //
-    uns32 print_item_message_and_lines
-        ( std::ostream & out,
-	  const char * message,
-	  print_ptr print,
-	  file_ptr file,
-	  const position & begin,
-	  const position & end,
-	  const char * line_number_postfix = ":",
-	  bool append_line_feed = false,
-	  char mark = '^',
-	  const char * blank_line = "<BLANK-LINE>" );
-
-    // Ditto but print only the message and not the
-    // lines containing the item.
-    //
-    uns32 print_item_message
-        ( std::ostream & out,
-	  const char * message,
-	  print_ptr print,
-	  file_ptr file,
-	  const position & begin,
-	  const position & end,
-	  const char * line_number_postfix = ":" );
-
-    // Ditto but print only the lines containing the
-    // item, and not the message.
-    //
-    uns32 print_item_lines
-        ( std::ostream & out,
-	  uns32 print_mode,
-	  file_ptr file,
-	  const position & begin,
-	  const position & end,
-	  bool append_line_feed = false,
-	  char mark = '^',
-	  const char * blank_line = "<BLANK-LINE>" );
-
-    // print_lexeme_xxx is like print_item_xxx except
-    // the item is a lexeme scanned by the scanner.  The
-    // first character of the lexeme is scanner->input_
-    // buffer[first] and the first character after the
-    // lexeme is scanner->input_buffer[next] (if this
-    // does not exist, use scanner->next_position as
-    // its position).
-    //
-    uns32 print_lexeme_message_and_lines
-        ( std::ostream & out,
-	  const char * message,
-	  scanner_ptr scanner,
-	  uns32 first, uns32 next,
-	  const char * line_number_postfix = ":",
-	  bool append_line_feed = false,
-	  char mark = '^',
-	  const char * blank_line = "<BLANK-LINE>" );
-    uns32 print_lexeme_message
-        ( std::ostream & out,
-	  const char * message,
-	  scanner_ptr scanner,
-	  uns32 first, uns32 next,
-	  const char * line_number_postfix = ":" );
-    uns32 print_lexeme_lines
-        ( std::ostream & out,
-	  scanner_ptr scanner,
-	  uns32 first, uns32 next,
-	  bool append_line_feed = false,
-	  char mark = '^',
-	  const char * blank_line = "<BLANK-LINE>" );
 } }
 
 // Printing
@@ -1116,339 +826,215 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
-    // Print modes.  These determine how a character c
-    // in a line is rendered when the line is printed.
-    // This in turn determines the `width' of c in the
-    // printed line, i.e., the number of columns
-    // occupied by the rendering of c.  For example,
-    // character 0x01 is rendered as itself and has
-    // width 0 in UTF8 mode, is rendered as a UNICODE
-    // control picture character of width 1 in UTF8PRINT
-    // or UTF8GRAPHIC mode, and is rendered as \01/ and
-    // has width 4 in ASCIIGRAPHIC mode.
+    // printer << pgraphic ( c ) does the same thing as
+    //	    printer << min::push_parameters
+    //              << min::graphic
+    //              << min::punicode ( c )
+    //              << min::pop_parameters
     //
-    // DEFAULT_PRINT_MODE:
-    //   The print mode is the default, which is the
-    //   print mode of any print parameters such as
-    //   scanner->print associated with the print
-    //   operation, or is ll::lexeme::default_print_
-    //   mode otherwise.
-    // UTF8:
-    //   Character c is rendered as itself (i.e., is
-    //   converted to UTF8).
-    // UTF8PRINT:
-    //   Character c is rendered as itself, unless the
-    //   character is a control character other than
-    //   new line, carriage return, form feed, vertical
-    //   tab, or horizontal tab, in which case c is
-    //   rendered as per UTF8GRAPHIC.
-    // UTF8GRAPHIC:
-    //   Character c is rendered as itself if it is a
-    //   graphic character, and otherwise is rendered
-    //   to a UNICODE control code picture character
-    //   (0x24yy character).  Characters from 0x00 to
-    //   0x1f, single space, and DELETE are the `non-
-    //   graphic' characters.
-    // ASCIIPRINT:
-    //   Character c is rendered as itself, unless the
-    //   character is a control character other than
-    //   new line, carriage return, form feed, vertical
-    //   tab, or horizontal tab, OR c is not an ASCII
-    //   character (has code >= 0x80), in which case c
-    //   is rendered as per ASCIIGRAPHIC.
-    // ASCIIGRAPHIC:
-    //   If the uns32 character c is ' ', '\\', '\n',
-    //   '\f', '\t', '\v', '\b', or '\r' it is rendered
-    //   as "\~/", "\\/", "\lf/", etc.  Otherwise if c
-    //   is not an ASCII graphic character (is NOT in
-    //   the range 0x21 ... 0x7e), it is rendered as
-    //   "\0X...X/", where X...X are hexadecimal digits
-    //   representing the uns32 value c.
-    //
-    // Note: ASCII characters in the range 0x21 .. 0x7E
-    // except \ are always rendered as themselves and
-    // are always 1 column wide.  This can be used in
-    // optimizations.
-    //
-    enum {
-	DEFAULT_PRINT_MODE = 0,
-        UTF8 = 1,
-        UTF8PRINT = 2,
-	UTF8GRAPHIC = 3,
-	ASCIIPRINT = 4,
-	ASCIIGRAPHIC = 5 };
-    //
-    extern uns32 default_print_mode;
-
-    // Maximum number of bytes required to represent a
-    // UNICODE character in any of the above print
-    // modes.
-    //
-    const unsigned MAX_UNICODE_BYTES = 12;
-
-    struct print_struct
-        // Print parameters.
-    {
-        uns32 control;
-
-	// Print mode.  One of UTF8, UTF8PRINT, UTF8-
-	// GRAPHIC, or ASCIIPRINT, or ASCIIGRAPHIC.
-	// See above.
-	//
-	uns32 mode;   // Default: ll::lexeme
-		      //            ::default_print_mode
-
-	// Nominal length and indent for printing.  Line
-	// length defaults to the limit for email mes-
-	// sages.
-	//
-	uns32 line_length;  // Default 72
-	uns32 indent;       // Default 4
-
-	// Output stream for errors.  Defaults to
-	// & std::cerr.
-	//
-	std::ostream * err;
-
-	// Output stream for tracing.  Defaults to
-	// & std::cout;
-	//
-	std::ostream * trace;
+    struct pgraphic {
+        uns32 c;
+	pgraphic ( uns32 c ) : c ( c ) {}
     };
 
-    // If `print' variable is NULL_STUB, create a print
-    // struct with default members and store a pointer
-    // to it in the variable.  The `print' variable must
-    // be locatable by the garbage collector.
-    //
-    // Otherwise do nothing.
-    //
-    void init_print ( print_ptr & print );
-
-    // Default print parameters.  Not set until init_
-    // scanner is called.  Members are set to defaults.
-    //
-    extern print_ptr & default_print;
-
-    // Print an uns32 UNICODE character into the buffer,
-    // rendering the character in UTF-8 according to the
-    // print mode.  See above for the possible print
-    // modes.  NUL is put into the buffer at the end of
-    // the rendering and a count of the bytes in the
-    // rendering is returned (the NUL is not included in
-    // this count).  The buffer should be able to hold
-    // at least 12 characters (for rendering a maximum
-    // 32 bit character in ASCIIGRAPHIC).
-    //
-    int spchar
-	    ( char * buffer, uns32 c,
-              uns32 print_mode = default_print_mode );
-
-    // Return the `width' of the character in the given
-    // print_mode.  The `width' is the number of columns
-    // required by the character rendering.
-    //
-    // If the returned width is 0, the character is a
-    // control character rendered as itself.  In parti-
-    // cular if the character is `\t' and the width is 0
-    // the number of columns is 8 - (starting column)%8.
-    //
-    int wchar ( uns32 c,
-                uns32 print_mode = default_print_mode );
-
-    // cout << pchar ( c, print_mode ) does the same
-    // thing as spchar but prints to an output stream.
-    //
-    struct pchar {
-        uns32 c, print_mode;
-	pchar ( uns32 c,
-	        uns32 print_mode = default_print_mode )
-	    : c ( c ), print_mode ( print_mode ) {}
-    };
-
-    // Print the atom table mode or scanner return value
-    // into the buffer, and return the number of
-    // characters used.
-    //
-    int spmode
-	    ( char * buffer, uns32 mode,
-	      scanner_ptr scanner = default_scanner );
-
-    // cout << pmode ( m ) does the same thing as spmode
-    // but prints to an output stream.
+    // printer << pmode ( scanner, m ) prints the mode
+    // m of the scanner.
     //
     struct pmode {
-        uns32 mode;
 	scanner_ptr scanner;
-	pmode ( uns32 mode,
-	        scanner_ptr scanner = default_scanner )
-	    : mode ( mode ), scanner ( scanner ) {}
+        uns32 mode;
+	pmode ( scanner_ptr scanner, uns32 mode )
+	    : scanner ( scanner ), mode ( mode ) {}
     };
-} }
 
-std::ostream & operator <<
-    ( std::ostream & out,
-      const ll::lexeme::pchar & pc );
-std::ostream & operator <<
-    ( std::ostream & out,
-      const ll::lexeme::pmode & pm );
-
-namespace ll { namespace lexeme {
-
-    // Print character as per spchar above, but use the
-    // space_mode and scanner to limit line length.
+    // printer << pinput ( scanner, first, next ) prints
+    // the characters of scanner->input_buffer[first ..
+    // next-1] using pgraphic.  If first >= next,
+    // "<empty>" is printed instead.
     //
-    // The possible space_mode values are the sum of:
-    //
-    enum {
-    	ENFORCE_LINE_LENGTH = 1,
-	    // If output column would exceed scanner->
-	    // line_length, precede output by a new
-	    // line followed by scanner->indent
-	    // spaces.
-	PREFACE_WITH_SPACE = 2,
-	    // Output is preceded by a single space
-	    // unless ENFORCE_LINE_LENGTH is also
-	    // present and the output column with the
-	    // single space included would excede
-	    // scanner->line_length, in which case the
-	    // output is precded by a new line followed
-	    // by scanner->indent spaces.
+    struct pinput
+    {
+	scanner_ptr scanner;
+        uns32 first, next;
+
+        pinput ( scanner_ptr scanner,
+	         uns32 first, uns32 next )
+	    : scanner ( scanner ),
+	      first ( first ), next ( next ) {}
     };
-    //
-    // Note: you must give space_mode, as it is
-    // necessary to avoid calls ambiguous with
-    // spchar above.
-    //
-    // If space_mode does NOT have ENFORCE_LINE_LENGTH
-    // and print_mode is NOT DEFAULT_PRINT_MODE, then
-    // `print' can be NULL_STUB.
-    // 
-    //
-    int spchar
-	    ( char * buffer, uns32 c,
-	      unsigned & column,
-	      uns32 space_mode,
-	      print_ptr print = default_print,
-	      uns32 print_mode = DEFAULT_PRINT_MODE );
 
-    // Like spchar but print the `word' as if it were
-    // the translation of a character.  That is, `word'
-    // will not be broken between lines.  Here `word'
-    // must be an ASCII string of non-control charac-
-    // ters (single space IS ALLOWED) and is printed in
-    // UTF-8 mode (which is equivalent to ASCIIPRINT in
-    // this case except for \).  `print' can be NULL_
-    // STUB if space_mode does NOT have ENFORCE_LINE_
-    // LENGTH.
+    // printer << ptranslation ( scanner ) prints the
+    // characters of scanner->translation_buffer using
+    // pgraphic.  If the buffer is empty, "<empty>" is
+    // printed instead.
     //
-    int spword
-	    ( char * buffer, const char * word,
-	      unsigned & column,
-	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      print_ptr print = default_print );
-
-    // Print the given NUL terminated UTF-8 string.
-    // The string is copied to the buffer as if it were
-    // converted to UNICODE characters that are then
-    // printed with spchar.
-    //
-    // PREFACE_WITH_SPACE is applied only to the first
-    // character output.
-    //
-    // The number of bytes added to the buffer is
-    // returned, not counting the NUL that is the last
-    // byte added.
-    //
-    // If space_mode does NOT have ENFORCE_LINE_LENGTH
-    // and print_mode is NOT DEFAULT_PRINT_MODE, then
-    // `print' can be NULL_STUB.
-    //
-    int spstring
-	    ( char * buffer,
-	      const char * string,
-	      unsigned & column,
-	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      print_ptr print = default_print,
-	      uns32 print_mode = DEFAULT_PRINT_MODE );
-
-    // Ditto but print the characters of scanner->input_
-    // buffer[first .. last] instead of printing a UTF-8
-    // string.  If first > last use spword to print
-    // "<empty>" instead.  Use scanner->print for
-    // print parameters.
-    //
-    int spinput
-	    ( char * buffer,
-              uns32 first, uns32 last,
-	      unsigned & column,
-	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      scanner_ptr scanner = default_scanner,
-	      uns32 print_mode = DEFAULT_PRINT_MODE );
-
-    // Ditto but print scanner->translation_buffer in
-    // its entirety.  If translation_buffer is empty,
-    // print "<empty>" instead.
-    //
-    int sptranslation
-	    ( char * buffer,
-	      unsigned & column,
-	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      scanner_ptr scanner = default_scanner,
-	      uns32 print_mode = DEFAULT_PRINT_MODE );
+    struct ptranslation
+    {
+    	scanner_ptr scanner;
+	ptranslation
+	    ( scanner_ptr scanner )
+	    : scanner ( scanner ) {}
+    };
 
     // Ditto but print the current lexeme, given its
-    // first, last, and type.  Include the position and
+    // first, next, and type.  Include the position and
     // type, and if the translation is inexact, also
     // include the translation.
     //
-    int splexeme
-	    ( char * buffer,
-              uns32 first, uns32 last, uns32 type,
-	      unsigned & column,
-	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      scanner_ptr scanner = default_scanner,
-	      uns32 print_mode = DEFAULT_PRINT_MODE );
+    struct plexeme
+    {
+    	scanner_ptr scanner;
+        uns32 first, next, type;
+	plexeme
+	    ( scanner_ptr scanner,
+              uns32 first, uns32 next, uns32 type )
+	    : scanner ( scanner ),
+	      first ( first ), next ( next ),
+	      type ( type ) {}
+    };
 
     // Ditto but print the current erroneous atom.  The
     // translation is not relevant in this case.
     //
-    int sperroneous_atom
-	    ( char * buffer,
-              uns32 first, uns32 last, uns32 type,
-	      unsigned & column,
-	      uns32 space_mode = ENFORCE_LINE_LENGTH,
-	      scanner_ptr scanner = default_scanner,
-	      uns32 print_mode = DEFAULT_PRINT_MODE );
+    struct perroneous_atom
+    {
+    	scanner_ptr scanner;
+        uns32 first, next, type;
+	perroneous_atom
+	    ( scanner_ptr scanner,
+              uns32 first, uns32 next, uns32 type )
+	    : scanner ( scanner ),
+	      first ( first ), next ( next ),
+	      type ( type ) {}
+    };
+
 
     // Return true if the translation buffer holds a
-    // copy of scanner->input_buffer[first .. last].
+    // copy of scanner->input_buffer[first .. next-1].
     //
     bool translation_is_exact
-	    ( uns32 first, uns32 last,
-	      scanner_ptr scanner = default_scanner );
+	    ( scanner_ptr scanner,
+	      uns32 first, uns32 next );
+
+    // Print the lines and put marks (default '^')
+    // underneath columns from `begin' to just before
+    // `end'.
+    //
+    struct pitem_lines
+    {
+    	scanner_ptr scanner;
+        position begin, end;
+	char mark;
+	const char * blank_line;
+	pitem_lines
+	    ( ll::lexeme::scanner_ptr scanner,
+	      const ll::lexeme::position & begin,
+	      const ll::lexeme::position & end,
+	      char mark = '^',
+	      const char * blank_line = "<BLANK-LINE>" )
+	    : scanner ( scanner ),
+	      begin ( begin ), end ( end ),
+	      mark ( mark ), blank_line ( blank_line )
+	    {}
+    };
+
+    // Ditto but for lexeme in scanner->input_buffer
+    // [first .. next-1].  If input_buffer[next-1] does
+    // not exist, use scanner->next_position instead.
+    //
+    struct plexeme_lines
+    {
+    	scanner_ptr scanner;
+        uns32 first, next;
+	char mark;
+	const char * blank_line;
+	plexeme_lines
+	    ( ll::lexeme::scanner_ptr scanner,
+	      uns32 first, uns32 next,
+	      char mark = '^',
+	      const char * blank_line = "<BLANK-LINE>" )
+	    : scanner ( scanner ),
+	      first ( first ), next ( next ),
+	      mark ( mark ), blank_line ( blank_line )
+	    {}
+    };
 
     // Print a representation of the program to the
-    // output stream.  There are two output formats:
-    // cooked which prints dispatcher table maps
-    // from character ranges to instruction/dispatcher
-    // IDs but does not separately print out type
-    // maps and instructions, and raw, that prints
-    // out everything separately.
+    // printer.  There are two output formats: cooked
+    // which prints dispatcher table maps from character
+    // ranges to instruction/dispatcher IDs but does not
+    // separately print out type maps and instructions,
+    // and raw, that prints out everything separately.
     //
     void print_program
-        ( std::ostream & out, bool cooked = true,
-	  scanner_ptr scanner = default_scanner );
+    	    ( min::printer printer,
+	      scanner_ptr scanner,
+	      bool cooked );
 
     // Ditto but just print the program component with
-    // the given ID.  Return the length of the component
-    // in uns32 vector elements.
+    // the given ID.  The size of the program component
+    // is returned, and can be added to ID to get the
+    // ID of the next program component in memory.
     //
-    uns32 print_program_component
-        ( std::ostream & out,
-	  uns32 ID, bool cooked = true,
-	  scanner_ptr scanner = default_scanner );
+    // If the program component is illegal, print an
+    // error message and return scanner->program->length
+    // + 1.
+    //
+    min::uns32 print_program_component
+    	    ( min::printer printer,
+	      scanner_ptr scanner,
+	      min::uns32 ID,
+	      bool cooked );
+
+    // Return the length of the program component with
+    // the given ID.  Used to skip over components.
+    //
+    uns32 component_length
+	    ( uns32 ID,
+	      scanner_ptr scanner = default_scanner );
 
 } }
+
+inline min::printer operator <<
+	( min::printer printer,
+	  const ll::lexeme::pgraphic & pgraphic )
+{
+    return printer << min::push_parameters
+                   << min::graphic
+		   << min::punicode ( pgraphic.c )
+                   << min::pop_parameters;
+}
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::pmode & pmode );
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::pinput & pinput );
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::ptranslation &
+	      ptranslation );
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::plexeme & plexeme );
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::perroneous_atom &
+	      perroneous_atom );
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::pitem_lines &
+	      pitem_lines );
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::plexeme_lines &
+	      plexeme_lines );
 
 # endif // LL_LEXEME_H

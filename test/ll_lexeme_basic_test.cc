@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 08:06:58 EST 2011
+// Date:	Sun Feb 20 03:28:20 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,24 +83,21 @@ static uns32   lex_column = 0;
 // Program Construction Test
 // ------- ------------ ----
 
+// The following print error messages.  Since the
+// current scanner implementation does this by default,
+// nothing needs be done.
+//
 static void check_attach
         ( uns32 target_ID, uns32 component_ID )
 {
-    if ( ! LEX::attach ( target_ID, component_ID ) )
-        cout << "ATTACH_ERROR" << endl
-	     << LEX::default_scanner->error_message
-	     << endl;
+    LEX::attach ( target_ID, component_ID );
 }
 
 static void check_attach
         ( uns32 target_ID, uns32 ctype,
 	  uns32 component_ID )
 {
-    if ( ! LEX::attach
-              ( target_ID, ctype, component_ID ) )
-        cout << "ATTACH_ERROR" << endl
-	     << LEX::default_scanner->error_message
-	     << endl;
+    LEX::attach ( target_ID, ctype, component_ID );
 }
 
 static void create_program_1 ( void )
@@ -136,10 +133,16 @@ static void create_program_1 ( void )
     check_attach ( dispatcher1, 2, dispatcher1 );
     check_attach ( dispatcher1, 4, instruction2 );
 
-    cout << "Uncooked Program 1:" << endl << endl;
-    LEX::print_program ( cout, false );
-    cout << "Cooked Program 1:" << endl << endl;
-    LEX::print_program ( cout, true );
+    min::printer printer =
+        LEX::default_scanner->printer;
+    printer << "Uncooked Program 1:"
+            << min::eol << min::eol;
+    LEX::print_program
+        ( printer, LEX::default_scanner, false );
+    printer << "Cooked Program 1:"
+            << min::eol << min::eol;
+    LEX::print_program
+        ( printer, LEX::default_scanner, true );
 }
 
 static void create_program_2 ( void )
@@ -516,48 +519,49 @@ static void create_program_2 ( void )
     check_attach ( minus_dispatcher, 2,
                    master_accept );
 
-    cout << "Cooked Program 2:" << endl << endl;
-    LEX::print_program ( cout, true );
+    min::printer printer =
+        LEX::default_scanner->printer;
+    printer << "Cooked Program 2:"
+            << min::eol << min::eol;
+    LEX::print_program
+        ( printer, LEX::default_scanner, true );
 }
 
 void test_program
     ( const char * input, bool trace = false )
 {
-    cout << endl
-	 << "Testing Lexical Scan of:" << endl;
-    for ( const char * p = input; * p; ++ p )
-	cout << LEX::pchar ( * p );
-    cout << endl << endl;
 
-    LEX::init_scanner ( "test", input );
-    LEX::default_scanner->print->err = & std::cout;
+    LEX::init_input_string
+        ( LEX::default_scanner, input );
+    LEX::init_printer ( LEX::default_scanner );
     if ( trace )
 	LEX::default_scanner->trace= LEX::TRACE;
+    else
+	LEX::default_scanner->trace= 0;
+    min::printer printer =
+        LEX::default_scanner->printer;
+
+    printer << min::eol
+	    << "Testing Lexical Scan of:" << min::eol;
+    for ( const char * p = input; * p; ++ p )
+	printer << LEX::pgraphic ( * p );
+    printer << min::eol << min::eol;
 
 
     char buffer[10000];
     while ( true )
     {
+	printer << "Scan Returned: ";
 	uns32 first, last;
         uns32 type = LEX::scan ( first, last );
-	char * p = buffer;
-	p += sprintf ( p, "Scan Returned:" );
-	unsigned column = p - buffer;
 
-	if ( type == LEX::SCAN_ERROR )
-	{
-	    cout << buffer << " Scan Error:" << endl
-	         << LEX::default_scanner->error_message
-		 << endl;
-	    break;
-	}
+	if ( type == LEX::SCAN_ERROR ) break;
 	else
-	    LEX::splexeme
-		( p, first, last, type, column,
-		    LEX::ENFORCE_LINE_LENGTH
-		  + LEX::PREFACE_WITH_SPACE );
+	    printer << LEX::plexeme
+		( LEX::default_scanner,
+		  first, last, type );
 
-	cout << buffer << endl;
+	printer << min::eol;
 
 	if ( type == END_OF_FILE ) break;
     }
@@ -565,7 +569,7 @@ void test_program
 
 int main ( int argc )
 {
-    LEX::init_scanner();
+    LEX::init ( LEX::default_scanner );
 
     create_program_1();
     create_program_2();

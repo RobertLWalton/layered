@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 17 04:33:31 EST 2011
+// Date:	Sun Feb 20 09:25:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -846,8 +846,6 @@ static void create_scanner
     scanner->translation_buffer =
 	uns32_vec_type.new_gen();
 
-    scanner->read_input = default_read_input;
-    scanner->erroneous_atom = default_erroneous_atom;
     scanner->reinitialize = true;
 }
 
@@ -862,6 +860,28 @@ void LEX::init ( scanner_ptr & scanner )
 
     if ( scanner == NULL_STUB )
         create_scanner ( scanner );
+    else
+    {
+	min::pop ( scanner->input_buffer,
+		   scanner->input_buffer->length );
+	min::resize ( scanner->input_buffer, 1000 );
+	min::pop
+	    ( scanner->translation_buffer,
+	      scanner->translation_buffer->length );
+	min::resize
+	    ( scanner->translation_buffer, 1000 );
+
+	scanner->next_position.line = 0;
+	scanner->next_position.index = 0;
+	scanner->next_position.column = 0;
+
+	scanner->next = 0;
+
+	scanner->return_stack_p = 0;
+	memset ( scanner->return_stack, 0,
+		 sizeof ( scanner->return_stack ) );
+    }
+
     scanner->reinitialize = true;
 }
 
@@ -882,14 +902,7 @@ void LEX::init_printer
         scanner->printer = printer;
 
     if ( scanner->printer == NULL_STUB )
-    {
-	min::init_output_stream
-	    ( scanner->printer, std::cout );
-	init_file_name
-	    ( scanner->printer->file,
-	      min::new_str_gen
-		  ( "standard output" ) );
-    }
+	min::init ( scanner->printer );
 }
 
 bool LEX::init_input_named_file
@@ -913,14 +926,13 @@ bool LEX::init_input_named_file
 void LEX::init_input_stream
 	( scanner_ptr & scanner,
 	  std::istream & istream,
-	  min::gen file_name,
 	  min::uns32 print_flags,
 	  uns32 spool_lines )
 {
     init ( scanner );
     init_input_stream
-	( scanner->input_file,
-          istream, file_name, spool_lines );
+	( scanner->input_file, istream,
+	  print_flags, spool_lines );
     scanner->print_flags =
         scanner->input_file->print_flags =
 	    print_flags;
@@ -929,14 +941,13 @@ void LEX::init_input_stream
 void LEX::init_input_string
 	( scanner_ptr & scanner,
 	  const char * data,
-	  min::gen file_name,
 	  min::uns32 print_flags,
 	  uns32 spool_lines )
 {
     init ( scanner );
     init_input_string
-	( scanner->input_file,
-          data, file_name, spool_lines );
+	( scanner->input_file, data,
+	  print_flags, spool_lines );
     scanner->print_flags =
         scanner->input_file->print_flags =
 	    print_flags;
@@ -1495,30 +1506,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 {
     if ( scanner->reinitialize )
     {
-	min::pop ( scanner->input_buffer,
-		   scanner->input_buffer->length );
-	min::resize ( scanner->input_buffer, 1000 );
-	min::pop
-	    ( scanner->translation_buffer,
-	      scanner->translation_buffer->length );
-	min::resize
-	    ( scanner->translation_buffer, 1000 );
+        if ( scanner->read_input == NULL_STUB )
+	    scanner->read_input = default_read_input;
 
-	scanner->next_position.line = 0;
-	scanner->next_position.index = 0;
-	scanner->next_position.column = 0;
-
-	scanner->next = 0;
+        if ( scanner->erroneous_atom == NULL_STUB )
+	    scanner->erroneous_atom =
+	        default_erroneous_atom;
 
 	if ( scanner->printer == NULL_STUB )
-	{
-	    min::init_output_stream
-	        ( scanner->printer, std::cout );
-	    init_file_name
-		( scanner->printer->file,
-		  min::new_str_gen
-		      ( "standard output" ) );
-	}
+	    min::init ( scanner->printer );
 
 	if ( scanner->program == NULL_STUB )
 	{
@@ -1551,10 +1547,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	assert (    scanner->program[h.initial_table_ID]
 		 == TABLE );
 	scanner->current_table_ID = h.initial_table_ID;
-
-	scanner->return_stack_p = 0;
-	memset ( scanner->return_stack, 0,
-		 sizeof ( scanner->return_stack ) );
 
         scanner->reinitialize = false;
     }

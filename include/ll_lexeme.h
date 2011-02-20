@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 08:44:54 EST 2011
+// Date:	Sun Feb 20 12:33:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -287,20 +287,17 @@ namespace ll { namespace lexeme {
     // The scanner also provides scanner->printer as a
     // place to write error messages.
     //
-    // The scanner must be initialized with
-    // init ( scanner ) before constructing a program.
-    // After constructing a program, init ( scanner )
-    // must be recalled before using the scanner to scan
-    // lexemes.
+    // The scanner must be initialized with before
+    // constructing a program.
 
     // Program component types:
     //
     enum {
 	PROGRAM			= 1,
 	TABLE			= 2,
-	TYPE_MAP			= 3,
-	DISPATCHER			= 4,
-	INSTRUCTION			= 5
+	TYPE_MAP		= 3,
+	DISPATCHER		= 4,
+	INSTRUCTION		= 5
     };
 
     // Return the type of the component at the given
@@ -338,16 +335,16 @@ namespace ll { namespace lexeme {
 
     // Table modes and return values.
     //
-    // A mode is defined to be either the kind MASTER
-    // or ATOM or the type of a lexeme table.
+    // A mode is defined to be either MASTER or ATOM
+    // or the type of a lexeme table.
     //
     enum {
 
-	// Return values that are not types or kinds.
+	// Return values that are not modes.
 	//
 	SCAN_ERROR	= 0xFFFFFFFF,
 
-	// Kinds that are not types or return values.
+	// Modes that are not types.
 	//
         MASTER		= 0xFFFFFFFE,
 	ATOM		= 0xFFFFFFFD
@@ -539,7 +536,17 @@ namespace ll { namespace lexeme {
 	ELSE			= ( 1 << 12 ),
     };
 
-    // Instruction shifts and masks
+    // Instruction shifts and masks; low order 16 bits
+    // of instruction are flags as per above.  The
+    // other bits are
+    //
+    //		16-21	KEEP_LENGTH
+    //		22-27   TRANSLATE_TO_LENGTH
+    //		22-26   PREFIX_LENGTH
+    //		27-31   POSTFIX_LENGTH
+    //
+    // TRANSLATE_TO_LENGTH overlaps with
+    // PREFIX_LENGTH and POSTFIX_LENGTH.
     //
     const uns32 KEEP_LENGTH_SHIFT = 16;
     const uns32 KEEP_LENGTH_MASK = 0x3F;
@@ -549,8 +556,6 @@ namespace ll { namespace lexeme {
     const uns32 PREFIX_LENGTH_MASK = 0x1F;
     const uns32 POSTFIX_LENGTH_SHIFT = 27;
     const uns32 POSTFIX_LENGTH_MASK = 0x1F;
-        // TRANSLATE_TO_LENGTH overlaps with
-	// PREFIX_LENGTH and POSTFIX_LENGTH.
 
     inline uns32 keep_length ( uns32 operation )
     {

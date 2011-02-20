@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 30 00:09:12 EST 2011
+// Date:	Sun Feb 20 08:44:54 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -91,7 +91,7 @@ namespace ll { namespace lexeme {
 	    // Trace instructions executed.
     };
 
-    const uns32 return_stack_size = 64;
+    const uns32 return_stack_size = 16;
     struct scanner_struct
     {
         const uns32 control;
@@ -107,7 +107,9 @@ namespace ll { namespace lexeme {
 	// location of that character in the input text.
 	// The location, consisting of a line, an index,
 	// and a column, is not used by the scanner.
-	// Created by init ( scanner ).
+	//
+	// Created when the scanner is created, and set
+	// empty by scanner initialization functions.
 	//
 	min::packed_vec_insptr<inchar> input_buffer;
 
@@ -115,8 +117,10 @@ namespace ll { namespace lexeme {
 	// that will be put next at the end of the input
 	// buffer.  May be used to delimit the position
 	// just after the last character that is to be
-	// put into the input buffer, i.e., the position
+	// put into the input buffer, e.g., the position
 	// of the end of file.
+	//
+	// Zero'ed by scanner initialization functions.
 	//
 	position next_position;
 
@@ -126,8 +130,10 @@ namespace ll { namespace lexeme {
 	// may be removed from the translation, and
 	// special character representation sequences
 	// may be replaced in the translation by the
-	// represented characters.  Created by init_
-	// scanner.
+	// represented characters.
+	//
+	// Created when the scanner is created, and set
+	// empty by scanner initialization functions.
 	//
 	min::packed_vec_insptr<uns32>
 	    translation_buffer;
@@ -137,20 +143,26 @@ namespace ll { namespace lexeme {
 	//	read_input
 	//	input_file
 	//	erroneous_atom
-	//	trace
 	//	printer
+	//	trace
 	//
-	// These are set to defaults when a scanner is
-	// created by init ( scanner ).
+	// All of these but `trace' are set to NULL_STUB
+	// when the scanner is created, and if still
+	// NULL_STUB when the scanner is first used by
+	// the `scan' function, are set to defaults at
+	// that time.
 
 	// Closure to call to input one or more inchar
 	// elements to the end of the input buffer
 	// vector, increasing the length of the buffer
 	// as neccessary.  Return true if this is done,
 	// and false if there are no more characters
-	// because we are at the end of file.  Initial-
-	// ized to the default value described immedia-
-	// tely below.
+	// because we are at the end of file.
+	//
+	// Set to NULL_STUB when the scanner is created.
+	// Set to `default_read_input' if still If NULL_
+	// STUB when `scan' is first called after
+	// scanner initialization.
 	//
 	input_ptr read_input;
 
@@ -163,35 +175,41 @@ namespace ll { namespace lexeme {
 	//   line   input_file->line_number - 1 after
 	//	    calling next_line(input_file).
 	//
-	//   index  Set to 0 at beginning of line, i.e.,
-	//	    when `\n' is added to the input
-	//	    buffer; otherwise incremented by the
-	//	    number of UTF-8 bytes that encode
-	//	    the character added to the input
-	//	    buffer.
+	//   index  Set to 0 at beginning of line;
+	//	    incremented by the number of UTF-8
+	//	    bytes that encode the character
+	//	    added to the input buffer.
 	//
-	//   column Set to 0 at the beginning of a line,
-	//	    i.e., when `\n' is added to the
-	//	    input buffer; otherwise incremented
-	//	    by
+	//   column Set to 0 at the beginning of a line;
+	//	    incremented by 
 	//
-	//		wchar ( c, print->mode )
+	//		min::width
+	//		    ( column, c, print->mode )
 	//
 	//	    where c is the UNICODE character
-	//	    added to the input buffer, unless
-	//	    wchar returns 0 and c == `\t', in
-	//	    which case the column is set to the
-	//	    next multiple of 8.
+	//	    added to the input buffer.
 	//
-	// Input_file should be set using init_file.
-	// Its default value is set to input from cin
-	// with file name "standard input", and spool_
-	// length == 0.
+	// Set to NULL_STUB when the scanner is created.
+	// Set by
+	//
+	//	min::init_input_stream
+	//	    ( scanner->input_file, std::cin );
+	//
+	//      min::init_file_name
+	//	    ( scanner->input_file,
+	//	      min::new_str_gen
+	//	          "standard input" );
+	//
+	// if NULL_STUB when `scan' is first called after
+	// scanner initialization.
 	//
 	min::file input_file;
 
-	// Copy of input_file->print_flags if that
-	// exists.  Otherwise defaults to 0.
+	// Print flags to be use when lines are printed
+	// in error messages.  A copy of scanner->
+	// input_file->print_flags if that exists.
+	// 
+	// Defaults to 0.
 	//
 	min::uns32 print_flags;
 
@@ -205,22 +223,30 @@ namespace ll { namespace lexeme {
 	// an argument.  If the value of this closure is
 	// NULL_STUB, execution of an instruction with
 	// an ERRONEOUS_ATOM flag is a scan error.
-	// Defaults to NULL_STUB.
+	//
+	// Set to NULL_STUB when the scanner is created.
+	// Set to `default_erroneous_atom' if still If
+	// NULL_STUB when `scan' is first called after
+	// scanner initialization.
 	//
 	erroneous_ptr erroneous_atom;
-
-	// Scanner trace flags (see above for values).
-	//
-	uns32 trace;
 
 	// Printer for scanner error messages and
 	// tracing.
 	//
-	// Default is NULL_STUB.  If this is the value
-	// when the printer is needed, printing is
-	// suppressed.
+	// Set to NULL_STUB when the scanner is created.
+	// Set by
+	//
+	//	min::init ( scanner->printer );
+	//
+	// if NULL_STUB when `scan' is first called after
+	// scanner initialization.
 	//
 	min::printer printer;
+
+	// Scanner trace flags (see above for values).
+	//
+	uns32 trace;
 
 	// Scanner state:
 
@@ -676,8 +702,8 @@ namespace ll { namespace lexeme {
 	// file below.
 	//
 	// Note: This variable is not set until the
-	// first scanner is created (first call to init_
-	// scanner).
+	// first scanner is created (first call to init
+	// a scanner).
 
     // Set input closure function.  If `input' is NULL_
     // STUB, create closure and set `input' to a pointer
@@ -706,8 +732,8 @@ namespace ll { namespace lexeme {
 	// Prints error message to scanner->err.
 	//
 	// Note: This variable is not set until the
-	// first scanner is created (first call to init_
-	// scanner).
+	// first scanner is created (first call to init
+	// a scanner).
 
     // Set erroneous closure function.  If `erroneous'
     // is NULL_STUB, create closure and set `erroneous'
@@ -763,8 +789,9 @@ namespace ll { namespace lexeme {
     // Reinitialize the scanner and set the scanner
     // printer.  If the printer is specified as NULL_
     // STUB and does not previously exist, create a
-    // printer that flushes to std::cout.  Otherwise
-    // to NOT initialize the printer.
+    // printer with
+    //
+    //	    min::init ( scanner->printer )
     //
     void init_printer
 	    ( scanner_ptr & scanner,
@@ -784,14 +811,12 @@ namespace ll { namespace lexeme {
     void init_input_stream
 	    ( scanner_ptr & scanner,
 	      std::istream & istream,
-	      min::gen file_name = min::MISSING,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
 	    ( scanner_ptr & scanner,
 	      const char * data,
-	      min::gen file_name = min::MISSING,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 

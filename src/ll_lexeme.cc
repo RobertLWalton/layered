@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 17:22:58 EST 2011
+// Date:	Tue Feb 22 06:06:15 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,7 +15,6 @@
 //	Program Construction
 //	Scanner Closures
 //	Scanning
-//	Input Files
 //	Printing
 
 // Usage and Setup
@@ -1897,7 +1896,8 @@ min::printer operator <<
     if ( ! translation_is_exact
                ( scanner, plexeme.first,
 	                  plexeme.next ) )
-        printer << " translated to: "
+        printer << min::reserve ( 30 )
+	        << " translated to: "
 	        << ptranslation ( scanner );
     return printer;
 }
@@ -1916,13 +1916,15 @@ min::printer operator <<
 
     printer << LEX::pmode ( scanner, type ) << " ";
 
-    position pos = first < input_buffer->length ?
-        (position) input_buffer[first] :
-	scanner->next_position;
+    LEX::position pos =
+        first < input_buffer->length ?
+	    (LEX::position) input_buffer[first] :
+	    scanner->next_position;
 
     printer << pos.line << "("
 	    << pos.index << ") "
-	    << pos.column
+	    << pos.column << ": "
+	    << min::reserve ( next + 1 - first )
 	    << LEX::pinput ( scanner, first, next );
 }
 
@@ -1962,8 +1964,11 @@ min::printer operator <<
 	    program[program_header_length + mode];
 	if ( offset != 0 )
 	    return printer
+	        << min::push_parameters
+	        << min::noautobreak
 	        <<   (const char *) & program[0]
-		   + offset;
+		   + offset
+	        << min::pop_parameters;
     }
 
     switch ( mode )
@@ -1975,18 +1980,21 @@ min::printer operator <<
     case SCAN_ERROR:
 	return printer << "SCAN_ERROR";
     default:
-	return printer << "TYPE (" << mode << ")";
+	return printer << min::push_parameters
+	               << min::noautobreak
+	               << "TYPE (" << mode << ")"
+	               << min::pop_parameters;
     }
 }
 
-min::printer operator <<
+void LEX::print_item_lines
 	( min::printer printer,
-	  const LEX::pitem_lines & pitem_lines )
+	  LEX::scanner_ptr scanner,
+	  const LEX::position & begin,
+	  const LEX::position & end,
+	  char mark,
+	  const char * blank_line )
 {
-    const LEX::position & begin = pitem_lines.begin;
-    const LEX::position & end   = pitem_lines.end;
-    LEX::scanner_ptr scanner    = pitem_lines.scanner;
-
     assert ( end.line >= begin.line );
 
     uns32 line = begin.line;
@@ -2009,21 +2017,46 @@ min::printer operator <<
 
         for ( uns32 i = first_column;
 	      i < end_column; ++ i )
-	    printer << pitem_lines.mark;
+	    printer << mark;
 	printer << min::eol;
 
-	if ( line == end.line )
-	    return printer;
+	if ( line == end.line ) return;
 
 	++ line;
 
-	if ( line == end.line && 0 == end.column )
-	    return printer;
+	if ( line == end.line && end.column == 0 )
+	    return;
 
 	first_column = 0;
 	width = min::print_line
 	    ( printer, scanner->input_file, line );
     }
+}
+
+void LEX::print_lexeme_lines
+	( min::printer printer,
+	  LEX::scanner_ptr scanner,
+	  min::uns32 first,
+	  min::uns32 next,
+	  char mark,
+	  const char * blank_line )
+{
+    min::packed_vec_insptr<inchar> input_buffer =
+        scanner->input_buffer;
+
+    const LEX::position begin =
+        first < input_buffer->length ?
+	    (LEX::position) input_buffer[first] :
+	    scanner->next_position;
+
+    const LEX::position end =
+        next < input_buffer->length ?
+	    (LEX::position) input_buffer[next] :
+	    scanner->next_position;
+
+    print_item_lines
+        ( printer, scanner, begin, end,
+	  mark, blank_line );
 }
 
 static const unsigned IDwidth = 12;

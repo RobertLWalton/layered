@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 17:16:23 EST 2011
+// Date:	Tue Feb 22 06:57:52 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -938,44 +938,24 @@ namespace ll { namespace lexeme {
     // underneath columns from `begin' to just before
     // `end'.
     //
-    struct pitem_lines
-    {
-    	scanner_ptr scanner;
-        position begin, end;
-	char mark;
-	const char * blank_line;
-	pitem_lines
-	    ( ll::lexeme::scanner_ptr scanner,
+    void print_item_lines
+	    ( min::printer,
+	      ll::lexeme::scanner_ptr scanner,
 	      const ll::lexeme::position & begin,
 	      const ll::lexeme::position & end,
 	      char mark = '^',
-	      const char * blank_line = "<BLANK-LINE>" )
-	    : scanner ( scanner ),
-	      begin ( begin ), end ( end ),
-	      mark ( mark ), blank_line ( blank_line )
-	    {}
-    };
+	      const char * blank_line = "<BLANK-LINE>" );
 
     // Ditto but for lexeme in scanner->input_buffer
     // [first .. next-1].  If input_buffer[next-1] does
     // not exist, use scanner->next_position instead.
     //
-    struct plexeme_lines
-    {
-    	scanner_ptr scanner;
-        uns32 first, next;
-	char mark;
-	const char * blank_line;
-	plexeme_lines
-	    ( ll::lexeme::scanner_ptr scanner,
+    void print_lexeme_lines
+	    ( min::printer,
+	      ll::lexeme::scanner_ptr scanner,
 	      uns32 first, uns32 next,
 	      char mark = '^',
-	      const char * blank_line = "<BLANK-LINE>" )
-	    : scanner ( scanner ),
-	      first ( first ), next ( next ),
-	      mark ( mark ), blank_line ( blank_line )
-	    {}
-    };
+	      const char * blank_line = "<BLANK-LINE>" );
 
     // Print a representation of the program to the
     // printer.  There are two output formats: cooked
@@ -1044,15 +1024,5 @@ min::printer operator <<
 	( min::printer printer,
           const ll::lexeme::perroneous_atom &
 	      perroneous_atom );
-
-min::printer operator <<
-	( min::printer printer,
-          const ll::lexeme::pitem_lines &
-	      pitem_lines );
-
-min::printer operator <<
-	( min::printer printer,
-          const ll::lexeme::plexeme_lines &
-	      plexeme_lines );
 
 # endif // LL_LEXEME_H

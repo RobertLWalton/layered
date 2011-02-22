@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 12:33:17 EST 2011
+// Date:	Sun Feb 20 17:16:23 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,10 @@ namespace ll { namespace lexeme {
     typedef min::packed_vec_insptr<uns32> program_ptr;
         // Type of a pointer to a program.
 
+    extern program_ptr & default_program;
+        // Default program.  This variable is locatable
+	// by the garbage collector.
+
     struct position
         // Position of an element of the input_buffer:
 	// see below.
@@ -70,204 +74,36 @@ namespace ll { namespace lexeme {
             scanner_ptr;
 	// See scanner_struct below.
 
+    extern scanner_ptr & default_scanner;
+        // Default scanner.  This variable is locatable
+	// by the garbage collector.
+
     struct input_struct;
     typedef min::packed_struct_updptr<input_struct>
             input_ptr;
 	// See input_struct below.
+
+    extern input_ptr & default_read_input;
+        // Default value for scanner->read_input.
+	// See scanner->read_input AND scanner->input_
+	// file below.
+	//
+	// Note: This variable is not set until the
+	// first scanner is created (first call to init
+	// a scanner).
 
     struct erroneous_struct;
     typedef min::packed_struct_updptr<erroneous_struct>
             erroneous_ptr;
 	// See erroneous_struct below.
 
-    enum {
-        // Scanner trace flags:
-
-	TRACE_DISPATCH		= (1 << 0),
-	    // Trace character dispatches.
-	TRACE_TABLE		= (1 << 2),
-	    // Trace table invocations.
-	TRACE_INSTRUCTION	= (1 << 3)
-	    // Trace instructions executed.
-    };
-
-    const uns32 return_stack_size = 16;
-    struct scanner_struct
-    {
-        const uns32 control;
-	    // Packed structure control word.
-
-	// The program is a sequence of program
-	// components.  Defaults to NULL_STUB.
+    extern erroneous_ptr & default_erroneous_atom;
+        // Default value for scanner->erroneous_atom.
+	// Prints error message to scanner->printer.
 	//
-	program_ptr program;
-
-	// The input buffer is a vector of inchar
-	// elements each holding a character and the
-	// location of that character in the input text.
-	// The location, consisting of a line, an index,
-	// and a column, is not used by the scanner.
-	//
-	// Created when the scanner is created, and set
-	// empty by scanner initialization functions.
-	//
-	min::packed_vec_insptr<inchar> input_buffer;
-
-	// The line, index, and column of the character
-	// that will be put next at the end of the input
-	// buffer.  May be used to delimit the position
-	// just after the last character that is to be
-	// put into the input buffer, e.g., the position
-	// of the end of file.
-	//
-	// Zero'ed by scanner initialization functions.
-	//
-	position next_position;
-
-	// The translation buffer holds the translation
-	// of the current lexeme.  For example, if the
-	// lexeme is a quoted string lexeme, the quotes
-	// may be removed from the translation, and
-	// special character representation sequences
-	// may be replaced in the translation by the
-	// represented characters.
-	//
-	// Created when the scanner is created, and set
-	// empty by scanner initialization functions.
-	//
-	min::packed_vec_insptr<uns32>
-	    translation_buffer;
-
-	// The scanner parameters are
-	//
-	//	read_input
-	//	input_file
-	//	erroneous_atom
-	//	printer
-	//	trace
-	//
-	// All of these but `trace' are set to NULL_STUB
-	// when the scanner is created, and if still
-	// NULL_STUB when the scanner is first used by
-	// the `scan' function, are set to defaults at
-	// that time.
-
-	// Closure to call to input one or more inchar
-	// elements to the end of the input buffer
-	// vector, increasing the length of the buffer
-	// as neccessary.  Return true if this is done,
-	// and false if there are no more characters
-	// because we are at the end of file.
-	//
-	// Set to NULL_STUB when the scanner is created.
-	// Set to `default_read_input' if still If NULL_
-	// STUB when `scan' is first called after
-	// scanner initialization.
-	//
-	input_ptr read_input;
-
-	// ll::lexeme::default_read_input, the default
-	// value of read_input, reads UTF-8 lines from
-	// the input_file and assigns each UNICODE
-	// character a line, index, and column number
-	// as follows:
-	//
-	//   line   input_file->line_number - 1 after
-	//	    calling next_line(input_file).
-	//
-	//   index  Set to 0 at beginning of line;
-	//	    incremented by the number of UTF-8
-	//	    bytes that encode the character
-	//	    added to the input buffer.
-	//
-	//   column Set to 0 at the beginning of a line;
-	//	    incremented by 
-	//
-	//		min::width
-	//		    ( column, c, print->mode )
-	//
-	//	    where c is the UNICODE character
-	//	    added to the input buffer.
-	//
-	// Set to NULL_STUB when the scanner is created.
-	// Set by
-	//
-	//	min::init_input_stream
-	//	    ( scanner->input_file, std::cin );
-	//
-	//      min::init_file_name
-	//	    ( scanner->input_file,
-	//	      min::new_str_gen
-	//	          "standard input" );
-	//
-	// if NULL_STUB when `scan' is first called after
-	// scanner initialization.
-	//
-	min::file input_file;
-
-	// Print flags to be use when lines are printed
-	// in error messages.  A copy of scanner->
-	// input_file->print_flags if that exists.
-	// 
-	// Defaults to 0.
-	//
-	min::uns32 print_flags;
-
-	// Closure to call with an error atom as per
-	// ERRONEOUS_ATOM instruction flag.  The atom is
-	// in
-	//
-	//	input_buffer[first .. next-1]
-	//
-	// and the instruction provided type is given as
-	// an argument.  If the value of this closure is
-	// NULL_STUB, execution of an instruction with
-	// an ERRONEOUS_ATOM flag is a scan error.
-	//
-	// Set to NULL_STUB when the scanner is created.
-	// Set to `default_erroneous_atom' if still If
-	// NULL_STUB when `scan' is first called after
-	// scanner initialization.
-	//
-	erroneous_ptr erroneous_atom;
-
-	// Printer for scanner error messages and
-	// tracing.
-	//
-	// Set to NULL_STUB when the scanner is created.
-	// Set by
-	//
-	//	min::init ( scanner->printer );
-	//
-	// if NULL_STUB when `scan' is first called after
-	// scanner initialization.
-	//
-	min::printer printer;
-
-	// Scanner trace flags (see above for values).
-	//
-	uns32 trace;
-
-	// Scanner state:
-
-	bool reinitialize;
-	    // Set to true if scanner is to be
-	    // reinitialized on the next call to scan.
-	uns32 next;
-	    // input_buffer[next] is the first character
-	    // of the first yet unscanned atom.
-	uns32 current_table_ID;
-	    // Current table ID.
-	uns32 return_stack[return_stack_size];
-	uns32 return_stack_p;
-	    // Return stack containing return_stack_p
-	    // elements (0 is first and return_stack_p
-	    // - 1 element is top).
-    };
-
-    extern scanner_ptr & default_scanner;
-        // Default scanner.  This variable is locatable
-	// by the garbage collector.
+	// Note: This variable is not set until the
+	// first scanner is created (first call to init
+	// a scanner).
 
 } }
 
@@ -276,19 +112,9 @@ namespace ll { namespace lexeme {
 
 namespace ll { namespace lexeme {
 
-    // The program being constructed is
+    // The program being constructed defaults to
     //
-    //		scanner->program
-    //
-    // which defaults to
-    //
-    //		LEX::default_scanner->program.
-    //
-    // The scanner also provides scanner->printer as a
-    // place to write error messages.
-    //
-    // The scanner must be initialized with before
-    // constructing a program.
+    //		LEX::default_program.
 
     // Program component types:
     //
@@ -305,19 +131,18 @@ namespace ll { namespace lexeme {
     //
     inline uns32 component_type
 	    ( uns32 ID,
-	      scanner_ptr scanner = default_scanner )
+	      program_ptr program = default_program )
     {
-        return scanner->program[ID];
+        return program[ID];
     }
 
     // Create a new program.
     //
-    // This function resets scanner->program to 0 length
-    // and then adds a program header to its beginning.
-    // Subsequent functions add more program components
-    // to the end of the scanner->program.  If scanner->
-    // program does not exist (it equals NULL_STUB), it
-    // is created.
+    // This function resets program to 0 length and then
+    // adds a program header to its beginning.  Subse-
+    // quent functions add more program components to
+    // the end of the program.  If program does not
+    // exist (it equals NULL_STUB), it is created.
     //
     // The header contains a map of lexeme types to type
     // names that is used for printouts.  Lexeme type
@@ -331,7 +156,7 @@ namespace ll { namespace lexeme {
     void create_program
 	    ( const char * const * type_name = NULL,
 	      uns32 max_type = 0,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr & program = default_program );
 
     // Table modes and return values.
     //
@@ -359,13 +184,13 @@ namespace ll { namespace lexeme {
     //
     uns32 create_table
 	    ( uns32 mode,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // Return the mode of a table with the given ID.
     //
     uns32 table_mode
 	    ( uns32 ID,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // Create a dispatcher with given maximum number of
     // breakpoints and maximum ctype.  Return the new
@@ -376,7 +201,7 @@ namespace ll { namespace lexeme {
     uns32 create_dispatcher
 	    ( uns32 max_breakpointers,
 	      uns32 max_ctype,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  Copy
@@ -386,7 +211,7 @@ namespace ll { namespace lexeme {
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
 	      uns8 * map,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  This
@@ -396,7 +221,7 @@ namespace ll { namespace lexeme {
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
 	      uns32 ctype,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // An instruction consists of an uns32 operation,
     // various optional IDs, and an uns32 * translation_
@@ -639,31 +464,33 @@ namespace ll { namespace lexeme {
 	      uns32 output_type = 0,
 	      uns32 goto_table_ID = 0,
 	      uns32 call_table_ID = 0,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // Attach a dispatcher or an instruction component
     // to a lexical table target, or a type map compo-
-    // nent to a dispatcher target.  Return 1 if no
-    // error.  Return 0 and do nothing but write an
-    // error message if there is a conflict with a
-    // previous attachment.
+    // nent to a dispatcher target.  Return true if no
+    // error.  Return false and do nothing but write an
+    // error message consisting of one or more complete
+    // lines to min::error_message if there is a
+    // conflict with a previous attachment.
     //
-    uns32 attach
+    bool attach
     	    ( uns32 target_ID,
     	      uns32 component_ID,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // Attach a dispatcher or an instruction component
-    // to a ctype of a dispatcher target.  Return 1 if
-    // no error.  Return 0 and do nothing but write
-    // an error message if there is a conflict with a
-    // previous attachment.
+    // to a ctype of a dispatcher target.  Return true
+    // if no error.  Return false and do nothing but
+    // write an error message consisting of one or more
+    // complete lines to min::error_meesage if there is
+    // a conflict with a previous attachment.
     //
-    uns32 attach
+    bool attach
     	    ( uns32 target_ID,
     	      uns32 ctype,
 	      uns32 component_ID,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
     // Convert the program to the endianhood of this
     // computer.  This is necessary when the program is
@@ -683,7 +510,7 @@ namespace ll { namespace lexeme {
     // way.
     //
     bool convert_program_endianhood
-	    ( scanner_ptr scanner = default_scanner );
+	    ( program_ptr program = default_program );
 } }
 
 // Scanner Closures
@@ -700,15 +527,6 @@ namespace ll { namespace lexeme {
 	              input_ptr input );
 	    // See scanner->read_input.
     };
-
-    extern input_ptr & default_read_input;
-        // Default value for scanner->read_input.
-	// See scanner->read_input AND scanner->input_
-	// file below.
-	//
-	// Note: This variable is not set until the
-	// first scanner is created (first call to init
-	// a scanner).
 
     // Set input closure function.  If `input' is NULL_
     // STUB, create closure and set `input' to a pointer
@@ -731,14 +549,6 @@ namespace ll { namespace lexeme {
 	      erroneous_ptr erroneous );
 	    // See scanner->erroneous_atom.
     };
-
-    extern erroneous_ptr & default_erroneous_atom;
-        // Default value for scanner->erroneous_atom.
-	// Prints error message to scanner->err.
-	//
-	// Note: This variable is not set until the
-	// first scanner is created (first call to init
-	// a scanner).
 
     // Set erroneous closure function.  If `erroneous'
     // is NULL_STUB, create closure and set `erroneous'
@@ -779,6 +589,184 @@ namespace ll { namespace lexeme {
     // scanner.  They should not be changed otherwise,
     // except for the trace parameter, which may be
     // changed at any time.
+
+    enum {
+        // Scanner trace flags:
+
+	TRACE_DISPATCH		= (1 << 0),
+	    // Trace character dispatches.
+	TRACE_TABLE		= (1 << 2),
+	    // Trace table invocations.
+	TRACE_INSTRUCTION	= (1 << 3)
+	    // Trace instructions executed.
+    };
+
+    const uns32 return_stack_size = 16;
+    struct scanner_struct
+    {
+        const uns32 control;
+	    // Packed structure control word.
+
+	// The program is a sequence of program
+	// components.  Defaults to NULL_STUB.
+	//
+	program_ptr program;
+
+	// The input buffer is a vector of inchar
+	// elements each holding a character and the
+	// location of that character in the input text.
+	// The location, consisting of a line, an index,
+	// and a column, is not used by the scanner.
+	//
+	// Created when the scanner is created, and set
+	// empty by scanner initialization functions.
+	//
+	min::packed_vec_insptr<inchar> input_buffer;
+
+	// The line, index, and column of the character
+	// that will be put next at the end of the input
+	// buffer.  May be used to delimit the position
+	// just after the last character that is to be
+	// put into the input buffer, e.g., the position
+	// of the end of file.
+	//
+	// Zero'ed by scanner initialization functions.
+	//
+	position next_position;
+
+	// The translation buffer holds the translation
+	// of the current lexeme.  For example, if the
+	// lexeme is a quoted string lexeme, the quotes
+	// may be removed from the translation, and
+	// special character representation sequences
+	// may be replaced in the translation by the
+	// represented characters.
+	//
+	// Created when the scanner is created, and set
+	// empty by scanner initialization functions.
+	//
+	min::packed_vec_insptr<uns32>
+	    translation_buffer;
+
+	// The scanner parameters are
+	//
+	//	read_input
+	//	input_file
+	//	erroneous_atom
+	//	printer
+	//	trace
+	//
+	// All of these but `trace' are set to NULL_STUB
+	// when the scanner is created, and if still
+	// NULL_STUB when the scanner is first used by
+	// the `scan' function, are set to defaults at
+	// that time.
+
+	// Closure to call to input one or more inchar
+	// elements to the end of the input buffer
+	// vector, increasing the length of the buffer
+	// as neccessary.  Return true if this is done,
+	// and false if there are no more characters
+	// because we are at the end of file.
+	//
+	// Set to NULL_STUB when the scanner is created.
+	// Set to `default_read_input' if still If NULL_
+	// STUB when `scan' is first called after
+	// scanner initialization.
+	//
+	input_ptr read_input;
+
+	// ll::lexeme::default_read_input, the default
+	// value of read_input, reads UTF-8 lines from
+	// the input_file and assigns each UNICODE
+	// character a line, index, and column number
+	// as follows:
+	//
+	//   line   input_file->line_number - 1 after
+	//	    calling next_line(input_file).
+	//
+	//   index  Set to 0 at beginning of line;
+	//	    incremented by the number of UTF-8
+	//	    bytes that encode the character
+	//	    added to the input buffer.
+	//
+	//   column Set to 0 at the beginning of a line;
+	//	    incremented by 
+	//
+	//		min::width
+	//		    ( column, c, print->mode )
+	//
+	//	    where c is the UNICODE character
+	//	    added to the input buffer.
+	//
+	// Set to NULL_STUB when the scanner is created.
+	// Set by
+	//
+	//	min::init_input_stream
+	//	    ( scanner->input_file, std::cin );
+	//
+	//      min::init_file_name
+	//	    ( scanner->input_file,
+	//	      min::new_str_gen
+	//	          ( "standard input" ) );
+	//
+	// if NULL_STUB when `scan' is first called
+	// after scanner initialization.
+	//
+	min::file input_file;
+
+	// Closure to call with an error atom as per
+	// ERRONEOUS_ATOM instruction flag.  The atom is
+	// in
+	//
+	//	input_buffer[first .. next-1]
+	//
+	// and the instruction provided type is given as
+	// an argument.  If the value of this closure is
+	// NULL_STUB, execution of an instruction with
+	// an ERRONEOUS_ATOM flag is a scan error.
+	//
+	// Set to NULL_STUB when the scanner is created.
+	// Set to `default_erroneous_atom' if still If
+	// NULL_STUB when `scan' is first called after
+	// scanner initialization.
+	//
+	erroneous_ptr erroneous_atom;
+
+	// Printer for default erroneous atom error
+	// messages and tracing.
+	//
+	// Set to NULL_STUB when the scanner is created.
+	// Set by
+	//
+	//	min::init ( scanner->printer )
+	//	    << min:autobreak;
+	//
+	// when first needed if it is still NULL_STUB at
+	// that time.
+	//
+	min::printer printer;
+
+	// Scanner trace flags (see above for values).
+	//
+	uns32 trace;
+
+	// Scanner state:
+
+	bool reinitialize;
+	    // Set to true if scanner is to be
+	    // reinitialized on the next call to scan.
+	uns32 next;
+	    // input_buffer[next] is the first character
+	    // of the first yet unscanned atom.
+	uns32 current_table_ID;
+	    // Current table ID.
+	uns32 return_stack[return_stack_size];
+	uns32 return_stack_p;
+	    // Return stack containing return_stack_p
+	    // elements (0 is first and return_stack_p
+	    // - 1 element is top).
+    };
 
     // Simply (re)initialize a scanner.
     //
@@ -841,10 +829,10 @@ namespace ll { namespace lexeme {
     //
     // If there is an error in the lexical scanning
     // program, SCAN_ERROR is returned instead of a
-    // lexeme type, and an error message diagnostic is
-    // printed in scanner->printer.  In these two cases
-    // first and next and the translation buffer are not
-    // set.
+    // lexeme type, and an error message consisting of
+    // one or more complete lines is written to the
+    // min::error_message.  In this case first, next,
+    // and the translation buffer are not set.
     //
     uns32 scan
             ( uns32 & first, uns32 & next,

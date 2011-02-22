@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 09:25:38 EST 2011
+// Date:	Sun Feb 20 17:22:58 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,22 +75,26 @@ static min::packed_struct<LEX::input_struct>
 static min::packed_struct<LEX::erroneous_struct>
     erroneous_type ( "ll::lexeme::erroneous_type" );
 
-static min::static_stub<3> default_stub;
+static min::static_stub<4> default_stub;
+LEX::program_ptr & LEX::default_program =
+    * (LEX::program_ptr *) & default_stub[0];
 LEX::input_ptr & LEX::default_read_input =
-    * (LEX::input_ptr *) & default_stub[0];
+    * (LEX::input_ptr *) & default_stub[1];
 LEX::erroneous_ptr & LEX::default_erroneous_atom =
-    * (LEX::erroneous_ptr *) & default_stub[1];
+    * (LEX::erroneous_ptr *) & default_stub[2];
 LEX::scanner_ptr & LEX::default_scanner =
-    * (LEX::scanner_ptr *) & default_stub[2];
+    * (LEX::scanner_ptr *) & default_stub[3];
 
 // Program Construction
 // ------- ------------
 
-uns32 LEX::create_table
-	( uns32 mode, scanner_ptr scanner )
-{
-    program_ptr program = scanner->program;
+# define ERR min::init ( min::error_message ) \
+    << "LEXICAL PROGRAM CONSTRUCTION ERROR: "
 
+
+uns32 LEX::create_table
+	( uns32 mode, program_ptr program )
+{
     if ( mode != ATOM && mode != MASTER )
     {
 	program_header & ph =
@@ -125,10 +129,8 @@ uns32 LEX::create_table
 }
 
 uns32 LEX::table_mode
-	( uns32 ID, scanner_ptr scanner )
+	( uns32 ID, program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     table_header & h = * (table_header *) & program[ID];
     return h.mode;
 }
@@ -136,13 +138,10 @@ uns32 LEX::table_mode
 void LEX::create_program
 	( const char * const * type_name,
 	  uns32 max_type,
-	  scanner_ptr scanner )
+	  program_ptr & program )
 {
-    program_ptr program = scanner->program;
-
     if ( program == NULL_STUB )
-        program = scanner->program =
-	    uns32_vec_type.new_gen();
+        program = uns32_vec_type.new_gen();
     else
     {
 	min::pop ( program, program->length );
@@ -188,10 +187,8 @@ void LEX::create_program
 uns32 LEX::create_dispatcher
 	( uns32 max_breakpoints,
 	  uns32 max_ctype,
-	  scanner_ptr scanner )
+	  program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     uns32 length =
           dispatcher_header_length
 	+   break_element_length
@@ -225,10 +222,8 @@ uns32 LEX::create_dispatcher
 uns32 LEX::create_type_map
 	( uns32 cmin, uns32 cmax,
 	  uns8 * map,
-	  scanner_ptr scanner )
+	  program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     assert ( cmax >= cmin );
     uns32 length = cmax - cmin + 1;
     uns32 ID = program->length;
@@ -250,10 +245,8 @@ uns32 LEX::create_type_map
 uns32 LEX::create_type_map
 	( uns32 cmin, uns32 cmax,
 	  uns32 ctype,
-	  scanner_ptr scanner )
+	  program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     assert ( cmax >= cmin );
     uns32 ID = program->length;
     type_map_header & h =
@@ -279,10 +272,8 @@ uns32 LEX::create_instruction
 	  uns32 output_type,
 	  uns32 goto_table_ID,
 	  uns32 call_table_ID,
-	  scanner_ptr scanner )
+	  program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     assert ( ( ( operation & TRANSLATE_TO_FLAG ) != 0 )
 	     +
              ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
@@ -400,13 +391,11 @@ uns32 LEX::create_instruction
 // case where break elements may need to be inserted
 // into the dispatcher.
 //
-static uns32 attach_type_map_to_dispatcher
-	( scanner_ptr scanner,
-	  uns32 dispatcher_ID,
-	  uns32 type_map_ID )
+static bool attach_type_map_to_dispatcher
+	( uns32 dispatcher_ID,
+	  uns32 type_map_ID,
+	  program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     dispatcher_header & dh =
         * (dispatcher_header *)
 	& program[dispatcher_ID];
@@ -433,9 +422,7 @@ static uns32 attach_type_map_to_dispatcher
 
     if ( bep[i].type_map_ID != 0 )
     {
-        scanner->printer
-	    << "LEXICAL PROGRAM CONSTRUCTION ERROR: "
-	       "Attempt to attach type map "
+        ERR << "Attempt to attach type map "
 	    << type_map_ID
 	    << " to dispatcher "
 	    << dispatcher_ID
@@ -443,7 +430,7 @@ static uns32 attach_type_map_to_dispatcher
 	       " type map "
 	    << bep[i].type_map_ID
 	    << min::eol;
-        return 0;
+        return false;
     }
 
     if ( i + 1 != dh.break_elements
@@ -451,9 +438,7 @@ static uns32 attach_type_map_to_dispatcher
 	 bep[i+1].cmin < mh.cmin )
     {
         assert ( bep[i+1].type_map_ID != 0 );
-        scanner->printer
-	    << "LEXICAL PROGRAM CONSTRUCTION ERROR: "
-	       "Attempt to attach type map "
+        ERR << "Attempt to attach type map "
 	    << type_map_ID
 	    << " to dispatcher "
 	    << dispatcher_ID
@@ -461,7 +446,7 @@ static uns32 attach_type_map_to_dispatcher
 	       " type map "
 	    << bep[i+1].type_map_ID
 	    << min::eol;
-        return 0;
+        return false;
     }
 
     int n = 2; // Number of new break elements needed.
@@ -469,16 +454,14 @@ static uns32 attach_type_map_to_dispatcher
     if ( ! split_next ) -- n;
     if ( dh.break_elements + n > dh.max_break_elements )
     {
-        scanner->printer
-	    << "LEXICAL PROGRAM CONSTRUCTION ERROR: "
-	       "Attempt to attach type map "
+        ERR << "Attempt to attach type map "
 	    << type_map_ID
 	    << " to dispatcher "
 	    << dispatcher_ID
             << " fails because dispatcher already has"
 	       " too many breaks"
 	    << min::eol;
-	return 0;
+	return false;
     }
 
     if ( n != 0 )
@@ -500,16 +483,14 @@ static uns32 attach_type_map_to_dispatcher
 
     dh.break_elements += n;
     bep[i].type_map_ID = type_map_ID;
-    return 1;
+    return true;
 }
 
-uns32 LEX::attach
+bool LEX::attach
 	( uns32 target_ID,
 	  uns32 component_ID,
-	  scanner_ptr scanner )
+	  program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     uns32 target_pctype = program[target_ID];
     uns32 component_pctype = program[component_ID];
 
@@ -523,10 +504,7 @@ uns32 LEX::attach
 	{
 	    if ( h.dispatcher_ID != 0 )
 	    {
-		scanner->printer
-		    << "LEXICAL PROGRAM CONSTRUCTION"
-		       " ERROR: "
-		       "Attempt to attach dispatcher "
+		ERR << "Attempt to attach dispatcher "
 		    << component_ID
 		    << " to table "
 		    << target_ID
@@ -534,19 +512,16 @@ uns32 LEX::attach
 		       " attachment of dispatcher "
 		    << h.dispatcher_ID
 		    << min::eol;
-	        return 0;
+	        return false;
 	    }
 	    h.dispatcher_ID = component_ID;
-	    return 1;
+	    return true;
 	}
         else if ( component_pctype == INSTRUCTION )
 	{
 	    if ( h.instruction_ID != 0 )
 	    {
-		scanner->printer
-		    << "LEXICAL PROGRAM CONSTRUCTION"
-		       " ERROR: "
-		       "Attempt to attach instruction "
+		ERR << "Attempt to attach instruction "
 		    << component_ID
 		    << " to table "
 		    << target_ID
@@ -554,10 +529,10 @@ uns32 LEX::attach
 		       " attachment of instruction "
 		    << h.instruction_ID
 		    << min::eol;
-	        return 0;
+	        return false;
 	    }
 	    h.instruction_ID = component_ID;
-	    return 1;
+	    return true;
 	}
 	else assert
 	    ( ! "bad attach component pctypes" );
@@ -566,19 +541,17 @@ uns32 LEX::attach
               &&
 	      component_pctype == TYPE_MAP )
         return attach_type_map_to_dispatcher
-		   ( scanner, target_ID, component_ID );
+	    ( target_ID, component_ID, program );
     else
 	assert ( ! "bad attach component pctypes" );
 }
 
-uns32 LEX::attach
+bool LEX::attach
 	( uns32 target_ID,
 	  uns32 ctype,
 	  uns32 component_ID,
-	  scanner_ptr scanner )
+	  program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     dispatcher_header & h =
         * (dispatcher_header *)
 	& program[target_ID];
@@ -602,10 +575,7 @@ uns32 LEX::attach
     {
 	if ( me.dispatcher_ID != 0 )
 	{
-	    scanner->printer
-		<< "LEXICAL PROGRAM CONSTRUCTION"
-		   " ERROR: "
-	           "Attempt to attach dispatcher "
+	    ERR << "Attempt to attach dispatcher "
 		<< component_ID
 		<< " to dispatcher "
 		<< target_ID
@@ -615,19 +585,16 @@ uns32 LEX::attach
 		   " of dispatcher "
 		<< me.dispatcher_ID
 		<< min::eol;
-	    return 0;
+	    return false;
 	}
 	me.dispatcher_ID = component_ID;
-	return 1;
+	return true;
     }
     else if ( component_pctype == INSTRUCTION )
     {
 	if ( me.instruction_ID != 0 )
 	{
-	    scanner->printer
-		<< "LEXICAL PROGRAM CONSTRUCTION"
-		   " ERROR: "
-	           "Attempt to attach instruction "
+	    ERR << "Attempt to attach instruction "
 		<< component_ID
 		<< " to dispatcher "
 		<< target_ID
@@ -637,10 +604,10 @@ uns32 LEX::attach
 		   " of instruction "
 		<< me.instruction_ID
 		<< min::eol;
-	    return 0;
+	    return false;
 	}
 	me.instruction_ID = component_ID;
-	return 1;
+	return true;
     }
     else
 	assert ( ! "assert failure" );
@@ -658,10 +625,8 @@ inline uns32 conv ( uns32 & v )
 }
 
 bool LEX::convert_program_endianhood
-	( scanner_ptr scanner )
+	( program_ptr program )
 {
-    program_ptr program = scanner->program;
-
     if ( program[0] == PROGRAM ) return true;
 
     uns32 ID = 0;
@@ -730,6 +695,8 @@ bool LEX::convert_program_endianhood
 #   undef NEXT
     return true;
 }
+
+# undef ERR
 
 // Scanner Closures
 // ------- --------
@@ -763,7 +730,14 @@ static bool default_read_input_get
     min::file file = scanner->input_file;
 
     min::uns32 offset = min::next_line ( file );
-    if ( offset == min::NO_LINE ) return false;
+    min::uns32 length = 0xFFFFFFFF;
+    if ( offset == min::NO_LINE )
+    {
+        length = min::partial_length ( file );
+        if ( length == 0 ) return false;
+	offset = min::partial_offset ( file );
+	min::skip_partial ( file );
+    }
 
     min::packed_vec_insptr<LEX::inchar> input_buffer =
         scanner->input_buffer;
@@ -773,7 +747,8 @@ static bool default_read_input_get
     ic.index = 0;
     ic.column = 0;
 
-    while ( file->buffer[offset] != 0 )
+    for ( ; length != 0 && file->buffer[offset] != 0;
+            -- length )
     {
 	const char * beginp = & file->buffer[offset];
 	const char * p = beginp;
@@ -785,14 +760,17 @@ static bool default_read_input_get
 	min::push(input_buffer) = ic;
 	ic.index += bytes_read;
 	min::pwidth ( ic.column, unicode,
-		      scanner->print_flags );
+		      file->print_flags );
     }
 
-    ic.character = '\n';
-    min::push(input_buffer) = ic;
-    ++ ic.line;
-    ic.index = 0;
-    ic.column = 0;
+    if ( length != 0 )
+    {
+	ic.character = '\n';
+	min::push(input_buffer) = ic;
+	++ ic.line;
+	ic.index = 0;
+	ic.column = 0;
+    }
 
     scanner->next_position = (LEX::position) ic;
 
@@ -804,6 +782,9 @@ static void default_erroneous_atom_announce
 	  LEX::scanner_ptr scanner,
 	  LEX::erroneous_ptr erroneous )
 {
+    if ( scanner->printer == min::NULL_STUB )
+        min::init ( scanner->printer );
+
     scanner->printer
         << "ERRONEOUS ATOM: "
 	<< LEX::perroneous_atom
@@ -898,11 +879,7 @@ void LEX::init_printer
 	  min::printer printer )
 {
     init ( scanner );
-    if ( printer != NULL_STUB )
-        scanner->printer = printer;
-
-    if ( scanner->printer == NULL_STUB )
-	min::init ( scanner->printer );
+    scanner->printer = printer;
 }
 
 bool LEX::init_input_named_file
@@ -912,15 +889,12 @@ bool LEX::init_input_named_file
 	  min::uns32 spool_lines )
 	  
 {
-    init_printer ( scanner );
-    bool result = init_input_named_file
+    init ( scanner );
+    return min::init_input_named_file
 	( scanner->input_file,
 	  file_name,
-	  scanner->printer,
 	  print_flags,
 	  spool_lines );
-    scanner->print_flags = print_flags;
-    return result;
 }
 
 void LEX::init_input_stream
@@ -930,12 +904,9 @@ void LEX::init_input_stream
 	  uns32 spool_lines )
 {
     init ( scanner );
-    init_input_stream
+    min::init_input_stream
 	( scanner->input_file, istream,
 	  print_flags, spool_lines );
-    scanner->print_flags =
-        scanner->input_file->print_flags =
-	    print_flags;
 }
 
 void LEX::init_input_string
@@ -945,16 +916,14 @@ void LEX::init_input_string
 	  uns32 spool_lines )
 {
     init ( scanner );
-    init_input_string
+    min::init_input_string
 	( scanner->input_file, data,
 	  print_flags, spool_lines );
-    scanner->print_flags =
-        scanner->input_file->print_flags =
-	    print_flags;
 }
 
-// Write the beginning of a scan error message into
-// scanner->printer and return scanner->printer.
+// Init min::error_message and write the beginning of a
+// scan error message into it.  Return min::error_
+// message.
 //
 // Usage is:
 //
@@ -999,6 +968,7 @@ static uns32 ctype ( scanner_ptr scanner,
 
     bool trace =
         ( scanner->trace & LEX::TRACE_DISPATCH );
+
     if ( trace )
 	scanner->printer
 	    << "  Character = " << pgraphic ( c )
@@ -1059,8 +1029,8 @@ static uns32 ctype ( scanner_ptr scanner,
     return ctype;
 }
 
-// Scan atom given current table.  Process instruction
-// group but not
+// Scan atom given current table.  Locate and process
+// instruction group, but not
 //
 //	ERRONEOUS_ATOM
 //	OUTPUT
@@ -1069,9 +1039,12 @@ static uns32 ctype ( scanner_ptr scanner,
 //	RETURN
 //	FAIL
 //
-// and return instruction.  Return 0 if error, leaving
-// error message in error message.  Return atom_length
-// and add translation of atom to translation buffer.
+// Skip failed instructions in instruction group.
+// Return instruction_ID of first non-failed instruction
+// so the above can be processed.  Return 0 if error,
+// leaving error message in min::error_message.  If no
+// error, return atom_length in argument variable and
+// add translation of atom to translation buffer.
 //
 static uns32 scan_atom
     ( scanner_ptr scanner, uns32 & atom_length )
@@ -1155,7 +1128,7 @@ static uns32 scan_atom
 	if ( ctype > dh.max_ctype )
 	{
 	    scan_error ( scanner, length )
-		    << "ctype " << ctype
+		    << "Ctype " << ctype
 		    << " computed for character "
 		    << LEX::pgraphic ( c )
 		    << " is too large for dispatcher "
@@ -1201,7 +1174,7 @@ static uns32 scan_atom
 	{
 	    assert ( atom_length == 0 );
 	    scan_error ( scanner, length )
-		<< "no instruction found" << min::eol;
+		<< "No instruction found" << min::eol;
 	    return SCAN_ERROR;
 	}
 
@@ -1261,9 +1234,9 @@ static uns32 scan_atom
 	             ( scanner, ih.atom_table_ID ) )
 	    {
 		scan_error ( scanner, atom_length )
-		    << "recursive MATCH to table "
+		    << "Recursive MATCH to table "
 		    << ih.atom_table_ID
-		    << " in instructino "
+		    << " in instruction "
 		    << instruction_ID
 		    << " executed by table "
 		    << scanner->current_table_ID
@@ -1305,7 +1278,7 @@ static uns32 scan_atom
 	    if ( keep > keep_length )
 	    {
 		scan_error ( scanner, length )
-		    << "keep length(" << keep
+		    << "Keep length(" << keep
 		    << ") greater than atom length("
 		    << keep_length << ")" << min::eol;
 		return SCAN_ERROR;
@@ -1422,7 +1395,7 @@ static uns32 scan_atom
 		if ( ctype > dh.max_ctype )
 		{
 		    scan_error ( scanner, length )
-		        << "ctype " << ctype
+		        << "Ctype " << ctype
 			<< " computed for character "
 			<< pgraphic ( c )
 			<< " is too large for"
@@ -1464,7 +1437,7 @@ static uns32 scan_atom
 		if ( instruction_ID == 0 )
 		{
 		    scan_error ( scanner, length )
-		        << "no instruction for ELSE in"
+		        << "No instruction for ELSE in"
 			   " failed instruction "
 		        << instruction_ID
 			<< " executed by table "
@@ -1482,7 +1455,7 @@ static uns32 scan_atom
 	    else
 	    {
 		scan_error ( scanner, length )
-		    << "no ELSE in failed instruction "
+		    << "No ELSE in failed instruction "
 		    << instruction_ID
 		    << " executed by table "
 		    << scanner->current_table_ID
@@ -1513,19 +1486,16 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    scanner->erroneous_atom =
 	        default_erroneous_atom;
 
-	if ( scanner->printer == NULL_STUB )
-	    min::init ( scanner->printer );
-
 	if ( scanner->program == NULL_STUB )
 	{
-	    scanner->printer
+	    min::init ( min::error_message )
 	        << "LEXICAL SCANNER ERROR: no program"
 		<< min::eol;
 	    return SCAN_ERROR;
 	}
 	else if ( scanner->program[0] != PROGRAM )
 	{
-	    scanner->printer
+	    min::init ( min::error_message )
 	        << "LEXICAL SCANNER ERROR:"
 		   " illegal program"
 		<< min::eol;
@@ -1550,6 +1520,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 
         scanner->reinitialize = false;
     }
+
+    if (    scanner->trace != 0
+	 && scanner->printer == NULL_STUB )
+	min::init ( scanner->printer );
 
     program_ptr program =
         scanner->program;
@@ -1626,7 +1600,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	        scan_error ( scanner,
 		             scanner->next - first,
 			     first )
-		    << "attempt to OUTPUT when the next"
+		    << "Attempt to OUTPUT when the next"
 		       " table "
 		    << scanner->current_table_ID
 		    << " is not a master table"
@@ -1773,7 +1747,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	             ( scanner, ih.call_table_ID ) )
 	    {
 		scan_error ( scanner, atom_length )
-		    << "recursive CALL to table "
+		    << "Recursive CALL to table "
 		    << ih.call_table_ID
 		    << " in instruction "
 		    << instruction_ID
@@ -1813,7 +1787,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	else if ( -- loop_count == 0 )
 	{
 	    scan_error ( scanner, atom_length )
-	        << "endless loop in scanner"
+	        << "Endless loop in scanner"
 		<< min::eol;
 	    return SCAN_ERROR;
 	}
@@ -1833,7 +1807,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
     case SCAN_ERROR:
     {
 	scan_error ( scanner, next - first, first )
-	    << "returning lexeme with bad type("
+	    << "Returning lexeme with bad type("
 	    << pmode ( scanner, type ) << ")"
 	    << min::eol;
 	return SCAN_ERROR;
@@ -1849,22 +1823,24 @@ static min::printer scan_error
         ( scanner_ptr scanner,
 	  uns32 length, uns32 next )
 {
-    assert ( scanner->printer != NULL_STUB );
-
-    scanner->printer << "LEXICAL SCANNER ERROR:"
-                        " current_table "
+    min::init ( min::error_message )
+        << "LEXICAL SCANNER ERROR: current_table "
 	             << scanner->current_table_ID;
-    if ( scanner->next < scanner->input_buffer->length )
-	scanner->printer
-	    << ", position "
-	    << scanner->input_buffer[next].line << "("
-	    << scanner->input_buffer[next].index << ")"
-	    << scanner->input_buffer[next].column;
+    const LEX::position & pos =
+	scanner->next < scanner->input_buffer->length ?
+	    (LEX::position)
+	        scanner->input_buffer[next] :
+	    scanner->next_position;
+    min::error_message << ": position "
+	               << pos.line << "("
+	               << pos.index << ")"
+	               << pos.column;
 
-    return scanner->printer
+    return min::error_message
         << ": "
+	<< min::reserve ( length )
 	<< pinput ( scanner, next, next + length )
-	<< min::eol;
+	<< ": " << min::reserve ( 20 );
 }
 
 // Printing

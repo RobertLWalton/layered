@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 03:28:20 EST 2011
+// Date:	Tue Feb 22 12:02:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,30 +79,34 @@ static uns32   lex_line = 0;
 static uns32   lex_index = 0;
 static uns32   lex_column = 0;
 
+static min::static_stub<1> stubs;
+min::printer & printer = * (min::printer *) & stubs[0];
+
 
 // Program Construction Test
 // ------- ------------ ----
 
-// The following print error messages.  Since the
-// current scanner implementation does this by default,
-// nothing needs be done.
+// The following print min::error_message if there is
+// an error.
 //
 static void check_attach
         ( uns32 target_ID, uns32 component_ID )
 {
-    LEX::attach ( target_ID, component_ID );
+    if ( ! LEX::attach ( target_ID, component_ID ) )
+        cout << min::error_message;
 }
 
 static void check_attach
         ( uns32 target_ID, uns32 ctype,
 	  uns32 component_ID )
 {
-    LEX::attach ( target_ID, ctype, component_ID );
+    if ( ! LEX::attach
+               ( target_ID, ctype, component_ID ) )
+        cout << min::error_message;
 }
 
 static void create_program_1 ( void )
 {
-
     LEX::create_program ( type_name, MAX_TYPE );
     uns32 master = LEX::create_table ( MASTER );
 
@@ -533,20 +537,24 @@ void test_program
 
     LEX::init_input_string
         ( LEX::default_scanner, input );
-    LEX::init_printer ( LEX::default_scanner );
+
     if ( trace )
 	LEX::default_scanner->trace= LEX::TRACE;
     else
 	LEX::default_scanner->trace= 0;
+
     min::printer printer =
         LEX::default_scanner->printer;
 
     printer << min::eol
-	    << "Testing Lexical Scan of:" << min::eol;
-    for ( const char * p = input; * p; ++ p )
-	printer << LEX::pgraphic ( * p );
-    printer << min::eol << min::eol;
-
+	    << "Testing Lexical Scan of:"
+	    << min::eol
+	    << min::indent
+	    << min::push_parameters
+	    << min::graphic
+	    << input
+	    << min::pop_parameters
+	    << min::eol << min::eol;
 
     char buffer[10000];
     while ( true )
@@ -555,7 +563,8 @@ void test_program
 	uns32 first, last;
         uns32 type = LEX::scan ( first, last );
 
-	if ( type == LEX::SCAN_ERROR ) break;
+	if ( type == LEX::SCAN_ERROR )
+	    printer << min::eol << min::error_message;
 	else
 	    printer << LEX::plexeme
 		( LEX::default_scanner,
@@ -569,7 +578,9 @@ void test_program
 
 int main ( int argc )
 {
-    LEX::init ( LEX::default_scanner );
+    min::init_output_stream ( printer, std::cout );
+    LEX::init_printer
+        ( LEX::default_scanner, printer );
 
     create_program_1();
     create_program_2();

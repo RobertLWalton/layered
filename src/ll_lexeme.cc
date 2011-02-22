@@ -16,6 +16,7 @@
 //	Scanner Closures
 //	Scanning
 //	Printing
+//	Printing Programs
 
 // Usage and Setup
 // ----- --- -----
@@ -949,7 +950,7 @@ inline min::printer scan_error
 // return ID repositioned just after instuction.  How-
 // ever, if scanner->program[ID] does not ==
 // INSTRUCTION, print ILLEGAL instruction message and
-// return 0.
+// return scanner->program->length + 1.
 //
 // If ID == 0 do nothing but return 0.
 //
@@ -2058,6 +2059,12 @@ void LEX::print_lexeme_lines
         ( printer, scanner, begin, end,
 	  mark, blank_line );
 }
+
+// Printing Programs
+// -------- --------
+
+// Program lines are printed with min::noautobreak
+// and min::set_indent ( IDwidth ).
 
 static const unsigned IDwidth = 12;
     // Width of field containing ID at the beginning
@@ -2075,12 +2082,7 @@ inline min::printer operator <<
                    << min::right ( IDwidth );
 }
 
-// printer << INDENT prints a blank field of width
-// IDwidth.
-//
-#define INDENT min::setbreak << min::right ( IDwidth )
-
-// See documentation above.
+// See documentation .
 //
 static uns32 print_instruction
     ( min::printer printer,
@@ -2088,14 +2090,14 @@ static uns32 print_instruction
       uns32 ID,
       unsigned indent = IDwidth )
 {
-    LEX::program_ptr program = scanner->program;
-
     if ( ID == 0 ) return 0;
 
+    LEX::program_ptr program = scanner->program;
+
     printer << min::push_parameters
-            << min::indent ( indent )
+            << min::set_indent ( indent )
 	    << min::noautobreak
-	    << INDENT;
+	    << min::indent;
 
     instruction_header & h =
         * (instruction_header *) & program[ID];
@@ -2333,12 +2335,7 @@ struct pclist {
 
 	if (   printer->column
 	     < printer->parameters.indent )
-	{
-	    min::uns32 n = printer->parameters.indent
-	                 - printer->column;
-	    printer << min::setbreak
-	            << min::right ( n );
-	}
+	     printer << min::indent;
 	else if (   printer->column
 	          > printer->parameters.indent )
 	    printer << " ";
@@ -2384,12 +2381,12 @@ static uns32 print_cooked_dispatcher
     ( min::printer printer, scanner_ptr scanner,
       uns32 ID, unsigned indent = IDwidth )
 {
-    LEX::program_ptr program = scanner->program;
-
     if ( ID == 0 ) return 0;
 
+    LEX::program_ptr program = scanner->program;
+
     printer << min::push_parameters
-            << min::indent ( indent )
+            << min::set_indent ( indent )
 	    << min::noautobreak;
 
     printer << pID ( ID ) << "DISPATCHER" << min::eol;
@@ -2409,11 +2406,11 @@ static uns32 print_cooked_dispatcher
     length += map_element_length
 	    * ( h.max_ctype + 1 );
 
-    printer << INDENT << "Break Elements: "
+    printer << min::indent << "Break Elements: "
 	<< h.break_elements << min::eol;
-    printer << INDENT << "Max Break Elements: "
+    printer << min::indent << "Max Break Elements: "
 	<< h.max_break_elements << min::eol;
-    printer << INDENT << "Max CType: "
+    printer << min::indent << "Max CType: "
 	<< h.max_ctype << min::eol;
 
     // Construct tmap so that t2 = tmap[t1] iff t2 is
@@ -2495,8 +2492,9 @@ static uns32 print_cooked_dispatcher
 	    ( printer, scanner, mep[t].instruction_ID,
 	               IDwidth + 4 );
 	if ( mep[t].dispatcher_ID != 0 )
-	    printer << INDENT << "    Dispatcher ID: "
-	        << mep[t].dispatcher_ID << min::eol;
+	    printer << min::indent
+	            << "    Dispatcher ID: "
+	            << mep[t].dispatcher_ID << min::eol;
     }
 
     printer << min::pop_parameters;
@@ -2512,7 +2510,7 @@ uns32 LEX::print_program_component
 
     printer << min::push_parameters
             << min::noautobreak
-	    << min::indent ( IDwidth );
+	    << min::set_indent ( IDwidth );
 
     switch ( program[ID] )
     {
@@ -2521,16 +2519,16 @@ uns32 LEX::print_program_component
 	printer << pID ( ID ) << "PROGRAM" << min::eol;
 	program_header & h =
 	    * (program_header *) & program[ID];
-	printer << INDENT << "Initial Table ID: "
+	printer << min::indent << "Initial Table ID: "
 	    << h.initial_table_ID << min::eol;
-	printer << INDENT << "Max Type: "
+	printer << min::indent << "Max Type: "
 	    << h.max_type << min::eol;
 	for ( uns32 t = 0; t <= h.max_type; ++ t )
 	{
 	    uns32 offset =
 	        program[ID+program_header_length+t];
 	    if ( offset == 0 ) continue;
-	    printer << INDENT << min::setbreak
+	    printer << min::indent
 	            << t << ": " << min::right ( 8 )
 	            << (const char *) & program[ID]
 		           + offset
@@ -2543,17 +2541,17 @@ uns32 LEX::print_program_component
 	printer << pID ( ID ) << "TABLE" << min::eol;
 	table_header & h =
 	    * (table_header *) & program[ID];
-	printer << INDENT << "Mode: "
+	printer << min::indent << "Mode: "
 	        << pmode ( scanner, h.mode )
 		<< min::eol;
-	printer << INDENT << "Dispatcher ID: "
+	printer << min::indent << "Dispatcher ID: "
 	        << h.dispatcher_ID << min::eol;
 	if ( cooked )
 	    print_instruction
 		( printer, scanner,
 		  h.instruction_ID, IDwidth );
 	else
-	    printer << INDENT << "Instruction ID: "
+	    printer << min::indent << "Instruction ID: "
 		    << h.instruction_ID << min::eol;
 	return table_header_length;
     }
@@ -2567,13 +2565,14 @@ uns32 LEX::print_program_component
 	        << min::eol;
 	dispatcher_header & h =
 	    * (dispatcher_header *) & program[ID];
-	printer << INDENT << "Break Elements: "
+	printer << min::indent << "Break Elements: "
 	        << h.break_elements << min::eol;
-	printer << INDENT << "Max Break Elements: "
+	printer << min::indent << "Max Break Elements: "
 	        << h.max_break_elements << min::eol;
-	printer << INDENT << "Max CType: "
+	printer << min::indent << "Max CType: "
 	        << h.max_ctype << min::eol;
-	printer << INDENT << "Breaks: " << min::setbreak
+	printer << min::indent << "Breaks: "
+	        << min::setbreak
 	        << "cmin" << min::right ( 16 )
 	        << "type_map_ID" << min::right ( 16 )
 	        << min::eol;
@@ -2585,7 +2584,7 @@ uns32 LEX::print_program_component
 	{
 	    break_element & be =
 		* (break_element *) & program[p];
-	    printer << INDENT << min::setbreak
+	    printer << min::indent
 		    << pgraphic ( be.cmin )
 		    << min::right ( 24 )
 		    << be.type_map_ID
@@ -2594,7 +2593,7 @@ uns32 LEX::print_program_component
 	}
 	length += break_element_length
 	        * h.max_break_elements;
-	printer << INDENT << "Map:   CType: "
+	printer << min::indent << "Map:   CType: "
 	        << min::setbreak
 	        << "dispatcher_ID" << min::right ( 16 )
 	        << "instruction_ID" << min::right ( 16 )
@@ -2606,7 +2605,7 @@ uns32 LEX::print_program_component
 	{
 	    map_element & me =
 		* (map_element *) & program[p];
-	    printer << INDENT << min::setbreak
+	    printer << min::indent
 		    << t << ": " << min::right ( 12 )
 		    << me.dispatcher_ID
 		    << min::right ( 16 )
@@ -2641,33 +2640,32 @@ uns32 LEX::print_program_component
 	else
 	{
 	    printer << min::push_parameters
-	            << min::indent ( IDwidth + 6 );
+	            << min::set_indent ( IDwidth + 6 );
 
 	    uns8 * map = (uns8 *) ( & h + 1 );
 	    length += ( h.cmax - h.cmin + 4 ) / 4;
 	    for ( unsigned t = 0; t < 256; ++ t )
 	    {
 		pclist pcl ( printer );
-		bool first = true;
 		for ( uns32 c = h.cmin;
 		      c <= h.cmax; ++ c )
 		{
 		    if ( map[c - h.cmin] == t )
 		    {
-		        if ( first )
-			{
-			    first = false;
+			if ( pcl.empty )
 			    printer
-			        << min::setbreak
+				<< min::setbreak
 				<< t << ": "
 				<< min::right
 				       ( IDwidth + 6 );
-			}
 			pcl.add ( c, c );
 		    }
 		}
-		pcl.flush();
-		if ( ! pcl.empty ) printer << min::eol;
+		if ( ! pcl.empty )
+		{
+		    pcl.flush();
+		    printer << min::eol;
+		}
 	    }
 
 	    printer << min::pop_parameters;

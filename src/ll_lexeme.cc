@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 06:06:15 EST 2011
+// Date:	Tue Feb 22 18:10:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -955,7 +955,7 @@ inline min::printer scan_error
 // If ID == 0 do nothing but return 0.
 //
 static uns32 print_instruction
-    ( min::printer printer, scanner_ptr scanner,
+    ( min::printer printer, program_ptr program,
       uns32 ID, unsigned indent );
 
 // Given a dispatcher_ID and a character c return the
@@ -1180,7 +1180,7 @@ static uns32 scan_atom
 
 	if ( scanner->trace & LEX::TRACE_INSTRUCTION )
 	    print_instruction
-	        ( scanner->printer, scanner,
+	        ( scanner->printer, program,
 		  instruction_ID, 2 );
 
 	bool fail = false;
@@ -1808,7 +1808,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
     {
 	scan_error ( scanner, next - first, first )
 	    << "Returning lexeme with bad type("
-	    << pmode ( scanner, type ) << ")"
+	    << pmode ( scanner->program, type ) << ")"
 	    << min::eol;
 	return SCAN_ERROR;
     }
@@ -1915,7 +1915,8 @@ min::printer operator <<
     min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
 
-    printer << LEX::pmode ( scanner, type ) << " ";
+    printer << LEX::pmode ( scanner->program, type )
+            << " ";
 
     LEX::position pos =
         first < input_buffer->length ?
@@ -1955,7 +1956,7 @@ min::printer operator <<
 	( min::printer printer,
 	  const LEX::pmode & pmode )
 {
-    program_ptr program = pmode.scanner->program;
+    program_ptr program = pmode.program;
     uns32 mode = pmode.mode;
     program_header & ph =
         * (program_header *) & program[0];
@@ -2086,13 +2087,11 @@ inline min::printer operator <<
 //
 static uns32 print_instruction
     ( min::printer printer,
-      scanner_ptr scanner,
+      program_ptr program,
       uns32 ID,
-      unsigned indent = IDwidth )
+      unsigned indent )
 {
     if ( ID == 0 ) return 0;
-
-    LEX::program_ptr program = scanner->program;
 
     printer << min::push_parameters
             << min::set_indent ( indent )
@@ -2116,7 +2115,7 @@ static uns32 print_instruction
         printer << "ILLEGAL INSTRUCTION TYPE ("
 	        << h.pctype << ")" << min::eol
 		<< min::pop_parameters;
-	return scanner->program->length + 1;
+	return program->length + 1;
     }
     if ( ( ( h.operation & TRANSLATE_TO_FLAG ) != 0 )
 	 +
@@ -2297,7 +2296,7 @@ static uns32 print_instruction
     {
         OUT << "ELSE:" << min::eol;
 	print_instruction
-	    ( printer, scanner, h.else_instruction_ID,
+	    ( printer, program, h.else_instruction_ID,
 	               indent );
     }
 
@@ -2378,12 +2377,10 @@ struct pclist {
 // zero, do nothing but return 0.
 //
 static uns32 print_cooked_dispatcher
-    ( min::printer printer, scanner_ptr scanner,
+    ( min::printer printer, program_ptr program,
       uns32 ID, unsigned indent = IDwidth )
 {
     if ( ID == 0 ) return 0;
-
-    LEX::program_ptr program = scanner->program;
 
     printer << min::push_parameters
             << min::set_indent ( indent )
@@ -2489,7 +2486,7 @@ static uns32 print_cooked_dispatcher
 	printer << min::eol;
 
 	print_instruction
-	    ( printer, scanner, mep[t].instruction_ID,
+	    ( printer, program, mep[t].instruction_ID,
 	               IDwidth + 4 );
 	if ( mep[t].dispatcher_ID != 0 )
 	    printer << min::indent
@@ -2503,14 +2500,14 @@ static uns32 print_cooked_dispatcher
 }
 
 uns32 LEX::print_program_component
-	( min::printer printer, scanner_ptr scanner,
+	( min::printer printer, program_ptr program,
 	  uns32 ID, bool cooked )
 {
-    LEX::program_ptr program = scanner->program;
-
     printer << min::push_parameters
             << min::noautobreak
 	    << min::set_indent ( IDwidth );
+
+    uns32 length;
 
     switch ( program[ID] )
     {
@@ -2534,7 +2531,8 @@ uns32 LEX::print_program_component
 		           + offset
 		    << min::eol;
 	}
-	return h.component_length;
+	length = h.component_length;
+	break;
     }
     case TABLE:
     {
@@ -2542,23 +2540,27 @@ uns32 LEX::print_program_component
 	table_header & h =
 	    * (table_header *) & program[ID];
 	printer << min::indent << "Mode: "
-	        << pmode ( scanner, h.mode )
+	        << pmode ( program, h.mode )
 		<< min::eol;
 	printer << min::indent << "Dispatcher ID: "
 	        << h.dispatcher_ID << min::eol;
 	if ( cooked )
 	    print_instruction
-		( printer, scanner,
+		( printer, program,
 		  h.instruction_ID, IDwidth );
 	else
 	    printer << min::indent << "Instruction ID: "
 		    << h.instruction_ID << min::eol;
-	return table_header_length;
+	length = table_header_length;
+	break;
     }
     case DISPATCHER:
     if ( cooked )
-	return print_cooked_dispatcher
-	           ( printer, scanner, ID );
+    {
+	length = print_cooked_dispatcher
+		       ( printer, program, ID );
+	break;
+    }
     else
     {
 	printer << pID ( ID ) << "DISPATCHER"
@@ -2576,7 +2578,7 @@ uns32 LEX::print_program_component
 	        << "cmin" << min::right ( 16 )
 	        << "type_map_ID" << min::right ( 16 )
 	        << min::eol;
-	uns32 length = dispatcher_header_length;
+	length = dispatcher_header_length;
 	uns32 p, n;
 	for ( p = ID + length, n = 0;
 	      n < h.break_elements;
@@ -2615,20 +2617,21 @@ uns32 LEX::print_program_component
 	}
 	length += map_element_length
 	        * ( h.max_ctype + 1 );
-	return length;
+	break;
     }
     case INSTRUCTION:
     {
 	printer << pID ( ID );
-	return print_instruction
-	    ( printer, scanner, ID, 0 );
+	length = print_instruction
+		   ( printer, program, ID, IDwidth );
+	break;
     }
     case TYPE_MAP:
     {
 	printer << pID ( ID ) << "TYPE_MAP" << min::eol;
 	type_map_header & h =
 	    * (type_map_header *) & program[ID];
-	uns32 length = type_map_header_length;
+	length = type_map_header_length;
 	if ( h.singleton_ctype > 0 )
 	{
 	    printer << h.singleton_ctype
@@ -2670,26 +2673,26 @@ uns32 LEX::print_program_component
 
 	    printer << min::pop_parameters;
 	}
-	return length;
+	break;
     }
     default:
     {
 	printer << pID ( ID )
 	        << "ILLEGAL COMPONENT TYPE("
 	        << program[ID] << ")" << min::eol;
-	return program->length - ID;
+	length = program->length - ID;
+	break;
     }
     }
 
     printer << min::pop_parameters;
+    return length;
 }
 
 void LEX::print_program
-	( min::printer printer, scanner_ptr scanner,
+	( min::printer printer, program_ptr program,
 	  bool cooked )
 {
-    LEX::program_ptr program = scanner->program;
-
     uns32 ID = 0;
     while ( ID < program->length )
     {
@@ -2721,7 +2724,7 @@ void LEX::print_program
 	}
 
         ID += print_program_component
-	    ( printer, scanner, ID, cooked );
+	    ( printer, program, ID, cooked );
     }
 
     if ( ID > program->length )

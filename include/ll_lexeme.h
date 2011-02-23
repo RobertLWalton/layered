@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 06:57:52 EST 2011
+// Date:	Tue Feb 22 18:10:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -855,14 +855,14 @@ namespace ll { namespace lexeme {
 	pgraphic ( uns32 c ) : c ( c ) {}
     };
 
-    // printer << pmode ( scanner, m ) prints the mode
-    // m of the scanner.
+    // printer << pmode ( program, m ) prints the mode
+    // m of the program.
     //
     struct pmode {
-	scanner_ptr scanner;
+	program_ptr program;
         uns32 mode;
-	pmode ( scanner_ptr scanner, uns32 mode )
-	    : scanner ( scanner ), mode ( mode ) {}
+	pmode ( program_ptr program, uns32 mode )
+	    : program ( program ), mode ( mode ) {}
     };
 
     // printer << pinput ( scanner, first, next ) prints
@@ -966,7 +966,7 @@ namespace ll { namespace lexeme {
     //
     void print_program
     	    ( min::printer printer,
-	      scanner_ptr scanner,
+	      program_ptr program,
 	      bool cooked );
 
     // Ditto but just print the program component with
@@ -980,7 +980,7 @@ namespace ll { namespace lexeme {
     //
     min::uns32 print_program_component
     	    ( min::printer printer,
-	      scanner_ptr scanner,
+	      program_ptr program,
 	      min::uns32 ID,
 	      bool cooked );
 
@@ -989,7 +989,7 @@ namespace ll { namespace lexeme {
     //
     uns32 component_length
 	    ( uns32 ID,
-	      scanner_ptr scanner = default_scanner );
+	      program_ptr program = default_program );
 
 } }
 

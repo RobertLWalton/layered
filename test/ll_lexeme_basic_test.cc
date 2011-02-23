@@ -537,6 +537,8 @@ void test_program
 
     LEX::init_input_string
         ( LEX::default_scanner, input );
+    LEX::init_program
+        ( LEX::default_scanner, LEX::default_program );
 
     if ( trace )
 	LEX::default_scanner->trace= LEX::TRACE;
@@ -559,10 +561,10 @@ void test_program
     char buffer[10000];
     while ( true )
     {
-	printer << "Scan Returned: ";
 	uns32 first, last;
         uns32 type = LEX::scan ( first, last );
 
+	printer << "Scan Returned: ";
 	if ( type == LEX::SCAN_ERROR )
 	    printer << min::eol << min::error_message;
 	else
@@ -586,11 +588,11 @@ int main ( int argc )
 
     create_program_1();
     create_program_2();
-    const char * input1 = " ab 3.4 x+y++z";
+    const char * input1 = " ab 3.4 x+y++z\n";
     test_program ( input1 );
     const char * input2 = "*a**b+++c(+d\177e"
                           "%f0--1.2.3\001\002"
-			  "A\\102C\\100D\\10E";
+			  "A\\102C\\100D\\10E\n";
     test_program ( input2 );
     test_program ( input2, true );
 }

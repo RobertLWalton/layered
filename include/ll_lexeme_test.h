@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  1 08:27:48 EST 2011
+// Date:	Wed Feb 23 08:02:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,13 +29,14 @@
 namespace ll { namespace lexeme {
 
     // Scan the given input and print each lexeme
-    // using splexeme.  Erroneous atoms are printed
-    // using sperroneous_atom, and SCAN_ERROR's are
+    // using plexeme.  Erroneous atoms are printed
+    // using perroneous_atom, and SCAN_ERROR's are
     // printed and terminate the test function.
     //
     // The ll::lexeme::default_scanner is used and
     // must have all its parameters preset except for
-    // erroneous_atom, which is set by this function.
+    // printer and erroneous_atom, which are set by
+    // this function.
     //
     // This function terminates after printing a lexeme
     // of type end_of_file_t.
@@ -54,10 +55,10 @@ namespace ll { namespace lexeme {
     //
     // The ll::lexeme::default_scanner is used and
     // must have all its parameters preset except for
-    // erroneous_atom and read_input, which are set by
-    // this function.  Read_input is set to ll::lexeme::
-    // default_read_input, and the input_file parameter
-    // must be properly preset.
+    // printer and erroneous_atom, which are set by this
+    // function.  It is assumed that input_file is used
+    // to read input and will spool recently read lines
+    // for printing.
     //
     // This function terminates after printing a lexeme
     // of type end_of_file_t.

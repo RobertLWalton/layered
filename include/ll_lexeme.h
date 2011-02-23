@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 18:10:12 EST 2011
+// Date:	Wed Feb 23 08:03:47 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -944,7 +944,8 @@ namespace ll { namespace lexeme {
 	      const ll::lexeme::position & begin,
 	      const ll::lexeme::position & end,
 	      char mark = '^',
-	      const char * blank_line = "<BLANK-LINE>" );
+	      const char * blank_line =
+	          "<BLANK-LINE>" );
 
     // Ditto but for lexeme in scanner->input_buffer
     // [first .. next-1].  If input_buffer[next-1] does
@@ -955,7 +956,8 @@ namespace ll { namespace lexeme {
 	      ll::lexeme::scanner_ptr scanner,
 	      uns32 first, uns32 next,
 	      char mark = '^',
-	      const char * blank_line = "<BLANK-LINE>" );
+	      const char * blank_line =
+	          "<BLANK-LINE>" );
 
     // Print a representation of the program to the
     // printer.  There are two output formats: cooked

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 18:15:38 EST 2011
+// Date:	Wed Feb 23 04:31:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -536,7 +536,9 @@ void test_program
 {
 
     LEX::init_input_string
-        ( LEX::default_scanner, input );
+        ( LEX::default_scanner, input,
+	  LEX::default_scanner
+	      ->printer->parameters.flags );
     LEX::init_program
         ( LEX::default_scanner, LEX::default_program );
 
@@ -581,7 +583,7 @@ void test_program
 int main ( int argc )
 {
     min::init_output_stream ( printer, std::cout );
-    printer << min::eol_flush;
+    printer << min::eol_flush << min::ascii;
 
     LEX::init_printer
         ( LEX::default_scanner, printer );

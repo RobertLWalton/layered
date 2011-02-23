@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 18:10:59 EST 2011
+// Date:	Tue Feb 22 21:46:41 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -731,7 +731,15 @@ static bool default_read_input_get
 
     min::uns32 offset = min::next_line ( file );
     min::uns32 length = 0xFFFFFFFF;
-    if ( offset == min::NO_LINE )
+
+    LEX::inchar ic;
+    ic.line = file->next_line_number;
+    ic.index = 0;
+    ic.column = 0;
+
+    if ( offset != min::NO_LINE )
+        -- ic.line;
+    else
     {
         length = min::partial_length ( file );
         if ( length == 0 ) return false;
@@ -741,11 +749,6 @@ static bool default_read_input_get
 
     min::packed_vec_insptr<LEX::inchar> input_buffer =
         scanner->input_buffer;
-
-    LEX::inchar ic;
-    ic.line = file->next_line_number - 1;
-    ic.index = 0;
-    ic.column = 0;
 
     for ( ; length != 0 && file->buffer[offset] != 0;
             -- length )
@@ -1924,7 +1927,7 @@ min::printer operator <<
 	    scanner->next_position;
 
     printer << pos.line << "("
-	    << pos.index << ") "
+	    << pos.index << ")"
 	    << pos.column << ": "
 	    << min::reserve ( next + 1 - first )
 	    << LEX::pinput ( scanner, first, next );
@@ -2608,7 +2611,7 @@ uns32 LEX::print_program_component
 	    map_element & me =
 		* (map_element *) & program[p];
 	    printer << min::indent
-		    << t << ": " << min::right ( 12 )
+		    << t << ": " << min::right ( 14 )
 		    << me.dispatcher_ID
 		    << min::right ( 16 )
 		    << me.instruction_ID

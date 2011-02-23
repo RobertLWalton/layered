@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 12:02:34 EST 2011
+// Date:	Tue Feb 22 18:15:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,11 +142,11 @@ static void create_program_1 ( void )
     printer << "Uncooked Program 1:"
             << min::eol << min::eol;
     LEX::print_program
-        ( printer, LEX::default_scanner, false );
+        ( printer, LEX::default_program, false );
     printer << "Cooked Program 1:"
             << min::eol << min::eol;
     LEX::print_program
-        ( printer, LEX::default_scanner, true );
+        ( printer, LEX::default_program, true );
 }
 
 static void create_program_2 ( void )
@@ -528,7 +528,7 @@ static void create_program_2 ( void )
     printer << "Cooked Program 2:"
             << min::eol << min::eol;
     LEX::print_program
-        ( printer, LEX::default_scanner, true );
+        ( printer, LEX::default_program, true );
 }
 
 void test_program
@@ -579,6 +579,8 @@ void test_program
 int main ( int argc )
 {
     min::init_output_stream ( printer, std::cout );
+    printer << min::eol_flush;
+
     LEX::init_printer
         ( LEX::default_scanner, printer );
 

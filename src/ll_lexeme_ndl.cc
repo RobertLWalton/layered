@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 19:31:09 EST 2010
+// Date:	Wed Feb 23 06:40:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -116,8 +116,8 @@ static int attach_error
          << file << " LINE: " << line << endl
 	 << "   CALLED FROM FILE: " << LEXNDL::file
 	 << " LINE: " << LEXNDL::line << endl
-	 << LEX::default_scanner->error_message << endl
-	 << "    NOTE: possible causes:" << endl
+	 << min::error_message
+	 << "    NOTE: possible cause:" << endl
 	 << "          begin_table ( name ) called"
 	             " twice for a given name" << endl;
     exit ( 1 );
@@ -188,7 +188,6 @@ void LEXNDL::begin_program
     min::pop ( instructions, instructions->length );
     min::resize ( instructions, 40 );
 
-    LEX::init_scanner();
     LEX::create_program ( type_name, max_type );
 }
 

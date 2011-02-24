@@ -87,7 +87,7 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \00/-. 0-
+            <NUL>-. 0-
                 KEEP(1), CALL(99)
                 Dispatcher ID: 558
             /
@@ -117,33 +117,31 @@
             Break Elements: 90
             Max Break Elements: 93
             Max CType: 1
-            \00/-@ [-` {-\0A7/ \0A9/ \0AB/-\0AC/ \0AE/ \0B0/-\0B1/ \0B6/
-            \0BB/ \0BF/ \0D7/ \0F7/ \01680/ \0180E/ \02000/-\0200A/
-            \0200E/-\02029/ \0202F/-\0203E/ \02041/-\02053/
-            \02055/-\0205F/ \02190/-\0245F/ \02500/-\02775/
-            \02794/-\02BFF/ \02E00/-\02E7F/ \03000/-\03003/
-            \03008/-\03020/ \03030/ \0D800/-\0F8FF/ \0FD3E/-\0FD3F/
-            \0FDD0/-\0FDEF/ \0FE45/-\0FE46/ \0FFFE/-\0FFFF/
-            \01FFFE/-\01FFFF/ \02FFFE/-\02FFFF/ \03FFFE/-\03FFFF/
-            \04FFFE/-\04FFFF/ \05FFFE/-\05FFFF/ \06FFFE/-\06FFFF/
-            \07FFFE/-\07FFFF/ \08FFFE/-\08FFFF/ \09FFFE/-\09FFFF/
-            \0AFFFE/-\0AFFFF/ \0BFFFE/-\0BFFFF/ \0CFFFE/-\0CFFFF/
-            \0DFFFE/-\0DFFFF/ \0EFFFE/-
+            <NUL>-@ [-` {-<0A7> <0A9> <0AB>-<0AC> <0AE> <0B0>-<0B1>
+            <0B6> <0BB> <0BF> <0D7> <0F7> <1680> <180E> <2000>-<200A>
+            <200E>-<2029> <202F>-<203E> <2041>-<2053> <2055>-<205F>
+            <2190>-<245F> <2500>-<2775> <2794>-<2BFF> <2E00>-<2E7F>
+            <3000>-<3003> <3008>-<3020> <3030> <0D800>-<0F8FF>
+            <0FD3E>-<0FD3F> <0FDD0>-<0FDEF> <0FE45>-<0FE46>
+            <0FFFE>-<0FFFF> <1FFFE>-<1FFFF> <2FFFE>-<2FFFF>
+            <3FFFE>-<3FFFF> <4FFFE>-<4FFFF> <5FFFE>-<5FFFF>
+            <6FFFE>-<6FFFF> <7FFFE>-<7FFFF> <8FFFE>-<8FFFF>
+            <9FFFE>-<9FFFF> <0AFFFE>-<0AFFFF> <0BFFFE>-<0BFFFF>
+            <0CFFFE>-<0CFFFF> <0DFFFE>-<0DFFFF> <0EFFFE>-
                 KEEP(1), OUTPUT(6)
                 Dispatcher ID: 662
-            A-Z a-z \0A8/ \0AA/ \0AD/ \0AF/ \0B2/-\0B5/ \0B7/-\0BA/
-            \0BC/-\0BE/ \0C0/-\0D6/ \0D8/-\0F6/ \0F8/-\0167F/
-            \01681/-\0180D/ \0180F/-\01FFF/ \0200B/-\0200D/
-            \0202A/-\0202E/ \0203F/-\02040/ \02054/ \02060/-\0218F/
-            \02460/-\024FF/ \02776/-\02793/ \02C00/-\02DFF/
-            \02E80/-\02FFF/ \03004/-\03007/ \03021/-\0302F/
-            \03031/-\0D7FF/ \0F900/-\0FD3D/ \0FD40/-\0FDCF/
-            \0FDF0/-\0FE44/ \0FE47/-\0FFFD/ \010000/-\01FFFD/
-            \020000/-\02FFFD/ \030000/-\03FFFD/ \040000/-\04FFFD/
-            \050000/-\05FFFD/ \060000/-\06FFFD/ \070000/-\07FFFD/
-            \080000/-\08FFFD/ \090000/-\09FFFD/ \0A0000/-\0AFFFD/
-            \0B0000/-\0BFFFD/ \0C0000/-\0CFFFD/ \0D0000/-\0DFFFD/
-            \0E0000/-\0EFFFD/
+            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
+            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
+            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
+            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
+            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
+            <0FDF0>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
+            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
+            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
+            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
+            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
+            <0E0000>-<0EFFFD>
                 CALL(87)
                 Dispatcher ID: 645
       1090: DISPATCHER
@@ -170,7 +168,7 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \00/-/ :-
+            <NUL>-/ :-
                 KEEP(1), CALL(99)
                 Dispatcher ID: 1158
             0-9
@@ -196,46 +194,45 @@
             Break Elements: 90
             Max Break Elements: 93
             Max CType: 12
-            \00/-\bs/ \0E/-\01F/ \07F/-\0A7/ \0A9/ \0AB/-\0AC/ \0AE/
-            \0B0/-\0B1/ \0B6/ \0BB/ \0BF/ \0D7/ \0F7/ \01680/ \0180E/
-            \02000/-\0200A/ \0200E/-\02029/ \0202F/-\0203E/
-            \02041/-\02053/ \02055/-\0205F/ \02190/-\0245F/
-            \02500/-\02775/ \02794/-\02BFF/ \02E00/-\02E7F/
-            \03000/-\03003/ \03008/-\03020/ \03030/ \0D800/-\0F8FF/
-            \0FD3E/-\0FD3F/ \0FDD0/-\0FDEF/ \0FE45/-\0FE46/
-            \0FFFE/-\0FFFF/ \01FFFE/-\01FFFF/ \02FFFE/-\02FFFF/
-            \03FFFE/-\03FFFF/ \04FFFE/-\04FFFF/ \05FFFE/-\05FFFF/
-            \06FFFE/-\06FFFF/ \07FFFE/-\07FFFF/ \08FFFE/-\08FFFF/
-            \09FFFE/-\09FFFF/ \0AFFFE/-\0AFFFF/ \0BFFFE/-\0BFFFF/
-            \0CFFFE/-\0CFFFF/ \0DFFFE/-\0DFFFF/ \0EFFFE/-
+            <NUL>-<BS> <SO>-<US> <DEL>-<0A7> <0A9> <0AB>-<0AC> <0AE>
+            <0B0>-<0B1> <0B6> <0BB> <0BF> <0D7> <0F7> <1680> <180E>
+            <2000>-<200A> <200E>-<2029> <202F>-<203E> <2041>-<2053>
+            <2055>-<205F> <2190>-<245F> <2500>-<2775> <2794>-<2BFF>
+            <2E00>-<2E7F> <3000>-<3003> <3008>-<3020> <3030>
+            <0D800>-<0F8FF> <0FD3E>-<0FD3F> <0FDD0>-<0FDEF>
+            <0FE45>-<0FE46> <0FFFE>-<0FFFF> <1FFFE>-<1FFFF>
+            <2FFFE>-<2FFFF> <3FFFE>-<3FFFF> <4FFFE>-<4FFFF>
+            <5FFFE>-<5FFFF> <6FFFE>-<6FFFF> <7FFFE>-<7FFFF>
+            <8FFFE>-<8FFFF> <9FFFE>-<9FFFF> <0AFFFE>-<0AFFFF>
+            <0BFFFE>-<0BFFFF> <0CFFFE>-<0CFFFF> <0DFFFE>-<0DFFFF>
+            <0EFFFE>-
                 OUTPUT(13)
                 Dispatcher ID: 1247
             /
                 Dispatcher ID: 566
-            \ht/ \~/
+            <HT> <SP>
                 CALL(115)
                 Dispatcher ID: 594
-            \lf/-\cr/
+            <LF>-<CR>
                 CALL(119)
                 Dispatcher ID: 611
-            A-Z a-z \0A8/ \0AA/ \0AD/ \0AF/ \0B2/-\0B5/ \0B7/-\0BA/
-            \0BC/-\0BE/ \0C0/-\0D6/ \0D8/-\0F6/ \0F8/-\0167F/
-            \01681/-\0180D/ \0180F/-\01FFF/ \0200B/-\0200D/
-            \0202A/-\0202E/ \0203F/-\02040/ \02054/ \02060/-\0218F/
-            \02460/-\024FF/ \02776/-\02793/ \02C00/-\02DFF/
-            \02E80/-\02FFF/ \03004/-\03007/ \03021/-\0302F/
-            \03031/-\0D7FF/ \0F900/-\0FD3D/ \0FD40/-\0FDCF/
-            \0FDF0/-\0FE44/ \0FE47/-\0FFFD/ \010000/-\01FFFD/
-            \020000/-\02FFFD/ \030000/-\03FFFD/ \040000/-\04FFFD/
-            \050000/-\05FFFD/ \060000/-\06FFFD/ \070000/-\07FFFD/
-            \080000/-\08FFFD/ \090000/-\09FFFD/ \0A0000/-\0AFFFD/
-            \0B0000/-\0BFFFD/ \0C0000/-\0CFFFD/ \0D0000/-\0DFFFD/
-            \0E0000/-\0EFFFD/
+            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
+            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
+            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
+            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
+            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
+            <0FDF0>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
+            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
+            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
+            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
+            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
+            <0E0000>-<0EFFFD>
                 CALL(87)
                 Dispatcher ID: 628
             '
                 Dispatcher ID: 670
-            \/
+            \
                 MATCH(131), REQUIRE(139), CALL(87), ELSE:
                 MATCH(135), OUTPUT(15), ELSE:
                 OUTPUT(14)
@@ -271,10 +268,10 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \00/-\ht/ \0E/-
+            <NUL>-<HT> <SO>-
                 ACCEPT
                 Dispatcher ID: 1720
-            \lf/-\cr/
+            <LF>-<CR>
                 KEEP(0), RETURN
                 Dispatcher ID: 1703
       1756: DISPATCHER
@@ -285,7 +282,7 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \ht/ \~/
+            <HT> <SP>
                 ACCEPT
                 Dispatcher ID: 1756
       1806: DISPATCHER
@@ -296,7 +293,7 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \lf/-\cr/
+            <LF>-<CR>
                 ACCEPT
                 Dispatcher ID: 1806
       1851: DISPATCHER
@@ -311,19 +308,18 @@
             Break Elements: 90
             Max Break Elements: 93
             Max CType: 1
-            A-Z a-z \0A8/ \0AA/ \0AD/ \0AF/ \0B2/-\0B5/ \0B7/-\0BA/
-            \0BC/-\0BE/ \0C0/-\0D6/ \0D8/-\0F6/ \0F8/-\0167F/
-            \01681/-\0180D/ \0180F/-\01FFF/ \0200B/-\0200D/
-            \0202A/-\0202E/ \0203F/-\02040/ \02054/ \02060/-\0218F/
-            \02460/-\024FF/ \02776/-\02793/ \02C00/-\02DFF/
-            \02E80/-\02FFF/ \03004/-\03007/ \03021/-\0302F/
-            \03031/-\0D7FF/ \0F900/-\0FD3D/ \0FD40/-\0FDCF/
-            \0FDF0/-\0FE44/ \0FE47/-\0FFFD/ \010000/-\01FFFD/
-            \020000/-\02FFFD/ \030000/-\03FFFD/ \040000/-\04FFFD/
-            \050000/-\05FFFD/ \060000/-\06FFFD/ \070000/-\07FFFD/
-            \080000/-\08FFFD/ \090000/-\09FFFD/ \0A0000/-\0AFFFD/
-            \0B0000/-\0BFFFD/ \0C0000/-\0CFFFD/ \0D0000/-\0DFFFD/
-            \0E0000/-\0EFFFD/
+            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
+            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
+            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
+            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
+            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
+            <0FDF0>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
+            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
+            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
+            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
+            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
+            <0E0000>-<0EFFFD>
                 ACCEPT
                 Dispatcher ID: 1868
       2307: DISPATCHER
@@ -334,24 +330,23 @@
             Break Elements: 90
             Max Break Elements: 93
             Max CType: 3
-            A-Z a-z \0A8/ \0AA/ \0AD/ \0AF/ \0B2/-\0B5/ \0B7/-\0BA/
-            \0BC/-\0BE/ \0C0/-\0D6/ \0D8/-\0F6/ \0F8/-\0167F/
-            \01681/-\0180D/ \0180F/-\01FFF/ \0200B/-\0200D/
-            \0202A/-\0202E/ \0203F/-\02040/ \02054/ \02060/-\0218F/
-            \02460/-\024FF/ \02776/-\02793/ \02C00/-\02DFF/
-            \02E80/-\02FFF/ \03004/-\03007/ \03021/-\0302F/
-            \03031/-\0D7FF/ \0F900/-\0FD3D/ \0FD40/-\0FDCF/
-            \0FDF0/-\0FE44/ \0FE47/-\0FFFD/ \010000/-\01FFFD/
-            \020000/-\02FFFD/ \030000/-\03FFFD/ \040000/-\04FFFD/
-            \050000/-\05FFFD/ \060000/-\06FFFD/ \070000/-\07FFFD/
-            \080000/-\08FFFD/ \090000/-\09FFFD/ \0A0000/-\0AFFFD/
-            \0B0000/-\0BFFFD/ \0C0000/-\0CFFFD/ \0D0000/-\0DFFFD/
-            \0E0000/-\0EFFFD/
+            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
+            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
+            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
+            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
+            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
+            <0FDF0>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
+            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
+            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
+            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
+            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
+            <0E0000>-<0EFFFD>
                 ACCEPT
                 Dispatcher ID: 1851
             '
                 Dispatcher ID: 1876
-            \/
+            \
                 MATCH(131), REQUIRE(139), ELSE:
                 TRANSLATE_TO(1,?), MATCH(131), ERRONEOUS_ATOM(16), ELSE:
                 TRANSLATE_TO(1,?), MATCH(135), ERRONEOUS_ATOM(15), ELSE:
@@ -376,7 +371,7 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \00/-/ :-
+            <NUL>-/ :-
                 KEEP(1)
                 Dispatcher ID: 2770
             0-9
@@ -394,7 +389,7 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \00/-. 0-
+            <NUL>-. 0-
                 KEEP(1)
                 Dispatcher ID: 2825
             /
@@ -505,20 +500,20 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 3
-            \00/-\ht/ \0E/-! #-[ ]-
+            <NUL>-<HT> <SO>-! #-[ ]-
                 ACCEPT
                 Dispatcher ID: 3257
             "
                 TRANSLATE_TO(0), RETURN
                 Dispatcher ID: 3188
-            \/
+            \
                 MATCH(131), ELSE:
                 MATCH(135), ERRONEOUS_ATOM(15), ELSE:
                 ERRONEOUS_ATOM(14)
 
 
                 Dispatcher ID: 3223
-            \lf/-\cr/
+            <LF>-<CR>
                 GOTO(123)
                 Dispatcher ID: 3240
       3327: DISPATCHER
@@ -534,7 +529,7 @@
             Max Break Elements: 3
             Max CType: 1
             /
-                TRANSLATE_TO(1,\lf/)
+                TRANSLATE_TO(1,<LF>)
                 Dispatcher ID: 3345
       3372: DISPATCHER
             Break Elements: 3
@@ -551,7 +546,7 @@
             Max Break Elements: 3
             Max CType: 1
             /
-                TRANSLATE_TO(1,\cr/)
+                TRANSLATE_TO(1,<CR>)
                 Dispatcher ID: 3401
       3428: DISPATCHER
             Break Elements: 3
@@ -568,7 +563,7 @@
             Max Break Elements: 3
             Max CType: 1
             /
-                TRANSLATE_TO(1,\ht/)
+                TRANSLATE_TO(1,<HT>)
                 Dispatcher ID: 3457
       3484: DISPATCHER
             Break Elements: 3
@@ -585,7 +580,7 @@
             Max Break Elements: 3
             Max CType: 1
             /
-                TRANSLATE_TO(1,\bs/)
+                TRANSLATE_TO(1,<BS>)
                 Dispatcher ID: 3513
       3540: DISPATCHER
             Break Elements: 3
@@ -602,7 +597,7 @@
             Max Break Elements: 3
             Max CType: 1
             /
-                TRANSLATE_TO(1,\ff/)
+                TRANSLATE_TO(1,<FF>)
                 Dispatcher ID: 3569
       3596: DISPATCHER
             Break Elements: 3
@@ -619,7 +614,7 @@
             Max Break Elements: 3
             Max CType: 1
             /
-                TRANSLATE_TO(1,\vt/)
+                TRANSLATE_TO(1,<VT>)
                 Dispatcher ID: 3625
       3652: DISPATCHER
             Break Elements: 3
@@ -647,7 +642,7 @@
             Max Break Elements: 3
             Max CType: 1
             /
-                TRANSLATE_TO(1,\~/)
+                TRANSLATE_TO(1,<SP>)
                 Dispatcher ID: 3718
       3754: DISPATCHER
             Break Elements: 1
@@ -762,14 +757,14 @@
             0-9 A-F a-f
                 Dispatcher ID: 4104
             /
-                TRANSLATE_TO(1,\00/)
+                TRANSLATE_TO(1,<NUL>)
                 Dispatcher ID: 4148
       4190: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 10
             /
-                TRANSLATE_TO(1,\/)
+                TRANSLATE_TO(1,\)
                 Dispatcher ID: 3327
             l
                 Dispatcher ID: 3372
@@ -793,7 +788,7 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \/
+            \
                 Dispatcher ID: 4190
       4287: DISPATCHER
             Break Elements: 1
@@ -898,139 +893,139 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4669
             /
                 ACCEPT
                 Dispatcher ID: 4627
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4644
       4718: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4688
             /
                 ACCEPT
                 Dispatcher ID: 4593
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4610
       4748: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4718
             /
                 ACCEPT
                 Dispatcher ID: 4559
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4576
       4778: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4748
             /
                 ACCEPT
                 Dispatcher ID: 4525
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4542
       4808: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4778
             /
                 ACCEPT
                 Dispatcher ID: 4491
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4508
       4838: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4808
             /
                 ACCEPT
                 Dispatcher ID: 4457
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4474
       4868: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4838
             /
                 ACCEPT
                 Dispatcher ID: 4423
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4440
       4898: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4868
             /
                 ACCEPT
                 Dispatcher ID: 4389
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4406
       4928: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4898
             /
                 ACCEPT
                 Dispatcher ID: 4355
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4372
       4958: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4928
             /
                 ACCEPT
                 Dispatcher ID: 4321
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4338
       4988: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
-            \00/-\ht/ \0E/-. 0-
+            <NUL>-<HT> <SO>-. 0-
                 Dispatcher ID: 4958
             /
                 ACCEPT
                 Dispatcher ID: 4287
-            \lf/-\cr/
+            <LF>-<CR>
                 FAIL
                 Dispatcher ID: 4304
       5027: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            \/
+            \
                 Dispatcher ID: 4988
       5055: DISPATCHER
             Break Elements: 1
@@ -1040,221 +1035,221 @@
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-COMMENT:0(0)0: //\~/Layers\~/Language\~/Standard\~/Lexical\~/Analyzer
-    \~/Test\~/Data
-LINE_BREAK:0(54)68: \lf/
-COMMENT:1(0)0: //
-LINE_BREAK:1(2)2: \lf/
-COMMENT:2(0)0: //\~/File:\ht/ll_lexeme_standard_test.in
-LINE_BREAK:2(35)40: \lf/
-COMMENT:3(0)0: //\~/Author:\ht/Bob\~/Walton\~/(walton@acm.org)
-LINE_BREAK:3(38)47: \lf/
-COMMENT:4(0)0: //\~/Date:\ht/Mon\~/Nov\~/22\~/10:22:20\~/EST\~/2010
-LINE_BREAK:4(37)52: \lf/
-COMMENT:5(0)0: //
-LINE_BREAK:5(2)2: \lf/
-COMMENT:6(0)0: //\~/The\~/authors\~/have\~/placed\~/this\~/data\~/in\~/t
-    he\~/public
-LINE_BREAK:6(50)68: \lf/
-COMMENT:7(0)0: //\~/domain;\~/they\~/make\~/no\~/warranty\~/and\~/accept
-    \~/no\~/liability
-LINE_BREAK:7(56)74: \lf/
-COMMENT:8(0)0: //\~/for\~/this\~/data.
-LINE_BREAK:8(17)23: \lf/\lf/
-WORD:10(0)0: abc
-HORIZONTAL_SPACE:10(3)3: \~/
-NUMBER:10(4)6: 3.4
-MARK:10(7)9: +
-WORD:10(8)10: z
-HORIZONTAL_SPACE:10(9)11: \~/
-SEPARATOR:10(10)14: (
-WORD:10(11)15: x
-SEPARATOR:10(12)16: ,
-WORD:10(13)17: y
-SEPARATOR:10(14)18: )
-LINE_BREAK:10(15)19: \lf/
-QUOTED_STRING:11(0)0: "hi" translated to: hi
-HORIZONTAL_SPACE:11(4)4: \~/
-QUOTED_STRING:11(5)7: "ho\/ht/x\~/y\//z\/lf/" translated to: ho\ht/x\~/y
-    \/z\lf/
-LINE_BREAK:11(23)30: \lf/
-WORD:12(0)0: 'tis
-HORIZONTAL_SPACE:12(4)4: \~/
-WORD:12(5)7: noth'ng
-HORIZONTAL_SPACE:12(12)14: \~/
-SEPARATOR:12(13)17: `
-WORD:12(14)18: but
-SEPARATOR:12(17)21: '
-HORIZONTAL_SPACE:12(18)22: \~/
-WORD:12(19)25: a
-HORIZONTAL_SPACE:12(20)26: \~/
-WORD:12(21)29: h'dache
-MARK:12(28)36: .
-LINE_BREAK:12(29)37: \lf/
-WORD:13(0)0: a
-NUMBER:13(1)1: .1.2.3
-MARK:13(7)7: .
-WORD:13(8)8: b
-MARK:13(9)9: .
-WORD:13(10)10: c
-HORIZONTAL_SPACE:13(11)11: \~/
-WORD:13(12)14: e
-NATURAL_NUMBER:13(13)15: 5
-WORD:13(14)16: f
-HORIZONTAL_SPACE:13(15)17: \~/
-WORD:13(16)20: x
-NATURAL_NUMBER:13(17)21: 7
-MARK:13(18)22: +
-WORD:13(19)23: y
-NATURAL_NUMBER:13(20)24: 6
-SEPARATOR:13(21)25: (
-NATURAL_NUMBER:13(22)26: 5
-WORD:13(23)27: z
-SEPARATOR:13(24)28: )
-LINE_BREAK:13(25)29: \lf/
-NUMBER:14(0)0: 12.3
-HORIZONTAL_SPACE:14(4)4: \~/
-NUMBER:14(5)7: .4
-HORIZONTAL_SPACE:14(7)9: \~/
-NATURAL_NUMBER:14(8)12: 5
-MARK:14(9)13: .
-HORIZONTAL_SPACE:14(10)14: \~/
-NUMBER:14(11)17: 6/7
-LINE_BREAK:14(14)20: \lf/
-NUMBER:15(0)0: 1,23,456
-HORIZONTAL_SPACE:15(8)8: \~/
-NUMBER:15(9)11: 1,234/6,789
-HORIZONTAL_SPACE:15(20)22: \~/
-NUMBER:15(21)25: 1/2/3/4,5/6,7,8/9
-HORIZONTAL_SPACE:15(38)42: \~/
-NUMBER:15(39)45: 8888.12,3,4
-LINE_BREAK:15(50)56: \lf/
-MARK:16(0)0: /
-NATURAL_NUMBER:16(1)1: 3
-HORIZONTAL_SPACE:16(2)2: \~/
-NUMBER:16(3)5: 6.34.56
-MARK:16(10)12: /
-HORIZONTAL_SPACE:16(11)13: \~/
-NATURAL_NUMBER:16(12)16: 3
-SEPARATOR:16(13)17: ,
-HORIZONTAL_SPACE:16(14)18: \~/
-NATURAL_NUMBER:16(15)21: 4
-SEPARATOR:16(16)22: ,
-HORIZONTAL_SPACE:16(17)23: \~/
-SEPARATOR:16(18)26: ,
-NATURAL_NUMBER:16(19)27: 5
-HORIZONTAL_SPACE:16(20)28: \~/
-SEPARATOR:16(21)31: ,
-NUMBER:16(22)32: 6.7,8.9
-LINE_BREAK:16(29)39: \lf/
-MARK:17(0)0: +-*~@#$%^&=|<>_!?:
-QUOTED_STRING:17(18)18: "foo" translated to: foo
-ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:17(24)24: \/9/
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:17(27)28: \/lf/
-ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:17(31)33: \/z/
-WORD:17(23)23: x\/9/\/lf/\/z/ translated to: x???
-MARK:17(34)37: /
-LINE_BREAK:17(35)38: \lf/
-MARK:18(0)0: .
-WORD:18(1)1: foo
-HORIZONTAL_SPACE:18(4)4: \~/
-MARK:18(5)7: /
-WORD:18(6)8: foo
-HORIZONTAL_SPACE:18(9)11: \~/
-NATURAL_NUMBER:18(10)14: 3
-MARK:18(11)15: /
-WORD:18(12)16: x
-HORIZONTAL_SPACE:18(13)17: \~/
-WORD:18(14)20: x
-MARK:18(15)21: /
-NATURAL_NUMBER:18(16)22: 3
-HORIZONTAL_SPACE:18(17)23: \~/
-NATURAL_NUMBER:18(18)26: 3
-MARK:18(19)27: .
-WORD:18(20)28: x
-HORIZONTAL_SPACE:18(21)29: \~/
-WORD:18(22)32: x
-NUMBER:18(23)33: .3
-COMMENT:18(25)35: //\~/comment\~/\/089/\~/"'
-LINE_BREAK:18(44)61: \lf/
-WORD:19(0)0: a
-SEPARATOR:19(1)1: (
-WORD:19(2)2: b
-SEPARATOR:19(3)3: ,
-WORD:19(4)4: c
-SEPARATOR:19(5)5: )
-HORIZONTAL_SPACE:19(6)6: \~/
-WORD:19(7)9: d
-SEPARATOR:19(8)10: {
-WORD:19(9)11: e
-SEPARATOR:19(10)12: ;
-WORD:19(11)13: f
-SEPARATOR:19(12)14: }
-HORIZONTAL_SPACE:19(13)15: \~/
-WORD:19(14)18: g
-SEPARATOR:19(15)19: [
-WORD:19(16)20: h
-SEPARATOR:19(17)21: ,
-WORD:19(18)22: i
-SEPARATOR:19(19)23: ]
-HORIZONTAL_SPACE:19(20)24: \~/
-SEPARATOR:19(21)27: `
-SEPARATOR:19(22)28: `
-WORD:19(23)29: foobar
-SEPARATOR:19(29)35: '
-HORIZONTAL_SPACE:19(30)36: \~/
-WORD:19(31)39: fum
-SEPARATOR:19(34)42: '
-LINE_BREAK:19(35)43: \lf/
-COMMENT:20(0)0: //\~/form\~/feed\~/
-LINE_BREAK:20(13)19: \ff/\lf/
-COMMENT:21(0)0: //\~/vertical\~/tab\~/
-LINE_BREAK:21(16)22: \vt/\lf/
-COMMENT:22(0)0: //\~/carriage\~/return\~/
-LINE_BREAK:22(19)25: \cr/\lf/
-WORD:23(0)0: z
-HORIZONTAL_SPACE:23(1)1: \ht/
-WORD:23(2)5: x
-HORIZONTAL_SPACE:23(3)6: \~/
-COMMENT:23(4)9: //\~/horizontal\~/tab
-LINE_BREAK:23(21)30: \lf/
-WORD:24(0)0: all
-HORIZONTAL_SPACE:24(3)3: \~/\ht/
-LINE_BREAK:24(5)10: \ff/\vt/\cr/\lf/
-WORD:25(0)0: control
-HORIZONTAL_SPACE:25(7)7: \~/
-WORD:25(8)10: A
-UNRECOGNIZED_CHARACTER:25(9)11: \01/
-WORD:25(10)15: B
-UNRECOGNIZED_CHARACTER:25(11)16: \02/
-WORD:25(12)20: C
-UNRECOGNIZED_CHARACTER:25(13)21: \03/
-LINE_BREAK:25(14)25: \lf/
-QUOTED_STRING:26(0)0: "\/"/\/lf/\/cr/\/ht/\/bs/\/ff/\/vt/\//\/~/"
-    translated to: "\lf/\cr/\ht/\bs/\ff/\vt/\/\~/
-LINE_BREAK:26(34)43: \lf/
-ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:27(2)2: \/a/
-ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:27(5)6: \/b/
-ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:27(8)10: \/c/
-QUOTED_STRING:27(0)0: "~\/a/\/b/\/c/\/ff/" translated to: ~\/a/\/b/\/c/
-    \ff/
-LINE_BREAK:27(16)20: \lf/
-WORD:28(0)0: \/0041/\/00000042/C translated to: ABC
-HORIZONTAL_SPACE:28(17)19: \~/
-WORD:28(18)22: D\/00000045/\/0046/G translated to: DEFG
-LINE_BREAK:28(36)42: \lf/
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:29(6)7: \/00000002/
-WORD:29(0)0: \/0041/\/00000002/C translated to: A?C
-HORIZONTAL_SPACE:29(17)19: \~/
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE:29(29)34: \/0006/
-WORD:29(18)22: D\/00000045/\/0006/G translated to: DE?G
-LINE_BREAK:29(36)42: \lf/
-UNRECOGNIZED_ESCAPE_SEQUENCE:30(0)0: \/0001/
-WORD:30(6)7: \/00000042/C translated to: BC
-HORIZONTAL_SPACE:30(17)19: \~/
-UNRECOGNIZED_ESCAPE_SEQUENCE:30(18)22: \/00000004/
-WORD:30(28)33: E\/0046/G translated to: EFG
-LINE_BREAK:30(36)42: \lf/
-UNRECOGNIZED_ESCAPE_SEQUENCE:31(0)0: \/0001/
-LINE_BREAK:31(6)7: \lf/
-END_OF_FILE: <empty>
+COMMENT 0(0)0: //<SP>Layers<SP>Language<SP>Standard<SP>Lexical<SP>Analyz
+    er<SP>Test<SP>Data
+LINE_BREAK 0(54)75: <LF>
+COMMENT 1(0)0: //
+LINE_BREAK 1(2)2: <LF>
+COMMENT 2(0)0: //<SP>File:<HT>ll_lexeme_standard_test.in
+LINE_BREAK 2(35)41: <LF>
+COMMENT 3(0)0: //<SP>Author:<HT>Bob<SP>Walton<SP>(walton@acm.org)
+LINE_BREAK 3(38)50: <LF>
+COMMENT 4(0)0: //<SP>Date:<HT>Mon<SP>Nov<SP>22<SP>10:22:20<SP>EST<SP>201
+    0
+LINE_BREAK 4(37)58: <LF>
+COMMENT 5(0)0: //
+LINE_BREAK 5(2)2: <LF>
+COMMENT 6(0)0: //<SP>The<SP>authors<SP>have<SP>placed<SP>this<SP>data
+    <SP>in<SP>the<SP>public
+LINE_BREAK 6(50)77: <LF>
+COMMENT 7(0)0: //<SP>domain;<SP>they<SP>make<SP>no<SP>warranty<SP>and
+    <SP>accept<SP>no<SP>liability
+LINE_BREAK 7(56)83: <LF>
+COMMENT 8(0)0: //<SP>for<SP>this<SP>data.
+LINE_BREAK 8(17)26: <LF><LF>
+WORD 10(0)0: abc
+HORIZONTAL_SPACE 10(3)3: <SP>
+NUMBER 10(4)7: 3.4
+MARK 10(7)10: +
+WORD 10(8)11: z
+HORIZONTAL_SPACE 10(9)12: <SP>
+SEPARATOR 10(10)16: (
+WORD 10(11)17: x
+SEPARATOR 10(12)18: ,
+WORD 10(13)19: y
+SEPARATOR 10(14)20: )
+LINE_BREAK 10(15)21: <LF>
+QUOTED_STRING 11(0)0: "hi" translated to: hi
+HORIZONTAL_SPACE 11(4)4: <SP>
+QUOTED_STRING 11(5)8: "ho\ht/x<SP>y\/z\lf/"
+     translated to: ho<HT>x<SP>y\z<LF>
+LINE_BREAK 11(23)29: <LF>
+WORD 12(0)0: 'tis
+HORIZONTAL_SPACE 12(4)4: <SP>
+WORD 12(5)8: noth'ng
+HORIZONTAL_SPACE 12(12)15: <SP>
+SEPARATOR 12(13)19: `
+WORD 12(14)20: but
+SEPARATOR 12(17)23: '
+HORIZONTAL_SPACE 12(18)24: <SP>
+WORD 12(19)28: a
+HORIZONTAL_SPACE 12(20)29: <SP>
+WORD 12(21)33: h'dache
+MARK 12(28)40: .
+LINE_BREAK 12(29)41: <LF>
+WORD 13(0)0: a
+NUMBER 13(1)1: .1.2.3
+MARK 13(7)7: .
+WORD 13(8)8: b
+MARK 13(9)9: .
+WORD 13(10)10: c
+HORIZONTAL_SPACE 13(11)11: <SP>
+WORD 13(12)15: e
+NATURAL_NUMBER 13(13)16: 5
+WORD 13(14)17: f
+HORIZONTAL_SPACE 13(15)18: <SP>
+WORD 13(16)22: x
+NATURAL_NUMBER 13(17)23: 7
+MARK 13(18)24: +
+WORD 13(19)25: y
+NATURAL_NUMBER 13(20)26: 6
+SEPARATOR 13(21)27: (
+NATURAL_NUMBER 13(22)28: 5
+WORD 13(23)29: z
+SEPARATOR 13(24)30: )
+LINE_BREAK 13(25)31: <LF>
+NUMBER 14(0)0: 12.3
+HORIZONTAL_SPACE 14(4)4: <SP>
+NUMBER 14(5)8: .4
+HORIZONTAL_SPACE 14(7)10: <SP>
+NATURAL_NUMBER 14(8)14: 5
+MARK 14(9)15: .
+HORIZONTAL_SPACE 14(10)16: <SP>
+NUMBER 14(11)20: 6/7
+LINE_BREAK 14(14)23: <LF>
+NUMBER 15(0)0: 1,23,456
+HORIZONTAL_SPACE 15(8)8: <SP>
+NUMBER 15(9)12: 1,234/6,789
+HORIZONTAL_SPACE 15(20)23: <SP>
+NUMBER 15(21)27: 1/2/3/4,5/6,7,8/9
+HORIZONTAL_SPACE 15(38)44: <SP>
+NUMBER 15(39)48: 8888.12,3,4
+LINE_BREAK 15(50)59: <LF>
+MARK 16(0)0: /
+NATURAL_NUMBER 16(1)1: 3
+HORIZONTAL_SPACE 16(2)2: <SP>
+NUMBER 16(3)6: 6.34.56
+MARK 16(10)13: /
+HORIZONTAL_SPACE 16(11)14: <SP>
+NATURAL_NUMBER 16(12)18: 3
+SEPARATOR 16(13)19: ,
+HORIZONTAL_SPACE 16(14)20: <SP>
+NATURAL_NUMBER 16(15)24: 4
+SEPARATOR 16(16)25: ,
+HORIZONTAL_SPACE 16(17)26: <SP>
+SEPARATOR 16(18)30: ,
+NATURAL_NUMBER 16(19)31: 5
+HORIZONTAL_SPACE 16(20)32: <SP>
+SEPARATOR 16(21)36: ,
+NUMBER 16(22)37: 6.7,8.9
+LINE_BREAK 16(29)44: <LF>
+MARK 17(0)0: +-*~@#$%^&=|<>_!?:
+QUOTED_STRING 17(18)18: "foo" translated to: foo
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 17(24)24: \9/
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 17(27)27: \lf/
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 17(31)31: \z/
+WORD 17(23)23: x\9/\lf/\z/ translated to: x???
+MARK 17(34)34: /
+LINE_BREAK 17(35)35: <LF>
+MARK 18(0)0: .
+WORD 18(1)1: foo
+HORIZONTAL_SPACE 18(4)4: <SP>
+MARK 18(5)8: /
+WORD 18(6)9: foo
+HORIZONTAL_SPACE 18(9)12: <SP>
+NATURAL_NUMBER 18(10)16: 3
+MARK 18(11)17: /
+WORD 18(12)18: x
+HORIZONTAL_SPACE 18(13)19: <SP>
+WORD 18(14)23: x
+MARK 18(15)24: /
+NATURAL_NUMBER 18(16)25: 3
+HORIZONTAL_SPACE 18(17)26: <SP>
+NATURAL_NUMBER 18(18)30: 3
+MARK 18(19)31: .
+WORD 18(20)32: x
+HORIZONTAL_SPACE 18(21)33: <SP>
+WORD 18(22)37: x
+NUMBER 18(23)38: .3
+COMMENT 18(25)40: //<SP>comment<SP>\089/<SP>"'
+LINE_BREAK 18(44)68: <LF>
+WORD 19(0)0: a
+SEPARATOR 19(1)1: (
+WORD 19(2)2: b
+SEPARATOR 19(3)3: ,
+WORD 19(4)4: c
+SEPARATOR 19(5)5: )
+HORIZONTAL_SPACE 19(6)6: <SP>
+WORD 19(7)10: d
+SEPARATOR 19(8)11: {
+WORD 19(9)12: e
+SEPARATOR 19(10)13: ;
+WORD 19(11)14: f
+SEPARATOR 19(12)15: }
+HORIZONTAL_SPACE 19(13)16: <SP>
+WORD 19(14)20: g
+SEPARATOR 19(15)21: [
+WORD 19(16)22: h
+SEPARATOR 19(17)23: ,
+WORD 19(18)24: i
+SEPARATOR 19(19)25: ]
+HORIZONTAL_SPACE 19(20)26: <SP>
+SEPARATOR 19(21)30: `
+SEPARATOR 19(22)31: `
+WORD 19(23)32: foobar
+SEPARATOR 19(29)38: '
+HORIZONTAL_SPACE 19(30)39: <SP>
+WORD 19(31)43: fum
+SEPARATOR 19(34)46: '
+LINE_BREAK 19(35)47: <LF>
+COMMENT 20(0)0: //<SP>form<SP>feed<SP>
+LINE_BREAK 20(13)22: <FF><LF>
+COMMENT 21(0)0: //<SP>vertical<SP>tab<SP>
+LINE_BREAK 21(16)25: <VT><LF>
+COMMENT 22(0)0: //<SP>carriage<SP>return<SP>
+LINE_BREAK 22(19)28: <CR><LF>
+WORD 23(0)0: z
+HORIZONTAL_SPACE 23(1)1: <HT>
+WORD 23(2)5: x
+HORIZONTAL_SPACE 23(3)6: <SP>
+COMMENT 23(4)10: //<SP>horizontal<SP>tab
+LINE_BREAK 23(21)33: <LF>
+WORD 24(0)0: all
+HORIZONTAL_SPACE 24(3)3: <SP><HT>
+LINE_BREAK 24(5)11: <FF><VT><CR><LF>
+WORD 25(0)0: control
+HORIZONTAL_SPACE 25(7)7: <SP>
+WORD 25(8)11: A
+UNRECOGNIZED_CHARACTER 25(9)12: <SOH>
+WORD 25(10)17: B
+UNRECOGNIZED_CHARACTER 25(11)18: <STX>
+WORD 25(12)23: C
+UNRECOGNIZED_CHARACTER 25(13)24: <ETX>
+LINE_BREAK 25(14)29: <LF>
+QUOTED_STRING 26(0)0: "\"/\lf/\cr/\ht/\bs/\ff/\vt/\/\~/"
+     translated to: "<LF><CR><HT><BS><FF><VT>\<SP>
+LINE_BREAK 26(34)34: <LF>
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 27(2)2: \a/
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 27(5)5: \b/
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 27(8)8: \c/
+QUOTED_STRING 27(0)0: "~\a/\b/\c/\ff/" translated to: ~\a/\b/\c/<FF>
+LINE_BREAK 27(16)16: <LF>
+WORD 28(0)0: \0041/\00000042/C translated to: ABC
+HORIZONTAL_SPACE 28(17)17: <SP>
+WORD 28(18)21: D\00000045/\0046/G translated to: DEFG
+LINE_BREAK 28(36)39: <LF>
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 29(6)6: \00000002/
+WORD 29(0)0: \0041/\00000002/C translated to: A?C
+HORIZONTAL_SPACE 29(17)17: <SP>
+ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 29(29)32: \0006/
+WORD 29(18)21: D\00000045/\0006/G translated to: DE?G
+LINE_BREAK 29(36)39: <LF>
+UNRECOGNIZED_ESCAPE_SEQUENCE 30(0)0: \0001/
+WORD 30(6)6: \00000042/C translated to: BC
+HORIZONTAL_SPACE 30(17)17: <SP>
+UNRECOGNIZED_ESCAPE_SEQUENCE 30(18)21: \00000004/
+WORD 30(28)31: E\0046/G translated to: EFG
+LINE_BREAK 30(36)39: <LF>
+UNRECOGNIZED_ESCAPE_SEQUENCE 31(0)0: \0001/
+LINE_BREAK 31(6)6: <LF>
+END_OF_FILE 32(0)0: <empty>

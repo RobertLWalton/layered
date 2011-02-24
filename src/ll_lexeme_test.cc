@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 04:03:59 EST 2011
+// Date:	Thu Feb 24 14:27:06 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,8 +39,8 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
 
     while ( true )
     {
-	uns32 first, last;
-        uns32 type = LEX::scan ( first, last );
+	uns32 first, next;
+        uns32 type = LEX::scan ( first, next );
 
 	if ( type == LEX::SCAN_ERROR )
 	{
@@ -52,7 +52,7 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
 	    printer
 	        << LEX::plexeme
 	            ( LEX::default_scanner,
-		      first, last, type )
+		      first, next, type )
 		<< min::eol;
 
 	if ( type == end_of_file_t ) break;
@@ -150,6 +150,8 @@ static void set_codes
 
     if ( end_column <= begin_column )
 	    end_column = ::line_width;
+    if ( end_column <= begin_column )
+	    end_column = begin_column + 1;
 
     while ( codes->length < end_column )
         min::push(codes) = ' ';

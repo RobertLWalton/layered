@@ -29,16 +29,11 @@ using LEX::uns32;
 // Basic Input Test
 // ----- ----- ----
 
-static min::printer printer;
-static min::locatable_ptr<min::printer>
-       printer_locator ( ::printer );
-
 void LEX::basic_test_input ( uns32 end_of_file_t )
 {
     LEX::scanner_ptr scanner = LEX::default_scanner;
+    min::printer printer = scanner->printer;
 
-    init_output_stream ( printer, std::cout );
-    init_printer ( scanner, printer );
     scanner->erroneous_atom =
         LEX::default_erroneous_atom;
 
@@ -67,16 +62,11 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
 // Input Test
 // ----- ----
 
-static min::packed_vec_insptr<char>
+static min::locatable_ptr<min::packed_vec_insptr<char> >
        lexeme_codes;
-static min::locatable_ptr<min::packed_vec_insptr<char> >
-       lexeme_codes_locator ( ::lexeme_codes );
 
-static min::packed_vec_insptr<char>
-       erroneous_atom_codes;
 static min::locatable_ptr<min::packed_vec_insptr<char> >
-       erroneous_atom_codes_locator
-	   ( ::erroneous_atom_codes );
+       erroneous_atom_codes;
 
 static min::packed_vec<char> codes_type
     ( "ll::lexeme::codes_type" );
@@ -94,6 +84,9 @@ static LEX::uns32 line_width;
 //
 static void flush_codes ( void )
 {
+    LEX::scanner_ptr scanner = LEX::default_scanner;
+    min::printer printer = scanner->printer;
+
     for ( uns32 i = 0;
 	  i < erroneous_atom_codes->length; ++ i )
     {
@@ -120,11 +113,13 @@ static void flush_codes ( void )
 //
 void set_line ( LEX::uns32 line )
 {
+    LEX::scanner_ptr scanner = LEX::default_scanner;
+    min::printer printer = scanner->printer;
+
     assert ( ::next_line <= line );
 
     flush_codes();
 
-    LEX::scanner_ptr scanner = LEX::default_scanner;
     for ( ; ::next_line <= line; ++ ::next_line )
         ::line_width =
 	    min::print_line
@@ -162,9 +157,8 @@ static void set_codes
         codes[i] = ::type_code[type];
 }
 
-static LEX::erroneous_ptr test_erroneous;
 static min::locatable_ptr<LEX::erroneous_ptr>
-       test_erroneous_locator ( ::test_erroneous );
+       test_erroneous;
 
 static void erroneous_atom_announce
 	( uns32 first, uns32 next, uns32 type,
@@ -181,9 +175,8 @@ void LEX::test_input
 	  uns32 end_of_file_t )
 {
     LEX::scanner_ptr scanner = LEX::default_scanner;
+    min::printer printer = scanner->printer;
 
-    init_output_stream ( printer, std::cout );
-    init_printer ( scanner, printer );
     LEX::init_erroneous
         ( ::erroneous_atom_announce,
 	  ::test_erroneous );

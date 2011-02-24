@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 04:00:18 EST 2011
+// Date:	Thu Feb 24 07:16:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,25 +75,14 @@ static min::packed_struct<LEX::input_struct>
 static min::packed_struct<LEX::erroneous_struct>
     erroneous_type ( "ll::lexeme::erroneous_type" );
 
-LEX::program_ptr LEX::default_program;
-static min::locatable_ptr<LEX::program_ptr>
-    default_program_locator
-    	( LEX::default_program );
-
-LEX::input_ptr LEX::default_read_input;
-static min::locatable_ptr<LEX::input_ptr>
-    default_read_input_locator
-    	( LEX::default_read_input );
-
-LEX::erroneous_ptr LEX::default_erroneous_atom;
-static min::locatable_ptr<LEX::erroneous_ptr>
-    default_erroneous_atom_locator
-    	( LEX::default_erroneous_atom );
-
-LEX::scanner_ptr LEX::default_scanner;
-static min::locatable_ptr<LEX::scanner_ptr>
-    default_scanner_locator
-    	( LEX::default_scanner );
+min::locatable_ptr<LEX::program_ptr>
+     LEX::default_program;
+min::locatable_ptr<LEX::input_ptr>
+     LEX::default_read_input;
+min::locatable_ptr<LEX::erroneous_ptr>
+     LEX::default_erroneous_atom;
+min::locatable_ptr<LEX::scanner_ptr>
+     LEX::default_scanner;
 
 // Program Construction
 // ------- ------------

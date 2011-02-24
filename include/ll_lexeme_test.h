@@ -35,8 +35,8 @@ namespace ll { namespace lexeme {
     //
     // The ll::lexeme::default_scanner is used and
     // must have all its parameters preset except for
-    // printer and erroneous_atom, which are set by
-    // this function.
+    // erroneous_atom, which are set by this function
+    // to LEX::default_erroneous_atom.
     //
     // This function terminates after printing a lexeme
     // of type end_of_file_t.
@@ -55,10 +55,10 @@ namespace ll { namespace lexeme {
     //
     // The ll::lexeme::default_scanner is used and
     // must have all its parameters preset except for
-    // printer and erroneous_atom, which are set by this
-    // function.  It is assumed that input_file is used
-    // to read input and will spool recently read lines
-    // for printing.
+    // erroneous_atom, which are set by this function.
+    // It is assumed that input_file is used to read
+    // input and will spool recently read lines for
+    // printing.
     //
     // This function terminates after printing a lexeme
     // of type end_of_file_t.

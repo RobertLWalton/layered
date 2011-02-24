@@ -24,12 +24,21 @@
 # include <cassert>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
-using std::cout;
+
+min::locatable_ptr<min::printer> printer;
 
 int main ( int argc )
 {
+    min::init_output_stream ( printer, std::cout );
     LEXSTD::create_standard_program();
-    LEX::print_program ( cout, true );
+    LEX::print_program
+        ( printer, LEX::default_program, true );
+    LEX::init_program ( LEX::default_scanner,
+                        LEX::default_program );
+    LEX::init_printer ( LEX::default_scanner,
+                        printer );
+    LEX::init_input_stream ( LEX::default_scanner,
+    			     std::cin );
     LEX::test_input ( LEXSTD::type_code,
                       LEXSTD::end_of_file_t );
 }

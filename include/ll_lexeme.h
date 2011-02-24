@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 08:03:47 EST 2011
+// Date:	Thu Feb 24 03:59:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,7 +50,7 @@ namespace ll { namespace lexeme {
     typedef min::packed_vec_insptr<uns32> program_ptr;
         // Type of a pointer to a program.
 
-    extern program_ptr & default_program;
+    extern program_ptr default_program;
         // Default program.  This variable is locatable
 	// by the garbage collector.
 
@@ -74,7 +74,7 @@ namespace ll { namespace lexeme {
             scanner_ptr;
 	// See scanner_struct below.
 
-    extern scanner_ptr & default_scanner;
+    extern scanner_ptr default_scanner;
         // Default scanner.  This variable is locatable
 	// by the garbage collector.
 
@@ -83,27 +83,29 @@ namespace ll { namespace lexeme {
             input_ptr;
 	// See input_struct below.
 
-    extern input_ptr & default_read_input;
+    extern input_ptr default_read_input;
         // Default value for scanner->read_input.
 	// See scanner->read_input AND scanner->input_
 	// file below.
 	//
 	// Note: This variable is not set until the
 	// first scanner is created (first call to init
-	// a scanner).
+	// a scanner).  It is locatable by the garbage
+	// collector.
 
     struct erroneous_struct;
     typedef min::packed_struct_updptr<erroneous_struct>
             erroneous_ptr;
 	// See erroneous_struct below.
 
-    extern erroneous_ptr & default_erroneous_atom;
+    extern erroneous_ptr default_erroneous_atom;
         // Default value for scanner->erroneous_atom.
 	// Prints error message to scanner->printer.
 	//
 	// Note: This variable is not set until the
 	// first scanner is created (first call to init
-	// a scanner).
+	// a scanner).  It is locatable by the garbage
+	// collector.
 
 } }
 

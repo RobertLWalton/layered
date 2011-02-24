@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 07:16:56 EST 2011
+// Date:	Thu Feb 24 13:13:31 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1673,7 +1673,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    {
 		(*scanner->erroneous_atom->announce)
 		    ( scanner->next,
-		      scanner->next + atom_length - 1,
+		      scanner->next + atom_length,
 		      ih.erroneous_atom_type,
 		      scanner,
 		      scanner->erroneous_atom );

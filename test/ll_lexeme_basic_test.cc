@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 04:31:34 EST 2011
+// Date:	Thu Feb 24 07:03:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,8 +79,9 @@ static uns32   lex_line = 0;
 static uns32   lex_index = 0;
 static uns32   lex_column = 0;
 
-static min::static_stub<1> stubs;
-min::printer & printer = * (min::printer *) & stubs[0];
+static min::printer printer;
+static min::locatable_ptr<min::printer>
+       printer_locator ( ::printer );
 
 
 // Program Construction Test

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 13:13:31 EST 2011
+// Date:	Thu Feb 24 19:35:24 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,16 +72,17 @@ static min::packed_vec<LEX::inchar>
     inchar_vec_type ( "ll::lexeme::inchar_vec_type" );
 static min::packed_struct<LEX::input_struct>
     input_type ( "ll::lexeme::input_type" );
-static min::packed_struct<LEX::erroneous_struct>
-    erroneous_type ( "ll::lexeme::erroneous_type" );
+static min::packed_struct<LEX::erroneous_atom_struct>
+    erroneous_atom_type
+	( "ll::lexeme::erroneous_atom_type" );
 
-min::locatable_ptr<LEX::program_ptr>
+min::locatable_ptr<LEX::program>
      LEX::default_program;
-min::locatable_ptr<LEX::input_ptr>
+min::locatable_ptr<LEX::input>
      LEX::default_read_input;
-min::locatable_ptr<LEX::erroneous_ptr>
+min::locatable_ptr<LEX::erroneous_atom>
      LEX::default_erroneous_atom;
-min::locatable_ptr<LEX::scanner_ptr>
+min::locatable_ptr<LEX::scanner>
      LEX::default_scanner;
 
 // Program Construction
@@ -92,7 +93,7 @@ min::locatable_ptr<LEX::scanner_ptr>
 
 
 uns32 LEX::create_table
-	( uns32 mode, program_ptr program )
+	( uns32 mode, LEX::program program )
 {
     if ( mode != ATOM && mode != MASTER )
     {
@@ -128,7 +129,7 @@ uns32 LEX::create_table
 }
 
 uns32 LEX::table_mode
-	( uns32 ID, program_ptr program )
+	( uns32 ID, LEX::program program )
 {
     table_header & h = * (table_header *) & program[ID];
     return h.mode;
@@ -137,7 +138,7 @@ uns32 LEX::table_mode
 void LEX::create_program
 	( const char * const * type_name,
 	  uns32 max_type,
-	  program_ptr & program )
+	  LEX::program & program )
 {
     if ( program == NULL_STUB )
         program = uns32_vec_type.new_gen();
@@ -186,7 +187,7 @@ void LEX::create_program
 uns32 LEX::create_dispatcher
 	( uns32 max_breakpoints,
 	  uns32 max_ctype,
-	  program_ptr program )
+	  LEX::program program )
 {
     uns32 length =
           dispatcher_header_length
@@ -221,7 +222,7 @@ uns32 LEX::create_dispatcher
 uns32 LEX::create_type_map
 	( uns32 cmin, uns32 cmax,
 	  uns8 * map,
-	  program_ptr program )
+	  LEX::program program )
 {
     assert ( cmax >= cmin );
     uns32 length = cmax - cmin + 1;
@@ -244,7 +245,7 @@ uns32 LEX::create_type_map
 uns32 LEX::create_type_map
 	( uns32 cmin, uns32 cmax,
 	  uns32 ctype,
-	  program_ptr program )
+	  LEX::program program )
 {
     assert ( cmax >= cmin );
     uns32 ID = program->length;
@@ -271,7 +272,7 @@ uns32 LEX::create_instruction
 	  uns32 output_type,
 	  uns32 goto_table_ID,
 	  uns32 call_table_ID,
-	  program_ptr program )
+	  LEX::program program )
 {
     assert ( ( ( operation & TRANSLATE_TO_FLAG ) != 0 )
 	     +
@@ -393,7 +394,7 @@ uns32 LEX::create_instruction
 static bool attach_type_map_to_dispatcher
 	( uns32 dispatcher_ID,
 	  uns32 type_map_ID,
-	  program_ptr program )
+	  LEX::program program )
 {
     dispatcher_header & dh =
         * (dispatcher_header *)
@@ -488,7 +489,7 @@ static bool attach_type_map_to_dispatcher
 bool LEX::attach
 	( uns32 target_ID,
 	  uns32 component_ID,
-	  program_ptr program )
+	  LEX::program program )
 {
     uns32 target_pctype = program[target_ID];
     uns32 component_pctype = program[component_ID];
@@ -549,7 +550,7 @@ bool LEX::attach
 	( uns32 target_ID,
 	  uns32 ctype,
 	  uns32 component_ID,
-	  program_ptr program )
+	  LEX::program program )
 {
     dispatcher_header & h =
         * (dispatcher_header *)
@@ -624,7 +625,7 @@ inline uns32 conv ( uns32 & v )
 }
 
 bool LEX::convert_program_endianhood
-	( program_ptr program )
+	( LEX::program program )
 {
     if ( program[0] == PROGRAM ) return true;
 
@@ -701,30 +702,31 @@ bool LEX::convert_program_endianhood
 // ------- --------
 
 void LEX::init_input
-	( bool (*get) ( scanner_ptr scanner,
-			input_ptr input ),
-	  input_ptr & input )
+	( bool (*get) ( LEX::scanner scanner,
+			LEX::input input ),
+	  LEX::input & input )
 {
     if ( input == NULL_STUB )
         input = ::input_type.new_stub();
     input->get = get;
 }
 
-void LEX::init_erroneous
+void LEX::init_erroneous_atom
 	( void (* announce )
 	    ( uns32 first, uns32 next, uns32 type,
-	      scanner_ptr scanner,
-	      erroneous_ptr erroneous ),
-	  erroneous_ptr & erroneous )
+	      LEX::scanner scanner,
+	      LEX::erroneous_atom erroneous_atom ),
+	  LEX::erroneous_atom & erroneous_atom )
 {
-    if ( erroneous == NULL_STUB )
-        erroneous = ::erroneous_type.new_stub();
-    erroneous->announce = announce;
+    if ( erroneous_atom == NULL_STUB )
+        erroneous_atom =
+	    ::erroneous_atom_type.new_stub();
+    erroneous_atom->announce = announce;
 }
 
 static bool default_read_input_get
-	( LEX::scanner_ptr scanner,
-	  LEX::input_ptr input )
+	( LEX::scanner scanner,
+	  LEX::input input )
 {
     min::file file = scanner->input_file;
 
@@ -781,8 +783,8 @@ static bool default_read_input_get
 
 static void default_erroneous_atom_announce
 	( uns32 first, uns32 next, uns32 type,
-	  LEX::scanner_ptr scanner,
-	  LEX::erroneous_ptr erroneous )
+	  LEX::scanner scanner,
+	  LEX::erroneous_atom erroneous_atom )
 {
     if ( scanner->printer == min::NULL_STUB )
         min::init ( scanner->printer );
@@ -800,7 +802,7 @@ static void default_erroneous_atom_announce
 // Return true if table_ID is in return_stack.
 //
 static bool is_recursive
-	( scanner_ptr scanner, uns32 table_ID )
+	( LEX::scanner scanner, uns32 table_ID )
 {
     for ( uns32 i = 0;
           i < scanner->return_stack_p; ++ i )
@@ -815,11 +817,11 @@ static bool is_recursive
 // by garbage collector.
 //
 static void create_scanner
-	( LEX::scanner_ptr & scanner )
+	( LEX::scanner & scanner )
 {
     init_input
 	( ::default_read_input_get );
-    init_erroneous
+    init_erroneous_atom
 	( ::default_erroneous_atom_announce );
 
     scanner = scanner_type.new_stub();
@@ -838,7 +840,7 @@ static void create_scanner
 // statements check this).  Everything else found
 // wrong with the program is a SCAN_ERROR.
 
-void LEX::init ( scanner_ptr & scanner )
+void LEX::init ( LEX::scanner & scanner )
 {
 
     if ( scanner == NULL_STUB )
@@ -869,15 +871,15 @@ void LEX::init ( scanner_ptr & scanner )
 }
 
 void LEX::init_program
-	( scanner_ptr & scanner,
-	  program_ptr program )
+	( LEX::scanner & scanner,
+	  LEX::program program )
 {
     init ( scanner );
     scanner->program = program;
 }
 
 void LEX::init_printer
-	( scanner_ptr & scanner,
+	( LEX::scanner & scanner,
 	  min::printer printer )
 {
     init ( scanner );
@@ -885,7 +887,7 @@ void LEX::init_printer
 }
 
 bool LEX::init_input_named_file
-	( scanner_ptr & scanner,
+	( LEX::scanner & scanner,
 	  min::gen file_name,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -900,7 +902,7 @@ bool LEX::init_input_named_file
 }
 
 void LEX::init_input_stream
-	( scanner_ptr & scanner,
+	( LEX::scanner & scanner,
 	  std::istream & istream,
 	  min::uns32 print_flags,
 	  uns32 spool_lines )
@@ -912,7 +914,7 @@ void LEX::init_input_stream
 }
 
 void LEX::init_input_string
-	( scanner_ptr & scanner,
+	( LEX::scanner & scanner,
 	  const char * data,
 	  min::uns32 print_flags,
 	  uns32 spool_lines )
@@ -937,10 +939,10 @@ void LEX::init_input_string
 // `next'.  `next' defaults to scanner->next.
 //
 static min::printer scan_error
-        ( scanner_ptr scanner,
+        ( LEX::scanner scanner,
 	  uns32 length, uns32 next );
 inline min::printer scan_error
-        ( scanner_ptr scanner,
+        ( LEX::scanner scanner,
 	  uns32 length )
 {
     return scan_error
@@ -957,16 +959,16 @@ inline min::printer scan_error
 // If ID == 0 do nothing but return 0.
 //
 static uns32 print_instruction
-    ( min::printer printer, program_ptr program,
+    ( min::printer printer, LEX::program program,
       uns32 ID, unsigned indent );
 
 // Given a dispatcher_ID and a character c return the
 // ctype that the dispatcher maps c onto.
 //
-static uns32 ctype ( scanner_ptr scanner,
+static uns32 ctype ( LEX::scanner scanner,
                      uns32 dispatcher_ID, uns32 c )
 {
-    program_ptr program = scanner->program;
+    LEX::program program = scanner->program;
 
     bool trace =
         ( scanner->trace & LEX::TRACE_DISPATCH );
@@ -1049,9 +1051,9 @@ static uns32 ctype ( scanner_ptr scanner,
 // add translation of atom to translation buffer.
 //
 static uns32 scan_atom
-    ( scanner_ptr scanner, uns32 & atom_length )
+    ( LEX::scanner scanner, uns32 & atom_length )
 {
-    program_ptr program =
+    LEX::program program =
         scanner->program;
     min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
@@ -1477,7 +1479,7 @@ static uns32 scan_atom
 }
 
 uns32 LEX::scan ( uns32 & first, uns32 & next,
-                  scanner_ptr scanner )
+                  LEX::scanner scanner )
 {
     if ( scanner->reinitialize )
     {
@@ -1527,7 +1529,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	 && scanner->printer == NULL_STUB )
 	min::init ( scanner->printer );
 
-    program_ptr program =
+    LEX::program program =
         scanner->program;
     min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
@@ -1664,7 +1666,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		    << instruction_ID
 		    << " executed by table "
 		    << scanner->current_table_ID
-		    << " but erroneous_atom function"
+		    << " but erroneous_atom closure"
 		       " does not exist"
 		    << min::eol;
 		return SCAN_ERROR;
@@ -1822,7 +1824,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 // See documentation above.
 //
 static min::printer scan_error
-        ( scanner_ptr scanner,
+        ( LEX::scanner scanner,
 	  uns32 length, uns32 next )
 {
     min::init ( min::error_message )
@@ -1858,7 +1860,7 @@ min::printer operator <<
     if ( first >= next )
         return printer << "<empty>";
 
-    LEX::scanner_ptr scanner = pinput.scanner;
+    LEX::scanner scanner = pinput.scanner;
 
     printer << min::push_parameters << min::graphic;
     while ( first < next )
@@ -1890,7 +1892,7 @@ min::printer operator <<
 	( min::printer printer,
 	  const LEX::plexeme & plexeme )
 {
-    scanner_ptr scanner = plexeme.scanner;
+    LEX::scanner scanner = plexeme.scanner;
     printer << perroneous_atom
         ( scanner, plexeme.first,
 		   plexeme.next,
@@ -1909,7 +1911,7 @@ min::printer operator <<
 	( min::printer printer,
 	  const LEX::perroneous_atom & perroneous_atom )
 {
-    LEX::scanner_ptr scanner = perroneous_atom.scanner;
+    LEX::scanner scanner = perroneous_atom.scanner;
     uns32 type = perroneous_atom.type;
     uns32 first = perroneous_atom.first;
     uns32 next = perroneous_atom.next;
@@ -1933,7 +1935,8 @@ min::printer operator <<
 }
 
 bool LEX::translation_is_exact
-	( scanner_ptr scanner, uns32 first, uns32 next )
+	( LEX::scanner scanner,
+	  uns32 first, uns32 next )
 {
     min::packed_vec_insptr<inchar> input_buffer =
         scanner->input_buffer;
@@ -1958,7 +1961,7 @@ min::printer operator <<
 	( min::printer printer,
 	  const LEX::pmode & pmode )
 {
-    program_ptr program = pmode.program;
+    LEX::program program = pmode.program;
     uns32 mode = pmode.mode;
     program_header & ph =
         * (program_header *) & program[0];
@@ -1993,7 +1996,7 @@ min::printer operator <<
 
 void LEX::print_item_lines
 	( min::printer printer,
-	  LEX::scanner_ptr scanner,
+	  LEX::scanner scanner,
 	  const LEX::position & begin,
 	  const LEX::position & end,
 	  char mark,
@@ -2039,7 +2042,7 @@ void LEX::print_item_lines
 
 void LEX::print_lexeme_lines
 	( min::printer printer,
-	  LEX::scanner_ptr scanner,
+	  LEX::scanner scanner,
 	  min::uns32 first,
 	  min::uns32 next,
 	  char mark,
@@ -2089,7 +2092,7 @@ inline min::printer operator <<
 //
 static uns32 print_instruction
     ( min::printer printer,
-      program_ptr program,
+      LEX::program program,
       uns32 ID,
       unsigned indent )
 {
@@ -2379,7 +2382,7 @@ struct pclist {
 // zero, do nothing but return 0.
 //
 static uns32 print_cooked_dispatcher
-    ( min::printer printer, program_ptr program,
+    ( min::printer printer, LEX::program program,
       uns32 ID, unsigned indent = IDwidth )
 {
     if ( ID == 0 ) return 0;
@@ -2502,7 +2505,7 @@ static uns32 print_cooked_dispatcher
 }
 
 uns32 LEX::print_program_component
-	( min::printer printer, program_ptr program,
+	( min::printer printer, LEX::program program,
 	  uns32 ID, bool cooked )
 {
     printer << min::push_parameters
@@ -2692,7 +2695,7 @@ uns32 LEX::print_program_component
 }
 
 void LEX::print_program
-	( min::printer printer, program_ptr program,
+	( min::printer printer, LEX::program program,
 	  bool cooked )
 {
     uns32 ID = 0;

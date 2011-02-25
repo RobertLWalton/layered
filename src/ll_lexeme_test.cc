@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 14:27:06 EST 2011
+// Date:	Thu Feb 24 19:45:47 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,7 +31,7 @@ using LEX::uns32;
 
 void LEX::basic_test_input ( uns32 end_of_file_t )
 {
-    LEX::scanner_ptr scanner = LEX::default_scanner;
+    LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
 
     scanner->erroneous_atom =
@@ -84,7 +84,7 @@ static LEX::uns32 line_width;
 //
 static void flush_codes ( void )
 {
-    LEX::scanner_ptr scanner = LEX::default_scanner;
+    LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
 
     for ( uns32 i = 0;
@@ -113,7 +113,7 @@ static void flush_codes ( void )
 //
 void set_line ( LEX::uns32 line )
 {
-    LEX::scanner_ptr scanner = LEX::default_scanner;
+    LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
 
     assert ( ::next_line <= line );
@@ -131,7 +131,7 @@ static void set_codes
 	( min::packed_vec_insptr<char> codes,
 	  uns32 first, uns32 next, uns32 type )
 {
-    LEX::scanner_ptr scanner = LEX::default_scanner;
+    LEX::scanner scanner = LEX::default_scanner;
 
     uns32 line =
         first < scanner->input_buffer->length ?
@@ -159,13 +159,13 @@ static void set_codes
         codes[i] = ::type_code[type];
 }
 
-static min::locatable_ptr<LEX::erroneous_ptr>
-       test_erroneous;
+static min::locatable_ptr<LEX::erroneous_atom>
+       test_erroneous_atom;
 
 static void erroneous_atom_announce
 	( uns32 first, uns32 next, uns32 type,
-	  LEX::scanner_ptr scanner,
-	  LEX::erroneous_ptr erroneous )
+	  LEX::scanner scanner,
+	  LEX::erroneous_atom erroneous_atom )
 {
     assert ( scanner == LEX::default_scanner );
     set_codes ( ::erroneous_atom_codes,
@@ -176,13 +176,13 @@ void LEX::test_input
 	( const char * type_code,
 	  uns32 end_of_file_t )
 {
-    LEX::scanner_ptr scanner = LEX::default_scanner;
+    LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
 
-    LEX::init_erroneous
+    LEX::init_erroneous_atom
         ( ::erroneous_atom_announce,
-	  ::test_erroneous );
-    scanner->erroneous_atom = ::test_erroneous;
+	  ::test_erroneous_atom );
+    scanner->erroneous_atom = ::test_erroneous_atom;
 
     ::type_code = type_code;
     ::next_line = 0;

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 30 06:43:04 EST 2011
+// Date:	Fri Feb 25 13:20:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,9 +43,8 @@ static min::packed_vec<min::uns32,PAR::string_struct>
 
 // Free list of strings.
 //
-static min::static_stub<1> string_vec;
-static PAR::string_insptr & free_strings =
-    * ( PAR::string_insptr *) & string_vec[0];
+static min::locatable_ptr<PAR::string_insptr>
+    free_strings;
 
 static int number_free_strings = 0;
 
@@ -53,8 +52,8 @@ static int max_string_free_list_size = 100;
 
 static int min_string_length = 80;
 
-PAR::string_ptr PAR::new_string
-	( min::uns32 n, const min::uns32 * string )
+PAR::string PAR::new_string
+	( min::uns32 n, const min::uns32 * s )
 {
     string_insptr str = ::free_strings;
     if ( str == min::NULL_STUB )
@@ -68,17 +67,20 @@ PAR::string_ptr PAR::new_string
     {
         -- ::number_free_strings;
 	::free_strings = str->next;
-	if ( str->length < n )
+	if ( str->max_length < n )
 	    min::resize ( str, n );
 	min::pop ( str, str->length );
     }
     str->next = min::NULL_STUB;
-    min::push ( str, n, string );
-    return (string_ptr) str;
+    min::push ( str, n, s );
+    return (PAR::string) str;
 }
 
-PAR::string_ptr PAR::free_string ( string_ptr string )
+PAR::string PAR::free_string ( PAR::string string )
 {
+    if ( string == NULL_STUB )
+        return NULL_STUB;
+
     if ( ::max_string_free_list_size >= 0
          &&
             ::number_free_strings
@@ -88,7 +90,8 @@ PAR::string_ptr PAR::free_string ( string_ptr string )
 	return min::NULL_STUB;
     }
 
-    string_insptr str = (string_insptr) string;
+    PAR::string_insptr str =
+        (PAR::string_insptr) string;
     str->next = ::free_strings;
     ::free_strings = str;
     ++ ::number_free_strings;
@@ -100,7 +103,7 @@ void PAR::set_max_string_free_list_size ( int n )
     ::max_string_free_list_size = n;
     if ( n >= 0 ) while ( ::number_free_strings > n )
     {
-	string_insptr string = ::free_strings;
+	PAR::string_insptr string = ::free_strings;
 	::free_strings = string->next;
         min::deallocate ( string );
 	-- ::number_free_strings;
@@ -131,17 +134,15 @@ static min::packed_struct<PAR::token_struct>
 
 // Free list of tokens.
 //
-static min::static_stub<1> token_vec;
-static PAR::token_ptr & free_tokens =
-    * ( PAR::token_ptr *) & token_vec[0];
+static min::locatable_ptr<PAR::token> free_tokens;
 
 static int number_free_tokens = 0;
 
 static int max_token_free_list_size = 1000;
 
-PAR::token_ptr PAR::new_token ( min::uns32 type )
+PAR::token PAR::new_token ( min::uns32 type )
 {
-    token_ptr token = remove ( ::free_tokens );
+    PAR::token token = remove ( ::free_tokens );
     if ( token == min::NULL_STUB )
         token = ::token_type.new_stub();
     else
@@ -152,13 +153,14 @@ PAR::token_ptr PAR::new_token ( min::uns32 type )
     return token;
 }
 
-void PAR::free_token ( token_ptr token )
+void PAR::free ( PAR::token token )
 {
     if ( ::max_token_free_list_size >= 0
          &&
             ::number_free_tokens
 	 >= ::max_token_free_list_size )
     {
+	free_string ( token->string );
         min::deallocate ( token );
 	return;
     }
@@ -174,6 +176,7 @@ void PAR::set_max_token_free_list_size ( int n )
     ::max_token_free_list_size = n;
     if ( n >= 0 ) while ( ::number_free_tokens > n )
     {
+	free_string ( ::free_tokens->string );
         min::deallocate ( remove ( ::free_tokens ) );
 	-- ::number_free_tokens;
     }
@@ -185,18 +188,83 @@ void PAR::set_max_token_free_list_size ( int n )
 static min::packed_struct<PAR::input_struct>
     input_type ( "ll::parser::input_type" );
 
-void PAR::init_input
-	( uns32 (*add_tokens)
-	      ( parser_ptr parser, input_ptr input ),
+void PAR::init
+	( PAR::input & input,
+	  uns32 (*add_tokens)
+	      ( PAR::parser parser, PAR::input input ),
 	  void (*init)
-	      ( parser_ptr parser, input_ptr input ),
-	  input_ptr & input )
+	      ( PAR::parser parser, PAR::input input ) )
 {
     if ( input == NULL_STUB )
         input = ::input_type.new_stub();
 
     input->add_tokens = add_tokens;
     input->init = init;
+}
+
+static min::packed_struct<PAR::output_struct>
+    output_type ( "ll::parser::output_type" );
+
+void PAR::init
+	( PAR::output & output,
+	  void (*remove_tokens)
+	      ( PAR::parser parser,
+	        PAR::output output ),
+	  void (*init)
+	      ( PAR::parser parser,
+	        PAR::output output ) )
+{
+    if ( output == NULL_STUB )
+        output = ::output_type.new_stub();
+
+    output->remove_tokens = remove_tokens;
+    output->init = init;
+}
+
+static min::packed_struct<PAR::pass_struct>
+    pass_type ( "ll::parser::pass_type" );
+
+void PAR::init
+	( PAR::pass & pass,
+	  bool (*run)
+	      ( PAR::parser parser, PAR::pass pass,
+	        PAR::token & first, PAR::token end ),
+	  void (*init)
+	      ( PAR::parser parser, PAR::pass pass ) )
+{
+    if ( pass == NULL_STUB )
+        pass = ::pass_type.new_stub();
+
+    pass->run = run;
+    pass->init = init;
+}
+
+void PAR::place
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  PAR::pass previous )
+{
+    if ( previous == NULL_STUB )
+    {
+        pass->next = parser->pass_stack;
+	parser->pass_stack = pass;
+    }
+    else
+    {
+        PAR::pass current = parser->pass_stack;
+	for ( ; current != NULL_STUB;
+	        current = current->next )
+	{
+	    if ( current == previous )
+	    {
+	        pass->next = current->next;
+		current->next = pass;
+		return;
+	    }
+	}
+	MIN_ABORT
+	    ( "PAR::place could not find `previous'" );
+    }
 }
 
 // Parser
@@ -209,7 +277,7 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::pass_stack ),
     min::DISP ( & PAR::parser_struct::scanner ),
     min::DISP ( & PAR::parser_struct::input_file ),
-    min::DISP ( & PAR::parser_struct::print ),
+    min::DISP ( & PAR::parser_struct::printer ),
     min::DISP ( & PAR::parser_struct::hash_table ),
     min::DISP ( & PAR::parser_struct
                      ::indentation_mark_table ),
@@ -221,55 +289,85 @@ static min::packed_struct<PAR::parser_struct>
     parser_type ( "ll::parser::parser_type",
                   NULL, ::parser_stub_disp );
 
-static min::static_stub<1> default_stub;
-PAR::parser_ptr & PAR::default_parser =
-    * (PAR::parser_ptr *) & default_stub[0];
+min::locatable_ptr<PAR::parser> PAR::default_parser;
 
-void PAR::init_parser ( parser_ptr & parser )
+void PAR::init ( PAR::parser & parser )
 {
     if ( parser == NULL_STUB )
     {
         parser = ::parser_type.new_stub();
-	init_standard_input ( parser );
 	parser->indent_offset = 2;
     }
-    else if ( parser->scanner != NULL_STUB )
-        LEX::init_scanner ( parser->scanner );
 
-    parser->first = NULL_STUB;
+    PAR::token token;
+    while (    ( token = PAR::remove ( parser->first ) )
+            != NULL_STUB )
+        PAR::free ( token );
+
     parser->eof = false;
     parser->finished_tokens = 0;
 }
 
-bool PAR::init_parser
-	( const char * file_name,
-	  parser_ptr & parser )
+void PAR::init_input_stream
+	( PAR::parser & parser,
+	  std::istream & in,
+	  min::uns32 print_flags,
+	  min::uns32 spool_lines )
 {
-    init_parser ( parser );
-    return LEX::init_file ( file_name,
-                            parser->error_message,
-		            parser->input_file );
+    init ( parser );
+
+    min::init_input_stream
+        ( parser->input_file, in,
+	  print_flags, spool_lines );
 }
 
-void PAR::init_parser
-	( std::istream & istream,
-	  const char * file_name,
-	  uns32 spool_length,
-	  parser_ptr & parser )
+void PAR::init_input_file
+	( PAR::parser & parser,
+	  min::file ifile,
+	  min::uns32 print_flags,
+	  min::uns32 spool_lines )
 {
-    init_parser ( parser );
-    LEX::init_file ( istream, file_name, spool_length,
-                     parser->input_file );
+    init ( parser );
+
+    min::init_input_file
+        ( parser->input_file, ifile,
+	  print_flags, spool_lines );
 }
 
-void PAR::init_parser
-	( const char * file_name,
+bool PAR::init_input_named_file
+	( PAR::parser & parser,
+	  min::gen file_name,
+	  min::uns32 print_flags,
+	  min::uns32 spool_lines )
+{
+    init ( parser );
+
+    return min::init_input_named_file
+        ( parser->input_file, file_name,
+	  print_flags, spool_lines );
+}
+
+void PAR::init_input_string
+	( PAR::parser & parser,
 	  const char * data,
-	  parser_ptr & parser )
+	  min::uns32 print_flags,
+	  min::uns32 spool_lines )
 {
-    init_parser ( parser );
-    LEX::init_file ( file_name, data,
-                     parser->input_file );
+    init ( parser );
+
+    min::init_input_string
+        ( parser->input_file, data,
+	  print_flags, spool_lines );
+}
+
+void PAR::init_output_stream
+	( PAR::parser & parser,
+	  std::ostream & out )
+{
+    init ( parser );
+
+    min::init_output_stream
+        ( parser->printer, out );
 }
 
 // Parse an explicit subexpression that begins with the
@@ -324,14 +422,14 @@ void PAR::init_parser
 // bracket = NULL_STUB.
 //
 static void parse_explicit_subexpression
-	( PAR::parser_ptr parser,
-	  PAR::token_ptr & first,
-	  PAR::token_ptr & end,
-	  TAB::closing_bracket_ptr closing_bracket,
+	( PAR::parser parser,
+	  PAR::token & first,
+	  PAR::token & end,
+	  TAB::closing_bracket closing_bracket,
 	  min::int32 indent,
 	  TAB::selectors sel )
 {
-    PAR::token_ptr next = first;
+    PAR::token next = first;
     bool is_first = true;
     while ( true )
     {
@@ -367,15 +465,20 @@ static void parse_explicit_subexpression
 	if (    near != 0
 	     && near < parser->indent_offset )
 	{
-	    char message[256];
-	    sprintf ( message,
-		      "ERROR: lexeme indent %d too near"
-		      " paragraph indent %d; ",
-		      first->begin.column, indent );
-	    LEX::print_item_message_and_lines
-		( * parser->print->err,
-		  message,
-		  parser->print,
+	    parser->printer
+	        << min::bom << min::set_indent ( 7 )
+		<< "ERROR: lexeme indent "
+		<< first->begin.column
+		<< " too near paragraph indent "
+		<< indent
+		<< "; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+		         first->begin.line,
+			 next->begin.line )
+	        << ":" << min::eom;
+	    LEX::print_item_lines
+		( parser->printer,
 		  parser->input_file,
 		  first->begin,
 		  first->end );
@@ -398,8 +501,43 @@ static void parse_explicit_subexpression
 }
 
 
-void PAR::parse ( parser_ptr parser )
+void PAR::parse ( PAR::parser parser )
 {
+    if ( parser->scanner != NULL_STUB )
+    {
+        LEX::scanner scanner = parser->scanner;
+        if ( parser->input_file != scanner->input_file )
+	{
+	    if ( parser->input_file == NULL_STUB )
+	        parser->input_file =
+		    scanner->input_file;
+	    else if ( scanner->input_file == NULL_STUB )
+	        scanner->input_file =
+		    parser->input_file;
+	    else MIN_ABORT
+	        ( "input_file of parser and"
+		  " parser->scanner are not the same" );
+	}
+	else if ( parser->input_file == NULL_STUB )
+	    MIN_ABORT
+	        ( "parser->input_file not defined" );
+
+        if ( parser->printer != scanner->printer )
+	{
+	    if ( parser->printer == NULL_STUB )
+	        parser->printer =
+		    scanner->printer;
+	    else if ( scanner->printer == NULL_STUB )
+	        scanner->printer = parser->printer;
+	    else MIN_ABORT
+	        ( "printer of parser and"
+		  " parser->scanner are not the same" );
+	}
+	else if ( parser->printer == NULL_STUB )
+	    MIN_ABORT
+	        ( "parser->printer not defined" );
+    }
+
     while ( ! parser->eof )
         parser->input->add_tokens
 	    ( parser, parser->input );
@@ -408,16 +546,16 @@ void PAR::parse ( parser_ptr parser )
 // Parser Functions
 // ------ ---------
 
-TAB::key_prefix_ptr PAR::find
-	( parser_ptr parser,
-	  token_ptr first, token_ptr end,
-	  TAB::table_ptr table )
+TAB::key_prefix PAR::find
+	( PAR::parser parser,
+	  PAR::token first, PAR::token end,
+	  TAB::table table )
 {
     uns32 hash;
     uns32 table_len = table->length;
     uns32 mask = table_len - 1;
     MIN_ASSERT ( ( table_len & mask ) == 0 );
-    TAB::key_prefix_ptr previous = NULL_STUB;
+    TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
         if ( first->type != SYMBOL )
@@ -445,23 +583,23 @@ TAB::key_prefix_ptr PAR::find
 
 	// Locate key prefix.
 	//
-	TAB::key_prefix_ptr kprefix =
+	TAB::key_prefix key_prefix =
 	    table[hash & mask];
-	while ( kprefix != NULL_STUB )
+	while ( key_prefix != NULL_STUB )
 	{
-	    if ( kprefix->key_element == e
+	    if ( key_prefix->key_element == e
 	         &&
-		 kprefix->previous == previous )
+		 key_prefix->previous == previous )
 	        break;
-	    kprefix = kprefix->next;
+	    key_prefix = key_prefix->next;
 	}
-	if ( kprefix == NULL_STUB )
+	if ( key_prefix == NULL_STUB )
 	    return previous;
 
 	if ( previous == NULL_STUB )
 	    hash = min::labhash ( 1009, hash );
 
-	previous = kprefix;
+	previous = key_prefix;
 
         if ( first->next == parser->first )
 	{

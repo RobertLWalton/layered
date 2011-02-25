@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 19:35:24 EST 2011
+// Date:	Fri Feb 25 11:47:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,7 +79,7 @@ static min::packed_struct<LEX::erroneous_atom_struct>
 min::locatable_ptr<LEX::program>
      LEX::default_program;
 min::locatable_ptr<LEX::input>
-     LEX::default_read_input;
+     LEX::default_input;
 min::locatable_ptr<LEX::erroneous_atom>
      LEX::default_erroneous_atom;
 min::locatable_ptr<LEX::scanner>
@@ -701,22 +701,22 @@ bool LEX::convert_program_endianhood
 // Scanner Closures
 // ------- --------
 
-void LEX::init_input
-	( bool (*get) ( LEX::scanner scanner,
-			LEX::input input ),
-	  LEX::input & input )
+void LEX::init
+	( LEX::input & input,
+	  bool (*get) ( LEX::scanner scanner,
+			LEX::input input ) )
 {
     if ( input == NULL_STUB )
         input = ::input_type.new_stub();
     input->get = get;
 }
 
-void LEX::init_erroneous_atom
-	( void (* announce )
+void LEX::init
+	( LEX::erroneous_atom & erroneous_atom,
+	  void (* announce )
 	    ( uns32 first, uns32 next, uns32 type,
 	      LEX::scanner scanner,
-	      LEX::erroneous_atom erroneous_atom ),
-	  LEX::erroneous_atom & erroneous_atom )
+	      LEX::erroneous_atom erroneous_atom ) )
 {
     if ( erroneous_atom == NULL_STUB )
         erroneous_atom =
@@ -724,7 +724,7 @@ void LEX::init_erroneous_atom
     erroneous_atom->announce = announce;
 }
 
-static bool default_read_input_get
+static bool default_input_get
 	( LEX::scanner scanner,
 	  LEX::input input )
 {
@@ -748,7 +748,7 @@ static bool default_read_input_get
 	min::skip_partial ( file );
     }
 
-    min::packed_vec_insptr<LEX::inchar> input_buffer =
+    LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
     for ( ; length != 0 && file->buffer[offset] != 0;
@@ -819,10 +819,12 @@ static bool is_recursive
 static void create_scanner
 	( LEX::scanner & scanner )
 {
-    init_input
-	( ::default_read_input_get );
-    init_erroneous_atom
-	( ::default_erroneous_atom_announce );
+    LEX::init
+	( LEX::default_input,
+	  ::default_input_get );
+    init
+	( LEX::default_erroneous_atom,
+	  ::default_erroneous_atom_announce );
 
     scanner = scanner_type.new_stub();
 
@@ -1097,9 +1099,9 @@ static uns32 scan_atom
 {
     LEX::program program =
         scanner->program;
-    min::packed_vec_insptr<inchar> input_buffer =
+    LEX::input_buffer input_buffer =
         scanner->input_buffer;
-    min::packed_vec_insptr<uns32> translation_buffer =
+    LEX::translation_buffer translation_buffer =
         scanner->translation_buffer;
 
     const uns32 SCAN_ERROR = 0;
@@ -1526,7 +1528,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
     if ( scanner->reinitialize )
     {
         if ( scanner->read_input == NULL_STUB )
-	    scanner->read_input = default_read_input;
+	    scanner->read_input = default_input;
 
         if ( scanner->erroneous_atom == NULL_STUB )
 	    scanner->erroneous_atom =
@@ -1573,9 +1575,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 
     LEX::program program =
         scanner->program;
-    min::packed_vec_insptr<inchar> input_buffer =
+    LEX::input_buffer input_buffer =
         scanner->input_buffer;
-    min::packed_vec_insptr<uns32> translation_buffer =
+    LEX::translation_buffer translation_buffer =
         scanner->translation_buffer;
 
     if (    scanner->next
@@ -1916,7 +1918,7 @@ min::printer operator <<
 	( min::printer printer,
 	  const LEX::ptranslation & ptranslation )
 {
-    min::packed_vec_insptr<uns32> translation_buffer =
+    LEX::translation_buffer translation_buffer =
         ptranslation.scanner->translation_buffer;
 
     if ( translation_buffer->length == 0 )
@@ -1958,7 +1960,7 @@ min::printer operator <<
     uns32 first = perroneous_atom.first;
     uns32 next = perroneous_atom.next;
 
-    min::packed_vec_insptr<inchar> input_buffer =
+    LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
     printer << LEX::pmode ( scanner->program, type )
@@ -1980,9 +1982,9 @@ bool LEX::translation_is_exact
 	( LEX::scanner scanner,
 	  uns32 first, uns32 next )
 {
-    min::packed_vec_insptr<inchar> input_buffer =
+    LEX::input_buffer input_buffer =
         scanner->input_buffer;
-    min::packed_vec_insptr<uns32> translation_buffer =
+    LEX::translation_buffer translation_buffer =
         scanner->translation_buffer;
 
     uns32 i = 0;
@@ -2036,9 +2038,36 @@ min::printer operator <<
     }
 }
 
+min::printer operator <<
+	( min::printer printer,
+	  const LEX::pline_numbers & pline_numbers )
+{
+    LEX::scanner scanner = pline_numbers.scanner;
+    LEX::input_buffer input_buffer =
+        scanner->input_buffer;
+    min::uns32 first = pline_numbers.first;
+    min::uns32 next = pline_numbers.next;
+
+    LEX::position begin =
+        first < input_buffer->length ?
+	input_buffer[first] :
+	scanner->next_position;
+    LEX::position end =
+        next < input_buffer->length ?
+	input_buffer[next] :
+	scanner->next_position;
+    uns32 begin_line = begin.line;
+    uns32 end_line = end.column != 0 ?
+    		     end.line :
+		     end.line - 1;
+    return printer << min::pline_numbers
+    			   ( scanner->input_file,
+			     begin_line, end_line );
+}
+
 void LEX::print_item_lines
 	( min::printer printer,
-	  LEX::scanner scanner,
+	  min::file file,
 	  const LEX::position & begin,
 	  const LEX::position & end,
 	  char mark,
@@ -2050,7 +2079,7 @@ void LEX::print_item_lines
     uns32 first_column = begin.column;
 
     uns32 width = min::print_line
-        ( printer, scanner->input_file, line );
+        ( printer, file, line );
 
     while ( true )
     {
@@ -2078,11 +2107,11 @@ void LEX::print_item_lines
 
 	first_column = 0;
 	width = min::print_line
-	    ( printer, scanner->input_file, line );
+	    ( printer, file, line );
     }
 }
 
-void LEX::print_lexeme_lines
+void LEX::print_item_lines
 	( min::printer printer,
 	  LEX::scanner scanner,
 	  min::uns32 first,
@@ -2090,7 +2119,7 @@ void LEX::print_lexeme_lines
 	  char mark,
 	  const char * blank_line )
 {
-    min::packed_vec_insptr<inchar> input_buffer =
+    LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
     const LEX::position begin =
@@ -2104,8 +2133,8 @@ void LEX::print_lexeme_lines
 	    scanner->next_position;
 
     print_item_lines
-        ( printer, scanner, begin, end,
-	  mark, blank_line );
+        ( printer, scanner->input_file,
+	  begin, end, mark, blank_line );
 }
 
 // Printing Programs

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 02:21:39 EST 2011
+// Date:	Fri Feb 25 13:19:32 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -171,7 +171,7 @@ struct opening_bracket_struct : public root_struct
     ll::parser::table::closing_bracket closing_bracket;
         // The opposing bracket of the opening bracket.
 
-    ll::parser:table::new_selectors new_selectors;
+    ll::parser::table::selectors new_selectors;
     	// New selectors associated with this opening
 	// bracket.
 

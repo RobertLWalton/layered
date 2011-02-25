@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 07:14:57 EST 2011
+// Date:	Thu Feb 24 19:27:36 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,10 +47,10 @@ namespace ll { namespace lexeme {
     // Characters are stored in uns32 integers.
     // This is more than sufficient for UNICODE.
 
-    typedef min::packed_vec_insptr<uns32> program_ptr;
+    typedef min::packed_vec_insptr<uns32> program;
         // Type of a pointer to a program.
 
-    extern min::locatable_ptr<program_ptr>
+    extern min::locatable_ptr<ll::lexeme::program>
            default_program;
         // Default program.
 
@@ -71,19 +71,19 @@ namespace ll { namespace lexeme {
 
     struct scanner_struct;
     typedef min::packed_struct_updptr<scanner_struct>
-            scanner_ptr;
+            scanner;
 	// See scanner_struct below.
 
-    extern min::locatable_ptr<scanner_ptr>
+    extern min::locatable_ptr<ll::lexeme::scanner>
            default_scanner;
         // Default scanner.
 
     struct input_struct;
     typedef min::packed_struct_updptr<input_struct>
-            input_ptr;
+            input;
 	// See input_struct below.
 
-    extern min::locatable_ptr<input_ptr>
+    extern min::locatable_ptr<ll::lexeme::input>
            default_read_input;
         // Default value for scanner->read_input.
 	// See scanner->read_input AND scanner->input_
@@ -93,12 +93,14 @@ namespace ll { namespace lexeme {
 	// first scanner is created (first call to init
 	// a scanner).
 
-    struct erroneous_struct;
-    typedef min::packed_struct_updptr<erroneous_struct>
-            erroneous_ptr;
-	// See erroneous_struct below.
+    struct erroneous_atom_struct;
+    typedef min::packed_struct_updptr
+		<erroneous_atom_struct>
+            erroneous_atom;
+	// See erroneous_atom_struct below.
 
-    extern min::locatable_ptr<erroneous_ptr>
+    extern min::locatable_ptr
+	       <ll::lexeme::erroneous_atom>
            default_erroneous_atom;
         // Default value for scanner->erroneous_atom.
 	// Prints error message to scanner->printer.
@@ -133,7 +135,8 @@ namespace ll { namespace lexeme {
     //
     inline uns32 component_type
 	    ( uns32 ID,
-	      program_ptr program = default_program )
+	      ll::lexeme::program program =
+	          default_program )
     {
         return program[ID];
     }
@@ -158,7 +161,8 @@ namespace ll { namespace lexeme {
     void create_program
 	    ( const char * const * type_name = NULL,
 	      uns32 max_type = 0,
-	      program_ptr & program = default_program );
+	      ll::lexeme::program & program =
+	          default_program );
 
     // Table modes and return values.
     //
@@ -186,13 +190,15 @@ namespace ll { namespace lexeme {
     //
     uns32 create_table
 	    ( uns32 mode,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // Return the mode of a table with the given ID.
     //
     uns32 table_mode
 	    ( uns32 ID,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // Create a dispatcher with given maximum number of
     // breakpoints and maximum ctype.  Return the new
@@ -203,7 +209,8 @@ namespace ll { namespace lexeme {
     uns32 create_dispatcher
 	    ( uns32 max_breakpointers,
 	      uns32 max_ctype,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  Copy
@@ -213,7 +220,8 @@ namespace ll { namespace lexeme {
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
 	      uns8 * map,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // Create a type map for characters in the range
     // cmin .. cmax.  Return the type map ID.  This
@@ -223,7 +231,8 @@ namespace ll { namespace lexeme {
     uns32 create_type_map
 	    ( uns32 cmin, uns32 cmax,
 	      uns32 ctype,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // An instruction consists of an uns32 operation,
     // various optional IDs, and an uns32 * translation_
@@ -300,7 +309,7 @@ namespace ll { namespace lexeme {
     //
     //   ERRONEOUS_ATOM	Indicates the current atom is
     //			erroneous and is to be delivered
-    //			to the erroneous_atom function
+    //			to the erroneous_atom closure
     //			with the erroneous_atom_type.
     //
     //   OUTPUT		After finishing atom processing
@@ -466,7 +475,8 @@ namespace ll { namespace lexeme {
 	      uns32 output_type = 0,
 	      uns32 goto_table_ID = 0,
 	      uns32 call_table_ID = 0,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // Attach a dispatcher or an instruction component
     // to a lexical table target, or a type map compo-
@@ -479,7 +489,8 @@ namespace ll { namespace lexeme {
     bool attach
     	    ( uns32 target_ID,
     	      uns32 component_ID,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // Attach a dispatcher or an instruction component
     // to a ctype of a dispatcher target.  Return true
@@ -492,7 +503,8 @@ namespace ll { namespace lexeme {
     	    ( uns32 target_ID,
     	      uns32 ctype,
 	      uns32 component_ID,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
     // Convert the program to the endianhood of this
     // computer.  This is necessary when the program is
@@ -512,7 +524,8 @@ namespace ll { namespace lexeme {
     // way.
     //
     bool convert_program_endianhood
-	    ( program_ptr program = default_program );
+	    ( ll::lexeme::program program =
+	        default_program );
 } }
 
 // Scanner Closures
@@ -525,8 +538,9 @@ namespace ll { namespace lexeme {
 	// the input buffer vector.
     {
     	uns32 control;
-	bool (*get) ( scanner_ptr scanner,
-	              input_ptr input );
+	bool (*get)
+	    ( ll::lexeme::scanner scanner,
+	      ll::lexeme::input input );
 	    // See scanner->read_input.
     };
 
@@ -536,34 +550,39 @@ namespace ll { namespace lexeme {
     // table by garbage collector.
     //
     void init_input
-	    ( bool (*get) ( scanner_ptr scanner,
-	                    input_ptr input ),
-	      input_ptr & input = default_read_input );
+	    ( bool (*get) ( ll::lexeme::scanner scanner,
+	                    ll::lexeme::input input ),
+	      ll::lexeme::input & input =
+	          default_read_input );
 
-    struct erroneous_struct
+    struct erroneous_atom_struct
         // Closure to add announce errors, such as erro-
 	// neous atoms.
     {
     	uns32 control;
 	void (* announce )
 	    ( uns32 first, uns32 next, uns32 type,
-	      scanner_ptr scanner,
-	      erroneous_ptr erroneous );
+	      ll::lexeme::scanner scanner,
+	      ll::lexeme::erroneous_atom
+		  erroneous_atom );
 	    // See scanner->erroneous_atom.
     };
 
-    // Set erroneous closure function.  If `erroneous'
-    // is NULL_STUB, create closure and set `erroneous'
-    // to a pointer to the created closure.  `erroneous'
-    // must be locatable by garbage collector.
+    // Set erroneous_atom closure function.  If
+    // `erroneous_atom' is NULL_STUB, create closure
+    // and set `erroneous_atom' to a pointer to the
+    // created closure.  `erroneous_atom' must be
+    // locatable by garbage collector.
     //
-    void init_erroneous
+    void init_erroneous_atom
 	    ( void (* announce )
 		( uns32 first, uns32 next, uns32 type,
-		  scanner_ptr scanner,
-		  erroneous_ptr erroneous ),
-	      erroneous_ptr & erroneous =
-	          default_erroneous_atom );
+		  ll::lexeme::scanner scanner,
+		  ll::lexeme::erroneous_atom
+		      erroneous_atom ),
+	      ll::lexeme::erroneous_atom
+	          & erroneous_atom =
+		      default_erroneous_atom );
 } }
 
 // Scanner
@@ -612,7 +631,7 @@ namespace ll { namespace lexeme {
 	// The program is a sequence of program
 	// components.  Defaults to NULL_STUB.
 	//
-	program_ptr program;
+	ll::lexeme::program program;
 
 	// The input buffer is a vector of inchar
 	// elements each holding a character and the
@@ -676,7 +695,7 @@ namespace ll { namespace lexeme {
 	// STUB when `scan' is first called after
 	// scanner initialization.
 	//
-	input_ptr read_input;
+	ll::lexeme::input read_input;
 
 	// ll::lexeme::default_read_input, the default
 	// value of read_input, reads UTF-8 lines from
@@ -733,7 +752,7 @@ namespace ll { namespace lexeme {
 	// NULL_STUB when `scan' is first called after
 	// scanner initialization.
 	//
-	erroneous_ptr erroneous_atom;
+	ll::lexeme::erroneous_atom erroneous_atom;
 
 	// Printer for default erroneous atom error
 	// messages and tracing.
@@ -772,14 +791,14 @@ namespace ll { namespace lexeme {
 
     // Simply (re)initialize a scanner.
     //
-    void init ( scanner_ptr & scanner );
+    void init ( ll::lexeme::scanner & scanner );
 
     // Set initialize the scanner and set the scanner
     // program.
     //
     void init_program
-	    ( scanner_ptr & scanner,
-              program_ptr program );
+	    ( ll::lexeme::scanner & scanner,
+              ll::lexeme::program program );
 
     // Reinitialize the scanner and set the scanner
     // printer.  If the printer is specified as NULL_
@@ -789,7 +808,7 @@ namespace ll { namespace lexeme {
     //	    min::init ( scanner->printer )
     //
     void init_printer
-	    ( scanner_ptr & scanner,
+	    ( ll::lexeme::scanner & scanner,
               min::printer printer = NULL_STUB );
 
     // Reinitialized the scanner and set the scanner
@@ -798,19 +817,19 @@ namespace ll { namespace lexeme {
     // printer is required.
     //
     bool init_input_named_file
-	    ( scanner_ptr & scanner,
+	    ( ll::lexeme::scanner & scanner,
 	      min::gen file_name,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_stream
-	    ( scanner_ptr & scanner,
+	    ( ll::lexeme::scanner & scanner,
 	      std::istream & istream,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
-	    ( scanner_ptr & scanner,
+	    ( ll::lexeme::scanner & scanner,
 	      const char * data,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
@@ -838,7 +857,8 @@ namespace ll { namespace lexeme {
     //
     uns32 scan
             ( uns32 & first, uns32 & next,
-	      scanner_ptr scanner = default_scanner );
+	      ll::lexeme::scanner scanner =
+	          default_scanner );
 } }
 
 // Printing
@@ -861,9 +881,10 @@ namespace ll { namespace lexeme {
     // m of the program.
     //
     struct pmode {
-	program_ptr program;
+	ll::lexeme::program program;
         uns32 mode;
-	pmode ( program_ptr program, uns32 mode )
+	pmode ( ll::lexeme::program program,
+	        uns32 mode )
 	    : program ( program ), mode ( mode ) {}
     };
 
@@ -874,10 +895,10 @@ namespace ll { namespace lexeme {
     //
     struct pinput
     {
-	scanner_ptr scanner;
+	ll::lexeme::scanner scanner;
         uns32 first, next;
 
-        pinput ( scanner_ptr scanner,
+        pinput ( ll::lexeme::scanner scanner,
 	         uns32 first, uns32 next )
 	    : scanner ( scanner ),
 	      first ( first ), next ( next ) {}
@@ -890,9 +911,9 @@ namespace ll { namespace lexeme {
     //
     struct ptranslation
     {
-    	scanner_ptr scanner;
+    	ll::lexeme::scanner scanner;
 	ptranslation
-	    ( scanner_ptr scanner )
+	    ( ll::lexeme::scanner scanner )
 	    : scanner ( scanner ) {}
     };
 
@@ -903,10 +924,10 @@ namespace ll { namespace lexeme {
     //
     struct plexeme
     {
-    	scanner_ptr scanner;
+    	ll::lexeme::scanner scanner;
         uns32 first, next, type;
 	plexeme
-	    ( scanner_ptr scanner,
+	    ( ll::lexeme::scanner scanner,
               uns32 first, uns32 next, uns32 type )
 	    : scanner ( scanner ),
 	      first ( first ), next ( next ),
@@ -918,10 +939,10 @@ namespace ll { namespace lexeme {
     //
     struct perroneous_atom
     {
-    	scanner_ptr scanner;
+    	ll::lexeme::scanner scanner;
         uns32 first, next, type;
 	perroneous_atom
-	    ( scanner_ptr scanner,
+	    ( ll::lexeme::scanner scanner,
               uns32 first, uns32 next, uns32 type )
 	    : scanner ( scanner ),
 	      first ( first ), next ( next ),
@@ -933,7 +954,7 @@ namespace ll { namespace lexeme {
     // copy of scanner->input_buffer[first .. next-1].
     //
     bool translation_is_exact
-	    ( scanner_ptr scanner,
+	    ( ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next );
 
     // Print the lines and put marks (default '^')
@@ -942,7 +963,7 @@ namespace ll { namespace lexeme {
     //
     void print_item_lines
 	    ( min::printer,
-	      ll::lexeme::scanner_ptr scanner,
+	      ll::lexeme::scanner scanner,
 	      const ll::lexeme::position & begin,
 	      const ll::lexeme::position & end,
 	      char mark = '^',
@@ -955,7 +976,7 @@ namespace ll { namespace lexeme {
     //
     void print_lexeme_lines
 	    ( min::printer,
-	      ll::lexeme::scanner_ptr scanner,
+	      ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next,
 	      char mark = '^',
 	      const char * blank_line =
@@ -970,7 +991,7 @@ namespace ll { namespace lexeme {
     //
     void print_program
     	    ( min::printer printer,
-	      program_ptr program,
+	      ll::lexeme::program program,
 	      bool cooked );
 
     // Ditto but just print the program component with
@@ -984,7 +1005,7 @@ namespace ll { namespace lexeme {
     //
     min::uns32 print_program_component
     	    ( min::printer printer,
-	      program_ptr program,
+	      ll::lexeme::program program,
 	      min::uns32 ID,
 	      bool cooked );
 
@@ -993,7 +1014,8 @@ namespace ll { namespace lexeme {
     //
     uns32 component_length
 	    ( uns32 ID,
-	      program_ptr program = default_program );
+	      ll::lexeme::program program =
+	          default_program );
 
 } }
 

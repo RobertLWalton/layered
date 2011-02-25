@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 03:22:31 EST 2011
+// Date:	Fri Feb 25 11:48:14 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -69,6 +69,11 @@ namespace ll { namespace lexeme {
 	uns32	character;
     };
 
+    typedef min::packed_vec_insptr<inchar>
+            input_buffer;
+    typedef min::packed_vec_insptr<uns32>
+            translation_buffer;
+
     struct scanner_struct;
     typedef min::packed_struct_updptr<scanner_struct>
             scanner;
@@ -84,7 +89,7 @@ namespace ll { namespace lexeme {
 	// See input_struct below.
 
     extern min::locatable_ptr<ll::lexeme::input>
-           default_read_input;
+           default_input;
         // Default value for scanner->read_input.
 	// See scanner->read_input AND scanner->input_
 	// file below.
@@ -549,11 +554,10 @@ namespace ll { namespace lexeme {
     // to the created closure.  `input' must be loca-
     // table by garbage collector.
     //
-    void init_input
-	    ( bool (*get) ( ll::lexeme::scanner scanner,
-	                    ll::lexeme::input input ),
-	      ll::lexeme::input & input =
-	          default_read_input );
+    void init
+	    ( ll::lexeme::input & input,
+	      bool (*get) ( ll::lexeme::scanner scanner,
+	                    ll::lexeme::input input ) );
 
     struct erroneous_atom_struct
         // Closure to add announce errors, such as erro-
@@ -574,15 +578,14 @@ namespace ll { namespace lexeme {
     // created closure.  `erroneous_atom' must be
     // locatable by garbage collector.
     //
-    void init_erroneous_atom
-	    ( void (* announce )
+    void init
+	    ( ll::lexeme::erroneous_atom
+	          & erroneous_atom,
+	      void (* announce )
 		( uns32 first, uns32 next, uns32 type,
 		  ll::lexeme::scanner scanner,
 		  ll::lexeme::erroneous_atom
-		      erroneous_atom ),
-	      ll::lexeme::erroneous_atom
-	          & erroneous_atom =
-		      default_erroneous_atom );
+		      erroneous_atom ) );
 } }
 
 // Scanner
@@ -642,7 +645,7 @@ namespace ll { namespace lexeme {
 	// Created when the scanner is created, and set
 	// empty by scanner initialization functions.
 	//
-	min::packed_vec_insptr<inchar> input_buffer;
+	ll::lexeme::input_buffer input_buffer;
 
 	// The line, index, and column of the character
 	// that will be put next at the end of the input
@@ -666,7 +669,7 @@ namespace ll { namespace lexeme {
 	// Created when the scanner is created, and set
 	// empty by scanner initialization functions.
 	//
-	min::packed_vec_insptr<uns32>
+	ll::lexeme::translation_buffer
 	    translation_buffer;
 
 	// The scanner parameters are
@@ -970,6 +973,23 @@ namespace ll { namespace lexeme {
 	      type ( type ) {}
     };
 
+    // Just line min::pline_numbers but takes scanner,
+    // first, and next as arguments and uses line
+    // numbers of scanner->input_buffer[first/next],
+    // or scanner->next_position if these do not
+    // exist, and decrements end line by 1 if end column
+    // is 0.
+    //
+    struct pline_numbers
+    {
+        ll::lexeme::scanner scanner;
+	uns32 first, next;
+	pline_numbers
+	    ( ll::lexeme::scanner scanner,
+              uns32 first, uns32 next )
+	    : scanner ( scanner ),
+	      first ( first ), next ( next ) {}
+    };
 
     // Return true if the translation buffer holds a
     // copy of scanner->input_buffer[first .. next-1].
@@ -980,11 +1000,11 @@ namespace ll { namespace lexeme {
 
     // Print the lines and put marks (default '^')
     // underneath columns from `begin' to just before
-    // `end'.
+    // `end'.  `file' is usually scanner->input_file.
     //
     void print_item_lines
-	    ( min::printer,
-	      ll::lexeme::scanner scanner,
+	    ( min::printer printer,
+	      min::file file,
 	      const ll::lexeme::position & begin,
 	      const ll::lexeme::position & end,
 	      char mark = '^',
@@ -995,7 +1015,7 @@ namespace ll { namespace lexeme {
     // [first .. next-1].  If input_buffer[next-1] does
     // not exist, use scanner->next_position instead.
     //
-    void print_lexeme_lines
+    void print_item_lines
 	    ( min::printer,
 	      ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next,
@@ -1071,5 +1091,10 @@ min::printer operator <<
 	( min::printer printer,
           const ll::lexeme::perroneous_atom &
 	      perroneous_atom );
+
+min::printer operator <<
+	( min::printer printer,
+          const ll::lexeme::pline_numbers &
+	      pline_numbers );
 
 # endif // LL_LEXEME_H

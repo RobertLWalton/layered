@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 03:08:22 EST 2011
+// Date:	Fri Feb 25 13:19:55 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,12 @@
 // ----- ------
 
 namespace ll { namespace parser {
+
+extern min::locatable_ptr<ll::lexeme::erroneous_atom>
+    default_standard_erroneous_atom;
+
+extern min::locatable_ptr<ll::parser::input>
+    default_standard_input;
 
 // Set a parser input to produce a stream of lexemes
 // read from a standard lexeme scanner.
@@ -92,27 +98,22 @@ namespace ll { namespace parser {
 //
 // This function may only be called if parser or
 // parser->scanner is NULL_STUB.  This function
-// calls:
+// creates ll::parser::default_standard_erroneous_atom/
+// input and executes:
 //
-//	ll::parser::init ( parser )
+//	ll::parser::init ( parser );
+//	ll::lexeme::standard::init_standard_program();
 //	ll::lexeme::init_program
 //		( parser->scanner,
+//		  ll::lexeme::standard
+//			    ::default_program );
+//	parser->input =
+//	    ll::parser::default_standard_input;
+//	parser->scanner->erroneous_atom =
+//	    ll::parser::default_standard_erroneous_atom;
 //
-// If the scanner has no program it 
-// Init_scanner ( parser->scanner ) is called and then
-// the scanner program is set to the standard lexeme
-// program (see ll_lexeme_standard.h).  If parser->
-// input file does not exist it is created and
-// parser->scanner->input_file is set equal to it.
-// Ditto for parser->print.
-//
-// Scanner->erroneous_atom is set to print erroneous
-// atoms using parser->input_file and parser->print.
-//
-// Parser->input is set to get tokens by scanning them
-// from parser->scanner.
-// 
-void init_standard_input ( ll::parser::parser parser );
+void init_standard_input
+	( ll::parser::parser & parser );
 
 } }
 

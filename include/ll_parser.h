@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 01:34:47 EST 2011
+// Date:	Fri Feb 25 13:19:42 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,7 +85,7 @@ ll::parser::string new_string
 // Free a string and return NULL_STUB.
 //
 ll::parser::string free_string
-	( ll::parser::string s );
+	( ll::parser::string string );
 
 // Set the maximum number of strings on the free list.
 // Set to 0 to make list empty.  Set to < 0 if there is
@@ -153,7 +153,7 @@ ll::parser::token new_token ( uns32 type );
 // its value is set to min:MISSING and its string to
 // NULL_STUB.
 //
-void free_token ( ll::parser::token token );
+void free ( ll::parser::token token );
 
 // Set the maximum number of tokens on the free list.
 // Set to 0 to make list empty.  Set to < 0 if there is
@@ -332,7 +332,7 @@ struct output_struct
     //
     void (*init)
         ( ll::parser::parser parser,
-	  ll::parser::input input );
+	  ll::parser::output output );
 };
 
 // Set output closure functions.  If `output' is NULL_
@@ -342,7 +342,7 @@ struct output_struct
 //
 void init
 	( ll::parser::output & output,
-	  uns32 (*remove_tokens)
+	  void (*remove_tokens)
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ),
 	  void (*init)
@@ -375,12 +375,14 @@ struct pass_struct
     // If first == end the subexpression is or became
     // empty.
     //
-    // Error messages are sent to parser->print->err.
+    // Error messages are sent to parser->print.
+    // Returns true if no fatal errors, and false if
+    // there is a fatal error.
     //
-    uns32 (*run) ( ll::parser::parser parser,
-                   ll::parser::pass pass,
-    		   ll::parser::token & first,
-		   ll::parser::token end );
+    bool (*run) ( ll::parser::parser parser,
+                  ll::parser::pass pass,
+    		  ll::parser::token & first,
+		  ll::parser::token end );
 
     // Function to initialize pass closure.
     //
@@ -405,7 +407,7 @@ struct pass_struct
 //
 void init
 	( ll::parser::pass & pass,
-	  uns32 (*remove_tokens)
+	  bool (*run)
 	      ( ll::parser::parser parser,
 	        ll::parser::pass pass,
 		ll::parser::token & first,
@@ -423,7 +425,7 @@ void init
 void place
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
-	  ll::parser::pass previuos = NULL_STUB );
+	  ll::parser::pass previous = NULL_STUB );
 
 } }
 
@@ -492,7 +494,7 @@ struct parser_struct
 	// Ditto for scanner->printer and parser->
 	// printer.
 
-    min::input_file input_file;
+    min::file input_file;
         // Input file used to print messages.  If a
 	// scanner is used, this MUST be the same as
 	// scanner->input_file and is also used for
@@ -575,12 +577,12 @@ void init ( ll::parser::parser & parser );
 // the corresponding min::init_... function for
 // parser->input_file.
 //
-bool init_input_stream
+void init_input_stream
 	( ll::parser::parser & parser,
 	  std::istream & istream,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
-bool init_input_file
+void init_input_file
 	( ll::parser::parser & parser,
 	  min::file ifile,
 	  min::uns32 print_flags = 0,
@@ -590,11 +592,19 @@ bool init_input_named_file
 	  min::gen file_name,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
-bool init_input_string
+void init_input_string
 	( ll::parser::parser & parser,
 	  const char * data,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
+
+// The following initialize the parser and then call
+// the corresponding min::init_... function for
+// parser->printer.
+//
+void init_output_stream
+	( ll::parser::parser & parser,
+	  std::ostream & ostream );
 
 // Run a parser.  At the end of this function each top
 // level expression is one token in the parser token
@@ -622,7 +632,7 @@ ll::parser::table::key_prefix find
 	( ll::parser::parser parser,
 	  ll::parser::token first,
 	  ll::parser::token end,
-	  ll::parser::table table );
+	  ll::parser::table::table table );
 
 } }
 

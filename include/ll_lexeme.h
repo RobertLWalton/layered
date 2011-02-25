@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 19:27:36 EST 2011
+// Date:	Fri Feb 25 03:22:31 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -800,21 +800,9 @@ namespace ll { namespace lexeme {
 	    ( ll::lexeme::scanner & scanner,
               ll::lexeme::program program );
 
-    // Reinitialize the scanner and set the scanner
-    // printer.  If the printer is specified as NULL_
-    // STUB and does not previously exist, create a
-    // printer with
-    //
-    //	    min::init ( scanner->printer )
-    //
-    void init_printer
-	    ( ll::lexeme::scanner & scanner,
-              min::printer printer = NULL_STUB );
-
-    // Reinitialized the scanner and set the scanner
+    // Reinitialized the scanner and set the scanner->
     // input_file as per min:: function of the same
-    // name.  Note scanner->printer is used when a
-    // printer is required.
+    // name.
     //
     bool init_input_named_file
 	    ( ll::lexeme::scanner & scanner,
@@ -833,6 +821,39 @@ namespace ll { namespace lexeme {
 	      const char * data,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
+
+    void init_input
+	    ( ll::lexeme::scanner & scanner );
+
+    void init_print_flags
+	    ( ll::lexeme::scanner & scanner,
+	      uns32 print_flags );
+
+    void init_spool_lines
+	    ( ll::lexeme::scanner & scanner,
+	      uns32 spool_lines );
+
+    // Reinitialized the scanner and set the scanner->
+    // printer as per min:: function of the same
+    // name.
+    //
+    min::printer init_output_stream
+	    ( ll::lexeme::scanner & scanner,
+	      std::ostream & out );
+
+    // Reinitialize the scanner and set the scanner
+    // printer.
+    //
+    void init_printer
+	    ( ll::lexeme::scanner & scanner,
+              min::printer printer );
+
+    // Reinitialize the scanner and set the scanner
+    // input_file.
+    //
+    void init_input_file
+	    ( ll::lexeme::scanner & scanner,
+              min::file input_file );
 
     // Scan the input and return the next lexeme or
     // SCAN_ERROR.

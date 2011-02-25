@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 22 00:58:24 EST 2011
+// Date:	Fri Feb 25 03:08:22 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,9 +87,18 @@ namespace ll { namespace parser {
 // Horizontal space and comment lexemes are ignored.
 // Also note that all tokens output by this pass are on
 // a single line, though in the case of line_break_t
-// tokens the `end' position may be the beginning of the
-// next line.
+// tokens the `end' position may be the beginning of
+// a subsequent line.
 //
+// This function may only be called if parser or
+// parser->scanner is NULL_STUB.  This function
+// calls:
+//
+//	ll::parser::init ( parser )
+//	ll::lexeme::init_program
+//		( parser->scanner,
+//
+// If the scanner has no program it 
 // Init_scanner ( parser->scanner ) is called and then
 // the scanner program is set to the standard lexeme
 // program (see ll_lexeme_standard.h).  If parser->
@@ -103,7 +112,7 @@ namespace ll { namespace parser {
 // Parser->input is set to get tokens by scanning them
 // from parser->scanner.
 // 
-void init_standard_input ( parser_ptr parser );
+void init_standard_input ( ll::parser::parser parser );
 
 } }
 

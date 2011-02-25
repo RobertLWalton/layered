@@ -878,6 +878,14 @@ void LEX::init_program
     scanner->program = program;
 }
 
+void LEX::init_input_file
+	( LEX::scanner & scanner,
+	  min::file input_file )
+{
+    init ( scanner );
+    scanner->input_file = input_file;
+}
+
 void LEX::init_printer
 	( LEX::scanner & scanner,
 	  min::printer printer )
@@ -923,6 +931,40 @@ void LEX::init_input_string
     min::init_input_string
 	( scanner->input_file, data,
 	  print_flags, spool_lines );
+}
+
+void LEX::init_input
+	( LEX::scanner & scanner )
+{
+    init ( scanner );
+    min::init_input ( scanner->input_file );
+}
+
+void LEX::init_print_flags
+	( LEX::scanner & scanner,
+	  min::uns32 print_flags )
+{
+    init ( scanner );
+    min::init_print_flags
+	( scanner->input_file, print_flags );
+}
+
+void LEX::init_spool_lines
+	( LEX::scanner & scanner,
+	  min::uns32 spool_lines )
+{
+    init ( scanner );
+    min::init_spool_lines
+	( scanner->input_file, spool_lines );
+}
+
+min::printer LEX::init_output_stream
+	( LEX::scanner & scanner,
+	  std::ostream & out )
+{
+    init ( scanner );
+    return min::init_output_stream
+	( scanner->printer, out );
 }
 
 // Init min::error_message and write the beginning of a

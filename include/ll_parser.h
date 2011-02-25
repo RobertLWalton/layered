@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 30 07:35:59 EST 2011
+// Date:	Fri Feb 25 01:34:47 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,7 +56,7 @@ namespace ll { namespace parser {
 
 struct string_struct;
 typedef min::packed_vec_ptr<uns32,string_struct>
-        string_ptr;
+        string;
 typedef min::packed_vec_insptr<uns32,string_struct>
         string_insptr;
 struct string_struct
@@ -79,11 +79,13 @@ struct string_struct
 
 // Allocate a new string and return a pointer to it.
 //
-string_ptr new_string ( uns32 n, const uns32 * string );
+ll::parser::string new_string
+	( uns32 n, const uns32 * s );
 
 // Free a string and return NULL_STUB.
 //
-string_ptr free_string ( string_ptr sp );
+ll::parser::string free_string
+	( ll::parser::string s );
 
 // Set the maximum number of strings on the free list.
 // Set to 0 to make list empty.  Set to < 0 if there is
@@ -100,7 +102,7 @@ namespace ll { namespace parser {
 
 struct token_struct;
 typedef min::packed_struct_updptr<token_struct>
-    token_ptr;
+    token;
 enum // Token types (see below).
 {
     SYMBOL		= 0xFFFFFFFF,
@@ -130,7 +132,7 @@ struct token_struct
     min::gen value;
         // Value for names and expressions.
 
-    string_ptr string;
+    ll::parser::string string;
         // Character string for lexemes.
 
     ll::lexeme::position begin, end;
@@ -138,20 +140,20 @@ struct token_struct
         // and of the first character AFTER the token,
 	// or the end of input.
 
-    token_ptr next, previous;
+    ll::parser::token next, previous;
         // Doubly linked list pointers for tokens.
 };
 
 // Allocate a new token of the given type.  Value is set
 // to min:MISSING and string to NULL_STUB.
 //
-token_ptr new_token ( uns32 type );
+ll::parser::token new_token ( uns32 type );
 
 // Free token.  Token is put on internal free list after
 // its value is set to min:MISSING and its string to
 // NULL_STUB.
 //
-void free_token ( token_ptr token );
+void free_token ( ll::parser::token token );
 
 // Set the maximum number of tokens on the free list.
 // Set to 0 to make list empty.  Set to < 0 if there is
@@ -162,7 +164,9 @@ void set_max_token_free_list_size ( int n );
 // Put a token just before a given token t on a list of
 // tokens.
 //
-inline void put_before ( token_ptr t, token_ptr token )
+inline void put_before
+	( ll::parser::token t,
+	  ll::parser::token token )
 {
     token->next = t;
     token->previous = t->previous;
@@ -174,7 +178,8 @@ inline void put_before ( token_ptr t, token_ptr token )
 // first element.
 //
 inline void put_at_end
-	( token_ptr & first, token_ptr token )
+	( ll::parser::token & first,
+	  ll::parser::token token )
 {
     if ( first == min::NULL_STUB )
     {
@@ -187,8 +192,9 @@ inline void put_at_end
 // Remove token from the token list with given first
 // token and return the token removed.
 //
-inline token_ptr remove
-	( token_ptr & first, token_ptr token )
+inline ll::parser::token remove
+	( ll::parser::token & first,
+	  ll::parser::token token )
 {
 
     if ( token == first )
@@ -208,7 +214,8 @@ inline token_ptr remove
 // Remove first token from a list of tokens with given
 // first token.  Return min::NULL_STUB if list empty.
 //
-inline token_ptr remove ( token_ptr & first )
+inline ll::parser::token remove
+	( ll::parser::token & first )
 {
     if ( first == min::NULL_STUB )
         return min::NULL_STUB;
@@ -227,19 +234,19 @@ namespace ll { namespace parser {
 
 struct input_struct;
 typedef min::packed_struct_updptr<input_struct>
-    input_ptr;
+    input;
 
 struct output_struct;
 typedef min::packed_struct_updptr<output_struct>
-    output_ptr;
+    output;
 
 struct pass_struct;
 typedef min::packed_struct_updptr<pass_struct>
-    pass_ptr;
+    pass;
 
 struct parser_struct;
 typedef min::packed_struct_updptr<parser_struct>
-    parser_ptr;
+    parser;
 
 // Note: virtual functions are NOT permitted in packed
 // structs.
@@ -264,12 +271,14 @@ struct input_struct
     // `parcer->trace' flags.
     //
     uns32 (*add_tokens)
-        ( parser_ptr parser, input_ptr input );
+	    ( ll::parser::parser parser,
+	      ll::parser::input input );
 
     // Function to initialize input closure.
     //
     void (*init)
-        ( parser_ptr parser, input_ptr input );
+        ( ll::parser::parser parser,
+	  ll::parser::input input );
 };
 
 // Set input closure functions.  If `input' is NULL_
@@ -277,12 +286,14 @@ struct input_struct
 // to the created closure.  `input' must be loca-
 // table by garbage collector.
 //
-void init_input
-	( uns32 (*add_tokens)
-	      ( parser_ptr parser, input_ptr input ),
+void init
+	( ll::parser::input & input,
+	  uns32 (*add_tokens)
+	      ( ll::parser::parser parser,
+	        ll::parser::input input ),
 	  void (*init)
-	      ( parser_ptr parser, input_ptr input ),
-	  input_ptr & input );
+	      ( ll::parser::parser parser,
+	        ll::parser::input input ) );
 
 struct output_struct
     // Closure called to process tokens the parser has
@@ -314,13 +325,29 @@ struct output_struct
     // `parcer->trace' flags.
     //
     void (*remove_tokens)
-	( parser_ptr parser, output_ptr output );
+	( ll::parser::parser parser,
+	  ll::parser::output output );
 
     // Function to initialize output closure.
     //
     void (*init)
-        ( parser_ptr parser, input_ptr input );
+        ( ll::parser::parser parser,
+	  ll::parser::input input );
 };
+
+// Set output closure functions.  If `output' is NULL_
+// STUB, create closure and set `output' to a pointer
+// to the created closure.  `output' must be loca-
+// table by garbage collector.
+//
+void init
+	( ll::parser::output & output,
+	  uns32 (*remove_tokens)
+	      ( ll::parser::parser parser,
+	        ll::parser::output output ),
+	  void (*init)
+	      ( ll::parser::parser parser,
+	        ll::parser::output output ) );
 
 struct pass_struct
     // Closure to call to execute a pass on a subexpres-
@@ -333,7 +360,7 @@ struct pass_struct
 {
     uns32 control;
 
-    pass_ptr next;
+    ll::parser::pass next;
         // Next pass in the pass stack, or NULL_STUB.
 	// The parser executes passes in `next-later'
 	// order on a subexpression.
@@ -350,8 +377,10 @@ struct pass_struct
     //
     // Error messages are sent to parser->print->err.
     //
-    uns32 (*run) ( parser_ptr parser, pass_ptr pass,
-    		   token_ptr & first, token_ptr end );
+    uns32 (*run) ( ll::parser::parser parser,
+                   ll::parser::pass pass,
+    		   ll::parser::token & first,
+		   ll::parser::token end );
 
     // Function to initialize pass closure.
     //
@@ -360,13 +389,41 @@ struct pass_struct
     // keeping statistics.
     //
     void (*init)
-        ( parser_ptr parser, pass_ptr pass );
+        ( ll::parser::parser parser,
+	  ll::parser::pass pass );
 
     uns32 trace;
         // Trace flags that output to parser->print->
 	// trace a description of each token change made
 	// in the parser token list.
 };
+
+// Set pass closure functions.  If `pass' is NULL_
+// STUB, create closure and set `pass' to a pointer
+// to the created closure.  `pass' must be loca-
+// table by garbage collector.
+//
+void init
+	( ll::parser::pass & pass,
+	  uns32 (*remove_tokens)
+	      ( ll::parser::parser parser,
+	        ll::parser::pass pass,
+		ll::parser::token & first,
+		ll::parser::token end ),
+	  void (*init)
+	      ( ll::parser::parser parser,
+	        ll::parser::pass pass ) );
+
+// Place `pass' on the parser->pass_stack just after
+// `previous', of if the latter is NULL_STUB, put `pass'
+// at the beginning of the stack.  `pass' MUST NOT be
+// on any parser->pass_stack when this function is
+// called.
+//
+void place
+	( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::pass previuos = NULL_STUB );
 
 } }
 
@@ -395,53 +452,70 @@ struct parser_struct
 
     // Parser parameters:
 
-    input_ptr input;
-        // Closure to call to get more tokens.  Defaults
-	// to an input that inputs standard lexemes
-	// using the default scanner: see ll_parser_
-	// input.h.
+    ll::parser::input input;
+        // Closure to call to get more tokens.  If
+	// NULL_STUB when parse function called, set
+	// to ll::parser::default_input, which inputs
+	// standard lexemes using the scanner as per
+	// ll_parser_input.h.  Set to NULL_STUB when
+	// parser is created.
 
-    output_ptr output;
+    ll::parser::output output;
         // Closure to call to remove finished tokens
 	// from the beginning of the token list.  May
 	// be NULL_STUB if this is not to be done (the
 	// finished tokens are left in the list when
-	// `parse' returns).  Defaults to NULL_STUB.
+	// `parse' returns).  Set to NULL_STUB when
+	// parser is created.
 
-    pass_ptr pass_stack;
+    ll::parser::pass pass_stack;
         // List of passes to call for each subexpres-
-	// sion.  Defaults to NULL_STUB.  Should be
-	// set after parser is created to the desired
-	// pass stack.
+	// sion.  If NULL_STUB there are no passes.  Set
+	// to NULL_STUB when parser is created.
 
     uns32 trace;
-        // Trace flags.  Tracing is done to print->
-	// trace.
+        // Trace flags.  Tracing is done to parser->
+	// print.
 
-    ll::lexeme::scanner_ptr scanner;
+    ll::lexeme::scanner scanner;
         // Scanner for those parser inputs that use a
-	// scanner (such as the standard_input: see
+	// scanner (such as default_input: see
 	// ll_parser_input.h).  A scanner need NOT be
-	// used by a parser input.  Defaults to a
-	// scanner with default parameter settings and
-	// a standard lexical program (see ll_lexeme_
-	// standard.h and ll_parser_input.h).
+	// used by a parser input.  If parser->input
+	// and parser->scanner are BOTH NULL_STUB when
+	// the `parse' function is called, this is set
+	// to a scanner with default parameter settings
+	// and a standard lexical program as per ll_
+	// parser_input.h.  If scanner->input_file is
+	// NULL_STUB when the `parser' function is
+	// called, it is set from parser->input_file.
+	// Ditto for scanner->printer and parser->
+	// printer.
 
-    ll::lexeme::file_ptr input_file;
+    min::input_file input_file;
         // Input file used to print messages.  If a
-	// scanner is used, this is the same as
-	// scanner->input_file.
+	// scanner is used, this MUST be the same as
+	// scanner->input_file and is also used for
+	// input to the scanner.  Set to NULL_STUB
+	// when the parser is created.  If NULL_STUB
+	// when the `parse' function is called, this
+	// is set to scanner->input_file which must
+	// exist and NOT be NULL_STUB.
 
-    ll::lexeme::print_ptr print;
-        // Print parameters used in conjunction with
-	// input_file to print messages.  If a scanner
-	// is used, this is the same as scanner->print.
+    min::printer printer;
+        // Printer used to print messages.  If a scanner
+	// is used, this MUST be the same as scanner->
+	// printer.  Set to NULL_STUB when the parser is
+	// created.  If NULL_STUB when the `parse' func-
+	// tion is called, this is set to scanner->
+	// printer which must exist and NOT be NULL_
+	// STUB.
 
-    ll::parser::table::table_ptr hash_table;
+    ll::parser::table::table hash_table;
         // Hash table for brackets and indentation
 	// marks.
 
-    ll::parser::table::table_ptr indentation_mark_table;
+    ll::parser::table::table indentation_mark_table;
         // Table for indentation marks that can be
 	// split.  Has 256 elements, and the entry for
 	// an indentation mark whose list uns8 byte is b
@@ -456,7 +530,7 @@ struct parser_struct
 
     // Parser state:
 
-    token_ptr first;
+    ll::parser::token first;
         // First token in token list.  The tokens are a
 	// doubly linked list.  NULL_STUB if this list
 	// is empty.
@@ -475,12 +549,10 @@ struct parser_struct
 	// of the input list.  The `parse' function
 	// produces finished tokens and calls `output'
 	// to remove them.
-
-    char error_message[512];
-        // Buffer for error messages for fatal errors.
 };
 
-extern parser_ptr & default_parser;
+extern min::locatable_ptr<ll::parser::parser>
+       default_parser;
 
 // There are several parameters that when set cause a
 // parser to be (re)initialized.  These are all settable
@@ -497,38 +569,32 @@ extern parser_ptr & default_parser;
 
 // Simply (re)initialize a parser.
 //
-void init_parser
-	( parser_ptr & parser = default_parser );
+void init ( ll::parser::parser & parser );
 
-// Set the parser input_file to equal the contents of
-// the named file.  Return true if no error and false
-// if error.  If there is an error, an error message is
-// put in parser->error_message.  (Re)initialize parser.
+// The following initialize the parser and then call
+// the corresponding min::init_... function for
+// parser->input_file.
 //
-// See init_file in ll_lexeme.h for more details.
-//
-bool init_parser
-	( const char * file_name,
-	  parser_ptr & parser = default_parser );
-
-// Ditto but initialize input_file to input from an
-// istream and have the given spool_length.  See
-// init_file in ll_lexeme.h for details.
-//
-void init_parser
-	( std::istream & istream,
-	  const char * file_name,
-	  uns32 spool_length,
-	  parser_ptr & parser = default_parser );
-
-// Ditto but initialize input_file to the contents of
-// a data string.  See init_file in ll_lexeme.h for
-// details.
-//
-void init_parser
-	( const char * file_name,
+bool init_input_stream
+	( ll::parser::parser & parser,
+	  std::istream & istream,
+	  min::uns32 print_flags = 0,
+	  min::uns32 spool_lines = min::ALL_LINES );
+bool init_input_file
+	( ll::parser::parser & parser,
+	  min::file ifile,
+	  min::uns32 print_flags = 0,
+	  min::uns32 spool_lines = min::ALL_LINES );
+bool init_input_named_file
+	( ll::parser::parser & parser,
+	  min::gen file_name,
+	  min::uns32 print_flags = 0,
+	  min::uns32 spool_lines = min::ALL_LINES );
+bool init_input_string
+	( ll::parser::parser & parser,
 	  const char * data,
-	  parser_ptr & parser = default_parser );
+	  min::uns32 print_flags = 0,
+	  min::uns32 spool_lines = min::ALL_LINES );
 
 // Run a parser.  At the end of this function each top
 // level expression is one token in the parser token
@@ -536,7 +602,8 @@ void init_parser
 // these tokens, unless parser->output exists and has
 // modified these tokens and parser->finished_tokens.
 //
-void parse ( parser_ptr parser = default_parser );
+void parse ( ll::parser::parser parser =
+		 default_parser );
 
 // Parser Functions
 // ------ ---------
@@ -551,10 +618,11 @@ void parse ( parser_ptr parser = default_parser );
 //
 // Returns NULL_STUB if no such key prefix.
 //
-ll::parser::table::key_prefix_ptr find
-	( parser_ptr parser,
-	  token_ptr first, token_ptr end,
-	  ll::parser::table::table_ptr );
+ll::parser::table::key_prefix find
+	( ll::parser::parser parser,
+	  ll::parser::token first,
+	  ll::parser::token end,
+	  ll::parser::table table );
 
 } }
 

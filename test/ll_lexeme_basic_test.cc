@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 07:19:48 EST 2011
+// Date:	Fri Feb 25 03:42:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,8 +78,6 @@ static uns32   lex_input_length = 0;
 static uns32   lex_line = 0;
 static uns32   lex_index = 0;
 static uns32   lex_column = 0;
-
-static min::locatable_ptr<min::printer> printer;
 
 
 // Program Construction Test
@@ -533,11 +531,12 @@ static void create_program_2 ( void )
 void test_program
     ( const char * input, bool trace = false )
 {
+    min::printer printer =
+        LEX::default_scanner->printer;
 
     LEX::init_input_string
         ( LEX::default_scanner, input,
-	  LEX::default_scanner
-	      ->printer->parameters.flags );
+	  printer->parameters.flags );
     LEX::init_program
         ( LEX::default_scanner, LEX::default_program );
 
@@ -545,9 +544,6 @@ void test_program
 	LEX::default_scanner->trace= LEX::TRACE;
     else
 	LEX::default_scanner->trace= 0;
-
-    min::printer printer =
-        LEX::default_scanner->printer;
 
     printer << min::eol
 	    << "Testing Lexical Scan of:"
@@ -581,11 +577,9 @@ void test_program
 
 int main ( int argc )
 {
-    min::init_output_stream ( printer, std::cout );
-    printer << min::eol_flush << min::ascii;
-
-    LEX::init_printer
-        ( LEX::default_scanner, printer );
+    LEX::init_output_stream
+	    ( LEX::default_scanner, std::cout )
+	<< min::eol_flush << min::ascii;
 
     create_program_1();
     create_program_2();

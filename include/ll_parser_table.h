@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 26 02:46:17 EST 2011
+// Date:	Fri Feb 25 02:21:39 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,16 +43,16 @@ namespace ll { namespace parser { namespace table {
 //
 struct root_struct;
 typedef min::packed_struct_updptr<root_struct>
-        root_ptr;
+        root;
 extern const uns32 & ROOT;
 struct root_struct
 {
     uns32 control;
     	// Packed structure control word.
-    root_ptr next;
+    ll::parser::table::root next;
         // Next entry in the stack with the same key.
 	// NULL_STUB if no next entry.
-    uns64 selectors;
+    ll::parser::table::selectors selectors;
         // Selector bits.
 };
 
@@ -90,7 +90,7 @@ struct root_struct
 //
 struct key_prefix_struct;
 typedef min::packed_struct_updptr<key_prefix_struct>
-        key_prefix_ptr;
+        key_prefix;
 extern const uns32 & KEY_PREFIX;
 struct key_prefix_struct
 {
@@ -98,37 +98,39 @@ struct key_prefix_struct
 	// Packed structure subtype is KEY_PREFIX.
     min::gen key_element;
         // Key element of this entry.
-    key_prefix_ptr previous;
+    ll::parser::table::key_prefix previous;
         // Entry for label prefix ending just before
 	// this key element, or NULL_STUB if none,
 	// i.e., if this is the first key of the label.
-    root_ptr first;
+    ll::parser::table::root first;
         // First hash table entry whose label ends with
 	// this key element, or NULL_STUB if none.
-    key_prefix_ptr next;
+    ll::parser::table::key_prefix next;
         // Next key prefix in hash list.
 };
 
-// A Hash table is just a vector of key_prefix_ptr
+// A Hash table is just a vector of key_prefix
 // values.  The `length' of this vector MUST BE a
 // power of two.
 //
-typedef min::packed_vec_updptr<key_prefix_ptr>
-    table_ptr;
+typedef min::packed_vec_updptr
+	    <ll::parser::table::key_prefix> table;
 
 // Return the hash table key_prefix with the given key.
 // If none and `create' is true, create key_prefix.
 // If none and `create' is false, return NULL_STUB.
 //
-key_prefix_ptr find
-	( min::gen key, table_ptr table,
+ll::parser::table::key_prefix find
+	( min::gen key,
+	  ll::parser::table::table table,
 	  bool create = false );
 
 // Push the given hash table entry into a hash table
 // stack for the given key.
 //
-void push ( min::gen key, root_ptr entry,
-            table_ptr table );
+void push ( min::gen key,
+            ll::parser::table::root entry,
+            ll::parser::table::table table );
 
 struct new_selectors
      // Upon encountering opening bracket or indentation
@@ -142,9 +144,9 @@ struct new_selectors
      //		( or_selectors & xor_selectors ) = 0
      //		( not_selectors & xor_selectors ) = 0
 {
-    selectors	or_selectors;
-    selectors	not_selectors;
-    selectors	xor_selectors;
+    ll::parser::table::selectors or_selectors;
+    ll::parser::table::selectors not_selectors;
+    ll::parser::table::selectors xor_selectors;
 };
 
 // Brackets
@@ -155,21 +157,21 @@ struct new_selectors
 struct opening_bracket_struct;
 typedef min::packed_struct_updptr
 	    <opening_bracket_struct>
-        opening_bracket_ptr;
+        opening_bracket;
 extern const uns32 & OPENING_BRACKET;
 struct closing_bracket_struct;
 typedef min::packed_struct_updptr
 	    <closing_bracket_struct>
-        closing_bracket_ptr;
+        closing_bracket;
 extern const uns32 & CLOSING_BRACKET;
 struct opening_bracket_struct : public root_struct
 {
     // Packed structure subtype is OPENING_BRACKET.
 
-    closing_bracket_ptr closing_bracket;
+    ll::parser::table::closing_bracket closing_bracket;
         // The opposing bracket of the opening bracket.
 
-    new_selectors new_select;
+    ll::parser:table::new_selectors new_selectors;
     	// New selectors associated with this opening
 	// bracket.
 
@@ -178,15 +180,16 @@ struct closing_bracket_struct : public root_struct
 {
     // Packed structure subtype is CLOSING_BRACKET.
 
-    closing_bracket_ptr opening_bracket;
+    ll::parser::table::closing_bracket opening_bracket;
         // The opposing bracket of the closing bracket.
 };
 
 void push_brackets
 	( min::gen opening_label,
 	  min::gen closing_label,
-	  selectors select,
-	  const new_selectors & new_select );
+	  ll::parser::table::selectors selectors,
+	  const ll::parser::table::new_selectors
+	      & new_selectors );
 
 // Indentation Marks
 // ----------- -----
@@ -196,13 +199,13 @@ void push_brackets
 struct indentation_mark_struct;
 typedef min::packed_vec_updptr
 	    <uns8,indentation_mark_struct>
-        indentation_mark_ptr;
+        indentation_mark;
 extern const uns32 & INDENTATION_MARK;
 struct indentation_mark_struct : public root_struct
 {
     // Packed vector subtype is INDENTATION_MARK.
 
-    new_selectors new_select;
+    ll::parser::table::new_selectors new_selectors;
 
     bool is_gluing;
 
@@ -221,8 +224,9 @@ struct indentation_mark_struct : public root_struct
 
 void push_indentation_mark
 	( min::gen label,
-	  selectors select,
-	  const new_selectors & new_select,
+	  ll::parser::table::selectors selectors,
+	  const ll::parser::table::new_selectors
+	      & new_selectors,
 	  bool is_gluing );
 
 } } }

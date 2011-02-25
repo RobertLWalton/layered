@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 10 08:24:40 EST 2011
+// Date:	Fri Feb 25 03:17:26 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,9 @@ using namespace LEXSTD;
 
 // Program Construction
 // ------- ------------
+
+min::locatable_ptr<LEX::program>
+    LEXSTD::default_program;
 
 const char * const LEXSTD::type_name[MAX_TYPE+1] = {
     NULL,
@@ -69,9 +72,12 @@ static void add_non_ascii_letters ( void )
 	NDL::add_characters ( p->min, p->max );
 }
 
-void LEXSTD::create_standard_program
+void LEXSTD::init_standard_program
 	( void )
 {
+    if ( LEXSTD::default_program != NULL_STUB )
+        return;
+
     /// begin standard lexical program;
     ///
     begin_program ( type_name, MAX_TYPE );
@@ -971,4 +977,6 @@ void LEXSTD::create_standard_program
     /// end standard lexical program;
     //
     NDL::end_program();
+
+    LEXSTD::default_program = LEX::default_program;
 }

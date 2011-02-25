@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 10 08:54:30 EST 2011
+// Date:	Fri Feb 25 03:16:54 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,11 +72,17 @@ namespace ll { namespace lexeme { namespace standard {
 
 namespace ll { namespace lexeme { namespace standard {
 
-    // Create a standard program in LEX::default_scanner
-    // and set the scanner type_name and max_type to
-    // enable printing the program's types.
+    extern min::locatable_ptr<ll::lexeme::program>
+        default_program;
+
+    // If ll::lexeme::standard::default_program is not
+    // NULL_STUB, this function does nothing.  Otherwise
+    // it creates the standard program in both
     //
-    void create_standard_program ( void );
+    //		ll::lexeme::default_program
+    // and	ll::lexeme::standard::default_program
+    //
+    void init_standard_program ( void );
 
 } } }
 

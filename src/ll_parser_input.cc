@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 13:02:11 EST 2011
+// Date:	Sat Feb 26 01:46:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,10 +36,14 @@ min::locatable_ptr<LEX::erroneous_atom>
 static min::uns32 input_add_tokens
 	( PAR::parser parser,
 	  PAR::input input );
+static min::printer_format str_format;
 static void input_init
 	( PAR::parser parser,
 	  PAR::input input )
 {
+    ::str_format = min::default_printer_format;
+    ::str_format.str_prefix = "";
+    ::str_format.str_postfix = "";
     LEX::init ( parser->scanner );
 }
 static void erroneous_atom_announce
@@ -115,6 +119,8 @@ static min::uns32 input_add_tokens
     min::printer printer = parser->printer;
     LEX::input_buffer input_buffer =
         scanner->input_buffer;
+    LEX::translation_buffer translation_buffer =
+        scanner->translation_buffer;
     bool trace = ( parser->trace & PAR::TRACE_INPUT );
 
     min::uns32 first, next, count = 0;
@@ -189,18 +195,10 @@ static min::uns32 input_add_tokens
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
 	{
-	    int length =
-	        scanner->translation_buffer->length;
-	    assert ( length > 0 );
-	    char buffer[8*length+1];
-	    char * p = buffer;
-	    for ( min::uns32 i = 0; i < length; ++ i )
-	        min::unicode_to_utf8
-		    ( p,
-		      scanner->translation_buffer[i] );
-	    * p = 0;
 	    token->type = PAR::SYMBOL;
-	    token->value = min::new_str_gen ( buffer );
+	    token->value = min::new_str_gen
+	        ( translation_buffer.begin_ptr(),
+		  translation_buffer->length );
 	    break;
 	}
 	case LEXSTD::natural_number_t:
@@ -264,11 +262,23 @@ static min::uns32 input_add_tokens
 	    scanner->printer
 	        << LEXSTD::type_name[type]
 		<< ": ";
-	    if ( token->value != min::MISSING
-		 ||
-		 token->string != min::NULL_STUB )
+	    if ( token->value != min::MISSING )
 	        scanner->printer
-		    << LEX::ptranslation ( scanner )
+		    << min::push_parameters
+		    << min::graphic
+		    << min::pgen ( token->value,
+		                   & ::str_format )
+		    << min::pop_parameters
+		    << ": ";
+	    else if ( token->string != min::NULL_STUB )
+	        scanner->printer
+		    << min::push_parameters
+		    << min::graphic
+		    << min::punicode
+		            ( token->string->length,
+			      token->string.begin_ptr()
+			    )
+		    << min::pop_parameters
 		    << ": ";
 	    scanner->printer
 		<< LEX::pline_numbers

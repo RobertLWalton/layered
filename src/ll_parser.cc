@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 13:20:59 EST 2011
+// Date:	Sat Feb 26 04:12:26 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -537,6 +537,8 @@ void PAR::parse ( PAR::parser parser )
 	    MIN_ABORT
 	        ( "parser->printer not defined" );
     }
+
+    parser->input->init ( parser, parser->input );
 
     while ( ! parser->eof )
         parser->input->add_tokens

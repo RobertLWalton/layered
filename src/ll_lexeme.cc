@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 11:47:59 EST 2011
+// Date:	Sun Feb 27 02:04:58 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2057,9 +2057,10 @@ min::printer operator <<
 	input_buffer[next] :
 	scanner->next_position;
     uns32 begin_line = begin.line;
-    uns32 end_line = end.column != 0 ?
-    		     end.line :
-		     end.line - 1;
+    uns32 end_line =
+        end.column != 0 ?	  end.line :
+	end.line <= begin_line ?  end.line :
+	                          end.line - 1;
     return printer << min::pline_numbers
     			   ( scanner->input_file,
 			     begin_line, end_line );

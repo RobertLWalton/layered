@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 13:19:42 EST 2011
+// Date:	Tue Mar  1 01:33:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -558,7 +558,7 @@ extern min::locatable_ptr<ll::parser::parser>
 
 // There are several parameters that when set cause a
 // parser to be (re)initialized.  These are all settable
-// by init_parser functions.  For these the parser is
+// by init parser functions.  For these the parser is
 // specified by a variable, and if this == NULL_STUB,
 // a new parser is created and a pointer to it is stored
 // in the variable.  This variable MUST BE locatable by
@@ -567,11 +567,34 @@ extern min::locatable_ptr<ll::parser::parser>
 // When a new parser is created, parser parameters are
 // are set to defaults.  Otherwise these are left un-
 // touched, and can be set either before or immediately
-// after a call to init_parser.
+// after a call to init parser.
 
 // Simply (re)initialize a parser.
 //
 void init ( ll::parser::parser & parser );
+
+// Reinitialize and set a parameter.  Some parameters
+// are copied to both parser and any scanner that
+// exists for the parser.
+//
+inline void init_print_flags
+	( ll::parser::parser & parser,
+	  min::uns32 print_flags )
+{
+    init ( parser );
+    min::init_print_flags ( parser->input_file,
+    			    print_flags );
+}
+inline void init_printer
+	( ll::parser::parser & parser,
+	  min::printer printer )
+{
+    init ( parser );
+    parser->printer = printer;
+    if ( parser->scanner != min::NULL_STUB )
+        ll::lexeme::init_printer
+	    ( parser->scanner, printer );
+}
 
 // The following initialize the parser and then call
 // the corresponding min::init_... function for

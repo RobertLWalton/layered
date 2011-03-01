@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 27 02:04:58 EST 2011
+// Date:	Mon Feb 28 18:37:52 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1906,7 +1906,8 @@ min::printer operator <<
 
     LEX::scanner scanner = pinput.scanner;
 
-    printer << min::push_parameters << min::graphic;
+    printer << min::push_parameters
+            << min::graphic << min::gbreak;
     while ( first < next )
         printer << min::punicode
 	    ( scanner->input_buffer[first++]
@@ -1924,7 +1925,8 @@ min::printer operator <<
     if ( translation_buffer->length == 0 )
         return printer << "<empty>";
 
-    printer << min::push_parameters << min::graphic;
+    printer << min::push_parameters
+            << min::graphic << min::gbreak;
     for ( unsigned i = 0;
           i < translation_buffer->length; ++ i )
         printer << min::punicode
@@ -2016,7 +2018,7 @@ min::printer operator <<
 	if ( offset != 0 )
 	    return printer
 	        << min::push_parameters
-	        << min::noautobreak
+	        << min::nohbreak
 	        <<   (const char *) & program[0]
 		   + offset
 	        << min::pop_parameters;
@@ -2032,7 +2034,7 @@ min::printer operator <<
 	return printer << "SCAN_ERROR";
     default:
 	return printer << min::push_parameters
-	               << min::noautobreak
+	               << min::nohbreak
 	               << "TYPE (" << mode << ")"
 	               << min::pop_parameters;
     }
@@ -2141,7 +2143,7 @@ void LEX::print_item_lines
 // Printing Programs
 // -------- --------
 
-// Program lines are printed with min::noautobreak
+// Program lines are printed with min::nohbreak
 // and min::set_indent ( IDwidth ).
 
 static const unsigned IDwidth = 12;
@@ -2172,7 +2174,7 @@ static uns32 print_instruction
 
     printer << min::push_parameters
             << min::set_indent ( indent )
-	    << min::noautobreak
+	    << min::nohbreak
 	    << min::indent;
 
     instruction_header & h =
@@ -2461,7 +2463,7 @@ static uns32 print_cooked_dispatcher
 
     printer << min::push_parameters
             << min::set_indent ( indent )
-	    << min::noautobreak;
+	    << min::nohbreak;
 
     printer << pID ( ID ) << "DISPATCHER" << min::eol;
 
@@ -2581,7 +2583,7 @@ uns32 LEX::print_program_component
 	  uns32 ID, bool cooked )
 {
     printer << min::push_parameters
-            << min::noautobreak
+            << min::nohbreak
 	    << min::set_indent ( IDwidth );
 
     uns32 length;

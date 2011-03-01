@@ -32,5 +32,9 @@ int main ( int argc )
     PAR::init_output_stream
         ( PAR::default_parser, std::cout );
     PAR::default_parser->trace = PAR::TRACE_INPUT;
+    PAR::init_print_flags
+        ( PAR::default_parser,
+	    min::GRAPHIC_VSPACE_FLAG
+	  + min::GRAPHIC_NSPACE_FLAG );
     PAR::parse();
 }

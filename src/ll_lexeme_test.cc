@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 14:06:05 EST 2011
+// Date:	Mon Feb 28 18:38:51 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,7 +101,7 @@ static void flush_codes ( void )
     if ( lexeme_codes->length > 0 )
     {
 	min::push(lexeme_codes) = 0;
-	printer << min::bom << min::noautobreak
+	printer << min::bom << min::nohbreak
 		<< & lexeme_codes[0]
 		<< min::eom;
 	min::pop ( lexeme_codes,

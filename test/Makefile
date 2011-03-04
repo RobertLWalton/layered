@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Mar  4 00:16:14 EST 2011
+# Date:		Fri Mar  4 00:41:05 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -280,4 +280,5 @@ ll_parser_table.o:	\
 	    -c ../src/ll_parser_table.cc
 
 clean:
-	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o
+	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o \
+	      ll_lexeme_standard.cc

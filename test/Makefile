@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Mar  4 00:41:05 EST 2011
+# Date:		Fri Mar  4 12:25:53 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -32,7 +32,7 @@ TESTS = ${PROGRAMS}
 
 .SECONDARY:	${TESTS:=.out}
 
-all:		diff
+all:		diff ll_lexeme_standard.lex
 
 diff:		${TESTS:=.diff}
 
@@ -140,6 +140,14 @@ ll_lexeme_ndl.o:	\
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme_ndl.cc
+
+ll_lexeme_standard.lex:	\
+		../src/ll_lexeme_standard.lexcc
+	sed -n \
+		-e '/^lex	/s///p' \
+		-e '/^lex$$/s///p' \
+		< ../src/ll_lexeme_standard.lexcc \
+		> ll_lexeme_standard.lex \
 
 ll_lexeme_standard.cc:	\
 		../src/ll_lexeme_standard.lexcc

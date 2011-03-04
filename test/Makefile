@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jan 24 10:12:12 EST 2011
+# Date:		Fri Mar  4 00:16:14 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -141,16 +141,24 @@ ll_lexeme_ndl.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme_ndl.cc
 
+ll_lexeme_standard.cc:	\
+		../src/ll_lexeme_standard.lexcc
+	sed -n \
+		-e '/^cc	/s///p' \
+		-e '/^cc$$/s///p' \
+		< ../src/ll_lexeme_standard.lexcc \
+		> ll_lexeme_standard.cc \
+
 ll_lexeme_standard.o:	\
+		ll_lexeme_standard.cc \
 		${MIN}/include/min.h \
 		${MIN}/include/min_parameters.h \
-		../src/ll_lexeme_standard.cc \
 		../include/ll_lexeme.h \
 		../include/ll_lexeme_ndl.h \
 		../include/ll_lexeme_standard.h
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_lexeme_standard.cc
+	    -c ll_lexeme_standard.cc
 
 ll_lexeme_standard_basic_test:		\
 		ll_lexeme_standard_basic_test.cc \

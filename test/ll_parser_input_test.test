@@ -11,7 +11,7 @@ LINE_BREAK: line 3:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 LINE_BREAK: line 4:
-// Date:        Mon Nov 22 10:22:20 EST 2010
+// Date:        Sat Mar  5 10:13:32 EST 2011
                                             ^
 LINE_BREAK: line 5:
 //
@@ -58,13 +58,13 @@ LINE_BREAK: line 10:
 abc 3.4+z (x,y)
                ^
 QUOTED_STRING: hi: line 11:
-"hi" "ho\ht/x y\/z\lf/"
+"hi" "ho<HT>x y<>z<LF>"
 ^^^^
-QUOTED_STRING: ho␉x␣y\z␤: line 11:
-"hi" "ho\ht/x y\/z\lf/"
+QUOTED_STRING: ho␉x␣y<>z␤: line 11:
+"hi" "ho<HT>x y<>z<LF>"
      ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 11:
-"hi" "ho\ht/x y\/z\lf/"
+"hi" "ho<HT>x y<>z<LF>"
                        ^
 WORD: 'tis: line 12:
 'tis noth'ng `but' a h'dache.
@@ -223,77 +223,77 @@ LINE_BREAK: line 16:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                              ^
 MARK: +-*~@#$%^&=|<>_!?:: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
 ^^^^^^^^^^^^^^^^^^
 QUOTED_STRING: foo: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
                   ^^^^^
-ERROR: unrecognized escape sequence; line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
-                        ^^^
 ERROR: non-letter escape sequence; line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
-                           ^^^^
-ERROR: unrecognized escape sequence; line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
-                               ^^^
-WORD: x???: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
-                       ^^^^^^^^^^^
-MARK: /: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
-                                  ^
-LINE_BREAK: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x\9/\lf/\z//
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
+                            ^^^^
+WORD: xy?: line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
+                       ^^^^^^^^^
+MARK: <: line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
+                                ^
+WORD: lf: line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
+                                 ^^
+MARK: >: line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
                                    ^
+LINE_BREAK: line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
+                                    ^
 MARK: .: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
 ^
 WORD: foo: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
  ^^^
 MARK: /: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
      ^
 WORD: foo: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
       ^^^
 NATURAL_NUMBER: 3: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
           ^
 MARK: /: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
            ^
 WORD: x: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
             ^
 WORD: x: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
               ^
 MARK: /: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
                ^
 NATURAL_NUMBER: 3: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
                 ^
 NATURAL_NUMBER: 3: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
                   ^
 MARK: .: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
                    ^
 WORD: x: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
                     ^
 WORD: x: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
                       ^
 NUMBER: .3: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
                        ^^
 LINE_BREAK: line 18:
-.foo /foo 3/x x/3 3.x x.3// comment \089/ "'
-                                            ^
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
+                                           ^
 WORD: a: line 19:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 ^
@@ -417,72 +417,60 @@ control A␁B␂C␃
 LINE_BREAK: line 25:
 control A␁B␂C␃
               ^
-QUOTED_STRING: "␤␍␉␈␌␋\␣: line 26:
-"\"/\lf/\cr/\ht/\bs/\ff/\vt/\/\~/"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+QUOTED_STRING: "␤␍␉␈␌␋<XX>␣: line 26:
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 26:
-"\"/\lf/\cr/\ht/\bs/\ff/\vt/\/\~/"
-                                  ^
-ERROR: unrecognized escape sequence; line 27:
-"~\a/\b/\c/\ff/"
-  ^^^
-ERROR: unrecognized escape sequence; line 27:
-"~\a/\b/\c/\ff/"
-     ^^^
-ERROR: unrecognized escape sequence; line 27:
-"~\a/\b/\c/\ff/"
-        ^^^
-QUOTED_STRING: ~\a/\b/\c/␌: line 27:
-"~\a/\b/\c/\ff/"
-^^^^^^^^^^^^^^^^
-LINE_BREAK: line 27:
-"~\a/\b/\c/\ff/"
-                ^
-WORD: ABC: line 28:
-\0041/\00000042/C D\00000045/\0046/G
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
+                                     ^
+WORD: ABC: line 27:
+<0041><00000042>C D<00000045><0046>G
 ^^^^^^^^^^^^^^^^^
-WORD: DEFG: line 28:
-\0041/\00000042/C D\00000045/\0046/G
+WORD: DEFG: line 27:
+<0041><00000042>C D<00000045><0046>G
+                  ^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 27:
+<0041><00000042>C D<00000045><0046>G
+                                    ^
+ERROR: non-letter escape sequence; line 28:
+<0041><00000002>C D<00000045><0006>G
+      ^^^^^^^^^^
+WORD: A?C: line 28:
+<0041><00000002>C D<00000045><0006>G
+^^^^^^^^^^^^^^^^^
+ERROR: non-letter escape sequence; line 28:
+<0041><00000002>C D<00000045><0006>G
+                             ^^^^^^
+WORD: DE?G: line 28:
+<0041><00000002>C D<00000045><0006>G
                   ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 28:
-\0041/\00000042/C D\00000045/\0046/G
+<0041><00000002>C D<00000045><0006>G
                                     ^
 ERROR: non-letter escape sequence; line 29:
-\0041/\00000002/C D\00000045/\0006/G
-      ^^^^^^^^^^
-WORD: A?C: line 29:
-\0041/\00000002/C D\00000045/\0006/G
+<0001><00000042>C <00000004>E<0046>G
+^^^^^^
+WORD: ?BC: line 29:
+<0001><00000042>C <00000004>E<0046>G
 ^^^^^^^^^^^^^^^^^
 ERROR: non-letter escape sequence; line 29:
-\0041/\00000002/C D\00000045/\0006/G
-                             ^^^^^^
-WORD: DE?G: line 29:
-\0041/\00000002/C D\00000045/\0006/G
+<0001><00000042>C <00000004>E<0046>G
+                  ^^^^^^^^^^
+WORD: ?EFG: line 29:
+<0001><00000042>C <00000004>E<0046>G
                   ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 29:
-\0041/\00000002/C D\00000045/\0006/G
+<0001><00000042>C <00000004>E<0046>G
                                     ^
-ERROR: unrecognized escape sequence; line 30:
-\0001/\00000042/C \00000004/E\0046/G
+ERROR: non-letter escape sequence; line 30:
+<0001>
 ^^^^^^
-WORD: BC: line 30:
-\0001/\00000042/C \00000004/E\0046/G
-      ^^^^^^^^^^^
-ERROR: unrecognized escape sequence; line 30:
-\0001/\00000042/C \00000004/E\0046/G
-                  ^^^^^^^^^^
-WORD: EFG: line 30:
-\0001/\00000042/C \00000004/E\0046/G
-                            ^^^^^^^^
+WORD: ?: line 30:
+<0001>
+^^^^^^
 LINE_BREAK: line 30:
-\0001/\00000042/C \00000004/E\0046/G
-                                    ^
-ERROR: unrecognized escape sequence; line 31:
-\0001/
-^^^^^^
-LINE_BREAK: line 31:
-\0001/
+<0001>
       ^
-END_OF_FILE: line 32:
+END_OF_FILE: line 31:
 <END-OF-FILE>
 ^

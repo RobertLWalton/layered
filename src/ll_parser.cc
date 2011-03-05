@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 26 04:12:26 EST 2011
+// Date:	Sat Mar  5 18:19:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -108,6 +108,12 @@ void PAR::set_max_string_free_list_size ( int n )
         min::deallocate ( string );
 	-- ::number_free_strings;
     }
+}
+
+void PAR::resize ( PAR::string string )
+{
+    PAR::string_insptr s = (PAR::string_insptr) string;
+    min::resize ( s, s->length );
 }
 
 // Tokens
@@ -278,7 +284,7 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::scanner ),
     min::DISP ( & PAR::parser_struct::input_file ),
     min::DISP ( & PAR::parser_struct::printer ),
-    min::DISP ( & PAR::parser_struct::hash_table ),
+    min::DISP ( & PAR::parser_struct::bracket_table ),
     min::DISP ( & PAR::parser_struct
                      ::indentation_mark_table ),
     min::DISP ( & PAR::parser_struct::first ),
@@ -538,7 +544,9 @@ void PAR::parse ( PAR::parser parser )
 	        ( "parser->printer not defined" );
     }
 
-    parser->input->init ( parser, parser->input );
+    if ( parser->input->init != NULL)
+	( * parser->input->init )
+	    ( parser, parser->input );
 
     while ( ! parser->eof )
         parser->input->add_tokens

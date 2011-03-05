@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 13:19:55 EST 2011
+// Date:	Sat Mar  5 18:43:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,10 +45,11 @@ extern min::locatable_ptr<ll::parser::input>
 //			        number value
 //			    else:
 //			        natural_number_t,
-//			        string
-//    number_t		    number_t, string
+//			        token string
+//    number_t		    number_t, token string
 //    mark_t		    SYMBOL, string value
-//    quoted_string_t       quoted_string_t, string
+//    quoted_string_t       quoted_string_t,
+//			    token string
 //    separator_t	    SYMBOL, string value
 //
 //    comment_t		    no token
@@ -64,16 +65,6 @@ extern min::locatable_ptr<ll::parser::input>
 //
 //    unrecognized_character_t
 //			    no token,
-//			        output error message
-//    unrecognized_escape_character_t
-//			    no token,
-//			        output error message
-//			    erroneous atom,
-//			        output error message
-//    unrecognized_escape_sequence_t
-//			    no token,
-//			        output error message
-//			    erroneous atom,
 //			        output error message
 //    non_letter_escape_sequence_t
 //			    erroneous atom,
@@ -91,10 +82,10 @@ extern min::locatable_ptr<ll::parser::input>
 // Note that indentation and line breaks are implicitly
 // encoded in the token `begin' and `end' positions;
 // Horizontal space and comment lexemes are ignored.
-// Also note that all tokens output by this pass are on
-// a single line, though in the case of line_break_t
-// tokens the `end' position may be the beginning of
-// a subsequent line.
+// Also note that all tokens output by this input
+// closure are on a single line, though in the case of
+// line_break_t tokens the `end' position may be the
+// beginning of a subsequent line.
 //
 // This function may only be called if parser or
 // parser->scanner is NULL_STUB.  This function

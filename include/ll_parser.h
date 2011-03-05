@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  1 01:33:09 EST 2011
+// Date:	Sat Mar  5 17:52:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,7 +52,9 @@ namespace ll { namespace parser {
 //
 // Some token character strings are kept a long time
 // before they are freed.  These are resized to optimize
-// memory usage.
+// memory usage.  Tokens need not be explicitly freed,
+// as they will be garbage collected when they become
+// unreferenceable.
 
 struct string_struct;
 typedef min::packed_vec_ptr<uns32,string_struct>
@@ -92,6 +94,13 @@ ll::parser::string free_string
 // no limit.  Defaults to 100.
 //
 void set_max_string_free_list_size ( int n );
+
+// Resize a string so its maximum and current length
+// coincide.  This should only be done to strings
+// that are going to be long-lived and not freed by
+// free_string.
+//
+void resize ( ll::parser::string string );
 
 } }
 
@@ -266,15 +275,16 @@ struct input_struct
     // returns the last token (typically and end of file
     // token).
     //
-    // Error messages are sent to parser->print->err.
-    // Tracing to parser->print->trace is enabled by
+    // Error messages are sent to parser->printer.
+    // Tracing to parser->printer is enabled by
     // `parcer->trace' flags.
     //
     uns32 (*add_tokens)
 	    ( ll::parser::parser parser,
 	      ll::parser::input input );
 
-    // Function to initialize input closure.
+    // Function to initialize input closure.  If not
+    // NULL, called when the parser is initialized.
     //
     void (*init)
         ( ll::parser::parser parser,
@@ -293,7 +303,7 @@ void init
 	        ll::parser::input input ),
 	  void (*init)
 	      ( ll::parser::parser parser,
-	        ll::parser::input input ) );
+	        ll::parser::input input ) = NULL );
 
 struct output_struct
     // Closure called to process tokens the parser has
@@ -305,11 +315,10 @@ struct output_struct
     uns32 control;
 
     // Function to remove finished tokens from the
-    // parser token list (virtual functions are not
-    // permitted in packed structures).  The number of
-    // finished tokens in the token list is maintained
-    // in parser->finished_tokens, which may be changed
-    // by this function.
+    // parser token list.  The number of finished tokens
+    // in the token list is maintained in parser->
+    // finished_tokens, which may be changed by this
+    // function.
     //
     // This function is called whenever parser->
     // finished_tokens is incremented by +1.
@@ -320,15 +329,16 @@ struct output_struct
     // as parser->finished_tokens and parser->first are
     // maintained and unfinished tokens are not changed.
     //
-    // Error messages are sent to parser->print->err.
-    // Tracing to parser->print->trace is enabled by
+    // Error messages are sent to parser->printer.
+    // Tracing to parser->printer is enabled by
     // `parcer->trace' flags.
     //
     void (*remove_tokens)
 	( ll::parser::parser parser,
 	  ll::parser::output output );
 
-    // Function to initialize output closure.
+    // Function to initialize output closure.  If not
+    // NULL, called when the parser is initialized.
     //
     void (*init)
         ( ll::parser::parser parser,
@@ -347,7 +357,7 @@ void init
 	        ll::parser::output output ),
 	  void (*init)
 	      ( ll::parser::parser parser,
-	        ll::parser::output output ) );
+	        ll::parser::output output ) = NULL );
 
 struct pass_struct
     // Closure to call to execute a pass on a subexpres-
@@ -375,7 +385,7 @@ struct pass_struct
     // If first == end the subexpression is or became
     // empty.
     //
-    // Error messages are sent to parser->print.
+    // Error messages are sent to parser->printer.
     // Returns true if no fatal errors, and false if
     // there is a fatal error.
     //
@@ -384,7 +394,8 @@ struct pass_struct
     		  ll::parser::token & first,
 		  ll::parser::token end );
 
-    // Function to initialize pass closure.
+    // Function to initialize pass closure.  Called if
+    // not NULL when the parser is initialized.
     //
     // For normal operations there is no need to
     // init a pass, but doing so may be useful for
@@ -395,9 +406,9 @@ struct pass_struct
 	  ll::parser::pass pass );
 
     uns32 trace;
-        // Trace flags that output to parser->print->
-	// trace a description of each token change made
-	// in the parser token list.
+        // Trace flags that output to parser->printer a
+	// description of each token change made in the
+	// parser token list.
 };
 
 // Set pass closure functions.  If `pass' is NULL_
@@ -414,7 +425,7 @@ void init
 		ll::parser::token end ),
 	  void (*init)
 	      ( ll::parser::parser parser,
-	        ll::parser::pass pass ) );
+	        ll::parser::pass pass ) = NULL );
 
 // Place `pass' on the parser->pass_stack just after
 // `previous', of if the latter is NULL_STUB, put `pass'
@@ -477,7 +488,7 @@ struct parser_struct
 
     uns32 trace;
         // Trace flags.  Tracing is done to parser->
-	// print.
+	// printer.
 
     ll::lexeme::scanner scanner;
         // Scanner for those parser inputs that use a
@@ -513,14 +524,14 @@ struct parser_struct
 	// printer which must exist and NOT be NULL_
 	// STUB.
 
-    ll::parser::table::table hash_table;
+    ll::parser::table::table bracket_table;
         // Hash table for brackets and indentation
 	// marks.
 
     ll::parser::table::table indentation_mark_table;
         // Table for indentation marks that can be
 	// split.  Has 256 elements, and the entry for
-	// an indentation mark whose list uns8 byte is b
+	// an indentation mark whose last uns8 byte is b
 	// is recorded in the indentation_mark_table[b]
 	// list.
 
@@ -549,8 +560,7 @@ struct parser_struct
     uns32 finished_tokens;
         // Number of finished tokens at the beginning
 	// of the input list.  The `parse' function
-	// produces finished tokens and calls `output'
-	// to remove them.
+	// produces finished tokens and calls `output'.
 };
 
 extern min::locatable_ptr<ll::parser::parser>
@@ -567,7 +577,9 @@ extern min::locatable_ptr<ll::parser::parser>
 // When a new parser is created, parser parameters are
 // are set to defaults.  Otherwise these are left un-
 // touched, and can be set either before or immediately
-// after a call to init parser.
+// after a call to init parser.  Also, several of these
+// functions can be called one after the other to set
+// non-conflicting parameters.
 
 // Simply (re)initialize a parser.
 //

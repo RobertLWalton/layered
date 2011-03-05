@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 28 18:39:26 EST 2011
+// Date:	Sat Mar  5 13:15:11 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,7 @@ int main ( int argc )
     LEX::init_input_stream
         ( LEX::default_scanner,
 	  std::cin,
-	  min::ASCII_FLAG + min::GRAPHIC_FLAGS );
+	  min::GRAPHIC_FLAGS );
+    LEX::default_scanner->printer << min::noascii;
     LEX::basic_test_input ( LEXSTD::end_of_file_t );
 }

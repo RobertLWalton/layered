@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  5 04:40:16 EST 2011
+// Date:	Sat Mar  5 13:14:18 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -756,12 +756,12 @@ cc	    NDL::begin_table ( escaped_char );
 cc	       NDL::begin_dispatch ( "<" );
 cc
 
-lex	    "<" "LF" ">" translate to "<LF>";
-cc	    	    begin_dispatch ( "L" );
-cc			begin_dispatch ( "F" );
+lex	    "<" "BS" ">" translate to "<BS>";
+cc	    	    begin_dispatch ( "B" );
+cc			begin_dispatch ( "S" );
 cc			    begin_dispatch ( ">" );
 cc				NDL::translate_to
-cc				     ( "\n" );
+cc				     ( "\b" );
 cc			    end_dispatch();
 cc			end_dispatch();
 cc		    end_dispatch();
@@ -789,23 +789,43 @@ cc			end_dispatch();
 cc		    end_dispatch();
 cc
 
-lex	    "<" "BS" ">" translate to "<BS>";
-cc	    	    begin_dispatch ( "B" );
-cc			begin_dispatch ( "S" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( "\b" );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
-cc
-
 lex	    "<" "FF" ">" translate to "<FF>";
 cc	    	    begin_dispatch ( "F" );
 cc			begin_dispatch ( "F" );
 cc			    begin_dispatch ( ">" );
 cc				NDL::translate_to
 cc				     ( "\f" );
+cc			    end_dispatch();
+cc			end_dispatch();
+cc		    end_dispatch();
+cc
+
+lex	    "<" "LF" ">" translate to "<LF>";
+cc	    	    begin_dispatch ( "L" );
+cc			begin_dispatch ( "F" );
+cc			    begin_dispatch ( ">" );
+cc				NDL::translate_to
+cc				     ( "\n" );
+cc			    end_dispatch();
+cc			end_dispatch();
+cc		    end_dispatch();
+cc
+
+lex	    "<" "Q" ">" translate to "<">";
+cc	    	    begin_dispatch ( "Q" );
+cc			begin_dispatch ( ">" );
+cc			    NDL::translate_to
+cc				     ( "\"" );
+cc			end_dispatch();
+cc		    end_dispatch();
+cc
+
+lex	    "<" "SP" ">" translate to "<SP>";
+cc	    	    begin_dispatch ( "S" );
+cc			begin_dispatch ( "P" );
+cc			    begin_dispatch ( ">" );
+cc				NDL::translate_to
+cc				     ( " " );
 cc			    end_dispatch();
 cc			end_dispatch();
 cc		    end_dispatch();
@@ -819,15 +839,6 @@ cc			    begin_dispatch ( ">" );
 cc				NDL::translate_to
 cc				     ( "\v" );
 cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
-cc
-
-lex	    "<" "Q" ">" translate to "<">";
-cc	    	    begin_dispatch ( "Q" );
-cc			begin_dispatch ( ">" );
-cc			    NDL::translate_to
-cc				     ( "\"" );
 cc			end_dispatch();
 cc		    end_dispatch();
 cc

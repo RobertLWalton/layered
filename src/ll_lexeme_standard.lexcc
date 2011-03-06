@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  5 13:14:18 EST 2011
+// Date:	Sun Mar  6 00:52:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -755,93 +755,81 @@ lex
 cc	    NDL::begin_table ( escaped_char );
 cc	       NDL::begin_dispatch ( "<" );
 cc
+cc	#      define BEG(x) NDL::begin_dispatch ( x )
+cc	#      define TO(y)  NDL::begin_dispatch \
+cc				( ">" ); \
+cc				NDL::translate_to \
+cc				    ( y ); \
+cc			     NDL::end_dispatch()
+cc	#      define END    NDL::end_dispatch()
 
 lex	    "<" "BS" ">" translate to "<BS>";
-cc	    	    begin_dispatch ( "B" );
-cc			begin_dispatch ( "S" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( "\b" );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
+cc	    	  BEG ( "B" ); BEG ( "S" );
+cc		     TO ( "\b" );
+cc		  END; END;
 cc
 
 lex	    "<" "CR" ">" translate to "<CR>";
-cc	    	    begin_dispatch ( "C" );
-cc			begin_dispatch ( "R" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( "\r" );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
+cc	          BEG ( "C" ); BEG ( "R" );
+cc		     TO ( "\r" );
+cc		  END; END;
 cc
 
 lex	    "<" "HT" ">" translate to "<HT>";
-cc	    	    begin_dispatch ( "H" );
-cc			begin_dispatch ( "T" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( "\t" );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
+cc	          BEG ( "H" ); BEG ( "T" );
+cc		     TO ( "\t" );
+cc		  END; END;
 cc
 
 lex	    "<" "FF" ">" translate to "<FF>";
-cc	    	    begin_dispatch ( "F" );
-cc			begin_dispatch ( "F" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( "\f" );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
+cc	          BEG ( "F" ); BEG ( "F" );
+cc		     TO ( "\f" );
+cc		  END; END;
 cc
 
 lex	    "<" "LF" ">" translate to "<LF>";
-cc	    	    begin_dispatch ( "L" );
-cc			begin_dispatch ( "F" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( "\n" );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
+cc	          BEG ( "L" ); BEG ( "F" );
+cc		     TO ( "\n" );
+cc		  END; END;
+cc
+
+lex	    "<" "NUL" ">" translate to "<NUL>";
+cc	          BEG ( "N" ); BEG ( "U" ); BEG ( "L" );
+cc		     begin_dispatch ( ">" );
+cc		     {
+cc			 static uns32 NUL = 0;
+cc		         NDL::translate_to ( 1, & NUL );
+cc		     }
+cc		     end_dispatch();
+cc		  END; END; END;
 cc
 
 lex	    "<" "Q" ">" translate to "<">";
-cc	    	    begin_dispatch ( "Q" );
-cc			begin_dispatch ( ">" );
-cc			    NDL::translate_to
-cc				     ( "\"" );
-cc			end_dispatch();
-cc		    end_dispatch();
+cc	          BEG ( "Q" );
+cc		     TO ( "\"" );
+cc		  END;
 cc
 
+lex	    "<" "SOH" ">" translate to "<SOH>";
 lex	    "<" "SP" ">" translate to "<SP>";
-cc	    	    begin_dispatch ( "S" );
-cc			begin_dispatch ( "P" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( " " );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
-cc
+cc	          BEG ( "S" );
+cc		     BEG ( "O" ); BEG ( "H" );
+cc		         TO ( "\001" );
+cc		     END; END;
+cc		     BEG ( "P" );
+cc		         TO ( " " );
+cc		     END;
+cc		  END;
 
 lex	    "<" "VT" ">" translate to "<VT>";
-lex
-cc	    	    begin_dispatch ( "V" );
-cc			begin_dispatch ( "T" );
-cc			    begin_dispatch ( ">" );
-cc				NDL::translate_to
-cc				     ( "\v" );
-cc			    end_dispatch();
-cc			end_dispatch();
-cc		    end_dispatch();
+cc	          BEG ( "V" ); BEG ( "T" );
+cc		     TO ( "\v" );
+cc		  END; END;
 cc
+
+cc	#	undef BEG
+cc	#	undef TO
+cc	#	undef END
 
 lex	    "<" "<digit>" match escaped hex character
 lex			  return

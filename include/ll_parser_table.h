@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 13:19:32 EST 2011
+// Date:	Sun Mar  6 02:46:26 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,7 +12,7 @@
 //
 //	Usage and Setup
 //	Root
-//	Key Element
+//	Key Elements
 //	Brackets
 //	Indentation Marks
 
@@ -45,6 +45,7 @@ struct root_struct;
 typedef min::packed_struct_updptr<root_struct>
         root;
 extern const uns32 & ROOT;
+    // Subtype of min::packed_struct<root_struct>.
 struct root_struct
 {
     uns32 control;
@@ -56,8 +57,8 @@ struct root_struct
         // Selector bits.
 };
 
-// Key Element
-// --- -------
+// Key Elements
+// --- --------
 
 // A hash table maps keys, which are symbols, integers
 // in the range 0 .. (2^28)-1, or multi-element labels,
@@ -68,30 +69,35 @@ struct root_struct
 // must be a symbol or integer in the range 0 ..
 // (2^28)-1.
 //
-// A hash table lookup takes a sequence of key elements
-// (encoded in tokens usually) and finds the hash table
-// entry corresponding to the longest initial segment
-// of the key element sequence for which there is a hash
-// table entry.  This entry may later be rejected, in
-// which case the entry for the next longest sequence
-// for which there is an entry is found.
+// A key prefix is an initial segment of a key, viewing
+// the key as a list of key elements.
 //
-// A hash table contains key_prefix entries, one for
-// each non-empty initial segment of each label in the
-// hash table.  Given the sequence of key elements to
-// look up, these are looked up consecutively beginning
-// with the first key element and continuing till
-// lookup fails.  A key element hash is the hash code
-// of the label prefix that ends with the key element.
-// If this prefix is a symbol or integer, it is the
-// hash of the symbol or integer.  Otherwise it is
-// the hash of the multi-element label made from the
-// key elements of the prefix.
+// A hash table more specifically takes key prefix and
+// finds for each a key_prefix structure whose `label'
+// is the key prefix.  The key_prefix structure points
+// at the list of hash table entries whose keys equal
+// the label of the key prefix structure, if there
+// are such entries.
+//
+// Thus if there is a hash table entry with key [A B C],
+// there will be key_prefix structures labelled A,
+// [A B], and [A B C], but only the last necessarily
+// points at a non-empty list of hash table entries,
+// which would consist of all entries with key [A B C].
+//
+// The hash code of a key_prefix is the hash code of its
+// label.  More specifically, if the label has just one
+// key element, which must necessarily be a symbol or an
+// integer, the hash is the hash of that element, and
+// if the label has more than one key element, the hash
+// is the hash as per min::labhash of the label made
+// from the key elements.
 //
 struct key_prefix_struct;
 typedef min::packed_struct_updptr<key_prefix_struct>
         key_prefix;
 extern const uns32 & KEY_PREFIX;
+    // Subtype of min::packed_struct<key_prefix_struct>.
 struct key_prefix_struct
 {
     uns32 control;
@@ -101,7 +107,8 @@ struct key_prefix_struct
     ll::parser::table::key_prefix previous;
         // Entry for label prefix ending just before
 	// this key element, or NULL_STUB if none,
-	// i.e., if this is the first key of the label.
+	// i.e., if this is the first key element of the
+	// label.
     ll::parser::table::root first;
         // First hash table entry whose label ends with
 	// this key element, or NULL_STUB if none.
@@ -109,9 +116,8 @@ struct key_prefix_struct
         // Next key prefix in hash list.
 };
 
-// A Hash table is just a vector of key_prefix
-// values.  The `length' of this vector MUST BE a
-// power of two.
+// A Hash table is just a vector of key_prefix values.
+// The `length' of this vector MUST BE a power of two.
 //
 typedef min::packed_vec_updptr
 	    <ll::parser::table::key_prefix> table;
@@ -159,11 +165,15 @@ typedef min::packed_struct_updptr
 	    <opening_bracket_struct>
         opening_bracket;
 extern const uns32 & OPENING_BRACKET;
+    // Subtype of min::packed_struct
+    //		       <opening_bracket_struct>.
 struct closing_bracket_struct;
 typedef min::packed_struct_updptr
 	    <closing_bracket_struct>
         closing_bracket;
 extern const uns32 & CLOSING_BRACKET;
+    // Subtype of min::packed_struct
+    //		       <closing_bracket_struct>.
 struct opening_bracket_struct : public root_struct
 {
     // Packed structure subtype is OPENING_BRACKET.
@@ -201,6 +211,8 @@ typedef min::packed_vec_updptr
 	    <uns8,indentation_mark_struct>
         indentation_mark;
 extern const uns32 & INDENTATION_MARK;
+    // Subtype of min::packed_struct
+    //		       <indentation_mark_struct>.
 struct indentation_mark_struct : public root_struct
 {
     // Packed vector subtype is INDENTATION_MARK.

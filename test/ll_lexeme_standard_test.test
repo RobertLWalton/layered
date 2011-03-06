@@ -6,7 +6,7 @@ ccb
 cccccccccccccccccccccccccccccccccccb
 //␣Author:␉Bob␣Walton␣(walton@acm.org)␤
 ccccccccccccccccccccccccccccccccccccccb
-//␣Date:␉Sat␣Mar␣␣5␣10:13:32␣EST␣2011␤
+//␣Date:␉Sun␣Mar␣␣6␣02:00:05␣EST␣2011␤
 cccccccccccccccccccccccccccccccccccccb
 //␤
 ccb
@@ -59,5 +59,13 @@ wwwwwwNNNNNNNNNNwhwwwwwwwwwwwNNNNNNwb
 NNNNNNwwwwwwwwwwwhNNNNNNNNNNwwwwwwwwb
 <0001>␤
 NNNNNNb
+"<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"␤
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
+"<BS><HT><LF><NL><VT><FF><CR><SO><SI>"␤
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
+"<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"␤
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
+"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"␤
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
 <END-OF-FILE>
 e

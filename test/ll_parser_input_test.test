@@ -11,7 +11,7 @@ LINE_BREAK: line 3:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 LINE_BREAK: line 4:
-// Date:        Sat Mar  5 10:13:32 EST 2011
+// Date:        Sun Mar  6 02:00:05 EST 2011
                                             ^
 LINE_BREAK: line 5:
 //
@@ -471,6 +471,30 @@ WORD: ?: line 30:
 LINE_BREAK: line 30:
 <0001>
       ^
-END_OF_FILE: line 31:
+QUOTED_STRING: ␀␁␂␃␄␅␆␇: line 31:
+"<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 31:
+"<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
+                                          ^
+QUOTED_STRING: ␈␉␤␤␋␌␍␎␏: line 32:
+"<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 32:
+"<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
+                                      ^
+QUOTED_STRING: ␐␑␒␓␔␕␖␗: line 33:
+"<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 33:
+"<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
+                                          ^
+QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 34:
+"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 34:
+"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
+                                          ^
+END_OF_FILE: line 35:
 <END-OF-FILE>
 ^

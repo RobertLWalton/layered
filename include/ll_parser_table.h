@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 02:58:44 EST 2011
+// Date:	Mon Mar  7 08:03:10 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,17 +115,24 @@ struct key_prefix_struct
 // A Hash table is just a vector of key_prefix values.
 // The `length' of this vector MUST BE a power of two.
 //
-typedef min::packed_vec_updptr
+typedef min::packed_vec_insptr
 	    <ll::parser::table::key_prefix> table;
 
 // Return the hash table key_prefix with the given key.
 // If none and `create' is true, create key_prefix.
 // If none and `create' is false, return NULL_STUB.
 //
-ll::parser::table::key_prefix find
+ll::parser::table::key_prefix find_key_prefix
 	( min::gen key,
 	  ll::parser::table::table table,
 	  bool create = false );
+
+// Return hash table entry with the given key, or
+// NULL_STUB if none.
+//
+ll::parser::table::root find
+	( min::gen key,
+	  ll::parser::table::table table );
 
 // Push the given hash table entry into a hash table
 // stack for the given key.
@@ -149,6 +156,13 @@ struct new_selectors
     ll::parser::table::selectors or_selectors;
     ll::parser::table::selectors not_selectors;
     ll::parser::table::selectors xor_selectors;
+
+    new_selectors ( selectors or_selectors = 0,
+                    selectors not_selectors = 0,
+                    selectors xor_selectors = 0 )
+	: or_selectors ( or_selectors ),
+	  not_selectors ( not_selectors ),
+	  xor_selectors ( xor_selectors ) {}
 };
 
 // Brackets
@@ -186,7 +200,7 @@ struct closing_bracket_struct : public root_struct
 {
     // Packed structure subtype is CLOSING_BRACKET.
 
-    ll::parser::table::closing_bracket opening_bracket;
+    ll::parser::table::opening_bracket opening_bracket;
         // The opposing bracket of the closing bracket.
 };
 

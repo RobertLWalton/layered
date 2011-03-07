@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 05:00:39 EST 2011
+// Date:	Mon Mar  7 10:14:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -296,6 +296,21 @@ static min::packed_struct<PAR::parser_struct>
     parser_type ( "ll::parser::parser_type",
                   NULL, ::parser_stub_disp );
 
+static min::uns32 table_stub_disp[] =
+{
+    0,
+    min::DISP_END
+};
+
+static min::packed_vec<TAB::key_prefix>
+    table_type ( "ll::parser::table::table_type",
+    		  NULL, ::table_stub_disp );
+
+static min::packed_vec<TAB::indentation_split>
+    split_table_type
+        ( "ll::parser::table::split_table_type",
+   	  NULL, ::table_stub_disp );
+
 min::locatable_ptr<PAR::parser> PAR::default_parser;
 
 void PAR::init ( PAR::parser & parser )
@@ -304,6 +319,12 @@ void PAR::init ( PAR::parser & parser )
     {
         parser = ::parser_type.new_stub();
 	parser->indent_offset = 2;
+	parser->bracket_table =
+	    ::table_type.new_stub ( 256 );
+	min::push ( parser->bracket_table, 256 );
+	parser->split_table =
+	    ::split_table_type.new_stub ( 256 );
+	min::push ( parser->split_table, 256 );
     }
 
     PAR::token token;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  5 17:52:38 EST 2011
+// Date:	Mon Mar  7 04:30:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -528,12 +528,9 @@ struct parser_struct
         // Hash table for brackets and indentation
 	// marks.
 
-    ll::parser::table::table indentation_mark_table;
-        // Table for indentation marks that can be
-	// split.  Has 256 elements, and the entry for
-	// an indentation mark whose last uns8 byte is b
-	// is recorded in the indentation_mark_table[b]
-	// list.
+    ll::parser::table::split_table split_table;
+        // Table for indentation splits associated with
+	// indentation marks that can be split.
 
     int32 indent_offset;
         // Amount the indentation of a line has to be

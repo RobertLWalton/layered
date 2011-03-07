@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  5 18:19:50 EST 2011
+// Date:	Mon Mar  7 05:00:39 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,7 +55,8 @@ static int min_string_length = 80;
 PAR::string PAR::new_string
 	( min::uns32 n, const min::uns32 * s )
 {
-    string_insptr str = ::free_strings;
+    min::locatable_ptr<PAR::string_insptr>
+        str = ::free_strings;
     if ( str == min::NULL_STUB )
     {
         min::uns32 m = n;
@@ -148,7 +149,8 @@ static int max_token_free_list_size = 1000;
 
 PAR::token PAR::new_token ( min::uns32 type )
 {
-    PAR::token token = remove ( ::free_tokens );
+    min::locatable_ptr<PAR::token> token =
+	remove ( ::free_tokens );
     if ( token == min::NULL_STUB )
         token = ::token_type.new_stub();
     else
@@ -285,8 +287,7 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::input_file ),
     min::DISP ( & PAR::parser_struct::printer ),
     min::DISP ( & PAR::parser_struct::bracket_table ),
-    min::DISP ( & PAR::parser_struct
-                     ::indentation_mark_table ),
+    min::DISP ( & PAR::parser_struct::split_table ),
     min::DISP ( & PAR::parser_struct::first ),
     min::DISP_END
 };

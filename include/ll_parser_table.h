@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 19:16:09 EST 2011
+// Date:	Mon Mar  7 02:58:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -177,7 +177,7 @@ struct opening_bracket_struct : public root_struct
     ll::parser::table::closing_bracket closing_bracket;
         // The opposing bracket of the opening bracket.
 
-    ll::parser::table::selectors new_selectors;
+    ll::parser::table::new_selectors new_selectors;
     	// New selectors associated with this opening
 	// bracket.
 
@@ -195,7 +195,8 @@ void push_brackets
 	  min::gen closing_label,
 	  ll::parser::table::selectors selectors,
 	  const ll::parser::table::new_selectors
-	      & new_selectors );
+	      & new_selectors,
+	  ll::parser::table::table table );
 
 // Indentation Marks
 // ----------- -----
@@ -203,30 +204,65 @@ void push_brackets
 // Indentation mark definition.
 //
 struct indentation_mark_struct;
-typedef min::packed_vec_updptr
-	    <uns8,indentation_mark_struct>
+typedef min::packed_struct_updptr
+	    <indentation_mark_struct>
         indentation_mark;
 extern const uns32 & INDENTATION_MARK;
     // Subtype of min::packed_struct
     //		       <indentation_mark_struct>.
+
+// A gluing indentation mark has an associated indenta-
+// tion split that contains the mark label, points at
+// the indentation mark, and is entered in an indenta-
+// tion split table.
+//
+struct indentation_split_struct;
+typedef min::packed_vec_insptr
+	    <uns8,indentation_split_struct>
+        indentation_split;
+
+// A split table has exactly 256 elements, each the
+// head of a length-sorted list of indentation_splits.
+// Each split is entered in the list indexed by the
+// last byte of its indentation mark's label.
+//
+typedef min::packed_vec_insptr
+	    <ll::parser::table::indentation_split>
+	split_table;
+
 struct indentation_mark_struct : public root_struct
 {
-    // Packed vector subtype is INDENTATION_MARK.
-
     ll::parser::table::new_selectors new_selectors;
 
-    bool is_gluing;
+    ll::parser::table::indentation_split
+	    indentation_split;
+	// If gluing, the split for this indentation.
+	// If non-gluing, NULL_STUB.
+};
 
-    // The vector is the indentation mark in UTF-8.
-    // Lexemes at the end of a line can be checked
-    // to see if they end with this.  The last
-    // byte is used as a hash in the indentation
-    // mark table, so, for example, most line ending
-    // lexemes (e.g. those ending in letters) will
-    // not need to be checked (while those ending in
-    // `:' probably will be checked).
+struct indentation_split_struct
+{
+    const min::uns32 control;
+    const min::uns32 length;
+    const min::uns32 max_length;
 
-    uns32 length, max_length;
+    ll::parser::table::indentation_split next;
+        // Next in the length-sorted list of splits
+	// whose head is an indentation_split table
+	// element.
+
+    ll::parser::table::indentation_mark
+	    indentation_mark;
+	// Indentation_mark associated with split.
+
+    // The vector of min::uns8 elements is the indenta-
+    // tion mark label in UTF-8.  Lexemes at the end of
+    // a line can be checked to see if they end with
+    // this.  The last byte is used as a hash in the
+    // indentation split table, so, for example, most
+    // line ending lexemes (e.g. those ending in
+    // letters) will not need to be checked (while
+    // those ending in `:' probably will be checked).
 
 };
 
@@ -235,7 +271,9 @@ void push_indentation_mark
 	  ll::parser::table::selectors selectors,
 	  const ll::parser::table::new_selectors
 	      & new_selectors,
-	  bool is_gluing );
+	  ll::parser::table::table bracket_table,
+	  ll::parser::table::split_table split_table =
+	      NULL_STUB );
 
 } } }
 

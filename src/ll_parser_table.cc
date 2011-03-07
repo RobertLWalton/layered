@@ -14,12 +14,12 @@
 //	Roots
 //	Key Prefixes
 //	Brackets
+//	Indentation Marks
 
 // Usage and Setup
 // ----- --- -----
 
 # include <ll_parser_table.h>
-# define PAR ll::parser
 # define TAB ll::parser::table
 
 // Roots
@@ -61,8 +61,8 @@ static min::packed_vec<TAB::key_prefix>
         ( "ll::parser::table::table_type",
 	   ::table_gen_disp );
 
-TAB::key_prefix_ptr TAB::find
-	( min::gen key, table_ptr table, bool create )
+TAB::key_prefix TAB::find
+	( min::gen key, TAB::table table, bool create )
 {
 
     // Set len to the number of elements in the key and
@@ -89,7 +89,7 @@ TAB::key_prefix_ptr TAB::find
     uns32 table_len = table->length;
     uns32 mask = table_len - 1;
     MIN_ASSERT ( ( table_len & mask ) == 0 );
-    key_prefix_ptr previous = NULL_STUB;
+    TAB::key_prefix previous = NULL_STUB;
     for ( min::unsptr i = 0; i < len; ++ i )
     {
 	// Compute element e and its hash ehash.
@@ -122,8 +122,8 @@ TAB::key_prefix_ptr TAB::find
 	// current == NULL_STUB and `last' is last
 	// key prefix in hash list.
 	//
-	key_prefix_ptr last = NULL_STUB;
-	key_prefix_ptr current = table[hash & mask];
+	TAB::key_prefix last = NULL_STUB;
+	TAB::key_prefix current = table[hash & mask];
 	while ( current != NULL_STUB )
 	{
 	    if ( current->key_element == e
@@ -145,7 +145,7 @@ TAB::key_prefix_ptr TAB::find
 	// `previous'.  This becomes the key prefix
 	// found for element[i].
 	//
-	key_prefix_ptr kprefix =
+	TAB::key_prefix kprefix =
 	    ::key_prefix_type.new_stub();
 	if ( last == NULL_STUB )
 	    table[hash & mask] = kprefix;
@@ -161,15 +161,14 @@ TAB::key_prefix_ptr TAB::find
 }
 
 void TAB::push
-	( min::gen key, root_ptr entry,
-	  table_ptr table )
+	( min::gen key, TAB::root entry,
+	  TAB::table table )
 {
-    key_prefix_ptr kprefix =
+    TAB::key_prefix kprefix =
         find ( key, table, true );
     entry->next = kprefix->first;
     kprefix->first = entry;
 }
-
 
 // Brackets
 // --------
@@ -180,7 +179,7 @@ static min::uns32 opening_bracket_stub_disp[] = {
                      ::closing_bracket ),
     min::DISP_END };
 
-min::packed_struct_with_base
+static min::packed_struct_with_base
 	<TAB::opening_bracket_struct, TAB::root_struct>
     opening_bracket_type
 	( "ll::parser::table::opening_bracket_type",
@@ -194,10 +193,112 @@ static min::uns32 closing_bracket_stub_disp[] = {
                      ::opening_bracket ),
     min::DISP_END };
 
-min::packed_struct_with_base
+static min::packed_struct_with_base
 	<TAB::closing_bracket_struct, TAB::root_struct>
     closing_bracket_type
 	( "ll::parser::table::closing_bracket_type",
 	  NULL, ::closing_bracket_stub_disp );
 const min::uns32 & TAB::CLOSING_BRACKET =
     closing_bracket_type.subtype;
+
+void TAB::push_brackets
+	( min::gen opening_label,
+	  min::gen closing_label,
+	  TAB::selectors selectors,
+	  const TAB::new_selectors & new_selectors,
+	  TAB::table table )
+{
+    min::locatable_ptr<TAB::opening_bracket> opening =
+        ::opening_bracket_type.new_stub();
+    min::locatable_ptr<TAB::closing_bracket> closing =
+        ::closing_bracket_type.new_stub();
+    opening->closing_bracket = closing;
+    closing->opening_bracket = opening;
+    opening->selectors = selectors;
+    closing->selectors = selectors;
+    opening->new_selectors = new_selectors;
+    TAB::push ( opening_label, (TAB::root) opening,
+                table );
+    TAB::push ( closing_label, (TAB::root) closing,
+                table );
+}
+
+// Indentation Marks
+// ----------- -----
+
+static min::uns32 indentation_mark_stub_disp[] = {
+    min::DISP ( & TAB::indentation_mark_struct::next ),
+    min::DISP ( & TAB::indentation_mark_struct
+                     ::indentation_split ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::indentation_mark_struct, TAB::root_struct>
+    indentation_mark_type
+	( "ll::parser::table::indentation_mark_type",
+	  NULL, ::indentation_mark_stub_disp );
+const min::uns32 & TAB::INDENTATION_MARK =
+    indentation_mark_type.subtype;
+
+static min::uns32 indentation_split_stub_disp[] = {
+    min::DISP ( & TAB::indentation_split_struct
+                     ::next ),
+    min::DISP ( & TAB::indentation_split_struct
+                     ::indentation_mark ),
+    min::DISP_END };
+
+static min::packed_vec
+	<min::uns32,TAB::indentation_split_struct>
+    indentation_split_type
+	( "ll::parser::table::indentation_split_type",
+	  NULL, NULL, NULL,
+	  ::indentation_split_stub_disp );
+
+static min::uns32 split_table_stub_disp[] = {
+    0,
+    min::DISP_END };
+
+static min::packed_vec<TAB::indentation_split>
+    split_table_type
+	( "ll::parser::table::split_table_type",
+	  NULL, ::split_table_stub_disp );
+
+void TAB::push_indentation_mark
+	( min::gen label,
+	  TAB::selectors selectors,
+	  const TAB::new_selectors & new_selectors,
+	  TAB::table bracket_table,
+	  TAB::split_table split_table )
+{
+    min::locatable_ptr<TAB::indentation_mark> imark =
+        ::indentation_mark_type.new_stub();
+    imark->selectors = selectors;
+    imark->new_selectors = new_selectors;
+    TAB::push ( label, (TAB::root) imark,
+                bracket_table );
+    if ( split_table != NULL_STUB )
+    {
+        MIN_ASSERT ( min::is_str ( label ) );
+	min::str_ptr s ( label );
+	min::unsptr length = min::strlen ( s );
+        MIN_ASSERT ( length > 0 );
+	min::locatable_ptr<TAB::indentation_split>
+	    isplit =
+	        ::indentation_split_type.new_stub
+			( length );
+	min::push
+	    ( isplit, length, (min::uns8 *) & s[0] );
+	isplit->indentation_mark = imark;
+
+	min::uns8 lastb = s[length - 1];
+
+	TAB::indentation_split * p =
+	    & split_table[lastb];
+	while ( * p != NULL_STUB
+	        &&
+		(* p)->length > length )
+	    p = & (* p)->next;
+	isplit->next = * p;
+	* p = isplit;
+    }
+}

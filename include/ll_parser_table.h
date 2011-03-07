@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 02:46:26 EST 2011
+// Date:	Sun Mar  6 19:16:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,8 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Root
-//	Key Elements
+//	Roots
+//	Key Prefixes
 //	Brackets
 //	Indentation Marks
 
@@ -34,8 +34,8 @@ namespace ll { namespace parser { namespace table {
     typedef min::uns64 selectors;
 } } }
 
-// Root 
-// ----
+// Roots
+// -----
 
 namespace ll { namespace parser { namespace table {
 
@@ -44,8 +44,6 @@ namespace ll { namespace parser { namespace table {
 struct root_struct;
 typedef min::packed_struct_updptr<root_struct>
         root;
-extern const uns32 & ROOT;
-    // Subtype of min::packed_struct<root_struct>.
 struct root_struct
 {
     uns32 control;
@@ -57,7 +55,7 @@ struct root_struct
         // Selector bits.
 };
 
-// Key Elements
+// Key Prefixes
 // --- --------
 
 // A hash table maps keys, which are symbols, integers
@@ -96,8 +94,6 @@ struct root_struct
 struct key_prefix_struct;
 typedef min::packed_struct_updptr<key_prefix_struct>
         key_prefix;
-extern const uns32 & KEY_PREFIX;
-    // Subtype of min::packed_struct<key_prefix_struct>.
 struct key_prefix_struct
 {
     uns32 control;

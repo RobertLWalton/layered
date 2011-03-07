@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 19:15:12 EST 2011
+// Date:	Mon Mar  7 10:14:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,7 +61,7 @@ static min::packed_vec<TAB::key_prefix>
         ( "ll::parser::table::table_type",
 	   ::table_gen_disp );
 
-TAB::key_prefix TAB::find
+TAB::key_prefix TAB::find_key_prefix
 	( min::gen key, TAB::table table, bool create )
 {
 
@@ -160,12 +160,20 @@ TAB::key_prefix TAB::find
     return previous;
 }
 
+TAB::root TAB::find ( min::gen key, TAB::table table )
+{
+    TAB::key_prefix key_prefix =
+        TAB::find_key_prefix ( key, table );
+    if ( key_prefix == NULL_STUB ) return NULL_STUB;
+    else return key_prefix->first;
+}
+
 void TAB::push
 	( min::gen key, TAB::root entry,
 	  TAB::table table )
 {
     TAB::key_prefix kprefix =
-        find ( key, table, true );
+        find_key_prefix ( key, table, true );
     entry->next = kprefix->first;
     kprefix->first = entry;
 }
@@ -248,7 +256,7 @@ static min::uns32 indentation_split_stub_disp[] = {
     min::DISP_END };
 
 static min::packed_vec
-	<min::uns32,TAB::indentation_split_struct>
+	<min::uns8,TAB::indentation_split_struct>
     indentation_split_type
 	( "ll::parser::table::indentation_split_type",
 	  NULL, NULL, NULL,
@@ -289,6 +297,7 @@ void TAB::push_indentation_mark
 	min::push
 	    ( isplit, length, (min::uns8 *) & s[0] );
 	isplit->indentation_mark = imark;
+	imark->indentation_split = isplit;
 
 	min::uns8 lastb = s[length - 1];
 

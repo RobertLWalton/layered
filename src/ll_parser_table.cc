@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 26 01:33:18 EST 2011
+// Date:	Sun Mar  6 19:15:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Root and Suffix
+//	Roots
+//	Key Prefixes
 //	Brackets
 
 // Usage and Setup
@@ -21,8 +22,8 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 
-// Root and Suffix
-// ---- --- ------
+// Roots
+// -----
 
 static min::uns32 root_stub_disp[] = {
     min::DISP ( & TAB::root_struct::next ),
@@ -30,9 +31,11 @@ static min::uns32 root_stub_disp[] = {
 
 static min::packed_struct<TAB::root_struct>
     root_type 
-	( "ll:parser::table::root_type",
+	( "ll::parser::table::root_type",
 	  NULL, ::root_stub_disp );
-const min::uns32 & TAB::ROOT = root_type.subtype;
+
+// Key Prefixes
+// --- --------
 
 static min::uns32 key_prefix_gen_disp[] = {
     min::DISP ( & TAB::key_prefix_struct::key_element ),
@@ -44,13 +47,19 @@ static min::uns32 key_prefix_stub_disp[] = {
     min::DISP ( & TAB::key_prefix_struct::next ),
     min::DISP_END };
 
-min::packed_struct<TAB::key_prefix_struct>
+static min::packed_struct<TAB::key_prefix_struct>
     key_prefix_type
-	( "ll:parser::table::key_prefix_type",
+	( "ll::parser::table::key_prefix_type",
 	  ::key_prefix_gen_disp,
 	  ::key_prefix_stub_disp );
-const min::uns32 & TAB::KEY_PREFIX =
-    key_prefix_type.subtype;
+
+static min::uns32 table_gen_disp[] = {
+    0, min::DISP_END };
+
+static min::packed_vec<TAB::key_prefix>
+    table_type
+        ( "ll::parser::table::table_type",
+	   ::table_gen_disp );
 
 TAB::key_prefix_ptr TAB::find
 	( min::gen key, table_ptr table, bool create )
@@ -98,13 +107,14 @@ TAB::key_prefix_ptr TAB::find
 	else
 	    MIN_ABORT ( "bad key element type" );
 
-	// Computer hash of this element's key prefix.
+	// Compute hash of this element's key prefix.
 	//
 	if ( i == 0 ) hash = ehash;
 	else
 	{
 	    if ( i == 1 )
-	        hash = min::labhash ( 1009, hash );
+	        hash = min::labhash
+		    ( min::labhash_initial, hash );
 	    hash = min::labhash ( hash, ehash );
 	}
 
@@ -146,6 +156,7 @@ TAB::key_prefix_ptr TAB::find
 
 	previous = kprefix;
     }
+
     return previous;
 }
 
@@ -172,7 +183,7 @@ static min::uns32 opening_bracket_stub_disp[] = {
 min::packed_struct_with_base
 	<TAB::opening_bracket_struct, TAB::root_struct>
     opening_bracket_type
-	( "ll:parser::table::opening_bracket_type",
+	( "ll::parser::table::opening_bracket_type",
 	  NULL, ::opening_bracket_stub_disp );
 const min::uns32 & TAB::OPENING_BRACKET =
     opening_bracket_type.subtype;
@@ -186,7 +197,7 @@ static min::uns32 closing_bracket_stub_disp[] = {
 min::packed_struct_with_base
 	<TAB::closing_bracket_struct, TAB::root_struct>
     closing_bracket_type
-	( "ll:parser::table::closing_bracket_type",
+	( "ll::parser::table::closing_bracket_type",
 	  NULL, ::closing_bracket_stub_disp );
 const min::uns32 & TAB::CLOSING_BRACKET =
     closing_bracket_type.subtype;

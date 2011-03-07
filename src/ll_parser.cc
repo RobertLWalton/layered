@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 10:14:01 EST 2011
+// Date:	Mon Mar  7 13:33:55 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -578,40 +578,55 @@ void PAR::parse ( PAR::parser parser )
 // Parser Functions
 // ------ ---------
 
-TAB::key_prefix PAR::find
+TAB::key_prefix PAR::find_key_prefix
 	( PAR::parser parser,
 	  PAR::token first, PAR::token end,
 	  TAB::table table )
 {
-    uns32 hash;
+    uns32 phash = min::labhash_initial;
     uns32 table_len = table->length;
     uns32 mask = table_len - 1;
     MIN_ASSERT ( ( table_len & mask ) == 0 );
     TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
-        if ( first->type != SYMBOL )
-	    return previous;
+	// Check if first is < end.
+	//
+        if ( first->next == parser->first )
+	{
+	    if ( end == NULL_STUB )
+	    {
+	        if ( parser->eof ) break;
+
+		parser->input->add_tokens
+		    ( parser, parser->input);
+		first = first->next;
+		if ( first == parser->first )
+		    break;
+	    }
+	    else break;
+	}
+	else if ( first == end ) break;
+
+        if ( first->type != SYMBOL ) break;
 
 	min::gen e = first->value;
-	uns32 ehash;
+	uns32 hash;
 	if ( min::is_str ( e ) )
-	    ehash = min::strhash ( e );
+	    hash = min::strhash ( e );
 	else if ( min::is_num ( e ) )
 	{
 	    int v = min::int_of ( e );
 	    MIN_ASSERT ( 0 <= v && v < (1<<28) );
-	    ehash = min::numhash ( e );
+	    hash = min::numhash ( e );
 	}
 	else
 	    MIN_ABORT ( "bad key element type" );
 
 	// Compute hash of this element's key prefix.
 	//
-	if ( previous == NULL_STUB )
-	    hash = ehash;
-	else
-	    hash = min::labhash ( hash, ehash );
+	phash = min::labhash ( phash, hash );
+	if ( previous != NULL_STUB ) hash = phash;
 
 	// Locate key prefix.
 	//
@@ -625,32 +640,11 @@ TAB::key_prefix PAR::find
 	        break;
 	    key_prefix = key_prefix->next;
 	}
-	if ( key_prefix == NULL_STUB )
-	    return previous;
-
-	if ( previous == NULL_STUB )
-	    hash = min::labhash ( 1009, hash );
+	if ( key_prefix == NULL_STUB ) break;
 
 	previous = key_prefix;
-
-        if ( first->next == parser->first )
-	{
-	    if ( end == NULL_STUB )
-	    {
-	        if ( parser->eof )
-		    break;
-		parser->input->add_tokens
-		    ( parser, parser->input);
-		first = first->next;
-		if ( first == parser->first )
-		    break;
-	    }
-	}
-	else
-	{
-	    first = first->next;
-	    if ( first == end ) break;
-	}
+	first = first->next;
     }
+
     return previous;
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 04:30:34 EST 2011
+// Date:	Mon Mar  7 13:34:23 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -660,7 +660,7 @@ void parse ( ll::parser::parser parser =
 //
 // Returns NULL_STUB if no such key prefix.
 //
-ll::parser::table::key_prefix find
+ll::parser::table::key_prefix find_key_prefix
 	( ll::parser::parser parser,
 	  ll::parser::token first,
 	  ll::parser::token end,

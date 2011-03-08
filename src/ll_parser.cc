@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 13:33:55 EST 2011
+// Date:	Tue Mar  8 10:14:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -405,12 +405,15 @@ void PAR::init_output_stream
 //
 // If closing_bracket is NULL_STUB, the expression was
 // begun by an indentation mark.  The first token is the
-// token after the indentation mark.  The next non-line-
-// -break token sets the indentation associated with the
-// indentation mark.  Otherwise, if closing_bracket !=
-// NULL_STUB, the expression was begun by the opening
-// bracket corresponding to the closing bracket, and the
-// first token is the token after the opening bracket.
+// line-break token after the indentation mark (and this
+// should be deleted).  The next non-line-break token
+// sets the indentation associated with the indentation
+// mark.
+//
+// Otherwise, if closing_bracket != NULL_STUB, the
+// expression was begun by the opening bracket corres-
+// ponding to the closing bracket, and the first token
+// is the first token after the opening bracket.
 //
 // This function identifies all the tokens in the sub-
 // expression and returns pointers to the first of these
@@ -419,8 +422,8 @@ void PAR::init_output_stream
 // end-of-file token so there will always be such a 
 // token).  SUBSUBexpresions are converted to an
 // EXPRESSION token whose value is a list.  If there are
-// no tokens in the subexpression `first' is set equal
-// to `end'.
+// no tokens in the resullting subexpression, `first' is
+// set equal to `end'.
 //
 // Finding a token with indentation <= indent terminates
 // the subexpression.  If a closing_bracket != NULL_
@@ -434,7 +437,7 @@ void PAR::init_output_stream
 // an opening bracket or an indentation mark.  The
 // selectors determine which bracket and indentation
 // mark definitions are active.  When this function
-// calls itself recursively, upon return is wraps all
+// calls itself recursively, upon return it wraps all
 // the tokens of the sub-subexpression found into a
 // single EXPRESSION token.
 //
@@ -442,8 +445,10 @@ void PAR::init_output_stream
 // marks are split from line-ending tokens.  Bracket
 // recognition preceeds token splitting and line_break
 // deletion: so the last lexeme of a bracket cannot be
-// the first part of a split token, and multi-lexeme
-// brackets cannot straddle line_breaks.
+// the first part of a split token (this should not be
+// a problem as the last lexeme of a bracked should be
+// a separator), and multi-lexeme brackets cannot
+// straddle line_breaks.
 //
 // This function is called at the top level with
 // indent = a very negative integer and closing_
@@ -455,7 +460,7 @@ static void parse_explicit_subexpression
 	  PAR::token & end,
 	  TAB::closing_bracket closing_bracket,
 	  min::int32 indent,
-	  TAB::selectors sel )
+	  TAB::selectors selectors )
 {
     PAR::token next = first;
     bool is_first = true;
@@ -580,7 +585,7 @@ void PAR::parse ( PAR::parser parser )
 
 TAB::key_prefix PAR::find_key_prefix
 	( PAR::parser parser,
-	  PAR::token first, PAR::token end,
+	  PAR::token first,
 	  TAB::table table )
 {
     uns32 phash = min::labhash_initial;
@@ -590,24 +595,6 @@ TAB::key_prefix PAR::find_key_prefix
     TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
-	// Check if first is < end.
-	//
-        if ( first->next == parser->first )
-	{
-	    if ( end == NULL_STUB )
-	    {
-	        if ( parser->eof ) break;
-
-		parser->input->add_tokens
-		    ( parser, parser->input);
-		first = first->next;
-		if ( first == parser->first )
-		    break;
-	    }
-	    else break;
-	}
-	else if ( first == end ) break;
-
         if ( first->type != SYMBOL ) break;
 
 	min::gen e = first->value;
@@ -643,6 +630,16 @@ TAB::key_prefix PAR::find_key_prefix
 	if ( key_prefix == NULL_STUB ) break;
 
 	previous = key_prefix;
+
+        if ( first->next == parser->first )
+	{
+	    if ( parser->eof ) break;
+
+	    parser->input->add_tokens
+		( parser, parser->input);
+	    if ( first->next == parser->first ) break;
+	}
+
 	first = first->next;
     }
 

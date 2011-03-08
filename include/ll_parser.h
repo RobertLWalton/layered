@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 13:34:23 EST 2011
+// Date:	Tue Mar  8 10:16:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -652,18 +652,17 @@ void parse ( ll::parser::parser parser =
 
 // Locate the key prefix in the hash table that
 // corresponds to the longest available string of tokens
-// beginning with `first'.  The token string ends just
-// before `end' unless that is NULL_STUB, in which case
-// the token string ends with the last token input to
-// the parser, and parser->input is used to get more
-// tokens if necessary.
+// beginning with `first'.  Tokens are added to the
+// token list as necessary.  It is assumed that the
+// token list finally ends with an end-of-file token,
+// and this cannot be part of any hash table entry
+// (because it is not a SYMBOL).
 //
 // Returns NULL_STUB if no such key prefix.
 //
 ll::parser::table::key_prefix find_key_prefix
 	( ll::parser::parser parser,
 	  ll::parser::token first,
-	  ll::parser::token end,
 	  ll::parser::table::table table );
 
 } }

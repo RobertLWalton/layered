@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  9 01:16:40 EST 2011
+// Date:	Wed Mar  9 05:00:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,22 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
+
+static min::gen initiator;
+static min::gen terminator;
+static min::gen separator;
+
+static struct initializer {
+    initializer ( void )
+    {
+        ::initiator =
+	    min::new_str_gen ( ".initiator" );
+        ::terminator =
+	    min::new_str_gen ( ".terminator" );
+        ::separator =
+	    min::new_str_gen ( ".separator" );
+    }
+} init;
 
 // Strings
 // -------
@@ -398,14 +414,43 @@ void PAR::init_output_stream
         ( parser->printer, out );
 }
 
-// Make an expression consisting of the count tokens
-// starting at first.  Replace these tokens by the
-// resulting EXPRESSION token.
+// Make an expression consisting of the tokens starting
+// at first and ending just before next.  Replace these
+// tokens by the resulting EXPRESSION token.
 //
 static PAR::token compact
 	( PAR::parser parser,
-	  PAR::token first, min::uns32 count )
+	  PAR::token first, PAR::token next )
 {
+    min::uns32 count = 0;
+    min::locatable_gen str;
+    for ( PAR::token t = first; t != next; t = t->next )
+    {
+        ++ count;
+	if ( t->type == PAR::SYMBOL ) continue;
+	else if ( t->type == PAR::EXPRESSION ) continue;
+
+	str = min::new_str_gen
+	    (t->string.begin_ptr(), t->string->length );
+	t->string = PAR::free_string ( t->string);
+	t->value = min::new_obj_gen ( 1, 1 );
+	min::obj_vec_insptr vp ( t->value );
+	min::attr_push ( vp, str );
+
+	if ( t->type == LEXSTD::quoted_string_t )
+	    str = min::new_str_gen ( "\"" );
+	else if ( t->type == LEXSTD::number_t )
+	    str = min::new_str_gen ( "#" );
+	else if ( t->type == LEXSTD::natural_number_t )
+	    str = min::new_str_gen ( "#" );
+	else
+	    MIN_ABORT ( "unexpected token type" );
+
+	min::attr_insptr ap ( vp ); 
+	min::locate ( ap, ::initiator );
+	min::set ( ap, str );
+    }
+
     // TBD
 }
 
@@ -475,11 +520,9 @@ static void parse_explicit_subexpression
 	  TAB::selectors selectors )
 {
     PAR::token next = first;
-    min::uns32 count = 0;
 
     min::int32 line_indent =
         - parser->indent_offset;
-    min::uns32 line_count;
     PAR::token line_first;
     while ( true )
     {
@@ -489,12 +532,11 @@ static void parse_explicit_subexpression
 	{
 	    if ( line_indent >= 0
 	         &&
-		 count > line_count )
+		 line_first != next )
 	    {
 	        bool is_first = ( line_first == first );
 	        line_first = ::compact
-		    ( parser, line_first,
-		      count - line_count );
+		    ( parser, line_first, next );
 		if ( is_first ) first = line_first;
 		break;
 	    }
@@ -550,7 +592,6 @@ static void parse_explicit_subexpression
 	{
 	    line_indent = next->begin.column;
 	    line_first = next;
-	    line_count = count;
 	}
 
 	// Complain if token indent is too near
@@ -586,15 +627,13 @@ static void parse_explicit_subexpression
 	//
 	if (       (min::int32) next->begin.column
 	        <= line_indent
-	     && count > line_count )
+	     && next != line_first )
 	{
 	    assert
 	        ( closing_bracket == min::NULL_STUB );
 
 	    next =
-	        ::compact ( parser, line_first,
-		            count - line_count );
-	    count = line_count;
+	        ::compact ( parser, line_first, next );
 
 	    if ( next->next == parser->first )
 	    {
@@ -603,8 +642,6 @@ static void parse_explicit_subexpression
 		assert ( next->next != parser->first );
 	    }
 	    next = next->next;
-	    ++ count;
-	    line_count = count;
 	    line_first = next;
 	    continue;
 	}
@@ -628,7 +665,6 @@ static void parse_explicit_subexpression
 		( parser, parser->input );
 	    assert ( next->next != parser->first );
 	}
-	++ count;
 	next = next->next;
     }
 

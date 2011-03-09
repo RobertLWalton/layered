@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 11:48:14 EST 2011
+// Date:	Tue Mar  8 23:41:27 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -973,6 +973,16 @@ namespace ll { namespace lexeme {
 	      type ( type ) {}
     };
 
+    // Just like min::pline_numbers but takes positions
+    // instead of line numbers.  If end.column == 0
+    // and end.line > begin.line, then last line number
+    // equals end.line - 1 instead of end.line.
+    //
+    min::pline_numbers pline_numbers
+	    ( min::file file,
+              const ll::lexeme::position & begin,
+              const ll::lexeme::position & end );
+
     // Just line min::pline_numbers but takes scanner,
     // first, and next as arguments and uses line
     // numbers of scanner->input_buffer[first/next],
@@ -980,16 +990,9 @@ namespace ll { namespace lexeme {
     // exist, and decrements end line by 1 if end column
     // is 0.
     //
-    struct pline_numbers
-    {
-        ll::lexeme::scanner scanner;
-	uns32 first, next;
-	pline_numbers
+    min::pline_numbers pline_numbers
 	    ( ll::lexeme::scanner scanner,
-              uns32 first, uns32 next )
-	    : scanner ( scanner ),
-	      first ( first ), next ( next ) {}
-    };
+              uns32 first, uns32 next );
 
     // Return true if the translation buffer holds a
     // copy of scanner->input_buffer[first .. next-1].
@@ -1091,10 +1094,5 @@ min::printer operator <<
 	( min::printer printer,
           const ll::lexeme::perroneous_atom &
 	      perroneous_atom );
-
-min::printer operator <<
-	( min::printer printer,
-          const ll::lexeme::pline_numbers &
-	      pline_numbers );
 
 # endif // LL_LEXEME_H

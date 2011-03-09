@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  8 10:14:50 EST 2011
+// Date:	Tue Mar  8 16:52:16 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -505,10 +505,10 @@ static void parse_explicit_subexpression
 		<< " too near paragraph indent "
 		<< indent
 		<< "; "
-		<< min::pline_numbers
+		<< LEX::pline_numbers
 		       ( parser->input_file,
-		         first->begin.line,
-			 next->begin.line )
+		         first->begin,
+			 first->end )
 	        << ":" << min::eom;
 	    LEX::print_item_lines
 		( parser->printer,

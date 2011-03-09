@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Mar  7 07:56:21 EST 2011
+# Date:		Tue Mar  8 23:40:58 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -233,6 +233,8 @@ ll_parser.o:	\
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_input.h \
+	../include/ll_lexeme_standard.h \
+	../include/ll_lexeme.h \
 	../src/ll_parser.cc
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
@@ -245,6 +247,7 @@ ll_parser_input.o:	\
 	../include/ll_parser_table.h \
 	../include/ll_parser_input.h \
 	../include/ll_lexeme_standard.h \
+	../include/ll_lexeme.h \
 	../src/ll_parser_input.cc
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \

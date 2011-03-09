@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 28 18:37:52 EST 2011
+// Date:	Tue Mar  8 18:44:49 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2040,15 +2040,26 @@ min::printer operator <<
     }
 }
 
-min::printer operator <<
-	( min::printer printer,
-	  const LEX::pline_numbers & pline_numbers )
+min::pline_numbers LEX::pline_numbers
+	( min::file file,
+	  const LEX::position & begin,
+	  const LEX::position & end )
 {
-    LEX::scanner scanner = pline_numbers.scanner;
+    uns32 begin_line = begin.line;
+    uns32 end_line =
+        end.column != 0 ?	  end.line :
+	end.line <= begin_line ?  end.line :
+	                          end.line - 1;
+    return min::pline_numbers
+	       ( file, begin_line, end_line );
+}
+
+min::pline_numbers LEX::pline_numbers
+	( LEX::scanner scanner,
+	  min::uns32 first, min::uns32 next )
+{
     LEX::input_buffer input_buffer =
         scanner->input_buffer;
-    min::uns32 first = pline_numbers.first;
-    min::uns32 next = pline_numbers.next;
 
     LEX::position begin =
         first < input_buffer->length ?
@@ -2058,14 +2069,8 @@ min::printer operator <<
         next < input_buffer->length ?
 	input_buffer[next] :
 	scanner->next_position;
-    uns32 begin_line = begin.line;
-    uns32 end_line =
-        end.column != 0 ?	  end.line :
-	end.line <= begin_line ?  end.line :
-	                          end.line - 1;
-    return printer << min::pline_numbers
-    			   ( scanner->input_file,
-			     begin_line, end_line );
+    return LEX::pline_numbers
+	       ( scanner->input_file, begin, end );
 }
 
 void LEX::print_item_lines

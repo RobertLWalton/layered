@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  8 16:52:16 EST 2011
+// Date:	Wed Mar  9 01:16:40 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -398,6 +398,18 @@ void PAR::init_output_stream
         ( parser->printer, out );
 }
 
+// Make an expression consisting of the count tokens
+// starting at first.  Replace these tokens by the
+// resulting EXPRESSION token.
+//
+static PAR::token compact
+	( PAR::parser parser,
+	  PAR::token first, min::uns32 count )
+{
+    // TBD
+}
+
+
 // Parse an explicit subexpression that begins with the
 // `first' token (which is just after the opening
 // bracket or indentation mark).  If more tokens are
@@ -450,50 +462,66 @@ void PAR::init_output_stream
 // a separator), and multi-lexeme brackets cannot
 // straddle line_breaks.
 //
-// This function is called at the top level with
-// indent = a very negative integer and closing_
-// bracket = NULL_STUB.
+// This function is called at the top level with indent
+// <= - parser->indent_offset and closing_bracket =
+// NULL_STUB.
 //
 static void parse_explicit_subexpression
 	( PAR::parser parser,
 	  PAR::token & first,
 	  PAR::token & end,
 	  TAB::closing_bracket closing_bracket,
-	  min::int32 indent,
+	  min::int32 paragraph_indent,
 	  TAB::selectors selectors )
 {
     PAR::token next = first;
-    bool is_first = true;
+    min::uns32 count = 0;
+
+    min::int32 line_indent =
+        - parser->indent_offset;
+    min::uns32 line_count;
+    PAR::token line_first;
     while ( true )
     {
-	// If we have run off end of parser token list,
-	// get more tokens.
+        // Truncate if end of file.
 	//
-        if ( next == parser->first )
+	if ( next->type == LEXSTD::end_of_file_t )
 	{
-	    assert ( ! parser->eof );
-	    next = next->previous;
-	    parser->input->add_tokens
-		( parser, parser->input );
-	    next = next->next;
-	    assert ( next != parser->first );
-	    if ( is_first ) first = next;
+	    if ( line_indent >= 0
+	         &&
+		 count > line_count )
+	    {
+	        bool is_first = ( line_first == first );
+	        line_first = ::compact
+		    ( parser, line_first,
+		      count - line_count );
+		if ( is_first ) first = line_first;
+		break;
+	    }
 	}
 
 	// Delete line breaks.
 	//
-	if ( next->type = LEXSTD::line_break_t )
+	else if ( next->type = LEXSTD::line_break_t )
 	{
-	    if ( is_first ) first = next->next;
-	    remove ( parser->first, next );
+	    if ( next->next == parser->first )
+	    {
+		parser->input->add_tokens
+		    ( parser, parser->input );
+		assert ( next->next != parser->first );
+	    }
+
+	    if ( next == first ) first = next->next;
+	    next = next->next;
+	    remove ( parser->first, next->previous );
 	    continue;
 	}
 
 	// Complain if token indent is too near
 	// paragraph indent.
 	//
-	int near = (min::int32) first->begin.column
-	         - indent;
+	int near = (min::int32) next->begin.column
+	         - paragraph_indent;
 	if ( near < 0 ) near = - near;
 	if (    near != 0
 	     && near < parser->indent_offset )
@@ -501,35 +529,109 @@ static void parse_explicit_subexpression
 	    parser->printer
 	        << min::bom << min::set_indent ( 7 )
 		<< "ERROR: lexeme indent "
-		<< first->begin.column
+		<< next->begin.column
 		<< " too near paragraph indent "
-		<< indent
+		<< paragraph_indent
 		<< "; "
 		<< LEX::pline_numbers
 		       ( parser->input_file,
-		         first->begin,
-			 first->end )
+		         next->begin,
+			 next->end )
 	        << ":" << min::eom;
 	    LEX::print_item_lines
 		( parser->printer,
 		  parser->input_file,
-		  first->begin,
-		  first->end );
+		  next->begin,
+		  next->end );
+	}
+
+	if (    next == first
+	     && closing_bracket == min::NULL_STUB )
+	{
+	    line_indent = next->begin.column;
+	    line_first = next;
+	    line_count = count;
+	}
+
+	// Complain if token indent is too near
+	// line indent.
+	//
+	near = (min::int32) next->begin.column
+	     - line_indent;
+	if ( near < 0 ) near = - near;
+	if (    near != 0
+	     && near < parser->indent_offset )
+	{
+	    parser->printer
+	        << min::bom << min::set_indent ( 7 )
+		<< "ERROR: lexeme indent "
+		<< next->begin.column
+		<< " too near line indent "
+		<< line_indent
+		<< "; "
+		<< LEX::pline_numbers
+		       ( parser->input_file,
+		         next->begin,
+			 next->end )
+	        << ":" << min::eom;
+	    LEX::print_item_lines
+		( parser->printer,
+		  parser->input_file,
+		  next->begin,
+		  next->end );
 	}
 
 	// Truncate subexpression if token is at or
-	// before indent.
+	// before line indent.
 	//
-	if (    (min::int32) first->begin.column
-	     <= indent + parser->indent_offset )
+	if (       (min::int32) next->begin.column
+	        <= line_indent
+	     && count > line_count )
 	{
-	    if ( closing_bracket != min::NULL_STUB )
-	    {
-	    }
+	    assert
+	        ( closing_bracket == min::NULL_STUB );
 
+	    next =
+	        ::compact ( parser, line_first,
+		            count - line_count );
+	    count = line_count;
+
+	    if ( next->next == parser->first )
+	    {
+		parser->input->add_tokens
+		    ( parser, parser->input );
+		assert ( next->next != parser->first );
+	    }
+	    next = next->next;
+	    ++ count;
+	    line_count = count;
+	    line_first = next;
+	    continue;
 	}
+
+	// Truncate subexpression if token is at or
+	// before paragraph indent.
+	//
+	if (    (min::int32) next->begin.column
+	     <= paragraph_indent )
+	    break;
+
+	// Lookup tokens in bracket table.
+	//
+	// TBD
+
+	// Move to next token.
+	//
+        if ( next->next == parser->first )
+	{
+	    parser->input->add_tokens
+		( parser, parser->input );
+	    assert ( next->next != parser->first );
+	}
+	++ count;
+	next = next->next;
     }
-    if ( is_first ) first = next;
+
     end = next;
 }
 

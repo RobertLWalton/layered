@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  9 05:00:02 EST 2011
+// Date:	Thu Mar 10 00:25:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,9 +28,11 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 
-static min::gen initiator;
-static min::gen terminator;
-static min::gen separator;
+static min::locatable_gen initiator;
+static min::locatable_gen terminator;
+static min::locatable_gen separator;
+static min::locatable_gen doublequote;
+static min::locatable_gen number_sign;
 
 static struct initializer {
     initializer ( void )
@@ -41,6 +43,10 @@ static struct initializer {
 	    min::new_str_gen ( ".terminator" );
         ::separator =
 	    min::new_str_gen ( ".separator" );
+        ::doublequote =
+	    min::new_str_gen ( "\"" );
+        ::number_sign =
+	    min::new_str_gen ( "#" );
     }
 } init;
 
@@ -433,18 +439,20 @@ static PAR::token compact
 	str = min::new_str_gen
 	    (t->string.begin_ptr(), t->string->length );
 	t->string = PAR::free_string ( t->string);
-	t->value = min::new_obj_gen ( 1, 1 );
+	t->value = min::new_obj_gen ( 1, 10 );
 	min::obj_vec_insptr vp ( t->value );
 	min::attr_push ( vp, str );
 
 	if ( t->type == LEXSTD::quoted_string_t )
-	    str = min::new_str_gen ( "\"" );
+	    str = ::doublequote;
 	else if ( t->type == LEXSTD::number_t )
-	    str = min::new_str_gen ( "#" );
+	    str = ::number_sign;
 	else if ( t->type == LEXSTD::natural_number_t )
-	    str = min::new_str_gen ( "#" );
+	    str = ::number_sign;
 	else
 	    MIN_ABORT ( "unexpected token type" );
+
+	t->type = PAR::SYMBOL;
 
 	min::attr_insptr ap ( vp ); 
 	min::locate ( ap, ::initiator );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  9 01:17:19 EST 2011
+// Date:	Fri Mar 11 03:34:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -181,6 +181,18 @@ inline void put_before
     token->previous = t->previous;
     token->previous->next = token;
     token->next->previous = token;
+}
+
+// Put a token just before a given token t on a list of
+// tokens headed by first.
+//
+inline void put_before
+	( ll::parser::token & first,
+	  ll::parser::token t,
+	  ll::parser::token token )
+{
+    put_before ( t, token );
+    if ( first == t ) first = token;
 }
 
 // Put a token on the end of a token list with given

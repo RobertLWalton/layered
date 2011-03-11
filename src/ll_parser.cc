@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 10 00:25:33 EST 2011
+// Date:	Thu Mar 10 20:04:16 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -422,44 +422,76 @@ void PAR::init_output_stream
 
 // Make an expression consisting of the tokens starting
 // at first and ending just before next.  Replace these
-// tokens by the resulting EXPRESSION token.
+// tokens by the resulting EXPRESSION token.  Allow for
+// .initiator, .terminator, and .separator attributes to
+// be added later.  Return the resulting EXPRESSION
+// token.
+//
+// The tokens by an expression, any token that is not
+// a SYMBOL or EXPRESSION is replaced by an expression
+// whose sole element is the token string of the token
+// and whose .initiator is # for a number and " for a
+// quoted string.
 //
 static PAR::token compact
 	( PAR::parser parser,
 	  PAR::token first, PAR::token next )
 {
     min::uns32 count = 0;
-    min::locatable_gen str;
     for ( PAR::token t = first; t != next; t = t->next )
-    {
         ++ count;
-	if ( t->type == PAR::SYMBOL ) continue;
-	else if ( t->type == PAR::EXPRESSION ) continue;
 
-	str = min::new_str_gen
-	    (t->string.begin_ptr(), t->string->length );
-	t->string = PAR::free_string ( t->string);
-	t->value = min::new_obj_gen ( 1, 10 );
-	min::obj_vec_insptr vp ( t->value );
-	min::attr_push ( vp, str );
+    min::locatable_gen exp =
+        min::new_obj_gen ( 3, 12 + count );
+    min::obj_vec_insptr expvp ( exp );
 
-	if ( t->type == LEXSTD::quoted_string_t )
-	    str = ::doublequote;
-	else if ( t->type == LEXSTD::number_t )
-	    str = ::number_sign;
-	else if ( t->type == LEXSTD::natural_number_t )
-	    str = ::number_sign;
+    min::locatable_gen element;
+    min::locatable_gen str;
+    for ( PAR::token t = first; t != next; )
+    {
+	if ( t->type != PAR::SYMBOL
+	     &&
+	     t->type != PAR::EXPRESSION )
+	{
+	    str = min::new_str_gen
+		( t->string.begin_ptr(),
+		  t->string->length );
+	    element = min::new_obj_gen ( 1, 10 );
+	    min::obj_vec_insptr elemvp ( element );
+
+	    min::attr_push ( elemvp, str );
+
+	    if ( t->type == LEXSTD::quoted_string_t )
+		str = ::doublequote;
+	    else if ( t->type == LEXSTD::number_t )
+		str = ::number_sign;
+	    else if ( t->type == LEXSTD::natural_number_t )
+		str = ::number_sign;
+	    else
+		MIN_ABORT ( "unexpected token type" );
+
+	    min::attr_insptr elemap ( elemvp ); 
+	    min::locate ( elemap, ::initiator );
+	    min::set ( elemap, str );
+
+	    min::attr_push ( expvp, element );
+	}
 	else
-	    MIN_ABORT ( "unexpected token type" );
+	    min::attr_push ( expvp, t->value );
 
-	t->type = PAR::SYMBOL;
-
-	min::attr_insptr ap ( vp ); 
-	min::locate ( ap, ::initiator );
-	min::set ( ap, str );
+	t = t->next;
+	PAR::free
+	    ( PAR::remove ( parser->first,
+	                    t->previous ) );
     }
 
-    // TBD
+    min::locatable_ptr<PAR::token> token =
+        PAR::new_token ( PAR::EXPRESSION );
+    token->value = exp;
+
+    PAR::put_before ( parser->first, next, token );
+
+    return token;
 }
 
 

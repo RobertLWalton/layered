@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 11 10:47:22 EST 2011
+// Date:	Sat Mar 12 13:28:53 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -667,22 +667,25 @@ void parse ( ll::parser::parser parser =
 
 // Locate the key prefix in the hash table that
 // corresponds to the longest available string of tokens
-// beginning with `first'.  Tokens are added to the
+// beginning with `current'.  Tokens are added to the
 // token list as necessary.  It is assumed that the
 // token list finally ends with an end-of-file token,
 // and this cannot be part of any hash table entry
 // (because it is not a SYMBOL).
 //
-// Returns NULL_STUB if no such key prefix.
+// Returns NULL_STUB if no such key prefix.  If a key
+// prefix is found, `current' is set to the first token
+// after the tokens used to find the key prefix.  If no
+// case does not change `current'.
 //
 ll::parser::table::key_prefix find_key_prefix
 	( ll::parser::parser parser,
-	  ll::parser::token first,
+	  ll::parser::token & current,
 	  ll::parser::table::table table );
 
 // Locate the hash table entry in the hash table that
 // corresponds to the longest available string of tokens
-// beginning with `first'.  Tokens are added to the
+// beginning with `current'.  Tokens are added to the
 // token list as necessary.  It is assumed that the
 // token list finally ends with an end-of-file token,
 // and this cannot be part of any hash table entry
@@ -691,11 +694,14 @@ ll::parser::table::key_prefix find_key_prefix
 // Only hash table entries which have a selector bit
 // on are considered.
 //
-// Returns NULL_STUB if no such key prefix.
+// Returns NULL_STUB if no such entry.  If an entry is
+// returned, `current' is set to the token just AFTER
+// the last token used to look up the entry.  If no
+// entry is returned, `current' is left unchanged.
 //
 ll::parser::table::root find_entry
 	( ll::parser::parser parser,
-	  ll::parser::token first,
+	  ll::parser::token & current,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::table table );
 

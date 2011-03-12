@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 11 03:47:17 EST 2011
+// Date:	Sat Mar 12 11:54:14 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -421,24 +421,25 @@ void PAR::init_output_stream
 }
 
 // Make an expression consisting of the tokens starting
-// at first and ending just before next.  Replace these
-// tokens by the resulting EXPRESSION token.  Allow for
-// .initiator, .terminator, and .separator attributes to
-// be added later.  Return the resulting EXPRESSION
-// token.
+// at first and ending just before current.  Replace
+// these tokens by the resulting EXPRESSION token.
+// Allow for .initiator, .terminator, and .separator
+// attributes to be added later.  Return the resulting
+// EXPRESSION token.
 //
-// The tokens by an expression, any token that is not
-// a SYMBOL or EXPRESSION is replaced by an expression
+// Any token in the expression being made that is not
+// a SYMBOL or EXPRESSION is replaced by an EXPRESSION
 // whose sole element is the token string of the token
 // and whose .initiator is # for a number and " for a
 // quoted string.
 //
 static PAR::token compact
 	( PAR::parser parser,
-	  PAR::token first, PAR::token next )
+	  PAR::token first, PAR::token current )
 {
     min::uns32 count = 0;
-    for ( PAR::token t = first; t != next; t = t->next )
+    for ( PAR::token t = first;
+          t != current; t = t->next )
         ++ count;
 
     min::locatable_gen exp =
@@ -447,7 +448,7 @@ static PAR::token compact
 
     min::locatable_gen element;
     min::locatable_gen str;
-    for ( PAR::token t = first; t != next; )
+    for ( PAR::token t = first; t != current; )
     {
 	if ( t->type != PAR::SYMBOL
 	     &&
@@ -465,7 +466,8 @@ static PAR::token compact
 		str = ::doublequote;
 	    else if ( t->type == LEXSTD::number_t )
 		str = ::number_sign;
-	    else if ( t->type == LEXSTD::natural_number_t )
+	    else if (    t->type
+	              == LEXSTD::natural_number_t )
 		str = ::number_sign;
 	    else
 		MIN_ABORT ( "unexpected token type" );
@@ -489,27 +491,27 @@ static PAR::token compact
         PAR::new_token ( PAR::EXPRESSION );
     token->value = exp;
 
-    PAR::put_before ( parser->first, next, token );
+    PAR::put_before ( parser->first, current, token );
 
     return token;
 }
 
 
 // Parse an explicit subexpression that begins with the
-// `first' token (which is just after the opening
+// `current' token (which is just after the opening
 // bracket or indentation mark).  If more tokens are
-// needed, call parser->input.
+// needed, call parser->input.  Upon return, `current'
+// is the first token AFTER the parsed expression.
 //
 // If indented_paragraph is true, the expression was
-// begun by an indentation mark.  The first token is the
-// line-break token after the indentation mark (and this
-// should be deleted).  The next non-line-break token
-// sets the indentation associated with the indentation
-// mark.
+// begun by an indentation mark.  The current token is
+// the line-break token after the indentation mark (and
+// this is deleted).  The next non-line-break token sets
+// the indentation associated with the indentation mark.
 //
 // Otherwise, if indented_paragraph is false, the
 // expression was begun by the opening bracket, and the
-// first token is the first token after the opening
+// current token is the first token after the opening
 // bracket.
 //
 // The paragraph_indent argument defines the currently
@@ -521,25 +523,30 @@ static PAR::token compact
 // current subexpression terminates just before that
 // token.
 //
-// The closing_bracket argument defines a stack of
-// closing brackets which correspond to the currently
-// active open brackets.  If any are recognized, the
-// current subexpression terminates just before the
-// recoginized bracket.  To be recoginized a closing
-// bracket must be active according as per its
-// selectors.  So its possible a closing bracket not
-// at the top of the stack will be missed because the
-// selectors have been changed and it is not active.
+// The closing_stack argument defines a stack of closing
+// brackets which correspond to the currently active
+// open brackets.  If any are recognized, the current
+// subexpression terminates just after the recoginized
+// bracket, and returns the recognized bracket in the
+// closing_bracket argument (which is otherwise set to
+// NULL_STUB).  To be recoginized, a closing bracket
+// must be active according as per its selectors.  So
+// its possible for a closing bracket not at the top of
+// the stack to be missed because the selectors have
+// been changed and it is not active.  If a closing
+// bracket is returned, `current' is the first token
+// AFTER the closing bracket.
 //
-// This function identifies all the tokens in the sub-
-// expression and returns pointers to the first of these
-// in `first' and to the first token after those in the
-// subexpression in `end' (note that here is always an
-// end-of-file token so there will always be such a 
-// token).  SUBSUBexpressions are converted to an
-// EXPRESSION token whose value is a list.  If there are
-// no tokens in the resullting subexpression, `first' is
-// set equal to `end'.
+// SUBSUBexpressions are converted to an EXPRESSION
+// token whose value is a list.  The tokens beginning
+// with the initial value of `current' can be edited.
+// The caller should save `current->previous' before
+// calling this function, so it and `current' as
+// returned by this function can be used to delimit
+// the subexpression.  Note that in the case of the
+// top level call, there may be no `current->previous',
+// and parser->first will be the first token of the
+// subexpression.
 //
 // This function calls itself recursively if it finds
 // an opening bracket or an indentation mark.  The
@@ -547,14 +554,17 @@ static PAR::token compact
 // mark definitions are active.  When this function
 // calls itself recursively, upon return it wraps all
 // the tokens of the sub-subexpression found into a
-// single EXPRESSION token.
+// single EXPRESSION token, attaches opening brackets
+// and indentation marks as .initiator's of that expres-
+// sion, and any closing bracket as a .terminator of
+// that expression.
 //
 // Line_break tokens are deleted.  Gluing indentation
 // marks are split from line-ending tokens.  Bracket
 // recognition preceeds token splitting and line_break
 // deletion: so the last lexeme of a bracket cannot be
 // the first part of a split token (this should not be
-// a problem as the last lexeme of a bracked should be
+// a problem as the last lexeme of a bracket should be
 // a separator), and multi-lexeme brackets cannot
 // straddle line_breaks.
 //
@@ -571,13 +581,13 @@ struct closing_stack
 static void parse_explicit_subexpression
 	( PAR::parser parser,
 	  bool indented_paragraph,
-	  PAR::token & first,
-	  PAR::token & end,
-	  closing_stack closing,
+	  PAR::token & current,
+	  TAB::closing_bracket & closing_bracket,
+	  ::closing_stack closing_stack,
 	  min::int32 paragraph_indent,
 	  TAB::selectors selectors )
 {
-    PAR::token next = first;
+    closing_bracket = min::NULL_STUB;
 
     min::int32 line_indent =
         - parser->indent_offset;
@@ -586,41 +596,39 @@ static void parse_explicit_subexpression
     {
         // Truncate if end of file.
 	//
-	if ( next->type == LEXSTD::end_of_file_t )
+	if ( current->type == LEXSTD::end_of_file_t )
 	{
 	    if ( line_indent >= 0
 	         &&
-		 line_first != next )
+		 line_first != current )
 	    {
-	        bool is_first = ( line_first == first );
 	        line_first = ::compact
-		    ( parser, line_first, next );
-		if ( is_first ) first = line_first;
+		    ( parser, line_first, current );
 		break;
 	    }
 	}
 
 	// Delete line breaks.
 	//
-	else if ( next->type = LEXSTD::line_break_t )
+	else if ( current->type = LEXSTD::line_break_t )
 	{
-	    if ( next->next == parser->first )
+	    if ( current->next == parser->first )
 	    {
 		parser->input->add_tokens
 		    ( parser, parser->input );
-		assert ( next->next != parser->first );
+		assert
+		    ( current->next != parser->first );
 	    }
 
-	    if ( next == first ) first = next->next;
-	    next = next->next;
-	    remove ( parser->first, next->previous );
+	    current = current->next;
+	    remove ( parser->first, current->previous );
 	    continue;
 	}
 
 	// Complain if token indent is too near
 	// paragraph indent.
 	//
-	int near = (min::int32) next->begin.column
+	int near = (min::int32) current->begin.column
 	         - paragraph_indent;
 	if ( near < 0 ) near = - near;
 	if (    near != 0
@@ -629,26 +637,26 @@ static void parse_explicit_subexpression
 	    parser->printer
 	        << min::bom << min::set_indent ( 7 )
 		<< "ERROR: lexeme indent "
-		<< next->begin.column
+		<< current->begin.column
 		<< " too near paragraph indent "
 		<< paragraph_indent
 		<< "; "
 		<< LEX::pline_numbers
 		       ( parser->input_file,
-		         next->begin,
-			 next->end )
+		         current->begin,
+			 current->end )
 	        << ":" << min::eom;
 	    LEX::print_item_lines
 		( parser->printer,
 		  parser->input_file,
-		  next->begin,
-		  next->end );
+		  current->begin,
+		  current->end );
 	}
 
 	// Complain if token indent is too near
 	// line indent.
 	//
-	near = (min::int32) next->begin.column
+	near = (min::int32) current->begin.column
 	     - line_indent;
 	if ( near < 0 ) near = - near;
 	if (    near != 0
@@ -657,79 +665,94 @@ static void parse_explicit_subexpression
 	    parser->printer
 	        << min::bom << min::set_indent ( 7 )
 		<< "ERROR: lexeme indent "
-		<< next->begin.column
+		<< current->begin.column
 		<< " too near line indent "
 		<< line_indent
 		<< "; "
 		<< LEX::pline_numbers
 		       ( parser->input_file,
-		         next->begin,
-			 next->end )
+		         current->begin,
+			 current->end )
 	        << ":" << min::eom;
 	    LEX::print_item_lines
 		( parser->printer,
 		  parser->input_file,
-		  next->begin,
-		  next->end );
+		  current->begin,
+		  current->end );
 	}
 
 	// Truncate subexpression if token is at or
 	// before line indent.
 	//
-	if (       (min::int32) next->begin.column
+	if (       (min::int32) current->begin.column
 	        <= line_indent
-	     && next != line_first )
+	     && current != line_first )
 	{
 	    assert ( indented_paragraph );
 
-	    if ( next->next == parser->first )
+	    if ( current->next == parser->first )
 	    {
 		parser->input->add_tokens
 		    ( parser, parser->input );
-		assert ( next->next != parser->first );
+		assert
+		    ( current->next != parser->first );
 	    }
-	    next = next->next;
-	    line_first = next;
+	    current = current->next;
+	    line_first = current;
 	    continue;
 	}
 
 	// Truncate subexpression if token is at or
 	// before paragraph indent.
 	//
-	if (    (min::int32) next->begin.column
+	if (    (min::int32) current->begin.column
 	     <= paragraph_indent )
 	    break;
 
 	// Set line_indent if appropriate.
 	//
-	if ( next == first && indented_paragraph )
+	if ( indented_paragraph && line_indent < 0 )
 	{
-	    line_indent = next->begin.column;
-	    line_first = next;
+	    line_indent = current->begin.column;
+	    line_first = current;
 	}
 
 	// Lookup tokens in bracket table.
 	//
 	TAB::root root =
-	    find_entry ( parser, next, selectors,
+	    find_entry ( parser, current, selectors,
 	                 parser->bracket_table );
 	if ( root != min::NULL_STUB )
 	{
-	    // TBD
+	    min::uns32 subtype =
+	        min::packed_subtype_of ( root );
+	    if ( subtype == TAB::OPENING_BRACKET )
+	    {
+		// TBD
+	    }
+	    else if ( subtype == TAB::CLOSING_BRACKET )
+	    {
+		// TBD
+	    }
+	    else if ( subtype == TAB::INDENTATION_MARK )
+	    {
+		// TBD
+	    }
 	}
-
-	// Move to next token.
-	//
-        if ( next->next == parser->first )
+	else
 	{
-	    parser->input->add_tokens
-		( parser, parser->input );
-	    assert ( next->next != parser->first );
+	    // Move to next token.
+	    //
+	    if ( current->next == parser->first )
+	    {
+		parser->input->add_tokens
+		    ( parser, parser->input );
+		assert
+		    ( current->next != parser->first );
+	    }
+	    current = current->next;
 	}
-	next = next->next;
     }
-
-    end = next;
 }
 
 
@@ -784,7 +807,7 @@ void PAR::parse ( PAR::parser parser )
 
 TAB::key_prefix PAR::find_key_prefix
 	( PAR::parser parser,
-	  PAR::token first,
+	  PAR::token & current,
 	  TAB::table table )
 {
     uns32 phash = min::labhash_initial;
@@ -794,9 +817,9 @@ TAB::key_prefix PAR::find_key_prefix
     TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
-        if ( first->type != SYMBOL ) break;
+        if ( current->type != SYMBOL ) break;
 
-	min::gen e = first->value;
+	min::gen e = current->value;
 	uns32 hash;
 	if ( min::is_str ( e ) )
 	    hash = min::strhash ( e );
@@ -830,16 +853,16 @@ TAB::key_prefix PAR::find_key_prefix
 
 	previous = key_prefix;
 
-        if ( first->next == parser->first )
+        if ( current->next == parser->first )
 	{
 	    if ( parser->eof ) break;
 
 	    parser->input->add_tokens
 		( parser, parser->input);
-	    if ( first->next == parser->first ) break;
+	    if ( current->next == parser->first ) break;
 	}
 
-	first = first->next;
+	current = current->next;
     }
 
     return previous;
@@ -847,14 +870,16 @@ TAB::key_prefix PAR::find_key_prefix
 
 TAB::root PAR::find_entry
 	( PAR::parser parser,
-	  PAR::token first,
+	  PAR::token & current,
 	  TAB::selectors selectors,
 	  TAB::table table )
 {
     for ( TAB::key_prefix kprefix =
-              find_key_prefix ( parser, first, table );
+              find_key_prefix
+	          ( parser, current, table );
           kprefix != NULL_STUB;
-	  kprefix = kprefix->previous )
+	  kprefix = kprefix->previous,
+	  current = current->previous )
     for ( TAB::root root = kprefix->first;
 	  root != NULL_STUB;
 	  root = root->next )

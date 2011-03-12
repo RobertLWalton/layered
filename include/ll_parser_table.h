@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 08:03:10 EST 2011
+// Date:	Sat Mar 12 14:09:24 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,6 +53,10 @@ struct root_struct
 	// NULL_STUB if no next entry.
     ll::parser::table::selectors selectors;
         // Selector bits.
+    min::gen label;
+        // Label of hash table entry.  A symbol,
+	// integral number in the range 0 .. 2^28-1,
+	// or MIN label with more than 1 element.
 };
 
 // Key Prefixes

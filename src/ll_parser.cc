@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 12 11:54:14 EST 2011
+// Date:	Sat Mar 12 18:46:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -420,53 +420,62 @@ void PAR::init_output_stream
         ( parser->printer, out );
 }
 
-// Make an expression consisting of the tokens starting
-// at first and ending just before current.  Replace
-// these tokens by the resulting EXPRESSION token.
-// Allow for .initiator, .terminator, and .separator
-// attributes to be added later.  Return the resulting
-// EXPRESSION token.
+// Make an expression consisting of the tokens beginning
+// with `first' and ending just before `next'.  Replace
+// these tokens by the resulting EXPRESSION token.  Add
+// the given .initiator and .terminator if these are not
+// min::MISSING, but also allow for later addition of
+// these and for later addition of a .separator.  The
+// resulting token is next->previous.
 //
 // Any token in the expression being made that is not
-// a SYMBOL or EXPRESSION is replaced by an EXPRESSION
+// a SYMBOL or EXPRESSION is replaced by an expression
 // whose sole element is the token string of the token
 // and whose .initiator is # for a number and " for a
 // quoted string.
 //
-static PAR::token compact
+static void compact
 	( PAR::parser parser,
-	  PAR::token first, PAR::token current )
+	  PAR::token first, PAR::token next,
+	  min::gen initiator = min::MISSING,
+	  min::gen terminator = min::MISSING )
 {
-    min::uns32 count = 0;
+    min::uns32 n = 0;
     for ( PAR::token t = first;
-          t != current; t = t->next )
-        ++ count;
+          t != next; t = t->next )
+        ++ n;
 
     min::locatable_gen exp =
-        min::new_obj_gen ( 3, 12 + count );
+        min::new_obj_gen ( 3, 12 + n );
     min::obj_vec_insptr expvp ( exp );
+    for ( min::uns32 i = 0; i <= n; ++ i )
+	min::attr_push ( expvp, min::MISSING );
 
     min::locatable_gen element;
     min::locatable_gen str;
-    for ( PAR::token t = first; t != current; )
+    min::locatable_ptr<PAR::token> token;
+
+    while ( n -- )
     {
-	if ( t->type != PAR::SYMBOL
+        token = next->previous;
+	if ( token->type != PAR::SYMBOL
 	     &&
-	     t->type != PAR::EXPRESSION )
+	     token->type != PAR::EXPRESSION )
 	{
 	    str = min::new_str_gen
-		( t->string.begin_ptr(),
-		  t->string->length );
+		( token->string.begin_ptr(),
+		  token->string->length );
 	    element = min::new_obj_gen ( 1, 10 );
 	    min::obj_vec_insptr elemvp ( element );
 
 	    min::attr_push ( elemvp, str );
 
-	    if ( t->type == LEXSTD::quoted_string_t )
+	    if (    token->type
+	         == LEXSTD::quoted_string_t )
 		str = ::doublequote;
-	    else if ( t->type == LEXSTD::number_t )
+	    else if ( token->type == LEXSTD::number_t )
 		str = ::number_sign;
-	    else if (    t->type
+	    else if (    token->type
 	              == LEXSTD::natural_number_t )
 		str = ::number_sign;
 	    else
@@ -475,25 +484,52 @@ static PAR::token compact
 	    min::attr_insptr elemap ( elemvp ); 
 	    min::locate ( elemap, ::initiator );
 	    min::set ( elemap, str );
-
-	    min::attr_push ( expvp, element );
 	}
 	else
-	    min::attr_push ( expvp, t->value );
+	    element = token->value;
 
-	t = t->next;
+	min::set_attr ( expvp, n, element );
+
 	PAR::free
-	    ( PAR::remove ( parser->first,
-	                    t->previous ) );
+	    ( PAR::remove ( parser->first, token ) );
     }
 
-    min::locatable_ptr<PAR::token> token =
-        PAR::new_token ( PAR::EXPRESSION );
+    if (    initiator != min::MISSING
+         || terminator != min::MISSING )
+    {
+	min::attr_insptr expap ( expvp ); 
+
+	if ( initiator != min::MISSING )
+	{
+	    min::locate ( expap, ::initiator );
+	    min::set ( expap, initiator );
+	}
+
+	if ( terminator != min::MISSING )
+	{
+	    min::locate ( expap, ::terminator );
+	    min::set ( expap, terminator );
+	}
+    }
+
+    token = PAR::new_token ( PAR::EXPRESSION );
     token->value = exp;
 
-    PAR::put_before ( parser->first, current, token );
+    PAR::put_before ( parser->first, next, token );
+}
 
-    return token;
+// Remove n tokens from before `next', where n is the
+// number of elements of `label' (== 1 if `label' is
+// a symbol or number).
+//
+void remove ( PAR::parser parser,
+              PAR::token next, min::gen label )
+{
+    min::uns32 n = 1;
+    if ( min::is_lab ( label ) )
+        n = min::lablen ( label );
+    while ( n -- )
+        PAR::remove ( parser->first, next->previous );
 }
 
 
@@ -583,7 +619,7 @@ static void parse_explicit_subexpression
 	  bool indented_paragraph,
 	  PAR::token & current,
 	  TAB::closing_bracket & closing_bracket,
-	  ::closing_stack closing_stack,
+	  ::closing_stack & closing_stack,
 	  min::int32 paragraph_indent,
 	  TAB::selectors selectors )
 {
@@ -600,9 +636,9 @@ static void parse_explicit_subexpression
 	{
 	    if ( line_indent >= 0
 	         &&
-		 line_first != current )
+		 current != line_first )
 	    {
-	        line_first = ::compact
+	        ::compact
 		    ( parser, line_first, current );
 		break;
 	    }
@@ -690,16 +726,8 @@ static void parse_explicit_subexpression
 	{
 	    assert ( indented_paragraph );
 
-	    if ( current->next == parser->first )
-	    {
-		parser->input->add_tokens
-		    ( parser, parser->input );
-		assert
-		    ( current->next != parser->first );
-	    }
-	    current = current->next;
+	    ::compact ( parser, line_first, current );
 	    line_first = current;
-	    continue;
 	}
 
 	// Truncate subexpression if token is at or
@@ -728,7 +756,49 @@ static void parse_explicit_subexpression
 	        min::packed_subtype_of ( root );
 	    if ( subtype == TAB::OPENING_BRACKET )
 	    {
-		// TBD
+	        TAB::opening_bracket opening_bracket =
+		    (TAB::opening_bracket) root;
+
+		TAB::selectors new_selectors =
+		    selectors;
+		new_selectors |=
+		    opening_bracket->new_selectors
+		                    .or_selectors;
+		new_selectors &= ~
+		    opening_bracket->new_selectors
+		                    .not_selectors;
+		new_selectors ^=
+		    opening_bracket->new_selectors
+		                    .xor_selectors;
+
+		::closing_stack cstack;
+		cstack.previous = & closing_stack;
+		cstack.closing_bracket =
+		    opening_bracket->closing_bracket;
+
+		PAR::token previous = current->previous;
+		::parse_explicit_subexpression
+		    ( parser, false, current,
+		      closing_bracket, cstack,
+		      line_indent >= 0 ?
+		          line_indent :
+			  paragraph_indent,
+		      new_selectors );
+		PAR::token first = previous->next;
+
+		::remove ( parser, first,
+		           opening_bracket->label );
+		if (    opening_bracket->closing_bracket
+		     != closing_bracket )
+		{
+		    // TBD
+		}
+		else
+		    ::remove ( parser, current,
+		               closing_bracket->label );
+		::compact ( parser, first, current,
+			    opening_bracket->label,
+			    closing_bracket->label );
 	    }
 	    else if ( subtype == TAB::CLOSING_BRACKET )
 	    {

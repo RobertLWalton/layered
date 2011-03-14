@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  5 14:28:00 EST 2011
+// Date:	Mon Mar 14 13:33:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,7 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
 # include <ll_parser_input.h>
+# define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -44,14 +45,16 @@ static void input_init
     ::str_format = min::default_printer_format;
     ::str_format.str_prefix = "";
     ::str_format.str_postfix = "";
-    LEX::init ( parser->scanner );
+    LEX::init
+        ( min::locatable ( parser, parser->scanner ) );
 }
 static void erroneous_atom_announce
 	( min::uns32 first, min::uns32 last,
 	  min::uns32 type, LEX::scanner scanner,
 	  LEX::erroneous_atom erroneous_atom );
 
-void PAR::init_standard_input ( PAR::parser & parser )
+void PAR::init_standard_input
+	( MUP::locatable_var<PAR::parser> parser )
 {
     PAR::init ( PAR::default_standard_input,
                 ::input_add_tokens,
@@ -62,7 +65,7 @@ void PAR::init_standard_input ( PAR::parser & parser )
     PAR::init ( parser );
     LEXSTD::init_standard_program();
     LEX::init_program
-        ( parser->scanner,
+        ( min::locatable ( parser, parser->scanner ),
           LEXSTD::default_program );
     parser->input = PAR::default_standard_input;
     parser->scanner->erroneous_atom =
@@ -241,7 +244,9 @@ static min::uns32 input_add_tokens
 	    break;
 	}
 
-	PAR::put_at_end ( parser->first, token );
+	PAR::put_at_end
+	    ( min::locatable ( parser, parser->first ),
+	      token );
 	++ count;
 
 	if ( trace )

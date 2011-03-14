@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 12 18:46:48 EST 2011
+// Date:	Mon Mar 14 09:56:04 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,7 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
 # include <ll_parser_input.h>
+# define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -115,7 +116,8 @@ PAR::string PAR::free_string ( PAR::string string )
 
     PAR::string_insptr str =
         (PAR::string_insptr) string;
-    str->next = ::free_strings;
+    min::locatable ( str, str->next ) =
+        (PAR::string_insptr) ::free_strings;
     ::free_strings = str;
     ++ ::number_free_strings;
     return min::NULL_STUB;
@@ -219,7 +221,7 @@ static min::packed_struct<PAR::input_struct>
     input_type ( "ll::parser::input_type" );
 
 void PAR::init
-	( PAR::input & input,
+	( MUP::locatable_var<PAR::input> input,
 	  uns32 (*add_tokens)
 	      ( PAR::parser parser, PAR::input input ),
 	  void (*init)
@@ -236,7 +238,7 @@ static min::packed_struct<PAR::output_struct>
     output_type ( "ll::parser::output_type" );
 
 void PAR::init
-	( PAR::output & output,
+	( MUP::locatable_var<PAR::output> output,
 	  void (*remove_tokens)
 	      ( PAR::parser parser,
 	        PAR::output output ),
@@ -255,7 +257,7 @@ static min::packed_struct<PAR::pass_struct>
     pass_type ( "ll::parser::pass_type" );
 
 void PAR::init
-	( PAR::pass & pass,
+	( MUP::locatable_var<PAR::pass> pass,
 	  bool (*run)
 	      ( PAR::parser parser, PAR::pass pass,
 	        PAR::token & first, PAR::token end ),
@@ -276,8 +278,10 @@ void PAR::place
 {
     if ( previous == NULL_STUB )
     {
-        pass->next = parser->pass_stack;
-	parser->pass_stack = pass;
+        min::locatable ( pass, pass->next ) =
+	    parser->pass_stack;
+	min::locatable ( parser, parser->pass_stack ) =
+	    pass;
     }
     else
     {
@@ -287,8 +291,10 @@ void PAR::place
 	{
 	    if ( current == previous )
 	    {
-	        pass->next = current->next;
-		current->next = pass;
+	        min::locatable ( pass, pass->next ) =
+		    current->next;
+		min::locatable
+		    ( current, current->next ) = pass;
 		return;
 	    }
 	}
@@ -335,22 +341,26 @@ static min::packed_vec<TAB::indentation_split>
 
 min::locatable_ptr<PAR::parser> PAR::default_parser;
 
-void PAR::init ( PAR::parser & parser )
+void PAR::init
+	( MUP::locatable_var<PAR::parser> parser )
 {
     if ( parser == NULL_STUB )
     {
         parser = ::parser_type.new_stub();
 	parser->indent_offset = 2;
-	parser->bracket_table =
+	min::locatable
+	    ( parser, parser->bracket_table ) =
 	    ::table_type.new_stub ( 256 );
 	min::push ( parser->bracket_table, 256 );
-	parser->split_table =
+	min::locatable ( parser, parser->split_table ) =
 	    ::split_table_type.new_stub ( 256 );
 	min::push ( parser->split_table, 256 );
     }
 
     PAR::token token;
-    while (    ( token = PAR::remove ( parser->first ) )
+    while (    ( token = PAR::remove
+                     ( min::locatable
+		           ( parser, parser->first ) ) )
             != NULL_STUB )
         PAR::free ( token );
 
@@ -359,7 +369,7 @@ void PAR::init ( PAR::parser & parser )
 }
 
 void PAR::init_input_stream
-	( PAR::parser & parser,
+	( MUP::locatable_var<PAR::parser> parser,
 	  std::istream & in,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -367,12 +377,12 @@ void PAR::init_input_stream
     init ( parser );
 
     min::init_input_stream
-        ( parser->input_file, in,
-	  print_flags, spool_lines );
+        ( min::locatable ( parser, parser->input_file ),
+	  in, print_flags, spool_lines );
 }
 
 void PAR::init_input_file
-	( PAR::parser & parser,
+	( MUP::locatable_var<PAR::parser> parser,
 	  min::file ifile,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -380,12 +390,12 @@ void PAR::init_input_file
     init ( parser );
 
     min::init_input_file
-        ( parser->input_file, ifile,
-	  print_flags, spool_lines );
+        ( min::locatable ( parser, parser->input_file ),
+	  ifile, print_flags, spool_lines );
 }
 
 bool PAR::init_input_named_file
-	( PAR::parser & parser,
+	( MUP::locatable_var<PAR::parser> parser,
 	  min::gen file_name,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -393,12 +403,12 @@ bool PAR::init_input_named_file
     init ( parser );
 
     return min::init_input_named_file
-        ( parser->input_file, file_name,
-	  print_flags, spool_lines );
+        ( min::locatable ( parser, parser->input_file ),
+	  file_name, print_flags, spool_lines );
 }
 
 void PAR::init_input_string
-	( PAR::parser & parser,
+	( MUP::locatable_var<PAR::parser> parser,
 	  const char * data,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -406,18 +416,19 @@ void PAR::init_input_string
     init ( parser );
 
     min::init_input_string
-        ( parser->input_file, data,
-	  print_flags, spool_lines );
+        ( min::locatable ( parser, parser->input_file ),
+	  data, print_flags, spool_lines );
 }
 
 void PAR::init_output_stream
-	( PAR::parser & parser,
+	( MUP::locatable_var<PAR::parser> parser,
 	  std::ostream & out )
 {
     init ( parser );
 
     min::init_output_stream
-        ( parser->printer, out );
+        ( min::locatable ( parser, parser->printer ),
+	  out );
 }
 
 // Make an expression consisting of the tokens beginning
@@ -491,7 +502,10 @@ static void compact
 	min::set_attr ( expvp, n, element );
 
 	PAR::free
-	    ( PAR::remove ( parser->first, token ) );
+	    ( PAR::remove
+	          ( min::locatable
+		        ( parser, parser->first ),
+		    token ) );
     }
 
     if (    initiator != min::MISSING
@@ -513,7 +527,7 @@ static void compact
     }
 
     token = PAR::new_token ( PAR::EXPRESSION );
-    token->value = exp;
+    min::locatable ( token, token->value ) = exp;
 
     PAR::put_before ( parser->first, next, token );
 }
@@ -529,7 +543,10 @@ void remove ( PAR::parser parser,
     if ( min::is_lab ( label ) )
         n = min::lablen ( label );
     while ( n -- )
-        PAR::remove ( parser->first, next->previous );
+        PAR::remove
+	    ( min::locatable
+	        ( parser, parser->first ),
+	      next->previous );
 }
 
 
@@ -657,7 +674,10 @@ static void parse_explicit_subexpression
 	    }
 
 	    current = current->next;
-	    remove ( parser->first, current->previous );
+	    remove
+	        ( min::locatable
+		    ( parser, parser->first ),
+		  current->previous );
 	    continue;
 	}
 
@@ -834,11 +854,13 @@ void PAR::parse ( PAR::parser parser )
         if ( parser->input_file != scanner->input_file )
 	{
 	    if ( parser->input_file == NULL_STUB )
-	        parser->input_file =
-		    scanner->input_file;
+	        min::locatable
+		    ( parser, parser->input_file ) =
+			scanner->input_file;
 	    else if ( scanner->input_file == NULL_STUB )
-	        scanner->input_file =
-		    parser->input_file;
+	        min::locatable
+		    ( scanner, scanner->input_file ) =
+			parser->input_file;
 	    else MIN_ABORT
 	        ( "input_file of parser and"
 		  " parser->scanner are not the same" );
@@ -850,10 +872,13 @@ void PAR::parse ( PAR::parser parser )
         if ( parser->printer != scanner->printer )
 	{
 	    if ( parser->printer == NULL_STUB )
-	        parser->printer =
-		    scanner->printer;
+	        min::locatable
+		    ( parser, parser->printer ) =
+			scanner->printer;
 	    else if ( scanner->printer == NULL_STUB )
-	        scanner->printer = parser->printer;
+	        min::locatable
+		    ( scanner, scanner->printer ) =
+			parser->printer;
 	    else MIN_ABORT
 	        ( "printer of parser and"
 		  " parser->scanner are not the same" );

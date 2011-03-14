@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 12 13:28:53 EST 2011
+// Date:	Mon Mar 14 13:26:01 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -177,10 +177,14 @@ inline void put_before
 	( ll::parser::token t,
 	  ll::parser::token token )
 {
-    token->next = t;
-    token->previous = t->previous;
-    token->previous->next = token;
-    token->next->previous = token;
+    min::locatable ( token, token->next ) =
+        t;
+    min::locatable ( token, token->previous ) =
+        t->previous;
+    min::locatable ( token, token->previous->next ) =
+        token;
+    min::locatable ( token, token->next->previous ) =
+        token;
 }
 
 // Put a token just before a given token t on a list of
@@ -199,7 +203,8 @@ inline void put_before
 // first element.
 //
 inline void put_at_end
-	( ll::parser::token & first,
+	( min::unprotected::locatable_var
+	      <ll::parser::token> first,
 	  ll::parser::token token )
 {
     if ( first == min::NULL_STUB )
@@ -214,7 +219,8 @@ inline void put_at_end
 // token and return the token removed.
 //
 inline ll::parser::token remove
-	( ll::parser::token & first,
+	( min::unprotected::locatable_var
+	      <ll::parser::token> first,
 	  ll::parser::token token )
 {
 
@@ -227,8 +233,12 @@ inline ll::parser::token remove
 	    return token;
 	}
     }
-    token->previous->next = token->next;
-    token->next->previous = token->previous;
+    min::locatable
+        ( token->previous, token->previous->next ) =
+	    token->next;
+    min::locatable
+        ( token->next, token->next->previous ) =
+	    token->previous;
     return token;
 }
 
@@ -236,7 +246,8 @@ inline ll::parser::token remove
 // first token.  Return min::NULL_STUB if list empty.
 //
 inline ll::parser::token remove
-	( ll::parser::token & first )
+	( min::unprotected::locatable_var
+	      <ll::parser::token> first )
 {
     if ( first == min::NULL_STUB )
         return min::NULL_STUB;
@@ -309,7 +320,8 @@ struct input_struct
 // table by garbage collector.
 //
 void init
-	( ll::parser::input & input,
+	( min::unprotected::locatable_var
+	      <ll::parser::input> input,
 	  uns32 (*add_tokens)
 	      ( ll::parser::parser parser,
 	        ll::parser::input input ),
@@ -363,7 +375,8 @@ struct output_struct
 // table by garbage collector.
 //
 void init
-	( ll::parser::output & output,
+	( min::unprotected::locatable_var
+	      <ll::parser::output> output,
 	  void (*remove_tokens)
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ),
@@ -429,7 +442,8 @@ struct pass_struct
 // table by garbage collector.
 //
 void init
-	( ll::parser::pass & pass,
+	( min::unprotected::locatable_var
+	      <ll::parser::pass> pass,
 	  bool (*run)
 	      ( ll::parser::parser parser,
 	        ll::parser::pass pass,
@@ -595,29 +609,38 @@ extern min::locatable_ptr<ll::parser::parser>
 
 // Simply (re)initialize a parser.
 //
-void init ( ll::parser::parser & parser );
+void init
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser );
 
 // Reinitialize and set a parameter.  Some parameters
 // are copied to both parser and any scanner that
 // exists for the parser.
 //
 inline void init_print_flags
-	( ll::parser::parser & parser,
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser,
 	  min::uns32 print_flags )
 {
     init ( parser );
-    min::init_print_flags ( parser->input_file,
-    			    print_flags );
+    min::init_print_flags
+        ( min::locatable
+	      ( parser, parser->input_file ),
+	  print_flags );
 }
 inline void init_printer
-	( ll::parser::parser & parser,
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser,
 	  min::printer printer )
 {
     init ( parser );
-    parser->printer = printer;
+    min::locatable ( parser, parser->printer ) =
+        printer;
     if ( parser->scanner != min::NULL_STUB )
         ll::lexeme::init_printer
-	    ( parser->scanner, printer );
+	    ( min::locatable
+	          ( parser, parser->scanner ),
+	      printer );
 }
 
 // The following initialize the parser and then call
@@ -625,22 +648,26 @@ inline void init_printer
 // parser->input_file.
 //
 void init_input_stream
-	( ll::parser::parser & parser,
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser,
 	  std::istream & istream,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_file
-	( ll::parser::parser & parser,
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser,
 	  min::file ifile,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
 bool init_input_named_file
-	( ll::parser::parser & parser,
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser,
 	  min::gen file_name,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_string
-	( ll::parser::parser & parser,
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser,
 	  const char * data,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
@@ -650,7 +677,8 @@ void init_input_string
 // parser->printer.
 //
 void init_output_stream
-	( ll::parser::parser & parser,
+	( min::unprotected::locatable_var
+              <ll::parser::parser> parser,
 	  std::ostream & ostream );
 
 // Run a parser.  At the end of this function each top

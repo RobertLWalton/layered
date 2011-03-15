@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 13:33:25 EDT 2011
+// Date:	Tue Mar 15 05:44:42 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,7 +54,7 @@ static void erroneous_atom_announce
 	  LEX::erroneous_atom erroneous_atom );
 
 void PAR::init_standard_input
-	( MUP::locatable_var<PAR::parser> parser )
+	( min::ptr<PAR::parser> parser )
 {
     PAR::init ( PAR::default_standard_input,
                 ::input_add_tokens,

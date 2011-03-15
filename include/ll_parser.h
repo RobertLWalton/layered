@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 13:26:01 EDT 2011
+// Date:	Tue Mar 15 05:40:51 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -203,8 +203,7 @@ inline void put_before
 // first element.
 //
 inline void put_at_end
-	( min::unprotected::locatable_var
-	      <ll::parser::token> first,
+	( min::ptr<ll::parser::token> first,
 	  ll::parser::token token )
 {
     if ( first == min::NULL_STUB )
@@ -219,8 +218,7 @@ inline void put_at_end
 // token and return the token removed.
 //
 inline ll::parser::token remove
-	( min::unprotected::locatable_var
-	      <ll::parser::token> first,
+	( min::ptr<ll::parser::token> first,
 	  ll::parser::token token )
 {
 
@@ -246,8 +244,7 @@ inline ll::parser::token remove
 // first token.  Return min::NULL_STUB if list empty.
 //
 inline ll::parser::token remove
-	( min::unprotected::locatable_var
-	      <ll::parser::token> first )
+	( min::ptr<ll::parser::token> first )
 {
     if ( first == min::NULL_STUB )
         return min::NULL_STUB;
@@ -320,8 +317,7 @@ struct input_struct
 // table by garbage collector.
 //
 void init
-	( min::unprotected::locatable_var
-	      <ll::parser::input> input,
+	( min::ptr<ll::parser::input> input,
 	  uns32 (*add_tokens)
 	      ( ll::parser::parser parser,
 	        ll::parser::input input ),
@@ -375,8 +371,7 @@ struct output_struct
 // table by garbage collector.
 //
 void init
-	( min::unprotected::locatable_var
-	      <ll::parser::output> output,
+	( min::ptr<ll::parser::output> output,
 	  void (*remove_tokens)
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ),
@@ -442,8 +437,7 @@ struct pass_struct
 // table by garbage collector.
 //
 void init
-	( min::unprotected::locatable_var
-	      <ll::parser::pass> pass,
+	( min::ptr<ll::parser::pass> pass,
 	  bool (*run)
 	      ( ll::parser::parser parser,
 	        ll::parser::pass pass,
@@ -610,16 +604,14 @@ extern min::locatable_ptr<ll::parser::parser>
 // Simply (re)initialize a parser.
 //
 void init
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser );
+	( min::ptr<ll::parser::parser> parser );
 
 // Reinitialize and set a parameter.  Some parameters
 // are copied to both parser and any scanner that
 // exists for the parser.
 //
 inline void init_print_flags
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser,
+	( min::ptr<ll::parser::parser> parser,
 	  min::uns32 print_flags )
 {
     init ( parser );
@@ -629,8 +621,7 @@ inline void init_print_flags
 	  print_flags );
 }
 inline void init_printer
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser,
+	( min::ptr<ll::parser::parser> parser,
 	  min::printer printer )
 {
     init ( parser );
@@ -648,26 +639,22 @@ inline void init_printer
 // parser->input_file.
 //
 void init_input_stream
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser,
+	( min::ptr<ll::parser::parser> parser,
 	  std::istream & istream,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_file
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser,
+	( min::ptr<ll::parser::parser> parser,
 	  min::file ifile,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
 bool init_input_named_file
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser,
+	( min::ptr<ll::parser::parser> parser,
 	  min::gen file_name,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_string
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser,
+	( min::ptr<ll::parser::parser> parser,
 	  const char * data,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
@@ -677,8 +664,7 @@ void init_input_string
 // parser->printer.
 //
 void init_output_stream
-	( min::unprotected::locatable_var
-              <ll::parser::parser> parser,
+	( min::ptr<ll::parser::parser> parser,
 	  std::ostream & ostream );
 
 // Run a parser.  At the end of this function each top

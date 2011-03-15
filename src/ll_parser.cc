@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 09:56:04 EDT 2011
+// Date:	Tue Mar 15 06:39:48 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -221,7 +221,7 @@ static min::packed_struct<PAR::input_struct>
     input_type ( "ll::parser::input_type" );
 
 void PAR::init
-	( MUP::locatable_var<PAR::input> input,
+	( min::ptr<PAR::input> input,
 	  uns32 (*add_tokens)
 	      ( PAR::parser parser, PAR::input input ),
 	  void (*init)
@@ -238,7 +238,7 @@ static min::packed_struct<PAR::output_struct>
     output_type ( "ll::parser::output_type" );
 
 void PAR::init
-	( MUP::locatable_var<PAR::output> output,
+	( min::ptr<PAR::output> output,
 	  void (*remove_tokens)
 	      ( PAR::parser parser,
 	        PAR::output output ),
@@ -257,7 +257,7 @@ static min::packed_struct<PAR::pass_struct>
     pass_type ( "ll::parser::pass_type" );
 
 void PAR::init
-	( MUP::locatable_var<PAR::pass> pass,
+	( min::ptr<PAR::pass> pass,
 	  bool (*run)
 	      ( PAR::parser parser, PAR::pass pass,
 	        PAR::token & first, PAR::token end ),
@@ -341,8 +341,7 @@ static min::packed_vec<TAB::indentation_split>
 
 min::locatable_ptr<PAR::parser> PAR::default_parser;
 
-void PAR::init
-	( MUP::locatable_var<PAR::parser> parser )
+void PAR::init ( min::ptr<PAR::parser> parser )
 {
     if ( parser == NULL_STUB )
     {
@@ -369,7 +368,7 @@ void PAR::init
 }
 
 void PAR::init_input_stream
-	( MUP::locatable_var<PAR::parser> parser,
+	( min::ptr<PAR::parser> parser,
 	  std::istream & in,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -382,7 +381,7 @@ void PAR::init_input_stream
 }
 
 void PAR::init_input_file
-	( MUP::locatable_var<PAR::parser> parser,
+	( min::ptr<PAR::parser> parser,
 	  min::file ifile,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -395,7 +394,7 @@ void PAR::init_input_file
 }
 
 bool PAR::init_input_named_file
-	( MUP::locatable_var<PAR::parser> parser,
+	( min::ptr<PAR::parser> parser,
 	  min::gen file_name,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -408,7 +407,7 @@ bool PAR::init_input_named_file
 }
 
 void PAR::init_input_string
-	( MUP::locatable_var<PAR::parser> parser,
+	( min::ptr<PAR::parser> parser,
 	  const char * data,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -421,7 +420,7 @@ void PAR::init_input_string
 }
 
 void PAR::init_output_stream
-	( MUP::locatable_var<PAR::parser> parser,
+	( min::ptr<PAR::parser> parser,
 	  std::ostream & out )
 {
     init ( parser );
@@ -527,7 +526,8 @@ static void compact
     }
 
     token = PAR::new_token ( PAR::EXPRESSION );
-    min::locatable ( token, token->value ) = exp;
+    min::locatable ( token, token->value ) =
+        (min::gen) exp;
 
     PAR::put_before ( parser->first, next, token );
 }

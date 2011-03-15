@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 05:44:42 EDT 2011
+// Date:	Tue Mar 15 19:40:52 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,9 +29,9 @@
 // Standard Input Parser
 // -------- ----- ------ ----
 
-min::locatable_ptr<PAR::input>
+min::locatable_var<PAR::input>
     PAR::default_standard_input;
-min::locatable_ptr<LEX::erroneous_atom>
+min::locatable_var<LEX::erroneous_atom>
     PAR::default_standard_erroneous_atom;
 
 static min::uns32 input_add_tokens

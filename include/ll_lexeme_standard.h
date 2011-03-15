@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  5 04:38:31 EST 2011
+// Date:	Tue Mar 15 19:38:20 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,7 +67,7 @@ namespace ll { namespace lexeme { namespace standard {
 
 namespace ll { namespace lexeme { namespace standard {
 
-    extern min::locatable_ptr<ll::lexeme::program>
+    extern min::locatable_var<ll::lexeme::program>
         default_program;
 
     // If ll::lexeme::standard::default_program is not

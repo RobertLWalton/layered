@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 05:41:45 EDT 2011
+// Date:	Tue Mar 15 19:37:59 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,7 +50,7 @@ namespace ll { namespace lexeme {
     typedef min::packed_vec_insptr<uns32> program;
         // Type of a pointer to a program.
 
-    extern min::locatable_ptr<ll::lexeme::program>
+    extern min::locatable_var<ll::lexeme::program>
            default_program;
         // Default program.
 
@@ -79,7 +79,7 @@ namespace ll { namespace lexeme {
             scanner;
 	// See scanner_struct below.
 
-    extern min::locatable_ptr<ll::lexeme::scanner>
+    extern min::locatable_var<ll::lexeme::scanner>
            default_scanner;
         // Default scanner.
 
@@ -88,7 +88,7 @@ namespace ll { namespace lexeme {
             input;
 	// See input_struct below.
 
-    extern min::locatable_ptr<ll::lexeme::input>
+    extern min::locatable_var<ll::lexeme::input>
            default_input;
         // Default value for scanner->read_input.
 	// See scanner->read_input AND scanner->input_
@@ -104,7 +104,7 @@ namespace ll { namespace lexeme {
             erroneous_atom;
 	// See erroneous_atom_struct below.
 
-    extern min::locatable_ptr
+    extern min::locatable_var
 	       <ll::lexeme::erroneous_atom>
            default_erroneous_atom;
         // Default value for scanner->erroneous_atom.

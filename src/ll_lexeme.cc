@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 05:43:28 EDT 2011
+// Date:	Tue Mar 15 19:39:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,13 +77,13 @@ static min::packed_struct<LEX::erroneous_atom_struct>
     erroneous_atom_type
 	( "ll::lexeme::erroneous_atom_type" );
 
-min::locatable_ptr<LEX::program>
+min::locatable_var<LEX::program>
      LEX::default_program;
-min::locatable_ptr<LEX::input>
+min::locatable_var<LEX::input>
      LEX::default_input;
-min::locatable_ptr<LEX::erroneous_atom>
+min::locatable_var<LEX::erroneous_atom>
      LEX::default_erroneous_atom;
-min::locatable_ptr<LEX::scanner>
+min::locatable_var<LEX::scanner>
      LEX::default_scanner;
 
 // Program Construction

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 05:41:17 EDT 2011
+// Date:	Tue Mar 15 19:39:04 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,10 +27,10 @@
 
 namespace ll { namespace parser {
 
-extern min::locatable_ptr<ll::lexeme::erroneous_atom>
+extern min::locatable_var<ll::lexeme::erroneous_atom>
     default_standard_erroneous_atom;
 
-extern min::locatable_ptr<ll::parser::input>
+extern min::locatable_var<ll::parser::input>
     default_standard_input;
 
 // Set a parser input to produce a stream of lexemes

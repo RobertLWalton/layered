@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 01:57:32 EST 2011
+// Date:	Tue Mar 15 19:42:41 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,7 @@ cc
 // Program Construction
 // ------- ------------
 
-cc	min::locatable_ptr<LEX::program>
+cc	min::locatable_var<LEX::program>
 cc	    LEXSTD::default_program;
 cc
 cc	const char * const

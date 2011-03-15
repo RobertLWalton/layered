@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 05:40:51 EDT 2011
+// Date:	Tue Mar 15 19:38:39 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -583,7 +583,7 @@ struct parser_struct
 	// produces finished tokens and calls `output'.
 };
 
-extern min::locatable_ptr<ll::parser::parser>
+extern min::locatable_var<ll::parser::parser>
        default_parser;
 
 // There are several parameters that when set cause a

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 11:25:23 EDT 2011
+// Date:	Tue Mar 15 19:41:12 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -216,9 +216,9 @@ void TAB::push_brackets
 	  const TAB::new_selectors & new_selectors,
 	  TAB::table table )
 {
-    min::locatable_ptr<TAB::opening_bracket> opening;
+    min::locatable_var<TAB::opening_bracket> opening;
     opening = ::opening_bracket_type.new_stub();
-    min::locatable_ptr<TAB::closing_bracket> closing;
+    min::locatable_var<TAB::closing_bracket> closing;
     closing = ::closing_bracket_type.new_stub();
     opening->label = opening_label;
     closing->label = closing_label;
@@ -280,7 +280,7 @@ void TAB::push_indentation_mark
 	  TAB::table bracket_table,
 	  TAB::split_table split_table )
 {
-    min::locatable_ptr<TAB::indentation_mark> imark;
+    min::locatable_var<TAB::indentation_mark> imark;
     imark = ::indentation_mark_type.new_stub();
     imark->label = label;
     imark->selectors = selectors;
@@ -293,7 +293,7 @@ void TAB::push_indentation_mark
 	min::str_ptr s ( label );
 	min::unsptr length = min::strlen ( s );
         MIN_ASSERT ( length > 0 );
-	min::locatable_ptr<TAB::indentation_split>
+	min::locatable_var<TAB::indentation_split>
 	    isplit;
 	isplit = ::indentation_split_type.new_stub
 			( length );

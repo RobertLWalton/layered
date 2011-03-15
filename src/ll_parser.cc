@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 11:25:13 EDT 2011
+// Date:	Tue Mar 15 19:40:28 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,7 +66,7 @@ static min::packed_vec<min::uns32,PAR::string_struct>
 
 // Free list of strings.
 //
-static min::locatable_ptr<PAR::string_insptr>
+static min::locatable_var<PAR::string_insptr>
     free_strings;
 
 static int number_free_strings = 0;
@@ -78,7 +78,7 @@ static int min_string_length = 80;
 PAR::string PAR::new_string
 	( min::uns32 n, const min::uns32 * s )
 {
-    min::locatable_ptr<PAR::string_insptr> str;
+    min::locatable_var<PAR::string_insptr> str;
     str = (PAR::string_insptr) ::free_strings;
     if ( str == min::NULL_STUB )
     {
@@ -165,7 +165,7 @@ static min::packed_struct<PAR::token_struct>
 
 // Free list of tokens.
 //
-static min::locatable_ptr<PAR::token> free_tokens;
+static min::locatable_var<PAR::token> free_tokens;
 
 static int number_free_tokens = 0;
 
@@ -173,7 +173,7 @@ static int max_token_free_list_size = 1000;
 
 PAR::token PAR::new_token ( min::uns32 type )
 {
-    min::locatable_ptr<PAR::token> token;
+    min::locatable_var<PAR::token> token;
     token = remove ( ::free_tokens );
     if ( token == min::NULL_STUB )
         token = ::token_type.new_stub();
@@ -339,7 +339,7 @@ static min::packed_vec<TAB::indentation_split>
         ( "ll::parser::table::split_table_type",
    	  NULL, ::table_stub_disp );
 
-min::locatable_ptr<PAR::parser> PAR::default_parser;
+min::locatable_var<PAR::parser> PAR::default_parser;
 
 void PAR::init ( min::ptr<PAR::parser> parser )
 {
@@ -463,7 +463,7 @@ static void compact
 
     min::locatable_gen element;
     min::locatable_gen str;
-    min::locatable_ptr<PAR::token> token;
+    min::locatable_var<PAR::token> token;
 
     while ( n -- )
     {

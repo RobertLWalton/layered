@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 06:39:48 EDT 2011
+// Date:	Tue Mar 15 11:25:13 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,8 +78,8 @@ static int min_string_length = 80;
 PAR::string PAR::new_string
 	( min::uns32 n, const min::uns32 * s )
 {
-    min::locatable_ptr<PAR::string_insptr>
-        str = ::free_strings;
+    min::locatable_ptr<PAR::string_insptr> str;
+    str = (PAR::string_insptr) ::free_strings;
     if ( str == min::NULL_STUB )
     {
         min::uns32 m = n;
@@ -173,8 +173,8 @@ static int max_token_free_list_size = 1000;
 
 PAR::token PAR::new_token ( min::uns32 type )
 {
-    min::locatable_ptr<PAR::token> token =
-	remove ( ::free_tokens );
+    min::locatable_ptr<PAR::token> token;
+    token = remove ( ::free_tokens );
     if ( token == min::NULL_STUB )
         token = ::token_type.new_stub();
     else
@@ -455,8 +455,8 @@ static void compact
           t != next; t = t->next )
         ++ n;
 
-    min::locatable_gen exp =
-        min::new_obj_gen ( 3, 12 + n );
+    min::locatable_gen exp;
+    exp = min::new_obj_gen ( 3, 12 + n );
     min::obj_vec_insptr expvp ( exp );
     for ( min::uns32 i = 0; i <= n; ++ i )
 	min::attr_push ( expvp, min::MISSING );

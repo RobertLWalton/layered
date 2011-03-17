@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:40:52 EDT 2011
+// Date:	Thu Mar 17 13:56:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -254,7 +254,7 @@ static min::uns32 input_add_tokens
 	    scanner->printer
 	        << LEXSTD::type_name[type]
 		<< ": ";
-	    if ( token->value != min::MISSING )
+	    if ( token->value != min::MISSING() )
 	        scanner->printer
 		    << min::push_parameters
 		    << min::graphic

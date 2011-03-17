@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:40:28 EDT 2011
+// Date:	Thu Mar 17 13:56:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -179,7 +179,7 @@ PAR::token PAR::new_token ( min::uns32 type )
         token = ::token_type.new_stub();
     else
         -- ::number_free_tokens;
-    token->value = min::MISSING;
+    token->value = min::MISSING();
     token->string = min::NULL_STUB;
     token->type = type;
     return token;
@@ -197,7 +197,7 @@ void PAR::free ( PAR::token token )
 	return;
     }
 
-    token->value = min::MISSING;
+    token->value = min::MISSING();
     token->string = free_string ( token->string );
     put_at_end ( ::free_tokens, token );
     ++ ::number_free_tokens;
@@ -434,7 +434,7 @@ void PAR::init_output_stream
 // with `first' and ending just before `next'.  Replace
 // these tokens by the resulting EXPRESSION token.  Add
 // the given .initiator and .terminator if these are not
-// min::MISSING, but also allow for later addition of
+// min::MISSING(), but also allow for later addition of
 // these and for later addition of a .separator.  The
 // resulting token is next->previous.
 //
@@ -447,8 +447,8 @@ void PAR::init_output_stream
 static void compact
 	( PAR::parser parser,
 	  PAR::token first, PAR::token next,
-	  min::gen initiator = min::MISSING,
-	  min::gen terminator = min::MISSING )
+	  min::gen initiator = min::MISSING(),
+	  min::gen terminator = min::MISSING() )
 {
     min::uns32 n = 0;
     for ( PAR::token t = first;
@@ -459,7 +459,7 @@ static void compact
     exp = min::new_obj_gen ( 3, 12 + n );
     min::obj_vec_insptr expvp ( exp );
     for ( min::uns32 i = 0; i <= n; ++ i )
-	min::attr_push ( expvp, min::MISSING );
+	min::attr_push(expvp) = min::MISSING();
 
     min::locatable_gen element;
     min::locatable_gen str;
@@ -478,7 +478,7 @@ static void compact
 	    element = min::new_obj_gen ( 1, 10 );
 	    min::obj_vec_insptr elemvp ( element );
 
-	    min::attr_push ( elemvp, str );
+	    min::attr_push(elemvp) = str;
 
 	    if (    token->type
 	         == LEXSTD::quoted_string_t )
@@ -507,18 +507,18 @@ static void compact
 		    token ) );
     }
 
-    if (    initiator != min::MISSING
-         || terminator != min::MISSING )
+    if (    initiator != min::MISSING()
+         || terminator != min::MISSING() )
     {
 	min::attr_insptr expap ( expvp ); 
 
-	if ( initiator != min::MISSING )
+	if ( initiator != min::MISSING() )
 	{
 	    min::locate ( expap, ::initiator );
 	    min::set ( expap, initiator );
 	}
 
-	if ( terminator != min::MISSING )
+	if ( terminator != min::MISSING() )
 	{
 	    min::locate ( expap, ::terminator );
 	    min::set ( expap, terminator );

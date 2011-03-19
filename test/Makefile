@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Mar  8 23:40:58 EST 2011
+# Date:		Sat Mar 19 04:15:28 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -15,6 +15,10 @@ D = $$
 # The following locates the MIN source code.
 #
 MIN = ~/min
+
+# The following turns on MIN debugging.
+#
+GFLAGS = -DMIN_PROTECT=1
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
@@ -72,7 +76,8 @@ test:		${PROGRAMS:=.test}
 
 min.o:	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
-	${MIN}/src/min.cc
+	${MIN}/src/min.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ${MIN}/src/min.cc
@@ -80,7 +85,8 @@ min.o:	${MIN}/include/min.h \
 min_os.o:	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
         ${MIN}/include/min_os.h \
-	${MIN}/src/min_os.cc
+	${MIN}/src/min_os.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ${MIN}/src/min_os.cc
@@ -90,7 +96,8 @@ min_acc.o:	${MIN}/include/min.h \
         ${MIN}/include/min_acc.h \
         ${MIN}/include/min_acc_parameters.h \
         ${MIN}/include/min_os.h \
-	${MIN}/src/min_acc.cc
+	${MIN}/src/min_acc.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ${MIN}/src/min_acc.cc
@@ -100,7 +107,8 @@ ll_lexeme.o:	\
         ${MIN}/include/min_parameters.h \
 	../include/ll_lexeme.h \
 	../include/ll_lexeme_program_data.h \
-	../src/ll_lexeme.cc
+	../src/ll_lexeme.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme.cc
@@ -110,7 +118,8 @@ ll_lexeme_test.o:	\
         ${MIN}/include/min_parameters.h \
 	../include/ll_lexeme.h \
 	../include/ll_lexeme_program_data.h \
-	../src/ll_lexeme_test.cc
+	../src/ll_lexeme_test.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme_test.cc
@@ -137,7 +146,8 @@ ll_lexeme_ndl.o:	\
 		../src/ll_lexeme_ndl.cc \
 		../include/ll_lexeme.h \
 		../include/ll_lexeme_ndl.h \
-		../include/ll_lexeme_ndl_data.h
+		../include/ll_lexeme_ndl_data.h \
+		Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme_ndl.cc
@@ -164,7 +174,8 @@ ll_lexeme_standard.o:	\
 		${MIN}/include/min_parameters.h \
 		../include/ll_lexeme.h \
 		../include/ll_lexeme_ndl.h \
-		../include/ll_lexeme_standard.h
+		../include/ll_lexeme_standard.h \
+		Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ll_lexeme_standard.cc
@@ -235,7 +246,8 @@ ll_parser.o:	\
 	../include/ll_parser_input.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
-	../src/ll_parser.cc
+	../src/ll_parser.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser.cc
@@ -248,7 +260,8 @@ ll_parser_input.o:	\
 	../include/ll_parser_input.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
-	../src/ll_parser_input.cc
+	../src/ll_parser_input.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_input.cc
@@ -289,7 +302,8 @@ ll_parser_table.o:	\
         ${MIN}/include/min_parameters.h \
 	../include/ll_lexeme.h \
 	../include/ll_parser_table.h \
-	../src/ll_parser_table.cc
+	../src/ll_parser_table.cc \
+	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_table.cc

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:39:46 EDT 2011
+// Date:	Sat Mar 19 05:52:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -703,7 +703,7 @@ bool LEX::convert_program_endianhood
 // ------- --------
 
 void LEX::init
-	( min::ptr<LEX::input> input,
+	( min::ref<LEX::input> input,
 	  bool (*get) ( LEX::scanner scanner,
 			LEX::input input ) )
 {
@@ -713,7 +713,7 @@ void LEX::init
 }
 
 void LEX::init
-	( min::ptr<LEX::erroneous_atom> erroneous_atom,
+	( min::ref<LEX::erroneous_atom> erroneous_atom,
 	  void (* announce )
 	    ( uns32 first, uns32 next, uns32 type,
 	      LEX::scanner scanner,
@@ -819,7 +819,7 @@ static bool is_recursive
 // by garbage collector.
 //
 static void create_scanner
-	( min::ptr<LEX::scanner> scanner )
+	( min::ref<LEX::scanner> scanner )
 {
     LEX::init ( LEX::default_input,
 	        ::default_input_get );
@@ -842,7 +842,7 @@ static void create_scanner
 // statements check this).  Everything else found
 // wrong with the program is a SCAN_ERROR.
 
-void LEX::init ( min::ptr<LEX::scanner> scanner )
+void LEX::init ( min::ref<LEX::scanner> scanner )
 {
 
     if ( scanner == NULL_STUB )
@@ -873,7 +873,7 @@ void LEX::init ( min::ptr<LEX::scanner> scanner )
 }
 
 void LEX::init_program
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  LEX::program program )
 {
     init ( scanner );
@@ -881,7 +881,7 @@ void LEX::init_program
 }
 
 void LEX::init_input_file
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  min::file input_file )
 {
     init ( scanner );
@@ -889,7 +889,7 @@ void LEX::init_input_file
 }
 
 void LEX::init_printer
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  min::printer printer )
 {
     init ( scanner );
@@ -897,7 +897,7 @@ void LEX::init_printer
 }
 
 bool LEX::init_input_named_file
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  min::gen file_name,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -913,7 +913,7 @@ bool LEX::init_input_named_file
 }
 
 void LEX::init_input_stream
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  std::istream & istream,
 	  min::uns32 print_flags,
 	  uns32 spool_lines )
@@ -926,7 +926,7 @@ void LEX::init_input_stream
 }
 
 void LEX::init_input_string
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  const char * data,
 	  min::uns32 print_flags,
 	  uns32 spool_lines )
@@ -939,7 +939,7 @@ void LEX::init_input_string
 }
 
 void LEX::init_input
-	( min::ptr<LEX::scanner> scanner )
+	( min::ref<LEX::scanner> scanner )
 {
     init ( scanner );
     min::init_input
@@ -948,7 +948,7 @@ void LEX::init_input
 }
 
 void LEX::init_print_flags
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  min::uns32 print_flags )
 {
     init ( scanner );
@@ -959,7 +959,7 @@ void LEX::init_print_flags
 }
 
 void LEX::init_spool_lines
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  min::uns32 spool_lines )
 {
     init ( scanner );
@@ -970,7 +970,7 @@ void LEX::init_spool_lines
 }
 
 min::printer LEX::init_output_stream
-	( min::ptr<LEX::scanner> scanner,
+	( min::ref<LEX::scanner> scanner,
 	  std::ostream & out )
 {
     init ( scanner );

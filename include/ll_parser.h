@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 05:50:34 EDT 2011
+// Date:	Sat Mar 19 15:07:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,7 +70,7 @@ struct string_struct
     uns32 max_length;
         // Maximum length of vector.
 
-    string_insptr next;
+    const ll::parser::string_insptr next;
         // Pointer to next block on free list, if string
 	// is on free list.  List is NULL_STUB termina-
 	// ted.
@@ -78,6 +78,9 @@ struct string_struct
     // The elements of a string are uns32 UNICODE
     // characters.
 };
+
+MIN_REF ( ll::parser::string_insptr, next,
+          ll::parser::string_insptr )
 
 // Allocate a new string and return a pointer to it.
 //
@@ -141,7 +144,7 @@ struct token_struct
     min::gen value;
         // Value for names and expressions.
 
-    ll::parser::string string;
+    const ll::parser::string string;
         // Character string for lexemes.
 
     ll::lexeme::position begin, end;
@@ -149,9 +152,16 @@ struct token_struct
         // and of the first character AFTER the token,
 	// or the end of input.
 
-    ll::parser::token next, previous;
+    const ll::parser::token next, previous;
         // Doubly linked list pointers for tokens.
 };
+
+MIN_REF ( ll::parser::string, string,
+          ll::parser::token )
+MIN_REF ( ll::parser::token, next,
+          ll::parser::token )
+MIN_REF ( ll::parser::token, previous,
+          ll::parser::token )
 
 // Allocate a new token of the given type.  Value is set
 // to min:MISSING and string to NULL_STUB.
@@ -191,7 +201,7 @@ inline void put_before
 // tokens headed by first.
 //
 inline void put_before
-	( ll::parser::token & first,
+	( min::ref<ll::parser::token> first,
 	  ll::parser::token t,
 	  ll::parser::token token )
 {
@@ -209,7 +219,7 @@ inline void put_at_end
     if ( first == min::NULL_STUB )
     {
         first = token;
-	token->previous = token->next = token;
+	previous_ref(token) = next_ref(token) = token;
     }
     else put_before ( first, token );
 }
@@ -390,7 +400,7 @@ struct pass_struct
 {
     uns32 control;
 
-    ll::parser::pass next;
+    const ll::parser::pass next;
         // Next pass in the pass stack, or NULL_STUB.
 	// The parser executes passes in `next-later'
 	// order on a subexpression.
@@ -430,6 +440,8 @@ struct pass_struct
 	// description of each token change made in the
 	// parser token list.
 };
+
+MIN_REF ( ll::parser::pass, next, ll::parser::pass )
 
 // Set pass closure functions.  If `pass' is NULL_
 // STUB, create closure and set `pass' to a pointer
@@ -485,7 +497,7 @@ struct parser_struct
 
     // Parser parameters:
 
-    ll::parser::input input;
+    const ll::parser::input input;
         // Closure to call to get more tokens.  If
 	// NULL_STUB when parse function called, set
 	// to ll::parser::default_input, which inputs
@@ -493,7 +505,7 @@ struct parser_struct
 	// ll_parser_input.h.  Set to NULL_STUB when
 	// parser is created.
 
-    ll::parser::output output;
+    const ll::parser::output output;
         // Closure to call to remove finished tokens
 	// from the beginning of the token list.  May
 	// be NULL_STUB if this is not to be done (the
@@ -501,7 +513,7 @@ struct parser_struct
 	// `parse' returns).  Set to NULL_STUB when
 	// parser is created.
 
-    ll::parser::pass pass_stack;
+    const ll::parser::pass pass_stack;
         // List of passes to call for each subexpres-
 	// sion.  If NULL_STUB there are no passes.  Set
 	// to NULL_STUB when parser is created.
@@ -510,7 +522,7 @@ struct parser_struct
         // Trace flags.  Tracing is done to parser->
 	// printer.
 
-    ll::lexeme::scanner scanner;
+    const ll::lexeme::scanner scanner;
         // Scanner for those parser inputs that use a
 	// scanner (such as default_input: see
 	// ll_parser_input.h).  A scanner need NOT be
@@ -525,7 +537,7 @@ struct parser_struct
 	// Ditto for scanner->printer and parser->
 	// printer.
 
-    min::file input_file;
+    const min::file input_file;
         // Input file used to print messages.  If a
 	// scanner is used, this MUST be the same as
 	// scanner->input_file and is also used for
@@ -535,7 +547,7 @@ struct parser_struct
 	// is set to scanner->input_file which must
 	// exist and NOT be NULL_STUB.
 
-    min::printer printer;
+    const min::printer printer;
         // Printer used to print messages.  If a scanner
 	// is used, this MUST be the same as scanner->
 	// printer.  Set to NULL_STUB when the parser is
@@ -544,11 +556,11 @@ struct parser_struct
 	// printer which must exist and NOT be NULL_
 	// STUB.
 
-    ll::parser::table::table bracket_table;
+    const ll::parser::table::table bracket_table;
         // Hash table for brackets and indentation
 	// marks.
 
-    ll::parser::table::split_table split_table;
+    const ll::parser::table::split_table split_table;
         // Table for indentation splits associated with
 	// indentation marks that can be split.
 
@@ -563,7 +575,7 @@ struct parser_struct
 
     // Parser state:
 
-    ll::parser::token first;
+    const ll::parser::token first;
         // First token in token list.  The tokens are a
 	// doubly linked list.  NULL_STUB if this list
 	// is empty.
@@ -582,6 +594,25 @@ struct parser_struct
 	// of the input list.  The `parse' function
 	// produces finished tokens and calls `output'.
 };
+
+MIN_REF ( ll::parser::input, input,
+          ll::parser::parser )
+MIN_REF ( ll::parser::output, output,
+          ll::parser::parser )
+MIN_REF ( ll::parser::pass, pass_stack,
+          ll::parser::parser )
+MIN_REF ( ll::lexeme::scanner, scanner,
+          ll::parser::parser )
+MIN_REF ( min::file, input_file,
+          ll::parser::parser )
+MIN_REF ( min::printer, printer,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::table, bracket_table,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::split_table, split_table,
+          ll::parser::parser )
+MIN_REF ( ll::parser::token, first,
+          ll::parser::parser )
 
 extern min::locatable_var<ll::parser::parser>
        default_parser;

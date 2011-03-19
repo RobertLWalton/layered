@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 05:49:13 EDT 2011
+// Date:	Sat Mar 19 14:51:35 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -634,7 +634,7 @@ namespace ll { namespace lexeme {
 	// The program is a sequence of program
 	// components.  Defaults to NULL_STUB.
 	//
-	ll::lexeme::program program;
+	const ll::lexeme::program program;
 
 	// The input buffer is a vector of inchar
 	// elements each holding a character and the
@@ -645,7 +645,7 @@ namespace ll { namespace lexeme {
 	// Created when the scanner is created, and set
 	// empty by scanner initialization functions.
 	//
-	ll::lexeme::input_buffer input_buffer;
+	const ll::lexeme::input_buffer input_buffer;
 
 	// The line, index, and column of the character
 	// that will be put next at the end of the input
@@ -669,7 +669,7 @@ namespace ll { namespace lexeme {
 	// Created when the scanner is created, and set
 	// empty by scanner initialization functions.
 	//
-	ll::lexeme::translation_buffer
+	const ll::lexeme::translation_buffer
 	    translation_buffer;
 
 	// The scanner parameters are
@@ -698,7 +698,7 @@ namespace ll { namespace lexeme {
 	// STUB when `scan' is first called after
 	// scanner initialization.
 	//
-	ll::lexeme::input read_input;
+	const ll::lexeme::input read_input;
 
 	// ll::lexeme::default_read_input, the default
 	// value of read_input, reads UTF-8 lines from
@@ -737,7 +737,7 @@ namespace ll { namespace lexeme {
 	// if NULL_STUB when `scan' is first called
 	// after scanner initialization.
 	//
-	min::file input_file;
+	const min::file input_file;
 
 	// Closure to call with an error atom as per
 	// ERRONEOUS_ATOM instruction flag.  The atom is
@@ -755,7 +755,7 @@ namespace ll { namespace lexeme {
 	// NULL_STUB when `scan' is first called after
 	// scanner initialization.
 	//
-	ll::lexeme::erroneous_atom erroneous_atom;
+	const ll::lexeme::erroneous_atom erroneous_atom;
 
 	// Printer for default erroneous atom error
 	// messages and tracing.
@@ -769,7 +769,7 @@ namespace ll { namespace lexeme {
 	// when first needed if it is still NULL_STUB at
 	// that time.
 	//
-	min::printer printer;
+	const min::printer printer;
 
 	// Scanner trace flags (see above for values).
 	//
@@ -791,6 +791,23 @@ namespace ll { namespace lexeme {
 	    // elements (0 is first and return_stack_p
 	    // - 1 element is top).
     };
+
+    MIN_REF ( ll::lexeme::program, program,
+              ll::lexeme::scanner )
+    MIN_REF ( ll::lexeme::input_buffer, input_buffer,
+              ll::lexeme::scanner )
+    MIN_REF ( ll::lexeme::translation_buffer,
+              translation_buffer,
+              ll::lexeme::scanner )
+    MIN_REF ( ll::lexeme::input, read_input,
+              ll::lexeme::scanner )
+    MIN_REF ( min::file, input_file,
+              ll::lexeme::scanner )
+    MIN_REF ( ll::lexeme::erroneous_atom,
+              erroneous_atom,
+              ll::lexeme::scanner )
+    MIN_REF ( min::printer, printer,
+              ll::lexeme::scanner )
 
     // Simply (re)initialize a scanner.
     //

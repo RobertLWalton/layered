@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 05:53:02 EDT 2011
+// Date:	Sat Mar 19 15:26:36 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,7 +95,7 @@ PAR::string PAR::new_string
 	    min::resize ( str, n );
 	min::pop ( str, str->length );
     }
-    str->next = min::NULL_STUB;
+    next_ref(str) = min::NULL_STUB;
     min::push ( str, n, s );
     return (PAR::string) str;
 }
@@ -180,7 +180,7 @@ PAR::token PAR::new_token ( min::uns32 type )
     else
         -- ::number_free_tokens;
     token->value = min::MISSING();
-    token->string = min::NULL_STUB;
+    string_ref(token) = min::NULL_STUB;
     token->type = type;
     return token;
 }
@@ -198,7 +198,7 @@ void PAR::free ( PAR::token token )
     }
 
     token->value = min::MISSING();
-    token->string = free_string ( token->string );
+    string_ref(token) = free_string ( token->string );
     put_at_end ( ::free_tokens, token );
     ++ ::number_free_tokens;
 }
@@ -529,7 +529,7 @@ static void compact
     min::locatable ( token, token->value ) =
         (min::gen) exp;
 
-    PAR::put_before ( parser->first, next, token );
+    PAR::put_before ( first_ref(parser), next, token );
 }
 
 // Remove n tokens from before `next', where n is the

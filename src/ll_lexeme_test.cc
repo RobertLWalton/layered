@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:40:09 EDT 2011
+// Date:	Sat Mar 19 15:02:52 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
     LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
 
-    scanner->erroneous_atom =
+    erroneous_atom_ref(scanner) =
         LEX::default_erroneous_atom;
 
     while ( true )
@@ -182,7 +182,7 @@ void LEX::test_input
     LEX::init
 	( ::test_erroneous_atom,
           ::erroneous_atom_announce );
-    scanner->erroneous_atom = ::test_erroneous_atom;
+    erroneous_atom_ref(scanner) = ::test_erroneous_atom;
 
     ::type_code = type_code;
     ::next_line = 0;

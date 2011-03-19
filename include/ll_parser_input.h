@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:39:04 EDT 2011
+// Date:	Sat Mar 19 05:51:31 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -108,7 +108,7 @@ extern min::locatable_var<ll::parser::input>
 //                ::default_standard_erroneous_atom;
 //
 void init_standard_input
-	( min::ptr<ll::parser::parser> parser );
+	( min::ref<ll::parser::parser> parser );
 
 } }
 

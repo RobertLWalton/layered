@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:37:59 EDT 2011
+// Date:	Sat Mar 19 05:49:13 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -555,7 +555,7 @@ namespace ll { namespace lexeme {
     // table by garbage collector.
     //
     void init
-	    ( min::ptr<ll::lexeme::input> input,
+	    ( min::ref<ll::lexeme::input> input,
 	      bool (*get) ( ll::lexeme::scanner scanner,
 	                    ll::lexeme::input input ) );
 
@@ -579,7 +579,7 @@ namespace ll { namespace lexeme {
     // locatable by garbage collector.
     //
     void init
-	    ( min::ptr<ll::lexeme::erroneous_atom>
+	    ( min::ref<ll::lexeme::erroneous_atom>
 	          erroneous_atom,
 	      void (* announce )
 		( uns32 first, uns32 next, uns32 type,
@@ -794,13 +794,13 @@ namespace ll { namespace lexeme {
 
     // Simply (re)initialize a scanner.
     //
-    void init ( min::ptr<ll::lexeme::scanner> scanner );
+    void init ( min::ref<ll::lexeme::scanner> scanner );
 
     // Set initialize the scanner and set the scanner
     // program.
     //
     void init_program
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
               ll::lexeme::program program );
 
     // Reinitialized the scanner and set the scanner->
@@ -808,32 +808,32 @@ namespace ll { namespace lexeme {
     // name.
     //
     bool init_input_named_file
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
 	      min::gen file_name,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_stream
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
 	      std::istream & istream,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
 	      const char * data,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input
-	    ( min::ptr<ll::lexeme::scanner> scanner );
+	    ( min::ref<ll::lexeme::scanner> scanner );
 
     void init_print_flags
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
 	      uns32 print_flags );
 
     void init_spool_lines
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
 	      uns32 spool_lines );
 
     // Reinitialized the scanner and set the scanner->
@@ -841,21 +841,21 @@ namespace ll { namespace lexeme {
     // name.
     //
     min::printer init_output_stream
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
 	      std::ostream & out );
 
     // Reinitialize the scanner and set the scanner
     // printer.
     //
     void init_printer
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
               min::printer printer );
 
     // Reinitialize the scanner and set the scanner
     // input_file.
     //
     void init_input_file
-	    ( min::ptr<ll::lexeme::scanner> scanner,
+	    ( min::ref<ll::lexeme::scanner> scanner,
               min::file input_file );
 
     // Scan the input and return the next lexeme or

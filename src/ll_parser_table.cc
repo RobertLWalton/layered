@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:41:12 EDT 2011
+// Date:	Sat Mar 19 15:41:21 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -150,9 +150,9 @@ TAB::key_prefix TAB::find_key_prefix
 	if ( last == NULL_STUB )
 	    table[hash & mask] = kprefix;
 	else
-	    last->next = kprefix;
-	kprefix->key_element = e;
-	kprefix->previous = previous;
+	    next_ref(last) = kprefix;
+	key_element_ref(kprefix) = e;
+	previous_ref(kprefix) = previous;
 
 	previous = kprefix;
     }
@@ -174,8 +174,8 @@ void TAB::push
 {
     TAB::key_prefix kprefix =
         find_key_prefix ( key, table, true );
-    entry->next = kprefix->first;
-    kprefix->first = entry;
+    next_ref(entry) = kprefix->first;
+    first_ref(kprefix) = entry;
 }
 
 // Brackets
@@ -220,10 +220,10 @@ void TAB::push_brackets
     opening = ::opening_bracket_type.new_stub();
     min::locatable_var<TAB::closing_bracket> closing;
     closing = ::closing_bracket_type.new_stub();
-    opening->label = opening_label;
-    closing->label = closing_label;
-    opening->closing_bracket = closing;
-    closing->opening_bracket = opening;
+    label_ref(opening) = opening_label;
+    label_ref(closing) = closing_label;
+    closing_bracket_ref(opening) = closing;
+    opening_bracket_ref(closing) = opening;
     opening->selectors = selectors;
     closing->selectors = selectors;
     opening->new_selectors = new_selectors;
@@ -282,7 +282,7 @@ void TAB::push_indentation_mark
 {
     min::locatable_var<TAB::indentation_mark> imark;
     imark = ::indentation_mark_type.new_stub();
-    imark->label = label;
+    label_ref(imark) = label;
     imark->selectors = selectors;
     imark->new_selectors = new_selectors;
     TAB::push ( label, (TAB::root) imark,
@@ -300,17 +300,19 @@ void TAB::push_indentation_mark
 	min::push
 	    ( isplit, length, (min::uns8 *) & s[0] );
 	isplit->indentation_mark = imark;
-	imark->indentation_split = isplit;
+	indentation_split_ref(imark) = isplit;
 
 	min::uns8 lastb = s[length - 1];
 
-	TAB::indentation_split * p =
-	    & split_table[lastb];
-	while ( * p != NULL_STUB
+	min::ref<TAB::indentation_split> p =
+	    min::unprotected::new_ref
+	        ( split_table, split_table[lastb] );
+	    // TBD
+	while ( p != NULL_STUB
 	        &&
-		(* p)->length > length )
-	    p = & (* p)->next;
-	isplit->next = * p;
-	* p = isplit;
+		p->length > length )
+	    p = next_ref ( p );
+	next_ref(isplit) = p;
+	p = isplit;
     }
 }

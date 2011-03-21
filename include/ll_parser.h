@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 15:07:25 EDT 2011
+// Date:	Mon Mar 21 14:07:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,6 +158,8 @@ struct token_struct
 
 MIN_REF ( ll::parser::string, string,
           ll::parser::token )
+MIN_REF ( min::gen, value,
+          ll::parser::token )
 MIN_REF ( ll::parser::token, next,
           ll::parser::token )
 MIN_REF ( ll::parser::token, previous,
@@ -187,14 +189,10 @@ inline void put_before
 	( ll::parser::token t,
 	  ll::parser::token token )
 {
-    min::locatable ( token, token->next ) =
-        t;
-    min::locatable ( token, token->previous ) =
-        t->previous;
-    min::locatable ( token, token->previous->next ) =
-        token;
-    min::locatable ( token, token->next->previous ) =
-        token;
+    next_ref(token) = t;
+    previous_ref(token) = t->previous;
+    next_ref(token->previous) = token;
+    previous_ref(token->next) = token;
 }
 
 // Put a token just before a given token t on a list of
@@ -241,12 +239,8 @@ inline ll::parser::token remove
 	    return token;
 	}
     }
-    min::locatable
-        ( token->previous, token->previous->next ) =
-	    token->next;
-    min::locatable
-        ( token->next, token->next->previous ) =
-	    token->previous;
+    next_ref(token->previous) = token->next;
+    previous_ref(token->next) = token->previous;
     return token;
 }
 
@@ -647,8 +641,7 @@ inline void init_print_flags
 {
     init ( parser );
     min::init_print_flags
-        ( min::locatable
-	      ( parser, parser->input_file ),
+        ( input_file_ref(parser),
 	  print_flags );
 }
 inline void init_printer
@@ -656,12 +649,10 @@ inline void init_printer
 	  min::printer printer )
 {
     init ( parser );
-    min::locatable ( parser, parser->printer ) =
-        printer;
+    printer_ref(parser) = printer;
     if ( parser->scanner != min::NULL_STUB )
         ll::lexeme::init_printer
-	    ( min::locatable
-	          ( parser, parser->scanner ),
+	    ( scanner_ref(parser),
 	      printer );
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 05:51:31 EDT 2011
+// Date:	Mon Mar 21 15:44:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,17 +95,14 @@ extern min::locatable_var<ll::parser::input>
 //	ll::parser::init ( parser );
 //	ll::lexeme::standard::init_standard_program();
 //	ll::lexeme::init_program
-//		( min::locatable
-//		      ( parser, parser->scanner ),
+//		( ll::parser::scanner_ref(parser),
 //		  ll::lexeme::standard
 //			    ::default_program );
-//	min::locatable ( parser, parser->input ) =
+//	min::parser::input_ref(parser) =
 //	    ll::parser::default_standard_input;
-//	min::locatable
-//	    ( parser,
-//            parser->scanner->erroneous_atom ) =
-//	        ll::parser
-//                ::default_standard_erroneous_atom;
+//	ll::lexeme::erroneous_atom_ref(parser->scanner)
+//	    =
+//	    ll::parser::default_standard_erroneous_atom;
 //
 void init_standard_input
 	( min::ref<ll::parser::parser> parser );

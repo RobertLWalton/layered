@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 15:26:36 EDT 2011
+// Date:	Mon Mar 21 14:07:14 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -116,8 +116,7 @@ PAR::string PAR::free_string ( PAR::string string )
 
     PAR::string_insptr str =
         (PAR::string_insptr) string;
-    min::locatable ( str, str->next ) =
-        (PAR::string_insptr) ::free_strings;
+    next_ref(str) = ::free_strings;
     ::free_strings = str;
     ++ ::number_free_strings;
     return min::NULL_STUB;
@@ -278,10 +277,8 @@ void PAR::place
 {
     if ( previous == NULL_STUB )
     {
-        min::locatable ( pass, pass->next ) =
-	    parser->pass_stack;
-	min::locatable ( parser, parser->pass_stack ) =
-	    pass;
+        next_ref(pass) = parser->pass_stack;
+	pass_stack_ref(parser) = pass;
     }
     else
     {
@@ -291,10 +288,8 @@ void PAR::place
 	{
 	    if ( current == previous )
 	    {
-	        min::locatable ( pass, pass->next ) =
-		    current->next;
-		min::locatable
-		    ( current, current->next ) = pass;
+	        next_ref(pass) = current->next;
+		next_ref(current) = pass;
 		return;
 	    }
 	}
@@ -347,19 +342,17 @@ void PAR::init ( min::ref<PAR::parser> parser )
     {
         parser = ::parser_type.new_stub();
 	parser->indent_offset = 2;
-	min::locatable
-	    ( parser, parser->bracket_table ) =
+	bracket_table_ref(parser) =
 	    ::table_type.new_stub ( 256 );
 	min::push ( parser->bracket_table, 256 );
-	min::locatable ( parser, parser->split_table ) =
+	split_table_ref(parser) =
 	    ::split_table_type.new_stub ( 256 );
 	min::push ( parser->split_table, 256 );
     }
 
     PAR::token token;
     while (    ( token = PAR::remove
-                     ( min::locatable
-		           ( parser, parser->first ) ) )
+                     ( PAR::first_ref(parser)) )
             != NULL_STUB )
         PAR::free ( token );
 
@@ -376,7 +369,7 @@ void PAR::init_input_stream
     init ( parser );
 
     min::init_input_stream
-        ( min::locatable ( parser, parser->input_file ),
+        ( input_file_ref(parser),
 	  in, print_flags, spool_lines );
 }
 
@@ -389,7 +382,7 @@ void PAR::init_input_file
     init ( parser );
 
     min::init_input_file
-        ( min::locatable ( parser, parser->input_file ),
+        ( input_file_ref(parser),
 	  ifile, print_flags, spool_lines );
 }
 
@@ -402,7 +395,7 @@ bool PAR::init_input_named_file
     init ( parser );
 
     return min::init_input_named_file
-        ( min::locatable ( parser, parser->input_file ),
+        ( input_file_ref(parser),
 	  file_name, print_flags, spool_lines );
 }
 
@@ -415,7 +408,7 @@ void PAR::init_input_string
     init ( parser );
 
     min::init_input_string
-        ( min::locatable ( parser, parser->input_file ),
+        ( input_file_ref(parser),
 	  data, print_flags, spool_lines );
 }
 
@@ -426,7 +419,7 @@ void PAR::init_output_stream
     init ( parser );
 
     min::init_output_stream
-        ( min::locatable ( parser, parser->printer ),
+        ( printer_ref(parser),
 	  out );
 }
 
@@ -502,8 +495,7 @@ static void compact
 
 	PAR::free
 	    ( PAR::remove
-	          ( min::locatable
-		        ( parser, parser->first ),
+	          ( PAR::first_ref(parser),
 		    token ) );
     }
 
@@ -526,8 +518,7 @@ static void compact
     }
 
     token = PAR::new_token ( PAR::EXPRESSION );
-    min::locatable ( token, token->value ) =
-        (min::gen) exp;
+    PAR::value_ref(token) = exp;
 
     PAR::put_before ( first_ref(parser), next, token );
 }
@@ -536,16 +527,15 @@ static void compact
 // number of elements of `label' (== 1 if `label' is
 // a symbol or number).
 //
-void remove ( PAR::parser parser,
-              PAR::token next, min::gen label )
+static void remove ( PAR::parser parser,
+                     PAR::token next, min::gen label )
 {
     min::uns32 n = 1;
     if ( min::is_lab ( label ) )
         n = min::lablen ( label );
     while ( n -- )
         PAR::remove
-	    ( min::locatable
-	        ( parser, parser->first ),
+	    ( PAR::first_ref(parser),
 	      next->previous );
 }
 
@@ -675,8 +665,7 @@ static void parse_explicit_subexpression
 
 	    current = current->next;
 	    remove
-	        ( min::locatable
-		    ( parser, parser->first ),
+	        ( first_ref(parser),
 		  current->previous );
 	    continue;
 	}
@@ -854,12 +843,10 @@ void PAR::parse ( PAR::parser parser )
         if ( parser->input_file != scanner->input_file )
 	{
 	    if ( parser->input_file == NULL_STUB )
-	        min::locatable
-		    ( parser, parser->input_file ) =
+	        input_file_ref(parser) =
 			scanner->input_file;
 	    else if ( scanner->input_file == NULL_STUB )
-	        min::locatable
-		    ( scanner, scanner->input_file ) =
+		LEX::input_file_ref(scanner) =
 			parser->input_file;
 	    else MIN_ABORT
 	        ( "input_file of parser and"
@@ -872,12 +859,10 @@ void PAR::parse ( PAR::parser parser )
         if ( parser->printer != scanner->printer )
 	{
 	    if ( parser->printer == NULL_STUB )
-	        min::locatable
-		    ( parser, parser->printer ) =
+	        printer_ref(parser) =
 			scanner->printer;
 	    else if ( scanner->printer == NULL_STUB )
-	        min::locatable
-		    ( scanner, scanner->printer ) =
+	        LEX::printer_ref(scanner) =
 			parser->printer;
 	    else MIN_ABORT
 	        ( "printer of parser and"

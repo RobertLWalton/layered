@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 15:36:13 EDT 2011
+// Date:	Mon Mar 21 14:09:27 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,8 +45,7 @@ static void input_init
     ::str_format = min::default_printer_format;
     ::str_format.str_prefix = "";
     ::str_format.str_postfix = "";
-    LEX::init
-        ( min::locatable ( parser, parser->scanner ) );
+    LEX::init ( PAR::scanner_ref(parser) );
 }
 static void erroneous_atom_announce
 	( min::uns32 first, min::uns32 last,
@@ -65,7 +64,7 @@ void PAR::init_standard_input
     PAR::init ( parser );
     LEXSTD::init_standard_program();
     LEX::init_program
-        ( min::locatable ( parser, parser->scanner ),
+	( PAR::scanner_ref(parser),
           LEXSTD::default_program );
     input_ref(parser) = PAR::default_standard_input;
     LEX::erroneous_atom_ref(parser->scanner) =
@@ -245,8 +244,7 @@ static min::uns32 input_add_tokens
 	}
 
 	PAR::put_at_end
-	    ( min::locatable ( parser, parser->first ),
-	      token );
+	    ( PAR::first_ref(parser), token );
 	++ count;
 
 	if ( trace )

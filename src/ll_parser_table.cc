@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 24 01:43:30 EDT 2011
+// Date:	Thu Mar 24 08:43:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -304,13 +304,13 @@ void TAB::push_indentation_mark
 
 	min::uns8 lastb = s[length - 1];
 
-	min::ref<TAB::indentation_split>
-	    p ( split_table[lastb] );
-	while ( p != NULL_STUB
+	min::ptr<TAB::indentation_split> p =
+	    & split_table[lastb];
+	while ( * p != NULL_STUB
 	        &&
-		p->length > length )
-	    p <<= next_ref ( p );
-	next_ref(isplit) = p;
-	p = isplit;
+		(*p)->length > length )
+	    p = & next_ref ( * p );
+	next_ref(isplit) = * p;
+	* p = isplit;
     }
 }

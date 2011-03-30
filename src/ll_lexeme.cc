@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 15:38:31 EDT 2011
+// Date:	Wed Mar 30 08:00:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -92,6 +92,18 @@ min::locatable_var<LEX::scanner>
 # define ERR min::init ( min::error_message ) \
     << "LEXICAL PROGRAM CONSTRUCTION ERROR: "
 
+# define PUSH(header,length) \
+    assert (    sizeof ( header ) \
+             == (length) * sizeof ( min::uns32 ) ); \
+    min::push ( program, \
+		(length), \
+                (min::uns32 *) & (header) )
+
+inline min::uns32 round32 ( min::uns32 length )
+{
+    return   ( length + sizeof ( min::uns32 ) - 1 )
+           / sizeof ( min::uns32 );
+}
 
 uns32 LEX::create_table
 	( uns32 mode, LEX::program program )
@@ -105,14 +117,12 @@ uns32 LEX::create_table
     }
 
     uns32 ID = program->length;
-    table_header & h = * (table_header *)
-        & min::push ( program, table_header_length );
-    assert ( sizeof ( h ) ==   table_header_length
-                             * sizeof ( uns32 ) );
+    table_header h;
     h.pctype = TABLE;
     h.mode = mode;
     h.dispatcher_ID = 0;
     h.instruction_ID = 0;
+    PUSH ( h, table_header_length );
 
     // First master table becomes the initial table
     // of the program.
@@ -149,39 +159,44 @@ void LEX::create_program
 	min::resize ( program, 1000 );
     }
 
-    uns32 origin = 4 * (   program_header_length
-                         + 1 + max_type );
-    uns32 length = origin;
-    for ( uns32 t = 0; t <= max_type; ++ t )
-    {
-	if ( type_name == NULL || type_name[t] == NULL )
-	    continue;
-	length += strlen ( type_name[t] ) + 1;
-    }
-    uns32 header_length = ( length + 3 ) / 4;
-
     uns32 ID = program->length;
     assert ( ID == 0 );
-    program_header & h =
-        * (program_header *)
-	& min::push ( program, header_length );
-    assert ( sizeof ( h ) ==   program_header_length
-                             * sizeof ( uns32 ) );
-    h.pctype = PROGRAM;
-    h.max_type = max_type;
-    h.component_length = header_length;
 
+    program_header h;
+    h.pctype = PROGRAM;
+    h.initial_table_ID = 0;
+    h.max_type = max_type;
+    h.component_length = 0;
+    PUSH ( h, program_header_length );
+
+    min::push ( program, max_type + 1 );
+    uns32 length = program_header_length + max_type + 1;
+    uns32 origin = sizeof ( uns32 ) * length;
     for ( uns32 t = 0; t <= max_type; ++ t )
     {
 	if ( type_name == NULL || type_name[t] == NULL )
 	{
-	    program[program_header_length + t] = 0;
+	    program[ID + program_header_length + t] = 0;
 	    continue;
 	}
-	program[program_header_length + t] = origin;
-	strcpy ( (char *) & program[0] + origin,
+	program[ID + program_header_length + t] =
+	    origin;
+
+	uns32 next_origin = origin
+	                  + strlen ( type_name[t] ) + 1;
+	uns32 next_length = ::round32 ( next_origin );
+	min::push ( program, next_length - length );
+
+	strcpy ( (char *) & program[ID] + origin,
 	         type_name[t] );
-	origin += strlen ( type_name[t] ) + 1;
+	origin = next_origin;
+	length = next_length;
+    }
+
+    {
+	program_header & h =
+	    * (program_header *) & program[ID];
+	h.component_length = length;
     }
 }
 
@@ -190,33 +205,28 @@ uns32 LEX::create_dispatcher
 	  uns32 max_ctype,
 	  LEX::program program )
 {
-    uns32 length =
-          dispatcher_header_length
-	+   break_element_length
-	  * ( max_breakpoints + 1 )
-	+   map_element_length
-	  * ( max_ctype + 1 );
+
     uns32 ID = program->length;
-    dispatcher_header & h =
-        * (dispatcher_header *)
-	& min::push ( program, length );
-    assert ( sizeof ( h ) ==   dispatcher_header_length
-                             * sizeof ( uns32 ) );
+    dispatcher_header h;
+    h.pctype = DISPATCHER;
+    h.break_elements = 1;
+    h.max_break_elements = max_breakpoints + 1;
+    h.max_ctype = max_ctype;
+    PUSH ( h, dispatcher_header_length );
+
     assert (    sizeof ( break_element )
              ==   break_element_length
                 * sizeof ( uns32 ) );
     assert (    sizeof ( map_element )
              ==   map_element_length
                 * sizeof ( uns32 ) );
-    h.pctype = DISPATCHER;
-    h.break_elements = 1;
-    h.max_break_elements = max_breakpoints + 1;
-    h.max_ctype = max_ctype;
+    min::push
+        ( program,
+	      break_element_length
+	    * ( max_breakpoints + 1 )
+	  +   map_element_length
+	    * ( max_ctype + 1 ) );
 
-    memset ( & h + 1, 0,
-               sizeof ( uns32 )
-	     * (   length
-	         - dispatcher_header_length ) );
     return ID;
 }
 
@@ -226,20 +236,20 @@ uns32 LEX::create_type_map
 	  LEX::program program )
 {
     assert ( cmax >= cmin );
-    uns32 length = cmax - cmin + 1;
     uns32 ID = program->length;
-    type_map_header & h =
-        * (type_map_header *)
-        & min::push ( program,
-    	                type_map_header_length
-	              + ( length + 3 ) / 4 );
-    assert ( sizeof ( h ) ==   type_map_header_length
-                             * sizeof ( uns32 ) );
+
+    type_map_header h;
     h.pctype = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
     h.singleton_ctype = 0;
-    memcpy ( & h + 1, map, length );
+    PUSH ( h, type_map_header_length );
+
+    uns32 length = cmax - cmin + 1;
+    min::push ( program, ::round32 ( length ) );
+    memcpy ( & program[ID+type_map_header_length],
+             map, length );
+
     return ID;
 }
 
@@ -250,16 +260,15 @@ uns32 LEX::create_type_map
 {
     assert ( cmax >= cmin );
     uns32 ID = program->length;
-    type_map_header & h =
-        * (type_map_header *)
-        & min::push ( program, type_map_header_length );
-    assert ( sizeof ( h ) ==   type_map_header_length
-                             * sizeof ( uns32 ) );
+
+    type_map_header h;
     h.pctype = TYPE_MAP;
     h.cmin = cmin;
     h.cmax = cmax;
     assert ( ctype != 0 );
     h.singleton_ctype = ctype;
+    PUSH ( h, type_map_header_length );
+
     return ID;
 }
 
@@ -363,13 +372,8 @@ uns32 LEX::create_instruction
         assert ( call_table_ID == 0 );
 
     uns32 ID = program->length;
-    instruction_header & h =
-        * (instruction_header *)
-	& min::push ( program,
-    	                instruction_header_length
-	              + translate_to_length );
-    assert ( sizeof ( h ) ==   instruction_header_length
-                             * sizeof ( uns32 ) );
+
+    instruction_header h;
     h.pctype = INSTRUCTION;
     h.operation = operation;
     h.atom_table_ID = atom_table_ID;
@@ -379,11 +383,11 @@ uns32 LEX::create_instruction
     h.output_type = output_type;
     h.goto_table_ID = goto_table_ID;
     h.call_table_ID = call_table_ID;
+    PUSH ( h, instruction_header_length );
 
-    uns32 * p = (uns32 *) ( & h + 1 );
-
-    while ( translate_to_length -- )
-	* p ++ = * translation_vector ++;
+    min::push ( program,
+		translate_to_length,
+                translation_vector );
 
     return ID;
 }

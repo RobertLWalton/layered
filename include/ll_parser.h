@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 21 14:07:23 EDT 2011
+// Date:	Wed Apr  6 12:15:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -557,6 +557,9 @@ struct parser_struct
     const ll::parser::table::split_table split_table;
         // Table for indentation splits associated with
 	// indentation marks that can be split.
+
+    ll::parser::table::selectors selectors;
+        // Top level selectors.
 
     int32 indent_offset;
         // Amount the indentation of a line has to be

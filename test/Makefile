@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Mar 19 04:15:28 EDT 2011
+# Date:		Wed Apr  6 12:52:29 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -266,6 +266,17 @@ ll_parser_input.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_input.cc
 
+ll_parser_table.o:	\
+	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	../include/ll_lexeme.h \
+	../include/ll_parser_table.h \
+	../src/ll_parser_table.cc \
+	Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_parser_table.cc
+
 ll_parser_input_test:		\
 		ll_parser_input_test.cc \
 		ll_lexeme.o \
@@ -273,6 +284,7 @@ ll_parser_input_test:		\
 		ll_lexeme_standard.o \
 		ll_parser.o \
 		ll_parser_input.o \
+		ll_parser_table.o \
 		min.o \
 		min_os.o \
 		min_acc.o \
@@ -285,6 +297,7 @@ ll_parser_input_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_input.o \
+	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \
 	    min_acc.o \
@@ -297,19 +310,9 @@ ll_parser_input_test.out:		\
 	${RUNENV} $* < ll_lexeme_standard_test.in \
 	             > $*.out
 
-ll_parser_table.o:	\
-	${MIN}/include/min.h \
-        ${MIN}/include/min_parameters.h \
-	../include/ll_lexeme.h \
-	../include/ll_parser_table.h \
-	../src/ll_parser_table.cc \
-	Makefile
-	g++ -g ${GFLAGS} \
-	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_parser_table.cc
-
 ll_parser_table_test:		\
 		ll_parser_table_test.cc \
+		ll_lexeme.o \
 		ll_parser.o \
 		ll_parser_table.o \
 		min.o \
@@ -320,6 +323,7 @@ ll_parser_table_test:		\
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_parser.o \
+	    ll_lexeme.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \

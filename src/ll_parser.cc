@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 21 14:07:14 EDT 2011
+// Date:	Wed Apr  6 00:59:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -525,18 +525,39 @@ static void compact
 
 // Remove n tokens from before `next', where n is the
 // number of elements of `label' (== 1 if `label' is
-// a symbol or number).
+// a symbol or number).  Return the begin position of
+// the last token removed.
 //
-static void remove ( PAR::parser parser,
-                     PAR::token next, min::gen label )
+static LEX::position remove
+        ( PAR::parser parser,
+	  PAR::token next, min::gen label )
 {
+    LEX::position result;
     min::uns32 n = 1;
     if ( min::is_lab ( label ) )
         n = min::lablen ( label );
     while ( n -- )
+    {
+        result = next->previous->begin;
         PAR::remove
 	    ( PAR::first_ref(parser),
 	      next->previous );
+    }
+    return result;
+}
+
+// Return the n'th token before `next', where n is the
+// number of elements of `label' (== 1 if `label' is
+// a symbol or number).
+
+static PAR::token backup
+        ( PAR::token next, min::gen label )
+{
+    min::uns32 n = 1;
+    if ( min::is_lab ( label ) )
+        n = min::lablen ( label );
+    while ( n -- ) next = next->previous;
+    return next;
 }
 
 
@@ -544,7 +565,12 @@ static void remove ( PAR::parser parser,
 // `current' token (which is just after the opening
 // bracket or indentation mark).  If more tokens are
 // needed, call parser->input.  Upon return, `current'
-// is the first token AFTER the parsed expression.
+// is the first token AFTER the parsed subexpression.
+// The parsed subexpression is NOT compacted; its end is
+// identified and its SUBSUBexpressions are compacted.
+//
+// It is assumed that there are always more tokens
+// available until an end-of-file token is encountered.
 //
 // If indented_paragraph is true, the expression was
 // begun by an indentation mark.  The current token is
@@ -555,6 +581,10 @@ static void remove ( PAR::parser parser,
 // Otherwise, if indented_paragraph is false, the
 // expression was begun by the opening bracket, and the
 // current token is the first token after the opening
+// bracket.
+//
+// In either case the selectors are those already
+// computed by using the indentation mark or opening
 // bracket.
 //
 // The paragraph_indent argument defines the currently
@@ -572,18 +602,19 @@ static void remove ( PAR::parser parser,
 // subexpression terminates just after the recoginized
 // bracket, and returns the recognized bracket in the
 // closing_bracket argument (which is otherwise set to
-// NULL_STUB).  To be recoginized, a closing bracket
-// must be active according as per its selectors.  So
-// its possible for a closing bracket not at the top of
-// the stack to be missed because the selectors have
-// been changed and it is not active.  If a closing
-// bracket is returned, `current' is the first token
-// AFTER the closing bracket.
+// NULL_STUB).  To be recognized, a closing bracket must
+// be active as per the selectors.  So its possible for
+// a closing bracket not at the top of the stack to be
+// missed because the selectors have been changed and it
+// is not active.  If a closing bracket is returned,
+// `current' is the first token AFTER the closing
+// bracket.
 //
 // SUBSUBexpressions are converted to an EXPRESSION
 // token whose value is a list.  The tokens beginning
 // with the initial value of `current' can be edited.
-// The caller should save `current->previous' before
+// The caller should save `current->previous', which
+// is an indentation mark or opening bracket, before
 // calling this function, so it and `current' as
 // returned by this function can be used to delimit
 // the subexpression.  Note that in the case of the
@@ -612,8 +643,7 @@ static void remove ( PAR::parser parser,
 // straddle line_breaks.
 //
 // This function is called at the top level with indent
-// <= - parser->indent_offset and closing_bracket =
-// NULL_STUB.
+// <= - parser->indent_offset and closing_stack == NULL.
 //
 struct closing_stack
 {
@@ -626,7 +656,7 @@ static void parse_explicit_subexpression
 	  bool indented_paragraph,
 	  PAR::token & current,
 	  TAB::closing_bracket & closing_bracket,
-	  ::closing_stack & closing_stack,
+	  ::closing_stack * closing_stack_p,
 	  min::int32 paragraph_indent,
 	  TAB::selectors selectors )
 {
@@ -644,11 +674,10 @@ static void parse_explicit_subexpression
 	    if ( line_indent >= 0
 	         &&
 		 current != line_first )
-	    {
 	        ::compact
 		    ( parser, line_first, current );
-		break;
-	    }
+
+	    break;
 	}
 
 	// Delete line breaks.
@@ -668,6 +697,14 @@ static void parse_explicit_subexpression
 	        ( first_ref(parser),
 		  current->previous );
 	    continue;
+	}
+
+	// Set line_indent if appropriate.
+	//
+	if ( indented_paragraph && line_indent < 0 )
+	{
+	    line_indent = current->begin.column;
+	    line_first = current;
 	}
 
 	// Complain if token indent is too near
@@ -726,8 +763,8 @@ static void parse_explicit_subexpression
 		  current->end );
 	}
 
-	// Truncate subexpression if token is at or
-	// before line indent.
+	// Truncate line if token is at or before line
+	// indent.
 	//
 	if (       (min::int32) current->begin.column
 	        <= line_indent
@@ -745,14 +782,6 @@ static void parse_explicit_subexpression
 	if (    (min::int32) current->begin.column
 	     <= paragraph_indent )
 	    break;
-
-	// Set line_indent if appropriate.
-	//
-	if ( indented_paragraph && line_indent < 0 )
-	{
-	    line_indent = current->begin.column;
-	    line_first = current;
-	}
 
 	// Lookup tokens in bracket table.
 	//
@@ -781,14 +810,14 @@ static void parse_explicit_subexpression
 		                    .xor_selectors;
 
 		::closing_stack cstack;
-		cstack.previous = & closing_stack;
+		cstack.previous = closing_stack_p;
 		cstack.closing_bracket =
 		    opening_bracket->closing_bracket;
 
 		PAR::token previous = current->previous;
 		::parse_explicit_subexpression
 		    ( parser, false, current,
-		      closing_bracket, cstack,
+		      closing_bracket, & cstack,
 		      line_indent >= 0 ?
 		          line_indent :
 			  paragraph_indent,
@@ -797,21 +826,89 @@ static void parse_explicit_subexpression
 
 		::remove ( parser, first,
 		           opening_bracket->label );
+
 		if (    opening_bracket->closing_bracket
 		     != closing_bracket )
 		{
-		    // TBD
+		        // Found a closing bracket that
+			// is not ours.  It must be in
+			// the closing_stack or else it
+			// would not have been returned.
+
+			PAR::token next = backup
+			    ( current,
+			      closing_bracket->label );
+
+			::compact
+			    ( parser, first, next,
+			      opening_bracket->label,
+			      opening_bracket->
+				  closing_bracket->
+				      label );
+
+			subtype = TAB::CLOSING_BRACKET;
+			root =
+			    (TAB::root) closing_bracket;
+			closing_bracket =
+			    min::NULL_STUB;
+
+			// Fall through to closing
+			// bracket processing just
+			// below.
 		}
 		else
+		{
 		    ::remove ( parser, current,
 		               closing_bracket->label );
-		::compact ( parser, first, current,
-			    opening_bracket->label,
-			    closing_bracket->label );
+		    closing_bracket = min::NULL_STUB;
+		    ::compact ( parser, first, current,
+				opening_bracket->label,
+				opening_bracket->
+				    closing_bracket->
+					label );
+		    continue;
+		}
 	    }
-	    else if ( subtype == TAB::CLOSING_BRACKET )
+
+	    if ( subtype == TAB::CLOSING_BRACKET )
 	    {
-		// TBD
+	        closing_bracket =
+		    (TAB::closing_bracket) root;
+
+		::closing_stack * p;
+		for ( p = closing_stack_p;
+		      p != NULL;
+		      p = p->previous )
+		{
+		    if (    p->closing_bracket
+			 == closing_bracket )
+			break;
+		}
+		if ( p != NULL ) break;
+		else
+		{
+		    LEX::position begin, end;
+		    end = current->previous->end;
+		    begin = ::remove
+			( parser, current,
+			  closing_bracket->label );
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "ERROR: spurious"
+			   " closing bracket"
+			   " found and ignored; "
+			<< LEX::pline_numbers
+			       ( parser->input_file,
+				 begin, end )
+			<< ":" << min::eom;
+		    LEX::print_item_lines
+			( parser->printer,
+			  parser->input_file,
+			  begin, end );
+		    closing_bracket = min::NULL_STUB;
+		    continue;
+		}
 	    }
 	    else if ( subtype == TAB::INDENTATION_MARK )
 	    {
@@ -833,7 +930,6 @@ static void parse_explicit_subexpression
 	}
     }
 }
-
 
 void PAR::parse ( PAR::parser parser )
 {
@@ -877,9 +973,18 @@ void PAR::parse ( PAR::parser parser )
 	( * parser->input->init )
 	    ( parser, parser->input );
 
-    while ( ! parser->eof )
-        parser->input->add_tokens
-	    ( parser, parser->input );
+    parser->input->add_tokens
+	( parser, parser->input );
+
+    PAR::token current = parser->first;
+    TAB::closing_bracket closing_bracket;
+    assert ( current != NULL_STUB );
+    parse_explicit_subexpression
+	( parser, true, current,
+	  closing_bracket,
+	  NULL,
+	  - parser->indent_offset,
+	  parser->selectors );
 }
 
 // Parser Functions

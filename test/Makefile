@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Apr  6 12:52:29 EDT 2011
+# Date:		Fri Apr  8 02:56:37 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -31,7 +31,8 @@ PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_standard_basic_test \
            ll_lexeme_standard_test \
 	   ll_parser_input_test \
-	   ll_parser_table_test
+	   ll_parser_table_test \
+	   ll_parser_explicit_subexpression_test
 
 TESTS = ${PROGRAMS}
 
@@ -334,6 +335,39 @@ ll_parser_table_test.out:		\
 	    ll_parser_table_test
 	rm -f $*.out
 	${RUNENV} $* > $*.out
+
+ll_parser_explicit_subexpression_test:		\
+	    ll_parser_explicit_subexpression_test.cc \
+	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser.o \
+	    ll_parser_input.o \
+	    ll_parser_table.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser.o \
+	    ll_parser_input.o \
+	    ll_parser_table.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    ll_parser_explicit_subexpression_test.cc
+
+ll_parser_explicit_subexpression_test.out:	\
+	    ll_parser_explicit_subexpression_test \
+	    ll_parser_standard_test.in
+	rm -f $*.out
+	${RUNENV} $* < ll_parser_standard_test.in \
+	             > $*.out
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o \

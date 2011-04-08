@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  7 19:05:22 EDT 2011
+// Date:	Fri Apr  8 06:02:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -178,7 +178,7 @@ PAR::token PAR::new_token ( min::uns32 type )
         token = ::token_type.new_stub();
     else
         -- ::number_free_tokens;
-    token->value = min::MISSING();
+    value_ref(token) = min::MISSING();
     string_ref(token) = min::NULL_STUB;
     token->type = type;
     return token;
@@ -196,7 +196,7 @@ void PAR::free ( PAR::token token )
 	return;
     }
 
-    token->value = min::MISSING();
+    value_ref(token) = min::MISSING();
     string_ref(token) = free_string ( token->string );
     put_at_end ( ::free_tokens, token );
     ++ ::number_free_tokens;
@@ -453,7 +453,7 @@ static void compact
         ++ n;
 
     min::locatable_gen exp;
-    exp = min::new_obj_gen ( 3, 12 + n );
+    exp = min::new_obj_gen ( 12 + n, 3 );
     min::obj_vec_insptr expvp ( exp );
     for ( min::uns32 i = 0; i <= n; ++ i )
 	min::attr_push(expvp) = min::MISSING();
@@ -467,12 +467,14 @@ static void compact
         token = next->previous;
 	if ( token->type != PAR::SYMBOL
 	     &&
+	     token->type != PAR::NATURAL_NUMBER
+	     &&
 	     token->type != PAR::EXPRESSION )
 	{
 	    str = min::new_str_gen
 		( token->string.begin_ptr(),
 		  token->string->length );
-	    element = min::new_obj_gen ( 1, 10 );
+	    element = min::new_obj_gen ( 10, 1 );
 	    min::obj_vec_insptr elemvp ( element );
 
 	    min::attr_push(elemvp) = str;
@@ -497,6 +499,7 @@ static void compact
 
 	min::set_attr ( expvp, n, element );
 
+	assert ( token != next );
 	PAR::free
 	    ( PAR::remove
 	          ( PAR::first_ref(parser),
@@ -686,6 +689,7 @@ static void parse_explicit_subexpression
     min::int32 line_indent =
         - parser->indent_offset;
     PAR::token line_first;
+    bool after_line_break = false;
     while ( true )
     {
         // Truncate if end of file.
@@ -707,7 +711,8 @@ static void parse_explicit_subexpression
 
 	// Delete line breaks.
 	//
-	else if ( current->type = LEXSTD::line_break_t )
+	else if (    current->type
+	          == LEXSTD::line_break_t )
 	{
 	    if ( current->next == parser->first )
 	    {
@@ -721,94 +726,102 @@ static void parse_explicit_subexpression
 	    remove
 	        ( first_ref(parser),
 		  current->previous );
+	    after_line_break = true;
 	    continue;
 	}
 
-	// Set line_indent if appropriate.
-	//
-	if ( indented_paragraph && line_indent < 0 )
+	if ( after_line_break )
 	{
-	    line_indent = current->begin.column;
-	    line_first = current;
+	    after_line_break = false;
+
+	    // Set line_indent if appropriate.
+	    //
+	    if ( indented_paragraph && line_indent < 0 )
+	    {
+		line_indent = current->begin.column;
+		line_first = current;
+	    }
+
+	    // Complain if token indent is too near
+	    // paragraph indent.
+	    //
+	    int near = (min::int32)
+	    	       current->begin.column
+		     - paragraph_indent;
+	    if ( near < 0 ) near = - near;
+	    if (    near != 0
+		 && near < parser->indent_offset )
+	    {
+		parser->printer
+		    << min::bom << min::set_indent ( 7 )
+		    << "ERROR: lexeme indent "
+		    << current->begin.column
+		    << " too near paragraph indent "
+		    << paragraph_indent
+		    << "; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     current->begin,
+			     current->end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      current->begin,
+		      current->end );
+	    }
+
+	    // Complain if token indent is too near
+	    // line indent.
+	    //
+	    near = (min::int32) current->begin.column
+		 - line_indent;
+	    if ( near < 0 ) near = - near;
+	    if (    near != 0
+		 && near < parser->indent_offset )
+	    {
+		parser->printer
+		    << min::bom << min::set_indent ( 7 )
+		    << "ERROR: lexeme indent "
+		    << current->begin.column
+		    << " too near line indent "
+		    << line_indent
+		    << "; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     current->begin,
+			     current->end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      current->begin,
+		      current->end );
+	    }
+
+	    // Truncate line if token is at or before
+	    // line indent.
+	    //
+	    if (       (min::int32)
+	               current->begin.column
+		    <= line_indent
+		 && current != line_first )
+	    {
+		assert ( indented_paragraph );
+
+		::compact ( parser, line_first, current,
+			    line_first->begin,
+			    current->previous->end );
+		line_first = current;
+	    }
+
+	    // Truncate subexpression if token is at or
+	    // before paragraph indent.
+	    //
+	    if (    (min::int32) current->begin.column
+		 <= paragraph_indent )
+		break;
 	}
-
-	// Complain if token indent is too near
-	// paragraph indent.
-	//
-	int near = (min::int32) current->begin.column
-	         - paragraph_indent;
-	if ( near < 0 ) near = - near;
-	if (    near != 0
-	     && near < parser->indent_offset )
-	{
-	    parser->printer
-	        << min::bom << min::set_indent ( 7 )
-		<< "ERROR: lexeme indent "
-		<< current->begin.column
-		<< " too near paragraph indent "
-		<< paragraph_indent
-		<< "; "
-		<< LEX::pline_numbers
-		       ( parser->input_file,
-		         current->begin,
-			 current->end )
-	        << ":" << min::eom;
-	    LEX::print_item_lines
-		( parser->printer,
-		  parser->input_file,
-		  current->begin,
-		  current->end );
-	}
-
-	// Complain if token indent is too near
-	// line indent.
-	//
-	near = (min::int32) current->begin.column
-	     - line_indent;
-	if ( near < 0 ) near = - near;
-	if (    near != 0
-	     && near < parser->indent_offset )
-	{
-	    parser->printer
-	        << min::bom << min::set_indent ( 7 )
-		<< "ERROR: lexeme indent "
-		<< current->begin.column
-		<< " too near line indent "
-		<< line_indent
-		<< "; "
-		<< LEX::pline_numbers
-		       ( parser->input_file,
-		         current->begin,
-			 current->end )
-	        << ":" << min::eom;
-	    LEX::print_item_lines
-		( parser->printer,
-		  parser->input_file,
-		  current->begin,
-		  current->end );
-	}
-
-	// Truncate line if token is at or before line
-	// indent.
-	//
-	if (       (min::int32) current->begin.column
-	        <= line_indent
-	     && current != line_first )
-	{
-	    assert ( indented_paragraph );
-
-	    ::compact ( parser, line_first, current,
-		        line_first->begin,
-		        current->previous->end );
-	    line_first = current;
-	}
-
-	// Truncate subexpression if token is at or
-	// before paragraph indent.
-	//
-	if (    (min::int32) current->begin.column
-	     <= paragraph_indent )
-	    break;
 
 	// Lookup tokens in bracket table.
 	//

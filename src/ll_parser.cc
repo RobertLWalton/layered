@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  6 00:59:03 EDT 2011
+// Date:	Thu Apr  7 19:05:22 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -428,8 +428,10 @@ void PAR::init_output_stream
 // these tokens by the resulting EXPRESSION token.  Add
 // the given .initiator and .terminator if these are not
 // min::MISSING(), but also allow for later addition of
-// these and for later addition of a .separator.  The
-// resulting token is next->previous.
+// these and for later addition of a .separator.  Set
+// the begin and end positions of the new token from the
+// given arguments.  The resulting token is next->
+// previous.
 //
 // Any token in the expression being made that is not
 // a SYMBOL or EXPRESSION is replaced by an expression
@@ -440,6 +442,8 @@ void PAR::init_output_stream
 static void compact
 	( PAR::parser parser,
 	  PAR::token first, PAR::token next,
+	  LEX::position begin,
+	  LEX::position end,
 	  min::gen initiator = min::MISSING(),
 	  min::gen terminator = min::MISSING() )
 {
@@ -519,8 +523,25 @@ static void compact
 
     token = PAR::new_token ( PAR::EXPRESSION );
     PAR::value_ref(token) = exp;
+    token->begin = begin;
+    token->end = end;
 
     PAR::put_before ( first_ref(parser), next, token );
+
+    if (   parser->trace
+         & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS )
+    {
+	    parser->printer
+	        << "EXPRESSION: "
+		<< min::pgen ( token->value )
+		<< LEX::pline_numbers
+		        ( parser->input_file,
+			  begin, end )
+		<< ":" << min::eol;
+	    LEX::print_item_lines
+		( parser->printer,
+		  parser->input_file, begin, end );
+    }
 }
 
 // Remove n tokens from before `next', where n is the
@@ -671,11 +692,15 @@ static void parse_explicit_subexpression
 	//
 	if ( current->type == LEXSTD::end_of_file_t )
 	{
+	    // Truncate any incomplete line.
+	    //
 	    if ( line_indent >= 0
 	         &&
 		 current != line_first )
 	        ::compact
-		    ( parser, line_first, current );
+		    ( parser, line_first, current,
+		      line_first->begin,
+		      current->previous->end );
 
 	    break;
 	}
@@ -772,7 +797,9 @@ static void parse_explicit_subexpression
 	{
 	    assert ( indented_paragraph );
 
-	    ::compact ( parser, line_first, current );
+	    ::compact ( parser, line_first, current,
+		        line_first->begin,
+		        current->previous->end );
 	    line_first = current;
 	}
 
@@ -824,8 +851,9 @@ static void parse_explicit_subexpression
 		      new_selectors );
 		PAR::token first = previous->next;
 
-		::remove ( parser, first,
-		           opening_bracket->label );
+		LEX::position begin =
+		    ::remove ( parser, first,
+			       opening_bracket->label );
 
 		if (    opening_bracket->closing_bracket
 		     != closing_bracket )
@@ -841,6 +869,8 @@ static void parse_explicit_subexpression
 
 			::compact
 			    ( parser, first, next,
+			      begin,
+			      next->previous->end,
 			      opening_bracket->label,
 			      opening_bracket->
 				  closing_bracket->
@@ -858,10 +888,13 @@ static void parse_explicit_subexpression
 		}
 		else
 		{
+		    LEX::position end =
+			current->previous->end;
 		    ::remove ( parser, current,
 		               closing_bracket->label );
 		    closing_bracket = min::NULL_STUB;
 		    ::compact ( parser, first, current,
+				begin, end,
 				opening_bracket->label,
 				opening_bracket->
 				    closing_bracket->

@@ -479,9 +479,12 @@ enum {
         // Trace each token input by the parser->input
 	// closure (e.g. from the lexical scanner).
 
-    TRACE_OUTPUT	= ( 1 << 1 )
+    TRACE_OUTPUT	= ( 1 << 1 ),
         // Trace processing by the parser->output
 	// closure.
+
+    TRACE_EXPLICIT_SUBEXPRESSIONS = ( 1 << 2 )
+        // Trace explicit subexpressions.
 };
 
 struct parser_struct

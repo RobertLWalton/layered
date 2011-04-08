@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 21 14:09:27 EDT 2011
+// Date:	Fri Apr  8 05:51:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -121,6 +121,7 @@ static min::uns32 input_add_tokens
     bool trace = ( parser->trace & PAR::TRACE_INPUT );
 
     min::uns32 first, next, count = 0;
+    min::locatable_var<PAR::token> token;
     while ( true )
     {
         min::uns32 type =
@@ -170,7 +171,7 @@ static min::uns32 input_add_tokens
 	    if ( skip ) continue;
 	}
 
-	PAR::token token = PAR::new_token( type );
+	token = PAR::new_token( type );
 	token->begin = first < input_buffer->length ?
 		       input_buffer[first] :
 		       scanner->next_position;
@@ -185,7 +186,7 @@ static min::uns32 input_add_tokens
 	case LEXSTD::separator_t:
 	{
 	    token->type = PAR::SYMBOL;
-	    token->value = min::new_str_gen
+	    value_ref(token) = min::new_str_gen
 	        ( translation_buffer.begin_ptr(),
 		  translation_buffer->length );
 	    break;
@@ -214,7 +215,7 @@ static min::uns32 input_add_tokens
 		{
 		    token->type =
 		        PAR::NATURAL_NUMBER;
-		    token->value =
+		    value_ref(token) =
 		        min::new_num_gen ( (int) v );
 		    break;
 		}

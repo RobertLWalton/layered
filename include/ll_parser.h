@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  6 12:15:15 EDT 2011
+// Date:	Fri Apr  8 09:31:13 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -141,7 +141,7 @@ struct token_struct
 	//
     	//	EXPRESSION
 
-    min::gen value;
+    const min::gen value;
         // Value for names and expressions.
 
     const ll::parser::string string;
@@ -253,7 +253,7 @@ inline ll::parser::token remove
     if ( first == min::NULL_STUB )
         return min::NULL_STUB;
     else
-    	remove ( first, first );
+    	return remove ( first, first );
 }
 
 } }

@@ -1,0 +1,14 @@
+// Layers Language Standard Parser Test Data
+//
+// File:	ll_parser_standard_test.in
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Fri Apr  8 02:50:59 EDT 2011
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+This is a line;
+This is a line containing a "quoted string".
+This is a line containing a large number
+     12345678901234567890.

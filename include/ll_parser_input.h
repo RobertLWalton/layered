@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 21 15:44:23 EDT 2011
+// Date:	Fri May  6 01:13:49 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,7 +67,7 @@ extern min::locatable_var<ll::parser::input>
 //			    no token,
 //			        output error message
 //    non_letter_escape_sequence_t
-//			    erroneous atom,
+//			    ignore erroneous atom,
 //				output error message
 //
 // The token type is either the lexeme type or SYMBOL

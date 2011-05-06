@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 15:16:02 EDT 2011
+// Date:	Fri May  6 01:14:16 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,12 +32,9 @@ namespace ll { namespace parser { namespace table {
     using min::NULL_STUB;
 
     typedef min::uns64 selectors;
-} } }
 
 // Roots
 // -----
-
-namespace ll { namespace parser { namespace table {
 
 // All hash table entries begin with a root.
 //
@@ -57,6 +54,8 @@ struct root_struct
         // Label of hash table entry.  A symbol,
 	// integral number in the range 0 .. 2^28-1,
 	// or MIN label with more than 1 element.
+	// Also called the `key' of the hash table
+	// entry.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -79,24 +78,30 @@ MIN_REF ( min::gen, label,
 // A key prefix is an initial segment of a key, viewing
 // the key as a list of key elements.
 //
-// A hash table more specifically takes key prefix and
-// finds for each a key_prefix structure whose `label'
-// is the key prefix.  The key_prefix structure points
-// at the list of hash table entries whose keys equal
-// the label of the key prefix structure, if there
-// are such entries.
+// A hash table more specifically takes a key prefix and
+// finds a key_prefix structure whose key is the key
+// prefix.  The key_prefix structure points at the list
+// of hash table entries whose labels equal the key of
+// the key prefix structure, if there are such entries.
 //
-// Thus if there is a hash table entry with key [A B C],
-// there will be key_prefix structures labelled A,
-// [A B], and [A B C], but only the last necessarily
-// points at a non-empty list of hash table entries,
-// which would consist of all entries with key [A B C].
+// Thus if there is a hash table entry with label
+// [A B C], there will be key_prefix structures with
+// keys A, [A B], and [A B C], but only the last
+// necessarily points at a non-empty list of hash table
+// entries, which would consist of all entries with
+// label [A B C].
+//
+// The key K of a key prefix is not stored directly in
+// the key prefix structure.  Rather the last `key_
+// element' of K is stored, along with a `previous'
+// pointer that points to the key prefix whose key is
+// the all the key elements of K but the last.
 //
 // The hash code of a key_prefix is the hash code of its
-// label.  More specifically, if the label has just one
-// key element, which must necessarily be a symbol or an
-// integer, the hash is the hash of that element, and
-// if the label has more than one key element, the hash
+// key.  More specifically, if the key has just one
+// element, which must necessarily be a symbol or a
+// natural number, the hash is the hash of that element,
+// and if the key has more than one element, the hash
 // is the hash as per min::labhash of the label made
 // from the key elements.
 //
@@ -107,18 +112,22 @@ struct key_prefix_struct
 {
     uns32 control;
 	// Packed structure subtype is KEY_PREFIX.
+
     const min::gen key_element;
-        // Key element of this entry.
+        // Last element of the key of this key prefix.
     const ll::parser::table::key_prefix previous;
-        // Entry for label prefix ending just before
-	// this key element, or NULL_STUB if none,
-	// i.e., if this is the first key element of the
-	// label.
-    const ll::parser::table::root first;
-        // First hash table entry whose label ends with
-	// this key element, or NULL_STUB if none.
+        // Entry for key prefix whose key consists of
+	// all the key elements of this prefix but the
+	// last, or NULL_STUB if none (because the key
+	// of this key prefix has only one element).
+
     const ll::parser::table::key_prefix next;
         // Next key prefix in hash list.
+
+    const ll::parser::table::root first;
+        // First hash table entry whose label equals
+	// the key of this key prefix, or NULL_STUB
+	// if none.
 };
 
 MIN_REF ( min::gen, key_element,
@@ -136,8 +145,13 @@ MIN_REF ( ll::parser::table::key_prefix, next,
 typedef min::packed_vec_insptr
 	    <ll::parser::table::key_prefix> table;
 
+// Create a hash table of given length which MUST BE a
+// power of two.
+//
+ll::parser::table::table create_table ( uns32 length );
+
 // Return the hash table key_prefix with the given key.
-// If none and `create' is true, create key_prefix.
+// If none and `create' is true, create the key_prefix.
 // If none and `create' is false, return NULL_STUB.
 //
 ll::parser::table::key_prefix find_key_prefix
@@ -145,19 +159,18 @@ ll::parser::table::key_prefix find_key_prefix
 	  ll::parser::table::table table,
 	  bool create = false );
 
-// Return hash table entry with the given key, or
-// NULL_STUB if none.
+// Return the hash table entry with the given key, or
+// NULL_STUB if there is none.
 //
 ll::parser::table::root find
 	( min::gen key,
 	  ll::parser::table::table table );
 
-// Push the given hash table entry into a hash table
-// stack for the given key.
+// Push the given hash table entry into to the top of
+// the hash table stack for key = entry->label.
 //
-void push ( min::gen key,
-            ll::parser::table::root entry,
-            ll::parser::table::table table );
+void push ( ll::parser::table::table table,
+            ll::parser::table::root entry );
 
 struct new_selectors
      // Upon encountering opening bracket or indentation
@@ -224,16 +237,12 @@ struct closing_bracket_struct : public root_struct
         // The opposing bracket of the closing bracket.
 };
 
-MIN_REF ( ll::parser::table::root, next,
-          ll::parser::table::opening_bracket )
 MIN_REF ( min::gen, label,
           ll::parser::table::opening_bracket )
 MIN_REF ( ll::parser::table::closing_bracket,
           closing_bracket,
           ll::parser::table::opening_bracket )
 
-MIN_REF ( ll::parser::table::root, next,
-          ll::parser::table::closing_bracket )
 MIN_REF ( min::gen, label,
           ll::parser::table::closing_bracket )
 MIN_REF ( ll::parser::table::opening_bracket,
@@ -280,6 +289,12 @@ typedef min::packed_vec_insptr
 	    <ll::parser::table::indentation_split>
 	split_table;
 
+// Create an indentation split table.  Note that the
+// length is always 256 (table index is uns8).
+//
+ll::parser::table::split_table create_split_table
+	( void );
+
 struct indentation_mark_struct : public root_struct
 {
     ll::parser::table::new_selectors new_selectors;
@@ -290,8 +305,6 @@ struct indentation_mark_struct : public root_struct
 	// If non-gluing, NULL_STUB.
 };
 
-MIN_REF ( ll::parser::table::root, next,
-          ll::parser::table::indentation_mark )
 MIN_REF ( min::gen, label,
           ll::parser::table::indentation_mark )
 MIN_REF ( ll::parser::table::indentation_split,
@@ -309,7 +322,7 @@ struct indentation_split_struct
 	// whose head is an indentation_split table
 	// element.
 
-    ll::parser::table::indentation_mark
+    const ll::parser::table::indentation_mark
 	    indentation_mark;
 	// Indentation_mark associated with split.
 

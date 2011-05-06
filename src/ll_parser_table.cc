@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 24 08:43:46 EDT 2011
+// Date:	Fri May  6 01:27:13 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,10 @@
 // Roots
 // -----
 
+static min::uns32 root_gen_disp[] = {
+    min::DISP ( & TAB::root_struct::label ),
+    min::DISP_END };
+
 static min::uns32 root_stub_disp[] = {
     min::DISP ( & TAB::root_struct::next ),
     min::DISP_END };
@@ -32,7 +36,7 @@ static min::uns32 root_stub_disp[] = {
 static min::packed_struct<TAB::root_struct>
     root_type 
 	( "ll::parser::table::root_type",
-	  NULL, ::root_stub_disp );
+	  ::root_gen_disp, ::root_stub_disp );
 
 // Key Prefixes
 // --- --------
@@ -53,13 +57,22 @@ static min::packed_struct<TAB::key_prefix_struct>
 	  ::key_prefix_gen_disp,
 	  ::key_prefix_stub_disp );
 
-static min::uns32 table_gen_disp[] = {
+static min::uns32 table_stub_disp[] = {
     0, min::DISP_END };
 
 static min::packed_vec<TAB::key_prefix>
     table_type
         ( "ll::parser::table::table_type",
-	   ::table_gen_disp );
+	   NULL, ::table_stub_disp );
+
+TAB::table TAB::create_table ( uns32 length )
+{
+    // Check for power of two.
+    //
+    assert ( ( length & ( length -1 ) ) == 0 );
+
+    return ::table_type.new_stub ( length );
+}
 
 TAB::key_prefix TAB::find_key_prefix
 	( min::gen key, TAB::table table, bool create )
@@ -168,10 +181,9 @@ TAB::root TAB::find ( min::gen key, TAB::table table )
     else return key_prefix->first;
 }
 
-void TAB::push
-	( min::gen key, TAB::root entry,
-	  TAB::table table )
+void TAB::push ( TAB::table table, TAB::root entry )
 {
+    min::gen key = entry->label;
     TAB::key_prefix kprefix =
         find_key_prefix ( key, table, true );
     next_ref(entry) = kprefix->first;
@@ -191,7 +203,8 @@ static min::packed_struct_with_base
 	<TAB::opening_bracket_struct, TAB::root_struct>
     opening_bracket_type
 	( "ll::parser::table::opening_bracket_type",
-	  NULL, ::opening_bracket_stub_disp );
+	  ::root_gen_disp,
+	  ::opening_bracket_stub_disp );
 const min::uns32 & TAB::OPENING_BRACKET =
     opening_bracket_type.subtype;
 
@@ -205,7 +218,8 @@ static min::packed_struct_with_base
 	<TAB::closing_bracket_struct, TAB::root_struct>
     closing_bracket_type
 	( "ll::parser::table::closing_bracket_type",
-	  NULL, ::closing_bracket_stub_disp );
+	  ::root_gen_disp,
+	  ::closing_bracket_stub_disp );
 const min::uns32 & TAB::CLOSING_BRACKET =
     closing_bracket_type.subtype;
 
@@ -227,10 +241,8 @@ void TAB::push_brackets
     opening->selectors = selectors;
     closing->selectors = selectors;
     opening->new_selectors = new_selectors;
-    TAB::push ( opening_label, (TAB::root) opening,
-                table );
-    TAB::push ( closing_label, (TAB::root) closing,
-                table );
+    TAB::push ( table, (TAB::root) opening );
+    TAB::push ( table, (TAB::root) closing );
 }
 
 // Indentation Marks
@@ -246,7 +258,8 @@ static min::packed_struct_with_base
 	<TAB::indentation_mark_struct, TAB::root_struct>
     indentation_mark_type
 	( "ll::parser::table::indentation_mark_type",
-	  NULL, ::indentation_mark_stub_disp );
+	  ::root_gen_disp,
+	  ::indentation_mark_stub_disp );
 const min::uns32 & TAB::INDENTATION_MARK =
     indentation_mark_type.subtype;
 
@@ -265,13 +278,17 @@ static min::packed_vec
 	  ::indentation_split_stub_disp );
 
 static min::uns32 split_table_stub_disp[] = {
-    0,
-    min::DISP_END };
+    0, min::DISP_END };
 
 static min::packed_vec<TAB::indentation_split>
     split_table_type
 	( "ll::parser::table::split_table_type",
 	  NULL, ::split_table_stub_disp );
+
+TAB::split_table TAB::create_split_table ( void )
+{
+    return ::split_table_type.new_stub ( 256 );
+}
 
 void TAB::push_indentation_mark
 	( min::gen label,
@@ -285,8 +302,7 @@ void TAB::push_indentation_mark
     label_ref(imark) = label;
     imark->selectors = selectors;
     imark->new_selectors = new_selectors;
-    TAB::push ( label, (TAB::root) imark,
-                bracket_table );
+    TAB::push ( bracket_table, (TAB::root) imark );
     if ( split_table != NULL_STUB )
     {
         MIN_ASSERT ( min::is_str ( label ) );
@@ -299,7 +315,7 @@ void TAB::push_indentation_mark
 			( length );
 	min::push
 	    ( isplit, length, (min::uns8 *) & s[0] );
-	isplit->indentation_mark = imark;
+	indentation_mark_ref(isplit) = imark;
 	indentation_split_ref(imark) = isplit;
 
 	min::uns8 lastb = s[length - 1];

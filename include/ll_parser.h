@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  8 09:31:13 EDT 2011
+// Date:	Fri May  6 00:51:48 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,7 +46,7 @@ namespace ll { namespace parser {
 // the lifetime of a token character string may be
 // short, freed token character strings are put on a
 // special free list.  These token character strings
-// start out being long enought to hold a typical maxi-
+// start out being long enough to hold a typical maxi-
 // mum length line (80 characters) and may grow if
 // necessary to hold longer character strings.
 //
@@ -148,7 +148,7 @@ struct token_struct
         // Character string for lexemes.
 
     ll::lexeme::position begin, end;
-        // Position of the first character of the token.
+        // Position of the first character of the token
         // and of the first character AFTER the token,
 	// or the end of input.
 
@@ -170,9 +170,9 @@ MIN_REF ( ll::parser::token, previous,
 //
 ll::parser::token new_token ( uns32 type );
 
-// Free token.  Token is put on internal free list after
-// its value is set to min:MISSING and its string to
-// NULL_STUB.
+// Free token and return NULL_STUB.  Token is put on
+// internal free list after its value is set to MISSING
+// and its string is freed and set to NULL_STUB.
 //
 void free ( ll::parser::token token );
 
@@ -223,7 +223,8 @@ inline void put_at_end
 }
 
 // Remove token from the token list with given first
-// token and return the token removed.
+// token and return the token removed.  Note that the
+// removed token is NOT freed.
 //
 inline ll::parser::token remove
 	( min::ref<ll::parser::token> first,
@@ -246,6 +247,7 @@ inline ll::parser::token remove
 
 // Remove first token from a list of tokens with given
 // first token.  Return min::NULL_STUB if list empty.
+// Note that the removed token is NOT freed.
 //
 inline ll::parser::token remove
 	( min::ref<ll::parser::token> first )
@@ -390,7 +392,7 @@ struct pass_struct
     //
     // The parser performs explict subexpression recog-
     // nition and calls the passes in the pass stack for
-    // each recognized subexpression.
+    // each recognized explicit subexpression.
 {
     uns32 control;
 
@@ -431,8 +433,12 @@ struct pass_struct
 
     uns32 trace;
         // Trace flags that output to parser->printer a
-	// description of each token change made in the
-	// parser token list.
+	// description of each selected change made in
+	// the parser token list.
+
+    ll::parser::table::selectors selectors;
+        // Pass is run only if its selectors match those
+	// of the explicit subexpression.
 };
 
 MIN_REF ( ll::parser::pass, next, ll::parser::pass )
@@ -496,9 +502,9 @@ struct parser_struct
 
     const ll::parser::input input;
         // Closure to call to get more tokens.  If
-	// NULL_STUB when parse function called, set
+	// NULL_STUB when `parse' function called, set
 	// to ll::parser::default_input, which inputs
-	// standard lexemes using the scanner as per
+	// standard lexemes using parser->scanner as per
 	// ll_parser_input.h.  Set to NULL_STUB when
 	// parser is created.
 
@@ -511,25 +517,26 @@ struct parser_struct
 	// parser is created.
 
     const ll::parser::pass pass_stack;
-        // List of passes to call for each subexpres-
-	// sion.  If NULL_STUB there are no passes.  Set
-	// to NULL_STUB when parser is created.
+        // List of passes to call for each explicit
+	// subexpression.  If NULL_STUB there are no
+	// passes.  Set to NULL_STUB when parser is
+	// created.
 
     uns32 trace;
-        // Trace flags.  Tracing is done to parser->
-	// printer.
+        // Parser trace flags: see above.  Tracing is
+	// done to parser->printer.
 
     const ll::lexeme::scanner scanner;
-        // Scanner for those parser inputs that use a
-	// scanner (such as default_input: see
-	// ll_parser_input.h).  A scanner need NOT be
-	// used by a parser input.  If parser->input
+        // Scanner for those parser `input' closures
+	// that use a scanner (such as default_input:
+	// see ll_parser_input.h).  A scanner need NOT
+	// be used by a parser input.  If parser->input
 	// and parser->scanner are BOTH NULL_STUB when
 	// the `parse' function is called, this is set
 	// to a scanner with default parameter settings
 	// and a standard lexical program as per ll_
 	// parser_input.h.  If scanner->input_file is
-	// NULL_STUB when the `parser' function is
+	// NULL_STUB when the `parse' function is
 	// called, it is set from parser->input_file.
 	// Ditto for scanner->printer and parser->
 	// printer.
@@ -713,12 +720,12 @@ void parse ( ll::parser::parser parser =
 // token list as necessary.  It is assumed that the
 // token list finally ends with an end-of-file token,
 // and this cannot be part of any hash table entry
-// (because it is not a SYMBOL).
+// (because it is not a SYMBOL or NATURAL_NUMBER).
 //
 // Returns NULL_STUB if no such key prefix.  If a key
 // prefix is found, `current' is set to the first token
 // after the tokens used to find the key prefix.  If no
-// case does not change `current'.
+// key prefix is found, `current' is not changed.
 //
 ll::parser::table::key_prefix find_key_prefix
 	( ll::parser::parser parser,
@@ -731,7 +738,7 @@ ll::parser::table::key_prefix find_key_prefix
 // token list as necessary.  It is assumed that the
 // token list finally ends with an end-of-file token,
 // and this cannot be part of any hash table entry
-// (because it is not a SYMBOL).
+// (because it is not a SYMBOL or NATURAL_NUMBER).
 //
 // Only hash table entries which have a selector bit
 // on are considered.

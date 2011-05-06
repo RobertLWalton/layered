@@ -1,8 +1,8 @@
-// Layers Language Parser Pass Functions
+// Layers Language Parser Functions
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  8 06:02:47 EDT 2011
+// Date:	Fri May  6 01:44:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,10 @@ static min::locatable_gen terminator;
 static min::locatable_gen separator;
 static min::locatable_gen doublequote;
 static min::locatable_gen number_sign;
+static min::locatable_gen new_line;
+
+static min::printer_format bracket_format =
+    min::default_printer_format;
 
 static struct initializer {
     initializer ( void )
@@ -48,6 +52,14 @@ static struct initializer {
 	    min::new_str_gen ( "\"" );
         ::number_sign =
 	    min::new_str_gen ( "#" );
+        ::new_line =
+	    min::new_str_gen ( "\n" );
+
+	::bracket_format.str_prefix = "";
+	::bracket_format.str_postfix = "";
+	::bracket_format.lab_prefix = "";
+	::bracket_format.lab_postfix = "";
+	::bracket_format.lab_separator = "";
     }
 } init;
 
@@ -207,7 +219,6 @@ void PAR::set_max_token_free_list_size ( int n )
     ::max_token_free_list_size = n;
     if ( n >= 0 ) while ( ::number_free_tokens > n )
     {
-	free_string ( ::free_tokens->string );
         min::deallocate ( remove ( ::free_tokens ) );
 	-- ::number_free_tokens;
     }
@@ -319,21 +330,6 @@ static min::packed_struct<PAR::parser_struct>
     parser_type ( "ll::parser::parser_type",
                   NULL, ::parser_stub_disp );
 
-static min::uns32 table_stub_disp[] =
-{
-    0,
-    min::DISP_END
-};
-
-static min::packed_vec<TAB::key_prefix>
-    table_type ( "ll::parser::table::table_type",
-    		  NULL, ::table_stub_disp );
-
-static min::packed_vec<TAB::indentation_split>
-    split_table_type
-        ( "ll::parser::table::split_table_type",
-   	  NULL, ::table_stub_disp );
-
 min::locatable_var<PAR::parser> PAR::default_parser;
 
 void PAR::init ( min::ref<PAR::parser> parser )
@@ -343,21 +339,23 @@ void PAR::init ( min::ref<PAR::parser> parser )
         parser = ::parser_type.new_stub();
 	parser->indent_offset = 2;
 	bracket_table_ref(parser) =
-	    ::table_type.new_stub ( 256 );
+	    TAB::create_table ( 256 );
 	min::push ( parser->bracket_table, 256 );
 	split_table_ref(parser) =
-	    ::split_table_type.new_stub ( 256 );
+	    TAB::create_split_table();
 	min::push ( parser->split_table, 256 );
     }
+    else
+    {
+	PAR::token token;  // WARNING:: not locatable.
+	while (    ( token = PAR::remove
+			 ( PAR::first_ref(parser)) )
+		!= NULL_STUB )
+	    PAR::free ( token );
 
-    PAR::token token;
-    while (    ( token = PAR::remove
-                     ( PAR::first_ref(parser)) )
-            != NULL_STUB )
-        PAR::free ( token );
-
-    parser->eof = false;
-    parser->finished_tokens = 0;
+	parser->eof = false;
+	parser->finished_tokens = 0;
+    }
 }
 
 void PAR::init_input_stream
@@ -537,6 +535,7 @@ static void compact
 	    parser->printer
 	        << "EXPRESSION: "
 		<< min::pgen ( token->value )
+		<< ": "
 		<< LEX::pline_numbers
 		        ( parser->input_file,
 			  begin, end )
@@ -550,7 +549,7 @@ static void compact
 // Remove n tokens from before `next', where n is the
 // number of elements of `label' (== 1 if `label' is
 // a symbol or number).  Return the begin position of
-// the last token removed.
+// the last token removed.  Free the removed tokens.
 //
 static LEX::position remove
         ( PAR::parser parser,
@@ -563,9 +562,10 @@ static LEX::position remove
     while ( n -- )
     {
         result = next->previous->begin;
-        PAR::remove
-	    ( PAR::first_ref(parser),
-	      next->previous );
+        PAR::free
+	    ( PAR::remove
+		  ( PAR::first_ref(parser),
+		    next->previous ) );
     }
     return result;
 }
@@ -585,27 +585,29 @@ static PAR::token backup
 }
 
 
-// Parse an explicit subexpression that begins with the
-// `current' token (which is just after the opening
-// bracket or indentation mark).  If more tokens are
-// needed, call parser->input.  Upon return, `current'
-// is the first token AFTER the parsed subexpression.
+// Parse an explicit subexpression beginning with the
+// `current' token and calling parser->input if more
+// tokens are needed.
+//
 // The parsed subexpression is NOT compacted; its end is
 // identified and its SUBSUBexpressions are compacted.
 //
 // It is assumed that there are always more tokens
-// available until an end-of-file token is encountered.
+// available until an end-of-file token is encountered,
+// and the end-of-file is not part of the explicit
+// subexpression.
 //
-// If indented_paragraph is true, the expression was
-// begun by an indentation mark.  The current token is
+// If indented_paragraph is true, the subexpression was
+// begun by an indentation mark.  The `current' token is
 // the line-break token after the indentation mark (and
-// this is deleted).  The next non-line-break token sets
-// the indentation associated with the indentation mark.
+// this will be deleted).  The next non-line-break token
+// sets the indentation associated with the indentation
+// mark.
 //
 // Otherwise, if indented_paragraph is false, the
-// expression was begun by the opening bracket, and the
-// current token is the first token after the opening
-// bracket.
+// subexpression was begun by the opening bracket, and
+// the `current' token is the first token after the
+// opening bracket.
 //
 // In either case the selectors are those already
 // computed by using the indentation mark or opening
@@ -620,19 +622,29 @@ static PAR::token backup
 // current subexpression terminates just before that
 // token.
 //
-// The closing_stack argument defines a stack of closing
-// brackets which correspond to the currently active
-// open brackets.  If any are recognized, the current
-// subexpression terminates just after the recoginized
-// bracket, and returns the recognized bracket in the
-// closing_bracket argument (which is otherwise set to
-// NULL_STUB).  To be recognized, a closing bracket must
-// be active as per the selectors.  So its possible for
-// a closing bracket not at the top of the stack to be
-// missed because the selectors have been changed and it
-// is not active.  If a closing bracket is returned,
-// `current' is the first token AFTER the closing
-// bracket.
+// The `closing_stack' argument defines a stack of
+// closing brackets which correspond to the currently
+// active open brackets.  If any are recognized, the
+// current subexpression terminates just after the
+// recognized bracket, and returns the recognized
+// bracket in the `closing_bracket' argument (which is
+// otherwise set to NULL_STUB).  To be recognized, a
+// closing bracket must be active as per the selectors.
+// So it is possible for a closing bracket to be missed
+// because the selectors have been changed and it is not
+// active.
+//
+// The end of the subexpression is identified by the
+// `current' token upon return by this function, and
+// also by the `closing_bracket' returned by this
+// function.  If `closing_bracket' is NULL_STUB, then
+// `current' is the first token AFTER the subexpression.
+// If `closing_bracket' is NOT NULL_STUB, `current' is
+// the first token AFTER the given closing bracket that
+// terminated the expression.  Note that the closing
+// bracket returned may NOT be at the TOP of the closing
+// stack, in which case the proper closing bracket
+// should be assumed to have been omitted.
 //
 // SUBSUBexpressions are converted to an EXPRESSION
 // token whose value is a list.  The tokens beginning
@@ -657,14 +669,18 @@ static PAR::token backup
 // sion, and any closing bracket as a .terminator of
 // that expression.
 //
+// This function also compacts lines in an indented
+// paragraph into EXPRESSION's.  These are given the
+// .terminator "\n".
+//
 // Line_break tokens are deleted.  Gluing indentation
 // marks are split from line-ending tokens.  Bracket
 // recognition preceeds token splitting and line_break
 // deletion: so the last lexeme of a bracket cannot be
 // the first part of a split token (this should not be
-// a problem as the last lexeme of a bracket should be
-// a separator), and multi-lexeme brackets cannot
-// straddle line_breaks.
+// a problem as the last lexeme of a closing bracket
+// should be a separator), and multi-lexeme brackets
+// cannot straddle line_breaks.
 //
 // This function is called at the top level with indent
 // <= - parser->indent_offset and closing_stack == NULL.
@@ -704,7 +720,9 @@ static void parse_explicit_subexpression
 	        ::compact
 		    ( parser, line_first, current,
 		      line_first->begin,
-		      current->previous->end );
+		      current->previous->end,
+		      min::MISSING(),
+		      ::new_line );
 
 	    break;
 	}
@@ -723,9 +741,10 @@ static void parse_explicit_subexpression
 	    }
 
 	    current = current->next;
-	    remove
-	        ( first_ref(parser),
-		  current->previous );
+	    free
+	        ( remove
+		      ( first_ref(parser),
+		        current->previous ) );
 	    after_line_break = true;
 	    continue;
 	}
@@ -811,7 +830,9 @@ static void parse_explicit_subexpression
 
 		::compact ( parser, line_first, current,
 			    line_first->begin,
-			    current->previous->end );
+			    current->previous->end,
+			    min::MISSING(),
+			    ::new_line );
 		line_first = current;
 	    }
 
@@ -888,6 +909,29 @@ static void parse_explicit_subexpression
 			      opening_bracket->
 				  closing_bracket->
 				      label );
+
+			parser->printer
+			    << min::bom
+			    << min::set_indent ( 7 )
+			    << "ERROR: missing"
+			       " closing bracket `"
+			    << min::pgen
+			         ( opening_bracket->
+				   closing_bracket->
+				       label,
+				   & ::bracket_format )
+			    << "' inserted; "
+			    << LEX::pline_numbers
+				   ( parser->input_file,
+				     next->begin,
+				     current->
+				         previous->end )
+			    << ":" << min::eom;
+			LEX::print_item_lines
+			    ( parser->printer,
+			      parser->input_file,
+			      next->begin,
+			      current->previous->end );
 
 			subtype = TAB::CLOSING_BRACKET;
 			root =
@@ -1048,7 +1092,10 @@ TAB::key_prefix PAR::find_key_prefix
     TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
-        if ( current->type != SYMBOL ) break;
+        if ( current->type != SYMBOL
+	     &&
+	     current->type != NATURAL_NUMBER )
+	    break;
 
 	min::gen e = current->value;
 	uns32 hash;
@@ -1086,11 +1133,10 @@ TAB::key_prefix PAR::find_key_prefix
 
         if ( current->next == parser->first )
 	{
-	    if ( parser->eof ) break;
-
 	    parser->input->add_tokens
 		( parser, parser->input);
-	    if ( current->next == parser->first ) break;
+	    assert
+	        ( current->next != parser->first );
 	}
 
 	current = current->next;

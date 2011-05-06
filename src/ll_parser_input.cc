@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  8 05:51:23 EDT 2011
+// Date:	Fri May  6 06:21:59 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,7 +27,7 @@
 # define PAR ll::parser
 
 // Standard Input Parser
-// -------- ----- ------ ----
+// -------- ----- ------
 
 min::locatable_var<PAR::input>
     PAR::default_standard_input;
@@ -157,7 +157,7 @@ static min::uns32 input_add_tokens
 
 	if ( message != NULL )
 	{
-	    scanner->printer
+	    printer
 		<< min::bom
 		<< min::set_indent ( 7 )
 		<< message
@@ -165,8 +165,7 @@ static min::uns32 input_add_tokens
 		       ( scanner, first, next )
 		<< ":" << min::eom;
 	    LEX::print_item_lines
-	        ( scanner->printer,
-		  scanner, first, next );
+	        ( printer, scanner, first, next );
 
 	    if ( skip ) continue;
 	}
@@ -193,14 +192,13 @@ static min::uns32 input_add_tokens
 	}
 	case LEXSTD::natural_number_t:
 	{
-	    int length =
-	        scanner->translation_buffer->length;
+	    int length = translation_buffer->length;
 	    assert ( length > 0 );
 	    if ( length <= 9
 	         &&
 		 ( length == 1
 		   ||
-		   scanner->translation_buffer[0] != '0'
+		   translation_buffer[0] != '0'
 		 ) )
 	    {
 		min::uns32 v = 0;
@@ -208,7 +206,7 @@ static min::uns32 input_add_tokens
 		      i < length; ++ i )
 		{
 		    v *= 10;
-		    v += scanner->translation_buffer[i]
+		    v += translation_buffer[i]
 		       - '0';
 		}
 		if ( v < (1<<28) )
@@ -228,11 +226,9 @@ static min::uns32 input_add_tokens
 	case LEXSTD::quoted_string_t:
 	case LEXSTD::number_t:
 	{
-	    int length =
-	        scanner->translation_buffer->length;
+	    int length = translation_buffer->length;
 	    min::uns32 * p =
-	        length == 0 ? NULL :
-		& scanner->translation_buffer[0];
+		translation_buffer.begin_ptr();
 	    PAR::string_ref(token) =
 	        PAR::new_string ( length, p );
 	    break;
@@ -250,11 +246,11 @@ static min::uns32 input_add_tokens
 
 	if ( trace )
 	{
-	    scanner->printer
+	    printer
 	        << LEXSTD::type_name[type]
 		<< ": ";
 	    if ( token->value != min::MISSING() )
-	        scanner->printer
+	        printer
 		    << min::push_parameters
 		    << min::graphic
 		    << min::pgen ( token->value,
@@ -262,7 +258,7 @@ static min::uns32 input_add_tokens
 		    << min::pop_parameters
 		    << ": ";
 	    else if ( token->string != min::NULL_STUB )
-	        scanner->printer
+	        printer
 		    << min::push_parameters
 		    << min::graphic
 		    << min::punicode
@@ -271,13 +267,12 @@ static min::uns32 input_add_tokens
 			    )
 		    << min::pop_parameters
 		    << ": ";
-	    scanner->printer
+	    printer
 		<< LEX::pline_numbers
 		        ( scanner, first, next )
 		<< ":" << min::eol;
 	    LEX::print_item_lines
-		( scanner->printer,
-		  scanner, first, next );
+		( printer, scanner, first, next );
 	}
 
 	if ( token->type == LEXSTD::end_of_file_t

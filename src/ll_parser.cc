@@ -22,7 +22,6 @@
 
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
-# include <ll_parser_input.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard

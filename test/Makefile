@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Apr  8 02:56:37 EDT 2011
+# Date:		Sat May  7 06:15:53 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -244,7 +244,7 @@ ll_parser.o:	\
         ${MIN}/include/min_parameters.h \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
-	../include/ll_parser_input.h \
+	../include/ll_parser_standard.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
 	../src/ll_parser.cc \
@@ -253,19 +253,19 @@ ll_parser.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser.cc
 
-ll_parser_input.o:	\
+ll_parser_standard_input.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
-	../include/ll_parser_input.h \
+	../include/ll_parser_standard.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
-	../src/ll_parser_input.cc \
+	../src/ll_parser_standard_input.cc \
 	Makefile
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_parser_input.cc
+	    -c ../src/ll_parser_standard_input.cc
 
 ll_parser_table.o:	\
 	${MIN}/include/min.h \
@@ -284,7 +284,7 @@ ll_parser_input_test:		\
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		ll_parser.o \
-		ll_parser_input.o \
+		ll_parser_standard_input.o \
 		ll_parser_table.o \
 		min.o \
 		min_os.o \
@@ -297,7 +297,7 @@ ll_parser_input_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
-	    ll_parser_input.o \
+	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \
@@ -342,7 +342,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
-	    ll_parser_input.o \
+	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \
@@ -355,7 +355,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
-	    ll_parser_input.o \
+	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \

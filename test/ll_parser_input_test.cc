@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 14:12:50 EST 2011
+// Date:	Sat May  7 06:14:14 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,15 +18,16 @@
 // ----- --- -----
 
 # include <ll_parser.h>
-# include <ll_parser_input.h>
+# include <ll_parser_standard.h>
 # include <iostream>
 # include <cassert>
 # define PAR ll::parser
+# define PARSTD ll::parser::standard
 using std::cout;
 
 int main ( int argc )
 {
-    PAR::init_standard_input ( PAR::default_parser );
+    PARSTD::init_input ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
     PAR::init_output_stream

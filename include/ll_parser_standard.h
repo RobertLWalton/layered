@@ -1,8 +1,8 @@
 // Layers Language Parser Inputs
 //
-// File:	ll_parser_input.h
+// File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  6 01:13:49 EDT 2011
+// Date:	Sat May  7 06:02:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,27 +11,27 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Input Parser
+//	Standard Parser Input
 
 // Usage and Setup
 // ----- --- -----
 
-# ifndef LL_PARSER_INPUT_H
-# define LL_PARSER_INPUT_H
+# ifndef LL_PARSER_STANDARD_H
+# define LL_PARSER_STANDARD_H
 
 # include <ll_lexeme.h>
 # include <ll_parser.h>
 
-// Input Parser
-// ----- ------
+// Standard Parser Input
+// -------- ------ -----
 
-namespace ll { namespace parser {
+namespace ll { namespace parser { namespace standard {
 
 extern min::locatable_var<ll::lexeme::erroneous_atom>
-    default_standard_erroneous_atom;
+    erroneous_atom;
 
 extern min::locatable_var<ll::parser::input>
-    default_standard_input;
+    input;
 
 // Set a parser input to produce a stream of lexemes
 // read from a standard lexeme scanner.
@@ -104,9 +104,8 @@ extern min::locatable_var<ll::parser::input>
 //	    =
 //	    ll::parser::default_standard_erroneous_atom;
 //
-void init_standard_input
-	( min::ref<ll::parser::parser> parser );
+void init_input ( min::ref<ll::parser::parser> parser );
 
-} }
+} } }
 
-# endif // LL_PARSER_INPUT_H
+# endif // LL_PARSER_STANDARD_H

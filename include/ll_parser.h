@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  6 00:51:48 EDT 2011
+// Date:	Sat May  7 06:19:37 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -501,12 +501,10 @@ struct parser_struct
     // Parser parameters:
 
     const ll::parser::input input;
-        // Closure to call to get more tokens.  If
-	// NULL_STUB when `parse' function called, set
-	// to ll::parser::default_input, which inputs
-	// standard lexemes using parser->scanner as per
-	// ll_parser_input.h.  Set to NULL_STUB when
-	// parser is created.
+        // Closure to call to get more tokens.  Must
+	// be set to a value other than NULL_STUB before
+	// the `parse' function is called.  Set to
+	// NULL_STUB when the parser is created.
 
     const ll::parser::output output;
         // Closure to call to remove finished tokens
@@ -528,18 +526,16 @@ struct parser_struct
 
     const ll::lexeme::scanner scanner;
         // Scanner for those parser `input' closures
-	// that use a scanner (such as default_input:
-	// see ll_parser_input.h).  A scanner need NOT
-	// be used by a parser input.  If parser->input
-	// and parser->scanner are BOTH NULL_STUB when
-	// the `parse' function is called, this is set
-	// to a scanner with default parameter settings
-	// and a standard lexical program as per ll_
-	// parser_input.h.  If scanner->input_file is
-	// NULL_STUB when the `parse' function is
-	// called, it is set from parser->input_file.
-	// Ditto for scanner->printer and parser->
-	// printer.
+	// that use a scanner (such as ll::parser::
+	// standard::input: see ll_parser_standard.h).
+	//
+	// A scanner need NOT be used by a parser input.
+	// If parser->scanner is NOT NULL_STUB when the
+	// `parse' function is called, parser->scanner->
+	// input_file is set from parser->input_file if
+	// the former is NULL_STUB and the latter is not
+	// NULL_STUB, and ditto for parser->scanner->
+	// printer and parser->printer.
 
     const min::file input_file;
         // Input file used to print messages.  If a

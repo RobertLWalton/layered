@@ -1,8 +1,8 @@
 // Layers Language Standard Input Parser
 //
-// File:	ll_parser_input.cc
+// File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  6 06:21:59 EDT 2011
+// Date:	Sat May  7 06:21:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,19 +20,20 @@
 
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
-# include <ll_parser_input.h>
+# include <ll_parser_standard.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
+# define PARSTD ll::parser::standard
 
 // Standard Input Parser
 // -------- ----- ------
 
 min::locatable_var<PAR::input>
-    PAR::default_standard_input;
+    PARSTD::input;
 min::locatable_var<LEX::erroneous_atom>
-    PAR::default_standard_erroneous_atom;
+    PARSTD::erroneous_atom;
 
 static min::uns32 input_add_tokens
 	( PAR::parser parser,
@@ -52,13 +53,13 @@ static void erroneous_atom_announce
 	  min::uns32 type, LEX::scanner scanner,
 	  LEX::erroneous_atom erroneous_atom );
 
-void PAR::init_standard_input
+void PARSTD::init_input
 	( min::ref<PAR::parser> parser )
 {
-    PAR::init ( PAR::default_standard_input,
+    PAR::init ( PARSTD::input,
                 ::input_add_tokens,
 		::input_init );
-    LEX::init ( PAR::default_standard_erroneous_atom,
+    LEX::init ( PARSTD::erroneous_atom,
                 ::erroneous_atom_announce );
 
     PAR::init ( parser );
@@ -66,9 +67,9 @@ void PAR::init_standard_input
     LEX::init_program
 	( PAR::scanner_ref(parser),
           LEXSTD::default_program );
-    input_ref(parser) = PAR::default_standard_input;
+    input_ref(parser) = PARSTD::input;
     LEX::erroneous_atom_ref(parser->scanner) =
-        PAR::default_standard_erroneous_atom;
+        PARSTD::erroneous_atom;
 }
 
 // Erroneous Atom Announce

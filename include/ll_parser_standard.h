@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  7 06:02:23 EDT 2011
+// Date:	Tue May 10 21:33:04 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Standard Parser Input
+//	Standard Parser Brackets
 
 // Usage and Setup
 // ----- --- -----
@@ -21,6 +22,7 @@
 
 # include <ll_lexeme.h>
 # include <ll_parser.h>
+# include <ll_parser_table.h>
 
 // Standard Parser Input
 // -------- ------ -----
@@ -105,6 +107,25 @@ extern min::locatable_var<ll::parser::input>
 //	    ll::parser::default_standard_erroneous_atom;
 //
 void init_input ( min::ref<ll::parser::parser> parser );
+
+// Standard Parser Brackets
+// -------- ------ --------
+
+// Standard Selectors:
+//
+const ll::parser::table::selectors
+    CODE	= ( 1ull << 0 ),
+    MATH	= ( 1ull << 1 ),
+    TEXT	= ( 1ull << 2 );
+
+// Set the parser->bracket_table and parser->split_table
+// for the standard set of layered language brackets and
+// indentation marks.
+//
+// Also set parser->selectors = CODE;
+//
+void init_brackets
+    ( min::ref<ll::parser::parser> parser );
 
 } } }
 

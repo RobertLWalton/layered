@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  6 01:44:25 EDT 2011
+// Date:	Wed May 11 09:57:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -892,13 +892,36 @@ static void parse_explicit_subexpression
 		     != closing_bracket )
 		{
 		        // Found a closing bracket that
-			// is not ours.  It must be in
-			// the closing_stack or else it
-			// would not have been returned.
+			// is not ours, or found a line
+			// or paragraph end with the
+			// closing bracket missing.  If
+			// there is a closing bracket,
+			// it must be in the closing_
+			// stack or else it would not
+			// have been returned.  If there
+			// is no closing bracket, the
+			// expressions must have been
+			// ended with `current' being
+			// the first token after a
+			// deleted line break.
 
-			PAR::token next = backup
-			    ( current,
-			      closing_bracket->label );
+			// Compute tokens of closing
+			// bracket that was found as
+			//    next ... last
+			//
+			PAR::token next =
+			    (    closing_bracket
+			      == min::NULL_STUB ?
+			      current :
+			      backup
+			      ( current,
+			        closing_bracket->label )
+			    );
+			PAR::token last =
+			    (    closing_bracket
+			      == min::NULL_STUB ?
+			      current :
+			      current->previous );
 
 			::compact
 			    ( parser, first, next,
@@ -923,14 +946,20 @@ static void parse_explicit_subexpression
 			    << LEX::pline_numbers
 				   ( parser->input_file,
 				     next->begin,
-				     current->
-				         previous->end )
+				     last->end )
 			    << ":" << min::eom;
 			LEX::print_item_lines
 			    ( parser->printer,
 			      parser->input_file,
 			      next->begin,
-			      current->previous->end );
+			      last->end );
+
+			if (    closing_bracket
+			     == min::NULL_STUB )
+			{
+			    after_line_break = true;
+			    continue;
+			}
 
 			subtype = TAB::CLOSING_BRACKET;
 			root =

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  7 06:21:05 EDT 2011
+// Date:	Wed May 11 06:33:56 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability

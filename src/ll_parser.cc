@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 11 09:57:30 EDT 2011
+// Date:	Wed May 11 12:56:21 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -618,8 +618,8 @@ static PAR::token backup
 // by some indentation mark PREVIOUS to any that
 // caused this call to parse_explicit_subexpression.
 // If any token is seen with this indent or less, the
-// current subexpression terminates just before that
-// token.
+// current subexpression terminates just before the
+// line breaks before that token.
 //
 // The `closing_stack' argument defines a stack of
 // closing brackets which correspond to the currently
@@ -637,7 +637,12 @@ static PAR::token backup
 // `current' token upon return by this function, and
 // also by the `closing_bracket' returned by this
 // function.  If `closing_bracket' is NULL_STUB, then
-// `current' is the first token AFTER the subexpression.
+// `current' is the first token AFTER the subexpression,
+// and is either a line break or an end of file.  Note
+// that if there are several line breaks in a row after
+// the subexpression, all but the first will have been
+// deleted in this case.
+//
 // If `closing_bracket' is NOT NULL_STUB, `current' is
 // the first token AFTER the given closing bracket that
 // terminated the expression.  Note that the closing
@@ -649,13 +654,13 @@ static PAR::token backup
 // token whose value is a list.  The tokens beginning
 // with the initial value of `current' can be edited.
 // The caller should save `current->previous', which
-// is an indentation mark or opening bracket, before
-// calling this function, so it and `current' as
-// returned by this function can be used to delimit
-// the subexpression.  Note that in the case of the
-// top level call, there may be no `current->previous',
-// and parser->first will be the first token of the
-// subexpression.
+// is an indentation mark or the last token in an
+// opening bracket, before calling this function, so it
+// and `current' as returned by this function can be
+// used to delimit the subexpression.  Note that in the
+// case of the top level call, there may be no
+// `current->previous', and parser->first will be the
+// first token of the subexpression.
 //
 // This function calls itself recursively if it finds
 // an opening bracket or an indentation mark.  The
@@ -699,72 +704,66 @@ static void parse_explicit_subexpression
 	  min::int32 paragraph_indent,
 	  TAB::selectors selectors )
 {
+    // Bracketted subexpressions must be inside a line
+    // in an indented paragraph.
+    //
+    assert (    ! indented_paragraph
+             || closing_stack_p == NULL );
+
     closing_bracket = min::NULL_STUB;
 
     min::int32 line_indent =
         - parser->indent_offset;
     PAR::token line_first;
-    bool after_line_break = false;
     while ( true )
     {
         // Truncate if end of file.
 	//
 	if ( current->type == LEXSTD::end_of_file_t )
-	{
-	    // Truncate any incomplete line.
-	    //
-	    if ( line_indent >= 0
-	         &&
-		 current != line_first )
-	        ::compact
-		    ( parser, line_first, current,
-		      line_first->begin,
-		      current->previous->end,
-		      min::MISSING(),
-		      ::new_line );
-
 	    break;
-	}
 
-	// Delete line breaks.
+	// Process line breaks.
 	//
-	else if (    current->type
-	          == LEXSTD::line_break_t )
+	if ( current->type == LEXSTD::line_break_t )
 	{
-	    if ( current->next == parser->first )
-	    {
-		parser->input->add_tokens
-		    ( parser, parser->input );
-		assert
-		    ( current->next != parser->first );
-	    }
-
-	    current = current->next;
-	    free
-	        ( remove
-		      ( first_ref(parser),
-		        current->previous ) );
-	    after_line_break = true;
-	    continue;
-	}
-
-	if ( after_line_break )
-	{
-	    after_line_break = false;
-
-	    // Set line_indent if appropriate.
+	    // Get next non-line-break token and remove
+	    // any line breaks that follow the current
+	    // line break.
 	    //
-	    if ( indented_paragraph && line_indent < 0 )
+	    while ( true )
 	    {
-		line_indent = current->begin.column;
-		line_first = current;
+		if ( current->next == parser->first )
+		{
+		    parser->input->add_tokens
+			( parser, parser->input );
+		    assert (    current->next
+		             != parser->first );
+		}
+
+		if (    current->next->type
+		     != LEXSTD::line_break_t )
+		    break;
+
+		free ( remove ( first_ref(parser),
+		                current->next ) );
 	    }
 
-	    // Complain if token indent is too near
+	    PAR::token next = current->next;
+
+	    // Truncate expression if line break is
+	    // followed by an end of file.
+	    //
+	    if ( next->type == LEXSTD::end_of_file_t )
+		break;
+
+	    // Now next is neither a line break or end
+	    // of file.
+
+	    // Complain if next token indent is too near
 	    // paragraph indent.
 	    //
 	    int near = (min::int32)
-	    	       current->begin.column
+	    	       next->begin.column
 		     - paragraph_indent;
 	    if ( near < 0 ) near = - near;
 	    if (    near != 0
@@ -773,74 +772,90 @@ static void parse_explicit_subexpression
 		parser->printer
 		    << min::bom << min::set_indent ( 7 )
 		    << "ERROR: lexeme indent "
-		    << current->begin.column
+		    << next->begin.column
 		    << " too near paragraph indent "
 		    << paragraph_indent
 		    << "; "
 		    << LEX::pline_numbers
 			   ( parser->input_file,
-			     current->begin,
-			     current->end )
+			     next->begin,
+			     next->end )
 		    << ":" << min::eom;
 		LEX::print_item_lines
 		    ( parser->printer,
 		      parser->input_file,
-		      current->begin,
-		      current->end );
+		      next->begin,
+		      next->end );
 	    }
 
-	    // Complain if token indent is too near
-	    // line indent.
+	    // Truncate subexpression if next token
+	    // indent is at or before paragraph indent.
 	    //
-	    near = (min::int32) current->begin.column
-		 - line_indent;
-	    if ( near < 0 ) near = - near;
-	    if (    near != 0
-		 && near < parser->indent_offset )
-	    {
-		parser->printer
-		    << min::bom << min::set_indent ( 7 )
-		    << "ERROR: lexeme indent "
-		    << current->begin.column
-		    << " too near line indent "
-		    << line_indent
-		    << "; "
-		    << LEX::pline_numbers
-			   ( parser->input_file,
-			     current->begin,
-			     current->end )
-		    << ":" << min::eom;
-		LEX::print_item_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      current->begin,
-		      current->end );
-	    }
-
-	    // Truncate line if token is at or before
-	    // line indent.
-	    //
-	    if (       (min::int32)
-	               current->begin.column
-		    <= line_indent
-		 && current != line_first )
-	    {
-		assert ( indented_paragraph );
-
-		::compact ( parser, line_first, current,
-			    line_first->begin,
-			    current->previous->end,
-			    min::MISSING(),
-			    ::new_line );
-		line_first = current;
-	    }
-
-	    // Truncate subexpression if token is at or
-	    // before paragraph indent.
-	    //
-	    if (    (min::int32) current->begin.column
+	    if (    (min::int32) next->begin.column
 		 <= paragraph_indent )
 		break;
+
+	    // Set line_indent if appropriate.
+	    //
+	    if ( indented_paragraph && line_indent < 0 )
+	    {
+		line_indent = next->begin.column;
+		line_first = next;
+	    }
+	    else if ( line_indent >= 0 )
+	    {
+		// Complain if next token indent is too
+		// near line indent.
+		//
+		near = (min::int32) next->begin.column
+		     - line_indent;
+		if ( near < 0 ) near = - near;
+		if (    near != 0
+		     && near < parser->indent_offset )
+		{
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "ERROR: lexeme indent "
+			<< next->begin.column
+			<< " too near line indent "
+			<< line_indent
+			<< "; "
+			<< LEX::pline_numbers
+			       ( parser->input_file,
+				 next->begin,
+				 next->end )
+			<< ":" << min::eom;
+		    LEX::print_item_lines
+			( parser->printer,
+			  parser->input_file,
+			  next->begin,
+			  next->end );
+		}
+
+		// Truncate line if next token indent is
+		// at or before line indent.
+		//
+		if (    (min::int32) next->begin.column
+		     <= line_indent )
+		{
+		    assert ( indented_paragraph );
+
+		    ::compact ( parser,
+		                line_first, current,
+				line_first->begin,
+				current->previous->end,
+				min::MISSING(),
+				::new_line );
+		    line_first = next;
+		}
+	    }
+
+	    // Remove line break and move to next token.
+	    //
+	    free ( remove ( first_ref(parser),
+		            current ) );
+	    current = next;
 	}
 
 	// Lookup tokens in bracket table.
@@ -891,85 +906,85 @@ static void parse_explicit_subexpression
 		if (    opening_bracket->closing_bracket
 		     != closing_bracket )
 		{
-		        // Found a closing bracket that
-			// is not ours, or found a line
-			// or paragraph end with the
-			// closing bracket missing.  If
-			// there is a closing bracket,
-			// it must be in the closing_
-			// stack or else it would not
-			// have been returned.  If there
-			// is no closing bracket, the
-			// expressions must have been
-			// ended with `current' being
-			// the first token after a
-			// deleted line break.
+		    // Found a closing bracket that is
+		    // not ours, or found a line break
+		    // or end of file that terminates a
+		    // paragraph with the closing
+		    // bracket missing.
 
-			// Compute tokens of closing
-			// bracket that was found as
-			//    next ... last
+		    // Compute tokens of closing bracket
+		    // that was found as
+		    //
+		    //    next ... last
+		    //
+		    // If no closing bracket was found,
+		    // next = last = current is the
+		    // line break or end of file.
+		    //
+		    PAR::token next =
+			(    closing_bracket
+			  == min::NULL_STUB ?
+			  current :
+			  backup
+			  ( current,
+			    closing_bracket->label )
+			);
+		    PAR::token last =
+			(    closing_bracket
+			  == min::NULL_STUB ?
+			  current :
+			  current->previous );
+
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "ERROR: missing"
+			   " closing bracket `"
+			<< min::pgen
+			     ( opening_bracket->
+			       closing_bracket->
+				   label,
+			       & ::bracket_format )
+			<< "' inserted; "
+			<< LEX::pline_numbers
+			       ( parser->input_file,
+				 next->begin,
+				 last->end )
+			<< ":" << min::eom;
+		    LEX::print_item_lines
+			( parser->printer,
+			  parser->input_file,
+			  next->begin,
+			  last->end );
+
+		    ::compact
+			( parser, first, next,
+			  begin,
+			  next->previous->end,
+			  opening_bracket->label,
+			  opening_bracket->
+			      closing_bracket->
+				  label );
+
+		    if (    closing_bracket
+			 == min::NULL_STUB )
+		    {
+		        // Found a line break before
+			// non-indented line or an end
+			// of file when a closing
+			// bracket was expected.  Go
+			// to appropriate code above
+			// to process.
 			//
-			PAR::token next =
-			    (    closing_bracket
-			      == min::NULL_STUB ?
-			      current :
-			      backup
-			      ( current,
-			        closing_bracket->label )
-			    );
-			PAR::token last =
-			    (    closing_bracket
-			      == min::NULL_STUB ?
-			      current :
-			      current->previous );
+			continue;
+		    }
 
-			::compact
-			    ( parser, first, next,
-			      begin,
-			      next->previous->end,
-			      opening_bracket->label,
-			      opening_bracket->
-				  closing_bracket->
-				      label );
-
-			parser->printer
-			    << min::bom
-			    << min::set_indent ( 7 )
-			    << "ERROR: missing"
-			       " closing bracket `"
-			    << min::pgen
-			         ( opening_bracket->
-				   closing_bracket->
-				       label,
-				   & ::bracket_format )
-			    << "' inserted; "
-			    << LEX::pline_numbers
-				   ( parser->input_file,
-				     next->begin,
-				     last->end )
-			    << ":" << min::eom;
-			LEX::print_item_lines
-			    ( parser->printer,
-			      parser->input_file,
-			      next->begin,
-			      last->end );
-
-			if (    closing_bracket
-			     == min::NULL_STUB )
-			{
-			    after_line_break = true;
-			    continue;
-			}
-
-			subtype = TAB::CLOSING_BRACKET;
-			root =
-			    (TAB::root) closing_bracket;
-			closing_bracket =
-			    min::NULL_STUB;
-
-			// Fall through to closing
-			// bracket processing just
-			// below.
+		    // Found a closing_bracket that is
+		    // not ours.  It must be in the
+		    // closing_stack and so needs to
+		    // be kicked to our caller.
+		    //
+		    break;
 		}
 		else
 		{
@@ -1010,6 +1025,7 @@ static void parse_explicit_subexpression
 		    begin = ::remove
 			( parser, current,
 			  closing_bracket->label );
+
 		    parser->printer
 			<< min::bom
 			<< min::set_indent ( 7 )
@@ -1024,6 +1040,7 @@ static void parse_explicit_subexpression
 			( parser->printer,
 			  parser->input_file,
 			  begin, end );
+
 		    closing_bracket = min::NULL_STUB;
 		    continue;
 		}
@@ -1047,6 +1064,18 @@ static void parse_explicit_subexpression
 	    current = current->next;
 	}
     }
+
+    // Compact any incomplete line.
+    //
+    if ( line_indent >= 0
+	 &&
+	 current != line_first )
+	::compact
+	    ( parser, line_first, current,
+	      line_first->begin,
+	      current->previous->end,
+	      min::MISSING(),
+	      ::new_line );
 }
 
 void PAR::parse ( PAR::parser parser )
@@ -1103,6 +1132,30 @@ void PAR::parse ( PAR::parser parser )
 	  NULL,
 	  - parser->indent_offset,
 	  parser->selectors );
+    if ( current->type != LEXSTD::line_break_t )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: line break missing from end of"
+	       " file; "
+	    << LEX::pline_numbers
+		   ( parser->input_file,
+		     current->begin, current->end )
+	    << ":" << min::eom;
+	LEX::print_item_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      current->begin, current->end );
+    }
+    else
+    {
+        current = current->next;
+	free ( remove ( first_ref(parser),
+			current->previous ) );
+    }
+
+    assert ( current->type == LEXSTD::end_of_file_t );
 }
 
 // Parser Functions

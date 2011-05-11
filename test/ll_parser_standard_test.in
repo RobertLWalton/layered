@@ -12,3 +12,13 @@ This is a line;
 This is a line containing a "quoted string".
 This is a line containing a large number
      12345678901234567890.
+This is a line containing a parenthesized subexpression
+     ( hi there ).
+This line contains subsubexpressions
+     (x + `y z {p q}' - [ g h ]).
+This line contains a missing closing bracket
+     (x + { y z )
+This line contains an incorrect closing bracket
+     (x + y }
+This line includes
+ a token with insufficient indent

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 11 12:56:21 EDT 2011
+// Date:	Thu May 12 11:02:43 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -715,6 +715,8 @@ static void parse_explicit_subexpression
     min::int32 line_indent =
         - parser->indent_offset;
     PAR::token line_first;
+    TAB::indentation_mark indentation_mark =
+        min::NULL_STUB;
     while ( true )
     {
         // Truncate if end of file.
@@ -726,6 +728,113 @@ static void parse_explicit_subexpression
 	//
 	if ( current->type == LEXSTD::line_break_t )
 	{
+	    // Look at last token and see if we can
+	    // split an indentation mark from it.
+	    //
+	    if ( current != parser->first
+	         &&
+		 current->previous->type == PAR::SYMBOL
+		 &&
+		 indentation_mark == min::NULL_STUB )
+	    {
+	        min::str_ptr sp
+		    ( current->previous->value );
+		min::uns32 length = min::strlen ( sp );
+		TAB::indentation_split split =
+		    min::NULL_STUB;
+		if ( length != 0 )
+		{
+		    min::uns8 lastc =
+			(min::uns8) sp[length-1];
+// TBD: the extra conversion is needed to avoid
+//      ambiguity; why here?
+		    split = (const min::stub *)
+		            parser->split_table[lastc];
+		    for ( ; split != min::NULL_STUB;
+		            split = split->next )
+		    {
+			if ( ( selectors
+			       &
+			       split->indentation_mark
+			             ->selectors )
+			     == 0 )
+			    continue;
+		        if ( split->length >= length )
+			    continue;
+			if ( memcmp
+			       ( & sp[  length
+			              - split->length],
+			         & split[0],
+				 split->length )
+			     == 0 ) break;
+		    }
+		    if ( split != min::NULL_STUB )
+		    {
+			indentation_mark =
+			    split->indentation_mark;
+		        PAR::value_ref
+			    (current->previous) =
+			    min::new_str_gen
+			        ( & sp[0],
+				    length
+				  - split->length );
+			PAR::put_before
+			    ( PAR::first_ref(parser),
+			      current,
+			      PAR::new_token
+			          ( PAR::SYMBOL ) );
+			PAR::value_ref
+			    (current->previous) =
+			    indentation_mark->label;
+		    }
+		}
+
+	    }
+
+	    if ( indentation_mark != min::NULL_STUB )
+	    {
+
+		TAB::selectors new_selectors =
+		    selectors;
+		new_selectors |=
+		    indentation_mark->new_selectors
+		                     .or_selectors;
+		new_selectors &= ~
+		    indentation_mark->new_selectors
+		                     .not_selectors;
+		new_selectors ^=
+		    indentation_mark->new_selectors
+		                     .xor_selectors;
+
+		PAR::token previous = current->previous;
+		::parse_explicit_subexpression
+		    ( parser, true, current,
+		      closing_bracket, NULL,
+		      line_indent >= 0 ?
+		          line_indent :
+			  paragraph_indent,
+		      new_selectors );
+		assert (    closing_bracket
+		         == min::NULL_STUB );
+
+		PAR::token first = previous->next;
+		LEX::position end =
+		    current->previous->end;
+		LEX::position begin =
+		    ::remove
+			( parser, first,
+			  indentation_mark->label );
+
+		::compact ( parser, first, current,
+			    begin, end,
+			    indentation_mark->label,
+			    min::MISSING() );
+
+		indentation_mark = min::NULL_STUB;
+
+		continue;
+	    }
+
 	    // Get next non-line-break token and remove
 	    // any line breaks that follow the current
 	    // line break.
@@ -804,6 +913,8 @@ static void parse_explicit_subexpression
 	    }
 	    else if ( line_indent >= 0 )
 	    {
+		assert ( line_first != current );
+
 		// Complain if next token indent is too
 		// near line indent.
 		//
@@ -856,10 +967,12 @@ static void parse_explicit_subexpression
 	    free ( remove ( first_ref(parser),
 		            current ) );
 	    current = next;
+	    continue;
 	}
 
 	// Lookup tokens in bracket table.
 	//
+	indentation_mark = min::NULL_STUB;
 	TAB::root root =
 	    find_entry ( parser, current, selectors,
 	                 parser->bracket_table );
@@ -898,10 +1011,6 @@ static void parse_explicit_subexpression
 			  paragraph_indent,
 		      new_selectors );
 		PAR::token first = previous->next;
-
-		LEX::position begin =
-		    ::remove ( parser, first,
-			       opening_bracket->label );
 
 		if (    opening_bracket->closing_bracket
 		     != closing_bracket )
@@ -957,10 +1066,16 @@ static void parse_explicit_subexpression
 			  next->begin,
 			  last->end );
 
+
+		    LEX::position end =
+		        next->previous->end;
+		    LEX::position begin =
+			::remove
+			    ( parser, first,
+			      opening_bracket->label );
 		    ::compact
 			( parser, first, next,
-			  begin,
-			  next->previous->end,
+			  begin, end,
 			  opening_bracket->label,
 			  opening_bracket->
 			      closing_bracket->
@@ -992,13 +1107,17 @@ static void parse_explicit_subexpression
 			current->previous->end;
 		    ::remove ( parser, current,
 		               closing_bracket->label );
-		    closing_bracket = min::NULL_STUB;
+		    LEX::position begin =
+			::remove
+			    ( parser, first,
+			      opening_bracket->label );
 		    ::compact ( parser, first, current,
 				begin, end,
 				opening_bracket->label,
 				opening_bracket->
 				    closing_bracket->
 					label );
+		    closing_bracket = min::NULL_STUB;
 		    continue;
 		}
 	    }
@@ -1020,11 +1139,12 @@ static void parse_explicit_subexpression
 		if ( p != NULL ) break;
 		else
 		{
-		    LEX::position begin, end;
-		    end = current->previous->end;
-		    begin = ::remove
-			( parser, current,
-			  closing_bracket->label );
+		    LEX::position end =
+			current->previous->end;
+		    LEX::position begin =
+		        ::remove
+			    ( parser, current,
+			      closing_bracket->label );
 
 		    parser->printer
 			<< min::bom
@@ -1046,30 +1166,25 @@ static void parse_explicit_subexpression
 		}
 	    }
 	    else if ( subtype == TAB::INDENTATION_MARK )
-	    {
-		// TBD
-	    }
+	        indentation_mark =
+		    (TAB::indentation_mark) root;
 	}
-	else
+
+	// Move to next token.
+	//
+	if ( current->next == parser->first )
 	{
-	    // Move to next token.
-	    //
-	    if ( current->next == parser->first )
-	    {
-		parser->input->add_tokens
-		    ( parser, parser->input );
-		assert
-		    ( current->next != parser->first );
-	    }
-	    current = current->next;
+	    parser->input->add_tokens
+		( parser, parser->input );
+	    assert
+		( current->next != parser->first );
 	}
+	current = current->next;
     }
 
     // Compact any incomplete line.
     //
-    if ( line_indent >= 0
-	 &&
-	 current != line_first )
+    if ( line_indent >= 0 )
 	::compact
 	    ( parser, line_first, current,
 	      line_first->begin,

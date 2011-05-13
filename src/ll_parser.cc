@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 12 11:02:43 EDT 2011
+// Date:	Fri May 13 00:44:55 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -746,10 +746,7 @@ static void parse_explicit_subexpression
 		{
 		    min::uns8 lastc =
 			(min::uns8) sp[length-1];
-// TBD: the extra conversion is needed to avoid
-//      ambiguity; why here?
-		    split = (const min::stub *)
-		            parser->split_table[lastc];
+		    split = parser->split_table[lastc];
 		    for ( ; split != min::NULL_STUB;
 		            split = split->next )
 		    {

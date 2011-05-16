@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 22, 2010
+May 16, 2011
  
 \end{center}
 
@@ -326,8 +326,8 @@ The standard scanner also produces a translation of each
 lexeme.  This may just be a copy of the 32-bit characters
 in the lexeme, or it may have some changes, or `translations',
 of some of these characters.  For example, the lexeme
-\verb|"a line\lf/"| may have a translation that omits the
-\verb|"|'s and converts the four characters \verb|\lf/| into
+\verb|"a line<lf>"| may have a translation that omits the
+\verb|"|'s and converts the four characters \verb|<lf>| into
 a single linefeed character.
 
 When the standard scanner identifies a lexeme it also identifies
@@ -339,7 +339,7 @@ At its most fundamental level the
 standard scanner identifies lexical atoms in the input text.
 A \key{lexical atom} is a single character (e.g., the letters
 in an identifier or symbol) or a short string of characters
-(e.g., the characters \verb|\lf/| in a quoted string).
+(e.g., the 4-character atom \verb|<lf>| in a quoted string).
 Lexical atoms are read left to right and
 grouped by the scanner into \skey{lexeme}s.
 
@@ -372,11 +372,13 @@ character pattern.  A \key{character pattern} is simply a
 specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
-characters such as the 4-character sequence \verb|\lf/| which matches
-the atom pattern \verb|"\/lf/"|
-or the 4-character sequence \verb|\0a/| which matches the atom pattern
+characters such as the 4-character sequence \verb|<lf>| which matches
+the atom pattern \verb|"<""lf>"|
+(the doubled quotes \verb|""| do nothing but prevent recognition of
+\verb|"<lf>"| as representing a line feed)
+or the 4-character sequence \verb|<0a>| which matches the atom pattern
 \begin{center}
-\verb|"\/0<hex-digit>/"|
+\verb|"<0<hex-digit>>"|
 \end{center}
 where \verb|<hex-digit>| names a character pattern matching characters
 in the ranges \verb|0-9|, \verb|a-f|, and \verb|A-F|.

@@ -326,8 +326,8 @@ The standard scanner also produces a translation of each
 lexeme.  This may just be a copy of the 32-bit characters
 in the lexeme, or it may have some changes, or `translations',
 of some of these characters.  For example, the lexeme
-\verb|"a line<lf>"| may have a translation that omits the
-\verb|"|'s and converts the four characters \verb|<lf>| into
+\verb|"a line<LF>"| may have a translation that omits the
+\verb|"|'s and converts the four characters \verb|<LF>| into
 a single linefeed character.
 
 When the standard scanner identifies a lexeme it also identifies
@@ -339,7 +339,7 @@ At its most fundamental level the
 standard scanner identifies lexical atoms in the input text.
 A \key{lexical atom} is a single character (e.g., the letters
 in an identifier or symbol) or a short string of characters
-(e.g., the 4-character atom \verb|<lf>| in a quoted string).
+(e.g., the 4-character atom \verb|<LF>| in a quoted string).
 Lexical atoms are read left to right and
 grouped by the scanner into \skey{lexeme}s.
 
@@ -372,10 +372,10 @@ character pattern.  A \key{character pattern} is simply a
 specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
-characters such as the 4-character sequence \verb|<lf>| which matches
-the atom pattern \verb|"<""lf>"|
-(the doubled quotes \verb|""| do nothing but prevent recognition of
-\verb|"<lf>"| as representing a line feed)
+characters such as the 4-character sequence \verb|<LF>| which matches
+the atom pattern \verb|"<" "LF" ">"|
+(in which the quoted string has been broken into three parts to prevent
+\verb|<LF>| being treated as representing a single line feed character)
 or the 4-character sequence \verb|<0a>| which matches the atom pattern
 \begin{center}
 \verb|"<0<hex-digit>>"|
@@ -445,9 +445,9 @@ example, the character \verb|\| appearing outside a quoted string
 might be returned as a 1-character lexeme of type `{\tt unrecognized
 character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
-of the scanner.  For example, if \verb|\h/| appears in a quoted
+of the scanner.  For example, if \verb|<h>| appears in a quoted
 string, it may be reported as an erroneous atom of type
-`{\tt unrecognized escape sequence}'.  Otherwise this atom is processed
+`{\tt unrecognized escape sequence}'.  Otherwise this atom will be processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the DEL
 character (hex code \verb|7f|).
@@ -466,12 +466,12 @@ components that can do the following:
 \item announce the reduced length atom as an erroneous atom of a given type
 \item output the atoms accumulated so far as a lexeme of a given type
 \item change the current lexical table
-\item force a containing atom table to fail to match any atom
+\item force the instruction containing atom table to fail to match any atom
 \end{itemize}
 
 An instruction can fail while invoking an atom table or making
 a translation of the atom or if the translation does not match
-an atom pattern.  An instruction group is a sequence of instructions
+an atom pattern.  An \key{instruction group} is a sequence of instructions
 such that the first successful instruction will be the effective
 instruction in the group.
 
@@ -623,16 +623,15 @@ and the syntax of a lexical program is specified on
 		$|$\verb|7|%
 		$|$\verb|8|%
 		$|$\verb|9| 
-\\[0.5ex]
+\\[2.0ex]
 \emkey{character-representative}
-    & ::= & {\em graphic-character-other-than-backslash} \\
-    & ::= & \verb|\| {\em graphic-character-other-than-slash}$^\star$
-            \verb|/| \\
+    & ::= & {\em graphic-character} \\
+    & $|$ & {\tt <}{\em upper-case-letter}$^+$%
+	    \{{\tt -}{\em upper-case-letter}$^+$\}$^\star${\tt >} \\
 \emkey{graphic-character} & ::= &
     {\em non-whitespace-non-control-character} \\
-\emkey{backslash} & ::= & \verb|\| \\
-\emkey{slash} & ::= & \verb|/|
-\\[0.5ex]
+\emkey{angle-brackets} & ::= & \verb|<| $|$ \verb|>|
+\\[2.0ex]
 \emkey{white-space-character}
     & ::= & {\em horizontal-space-character} \\
     & $|$ & {\em vertical-space-character} \\
@@ -679,7 +678,10 @@ and the syntax of a lexical program is specified on
 		{\em cpat-expression} {\tt ;}
 \\[1ex]
 \emkey{cpat-name} & ::= &
-	{\tt <}{\em letter}$^+$\{{\tt -}{\em letter}$^+$\}$^\star${\tt >}
+	{\tt <}{\em letter}$^+$\{{\tt -}{\em letter}$^+$\}$^\star${\tt >} \\
+	\multicolumn{2}{r}{but not} &
+	{\tt <}{\em upper-case-letter}$^+$%
+	\{{\tt -}{\em upper-case-letter}$^+$\}$^\star${\tt >} \\
 \\[1ex]
 \emkey{cpat-expression} & ::= &
 	{\em cpat-term}
@@ -774,11 +776,11 @@ on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 \begin{indpar}\begin{verbatim}
 begin example lexical program;
 
-"<whitespace-char>" = " " | "\lf/" | "\ht/" | "\vt/" | "\ff/";
+"<whitespace-char>" = " " | "<LF>" | "<HT>" | "<VT>" | "<FF>";
 
 begin main master table;
     "<whitespace-char>" goto whitespace;
-    "\"/" translate "" goto quoted string;
+    "<Q>" translate to "" goto quoted string;
     "<other>" output bad character;
     output end of file;
 end main master table;
@@ -789,8 +791,9 @@ begin whitespace lexeme table;
 end whitespace lexeme table;
 
 begin quoted string lexeme table;
-    "\"/" translate "" goto main;
-    "\lf/" keep 0 goto premature end of line;
+    "<Q>" translate to "" goto main;
+    "<LF>" keep 0 goto premature end of line;
+    "<" "LF" ">" translate to "<LF>";
     "<other>" accept;
     goto premature end of file;
 end quoted string lexeme table;
@@ -803,7 +806,7 @@ begin premature tables lexical program;
     // Stuff to include.
 
 begin premature end of line master table;
-    "\lf/" output premature end of line
+    "<LF>" output premature end of line
          goto main;
 end premature end of line master table;
 
@@ -848,7 +851,9 @@ A \emkey{character-pattern-definition} (abbreviated as
 {\em character-pattern-name}.  The latter is just a string of
 letters and hyphens (\verb|-|) surrounded by angle brackets (\verb|< >|)
 with hyphens occurring only between letters.  Examples:
-\verb|<digit>| and \verb|<line-break>|.
+\verb|<digit>| and \verb|<line-break>|.  However, a {\em character-pattern-name}
+cannot contain only upper case letters, as this could conflict with
+some {\em character-representative}.
 
 The character set is denoted by a \emkey{character-pattern-expression}.
 The simplest character pattern
@@ -864,11 +869,12 @@ second of the two characters must not be smaller than the first.
 A {\em quotable-character} is a representative of a single UNICODE
 character that can be used inside quotes (\verb|"|).
 Printable ASCII characters represent themselves.  Other characters
-are represented by character sequences surrounded by backslash (\verb|\|)
-and slash (\verb|/|).
+are represented by character sequences surrounded by the angle
+brackets \verb|<| and \verb|>| (which are also the less than and
+greater than signs).
 For example, a line feed can be represented by any of the
-following: \verb|\lf/|, \verb|\0a/|,
-\verb|\00a/|, \ldots, or \verb|\00000000a/|.
+following: \verb|<LF>|, \verb|<0A>|,
+\verb|<00A>|, \ldots, or \verb|<00000000A>|.
 
 A quoted {\em character-pattern-name} denotes the character set associated
 with that name by a \underline{previous} {\em character-pattern-definition}.
@@ -877,7 +883,7 @@ The \verb/|/, \verb|&|, and \verb|~| operators and can be used to take
 the union, intersection, and complements of character sets.  The complement
 is relative to the universe of all 32 bit unsigned integer UNICODE
 character codes.  Thus \verb|~ "b-y"| denotes the same character set as
-\verb$"\0/-a" | "z-\0ffffffff/"$.
+\verb$"<0>-a" | "z-<0FFFFFFFF>"$.
 
 Parentheses may be used in {\em character-pattern-expressions} as is
 normal in algebraic expressions.
@@ -889,11 +895,11 @@ Some example {\em character-pattern-definitions} are:
 
 \begin{indpar}\begin{verbatim}
 "<hex-digit>" = "0-9" | "a-f" | "A-F";
-"<non-line-break-char>" = ~ "\lf/" & ~ "\vt/" & ~ "\ff/";
-"<quotable-char>" = "\020/-\07e/" & ~ "\"/" & ~ "\/";
-"<whitespace-char>" = " " | "\lf/" | "\vt/" | "\ff/" | "\ht/";
+"<non-line-break-char>" = ~ "<LF>" & ~ "<VT>" & ~ "<FF>";
+"<quotable-char>" = "<020>-<07E>" & ~ "<Q>";
+"<whitespace-char>" = " " | "<LF>" | "<VT>" | "<FF>" | "<HT>";
 "<source-character>" =
-    ( "\020/-\07e/" & ~ "$" & ~ "@" & ~ "`" )
+    ( "<020>-<07E>" & ~ "$" & ~ "@" & ~ "`" )
     | "<whitespace-char>";
 \end{verbatim}\end{indpar}
 

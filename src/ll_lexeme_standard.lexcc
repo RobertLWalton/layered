@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 19:42:41 EDT 2011
+// Date:	Wed May 18 01:37:45 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,7 +158,7 @@ cc
 lex	"<non-digit>" = ~ "<digit>";
 lex
 lex	"<letter>" = "<ascii-letter>"
-lex		   | "<non-ascii-letter>"
+lex	           | "<non-ascii-letter>"
 lex
 lex	// <non-ascii-letter> ::= UNICODE character in
 lex	// one of the code ranges designated in
@@ -184,14 +184,14 @@ lex	"<non-letter>" = ~ "<letter>";
 lex
 
 lex	"<mark-char>" = "+" | "-" | "*" | "~" | "@"
-lex		      | "#" | "$" | "%" | "^" | "&"
-lex		      | "=" | "|" | ">" | "_" | "!"
-lex		      | "?" | ":";
+lex	              | "#" | "$" | "%" | "^" | "&"
+lex	              | "=" | "|" | ">" | "_" | "!"
+lex	              | "?" | ":";
 lex	              //
 lex	              // Also . not followed by a digit
 lex	              //      / not surrounded by digits
 lex	              //      < not beginning escaped
-lex		      //        hex character
+lex	              //        hex character
 lex
 cc	    const char * mark_char =
 cc		"+-*~@#$%^&=|>_!?:";
@@ -201,7 +201,7 @@ lex	"<non-slash-char>" = ~ "/";
 lex
 
 lex	"<separator-char>" = "(" | ")" | "[" | "]"
-lex		           | "{" | "}" | ";" | "`";
+lex	                   | "{" | "}" | ";" | "`";
 lex	              //
 lex	              // Also , not surrounded by digits
 lex	              //      ' not followed by a letter
@@ -210,13 +210,13 @@ cc	    const char * separator_char = "()[]{};`";
 cc
 
 lex	"<line-break-char>" = "<LF>" | "<VT>" | "<FF>"
-lex			    | "<CR>";
+lex	        	    | "<CR>";
 lex
 cc	    const char * line_break_char = "\n\v\f\r";
 cc
 
 lex	"<non-line-break-char>" =
-lex		~ "<line-break-character>";
+lex	        ~ "<line-break-character>";
 lex
 lex	"<horizontal-space-char>" = " " | "<HT>";
 lex
@@ -255,7 +255,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<horizontal-space-char>"
-lex		call horizontal space;
+lex	        call horizontal space;
 cc		   NDL::begin_dispatch
 cc			( horizontal_space_char );
 cc		      NDL::call ( horizontal_space );
@@ -299,10 +299,10 @@ lex	  "<" "<digit>" match escaped hex character
 lex	                   require "<letter>" call word
 lex	                else match escaped hex character
 lex	                     error non letter escape
-lex				   sequence
+lex	        		   sequence
 lex	                     translate to "?"
-lex			     call word
-lex			else keep 1 call mark;
+lex	        	     call word
+lex	        	else keep 1 call mark;
 cc	    	   NDL::begin_dispatch ( "<" );
 cc	    	      NDL::begin_dispatch
 cc				( digit_char );
@@ -583,7 +583,7 @@ cc
 
 lex	    "<" "<digit>" match escaped hex character
 lex	                        keep 0 return;
-lex			  else keep 1;
+lex	        	  else keep 1;
 lex	    "<" accept;
 cc		   NDL::begin_dispatch ( "<" );
 cc		      NDL::begin_dispatch
@@ -706,7 +706,7 @@ cc	    NDL::begin_table ( quoted_string );
 cc
 
 lex	    "\"/" translate to "" return;
-lex		    // End quoted string.
+lex	            // End quoted string.
 lex
 cc	           NDL::begin_dispatch ( "\"" );
 cc		      NDL::translate_to ( "" );
@@ -902,7 +902,7 @@ cc		     END; END;
 cc		  END;
 cc
 
-lex	    "<" "Q" ">" translate to "<">";
+lex	    "<" "Q" ">" translate to "<Q>";
 cc	          BEG ( "Q" );
 cc		     TO ( "\"" );
 cc		  END;
@@ -962,8 +962,8 @@ cc	#	undef TO
 cc	#	undef END
 
 lex	    "<" "<digit>" match escaped hex character
-lex			  return
-lex		    else fail;
+lex	        	  return
+lex	            else fail;
 cc	    	    NDL::begin_dispatch ( digit_char );
 cc		       NDL::match ( escaped_hex_char );
 cc		    NDL::ELSE();

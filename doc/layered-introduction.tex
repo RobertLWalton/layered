@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 16, 2011
+May 18, 2011
  
 \end{center}
 
@@ -486,10 +486,26 @@ The top level lexical program must begin with a master
 table that serves as the initial lexical table.
 
 The lexemes in a lexical program are specified on
-\pagref{LEXEME-PROGRAM-LEXEMES} and
-and the syntax of a lexical program is specified on
-\pagref{LEXEME-PROGRAM-SYNTAX-1} and
-\pagref{LEXEME-PROGRAM-SYNTAX-2}.
+\pagref{LEXEME-PROGRAM-LEXEMES}.
+
+Consecutive quoted string lexemes are glued together.  Thus
+\begin{center}
+\tt "hello" " " "there"
+\end{center}
+is equivalent to {\tt "hello there"}.  This is useful for
+breaking long quoted string lexemes across line boundaries.
+But there is an important case where there is not an exact equivalence
+between the glued and unglued versions.  \verb|"<" "LF" ">"| is
+\underline{not} equivalent to \verb|"<LF>"|.  The former is a 4-character
+quoted string, the characters being \verb|<|, \verb|L|, \verb|F|,
+and \verb|>|.  The latter is a 1-character quoted string, the character
+being a line feed.
+
+The special {\em character-representatives} generally consist of
+the ASCII character name surrounded by angle brackets.  Examples are
+\verb|<NUL>|, \verb|<LF>|, \verb|<SP>|.  There are two other cases:
+\verb|<Q>| represents the doublequote \verb|"|, and \verb|<NL>| (new line)
+represents a line feed (same as \verb|<LF>|).
 
 \begin{figure*}[!p]
 \begin{tabular}{p{2.2in}rl}
@@ -643,6 +659,10 @@ and the syntax of a lexical program is specified on
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{figure*}
 
+The syntax of a lexical program is specified on
+\pagref{LEXEME-PROGRAM-SYNTAX-1} and
+\pagref{LEXEME-PROGRAM-SYNTAX-2}.
+
 \begin{figure*}[!p]
 \begin{tabular}{l}
 \emkey{name} ::= 
@@ -768,8 +788,10 @@ and the syntax of a lexical program is specified on
 \end{figure*}
 
 An example lexical program that recognizes
-whitespace and quoted strings without escapes is given
+whitespace and quoted strings is given
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+\verb|<LF>| is the only {\em character-representative} recognized
+in quoted strings by this example.
 
 \begin{figure*}[!p]
 \addtolength{\baselineskip}{-0.4ex}
@@ -926,8 +948,8 @@ table the default instruction is typically a {\tt goto} or {\tt return}
 back to a
 master table, and because this changes the current lexical table
 from a lexeme table to a master table, it causes any non-zero length
-accumulated lexeme to be output with its lexeme type being determined
-by the lexeme table.
+accumulated lexeme to be output with its lexeme type being either
+the lexeme table name or a type specified by the instruction.
 
 Atom tables permit sets of atom patterns to be used in
 several places without copying all the patterns.  Details are
@@ -947,27 +969,25 @@ of {\em quotable-characters}, each of which match only themselves,
 and {\em character-pattern-names}, each of which match any character
 in the named set of characters.  Thus
 \begin{center}
-\verb|"\/0<hex-digit><hex-digit>/"|
+\verb|"<0<hex-digit><hex-digit>>"|
 \end{center}
-matches 5-character atoms consisting of a \verb|\| followed by an
+matches 5-character atoms consisting of a \verb|<| followed by an
 \verb|0| followed by two characters each in the character set
-named by \verb|<hex-digit>| followed by a \verb|/|.
+named by \verb|<hex-digit>| followed by a \verb|>|.
 Note that each {\em atom-pattern}
 only matches atoms of a particular length.
 
 
-The special character pattern
+The special character pattern name
 {\tt \bf \LESSTHAN other\GREATERTHAN}%
 \index{other@{\tt \LESSTHAN other\GREATERTHAN}}%
 \label{<OTHER>}
 can be used in an atom pattern to match any character not otherwise
-matched.  More explicitly, in the atom pattern
+matched.  More specifically, in the atom pattern
 \verb|"|$P$\verb|<other>|$Q$\verb|"|,
-the prefix $P$\verb|<other>| matches any sequence of characters not matched by
-any atom pattern of the form
-\verb|"|$PCR$\verb|"| in the same lexical table,
-where $C$ is a character pattern other than
-\verb|<other>|.
+the prefix \verb|<other>| matches any characters not matched by
+any other character pattern $C$ that is an some atom pattern of the form
+\verb|"|$PCR$\verb|"| in the same lexical table.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 There must be no sequence of characters that matches the
@@ -1047,7 +1067,8 @@ atom table.  However, the {\tt fail} {\em instruction-component}
 can only be used in an atom table, and when executed indicates
 that the atom table invoking {\em instruction} has failed, so that
 {\em instruction} becomes a no-operation and the next
-{\em instruction} in the {\em instruction-group} (i.e., the {\em instruction}
+{\em instruction} in the invoking
+{\em instruction-group} (i.e., the {\em instruction}
 after the `{\tt else}' following the failed {\em instruction}) is
 executed.
 
@@ -1056,6 +1077,7 @@ any of the {\tt translate} {\em instruction-components} can be used in
 an atom table {\em instruction}.  An atom table
 instruction may invoke another atom table, but recursion
 is prohibited.
+
 Note that if an instruction invokes an atom table and
 the instruction does not fail,
 the original atom match that caused the instruction
@@ -1069,7 +1091,8 @@ However, this only makes sense if it is just a `{\tt fail}', or
 if it is contains {\tt match} components.  If an atom table
 is invoked and none of its {\em atom-patterns} match an atom,
 and if the table has \underline{no} {\em default-instruction-group},
-then a scan error is signalled.
+then a scan error is signalled (i.e., `{\tt fail}' is \underline{not}
+implicit).
 
 \subsubsubsection{Keep Instruction Components}
 
@@ -1117,7 +1140,7 @@ the {\em translation-string},
 that becomes the translation of the atom.
 A {\em translation-string} may be empty, as in the lexical table entry
 \begin{center}
-\verb|"\"/" translate to "" goto main;|
+\verb|"<Q>" translate to "" goto main;|
 \end{center}
 which can be used to recognize the last \verb|"| of a quoted string, avoid
 copying anything into the lexeme translation, and then switch to the
@@ -1131,7 +1154,7 @@ hexadecimal digits, converts these into an 32 bit unsigned integer
 UNICODE character code, which becomes the 1-character atom translation.
 An example is the the lexical table entry
 \begin{center}
-\verb|"\/0<hex-digit><hex-digit>/" translate hex 2 1;|
+\verb|"<0<hex-digit><hex-digit>>" translate hex 2 1;|
 \end{center}
 which might be used to accept a character representative in a quoted string
 and copy the appropriate hexadecimally related character code into
@@ -1146,7 +1169,7 @@ The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 views the rest of the characters as octal and not hexadecimal.
 An example use would be the lexical table entry
 \begin{center}
-\verb|"\/<oct-digit><oct-digit><oct-digit>" translate oct 1 0;|
+\verb|"\<oct-digit><oct-digit><oct-digit>" translate oct 1 0;|
 \end{center}
 
 \subsubsubsection{Require Instruction Component}
@@ -1161,7 +1184,7 @@ A {\tt require} should only appear in an
 
 An example use would be the lexical table entry
 \begin{indpar}
-\verb|"\/u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0| \\
+\verb|"\u<hex-digit><hex-digit><hex-digit><hex-digit>" translate hex 2 0| \\
 \verb|    require "<letter>" else| \\
 \verb|    translate to "" error bad character in identifier;|
 \end{indpar}
@@ -1187,14 +1210,15 @@ and its translation is governed
 independently by {\tt match} and translate instruction components.
 The following are some examples:
 \begin{indpar}\begin{verbatim}
-"\/<other>" error bad escape sequence;
-"\/<other>" translate to "" error bad escape sequence;
-"\/<other>" translate to "\del/" error bad escape sequence;
+"\<other>" error bad escape sequence;
+"\<other>" translate to "" error bad escape sequence;
+"\<other>" translate to "<DEL>" error bad escape sequence;
 \end{verbatim}\end{indpar}
 These might be entries in an lexical table for a quoted string.
 All identify an atom consisting of a backslash followed by any
-character, as long as the atom is not recognized by another entry
-that has the form \verb|"\/|C\ldots\verb|"| where C is a character
+character that does not match any character pattern $C$ that is in
+a lexical table
+atom pattern of the form \verb|"\|$C$\ldots\verb|"| where $C$ is a character
 pattern other than \verb|<other>| (see \pagref{<OTHER>}).
 The first entry copies the entire 2-character atom, including the
 backslash, into the lexeme translation.  The second entry copies
@@ -1202,21 +1226,37 @@ nothing (the empty string \verb|""|) into the lexeme translation.
 The third entry copies the DEL character (hex code \verb|7f|)
 into the lexeme translation.  An alternative is the entry
 \begin{indpar}\begin{verbatim}
-"\/<other>" keep 1 error bad escape;
+"\<other>" keep 1 error bad escape;
 \end{verbatim}\end{indpar}
 that reduces the atom size to 1 character, just the backslash,
 which is announced as an error without its following character,
 and copied to the lexeme translation.  The character following
 the backslash remains in the input and will part of the next
 atom recognized.
+Another alternative is
+\begin{indpar}\begin{verbatim}
+"\" match bad escape translate "" error bad escape;
+. . .
+<any> = <0-<0FFFFFFFF>>;      // Matches any character.
+begin bad escape atom table;
+"\<any><any><any>"
+end bad escape atom table;
+\end{verbatim}\end{indpar}
+in which the lexical table entry will be invoked if the next character
+in the input is \verb|\| and no longer
+lexical table atom pattern of the form \verb|"\|\ldots\verb|"| is matched, 
+and as a result the \verb|\| and the next three chacters will be identified
+as a `{\tt bad escape}'
+erroneous atom and translated to the empty character sequence.
+
 
 The routine that announces an error atom is given the position
 of the atom in the input stream, so characters surrounding the
 atom may also be included in the announcement.  For example,
 the line containing the atom may be printed with marks under the
 characters of the atom.  So the fact that the erroneous atom
-proper in the last example is just the backslash does not
-prevent the character after the backslash from being included
+proper in the last example might be just the backslash does not
+prevent the characters after the backslash from being included
 in the error announcement.
 
 An erroneous atom is different from an erroneous lexeme.
@@ -1567,94 +1607,105 @@ than making changes to other kinds of definitions.
 begin standard lexical program;
 
 "<ascii-letter>" = "a-z" | "A-Z";
+
 "<digit>" = "0-9";
+
 "<oct-digit>" = "0-7";
-"<hex-digit>" = "0-9" | "a-f" | "A-F";
+
+"<hex-digit>" = "0-9" | "A-F";
 
 "<non-digit>" = ~ "<digit>";
 
-// The following list of language specific letters is taken
-// from Annex E of the Working Paper for Draft Proposed
-// International Standard for Information Systems—Programming
-// Language C++, 1996.
+"<letter>" = "<ascii-letter>"
+           | "<non-ascii-letter>"
 
-"<latin-letter>" = "\00c0/-\00d6/" | "\00d8/-\00f6/"
-                 | "\00f8/-\01f5/" | "\01fa/-\0217/"
-                 | "\0250/-\02a8/" | "\01ea0/-\01ef9/";
+// <non-ascii-letter> ::= UNICODE character in
+// one of the code ranges designated in
+// ../include/ll_lexeme_non_ascii_letters.h
 
-. . . . . letter character pattern definitions omitted . . . . .
-
-"<CJK-letter>" = "\0f900/-\0fa2d/" | . . .  // Details omitted
-
-// Context sensitive character classifications, e.g.,
-// classifying ' as a word character if it is followed by
-// a letter, cannot be included in character pattern
-// definitions, but are noted in comments.  They are
-// accounted for by separate lexeme table entries below.
-
-"<letter>" = "<ascii-letter>" | "<latin-letter>"
-           | . . . | "<CJK-letter>";   // Details omitted
+// Context sensitive character classifications,
+// e.g., classifying ' as a word character if it
+// is followed by a letter, cannot be included
+// in character pattern definitions, but are
+// noted in comments.  They are accounted for by
+// separate lexeme table entries below.
 
 "<non-letter>" = ~ "<letter>";
 
-"<mark-char>" = "+" | "-" | "*" | "~" | "@" | "#" | "$" | "%"
-              | "^" | "&" | "=" | "|" | "<" | ">" | "_" | "!"
+"<mark-char>" = "+" | "-" | "*" | "~" | "@"
+              | "#" | "$" | "%" | "^" | "&"
+              | "=" | "|" | ">" | "_" | "!"
               | "?" | ":";
               //
               // Also . not followed by a digit
               //      / not surrounded by digits
+              //      < not beginning escaped
+              //        hex character
 
 "<non-slash-char>" = ~ "/";
 
-"<separator-char>" = "(" | ")" | "[" | "]" | "{" | "}" | ";" | "`";
+"<separator-char>" = "(" | ")" | "[" | "]"
+                   | "{" | "}" | ";" | "`";
               //
               // Also , not surrounded by digits
               //      ' not followed by a letter
 
-"<line-break-char>" = "\lf/" | "\vt/" | "\ff/" | "\cr/";
+"<line-break-char>" = "<LF>" | "<VT>" | "<FF>"
+        	    | "<CR>";
 
-"<non-line-break-char>" = ~ "<line-break-character>";
+"<non-line-break-char>" =
+        ~ "<line-break-character>";
 
-"<horizontal-space-char>" = " " | "\ht/";
+"<horizontal-space-char>" = " " | "<HT>";
 
 begin main master table;
 
-   // Whitespace is separated out into 3 types of lexeme:
+   // Whitespace is separated out into 3 types
+   // of lexemes:
    //
-   //   `horizontal space'  spaces and horizontal tabs
-   //   `line break'        linefeeds, carriage returns,
-   //                       form feeds, and vertical
-   //                       tabs
-   //   `comments'          `//' up to just before next
-   //                       line break
+   //   `horizontal space'  spaces and horizon-
+   //			    tal tabs
+   //   `line break'        linefeeds, carriage
+   //			    returns, form feeds,
+   //			    and vertical tabs
+   //   `comments'          `//' up to just be-
+   //			    fore next line break
    //
    "//" call comment;
-   "<horizontal-space-char>" call horizontal space;
+   "<horizontal-space-char>"
+        call horizontal space;
    "<line-break-char>" call line break;
 
    "<letter>" call word;
    "'<letter>" call word;
-   "\/" match escaped character
-        require "<letter>" call word
-        else match unrecognized escape sequence
-	     output unrecognized escape sequence
-        else output unrecognized escape character;
-
+  "<" "<digit>" match escaped hex character
+                   require "<letter>" call word
+                else match escaped hex character
+                     error non letter escape
+        		   sequence
+                     translate to "?"
+        	     call word
+        	else keep 1 call mark;
    "<mark-char>" call mark;
+   "<" call mark;
+        // See "<" "<digit>" ...; above.
    "." call mark;  // ".<non-digit>"
+        // See ".<digit>" keep 1 call number;
+        // below.
    "/" call mark;  // "/<non-slash-char>"
-
-   // We assume that the preceding text is not a digit
-   // or the current input is not / or , followed by a digit.
+        // See "//" call comment; above.
+   // We assume that the preceding text is not
+   // a digit or the current input is not / or ,
+   // followed by a digit.
    //
    "<digit>" keep 0 call natural number;
    ".<digit>" keep 1 call number;
 
    "<separator-char>" output separator;
-   "," output separator;	// "<non-digit>,"
-   "'" output separator;        // "'<non-letter>"
+   "," output separator;      // "<non-digit>,"
+   "'" output separator;      // "'<non-letter>"
 
-   "\"/" translate to "" call quoted string;
+   "<Q>" translate to "" call quoted string;
 
    "<other>" output unrecognized character;
    output end of file;
@@ -1662,8 +1713,9 @@ begin main master table;
 end main master table;
 
 
-// The below tables are entered from the master table
-// with the first one or two characters scanned.
+// The below tables are entered from the master
+// table with the first one or two characters
+// scanned.
 
 
 begin comment lexeme table;
@@ -1688,15 +1740,13 @@ begin word lexeme table;
 
    "<letter>" accept;
    "'<letter>" accept;
-    "\/" match escaped character
-         require "<letter>"
-	 else match escaped character
-	      error non letter escape sequence
-	      translate to "?"
-	 else match unrecognized escape sequence
-	      error unrecognized escape sequence
-	      translate to "?"
+    "<" "<digit>" match escaped hex character
+                        require "<letter>"
+         else match escaped hex character
+              error non letter escape sequence
+              translate to "?"
          else keep 0 return;
+    "<" keep 0 return;
    return;
 
 end word lexeme table;
@@ -1705,6 +1755,10 @@ begin mark lexeme table;
    "<mark-char>" accept;
    ".<non-digit>" keep 1;
    "/<non-slash-char>" keep 1;
+    "<" "<digit>" match escaped hex character
+                        keep 0 return;
+        	  else keep 1;
+    "<" accept;
    return;
 end mark lexeme table;
 
@@ -1718,15 +1772,16 @@ end natural number lexeme table;
 
 begin number lexeme table;
 
-   // In order to recognize , and / surrounded by digits
-   // as number atoms, entries to this table upon
-   // recognizing "X<digit>" must do a `keep 1' so the
-   // digit will be left to be recognized by
-   // <digit>/<digit> or <digit>,<digit>.
+   // In order to recognize , and / surrounded
+   // by digits as number atoms, entries to this
+   // table upon recognizing "X<digit>" must do
+   // a `keep 1' so the digit will be left to be
+   // recognized by <digit>/<digit> or
+   // <digit>,<digit>.
 
-   // Alternatively we could have a separate table
-   // for the state where the last atom ended with
-   // a digit.
+   // Alternatively we could have a separate
+   // table for the state where the last atom
+   // ended with a digit.
 
    "<digit>" accept;
    "<digit>/<digit>" keep 2;
@@ -1739,12 +1794,11 @@ end number lexeme table;
 
 begin quoted string lexeme table;
 
-    "\"/" translate to "" return;   // End quoted string.
+    "\"/" translate to "" return;
+            // End quoted string.
 
-    "\/" match escaped character
-         else match unrecognized escape sequence
-	      error unrecognized escape sequence
-         else error unrecognized character;
+    "<" match escaped character
+         else accept;
 
     "<line-break-char>"
         goto bad end of line;
@@ -1757,79 +1811,74 @@ end quoted string lexeme table;
 
 begin escaped character atom table;
 
-    "\/\lf/" translate to "\lf/";
-    "\/\cr/" translate to "\cr/";
-    "\/\ht/" translate to "\ht/";
-    "\/\bs/" translate to "\bs/";
-    "\/\ff/" translate to "\ff/";
-    "\/\vt/" translate to "\vt/";
-
-    "\/\"/" translate to "\"/";
-    "\/~/"  translate to " " ;
-
-    "\//"   translate to "\/";
-
-    "\/0/" translate to "\0/";
-    "\/0<hex-digit>/"
-              translate hex 2 1;
-    "\/0<hex-digit><hex-digit>/"
-              translate hex 2 1;
-    "\/0<hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1;
-    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1;
-    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit>/"
-              translate hex 2 1;
-    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit>/"
-              translate hex 2 1;
-    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1;
-    "\/0<hex-digit><hex-digit><hex-digit><hex-digit>"
-        "<hex-digit><hex-digit><hex-digit><hex-digit>/"
-              translate hex 2 1;
+    "<" "ACK" ">" translate to "<ACK>";
+    "<" "BEL" ">" translate to "<BEL>";
+    "<" "BS" ">" translate to "<BS>";
+    "<" "CAN" ">" translate to "<CAN>";
+    "<" "CR" ">" translate to "<CR>";
+    "<" "DC1" ">" translate to "<DC1>";
+    "<" "DC2" ">" translate to "<DC2>";
+    "<" "DC3" ">" translate to "<DC3>";
+    "<" "DC4" ">" translate to "<DC4>";
+    "<" "DEL" ">" translate to "<DEL>";
+    "<" "DLE" ">" translate to "<DLE>";
+    "<" "EM" ">" translate to "<EM>";
+    "<" "ENQ" ">" translate to "<ENQ>";
+    "<" "EOT" ">" translate to "<EOT>";
+    "<" "ESC" ">" translate to "<ESC>";
+    "<" "ETB" ">" translate to "<ETB>";
+    "<" "ETX" ">" translate to "<ETX>";
+    "<" "FF" ">" translate to "<FF>";
+    "<" "FS" ">" translate to "<FS>";
+    "<" "GS" ">" translate to "<GS>";
+    "<" "HT" ">" translate to "<HT>";
+    "<" "LF" ">" translate to "<LF>";
+    "<" "NAK" ">" translate to "<NAK>";
+    "<" "NL" ">" translate to "<NL>";
+    "<" "NUL" ">" translate to "<NUL>";
+    "<" "Q" ">" translate to "<Q>";
+    "<" "RS" ">" translate to "<RS>";
+    "<" "SI" ">" translate to "<SI>";
+    "<" "SO" ">" translate to "<SO>";
+    "<" "SOH" ">" translate to "<SOH>";
+    "<" "SP" ">" translate to "<SP>";
+    "<" "STX" ">" translate to "<STX>";
+    "<" "SUB" ">" translate to "<SUB>";
+    "<" "SYN" ">" translate to "<SYN>";
+    "<" "US" ">" translate to "<US>";
+    "<" "VT" ">" translate to "<VT>";
+    "<" "<digit>" match escaped hex character
+        	  return
+            else fail;
     fail;
 end escaped character atom table;
 
-"<escaped-char>" = ~ "/" & ~ "<line-break-char>";
+begin escaped hex character atom table;
 
-begin unrecognized escape sequence atom table;
-
-    "\//";
-    "\/<escaped-char>/";
-    "\/<escaped-char><escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char>/";
-    "\/<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>"
-      "<escaped-char><escaped-char>/";
+    "<" "<digit>" ">" translate hex 1 1;
+    "<" "<digit><hex-digit>" ">"
+              translate hex 1 1;
+    "<" "<digit><hex-digit><hex-digit>" ">"
+              translate hex 1 1;
+    "<" "<digit><hex-digit><hex-digit>"
+              translate hex 1 1;
+    "<" "<digit><hex-digit><hex-digit>"
+              translate hex 1 1;
+    "<" "<digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit>" ">"
+              translate hex 1 1;
+    "<" "<digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit>"
+              translate hex 1 1;
+    "<" "<digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit>"
+              translate hex 1 1;
+    "<" "<digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit>"
+       "<hex-digit><hex-digit><hex-digit>" ">"
+              translate hex 1 1;
     fail;
-end unrecognized escape sequence atom table;
+end escaped hex character atom table;
 
 begin bad end of line master table;
     output bad end of line goto main;

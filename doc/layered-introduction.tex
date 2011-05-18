@@ -1293,9 +1293,10 @@ which causes an unrecognized character to be treated as a 1-character
 lexeme of type `{\tt bad character}'.  The translation of this lexeme is
 the character itself, but if the entry:
 \begin{indpar}\begin{verbatim}
-"<other>" translate to "\del/" output bad character;
+"<other>" translate to "<DEL>" output bad character;
 \end{verbatim}\end{indpar}
-had been used instead the translation would have been the DEL character.
+had been used instead the translation would have been the ASCII delete
+(DEL) character.
 
 Whenever the current lexical table is changed from a lexeme table
 to a master table, if no {\tt output} {\em instruction-component}
@@ -1312,13 +1313,14 @@ the current atom is processed.  If the table switches from a lexeme table
 to a master table,
 if the instruction contains no `{\tt output}' component,
 and if the current lexeme is of non-zero length, then the current
-lexeme is output with the {\em type} of the lexeme table.
+lexeme is output with the {\em type} of the lexeme table containing
+the `{\tt goto}' instruction component.
 
 A `\ttmkey{call}{in lexical program} {\em lexeme-table-name}\,'
 {\em instruction-component} is just like `{\tt goto}' except
 that it also pushes the identifier of the lexical table in which
 the `{\tt call}' occurs (the `caller') into the return stack.
-The \key{return stack} is a stack of up to 64 lexical table identifiers
+The \key{return stack} is a stack of up to 16 lexical table identifiers
 used by the `{\tt call}' and `{\tt return}' instruction components
 and also by the `{\tt match} {\em atom-table-name}'
 instruction components.  Recursive calls are prohibited.
@@ -1794,7 +1796,7 @@ end number lexeme table;
 
 begin quoted string lexeme table;
 
-    "\"/" translate to "" return;
+    "<Q>" translate to "" return;
             // End quoted string.
 
     "<" match escaped character
@@ -1931,7 +1933,7 @@ begin c++ lexical program;
 "<space-char>" = " " | "\t" | "\v" | "\f";
 
 "<source-char>" =
-    ( "\0020/-\007e/" & ~ "$" & ~ "@" & ~ "`" )
+    ( "<0020>-<007E>" & ~ "$" & ~ "@" & ~ "`" )
     | "<whitespace-char>";
 
 "<sign>" = "+" | "-" ;
@@ -1950,13 +1952,13 @@ begin c++ lexical program;
 // Proposed International Standard for Information
 // Systems—Programming Language C++, 1996.
 
-"<latin-letter>" = "\00c0/-\00d6/" | "\00d8/-\00f6/"
-                 | "\00f8/-\01f5/" | "\01fa/-\0217/"
-                 | "\0250/-\02a8/" | "\01ea0/-\01ef9/";
+"<latin-letter>" = "<00C0>-<00D6>" | "<00D8>-<00F6>"
+                 | "<00F8>-<01F5>" | "<01FA>-<0217>"
+                 | "<0250>-<02A8>" | "<01EA0>-<01EF9>";
 
 . . . letter character pattern definitions omitted . . .
 
-"<CJK-letter>" = "\0f900/-\0fa2d/" | . . .
+"<CJK-letter>" = "<0F900>-<0FA2D>" | . . .
     // Details omitted
 
 "<letter>" = "<ascii-letter>" | "<latin-letter>"
@@ -1991,12 +1993,12 @@ begin c++ lexical program;
 //
 // The whitespace lexeme types are:
 //
-//    line feed (lexeme is "\lf/")
+//    line feed (lexeme is "<LF>")
 //    horizontal space
 //    "/*" comment (include /* and */)
 //    "//" comment (does not include ending line feed)
 //    end of file (lexeme is "")
-//    premature line feed (lexeme is "\lf/")
+//    premature line feed (lexeme is "<LF>")
 //    premature end of file (lexeme is "")
 //
 // This allows line feeds to be used to end pp control
@@ -2032,12 +2034,13 @@ end horizontal space lexeme table;
 
 begin "/*" comment lexeme table;
     "*/" return;
+    "*" accept;
     "<other>" accept;
     goto premature end of file;
 end "/*" comment lexeme table;
 
 begin "//" comment lexeme table;
-    "\lf/" keep 0 return;
+    "<LF>" keep 0 return;
     "<other>" accept;
     goto premature end of file;
 end "//" comment lexeme table;
@@ -2047,7 +2050,7 @@ begin premature end of file master table;
 end premature end of file master table;
 
 begin premature end of line master table;
-    "\lf/" output premature newline goto initial;
+    "<LF>" output premature newline goto initial;
 end premature end of line master table;
 
 begin pp beginning master table;
@@ -2058,7 +2061,7 @@ begin pp beginning master table;
     goto normal;
 end pp beginning master table;
 
-"<op-char-except-<>" = "<op-char>" & ~ "<";
+"<op-char-except-less-than>" = "<op-char>" & ~ "<";
 
 begin pp include master table;
     "<horizontal-space-char>" call horizontal space;
@@ -2066,34 +2069,34 @@ begin pp include master table;
     "//" call "//" comment;
 
     "<" translate to "" call bracketed header name;
-    "\"/" translate to "" call quoted header name;
+    "<Q>" translate to "" call quoted header name;
 
     "<non-digit>" call identifier;
-    "\/" match escaped letter call identifier
-         else match universal character
-	      output unrecognized universal character
-         else output unrecognized character;
+    "\" match escaped letter call identifier
+        else match universal character
+	     output unrecognized universal character
+        else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
 
     "'" translate to "" call character literal;
     "L'" translate to "" call wide character literal;
-    "\"/" translate to "" call string literal;
-    "L\"/" translate to "" call wide string literal;
+    "<Q>" translate to "" call string literal;
+    "L<Q>" translate to "" call wide string literal;
 
-    "<op-char-except-<>" translate to operator
-    			 output operator
+    "<op-char-except-less-than>" translate to operator
+    			         output operator
           else output unrecognized character;
 
-    "\lf/" output line feed goto initial;
+    "<LF>" output line feed goto initial;
     "<other>" output unrecognized character goto initial;
     output end of file goto initial;
 pp end include master table;
 
 begin bracketed header name lexeme table;
     ">" translate to "" goto normal;
-    "\lf/" keep 0 goto premature end of line;
+    "<LF>" keep 0 goto premature end of line;
     "<other>" accept;
     goto premature end of file;
 end bracketed header name lexeme table;
@@ -2102,8 +2105,8 @@ end bracketed header name lexeme table;
 // strings, and cannot have escape sequences.
 //
 begin quoted header name lexeme table;
-    "\"/" translate to "" goto normal;
-    "\lf/" keep 0 goto premature end of line;
+    "<Q>" translate to "" goto normal;
+    "<LF>" keep 0 goto premature end of line;
     "<other>" accept;
     goto premature end of file;
 end quoted header name lexeme table;
@@ -2114,24 +2117,24 @@ begin normal master table;
     "//" call "//" comment;
 
     "<non-digit>" call identifier;
-    "\/<u-or-U>" match escaped character
-                 require "<letter>" call identifier
-                 else match escaped character
-	              output unrecognized universal character
-                 else output unrecognized character;
+    "\<u-or-U>" match escaped character
+                require "<letter>" call identifier
+                else match escaped character
+	             output unrecognized universal character
+                else output unrecognized character;
 
     "<digit>" call integer;
     ".<digit>" call fraction;
 
     "'" translate to "" call character literal;
     "L'" translate to "" call wide character literal;
-    "\"/" translate to "" call string literal;
-    "L\"/" translate to "" call wide string literal;
+    "<Q>" translate to "" call string literal;
+    "L<Q>" translate to "" call wide string literal;
 
     "<op-char>" match operator output operator
                 else output unrecognized character;
 
-    "\lf/" output line feed goto initial;
+    "<LF>" output line feed goto initial;
     "<other>" output unrecognized character goto initial;
     output end of file goto initial;
 end normal master table;
@@ -2183,9 +2186,9 @@ end operator atom table;
 
 begin identifier lexeme table;
     "<non-digit>" accept;
-    "\/<u-or-U>" match escaped character
-                 require "<letter>"
-                 else keep 0 return;
+    "\<u-or-U>" match escaped character
+                require "<letter>"
+                else keep 0 return;
     goto normal;
 end identifier lexeme table;
 
@@ -2280,9 +2283,9 @@ end pp number lexeme table;
 
 begin character literal lexeme table;
     "'" translate to "" goto normal;
-    "\lf/" keep 0 goto premature end of line;
-    "\/" match escaped character
-         else error bad escape character;
+    "<LF>" keep 0 goto premature end of line;
+    "\" match escaped character
+        else error bad escape character;
     "<character-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
@@ -2290,9 +2293,9 @@ end character literal lexeme table;
 
 begin wide character literal lexeme table;
     "'" translate to "" goto normal;
-    "\lf/" keep 0 goto premature end of line;
-    "\/" match escaped character
-         else error bad escape character;
+    "<LF>" keep 0 goto premature end of line;
+    "\" match escaped character
+        else error bad escape character;
     "<character-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
@@ -2302,20 +2305,20 @@ end wide character literal lexeme table;
     "<source-char>" & ~ "\"/" & ~ "\/" & ~ "\lf/";
 
 begin string literal lexeme table;
-    "\"/" translate to "" goto normal;
-    "\lf/" keep 0 goto premature end of line;
-    "\/" match escaped character
-         else error bad escape character;
+    "<Q>" translate to "" goto normal;
+    "<LF>" keep 0 goto premature end of line;
+    "\" match escaped character
+        else error bad escape character;
     "<string-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
 end string literal lexeme table;
 
 begin wide string literal lexeme table;
-    "\"/" translate to "" goto normal line master;
-    "\lf/" keep 0 goto premature end of line master;
-    "\/" match escaped character
-         else error bad escape character;
+    "<Q>" translate to "" goto normal line master;
+    "<LF>" keep 0 goto premature end of line master;
+    "\" match escaped character
+        else error bad escape character;
     "<string-literal-char>" accept;
     "<other>" error bad character literal character;
     goto premature end of file;
@@ -2330,50 +2333,50 @@ end wide string literal lexeme table;
 // permits any number of hexadecimal digits.
 //
 begin escaped character atom table;
-    "\/n" translate to "\lf/";
-    "\/t" translate to "\ht/";
-    "\/v" translate to "\vt/";
-    "\/b" translate to "\bs/";
-    "\/r" translate to "\cr/";
-    "\/f" translate to "\ff/";
-    "\/a" translate to "\bel/";
-    "\/\/" translate to "\/";
-    "\/?" translate to "?";
-    "\/\"/" translate to "\"/";
-    "\/'" translate to "'";
-    "\/<oct-digit>"
+    "\n" translate to "<LF>";
+    "\t" translate to "<HT>";
+    "\v" translate to "<VT>";
+    "\b" translate to "<BS>";
+    "\r" translate to "<CR>";
+    "\f" translate to "<FF>";
+    "\a" translate to "<BEL>";
+    "\\" translate to "\";
+    "\?" translate to "?";
+    "\<Q>" translate to "<Q>";
+    "\'" translate to "'";
+    "\<oct-digit>"
         translate oct 1 0;
-    "\/<oct-digit><oct-digit>"
+    "\<oct-digit><oct-digit>"
         translate oct 1 0;
-    "\/<oct-digit><oct-digit><oct-digit>"
+    "\<oct-digit><oct-digit><oct-digit>"
         translate oct 1 0;
-    "\/x<hex-digit>"
+    "\x<hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\/x<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit><hex-digit><hex-digit><hex-digit>"
        "<hex-digit>" fail;
-    "\/u<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\u<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
-    "\/U<hex-digit><hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+    "\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+      "<hex-digit><hex-digit><hex-digit><hex-digit>"
         translate hex 2 0;
     fail;
 end escaped character atom table;

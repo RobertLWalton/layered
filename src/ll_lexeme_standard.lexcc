@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 18 01:37:45 EDT 2011
+// Date:	Wed May 18 08:05:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -705,7 +705,7 @@ lex
 cc	    NDL::begin_table ( quoted_string );
 cc
 
-lex	    "\"/" translate to "" return;
+lex	    "<Q>" translate to "" return;
 lex	            // End quoted string.
 lex
 cc	           NDL::begin_dispatch ( "\"" );

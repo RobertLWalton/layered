@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 14:51:35 EDT 2011
+// Date:	Thu May 19 01:53:53 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Data
 //	Program Construction
+//	Program Instructions
 //	Scanner Closures
 //	Scanner
 //	Input Files
@@ -38,6 +39,9 @@ namespace ll { namespace lexeme {
     using min::uns8;
     using min::uns32;
     using min::uns64;
+
+    // (const min::stub *) NULL value.
+    //
     using min::NULL_STUB;
 
     // Trace value with all trace bits on.
@@ -90,13 +94,8 @@ namespace ll { namespace lexeme {
 
     extern min::locatable_var<ll::lexeme::input>
            default_input;
-        // Default value for scanner->read_input.
-	// See scanner->read_input AND scanner->input_
-	// file below.
-	//
-	// Note: This variable is not set until the
-	// first scanner is created (first call to init
-	// a scanner).
+        // Default value for scanner->input.  See
+	// scanner->input AND scanner->input_file below.
 
     struct erroneous_atom_struct;
     typedef min::packed_struct_updptr
@@ -109,10 +108,6 @@ namespace ll { namespace lexeme {
            default_erroneous_atom;
         // Default value for scanner->erroneous_atom.
 	// Prints error message to scanner->printer.
-	//
-	// Note: This variable is not set until the
-	// first scanner is created (first call to init
-	// a scanner).
 
 } }
 
@@ -120,6 +115,15 @@ namespace ll { namespace lexeme {
 // ------- ------------
 
 namespace ll { namespace lexeme {
+
+    // A program is an uns32 vector.
+    //
+    // The program uns32 elements are grouped into
+    // program components.  Each component has an ID
+    // equal to its offset (the offset of its first
+    // element) in the program uns32 vector.
+    //
+    // See ll_lexeme_program_data.h for more details.
 
     // The program being constructed defaults to
     //
@@ -166,7 +170,7 @@ namespace ll { namespace lexeme {
     void create_program
 	    ( const char * const * type_name = NULL,
 	      uns32 max_type = 0,
-	      ll::lexeme::program & program =
+	      min::ref<ll::lexeme::program> program =
 	          default_program );
 
     // Table modes and return values.
@@ -206,10 +210,10 @@ namespace ll { namespace lexeme {
 	          default_program );
 
     // Create a dispatcher with given maximum number of
-    // breakpoints and maximum ctype.  Return the new
-    // dispatcher's ID.  Note that legal ctypes are 0 ..
-    // max_ctype, and 0 is the default ctype for any
-    // character not mapped by a type map.
+    // breakpoints and maximum ctype (character type).
+    // Return the new dispatcher's ID.  Note that legal
+    // ctypes are 0 .. max_ctype, and 0 is the default
+    // ctype for any character not mapped by a type map.
     //
     uns32 create_dispatcher
 	    ( uns32 max_breakpointers,
@@ -239,9 +243,94 @@ namespace ll { namespace lexeme {
 	      ll::lexeme::program program =
 	          default_program );
 
+
+    // Create an instruction.  Instructions are program
+    // components defined below in `Program Instruc-
+    // tions'.  Return the ID of the new instruction.
+    //
+    uns32 create_instruction
+	    ( uns32 operation,
+	      uns32 * translation_vector = NULL,
+	      uns32 atom_table_ID = 0,
+	      uns32 require_dispatcher_ID = 0,
+	      uns32 else_instruction_ID = 0,
+	      uns32 erroneous_atom_type = 0,
+	      uns32 output_type = 0,
+	      uns32 goto_table_ID = 0,
+	      uns32 call_table_ID = 0,
+	      ll::lexeme::program program =
+	          default_program );
+
+    // Attach a dispatcher or an instruction program
+    // component to a lexical table target, or a type
+    // map component to a dispatcher target.  Return
+    // true if no error.  Return false and do nothing
+    // but write an error message consisting of one or
+    // more complete lines to min::error_message if
+    // there is a conflict with a previous attachment.
+    //
+    bool attach
+    	    ( uns32 target_ID,
+    	      uns32 component_ID,
+	      ll::lexeme::program program =
+	          default_program );
+
+    // Attach a dispatcher or an instruction program
+    // component to a ctype of a dispatcher target.
+    // Return true if no error.  Return false and do
+    // nothing but write an error message consisting of
+    // one or more complete lines to min::error_message
+    // if there is a conflict with a previous attach-
+    // ment.
+    //
+    bool attach
+    	    ( uns32 target_ID,
+    	      uns32 ctype,
+	      uns32 component_ID,
+	      ll::lexeme::program program =
+	          default_program );
+
+    // Convert the program to the endianhood of this
+    // computer.  This is necessary when the program is
+    // read from a binary file.  The first uns32 element
+    // of the program determines the program's endian-
+    // hood (it is a known constant that appears correct
+    // if and only if the program's current endianhood
+    // is correct).  Note that the program contains
+    // embedded byte vectors which must not be changed
+    // by endianhood conversion, so one cannot simply
+    // convert all the uns32 elements of the program.
+    //
+    // If a program formatting error is found while
+    // changing the program's endianhood, an error
+    // message consisting of one or more complete lines
+    // is written to min::error_message, and false is
+    // returned.  Otherwise true is returned.  Most
+    // program formatting errors cannot be found this
+    // way.
+    //
+    bool convert_program_endianhood
+	    ( ll::lexeme::program program =
+	        default_program );
+} }
+
+// Program Instructions
+// ------- ------------
+
+namespace ll { namespace lexeme {
+
     // An instruction consists of an uns32 operation,
-    // various optional IDs, and an uns32 * translation_
-    // vector for the TRANSLATE_TO flag.
+    // various optional IDs and lexical types, and an
+    // uns32 * translation_vector for the TRANSLATE_TO
+    // instruction component.  See the create_instruc-
+    // tion function above for a list of optional ID's
+    // and lexical types.
+    //
+    // An instruction is composed of instruction compo-
+    // nents (not to be confused with program compo-
+    // nents).  Each instruction component has a flag
+    // and in some cases one or more length parameters
+    // in the instruction operation.
     // 
     // The operation is the sum of some of the follow-
     // ing:
@@ -260,7 +349,9 @@ namespace ll { namespace lexeme {
     //			{TO/HEX/OCT}.
     //
     //   KEEP(n):	Truncate atom to n uns32 char-
-    //			acters.  The discarded end of
+    //			acters.  The atom must have at
+    //			least n characters before it is
+    //			truncated.  The discarded end of
     //			the atom is retained as input to
     //			be rescanned.  0 <= n < 32.
     //
@@ -358,7 +449,8 @@ namespace ll { namespace lexeme {
     //			else_instruction_ID.
     //
 
-    // Instruction operation flags:
+    // Bits 0-15 of an instruction operation are
+    // reserved for instruction component flags:
     //
     enum {
 	ACCEPT			= 0,
@@ -377,9 +469,8 @@ namespace ll { namespace lexeme {
 	ELSE			= ( 1 << 12 ),
     };
 
-    // Instruction shifts and masks; low order 16 bits
-    // of instruction are flags as per above.  The
-    // other bits are
+    // Instruction component lengths are stored in bits
+    // 16-31 of an instruction operation as per:
     //
     //		16-21	KEEP_LENGTH
     //		22-27   TRANSLATE_TO_LENGTH
@@ -388,6 +479,12 @@ namespace ll { namespace lexeme {
     //
     // TRANSLATE_TO_LENGTH overlaps with
     // PREFIX_LENGTH and POSTFIX_LENGTH.
+    //
+    // Each LENGTH is readable via
+    //
+    //	    ( operation >> ..._LENGTH_SHIFT )
+    //	    &
+    //	    ..._LENGTH_MASK
     //
     const uns32 KEEP_LENGTH_SHIFT = 16;
     const uns32 KEEP_LENGTH_MASK = 0x3F;
@@ -468,69 +565,6 @@ namespace ll { namespace lexeme {
 	         << POSTFIX_LENGTH_SHIFT );
     }
 
-    // Create an instruction.
-    //
-    uns32 create_instruction
-	    ( uns32 operation,
-	      uns32 * translation_vector = NULL,
-	      uns32 atom_table_ID = 0,
-	      uns32 require_dispatcher_ID = 0,
-	      uns32 else_instruction_ID = 0,
-	      uns32 erroneous_atom_type = 0,
-	      uns32 output_type = 0,
-	      uns32 goto_table_ID = 0,
-	      uns32 call_table_ID = 0,
-	      ll::lexeme::program program =
-	          default_program );
-
-    // Attach a dispatcher or an instruction component
-    // to a lexical table target, or a type map compo-
-    // nent to a dispatcher target.  Return true if no
-    // error.  Return false and do nothing but write an
-    // error message consisting of one or more complete
-    // lines to min::error_message if there is a
-    // conflict with a previous attachment.
-    //
-    bool attach
-    	    ( uns32 target_ID,
-    	      uns32 component_ID,
-	      ll::lexeme::program program =
-	          default_program );
-
-    // Attach a dispatcher or an instruction component
-    // to a ctype of a dispatcher target.  Return true
-    // if no error.  Return false and do nothing but
-    // write an error message consisting of one or more
-    // complete lines to min::error_meesage if there is
-    // a conflict with a previous attachment.
-    //
-    bool attach
-    	    ( uns32 target_ID,
-    	      uns32 ctype,
-	      uns32 component_ID,
-	      ll::lexeme::program program =
-	          default_program );
-
-    // Convert the program to the endianhood of this
-    // computer.  This is necessary when the program is
-    // read from a binary file.  The first uns32 element
-    // of the program determines the program's endian-
-    // hood (it is a known constant that appears correct
-    // if and only if the program's current endianhood
-    // is correct).  Note that the program contains
-    // embedded byte vectors which must not be changed
-    // by endianhood conversion, so one cannot simply
-    // convert all the uns32 elements of the program.
-    //
-    // If a program formatting error is found while
-    // changing the program's endianhood, false is
-    // returned.  Otherwise true is returned.  Many
-    // program formatting errors cannot be found this
-    // way.
-    //
-    bool convert_program_endianhood
-	    ( ll::lexeme::program program =
-	        default_program );
 } }
 
 // Scanner Closures
@@ -540,13 +574,13 @@ namespace ll { namespace lexeme {
 
     struct input_struct
         // Closure to add inchar elements to the end of
-	// the input buffer vector.
+	// the input buffer vector.  See the `input'
+	// member of scanner_struct below for details.
     {
     	uns32 control;
 	bool (*get)
 	    ( ll::lexeme::scanner scanner,
 	      ll::lexeme::input input );
-	    // See scanner->read_input.
     };
 
     // Set input closure function.  If `input' is NULL_
@@ -560,8 +594,9 @@ namespace ll { namespace lexeme {
 	                    ll::lexeme::input input ) );
 
     struct erroneous_atom_struct
-        // Closure to add announce errors, such as erro-
-	// neous atoms.
+        // Closure to announce erroneous atom errors.
+	// See the `erroneous_atom' member of scanner_
+	//. struct below for details.
     {
     	uns32 control;
 	void (* announce )
@@ -569,7 +604,6 @@ namespace ll { namespace lexeme {
 	      ll::lexeme::scanner scanner,
 	      ll::lexeme::erroneous_atom
 		  erroneous_atom );
-	    // See scanner->erroneous_atom.
     };
 
     // Set erroneous_atom closure function.  If
@@ -601,18 +635,6 @@ namespace ll { namespace lexeme {
     // pointer to it is stored in the variable.  This
     // variable MUST BE locatable by the garbage collec-
     // tor.
-    //
-    // Note that a scanner must be created before a new
-    // program can be constructed using the scanner.
-    //
-    // When a new scanner is created, scanner parameters
-    // such as printer, read_input, input_file, etc. are
-    // set to defaults.  Otherwise these are left
-    // untouched, and can be set either immediately
-    // before or immediately after the call to init_
-    // scanner.  They should not be changed otherwise,
-    // except for the trace parameter, which may be
-    // changed at any time.
 
     enum {
         // Scanner trace flags:
@@ -631,15 +653,10 @@ namespace ll { namespace lexeme {
         const uns32 control;
 	    // Packed structure control word.
 
-	// The program is a sequence of program
-	// components.  Defaults to NULL_STUB.
-	//
-	const ll::lexeme::program program;
-
 	// The input buffer is a vector of inchar
 	// elements each holding a character and the
-	// location of that character in the input text.
-	// The location, consisting of a line, an index,
+	// position of that character in the input text.
+	// The position, consisting of a line, an index,
 	// and a column, is not used by the scanner.
 	//
 	// Created when the scanner is created, and set
@@ -649,10 +666,10 @@ namespace ll { namespace lexeme {
 
 	// The line, index, and column of the character
 	// that will be put next at the end of the input
-	// buffer.  May be used to delimit the position
-	// just after the last character that is to be
-	// put into the input buffer, e.g., the position
-	// of the end of file.
+	// buffer.  May be used as the position just
+	// after the last character that was put into
+	// the input buffer, e.g., the position of the
+	// end of file.
 	//
 	// Zero'ed by scanner initialization functions.
 	//
@@ -674,7 +691,8 @@ namespace ll { namespace lexeme {
 
 	// The scanner parameters are
 	//
-	//	read_input
+	//	program
+	//	input
 	//	input_file
 	//	erroneous_atom
 	//	printer
@@ -686,6 +704,12 @@ namespace ll { namespace lexeme {
 	// the `scan' function, are set to defaults at
 	// that time.
 
+	// The program is a sequence of program compo-
+	// nents.  Defaults to NULL_STUB.  Must NOT be
+	// NULL_STUB when the `scan' function is called.
+	//
+	const ll::lexeme::program program;
+
 	// Closure to call to input one or more inchar
 	// elements to the end of the input buffer
 	// vector, increasing the length of the buffer
@@ -694,17 +718,16 @@ namespace ll { namespace lexeme {
 	// because we are at the end of file.
 	//
 	// Set to NULL_STUB when the scanner is created.
-	// Set to `default_read_input' if still If NULL_
-	// STUB when `scan' is first called after
-	// scanner initialization.
+	// Set to `default_input' if still NULL_STUB
+	// when `scan' is first called after scanner
+	// initialization.
 	//
-	const ll::lexeme::input read_input;
+	const ll::lexeme::input input;
 
-	// ll::lexeme::default_read_input, the default
-	// value of read_input, reads UTF-8 lines from
-	// the input_file and assigns each UNICODE
-	// character a line, index, and column number
-	// as follows:
+	// ll::lexeme::default_input, the default value
+	// of `input', reads UTF-8 lines from the input_
+	// file and assigns each UNICODE character a
+	// line, index, and column number as follows:
 	//
 	//   line   input_file->line_number - 1 after
 	//	    calling next_line(input_file).
@@ -718,7 +741,9 @@ namespace ll { namespace lexeme {
 	//	    incremented by 
 	//
 	//		min::width
-	//		    ( column, c, print->mode )
+	//		    ( column, c,
+	//                    scanner->input_file
+	//                           ->print_flags )
 	//
 	//	    where c is the UNICODE character
 	//	    added to the input buffer.
@@ -727,10 +752,11 @@ namespace ll { namespace lexeme {
 	// Set by
 	//
 	//	min::init_input_stream
-	//	    ( scanner->input_file, std::cin );
+	//	    ( input_file_ref(scanner),
+	//	      std::cin );
 	//
 	//      min::init_file_name
-	//	    ( scanner->input_file,
+	//	    ( input_file_ref(scanner),
 	//	      min::new_str_gen
 	//	          ( "standard input" ) );
 	//
@@ -739,19 +765,17 @@ namespace ll { namespace lexeme {
 	//
 	const min::file input_file;
 
-	// Closure to call with an error atom as per
+	// Closure to call with an erroneous atom as per
 	// ERRONEOUS_ATOM instruction flag.  The atom is
 	// in
 	//
 	//	input_buffer[first .. next-1]
 	//
 	// and the instruction provided type is given as
-	// an argument.  If the value of this closure is
-	// NULL_STUB, execution of an instruction with
-	// an ERRONEOUS_ATOM flag is a scan error.
+	// an argument.
 	//
 	// Set to NULL_STUB when the scanner is created.
-	// Set to `default_erroneous_atom' if still If
+	// Set to `default_erroneous_atom' if still
 	// NULL_STUB when `scan' is first called after
 	// scanner initialization.
 	//
@@ -763,11 +787,10 @@ namespace ll { namespace lexeme {
 	// Set to NULL_STUB when the scanner is created.
 	// Set by
 	//
-	//	min::init ( scanner->printer )
-	//	    << min:autobreak;
+	//	min::init ( printer_ref(scanner) );
 	//
-	// when first needed if it is still NULL_STUB at
-	// that time.
+	// if it is still NULL_STUB when `scan' is
+	// called and scanner->trace is non-zero.
 	//
 	const min::printer printer;
 
@@ -792,14 +815,15 @@ namespace ll { namespace lexeme {
 	    // - 1 element is top).
     };
 
-    MIN_REF ( ll::lexeme::program, program,
-              ll::lexeme::scanner )
     MIN_REF ( ll::lexeme::input_buffer, input_buffer,
               ll::lexeme::scanner )
     MIN_REF ( ll::lexeme::translation_buffer,
               translation_buffer,
               ll::lexeme::scanner )
-    MIN_REF ( ll::lexeme::input, read_input,
+
+    MIN_REF ( ll::lexeme::program, program,
+              ll::lexeme::scanner )
+    MIN_REF ( ll::lexeme::input, input,
               ll::lexeme::scanner )
     MIN_REF ( min::file, input_file,
               ll::lexeme::scanner )
@@ -813,7 +837,7 @@ namespace ll { namespace lexeme {
     //
     void init ( min::ref<ll::lexeme::scanner> scanner );
 
-    // Set initialize the scanner and set the scanner
+    // Initialize the scanner and set the scanner
     // program.
     //
     void init_program
@@ -892,9 +916,9 @@ namespace ll { namespace lexeme {
     // If there is an error in the lexical scanning
     // program, SCAN_ERROR is returned instead of a
     // lexeme type, and an error message consisting of
-    // one or more complete lines is written to the
-    // min::error_message.  In this case first, next,
-    // and the translation buffer are not set.
+    // one or more complete lines is written to min::
+    // error_message.  In this case first, next, and the
+    // translation buffer are not set.
     //
     uns32 scan
             ( uns32 & first, uns32 & next,
@@ -961,7 +985,7 @@ namespace ll { namespace lexeme {
     // Ditto but print the current lexeme, given its
     // first, next, and type.  Include the position and
     // type, and if the translation is inexact, also
-    // include the translation.
+    // include the translation buffer.
     //
     struct plexeme
     {
@@ -1021,6 +1045,8 @@ namespace ll { namespace lexeme {
     // Print the lines and put marks (default '^')
     // underneath columns from `begin' to just before
     // `end'.  `file' is usually scanner->input_file.
+    // Lines that are all whitespace are replaced by
+    // blank_line.
     //
     void print_item_lines
 	    ( min::printer printer,
@@ -1032,8 +1058,9 @@ namespace ll { namespace lexeme {
 	          "<BLANK-LINE>" );
 
     // Ditto but for lexeme in scanner->input_buffer
-    // [first .. next-1].  If input_buffer[next-1] does
-    // not exist, use scanner->next_position instead.
+    // [first .. next-1].  If input_buffer[first] or
+    // input_buffer[next-1] does not exist, use
+    // scanner->next_position instead.
     //
     void print_item_lines
 	    ( min::printer,

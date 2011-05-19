@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 30 08:00:46 EDT 2011
+// Date:	Thu May 19 02:00:52 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,7 +52,7 @@ static uns32 scanner_stub_disp[] =
       min::DISP ( & LEX::scanner_struct
                        ::translation_buffer ),
       min::DISP ( & LEX::scanner_struct
-                       ::read_input ),
+                       ::input ),
       min::DISP ( & LEX::scanner_struct
                        ::input_file ),
       min::DISP ( & LEX::scanner_struct
@@ -149,15 +149,23 @@ uns32 LEX::table_mode
 void LEX::create_program
 	( const char * const * type_name,
 	  uns32 max_type,
-	  LEX::program & program )
+	  min::ref<LEX::program> program_arg )
 {
-    if ( program == NULL_STUB )
-        program = uns32_vec_type.new_gen();
+    if ( program_arg == NULL_STUB )
+        program_arg = uns32_vec_type.new_gen();
     else
     {
-	min::pop ( program, program->length );
-	min::resize ( program, 1000 );
+	min::pop
+	    ( (LEX::program) program_arg,
+	      program_arg->length );
+	min::resize
+	    ( (LEX::program) program_arg, 1000 );
     }
+
+    // Implicit type conversion of min::ref type does
+    // not work well, so -
+    //
+    LEX::program program = program_arg;
 
     uns32 ID = program->length;
     assert ( ID == 0 );
@@ -694,6 +702,14 @@ bool LEX::convert_program_endianhood
 	    break;
 	}
 	default:
+	    min::init ( min::error_message )
+	        << "LEXICAL PROGRAM ENDIAN CONVERSION"
+		   " ERROR: undefined program component"
+		   " type at offset "
+		<< cID
+		<< " in the program vector of uns32"
+		   " elements."
+		<< min::eol;
 	    return false;
 	}
     }
@@ -799,6 +815,19 @@ static void default_erroneous_atom_announce
 	       ( scanner, first, next, type )
 	<< min::eol;
 }
+
+static class default_closures_initializer
+{
+    public:
+
+    default_closures_initializer ( void )
+    {
+	LEX::init ( LEX::default_input,
+		    ::default_input_get );
+	LEX::init ( LEX::default_erroneous_atom,
+	            ::default_erroneous_atom_announce );
+    }
+} default_closures_init;
 
 // Scanning
 // --------
@@ -823,11 +852,6 @@ static bool is_recursive
 static void create_scanner
 	( min::ref<LEX::scanner> scanner )
 {
-    LEX::init ( LEX::default_input,
-	        ::default_input_get );
-    init ( LEX::default_erroneous_atom,
-	   ::default_erroneous_atom_announce );
-
     scanner = scanner_type.new_stub();
 
     LEX::input_buffer_ref(scanner) =
@@ -1156,8 +1180,8 @@ static uns32 scan_atom
 	if (    scanner->next + length
 	     >= input_buffer->length
 	     &&
-	     ! (*scanner->read_input->get)
-	         ( scanner, scanner->read_input ) )
+	     ! (*scanner->input->get)
+	         ( scanner, scanner->input ) )
 	    break; // End of file.
 
 	assert
@@ -1529,8 +1553,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 {
     if ( scanner->reinitialize )
     {
-        if ( scanner->read_input == NULL_STUB )
-	    read_input_ref(scanner) = default_input;
+        if ( scanner->input == NULL_STUB )
+	    input_ref(scanner) = default_input;
 
         if ( scanner->erroneous_atom == NULL_STUB )
 	    erroneous_atom_ref(scanner) =
@@ -1552,7 +1576,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    return SCAN_ERROR;
 	}
 
-	if ( scanner->read_input == NULL_STUB )
+	if ( scanner->input_file == NULL_STUB )
 	{
 	    init_input_stream
 	        ( input_file_ref(scanner), std::cin );

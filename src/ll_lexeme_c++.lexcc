@@ -1,0 +1,656 @@
+// Layers Language C++ Lexical Analyzer
+//
+// File:	ll_lexeme_c++.lexcc
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Wed May 25 02:40:21 EDT 2011
+//
+// The authors have placed this program in the public
+// domain; they make no warranty and accept no liability
+// for this program.
+
+// Lines beginning with `lex<HT>' and lines equal to
+// `lex' are copied to ll_lexeme_c++.lex and then
+// to the C++ Lexical Program appendix of ../doc/
+// layered-introduction.tex.
+//
+// Lines beginning with `cc<HT>' and lines equal to `cc'
+// are copied to ll_lexeme_c++.cc and compiled to
+// produce code that can create a C++ lexical
+// program.
+
+// Table of Contents
+//
+//	Usage and Setup
+//	Program Construction
+
+// Usage and Setup
+// ----- --- -----
+
+cc	// This file was automatically generated from
+cc	// ll_lexeme_c++.lexcc.
+cc
+lex	// This file was automatically generated from
+lex	// ll_lexeme_c++.lexcc.
+lex
+cc	# include <ll_lexeme_ndl.h>
+cc	# include <ll_lexeme_c++.h>
+cc	using namespace ll::lexeme::ndl;
+cc	# define LEX ll::lexeme
+cc	# define LEXCPP ll::lexeme::cpp
+cc	using namespace LEXCPP;
+cc
+
+// Program Construction
+// ------- ------------
+
+cc	min::locatable_var<LEX::program>
+cc	    LEXSTD::default_program;
+cc
+cc	const char * const
+cc		LEXSTD::type_name[MAX_TYPE+1] = {
+cc
+cc	    NULL,
+cc	    "WORD",
+cc	    "NATURAL_NUMBER",
+cc	    "NUMBER",
+cc	    "MARK",
+cc	    "QUOTED_STRING",
+cc	    "SEPARATOR",
+cc	    "COMMENT",
+cc	    "HORIZONTAL_SPACE",
+cc	    "LINE_BREAK",
+cc	    "END_OF_FILE",
+cc	    "BAD_END_OF_LINE",
+cc	    "BAD_END_OF_FILE",
+cc	    "UNRECOGNIZED_CHARACTER",
+cc	    "NON_LETTER_ESCAPE_SEQUENCE" };
+cc
+cc	const char * LEXSTD::type_code =
+cc	    "Xwn#mqschbeLFCN";
+cc
+cc	struct char_range { uns32 min, max; }
+cc	    non_ascii_letters[] =
+cc	{
+cc		// { min,		max },
+cc	#include <ll_lexeme_non_ascii_letters.h>
+cc		   { 0,                0 }
+cc	};
+cc
+cc	static void add_non_ascii_letters ( void )
+cc	{
+cc	    for ( char_range *p = non_ascii_letters;
+cc		  p->min || p->max != 0; ++ p )
+cc		NDL::add_characters ( p->min, p->max );
+cc	}
+cc
+cc	void LEXCPP::init_cpp_program ( void )
+cc	{
+cc	    if ( LEXCPP::default_program != NULL_STUB )
+cc	        return;
+cc
+
+lex	begin standard lexical program;
+lex
+cc	    begin_program ( type_name, MAX_TYPE );
+cc
+cc	    uns32 initial_master;
+cc	    NDL::new_table ( initial_master, MASTER );
+cc	    uns32 horizontal_space;
+cc	    NDL::new_table
+cc		( horizontal_space,
+cc		  horizontal_space_t );
+cc	    uns32 slash_star_comment;
+cc	    NDL::new_table ( slash_star_comment,
+cc	                     slash_star_comment_t );
+cc	    uns32 slash_slash_comment;
+cc	    NDL::new_table ( slash_slash_comment,
+cc	                     slash_slash_comment_t );
+cc	    uns32 line_break;
+cc	    NDL::new_table ( line_break, line_break_t );
+cc	    uns32 bad_end_of_line;
+cc	    NDL::new_table ( bad_end_of_line, MASTER );
+cc	    uns32 bad_end_of_file;
+cc	    NDL::new_table ( bad_end_of_file, MASTER );
+cc	    uns32 escaped_char;
+cc	    NDL::new_table ( escaped_char, ATOM );
+cc	    uns32 escaped_hex_char;
+cc	    NDL::new_table ( escaped_hex_char, ATOM );
+cc
+cc	    uns32 non_letter_seq_t =
+cc		non_letter_escape_sequence_t;
+cc	    uns32 unrec_char_t =
+cc		unrecognized_character_t;
+
+lex
+lex	begin c++ lexical program;
+lex
+lex	// Before this lexical program is used the input
+lex	// should be preprocessed to
+lex	//
+lex	//    (1) Replace trigraph sequences.
+lex	//    (2) Replace any source file character that
+lex	//        is not one of the 96 `source charac-
+lex	//        ters' by a universal character name
+lex	//        (\uXXXX or \UXXXXXXXX).
+lex	//    (3) Eliminate carriage returns next to
+lex	//        newlines.
+lex	//    (4) Eliminate backslash newline pairs.
+lex	//
+lex	// After this lexical program is used the output
+lex	// should be post-processed to
+lex	//
+lex	//    (5) Perform C/C++ macro preprocessing
+lex	//        (macro expansion).
+lex	//    (6) Concatenate adjacent ordinary quoted
+lex	//        strings and adjacent wide quoted
+lex	//        strings.
+lex
+lex	"<digit>" = "0-9";
+cc	    const char * digit = "0123456789";
+lex	"<oct-digit>" = "0-7";
+cc	    const char * oct_digit = "01234567";
+lex	"<hex-digit>" = "0-9" | "a-f" | "A-F";
+cc	    const char * hex_digit =
+cc	        "0123456789ABCDEFabcdef";
+lex	"<non-digit>" = "_" | "a-z" | "A-Z";
+lex	    // I.e., in identifier.
+cc	    const char * non_digit =
+cc	        "_"
+cc	        "abcdefghijklmnopqrstuvwxyz"
+cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+cc
+lex
+lex	"<ascii-letter>" = "a-z" | "A-Z";
+cc	    const char * ascii_letter =
+cc	        "abcdefghijklmnopqrstuvwxyz"
+cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+cc
+lex
+lex	"<space-char>" = " " | "\t" | "\v" | "\f";
+cc	    const char * space_char = " \t\v\f";
+cc
+lex
+lex	"<source-char>" =
+lex	    ( "<0020>-<007E>" & ~ "$" & ~ "@" & ~ "`" )
+lex	    | "<whitespace-char>";
+cc	    const char * source_char =
+cc		" !\"#$%&'()*+,-./"
+cc	        "0123456789"
+cc	        ":;<=>?@"
+cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+cc	        "[\\]^_`"
+cc	        "abcdefghijklmnopqrstuvwxyz"
+cc	        "{|}~"
+cc	        " \t\v\f";
+cc
+lex
+lex	"<sign>" = "+" | "-" ;
+cc	    const char * sign = "+-";
+cc
+lex
+lex	// The following can begin an operator,
+lex	// a separator, or either.
+lex	//
+lex	"<op-char>" = "#" | "<" | ">" | ":" | "%" |
+lex	            | "." | "?" | "+" | "-" | "*" | "/"
+lex	            | "^" | "&" | "|" | "~" | "!" | ","
+lex	            | "(" | ")" | "[" | "]" | "{" | "}"
+lex	            | ";";
+cc	    const char * sign =
+cc	        "#<>:%.?+-*/^&|~!,()[]{};";
+cc
+lex
+lex	"<letter>" = "<ascii-letter>"
+lex	           | "<non-ascii-letter>"
+lex
+lex	// <non-ascii-letter> ::= UNICODE character in
+lex	// one of the code ranges designated in
+lex	// ../include/ll_lexeme_non_ascii_letters.h
+cc	    uns32 letter;
+cc	    NDL::begin_atom_pattern ( letter );
+cc	    	NDL::add_characters
+cc		     ( ascii_letter_char );
+cc		add_non_ascii_letters();
+cc	    NDL::end_atom_pattern();
+cc
+lex
+lex	// Alternative operators that are not identi-
+lex	// fiers are translated.  E.g., <: becomes [ in
+lex	// the lexeme // translation.
+lex
+lex	// C/C++ preprocessing is hereafter abbreviated
+lex	// as `pp'.
+lex	//
+lex	// Because of pp control lines, lexical scanning
+lex	// is slightly context dependent.  There are
+lex	// several contexts, each corresponding to a
+lex	// different master // table:
+lex	//
+lex	//    initial master
+lex	//        Used in line beginning situations to
+lex	//	  recognize the # token that introduces
+lex	//	  a pp control line.
+lex	//    pp beginning master
+lex	//        Used to scan the beginning of a pp
+lex	//	  control line after the # has been
+lex	//        scanned but before anything else is
+lex	//        scanned.
+lex	//    pp include master
+lex	//        Used to scan tokens in a #include line
+lex	//        after #include has been scanned.
+lex	//        Recognizes `header' pp-tokens.
+lex	//    normal master
+lex	//        Used to scan a non pp control line or
+lex	//        the rest of a non-#include pp control
+lex	//        line.
+lex	//
+lex	// The whitespace lexeme types are:
+lex	//
+lex	//    line feed (lexeme is "<LF>")
+lex	//    horizontal space
+lex	//    "/*" comment (include /* and */)
+lex	//    "//" comment (does not include ending line
+lex	//                  feed)
+lex	//    end of file (lexeme is "")
+lex	//    premature line feed (lexeme is "<LF>")
+lex	//    premature end of file (lexeme is "")
+lex	//
+lex	// This allows line feeds to be used to end pp
+lex	// control lines.  The `premature' lexemes are
+lex	// errors: the previous lexeme is treated as if
+lex	// there were no error (i.e., as if there were a
+lex	// ", ', */, etc.) and the next lexeme is a
+lex	// `premature ...' lexeme.
+lex	//
+lex	// Characters that are not part of any C++
+lex	// lexeme and universal characters that are not
+lex	// part of any C++ lexeme are made into
+lex	// 1-character lexemes of the types:
+lex	//
+lex	//    unrecognized character
+lex	//    unrecognized universal character
+lex	//
+lex	// The character in question is the translation
+lex	// of these lexemes.
+lex
+lex	begin initial master table;
+lex	    "<horizontal-space-char>"
+lex	        call horizontal space;
+lex	    "/*" call "/*" comment;
+lex	    "##" output operator goto normal;
+lex	    "%:%:" translate to "##" output operator
+lex	        goto normal;
+lex	    "#" output punctuation goto pp beginning;
+lex	    "%:" translate to "#" output punctuation
+lex	        goto pp beginning;
+lex	    goto normal;
+lex	end initial master table;
+lex
+lex	begin horizontal space lexeme table;
+lex	    "<horizontal-space-char>" accept;
+lex	    return;
+lex	end horizontal space lexeme table;
+lex
+lex	begin "/*" comment lexeme table;
+lex	    "*/" return;
+lex	    "*" accept;
+lex	    "<other>" accept;
+lex	    goto premature end of file;
+lex	end "/*" comment lexeme table;
+lex
+lex	begin "//" comment lexeme table;
+lex	    "<LF>" keep 0 return;
+lex	    "<other>" accept;
+lex	    goto premature end of file;
+lex	end "//" comment lexeme table;
+lex
+lex	begin premature end of file master table;
+lex	    output premature end of file goto initial;
+lex	end premature end of file master table;
+lex
+lex	begin premature end of line master table;
+lex	    "<LF>" output premature newline
+lex	        goto initial;
+lex	end premature end of line master table;
+lex
+lex	begin pp beginning master table;
+lex	    "<horizontal-space-char>"
+lex	        call horizontal space;
+lex	    "/*" call "/*" comment;
+lex	    "include<non-digit>" keep 0 goto normal;
+lex	    "include" output identifier goto pp include;
+lex	    goto normal;
+lex	end pp beginning master table;
+lex
+lex	"<op-char-except-less-than>" =
+lex	        "<op-char>" & ~ "<";
+lex
+lex	begin pp include master table;
+lex	    "<horizontal-space-char>"
+lex	        call horizontal space;
+lex	    "/*" call "/*" comment;
+lex	    "//" call "//" comment;
+lex
+lex	    "<" translate to ""
+lex	        call bracketed header name;
+lex	    "<Q>" translate to ""
+lex	        call quoted header name;
+lex
+lex	    "<non-digit>" call identifier;
+lex	    "\" match escaped letter call identifier
+lex	        else match universal character
+lex		     output unrecognized universal
+lex	                    character
+lex	        else output unrecognized character;
+lex
+lex	    "<digit>" call integer;
+lex	    ".<digit>" call fraction;
+lex
+lex	    "'" translate to ""
+lex	        call character literal;
+lex	    "L'" translate to ""
+lex	        call wide character literal;
+lex	    "<Q>" translate to ""
+lex	        call string literal;
+lex	    "L<Q>" translate to ""
+lex	        call wide string literal;
+lex
+lex	    "<op-char-except-less-than>"
+lex	               translate to operator
+lex	    	       output operator
+lex	          else output unrecognized character;
+lex
+lex	    "<LF>" output line feed goto initial;
+lex	    "<other>" output unrecognized character
+lex	              goto initial;
+lex	    output end of file goto initial;
+lex	pp end include master table;
+lex
+lex	begin bracketed header name lexeme table;
+lex	    ">" translate to "" goto normal;
+lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "<other>" accept;
+lex	    goto premature end of file;
+lex	end bracketed header name lexeme table;
+lex
+lex	// Quoted header names are not the same as quoted
+lex	// strings, and cannot have escape sequences.
+lex	//
+lex	begin quoted header name lexeme table;
+lex	    "<Q>" translate to "" goto normal;
+lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "<other>" accept;
+lex	    goto premature end of file;
+lex	end quoted header name lexeme table;
+lex
+lex	begin normal master table;
+lex	    "<horizontal-space-char>" call horizontal space;
+lex	    "/*" call "/*" comment;
+lex	    "//" call "//" comment;
+lex
+lex	    "<non-digit>" call identifier;
+lex	    "\<u-or-U>" match escaped character
+lex	                require "<letter>" call identifier
+lex	                else match escaped character
+lex		             output unrecognized universal character
+lex	                else output unrecognized character;
+lex
+lex	    "<digit>" call integer;
+lex	    ".<digit>" call fraction;
+lex
+lex	    "'" translate to "" call character literal;
+lex	    "L'" translate to "" call wide character literal;
+lex	    "<Q>" translate to "" call string literal;
+lex	    "L<Q>" translate to "" call wide string literal;
+lex
+lex	    "<op-char>" match operator output operator
+lex	                else output unrecognized character;
+lex
+lex	    "<LF>" output line feed goto initial;
+lex	    "<other>" output unrecognized character goto initial;
+lex	    output end of file goto initial;
+lex	end normal master table;
+lex
+lex	begin operator atom table;
+lex	    "(";
+lex	    ")";
+lex	    "[";
+lex	    "]";
+lex	    "{";
+lex	    "}";
+lex	    "#";
+lex	    "##";
+lex	    "<:";
+lex	    ":>";
+lex	    "<%";
+lex	    "%>";
+lex	    "%:";
+lex	    "%:%:";
+lex	    ";";
+lex	    ":";
+lex	    "...";
+lex	    "?";
+lex	    "::";
+lex	    ".";
+lex	    ".*";
+lex	    "+";
+lex	    "-";
+lex	    "*";
+lex	    "/";
+lex	    "%";
+lex	    "^";
+lex	    "&";
+lex	    "|";
+lex	    "~";
+lex	    "!";
+lex	    "=";
+lex	    "<";
+lex	    ">";
+lex	    "+=";
+lex	    "-=";
+lex	    // etc.
+lex
+lex	    fail;
+lex	end operator atom table;
+lex
+lex
+lex	"<u-or-U>" = "u" | "U";
+lex
+lex	begin identifier lexeme table;
+lex	    "<non-digit>" accept;
+lex	    "\<u-or-U>" match escaped character
+lex	                require "<letter>"
+lex	                else keep 0 return;
+lex	    goto normal;
+lex	end identifier lexeme table;
+lex
+lex	"<non-digit-except-lLuU> =
+lex	    <non-digit> & ~ "l" & ~ "u" & ~ "L" & ~ "U";
+lex
+lex	begin integer lexeme table;
+lex	    "<digit>" accept;
+lex	    "." goto fraction;
+lex	    "e<sign><digit>" goto exponent;
+lex	    "E<sign>"<digit> goto exponent;
+lex	    "ul" goto done integer;
+lex	    "uL" goto done integer;
+lex	    "Ul" goto done integer;
+lex	    "UL" goto done integer;
+lex	    "lu" goto done integer;
+lex	    "lU" goto done integer;
+lex	    "Lu" goto done integer;
+lex	    "LU" goto done integer;
+lex	    "u"  goto done integer;
+lex	    "U"  goto done integer;
+lex	    "l"  goto done integer;
+lex	    "L"  goto done integer;
+lex	    "e<sign>" goto pp number;
+lex	    "E<sign>" goto pp number;
+lex	    "<non-digit-except-lLuU>" goto pp number;
+lex	    output integer return;
+lex	end integer lexeme table;
+lex
+lex	begin done integer lexeme table;
+lex	    "<digit>" goto pp number;
+lex	    "e<sign>" goto pp number;
+lex	    "E<sign>" goto pp number;
+lex	    "<non-digit>" goto pp number;
+lex	    "." goto pp number;
+lex	    output integer return;
+lex	end done integer lexeme table;
+lex
+lex	"<non-digit-except-lLfF> =
+lex	    <non-digit> & ~ "l" & ~ "f" & ~ "L" & ~ "F";
+lex
+lex	begin fraction lexeme table;
+lex	    "<digit>" accept;
+lex	    "." goto pp number;
+lex	    "e<sign><digit>" goto exponent;
+lex	    "E<sign>"<digit> goto exponent;
+lex	    "f"  goto done floating point;
+lex	    "F"  goto done floating point;
+lex	    "l"  goto done floating point;
+lex	    "L"  goto done floating point;
+lex	    "e<sign><digit>" goto exponent;
+lex	    "E<sign><digit>" goto exponent;
+lex	    "e<sign>" goto pp number;
+lex	    "E<sign>" goto pp number;
+lex	    "<non-digit-except-lLfF>" goto pp number;
+lex	    output floating point return;
+lex	end fraction lexeme table;
+lex
+lex	begin exponent lexeme table;
+lex	    "<digit>" accept;
+lex	    "." goto pp number;
+lex	    "f"  goto done floating point;
+lex	    "F"  goto done floating point;
+lex	    "l"  goto done floating point;
+lex	    "L"  goto done floating point;
+lex	    "e<sign>" goto pp number;
+lex	    "E<sign>" goto pp number;
+lex	    "<non-digit-except-lLfF>" goto pp number;
+lex	    output floating point return;
+lex	end exponent lexeme table;
+lex
+lex	begin floating point done lexeme table;
+lex	    "<digit>" goto pp number;
+lex	    "e<sign>" goto pp number;
+lex	    "E<sign>" goto pp number;
+lex	    "<non-digit>" goto pp number;
+lex	    "." goto pp number;
+lex	    output floating point return;
+lex	end floating point done lexeme table;
+lex
+lex	begin pp number lexeme table;
+lex	    "<digit>" goto pp number;
+lex	    "e<sign>" goto pp number;
+lex	    "E<sign>" goto pp number;
+lex	    "<non-digit>" goto pp number;
+lex	    "." goto pp number;
+lex	    output pp number return;
+lex	end pp number lexeme table;
+lex
+lex	"<character-literal-char>" =
+lex	    "<source-char>" & ~ "'" & ~ "\/" & ~ "\lf/";
+lex
+lex	begin character literal lexeme table;
+lex	    "'" translate to "" goto normal;
+lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "\" match escaped character
+lex	        else error bad escape character;
+lex	    "<character-literal-char>" accept;
+lex	    "<other>" error bad character literal character;
+lex	    goto premature end of file;
+lex	end character literal lexeme table;
+lex
+lex	begin wide character literal lexeme table;
+lex	    "'" translate to "" goto normal;
+lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "\" match escaped character
+lex	        else error bad escape character;
+lex	    "<character-literal-char>" accept;
+lex	    "<other>" error bad character literal character;
+lex	    goto premature end of file;
+lex	end wide character literal lexeme table;
+lex
+lex	"<string-literal-char>" =
+lex	    "<source-char>" & ~ "\"/" & ~ "\/" & ~ "\lf/";
+lex
+lex	begin string literal lexeme table;
+lex	    "<Q>" translate to "" goto normal;
+lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "\" match escaped character
+lex	        else error bad escape character;
+lex	    "<string-literal-char>" accept;
+lex	    "<other>" error bad character literal character;
+lex	    goto premature end of file;
+lex	end string literal lexeme table;
+lex
+lex	begin wide string literal lexeme table;
+lex	    "<Q>" translate to "" goto normal line master;
+lex	    "<LF>" keep 0 goto premature end of line master;
+lex	    "\" match escaped character
+lex	        else error bad escape character;
+lex	    "<string-literal-char>" accept;
+lex	    "<other>" error bad character literal character;
+lex	    goto premature end of file;
+lex	end wide string literal lexeme table;
+lex
+lex	// This atom table is used when the next atom
+lex	// begins with \ and is in a character or string
+lex	// literal.
+lex	//
+lex	// We allow only a maximum of 8 hexadecimal digits
+lex	// after \x; 9 digits is an error.  The C++ standard
+lex	// permits any number of hexadecimal digits.
+lex	//
+lex	begin escaped character atom table;
+lex	    "\n" translate to "<LF>";
+lex	    "\t" translate to "<HT>";
+lex	    "\v" translate to "<VT>";
+lex	    "\b" translate to "<BS>";
+lex	    "\r" translate to "<CR>";
+lex	    "\f" translate to "<FF>";
+lex	    "\a" translate to "<BEL>";
+lex	    "\\" translate to "\";
+lex	    "\?" translate to "?";
+lex	    "\<Q>" translate to "<Q>";
+lex	    "\'" translate to "'";
+lex	    "\<oct-digit>"
+lex	        translate oct 1 0;
+lex	    "\<oct-digit><oct-digit>"
+lex	        translate oct 1 0;
+lex	    "\<oct-digit><oct-digit><oct-digit>"
+lex	        translate oct 1 0;
+lex	    "\x<hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	       "<hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	       "<hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	       "<hex-digit><hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\x<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	       "<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	       "<hex-digit>" fail;
+lex	    "\u<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    "\U<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	      "<hex-digit><hex-digit><hex-digit><hex-digit>"
+lex	        translate hex 2 0;
+lex	    fail;
+lex	end escaped character atom table;
+lex
+lex	end c++ lexical program;

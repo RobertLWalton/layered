@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 13 00:44:55 EDT 2011
+// Date:	Tue May 24 22:30:55 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -430,11 +430,9 @@ void PAR::init_output_stream
 // given arguments.  The resulting token is next->
 // previous.
 //
-// Any token in the expression being made that is not
-// a SYMBOL or EXPRESSION is replaced by an expression
-// whose sole element is the token string of the token
-// and whose .initiator is # for a number and " for a
-// quoted string.
+// All tokens MUST have type SYMBOL, EXPRESSION, or
+// NATURAL_NUMBER.  Therefore all tokens have a
+// min::gen value.
 //
 static void compact
 	( PAR::parser parser,
@@ -455,52 +453,16 @@ static void compact
     for ( min::uns32 i = 0; i <= n; ++ i )
 	min::attr_push(expvp) = min::MISSING();
 
-    min::locatable_gen element;
-    min::locatable_gen str;
-    min::locatable_var<PAR::token> token;
-
     while ( n -- )
     {
-        token = next->previous;
-	if ( token->type != PAR::SYMBOL
-	     &&
-	     token->type != PAR::NATURAL_NUMBER
-	     &&
-	     token->type != PAR::EXPRESSION )
-	{
-	    str = min::new_str_gen
-		( token->string.begin_ptr(),
-		  token->string->length );
-	    element = min::new_obj_gen ( 10, 1 );
-	    min::obj_vec_insptr elemvp ( element );
+        PAR::token t = next->previous;
+	assert ( t != next );
 
-	    min::attr_push(elemvp) = str;
+	min::set_attr ( expvp, n, t->value );
 
-	    if (    token->type
-	         == LEXSTD::quoted_string_t )
-		str = ::doublequote;
-	    else if ( token->type == LEXSTD::number_t )
-		str = ::number_sign;
-	    else if (    token->type
-	              == LEXSTD::natural_number_t )
-		str = ::number_sign;
-	    else
-		MIN_ABORT ( "unexpected token type" );
-
-	    min::attr_insptr elemap ( elemvp ); 
-	    min::locate ( elemap, ::initiator );
-	    min::set ( elemap, str );
-	}
-	else
-	    element = token->value;
-
-	min::set_attr ( expvp, n, element );
-
-	assert ( token != next );
 	PAR::free
 	    ( PAR::remove
-	          ( PAR::first_ref(parser),
-		    token ) );
+	          ( PAR::first_ref(parser), t ) );
     }
 
     if (    initiator != min::MISSING()
@@ -521,7 +483,8 @@ static void compact
 	}
     }
 
-    token = PAR::new_token ( PAR::EXPRESSION );
+    PAR::token token =
+        PAR::new_token ( PAR::EXPRESSION );
     PAR::value_ref(token) = exp;
     token->begin = begin;
     token->end = end;
@@ -604,7 +567,7 @@ static PAR::token backup
 // mark.
 //
 // Otherwise, if indented_paragraph is false, the
-// subexpression was begun by the opening bracket, and
+// subexpression was begun by an opening bracket, and
 // the `current' token is the first token after the
 // opening bracket.
 //
@@ -648,7 +611,7 @@ static PAR::token backup
 // terminated the expression.  Note that the closing
 // bracket returned may NOT be at the TOP of the closing
 // stack, in which case the proper closing bracket
-// should be assumed to have been omitted.
+// should be assumed to have been erroneously omitted.
 //
 // SUBSUBexpressions are converted to an EXPRESSION
 // token whose value is a list.  The tokens beginning
@@ -684,10 +647,20 @@ static PAR::token backup
 // the first part of a split token (this should not be
 // a problem as the last lexeme of a closing bracket
 // should be a separator), and multi-lexeme brackets
-// cannot straddle line_breaks.
+// and indentation marks cannot straddle line_breaks.
 //
 // This function is called at the top level with indent
 // <= - parser->indent_offset and closing_stack == NULL.
+//
+// If indented_paragraph is true, closing_stack must be
+// NULL.
+//
+// Also, any token in the output that is not a a SYMBOL
+// or EXPRESSION is replaced by an expression whose sole
+// element is the token string of the token and whose
+// .initiator is # for a number and " for a quoted
+// string.  In addition, consecutive quoted string
+// tokens are merged.
 //
 struct closing_stack
 {
@@ -710,6 +683,10 @@ static void parse_explicit_subexpression
     assert (    ! indented_paragraph
              || closing_stack_p == NULL );
 
+    // Temporary min::gen locatable.
+    //
+    min::locatable_gen g;
+
     closing_bracket = min::NULL_STUB;
 
     min::int32 line_indent =
@@ -717,6 +694,7 @@ static void parse_explicit_subexpression
     PAR::token line_first;
     TAB::indentation_mark indentation_mark =
         min::NULL_STUB;
+
     while ( true )
     {
         // Truncate if end of file.
@@ -910,8 +888,6 @@ static void parse_explicit_subexpression
 	    }
 	    else if ( line_indent >= 0 )
 	    {
-		assert ( line_first != current );
-
 		// Complain if next token indent is too
 		// near line indent.
 		//
@@ -967,16 +943,141 @@ static void parse_explicit_subexpression
 	    continue;
 	}
 
-	// Lookup tokens in bracket table.
-	//
 	indentation_mark = min::NULL_STUB;
-	TAB::root root =
-	    find_entry ( parser, current, selectors,
-	                 parser->bracket_table );
+	TAB::root root = min::NULL_STUB;
+
+	// Process non-natural numbers and quoted
+	// strings.
+	//
+	if ( current->type != PAR::SYMBOL
+	     &&
+	     current->type != PAR::NATURAL_NUMBER
+	     &&
+	     current->type != PAR::EXPRESSION )
+	{
+	    min::gen indicator;
+
+	    if (    current->type
+	         == LEXSTD::quoted_string_t )
+	    {
+	        indicator = ::doublequote;
+	        
+		// Find all the quoted strings in a
+		// sequence of consecutive quoted
+		// strings that is to be concatenated.
+		//
+		min::uns32 n = 1;
+		    // Number of consecutive quoted
+		    // strings.
+		min::uns32 length =
+		    current->string->length;
+		    // Aggregate length of consecutive
+		    // quoted strings.
+		// current ends up just after last
+		// of consecutive quoted strings.
+		//
+		while ( true )
+		{
+		    if (    current->next
+		         == parser->first )
+		    {
+			parser->input->add_tokens
+			    ( parser, parser->input );
+			assert (    current->next
+			         != parser->first );
+		    }
+		    current = current->next;
+		    if ( current->type
+		         != LEXSTD::quoted_string_t )
+		        break;
+		    length +=
+		        current->string->length;
+		    ++ n;
+		}
+		if ( n == 1 )
+		{
+		    // Usual case; optimize this.
+		    //
+		    PAR::string str =
+		        current->previous->string;
+		    g = min::new_str_gen
+			( str.begin_ptr(),
+			  str->length );
+		}
+		else
+		{
+		    min::uns32 s[length];
+		        // Concatenated strings.
+		    min::uns32 p = length;
+		        // s[p] is last character
+			// written.
+		    while ( n -- )
+		    {
+			PAR::string str =
+			    current->previous->string;
+			min::uns32 len = str->length;
+			p -= len;
+		        memcpy ( & s[p],
+			         str.begin_ptr(),
+				   sizeof ( min::uns32 )
+				 * len );
+			if ( n == 0 ) break;
+			PAR::free
+			  ( PAR::remove
+			      ( PAR::first_ref(parser),
+				current->previous ) );
+		    }
+		    g = min::new_str_gen ( s, length );
+		}
+		current = current->previous;
+	    }
+	    else
+	    {
+		// Remember: only small natural numbers
+		// are PAR::NATURAL_NUMBERs.
+		//
+		min::uns32 t = current->type;
+	        assert
+		    ( t == LEXSTD::number_t
+		      ||
+		      t == LEXSTD::natural_number_t );
+
+		indicator = ::number_sign;
+		g = min::new_str_gen
+		    ( current->string.begin_ptr(),
+		      current->string->length );
+	    }
+
+	    PAR::value_ref(current)
+	        = min::new_obj_gen ( 10, 1 );
+	    PAR::string_ref(current) =
+	        PAR::free_string ( current->string );
+	    current->type = PAR::EXPRESSION;
+
+	    min::obj_vec_insptr elemvp ( current->value );
+	    min::attr_push(elemvp) = g;
+
+	    min::attr_insptr elemap ( elemvp ); 
+	    min::locate ( elemap, ::initiator );
+	    min::set ( elemap, initiator );
+	}
+
+	// If not number or quoted string, look for
+	// bracket or indentation mark.
+	//
+	else
+	    root = find_entry ( parser, current,
+	                        selectors,
+	                        parser->bracket_table );
+
+	// If bracket or indentation mark found,
+	// process it.  Else move to next token.
+	//
 	if ( root != min::NULL_STUB )
 	{
 	    min::uns32 subtype =
 	        min::packed_subtype_of ( root );
+
 	    if ( subtype == TAB::OPENING_BRACKET )
 	    {
 	        TAB::opening_bracket opening_bracket =
@@ -1031,9 +1132,9 @@ static void parse_explicit_subexpression
 			(    closing_bracket
 			  == min::NULL_STUB ?
 			  current :
-			  backup
-			  ( current,
-			    closing_bracket->label )
+			  ::backup
+			      ( current,
+				closing_bracket->label )
 			);
 		    PAR::token last =
 			(    closing_bracket
@@ -1115,11 +1216,10 @@ static void parse_explicit_subexpression
 				    closing_bracket->
 					label );
 		    closing_bracket = min::NULL_STUB;
-		    continue;
 		}
 	    }
 
-	    if ( subtype == TAB::CLOSING_BRACKET )
+	    else if ( subtype == TAB::CLOSING_BRACKET )
 	    {
 	        closing_bracket =
 		    (TAB::closing_bracket) root;
@@ -1159,24 +1259,25 @@ static void parse_explicit_subexpression
 			  begin, end );
 
 		    closing_bracket = min::NULL_STUB;
-		    continue;
 		}
 	    }
 	    else if ( subtype == TAB::INDENTATION_MARK )
 	        indentation_mark =
 		    (TAB::indentation_mark) root;
 	}
-
-	// Move to next token.
-	//
-	if ( current->next == parser->first )
+	else
 	{
-	    parser->input->add_tokens
-		( parser, parser->input );
-	    assert
-		( current->next != parser->first );
+	    // Move to next token.
+	    //
+	    if ( current->next == parser->first )
+	    {
+		parser->input->add_tokens
+		    ( parser, parser->input );
+		assert
+		    ( current->next != parser->first );
+	    }
+	    current = current->next;
 	}
-	current = current->next;
     }
 
     // Compact any incomplete line.

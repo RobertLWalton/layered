@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 18 08:05:47 EDT 2011
+// Date:	Thu May 26 03:20:58 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,10 +63,11 @@ cc	    "END_OF_FILE",
 cc	    "BAD_END_OF_LINE",
 cc	    "BAD_END_OF_FILE",
 cc	    "UNRECOGNIZED_CHARACTER",
+cc	    "UNRECOGNIZED_ESCAPE_SEQUENCE",
 cc	    "NON_LETTER_ESCAPE_SEQUENCE" };
 cc
 cc	const char * LEXSTD::type_code =
-cc	    "Xwn#mqschbeLFCN";
+cc	    "Xwn#mqschbeLFCEN";
 cc
 cc	struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
@@ -79,7 +80,7 @@ cc
 cc	static void add_non_ascii_letters ( void )
 cc	{
 cc	    for ( char_range *p = non_ascii_letters;
-cc		  p->min || p->max != 0; ++ p )
+cc		  p->min != 0 || p->max != 0; ++ p )
 cc		NDL::add_characters ( p->min, p->max );
 cc	}
 cc
@@ -210,7 +211,7 @@ cc	    const char * separator_char = "()[]{};`";
 cc
 
 lex	"<line-break-char>" = "<LF>" | "<VT>" | "<FF>"
-lex	        	    | "<CR>";
+lex	                    | "<CR>";
 lex
 cc	    const char * line_break_char = "\n\v\f\r";
 cc
@@ -232,12 +233,12 @@ lex	   // Whitespace is separated out into 3 types
 lex	   // of lexemes:
 lex	   //
 lex	   //   `horizontal space'  spaces and horizon-
-lex	   //			    tal tabs
+lex	   //                       tal tabs
 lex	   //   `line break'        linefeeds, carriage
-lex	   //			    returns, form feeds,
-lex	   //			    and vertical tabs
+lex	   //                       returns, form feeds,
+lex	   //                       and vertical tabs
 lex	   //   `comments'          `//' up to just be-
-lex	   //			    fore next line break
+lex	   //                       fore next line break
 lex	   //
 lex	   "//" call comment;
 cc		   NDL::begin_dispatch ( "/" );
@@ -299,10 +300,10 @@ lex	  "<" "<digit>" match escaped hex character
 lex	                   require "<letter>" call word
 lex	                else match escaped hex character
 lex	                     error non letter escape
-lex	        		   sequence
+lex	                           sequence
 lex	                     translate to "?"
-lex	        	     call word
-lex	        	else keep 1 call mark;
+lex	                     call word
+lex	                else keep 1 call mark;
 cc	    	   NDL::begin_dispatch ( "<" );
 cc	    	      NDL::begin_dispatch
 cc				( digit_char );
@@ -335,18 +336,20 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<" call mark;
-lex	        // See "<" "<digit>" ...; above.
+cc	        // See "<" "<digit>" ...; above.
 
 lex	   "." call mark;  // ".<non-digit>"
-lex	        // See ".<digit>" keep 1 call number;
-lex	        // below.
-
-lex	   "/" call mark;  // "/<non-slash-char>"
-lex	        // See "//" call comment; above.
+cc	        // See ".<digit>" keep 1 call number;
+cc	        // below.
 
 lex	   // We assume that the preceding text is not
-lex	   // a digit or the current input is not / or ,
-lex	   // followed by a digit.
+lex	   // a digit.
+lex	   //
+lex	   "/" call mark;  // "/<non-slash-char>"
+cc	        // See "//" call comment; above.
+
+lex	   // We assume that the preceding text is not
+lex	   // a digit or a / or , preceded by a digit.
 lex	   //
 lex	   "<digit>" keep 0 call natural number;
 cc	    	   NDL::begin_dispatch ( digit_char );
@@ -379,7 +382,10 @@ cc		      NDL::output ( separator_t );
 cc	    	   NDL::end_dispatch();
 cc
 
-lex	   "," output separator;      // "<non-digit>,"
+lex	   // We assume that the preceding text is not
+lex	   // a digit.
+lex	   //
+lex	   "," output separator;
 cc	    	   NDL::begin_dispatch ( "," );
 cc		      NDL::output ( separator_t );
 cc	    	   NDL::end_dispatch();
@@ -416,8 +422,8 @@ cc	    	NDL::end_table();
 cc
 
 lex	// The below tables are entered from the master
-lex	// table with the first one or two characters
-lex	// scanned.
+lex	// table with the first zero, one, or two
+lex	// characters scanned.
 lex
 lex
 lex	begin comment lexeme table;
@@ -583,7 +589,7 @@ cc
 
 lex	    "<" "<digit>" match escaped hex character
 lex	                        keep 0 return;
-lex	        	  else keep 1;
+lex	                  else keep 1;
 lex	    "<" accept;
 cc		   NDL::begin_dispatch ( "<" );
 cc		      NDL::begin_dispatch
@@ -611,7 +617,18 @@ cc
 lex	begin natural number lexeme table;
 cc	    NDL::begin_table ( natural_number );
 cc
-
+lex
+lex	   // In order to recognize , and / surrounded
+lex	   // by digits as number atoms, entries to this
+lex	   // table upon recognizing "X<digit>" must do
+lex	   // a `keep 1' so the digit will be left to be
+lex	   // recognized by <digit>/<digit> or
+lex	   // <digit>,<digit>.
+lex
+lex	   // Alternatively we could have a separate
+lex	   // table for the state where the last atom
+lex	   // ended with a digit.
+lex
 lex	   "<digit>" accept;
 lex	   "<digit>/<digit>" keep 2 goto number;
 lex	   "<digit>,<digit>" keep 2 goto number;
@@ -653,16 +670,8 @@ lex
 cc	    NDL::begin_table ( number );
 cc
 
-lex	   // In order to recognize , and / surrounded
-lex	   // by digits as number atoms, entries to this
-lex	   // table upon recognizing "X<digit>" must do
-lex	   // a `keep 1' so the digit will be left to be
-lex	   // recognized by <digit>/<digit> or
-lex	   // <digit>,<digit>.
-lex
-lex	   // Alternatively we could have a separate
-lex	   // table for the state where the last atom
-lex	   // ended with a digit.
+lex	   // See note on , and / in `natural number'
+lex	   // table above.
 lex
 lex	   "<digit>" accept;
 lex	   "<digit>/<digit>" keep 2;
@@ -962,7 +971,7 @@ cc	#	undef TO
 cc	#	undef END
 
 lex	    "<" "<digit>" match escaped hex character
-lex	        	  return
+lex	                  return
 lex	            else fail;
 cc	    	    NDL::begin_dispatch ( digit_char );
 cc		       NDL::match ( escaped_hex_char );

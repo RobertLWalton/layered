@@ -97,6 +97,7 @@ cc	    begin_program ( type_name, MAX_TYPE );
 cc
 cc	    uns32 main;
 cc	    NDL::new_table ( main, MASTER );
+cc
 cc	    uns32 word;
 cc	    NDL::new_table ( word, word_t );
 cc	    uns32 natural_number;
@@ -120,16 +121,22 @@ cc		  horizontal_space_t );
 cc	    uns32 line_break;
 cc	    NDL::new_table ( line_break, line_break_t );
 cc	    uns32 bad_end_of_line;
+cc
 cc	    NDL::new_table ( bad_end_of_line, MASTER );
 cc	    uns32 bad_end_of_file;
 cc	    NDL::new_table ( bad_end_of_file, MASTER );
+cc
 cc	    uns32 escaped_char;
 cc	    NDL::new_table ( escaped_char, ATOM );
 cc	    uns32 escaped_hex_char;
 cc	    NDL::new_table ( escaped_hex_char, ATOM );
+cc	    uns32 unrec_escape_seq;
+cc	    NDL::new_table ( unrec_escape_seq, ATOM );
 cc
 cc	    uns32 non_letter_seq_t =
 cc		non_letter_escape_sequence_t;
+cc	    uns32 unrec_escape_seq_t =
+cc		unrecognized_escape_sequence_t;
 cc	    uns32 unrec_char_t =
 cc		unrecognized_character_t;
 
@@ -222,6 +229,12 @@ lex
 lex	"<horizontal-space-char>" = " " | "<HT>";
 lex
 cc	    const char * horizontal_space_char = " \t";
+cc
+
+lex	"<escape-char>" = "A-Z" | "-";
+lex
+cc	    const char * escape_char =
+cc	        "-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 cc
 
 lex	begin main master table;
@@ -724,10 +737,17 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	    "<" match escaped character
-lex	         else accept;
+lex	        else match unrecognized escape character
+lex	             error unrecognized escape character
+lex	        else accept;
 lex
 cc		   NDL::begin_dispatch ( "<" );
 cc			 NDL::match ( escaped_char );
+cc		      NDL::ELSE();
+cc			 NDL::match
+cc			  ( unrec_escape_seq );
+cc			 NDL::erroneous_atom
+cc			  ( unrec_escape_seq_t );
 cc		      NDL::ELSE();
 cc			 NDL::accept();
 cc		   NDL::end_dispatch();
@@ -1085,6 +1105,94 @@ cc	    	    NDL::fail();
 cc
 
 lex	end escaped hex character atom table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex	begin unrecoginized escape sequence atom table;
+lex
+cc	    NDL::begin_table ( unrec_escape_seq );
+cc
+
+lex	    "<" "<escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex             "<escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex             "<escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex             "<escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>" ">";
+cc	# define ECHAR begin_dispatch ( escape_char )
+cc	# define CLOSE begin_dispatch ( ">" )
+cc	# define TRANS accept()
+cc	# define END end_dispatch()
+cc
+cc	       NDL::begin_dispatch ( "<" );
+cc	    	    ECHAR;
+cc		      ECHAR;
+cc			ECHAR;
+cc			  ECHAR;
+cc			    ECHAR;
+cc			      ECHAR;
+cc			        ECHAR;
+cc				  ECHAR;
+cc				    CLOSE;
+cc				      TRANS;
+cc				    END;
+cc				  END;
+cc				  CLOSE;
+cc				    TRANS;
+cc				  END;
+cc				END;
+cc				CLOSE;
+cc				  TRANS;
+cc				END;
+cc			      END;
+cc			      CLOSE;
+cc			        TRANS;
+cc			      END;
+cc			    END;
+cc			    CLOSE;
+cc			      TRANS;
+cc			    END;
+cc			  END;
+cc			  CLOSE;
+cc			    TRANS;
+cc			  END;
+cc			END;
+cc			CLOSE;
+cc			  TRANS;
+cc			END;
+cc		      END;
+cc		      CLOSE;
+cc			TRANS;
+cc		      END;
+cc		    END;
+cc	       NDL::end_dispatch();
+cc
+cc	# undef ECHAR
+cc	# undef CLOSE
+cc	# undef TRANS
+cc	# undef END
+cc
+
+lex	    fail;
+cc	    	    NDL::fail();
+cc
+
+lex	end unrecognized escape sequence atom table;
 lex
 cc	    NDL::end_table();
 cc

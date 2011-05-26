@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 11 06:33:56 EDT 2011
+// Date:	Thu May 26 04:49:45 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,8 +83,9 @@ static void erroneous_atom_announce
     const char * message;
     switch ( type )
     {
-    case LEXSTD::unrecognized_character_t:
-	message = "ERROR: unrecognized character; ";
+    case LEXSTD::unrecognized_escape_sequence_t:
+	message = "ERROR: unrecognized escape"
+	          " sequence; ";
 	break;
     case LEXSTD::non_letter_escape_sequence_t:
 	message = "ERROR: non-letter escape sequence; ";

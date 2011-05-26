@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed May 11 06:34:41 EDT 2011
+# Date:		Thu May 26 03:49:12 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -47,6 +47,7 @@ out:		${PROGRAMS:=.out}
 test:		${PROGRAMS:=.test}
 
 
+ED=[ 0-9][ 0-9][ 0-9][ 0-9][ 0-9][ 0-9][ 0-9][0-9]
 %.test:	%.out Makefile
 	rm -f $*.test
 	sed \
@@ -54,6 +55,9 @@ test:		${PROGRAMS:=.test}
 	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
+	    -e '/${ED}: TABLE/s//    XXXX: TABLE/' \
+	    -e '/${ED}: DISPATCHER/s//    XXXX: DISPATCHER/' \
+	    -e '/ ID: [0-9][0-9]*/s// ID: XXXX/' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
@@ -66,6 +70,9 @@ test:		${PROGRAMS:=.test}
 	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
+	    -e '/${ED}: TABLE/s//    XXXX: TABLE/' \
+	    -e '/${ED}: DISPATCHER/s//    XXXX: DISPATCHER/' \
+	    -e '/ ID: [0-9][0-9]*/s// ID: XXXX/' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \

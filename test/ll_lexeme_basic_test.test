@@ -1,7 +1,7 @@
 Uncooked Program 1:
 
          0: PROGRAM
-            Initial Table ID: 27
+            Initial Table ID: XXXX
             Max Type: 6
                  0: WHITESPACE
                  1: ERROR
@@ -10,15 +10,15 @@ Uncooked Program 1:
                  4: NUMBER
                  5: OPERATOR
                  6: SEPARATOR
-        27: TABLE
+      XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: 0
-            Instruction ID: 0
-        31: TABLE
+            Dispatcher ID: XXXX
+            Instruction ID: XXXX
+      XXXX: TABLE
             Mode: SYMBOL
-            Dispatcher ID: 35
-            Instruction ID: 82
-        35: DISPATCHER
+            Dispatcher ID: XXXX
+            Instruction ID: XXXX
+      XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 11
             Max CType: 4
@@ -48,7 +48,7 @@ Uncooked Program 1:
 Cooked Program 1:
 
          0: PROGRAM
-            Initial Table ID: 27
+            Initial Table ID: XXXX
             Max Type: 6
                  0: WHITESPACE
                  1: ERROR
@@ -57,27 +57,27 @@ Cooked Program 1:
                  4: NUMBER
                  5: OPERATOR
                  6: SEPARATOR
-        27: TABLE
+      XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: 0
-        31: TABLE
+            Dispatcher ID: XXXX
+      XXXX: TABLE
             Mode: SYMBOL
-            Dispatcher ID: 35
+            Dispatcher ID: XXXX
             KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(31)
-        35: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 11
             Max CType: 4
             1 9
                 KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(31)
             2 8
-                Dispatcher ID: 35
+                Dispatcher ID: XXXX
             4 6 a-z
                 ACCEPT
 Cooked Program 2:
 
          0: PROGRAM
-            Initial Table ID: 27
+            Initial Table ID: XXXX
             Max Type: 6
                  0: WHITESPACE
                  1: ERROR
@@ -86,33 +86,33 @@ Cooked Program 2:
                  4: NUMBER
                  5: OPERATOR
                  6: SEPARATOR
-        27: TABLE
+      XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: 194
+            Dispatcher ID: XXXX
             OUTPUT(2)
-        31: TABLE
+      XXXX: TABLE
             Mode: ATOM
-            Dispatcher ID: 43
+            Dispatcher ID: XXXX
             FAIL
-        43: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             \
-                Dispatcher ID: 61
-        61: DISPATCHER
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                Dispatcher ID: 79
-        79: DISPATCHER
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                Dispatcher ID: 97
-        97: DISPATCHER
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
@@ -120,23 +120,23 @@ Cooked Program 2:
                 TRANSLATE_OCT(1,0), ELSE:
                 FAIL
 
-       133: TABLE
+      XXXX: TABLE
             Mode: WHITESPACE
-            Dispatcher ID: 493
+            Dispatcher ID: XXXX
             KEEP(0), GOTO(27)
-       137: TABLE
+      XXXX: TABLE
             Mode: SYMBOL
-            Dispatcher ID: 318
+            Dispatcher ID: XXXX
             KEEP(0), RETURN
-       141: TABLE
+      XXXX: TABLE
             Mode: NUMBER
-            Dispatcher ID: 413
+            Dispatcher ID: XXXX
             KEEP(0), GOTO(27)
-       145: TABLE
+      XXXX: TABLE
             Mode: OPERATOR
-            Dispatcher ID: 527
+            Dispatcher ID: XXXX
             KEEP(0), GOTO(27)
-       194: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
@@ -152,7 +152,7 @@ Cooked Program 2:
                 OUTPUT(6)
             *-+ - /
                 KEEP(0), GOTO(145)
-       318: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
@@ -164,15 +164,15 @@ Cooked Program 2:
 
             <DEL>
                 TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-       352: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max CType: 2
-       391: TABLE
+      XXXX: TABLE
             Mode: NUMBER
-            Dispatcher ID: 459
+            Dispatcher ID: XXXX
             KEEP(0), GOTO(27)
-       413: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max CType: 10
@@ -180,37 +180,37 @@ Cooked Program 2:
                 GOTO(141)
             .
                 GOTO(391)
-       459: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 10
             0-9
                 GOTO(391)
-       493: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
             <HT>-<CR> <SP>
                 GOTO(133)
-       527: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 8
             Max Break Elements: 10
             Max CType: 10
             +
                 GOTO(27)
-                Dispatcher ID: 598
+                Dispatcher ID: XXXX
             -
                 GOTO(27)
-                Dispatcher ID: 644
+                Dispatcher ID: XXXX
             * /
                 GOTO(27)
-       598: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max CType: 10
             +
                 GOTO(27)
-       644: DISPATCHER
+      XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max CType: 10

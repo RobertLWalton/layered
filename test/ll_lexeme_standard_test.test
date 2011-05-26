@@ -50,7 +50,7 @@ wwwhhbbbb
 control␣A␁B␂C␃␤
 wwwwwwwhwCwCwCb
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"␤
-qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqEEEEqqqqqb
 <0041><00000042>C␣D<00000045><0046>G␤
 wwwwwwwwwwwwwwwwwhwwwwwwwwwwwwwwwwwwb
 <0041><00000002>C␣D<00000045><0006>G␤

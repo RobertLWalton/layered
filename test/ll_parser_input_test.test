@@ -417,6 +417,9 @@ control A␁B␂C␃
 LINE_BREAK: line 25:
 control A␁B␂C␃
               ^
+ERROR: unrecognized escape sequence; line 26:
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
+                            ^^^^
 QUOTED_STRING: "␤␍␉␈␌␋<XX>␣: line 26:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

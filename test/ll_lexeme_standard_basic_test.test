@@ -70,6 +70,10 @@
             Mode: ATOM
             Dispatcher ID: XXXX
             FAIL
+      XXXX: TABLE
+            Mode: ATOM
+            Dispatcher ID: XXXX
+            FAIL
       XXXX: DISPATCHER
             Break Elements: 90
             Max Break Elements: 93
@@ -152,7 +156,7 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(126), REQUIRE(130), CALL(78), ELSE:
+                MATCH(126), REQUIRE(134), CALL(78), ELSE:
                 TRANSLATE_TO(1,?), MATCH(126), ERRONEOUS_ATOM(15),
                 CALL(78), ELSE:
                 KEEP(1), CALL(90)
@@ -338,7 +342,7 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(126), REQUIRE(130), ELSE:
+                MATCH(126), REQUIRE(134), ELSE:
                 TRANSLATE_TO(1,?), MATCH(126), ERRONEOUS_ATOM(15), ELSE:
                 KEEP(0), RETURN
 
@@ -536,7 +540,9 @@
                 Dispatcher ID: XXXX
             <
                 MATCH(122), ELSE:
+                MATCH(130), ERRONEOUS_ATOM(14), ELSE:
                 ACCEPT
+
 
                 Dispatcher ID: XXXX
             <LF>-<CR>
@@ -1335,6 +1341,120 @@
             Max Break Elements: 1
             Max CType: 0
       XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            - A-Z
+                Dispatcher ID: XXXX
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            - A-Z
+                Dispatcher ID: XXXX
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            - A-Z
+                Dispatcher ID: XXXX
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            - A-Z
+                Dispatcher ID: XXXX
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            - A-Z
+                Dispatcher ID: XXXX
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            - A-Z
+                Dispatcher ID: XXXX
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            - A-Z
+                Dispatcher ID: XXXX
+            >
+                ACCEPT
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            - A-Z
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <
+                Dispatcher ID: XXXX
+      XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+      XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
@@ -1524,6 +1644,7 @@ UNRECOGNIZED_CHARACTER 25(11)11: ␂
 WORD 25(12)12: C
 UNRECOGNIZED_CHARACTER 25(13)13: ␃
 LINE_BREAK 25(14)14: ␤
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 26(28)28: <XX>
 QUOTED_STRING 26(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
      translated to: "␤␍␉␈␌␋<XX>␣
 LINE_BREAK 26(37)37: ␤

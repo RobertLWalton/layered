@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 24 22:30:55 EDT 2011
+// Date:	Fri May 27 09:02:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -747,6 +747,7 @@ static void parse_explicit_subexpression
 		    {
 			indentation_mark =
 			    split->indentation_mark;
+
 		        PAR::value_ref
 			    (current->previous) =
 			    min::new_str_gen
@@ -761,6 +762,46 @@ static void parse_explicit_subexpression
 			PAR::value_ref
 			    (current->previous) =
 			    indentation_mark->label;
+
+			// Compute the number of columns
+			// in the indentation mark.
+			// Assume this is independent of
+			// position in line (e.g., there
+			// are no tabs in the indenta-
+			// tion mark).
+			//
+			min::uns32 columns = 0;
+			min::uns32 flags =
+			    parser->input_file
+			          ->print_flags;
+			const char * p =
+			    (const char *) & split[0];
+			while ( * p )
+			{
+			    min::uns32 c =
+			        min::utf8_to_unicode
+				    ( p );
+			    min::pwidth ( columns,
+			                  c,
+					  flags );
+			}
+
+			// Fix up the positions in the
+			// tokens.  The indentation
+			// mark has split->length bytes
+			// and `columns' columns.
+			//
+			current->previous->end =
+			    current->previous
+			           ->previous->end;
+			current->previous->begin =
+			    current->previous->end;
+			current->previous->begin.index
+			    -= split->length;
+			current->previous->begin.column
+			    -= columns;
+			current->previous->previous->end
+			    = current->previous->begin;
 		    }
 		}
 

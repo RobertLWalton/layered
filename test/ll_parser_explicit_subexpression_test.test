@@ -70,3 +70,43 @@ This line includes
 ^^^^^^^^^^^^^^^^^^
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 25:
+   First line.
+   ^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 26:
+   Second line.
+   ^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: lines 24-26:
+This line starts in indented paragraph:
+                                      ^
+   First line.
+^^^^^^^^^^^^^^
+   Second line.
+^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: lines 24-26:
+This line starts in indented paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   First line.
+^^^^^^^^^^^^^^
+   Second line.
+^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 28:
+   Third line.
+   ^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 29:
+   Fourth line.
+   ^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: lines 27-29:
+Ditto with split =:
+                  ^
+   Third line.
+^^^^^^^^^^^^^^
+   Fourth line.
+^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: lines 27-29:
+Ditto with split =:
+^^^^^^^^^^^^^^^^^^^
+   Third line.
+^^^^^^^^^^^^^^
+   Fourth line.
+^^^^^^^^^^^^^^^

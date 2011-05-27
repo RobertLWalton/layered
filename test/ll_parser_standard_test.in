@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  8 02:50:59 EDT 2011
+// Date:	Fri May 27 03:48:16 EDT 2011
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -22,3 +22,9 @@ This line contains an incorrect closing bracket
      (x + y }
 This line includes
  a token with insufficient indent
+This line starts in indented paragraph:
+   First line.
+   Second line.
+Ditto with split =:
+   Third line.
+   Fourth line.

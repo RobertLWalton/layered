@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 25 10:40:21 EDT 2011
+// Date:	Sat May 28 04:48:02 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,10 +55,10 @@ cc	    "COMMENT",
 cc	    "BRACKETED_HEADER_NAME",
 cc	    "QUOTED_HEADER_NAME",
 cc	    "OPERATOR",
-cc	    "PUNCTUATION",
 cc	    "IDENTIFIER",
 cc	    "INTEGER",
 cc	    "FLOAT",
+cc	    "NUMBER",
 cc	    "CHARACTER_LITERAL",
 cc	    "WIDE_CHARACTER_LITERAL",
 cc	    "STRING_LITERAL",
@@ -67,11 +67,11 @@ cc	    "LINE_BREAK",
 cc	    "END_OF_FILE",
 cc	    "PREMATURE_END_OF_LINE",
 cc	    "PREMATURE_END_OF_FILE",
-cc	    "UNRECOGNIZED_CHARACTER",
-cc	    "UNRECOGNIZED_UNIVERSAL_CHARACTER" };
+cc	    "ILLEGAL_CHARACTER",
+cc	    "ILLEGAL_UNIVERSAL_CHARACTER" };
 cc
 cc	const char * LEXCPP::type_code =
-cc	    "Xh/hHIifcCsSleLEUN";
+cc	    "Xh/BQoIifncCsSleLFUN";
 cc
 cc	struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
@@ -105,14 +105,14 @@ cc	    uns32 done_integer_t = xtype ++;
 cc	    uns32 fraction_t = xtype ++;
 cc	    uns32 exponent_t = xtype ++;
 cc
-cc	    uns32 horizontal_space;
+cc	    uns32 whitespace;
 cc	    NDL::new_table
-cc		( horizontal_space,
-cc		  horizontal_space_t );
+cc		( whitespace,
+cc		  whitespace_t );
 cc
 cc	    uns32 slash_star_comment;
 cc	    NDL::new_table ( slash_star_comment,
-cc	                     unused_type ++ );
+cc	                     slash_star_comment_t );
 cc	    uns32 slash_slash_comment;
 cc	    NDL::new_table ( slash_slash_comment,
 cc	                     slash_slash_comment_t );
@@ -152,8 +152,8 @@ cc	                     wide_string_literal_t );
 cc
 cc	    uns32 initial;
 cc	    NDL::new_table ( initial, MASTER );
-cc	    uns32 beginning_pp;
-cc	    NDL::new_table ( beginning_pp, MASTER );
+cc	    uns32 pp_beginning;
+cc	    NDL::new_table ( pp_beginning, MASTER );
 cc	    uns32 pp_include;
 cc	    NDL::new_table ( pp_include, MASTER );
 cc	    uns32 normal;
@@ -167,8 +167,8 @@ cc	                     MASTER );
 cc
 cc	    uns32 operator;
 cc	    NDL::new_table ( operator, ATOM );
-cc	    uns32 escaped_char;
-cc	    NDL::new_table ( escaped_char, ATOM );
+cc	    uns32 universal_char;
+cc	    NDL::new_table ( universal_char, ATOM );
 cc
 cc	    uns32 non_letter_seq_t =
 cc		non_letter_escape_sequence_t;
@@ -182,19 +182,16 @@ lex	// Before this lexical program is used the input
 lex	// should be preprocessed to
 lex	//
 lex	//    (1) Replace trigraph sequences.
-lex	//    (2) Replace any source file character that
-lex	//        is not one of the 96 `source charac-
-lex	//        ters' by a universal character name
-lex	//        (\uXXXX or \UXXXXXXXX).
-lex	//    (3) Eliminate carriage returns next to
+lex	//    (2) Eliminate carriage returns next to
 lex	//        newlines.
-lex	//    (4) Eliminate backslash newline pairs.
+lex	//    (3) Eliminate backslash newline pairs.
 lex	//
 lex	// After this lexical program is used the output
 lex	// should be post-processed to
 lex	//
-lex	//    (5) Perform C/C++ macro preprocessing
+lex	//    (4) Perform C/C++ macro preprocessing
 lex	//        (macro expansion).
+lex	//    (5) Delete space and newlines.
 lex	//    (6) Concatenate adjacent ordinary quoted
 lex	//        strings and adjacent wide quoted
 lex	//        strings.
@@ -220,30 +217,8 @@ cc	        "abcdefghijklmnopqrstuvwxyz"
 cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 cc
 lex
-lex	"<space-char>" = " " | "\t" | "\v" | "\f";
-cc	    const char * space_char = " \t\v\f";
-cc
-lex
-lex	"<horizontal-space-char>" = " " | "\t" ;
-cc	    const char * horizontal_space_char = " \t";
-cc
-lex
-lex	"<source-char>" =
-lex	    ( "<0020>-<007E>" & ~ "$" & ~ "@" & ~ "`" )
-lex	    | "<whitespace-char>";
-cc	    const char * source_char =
-cc		" !\"#$%&'()*+,-./"
-cc	        "0123456789"
-cc	        ":;<=>?@"
-cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-cc	        "[\\]^_`"
-cc	        "abcdefghijklmnopqrstuvwxyz"
-cc	        "{|}~"
-cc	        " \t\v\f";
-cc
-lex
-lex	"<sign>" = "+" | "-" ;
-cc	    const char * sign = "+-";
+lex	"<whitespace-char>" = " " | "\t" | "\v" | "\f";
+cc	    const char * whitespace_char = " \t\v\f";
 cc
 lex
 lex	// The following can begin an operator,
@@ -254,7 +229,7 @@ lex	            | "." | "?" | "+" | "-" | "*" | "/"
 lex	            | "^" | "&" | "|" | "~" | "!" | ","
 lex	            | "(" | ")" | "[" | "]" | "{" | "}"
 lex	            | ";";
-cc	    const char * sign =
+cc	    const char * op_char =
 cc	        "#<>:%.?+-*/^&|~!,()[]{};";
 cc
 lex
@@ -272,17 +247,43 @@ cc		add_non_ascii_letters();
 cc	    NDL::end_atom_pattern();
 cc
 lex
+lex	"<basic-char>" = "<ascii-letter>"
+lex	               | "<digit>"
+lex	               | "_"
+lex	               | "<op-char>"
+lex	               | "\" | "<Q>" | "'"
+lex	               | "<whitespace-char>"
+lex	               | "<NL>"
+cc	    const char * basic_char =
+cc	        "#<>:%.?+-*/^&|~!,()[]{};"
+cc
+lex
+lex	"<sign>" = "+" | "-" ;
+cc	    const char * sign = "+-";
+cc
+lex
+lex	"<u-or-U>" = "u" | "U" ;
+cc	    const char * u_or_U = "uU";
+cc
+lex
+lex	// C/C++ preprocessing is hereafter abbreviated
+lex	// as `pp'.
+lex
 lex	// Alternative operators that are not identi-
 lex	// fiers are translated.  E.g., <: becomes [ in
 lex	// the lexeme // translation.
 lex
-lex	// C/C++ preprocessing is hereafter abbreviated
-lex	// as `pp'.
-lex	//
+lex	// C++ punctuation are treated as `operators'.
+lex
+lex	// Pp numbers are divided into 3 categories:
+lex	//      integers        nothing but digits
+lex	//      floating point  legal floating point #'s
+lex	//      number          all other pp numbers
+lex
 lex	// Because of pp control lines, lexical scanning
 lex	// is slightly context dependent.  There are
 lex	// several contexts, each corresponding to a
-lex	// different master // table:
+lex	// different master table:
 lex	//
 lex	//    initial master
 lex	//        Used in line beginning situations to
@@ -304,14 +305,17 @@ lex	//        line.
 lex	//
 lex	// The whitespace lexeme types are:
 lex	//
-lex	//    line feed (lexeme is "<LF>")
-lex	//    horizontal space
-lex	//    comment
-lex	//        "/*" comment (include /* and */)
-lex	//        "//" comment (include // but not
-lex	//                      ending line feed)
+lex	//    line feed
+lex	//        a single "<NL>"
+lex	//    whitespace
+lex	//        sequence of "<whitespace-char>"s
+lex	//        "<NL>"s excluded
+le	//    comment
+lex	//        "/*" comment (including /* and */)
+lex	//        "//" comment (including // but not
+lex	//                      ending newline)
 lex	//    end of file (lexeme is "")
-lex	//    premature line feed (lexeme is "<LF>")
+lex	//    premature line feed (lexeme is "<NL>")
 lex	//    premature end of file (lexeme is "")
 lex	//
 lex	// This allows line feeds to be used to end pp
@@ -323,27 +327,32 @@ lex	// `premature ...' lexeme.
 lex	//
 lex	// Characters that are not part of any C++
 lex	// lexeme and universal characters that are not
-lex	// part of any C++ lexeme are made into
-lex	// 1-character lexemes of the types:
+lex	// part of any C++ lexeme are made into lexemes
+lex	// or erroneous atoms of the types:
 lex	//
-lex	//    unrecognized character
-lex	//    unrecognized universal character
+lex	//    illegal character
+lex	//        A single character
+lex	//    illegal universal character
+lex	//        A \UXXXXXXXX or \uXXXX sequence
 lex	//
-lex	// The character in question is the translation
-lex	// of these lexemes.
+lex	// These are untranslated.
 lex
 lex	begin initial master table;
 cc	    NDL::begin_table ( initial );
 cc
 lex
-lex	    "<horizontal-space-char>"
-lex	        call horizontal space;
+lex	    "<whitespace-char>"
+lex	        call whitespace;
 cc		NDL::begin_dispatch
-cc			( horizontal_space_char );
-cc		    NDL::call ( horizontal_space );
+cc			( whitespace_char );
+cc		    NDL::call ( whitespace );
 cc		NDL::end_dispatch();
 cc
 lex
+lex	    // We only need handle /*...*/ comments
+lex	    // because only these can occur inside
+lex	    // pp directive line.
+lex	    //
 lex	    "/*" call "/*" comment;
 cc		NDL::begin_dispatch ( "/" );
 cc		    NDL::begin_dispatch ( "*" );
@@ -353,19 +362,19 @@ cc		    NDL::end_dispatch();
 cc		NDL::end_dispatch();
 cc
 lex
-lex	    "#" output punctuation goto pp beginning;
+lex	    "#" output operator goto pp beginning;
 lex	    "##" output operator goto normal;
 cc		NDL::begin_dispatch ( "#" );
 cc		    NDL::begin_dispatch ( "#" );
 cc		        NDL::output ( operator_t );
 cc		        NDL::goto ( normal );
 cc		    NDL::end_dispatch();
-cc		    NDL::output ( punctuation_t );
+cc		    NDL::output ( operator_t );
 cc		    NDL::goto ( pp_beginning );
 cc		NDL::end_dispatch();
 cc
 lex
-lex	    "%:" translate to "#" output punctuation
+lex	    "%:" translate to "#" output operator
 lex	        goto pp beginning;
 lex	    "%:%:" translate to "##" output operator
 lex	        goto normal;
@@ -380,7 +389,7 @@ cc		      NDL::end_dispatch();
 cc		    NDL::end_dispatch();
 cc
 cc		    NDL::translate_to ( "#" );
-cc	            NDL::output ( punctuation_t );
+cc	            NDL::output ( operator_t );
 cc	            NDL::goto ( pp_beginning );
 cc
 cc		  NDL::end_dispatch();
@@ -388,29 +397,35 @@ cc		NDL::end_dispatch();
 cc
 lex	    goto normal;
 cc		NDL::goto ( normal );
+cc
 lex
 lex	end initial master table;
 cc	    NDL::end_table();
+cc
 lex
-lex	begin horizontal space lexeme table;
-cc	    NDL::begin_table ( horizontal_space );
+lex	begin whitespace lexeme table;
+cc	    NDL::begin_table ( whitespace );
+cc
 lex
-lex	    "<horizontal-space-char>" accept;
+lex	    "<whitespace-char>" accept;
 cc		NDL::begin_dispatch
-cc			( horizontal_space_char );
+cc			( whitespace_char );
 cc		    NDL::accept();
 cc		NDL::end_dispatch();
 cc
 lex
 lex	    return;
 cc		NDL::ret();
+cc
 lex
-lex	end horizontal space lexeme table;
+lex	end whitespace lexeme table;
 cc	    NDL::end_table();
+cc
 lex
 lex
 lex	begin "/*" comment lexeme table;
 cc	    NDL::begin_table ( slash_star_comment );
+cc
 lex
 lex	    "*/" return;
 lex	    "*" accept;
@@ -430,15 +445,18 @@ cc
 lex
 lex	    goto premature end of file;
 cc		NDL::goto ( premature_end_of_file );
+cc
 lex
 lex	end "/*" comment lexeme table;
 cc	    NDL::end_table();
+cc
 lex
 lex
 lex	begin "//" comment lexeme table;
 cc	    NDL::begin_table ( slash_slash_comment );
+cc
 lex
-lex	    "<LF>" keep 0 return;
+lex	    "<NL>" keep 0 return;
 cc		NDL::begin_dispatch ( "\n" );
 cc		    NDL::keep ( 0 );
 cc		    NDL::ret();
@@ -453,26 +471,18 @@ cc
 lex
 lex	    goto premature end of file;
 cc		NDL::goto ( premature_end_of_file );
+cc
 lex
 lex	end "//" comment lexeme table;
 cc	    NDL::end_table();
-lex
-lex
-lex	begin premature end of file master table;
-cc	    NDL::begin_table ( premature_end_of_file );
-lex
-lex	    output premature end of file goto initial;
-cc	        NDL::output ( premature_end_of_file_t );
-cc	        NDL::goto ( initial );
-lex
-lex	end premature end of file master table;
-cc	    NDL::end_table();
+cc
 lex
 lex
 lex	begin premature end of line master table;
 cc	    NDL::begin_table ( premature_end_of_line );
+cc
 lex
-lex	    "<LF>" output premature end of line
+lex	    "<NL>" output premature end of line
 lex	        goto initial;
 cc		NDL::begin_dispatch ( "\n" );
 cc		    NDL::output
@@ -483,23 +493,84 @@ cc
 lex
 lex	end premature end of line master table;
 cc	    NDL::end_table();
+cc
+lex
+lex
+lex	begin premature end of file master table;
+cc	    NDL::begin_table ( premature_end_of_file );
+cc
+lex
+lex	    output premature end of file goto initial;
+cc	        NDL::output ( premature_end_of_file_t );
+cc	        NDL::goto ( initial );
+lex
+lex	end premature end of file master table;
+cc	    NDL::end_table();
+cc
 lex
 lex
 lex	begin pp beginning master table;
-lex	    "<horizontal-space-char>"
-lex	        call horizontal space;
+cc	    NDL::begin_table ( pp_beginning );
+cc
+lex
+lex	    "<whitespace-char>"
+lex	        call whitespace;
+cc		NDL::begin_dispatch
+cc			( whitespace_char );
+cc		    NDL::call ( whitespace );
+cc		NDL::end_dispatch();
+cc
+lex
+lex	    // We only need handle /*...*/ comments
+lex	    // because only these can occur inside
+lex	    // pp directive line.
+lex	    //
 lex	    "/*" call "/*" comment;
+cc		NDL::begin_dispatch ( "/" );
+cc		    NDL::begin_dispatch ( "*" );
+cc		        NDL::call
+cc	                    ( slash_star_comment );
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+lex
 lex	    "include<non-digit>" keep 0 goto normal;
 lex	    "include" output identifier goto pp include;
 lex	    goto normal;
+cc		NDL::begin_dispatch ( "i" );
+cc		NDL::begin_dispatch ( "n" );
+cc		NDL::begin_dispatch ( "c" );
+cc		NDL::begin_dispatch ( "l" );
+cc		NDL::begin_dispatch ( "u" );
+cc		NDL::begin_dispatch ( "d" );
+cc		NDL::begin_dispatch ( "e" );
+cc		    NDL::begin_dispatch
+cc			    ( non_digit_char );
+cc		        NDL::keep ( 0 );
+cc		        NDL::goto ( normal );
+cc		    NDL::end_dispatch();
+cc		    NDL::output ( identifier_t );
+cc		    NDL::goto ( pp_include );
+cc		NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+lex
 lex	end pp beginning master table;
+cc	    NDL::end_table();
+cc
+lex
 lex
 lex	"<op-char-except-less-than>" =
 lex	        "<op-char>" & ~ "<";
 lex
 lex	begin pp include master table;
-lex	    "<horizontal-space-char>"
-lex	        call horizontal space;
+lex	    "<whitespace-char>"
+lex	        call whitespace;
 lex	    "/*" call "/*" comment;
 lex	    "//" call "//" comment;
 lex
@@ -532,7 +603,7 @@ lex	               translate to operator
 lex	    	       output operator
 lex	          else output unrecognized character;
 lex
-lex	    "<LF>" output line feed goto initial;
+lex	    "<NL>" output line feed goto initial;
 lex	    "<other>" output unrecognized character
 lex	              goto initial;
 lex	    output end of file goto initial;
@@ -540,7 +611,7 @@ lex	end pp include master table;
 lex
 lex	begin bracketed header name lexeme table;
 lex	    ">" translate to "" goto normal;
-lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "<NL>" keep 0 goto premature end of line;
 lex	    "<other>" accept;
 lex	    goto premature end of file;
 lex	end bracketed header name lexeme table;
@@ -551,14 +622,14 @@ lex	// sequences.
 lex	//
 lex	begin quoted header name lexeme table;
 lex	    "<Q>" translate to "" goto normal;
-lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "<NL>" keep 0 goto premature end of line;
 lex	    "<other>" accept;
 lex	    goto premature end of file;
 lex	end quoted header name lexeme table;
 lex
 lex	begin normal master table;
-lex	    "<horizontal-space-char>"
-lex             call horizontal space;
+lex	    "<whitespace-char>"
+lex             call whitespace;
 lex	    "/*" call "/*" comment;
 lex	    "//" call "//" comment;
 lex
@@ -587,7 +658,7 @@ lex	    "<op-char>"
 lex	        match operator output operator
 lex	        else output unrecognized character;
 lex
-lex	    "<LF>" output line feed goto initial;
+lex	    "<NL>" output line feed goto initial;
 lex	    "<other>" output unrecognized character
 lex	              goto initial;
 lex	    output end of file goto initial;
@@ -737,7 +808,7 @@ lex	    "<source-char>" & ~ "'" & ~ "\/" & ~ "\lf/";
 lex
 lex	begin character literal lexeme table;
 lex	    "'" translate to "" goto normal;
-lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "<NL>" keep 0 goto premature end of line;
 lex	    "\" match escaped character
 lex	        else error bad escape character;
 lex	    "<character-literal-char>" accept;
@@ -748,7 +819,7 @@ lex	end character literal lexeme table;
 lex
 lex	begin wide character literal lexeme table;
 lex	    "'" translate to "" goto normal;
-lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "<NL>" keep 0 goto premature end of line;
 lex	    "\" match escaped character
 lex	        else error bad escape character;
 lex	    "<character-literal-char>" accept;
@@ -763,7 +834,7 @@ lex	    & ~ "\"/" & ~ "\/" & ~ "\lf/";
 lex
 lex	begin string literal lexeme table;
 lex	    "<Q>" translate to "" goto normal;
-lex	    "<LF>" keep 0 goto premature end of line;
+lex	    "<NL>" keep 0 goto premature end of line;
 lex	    "\" match escaped character
 lex	        else error bad escape character;
 lex	    "<string-literal-char>" accept;
@@ -775,7 +846,7 @@ lex
 lex	begin wide string literal lexeme table;
 lex	    "<Q>" translate to ""
 lex               goto normal line master;
-lex	    "<LF>" keep 0
+lex	    "<NL>" keep 0
 lex                goto premature end of line master;
 lex	    "\" match escaped character
 lex	        else error bad escape character;
@@ -795,7 +866,7 @@ lex	// C++ standard permits any number of hexa-
 lex	// decimal digits.
 lex	//
 lex	begin escaped character atom table;
-lex	    "\n" translate to "<LF>";
+lex	    "\n" translate to "<NL>";
 lex	    "\t" translate to "<HT>";
 lex	    "\v" translate to "<VT>";
 lex	    "\b" translate to "<BS>";

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 29 04:38:04 EDT 2011
+// Date:	Sun May 29 19:19:48 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -74,7 +74,7 @@ cc
 cc	const char * LEXCPP::type_code =
 cc	    "Xh/BQoIifncCsSleLFUNV";
 cc
-cc	struct char_range { uns32 min, max; }
+cc	static struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
 cc	{
 cc		// { min,		max },
@@ -177,11 +177,11 @@ cc	    NDL::new_table ( operator, ATOM );
 cc	    uns32 universal_char;
 cc	    NDL::new_table ( universal_char, ATOM );
 cc
-cc	    uns32 non_letter_seq_t =
-cc		non_letter_escape_sequence_t;
-cc	    uns32 unrec_char_t =
-cc		unrecognized_character_t;
-
+cc	    // Abbreviations:
+cc
+cc	    uns32 ill_universal_char_t =
+cc		illegal_universal_character_t;
+lex
 lex
 lex	begin c++ lexical program;
 lex
@@ -217,15 +217,20 @@ cc	        "abcdefghijklmnopqrstuvwxyz"
 cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 cc
 lex	"<letter>" = "<ascii-letter>"
-lex	           | "<non-ascii-letter>"
+lex	           | "<non-ascii-letter>
 lex
 lex	// <non-ascii-letter> ::= UNICODE character in
 lex	// one of the code ranges designated in
 lex	// ../include/ll_lexeme_non_ascii_letters.h
-cc	    uns32 letter;
-cc	    NDL::begin_atom_pattern ( letter );
-cc	    	NDL::add_characters
-cc		     ( ascii_letter_char );
+lex	//
+lex	// Universal characters are only permitted in
+lex	// identifiers, character literals, and string
+lex	// literals.  In identifiers they must represent
+lex	// non-ASCII-letters.
+lex
+cc	    uns32 non_ascii_letter;
+cc	    NDL::begin_atom_pattern
+cc		    ( non_ascii_letter );
 cc		add_non_ascii_letters();
 cc	    NDL::end_atom_pattern();
 cc
@@ -283,6 +288,7 @@ lex
 lex	"<u-or-U>" = "u" | "U" ;
 cc	    const char * u_or_U = "uU";
 cc
+lex
 lex
 lex	// C/C++ preprocessing is hereafter abbreviated
 lex	// as `pp'.
@@ -797,12 +803,33 @@ cc		NDL::end_dispatch();
 cc
 lex
 lex	    "\<u-or-U>"
-lex	        match escaped character
-lex	        require "<letter>" call identifier
+lex	             match escaped character
+lex	             require <non-ascii-letter>
+lex	                 call identifier
 lex	        else match escaped character
-lex		     output unrecognized universal
+lex		     output illegal universal
 lex	                    character
-lex	        else output unrecognized character;
+lex	        else keep 1 output illegal character;
+cc		NDL::begin_dispatch ( "\\" );
+cc		    NDL::begin_dispatch ( u_or_U );
+cc		        NDL::match
+cc			     ( escaped_character );
+cc		        NDL::require
+cc			     ( non_ascii_letter );
+cc		        NDL::call ( identifier );
+cc		    NDL::ELSE();
+cc		        NDL::match
+cc			     ( escaped_character );
+cc		        NDL::output
+cc			     ( ill_universal_char_t );
+cc		    NDL::ELSE();
+cc			NDL::keey ( 1 );
+cc		        NDL::output
+cc			     ( illegal_character_t );
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+lex
 lex
 lex	    "<digit>" call integer;
 lex	    ".<digit>" call fraction;

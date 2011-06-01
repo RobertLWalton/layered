@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  1 01:01:38 EDT 2011
+// Date:	Wed Jun  1 15:42:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1150,49 +1150,194 @@ cc
 lex
 lex
 lex	"<u_U>" = "u" | "U";
+cc	    const char * u_U = "uU";
 lex
 lex	begin identifier lexeme table;
-lex	    "<non-digit>" accept;
+cc	    NDL::begin_table ( identifier );
+cc
+lex
+lex	    "<identifier-non-digit>" accept;
+lex	    "<digit>" accept;
+cc		NDL::begin_dispatch
+cc		        ( identifier_non_digit );
+cc		    add_non_ascii_letters();
+cc	    	    NDL::add_characters ( digit );
+cc		    NDL::accept();
+cc		NDL::end_dispatch();
+cc
+lex
 lex	    "\<u_U>" match universal character
-lex	             require "<letter>"
+lex	             require "<non-ascii-letter>"
 lex	             else keep 0 return;
+cc		NDL::begin_dispatch ( "\" );
+cc		    NDL::begin_dispatch ( u_U );
+cc		            NDL::match
+cc			        ( universal_character );
+cc		            NDL::require
+cc			        ( non_ascii_letter );
+cc			NDL::ELSE();
+cc			    NDL::keep ( 0 );
+cc			    NDL::ret();
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+lex
 lex	    return;
+cc		NDL::ret();
+cc
+lex
 lex	end identifier lexeme table;
+cc	    NDL::end_table();
+cc
 lex
-lex	"<non-digit-except-lLuU> =
-lex	    <non-digit> & ~ "l" & ~ "u" & ~ "L" & ~ "U";
+lex	"<e_E> = "e" | "E";
+lex	"<identifier-non-digit-except-eE>" =
+lex	    "<identifier-non-digit>" & ~ "<e_E>";
+cc	    const char * e_E = "eE";
+cc	    const char * identifier_non_digit_except_eE
+cc		= "_"
+cc	          "abcdfghijklmnopqrstuvwxyz"
+cc	          "ABCDFGHIJKLMNOPQRSTUVWXYZ";
+cc		  // Must use add_non_ascii_letters.
+cc
 lex
-lex	begin integer lexeme table;
+lex
+lex	begin decimal integer lexeme table;
 lex	    "<digit>" accept;
 lex	    "." goto fraction;
-lex	    "e<sign><digit>" goto exponent;
-lex	    "E<sign>"<digit> goto exponent;
-lex	    "ul" goto done integer;
-lex	    "uL" goto done integer;
-lex	    "Ul" goto done integer;
-lex	    "UL" goto done integer;
-lex	    "lu" goto done integer;
-lex	    "lU" goto done integer;
-lex	    "Lu" goto done integer;
-lex	    "LU" goto done integer;
-lex	    "u"  goto done integer;
-lex	    "U"  goto done integer;
-lex	    "l"  goto done integer;
-lex	    "L"  goto done integer;
-lex	    "e<sign>" goto pp number;
-lex	    "E<sign>" goto pp number;
-lex	    "<non-digit-except-lLuU>" goto pp number;
+lex	    "<e_E><sign><digit>" goto exponent;
+lex	    "<e_E><digit>" goto exponent;
+lex	    "<e_E><sign>" goto pp number;
+lex	    "<identifier-non-digit>" call suffix;
 lex	    output integer return;
-lex	end integer lexeme table;
+lex	end decimal integer lexeme table;
 lex
-lex	begin done integer lexeme table;
-lex	    "<digit>" goto pp number;
-lex	    "e<sign>" goto pp number;
-lex	    "E<sign>" goto pp number;
-lex	    "<non-digit>" goto pp number;
+lex
+lex	begin octal integer lexeme table;
+lex	    "<octal-digit>" accept;
+lex	    "8-9" goto pp number;
 lex	    "." goto pp number;
+lex	    "<e_E><sign>" goto pp number;
+lex	    "<identifier-non-digit>" call suffix;
 lex	    output integer return;
-lex	end done integer lexeme table;
+lex	end octal integer lexeme table;
+lex
+lex
+lex	begin hexadecimal integer lexeme table;
+lex	    "<hexadecimal-digit>" accept;
+lex	    "." goto pp number;
+lex	    "<e_E><sign>" goto pp number;
+lex	    "<identifier-non-digit>" call suffix;
+lex	    output integer return;
+lex	end hexadecimal integer lexeme table;
+lex
+lex
+lex
+lex	begin suffix lexeme table;
+cc	    NDL::begin_table ( suffix );
+cc
+lex
+lex	    "<identifier-non-digit-except-eE>" accept;
+lex	    "<digit>" accept;
+cc		NDL::begin_dispatch
+cc		    ( identifier_non_digit_except_eE );
+cc		    add_non_ascii_letters();
+cc	    	    NDL::add_characters ( digit_char );
+cc		    NDL::accept();
+cc		NDL::end_dispatch();
+cc
+lex
+lex	    "<e_E><sign>" goto pp number;
+lex	    "<e_E>" accept;
+cc		NDL::begin_dispatch ( e_E );
+cc		    NDL::begin_dispatch ( sign_char );
+cc			NDL::goto ( pp_number );
+cc		    NDL::end_dispatch();
+cc		    NDL::accept();
+cc		NDL::end_dispatch();
+cc
+lex	    "." goto pp number;
+cc		NDL::begin_dispatch ( "." );
+cc		    NDL::goto ( pp_number );
+cc		NDL::end_dispatch();
+cc
+lex
+lex	    "\<u_U>" match universal character
+lex	             require "<non-ascii-letter>"
+lex	             else keep 0 return;
+cc		NDL::begin_dispatch ( "\" );
+cc		    NDL::begin_dispatch ( u_U );
+cc		            NDL::match
+cc			        ( universal_character );
+cc		            NDL::require
+cc			        ( non_ascii_letter );
+cc			NDL::ELSE();
+cc			    NDL::keep ( 0 );
+cc			    NDL::ret();
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+lex
+lex	    return;
+cc		NDL::ret();
+cc
+lex
+lex	end suffix lexeme table;
+cc	    NDL::end_table();
+cc
+lex
+lex	begin pp number lexeme table;
+cc	    NDL::begin_table ( pp_number );
+cc
+lex
+lex	    "<identifier-non-digit-except-eE>" accept;
+lex	    "<digit>" accept;
+cc		NDL::begin_dispatch
+cc		    ( identifier_non_digit_except_eE );
+cc		    add_non_ascii_letters();
+cc	    	    NDL::add_characters ( digit_char );
+cc		    NDL::accept();
+cc		NDL::end_dispatch();
+cc
+lex
+lex	    "<e_E><sign>" accept;
+lex	    "<e_E>" accept;
+cc		NDL::begin_dispatch ( e_E );
+cc		    NDL::begin_dispatch ( sign_char );
+cc			NDL::accept();
+cc		    NDL::end_dispatch();
+cc		    NDL::accept();
+cc		NDL::end_dispatch();
+cc
+lex	    "." accept;
+cc		NDL::begin_dispatch ( "." );
+cc		    NDL::accept();
+cc		NDL::end_dispatch();
+cc
+lex
+lex	    "\<u_U>" match universal character
+lex	             require "<non-ascii-letter>"
+lex	             else keep 0 goto normal;
+cc		NDL::begin_dispatch ( "\" );
+cc		    NDL::begin_dispatch ( u_U );
+cc		            NDL::match
+cc			        ( universal_character );
+cc		            NDL::require
+cc			        ( non_ascii_letter );
+cc			NDL::ELSE();
+cc			    NDL::keep ( 0 );
+cc			    NDL::goto ( normal );
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+lex
+lex	    goto normal;
+cc		NDL::goto ( normal );
+cc
+lex
+lex	end pp number lexeme table;
+cc	    NDL::end_table();
+cc
 lex
 lex	"<non-digit-except-lLfF> =
 lex	    <non-digit> & ~ "l" & ~ "f" & ~ "L" & ~ "F";
@@ -1200,50 +1345,19 @@ lex
 lex	begin fraction lexeme table;
 lex	    "<digit>" accept;
 lex	    "." goto pp number;
-lex	    "e<sign><digit>" goto exponent;
-lex	    "E<sign>"<digit> goto exponent;
-lex	    "f"  goto done floating point;
-lex	    "F"  goto done floating point;
-lex	    "l"  goto done floating point;
-lex	    "L"  goto done floating point;
-lex	    "e<sign><digit>" goto exponent;
-lex	    "E<sign><digit>" goto exponent;
-lex	    "e<sign>" goto pp number;
-lex	    "E<sign>" goto pp number;
-lex	    "<non-digit-except-lLfF>" goto pp number;
+lex	    "<e_E><sign><digit>" goto exponent;
+lex	    "<e_E><digit>" goto exponent;
+lex	    "<e_E><sign>" goto pp number;
+lex	    "<identifier-non-digit>" call suffix;
 lex	    output floating point return;
 lex	end fraction lexeme table;
 lex
 lex	begin exponent lexeme table;
 lex	    "<digit>" accept;
 lex	    "." goto pp number;
-lex	    "f"  goto done floating point;
-lex	    "F"  goto done floating point;
-lex	    "l"  goto done floating point;
-lex	    "L"  goto done floating point;
-lex	    "e<sign>" goto pp number;
-lex	    "E<sign>" goto pp number;
-lex	    "<non-digit-except-lLfF>" goto pp number;
+lex	    "<identifier-non-digit>" call suffix;
 lex	    output floating point return;
 lex	end exponent lexeme table;
-lex
-lex	begin floating point done lexeme table;
-lex	    "<digit>" goto pp number;
-lex	    "e<sign>" goto pp number;
-lex	    "E<sign>" goto pp number;
-lex	    "<non-digit>" goto pp number;
-lex	    "." goto pp number;
-lex	    output floating point return;
-lex	end floating point done lexeme table;
-lex
-lex	begin pp number lexeme table;
-lex	    "<digit>" goto pp number;
-lex	    "e<sign>" goto pp number;
-lex	    "E<sign>" goto pp number;
-lex	    "<non-digit>" goto pp number;
-lex	    "." goto pp number;
-lex	    output pp number return;
-lex	end pp number lexeme table;
 lex
 lex
 lex	begin character literal lexeme table;

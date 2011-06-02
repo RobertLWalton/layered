@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  6 01:27:13 EDT 2011
+// Date:	Thu Jun  2 07:04:58 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -228,7 +228,7 @@ void TAB::push_brackets
 	  min::gen closing_label,
 	  TAB::selectors selectors,
 	  const TAB::new_selectors & new_selectors,
-	  TAB::table table )
+	  TAB::table bracket_table )
 {
     min::locatable_var<TAB::opening_bracket> opening;
     opening = ::opening_bracket_type.new_stub();
@@ -241,8 +241,8 @@ void TAB::push_brackets
     opening->selectors = selectors;
     closing->selectors = selectors;
     opening->new_selectors = new_selectors;
-    TAB::push ( table, (TAB::root) opening );
-    TAB::push ( table, (TAB::root) closing );
+    TAB::push ( bracket_table, (TAB::root) opening );
+    TAB::push ( bracket_table, (TAB::root) closing );
 }
 
 // Indentation Marks

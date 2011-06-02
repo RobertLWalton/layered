@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 31 03:01:39 EDT 2011
+// Date:	Thu Jun  2 07:04:01 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,7 +112,7 @@ typedef min::packed_struct_updptr<key_prefix_struct>
 struct key_prefix_struct
 {
     uns32 control;
-	// Packed structure subtype is KEY_PREFIX.
+	// Packed_struct subtype is KEY_PREFIX.
 
     const min::gen key_element;
         // Last element of the key of this key prefix.
@@ -218,7 +218,7 @@ extern const uns32 & CLOSING_BRACKET;
     //		       <closing_bracket_struct>.
 struct opening_bracket_struct : public root_struct
 {
-    // Packed structure subtype is OPENING_BRACKET.
+    // Packed_struct subtype is OPENING_BRACKET.
 
     const ll::parser::table::closing_bracket
           closing_bracket;
@@ -231,7 +231,7 @@ struct opening_bracket_struct : public root_struct
 };
 struct closing_bracket_struct : public root_struct
 {
-    // Packed structure subtype is CLOSING_BRACKET.
+    // Packed_struct subtype is CLOSING_BRACKET.
 
     const ll::parser::table::opening_bracket
           opening_bracket;
@@ -256,72 +256,184 @@ void push_brackets
 	  ll::parser::table::selectors selectors,
 	  const ll::parser::table::new_selectors
 	      & new_selectors,
-	  ll::parser::table::table table );
+	  ll::parser::table::table bracket_table );
 
 // Named Brackets
 // ----- --------
 
 // Named bracket definition.
-//
-struct opening_named_bracket_struct;
+
+struct named_opening_bracket_struct;
 typedef min::packed_struct_updptr
-	    <opening_named_bracket_struct>
-        opening_named_bracket;
-extern const uns32 & OPENING_NAMED_BRACKET;
+	    <named_opening_bracket_struct>
+        named_opening_bracket;
+extern const uns32 & NAMED_OPENING_BRACKET;
     // Subtype of min::packed_struct
-    //		       <opening_named_bracket_struct>.
-struct closing_named_bracket_struct;
+    //		       <named_opening_bracket_struct>.
+
+struct named_separator_struct;
 typedef min::packed_struct_updptr
-	    <closing_named_bracket_struct>
-        closing_named_bracket;
-extern const uns32 & CLOSING_NAMED_BRACKET;
+	    <named_separator_struct>
+        named_separator;
+extern const uns32 & NAMED_SEPARATOR;
     // Subtype of min::packed_struct
-    //		       <closing_named_bracket_struct>.
-struct opening_named_bracket_struct : public root_struct
+    //		       <named_separator_struct>.
+
+struct named_middle_bracket_struct;
+typedef min::packed_struct_updptr
+	    <named_middle_bracket_struct>
+        named_middle_bracket;
+extern const uns32 & NAMED_MIDDLE_BRACKET;
+    // Subtype of min::packed_struct
+    //		       <named_middle_bracket_struct>.
+
+struct named_closing_bracket_struct;
+typedef min::packed_struct_updptr
+	    <named_closing_bracket_struct>
+        named_closing_bracket;
+extern const uns32 & NAMED_CLOSING_BRACKET;
+    // Subtype of min::packed_struct
+    //		       <named_closing_bracket_struct>.
+
+struct named_middle_closing_bracket_struct;
+typedef min::packed_struct_updptr
+	    <named_middle_closing_bracket_struct>
+        named_middle_closing_bracket;
+extern const uns32 & NAMED_MIDDLE_CLOSING_BRACKET;
+    // Subtype of
+    //     min::packed_struct
+    //	       <named_middle_closing_bracket_struct>.
+
+struct named_opening_bracket_struct : public root_struct
 {
-    // Packed structure subtype is
-    // OPENING_NAMED_BRACKET.
+    // Packed_struct subtype is NAMED_OPENING_BRACKET.
 
-    const ll::parser::table::closing_named_bracket
-          closing_named_bracket;
-        // The opposing named bracket of the opening
-	// named bracket.
+    // Syntax is
+    //
+    //      opening-bracket ...
+    //	    { separator ... }* middle-bracket
+    //	    ...
+    //      middle-bracket ... closing-bracket
+    //
+    // or
+    //
+    //      opening-bracket ...
+    //	    { separator ... }* middle-bracket
+    //	    ...
+    //      middle-closing-bracket
+    //
+    // E.g, if the opening-bracket is <, the separator
+    // is #, the middle-bracket is |, and the closing-
+    // bracket is >, then
+    //
+    //	    < ... {# ...}* | ... | ... >
+    // or
+    //	    < ... {# ...}* | ... |>
+    //
+    // The middle-closing-bracket may be specified as
+    // MISSING if the middle and closing brackets
+    // cannot glue together into a single lexeme.
 
-    ll::parser::table::new_selectors new_selectors;
-    	// New selectors associated with this opening
-	// named bracket.
+    const ll::parser::table::named_separator
+          named_separator;
+    const ll::parser::table::named_middle_bracket
+          named_middle_bracket;
+    const ll::parser::table::named_closing_bracket
+          named_closing_bracket;
+    const ll::parser::table
+                    ::named_middle_closing_bracket
+          named_middle_closing_bracket;
 
 };
-struct closing_named_bracket_struct : public root_struct
-{
-    // Packed structure subtype is
-    // CLOSING_NAMED_BRACKET.
 
-    const ll::parser::table::opening_named_bracket
-          opening_named_bracket;
-        // The opposing named bracket of the closing
-	// named bracket.
+struct named_separator_struct : public root_struct
+{
+    // Packed_struct subtype is NAMED_SEPARATOR.
+
+    const ll::parser::table::named_opening_bracket
+          named_opening_bracket;
+        // Corresponding named opening bracket.
+};
+
+struct named_middle_bracket_struct : public root_struct
+{
+    // Packed_struct subtype is NAMED_MIDDLE_BRACKET.
+
+    const ll::parser::table::named_opening_bracket
+          named_opening_bracket;
+        // Corresponding named opening bracket.
+};
+
+struct named_closing_bracket_struct : public root_struct
+{
+    // Packed_struct subtype is NAMED_CLOSING_BRACKET.
+
+    const ll::parser::table::named_opening_bracket
+          named_opening_bracket;
+        // Corresponding named opening bracket.
+};
+
+struct named_middle_closing_bracket_struct
+    : public root_struct
+{
+    // Packed_struct subtype is NAMED_MIDDLE_CLOSING_
+    // BRACKET.
+
+    const ll::parser::table::named_opening_bracket
+          named_opening_bracket;
+        // Corresponding named opening bracket.
 };
 
 MIN_REF ( min::gen, label,
-          ll::parser::table::opening_named_bracket )
-MIN_REF ( ll::parser::table::closing_named_bracket,
-          closing_named_bracket,
-          ll::parser::table::opening_named_bracket )
+          ll::parser::table::named_opening_bracket )
+MIN_REF ( ll::parser::table::named_separator,
+          named_separator,
+          ll::parser::table::named_opening_bracket )
+MIN_REF ( ll::parser::table::named_middle_bracket,
+          named_middle_bracket,
+          ll::parser::table::named_opening_bracket )
+MIN_REF ( ll::parser::table::named_closing_bracket,
+          named_closing_bracket,
+          ll::parser::table::named_opening_bracket )
+MIN_REF ( ll::parser::table
+                    ::named_middle_closing_bracket,
+          named_middle_closing_bracket,
+          ll::parser::table::named_opening_bracket )
 
 MIN_REF ( min::gen, label,
-          ll::parser::table::closing_named_bracket )
-MIN_REF ( ll::parser::table::opening_named_bracket,
-          opening_named_bracket,
-          ll::parser::table::closing_named_bracket )
+          ll::parser::table::named_separator )
+MIN_REF ( ll::parser::table::named_opening_bracket,
+          named_opening_bracket,
+          ll::parser::table::named_separator )
+
+MIN_REF ( min::gen, label,
+          ll::parser::table::named_middle_bracket )
+MIN_REF ( ll::parser::table::named_opening_bracket,
+          named_opening_bracket,
+          ll::parser::table::named_middle_bracket )
+
+MIN_REF ( min::gen, label,
+          ll::parser::table::named_closing_bracket )
+MIN_REF ( ll::parser::table::named_opening_bracket,
+          named_opening_bracket,
+          ll::parser::table::named_closing_bracket )
+
+MIN_REF ( min::gen, label,
+          ll::parser::table
+	    ::named_middle_closing_bracket )
+MIN_REF ( ll::parser::table::named_opening_bracket,
+          named_opening_bracket,
+          ll::parser::table
+	    ::named_middle_closing_bracket )
 
 void push_named_brackets
-	( min::gen opening_label,
-	  min::gen closing_label,
+	( min::gen named_opening_label,
+	  min::gen named_separator_label,
+	  min::gen named_middle_label,
+	  min::gen named_closing_label,
+	  min::gen named_middle_closing_label,
 	  ll::parser::table::selectors selectors,
-	  const ll::parser::table::new_selectors
-	      & new_selectors,
-	  ll::parser::table::table table );
+	  ll::parser::table::table bracket_table );
 
 // Indentation Marks
 // ----------- -----

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 26 03:20:58 EDT 2011
+// Date:	Thu Jun  2 08:06:42 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -924,7 +924,8 @@ cc		     BEG ( "U" ); BEG ( "L" );
 cc		        begin_dispatch ( ">" );
 cc		        {
 cc			    static uns32 NUL = 0;
-cc		            NDL::translate_to ( 1, & NUL );
+cc		            NDL::translate_to
+cc				( 1, & NUL );
 cc		        }
 cc		        end_dispatch();
 cc		     END; END;

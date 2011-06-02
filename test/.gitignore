@@ -2,3 +2,6 @@
 *.out
 *_test
 ll_lexeme_standard.cc
+ll_lexeme_standard.lex
+ll_lexeme_c++.cc
+ll_lexeme_c++.lex

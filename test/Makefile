@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu May 26 03:49:12 EDT 2011
+# Date:		Thu Jun  2 08:12:26 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -38,7 +38,9 @@ TESTS = ${PROGRAMS}
 
 .SECONDARY:	${TESTS:=.out}
 
-all:		diff ll_lexeme_standard.lex
+all:		diff ll_lexeme_standard.lex \
+	        ll_lexeme_c++.lex \
+	        ll_lexeme_c++.o
 
 diff:		${TESTS:=.diff}
 
@@ -246,6 +248,92 @@ ll_lexeme_standard_test.out:		\
 	${RUNENV} $* < ll_lexeme_standard_test.in \
 	             > $*.out
 
+ll_lexeme_c++.lex:	\
+		../src/ll_lexeme_c++.lexcc
+	sed -n \
+		-e '/^lex	/s///p' \
+		-e '/^lex$$/s///p' \
+		< ../src/ll_lexeme_c++.lexcc \
+		> ll_lexeme_c++.lex \
+
+ll_lexeme_c++.cc:	\
+		../src/ll_lexeme_c++.lexcc
+	sed -n \
+		-e '/^cc	/s///p' \
+		-e '/^cc$$/s///p' \
+		< ../src/ll_lexeme_c++.lexcc \
+		> ll_lexeme_c++.cc \
+
+ll_lexeme_c++.o:	\
+		ll_lexeme_c++.cc \
+		${MIN}/include/min.h \
+		${MIN}/include/min_parameters.h \
+		../include/ll_lexeme.h \
+		../include/ll_lexeme_ndl.h \
+		../include/ll_lexeme_c++.h \
+		Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ll_lexeme_c++.cc
+
+ll_lexeme_c++_basic_test:		\
+		ll_lexeme_c++_basic_test.cc \
+		ll_lexeme.o \
+		ll_lexeme_test.o \
+		ll_lexeme_ndl.o \
+		ll_lexeme_c++.o \
+		min.o \
+		min_os.o \
+		min_acc.o \
+		Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_test.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_c++.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    ll_lexeme_c++_basic_test.cc
+
+ll_lexeme_c++_basic_test.out:		\
+	    ll_lexeme_c++_basic_test \
+	    ll_lexeme_c++_test.in
+	rm -f $*.out
+	${RUNENV} $* < ll_lexeme_c++_test.in \
+	             > $*.out
+
+ll_lexeme_c++_test:		\
+		ll_lexeme_c++_test.cc \
+		ll_lexeme.o \
+		ll_lexeme_test.o \
+		ll_lexeme_ndl.o \
+		ll_lexeme_c++.o \
+		min.o \
+		min_os.o \
+		min_acc.o \
+		Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_test.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_c++.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    ll_lexeme_c++_test.cc
+
+ll_lexeme_c++_test.out:		\
+	    ll_lexeme_c++_test \
+	    ll_lexeme_c++_test.in
+	rm -f $*.out
+	${RUNENV} $* < ll_lexeme_c++_test.in \
+	             > $*.out
+
 ll_parser.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
@@ -392,4 +480,7 @@ ll_parser_explicit_subexpression_test.out:	\
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o \
-	      ll_lexeme_standard.cc
+	      ll_lexeme_standard.cc \
+	      ll_lexeme_standard.lex \
+	      ll_lexeme_c++.cc \
+	      ll_lexeme_c++.lex

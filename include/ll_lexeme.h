@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 19 01:53:53 EDT 2011
+// Date:	Fri Jun  3 08:12:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -187,7 +187,8 @@ namespace ll { namespace lexeme {
 	// Modes that are not types.
 	//
         MASTER		= 0xFFFFFFFE,
-	ATOM		= 0xFFFFFFFD
+	ATOM		= 0xFFFFFFFD,
+        NONE		= 0xFFFFFFFC
     };
 
     // Create the table with the given mode and return
@@ -803,16 +804,14 @@ namespace ll { namespace lexeme {
 	bool reinitialize;
 	    // Set to true if scanner is to be
 	    // reinitialized on the next call to scan.
+	bool scan_error;
+	    // Set to true if last call to scan produced
+	    // a scan error.
 	uns32 next;
 	    // input_buffer[next] is the first character
 	    // of the first yet unscanned atom.
 	uns32 current_table_ID;
 	    // Current table ID.
-	uns32 return_stack[return_stack_size];
-	uns32 return_stack_p;
-	    // Return stack containing return_stack_p
-	    // elements (0 is first and return_stack_p
-	    // - 1 element is top).
     };
 
     MIN_REF ( ll::lexeme::input_buffer, input_buffer,

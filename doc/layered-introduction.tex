@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 18, 2011
+June 2, 2011
  
 \end{center}
 
@@ -354,8 +354,10 @@ may be the empty string, in effect omitting the atom from the
 lexeme translation.
 
 The scanner has a state containing a current point 
-in the input UNICODE character stream
-and a \key{current lexical table} identifier.  A
+in the input UNICODE character stream,
+a \key{current lexical table} identifier, a \key{current lexeme type}
+which may be {\tt NONE}, and a \key{return stack}
+of lexical table identifiers.  A
 \key{lexical table} is a set of atom patterns
 that match atoms, and for each pattern an
 instruction that determines what to do when the pattern is matched.
@@ -417,15 +419,25 @@ one master table that dispatches to different lexeme tables,
 one to recognize identifiers, one to recognize numbers, one to
 recognize whitespace, and one to recognize comments.
 
-Lexeme tables have \ikey{types}{type!of lexeme table}.
-When the current lexical table is changed from a lexeme
-table to a master table, any non-zero length lexeme accumulated
-so far is output as a lexeme whose type\label{KIND-OUTPUT}
-is the type of the lexeme table.  Thus if an lexical table of
+Lexeme tables have optional \ikey{types}{type!of lexeme table}.
+When the current lexical table becomes a lexeme table with a type
+other than {\tt NONE},
+the current lexeme type is set equal to the type of that table.
+
+Upon finishing the execution of an instruction, if the
+current lexical table is a master table,
+the currently accumulated lexeme is output
+with the current lexeme type, if that is not {\tt NONE}, or the
+currently accumulated lexeme is discarded if the current lexeme
+type is {\tt NONE}.
+The current lexeme type is reset to {\tt NONE} whenever
+the current lexical table becomes a master table.
+
+Thus if an lexical table of
 type `\verb|whitespace|' cannot recognized any atom and
 the default instruction associated with it
 changes the current lexical table to a master table,
-any non-zero length lexeme accumulated so far will
+the lexeme accumulated so far will
 be output as a lexeme of type `\verb|whitespace|'.
 
 When it is between lexemes the current lexical table in the scanner state
@@ -435,7 +447,7 @@ table, plus a few small master tables to handle error situations
 such a premature new-line and premature end-of-file;
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.
 Legacy languages
-may have more master mode tables: C/C++ has several to handle
+may have more master tables: C/C++ has several to handle
 special lexical scanning of preprocessing lexemes;
 see Appendix \itemref{C++-LEXICAL-PROGRAM}.
 
@@ -445,7 +457,7 @@ example, the character \verb|\| appearing outside a quoted string
 might be returned as a 1-character lexeme of type `{\tt unrecognized
 character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
-of the scanner.  For example, if \verb|<h>| appears in a quoted
+of the scanner.  For example, if \verb|<H>| appears in a quoted
 string, it may be reported as an erroneous atom of type
 `{\tt unrecognized escape sequence}'.  Otherwise this atom will be processed
 normally; it might, for example, be omitted from the lexeme
@@ -464,7 +476,7 @@ components that can do the following:
 \item make instruction success conditional
       on the translated atom matching an atom pattern
 \item announce the reduced length atom as an erroneous atom of a given type
-\item output the atoms accumulated so far as a lexeme of a given type
+\item change the current lexeme type
 \item change the current lexical table
 \item force the instruction containing atom table to fail to match any atom
 \end{itemize}
@@ -829,11 +841,12 @@ begin premature tables lexical program;
 
 begin premature end of line master table;
     "<LF>" output premature end of line
-         goto main;
+           goto main;
 end premature end of line master table;
 
 begin premature end of file master table;
-    output premature end of file;
+    output premature end of file
+           goto main;
 end premature end of file master table;
 
 end premature tables lexical program;
@@ -947,9 +960,10 @@ accept the matched atom as part of the current lexeme.  In a lexeme
 table the default instruction is typically a {\tt goto} or {\tt return}
 back to a
 master table, and because this changes the current lexical table
-from a lexeme table to a master table, it causes any non-zero length
-accumulated lexeme to be output with its lexeme type being either
-the lexeme table name or a type specified by the instruction.
+to a master table, it causes any accumulated lexeme
+to be output with its lexeme type being the current lexeme type
+if that is not {\tt NONE}, or it causes any accumulated lexeme
+to be discarded if the current lexeme type is {\tt NONE}.
 
 Atom tables permit sets of atom patterns to be used in
 several places without copying all the patterns.  Details are
@@ -1038,7 +1052,8 @@ is:
 {\tt keep} \\
 {\tt translate}\\
 {\tt require} \\
-{\tt error} or {\tt output} \\
+{\tt error} \\
+{\tt output} \\
 {\tt goto}, {\tt call}, {\tt return}, or {\tt fail} \\
 \end{center}
 
@@ -1078,10 +1093,21 @@ an atom table {\em instruction}.  An atom table
 instruction may invoke another atom table, but recursion
 is prohibited.
 
-Note that if an instruction invokes an atom table and
-the instruction does not fail,
+If an instruction invokes an atom table and
+the atom table does not fail,
 the original atom match that caused the instruction
-to be executed is discarded, but if the instruction fails, this
+to be executed is replaced by the atom matched by the
+atom table.  If the
+instruction contains no {\tt translate} components, the
+atom table provides the atom translation, but if the atom table
+invoking instruction contains a {\tt translate} component, that is
+applied to the atom identified by the atom table to produce the
+atom translation.
+
+An instruction that invokes an atom table fails if the atom table
+fails or if the instruction has a {\tt require} component that fails
+when applied to the atom translation produced as just described.
+If the instruction fails, the
 original atom match is reinstated (the instruction becomes a
 no-operation) before the next {\em instruction} in the {\em instruction group}
 executes.
@@ -1270,15 +1296,12 @@ and no special operations for detecting or announcing them.
 \subsubsubsection{Output Instruction Component}
 
 \hfill A `\ttmkey{output}{in lexical program} {\em type}\,'
-{\em instruction-component} emits the current lexeme
-with the given {\em type}.  This
-{\em instruction-component} may only be used if the next
-current lexical table is a master table.
+{\em instruction-component} sets the \key{current lexeme type}.
 
-The {\tt output} {\em instruction-component}
-works even if the current lexeme is of zero length,
-and may be used in the {\em default-instruction-group} of an lexical table;
-for example, at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} the
+The {\tt output} {\em instruction-component} is
+used to change the type of the lexeme to be output from
+the type of the table containing the instruction.
+For example, at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} the
 {\tt main} master table has `{\tt output end of file;}' as its
 {\em default-instruction-group}, thereby outputting a zero length
 lexeme with `{\tt end of file}' type whenever the input is at the
@@ -1298,12 +1321,14 @@ the character itself, but if the entry:
 had been used instead the translation would have been the ASCII delete
 (DEL) character.
 
-Whenever the current lexical table is changed from a lexeme table
-to a master table, if no {\tt output} {\em instruction-component}
-is present in the {\em instruction} that made the change, and if
-the current lexeme is not of zero length, then
-an implicit {\tt output} is executed with the name of the lexeme
-table as its type.
+Upon finishing the execution of an instruction, if the
+current lexical table is a master table,
+the currently accumulated lexeme is output
+with the current lexeme type, if that is not {\tt NONE}, or the
+currently accumulated lexeme is discarded if the current lexeme
+type is {\tt NONE}.
+The current lexeme type is reset to {\tt NONE} whenever
+the current lexical table becomes a master table.
 
 \subsubsubsection{Goto, Call, Return, and Fail Instruction Components}
 
@@ -1332,7 +1357,7 @@ stack to determine the next lexical table.  This identifier is
 also popped from the stack.
 
 The return stack is set to empty whenever the current lexical table
-becomes a master mode table.
+becomes a master table.
 A {\tt call} \underline{cannot} be used
 to call a master or atom table.  A {\tt return} can only
 appear in a lexeme table.
@@ -1343,7 +1368,9 @@ can both be used in the same {\em instruction}, in
 which case the {\tt goto} lexical table identifier is pushed into the
 return stack instead of the current lexical table identifier.
 The `{\tt return}' instruction component cannot be used with
-`{\tt call}' or `{\tt goto}'.
+`{\tt call}' or `{\tt goto}' (if `{\tt return}' and `{\tt call}'
+could be used together, they would have the same affect as
+a simple `{\tt goto}')
 
 The `{\tt call}' and `{\tt return}' instruction components
 permit a lexeme table to be shared among different

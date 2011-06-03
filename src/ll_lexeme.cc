@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 19 02:00:52 EDT 2011
+// Date:	Fri Jun  3 05:30:31 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -834,13 +834,15 @@ static class default_closures_initializer
 
 // Return true if table_ID is in return_stack.
 //
-static bool is_recursive
-	( LEX::scanner scanner, uns32 table_ID )
+inline bool is_recursive
+        ( uns32 return_stack[LEX::return_stack_size],
+          uns32 return_stack_p,
+	  uns32 table_ID )
 {
     for ( uns32 i = 0;
-          i < scanner->return_stack_p; ++ i )
+          i < return_stack_p; ++ i )
     {
-        if ( scanner->return_stack[i] == table_ID )
+        if ( return_stack[i] == table_ID )
 	    return true;
     }
     return false;
@@ -889,10 +891,6 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 	scanner->next_position.column = 0;
 
 	scanner->next = 0;
-
-	scanner->return_stack_p = 0;
-	memset ( scanner->return_stack, 0,
-		 sizeof ( scanner->return_stack ) );
     }
 
     scanner->reinitialize = true;
@@ -1121,7 +1119,10 @@ static uns32 ctype ( LEX::scanner scanner,
 // add translation of atom to translation buffer.
 //
 static uns32 scan_atom
-    ( LEX::scanner scanner, uns32 & atom_length )
+    ( LEX::scanner scanner,
+      uns32 return_stack[LEX::return_stack_size],
+      uns32 & return_stack_p,
+      uns32 & atom_length )
 {
     LEX::program program =
         scanner->program;
@@ -1287,7 +1288,7 @@ static uns32 scan_atom
 		    << min::eol;
 		return SCAN_ERROR;
 	    }
-	    else if (    scanner->return_stack_p
+	    else if (    return_stack_p
 		      == LEX::return_stack_size )
 	    {
 		scan_error ( scanner, atom_length )
@@ -1300,12 +1301,13 @@ static uns32 scan_atom
 		return SCAN_ERROR;
 	    }
 
-	    scanner->return_stack
-	        [scanner->return_stack_p++] =
+	    return_stack[return_stack_p++] =
 	            scanner->current_table_ID;
 
 	    if ( is_recursive
-	             ( scanner, ih.atom_table_ID ) )
+	             ( return_stack,
+		       return_stack_p,
+		       ih.atom_table_ID ) )
 	    {
 		scan_error ( scanner, atom_length )
 		    << "Recursive MATCH to table "
@@ -1321,11 +1323,13 @@ static uns32 scan_atom
 	    scanner->current_table_ID =
 	        ih.atom_table_ID;
 	    uns32 tinstruction_ID =
-	        scan_atom ( scanner, keep_length );
+	        scan_atom ( scanner,
+		            return_stack,
+			    return_stack_p,
+			    keep_length );
 
 	    scanner->current_table_ID =
-		scanner->return_stack
-		    [--scanner->return_stack_p];
+		return_stack[--return_stack_p];
 
 	    instruction_header & tih =
 		* (instruction_header *)
@@ -1588,12 +1592,20 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 
 	program_header & h = * (program_header *)
 			     & scanner->program[0];
-	assert (    scanner->program[h.initial_table_ID]
-		 == TABLE );
 	scanner->current_table_ID = h.initial_table_ID;
 
+        scanner->scan_error = false;
         scanner->reinitialize = false;
+
+	table_header & cath =
+	    * (table_header *)
+	    & scanner->program
+	          [scanner->current_table_ID];
+	assert ( cath.pctype == TABLE );
+	assert ( cath.mode == MASTER );
     }
+
+    assert ( scanner->scan_error == false );
 
     if (    scanner->trace != 0
 	 && scanner->printer == NULL_STUB )
@@ -1623,17 +1635,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	scanner->next = 0;
     }
 
-    // Initialize first and translation buffer.
-    //
-    first = scanner->next;
-    min::pop ( translation_buffer,
-               translation_buffer->length );
-
     // We scan atoms until we get to a point where the
-    // table is to be changed from a table with mode !=
-    // MASTER to one with mode == MASTER and next !=
-    // first, or `output_type' is set (in this case next
-    // == first is allowed).
+    // table is MASTER mode and the lexeme type is not
+    // NONE, at which point we output a lexeme.
     // 
     // A scan error is when we have no viable
     // instruction or dispatch table that will allow us
@@ -1651,12 +1655,15 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
     // to zero we must be in a loop changing tables and
     // not finding an atom.
     // 
-    uns32 output_type = 0;
-    uns32 last_mode = MASTER;
-    scanner->return_stack_p = 0;
+    uns32 lexeme_type = NONE;
     uns32 loop_count = program->length;
         // Set to max number of tables in order to
 	// detect endless loops.
+    uns32 return_stack[LEX::return_stack_size];
+    uns32 return_stack_p;
+	// Return stack containing return_stack_p
+	// elements (0 is first and return_stack_p
+	// - 1 element is top).
     while ( true )
     {
         // Scan next atom of current lexeme.
@@ -1665,39 +1672,21 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    * (table_header *)
 	    & program[scanner->current_table_ID];
 
-	// First check lexeme ending conditions.
-
-	if ( output_type != 0 )
-	{
-	    if ( cath.mode != MASTER )
-	    {
-	        scan_error ( scanner,
-		             scanner->next - first,
-			     first )
-		    << "Attempt to OUTPUT when the next"
-		       " table "
-		    << scanner->current_table_ID
-		    << " is not a master table"
-		    << min::eol;
-		return SCAN_ERROR;
-	    }
-
-	    break;
-	}
-
-	if ( last_mode != MASTER
-	     &&
-	     cath.mode == MASTER
-	     &&
-	     first != scanner->next )
-	    break;
-
-	last_mode = cath.mode;
-
-	// Reset return stack if current mode is master.
+	assert ( cath.mode != ATOM );
 
 	if ( cath.mode == MASTER )
-	    scanner->return_stack_p = 0;
+	{
+	    if ( lexeme_type != NONE )
+	        break;
+
+	    first = scanner->next;
+	    min::pop ( translation_buffer,
+		       translation_buffer->length );
+
+	    return_stack_p = 0;
+	}
+	else if ( cath.mode != NONE )
+	    lexeme_type = cath.mode;
 
 	// Scan atom.  Return atom length and
 	// instruction.
@@ -1705,7 +1694,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	uns32 atom_length;
 
 	uns32 instruction_ID =
-	    scan_atom ( scanner, atom_length );
+	    scan_atom ( scanner,
+	                return_stack,
+			return_stack_p,
+			atom_length );
 
 	if ( instruction_ID == 0 )
 	    return SCAN_ERROR;
@@ -1753,11 +1745,11 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	}
 
 	if ( op & OUTPUT )
-	    output_type = ih.output_type;
+	    lexeme_type = ih.output_type;
 
 	if ( op & RETURN )
 	{
-	    if (    scanner->return_stack_p
+	    if (    return_stack_p
 	         == LEX::return_stack_size )
 	    {
 		scan_error ( scanner, atom_length )
@@ -1770,8 +1762,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		return SCAN_ERROR;
 	    }
 	    scanner->current_table_ID =
-		scanner->return_stack
-		    [--scanner->return_stack_p];
+		return_stack[--return_stack_p];
 	    assert (    program
 	                    [scanner->current_table_ID]
 		     == TABLE );
@@ -1800,7 +1791,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 
 	if ( op & CALL )
 	{
-	    if (    scanner->return_stack_p
+	    if (    return_stack_p
 		 == LEX::return_stack_size )
 	    {
 		scan_error ( scanner, atom_length )
@@ -1813,12 +1804,13 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		return SCAN_ERROR;
 	    }
 
-	    scanner->return_stack
-	        [scanner->return_stack_p++] =
+	    return_stack[return_stack_p++] =
 	        scanner->current_table_ID;
 
 	    if ( is_recursive
-	             ( scanner, ih.call_table_ID ) )
+	             ( return_stack,
+		       return_stack_p,
+	               ih.call_table_ID ) )
 	    {
 		scan_error ( scanner, atom_length )
 		    << "Recursive CALL to table "
@@ -1867,28 +1859,24 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	}
     }
 
-    first = first;
     next = scanner->next;
 
-    uns32 type = output_type != 0 ?
-                 output_type :
-		 last_mode;
-
-    switch ( type )
+    switch ( lexeme_type )
     {
     case MASTER:
     case ATOM:
+    case NONE:
     case SCAN_ERROR:
     {
 	scan_error ( scanner, next - first, first )
 	    << "Returning lexeme with bad type("
-	    << pmode ( scanner->program, type ) << ")"
-	    << min::eol;
+	    << pmode ( scanner->program, lexeme_type )
+	    << ")" << min::eol;
 	return SCAN_ERROR;
     }
     }
 
-    return type;
+    return lexeme_type;
 }
 
 // See documentation above.
@@ -1897,6 +1885,8 @@ static min::printer scan_error
         ( LEX::scanner scanner,
 	  uns32 length, uns32 next )
 {
+    scanner->scan_error = true;
+
     min::init ( min::error_message )
         << "LEXICAL SCANNER ERROR: current_table "
 	             << scanner->current_table_ID;
@@ -2057,6 +2047,8 @@ min::printer operator <<
 	return printer << "MASTER";
     case ATOM:
 	return printer << "ATOM";
+    case NONE:
+	return printer << "NONE";
     case SCAN_ERROR:
 	return printer << "SCAN_ERROR";
     default:

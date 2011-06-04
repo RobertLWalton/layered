@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  3 08:12:46 EDT 2011
+// Date:	Sat Jun  4 01:56:44 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,6 +57,20 @@ namespace ll { namespace lexeme {
     extern min::locatable_var<ll::lexeme::program>
            default_program;
         // Default program.
+
+    // ll::lexeme::ptr<T> ( program, index ) returns
+    // a min::ptr<T> value pointing at program[index].
+    // We use this to point at program components when
+    // the program can be relocated.
+    //
+    template <typename T>
+    inline min::ptr<T> ptr
+	    ( ll::lexeme::program program, uns32 index )
+    {
+	return & min::unprotected::new_ref
+	    ( program,
+	      * ( T const * ) & program[index] );
+    }
 
     struct position
         // Position of an element of the input_buffer:

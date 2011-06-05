@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  2 07:38:18 EDT 2011
+// Date:	Sun Jun  5 11:36:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,7 @@ lex	// ll_lexeme_c++.lexcc.
 lex
 cc	# include <ll_lexeme_ndl.h>
 cc	# include <ll_lexeme_c++.h>
+cc	# include <ll_lexeme_non_ascii_characters.h>
 cc	using namespace ll::lexeme::ndl;
 cc	# define LEX ll::lexeme
 cc	# define LEXCPP ll::lexeme::cpp
@@ -82,7 +83,7 @@ cc	static struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
 cc	{
 cc		// { min,		max },
-cc	#include <ll_lexeme_non_ascii_letters.h>
+cc		NON_ASCII_LETTERS,
 cc		   { 0,                0 }
 cc	};
 cc

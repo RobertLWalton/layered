@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 22:43:28 EST 2010
+// Date:	Sun Jun  5 05:07:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,21 +34,19 @@
 // The syntax of the Lexical Nested Description Language
 // is as follows.
 //
-// Note: in the following `NDL' is a macro that saves
-// the current file name and line number for possible
-// error messages (only a macro can do this) and ends
-// with `ll::lexeme::ndl' to qualify the following name.
+// In the following `NDL' is a macro that saves the
+// current file name and line number for possible error
+// messages (only a macro can do this) and ends with
+// `ll::lexeme::ndl' to qualify the following name.
 //
-// Note: None of the NDL::... functions return a value.
+// None of the NDL::... functions return a value.
 //
-// Note: The LEX::default_scanner is used to construct
-// the lexical program.  LEX::init_scanner() is called
-// and the result is left in LEX::default_scanner->
-// program.
+// The program is constructed in LEX::default_program.
 //
 //   <ndl-program> ::=
 //      using ll::lexeme::ndl::MASTER;
 //      using ll::lexeme::ndl::ATOM;
+//      using ll::lexeme::ndl::NONE;
 //      using ll::lexeme::ndl::OTHER;
 //      using ll::lexeme::ndl::uns32;
 //
@@ -82,9 +80,10 @@
 //   <mode> ::= MASTER | ATOM | <type-name>
 //	// Mode of table
 //
-//   <type-name> ::= C++ uns32 expression
-//	// The type returned by the scanner for a
-//	// lexeme, or the type of a lexeme table.
+//   <type-name> ::= C++ uns32 expression | NONE
+//	// The type returned by the scanner for a lexeme
+//	// or erroneous atom, or NONE.  Also used as the
+//	// <mode> of a lexeme table.
 //
 //   <atom-pattern-declaration> ::=
 //       uns32 <atom-pattern-name>;
@@ -303,6 +302,7 @@ namespace ll { namespace lexeme { namespace ndl {
     using ll::lexeme::uns32;
     using ll::lexeme::MASTER;
     using ll::lexeme::ATOM;
+    using ll::lexeme::NONE;
 
     extern char OTHER[];
 
@@ -322,7 +322,7 @@ namespace ll { namespace lexeme { namespace ndl {
     void end_program ( void );
 
     void new_table
-        ( uns32 & table_name, uns32 mode = 0 );
+        ( uns32 & table_name, uns32 mode = NONE );
 
     void begin_atom_pattern
 	( uns32 & atom_pattern_name,

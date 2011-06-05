@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  2 08:06:42 EDT 2011
+// Date:	Sun Jun  5 06:31:42 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,7 @@ lex	// ll_lexeme_standard.lexcc.
 lex
 cc	# include <ll_lexeme_ndl.h>
 cc	# include <ll_lexeme_standard.h>
+cc	# include <ll_lexeme_non_ascii_characters.h>
 cc	using namespace ll::lexeme::ndl;
 cc	# define LEX ll::lexeme
 cc	# define LEXSTD ll::lexeme::standard
@@ -73,13 +74,29 @@ cc	struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
 cc	{
 cc		// { min,		max },
-cc	#include <ll_lexeme_non_ascii_letters.h>
+cc		   NON_ASCII_LETTERS,
 cc		   { 0,                0 }
 cc	};
 cc
 cc	static void add_non_ascii_letters ( void )
 cc	{
 cc	    for ( char_range *p = non_ascii_letters;
+cc		  p->min != 0 || p->max != 0; ++ p )
+cc		NDL::add_characters ( p->min, p->max );
+cc	}
+cc
+cc	char_range non_ascii_combining_chars[] =
+cc	{
+cc		// { min,		max },
+cc		   NON_ASCII_COMBINING_CHARACTERS,
+cc		   { 0,                0 }
+cc	};
+cc
+cc	static void add_non_ascii_combining_chars
+cc		( void )
+cc	{
+cc	    for ( char_range *p =
+cc		      non_ascii_combining_chars;
 cc		  p->min != 0 || p->max != 0; ++ p )
 cc		NDL::add_characters ( p->min, p->max );
 cc	}
@@ -134,11 +151,12 @@ cc	    uns32 unrec_escape_seq;
 cc	    NDL::new_table ( unrec_escape_seq, ATOM );
 cc
 cc	    uns32 non_letter_seq_t =
-cc		non_letter_escape_sequence_t;
+cc		non_letter_escape_seq_t;
 cc	    uns32 unrec_escape_seq_t =
-cc		unrecognized_escape_sequence_t;
+cc		unrecognized_escape_seq_t;
 cc	    uns32 unrec_char_t =
-cc		unrecognized_character_t;
+cc		unrecognized_char_t;
+cc
 
 lex	"<ascii-letter>" = "a-z" | "A-Z";
 lex
@@ -165,18 +183,28 @@ cc
 
 lex	"<non-digit>" = ~ "<digit>";
 lex
+lex	"<non-ascii-letter>" = NON_ASCII_LETTER
+lex
+cc	    uns32 non_ascii_letter;
+cc	    NDL::begin_atom_pattern
+cc		    ( non_ascii_letter );
+cc		add_non_ascii_letters();
+cc	    NDL::end_atom_pattern();
+cc
+
 lex	"<letter>" = "<ascii-letter>"
 lex	           | "<non-ascii-letter>"
 lex
-lex	// <non-ascii-letter> ::= UNICODE character in
-lex	// one of the code ranges designated in
-lex	// ../include/ll_lexeme_non_ascii_letters.h
+
+lex	"<non-ascii-word-char>" =
+lex	      "<non-ascii-letter>"
+lex	    | NON_ASCII_COMBINING_CHARACTER
 lex
-cc	    uns32 letter;
-cc	    NDL::begin_atom_pattern ( letter );
-cc	    	NDL::add_characters
-cc		     ( ascii_letter_char );
+cc	    uns32 non_ascii_word_char;
+cc	    NDL::begin_atom_pattern
+cc		    ( non_ascii_word_char );
 cc		add_non_ascii_letters();
+cc		add_non_ascii_combining_chars();
 cc	    NDL::end_atom_pattern();
 cc
 
@@ -205,6 +233,16 @@ cc	    const char * mark_char =
 cc		"+-*~@#$%^&=|>_!?:";
 cc
 
+lex	"<non-ascii-combining-char>" =
+lex	    NON_ASCII_COMBINING_CHARACTER
+lex
+cc	    uns32 non_ascii_combining_char;
+cc	    NDL::begin_atom_pattern
+cc		    ( non_ascii_combining_char );
+cc		add_non_ascii_combining_chars();
+cc	    NDL::end_atom_pattern();
+cc
+
 lex	"<non-slash-char>" = ~ "/";
 lex
 
@@ -224,7 +262,7 @@ cc	    const char * line_break_char = "\n\v\f\r";
 cc
 
 lex	"<non-line-break-char>" =
-lex	        ~ "<line-break-character>";
+lex	        ~ "<line-break-char>";
 lex
 lex	"<horizontal-space-char>" = " " | "<HT>";
 lex
@@ -254,6 +292,7 @@ lex	   //   `comments'          `//' up to just be-
 lex	   //                       fore next line break
 lex	   //
 lex	   "//" call comment;
+lex
 cc		   NDL::begin_dispatch ( "/" );
 cc		      NDL::begin_dispatch ( "/" );
 cc			 NDL::call ( comment );
@@ -270,6 +309,7 @@ cc
 
 lex	   "<horizontal-space-char>"
 lex	        call horizontal space;
+lex
 cc		   NDL::begin_dispatch
 cc			( horizontal_space_char );
 cc		      NDL::call ( horizontal_space );
@@ -285,6 +325,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<letter>" call word;
+lex
 cc		   NDL::begin_dispatch
 cc			( ascii_letter_char );
 cc		      add_non_ascii_letters ();
@@ -293,6 +334,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "'<letter>" call word;
+lex
 cc		   NDL::begin_dispatch ( "'" );
 cc		      NDL::begin_dispatch
 cc			( ascii_letter_char );
@@ -309,28 +351,27 @@ cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	  "<" "<digit>" match escaped hex character
-lex	                   require "<letter>" call word
-lex	                else match escaped hex character
-lex	                     error non letter escape
-lex	                           sequence
-lex	                     translate to "?"
-lex	                     call word
-lex	                else keep 1 call mark;
+lex	  "<" "<digit>"
+lex	          match escaped hex char
+lex	          require "<non-ascii-letter>"
+lex	          call word
+lex	     else match escaped hex char
+lex	          output non letter escape seq
+lex	     else keep 1 call mark;
+lex
 cc	    	   NDL::begin_dispatch ( "<" );
 cc	    	      NDL::begin_dispatch
 cc				( digit_char );
 cc			    NDL::match
 cc				 ( escaped_hex_char );
-cc			    NDL::require ( letter );
+cc			    NDL::require
+cc			        ( non_ascii_letter );
 cc			    NDL::call ( word );
 cc		      NDL::ELSE();
 cc			    NDL::match
 cc				 ( escaped_hex_char );
-cc			    NDL::translate_to ( "?" );
-cc			    NDL::erroneous_atom
+cc			    NDL::output
 cc			        ( non_letter_seq_t );
-cc			    NDL::call ( word );
 cc		      NDL::ELSE();
 cc		         NDL::keep ( 1 );
 cc		         NDL::call ( mark );
@@ -343,15 +384,18 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<mark-char>" call mark;
+lex
 cc	    	   NDL::begin_dispatch ( mark_char );
 cc		      NDL::call ( mark );
 cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<" call mark;
+lex
 cc	        // See "<" "<digit>" ...; above.
 
 lex	   "." call mark;  // ".<non-digit>"
+lex
 cc	        // See ".<digit>" keep 1 call number;
 cc	        // below.
 
@@ -359,12 +403,14 @@ lex	   // We assume that the preceding text is not
 lex	   // a digit.
 lex	   //
 lex	   "/" call mark;  // "/<non-slash-char>"
+lex
 cc	        // See "//" call comment; above.
 
 lex	   // We assume that the preceding text is not
 lex	   // a digit or a / or , preceded by a digit.
 lex	   //
 lex	   "<digit>" keep 0 call natural number;
+lex
 cc	    	   NDL::begin_dispatch ( digit_char );
 cc		      NDL::keep ( 0 );
 cc		      NDL::call ( natural_number );
@@ -389,6 +435,7 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<separator-char>" output separator;
+lex
 cc	    	   NDL::begin_dispatch
 cc			( separator_char );
 cc		      NDL::output ( separator_t );
@@ -399,6 +446,7 @@ lex	   // We assume that the preceding text is not
 lex	   // a digit.
 lex	   //
 lex	   "," output separator;
+lex
 cc	    	   NDL::begin_dispatch ( "," );
 cc		      NDL::output ( separator_t );
 cc	    	   NDL::end_dispatch();
@@ -417,7 +465,8 @@ cc		      NDL::call ( quoted_string );
 cc	    	   NDL::end_dispatch();
 cc
 
-lex	   "<other>" output unrecognized character;
+lex	   "<other>" output unrecognized char;
+lex
 cc	    	   NDL::begin_dispatch ( OTHER );
 cc		      NDL::output ( unrec_char_t );
 cc	    	   NDL::end_dispatch();
@@ -430,10 +479,10 @@ cc
 
 lex	end main master table;
 lex
-lex
 cc	    	NDL::end_table();
 cc
 
+lex
 lex	// The below tables are entered from the master
 lex	// table with the first zero, one, or two
 lex	// characters scanned.
@@ -445,6 +494,7 @@ cc
 
 lex	   "<non-line-break-char>" accept;
 lex	   return;
+lex
 cc	           NDL::begin_dispatch
 cc			( line_break_char );
 cc		       NDL::keep ( 0 );
@@ -462,10 +512,12 @@ cc	    NDL::end_table();
 cc
 
 lex	begin horizontal space lexeme table;
+lex
 cc	    NDL::begin_table ( horizontal_space );
 cc
 
 lex	   "<horizontal-space-char>" accept;
+lex
 cc	           NDL::begin_dispatch
 cc			( horizontal_space_char );
 cc		       NDL::accept();
@@ -473,6 +525,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   return;
+lex
 cc	    	   NDL::ret();
 cc
 
@@ -483,10 +536,12 @@ cc	    NDL::end_table();
 cc
 
 lex	begin line break lexeme table;
+lex
 cc	    NDL::begin_table ( line_break );
 cc
 
 lex	   "<line-break-char>" accept;
+lex
 cc	           NDL::begin_dispatch
 cc			( line_break_char );
 cc		       NDL::accept();
@@ -494,6 +549,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   return;
+lex
 cc	    	   NDL::ret();
 cc
 
@@ -509,14 +565,18 @@ cc	    NDL::begin_table ( word );
 cc
 
 lex	   "<letter>" accept;
+lex	   "<non-ascii-combining-char>" accept;
+lex
 cc	           NDL::begin_dispatch
 cc			( ascii_letter_char );
 cc		       add_non_ascii_letters ();
+cc		       add_non_ascii_combining_chars ();
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
 lex	   "'<letter>" accept;
+lex
 cc		   NDL::begin_dispatch ( "'" );
 cc		      NDL::begin_dispatch
 cc			   ( ascii_letter_char );
@@ -526,26 +586,20 @@ cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<" "<digit>" match escaped hex character
-lex	                        require "<letter>"
-lex	         else match escaped hex character
-lex	              error non letter escape sequence
-lex	              translate to "?"
+lex	    "<" "<digit>"
+lex	              match escaped hex char
+lex	              require "<non-ascii-word-char>"
 lex	         else keep 0 return;
 lex	    "<" keep 0 return;
+lex
 cc
 cc		   NDL::begin_dispatch ( "<" );
 cc		      NDL::begin_dispatch
 cc				( digit_char );
 cc			    NDL::match
 cc				( escaped_hex_char );
-cc			    NDL::require ( letter );
-cc		         NDL::ELSE();
-cc			    NDL::match
-cc				( escaped_hex_char );
-cc			    NDL::erroneous_atom
-cc			       ( non_letter_seq_t );
-cc			    NDL::translate_to ( "?" );
+cc			    NDL::require
+cc				( non_ascii_word_char );
 cc		         NDL::ELSE();
 cc			    NDL::keep ( 0 );
 cc			    NDL::ret();
@@ -566,16 +620,21 @@ cc	    NDL::end_table();
 cc
 
 lex	begin mark lexeme table;
+lex
 cc	    NDL::begin_table ( mark );
 cc
 
 lex	   "<mark-char>" accept;
+lex	   "<non-ascii-combining-char>" accept;
+lex
 cc	           NDL::begin_dispatch ( mark_char );
+cc		       add_non_ascii_combining_chars ();
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
 lex	   ".<non-digit>" keep 1;
+lex
 cc	           NDL::begin_dispatch ( "." );
 cc		       NDL::begin_dispatch
 cc			    ( digit_char );
@@ -589,6 +648,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "/<non-slash-char>" keep 1;
+lex
 cc	           NDL::begin_dispatch ( "/" );
 cc		       NDL::begin_dispatch ( "/" );
 cc			   NDL::keep ( 0 );
@@ -600,13 +660,23 @@ cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<" "<digit>" match escaped hex character
-lex	                        keep 0 return;
-lex	                  else keep 1;
+lex	    "<" "<digit>"
+lex	        match escaped hex char
+lex	        require "<non-ascii-combining-char>"
+lex	      else
+lex	        match escaped hex char
+lex	        keep 0 return;
+lex	      else keep 1;
 lex	    "<" accept;
+lex
 cc		   NDL::begin_dispatch ( "<" );
 cc		      NDL::begin_dispatch
 cc				( digit_char );
+cc		         NDL::match
+cc			      ( escaped_hex_char );
+cc		         NDL::require
+cc			   ( non_ascii_combining_char );
+cc		      NDL::ELSE();
 cc		         NDL::match
 cc			      ( escaped_hex_char );
 cc		         NDL::keep ( 0 );
@@ -619,6 +689,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   return;
+lex
 cc	    	   NDL::ret();
 cc
 
@@ -628,6 +699,7 @@ cc	    NDL::end_table();
 cc
 
 lex	begin natural number lexeme table;
+lex
 cc	    NDL::begin_table ( natural_number );
 cc
 lex
@@ -645,6 +717,7 @@ lex
 lex	   "<digit>" accept;
 lex	   "<digit>/<digit>" keep 2 goto number;
 lex	   "<digit>,<digit>" keep 2 goto number;
+lex
 cc	           NDL::begin_dispatch ( digit_char );
 cc
 cc		       NDL::begin_dispatch ( "/," );
@@ -660,6 +733,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   ".<digit>" keep 1 goto number;
+lex
 cc	           NDL::begin_dispatch ( "." );
 cc		       NDL::begin_dispatch
 cc			    ( digit_char );
@@ -670,6 +744,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   return;
+lex
 cc	    	   NDL::ret();
 cc
 
@@ -689,6 +764,7 @@ lex
 lex	   "<digit>" accept;
 lex	   "<digit>/<digit>" keep 2;
 lex	   "<digit>,<digit>" keep 2;
+lex
 cc	           NDL::begin_dispatch ( digit_char );
 cc
 cc		       NDL::begin_dispatch ( "/," );
@@ -703,6 +779,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   ".<digit>" keep 1;
+lex
 cc	           NDL::begin_dispatch ( "." );
 cc		       NDL::begin_dispatch
 cc			    ( digit_char );
@@ -736,9 +813,9 @@ cc		      NDL::ret();
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<" match escaped character
-lex	        else match unrecognized escape character
-lex	             error unrecognized escape character
+lex	    "<" match escaped char
+lex	        else match unrecognized escape char
+lex	             error unrecognized escape char
 lex	        else accept;
 lex
 cc		   NDL::begin_dispatch ( "<" );
@@ -779,7 +856,7 @@ lex
 cc	    NDL::end_table();
 cc
 
-lex	begin escaped character atom table;
+lex	begin escaped char atom table;
 lex
 cc	    NDL::begin_table ( escaped_char );
 cc	       NDL::begin_dispatch ( "<" );
@@ -982,6 +1059,7 @@ cc		  END; END;
 cc
 
 lex	    "<" "VT" ">" translate to "<VT>";
+lex
 cc	          BEG ( "V" ); BEG ( "T" );
 cc		     TO ( "\v" );
 cc		  END; END;
@@ -991,9 +1069,10 @@ cc	#	undef BEG
 cc	#	undef TO
 cc	#	undef END
 
-lex	    "<" "<digit>" match escaped hex character
+lex	    "<" "<digit>" match escaped hex char
 lex	                  return
 lex	            else fail;
+lex
 cc	    	    NDL::begin_dispatch ( digit_char );
 cc		       NDL::match ( escaped_hex_char );
 cc		    NDL::ELSE();
@@ -1003,15 +1082,16 @@ cc	       NDL::end_dispatch();
 cc
 
 lex	    fail;
+lex
 cc	       NDL::fail();
 cc
 
-lex	end escaped character atom table;
+lex	end escaped char atom table;
 lex
 cc	    NDL::end_table();
 cc
 
-lex	begin escaped hex character atom table;
+lex	begin escaped hex char atom table;
 lex
 cc	    NDL::begin_table ( escaped_hex_char );
 cc
@@ -1042,6 +1122,7 @@ lex	    "<" "<digit><hex-digit><hex-digit>"
 lex	       "<hex-digit><hex-digit><hex-digit>"
 lex	       "<hex-digit><hex-digit><hex-digit>" ">"
 lex	              translate hex 1 1;
+lex
 cc	# define HEX begin_dispatch ( hex_digit_char )
 cc	# define CLOSE begin_dispatch ( ">" )
 cc	# define TRANS NDL::translate_hex ( 1, 1 )
@@ -1102,15 +1183,16 @@ cc	# undef END
 cc
 
 lex	    fail;
+lex
 cc	    	    NDL::fail();
 cc
 
-lex	end escaped hex character atom table;
+lex	end escaped hex char atom table;
 lex
 cc	    NDL::end_table();
 cc
 
-lex	begin unrecoginized escape sequence atom table;
+lex	begin unrecoginized escape seq atom table;
 lex
 cc	    NDL::begin_table ( unrec_escape_seq );
 cc
@@ -1135,6 +1217,7 @@ lex	    "<" "<escape-char><escape-char>"
 lex	        "<escape-char><escape-char>"
 lex	        "<escape-char><escape-char>"
 lex	        "<escape-char><escape-char>" ">";
+lex
 cc	# define ECHAR begin_dispatch ( escape_char )
 cc	# define CLOSE begin_dispatch ( ">" )
 cc	# define TRANS accept()
@@ -1190,19 +1273,22 @@ cc	# undef END
 cc
 
 lex	    fail;
+lex
 cc	    	    NDL::fail();
 cc
 
-lex	end unrecognized escape sequence atom table;
+lex	end unrecognized escape seq atom table;
 lex
 cc	    NDL::end_table();
 cc
 
 lex	begin bad end of line master table;
+lex
 cc	    NDL::begin_table ( bad_end_of_line );
 cc
 
 lex	    output bad end of line goto main;
+lex
 cc	            NDL::output ( bad_end_of_line_t );
 cc		    NDL::go ( main );
 cc
@@ -1212,13 +1298,14 @@ lex
 cc	    NDL::end_table();
 cc
 
-lex
 lex	begin bad end of file master table;
+lex
 cc
 cc	    NDL::begin_table ( bad_end_of_file );
 cc
 
 lex	    output bad end of file goto main;
+lex
 cc	            NDL::output ( bad_end_of_file_t );
 cc		    NDL::go ( main );
 cc

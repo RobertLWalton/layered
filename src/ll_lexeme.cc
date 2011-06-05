@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  4 01:56:05 EDT 2011
+// Date:	Sat Jun  4 09:30:37 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1418,9 +1418,12 @@ static uns32 scan_atom
 	    uns32 translate_to_length =
 		LEX::translate_to_length ( op );
 	    if ( translate_to_length > 0 )
-		min::push ( translation_buffer,
-			    translate_to_length,
-			    (uns32 *) ( & ihp[1] ) );
+		min::push
+		    ( translation_buffer,
+		      translate_to_length,
+		      MUP::new_ptr
+			  ( program,
+			    * (uns32 *) & ihp[1] ) );
 	}
 	else if ( ! ( op & MATCH ) )
 	{
@@ -2042,8 +2045,10 @@ min::printer operator <<
 	    return printer
 	        << min::push_parameters
 	        << min::nohbreak
-	        <<   (const char *) & program[0]
-		   + offset
+	        << MUP::new_ptr
+		       ( program,
+		         ( (char *) & program[0] )
+			       [offset] )
 	        << min::pop_parameters;
     }
 
@@ -2581,7 +2586,10 @@ static uns32 print_cooked_dispatcher
 		}
 		else
 		{
-		    uns8 * p = (uns8 *) ( & tmhp[1] );
+		    min::ptr<uns8> p =
+		        MUP::new_ptr
+			    ( program,
+			      * (uns8 *) & tmhp[1] );
 		    for ( uns32 c = cmin;
 		          c <= cmax; ++ c )
 		    {
@@ -2639,8 +2647,10 @@ uns32 LEX::print_program_component
 	    if ( offset == 0 ) continue;
 	    printer << min::indent
 	            << t << ": " << min::right ( 8 )
-	            << (const char *) & program[ID]
-		           + offset
+	            << MUP::new_ptr
+		           ( program,
+			     ( (char *) & program[ID] )
+		                 [offset] )
 		    << min::eol;
 	}
 	length = php->component_length;
@@ -2757,7 +2767,9 @@ uns32 LEX::print_program_component
 	    printer << min::push_parameters
 	            << min::set_indent ( IDwidth + 6 );
 
-	    uns8 * map = (uns8 *) ( & tmhp[1] );
+	    min::ptr<uns8> map =
+	        MUP::new_ptr ( program,
+		               * (uns8 *) & tmhp[1] );
 	    length += ( tmhp->cmax - tmhp->cmin + 4 )
 	            / 4;
 	    for ( unsigned t = 0; t < 256; ++ t )

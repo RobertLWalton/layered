@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 26 03:30:15 EDT 2011
+// Date:	Sun Jun  5 11:07:57 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,12 +46,12 @@ namespace ll { namespace lexeme { namespace standard {
 
     const uns32 bad_end_of_line_t		= 11;
     const uns32 bad_end_of_file_t		= 12;
-    const uns32 unrecognized_character_t	= 13;
+    const uns32 unrecognized_char_t		= 13;
 
     // Erroneous Atom Types
     //
-    const uns32 unrecognized_escape_sequence_t	= 14;
-    const uns32 non_letter_escape_sequence_t	= 15;
+    const uns32 unrecognized_escape_seq_t	= 14;
+    const uns32 non_letter_escape_seq_t		= 15;
 
     const unsigned MAX_TYPE = 15;
 

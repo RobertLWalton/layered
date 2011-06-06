@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  4 01:56:44 EDT 2011
+// Date:	Mon Jun  6 11:57:24 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -487,10 +487,10 @@ namespace ll { namespace lexeme {
     // Instruction component lengths are stored in bits
     // 16-31 of an instruction operation as per:
     //
-    //		16-21	KEEP_LENGTH
-    //		22-27   TRANSLATE_TO_LENGTH
-    //		22-26   PREFIX_LENGTH
-    //		27-31   POSTFIX_LENGTH
+    //	    16-20   KEEP_LENGTH		   5 bits
+    //	    21-25   TRANSLATE_TO_LENGTH    5 bits
+    //	    26-28   PREFIX_LENGTH	   3 bits
+    //	    29-31   POSTFIX_LENGTH	   3 bits
     //
     // TRANSLATE_TO_LENGTH overlaps with
     // PREFIX_LENGTH and POSTFIX_LENGTH.
@@ -502,13 +502,13 @@ namespace ll { namespace lexeme {
     //	    ..._LENGTH_MASK
     //
     const uns32 KEEP_LENGTH_SHIFT = 16;
-    const uns32 KEEP_LENGTH_MASK = 0x3F;
-    const uns32 TRANSLATE_TO_LENGTH_SHIFT = 22;
-    const uns32 TRANSLATE_TO_LENGTH_MASK = 0x3F;
-    const uns32 PREFIX_LENGTH_SHIFT = 22;
-    const uns32 PREFIX_LENGTH_MASK = 0x1F;
-    const uns32 POSTFIX_LENGTH_SHIFT = 27;
-    const uns32 POSTFIX_LENGTH_MASK = 0x1F;
+    const uns32 KEEP_LENGTH_MASK = 0x1F;
+    const uns32 TRANSLATE_TO_LENGTH_SHIFT = 21;
+    const uns32 TRANSLATE_TO_LENGTH_MASK = 0x1F;
+    const uns32 PREFIX_LENGTH_SHIFT = 26;
+    const uns32 PREFIX_LENGTH_MASK = 0x7;
+    const uns32 POSTFIX_LENGTH_SHIFT = 29;
+    const uns32 POSTFIX_LENGTH_MASK = 0x7;
 
     inline uns32 keep_length ( uns32 operation )
     {

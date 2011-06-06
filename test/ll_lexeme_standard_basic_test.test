@@ -1,6 +1,6 @@
          0: PROGRAM
             Initial Table ID: XXXX
-            Max Type: 15
+            Max Type: 16
                  1: WORD
                  2: NATURAL_NUMBER
                  3: NUMBER
@@ -11,11 +11,12 @@
                  8: HORIZONTAL_SPACE
                  9: LINE_BREAK
                 10: END_OF_FILE
-                11: BAD_END_OF_LINE
-                12: BAD_END_OF_FILE
-                13: UNRECOGNIZED_CHARACTER
-                14: UNRECOGNIZED_ESCAPE_SEQUENCE
+                11: PREMATURE_END_OF_LINE
+                12: PREMATURE_END_OF_FILE
+                13: MISPLACED_CHARACTER
+                14: ASCII_ESCAPE_SEQUENCE
                 15: NON_LETTER_ESCAPE_SEQUENCE
+                16: UNRECOGNIZED_ESCAPE_SEQUENCE
       XXXX: TABLE
             Mode: MASTER
             Dispatcher ID: XXXX
@@ -39,7 +40,7 @@
       XXXX: TABLE
             Mode: QUOTED_STRING
             Dispatcher ID: XXXX
-            GOTO(118)
+            GOTO(127)
       XXXX: TABLE
             Mode: SEPARATOR
             Dispatcher ID: XXXX
@@ -57,11 +58,11 @@
       XXXX: TABLE
             Mode: MASTER
             Dispatcher ID: XXXX
-            OUTPUT(11), GOTO(74)
+            ERRONEOUS_ATOM(11), GOTO(83)
       XXXX: TABLE
             Mode: MASTER
             Dispatcher ID: XXXX
-            OUTPUT(12), GOTO(74)
+            ERRONEOUS_ATOM(12), GOTO(83)
       XXXX: TABLE
             Mode: ATOM
             Dispatcher ID: XXXX
@@ -75,8 +76,24 @@
             Dispatcher ID: XXXX
             FAIL
       XXXX: DISPATCHER
-            Break Elements: 90
-            Max Break Elements: 93
+            Break Elements: 2
+            Max Break Elements: 3
+            Max CType: 1
+      XXXX: DISPATCHER
+            Break Elements: 96
+            Max Break Elements: 99
+            Max CType: 1
+      XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+      XXXX: DISPATCHER
+            Break Elements: 96
+            Max Break Elements: 107
+            Max CType: 1
+      XXXX: DISPATCHER
+            Break Elements: 9
+            Max Break Elements: 9
             Max CType: 1
       XXXX: DISPATCHER
             Break Elements: 1
@@ -91,10 +108,10 @@
             Max Break Elements: 3
             Max CType: 1
             <NUL>-. 0-
-                KEEP(1), CALL(90)
+                KEEP(1), CALL(99)
                 Dispatcher ID: XXXX
             /
-                CALL(102)
+                CALL(111)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -117,15 +134,16 @@
             Max Break Elements: 1
             Max CType: 0
       XXXX: DISPATCHER
-            Break Elements: 90
-            Max Break Elements: 93
+            Break Elements: 98
+            Max Break Elements: 101
             Max CType: 1
             <NUL>-@ [-` {-<0A7> <0A9> <0AB>-<0AC> <0AE> <0B0>-<0B1>
-            <0B6> <0BB> <0BF> <0D7> <0F7> <1680> <180E> <2000>-<200A>
-            <200E>-<2029> <202F>-<203E> <2041>-<2053> <2055>-<205F>
-            <2190>-<245F> <2500>-<2775> <2794>-<2BFF> <2E00>-<2E7F>
-            <3000>-<3003> <3008>-<3020> <3030> <0D800>-<0F8FF>
-            <0FD3E>-<0FD3F> <0FDD0>-<0FDEF> <0FE45>-<0FE46>
+            <0B6> <0BB> <0BF> <0D7> <0F7> <300>-<36F> <1680> <180E>
+            <1DC0>-<1DFF> <2000>-<200A> <200E>-<2029> <202F>-<203E>
+            <2041>-<2053> <2055>-<205F> <20D0>-<20FF> <2190>-<245F>
+            <2500>-<2775> <2794>-<2BFF> <2E00>-<2E7F> <3000>-<3003>
+            <3008>-<3020> <3030> <0D800>-<0F8FF> <0FD3E>-<0FD3F>
+            <0FDD0>-<0FDEF> <0FE20>-<0FE2F> <0FE45>-<0FE46>
             <0FFFE>-<0FFFF> <1FFFE>-<1FFFF> <2FFFE>-<2FFFF>
             <3FFFE>-<3FFFF> <4FFFE>-<4FFFF> <5FFFE>-<5FFFF>
             <6FFFE>-<6FFFF> <7FFFE>-<7FFFF> <8FFFE>-<8FFFF>
@@ -134,18 +152,19 @@
                 KEEP(1), OUTPUT(6)
                 Dispatcher ID: XXXX
             A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
-            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
-            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
-            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
-            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
-            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
-            <0FDF0>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
+            <202A>-<202E> <203F>-<2040> <2054> <2060>-<20CF>
+            <2100>-<218F> <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF>
+            <2E80>-<2FFF> <3004>-<3007> <3021>-<302F> <3031>-<0D7FF>
+            <0F900>-<0FD3D> <0FD40>-<0FDCF> <0FDF0>-<0FE1F>
+            <0FE30>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
             <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
             <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                CALL(78)
+                CALL(87)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -156,10 +175,11 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(126), REQUIRE(134), CALL(78), ELSE:
-                TRANSLATE_TO(1,?), MATCH(126), ERRONEOUS_ATOM(15),
-                CALL(78), ELSE:
-                KEEP(1), CALL(90)
+                MATCH(135), REQUIRE(161), CALL(87), ELSE:
+                MATCH(135), REQUIRE(143), ERRONEOUS_ATOM(14), ELSE:
+                MATCH(135), ERRONEOUS_ATOM(15), ELSE:
+                KEEP(1), CALL(99)
+
 
 
                 Dispatcher ID: XXXX
@@ -184,10 +204,10 @@
             Max Break Elements: 3
             Max CType: 1
             <NUL>-/ :-
-                KEEP(1), CALL(90)
+                KEEP(1), CALL(99)
                 Dispatcher ID: XXXX
             0-9
-                KEEP(1), CALL(86)
+                KEEP(1), CALL(95)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -206,15 +226,16 @@
             Max Break Elements: 1
             Max CType: 0
       XXXX: DISPATCHER
-            Break Elements: 90
-            Max Break Elements: 93
+            Break Elements: 98
+            Max Break Elements: 101
             Max CType: 12
             <NUL>-<BS> <SO>-<US> \ <DEL>-<0A7> <0A9> <0AB>-<0AC> <0AE>
-            <0B0>-<0B1> <0B6> <0BB> <0BF> <0D7> <0F7> <1680> <180E>
-            <2000>-<200A> <200E>-<2029> <202F>-<203E> <2041>-<2053>
-            <2055>-<205F> <2190>-<245F> <2500>-<2775> <2794>-<2BFF>
-            <2E00>-<2E7F> <3000>-<3003> <3008>-<3020> <3030>
-            <0D800>-<0F8FF> <0FD3E>-<0FD3F> <0FDD0>-<0FDEF>
+            <0B0>-<0B1> <0B6> <0BB> <0BF> <0D7> <0F7> <300>-<36F> <1680>
+            <180E> <1DC0>-<1DFF> <2000>-<200A> <200E>-<2029>
+            <202F>-<203E> <2041>-<2053> <2055>-<205F> <20D0>-<20FF>
+            <2190>-<245F> <2500>-<2775> <2794>-<2BFF> <2E00>-<2E7F>
+            <3000>-<3003> <3008>-<3020> <3030> <0D800>-<0F8FF>
+            <0FD3E>-<0FD3F> <0FDD0>-<0FDEF> <0FE20>-<0FE2F>
             <0FE45>-<0FE46> <0FFFE>-<0FFFF> <1FFFE>-<1FFFF>
             <2FFFE>-<2FFFF> <3FFFE>-<3FFFF> <4FFFE>-<4FFFF>
             <5FFFE>-<5FFFF> <6FFFE>-<6FFFF> <7FFFE>-<7FFFF>
@@ -226,35 +247,36 @@
             /
                 Dispatcher ID: XXXX
             <HT> <SP>
-                CALL(106)
+                CALL(115)
                 Dispatcher ID: XXXX
             <LF>-<CR>
-                CALL(110)
+                CALL(119)
                 Dispatcher ID: XXXX
             A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
-            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
-            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
-            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
-            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
-            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
-            <0FDF0>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
+            <202A>-<202E> <203F>-<2040> <2054> <2060>-<20CF>
+            <2100>-<218F> <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF>
+            <2E80>-<2FFF> <3004>-<3007> <3021>-<302F> <3031>-<0D7FF>
+            <0F900>-<0FD3D> <0FD40>-<0FDCF> <0FDF0>-<0FE1F>
+            <0FE30>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
             <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
             <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                CALL(78)
+                CALL(87)
                 Dispatcher ID: XXXX
             '
                 Dispatcher ID: XXXX
             <
-                CALL(90)
+                CALL(99)
                 Dispatcher ID: XXXX
             ! #-& *-+ - : =-@ ^-_ | ~
-                CALL(90)
+                CALL(99)
                 Dispatcher ID: XXXX
             0-9
-                KEEP(0), CALL(82)
+                KEEP(0), CALL(91)
                 Dispatcher ID: XXXX
             .
                 Dispatcher ID: XXXX
@@ -265,7 +287,7 @@
                 OUTPUT(6)
                 Dispatcher ID: XXXX
             "
-                TRANSLATE_TO(0), CALL(94)
+                TRANSLATE_TO(0), CALL(103)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -316,16 +338,17 @@
             Max Break Elements: 1
             Max CType: 0
       XXXX: DISPATCHER
-            Break Elements: 90
-            Max Break Elements: 93
+            Break Elements: 98
+            Max Break Elements: 101
             Max CType: 1
             A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
-            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
-            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
-            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
-            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
-            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
-            <0FDF0>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
+            <202A>-<202E> <203F>-<2040> <2054> <2060>-<20CF>
+            <2100>-<218F> <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF>
+            <2E80>-<2FFF> <3004>-<3007> <3021>-<302F> <3031>-<0D7FF>
+            <0F900>-<0FD3D> <0FD40>-<0FDCF> <0FDF0>-<0FE1F>
+            <0FE30>-<0FE44> <0FE47>-<0FFFD> <10000>-<1FFFD>
             <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
             <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
@@ -342,15 +365,16 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(126), REQUIRE(134), ELSE:
-                TRANSLATE_TO(1,?), MATCH(126), ERRONEOUS_ATOM(15), ELSE:
+                MATCH(135), REQUIRE(600), ELSE:
+                TRANSLATE_TO(0), MATCH(135), REQUIRE(563),
+                ERRONEOUS_ATOM(14), ELSE:
                 KEEP(0), RETURN
 
 
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
-            Break Elements: 90
-            Max Break Elements: 93
+            Break Elements: 98
+            Max Break Elements: 109
             Max CType: 3
             A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
@@ -420,15 +444,21 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                KEEP(0), MATCH(126), RETURN, ELSE:
+                MATCH(135), REQUIRE(1034), ELSE:
+                TRANSLATE_TO(0), MATCH(135), REQUIRE(563),
+                ERRONEOUS_ATOM(14), ELSE:
+                KEEP(0), MATCH(135), RETURN, ELSE:
                 KEEP(1)
+
+
 
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
+            Break Elements: 11
+            Max Break Elements: 11
             Max CType: 4
-            ! #-& *-+ - : =-@ ^-_ | ~
+            ! #-& *-+ - : =-@ ^-_ | ~ <300>-<36F> <1DC0>-<1DFF>
+            <20D0>-<20FF> <0FE20>-<0FE2F>
                 ACCEPT
                 Dispatcher ID: XXXX
             .
@@ -447,7 +477,7 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                KEEP(2), GOTO(86)
+                KEEP(2), GOTO(95)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 3
@@ -464,7 +494,7 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                KEEP(1), GOTO(86)
+                KEEP(1), GOTO(95)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 3
@@ -539,14 +569,14 @@
                 TRANSLATE_TO(0), RETURN
                 Dispatcher ID: XXXX
             <
-                MATCH(122), ELSE:
-                MATCH(130), ERRONEOUS_ATOM(14), ELSE:
+                MATCH(131), ELSE:
+                MATCH(139), ERRONEOUS_ATOM(16), ELSE:
                 ACCEPT
 
 
                 Dispatcher ID: XXXX
             <LF>-<CR>
-                GOTO(114)
+                KEEP(0), GOTO(123)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -1199,7 +1229,7 @@
             V
                 Dispatcher ID: XXXX
             0-9
-                MATCH(126), ELSE:
+                MATCH(135), ELSE:
                 FAIL
 
                 Dispatcher ID: XXXX
@@ -1563,8 +1593,9 @@ NUMBER 16(22)22: 6.7,8.9
 LINE_BREAK 16(29)29: ␤
 MARK 17(0)0: +-*~@#$%^&=|<>_!?:
 QUOTED_STRING 17(18)18: "foo" translated to: foo
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 17(28)28: <05>
-WORD 17(23)23: x<79><05> translated to: xy?
+WORD 17(23)23: x
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 17(24)24: <79>
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 17(28)28: <05>
 MARK 17(32)32: <
 WORD 17(33)33: lf
 MARK 17(35)35: >
@@ -1638,34 +1669,44 @@ LINE_BREAK 24(5)5: ␌␋␍␤
 WORD 25(0)0: control
 HORIZONTAL_SPACE 25(7)7: ␣
 WORD 25(8)8: A
-UNRECOGNIZED_CHARACTER 25(9)9: ␁
+MISPLACED_CHARACTER 25(9)9: ␁
 WORD 25(10)10: B
-UNRECOGNIZED_CHARACTER 25(11)11: ␂
+MISPLACED_CHARACTER 25(11)11: ␂
 WORD 25(12)12: C
-UNRECOGNIZED_CHARACTER 25(13)13: ␃
+MISPLACED_CHARACTER 25(13)13: ␃
 LINE_BREAK 25(14)14: ␤
 ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 26(28)28: <XX>
 QUOTED_STRING 26(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
      translated to: "␤␍␉␈␌␋<XX>␣
 LINE_BREAK 26(37)37: ␤
-WORD 27(0)0: <0041><00000042>C translated to: ABC
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 27(0)0: <0041>
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 27(6)6: <00000042>
+WORD 27(16)16: C
 HORIZONTAL_SPACE 27(17)17: ␣
-WORD 27(18)18: D<00000045><0046>G translated to: DEFG
+WORD 27(18)18: D
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 27(19)19: <00000045>
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 27(29)29: <0046>
+WORD 27(35)35: G
 LINE_BREAK 27(36)36: ␤
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 28(6)6: <00000002>
-WORD 28(0)0: <0041><00000002>C translated to: A?C
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 28(0)0: <0041>
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 28(6)6: <00000002>
+WORD 28(16)16: C
 HORIZONTAL_SPACE 28(17)17: ␣
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 28(29)29: <0006>
-WORD 28(18)18: D<00000045><0006>G translated to: DE?G
+WORD 28(18)18: D
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 28(19)19: <00000045>
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 28(29)29: <0006>
+WORD 28(35)35: G
 LINE_BREAK 28(36)36: ␤
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 29(0)0: <0001>
-WORD 29(0)0: <0001><00000042>C translated to: ?BC
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 29(0)0: <0001>
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 29(6)6: <00000042>
+WORD 29(16)16: C
 HORIZONTAL_SPACE 29(17)17: ␣
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 29(18)18: <00000004>
-WORD 29(18)18: <00000004>E<0046>G translated to: ?EFG
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 29(18)18: <00000004>
+WORD 29(28)28: E
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 29(29)29: <0046>
+WORD 29(35)35: G
 LINE_BREAK 29(36)36: ␤
-ERRONEOUS ATOM: NON_LETTER_ESCAPE_SEQUENCE 30(0)0: <0001>
-WORD 30(0)0: <0001> translated to: ?
+ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 30(0)0: <0001>
 LINE_BREAK 30(6)6: ␤
 QUOTED_STRING 31(0)0: "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
      translated to: ␀␁␂␃␄␅␆␇

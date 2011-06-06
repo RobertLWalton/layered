@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Jun  2 08:12:26 EDT 2011
+# Date:		Mon Jun  6 02:19:23 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -84,6 +84,21 @@ ED=[ 0-9][ 0-9][ 0-9][ 0-9][ 0-9][ 0-9][ 0-9][0-9]
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
+%.lex:	../src/%.lexcc Makefile
+	sed -n \
+		-e '/^lex	/s///p' \
+		-e '/^lex$$/s///p' \
+		< ../src/$*.lexcc \
+		> $*.lex
+
+%.cc:	../src/%.lexcc Makefile
+	sed -n \
+		-e '/^cc/!s/.*/\/\//p' \
+		-e '/^cc	/s///p' \
+		-e '/^cc$$/s///p' \
+		< ../src/$*.lexcc \
+		> $*.cc
+
 min.o:	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	${MIN}/src/min.cc \
@@ -164,19 +179,9 @@ ll_lexeme_ndl.o:	\
 
 ll_lexeme_standard.lex:	\
 		../src/ll_lexeme_standard.lexcc
-	sed -n \
-		-e '/^lex	/s///p' \
-		-e '/^lex$$/s///p' \
-		< ../src/ll_lexeme_standard.lexcc \
-		> ll_lexeme_standard.lex \
 
 ll_lexeme_standard.cc:	\
 		../src/ll_lexeme_standard.lexcc
-	sed -n \
-		-e '/^cc	/s///p' \
-		-e '/^cc$$/s///p' \
-		< ../src/ll_lexeme_standard.lexcc \
-		> ll_lexeme_standard.cc \
 
 ll_lexeme_standard.o:	\
 		ll_lexeme_standard.cc \
@@ -250,19 +255,9 @@ ll_lexeme_standard_test.out:		\
 
 ll_lexeme_c++.lex:	\
 		../src/ll_lexeme_c++.lexcc
-	sed -n \
-		-e '/^lex	/s///p' \
-		-e '/^lex$$/s///p' \
-		< ../src/ll_lexeme_c++.lexcc \
-		> ll_lexeme_c++.lex \
 
 ll_lexeme_c++.cc:	\
 		../src/ll_lexeme_c++.lexcc
-	sed -n \
-		-e '/^cc	/s///p' \
-		-e '/^cc$$/s///p' \
-		< ../src/ll_lexeme_c++.lexcc \
-		> ll_lexeme_c++.cc \
 
 ll_lexeme_c++.o:	\
 		ll_lexeme_c++.cc \

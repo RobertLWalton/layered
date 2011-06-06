@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  4 09:30:37 EDT 2011
+// Date:	Mon Jun  6 09:09:51 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -287,7 +287,7 @@ uns32 LEX::create_instruction
 	  uns32 call_table_ID,
 	  LEX::program program )
 {
-    assert ( ( ( operation & TRANSLATE_TO_FLAG ) != 0 )
+    assert ( ( ( operation & MATCH ) != 0 )
 	     +
              ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
 	     +
@@ -1332,43 +1332,17 @@ static uns32 scan_atom
 	    scanner->current_table_ID =
 		return_stack[--return_stack_p];
 
+	    if ( tinstruction_ID == 0 )
+	        return SCAN_ERROR;
+
 	    min::ptr<instruction_header> tihp =
 		LEX::ptr<instruction_header>
 		    ( program, tinstruction_ID );
 	    if ( tihp->operation & FAIL )
 	    	fail = true;
-	    else if ( op & ( TRANSLATE_TO_FLAG
-	                     |
-			     TRANSLATE_HEX_FLAG
-	                     |
-			     TRANSLATE_OCT_FLAG ) )
-		min::pop
-		    ( translation_buffer,
-		        translation_buffer->length
-		      - tnext );
 	}
-
-	if ( ! fail && ( op & KEEP_FLAG ) )
-	{
-	    // Due to possible MATCH, actual atom
-	    // length is in keep_length.
-	    //
-	    uns32 keep = LEX::keep_length ( op );
-	    if ( keep > keep_length )
-	    {
-		scan_error ( scanner, length )
-		    << "Keep length(" << keep
-		    << ") greater than atom length("
-		    << keep_length << ")" << min::eol;
-		return SCAN_ERROR;
-	    }
-	    keep_length = keep;
-	}
-
-	if ( fail ) ; // Do nothing
-	else if ( op & ( TRANSLATE_HEX_FLAG
-		         |
-		         TRANSLATE_OCT_FLAG ) )
+	else if ( op & (   TRANSLATE_HEX_FLAG
+		         | TRANSLATE_OCT_FLAG ) )
 	{
 	    uns32 p = scanner->next
 		    + LEX::prefix_length ( op );
@@ -1412,25 +1386,6 @@ static uns32 scan_atom
 
 	    if ( ! fail )
 		min::push(translation_buffer) = tc;
-	}
-	else if ( op & TRANSLATE_TO_FLAG )
-	{
-	    uns32 translate_to_length =
-		LEX::translate_to_length ( op );
-	    if ( translate_to_length > 0 )
-		min::push
-		    ( translation_buffer,
-		      translate_to_length,
-		      MUP::new_ptr
-			  ( program,
-			    * (uns32 *) & ihp[1] ) );
-	}
-	else if ( ! ( op & MATCH ) )
-	{
-	    uns32 p = scanner->next;
-	    for ( uns32 i = 0; i < keep_length; ++ i )
-		min::push(translation_buffer) =
-		    input_buffer[p++].character;
 	}
 
 	if ( ! fail && ( op & REQUIRE ) )
@@ -1550,6 +1505,45 @@ static uns32 scan_atom
 	// instruction group.
 	//
 	atom_length = keep_length;
+
+	if ( op & KEEP_FLAG )
+	{
+	    uns32 keep = LEX::keep_length ( op );
+	    if ( keep > atom_length )
+	    {
+		scan_error ( scanner, atom_length )
+		    << "Keep length(" << keep
+		    << ") greater than atom length("
+		    << atom_length << ")" << min::eol;
+		return SCAN_ERROR;
+	    }
+	    atom_length = keep;
+	}
+
+	if ( op & TRANSLATE_TO_FLAG )
+	{
+	    min::pop ( translation_buffer,
+		         translation_buffer->length
+		       - tnext );
+	    uns32 translate_to_length =
+		LEX::translate_to_length ( op );
+	    if ( translate_to_length > 0 )
+		min::push
+		    ( translation_buffer,
+		      translate_to_length,
+		      MUP::new_ptr
+			  ( program,
+			    * (uns32 *) & ihp[1] ) );
+	}
+	else if ( ! ( op & (   MATCH
+	                     | TRANSLATE_HEX_FLAG
+	                     | TRANSLATE_OCT_FLAG ) ) )
+	{
+	    uns32 p = scanner->next;
+	    for ( uns32 i = 0; i < atom_length; ++ i )
+		min::push(translation_buffer) =
+		    input_buffer[p++].character;
+	}
 
 	return instruction_ID;
     }
@@ -2232,7 +2226,7 @@ static uns32 print_instruction
 		<< min::pop_parameters;
 	return program->length + 1;
     }
-    if ( ( ( op & TRANSLATE_TO_FLAG ) != 0 )
+    if ( ( ( op & MATCH ) != 0 )
 	 +
          ( ( op & TRANSLATE_HEX_FLAG ) != 0 )
 	 +

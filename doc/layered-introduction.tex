@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 2, 2011
+June 6, 2011
  
 \end{center}
 
@@ -1048,13 +1048,20 @@ are not allowed to be \verb|""|.
 The order of processing {\em instruction-components} in an {\em instruction}
 is:
 \begin{center}
-{\tt match} \\
-{\tt keep} \\
-{\tt translate}\\
-{\tt require} \\
-{\tt error} \\
-{\tt output} \\
-{\tt goto}, {\tt call}, {\tt return}, or {\tt fail} \\
+\begin{tabular}{ll}
+\multicolumn{2}{l}{Components that may
+cause their containing instruction to fail:} \\[1ex]
+~~~~~~~~ & {\tt match}, {\tt translate oct}, or {\tt translate hex} \\
+~~~~~~~~ & {\tt require}
+\\[2ex]
+\multicolumn{2}{l}{Components that only execute if their
+containing instruction does not fail:} \\[1ex]
+~~~~~~~~ & {\tt keep} \\
+~~~~~~~~ & {\tt translate to}\\
+~~~~~~~~ & {\tt error} \\
+~~~~~~~~ & {\tt output} \\
+~~~~~~~~ & {\tt goto}, {\tt call}, {\tt return}, or {\tt fail} \\
+\end{tabular}
 \end{center}
 
 An {\em instruction} with no {\em instruction-components} simply accepts
@@ -1069,7 +1076,8 @@ may be present in the {\em instruction}.
 The `\ttmkey{match}{in lexical program} {\em atom-table-name}'
 {\em instruction-component} invokes the named
 \key{atom table}\label{ATOM-TABLE}
-to recognize an atom.  The previously matched atom is ignored, and
+to recognize an atom and provide its translation.
+Any previously matched atom and translation are ignored, and
 the atom table {\em atom-patterns} are used to rematch the current atom,
 provide a translation of the atom, and determine
 whether the containing {\em instruction} fails.
@@ -1097,16 +1105,11 @@ If an instruction invokes an atom table and
 the atom table does not fail,
 the original atom match that caused the instruction
 to be executed is replaced by the atom matched by the
-atom table.  If the
-instruction contains no {\tt translate} components, the
-atom table provides the atom translation, but if the atom table
-invoking instruction contains a {\tt translate} component, that is
-applied to the atom identified by the atom table to produce the
-atom translation.
+atom table, and the atom translation is that provided by the atom table.
 
 An instruction that invokes an atom table fails if the atom table
 fails or if the instruction has a {\tt require} component that fails
-when applied to the atom translation produced as just described.
+when applied to the atom translation produced by the atom table.
 If the instruction fails, the
 original atom match is reinstated (the instruction becomes a
 no-operation) before the next {\em instruction} in the {\em instruction group}
@@ -1120,62 +1123,36 @@ and if the table has \underline{no} {\em default-instruction-group},
 then a scan error is signalled (i.e., `{\tt fail}' is \underline{not}
 implicit).
 
-\subsubsubsection{Keep Instruction Components}
+\subsubsubsection{Translate Hex/Oct Instruction Components}
 
-The `\ttmkey{keep}{in lexical program} $n$'
-{\em instruction-component} causes the atom length
-to be shortened to $n$.  For example, the lexical table entry
+\hfill The {\tt translate hex/\EOL oct} \\ components are applied to a matched
+atom to produce a single UNICODE character translation of the atom.
+
+An instruction can contain at most one of the following components:
 \begin{center}
-\verb|",<digit>" keep 1;|
+\tt
+match \\
+translate hex \\
+translate oct
 \end{center}
-will recognize a 1-character atom consisting of just a comma as long as
-the comma is followed by character in the \verb|<digit>| character pattern
-character set.  Atoms may not be lengthened by {\tt keep}.
+This is because all three of these components independently produce
+an atom translation.
 
-A {\tt keep} component used with a {\tt match} component
-applies to the atom matched by the atom table invoked by the {\tt match}
-component.
+Note that if any previous instruction in an instruction group contains
+a {\tt match} component, that instruction must have failed, and the
+atom as it was when the instruction group started to execute must have
+been reinstated, so {\tt translate hex/oct} components are always
+applied to the matched atom as it was when the containing instruction
+group started to execute, before any {\tt match} components in the
+group executed.
 
-\subsubsubsection{Translate Instruction Components}
-
-There are three possible translate {\em in\-struc\-tion-com\-po\-nents}, at most
-one of which may be used.  These determine that atom translation,
-and they may also fail, in which case the
-{\em instruction} containing them becomes a no-operation and the next
-{\em instruction} in the {\em instruction-group} (i.e., the {\em instruction}
-after the `{\tt else}' following the failed {\em instruction}) is
-executed.
-
-If a translate component is used in the same {\em instruction} as a
-{\tt match} component, the translate component applies to the atom
-matched by the atom table invoked by the {\tt match} component.
-The translation provided by the invoked atom table is discarded and
-replaced by the translation provided by the translate component.
-
-In the absence of any {\tt match} or translate component,
-a copy of the atom becomes the translation of the atom.
-
-The translate components are applied \underline{after}
-any {\tt keep} is applied, and so may be applied to an atom
-shorter than the original matched atom.
-
-A `\ttmkey{translate to}{in lexical program} {\em translation-string}'
-{\em instruction-component}
-specifies a {\em quoted-string} of characters,
-the {\em translation-string},
-that becomes the translation of the atom.
-A {\em translation-string} may be empty, as in the lexical table entry
-\begin{center}
-\verb|"<Q>" translate to "" goto main;|
-\end{center}
-which can be used to recognize the last \verb|"| of a quoted string, avoid
-copying anything into the lexeme translation, and then switch to the
-`{\tt main}' lexical table.
-See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+Also note that any {\tt keep} component executes \underline{after}
+{\tt translate hex/oct} components, and so does not affect the
+matched atom used by these components.
 
 The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
 {\em instruction-component} ignores the
-first $m$ and last $n$ characters of the atom and, viewing the rest as
+first $m$ and last $n$ characters of the matched atom and, viewing the rest as
 hexadecimal digits, converts these into an 32 bit unsigned integer
 UNICODE character code, which becomes the 1-character atom translation.
 An example is the the lexical table entry
@@ -1198,7 +1175,7 @@ An example use would be the lexical table entry
 \verb|"\<oct-digit><oct-digit><oct-digit>" translate oct 1 0;|
 \end{center}
 
-\subsubsubsection{Require Instruction Component}
+\subsubsubsection{Require Instruction Components}
 
 The `\ttmkey{require}{in lexical program} {\em atom-pattern}'
 {\em instruction-component} tests whether the atom translation
@@ -1207,6 +1184,10 @@ and if \underline{no}, causes the {\em instruction} to fail.
 A {\tt require} should only appear in an
 {\em instruction} which is followed by an `{\tt else}' in an
 {\em instruction-group}.
+A {\tt require} should only appear in an instruction that also
+contains a {\tt match}, {\tt translate hex}, or {\tt translate oct}
+instruction component, and is only useful for testing the
+translations produced by these latter components.
 
 An example use would be the lexical table entry
 \begin{indpar}
@@ -1220,12 +1201,65 @@ character if that character is a letter, and otherwise designating
 the atom as an error while not putting anything in the lexeme translation
 (see below for the definition of the `{\tt error}' instruction component).
 
-A {\tt require} {\em instruction-component} is only permitted if
-there is a {\tt translate hex}, {\tt translate oct}, or
-`{\tt match} {\em atom-table-name}' instruction component.
-
 The last {\em instruction} in an {\em instruction-group} must
 never fail, and so cannot contain a {\tt require} {\em instruction-component}.
+
+\subsubsubsection{Keep Instruction Components}
+
+The `\ttmkey{keep}{in lexical program} $n$'
+{\em instruction-component} causes the atom length
+to be shortened to $n$.  For example, the lexical table entry
+\begin{center}
+\verb|",<digit>" keep 1;|
+\end{center}
+will recognize a 1-character atom consisting of just a comma as long as
+the comma is followed by character in the \verb|<digit>| character pattern
+character set.  Atoms may not be lengthened by {\tt keep}.
+
+A {\tt keep} component in the same instruction as a {\tt match} component
+applies to the atom matched by the atom table invoked by the {\tt match}
+component.
+
+\subsubsubsection{Translate To Instruction Components}
+
+A `\ttmkey{translate to}{in lexical program} {\em translation-string}'
+{\em instruction-component}
+specifies a {\em quoted-string} of characters,
+the {\em translation-string},
+that becomes the translation of the atom.
+A {\em translation-string} may be empty, as in the lexical table entry
+\begin{center}
+\verb|"<Q>" translate to "" goto main;|
+\end{center}
+which can be used to recognize the last \verb|"| of a quoted string, avoid
+copying anything into the lexeme translation, and then switch to the
+`{\tt main}' lexical table.
+See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+
+The {\tt translate to} component is executed \underline{after}
+any {\tt match}, {\tt translate hex}, or {\tt translate oct}, or
+{\tt require} components are executed, and overrides the translations produced
+by these components.  It is therefore possible to produce a translation,
+test it with {\tt require}, and if the test is successful, override the
+translation with {\tt translate to}.  An example is
+\begin{center}
+\begin{tabular}{l}
+\verb|"<"  "<digit>" match escaped char| \\
+\verb|               require "<ascii-character>"| \\
+\verb|               error ascii escaped character| \\
+\verb|               translate to ""| \\
+\end{tabular}
+\end{center}
+which announces that any escape sequence producing an ASCII character
+is an erroneous atom and replaces that atom by the empty translation
+so it is as if the atom did not exist in the input.
+One could also use `{\tt translate to "?"}' to replace the atom
+by a question mark.
+
+If an instruction does not contain any {\tt match}, {\tt translate hex},
+{\tt translate oct}, or {\tt translate to} components, the translation
+of an atom defaults to a copy of the atom itself, \underline{after}
+any {\tt keep} component has been used to change the length of the atom.
 
 \subsubsubsection{Error Instruction Component}
 

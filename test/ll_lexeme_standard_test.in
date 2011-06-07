@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 04:21:22 EDT 2011
+// Date:	Tue Jun  7 04:36:17 EDT 2011
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -32,3 +32,5 @@ control ABC
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
 "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
+"premature end of line
+"premature end of file

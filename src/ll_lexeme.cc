@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  6 09:09:51 EDT 2011
+// Date:	Tue Jun  7 04:44:43 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1710,18 +1710,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 
 	if ( op & ERRONEOUS_ATOM )
 	{
-	    if ( atom_length == 0 )
-	    {
-		scan_error ( scanner, atom_length )
-		    << "ERRONEOUS_ATOM in instruction "
-		    << instruction_ID
-		    << " executed by table "
-		    << scanner->current_table_ID
-		    << " but atom is of zero length"
-		    << min::eol;
-		return SCAN_ERROR;
-	    }
-	    else if (    scanner->erroneous_atom
+	    if (    scanner->erroneous_atom
 	              == NULL_STUB )
 	    {
 		scan_error ( scanner, atom_length )

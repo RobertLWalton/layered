@@ -1496,7 +1496,7 @@ COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in
 LINE_BREAK 2(35)35: ␤
 COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
 LINE_BREAK 3(38)38: ␤
-COMMENT 4(0)0: //␣Date:␉Tue␣Jun␣␣7␣04:21:22␣EDT␣2011
+COMMENT 4(0)0: //␣Date:␉Tue␣Jun␣␣7␣04:36:17␣EDT␣2011
 LINE_BREAK 4(37)37: ␤
 COMMENT 5(0)0: //
 LINE_BREAK 5(2)2: ␤
@@ -1707,4 +1707,11 @@ LINE_BREAK 32(42)42: ␤
 QUOTED_STRING 33(0)0: "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
      translated to: ␘␙␚␛␜␝␞␟␡
 LINE_BREAK 33(42)42: ␤
-END_OF_FILE 34(0)0: <empty>
+QUOTED_STRING 34(0)0: "premature␣end␣of␣line
+     translated to: premature␣end␣of␣line
+ERRONEOUS ATOM: PREMATURE_END_OF_LINE 34(22)22: <empty>
+LINE_BREAK 34(22)22: ␤
+QUOTED_STRING 35(0)0: "premature␣end␣of␣file
+     translated to: premature␣end␣of␣file
+ERRONEOUS ATOM: PREMATURE_END_OF_FILE 35(22)22: <empty>
+END_OF_FILE 35(22)22: <empty>

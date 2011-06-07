@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 02:00:05 EST 2011
+// Date:	Tue Jun  7 04:21:22 EDT 2011
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -15,7 +15,7 @@ a.1.2.3.b.c e5f x7+y6(5z)
 12.3 .4 5. 6/7
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 // form feed 
@@ -24,10 +24,9 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum'
 z	x // horizontal tab
 all 	
 control ABC
-"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
 <0041><00000042>C D<00000045><0046>G
-<0041><00000002>C D<00000045><0006>G
-<0001><00000042>C <00000004>E<0046>G
+<0041><000000B5>C D<000000E3><0006>G
 <0001>
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"

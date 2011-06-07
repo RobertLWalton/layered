@@ -6,7 +6,7 @@ ccb
 cccccccccccccccccccccccccccccccccccb
 //␣Author:␉Bob␣Walton␣(walton@acm.org)␤
 ccccccccccccccccccccccccccccccccccccccb
-//␣Date:␉Sun␣Mar␣␣6␣02:00:05␣EST␣2011␤
+//␣Date:␉Tue␣Jun␣␣7␣04:21:22␣EDT␣2011␤
 cccccccccccccccccccccccccccccccccccccb
 //␤
 ccb
@@ -31,7 +31,7 @@ w######mwmwhwnwhwnmwnsnwsb
 ########h###########h#################h###########b
 /3␣6.34.56/␣3,␣4,␣,5␣,6.7,8.9␤
 mnh#######mhnshnshsnhs#######b
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>␤
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>␤
 mmmmmmmmmmmmmmmmmmqqqqqwAAAAAAAAmwwmb
 .foo␣/foo␣3/x␣x/3␣3.x␣x.3//␣comment␣<89>␣"'␤
 mwwwhmwwwhnmwhwmnhnmwhw##ccccccccccccccccccb
@@ -49,14 +49,12 @@ all␣␉␌␋␍␤
 wwwhhbbbb
 control␣A␁B␂C␃␤
 wwwwwwwhwCwCwCb
-"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"␤
-qqqqqqqqqqqqqqqqqqqqqqqqqqqqUUUUqqqqqb
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"␤
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqUUUUqqqqqqqqqqqqqb
 <0041><00000042>C␣D<00000045><0046>G␤
 AAAAAAAAAAAAAAAAwhwAAAAAAAAAAAAAAAAwb
-<0041><00000002>C␣D<00000045><0006>G␤
-AAAAAAAAAAAAAAAAwhwAAAAAAAAAAAAAAAAwb
-<0001><00000042>C␣<00000004>E<0046>G␤
-AAAAAAAAAAAAAAAAwhAAAAAAAAAAwAAAAAAwb
+<0041><000000B5>C␣D<000000E3><0006>G␤
+AAAAAAwwwwwwwwwwwhwwwwwwwwwwwAAAAAAwb
 <0001>␤
 AAAAAAb
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"␤

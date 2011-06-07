@@ -11,7 +11,7 @@ LINE_BREAK: line 3:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 LINE_BREAK: line 4:
-// Date:        Sun Mar  6 02:00:05 EST 2011
+// Date:        Tue Jun  7 04:21:22 EDT 2011
                                             ^
 LINE_BREAK: line 5:
 //
@@ -223,31 +223,31 @@ LINE_BREAK: line 16:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                              ^
 MARK: +-*~@#$%^&=|<>_!?:: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
 ^^^^^^^^^^^^^^^^^^
 QUOTED_STRING: foo: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                   ^^^^^
 ERROR: ascii escape sequence; line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                         ^^^^
 ERROR: ascii escape sequence; line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                             ^^^^
 WORD: x: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                        ^^^^^^^^^
 MARK: <: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                 ^
-WORD: lf: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
+WORD: LF: line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                  ^^
 MARK: >: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                    ^
 LINE_BREAK: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                     ^
 MARK: .: line 18:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
@@ -421,14 +421,14 @@ LINE_BREAK: line 25:
 control A␁B␂C␃
               ^
 ERROR: unrecognized escape sequence; line 26:
-"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                             ^^^^
-QUOTED_STRING: "␤␍␉␈␌␋␣: line 26:
-"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+QUOTED_STRING: "␤␍␉␈␌␋␣â␁: line 26:
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 26:
-"<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
-                                     ^
+"<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
+                                             ^
 ERROR: ascii escape sequence; line 27:
 <0041><00000042>C D<00000045><0046>G
 ^^^^^^
@@ -451,77 +451,50 @@ LINE_BREAK: line 27:
 <0041><00000042>C D<00000045><0046>G
                                     ^
 ERROR: ascii escape sequence; line 28:
-<0041><00000002>C D<00000045><0006>G
+<0041><000000B5>C D<000000E3><0006>G
 ^^^^^^
+WORD: µC: line 28:
+<0041><000000B5>C D<000000E3><0006>G
+      ^^^^^^^^^^^
 ERROR: ascii escape sequence; line 28:
-<0041><00000002>C D<00000045><0006>G
-      ^^^^^^^^^^
-WORD: C: line 28:
-<0041><00000002>C D<00000045><0006>G
-                ^
-ERROR: ascii escape sequence; line 28:
-<0041><00000002>C D<00000045><0006>G
-                   ^^^^^^^^^^
-ERROR: ascii escape sequence; line 28:
-<0041><00000002>C D<00000045><0006>G
+<0041><000000B5>C D<000000E3><0006>G
                              ^^^^^^
-WORD: DG: line 28:
-<0041><00000002>C D<00000045><0006>G
+WORD: DãG: line 28:
+<0041><000000B5>C D<000000E3><0006>G
                   ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 28:
-<0041><00000002>C D<00000045><0006>G
+<0041><000000B5>C D<000000E3><0006>G
                                     ^
 ERROR: ascii escape sequence; line 29:
-<0001><00000042>C <00000004>E<0046>G
-^^^^^^
-ERROR: ascii escape sequence; line 29:
-<0001><00000042>C <00000004>E<0046>G
-      ^^^^^^^^^^
-WORD: C: line 29:
-<0001><00000042>C <00000004>E<0046>G
-                ^
-ERROR: ascii escape sequence; line 29:
-<0001><00000042>C <00000004>E<0046>G
-                  ^^^^^^^^^^
-ERROR: ascii escape sequence; line 29:
-<0001><00000042>C <00000004>E<0046>G
-                             ^^^^^^
-WORD: EG: line 29:
-<0001><00000042>C <00000004>E<0046>G
-                            ^^^^^^^^
-LINE_BREAK: line 29:
-<0001><00000042>C <00000004>E<0046>G
-                                    ^
-ERROR: ascii escape sequence; line 30:
 <0001>
 ^^^^^^
-LINE_BREAK: line 30:
+LINE_BREAK: line 29:
 <0001>
       ^
-QUOTED_STRING: ␀␁␂␃␄␅␆␇: line 31:
+QUOTED_STRING: ␀␁␂␃␄␅␆␇: line 30:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 31:
+LINE_BREAK: line 30:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
                                           ^
-QUOTED_STRING: ␈␉␤␤␋␌␍␎␏: line 32:
+QUOTED_STRING: ␈␉␤␤␋␌␍␎␏: line 31:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 32:
+LINE_BREAK: line 31:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
                                       ^
-QUOTED_STRING: ␐␑␒␓␔␕␖␗: line 33:
+QUOTED_STRING: ␐␑␒␓␔␕␖␗: line 32:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 32:
+"<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
+                                          ^
+QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 33:
+"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 33:
-"<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
-                                          ^
-QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 34:
-"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 34:
 "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
                                           ^
-END_OF_FILE: line 35:
+END_OF_FILE: line 34:
 <END-OF-FILE>
 ^

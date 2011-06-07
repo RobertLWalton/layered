@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  5 16:39:20 EDT 2011
+// Date:	Tue Jun  7 02:29:45 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -204,17 +204,6 @@ cc
 lex	"<letter>" = "<ascii-letter>"
 lex	           | "<non-ascii-letter>"
 lex
-
-lex	"<ascii-word-char>" =
-lex	      "<ascii-letter>" | "_" | "<digit>"
-lex
-cc	    uns32 ascii_word_char;
-cc	    NDL::begin_atom_pattern ( ascii_word_char );
-cc		NDL::add_characters ( ascii_letter );
-cc		NDL::add_characters ( "_" );
-cc		NDL::add_characters ( digit );
-cc	    NDL::end_atom_pattern();
-cc
 
 lex	"<non-ascii-word-char>" =
 lex	      "<non-ascii-letter>"
@@ -497,10 +486,11 @@ cc		      NDL::call ( quoted_string );
 cc	    	   NDL::end_dispatch();
 cc
 
-lex	   "<other>" output misplaced char;
+lex	   "<other>" error misplaced char;
 lex
 cc	    	   NDL::begin_dispatch ( OTHER );
-cc		      NDL::output ( misplaced_char_t );
+cc		      NDL::erroneous_atom
+cc			  ( misplaced_char_t );
 cc	    	   NDL::end_dispatch();
 cc
 
@@ -622,34 +612,42 @@ lex	    "<" "<digit>"
 lex	              match escaped hex char
 lex	              require "<non-ascii-word-char>"
 lex	         else match escaped hex char
-lex	              require "<ascii-word-char>"
+lex	              require "<ascii-char>"
 lex	              translate to ""
 lex	              error ascii escape seq
+lex	         else
+lex	             match escaped hex char
+lex	             translate to ""
+lex	             error non letter escape seq
 lex	         else keep 0 return;
 lex	    "<" keep 0 return;
 lex
 cc
 cc		   NDL::begin_dispatch ( "<" );
-cc		      NDL::begin_dispatch
-cc				( digit );
-cc			    NDL::match
-cc				( escaped_hex_char );
-cc			    NDL::require
-cc				( non_ascii_word_char );
-cc		         NDL::ELSE();
-cc			    NDL::match
-cc			        ( escaped_hex_char );
-cc			    NDL::require
-cc			        ( ascii_word_char );
-cc			    NDL::erroneous_atom
-cc			        ( ascii_escape_seq_t );
-cc			    NDL::translate_to ( "" );
-cc		         NDL::ELSE();
-cc			    NDL::keep ( 0 );
-cc			    NDL::ret();
-cc		      NDL::end_dispatch();
-cc		         NDL::keep ( 0 );
+cc		      NDL::begin_dispatch ( digit );
+cc			 NDL::match
+cc			    ( escaped_hex_char );
+cc			 NDL::require
+cc			    ( non_ascii_word_char );
+cc		      NDL::ELSE();
+cc			 NDL::match
+cc			    ( escaped_hex_char );
+cc			 NDL::require ( ascii_char );
+cc			 NDL::erroneous_atom
+cc			    ( ascii_escape_seq_t );
+cc			 NDL::translate_to ( "" );
+cc		      NDL::ELSE();
+cc			 NDL::match
+cc			    ( escaped_hex_char );
+cc			 NDL::erroneous_atom
+cc			    ( non_letter_escape_seq_t );
+cc			 NDL::translate_to ( "" );
+cc		      NDL::ELSE();
+cc			 NDL::keep ( 0 );
 cc			 NDL::ret();
+cc		      NDL::end_dispatch();
+cc		      NDL::keep ( 0 );
+cc		      NDL::ret();
 cc		   NDL::end_dispatch();
 cc
 
@@ -709,12 +707,17 @@ lex	          match escaped hex char
 lex	          require "<non-ascii-combining-char>"
 lex	      else
 lex	          match escaped hex char
+lex	          require "<non-ascii-letter>"
+lex	          keep 0 return;
+lex	      else
+lex	          match escaped hex char
 lex	          require "<ascii-char>"
 lex	          translate to ""
 lex	          error ascii escape seq
 lex	      else
 lex	          match escaped hex char
-lex	          keep 0 return;
+lex	          translate to ""
+lex	          error non letter escape seq
 lex	      else keep 1;
 lex	    "<" accept;
 lex
@@ -729,19 +732,27 @@ cc		      NDL::ELSE();
 cc			 NDL::match
 cc			      ( escaped_hex_char );
 cc			 NDL::require
-cc			      ( ascii_word_char );
+cc			      ( non_ascii_letter );
+cc		         NDL::keep ( 0 );
+cc			 NDL::ret();
+cc		      NDL::ELSE();
+cc			 NDL::match
+cc			      ( escaped_hex_char );
+cc			 NDL::require
+cc			      ( ascii_char );
 cc			 NDL::erroneous_atom
 cc			      ( ascii_escape_seq_t );
 cc			 NDL::translate_to ( "" );
 cc		      NDL::ELSE();
 cc		         NDL::match
 cc			      ( escaped_hex_char );
-cc		         NDL::keep ( 0 );
-cc			 NDL::ret();
+cc			 NDL::erroneous_atom
+cc			    ( non_letter_escape_seq_t );
+cc			 NDL::translate_to ( "" );
 cc		      NDL::ELSE();
 cc		         NDL::keep ( 1 );
 cc		      NDL::end_dispatch();
-cc			 NDL::accept();
+cc		      NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 

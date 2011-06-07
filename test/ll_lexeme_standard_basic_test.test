@@ -84,10 +84,6 @@
             Max Break Elements: 99
             Max CType: 1
       XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 1
-      XXXX: DISPATCHER
             Break Elements: 96
             Max Break Elements: 107
             Max CType: 1
@@ -242,7 +238,7 @@
             <8FFFE>-<8FFFF> <9FFFE>-<9FFFF> <0AFFFE>-<0AFFFF>
             <0BFFFE>-<0BFFFF> <0CFFFE>-<0CFFFF> <0DFFFE>-<0DFFFF>
             <0EFFFE>-
-                OUTPUT(13)
+                ERRONEOUS_ATOM(13)
                 Dispatcher ID: XXXX
             /
                 Dispatcher ID: XXXX
@@ -365,10 +361,12 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(135), REQUIRE(600), ELSE:
-                TRANSLATE_TO(0), MATCH(135), REQUIRE(563),
+                MATCH(135), REQUIRE(563), ELSE:
+                TRANSLATE_TO(0), MATCH(135), REQUIRE(143),
                 ERRONEOUS_ATOM(14), ELSE:
+                TRANSLATE_TO(0), MATCH(135), ERRONEOUS_ATOM(15), ELSE:
                 KEEP(0), RETURN
+
 
 
                 Dispatcher ID: XXXX
@@ -444,11 +442,13 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(135), REQUIRE(1034), ELSE:
-                TRANSLATE_TO(0), MATCH(135), REQUIRE(563),
+                MATCH(135), REQUIRE(997), ELSE:
+                KEEP(0), MATCH(135), REQUIRE(161), RETURN, ELSE:
+                TRANSLATE_TO(0), MATCH(135), REQUIRE(143),
                 ERRONEOUS_ATOM(14), ELSE:
-                KEEP(0), MATCH(135), RETURN, ELSE:
+                TRANSLATE_TO(0), MATCH(135), ERRONEOUS_ATOM(15), ELSE:
                 KEEP(1)
+
 
 
 
@@ -1594,8 +1594,8 @@ LINE_BREAK 16(29)29: ␤
 MARK 17(0)0: +-*~@#$%^&=|<>_!?:
 QUOTED_STRING 17(18)18: "foo" translated to: foo
 ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 17(24)24: <79>
-WORD 17(23)23: x<79> translated to: x
 ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 17(28)28: <05>
+WORD 17(23)23: x<79><05> translated to: x
 MARK 17(32)32: <
 WORD 17(33)33: lf
 MARK 17(35)35: >
@@ -1669,11 +1669,11 @@ LINE_BREAK 24(5)5: ␌␋␍␤
 WORD 25(0)0: control
 HORIZONTAL_SPACE 25(7)7: ␣
 WORD 25(8)8: A
-MISPLACED_CHARACTER 25(9)9: ␁
+ERRONEOUS ATOM: MISPLACED_CHARACTER 25(9)9: ␁
 WORD 25(10)10: B
-MISPLACED_CHARACTER 25(11)11: ␂
+ERRONEOUS ATOM: MISPLACED_CHARACTER 25(11)11: ␂
 WORD 25(12)12: C
-MISPLACED_CHARACTER 25(13)13: ␃
+ERRONEOUS ATOM: MISPLACED_CHARACTER 25(13)13: ␃
 LINE_BREAK 25(14)14: ␤
 ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 26(28)28: <XX>
 QUOTED_STRING 26(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
@@ -1692,9 +1692,8 @@ ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 28(6)6: <00000002>
 WORD 28(16)16: C
 HORIZONTAL_SPACE 28(17)17: ␣
 ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 28(19)19: <00000045>
-WORD 28(18)18: D<00000045> translated to: D
 ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 28(29)29: <0006>
-WORD 28(35)35: G
+WORD 28(18)18: D<00000045><0006>G translated to: DG
 LINE_BREAK 28(36)36: ␤
 ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 29(0)0: <0001>
 ERRONEOUS ATOM: ASCII_ESCAPE_SEQUENCE 29(6)6: <00000042>

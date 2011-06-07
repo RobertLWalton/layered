@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  5 11:32:41 EDT 2011
+// Date:	Tue Jun  7 02:21:50 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,16 +83,28 @@ static void erroneous_atom_announce
     const char * message;
     switch ( type )
     {
-    case LEXSTD::unrecognized_escape_seq_t:
-	message = "ERROR: unrecognized escape"
-	          " sequence; ";
+    case LEXSTD::premature_end_of_line_t:
+	message = "ERROR: premature end of line; ";
+	break;
+    case LEXSTD::premature_end_of_file_t:
+	message = "ERROR: premature end of file; ";
+	break;
+    case LEXSTD::misplaced_char_t:
+	message = "ERROR: misplaced character; ";
+	break;
+    case LEXSTD::ascii_escape_seq_t:
+	message = "ERROR: ascii escape sequence; ";
 	break;
     case LEXSTD::non_letter_escape_seq_t:
 	message = "ERROR: non-letter escape sequence; ";
 	break;
+    case LEXSTD::unrecognized_escape_seq_t:
+	message = "ERROR: unrecognized escape"
+	          " sequence; ";
+	break;
     default:
-	message = "ERROR: system error: bad erroneous"
-		  " atom type; ";
+	message = "ERROR: system error: unrecognized"
+	          " erroneous atom type; ";
 	break;
     }
 
@@ -142,19 +154,6 @@ static min::uns32 input_add_tokens
 	case LEXSTD::comment_t:
 	case LEXSTD::horizontal_space_t:
 	    continue;
-	case LEXSTD::bad_end_of_line_t:
-	    message = "ERROR: bad end of line; ";
-	    type = LEXSTD::line_break_t;
-	    skip = false;
-	    break;
-	case LEXSTD::bad_end_of_file_t:
-	    message = "ERROR: bad end of file; ";
-	    type = LEXSTD::end_of_file_t;
-	    skip = false;
-	    break;
-	case LEXSTD::unrecognized_char_t:
-	    message = "ERROR: unrecognized character; ";
-	    break;
 	}
 
 	if ( message != NULL )

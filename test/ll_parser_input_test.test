@@ -228,10 +228,13 @@ MARK: +-*~@#$%^&=|<>_!?:: line 17:
 QUOTED_STRING: foo: line 17:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
                   ^^^^^
-ERROR: non-letter escape sequence; line 17:
+ERROR: ascii escape sequence; line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
+                        ^^^^
+ERROR: ascii escape sequence; line 17:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
                             ^^^^
-WORD: xy?: line 17:
+WORD: x: line 17:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><lf>
                        ^^^^^^^^^
 MARK: <: line 17:
@@ -399,19 +402,19 @@ control A␁B␂C␃
 WORD: A: line 25:
 control A␁B␂C␃
         ^
-ERROR: unrecognized character; line 25:
+ERROR: misplaced character; line 25:
 control A␁B␂C␃
          ^
 WORD: B: line 25:
 control A␁B␂C␃
           ^
-ERROR: unrecognized character; line 25:
+ERROR: misplaced character; line 25:
 control A␁B␂C␃
            ^
 WORD: C: line 25:
 control A␁B␂C␃
             ^
-ERROR: unrecognized character; line 25:
+ERROR: misplaced character; line 25:
 control A␁B␂C␃
              ^
 LINE_BREAK: line 25:
@@ -420,55 +423,76 @@ control A␁B␂C␃
 ERROR: unrecognized escape sequence; line 26:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
                             ^^^^
-QUOTED_STRING: "␤␍␉␈␌␋<XX>␣: line 26:
+QUOTED_STRING: "␤␍␉␈␌␋␣: line 26:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 26:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP>"
                                      ^
-WORD: ABC: line 27:
+ERROR: ascii escape sequence; line 27:
 <0041><00000042>C D<00000045><0046>G
-^^^^^^^^^^^^^^^^^
-WORD: DEFG: line 27:
+^^^^^^
+ERROR: ascii escape sequence; line 27:
+<0041><00000042>C D<00000045><0046>G
+      ^^^^^^^^^^
+WORD: C: line 27:
+<0041><00000042>C D<00000045><0046>G
+                ^
+ERROR: ascii escape sequence; line 27:
+<0041><00000042>C D<00000045><0046>G
+                   ^^^^^^^^^^
+ERROR: ascii escape sequence; line 27:
+<0041><00000042>C D<00000045><0046>G
+                             ^^^^^^
+WORD: DG: line 27:
 <0041><00000042>C D<00000045><0046>G
                   ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 27:
 <0041><00000042>C D<00000045><0046>G
                                     ^
-ERROR: non-letter escape sequence; line 28:
+ERROR: ascii escape sequence; line 28:
+<0041><00000002>C D<00000045><0006>G
+^^^^^^
+ERROR: ascii escape sequence; line 28:
 <0041><00000002>C D<00000045><0006>G
       ^^^^^^^^^^
-WORD: A?C: line 28:
+WORD: C: line 28:
 <0041><00000002>C D<00000045><0006>G
-^^^^^^^^^^^^^^^^^
-ERROR: non-letter escape sequence; line 28:
+                ^
+ERROR: ascii escape sequence; line 28:
+<0041><00000002>C D<00000045><0006>G
+                   ^^^^^^^^^^
+ERROR: ascii escape sequence; line 28:
 <0041><00000002>C D<00000045><0006>G
                              ^^^^^^
-WORD: DE?G: line 28:
+WORD: DG: line 28:
 <0041><00000002>C D<00000045><0006>G
                   ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 28:
 <0041><00000002>C D<00000045><0006>G
                                     ^
-ERROR: non-letter escape sequence; line 29:
+ERROR: ascii escape sequence; line 29:
 <0001><00000042>C <00000004>E<0046>G
 ^^^^^^
-WORD: ?BC: line 29:
+ERROR: ascii escape sequence; line 29:
 <0001><00000042>C <00000004>E<0046>G
-^^^^^^^^^^^^^^^^^
-ERROR: non-letter escape sequence; line 29:
+      ^^^^^^^^^^
+WORD: C: line 29:
+<0001><00000042>C <00000004>E<0046>G
+                ^
+ERROR: ascii escape sequence; line 29:
 <0001><00000042>C <00000004>E<0046>G
                   ^^^^^^^^^^
-WORD: ?EFG: line 29:
+ERROR: ascii escape sequence; line 29:
 <0001><00000042>C <00000004>E<0046>G
-                  ^^^^^^^^^^^^^^^^^^
+                             ^^^^^^
+WORD: EG: line 29:
+<0001><00000042>C <00000004>E<0046>G
+                            ^^^^^^^^
 LINE_BREAK: line 29:
 <0001><00000042>C <00000004>E<0046>G
                                     ^
-ERROR: non-letter escape sequence; line 30:
-<0001>
-^^^^^^
-WORD: ?: line 30:
+ERROR: ascii escape sequence; line 30:
 <0001>
 ^^^^^^
 LINE_BREAK: line 30:

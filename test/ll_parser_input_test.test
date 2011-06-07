@@ -11,7 +11,7 @@ LINE_BREAK: line 3:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 LINE_BREAK: line 4:
-// Date:        Tue Jun  7 04:21:22 EDT 2011
+// Date:        Tue Jun  7 04:36:17 EDT 2011
                                             ^
 LINE_BREAK: line 5:
 //
@@ -495,6 +495,24 @@ QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 33:
 LINE_BREAK: line 33:
 "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
                                           ^
-END_OF_FILE: line 34:
-<END-OF-FILE>
-^
+QUOTED_STRING: premature␣end␣of␣line: line 34:
+"premature end of line
+^^^^^^^^^^^^^^^^^^^^^^
+ERROR: premature end of line; line 34:
+"premature end of line
+                      ^
+LINE_BREAK: line 34:
+"premature end of line
+                      ^
+QUOTED_STRING: premature␣end␣of␣file: line 35:
+"premature end of file<END-OF-FILE>
+^^^^^^^^^^^^^^^^^^^^^^
+ERROR: premature end of file; line 35:
+"premature end of file<END-OF-FILE>
+                      ^
+END_OF_FILE: line 35:
+"premature end of file<END-OF-FILE>
+                      ^
+ERROR: line break missing from end of file; line 35:
+"premature end of file<END-OF-FILE>
+                      ^

@@ -6,7 +6,7 @@ ccb
 cccccccccccccccccccccccccccccccccccb
 //␣Author:␉Bob␣Walton␣(walton@acm.org)␤
 ccccccccccccccccccccccccccccccccccccccb
-//␣Date:␉Tue␣Jun␣␣7␣04:21:22␣EDT␣2011␤
+//␣Date:␉Tue␣Jun␣␣7␣04:36:17␣EDT␣2011␤
 cccccccccccccccccccccccccccccccccccccb
 //␤
 ccb
@@ -65,5 +65,7 @@ qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
 qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
 "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"␤
 qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
-<END-OF-FILE>
-e
+"premature␣end␣of␣line␤
+qqqqqqqqqqqqqqqqqqqqqqL
+"premature␣end␣of␣file<END-OF-FILE>
+qqqqqqqqqqqqqqqqqqqqqqF

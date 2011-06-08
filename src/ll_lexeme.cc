@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 04:44:43 EDT 2011
+// Date:	Tue Jun  7 23:30:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -763,10 +763,10 @@ static bool default_input_get
         -- ic.line;
     else
     {
-        length = min::partial_length ( file );
+        length = min::remaining_length ( file );
         if ( length == 0 ) return false;
-	offset = min::partial_offset ( file );
-	min::skip_partial ( file );
+	offset = min::remaining_offset ( file );
+	min::skip_remaining ( file );
     }
 
     LEX::input_buffer input_buffer =

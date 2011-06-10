@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  6 11:57:24 EDT 2011
+// Date:	Thu Jun  9 18:04:54 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,9 +67,7 @@ namespace ll { namespace lexeme {
     inline min::ptr<T> ptr
 	    ( ll::lexeme::program program, uns32 index )
     {
-	return & min::unprotected::new_ref
-	    ( program,
-	      * ( T const * ) & program[index] );
+	return min::ptr<T> ( program + index );
     }
 
     struct position

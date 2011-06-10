@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 23:30:15 EDT 2011
+// Date:	Thu Jun  9 19:42:59 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1531,9 +1531,8 @@ static uns32 scan_atom
 		min::push
 		    ( translation_buffer,
 		      translate_to_length,
-		      MUP::new_ptr
-			  ( program,
-			    * (uns32 *) & ihp[1] ) );
+		      min::ptr<uns32>
+		          ( ihp + 1 ) );
 	}
 	else if ( ! ( op & (   MATCH
 	                     | TRANSLATE_HEX_FLAG
@@ -2028,10 +2027,7 @@ min::printer operator <<
 	    return printer
 	        << min::push_parameters
 	        << min::nohbreak
-	        << MUP::new_ptr
-		       ( program,
-		         ( (char *) & program[0] )
-			       [offset] )
+	        << min::ptr<char> ( php ) + offset
 	        << min::pop_parameters;
     }
 
@@ -2570,9 +2566,7 @@ static uns32 print_cooked_dispatcher
 		else
 		{
 		    min::ptr<uns8> p =
-		        MUP::new_ptr
-			    ( program,
-			      * (uns8 *) & tmhp[1] );
+		        min::ptr<uns8> ( tmhp + 1 );
 		    for ( uns32 c = cmin;
 		          c <= cmax; ++ c )
 		    {
@@ -2630,10 +2624,7 @@ uns32 LEX::print_program_component
 	    if ( offset == 0 ) continue;
 	    printer << min::indent
 	            << t << ": " << min::right ( 8 )
-	            << MUP::new_ptr
-		           ( program,
-			     ( (char *) & program[ID] )
-		                 [offset] )
+	            << min::ptr<char> ( php ) + offset
 		    << min::eol;
 	}
 	length = php->component_length;
@@ -2751,8 +2742,7 @@ uns32 LEX::print_program_component
 	            << min::set_indent ( IDwidth + 6 );
 
 	    min::ptr<uns8> map =
-	        MUP::new_ptr ( program,
-		               * (uns8 *) & tmhp[1] );
+	        min::ptr<uns8> ( tmhp + 1 );
 	    length += ( tmhp->cmax - tmhp->cmin + 4 )
 	            / 4;
 	    for ( unsigned t = 0; t < 256; ++ t )

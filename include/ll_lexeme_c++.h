@@ -38,29 +38,31 @@ namespace ll { namespace lexeme { namespace cpp {
     const uns32 quoted_header_name_t		= 4;
     const uns32 operator_t			= 5;
     const uns32 identifier_t			= 6;
-    const uns32 integer_t			= 7;
-    const uns32 float_t				= 8;
-    const uns32 number_t			= 9;
-    const uns32 character_literal_t		= 10;
-    const uns32 u_character_literal_t		= 11;
-    const uns32 U_character_literal_t		= 12;
-    const uns32 L_character_literal_t		= 13;
-    const uns32 string_literal_t		= 14;
-    const uns32 u_string_literal_t		= 15;
-    const uns32 U_string_literal_t		= 16;
-    const uns32 L_string_literal_t		= 17;
-    const uns32 newline_t			= 18;
-    const uns32 end_of_file_t			= 19;
-    const uns32 premature_newline_t		= 20;
-    const uns32 premature_end_of_file_t		= 21;
+    const uns32 dec_integer_t			= 7;
+    const uns32 oct_integer_t			= 8;
+    const uns32 hex_integer_t			= 9;
+    const uns32 float_t				= 10;
+    const uns32 pp_number_t			= 11;
+    const uns32 character_literal_t		= 12;
+    const uns32 u_character_literal_t		= 13;
+    const uns32 U_character_literal_t		= 14;
+    const uns32 L_character_literal_t		= 15;
+    const uns32 string_literal_t		= 16;
+    const uns32 u_string_literal_t		= 17;
+    const uns32 U_string_literal_t		= 18;
+    const uns32 L_string_literal_t		= 19;
+    const uns32 newline_t			= 20;
+    const uns32 end_of_file_t			= 21;
 
     // Erroneous Atom Types
     //
-    const uns32 illegal_character_t		= 22;
-    const uns32 illegal_universal_character_t	= 23;
-    const uns32 illegal_vertical_space_t	= 24;
+    const uns32 premature_newline_t		= 22;
+    const uns32 premature_end_of_file_t		= 23;
+    const uns32 misplaced_character_t		= 24;
+    const uns32 ascii_universal_character_t	= 25;
+    const uns32 misplaced_vertical_space_t	= 26;
 
-    const unsigned MAX_TYPE = 24;
+    const unsigned MAX_TYPE = 26;
 
     extern const char * const type_name[MAX_TYPE+1];
 

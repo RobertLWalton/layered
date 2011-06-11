@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 10 19:57:08 EDT 2011
+// Date:	Sat Jun 11 08:53:20 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,7 +51,7 @@ cc	const char * const
 cc		LEXCPP::type_name[MAX_TYPE+1] = {
 cc
 cc	    NULL,
-cc	    "HORIZONTAL_SPACE",
+cc	    "WHITESPACE",
 cc	    "COMMENT",
 cc	    "BRACKETED_HEADER_NAME",
 cc	    "QUOTED_HEADER_NAME",
@@ -74,13 +74,13 @@ cc	    "NEWLINE",
 cc	    "END_OF_FILE",
 cc	    "PREMATURE_NEWLINE",
 cc	    "PREMATURE_END_OF_FILE",
+cc	    "ILLEGAL_ESCAPE",
 cc	    "MISPLACED_CHARACTER",
 cc	    "ASCII_UNIVERSAL_CHARACTER",
-cc	    "MISPLACED_VERTICAL_SPACE",
-cc	    "MALFORMED_UNIVERSAL_CHARACTER" };
+cc	    "ILL_FORMED_UNIVERSAL_CHARACTER" };
 cc
 cc	const char * LEXCPP::type_code =
-cc	    "Xh/BQoIiiifnccccssssleNFCAVU";
+cc	    "?w/BQ+idohfnccccssssleLEXCAU";
 cc
 cc	static struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
@@ -123,16 +123,12 @@ lex	begin standard lexical program;
 lex
 cc	    begin_program ( type_name, MAX_TYPE );
 cc
-cc	    uns32 horizontal_space;
+cc	    uns32 whitespace;
 cc	    NDL::new_table
-cc		( horizontal_space,
-cc		  horizontal_space_t );
+cc		( whitespace, whitespace_t );
 cc	    uns32 newline;
 cc	    NDL::new_table
 cc		( newline, newline_t );
-cc	    uns32 newline_finish;
-cc	    NDL::new_table
-cc		( newline_finish, newline_t );
 cc
 cc	    uns32 slash_star_comment;
 cc	    NDL::new_table ( slash_star_comment,
@@ -213,16 +209,18 @@ lex	// Before this lexical program is used the input
 lex	// should be preprocessed to
 lex	//
 lex	//    (1) Replace trigraph sequences.
-lex	//    (2) Eliminate sequences of the form:
-lex	//	    backslash carriage-return* newline
+lex	//    (2) Eliminate carriage-returns next to a
+lex	//	    newline
+lex	//    (3) Eliminate sequences of the form:
+lex	//	    backslash newline
 lex	//
 lex	// After this lexical program is used the output
 lex	// should be post-processed to
 lex	//
-lex	//    (3) Perform C/C++ macro preprocessing
+lex	//    (4) Perform C/C++ macro preprocessing
 lex	//        (macro expansion).
-lex	//    (4) Delete space and newlines.
-lex	//    (5) Concatenate adjacent quoted strings
+lex	//    (5) Delete space and newlines.
+lex	//    (6) Concatenate adjacent quoted strings
 lex	//        of the same character type (ordinary,
 lex	//        u, U, or L).
 lex
@@ -315,14 +313,10 @@ cc	        "ABCDEFGHIJKMNOPQRSTVWXYZ";
 cc		// Must also use add_non_ascii_letters.
 cc
 lex
-lex	"<horizontal-space-char>" = " " | "<HT>";
-cc	    const char * horizontal_space_char = " \t";
-cc
-lex
-lex	"<vertical-space-char>" =
-lex	    "<VT>" | "<FF>" | "<CR>" | "<NL>";
-cc	    const char * vertical_space_char =
-cc	        "\v\f\r\n";
+lex	"<whitespace-char>" =
+lex	    " " | "<HT>" | "<VT>" | "<FF>";
+lex	    // newline is treated separately
+cc	    const char * whitespace_char = " \t\v\f";
 cc
 lex
 lex	// The following can begin an operator or punc-

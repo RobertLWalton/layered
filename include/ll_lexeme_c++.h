@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 11 08:53:09 EDT 2011
+// Date:	Sun Jun 12 10:26:57 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,9 +43,9 @@ namespace ll { namespace lexeme { namespace cpp {
     const uns32 operator_t			= 5;
         // Includes separators.
     const uns32 identifier_t			= 6;
-    const uns32 dec_integer_t			= 7;
-    const uns32 oct_integer_t			= 8;
-    const uns32 hex_integer_t			= 9;
+    const uns32 decimal_integer_t		= 7;
+    const uns32 octal_integer_t			= 8;
+    const uns32 hexadecimal_integer_t		= 9;
     const uns32 float_t				= 10;
     const uns32 pp_number_t			= 11;
         // A pp number that is not an integer or float.
@@ -63,46 +63,65 @@ namespace ll { namespace lexeme { namespace cpp {
 	// is not preceeded by a newline as if it
 	// was proceeded by a newline.
 
-    // Erroneous Atom Types
+    // Error Lexeme Types
     //
-    const uns32 premature_newline_t		= 22;
+    // These lexemes appear outside character literal
+    // ''s and and quoted string literal ""s and are
+    // treated syntactically like whitespace (if they
+    // are replaced by a space the code will have the
+    // same semantics).
+    //
+    // Note that ## cannot be used to move characters
+    // inside a character or string literal '' or "".
+    // Also, we do NOT allow ## to append a combining
+    // character to another character.  So ## cannot be
+    // used to make these lexemes part of a legal
+    // lexeme.
+    //
+    const uns32 misplaced_char_t		= 22;
+        // Backslash or a non-ascii, non-letter charac-
+	// ter.
+    const uns32 ascii_universal_char_t		= 23;
+        // A universal character that represents an
+	// ASCII character.
+    const uns32 misplaced_universal_char_t	= 24;
+        // A universal character that represents a
+	// non-ASCII, non-letter character.
+    const uns32 short_universal_char_t		= 25;
+        // A universal character with too few hexa-
+	// decimal digits.
+    const uns32 premature_newline_t		= 26;
         // 0-length, emitted before newline that
 	// terminates a character or string literal.
 	// A ' or " is inserted at the end of the
 	// literal.
-    const uns32 premature_end_of_file_t		= 23;
+    const uns32 premature_end_of_file_t		= 27;
         // 0-length, emitted before an end-of-file that
 	// terminates a character or string literal.
 	// A ' or " is inserted at the end of the
 	// literal.
-    const uns32 illegal_escape_t		= 24;
+
+
+    // Erroneous atoms.  These are translated to "" and
+    // are ignored as if they did not exist.  Removing
+    // them will not change program semantics.
+    //
+    const uns32 ill_formed_escape_t		= 28;
         // The sequence \C inside a character or string
 	// literal where C represents a character such
 	// that \C does not begin a legal escape
 	// sequence.  Both \ and C are part of the
-	// erroneous atom.  The erroneous atom is
-	// translated to "" and ignored.
-    const uns32 misplaced_char_t		= 25;
-        // Backslash or a non-ascii, non-letter charac-
-	// ter outside a character or string literal.
-	// Note that ## cannot be used to move charac-
-	// ters inside a character or string literal,
-	// so once misplaced, always misplaced.  Also,
-	// we do NOT allow ## to append a combining
-	// character to another character.  These
-	// erroneous atoms are translated as "" and
-	// ignored.
-    const uns32 ascii_universal_char_t		= 26;
-        // A universal character that represents an
-	// ASCII character outside a character or
-	// string literal.  These erroneous atoms are
-	// translated as "" and ignored.
-    const uns32 ill_formed_universal_char_t	= 27;
-        // A universal character with non-hexadecimal
-	// digits.  These erroneous atoms are translated
-	// as "" and ignored.
+	// erroneous atom.
+    const uns32 too_long_hex_escape_t		= 29;
+        // A \x or \X escape sequence with 9 hexadecimal
+	// digits.  This would be allowed in standard
+	// C++, but do to the limits of our lexeme
+	// translator, we do not permit such.
+    // const uns32 short_universal_char_t	= 25;
+        // A universal character with to few digits.
+	// Has the same type code as error lexeme above.
 
-    const unsigned MAX_TYPE = 27;
+    const unsigned MAX_TYPE = 29;
 
     extern const char * const type_name[MAX_TYPE+1];
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  2 07:04:01 EDT 2011
+// Date:	Mon Jun 13 08:30:44 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -311,24 +311,41 @@ struct named_opening_bracket_struct : public root_struct
     // Syntax is
     //
     //      opening-bracket ...
-    //	    { separator ... }* middle-bracket
-    //	    ...
+    //	    { separator ... }*
+    //	    middle-bracket
+    //	    ***
     //      middle-bracket ... closing-bracket
     //
     // or
     //
     //      opening-bracket ...
-    //	    { separator ... }* middle-bracket
-    //	    ...
+    //	    { separator ... }*
+    //	    middle-bracket
+    //	    ***
     //      middle-closing-bracket
+    //
+    // or
+    //
+    //      opening-bracket ...
+    //	    { separator ... }*
+    //	    closing-bracket
+    //
+    // Where ... is any sequence of words, numbers,
+    // quoted strings, or unnamed explicit subexpres-
+    // sions (but not separators or marks outside
+    // explicit subexpressions), and *** is any
+    // sequence of lexemes and explicit subexpres-
+    // sions (possibly including named ones).
     //
     // E.g, if the opening-bracket is <, the separator
     // is #, the middle-bracket is |, and the closing-
     // bracket is >, then
     //
-    //	    < ... {# ...}* | ... | ... >
+    //	    < ... {# ...}* | *** | ... >
     // or
-    //	    < ... {# ...}* | ... |>
+    //	    < ... {# ...}* | *** |>
+    // or
+    //	    < ... {# ...}* >
     //
     // The middle-closing-bracket may be specified as
     // MISSING if the middle and closing brackets

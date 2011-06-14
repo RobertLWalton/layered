@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  9 19:42:59 EDT 2011
+// Date:	Mon Jun 13 19:11:26 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,6 +85,24 @@ min::locatable_var<LEX::erroneous_atom>
      LEX::default_erroneous_atom;
 min::locatable_var<LEX::scanner>
      LEX::default_scanner;
+
+// printer << pID ( ID, program ) prints `ID' or
+// `#line_number' (if line_number != 0 ).
+//
+struct pID
+{
+    uns32 ID; uns32 line_number;
+    pID ( uns32 ID, LEX::program program )
+	: ID ( ID ), line_number ( program[ID+1] ) {}
+};
+inline min::printer operator <<
+	( min::printer printer, const pID & p )
+{
+    if ( p.line_number != 0 )
+        return printer << "#" << p.line_number;
+    else
+        return printer << p.ID;
+}
 
 // Program Construction
 // ------- ------------
@@ -106,7 +124,8 @@ inline min::uns32 round32 ( min::uns32 length )
 }
 
 uns32 LEX::create_table
-	( uns32 mode, LEX::program program )
+	( uns32 line_number,
+	  uns32 mode, LEX::program program )
 {
     min::ptr<program_header> php =
 	LEX::ptr<program_header> ( program, 0 );
@@ -117,6 +136,7 @@ uns32 LEX::create_table
     uns32 ID = program->length;
     table_header h;
     h.pctype = TABLE;
+    h.line_number = line_number;
     h.mode = mode;
     h.dispatcher_ID = 0;
     h.instruction_ID = 0;
@@ -144,7 +164,8 @@ uns32 LEX::table_mode
 }
 
 void LEX::create_program
-	( const char * const * type_name,
+	( uns32 line_number,
+	  const char * const * type_name,
 	  uns32 max_type,
 	  min::ref<LEX::program> program_arg )
 {
@@ -169,6 +190,7 @@ void LEX::create_program
 
     program_header h;
     h.pctype = PROGRAM;
+    h.line_number = line_number;
     h.initial_table_ID = 0;
     h.max_type = max_type;
     h.component_length = 0;
@@ -204,7 +226,8 @@ void LEX::create_program
 }
 
 uns32 LEX::create_dispatcher
-	( uns32 max_breakpoints,
+	( uns32 line_number,
+	  uns32 max_breakpoints,
 	  uns32 max_ctype,
 	  LEX::program program )
 {
@@ -212,6 +235,7 @@ uns32 LEX::create_dispatcher
     uns32 ID = program->length;
     dispatcher_header h;
     h.pctype = DISPATCHER;
+    h.line_number = line_number;
     h.break_elements = 1;
     h.max_break_elements = max_breakpoints + 1;
     h.max_ctype = max_ctype;
@@ -234,7 +258,8 @@ uns32 LEX::create_dispatcher
 }
 
 uns32 LEX::create_type_map
-	( uns32 cmin, uns32 cmax,
+	( uns32 line_number,
+	  uns32 cmin, uns32 cmax,
 	  uns8 * map,
 	  LEX::program program )
 {
@@ -243,6 +268,7 @@ uns32 LEX::create_type_map
 
     type_map_header h;
     h.pctype = TYPE_MAP;
+    h.line_number = line_number;
     h.cmin = cmin;
     h.cmax = cmax;
     h.singleton_ctype = 0;
@@ -257,7 +283,8 @@ uns32 LEX::create_type_map
 }
 
 uns32 LEX::create_type_map
-	( uns32 cmin, uns32 cmax,
+	( uns32 line_number,
+	  uns32 cmin, uns32 cmax,
 	  uns32 ctype,
 	  LEX::program program )
 {
@@ -266,6 +293,7 @@ uns32 LEX::create_type_map
 
     type_map_header h;
     h.pctype = TYPE_MAP;
+    h.line_number = line_number;
     h.cmin = cmin;
     h.cmax = cmax;
     assert ( ctype != 0 );
@@ -276,7 +304,8 @@ uns32 LEX::create_type_map
 }
 
 uns32 LEX::create_instruction
-	( uns32 operation,
+	( uns32 line_number,
+	  uns32 operation,
 	  uns32 * translation_vector,
 	  uns32 atom_table_ID,
 	  uns32 require_dispatcher_ID,
@@ -378,6 +407,7 @@ uns32 LEX::create_instruction
 
     instruction_header h;
     h.pctype = INSTRUCTION;
+    h.line_number = line_number;
     h.operation = operation;
     h.atom_table_ID = atom_table_ID;
     h.require_dispatcher_ID = require_dispatcher_ID;
@@ -432,12 +462,12 @@ static bool attach_type_map_to_dispatcher
     if ( bep[i].type_map_ID != 0 )
     {
         ERR << "Attempt to attach type map "
-	    << type_map_ID
+	    << pID ( type_map_ID, program )
 	    << " to dispatcher "
-	    << dispatcher_ID
+	    << pID ( dispatcher_ID, program )
 	    << " conflicts with previous attachment of"
 	       " type map "
-	    << bep[i].type_map_ID
+	    << pID ( bep[i].type_map_ID, program )
 	    << min::eol;
         return false;
     }
@@ -448,12 +478,12 @@ static bool attach_type_map_to_dispatcher
     {
         assert ( bep[i+1].type_map_ID != 0 );
         ERR << "Attempt to attach type map "
-	    << type_map_ID
+	    << pID ( type_map_ID, program )
 	    << " to dispatcher "
-	    << dispatcher_ID
+	    << pID ( dispatcher_ID, program )
 	    << " conflicts with previous attachment of"
 	       " type map "
-	    << bep[i+1].type_map_ID
+	    << pID ( bep[i+1].type_map_ID, program )
 	    << min::eol;
         return false;
     }
@@ -465,9 +495,9 @@ static bool attach_type_map_to_dispatcher
          > dhp->max_break_elements )
     {
         ERR << "Attempt to attach type map "
-	    << type_map_ID
+	    << pID ( type_map_ID, program )
 	    << " to dispatcher "
-	    << dispatcher_ID
+	    << pID ( dispatcher_ID, program )
             << " fails because dispatcher already has"
 	       " too many breaks"
 	    << min::eol;
@@ -515,12 +545,13 @@ bool LEX::attach
 	    if ( thp->dispatcher_ID != 0 )
 	    {
 		ERR << "Attempt to attach dispatcher "
-		    << component_ID
+		    << pID ( component_ID, program )
 		    << " to table "
-		    << target_ID
+		    << pID ( target_ID, program )
 		    << " conflicts with previous"
 		       " attachment of dispatcher "
-		    << thp->dispatcher_ID
+		    << pID ( thp->dispatcher_ID,
+		             program )
 		    << min::eol;
 	        return false;
 	    }
@@ -532,12 +563,13 @@ bool LEX::attach
 	    if ( thp->instruction_ID != 0 )
 	    {
 		ERR << "Attempt to attach instruction "
-		    << component_ID
+		    << pID ( component_ID, program )
 		    << " to table "
-		    << target_ID
+		    << pID ( target_ID, program )
 		    << " conflicts with previous"
 		       " attachment of instruction "
-		    << thp->instruction_ID
+		    << pID ( thp->instruction_ID,
+		             program )
 		    << min::eol;
 	        return false;
 	    }
@@ -586,14 +618,14 @@ bool LEX::attach
 	if ( mep->dispatcher_ID != 0 )
 	{
 	    ERR << "Attempt to attach dispatcher "
-		<< component_ID
+		<< pID ( component_ID, program )
 		<< " to dispatcher "
-		<< target_ID
+		<< pID ( target_ID, program )
 		<< " ctype "
 		<< ctype
 		<< " conflicts with previous attachment"
 		   " of dispatcher "
-		<< mep->dispatcher_ID
+		<< pID ( mep->dispatcher_ID, program )
 		<< min::eol;
 	    return false;
 	}
@@ -605,14 +637,14 @@ bool LEX::attach
 	if ( mep->instruction_ID != 0 )
 	{
 	    ERR << "Attempt to attach instruction "
-		<< component_ID
+		<< pID ( component_ID, program )
 		<< " to dispatcher "
-		<< target_ID
+		<< pID ( target_ID, program )
 		<< " ctype "
 		<< ctype
 		<< " conflicts with previous attachment"
 		   " of instruction "
-		<< mep->instruction_ID
+		<< pID ( mep->instruction_ID, program )
 		<< min::eol;
 	    return false;
 	}
@@ -706,7 +738,7 @@ bool LEX::convert_program_endianhood
 	        << "LEXICAL PROGRAM ENDIAN CONVERSION"
 		   " ERROR: undefined program component"
 		   " type at offset "
-		<< cID
+		<< pID ( cID, program )
 		<< " in the program vector of uns32"
 		   " elements."
 		<< min::eol;
@@ -1044,7 +1076,8 @@ static uns32 ctype ( LEX::scanner scanner,
     if ( trace )
 	scanner->printer
 	    << "  Character = " << pgraphic ( c )
-	    << " Dispatcher = " << dispatcher_ID;
+	    << " Dispatcher = "
+	    << pID ( dispatcher_ID, program );
 
     min::ptr<dispatcher_header> dhp =
 	LEX::ptr<dispatcher_header>
@@ -1084,7 +1117,8 @@ static uns32 ctype ( LEX::scanner scanner,
 		 == TYPE_MAP );
 	if ( trace )
 	    scanner->printer
-	        << " Type Map = " << type_map_ID;
+	        << " Type Map = "
+		<< pID ( type_map_ID, program );
 	min::ptr<type_map_header> tmhp =
 	    LEX::ptr<type_map_header>
 		( program, type_map_ID );
@@ -1137,7 +1171,9 @@ static uns32 scan_atom
     if ( scanner->trace & LEX::TRACE_TABLE )
         scanner->printer
 	    << "Start atom scan: table = "
-	    << scanner->current_table_ID << min::eol;
+	    << pID ( scanner->current_table_ID,
+	             program )
+	    << min::eol;
 
     min::ptr<table_header> cathp =
 	LEX::ptr<table_header>
@@ -1207,7 +1243,8 @@ static uns32 scan_atom
 		    << " computed for character "
 		    << LEX::pgraphic ( c )
 		    << " is too large for dispatcher "
-		    << dispatcher_ID << min::eol;
+		    << pID ( dispatcher_ID, program )
+		    << min::eol;
 	    return SCAN_ERROR;
 	}
 
@@ -1282,9 +1319,10 @@ static uns32 scan_atom
 	    {
 		scan_error ( scanner, atom_length )
 		    << "MATCH in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << " targets non-atom table"
 		    << min::eol;
 		return SCAN_ERROR;
@@ -1294,9 +1332,10 @@ static uns32 scan_atom
 	    {
 		scan_error ( scanner, atom_length )
 		    << "MATCH in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << " but return stack is full"
 		    << min::eol;
 		return SCAN_ERROR;
@@ -1312,11 +1351,13 @@ static uns32 scan_atom
 	    {
 		scan_error ( scanner, atom_length )
 		    << "Recursive MATCH to table "
-		    << ihp->atom_table_ID
+		    << pID ( ihp->atom_table_ID,
+		             program )
 		    << " in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << min::eol;
 		return SCAN_ERROR;
 	    }
@@ -1437,7 +1478,9 @@ static uns32 scan_atom
 			<< pgraphic ( c )
 			<< " is too large for"
 			   " dispatcher "
-		        << dispatcher_ID << min::eol;
+		        << pID ( dispatcher_ID,
+			         program )
+			<< min::eol;
 		    return SCAN_ERROR;
 		}
 
@@ -1476,9 +1519,12 @@ static uns32 scan_atom
 		    scan_error ( scanner, length )
 		        << "No instruction for ELSE in"
 			   " failed instruction "
-		        << instruction_ID
+		        << pID ( instruction_ID,
+			         program )
 			<< " executed by table "
-		        << scanner->current_table_ID
+		        << pID ( scanner->
+			             current_table_ID,
+			         program )
 			<< min::eol;
 		    return SCAN_ERROR;
 		}
@@ -1493,9 +1539,10 @@ static uns32 scan_atom
 	    {
 		scan_error ( scanner, length )
 		    << "No ELSE in failed instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << min::eol;
 		return SCAN_ERROR;
 	    }
@@ -1714,9 +1761,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    {
 		scan_error ( scanner, atom_length )
 		    << "ERRONEOUS_ATOM in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << " but erroneous_atom closure"
 		       " does not exist"
 		    << min::eol;
@@ -1743,9 +1791,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    {
 		scan_error ( scanner, atom_length )
 		    << "RETURN in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << " but return stack is empty"
 		    << min::eol;
 		return SCAN_ERROR;
@@ -1770,9 +1819,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    {
 		scan_error ( scanner, atom_length )
 		    << "GOTO in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << " targets atom table"
 		    << min::eol;
 		return SCAN_ERROR;
@@ -1786,9 +1836,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    {
 		scan_error ( scanner, atom_length )
 		    << "CALL in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << " but return stack is full"
 		    << min::eol;
 		return SCAN_ERROR;
@@ -1804,11 +1855,13 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    {
 		scan_error ( scanner, atom_length )
 		    << "Recursive CALL to table "
-		    << ihp->call_table_ID
+		    << pID ( ihp->call_table_ID,
+		             program )
 		    << " in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << min::eol;
 		return SCAN_ERROR;
 	    }
@@ -1827,9 +1880,10 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    {
 		scan_error ( scanner, atom_length )
 		    << "CALL in instruction "
-		    << instruction_ID
+		    << pID ( instruction_ID, program )
 		    << " executed by table "
-		    << scanner->current_table_ID
+		    << pID ( scanner->current_table_ID,
+		             program )
 		    << " targets non-lexeme table"
 		    << min::eol;
 		return SCAN_ERROR;
@@ -1880,7 +1934,8 @@ static min::printer scan_error
 
     min::init ( min::error_message )
         << "LEXICAL SCANNER ERROR: current_table "
-	             << scanner->current_table_ID;
+	             << pID ( scanner->current_table_ID,
+		              scanner->program );
     LEX::position pos =
 	scanner->next < scanner->input_buffer->length ?
 	    (LEX::position)
@@ -2164,16 +2219,25 @@ static const unsigned IDwidth = 12;
     // Width of field containing ID at the beginning
     // of each print_program line.
 
-// printer << pID ( ID ) prints `ID: ' right adjusted in
-// a field of width IDwidth.
+// printer << pIDindent ( ID, program ) prints `ID: ' or
+// `#line_number: ' (if line_number != 0 ) right
+// adjusted in a field of width IDwidth.
 //
-struct pID { uns32 ID;
-             pID ( uns32 ID ) : ID ( ID ) {} };
-inline min::printer operator <<
-	( min::printer printer, const pID & p )
+struct pIDindent
 {
-    return printer << min::setbreak << p.ID << ": "
-                   << min::right ( IDwidth );
+    uns32 ID; uns32 line_number;
+    pIDindent ( uns32 ID, LEX::program program )
+	: ID ( ID ), line_number ( program[ID+1] ) {}
+};
+inline min::printer operator <<
+	( min::printer printer, const pIDindent & p )
+{
+    printer << min::setbreak;
+    if ( p.line_number != 0 )
+        printer << "#" << p.line_number;
+    else
+        printer << p.ID;
+    return printer << ": " << min::right ( IDwidth );
 }
 
 // See documentation .
@@ -2360,11 +2424,14 @@ static uns32 print_instruction
 
     if ( op & MATCH )
         OUT << "MATCH("
-	    << ihp->atom_table_ID << ")";
+	    << pID ( ihp->atom_table_ID, program )
+	    << ")";
 
     if ( op & REQUIRE )
         OUT << "REQUIRE("
-	    << ihp->require_dispatcher_ID << ")";
+	    << pID ( ihp->require_dispatcher_ID,
+	             program )
+	    << ")";
 
     if ( op & ERRONEOUS_ATOM )
         OUT << "ERRONEOUS_ATOM("
@@ -2375,10 +2442,14 @@ static uns32 print_instruction
 	    << ihp->output_type << ")";
 
     if ( op & GOTO )
-        OUT << "GOTO(" << ihp->goto_table_ID << ")";
+        OUT << "GOTO("
+	    << pID ( ihp->goto_table_ID, program )
+	    << ")";
 
     if ( op & CALL )
-        OUT << "CALL(" << ihp->call_table_ID << ")";
+        OUT << "CALL("
+	    << pID ( ihp->call_table_ID, program )
+	    << ")";
 
     if ( op & RETURN )
         OUT << "RETURN";
@@ -2480,7 +2551,8 @@ static uns32 print_cooked_dispatcher
             << min::set_indent ( indent )
 	    << min::nohbreak;
 
-    printer << pID ( ID ) << "DISPATCHER" << min::eol;
+    printer << pIDindent ( ID, program )
+            << "DISPATCHER" << min::eol;
 
     min::ptr<dispatcher_header> dhp =
 	LEX::ptr<dispatcher_header> ( program, ID );
@@ -2588,7 +2660,9 @@ static uns32 print_cooked_dispatcher
 	if ( mep[t].dispatcher_ID != 0 )
 	    printer << min::indent
 	            << "    Dispatcher ID: "
-	            << mep[t].dispatcher_ID << min::eol;
+	            << pID ( mep[t].dispatcher_ID,
+		             program )
+		    << min::eol;
     }
 
     printer << min::pop_parameters;
@@ -2610,11 +2684,13 @@ uns32 LEX::print_program_component
     {
     case PROGRAM:
     {
-	printer << pID ( ID ) << "PROGRAM" << min::eol;
+	printer << pIDindent ( ID, program )
+	        << "PROGRAM" << min::eol;
 	min::ptr<program_header> php =
 	    LEX::ptr<program_header> ( program, ID );
 	printer << min::indent << "Initial Table ID: "
-	    << php->initial_table_ID << min::eol;
+	    << pID ( php->initial_table_ID, program )
+	    << min::eol;
 	printer << min::indent << "Max Type: "
 	    << php->max_type << min::eol;
 	for ( uns32 t = 0; t <= php->max_type; ++ t )
@@ -2632,21 +2708,25 @@ uns32 LEX::print_program_component
     }
     case TABLE:
     {
-	printer << pID ( ID ) << "TABLE" << min::eol;
+	printer << pIDindent ( ID, program )
+	        << "TABLE" << min::eol;
 	min::ptr<table_header> thp =
 	    LEX::ptr<table_header> ( program, ID );
 	printer << min::indent << "Mode: "
 	        << pmode ( program, thp->mode )
 		<< min::eol;
 	printer << min::indent << "Dispatcher ID: "
-	        << thp->dispatcher_ID << min::eol;
+	        << pID ( thp->dispatcher_ID, program )
+		<< min::eol;
 	if ( cooked )
 	    print_instruction
 		( printer, program,
 		  thp->instruction_ID, IDwidth );
 	else
 	    printer << min::indent << "Instruction ID: "
-		    << thp->instruction_ID << min::eol;
+		    << pID ( thp->instruction_ID,
+		             program )
+		    << min::eol;
 	length = table_header_length;
 	break;
     }
@@ -2659,8 +2739,8 @@ uns32 LEX::print_program_component
     }
     else
     {
-	printer << pID ( ID ) << "DISPATCHER"
-	        << min::eol;
+	printer << pIDindent ( ID, program )
+	        << "DISPATCHER" << min::eol;
 	min::ptr<dispatcher_header> dhp =
 	    LEX::ptr<dispatcher_header> ( program, ID );
 	printer << min::indent << "Break Elements: "
@@ -2685,7 +2765,7 @@ uns32 LEX::print_program_component
 	    printer << min::indent
 		    << pgraphic ( bep->cmin )
 		    << min::right ( 24 )
-		    << bep->type_map_ID
+		    << pID ( bep->type_map_ID, program )
 		    << min::right ( 16 )
 		    << min::eol;
 	}
@@ -2705,9 +2785,11 @@ uns32 LEX::print_program_component
 		LEX::ptr<map_element> ( program, p );
 	    printer << min::indent
 		    << t << ": " << min::right ( 14 )
-		    << mep->dispatcher_ID
+		    << pID ( mep->dispatcher_ID,
+		             program )
 		    << min::right ( 16 )
-		    << mep->instruction_ID
+		    << pID ( mep->instruction_ID,
+		             program )
 		    << min::right ( 16 )
 		    << min::eol;
 	}
@@ -2717,14 +2799,15 @@ uns32 LEX::print_program_component
     }
     case INSTRUCTION:
     {
-	printer << pID ( ID );
+	printer << pIDindent ( ID, program );
 	length = print_instruction
 		   ( printer, program, ID, IDwidth );
 	break;
     }
     case TYPE_MAP:
     {
-	printer << pID ( ID ) << "TYPE_MAP" << min::eol;
+	printer << pIDindent ( ID, program )
+	        << "TYPE_MAP" << min::eol;
 	min::ptr<type_map_header> tmhp =
 	    LEX::ptr<type_map_header> ( program, ID );
 	length = type_map_header_length;
@@ -2775,7 +2858,7 @@ uns32 LEX::print_program_component
     }
     default:
     {
-	printer << pID ( ID )
+	printer << pIDindent ( ID, program )
 	        << "ILLEGAL COMPONENT TYPE("
 	        << program[ID] << ")" << min::eol;
 	length = program->length - ID;

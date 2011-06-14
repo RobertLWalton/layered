@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 09:03:54 EST 2010
+// Date:	Mon Jun 13 21:07:38 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -108,6 +108,10 @@ namespace ll { namespace lexeme
     // 
     struct dispatcher
     {
+        uns32 line_number;
+	    // Line number of begin_dispatch,
+	    // begin_atom_pattern, begin_table,
+	    // or NEXT.
         uns8 ascii_map[128];
 	    // Type codes of ASCII characters.
 	    // 0 if none.  Subdispatchers modify this
@@ -156,6 +160,9 @@ namespace ll { namespace lexeme
     //
     struct instruction
     {
+	uns32 line_number;
+	    // Line number of first function to set
+	    // instruction operation.  0 if none yet.
 	uns32 operation;
 	uns32 atom_table_ID;
 	uns32 require_dispatcher_ID;

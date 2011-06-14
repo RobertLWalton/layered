@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 03:42:02 EST 2011
+// Date:	Mon Jun 13 19:12:59 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,25 +104,29 @@ static void check_attach
 
 static void create_program_1 ( void )
 {
-    LEX::create_program ( type_name, MAX_TYPE );
-    uns32 master = LEX::create_table ( MASTER );
+    LEX::create_program
+        ( __LINE__, type_name, MAX_TYPE );
+    uns32 master =
+        LEX::create_table ( __LINE__, MASTER );
 
-    uns32 atable1 = LEX::create_table ( SYMBOL );
+    uns32 atable1 =
+        LEX::create_table ( __LINE__, SYMBOL );
     uns32 dispatcher1 =
-        LEX::create_dispatcher ( 10, 4 );
+        LEX::create_dispatcher ( __LINE__, 10, 4 );
     uns8 map1[10] = { 0, 1, 2, 3, 4, 5, 4, 3, 2, 1 };
     uns32 tmap1 =
         LEX::create_type_map
-	    ( '0', '9', map1 );
+	    ( __LINE__, '0', '9', map1 );
     uns32 tmap2 =
-        LEX::create_type_map ( 'a', 'z', 4 );
+        LEX::create_type_map ( __LINE__, 'a', 'z', 4 );
     uns32 translation[3] = { 'X', 'Y', 'Z' };
     uns32 instruction1 =
         LEX::create_instruction
-	    ( KEEP(1)+TRANSLATE_TO(3)+GOTO,
+	    ( __LINE__,
+	      KEEP(1)+TRANSLATE_TO(3)+GOTO,
 	      translation, 0, 0, 0, 0, 0, atable1 );
     uns32 instruction2 =
-        LEX::create_instruction ( ACCEPT );
+        LEX::create_instruction ( __LINE__, ACCEPT );
 
     check_attach ( atable1, instruction1 );
     check_attach ( atable1, dispatcher1 );
@@ -148,31 +152,39 @@ static void create_program_1 ( void )
 
 static void create_program_2 ( void )
 {
-    LEX::create_program ( type_name, MAX_TYPE );
-    uns32 master = LEX::create_table ( MASTER );
+    LEX::create_program
+        ( __LINE__, type_name, MAX_TYPE );
+    uns32 master =
+        LEX::create_table ( __LINE__, MASTER );
 
     // Create atom table for \ooo octal
     // character representations.
     //
     uns32 oct_atom =
-        LEX::create_table ( ATOM );
+        LEX::create_table ( __LINE__, ATOM );
 
     uns32 escape_tmap =
-        LEX::create_type_map ( '\\', '\\', 1 );
+        LEX::create_type_map
+	    ( __LINE__, '\\', '\\', 1 );
     uns32 oct_tmap =
-        LEX::create_type_map ( '0', '7', 1 );
+        LEX::create_type_map
+	    ( __LINE__, '0', '7', 1 );
 
     uns32 escape_dispatcher =
-        LEX::create_dispatcher ( 3, 2 );
+        LEX::create_dispatcher
+	    ( __LINE__, 3, 2 );
     check_attach ( escape_dispatcher, escape_tmap );
     uns32 oct_dispatcher1 =
-        LEX::create_dispatcher ( 3, 2 );
+        LEX::create_dispatcher
+	    ( __LINE__, 3, 2 );
     check_attach ( oct_dispatcher1, oct_tmap );
     uns32 oct_dispatcher2 =
-        LEX::create_dispatcher ( 3, 2 );
+        LEX::create_dispatcher
+	    ( __LINE__, 3, 2 );
     check_attach ( oct_dispatcher2, oct_tmap );
     uns32 oct_dispatcher3 =
-        LEX::create_dispatcher ( 3, 2 );
+        LEX::create_dispatcher
+	    ( __LINE__, 3, 2 );
     check_attach ( oct_dispatcher3, oct_tmap );
 
     check_attach ( oct_atom,
@@ -185,20 +197,25 @@ static void create_program_2 ( void )
                    1, oct_dispatcher3 );
 
     uns32 fail_instruction =
-        LEX::create_instruction ( FAIL );
+        LEX::create_instruction ( __LINE__, FAIL );
     uns32 translate_oct_instruction =
         LEX::create_instruction
-	    ( TRANSLATE_OCT(1,0)+ELSE,
+	    ( __LINE__,
+	      TRANSLATE_OCT(1,0)+ELSE,
 	      NULL, 0, 0, fail_instruction );
     check_attach ( oct_dispatcher3,
                    1, translate_oct_instruction );
     check_attach ( oct_atom,
                    fail_instruction );
 
-    uns32 whitespace = LEX::create_table ( WHITESPACE );
-    uns32 symbol = LEX::create_table ( SYMBOL );
-    uns32 number = LEX::create_table ( NUMBER );
-    uns32 oper = LEX::create_table ( OPERATOR );
+    uns32 whitespace =
+        LEX::create_table ( __LINE__, WHITESPACE );
+    uns32 symbol =
+        LEX::create_table ( __LINE__, SYMBOL );
+    uns32 number =
+        LEX::create_table ( __LINE__, NUMBER );
+    uns32 oper =
+        LEX::create_table ( __LINE__, OPERATOR );
 
     const uns8 white = 1;
     const uns8 letter = 2;
@@ -211,7 +228,8 @@ static void create_program_2 ( void )
 
     uns32 end_of_file_instruction =
         LEX::create_instruction
-	    ( ACCEPT+OUTPUT,
+	    ( __LINE__,
+	      ACCEPT+OUTPUT,
 	      NULL, 0, 0, 0, 0, END_OF_FILE );
     check_attach ( master, end_of_file_instruction );
 
@@ -347,36 +365,44 @@ static void create_program_2 ( void )
             err_atom	// DEL
         };
 
-    uns32 tmap = LEX::create_type_map ( 0, 127, cmap );
+    uns32 tmap =
+        LEX::create_type_map ( __LINE__, 0, 127, cmap );
     uns32 master_dispatcher =
-        LEX::create_dispatcher ( 3, 10 );
+        LEX::create_dispatcher ( __LINE__, 3, 10 );
     check_attach ( master, master_dispatcher );
     check_attach ( master_dispatcher, tmap );
     uns32 symbol_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+CALL,
+	    ( __LINE__,
+	      KEEP(0)+CALL,
 	      NULL, 0, 0, 0, 0, 0, 0, symbol );
     uns32 number_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO,
+	    ( __LINE__,
+	      KEEP(0)+GOTO,
 	      NULL, 0, 0, 0, 0, 0, number );
     uns32 whitespace_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO,
+	    ( __LINE__,
+	      ACCEPT+GOTO,
 	      NULL, 0, 0, 0, 0, 0, whitespace );
     uns32 operator_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO, NULL, 0, 0, 0, 0, 0, oper );
+	    ( __LINE__,
+	      KEEP(0)+GOTO, NULL, 0, 0, 0, 0, 0, oper );
     uns32 separator_instruction =
         LEX::create_instruction
-	    ( ACCEPT+OUTPUT,
+	    ( __LINE__,
+	      ACCEPT+OUTPUT,
 	      NULL, 0, 0, 0, 0, SEPARATOR );
     uns32 error_instruction =
         LEX::create_instruction
-	    ( ACCEPT+OUTPUT, NULL, 0, 0, 0, 0, ERROR );
+	    ( __LINE__,
+	      ACCEPT+OUTPUT, NULL, 0, 0, 0, 0, ERROR );
     uns32 err_atom_instruction =
         LEX::create_instruction
-	    ( ERRONEOUS_ATOM+TRANSLATE_TO(0),
+	    ( __LINE__,
+	      ERRONEOUS_ATOM+TRANSLATE_TO(0),
 	      NULL, 0, 0, 0, 100 );
     check_attach ( master_dispatcher, 0,
                    error_instruction );
@@ -397,16 +423,18 @@ static void create_program_2 ( void )
 
     uns32 master_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+GOTO,
+	    ( __LINE__,
+	      KEEP(0)+GOTO,
 	      NULL, 0, 0, 0, 0, 0, master );
     uns32 return_instruction =
         LEX::create_instruction
-	    ( KEEP(0)+RETURN );
+	    ( __LINE__, KEEP(0)+RETURN );
     uns32 accept_instruction =
-        LEX::create_instruction ( ACCEPT );
+        LEX::create_instruction
+	    ( __LINE__, ACCEPT );
 
     uns32 symbol_dispatcher =
-        LEX::create_dispatcher ( 3, 10 );
+        LEX::create_dispatcher ( __LINE__, 3, 10 );
     check_attach ( symbol_dispatcher, tmap );
 
     check_attach ( symbol, symbol_dispatcher );
@@ -422,38 +450,42 @@ static void create_program_2 ( void )
     // ooo encodes a letter.
     //
     uns32 letter_dispatcher =
-        LEX::create_dispatcher ( 5, 2 );
+        LEX::create_dispatcher ( __LINE__, 5, 2 );
     uns32 letter_tmap1 =
-        LEX::create_type_map ( 'a', 'z', 1 );
+        LEX::create_type_map ( __LINE__, 'a', 'z', 1 );
     uns32 letter_tmap2 =
-        LEX::create_type_map ( 'A', 'Z', 1 );
+        LEX::create_type_map ( __LINE__, 'A', 'Z', 1 );
     check_attach ( letter_dispatcher, letter_tmap1 );
     check_attach ( letter_dispatcher, letter_tmap2 );
     uns32 escape_instruction =
         LEX::create_instruction
-	    ( MATCH+REQUIRE+ELSE,
+	    ( __LINE__,
+	      MATCH+REQUIRE+ELSE,
 	      NULL, oct_atom,
 	            letter_dispatcher,
 	            err_atom_instruction );
     check_attach ( symbol_dispatcher, escape,
                    escape_instruction );
 
-    uns32 fraction = LEX::create_table ( NUMBER );
+    uns32 fraction =
+        LEX::create_table ( __LINE__, NUMBER );
     uns32 fraction_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO,
+	    ( __LINE__,
+	      ACCEPT+GOTO,
 	      NULL, 0, 0, 0, 0, 0, fraction );
 
     uns32 digit_instruction =
         LEX::create_instruction
-	    ( ACCEPT+GOTO,
+	    ( __LINE__,
+	      ACCEPT+GOTO,
 	      NULL, 0, 0, 0, 0, 0, number );
     uns32 number_dispatcher =
-        LEX::create_dispatcher ( 5, 10 );
+        LEX::create_dispatcher ( __LINE__, 5, 10 );
     uns32 digit_map =
-        LEX::create_type_map ( '0', '9', 1 );
+        LEX::create_type_map ( __LINE__, '0', '9', 1 );
     uns32 point_map =
-        LEX::create_type_map ( '.', '.', 2 );
+        LEX::create_type_map ( __LINE__, '.', '.', 2 );
     check_attach ( number, number_dispatcher );
     check_attach ( number, master_instruction );
     check_attach ( number_dispatcher, digit_map );
@@ -464,7 +496,7 @@ static void create_program_2 ( void )
     	           fraction_instruction );
 
     uns32 fraction_dispatcher =
-        LEX::create_dispatcher ( 3, 10 );
+        LEX::create_dispatcher ( __LINE__, 3, 10 );
     check_attach ( fraction, fraction_dispatcher );
     check_attach ( fraction, master_instruction );
     check_attach ( fraction_dispatcher, digit_map );
@@ -472,7 +504,7 @@ static void create_program_2 ( void )
     	           fraction_instruction );
 
     uns32 whitespace_dispatcher =
-        LEX::create_dispatcher ( 3, 10 );
+        LEX::create_dispatcher ( __LINE__, 3, 10 );
     check_attach ( whitespace, whitespace_dispatcher );
     check_attach ( whitespace, master_instruction );
     check_attach ( whitespace_dispatcher, tmap );
@@ -480,25 +512,25 @@ static void create_program_2 ( void )
                    whitespace_instruction );
 
     uns32 operation_dispatcher =
-        LEX::create_dispatcher ( 9, 10 );
+        LEX::create_dispatcher ( __LINE__, 9, 10 );
     check_attach ( oper, operation_dispatcher );
     check_attach ( oper, master_instruction );
     uns32 plus_map =
-        LEX::create_type_map ( '+', '+', 1 );
+        LEX::create_type_map ( __LINE__, '+', '+', 1 );
     uns32 minus_map =
-        LEX::create_type_map ( '-', '-', 2 );
+        LEX::create_type_map ( __LINE__, '-', '-', 2 );
     uns32 divide_map =
-        LEX::create_type_map ( '/', '/', 3 );
+        LEX::create_type_map ( __LINE__, '/', '/', 3 );
     uns32 times_map =
-        LEX::create_type_map ( '*', '*', 3 );
+        LEX::create_type_map ( __LINE__, '*', '*', 3 );
     uns32 master_accept =
         LEX::create_instruction
-	    ( ACCEPT+GOTO,
+	    ( __LINE__, ACCEPT+GOTO,
 	      NULL, 0, 0, 0, 0, 0, master );
     uns32 plus_dispatcher =
-        LEX::create_dispatcher ( 9, 10 );
+        LEX::create_dispatcher ( __LINE__, 9, 10 );
     uns32 minus_dispatcher =
-        LEX::create_dispatcher ( 9, 10 );
+        LEX::create_dispatcher ( __LINE__, 9, 10 );
     check_attach ( operation_dispatcher, plus_map );
     check_attach ( operation_dispatcher, minus_map );
     check_attach ( operation_dispatcher, divide_map );

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  9 18:04:54 EDT 2011
+// Date:	Mon Jun 13 19:03:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -180,7 +180,8 @@ namespace ll { namespace lexeme {
     // to be <= max_type.
     //
     void create_program
-	    ( const char * const * type_name = NULL,
+	    ( uns32 line_number = 0,
+	      const char * const * type_name = NULL,
 	      uns32 max_type = 0,
 	      min::ref<ll::lexeme::program> program =
 	          default_program );
@@ -211,7 +212,8 @@ namespace ll { namespace lexeme {
     // program becomes the initial table of the program.
     //
     uns32 create_table
-	    ( uns32 mode,
+	    ( uns32 line_number,
+	      uns32 mode,
 	      ll::lexeme::program program =
 	          default_program );
 
@@ -229,7 +231,8 @@ namespace ll { namespace lexeme {
     // ctype for any character not mapped by a type map.
     //
     uns32 create_dispatcher
-	    ( uns32 max_breakpointers,
+	    ( uns32 line_number,
+	      uns32 max_breakpointers,
 	      uns32 max_ctype,
 	      ll::lexeme::program program =
 	          default_program );
@@ -240,7 +243,8 @@ namespace ll { namespace lexeme {
     // will give character c the ctype map[c-cmin].
     //
     uns32 create_type_map
-	    ( uns32 cmin, uns32 cmax,
+	    ( uns32 line_number,
+	      uns32 cmin, uns32 cmax,
 	      uns8 * map,
 	      ll::lexeme::program program =
 	          default_program );
@@ -251,7 +255,8 @@ namespace ll { namespace lexeme {
     // range to the given ctype, which must not be 0.
     //
     uns32 create_type_map
-	    ( uns32 cmin, uns32 cmax,
+	    ( uns32 line_number,
+	      uns32 cmin, uns32 cmax,
 	      uns32 ctype,
 	      ll::lexeme::program program =
 	          default_program );
@@ -262,7 +267,8 @@ namespace ll { namespace lexeme {
     // tions'.  Return the ID of the new instruction.
     //
     uns32 create_instruction
-	    ( uns32 operation,
+	    ( uns32 line_number,
+	      uns32 operation,
 	      uns32 * translation_vector = NULL,
 	      uns32 atom_table_ID = 0,
 	      uns32 require_dispatcher_ID = 0,

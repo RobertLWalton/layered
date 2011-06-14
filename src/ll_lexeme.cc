@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 13 19:11:26 EDT 2011
+// Date:	Mon Jun 13 21:27:53 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1058,9 +1058,13 @@ inline min::printer scan_error
 //
 // If ID == 0 do nothing but return 0.
 //
+// If no_line_number is true, surpress printing line
+// number/ID (using pID).
+//
 static uns32 print_instruction
     ( min::printer printer, LEX::program program,
-      uns32 ID, unsigned indent );
+      uns32 ID, unsigned indent,
+      bool no_line_number = false );
 
 // Given a dispatcher_ID and a character c return the
 // ctype that the dispatcher maps c onto.
@@ -2246,7 +2250,8 @@ static uns32 print_instruction
     ( min::printer printer,
       LEX::program program,
       uns32 ID,
-      unsigned indent )
+      unsigned indent,
+      bool no_line_number )
 {
     if ( ID == 0 ) return 0;
 
@@ -2270,11 +2275,17 @@ static uns32 print_instruction
     }
     if ( ihp->pctype != INSTRUCTION )
     {
+        if ( ! no_line_number )
+	    printer << ID << ": ";
         printer << "ILLEGAL INSTRUCTION TYPE ("
 	        << ihp->pctype << ")" << min::eol
 		<< min::pop_parameters;
 	return program->length + 1;
     }
+
+    if ( ! no_line_number )
+        printer << pID ( ID, program ) << ": ";
+
     if ( ( ( op & MATCH ) != 0 )
 	 +
          ( ( op & TRANSLATE_HEX_FLAG ) != 0 )
@@ -2801,7 +2812,8 @@ uns32 LEX::print_program_component
     {
 	printer << pIDindent ( ID, program );
 	length = print_instruction
-		   ( printer, program, ID, IDwidth );
+		   ( printer, program, ID, IDwidth,
+		     true );
 	break;
     }
     case TYPE_MAP:

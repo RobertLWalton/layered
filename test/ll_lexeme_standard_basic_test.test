@@ -1,5 +1,5 @@
          0: PROGRAM
-            Initial Table ID: XXXX
+            Initial Table ID: #XXXX
             Max Type: 16
                  1: WORD
                  2: NATURAL_NUMBER
@@ -17,119 +17,119 @@
                 14: ASCII_ESCAPE_SEQUENCE
                 15: NON_LETTER_ESCAPE_SEQUENCE
                 16: UNRECOGNIZED_ESCAPE_SEQUENCE
-      XXXX: TABLE
+     #XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: XXXX
-            OUTPUT(10)
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: OUTPUT(10)
+     #XXXX: TABLE
             Mode: WORD
-            Dispatcher ID: XXXX
-            RETURN
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: RETURN
+     #XXXX: TABLE
             Mode: NATURAL_NUMBER
-            Dispatcher ID: XXXX
-            RETURN
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: RETURN
+     #XXXX: TABLE
             Mode: NUMBER
-            Dispatcher ID: XXXX
-            RETURN
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: RETURN
+     #XXXX: TABLE
             Mode: MARK
-            Dispatcher ID: XXXX
-            RETURN
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: RETURN
+     #XXXX: TABLE
             Mode: QUOTED_STRING
-            Dispatcher ID: XXXX
-            GOTO(XXXX)
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: GOTO(#XXXX)
+     #XXXX: TABLE
             Mode: SEPARATOR
             Dispatcher ID: 0
-      XXXX: TABLE
+     #XXXX: TABLE
             Mode: COMMENT
-            Dispatcher ID: XXXX
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+     #XXXX: TABLE
             Mode: HORIZONTAL_SPACE
-            Dispatcher ID: XXXX
-            RETURN
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: RETURN
+     #XXXX: TABLE
             Mode: LINE_BREAK
-            Dispatcher ID: XXXX
-            RETURN
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: RETURN
+     #XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: XXXX
-            ERRONEOUS_ATOM(11), GOTO(XXXX)
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+            #XXXX: ERRONEOUS_ATOM(11), GOTO(#XXXX)
+     #XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: XXXX
-            ERRONEOUS_ATOM(12), GOTO(XXXX)
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+            #XXXX: ERRONEOUS_ATOM(12), GOTO(#XXXX)
+     #XXXX: TABLE
             Mode: ATOM
-            Dispatcher ID: XXXX
-            FAIL
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+            #XXXX: FAIL
+     #XXXX: TABLE
             Mode: ATOM
-            Dispatcher ID: XXXX
-            FAIL
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+            #XXXX: FAIL
+     #XXXX: TABLE
             Mode: ATOM
-            Dispatcher ID: XXXX
-            FAIL
-      XXXX: DISPATCHER
+            Dispatcher ID: #XXXX
+            #XXXX: FAIL
+     #XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 3
             Max CType: 1
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 96
             Max Break Elements: 99
             Max CType: 1
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 96
             Max Break Elements: 107
             Max CType: 1
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 9
             Max Break Elements: 9
             Max CType: 1
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <NUL>-. 0-
-                KEEP(1), CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: KEEP(1), CALL(#XXXX)
+                Dispatcher ID: #XXXX
             /
-                CALL(XXXX)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: CALL(#XXXX)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 98
             Max Break Elements: 101
             Max CType: 1
@@ -145,8 +145,8 @@
             <6FFFE>-<6FFFF> <7FFFE>-<7FFFF> <8FFFE>-<8FFFF>
             <9FFFE>-<9FFFF> <0AFFFE>-<0AFFFF> <0BFFFE>-<0BFFFF>
             <0CFFFE>-<0CFFFF> <0DFFFE>-<0DFFFF> <0EFFFE>-
-                KEEP(1), OUTPUT(6)
-                Dispatcher ID: XXXX
+               #XXXX: KEEP(1), OUTPUT(6)
+                Dispatcher ID: #XXXX
             A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
             <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
@@ -160,68 +160,69 @@
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                CALL(XXXX)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: CALL(#XXXX)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(XXXX), REQUIRE(XXXX), CALL(XXXX), ELSE:
-                MATCH(XXXX), REQUIRE(XXXX), ERRONEOUS_ATOM(14), ELSE:
-                MATCH(XXXX), ERRONEOUS_ATOM(15), ELSE:
-                KEEP(1), CALL(XXXX)
+               #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), CALL(#XXXX), ELSE:
+               #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ERRONEOUS_ATOM(14),
+                ELSE:
+               #XXXX: MATCH(#XXXX), ERRONEOUS_ATOM(15), ELSE:
+               #XXXX: KEEP(1), CALL(#XXXX)
 
 
 
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <NUL>-/ :-
-                KEEP(1), CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: KEEP(1), CALL(#XXXX)
+                Dispatcher ID: #XXXX
             0-9
-                KEEP(1), CALL(XXXX)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(1), CALL(#XXXX)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 98
             Max Break Elements: 101
             Max CType: 12
@@ -238,16 +239,16 @@
             <8FFFE>-<8FFFF> <9FFFE>-<9FFFF> <0AFFFE>-<0AFFFF>
             <0BFFFE>-<0BFFFF> <0CFFFE>-<0CFFFF> <0DFFFE>-<0DFFFF>
             <0EFFFE>-
-                ERRONEOUS_ATOM(13)
-                Dispatcher ID: XXXX
+               #XXXX: ERRONEOUS_ATOM(13)
+                Dispatcher ID: #XXXX
             /
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             <HT> <SP>
-                CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: CALL(#XXXX)
+                Dispatcher ID: #XXXX
             <LF>-<CR>
-                CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: CALL(#XXXX)
+                Dispatcher ID: #XXXX
             A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
             <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
@@ -261,79 +262,79 @@
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: CALL(#XXXX)
+                Dispatcher ID: #XXXX
             '
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             <
-                CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: CALL(#XXXX)
+                Dispatcher ID: #XXXX
             ! #-& *-+ - : =-@ ^-_ | ~
-                CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: CALL(#XXXX)
+                Dispatcher ID: #XXXX
             0-9
-                KEEP(0), CALL(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: KEEP(0), CALL(#XXXX)
+                Dispatcher ID: #XXXX
             .
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             (-) ; [ ] ` { }
-                OUTPUT(6)
-                Dispatcher ID: XXXX
+               #XXXX: OUTPUT(6)
+                Dispatcher ID: #XXXX
             ,
-                OUTPUT(6)
-                Dispatcher ID: XXXX
+               #XXXX: OUTPUT(6)
+                Dispatcher ID: #XXXX
             "
-                TRANSLATE_TO(0), CALL(XXXX)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(0), CALL(#XXXX)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <NUL>-<HT> <SO>-
-                ACCEPT
-                Dispatcher ID: XXXX
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
             <LF>-<CR>
-                KEEP(0), RETURN
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(0), RETURN
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <HT> <SP>
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <LF>-<CR>
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 98
             Max Break Elements: 101
             Max CType: 1
@@ -350,27 +351,28 @@
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(XXXX), REQUIRE(XXXX), ELSE:
-                TRANSLATE_TO(0), MATCH(XXXX), REQUIRE(XXXX),
+               #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
+               #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), REQUIRE(#XXXX),
                 ERRONEOUS_ATOM(14), ELSE:
-                TRANSLATE_TO(0), MATCH(XXXX), ERRONEOUS_ATOM(15), ELSE:
-                KEEP(0), RETURN
+               #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), ERRONEOUS_ATOM(15),
+                ELSE:
+               #XXXX: KEEP(0), RETURN
 
 
 
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 98
             Max Break Elements: 109
             Max CType: 3
@@ -386,1105 +388,1107 @@
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                ACCEPT
-                Dispatcher ID: XXXX
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
             '
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             <
-                KEEP(0), RETURN
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(0), RETURN
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <NUL>-/ :-
-                KEEP(1)
-                Dispatcher ID: XXXX
+               #XXXX: KEEP(1)
+                Dispatcher ID: #XXXX
             0-9
-                KEEP(0), RETURN
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(0), RETURN
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <NUL>-. 0-
-                KEEP(1)
-                Dispatcher ID: XXXX
+               #XXXX: KEEP(1)
+                Dispatcher ID: #XXXX
             /
-                KEEP(0), RETURN
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(0), RETURN
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(XXXX), REQUIRE(XXXX), ELSE:
-                KEEP(0), MATCH(XXXX), REQUIRE(XXXX), RETURN, ELSE:
-                TRANSLATE_TO(0), MATCH(XXXX), REQUIRE(XXXX),
+               #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
+               #XXXX: KEEP(0), MATCH(#XXXX), REQUIRE(#XXXX), RETURN, ELSE:
+               #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), REQUIRE(#XXXX),
                 ERRONEOUS_ATOM(14), ELSE:
-                TRANSLATE_TO(0), MATCH(XXXX), ERRONEOUS_ATOM(15), ELSE:
-                KEEP(1)
+               #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), ERRONEOUS_ATOM(15),
+                ELSE:
+               #XXXX: KEEP(1)
 
 
 
 
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 11
             Max Break Elements: 11
             Max CType: 4
             ! #-& *-+ - : =-@ ^-_ | ~ <300>-<36F> <1DC0>-<1DFF>
             <20D0>-<20FF> <0FE20>-<0FE2F>
-                ACCEPT
-                Dispatcher ID: XXXX
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
             .
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             /
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             <
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-                KEEP(2), GOTO(XXXX)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 1
-            , /
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
-            Break Elements: 1
-            Max Break Elements: 1
-            Max CType: 0
-      XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 1
-            0-9
-                KEEP(1), GOTO(XXXX)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 2
-            0-9
-                ACCEPT
-                Dispatcher ID: XXXX
-            .
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
-            Break Elements: 1
-            Max Break Elements: 1
-            Max CType: 0
-      XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 1
-            0-9
-                KEEP(2)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(2), GOTO(#XXXX)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             , /
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-                KEEP(1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(1), GOTO(#XXXX)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9
-                ACCEPT
-                Dispatcher ID: XXXX
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
             .
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            0-9
+               #XXXX: KEEP(2)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            , /
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            0-9
+               #XXXX: KEEP(1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            0-9
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+            .
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+     #XXXX: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 3
             <NUL>-<HT> <SO>-! #-; =-
-                ACCEPT
-                Dispatcher ID: XXXX
+               #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
             "
-                TRANSLATE_TO(0), RETURN
-                Dispatcher ID: XXXX
+               #XXXX: TRANSLATE_TO(0), RETURN
+                Dispatcher ID: #XXXX
             <
-                MATCH(XXXX), ELSE:
-                TRANSLATE_TO(0), MATCH(XXXX), ERRONEOUS_ATOM(16), ELSE:
-                ACCEPT
+               #XXXX: MATCH(#XXXX), ELSE:
+               #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), ERRONEOUS_ATOM(16),
+                ELSE:
+               #XXXX: ACCEPT
 
 
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             <LF>-<CR>
-                KEEP(0), GOTO(XXXX)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: KEEP(0), GOTO(#XXXX)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<ACK>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<ACK>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             K
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             C
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<BEL>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<BEL>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             L
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<BS>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<BS>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             E
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             S
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<CAN>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<CAN>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             N
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<CR>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<CR>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             A
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             R
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<DC1>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<DC1>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<DC2>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<DC2>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<DC3>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<DC3>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<DC4>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<DC4>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 4
             1
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             2
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             3
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             4
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<DEL>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<DEL>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             L
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<DLE>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(1,<DLE>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             E
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 3
             C
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             E
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             L
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<EM>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<EM>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<ENQ>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<ENQ>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             Q
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<EOT>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<EOT>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             T
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<ESC>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<ESC>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             C
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<ETB>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<ETB>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<ETX>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<ETX>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             B
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             X
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 5
             M
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             N
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             O
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             S
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             T
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<FF>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<FF>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<FS>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<FS>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             S
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<GS>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<GS>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             S
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<HT>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<HT>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             T
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<LF>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<LF>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             F
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<NAK>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<NAK>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             K
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<LF>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<LF>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<NUL>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<NUL>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             L
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 3
             A
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             L
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             U
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,")
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,")
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<RS>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<RS>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             S
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<SI>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<SI>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<SOH>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<SOH>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             H
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_TO(1,<SO>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<SO>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<SP>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<SP>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<STX>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<STX>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             X
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<SUB>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<SUB>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             B
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<SYN>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<SYN>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             N
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 6
             I
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             O
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             P
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             T
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             U
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             Y
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<US>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<US>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             S
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_TO(1,<VT>)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_TO(1,<VT>)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             T
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 16
             A
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             B
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             C
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             D
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             E
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             G
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             H
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             L
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             N
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             Q
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             R
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             S
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             U
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             V
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             0-9
-                MATCH(XXXX), ELSE:
-                FAIL
+                #XXXX: MATCH(#XXXX), ELSE:
+                #XXXX: FAIL
 
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             0-9 A-F
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                TRANSLATE_HEX(1,1)
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             - A-Z
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             - A-Z
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             - A-Z
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             - A-Z
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             - A-Z
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             - A-Z
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
             - A-Z
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             >
-                ACCEPT
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                #XXXX: ACCEPT
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             - A-Z
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             <
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-      XXXX: DISPATCHER
+     #XXXX: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0

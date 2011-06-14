@@ -1,7 +1,7 @@
 Uncooked Program 1:
 
-      XXXX: PROGRAM
-            Initial Table ID: XXXX
+     #XXXX: PROGRAM
+            Initial Table ID: #XXXX
             Max Type: 6
                  0: WHITESPACE
                  1: ERROR
@@ -10,45 +10,45 @@ Uncooked Program 1:
                  4: NUMBER
                  5: OPERATOR
                  6: SEPARATOR
-      XXXX: TABLE
+     #XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: XXXX
-            Instruction ID: XXXX
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: TABLE
             Mode: SYMBOL
-            Dispatcher ID: XXXX
-            Instruction ID: XXXX
-      XXXX: DISPATCHER
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 11
             Max CType: 4
             Breaks:             cmin     type_map_ID
-                               <NUL>            XXXX
-                                   0            XXXX
-                                   :            XXXX
-                                   a            XXXX
-                                   {            XXXX
+                               <NUL>           #XXXX
+                                   0           #XXXX
+                                   :           #XXXX
+                                   a           #XXXX
+                                   {           #XXXX
             Map:   CType:    dispatcher_ID  instruction_ID
-                       0:             XXXX            XXXX
-                       1:             XXXX            XXXX
-                       2:             XXXX            XXXX
-                       3:             XXXX            XXXX
-                       4:             XXXX            XXXX
-      XXXX: TYPE_MAP
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+     #XXXX: TYPE_MAP
                0: 0
                1: 1 9
                2: 2 8
                3: 3 7
                4: 4 6
                5: 5
-      XXXX: TYPE_MAP
+     #XXXX: TYPE_MAP
                4: a-z
-      XXXX: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(XXXX)
-      XXXX: ACCEPT
+     #XXXX: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(#XXXX)
+     #XXXX: ACCEPT
 Cooked Program 1:
 
-      XXXX: PROGRAM
-            Initial Table ID: XXXX
+     #XXXX: PROGRAM
+            Initial Table ID: #XXXX
             Max Type: 6
                  0: WHITESPACE
                  1: ERROR
@@ -57,27 +57,27 @@ Cooked Program 1:
                  4: NUMBER
                  5: OPERATOR
                  6: SEPARATOR
-      XXXX: TABLE
+     #XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: XXXX
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+     #XXXX: TABLE
             Mode: SYMBOL
-            Dispatcher ID: XXXX
-            KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(XXXX)
-      XXXX: DISPATCHER
+            Dispatcher ID: #XXXX
+           #XXXX: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 11
             Max CType: 4
             1 9
-                KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(XXXX)
+               #XXXX: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(#XXXX)
             2 8
-                Dispatcher ID: XXXX
+                Dispatcher ID: #XXXX
             4 6 a-z
-                ACCEPT
+               #XXXX: ACCEPT
 Cooked Program 2:
 
-      XXXX: PROGRAM
-            Initial Table ID: XXXX
+     #XXXX: PROGRAM
+            Initial Table ID: #XXXX
             Max Type: 6
                  0: WHITESPACE
                  1: ERROR
@@ -86,136 +86,136 @@ Cooked Program 2:
                  4: NUMBER
                  5: OPERATOR
                  6: SEPARATOR
-      XXXX: TABLE
+     #XXXX: TABLE
             Mode: MASTER
-            Dispatcher ID: XXXX
-            OUTPUT(2)
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: OUTPUT(2)
+     #XXXX: TABLE
             Mode: ATOM
-            Dispatcher ID: XXXX
-            FAIL
-      XXXX: DISPATCHER
+            Dispatcher ID: #XXXX
+           #XXXX: FAIL
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             \
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                Dispatcher ID: XXXX
-      XXXX: DISPATCHER
+                Dispatcher ID: #XXXX
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
             0-7
-                TRANSLATE_OCT(1,0), ELSE:
-                FAIL
+               #XXXX: TRANSLATE_OCT(1,0), ELSE:
+               #XXXX: FAIL
 
-      XXXX: TABLE
+     #XXXX: TABLE
             Mode: WHITESPACE
-            Dispatcher ID: XXXX
-            KEEP(0), GOTO(XXXX)
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: TABLE
             Mode: SYMBOL
-            Dispatcher ID: XXXX
-            KEEP(0), RETURN
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: KEEP(0), RETURN
+     #XXXX: TABLE
             Mode: NUMBER
-            Dispatcher ID: XXXX
-            KEEP(0), GOTO(XXXX)
-      XXXX: TABLE
+            Dispatcher ID: #XXXX
+           #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: TABLE
             Mode: OPERATOR
-            Dispatcher ID: XXXX
-            KEEP(0), GOTO(XXXX)
-      XXXX: DISPATCHER
+            Dispatcher ID: #XXXX
+           #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
             <NUL>-<BS> <SO>-<US> !-' : <-@ ^-` | ~ <80>-
-                OUTPUT(1)
+               #XXXX: OUTPUT(1)
             <HT>-<CR> <SP>
-                GOTO(XXXX)
+               #XXXX: GOTO(#XXXX)
             A-Z \ a-z
-                KEEP(0), CALL(XXXX)
+               #XXXX: KEEP(0), CALL(#XXXX)
             . 0-9
-                KEEP(0), GOTO(XXXX)
+               #XXXX: KEEP(0), GOTO(#XXXX)
             (-) , ; [ ] { }
-                OUTPUT(6)
+               #XXXX: OUTPUT(6)
             *-+ - /
-                KEEP(0), GOTO(XXXX)
-      XXXX: DISPATCHER
+               #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
             0-9 A-Z a-z
-                ACCEPT
+               #XXXX: ACCEPT
             \
-                MATCH(XXXX), REQUIRE(XXXX), ELSE:
-                TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+               #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
+               #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
             <DEL>
-                TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-      XXXX: DISPATCHER
+               #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+     #XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max CType: 2
-      XXXX: TABLE
+     #XXXX: TABLE
             Mode: NUMBER
-            Dispatcher ID: XXXX
-            KEEP(0), GOTO(XXXX)
-      XXXX: DISPATCHER
+            Dispatcher ID: #XXXX
+           #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
             Max CType: 10
             0-9
-                GOTO(XXXX)
+               #XXXX: GOTO(#XXXX)
             .
-                GOTO(XXXX)
-      XXXX: DISPATCHER
+               #XXXX: GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 10
             0-9
-                GOTO(XXXX)
-      XXXX: DISPATCHER
+               #XXXX: GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
             <HT>-<CR> <SP>
-                GOTO(XXXX)
-      XXXX: DISPATCHER
+               #XXXX: GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 8
             Max Break Elements: 10
             Max CType: 10
             +
-                GOTO(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: GOTO(#XXXX)
+                Dispatcher ID: #XXXX
             -
-                GOTO(XXXX)
-                Dispatcher ID: XXXX
+               #XXXX: GOTO(#XXXX)
+                Dispatcher ID: #XXXX
             * /
-                GOTO(XXXX)
-      XXXX: DISPATCHER
+               #XXXX: GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max CType: 10
             +
-                GOTO(XXXX)
-      XXXX: DISPATCHER
+               #XXXX: GOTO(#XXXX)
+     #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
             Max CType: 10
             -
-                GOTO(XXXX)
+               #XXXX: GOTO(#XXXX)
 
 Testing Lexical Scan of:
     <SP>ab<SP>3.4<SP>x+y++z<LF>
@@ -265,248 +265,248 @@ Scan Returned: END_OF_FILE 1(0)0: <empty>
 Testing Lexical Scan of:
     *a**b+++c(+d<DEL>e%f0--1.2.3<SOH><STX>A\102C\100D\10E<LF>
 
-Start atom scan: table = XXXX
-  Character = * Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = * Dispatcher = XXXX Type Map = XXXX CType = 3
-  GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: GOTO(#XXXX)
 Scan Returned: OPERATOR 0(0)0: *
-Start atom scan: table = XXXX
-  Character = a Dispatcher = XXXX Type Map = XXXX CType = 2
-  KEEP(0), CALL(XXXX)
-Start atom scan: table = XXXX
-  Character = a Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = * Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), RETURN
+Start atom scan: table = #XXXX
+  Character = a Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: KEEP(0), CALL(#XXXX)
+Start atom scan: table = #XXXX
+  Character = a Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(1)1: a
-Start atom scan: table = XXXX
-  Character = * Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = * Dispatcher = XXXX Type Map = XXXX CType = 3
-  GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: GOTO(#XXXX)
 Scan Returned: OPERATOR 0(2)2: *
-Start atom scan: table = XXXX
-  Character = * Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = * Dispatcher = XXXX Type Map = XXXX CType = 3
-  GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: GOTO(#XXXX)
 Scan Returned: OPERATOR 0(3)3: *
-Start atom scan: table = XXXX
-  Character = b Dispatcher = XXXX Type Map = XXXX CType = 2
-  KEEP(0), CALL(XXXX)
-Start atom scan: table = XXXX
-  Character = b Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), RETURN
+Start atom scan: table = #XXXX
+  Character = b Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: KEEP(0), CALL(#XXXX)
+Start atom scan: table = #XXXX
+  Character = b Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(4)4: b
-Start atom scan: table = XXXX
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 1
-  GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: GOTO(#XXXX)
 Scan Returned: OPERATOR 0(5)5: ++
-Start atom scan: table = XXXX
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = c Dispatcher = XXXX CType = 0
-  GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = c Dispatcher = #XXXX CType = 0
+  #XXXX: GOTO(#XXXX)
 Scan Returned: OPERATOR 0(7)7: +
-Start atom scan: table = XXXX
-  Character = c Dispatcher = XXXX Type Map = XXXX CType = 2
-  KEEP(0), CALL(XXXX)
-Start atom scan: table = XXXX
-  Character = c Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = ( Dispatcher = XXXX Type Map = XXXX CType = 5
-  KEEP(0), RETURN
+Start atom scan: table = #XXXX
+  Character = c Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: KEEP(0), CALL(#XXXX)
+Start atom scan: table = #XXXX
+  Character = c Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = ( Dispatcher = #XXXX Type Map = #XXXX CType = 5
+  #XXXX: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(8)8: c
-Start atom scan: table = XXXX
-  Character = ( Dispatcher = XXXX Type Map = XXXX CType = 5
-  OUTPUT(6)
+Start atom scan: table = #XXXX
+  Character = ( Dispatcher = #XXXX Type Map = #XXXX CType = 5
+  #XXXX: OUTPUT(6)
 Scan Returned: SEPARATOR 0(9)9: (
-Start atom scan: table = XXXX
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = + Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = d Dispatcher = XXXX CType = 0
-  GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = d Dispatcher = #XXXX CType = 0
+  #XXXX: GOTO(#XXXX)
 Scan Returned: OPERATOR 0(10)10: +
-Start atom scan: table = XXXX
-  Character = d Dispatcher = XXXX Type Map = XXXX CType = 2
-  KEEP(0), CALL(XXXX)
-Start atom scan: table = XXXX
-  Character = d Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = <DEL> Dispatcher = XXXX Type Map = XXXX CType = 8
-  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+Start atom scan: table = #XXXX
+  Character = d Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: KEEP(0), CALL(#XXXX)
+Start atom scan: table = #XXXX
+  Character = d Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = <DEL> Dispatcher = #XXXX Type Map = #XXXX CType = 8
+  #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 ERRONEOUS ATOM: TYPE (100) 0(12)12: <DEL>
-Start atom scan: table = XXXX
-  Character = e Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = % Dispatcher = XXXX Type Map = XXXX CType = 0
-  KEEP(0), RETURN
+Start atom scan: table = #XXXX
+  Character = e Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = % Dispatcher = #XXXX Type Map = #XXXX CType = 0
+  #XXXX: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(11)11: d<DEL>e translated to: de
-Start atom scan: table = XXXX
-  Character = % Dispatcher = XXXX Type Map = XXXX CType = 0
-  OUTPUT(1)
+Start atom scan: table = #XXXX
+  Character = % Dispatcher = #XXXX Type Map = #XXXX CType = 0
+  #XXXX: OUTPUT(1)
 Scan Returned: ERROR 0(14)13: %
-Start atom scan: table = XXXX
-  Character = f Dispatcher = XXXX Type Map = XXXX CType = 2
-  KEEP(0), CALL(XXXX)
-Start atom scan: table = XXXX
-  Character = f Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 3
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = - Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), RETURN
+Start atom scan: table = #XXXX
+  Character = f Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: KEEP(0), CALL(#XXXX)
+Start atom scan: table = #XXXX
+  Character = f Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(15)14: f0
-Start atom scan: table = XXXX
-  Character = - Dispatcher = XXXX Type Map = XXXX CType = 6
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = - Dispatcher = XXXX Type Map = XXXX CType = 2
-  Character = - Dispatcher = XXXX Type Map = XXXX CType = 2
-  GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 6
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: GOTO(#XXXX)
 Scan Returned: OPERATOR 0(17)16: --
-Start atom scan: table = XXXX
-  Character = 1 Dispatcher = XXXX Type Map = XXXX CType = 3
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = 1 Dispatcher = XXXX Type Map = XXXX CType = 1
-  GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = . Dispatcher = XXXX Type Map = XXXX CType = 2
-  GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = 2 Dispatcher = XXXX Type Map = XXXX CType = 1
-  GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = . Dispatcher = XXXX CType = 0
-  KEEP(0), GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = . Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = 2 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = . Dispatcher = #XXXX CType = 0
+  #XXXX: KEEP(0), GOTO(#XXXX)
 Scan Returned: NUMBER 0(19)18: 1.2
-Start atom scan: table = XXXX
-  Character = . Dispatcher = XXXX Type Map = XXXX CType = 4
-  KEEP(0), GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = . Dispatcher = XXXX Type Map = XXXX CType = 2
-  GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = 3 Dispatcher = XXXX Type Map = XXXX CType = 1
-  GOTO(XXXX)
-Start atom scan: table = XXXX
-  Character = <SOH> Dispatcher = XXXX CType = 0
-  KEEP(0), GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = . Dispatcher = #XXXX Type Map = #XXXX CType = 4
+  #XXXX: KEEP(0), GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = . Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = 3 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  Character = <SOH> Dispatcher = #XXXX CType = 0
+  #XXXX: KEEP(0), GOTO(#XXXX)
 Scan Returned: NUMBER 0(22)21: .3
-Start atom scan: table = XXXX
-  Character = <SOH> Dispatcher = XXXX Type Map = XXXX CType = 0
-  OUTPUT(1)
+Start atom scan: table = #XXXX
+  Character = <SOH> Dispatcher = #XXXX Type Map = #XXXX CType = 0
+  #XXXX: OUTPUT(1)
 Scan Returned: ERROR 0(24)23: <SOH>
-Start atom scan: table = XXXX
-  Character = <STX> Dispatcher = XXXX Type Map = XXXX CType = 0
-  OUTPUT(1)
+Start atom scan: table = #XXXX
+  Character = <STX> Dispatcher = #XXXX Type Map = #XXXX CType = 0
+  #XXXX: OUTPUT(1)
 Scan Returned: ERROR 0(25)23: <STX>
-Start atom scan: table = XXXX
-  Character = A Dispatcher = XXXX Type Map = XXXX CType = 2
-  KEEP(0), CALL(XXXX)
-Start atom scan: table = XXXX
-  Character = A Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = \ Dispatcher = XXXX Type Map = XXXX CType = 7
-  MATCH(XXXX), REQUIRE(XXXX), ELSE:
-  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+Start atom scan: table = #XXXX
+  Character = A Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: KEEP(0), CALL(#XXXX)
+Start atom scan: table = #XXXX
+  Character = A Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 7
+  #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
+  #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
-Start atom scan: table = XXXX
-  Character = \ Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 1 Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 2 Dispatcher = XXXX Type Map = XXXX CType = 1
-  TRANSLATE_OCT(1,0), ELSE:
-  FAIL
+Start atom scan: table = #XXXX
+  Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 2 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: TRANSLATE_OCT(1,0), ELSE:
+  #XXXX: FAIL
 
-  Character = B Dispatcher = XXXX Type Map = XXXX CType = 1
-Start atom scan: table = XXXX
-  Character = C Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = \ Dispatcher = XXXX Type Map = XXXX CType = 7
-  MATCH(XXXX), REQUIRE(XXXX), ELSE:
-  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+  Character = B Dispatcher = #XXXX Type Map = #XXXX CType = 1
+Start atom scan: table = #XXXX
+  Character = C Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 7
+  #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
+  #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
-Start atom scan: table = XXXX
-  Character = \ Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 1 Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 1
-  TRANSLATE_OCT(1,0), ELSE:
-  FAIL
+Start atom scan: table = #XXXX
+  Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: TRANSLATE_OCT(1,0), ELSE:
+  #XXXX: FAIL
 
-  Character = @ Dispatcher = XXXX CType = 0
-  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+  Character = @ Dispatcher = #XXXX CType = 0
+  #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 ERRONEOUS ATOM: TYPE (100) 0(32)29: \
-Start atom scan: table = XXXX
-  Character = 1 Dispatcher = XXXX Type Map = XXXX CType = 3
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 3
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 3
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = D Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = \ Dispatcher = XXXX Type Map = XXXX CType = 7
-  MATCH(XXXX), REQUIRE(XXXX), ELSE:
-  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+Start atom scan: table = #XXXX
+  Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = D Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 7
+  #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
+  #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 
-Start atom scan: table = XXXX
-  Character = \ Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 1 Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 1
-  Character = E Dispatcher = XXXX CType = 0
-  FAIL
-  TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+Start atom scan: table = #XXXX
+  Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  Character = E Dispatcher = #XXXX CType = 0
+  #XXXX: FAIL
+  #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 ERRONEOUS ATOM: TYPE (100) 0(37)34: \
-Start atom scan: table = XXXX
-  Character = 1 Dispatcher = XXXX Type Map = XXXX CType = 3
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = 0 Dispatcher = XXXX Type Map = XXXX CType = 3
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = E Dispatcher = XXXX Type Map = XXXX CType = 2
-  ACCEPT
-Start atom scan: table = XXXX
-  Character = <LF> Dispatcher = XXXX Type Map = XXXX CType = 1
-  KEEP(0), RETURN
+Start atom scan: table = #XXXX
+  Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 3
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = E Dispatcher = #XXXX Type Map = #XXXX CType = 2
+  #XXXX: ACCEPT
+Start atom scan: table = #XXXX
+  Character = <LF> Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(26)23: A\102C\100D\10E
      translated to: ABC100D10E
-Start atom scan: table = XXXX
-  Character = <LF> Dispatcher = XXXX Type Map = XXXX CType = 1
-  GOTO(XXXX)
-Start atom scan: table = XXXX
-  KEEP(0), GOTO(XXXX)
+Start atom scan: table = #XXXX
+  Character = <LF> Dispatcher = #XXXX Type Map = #XXXX CType = 1
+  #XXXX: GOTO(#XXXX)
+Start atom scan: table = #XXXX
+  #XXXX: KEEP(0), GOTO(#XXXX)
 Scan Returned: WHITESPACE 0(41)38: <LF>
-Start atom scan: table = XXXX
-  OUTPUT(2)
+Start atom scan: table = #XXXX
+  #XXXX: OUTPUT(2)
 Scan Returned: END_OF_FILE 1(0)0: <empty>

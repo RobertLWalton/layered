@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 6, 2011
+June 14, 2011
  
 \end{center}
 
@@ -356,7 +356,7 @@ lexeme translation.
 The scanner has a state containing a current point 
 in the input UNICODE character stream,
 a \key{current lexical table} identifier, a \key{current lexeme type}
-which may be {\tt NONE}, and a \key{return stack}
+which may be `{\tt none}', and a \key{return stack}
 of lexical table identifiers.  A
 \key{lexical table} is a set of atom patterns
 that match atoms, and for each pattern an
@@ -405,11 +405,12 @@ instruction can optionally reduce the length of a matched atom
 and optionally change the current lexical table.  It can also do other
 things described below.
 
-There are three kinds of lexical tables:
+There are four kinds of lexical tables:
 \mkey{master}{lexical table} tables,
-\mkey{lexeme}{lexical table} tables, and
+\mkey{lexeme}{lexical table} tables,
+\mkey{sublexeme}{lexical table} tables, and
 \mkey{atom}{lexical table} tables.
-Master tables are used to dispatch to lexeme tables which
+Master tables are used to dispatch to lexeme or sublexeme tables which
 typically recognize lexemes.  Atom tables are used
 to recognize atoms whose patterns are logically the union
 of a finite set of patterns.
@@ -419,18 +420,23 @@ one master table that dispatches to different lexeme tables,
 one to recognize identifiers, one to recognize numbers, one to
 recognize whitespace, and one to recognize comments.
 
-Lexeme tables have optional \ikey{types}{type!of lexeme table}.
-When the current lexical table becomes a lexeme table with a type
-other than {\tt NONE},
+Lexeme tables have \ikey{types}{type!of lexeme table}.
+When the current lexical table becomes a lexeme table,
 the current lexeme type is set equal to the type of that table.
+The `{\tt ouput} {\em type}' and `{\tt output none}'
+instruction components can also be
+used to change the current lexeme type.
+
+Sublexeme tables are just like lexeme tables except they
+have no associated type and do not reset the current lexeme type.
 
 Upon finishing the execution of an instruction, if the
 current lexical table is a master table,
 the currently accumulated lexeme is output
-with the current lexeme type, if that is not {\tt NONE}, or the
+with the current lexeme type, if that is not `{\tt none}', or the
 currently accumulated lexeme is discarded if the current lexeme
-type is {\tt NONE}.
-The current lexeme type is reset to {\tt NONE} whenever
+type is `{\tt none}'.
+The current lexeme type is reset to `{\tt none}' whenever
 the current lexical table becomes a master table.
 
 Thus if an lexical table of
@@ -742,11 +748,12 @@ The syntax of a lexical program is specified on
 		      {\em lexical-table-kind} {\tt table} {\tt ;}
 \\[1ex]
 \emkey{lexical-table-kind} & ::= &
-    {\tt master} $|$ {\tt lexeme} $|$ {\tt atom}
+    {\tt master} $|$ {\tt lexeme} $|$ {\tt sublexeme} $|$ {\tt atom}
 \\[1ex]
-\emkey{lexical-table-name} & ::= & {\em type}
+\emkey{lexical-table-name} & ::=
+    & {\em name} except {\tt scan error} or {\tt none}
 \\[1ex]
-\emkey{type} & ::= & {\em name} except {\tt scan error}
+\emkey{type} & ::= & {\em name} except {\tt scan error} or {\tt none}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
@@ -782,15 +789,20 @@ The syntax of a lexical program is specified on
 	& $|$ & {\tt require} {\em atom-pattern} \\
 	& $|$ & {\tt error} {\em type} \\
 	& $|$ & {\tt output} {\em type} \\
+	& $|$ & {\tt output} {\tt none} \\
 	& $|$ & {\tt goto} {\em master-table-name} \\
 	& $|$ & {\tt goto} {\em lexeme-table-name} \\
+	& $|$ & {\tt goto} {\em sublexeme-table-name} \\
 	& $|$ & {\tt call} {\em lexeme-table-name} \\
+	& $|$ & {\tt call} {\em sublexeme-table-name} \\
 	& $|$ & {\tt return} \\
 	& $|$ & {\tt fail} \\
 \\[1ex]
 \emkey{atom-table-name} & ::= & {\em lexical-table-name}
 \\[1ex]
 \emkey{lexeme-table-name} & ::= & {\em lexical-table-name}
+\\[1ex]
+\emkey{sublexeme-table-name} & ::= & {\em lexical-table-name}
 \\[1ex]
 \emkey{master-table-name} & ::= & {\em lexical-table-name}
 \\[1ex]
@@ -949,21 +961,24 @@ no atom is recognized by any of the table entries.
 
 The {\em lexical-table-kinds} are
 \mkey{master}{lexical table kind},
-\mkey{lexeme}{lexical table kind}, or
+\mkey{lexeme}{lexical table kind},
+\mkey{sublexeme}{lexical table kind}, or
 \mkey{atom}{lexical table kind}.
 In a master table {\em atom-patterns} are typically associated
 with {\tt goto} or {\tt call} instructions
 that change the current table from the
-master table to a lexeme table.  In a lexeme table {\em atom-patterns}
+master table to a lexeme or sublexeme table.
+In a lexeme or sublexeme table {\em atom-patterns}
 are typically associated with {\tt accept} instructions which
 accept the matched atom as part of the current lexeme.  In a lexeme
+or sublexeme
 table the default instruction is typically a {\tt goto} or {\tt return}
 back to a
 master table, and because this changes the current lexical table
 to a master table, it causes any accumulated lexeme
 to be output with its lexeme type being the current lexeme type
-if that is not {\tt NONE}, or it causes any accumulated lexeme
-to be discarded if the current lexeme type is {\tt NONE}.
+if that is not `{\tt none}', or it causes any accumulated lexeme
+to be discarded if the current lexeme type is `{\tt none}'.
 
 Atom tables permit sets of atom patterns to be used in
 several places without copying all the patterns.  Details are
@@ -1358,22 +1373,20 @@ had been used instead the translation would have been the ASCII delete
 Upon finishing the execution of an instruction, if the
 current lexical table is a master table,
 the currently accumulated lexeme is output
-with the current lexeme type, if that is not {\tt NONE}, or the
+with the current lexeme type, if that is not `{\tt none}', or the
 currently accumulated lexeme is discarded if the current lexeme
-type is {\tt NONE}.
-The current lexeme type is reset to {\tt NONE} whenever
+type is `{\tt none}'.
+The current lexeme type is reset to `{\tt none}' whenever
 the current lexical table becomes a master table.
 
 \subsubsubsection{Goto, Call, Return, and Fail Instruction Components}
 
 A `\ttmkey{goto}{in lexical program} {\em lexical-table-name}\,'
 {\em instruction-component} switches the current lexical table after
-the current atom is processed.  If the table switches from a lexeme table
-to a master table,
-if the instruction contains no `{\tt output}' component,
-and if the current lexeme is of non-zero length, then the current
-lexeme is output with the {\em type} of the lexeme table containing
-the `{\tt goto}' instruction component.
+the current atom is processed.  If the table switches
+to a master table and the current lexeme type is not `{\tt none}',
+then the current lexeme is output with the
+current lexeme type as its type.
 
 A `\ttmkey{call}{in lexical program} {\em lexeme-table-name}\,'
 {\em instruction-component} is just like `{\tt goto}' except
@@ -1383,6 +1396,8 @@ The \key{return stack} is a stack of up to 16 lexical table identifiers
 used by the `{\tt call}' and `{\tt return}' instruction components
 and also by the `{\tt match} {\em atom-table-name}'
 instruction components.  Recursive calls are prohibited.
+Whenever a master table becomes the current lexical table, the
+return stack is cleared.
 
 A `\ttmkey{return}{in lexical program}'
 {\em instruction-component} is just like `{\tt goto}' except
@@ -1394,7 +1409,7 @@ The return stack is set to empty whenever the current lexical table
 becomes a master table.
 A {\tt call} \underline{cannot} be used
 to call a master or atom table.  A {\tt return} can only
-appear in a lexeme table.
+appear in a lexeme or sublexeme table.
 A {\tt goto} \underline{cannot} be used to go to an atom table.
 
 The `{\tt call}' and `{\tt goto}' instruction components
@@ -1407,8 +1422,8 @@ could be used together, they would have the same affect as
 a simple `{\tt goto}')
 
 The `{\tt call}' and `{\tt return}' instruction components
-permit a lexeme table to be shared among different
-master and lexeme tables.  For example, a lexeme table to scan
+permit a lexeme or sublexeme table to be shared among different
+master, lexeme, and sublexeme tables.  For example, a lexeme table to scan
 a comment lexeme may be shared among several master tables;
 see Appendix \itemref{C++-LEXICAL-PROGRAM} for examples.
 

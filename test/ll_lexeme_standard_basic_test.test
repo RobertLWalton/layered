@@ -40,10 +40,10 @@
       XXXX: TABLE
             Mode: QUOTED_STRING
             Dispatcher ID: XXXX
-            GOTO(127)
+            GOTO(XXXX)
       XXXX: TABLE
             Mode: SEPARATOR
-            Dispatcher ID: XXXX
+            Dispatcher ID: 0
       XXXX: TABLE
             Mode: COMMENT
             Dispatcher ID: XXXX
@@ -58,11 +58,11 @@
       XXXX: TABLE
             Mode: MASTER
             Dispatcher ID: XXXX
-            ERRONEOUS_ATOM(11), GOTO(83)
+            ERRONEOUS_ATOM(11), GOTO(XXXX)
       XXXX: TABLE
             Mode: MASTER
             Dispatcher ID: XXXX
-            ERRONEOUS_ATOM(12), GOTO(83)
+            ERRONEOUS_ATOM(12), GOTO(XXXX)
       XXXX: TABLE
             Mode: ATOM
             Dispatcher ID: XXXX
@@ -104,10 +104,10 @@
             Max Break Elements: 3
             Max CType: 1
             <NUL>-. 0-
-                KEEP(1), CALL(99)
+                KEEP(1), CALL(XXXX)
                 Dispatcher ID: XXXX
             /
-                CALL(111)
+                CALL(XXXX)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -160,7 +160,7 @@
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                CALL(87)
+                CALL(XXXX)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -171,10 +171,10 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(135), REQUIRE(161), CALL(87), ELSE:
-                MATCH(135), REQUIRE(143), ERRONEOUS_ATOM(14), ELSE:
-                MATCH(135), ERRONEOUS_ATOM(15), ELSE:
-                KEEP(1), CALL(99)
+                MATCH(XXXX), REQUIRE(XXXX), CALL(XXXX), ELSE:
+                MATCH(XXXX), REQUIRE(XXXX), ERRONEOUS_ATOM(14), ELSE:
+                MATCH(XXXX), ERRONEOUS_ATOM(15), ELSE:
+                KEEP(1), CALL(XXXX)
 
 
 
@@ -200,10 +200,10 @@
             Max Break Elements: 3
             Max CType: 1
             <NUL>-/ :-
-                KEEP(1), CALL(99)
+                KEEP(1), CALL(XXXX)
                 Dispatcher ID: XXXX
             0-9
-                KEEP(1), CALL(95)
+                KEEP(1), CALL(XXXX)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -243,10 +243,10 @@
             /
                 Dispatcher ID: XXXX
             <HT> <SP>
-                CALL(115)
+                CALL(XXXX)
                 Dispatcher ID: XXXX
             <LF>-<CR>
-                CALL(119)
+                CALL(XXXX)
                 Dispatcher ID: XXXX
             A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
@@ -261,18 +261,18 @@
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
             <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
             <0E0000>-<0EFFFD>
-                CALL(87)
+                CALL(XXXX)
                 Dispatcher ID: XXXX
             '
                 Dispatcher ID: XXXX
             <
-                CALL(99)
+                CALL(XXXX)
                 Dispatcher ID: XXXX
             ! #-& *-+ - : =-@ ^-_ | ~
-                CALL(99)
+                CALL(XXXX)
                 Dispatcher ID: XXXX
             0-9
-                KEEP(0), CALL(91)
+                KEEP(0), CALL(XXXX)
                 Dispatcher ID: XXXX
             .
                 Dispatcher ID: XXXX
@@ -283,7 +283,7 @@
                 OUTPUT(6)
                 Dispatcher ID: XXXX
             "
-                TRANSLATE_TO(0), CALL(103)
+                TRANSLATE_TO(0), CALL(XXXX)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -361,10 +361,10 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(135), REQUIRE(563), ELSE:
-                TRANSLATE_TO(0), MATCH(135), REQUIRE(143),
+                MATCH(XXXX), REQUIRE(XXXX), ELSE:
+                TRANSLATE_TO(0), MATCH(XXXX), REQUIRE(XXXX),
                 ERRONEOUS_ATOM(14), ELSE:
-                TRANSLATE_TO(0), MATCH(135), ERRONEOUS_ATOM(15), ELSE:
+                TRANSLATE_TO(0), MATCH(XXXX), ERRONEOUS_ATOM(15), ELSE:
                 KEEP(0), RETURN
 
 
@@ -442,11 +442,11 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                MATCH(135), REQUIRE(997), ELSE:
-                KEEP(0), MATCH(135), REQUIRE(161), RETURN, ELSE:
-                TRANSLATE_TO(0), MATCH(135), REQUIRE(143),
+                MATCH(XXXX), REQUIRE(XXXX), ELSE:
+                KEEP(0), MATCH(XXXX), REQUIRE(XXXX), RETURN, ELSE:
+                TRANSLATE_TO(0), MATCH(XXXX), REQUIRE(XXXX),
                 ERRONEOUS_ATOM(14), ELSE:
-                TRANSLATE_TO(0), MATCH(135), ERRONEOUS_ATOM(15), ELSE:
+                TRANSLATE_TO(0), MATCH(XXXX), ERRONEOUS_ATOM(15), ELSE:
                 KEEP(1)
 
 
@@ -477,7 +477,7 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                KEEP(2), GOTO(95)
+                KEEP(2), GOTO(XXXX)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 3
@@ -494,7 +494,7 @@
             Max Break Elements: 3
             Max CType: 1
             0-9
-                KEEP(1), GOTO(95)
+                KEEP(1), GOTO(XXXX)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 3
@@ -569,14 +569,14 @@
                 TRANSLATE_TO(0), RETURN
                 Dispatcher ID: XXXX
             <
-                MATCH(131), ELSE:
-                TRANSLATE_TO(0), MATCH(139), ERRONEOUS_ATOM(16), ELSE:
+                MATCH(XXXX), ELSE:
+                TRANSLATE_TO(0), MATCH(XXXX), ERRONEOUS_ATOM(16), ELSE:
                 ACCEPT
 
 
                 Dispatcher ID: XXXX
             <LF>-<CR>
-                KEEP(0), GOTO(123)
+                KEEP(0), GOTO(XXXX)
                 Dispatcher ID: XXXX
       XXXX: DISPATCHER
             Break Elements: 1
@@ -1229,7 +1229,7 @@
             V
                 Dispatcher ID: XXXX
             0-9
-                MATCH(135), ELSE:
+                MATCH(XXXX), ELSE:
                 FAIL
 
                 Dispatcher ID: XXXX

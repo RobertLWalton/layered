@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 13:02:56 EST 2010
+// Date:	Mon Jun 13 18:58:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,8 +30,12 @@ namespace ll { namespace lexeme
     { namespace program_data {
 
 // All component headers begin with a program component
-// type, a.k.a. `pctype'.  See ll_lexeme.h for the
-// definitions of program component types.
+// type, a.k.a. `pctype', immediately followed by a
+// line_number.  See ll_lexeme.h for the definitions of
+// program component types.
+//
+// If the line_number is non-zero, then `#line-number'
+// should be printed in place of the component ID.
 
 // A program begins with a program header.  This is
 // `ID' == 0 always, but this is never returned to the
@@ -61,11 +65,12 @@ namespace ll { namespace lexeme
 //
 struct program_header {
     uns32 pctype;		// == PROGRAM
+    uns32 line_number;
     uns32 initial_table_ID;	// Initial master table.
     uns32 max_type;
     uns32 component_length;
 };
-const uns32 program_header_length = 4;
+const uns32 program_header_length = 5;
 
 // A (lexical) table consists of just a header which
 // records the mode, the dispatcher for the first char-
@@ -74,11 +79,12 @@ const uns32 program_header_length = 4;
 //
 struct table_header {
     uns32 pctype;		// == TABLE
+    uns32 line_number;
     uns32 mode;
     uns32 dispatcher_ID;
     uns32 instruction_ID;
 };
-const uns32 table_header_length = 4;
+const uns32 table_header_length = 5;
 
 // The format of a dispatcher is
 //
@@ -126,11 +132,12 @@ const uns32 table_header_length = 4;
 //
 struct dispatcher_header {
     uns32 pctype;		// == DISPATCHER
+    uns32 line_number;
     uns32 break_elements;
     uns32 max_break_elements;
     uns32 max_ctype;
 };
-const uns32 dispatcher_header_length = 4;
+const uns32 dispatcher_header_length = 5;
 struct break_element {
     uns32 cmin;
     uns32 type_map_ID;
@@ -152,10 +159,11 @@ const uns32 map_element_length = 2;
 //
 struct type_map_header {
     uns32 pctype;	    // == TYPE_MAP
+    uns32 line_number;
     uns32 cmin, cmax;	    // Character range.
     uns32 singleton_ctype;  // If 0 use vector.
 };
-const uns32 type_map_header_length = 4;
+const uns32 type_map_header_length = 5;
 
 // Instruction.  If operation includes TRANSLATE_TO(n)
 // this is followed by the n uns32 characters of the
@@ -163,6 +171,7 @@ const uns32 type_map_header_length = 4;
 //
 struct instruction_header {
     uns32 pctype;	    // == INSTRUCTION
+    uns32 line_number;
     uns32 operation;
     uns32 atom_table_ID;
     uns32 require_dispatcher_ID;
@@ -172,7 +181,7 @@ struct instruction_header {
     uns32 goto_table_ID;
     uns32 call_table_ID;
 };
-const uns32 instruction_header_length = 9;
+const uns32 instruction_header_length = 10;
 
 } } }
 

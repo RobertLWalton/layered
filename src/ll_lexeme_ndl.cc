@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 06:40:57 EST 2011
+// Date:	Mon Jun 13 20:46:31 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,7 +188,8 @@ void LEXNDL::begin_program
     min::pop ( instructions, instructions->length );
     min::resize ( instructions, 40 );
 
-    LEX::create_program ( type_name, max_type );
+    LEX::create_program
+        ( LEXNDL::line, type_name, max_type );
 }
 
 void LEXNDL::end_program ( void )
@@ -209,7 +210,8 @@ void LEXNDL::new_table
     FUNCTION ( "new_table" );
     ASSERT ( state == INSIDE_PROGRAM,
              "new_table() misplaced" );
-    table_name = LEX::create_table ( mode );
+    table_name =
+        LEX::create_table ( LEXNDL::line, mode );
 }
 
 // Push a new dispatcher and instruction on the
@@ -231,6 +233,7 @@ static void push_dispatcher ( bool is_others = false )
     dispatcher & d = min::push ( dispatchers );
 
     memset ( d.ascii_map, 0, 128 );
+    d.line_number = LEXNDL::line;
     d.max_type_code = 0;
     d.type_map_count = 0;
     d.others_dispatcher_ID = 0;
@@ -239,6 +242,7 @@ static void push_dispatcher ( bool is_others = false )
 
     instruction & ci = min::push ( instructions );
 
+    ci.line_number = 0;
     ci.operation = 0;
     ci.atom_table_ID = 0;
     ci.require_dispatcher_ID = 0;
@@ -256,7 +260,7 @@ static void push_dispatcher ( bool is_others = false )
 // and return the instruction_ID of its first instruc-
 // tion, or return 0 if there is no instruction group.
 //
-static uns32 pop_instruction_group ( void )
+static uns32 pop_instruction_group ( uns32 line_number )
 {
     uns32 instruction_ID = 0;
     while ( true )
@@ -279,7 +283,8 @@ static uns32 pop_instruction_group ( void )
 
 	if ( ci.operation != 0 || ci.accept )
 	    instruction_ID = LEX::create_instruction
-		( ci.operation,
+		( ci.line_number,
+		  ci.operation,
 		  translation_vector,
 		  ci.atom_table_ID,
 		  ci.require_dispatcher_ID,
@@ -320,9 +325,10 @@ static uns32 pop_instruction_group ( void )
 static uns32 pop_dispatcher
 	( bool discard_dispatcher = false )
 {
-    uns32 instruction_ID = pop_instruction_group();
-
     dispatcher & d = current_dispatcher();
+
+    uns32 instruction_ID =
+        pop_instruction_group ( d.line_number );
 
     uns32 cmin = 0;
     uns32 cmax = 127;
@@ -362,13 +368,15 @@ static uns32 pop_dispatcher
 
     uns32 dispatcher_ID =
         LEX::create_dispatcher
-	    ( 2 * ( total_type_map_count + ascii_used ),
+	    ( d.line_number,
+	      2 * ( total_type_map_count + ascii_used ),
 	      d.max_type_code );
 
     if ( ascii_used )
         ATTACH ( dispatcher_ID,
 	         LEX::create_type_map
-		     ( cmin, cmax,
+		     ( d.line_number,
+		       cmin, cmax,
 		       d.ascii_map + cmin ) );
 
     if ( d.others_dispatcher_ID != 0 )
@@ -406,7 +414,8 @@ static uns32 pop_dispatcher
 	    uns32 min_char = min::pop ( uns32_stack );
 	    ATTACH ( dispatcher_ID,
 	             LEX::create_type_map
-		        ( min_char, max_char, tcode ) );
+		        ( d.line_number,
+			  min_char, max_char, tcode ) );
 	}
     }
 
@@ -627,6 +636,10 @@ void LEXNDL::end_dispatch ( void )
     pop_dispatcher();
 }
 
+# define INSTRUCTION_LINE \
+    if ( ci.line_number == 0 ) \
+	ci.line_number = LEXNDL::line
+
 void LEXNDL::accept ( void )
 {
     FUNCTION ( "accept" );
@@ -642,6 +655,7 @@ void LEXNDL::accept ( void )
              "accept() conflicts with another"
 	     " instruction component" );
 
+    INSTRUCTION_LINE;
     ci.accept = true;
 }
 
@@ -661,6 +675,7 @@ void LEXNDL::keep ( uns32 n )
              "keep() length (%d) too large (> %d)",
 	     n, LEX::KEEP_LENGTH_MASK );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::KEEP ( n );
 }
 
@@ -699,6 +714,7 @@ void LEXNDL::translate_to
 	         "translate_to n > 0 but"
 		 " translation_string == NULL" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::TRANSLATE_TO ( n );
     while ( n -- )
         min::push(uns32_stack) =
@@ -731,6 +747,7 @@ void LEXNDL::translate_oct ( uns32 m, uns32 n )
 	     " too large (> %d)",
 	     n, LEX::POSTFIX_LENGTH_MASK );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::TRANSLATE_OCT ( m, n );
 }
 
@@ -760,6 +777,7 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
 	     " too large (> %d)",
 	     n, LEX::POSTFIX_LENGTH_MASK );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::TRANSLATE_HEX ( m, n );
 }
 
@@ -779,6 +797,7 @@ void LEXNDL::match ( uns32 table_name )
              == LEX::TABLE,
              "table_name does not reference a table" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::MATCH;
     ci.atom_table_ID = table_name;
 }
@@ -808,6 +827,7 @@ void LEXNDL::require ( uns32 atom_pattern_name )
              "require() is not after a match() or"
 	     " translate_oct/hex()" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::REQUIRE;
     ci.require_dispatcher_ID = atom_pattern_name;
 }
@@ -829,6 +849,7 @@ void LEXNDL::erroneous_atom ( uns32 type_name )
              "erroneous_atom() conflicts with another"
 	     " erroneous_atom()" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::ERRONEOUS_ATOM;
     ci.erroneous_atom_type = type_name;
 }
@@ -849,6 +870,7 @@ void LEXNDL::output ( uns32 type_name )
              "output() conflicts with another"
 	     " output()" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::OUTPUT;
     ci.output_type = type_name;
 }
@@ -880,6 +902,7 @@ void LEXNDL::go ( uns32 table_name )
              "table_name references an atom"
 	     " table" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::GOTO;
     ci.goto_table_ID = table_name;
 }
@@ -914,6 +937,8 @@ void LEXNDL::call ( uns32 table_name )
              != LEX::ATOM,
              "table_name references an atom"
 	     " table" );
+
+    INSTRUCTION_LINE;
     ci.operation |= LEX::CALL;
     ci.call_table_ID = table_name;
 }
@@ -937,6 +962,7 @@ void LEXNDL::ret ( void )
              "ret() conflicts with another ret() or"
 	     " with call() or go()" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::RETURN;
 }
 
@@ -955,6 +981,7 @@ void LEXNDL::fail ( void )
     ASSERT ( ! ( ci.operation & LEX::FAIL ),
              "fail() conflicts with another fail()" );
 
+    INSTRUCTION_LINE;
     ci.operation |= LEX::FAIL;
 }
 
@@ -973,6 +1000,8 @@ void LEXNDL::ELSE ( void )
 		 | LEX::REQUIRE ),
              "ELSE() is not after a match(),"
 	     " translate_oct/hex(), or require()" );
+
+    INSTRUCTION_LINE;
     ci.operation |= LEX::ELSE;
 
     instruction & i2 = min::push ( instructions );

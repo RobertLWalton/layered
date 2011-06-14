@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jun 13 20:09:50 EDT 2011
+# Date:		Mon Jun 13 21:48:01 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -56,12 +56,12 @@ test:		${PROGRAMS:=.test}
 	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
-	    -e '/^ *#[0-9][0-9]*: /s//      XXXX: /' \
-	    -e '/  #[0-9][0-9][0-9][0-9]/s//   XXXX/g' \
-	    -e '/   #[0-9][0-9][0-9]/s//   XXXX/g' \
-	    -e '/    #[0-9][0-9]/s//   XXXX/g' \
-	    -e '/     #[0-9]/s//   XXXX/g' \
-	    -e '/#[0-9][0-9]*/s//XXXX/g' \
+	    -e '/  #[0-9][0-9][0-9][0-9][0-9]/s//   #XXXX/g' \
+	    -e '/   #[0-9][0-9][0-9][0-9]/s//   #XXXX/g' \
+	    -e '/    #[0-9][0-9][0-9]/s//   #XXXX/g' \
+	    -e '/     #[0-9][0-9]/s//   #XXXX/g' \
+	    -e '/      #[0-9]/s//   #XXXX/g' \
+	    -e '/#[0-9][0-9]*/s//#XXXX/g' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
@@ -74,12 +74,12 @@ test:		${PROGRAMS:=.test}
 	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
-	    -e '/^ *#[0-9][0-9]*: /s//      XXXX: /' \
-	    -e '/  #[0-9][0-9][0-9][0-9]/s//   XXXX/g' \
-	    -e '/   #[0-9][0-9][0-9]/s//   XXXX/g' \
-	    -e '/    #[0-9][0-9]/s//   XXXX/g' \
-	    -e '/     #[0-9]/s//   XXXX/g' \
-	    -e '/#[0-9][0-9]*/s//XXXX/g' \
+	    -e '/  #[0-9][0-9][0-9][0-9][0-9]/s//   #XXXX/g' \
+	    -e '/   #[0-9][0-9][0-9][0-9]/s//   #XXXX/g' \
+	    -e '/    #[0-9][0-9][0-9]/s//   #XXXX/g' \
+	    -e '/     #[0-9][0-9]/s//   #XXXX/g' \
+	    -e '/      #[0-9]/s//   #XXXX/g' \
+	    -e '/#[0-9][0-9]*/s//#XXXX/g' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \

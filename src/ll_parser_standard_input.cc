@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 02:21:50 EDT 2011
+// Date:	Wed Jun 15 07:56:00 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,21 +83,6 @@ static void erroneous_atom_announce
     const char * message;
     switch ( type )
     {
-    case LEXSTD::premature_end_of_line_t:
-	message = "ERROR: premature end of line; ";
-	break;
-    case LEXSTD::premature_end_of_file_t:
-	message = "ERROR: premature end of file; ";
-	break;
-    case LEXSTD::misplaced_char_t:
-	message = "ERROR: misplaced character; ";
-	break;
-    case LEXSTD::ascii_escape_seq_t:
-	message = "ERROR: ascii escape sequence; ";
-	break;
-    case LEXSTD::non_letter_escape_seq_t:
-	message = "ERROR: non-letter escape sequence; ";
-	break;
     case LEXSTD::unrecognized_escape_seq_t:
 	message = "ERROR: unrecognized escape"
 	          " sequence; ";
@@ -154,6 +139,23 @@ static min::uns32 input_add_tokens
 	case LEXSTD::comment_t:
 	case LEXSTD::horizontal_space_t:
 	    continue;
+
+	case LEXSTD::premature_end_of_line_t:
+	    message = "ERROR: premature end of line; ";
+	    break;
+	case LEXSTD::premature_end_of_file_t:
+	    message = "ERROR: premature end of file; ";
+	    break;
+	case LEXSTD::misplaced_char_t:
+	    message = "ERROR: misplaced character; ";
+	    break;
+	case LEXSTD::ascii_escape_seq_t:
+	    message = "ERROR: ascii escape sequence; ";
+	    break;
+	case LEXSTD::non_letter_escape_seq_t:
+	    message = "ERROR: non-letter escape"
+	              " sequence; ";
+	    break;
 	}
 
 	if ( message != NULL )

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 27 09:02:47 EDT 2011
+// Date:	Wed Jun 15 19:34:40 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -702,6 +702,16 @@ static void parse_explicit_subexpression
 	if ( current->type == LEXSTD::end_of_file_t )
 	    break;
 
+	// Ensure there is a next token.
+	//
+	if ( current->next == parser->first )
+	{
+	    parser->input->add_tokens
+		( parser, parser->input );
+	    assert
+		( current->next != parser->first );
+	}
+
 	// Process line breaks.
 	//
 	if ( current->type == LEXSTD::line_break_t )
@@ -857,6 +867,13 @@ static void parse_explicit_subexpression
 	    //
 	    while ( true )
 	    {
+		if (    current->next->type
+		     != LEXSTD::line_break_t )
+		    break;
+
+		free ( remove ( first_ref(parser),
+		                current->next ) );
+
 		if ( current->next == parser->first )
 		{
 		    parser->input->add_tokens
@@ -864,13 +881,6 @@ static void parse_explicit_subexpression
 		    assert (    current->next
 		             != parser->first );
 		}
-
-		if (    current->next->type
-		     != LEXSTD::line_break_t )
-		    break;
-
-		free ( remove ( first_ref(parser),
-		                current->next ) );
 	    }
 
 	    PAR::token next = current->next;
@@ -985,7 +995,6 @@ static void parse_explicit_subexpression
 	}
 
 	indentation_mark = min::NULL_STUB;
-	TAB::root root = min::NULL_STUB;
 
 	// Process non-natural numbers and quoted
 	// strings.
@@ -1019,6 +1028,16 @@ static void parse_explicit_subexpression
 		//
 		while ( true )
 		{
+		    current = current->next;
+
+		    if ( current->type
+		         != LEXSTD::quoted_string_t )
+		        break;
+
+		    length +=
+		        current->string->length;
+		    ++ n;
+
 		    if (    current->next
 		         == parser->first )
 		    {
@@ -1027,14 +1046,8 @@ static void parse_explicit_subexpression
 			assert (    current->next
 			         != parser->first );
 		    }
-		    current = current->next;
-		    if ( current->type
-		         != LEXSTD::quoted_string_t )
-		        break;
-		    length +=
-		        current->string->length;
-		    ++ n;
 		}
+
 		if ( n == 1 )
 		{
 		    // Usual case; optimize this.
@@ -1070,6 +1083,7 @@ static void parse_explicit_subexpression
 		    }
 		    g = min::new_str_gen ( s, length );
 		}
+
 		current = current->previous;
 	    }
 	    else
@@ -1101,224 +1115,216 @@ static void parse_explicit_subexpression
 	    min::attr_insptr elemap ( elemvp ); 
 	    min::locate ( elemap, ::initiator );
 	    min::set ( elemap, initiator );
+
+	    current = current->next;
+	    continue;
 	}
 
 	// If not number or quoted string, look for
 	// bracket or indentation mark.
 	//
-	else
-	    root = find_entry ( parser, current,
-	                        selectors,
-	                        parser->bracket_table );
-
-	// If bracket or indentation mark found,
-	// process it.  Else move to next token.
-	//
-	if ( root != min::NULL_STUB )
+	PAR::token next = current->next;
+	TAB::root root =
+	    find_entry ( parser, current,
+			 selectors,
+			 parser->bracket_table );
+	if ( root == min::NULL_STUB )
 	{
-	    min::uns32 subtype =
-	        min::packed_subtype_of ( root );
+	    current = next;
+	    continue;
+	}
 
-	    if ( subtype == TAB::OPENING_BRACKET )
+	// Bracket or indentation mark found.
+
+	min::uns32 subtype =
+	    min::packed_subtype_of ( root );
+
+	if ( subtype == TAB::OPENING_BRACKET )
+	{
+	    TAB::opening_bracket opening_bracket =
+		(TAB::opening_bracket) root;
+
+	    TAB::selectors new_selectors =
+		selectors;
+	    new_selectors |=
+		opening_bracket->new_selectors
+				.or_selectors;
+	    new_selectors &= ~
+		opening_bracket->new_selectors
+				.not_selectors;
+	    new_selectors ^=
+		opening_bracket->new_selectors
+				.xor_selectors;
+
+	    ::closing_stack cstack;
+	    cstack.previous = closing_stack_p;
+	    cstack.closing_bracket =
+		opening_bracket->closing_bracket;
+
+	    PAR::token previous = current->previous;
+	    ::parse_explicit_subexpression
+		( parser, false, current,
+		  closing_bracket, & cstack,
+		  line_indent >= 0 ?
+		      line_indent :
+		      paragraph_indent,
+		  new_selectors );
+	    PAR::token first = previous->next;
+
+	    if (    opening_bracket->closing_bracket
+		 != closing_bracket )
 	    {
-	        TAB::opening_bracket opening_bracket =
-		    (TAB::opening_bracket) root;
+		// Found a closing bracket that is
+		// not ours, or found a line break
+		// or end of file that terminates a
+		// paragraph with the closing
+		// bracket missing.
 
-		TAB::selectors new_selectors =
-		    selectors;
-		new_selectors |=
-		    opening_bracket->new_selectors
-		                    .or_selectors;
-		new_selectors &= ~
-		    opening_bracket->new_selectors
-		                    .not_selectors;
-		new_selectors ^=
-		    opening_bracket->new_selectors
-		                    .xor_selectors;
+		// Compute tokens of closing bracket
+		// that was found as
+		//
+		//    next ... last
+		//
+		// If no closing bracket was found,
+		// next = last = current is the
+		// line break or end of file.
+		//
+		PAR::token next =
+		    (    closing_bracket
+		      == min::NULL_STUB ?
+		      current :
+		      ::backup
+			  ( current,
+			    closing_bracket->label )
+		    );
+		PAR::token last =
+		    (    closing_bracket
+		      == min::NULL_STUB ?
+		      current :
+		      current->previous );
 
-		::closing_stack cstack;
-		cstack.previous = closing_stack_p;
-		cstack.closing_bracket =
-		    opening_bracket->closing_bracket;
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: missing"
+		       " closing bracket `"
+		    << min::pgen
+			 ( opening_bracket->
+			   closing_bracket->
+			       label,
+			   & ::bracket_format )
+		    << "' inserted; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     next->begin,
+			     last->end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      next->begin,
+		      last->end );
 
-		PAR::token previous = current->previous;
-		::parse_explicit_subexpression
-		    ( parser, false, current,
-		      closing_bracket, & cstack,
-		      line_indent >= 0 ?
-		          line_indent :
-			  paragraph_indent,
-		      new_selectors );
-		PAR::token first = previous->next;
 
-		if (    opening_bracket->closing_bracket
-		     != closing_bracket )
+		LEX::position end =
+		    next->previous->end;
+		LEX::position begin =
+		    ::remove
+			( parser, first,
+			  opening_bracket->label );
+		::compact
+		    ( parser, first, next,
+		      begin, end,
+		      opening_bracket->label,
+		      opening_bracket->
+			  closing_bracket->
+			      label );
+
+		if (    closing_bracket
+		     == min::NULL_STUB )
 		{
-		    // Found a closing bracket that is
-		    // not ours, or found a line break
-		    // or end of file that terminates a
-		    // paragraph with the closing
-		    // bracket missing.
-
-		    // Compute tokens of closing bracket
-		    // that was found as
+		    // Found a line break before
+		    // non-indented line or an end
+		    // of file when a closing
+		    // bracket was expected.  Go
+		    // to appropriate code above
+		    // to process.
 		    //
-		    //    next ... last
-		    //
-		    // If no closing bracket was found,
-		    // next = last = current is the
-		    // line break or end of file.
-		    //
-		    PAR::token next =
-			(    closing_bracket
-			  == min::NULL_STUB ?
-			  current :
-			  ::backup
-			      ( current,
-				closing_bracket->label )
-			);
-		    PAR::token last =
-			(    closing_bracket
-			  == min::NULL_STUB ?
-			  current :
-			  current->previous );
+		    continue;
+		}
 
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: missing"
-			   " closing bracket `"
-			<< min::pgen
-			     ( opening_bracket->
-			       closing_bracket->
-				   label,
-			       & ::bracket_format )
-			<< "' inserted; "
-			<< LEX::pline_numbers
-			       ( parser->input_file,
-				 next->begin,
-				 last->end )
-			<< ":" << min::eom;
-		    LEX::print_item_lines
-			( parser->printer,
-			  parser->input_file,
-			  next->begin,
-			  last->end );
+		// Found a closing_bracket that is
+		// not ours.  It must be in the
+		// closing_stack and so needs to
+		// be kicked to our caller.
+		//
+		break;
+	    }
+	    else
+	    {
+		LEX::position end =
+		    current->previous->end;
+		::remove ( parser, current,
+			   closing_bracket->label );
+		LEX::position begin =
+		    ::remove
+			( parser, first,
+			  opening_bracket->label );
+		::compact ( parser, first, current,
+			    begin, end,
+			    opening_bracket->label,
+			    opening_bracket->
+				closing_bracket->
+				    label );
+		closing_bracket = min::NULL_STUB;
+	    }
+	}
 
+	else if ( subtype == TAB::CLOSING_BRACKET )
+	{
+	    closing_bracket =
+		(TAB::closing_bracket) root;
 
-		    LEX::position end =
-		        next->previous->end;
-		    LEX::position begin =
-			::remove
-			    ( parser, first,
-			      opening_bracket->label );
-		    ::compact
-			( parser, first, next,
-			  begin, end,
-			  opening_bracket->label,
-			  opening_bracket->
-			      closing_bracket->
-				  label );
-
-		    if (    closing_bracket
-			 == min::NULL_STUB )
-		    {
-		        // Found a line break before
-			// non-indented line or an end
-			// of file when a closing
-			// bracket was expected.  Go
-			// to appropriate code above
-			// to process.
-			//
-			continue;
-		    }
-
-		    // Found a closing_bracket that is
-		    // not ours.  It must be in the
-		    // closing_stack and so needs to
-		    // be kicked to our caller.
-		    //
+	    ::closing_stack * p;
+	    for ( p = closing_stack_p;
+		  p != NULL;
+		  p = p->previous )
+	    {
+		if (    p->closing_bracket
+		     == closing_bracket )
 		    break;
-		}
-		else
-		{
-		    LEX::position end =
-			current->previous->end;
-		    ::remove ( parser, current,
-		               closing_bracket->label );
-		    LEX::position begin =
-			::remove
-			    ( parser, first,
-			      opening_bracket->label );
-		    ::compact ( parser, first, current,
-				begin, end,
-				opening_bracket->label,
-				opening_bracket->
-				    closing_bracket->
-					label );
-		    closing_bracket = min::NULL_STUB;
-		}
 	    }
-
-	    else if ( subtype == TAB::CLOSING_BRACKET )
+	    if ( p != NULL ) break;
+	    else
 	    {
-	        closing_bracket =
-		    (TAB::closing_bracket) root;
+		LEX::position end =
+		    current->previous->end;
+		LEX::position begin =
+		    ::remove
+			( parser, current,
+			  closing_bracket->label );
 
-		::closing_stack * p;
-		for ( p = closing_stack_p;
-		      p != NULL;
-		      p = p->previous )
-		{
-		    if (    p->closing_bracket
-			 == closing_bracket )
-			break;
-		}
-		if ( p != NULL ) break;
-		else
-		{
-		    LEX::position end =
-			current->previous->end;
-		    LEX::position begin =
-		        ::remove
-			    ( parser, current,
-			      closing_bracket->label );
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: spurious"
+		       " closing bracket"
+		       " found and ignored; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     begin, end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      begin, end );
 
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: spurious"
-			   " closing bracket"
-			   " found and ignored; "
-			<< LEX::pline_numbers
-			       ( parser->input_file,
-				 begin, end )
-			<< ":" << min::eom;
-		    LEX::print_item_lines
-			( parser->printer,
-			  parser->input_file,
-			  begin, end );
-
-		    closing_bracket = min::NULL_STUB;
-		}
+		closing_bracket = min::NULL_STUB;
 	    }
-	    else if ( subtype == TAB::INDENTATION_MARK )
-	        indentation_mark =
-		    (TAB::indentation_mark) root;
 	}
-	else
-	{
-	    // Move to next token.
-	    //
-	    if ( current->next == parser->first )
-	    {
-		parser->input->add_tokens
-		    ( parser, parser->input );
-		assert
-		    ( current->next != parser->first );
-	    }
-	    current = current->next;
-	}
+	else if ( subtype == TAB::INDENTATION_MARK )
+	    indentation_mark =
+		(TAB::indentation_mark) root;
     }
 
     // Compact any incomplete line.

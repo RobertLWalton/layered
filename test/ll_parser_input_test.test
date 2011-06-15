@@ -228,15 +228,15 @@ MARK: +-*~@#$%^&=|<>_!?:: line 17:
 QUOTED_STRING: foo: line 17:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                   ^^^^^
+WORD: x: line 17:
++-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
+                       ^
 ERROR: ascii escape sequence; line 17:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                         ^^^^
 ERROR: ascii escape sequence; line 17:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                             ^^^^
-WORD: x: line 17:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                       ^^^^^^^^^
 MARK: <: line 17:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                 ^
@@ -438,15 +438,18 @@ ERROR: ascii escape sequence; line 27:
 WORD: C: line 27:
 <0041><00000042>C D<00000045><0046>G
                 ^
+WORD: D: line 27:
+<0041><00000042>C D<00000045><0046>G
+                  ^
 ERROR: ascii escape sequence; line 27:
 <0041><00000042>C D<00000045><0046>G
                    ^^^^^^^^^^
 ERROR: ascii escape sequence; line 27:
 <0041><00000042>C D<00000045><0046>G
                              ^^^^^^
-WORD: DG: line 27:
+WORD: G: line 27:
 <0041><00000042>C D<00000045><0046>G
-                  ^^^^^^^^^^^^^^^^^^
+                                   ^
 LINE_BREAK: line 27:
 <0041><00000042>C D<00000045><0046>G
                                     ^
@@ -456,12 +459,15 @@ ERROR: ascii escape sequence; line 28:
 WORD: µC: line 28:
 <0041><000000B5>C D<000000E3><0006>G
       ^^^^^^^^^^^
+WORD: Dã: line 28:
+<0041><000000B5>C D<000000E3><0006>G
+                  ^^^^^^^^^^^
 ERROR: ascii escape sequence; line 28:
 <0041><000000B5>C D<000000E3><0006>G
                              ^^^^^^
-WORD: DãG: line 28:
+WORD: G: line 28:
 <0041><000000B5>C D<000000E3><0006>G
-                  ^^^^^^^^^^^^^^^^^^
+                                   ^
 LINE_BREAK: line 28:
 <0041><000000B5>C D<000000E3><0006>G
                                     ^

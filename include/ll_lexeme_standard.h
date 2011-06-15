@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  5 16:39:30 EDT 2011
+// Date:	Wed Jun 15 04:58:29 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,13 +44,25 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 line_break_t			= 9;
     const uns32 end_of_file_t			= 10;
 
-    // Erroneous Atom Types
+    // Erroneous Lexeme Types:
+    //
+    //    These can separated other lexemes in the same
+    //    way as horizontal space can, and if these and
+    //    horizontal space lexemes are deleted by post-
+    //    processing, they will be semantically equiva-
+    //    lent to horizontal space.
     //
     const uns32 premature_end_of_line_t		= 11;
     const uns32 premature_end_of_file_t		= 12;
     const uns32 misplaced_char_t		= 13;
     const uns32 ascii_escape_seq_t		= 14;
     const uns32 non_letter_escape_seq_t		= 15;
+
+    // Erroneous Atom Types:
+    //
+    //    These are translated to "" and ignored, so
+    //    removal will not change the lexemes produced.
+    //
     const uns32 unrecognized_escape_seq_t	= 16;
 
     const unsigned MAX_TYPE = 16;

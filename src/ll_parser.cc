@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 15 22:51:43 EDT 2011
+// Date:	Thu Jun 16 09:59:02 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1340,6 +1340,27 @@ static void parse_explicit_subexpression
 		indentation_mark =
 		    (TAB::indentation_mark) root;
 		break;
+	    }
+	    else if (    subtype
+	              == TAB::NAMED_OPENING_BRACKET )
+	    {
+	    }
+	    else if (    subtype
+	              == TAB::NAMED_SEPARATOR )
+	    {
+	    }
+	    else if (    subtype
+	              == TAB::NAMED_MIDDLE_BRACKET )
+	    {
+	    }
+	    else if (    subtype
+	              == TAB::NAMED_CLOSING_BRACKET )
+	    {
+	    }
+	    else if
+	        (    subtype
+	          == TAB::NAMED_MIDDLE_CLOSING_BRACKET )
+	    {
 	    }
 
 	    root = PAR::find_next_entry

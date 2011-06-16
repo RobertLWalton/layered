@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  2 07:04:58 EDT 2011
+// Date:	Thu Jun 16 07:38:33 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	Roots
 //	Key Prefixes
 //	Brackets
+//	Named Brackets
 //	Indentation Marks
 
 // Usage and Setup
@@ -243,6 +244,185 @@ void TAB::push_brackets
     opening->new_selectors = new_selectors;
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
+}
+
+// Named Brackets
+// ----- --------
+
+static min::uns32 named_opening_bracket_stub_disp[] = {
+    min::DISP ( & TAB::named_opening_bracket_struct
+                     ::next ),
+    min::DISP ( & TAB::named_opening_bracket_struct
+                     ::named_separator ),
+    min::DISP ( & TAB::named_opening_bracket_struct
+                     ::named_middle_bracket ),
+    min::DISP ( & TAB::named_opening_bracket_struct
+                     ::named_closing_bracket ),
+    min::DISP ( & TAB::named_opening_bracket_struct
+                     ::named_middle_closing_bracket ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::named_opening_bracket_struct,
+	 TAB::root_struct>
+    named_opening_bracket_type
+	( "ll::parser::table"
+	    "::named_opening_bracket_type",
+	  ::root_gen_disp,
+	  ::named_opening_bracket_stub_disp );
+const min::uns32 & TAB::NAMED_OPENING_BRACKET =
+    named_opening_bracket_type.subtype;
+
+static min::uns32 named_separator_stub_disp[] = {
+    min::DISP ( & TAB::named_separator_struct::next ),
+    min::DISP ( & TAB::named_separator_struct
+                     ::named_opening_bracket ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::named_separator_struct,
+	 TAB::root_struct>
+    named_separator_type
+	( "ll::parser::table"
+	    "::named_separator_type",
+	  ::root_gen_disp,
+	  ::named_separator_stub_disp );
+const min::uns32 & TAB::NAMED_SEPARATOR =
+    named_separator_type.subtype;
+
+static min::uns32 named_middle_bracket_stub_disp[] = {
+    min::DISP ( & TAB::named_middle_bracket_struct
+                     ::next ),
+    min::DISP ( & TAB::named_middle_bracket_struct
+                     ::named_opening_bracket ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::named_middle_bracket_struct,
+	 TAB::root_struct>
+    named_middle_bracket_type
+	( "ll::parser::table"
+	    "::named_middle_bracket_type",
+	  ::root_gen_disp,
+	  ::named_middle_bracket_stub_disp );
+const min::uns32 & TAB::NAMED_MIDDLE_BRACKET =
+    named_middle_bracket_type.subtype;
+
+static min::uns32 named_closing_bracket_stub_disp[] = {
+    min::DISP ( & TAB::named_closing_bracket_struct
+                     ::next ),
+    min::DISP ( & TAB::named_closing_bracket_struct
+                     ::named_opening_bracket ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::named_closing_bracket_struct,
+	 TAB::root_struct>
+    named_closing_bracket_type
+	( "ll::parser::table"
+	    "::named_closing_bracket_type",
+	  ::root_gen_disp,
+	  ::named_closing_bracket_stub_disp );
+const min::uns32 & TAB::NAMED_CLOSING_BRACKET =
+    named_closing_bracket_type.subtype;
+
+static min::uns32
+	named_middle_closing_bracket_stub_disp[] = {
+    min::DISP
+        ( & TAB::named_middle_closing_bracket_struct
+	       ::next ),
+    min::DISP
+        ( & TAB::named_middle_closing_bracket_struct
+               ::named_opening_bracket ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::named_middle_closing_bracket_struct,
+	 TAB::root_struct>
+    named_middle_closing_bracket_type
+	( "ll::parser::table"
+	    "::named_middle_closing_bracket_type",
+	  ::root_gen_disp,
+	  ::named_middle_closing_bracket_stub_disp );
+const min::uns32 & TAB::NAMED_MIDDLE_CLOSING_BRACKET =
+    named_middle_closing_bracket_type.subtype;
+
+void TAB::push_named_brackets
+	( min::gen named_opening_label,
+	  min::gen named_separator_label,
+	  min::gen named_middle_label,
+	  min::gen named_closing_label,
+	  min::gen named_middle_closing_label,
+	  TAB::selectors selectors,
+	  TAB::table bracket_table )
+{
+    min::locatable_var<TAB::named_opening_bracket>
+        named_opening;
+    named_opening =
+        ::named_opening_bracket_type.new_stub();
+
+    min::locatable_var<TAB::named_separator>
+        named_separator;
+    named_separator =
+        ::named_separator_type.new_stub();
+
+    min::locatable_var<TAB::named_middle_bracket>
+        named_middle;
+    named_middle =
+        ::named_middle_bracket_type.new_stub();
+
+    min::locatable_var<TAB::named_closing_bracket>
+        named_closing;
+    named_closing =
+        ::named_closing_bracket_type.new_stub();
+
+    min::locatable_var
+	    <TAB::named_middle_closing_bracket>
+        named_middle_closing;
+    named_middle_closing =
+        ::named_middle_closing_bracket_type.new_stub();
+
+    label_ref(named_opening) = named_opening_label;
+    label_ref(named_separator) = named_separator_label;
+    label_ref(named_middle) = named_middle_label;
+    label_ref(named_closing) = named_closing_label;
+    label_ref(named_middle_closing) =
+        named_middle_closing_label;
+
+    named_separator_ref(named_opening) =
+        named_separator;
+    named_middle_bracket_ref(named_opening) =
+        named_middle;
+    named_closing_bracket_ref(named_opening) =
+        named_closing;
+    named_middle_closing_bracket_ref(named_opening) =
+        named_middle_closing;
+
+    named_opening_bracket_ref(named_separator) =
+        named_opening;
+    named_opening_bracket_ref(named_middle) =
+        named_opening;
+    named_opening_bracket_ref(named_closing) =
+        named_opening;
+    named_opening_bracket_ref(named_middle_closing) =
+        named_opening;
+
+    named_opening->selectors = selectors;
+    named_separator->selectors = selectors;
+    named_middle->selectors = selectors;
+    named_closing->selectors = selectors;
+    named_middle_closing->selectors = selectors;
+
+    TAB::push ( bracket_table,
+                (TAB::root) named_opening );
+    TAB::push ( bracket_table,
+                (TAB::root) named_separator );
+    TAB::push ( bracket_table,
+                (TAB::root) named_middle );
+    TAB::push ( bracket_table,
+                (TAB::root) named_closing );
+    TAB::push ( bracket_table,
+                (TAB::root) named_middle_closing );
 }
 
 // Indentation Marks

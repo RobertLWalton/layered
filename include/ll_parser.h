@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  7 06:19:37 EDT 2011
+// Date:	Wed Jun 15 22:18:14 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -744,11 +744,39 @@ ll::parser::table::key_prefix find_key_prefix
 // the last token used to look up the entry.  If no
 // entry is returned, `current' is left unchanged.
 //
+// The key_prefix used to find the entry is also
+// returned if there is an entry, so that find_next_
+// entry below can be used.
+//
 ll::parser::table::root find_entry
 	( ll::parser::parser parser,
 	  ll::parser::token & current,
+	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::table table );
+
+// Locate the NEXT hash table entry in the hash table
+// after the last entry found by `find_entry' or a
+// previous call to this `find_next_entry' function.
+//
+// Only hash table entries which have a selector bit
+// on are considered.
+//
+// The entries are searched in the order longest first,
+// and then in newest first order (i.e., most recently
+// pushed to the hash table are the newest).
+//
+// This function is for use when in addition to selector
+// bits the entry to be found must meet other criteria
+// not easily expressed by giving arguments to a func-
+// tion.
+//
+ll::parser::table::root find_next_entry
+	( ll::parser::parser parser,
+	  ll::parser::token & current,
+	  ll::parser::table::key_prefix & key_prefix,
+	  ll::parser::table::selectors selectors,
+	  ll::parser::table::root last_entry );
 
 } }
 

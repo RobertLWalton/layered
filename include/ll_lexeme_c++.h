@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 14 04:00:55 EDT 2011
+// Date:	Fri Jun 17 05:26:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -100,14 +100,13 @@ namespace ll { namespace lexeme { namespace cpp {
 	// decimal digits.
     const uns32 premature_newline_t		= 26;
         // 0-length, emitted before newline that
-	// terminates a character or string literal.
-	// A ' or " is inserted at the end of the
-	// literal.
+	// terminates a character or string literal
+	// or #include header.
     const uns32 premature_end_of_file_t		= 27;
         // 0-length, emitted before an end-of-file that
-	// terminates a character or string literal.
-	// A ' or " is inserted at the end of the
-	// literal.
+	// terminates a character or string literal or
+	// a /* comment or an #include header.  A */ is
+	// inserted at the end of a comment.
 
 
     // Erroneous atoms.  These are translated to "" and

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 10 21:33:04 EDT 2011
+// Date:	Sat Jun 18 07:13:56 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,12 +42,8 @@ extern min::locatable_var<ll::parser::input>
 // processed as follows:
 //
 //    word_t		    SYMBOL, string value
-//    natural_number_t      if < 2**28:
-//			        NATURAL_NUMBER,
-//			        number value
-//			    else:
-//			        natural_number_t,
-//			        token string
+//    natural_number_t      NATURAL_NUMBER,
+//			        string value
 //    number_t		    number_t, token string
 //    mark_t		    SYMBOL, string value
 //    quoted_string_t       quoted_string_t,
@@ -60,20 +56,22 @@ extern min::locatable_var<ll::parser::input>
 //    line_break_t          line_break_t
 //    end_of_file_t         end_of_file_t
 //
-//    bad_end_of_line_t     line_break_t,
-//			        output error message
-//    bad_end_of_file_t     end_of_file_t,
-//			        output error message
-//
-//    unrecognized_character_t
+//    premature_end_of_line_t
+//    premature_end_of_file_t
+//    misplaced_char_t
+//    ascii_escape_seq_t
+//    non_letter_escape_seq_t
 //			    no token,
 //			        output error message
-//    non_letter_escape_sequence_t
+//
+//    unrecognized_escape_seq_t
 //			    ignore erroneous atom,
 //				output error message
 //
 // The token type is either the lexeme type or SYMBOL
-// or NATURAL_NUMBER.
+// or NATURAL_NUMBER.  Note that NATURAL_NUMBER's are
+// stored in the token `value' as a STRING general value
+// and NOT as a number general value.
 //
 // The translation_buffer is recorded as either a min::
 // gen `string value' for SYMBOLs, a min::gen `number

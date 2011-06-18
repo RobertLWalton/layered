@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 15 07:56:00 EDT 2011
+// Date:	Sat Jun 18 07:14:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -195,36 +195,11 @@ static min::uns32 input_add_tokens
 	}
 	case LEXSTD::natural_number_t:
 	{
-	    int length = translation_buffer->length;
-	    assert ( length > 0 );
-	    if ( length <= 9
-	         &&
-		 ( length == 1
-		   ||
-		   translation_buffer[0] != '0'
-		 ) )
-	    {
-		min::uns32 v = 0;
-		for ( min::uns32 i = 0;
-		      i < length; ++ i )
-		{
-		    v *= 10;
-		    v += translation_buffer[i]
-		       - '0';
-		}
-		if ( v < (1<<28) )
-		{
-		    token->type =
-		        PAR::NATURAL_NUMBER;
-		    value_ref(token) =
-		        min::new_num_gen ( (int) v );
-		    break;
-		}
-		// else fall through if >= (1<28).
-	    }
-	    // else fall through if number has a high
-	    // order `0' digit or length indicates
-	    // number must be >= (10**9) > (1<28).
+	    token->type = PAR::NATURAL_NUMBER;
+	    value_ref(token) = min::new_str_gen
+	        ( translation_buffer.begin_ptr(),
+		  translation_buffer->length );
+	    break;
 	}
 	case LEXSTD::quoted_string_t:
 	case LEXSTD::number_t:

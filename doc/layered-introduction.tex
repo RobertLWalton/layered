@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 14, 2011
+June 19, 2011
  
 \end{center}
 
@@ -1099,7 +1099,7 @@ whether the containing {\em instruction} fails.
 
 Atom tables match only a single atom and implicitly return
 to their invoking instruction after matching one atom.  The
-{\tt error}, {\tt output}, {\tt goto}, {\tt call}, and {\tt return}
+{\tt output}, {\tt goto}, {\tt call}, and {\tt return}
 {\em instruction-components} \underline{cannot} be used in an
 atom table.  However, the {\tt fail} {\em instruction-component}
 can only be used in an atom table, and when executed indicates
@@ -1129,6 +1129,12 @@ If the instruction fails, the
 original atom match is reinstated (the instruction becomes a
 no-operation) before the next {\em instruction} in the {\em instruction group}
 executes.
+
+The {\tt error} instruction component can also be used in an atom
+table, but if the atom table fails, or if a subsequent {\tt require}
+causes a {\tt match} that invoked the atom table to fail, the
+effects of the {\tt error} instruction component will \underline{not}
+be undone.  Normally the only effect is to announce an error.
 
 Atom tables may have a {\em default-instruction-group}.
 However, this only makes sense if it is just a `{\tt fail}', or

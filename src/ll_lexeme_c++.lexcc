@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 17 05:54:35 EDT 2011
+// Date:	Sun Jun 19 03:14:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -310,13 +310,13 @@ lex	// / not followed by / or * and . not followed
 lex	// by <digit> are handled separately.
 lex	//
 lex	"<op-char>" = "#" | "<" | ">" | ":" | "%" |
-lex	            | "?" | "+" | "-" | "*"
+lex	            | "?" | "+" | "-" | "*" | "="
 lex	            | "^" | "&" | "|" | "~" | "!" | ","
 lex	            | "(" | ")" | "[" | "]" | "{" | "}"
 lex	            | ";";
 lex
 cc	    const char * op_char =
-cc	        "#<>:%?+-*^&|~!,()[]{};";
+cc	        "#<>:%?+-*=^&|~!,()[]{};";
 cc
 lex	"<sign>" = "+" | "-" ;
 lex
@@ -990,7 +990,7 @@ lex	    "<Q>" translate to ""
 lex	          output string literal
 lex	          call string literal;
 lex
-cc		NDL::begin_dispatch ( "'" );
+cc		NDL::begin_dispatch ( "\"" );
 cc		   NDL::translate_to ( "" );
 cc		   NDL::output ( string_literal_t );
 cc		   NDL::call ( string_literal );
@@ -1269,7 +1269,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "." goto fraction;
 lex
-cc		NDL::begin_dispatch ( digit );
+cc		NDL::begin_dispatch ( "." );
 cc		   NDL::go ( fraction );
 cc		NDL::end_dispatch();
 cc
@@ -1342,7 +1342,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "." goto fraction;
 lex
-cc		NDL::begin_dispatch ( digit );
+cc		NDL::begin_dispatch ( "." );
 cc		   NDL::go ( fraction );
 cc		NDL::end_dispatch();
 cc
@@ -1462,7 +1462,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "." goto fraction;
 lex
-cc		NDL::begin_dispatch ( digit );
+cc		NDL::begin_dispatch ( "." );
 cc		   NDL::go ( fraction );
 cc		NDL::end_dispatch();
 cc
@@ -2081,7 +2081,7 @@ lex	      "<hex-digit><hex-digit>"
 lex	      "<hex-digit><hex-digit>"
 lex	        translate hex 2 0;
 lex
-cc		NDL::begin_dispatch ( "u" );
+cc		NDL::begin_dispatch ( "U" );
 cc		   HEX;HEX;HEX;HEX;HEX;HEX;HEX;HEX;
 cc		      NDL::translate_hex ( 2, 0 );
 cc		   END;END;END;END;END;END;END;END;
@@ -2147,7 +2147,7 @@ lex	    "\U<hex-digit><hex-digit>";
 lex	    "\U<hex-digit>";
 lex	    "\U";
 lex
-cc		NDL::begin_dispatch ( "u" );
+cc		NDL::begin_dispatch ( "U" );
 cc		    HEX;HEX;HEX;HEX;HEX;HEX;HEX;
 cc		    END;END;END;END;END;END;END;
 cc

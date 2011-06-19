@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 13 20:46:31 EDT 2011
+// Date:	Sun Jun 19 05:26:12 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -837,8 +837,6 @@ void LEXNDL::erroneous_atom ( uns32 type_name )
     FUNCTION ( "erroneous_atom" );
     ASSERT ( state == INSIDE_TABLE,
              "erroneous_atom() misplaced" );
-    ASSERT ( ::table_mode != LEX::ATOM,
-             "erroneous_atom() in atom table" );
     substate = ::INSTRUCTION;
 
     instruction & ci = current_instruction();

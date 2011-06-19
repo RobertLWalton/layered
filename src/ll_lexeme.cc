@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 13 21:27:53 EDT 2011
+// Date:	Sun Jun 19 05:08:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -129,7 +129,9 @@ uns32 LEX::create_table
 {
     min::ptr<program_header> php =
 	LEX::ptr<program_header> ( program, 0 );
-    if ( mode != ATOM && mode != MASTER )
+    if (    mode != ATOM
+         && mode != MASTER
+	 && mode != NONE )
 	assert (    php->max_type == 0
 	         || mode <= php->max_type );
 
@@ -1142,7 +1144,6 @@ static uns32 ctype ( LEX::scanner scanner,
 // Scan atom given current table.  Locate and process
 // instruction group, but not
 //
-//	ERRONEOUS_ATOM
 //	OUTPUT
 //	GOTO
 //	CALL
@@ -1595,6 +1596,33 @@ static uns32 scan_atom
 		    input_buffer[p++].character;
 	}
 
+	if ( op & ERRONEOUS_ATOM )
+	{
+	    if (    scanner->erroneous_atom
+	              == NULL_STUB )
+	    {
+		scan_error ( scanner, atom_length )
+		    << "ERRONEOUS_ATOM in instruction "
+		    << pID ( instruction_ID, program )
+		    << " executed by table "
+		    << pID ( scanner->current_table_ID,
+		             program )
+		    << " but erroneous_atom closure"
+		       " does not exist"
+		    << min::eol;
+		return SCAN_ERROR;
+	    }
+	    else
+	    {
+		(*scanner->erroneous_atom->announce)
+		    ( scanner->next,
+		      scanner->next + atom_length,
+		      ihp->erroneous_atom_type,
+		      scanner,
+		      scanner->erroneous_atom );
+	    }
+	}
+
 	return instruction_ID;
     }
     abort();
@@ -1758,33 +1786,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		( program, instruction_ID );
         uns32 op = ihp->operation;
 
-	if ( op & ERRONEOUS_ATOM )
-	{
-	    if (    scanner->erroneous_atom
-	              == NULL_STUB )
-	    {
-		scan_error ( scanner, atom_length )
-		    << "ERRONEOUS_ATOM in instruction "
-		    << pID ( instruction_ID, program )
-		    << " executed by table "
-		    << pID ( scanner->current_table_ID,
-		             program )
-		    << " but erroneous_atom closure"
-		       " does not exist"
-		    << min::eol;
-		return SCAN_ERROR;
-	    }
-	    else
-	    {
-		(*scanner->erroneous_atom->announce)
-		    ( scanner->next,
-		      scanner->next + atom_length,
-		      ihp->erroneous_atom_type,
-		      scanner,
-		      scanner->erroneous_atom );
-	    }
-	}
-
 	if ( op & OUTPUT )
 	    lexeme_type = ihp->output_type;
 
@@ -1888,7 +1889,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		    << " executed by table "
 		    << pID ( scanner->current_table_ID,
 		             program )
-		    << " targets non-lexeme table"
+		    << " targets non-(sub)lexeme table"
 		    << min::eol;
 		return SCAN_ERROR;
 	    }

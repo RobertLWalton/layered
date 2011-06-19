@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jun 13 21:48:01 EDT 2011
+# Date:		Sun Jun 19 03:06:03 EDT 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -30,6 +30,7 @@ OPTIMIZE = -O3
 PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_standard_basic_test \
            ll_lexeme_standard_test \
+           ll_lexeme_c++_test \
 	   ll_parser_input_test \
 	   ll_parser_table_test \
 	   ll_parser_explicit_subexpression_test
@@ -39,8 +40,7 @@ TESTS = ${PROGRAMS}
 .SECONDARY:	${TESTS:=.out}
 
 all:		diff ll_lexeme_standard.lex \
-	        ll_lexeme_c++.lex \
-	        ll_lexeme_c++.o
+	        ll_lexeme_c++.lex
 
 diff:		${TESTS:=.diff}
 

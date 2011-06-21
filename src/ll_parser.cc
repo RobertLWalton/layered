@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 18 02:06:31 EDT 2011
+// Date:	Tue Jun 21 07:13:57 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -710,34 +710,61 @@ static PAR::token backup
 // current subexpression terminates just before the
 // line breaks before that token.
 //
-// The `closing_stack' argument defines a stack of
-// closing brackets which correspond to the currently
-// active open brackets.  If any are recognized, the
-// current subexpression terminates just after the
-// recognized bracket, and returns the recognized
-// bracket in the `closing_bracket' argument (which is
-// otherwise set to NULL_STUB).  To be recognized, a
-// closing bracket must be active as per the selectors.
-// So it is possible for a closing bracket to be missed
-// because the selectors have been changed and it is not
-// active.
+// The `bracket_stack' argument defines a stack of
+// brackets that need to be closed.  When an entry in
+// this stack is made, the entry is considered to be
+// `open'.  When a closing bracket corresponding to
+// one of these entries is recognized, that entry, and
+// possibly other entries are marked as being `closed'.
+// If there are no errors in the input, the found clos-
+// ing bracket will correspond to the top entry of
+// the stack, and only that entry will be closed.  But
+// But if a closing bracket for a non-top stack entry
+// is found, and then entries between it and the top of
+// the stack are also marked closed, but in a manner
+// that indicates their closing brackets were missing
+// from the input.
+//
+// Recognition of a closing bracket that corresponds
+// to an entry in the bracket stack causes this func-
+// tion to terminate just after the recognized bracket.
+// To be recognized, a closing bracket must be active as
+// per the selectors.  So it is possible for a closing
+// bracket to be missed because the selectors have been
+// changed and it is not active, though this will only
+// happen if there is some other missing bracket or
+// there has been an error in the way selectors have
+// been defined for the brackets.
+//
+// If a closing bracket is found to be missing from the
+// input, an error message is produced, and the output
+// of this function is computed as if the missing clos-
+// ing bracket were not missing, that is, as if the mis-
+// sing closing bracket were inserted in the input just
+// before the point in the input where the absence of
+// the missing closing bracket was first recognized.
+// This point is just before another closing bracket or
+// is at a newline which is followed by an insufficient-
+// ly indented token.
 //
 // The end of the subexpression is identified by the
 // `current' token upon return by this function, and
-// also by the `closing_bracket' returned by this
-// function.  If `closing_bracket' is NULL_STUB, then
-// `current' is the first token AFTER the subexpression,
-// and is either a line break or an end of file.  Note
-// that if there are several line breaks in a row after
-// the subexpression, all but the first will have been
-// deleted in this case.
+// also by the number of bracket_stack entries that have
+// been marked as closed.  If NO bracket_stack entries
+// have been marked closed, then `current' is the first
+// token AFTER the subexpression, and is either a line
+// break or an end of file.  In this case, if there are
+// several line breaks in a row after the subexpression,
+// all but the first will be deleted.
 //
-// If `closing_bracket' is NOT NULL_STUB, `current' is
-// the first token AFTER the given closing bracket that
-// terminated the expression.  Note that the closing
-// bracket returned may NOT be at the TOP of the closing
-// stack, in which case the proper closing bracket
-// should be assumed to have been erroneously omitted.
+// If a bracket_stack entry has been marked closed, then
+// `current' will be the first token AFTER the closing
+// bracket whose recognition terminated the subexpres-
+// sion.
+//
+// Note that if any bracket_stack entry is marked as
+// closed, then the top bracket_stack entry will be
+// marked as closed.
 //
 // SUBSUBexpressions are converted to an EXPRESSION
 // token whose value is a list.  The tokens beginning
@@ -782,23 +809,43 @@ static PAR::token backup
 // and indentation marks cannot straddle line_breaks.
 //
 // This function is called at the top level with indent
-// <= - parser->indent_offset and closing_stack == NULL.
+// <= - parser->indent_offset and bracket_stack == NULL.
 //
-// If indented_paragraph is true, closing_stack must be
-// NULL.
-//
-struct closing_stack
+struct bracket_stack
 {
-    TAB::closing_bracket closing_bracket;
-    closing_stack * previous;
+    TAB::opening_bracket opening_bracket;
+        // If not NULL_STUB, this identifies the opening
+	// bracket whose recognition made this entry.
+    TAB::named_opening_bracket named_opening_bracket;
+        // If not NULL_STUB, this identifies the named
+	// opening bracket whose recognition made this
+	// entry.
+
+    PAR::token first, next;
+        // If these are NULL_STUB, this entry is open.
+	// Otherwise if first != next, they are the
+	// first token of the closing bracket that
+	// closed this entry, and the next token AFTER
+	// this bracket, but if first == next, the
+	// closing bracket that terminated this entry
+	// was missing and should be inserted just
+	// before next.
+
+    bracket_stack * previous;
         // Stack is NULL terminated.
+
+    bracket_stack ( bracket_stack * previous )
+        : opening_bracket ( min::NULL_STUB ),
+          named_opening_bracket ( min::NULL_STUB ),
+          first ( min::NULL_STUB ),
+          next ( min::NULL_STUB ),
+	  previous ( previous ) {}
 };
 static void parse_explicit_subexpression
 	( PAR::parser parser,
 	  bool indented_paragraph,
 	  PAR::token & current,
-	  TAB::closing_bracket & closing_bracket,
-	  ::closing_stack * closing_stack_p,
+	  ::bracket_stack * bracket_stack_p,
 	  min::int32 paragraph_indent,
 	  TAB::selectors selectors )
 {
@@ -806,9 +853,7 @@ static void parse_explicit_subexpression
     // in an indented paragraph.
     //
     assert (    ! indented_paragraph
-             || closing_stack_p == NULL );
-
-    closing_bracket = min::NULL_STUB;
+             || bracket_stack_p == NULL );
 
     min::int32 line_indent =
         - parser->indent_offset;
@@ -958,13 +1003,11 @@ static void parse_explicit_subexpression
 		PAR::token previous = current->previous;
 		::parse_explicit_subexpression
 		    ( parser, true, current,
-		      closing_bracket, NULL,
+		      NULL,
 		      line_indent >= 0 ?
 		          line_indent :
 			  paragraph_indent,
 		      new_selectors );
-		assert (    closing_bracket
-		         == min::NULL_STUB );
 
 		PAR::token first = previous->next;
 		LEX::position end =
@@ -1136,7 +1179,7 @@ static void parse_explicit_subexpression
 	// If not number or quoted string, look for
 	// bracket or indentation mark.
 	//
-	PAR::token next = current->next;
+	PAR::token current_save = current;
 	TAB::key_prefix key_prefix;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
@@ -1149,7 +1192,7 @@ static void parse_explicit_subexpression
 	    {
 		named_opening_bracket = min::NULL_STUB;
 
-		current = next;
+		current = current_save->next;
 		break;
 	    }
 
@@ -1173,23 +1216,22 @@ static void parse_explicit_subexpression
 		    opening_bracket->new_selectors
 				    .xor_selectors;
 
-		::closing_stack cstack;
-		cstack.previous = closing_stack_p;
-		cstack.closing_bracket =
-		    opening_bracket->closing_bracket;
+		::bracket_stack cstack
+		    ( bracket_stack_p );
+		cstack.opening_bracket =
+		    opening_bracket;
 
 		PAR::token previous = current->previous;
 		::parse_explicit_subexpression
 		    ( parser, false, current,
-		      closing_bracket, & cstack,
+		      & cstack,
 		      line_indent >= 0 ?
 			  line_indent :
 			  paragraph_indent,
 		      new_selectors );
 		PAR::token first = previous->next;
 
-		if (    opening_bracket->closing_bracket
-		     != closing_bracket )
+		if ( cstack.next == cstack.first )
 		{
 		    // Found a closing bracket that is
 		    // not ours, or found a line break
@@ -1197,28 +1239,15 @@ static void parse_explicit_subexpression
 		    // paragraph with the closing
 		    // bracket missing.
 
-		    // Compute tokens of closing bracket
-		    // that was found as
-		    //
-		    //    next ... last
-		    //
-		    // If no closing bracket was found,
-		    // next = last = current is the
-		    // line break or end of file.
+		    // Compute location `next' just
+		    // before which closing bracket
+		    // should be inserted.
 		    //
 		    PAR::token next =
-			(    closing_bracket
+			(    cstack.next
 			  == min::NULL_STUB ?
 			  current :
-			  ::backup
-			      ( current,
-				closing_bracket->label )
-			);
-		    PAR::token last =
-			(    closing_bracket
-			  == min::NULL_STUB ?
-			  current :
-			  current->previous );
+			  cstack.next );
 
 		    parser->printer
 			<< min::bom
@@ -1234,13 +1263,13 @@ static void parse_explicit_subexpression
 			<< LEX::pline_numbers
 			       ( parser->input_file,
 				 next->begin,
-				 last->end )
+				 next->end )
 			<< ":" << min::eom;
 		    LEX::print_item_lines
 			( parser->printer,
 			  parser->input_file,
 			  next->begin,
-			  last->end );
+			  next->end );
 
 
 		    LEX::position end =
@@ -1257,7 +1286,7 @@ static void parse_explicit_subexpression
 			      closing_bracket->
 				  label );
 
-		    if (    closing_bracket
+		    if (    cstack.next
 			 == min::NULL_STUB )
 		    {
 			// Found a line break before
@@ -1270,19 +1299,23 @@ static void parse_explicit_subexpression
 			break;
 		    }
 
-		    // Found a closing_bracket that is
+		    // Found a closing bracket that is
 		    // not ours.  It must be in the
-		    // closing_stack and so needs to
+		    // bracket_stack and so needs to
 		    // be kicked to our caller.
 		    //
 		    goto DONE;
 		}
 		else
 		{
+		    assert ( cstack.next == current );
+
 		    LEX::position end =
 			current->previous->end;
 		    ::remove ( parser, current,
-			       closing_bracket->label );
+			       cstack.opening_bracket
+			           ->closing_bracket
+				   ->label );
 		    LEX::position begin =
 			::remove
 			    ( parser, first,
@@ -1293,24 +1326,36 @@ static void parse_explicit_subexpression
 				opening_bracket->
 				    closing_bracket->
 					label );
-		    closing_bracket = min::NULL_STUB;
 		    break;
 		}
 	    }
 
 	    else if ( subtype == TAB::CLOSING_BRACKET )
 	    {
-		closing_bracket =
+		TAB::closing_bracket closing_bracket =
 		    (TAB::closing_bracket) root;
 
-		::closing_stack * p;
-		for ( p = closing_stack_p;
+		for ( ::bracket_stack * p =
+			  bracket_stack_p;
 		      p != NULL;
 		      p = p->previous )
 		{
-		    if (    p->closing_bracket
+		    if (    p->opening_bracket
+		             ->closing_bracket
 			 == closing_bracket )
+		    {
+		        p->first = current_save;
+			p->next = current;
+
+			for ( ::bracket_stack * q =
+				  bracket_stack_p;
+			      q != p;
+			      q = q->previous )
+			    q->first = q->next =
+			        current_save;
+
 			goto DONE;
+		    }
 		}
 
 		LEX::position end =
@@ -1335,7 +1380,6 @@ static void parse_explicit_subexpression
 		      parser->input_file,
 		      begin, end );
 
-		closing_bracket = min::NULL_STUB;
 		break;
 	    }
 	    else if ( subtype == TAB::INDENTATION_MARK )
@@ -1451,11 +1495,9 @@ void PAR::parse ( PAR::parser parser )
 	( parser, parser->input );
 
     PAR::token current = parser->first;
-    TAB::closing_bracket closing_bracket;
     assert ( current != NULL_STUB );
     parse_explicit_subexpression
 	( parser, true, current,
-	  closing_bracket,
 	  NULL,
 	  - parser->indent_offset,
 	  parser->selectors );

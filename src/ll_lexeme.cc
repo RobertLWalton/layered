@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 19 05:08:03 EDT 2011
+// Date:	Thu Jun 23 01:55:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1583,7 +1583,7 @@ static uns32 scan_atom
 		min::push
 		    ( translation_buffer,
 		      translate_to_length,
-		      min::ptr<uns32>
+		      min::ptr<const uns32>
 		          ( ihp + 1 ) );
 	}
 	else if ( ! ( op & (   MATCH

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 21 07:13:57 EDT 2011
+// Date:	Thu Jun 23 01:44:27 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -436,8 +436,7 @@ void PAR::init_output_stream
 // replaced by a subexpression whose sole element is the
 // token string of the token as a string general value
 // and whose .initiator is # for a number or " for a
-// quoted string.  In addition, consecutive quoted
-// string tokens are merged.
+// quoted string.
 //
 static void compact
 	( PAR::parser parser,
@@ -469,94 +468,18 @@ static void compact
 
 	    if (    current->type
 	         == LEXSTD::quoted_string_t )
-	    {
 	        indicator = ::doublequote;
-	        
-		// Find all the longest sequence of
-		// quoted strings beginning with
-		// current.  These will be concatenated
-		// and all but the first removed.
-		//
-		min::uns32 m = 1;
-		    // Number of consecutive quoted
-		    // strings.
-		min::uns32 length =
-		    current->string->length;
-		    // Aggregate length of consecutive
-		    // quoted strings.
-		//
-		// current ends up just after last
-		// of consecutive quoted strings.
-		//
-		while ( true )
-		{
-		    current = current->next;
-
-		    if ( current == next
-		         ||
-		            current->type
-		         != LEXSTD::quoted_string_t )
-			break;
-
-		    length += current->string->length;
-		    ++ m;
-		}
-
-		if ( m == 1 )
-		{
-		    // Usual case; optimize this.
-		    //
-		    PAR::string str =
-		        current->previous->string;
-		    exp = min::new_str_gen
-			  ( str.begin_ptr(),
-			    str->length );
-		}
-		else
-		{
-		    min::uns32 s[length];
-		        // Concatenated strings.
-		    min::uns32 p = length;
-		        // s[p] is last character
-			// written.
-		    while ( m -- )
-		    {
-			PAR::string str =
-			    current->previous->string;
-			min::uns32 len = str->length;
-			p -= len;
-		        memcpy ( & s[p],
-			         str.begin_ptr(),
-				   sizeof ( min::uns32 )
-				 * len );
-
-			if ( m == 0 ) break;
-
-			// Be sure the FIRST string is
-			// not removed (else `first'
-			// must be updated).
-			//
-			PAR::free
-			  ( PAR::remove
-			      ( PAR::first_ref(parser),
-				current->previous ) );
-		    }
-		    exp =
-		        min::new_str_gen ( s, length );
-		}
-
-		current = current->previous;
-	    }
 	    else
 	    {
 	        assert (    current->type
 	                 == LEXSTD::number_t );
 
 		indicator = ::number_sign;
-		exp = min::new_str_gen
-		        ( current->string.begin_ptr(),
-		          current->string->length );
 	    }
+
+	    exp = min::new_str_gen
+		    ( current->string.begin_ptr(),
+		      current->string->length );
 
 	    PAR::value_ref(current)
 	        = min::new_obj_gen ( 10, 1 );
@@ -679,6 +602,8 @@ static PAR::token backup
 //
 // The parsed subexpression is NOT compacted; its end is
 // identified and its SUBSUBexpressions are compacted.
+// Line breaks are deleted, and after line break
+// deletion, consecutive quoted strings are merged.
 //
 // It is assumed that there are always more tokens
 // available until an end-of-file token is encountered,
@@ -791,9 +716,7 @@ static PAR::token backup
 // bers and quoted strings in the sub-subexpression
 // by subexpressions whose sole elements are the
 // strings of the tokens and whose .initiators are
-// # for number and " for quoted string.  In addition,
-// consecutive quoted strings in the sub-subexpression
-// are merged.
+// # for number and " for quoted string.
 //
 // This function also compacts lines in an indented
 // paragraph into EXPRESSION's.  These are given the
@@ -861,6 +784,8 @@ static void parse_explicit_subexpression
     TAB::indentation_mark indentation_mark =
         min::NULL_STUB;
     TAB::named_opening_bracket named_opening_bracket =
+        min::NULL_STUB;
+    PAR::token named_opening_bracket_next =
         min::NULL_STUB;
 
     while ( true )
@@ -1170,7 +1095,29 @@ static void parse_explicit_subexpression
 	     current->type != PAR::NATURAL_NUMBER )
 	{
 	    named_opening_bracket = min::NULL_STUB;
-	    current = current->next;
+
+	    if (    current->type
+		 == LEXSTD::quoted_string_t
+		 &&
+	         current != parser->first
+	         &&
+		    current->previous->type
+		 == LEXSTD::quoted_string_t )
+	    {
+	        min::push
+		    ( (PAR::string_insptr)
+		          current->previous->string,
+		      current->string->length,
+		      current->string + 0 );
+		current->previous->end =
+		    current->end;
+		current = current->next;
+		free ( remove ( first_ref(parser),
+				current->previous ) );
+	    }
+	    else
+		current = current->next;
+
 	    continue;
 	}
 
@@ -1179,7 +1126,7 @@ static void parse_explicit_subexpression
 	// If not number or quoted string, look for
 	// bracket or indentation mark.
 	//
-	PAR::token current_save = current;
+	PAR::token saved_current = current;
 	TAB::key_prefix key_prefix;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
@@ -1190,9 +1137,7 @@ static void parse_explicit_subexpression
 	{
 	    if ( root == min::NULL_STUB )
 	    {
-		named_opening_bracket = min::NULL_STUB;
-
-		current = current_save->next;
+		current = saved_current->next;
 		break;
 	    }
 
@@ -1344,7 +1289,7 @@ static void parse_explicit_subexpression
 		             ->closing_bracket
 			 == closing_bracket )
 		    {
-		        p->first = current_save;
+		        p->first = saved_current;
 			p->next = current;
 
 			for ( ::bracket_stack * q =
@@ -1352,7 +1297,7 @@ static void parse_explicit_subexpression
 			      q != p;
 			      q = q->previous )
 			    q->first = q->next =
-			        current_save;
+			        saved_current;
 
 			goto DONE;
 		    }
@@ -1393,6 +1338,7 @@ static void parse_explicit_subexpression
 	    {
 	        named_opening_bracket =
 		    (TAB::named_opening_bracket) root;
+		named_opening_bracket_next = current;
 		break;
 	    }
 	    else if (    subtype
@@ -1416,6 +1362,103 @@ static void parse_explicit_subexpression
 		     == named_opening_bracket
 		            ->named_middle_bracket )
 		{
+		    PAR::token middle_bracket_first =
+		    	saved_current;
+
+		    ::bracket_stack cstack
+			( bracket_stack_p );
+		    cstack.named_opening_bracket =
+			named_opening_bracket;
+
+		    PAR::token previous =
+		        current->previous;
+		    ::parse_explicit_subexpression
+			( parser, false, current,
+			  & cstack,
+			  line_indent >= 0 ?
+			      line_indent :
+			      paragraph_indent,
+			  selectors );
+		    PAR::token middle_bracket_next =
+		    	previous->next;
+
+		    if ( cstack.next == cstack.first )
+		    {
+			// Found a closing bracket that is
+			// not ours, or found a line break
+			// or end of file that terminates a
+			// paragraph with the closing
+			// bracket missing.
+
+			// Compute location `next' just
+			// before which closing bracket
+			// should be inserted.
+			//
+			PAR::token next =
+			    (    cstack.next
+			      == min::NULL_STUB ?
+			      current :
+			      cstack.next );
+
+			parser->printer
+			    << min::bom
+			    << min::set_indent ( 7 )
+			    << "ERROR: missing named"
+			       " closing bracket `"
+			    << min::pgen
+			       ( named_opening_bracket->
+			    named_middle_closing_bracket
+				 ->label,
+				 & ::bracket_format )
+			    << "' inserted; "
+			    << LEX::pline_numbers
+				   ( parser->input_file,
+				     next->begin,
+				     next->end )
+			    << ":" << min::eom;
+			LEX::print_item_lines
+			    ( parser->printer,
+			      parser->input_file,
+			      next->begin,
+			      next->end );
+
+// TBD
+
+			LEX::position end =
+			    next->previous->end;
+			LEX::position begin =
+			    ::remove
+				( parser,
+				  named_opening_bracket_next,
+				  named_opening_bracket->label );
+			::compact
+			    ( parser, named_opening_bracket_next, next,
+			      begin, end,
+			      named_opening_bracket->label,
+			      named_opening_bracket->
+				  named_closing_bracket->
+				      label );
+
+			if (    cstack.next
+			     == min::NULL_STUB )
+			{
+			    // Found a line break before
+			    // non-indented line or an end
+			    // of file when a closing
+			    // bracket was expected.  Go
+			    // to appropriate code above
+			    // to process.
+			    //
+			    break;
+			}
+
+			// Found a closing bracket that is
+			// not ours.  It must be in the
+			// bracket_stack and so needs to
+			// be kicked to our caller.
+			//
+			goto DONE;
+		    }
 // TBD
 		    break;
 		}

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 19 05:26:12 EDT 2011
+// Date:	Fri Jun 24 07:59:57 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -500,9 +500,9 @@ static void internal_add_characters
 	         "non-ASCII character in"
 		 " include_chars" );
         ASSERT ( d.ascii_map[c] == 0,
-	         "character %c in use by"
+	         "character 0x%X in use by"
 		 " previous dispatcher",
-	         (char) c );
+	         c );
 	d.ascii_map[c] = d.max_type_code;
     }
 }
@@ -590,7 +590,26 @@ void LEXNDL::add_characters
     ASSERT ( min_char <= max_char,
              "add_characters() min_char > max_char" );
 
+    if ( min_char < 128 )
+    {
+	dispatcher & d = parent_dispatcher();
+
+	while ( min_char < 128 && min_char <= max_char )
+	{
+	    ASSERT ( d.ascii_map[min_char] == 0,
+		     "character 0x%X in use by"
+		     " previous dispatcher",
+		     min_char );
+	    d.ascii_map[min_char] = d.max_type_code;
+	    ++ min_char;
+	}
+
+	if ( min_char > max_char ) return;
+    }
+
+
     dispatcher & d = current_dispatcher();
+
     ++ d.type_map_count;
     min::push(uns32_stack) = min_char;
     min::push(uns32_stack) = max_char;

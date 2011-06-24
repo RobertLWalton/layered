@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 15 04:28:05 EDT 2011
+// Date:	Fri Jun 24 04:02:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,12 +64,14 @@ cc	    "END_OF_FILE",
 cc	    "PREMATURE_END_OF_LINE",
 cc	    "PREMATURE_END_OF_FILE",
 cc	    "MISPLACED_CHARACTER",
+cc	    "MISPLACED_SPACE",
 cc	    "ASCII_ESCAPE_SEQUENCE",
 cc	    "NON_LETTER_ESCAPE_SEQUENCE",
+cc	    "MISPLACED_CONTROL_CHARACTER",
 cc	    "UNRECOGNIZED_ESCAPE_SEQUENCE" };
 cc
 cc	const char * LEXSTD::type_code =
-cc	    "Xwn#mqschbeLFCANU";
+cc	    "?wn#mqschbeLFCSANXU";
 cc
 cc	struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
@@ -98,6 +100,22 @@ cc		( void )
 cc	{
 cc	    for ( char_range *p =
 cc		      non_ascii_combining_chars;
+cc		  p->min != 0 || p->max != 0; ++ p )
+cc		NDL::add_characters ( p->min, p->max );
+cc	}
+cc
+cc	char_range non_ascii_control_chars[] =
+cc	{
+cc		// { min,		max },
+cc		   NON_ASCII_CONTROL_CHARACTERS,
+cc		   { 0,                0 }
+cc	};
+cc
+cc	static void add_non_ascii_control_chars
+cc		( void )
+cc	{
+cc	    for ( char_range *p =
+cc		      non_ascii_control_chars;
 cc		  p->min != 0 || p->max != 0; ++ p )
 cc		NDL::add_characters ( p->min, p->max );
 cc	}
@@ -139,6 +157,10 @@ cc		( horizontal_space,
 cc		  horizontal_space_t );
 cc	    uns32 line_break;
 cc	    NDL::new_table ( line_break, line_break_t );
+cc	    uns32 misplaced_space;
+cc	    NDL::new_table
+cc		( misplaced_space,
+cc		  misplaced_space_t );
 cc
 cc	    uns32 premature_end_of_line;
 cc	    NDL::new_table
@@ -168,11 +190,11 @@ cc		NDL::add_characters ( 0x00, 0x7F );
 cc	    NDL::end_atom_pattern();
 cc
 
-lex	// NON_ASCII_LETTER and NON_ASCII_COMBINING_
-lex	// CHARACTER are defined in ll_lexeme_non_ascii_
-lex	// characters.h.
+lex	// NON_ASCII_LETTERS, NON_ASCII_COMBINING_
+lex	// CHARACTERS, NON_ASCII_CONTROL_CHARACTERS are
+lex	// defined in ll_lexeme_non_ascii_characters.h.
 lex
-lex	"<non-ascii-letter>" = NON_ASCII_LETTER
+lex	"<non-ascii-letter>" = NON_ASCII_LETTERS
 lex
 cc	    uns32 non_ascii_letter;
 cc	    NDL::begin_atom_pattern
@@ -182,7 +204,7 @@ cc	    NDL::end_atom_pattern();
 cc
 
 lex	"<non-ascii-combining-char>" =
-lex	    NON_ASCII_COMBINING_CHARACTER
+lex	    NON_ASCII_COMBINING_CHARACTERS
 lex
 cc	    uns32 non_ascii_combining_char;
 cc	    NDL::begin_atom_pattern
@@ -190,6 +212,10 @@ cc		    ( non_ascii_combining_char );
 cc		add_non_ascii_combining_chars();
 cc	    NDL::end_atom_pattern();
 cc
+
+lex	"<non-ascii-control-char>" =
+lex	    NON_ASCII_CONTROL_CHARACTERS
+lex
 
 lex	"<ascii-letter>" = "a-z" | "A-Z";
 lex
@@ -218,7 +244,7 @@ lex
 
 lex	"<non-ascii-word-char>" =
 lex	      "<non-ascii-letter>"
-lex	    | NON_ASCII_COMBINING_CHARACTER
+lex	    | "<non-ascii-combining-char>"
 lex
 cc	    uns32 non_ascii_word_char;
 cc	    NDL::begin_atom_pattern
@@ -230,11 +256,10 @@ cc
 
 lex	// Context sensitive character classifications,
 lex	// e.g., classifying ' as a word character if it
-lex	// is followed by a letter or digit, cannot be
-lex	// included in character pattern definitions,
-lex	// but are noted in comments.  They are accoun-
-lex	// ted for by separate lexeme table entries
-lex	// below.
+lex	// is followed by a letter, cannot be included
+lex	// in character pattern definitions, but are
+lex	// noted in comments.  They are accounted for
+lex	// by separate lexeme table entries below.
 lex
 
 lex	"<non-letter>" = ~ "<letter>";
@@ -263,16 +288,25 @@ lex	                   | "{" | "}" | ";" | "`";
 lex	              //
 lex	              // Also , not surrounded by digits
 lex	              //      ' not followed by a letter
-lex		      //        or digit
 lex
 cc	    const char * separator_char = "()[]{};`";
 cc
 
-lex	"<line-break-char>" = "<LF>" | "<VT>" | "<FF>"
-lex	                    | "<CR>";
+lex	"<misplaced-space-char>" =
+lex	        "<CR>" | "<VT>" | "<FF>"
 lex
-cc	    const char * line_break_char = "\n\v\f\r";
+cc	    const char * misplaced_space_char =
+cc		"\r\v\f";
 cc
+
+lex	"<ascii-control-char>" = "<0>-<1F>" | "<7F>"
+lex
+lex	"<control-char>" = "<ascii-control-char>"
+lex	                 | "<non-ascii-control-char>"
+lex
+lex	"<control-char-except-CR-LF>" =
+lex	    "<control-char>" & ~ "<CR>" & ~ "<LF>"
+lex
 
 lex	"<horizontal-space-char>" = " " | "<HT>";
 lex
@@ -285,6 +319,7 @@ cc	    const char * escape_char =
 cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
 cc
 
+lex
 lex	begin main master table;
 lex
 cc	    NDL::begin_table ( main );
@@ -303,19 +338,24 @@ lex	   // Inside quoted strings, unrecognized
 lex	   // escapes are treated as erroneous atoms,
 lex	   // translated to "", and ignored.  The
 lex	   // lexemes output would be the same if they
-lex	   // removed.
+lex	   // were removed.
 lex
 
-lex	   // Whitespace is separated out into 3 types
+lex	   // Whitespace is separated out into 4 types
 lex	   // of lexemes:
 lex	   //
-lex	   //   `horizontal space'  spaces and horizon-
-lex	   //                       tal tabs
-lex	   //   `line break'        linefeeds, carriage
-lex	   //                       returns, form feeds,
-lex	   //                       and vertical tabs
-lex	   //   `comments'          `//' up to just be-
-lex	   //                       fore next line break
+lex	   //   `space'
+lex	   //       single spaces and horizontal tabs
+lex	   //   `line break'
+lex	   //       linefeeds, carriage returns, form
+lex	   //       feeds, and vertical tabs, with at
+lex	   //       least one line feed
+lex	   //   `misplaced space'
+lex	   //       ditto but with no line feed
+lex	   //   `comments'
+lex	   //       `//' up to just before next line
+lex	   //        break, misplaced space, or (pre-
+lex	   //        mature) end of file
 lex	   //
 lex	   "//" call comment;
 lex	   "/"  call mark;
@@ -338,11 +378,18 @@ cc		      NDL::call ( horizontal_space );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "<line-break-char>" call line break;
+lex	   "<LF>" call line break;
+cc		   NDL::begin_dispatch
+cc			( "\n" );
+cc		      NDL::call ( line_break );
+cc		   NDL::end_dispatch();
+cc
+lex	   "<misplaced-space-char>"
+lex	        call misplaced space;
 lex
 cc		   NDL::begin_dispatch
-cc			( line_break_char );
-cc		      NDL::call ( line_break );
+cc			( misplaced_space_char );
+cc		      NDL::call ( misplaced_space );
 cc		   NDL::end_dispatch();
 cc
 
@@ -356,14 +403,12 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "'<letter>" call word;
-lex	   "'<digit>" call word;
 lex	   "'" output separator;
 lex
 cc		   NDL::begin_dispatch ( "'" );
 cc		      NDL::begin_dispatch
 cc			( ascii_letter );
 cc			 add_non_ascii_letters ();
-cc			 NDL::add_characters ( digit );
 cc			 NDL::call ( word );
 cc		      NDL::end_dispatch();
 cc
@@ -496,9 +541,11 @@ cc	    NDL::begin_table ( comment );
 cc	    	   
 
 lex	   "<LF>" keep 0 return;
+lex	   "<misplaced-space-char>" keep 0 return;
 lex
 cc	           NDL::begin_dispatch
-cc			( line_break_char );
+cc			( misplaced_space_char );
+cc		       NDL::add_characters ( "\n" );
 cc		       NDL::keep ( 0 );
 cc		       NDL::ret();
 cc		   NDL::end_dispatch();
@@ -511,12 +558,17 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	end comment lexeme table;
+lex	   goto premature end of file;
 lex
+cc	           NDL::go ( premature_end_of_file );
+cc
+
+lex	end comment lexeme table;
 lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin horizontal space lexeme table;
 lex
 cc	    NDL::begin_table ( horizontal_space );
@@ -537,19 +589,52 @@ cc
 
 lex	end horizontal space lexeme table;
 lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin misplaced space lexeme table;
+lex
+cc	    NDL::begin_table ( misplaced_space );
+cc
+
+lex	   "<LF>" goto line break;
+lex
+cc	           NDL::begin_dispatch ( "\n" );
+cc		       NDL::go ( line_break );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<misplaced-space-char>" accept;
+lex
+cc	           NDL::begin_dispatch
+cc			( misplaced_space_char );
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end misplaced space lexeme table;
 lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin line break lexeme table;
 lex
 cc	    NDL::begin_table ( line_break );
 cc
 
-lex	   "<line-break-char>" accept;
+lex	   "<LF>" accept;
+lex	   "<misplaced-space-char>" accept;
 lex
 cc	           NDL::begin_dispatch
-cc			( line_break_char );
+cc			( misplaced_space_char );
+cc		       NDL::add_characters ( "\n" );
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -561,10 +646,10 @@ cc
 
 lex	end line break lexeme table;
 lex
-lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin word lexeme table;
 lex
 cc	    NDL::begin_table ( word );
@@ -619,6 +704,7 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin mark lexeme table;
 lex
 cc	    NDL::begin_table ( mark );
@@ -698,6 +784,7 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin natural number lexeme table;
 lex
 cc	    NDL::begin_table ( natural_number );
@@ -753,6 +840,7 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin number lexeme table;
 lex
 cc	    NDL::begin_table ( number );
@@ -795,10 +883,10 @@ cc
 
 lex	end number lexeme table;
 lex
-lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin quoted string lexeme table;
 lex
 cc	    NDL::begin_table ( quoted_string );
@@ -832,13 +920,52 @@ cc			 NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<line-break-char>"
+lex	    "<LF>"
 lex	        keep 0 goto premature end of line;
 lex
-cc	           NDL::begin_dispatch
-cc			( line_break_char );
+cc	           NDL::begin_dispatch ( "\n" );
 cc		      NDL::keep ( 0 );
 cc		      NDL::go ( premature_end_of_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	    "<CR><LF>"
+lex	        keep 0 goto premature end of line;
+lex	    "<CR>"
+lex	        error misplaced control char
+lex	        translate to "";
+lex
+cc	           NDL::begin_dispatch ( "\r" );
+cc	              NDL::begin_dispatch ( "\n" );
+cc		         NDL::keep ( 0 );
+cc		         NDL::go
+cc			    ( premature_end_of_line );
+cc		      NDL::end_dispatch();
+cc
+cc		      NDL::erroneous_atom
+cc		         ( misplaced_control_char_t );
+cc		      NDL::translate_to ( "" );
+cc		   NDL::end_dispatch();
+cc
+
+lex	    "<control-char-except-CR-LF>"
+lex	        error misplaced control char
+lex	        translate to "";
+lex
+cc	           NDL::begin_dispatch ( "" );
+cc		      NDL::add_characters
+cc			 ( 0x00, '\n'-1 );
+cc		      NDL::add_characters
+cc			 ( '\n'+1, '\r'-1 );
+cc		      NDL::add_characters
+cc			 ( '\r'+1, 0x1F );
+cc		      NDL::add_characters
+cc			 ( 0x7F, 0x7F );
+cc
+cc		      add_non_ascii_control_chars();
+cc		      NDL::erroneous_atom
+cc		         ( misplaced_control_char_t );
+cc		      NDL::translate_to ( "" );
 cc		   NDL::end_dispatch();
 cc
 
@@ -859,6 +986,7 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin escaped char atom table;
 lex
 cc	    NDL::begin_table ( escaped_char );
@@ -1093,6 +1221,7 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin escaped hex char atom table;
 lex
 cc	    NDL::begin_table ( escaped_hex_char );
@@ -1154,11 +1283,34 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin unrecoginized escape seq atom table;
 lex
 cc	    NDL::begin_table ( unrec_escape_seq );
 cc
 
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>" ">";
+lex	    "<" "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char><escape-char>"
+lex	        "<escape-char>" ">";
 lex	    "<" "<escape-char><escape-char>"
 lex	        "<escape-char><escape-char>"
 lex	        "<escape-char><escape-char>"
@@ -1189,6 +1341,8 @@ cc
 cc	       NDL::begin_dispatch ( "<" );
 cc		  BEG; BEG; BEG; BEG;
 cc		  BEG; BEG; BEG; BEG;
+cc		  BEG; BEG; BEG; BEG;
+cc		  END; END; END; END;
 cc		  END; END; END; END;
 cc		  END; END; END; END;
 cc	       NDL::end_dispatch();
@@ -1207,6 +1361,7 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin premature end of line master table;
 lex
 cc	    NDL::begin_table ( premature_end_of_line );
@@ -1223,6 +1378,7 @@ lex
 cc	    NDL::end_table();
 cc
 
+lex
 lex	begin premature end of file master table;
 lex
 cc

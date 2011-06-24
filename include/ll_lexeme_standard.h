@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 15 04:58:29 EDT 2011
+// Date:	Fri Jun 24 04:11:33 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,19 +53,45 @@ namespace ll { namespace lexeme { namespace standard {
     //    lent to horizontal space.
     //
     const uns32 premature_end_of_line_t		= 11;
+        // A line feed or <CR><LF> was encountered in a
+	// quoted string.  The quoted string is ended as
+	// if by ", and this 0-length lexeme is output
+	// before the line break.
     const uns32 premature_end_of_file_t		= 12;
+        // A comment or quoted string ended with an end
+	// of file.  The quoted string is ended as if by
+	// ".  This 0-length lexeme is output before the
+	// end of file lexeme.
     const uns32 misplaced_char_t		= 13;
-    const uns32 ascii_escape_seq_t		= 14;
-    const uns32 non_letter_escape_seq_t		= 15;
+        // A character in a lexeme beginning position
+	// that cannot begin a lexeme.
+    const uns32 misplaced_space_t		= 14;
+        // A sequence of carriage returns, form feed,
+	// and vertical tabs that does not contain
+	// a line feed.
+    const uns32 ascii_escape_seq_t		= 15;
+        // A <0...> escape sequence that represents any
+	// ASCII character and is outside a quoted
+	// string.
+    const uns32 non_letter_escape_seq_t		= 16;
+        // A <0...> escape sequence in a lexeme begin-
+	// ning position that does not represent a
+	// letter.
 
     // Erroneous Atom Types:
     //
     //    These are translated to "" and ignored, so
     //    removal will not change the lexemes produced.
     //
-    const uns32 unrecognized_escape_seq_t	= 16;
+    const uns32 misplaced_control_char_t	= 17;
+        // Any control character in a quoted string.
+    const uns32 unrecognized_escape_seq_t	= 18;
+        // Any unrecognized <...> sequence in a quoted
+	// string where ... is at most 12 characters
+	// that are all upper case letters, digits,
+	// or `-'s.
 
-    const unsigned MAX_TYPE = 16;
+    const unsigned MAX_TYPE = 18;
 
     extern const char * const type_name[MAX_TYPE+1];
 

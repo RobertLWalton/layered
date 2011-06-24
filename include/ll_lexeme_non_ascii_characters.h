@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_non_ascii_characters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  5 06:16:44 EDT 2011
+// Date:	Fri Jun 24 06:38:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -76,9 +76,19 @@
 //
 // Taken from Doc no. WG21/N3146, 2004 Proposal for a
 // set of allowed identifier characters.
-
+//
 #define NON_ASCII_COMBINING_CHARACTERS \
     { 0x0300,	0x036F }, \
     { 0x1DC0,	0x1DFF }, \
     { 0x20D0,	0x20FF }, \
     { 0xFE20,	0xFE2F }
+
+// UNICODE ranges of non-ASCII control characters; i.e.,
+// non-graphic characters.
+//
+#define NON_ASCII_CONTROL_CHARACTERS \
+    { 0x0080,	0x00A0 }, \
+    { 0x2000,	0x200F }, \
+    { 0x2011,	0x2011 }, \
+    { 0x2028,	0x202F }, \
+    { 0x205F,	0x206F }

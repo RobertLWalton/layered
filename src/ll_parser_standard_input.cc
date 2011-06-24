@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 18 07:14:23 EDT 2011
+// Date:	Fri Jun 24 06:56:09 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,6 +87,10 @@ static void erroneous_atom_announce
 	message = "ERROR: unrecognized escape"
 	          " sequence; ";
 	break;
+    case LEXSTD::misplaced_control_char_t:
+	message = "ERROR: misplaced control"
+	          " character; ";
+	break;
     default:
 	message = "ERROR: system error: unrecognized"
 	          " erroneous atom type; ";
@@ -148,6 +152,9 @@ static min::uns32 input_add_tokens
 	    break;
 	case LEXSTD::misplaced_char_t:
 	    message = "ERROR: misplaced character; ";
+	    break;
+	case LEXSTD::misplaced_space_t:
+	    message = "ERROR: misplaced space; ";
 	    break;
 	case LEXSTD::ascii_escape_seq_t:
 	    message = "ERROR: ascii escape sequence; ";

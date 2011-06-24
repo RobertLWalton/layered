@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 23 01:55:06 EDT 2011
+// Date:	Fri Jun 24 07:28:43 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -463,13 +463,25 @@ static bool attach_type_map_to_dispatcher
 
     if ( bep[i].type_map_ID != 0 )
     {
+	uns32 old_cmin = bep[i].cmin;
+	uns32 old_cmax = i+1 < dhp->break_elements ?
+	                 bep[i+1].cmin - 1 :
+		         0xFFFFFFFF;
         ERR << "Attempt to attach type map "
 	    << pID ( type_map_ID, program )
+	    << " with range "
+	    << min::puns ( tmhp->cmin, "0x%X" )
+	    << "-"
+	    << min::puns ( tmhp->cmax, "0x%X" )
 	    << " to dispatcher "
 	    << pID ( dispatcher_ID, program )
 	    << " conflicts with previous attachment of"
 	       " type map "
 	    << pID ( bep[i].type_map_ID, program )
+	    << " to range "
+	    << min::puns ( old_cmin, "0x%X" )
+	    << "-"
+	    << min::puns ( old_cmax, "0x%X" )
 	    << min::eol;
         return false;
     }
@@ -479,13 +491,25 @@ static bool attach_type_map_to_dispatcher
 	 bep[i+1].cmin < tmhp->cmin )
     {
         assert ( bep[i+1].type_map_ID != 0 );
+	uns32 old_cmin = bep[i+1].cmin;
+	uns32 old_cmax = i+2 < dhp->break_elements ?
+	                 bep[i+2].cmin - 1 :
+		         0xFFFFFFFF;
         ERR << "Attempt to attach type map "
 	    << pID ( type_map_ID, program )
+	    << " with range "
+	    << min::puns ( tmhp->cmin, "0x%X" )
+	    << "-"
+	    << min::puns ( tmhp->cmax, "0x%X" )
 	    << " to dispatcher "
 	    << pID ( dispatcher_ID, program )
 	    << " conflicts with previous attachment of"
 	       " type map "
 	    << pID ( bep[i+1].type_map_ID, program )
+	    << " to range "
+	    << min::puns ( old_cmin, "0x%X" )
+	    << "-"
+	    << min::puns ( old_cmax, "0x%X" )
 	    << min::eol;
         return false;
     }

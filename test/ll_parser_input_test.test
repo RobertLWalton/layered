@@ -11,7 +11,7 @@ LINE_BREAK: line 3:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 LINE_BREAK: line 4:
-// Date:        Tue Jun  7 04:36:17 EDT 2011
+// Date:        Fri Jun 24 08:37:02 EDT 2011
                                             ^
 LINE_BREAK: line 5:
 //
@@ -501,24 +501,57 @@ QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 33:
 LINE_BREAK: line 33:
 "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
                                           ^
-QUOTED_STRING: premature␣end␣of␣line: line 34:
-"premature end of line
-^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of line; line 34:
-"premature end of line
-                      ^
+ERROR: misplaced control character; line 34:
+"misplaced control ␁"
+                   ^
+QUOTED_STRING: misplaced␣control␣: line 34:
+"misplaced control ␁"
+^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 34:
+"misplaced control ␁"
+                     ^
+WORD: misplaced: line 35:
+misplaced space ␌ here and ␍ here
+^^^^^^^^^
+WORD: space: line 35:
+misplaced space ␌ here and ␍ here
+          ^^^^^
+ERROR: misplaced space; line 35:
+misplaced space ␌ here and ␍ here
+                ^
+WORD: here: line 35:
+misplaced space ␌ here and ␍ here
+                  ^^^^
+WORD: and: line 35:
+misplaced space ␌ here and ␍ here
+                       ^^^
+ERROR: misplaced space; line 35:
+misplaced space ␌ here and ␍ here
+                           ^
+WORD: here: line 35:
+misplaced space ␌ here and ␍ here
+                             ^^^^
+LINE_BREAK: line 35:
+misplaced space ␌ here and ␍ here
+                                 ^
+QUOTED_STRING: premature␣end␣of␣line: line 36:
+"premature end of line
+^^^^^^^^^^^^^^^^^^^^^^
+ERROR: premature end of line; line 36:
 "premature end of line
                       ^
-QUOTED_STRING: premature␣end␣of␣file: line 35:
+LINE_BREAK: line 36:
+"premature end of line
+                      ^
+QUOTED_STRING: premature␣end␣of␣file: line 37:
 "premature end of file<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of file; line 35:
+ERROR: premature end of file; line 37:
 "premature end of file<END-OF-FILE>
                       ^
-END_OF_FILE: line 35:
+END_OF_FILE: line 37:
 "premature end of file<END-OF-FILE>
                       ^
-ERROR: line break missing from end of file; line 35:
+ERROR: line break missing from end of file; line 37:
 "premature end of file<END-OF-FILE>
                       ^

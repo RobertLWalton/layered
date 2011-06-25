@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 23 05:10:17 EDT 2011
+// Date:	Fri Jun 24 20:54:43 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -744,10 +744,11 @@ struct bracket_stack
 	// opening bracket whose recognition made this
 	// entry.
 
-    PAR::token name_first, name_next;
+    PAR::token opening_first, opening_next;
         // For named_opening_brackets only, the first
-	// token of the name and the first token AFTER
-	// the name.
+	// token AFTER the named opening bracket and the
+	// first token OF the named middle bracket; thus
+	// bounding the named bracket name.
 
     PAR::token closing_first, closing_next;
         // If these are NULL_STUB, this entry is open.
@@ -765,8 +766,8 @@ struct bracket_stack
     bracket_stack ( bracket_stack * previous )
         : opening_bracket ( min::NULL_STUB ),
           named_opening_bracket ( min::NULL_STUB ),
-          name_first ( min::NULL_STUB ),
-          name_next ( min::NULL_STUB ),
+          opening_first ( min::NULL_STUB ),
+          opening_next ( min::NULL_STUB ),
           closing_first ( min::NULL_STUB ),
           closing_next ( min::NULL_STUB ),
 	  previous ( previous ) {}
@@ -796,16 +797,10 @@ static void parse_explicit_subexpression
         min::NULL_STUB;
 	// If not NULL_STUB, a named opening bracket
 	// with this table entry is being scanned.
-    PAR::token name_first = min::NULL_STUB;
-    PAR::token name_last = min::NULL_STUB;
-        // Defined if named_opening_bracket != NULL_
-	// STUB.  name_first is the first token of
-	// the bracket name.  name_last is NULL_STUB if
-	// the name is still being scanned, and is the
-	// last token of the name if the name has
-	// been completely scanned (the last token is
-	// used because the following token may be
-	// replaced.
+    PAR::token named_opening_first = min::NULL_STUB;
+        // If named_opening_bracket != NULL_STUB, this
+	// is the first token after the named opending
+	// bracket.
 
     while ( true )
     {
@@ -1165,9 +1160,6 @@ static void parse_explicit_subexpression
 
 	    if ( subtype == TAB::OPENING_BRACKET )
 	    {
-	        if ( name_last == min::NULL_STUB )
-		    name_last = saved_current->previous;
-
 		TAB::opening_bracket opening_bracket =
 		    (TAB::opening_bracket) root;
 
@@ -1364,8 +1356,7 @@ static void parse_explicit_subexpression
 	    {
 	        named_opening_bracket =
 		    (TAB::named_opening_bracket) root;
-		name_first = current;
-		name_last = min::NULL_STUB;
+		named_opening_first = current;
 		break;
 	    }
 	    else if (    subtype
@@ -1377,13 +1368,7 @@ static void parse_explicit_subexpression
 		        (TAB::named_separator) root
 		     == named_opening_bracket
 		            ->named_separator )
-		{
-		    if ( name_last == min::NULL_STUB )
-			name_last =
-			    saved_current->previous;
-
 		    break;
-		}
 	    }
 	    else if (    subtype
 	              == TAB::NAMED_MIDDLE_BRACKET )
@@ -1395,10 +1380,6 @@ static void parse_explicit_subexpression
 		     == named_opening_bracket
 		            ->named_middle_bracket )
 		{
-		    if ( name_last == min::NULL_STUB )
-			name_last =
-			    saved_current->previous;
-
 		    PAR::token middle_bracket_first =
 		    	saved_current;
 
@@ -1406,8 +1387,9 @@ static void parse_explicit_subexpression
 			( bracket_stack_p );
 		    cstack.named_opening_bracket =
 			named_opening_bracket;
-		    cstack.name_first = name_first;
-		    cstack.name_next = name_last->next;
+		    cstack.opening_first =
+		        named_opening_first;
+		    cstack.opening_next = saved_current;
 
 		    PAR::token previous =
 		        current->previous;
@@ -1469,11 +1451,11 @@ static void parse_explicit_subexpression
 			LEX::position begin =
 			    ::remove
 				( parser,
-				  name_first,
+				  named_opening_first,
 				  named_opening_bracket->label );
 			::compact
-			    ( parser, name_first, next,
-			      begin, end,
+			    ( parser, named_opening_first,
+			      next, begin, end,
 			      named_opening_bracket->label,
 			      named_opening_bracket->
 				  named_closing_bracket->

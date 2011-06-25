@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 15 22:18:14 EDT 2011
+// Date:	Sat Jun 25 09:09:01 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -117,10 +117,7 @@ typedef min::packed_struct_updptr<token_struct>
     token;
 enum // Token types (see below).
 {
-    SYMBOL		= 0xFFFFFFFF,
-    NATURAL_NUMBER	= 0xFFFFFFFE,
-    LABEL		= 0xFFFFFFFD,
-    EXPRESSION		= 0xFFFFFFFC
+    EXPRESSION		= 0xFFFFFFFF
 };
 struct token_struct
 {
@@ -131,21 +128,16 @@ struct token_struct
 	//
         // For lexemes: the lexeme type.
 	//
-	// For names:
-	//
-    	//	SYMBOL
-	//	NATURAL_NUMBER
-	//	LABEL
-	//
 	// For expressions:
 	//
     	//	EXPRESSION
 
     const min::gen value;
-        // Value for names and expressions.
+        // Value for some lexeme types and for
+	// expressions.
 
     const ll::parser::string string;
-        // Character string for lexemes.
+        // Character string for some lexeme types.
 
     ll::lexeme::position begin, end;
         // Position of the first character of the token
@@ -166,7 +158,7 @@ MIN_REF ( ll::parser::token, previous,
           ll::parser::token )
 
 // Allocate a new token of the given type.  Value is set
-// to min:MISSING and string to NULL_STUB.
+// to min::MISSING() and string to min::NULL_STUB.
 //
 ll::parser::token new_token ( uns32 type );
 
@@ -713,10 +705,11 @@ void parse ( ll::parser::parser parser =
 // Locate the key prefix in the hash table that
 // corresponds to the longest available string of tokens
 // beginning with `current'.  Tokens are added to the
-// token list as necessary.  It is assumed that the
-// token list finally ends with an end-of-file token,
-// and this cannot be part of any hash table entry
-// (because it is not a SYMBOL or NATURAL_NUMBER).
+// token list as necessary.  Only tokens with a non-
+// MISSING token value are considered.  It is assumed
+// that the token list finally ends with an end-of-file
+// token, and this cannot be part of any hash table
+// entry (because its token value is MISSING).
 //
 // Returns NULL_STUB if no such key prefix.  If a key
 // prefix is found, `current' is set to the first token
@@ -731,10 +724,11 @@ ll::parser::table::key_prefix find_key_prefix
 // Locate the hash table entry in the hash table that
 // corresponds to the longest available string of tokens
 // beginning with `current'.  Tokens are added to the
-// token list as necessary.  It is assumed that the
-// token list finally ends with an end-of-file token,
-// and this cannot be part of any hash table entry
-// (because it is not a SYMBOL or NATURAL_NUMBER).
+// token list as necessary.  Only tokens with a non-
+// MISSING token value are considered.  It is assumed
+// that the token list finally ends with an end-of-file
+// token, and this cannot be part of any hash table
+// entry (because its token value is MISSING).
 //
 // Only hash table entries which have a selector bit
 // on are considered.

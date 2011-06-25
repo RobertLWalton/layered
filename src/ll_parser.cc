@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 24 20:54:43 EDT 2011
+// Date:	Sat Jun 25 09:20:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -430,13 +430,12 @@ void PAR::init_output_stream
 // given arguments.  The resulting token is next->
 // previous.
 //
-// Any token in the expression being output that is not
-// a SYMBOL, NATURAL_NUMBER, or EXPRESSION must be a
-// non-natural number or quoted string.  These are
-// replaced by a subexpression whose sole element is the
-// token string of the token as a string general value
-// and whose .initiator is # for a number or " for a
-// quoted string.
+// Any token in the expression being output that has a
+// MISSING token value must be a non-natural number or
+// quoted string.  These are replaced by a subexpression
+// whose sole element is the token string of the token
+// as a string general value and whose .initiator is #
+// for a number or " for a quoted string.
 //
 static void compact
 	( PAR::parser parser,
@@ -458,11 +457,7 @@ static void compact
           current != next;
 	  ++ n, current = current->next )
     {
-	if ( current->type != PAR::SYMBOL
-	     &&
-	     current->type != PAR::NATURAL_NUMBER
-	     &&
-	     current->type != PAR::EXPRESSION )
+	if ( current->value == min::MISSING() )
 	{
 	    min::gen indicator;
 
@@ -797,9 +792,9 @@ static void parse_explicit_subexpression
         min::NULL_STUB;
 	// If not NULL_STUB, a named opening bracket
 	// with this table entry is being scanned.
-    PAR::token named_opening_first = min::NULL_STUB;
+    PAR::token named_first = min::NULL_STUB;
         // If named_opening_bracket != NULL_STUB, this
-	// is the first token after the named opending
+	// is the first token after the named opening
 	// bracket.
 
     while ( true )
@@ -828,7 +823,8 @@ static void parse_explicit_subexpression
 	    //
 	    if ( current != parser->first
 	         &&
-		 current->previous->type == PAR::SYMBOL
+		    current->previous->type
+		 == LEXSTD::mark_t
 		 &&
 		 indentation_mark == min::NULL_STUB )
 	    {
@@ -875,7 +871,7 @@ static void parse_explicit_subexpression
 			    ( PAR::first_ref(parser),
 			      current,
 			      PAR::new_token
-			          ( PAR::SYMBOL ) );
+			          ( LEXSTD::mark_t ) );
 			PAR::value_ref
 			    (current->previous) =
 			    indentation_mark->label;
@@ -1101,12 +1097,12 @@ static void parse_explicit_subexpression
 
 	indentation_mark = min::NULL_STUB;
 
-	// Process non-natural numbers and quoted
-	// strings.
+	// Process tokens that are not separators or
+	// marks.
 	//
-	if ( current->type != PAR::SYMBOL
+	if ( current->type != LEXSTD::separator_t
 	     &&
-	     current->type != PAR::NATURAL_NUMBER )
+	     current->type != LEXSTD::mark_t )
 	{
 	    named_opening_bracket = min::NULL_STUB;
 
@@ -1356,7 +1352,7 @@ static void parse_explicit_subexpression
 	    {
 	        named_opening_bracket =
 		    (TAB::named_opening_bracket) root;
-		named_opening_first = current;
+		named_first = current;
 		break;
 	    }
 	    else if (    subtype
@@ -1387,8 +1383,7 @@ static void parse_explicit_subexpression
 			( bracket_stack_p );
 		    cstack.named_opening_bracket =
 			named_opening_bracket;
-		    cstack.opening_first =
-		        named_opening_first;
+		    cstack.opening_first = named_first;
 		    cstack.opening_next = saved_current;
 
 		    PAR::token previous =
@@ -1403,24 +1398,34 @@ static void parse_explicit_subexpression
 		    PAR::token middle_bracket_next =
 		    	previous->next;
 
+		    PAR::token next = current;
+		        // Token just after last sub-
+			// expression token AFTER any
+			// named closing bracket has
+			// been deleted.
+		    bool done = false;
+		        // Set if a bracket that was
+			// not ours was found, so we
+			// need to terminate this
+			// call to parse_explicit_
+			// subexpression.
+
 		    if (    cstack.closing_next
 		         == cstack.closing_first )
 		    {
-			// Found a closing bracket that is
-			// not ours, or found a line break
-			// or end of file that terminates a
-			// paragraph with the closing
-			// bracket missing.
+			// Found a closing bracket that
+			// is not ours, or found a line
+			// break or end of file that
+			// terminates a paragraph with
+			// the closing bracket missing.
 
 			// Compute location `next' just
 			// before which closing bracket
 			// should be inserted.
 			//
-			PAR::token next =
-			    (    cstack.closing_next
-			      == min::NULL_STUB ?
-			      current :
-			      cstack.closing_next );
+			if (    cstack.closing_next
+			     != min::NULL_STUB )
+			    next = cstack.closing_next;
 
 			parser->printer
 			    << min::bom
@@ -1444,45 +1449,30 @@ static void parse_explicit_subexpression
 			      next->begin,
 			      next->end );
 
-// TBD
-
-			LEX::position end =
-			    next->previous->end;
-			LEX::position begin =
-			    ::remove
-				( parser,
-				  named_opening_first,
-				  named_opening_bracket->label );
-			::compact
-			    ( parser, named_opening_first,
-			      next, begin, end,
-			      named_opening_bracket->label,
-			      named_opening_bracket->
-				  named_closing_bracket->
-				      label );
-
 			if (    cstack.closing_next
-			     == min::NULL_STUB )
-			{
-			    // Found a line break before
-			    // non-indented line or an end
-			    // of file when a closing
-			    // bracket was expected.  Go
-			    // to appropriate code above
-			    // to process.
-			    //
-			    break;
-			}
-
-			// Found a closing bracket that is
-			// not ours.  It must be in the
-			// bracket_stack and so needs to
-			// be kicked to our caller.
-			//
-			goto DONE;
+			     != min::NULL_STUB )
+			    done = true;
 		    }
-// TBD
-		    break;
+		    else
+		    {
+			bool removal_done = false;
+		        while ( ! removal_done )
+			{
+			    removal_done =
+			      (    cstack.closing_first
+			        == current->previous );
+			    free
+			      ( remove
+			          ( first_ref(parser),
+				    current->previous )
+			      );
+			}
+		    }
+
+		    // TBD
+
+		    if ( done ) goto DONE;
+		    else	break;
 		}
 	    }
 	    else if (    subtype
@@ -1607,9 +1597,7 @@ TAB::key_prefix PAR::find_key_prefix
     TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
-        if ( current->type != SYMBOL
-	     &&
-	     current->type != NATURAL_NUMBER )
+        if ( current->value == min::MISSING() )
 	    break;
 
 	min::gen e = current->value;

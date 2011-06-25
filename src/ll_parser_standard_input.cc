@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 24 06:56:09 EDT 2011
+// Date:	Sat Jun 25 09:31:56 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -193,16 +193,8 @@ static min::uns32 input_add_tokens
 	case LEXSTD::word_t:
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
-	{
-	    token->type = PAR::SYMBOL;
-	    value_ref(token) = min::new_str_gen
-	        ( translation_buffer.begin_ptr(),
-		  translation_buffer->length );
-	    break;
-	}
 	case LEXSTD::natural_number_t:
 	{
-	    token->type = PAR::NATURAL_NUMBER;
 	    value_ref(token) = min::new_str_gen
 	        ( translation_buffer.begin_ptr(),
 		  translation_buffer->length );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 18 07:13:56 EDT 2011
+// Date:	Sat Jun 25 09:07:31 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,54 +38,65 @@ extern min::locatable_var<ll::parser::input>
 // Set a parser input to produce a stream of lexemes
 // read from a standard lexeme scanner.
 //
-// The lexeme types as in ll_lexeme_standard.h are
-// processed as follows:
+// The lexeme types are as in ll_lexeme_standard.h.
 //
-//    word_t		    SYMBOL, string value
-//    natural_number_t      NATURAL_NUMBER,
-//			        string value
-//    number_t		    number_t, token string
-//    mark_t		    SYMBOL, string value
-//    quoted_string_t       quoted_string_t,
-//			    token string
-//    separator_t	    SYMBOL, string value
+// Tokens with the following lexeme types have min::gen
+// token values equal to their lexeme's translation
+// character strings:
 //
-//    comment_t		    no token
-//    horizontal_space_t    no token
+//	word_t
+//	mark_t
+//	separator_t
+//	natural_number_t
 //
-//    line_break_t          line_break_t
-//    end_of_file_t         end_of_file_t
+// Other tokens have min::MISSING() token values.
 //
-//    premature_end_of_line_t
-//    premature_end_of_file_t
-//    misplaced_char_t
-//    ascii_escape_seq_t
-//    non_letter_escape_seq_t
-//			    no token,
-//			        output error message
+// Tokens with the following types have PAR::string
+// token strings equal to their lexeme's translation
+// character strings:
 //
-//    unrecognized_escape_seq_t
-//			    ignore erroneous atom,
-//				output error message
+//	number_t
+//	quoted_string_t
 //
-// The token type is either the lexeme type or SYMBOL
-// or NATURAL_NUMBER.  Note that NATURAL_NUMBER's are
-// stored in the token `value' as a STRING general value
-// and NOT as a number general value.
+// Other tokens have min::NULL_STUB token strings.
 //
-// The translation_buffer is recorded as either a min::
-// gen `string value' for SYMBOLs, a min::gen `number
-// value' for NATURAL_NUMBERs, or a ll::parser::string
-// for lexeme types.  Some tokens, such as line_break_t
-// tokens, do not record the translation_buffer at all.
+// Tokens with the following types do NOT have their
+// lexeme's translation strings recorded in the token:
+//
+//	line_break_t
+//	end_of_file_t
+//
+// Lexemes of the following types are ignored; that is,
+// they are not made into tokens:
+//
+//	comment_t
+//	horizontal_space_t
+//
+// Lexemes of the following types are announced as
+// errors and otherwise ignored, that is, they are not
+// made into tokens:
+//
+//	premature_end_of_line_t
+//	premature_end_of_file_t
+//	misplaced_char_t
+//	misplaced_space_t
+//	ascii_escape_seq_t
+//	non_letter_escape_seq_t
+//
+// The following erroneous atoms are announced as
+// errors and otherwise ignored:
+//
+//	misplaced_control_char_t
+//	unrecognized_escape_seq_t
 //
 // Note that indentation and line breaks are implicitly
-// encoded in the token `begin' and `end' positions;
-// Horizontal space and comment lexemes are ignored.
+// encoded in the token `begin' and `end' positions.
 // Also note that all tokens output by this input
-// closure are on a single line, though in the case of
-// line_break_t tokens the `end' position may be the
-// beginning of a subsequent line.
+// closure except the line_break_t tokens are on a
+// single line.  Lastly note that natural_number_t
+// tokens have min::gen token values that are strings
+// and not numbers; therefore 001, 01, and 1 have
+// different min::gen token values.
 //
 // This function may only be called if parser or
 // parser->scanner is NULL_STUB.  This function

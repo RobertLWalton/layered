@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 25 23:02:43 EDT 2011
+// Date:	Sun Jun 26 06:32:29 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1110,6 +1110,16 @@ static void parse_explicit_subexpression
 	     &&
 	     current->type != LEXSTD::mark_t )
 	{
+	    if ( named_opening_bracket != min::NULL_STUB
+	         &&
+		 !  is_named_opening_bracket
+		 && ( current->type == LEXSTD::number_t
+		      ||
+		         current->type
+		      == LEXSTD::quoted_string_t
+		    ) )
+		named_opening_bracket = min::NULL_STUB;
+
 	    if (    current->type
 		 == LEXSTD::quoted_string_t
 		 &&
@@ -1161,6 +1171,13 @@ static void parse_explicit_subexpression
 
 	    if ( subtype == TAB::OPENING_BRACKET )
 	    {
+	        if (    named_opening_bracket
+		     != min::NULL_STUB
+		     &&
+		     !  is_named_opening_bracket )
+		    named_opening_bracket =
+		        min::NULL_STUB;
+
 		TAB::opening_bracket opening_bracket =
 		    (TAB::opening_bracket) root;
 
@@ -1303,6 +1320,9 @@ static void parse_explicit_subexpression
 		      p = p->previous )
 		{
 		    if (    p->opening_bracket
+		         != min::NULL_STUB
+			 &&
+		            p->opening_bracket
 		             ->closing_bracket
 			 == closing_bracket )
 		    {
@@ -1502,16 +1522,79 @@ static void parse_explicit_subexpression
 	    else if (    subtype
 	              == TAB::NAMED_CLOSING_BRACKET )
 	    {
+		TAB::named_closing_bracket
+		    named_closing_bracket =
+		    (TAB::named_closing_bracket)
+			root;
+
 	        if (    named_opening_bracket
 		     != min::NULL_STUB
 		     &&
-		        (TAB::named_closing_bracket)
-			root
+		        named_closing_bracket
 		     == named_opening_bracket
 		            ->named_closing_bracket )
 		{
-		    // TBD
-		    goto DONE;
+		    if ( is_named_opening_bracket )
+		    {
+			// TBD
+
+			break;
+		    }
+
+		    for ( ::bracket_stack * p =
+			      bracket_stack_p;
+			  p != NULL;
+			  p = p->previous )
+		    {
+			if ( p->named_opening_bracket
+			     == named_opening_bracket )
+			{
+			    PAR::token cp = named_first;
+			    PAR::token op =
+			        p->opening_first;
+			    bool name_match = true;
+			    while ( name_match )
+			    {
+			        if (    cp
+				     == saved_current )
+				    break;
+				if (    op
+				     == p->opening_next
+				     ||
+				        cp->type
+				     != op->type
+				     ||
+				        cp->value
+				     != op->value
+				     ||
+				        cp->value
+				     == min::MISSING()
+				   )
+				{
+				    name_match = false;
+				    break;
+				}
+				cp = cp->next;
+				op = op->next;
+			    }
+			    if ( ! name_match )
+			        continue;
+
+			    p->closing_first =
+				saved_current;
+			    p->closing_next = current;
+
+			    for ( ::bracket_stack * q =
+				      bracket_stack_p;
+				  q != p;
+				  q = q->previous )
+				q->closing_first =
+				    q->closing_next =
+					saved_current;
+
+			    goto DONE;
+			}
+		    }
 		}
 	    }
 	    else if
@@ -1532,9 +1615,7 @@ static void parse_explicit_subexpression
 		      p = p->previous )
 		{
 		    if ( p->named_opening_bracket
-		          ->named_middle_closing_bracket
-			 == named_middle_closing_bracket
-		       )
+			 == named_opening_bracket )
 		    {
 		        p->closing_first =
 			    saved_current;

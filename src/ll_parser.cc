@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 25 09:20:05 EDT 2011
+// Date:	Sat Jun 25 23:02:43 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -791,11 +791,17 @@ static void parse_explicit_subexpression
     TAB::named_opening_bracket named_opening_bracket =
         min::NULL_STUB;
 	// If not NULL_STUB, a named opening bracket
-	// with this table entry is being scanned.
+	// or named middle bracket with this table
+	// entry is being scanned.
+    bool is_named_opening_bracket;
+        // If named_opening_bracket != NULL_STUB, this
+	// is true if a named opening bracket is being
+	// scanned, and false if a named middle bracket
+	// is being scanned.
     PAR::token named_first = min::NULL_STUB;
         // If named_opening_bracket != NULL_STUB, this
 	// is the first token after the named opening
-	// bracket.
+	// bracket or named middle bracket.
 
     while ( true )
     {
@@ -1104,8 +1110,6 @@ static void parse_explicit_subexpression
 	     &&
 	     current->type != LEXSTD::mark_t )
 	{
-	    named_opening_bracket = min::NULL_STUB;
-
 	    if (    current->type
 		 == LEXSTD::quoted_string_t
 		 &&
@@ -1147,6 +1151,7 @@ static void parse_explicit_subexpression
 	{
 	    if ( root == min::NULL_STUB )
 	    {
+		named_opening_bracket = min::NULL_STUB;
 		current = saved_current->next;
 		break;
 	    }
@@ -1352,6 +1357,7 @@ static void parse_explicit_subexpression
 	    {
 	        named_opening_bracket =
 		    (TAB::named_opening_bracket) root;
+		is_named_opening_bracket = true;
 		named_first = current;
 		break;
 	    }
@@ -1361,6 +1367,8 @@ static void parse_explicit_subexpression
 	        if (    named_opening_bracket
 		     != min::NULL_STUB
 		     &&
+		     is_named_opening_bracket
+		     &&
 		        (TAB::named_separator) root
 		     == named_opening_bracket
 		            ->named_separator )
@@ -1369,10 +1377,17 @@ static void parse_explicit_subexpression
 	    else if (    subtype
 	              == TAB::NAMED_MIDDLE_BRACKET )
 	    {
+	        TAB::named_middle_bracket
+		    named_middle_bracket =
+			(TAB::named_middle_bracket)
+			root;
+
 	        if (    named_opening_bracket
 		     != min::NULL_STUB
 		     &&
-		        (TAB::named_middle_bracket) root
+		     is_named_opening_bracket
+		     &&
+		        named_middle_bracket
 		     == named_opening_bracket
 		            ->named_middle_bracket )
 		{
@@ -1474,15 +1489,93 @@ static void parse_explicit_subexpression
 		    if ( done ) goto DONE;
 		    else	break;
 		}
+		else
+		{
+		    named_opening_bracket =
+		        named_middle_bracket
+			    ->named_opening_bracket;
+		    is_named_opening_bracket = false;
+		    named_first = current;
+		    break;
+		}
 	    }
 	    else if (    subtype
 	              == TAB::NAMED_CLOSING_BRACKET )
 	    {
+	        if (    named_opening_bracket
+		     != min::NULL_STUB
+		     &&
+		        (TAB::named_closing_bracket)
+			root
+		     == named_opening_bracket
+		            ->named_closing_bracket )
+		{
+		    // TBD
+		    goto DONE;
+		}
 	    }
 	    else if
 	        (    subtype
 	          == TAB::NAMED_MIDDLE_CLOSING_BRACKET )
 	    {
+	        // TBD: if this is error and should be
+		//      named closing bracket, repair
+
+		TAB::named_middle_closing_bracket
+		    named_middle_closing_bracket =
+		    (TAB::named_middle_closing_bracket)
+		    root;
+
+		for ( ::bracket_stack * p =
+			  bracket_stack_p;
+		      p != NULL;
+		      p = p->previous )
+		{
+		    if ( p->named_opening_bracket
+		          ->named_middle_closing_bracket
+			 == named_middle_closing_bracket
+		       )
+		    {
+		        p->closing_first =
+			    saved_current;
+			p->closing_next = current;
+
+			for ( ::bracket_stack * q =
+				  bracket_stack_p;
+			      q != p;
+			      q = q->previous )
+			    q->closing_first =
+			        q->closing_next =
+				    saved_current;
+
+			goto DONE;
+		    }
+		}
+
+		LEX::position end =
+		    current->previous->end;
+		LEX::position begin =
+		    ::remove
+			( parser, current,
+			  named_middle_closing_bracket
+			      ->label );
+
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: spurious"
+		       " middle closing bracket"
+		       " found and ignored; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     begin, end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      begin, end );
+
+		break;
 	    }
 
 	    root = PAR::find_next_entry

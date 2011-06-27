@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 13 21:07:38 EDT 2011
+// Date:	Sun Jun 26 23:37:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,7 +47,7 @@ namespace ll { namespace lexeme
     // into the dispatcher stack, because add_characters
     // edits the second to topmost dispatcher.  NEXT
     // pushes another dispatcher, and end_atom_pattern
-    // discards the topmost dispatcher in the dispatcher
+    // discards all the dispatchers in the dispatcher
     // stack.  Instructions in the instruction stack are
     // discarded by atom patterns.
     //
@@ -102,9 +102,8 @@ namespace ll { namespace lexeme
     //
     // Add_characters calls edit the SECOND TO TOPMOST
     // dispatcher on the dispatcher stack to map the
-    // characters indicated to the max_type_code.  When
-    // the topmost dispatcher is popped, this max_type_
-    // code is incremented.
+    // characters indicated to this dispatcher's max_
+    // type_code.
     // 
     struct dispatcher
     {

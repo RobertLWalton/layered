@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 26 06:32:29 EDT 2011
+// Date:	Tue Jun 28 03:28:12 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -734,16 +734,16 @@ struct bracket_stack
     TAB::opening_bracket opening_bracket;
         // If not NULL_STUB, this identifies the opening
 	// bracket whose recognition made this entry.
-    TAB::named_opening_bracket named_opening_bracket;
+    TAB::named_opening named_opening;
         // If not NULL_STUB, this identifies the named
 	// opening bracket whose recognition made this
 	// entry.
 
     PAR::token opening_first, opening_next;
-        // For named_opening_brackets only, the first
-	// token AFTER the named opening bracket and the
-	// first token OF the named middle bracket; thus
-	// bounding the named bracket name.
+        // For named_openings only, the first token
+	// AFTER the named opening and the first token
+	// OF the named middle ; thus bounding the named
+	// bracket name, arguments, and keys.
 
     PAR::token closing_first, closing_next;
         // If these are NULL_STUB, this entry is open.
@@ -760,7 +760,7 @@ struct bracket_stack
 
     bracket_stack ( bracket_stack * previous )
         : opening_bracket ( min::NULL_STUB ),
-          named_opening_bracket ( min::NULL_STUB ),
+          named_opening ( min::NULL_STUB ),
           opening_first ( min::NULL_STUB ),
           opening_next ( min::NULL_STUB ),
           closing_first ( min::NULL_STUB ),
@@ -788,20 +788,20 @@ static void parse_explicit_subexpression
         min::NULL_STUB;
 	// If not NULL_STUB, last token was this
 	// indentation mark.
-    TAB::named_opening_bracket named_opening_bracket =
+    TAB::named_opening named_opening =
         min::NULL_STUB;
 	// If not NULL_STUB, a named opening bracket
-	// or named middle bracket with this table
+	// or named closing bracket with this table
 	// entry is being scanned.
     bool is_named_opening_bracket;
-        // If named_opening_bracket != NULL_STUB, this
-	// is true if a named opening bracket is being
-	// scanned, and false if a named middle bracket
-	// is being scanned.
+        // If named_opening != NULL_STUB, this is true
+	// if a named opening bracket is being scanned,
+	// and false if a named closing bracket is being
+	// scanned.
     PAR::token named_first = min::NULL_STUB;
-        // If named_opening_bracket != NULL_STUB, this
-	// is the first token after the named opening
-	// bracket or named middle bracket.
+        // If named_opening != NULL_STUB, this is the
+	// first token after the named opening or named
+	// middle.
 
     while ( true )
     {
@@ -1110,7 +1110,7 @@ static void parse_explicit_subexpression
 	     &&
 	     current->type != LEXSTD::mark_t )
 	{
-	    if ( named_opening_bracket != min::NULL_STUB
+	    if ( named_opening != min::NULL_STUB
 	         &&
 		 !  is_named_opening_bracket
 		 && ( current->type == LEXSTD::number_t
@@ -1118,7 +1118,7 @@ static void parse_explicit_subexpression
 		         current->type
 		      == LEXSTD::quoted_string_t
 		    ) )
-		named_opening_bracket = min::NULL_STUB;
+		named_opening = min::NULL_STUB;
 
 	    if (    current->type
 		 == LEXSTD::quoted_string_t
@@ -1161,7 +1161,7 @@ static void parse_explicit_subexpression
 	{
 	    if ( root == min::NULL_STUB )
 	    {
-		named_opening_bracket = min::NULL_STUB;
+		named_opening = min::NULL_STUB;
 		current = saved_current->next;
 		break;
 	    }
@@ -1171,12 +1171,10 @@ static void parse_explicit_subexpression
 
 	    if ( subtype == TAB::OPENING_BRACKET )
 	    {
-	        if (    named_opening_bracket
-		     != min::NULL_STUB
+	        if ( named_opening != min::NULL_STUB
 		     &&
 		     !  is_named_opening_bracket )
-		    named_opening_bracket =
-		        min::NULL_STUB;
+		    named_opening = min::NULL_STUB;
 
 		TAB::opening_bracket opening_bracket =
 		    (TAB::opening_bracket) root;
@@ -1372,11 +1370,10 @@ static void parse_explicit_subexpression
 		    (TAB::indentation_mark) root;
 		break;
 	    }
-	    else if (    subtype
-	              == TAB::NAMED_OPENING_BRACKET )
+	    else if ( subtype == TAB::NAMED_OPENING )
 	    {
-	        named_opening_bracket =
-		    (TAB::named_opening_bracket) root;
+	        named_opening =
+		    (TAB::named_opening) root;
 		is_named_opening_bracket = true;
 		named_first = current;
 		break;
@@ -1384,40 +1381,33 @@ static void parse_explicit_subexpression
 	    else if (    subtype
 	              == TAB::NAMED_SEPARATOR )
 	    {
-	        if (    named_opening_bracket
-		     != min::NULL_STUB
+	        if ( named_opening != min::NULL_STUB
 		     &&
 		     is_named_opening_bracket
 		     &&
 		        (TAB::named_separator) root
-		     == named_opening_bracket
-		            ->named_separator )
+		     == named_opening->named_separator )
 		    break;
 	    }
-	    else if (    subtype
-	              == TAB::NAMED_MIDDLE_BRACKET )
+	    else if ( subtype == TAB::NAMED_MIDDLE )
 	    {
-	        TAB::named_middle_bracket
-		    named_middle_bracket =
-			(TAB::named_middle_bracket)
-			root;
+	        TAB::named_middle named_middle =
+		    (TAB::named_middle) root;
 
-	        if (    named_opening_bracket
-		     != min::NULL_STUB
+	        if ( named_opening != min::NULL_STUB
 		     &&
 		     is_named_opening_bracket
 		     &&
-		        named_middle_bracket
-		     == named_opening_bracket
-		            ->named_middle_bracket )
+		        named_middle
+		     == named_opening->named_middle )
 		{
-		    PAR::token middle_bracket_first =
+		    PAR::token middle_first =
 		    	saved_current;
 
 		    ::bracket_stack cstack
 			( bracket_stack_p );
-		    cstack.named_opening_bracket =
-			named_opening_bracket;
+		    cstack.named_opening =
+			named_opening;
 		    cstack.opening_first = named_first;
 		    cstack.opening_next = saved_current;
 
@@ -1430,7 +1420,7 @@ static void parse_explicit_subexpression
 			      line_indent :
 			      paragraph_indent,
 			  selectors );
-		    PAR::token middle_bracket_next =
+		    PAR::token middle_next =
 		    	previous->next;
 
 		    PAR::token next = current;
@@ -1468,8 +1458,8 @@ static void parse_explicit_subexpression
 			    << "ERROR: missing named"
 			       " closing bracket `"
 			    << min::pgen
-			       ( named_opening_bracket->
-			    named_middle_closing_bracket
+			       ( named_opening
+			         ->named_middle_closing
 				 ->label,
 				 & ::bracket_format )
 			    << "' inserted; "
@@ -1511,28 +1501,22 @@ static void parse_explicit_subexpression
 		}
 		else
 		{
-		    named_opening_bracket =
-		        named_middle_bracket
-			    ->named_opening_bracket;
+		    named_opening =
+		        named_middle->named_opening;
 		    is_named_opening_bracket = false;
 		    named_first = current;
 		    break;
 		}
 	    }
-	    else if (    subtype
-	              == TAB::NAMED_CLOSING_BRACKET )
+	    else if ( subtype == TAB::NAMED_CLOSING )
 	    {
-		TAB::named_closing_bracket
-		    named_closing_bracket =
-		    (TAB::named_closing_bracket)
-			root;
+		TAB::named_closing named_closing =
+		    (TAB::named_closing) root;
 
-	        if (    named_opening_bracket
-		     != min::NULL_STUB
+	        if ( named_opening != min::NULL_STUB
 		     &&
-		        named_closing_bracket
-		     == named_opening_bracket
-		            ->named_closing_bracket )
+		        named_closing
+		     == named_opening->named_closing )
 		{
 		    if ( is_named_opening_bracket )
 		    {
@@ -1546,8 +1530,8 @@ static void parse_explicit_subexpression
 			  p != NULL;
 			  p = p->previous )
 		    {
-			if ( p->named_opening_bracket
-			     == named_opening_bracket )
+			if (    p->named_opening
+			     == named_opening )
 			{
 			    PAR::token cp = named_first;
 			    PAR::token op =
@@ -1598,24 +1582,22 @@ static void parse_explicit_subexpression
 		}
 	    }
 	    else if
-	        (    subtype
-	          == TAB::NAMED_MIDDLE_CLOSING_BRACKET )
+	        ( subtype == TAB::NAMED_MIDDLE_CLOSING )
 	    {
 	        // TBD: if this is error and should be
 		//      named closing bracket, repair
 
-		TAB::named_middle_closing_bracket
-		    named_middle_closing_bracket =
-		    (TAB::named_middle_closing_bracket)
-		    root;
+		TAB::named_middle_closing
+		    named_middle_closing =
+		    (TAB::named_middle_closing) root;
 
 		for ( ::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;
 		      p = p->previous )
 		{
-		    if ( p->named_opening_bracket
-			 == named_opening_bracket )
+		    if (    p->named_opening
+			 == named_opening )
 		    {
 		        p->closing_first =
 			    saved_current;
@@ -1638,8 +1620,7 @@ static void parse_explicit_subexpression
 		LEX::position begin =
 		    ::remove
 			( parser, current,
-			  named_middle_closing_bracket
-			      ->label );
+			  named_middle_closing->label );
 
 		parser->printer
 		    << min::bom

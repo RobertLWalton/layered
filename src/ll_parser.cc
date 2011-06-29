@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 28 03:28:12 EDT 2011
+// Date:	Tue Jun 28 04:27:43 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -549,6 +549,257 @@ static void compact
 	    LEX::print_item_lines
 		( parser->printer,
 		  parser->input_file, begin, end );
+    }
+}
+
+// In a token sequence, find the next token subsequence
+// that matches a given separator, or find the end of
+// the token sequence.  The separator is represented as
+// a vector of n min::gen values, where n == 0 if the
+// separator is missing.  `first' is the first token of
+// the token sequence and `next' is the next token AFTER
+// the token sequence.
+//
+// The count of the number of tokens skipped is also
+// returned.
+//
+static PAR::token find_separator
+	( min::uns32 & count,
+	  PAR::token first,
+	  PAR::token next,
+	  min::gen * separator,
+	  min::uns32 n )
+{
+    count = 0;
+
+    for ( ; first != next;
+            first = first->next, ++ count )
+    {
+	if ( n == 0 ) continue;
+
+	if ( first->value != separator[0] ) continue;
+	if ( n == 1 ) break;
+
+	PAR::token t = first->next;
+	min::uns32 i = 1;
+	for ( ; i < n; ++ i, t = t->next )
+	{
+	    if ( t == next ) break;
+	    if ( t->value != separator[i] ) break;
+	}
+	if ( i == n ) break;
+    }
+    return first;
+}
+
+// Given a token sequence with n tokens, return a label
+// whose elements are the values of the tokens.  If
+// there are 0 tokens, return min::MISSING().  If there
+// is just one, return its value.  Otherwise return a
+// min::gen label.
+//
+// If any of the tokens are quoted strings or non-
+// natural numbers, convert then to have values equal
+// to their their strings and free their strings.
+//
+static min::gen make_label
+	( PAR::token first, min::uns32 n )
+{
+    if ( n == 0 ) return min::MISSING();
+
+    min::gen label[n];
+
+    for ( min::uns32 i = 0; i < n;
+          ++ i, first = first->next )
+    {
+        if ( first->value == min::MISSING() )
+	{
+	    PAR::value_ref(first) =
+		min::new_str_gen
+		    ( first->string.begin_ptr(),
+		      first->string->length );
+	    PAR::string_ref(first) =
+	        free_string ( first->string );
+	}
+
+	label[i] = first->value;
+    }
+    if ( n == 1 ) return label[0];
+    else return min::new_lab_gen ( label, n );
+}
+
+// Skip n tokens.
+//
+inline PAR::token skip ( PAR::token t, min::uns32 n )
+{
+    while ( n -- ) t = t->next;
+    return t;
+}
+
+// Compute attributes from a named bracket or named
+// operator.  The `name', which is a label, is computed.
+// If there are arguments, an `arguments' list is
+// computed (otherwise it is set to MISSING).  If there
+// are keys, a `keys' list is computed.
+//
+// The named bracket or named operator is defined by
+// `first' and `next'.  `first' is the first token AFTER
+// the opening, and `next' is the first token of the
+// middle (for a named bracket) or closing (for a named
+// operator).  The entire named opening bracket or
+// named operator is deleted.
+// 
+// If there are no keys, `keys' is set to MISSING.  If
+// there is must one, `keys' is set to that key, which
+// is a label.  If there is more than one, `keys' is
+// set to a list of labels.
+//
+// Any token in the named bracket or operator that has a
+// MISSING token value must be a non-natural number or
+// quoted string.  For arguments, these are replaced by
+// a subexpression whose sole element is the token
+// string of the token as a string general value and
+// whose .initiator is # for a number or " for a quoted
+// string.  For keys, these are replaced by ordinary
+// min::str strings and become label elements.
+//
+static void named_attributes
+	( PAR::parser parser,
+	  min::ref<min::gen> name,
+	  min::ref<min::gen> arguments,
+	  min::ref<min::gen> keys,
+	  TAB::named_opening named_opening,
+	  PAR::token first, PAR::token next,
+	  LEX::position begin,
+	  LEX::position end )
+{
+    // Temporary min::gen locatables.
+    //
+    min::locatable_gen exp;
+
+    // Recase named_separator as a vector of min::gen
+    // elements.
+    //
+    TAB::named_separator nsep =
+        named_opening->named_separator;
+    min::gen sep =
+	( nsep == min::NULL_STUB ? min::MISSING()
+	                         : nsep->label );
+    min::uns32 seplen =
+        sep == min::MISSING() ? 0 :
+	min::is_lab ( sep ) ? min::lablen ( sep ) :
+	                      1;
+    min::gen separator[seplen];
+    if ( seplen == 1 ) separator[0] = sep;
+    else if ( seplen > 1 )
+        min::lab_of ( separator, seplen, sep );
+
+    PAR::token t = first;
+    min::uns32 n = 0;
+
+    // Count elements of name.
+    //
+    while ( t != next
+            &&
+	    ( t->type == LEXSTD::word_t
+              ||
+	      t->type == LEXSTD::natural_number_t ) )
+    {
+        t = t->next;
+	++ n;
+    }
+
+    // Construct name label.
+    //
+    assert ( n > 0 );
+    name = ::make_label ( first, n );
+
+    // Count arguments.
+    //
+    min::uns32 argcount;
+    PAR::token tnext = ::find_separator
+	( argcount, t, next, separator, seplen );
+
+    // Make argument list.  Convert any quoted string
+    // or (non-natural) numbers to subexpressions.
+    //
+    if ( argcount == 0 )
+        arguments = min::MISSING();
+    else
+    {
+        arguments = min::new_obj_gen ( argcount );
+	min::obj_vec_insptr argp ( arguments );
+
+	for ( ; t != tnext; t = t->next )
+	{
+	    if ( t->value != min::MISSING() )
+	        min::attr_push(argp) = t->value;
+	    else
+	    {
+		min::gen indicator;
+
+		if (    t->type
+		     == LEXSTD::quoted_string_t )
+		    indicator = ::doublequote;
+		else
+		{
+		    assert (    t->type
+			     == LEXSTD::number_t );
+
+		    indicator = ::number_sign;
+		}
+
+		exp = min::new_obj_gen ( 10, 1 );
+	        min::attr_push(argp) = exp;
+		min::obj_vec_insptr p; ( exp );
+
+		exp = min::new_str_gen
+			( t->string.begin_ptr(),
+			  t->string->length );
+		min::attr_push(p) = exp;
+
+		min::attr_insptr ap ( p );
+
+		min::locate ( ap, ::initiator );
+		min::set ( ap, indicator );
+	    }
+	}
+    }
+
+    t = tnext;
+
+    // Count the number of separators.
+    //
+    min::uns32 sepcount = 0;
+    min::uns32 keycount;
+
+    while ( tnext != next )
+    {
+        tnext = ::skip ( tnext, seplen );
+        tnext = ::find_separator
+	    ( keycount, tnext, next,
+	      separator, seplen );
+	++ sepcount;
+    }
+
+    if ( sepcount == 0 )
+        keys = min::MISSING();
+    else if ( sepcount == 0 )
+        keys = ::make_label ( t, keycount );
+    else
+    {
+        keys = min::new_obj_gen ( sepcount );
+	min::obj_vec_insptr keysp ( keys );
+	while ( t != next )
+	{
+	    t = ::skip ( t, seplen );
+	    tnext = ::find_separator
+		( keycount, t, next,
+		  separator, seplen );
+	    exp = ::make_label ( t, keycount );
+	    min::attr_push(keysp) = exp;
+	    t = tnext;
+	}
     }
 }
 

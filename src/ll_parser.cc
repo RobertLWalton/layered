@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 28 04:27:43 EDT 2011
+// Date:	Thu Jun 30 11:56:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -669,9 +669,7 @@ static void named_attributes
 	  min::ref<min::gen> arguments,
 	  min::ref<min::gen> keys,
 	  TAB::named_opening named_opening,
-	  PAR::token first, PAR::token next,
-	  LEX::position begin,
-	  LEX::position end )
+	  PAR::token first, PAR::token next )
 {
     // Temporary min::gen locatables.
     //
@@ -825,6 +823,22 @@ static LEX::position remove
 		    next->previous ) );
     }
     return result;
+}
+
+inline void remove
+	( PAR::parser parser,
+	  PAR::token first,
+	  PAR::token next )
+{
+    while ( first != next )
+    {
+	first = first->next;
+	free
+	  ( remove
+	      ( first_ref(parser),
+		first->previous )
+	  );
+    }
 }
 
 // Return the n'th token before `next', where n is the
@@ -1652,9 +1666,6 @@ static void parse_explicit_subexpression
 		        named_middle
 		     == named_opening->named_middle )
 		{
-		    PAR::token middle_first =
-		    	saved_current;
-
 		    ::bracket_stack cstack
 			( bracket_stack_p );
 		    cstack.named_opening =
@@ -1662,7 +1673,7 @@ static void parse_explicit_subexpression
 		    cstack.opening_first = named_first;
 		    cstack.opening_next = saved_current;
 
-		    PAR::token previous =
+		    PAR::token middle_last =
 		        current->previous;
 		    ::parse_explicit_subexpression
 			( parser, false, current,
@@ -1671,8 +1682,6 @@ static void parse_explicit_subexpression
 			      line_indent :
 			      paragraph_indent,
 			  selectors );
-		    PAR::token middle_next =
-		    	previous->next;
 
 		    PAR::token next = current;
 		        // Token just after last sub-
@@ -1685,6 +1694,8 @@ static void parse_explicit_subexpression
 			// need to terminate this
 			// call to parse_explicit_
 			// subexpression.
+		    LEX::position end;
+		        // End of closing named bracket.
 
 		    if (    cstack.closing_next
 		         == cstack.closing_first )
@@ -1702,6 +1713,8 @@ static void parse_explicit_subexpression
 			if (    cstack.closing_next
 			     != min::NULL_STUB )
 			    next = cstack.closing_next;
+
+			end = next->previous->end;
 
 			parser->printer
 			    << min::bom
@@ -1731,20 +1744,35 @@ static void parse_explicit_subexpression
 		    }
 		    else
 		    {
-			bool removal_done = false;
-		        while ( ! removal_done )
-			{
-			    removal_done =
-			      (    cstack.closing_first
-			        == current->previous );
-			    free
-			      ( remove
-			          ( first_ref(parser),
-				    current->previous )
-			      );
-			}
+		        end = current->previous->end;
+		        ::remove
+			    ( parser,
+			      cstack.closing_first,
+			      current );
 		    }
 
+		    min::locatable_gen name,
+		    		       arguments,
+				       keys;
+
+		    ::named_attributes
+			( parser,
+			  name, arguments, keys,
+			  named_opening,
+			  named_first,
+			  cstack.opening_next );
+
+		    LEX::position begin =
+		        ::remove
+			    ( parser,
+			      named_first,
+			      named_opening->label );
+		    ::compact
+		        ( parser,
+			  middle_last->next,
+			  current,
+			  begin, end, name );
+			  
 		    // TBD
 
 		    if ( done ) goto DONE;

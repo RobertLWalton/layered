@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 30 11:56:25 EDT 2011
+// Date:	Fri Jul  1 00:12:18 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,8 @@
 static min::locatable_gen initiator;
 static min::locatable_gen terminator;
 static min::locatable_gen separator;
+static min::locatable_gen arguments;
+static min::locatable_gen keys;
 static min::locatable_gen doublequote;
 static min::locatable_gen number_sign;
 static min::locatable_gen new_line;
@@ -47,6 +49,10 @@ static struct initializer {
 	    min::new_str_gen ( ".terminator" );
         ::separator =
 	    min::new_str_gen ( ".separator" );
+        ::arguments =
+	    min::new_str_gen ( ".arguments" );
+        ::keys =
+	    min::new_str_gen ( ".keys" );
         ::doublequote =
 	    min::new_str_gen ( "\"" );
         ::number_sign =
@@ -512,7 +518,7 @@ static void compact
     if (    initiator != min::MISSING()
          || terminator != min::MISSING() )
     {
-	min::attr_insptr expap ( expvp ); 
+	min::attr_insptr expap ( expvp );
 
 	if ( initiator != min::MISSING() )
 	{
@@ -1759,13 +1765,13 @@ static void parse_explicit_subexpression
 			( parser,
 			  name, arguments, keys,
 			  named_opening,
-			  named_first,
+			  cstack.opening_first,
 			  cstack.opening_next );
 
 		    LEX::position begin =
 		        ::remove
 			    ( parser,
-			      named_first,
+			      cstack.opening_first,
 			      named_opening->label );
 		    ::compact
 		        ( parser,
@@ -1773,7 +1779,44 @@ static void parse_explicit_subexpression
 			  current,
 			  begin, end, name );
 			  
-		    // TBD
+		    assert
+		        (    current->previous->type
+			  == PAR::EXPRESSION );
+		    assert
+		        (    current->previous
+			  == middle_last->next );
+
+		    ::remove ( parser,
+		               cstack.opening_first,
+			       middle_last->next );
+
+		    if ( arguments != min::MISSING()
+		         ||
+			 keys != min::MISSING() )
+		    {
+			min::obj_vec_insptr expvp
+			    ( current->previous
+			             ->value );
+			min::attr_insptr expap
+			    ( expvp );
+
+			if (    arguments
+			     != min::MISSING() )
+			{
+			    min::locate
+				( expap, ::arguments );
+			    min::set
+				( expap, arguments );
+			}
+
+			if ( keys != min::MISSING() )
+			{
+			    min::locate
+				( expap, ::keys );
+			    min::set
+				( expap, keys );
+			}
+		    }
 
 		    if ( done ) goto DONE;
 		    else	break;

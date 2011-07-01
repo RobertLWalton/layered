@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 19, 2011
+July 1, 2011
  
 \end{center}
 
@@ -1456,49 +1456,45 @@ such as numbers, operators, and punctuation.  For better
 modularity all stream components are called \skey{token}s,
 and the data is organized as streams of tokens.
 
-\subsection{Token Streams}
+\subsection{Tokens}
 
 A token can have any of the following components.
 
 \begin{indpar}
 \begin{tabular}{p{1in}p{4in}}
-\tt kind	& One of: \\
-        	& ~~~~{\tt lexeme} \\
-        	& ~~~~{\tt name} \\
-        	& ~~~~{\tt expression}
+\tt type	& One of: \hspace{0.5in}\begin{tabular}[t]{l}
+        	          A lexeme type. \\
+        	          \ttmnbkey{EXPRESSION}{token type} \\[1ex]
+			  \end{tabular}
 \\[1ex]
-		& A {\tt name} is a symbol such as `{\tt x}'
-		  or `{\tt +}', or a natural number, or a
-		  list of names (called a label).
+		& For a lexeme, the translation of the
+		  lexeme is recorded in either the token
+		  value as a MIN string or in the token string.
 \\[1ex]
-		& An {\tt expression} is a list of names and
-		  expressions and in addition a map from names
-		  to values that are names or expressions.
-\\[1ex]
-\tt type	& For lexemes, the type of the lexeme. \\[0.3ex]
-		& For names, one of: \\
-		& ~~~~{\tt symbol} \\
-		& ~~~~{\tt natural\_number} \\
-		& ~~~~{\tt label} \\
+		& For an {\tt EXPRESSION}, the value of the
+		  expression is re\-corded as a MIN object
+		  in the token value.
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
-\tt string	& For lexemes, the character string of the lexeme.
+\tt string	& For lexemes that do not have {\tt value}'s,
+                  the translation string of the lexeme.
+		  This is stored in a manner that makes
+		  garbage collection and memory reuse more
+		  efficient than it would be if MIN strings
+		  were used, but makes lookup less efficient.
 \\[1ex]
-\tt ident	& For names and expressions,
-                  a 32 or 64 bit numeric or pointer
-		  value that denotes the name or expression.
-		  Two names are different if and only if they
-		  have different idents, so
-		  names can be compared by comparing their idents.
-		  No name can have the same ident as an expression.
+\tt value	& For lexemes that have a {\tt value}, this is
+		  lexeme translation string stored as a MIN string.
 \\[1ex]
-		& It is possible to recover from the ident of
-		  a name the character string of a symbol, the value of
-		  a natural number, or the name list of a label.
-		  It is possible to recover from the ident of
-		  an expression the list elements and the name/value map
-		  of the expression.
-		  But these things are rarely done by the parser.
+		& For expressions, this is a MIN object which
+		  encodes a list of subexpressions.  This list
+		  may also have other attributes, such as
+		  {\tt .initiator}, {\tt .terminator},
+		  {\tt .sep\-arator}, {\tt .arguments}, and
+		  {\tt .keys}.
+
+\\[1ex]
+TBD
 \\[1ex]
 \tt hash	& A 32 bit unsigned integer that is a randomized hash of
           	  the character string of a symbol, a hash of the value of a

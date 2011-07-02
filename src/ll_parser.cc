@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  1 00:12:18 EDT 2011
+// Date:	Sat Jul  2 06:22:10 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,7 @@
 static min::locatable_gen initiator;
 static min::locatable_gen terminator;
 static min::locatable_gen separator;
+static min::locatable_gen named_op;
 static min::locatable_gen arguments;
 static min::locatable_gen keys;
 static min::locatable_gen doublequote;
@@ -49,6 +50,8 @@ static struct initializer {
 	    min::new_str_gen ( ".terminator" );
         ::separator =
 	    min::new_str_gen ( ".separator" );
+        ::named_op =
+	    min::new_str_gen ( ".named_op" );
         ::arguments =
 	    min::new_str_gen ( ".arguments" );
         ::keys =
@@ -1643,11 +1646,17 @@ static void parse_explicit_subexpression
 	    }
 	    else if ( subtype == TAB::NAMED_OPENING )
 	    {
-	        named_opening =
-		    (TAB::named_opening) root;
-		is_named_opening_bracket = true;
-		named_first = current;
-		break;
+	        if ( current->type == LEXSTD::word_t
+		     ||
+		        current->type
+		     == LEXSTD::natural_number_t )
+		{
+		    named_opening =
+			(TAB::named_opening) root;
+		    is_named_opening_bracket = true;
+		    named_first = current;
+		    break;
+		}
 	    }
 	    else if (    subtype
 	              == TAB::NAMED_SEPARATOR )
@@ -1768,6 +1777,8 @@ static void parse_explicit_subexpression
 			  cstack.opening_first,
 			  cstack.opening_next );
 
+		    assert ( name != min::MISSING() );
+
 		    LEX::position begin =
 		        ::remove
 			    ( parser,
@@ -1842,7 +1853,68 @@ static void parse_explicit_subexpression
 		{
 		    if ( is_named_opening_bracket )
 		    {
-			// TBD
+
+			min::locatable_gen name,
+					   arguments,
+					   keys;
+
+			::named_attributes
+			    ( parser,
+			      name, arguments, keys,
+			      named_opening,
+			      named_first,
+			      saved_current );
+
+			assert
+			    ( name != min::MISSING() );
+
+			LEX::position begin =
+			    ::remove
+				( parser,
+				  named_first,
+				  named_opening->label );
+			LEX::position end =
+			    current->previous->end;
+
+			::remove
+			    ( parser,
+			      named_first,
+			      current );
+
+			PAR::token t =
+			    PAR::new_token
+			        ( PAR::EXPRESSION );
+			t->begin = begin;
+			t->end = end;
+
+			PAR::put_before
+			    ( first_ref(parser),
+			      current, t );
+			value_ref(t) =
+			    min::new_obj_gen
+			        ( 12, 5 );
+
+			min::obj_vec_insptr tvp
+			    ( t->value );
+			min::attr_insptr tap ( tvp );
+
+			min::locate ( tap, ::named_op );
+			min::set ( tap, name );
+
+			if (    arguments
+			     != min::MISSING() )
+			{
+			    min::locate
+				( tap, ::arguments );
+			    min::set
+				( tap, arguments );
+			}
+
+			if ( keys != min::MISSING() )
+			{
+			    min::locate ( tap, ::keys );
+			    min::set ( tap, keys );
+			}
 
 			break;
 		    }

@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 21, 2010
+July 7, 2011
  
 \end{center}
 
@@ -315,7 +315,7 @@ TBD
 \ikey{Numbers}{number} are a basic element of L-Language memory.
 Numbers are sequences of bits, and each number is one of
 four types, unsigned integer, signed integer, floating point number,
-and direct address:
+and address:
 
 \begin{indpar}
 \begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
@@ -343,9 +343,9 @@ and direct address:
 \end{tabular}
 
 \begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-(see text)		& direct address & 32 bits or 64 bits (see text) \\
-\ttkey{unsptr}		& unsigned integer & size of direct address \\
-\ttkey{intptr}		& signed integer & size of direct address \\
+\ttkey{adr}		& address & 32 bits or 64 bits (see text) \\
+\ttkey{unsadr}		& unsigned integer & size of address \\
+\ttkey{intadr}		& signed integer & size of address \\
 \end{tabular}
 \end{indpar}
 
@@ -378,22 +378,22 @@ and mantissas for various floating point number sizes is as follows:
 \end{tabular}
 \end{center}
 
-A \key{direct address} (a.k.a. a `\key{pointer}') holds a RAM byte address.
-A direct address is a 32-bit or 64-bit unsigned integer whose size
+An \key{address} (a.k.a. a `\key{pointer}') holds a RAM byte address.
+A address is a 32-bit or 64-bit unsigned integer whose size
 is determined by the target machine.  Some of high order bits may be
 required to be all 0's or all 1's, depending upon
 the target machine.  The \verb|unsptr| and \verb|intptr|
 unsigned and signed integer types of the same size
-as a direct address are provided for storing indices and offsets.
+as a address are provided for storing indices and offsets.
 
 A reasonable assumption for 64-bit addresses is that only the low
-order 48-bits of the direct address are actually used.  This assumption can
+order 48-bits of the address are actually used.  This assumption can
 be used to put other information in the high order 16 bits
-of a 64-bit number containing a direct address.  For example, an address
+of a 64-bit number containing an address.  For example, an address
 can be embedded in a 64-bit floating point NaN.  The L-Language does
 \underline{not} depend upon this assumption, but does provide a builtin function
 that takes as input a 64-bit integer and two small integers, $L$ and $S$,
-and returns a 64-bit direct address containing
+and returns a 64-bit address containing
 the byte address equal to the low order $L$ bits of the input integer
 left shifted by $S$.  The output may have undefined high order bits if
 the hardware ignores them when using the output to address memory.
@@ -416,53 +416,23 @@ float64 f;
 
 Variables can be declared to be of address type by declarations of the form
 \begin{center}
-{\em type-name} {\tt *}$^\star$ {\tt \&}$^\star$ {\em variable-name} {\tt ;}
+{\tt adr} {\em variable-name} {\tt ->} {\em variable-declaration} {\tt ;}
 \end{center}
-in which there is at least one {\tt *} and there are at least as many
-{\tt *}'s as {\tt \&}'s.
 For example,
 \begin{indpar}\begin{verbatim}
-int32 * ip;
-int32 * & i;
+adr ip1 -> int32;
+adr ip2 -> int32 i2;
+adr ipp3 -> adr ip3 -> int32 i3;
 \end{verbatim}\end{indpar}
 are both variables that reference a direct address of an {\tt int32} type
-integer stored in memory.  However, `\verb|ip|' and `\verb|& i|' reference
-the direct address variable, and `\verb|* ip|' and `\verb|i|' reference
-the {\tt int32} integer.
-
-In general if there are $N$ {\tt *}'s, the variable is
-the direct address of the direct address of the \ldots{} of the direct address
-of the non-address type, where there are $N$ direct addresses in all.
-If there are no {\tt \&}'s, the variable name references the first of
-these direct addresses, and the variable name with $M$ {\tt *}'s in
-front of it references the $M+1$'st of the addresses, or the non-address
-number if $M=N$.  If instead there are $M$ {\tt \&}'s in the declaration,
-$M\leq N$,
-the variable name references the $M+1$'st direct address, or the non-address
-number if $M=N$, and to get a previous direct address one must put a
-{\tt \&} in front of the variable name, whereas to get a subsequent direct
-address or the non-address number one puts a {\tt *} in front.
-
-For example,
-\begin{indpar}\begin{verbatim}
-int32 *** ippp;
-int32 *** & ipp;
-int32 *** && ip;
-int32 *** &&& i;
-\end{verbatim}\end{indpar}
-are all variables referencing a direct address of a direct address of a
-direct address of an {\tt int32} number stored in memory.
-The first of these direct addresses is accessed with
-`\verb|ippp|', `\verb|& ipp|', `\verb|& & ip|', or `\verb|& & & i|'.
-The second of these direct addresses is accessed with
-`\verb|* ippp|', `\verb|ipp|', `\verb|& ip|', or `\verb|& & i|'.
-The third of these direct addresses is accessed with
-`\verb|* * ippp|', `\verb|* ipp|', `\verb|ip|', or `\verb|& i|'.
-The {\tt int32} number is accessed with
-`\verb|* * * ippp|', `\verb|* * ipp|', `\verb|* ip|', or `\verb|i|'.
-Also note that in `\verb|* &|' the operators cancel each other out:
-e.g., `\verb|* ip|', `\verb|* * & ip|', and `\verb|* * * & & ip|'
-all reference the same thing.
+integer stored in memory.  However, `\verb|ip1|', `\verb|ip2|',
+`\verb|ipp3|', and `\verb|ip3|' reference an address variable, while
+`\verb|* ip1|',
+`\verb|* ip2|',
+`\verb|i2|',
+`\verb|** ip3|', and `\verb|* ip3|',
+and `\verb|i3|' reference
+an {\tt int32} integer variable.
 
 \subsection{Random Access Memory (RAM) and Blocks}
 
@@ -592,15 +562,14 @@ if the {\em offset} is equal to or greater than the block {\em length}.
 
 
 Blocks contain numbers (including direct addresses) and subblocks.
-Access to these is provided by
-unchecked pointer computation functions.  For example
+Access to these is provided by displacement values.  For example,
 \begin{indpar}\begin{verbatim}
 deftype type1 (48,8);
-uns16 *&   .member1 ( *& type1 @ m ) unchecked = m@0;
-int16 *&   .member2 ( *& type1 @ m ) unchecked = m@2;
-int32 *&   .member3 ( *& type1 @ m ) unchecked = m@4;
-float32 *& .member4 ( *& type1 @ m ) unchecked = m@8;
-type1 * *& .member5 ( *& type1 @ m ) unchecked = m@16;
+uns16 @ type1.member1 @= 0;
+uns16 @ type1.member2 @= 2;
+uns32 @ type1.member3 @= 4;
+float32 @ type1.member4 @= 8;
+adr @ type1.member5 @= 12 -> type1;
 . . . . .
 type1 x;
 x.member1 = 9;

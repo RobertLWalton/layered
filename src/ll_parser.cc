@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  2 06:22:10 EDT 2011
+// Date:	Thu Jul  7 07:33:45 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -429,6 +429,51 @@ void PAR::init_output_stream
 	  out );
 }
 
+// Convert a non-natural number or quoted string token
+// to an EXPRESSION token.  The expression has as its
+// only element a min::gen string value equal to the
+// translation string of the token's lexeme, and has as
+// its .initiator either # for a non-natural number or
+// " for a quoted string.
+//
+void convert_token ( PAR::token token )
+{
+    assert ( token->value == min::MISSING() );
+
+    min::gen indicator;
+
+    if (    token->type
+	 == LEXSTD::quoted_string_t )
+	indicator = ::doublequote;
+    else
+    {
+	assert (    token->type
+		 == LEXSTD::number_t );
+
+	indicator = ::number_sign;
+    }
+
+
+    PAR::value_ref(token)
+	= min::new_obj_gen ( 10, 1 );
+    min::obj_vec_insptr elemvp
+	( token->value );
+    min::attr_push(elemvp) = min::MISSING();
+
+    min::set_attr ( elemvp, 0,
+                    min::new_str_gen
+			( token->string.begin_ptr(),
+			  token->string->length ) );
+    PAR::string_ref(token) =
+	PAR::free_string ( token->string );
+
+    min::attr_insptr elemap ( elemvp ); 
+    min::locate ( elemap, ::initiator );
+    min::set ( elemap, indicator );
+
+    token->type = PAR::EXPRESSION;
+}
+
 // Make an expression consisting of the tokens beginning
 // with `first' and ending just before `next'.  Replace
 // these tokens by the resulting EXPRESSION token.  Add
@@ -467,43 +512,12 @@ static void compact
 	  ++ n, current = current->next )
     {
 	if ( current->value == min::MISSING() )
-	{
-	    min::gen indicator;
-
-	    if (    current->type
-	         == LEXSTD::quoted_string_t )
-	        indicator = ::doublequote;
-	    else
-	    {
-	        assert (    current->type
-	                 == LEXSTD::number_t );
-
-		indicator = ::number_sign;
-	    }
-
-	    exp = min::new_str_gen
-		    ( current->string.begin_ptr(),
-		      current->string->length );
-
-	    PAR::value_ref(current)
-	        = min::new_obj_gen ( 10, 1 );
-	    PAR::string_ref(current) =
-	        PAR::free_string ( current->string );
-	    current->type = PAR::EXPRESSION;
-
-	    min::obj_vec_insptr elemvp
-		( current->value );
-	    min::attr_push(elemvp) = exp;
-
-	    min::attr_insptr elemap ( elemvp ); 
-	    min::locate ( elemap, ::initiator );
-	    min::set ( elemap, indicator );
-	}
+	    ::convert_token ( current );
     }
 
     exp = min::new_obj_gen ( 12 + n, 3 );
     min::obj_vec_insptr expvp ( exp );
-    for ( min::uns32 i = 0; i <= n; ++ i )
+    for ( min::uns32 i = 0; i < n; ++ i )
 	min::attr_push(expvp) = min::MISSING();
 
     while ( n -- )
@@ -739,37 +753,9 @@ static void named_attributes
 
 	for ( ; t != tnext; t = t->next )
 	{
-	    if ( t->value != min::MISSING() )
-	        min::attr_push(argp) = t->value;
-	    else
-	    {
-		min::gen indicator;
-
-		if (    t->type
-		     == LEXSTD::quoted_string_t )
-		    indicator = ::doublequote;
-		else
-		{
-		    assert (    t->type
-			     == LEXSTD::number_t );
-
-		    indicator = ::number_sign;
-		}
-
-		exp = min::new_obj_gen ( 10, 1 );
-	        min::attr_push(argp) = exp;
-		min::obj_vec_insptr p; ( exp );
-
-		exp = min::new_str_gen
-			( t->string.begin_ptr(),
-			  t->string->length );
-		min::attr_push(p) = exp;
-
-		min::attr_insptr ap ( p );
-
-		min::locate ( ap, ::initiator );
-		min::set ( ap, indicator );
-	    }
+	    if ( t->value == min::MISSING() )
+	        ::convert_token ( t );
+	    min::attr_push(argp) = t->value;
 	}
     }
 

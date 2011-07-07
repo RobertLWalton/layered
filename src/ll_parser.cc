@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  7 07:33:45 EDT 2011
+// Date:	Thu Jul  7 08:07:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -622,13 +622,18 @@ static PAR::token find_separator
 // min::gen label.
 //
 // If any of the tokens are quoted strings or non-
-// natural numbers, convert then to have values equal
+// natural numbers, convert these to have values equal
 // to their their strings and free their strings.
 //
 static min::gen make_label
 	( PAR::token first, min::uns32 n )
 {
     if ( n == 0 ) return min::MISSING();
+
+    // Optimization.
+    //
+    if ( n == 1 && first->value != min::MISSING() )
+        return first->value;
 
     min::gen label[n];
 
@@ -662,20 +667,33 @@ inline PAR::token skip ( PAR::token t, min::uns32 n )
 // Compute attributes from a named bracket or named
 // operator.  The `name', which is a label, is computed.
 // If there are arguments, an `arguments' list is
-// computed (otherwise it is set to MISSING).  If there
-// are keys, a `keys' list is computed.
+// computed.  If there are keys, a `keys' list is
+// computed.
 //
 // The named bracket or named operator is defined by
 // `first' and `next'.  `first' is the first token AFTER
 // the opening, and `next' is the first token of the
 // middle (for a named bracket) or closing (for a named
-// operator).  The entire named opening bracket or
-// named operator is deleted.
+// operator).  No tokens are deleted, but some may have
+// their values modified (e.g., quoted string tokens).
+//
+// If there are no arguments, `arguments' is set to
+// MISSING.  Otherwise `arguments' is set to a list
+// that has only list elements, namely the arguments.
+// Any quoted string or non-natural number argument
+// is converted as per ::convert_token before being
+// put into this list.
 // 
 // If there are no keys, `keys' is set to MISSING.  If
-// there is must one, `keys' is set to that key, which
-// is a label.  If there is more than one, `keys' is
-// set to a list of labels.
+// there is just one, `keys' is set to that key, which
+// is a min::gen string or label.  If there is more than
+// one, `keys' is set to a list object containing only
+// list elements, these elements being the keys, which
+// are min::gen strings or labels.  The keys are made by
+// ::make_label, and any quoted string or non-natural
+// number tokens in keys are converted to min::gen
+// strings equal to the translation string of the token
+// lexeme.
 //
 // Any token in the named bracket or operator that has a
 // MISSING token value must be a non-natural number or
@@ -694,11 +712,13 @@ static void named_attributes
 	  TAB::named_opening named_opening,
 	  PAR::token first, PAR::token next )
 {
-    // Temporary min::gen locatables.
+    assert ( first->type == LEXSTD::word_t );
+
+    // Temporary min::gen locatable.
     //
     min::locatable_gen exp;
 
-    // Recase named_separator as a vector of min::gen
+    // Recast named_separator as a vector of min::gen
     // elements.
     //
     TAB::named_separator nsep =
@@ -715,11 +735,10 @@ static void named_attributes
     else if ( seplen > 1 )
         min::lab_of ( separator, seplen, sep );
 
-    PAR::token t = first;
-    min::uns32 n = 0;
-
     // Count elements of name.
     //
+    min::uns32 n = 0;
+    PAR::token t = first;
     while ( t != next
             &&
 	    ( t->type == LEXSTD::word_t
@@ -777,8 +796,11 @@ static void named_attributes
 
     if ( sepcount == 0 )
         keys = min::MISSING();
-    else if ( sepcount == 0 )
+    else if ( sepcount == 1 )
+    {
+	t = ::skip ( t, seplen );
         keys = ::make_label ( t, keycount );
+    }
     else
     {
         keys = min::new_obj_gen ( sepcount );
@@ -820,6 +842,10 @@ static LEX::position remove
     return result;
 }
 
+// Remove from the parser and free the tokens from first
+// through the first token before next.  Do nothing if
+// first == next.  The `next' token is left untouched.
+//
 inline void remove
 	( PAR::parser parser,
 	  PAR::token first,
@@ -1632,10 +1658,7 @@ static void parse_explicit_subexpression
 	    }
 	    else if ( subtype == TAB::NAMED_OPENING )
 	    {
-	        if ( current->type == LEXSTD::word_t
-		     ||
-		        current->type
-		     == LEXSTD::natural_number_t )
+	        if ( current->type == LEXSTD::word_t )
 		{
 		    named_opening =
 			(TAB::named_opening) root;

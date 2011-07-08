@@ -876,6 +876,75 @@ static PAR::token backup
     return next;
 }
 
+// Delete any line breaks after the current token.
+// Assume current->next is a read token, and arrange
+// that upon return current->next will be a read token.
+//
+static void delete_line_breaks
+	( PAR::parser parser, PAR::token current )
+{
+    while ( true )
+    {
+	if (    current->next->type
+	     != LEXSTD::line_break_t )
+	    break;
+
+	free ( remove ( first_ref(parser),
+			current->next ) );
+
+	if ( current->next == parser->first )
+	{
+	    parser->input->add_tokens
+		( parser, parser->input );
+	    assert (    current->next
+		     != parser->first );
+	}
+    }
+}
+
+// Complain that token indent is too near indent.
+//
+static void complain_near_indent
+	( PAR::parser parser,
+	  PAR::token token,
+	  min::int32 indent )
+{
+    parser->printer
+	<< min::bom << min::set_indent ( 7 )
+	<< "ERROR: lexeme indent "
+	<< token->begin.column
+	<< " too near paragraph or line indent "
+	<< indent
+	<< "; "
+	<< LEX::pline_numbers
+	       ( parser->input_file,
+		 token->begin,
+		 token->end )
+	<< ":" << min::eom;
+    LEX::print_item_lines
+	( parser->printer,
+	  parser->input_file,
+	  token->begin,
+	  token->end );
+}
+
+// Return true if token indent is > indent and complain
+// IF token indent is too near indent.
+//
+inline bool is_indented
+	( PAR::parser parser,
+	  PAR::token token,
+	  min::int32 indent )
+{
+    int near = (min::int32) token->begin.column
+	     - indent;
+    if (    near != 0
+	 && near < parser->indent_offset 
+	 && near > - parser->indent_offset )
+        ::complain_near_indent
+	    ( parser, token, indent );
+    return near > 0;
+}
 
 // Parse an explicit subexpression beginning with the
 // `current' token and calling parser->input if more
@@ -889,51 +958,60 @@ static PAR::token backup
 // It is assumed that there are always more tokens
 // available until an end-of-file token is encountered,
 // and the end-of-file is not part of the explicit
-// subexpression.
+// subexpression.  Therefore there is always a token
+// immediately after the recognized subexpression.
 //
-// If indented_paragraph is true, the subexpression was
-// begun by an indentation mark.  The `current' token is
-// the line-break token after the indentation mark (and
-// this will be deleted).  The next non-line-break token
-// sets the indentation associated with the indentation
-// mark.
-//
-// Otherwise, if indented_paragraph is false, the
-// subexpression was begun by an opening bracket, and
-// the `current' token is the first token after the
-// opening bracket.
-//
-// In either case the selectors are those already
-// computed by using the indentation mark or opening
+// If the subexpression is either a line, including
+// indented continuations, or is a subexpession begun
+// by an opening bracket.  In the first case `current'
+// is the first token of the line, and in the second
+// case `current' is the first token after the opening
 // bracket.
 //
-// The paragraph_indent argument defines the currently
-// active indentation (which can be - parser->indent_
-// offset if there is none).  This is the indent set
-// by some indentation mark PREVIOUS to any that
-// caused this call to parse_explicit_subexpression.
-// If any token is seen with this indent or less, the
-// current subexpression terminates just before the
-// line breaks before that token.
+// In either case the selectors are those already
+// computed by using indentation marks and opening
+// brackets.
 //
-// The `bracket_stack' argument defines a stack of
-// brackets that need to be closed.  When an entry in
-// this stack is made, the entry is considered to be
-// `open'.  When a closing bracket corresponding to
-// one of these entries is recognized, that entry, and
-// possibly other entries are marked as being `closed'.
-// If there are no errors in the input, the found clos-
-// ing bracket will correspond to the top entry of
-// the stack, and only that entry will be closed.  But
-// But if a closing bracket for a non-top stack entry
-// is found, and then entries between it and the top of
-// the stack are also marked closed, but in a manner
-// that indicates their closing brackets were missing
-// from the input.
+// In either case the subexpression terminates just
+// before any line break whose next non-line-break token
+// has an indent less than or equal to the `indent'
+// argument.  If the subexpression is a line, the
+// initial `current' token when this function is called
+// should be the first token of the line, should not be
+// a line break, and should not have an indent less than
+// the `indent' argument.  Note that this feature can be
+// disabled by setting the `indent' argument to minus
+// parser->indent_offset.
 //
-// Recognition of a closing bracket that corresponds
-// to an entry in the bracket stack causes this func-
-// tion to terminate just after the recognized bracket.
+// The subexpression always terminates before an end-of-
+// file.
+//
+// The `bracket_stack' specifies brackets that need to
+// be closed.  When an entry in this stack is made, the
+// entry is considered to be `open'.  When a closing
+// bracket corresponding to one of these entries is
+// recognized, that entry, and any other entries between
+// that entry and the top of the stack are marked as
+// `closed'.
+//
+// Normally a line subexpression will be terminated by
+// a non-indented token, and no bracket stack entries
+// will be closed.  Normally a bracketed subexpression
+// will be terminated by its closing bracket which will
+// correspond to the top entry on the bracket stack, and
+// only that entry will be closed.
+//
+// It is possible for a normal line to be terminated by
+// a closing bracket, in which case the line consists of
+// all tokens in the subexpression up to the closing
+// bracket, and the closing bracket also terminates an
+// outer subexpression.
+// 
+// If the closing bracket of a subexpression is omitted,
+// when the subexpression is terminated either no
+// bracket stack entry or more than one entry will be
+// closed.
+//
 // To be recognized, a closing bracket must be active as
 // per the selectors.  So it is possible for a closing
 // bracket to be missed because the selectors have been
@@ -942,16 +1020,15 @@ static PAR::token backup
 // there has been an error in the way selectors have
 // been defined for the brackets.
 //
-// If a closing bracket is found to be missing from the
-// input, an error message is produced, and the output
-// of this function is computed as if the missing clos-
-// ing bracket were not missing, that is, as if the mis-
-// sing closing bracket were inserted in the input just
-// before the point in the input where the absence of
-// the missing closing bracket was first recognized.
-// This point is just before another closing bracket or
-// is at a newline which is followed by an insufficient-
-// ly indented token.
+// If a closing bracket not corresponding to any bracket
+// stack entry is recognized, it is announced as an
+// error and ignored.
+//
+// When this function detects a subsubexpression with a
+// missing closing bracket, this function produces an
+// error message, and proceeds as if the closing bracket
+// were inserted just before the closing bracket or
+// line break that terminates the subsubexpression.
 //
 // The end of the subexpression is identified by the
 // `current' token upon return by this function, and
@@ -959,9 +1036,11 @@ static PAR::token backup
 // been marked as closed.  If NO bracket_stack entries
 // have been marked closed, then `current' is the first
 // token AFTER the subexpression, and is either a line
-// break or an end of file.  In this case, if there are
-// several line breaks in a row after the subexpression,
-// all but the first will be deleted.
+// break or an end of file.  If it is a line break, then
+// any subsequent line breaks will have been deleted,
+// current will be the line break, and current->next
+// will be the next non-line-break token read after the
+// line breaks (it may be an end of file).
 //
 // If a bracket_stack entry has been marked closed, then
 // `current' will be the first token AFTER the closing
@@ -972,36 +1051,44 @@ static PAR::token backup
 // closed, then the top bracket_stack entry will be
 // marked as closed.
 //
-// SUBSUBexpressions are converted to an EXPRESSION
-// token whose value is a list.  The tokens beginning
-// with the initial value of `current' can be edited.
-// The caller should save `current->previous', which
-// is an indentation mark or the last token in an
-// opening bracket, before calling this function, so it
-// and `current' as returned by this function can be
-// used to delimit the subexpression.  Note that in the
-// case of the top level call, there may be no
-// `current->previous', and parser->first will be the
-// first token of the subexpression.
-//
 // This function calls itself recursively if it finds
 // an opening bracket or an indentation mark.  The
 // selectors determine which bracket and indentation
 // mark definitions are active.  When this function
 // calls itself recursively, upon return it wraps all
 // the tokens of the sub-subexpression found into a
-// single EXPRESSION token, attaches opening brackets
-// and indentation marks as .initiator's of that expres-
-// sion, and any closing bracket as a .terminator of
-// that expression.  It also replaces non-natural num-
-// bers and quoted strings in the sub-subexpression
-// by subexpressions whose sole elements are the
-// strings of the tokens and whose .initiators are
-// # for number and " for quoted string.
+// single EXPRESSION token.  It also replaces non-
+// natural numbers and quoted strings in the sub-sub-
+// expression by subexpressions whose sole elements
+// are the translation strings of the token lexemes and
+// whose .initiators are # for number and " for quoted
+// string.
 //
-// This function also compacts lines in an indented
-// paragraph into EXPRESSION's.  These are given the
-// .terminator "\n".
+// More specifically, bracketted SUBSUBexpressions are
+// converted to a list.  For unnamed brackets, the
+// .initiator and .terminator of this list are set to
+// the opening and closing brackets of the subsubexpres-
+// sion.  For named brackets the .name, .arguments, and
+// .keys attributes are set as computed by the named_
+// attributes function (values that are MISSING are not
+// set).
+//
+// SUBSUBexpressions introduced by an indentation mark
+// are converted to a list of lists.  The outer list
+// is a list of lines and has the indentation mark as
+// its .initiator.  The inner lists are line subexpres-
+// sions and have "\n" as their .terminator.
+//
+// The token list, beginning with the initial value of
+// `current', can be edited.  The caller should save
+// `current->previous', which may be an indentation mark
+// or the last token in an opening bracket, before
+// calling this function, so it and `current' as return-
+// ed by this function can be used to delimit the sub-
+// expression.  Note that in the case of the top level
+// call, there may be no `current->previous', and
+// parser->first will be the first token of the sub-
+// expression.
 //
 // Line_break tokens are deleted.  Gluing indentation
 // marks are split from line-ending tokens.  Bracket
@@ -1013,10 +1100,13 @@ static PAR::token backup
 // and indentation marks cannot straddle line_breaks.
 //
 // This function is called at the top level with indent
-// <= - parser->indent_offset and bracket_stack == NULL.
+// == 0 and bracket_stack == NULL.
 //
 struct bracket_stack
 {
+    // Exactly one of `opening_bracket' and `named_
+    // opening' is != NULL_STUB:
+    //
     TAB::opening_bracket opening_bracket;
         // If not NULL_STUB, this identifies the opening
 	// bracket whose recognition made this entry.
@@ -1053,23 +1143,18 @@ struct bracket_stack
           closing_next ( min::NULL_STUB ),
 	  previous ( previous ) {}
 };
+inline bool is_closed ( ::bracket_stack * p )
+{
+    return    p != NULL
+           && p->closing_first != min::NULL_STUB;
+}
 static void parse_explicit_subexpression
 	( PAR::parser parser,
-	  bool indented_paragraph,
 	  PAR::token & current,
+	  min::int32 indent,
 	  ::bracket_stack * bracket_stack_p,
-	  min::int32 paragraph_indent,
 	  TAB::selectors selectors )
 {
-    // Bracketted subexpressions must be inside a line
-    // in an indented paragraph.
-    //
-    assert (    ! indented_paragraph
-             || bracket_stack_p == NULL );
-
-    min::int32 line_indent =
-        - parser->indent_offset;
-    PAR::token line_first;
     TAB::indentation_mark indentation_mark =
         min::NULL_STUB;
 	// If not NULL_STUB, last token was this
@@ -1212,68 +1297,118 @@ static void parse_explicit_subexpression
 
 	    }
 
+	    // Remove any line breaks that follow the
+	    // current line break, and get the next
+	    // token after the line breaks.
+	    //
+	    ::delete_line_breaks ( parser, current );
+
 	    if ( indentation_mark != min::NULL_STUB )
 	    {
+		// Tokens that bracket lines scanned.
+		//
+		PAR::token mark_end = current->previous;
+		PAR::token next = current;
 
-		TAB::selectors new_selectors =
-		    selectors;
-		new_selectors |=
-		    indentation_mark->new_selectors
-		                     .or_selectors;
-		new_selectors &= ~
-		    indentation_mark->new_selectors
-		                     .not_selectors;
-		new_selectors ^=
-		    indentation_mark->new_selectors
-		                     .xor_selectors;
+		// Scan lines.
+		//
+		if ( is_indented
+		         ( parser,
+			   current->next, indent ) )
+		{
+		    TAB::selectors new_selectors =
+			selectors;
+		    new_selectors |=
+			indentation_mark->new_selectors
+					 .or_selectors;
+		    new_selectors &= ~
+			indentation_mark->new_selectors
+					 .not_selectors;
+		    new_selectors ^=
+			indentation_mark->new_selectors
+					 .xor_selectors;
 
-		PAR::token previous = current->previous;
-		::parse_explicit_subexpression
-		    ( parser, true, current,
-		      NULL,
-		      line_indent >= 0 ?
-		          line_indent :
-			  paragraph_indent,
-		      new_selectors );
+		    min::int32 line_indent =
+		        next->begin.column;
 
-		PAR::token first = previous->next;
-		LEX::position end =
-		    current->previous->end;
+		    while ( true )
+		    {
+			// Delete line break.
+			//
+			current = current->next;
+			free
+			    ( remove
+				( first_ref(parser),
+				  current->previous ) );
+
+			// Find end of line subsubexp.
+			//
+			PAR::token previous =
+			    current->previous;
+			::parse_explicit_subexpression
+			    ( parser, current,
+			      line_indent,
+			      bracket_stack_p,
+			      new_selectors );
+			PAR::token first =
+			    previous->next;
+			next = current;
+			if ( is_closed
+			         ( bracket_stack_p ) )
+			    next = bracket_stack_p
+			              ->closing_first;
+
+			// Compact line subsubexp.
+			//
+			if ( first != next )
+			    ::compact
+			        ( parser, first, next,
+				  first->begin,
+				  next->previous->end,
+				  min::MISSING(),
+				  ::new_line );
+
+			// See if there are more lines.
+			//
+			if ( is_closed
+			         ( bracket_stack_p )
+			     ||
+			        current->type
+			     == LEXSTD::end_of_file_t
+			     ||
+			        current->next->type
+			     == LEXSTD::end_of_file_t 
+			     ||
+			       current->next
+				      ->begin.column
+			     < line_indent )
+			    break;
+		    }
+		}
+
+		PAR::token first = mark_end->next;
 		LEX::position begin =
 		    ::remove
 			( parser, first,
 			  indentation_mark->label );
-
-		::compact ( parser, first, current,
-			    begin, end,
+		::compact ( parser, first, next,
+			    begin,
+			    next->previous->end,
 			    indentation_mark->label,
 			    min::MISSING() );
 
-		indentation_mark = min::NULL_STUB;
-
-		continue;
-	    }
-
-	    // Get next non-line-break token and remove
-	    // any line breaks that follow the current
-	    // line break.
-	    //
-	    while ( true )
-	    {
-		if (    current->next->type
-		     != LEXSTD::line_break_t )
+		// Terminate subexpression is closing
+		// bracket was found during indentation
+		// processing.
+		// 
+		if ( is_closed ( bracket_stack_p ) )
 		    break;
 
-		free ( remove ( first_ref(parser),
-		                current->next ) );
-
-		if ( current->next == parser->first )
-		{
-		    parser->input->add_tokens
-			( parser, parser->input );
-		    assert (    current->next
-		             != parser->first );
-		}
+		// Otherwise fall through to process
+		// line break at current that is after
+		// indented lines.
+		//
+		indentation_mark = min::NULL_STUB;
 	    }
 
 	    PAR::token next = current->next;
@@ -1287,97 +1422,12 @@ static void parse_explicit_subexpression
 	    // Now next is neither a line break or end
 	    // of file.
 
-	    // Complain if next token indent is too near
-	    // paragraph indent.
-	    //
-	    int near = (min::int32)
-	    	       next->begin.column
-		     - paragraph_indent;
-	    if ( near < 0 ) near = - near;
-	    if (    near != 0
-		 && near < parser->indent_offset )
-	    {
-		parser->printer
-		    << min::bom << min::set_indent ( 7 )
-		    << "ERROR: lexeme indent "
-		    << next->begin.column
-		    << " too near paragraph indent "
-		    << paragraph_indent
-		    << "; "
-		    << LEX::pline_numbers
-			   ( parser->input_file,
-			     next->begin,
-			     next->end )
-		    << ":" << min::eom;
-		LEX::print_item_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      next->begin,
-		      next->end );
-	    }
-
 	    // Truncate subexpression if next token
-	    // indent is at or before paragraph indent.
+	    // indent is at or before indent argument.
 	    //
-	    if (    (min::int32) next->begin.column
-		 <= paragraph_indent )
+	    if ( ! ::is_indented
+		       ( parser, next, indent ) )
 		break;
-
-	    // Set line_indent if appropriate.
-	    //
-	    if ( indented_paragraph && line_indent < 0 )
-	    {
-		line_indent = next->begin.column;
-		line_first = next;
-	    }
-	    else if ( line_indent >= 0 )
-	    {
-		// Complain if next token indent is too
-		// near line indent.
-		//
-		near = (min::int32) next->begin.column
-		     - line_indent;
-		if ( near < 0 ) near = - near;
-		if (    near != 0
-		     && near < parser->indent_offset )
-		{
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: lexeme indent "
-			<< next->begin.column
-			<< " too near line indent "
-			<< line_indent
-			<< "; "
-			<< LEX::pline_numbers
-			       ( parser->input_file,
-				 next->begin,
-				 next->end )
-			<< ":" << min::eom;
-		    LEX::print_item_lines
-			( parser->printer,
-			  parser->input_file,
-			  next->begin,
-			  next->end );
-		}
-
-		// Truncate line if next token indent is
-		// at or before line indent.
-		//
-		if (    (min::int32) next->begin.column
-		     <= line_indent )
-		{
-		    assert ( indented_paragraph );
-
-		    ::compact ( parser,
-		                line_first, current,
-				line_first->begin,
-				current->previous->end,
-				min::MISSING(),
-				::new_line );
-		    line_first = next;
-		}
-	    }
 
 	    // Remove line break and move to next token.
 	    //
@@ -1484,11 +1534,8 @@ static void parse_explicit_subexpression
 
 		PAR::token previous = current->previous;
 		::parse_explicit_subexpression
-		    ( parser, false, current,
-		      & cstack,
-		      line_indent >= 0 ?
-			  line_indent :
-			  paragraph_indent,
+		    ( parser, current,
+		      indent, & cstack,
 		      new_selectors );
 		PAR::token first = previous->next;
 
@@ -1700,11 +1747,8 @@ static void parse_explicit_subexpression
 		    PAR::token middle_last =
 		        current->previous;
 		    ::parse_explicit_subexpression
-			( parser, false, current,
-			  & cstack,
-			  line_indent >= 0 ?
-			      line_indent :
-			      paragraph_indent,
+			( parser, current,
+			  indent, & cstack,
 			  selectors );
 
 		    PAR::token next = current;
@@ -2049,17 +2093,8 @@ static void parse_explicit_subexpression
 	}
     }
 
-DONE:
+DONE:;
 
-    // Compact any incomplete line.
-    //
-    if ( line_indent >= 0 )
-	::compact
-	    ( parser, line_first, current,
-	      line_first->begin,
-	      current->previous->end,
-	      min::MISSING(),
-	      ::new_line );
 }
 
 void PAR::parse ( PAR::parser parser )
@@ -2110,9 +2145,9 @@ void PAR::parse ( PAR::parser parser )
     PAR::token current = parser->first;
     assert ( current != NULL_STUB );
     parse_explicit_subexpression
-	( parser, true, current,
-	  NULL,
+	( parser, current,
 	  - parser->indent_offset,
+	  NULL,
 	  parser->selectors );
     if ( current->type != LEXSTD::line_break_t )
     {

@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 7, 2011
+July 9, 2011
  
 \end{center}
 
@@ -565,11 +565,11 @@ Blocks contain numbers (including direct addresses) and subblocks.
 Access to these is provided by displacement values.  For example,
 \begin{indpar}\begin{verbatim}
 deftype type1 (48,8);
-uns16 @ type1.member1 @= 0;
-uns16 @ type1.member2 @= 2;
-uns32 @ type1.member3 @= 4;
-float32 @ type1.member4 @= 8;
-adr @ type1.member5 @= 12 -> type1;
+disp member1 = 0 -> uns16 @ type1;
+disp member2 = 2 -> uns16 @ type1;
+disp member3 = 4 -> uns32 @ type1;
+disp member4 = 8 -> float32 @ type1;
+disp member5 = 12 -> adr @ type1 -> type1;
 . . . . .
 type1 x;
 x.member1 = 9;
@@ -579,20 +579,28 @@ x.member4 = -0.01 * x.member3;
 x.member5 = & x;
 \end{verbatim}\end{indpar}
 
-Here $x${\tt @}$y$ is an unchecked operation that takes the byte address of
-$x$ (i.e., `{\tt \&}$x$'), adds to it the integer $y$, and
-returns it as a value of type `{\tt *\& void}'.  In an
-{\tt unchecked} function the {\tt void} type can be implicitly converted to
-any other type.  The `{\tt @}' before the `{\tt m}' in the argument
-list indicates
-that the return value is a subblock of the block denoted by `{\tt m}',
-and as such, inherits certain qualifiers from `{\tt m}', as we
-will describe in \TBDref{TBD}.  There is also a commonly used abbreviation
-for function definitions such as the above, of which
-\begin{indpar}\begin{verbatim}
-uns16 *&   .member1 ( *& type1 m ) unchecked @= 0;
-\end{verbatim}\end{indpar}
-is representative.  This is described in \TBDref{TBD}.
+A type of the form
+\begin{center}
+{\em disp} {\tt ->} {\em type1} {\tt @} {\em type2}
+\end{center}
+denotes a displacement of a block of type {\em type1}
+inside a block of type {\em type2}.  The displacement itself
+is a signed integer with the same size and characteristics
+as an {\tt intadr} signed integer.
+
+A statement of the form
+\begin{center}
+{\em disp} {\em member-name} {\tt =} {\em value }
+           {\tt ->} {\em type1} {\tt @} {\em type2}
+\end{center}
+assigns the {\em value} to the {\em member-name} variable
+that has the above type.
+
+Using {\tt =} to assign a signed integer to a displacement
+variable is an unchecked operation that can be used only
+in unchecked code, that is, in code
+that permitted to avoid normal type checking
+rules.
 
 \subsection{Code and Frame Blocks}
 \label{CODE-AND-FRAME-BLOCKS}

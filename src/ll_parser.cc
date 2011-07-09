@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  7 08:07:47 EDT 2011
+// Date:	Sat Jul  9 01:07:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -913,7 +913,7 @@ static void complain_near_indent
 	<< min::bom << min::set_indent ( 7 )
 	<< "ERROR: lexeme indent "
 	<< token->begin.column
-	<< " too near paragraph or line indent "
+	<< " too near paragraph indent "
 	<< indent
 	<< "; "
 	<< LEX::pline_numbers
@@ -1329,7 +1329,7 @@ static void parse_explicit_subexpression
 					 .xor_selectors;
 
 		    min::int32 line_indent =
-		        next->begin.column;
+		        current->next->begin.column;
 
 		    while ( true )
 		    {
@@ -2144,35 +2144,72 @@ void PAR::parse ( PAR::parser parser )
 
     PAR::token current = parser->first;
     assert ( current != NULL_STUB );
-    parse_explicit_subexpression
-	( parser, current,
-	  - parser->indent_offset,
-	  NULL,
-	  parser->selectors );
-    if ( current->type != LEXSTD::line_break_t )
-    {
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: line break missing from end of"
-	       " file; "
-	    << LEX::pline_numbers
-		   ( parser->input_file,
-		     current->begin, current->end )
-	    << ":" << min::eom;
-	LEX::print_item_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      current->begin, current->end );
-    }
-    else
-    {
-        current = current->next;
-	free ( remove ( first_ref(parser),
-			current->previous ) );
-    }
 
-    assert ( current->type == LEXSTD::end_of_file_t );
+    // Top level loop.
+    //
+    if ( current->type != LEXSTD::end_of_file_t )
+    while ( true )
+    {
+        if ( current->type == LEXSTD::end_of_file_t )
+	{
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: line break missing"
+		   " from end of file; "
+		<< LEX::pline_numbers
+		       ( parser->input_file,
+			 current->begin,
+			 current->end )
+		<< ":" << min::eom;
+	    LEX::print_item_lines
+		( parser->printer,
+		  parser->input_file,
+		  current->begin,
+		  current->end );
+	    break;
+	}
+
+        while ( current->type == LEXSTD::line_break_t )
+	{
+	    if ( current->next == parser->first )
+	    {
+		parser->input->add_tokens
+		    ( parser, parser->input );
+		assert (    current->next
+			 != parser->first );
+	    }
+	    current = current->next;
+	    free ( remove ( first_ref(parser),
+			    current->previous ) );
+	}
+
+        if ( current->type == LEXSTD::end_of_file_t )
+	    break;
+
+	PAR::token previous =
+	    current == parser->first ?
+	    (PAR::token) min::NULL_STUB :
+	    current->previous;
+
+	::parse_explicit_subexpression
+	    ( parser, current,
+	      current->begin.column,
+	      NULL,
+	      parser->selectors );
+
+	PAR::token first =
+	    previous == min::NULL_STUB ?
+	    parser->first :
+	    previous->next;
+
+	::compact
+	    ( parser, first, current,
+	      first->begin,
+	      current->previous->end,
+	      min::MISSING(),
+	      ::new_line );
+    }
 }
 
 // Parser Functions

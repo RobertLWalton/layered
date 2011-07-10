@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 9, 2011
+July 10, 2011
  
 \end{center}
 
@@ -433,6 +433,41 @@ integer stored in memory.  However, `\verb|ip1|', `\verb|ip2|',
 `\verb|** ip3|', and `\verb|* ip3|',
 and `\verb|i3|' reference
 an {\tt int32} integer variable.
+
+Some of the names in address type variable declarations may be omitted,
+as in
+\begin{indpar}\begin{verbatim}
+adr ip -> int32;
+adr    -> int32 i;
+\end{verbatim}\end{indpar}
+
+In both these cases the value stored in the variable is the address
+of a 32-bit integer.  However, {\tt ip} names the address and
+{\tt i} names the integer.  `{\tt * ip}' can be used to name the
+integer, and `{\tt \& i}' can be used to name the address.
+Either of these names can be used to assign values, as in
+\begin{indpar}\begin{verbatim}
+* ip = 5;
+& i = ip;
+\end{verbatim}\end{indpar}
+
+Variable declarations are actually short forms for the declaration
+of constant addresses.  For example, the local variable declarations
+\begin{indpar}\begin{verbatim}
+int32 i;
+adr ip -> int32;
+\end{verbatim}\end{indpar}
+are equivalent to
+\begin{indpar}
+{\tt constant stack adr =} {\em some-stack-address} {\tt -> int32 i;} \\
+{\tt constant stack adr =} {\em some-stack-address} {\tt -> adr ip -> int32;}
+\end{indpar}
+
+so that `{\tt ip = \& i}' is a legal statement.  The compiler arranges
+for appropriate stack addresses to be computed, and `{\tt \& i}' and
+`{\tt \& ip}' are `{\tt constant}' and so cannot be changed and also
+`{\tt stack}' meaning that they have a lifetime only as long as the
+current stack frame.
 
 \subsection{Random Access Memory (RAM) and Blocks}
 

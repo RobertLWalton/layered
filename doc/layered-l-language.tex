@@ -455,19 +455,25 @@ Variable declarations are actually short forms for the declaration
 of constant addresses.  For example, the local variable declarations
 \begin{indpar}\begin{verbatim}
 int32 i;
-adr ip -> int32;
+stack adr ip -> int32;
 \end{verbatim}\end{indpar}
 are equivalent to
 \begin{indpar}
 {\tt constant stack adr =} {\em some-stack-address} {\tt -> int32 i;} \\
-{\tt constant stack adr =} {\em some-stack-address} {\tt -> adr ip -> int32;}
+{\tt constant stack adr =} {\em some-stack-address}
+                           {\tt -> stack adr ip -> int32;}
 \end{indpar}
 
-so that `{\tt ip = \& i}' is a legal statement.  The compiler arranges
+so that `{\tt ip = \& i}' is a legal assignment.  The compiler arranges
 for appropriate stack addresses to be computed, and `{\tt \& i}' and
 `{\tt \& ip}' are `{\tt constant}' and so cannot be changed and also
 `{\tt stack}' meaning that they have a lifetime only as long as the
 current stack frame.
+
+Note that if `{\tt stack adr ip}' were changed to
+`{\tt adr ip}' the assignment `{\tt ip = \& i}' would no longer be
+legal, because the lifetime of `{\tt \& i}' is shorter than the
+indefinite lifetime promised by `{\tt adr ip}' unqualified by `{\tt stack}'.
 
 \subsection{Random Access Memory (RAM) and Blocks}
 

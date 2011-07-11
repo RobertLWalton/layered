@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 28 03:28:37 EDT 2011
+// Date:	Mon Jul 11 07:01:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,11 +52,14 @@ struct root_struct
     ll::parser::table::selectors selectors;
         // Selector bits.
     const min::gen label;
-        // Label of hash table entry.  A symbol,
-	// integral number in the range 0 .. 2^28-1,
-	// or MIN label with more than 1 element.
-	// Also called the `key' of the hash table
-	// entry.
+        // Label of hash table entry.  A sequence of one
+	// or more symbols, where a symbol is a min::gen
+	// string value encoding the translation string
+	// of a word, mark, separator, or natural number
+	// lexeme (i.e., the value of a symbol token).
+	//
+	// The `label' is also called the `key' of a
+	// hash table entry.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -67,14 +70,12 @@ MIN_REF ( min::gen, label,
 // Key Prefixes
 // --- --------
 
-// A hash table maps keys, which are symbols, integers
-// in the range 0 .. (2^28)-1, or multi-element labels,
-// to stacks of hash entries.  If a key is a symbol or
-// integer, it is a 1-element key, with the element
-// being the symbol or integer.  If the key is a label,
-// it must have more than one element, and each element
-// must be a symbol or integer in the range 0 ..
-// (2^28)-1.
+// A hash table maps keys, which are labels (see Roots
+// above), to stacks of hash entries.  A key is a
+// sequence of one or more symbols, each represented
+// in the hash table by a min::gen string value and in
+// the input by a symbol token whose value is a min::gen
+// string.
 //
 // A key prefix is an initial segment of a key, viewing
 // the key as a list of key elements.
@@ -100,11 +101,11 @@ MIN_REF ( min::gen, label,
 //
 // The hash code of a key_prefix is the hash code of its
 // key.  More specifically, if the key has just one
-// element, which must necessarily be a symbol or a
-// natural number, the hash is the hash of that element,
-// and if the key has more than one element, the hash
-// is the hash as per min::labhash of the label made
-// from the key elements.
+// element, which must necessarily be a symbol (i.e., a
+// min::gen string), the hash is the hash of that
+// element, and if the key has more than one element,
+// the hash is the hash as per min::labhash of the min::
+// gen label made from the key elements.
 //
 struct key_prefix_struct;
 typedef min::packed_struct_updptr<key_prefix_struct>

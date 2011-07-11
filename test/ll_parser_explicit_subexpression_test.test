@@ -62,7 +62,7 @@ This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + y }
 ^^^^^^^^^^^
-ERROR: lexeme indent 1 too near line indent 0; line 23:
+ERROR: lexeme indent 1 too near paragraph indent 0; line 23:
  a token with insufficient indent
  ^
 EXPRESSION: SHORT_OBJ: lines 22-23:

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 25 09:07:31 EDT 2011
+// Date:	Mon Jul 11 07:12:31 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,7 +49,8 @@ extern min::locatable_var<ll::parser::input>
 //	separator_t
 //	natural_number_t
 //
-// Other tokens have min::MISSING() token values.
+// These are called `symbol tokens'.  Other tokens have
+// min::MISSING() token values.
 //
 // Tokens with the following types have PAR::string
 // token strings equal to their lexeme's translation

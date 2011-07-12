@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 11, 2011
+July 12, 2011
  
 \end{center}
 
@@ -1452,12 +1452,17 @@ The `{\tt goto}', `{\tt call}', and `{\tt return}' instruction components
 
 \section{Parsing}
 
-The parser is a sequence of passes each of which takes an input
-stream and produces and output stream.  The components of the
-streams can be lexemes, subexpressions, or expression components
-such as numbers, operators, and punctuation.  For better
-modularity all stream components are called \skey{token}s,
-and the data is organized as streams of tokens.
+The parser is a sequence of passes each of which operates on a list
+of tokens.  A token is either a lexeme or an expression.
+The top level parser pass, the explicit subexpression recognition pass,
+recognizes subexpressions that are bounded by explicit brackets
+such as `{\tt (}' and `{\tt )}' or ends of lines that are not
+followed by indented lines.  The non-top-level passes
+operate on the subexpressions recognized by previous passes.
+
+Parsing reduces each recognized subexpression, including each input
+line, to a single expression token.  Here lines may be continued
+by indented lines.
 
 \subsection{Tokens}
 
@@ -1484,7 +1489,7 @@ A token can have any of the following components.
 \\[1ex]
 		& The standard parser encodes the translation
 		  strings of words, marks, separators, and natural
-		  numbers a {\tt value}'s, but \underline{not}
+		  numbers as {\tt value}'s, but \underline{not}
 		  the translation strings of non-natural numbers
 		  or quoted strings.
 \\[1ex]
@@ -1493,19 +1498,19 @@ A token can have any of the following components.
 		  Note that as symbols {\tt 001}, {\tt 01}, and {\tt 1}
 		  are all distinct.
 \\[1ex]
+		& For EXPRESSION tokens, this is a MIN object which
+		  encodes a list.  This list may also have other
+		  attributes, such as
+		  {\tt .initiator}, {\tt .terminator},
+		  {\tt .sep\-arator}, {\tt .arguments}, and
+		  {\tt .keys}.
+\\[1ex]
 \tt string	& For lexemes that do not have {\tt value}'s,
                   the translation string of the lexeme.
 		  This is stored in a manner that makes
 		  garbage collection and memory reuse more
 		  efficient than it would be if MIN strings
 		  were used, but makes lookup less efficient.
-\\[1ex]
-		& For expressions, this is a MIN object which
-		  encodes a list of subexpressions.  This list
-		  may also have other attributes, such as
-		  {\tt .initiator}, {\tt .terminator},
-		  {\tt .sep\-arator}, {\tt .arguments}, and
-		  {\tt .keys}.
 
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
@@ -1526,8 +1531,8 @@ A token can have any of the following components.
 \end{tabular}
 \end{indpar}
 
-Tokens are organized in a doubly threaded list.  A file consists
-of such a list that ends with a token containing a end-of-file
+Tokens are organized in a doubly threaded list.  A file is translated into
+such a list that ends with a token containing a end-of-file
 lexeme.  Some tokens, like end-of-file and line-break lexeme
 tokens, may not have their translation strings recorded in the token.
 The tokens of a file are not read in all at once, but are read in as
@@ -1556,34 +1561,42 @@ components:
 \ttmkey{label}{of symbol table entry}
 		& A sequence of `symbols' that identifies the definition.
 \\[1ex]
-		& A \key{symbol} is a min::gen string equal to the
+		& A \key{symbol} is a MIN string equal to the
 		  lexeme translation string of a word, mark, separator,
-		  or natural number.  Quoted strings and non-natural
-		  numbers cannot be symbols.
+		  or natural number lexeme.  Quoted string and non-natural
+		  number lexemes are not symbols.
 \\[1ex]
 		& Labels are symbol table `\skey{key}s', that is, they
 		  are what is looked up in a symbol table.
 \\[1ex]
 		& If a label has just one symbol, it is represented by
-		  a min::gen string.  Otherwise it is represented by
-		  a min::gen label whose elements are min::gen strings
+		  a MIN string.  Otherwise it is represented by
+		  a MIN label whose elements are MIN strings
 		  equal to the symbols.
 \\[1ex]
-\tt type	& The type of the definition.
+\tt type	& The type of the definition.  Each parser pass has
+		  one (or sometimes more) symbol tables containing
+		  definitions of types particular to the pass.
+		  For example, the explicit subexpression recognition
+		  pass has {\tt opening bracket}, {\tt closing bracket},
+		  {\tt indentation mark}, and {\tt indentation separator}
+		  type definitions, among others.
 \\[1ex]
 \tt selectors	& A set of \skey{parsing selector}s that determine if
-		  the definition is active.
+		  the definition is active.  See text.
 \end{tabular}
 \end{indpar}
 
 Lookup in a parser symbol table takes as input a token sequence
-that is part of a line (for the explicit subexpression pass)
+that is part of a line (for the explicit subexpression recognition pass)
 or subexpression (for other passes), and finds the active symbol table
 entry with the longest label whose symbols match an initial segment
 of the token sequence.  Only symbol tokens, whose lexeme types are word,
-mark, separator, or natural number, can match symbols.  These are just
-the token types that have values which are min::gen strings equal to the
-translation strings of their lexemes.  When a match is found,
+mark, separator, or natural number, can match label symbols.  These are just
+the token types that have values which are MIN strings equal to the
+translation strings of their lexemes, and it is these values that
+are matched for equality with the table entry label symbols.
+When a match is found,
 the initial segment of tokens used in the match is called
 an `\key{matched label}\,'.
 

@@ -1615,6 +1615,104 @@ position 1{\tt <<}N being on if the N+1'st selector is in the set.
 Thus there can be at most 64 distinct selectors used by any set of
 definitions.
 
+Also definition activity may depend upon context.  For example,
+if `{\tt<}' is a named opening and `{\tt |}' is a named
+middle (see the explicit expression recognition pass below
+for details), the named middle is not active unless it is proceeded by
+the named opening in the current explicit subexpression.
+
+\subsection{Parser Definitions}
+
+The syntax of a lexical program is specified on
+\pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS}.
+
+\subsection{The Explicit Subexpression Recognition Pass}
+
+The explicit subexpression recognition pass recognizes:
+\begin{center}
+brackets (e.g.~`{\tt (}' and `{\tt )}') and bracketed subexpressions \\
+indentation marks (e.g.~`{\tt :}') and indented paragraphs \\
+named brackets (e.g.~`{\tt <b|}' and `{\tt |b>}')
+      and named bracketed subexpressions \\
+named operators (e.g.~`{\tt <p>}') \\
+\end{center}
+
+\begin{figure*}[!p]
+\emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
+	         $|$ {\em natural-number}
+\\[0.5ex]
+\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em quoted-string}
+\\[0.5ex]
+\emkey{non-special-symbol} ::=
+    {\em symbol} that is \underline{not} treated specially by the parser
+\\[0.5ex]
+\emkey{name} ::= {\em name-component} {\em name-component}\,$^\star$
+\\[2ex]
+\emkey{parsing-selectors} ::= {\em empty}
+			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
+\label{PARSING-SELECTORS}
+\\[0.5ex]
+\emkey{parsing-selector-list} ::= {\em empty}
+    $|$ {\em parsing-selector} \{ \verb|,| {\em parsing-selector} \}\,$^\star$
+\\[0.5ex]
+\emkey{parsing-selector} ::= {\em name}
+\\[2ex]
+\emkey{new-parsing-selectors} \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+    ::= & \underline{\tt [} {\em parsing-selector-list} \underline{\tt ]} \\
+    $|$ & \underline{\tt [} {\em parsing-selector-op} {\em parsing-selector} \\
+        & \hspace*{0.3in}
+          \{ \verb|,| {\em parsing-selector-op} {\em parsing-selector}
+	  \}$^\star$ \underline{\tt ]}
+    \end{tabular}
+\label{NEW-PARSING-SELECTORS}
+\\[0.5ex]
+\emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
+\\[2ex]
+\emkey{bracket-definition} \\
+    \hspace*{0.5in}::= \ttkey{define bracket}
+	\begin{tabular}[t]{@{}l@{}}
+	{\em bracket-name} {\em parsing-selectors} \\
+	{}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	{}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	{}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{bracket-name} ::= {\em opening-bracket-name}
+			 \ttmkey{...}{in {\em bracket-name}}
+			 {\em closing-bracket-name}
+\\[0.5ex]
+\emkey{opening-bracket-name} ::= {\em name}
+\\[0.5ex]
+\emkey{closing-bracket-name} ::= {\em name}
+\\[0.5ex]
+\emkey{reformatter-name} ::= {\em name}
+\\[0.5ex]
+\emkey{evaluator-name} ::= {\em name}
+\\[2ex]
+\emkey{indentation-mark-definition} \\
+    \hspace*{0.5in}::= \ttkey{define indentation mark}
+	\begin{tabular}[t]{@{}l@{}}
+	{\em indentation--name}
+	{\em parsing-selectors} \\
+	{}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	{}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	{}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{indentation-name} ::= {\em indentation-mark-name}
+	[ {\tt ...} {\em indentation-separator-name} ]
+\\[0.5ex]
+\emkey{indentation-mark-name} ::= {\em name}
+                              $|$ {\em gluing-indicator} {\em gluing-mark-name}
+\\[0.5ex]
+\emkey{gluing-mark-indicator} ::= \ttmkey{*}{gluing mark}
+\\[0.5ex]
+\emkey{gluing-mark-name} ::= {\em mark} $|$ {\em quoted-string}
+
+\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS}
+\end{figure*}
+
 \subsection{Parser Passes}
 
 The parser runs a series of \skey{parser pass}{es} against the
@@ -1680,7 +1778,7 @@ of the stream and provides a `{\tt get}' function that can be called by P2
 to add tokens to the end of its input stream.  This `{\tt get}' function
 is actually a continuation function for pass P1.
 
-\newpage
+\clearpage
 
 \appendix
 

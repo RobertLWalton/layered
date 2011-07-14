@@ -1623,10 +1623,16 @@ the named opening in the current explicit subexpression.
 
 \subsection{Parser Definitions}
 
-The syntax of a lexical program is specified on
+The syntax of a parser definitions in general and those
+associated with the explict expression recognition pass in particular
+is specified on
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 and
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
+
+A parser definition is an input line by itself, and is
+executed by the parser itself
+after the definition is read, thus affecting subsequent parsing.
 
 \subsection{The Explicit Subexpression Recognition Pass}
 

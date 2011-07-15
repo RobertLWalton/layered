@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 14, 2011
+July 15, 2011
  
 \end{center}
 
@@ -1634,6 +1634,28 @@ A parser definition is an input line by itself, and is
 executed by the parser itself
 after the definition is read, thus affecting subsequent parsing.
 
+Parser definitions begin with either the word
+`\ttmkey{define}{in parser definition}' or
+`\ttmkey{undefine}{in parser definition}'.  This is followed
+by a definition name, and that is followed by {\em parsing-selectors}.
+The \key{definition name} consists of `{\tt ...}' separated
+{\em names} that are used as labels of symbol table entries
+and therefore as keys in symbol table lookups.
+
+A {\tt define} parsing definition makes entries in parser symbol tables.
+One entry is made for each {\em name} in the definition name.
+Each entry is assigned the {\em parsing-selectors} from the parsing
+definition.  The selectors determine in which contexts the definition
+will be active.
+
+An {\tt undefine} parsing definition modifies 
+
+TBD
+
+
+
+Each entry made is given the 
+
 \subsection{The Explicit Subexpression Recognition Pass}
 
 The explicit subexpression recognition pass recognizes:
@@ -1678,13 +1700,18 @@ named operators (e.g.~`{\tt <p>}') \\
 \emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
 \\[2ex]
 \emkey{bracket-definition} \\
-    \hspace*{0.5in}::= \ttkey{define bracket}
-	\begin{tabular}[t]{@{}l@{}}
-	{\em bracket-name} {\em parsing-selectors} \\
-	{}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	{}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	{}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	\end{tabular}
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{define bracket}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\em bracket-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$ & \ttkey{undefine bracket}
+	  {\em bracket-name} {\em parsing-selectors} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em opening-bracket-name}
 			 \ttmkey{...}{in {\em bracket-name}}
@@ -1699,29 +1726,33 @@ named operators (e.g.~`{\tt <p>}') \\
 \emkey{evaluator-name} ::= {\em name}
 \\[2ex]
 \emkey{indentation-mark-definition} \\
-    \hspace*{0.5in}::= \ttkey{define indentation mark}
-	\begin{tabular}[t]{@{}l@{}}
-	{\em indentation-name}
-	{\em parsing-selectors} \\
-	{}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	{}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	{}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	\end{tabular}
+    \hspace*{0.2in}:
+    \begin{tabular}[t]{rl}
+    := & \ttkey{define indentation mark}
+	 \begin{tabular}[t]{@{}l@{}}
+	 {\em indentation-name} {\em parsing-selectors} \\
+	 {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	 {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	 {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	 \end{tabular} \\
+    $|$& \ttkey{undefine indentation mark}
+	 {\em indentation-name} {\em parsing-selectors} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{indentation-name} ::= {\em indentation-mark-name}
 	[ {\tt ...} {\em indentation-separator-name} ]
 \\[0.5ex]
 \emkey{indentation-mark-name} ::= {\em name}
                               $|$ {\em gluing-indicator} {\em gluing-mark-name}
-\\[0.5ex]
-\emkey{gluing-mark-indicator} ::= \ttmkey{*}{gluing mark}
-\\[0.5ex]
-\emkey{gluing-mark-name} ::= {\em mark} $|$ {\em quoted-string}
 
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 \end{figure*}
 
 \begin{figure*}[!t]
+\emkey{gluing-mark-indicator} ::= \ttmkey{*}{gluing mark}
+\\[0.5ex]
+\emkey{gluing-mark-name} ::= {\em mark} $|$ {\em quoted-string}
+\\[2ex]
 \emkey{mark-name} ::= {\em mark-name-component}
                       {\em mark-name-component}\,$^\star$
 \\[0.5ex]
@@ -1734,21 +1765,26 @@ named operators (e.g.~`{\tt <p>}') \\
 \emkey{mark-symbol} ::= {\em mark} $|$ {\em separator}
 \\[2ex]
 \emkey{named-bracket-definition} \\
-    \hspace*{0.5in}::= \ttkey{define named bracket}
-	\begin{tabular}[t]{@{}l@{}}
-	{\em named-bracket-name}
-	{\em parsing-selectors} \\
-	{}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	{}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	{}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	\end{tabular}
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{define named bracket}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\em named-bracket-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$ & \ttkey{undefine named bracket}
+	  {\em named-bracket-name}
+	  {\em parsing-selectors} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{named-bracket-name} \\
-    \hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}}
-	{\em named-opening} [ {\tt ...} {\em named-separator} ] \\
-        {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
-	{\tt ...} {\em named-closing}
-	\end{tabular}
+    \hspace*{0.2in}:= \begin{tabular}[t]{@{}l@{}}
+	 {\em named-opening} [ {\tt ...} {\em named-separator} ] \\
+         {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
+	 {\tt ...} {\em named-closing}
+	 \end{tabular}
 \\[0.5ex]
 \emkey{named-opening} ::= {\em mark-name}
 \\[0.5ex]

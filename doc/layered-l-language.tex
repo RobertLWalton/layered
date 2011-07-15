@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 10, 2011
+July 15, 2011
  
 \end{center}
 
@@ -606,11 +606,12 @@ Blocks contain numbers (including direct addresses) and subblocks.
 Access to these is provided by displacement values.  For example,
 \begin{indpar}\begin{verbatim}
 deftype type1 (48,8);
-disp member1 = 0 -> uns16 @ type1;
-disp member2 = 2 -> uns16 @ type1;
-disp member3 = 4 -> uns32 @ type1;
-disp member4 = 8 -> float32 @ type1;
-disp member5 = 12 -> adr @ type1 -> type1;
+unchecked:
+    disp member1 = 0 -> uns16 @ type1;
+    disp member2 = 2 -> uns16 @ type1;
+    disp member3 = 4 -> uns32 @ type1;
+    disp member4 = 8 -> float32 @ type1;
+    disp member5 = 12 -> adr @ type1 -> type1;
 . . . . .
 type1 x;
 x.member1 = 9;
@@ -642,6 +643,50 @@ variable is an unchecked operation that can be used only
 in unchecked code, that is, in code
 that permitted to avoid normal type checking
 rules.
+
+The type of the expression `{\tt x.member1}' is
+\begin{center}
+\tt constant stack adr -> uns16 V @ type1.member1
+\end{center}
+and \underline{not}
+\begin{center}
+\tt constant stack adr V -> uns16 @ type1.member1
+\end{center}
+The statement
+\begin{center}
+\tt x.member1 = 9;
+\end{center}
+therefore sets an {\tt uns16} integer variable, and
+\underline{not} an {\tt adr} constant.  In these types
+the {\em variable-name} {\tt V} is used to indicate which
+value, the integer or the address, is the value of the expression.
+This is the value that will be read if the expression appears to
+the right of {\tt =} and written if the expression appears to the
+left.  This value is also called the \key{value position} inside
+the address type, and we say that {\tt V} specifies the value
+position inside the address type.
+Any other {\em variable-name} besides {\tt V} could be used
+to specify the value position in an address type.
+
+Notice that
+the expression `{\tt x.member1}' has type
+\begin{center}
+\tt constant stack adr -> uns16 V @ type1.member1
+\end{center}
+and \underline{not}
+\begin{center}
+\tt constant stack adr -> uns16 V
+\end{center}
+The difference between the type `{\tt uns16 @ type1.member1}'
+and the type `{\tt uns16}' is that the former specifies an
+{\tt uns16} value that is inside a {\tt type1} value, and is
+in fact at offset {\tt member1} inside that {\tt type1} value.
+This extra information is only used by the compiler to determine
+when variables can be aliased, so it is only used for optimization.
+Nonetheless, if the information is incorrect,
+optimization may not be done correctly, and the program may execute
+erroneously (without detecting that it is doing so).
+
 
 \subsection{Code and Frame Blocks}
 \label{CODE-AND-FRAME-BLOCKS}
@@ -715,8 +760,8 @@ Code RAM blocks may be static, stack, or heap blocks.
 \subsection{Pointer Types}
 \label{POINTER-TYPES}
 
-The standard pointer type is denoted by `{\tt *}', but
-additional pointer types may be defined by
+The standard pointer type is {\tt adr}, which denotes an address.
+But additional pointer types may be defined by
 \begin{center}
 \ttkey{defptr} {\em type-name} {\tt (} {\em length}{\tt ,}
 				       {\em alignment}{\tt ,}
@@ -726,17 +771,33 @@ additional pointer types may be defined by
 
 This works just like {\tt deftype} but additionally declares
 the defined type to be a pointer type.  As such it can be used
-with that same syntax as `{\tt *}'.  An example is:
+with that same syntax as `{\tt adr}' with the operators
+`{\tt *}' and `{\tt \&}'.  An example is:
 
 \begin{indpar}\begin{verbatim}
-defptr "<-" ( 64, 64, 0 );
-void function1 ( int32 <- x, mystruct <-& y );
+defptr ptr ( 64, 64, 0 );
+void function1 ( ptr x -> int32, ptr -> mystruct y );
 \end{verbatim}\end{indpar}
 
 Here the first argument to {\tt function1},
-{\tt x}, is a \verb|<-| type pointer to an {\tt int32} value,
-and the second argument is similarly a \verb|<-| type pointer
+{\tt x}, is a \verb|ptr| type pointer to an {\tt int32} value,
+and the second argument is similarly a \verb|ptr| type pointer
 to a {\tt mystruct} value designated by {\tt y}.
+
+The operators `{\tt *}' and `{\tt \&}' are automatically
+defined for pointer types and merely change these types by
+moving the value position within the type.  Thus
+\begin{center}
+\begin{tabular}{lllll}
+\tt *  & converts type & {\em pointer-type} {\tt V ->} {\em data-type}
+       & to            & {\em pointer-type} {\tt ->} {\em data-type} {\tt V} \\
+\tt \& & converts type & {\em pointer-type} {\tt ->} {\em data-type} {\tt V}
+       & to            & {\em pointer-type} {\tt V ->} {\em data-type} \\
+
+\end{tabular}
+\end{center}
+
+TBD
 
 Conversion functions can be defined between pointer types.
 

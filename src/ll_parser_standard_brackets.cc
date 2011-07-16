@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 27 03:42:00 EDT 2011
+// Date:	Sat Jul 16 19:45:29 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,30 +29,55 @@
 void PARSTD::init_brackets
 	( min::ref<PAR::parser> parser )
 {
+    min::locatable_gen opening_parenthesis;
+    opening_parenthesis = min::new_str_gen ( "(" );
+    min::locatable_gen closing_parenthesis;
+    closing_parenthesis = min::new_str_gen ( ")" );
+
+    min::locatable_gen opening_square;
+    opening_square = min::new_str_gen ( "[" );
+    min::locatable_gen closing_square;
+    closing_square = min::new_str_gen ( "]" );
+
+    min::locatable_gen opening_brace;
+    opening_brace = min::new_str_gen ( "{" );
+    min::locatable_gen closing_brace;
+    closing_brace = min::new_str_gen ( "}" );
+
+    min::locatable_gen opening_quote;
+    opening_quote = min::new_str_gen ( "`" );
+    min::locatable_gen closing_quote;
+    closing_quote = min::new_str_gen ( "'" );
+
+    min::locatable_gen colon;
+    colon = min::new_str_gen ( ":" );
+    min::locatable_gen semicolon;
+    semicolon = min::new_str_gen ( ";" );
+
     parser->selectors = PARSTD::CODE;
     PARTAB::push_brackets
-        ( min::new_str_gen ( "(" ),
-          min::new_str_gen ( ")" ),
+        ( opening_parenthesis,
+	  closing_parenthesis,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  PARTAB::new_selectors ( 0, 0, 0 ),
 	  parser->bracket_table );
     PARTAB::push_brackets
-        ( min::new_str_gen ( "[" ),
-          min::new_str_gen ( "]" ),
+        ( opening_square,
+          closing_square,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  PARTAB::new_selectors ( 0, 0, 0 ),
 	  parser->bracket_table );
     PARTAB::push_brackets
-        ( min::new_str_gen ( "{" ),
-          min::new_str_gen ( "}" ),
+        ( opening_brace,
+          closing_brace,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  PARTAB::new_selectors
 	      ( PARSTD::MATH,
 	        PARSTD::CODE + PARSTD::TEXT, 0 ),
 	  parser->bracket_table );
     PARTAB::push_brackets
-        ( min::new_str_gen ( "`" ),
-          min::new_str_gen ( "'" ),
+        ( opening_quote,
+          closing_quote,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  PARTAB::new_selectors
 	      ( PARSTD::TEXT,
@@ -60,7 +85,7 @@ void PARSTD::init_brackets
 	  parser->bracket_table );
 
     PARTAB::push_indentation_mark
-        ( min::new_str_gen ( ":" ),
+        ( colon, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  PARTAB::new_selectors ( 0, 0, 0 ),
 	  parser->bracket_table,

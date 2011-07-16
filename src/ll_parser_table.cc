@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 28 03:28:26 EDT 2011
+// Date:	Sat Jul 16 18:43:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -421,6 +421,8 @@ void TAB::push_named_brackets
 static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & TAB::indentation_mark_struct::next ),
     min::DISP ( & TAB::indentation_mark_struct
+                     ::indentation_separator ),
+    min::DISP ( & TAB::indentation_mark_struct
                      ::indentation_split ),
     min::DISP_END };
 
@@ -432,6 +434,24 @@ static min::packed_struct_with_base
 	  ::indentation_mark_stub_disp );
 const min::uns32 & TAB::INDENTATION_MARK =
     indentation_mark_type.subtype;
+
+static min::uns32 indentation_separator_stub_disp[] = {
+    min::DISP ( & TAB::indentation_separator_struct
+                     ::next ),
+    min::DISP ( & TAB::indentation_separator_struct
+                     ::indentation_mark ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::indentation_separator_struct,
+	 TAB::root_struct>
+    indentation_separator_type
+	( "ll::parser::table"
+	    "::indentation_separator_type",
+	  ::root_gen_disp,
+	  ::indentation_separator_stub_disp );
+const min::uns32 & TAB::INDENTATION_SEPARATOR =
+    indentation_separator_type.subtype;
 
 static min::uns32 indentation_split_stub_disp[] = {
     min::DISP ( & TAB::indentation_split_struct
@@ -461,7 +481,8 @@ TAB::split_table TAB::create_split_table ( void )
 }
 
 void TAB::push_indentation_mark
-	( min::gen label,
+	( min::gen mark_label,
+	  min::gen separator_label,
 	  TAB::selectors selectors,
 	  const TAB::new_selectors & new_selectors,
 	  TAB::table bracket_table,
@@ -469,14 +490,27 @@ void TAB::push_indentation_mark
 {
     min::locatable_var<TAB::indentation_mark> imark;
     imark = ::indentation_mark_type.new_stub();
-    label_ref(imark) = label;
+    label_ref(imark) = mark_label;
     imark->selectors = selectors;
     imark->new_selectors = new_selectors;
     TAB::push ( bracket_table, (TAB::root) imark );
+    if ( separator_label != min::MISSING() )
+    {
+        MIN_ASSERT ( min::is_str ( separator_label ) );
+	min::locatable_var<TAB::indentation_separator>
+	    separator;
+	separator =
+	    ::indentation_separator_type.new_stub();
+	label_ref(separator) = separator_label;
+	indentation_mark_ref(separator) = imark;
+	indentation_separator_ref(imark) = separator;
+	TAB::push ( bracket_table,
+	            (TAB::root) separator );
+    }
     if ( split_table != NULL_STUB )
     {
-        MIN_ASSERT ( min::is_str ( label ) );
-	min::str_ptr s ( label );
+        MIN_ASSERT ( min::is_str ( mark_label ) );
+	min::str_ptr s ( mark_label );
 	min::unsptr length = min::strlen ( s );
         MIN_ASSERT ( length > 0 );
 	min::locatable_var<TAB::indentation_split>

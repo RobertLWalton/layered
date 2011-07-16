@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 07:21:41 EST 2011
+// Date:	Sat Jul 16 19:33:59 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,18 +42,20 @@ int main ( int argc )
     TAB::split_table split_table =
         PAR::default_parser->split_table;
 
-    min::gen opening_parenthesis =
-        min::new_str_gen ( "(" );
-    min::gen closing_parenthesis =
-        min::new_str_gen ( ")" );
+    min::locatable_gen opening_parenthesis;
+    opening_parenthesis = min::new_str_gen ( "(" );
+    min::locatable_gen closing_parenthesis;
+    closing_parenthesis = min::new_str_gen ( ")" );
 
-    min::gen opening_brace =
-        min::new_str_gen ( "{" );
-    min::gen closing_brace =
-        min::new_str_gen ( "}" );
+    min::locatable_gen opening_brace;
+    opening_brace = min::new_str_gen ( "{" );
+    min::locatable_gen closing_brace;
+    closing_brace = min::new_str_gen ( "}" );
 
-    min::gen colon =
-        min::new_str_gen ( ":" );
+    min::locatable_gen colon;
+    colon = min::new_str_gen ( ":" );
+    min::locatable_gen semicolon;
+    semicolon = min::new_str_gen ( ";" );
 
     ASSERT (    TAB::find ( opening_parenthesis,
     			    bracket_table )
@@ -80,7 +82,7 @@ int main ( int argc )
     ASSERT ( oparen->new_selectors.xor_selectors == 8 );
 
     TAB::push_indentation_mark
-        ( colon,
+        ( colon, semicolon,
 	  0,
 	  TAB::new_selectors ( 2 ),
 	  bracket_table,

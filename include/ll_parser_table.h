@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 11 07:01:06 EDT 2011
+// Date:	Sat Jul 16 18:43:10 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -468,6 +468,14 @@ extern const uns32 & INDENTATION_MARK;
     // Subtype of min::packed_struct
     //		       <indentation_mark_struct>.
 
+struct indentation_separator_struct;
+typedef min::packed_struct_updptr
+	    <indentation_separator_struct>
+        indentation_separator;
+extern const uns32 & INDENTATION_SEPARATOR;
+    // Subtype of min::packed_struct
+    //		       <indentation_separator_struct>.
+
 // A gluing indentation mark has an associated indenta-
 // tion split that contains the mark label, points at
 // the indentation mark, and is entered in an indenta-
@@ -497,6 +505,9 @@ struct indentation_mark_struct : public root_struct
 {
     ll::parser::table::new_selectors new_selectors;
 
+    const ll::parser::table::indentation_separator
+	    indentation_separator;
+
     const ll::parser::table::indentation_split
 	    indentation_split;
 	// If gluing, the split for this indentation.
@@ -505,9 +516,28 @@ struct indentation_mark_struct : public root_struct
 
 MIN_REF ( min::gen, label,
           ll::parser::table::indentation_mark )
+MIN_REF ( ll::parser::table::indentation_separator,
+          indentation_separator,
+          ll::parser::table::indentation_mark )
 MIN_REF ( ll::parser::table::indentation_split,
           indentation_split,
           ll::parser::table::indentation_mark )
+
+struct indentation_separator_struct : public root_struct
+{
+    // Packed_struct subtype is INDENTATION_SEPARATOR.
+
+    const ll::parser::table::indentation_mark
+    	    indentation_mark;
+        // The indentation_mark for which this is a
+	// separator.
+};
+
+MIN_REF ( min::gen, label,
+          ll::parser::table::indentation_separator )
+MIN_REF ( ll::parser::table::indentation_mark,
+          indentation_mark,
+          ll::parser::table::indentation_separator )
 
 struct indentation_split_struct
 {
@@ -543,7 +573,8 @@ MIN_REF ( ll::parser::table::indentation_mark,
           ll::parser::table::indentation_split )
 
 void push_indentation_mark
-	( min::gen label,
+	( min::gen mark_label,
+	  min::gen separator_label,
 	  ll::parser::table::selectors selectors,
 	  const ll::parser::table::new_selectors
 	      & new_selectors,

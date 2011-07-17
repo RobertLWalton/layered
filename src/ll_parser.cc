@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 16 21:14:00 EDT 2011
+// Date:	Sun Jul 17 03:11:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -670,6 +670,9 @@ static PAR::token find_separator
 // natural numbers, convert these to have values equal
 // to their their strings and free their strings.
 //
+// It is a programming error if any token is not a word,
+// number, or quoted string.
+//
 static min::gen make_label
 	( PAR::token first, min::uns32 n )
 {
@@ -687,13 +690,25 @@ static min::gen make_label
     {
         if ( first->value == min::MISSING() )
 	{
+	    MIN_ASSERT
+	        ( first->type == LEXSTD::number_t
+		  ||
+		     first->type
+		  == LEXSTD::quoted_string_t );
+
 	    PAR::value_ref(first) =
 		min::new_str_gen
 		    ( first->string.begin_ptr(),
 		      first->string->length );
 	    PAR::string_ref(first) =
-	        free_string ( first->string );
+	        PAR::free_string ( first->string );
 	}
+	else
+	    MIN_ASSERT
+	        ( first->type == LEXSTD::word_t
+		  ||
+		     first->type
+		  == LEXSTD::natural_number_t );
 
 	label[i] = first->value;
     }
@@ -722,14 +737,23 @@ inline PAR::token skip ( PAR::token t, min::uns32 n )
 // operator).  No tokens are deleted, but some may have
 // their values modified (e.g., quoted string tokens).
 //
-// If there are no arguments, `arguments' is set to
-// MISSING.  Otherwise `arguments' is set to a list
-// that has only list elements, namely the arguments.
-// Any quoted string or non-natural number argument
-// is converted as per ::convert_token before being
-// put into this list.
+// `first' MUST BE a word.  The name is this word plus
+// any following words and natural numbers.
+//
+// The arguments are any subexpressions, non-natural
+// numbers, and quoted strings following the name but
+// proceeding any named separator.  If there are no
+// arguments, `arguments' is set to MISSING.  Otherwise
+// `arguments' is set to a list that has only list
+// elements, namely the arguments.  Any quoted string
+// or non-natural number argument is converted as per
+// ::convert_token before being put into this list.
 // 
-// If there are no keys, `keys' is set to MISSING.  If
+// A key is any sequence of words, numbers, or quoted
+// strings following a named separator and preceeding
+// any next named separator.  There MUST not be any
+// marks, separators, or subexpressions in keys.  If
+// there are no keys, `keys' is set to MISSING.  If
 // there is just one, `keys' is set to that key, which
 // is a min::gen string or label.  If there is more than
 // one, `keys' is set to a list object containing only
@@ -740,14 +764,8 @@ inline PAR::token skip ( PAR::token t, min::uns32 n )
 // strings equal to the translation string of the token
 // lexeme.
 //
-// Any token in the named bracket or operator that has a
-// MISSING token value must be a non-natural number or
-// quoted string.  For arguments, these are replaced by
-// a subexpression whose sole element is the token
-// string of the token as a string general value and
-// whose .initiator is # for a number or " for a quoted
-// string.  For keys, these are replaced by ordinary
-// min::str strings and become label elements.
+// If a key is an empty string, a parsing error is
+// announced and the key is ignored.
 //
 static void named_attributes
 	( PAR::parser parser,
@@ -757,7 +775,8 @@ static void named_attributes
 	  TAB::named_opening named_opening,
 	  PAR::token first, PAR::token next )
 {
-    assert ( first->type == LEXSTD::word_t );
+    MIN_ASSERT ( first != next );
+    MIN_ASSERT ( first->type == LEXSTD::word_t );
 
     // Temporary min::gen locatable.
     //
@@ -825,7 +844,8 @@ static void named_attributes
 
     t = tnext;
 
-    // Count the number of separators.
+    // Count the number of non-empty keys and announce
+    // empty keys as errors.
     //
     min::uns32 sepcount = 0;
     min::uns32 keycount;
@@ -836,14 +856,41 @@ static void named_attributes
         tnext = ::find_separator
 	    ( keycount, tnext, next,
 	      separator, seplen );
-	++ sepcount;
+	if ( keycount > 0 ) ++ sepcount;
+	else
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: empty key in named bracket"
+		<< " or operator; "
+		<< LEX::pline_numbers
+		       ( parser->input_file,
+			 tnext->begin,
+			 tnext->end )
+		<< ":" << min::eom;
+	    LEX::print_item_lines
+		( parser->printer,
+		  parser->input_file,
+		  tnext->begin,
+		  tnext->end );
+	}
     }
 
     if ( sepcount == 0 )
         keys = min::MISSING();
     else if ( sepcount == 1 )
     {
-	t = ::skip ( t, seplen );
+	while ( true)
+	{
+	    // Must skip zero length keys.
+	    //
+	    t = ::skip ( t, seplen );
+	    tnext = ::find_separator
+		( keycount, t, next,
+		  separator, seplen );
+	    if ( keycount != 0 ) break;
+	    t = tnext;
+	}
         keys = ::make_label ( t, keycount );
     }
     else
@@ -856,8 +903,11 @@ static void named_attributes
 	    tnext = ::find_separator
 		( keycount, t, next,
 		  separator, seplen );
-	    exp = ::make_label ( t, keycount );
-	    min::attr_push(keysp) = exp;
+	    if ( keycount != 0 )
+	    {
+		exp = ::make_label ( t, keycount );
+		min::attr_push(keysp) = exp;
+	    }
 	    t = tnext;
 	}
     }
@@ -868,7 +918,7 @@ static void named_attributes
 // a symbol or number).  Return the begin position of
 // the last token removed.  Free the removed tokens.
 //
-static LEX::position remove
+inline LEX::position remove
         ( PAR::parser parser,
 	  PAR::token next, min::gen label )
 {
@@ -899,8 +949,8 @@ inline void remove
     while ( first != next )
     {
 	first = first->next;
-	free
-	  ( remove
+	PAR::free
+	  ( PAR::remove
 	      ( first_ref(parser),
 		first->previous )
 	  );
@@ -911,7 +961,7 @@ inline void remove
 // number of elements of `label' (== 1 if `label' is
 // a symbol or number).
 
-static PAR::token backup
+inline PAR::token backup
         ( PAR::token next, min::gen label )
 {
     min::uns32 n = 1;
@@ -922,10 +972,10 @@ static PAR::token backup
 }
 
 // Delete any line breaks after the current token.
-// Assume current->next is a read token, and arrange
-// that upon return current->next will be a read token.
+// Assume current->next has been read, and arrange that
+// that upon return current->next will have been read.
 //
-static void delete_line_breaks
+inline void delete_line_breaks
 	( PAR::parser parser, PAR::token current )
 {
     while ( true )
@@ -934,8 +984,8 @@ static void delete_line_breaks
 	     != LEXSTD::line_break_t )
 	    break;
 
-	free ( remove ( first_ref(parser),
-			current->next ) );
+	PAR::free ( PAR::remove ( first_ref(parser),
+			          current->next ) );
 
 	if ( current->next == parser->first )
 	{
@@ -974,7 +1024,7 @@ static void complain_near_indent
 }
 
 // Return true if token indent is > indent and complain
-// IF token indent is too near indent.
+// if token indent is too near indent.
 //
 inline bool is_indented
 	( PAR::parser parser,
@@ -1381,8 +1431,8 @@ static void parse_explicit_subexpression
 			// Delete line break.
 			//
 			current = current->next;
-			free
-			    ( remove
+			PAR::free
+			    ( PAR::remove
 				( first_ref(parser),
 				  current->previous ) );
 
@@ -1476,8 +1526,8 @@ static void parse_explicit_subexpression
 
 	    // Remove line break and move to next token.
 	    //
-	    free ( remove ( first_ref(parser),
-		            current ) );
+	    PAR::free ( PAR::remove ( first_ref(parser),
+		                      current ) );
 	    current = next;
 	    continue;
 	}
@@ -1517,8 +1567,10 @@ static void parse_explicit_subexpression
 		current->previous->end =
 		    current->end;
 		current = current->next;
-		free ( remove ( first_ref(parser),
-				current->previous ) );
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  current->previous ) );
 	    }
 	    else
 		current = current->next;
@@ -2226,8 +2278,9 @@ void PAR::parse ( PAR::parser parser )
 			 != parser->first );
 	    }
 	    current = current->next;
-	    free ( remove ( first_ref(parser),
-			    current->previous ) );
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+			        current->previous ) );
 	}
 
         if ( current->type == LEXSTD::end_of_file_t )

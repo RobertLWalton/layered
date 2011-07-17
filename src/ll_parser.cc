@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 17 03:11:06 EDT 2011
+// Date:	Sun Jul 17 04:15:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -753,16 +753,15 @@ inline PAR::token skip ( PAR::token t, min::uns32 n )
 // strings following a named separator and preceeding
 // any next named separator.  There MUST not be any
 // marks, separators, or subexpressions in keys.  If
-// there are no keys, `keys' is set to MISSING.  If
-// there is just one, `keys' is set to that key, which
-// is a min::gen string or label.  If there is more than
-// one, `keys' is set to a list object containing only
-// list elements, these elements being the keys, which
-// are min::gen strings or labels.  The keys are made by
-// ::make_label, and any quoted string or non-natural
-// number tokens in keys are converted to min::gen
-// strings equal to the translation string of the token
-// lexeme.
+// there are no keys, `keys' is set to MISSING.  Other-
+// wise, `keys' is set to a list object whose list
+// elements are the keys, which are min::gen strings or
+// min::gen labels.  The keys are made by ::make_label,
+// and any quoted string or non-natural number tokens
+// in keys are converted to min::gen strings equal to
+// the translation string of the token lexeme.  The
+// keys list object has .initiator and .separator BOTH
+// equal to named_opening->separator->label.
 //
 // If a key is an empty string, a parsing error is
 // announced and the key is ignored.
@@ -878,25 +877,10 @@ static void named_attributes
 
     if ( sepcount == 0 )
         keys = min::MISSING();
-    else if ( sepcount == 1 )
-    {
-	while ( true)
-	{
-	    // Must skip zero length keys.
-	    //
-	    t = ::skip ( t, seplen );
-	    tnext = ::find_separator
-		( keycount, t, next,
-		  separator, seplen );
-	    if ( keycount != 0 ) break;
-	    t = tnext;
-	}
-        keys = ::make_label ( t, keycount );
-    }
     else
     {
-        keys = min::new_obj_gen ( sepcount );
-	min::obj_vec_insptr keysp ( keys );
+        keys = min::new_obj_gen ( sepcount + 6, 2 );
+	min::obj_vec_insptr keysvp ( keys );
 	while ( t != next )
 	{
 	    t = ::skip ( t, seplen );
@@ -906,10 +890,20 @@ static void named_attributes
 	    if ( keycount != 0 )
 	    {
 		exp = ::make_label ( t, keycount );
-		min::attr_push(keysp) = exp;
+		min::attr_push(keysvp) = exp;
 	    }
 	    t = tnext;
 	}
+	min::attr_insptr keysap ( keysvp );
+
+	min::locate ( keysap, ::initiator );
+	min::set ( keysap,
+	           named_opening->named_separator
+		                ->label );
+	min::locate ( keysap, ::separator );
+	min::set ( keysap,
+	           named_opening->named_separator
+		                ->label );
     }
 }
 
@@ -1051,17 +1045,19 @@ inline bool is_indented
 // deletion, consecutive quoted strings are merged.
 //
 // It is assumed that there are always more tokens
-// available until an end-of-file token is encountered,
-// and the end-of-file is not part of the explicit
-// subexpression.  Therefore there is always a token
-// immediately after the recognized subexpression.
+// available via parser->input until an end-of-file
+// token is encountered, and the end-of-file is never
+// part of the explicit subexpression.  Therefore there
+// is always a token immediately after the recognized
+// subexpression.  This token is returned to mark the
+// end of the recognized subexpression.
 //
-// If the subexpression is either a line, including
+// The subexpression is either a line, including
 // indented continuations, or is a subexpession begun
-// by an opening bracket.  In the first case `current'
-// is the first token of the line, and in the second
-// case `current' is the first token after the opening
-// bracket.
+// by an unnamed or named opening bracket.  In the first
+// case `current' is the first token of the line, and in
+// the second case `current' is the first token after
+// the unnamed or named opening bracket.
 //
 // In either case the selectors are those already
 // computed by using indentation marks and opening
@@ -1081,6 +1077,13 @@ inline bool is_indented
 // The subexpression always terminates before an end-of-
 // file.
 //
+// If the line_separator argument is not MISSING, the
+// subexpression will terminate just after any token
+// whose value equals the line_separator argument,
+// if this token is outside any subsubexpression.  Note
+// that line separators must be single lexemes, and
+// should be marks or separators.
+//
 // The `bracket_stack' specifies brackets that need to
 // be closed.  When an entry in this stack is made, the
 // entry is considered to be `open'.  When a closing
@@ -1089,23 +1092,35 @@ inline bool is_indented
 // that entry and the top of the stack are marked as
 // `closed'.
 //
+// This function does not actually know whether or not
+// the subexpression is a line or bracketted.  The rules
+// for terminating the subexpression are the same in
+// either case.
+//
 // Normally a line subexpression will be terminated by
-// a non-indented token, and no bracket stack entries
-// will be closed.  Normally a bracketed subexpression
-// will be terminated by its closing bracket which will
-// correspond to the top entry on the bracket stack, and
-// only that entry will be closed.
+// a non-indented token or end-of-file, and no bracket
+// stack entries will be closed.  Normally a bracketed
+// subexpression will be terminated by its closing
+// bracket which will match the top entry on the bracket
+// stack, and only that entry will be closed.
 //
 // It is possible for a normal line to be terminated by
 // a closing bracket, in which case the line consists of
 // all tokens in the subexpression up to the closing
 // bracket, and the closing bracket also terminates an
 // outer subexpression.
+//
+// Subexpressions that would be empty lines are ignored.
+// This does not apply to lines terminated by line_
+// separators, which are not empty.  Thus a closing
+// indented by `indent' will not produce an empty line.
 // 
 // If the closing bracket of a subexpression is omitted,
-// when the subexpression is terminated either no
+// then when the subexpression is terminated either no
 // bracket stack entry or more than one entry will be
-// closed.
+// closed.  The caller can recognize this situation,
+// announce the bracket omission, and insert the omitted
+// bracket.
 //
 // To be recognized, a closing bracket must be active as
 // per the selectors.  So it is possible for a closing
@@ -1115,15 +1130,14 @@ inline bool is_indented
 // there has been an error in the way selectors have
 // been defined for the brackets.
 //
-// If a closing bracket not corresponding to any bracket
-// stack entry is recognized, it is announced as an
-// error and ignored.
+// If a closing unnamed bracket not corresponding to any
+// bracket stack entry is recognized, it is announced as
+// an error and ignored.
 //
-// When this function detects a subsubexpression with a
-// missing closing bracket, this function produces an
-// error message, and proceeds as if the closing bracket
-// were inserted just before the closing bracket or
-// line break that terminates the subsubexpression.
+// Closing named brackets are recognized only if they
+// match the top entry in the bracket stack.  Otherwise
+// the tokens that might be in them are not recognized
+// as belonging to a closing named bracket.
 //
 // The end of the subexpression is identified by the
 // `current' token upon return by this function, and
@@ -1144,35 +1158,47 @@ inline bool is_indented
 //
 // Note that if any bracket_stack entry is marked as
 // closed, then the top bracket_stack entry will be
-// marked as closed.
+// marked as closed.  If more than one bracket_stack
+// entry is marked as closed, then the closing bracket
+// of the top entry was omitted.
 //
 // This function calls itself recursively if it finds
-// an opening bracket or an indentation mark.  The
-// selectors determine which bracket and indentation
-// mark definitions are active.  When this function
-// calls itself recursively, upon return it wraps all
-// the tokens of the sub-subexpression found into a
-// single EXPRESSION token.  It also replaces non-
-// natural numbers and quoted strings in the sub-sub-
-// expression by subexpressions whose sole elements
-// are the translation strings of the token lexemes and
-// whose .initiators are # for number and " for quoted
-// string.
+// an opening unnamed or named bracket or an indentation
+// mark.  The selectors determine which bracket and
+// indentation mark definitions are active.  When this
+// function calls itself recursively, upon return it
+// wraps all the tokens of the sub-subexpression found
+// into a single EXPRESSION token (even if this is an
+// empty list).  It also replaces nonnatural numbers and
+// quoted strings in the sub-subexpression by EXPRES-
+// SIONs whose sole elements are the translation strings
+// of the token lexemes and whose .initiators are # for
+// number and " for quoted string.
 //
 // More specifically, bracketted SUBSUBexpressions are
 // converted to a list.  For unnamed brackets, the
 // .initiator and .terminator of this list are set to
 // the opening and closing brackets of the subsubexpres-
-// sion.  For named brackets the .name, .arguments, and
-// .keys attributes are set as computed by the named_
-// attributes function (values that are MISSING are not
-// set).
+// sion.  For named brackets the .initiator, .middle,
+// and .terminator are set to the named opening, named
+// middle, and named closing, and the .name, .arguments,
+// and .keys attributes are set as computed by the
+// ::named_attributes function (values that are MISSING
+// are not set).
 //
 // SUBSUBexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list
 // is a list of lines and has the indentation mark as
 // its .initiator.  The inner lists are line subexpres-
-// sions and have "\n" as their .terminator.
+// sions and have "\n" as their .terminator if they do
+// not end with the line_separator, and have the line_
+// separator as their .terminator otherwise.
+//
+// When this function detects a subsubexpression with a
+// missing closing bracket, this function produces an
+// error message, and proceeds as if the closing bracket
+// were inserted just before the closing bracket or
+// line break that terminates the subsubexpression.
 //
 // The token list, beginning with the initial value of
 // `current', can be edited.  The caller should save
@@ -1195,7 +1221,13 @@ inline bool is_indented
 // and indentation marks cannot straddle line_breaks.
 //
 // This function is called at the top level with indent
-// == 0 and bracket_stack == NULL.
+// == 0, line_separator `;', and bracket_stack == NULL.
+//
+// If an unnamed opening bracket is found with its
+// `full_line' feature on, the resulting recursive call
+// to this function has a disabled `indent' and line_
+// separator and has a bracket stack consisting solely
+// of one entry for the unnamed opening bracket.
 //
 struct bracket_stack
 {

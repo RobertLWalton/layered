@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  9 01:07:05 EDT 2011
+// Date:	Sat Jul 16 21:14:00 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,7 +31,8 @@
 static min::locatable_gen initiator;
 static min::locatable_gen terminator;
 static min::locatable_gen separator;
-static min::locatable_gen named_op;
+static min::locatable_gen middle;
+static min::locatable_gen name;
 static min::locatable_gen arguments;
 static min::locatable_gen keys;
 static min::locatable_gen doublequote;
@@ -44,24 +45,28 @@ static min::printer_format bracket_format =
 static struct initializer {
     initializer ( void )
     {
-        ::initiator =
-	    min::new_str_gen ( ".initiator" );
-        ::terminator =
-	    min::new_str_gen ( ".terminator" );
-        ::separator =
-	    min::new_str_gen ( ".separator" );
-        ::named_op =
-	    min::new_str_gen ( ".named_op" );
-        ::arguments =
-	    min::new_str_gen ( ".arguments" );
-        ::keys =
-	    min::new_str_gen ( ".keys" );
-        ::doublequote =
-	    min::new_str_gen ( "\"" );
-        ::number_sign =
-	    min::new_str_gen ( "#" );
-        ::new_line =
-	    min::new_str_gen ( "\n" );
+	min::locatable_gen dot;
+	min::locatable_gen tmp;
+	min::gen elements[2];
+	dot = min::new_str_gen ( "." );
+	elements[0] = dot;
+
+#	define MAKE_DOTTED_ATTRIBUTE( x ) \
+	    tmp = min::new_str_gen ( #x ); \
+	    elements[1] = tmp; \
+	    ::x = min::new_lab_gen ( elements, 2 )
+
+        MAKE_DOTTED_ATTRIBUTE ( initiator );
+        MAKE_DOTTED_ATTRIBUTE ( terminator );
+        MAKE_DOTTED_ATTRIBUTE ( separator );
+        MAKE_DOTTED_ATTRIBUTE ( middle );
+        MAKE_DOTTED_ATTRIBUTE ( name );
+        MAKE_DOTTED_ATTRIBUTE ( arguments );
+        MAKE_DOTTED_ATTRIBUTE ( keys );
+
+        ::doublequote = min::new_str_gen ( "\"" );
+        ::number_sign = min::new_str_gen ( "#" );
+        ::new_line = min::new_str_gen ( "\n" );
 
 	::bracket_format.str_prefix = "";
 	::bracket_format.str_postfix = "";
@@ -436,7 +441,7 @@ void PAR::init_output_stream
 // its .initiator either # for a non-natural number or
 // " for a quoted string.
 //
-void convert_token ( PAR::token token )
+static void convert_token ( PAR::token token )
 {
     assert ( token->value == min::MISSING() );
 
@@ -477,11 +482,12 @@ void convert_token ( PAR::token token )
 // Make an expression consisting of the tokens beginning
 // with `first' and ending just before `next'.  Replace
 // these tokens by the resulting EXPRESSION token.  Add
-// the given .initiator and .terminator if these are not
-// min::MISSING(), but also allow for later addition of
-// these and for later addition of a .separator.  Set
-// the begin and end positions of the new token from the
-// given arguments.  The resulting token is next->
+// the given .initiator, .terminator, .middle, .name,
+// .arguments, and .keys if these are not MISSING.
+// Allow for later addition of a .separator.
+//
+// Set the begin and end positions of the new token from
+// the given arguments.  The resulting token is next->
 // previous.
 //
 // Any token in the expression being output that has a
@@ -497,7 +503,11 @@ static void compact
 	  LEX::position begin,
 	  LEX::position end,
 	  min::gen initiator = min::MISSING(),
-	  min::gen terminator = min::MISSING() )
+	  min::gen terminator = min::MISSING(),
+	  min::gen middle = min::MISSING(),
+	  min::gen name = min::MISSING(),
+	  min::gen arguments = min::MISSING(),
+	  min::gen keys = min::MISSING() )
 {
     // Temporary min::gen locatable.
     //
@@ -515,7 +525,19 @@ static void compact
 	    ::convert_token ( current );
     }
 
-    exp = min::new_obj_gen ( 12 + n, 3 );
+    // Count the number of non-MISSING extra attributes.
+    //
+    min::uns32 m =
+          ( initiator != min::MISSING() )
+        + ( terminator != min::MISSING() )
+        + ( middle != min::MISSING() )
+        + ( name != min::MISSING() )
+        + ( arguments != min::MISSING() )
+        + ( keys != min::MISSING() );
+
+    exp = min::new_obj_gen
+        ( 3*( m + 2 ) + n,
+	  m == 0 ? 1 : 4 );
     min::obj_vec_insptr expvp ( exp );
     for ( min::uns32 i = 0; i < n; ++ i )
 	min::attr_push(expvp) = min::MISSING();
@@ -532,8 +554,7 @@ static void compact
 	          ( PAR::first_ref(parser), t ) );
     }
 
-    if (    initiator != min::MISSING()
-         || terminator != min::MISSING() )
+    if ( m > 0 )
     {
 	min::attr_insptr expap ( expvp );
 
@@ -547,6 +568,30 @@ static void compact
 	{
 	    min::locate ( expap, ::terminator );
 	    min::set ( expap, terminator );
+	}
+
+	if ( middle != min::MISSING() )
+	{
+	    min::locate ( expap, ::middle );
+	    min::set ( expap, middle );
+	}
+
+	if ( name != min::MISSING() )
+	{
+	    min::locate ( expap, ::name );
+	    min::set ( expap, name );
+	}
+
+	if ( arguments != min::MISSING() )
+	{
+	    min::locate ( expap, ::arguments );
+	    min::set ( expap, arguments );
+	}
+
+	if ( keys != min::MISSING() )
+	{
+	    min::locate ( expap, ::keys );
+	    min::set ( expap, keys );
 	}
     }
 
@@ -1925,7 +1970,8 @@ static void parse_explicit_subexpression
 			    ::remove
 				( parser,
 				  named_first,
-				  named_opening->label );
+				  named_opening->label
+				);
 			LEX::position end =
 			    current->previous->end;
 
@@ -1951,7 +1997,7 @@ static void parse_explicit_subexpression
 			    ( t->value );
 			min::attr_insptr tap ( tvp );
 
-			min::locate ( tap, ::named_op );
+			min::locate ( tap, ::name );
 			min::set ( tap, name );
 
 			if (    arguments

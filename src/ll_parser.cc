@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 17 04:15:25 EDT 2011
+// Date:	Mon Jul 18 04:48:34 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,6 +38,7 @@ static min::locatable_gen keys;
 static min::locatable_gen doublequote;
 static min::locatable_gen number_sign;
 static min::locatable_gen new_line;
+static min::locatable_gen semicolon;
 
 static min::printer_format bracket_format =
     min::default_printer_format;
@@ -67,6 +68,7 @@ static struct initializer {
         ::doublequote = min::new_str_gen ( "\"" );
         ::number_sign = min::new_str_gen ( "#" );
         ::new_line = min::new_str_gen ( "\n" );
+        ::semicolon = min::new_str_gen ( ";" );
 
 	::bracket_format.str_prefix = "";
 	::bracket_format.str_postfix = "";
@@ -1279,6 +1281,7 @@ static void parse_explicit_subexpression
 	( PAR::parser parser,
 	  PAR::token & current,
 	  min::int32 indent,
+	  min::gen line_separator,
 	  ::bracket_stack * bracket_stack_p,
 	  TAB::selectors selectors )
 {
@@ -1457,6 +1460,10 @@ static void parse_explicit_subexpression
 
 		    min::int32 line_indent =
 		        current->next->begin.column;
+		    min::gen line_separator =
+		        indentation_mark
+			    ->indentation_separator
+			    ->label;
 
 		    while ( true )
 		    {
@@ -1475,6 +1482,7 @@ static void parse_explicit_subexpression
 			::parse_explicit_subexpression
 			    ( parser, current,
 			      line_indent,
+			      line_separator,
 			      bracket_stack_p,
 			      new_selectors );
 			PAR::token first =
@@ -1664,7 +1672,8 @@ static void parse_explicit_subexpression
 		PAR::token previous = current->previous;
 		::parse_explicit_subexpression
 		    ( parser, current,
-		      indent, & cstack,
+		      indent, line_separator,
+		      & cstack,
 		      new_selectors );
 		PAR::token first = previous->next;
 
@@ -1877,7 +1886,8 @@ static void parse_explicit_subexpression
 		        current->previous;
 		    ::parse_explicit_subexpression
 			( parser, current,
-			  indent, & cstack,
+			  indent, line_separator,
+			  & cstack,
 			  selectors );
 
 		    PAR::token next = current;
@@ -2326,6 +2336,7 @@ void PAR::parse ( PAR::parser parser )
 	::parse_explicit_subexpression
 	    ( parser, current,
 	      current->begin.column,
+	      semicolon,
 	      NULL,
 	      parser->selectors );
 

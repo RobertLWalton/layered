@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 16 19:45:29 EDT 2011
+// Date:	Mon Jul 18 05:08:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,12 +60,14 @@ void PARSTD::init_brackets
 	  closing_parenthesis,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  PARTAB::new_selectors ( 0, 0, 0 ),
+	  false,
 	  parser->bracket_table );
     PARTAB::push_brackets
         ( opening_square,
           closing_square,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  PARTAB::new_selectors ( 0, 0, 0 ),
+	  false,
 	  parser->bracket_table );
     PARTAB::push_brackets
         ( opening_brace,
@@ -74,6 +76,7 @@ void PARSTD::init_brackets
 	  PARTAB::new_selectors
 	      ( PARSTD::MATH,
 	        PARSTD::CODE + PARSTD::TEXT, 0 ),
+	  false,
 	  parser->bracket_table );
     PARTAB::push_brackets
         ( opening_quote,
@@ -82,6 +85,7 @@ void PARSTD::init_brackets
 	  PARTAB::new_selectors
 	      ( PARSTD::TEXT,
 	        PARSTD::CODE + PARSTD::MATH, 0 ),
+	  false,
 	  parser->bracket_table );
 
     PARTAB::push_indentation_mark

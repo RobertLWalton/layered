@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 16 18:43:10 EDT 2011
+// Date:	Mon Jul 18 05:04:38 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -229,6 +229,8 @@ struct opening_bracket_struct : public root_struct
     	// New selectors associated with this opening
 	// bracket.
 
+    bool full_line;
+
 };
 struct closing_bracket_struct : public root_struct
 {
@@ -257,6 +259,7 @@ void push_brackets
 	  ll::parser::table::selectors selectors,
 	  const ll::parser::table::new_selectors
 	      & new_selectors,
+	  bool full_line,
 	  ll::parser::table::table bracket_table );
 
 // Named Brackets

@@ -229,6 +229,7 @@ void TAB::push_brackets
 	  min::gen closing_label,
 	  TAB::selectors selectors,
 	  const TAB::new_selectors & new_selectors,
+	  bool full_line,
 	  TAB::table bracket_table )
 {
     min::locatable_var<TAB::opening_bracket> opening;
@@ -242,6 +243,7 @@ void TAB::push_brackets
     opening->selectors = selectors;
     closing->selectors = selectors;
     opening->new_selectors = new_selectors;
+    opening->full_line = full_line;
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
 }

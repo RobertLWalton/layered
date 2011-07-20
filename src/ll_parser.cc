@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 20 00:25:30 EDT 2011
+// Date:	Wed Jul 20 17:39:52 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1712,6 +1712,9 @@ static void parse_explicit_subexpression
 		    opening_bracket->new_selectors
 				    .xor_selectors;
 
+		bool full_line =
+		    opening_bracket->full_line;
+
 		::bracket_stack cstack
 		    ( bracket_stack_p );
 		cstack.opening_bracket =
@@ -1720,7 +1723,12 @@ static void parse_explicit_subexpression
 		PAR::token previous = current->previous;
 		::parse_explicit_subexpression
 		    ( parser, current,
-		      indent, line_separator,
+		      full_line ?
+		          - parser->indent_offset :
+		          indent,
+		      full_line ?
+		          min::MISSING() :
+			  line_separator,
 		      & cstack,
 		      new_selectors );
 		PAR::token first = previous->next;

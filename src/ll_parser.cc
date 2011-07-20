@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 18 04:48:34 EDT 2011
+// Date:	Wed Jul 20 00:25:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -622,6 +622,31 @@ static void compact
     }
 }
 
+// Compute .terminator for a line.  If line_separator is
+// not MISSING and is == next->previous->value, then
+// line_separator is the .terminator and next->previous
+// is removed.  In this case first is updated to equal
+// next if first == next->previous.  Otherwise the
+// .terminator is ::new_line.
+//
+inline min::gen check_line_separator
+    ( PAR::parser parser,
+      min::gen line_separator,
+      PAR::token & first,
+      PAR::token next )
+{
+    if ( line_separator == min::MISSING() )
+        return ::new_line;
+    if ( line_separator != next->previous->value )
+        return ::new_line;
+    if ( first == next->previous ) first = next;
+    PAR::free
+	( PAR::remove
+	      ( PAR::first_ref(parser),
+		next->previous ) );
+    return line_separator;
+}
+
 // In a token sequence, find the next token subsequence
 // that matches a given separator, or find the end of
 // the token sequence.  The separator is represented as
@@ -1194,7 +1219,9 @@ inline bool is_indented
 // its .initiator.  The inner lists are line subexpres-
 // sions and have "\n" as their .terminator if they do
 // not end with the line_separator, and have the line_
-// separator as their .terminator otherwise.
+// separator as their .terminator otherwise (and the
+// line_separator at the end of the line is omitted
+// from the inner list).
 //
 // When this function detects a subsubexpression with a
 // missing closing bracket, this function produces an
@@ -1496,12 +1523,23 @@ static void parse_explicit_subexpression
 			// Compact line subsubexp.
 			//
 			if ( first != next )
+			{
+			    LEX::position begin =
+			        first->begin;
+			    LEX::position end =
+			        next->previous->end;
+
+			    min::gen terminator =
+			        check_line_separator
+				    ( parser,
+				      line_separator,
+				      first, next );
 			    ::compact
 			        ( parser, first, next,
-				  first->begin,
-				  next->previous->end,
+				  begin, end,
 				  min::MISSING(),
-				  ::new_line );
+				  terminator );
+			}
 
 			// See if there are more lines.
 			//
@@ -1573,6 +1611,16 @@ static void parse_explicit_subexpression
 	}
 
 	indentation_mark = min::NULL_STUB;
+
+	// Check for and process line_separator.
+	//
+	if ( line_separator != min::MISSING()
+	     &&
+	     line_separator == current->value )
+	{
+	    current = current->next;
+	    break;
+	}
 
 	// Process tokens that are not separators or
 	// marks.
@@ -2345,12 +2393,22 @@ void PAR::parse ( PAR::parser parser )
 	    parser->first :
 	    previous->next;
 
+	if ( first == current ) continue;
+
+	LEX::position begin = first->begin;
+	LEX::position end = current->previous->end;
+
+	min::gen terminator =
+	    check_line_separator
+		( parser,
+		  semicolon,
+		  first, current );
+
 	::compact
 	    ( parser, first, current,
-	      first->begin,
-	      current->previous->end,
+	      begin, end,
 	      min::MISSING(),
-	      ::new_line );
+	      terminator );
     }
 }
 

@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 15, 2011
+July 22, 2011
  
 \end{center}
 
@@ -1642,30 +1642,88 @@ The \key{definition name} consists of `{\tt ...}' separated
 {\em names} that are used as labels of symbol table entries
 and therefore as keys in symbol table lookups.
 
-A {\tt define} parsing definition makes entries in parser symbol tables.
+A \ttmkey{define}{parsing definition}
+parsing definition makes entries in parser symbol tables.
 One entry is made for each {\em name} in the definition name.
 Each entry is assigned the {\em parsing-selectors} from the parsing
 definition.  The selectors determine in which contexts the definition
 will be active.
 
-An {\tt undefine} parsing definition modifies 
+Parser symbol tables are used to look up sequences of tokens which
+match names in the tables.  During lookup the parser has a context that
+contains a set of {\em parsing-selectors}.
+Each {\em parsing-selector}
+has its own name, which is used to denote it in parsing definitions.
+In order to be recognized, a symbol table entry must be active, and
+to be active, it must have at least one {\em parsing-selector}
+in its definition that matches a {\em parsing-selector} in the
+parsing context at the time of lookup.
 
-TBD
+There can be at most 64 distinct {\em parsing-selectors} in all
+the parsing definitions together.\footnote{
+Internally a {\em parsing-selectors} set can be represented by
+a 64 bit unsigned integer with one bit per {\em selector}.}
 
+When a (named or unnamed)
+opening bracket or indentation mark is recognized, the current set of
+parser context {\em parsing-selectors} is pushed into a stack and
+a new set is computed using the {\em new-parsing-selectors}
+from the definition of the bracket or indentation mark.
+{\em New-parsing-selectors} can either be a list of selectors,
+or a list of operations that modify the previous context selectors.
+In the later case the possible operations are:
+\begin{center}
+\begin{tabular}{l@{\,}lp{3in}}
+\ttmkey{+}{new selector operation} & {\em selector}
+    & Add {\em selector} if it is not in the set.
+\\[0.5ex]
+\ttmkey{-}{new selector operation} & {\em selector}
+    & Remove {\em selector} if it is in the set.
+\\[0.5ex]
+\ttmkey{\CIRCUMFLEX}{new selector operation} & {\em selector}
+    & Flip {\em selector}, that is,
+      add {\em selector} if it is not in the set,
+      and remove {\em selector} if it is in the set.
+\end{tabular}
+\end{center}
 
+An \ttmkey{undefine}{parsing definition}
+parsing definition modifies the {\em parsing-selectors}
+of any entries that would be added to symbols
+tables by the corresponding {\tt define} parsing definition.
+If the {\tt undefine} as a given {\em selector}, that is removed
+from all these entries.  {\tt Undefine} parsing definitions
+have no other effect.
 
-Each entry made is given the 
+The parsing symbol tables act like a stack; as new parsing
+definitions are encountered, their effects are `pushed' into the
+symbol tables.  This virtual stack can be popped, removing
+the parsing definitions in reverse order.  When a definition
+is popped, its effects are removed from the symbol tables.
+Both {\tt define} and {\tt undefine} parsing definitions can be
+removed in this way.
 
 \subsection{The Explicit Subexpression Recognition Pass}
 
 The explicit subexpression recognition pass recognizes:
-\begin{center}
-brackets (e.g.~`{\tt (}' and `{\tt )}') and bracketed subexpressions \\
-indentation marks (e.g.~`{\tt :}') and indented paragraphs \\
+\begin{indpar}[0.5in]
+brackets (e.g.~`{\tt (}' and `{\tt )}')
+    and bracketed subexpressions \\
+indentation marks (e.g.~`{\tt :}'),
+    \begin{tabular}[t]{@{}p{3in}@{}}
+    indented paragraphs, and indented lines within a paragraph
+    \end{tabular} \\
 named brackets (e.g.~`{\tt <b|}' and `{\tt |b>}')
       and named bracketed subexpressions \\
-named operators (e.g.~`{\tt <p>}') \\
-\end{center}
+named operators (e.g.~`{\tt <p>}')
+\end{indpar}
+
+The syntax of the parsing definitions that control explicit
+subexpression recognition
+is specified on
+\pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
+and
+\pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
 
 \begin{figure*}[!p]
 \emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
@@ -1677,6 +1735,17 @@ named operators (e.g.~`{\tt <p>}') \\
     {\em symbol} that is \underline{not} treated specially by the parser
 \\[0.5ex]
 \emkey{name} ::= {\em name-component} {\em name-component}\,$^\star$
+\\[2ex]
+\emkey{mark-name} ::= {\em mark-name-component}
+                      {\em mark-name-component}\,$^\star$
+\\[0.5ex]
+\emkey{mark-name-component} ::= {\em non-special-mark-symbol}
+			    $|$ {\em quoted-string}
+\\[0.5ex]
+\emkey{non-special-mark-symbol} ::=
+    {\em mark-symbol} that is \underline{not} treated specially by the parser
+\\[0.5ex]
+\emkey{mark-symbol} ::= {\em mark} $|$ {\em separator}
 \\[2ex]
 \emkey{parsing-selectors} ::= {\em empty}
 			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
@@ -1706,6 +1775,7 @@ named operators (e.g.~`{\tt <p>}') \\
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em bracket-name} {\em parsing-selectors} \\
 	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with full lines} ] \\
 	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
 	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
 	  \end{tabular} \\
@@ -1717,14 +1787,18 @@ named operators (e.g.~`{\tt <p>}') \\
 			 \ttmkey{...}{in {\em bracket-name}}
 			 {\em closing-bracket-name}
 \\[0.5ex]
-\emkey{opening-bracket-name} ::= {\em name}
+\emkey{opening-bracket-name} ::= {\em mark-name}
 \\[0.5ex]
-\emkey{closing-bracket-name} ::= {\em name}
+\emkey{closing-bracket-name} ::= {\em mark-name}
 \\[0.5ex]
 \emkey{reformatter-name} ::= {\em name}
 \\[0.5ex]
 \emkey{evaluator-name} ::= {\em name}
-\\[2ex]
+
+\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
+\end{figure*}
+
+\begin{figure*}[!t]
 \emkey{indentation-mark-definition} \\
     \hspace*{0.2in}:
     \begin{tabular}[t]{rl}
@@ -1742,27 +1816,15 @@ named operators (e.g.~`{\tt <p>}') \\
 \emkey{indentation-name} ::= {\em indentation-mark-name}
 	[ {\tt ...} {\em indentation-separator-name} ]
 \\[0.5ex]
-\emkey{indentation-mark-name} ::= {\em name}
+\emkey{indentation-mark-name} ::= {\em mark-name}
                               $|$ {\em gluing-indicator} {\em gluing-mark-name}
-
-\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
-\end{figure*}
-
-\begin{figure*}[!t]
+\\[2ex]
 \emkey{gluing-mark-indicator} ::= \ttmkey{*}{gluing mark}
 \\[0.5ex]
 \emkey{gluing-mark-name} ::= {\em mark} $|$ {\em quoted-string}
 \\[2ex]
-\emkey{mark-name} ::= {\em mark-name-component}
-                      {\em mark-name-component}\,$^\star$
-\\[0.5ex]
-\emkey{mark-name-component} ::= {\em non-special-mark-symbol}
-			    $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{non-special-mark-symbol} ::=
-    {\em mark-symbol} that is \underline{not} treated specially by the parser
-\\[0.5ex]
-\emkey{mark-symbol} ::= {\em mark} $|$ {\em separator}
+\emkey{indentation-separator-name} ::= {\em mark} $|$ {\em separator }
+				   $|$ {\em quoted-string}
 \\[2ex]
 \emkey{named-bracket-definition} \\
     \hspace*{0.2in}
@@ -1793,11 +1855,51 @@ named operators (e.g.~`{\tt <p>}') \\
 \emkey{named-middle} ::= {\em mark-name}
 \\[0.5ex]
 \emkey{named-closing} ::= {\em mark-name}
-\\[0.5ex]
-\emkey{mark-name} ::= {\em mark-name}
 
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
 \end{figure*}
+
+An \key{unnamed bracketed subexpression}
+\index{bracketed subexpression!unnamed}
+begins with
+an {\em opening-bracket-name} and ends with a matched
+{\em closing-bracket-name} as defined by a \ttkey{define bracket}
+parsing definition.  The subexpression is converted to a
+MIN object whose list elements are the components of the
+subexpression except for the brackets.  The
+{\em opening-bracket-name} becomes the {\tt .initiator}
+attribute of this object, and the {\em closing-bracket-name}
+becomes the {\tt .terminator} attribute of the object.
+
+The {\em opening-bracket-name} and {\em closing-bracket-name} may be
+any sequence of marks and separators.
+
+If an unnamed bracketed subexpression ends pre-maturely, before
+its {\em closing-bracket-name} is discovered, a parsing error is
+announced and the {\em closing-bracket-name} is inserted in the input
+just after the pre-maturely ended subexpression.  Such a pre-mature end can be
+discovered by finding the {\em closing-bracket-name} of a containing
+unnamed bracketed subexpression, or the end of the paragraph line
+containing the unnamed bracketed subexpression,
+or an end of file.
+
+An \key{indented paragraph subexpression}
+\index{indented paragraph subexpression}
+begins with an {\em indentation-mark-name} which must be at the end of
+a line.  This is followed an \key{indented paragraph}
+consisting of zero or more \skey{paragraph line}s,
+each beginning at the same indentation which
+is called the \key{paragraph indentation}.  The paragraph indentation
+is defined as the indentation of the first paragraph line of the paragraph.
+A paragraph line may have a continuation lines that are indented with
+respect to the paragraph indentation.
+
+An {\em indentation-mark-name} is specified by a
+{\tt define indentation mark} parsing definition, and may have
+an associated {\em indentation-separator-name} supplied by that definition.
+The {\em indentation-separator-name} may be used to separator
+paragraph lines, as long as it is outside (named or unnamed)
+bracketed subexpressions in the paragraph.
 
 \subsection{Parser Passes}
 

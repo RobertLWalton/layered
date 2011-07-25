@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 22, 2011
+July 24, 2011
  
 \end{center}
 
@@ -1817,14 +1817,14 @@ and
 	[ {\tt ...} {\em indentation-separator-name} ]
 \\[0.5ex]
 \emkey{indentation-mark-name} ::= {\em mark-name}
-                              $|$ {\em gluing-indicator} {\em gluing-mark-name}
+                              $|$ {\em gluing-indicator}
+			          {\em gluing-indentation-mark-name}
 \\[2ex]
 \emkey{gluing-mark-indicator} ::= \ttmkey{*}{gluing mark}
 \\[0.5ex]
-\emkey{gluing-mark-name} ::= {\em mark} $|$ {\em quoted-string}
+\emkey{gluing-indentation-mark-name} ::= {\em mark} $|$ {\em quoted-string}
 \\[2ex]
-\emkey{indentation-separator-name} ::= {\em mark} $|$ {\em separator }
-				   $|$ {\em quoted-string}
+\emkey{indentation-separator-name} ::= {\em mark-name}
 \\[2ex]
 \emkey{named-bracket-definition} \\
     \hspace*{0.2in}
@@ -1895,11 +1895,80 @@ A paragraph line may have a continuation lines that are indented with
 respect to the paragraph indentation.
 
 An {\em indentation-mark-name} is specified by a
-{\tt define indentation mark} parsing definition, and may have
+\ttkey{define indentation mark} parsing definition, and may have
 an associated {\em indentation-separator-name} supplied by that definition.
 The {\em indentation-separator-name} may be used to separator
-paragraph lines, as long as it is outside (named or unnamed)
-bracketed subexpressions in the paragraph.
+paragraph lines, as long as it is outside (unnamed bracketed,
+named bracketed, or indented subparagraph) subexpressions in the paragraph.
+
+Each paragraph line is converted to a MIN object whose elements are
+the components of the line, treated as subexpression components, except for
+any {\em indentation-separator-name} that ends the line.  This
+object is given a {\tt .terminator} attribute value
+equal to the line ending {\em indentation-separator-name} if this exists, or
+equal to {\tt "<NL>"}
+if there is no line ending {\em indentation-separator-name}.
+
+However, an empty paragraph line with no ending
+{\em indentation-separator-name} is ignored as if it did not exist.
+
+The paragraph as a whole is converted to a MIN object whose elements
+are the paragraph lines, and whose {\tt .initiator} attribute
+is the {\em indentation-mark-name} that introduced the paragraph.
+A paragraph may be empty (have no paragraph lines).
+
+The {\em indentation-mark-name} and {\em indentation-separator-name}
+may be any sequence of marks and separators.
+
+An {\em indentation-mark-name} that is a single mark may be glued
+to a preceeding mark at the end of its line.  For example, `{\tt :}'
+may be glued to `{\tt =}' to make `{\tt =:}'.  In order for gluing
+of an {\em indentation-mark-name} to be allowed, it must be identified
+as a {\em gluing-indentation-mark-name} by preceding it with `{\tt *}' in the
+{\tt define indentation mark} statement.
+
+If while parsing an indented paragraph a line is encountered whose
+indentation is different from but less than $N$ (default $N=2$)
+columns different from the paragraph indentation, an error is announced.
+No corrective action is taken; the line is accepted as either ending
+the paragraph if its indentation is less than the paragraph
+indentation, or continuing the current paragraph line if its indentation
+is greater than the paragraph indentation.  Here $N$ is called the
+\key{parser indent offset}, and is a parser parameter.
+
+\ikey{Top level parsing}{top level parsing}
+of a file recognizes paragraph lines as if the whole
+file were a paragraph, and forms each line into a MIN object.  However,
+these are \underline{not} combined into a paragraph MIN object, but
+are instead processed as they are produced.  In particular, if they
+are parsing definitions, they are processed by the parser to make
+modifications in the parser symbol tables.  Also, the initial
+\key{top level paragraph indent}
+is set by the first (non-comment) line of a file, but
+if later on a line with smaller indent than the top level paragraph indent
+is encountered, the top level paragraph indent is reset to the indent
+of this line.
+
+Comments are ignored when determining line indentation, but may
+cause errors to be announced.  A comment is considered to be in error
+if by virtue of its indentation it
+would terminate a paragraph line or paragraph that would not
+be terminated by the first following non-comment line.
+For example, a non-indented comment that appears between one line of
+a paragraph line and an indented continuation line of that paragraph
+line will announce an error but will not have any other affect.
+Comments at the beginning or end of a file cannot be
+in error.
+
+
+TBD
+
+As a technical note, \underline{multi-lexeme}
+unnamed brackets, named openings,
+named middles, named closings, indentation marks, and indentation separators
+may not cross line boundaries, and in
+addition if they are at the end of a line may not be glued to
+a line ending gluing indentation mark name.
 
 \subsection{Parser Passes}
 

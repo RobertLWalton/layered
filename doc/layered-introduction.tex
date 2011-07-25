@@ -1864,7 +1864,15 @@ An \key{unnamed bracketed subexpression}
 begins with
 an {\em opening-bracket-name} and ends with a matched
 {\em closing-bracket-name} as defined by a \ttkey{define bracket}
-parsing definition.  The subexpression is converted to a
+parsing definition.  An example of such a definition is
+\begin{center}
+{\tt define bracket "(" ... ")" [operator text]} \ldots
+\end{center}
+which specifies `{\tt (}' to be an {\em opening-bracket-name}
+with `{\tt )}' as its corresponding {\em closing-bracket-name}
+and `{\tt operator}' and `{\tt text}' as the definition selectors.
+
+A bracketed subexpression is converted to a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
 {\em opening-bracket-name} becomes the {\tt .initiator}
@@ -1897,9 +1905,18 @@ respect to the paragraph indentation.
 An {\em indentation-mark-name} is specified by a
 \ttkey{define indentation mark} parsing definition, and may have
 an associated {\em indentation-separator-name} supplied by that definition.
+An example is
+\begin{center}
+{\tt define indentation mark * ":" ... ";" [operator]} \ldots
+\end{center}
+which specifies `{\tt :}' to be a {\em gluing-indentation-mark-name}
+with `{\tt ;}' as its corresponding {\em indentation-separator-name}
+and `{\tt operator}' as the sole definition selector.
+
 The {\em indentation-separator-name} may be used to separator
-paragraph lines, as long as it is outside (unnamed bracketed,
-named bracketed, or indented subparagraph) subexpressions in the paragraph.
+paragraph lines, as long as it is outside subexpressions
+(unnamed bracketed, named bracketed, or indented subparagraph)
+in the paragraph.
 
 Each paragraph line is converted to a MIN object whose elements are
 the components of the line, treated as subexpression components, except for

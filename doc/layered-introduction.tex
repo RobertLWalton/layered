@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 24, 2011
+July 26, 2011
  
 \end{center}
 
@@ -1637,7 +1637,9 @@ after the definition is read, thus affecting subsequent parsing.
 Parser definitions begin with either the word
 `\ttmkey{define}{in parser definition}' or
 `\ttmkey{undefine}{in parser definition}'.  This is followed
-by a definition name, and that is followed by {\em parsing-selectors}.
+by a \key{definition type} such as `{\tt bracket}' or
+`{\tt indentation mark}', and this in turn is followed
+by a definition name and then {\em parsing-selectors}.
 The \key{definition name} consists of `{\tt ...}' separated
 {\em names} that are used as labels of symbol table entries
 and therefore as keys in symbol table lookups.
@@ -1648,6 +1650,21 @@ One entry is made for each {\em name} in the definition name.
 Each entry is assigned the {\em parsing-selectors} from the parsing
 definition.  The selectors determine in which contexts the definition
 will be active.
+
+If a quoted string is used in a {\em name}, the quotes are removed
+before the name is installed as a symbol table entry label.  The
+purpose of the quotes is merely to prevent the name from being
+recognized by the parser as a special symbol.  After the quotes
+are removed, the remaining characters must be a valid single lexeme
+separator, mark, or word.
+
+An example parsing definintion is
+\begin{center}
+{\tt define bracket "("~...~")" [operator text]} \ldots
+\end{center}
+Here `{\tt (}' is an {\em opening-bracket-name},
+`{\tt )}' is a {\em closing-bracket-name},
+and `{\tt operator}' and `{\tt text}' are selectors.
 
 Parser symbol tables are used to look up sequences of tokens which
 match names in the tables.  During lookup the parser has a context that
@@ -1662,7 +1679,7 @@ parsing context at the time of lookup.
 There can be at most 64 distinct {\em parsing-selectors} in all
 the parsing definitions together.\footnote{
 Internally a {\em parsing-selectors} set can be represented by
-a 64 bit unsigned integer with one bit per {\em selector}.}
+a 64 bit unsigned integer with one bit per possible {\em selector}.}
 
 When a (named or unnamed)
 opening bracket or indentation mark is recognized, the current set of
@@ -1707,11 +1724,11 @@ removed in this way.
 
 The explicit subexpression recognition pass recognizes:
 \begin{indpar}[0.5in]
-brackets (e.g.~`{\tt (}' and `{\tt )}')
-    and bracketed subexpressions \\
+unnamed brackets (e.g.~`{\tt (}' and `{\tt )}')
+    and unnamed bracketed subexpressions \\
 indentation marks (e.g.~`{\tt :}'),
-    \begin{tabular}[t]{@{}p{3in}@{}}
-    indented paragraphs, and indented lines within a paragraph
+    \begin{tabular}[t]{@{}p{3.5in}@{}}
+    indented paragraphs, and indented paragraph lines
     \end{tabular} \\
 named brackets (e.g.~`{\tt <b|}' and `{\tt |b>}')
       and named bracketed subexpressions \\
@@ -1842,7 +1859,7 @@ and
     \end{tabular}
 \\[0.5ex]
 \emkey{named-bracket-name} \\
-    \hspace*{0.2in}:= \begin{tabular}[t]{@{}l@{}}
+    \hspace*{0.2in}::= \begin{tabular}[t]{@{}l@{}}
 	 {\em named-opening} [ {\tt ...} {\em named-separator} ] \\
          {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
 	 {\tt ...} {\em named-closing}
@@ -1859,6 +1876,14 @@ and
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
 \end{figure*}
 
+In explicit subexpression recognition, 
+multi-lexeme symbol table labels are not recognized in the
+input if their lexemes are not all on the same line.
+This is different from other parser passes, which are executed
+after line breaks have been removed.
+
+\subsubsection{Unnamed Bracketed Subexpressions}
+
 An \key{unnamed bracketed subexpression}
 \index{bracketed subexpression!unnamed}
 begins with
@@ -1866,7 +1891,7 @@ an {\em opening-bracket-name} and ends with a matched
 {\em closing-bracket-name} as defined by a \ttkey{define bracket}
 parsing definition.  An example of such a definition is
 \begin{center}
-{\tt define bracket "(" ... ")" [operator text]} \ldots
+{\tt define bracket "("~...~")" [operator text]} \ldots
 \end{center}
 which specifies `{\tt (}' to be an {\em opening-bracket-name}
 with `{\tt )}' as its corresponding {\em closing-bracket-name}
@@ -1891,8 +1916,9 @@ unnamed bracketed subexpression, or the end of the paragraph line
 containing the unnamed bracketed subexpression,
 or an end of file.
 
+\subsubsection{Indented Paragraph Subexpressions}
+
 An \key{indented paragraph subexpression}
-\index{indented paragraph subexpression}
 begins with an {\em indentation-mark-name} which must be at the end of
 a line.  This is followed an \key{indented paragraph}
 consisting of zero or more \skey{paragraph line}s,
@@ -1907,7 +1933,7 @@ An {\em indentation-mark-name} is specified by a
 an associated {\em indentation-separator-name} supplied by that definition.
 An example is
 \begin{center}
-{\tt define indentation mark * ":" ... ";" [operator]} \ldots
+{\tt define indentation mark * ":"~...~";" [operator]} \ldots
 \end{center}
 which specifies `{\tt :}' to be a {\em gluing-indentation-mark-name}
 with `{\tt ;}' as its corresponding {\em indentation-separator-name}
@@ -1944,6 +1970,14 @@ of an {\em indentation-mark-name} to be allowed, it must be identified
 as a {\em gluing-indentation-mark-name} by preceding it with `{\tt *}' in the
 {\tt define indentation mark} statement.
 
+After an indentation mark is split from a previous mark at the end of
+a line, the previous mark is checked to see if it by itself is
+the label of a symbol table entry used by the explicit subexpression
+parser, and is recognized if it is.
+However, if it would be part of a \underline{multi-lexeme}
+label, it is not recognized, as the parser scan does not back up
+over previous lexemes after splitting the glued indentation mark.
+
 If while parsing an indented paragraph a line is encountered whose
 indentation is different from but less than $N$ (default $N=2$)
 columns different from the paragraph indentation, an error is announced.
@@ -1977,15 +2011,80 @@ line will announce an error but will not have any other affect.
 Comments at the beginning or end of a file cannot be
 in error.
 
+\subsubsection{Named Bracketed Subexpressions}
+
+An \key{named bracket subexpression}
+\index{bracketed subexpression!named}
+begins with an {\em opening-named-bracket} and ends with
+a {\em closing-named-bracket}.  These have the syntax:
+
+\begin{indpar}[0.1in]
+\emkey{opening-named-bracket} \\
+    \hspace*{0.2in}::= \begin{tabular}[t]{@{}l@{}}
+	 {\em named-opening} {\em bracket-name} {\em argument}$^\star$
+	      \{ {\em named-separator} {\em key} \}$^\star$
+	      {\em named-middle} \\
+	 \end{tabular}
+\\[0.5ex]
+\emkey{named-opening} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{bracket-name} ::= {\em word}
+                         \{ {\em word} $|$ {\em natural-number} \}$^\star$
+\\[0.5ex]
+\emkey{argument} ::= {\em unnamed-bracketed-subexpression}
+                 $|$ {\em quoted-string}
+                 $|$ {\em non-natural-number}
+\\[0.5ex]
+\emkey{named-separator} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{key} ::= {\em key-component} {\em key-component}$^\star$
+\\[0.5ex]
+\emkey{key-component} ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
+\\[0.5ex]
+\emkey{named-middle} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{closing-named-bracket}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em named-middle} {\em bracket-name} {\em named-closing} \\
+	$|$ & {\em named-middle} {\em named-closing}
+	\end{tabular}
+\\[0.5ex]
+\emkey{named-closing} ::= {\em mark-name}
+\end{indpar}
+
+If the {\em named-opening}, {\em named-separator}, {\em named-middle},
+and {\em named-closing} are respectively `{\tt <}', `{\tt \#}',
+`{\tt |}', and `{\tt >}', then an example named bracketed subexpression is
+\begin{center}
+{\tt <h1(2) \# Diamond Lemma|} ~~~\ldots~~~ {\tt |h>}
+\end{center}
+
+Here the {\em named-opening-bracket} contains the {\em bracket-name}
+`{\tt h1}' (note `{\tt h}' and `{\tt 1}' are separate lexemes),
+the {\em argument} `{\tt (2)}', and the {\em key} `{\tt Diamond Lemma}',
+while the {\em named-closing-bracket} just contains an initial
+segment of the {\em bracket-name}.   The initial name segment
+in the {\em named-closing-bracket} may be empty, so
+{\tt |>}, {\tt |h>}, or {\tt |h1>} could all be used as closing
+brackets in the above example.
+
+The {\em named-opening}, {\em named-separator}, {\em named-middle},
+and {\em named-closing} are marks from which named opening and closing
+brackets are constructed.  They are specified by a
+\ttkey{defined named bracket} parsing definition, an example of
+which is:
+\begin{center}
+{\tt define named bracket "<"~...~"\#"~...~"|"~...~">" [text]} \ldots
+\end{center}
+which specifies `{\tt <}' to be a {\em named-opening-name},
+`{\tt \#}' to be a {\em named-separator-name},
+`{\tt |}' to be a {\em named-middle-name},
+`{\tt >}' to be a {\em named-closing-name},
+and `{\tt text}' to be the sole definition selector.
 
 TBD
 
-As a technical note, \underline{multi-lexeme}
-unnamed brackets, named openings,
-named middles, named closings, indentation marks, and indentation separators
-may not cross line boundaries, and in
-addition if they are at the end of a line may not be glued to
-a line ending gluing indentation mark name.
+\subsubsection{Named Operators}
 
 \subsection{Parser Passes}
 

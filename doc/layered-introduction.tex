@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 26, 2011
+July 27, 2011
  
 \end{center}
 
@@ -1897,7 +1897,7 @@ which specifies `{\tt (}' to be an {\em opening-bracket-name}
 with `{\tt )}' as its corresponding {\em closing-bracket-name}
 and `{\tt operator}' and `{\tt text}' as the definition selectors.
 
-A bracketed subexpression is converted to a
+An unnamed bracketed subexpression is converted to a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
 {\em opening-bracket-name} becomes the {\tt .initiator}
@@ -2082,7 +2082,43 @@ which specifies `{\tt <}' to be a {\em named-opening-name},
 `{\tt >}' to be a {\em named-closing-name},
 and `{\tt text}' to be the sole definition selector.
 
-TBD
+A named bracketed subexpression is converted to a
+MIN object whose list elements are the components of the
+subexpression except for the brackets.  The
+{\em named-opening} becomes the {\tt .initiator}
+attribute of this object, the {\em named-middle} becomes
+the {\tt .middle} attribute of this object,
+the {\em named-closing} becomes the {\tt .terminator} attribute
+of the object, the {\em bracket-name} (from the {\em named-opening-bracket})
+becomes the
+{\tt .name} attribute of the object, the {\em arguments}
+become the {\tt .arguments} attribute of the object,
+and the {\tt keys} become the {\tt .keys} attribute of the object.
+The {\tt .arguments} attribute value is itself a MIN object
+whose list elements are the argument subexpressions formatted
+in the same way as they would be if they were ordinary
+subexpression components.
+The {\tt .keys} attribute is a MIN object whose list elements
+are the individual {\em keys}, and whose {\tt .initiator} and 
+{\tt .separator} attributes are both the {\em named-separator}.
+Every value inside the subexpression object attributes
+that is not a MIN object and not part of an {\em argument}
+is a MIN string or a MIN label with 2 or more
+elements that are MIN strings.
+
+In particular, quoted strings and numbers in {\em keys} are converted to
+MIN strings whose values equal the translation strings of the
+quoted string or number lexemes.  Thus the keys
+`{\tt lemma "5.1.1"}' and `{\tt lemma 5.1.1}' become idential
+when stored in the {\tt .keys} attribute of the parser result.
+
+The {\em named-opening}, {\em named-separator}, {\em named-middle},
+and {\em named-closing} may each be any sequence of marks and separators.
+If the {\em named-middle} ends in a mark and the {\em named-closing}
+begins with a mark, these may be glued together to make a
+{\em named-closing-bracket} with empty {\em bracket-name}.  Thus
+in our example the single mark `{\tt |>}' may be used in place of
+the two separate marks `{\tt | >}'.
 
 \subsubsection{Named Operators}
 

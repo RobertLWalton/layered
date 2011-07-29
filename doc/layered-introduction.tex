@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 27, 2011
+July 28, 2011
  
 \end{center}
 
@@ -2109,7 +2109,7 @@ elements that are MIN strings.
 In particular, quoted strings and numbers in {\em keys} are converted to
 MIN strings whose values equal the translation strings of the
 quoted string or number lexemes.  Thus the keys
-`{\tt lemma "5.1.1"}' and `{\tt lemma 5.1.1}' become idential
+`{\tt lemma "5.1.1"}' and `{\tt lemma 5.1.1}' become identical
 when stored in the {\tt .keys} attribute of the parser result.
 
 The {\em named-opening}, {\em named-separator}, {\em named-middle},
@@ -2119,6 +2119,17 @@ begins with a mark, these may be glued together to make a
 {\em named-closing-bracket} with empty {\em bracket-name}.  Thus
 in our example the single mark `{\tt |>}' may be used in place of
 the two separate marks `{\tt | >}'.
+
+TBD
+
+If a named bracketed subexpression ends pre-maturely, before
+its {\em named-closing-bracket} is discovered, a parsing error is
+announced and the {\em named-closing-bracket} is inserted in the input
+just after the pre-maturely ended subexpression.  Such a pre-mature end can be
+discovered by finding the {\em closing-bracket-name} of a containing
+unnamed bracketed subexpression, or the end of the paragraph line
+containing the unnamed bracketed subexpression,
+or an end of file.
 
 \subsubsection{Named Operators}
 

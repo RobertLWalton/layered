@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 16 18:43:23 EDT 2011
+// Date:	Sat Jul 30 06:04:42 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -476,6 +476,9 @@ static min::packed_vec<TAB::indentation_split>
     split_table_type
 	( "ll::parser::table::split_table_type",
 	  NULL, ::split_table_stub_disp );
+
+min::locatable_var<TAB::indentation_mark>
+    TAB::top_level_indentation_mark;
 
 TAB::split_table TAB::create_split_table ( void )
 {

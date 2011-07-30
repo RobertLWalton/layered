@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 18 05:04:38 EDT 2011
+// Date:	Sat Jul 30 06:04:02 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -470,6 +470,12 @@ typedef min::packed_struct_updptr
 extern const uns32 & INDENTATION_MARK;
     // Subtype of min::packed_struct
     //		       <indentation_mark_struct>.
+
+extern min::locatable_var
+	<ll::parser::table::indentation_mark>
+	top_level_indentation_mark;
+    // Virtual indentation mark for top level
+    // parsing.
 
 struct indentation_separator_struct;
 typedef min::packed_struct_updptr

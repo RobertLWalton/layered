@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 06:04:17 EDT 2011
+// Date:	Sun Jul 31 01:33:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1230,15 +1230,18 @@ inline bool is_indented
 // Line_break tokens are deleted.  Gluing indentation
 // marks are split from line-ending tokens.  When a
 // gluing indentation mark is split, the scan backs up
-// to the beginning of the longest sequence of mark
-// and separator tokens at the end of the line.  This
-// allows a gluing indentation to be appended to the
-// last token in a multi-token closing bracket or
-// indentation separator.  However, the selectors
-// recognizing the gluing indentation marks when it is
-// separated might NOT in unusual circumstances be the
-// same as those in effect when the split formerly-
-// glued indentation mark is rescanned.
+// to the first mark or separator that is AFTER any non-
+// mark-non-separator, any subsubexpression, and any
+// sequence of marks and separators found in the
+// bracket table.  If this is nothing else, it is the
+// first part of the mark that was split.  Therefore
+// a gluing indentation may be appended to the last
+// token in a multi-token closing bracket or indentation
+// separator that ends in a mark.  However, the selec-
+// tors recognizing the gluing indentation mark when it
+// is split might NOT in unusual circumstances be the
+// same as those in effect when the split formerly-glued
+// indentation mark is rescanned.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme
@@ -1329,6 +1332,9 @@ static bool parse_explicit_subexpression
         // If named_opening != NULL_STUB, this is the
 	// first token after the named opening or named
 	// middle.
+    PAR::token split_backup = min::NULL_STUB;
+        // If an indentation mark is split, back up
+	// to this point.
 
     while ( true )
     {
@@ -1450,8 +1456,13 @@ static bool parse_explicit_subexpression
 			// Back up to mark split from
 			// indentation mark.
 			//
-			current = current->previous
-			                 ->previous;
+			// Split_backup will equal the
+			// mark that was split or be
+			// before that.
+			//
+			assert (    split_backup 
+			         != min::NULL_STUB );
+			current = split_backup;
 			continue;
 		    }
 		}
@@ -1631,6 +1642,7 @@ static bool parse_explicit_subexpression
 	    PAR::free ( PAR::remove ( first_ref(parser),
 		                      current ) );
 	    current = next;
+	    split_backup = min::NULL_STUB;
 	    continue;
 	}
 
@@ -1643,6 +1655,8 @@ static bool parse_explicit_subexpression
 	     &&
 	     current->type != LEXSTD::mark_t )
 	{
+	    split_backup = min::NULL_STUB;
+
 	    if ( named_opening != min::NULL_STUB
 	         &&
 		 !  is_named_opening_bracket
@@ -1682,10 +1696,15 @@ static bool parse_explicit_subexpression
 
 	assert ( current->type != PAR::EXPRESSION );
 
-	// If not number or quoted string, look for
-	// bracket or indentation mark.
+	// If mark or separator, look for bracket or
+	// indentation mark.
 	//
 	PAR::token saved_current = current;
+	PAR::token saved_split_backup = split_backup;
+	split_backup = min::NULL_STUB;
+	    // Assume for the moment that we will find
+	    // an active bracket table entry.
+
 	TAB::key_prefix key_prefix;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
@@ -1696,7 +1715,12 @@ static bool parse_explicit_subexpression
 	{
 	    if ( root == min::NULL_STUB )
 	    {
+	        // No active bracket table entry found.
+
 		named_opening = min::NULL_STUB;
+		split_backup = saved_split_backup;
+		if ( split_backup == min::NULL_STUB )
+		    split_backup = saved_current;
 		current = saved_current->next;
 		break;
 	    }

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 31 01:33:05 EDT 2011
+// Date:	Mon Aug  1 13:46:51 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2455,38 +2455,130 @@ void PAR::parse ( PAR::parser parser )
 	( * parser->input->init )
 	    ( parser, parser->input );
 
+    // True if last lexeme was a line break, so an end-
+    // of-file is OK.
+    //
+    bool eof_ok = true;
+
+    // Go to the first non-line-break non-comment token.
+    //
     parser->input->add_tokens
 	( parser, parser->input );
-
     PAR::token current = parser->first;
     assert ( current != NULL_STUB );
+    while ( current->type == LEXSTD::line_break_t
+            ||
+	    current->type == LEXSTD::comment_t )
+    {
+	eof_ok =
+	    ( current->type == LEXSTD::line_break_t );
+
+	if ( current->next == parser->first )
+	{
+	    parser->input->add_tokens
+		( parser, parser->input );
+	    assert (    current->next
+		     != parser->first );
+	}
+	current = current->next;
+	PAR::free
+	    ( PAR::remove ( first_ref(parser),
+			    current->previous ) );
+    }
 
     // Top level loop.
     //
-    if ( current->type != LEXSTD::end_of_file_t )
+    bool first_lexeme = true;
     while ( true )
     {
         if ( current->type == LEXSTD::end_of_file_t )
 	{
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: line break missing"
-		   " from end of file; "
-		<< LEX::pline_numbers
-		       ( parser->input_file,
-			 current->begin,
-			 current->end )
-		<< ":" << min::eom;
-	    LEX::print_item_lines
-		( parser->printer,
-		  parser->input_file,
-		  current->begin,
-		  current->end );
+	    if ( ! eof_ok )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: line break missing"
+		       " from end of file; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     current->begin,
+			     current->end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      current->begin,
+		      current->end );
+	    }
 	    break;
 	}
 
-        while ( current->type == LEXSTD::line_break_t )
+	if ( first_lexeme )
+	{
+	    first_lexeme = false;
+	    if ( current->begin.column != 0 )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: first non-comment lexeme"
+		       " is indented; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     current->begin,
+			     current->end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      current->begin,
+		      current->end );
+	    }
+	}
+
+	PAR::token previous =
+	    current == parser->first ?
+	    (PAR::token) min::NULL_STUB :
+	    current->previous;
+
+	bool separator_found =
+	    ::parse_explicit_subexpression
+		( parser, current,
+		  0, TAB::top_level_indentation_mark,
+		  NULL,
+		  parser->selectors );
+
+	PAR::token first =
+	    previous == min::NULL_STUB ?
+	    parser->first :
+	    previous->next;
+
+	if ( first != current )
+	{
+
+	    LEX::position begin = first->begin;
+	    LEX::position end = current->previous->end;
+
+	    min::gen terminator = ::new_line;
+	    if ( separator_found )
+	    {
+		terminator =
+		    TAB::top_level_indentation_mark
+			     ->indentation_separator
+			     ->label;
+		::remove
+		    ( parser, current, terminator );
+	    }
+
+	    ::compact
+		( parser, first, current,
+		  begin, end,
+		  min::MISSING(),
+		  terminator );
+	}
+
+        if ( current->type == LEXSTD::line_break_t )
 	{
 	    if ( current->next == parser->first )
 	    {
@@ -2499,48 +2591,9 @@ void PAR::parse ( PAR::parser parser )
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
 			        current->previous ) );
+	    eof_ok = true;
 	}
-
-        if ( current->type == LEXSTD::end_of_file_t )
-	    break;
-
-	PAR::token previous =
-	    current == parser->first ?
-	    (PAR::token) min::NULL_STUB :
-	    current->previous;
-
-	bool separator_found =
-	    ::parse_explicit_subexpression
-		( parser, current,
-		  current->begin.column,
-		  TAB::top_level_indentation_mark,
-		  NULL,
-		  parser->selectors );
-
-	PAR::token first =
-	    previous == min::NULL_STUB ?
-	    parser->first :
-	    previous->next;
-
-	if ( first == current ) continue;
-
-	LEX::position begin = first->begin;
-	LEX::position end = current->previous->end;
-
-	min::gen terminator = ::new_line;
-	if ( separator_found )
-	{
-	    terminator = TAB::top_level_indentation_mark
-	      		     ->indentation_separator
-			     ->label;
-	    ::remove ( parser, current, terminator );
-	}
-
-	::compact
-	    ( parser, first, current,
-	      begin, end,
-	      min::MISSING(),
-	      terminator );
+	else eof_ok = false;
     }
 }
 

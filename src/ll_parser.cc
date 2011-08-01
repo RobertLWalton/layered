@@ -967,32 +967,6 @@ inline PAR::token backup
     return next;
 }
 
-// Delete any line breaks after the current token.
-// Assume current->next has been read, and arrange that
-// that upon return current->next will have been read.
-//
-inline void delete_line_breaks
-	( PAR::parser parser, PAR::token current )
-{
-    while ( true )
-    {
-	if (    current->next->type
-	     != LEXSTD::line_break_t )
-	    break;
-
-	PAR::free ( PAR::remove ( first_ref(parser),
-			          current->next ) );
-
-	if ( current->next == parser->first )
-	{
-	    parser->input->add_tokens
-		( parser, parser->input );
-	    assert (    current->next
-		     != parser->first );
-	}
-    }
-}
-
 // Complain that token indent is too near indent.
 //
 static void complain_near_indent
@@ -1469,11 +1443,87 @@ static bool parse_explicit_subexpression
 
 	    }
 
-	    // Remove any line breaks that follow the
-	    // current line break, and get the next
-	    // token after the line breaks.
+	    // Move forward to next token that is not
+	    // a line break or full line comment.
 	    //
-	    ::delete_line_breaks ( parser, current );
+	    PAR::token next = current->next;
+	    while ( true )
+	    {
+		if ( next->type != LEXSTD::line_break_t
+		     &&
+		     next->type != LEXSTD::comment_t )
+		    break;
+
+		if ( next->next == parser->first )
+		{
+		    parser->input->add_tokens
+			( parser, parser->input );
+		    assert (    next->next
+			     != parser->first );
+		}
+		next = next->next;
+	    }
+
+	    min::uns32 next_indent =
+	        next->type == LEXSTD::end_of_file_t ?
+		0 :
+		next->begin.column;
+
+	    // Delete the line breaks and full line
+	    // comments skipped (keeping the line break
+	    // at `current') and find the bounds of any
+	    // comments that are not indented as much
+	    // as the indent of next.
+	    //
+	    // Data on insufficiently indented comments.
+	    // Includes begin of first such and end of
+	    // last such.
+	    //
+	    bool iic_exists = false;
+	    LEX::position iic_begin, iic_end;
+	    while ( current->next != next )
+	    {
+		if (    current->next->type
+		     == LEXSTD::comment_t
+		     &&
+		       current->next->begin.column
+		     < next_indent )
+		{
+		    if ( ! iic_exists )
+		    {
+		        iic_exists = true;
+			iic_begin =
+			    current->next->begin;
+		    }
+		    iic_end = current->next->end;
+		}
+		    
+		PAR::free
+		    ( PAR::remove ( first_ref(parser),
+				    current->next ) );
+	    }
+
+	    // Issue warning for any insufficiently
+	    // indented comments.
+	    //
+	    if ( iic_exists )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 9 )
+		    << "WARNING: comments NOT indented"
+		       " as much as following line; "
+		    << LEX::pline_numbers
+			   ( parser->input_file,
+			     iic_begin,
+			     iic_end )
+		    << ":" << min::eom;
+		LEX::print_item_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      iic_begin,
+		      iic_end );
+	    }
 
 	    if ( indentation_found != min::NULL_STUB )
 	    {
@@ -1619,7 +1669,19 @@ static bool parse_explicit_subexpression
 		indentation_found = min::NULL_STUB;
 	    }
 
-	    PAR::token next = current->next;
+	    // If indentation was found, current may
+	    // have changed.  In any case, it is a
+	    // line break followed by a token that is
+	    // not a line break or full line comment.
+	    //
+	    assert (    current->type
+	             == LEXSTD::line_break_t );
+	    next = current->next;
+	    assert (    next->type
+	             != LEXSTD::line_break_t
+		     &&
+		        next->type
+		     != LEXSTD::comment_t );
 
 	    // Truncate expression if line break is
 	    // followed by an end of file.
@@ -1628,7 +1690,7 @@ static bool parse_explicit_subexpression
 		break;
 
 	    // Now next is neither a line break or end
-	    // of file.
+	    // of file or full line comment.
 
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.
@@ -1643,6 +1705,17 @@ static bool parse_explicit_subexpression
 		                      current ) );
 	    current = next;
 	    split_backup = min::NULL_STUB;
+	    continue;
+	}
+	else if ( current->type == LEXSTD::comment_t )
+	{
+	    // Comment that follows non-comment tokens
+	    // on a line.  Remove and continue.
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+		                current->previous ) );
 	    continue;
 	}
 
@@ -1809,7 +1882,6 @@ static bool parse_explicit_subexpression
 			  parser->input_file,
 			  next->begin,
 			  next->end );
-
 
 		    LEX::position end =
 			next->previous->end;

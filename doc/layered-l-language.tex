@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 15, 2011
+August 2, 2011
  
 \end{center}
 
@@ -474,6 +474,89 @@ Note that if `{\tt stack adr ip}' were changed to
 `{\tt adr ip}' the assignment `{\tt ip = \& i}' would no longer be
 legal, because the lifetime of `{\tt \& i}' is shorter than the
 indefinite lifetime promised by `{\tt adr ip}' unqualified by `{\tt stack}'.
+
+\subsection{Subtypes}
+
+A subtype of a parent type is a type whose values are formatted
+and aligned in the same manner as values of the parent type and
+which can be implicitly converted to or from the parent type by
+unchecked code.  It is also possible to define checked conversion
+functions.
+
+One use of a subtype is to reserve values of the parent type
+for special meaning.  For example, an {\tt adr} address value
+in the range from 0 through 4095 might be a special code, and not
+an address, under the assumption that low addresses are not
+used by the memory system.  A example of subtypes implementing
+this is:
+\begin{indpar}\begin{verbatim}
+defsubtype specialadr adr;
+defsubtype special unsadr;
+
+inline bool is_special ( specialadr a ) unchecked:
+    unsadr x = a;
+    return x < 4096;
+
+inline adr .conversion. ( specialadr a ) unchecked:
+    unsadr x = a;
+    assert ( x >= 4096 );
+    return a;
+
+inline specialadr .conversion. ( adr a ) unchecked:
+    unsadr x = a;
+    assert ( x >= 4096 );
+    return a;
+
+inline special .conversion. ( specialadr a ) unchecked:
+    unsadr x = a;
+    assert ( x < 4096 );
+    return x;
+
+inline specialadr .conversion. ( unsadr a ) unchecked:
+    assert ( a < 4096 );
+    return a;
+
+float64 x;
+stack specialadr y = & x -> float64;
+stack specialadr z = 23;
+assert ( ! is_special ( y ) );
+assert ( is_special ( z ) );
+float64 x2 = * y;
+float64 z2 = * z;  // Causes assert violation error!
+\end{verbatim}\end{indpar}
+
+A second use of a subtype is to make a promise that a value
+is in a given range.  The following is an example of a subtype
+that has the range {\tt 0 .. max\_index-1}:
+
+\begin{indpar}\begin{verbatim}
+defsubtype indexint int;
+
+extern int max_index;
+
+inline indexint .conversion. ( int i ) unchecked:
+    assert ( 0 <= i && i < max_index );
+    return i;
+
+inline int .conversion. ( indexint i ) unchecked:
+    int j = i;
+    fact ( 0 <= j && j < max_index );
+    return j;
+
+float64 x[max_index];
+float64 getx ( indexint i ) = x[i];
+\end{verbatim}\end{indpar}
+
+Here `{\tt x[i]}' will expand to code containing an implicit
+conversion of {\tt i} from {\tt indexint} to {\tt int}
+and also a check that {\tt i} is in the proper range to be
+in index of {\tt x}, so the code expansion will contain:
+\begin{indpar}\begin{verbatim}
+    fact ( 0 <= i && i < max_index );
+    assert ( 0 <= i && i < max_index );
+\end{verbatim}\end{indpar}
+The `{\tt fact}' statement allows the `{\tt assert}' statement
+to be optimized away.
 
 \subsection{Random Access Memory (RAM) and Blocks}
 
@@ -797,22 +880,28 @@ moving the value position within the type.  Thus
 \end{tabular}
 \end{center}
 
-TBD
-
 Conversion functions can be defined between pointer types.
+Suppose `{\tt ptr}' is an indirect address, that is, the address of the
+real address of the variable pointed at.  This could be implemented
+by the code:
 
 \begin{indpar}\begin{verbatim}
-"*" .conversion. ( "<-" p );
-"<-" .conversion. ( "*" p );
+defsubtype ptr ( adr, 4094 );
+
+inline local adr .conversion. ( ptr p ) unchecked:
+    adr p2 = p -> adr; return * p2;
+inline ptr .conversion. ( adr p -> adr ) unchecked:
+    return p;
+
 uns32 x;
-uns32 <- xp = & x;  // Implied conversion from "*" to "<-".
-uns32 y = * xp;     // Implied conversion from "<-" to "*".
+stack adr xp = & x -> uns32;
+stack ptr p = & xp -> uns32;
+    // Implied conversion of stack adr -> stack adr -> uns32
+    // to stack ptr -> uns32.
+uns32 y = * p;
+    // Implied conversion of stack ptr -> uns32 to
+    // local adr -> uns32 and then dereference.
 \end{verbatim}\end{indpar}
-
-Pointer types can be used to store pointers in special formats.
-They can also be used to attach qualifiers to some pointers
-that are stored in standard format: see \pagref{TRACEABLE-QUALIFIERS}.
-
 
 \subsection{Tuples}
 \label{TUPLES}

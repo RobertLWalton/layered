@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 28, 2011
+August 1, 2011
  
 \end{center}
 
@@ -1912,7 +1912,8 @@ its {\em closing-bracket-name} is discovered, a parsing error is
 announced and the {\em closing-bracket-name} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket-name} of a containing
-unnamed bracketed subexpression, or the end of the paragraph line
+unnamed bracketed subexpression, the {\em named-closing-bracket}
+of a containing named bracketed subexpression, or the end of the paragraph line
 containing the unnamed bracketed subexpression,
 or an end of file.
 
@@ -1971,12 +1972,11 @@ as a {\em gluing-indentation-mark-name} by preceding it with `{\tt *}' in the
 {\tt define indentation mark} statement.
 
 After an indentation mark is split from a previous mark at the end of
-a line, the previous mark is checked to see if it by itself is
+a line, previous tokens are checked to see if they contain
 the label of a symbol table entry used by the explicit subexpression
-parser, and is recognized if it is.
-However, if it would be part of a \underline{multi-lexeme}
-label, it is not recognized, as the parser scan does not back up
-over previous lexemes after splitting the glued indentation mark.
+parser.  More explicitly, any sequence of marks and separators at the
+end of the line is re-parsed, excluding any mark or separator that was
+part of or before a previously recognized symbol table entry.
 
 If while parsing an indented paragraph a line is encountered whose
 indentation is different from but less than $N$ (default $N=2$)
@@ -1995,19 +1995,13 @@ are instead processed as they are produced.  In particular, if they
 are parsing definitions, they are processed by the parser to make
 modifications in the parser symbol tables.  Also, the initial
 \key{top level paragraph indent}
-is set by the first (non-comment) line of a file, but
-if later on a line with smaller indent than the top level paragraph indent
-is encountered, the top level paragraph indent is reset to the indent
-of this line.
+is set to zero, and an error is announced if the first non-comment
+lexeme in the file is indented (has non-zero indent).
 
 Comments are ignored when determining line indentation, but may
 cause errors to be announced.  A comment is considered to be in error
-if by virtue of its indentation it
-would terminate a paragraph line or paragraph that would not
-be terminated by the first following non-comment line.
-For example, a non-indented comment that appears between one line of
-a paragraph line and an indented continuation line of that paragraph
-line will announce an error but will not have any other affect.
+if it appears on a line by itself and is less indented than the first
+following non-comment non-blank line.
 Comments at the beginning or end of a file cannot be
 in error.
 
@@ -2120,14 +2114,13 @@ begins with a mark, these may be glued together to make a
 in our example the single mark `{\tt |>}' may be used in place of
 the two separate marks `{\tt | >}'.
 
-TBD
-
 If a named bracketed subexpression ends pre-maturely, before
 its {\em named-closing-bracket} is discovered, a parsing error is
 announced and the {\em named-closing-bracket} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket-name} of a containing
-unnamed bracketed subexpression, or the end of the paragraph line
+unnamed bracketed subexpression, the {\em named-closing-bracket}
+of a containing named bracketed subexpression, or the end of the paragraph line
 containing the unnamed bracketed subexpression,
 or an end of file.
 

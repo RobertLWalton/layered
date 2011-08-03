@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  1 13:46:51 EDT 2011
+// Date:	Wed Aug  3 02:09:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1031,14 +1031,16 @@ inline bool is_indented
 // The subexpression is either a paragraph line, includ-
 // ing indented continuations, or is a subexpession
 // begun by an unnamed or named opening bracket.  In the
-// first case `current' is the first token of the para-
-// graph line, and in the second case `current' is the
-// first token after the unnamed or named opening
-// bracket.
+// first case `current' is initially the first token of
+// the paragraph line, and in the second case `current'
+// is initially the first token after the unnamed or
+// named opening bracket.
 //
-// In either case the selectors are those already
-// computed by using indentation marks and opening
-// brackets.
+// In either case the selectors are those in the selec-
+// tors argument to this function, which are computed by
+// this function's caller using the indentation mark or
+// opening bracket that caused this function to be
+// called.
 //
 // In either case the subexpression terminates just
 // before any line break whose next non-line-break token
@@ -1059,8 +1061,8 @@ inline bool is_indented
 // indentation_separator that matches the indentation_
 // mark.  Note that this indentation_separator must be
 // outside any subsubexpression.  In this case this
-// parse_explicit_subexpression function returns `true',
-// whereas in all other cases it returns `false'.
+// function returns `true', whereas in all other cases
+// it returns `false'.
 // 
 // The `bracket_stack' specifies brackets that need to
 // be closed.  When an entry in this stack is made, the
@@ -1244,8 +1246,7 @@ struct bracket_stack
 	// bracket whose recognition made this entry.
     TAB::named_opening named_opening;
         // If not NULL_STUB, this identifies the named
-	// opening bracket whose recognition made this
-	// entry.
+	// opening whose recognition made this entry.
 
     PAR::token opening_first, opening_next;
         // For named_openings only, the first token
@@ -1766,8 +1767,6 @@ static bool parse_explicit_subexpression
 
 	    continue;
 	}
-
-	assert ( current->type != PAR::EXPRESSION );
 
 	// If mark or separator, look for bracket or
 	// indentation mark.

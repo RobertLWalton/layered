@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 2, 2011
+August 4, 2011
  
 \end{center}
 
@@ -382,7 +382,7 @@ An \key{address} (a.k.a. a `\key{pointer}') holds a RAM byte address.
 A address is a 32-bit or 64-bit unsigned integer whose size
 is determined by the target machine.  Some of high order bits may be
 required to be all 0's or all 1's, depending upon
-the target machine.  The \verb|unsptr| and \verb|intptr|
+the target machine.  The \verb|unsadr| and \verb|intptr|
 unsigned and signed integer types of the same size
 as a address are provided for storing indices and offsets.
 
@@ -424,15 +424,21 @@ adr ip1 -> int32;
 adr ip2 -> int32 i2;
 adr ipp3 -> adr ip3 -> int32 i3;
 \end{verbatim}\end{indpar}
-are both variables that reference a direct address of an {\tt int32} type
-integer stored in memory.  However, `\verb|ip1|', `\verb|ip2|',
-`\verb|ipp3|', and `\verb|ip3|' reference an address variable, while
+declare variables {\tt ip1} and {\tt ip2} that store
+the address of an {\tt int32} variable, and a variable
+{\tt ipp3} that stores the address of a variable that stores
+the address of an {\tt int32} variable.
+Here
 `\verb|* ip1|',
 `\verb|* ip2|',
 `\verb|i2|',
-`\verb|** ip3|', and `\verb|* ip3|',
+`\verb|** ipp3|', `\verb|* ip3|',
 and `\verb|i3|' reference
-an {\tt int32} integer variable.
+an {\tt int32} integer variable, while
+`\verb|ip1|', `\verb|ip2|'
+`\verb|* ipp3|', and `\verb|ip3|',
+reference an {\tt adr} variable that stores the address of
+an {\tt int32} variable.
 
 Some of the names in address type variable declarations may be omitted,
 as in
@@ -1142,7 +1148,7 @@ using subscripts within the range indicated by the subscript bounds.
 accessible elements (i.e., if some
 upper bound is not at least as great as the corresponding lower bound).
 
-\item[\ttdkey{length}] Type: `{\tt unsptr}'.
+\item[\ttdkey{length}] Type: `{\tt unsadr}'.
 The total number of elements in the array.
 The last used element of the array is
 \begin{center}
@@ -1328,9 +1334,9 @@ array may be expanded.  An example is:
 // Implement myarray:
 
 deftype myarray (32,8);
-readonly unsptr *& .n ( myarray *& @ a ) unchecked = a@0;
-readonly unsptr *& .max_n ( myarray *& @ a ) unchecked = a@8;
-readonly unsptr *& .inc_max ( myarray *& @ a ) unchecked = a@16;
+readonly unsadr *& .n ( myarray *& @ a ) unchecked = a@0;
+readonly unsadr *& .max_n ( myarray *& @ a ) unchecked = a@8;
+readonly unsadr *& .inc_max ( myarray *& @ a ) unchecked = a@16;
 noaccess float64 (readonly *&b) [1 .. a.n] .void ( myarray *& @ a )
     unchecked = a@24;
 (myarray *& @ a) .constructor.() unchecked
@@ -1724,7 +1730,7 @@ other qualifiers that are.
 
 Qualifiers may also be \ikey{inherited}{qualifiers}.  For example, in
 \begin{indpar}\begin{verbatim}
-readonly unsptr *& .n ( *& myarray @ a ) unchecked = a@0;
+readonly unsadr *& .n ( *& myarray @ a ) unchecked = a@0;
 \end{verbatim}\end{indpar}
 the `\verb|@|' in the argument declaration `\verb|*& myarray @ a|'
 specifies that inheritable qualifiers applied to the argument location

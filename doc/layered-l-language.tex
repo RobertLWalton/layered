@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 4, 2011
+August 7, 2011
  
 \end{center}
 
@@ -1538,34 +1538,42 @@ qualifier expression.
 Qualifier parameters may be expressions written
 in a sublanguage special to the type of qualifier.
 
-Qualifiers may be applied to locations of memory.  For example,
-the following declarations apply the qualifier {\tt Q}
-to various memory locations:
+Qualifiers may be applied to values or to locations of memory.  Some
+types of qualifiers apply to values and some to locations.
+For example, `{\tt stack}' is a value qualifier that says that
+a value is not valid after the currently executing function returns,
+and `{\tt constant}' is a location qualifier that says that the
+location will never ever be written into.  For example, the
+declarations
 \begin{indpar}[0.5em]\begin{verbatim}
-                     // Q is applied to:
-Q int32 x;           // x
-Q int32 * x;         // * x;
-int32 * Q x;         // x;
-Q int32 a[5];        // a[i] for i = 0 .. 4
-int32 (Q a)[5];      // a (== a.base)
+constant int32 x = 5;
+stack adr yp = & x -> readonly int32 y;
 \end{verbatim}\end{indpar}
-Locations specify a specific set of bytes.  Note that unlike
+promise that after initialization no one will ever
+write into the location {\tt x} (which is {\tt constant}),
+that {\tt yp} will be valid as long as the current function
+execution exists (because it holds a {\tt stack} value), and that
+{\tt yp} cannot be used to write to {\tt y} (which is {\tt readonly}).
+
+Values are a sequence of bytes, and locations are a set of bytes
+in memory.  Note that unlike
 the C programming language, L-Language does not specify arrays by
 simply giving a single pointer; there is always a specification of
 array extent (except for unchecked code).
 
 Qualifiers may be given in type definitions, and apply to all
-locations of the defined type.  For example, if {\tt Q} is a qualifier,
+values and memory locations of the defined type.
+For example, if {\tt Q} is a qualifier,
 \begin{indpar}[0.5em]\begin{verbatim}
 deftype Q type1 (48,8);
 type1 x;
-type1 * y;
+adr yp -> type1;
 \end{verbatim}\end{indpar}
 is equivalent to
 \begin{indpar}[0.5em]\begin{verbatim}
 deftype type1 (48,8);
 Q type1 x;
-Q type1 * y;
+adr yp -> Q type1;
 \end{verbatim}\end{indpar}
 
 Qualifiers may also be applied to code blocks.  Such are called
@@ -1588,17 +1596,20 @@ or declaration applies to calls to the function, and is said to be
 a `\key{function access qualifier}'.  For example,
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 Q function3 ();
-int32 *& Q function4 ();
+adr -> int32 V Q function4 ();
 \end{verbatim}\end{indpar}
 Note that in this last case qualifiers appearing immediately
 before function names
 in function definitions and declarations are always assumed to apply
-to the function and not the returned value.  If you want
-qualifiers to apply to the returned values, you may want to put
-return values in parentheses like an argument list.  For example,
-\begin{indpar}[0.5em]\begin{verbatim}
-(int32 Q *& a, int32 * Q b) function5 ();
-\end{verbatim}\end{indpar}
+to the function and not the returned value.  Its possible to force
+a qualifier to apply to returned values and not the function
+by putting returned values in parentheses like an argument list,
+but there is little reason to do this just for the sake of
+a qualifier, since qualifiers are not last in value types.
+
+Some qualifiers (e.g., see `{\tt pure}' below)
+are both access and body qualifiers, and these
+are put in the position of function access qualifier.
 
 If in the above examples we assume that
 {\tt Q} is a protection qualifier, then {\tt function3}
@@ -1623,22 +1634,29 @@ There are several kinds of qualifiers.  We summarize these here, and
 give details in following sections.
 
 \ikey{Lifetime qualifiers}{lifetime qualifier}
-specify the lifetime of a memory location.  This in turn controls where
-addresses of the memory location may be stored: the address of a location
-must not be stored by checked code in a place that will exist after the
-location ceases to exist.
+specify the lifetime of a value.  This in turn controls where
+the value may be stored, e.g., a value of limited lifetime may
+not be stored in a variable whose value is declared to be of
+unlimited lifetime.
 
-The `{\tt static}' qualifier specifies that the location
+There are three builtin lifetime qualifiers.
+The `{\tt static}' qualifier specifies that the value
 has unlimited lifetime.
-The `{\tt stack}' qualifier specifies that the location
-is in the stack of the current thread.
+The `{\tt stack}' qualifier specifies that the value
+has a lifetime that expires when the
+current function execution terminates.
 The `{\tt caller}' qualifier
-specifies that the location will last at least as long as the caller of
-a function.
-The `{\tt temp}' qualifier
-specifies that the location will last as long as no `{\tt impure} function
-is called.  The `{\tt pure}' and `{\tt impure}' call qualifiers specify
-how function calls interact with `{\tt temp}' locations.
+specifies that the value has a lifetime that will \underline{not}
+expire until after the end of the function execution of the
+caller of the current function.
+
+In addition user lifetime qualifiers may be defined
+that expire lifetimes when certain functions are called.  The `{\tt pure}'
+qualifier is often defined in this way to specify that a value
+has a lifetime that expires when a function that is
+\underline{not} `{\tt pure}' is called.  Note that
+`{\tt pure}' also becomes both a function access qualifier and
+a function body qualifier.
 
 \ikey{Traceable qualifiers}{traceable qualifier} may be declared that
 indicate that either a location or the value stored in a location
@@ -1667,13 +1685,6 @@ with other locations, and,
 in particular, that a location passed from a caller to
 a called function does not overlap with any other location so passed
 or with any location accessible from other data.
-\ikey{Alias qualifiers}{alias qualifier} may be declared to indicate when
-memory locations may overlap.
-Normally memory locations that are referenced differently are assumed by the
-L-Language to be different memory locations that do not overlap.
-To specify that two memory locations might overlap, they must
-be given overlapping alias qualifiers.  Checking code checks for illegal
-overlaps.
 \ikey{Parallel qualifiers}{parallel qualifier} may be declared to
 identify memory locations whose register \underline{and hardware}
 caches are to be flushed by explicit cache flushing statements in the
@@ -1688,19 +1699,17 @@ functions.  Access qualifiers may or may not be
 \skey{protection qualifier}s.
 The builtin non-protection access qualifiers are
 `{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', and `{\tt noaccess}'.
-The buitin protection qualifiers are `{\tt pure}', `{\tt impure}'
-and `{\tt unchecked}'.
+The builtin protection qualifier is `{\tt unchecked}'.
 Protection qualifiers may also be defined by the user.
 
 A memory location with protection qualifier $X$ can only be
-accessed by functions whose bodies have qualifier $X$, and
-a function with access qualifier $X$ can only be called by functions
-whose bodies have qualifier $X$.  The builtin access
+accessed by code blocks that have qualifier $X$, and
+a function with an access protection
+qualifier $X$ can only be called by functions
+whose bodies have qualifier $X$.  The builtin protection
 qualifier `{\tt unchecked}' permits access to various
 builtin operations that explicitly or implicitly involve type
-conversion.  The builtin access qualifier `{\tt impure}' permits
-access to operations that allocate and reallocate memory
-and check for interrupts.
+conversion.
 
 Memory locations can be assigned qualifier expressions that are logical
 combinations of qualifier names and the operators `\verb/|/' and
@@ -1723,18 +1732,17 @@ from a particular block of code are to be inlined, or that a particular
 block of code is to be out-of-line even if code surrounding it is
 being inlined.  Inlining is necessary to get full optimization.
 
-Qualifiers may \ikey{imply}{qualifiers}
-other qualifiers.  There can be qualifiers that
-are not themselves in any of the above categories, but which imply
-other qualifiers that are.
+Qualifiers may also be defined that represent
+\ikey{groups}{group!of qualifiers} of
+qualifiers.
 
-Qualifiers may also be \ikey{inherited}{qualifiers}.  For example, in
+Qualifiers may also be \ikey{inherited}{qualifiers}.  For example, if
+{\tt G} is a group qualifier,
 \begin{indpar}\begin{verbatim}
-readonly unsadr *& .n ( *& myarray @ a ) unchecked = a@0;
+G? readonly unsadr .n ( adr -> myarray G? a ) unchecked = ...;
 \end{verbatim}\end{indpar}
-the `\verb|@|' in the argument declaration `\verb|*& myarray @ a|'
-specifies that inheritable qualifiers applied to the argument location
-should become qualifiers of the returned value.
+causes any qualifier in group {\tt G} that is present for the
+argument `{\tt a}' to be applied to the function result.
 See \secref{QUALIFIER-INHERITANCE}.
 
 \subsubsection{Lifetime Qualifiers}

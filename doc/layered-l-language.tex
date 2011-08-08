@@ -1748,82 +1748,91 @@ See \secref{QUALIFIER-INHERITANCE}.
 \subsubsection{Lifetime Qualifiers}
 \label{LIFETIME-QUALIFIERS}
 
-Lifetime qualifiers determine where pointers to locations can be stored.
-The four lifetime qualifiers are all builtin:  `{\tt static}', `{\tt stack}',
-`{\tt caller}', and `{\tt temp}'.
-Checked code can only allocate to static or stack memory, and locations
-allocated by checked code are given the `{\tt static}' or
+Lifetime qualifiers determine when value lifetimes expire.
+For example, the lifetime of the address of a stack variable allocated
+in a function frame expires when the function execution terminates.
+
+Although lifetime qualifiers are not usually applied to numeric values,
+it is possible to do so.  For example, if an {\tt int32} value is used
+as an open file designator, it may be given a limited lifetime.
+
+
+The three lifetime qualifiers are all builtin:  `{\tt static}', `{\tt stack}',
+and `{\tt caller}'.
+Checked code can only allocate to static or stack memory, and addresses
+of variables allocated by checked code are given the `{\tt static}' or
 `{\tt stack}' qualifier accordingly.
-Locations that are part of a function argument or return value
+Addresses of variables that are part of a function argument or return value
 are given the `{\tt caller}' lifetime qualifier by default.
-Other locations are given the `{\tt temp}' lifetime qualifier by default.
-The `{\tt temp}' qualifier makes use of the `{\tt impure}' protection qualifier.
+
 
 \begin{indpar}
 
 \hspace*{-1em}\ttkey{static}~~~~~Specifies
-the location lives forever and may not be relocated.
-Locations allocated at load time
-or at program initialization time may be declared static.
+the value lives forever.  Automatically applied to the addresses of
+locations allocated at load time, and may be applied to the
+addresses of locations allocated at program initialization time
+and never deallocated.
 
-\hspace*{-1em}\ttkey{stack}~~~~~Specifies
-the location is in the stack frame of the currently executing
-function or one of its code blocks, and may not be relocated.
-Such locations are precisely known
-to the compiler of the function.
-Addresses to the location cannot be stored in places that will continue
-to exist after the stack frame has been deallocated.
+\hspace*{-1em}\ttkey{stack}~~~~~Specifies the value expires
+when the current function execution terminates.  Equivalent to
+{\tt stack(1)}: see the following.
+
+\hspace*{-1em}\ttkey{stack(n)}~~~~~
+Specifies the value expires when the current code block of nested level
+{\tt n} within the currently executing function terminates.
+Unnested code within the function is considered to be at nested level {\tt 1}.
+Automatically applied to the addresses of locations allocated to the
+current function frame by code in a level {\tt n} block (such locations
+are freed when the block of level {\tt n} terminates).
+
+A location with a `{\tt stack(n)}' qualified address can have
+a `{\tt stack(m)}' qualified value only if {\tt n}$\geq${\tt m}.
+
+A `{\tt stack(n)}' value can be stored in a location whose value has
+a `{\tt stack(m)}' qualifier only if {\tt n}$\leq${\tt m}.
+
+
+
+A `{\tt stack(n)}' qualifier \underline{cannot}
+be applied to function arguments and return types.
+
+
 
 \hspace*{-1em}\ttkey{caller}~~~~~Only
-used in a function $F$'s argument or return value types to qualify a location
-whose address is passed to the function.  Specifies the function's caller
-must provide the `{\tt caller}' location, and the location cannot be
-deallocated or relocated until after control returns to the caller.
-Within the caller the location may be `{\tt stack}',
-`{\tt static}', or `{\tt caller}'.
-Asserting that such a location is `{\tt caller}' is a promise by the
-function $F$ not to store the location's address anywhere that will
-still exist when the function returns.
+used in a function $F$'s argument or return value types to qualify a values
+such as addresses passed to the function.
+Specifies the values lifetime begins during the execution of the caller
+of the function and ends after the called function returns.
+
+`{\tt static}' and `{\tt stack(n)}' values are converted to `{\tt caller}'
+values when passed as arguments.
+
+The `{\tt caller}' qualifier does not specify precisely when the value
+lifetime expires.  Therefore it is not possible to store a `{\tt caller}'
+value in a location whose address has the `{\tt caller}' qualifier.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 function1 ( static int32 * caller * arg1 );
+int32 function1 ( caller adr arg1 -> static adr -> int32 );
     // The argument is a pointer to a caller allocated location
-    // holding a pointer to a statically allocated int32.  The
-    // caller need not provide a useful value in the caller
-    // allocated location, and function1 can use `* arg1 = value'
-    // to return a pointer to a static int32 value in this location,
-    // but cannot use `arg1 = value' to reset the argument.
-int32 function2 ( caller int32 * caller * arg1 );
+    // holding a pointer to a statically allocated int32.
+    // function1 can use `*arg1 = value' to return a static
+    // adddress to an int32 value in this location, and can also
+    // use `**arg1 = value' to return an int32 value.
+int32 function2 ( caller adr arg1 -> caller adr -> int32 );
     // The argument is a pointer to caller allocated location
     // holding a pointer to a caller allocated location holding
-    // an int32.  Both pointers must be provided by the caller and
-    // cannot be reset by function2.  function2 can use
-    // `**arg1 = value' but not `*arg1 = value' or `arg1 = value'.
-int32 function3 ( caller int32 * static * arg1 );
-    // Illegal; a pointer not set by the caller cannot point to a
-    // pointer that must be set by the caller.
-(static int32 * caller * res1) = function4 ( int32 arg1 );
-    // Here the result behaves like an extra argument named res1
-    // passed to function4 which has the same properties as arg1 in
-    // function1.  The statement `return value' is illegal here
-    // as it would be equivalent to `return res1 = value' and
-    // reset the pointer to the caller location.  However
-    // `return * res1 = value' is legal.
-static int32 * caller *& function5 ( int32 arg1 );
-    // Same as function4 but `return value' is legal and stores a
-    // pointer to some statically allocated int32.
-(caller int32 * caller * res1) = function6 ( int32 arg1 );
-    // The result behaves like an extra argument passed to function6
-    // which has the same properties as arg1 in function2.
-    // `return ** res1 = value' must be used to return an integer.
-caller int32 * static * function7 ( int32 arg1 );
-    // Illegal; the result behaves like an extra argument passed to
-    // function7 which has the same properties as arg1 in function3.
+    // an int32.  function2 can use `**arg1 = value' to return
+    // an int32 value, and can use `*arg1 = value' to return
+    // a static address, but not a caller address.
+int32 function3 ( static adr arg1 -> caller adr -> int32 );
+    // Illegal; a static location cannot contain a value whose
+    // lifetime may only last until some function returns.
 \end{verbatim}\end{indpar}
 
 The `{\tt caller}' lifetime qualifier is the default
-lifetime qualifier for any argument or return value location that has no
+lifetime qualifier for any argument or return value address value that has no
 lifetime qualifier.  Thus in the above example the `{\tt caller}'
 qualifiers could have been omitted.
 

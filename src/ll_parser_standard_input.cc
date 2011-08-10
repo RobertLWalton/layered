@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 25 09:31:56 EDT 2011
+// Date:	Tue Aug  9 22:17:11 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -140,7 +140,6 @@ static min::uns32 input_add_tokens
 	    parser->eof = true;
 	    return count;
 	}
-	case LEXSTD::comment_t:
 	case LEXSTD::horizontal_space_t:
 	    continue;
 
@@ -210,6 +209,7 @@ static min::uns32 input_add_tokens
 	        PAR::new_string ( length, p );
 	    break;
 	}
+	case LEXSTD::comment_t:
 	case LEXSTD::line_break_t:
 	    break;
 	case LEXSTD::end_of_file_t:

@@ -1,27 +1,54 @@
+COMMENT: line 0:
+// Layers Language Standard Lexical Analyzer Test Data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 0:
 // Layers Language Standard Lexical Analyzer Test Data
                                                       ^
+COMMENT: line 1:
+//
+^^
 LINE_BREAK: line 1:
 //
   ^
+COMMENT: line 2:
+// File:        ll_lexeme_standard_test.in
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 2:
 // File:        ll_lexeme_standard_test.in
                                           ^
+COMMENT: line 3:
+// Author:      Bob Walton (walton@acm.org)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 3:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
+COMMENT: line 4:
+// Date:        Fri Jun 24 08:37:02 EDT 2011
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 4:
 // Date:        Fri Jun 24 08:37:02 EDT 2011
                                             ^
+COMMENT: line 5:
+//
+^^
 LINE_BREAK: line 5:
 //
   ^
+COMMENT: line 6:
+// The authors have placed this data in the public
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 6:
 // The authors have placed this data in the public
                                                   ^
+COMMENT: line 7:
+// domain; they make no warranty and accept no liability
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 7:
 // domain; they make no warranty and accept no liability
                                                         ^
+COMMENT: line 8:
+// for this data.
+^^^^^^^^^^^^^^^^^
 LINE_BREAK: lines 8-9:
 // for this data.
                  ^
@@ -294,6 +321,9 @@ WORD: x: line 18:
 NUMBER: .3: line 18:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                        ^^
+COMMENT: line 18:
+.foo /foo 3/x x/3 3.x x.3// comment <89> "'
+                         ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 18:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                                            ^
@@ -372,12 +402,21 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum'
 LINE_BREAK: line 19:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                                    ^
+COMMENT: line 20:
+// form feed ␌
+^^^^^^^^^^^^^
 LINE_BREAK: line 20:
 // form feed ␌
              ^
+COMMENT: line 21:
+// vertical tab ␋
+^^^^^^^^^^^^^^^^
 LINE_BREAK: line 21:
 // vertical tab ␋
                 ^
+COMMENT: line 22:
+// carriage return ␍
+^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 22:
 // carriage return ␍
                    ^
@@ -387,6 +426,9 @@ z       x // horizontal tab
 WORD: x: line 23:
 z       x // horizontal tab
         ^
+COMMENT: line 23:
+z       x // horizontal tab
+          ^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 23:
 z       x // horizontal tab
                            ^

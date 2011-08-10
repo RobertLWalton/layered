@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 1, 2011
+August 9, 2011
  
 \end{center}
 
@@ -1466,7 +1466,7 @@ by indented lines.
 
 \subsection{Tokens}
 
-A token can have any of the following components.
+A token has the following components:
 
 \begin{indpar}
 \begin{tabular}{p{1in}p{4in}}
@@ -1501,16 +1501,20 @@ A token can have any of the following components.
 		& For EXPRESSION tokens, this is a MIN object which
 		  encodes a list.  This list may also have other
 		  attributes, such as
-		  {\tt .initiator}, {\tt .terminator},
-		  {\tt .sep\-arator}, {\tt .arguments}, and
+		  {\tt .initiator}, {\tt .terminator}, {\tt .middle},
+		  {\tt .sep\-arator}, {\tt .name}, {\tt .arguments}, and
 		  {\tt .keys}.
 \\[1ex]
-\tt string	& For lexemes that do not have {\tt value}'s,
+\tt string	& For quoted string and non-natural number lexemes,
+		  which do not have {\tt value}'s,
                   the translation string of the lexeme.
 		  This is stored in a manner that makes
 		  garbage collection and memory reuse more
 		  efficient than it would be if MIN strings
 		  were used, but makes lookup less efficient.
+\\[1ex]
+		& Comment, line break, and end of file tokens have
+		  neither string nor value.
 
 \end{tabular} \\[1ex]
 \begin{tabular}{p{1in}p{4in}}
@@ -1519,8 +1523,8 @@ A token can have any of the following components.
 \tt end
 \end{tabular}   & The positions of the first character of the token
 		  and the first character after the token in the
-		  input text.  The position records the line,
-		  column number within line,
+		  input text.  A position records a line number,
+		  a column number within the line,
 		  and the byte offset within a UTF-8 encoding
 		  of the line.  The column number depends upon
 		  the format used to print the line, i.e,

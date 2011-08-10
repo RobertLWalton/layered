@@ -1555,7 +1555,7 @@ A parser symbol table is conceptually a stack of
 
 In fact, there are different
 symbol tables for different parser passes, as each pass
-looks up only definitions of different types.
+looks up only definitions of pass specific types.
 
 Each parser definition has the following
 components:
@@ -1577,6 +1577,12 @@ components:
 		  a MIN string.  Otherwise it is represented by
 		  a MIN label whose elements are MIN strings
 		  equal to the symbols.
+\\[1ex]
+		& Note that natural numbers are represented by MIN
+		  strings equal to their lexeme translation strings,
+		  and are \underline{not} represented as MIN numbers.
+		  As a consequence `{\tt 01}' and `{\tt 1}' are
+		  different natural number symbols.
 \\[1ex]
 \tt type	& The type of the definition.  Each parser pass has
 		  one (or sometimes more) symbol tables containing
@@ -1602,7 +1608,7 @@ translation strings of their lexemes, and it is these values that
 are matched for equality with the table entry label symbols.
 When a match is found,
 the initial segment of tokens used in the match is called
-an `\key{matched label}\,'.
+a `\key{matched label}\,'.
 
 Note that in the explicit
 subexpression recognition pass matched labels may not span line bounaries.
@@ -1614,16 +1620,18 @@ boundaries.
 The context of a symbol table lookup includes a set of selectors.
 In order to be active, a symbol table entry's set of selectors
 must have some selector in common with the context set of selectors.
-A selector set is represented as 64-bit unsigned integer values with the bit in
+A selector set is represented as a 64-bit unsigned integer value
+with the bit in
 position 1{\tt <<}N being on if the N+1'st selector is in the set.
 Thus there can be at most 64 distinct selectors used by any set of
-definitions.
+parser definitions.
 
-Also definition activity may depend upon context.  For example,
-if `{\tt<}' is a named opening and `{\tt |}' is a named
-middle (see the explicit expression recognition pass below
-for details), the named middle is not active unless it is proceeded by
-the named opening in the current explicit subexpression.
+Also parser definition activity may depend upon context.  For example,
+if `{\tt <}' is a named opening and `{\tt |}' is its associated named
+middle (see \itemref{NAMED-BRACKETED-SUBEXPRESSIONS}
+below for details), this named middle `{\tt |}'
+is not active unless it is proceeded by
+its associated named opening `{\tt <}' in the current explicit subexpression.
 
 \subsection{Parser Definitions}
 
@@ -1634,7 +1642,7 @@ is specified on
 and
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
 
-A parser definition is an input line by itself, and is
+A parser definition is a top level input line by itself, and is
 executed by the parser itself
 after the definition is read, thus affecting subsequent parsing.
 
@@ -1648,40 +1656,44 @@ The \key{definition name} consists of `{\tt ...}' separated
 {\em names} that are used as labels of symbol table entries
 and therefore as keys in symbol table lookups.
 
-A \ttmkey{define}{parsing definition}
-parsing definition makes entries in parser symbol tables.
+A \ttmkey{define}{parser definition}
+parser definition makes entries in parser symbol tables.
 One entry is made for each {\em name} in the definition name.
 Each entry is assigned the {\em parsing-selectors} from the parsing
 definition.  The selectors determine in which contexts the definition
 will be active.
 
-If a quoted string is used in a {\em name}, the quotes are removed
+If a quoted string is used in a parser definition
+{\em name}, the quotes are removed
 before the name is installed as a symbol table entry label.  The
 purpose of the quotes is merely to prevent the name from being
 recognized by the parser as a special symbol.  After the quotes
 are removed, the remaining characters must be a valid single lexeme
-separator, mark, or word.
+separator, mark, word, or natural number.
 
-An example parsing definintion is
+An example parser definintion is
 \begin{center}
 {\tt define bracket "("~...~")" [operator text]} \ldots
 \end{center}
 Here `{\tt (}' is an {\em opening-bracket-name},
 `{\tt )}' is a {\em closing-bracket-name},
 and `{\tt operator}' and `{\tt text}' are selectors.
+`{\tt operator}' is the standard selector for programming code
+and algebraic expressions, and `{\tt text}' is the standard
+selector for text processing expressions.
 
 Parser symbol tables are used to look up sequences of tokens which
 match names in the tables.  During lookup the parser has a context that
 contains a set of {\em parsing-selectors}.
 Each {\em parsing-selector}
-has its own name, which is used to denote it in parsing definitions.
+has its own name, which is used to denote it in parser definitions.
 In order to be recognized, a symbol table entry must be active, and
 to be active, it must have at least one {\em parsing-selector}
 in its definition that matches a {\em parsing-selector} in the
 parsing context at the time of lookup.
 
 There can be at most 64 distinct {\em parsing-selectors} in all
-the parsing definitions together.\footnote{
+the parser definitions together.\footnote{
 Internally a {\em parsing-selectors} set can be represented by
 a 64 bit unsigned integer with one bit per possible {\em selector}.}
 
@@ -1708,43 +1720,54 @@ In the later case the possible operations are:
 \end{tabular}
 \end{center}
 
-An \ttmkey{undefine}{parsing definition}
-parsing definition modifies the {\em parsing-selectors}
+An \ttmkey{undefine}{parser definition}
+parser definition modifies the {\em parsing-selectors}
 of any entries that would be added to symbols
-tables by the corresponding {\tt define} parsing definition.
-If the {\tt undefine} as a given {\em selector}, that is removed
-from all these entries.  {\tt Undefine} parsing definitions
+tables by the corresponding {\tt define} parser definition.
+If the {\tt undefine} has a given {\em selector}, that selector is removed
+from all these entries.  {\tt Undefine} parser definitions
 have no other effect.
 
 The parsing symbol tables act like a stack; as new parsing
 definitions are encountered, their effects are `pushed' into the
 symbol tables.  This virtual stack can be popped, removing
-the parsing definitions in reverse order.  When a definition
+the parser definitions in reverse order.  When a definition
 is popped, its effects are removed from the symbol tables.
-Both {\tt define} and {\tt undefine} parsing definitions can be
+Both {\tt define} and {\tt undefine} parser definitions can be
 removed in this way.
 
 \subsection{The Explicit Subexpression Recognition Pass}
 
 The explicit subexpression recognition pass recognizes:
-\begin{indpar}[0.5in]
-unnamed brackets (e.g.~`{\tt (}' and `{\tt )}')
+\begin{indpar}[1.0in]
+\hspace*{-0.5in}unnamed brackets (e.g.~`{\tt (}' and `{\tt )}')
     and unnamed bracketed subexpressions \\
-indentation marks (e.g.~`{\tt :}'),
-    \begin{tabular}[t]{@{}p{3.5in}@{}}
-    indented paragraphs, and indented paragraph lines
-    \end{tabular} \\
-named brackets (e.g.~`{\tt <b|}' and `{\tt |b>}')
+\hspace*{-0.5in}indentation marks (e.g.~`{\tt :}')
+    and separators (e.g.~`{\tt ;}'),
+    indented paragraphs, and indented paragraph lines \\
+\hspace*{-0.5in}named brackets (e.g.~`{\tt <b|}' and `{\tt |b>}')
       and named bracketed subexpressions \\
-named operators (e.g.~`{\tt <p>}')
+\hspace*{-0.5in}named operators (e.g.~`{\tt <p>}')
 \end{indpar}
 
-The syntax of the parsing definitions that control explicit
+The syntax of the parser definitions that control explicit
 subexpression recognition
 is specified on
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 and
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
+
+Unnamed brackets and indentation marks and separators are
+symbol table keys.  However named brackets and operators are
+not.  Instead, a named bracket or operator is formed by using
+named openings (e.g.~`{\tt <}'),
+named separators (e.g.~`{\tt \#}'),
+named middles (e.g.~`{\tt |}'),
+and named closings (e.g.~`{\tt >}'), which are all symbol table
+keys, to surround or separate
+sequences of words, numbers, quoted strings, and unnamed
+bracketed subexpressions, and thence form named brackets
+and named operators.
 
 \begin{figure*}[!p]
 \emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
@@ -1881,10 +1904,24 @@ and
 \end{figure*}
 
 In explicit subexpression recognition, 
-multi-lexeme symbol table labels are not recognized in the
+multi-lexeme symbol table keys are not recognized in the
 input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
+
+The output of the parser is one {\tt EXPRESSION} token per
+top level line.  The value of an {\tt EXPRESSION} token is
+a MIN object that is called an \key{expression}.
+Expressions are a list of
+\skey{expression component}s plus values for some additional attributes,
+such as the {\tt .initiator} attribute.  An expression component is
+a MIN string equal to the translation string of a word, separator,
+mark, or natural number, or is a (sub)expression (i.e., MIN object).
+Quoted string lexemes are converted to expressions whose only list element
+is a MIN string equal to the translation string of the quoted string
+lexeme, and whose {\tt .initiator} attribute is equal to {\tt "}.
+Non-natural number lexemes are converted similarly but their
+{\tt .initiator} is {\tt \#}.
 
 \subsubsection{Unnamed Bracketed Subexpressions}
 
@@ -1893,7 +1930,7 @@ An \key{unnamed bracketed subexpression}
 begins with
 an {\em opening-bracket-name} and ends with a matched
 {\em closing-bracket-name} as defined by a \ttkey{define bracket}
-parsing definition.  An example of such a definition is
+parser definition.  An example of such a definition is
 \begin{center}
 {\tt define bracket "("~...~")" [operator text]} \ldots
 \end{center}
@@ -1934,7 +1971,7 @@ A paragraph line may have a continuation lines that are indented with
 respect to the paragraph indentation.
 
 An {\em indentation-mark-name} is specified by a
-\ttkey{define indentation mark} parsing definition, and may have
+\ttkey{define indentation mark} parser definition, and may have
 an associated {\em indentation-separator-name} supplied by that definition.
 An example is
 \begin{center}
@@ -1996,7 +2033,7 @@ of a file recognizes paragraph lines as if the whole
 file were a paragraph, and forms each line into a MIN object.  However,
 these are \underline{not} combined into a paragraph MIN object, but
 are instead processed as they are produced.  In particular, if they
-are parsing definitions, they are processed by the parser to make
+are parser definitions, they are processed by the parser to make
 modifications in the parser symbol tables.  Also, the initial
 \key{top level paragraph indent}
 is set to zero, and an error is announced if the first non-comment
@@ -2010,6 +2047,7 @@ Comments at the beginning or end of a file cannot be
 in error.
 
 \subsubsection{Named Bracketed Subexpressions}
+\label{NAMED-BRACKETED-SUBEXPRESSIONS}
 
 An \key{named bracket subexpression}
 \index{bracketed subexpression!named}
@@ -2069,7 +2107,7 @@ brackets in the above example.
 The {\em named-opening}, {\em named-separator}, {\em named-middle},
 and {\em named-closing} are marks from which named opening and closing
 brackets are constructed.  They are specified by a
-\ttkey{defined named bracket} parsing definition, an example of
+\ttkey{defined named bracket} parser definition, an example of
 which is:
 \begin{center}
 {\tt define named bracket "<"~...~"\#"~...~"|"~...~">" [text]} \ldots

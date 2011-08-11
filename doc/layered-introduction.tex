@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 9, 2011
+August 10, 2011
  
 \end{center}
 
@@ -1954,7 +1954,7 @@ announced and the {\em closing-bracket-name} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket-name} of a containing
 unnamed bracketed subexpression, the {\em named-closing-bracket}
-of a containing named bracketed subexpression, or the end of the paragraph line
+of a containing named bracketed subexpression, the end of the paragraph line
 containing the unnamed bracketed subexpression,
 or an end of file.
 
@@ -1969,6 +1969,22 @@ is called the \key{paragraph indentation}.  The paragraph indentation
 is defined as the indentation of the first paragraph line of the paragraph.
 A paragraph line may have a continuation lines that are indented with
 respect to the paragraph indentation.
+
+The following is an example using `{\tt :}' as an {\em indentation-mark-name}:
+\begin{indpar}\begin{verbatim}
+the line before the outer paragraph
+this is an outer paragraph:
+    the first line of the outer paragraph
+    the second line of the outer paragraph
+    an inner paragraph:
+        the first line of the inner paragraph
+        the second line of the inner paragraph
+    the first outer paragraph line after the inner paragraph
+    another inner paragraph, but one with zero lines:
+    the last line of the outer paragraph
+the line after the outer paragraph
+\end{verbatim}\end{indpar}
+
 
 An {\em indentation-mark-name} is specified by a
 \ttkey{define indentation mark} parser definition, and may have
@@ -2019,9 +2035,21 @@ parser.  More explicitly, any sequence of marks and separators at the
 end of the line is re-parsed, excluding any mark or separator that was
 part of or before a previously recognized symbol table entry.
 
+An anomaly may exist if the selectors that allowed a gluing indentation mark to
+be recognized are changed by a closing bracket that is glued to the indentation
+mark so the indentation mark is no longer recognized.
+The indentation mark will be split, the closing bracket will be recognized
+on rescan
+and change the selectors so the indentation mark is no longer
+recognizable, and then the indentation mark will be scanned and not recognized.
+This situation can be avoided by not allowing
+brackets to change selectors to enable gluing indentation marks if the
+closing bracket ends with a mark.
+
 If while parsing an indented paragraph a line is encountered whose
-indentation is different from but less than $N$ (default $N=2$)
-columns different from the paragraph indentation, an error is announced.
+indentation is different from the paragraph indentation,
+but the difference is less than $N$ columns (default $N=2$),
+an error is announced.
 No corrective action is taken; the line is accepted as either ending
 the paragraph if its indentation is less than the paragraph
 indentation, or continuing the current paragraph line if its indentation
@@ -2037,7 +2065,7 @@ are parser definitions, they are processed by the parser to make
 modifications in the parser symbol tables.  Also, the initial
 \key{top level paragraph indent}
 is set to zero, and an error is announced if the first non-comment
-lexeme in the file is indented (has non-zero indent).
+lexeme in the file has non-zero indent.
 
 Comments are ignored when determining line indentation, but may
 cause errors to be announced.  A comment is considered to be in error
@@ -2105,7 +2133,8 @@ in the {\em named-closing-bracket} may be empty, so
 brackets in the above example.
 
 The {\em named-opening}, {\em named-separator}, {\em named-middle},
-and {\em named-closing} are marks from which named opening and closing
+and {\em named-closing} are symbol table keys
+from which named opening and closing
 brackets are constructed.  They are specified by a
 \ttkey{defined named bracket} parser definition, an example of
 which is:
@@ -2117,6 +2146,12 @@ which specifies `{\tt <}' to be a {\em named-opening-name},
 `{\tt |}' to be a {\em named-middle-name},
 `{\tt >}' to be a {\em named-closing-name},
 and `{\tt text}' to be the sole definition selector.
+Recall that symbol table keys may not span multiple lines, but
+{\em named-opening-brackets},
+{\em named-closing-brackets},
+and {\em named-operators} may span multiple lines.
+
+
 
 A named bracketed subexpression is converted to a
 MIN object whose list elements are the components of the

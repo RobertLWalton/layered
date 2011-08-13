@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 7, 2011
+August 13, 2011
  
 \end{center}
 
@@ -1636,27 +1636,27 @@ give details in following sections.
 \ikey{Lifetime qualifiers}{lifetime qualifier}
 specify the lifetime of a value.  This in turn controls where
 the value may be stored, e.g., a value of limited lifetime may
-not be stored in a variable whose value is declared to be of
+not be stored in a location whose value is declared to be of
 unlimited lifetime.
 
 There are three builtin lifetime qualifiers.
 The `{\tt static}' qualifier specifies that the value
 has unlimited lifetime.
 The `{\tt stack}' qualifier specifies that the value
-has a lifetime that expires when the
+has a lifetime that lasts at least until the
 current function execution terminates.
 The `{\tt caller}' qualifier
-specifies that the value has a lifetime that will \underline{not}
-expire until after the end of the function execution of the
-caller of the current function.
+specifies that the value has a lifetime that begins before the
+called function starts to execute and last until after that
+function returns.
 
-In addition user lifetime qualifiers may be defined
-that expire lifetimes when certain functions are called.  The `{\tt pure}'
-qualifier is often defined in this way to specify that a value
-has a lifetime that expires when a function that is
-\underline{not} `{\tt pure}' is called.  Note that
-`{\tt pure}' also becomes both a function access qualifier and
-a function body qualifier.
+In addition user define `calling lifetime qualifiers' {\tt Q} may be defined
+that typically specify that lifetimes will continue until
+an out-of-line function that does \underline{not} have access
+qualifier {\tt Q} is called.
+The `{\tt pure}' qualifier is often defined in this way.
+Note that such a qualifier is simultaneously a lifetime qualifier,
+a function access qualifier, and a code block qualifier.
 
 \ikey{Traceable qualifiers}{traceable qualifier} may be declared that
 indicate that either a location or the value stored in a location
@@ -1756,6 +1756,14 @@ Although lifetime qualifiers are not usually applied to numeric values,
 it is possible to do so.  For example, if an {\tt int32} value is used
 as an open file designator, it may be given a limited lifetime.
 
+If {\tt Q} is a lifetime qualifier in the type
+\begin{center}
+\tt adr xp -> Q mytype x
+\end{center}
+then {\tt Q} is said to be a qualifier of the location {\tt x},
+all values written into that location must have qualifier {\tt Q},
+and all values read from that location will have qualifier {\tt Q}.
+
 
 The three lifetime qualifiers are all builtin:  `{\tt static}', `{\tt stack}',
 and `{\tt caller}'.
@@ -1774,43 +1782,45 @@ locations allocated at load time, and may be applied to the
 addresses of locations allocated at program initialization time
 and never deallocated.
 
-\hspace*{-1em}\ttkey{stack}~~~~~Specifies the value expires
-when the current function execution terminates.  Equivalent to
+\hspace*{-1em}\ttkey{stack}~~~~~Specifies the value lives as least as
+as long as the current function execution.  Equivalent to
 {\tt stack(1)}: see the following.
 
 \hspace*{-1em}\ttkey{stack(n)}~~~~~
-Specifies the value expires when the current code block of nested level
-{\tt n} within the currently executing function terminates.
+Specifies the value lives at least as long as the execution of
+the current code block of nested level
+{\tt n} within the currently executing function.
 Unnested code within the function is considered to be at nested level {\tt 1}.
-Automatically applied to the addresses of locations allocated to the
+{\tt stack(n)} is automatically applied
+to the addresses of locations allocated to the
 current function frame by code in a level {\tt n} block (such locations
 are freed when the block of level {\tt n} terminates).
 
-A location with a `{\tt stack(n)}' qualified address can have
+A location qualified by `{\tt stack(n)}' can have
 a `{\tt stack(m)}' qualified value only if {\tt n}$\geq${\tt m}.
 
-A `{\tt stack(n)}' value can be stored in a location whose value has
-a `{\tt stack(m)}' qualifier only if {\tt n}$\leq${\tt m}.
-
-
+A `{\tt stack(n)}' value can be stored in a location qualified by
+`{\tt stack(m)}' only if {\tt n}$\leq${\tt m}.
 
 A `{\tt stack(n)}' qualifier \underline{cannot}
 be applied to function arguments and return types.
 
-
-
 \hspace*{-1em}\ttkey{caller}~~~~~Only
 used in a function $F$'s argument or return value types to qualify a values
 such as addresses passed to the function.
-Specifies the values lifetime begins during the execution of the caller
-of the function and ends after the called function returns.
+Specifies the value's lifetime begins sometime before a call to $F$
+and continues until sometime after that call returns.
 
 `{\tt static}' and `{\tt stack(n)}' values are converted to `{\tt caller}'
 values when passed as arguments.
 
-The `{\tt caller}' qualifier does not specify precisely when the value
-lifetime expires.  Therefore it is not possible to store a `{\tt caller}'
-value in a location whose address has the `{\tt caller}' qualifier.
+The `{\tt caller}' qualifier is like the {\tt stack} qualifier but
+specifies that the value is valid at the moment the function begins
+executing and at the moment the caller code returned to by
+the function begins executing.
+
+A `{\tt caller}'  value can be stored in a `{\tt stack}' location
+but not in a `{\tt caller}' location.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
@@ -1832,46 +1842,43 @@ int32 function3 ( static adr arg1 -> caller adr -> int32 );
 \end{verbatim}\end{indpar}
 
 The `{\tt caller}' lifetime qualifier is the default
-lifetime qualifier for any argument or return value address value that has no
+lifetime qualifier for any function
+argument or return value pointer value that has no
 lifetime qualifier.  Thus in the above example the `{\tt caller}'
 qualifiers could have been omitted.
 
 The `{\tt caller}' lifetime qualifier may \underline{not} be used
 except in function argument and return value declarations.
 
-\hspace*{-1em}\ttkey{temp}~~~~~Specifies
-the location is valid until an `{\tt impure}' function is called.
-Only `{\tt impure}' functions may deallocate or reallocate the location.
-A function may return a `{\tt temp}' location to its caller,
-or pass a `{\tt temp}' location to a called function.
-
-Out-of-line functions are `{\tt impure}' by default.  A `{\tt pure}'
-function may \underline{not} call an `{\tt impure}' function, and
-in particular, cannot suffer an interrupt or exception.  Inlined
-functions are by default neither `{\tt pure}' or `{\tt impure}'; they
-are simply inserted as if they were part of their caller, and may
-contain calls to either `{\tt pure}' or `{\tt impure}' functions.
-
-The assumption is that only `{\tt impure}' functions can deallocate
-or reallocate locations.  It is further assumed that interrupts
-are the equivalent to calls to out-of-line `{\tt impure}' functions.
-In actual practice,
-only `{\tt unchecked}' functions can deallocate or reallocate locations,
-so it is up to the user to declare all such functions `{\tt impure}'
-or `{\tt outline}'.
-
-
 \end{indpar}
 
-An address of a location with any lifetime qualifier
-may \underline{not} be re-cast as the address of a location
-with a different lifetime qualifier,
-with the exception that the address of a location with
-a `{\tt static}', `{\tt stack}', or collectible qualifier
-\underline{may} be re-cast as the an address of a location with a
-`{\tt caller}' qualifier, and the address of a location with
-any lifetime qualifier may be re-cast as the an address of a location
-with a `{\tt temp}' qualifier.
+Users may define \skey{calling lifetime qualifier}s by using
+a declaration of the form:
+\begin{center}
+{\tt declare calling lifetime qualifier}
+    {\em qualifier-name} {\em negated-qualifier-name} [{\em default}\,]
+\end{center}
+An example is:
+\begin{center}
+\tt declare calling lifetime qualifier pure impure
+\end{center}
+
+If {\tt Q} is a calling lifetime qualifier and {\tt NQ} is
+its negation, then a value with qualifier {\tt Q} will have
+a lifetime that extends until an out-of-line function or a code
+block that has qualifier {\tt NQ} is called.
+The {\em default} in the declaration
+is the default qualifier of an out-of-line function, and if not given
+is {\tt NQ}.  Inline functions have neither the {\tt Q} or
+{\tt NQ} qualifier, and are treated as
+if they were copied at the point of their call.  However, 
+a code block with qualifier {\tt NQ} can be included inside an inline
+function, or {\tt NQ} can be used as the code block qualifier of the
+entire inline function body.
+
+Thus in the example, a `{\tt pure}' value would have a lifetime until
+an out-of-line function that did have the `{\tt pure}' qualifier is
+called, or a code block with the `{\tt impure}' qualifier is executed.
 
 \subsubsection{Traceable Qualifiers}
 \label{TRACEABLE-QUALIFIERS}

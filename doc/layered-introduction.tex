@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 10, 2011
+August 11, 2011
  
 \end{center}
 
@@ -2202,6 +2202,32 @@ containing the named bracketed subexpression,
 or an end of file.
 
 \subsubsection{Named Operators}
+
+A \key{named operator} has the same syntax as an {\em opening-named-bracket}
+except that the {\em named-operator} ends with a
+{\em named-closing} instead of a {\em named-middle}:
+
+\begin{indpar}[0.1in]
+\emkey{named-operator} \\
+    \hspace*{0.2in}::= \begin{tabular}[t]{@{}l@{}}
+	 {\em named-opening} {\em operator-name} {\em argument}$^\star$
+	      \{ {\em named-separator} {\em key} \}$^\star$
+	      {\em named-closing} \\
+	 \end{tabular}
+\\[0.5ex]
+\emkey{bracket-name} ::= {\em word}
+                         \{ {\em word} $|$ {\em natural-number} \}$^\star$
+\end{indpar}
+
+A {\em named-operator} is converted to a MIN object which has the
+same structure as a named bracketed subexpression with an empty list
+but with its {\tt .name} attribute equal to
+the {\em operator-name} instead of a {\em bracket-name} and with
+no {\tt .middle} attribute.  As for a named bracketed subexpression,
+the {\tt .initiator} is the {\em named-opening},
+the {\tt .terminator} is the {\em named-closing},
+and the {\tt .arguments} and {\tt .keys} are set from the
+contents of the {\em named-operator}.
 
 \subsection{Parser Passes}
 

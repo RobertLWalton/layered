@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 13, 2011
+August 14, 2011
  
 \end{center}
 
@@ -1756,12 +1756,17 @@ Although lifetime qualifiers are not usually applied to numeric values,
 it is possible to do so.  For example, if an {\tt int32} value is used
 as an open file designator, it may be given a limited lifetime.
 
+A lifetime qualifier {\tt Q1} is said to be `\key{convertible}'
+to a lifetime qualifier {\tt Q2} if {\tt Q1} promises a lifetime
+at least as long as {\tt Q2} promises.
+
 If {\tt Q} is a lifetime qualifier in the type
 \begin{center}
 \tt adr xp -> Q mytype x
 \end{center}
 then {\tt Q} is said to be a qualifier of the location {\tt x},
-all values written into that location must have qualifier {\tt Q},
+all values written into that location must have lifetime qualifiers that
+are convertable to {\tt Q},
 and all values read from that location will have qualifier {\tt Q}.
 
 
@@ -1782,9 +1787,14 @@ locations allocated at load time, and may be applied to the
 addresses of locations allocated at program initialization time
 and never deallocated.
 
+The `{\tt static}' lifetime qualifier is convertible to any other
+lifetime qualifier.
+
 \hspace*{-1em}\ttkey{stack}~~~~~Specifies the value lives as least as
 as long as the current function execution.  Equivalent to
 {\tt stack(1)}: see the following.
+
+`{\tt static}' values are convertable to `{\tt stack}' values.
 
 \hspace*{-1em}\ttkey{stack(n)}~~~~~
 Specifies the value lives at least as long as the execution of
@@ -1796,11 +1806,9 @@ to the addresses of locations allocated to the
 current function frame by code in a level {\tt n} block (such locations
 are freed when the block of level {\tt n} terminates).
 
-A location qualified by `{\tt stack(n)}' can have
-a `{\tt stack(m)}' qualified value only if {\tt n}$\geq${\tt m}.
+`{\tt stack(m)}' values are convertable to
+`{\tt stack(n)}' if {\tt n}$\leq${\tt m}.
 
-A `{\tt stack(n)}' value can be stored in a location qualified by
-`{\tt stack(m)}' only if {\tt n}$\leq${\tt m}.
 
 A `{\tt stack(n)}' qualifier \underline{cannot}
 be applied to function arguments and return types.
@@ -1811,16 +1819,24 @@ such as addresses passed to the function.
 Specifies the value's lifetime begins sometime before a call to $F$
 and continues until sometime after that call returns.
 
-`{\tt static}' and `{\tt stack(n)}' values are converted to `{\tt caller}'
-values when passed as arguments.
-
 The `{\tt caller}' qualifier is like the {\tt stack} qualifier but
 specifies that the value is valid at the moment the function begins
 executing and at the moment the caller code returned to by
 the function begins executing.
 
-A `{\tt caller}'  value can be stored in a `{\tt stack}' location
-but not in a `{\tt caller}' location.
+`{\tt static}', `{\tt stack(n)}', and {\tt caller} qualifiers
+can be converted to the `{\tt caller}' qualifier when the latter is
+part of the type of a value that is to be passed as an argument or
+a return value to a function being called by the code that does
+the conversion.  However, 
+`{\tt static}', `{\tt stack(n)}', and {\tt caller} qualifiers
+\underline{cannot}
+be converted to the `{\tt caller}' qualifier when the latter is
+part of the type of a value that is an argument or return
+value of the currently executing function.  Note that in this
+case a `{\tt caller}' qualifier cannot even be converted to
+a `{\tt caller}' qualifier.
+
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
@@ -1856,20 +1872,29 @@ Users may define \skey{calling lifetime qualifier}s by using
 a declaration of the form:
 \begin{center}
 {\tt declare calling lifetime qualifier}
-    {\em qualifier-name} {\em negated-qualifier-name} [{\em default}\,]
+    \begin{tabular}[t]{@{}l@{}}
+    {\em qualifier-name} \\{}%
+    [{\tt ,} {\em negated-qualifier-name} [{\tt ,} {\em default}\,] ]
+    \end{tabular}
 \end{center}
 An example is:
 \begin{center}
-\tt declare calling lifetime qualifier pure impure
+\tt declare calling lifetime qualifier pure, impure
 \end{center}
 
 If {\tt Q} is a calling lifetime qualifier and {\tt NQ} is
 its negation, then a value with qualifier {\tt Q} will have
-a lifetime that extends until an out-of-line function or a code
-block that has qualifier {\tt NQ} is called.
+a lifetime that extends until a call to an out-of-line function that has
+the access qualifier {\tt NQ} or the execution of a code
+block that has qualifier {\tt NQ}.
+
 The {\em default} in the declaration
 is the default qualifier of an out-of-line function, and if not given
-is {\tt NQ}.  Inline functions have neither the {\tt Q} or
+is {\tt NQ}.  In this case where the {\em default} is {\tt NQ},
+calls to functions that do not have the {\tt Q} access qualifier
+terminate the lifetime.
+
+Inline functions have neither the {\tt Q} or
 {\tt NQ} qualifier, and are treated as
 if they were copied at the point of their call.  However, 
 a code block with qualifier {\tt NQ} can be included inside an inline
@@ -1877,8 +1902,16 @@ function, or {\tt NQ} can be used as the code block qualifier of the
 entire inline function body.
 
 Thus in the example, a `{\tt pure}' value would have a lifetime until
-an out-of-line function that did have the `{\tt pure}' qualifier is
-called, or a code block with the `{\tt impure}' qualifier is executed.
+an out-of-line function is called that did \underline{not}
+have the `{\tt pure}' qualifier is
+called, or a code block with the `{\tt impure}' qualifier is executed,
+where this code block could be part of an inline function.
+
+If the {\em negated-qualifier-name} is not given, it defaults to
+`{\tt \TILDE} {\em qualifier-name}'.
+
+A calling lifetime qualifier is also automatically declared to be
+a protection qualifier(\pagref{PROTECTION-QUALIFIER}).
 
 \subsubsection{Traceable Qualifiers}
 \label{TRACEABLE-QUALIFIERS}
@@ -2220,8 +2253,8 @@ whose negation, the `\ttkey{pure}' qualifier, must be used as a
 function access qualifier to
 specify that a function does not have the `{\tt impure}' access qualifier.
 
-\hspace*{-1em}\ikey{Protection Qualifiers}%
-{protection qualifier}~~~~~Protection
+\hspace*{-1em}\ikey{Protection Qualifiers}{protection qualifier}%
+\label{PROTECTION-QUALIFIER}~~~~~Protection
 qualifiers may be declared by the programmer.
 Protection qualifiers may have names of the form
 \begin{center}

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  3 02:09:03 EDT 2011
+// Date:	Tue Aug 16 04:17:09 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -599,11 +599,11 @@ static void compact
 
     PAR::token token =
         PAR::new_token ( PAR::EXPRESSION );
+    PAR::put_before ( first_ref(parser), next, token );
+
     PAR::value_ref(token) = exp;
     token->begin = begin;
     token->end = end;
-
-    PAR::put_before ( first_ref(parser), next, token );
 
     if (   parser->trace
          & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS )
@@ -734,10 +734,11 @@ inline PAR::token skip ( PAR::token t, min::uns32 n )
 //
 // The named bracket or named operator is defined by
 // `first' and `next'.  `first' is the first token AFTER
-// the opening, and `next' is the first token of the
-// middle (for a named bracket) or closing (for a named
-// operator).  No tokens are deleted, but some may have
-// their values modified (e.g., quoted string tokens).
+// the named opening, and `next' is the first token of
+// the named middle (for a named bracket) or named
+// closing (for a named operator).  No tokens are
+// deleted, but some may have their values modified
+// (e.g., quoted string tokens).
 //
 // `first' MUST BE a word.  The name is this word plus
 // any following words and natural numbers.
@@ -1025,11 +1026,12 @@ inline bool is_indented
 // token is encountered, and the end-of-file is never
 // part of the explicit subexpression.  Therefore there
 // is always a token immediately after the recognized
-// subexpression.  This token is returned to mark the
-// end of the recognized subexpression.
+// subexpression.  This token is returned as the updated
+// `current' argument value to mark the end of the
+// recognized subexpression.
 //
 // The subexpression is either a paragraph line, includ-
-// ing indented continuations, or is a subexpession
+// ing indented continuations, or is a subexpression
 // begun by an unnamed or named opening bracket.  In the
 // first case `current' is initially the first token of
 // the paragraph line, and in the second case `current'
@@ -1043,18 +1045,24 @@ inline bool is_indented
 // called.
 //
 // In either case the subexpression terminates just
-// before any line break whose next non-line-break token
-// has an indent less than or equal to the `indent'
-// argument.  If the subexpression is a paragraph line,
-// the initial `current' token when this function is
-// called should be the first token of the paragraph
-// line, should not be a line break, and should not have
-// an indent less than the `indent' argument.  Note that
-// this feature can be disabled by setting the `indent'
-// argument to MINUS parser->indent_offset.
+// before any line break whose next non-line-break, non-
+// comment token has an indent less than or equal to the
+// `indent' argument.  Note that this feature can be
+// disabled by setting the `indent' argument to MINUS
+// parser->indent_offset.
 //
-// The subexpression always terminates before an end-of-
-// file.
+// If the subexpression is a paragraph line, the initial
+// `current' token when this function is called should
+// be the first token of the paragraph line, should not
+// be a line break, and should not have an indent less
+// than the `indent' argument.
+//
+// The subexpression also terminates just before any
+// line break whose next non-line-break, non-comment
+// token is an end-of-file, and just before an end-of-
+// file that does not follow a line-break (the top
+// level caller of this function announces an error in
+// this last case).
 //
 // If the indentation_mark argument is not NULL_STUB,
 // the subexpression will terminate just after any
@@ -1063,6 +1071,10 @@ inline bool is_indented
 // outside any subsubexpression.  In this case this
 // function returns `true', whereas in all other cases
 // it returns `false'.
+//
+// Comment tokens that are not a full line (i.e., that
+// follow a non-comment token on the same line) are
+// deleted and ignored.
 // 
 // The `bracket_stack' specifies brackets that need to
 // be closed.  When an entry in this stack is made, the
@@ -1085,18 +1097,18 @@ inline bool is_indented
 // match the top entry on the bracket stack, and only
 // that top entry will be closed.
 //
-// It is possible for a normal paragraph line to be ter-
-// minated by a closing bracket, in which case the para-
-// graph line consists of all tokens in the subexpres-
-// sion up to the closing bracket, and the closing
-// bracket also terminates an outer subexpression.
+// It is possible for a paragraph line to be normally
+// terminated by a closing bracket, in which case the
+// paragraph line consists of all tokens in the sub-
+// expression up to the closing bracket, and the clos-
+// ing bracket also terminates an outer subexpression.
 //
-// Subexpressions that would be empty paragraph lines
-// are ignored.  Thus a closing indented by `indent'
-// will not produce an empty paragraph line.  However,
-// lines terminated by indentation_separators are NOT
-// considered to be empty in this sense (they are given
-// a .terminator).
+// Subexpressions that would be empty subparagraph lines
+// are ignored.  Thus a closing bracket indented by
+// `indent' will not produce an empty subparagraph line.
+// However, lines terminated by indentation_separators
+// are NOT considered to be empty in this sense (they
+// are given a .terminator).
 // 
 // If the closing unnamed or named bracket of a sub-
 // expression is omitted, then when the subexpression is
@@ -1106,10 +1118,10 @@ inline bool is_indented
 // insert the omitted bracket.
 //
 // To be recognized, closing brackets, named middles,
-// indentation separator, etc. must be active as per the
-// selectors.  So it is possible for an unnamed or named
-// closing bracket or an indentation separator to be
-// missed because the selectors have been changed and
+// indentation separators, etc. must be active as per
+// the selectors.  So it is possible for an unnamed or
+// named closing bracket or an indentation separator to
+// be missed because the selectors have been changed and
 // something is not active, though this will only happen
 // if there is some other missing bracket or there has
 // been an error in the way selectors have been defined
@@ -1125,18 +1137,21 @@ inline bool is_indented
 // may be part of some other recognized bracket symbol
 // table entry.
 //
-// The end of the subexpression is identified by the
+// The end of the subexpression is specified by the
 // `current' token upon return by this function, and
 // also by the number of bracket_stack entries that have
 // been marked as closed.  If NO bracket_stack entries
 // have been marked closed, then `current' is the first
 // token AFTER the subexpression, and is either a line
-// break, an end of file, or token after an indentation
-// separator.  If it is a line break, then any subse-
-// quent line breaks will have been deleted, current
-// will be the line break, and current->next will be the
-// next non-line-break token read after the line breaks
-// (it may be an end of file).
+// break, an end of file, or the token after an indenta-
+// tion separator.  If it is a line break, then any sub-
+// sequent line breaks and comments will have been de-
+// leted, current will be the line break, and current->
+// next will be the next non-line-break, non-comment
+// token read after the line break and any subsequent
+// deleted line breaks and comments, and may be the non-
+// indented token that terminated the line or it may be
+// an end of file.
 //
 // If a bracket_stack entry has been marked closed, then
 // `current' will be the first token AFTER the closing
@@ -1165,23 +1180,23 @@ inline bool is_indented
 // More specifically, bracketed SUBSUBexpressions are
 // converted to a list.  For unnamed brackets, the
 // .initiator and .terminator of this list are set to
-// the opening and closing brackets of the subsubexpres-
-// sion.  For named brackets the .initiator, .middle,
-// and .terminator are set to the named opening, named
-// middle, and named closing, and the .name, .arguments,
-// and .keys attributes are set as computed by the
-// ::named_attributes function (values that are MISSING
-// are not set).
+// the labels of the opening and closing brackets of the
+// subsubexpression.  For named brackets the .initiator,
+// .middle, and .terminator are set to the labels of the
+// named opening, named middle, and named closing, and
+// the .name, .arguments, and .keys attributes are set
+// as computed by the ::named_attributes function (at-
+// tributes whose values would be MISSING are not set).
 //
 // SUBSUBexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list
-// is a list of lines and has the indentation mark as
-// its .initiator.  The inner lists are paragraph line
-// subexpressions and have "\n" as their .terminator if
-// they do not end with an indentation separator, and
-// have the indentation separator label as their .ter-
-// minator otherwise (and the indentation separator at
-// the end of the paragarph line is omitted from the
+// is a list of lines and has the indentation mark label
+// as its .initiator.  The inner lists are paragraph
+// line subexpressions and have "\n" as their .termina-
+// tor if they do not end with an indentation separator,
+// and have the indentation separator label as their
+// .terminator otherwise (and the indentation separator
+// at the end of the paragarph line is omitted from the
 // inner list).
 //
 // When this function detects a subsubexpression with a
@@ -1192,16 +1207,16 @@ inline bool is_indented
 // subsubexpression.
 //
 // The token list, beginning with the initial value of
-// `current', can be edited.  The caller should save
-// `current->previous' before calling this function, so
-// it and `current' as returned by this function can be
-// used to delimit the subexpression.  Note that in the
-// case of the top level call, there may be no
-// `current->previous', and parser->first will be the
-// first token of the returned subexpression.  For non-
-// top-level calls, there is always an indentation mark
-// or opening bracket before the initial value of
-// `current'.
+// `current', is edited by this function.  The caller
+// should save `current->previous' before calling this
+// function, so it and `current' as returned by this
+// function can be used to delimit the subexpression.
+// Note that in the case of the top level call, there
+// may be no `current->previous', and parser->first will
+// be the first token of the returned subexpression.
+// For non-top-level calls, there is always an indenta-
+// tion mark or opening bracket before the initial value
+// of `current'.
 //
 // Line_break tokens are deleted.  Gluing indentation
 // marks are split from line-ending tokens.  When a
@@ -1210,31 +1225,36 @@ inline bool is_indented
 // mark-non-separator, any subsubexpression, and any
 // sequence of marks and separators found in the
 // bracket table.  If this is nothing else, it is the
-// first part of the mark that was split.  Therefore
-// a gluing indentation may be appended to the last
-// token in a multi-token closing bracket or indentation
-// separator that ends in a mark.  However, the selec-
-// tors recognizing the gluing indentation mark when it
-// is split might NOT in unusual circumstances be the
-// same as those in effect when the split formerly-glued
-// indentation mark is rescanned.
+// first part of the mark that was split.
+//
+// A consequence of all this is that a gluing indenta-
+// tion may be appended to the last token in a multi-
+// token closing bracket that ends in a mark, but
+// because the closing bracket can change the current
+// selectors, the selectors in effect when the gluing
+// indentation mark was split might NOT in be the same
+// as those in effect when the split formerly-glued
+// indentation mark is rescanned, and the rescanned
+// indentation mark might not be recognized.  This situ-
+// ation is unusual, and can be prevented by not permit-
+// ting closing brackets that can be glued to indenta-
+// tion marks to change the selectors used to recognize
+// the indentation marks.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme
 // brackets etc. are not recognized if they straddle
 // a line break.
 //
-// This function is called at the top level with indent
-// the indent of the next non-comment token, the `top_
-// level_indentation_mark' which has indentation separa-
-// tor `;', and bracket_stack == NULL.
+// This function is called at the top level with zero
+// indent, the `top_level_indentation_mark' which has
+// indentation separator `;', and bracket_stack == NULL.
 //
 // If an unnamed opening bracket is found with its
 // `full_line' feature on, the resulting recursive call
-// to this function has a disabled `indent' and NULL_
-// STUB indentation mark and has a bracket stack consis-
-// ting solely of one entry for the unnamed opening
-// bracket.
+// to this function has a disabled `indent', NULL_STUB
+// indentation mark, has a bracket stack consisting
+// solely of one entry for the unnamed opening bracket.
 //
 struct bracket_stack
 {
@@ -1826,7 +1846,8 @@ static bool parse_explicit_subexpression
 		    opening_bracket->full_line;
 
 		::bracket_stack cstack
-		    ( bracket_stack_p );
+		    ( full_line ? NULL :
+		                  bracket_stack_p );
 		cstack.opening_bracket =
 		    opening_bracket;
 

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 16 04:17:09 EDT 2011
+// Date:	Wed Aug 17 05:38:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1315,28 +1315,31 @@ static bool parse_explicit_subexpression
 	// indentation mark.
     TAB::named_opening named_opening =
         min::NULL_STUB;
-	// If not NULL_STUB, a named opening bracket
-	// or named closing bracket with this table
-	// entry is being scanned.
+	// If not NULL_STUB, a named opening bracket,
+	// named closing bracket, or named operator
+	// with this symbol table entry is being
+	// scanned.
     bool is_named_opening_bracket;
         // If named_opening != NULL_STUB, this is true
-	// if a named opening bracket is being scanned,
-	// and false if a named closing bracket is being
-	// scanned.
+	// if a named opening bracket or named operator
+	// is being scanned, and false if a named
+	// closing bracket is being scanned.
     PAR::token named_first = min::NULL_STUB;
         // If named_opening != NULL_STUB, this is the
-	// first token after the named opening or named
-	// middle.
+	// first token after the named opening if is_
+	// named_opening_bracket is true or after the
+	// named middle if is_named_opening_bracket is
+	// false.
     PAR::token split_backup = min::NULL_STUB;
         // If an indentation mark is split, back up
-	// to this point.
+	// to this point if not NULL_STUB.
 
     while ( true )
     {
         // Truncate if end of file.
 	//
 	if ( current->type == LEXSTD::end_of_file_t )
-	    break;
+	    goto DONE;
 
 	// Ensure there is a next token.
 	//
@@ -1384,18 +1387,24 @@ static bool parse_explicit_subexpression
 		        if ( split->length >= length )
 			    continue;
 			if ( memcmp
-			       ( & sp[  length
-			              - split->length],
+			       (   (const char *)
+			           sp.begin_ptr()
+				 + (  length
+			            - split->length ),
 			         & split[0],
 				 split->length )
 			     == 0 ) break;
 		    }
 		    if ( split != min::NULL_STUB )
 		    {
+			// We have found a gluing mark
+			// at the end of of the last
+			// mark.
+
 		        PAR::value_ref
 			    (current->previous) =
 			    min::new_str_gen
-			        ( & sp[0],
+			        ( sp.begin_ptr(),
 				    length
 				  - split->length );
 			PAR::put_before

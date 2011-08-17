@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 06:04:42 EDT 2011
+// Date:	Wed Aug 17 05:40:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -523,7 +523,9 @@ void TAB::push_indentation_mark
 	isplit = ::indentation_split_type.new_stub
 			( length );
 	min::push
-	    ( isplit, length, (min::uns8 *) & s[0] );
+	    ( isplit, length,
+	      (min::uns8 *)
+	      (const char *) s.begin_ptr() );
 	indentation_mark_ref(isplit) = imark;
 	indentation_split_ref(imark) = isplit;
 

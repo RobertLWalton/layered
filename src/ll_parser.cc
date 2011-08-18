@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 17 05:38:25 EDT 2011
+// Date:	Thu Aug 18 00:53:28 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1333,6 +1333,17 @@ static bool parse_explicit_subexpression
     PAR::token split_backup = min::NULL_STUB;
         // If an indentation mark is split, back up
 	// to this point if not NULL_STUB.
+	//
+	// This is the first mark or separator of a
+	// sequence of marks and separators that ends
+	// the line and that is after every token
+	// in the line that is part of a sequence of
+	// tokens found in the bracket table.  So
+	// this is set to the current token if that
+	// is a mark or separator and split_backup is
+	// NULL_STUB, and is set to NULL_STUB by every
+	// other token and after finding a token
+	// sequence in the bracket table.
 
     while ( true )
     {
@@ -1457,12 +1468,9 @@ static bool parse_explicit_subexpression
 			current->previous->previous->end
 			    = current->previous->begin;
 
-			// Back up to mark split from
-			// indentation mark.
-			//
-			// Split_backup will equal the
-			// mark that was split or be
-			// before that.
+			// Back up to split_backup which
+			// will equal the mark that was
+			// split or be before that.
 			//
 			assert (    split_backup 
 			         != min::NULL_STUB );
@@ -1564,10 +1572,16 @@ static bool parse_explicit_subexpression
 
 		// Scan lines.
 		//
-		if ( is_indented
+		if (    current->next->type
+		     != LEXSTD::end_of_file_t
+		     &&
+		     is_indented
 		         ( parser,
 			   current->next, indent ) )
 		{
+		    // Compute selectors and paragraph
+		    // indent for indented subparagraph.
+		    //
 		    TAB::selectors new_selectors =
 			selectors;
 		    new_selectors |=
@@ -1580,7 +1594,7 @@ static bool parse_explicit_subexpression
 			indentation_found->new_selectors
 					 .xor_selectors;
 
-		    min::int32 line_indent =
+		    min::int32 paragraph_indent =
 		        current->next->begin.column;
 
 		    // Delete line break.
@@ -1593,14 +1607,14 @@ static bool parse_explicit_subexpression
 
 		    while ( true )
 		    {
-			// Find end of line subsubexp.
+			// Find a paragraph line.
 			//
 			PAR::token previous =
 			    current->previous;
 			bool separator_found =
 			  ::parse_explicit_subexpression
 				( parser, current,
-				  line_indent,
+				  paragraph_indent,
 				  indentation_found,
 				  bracket_stack_p,
 				  new_selectors );
@@ -1636,6 +1650,9 @@ static bool parse_explicit_subexpression
 				    ( parser,
 				      next,
 				      terminator );
+				first = previous->next;
+				    // In case first was
+				    // removed.
 			    }
 
 			    ::compact
@@ -1661,7 +1678,7 @@ static bool parse_explicit_subexpression
 			      ||
 			        current->next
 				       ->begin.column
-			      < line_indent )
+			      < paragraph_indent )
 			    break;
 
 			// Delete line break.
@@ -1682,15 +1699,18 @@ static bool parse_explicit_subexpression
 		::compact ( parser, first, next,
 			    begin,
 			    next->previous->end,
-			    indentation_found->label,
-			    min::MISSING() );
+			    indentation_found->label );
 
-		// Terminate subexpression is closing
+		// Terminate subexpression if closing
 		// bracket was found during indentation
-		// processing.
+		// processing, or if current token is an
+		// end of file.
 		// 
-		if ( is_closed ( bracket_stack_p ) )
-		    break;
+		if ( is_closed ( bracket_stack_p )
+		     ||
+		        current->type
+		     == LEXSTD::end_of_file_t )
+		    goto DONE;
 
 		// Otherwise fall through to process
 		// line break at current that is after
@@ -1702,7 +1722,7 @@ static bool parse_explicit_subexpression
 	    // If indentation was found, current may
 	    // have changed.  In any case, it is a
 	    // line break followed by a token that is
-	    // not a line break or full line comment.
+	    // not a line break or comment.
 	    //
 	    assert (    current->type
 	             == LEXSTD::line_break_t );
@@ -1717,17 +1737,17 @@ static bool parse_explicit_subexpression
 	    // followed by an end of file.
 	    //
 	    if ( next->type == LEXSTD::end_of_file_t )
-		break;
+		goto DONE;
 
 	    // Now next is neither a line break or end
-	    // of file or full line comment.
+	    // of file or comment.
 
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.
 	    //
 	    if ( ! ::is_indented
 		       ( parser, next, indent ) )
-		break;
+		goto DONE;
 
 	    // Remove line break and move to next token.
 	    //
@@ -1763,11 +1783,11 @@ static bool parse_explicit_subexpression
 	    if ( named_opening != min::NULL_STUB
 	         &&
 		 !  is_named_opening_bracket
-		 && ( current->type == LEXSTD::number_t
-		      ||
-		         current->type
-		      == LEXSTD::quoted_string_t
-		    ) )
+		 &&
+		 current->type != LEXSTD::word_t
+		 &&
+		    current->type
+		 != LEXSTD::natural_number_t )
 		named_opening = min::NULL_STUB;
 
 	    if (    current->type
@@ -1778,6 +1798,9 @@ static bool parse_explicit_subexpression
 		    current->previous->type
 		 == LEXSTD::quoted_string_t )
 	    {
+	        // Merge current and current->previous,
+		// which are both quoted strings.
+		//
 	        min::push
 		    ( (PAR::string_insptr)
 		          current->previous->string,
@@ -1797,8 +1820,8 @@ static bool parse_explicit_subexpression
 	    continue;
 	}
 
-	// If mark or separator, look for bracket or
-	// indentation mark.
+	// If mark or separator, lookup in bracket
+	// table.
 	//
 	PAR::token saved_current = current;
 	PAR::token saved_split_backup = split_backup;
@@ -1900,7 +1923,7 @@ static bool parse_explicit_subexpression
 			       closing_bracket->
 				   label,
 			       & ::bracket_format )
-			<< "' inserted; "
+			<< "' inserted before "
 			<< LEX::pline_numbers
 			       ( parser->input_file,
 				 next->begin,
@@ -2015,8 +2038,11 @@ static bool parse_explicit_subexpression
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: spurious"
-		       " closing bracket"
-		       " found and ignored; "
+		       " closing bracket `"
+		    << min::pgen
+			 ( closing_bracket->label,
+			   & ::bracket_format )
+		    << "' found and ignored; "
 		    << LEX::pline_numbers
 			   ( parser->input_file,
 			     begin, end )

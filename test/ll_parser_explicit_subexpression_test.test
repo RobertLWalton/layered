@@ -34,7 +34,7 @@ This line contains subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + `y z {p q}' - [ g h ]).
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: missing closing bracket `}' inserted; line 19:
+ERROR: missing closing bracket `}' inserted before line 19:
      (x + { y z )
                 ^
 EXPRESSION: SHORT_OBJ: line 19:
@@ -48,10 +48,10 @@ This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + { y z )
 ^^^^^^^^^^^^^^^^^
-ERROR: spurious closing bracket found and ignored; line 21:
+ERROR: spurious closing bracket `}' found and ignored; line 21:
      (x + y }
             ^
-ERROR: missing closing bracket `)' inserted; line 21:
+ERROR: missing closing bracket `)' inserted before line 21:
      (x + y }
              ^
 EXPRESSION: SHORT_OBJ: line 21:

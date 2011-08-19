@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 18 00:53:28 EDT 2011
+// Date:	Fri Aug 19 05:41:11 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2076,6 +2076,9 @@ static bool parse_explicit_subexpression
 	    {
 	        if ( current->type == LEXSTD::word_t )
 		{
+		    // Possible start of named opening
+		    // bracket or named operator.
+
 		    named_opening =
 			(TAB::named_opening) root;
 		    is_named_opening_bracket = true;
@@ -2106,6 +2109,9 @@ static bool parse_explicit_subexpression
 		        named_middle
 		     == named_opening->named_middle )
 		{
+		    // The end of a named opening
+		    // bracket has been found.
+
 		    ::bracket_stack cstack
 			( bracket_stack_p );
 		    cstack.named_opening =
@@ -2176,9 +2182,7 @@ static bool parse_explicit_subexpression
 			      next->begin,
 			      next->end );
 
-			if (    cstack.closing_next
-			     != min::NULL_STUB )
-			    done = true;
+			done = true;
 		    }
 		    else
 		    {
@@ -2200,8 +2204,6 @@ static bool parse_explicit_subexpression
 			  cstack.opening_first,
 			  cstack.opening_next );
 
-		    assert ( name != min::MISSING() );
-
 		    LEX::position begin =
 		        ::remove
 			    ( parser,
@@ -2211,7 +2213,13 @@ static bool parse_explicit_subexpression
 		        ( parser,
 			  middle_last->next,
 			  current,
-			  begin, end, name );
+			  begin, end,
+			  named_opening->label,
+			  named_opening->named_closing
+			               ->label,
+			  named_opening->named_middle
+			               ->label,
+			  name, arguments, keys );
 			  
 		    assert
 		        (    current->previous->type
@@ -2224,39 +2232,14 @@ static bool parse_explicit_subexpression
 		               cstack.opening_first,
 			       middle_last->next );
 
-		    if ( arguments != min::MISSING()
-		         ||
-			 keys != min::MISSING() )
-		    {
-			min::obj_vec_insptr expvp
-			    ( current->previous
-			             ->value );
-			min::attr_insptr expap
-			    ( expvp );
-
-			if (    arguments
-			     != min::MISSING() )
-			{
-			    min::locate
-				( expap, ::arguments );
-			    min::set
-				( expap, arguments );
-			}
-
-			if ( keys != min::MISSING() )
-			{
-			    min::locate
-				( expap, ::keys );
-			    min::set
-				( expap, keys );
-			}
-		    }
-
 		    if ( done ) goto DONE;
 		    else	break;
 		}
 		else
 		{
+		    // The possible start of a named
+		    // closing bracket has been found.
+
 		    named_opening =
 		        named_middle->named_opening;
 		    is_named_opening_bracket = false;
@@ -2276,6 +2259,8 @@ static bool parse_explicit_subexpression
 		{
 		    if ( is_named_opening_bracket )
 		    {
+			// A named operator has been
+			// found.
 
 			min::locatable_gen name,
 					   arguments,
@@ -2322,6 +2307,20 @@ static bool parse_explicit_subexpression
 			    ( t->value );
 			min::attr_insptr tap ( tvp );
 
+			min::locate
+			    ( tap, ::initiator );
+			min::set
+			    ( tap,
+			      named_opening->label );
+
+			min::locate
+			    ( tap, ::terminator );
+			min::set
+			    ( tap,
+			      named_opening->
+			          named_closing->
+				  label );
+
 			min::locate ( tap, ::name );
 			min::set ( tap, name );
 
@@ -2342,6 +2341,14 @@ static bool parse_explicit_subexpression
 
 			break;
 		    }
+
+		    // The end of a possible named
+		    // closing bracket has been found.
+		    //
+		    // The named closing bracket must
+		    // match a bracket stack entry, or
+		    // it is discarded as not really
+		    // being a named closing bracket.
 
 		    for ( ::bracket_stack * p =
 			      bracket_stack_p;
@@ -2383,7 +2390,11 @@ static bool parse_explicit_subexpression
 			        continue;
 
 			    p->closing_first =
-				saved_current;
+				::backup
+				    ( named_first,
+				      named_opening->
+				          named_middle->
+					  label );
 			    p->closing_next = current;
 
 			    for ( ::bracket_stack * q =
@@ -2391,8 +2402,8 @@ static bool parse_explicit_subexpression
 				  q != p;
 				  q = q->previous )
 				q->closing_first =
-				    q->closing_next =
-					saved_current;
+				  q->closing_next =
+				    p->closing_first;
 
 			    goto DONE;
 			}
@@ -2402,9 +2413,6 @@ static bool parse_explicit_subexpression
 	    else if
 	        ( subtype == TAB::NAMED_MIDDLE_CLOSING )
 	    {
-	        // TBD: if this is error and should be
-		//      named closing bracket, repair
-
 		TAB::named_middle_closing
 		    named_middle_closing =
 		    (TAB::named_middle_closing) root;
@@ -2415,7 +2423,8 @@ static bool parse_explicit_subexpression
 		      p = p->previous )
 		{
 		    if (    p->named_opening
-			 == named_opening )
+			 == named_middle_closing->
+			        named_opening )
 		    {
 		        p->closing_first =
 			    saved_current;
@@ -2433,29 +2442,6 @@ static bool parse_explicit_subexpression
 		    }
 		}
 
-		LEX::position end =
-		    current->previous->end;
-		LEX::position begin =
-		    ::remove
-			( parser, current,
-			  named_middle_closing->label );
-
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: spurious"
-		       " middle closing bracket"
-		       " found and ignored; "
-		    << LEX::pline_numbers
-			   ( parser->input_file,
-			     begin, end )
-		    << ":" << min::eom;
-		LEX::print_item_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      begin, end );
-
-		break;
 	    }
 
 	    root = PAR::find_next_entry

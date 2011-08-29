@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 19 03:14:15 EDT 2011
+// Date:	Mon Aug 29 07:05:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -347,10 +347,10 @@ lex	// Pp numbers are divided into 5 categories
 lex	// (note that a `suffix' is an identifier):
 lex	//
 lex	//      decimal integer
-lex	//          nothing but digits not begining with
-lex	//          0, with an optional suffix
+lex	//          nothing but digits not beginning
+lex	//          with 0, with an optional suffix
 lex	//      octal integer
-lex	//          nothing but octal digits begining
+lex	//          nothing but octal digits beginning
 lex	//          with 0, with an optional suffix
 lex	//      hexadecimal integer
 lex	//          nothing but hexadecimal digits

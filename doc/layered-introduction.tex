@@ -253,7 +253,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 18, 2011
+August 29, 2011
  
 \end{center}
 
@@ -423,7 +423,7 @@ recognize whitespace, and one to recognize comments.
 Lexeme tables have \ikey{types}{type!of lexeme table}.
 When the current lexical table becomes a lexeme table,
 the current lexeme type is set equal to the type of that table.
-The `{\tt ouput} {\em type}' and `{\tt output none}'
+The `{\tt output} {\em type}' and `{\tt output none}'
 instruction components can also be
 used to change the current lexeme type.
 
@@ -1144,7 +1144,7 @@ However, this only makes sense if it is just a `{\tt fail}', or
 if it is contains {\tt match} components.  If an atom table
 is invoked and none of its {\em atom-patterns} match an atom,
 and if the table has \underline{no} {\em default-instruction-group},
-then a scan error is signalled (i.e., `{\tt fail}' is \underline{not}
+then a scan error is signaled (i.e., `{\tt fail}' is \underline{not}
 implicit).
 
 \subsubsubsection{Translate Hex/Oct Instruction Components}
@@ -1329,7 +1329,7 @@ end bad escape atom table;
 in which the lexical table entry will be invoked if the next character
 in the input is \verb|\| and no longer
 lexical table atom pattern of the form \verb|"\|\ldots\verb|"| is matched, 
-and as a result the \verb|\| and the next three chacters will be identified
+and as a result the \verb|\| and the next three characters will be identified
 as a `{\tt bad escape}'
 erroneous atom and translated to the empty character sequence.
 
@@ -1461,7 +1461,7 @@ followed by indented lines.  The non-top-level passes
 operate on the subexpressions recognized by previous passes.
 
 Parsing reduces each recognized subexpression, including each input
-line, to a single expression token.  Here lines may be continued
+line, to a single expression token.  Here input lines may be continued
 by indented lines.
 
 \subsection{Tokens}
@@ -1469,7 +1469,7 @@ by indented lines.
 A token has the following components:
 
 \begin{indpar}
-\begin{tabular}{p{1in}p{4in}}
+\begin{tabular}{p{1in}p{4.5in}}
 \tt type	& One of: \hspace{0.5in}\begin{tabular}[t]{l}
         	          A lexeme type. \\
         	          \ttmnbkey{EXPRESSION}{token type} \\[1ex]
@@ -1477,24 +1477,35 @@ A token has the following components:
 \\[1ex]
 		& For a lexeme, the translation of the
 		  lexeme may be recorded in either the token
-		  value as a MIN string or in the token string.
+		  {\tt value} as a MIN string or in the token {\tt string}.
 \\[1ex]
 		& For an {\tt EXPRESSION}, the value of the
 		  expression is re\-corded as a MIN object
-		  in the token value.
-\end{tabular} \\[1ex]
-\begin{tabular}{p{1in}p{4in}}
-\tt value	& For lexemes that have a {\tt value}, this is
-		  lexeme translation string stored as a MIN string.
+		  in the token {\tt value}.
+\\[1ex]
+		& Comment, line break, and end of file tokens have
+		  neither token {\tt string} nor token {\tt value}.
+\\[1ex]
+		& Whitespace lexemes are
+		  ignored and not translated into tokens, as the
+		  the token {\tt begin} and token {\tt end}
+		  (see below) record the line number, indentation and extent
+		  of non-whitespace tokens.
+\end{tabular}
+\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
+\tt value	& For lexemes that have a token {\tt value}, this is
+		  the lexeme translation string stored as a MIN string.
 \\[1ex]
 		& The standard parser encodes the translation
 		  strings of words, marks, separators, and natural
-		  numbers as {\tt value}'s, but \underline{not}
+		  numbers as token {\tt value}'s, but \underline{not}
 		  the translation strings of non-natural numbers
 		  or quoted strings.
 \\[1ex]
 		& A token in which the translation string is
-		  encoded as a value is also called a `\key{symbol token}'.
+		  encoded as a token {\tt value}
+		  is also called a `\key{symbol token}'.
 		  Note that as symbols {\tt 001}, {\tt 01}, and {\tt 1}
 		  are all distinct.
 \\[1ex]
@@ -1506,18 +1517,15 @@ A token has the following components:
 		  {\tt .keys}.
 \\[1ex]
 \tt string	& For quoted string and non-natural number lexemes,
-		  which do not have {\tt value}'s,
-                  the translation string of the lexeme.
-		  This is stored in a manner that makes
+		  which do not have token {\tt value}'s,
+                  this is the translation string of the lexeme,
+		  stored in a manner that makes
 		  garbage collection and memory reuse more
 		  efficient than it would be if MIN strings
 		  were used, but makes lookup less efficient.
-\\[1ex]
-		& Comment, line break, and end of file tokens have
-		  neither string nor value.
 
 \end{tabular} \\[1ex]
-\begin{tabular}{p{1in}p{4in}}
+\begin{tabular}{p{1in}p{4.5in}}
 \begin{tabular}[t]{l}
 \tt begin \\
 \tt end
@@ -1527,24 +1535,31 @@ A token has the following components:
 		  a column number within the line,
 		  and the byte offset within a UTF-8 encoding
 		  of the line.  The column number depends upon
-		  the format used to print the line, i.e,
+		  the print format used to print the line, i.e,
 		  whether or not the horizontal tab prints
 		  in 1 column as {\tiny $\stackrel{\textstyle H~}{~T}$}
 		  or in 1 to 8 columns as whitespace.  This
-		  format must be fixed when lexemes are input.
+		  print format must be fixed when lexemes are input.
 \end{tabular}
 \end{indpar}
 
 Tokens are organized in a doubly threaded list.  A file is translated into
 such a list that ends with a token containing a end-of-file
 lexeme.  Some tokens, like end-of-file and line-break lexeme
-tokens, may not have their translation strings recorded in the token.
+tokens, do not have their translation strings recorded in the token.
 The tokens of a file are not read in all at once, but are read in as
 needed.
 
 As the parser identifies subexpressions, the tokens in the
 subexpression are replaced by a single {\tt EXPRESSION} token
 which encodes the subexpression.
+File input lines may also be organized into paragraphs containing
+paragraph lines, and both paragraph lines and paragraphs are
+treated as subexpressions.  Although at the top level an entire
+input file can be considered to be a paragraph, the parser \underline{never}
+forms the {\tt EXPRESSION} token that would represent it, but instead
+delivers top level paragraph lines one at a time for subsequent
+processing.
 
 \subsection{Parser Symbol Table}
 
@@ -1561,7 +1576,7 @@ Each parser definition has the following
 components:
 
 \begin{indpar}
-\begin{tabular}{p{1in}p{4in}}
+\begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{label}{of symbol table entry}
 		& A sequence of `symbols' that identifies the definition.
 \\[1ex]
@@ -1611,7 +1626,7 @@ the initial segment of tokens used in the match is called
 a `\key{matched label}\,'.
 
 Note that in the explicit
-subexpression recognition pass matched labels may not span line bounaries.
+subexpression recognition pass matched labels may not span line boundaries.
 In later passes, line boundary tokens are no longer present, and
 matched labels can span line boundaries,
 but cannot cross explicit subexpression
@@ -1636,7 +1651,7 @@ its associated named opening `{\tt <}' in the current explicit subexpression.
 \subsection{Parser Definitions}
 
 The syntax of a parser definitions in general and those
-associated with the explict expression recognition pass in particular
+associated with the explicit expression recognition pass in particular
 is specified on
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 and
@@ -1671,7 +1686,7 @@ recognized by the parser as a special symbol.  After the quotes
 are removed, the remaining characters must be a valid single lexeme
 separator, mark, word, or natural number.
 
-An example parser definintion is
+An example parser definition is
 \begin{center}
 {\tt define bracket "("~...~")" [operator text]} \ldots
 \end{center}
@@ -2021,7 +2036,7 @@ The {\em indentation-mark-name} and {\em indentation-separator-name}
 may be any sequence of marks and separators.
 
 An {\em indentation-mark-name} that is a single mark may be glued
-to a preceeding mark at the end of its line.  For example, `{\tt :}'
+to a preceding mark at the end of its line.  For example, `{\tt :}'
 may be glued to `{\tt =}' to make `{\tt =:}'.  In order for gluing
 of an {\em indentation-mark-name} to be allowed, it must be identified
 as a {\em gluing-indentation-mark-name} by preceding it with `{\tt *}' in the
@@ -2447,7 +2462,7 @@ begin main master table;
 
    "<digit>" keep 0 call natural number;
              // We keep 0 so natural number can
-             // recoginize <digit>,<digit> etc.
+             // recognize <digit>,<digit> etc.
 
    ".<digit>" keep 1 call number;
               // We keep 1 so number can recog-
@@ -2710,7 +2725,7 @@ begin escaped hex char atom table;
 end escaped hex char atom table;
 
 
-begin unrecoginized escape seq atom table;
+begin unrecognized escape seq atom table;
 
     "<" "<escape-char><escape-char>"
         "<escape-char><escape-char>"
@@ -2893,10 +2908,10 @@ begin c++ lexical program;
 // (note that a `suffix' is an identifier):
 //
 //      decimal integer
-//          nothing but digits not begining with
-//          0, with an optional suffix
+//          nothing but digits not beginning
+//          with 0, with an optional suffix
 //      octal integer
-//          nothing but octal digits begining
+//          nothing but octal digits beginning
 //          with 0, with an optional suffix
 //      hexadecimal integer
 //          nothing but hexadecimal digits

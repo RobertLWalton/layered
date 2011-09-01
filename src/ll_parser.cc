@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 19 05:41:11 EDT 2011
+// Date:	Thu Sep  1 03:03:09 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2056,9 +2056,16 @@ static bool parse_explicit_subexpression
 	    }
 	    else if ( subtype == TAB::INDENTATION_MARK )
 	    {
-		indentation_found =
-		    (TAB::indentation_mark) root;
-		break;
+                if (    current->type
+		     == LEXSTD::line_break_t
+		     ||
+		        current->type
+		     == LEXSTD::end_of_file_t )
+		{
+		    indentation_found =
+			(TAB::indentation_mark) root;
+		    break;
+		}
 	    }
 	    else if (    subtype
 	              == TAB::INDENTATION_SEPARATOR )
@@ -2739,6 +2746,7 @@ TAB::root PAR::find_next_entry
 	while ( last_entry == NULL_STUB )
 	{
 	    key_prefix = key_prefix->previous;
+	    current = current->previous;
 	    if ( key_prefix == NULL_STUB )
 		return NULL_STUB;
 	    last_entry = key_prefix->first;

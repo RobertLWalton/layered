@@ -74,6 +74,7 @@
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
+\newcommand{\ttikey}[2]{{\tt \bf #1}\index{#2@{\tt #2}}}
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
@@ -253,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 29, 2011
+August 31, 2011
  
 \end{center}
 
@@ -1657,6 +1658,152 @@ is specified on
 and
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
 
+\begin{figure*}[!p]
+\emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
+	         $|$ {\em natural-number}
+\\[0.5ex]
+\emkey{non-special-symbol} ::=
+    {\em symbol} that is \underline{not} treated specially by the parser
+\\[0.5ex]
+\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em quoted-string}
+\\[0.5ex]
+\emkey{name} ::= {\em name-component} {\em name-component}\,$^\star$
+\\[2ex]
+\emkey{mark-symbol} ::= {\em mark} $|$ {\em separator}
+\\[0.5ex]
+\emkey{non-special-mark-symbol} ::=
+    {\em mark-symbol} that is \underline{not} treated specially by the parser
+\\[0.5ex]
+\emkey{mark-name-component} ::= {\em non-special-mark-symbol}
+			    $|$ {\em quoted-string}
+\\[0.5ex]
+\emkey{mark-name} ::= {\em mark-name-component}
+                      {\em mark-name-component}\,$^\star$
+\\[2ex]
+\emkey{parsing-selectors} ::= {\em empty}
+			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
+\label{PARSING-SELECTORS}
+\\[0.5ex]
+\emkey{parsing-selector-list} ::= {\em empty}
+    $|$ {\em parsing-selector} \{ \verb|,| {\em parsing-selector} \}\,$^\star$
+\\[0.5ex]
+\emkey{parsing-selector} ::= {\em name}
+\\[2ex]
+\emkey{new-parsing-selectors} \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+    ::= & \underline{\tt [} {\em parsing-selector-list} \underline{\tt ]} \\
+    $|$ & \underline{\tt [} {\em parsing-selector-op} {\em parsing-selector} \\
+        & \hspace*{0.3in}
+          \{ \verb|,| {\em parsing-selector-op} {\em parsing-selector}
+	  \}$^\star$ \underline{\tt ]}
+    \end{tabular}
+\label{NEW-PARSING-SELECTORS}
+\\[0.5ex]
+\emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
+\\[2ex]
+\emkey{bracket-definition} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{define}{define bracket}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf bracket}
+	  {\em bracket-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with full lines} ] \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$ & \ttkey{undefine bracket}
+	  {\em bracket-name} {\em parsing-selectors} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{bracket-name} ::= {\em opening-bracket-name}
+			 \ttmkey{...}{in {\em bracket-name}}
+			 {\em closing-bracket-name}
+\\[0.5ex]
+\emkey{opening-bracket-name} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{closing-bracket-name} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{reformatter-name} ::= {\em name}
+\\[0.5ex]
+\emkey{evaluator-name} ::= {\em name}
+
+\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
+\end{figure*}
+
+\begin{figure*}[!t]
+\emkey{indentation-mark-definition} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{define}{define indentation mark}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf indentation mark}
+	  {\em indentation-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$ & \ttikey{define}{define gluing indentation mark}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf gluing indentation mark}
+	  {\em gluing-indentation-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$& \ttkey{undefine indentation mark}
+	 {\em indentation-name} {\em parsing-selectors} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{indentation-name} ::= {\em indentation-mark-name}
+	[ {\tt ...} {\em indentation-separator-name} ]
+\\[0.5ex]
+\emkey{indentation-mark-name} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{gluing-indentation-name} \\
+    \hspace*{0.2in}~
+    ::= {\em gluing-indentation-mark-name}
+	[ {\tt ...} {\em indentation-separator-name} ]
+\\[0.5ex]
+\emkey{gluing-indentation-mark-name} ::= {\em mark} $|$ {\em quoted-string}
+\\[2ex]
+\emkey{indentation-separator-name} ::= {\em mark-name}
+\\[2ex]
+\emkey{named-bracket-definition} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{define}{define named bracket}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf named bracket}
+	  {\em named-bracket-name} {\em parsing-selectors} \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$ & \ttkey{undefine named bracket}
+	  {\em named-bracket-name}
+	  {\em parsing-selectors} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{named-bracket-name} \\
+    \hspace*{0.2in}
+     ::= \begin{tabular}[t]{@{}l@{}}
+	 {\em named-opening} [ {\tt ...} {\em named-separator} ] \\
+         {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
+	 {\tt ...} {\em named-closing}
+	 \end{tabular}
+\\[0.5ex]
+\emkey{named-opening} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{named-separator} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{named-middle} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{named-closing} ::= {\em mark-name}
+
+\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
+\end{figure*}
+
 A parser definition is a top level input line by itself, and is
 executed by the parser itself
 after the definition is read, thus affecting subsequent parsing.
@@ -1697,7 +1844,7 @@ and `{\tt operator}' and `{\tt text}' are selectors.
 and algebraic expressions, and `{\tt text}' is the standard
 selector for text processing expressions.
 
-Parser symbol tables are used to look up sequences of tokens which
+Parser symbol tables are used to look up sequences of tokens that
 match names in the tables.  During lookup the parser has a context that
 contains a set of {\em parsing-selectors}.
 Each {\em parsing-selector}
@@ -1772,7 +1919,7 @@ is specified on
 and
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
 
-Unnamed brackets and indentation marks and separators are
+Unnamed brackets, indentation marks, and indentation separators are
 symbol table keys.  However named brackets and operators are
 not.  Instead, a named bracket or operator is formed by using
 named openings (e.g.~`{\tt <}'),
@@ -1784,144 +1931,15 @@ sequences of words, numbers, quoted strings, and unnamed
 bracketed subexpressions, and thence form named brackets
 and named operators.
 
-\begin{figure*}[!p]
-\emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
-	         $|$ {\em natural-number}
-\\[0.5ex]
-\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{non-special-symbol} ::=
-    {\em symbol} that is \underline{not} treated specially by the parser
-\\[0.5ex]
-\emkey{name} ::= {\em name-component} {\em name-component}\,$^\star$
-\\[2ex]
-\emkey{mark-name} ::= {\em mark-name-component}
-                      {\em mark-name-component}\,$^\star$
-\\[0.5ex]
-\emkey{mark-name-component} ::= {\em non-special-mark-symbol}
-			    $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{non-special-mark-symbol} ::=
-    {\em mark-symbol} that is \underline{not} treated specially by the parser
-\\[0.5ex]
-\emkey{mark-symbol} ::= {\em mark} $|$ {\em separator}
-\\[2ex]
-\emkey{parsing-selectors} ::= {\em empty}
-			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
-\label{PARSING-SELECTORS}
-\\[0.5ex]
-\emkey{parsing-selector-list} ::= {\em empty}
-    $|$ {\em parsing-selector} \{ \verb|,| {\em parsing-selector} \}\,$^\star$
-\\[0.5ex]
-\emkey{parsing-selector} ::= {\em name}
-\\[2ex]
-\emkey{new-parsing-selectors} \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-    ::= & \underline{\tt [} {\em parsing-selector-list} \underline{\tt ]} \\
-    $|$ & \underline{\tt [} {\em parsing-selector-op} {\em parsing-selector} \\
-        & \hspace*{0.3in}
-          \{ \verb|,| {\em parsing-selector-op} {\em parsing-selector}
-	  \}$^\star$ \underline{\tt ]}
-    \end{tabular}
-\label{NEW-PARSING-SELECTORS}
-\\[0.5ex]
-\emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
-\\[2ex]
-\emkey{bracket-definition} \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttkey{define bracket}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\em bracket-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	  {}[ {\tt with full lines} ] \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$ & \ttkey{undefine bracket}
-	  {\em bracket-name} {\em parsing-selectors} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{bracket-name} ::= {\em opening-bracket-name}
-			 \ttmkey{...}{in {\em bracket-name}}
-			 {\em closing-bracket-name}
-\\[0.5ex]
-\emkey{opening-bracket-name} ::= {\em mark-name}
-\\[0.5ex]
-\emkey{closing-bracket-name} ::= {\em mark-name}
-\\[0.5ex]
-\emkey{reformatter-name} ::= {\em name}
-\\[0.5ex]
-\emkey{evaluator-name} ::= {\em name}
-
-\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
-\end{figure*}
-
-\begin{figure*}[!t]
-\emkey{indentation-mark-definition} \\
-    \hspace*{0.2in}:
-    \begin{tabular}[t]{rl}
-    := & \ttkey{define indentation mark}
-	 \begin{tabular}[t]{@{}l@{}}
-	 {\em indentation-name} {\em parsing-selectors} \\
-	 {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	 {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	 {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	 \end{tabular} \\
-    $|$& \ttkey{undefine indentation mark}
-	 {\em indentation-name} {\em parsing-selectors} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{indentation-name} ::= {\em indentation-mark-name}
-	[ {\tt ...} {\em indentation-separator-name} ]
-\\[0.5ex]
-\emkey{indentation-mark-name} ::= {\em mark-name}
-                              $|$ {\em gluing-indicator}
-			          {\em gluing-indentation-mark-name}
-\\[2ex]
-\emkey{gluing-mark-indicator} ::= \ttmkey{*}{gluing mark}
-\\[0.5ex]
-\emkey{gluing-indentation-mark-name} ::= {\em mark} $|$ {\em quoted-string}
-\\[2ex]
-\emkey{indentation-separator-name} ::= {\em mark-name}
-\\[2ex]
-\emkey{named-bracket-definition} \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttkey{define named bracket}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\em named-bracket-name} {\em parsing-selectors} \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$ & \ttkey{undefine named bracket}
-	  {\em named-bracket-name}
-	  {\em parsing-selectors} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{named-bracket-name} \\
-    \hspace*{0.2in}::= \begin{tabular}[t]{@{}l@{}}
-	 {\em named-opening} [ {\tt ...} {\em named-separator} ] \\
-         {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
-	 {\tt ...} {\em named-closing}
-	 \end{tabular}
-\\[0.5ex]
-\emkey{named-opening} ::= {\em mark-name}
-\\[0.5ex]
-\emkey{named-separator} ::= {\em mark-name}
-\\[0.5ex]
-\emkey{named-middle} ::= {\em mark-name}
-\\[0.5ex]
-\emkey{named-closing} ::= {\em mark-name}
-
-\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
-\end{figure*}
-
 In explicit subexpression recognition, 
 multi-lexeme symbol table keys are not recognized in the
 input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
+
+Also, all explicit subexpression recognition symbol table
+keys consist of only marks and separators, and have no
+words or natural numbers.
 
 The output of the parser is one {\tt EXPRESSION} token per
 top level line.  The value of an {\tt EXPRESSION} token is
@@ -2001,11 +2019,13 @@ the line after the outer paragraph
 
 
 An {\em indentation-mark-name} is specified by a
-\ttkey{define indentation mark} parser definition, and may have
+\ttkey{define indentation mark} or
+\ttkey{define gluing indentation mark}
+parser definition, and may have
 an associated {\em indentation-separator-name} supplied by that definition.
 An example is
 \begin{center}
-{\tt define indentation mark * ":"~...~";" [operator]} \ldots
+{\tt define gluing indentation mark ":"~...~";" [operator]} \ldots
 \end{center}
 which specifies `{\tt :}' to be a {\em gluing-indentation-mark-name}
 with `{\tt ;}' as its corresponding {\em indentation-separator-name}
@@ -2035,12 +2055,9 @@ A paragraph may be empty (have no paragraph lines).
 The {\em indentation-mark-name} and {\em indentation-separator-name}
 may be any sequence of marks and separators.
 
-An {\em indentation-mark-name} that is a single mark may be glued
+An {\em gluing-indentation-mark-name} is a single mark may be glued
 to a preceding mark at the end of its line.  For example, `{\tt :}'
-may be glued to `{\tt =}' to make `{\tt =:}'.  In order for gluing
-of an {\em indentation-mark-name} to be allowed, it must be identified
-as a {\em gluing-indentation-mark-name} by preceding it with `{\tt *}' in the
-{\tt define indentation mark} statement.
+may be glued to `{\tt =}' to make `{\tt =:}'.
 
 After an indentation mark is split from a previous mark at the end of
 a line, previous tokens are checked to see if they contain
@@ -2059,6 +2076,12 @@ recognizable, and then the indentation mark will be scanned and not recognized.
 This situation can be avoided by not allowing
 brackets to change selectors to enable gluing indentation marks if the
 closing bracket ends with a mark.
+
+No differences exist between {\em gluing-indentation-mark-names} and
+{\em indentation-\EOL mark-\EOL names}
+other than that the former can be
+glued to a preceeding mark and that the former must be a single mark
+lexeme, while the latter can be any sequence of marks and separators.
 
 If while parsing an indented paragraph a line is encountered whose
 indentation is different from the paragraph indentation,

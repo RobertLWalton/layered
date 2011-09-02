@@ -2280,6 +2280,23 @@ contents of a {\em named-opening-bracket}.
 
 \subsection{Parser Passes}
 
+After a subexpression has been identified by the top level explicit
+subexpression recognition pass, a sequence of passes are run on the
+subexpression.  Which passes are run is determined by the the
+parser pass stack.
+
+The \key{parser pass stack} is a list of parsers with a set of
+selectors associated with each parser.  After the top level pass
+recognizes a subexpression, the active parsers in the parser pass stack
+are run in the order that they appear in the stack.  To be
+active, a pass must have a selector in common with the selectors
+used by the top level while scanning the subexpression.
+
+
+
+The set of passes that may be run is currently builtin, and
+cannot be changed.  But the parser pass stack can be altered.
+
 TBD
 
 The parser runs a series of \skey{parser pass}{es} against the

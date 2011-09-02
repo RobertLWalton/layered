@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 31, 2011
+September 2, 2011
  
 \end{center}
 
@@ -2101,7 +2101,8 @@ are instead processed as they are produced.  In particular, if they
 are parser definitions, they are processed by the parser to make
 modifications in the parser symbol tables.  Also, the initial
 \key{top level paragraph indent}
-is set to zero, and an error is announced if the first non-comment
+is set to zero, and an error is announced if the first non-comment,
+non-line-break, non-end-of-file
 lexeme in the file has non-zero indent.
 
 Comments are ignored when determining line indentation, but may
@@ -2120,8 +2121,8 @@ begins with an {\em opening-named-bracket} and ends with
 a {\em closing-named-bracket}.  These have the syntax:
 
 \begin{indpar}[0.1in]
-\emkey{opening-named-bracket} \\
-    \hspace*{0.2in}::= \begin{tabular}[t]{@{}l@{}}
+\emkey{opening-named-bracket} ::= \\
+    \hspace*{0.4in}\begin{tabular}[t]{@{}l@{}}
 	 {\em named-opening} {\em bracket-name} {\em argument}$^\star$
 	      \{ {\em named-separator} {\em key} \}$^\star$
 	      {\em named-middle} \\
@@ -2144,13 +2145,20 @@ a {\em closing-named-bracket}.  These have the syntax:
 \\[0.5ex]
 \emkey{named-middle} ::= {\em mark-name}
 \\[0.5ex]
-\emkey{closing-named-bracket}
-	\begin{tabular}[t]{@{}rl@{}}
-	::= & {\em named-middle} {\em bracket-name} {\em named-closing} \\
+\emkey{closing-named-bracket} ::= \\
+	\hspace*{0.4in}\begin{tabular}[t]{@{}rl@{}}
+	    & {\em named-middle} {\em bracket-name-initial-segment}
+	                         {\em named-closing} \\
 	$|$ & {\em named-middle} {\em named-closing}
 	\end{tabular}
 \\[0.5ex]
 \emkey{named-closing} ::= {\em mark-name}
+\\[0.5ex]
+\emkey{bracket-name-initial-segment}~~
+	\begin{tabular}[t]{@{}rl@{}}
+        ::= & {\em empty } \\
+	$|$ & {\em word} \{ {\em word} $|$ {\em natural-number} \}$^\star$
+	\end{tabular}
 \end{indpar}
 
 If the {\em named-opening}, {\em named-separator}, {\em named-middle},
@@ -2176,7 +2184,7 @@ brackets are constructed.  They are specified by a
 \ttkey{defined named bracket} parser definition, an example of
 which is:
 \begin{center}
-{\tt define named bracket "<"~...~"\#"~...~"|"~...~">" [text]} \ldots
+{\tt define named bracket "<"~...~"\#"~...~"|"~...~"|"~...~">" [text]} \ldots
 \end{center}
 which specifies `{\tt <}' to be a {\em named-opening-name},
 `{\tt \#}' to be a {\em named-separator-name},
@@ -2213,6 +2221,9 @@ Every value inside the subexpression object attributes
 that is not a MIN object and not part of an {\em argument}
 is a MIN string or a MIN label with 2 or more
 elements that are MIN strings.
+If there are no {\em arguments}, the {\tt .arguments} attribute
+is not set, and similarly if there are no {\em keys}, the {\tt .keys}
+attribute is not set.
 
 In particular, quoted strings and numbers in {\em keys} are converted to
 MIN strings whose values equal the translation strings of the
@@ -2252,7 +2263,7 @@ except that the {\em named-operator} ends with a
 	      {\em named-closing} \\
 	 \end{tabular}
 \\[0.5ex]
-\emkey{bracket-name} ::= {\em word}
+\emkey{operator-name} ::= {\em word}
                          \{ {\em word} $|$ {\em natural-number} \}$^\star$
 \end{indpar}
 
@@ -2264,7 +2275,8 @@ no {\tt .middle} attribute.  As for a named bracketed subexpression,
 the {\tt .initiator} is the {\em named-opening},
 the {\tt .terminator} is the {\em named-closing},
 and the {\tt .arguments} and {\tt .keys} are set from the
-contents of the {\em named-operator}.
+contents of the {\em named-operator} just as they would be from the
+contents of a {\em named-opening-bracket}.
 
 \subsection{Parser Passes}
 

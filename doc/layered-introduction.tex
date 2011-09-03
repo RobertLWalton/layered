@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 2, 2011
+September 3, 2011
  
 \end{center}
 
@@ -2288,36 +2288,64 @@ parser pass stack.
 The \key{parser pass stack} is a list of parsers with a set of
 selectors associated with each parser.  After the top level pass
 recognizes a subexpression, the active parsers in the parser pass stack
-are run in the order that they appear in the stack.  To be
-active, a pass must have a selector in common with the selectors
-used by the top level while scanning the subexpression.
+are run in the order that they appear in the stack.
 
+The parsing selectors
+computed by the opening bracket of the explicit subexpression, which
+are used to scan the explicit subexpression, are also attached to that
+explicit subexpression.
+These are used to determine activity of the parser passes run on the explicit
+subexpression and also the activity
+of the parser definitions (i.e., parser symbol table entries)
+used by these parser passes.
+Note that only the explicit brackets surrounding an explicit subexpression
+can change the parsing selectors in the parser context; the operators
+that bound implicit subexpressions cannot change these parsing selectors.
 
+The parser pass stack can be altered
+by the following parser definitions:
+
+\begin{indpar}
+\emkey{parser-pass-definition} \\
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{define}{define parser pass}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf parser pass}
+	  {\em previous-parser-pass-name} {\em parsing-selectors} \\
+	  {\tt after} {\em parser-pass-name}
+	  \end{tabular} \\
+    $|$ & \ttkey{undefine parser pass}
+	  {\em parser-pass-name} {\em parsing-selectors} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{parser-pass-name}
+    ::= {\em word} \{ {\em word} $|$ {\em natural-number} \}$^\star$
+\\[0.5ex]
+\emkey{previous-parser-pass-name} ::= {\em pass-name}
+\end{indpar}
+
+The {\tt define parser pass} statement sets the parser pass
+{\em parsing-selectors}
+and installs the parser pass in the parser pass stack after the
+parser pass already in that stack which has the name
+{\em previous-parser-pass-name}.  If the parser pass was already
+in the stack, it is removed first and reinstalled.
+
+The {\tt undefine parser pass} statement removes the given
+{\em parsing-selectors} from the parser pass if that is in the
+parsing pass stack.
 
 The set of passes that may be run is currently builtin, and
-cannot be changed.  But the parser pass stack can be altered.
+cannot be changed.  The following are permitted {\em parser-pass-names}:
 
 TBD
 
-The parser runs a series of \skey{parser pass}{es} against the
-input.  The top level pass is the
-\key{explicit subexpression recognition pass}, which identifies
-subexpressions with explicit opening and closing brackets
-(such as `{\tt (}' and `{\tt )}').
-
-Other parser passes take previously recognized subexpressions
-as input, may modify these, and may recognize subexpressions of
-these input subexpressions.
-These other parser passes are called \skey{subexpression pass}{es}.
-Each is a function that takes as input the sequence
-of tokens in a subexpression and edits that token sequence.  The input does
-\underline{not} include the brackets surrounding the
-subexpression; an in fact, these brackets may be implicit.
-
-The LL standard parser passes are:
-
 \begin{indpar}
 \begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
+top & This refers to an imaginary pass at the top of the parser pass stack,
+      and can only be used as a {\em previous-parser-pass-name} to place
+      a pass at the top of the stack.
+\\[1ex]
 operator & Parses expressions with computational operators (e.g., \verb|+| and
 \verb|*|).
 \\[1ex]
@@ -2326,8 +2354,6 @@ and \verb|<>| operators (e.g.
 \verb/<b|/\ldots\verb/|b>/ and \verb/<p>/).
 \end{tabular} \\
 \begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
-explicit subexpression & Identifies explicitly bracketed subexpressions.
-\\[1ex]
 lexeme replacement & Replaces sequences of lexemes with other
 sequences of lexemes (e.g., replaces plurals by singulars).
 \end{tabular} \\

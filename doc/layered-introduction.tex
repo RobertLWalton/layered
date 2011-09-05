@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 3, 2011
+September 5, 2011
  
 \end{center}
 
@@ -2311,8 +2311,8 @@ by the following parser definitions:
     ::= & \ttikey{define}{define parser pass}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\tt \bf parser pass}
-	  {\em previous-parser-pass-name} {\em parsing-selectors} \\
-	  {\tt after} {\em parser-pass-name}
+	  {\em parser-pass-name} {\em parsing-selectors} \\
+	  {\tt after} {\em previous-parser-pass-name}
 	  \end{tabular} \\
     $|$ & \ttkey{undefine parser pass}
 	  {\em parser-pass-name} {\em parsing-selectors} \\
@@ -2338,8 +2338,6 @@ parsing pass stack.
 The set of passes that may be run is currently builtin, and
 cannot be changed.  The following are permitted {\em parser-pass-names}:
 
-TBD
-
 \begin{indpar}
 \begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
 top & This refers to an imaginary pass at the top of the parser pass stack,
@@ -2349,11 +2347,6 @@ top & This refers to an imaginary pass at the top of the parser pass stack,
 operator & Parses expressions with computational operators (e.g., \verb|+| and
 \verb|*|).
 \\[1ex]
-text & Parses text expressions containing named brackets
-and \verb|<>| operators (e.g.
-\verb/<b|/\ldots\verb/|b>/ and \verb/<p>/).
-\end{tabular} \\
-\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
 lexeme replacement & Replaces sequences of lexemes with other
 sequences of lexemes (e.g., replaces plurals by singulars).
 \end{tabular} \\
@@ -2377,16 +2370,18 @@ numeric units (e.g., \verb|4*ft| and \verb|$*4.99|).
 \end{indpar}
 
 
-A parser pass can call another parser pass.  For example,
-the explicit subexpression parser recursively calls itself when
-it recognizes an explicit subexpression beginning bracket.
+The input and output of a parser pass is a sublist of the list
+of all tokens.  When a parser pass is called, it is provided with
+a pointer to the first token of this sublist, and a pointer to the
+first token after the sublist.  The pass may edit the sublist.
 
-The input and output of a parser pass is a stream of tokens.
-When a parser pass P1 calls another parser pass P2, P1 provides the P2
-with an input stream that holds tokens at the beginning
-of the stream and provides a `{\tt get}' function that can be called by P2
-to add tokens to the end of its input stream.  This `{\tt get}' function
-is actually a continuation function for pass P1.
+The explicit subexpression recognition pass calls the other passes,
+in the order they appear in the parser pass stack, excluding any
+that are inactive because they have no selector in common with
+the current parser context selectors.  After the last pass has been
+called, the explicit subexpression recognition pass replaces the
+final sublist, which is the subexpression that has been recognized,
+by an EXPRESSION token with a MIN object value, as described above.
 
 \clearpage
 

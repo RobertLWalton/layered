@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 14, 2011
+September 26, 2011
  
 \end{center}
 
@@ -1647,8 +1647,8 @@ has a lifetime that lasts at least until the
 current function execution terminates.
 The `{\tt caller}' qualifier
 specifies that the value has a lifetime that begins before the
-called function starts to execute and last until after that
-function returns.
+called function starts to execute and lasts until
+sometime after that function returns.
 
 In addition user define `calling lifetime qualifiers' {\tt Q} may be defined
 that typically specify that lifetimes will continue until
@@ -1770,9 +1770,10 @@ are convertable to {\tt Q},
 and all values read from that location will have qualifier {\tt Q}.
 
 
-The three lifetime qualifiers are all builtin:  `{\tt static}', `{\tt stack}',
+Three lifetime qualifiers are builtin:  `{\tt static}', `{\tt stack}',
 and `{\tt caller}'.
-Checked code can only allocate to static or stack memory, and addresses
+Checked code can only allocate to static memory
+or to the stack memory of the currently executing function, and addresses
 of variables allocated by checked code are given the `{\tt static}' or
 `{\tt stack}' qualifier accordingly.
 Addresses of variables that are part of a function argument or return value
@@ -1788,11 +1789,12 @@ addresses of locations allocated at program initialization time
 and never deallocated.
 
 The `{\tt static}' lifetime qualifier is convertible to any other
-lifetime qualifier.
+lifetime qualifier.  It is also the default lifetime qualifier
+for non-pointer values.
 
 \hspace*{-1em}\ttkey{stack}~~~~~Specifies the value lives as least as
 as long as the current function execution.  Equivalent to
-{\tt stack(1)}: see the following.
+{\tt stack(0)}: see the following.
 
 `{\tt static}' values are convertable to `{\tt stack}' values.
 
@@ -1800,18 +1802,18 @@ as long as the current function execution.  Equivalent to
 Specifies the value lives at least as long as the execution of
 the current code block of nested level
 {\tt n} within the currently executing function.
-Unnested code within the function is considered to be at nested level {\tt 1}.
+Unnested code within the function is considered to be at nested level {\tt 0}.
 {\tt stack(n)} is automatically applied
 to the addresses of locations allocated to the
 current function frame by code in a level {\tt n} block (such locations
 are freed when the block of level {\tt n} terminates).
 
-`{\tt stack(m)}' values are convertable to
-`{\tt stack(n)}' if {\tt n}$\leq${\tt m}.
+`{\tt stack(m)}' is convertable during the execution of
+a block of level {\tt n}$>${\tt m} to `{\tt stack(n)}'.
 
 
 A `{\tt stack(n)}' qualifier \underline{cannot}
-be applied to function arguments and return types.
+be applied to function argument and return types.
 
 \hspace*{-1em}\ttkey{caller}~~~~~Only
 used in a function $F$'s argument or return value types to qualify a values
@@ -1826,11 +1828,10 @@ the function begins executing.
 
 `{\tt static}', `{\tt stack(n)}', and {\tt caller} qualifiers
 can be converted to the `{\tt caller}' qualifier when the latter is
-part of the type of a value that is to be passed as an argument or
+part of the type of a value that is being passed as an argument or
 a return value to a function being called by the code that does
 the conversion.  However, 
-`{\tt static}', `{\tt stack(n)}', and {\tt caller} qualifiers
-\underline{cannot}
+`{\tt stack(n)}' and {\tt caller} qualifiers \underline{cannot}
 be converted to the `{\tt caller}' qualifier when the latter is
 part of the type of a value that is an argument or return
 value of the currently executing function.  Note that in this
@@ -1844,8 +1845,8 @@ int32 function1 ( caller adr arg1 -> static adr -> int32 );
     // The argument is a pointer to a caller allocated location
     // holding a pointer to a statically allocated int32.
     // function1 can use `*arg1 = value' to return a static
-    // adddress to an int32 value in this location, and can also
-    // use `**arg1 = value' to return an int32 value.
+    // adddress to an int32 value, and can also use
+    // `**arg1 = value' to return an int32 value.
 int32 function2 ( caller adr arg1 -> caller adr -> int32 );
     // The argument is a pointer to caller allocated location
     // holding a pointer to a caller allocated location holding

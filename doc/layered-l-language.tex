@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 26, 2011
+September 29, 2011
  
 \end{center}
 
@@ -1542,8 +1542,12 @@ Qualifiers may be applied to values or to locations of memory.  Some
 types of qualifiers apply to values and some to locations.
 For example, `{\tt stack}' is a value qualifier that says that
 a value is not valid after the currently executing function returns,
-and `{\tt constant}' is a location qualifier that says that the
-location will never ever be written into.  For example, the
+`{\tt constant}' is a location qualifier that says that the
+location will never ever be written into,
+and `{\tt readlonly}' is a location qualifier tat says that the
+location cannot be written using the given address of the location.
+
+For example, the
 declarations
 \begin{indpar}[0.5em]\begin{verbatim}
 constant int32 x = 5;
@@ -1554,6 +1558,12 @@ write into the location {\tt x} (which is {\tt constant}),
 that {\tt yp} will be valid as long as the current function
 execution exists (because it holds a {\tt stack} value), and that
 {\tt yp} cannot be used to write to {\tt y} (which is {\tt readonly}).
+
+A location qualifier is applied to the type of a value that is the
+target of a pointer.  That is, they appear in types of the form
+\begin{center}
+{\em pointer-type} \verb|->| {\em location-qualifier} {\em value-type}
+\end{center}
 
 Values are a sequence of bytes, and locations are a set of bytes
 in memory.  Note that unlike
@@ -1752,8 +1762,10 @@ Lifetime qualifiers determine when value lifetimes expire.
 For example, the lifetime of the address of a stack variable allocated
 in a function frame expires when the function execution terminates.
 
-Although lifetime qualifiers are not usually applied to numeric values,
-it is possible to do so.  For example, if an {\tt int32} value is used
+The `{\tt static}' lifetime qualifier that indicates a value has
+an unlimited lifetime is applied by default to numeric values.
+But it is possible to apply other lifetime
+qualifiers.  For example, if an {\tt int32} value is used
 as an open file designator, it may be given a limited lifetime.
 
 A lifetime qualifier {\tt Q1} is said to be `\key{convertible}'
@@ -1872,68 +1884,78 @@ except in function argument and return value declarations.
 Users may define \skey{calling lifetime qualifier}s by using
 a declaration of the form:
 \begin{center}
-{\tt declare calling lifetime qualifier}
-    \begin{tabular}[t]{@{}l@{}}
-    {\em qualifier-name} \\{}%
-    [{\tt ,} {\em negated-qualifier-name} [{\tt ,} {\em default}\,] ]
-    \end{tabular}
+{\tt declare} \begin{tabular}[t]{@{}l@{}}
+              {\tt calling lifetime qualifier} {\em qualifier-name} \\
+              {\tt with continuer} {\em qualifier-name} \\
+	      {\tt with discontinuer} {\em qualifier-name} \\
+	      {\tt with default} {\em qualifier-name}
+              \end{tabular}
 \end{center}
 An example is:
 \begin{center}
-\tt declare calling lifetime qualifier pure, impure
+\begin{tabular}{l}
+\tt declare calling lifetime qualifier relocatable \\
+\tt ~~~~~~~~with continuer nonrelocating \\
+\tt ~~~~~~~~with discontinuer relocating \\
+\tt ~~~~~~~~with default relocating \\
+\end{tabular}
 \end{center}
 
-If {\tt Q} is a calling lifetime qualifier and {\tt NQ} is
-its negation, then a value with qualifier {\tt Q} will have
+If {\tt Q} is a calling lifetime qualifier, {\tt CQ} is
+continuer, and {\tt DQ} is its discontinuer
+then a value with qualifier {\tt Q} will have
 a lifetime that extends until a call to an out-of-line function that has
-the access qualifier {\tt NQ} or the execution of a code
-block that has qualifier {\tt NQ}.
+the access qualifier {\tt DQ} or the execution of a code
+block that has qualifier {\tt DQ}.  If {\tt DQ} is also the default
+qualifier, it is implicitly applied to any out-of-line function that does not
+have qualifier {\tt CQ}.
 
-The {\em default} in the declaration
-is the default qualifier of an out-of-line function, and if not given
-is {\tt NQ}.  In this case where the {\em default} is {\tt NQ},
-calls to functions that do not have the {\tt Q} access qualifier
-terminate the lifetime.
-
-Inline functions have neither the {\tt Q} or
-{\tt NQ} qualifier, and are treated as
+Inline functions have neither the {\tt CQ} or
+{\tt DQ} qualifier, and are treated as
 if they were copied at the point of their call.  However, 
-a code block with qualifier {\tt NQ} can be included inside an inline
-function, or {\tt NQ} can be used as the code block qualifier of the
+a code block with qualifier {\tt DQ} can be included inside an inline
+function, or {\tt DQ} can be used as the code block qualifier of the
 entire inline function body.
 
-Thus in the example, a `{\tt pure}' value would have a lifetime until
+The discontinuer lifetime qualifier {\tt DQ}
+is also automatically declared to be
+a protection qualifier(\pagref{PROTECTION-QUALIFIER}) so that
+a block of code with continuer qualifier {\tt CQ} cannot call a function
+or invoke a block of code with the discontinuer qualifier {\tt DQ}.
+
+Thus in the example, a `{\tt relocatable}' value would have a lifetime until
 an out-of-line function is called that did \underline{not}
-have the `{\tt pure}' qualifier is
-called, or a code block with the `{\tt impure}' qualifier is executed,
+have the `{\tt nonrelocating}' qualifier is
+called, or a code block with the `{\tt relocating}' qualifier is executed,
 where this code block could be part of an inline function.
-
-If the {\em negated-qualifier-name} is not given, it defaults to
-`{\tt \TILDE} {\em qualifier-name}'.
-
-A calling lifetime qualifier is also automatically declared to be
-a protection qualifier(\pagref{PROTECTION-QUALIFIER}).
 
 \subsubsection{Traceable Qualifiers}
 \label{TRACEABLE-QUALIFIERS}
 
-There are two builtin traceable qualifiers: 
+There are two builtin traceable qualifiers.  Both refer to
+`{\tt static}' or `{\tt stack}' locations.  These are locations
+whose pointer is an address of `{\tt adr}' type that has either
+the `{\tt static}' or `{\tt stack}' qualifier, so the location
+is either static or in a function frame.
 
 \begin{indpar}
 
-\hspace*{-1em}\ttkey{traceable location}~~~~~Specifies
-the location can be found by the appropriate trace operations.
-The location must also have either the `{\tt static}' or `{\tt stack}'
-qualifiers.  The traceable location qualifier is used to find
+\hspace*{-1em}\ttkey{traceable location}~~~~~A location qualifier
+that specifies that the
+location can be found by the appropriate trace operations.
+The location must be a `{\tt static}' or `{\tt stack}' location;
+checked code cannot apply the qualifier to other locations.
+The traceable location qualifier is used to find
 data that must be modified in certain circumstances.
 
-\hspace*{-1em}\ttkey{traceable value}~~~~~Specifies that if the value
-of the location is stored in some `{\tt static}', `{\tt stack}',
-or `{\tt caller}' location, then the value
-can be found by the appropriate trace operations.
-In this case a traceable location datum is established implicitly that holds
-the value.  Once stored in a single implicit traceable location datum,
-a traceable value can be copied to many other locations
+\hspace*{-1em}\ttkey{traceable value}~~~~~A value qualifier
+that specifies that the
+value can be found by the appropriate trace operations
+\underline{if} it is stored in any `{\tt static}' or `{\tt stack}'
+location.
+In this case a traceable location is established implicitly that holds
+the value.  Once stored in a single implicit traceable location,
+a traceable value can be copied to many other untraceable locations
 in the stack or static memory.
 
 Traceable value locations are used to store pointers to garbage collectible

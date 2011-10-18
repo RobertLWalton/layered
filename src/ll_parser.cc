@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep  1 03:03:09 EDT 2011
+// Date:	Tue Oct 18 07:43:48 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2463,6 +2463,8 @@ static bool parse_explicit_subexpression
 
 void PAR::parse ( PAR::parser parser )
 {
+    // Initialize parser parameters.
+    //
     if ( parser->scanner != NULL_STUB )
     {
         LEX::scanner scanner = parser->scanner;
@@ -2539,6 +2541,8 @@ void PAR::parse ( PAR::parser parser )
     bool first_lexeme = true;
     while ( true )
     {
+        // If end of file terminate loop.
+	//
         if ( current->type == LEXSTD::end_of_file_t )
 	{
 	    if ( ! eof_ok )
@@ -2562,6 +2566,8 @@ void PAR::parse ( PAR::parser parser )
 	    break;
 	}
 
+	// If first lexeme check its in column 0.
+	//
 	if ( first_lexeme )
 	{
 	    first_lexeme = false;
@@ -2585,6 +2591,9 @@ void PAR::parse ( PAR::parser parser )
 	    }
 	}
 
+	// Get subexpression.  First is the first token
+	// of the subexpression.
+	//
 	PAR::token previous =
 	    current == parser->first ?
 	    (PAR::token) min::NULL_STUB :
@@ -2602,6 +2611,8 @@ void PAR::parse ( PAR::parser parser )
 	    parser->first :
 	    previous->next;
 
+        // If subexpression is not empty, compact it.
+	//
 	if ( first != current )
 	{
 
@@ -2611,6 +2622,11 @@ void PAR::parse ( PAR::parser parser )
 	    min::gen terminator = ::new_line;
 	    if ( separator_found )
 	    {
+	        // If subexpression ends with an inden-
+		// tation separator (e.g., `;'), delete
+		// the separator from the subexpression
+		// and make it into the terminator.
+		//
 		terminator =
 		    TAB::top_level_indentation_mark
 			     ->indentation_separator
@@ -2626,6 +2642,13 @@ void PAR::parse ( PAR::parser parser )
 		  terminator );
 	}
 
+        // As there is no bracket stack, the token after
+	// the subexpression is either a line break, end
+	// of file, or token after an indentation sepa-
+	// rator.  In the case of a line break, it must
+	// be deleted.  End of file's are OK only at the
+	// beginning or after such line deleted breaks.
+	//
         if ( current->type == LEXSTD::line_break_t )
 	{
 	    if ( current->next == parser->first )

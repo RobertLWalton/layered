@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 25 09:09:01 EDT 2011
+// Date:	Mon Oct 24 06:46:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -771,6 +771,19 @@ ll::parser::table::root find_next_entry
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::root last_entry );
+
+// Given a token, test if it is a parser definition.
+// Do nothing but return false if no.  If yes, process
+// the definition and return true (but do not delete
+// the token).
+//
+// Note that tokens that are not EXPRESSIONs beginning
+// with `define', `undefine', `begin parser', or `end
+// parser' are not parser definitions and return false.
+//
+bool parser_process_definition
+	( ll::parser::parser parser,
+	  ll::parser::token & expression );
 
 } }
 

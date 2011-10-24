@@ -1,0 +1,31 @@
+// Layers Language C++ Lexical Analyzer Test Input
+//
+// File:	ll_lexeme_c++_test.in
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Sun Jun 19 03:03:43 EDT 2011
+//
+// The authors have placed this program in the public
+// domain; they make no warranty and accept no liability
+// for this program.
+
+# include <ll_lexeme.h>
+# include "ll_lexeme_test.h"
+# define LEX ll::lexeme
+
+int main ( int argc )
+{
+    LEX::init_output_stream
+	    ( LEX::default_scanner, std::cout )
+        << min::ascii;
+    int x[] = { 99, 077, 07659,
+                99foo, 077foo, 07659foo };
+    double y[] = { 0.09, 00.009, 0.009., 0.009.0,
+                   9e6, 9e+6, 9E6, 9E+6, 009e+6,
+		   9e6e6, 9e6e+6,
+		   0.09foo, 0.009foo, 0.009.foo };
+    const char * z[] = {
+        "hello there",
+	"\n\t\v\f\r ",
+	"\b\a\'\"\?",
+	"\P\Q\u" };
+}

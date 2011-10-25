@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 18 07:43:48 EDT 2011
+// Date:	Tue Oct 25 01:30:13 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -467,10 +467,10 @@ static void convert_token ( PAR::token token )
 	( token->value );
     min::attr_push(elemvp) = min::MISSING();
 
-    min::set_attr ( elemvp, 0,
+    min::attr ( elemvp, 0 ) =
                     min::new_str_gen
 			( token->string.begin_ptr(),
-			  token->string->length ) );
+			  token->string->length );
     PAR::string_ref(token) =
 	PAR::free_string ( token->string );
 
@@ -549,7 +549,7 @@ static void compact
         PAR::token t = next->previous;
 	assert ( t != next );
 
-	min::set_attr ( expvp, n, t->value );
+	min::attr ( expvp, n ) = t->value;
 
 	PAR::free
 	    ( PAR::remove

@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 29, 2011
+November 8, 2011
  
 \end{center}
 
@@ -1901,21 +1901,27 @@ An example is:
 \end{tabular}
 \end{center}
 
-If {\tt Q} is a calling lifetime qualifier, {\tt CQ} is
-continuer, and {\tt DQ} is its discontinuer
+If {\tt Q} is a calling lifetime qualifier, {\tt CQ} is its
+continuer, and {\tt DQ} is its discontinuer,
 then a value with qualifier {\tt Q} will have
-a lifetime that extends until a call to an out-of-line function that has
+a lifetime that is terminated by a call to an out-of-line function that has
 the access qualifier {\tt DQ} or the execution of a code
-block that has qualifier {\tt DQ}.  If {\tt DQ} is also the default
-qualifier, it is implicitly applied to any out-of-line function that does not
-have qualifier {\tt CQ}.
+block that has qualifier {\tt DQ}.
 
-Inline functions have neither the {\tt CQ} or
-{\tt DQ} qualifier, and are treated as
-if they were copied at the point of their call.  However, 
-a code block with qualifier {\tt DQ} can be included inside an inline
-function, or {\tt DQ} can be used as the code block qualifier of the
-entire inline function body.
+If an out-of-line function has the {\tt CQ} access qualifier,
+the lifetime of a value with qualifier {\tt Q}
+is not terminated by a call to the function.
+Similarly if a code block has the {\tt CQ} qualifier,
+the lifetime of the value is not terminated by the execution
+of the code block.
+
+The default qualifier is applied to out-of-line functions with no
+explicit {\tt CQ} or {\tt DQ} access qualifier.
+The {\tt CQ} qualifier is applied by default to both code blocks
+and to inline functions with no explicit
+{\tt CQ} or {\tt DQ} qualifier.
+
+The {\tt DQ} and {\tt CQ} qualifiers are incompatible with each other.
 
 The discontinuer lifetime qualifier {\tt DQ}
 is also automatically declared to be
@@ -1924,8 +1930,8 @@ a block of code with continuer qualifier {\tt CQ} cannot call a function
 or invoke a block of code with the discontinuer qualifier {\tt DQ}.
 
 Thus in the example, a `{\tt relocatable}' value would have a lifetime until
-an out-of-line function is called that did \underline{not}
-have the `{\tt nonrelocating}' qualifier is
+an out-of-line function with no
+`{\tt nonrelocating}' access qualifier is
 called, or a code block with the `{\tt relocating}' qualifier is executed,
 where this code block could be part of an inline function.
 
@@ -1946,7 +1952,7 @@ location can be found by the appropriate trace operations.
 The location must be a `{\tt static}' or `{\tt stack}' location;
 checked code cannot apply the qualifier to other locations.
 The traceable location qualifier is used to find
-data that must be modified in certain circumstances.
+data that must be read or modified in certain circumstances.
 
 \hspace*{-1em}\ttkey{traceable value}~~~~~A value qualifier
 that specifies that the
@@ -1954,8 +1960,8 @@ value can be found by the appropriate trace operations
 \underline{if} it is stored in any `{\tt static}' or `{\tt stack}'
 location.
 In this case a traceable location is established implicitly that holds
-the value.  Once stored in a single implicit traceable location,
-a traceable value can be copied to many other untraceable locations
+the value.  As long as it is stored in a single traceable location,
+copies of the a traceable value can exist in many other untraceable locations
 in the stack or static memory.
 
 Traceable value locations are used to store pointers to garbage collectible
@@ -1964,6 +1970,9 @@ types of such data.  A pointer type (\pagref{POINTER-TYPES})
 may be defined specifically so pointers of the given type
 may be identified as traceable values by qualifying the type
 with `{\tt traceable value}'.
+
+The `{\tt traceable value}' qualifier has no affect on values that
+are stored in non-stack, non-static locations.
 
 \end{indpar}
 
@@ -1980,7 +1989,7 @@ see Appendix~\secref{ALIASING-HARDWARE}).
 
 Memory locations may also be placed in hardware caches.  In a hardware
 system with memory shared among multiple central processing units,
-each central processing unit has its own hardware cache that is
+each central processing unit may have its own hardware cache that is
 \underline{not} automatically synchronized with shared memory or
 the caches of other central processing units.  Special instructions
 are used to synchronize these hardware caches with shared memory.
@@ -2006,18 +2015,18 @@ that initializes the location.
 
 The following code has some examples:
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 function1 ( stack constant *& arg1 );
-int32 function2 ( stack readonly *& arg1 );
-int32 function3 ( stack *& arg1 );
+int32 function1 ( stack adr -> constant int32 arg1 );
+int32 function2 ( stack adr -> readonly int32 arg1 );
+int32 function3 ( stack adr -> int32 arg1 );
 . . . . . . . . . .
 constant int32 value1 = 5;
    // Permitted:
-   //   caller int32 *& .assign. ( 5 ) is called.
+   //   caller adr -> int32 .assign. ( 5 ) is called.
 ... my_function ( ... )
 {
     value1 = 10; 
        // Erroneous:
-       //   caller constant int32 *& .assign. ( 10 ) is called.
+       //   caller adr -> constant int32 .assign. ( 10 ) is called.
     function1 ( value1 );  // Permitted; arg1 constant.
     function2 ( value1 );  // Permitted; arg1 readonly.
     function3 ( value1 );  // Erroneous; arg1 NOT constant

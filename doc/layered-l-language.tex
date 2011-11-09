@@ -2068,18 +2068,31 @@ values.  Thus continuing the above example:
 \end{verbatim}\end{indpar}
 
 
-\hspace*{-1em}\ttkey{unique}~~~~~The memory location is in a stack
-frame of the currently executing function, or is in the stack
-frame of the current thread and was passed to the currently executing
-function as an argument or return value location, and, furthermore,
-the location
-does not overlap any other location passed in this way or accessible
-from global memory.
+\hspace*{-1em}\ttkey{unique}~~~~~Function argument and return value
+locations can be given the {\tt unique} qualifier if these locations
+are being passed to the function from its caller.  These locations
+cannot overlap any other location passed to the function or available
+to the function via global data.  This means these locations must
+either have been allocated by the caller, or passed as `{\tt unique}'
+argument or return value locations to the caller from its caller.
+
+A `{\tt unique}' memory location may be passed as an argument to
+or return value of a function only if the function argument
+or return value location is declared `{\tt unique}' within the
+function declaration.  A stack memory location may be so passed
+if no address that permits access to the location has been stored
+anywhere except in the stack and the location is not passed as
+more than one of the function argument or return value locations.
+
+Addresses that permit a `{\tt unique}' memory location to be
+accessed may only be stored in stack locations where they
+can be tracked by the compiler.
 
 A `{\tt unique}' memory location may be cached in a register.
 This cache must be flushed when an out-of-line function is called
 only if the address of the location is passed to the out-of-line
-function.
+function as the address of a `{\tt unique}' function argument or
+return value location.
 
 \hspace*{-1em}\ikey{Alias Qualifiers}%
 {alias qualifier}~~~~~Alias

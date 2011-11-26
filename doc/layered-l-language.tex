@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 8, 2011
+November 26, 2011
  
 \end{center}
 
@@ -428,7 +428,9 @@ declare variables {\tt ip1} and {\tt ip2} that store
 the address of an {\tt int32} variable, and a variable
 {\tt ipp3} that stores the address of a variable that stores
 the address of an {\tt int32} variable.
-Here
+The unary `{\tt *}' operator is used to reference the variable
+pointed at by an address, so
+here
 `\verb|* ip1|',
 `\verb|* ip2|',
 `\verb|i2|',
@@ -449,7 +451,8 @@ adr    -> int32 i;
 
 In both these cases the value stored in the variable is the address
 of a 32-bit integer.  However, {\tt ip} names the address and
-{\tt i} names the integer.  `{\tt * ip}' can be used to name the
+{\tt i} names the integer.  The unary `{\tt \&}' operator is the inverse
+of `{\tt *}', so `{\tt * ip}' can be used to name the
 integer, and `{\tt \& i}' can be used to name the address.
 Either of these names can be used to assign values, as in
 \begin{indpar}\begin{verbatim}
@@ -471,9 +474,9 @@ are equivalent to
 \end{indpar}
 
 so that `{\tt ip = \& i}' is a legal assignment.  The compiler arranges
-for appropriate stack addresses to be computed, and `{\tt \& i}' and
-`{\tt \& ip}' are `{\tt constant}' and so cannot be changed and also
-`{\tt stack}' meaning that they have a lifetime only as long as the
+for appropriate stack addresses to be computed.  `{\tt \& i}' and
+`{\tt \& ip}' are `{\tt constant}', and so cannot be changed, and also
+`{\tt stack}', meaning that they have a lifetime only as long as the
 current stack frame.
 
 Note that if `{\tt stack adr ip}' were changed to
@@ -489,49 +492,7 @@ which can be implicitly converted to or from the parent type by
 unchecked code.  It is also possible to define checked conversion
 functions.
 
-One use of a subtype is to reserve values of the parent type
-for special meaning.  For example, an {\tt adr} address value
-in the range from 0 through 4095 might be a special code, and not
-an address, under the assumption that low addresses are not
-used by the memory system.  A example of subtypes implementing
-this is:
-\begin{indpar}\begin{verbatim}
-defsubtype specialadr adr;
-defsubtype special unsadr;
-
-inline bool is_special ( specialadr a ) unchecked:
-    unsadr x = a;
-    return x < 4096;
-
-inline adr .conversion. ( specialadr a ) unchecked:
-    unsadr x = a;
-    assert ( x >= 4096 );
-    return a;
-
-inline specialadr .conversion. ( adr a ) unchecked:
-    unsadr x = a;
-    assert ( x >= 4096 );
-    return a;
-
-inline special .conversion. ( specialadr a ) unchecked:
-    unsadr x = a;
-    assert ( x < 4096 );
-    return x;
-
-inline specialadr .conversion. ( unsadr a ) unchecked:
-    assert ( a < 4096 );
-    return a;
-
-float64 x;
-stack specialadr y = & x -> float64;
-stack specialadr z = 23;
-assert ( ! is_special ( y ) );
-assert ( is_special ( z ) );
-float64 x2 = * y;
-float64 z2 = * z;  // Causes assert violation error!
-\end{verbatim}\end{indpar}
-
-A second use of a subtype is to make a promise that a value
+One use of a subtype is to make a promise that a value
 is in a given range.  The following is an example of a subtype
 that has the range {\tt 0 .. max\_index-1}:
 
@@ -563,6 +524,58 @@ in index of {\tt x}, so the code expansion will contain:
 \end{verbatim}\end{indpar}
 The `{\tt fact}' statement allows the `{\tt assert}' statement
 to be optimized away.
+
+A second use of a subtype is to reserve values of the parent type
+for special meaning.  For example, an {\tt adr} address value
+in the range from 0 through 4095 might be interpreted as an
+integer and not
+an address, under the assumption that low addresses are not
+used by the memory system.  A example of subtypes implementing
+this is:
+\begin{indpar}\begin{verbatim}
+defsubtype special unsadr;
+
+inline special .conversion. ( unsadr x ) unchecked:
+    assert ( x < 4096 );
+    return x;
+
+inline unsadr .conversion. ( special x ) unchecked:
+    fact ( x < 4096 );
+    return x;
+
+
+defsubtype specialadr adr;
+
+inline bool is_special ( specialadr a ) unchecked:
+    unsadr x = a;
+    return x < 4096;
+
+inline adr .conversion. ( specialadr a ) unchecked:
+    unsadr x = a;
+    assert ( x >= 4096 );
+    return a;
+
+inline special .conversion. ( specialadr a ) unchecked:
+    unsadr x = a;
+    assert ( x < 4096 );
+    return x;
+
+inline specialadr .conversion. ( adr a ) unchecked:
+    unsadr x = a;
+    assert ( x >= 4096 );
+    return a;
+
+inline specialadr .conversion. ( special a ) unchecked:
+    return a;
+
+float64 x;
+stack specialadr y = & x -> float64;
+stack specialadr z = 23;
+assert ( ! is_special ( y ) );
+assert ( is_special ( z ) );
+float64 x2 = * y;
+float64 z2 = * z;  // Causes assert violation error!
+\end{verbatim}\end{indpar}
 
 \subsection{Random Access Memory (RAM) and Blocks}
 
@@ -888,25 +901,31 @@ moving the value position within the type.  Thus
 
 Conversion functions can be defined between pointer types.
 Suppose `{\tt ptr}' is an indirect address, that is, the address of the
-real address of the variable pointed at.  This could be implemented
+real adrress of the variable pointed at, and suppose the variable
+is statically allocated.  This could be implemented
 by the code:
 
-\begin{indpar}\begin{verbatim}
-defsubtype ptr ( adr, 4094 );
+TBD:
 
-inline local adr .conversion. ( ptr p ) unchecked:
-    adr p2 = p -> adr; return * p2;
-inline ptr .conversion. ( adr p -> adr ) unchecked:
+\begin{indpar}\begin{verbatim}
+defsubtype ptr adr;
+
+inline static adr .conversion. ( ptr p ) unchecked:
+    adr p2 = p -> static adr; return * p2;
+inline ptr .conversion. ( adr p -> static adr ) unchecked:
     return p;
 
-uns32 x;
-stack adr xp = & x -> uns32;
-stack ptr p = & xp -> uns32;
-    // Implied conversion of stack adr -> stack adr -> uns32
-    // to stack ptr -> uns32.
+static adr -> uns32 x allocate_uns32();
+    // Declaration of function that returns a new statically
+    // allocated variable.
+static adr xp = & allocate_uns32() -> uns32;
+    // xp has type stack adr -> static adr xp -> uns32.
+ptr p = & xp -> uns32;
+    // Implied conversion of stack adr V -> static adr -> uns32
+    // to stack ptr p -> uns32.
 uns32 y = * p;
-    // Implied conversion of stack ptr -> uns32 to
-    // local adr -> uns32 and then dereference.
+    // Implied conversion of stack ptr p -> uns32 to
+    // stack adr -> static adr -> uns32 and then dereference.
 \end{verbatim}\end{indpar}
 
 \subsection{Tuples}

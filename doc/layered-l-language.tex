@@ -900,12 +900,11 @@ moving the value position within the type.  Thus
 \end{center}
 
 Conversion functions can be defined between pointer types.
-Suppose `{\tt ptr}' is an indirect address, that is, the address of the
+Suppose `{\tt ptr}' is an indirect address, that is,
+the address of the
 real adrress of the variable pointed at, and suppose the variable
 is statically allocated.  This could be implemented
 by the code:
-
-TBD:
 
 \begin{indpar}\begin{verbatim}
 defsubtype ptr adr;
@@ -924,8 +923,8 @@ ptr p = & xp -> uns32;
     // Implied conversion of stack adr V -> static adr -> uns32
     // to stack ptr p -> uns32.
 uns32 y = * p;
-    // Implied conversion of stack ptr p -> uns32 to
-    // stack adr -> static adr -> uns32 and then dereference.
+    // Implied conversion of stack ptr -> uns32 V to
+    // static adr -> uns32 V.
 \end{verbatim}\end{indpar}
 
 \subsection{Tuples}

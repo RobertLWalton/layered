@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 26, 2011
+December 9, 2011
  
 \end{center}
 
@@ -1002,23 +1002,27 @@ For example:
 //
 // Function to allocate a vector of n int32's.
 //
-(void pp, int32 * pp.begin, int32 * pp.end )
+( void pp, unchecked adr pp.begin -> int32,
+           unchecked adr pp.end -> int32 )
     allocate ( uns32 n );
 //
 // Prefix operator to dereference a pointer pair.
 //
-int32 *& "*"
-        ( void pp, int32 **& pp.begin, int32 **& pp.end )
+( adr -> int32 V ) "*"
+        ( void pp, adr -> unchecked adr pp.begin -> int32,
+                   adr -> unchecked adr pp.end   -> int32 )
     unchecked
 {
     if ( pp.begin < pp.end ) return * pp.begin;
-    else return * (int32 *) NULL;
+    else fatal error
+        ( "Deferencing empty pointer pair." );
 }
 //
 // Prefix operator to increment the begin pointer of a pointer
 // pair.
 //
-(void pp = pp ) "++" ( void pp, int32 **& pp.begin )
+( void pp = pp ) "++"
+        ( void pp, adr -> unchecked adr pp.begin -> int32 )
     unchecked
 {
     ++ pp.begin;
@@ -1054,16 +1058,16 @@ Similarly for the return value list.
 The prefix {\tt ++} operator is unusual in that its declaration
 indicates that it returns its first argument exactly, so that
 the cluster base variable name is in effect returned.  This is
-a stronger statement than just returning a {\tt *\&} value that
+a stronger statement than just returning an value that
 happens without the compiler's knowning it to be equal to the
-{\tt *\&} value of the first argument.
+value of the first argument.
 
 \subsection{Arrays}
 \label{ARRAYS}
 
 Array variables can be declared by declarations of the form
 \begin{center}
-{\em type-name} {\tt *}$^\star$ {\tt \&}$^\star$ {\em variable-name}
+{\em type-name} {\em variable-name}
 	{\tt [} {\em dimension-spec}
 	       \{ {\tt ,} {\em dimension-spec} \}$^\star$ {\tt ]}{\tt ;}
 \end{center}
@@ -1077,9 +1081,9 @@ where
 For example,
 \begin{indpar}\begin{verbatim}
 int32 iarray[5];
-int32 * piarray[1 .. 5];
-int32 * & irarray[10,20];
-int32 * & tirarray[10++1,20++10];
+int32 adr piarray[1 .. 5] -> int32;
+adr -> int32 irarray[10,20];
+adr -> int32 tirarray[10++1,20++10];
 \end{verbatim}\end{indpar}
 
 Here

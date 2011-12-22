@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 24 04:11:33 EDT 2011
+// Date:	Thu Dec 22 12:28:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,7 +96,42 @@ namespace ll { namespace lexeme { namespace standard {
     extern const char * const type_name[MAX_TYPE+1];
 
     extern const char * type_code;
-        // Type codes for ll:lexeme::test_input.
+        // Type codes for ll::lexeme::test_input.
+
+    namespace internal {
+
+	extern const uns8 lexeme_type_table[256];
+
+    }
+
+    // Given a min::gen string that encodes a standard
+    // lexeme, returns the type of the lexeme, with
+    // exception that number_t is returned for both
+    // natural numbers and other numbers.  Note that
+    // only words, natural numbers, numbers, marks, and
+    // separators can be encoded as strings.  In
+    // particular quoted strings, comments, horizontal
+    // space, line breaks, and end of files cannot be
+    // encoded as min::gen strings (as far as this
+    // function is concerned).
+    //
+    // Given a min:;gen value that is not a string,
+    // returns zero.  In all other cases the value
+    // returned is undefined.
+    //
+    inline uns32 lexical_type_of ( min::gen g )
+    {
+        struct { uns64 b; uns8 s[8]; } v;
+	v.b = min::strhead ( g );
+	uns8 c = v.s[0];
+	if ( c == '\'' && v.s[1] != 0 )
+	    return word_t;
+	else if (     c == '.'
+	          && '0' <= v.s[1] && v.s[1] <= '9' )
+	    return number_t;
+	else
+	    return internal::lexeme_type_table[c];
+    }
 
 } } }
 

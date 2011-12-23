@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 24 07:28:43 EDT 2011
+// Date:	Fri Dec 23 13:08:49 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -855,7 +855,7 @@ static bool default_input_get
 	ic.column = 0;
     }
 
-    scanner->next_position = (LEX::position) ic;
+    scanner->next_position = (min::position) ic;
 
     return true;
 }
@@ -1965,9 +1965,9 @@ static min::printer scan_error
         << "LEXICAL SCANNER ERROR: current_table "
 	             << pID ( scanner->current_table_ID,
 		              scanner->program );
-    LEX::position pos =
+    min::position pos =
 	scanner->next < scanner->input_buffer->length ?
-	    (LEX::position)
+	    (min::position)
 	        scanner->input_buffer[next] :
 	    scanner->next_position;
     min::error_message << ": position "
@@ -2059,9 +2059,9 @@ min::printer operator <<
     printer << LEX::pmode ( scanner->program, type )
             << " ";
 
-    LEX::position pos =
+    min::position pos =
         first < input_buffer->length ?
-	    (LEX::position) input_buffer[first] :
+	    (min::position) input_buffer[first] :
 	    scanner->next_position;
 
     return printer << pos.line << "("
@@ -2135,8 +2135,8 @@ min::printer operator <<
 
 min::pline_numbers LEX::pline_numbers
 	( min::file file,
-	  const LEX::position & begin,
-	  const LEX::position & end )
+	  const min::position & begin,
+	  const min::position & end )
 {
     uns32 begin_line = begin.line;
     uns32 end_line =
@@ -2154,11 +2154,11 @@ min::pline_numbers LEX::pline_numbers
     LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
-    LEX::position begin =
+    min::position begin =
         first < input_buffer->length ?
 	input_buffer[first] :
 	scanner->next_position;
-    LEX::position end =
+    min::position end =
         next < input_buffer->length ?
 	input_buffer[next] :
 	scanner->next_position;
@@ -2168,74 +2168,31 @@ min::pline_numbers LEX::pline_numbers
 
 void LEX::print_item_lines
 	( min::printer printer,
-	  min::file file,
-	  const LEX::position & begin,
-	  const LEX::position & end,
-	  char mark,
-	  const char * blank_line )
-{
-    assert ( end.line >= begin.line );
-
-    uns32 line = begin.line;
-    uns32 first_column = begin.column;
-
-    uns32 width = min::print_line
-        ( printer, file, line );
-
-    while ( true )
-    {
-        for ( uns32 i = 0; i < first_column; ++ i )
-	    printer << ' ';
-
-	uns32 end_column =
-	    end.line == line ? end.column : width;
-	if ( end_column <= first_column )
-	    end_column = width;
-	if ( end_column <= first_column )
-	    end_column = first_column + 1;
-
-        for ( uns32 i = first_column;
-	      i < end_column; ++ i )
-	    printer << mark;
-	printer << min::eol;
-
-	if ( line == end.line ) return;
-
-	++ line;
-
-	if ( line == end.line && end.column == 0 )
-	    return;
-
-	first_column = 0;
-	width = min::print_line
-	    ( printer, file, line );
-    }
-}
-
-void LEX::print_item_lines
-	( min::printer printer,
 	  LEX::scanner scanner,
 	  min::uns32 first,
 	  min::uns32 next,
 	  char mark,
-	  const char * blank_line )
+	  const char * blank_line,
+	  const char * end_of_file,
+	  const char * unavailable_line )
 {
     LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
-    const LEX::position begin =
+    const min::position begin =
         first < input_buffer->length ?
-	    (LEX::position) input_buffer[first] :
+	    (min::position) input_buffer[first] :
 	    scanner->next_position;
 
-    const LEX::position end =
+    const min::position end =
         next < input_buffer->length ?
-	    (LEX::position) input_buffer[next] :
+	    (min::position) input_buffer[next] :
 	    scanner->next_position;
 
-    print_item_lines
+    min::print_item_lines
         ( printer, scanner->input_file,
-	  begin, end, mark, blank_line );
+	  begin, end, mark,
+	  blank_line, end_of_file, unavailable_line );
 }
 
 // Printing Programs

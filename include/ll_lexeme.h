@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 13 19:03:05 EDT 2011
+// Date:	Fri Dec 23 13:06:43 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,16 +70,7 @@ namespace ll { namespace lexeme {
 	return min::ptr<T> ( program + index );
     }
 
-    struct position
-        // Position of an element of the input_buffer:
-	// see below.
-    {
-	uns32	line;
-	uns32	index;
-	uns32	column;
-    };
-
-    struct inchar : public position
+    struct inchar : public min::position
         // Element of input_buffer: see below.
     {
 	uns32	character;
@@ -692,7 +683,7 @@ namespace ll { namespace lexeme {
 	//
 	// Zero'ed by scanner initialization functions.
 	//
-	position next_position;
+	min::position next_position;
 
 	// The translation buffer holds the translation
 	// of the current lexeme.  For example, if the
@@ -1038,8 +1029,8 @@ namespace ll { namespace lexeme {
     //
     min::pline_numbers pline_numbers
 	    ( min::file file,
-              const ll::lexeme::position & begin,
-              const ll::lexeme::position & end );
+              const min::position & begin,
+              const min::position & end );
 
     // Just line min::pline_numbers but takes scanner,
     // first, and next as arguments and uses line
@@ -1059,25 +1050,11 @@ namespace ll { namespace lexeme {
 	    ( ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next );
 
-    // Print the lines and put marks (default '^')
-    // underneath columns from `begin' to just before
-    // `end'.  `file' is usually scanner->input_file.
-    // Lines that are all whitespace are replaced by
-    // blank_line.
-    //
-    void print_item_lines
-	    ( min::printer printer,
-	      min::file file,
-	      const ll::lexeme::position & begin,
-	      const ll::lexeme::position & end,
-	      char mark = '^',
-	      const char * blank_line =
-	          "<BLANK-LINE>" );
-
-    // Ditto but for lexeme in scanner->input_buffer
-    // [first .. next-1].  If input_buffer[first] or
-    // input_buffer[next-1] does not exist, use
-    // scanner->next_position instead.
+    // Call min::print_item_lines using the beginning
+    // and ending positions of the lexeme in scanner->
+    // input_buffer[first .. next-1].  If input_
+    // buffer[first] or input_buffer[next-1] does not
+    // exist, use scanner->next_position instead.
     //
     void print_item_lines
 	    ( min::printer,
@@ -1085,7 +1062,11 @@ namespace ll { namespace lexeme {
 	      uns32 first, uns32 next,
 	      char mark = '^',
 	      const char * blank_line =
-	          "<BLANK-LINE>" );
+	          "<BLANK-LINE>",
+	      const char * end_of_file =
+	          "<END-OF-FILE>",
+	      const char * unavailable_line =
+	          "<UNAVALABLE-LINE>" );
 
     // Print a representation of the program to the
     // printer.  There are two output formats: cooked

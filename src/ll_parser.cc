@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 25 01:30:13 EDT 2011
+// Date:	Fri Dec 23 13:11:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -502,8 +502,8 @@ static void convert_token ( PAR::token token )
 static void compact
 	( PAR::parser parser,
 	  PAR::token first, PAR::token next,
-	  LEX::position begin,
-	  LEX::position end,
+	  min::position begin,
+	  min::position end,
 	  min::gen initiator = min::MISSING(),
 	  min::gen terminator = min::MISSING(),
 	  min::gen middle = min::MISSING(),
@@ -616,7 +616,7 @@ static void compact
 		        ( parser->input_file,
 			  begin, end )
 		<< ":" << min::eol;
-	    LEX::print_item_lines
+	    min::print_item_lines
 		( parser->printer,
 		  parser->input_file, begin, end );
     }
@@ -870,7 +870,7 @@ static void named_attributes
 			 tnext->begin,
 			 tnext->end )
 		<< ":" << min::eom;
-	    LEX::print_item_lines
+	    min::print_item_lines
 		( parser->printer,
 		  parser->input_file,
 		  tnext->begin,
@@ -915,11 +915,11 @@ static void named_attributes
 // a symbol or number).  Return the begin position of
 // the last token removed.  Free the removed tokens.
 //
-inline LEX::position remove
+inline min::position remove
         ( PAR::parser parser,
 	  PAR::token next, min::gen label )
 {
-    LEX::position result;
+    min::position result;
     min::uns32 n = 1;
     if ( min::is_lab ( label ) )
         n = min::lablen ( label );
@@ -987,7 +987,7 @@ static void complain_near_indent
 		 token->begin,
 		 token->end )
 	<< ":" << min::eom;
-    LEX::print_item_lines
+    min::print_item_lines
 	( parser->printer,
 	  parser->input_file,
 	  token->begin,
@@ -1518,7 +1518,7 @@ static bool parse_explicit_subexpression
 	    // last such.
 	    //
 	    bool iic_exists = false;
-	    LEX::position iic_begin, iic_end;
+	    min::position iic_begin, iic_end;
 	    while ( current->next != next )
 	    {
 		if (    current->next->type
@@ -1556,7 +1556,7 @@ static bool parse_explicit_subexpression
 			     iic_begin,
 			     iic_end )
 		    << ":" << min::eom;
-		LEX::print_item_lines
+		min::print_item_lines
 		    ( parser->printer,
 		      parser->input_file,
 		      iic_begin,
@@ -1630,9 +1630,9 @@ static bool parse_explicit_subexpression
 			//
 			if ( first != next )
 			{
-			    LEX::position begin =
+			    min::position begin =
 			        first->begin;
-			    LEX::position end =
+			    min::position end =
 			        next->previous->end;
 
 			    min::gen terminator =
@@ -1692,7 +1692,7 @@ static bool parse_explicit_subexpression
 		}
 
 		PAR::token first = mark_end->next;
-		LEX::position begin =
+		min::position begin =
 		    ::remove
 			( parser, first,
 			  indentation_found->label );
@@ -1929,15 +1929,15 @@ static bool parse_explicit_subexpression
 				 next->begin,
 				 next->end )
 			<< ":" << min::eom;
-		    LEX::print_item_lines
+		    min::print_item_lines
 			( parser->printer,
 			  parser->input_file,
 			  next->begin,
 			  next->end );
 
-		    LEX::position end =
+		    min::position end =
 			next->previous->end;
-		    LEX::position begin =
+		    min::position begin =
 			::remove
 			    ( parser, first,
 			      opening_bracket->label );
@@ -1974,13 +1974,13 @@ static bool parse_explicit_subexpression
 		    assert (    cstack.closing_next
 		             == current );
 
-		    LEX::position end =
+		    min::position end =
 			current->previous->end;
 		    ::remove ( parser, current,
 			       cstack.opening_bracket
 			           ->closing_bracket
 				   ->label );
-		    LEX::position begin =
+		    min::position begin =
 			::remove
 			    ( parser, first,
 			      opening_bracket->label );
@@ -2027,9 +2027,9 @@ static bool parse_explicit_subexpression
 		    }
 		}
 
-		LEX::position end =
+		min::position end =
 		    current->previous->end;
-		LEX::position begin =
+		min::position begin =
 		    ::remove
 			( parser, current,
 			  closing_bracket->label );
@@ -2047,7 +2047,7 @@ static bool parse_explicit_subexpression
 			   ( parser->input_file,
 			     begin, end )
 		    << ":" << min::eom;
-		LEX::print_item_lines
+		min::print_item_lines
 		    ( parser->printer,
 		      parser->input_file,
 		      begin, end );
@@ -2145,7 +2145,7 @@ static bool parse_explicit_subexpression
 			// need to terminate this
 			// call to parse_explicit_
 			// subexpression.
-		    LEX::position end;
+		    min::position end;
 		        // End of closing named bracket.
 
 		    if (    cstack.closing_next
@@ -2183,7 +2183,7 @@ static bool parse_explicit_subexpression
 				     next->begin,
 				     next->end )
 			    << ":" << min::eom;
-			LEX::print_item_lines
+			min::print_item_lines
 			    ( parser->printer,
 			      parser->input_file,
 			      next->begin,
@@ -2211,7 +2211,7 @@ static bool parse_explicit_subexpression
 			  cstack.opening_first,
 			  cstack.opening_next );
 
-		    LEX::position begin =
+		    min::position begin =
 		        ::remove
 			    ( parser,
 			      cstack.opening_first,
@@ -2283,13 +2283,13 @@ static bool parse_explicit_subexpression
 			assert
 			    ( name != min::MISSING() );
 
-			LEX::position begin =
+			min::position begin =
 			    ::remove
 				( parser,
 				  named_first,
 				  named_opening->label
 				);
-			LEX::position end =
+			min::position end =
 			    current->previous->end;
 
 			::remove
@@ -2557,7 +2557,7 @@ void PAR::parse ( PAR::parser parser )
 			     current->begin,
 			     current->end )
 		    << ":" << min::eom;
-		LEX::print_item_lines
+		min::print_item_lines
 		    ( parser->printer,
 		      parser->input_file,
 		      current->begin,
@@ -2583,7 +2583,7 @@ void PAR::parse ( PAR::parser parser )
 			     current->begin,
 			     current->end )
 		    << ":" << min::eom;
-		LEX::print_item_lines
+		min::print_item_lines
 		    ( parser->printer,
 		      parser->input_file,
 		      current->begin,
@@ -2616,8 +2616,8 @@ void PAR::parse ( PAR::parser parser )
 	if ( first != current )
 	{
 
-	    LEX::position begin = first->begin;
-	    LEX::position end = current->previous->end;
+	    min::position begin = first->begin;
+	    min::position end = current->previous->end;
 
 	    min::gen terminator = ::new_line;
 	    if ( separator_found )

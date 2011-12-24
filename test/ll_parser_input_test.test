@@ -1,599 +1,599 @@
-COMMENT: line 0:
+COMMENT: line 1:
 // Layers Language Standard Lexical Analyzer Test Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 0:
+LINE_BREAK: line 1:
 // Layers Language Standard Lexical Analyzer Test Data
                                                       ^
-COMMENT: line 1:
+COMMENT: line 2:
 //
 ^^
-LINE_BREAK: line 1:
+LINE_BREAK: line 2:
 //
   ^
-COMMENT: line 2:
+COMMENT: line 3:
 // File:        ll_lexeme_standard_test.in
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 2:
+LINE_BREAK: line 3:
 // File:        ll_lexeme_standard_test.in
                                           ^
-COMMENT: line 3:
+COMMENT: line 4:
 // Author:      Bob Walton (walton@acm.org)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 3:
+LINE_BREAK: line 4:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
-COMMENT: line 4:
+COMMENT: line 5:
 // Date:        Fri Jun 24 08:37:02 EDT 2011
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 4:
+LINE_BREAK: line 5:
 // Date:        Fri Jun 24 08:37:02 EDT 2011
                                             ^
-COMMENT: line 5:
+COMMENT: line 6:
 //
 ^^
-LINE_BREAK: line 5:
+LINE_BREAK: line 6:
 //
   ^
-COMMENT: line 6:
+COMMENT: line 7:
 // The authors have placed this data in the public
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 6:
+LINE_BREAK: line 7:
 // The authors have placed this data in the public
                                                   ^
-COMMENT: line 7:
+COMMENT: line 8:
 // domain; they make no warranty and accept no liability
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 7:
+LINE_BREAK: line 8:
 // domain; they make no warranty and accept no liability
                                                         ^
-COMMENT: line 8:
+COMMENT: line 9:
 // for this data.
 ^^^^^^^^^^^^^^^^^
-LINE_BREAK: lines 8-9:
+LINE_BREAK: lines 9-10:
 // for this data.
                  ^
 <BLANK-LINE>
 ^
-WORD: abc: line 10:
+WORD: abc: line 11:
 abc 3.4+z (x,y)
 ^^^
-NUMBER: 3.4: line 10:
+NUMBER: 3.4: line 11:
 abc 3.4+z (x,y)
     ^^^
-MARK: +: line 10:
+MARK: +: line 11:
 abc 3.4+z (x,y)
        ^
-WORD: z: line 10:
+WORD: z: line 11:
 abc 3.4+z (x,y)
         ^
-SEPARATOR: (: line 10:
+SEPARATOR: (: line 11:
 abc 3.4+z (x,y)
           ^
-WORD: x: line 10:
+WORD: x: line 11:
 abc 3.4+z (x,y)
            ^
-SEPARATOR: ,: line 10:
+SEPARATOR: ,: line 11:
 abc 3.4+z (x,y)
             ^
-WORD: y: line 10:
+WORD: y: line 11:
 abc 3.4+z (x,y)
              ^
-SEPARATOR: ): line 10:
+SEPARATOR: ): line 11:
 abc 3.4+z (x,y)
               ^
-LINE_BREAK: line 10:
+LINE_BREAK: line 11:
 abc 3.4+z (x,y)
                ^
-QUOTED_STRING: hi: line 11:
+QUOTED_STRING: hi: line 12:
 "hi" "ho<HT>x y<>z<LF>"
 ^^^^
-QUOTED_STRING: ho␉x␣y<>z␤: line 11:
+QUOTED_STRING: ho␉x␣y<>z␤: line 12:
 "hi" "ho<HT>x y<>z<LF>"
      ^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 11:
+LINE_BREAK: line 12:
 "hi" "ho<HT>x y<>z<LF>"
                        ^
-WORD: 'tis: line 12:
+WORD: 'tis: line 13:
 'tis noth'ng `but' a h'dache.
 ^^^^
-WORD: noth'ng: line 12:
+WORD: noth'ng: line 13:
 'tis noth'ng `but' a h'dache.
      ^^^^^^^
-SEPARATOR: `: line 12:
+SEPARATOR: `: line 13:
 'tis noth'ng `but' a h'dache.
              ^
-WORD: but: line 12:
+WORD: but: line 13:
 'tis noth'ng `but' a h'dache.
               ^^^
-SEPARATOR: ': line 12:
+SEPARATOR: ': line 13:
 'tis noth'ng `but' a h'dache.
                  ^
-WORD: a: line 12:
+WORD: a: line 13:
 'tis noth'ng `but' a h'dache.
                    ^
-WORD: h'dache: line 12:
+WORD: h'dache: line 13:
 'tis noth'ng `but' a h'dache.
                      ^^^^^^^
-MARK: .: line 12:
+MARK: .: line 13:
 'tis noth'ng `but' a h'dache.
                             ^
-LINE_BREAK: line 12:
+LINE_BREAK: line 13:
 'tis noth'ng `but' a h'dache.
                              ^
-WORD: a: line 13:
+WORD: a: line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
 ^
-NUMBER: .1.2.3: line 13:
+NUMBER: .1.2.3: line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
  ^^^^^^
-MARK: .: line 13:
+MARK: .: line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
        ^
-WORD: b: line 13:
+WORD: b: line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
-        ^
-MARK: .: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-         ^
-WORD: c: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-          ^
-WORD: e: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-            ^
-NATURAL_NUMBER: 5: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-             ^
-WORD: f: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-              ^
-WORD: x: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                ^
-NATURAL_NUMBER: 7: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                 ^
-MARK: +: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                  ^
-WORD: y: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                   ^
-NATURAL_NUMBER: 6: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                    ^
-SEPARATOR: (: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                     ^
-NATURAL_NUMBER: 5: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                      ^
-WORD: z: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                       ^
-SEPARATOR: ): line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                        ^
-LINE_BREAK: line 13:
-a.1.2.3.b.c e5f x7+y6(5z)
-                         ^
-NUMBER: 12.3: line 14:
-12.3 .4 5. 6/7
-^^^^
-NUMBER: .4: line 14:
-12.3 .4 5. 6/7
-     ^^
-NATURAL_NUMBER: 5: line 14:
-12.3 .4 5. 6/7
         ^
 MARK: .: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+         ^
+WORD: c: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+          ^
+WORD: e: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+            ^
+NATURAL_NUMBER: 5: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+             ^
+WORD: f: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+              ^
+WORD: x: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                ^
+NATURAL_NUMBER: 7: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                 ^
+MARK: +: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                  ^
+WORD: y: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                   ^
+NATURAL_NUMBER: 6: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                    ^
+SEPARATOR: (: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                     ^
+NATURAL_NUMBER: 5: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                      ^
+WORD: z: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                       ^
+SEPARATOR: ): line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                        ^
+LINE_BREAK: line 14:
+a.1.2.3.b.c e5f x7+y6(5z)
+                         ^
+NUMBER: 12.3: line 15:
+12.3 .4 5. 6/7
+^^^^
+NUMBER: .4: line 15:
+12.3 .4 5. 6/7
+     ^^
+NATURAL_NUMBER: 5: line 15:
+12.3 .4 5. 6/7
+        ^
+MARK: .: line 15:
 12.3 .4 5. 6/7
          ^
-NUMBER: 6/7: line 14:
+NUMBER: 6/7: line 15:
 12.3 .4 5. 6/7
            ^^^
-LINE_BREAK: line 14:
+LINE_BREAK: line 15:
 12.3 .4 5. 6/7
               ^
-NUMBER: 1,23,456: line 15:
+NUMBER: 1,23,456: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
 ^^^^^^^^
-NUMBER: 1,234/6,789: line 15:
+NUMBER: 1,234/6,789: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
          ^^^^^^^^^^^
-NUMBER: 1/2/3/4,5/6,7,8/9: line 15:
+NUMBER: 1/2/3/4,5/6,7,8/9: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                      ^^^^^^^^^^^^^^^^^
-NUMBER: 8888.12,3,4: line 15:
+NUMBER: 8888.12,3,4: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                                        ^^^^^^^^^^^
-LINE_BREAK: line 15:
+LINE_BREAK: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                                                   ^
-MARK: /: line 16:
+MARK: /: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
 ^
-NATURAL_NUMBER: 3: line 16:
+NATURAL_NUMBER: 3: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
  ^
-NUMBER: 6.34.56: line 16:
+NUMBER: 6.34.56: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
    ^^^^^^^
-MARK: /: line 16:
+MARK: /: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
           ^
-NATURAL_NUMBER: 3: line 16:
+NATURAL_NUMBER: 3: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
             ^
-SEPARATOR: ,: line 16:
+SEPARATOR: ,: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
              ^
-NATURAL_NUMBER: 4: line 16:
+NATURAL_NUMBER: 4: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                ^
-SEPARATOR: ,: line 16:
+SEPARATOR: ,: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                 ^
-SEPARATOR: ,: line 16:
+SEPARATOR: ,: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                   ^
-NATURAL_NUMBER: 5: line 16:
+NATURAL_NUMBER: 5: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                    ^
-SEPARATOR: ,: line 16:
+SEPARATOR: ,: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                      ^
-NUMBER: 6.7,8.9: line 16:
+NUMBER: 6.7,8.9: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                       ^^^^^^^
-LINE_BREAK: line 16:
+LINE_BREAK: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                              ^
-MARK: +-*~@#$%^&=|<>_!?:: line 17:
+MARK: +-*~@#$%^&=|<>_!?:: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
 ^^^^^^^^^^^^^^^^^^
-QUOTED_STRING: foo: line 17:
+QUOTED_STRING: foo: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                   ^^^^^
-WORD: x: line 17:
+WORD: x: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                        ^
-ERROR: ascii escape sequence; line 17:
+ERROR: ascii escape sequence; line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                         ^^^^
-ERROR: ascii escape sequence; line 17:
+ERROR: ascii escape sequence; line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                             ^^^^
-MARK: <: line 17:
+MARK: <: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                 ^
-WORD: LF: line 17:
+WORD: LF: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                  ^^
-MARK: >: line 17:
+MARK: >: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                    ^
-LINE_BREAK: line 17:
+LINE_BREAK: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                     ^
-MARK: .: line 18:
+MARK: .: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
 ^
-WORD: foo: line 18:
+WORD: foo: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
  ^^^
-MARK: /: line 18:
+MARK: /: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
      ^
-WORD: foo: line 18:
+WORD: foo: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
       ^^^
-NATURAL_NUMBER: 3: line 18:
+NATURAL_NUMBER: 3: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
           ^
-MARK: /: line 18:
+MARK: /: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
            ^
-WORD: x: line 18:
+WORD: x: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
             ^
-WORD: x: line 18:
+WORD: x: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
               ^
-MARK: /: line 18:
+MARK: /: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                ^
-NATURAL_NUMBER: 3: line 18:
+NATURAL_NUMBER: 3: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                 ^
-NATURAL_NUMBER: 3: line 18:
+NATURAL_NUMBER: 3: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                   ^
-MARK: .: line 18:
+MARK: .: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                    ^
-WORD: x: line 18:
+WORD: x: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                     ^
-WORD: x: line 18:
+WORD: x: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                       ^
-NUMBER: .3: line 18:
+NUMBER: .3: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                        ^^
-COMMENT: line 18:
+COMMENT: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                          ^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 18:
+LINE_BREAK: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                                            ^
-WORD: a: line 19:
+WORD: a: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 ^
-SEPARATOR: (: line 19:
+SEPARATOR: (: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
  ^
-WORD: b: line 19:
+WORD: b: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
   ^
-SEPARATOR: ,: line 19:
+SEPARATOR: ,: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
    ^
-WORD: c: line 19:
+WORD: c: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
     ^
-SEPARATOR: ): line 19:
+SEPARATOR: ): line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
      ^
-WORD: d: line 19:
+WORD: d: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
        ^
-SEPARATOR: {: line 19:
+SEPARATOR: {: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
         ^
-WORD: e: line 19:
+WORD: e: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
          ^
-SEPARATOR: ;: line 19:
+SEPARATOR: ;: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
           ^
-WORD: f: line 19:
+WORD: f: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
            ^
-SEPARATOR: }: line 19:
+SEPARATOR: }: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
             ^
-WORD: g: line 19:
+WORD: g: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
               ^
-SEPARATOR: [: line 19:
+SEPARATOR: [: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                ^
-WORD: h: line 19:
+WORD: h: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                 ^
-SEPARATOR: ,: line 19:
+SEPARATOR: ,: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                  ^
-WORD: i: line 19:
+WORD: i: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                   ^
-SEPARATOR: ]: line 19:
+SEPARATOR: ]: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                    ^
-SEPARATOR: `: line 19:
+SEPARATOR: `: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                      ^
-SEPARATOR: `: line 19:
+SEPARATOR: `: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                       ^
-WORD: foobar: line 19:
+WORD: foobar: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                        ^^^^^^
-SEPARATOR: ': line 19:
+SEPARATOR: ': line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                              ^
-WORD: fum: line 19:
+WORD: fum: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                                ^^^
-SEPARATOR: ': line 19:
+SEPARATOR: ': line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                                   ^
-LINE_BREAK: line 19:
+LINE_BREAK: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                                    ^
-COMMENT: line 20:
+COMMENT: line 21:
 // form feed ␌
 ^^^^^^^^^^^^^
-LINE_BREAK: line 20:
+LINE_BREAK: line 21:
 // form feed ␌
              ^
-COMMENT: line 21:
+COMMENT: line 22:
 // vertical tab ␋
 ^^^^^^^^^^^^^^^^
-LINE_BREAK: line 21:
+LINE_BREAK: line 22:
 // vertical tab ␋
                 ^
-COMMENT: line 22:
+COMMENT: line 23:
 // carriage return ␍
 ^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 22:
+LINE_BREAK: line 23:
 // carriage return ␍
                    ^
-WORD: z: line 23:
+WORD: z: line 24:
 z       x // horizontal tab
 ^
-WORD: x: line 23:
+WORD: x: line 24:
 z       x // horizontal tab
         ^
-COMMENT: line 23:
+COMMENT: line 24:
 z       x // horizontal tab
           ^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 23:
+LINE_BREAK: line 24:
 z       x // horizontal tab
                            ^
-WORD: all: line 24:
+WORD: all: line 25:
 all     ␌␋␍
 ^^^
-LINE_BREAK: line 24:
+LINE_BREAK: line 25:
 all     ␌␋␍
         ^^^
-WORD: control: line 25:
+WORD: control: line 26:
 control A␁B␂C␃
 ^^^^^^^
-WORD: A: line 25:
+WORD: A: line 26:
 control A␁B␂C␃
         ^
-ERROR: misplaced character; line 25:
+ERROR: misplaced character; line 26:
 control A␁B␂C␃
          ^
-WORD: B: line 25:
+WORD: B: line 26:
 control A␁B␂C␃
           ^
-ERROR: misplaced character; line 25:
+ERROR: misplaced character; line 26:
 control A␁B␂C␃
            ^
-WORD: C: line 25:
+WORD: C: line 26:
 control A␁B␂C␃
             ^
-ERROR: misplaced character; line 25:
+ERROR: misplaced character; line 26:
 control A␁B␂C␃
              ^
-LINE_BREAK: line 25:
+LINE_BREAK: line 26:
 control A␁B␂C␃
               ^
-ERROR: unrecognized escape sequence; line 26:
+ERROR: unrecognized escape sequence; line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                             ^^^^
-QUOTED_STRING: "␤␍␉␈␌␋␣â␁: line 26:
+QUOTED_STRING: "␤␍␉␈␌␋␣â␁: line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 26:
+LINE_BREAK: line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                                              ^
-ERROR: ascii escape sequence; line 27:
+ERROR: ascii escape sequence; line 28:
 <0041><00000042>C D<00000045><0046>G
 ^^^^^^
-ERROR: ascii escape sequence; line 27:
+ERROR: ascii escape sequence; line 28:
 <0041><00000042>C D<00000045><0046>G
       ^^^^^^^^^^
-WORD: C: line 27:
+WORD: C: line 28:
 <0041><00000042>C D<00000045><0046>G
                 ^
-WORD: D: line 27:
+WORD: D: line 28:
 <0041><00000042>C D<00000045><0046>G
                   ^
-ERROR: ascii escape sequence; line 27:
+ERROR: ascii escape sequence; line 28:
 <0041><00000042>C D<00000045><0046>G
                    ^^^^^^^^^^
-ERROR: ascii escape sequence; line 27:
-<0041><00000042>C D<00000045><0046>G
-                             ^^^^^^
-WORD: G: line 27:
-<0041><00000042>C D<00000045><0046>G
-                                   ^
-LINE_BREAK: line 27:
-<0041><00000042>C D<00000045><0046>G
-                                    ^
 ERROR: ascii escape sequence; line 28:
-<0041><000000B5>C D<000000E3><0006>G
-^^^^^^
-WORD: µC: line 28:
-<0041><000000B5>C D<000000E3><0006>G
-      ^^^^^^^^^^^
-WORD: Dã: line 28:
-<0041><000000B5>C D<000000E3><0006>G
-                  ^^^^^^^^^^^
-ERROR: ascii escape sequence; line 28:
-<0041><000000B5>C D<000000E3><0006>G
+<0041><00000042>C D<00000045><0046>G
                              ^^^^^^
 WORD: G: line 28:
-<0041><000000B5>C D<000000E3><0006>G
+<0041><00000042>C D<00000045><0046>G
                                    ^
 LINE_BREAK: line 28:
-<0041><000000B5>C D<000000E3><0006>G
+<0041><00000042>C D<00000045><0046>G
                                     ^
 ERROR: ascii escape sequence; line 29:
+<0041><000000B5>C D<000000E3><0006>G
+^^^^^^
+WORD: µC: line 29:
+<0041><000000B5>C D<000000E3><0006>G
+      ^^^^^^^^^^^
+WORD: Dã: line 29:
+<0041><000000B5>C D<000000E3><0006>G
+                  ^^^^^^^^^^^
+ERROR: ascii escape sequence; line 29:
+<0041><000000B5>C D<000000E3><0006>G
+                             ^^^^^^
+WORD: G: line 29:
+<0041><000000B5>C D<000000E3><0006>G
+                                   ^
+LINE_BREAK: line 29:
+<0041><000000B5>C D<000000E3><0006>G
+                                    ^
+ERROR: ascii escape sequence; line 30:
 <0001>
 ^^^^^^
-LINE_BREAK: line 29:
+LINE_BREAK: line 30:
 <0001>
       ^
-QUOTED_STRING: ␀␁␂␃␄␅␆␇: line 30:
+QUOTED_STRING: ␀␁␂␃␄␅␆␇: line 31:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 30:
+LINE_BREAK: line 31:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
                                           ^
-QUOTED_STRING: ␈␉␤␤␋␌␍␎␏: line 31:
+QUOTED_STRING: ␈␉␤␤␋␌␍␎␏: line 32:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 31:
+LINE_BREAK: line 32:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
                                       ^
-QUOTED_STRING: ␐␑␒␓␔␕␖␗: line 32:
+QUOTED_STRING: ␐␑␒␓␔␕␖␗: line 33:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 32:
-"<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
-                                          ^
-QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 33:
-"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 33:
+"<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
+                                          ^
+QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 34:
+"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 34:
 "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
                                           ^
-ERROR: misplaced control character; line 34:
+ERROR: misplaced control character; line 35:
 "misplaced control ␁"
                    ^
-QUOTED_STRING: misplaced␣control␣: line 34:
+QUOTED_STRING: misplaced␣control␣: line 35:
 "misplaced control ␁"
 ^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line 34:
+LINE_BREAK: line 35:
 "misplaced control ␁"
                      ^
-WORD: misplaced: line 35:
+WORD: misplaced: line 36:
 misplaced space ␌ here and ␍ here
 ^^^^^^^^^
-WORD: space: line 35:
+WORD: space: line 36:
 misplaced space ␌ here and ␍ here
           ^^^^^
-ERROR: misplaced space; line 35:
+ERROR: misplaced space; line 36:
 misplaced space ␌ here and ␍ here
                 ^
-WORD: here: line 35:
+WORD: here: line 36:
 misplaced space ␌ here and ␍ here
                   ^^^^
-WORD: and: line 35:
+WORD: and: line 36:
 misplaced space ␌ here and ␍ here
                        ^^^
-ERROR: misplaced space; line 35:
+ERROR: misplaced space; line 36:
 misplaced space ␌ here and ␍ here
                            ^
-WORD: here: line 35:
+WORD: here: line 36:
 misplaced space ␌ here and ␍ here
                              ^^^^
-LINE_BREAK: line 35:
+LINE_BREAK: line 36:
 misplaced space ␌ here and ␍ here
                                  ^
-QUOTED_STRING: premature␣end␣of␣line: line 36:
+QUOTED_STRING: premature␣end␣of␣line: line 37:
 "premature end of line
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of line; line 36:
+ERROR: premature end of line; line 37:
 "premature end of line
                       ^
-LINE_BREAK: line 36:
+LINE_BREAK: line 37:
 "premature end of line
                       ^
-QUOTED_STRING: premature␣end␣of␣file: line 37:
+QUOTED_STRING: premature␣end␣of␣file: line 38:
 "premature end of file<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of file; line 37:
+ERROR: premature end of file; line 38:
 "premature end of file<END-OF-FILE>
                       ^
-END_OF_FILE: line 37:
+END_OF_FILE: line 38:
 "premature end of file<END-OF-FILE>
                       ^
-ERROR: line break missing from end of file; line 37:
+ERROR: line break missing from end of file; line 38:
 "premature end of file<END-OF-FILE>
                       ^

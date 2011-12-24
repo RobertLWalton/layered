@@ -1,109 +1,109 @@
-EXPRESSION: SHORT_OBJ: line 10:
+EXPRESSION: SHORT_OBJ: line 11:
 This is a line;
 ^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 11:
+EXPRESSION: SHORT_OBJ: line 12:
 This is a line containing a "quoted string".
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 12-13:
+EXPRESSION: SHORT_OBJ: lines 13-14:
 This is a line containing a large number
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      12345678901234567890.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 15:
+EXPRESSION: SHORT_OBJ: line 16:
      ( hi there ).
      ^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 14-15:
+EXPRESSION: SHORT_OBJ: lines 15-16:
 This is a line containing a parenthesized subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      ( hi there ).
 ^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 17:
+EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
                ^^^^^
-EXPRESSION: SHORT_OBJ: line 17:
+EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
           ^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 17:
+EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
                         ^^^^^^^
-EXPRESSION: SHORT_OBJ: line 17:
+EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 16-17:
+EXPRESSION: SHORT_OBJ: lines 17-18:
 This line contains subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + `y z {p q}' - [ g h ]).
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: missing closing bracket `}' inserted before line 19:
+ERROR: missing closing bracket `}' inserted before line 20:
      (x + { y z )
                 ^
-EXPRESSION: SHORT_OBJ: line 19:
+EXPRESSION: SHORT_OBJ: line 20:
      (x + { y z )
           ^^^^^
-EXPRESSION: SHORT_OBJ: line 19:
+EXPRESSION: SHORT_OBJ: line 20:
      (x + { y z )
      ^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 18-19:
+EXPRESSION: SHORT_OBJ: lines 19-20:
 This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + { y z )
 ^^^^^^^^^^^^^^^^^
-ERROR: spurious closing bracket `}' found and ignored; line 21:
+ERROR: spurious closing bracket `}' found and ignored; line 22:
      (x + y }
             ^
-ERROR: missing closing bracket `)' inserted before line 21:
+ERROR: missing closing bracket `)' inserted before line 22:
      (x + y }
              ^
-EXPRESSION: SHORT_OBJ: line 21:
+EXPRESSION: SHORT_OBJ: line 22:
      (x + y }
      ^^^^^^
-EXPRESSION: SHORT_OBJ: lines 20-21:
+EXPRESSION: SHORT_OBJ: lines 21-22:
 This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + y }
 ^^^^^^^^^^^
-ERROR: lexeme indent 1 too near paragraph indent 0; line 23:
+ERROR: lexeme indent 1 too near paragraph indent 0; line 24:
  a token with insufficient indent
  ^
-EXPRESSION: SHORT_OBJ: lines 22-23:
+EXPRESSION: SHORT_OBJ: lines 23-24:
 This line includes
 ^^^^^^^^^^^^^^^^^^
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 25:
+EXPRESSION: SHORT_OBJ: line 26:
    First line.
    ^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 26:
+EXPRESSION: SHORT_OBJ: line 27:
    Second line.
    ^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 24-26:
+EXPRESSION: SHORT_OBJ: lines 25-27:
 This line starts in indented paragraph:
                                       ^
    First line.
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 24-26:
+EXPRESSION: SHORT_OBJ: lines 25-27:
 This line starts in indented paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    First line.
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 28:
+EXPRESSION: SHORT_OBJ: line 29:
    Third line.
    ^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 29:
+EXPRESSION: SHORT_OBJ: line 30:
    Fourth line.
    ^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 27-29:
+EXPRESSION: SHORT_OBJ: lines 28-30:
 Ditto with split =:
                   ^
    Third line.
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 27-29:
+EXPRESSION: SHORT_OBJ: lines 28-30:
 Ditto with split =:
 ^^^^^^^^^^^^^^^^^^^
    Third line.

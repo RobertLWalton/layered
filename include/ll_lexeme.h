@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 17:04:07 EST 2011
+// Date:	Mon Dec 26 07:29:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,9 +70,18 @@ namespace ll { namespace lexeme {
 	return min::ptr<T> ( program + index );
     }
 
+    const uns32 AFTER_GRAPHIC = 0xFFFFFFFF;
+
     struct inchar : public min::position
         // Element of input_buffer: see below.
     {
+	uns32	indent;
+	    // Set to the number of whitespace columns
+	    // before this character on the line, or
+	    // to AFTER_GRAPHIC if there is a non-white-
+	    // space character on the line before this
+	    // character.
+
 	uns32	character;
     };
 
@@ -664,26 +673,27 @@ namespace ll { namespace lexeme {
 	    // Packed structure control word.
 
 	// The input buffer is a vector of inchar
-	// elements each holding a character and the
-	// position of that character in the input text.
-	// The position, consisting of a line, an index,
-	// and a column, is not used by the scanner.
+	// elements each holding a character, the posi-
+	// tion of that character in the input text, and
+	// the indent of the character.  The position
+	// and indent are not used by the scanner.
 	//
 	// Created when the scanner is created, and set
 	// empty by scanner initialization functions.
 	//
 	const ll::lexeme::input_buffer input_buffer;
 
-	// The line, index, and column of the character
-	// that will be put next at the end of the input
-	// buffer.  May be used as the position just
-	// after the last character that was put into
-	// the input buffer, e.g., the position of the
-	// end of file.
+	// The position and indent of the character that
+	// will be put next at the end of the input
+	// buffer.  May be used as the position and
+	// indent just after the last character that was
+	// put into the input buffer, e.g., the position
+	// and indent of the end of file.
 	//
 	// Zero'ed by scanner initialization functions.
 	//
 	min::position next_position;
+	min::uns32 next_indent;
 
 	// The translation buffer holds the translation
 	// of the current lexeme.  For example, if the
@@ -737,7 +747,8 @@ namespace ll { namespace lexeme {
 	// ll::lexeme::default_input, the default value
 	// of `input', reads UTF-8 lines from the input_
 	// file and assigns each UNICODE character a
-	// line, index, and column number as follows:
+	// position line and index, and an indent, as
+	// follows:
 	//
 	//   line   input_file->line_number - 1 after
 	//	    calling next_line(input_file).
@@ -747,16 +758,12 @@ namespace ll { namespace lexeme {
 	//	    bytes that encode the character
 	//	    added to the input buffer.
 	//
-	//   column Set to 0 at the beginning of a line;
-	//	    incremented by 
-	//
-	//		min::width
-	//		    ( column, c,
-	//                    scanner->input_file
-	//                           ->print_flags )
-	//
-	//	    where c is the UNICODE character
-	//	    added to the input buffer.
+	//   indent Set to 0 at the beginning of a line;
+	//	    incremented by 1 for a single space,
+	//	    by 8 - indent % 8 for a horizontal
+	//	    tab, and by 0 for a vertical tab or
+	//	    form feed.  Set to AFTER_GRAPHIC
+	//	    by any non-space character.
 	//
 	// Set to NULL_STUB when the scanner is created.
 	// Set by
@@ -991,9 +998,9 @@ namespace ll { namespace lexeme {
     };
 
     // Ditto but print the current lexeme, given its
-    // first, next, and type.  Include the position and
-    // type, and if the translation is inexact, also
-    // include the translation buffer.
+    // first, next, and type.  Include the type and
+    // any ident, and if the translation is inexact,
+    // also include the translation buffer.
     //
     struct plexeme
     {
@@ -1023,11 +1030,9 @@ namespace ll { namespace lexeme {
     };
 
     // Just line min::pline_numbers but takes scanner,
-    // first, and next as arguments and uses line
-    // numbers of scanner->input_buffer[first/next],
-    // or scanner->next_position if these do not
-    // exist, and decrements end line by 1 if end column
-    // is 0.
+    // first, and next as arguments and uses positions
+    // of scanner->input_buffer[first/next], or
+    // scanner->next_position if these do not exist.
     //
     min::pline_numbers pline_numbers
 	    ( ll::lexeme::scanner scanner,

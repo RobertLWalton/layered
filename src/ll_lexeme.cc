@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 17:03:52 EST 2011
+// Date:	Mon Dec 26 08:06:47 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -809,17 +809,17 @@ static bool default_input_get
 {
     min::file file = scanner->input_file;
 
+    LEX::inchar ic;
+    ic.line = scanner->next_position.line;
+    ic.index = scanner->next_position.index;
+    ic.indent = scanner->next_indent;
+    MIN_ASSERT (    ic.line
+                 == file->next_line_number );
+
     min::uns32 offset = min::next_line ( file );
     min::uns32 length = 0xFFFFFFFF;
 
-    LEX::inchar ic;
-    ic.line = file->next_line_number;
-    ic.index = 0;
-    ic.column = 0;
-
-    if ( offset != min::NO_LINE )
-        -- ic.line;
-    else
+    if ( offset == min::NO_LINE )
     {
         length = min::remaining_length ( file );
         if ( length == 0 ) return false;
@@ -841,9 +841,21 @@ static bool default_input_get
 
 	ic.character = unicode;
 	min::push(input_buffer) = ic;
+
 	ic.index += bytes_read;
-	min::pwidth ( ic.column, unicode,
-		      file->print_flags );
+	if ( ic.indent != AFTER_GRAPHIC )
+	    switch ( unicode )
+	{
+	case ' ' : ++ ic.indent;
+	           break;
+	case '\t': ic.indent += 8 - ic.indent % 8;
+	           break;
+	case '\f':
+	case '\v':
+		   break;
+	default:
+		   ic.indent = AFTER_GRAPHIC;
+	}
     }
 
     if ( length != 0 )
@@ -852,10 +864,11 @@ static bool default_input_get
 	min::push(input_buffer) = ic;
 	++ ic.line;
 	ic.index = 0;
-	ic.column = 0;
+	ic.indent = 0;
     }
 
     scanner->next_position = (min::position) ic;
+    scanner->next_indent = ic.indent;
 
     return true;
 }
@@ -947,6 +960,7 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 	scanner->next_position.line = 0;
 	scanner->next_position.index = 0;
 	scanner->next_position.column = 0;
+	scanner->next_indent = 0;
 
 	scanner->next = 0;
     }
@@ -1970,10 +1984,15 @@ static min::printer scan_error
 	    (min::position)
 	        scanner->input_buffer[next] :
 	    scanner->next_position;
+    min::uns32 indent =
+	scanner->next < scanner->input_buffer->length ?
+	    scanner->input_buffer[next].indent :
+	    scanner->next_indent;
     min::error_message << ": position "
 	               << position.line << "("
-	               << position.index << ")"
-	               << position.column;
+	               << position.index << ")";
+    if ( indent != LEX::AFTER_GRAPHIC )
+	min::error_message << indent;
 
     return min::error_message
         << ": "
@@ -2063,13 +2082,19 @@ min::printer operator <<
         first < input_buffer->length ?
 	    (min::position) input_buffer[first] :
 	    scanner->next_position;
+    min::uns32 indent =
+        first < input_buffer->length ?
+	    input_buffer[first].indent :
+	    scanner->next_indent;
 
-    return printer << position.line << "("
-	           << position.index << ")"
-	           << position.column << ": "
-	           << min::reserve ( next + 1 - first )
-	           << LEX::pinput
-		          ( scanner, first, next );
+    printer << position.line << "("
+	    << position.index << ")";
+    if ( indent != LEX::AFTER_GRAPHIC )
+	printer << indent;
+    printer << ": "
+	    << min::reserve ( next + 1 - first )
+	    << LEX::pinput ( scanner, first, next );
+    return printer;
 }
 
 bool LEX::translation_is_exact

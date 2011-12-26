@@ -222,44 +222,44 @@ Testing Lexical Scan of:
 
 Scan Returned: WHITESPACE 0(0)0: <SP>
 Scan Returned: SYMBOL 0(1)1: ab
-Scan Returned: WHITESPACE 0(3)3: <SP>
-Scan Returned: NUMBER 0(4)4: 3.4
-Scan Returned: WHITESPACE 0(7)7: <SP>
-Scan Returned: SYMBOL 0(8)8: x
-Scan Returned: OPERATOR 0(9)9: +
-Scan Returned: SYMBOL 0(10)10: y
-Scan Returned: OPERATOR 0(11)11: ++
-Scan Returned: SYMBOL 0(13)13: z
-Scan Returned: WHITESPACE 0(14)14: <LF>
+Scan Returned: WHITESPACE 0(3): <SP>
+Scan Returned: NUMBER 0(4): 3.4
+Scan Returned: WHITESPACE 0(7): <SP>
+Scan Returned: SYMBOL 0(8): x
+Scan Returned: OPERATOR 0(9): +
+Scan Returned: SYMBOL 0(10): y
+Scan Returned: OPERATOR 0(11): ++
+Scan Returned: SYMBOL 0(13): z
+Scan Returned: WHITESPACE 0(14): <LF>
 Scan Returned: END_OF_FILE 1(0)0: <empty>
 
 Testing Lexical Scan of:
     *a**b+++c(+d<DEL>e%f0--1.2.3<SOH><STX>A\102C\100D\10E<LF>
 
 Scan Returned: OPERATOR 0(0)0: *
-Scan Returned: SYMBOL 0(1)1: a
-Scan Returned: OPERATOR 0(2)2: *
-Scan Returned: OPERATOR 0(3)3: *
-Scan Returned: SYMBOL 0(4)4: b
-Scan Returned: OPERATOR 0(5)5: ++
-Scan Returned: OPERATOR 0(7)7: +
-Scan Returned: SYMBOL 0(8)8: c
-Scan Returned: SEPARATOR 0(9)9: (
-Scan Returned: OPERATOR 0(10)10: +
-ERRONEOUS ATOM: TYPE (100) 0(12)12: <DEL>
-Scan Returned: SYMBOL 0(11)11: d<DEL>e translated to: de
-Scan Returned: ERROR 0(14)13: %
-Scan Returned: SYMBOL 0(15)14: f0
-Scan Returned: OPERATOR 0(17)16: --
-Scan Returned: NUMBER 0(19)18: 1.2
-Scan Returned: NUMBER 0(22)21: .3
-Scan Returned: ERROR 0(24)23: <SOH>
-Scan Returned: ERROR 0(25)23: <STX>
-ERRONEOUS ATOM: TYPE (100) 0(32)29: \
-ERRONEOUS ATOM: TYPE (100) 0(37)34: \
-Scan Returned: SYMBOL 0(26)23: A\102C\100D\10E
+Scan Returned: SYMBOL 0(1): a
+Scan Returned: OPERATOR 0(2): *
+Scan Returned: OPERATOR 0(3): *
+Scan Returned: SYMBOL 0(4): b
+Scan Returned: OPERATOR 0(5): ++
+Scan Returned: OPERATOR 0(7): +
+Scan Returned: SYMBOL 0(8): c
+Scan Returned: SEPARATOR 0(9): (
+Scan Returned: OPERATOR 0(10): +
+ERRONEOUS ATOM: TYPE (100) 0(12): <DEL>
+Scan Returned: SYMBOL 0(11): d<DEL>e translated to: de
+Scan Returned: ERROR 0(14): %
+Scan Returned: SYMBOL 0(15): f0
+Scan Returned: OPERATOR 0(17): --
+Scan Returned: NUMBER 0(19): 1.2
+Scan Returned: NUMBER 0(22): .3
+Scan Returned: ERROR 0(24): <SOH>
+Scan Returned: ERROR 0(25): <STX>
+ERRONEOUS ATOM: TYPE (100) 0(32): \
+ERRONEOUS ATOM: TYPE (100) 0(37): \
+Scan Returned: SYMBOL 0(26): A\102C\100D\10E
      translated to: ABC100D10E
-Scan Returned: WHITESPACE 0(41)38: <LF>
+Scan Returned: WHITESPACE 0(41): <LF>
 Scan Returned: END_OF_FILE 1(0)0: <empty>
 
 Testing Lexical Scan of:
@@ -281,21 +281,21 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), RETURN
-Scan Returned: SYMBOL 0(1)1: a
+Scan Returned: SYMBOL 0(1): a
 Start atom scan: table = #XXXX
   Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), GOTO(#XXXX)
 Start atom scan: table = #XXXX
   Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 3
   #XXXX: GOTO(#XXXX)
-Scan Returned: OPERATOR 0(2)2: *
+Scan Returned: OPERATOR 0(2): *
 Start atom scan: table = #XXXX
   Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), GOTO(#XXXX)
 Start atom scan: table = #XXXX
   Character = * Dispatcher = #XXXX Type Map = #XXXX CType = 3
   #XXXX: GOTO(#XXXX)
-Scan Returned: OPERATOR 0(3)3: *
+Scan Returned: OPERATOR 0(3): *
 Start atom scan: table = #XXXX
   Character = b Dispatcher = #XXXX Type Map = #XXXX CType = 2
   #XXXX: KEEP(0), CALL(#XXXX)
@@ -305,7 +305,7 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), RETURN
-Scan Returned: SYMBOL 0(4)4: b
+Scan Returned: SYMBOL 0(4): b
 Start atom scan: table = #XXXX
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), GOTO(#XXXX)
@@ -313,7 +313,7 @@ Start atom scan: table = #XXXX
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
   #XXXX: GOTO(#XXXX)
-Scan Returned: OPERATOR 0(5)5: ++
+Scan Returned: OPERATOR 0(5): ++
 Start atom scan: table = #XXXX
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), GOTO(#XXXX)
@@ -321,7 +321,7 @@ Start atom scan: table = #XXXX
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
   Character = c Dispatcher = #XXXX CType = 0
   #XXXX: GOTO(#XXXX)
-Scan Returned: OPERATOR 0(7)7: +
+Scan Returned: OPERATOR 0(7): +
 Start atom scan: table = #XXXX
   Character = c Dispatcher = #XXXX Type Map = #XXXX CType = 2
   #XXXX: KEEP(0), CALL(#XXXX)
@@ -331,11 +331,11 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = ( Dispatcher = #XXXX Type Map = #XXXX CType = 5
   #XXXX: KEEP(0), RETURN
-Scan Returned: SYMBOL 0(8)8: c
+Scan Returned: SYMBOL 0(8): c
 Start atom scan: table = #XXXX
   Character = ( Dispatcher = #XXXX Type Map = #XXXX CType = 5
   #XXXX: OUTPUT(6)
-Scan Returned: SEPARATOR 0(9)9: (
+Scan Returned: SEPARATOR 0(9): (
 Start atom scan: table = #XXXX
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), GOTO(#XXXX)
@@ -343,7 +343,7 @@ Start atom scan: table = #XXXX
   Character = + Dispatcher = #XXXX Type Map = #XXXX CType = 1
   Character = d Dispatcher = #XXXX CType = 0
   #XXXX: GOTO(#XXXX)
-Scan Returned: OPERATOR 0(10)10: +
+Scan Returned: OPERATOR 0(10): +
 Start atom scan: table = #XXXX
   Character = d Dispatcher = #XXXX Type Map = #XXXX CType = 2
   #XXXX: KEEP(0), CALL(#XXXX)
@@ -353,18 +353,18 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = <DEL> Dispatcher = #XXXX Type Map = #XXXX CType = 8
   #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-ERRONEOUS ATOM: TYPE (100) 0(12)12: <DEL>
+ERRONEOUS ATOM: TYPE (100) 0(12): <DEL>
 Start atom scan: table = #XXXX
   Character = e Dispatcher = #XXXX Type Map = #XXXX CType = 2
   #XXXX: ACCEPT
 Start atom scan: table = #XXXX
   Character = % Dispatcher = #XXXX Type Map = #XXXX CType = 0
   #XXXX: KEEP(0), RETURN
-Scan Returned: SYMBOL 0(11)11: d<DEL>e translated to: de
+Scan Returned: SYMBOL 0(11): d<DEL>e translated to: de
 Start atom scan: table = #XXXX
   Character = % Dispatcher = #XXXX Type Map = #XXXX CType = 0
   #XXXX: OUTPUT(1)
-Scan Returned: ERROR 0(14)13: %
+Scan Returned: ERROR 0(14): %
 Start atom scan: table = #XXXX
   Character = f Dispatcher = #XXXX Type Map = #XXXX CType = 2
   #XXXX: KEEP(0), CALL(#XXXX)
@@ -377,7 +377,7 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), RETURN
-Scan Returned: SYMBOL 0(15)14: f0
+Scan Returned: SYMBOL 0(15): f0
 Start atom scan: table = #XXXX
   Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 6
   #XXXX: KEEP(0), GOTO(#XXXX)
@@ -385,7 +385,7 @@ Start atom scan: table = #XXXX
   Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 2
   Character = - Dispatcher = #XXXX Type Map = #XXXX CType = 2
   #XXXX: GOTO(#XXXX)
-Scan Returned: OPERATOR 0(17)16: --
+Scan Returned: OPERATOR 0(17): --
 Start atom scan: table = #XXXX
   Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 3
   #XXXX: KEEP(0), GOTO(#XXXX)
@@ -401,7 +401,7 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = . Dispatcher = #XXXX CType = 0
   #XXXX: KEEP(0), GOTO(#XXXX)
-Scan Returned: NUMBER 0(19)18: 1.2
+Scan Returned: NUMBER 0(19): 1.2
 Start atom scan: table = #XXXX
   Character = . Dispatcher = #XXXX Type Map = #XXXX CType = 4
   #XXXX: KEEP(0), GOTO(#XXXX)
@@ -414,15 +414,15 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = <SOH> Dispatcher = #XXXX CType = 0
   #XXXX: KEEP(0), GOTO(#XXXX)
-Scan Returned: NUMBER 0(22)21: .3
+Scan Returned: NUMBER 0(22): .3
 Start atom scan: table = #XXXX
   Character = <SOH> Dispatcher = #XXXX Type Map = #XXXX CType = 0
   #XXXX: OUTPUT(1)
-Scan Returned: ERROR 0(24)23: <SOH>
+Scan Returned: ERROR 0(24): <SOH>
 Start atom scan: table = #XXXX
   Character = <STX> Dispatcher = #XXXX Type Map = #XXXX CType = 0
   #XXXX: OUTPUT(1)
-Scan Returned: ERROR 0(25)23: <STX>
+Scan Returned: ERROR 0(25): <STX>
 Start atom scan: table = #XXXX
   Character = A Dispatcher = #XXXX Type Map = #XXXX CType = 2
   #XXXX: KEEP(0), CALL(#XXXX)
@@ -461,7 +461,7 @@ Start atom scan: table = #XXXX
 
   Character = @ Dispatcher = #XXXX CType = 0
   #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-ERRONEOUS ATOM: TYPE (100) 0(32)29: \
+ERRONEOUS ATOM: TYPE (100) 0(32): \
 Start atom scan: table = #XXXX
   Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 3
   #XXXX: ACCEPT
@@ -486,7 +486,7 @@ Start atom scan: table = #XXXX
   Character = E Dispatcher = #XXXX CType = 0
   #XXXX: FAIL
   #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-ERRONEOUS ATOM: TYPE (100) 0(37)34: \
+ERRONEOUS ATOM: TYPE (100) 0(37): \
 Start atom scan: table = #XXXX
   Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 3
   #XXXX: ACCEPT
@@ -499,14 +499,14 @@ Start atom scan: table = #XXXX
 Start atom scan: table = #XXXX
   Character = <LF> Dispatcher = #XXXX Type Map = #XXXX CType = 1
   #XXXX: KEEP(0), RETURN
-Scan Returned: SYMBOL 0(26)23: A\102C\100D\10E
+Scan Returned: SYMBOL 0(26): A\102C\100D\10E
      translated to: ABC100D10E
 Start atom scan: table = #XXXX
   Character = <LF> Dispatcher = #XXXX Type Map = #XXXX CType = 1
   #XXXX: GOTO(#XXXX)
 Start atom scan: table = #XXXX
   #XXXX: KEEP(0), GOTO(#XXXX)
-Scan Returned: WHITESPACE 0(41)38: <LF>
+Scan Returned: WHITESPACE 0(41): <LF>
 Start atom scan: table = #XXXX
   #XXXX: OUTPUT(2)
 Scan Returned: END_OF_FILE 1(0)0: <empty>

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 15:02:52 EDT 2011
+// Date:	Mon Dec 26 13:45:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -140,13 +140,19 @@ static void set_codes
     if ( ::next_line <= line ) set_line ( line );
 
     uns32 begin_column =
-        first < scanner->input_buffer->length ?
-        scanner->input_buffer[first].column :
-	scanner->next_position.column;
+        min::print_line_column
+	    ( scanner->input_file,
+	      first < scanner->input_buffer->length ?
+	        (min::position)
+		    scanner->input_buffer[first] :
+	        scanner->next_position );
     uns32 end_column =
-        next < scanner->input_buffer->length ?
-        scanner->input_buffer[next].column :
-	scanner->next_position.column;
+        min::print_line_column
+	    ( scanner->input_file,
+              next < scanner->input_buffer->length ?
+                (min::position)
+		    scanner->input_buffer[next] :
+		scanner->next_position );
 
     if ( end_column <= begin_column )
 	    end_column = ::line_width;

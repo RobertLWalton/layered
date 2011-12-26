@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 23 13:11:12 EST 2011
+// Date:	Sun Dec 25 17:04:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -488,9 +488,8 @@ static void convert_token ( PAR::token token )
 // .arguments, and .keys if these are not MISSING.
 // Allow for later addition of a .separator.
 //
-// Set the begin and end positions of the new token from
-// the given arguments.  The resulting token is next->
-// previous.
+// Set the position of the new token from the given
+// argument.  The resulting token is next->previous.
 //
 // Any token in the expression being output that has a
 // MISSING token value must be a non-natural number or
@@ -502,8 +501,7 @@ static void convert_token ( PAR::token token )
 static void compact
 	( PAR::parser parser,
 	  PAR::token first, PAR::token next,
-	  min::position begin,
-	  min::position end,
+	  min::phrase_position position,
 	  min::gen initiator = min::MISSING(),
 	  min::gen terminator = min::MISSING(),
 	  min::gen middle = min::MISSING(),
@@ -602,8 +600,7 @@ static void compact
     PAR::put_before ( first_ref(parser), next, token );
 
     PAR::value_ref(token) = exp;
-    token->begin = begin;
-    token->end = end;
+    token->position = position;
 
     if (   parser->trace
          & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS )
@@ -612,13 +609,13 @@ static void compact
 	        << "EXPRESSION: "
 		<< min::pgen ( token->value )
 		<< ": "
-		<< LEX::pline_numbers
+		<< min::pline_numbers
 		        ( parser->input_file,
-			  begin, end )
+			  position )
 		<< ":" << min::eol;
-	    min::print_item_lines
+	    min::print_phrase_lines
 		( parser->printer,
-		  parser->input_file, begin, end );
+		  parser->input_file, position );
     }
 }
 
@@ -865,16 +862,14 @@ static void named_attributes
 		<< min::bom << min::set_indent ( 7 )
 		<< "ERROR: empty key in named bracket"
 		<< " or operator; "
-		<< LEX::pline_numbers
+		<< min::pline_numbers
 		       ( parser->input_file,
-			 tnext->begin,
-			 tnext->end )
+			 tnext->position )
 		<< ":" << min::eom;
-	    min::print_item_lines
+	    min::print_phrase_lines
 		( parser->printer,
 		  parser->input_file,
-		  tnext->begin,
-		  tnext->end );
+		  tnext->position );
 	}
     }
 
@@ -925,7 +920,7 @@ inline min::position remove
         n = min::lablen ( label );
     while ( n -- )
     {
-        result = next->previous->begin;
+        result = next->previous->position.begin;
         PAR::free
 	    ( PAR::remove
 		  ( PAR::first_ref(parser),
@@ -978,20 +973,18 @@ static void complain_near_indent
     parser->printer
 	<< min::bom << min::set_indent ( 7 )
 	<< "ERROR: lexeme indent "
-	<< token->begin.column
+	<< token->position.begin.column
 	<< " too near paragraph indent "
 	<< indent
 	<< "; "
-	<< LEX::pline_numbers
+	<< min::pline_numbers
 	       ( parser->input_file,
-		 token->begin,
-		 token->end )
+		 token->position )
 	<< ":" << min::eom;
-    min::print_item_lines
+    min::print_phrase_lines
 	( parser->printer,
 	  parser->input_file,
-	  token->begin,
-	  token->end );
+	  token->position );
 }
 
 // Return true if token indent is > indent and complain
@@ -1002,7 +995,7 @@ inline bool is_indented
 	  PAR::token token,
 	  min::int32 indent )
 {
-    int near = (min::int32) token->begin.column
+    int near = (min::int32) token->position.begin.column
 	     - indent;
     if (    near != 0
 	 && near < parser->indent_offset 
@@ -1456,17 +1449,25 @@ static bool parse_explicit_subexpression
 			// mark has split->length bytes
 			// and `columns' columns.
 			//
-			current->previous->end =
+			current->previous
+			       ->position.end =
 			    current->previous
-			           ->previous->end;
-			current->previous->begin =
-			    current->previous->end;
-			current->previous->begin.index
+			           ->previous
+				   ->position.end;
+			current->previous
+			       ->position.begin =
+			    current->previous
+			           ->position.end;
+			current->previous
+			       ->position.begin.index
 			    -= split->length;
-			current->previous->begin.column
+			current->previous
+			       ->position.begin.column
 			    -= columns;
-			current->previous->previous->end
-			    = current->previous->begin;
+			current->previous->previous
+			       ->position.end
+			    = current->previous
+			             ->position.begin;
 
 			// Back up to split_backup which
 			// will equal the mark that was
@@ -1505,7 +1506,7 @@ static bool parse_explicit_subexpression
 	    min::uns32 next_indent =
 	        next->type == LEXSTD::end_of_file_t ?
 		0 :
-		next->begin.column;
+		next->position.begin.column;
 
 	    // Delete the line breaks and full line
 	    // comments skipped (keeping the line break
@@ -1518,22 +1519,25 @@ static bool parse_explicit_subexpression
 	    // last such.
 	    //
 	    bool iic_exists = false;
-	    min::position iic_begin, iic_end;
+	    min::phrase_position iic_position;
 	    while ( current->next != next )
 	    {
 		if (    current->next->type
 		     == LEXSTD::comment_t
 		     &&
-		       current->next->begin.column
+		       current->next
+		              ->position.begin.column
 		     < next_indent )
 		{
 		    if ( ! iic_exists )
 		    {
 		        iic_exists = true;
-			iic_begin =
-			    current->next->begin;
+			iic_position.begin =
+			    current->next
+			           ->position.begin;
 		    }
-		    iic_end = current->next->end;
+		    iic_position.end =
+		        current->next->position.end;
 		}
 		    
 		PAR::free
@@ -1551,16 +1555,14 @@ static bool parse_explicit_subexpression
 		    << min::set_indent ( 9 )
 		    << "WARNING: comments NOT indented"
 		       " as much as following line; "
-		    << LEX::pline_numbers
+		    << min::pline_numbers
 			   ( parser->input_file,
-			     iic_begin,
-			     iic_end )
+			     iic_position )
 		    << ":" << min::eom;
-		min::print_item_lines
+		min::print_phrase_lines
 		    ( parser->printer,
 		      parser->input_file,
-		      iic_begin,
-		      iic_end );
+		      iic_position );
 	    }
 
 	    if ( indentation_found != min::NULL_STUB )
@@ -1595,7 +1597,8 @@ static bool parse_explicit_subexpression
 					 .xor_selectors;
 
 		    min::int32 paragraph_indent =
-		        current->next->begin.column;
+		        current->next
+			       ->position.begin.column;
 
 		    // Delete line break.
 		    //
@@ -1630,10 +1633,13 @@ static bool parse_explicit_subexpression
 			//
 			if ( first != next )
 			{
-			    min::position begin =
-			        first->begin;
-			    min::position end =
-			        next->previous->end;
+			    min::phrase_position
+			        position;
+			    position.begin =
+			        first->position.begin;
+			    position.end =
+			        next->previous
+				    ->position.end;
 
 			    min::gen terminator =
 			        ::new_line;
@@ -1657,7 +1663,7 @@ static bool parse_explicit_subexpression
 
 			    ::compact
 			        ( parser, first, next,
-				  begin, end,
+				  position,
 				  min::MISSING(),
 				  terminator );
 			}
@@ -1677,7 +1683,8 @@ static bool parse_explicit_subexpression
 			      == LEXSTD::end_of_file_t 
 			      ||
 			        current->next
-				       ->begin.column
+				       ->position.begin
+				                 .column
 			      < paragraph_indent )
 			    break;
 
@@ -1692,13 +1699,15 @@ static bool parse_explicit_subexpression
 		}
 
 		PAR::token first = mark_end->next;
-		min::position begin =
+		min::phrase_position position;
+		position.begin =
 		    ::remove
 			( parser, first,
 			  indentation_found->label );
+		position.end = next->previous
+		                   ->position.end;
 		::compact ( parser, first, next,
-			    begin,
-			    next->previous->end,
+			    position,
 			    indentation_found->label );
 
 		// Terminate subexpression if closing
@@ -1806,8 +1815,8 @@ static bool parse_explicit_subexpression
 		          current->previous->string,
 		      current->string->length,
 		      current->string + 0 );
-		current->previous->end =
-		    current->end;
+		current->previous->position.end =
+		    current->position.end;
 		current = current->next;
 		PAR::free
 		    ( PAR::remove
@@ -1924,26 +1933,24 @@ static bool parse_explicit_subexpression
 				   label,
 			       & ::bracket_format )
 			<< "' inserted before "
-			<< LEX::pline_numbers
+			<< min::pline_numbers
 			       ( parser->input_file,
-				 next->begin,
-				 next->end )
+				 next->position )
 			<< ":" << min::eom;
-		    min::print_item_lines
+		    min::print_phrase_lines
 			( parser->printer,
 			  parser->input_file,
-			  next->begin,
-			  next->end );
+			  next->position );
 
-		    min::position end =
-			next->previous->end;
-		    min::position begin =
+		    min::phrase_position position;
+		    position.end =
+			next->previous->position.end;
+		    position.begin =
 			::remove
 			    ( parser, first,
 			      opening_bracket->label );
 		    ::compact
-			( parser, first, next,
-			  begin, end,
+			( parser, first, next, position,
 			  opening_bracket->label,
 			  opening_bracket->
 			      closing_bracket->
@@ -1974,18 +1981,19 @@ static bool parse_explicit_subexpression
 		    assert (    cstack.closing_next
 		             == current );
 
-		    min::position end =
-			current->previous->end;
+		    min::phrase_position position;
+		    position.end =
+			current->previous->position.end;
 		    ::remove ( parser, current,
 			       cstack.opening_bracket
 			           ->closing_bracket
 				   ->label );
-		    min::position begin =
+		    position.begin =
 			::remove
 			    ( parser, first,
 			      opening_bracket->label );
 		    ::compact ( parser, first, current,
-				begin, end,
+				position,
 				opening_bracket->label,
 				opening_bracket->
 				    closing_bracket->
@@ -2027,9 +2035,10 @@ static bool parse_explicit_subexpression
 		    }
 		}
 
-		min::position end =
-		    current->previous->end;
-		min::position begin =
+		min::phrase_position position;
+		position.end =
+		    current->previous->position.end;
+		position.begin =
 		    ::remove
 			( parser, current,
 			  closing_bracket->label );
@@ -2043,14 +2052,14 @@ static bool parse_explicit_subexpression
 			 ( closing_bracket->label,
 			   & ::bracket_format )
 		    << "' found and ignored; "
-		    << LEX::pline_numbers
+		    << min::pline_numbers
 			   ( parser->input_file,
-			     begin, end )
+			     position )
 		    << ":" << min::eom;
-		min::print_item_lines
+		min::print_phrase_lines
 		    ( parser->printer,
 		      parser->input_file,
-		      begin, end );
+		      position );
 
 		break;
 	    }
@@ -2145,8 +2154,10 @@ static bool parse_explicit_subexpression
 			// need to terminate this
 			// call to parse_explicit_
 			// subexpression.
-		    min::position end;
-		        // End of closing named bracket.
+		    min::phrase_position position;
+		        // Beginning of opening named
+			// bracket and end of closing
+			// named bracket.
 
 		    if (    cstack.closing_next
 		         == cstack.closing_first )
@@ -2165,7 +2176,9 @@ static bool parse_explicit_subexpression
 			     != min::NULL_STUB )
 			    next = cstack.closing_next;
 
-			end = next->previous->end;
+			position.end =
+			    next->previous
+			         ->position.end;
 
 			parser->printer
 			    << min::bom
@@ -2178,22 +2191,22 @@ static bool parse_explicit_subexpression
 				 ->label,
 				 & ::bracket_format )
 			    << "' inserted; "
-			    << LEX::pline_numbers
+			    << min::pline_numbers
 				   ( parser->input_file,
-				     next->begin,
-				     next->end )
+				     next->position )
 			    << ":" << min::eom;
-			min::print_item_lines
+			min::print_phrase_lines
 			    ( parser->printer,
 			      parser->input_file,
-			      next->begin,
-			      next->end );
+			      next->position );
 
 			done = true;
 		    }
 		    else
 		    {
-		        end = current->previous->end;
+		        position.end =
+			    current->previous
+			           ->position.end;
 		        ::remove
 			    ( parser,
 			      cstack.closing_first,
@@ -2211,7 +2224,7 @@ static bool parse_explicit_subexpression
 			  cstack.opening_first,
 			  cstack.opening_next );
 
-		    min::position begin =
+		    position.begin =
 		        ::remove
 			    ( parser,
 			      cstack.opening_first,
@@ -2220,7 +2233,7 @@ static bool parse_explicit_subexpression
 		        ( parser,
 			  middle_last->next,
 			  current,
-			  begin, end,
+			  position,
 			  named_opening->label,
 			  named_opening->named_closing
 			               ->label,
@@ -2283,14 +2296,16 @@ static bool parse_explicit_subexpression
 			assert
 			    ( name != min::MISSING() );
 
-			min::position begin =
+			min::phrase_position position;
+			position.begin =
 			    ::remove
 				( parser,
 				  named_first,
 				  named_opening->label
 				);
-			min::position end =
-			    current->previous->end;
+			position.end =
+			    current->previous
+			           ->position.end;
 
 			::remove
 			    ( parser,
@@ -2300,8 +2315,7 @@ static bool parse_explicit_subexpression
 			PAR::token t =
 			    PAR::new_token
 			        ( PAR::EXPRESSION );
-			t->begin = begin;
-			t->end = end;
+			t->position = position;
 
 			PAR::put_before
 			    ( first_ref(parser),
@@ -2552,16 +2566,14 @@ void PAR::parse ( PAR::parser parser )
 		    << min::set_indent ( 7 )
 		    << "ERROR: line break missing"
 		       " from end of file; "
-		    << LEX::pline_numbers
+		    << min::pline_numbers
 			   ( parser->input_file,
-			     current->begin,
-			     current->end )
+			     current->position )
 		    << ":" << min::eom;
-		min::print_item_lines
+		min::print_phrase_lines
 		    ( parser->printer,
 		      parser->input_file,
-		      current->begin,
-		      current->end );
+		      current->position );
 	    }
 	    break;
 	}
@@ -2571,23 +2583,21 @@ void PAR::parse ( PAR::parser parser )
 	if ( first_lexeme )
 	{
 	    first_lexeme = false;
-	    if ( current->begin.column != 0 )
+	    if ( current->position.begin.column != 0 )
 	    {
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: first non-comment lexeme"
 		       " is indented; "
-		    << LEX::pline_numbers
+		    << min::pline_numbers
 			   ( parser->input_file,
-			     current->begin,
-			     current->end )
+			     current->position )
 		    << ":" << min::eom;
-		min::print_item_lines
+		min::print_phrase_lines
 		    ( parser->printer,
 		      parser->input_file,
-		      current->begin,
-		      current->end );
+		      current->position );
 	    }
 	}
 
@@ -2616,8 +2626,9 @@ void PAR::parse ( PAR::parser parser )
 	if ( first != current )
 	{
 
-	    min::position begin = first->begin;
-	    min::position end = current->previous->end;
+	    min::phrase_position position =
+	        { first->position.begin,
+	          current->previous->position.end };
 
 	    min::gen terminator = ::new_line;
 	    if ( separator_found )
@@ -2637,8 +2648,7 @@ void PAR::parse ( PAR::parser parser )
 
 	    ::compact
 		( parser, first, current,
-		  begin, end,
-		  min::MISSING(),
+		  position, min::MISSING(),
 		  terminator );
 	}
 

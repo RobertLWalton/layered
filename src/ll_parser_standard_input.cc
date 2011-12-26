@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 22 13:35:56 EST 2011
+// Date:	Sun Dec 25 18:04:46 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -134,7 +134,7 @@ static void erroneous_atom_announce
 	<< LEX::pline_numbers
 	        ( scanner, first, next )
 	<< ":" << min::eom;
-    LEX::print_item_lines
+    LEX::print_phrase_lines
         ( scanner->printer, scanner, first, next );
 }
 
@@ -203,19 +203,21 @@ static min::uns32 input_add_tokens
 		<< LEX::pline_numbers
 		       ( scanner, first, next )
 		<< ":" << min::eom;
-	    LEX::print_item_lines
+	    LEX::print_phrase_lines
 	        ( printer, scanner, first, next );
 
 	    if ( skip ) continue;
 	}
 
 	token = PAR::new_token( type );
-	token->begin = first < input_buffer->length ?
-		       input_buffer[first] :
-		       scanner->next_position;
-	token->end  = next < input_buffer->length ?
-		       input_buffer[next] :
-		       scanner->next_position;
+	token->position.begin =
+	    first < input_buffer->length ?
+	    input_buffer[first] :
+	    scanner->next_position;
+	token->position.end =
+	    next < input_buffer->length ?
+	    input_buffer[next] :
+	    scanner->next_position;
 
 	switch ( type )
 	{
@@ -278,7 +280,7 @@ static min::uns32 input_add_tokens
 		<< LEX::pline_numbers
 		        ( scanner, first, next )
 		<< ":" << min::eol;
-	    LEX::print_item_lines
+	    LEX::print_phrase_lines
 		( printer, scanner, first, next );
 	}
 

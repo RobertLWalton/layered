@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 23 13:06:43 EST 2011
+// Date:	Sun Dec 25 17:04:07 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1022,16 +1022,6 @@ namespace ll { namespace lexeme {
 	      type ( type ) {}
     };
 
-    // Just like min::pline_numbers but takes positions
-    // instead of line numbers.  If end.column == 0
-    // and end.line > begin.line, then last line number
-    // equals end.line - 1 instead of end.line.
-    //
-    min::pline_numbers pline_numbers
-	    ( min::file file,
-              const min::position & begin,
-              const min::position & end );
-
     // Just line min::pline_numbers but takes scanner,
     // first, and next as arguments and uses line
     // numbers of scanner->input_buffer[first/next],
@@ -1050,13 +1040,13 @@ namespace ll { namespace lexeme {
 	    ( ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next );
 
-    // Call min::print_item_lines using the beginning
+    // Call min::print_phrase_lines using the beginning
     // and ending positions of the lexeme in scanner->
     // input_buffer[first .. next-1].  If input_
     // buffer[first] or input_buffer[next-1] does not
     // exist, use scanner->next_position instead.
     //
-    void print_item_lines
+    void print_phrase_lines
 	    ( min::printer,
 	      ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next,

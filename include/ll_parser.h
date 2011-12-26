@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 23 13:14:53 EST 2011
+// Date:	Sun Dec 25 17:05:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -139,7 +139,7 @@ struct token_struct
     const ll::parser::string string;
         // Character string for some lexeme types.
 
-    min::position begin, end;
+    min::phrase_position position;
         // Position of the first character of the token
         // and of the first character AFTER the token,
 	// or the end of input.

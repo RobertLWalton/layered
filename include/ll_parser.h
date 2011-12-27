@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 17:05:57 EST 2011
+// Date:	Mon Dec 26 23:34:03 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,6 +143,14 @@ struct token_struct
         // Position of the first character of the token
         // and of the first character AFTER the token,
 	// or the end of input.
+
+    min::uns32 indent;
+        // Indent of the first character of the token.
+	// Computed by assuming tabs are set every 8
+	// columns and form feeds and vertical tabs
+	// to not print.  Equal to LEX::AFTER_GRAPHIC
+	// if there is a non-whitespace character before
+	// the token in the line containing the token.
 
     const ll::parser::token next, previous;
         // Doubly linked list pointers for tokens.

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 17:04:35 EST 2011
+// Date:	Mon Dec 26 23:29:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -973,7 +973,7 @@ static void complain_near_indent
     parser->printer
 	<< min::bom << min::set_indent ( 7 )
 	<< "ERROR: lexeme indent "
-	<< token->position.begin.column
+	<< token->indent
 	<< " too near paragraph indent "
 	<< indent
 	<< "; "
@@ -995,8 +995,10 @@ inline bool is_indented
 	  PAR::token token,
 	  min::int32 indent )
 {
-    int near = (min::int32) token->position.begin.column
-	     - indent;
+    if ( token->indent == LEX::AFTER_GRAPHIC )
+        return false;
+
+    int near = (min::int32) token->indent - indent;
     if (    near != 0
 	 && near < parser->indent_offset 
 	 && near > - parser->indent_offset )
@@ -1421,33 +1423,10 @@ static bool parse_explicit_subexpression
 			    split->indentation_mark
 			          ->label;
 
-			// Compute the number of columns
-			// in the indentation mark.
-			// Assume this is independent of
-			// position in line (e.g., there
-			// are no tabs in the indenta-
-			// tion mark).
-			//
-			min::uns32 columns = 0;
-			min::uns32 flags =
-			    parser->input_file
-			          ->print_flags;
-			const char * p =
-			    (const char *) & split[0];
-			while ( * p )
-			{
-			    min::uns32 c =
-			        min::utf8_to_unicode
-				    ( p );
-			    min::pwidth ( columns,
-			                  c,
-					  flags );
-			}
-
-			// Fix up the positions in the
-			// tokens.  The indentation
-			// mark has split->length bytes
-			// and `columns' columns.
+			// Fix up the positions and
+			// indentations in the tokens.
+			// The indentation mark has
+			// split->length bytes.
 			//
 			current->previous
 			       ->position.end =
@@ -1461,9 +1440,8 @@ static bool parse_explicit_subexpression
 			current->previous
 			       ->position.begin.index
 			    -= split->length;
-			current->previous
-			       ->position.begin.column
-			    -= columns;
+			current->previous->indent
+			    = LEX::AFTER_GRAPHIC;
 			current->previous->previous
 			       ->position.end
 			    = current->previous
@@ -1506,7 +1484,7 @@ static bool parse_explicit_subexpression
 	    min::uns32 next_indent =
 	        next->type == LEXSTD::end_of_file_t ?
 		0 :
-		next->position.begin.column;
+		next->indent;
 
 	    // Delete the line breaks and full line
 	    // comments skipped (keeping the line break
@@ -1514,19 +1492,18 @@ static bool parse_explicit_subexpression
 	    // comments that are not indented as much
 	    // as the indent of next.
 	    //
-	    // Data on insufficiently indented comments.
-	    // Includes begin of first such and end of
-	    // last such.
-	    //
 	    bool iic_exists = false;
 	    min::phrase_position iic_position;
+		// Data on insufficiently indented
+		// comments.  Includes begin of first
+		// such and end of last such.
+
 	    while ( current->next != next )
 	    {
 		if (    current->next->type
 		     == LEXSTD::comment_t
 		     &&
-		       current->next
-		              ->position.begin.column
+		       current->next->indent
 		     < next_indent )
 		{
 		    if ( ! iic_exists )
@@ -1597,8 +1574,11 @@ static bool parse_explicit_subexpression
 					 .xor_selectors;
 
 		    min::int32 paragraph_indent =
-		        current->next
-			       ->position.begin.column;
+		        current->next->indent;
+
+		    MIN_ASSERT
+		        (    paragraph_indent
+			  != LEX::AFTER_GRAPHIC );
 
 		    // Delete line break.
 		    //
@@ -1682,10 +1662,12 @@ static bool parse_explicit_subexpression
 			         current->next->type
 			      == LEXSTD::end_of_file_t 
 			      ||
-			        current->next
-				       ->position.begin
-				                 .column
-			      < paragraph_indent )
+			      ( current->next->indent
+			        !=
+				LEX::AFTER_GRAPHIC
+				&&
+			          current->next->indent
+			        < paragraph_indent ) )
 			    break;
 
 			// Delete line break.
@@ -2578,12 +2560,12 @@ void PAR::parse ( PAR::parser parser )
 	    break;
 	}
 
-	// If first lexeme check its in column 0.
+	// If first lexeme check its indent is 0.
 	//
 	if ( first_lexeme )
 	{
 	    first_lexeme = false;
-	    if ( current->position.begin.column != 0 )
+	    if ( current->indent != 0 )
 	    {
 		parser->printer
 		    << min::bom

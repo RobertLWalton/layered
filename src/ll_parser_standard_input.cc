@@ -218,6 +218,10 @@ static min::uns32 input_add_tokens
 	    next < input_buffer->length ?
 	    input_buffer[next] :
 	    scanner->next_position;
+	token->indent =
+	    first < input_buffer->length ?
+	    input_buffer[first].indent :
+	    scanner->next_indent;
 
 	switch ( type )
 	{

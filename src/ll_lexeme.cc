@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 08:06:47 EST 2011
+// Date:	Mon Dec 26 23:29:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -959,7 +959,6 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 
 	scanner->next_position.line = 0;
 	scanner->next_position.index = 0;
-	scanner->next_position.column = 0;
 	scanner->next_indent = 0;
 
 	scanner->next = 0;

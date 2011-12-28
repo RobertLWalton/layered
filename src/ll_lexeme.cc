@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 23:29:09 EST 2011
+// Date:	Wed Dec 28 06:28:45 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -811,13 +811,14 @@ static bool default_input_get
 
     LEX::inchar ic;
     ic.line = scanner->next_position.line;
-    ic.index = scanner->next_position.index;
+    ic.offset = scanner->next_position.offset;
     ic.indent = scanner->next_indent;
     MIN_ASSERT (    ic.line
                  == file->next_line_number );
 
     min::uns32 offset = min::next_line ( file );
-    min::uns32 length = 0xFFFFFFFF;
+    min::uns32 length;
+    bool add_eol = true;
 
     if ( offset == min::NO_LINE )
     {
@@ -825,24 +826,30 @@ static bool default_input_get
         if ( length == 0 ) return false;
 	offset = min::remaining_offset ( file );
 	min::skip_remaining ( file );
+	add_eol = false;
     }
+    else
+        length = ::strlen ( & file->buffer[offset] );
 
     LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
-    for ( ; length != 0 && file->buffer[offset] != 0;
-            -- length )
+    while ( length != 0 )
     {
 	const char * beginp = & file->buffer[offset];
+	const char * endp = beginp + length;
 	const char * p = beginp;
-	uns32 unicode = min::utf8_to_unicode ( p );
+	uns32 unicode =
+	    min::utf8_to_unicode ( p, endp );
 	uns32 bytes_read = p - beginp;
+	assert ( length >= bytes_read );
 	offset += bytes_read;
+	length -= bytes_read;
 
 	ic.character = unicode;
 	min::push(input_buffer) = ic;
 
-	ic.index += bytes_read;
+	ic.offset += bytes_read;
 	if ( ic.indent != AFTER_GRAPHIC )
 	    switch ( unicode )
 	{
@@ -858,12 +865,12 @@ static bool default_input_get
 	}
     }
 
-    if ( length != 0 )
+    if ( add_eol )
     {
 	ic.character = '\n';
 	min::push(input_buffer) = ic;
 	++ ic.line;
-	ic.index = 0;
+	ic.offset = 0;
 	ic.indent = 0;
     }
 
@@ -958,7 +965,7 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 	    ( scanner->translation_buffer, 1000 );
 
 	scanner->next_position.line = 0;
-	scanner->next_position.index = 0;
+	scanner->next_position.offset = 0;
 	scanner->next_indent = 0;
 
 	scanner->next = 0;
@@ -1989,7 +1996,7 @@ static min::printer scan_error
 	    scanner->next_indent;
     min::error_message << ": position "
 	               << position.line << "("
-	               << position.index << ")";
+	               << position.offset << ")";
     if ( indent != LEX::AFTER_GRAPHIC )
 	min::error_message << indent;
 
@@ -2087,7 +2094,7 @@ min::printer operator <<
 	    scanner->next_indent;
 
     printer << position.line << "("
-	    << position.index << ")";
+	    << position.offset << ")";
     if ( indent != LEX::AFTER_GRAPHIC )
 	printer << indent;
     printer << ": "

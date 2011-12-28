@@ -1438,7 +1438,7 @@ static bool parse_explicit_subexpression
 			    current->previous
 			           ->position.end;
 			current->previous
-			       ->position.begin.index
+			       ->position.begin.offset
 			    -= split->length;
 			current->previous->indent
 			    = LEX::AFTER_GRAPHIC;

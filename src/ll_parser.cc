@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 23:29:38 EST 2011
+// Date:	Sat Dec 31 04:05:22 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,6 +28,7 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 
+static min::locatable_gen position;
 static min::locatable_gen initiator;
 static min::locatable_gen terminator;
 static min::locatable_gen separator;
@@ -57,6 +58,7 @@ static struct initializer {
 	    elements[1] = tmp; \
 	    ::x = min::new_lab_gen ( elements, 2 )
 
+        MAKE_DOTTED_ATTRIBUTE ( position );
         MAKE_DOTTED_ATTRIBUTE ( initiator );
         MAKE_DOTTED_ATTRIBUTE ( terminator );
         MAKE_DOTTED_ATTRIBUTE ( separator );
@@ -512,6 +514,8 @@ static void compact
     // Temporary min::gen locatable.
     //
     min::locatable_gen exp;
+    min::locatable_var<min::phrase_position_vec_insptr>
+        pos;
 
     // Count tokens.  Also replace non-natural numbers
     // and quoted strings by subexpressions.
@@ -533,21 +537,23 @@ static void compact
         + ( middle != min::MISSING() )
         + ( name != min::MISSING() )
         + ( arguments != min::MISSING() )
-        + ( keys != min::MISSING() );
+        + ( keys != min::MISSING() )
+	+ 1; // for .position
 
     exp = min::new_obj_gen
         ( 3*( m + 2 ) + n,
 	  m == 0 ? 1 : 4 );
     min::obj_vec_insptr expvp ( exp );
-    for ( min::uns32 i = 0; i < n; ++ i )
-	min::attr_push(expvp) = min::MISSING();
+
+    min::init ( pos, parser->input_file, position, n );
 
     while ( n -- )
     {
         PAR::token t = next->previous;
 	assert ( t != next );
 
-	min::attr ( expvp, n ) = t->value;
+	min::attr_push(expvp) = t->value;
+	min::push ( pos ) = t->position;
 
 	PAR::free
 	    ( PAR::remove
@@ -557,6 +563,8 @@ static void compact
     if ( m > 0 )
     {
 	min::attr_insptr expap ( expvp );
+	min::locate ( expap, ::position );
+	min::set ( expap, min::new_stub_gen ( pos ) );
 
 	if ( initiator != min::MISSING() )
 	{

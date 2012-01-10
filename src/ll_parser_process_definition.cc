@@ -55,12 +55,14 @@ enum definition_type
     { BRACKET, INDENTATION_MARK, NAMED_BRACKET };
 
 bool TAB::parser_execute_definition
-	( ll::parser::parser parser,
-	  const min::obj_vec_ptr & vp,
-	  min::printer printer,
-	  min::phrase_position_vec ppvec )
+	( const min::obj_vec_ptr & vp,
+	  min::printer printer )
 {
     min::uns32 size = min::size_of ( vp );
+    min::phrase_position_vec ppvec =
+        min::position_of ( vp );
+    assert ( ppvec != min::NULL_STUB );
+
     if ( size < 2 ) return false;
 
     // Scan keywords before names.
@@ -156,9 +158,7 @@ bool TAB::parser_execute_definition
 	{
 	    printer
 		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: empty bracket name after "
-		<< min::pgen ( vp[i-1] )
-		<< " in "
+		<< "ERROR: empty bracket name in "
 		<< min::pline_numbers
 		       ( ppvec->file,
 			 ppvec->position )  
@@ -167,6 +167,11 @@ bool TAB::parser_execute_definition
 		( printer,
 		  ppvec->file,
 		  ppvec->position );
+	    printer << "       just after:" << min::eol;
+	    min::print_phrase_lines
+		( printer,
+		  ppvec->file,
+		  ppvec[i-1] );
 	    return true;
 	}
     }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 23:34:03 EST 2011
+// Date:	Thu Jan  5 19:18:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -594,7 +594,7 @@ struct parser_struct
 
     uns32 finished_tokens;
         // Number of finished tokens at the beginning
-	// of the input list.  The `parse' function
+	// of the token list.  The `parse' function
 	// produces finished tokens and calls `output'.
 };
 

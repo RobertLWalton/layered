@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 5, 2011
+January 9, 2012
  
 \end{center}
 
@@ -1659,17 +1659,16 @@ and
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
 
 \begin{figure*}[!p]
-\emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
-	         $|$ {\em natural-number}
+\emkey{name-symbol} ::= {\em word} $|$ {\em mark} $|$ {\em natural-number}
 \\[0.5ex]
-\emkey{non-special-symbol} ::=
-    {\em symbol} that is \underline{not} treated specially by the parser
+\emkey{non-special-name-symbol} ::=
+    {\em name-symbol} that is \underline{not} treated specially by the parser
 \\[0.5ex]
-\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em quoted-string}
+\emkey{name-component} ::= {\em non-special-name-symbol} $|$ {\em quoted-string}
 \\[0.5ex]
 \emkey{name} ::= {\em name-component} {\em name-component}\,$^\star$
 \\[2ex]
-\emkey{mark-symbol} ::= {\em mark} $|$ {\em separator}
+\emkey{mark-symbol} ::= {\em mark}
 \\[0.5ex]
 \emkey{non-special-mark-symbol} ::=
     {\em mark-symbol} that is \underline{not} treated specially by the parser

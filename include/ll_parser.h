@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  5 19:18:54 EST 2012
+// Date:	Tue Jan 10 06:46:34 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -779,6 +779,22 @@ ll::parser::table::root find_next_entry
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::root last_entry );
+
+// Given an object vector pointer vp pointing at an
+// expression, and indices i and j of expression
+// elements, with 0 <= i < j <= min::size_of ( vp ),
+// return the label represented by vp[i .. j-1].  If an
+// object element that corresponds to a label element is
+// itself a (sub)expression, that must have exactly one
+// element, and that one element becomes the label
+// element.  Otherwise the object element is the label
+// element.  If the label to be returned would have only
+// one element, that element is returned in place of the
+// label.
+//
+min::gen make_label
+	( min::obj_vec_ptr & vp,
+	  min::unsptr i, min::unsptr j );
 
 // Given a token, test if it is a parser definition.
 // Do nothing but return false if no.  If yes, process

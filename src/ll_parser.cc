@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 31 04:05:22 EST 2011
+// Date:	Tue Jan 10 06:46:47 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2778,4 +2778,24 @@ TAB::root PAR::find_next_entry
 	if ( last_entry->selectors & selectors )
 	    return last_entry;
     }
+}
+
+min::gen PAR::make_label
+	( min::obj_vec_ptr & vp,
+	  min::unsptr i, min::unsptr j )
+{
+    assert ( i < j );
+    assert ( j <= min::size_of ( vp ) );
+    min::unsptr n = j - i;
+    min::gen lab[n];
+    for ( int k = 0; k < n; ++ k )
+    {
+        lab[k] = vp[k];
+        if ( ! min::is_obj ( lab[k] ) ) continue;
+	min::obj_vec_ptr ep ( lab[k] );
+	assert ( min::size_of ( ep ) == 1 );
+	lab[k] = ep[0];
+    }
+    if ( n == 1 ) return lab[0];
+    else return min::new_lab_gen ( lab, n );
 }

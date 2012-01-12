@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 10 06:46:34 EST 2012
+// Date:	Thu Jan 12 04:27:22 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,20 @@ namespace ll { namespace parser {
     using min::uns32;
     using min::int32;
     using min::NULL_STUB;
+
+    extern min::locatable_gen
+        position,	// . position
+	initiator,	// . initiator
+	terminator,	// . terminator
+	separator,	// . separator
+	middle,		// . middle
+	name,		// . name
+	arguments,	// . arguments
+	keys,		// . keys
+	doublequote,	// "
+	number_sign,	// #
+	new_line,	// \n
+	semicolon;	// ;
 
 } }
 
@@ -779,6 +793,13 @@ ll::parser::table::root find_next_entry
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::root last_entry );
+
+// Given a min::gen value, return the .initiator
+// attribute of that value if it is an object with a
+// single .initiator attribute value, or return
+// min::MISSING() otherwise.
+//
+min::gen get_initiator ( min::gen v );
 
 // Given an object vector pointer vp pointing at an
 // expression, and indices i and j of expression

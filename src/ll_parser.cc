@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 10 06:46:47 EST 2012
+// Date:	Thu Jan 12 03:11:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,18 +28,18 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 
-static min::locatable_gen position;
-static min::locatable_gen initiator;
-static min::locatable_gen terminator;
-static min::locatable_gen separator;
-static min::locatable_gen middle;
-static min::locatable_gen name;
-static min::locatable_gen arguments;
-static min::locatable_gen keys;
-static min::locatable_gen doublequote;
-static min::locatable_gen number_sign;
-static min::locatable_gen new_line;
-static min::locatable_gen semicolon;
+min::locatable_gen PAR::position;
+min::locatable_gen PAR::initiator;
+min::locatable_gen PAR::terminator;
+min::locatable_gen PAR::separator;
+min::locatable_gen PAR::middle;
+min::locatable_gen PAR::name;
+min::locatable_gen PAR::arguments;
+min::locatable_gen PAR::keys;
+min::locatable_gen PAR::doublequote;
+min::locatable_gen PAR::number_sign;
+min::locatable_gen PAR::new_line;
+min::locatable_gen PAR::semicolon;
 
 static min::printer_format bracket_format =
     min::default_printer_format;
@@ -56,7 +56,7 @@ static struct initializer {
 #	define MAKE_DOTTED_ATTRIBUTE( x ) \
 	    tmp = min::new_str_gen ( #x ); \
 	    elements[1] = tmp; \
-	    ::x = min::new_lab_gen ( elements, 2 )
+	    PAR::x = min::new_lab_gen ( elements, 2 )
 
         MAKE_DOTTED_ATTRIBUTE ( position );
         MAKE_DOTTED_ATTRIBUTE ( initiator );
@@ -67,10 +67,10 @@ static struct initializer {
         MAKE_DOTTED_ATTRIBUTE ( arguments );
         MAKE_DOTTED_ATTRIBUTE ( keys );
 
-        ::doublequote = min::new_str_gen ( "\"" );
-        ::number_sign = min::new_str_gen ( "#" );
-        ::new_line = min::new_str_gen ( "\n" );
-        ::semicolon = min::new_str_gen ( ";" );
+        PAR::doublequote = min::new_str_gen ( "\"" );
+        PAR::number_sign = min::new_str_gen ( "#" );
+        PAR::new_line = min::new_str_gen ( "\n" );
+        PAR::semicolon = min::new_str_gen ( ";" );
 
 	::bracket_format.str_prefix = "";
 	::bracket_format.str_postfix = "";
@@ -449,17 +449,17 @@ static void convert_token ( PAR::token token )
 {
     assert ( token->value == min::MISSING() );
 
-    min::gen indicator;
+    min::gen initiator;
 
     if (    token->type
 	 == LEXSTD::quoted_string_t )
-	indicator = ::doublequote;
+	initiator = PAR::doublequote;
     else
     {
 	assert (    token->type
 		 == LEXSTD::number_t );
 
-	indicator = ::number_sign;
+	initiator = PAR::number_sign;
     }
 
 
@@ -477,8 +477,8 @@ static void convert_token ( PAR::token token )
 	PAR::free_string ( token->string );
 
     min::attr_insptr elemap ( elemvp ); 
-    min::locate ( elemap, ::initiator );
-    min::set ( elemap, indicator );
+    min::locate ( elemap, PAR::initiator );
+    min::set ( elemap, initiator );
 
     token->type = PAR::EXPRESSION;
 }
@@ -563,42 +563,42 @@ static void compact
     if ( m > 0 )
     {
 	min::attr_insptr expap ( expvp );
-	min::locate ( expap, ::position );
+	min::locate ( expap, PAR::position );
 	min::set ( expap, min::new_stub_gen ( pos ) );
 
 	if ( initiator != min::MISSING() )
 	{
-	    min::locate ( expap, ::initiator );
+	    min::locate ( expap, PAR::initiator );
 	    min::set ( expap, initiator );
 	}
 
 	if ( terminator != min::MISSING() )
 	{
-	    min::locate ( expap, ::terminator );
+	    min::locate ( expap, PAR::terminator );
 	    min::set ( expap, terminator );
 	}
 
 	if ( middle != min::MISSING() )
 	{
-	    min::locate ( expap, ::middle );
+	    min::locate ( expap, PAR::middle );
 	    min::set ( expap, middle );
 	}
 
 	if ( name != min::MISSING() )
 	{
-	    min::locate ( expap, ::name );
+	    min::locate ( expap, PAR::name );
 	    min::set ( expap, name );
 	}
 
 	if ( arguments != min::MISSING() )
 	{
-	    min::locate ( expap, ::arguments );
+	    min::locate ( expap, PAR::arguments );
 	    min::set ( expap, arguments );
 	}
 
 	if ( keys != min::MISSING() )
 	{
-	    min::locate ( expap, ::keys );
+	    min::locate ( expap, PAR::keys );
 	    min::set ( expap, keys );
 	}
     }
@@ -902,11 +902,11 @@ static void named_attributes
 	}
 	min::attr_insptr keysap ( keysvp );
 
-	min::locate ( keysap, ::initiator );
+	min::locate ( keysap, PAR::initiator );
 	min::set ( keysap,
 	           named_opening->named_separator
 		                ->label );
-	min::locate ( keysap, ::separator );
+	min::locate ( keysap, PAR::separator );
 	min::set ( keysap,
 	           named_opening->named_separator
 		                ->label );
@@ -1630,7 +1630,7 @@ static bool parse_explicit_subexpression
 				    ->position.end;
 
 			    min::gen terminator =
-			        ::new_line;
+			        PAR::new_line;
 			    if ( separator_found )
 			    {
 			        terminator =
@@ -2319,34 +2319,35 @@ static bool parse_explicit_subexpression
 			min::attr_insptr tap ( tvp );
 
 			min::locate
-			    ( tap, ::initiator );
+			    ( tap, PAR::initiator );
 			min::set
 			    ( tap,
 			      named_opening->label );
 
 			min::locate
-			    ( tap, ::terminator );
+			    ( tap, PAR::terminator );
 			min::set
 			    ( tap,
 			      named_opening->
 			          named_closing->
 				  label );
 
-			min::locate ( tap, ::name );
+			min::locate ( tap, PAR::name );
 			min::set ( tap, name );
 
 			if (    arguments
 			     != min::MISSING() )
 			{
 			    min::locate
-				( tap, ::arguments );
+				( tap, PAR::arguments );
 			    min::set
 				( tap, arguments );
 			}
 
 			if ( keys != min::MISSING() )
 			{
-			    min::locate ( tap, ::keys );
+			    min::locate
+			        ( tap, PAR::keys );
 			    min::set ( tap, keys );
 			}
 
@@ -2620,7 +2621,7 @@ void PAR::parse ( PAR::parser parser )
 	        { first->position.begin,
 	          current->previous->position.end };
 
-	    min::gen terminator = ::new_line;
+	    min::gen terminator = PAR::new_line;
 	    if ( separator_found )
 	    {
 	        // If subexpression ends with an inden-
@@ -2778,6 +2779,21 @@ TAB::root PAR::find_next_entry
 	if ( last_entry->selectors & selectors )
 	    return last_entry;
     }
+}
+
+min::gen PAR::get_initiator ( min::gen v )
+{
+    if ( ! min::is_obj ( v ) ) return min::MISSING();
+    min::obj_vec_ptr vp ( v );
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, PAR::initiator );
+    min::gen result = min::get ( ap );
+    if ( result == min::NONE()
+         ||
+	 result == min::MULTI_VALUED() )
+	return min::MISSING();
+    else
+    	return result;
 }
 
 min::gen PAR::make_label

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jan 16 02:39:51 EST 2012
+# Date:		Mon Jan 16 10:27:48 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -403,6 +403,7 @@ ll_parser_input_test:		\
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		ll_parser.o \
+		ll_parser_execute_definition.o \
 		ll_parser_standard_input.o \
 		ll_parser_table.o \
 		min.o \
@@ -416,6 +417,7 @@ ll_parser_input_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_execute_definition.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
@@ -433,7 +435,11 @@ ll_parser_input_test.out:		\
 ll_parser_table_test:		\
 		ll_parser_table_test.cc \
 		ll_lexeme.o \
+		ll_lexeme_ndl.o \
+		ll_lexeme_standard.o \
 		ll_parser.o \
+		ll_parser_execute_definition.o \
+		ll_parser_standard_input.o \
 		ll_parser_table.o \
 		min.o \
 		min_os.o \
@@ -442,8 +448,12 @@ ll_parser_table_test:		\
 	g++ -g ${GFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser.o \
 	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser.o \
+	    ll_parser_execute_definition.o \
+	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \
@@ -461,6 +471,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_execute_definition.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \
@@ -475,6 +486,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_execute_definition.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 04:52:34 EST 2012
+// Date:	Mon Jan 16 10:25:09 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,9 @@ namespace ll { namespace parser {
 	doublequote,	// "
 	number_sign,	// #
 	new_line,	// \n
-	semicolon;	// ;
+	semicolon,	// ;
+	define,		// define
+	undefine;	// undefine
 
 } }
 
@@ -570,6 +572,10 @@ struct parser_struct
 	// printer which must exist and NOT be NULL_
 	// STUB.
 
+    const ll::parser::table::selector_name_table
+    	    selector_name_table;
+        // Selector name table.
+
     const ll::parser::table::table bracket_table;
         // Hash table for brackets and indentation
 	// marks.
@@ -577,10 +583,6 @@ struct parser_struct
     const ll::parser::table::split_table split_table;
         // Table for indentation splits associated with
 	// indentation marks that can be split.
-
-    const ll::parser::table::selector_name_table
-    	    selector_name_table;
-        // Selector name table.
 
     ll::parser::table::selectors selectors;
         // Top level selectors.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 02:08:49 EST 2012
+// Date:	Mon Jan 16 10:15:41 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,6 +58,7 @@ enum definition_type
 bool TAB::parser_execute_definition
 	( min::obj_vec_ptr & vp,
 	  min::printer printer,
+	  TAB::selector_name_table selector_name_table,
 	  TAB::table bracket_table,
 	  TAB::split_table split_table )
 {

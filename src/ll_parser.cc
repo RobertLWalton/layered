@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 04:52:02 EST 2012
+// Date:	Mon Jan 16 09:35:12 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,8 @@ min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
 min::locatable_gen PAR::new_line;
 min::locatable_gen PAR::semicolon;
+min::locatable_gen PAR::define;
+min::locatable_gen PAR::undefine;
 
 static min::printer_format bracket_format =
     min::default_printer_format;
@@ -71,6 +73,9 @@ static struct initializer {
         PAR::number_sign = min::new_str_gen ( "#" );
         PAR::new_line = min::new_str_gen ( "\n" );
         PAR::semicolon = min::new_str_gen ( ";" );
+
+        PAR::define = min::new_str_gen ( "define" );
+        PAR::undefine = min::new_str_gen ( "undefine" );
 
 	::bracket_format.str_prefix = "";
 	::bracket_format.str_postfix = "";
@@ -2639,10 +2644,32 @@ void PAR::parse ( PAR::parser parser )
 		    ( parser, current, terminator );
 	    }
 
+	    min::gen g = first->value;
+	    bool maybe_parser_definition =
+	        (    g == PAR::define
+		  || g == PAR::undefine );
+
 	    ::compact
 		( parser, first, current,
 		  position, min::MISSING(),
 		  terminator );
+
+	    if ( maybe_parser_definition )
+	    {
+	        min::obj_vec_ptr vp
+		    ( current->previous->value );
+		if ( vp != NULL_STUB
+		     &&
+		     TAB::parser_execute_definition
+			( vp, parser->printer,
+			  parser->selector_name_table,
+			  parser->bracket_table,
+			  parser->split_table ) )
+		    PAR::free
+			( PAR::remove
+			      ( first_ref(parser),
+				current->previous ) );
+	    }
 	}
 
         // As there is no bracket stack, the token after

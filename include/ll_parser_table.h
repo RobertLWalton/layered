@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 04:50:08 EST 2012
+// Date:	Mon Jan 16 10:27:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -626,6 +626,8 @@ void push_indentation_mark
 bool parser_execute_definition
 	( min::obj_vec_ptr & vp,
 	  min::printer printer,
+	  ll::parser::table::selector_name_table
+	      selector_name_table,
 	  ll::parser::table::table bracket_table,
 	  ll::parser::table::split_table split_table );
 

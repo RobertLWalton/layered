@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 02:38:51 EST 2012
+// Date:	Mon Jan 16 04:50:08 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Selectors
 //	Roots
 //	Key Prefixes
 //	Brackets
@@ -32,8 +33,29 @@ namespace ll { namespace parser { namespace table {
     using min::uns32;
     using min::uns64;
     using min::NULL_STUB;
+
+// Selectors
+// ---------
 
-    typedef min::uns64 selectors;
+typedef min::uns64 selectors;
+
+typedef min::packed_vec_ptr<min::gen>
+	selector_name_table;
+typedef min::packed_vec_insptr<min::gen>
+	selector_name_table_insptr;
+
+// Return the index associated with a name in a selector
+// name table, or return -1 if none.
+//
+inline int get_index
+    ( ll::parser::table::selector_name_table name_table,
+      min::gen name )
+{
+    int i = name_table->length;
+    while ( -- i >= 0 && name_table[i] != name );
+    return i;
+}
+
 
 // Roots
 // -----

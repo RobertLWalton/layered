@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 12 04:27:22 EST 2012
+// Date:	Mon Jan 16 04:52:34 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -578,6 +578,10 @@ struct parser_struct
         // Table for indentation splits associated with
 	// indentation marks that can be split.
 
+    const ll::parser::table::selector_name_table
+    	    selector_name_table;
+        // Selector name table.
+
     ll::parser::table::selectors selectors;
         // Top level selectors.
 
@@ -627,6 +631,9 @@ MIN_REF ( min::printer, printer,
 MIN_REF ( ll::parser::table::table, bracket_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::split_table, split_table,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::selector_name_table,
+		selector_name_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::token, first,
           ll::parser::parser )

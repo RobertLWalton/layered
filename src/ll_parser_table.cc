@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 17 05:40:30 EDT 2011
+// Date:	Mon Jan 16 04:55:43 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Selectors
 //	Roots
 //	Key Prefixes
 //	Brackets
@@ -22,6 +23,18 @@
 
 # include <ll_parser_table.h>
 # define TAB ll::parser::table
+
+// Selectors
+// ---------
+
+static min::uns32 selector_name_table_gen_disp[] = {
+    0, min::DISP_END };
+
+static min::packed_vec<min::gen>
+    selector_name_table_type
+        ( "ll::parser::table::selector_name_table_type",
+	   ::selector_name_table_gen_disp );
+
 
 // Roots
 // -----

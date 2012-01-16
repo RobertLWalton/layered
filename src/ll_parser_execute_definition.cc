@@ -1,19 +1,17 @@
-// Layers Language Parser Process Definition Function
+// Layers Language Parser Execute Definition Function
 //
-// File:	ll_parser_process_definition.cc
+// File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 31 11:22:32 EST 2011
+// Date:	Mon Jan 16 02:08:49 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
-// Table of Contents
+// Table of Contents:
 //
 //	Usage and Setup
-//	Parser Definition Functions
-//	Parser Definition Executors
-//	Parser Process Definition Function
+//	Execute Definition Function
 
 // Usage and Setup
 // ----- --- -----
@@ -38,7 +36,7 @@ static min::locatable_gen with;
 static struct initializer {
     initializer ( void )
     {
-        ::define = Min::new_str_gen ( "define" );
+        ::define = min::new_str_gen ( "define" );
         ::undefine = min::new_str_gen ( "undefine" );
         ::bracket = min::new_str_gen ( "bracket" );
         ::indentation = min::new_str_gen
@@ -50,13 +48,18 @@ static struct initializer {
         ::with = min::new_str_gen ( "with" );
     }
 } init;
+
+// Execute Definition Function
+// ------- ---------- --------
 
 enum definition_type
     { BRACKET, INDENTATION_MARK, NAMED_BRACKET };
 
 bool TAB::parser_execute_definition
-	( const min::obj_vec_ptr & vp,
-	  min::printer printer )
+	( min::obj_vec_ptr & vp,
+	  min::printer printer,
+	  TAB::table bracket_table,
+	  TAB::split_table split_table )
 {
     min::uns32 size = min::size_of ( vp );
     min::phrase_position_vec ppvec =
@@ -77,6 +80,8 @@ bool TAB::parser_execute_definition
     bool gluing = false;
         // True if `define/undefine gluing ...', false
 	// if not.
+    int min_names, max_names;
+        // Minimum and maximum number of names allowed.
 
     if ( vp[i] == ::define )
         define = true;
@@ -89,6 +94,8 @@ bool TAB::parser_execute_definition
     if ( vp[i] == ::bracket )
     {
         type = ::BRACKET;
+	min_names = 2;
+	max_names = 2;
 	++ i;
     }
     else if ( vp[i] == ::indentation
@@ -98,17 +105,21 @@ bool TAB::parser_execute_definition
 	      vp[i + 1] == ::mark )
     {
 	type = ::INDENTATION_MARK;
+	min_names = 1;
+	max_names = 2;
 	i += 2;
     }
     else if ( vp[i] == ::gluing
               &&
 	      i + 2 < size
 	      &&
-	      vp[i + 1] == ::indentation )
+	      vp[i + 1] == ::indentation
 	      &&
 	      vp[i + 2] == ::mark )
     {
 	type = ::INDENTATION_MARK;
+	min_names = 1;
+	max_names = 2;
 	gluing = true;
 	i += 3;
     }
@@ -119,15 +130,16 @@ bool TAB::parser_execute_definition
 	      vp[i + 1] == ::bracket )
     {
 	type = ::NAMED_BRACKET;
+	min_names = 2;
+	max_names = 6;
 	i += 2;
     }
     else
         return false;
 
-    // Scan mark names.  There can be up to MAX_NAMES.
+    // Scan mark names.
     //
-    const unsigned MAX_NAMES = 5;
-    min::locatable_gen names[MAX_NAMES];
+    min::locatable_gen name[max_names];
     unsigned number_of_names = 0;
 
     while ( i < size )
@@ -138,14 +150,17 @@ bool TAB::parser_execute_definition
 	while ( i < size )
 	{
 	    min::gen g = vp[i];
-	    if ( g == ::dotdotdot ) break
+	    if ( g == ::dotdotdot ) break;
 
 	    min::uns32 t =
 	        LEXSTD::lexical_type_of ( g );
 
-	    if ( ( t == 0 && ::is_quoted_string ( g ) )
+	    if ( ( t == 0
+	           &&
+		      PAR::get_initiator ( g )
+		   == PAR::doublequote )
 	         ||
-	         t == LEX::MARK )
+	         t == LEXSTD::mark_t )
 	    {
 	        ++ i;
 		continue;
@@ -174,5 +189,37 @@ bool TAB::parser_execute_definition
 		  ppvec[i-1] );
 	    return true;
 	}
+	if ( number_of_names >= max_names )
+	{
+	    printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: too many mark-names in "
+		<< min::pline_numbers
+		       ( ppvec->file,
+			 ppvec->position )  
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( printer,
+		  ppvec->file,
+		  ppvec->position );
+	    return true;
+	}
+	name[number_of_names++] =
+	    PAR::make_label ( vp, name_start, i );
+    }
+    if ( number_of_names < min_names )
+    {
+	printer
+	    << min::bom << min::set_indent ( 7 )
+	    << "ERROR: too few mark-names in "
+	    << min::pline_numbers
+		   ( ppvec->file,
+		     ppvec->position )  
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( printer,
+	      ppvec->file,
+	      ppvec->position );
+	return true;
     }
 }

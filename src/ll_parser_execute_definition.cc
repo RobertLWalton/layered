@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 10:15:41 EST 2012
+// Date:	Tue Jan 17 08:24:48 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,21 +33,22 @@ static min::locatable_gen named;
 static min::locatable_gen dotdotdot;
 static min::locatable_gen with;
 
-static struct initializer {
-    initializer ( void )
+static struct parser_execution_definition_initializer {
+    parser_execution_definition_initializer ( void )
     {
-        ::define = min::new_str_gen ( "define" );
-        ::undefine = min::new_str_gen ( "undefine" );
-        ::bracket = min::new_str_gen ( "bracket" );
-        ::indentation = min::new_str_gen
+	::define = min::new_str_gen ( "define" );
+	::undefine =
+	    min::new_str_gen ( "undefine" );
+	::bracket = min::new_str_gen ( "bracket" );
+	::indentation = min::new_str_gen
 				( "indentation" );
-        ::mark = min::new_str_gen ( "mark" );
-        ::gluing = min::new_str_gen ( "gluing" );
-        ::named = min::new_str_gen ( "named" );
-        ::dotdotdot = min::new_str_gen ( "..." );
-        ::with = min::new_str_gen ( "with" );
+	::mark = min::new_str_gen ( "mark" );
+	::gluing = min::new_str_gen ( "gluing" );
+	::named = min::new_str_gen ( "named" );
+	::dotdotdot = min::new_str_gen ( "..." );
+	::with = min::new_str_gen ( "with" );
     }
-} init;
+} parser_execution_definition_init;
 
 // Execute Definition Function
 // ------- ---------- --------

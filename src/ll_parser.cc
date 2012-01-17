@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 09:35:12 EST 2012
+// Date:	Tue Jan 17 08:31:13 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,25 +49,22 @@ static min::printer_format bracket_format =
 static struct initializer {
     initializer ( void )
     {
-	min::locatable_gen dot;
-	min::locatable_gen tmp;
-	min::gen elements[2];
-	dot = min::new_str_gen ( "." );
-	elements[0] = dot;
-
-#	define MAKE_DOTTED_ATTRIBUTE( x ) \
-	    tmp = min::new_str_gen ( #x ); \
-	    elements[1] = tmp; \
-	    PAR::x = min::new_lab_gen ( elements, 2 )
-
-        MAKE_DOTTED_ATTRIBUTE ( position );
-        MAKE_DOTTED_ATTRIBUTE ( initiator );
-        MAKE_DOTTED_ATTRIBUTE ( terminator );
-        MAKE_DOTTED_ATTRIBUTE ( separator );
-        MAKE_DOTTED_ATTRIBUTE ( middle );
-        MAKE_DOTTED_ATTRIBUTE ( name );
-        MAKE_DOTTED_ATTRIBUTE ( arguments );
-        MAKE_DOTTED_ATTRIBUTE ( keys );
+	PAR::position
+	    = min::new_dot_lab_gen ( "position" );
+	PAR::initiator
+	    = min::new_dot_lab_gen ( "initiator" );
+	PAR::terminator
+	    = min::new_dot_lab_gen ( "terminator" );
+	PAR::separator
+	    = min::new_dot_lab_gen ( "separator" );
+	PAR::middle
+	    = min::new_dot_lab_gen ( "middle" );
+	PAR::name
+	    = min::new_dot_lab_gen ( "name" );
+	PAR::arguments
+	    = min::new_dot_lab_gen ( "arguments" );
+	PAR::keys
+	    = min::new_dot_lab_gen ( "keys" );
 
         PAR::doublequote = min::new_str_gen ( "\"" );
         PAR::number_sign = min::new_str_gen ( "#" );
@@ -554,17 +551,17 @@ static void compact
 
     min::init ( pos, parser->input_file, position, n );
 
-    while ( n -- )
+    for ( PAR::token current = first;
+          current != next; )
     {
-        PAR::token t = next->previous;
-	assert ( t != next );
+	min::attr_push(expvp) = current->value;
+	min::push ( pos ) = current->position;
 
-	min::attr_push(expvp) = t->value;
-	min::push ( pos ) = t->position;
-
+        current = current->next;
 	PAR::free
 	    ( PAR::remove
-	          ( PAR::first_ref(parser), t ) );
+	          ( PAR::first_ref(parser),
+		    current->previous ) );
     }
 
     if ( m > 0 )

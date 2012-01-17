@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jan 16 10:27:48 EST 2012
+# Date:		Tue Jan 17 09:10:59 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -18,7 +18,7 @@ MIN = ~/min
 
 # The following turns on MIN debugging.
 #
-GFLAGS = -DMIN_PROTECT=1
+GFLAGS = -DMIN_PROTECT=1 -Wall -Wextra
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
@@ -33,7 +33,8 @@ PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_c++_test \
 	   ll_parser_input_test \
 	   ll_parser_table_test \
-	   ll_parser_explicit_subexpression_test
+	   ll_parser_explicit_subexpression_test \
+	   ll_parser_definition_test
 
 TESTS = ${PROGRAMS}
 
@@ -501,6 +502,14 @@ ll_parser_explicit_subexpression_test.out:	\
 	rm -f $*.out
 	${RUNENV} $* < ll_parser_standard_test.in \
 	             > $*.out
+
+ll_parser_definition_test.out:	\
+	    ll_parser_explicit_subexpression_test \
+	    ll_parser_definition_test.in
+	rm -f $*.out
+	${RUNENV} \
+	    ll_parser_explicit_subexpression_test \
+	        < $*.in > $*.out
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o \

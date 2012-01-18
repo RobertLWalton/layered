@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 17 08:31:13 EST 2012
+// Date:	Wed Jan 18 08:41:15 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,6 +49,9 @@ static min::printer_format bracket_format =
 static struct initializer {
     initializer ( void )
     {
+        std::cout << "PARSER INIT " << (min::uns64) this
+	          << " " << min::test::ogen ( PAR::position )
+	          << std::endl;
 	PAR::position
 	    = min::new_dot_lab_gen ( "position" );
 	PAR::initiator
@@ -104,7 +107,7 @@ static int number_free_strings = 0;
 
 static int max_string_free_list_size = 100;
 
-static int min_string_length = 80;
+static unsigned min_string_length = 80;
 
 PAR::string PAR::new_string
 	( min::uns32 n, const min::uns32 * s )
@@ -1589,7 +1592,9 @@ static bool parse_explicit_subexpression
 		        current->next->indent;
 
 		    MIN_ASSERT
-		        (    paragraph_indent
+		        ( paragraph_indent < 0
+			  ||
+			     (unsigned) paragraph_indent
 			  != LEX::AFTER_GRAPHIC );
 
 		    // Delete line break.
@@ -1678,7 +1683,8 @@ static bool parse_explicit_subexpression
 			        !=
 				LEX::AFTER_GRAPHIC
 				&&
-			          current->next->indent
+			          (int)
+				  current->next->indent
 			        < paragraph_indent ) )
 			    break;
 
@@ -2830,7 +2836,7 @@ min::gen PAR::make_label
     assert ( j <= min::size_of ( vp ) );
     min::unsptr n = j - i;
     min::gen lab[n];
-    for ( int k = 0; k < n; ++ k )
+    for ( min::unsptr k = 0; k < n; ++ k )
     {
         lab[k] = vp[k];
         if ( ! min::is_obj ( lab[k] ) ) continue;

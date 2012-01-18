@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 24 07:59:57 EDT 2011
+// Date:	Wed Jan 18 08:32:00 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -322,7 +322,7 @@ static uns32 pop_instruction_group ( uns32 line_number )
 // are mapped to the character type the dispatcher would
 // have had (used by end_atom_pattern).
 //
-static uns32 pop_dispatcher
+static void pop_dispatcher
 	( bool discard_dispatcher = false )
 {
     dispatcher & d = current_dispatcher();
@@ -353,7 +353,7 @@ static uns32 pop_dispatcher
 	min::pop ( dispatchers );
 
 	substate = DISPATCHERS;
-    	return 0;
+    	return;
     }
 
     uns32 total_type_map_count = 0;
@@ -492,7 +492,7 @@ static void internal_add_characters
     dispatcher & d = parent_dispatcher();
     int c;  // use int instead of char to prevent
             // 0 <= c or c < 128 warning message.
-    while ( c = * include_chars ++ )
+    while ( ( c = * include_chars ++ ) != 0 )
     {
 	if ( index ( exclude_chars, c ) ) continue;
 

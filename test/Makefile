@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jan 17 09:10:59 EST 2012
+# Date:		Wed Jan 18 08:29:53 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -18,7 +18,8 @@ MIN = ~/min
 
 # The following turns on MIN debugging.
 #
-GFLAGS = -DMIN_PROTECT=1 -Wall -Wextra
+GFLAGS = -DMIN_PROTECT=1
+WFLAGS = -Wall -Wno-char-subscripts
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
@@ -109,7 +110,7 @@ min.o:	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	${MIN}/src/min.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ${MIN}/src/min.cc
 
@@ -118,7 +119,7 @@ min_os.o:	${MIN}/include/min.h \
         ${MIN}/include/min_os.h \
 	${MIN}/src/min_os.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ${MIN}/src/min_os.cc
 
@@ -129,7 +130,7 @@ min_acc.o:	${MIN}/include/min.h \
         ${MIN}/include/min_os.h \
 	${MIN}/src/min_acc.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ${MIN}/src/min_acc.cc
 
@@ -140,7 +141,7 @@ ll_lexeme.o:	\
 	../include/ll_lexeme_program_data.h \
 	../src/ll_lexeme.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme.cc
 
@@ -151,7 +152,7 @@ ll_lexeme_test.o:	\
 	../include/ll_lexeme_program_data.h \
 	../src/ll_lexeme_test.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme_test.cc
 
@@ -162,7 +163,7 @@ ll_lexeme_basic_test:		\
 		min_os.o \
 		min_acc.o \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
@@ -179,7 +180,7 @@ ll_lexeme_ndl.o:	\
 		../include/ll_lexeme_ndl.h \
 		../include/ll_lexeme_ndl_data.h \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_lexeme_ndl.cc
 
@@ -197,7 +198,7 @@ ll_lexeme_standard.o:	\
 		../include/ll_lexeme_ndl.h \
 		../include/ll_lexeme_standard.h \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ll_lexeme_standard.cc
 
@@ -211,7 +212,7 @@ ll_lexeme_standard_basic_test:		\
 		min_os.o \
 		min_acc.o \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
@@ -240,7 +241,7 @@ ll_lexeme_standard_test:		\
 		min_os.o \
 		min_acc.o \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
@@ -273,7 +274,7 @@ ll_lexeme_c++.o:	\
 		../include/ll_lexeme_ndl.h \
 		../include/ll_lexeme_c++.h \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ll_lexeme_c++.cc
 
@@ -287,7 +288,7 @@ ll_lexeme_c++_basic_test:		\
 		min_os.o \
 		min_acc.o \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
@@ -316,7 +317,7 @@ ll_lexeme_c++_test:		\
 		min_os.o \
 		min_acc.o \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
@@ -345,7 +346,7 @@ ll_parser.o:	\
 	../include/ll_lexeme.h \
 	../src/ll_parser.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser.cc
 
@@ -359,7 +360,7 @@ ll_parser_standard_input.o:	\
 	../include/ll_lexeme.h \
 	../src/ll_parser_standard_input.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_standard_input.cc
 
@@ -370,7 +371,7 @@ ll_parser_table.o:	\
 	../include/ll_parser_table.h \
 	../src/ll_parser_table.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_table.cc
 
@@ -382,7 +383,7 @@ ll_parser_standard_brackets.o:	\
 	../include/ll_parser_standard.h \
 	../src/ll_parser_standard_brackets.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_standard_brackets.cc
 
@@ -394,7 +395,7 @@ ll_parser_execute_definition.o:	\
 	../include/ll_parser_standard.h \
 	../src/ll_parser_execute_definition.cc \
 	Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_execute_definition.cc
 
@@ -411,7 +412,7 @@ ll_parser_input_test:		\
 		min_os.o \
 		min_acc.o \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
@@ -446,7 +447,7 @@ ll_parser_table_test:		\
 		min_os.o \
 		min_acc.o \
 		Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \
@@ -480,7 +481,7 @@ ll_parser_explicit_subexpression_test:		\
 	    min_os.o \
 	    min_acc.o \
 	    Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ll_lexeme.o \

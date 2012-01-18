@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 13 19:12:59 EDT 2011
+// Date:	Wed Jan 18 08:25:53 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,6 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Test Runtime
 //	Program Construction Test
 
 // Usage and Setup
@@ -70,16 +69,6 @@ static const char * const type_name[MAX_TYPE+1] = {
    "SEPARATOR" };
 
 
-// Test Runtime
-// ---- -------
-
-static uns32 * lex_input = NULL;
-static uns32   lex_input_length = 0;
-static uns32   lex_line = 0;
-static uns32   lex_index = 0;
-static uns32   lex_column = 0;
-
-
 // Program Construction Test
 // ------- ------------ ----
 
@@ -106,8 +95,8 @@ static void create_program_1 ( void )
 {
     LEX::create_program
         ( __LINE__, type_name, MAX_TYPE );
-    uns32 master =
-        LEX::create_table ( __LINE__, MASTER );
+
+    LEX::create_table ( __LINE__, MASTER );
 
     uns32 atable1 =
         LEX::create_table ( __LINE__, SYMBOL );
@@ -587,7 +576,6 @@ void test_program
 	    << min::pop_parameters
 	    << min::eol << min::eol;
 
-    char buffer[10000];
     while ( true )
     {
 	uns32 first, last;

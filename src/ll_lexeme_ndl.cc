@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 08:32:00 EST 2012
+// Date:	Thu Jan 19 04:29:45 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,14 +45,22 @@ static min::packed_vec<LEXNDLDATA::instruction>
            ( "ll::lexeme::ndl::instruction_vec_type" );
 
 min::packed_vec_insptr<LEX::uns32>
-    LEXNDLDATA::uns32_stack
-	( uns32_vec_type.new_gen() );
+    LEXNDLDATA::uns32_stack;
 min::packed_vec_insptr<LEXNDLDATA::dispatcher>
-    LEXNDLDATA::dispatchers
-	( dispatcher_vec_type.new_gen() );
+    LEXNDLDATA::dispatchers;
 min::packed_vec_insptr<LEXNDLDATA::instruction>
-    LEXNDLDATA::instructions
-	( instruction_vec_type.new_gen() );
+    LEXNDLDATA::instructions;
+
+static void initialize ( void )
+{
+    LEXNDLDATA::uns32_stack =
+        uns32_vec_type.new_gen();
+    LEXNDLDATA::dispatchers =
+	dispatcher_vec_type.new_gen();
+    LEXNDLDATA::instructions =
+	instruction_vec_type.new_gen();
+}
+static min::initializer initializer ( ::initialize );
 
 // Other global data.
 //

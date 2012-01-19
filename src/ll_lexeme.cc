@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 28 06:28:45 EST 2011
+// Date:	Thu Jan 19 03:57:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -894,18 +894,15 @@ static void default_erroneous_atom_announce
 	<< min::eol;
 }
 
-static class default_closures_initializer
+static void initialize ()
 {
-    public:
+    LEX::init ( LEX::default_input,
+		::default_input_get );
+    LEX::init ( LEX::default_erroneous_atom,
+		::default_erroneous_atom_announce );
+}
+static min::initializer initializer ( ::initialize );
 
-    default_closures_initializer ( void )
-    {
-	LEX::init ( LEX::default_input,
-		    ::default_input_get );
-	LEX::init ( LEX::default_erroneous_atom,
-	            ::default_erroneous_atom_announce );
-    }
-} default_closures_init;
 
 // Scanning
 // --------

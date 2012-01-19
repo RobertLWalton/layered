@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 18 05:07:33 EDT 2011
+// Date:	Thu Jan 19 03:33:04 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,7 @@ unsigned failed_count = 0;
 
 int main ( int argc )
 {
+    min::initialize();
     PAR::init ( PAR::default_parser );
     TAB::table bracket_table =
         PAR::default_parser->bracket_table;

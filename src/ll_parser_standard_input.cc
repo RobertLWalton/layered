@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 18:04:46 EST 2011
+// Date:	Thu Jan 19 03:27:39 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,31 +31,28 @@
 // Lexical Type Support
 // ------- ---- -------
 
-const LEX::uns8
-    LEXSTD::internal::lexeme_type_table[256] = { 0 };
+static LEX::uns8 lexeme_type_table[256] = { 0 };
+const LEX::uns8 * LEXSTD::internal::lexeme_type_table =
+    ::lexeme_type_table;
 
-static struct initializer
+static void initialize ( void )
 {
-    initializer ( void )
-    {
-        LEX::uns8 * p = (LEX::uns8 *)
-	    LEXSTD::internal::lexeme_type_table;
-	for ( char * q = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	                 "abcdefghijklmnopqrstuvwxyz";
-	      * q; ) p[*q++] = LEXSTD::word_t; 
-	for ( unsigned c = 128; c < 256; ++ c )
-	      p[c] = LEXSTD::word_t; 
-	      // Only words can begin with a non-ASCII
-	      // character.
-	for ( unsigned c = '0'; c <= '9'; ++ c )
-	      p[c] = LEXSTD::number_t; 
-	for ( char * q = "+-*~@#$%^&=|>_!?:<./"; * q; )
-	      p[*q++] = LEXSTD::mark_t; 
-	for ( char * q = ";,`'()[]{}"; * q; )
-	      p[*q++] = LEXSTD::separator_t; 
-    }
-} init;
-
+    LEX::uns8 * p = lexeme_type_table;
+    for ( char * q = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		     "abcdefghijklmnopqrstuvwxyz";
+	  * q; ) p[*q++] = LEXSTD::word_t; 
+    for ( unsigned c = 128; c < 256; ++ c )
+	  p[c] = LEXSTD::word_t; 
+	  // Only words can begin with a non-ASCII
+	  // character.
+    for ( unsigned c = '0'; c <= '9'; ++ c )
+	  p[c] = LEXSTD::number_t; 
+    for ( char * q = "+-*~@#$%^&=|>_!?:<./"; * q; )
+	  p[*q++] = LEXSTD::mark_t; 
+    for ( char * q = ";,`'()[]{}"; * q; )
+	  p[*q++] = LEXSTD::separator_t; 
+}
+static min::initializer initializer ( ::initialize );
 
 // Standard Input Parser
 // -------- ----- ------

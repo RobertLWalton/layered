@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 22 12:28:56 EST 2011
+// Date:	Thu Jan 19 04:38:21 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -100,7 +100,7 @@ namespace ll { namespace lexeme { namespace standard {
 
     namespace internal {
 
-	extern const uns8 lexeme_type_table[256];
+	extern const uns8 * lexeme_type_table;
 
     }
 

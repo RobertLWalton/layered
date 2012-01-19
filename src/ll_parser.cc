@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 08:41:15 EST 2012
+// Date:	Thu Jan 19 03:27:21 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,44 +46,41 @@ min::locatable_gen PAR::undefine;
 static min::printer_format bracket_format =
     min::default_printer_format;
 
-static struct initializer {
-    initializer ( void )
-    {
-        std::cout << "PARSER INIT " << (min::uns64) this
-	          << " " << min::test::ogen ( PAR::position )
-	          << std::endl;
-	PAR::position
-	    = min::new_dot_lab_gen ( "position" );
-	PAR::initiator
-	    = min::new_dot_lab_gen ( "initiator" );
-	PAR::terminator
-	    = min::new_dot_lab_gen ( "terminator" );
-	PAR::separator
-	    = min::new_dot_lab_gen ( "separator" );
-	PAR::middle
-	    = min::new_dot_lab_gen ( "middle" );
-	PAR::name
-	    = min::new_dot_lab_gen ( "name" );
-	PAR::arguments
-	    = min::new_dot_lab_gen ( "arguments" );
-	PAR::keys
-	    = min::new_dot_lab_gen ( "keys" );
+static void initialize ( void )
+{
+    min::gen g = PAR::position;
+    PAR::position
+	= min::new_dot_lab_gen ( "position" );
+    PAR::initiator
+	= min::new_dot_lab_gen ( "initiator" );
+    PAR::terminator
+	= min::new_dot_lab_gen ( "terminator" );
+    PAR::separator
+	= min::new_dot_lab_gen ( "separator" );
+    PAR::middle
+	= min::new_dot_lab_gen ( "middle" );
+    PAR::name
+	= min::new_dot_lab_gen ( "name" );
+    PAR::arguments
+	= min::new_dot_lab_gen ( "arguments" );
+    PAR::keys
+	= min::new_dot_lab_gen ( "keys" );
 
-        PAR::doublequote = min::new_str_gen ( "\"" );
-        PAR::number_sign = min::new_str_gen ( "#" );
-        PAR::new_line = min::new_str_gen ( "\n" );
-        PAR::semicolon = min::new_str_gen ( ";" );
+    PAR::doublequote = min::new_str_gen ( "\"" );
+    PAR::number_sign = min::new_str_gen ( "#" );
+    PAR::new_line = min::new_str_gen ( "\n" );
+    PAR::semicolon = min::new_str_gen ( ";" );
 
-        PAR::define = min::new_str_gen ( "define" );
-        PAR::undefine = min::new_str_gen ( "undefine" );
+    PAR::define = min::new_str_gen ( "define" );
+    PAR::undefine = min::new_str_gen ( "undefine" );
 
-	::bracket_format.str_prefix = "";
-	::bracket_format.str_postfix = "";
-	::bracket_format.lab_prefix = "";
-	::bracket_format.lab_postfix = "";
-	::bracket_format.lab_separator = "";
-    }
-} init;
+    ::bracket_format.str_prefix = "";
+    ::bracket_format.str_postfix = "";
+    ::bracket_format.lab_prefix = "";
+    ::bracket_format.lab_postfix = "";
+    ::bracket_format.lab_separator = "";
+}
+static min::initializer initializer ( ::initialize );
 
 // Strings
 // -------

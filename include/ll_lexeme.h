@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 19:29:20 EST 2012
+// Date:	Mon Jan 30 22:13:33 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -612,10 +612,22 @@ namespace ll { namespace lexeme {
 	      bool (*get) ( ll::lexeme::scanner scanner,
 	                    ll::lexeme::input input ) );
 
+    // Modes for the default erroneous atom announce
+    // function:
+    //
+    enum {
+        NORMAL = 0,
+	    // Use pline_numbers and print_phrase_lines.
+	NO_LINE_NUMBERS = 1,
+	    // Use just print_phrase_lines.
+	BASIC = 2
+	    // Use perroneous_atom only.
+    };
+
     struct erroneous_atom_struct
         // Closure to announce erroneous atom errors.
 	// See the `erroneous_atom' member of scanner_
-	//. struct below for details.
+	// struct below for details.
     {
     	uns32 control;
 	void (* announce )
@@ -623,6 +635,9 @@ namespace ll { namespace lexeme {
 	      ll::lexeme::scanner scanner,
 	      ll::lexeme::erroneous_atom
 		  erroneous_atom );
+
+	uns32 mode;
+	    // See erroneous atom modes above.
     };
 
     // Set erroneous_atom closure function.  If
@@ -638,7 +653,17 @@ namespace ll { namespace lexeme {
 		( uns32 first, uns32 next, uns32 type,
 		  ll::lexeme::scanner scanner,
 		  ll::lexeme::erroneous_atom
-		      erroneous_atom ) );
+		      erroneous_atom ),
+	      uns32 mode = NORMAL );
+
+    // Create an erroneous atom closure if necessary
+    // with default announce function.  Then set the
+    // mode of the closure.
+    //
+    void init
+	    ( min::ref<ll::lexeme::erroneous_atom>
+	          erroneous_atom,
+	      uns32 mode );
 } }
 
 // Scanner
@@ -1149,31 +1174,41 @@ min::printer operator <<
 // quoted string, that is to be scanned into a sequence
 // of lexemes that are made into a min::gen label.  The
 // scanning is done by a scanner that is pre-initialized
-// with a lexical program.
+// with a lexical program and the string to be scanned.
 
-// Scan a name string using a name string scanner and
-// return the resulting label.  Each lexeme scanned
-// is disposed of according to its lexeme type t: if
-// 1<<t is on in legal_types, the lexeme is included as
-// the next element of the label; if 1<<t is on in
-// ignored_types, the lexeme is ignored; and otherwise
-// an error is signalled.  If there is an error, an
-// error message is printed using the scanner printer
-// and min::MISSING() is returned.
-//
-// Scanner initialization is the responsiblity of the
-// caller.  Typically the scanner is initialized with
-// a program and printer, and if desired an initial_
-// table and/or a trace.  Then init_input_string is
-// called to define the string to be scanned, and
-// init_printer_flags may be called to initialize
-// printer flags for error messages.  The closures
-// are given appropriate default values if they have
-// not been initialized.
-//
-min::gen scan_name_string
-	( min::ref<ll::lexeme::scanner> scanner,
-	  min::uns64 legal_types,
-	  min::uns64 ignored_types );
+namespace ll { namespace lexeme {
+
+    // Scan a name string using a name string scanner
+    // and return the resulting label.  Each lexeme
+    // scanned is disposed of according to its lexeme
+    // type t: if 1<<t is on in legal_types, the lexeme
+    // is included as the next element of the label;
+    // else if 1<<t is on in ignored_types, the lexeme
+    // is ignored; and otherwise an error is signalled
+    // (this includes the case t >= 64).  If there is an
+    // error, an error message is printed using the
+    // scanner printer and min::MISSING() is returned.
+    //
+    // A lexeme being included as a label element is
+    // represented as a min::gen value by converting
+    // the lexeme translation string to a MIN string
+    // value.
+    //
+    // Scanner initialization is the responsiblity of
+    // the caller.  Typically the scanner is initialized
+    // with a program and printer, and if desired an
+    // initial_table and/or a trace.  Then init_input_
+    // string is called to define the string to be
+    // scanned, and init_print_flags may be called to
+    // initialize print flags for error messages.  The
+    // closures are given appropriate default values if
+    // they have not been initialized.
+    //
+    min::gen scan_name_string
+	    ( min::ref<ll::lexeme::scanner> scanner,
+	      min::uns64 legal_types,
+	      min::uns64 ignored_types );
+
+} }
 
 # endif // LL_LEXEME_H

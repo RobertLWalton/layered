@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:31:03 EST 2012
+// Date:	Mon Jan 30 19:31:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -556,7 +556,7 @@ void test_program
         LEX::default_scanner->printer;
 
     LEX::init_input_string
-        ( LEX::default_scanner, input,
+        ( LEX::default_scanner, min::new_ptr ( input ),
 	  printer->parameters.flags );
     LEX::init_program
         ( LEX::default_scanner, LEX::default_program );

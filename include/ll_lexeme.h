@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 07:29:57 EST 2011
+// Date:	Mon Jan 30 19:29:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,8 +16,8 @@
 //	Program Instructions
 //	Scanner Closures
 //	Scanner
-//	Input Files
 //	Printing
+//	Name String Scanning
 
 // Usage and Setup
 // ----- --- -----
@@ -667,6 +667,7 @@ namespace ll { namespace lexeme {
     };
 
     const uns32 return_stack_size = 16;
+    const uns32 MAX_INITIAL_TABLES = 8;
     struct scanner_struct
     {
         const uns32 control;
@@ -712,6 +713,7 @@ namespace ll { namespace lexeme {
 	// The scanner parameters are
 	//
 	//	program
+	//	initial_table
 	//	input
 	//	input_file
 	//	erroneous_atom
@@ -729,6 +731,13 @@ namespace ll { namespace lexeme {
 	// NULL_STUB when the `scan' function is called.
 	//
 	const ll::lexeme::program program;
+
+	// Initial_table specifies the initial table of
+	// the program.  Defaults to 0.  Most programs
+	// have only one initial table specified by 0.
+	// Range 0 ..  MAX_INITIAL_TABLES-1.
+	//
+	uns32 initial_table;
 
 	// Closure to call to input one or more inchar
 	// elements to the end of the input buffer
@@ -857,7 +866,8 @@ namespace ll { namespace lexeme {
     //
     void init_program
 	    ( min::ref<ll::lexeme::scanner> scanner,
-              ll::lexeme::program program );
+              ll::lexeme::program program,
+	      ll::lexeme::uns32 initial_table = 0 );
 
     // Reinitialized the scanner and set the scanner->
     // input_file as per min:: function of the same
@@ -877,7 +887,7 @@ namespace ll { namespace lexeme {
 
     void init_input_string
 	    ( min::ref<ll::lexeme::scanner> scanner,
-	      const char * data,
+	      min::ptr<const char> data,
 	      uns32 print_flags = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
@@ -1131,5 +1141,39 @@ min::printer operator <<
 	( min::printer printer,
           const ll::lexeme::perroneous_atom &
 	      perroneous_atom );
+
+// Name String Scanning
+// ---- ------ --------
+
+// A name string is a string, usually the value of a
+// quoted string, that is to be scanned into a sequence
+// of lexemes that are made into a min::gen label.  The
+// scanning is done by a scanner that is pre-initialized
+// with a lexical program.
+
+// Scan a name string using a name string scanner and
+// return the resulting label.  Each lexeme scanned
+// is disposed of according to its lexeme type t: if
+// 1<<t is on in legal_types, the lexeme is included as
+// the next element of the label; if 1<<t is on in
+// ignored_types, the lexeme is ignored; and otherwise
+// an error is signalled.  If there is an error, an
+// error message is printed using the scanner printer
+// and min::MISSING() is returned.
+//
+// Scanner initialization is the responsiblity of the
+// caller.  Typically the scanner is initialized with
+// a program and printer, and if desired an initial_
+// table and/or a trace.  Then init_input_string is
+// called to define the string to be scanned, and
+// init_printer_flags may be called to initialize
+// printer flags for error messages.  The closures
+// are given appropriate default values if they have
+// not been initialized.
+//
+min::gen scan_name_string
+	( min::ref<ll::lexeme::scanner> scanner,
+	  min::uns64 legal_types,
+	  min::uns64 ignored_types );
 
 # endif // LL_LEXEME_H

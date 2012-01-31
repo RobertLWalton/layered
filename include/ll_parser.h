@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 10:25:09 EST 2012
+// Date:	Mon Jan 30 19:29:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -709,7 +709,7 @@ bool init_input_named_file
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_string
 	( min::ref<ll::parser::parser> parser,
-	  const char * data,
+	  min::ptr<const char> data,
 	  min::uns32 print_flags = 0,
 	  min::uns32 spool_lines = min::ALL_LINES );
 

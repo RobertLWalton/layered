@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:57:02 EST 2012
+// Date:	Mon Jan 30 18:46:13 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -144,14 +144,14 @@ uns32 LEX::create_table
     h.instruction_ID = 0;
     PUSH ( h, table_header_length );
 
-    // First master table becomes the initial table
-    // of the program.
+    // First master table becomes the default initial
+    // table of the program.
     //
-    if ( php->initial_table_ID == 0
+    if ( php->initial_table_ID[0] == 0
          &&
 	 mode == MASTER )
     {
-	php->initial_table_ID = ID;
+	php->initial_table_ID[0] = ID;
     }
 
     return ID;
@@ -193,7 +193,8 @@ void LEX::create_program
     program_header h;
     h.pctype = PROGRAM;
     h.line_number = line_number;
-    h.initial_table_ID = 0;
+    memset ( h.initial_table_ID, 0,
+             sizeof ( h.initial_table_ID ) );
     h.max_type = max_type;
     h.component_length = 0;
     PUSH ( h, program_header_length );
@@ -923,21 +924,6 @@ inline bool is_recursive
     return false;
 }
 
-// Create scanner.  Scanner variable must be locatable
-// by garbage collector.
-//
-static void create_scanner
-	( min::ref<LEX::scanner> scanner )
-{
-    scanner = scanner_type.new_stub();
-
-    LEX::input_buffer_ref(scanner) =
-	inchar_vec_type.new_gen();
-    LEX::translation_buffer_ref(scanner) =
-	uns32_vec_type.new_gen();
-
-    scanner->reinitialize = true;
-}
 
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
@@ -949,7 +935,15 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 {
 
     if ( scanner == NULL_STUB )
-        create_scanner ( scanner );
+    {
+	scanner = scanner_type.new_stub();
+
+	LEX::input_buffer_ref(scanner) =
+	    inchar_vec_type.new_gen();
+	LEX::translation_buffer_ref(scanner) =
+	    uns32_vec_type.new_gen();
+	scanner->initial_table = 0;
+    }
     else
     {
 	min::pop ( scanner->input_buffer,
@@ -973,10 +967,12 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 
 void LEX::init_program
 	( min::ref<LEX::scanner> scanner,
-	  LEX::program program )
+	  LEX::program program,
+	  LEX::uns32 initial_table )
 {
     init ( scanner );
     program_ref(scanner) = program;
+    scanner->initial_table = initial_table;
 }
 
 void LEX::init_input_file
@@ -1024,7 +1020,7 @@ void LEX::init_input_stream
 
 void LEX::init_input_string
 	( min::ref<LEX::scanner> scanner,
-	  const char * data,
+	  min::ptr<const char> data,
 	  min::uns32 print_flags,
 	  uns32 spool_lines )
 {
@@ -1696,6 +1692,34 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		<< min::eol;
 	    return SCAN_ERROR;
 	}
+	else if (    scanner->initial_table
+	          >= LEX::MAX_INITIAL_TABLES )
+	{
+	    min::init ( min::error_message )
+	        << "LEXICAL SCANNER ERROR:"
+		   " initial_table >="
+		   " MAX_INITIAL_TABLES"
+		<< min::eol;
+	    return SCAN_ERROR;
+	}
+
+	min::ptr<program_header> php =
+	    LEX::ptr<program_header>
+		( scanner->program, 0 );
+	scanner->current_table_ID =
+	    php->initial_table_ID
+	        [scanner->initial_table];
+
+	if ( scanner->current_table_ID == 0 )
+	{
+	    min::init ( min::error_message )
+	        << "LEXICAL SCANNER ERROR:"
+		   " initial_table "
+		<< scanner->initial_table
+		<< " is undefined"
+		<< min::eol;
+	    return SCAN_ERROR;
+	}
 
 	if ( scanner->input_file == NULL_STUB )
 	{
@@ -1706,12 +1730,6 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		  min::new_str_gen
 		      ( "standard input" ) );
 	}
-
-	min::ptr<program_header> php =
-	    LEX::ptr<program_header>
-		( scanner->program, 0 );
-	scanner->current_table_ID =
-	    php->initial_table_ID;
 
         scanner->scan_error = false;
         scanner->reinitialize = false;
@@ -2697,9 +2715,16 @@ uns32 LEX::print_program_component
 	        << "PROGRAM" << min::eol;
 	min::ptr<program_header> php =
 	    LEX::ptr<program_header> ( program, ID );
-	printer << min::indent << "Initial Table ID: "
-	    << pID ( php->initial_table_ID, program )
-	    << min::eol;
+	for ( unsigned i = 0;
+	      i < LEX::MAX_INITIAL_TABLES; ++ i )
+	{
+	    uns32 ID = php->initial_table_ID[i];
+	    if ( ID == 0 ) continue;
+	    printer << min::indent
+	            << "Initial Table ID[" << i << "]:"
+		    << pID ( ID, program )
+		    << min::eol;
+	}
 	printer << min::indent << "Max Type: "
 	    << php->max_type << min::eol;
 	for ( uns32 t = 0; t <= php->max_type; ++ t )

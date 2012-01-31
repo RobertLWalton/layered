@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:27:21 EST 2012
+// Date:	Mon Jan 30 19:30:17 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -420,7 +420,7 @@ bool PAR::init_input_named_file
 
 void PAR::init_input_string
 	( min::ref<PAR::parser> parser,
-	  const char * data,
+	  min::ptr<const char> data,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {

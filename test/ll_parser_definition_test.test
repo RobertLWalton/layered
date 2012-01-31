@@ -1,6 +1,6 @@
 EXPRESSION: SHORT_OBJ: line 11:
 define bracket "["
 ^^^^^^^^^^^^^^^^^^
-ERROR: too few mark-names in line 11:
+ERROR: too few defined names in line 11:
 define bracket "["
 ^^^^^^^^^^^^^^^^^^

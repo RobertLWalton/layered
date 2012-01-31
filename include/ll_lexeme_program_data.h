@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 13 18:58:47 EDT 2011
+// Date:	Mon Jan 30 18:30:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,8 +41,10 @@ namespace ll { namespace lexeme
 // `ID' == 0 always, but this is never returned to the
 // user.  The pctype can be used to tell whether the
 // program is in proper endianhood or needs endianhood
-// conversion.  The initial_table_ID is the ID of the
-// initial master table.
+// conversion.  initial_table_ID[n] is the ID of the
+// initial master table number n; for most programs,
+// n == 0 is the only permitted value, and it is the
+// default.
 //
 // The lexeme types are 0 .. max_type.  The program
 // header is followed by a vector of max_type+1 uns32
@@ -66,11 +68,15 @@ namespace ll { namespace lexeme
 struct program_header {
     uns32 pctype;		// == PROGRAM
     uns32 line_number;
-    uns32 initial_table_ID;	// Initial master table.
+    uns32 initial_table_ID
+		[ll::lexeme::MAX_INITIAL_TABLES];
+    	// Initial master table IDs.  Default is
+	// initial_table_ID[0].
     uns32 max_type;
     uns32 component_length;
 };
-const uns32 program_header_length = 5;
+const uns32 program_header_length =
+    4 + ll::lexeme::MAX_INITIAL_TABLES;
 
 // A (lexical) table consists of just a header which
 // records the mode, the dispatcher for the first char-

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:29:33 EST 2012
+// Date:	Fri Jan 20 22:31:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,7 @@
 
 static min::locatable_gen define;
 static min::locatable_gen undefine;
+static min::locatable_gen selector;
 static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen mark;
@@ -38,6 +39,7 @@ static void initialize ( void )
     ::define = min::new_str_gen ( "define" );
     ::undefine =
 	min::new_str_gen ( "undefine" );
+    ::selector = min::new_str_gen ( "selector" );
     ::bracket = min::new_str_gen ( "bracket" );
     ::indentation = min::new_str_gen
 			    ( "indentation" );
@@ -53,7 +55,10 @@ static min::initializer initializer ( ::initialize );
 // ------- ---------- --------
 
 enum definition_type
-    { BRACKET, INDENTATION_MARK, NAMED_BRACKET };
+    { SELECTOR,
+      BRACKET,
+      INDENTATION_MARK,
+      NAMED_BRACKET };
 
 bool TAB::parser_execute_definition
 	( min::obj_vec_ptr & vp,
@@ -92,7 +97,14 @@ bool TAB::parser_execute_definition
         return false;
     ++ i;
 
-    if ( vp[i] == ::bracket )
+    if ( vp[i] == ::selector )
+    {
+        type = ::SELECTOR;
+	min_names = 1;
+	max_names = 1;
+	++ i;
+    }
+    else if ( vp[i] == ::bracket )
     {
         type = ::BRACKET;
 	min_names = 2;
@@ -161,7 +173,13 @@ bool TAB::parser_execute_definition
 		      PAR::get_initiator ( g )
 		   == PAR::doublequote )
 	         ||
-	         t == LEXSTD::mark_t )
+	         t == LEXSTD::mark_t
+	         ||
+	         ( t == LEXSTD::word_t
+		   &&
+		   g != ::with )
+		 ||
+		 t == LEXSTD::number_t )
 	    {
 	        ++ i;
 		continue;
@@ -212,7 +230,7 @@ bool TAB::parser_execute_definition
     {
 	printer
 	    << min::bom << min::set_indent ( 7 )
-	    << "ERROR: too few mark-names in "
+	    << "ERROR: too few defined names in "
 	    << min::pline_numbers
 		   ( ppvec->file,
 		     ppvec->position )  

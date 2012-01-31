@@ -1,5 +1,5 @@
          0: PROGRAM
-            Initial Table ID: #XXXX
+            Initial Table ID[0]:#XXXX
             Max Type: 18
                  1: WORD
                  2: NATURAL_NUMBER

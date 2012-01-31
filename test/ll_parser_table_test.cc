@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:33:04 EST 2012
+// Date:	Tue Jan 31 05:07:26 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -89,7 +89,8 @@ int main ( int argc )
 	  TAB::new_selectors ( 2 ),
 	  bracket_table,
 	  split_table );
-    TAB::indentation_mark imark = (TAB::indentation_mark)
+    TAB::indentation_mark imark =
+        (TAB::indentation_mark)
         TAB::find ( colon, bracket_table ); 
     TAB::indentation_split isplit =
         split_table[':'];
@@ -104,7 +105,8 @@ int main ( int argc )
 
     if ( failed_count > 0 )
     {
-        cout << failed_count << " ASSERTs are false" << endl;
+        cout << failed_count
+	     << " ASSERTs are false" << endl;
 	exit ( 1 );
     }
 }

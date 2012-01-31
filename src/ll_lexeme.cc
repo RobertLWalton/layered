@@ -17,6 +17,7 @@
 //	Scanning
 //	Printing
 //	Printing Programs
+//	Name String Scanning
 
 // Usage and Setup
 // ----- --- -----
@@ -781,29 +782,6 @@ bool LEX::convert_program_endianhood
 // Scanner Closures
 // ------- --------
 
-void LEX::init
-	( min::ref<LEX::input> input,
-	  bool (*get) ( LEX::scanner scanner,
-			LEX::input input ) )
-{
-    if ( input == NULL_STUB )
-        input = ::input_type.new_stub();
-    input->get = get;
-}
-
-void LEX::init
-	( min::ref<LEX::erroneous_atom> erroneous_atom,
-	  void (* announce )
-	    ( uns32 first, uns32 next, uns32 type,
-	      LEX::scanner scanner,
-	      LEX::erroneous_atom erroneous_atom ) )
-{
-    if ( erroneous_atom == NULL_STUB )
-        erroneous_atom =
-	    ::erroneous_atom_type.new_stub();
-    erroneous_atom->announce = announce;
-}
-
 static bool default_input_get
 	( LEX::scanner scanner,
 	  LEX::input input )
@@ -888,11 +866,79 @@ static void default_erroneous_atom_announce
 {
     if ( scanner->printer == min::NULL_STUB )
         min::init ( LEX::printer_ref(scanner) );
+
     scanner->printer
-        << "ERRONEOUS ATOM: "
-	<< LEX::perroneous_atom
-	       ( scanner, first, next, type )
-	<< min::eol;
+        << "ERRONEOUS ATOM: ";
+
+    if ( erroneous_atom->mode == LEX::BASIC )
+    {
+        scanner->printer
+	    << LEX::perroneous_atom
+	           ( scanner, first, next, type )
+	    << min::eol;
+	return;
+    }
+
+    scanner->printer
+        << LEX::pmode ( scanner->program, type );
+
+    switch ( erroneous_atom->mode )
+    {
+    case NORMAL:
+	scanner->printer
+	    << " " << LEX::pline_numbers
+	                  ( scanner, first, next );
+
+    case NO_LINE_NUMBERS:
+	scanner->printer << ":" << min::eol;
+
+	LEX::print_phrase_lines
+	    ( scanner->printer, scanner, first, next );
+	break;
+
+    default:
+        MIN_ABORT
+	    ( "Bad erroneous atom announce mode" );
+    }
+}
+
+void LEX::init
+	( min::ref<LEX::input> input,
+	  bool (*get) ( LEX::scanner scanner,
+			LEX::input input ) )
+{
+    if ( input == NULL_STUB )
+        input = ::input_type.new_stub();
+    input->get = get;
+}
+
+void LEX::init
+	( min::ref<LEX::erroneous_atom> erroneous_atom,
+	  void (* announce )
+	    ( uns32 first, uns32 next, uns32 type,
+	      LEX::scanner scanner,
+	      LEX::erroneous_atom erroneous_atom ),
+	  LEX::uns32 mode )
+{
+    if ( erroneous_atom == NULL_STUB )
+        erroneous_atom =
+	    ::erroneous_atom_type.new_stub();
+    erroneous_atom->announce = announce;
+    erroneous_atom->mode = mode;
+}
+
+void LEX::init
+	( min::ref<LEX::erroneous_atom> erroneous_atom,
+	  LEX::uns32 mode )
+{
+    if ( erroneous_atom == NULL_STUB )
+    {
+        erroneous_atom =
+	    ::erroneous_atom_type.new_stub();
+	erroneous_atom->announce = 
+	    ::default_erroneous_atom_announce;
+    }
+    erroneous_atom->mode = mode;
 }
 
 static void initialize ()
@@ -2948,4 +2994,15 @@ void LEX::print_program
     if ( ID > program->length )
         printer << "  ILLEGALLY TRUNCATED LAST PROGRAM"
 	           " COMPONENT" << min::eol;
+}
+
+// Name String Scanning
+// ---- ------ --------
+
+min::gen LEX::scan_name_string
+	( min::ref<ll::lexeme::scanner> scanner,
+	  min::uns64 legal_types,
+	  min::uns64 ignored_types )
+{
+    return min::MISSING();
 }

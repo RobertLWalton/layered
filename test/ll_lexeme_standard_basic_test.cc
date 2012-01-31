@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:31:35 EST 2012
+// Date:	Tue Jan 31 10:04:29 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability

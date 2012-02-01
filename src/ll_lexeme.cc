@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 18:46:13 EST 2012
+// Date:	Wed Feb  1 04:31:41 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2999,10 +2999,120 @@ void LEX::print_program
 // Name String Scanning
 // ---- ------ --------
 
+// Because we do not know the number of elements in the
+// label being created by scan_name_string, we use a
+// function that calls itself recursively to scan the
+// next element.  This maintains a list of the elements
+// scanned in the stack frames of the recursive calls,
+// and a count of these elements in a function argument.
+//
+struct scan_name_string_var
+{
+    min::locatable_gen element;
+    scan_name_string_var * previous;
+};
+static min::gen scan_name_string_make_label
+	( ::scan_name_string_var * last,
+	  min::uns32 count )
+{
+    // Given the elements in the stack and a count of
+    // such, return a MIN label containing the elements.
+
+    min::gen elements[count];
+
+    for ( int i = count - 1; i >= 0; -- i )
+    {
+        elements[i] = last->element;
+	last = last->previous;
+    }
+    assert ( last == NULL );
+
+    return min::new_lab_gen ( elements, count );
+}
+static min::gen scan_name_string_next_element
+	( min::ref<ll::lexeme::scanner> scanner,
+	  min::uns64 accepted_types,
+	  min::uns64 ignored_types,
+	  min::uns64 end_types,
+	  ::scan_name_string_var * previous = NULL,
+	  min::uns32 count = 0 )
+{
+    LEX::uns32 first, next, type;
+    min::uns64 flag;
+
+    // Get the next non-ignorable element, or call
+    // scan_name_string_make_label, or announce error
+    // and return min::MISSING().
+    //
+    while ( true )
+    {
+	type = LEX::scan ( first, next, scanner );
+
+	if ( type == LEX::SCAN_ERROR )
+	{
+	    scanner->printer
+	        << "FATAL ERROR (I.E., SCAN ERROR) IN"
+		   " THE CODE OF THE LEXICAL PROGRAM:"
+		<< min::eol << min::error_message;
+	    return min::MISSING();
+	}
+
+	if ( type < 64 )
+	{
+	    flag = 1ull << type;
+	    if ( flag & accepted_types ) break;
+	    else if ( flag & ignored_types )
+	    {
+	        if ( flag & end_types )
+		    return ::scan_name_string_make_label
+		    		( previous, count );
+		else
+		    continue;
+	    }
+	}
+
+	scanner->printer
+	    << "ERROR: Lexeme of illegal type ("
+	    << LEX::pmode ( scanner->program, type )
+	    << ") in name string:"
+	    << min::eol;
+	LEX::print_phrase_lines
+	    ( scanner->printer, scanner, first, next );
+        return min::MISSING();
+    }
+
+    ++ count;
+    scan_name_string_var var;
+    var.previous = previous;
+    var.element =
+        min::new_str_gen
+	    ( scanner->translation_buffer.begin_ptr(),
+	      scanner->translation_buffer->length );
+
+    if ( flag && end_types )
+        return ::scan_name_string_make_label
+	    ( & var, count );
+    else
+        return ::scan_name_string_next_element
+	    ( scanner,
+	      accepted_types,
+	      ignored_types,
+	      end_types,
+	      & var, count );
+}
+
 min::gen LEX::scan_name_string
 	( min::ref<ll::lexeme::scanner> scanner,
-	  min::uns64 legal_types,
-	  min::uns64 ignored_types )
+	  min::uns64 accepted_types,
+	  min::uns64 ignored_types,
+	  min::uns64 end_types )
 {
-    return min::MISSING();
+
+   if ( scanner->erroneous_atom == NULL_STUB )
+       LEX::init ( erroneous_atom_ref(scanner),
+                   LEX::NO_LINE_NUMBERS );
+
+    return ::scan_name_string_next_element
+        ( scanner,
+	  accepted_types, ignored_types, end_types );
 }

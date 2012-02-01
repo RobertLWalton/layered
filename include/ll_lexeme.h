@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 22:13:33 EST 2012
+// Date:	Wed Feb  1 07:24:23 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1179,15 +1179,20 @@ min::printer operator <<
 namespace ll { namespace lexeme {
 
     // Scan a name string using a name string scanner
-    // and return the resulting label.  Each lexeme
+    // and return the resulting MIN label.  Each lexeme
     // scanned is disposed of according to its lexeme
-    // type t: if 1<<t is on in legal_types, the lexeme
-    // is included as the next element of the label;
-    // else if 1<<t is on in ignored_types, the lexeme
-    // is ignored; and otherwise an error is signalled
-    // (this includes the case t >= 64).  If there is an
-    // error, an error message is printed using the
-    // scanner printer and min::MISSING() is returned.
+    // type t: if 1<<t is on in accepted_types, the
+    // lexeme is included as the next element of the
+    // label; else if 1<<t is on in ignored_types, the
+    // lexeme is ignored; and otherwise an error is
+    // announced (this includes the case t >= 64).
+    // If 1<<t is on in end_types, the lexeme is the
+    // last lexeme scanned (it must also be accepted or
+    // ignored).
+    //
+    // If there is an error, an error message is printed
+    // using the scanner printer and min::MISSING() is
+    // returned.
     //
     // A lexeme being included as a label element is
     // represented as a min::gen value by converting
@@ -1200,15 +1205,16 @@ namespace ll { namespace lexeme {
     // initial_table and/or a trace.  Then init_input_
     // string is called to define the string to be
     // scanned, and init_print_flags may be called to
-    // initialize print flags for error messages.  The
-    // closures are given appropriate default values if
-    // they have not been initialized.
+    // initialize print flags for error messages.  If
+    // the erroneous_atom closure is not initialized,
+    // this function gives it the default value with
+    // NO_LINE_NUMBERS mode.
     //
     min::gen scan_name_string
 	    ( min::ref<ll::lexeme::scanner> scanner,
-	      min::uns64 legal_types,
-	      min::uns64 ignored_types );
-
+	      min::uns64 accepted_types,
+	      min::uns64 ignored_types,
+	      min::uns64 end_types );
 } }
 
 # endif // LL_LEXEME_H

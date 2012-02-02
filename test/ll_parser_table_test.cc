@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 31 05:07:26 EST 2012
+// Date:	Thu Feb  2 00:13:14 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,6 +33,9 @@ unsigned failed_count = 0;
          << ( exp ? " is true" \
 	          : ( ++ failed_count, "is false" ) ) \
 	 << endl;
+
+// Test
+// ----
 
 int main ( int argc )
 {

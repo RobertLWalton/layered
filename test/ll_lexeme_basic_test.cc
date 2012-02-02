@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 31 10:04:00 EST 2012
+// Date:	Thu Feb  2 00:14:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Program Construction Test
+//	Program Construction
+//	Test
 
 // Usage and Setup
 // ----- --- -----
@@ -69,8 +70,8 @@ static const char * const type_name[MAX_TYPE+1] = {
    "SEPARATOR" };
 
 
-// Program Construction Test
-// ------- ------------ ----
+// Program Construction
+// ------- ------------
 
 // The following print min::error_message if there is
 // an error.
@@ -548,6 +549,9 @@ static void create_program_2 ( void )
     LEX::print_program
         ( printer, LEX::default_program, true );
 }
+
+// Test
+// ----
 
 void test_program
     ( const char * input, bool trace = false )

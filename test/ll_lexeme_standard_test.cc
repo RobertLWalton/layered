@@ -2,20 +2,11 @@
 //
 // File:	ll_lexeme_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:32:01 EST 2012
+// Date:	Thu Feb  2 00:11:48 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-
-// Table of Contents
-//
-//	Usage and Setup
-//	External Runtime
-//	Program Construction Test
-
-// Usage and Setup
-// ----- --- -----
 
 # include <ll_lexeme.h>
 # include <ll_lexeme_test.h>

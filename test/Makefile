@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Jan 18 08:29:53 EST 2012
+# Date:		Thu Feb  2 00:14:58 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -31,6 +31,7 @@ OPTIMIZE = -O3
 PROGRAMS = ll_lexeme_basic_test \
            ll_lexeme_standard_basic_test \
            ll_lexeme_standard_test \
+           ll_lexeme_name_string_test \
            ll_lexeme_c++_test \
 	   ll_parser_input_test \
 	   ll_parser_table_test \
@@ -259,6 +260,33 @@ ll_lexeme_standard_test.out:		\
 	rm -f $*.out
 	${RUNENV} $* < ll_lexeme_standard_test.in \
 	             > $*.out
+
+ll_lexeme_name_string_test:		\
+		ll_lexeme_name_string_test.cc \
+		ll_lexeme.o \
+		ll_lexeme_test.o \
+		ll_lexeme_ndl.o \
+		ll_lexeme_standard.o \
+		min.o \
+		min_os.o \
+		min_acc.o \
+		Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_test.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    ll_lexeme_name_string_test.cc
+
+ll_lexeme_name_string_test.out:		\
+	    ll_lexeme_name_string_test
+	rm -f $*.out
+	${RUNENV} $* > $*.out
 
 ll_lexeme_c++.lex:	\
 		../src/ll_lexeme_c++.lexcc

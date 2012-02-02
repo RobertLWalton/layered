@@ -2,20 +2,11 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:32:44 EST 2012
+// Date:	Thu Feb  2 00:12:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-
-// Table of Contents
-//
-//	Usage and Setup
-//	External Runtime
-//	Program Construction Test
-
-// Usage and Setup
-// ----- --- -----
 
 # include <ll_parser.h>
 # include <ll_parser_standard.h>

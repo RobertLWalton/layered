@@ -1,0 +1,33 @@
+TESTING "("
+    VALUE: `('
+TESTING "(|"
+    VALUE: [`(' `|']
+TESTING "<+"
+    VALUE: `<+'
+TESTING "<+<SP>-"
+    VALUE: [`<+' `-']
+TESTING "<SP><SP><+<SP><SP>+><SP>"
+    VALUE: [`<+' `+>']
+TESTING "<SP><SP><HT><SP><SP>"
+ERROR: empty name string
+    VALUE: MISSING
+TESTING "<+<SP>foo<SP>+>"
+ERROR: Lexeme of illegal type (WORD) in name string:
+<+<SP>foo<SP>+>
+      ^^^
+    VALUE: MISSING
+TESTING "<+<SP><LF><SP>+>"
+ERROR: Lexeme of illegal type (LINE_BREAK) in name string:
+<+<SP>
+      ^
+    VALUE: MISSING
+TESTING "<+<SP><SOH><SP>+>"
+ERROR: Lexeme of illegal type (MISPLACED_CHARACTER) in name string:
+<+<SP><SOH><SP>+>
+      ^^^^^
+    VALUE: MISSING
+TESTING ""<FOO>"
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:
+"<FOO>
+ ^^^^^
+    VALUE: MISSING

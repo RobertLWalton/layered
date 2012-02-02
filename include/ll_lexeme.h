@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  1 07:24:23 EST 2012
+// Date:	Thu Feb  2 01:27:27 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -638,6 +638,12 @@ namespace ll { namespace lexeme {
 
 	uns32 mode;
 	    // See erroneous atom modes above.
+
+	uns64 count;
+	    // Counter incremented by each call to
+	    // this closure (at least by the default
+	    // announce function).  Initially 0.
+	    // Can be zeroed anytime.
     };
 
     // Set erroneous_atom closure function.  If
@@ -1189,6 +1195,10 @@ namespace ll { namespace lexeme {
     // If 1<<t is on in end_types, the lexeme is the
     // last lexeme scanned (it must also be accepted or
     // ignored).
+    //
+    // A lexeme is also considered to be in error if an
+    // erroneous atom is found during scan of the
+    // lexeme.
     //
     // If there is an error, an error message is printed
     // using the scanner printer and min::MISSING() is

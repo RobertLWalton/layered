@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  1 04:31:41 EST 2012
+// Date:	Thu Feb  2 01:13:46 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -867,6 +867,8 @@ static void default_erroneous_atom_announce
     if ( scanner->printer == min::NULL_STUB )
         min::init ( LEX::printer_ref(scanner) );
 
+    ++ erroneous_atom->count;
+
     scanner->printer
         << "ERRONEOUS ATOM: ";
 
@@ -893,7 +895,8 @@ static void default_erroneous_atom_announce
 	scanner->printer << ":" << min::eol;
 
 	LEX::print_phrase_lines
-	    ( scanner->printer, scanner, first, next );
+	    ( scanner->printer, scanner, first, next,
+	      '^', NULL, NULL, NULL );
 	break;
 
     default:
@@ -925,6 +928,7 @@ void LEX::init
 	    ::erroneous_atom_type.new_stub();
     erroneous_atom->announce = announce;
     erroneous_atom->mode = mode;
+    erroneous_atom->count = 0;
 }
 
 void LEX::init
@@ -937,6 +941,7 @@ void LEX::init
 	    ::erroneous_atom_type.new_stub();
 	erroneous_atom->announce = 
 	    ::default_erroneous_atom_announce;
+	erroneous_atom->count = 0;
     }
     erroneous_atom->mode = mode;
 }
@@ -3016,7 +3021,14 @@ static min::gen scan_name_string_make_label
 	  min::uns32 count )
 {
     // Given the elements in the stack and a count of
-    // such, return a MIN label containing the elements.
+    // such, return a MIN label containing the elements,
+    // except if count == 1 return just the one element.
+
+    if ( count == 1 )
+    {
+        assert ( last->previous == NULL );
+	return last->element;
+    }
 
     min::gen elements[count];
 
@@ -3046,6 +3058,8 @@ static min::gen scan_name_string_next_element
     //
     while ( true )
     {
+	uns64 erroneous_atom_count =
+	    scanner->erroneous_atom->count;
 	type = LEX::scan ( first, next, scanner );
 
 	if ( type == LEX::SCAN_ERROR )
@@ -3057,6 +3071,10 @@ static min::gen scan_name_string_next_element
 	    return min::MISSING();
 	}
 
+	if (   scanner->erroneous_atom->count
+	     > erroneous_atom_count )
+	    return min::MISSING();
+
 	if ( type < 64 )
 	{
 	    flag = 1ull << type;
@@ -3064,8 +3082,19 @@ static min::gen scan_name_string_next_element
 	    else if ( flag & ignored_types )
 	    {
 	        if ( flag & end_types )
-		    return ::scan_name_string_make_label
+		{
+		    if ( count == 0 )
+		    {
+			scanner->printer
+			    << "ERROR: empty name"
+			       " string" << min::eol;
+			return min::MISSING();
+		    }
+		    else
+			return
+			  ::scan_name_string_make_label
 		    		( previous, count );
+		}
 		else
 		    continue;
 	    }
@@ -3077,7 +3106,8 @@ static min::gen scan_name_string_next_element
 	    << ") in name string:"
 	    << min::eol;
 	LEX::print_phrase_lines
-	    ( scanner->printer, scanner, first, next );
+	    ( scanner->printer, scanner, first, next,
+	      '^', NULL, NULL, NULL );
         return min::MISSING();
     }
 
@@ -3089,7 +3119,7 @@ static min::gen scan_name_string_next_element
 	    ( scanner->translation_buffer.begin_ptr(),
 	      scanner->translation_buffer->length );
 
-    if ( flag && end_types )
+    if ( flag & end_types )
         return ::scan_name_string_make_label
 	    ( & var, count );
     else

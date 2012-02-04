@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 10:27:20 EST 2012
+// Date:	Thu Feb  2 19:03:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,7 +17,6 @@
 //	Brackets
 //	Named Brackets
 //	Indentation Marks
-//	Parser Table Definitions
 
 // Usage and Setup
 // ----- --- -----
@@ -613,24 +612,6 @@ void push_indentation_mark
 	  ll::parser::table::table bracket_table,
 	  ll::parser::table::split_table split_table =
 	      NULL_STUB );
-
-// Parser Table Definitions
-// ------ ----- -----------
-
-// If the expression pointed at by vp is a parser
-// definition, process the definition and return true.
-// If not return false.
-//
-// The printer is used to print error messages.
-//
-bool parser_execute_definition
-	( min::obj_vec_ptr & vp,
-	  min::printer printer,
-	  ll::parser::table::selector_name_table
-	      selector_name_table,
-	  ll::parser::table::table bracket_table,
-	  ll::parser::table::split_table split_table );
-
-
 } } }
+
 # endif // LL_PARSER_TABLE_H

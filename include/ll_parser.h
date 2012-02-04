@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 19:29:05 EST 2012
+// Date:	Sat Feb  4 11:22:43 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -572,6 +572,12 @@ struct parser_struct
 	// printer which must exist and NOT be NULL_
 	// STUB.
 
+    const ll::lexeme::scanner name_scanner;
+        // Scanner used to scan name strings, e.g., by
+	// parser definitions.  Defaults to a scanner
+	// with the same program and printer as the main
+	// parser scanner.
+
     const ll::parser::table::selector_name_table
     	    selector_name_table;
         // Selector name table.
@@ -629,6 +635,8 @@ MIN_REF ( ll::lexeme::scanner, scanner,
 MIN_REF ( min::file, input_file,
           ll::parser::parser )
 MIN_REF ( min::printer, printer,
+          ll::parser::parser )
+MIN_REF ( ll::lexeme::scanner, name_scanner,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::table, bracket_table,
           ll::parser::parser )
@@ -811,33 +819,59 @@ ll::parser::table::root find_next_entry
 min::gen get_initiator ( min::gen v );
 
 // Given an object vector pointer vp pointing at an
-// expression, and indices i and j of expression
-// elements, with 0 <= i < j <= min::size_of ( vp ),
-// return the label represented by vp[i .. j-1].  If an
-// object element that corresponds to a label element is
-// itself a (sub)expression, that must have exactly one
-// element, and that one element becomes the label
-// element.  Otherwise the object element is the label
-// element.  If the label to be returned would have only
-// one element, that element is returned in place of the
-// label.
+// expression, and an index i of an element in the
+// object attribute vector, then if the element is
+// a quoted string, increment i by one and call
+// ll::lexeme::scan_name_string with the value of
+// the quoted string, parser->name_scanner, and the
+// other arguments passed to this function, to make
+// the quoted string into a label, returning the value
+// returned by scan_name_string.  Note that this value
+// will be min::ERROR() if an error message is printed
+// to parser->name_scanner->printer.
 //
-min::gen make_label
-	( min::obj_vec_ptr & vp,
-	  min::unsptr i, min::unsptr j );
+// If the element does not exist (i >= size_of ( vp)) or
+// is not a quoted string, this function just returns
+// min::MISSING().
+//
+// If parser->name_scanner is NULL_STUB, this function
+// initializes it to its default.
+//
+min::gen make_name_string_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  ll::parser::parser parser,
+	  min::uns64 accepted_types,
+	  min::uns64 ignored_types,
+	  min::uns64 end_types );
 
-// Given a token, test if it is a parser definition.
-// Do nothing but return false if no.  If yes, process
-// the definition and return true (but do not delete
-// the token).
+// Given an object vector pointer vp pointing at an
+// expression, and an index i of an element in the
+// object attribute vector, then increment as long
+// as the i+1'st element of the object vector has a
+// type t such that the bit 1<<t is on in accepted_
+// types.  Then if i has been incremented at least
+// once, make and return a label from the elements
+// scanned over.  If there is only 1 element, return
+// just that element.  If there is more than one,
+// return the MIN label containing the elements.  If
+// there are no elements, return min::MISSING().
 //
-// Note that tokens that are not EXPRESSIONs beginning
-// with `define', `undefine', `begin parser', or `end
-// parser' are not parser definitions and return false.
+min::gen make_simple_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::uns64 accepted_types );
+
+// Given a vector pointer vp to an expression, test if
+// the expression is a parser definition.  Do nothing
+// but return min::FAILURE() if no.  If yes, process
+// the definition, and if there is no error return
+// min::SUCCESS(), but if there is an error, print an
+// error message too parser->printer and return min::
+// ERROR().  Note that only expressions that begin with
+// `define' or `undefine' can be parser definitions.
 //
-bool parser_process_definition
-	( ll::parser::parser parser,
-	  ll::parser::token & expression );
+min::gen parser_execute_definition
+	( min::obj_vec_ptr & vp,
+	  ll::parser::parser parser );
 
 } }
 

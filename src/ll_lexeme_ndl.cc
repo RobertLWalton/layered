@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 04:29:45 EST 2012
+// Date:	Sat Feb  4 04:30:09 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -365,7 +365,7 @@ static void pop_dispatcher
     }
 
     uns32 total_type_map_count = 0;
-    const uns32 * p = uns32_stack.end_ptr();
+    const uns32 * p = min::end_ptr_of ( uns32_stack );
     for ( uns32 tcode = d.max_type_code;
           0 < tcode; -- tcode )
     {

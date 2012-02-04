@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 01:27:27 EST 2012
+// Date:	Fri Feb  3 10:25:01 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1201,7 +1201,7 @@ namespace ll { namespace lexeme {
     // lexeme.
     //
     // If there is an error, an error message is printed
-    // using the scanner printer and min::MISSING() is
+    // using the scanner printer and min::ERROR() is
     // returned.
     //
     // A lexeme being included as a label element is

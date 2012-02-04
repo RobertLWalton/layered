@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 01:13:46 EST 2012
+// Date:	Sat Feb  4 04:26:17 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3054,7 +3054,7 @@ static min::gen scan_name_string_next_element
 
     // Get the next non-ignorable element, or call
     // scan_name_string_make_label, or announce error
-    // and return min::MISSING().
+    // and return min::ERROR().
     //
     while ( true )
     {
@@ -3068,12 +3068,12 @@ static min::gen scan_name_string_next_element
 	        << "FATAL ERROR (I.E., SCAN ERROR) IN"
 		   " THE CODE OF THE LEXICAL PROGRAM:"
 		<< min::eol << min::error_message;
-	    return min::MISSING();
+	    return min::ERROR();
 	}
 
 	if (   scanner->erroneous_atom->count
 	     > erroneous_atom_count )
-	    return min::MISSING();
+	    return min::ERROR();
 
 	if ( type < 64 )
 	{
@@ -3088,7 +3088,7 @@ static min::gen scan_name_string_next_element
 			scanner->printer
 			    << "ERROR: empty name"
 			       " string" << min::eol;
-			return min::MISSING();
+			return min::ERROR();
 		    }
 		    else
 			return
@@ -3108,7 +3108,7 @@ static min::gen scan_name_string_next_element
 	LEX::print_phrase_lines
 	    ( scanner->printer, scanner, first, next,
 	      '^', NULL, NULL, NULL );
-        return min::MISSING();
+        return min::ERROR();
     }
 
     ++ count;
@@ -3116,7 +3116,8 @@ static min::gen scan_name_string_next_element
     var.previous = previous;
     var.element =
         min::new_str_gen
-	    ( scanner->translation_buffer.begin_ptr(),
+	    ( min::begin_ptr_of
+	          ( scanner->translation_buffer ),
 	      scanner->translation_buffer->length );
 
     if ( flag & end_types )

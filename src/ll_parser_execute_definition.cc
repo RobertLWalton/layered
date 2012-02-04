@@ -60,12 +60,9 @@ enum definition_type
       INDENTATION_MARK,
       NAMED_BRACKET };
 
-bool TAB::parser_execute_definition
+bool PAR::parser_execute_definition
 	( min::obj_vec_ptr & vp,
-	  min::printer printer,
-	  TAB::selector_name_table selector_name_table,
-	  TAB::table bracket_table,
-	  TAB::split_table split_table )
+	  min::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
     min::phrase_position_vec ppvec =

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 19:30:17 EST 2012
+// Date:	Sat Feb  4 04:27:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -109,8 +109,9 @@ static unsigned min_string_length = 80;
 PAR::string PAR::new_string
 	( min::uns32 n, const min::uns32 * s )
 {
-    min::locatable_var<PAR::string_insptr> str;
-    str = (PAR::string_insptr) ::free_strings;
+    min::locatable_var<PAR::string_insptr> str
+        ( (PAR::string_insptr) ::free_strings );
+
     if ( str == min::NULL_STUB )
     {
         min::uns32 m = n;
@@ -203,8 +204,8 @@ static int max_token_free_list_size = 1000;
 
 PAR::token PAR::new_token ( min::uns32 type )
 {
-    min::locatable_var<PAR::token> token;
-    token = remove ( ::free_tokens );
+    min::locatable_var<PAR::token> token
+        ( remove ( ::free_tokens ) );
     if ( token == min::NULL_STUB )
         token = ::token_type.new_stub();
     else
@@ -475,7 +476,8 @@ static void convert_token ( PAR::token token )
 
     min::attr ( elemvp, 0 ) =
                     min::new_str_gen
-			( token->string.begin_ptr(),
+			( min::begin_ptr_of
+			      ( token->string ),
 			  token->string->length );
     PAR::string_ref(token) =
 	PAR::free_string ( token->string );
@@ -709,7 +711,8 @@ static min::gen make_label
 
 	    PAR::value_ref(first) =
 		min::new_str_gen
-		    ( first->string.begin_ptr(),
+		    ( min::begin_ptr_of
+		          ( first->string ),
 		      first->string->length );
 	    PAR::string_ref(first) =
 	        PAR::free_string ( first->string );
@@ -1406,7 +1409,8 @@ static bool parse_explicit_subexpression
 			    continue;
 			if ( memcmp
 			       (   (const char *)
-			           sp.begin_ptr()
+			           min::begin_ptr_of
+				       ( sp )
 				 + (  length
 			            - split->length ),
 			         & split[0],
@@ -1422,7 +1426,8 @@ static bool parse_explicit_subexpression
 		        PAR::value_ref
 			    (current->previous) =
 			    min::new_str_gen
-			        ( sp.begin_ptr(),
+			        ( min::begin_ptr_of
+				      ( sp ),
 				    length
 				  - split->length );
 			PAR::put_before
@@ -2658,17 +2663,22 @@ void PAR::parse ( PAR::parser parser )
 	    {
 	        min::obj_vec_ptr vp
 		    ( current->previous->value );
-		if ( vp != NULL_STUB
-		     &&
-		     TAB::parser_execute_definition
-			( vp, parser->printer,
-			  parser->selector_name_table,
-			  parser->bracket_table,
-			  parser->split_table ) )
-		    PAR::free
-			( PAR::remove
-			      ( first_ref(parser),
-				current->previous ) );
+		if ( vp != NULL_STUB )
+		{
+		    min::gen result =
+		        parser_execute_definition
+			    ( vp, parser );
+		    if ( result == min::SUCCESS() )
+			PAR::free
+			    ( PAR::remove
+				  ( first_ref(parser),
+				    current->previous )
+			    );
+		    else if ( result == min::ERROR() )
+		    {
+		        // TBD
+		    }
+		}
 	    }
 	}
 
@@ -2825,22 +2835,78 @@ min::gen PAR::get_initiator ( min::gen v )
     	return result;
 }
 
-min::gen PAR::make_label
-	( min::obj_vec_ptr & vp,
-	  min::unsptr i, min::unsptr j )
+min::gen PAR::make_name_string_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  ll::parser::parser parser,
+	  min::uns64 accepted_types,
+	  min::uns64 ignored_types,
+	  min::uns64 end_types )
 {
-    assert ( i < j );
-    assert ( j <= min::size_of ( vp ) );
-    min::unsptr n = j - i;
-    min::gen lab[n];
-    for ( min::unsptr k = 0; k < n; ++ k )
+    if ( i >= min::size_of ( vp ) )
+        return min::MISSING();
+
+    min::gen element = vp[i];
+
+    if ( get_initiator ( element ) != PAR::doublequote )
+        return min::MISSING();
+
+    min::obj_vec_ptr ep = element;
+    if ( min::size_of ( ep ) != 1 )
+        return min::MISSING();
+
+    min::str_ptr sp = ep[0];
+
+    if ( parser->name_scanner == min::NULL_STUB )
     {
-        lab[k] = vp[k];
-        if ( ! min::is_obj ( lab[k] ) ) continue;
-	min::obj_vec_ptr ep ( lab[k] );
-	assert ( min::size_of ( ep ) == 1 );
-	lab[k] = ep[0];
+         LEX::init_program
+	     ( name_scanner_ref ( parser ),
+	       parser->scanner->program );
+         LEX::init_printer
+	     ( name_scanner_ref ( parser ),
+	       parser->scanner->printer );
     }
-    if ( n == 1 ) return lab[0];
-    else return min::new_lab_gen ( lab, n );
+
+    LEX::init_input_string
+	( name_scanner_ref ( parser ),
+	  min::begin_ptr_of ( sp ),
+	  parser->input_file->print_flags );
+
+    return LEX::scan_name_string
+	( name_scanner_ref ( parser ),
+	  accepted_types, ignored_types, end_types );
+}
+
+// Given an object vector pointer vp pointing at an
+// expression, and an index i of an element in the
+// object attribute vector, then increment as long
+// as the i+1'st element of the object vector has a
+// type t such that the bit 1<<t is on in accepted_
+// types.  Then if i has been incremented at least
+// once, make and return a label from the elements
+// scanned over.  If there is only 1 element, return
+// just that element.  If there is more than one,
+// return the MIN label containing the elements.  If
+// there are no elements, return min::MISSING().
+//
+min::gen make_simple_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::uns64 accepted_types )
+{
+    min::uns32 j = i;
+    min::uns32 s = min::size_of ( vp );
+    while ( i < s )
+    {
+	 min::uns32 t =
+	     LEXSTD::lexical_type_of ( vp[i] );
+	 if ( ( 1ull << t ) & accepted_types )
+	     ++ i;
+	 else
+	     break;
+    }
+
+    if ( j == i ) return min::MISSING();
+
+    min::gen elements[i-j];
+    memcpy ( elements, & vp[j], sizeof ( elements ) );
+    return min::new_lab_gen ( elements, i - j );
 }

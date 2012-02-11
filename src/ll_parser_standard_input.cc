@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:27:39 EST 2012
+// Date:	Sat Feb 11 07:46:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -228,7 +228,8 @@ static min::uns32 input_add_tokens
 	case LEXSTD::natural_number_t:
 	{
 	    value_ref(token) = min::new_str_gen
-	        ( translation_buffer.begin_ptr(),
+	        ( min::begin_ptr_of
+		      ( translation_buffer ),
 		  translation_buffer->length );
 	    break;
 	}
@@ -237,7 +238,8 @@ static min::uns32 input_add_tokens
 	{
 	    int length = translation_buffer->length;
 	    min::uns32 * p =
-		translation_buffer.begin_ptr();
+	        min::begin_ptr_of
+		    ( translation_buffer );
 	    PAR::string_ref(token) =
 	        PAR::new_string ( length, p );
 	    break;
@@ -273,8 +275,8 @@ static min::uns32 input_add_tokens
 		    << min::graphic
 		    << min::punicode
 		            ( token->string->length,
-			      token->string.begin_ptr()
-			    )
+			      min::begin_ptr_of
+			          ( token->string ) )
 		    << min::pop_parameters
 		    << ": ";
 	    printer

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 20 22:31:20 EST 2012
+// Date:	Sat Feb 11 05:32:04 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,16 +60,16 @@ enum definition_type
       INDENTATION_MARK,
       NAMED_BRACKET };
 
-bool PAR::parser_execute_definition
+min::gen PAR::parser_execute_definition
 	( min::obj_vec_ptr & vp,
-	  min::parser parser )
+	  PAR::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
     min::phrase_position_vec ppvec =
         min::position_of ( vp );
     assert ( ppvec != min::NULL_STUB );
 
-    if ( size < 2 ) return false;
+    if ( size < 2 ) return min::FAILURE();
 
     // Scan keywords before names.
     //
@@ -91,7 +91,7 @@ bool PAR::parser_execute_definition
     else if ( vp[i] == ::undefine )
         define = false;
     else
-        return false;
+        return min::FAILURE();
     ++ i;
 
     if ( vp[i] == ::selector )
@@ -145,87 +145,107 @@ bool PAR::parser_execute_definition
 	i += 2;
     }
     else
-        return false;
+        return min::FAILURE();
 
     // Scan mark names.
     //
-    min::locatable_gen name[max_names];
+    min::locatable_gen name[max_names+1];
     unsigned number_of_names = 0;
 
-    while ( i < size )
+    if ( type == ::SELECTOR )
+    {
+        name[0] = PAR::make_simple_label
+	    ( vp, i,
+	        ( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ) );
+	if ( name[0] == min::ERROR() )
+	    return min::ERROR();
+	else if ( name[0] == min::MISSING() )
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: in "
+		<< min::pline_numbers
+		       ( ppvec->file,
+			 ppvec->position )  
+		<< " expected name after :"
+		<< min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file,
+		  ppvec[i-1] );
+	    return min::ERROR();
+	}
+	else
+	    ++ number_of_names;
+    }
+    else while ( i < size )
     {
 	// Scan a name.
 	//
-	unsigned name_start = i;
-	while ( i < size )
-	{
-	    min::gen g = vp[i];
-	    if ( g == ::dotdotdot ) break;
+	name[number_of_names] =
+	    PAR::make_name_string_label
+	        ( vp, i, parser,
 
-	    min::uns32 t =
-	        LEXSTD::lexical_type_of ( g );
+	            ( 1ull << LEXSTD::mark_t )
+	          + ( 1ull << LEXSTD::separator_t )
+	          + ( 1ull << LEXSTD::word_t )
+	          + ( 1ull << LEXSTD::number_t ),
 
-	    if ( ( t == 0
-	           &&
-		      PAR::get_initiator ( g )
-		   == PAR::doublequote )
-	         ||
-	         t == LEXSTD::mark_t
-	         ||
-	         ( t == LEXSTD::word_t
-		   &&
-		   g != ::with )
-		 ||
-		 t == LEXSTD::number_t )
-	    {
-	        ++ i;
-		continue;
-	    }
-	    else
-	        break;
-	}
-	
-	if ( i == name_start )
+	            ( 1ull << LEXSTD::
+		                  horizontal_space_t )
+	          + ( 1ull << LEXSTD::end_of_file_t ),
+
+	            ( 1ull << LEXSTD::end_of_file_t ) );
+
+	if ( name[number_of_names] == min::ERROR() )
+	    return min::ERROR();
+	else if ( name[0] == min::MISSING() )
 	{
-	    printer
+	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: empty bracket name in "
+		<< "ERROR: in "
 		<< min::pline_numbers
 		       ( ppvec->file,
 			 ppvec->position )  
-		<< ":" << min::eom;
+		<< " expected quoted string name"
+		   " after :"
+		<< min::eom;
 	    min::print_phrase_lines
-		( printer,
-		  ppvec->file,
-		  ppvec->position );
-	    printer << "       just after:" << min::eol;
-	    min::print_phrase_lines
-		( printer,
+		( parser->printer,
 		  ppvec->file,
 		  ppvec[i-1] );
-	    return true;
+	    return min::ERROR();
 	}
-	if ( number_of_names >= max_names )
+	else
+	    ++ number_of_names;
+
+	if ( number_of_names > max_names )
 	{
-	    printer
+	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: too many mark-names in "
+		<< "ERROR: too many quoted string names"
+		   " in "
 		<< min::pline_numbers
 		       ( ppvec->file,
 			 ppvec->position )  
 		<< ":" << min::eom;
 	    min::print_phrase_lines
-		( printer,
+		( parser->printer,
 		  ppvec->file,
 		  ppvec->position );
-	    return true;
+	    return min::ERROR();
 	}
-	name[number_of_names++] =
-	    PAR::make_label ( vp, name_start, i );
+
+	if ( i >= size
+	     ||
+	     vp[i] != ::dotdotdot )
+	    break;
     }
+
     if ( number_of_names < min_names )
     {
-	printer
+	parser->printer
 	    << min::bom << min::set_indent ( 7 )
 	    << "ERROR: too few defined names in "
 	    << min::pline_numbers
@@ -233,13 +253,13 @@ bool PAR::parser_execute_definition
 		     ppvec->position )  
 	    << ":" << min::eom;
 	min::print_phrase_lines
-	    ( printer,
+	    ( parser->printer,
 	      ppvec->file,
 	      ppvec->position );
-	return true;
+	return min::ERROR();
     }
 
     // TBD
 
-    return true;
+    return min::SUCCESS();
 }

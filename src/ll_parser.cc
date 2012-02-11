@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 04:27:05 EST 2012
+// Date:	Sat Feb 11 07:48:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2888,7 +2888,7 @@ min::gen PAR::make_name_string_label
 // return the MIN label containing the elements.  If
 // there are no elements, return min::MISSING().
 //
-min::gen make_simple_label
+min::gen PAR::make_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::uns64 accepted_types )
 {

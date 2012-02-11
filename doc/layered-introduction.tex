@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 9, 2012
+February 11, 2012
  
 \end{center}
 
@@ -1532,15 +1532,9 @@ A token has the following components:
 \tt end
 \end{tabular}   & The positions of the first character of the token
 		  and the first character after the token in the
-		  input text.  A position records a line number,
-		  a column number within the line,
+		  input text.  A position records a line number
 		  and the byte offset within a UTF-8 encoding
-		  of the line.  The column number depends upon
-		  the print format used to print the line, i.e,
-		  whether or not the horizontal tab prints
-		  in 1 column as {\tiny $\stackrel{\textstyle H~}{~T}$}
-		  or in 1 to 8 columns as whitespace.  This
-		  print format must be fixed when lexemes are input.
+		  of the line.
 \end{tabular}
 \end{indpar}
 
@@ -1599,7 +1593,11 @@ components:
 		  and are \underline{not} represented as MIN numbers.
 		  As a consequence `{\tt 01}' and `{\tt 1}' are
 		  different natural number symbols.
-\\[1ex]
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{p{1in}p{4.5in}}
 \tt type	& The type of the definition.  Each parser pass has
 		  one (or sometimes more) symbol tables containing
 		  definitions of types particular to the pass.
@@ -1607,7 +1605,11 @@ components:
 		  pass has {\tt opening bracket}, {\tt closing bracket},
 		  {\tt indentation mark}, and {\tt indentation separator}
 		  type definitions, among others.
-\\[1ex]
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{p{1in}p{4.5in}}
 \tt selectors	& A set of \skey{parsing selector}s that determine if
 		  the definition is active.  See text.
 \end{tabular}

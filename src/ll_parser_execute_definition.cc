@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 05:24:28 EST 2012
+// Date:	Tue Feb 14 06:45:23 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents:
 //
 //	Usage and Setup
+//	Execute Parser Print Function
 //	Execute Definition Function
 
 // Usage and Setup
@@ -23,6 +24,7 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 
+static min::locatable_gen parser;
 static min::locatable_gen define;
 static min::locatable_gen undefine;
 static min::locatable_gen selector;
@@ -33,9 +35,12 @@ static min::locatable_gen gluing;
 static min::locatable_gen named;
 static min::locatable_gen dotdotdot;
 static min::locatable_gen with;
+static min::locatable_gen print;
+static min::locatable_gen selectors;
 
 static void initialize ( void )
 {
+    ::parser = min::new_str_gen ( "parser" );
     ::define = min::new_str_gen ( "define" );
     ::undefine =
 	min::new_str_gen ( "undefine" );
@@ -48,8 +53,46 @@ static void initialize ( void )
     ::named = min::new_str_gen ( "named" );
     ::dotdotdot = min::new_str_gen ( "..." );
     ::with = min::new_str_gen ( "with" );
+    ::print = min::new_str_gen ( "print" );
+    ::selectors = min::new_str_gen ( "selectors" );
 }
 static min::initializer initializer ( ::initialize );
+
+// Execute Parser Print Function
+// ------- ------ ----- --------
+
+static min::gen parser_execute_print
+	( min::obj_vec_ptr & vp,
+	  PAR::parser parser )
+{
+    min::uns32 size = min::size_of ( vp );
+    if ( size < 3 ) return min::FAILURE();
+
+    int i = 2;
+    TAB::selector_name_table t =
+        parser->selector_name_table;
+
+    if ( vp[i] == ::selectors )
+    {
+        parser->printer
+	    << "parser print selectors:" << min::eol
+	    << min::bom << min::nohbreak
+	    << min::set_indent ( 8 ) << min::indent
+	    << "["
+	    << min::set_indent ( 10 ) << min::indent;
+
+	for ( unsigned j = 0; j < t->length; ++ j )
+	{
+	    min::str_ptr sp ( t[j] );
+	    if ( j > 0 ) parser->printer << ", ";
+	    parser->printer
+		<< min::setbreak << sp;
+	}
+	parser->printer << " ]" << min::eom;
+    }
+    return min::SUCCESS();
+}
+
 
 // Execute Definition Function
 // ------- ---------- --------
@@ -65,11 +108,14 @@ min::gen PAR::parser_execute_definition
 	  PAR::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
+    if ( size < 1 ) return min::FAILURE();
+
+    if ( vp[0] != ::parser ) return min::FAILURE();
+
+
     min::phrase_position_vec ppvec =
         min::position_of ( vp );
     assert ( ppvec != min::NULL_STUB );
-
-    if ( size < 2 ) return min::FAILURE();
 
     // Scan keywords before names.
     //
@@ -77,7 +123,7 @@ min::gen PAR::parser_execute_definition
         // True if define, false if undefine.
     definition_type type;
         // Type of define or undefine.
-    unsigned i = 0;
+    unsigned i = 1;
         // vp[i] is next lexeme or subexpression to
 	// scan in the define/undefine expression.
     bool gluing = false;
@@ -86,7 +132,10 @@ min::gen PAR::parser_execute_definition
     unsigned min_names, max_names;
         // Minimum and maximum number of names allowed.
 
-    if ( vp[i] == ::define )
+    if ( size < 2 ) return min::FAILURE();
+    else if ( vp[i] == ::print )
+        return ::parser_execute_print ( vp, parser );
+    else if ( vp[i] == ::define )
         define = true;
     else if ( vp[i] == ::undefine )
         define = false;

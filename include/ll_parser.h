@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 11:22:43 EST 2012
+// Date:	Tue Feb 14 07:44:25 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,8 +45,7 @@ namespace ll { namespace parser {
 	number_sign,	// #
 	new_line,	// \n
 	semicolon,	// ;
-	define,		// define
-	undefine;	// undefine
+	parser_lexeme;	// parser
 
 } }
 
@@ -867,7 +866,7 @@ min::gen make_simple_label
 // min::SUCCESS(), but if there is an error, print an
 // error message too parser->printer and return min::
 // ERROR().  Note that only expressions that begin with
-// `define' or `undefine' can be parser definitions.
+// `parser' can be parser definitions.
 //
 min::gen parser_execute_definition
 	( min::obj_vec_ptr & vp,

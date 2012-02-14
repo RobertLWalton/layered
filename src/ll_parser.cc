@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 05:55:50 EST 2012
+// Date:	Tue Feb 14 10:21:35 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,8 +40,7 @@ min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
 min::locatable_gen PAR::new_line;
 min::locatable_gen PAR::semicolon;
-min::locatable_gen PAR::define;
-min::locatable_gen PAR::undefine;
+min::locatable_gen PAR::parser_lexeme;
 
 static min::printer_format bracket_format =
     min::default_printer_format;
@@ -71,8 +70,7 @@ static void initialize ( void )
     PAR::new_line = min::new_str_gen ( "\n" );
     PAR::semicolon = min::new_str_gen ( ";" );
 
-    PAR::define = min::new_str_gen ( "define" );
-    PAR::undefine = min::new_str_gen ( "undefine" );
+    PAR::parser_lexeme = min::new_str_gen ( "parser" );
 
     ::bracket_format.str_prefix = "";
     ::bracket_format.str_postfix = "";
@@ -2654,8 +2652,7 @@ void PAR::parse ( PAR::parser parser )
 
 	    min::gen g = first->value;
 	    bool maybe_parser_definition =
-	        (    g == PAR::define
-		  || g == PAR::undefine );
+	        ( g == PAR::parser_lexeme );
 
 	    ::compact
 		( parser, first, current,
@@ -2909,7 +2906,8 @@ min::gen PAR::make_simple_label
 	    break;
     }
 
-    if ( j == i ) return min::MISSING();
+    if ( i == j ) return min::MISSING();
+    else if ( i == j + 1 ) return vp[j];
 
     min::gen elements[i-j];
     memcpy ( elements, & vp[j], sizeof ( elements ) );

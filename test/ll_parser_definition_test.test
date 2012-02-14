@@ -1,30 +1,40 @@
 EXPRESSION: SHORT_OBJ: line 11:
-define bracket "["
-^^^^^^^^^^^^^^^^^^
+parser define bracket "["
+^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: too few defined names in line 11:
-define bracket "["
-^^^^^^^^^^^^^^^^^^
+parser define bracket "["
+^^^^^^^^^^^^^^^^^^^^^^^^^
 EXPRESSION: SHORT_OBJ: line 12:
-define bracket "[" ...
-^^^^^^^^^^^^^^^^^^^^^^
+parser define bracket "[" ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line 12 expected quoted string name after :
-define bracket "[" ...
-                   ^^^
+parser define bracket "[" ...
+                          ^^^
 EXPRESSION: SHORT_OBJ: line 13:
-define selector this is a name ++
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser define selector this is a name ++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: extraneous stuff after selector name in line 13:
-define selector this is a name ++
-                               ^^
+parser define selector this is a name ++
+                                      ^^
 EXPRESSION: SHORT_OBJ: line 14:
-define selector text
-^^^^^^^^^^^^^^^^^^^^
+parser define selector text
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 EXPRESSION: SHORT_OBJ: line 15:
-define selector operator
-^^^^^^^^^^^^^^^^^^^^^^^^
+parser define selector operator
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 EXPRESSION: SHORT_OBJ: line 16:
-define selector text
-^^^^^^^^^^^^^^^^^^^^
+parser print selectors
+^^^^^^^^^^^^^^^^^^^^^^
+parser print selectors:
+        [ text, operator ]
 EXPRESSION: SHORT_OBJ: line 17:
-define selector operator
-^^^^^^^^^^^^^^^^^^^^^^^^
+parser define selector text
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 18:
+parser define selector operator
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 19:
+parser print selectors
+^^^^^^^^^^^^^^^^^^^^^^
+parser print selectors:
+        [ text, operator ]

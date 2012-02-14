@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 04:38:21 EST 2012
+// Date:	Tue Feb 14 05:19:47 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -121,7 +121,7 @@ namespace ll { namespace lexeme { namespace standard {
     //
     inline uns32 lexical_type_of ( min::gen g )
     {
-        struct { uns64 b; uns8 s[8]; } v;
+        union { uns64 b; uns8 s[8]; } v;
 	v.b = min::strhead ( g );
 	uns8 c = v.s[0];
 	if ( c == '\'' && v.s[1] != 0 )

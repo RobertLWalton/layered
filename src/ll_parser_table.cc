@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 11 07:46:37 EST 2012
+// Date:	Tue Feb 14 05:53:35 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,12 @@ static min::packed_vec<min::gen>
     selector_name_table_type
         ( "ll::parser::table::selector_name_table_type",
 	   ::selector_name_table_gen_disp );
+
+TAB::selector_name_table
+    TAB::create_selector_name_table ( void )
+{
+    return ::selector_name_table_type.new_stub ( 64 );
+}
 
 
 // Roots

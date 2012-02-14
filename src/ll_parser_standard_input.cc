@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 11 07:46:16 EST 2012
+// Date:	Tue Feb 14 04:53:19 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,32 +27,6 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARSTD ll::parser::standard
-
-// Lexical Type Support
-// ------- ---- -------
-
-static LEX::uns8 lexeme_type_table[256] = { 0 };
-const LEX::uns8 * LEXSTD::internal::lexeme_type_table =
-    ::lexeme_type_table;
-
-static void initialize ( void )
-{
-    LEX::uns8 * p = lexeme_type_table;
-    for ( char * q = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		     "abcdefghijklmnopqrstuvwxyz";
-	  * q; ) p[*q++] = LEXSTD::word_t; 
-    for ( unsigned c = 128; c < 256; ++ c )
-	  p[c] = LEXSTD::word_t; 
-	  // Only words can begin with a non-ASCII
-	  // character.
-    for ( unsigned c = '0'; c <= '9'; ++ c )
-	  p[c] = LEXSTD::number_t; 
-    for ( char * q = "+-*~@#$%^&=|>_!?:<./"; * q; )
-	  p[*q++] = LEXSTD::mark_t; 
-    for ( char * q = ";,`'()[]{}"; * q; )
-	  p[*q++] = LEXSTD::separator_t; 
-}
-static min::initializer initializer ( ::initialize );
 
 // Standard Input Parser
 // -------- ----- ------

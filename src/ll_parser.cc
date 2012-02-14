@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 13 20:27:14 EST 2012
+// Date:	Tue Feb 14 05:55:50 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -366,6 +366,9 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	split_table_ref(parser) =
 	    TAB::create_split_table();
 	min::push ( parser->split_table, 256 );
+	selector_name_table_ref(parser) =
+	    TAB::create_selector_name_table();
+	    
     }
     else
     {
@@ -2898,12 +2901,12 @@ min::gen PAR::make_simple_label
     min::uns32 s = min::size_of ( vp );
     while ( i < s )
     {
-	 min::uns32 t =
-	     LEXSTD::lexical_type_of ( vp[i] );
-	 if ( ( 1ull << t ) & accepted_types )
-	     ++ i;
-	 else
-	     break;
+	min::uns32 t =
+	    LEXSTD::lexical_type_of ( vp[i] );
+	if ( ( 1ull << t ) & accepted_types )
+	    ++ i;
+	else
+	    break;
     }
 
     if ( j == i ) return min::MISSING();

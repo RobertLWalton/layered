@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 13 20:16:37 EST 2012
+// Date:	Tue Feb 14 05:24:28 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -260,6 +260,54 @@ min::gen PAR::parser_execute_definition
 	      ppvec->file,
 	      ppvec->position );
 	return min::ERROR();
+    }
+
+    if ( type == ::SELECTOR )
+    {
+        if ( i < size )
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: extraneous stuff after"
+		   " selector name in "
+		<< min::pline_numbers
+		       ( ppvec->file,
+			 ppvec->position )  
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file,
+		  ppvec[i] );
+	    return min::ERROR();
+	}
+
+	int i = TAB::get_index
+	    ( parser->selector_name_table, name[0] );
+	if ( i < 0 )
+	{
+	    if ( parser->selector_name_table
+	               ->length >= 64 )
+	    {
+		parser->printer
+		    << min::bom << min::set_indent ( 7 )
+		    << "ERROR: too many selector names;"
+		       " table overflow in "
+		    << min::pline_numbers
+			   ( ppvec->file,
+			     ppvec->position )  
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file,
+		      ppvec->position );
+		return min::ERROR();
+	    }
+
+	    min::push
+	        ( (TAB::selector_name_table_insptr)
+	          parser->selector_name_table ) =
+		    name[0];
+	}
     }
 
     // TBD

@@ -10,3 +10,21 @@ define bracket "[" ...
 ERROR: in line 12 expected quoted string name after :
 define bracket "[" ...
                    ^^^
+EXPRESSION: SHORT_OBJ: line 13:
+define selector this is a name ++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: extraneous stuff after selector name in line 13:
+define selector this is a name ++
+                               ^^
+EXPRESSION: SHORT_OBJ: line 14:
+define selector text
+^^^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 15:
+define selector operator
+^^^^^^^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 16:
+define selector text
+^^^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 17:
+define selector operator
+^^^^^^^^^^^^^^^^^^^^^^^^

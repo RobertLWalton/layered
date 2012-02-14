@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 19:03:16 EST 2012
+// Date:	Tue Feb 14 05:54:59 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,11 @@ typedef min::packed_vec_ptr<min::gen>
 	selector_name_table;
 typedef min::packed_vec_insptr<min::gen>
 	selector_name_table_insptr;
+
+// Create a selector name table (with max_length = 64).
+//
+ll::parser::table::selector_name_table
+    create_selector_name_table ( void );
 
 // Return the index associated with a name in a selector
 // name table, or return -1 if none.

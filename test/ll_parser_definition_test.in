@@ -9,3 +9,4 @@
 // for this data.
 
 define bracket "["
+define bracket "[" ...

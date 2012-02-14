@@ -4,3 +4,9 @@ define bracket "["
 ERROR: too few defined names in line 11:
 define bracket "["
 ^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 12:
+define bracket "[" ...
+^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line 12 expected quoted string name after :
+define bracket "[" ...
+                   ^^^

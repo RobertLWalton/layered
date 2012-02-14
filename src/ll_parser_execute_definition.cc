@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_execute_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 11 05:32:04 EST 2012
+// Date:	Mon Feb 13 20:16:37 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -167,7 +167,7 @@ min::gen PAR::parser_execute_definition
 		<< "ERROR: in "
 		<< min::pline_numbers
 		       ( ppvec->file,
-			 ppvec->position )  
+			 ppvec[i-1] )  
 		<< " expected name after :"
 		<< min::eom;
 	    min::print_phrase_lines
@@ -179,7 +179,7 @@ min::gen PAR::parser_execute_definition
 	else
 	    ++ number_of_names;
     }
-    else while ( i < size )
+    else while ( true )
     {
 	// Scan a name.
 	//
@@ -200,14 +200,15 @@ min::gen PAR::parser_execute_definition
 
 	if ( name[number_of_names] == min::ERROR() )
 	    return min::ERROR();
-	else if ( name[0] == min::MISSING() )
+	else if (    name[number_of_names]
+	          == min::MISSING() )
 	{
 	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
 		<< "ERROR: in "
 		<< min::pline_numbers
 		       ( ppvec->file,
-			 ppvec->position )  
+			 ppvec[i-1] )  
 		<< " expected quoted string name"
 		   " after :"
 		<< min::eom;
@@ -241,6 +242,8 @@ min::gen PAR::parser_execute_definition
 	     ||
 	     vp[i] != ::dotdotdot )
 	    break;
+
+	++ i;
     }
 
     if ( number_of_names < min_names )

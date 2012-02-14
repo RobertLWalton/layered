@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 11 07:48:31 EST 2012
+// Date:	Mon Feb 13 20:27:14 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2855,6 +2855,8 @@ min::gen PAR::make_name_string_label
         return min::MISSING();
 
     min::str_ptr sp = ep[0];
+
+    ++ i;
 
     if ( parser->name_scanner == min::NULL_STUB )
     {

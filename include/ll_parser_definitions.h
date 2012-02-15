@@ -2,16 +2,11 @@
 //
 // File:	ll_parser_definitions.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 06:41:43 EST 2012
+// Date:	Wed Feb 15 11:00:07 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-
-// Table of Contents
-//
-//	Usage and Setup
-//	Parser Definition Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -35,9 +30,23 @@ namespace ll { namespace parser {
 // return the MIN label containing the elements.  If
 // there are no elements, return min::MISSING().
 //
-min::gen make_simple_label
+min::gen scan_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::uns64 accepted_types );
+
+// If vp[i] is a []-bracketed subexpression, treat it
+// as a selectors specification, store the specified
+// set of selectors in the selectors argument, increment
+// i, and return min::SUCCESS().  If it is not a []-
+// bracketed subexpression, just return min::MISSING().
+// If it is a []-bracketed subexpression, print error
+// messages to parser->printer, do NOT increment i, and
+// return min::ERROR().
+//
+min::gen scan_selectors
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  ll::parser::table::selectors & selectors,
+	  ll::parser::parser parser );
 
 // Given a vector pointer vp to an expression, test if
 // the expression is a parser definition.  Do nothing

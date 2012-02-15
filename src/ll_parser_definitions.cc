@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 06:52:02 EST 2012
+// Date:	Wed Feb 15 11:07:08 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,7 +61,7 @@ static min::initializer initializer ( ::initialize );
 // Parser Definition Functions
 // ------ ---------- ---------
 
-min::gen PAR::make_simple_label
+min::gen PAR::scan_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::uns64 accepted_types )
 {
@@ -83,6 +83,60 @@ min::gen PAR::make_simple_label
     min::gen elements[i-j];
     memcpy ( elements, & vp[j], sizeof ( elements ) );
     return min::new_lab_gen ( elements, i - j );
+}
+
+min::gen PAR::scan_selectors
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  TAB::selectors & selectors,
+	  PAR::parser parser )
+{
+    if ( i >= min::size_of ( vp ) )
+        return min::MISSING();
+
+    min::obj_vec_ptr subvp ( vp[i] );
+
+    if ( subvp == min::NULL_STUB )
+        return min::MISSING();
+
+    min::phrase_position_vec ppvec =
+        min::position_of ( subvp );
+
+    min::attr_ptr subap ( subvp );
+    min::locate ( subap, PAR::initiator );
+    if ( min::get ( subap ) != PAR::left_square )
+        return min::MISSING();
+    min::locate ( subap, PAR::terminator );
+    if ( min::get ( subap ) != PAR::right_square )
+        return min::MISSING();
+    min::locate ( subap, PAR::separator );
+    min::gen separator = min::get ( subap );
+
+    if ( separator == min::NONE() )
+    {
+    }
+    else if ( separator == PAR::separator )
+    {
+    }
+    else
+    {
+	parser->printer
+	    << min::bom << min::set_indent ( 7 )
+	    << "ERROR: bad separator "
+	    << min::pgen ( separator )
+	    << " in "
+	    << min::pline_numbers
+		   ( ppvec->file,
+		     ppvec->position )  
+	    << ":"
+	    << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      ppvec->file,
+	      ppvec->position );
+	return min::ERROR();
+    }
+
+    return min::SUCCESS();
 }
 
 // Execute Parser Print Function
@@ -231,7 +285,7 @@ min::gen PAR::parser_execute_definition
 
     if ( type == ::SELECTOR )
     {
-        name[0] = PAR::make_simple_label
+        name[0] = PAR::scan_simple_label
 	    ( vp, i,
 	        ( 1ull << LEXSTD::word_t )
 	      + ( 1ull << LEXSTD::number_t ) );
@@ -261,7 +315,7 @@ min::gen PAR::parser_execute_definition
 	// Scan a name.
 	//
 	name[number_of_names] =
-	    PAR::make_name_string_label
+	    PAR::scan_name_string_label
 	        ( vp, i, parser,
 
 	            ( 1ull << LEXSTD::mark_t )

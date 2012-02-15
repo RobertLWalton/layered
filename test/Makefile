@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Feb 15 06:51:27 EST 2012
+# Date:		Wed Feb 15 10:56:31 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -36,7 +36,7 @@ PROGRAMS = ll_lexeme_basic_test \
 	   ll_parser_input_test \
 	   ll_parser_table_test \
 	   ll_parser_explicit_subexpression_test \
-	   ll_parser_definition_test
+	   ll_parser_definitions_test
 
 TESTS = ${PROGRAMS}
 
@@ -532,9 +532,9 @@ ll_parser_explicit_subexpression_test.out:	\
 	${RUNENV} $* < ll_parser_standard_test.in \
 	             > $*.out
 
-ll_parser_definition_test.out:	\
+ll_parser_definitions_test.out:	\
 	    ll_parser_explicit_subexpression_test \
-	    ll_parser_definition_test.in
+	    ll_parser_definitions_test.in
 	rm -f $*.out
 	${RUNENV} \
 	    ll_parser_explicit_subexpression_test \

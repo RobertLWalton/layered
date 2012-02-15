@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 07:44:25 EST 2012
+// Date:	Wed Feb 15 04:45:08 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,6 +46,10 @@ namespace ll { namespace parser {
 	new_line,	// \n
 	semicolon,	// ;
 	parser_lexeme;	// parser
+
+    extern min::printer_format name_format;
+        // Same as min::default_printer_format except
+	// that {str,lab}_{pre,post}fix are all "".
 
 } }
 

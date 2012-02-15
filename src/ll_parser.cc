@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 10:21:35 EST 2012
+// Date:	Wed Feb 15 06:52:13 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,8 +42,7 @@ min::locatable_gen PAR::new_line;
 min::locatable_gen PAR::semicolon;
 min::locatable_gen PAR::parser_lexeme;
 
-static min::printer_format bracket_format =
-    min::default_printer_format;
+min::printer_format PAR::name_format;
 
 static void initialize ( void )
 {
@@ -72,11 +71,11 @@ static void initialize ( void )
 
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
 
-    ::bracket_format.str_prefix = "";
-    ::bracket_format.str_postfix = "";
-    ::bracket_format.lab_prefix = "";
-    ::bracket_format.lab_postfix = "";
-    ::bracket_format.lab_separator = "";
+    PAR::name_format = min::default_printer_format;
+    PAR::name_format.str_prefix = "";
+    PAR::name_format.str_postfix = "";
+    PAR::name_format.lab_prefix = "";
+    PAR::name_format.lab_postfix = "";
 }
 static min::initializer initializer ( ::initialize );
 
@@ -1934,7 +1933,7 @@ static bool parse_explicit_subexpression
 			     ( opening_bracket->
 			       closing_bracket->
 				   label,
-			       & ::bracket_format )
+			       & PAR::name_format )
 			<< "' inserted before "
 			<< min::pline_numbers
 			       ( parser->input_file,
@@ -2053,7 +2052,7 @@ static bool parse_explicit_subexpression
 		       " closing bracket `"
 		    << min::pgen
 			 ( closing_bracket->label,
-			   & ::bracket_format )
+			   & PAR::name_format )
 		    << "' found and ignored; "
 		    << min::pline_numbers
 			   ( parser->input_file,
@@ -2192,7 +2191,7 @@ static bool parse_explicit_subexpression
 			       ( named_opening
 			         ->named_middle_closing
 				 ->label,
-				 & ::bracket_format )
+				 & PAR::name_format )
 			    << "' inserted; "
 			    << min::pline_numbers
 				   ( parser->input_file,
@@ -2876,40 +2875,4 @@ min::gen PAR::make_name_string_label
     return LEX::scan_name_string
 	( name_scanner_ref ( parser ),
 	  accepted_types, ignored_types, end_types );
-}
-
-// Given an object vector pointer vp pointing at an
-// expression, and an index i of an element in the
-// object attribute vector, then increment as long
-// as the i+1'st element of the object vector has a
-// type t such that the bit 1<<t is on in accepted_
-// types.  Then if i has been incremented at least
-// once, make and return a label from the elements
-// scanned over.  If there is only 1 element, return
-// just that element.  If there is more than one,
-// return the MIN label containing the elements.  If
-// there are no elements, return min::MISSING().
-//
-min::gen PAR::make_simple_label
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::uns64 accepted_types )
-{
-    min::uns32 j = i;
-    min::uns32 s = min::size_of ( vp );
-    while ( i < s )
-    {
-	min::uns32 t =
-	    LEXSTD::lexical_type_of ( vp[i] );
-	if ( ( 1ull << t ) & accepted_types )
-	    ++ i;
-	else
-	    break;
-    }
-
-    if ( i == j ) return min::MISSING();
-    else if ( i == j + 1 ) return vp[j];
-
-    min::gen elements[i-j];
-    memcpy ( elements, & vp[j], sizeof ( elements ) );
-    return min::new_lab_gen ( elements, i - j );
 }

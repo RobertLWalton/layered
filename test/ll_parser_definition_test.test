@@ -31,10 +31,10 @@ EXPRESSION: SHORT_OBJ: line 17:
 parser define selector text
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 EXPRESSION: SHORT_OBJ: line 18:
-parser define selector operator
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser define selector operator 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 EXPRESSION: SHORT_OBJ: line 19:
 parser print selectors
 ^^^^^^^^^^^^^^^^^^^^^^
 parser print selectors:
-        [ text, operator ]
+        [ text, operator, operator 2 ]

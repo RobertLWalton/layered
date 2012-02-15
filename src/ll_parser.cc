@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 06:52:13 EST 2012
+// Date:	Wed Feb 15 11:40:55 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,9 @@ min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
 min::locatable_gen PAR::new_line;
 min::locatable_gen PAR::semicolon;
+min::locatable_gen PAR::left_square;
+min::locatable_gen PAR::right_square;
+min::locatable_gen PAR::comma;
 min::locatable_gen PAR::parser_lexeme;
 
 min::printer_format PAR::name_format;
@@ -68,6 +71,9 @@ static void initialize ( void )
     PAR::number_sign = min::new_str_gen ( "#" );
     PAR::new_line = min::new_str_gen ( "\n" );
     PAR::semicolon = min::new_str_gen ( ";" );
+    PAR::left_square = min::new_str_gen ( "[" );
+    PAR::right_square = min::new_str_gen ( "]" );
+    PAR::comma = min::new_str_gen ( "," );
 
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
 
@@ -2834,7 +2840,7 @@ min::gen PAR::get_initiator ( min::gen v )
     	return result;
 }
 
-min::gen PAR::make_name_string_label
+min::gen PAR::scan_name_string_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::parser parser,
 	  min::uns64 accepted_types,

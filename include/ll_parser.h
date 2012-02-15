@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 04:45:08 EST 2012
+// Date:	Wed Feb 15 11:08:06 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,6 +45,9 @@ namespace ll { namespace parser {
 	number_sign,	// #
 	new_line,	// \n
 	semicolon,	// ;
+	left_square,    // [
+	right_square,   // ]
+	comma,		// ,
 	parser_lexeme;	// parser
 
     extern min::printer_format name_format;
@@ -840,28 +843,12 @@ min::gen get_initiator ( min::gen v );
 // If parser->name_scanner is NULL_STUB, this function
 // initializes it to its default.
 //
-min::gen make_name_string_label
+min::gen scan_name_string_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::parser parser,
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
 	  min::uns64 end_types );
-
-// Given an object vector pointer vp pointing at an
-// expression, and an index i of an element in the
-// object attribute vector, then increment as long
-// as the i+1'st element of the object vector has a
-// type t such that the bit 1<<t is on in accepted_
-// types.  Then if i has been incremented at least
-// once, make and return a label from the elements
-// scanned over.  If there is only 1 element, return
-// just that element.  If there is more than one,
-// return the MIN label containing the elements.  If
-// there are no elements, return min::MISSING().
-//
-min::gen make_simple_label
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::uns64 accepted_types );
 
 // Given a vector pointer vp to an expression, test if
 // the expression is a parser definition.  Do nothing

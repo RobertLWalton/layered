@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Feb  2 00:14:58 EST 2012
+# Date:		Wed Feb 15 06:51:27 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -415,17 +415,17 @@ ll_parser_standard_brackets.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_standard_brackets.cc
 
-ll_parser_execute_definition.o:	\
+ll_parser_definitions.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_standard.h \
-	../src/ll_parser_execute_definition.cc \
+	../src/ll_parser_definitions.cc \
 	Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_parser_execute_definition.cc
+	    -c ../src/ll_parser_definitions.cc
 
 ll_parser_input_test:		\
 		ll_parser_input_test.cc \
@@ -433,7 +433,7 @@ ll_parser_input_test:		\
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		ll_parser.o \
-		ll_parser_execute_definition.o \
+		ll_parser_definitions.o \
 		ll_parser_standard_input.o \
 		ll_parser_table.o \
 		min.o \
@@ -447,7 +447,7 @@ ll_parser_input_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
-	    ll_parser_execute_definition.o \
+	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
@@ -468,7 +468,7 @@ ll_parser_table_test:		\
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		ll_parser.o \
-		ll_parser_execute_definition.o \
+		ll_parser_definitions.o \
 		ll_parser_standard_input.o \
 		ll_parser_table.o \
 		min.o \
@@ -482,7 +482,7 @@ ll_parser_table_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
-	    ll_parser_execute_definition.o \
+	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
@@ -501,7 +501,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
-	    ll_parser_execute_definition.o \
+	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \
@@ -516,7 +516,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
-	    ll_parser_execute_definition.o \
+	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \

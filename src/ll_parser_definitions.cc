@@ -1,8 +1,8 @@
 // Layers Language Parser Execute Definition Function
 //
-// File:	ll_parser_execute_definition.cc
+// File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 06:45:23 EST 2012
+// Date:	Wed Feb 15 06:52:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents:
 //
 //	Usage and Setup
+//	Parser Definition Functions
 //	Execute Parser Print Function
 //	Execute Definition Function
 
@@ -18,8 +19,7 @@
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
-# include <ll_parser.h>
-# include <ll_parser_table.h>
+# include <ll_parser_definitions.h>
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
@@ -58,6 +58,33 @@ static void initialize ( void )
 }
 static min::initializer initializer ( ::initialize );
 
+// Parser Definition Functions
+// ------ ---------- ---------
+
+min::gen PAR::make_simple_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::uns64 accepted_types )
+{
+    min::uns32 j = i;
+    min::uns32 s = min::size_of ( vp );
+    while ( i < s )
+    {
+	min::uns32 t =
+	    LEXSTD::lexical_type_of ( vp[i] );
+	if ( ( 1ull << t ) & accepted_types )
+	    ++ i;
+	else
+	    break;
+    }
+
+    if ( i == j ) return min::MISSING();
+    else if ( i == j + 1 ) return vp[j];
+
+    min::gen elements[i-j];
+    memcpy ( elements, & vp[j], sizeof ( elements ) );
+    return min::new_lab_gen ( elements, i - j );
+}
+
 // Execute Parser Print Function
 // ------- ------ ----- --------
 
@@ -83,10 +110,11 @@ static min::gen parser_execute_print
 
 	for ( unsigned j = 0; j < t->length; ++ j )
 	{
-	    min::str_ptr sp ( t[j] );
 	    if ( j > 0 ) parser->printer << ", ";
 	    parser->printer
-		<< min::setbreak << sp;
+		<< min::setbreak
+		<< min::pgen
+		       ( t[j], & PAR::name_format );
 	}
 	parser->printer << " ]" << min::eom;
     }

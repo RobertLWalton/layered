@@ -15,5 +15,5 @@ parser define selector text
 parser define selector operator
 parser print selectors
 parser define selector text
-parser define selector operator
+parser define selector operator 2
 parser print selectors

@@ -98,9 +98,6 @@ min::gen PAR::scan_selectors
     if ( subvp == min::NULL_STUB )
         return min::MISSING();
 
-    min::phrase_position_vec ppvec =
-        min::position_of ( subvp );
-
     min::attr_ptr subap ( subvp );
     min::locate ( subap, PAR::initiator );
     if ( min::get ( subap ) != PAR::left_square )
@@ -110,9 +107,55 @@ min::gen PAR::scan_selectors
         return min::MISSING();
     min::locate ( subap, PAR::separator );
     min::gen separator = min::get ( subap );
+    min::locate ( subap, PAR::position );
+    min::phrase_position_vec ppvec = min::get ( subap );
+    assert ( ppvec != min::NULL_STUB );
 
+    selectors = 0;
+    min::locatable_gen selector;
     if ( separator == min::NONE() )
     {
+        min::unsptr size = min::size_of ( subvp );
+	min::uns32 j = 0;
+	while ( true )
+	{
+	    selector = PAR::scan_simple_label
+		( subvp, j,
+	            ( 1ull << LEXSTD::word_t )
+		  + ( 1ull << LEXSTD::number_t ) );
+	    if ( selector == min::ERROR() )
+	        return min::ERROR();
+	    else if ( selector == min::MISSING() )
+	    {
+		min::phrase_position pp;
+		if ( j == 0 )
+		{
+		    pp = ppvec->position;
+		    pp.end = pp.begin;
+		    ++ pp.end.offset;
+		}
+		else
+		    pp = ppvec[j-1];
+
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: in "
+		    << min::pline_numbers
+			   ( ppvec->file, pp )
+		    << " expected name after:"
+		    << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file, pp );
+
+		return min::ERROR();
+	    }
+
+	    // TBD
+
+	    if ( j == size ) break;
+	}
     }
     else if ( separator == PAR::separator )
     {

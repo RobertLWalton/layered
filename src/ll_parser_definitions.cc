@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 11:07:08 EST 2012
+// Date:	Fri Feb 17 02:59:14 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -219,8 +219,73 @@ min::gen PAR::scan_selectors
 	    }
 	}
     }
-    else if ( separator == PAR::separator )
+    else if ( separator == PAR::comma )
     {
+	for ( min::uns32 i = 0; i < size; ++ i )
+	{
+	    min::obj_vec_ptr np ( subvp[i] );
+	    if ( np == min::NULL_STUB )
+	    {
+	        selector = subvp[i];
+		if (    LEXSTD::lexical_type_of
+		            ( selector )
+		     != LEXSTD::word_t )
+		    selector = min::MISSING();
+	    }
+	    else
+	    {
+		min::uns32 j = 0;
+		selector = PAR::scan_simple_label
+		    ( np, j,
+	            ( 1ull << LEXSTD::word_t )
+		  + ( 1ull << LEXSTD::number_t ) );
+
+		if ( selector == min::ERROR() )
+		    return min::ERROR();
+	    }
+
+	    if ( selector == min::MISSING() )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: " << subvp[i]
+		    << " is not a selector name in "
+		    << min::pline_numbers
+			   ( ppvec->file, ppvec[i] )
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file,
+		      ppvec[i] );
+
+		return min::ERROR();
+	    }
+
+	    int j = TAB::get_index
+	        ( parser->selector_name_table,
+		  selector );
+
+	    if ( j >= 0 )
+	        selectors |= (min::uns64) 1 << j;
+	    else
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: unrecognized selector"
+		       " name in "
+		    << min::pline_numbers
+			   ( ppvec->file, ppvec[i] )
+		    << ":"
+		    << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file, ppvec[i] );
+
+		return min::ERROR();
+	    }
+	}
     }
     else
     {

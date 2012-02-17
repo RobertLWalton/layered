@@ -112,15 +112,16 @@ min::gen PAR::scan_selectors
     assert ( ppvec != min::NULL_STUB );
 
     selectors = 0;
+    min::unsptr size = min::size_of ( subvp );
     min::locatable_gen selector;
     if ( separator == min::NONE() )
     {
-        min::unsptr size = min::size_of ( subvp );
-	min::uns32 j = 0;
+	min::uns32 i = 0;
 	while ( true )
 	{
+	    min::uns32 ibegin = i;
 	    selector = PAR::scan_simple_label
-		( subvp, j,
+		( subvp, i,
 	            ( 1ull << LEXSTD::word_t )
 		  + ( 1ull << LEXSTD::number_t ) );
 	    if ( selector == min::ERROR() )
@@ -128,14 +129,14 @@ min::gen PAR::scan_selectors
 	    else if ( selector == min::MISSING() )
 	    {
 		min::phrase_position pp;
-		if ( j == 0 )
+		if ( i == 0 )
 		{
 		    pp = ppvec->position;
 		    pp.end = pp.begin;
 		    ++ pp.end.offset;
 		}
 		else
-		    pp = ppvec[j-1];
+		    pp = ppvec[i-1];
 
 		parser->printer
 		    << min::bom
@@ -152,9 +153,70 @@ min::gen PAR::scan_selectors
 		return min::ERROR();
 	    }
 
-	    // TBD
+	    int j = TAB::get_index
+	        ( parser->selector_name_table,
+		  selector );
 
-	    if ( j == size ) break;
+	    if ( j >= 0 )
+	        selectors |= (min::uns64) 1 << j;
+	    else
+	    {
+		min::phrase_position pp;
+		pp.begin = ppvec[ibegin].begin;
+		pp.end = ppvec[i-1].end;
+
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: unrecognized selector"
+		       " name in "
+		    << min::pline_numbers
+			   ( ppvec->file, pp )
+		    << ":"
+		    << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file, pp );
+
+		return min::ERROR();
+	    }
+
+	    if ( i == size ) break;
+
+	    if ( subvp[i] != PAR::comma)
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: in "
+		    << min::pline_numbers
+			   ( ppvec->file,
+			     ppvec[i] )
+		    << " expected comma instead of :"
+		    << subvp[i] << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file, ppvec[i] );
+
+		return min::ERROR();
+	    }
+	    else if ( ++ i >= size )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: in "
+		    << min::pline_numbers
+			   ( ppvec->file,
+			     ppvec[i-1] )
+		    << " expected name after comma:"
+		    << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file, ppvec[i-1] );
+
+		return min::ERROR();
+	    }
 	}
     }
     else if ( separator == PAR::separator )
@@ -483,8 +545,12 @@ min::gen PAR::parser_execute_definition
 		    name[0];
 	}
     }
-
-    // TBD
+    else
+    {
+	TAB::selectors selectors;
+        min::gen sresult = PAR::scan_selectors
+		( vp, i, selectors, parser );
+    }
 
     return min::SUCCESS();
 }

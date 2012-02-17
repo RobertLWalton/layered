@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 11, 2012
+February 17, 2012
  
 \end{center}
 
@@ -1661,25 +1661,17 @@ and
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
 
 \begin{figure*}[!p]
-\emkey{name-symbol} ::= {\em word} $|$ {\em mark} $|$ {\em natural-number}
+\emkey{quoted-name-component} ::=
+    {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em natural-number}
 \\[0.5ex]
-\emkey{non-special-name-symbol} ::=
-    {\em name-symbol} that is \underline{not} treated specially by the parser
-\\[0.5ex]
-\emkey{name-component} ::= {\em non-special-name-symbol} $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{name} ::= {\em name-component} {\em name-component}\,$^\star$
+\emkey{quoted-name} ::=
+    {\tt "}{\em quoted-name-component}
+           {\em quoted-name-component}\,$^\star${\tt "}
 \\[2ex]
-\emkey{mark-symbol} ::= {\em mark}
+\emkey{simple-name-component} ::= {\em word} $|$ {\em natural-number}
 \\[0.5ex]
-\emkey{non-special-mark-symbol} ::=
-    {\em mark-symbol} that is \underline{not} treated specially by the parser
-\\[0.5ex]
-\emkey{mark-name-component} ::= {\em non-special-mark-symbol}
-			    $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{mark-name} ::= {\em mark-name-component}
-                      {\em mark-name-component}\,$^\star$
+\emkey{simple-name} ::= {\em simple-name-component}
+                        {\em simple-name-component}\,$^\star$
 \\[2ex]
 \emkey{parsing-selectors} ::= {\em empty}
 			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
@@ -1688,7 +1680,7 @@ and
 \emkey{parsing-selector-list} ::= {\em empty}
     $|$ {\em parsing-selector} \{ \verb|,| {\em parsing-selector} \}\,$^\star$
 \\[0.5ex]
-\emkey{parsing-selector} ::= {\em name}
+\emkey{parsing-selector} ::= {\em simple-name}
 \\[2ex]
 \emkey{new-parsing-selectors} \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
@@ -1705,7 +1697,7 @@ and
 \emkey{bracket-definition} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{define}{define bracket}
+    ::= & \ttikey{parser define}{define bracket}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\tt \bf bracket}
 	  {\em bracket-name} {\em parsing-selectors} \\
@@ -1714,7 +1706,7 @@ and
 	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
 	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
 	  \end{tabular} \\
-    $|$ & \ttkey{undefine bracket}
+    $|$ & \ttikey{parser undefine bracket}{undefine bracket}
 	  {\em bracket-name} {\em parsing-selectors} \\
     \end{tabular}
 \\[0.5ex]
@@ -1722,13 +1714,13 @@ and
 			 \ttmkey{...}{in {\em bracket-name}}
 			 {\em closing-bracket-name}
 \\[0.5ex]
-\emkey{opening-bracket-name} ::= {\em mark-name}
+\emkey{opening-bracket-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{closing-bracket-name} ::= {\em mark-name}
+\emkey{closing-bracket-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{reformatter-name} ::= {\em name}
+\emkey{reformatter-name} ::= {\em simple-name}
 \\[0.5ex]
-\emkey{evaluator-name} ::= {\em name}
+\emkey{evaluator-name} ::= {\em simple-name}
 
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 \end{figure*}
@@ -1737,7 +1729,7 @@ and
 \emkey{indentation-mark-definition} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{define}{define indentation mark}
+    ::= & \ttikey{parser define}{define indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\tt \bf indentation mark}
 	  {\em indentation-name} {\em parsing-selectors} \\
@@ -1745,43 +1737,43 @@ and
 	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
 	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
 	  \end{tabular} \\
-    $|$ & \ttikey{define}{define gluing indentation mark}
+    $|$ & \ttikey{parser define}{define gluing indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf gluing indentation mark}
-	  {\em gluing-indentation-name} {\em parsing-selectors} \\
+	  {\tt \bf gluing indentation mark} \\
+	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
 	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
 	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
 	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
 	  \end{tabular} \\
-    $|$& \ttkey{undefine indentation mark}
+    $|$& \ttikey{parser undefine indentation mark}{undefine indentation mark}
 	 {\em indentation-name} {\em parsing-selectors} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{indentation-name} ::= {\em indentation-mark-name}
 	[ {\tt ...} {\em indentation-separator-name} ]
 \\[0.5ex]
-\emkey{indentation-mark-name} ::= {\em mark-name}
+\emkey{indentation-mark-name} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{gluing-indentation-name} \\
     \hspace*{0.2in}~
     ::= {\em gluing-indentation-mark-name}
 	[ {\tt ...} {\em indentation-separator-name} ]
 \\[0.5ex]
-\emkey{gluing-indentation-mark-name} ::= {\em mark} $|$ {\em quoted-string}
+\emkey{gluing-indentation-mark-name} ::= {\em quoted-name}
 \\[2ex]
-\emkey{indentation-separator-name} ::= {\em mark-name}
+\emkey{indentation-separator-name} ::= {\em quoted-name}
 \\[2ex]
 \emkey{named-bracket-definition} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{define}{define named bracket}
+    ::= & \ttikey{parser define}{define named bracket}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\tt \bf named bracket}
 	  {\em named-bracket-name} {\em parsing-selectors} \\
 	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
 	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
 	  \end{tabular} \\
-    $|$ & \ttkey{undefine named bracket}
+    $|$ & \ttikey{parser undefine named bracket}{undefine named bracket}
 	  {\em named-bracket-name}
 	  {\em parsing-selectors} \\
     \end{tabular}
@@ -1794,13 +1786,13 @@ and
 	 {\tt ...} {\em named-closing}
 	 \end{tabular}
 \\[0.5ex]
-\emkey{named-opening} ::= {\em mark-name}
+\emkey{named-opening} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{named-separator} ::= {\em mark-name}
+\emkey{named-separator} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{named-middle} ::= {\em mark-name}
+\emkey{named-middle} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{named-closing} ::= {\em mark-name}
+\emkey{named-closing} ::= {\em quoted-name}
 
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
 \end{figure*}
@@ -1816,18 +1808,18 @@ by a \key{definition type} such as `{\tt bracket}' or
 `{\tt indentation mark}', and this in turn is followed
 by a definition name and then {\em parsing-selectors}.
 The \key{definition name} consists of `{\tt ...}' separated
-{\em names} that are used as labels of symbol table entries
+{\em quoted-names} that are used as labels of symbol table entries
 and therefore as keys in symbol table lookups.
 
 A \ttmkey{define}{parser definition}
 parser definition makes entries in parser symbol tables.
-One entry is made for each {\em name} in the definition name.
+One entry is made for each {\em quoted-name} in the definition name.
 Each entry is assigned the {\em parsing-selectors} from the parsing
 definition.  The selectors determine in which contexts the definition
 will be active.
 
 If a quoted string is used in a parser definition
-{\em name}, the quotes are removed
+{\em quoted-name}, the quotes are removed
 before the name is installed as a symbol table entry label.  The
 purpose of the quotes is merely to prevent the name from being
 recognized by the parser as a special symbol.  After the quotes
@@ -2129,7 +2121,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 	      {\em named-middle} \\
 	 \end{tabular}
 \\[0.5ex]
-\emkey{named-opening} ::= {\em mark-name}
+\emkey{named-opening} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em word}
                          \{ {\em word} $|$ {\em natural-number} \}$^\star$
@@ -2138,13 +2130,13 @@ a {\em closing-named-bracket}.  These have the syntax:
                  $|$ {\em quoted-string}
                  $|$ {\em non-natural-number}
 \\[0.5ex]
-\emkey{named-separator} ::= {\em mark-name}
+\emkey{named-separator} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{key} ::= {\em key-component} {\em key-component}$^\star$
 \\[0.5ex]
 \emkey{key-component} ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
 \\[0.5ex]
-\emkey{named-middle} ::= {\em mark-name}
+\emkey{named-middle} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{closing-named-bracket} ::= \\
 	\hspace*{0.4in}\begin{tabular}[t]{@{}rl@{}}
@@ -2153,7 +2145,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 	$|$ & {\em named-middle} {\em named-closing}
 	\end{tabular}
 \\[0.5ex]
-\emkey{named-closing} ::= {\em mark-name}
+\emkey{named-closing} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{bracket-name-initial-segment}~~
 	\begin{tabular}[t]{@{}rl@{}}

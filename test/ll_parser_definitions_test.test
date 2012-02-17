@@ -38,3 +38,27 @@ parser print selectors
 ^^^^^^^^^^^^^^^^^^^^^^
 parser print selectors:
         [ text, operator, operator 2 ]
+EXPRESSION: SHORT_OBJ: line 20:
+parser define bracket "[" ... "]" [text, operator]
+                                  ^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 20:
+parser define bracket "[" ... "]" [text, operator]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 21:
+parser define bracket "[" ... "]" [text, operator 3]
+                                  ^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 21:
+parser define bracket "[" ... "]" [text, operator 3]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: unrecognized selector name in line 21:
+parser define bracket "[" ... "]" [text, operator 3]
+                                         ^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 22:
+parser define bracket "[" ... "]" [text + operator]
+                                  ^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 22:
+parser define bracket "[" ... "]" [text + operator]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line 22 expected comma instead of :`+':
+parser define bracket "[" ... "]" [text + operator]
+                                        ^

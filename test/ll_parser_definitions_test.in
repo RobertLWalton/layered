@@ -17,3 +17,6 @@ parser print selectors
 parser define selector text
 parser define selector operator 2
 parser print selectors
+parser define bracket "[" ... "]" [text, operator]
+parser define bracket "[" ... "]" [text, operator 3]
+parser define bracket "[" ... "]" [text + operator]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 17 19:05:01 EST 2012
+// Date:	Sat Feb 18 02:56:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -708,13 +708,22 @@ min::gen PAR::parser_execute_definition
 		    full_line = true;
 		}
 		else
-		{
-		}
+		    return ::expected_error
+			( parser->printer, ppvec->file,
+			  ppvec[i-1],
+			  "`parsing selectors'"
+			  " or `full line'" );
 	    }
 	    if ( i < size )
 		return ::expected_error
 		    ( parser->printer, ppvec->file,
 		      ppvec[i-1], "`with'" );
+
+	    TAB::push_brackets
+	        ( name[0], name[1],
+		  selectors, new_selectors, full_line,
+		  parser->bracket_table );
+
 	    break;
 	}
 	default:

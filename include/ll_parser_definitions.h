@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 11:00:07 EST 2012
+// Date:	Fri Feb 17 19:04:46 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,6 +46,14 @@ min::gen scan_simple_label
 min::gen scan_selectors
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::selectors & selectors,
+	  ll::parser::parser parser );
+
+// Ditto but scan new_selectors instead of selectors.
+//
+min::gen scan_new_selectors
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  ll::parser::table::new_selectors &
+	      new_selectors,
 	  ll::parser::parser parser );
 
 // Given a vector pointer vp to an expression, test if

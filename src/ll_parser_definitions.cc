@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 17 02:59:14 EST 2012
+// Date:	Fri Feb 17 19:05:01 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,9 @@ static min::locatable_gen dotdotdot;
 static min::locatable_gen with;
 static min::locatable_gen print;
 static min::locatable_gen selectors;
+static min::locatable_gen plus;
+static min::locatable_gen minus;
+static min::locatable_gen exclusive_or;
 
 static void initialize ( void )
 {
@@ -55,6 +58,9 @@ static void initialize ( void )
     ::with = min::new_str_gen ( "with" );
     ::print = min::new_str_gen ( "print" );
     ::selectors = min::new_str_gen ( "selectors" );
+    ::plus = min::new_str_gen ( "+" );
+    ::minus = min::new_str_gen ( "-" );
+    ::exclusive_or = min::new_str_gen ( "^" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -85,10 +91,12 @@ min::gen PAR::scan_simple_label
     return min::new_lab_gen ( elements, i - j );
 }
 
-min::gen PAR::scan_selectors
+static min::gen scan_selectors
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::selectors & selectors,
-	  PAR::parser parser )
+	  TAB::new_selectors & new_selectors,
+	  PAR::parser parser,
+	  bool scan_new_selectors )
 {
     if ( i >= min::size_of ( vp ) )
         return min::MISSING();
@@ -112,14 +120,71 @@ min::gen PAR::scan_selectors
     assert ( ppvec != min::NULL_STUB );
 
     selectors = 0;
+    new_selectors.or_selectors = 0;
+    new_selectors.not_selectors = 0;
+    new_selectors.xor_selectors = 0;
     min::unsptr size = min::size_of ( subvp );
     min::locatable_gen selector;
+    bool op_seen = false;
     if ( separator == min::NONE() )
     {
 	min::uns32 i = 0;
 	while ( true )
 	{
+	    min::gen op = min::MISSING();
+	    if ( scan_new_selectors
+	         &&
+		 ( subvp[i] == ::plus
+	           ||
+		   subvp[i] == ::minus
+		   ||
+		   subvp[i] == ::exclusive_or ) )
+	    {
+	        if ( i == 0 ) op_seen = true;
+		else if ( ! op_seen )
+		{
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "ERROR: selector operation "
+			<< subvp[i]
+			<< " found after selector with"
+			   " NO operation in "
+			<< min::pline_numbers
+			       ( ppvec->file,
+				 ppvec[i] )  
+			<< ":" << min::eom;
+		    min::print_phrase_lines
+			( parser->printer,
+			  ppvec->file,
+			  ppvec[i] );
+		    return min::ERROR();
+		}
+	        op = subvp[i++];
+	    }
+	    else
+	    {
+	        if ( i == 0 ) op_seen = false;
+		else if ( op_seen )
+		{
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "ERROR: in "
+			<< min::pline_numbers
+			       ( ppvec->file,
+				 ppvec[i-1] )  
+			<< " operation expected after:"
+			<< min::eom;
+		    min::print_phrase_lines
+			( parser->printer,
+			  ppvec->file,
+			  ppvec[i-1] );
+		    return min::ERROR();
+		}
+	    }
 	    min::uns32 ibegin = i;
+
 	    selector = PAR::scan_simple_label
 		( subvp, i,
 	            ( 1ull << LEXSTD::word_t )
@@ -158,7 +223,19 @@ min::gen PAR::scan_selectors
 		  selector );
 
 	    if ( j >= 0 )
-	        selectors |= (min::uns64) 1 << j;
+	    {
+	        if ( op == ::plus )
+		    new_selectors.or_selectors |=
+		        (min::uns64) 1 << j;
+	        else if ( op == ::minus )
+		    new_selectors.not_selectors |=
+		        (min::uns64) 1 << j;
+	        else if ( op == ::exclusive_or )
+		    new_selectors.xor_selectors |=
+		        (min::uns64) 1 << j;
+		else
+		    selectors |= (min::uns64) 1 << j;
+	    }
 	    else
 	    {
 		min::phrase_position pp;
@@ -306,7 +383,35 @@ min::gen PAR::scan_selectors
 	return min::ERROR();
     }
 
+    if ( ! op_seen && scan_new_selectors )
+    {
+        new_selectors.or_selectors = selectors;
+        new_selectors.not_selectors = ~ selectors;
+    }
+
     return min::SUCCESS();
+}
+
+min::gen PAR::scan_selectors
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  TAB::selectors & selectors,
+	  PAR::parser parser )
+{
+    TAB::new_selectors new_selectors;
+    return ::scan_selectors
+        ( vp, i, selectors, new_selectors,
+	  parser, false );
+}
+
+min::gen PAR::scan_new_selectors
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  TAB::new_selectors & new_selectors,
+	  PAR::parser parser )
+{
+    TAB::selectors selectors;
+    return ::scan_selectors
+        ( vp, i, selectors, new_selectors,
+	  parser, true );
 }
 
 // Execute Parser Print Function

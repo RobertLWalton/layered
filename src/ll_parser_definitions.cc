@@ -40,6 +40,9 @@ static min::locatable_gen selectors;
 static min::locatable_gen plus;
 static min::locatable_gen minus;
 static min::locatable_gen exclusive_or;
+static min::locatable_gen parsing;
+static min::locatable_gen full;
+static min::locatable_gen line;
 
 static void initialize ( void )
 {
@@ -61,8 +64,26 @@ static void initialize ( void )
     ::plus = min::new_str_gen ( "+" );
     ::minus = min::new_str_gen ( "-" );
     ::exclusive_or = min::new_str_gen ( "^" );
+    ::parsing = min::new_str_gen ( "parsing" );
+    ::full = min::new_str_gen ( "full" );
+    ::line = min::new_str_gen ( "line" );
 }
 static min::initializer initializer ( ::initialize );
+
+static min::gen expected_error
+	( min::printer printer,
+	  min::file file,
+	  min::phrase_position pp,
+	  const char * what )
+{
+    printer << min::bom << min::set_indent ( 7 )
+	    << "ERROR: in " << min::pline_numbers
+			           ( file, pp )
+	    << ": expected " << what << " after:"
+	    << min::eom;
+    min::print_phrase_lines ( printer, file, pp );
+    return min::ERROR();
+}
 
 // Parser Definition Functions
 // ------ ---------- ---------
@@ -119,6 +140,8 @@ static min::gen scan_selectors
     min::phrase_position_vec ppvec = min::get ( subap );
     assert ( ppvec != min::NULL_STUB );
 
+    ++ i;
+
     selectors = 0;
     new_selectors.or_selectors = 0;
     new_selectors.not_selectors = 0;
@@ -166,22 +189,10 @@ static min::gen scan_selectors
 	    {
 	        if ( i == 0 ) op_seen = false;
 		else if ( op_seen )
-		{
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: in "
-			<< min::pline_numbers
-			       ( ppvec->file,
-				 ppvec[i-1] )  
-			<< " operation expected after:"
-			<< min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  ppvec->file,
-			  ppvec[i-1] );
-		    return min::ERROR();
-		}
+		    return ::expected_error
+			( parser->printer, ppvec->file,
+			  ppvec[i-1],
+			  "`+', `-', or `^'" );
 	    }
 	    min::uns32 ibegin = i;
 
@@ -203,19 +214,9 @@ static min::gen scan_selectors
 		else
 		    pp = ppvec[i-1];
 
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: in "
-		    << min::pline_numbers
-			   ( ppvec->file, pp )
-		    << " expected name after:"
-		    << min::eom;
-		min::print_phrase_lines
+		return ::expected_error
 		    ( parser->printer,
-		      ppvec->file, pp );
-
-		return min::ERROR();
+		      ppvec->file, pp, "name" );
 	    }
 
 	    int j = TAB::get_index
@@ -261,39 +262,13 @@ static min::gen scan_selectors
 	    if ( i == size ) break;
 
 	    if ( subvp[i] != PAR::comma)
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: in "
-		    << min::pline_numbers
-			   ( ppvec->file,
-			     ppvec[i] )
-		    << " expected comma instead of :"
-		    << subvp[i] << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file, ppvec[i] );
-
-		return min::ERROR();
-	    }
+		return ::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1], "`,'" );
 	    else if ( ++ i >= size )
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: in "
-		    << min::pline_numbers
-			   ( ppvec->file,
-			     ppvec[i-1] )
-		    << " expected name after comma:"
-		    << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file, ppvec[i-1] );
-
-		return min::ERROR();
-	    }
+		return ::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1], "name" );
 	}
     }
     else if ( separator == PAR::comma )
@@ -567,21 +542,9 @@ min::gen PAR::parser_execute_definition
 	if ( name[0] == min::ERROR() )
 	    return min::ERROR();
 	else if ( name[0] == min::MISSING() )
-	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: in "
-		<< min::pline_numbers
-		       ( ppvec->file,
-			 ppvec[i-1] )  
-		<< " expected name after :"
-		<< min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file,
-		  ppvec[i-1] );
-	    return min::ERROR();
-	}
+	    return ::expected_error
+	        ( parser->printer, ppvec->file,
+		  ppvec[i-1], "name" );
 	else
 	    ++ number_of_names;
     }
@@ -608,22 +571,9 @@ min::gen PAR::parser_execute_definition
 	    return min::ERROR();
 	else if (    name[number_of_names]
 	          == min::MISSING() )
-	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: in "
-		<< min::pline_numbers
-		       ( ppvec->file,
-			 ppvec[i-1] )  
-		<< " expected quoted string name"
-		   " after :"
-		<< min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file,
-		  ppvec[i-1] );
-	    return min::ERROR();
-	}
+	    return ::expected_error
+	        ( parser->printer, ppvec->file,
+		  ppvec[i-1], "quoted string name" );
 	else
 	    ++ number_of_names;
 
@@ -720,6 +670,56 @@ min::gen PAR::parser_execute_definition
 	TAB::selectors selectors;
         min::gen sresult = PAR::scan_selectors
 		( vp, i, selectors, parser );
+
+	switch ( type )
+	{
+	case ::BRACKET:
+	{
+	    bool full_line = false;
+	    TAB::new_selectors new_selectors;
+	        // Inited to zeroes.
+	    while ( i < size && vp[i] == ::with )
+	    {
+	        ++ i;
+		if ( i + 1 < size
+		     &&
+		     vp[i] == ::parsing
+		     &&
+		     vp[i+1] == ::selectors )
+		{
+		    i += 2;
+		    min::gen result =
+		        PAR::scan_new_selectors
+			    ( vp, i, new_selectors,
+			      parser );
+		    if ( result == min::ERROR() )
+		        return min::ERROR();
+		    else if ( result == min::MISSING() )
+		    {
+		    }
+		}
+		else if ( i + 1 < size
+		          &&
+		          vp[i] == ::full
+		          &&
+		          vp[i+1] == ::line )
+		{
+		    i += 2;
+		    full_line = true;
+		}
+		else
+		{
+		}
+	    }
+	    if ( i < size )
+		return ::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1], "`with'" );
+	    break;
+	}
+	default:
+	    MIN_ABORT ( "bad parser (un)define type" );
+	}
     }
 
     return min::SUCCESS();

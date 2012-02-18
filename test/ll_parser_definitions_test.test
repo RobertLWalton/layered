@@ -7,7 +7,7 @@ parser define bracket "[+"
 EXPRESSION: SHORT_OBJ: line 12:
 parser define bracket "[+" ...
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 12: expected quoted string name after:
+ERROR: in line 12: expected quoted name after:
 parser define bracket "[+" ...
                            ^^^
 EXPRESSION: SHORT_OBJ: line 13:

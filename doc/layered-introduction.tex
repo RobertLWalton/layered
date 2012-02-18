@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 17, 2012
+February 18, 2012
  
 \end{center}
 
@@ -1694,6 +1694,10 @@ and
 \\[0.5ex]
 \emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
 \\[2ex]
+\emkey{selector-definition}
+    ::= \ttikey{parser define selector}{define selector}
+               {\em parsing-selector}
+\\[2ex]
 \emkey{bracket-definition} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
@@ -1759,8 +1763,8 @@ and
     ::= {\em gluing-indentation-mark-name}
 	[ {\tt ...} {\em indentation-separator-name} ]
 \\[0.5ex]
-\emkey{gluing-indentation-mark-name} ::= {\em quoted-name}
-\\[2ex]
+\emkey{gluing-indentation-mark-name} ::= {\tt "}{\em mark}\,{\tt "}
+\\[0.5ex]
 \emkey{indentation-separator-name} ::= {\em quoted-name}
 \\[2ex]
 \emkey{named-bracket-definition} \\

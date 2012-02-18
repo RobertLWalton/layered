@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 18 02:56:24 EST 2012
+// Date:	Sat Feb 18 08:12:29 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -573,7 +573,7 @@ min::gen PAR::parser_execute_definition
 	          == min::MISSING() )
 	    return ::expected_error
 	        ( parser->printer, ppvec->file,
-		  ppvec[i-1], "quoted string name" );
+		  ppvec[i-1], "quoted name" );
 	else
 	    ++ number_of_names;
 
@@ -581,7 +581,7 @@ min::gen PAR::parser_execute_definition
 	{
 	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: too many quoted string names"
+		<< "ERROR: too many quoted names"
 		   " in "
 		<< min::pline_numbers
 		       ( ppvec->file,

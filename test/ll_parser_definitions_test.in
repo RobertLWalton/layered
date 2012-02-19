@@ -2,12 +2,13 @@
 //
 // File:	ll_parser_definition_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 10:17:23 EST 2012
+// Date:	Sun Feb 19 04:26:05 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
+parser test [ x y z {u,v,w} m (n (p)) ]
 parser define bracket "[+"
 parser define bracket "[+" ...
 parser define selector this is a name ++

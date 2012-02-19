@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Feb 15 10:56:31 EST 2012
+# Date:		Sun Feb 19 11:48:06 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -532,13 +532,42 @@ ll_parser_explicit_subexpression_test.out:	\
 	${RUNENV} $* < ll_parser_standard_test.in \
 	             > $*.out
 
+ll_parser_definitions_test:		\
+	    ll_parser_definitions_test.cc \
+	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser.o \
+	    ll_parser_definitions.o \
+	    ll_parser_standard_input.o \
+	    ll_parser_standard_brackets.o \
+	    ll_parser_table.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser.o \
+	    ll_parser_definitions.o \
+	    ll_parser_standard_input.o \
+	    ll_parser_standard_brackets.o \
+	    ll_parser_table.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    ll_parser_definitions_test.cc
+
 ll_parser_definitions_test.out:	\
-	    ll_parser_explicit_subexpression_test \
+	    ll_parser_definitions_test \
 	    ll_parser_definitions_test.in
 	rm -f $*.out
 	${RUNENV} \
-	    ll_parser_explicit_subexpression_test \
-	        < $*.in > $*.out
+	    ll_parser_definitions_test < $*.in > $*.out
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o \

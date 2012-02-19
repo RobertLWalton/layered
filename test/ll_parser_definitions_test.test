@@ -1,77 +1,35 @@
-EXPRESSION: SHORT_OBJ: line 11:
+======= TEST: line 11:
+parser test [ x y z {u,v,w} m (n (p)) ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 11:
+parser test [ x y z {u,v,w} m (n (p)) ]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 11:
+parser test [ x y z {u,v,w} m (n (p)) ]
+                    ^^^^^^^
+------- line 11:
+parser test [ x y z {u,v,w} m (n (p)) ]
+                              ^^^^^^^
+------- line 11:
+parser test [ x y z {u,v,w} m (n (p)) ]
+                                 ^^^
+======= END TEST
+ERROR: too few defined names in line 12:
 parser define bracket "[+"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: too few defined names in line 11:
-parser define bracket "[+"
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 12:
-parser define bracket "[+" ...
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 12: expected quoted name after:
+ERROR: in line 13: expected quoted name after:
 parser define bracket "[+" ...
                            ^^^
-EXPRESSION: SHORT_OBJ: line 13:
-parser define selector this is a name ++
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: extraneous stuff after selector name in line 13:
+ERROR: extraneous stuff after selector name in line 14:
 parser define selector this is a name ++
                                       ^^
-EXPRESSION: SHORT_OBJ: line 14:
-parser define selector text
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 15:
-parser define selector operator
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 16:
-parser print selectors
-^^^^^^^^^^^^^^^^^^^^^^
 parser print selectors:
         [ text, operator ]
-EXPRESSION: SHORT_OBJ: line 17:
-parser define selector text
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 18:
-parser define selector operator 1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 19:
-parser print selectors
-^^^^^^^^^^^^^^^^^^^^^^
 parser print selectors:
         [ text, operator, operator 1 ]
-EXPRESSION: SHORT_OBJ: line 20:
-parser define bracket "[+" ... "+]" [text, operator]
-                                    ^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 20:
-parser define bracket "[+" ... "+]" [text, operator]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 21:
-parser define bracket "[+" ... "+]" [text, operator 2]
-                                    ^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 21:
-parser define bracket "[+" ... "+]" [text, operator 2]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: unrecognized selector name in line 21:
+ERROR: unrecognized selector name in line 22:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 22:
-parser define bracket "[+" ... "+]" [text + operator]
-                                    ^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 22:
-parser define bracket "[+" ... "+]" [text + operator]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 22: expected `,' after:
+ERROR: in line 23: expected `,' after:
 parser define bracket "[+" ... "+]" [text + operator]
                                      ^^^^
-EXPRESSION: SHORT_OBJ: line 23:
-parser define bracket "[+" ... "+]" [text, operator]
-                                    ^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 24:
-       with parsing selectors [^ text, + operator]
-                              ^^^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 23-25:
-parser define bracket "[+" ... "+]" [text, operator]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-       with parsing selectors [^ text, + operator]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-       with full line
-^^^^^^^^^^^^^^^^^^^^^

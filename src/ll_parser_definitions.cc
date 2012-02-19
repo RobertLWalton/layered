@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 18 08:12:29 EST 2012
+// Date:	Sun Feb 19 04:12:28 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,7 @@ static min::locatable_gen dotdotdot;
 static min::locatable_gen with;
 static min::locatable_gen print;
 static min::locatable_gen selectors;
+static min::locatable_gen test;
 static min::locatable_gen plus;
 static min::locatable_gen minus;
 static min::locatable_gen exclusive_or;
@@ -61,6 +62,7 @@ static void initialize ( void )
     ::with = min::new_str_gen ( "with" );
     ::print = min::new_str_gen ( "print" );
     ::selectors = min::new_str_gen ( "selectors" );
+    ::test = min::new_str_gen ( "test" );
     ::plus = min::new_str_gen ( "+" );
     ::minus = min::new_str_gen ( "-" );
     ::exclusive_or = min::new_str_gen ( "^" );
@@ -425,6 +427,49 @@ static min::gen parser_execute_print
     return min::SUCCESS();
 }
 
+static void parser_execute_test_scan
+	( min::obj_vec_ptr & vp,
+	  min::printer printer )
+{
+    min::phrase_position_vec ppvec =
+        min::position_of ( vp );
+    min::unsptr size = min::size_of ( vp );
+    for ( min::unsptr i = 0; i < size; ++ i )
+    {
+        min::obj_vec_ptr subvp ( vp[i] );
+	if ( subvp == min::NULL_STUB ) continue;
+	printer
+	    << min::bom << min::set_indent ( 8 )
+	    << "------- "
+	    << min::pline_numbers
+	          ( ppvec->file, ppvec[i] )
+	<< ":" << min::eom;
+	min::print_phrase_lines
+	    ( printer, ppvec->file, ppvec[i] );
+	::parser_execute_test_scan ( subvp, printer );
+    }
+}
+
+static min::gen parser_execute_test
+	( min::obj_vec_ptr & vp,
+	  PAR::parser parser )
+{
+    min::phrase_position_vec ppvec =
+        min::position_of ( vp );
+    parser->printer
+        << min::bom << min::set_indent ( 8 )
+	<< "======= TEST: "
+	<< min::pline_numbers
+	       ( ppvec->file, ppvec->position )
+	<< ":" << min::eom;
+    min::print_phrase_lines
+        ( parser->printer,
+	  ppvec->file, ppvec->position );
+    ::parser_execute_test_scan ( vp, parser->printer );
+    parser->printer << "======= END TEST" << min::eol;
+    return min::SUCCESS();
+}
+
 
 // Execute Definition Function
 // ------- ---------- --------
@@ -440,9 +485,13 @@ min::gen PAR::parser_execute_definition
 	  PAR::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
-    if ( size < 1 ) return min::FAILURE();
+    if ( size < 2 ) return min::FAILURE();
 
     if ( vp[0] != ::parser ) return min::FAILURE();
+    else if ( vp[1] == ::print )
+        return ::parser_execute_print ( vp, parser );
+    else if ( vp[1] == ::test )
+        return ::parser_execute_test ( vp, parser );
 
 
     min::phrase_position_vec ppvec =
@@ -464,10 +513,7 @@ min::gen PAR::parser_execute_definition
     unsigned min_names, max_names;
         // Minimum and maximum number of names allowed.
 
-    if ( size < 2 ) return min::FAILURE();
-    else if ( vp[i] == ::print )
-        return ::parser_execute_print ( vp, parser );
-    else if ( vp[i] == ::define )
+    if ( vp[i] == ::define )
         define = true;
     else if ( vp[i] == ::undefine )
         define = false;

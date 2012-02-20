@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 05:54:59 EST 2012
+// Date:	Sun Feb 19 23:34:30 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -611,12 +611,14 @@ MIN_REF ( ll::parser::table::indentation_mark,
 void push_indentation_mark
 	( min::gen mark_label,
 	  min::gen separator_label,
+	      // May be min::MISSING()
 	  ll::parser::table::selectors selectors,
 	  const ll::parser::table::new_selectors
 	      & new_selectors,
 	  ll::parser::table::table bracket_table,
 	  ll::parser::table::split_table split_table =
 	      NULL_STUB );
+	      // NULL_STUB iff not gluing
 } } }
 
 # endif // LL_PARSER_TABLE_H

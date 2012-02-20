@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 19 04:12:28 EST 2012
+// Date:	Sun Feb 19 23:28:22 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -768,6 +768,52 @@ min::gen PAR::parser_execute_definition
 	    TAB::push_brackets
 	        ( name[0], name[1],
 		  selectors, new_selectors, full_line,
+		  parser->bracket_table );
+
+	    break;
+	}
+	case ::INDENTATION_MARK:
+	{
+	    TAB::new_selectors new_selectors;
+	        // Inited to zeroes.
+	    while ( i < size && vp[i] == ::with )
+	    {
+	        ++ i;
+		if ( i + 1 < size
+		     &&
+		     vp[i] == ::parsing
+		     &&
+		     vp[i+1] == ::selectors )
+		{
+		    i += 2;
+		    min::gen result =
+		        PAR::scan_new_selectors
+			    ( vp, i, new_selectors,
+			      parser );
+		    if ( result == min::ERROR() )
+		        return min::ERROR();
+		    else if ( result == min::MISSING() )
+		    {
+		    }
+		}
+		else
+		    return ::expected_error
+			( parser->printer, ppvec->file,
+			  ppvec[i-1],
+			  "`parsing selectors'"
+			  " or `full line'" );
+	    }
+	    if ( i < size )
+		return ::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1], "`with'" );
+
+	    TAB::push_indentation_mark
+	        ( name[0],
+		  number_of_names == 2 ?
+		      (min::gen) name[1] :
+		      min::MISSING(),
+		  selectors, new_selectors,
 		  parser->bracket_table );
 
 	    break;

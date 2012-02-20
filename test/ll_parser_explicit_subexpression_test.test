@@ -110,3 +110,20 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 32:
+     { <+ x +> <- y ->} `<+ x +> <- y ->'
+       ^^^^^^^
+EXPRESSION: SHORT_OBJ: line 32:
+     { <+ x +> <- y ->} `<+ x +> <- y ->'
+     ^^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 32:
+     { <+ x +> <- y ->} `<+ x +> <- y ->'
+                                 ^^^^^^^
+EXPRESSION: SHORT_OBJ: line 32:
+     { <+ x +> <- y ->} `<+ x +> <- y ->'
+                        ^^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: lines 31-32:
+This tests selector changes: <+ x +> <- y ->
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     { <+ x +> <- y ->} `<+ x +> <- y ->'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

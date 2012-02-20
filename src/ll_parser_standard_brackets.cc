@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 06:08:28 EDT 2011
+// Date:	Sun Feb 19 17:10:55 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,7 +21,7 @@
 # include <ll_parser_table.h>
 # define PAR ll::parser
 # define PARSTD ll::parser::standard
-# define PARTAB ll::parser::table
+# define TAB ll::parser::table
 
 // Standard Brackets
 // -------- --------
@@ -29,85 +29,101 @@
 void PARSTD::init_brackets
 	( min::ref<PAR::parser> parser )
 {
-    min::locatable_gen opening_parenthesis;
-    opening_parenthesis = min::new_str_gen ( "(" );
-    min::locatable_gen closing_parenthesis;
-    closing_parenthesis = min::new_str_gen ( ")" );
+    min::locatable_gen opening_parenthesis
+        ( min::new_str_gen ( "(" ) );
+    min::locatable_gen closing_parenthesis
+        ( min::new_str_gen ( ")" ) );
 
-    min::locatable_gen opening_square;
-    opening_square = min::new_str_gen ( "[" );
-    min::locatable_gen closing_square;
-    closing_square = min::new_str_gen ( "]" );
+    min::locatable_gen opening_square
+        ( min::new_str_gen ( "[" ) );
+    min::locatable_gen closing_square
+        ( min::new_str_gen ( "]" ) );
 
-    min::locatable_gen opening_brace;
-    opening_brace = min::new_str_gen ( "{" );
-    min::locatable_gen closing_brace;
-    closing_brace = min::new_str_gen ( "}" );
+    min::locatable_gen opening_brace
+        ( min::new_str_gen ( "{" ) );
+    min::locatable_gen closing_brace
+        ( min::new_str_gen ( "}" ) );
 
-    min::locatable_gen opening_quote;
-    opening_quote = min::new_str_gen ( "`" );
-    min::locatable_gen closing_quote;
-    closing_quote = min::new_str_gen ( "'" );
+    min::locatable_gen opening_quote
+        ( min::new_str_gen ( "`" ) );
+    min::locatable_gen closing_quote
+        ( min::new_str_gen ( "'" ) );
 
-    min::locatable_gen colon;
-    colon = min::new_str_gen ( ":" );
-    min::locatable_gen semicolon;
-    semicolon = min::new_str_gen ( ";" );
+    min::locatable_gen colon
+        ( min::new_str_gen ( ":" ) );
+    min::locatable_gen semicolon
+        ( min::new_str_gen ( ";" ) );
 
-    min::locatable_gen top_level;
-    top_level = min::new_str_gen ( "TOP-LEVEL" );
+    min::locatable_gen top_level
+        ( min::new_str_gen ( "TOP-LEVEL" ) );
         // Note TOP-LEVEL is not a legal lexeme and
 	// so cannot appear in the input.
 
+    min::locatable_gen code
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math
+        ( min::new_str_gen ( "math" ) );
+    min::locatable_gen text
+        ( min::new_str_gen ( "text" ) );
+
+    min::push ( (TAB::selector_name_table_insptr)
+                parser->selector_name_table ) = code;
+    min::push ( (TAB::selector_name_table_insptr)
+                parser->selector_name_table ) = math;
+    min::push ( (TAB::selector_name_table_insptr)
+                parser->selector_name_table ) = text;
+
     parser->selectors = PARSTD::CODE;
-    PARTAB::push_brackets
+
+
+    TAB::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  PARTAB::new_selectors ( 0, 0, 0 ),
+	  TAB::new_selectors ( 0, 0, 0 ),
 	  false,
 	  parser->bracket_table );
-    PARTAB::push_brackets
+    TAB::push_brackets
         ( opening_square,
           closing_square,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  PARTAB::new_selectors ( 0, 0, 0 ),
+	  TAB::new_selectors ( 0, 0, 0 ),
 	  false,
 	  parser->bracket_table );
-    PARTAB::push_brackets
+    TAB::push_brackets
         ( opening_brace,
           closing_brace,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  PARTAB::new_selectors
+	  TAB::new_selectors
 	      ( PARSTD::MATH,
 	        PARSTD::CODE + PARSTD::TEXT, 0 ),
 	  false,
 	  parser->bracket_table );
-    PARTAB::push_brackets
+    TAB::push_brackets
         ( opening_quote,
           closing_quote,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  PARTAB::new_selectors
+	  TAB::new_selectors
 	      ( PARSTD::TEXT,
 	        PARSTD::CODE + PARSTD::MATH, 0 ),
 	  false,
 	  parser->bracket_table );
 
-    PARTAB::push_indentation_mark
+    TAB::push_indentation_mark
         ( colon, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  PARTAB::new_selectors ( 0, 0, 0 ),
+	  TAB::new_selectors ( 0, 0, 0 ),
 	  parser->bracket_table,
 	  parser->split_table );
 
-    PARTAB::push_indentation_mark
+    TAB::push_indentation_mark
         ( top_level, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  PARTAB::new_selectors ( 0, 0, 0 ),
+	  TAB::new_selectors ( 0, 0, 0 ),
 	  parser->bracket_table );
 
-    PARTAB::top_level_indentation_mark =
-        (PARTAB::indentation_mark)
-	PARTAB::find
+    TAB::top_level_indentation_mark =
+        (TAB::indentation_mark)
+	 TAB::find
 	    ( top_level, parser->bracket_table );
 }

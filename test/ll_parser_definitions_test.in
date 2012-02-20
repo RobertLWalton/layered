@@ -2,25 +2,23 @@
 //
 // File:	ll_parser_definition_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 19 04:26:05 EST 2012
+// Date:	Sun Feb 19 16:52:35 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-parser test [ x y z {u,v,w} m (n (p)) ]
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser define bracket "[+"
 parser define bracket "[+" ...
 parser define selector this is a name ++
-parser define selector text
-parser define selector operator
 parser print selectors
 parser define selector text
 parser define selector operator 1
 parser print selectors
-parser define bracket "[+" ... "+]" [text, operator]
 parser define bracket "[+" ... "+]" [text, operator 2]
-parser define bracket "[+" ... "+]" [text + operator]
-parser define bracket "[+" ... "+]" [text, operator]
-       with parsing selectors [^ text, + operator]
+parser define bracket "<+" ... "+>" [text + operator]
+parser define bracket "<" ... ">" [code, math]
+       with parsing selectors [- code, ^ math, + text]
        with full line
+parser test < hi there > < hi < embedded > there >

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_explicit_subexpression_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 00:12:06 EST 2012
+// Date:	Sun Feb 19 22:47:32 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 # include <iostream>
 # include <cassert>
 # define PAR ll::parser
+# define TAB ll::parser::table
 # define PARSTD ll::parser::standard
 using std::cout;
 
@@ -31,5 +32,27 @@ int main ( int argc )
         ( PAR::default_parser,
 	    min::GRAPHIC_VSPACE_FLAG
 	  + min::GRAPHIC_NSPACE_FLAG );
+    min::locatable_gen openplus
+        ( min::new_str_gen ( "<+" ) );
+    min::locatable_gen closeplus
+        ( min::new_str_gen ( "+>" ) );
+    min::locatable_gen openminus
+        ( min::new_str_gen ( "<-" ) );
+    min::locatable_gen closeminus
+        ( min::new_str_gen ( "->" ) );
+    TAB::push_brackets
+        ( openplus,
+          closeplus,
+	  PARSTD::MATH,
+	  TAB::new_selectors ( 0, 0, 0 ),
+	  false,
+	  PAR::default_parser->bracket_table );
+    TAB::push_brackets
+        ( openminus,
+          closeminus,
+	  PARSTD::TEXT,
+	  TAB::new_selectors ( 0, 0, 0 ),
+	  false,
+	  PAR::default_parser->bracket_table );
     PAR::parse();
 }

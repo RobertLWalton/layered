@@ -18,7 +18,7 @@ parser define selector operator 1
 parser print selectors
 parser define bracket "[+" ... "+]" [text, operator 2]
 parser define bracket "<+" ... "+>" [text + operator]
-parser define bracket "<" ... ">" [code, math]
-       with parsing selectors [- code, ^ math, + text]
+parser define bracket "<+" ... "+>" [code, operator 1]
+       with parsing selectors [^ code, - math, + operator 1]
        with full line
-parser test < hi there > < hi < embedded > there >
+parser test <+ hi there +> <+ hi [embedded] there +>

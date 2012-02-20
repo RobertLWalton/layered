@@ -1,18 +1,18 @@
 ======= TEST: line 11:
-parser test [ x y z {u,v,w} m (n (p)) ]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 11:
-parser test [ x y z {u,v,w} m (n (p)) ]
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 11:
-parser test [ x y z {u,v,w} m (n (p)) ]
-                    ^^^^^^^
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+                          ^^^^^^^
 ------- line 11:
-parser test [ x y z {u,v,w} m (n (p)) ]
-                              ^^^^^^^
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+                                    ^^^^^^^
 ------- line 11:
-parser test [ x y z {u,v,w} m (n (p)) ]
-                                 ^^^
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+                                       ^^^
 ======= END TEST
 ERROR: too few defined names in line 12:
 parser define bracket "[+"
@@ -24,12 +24,22 @@ ERROR: extraneous stuff after selector name in line 14:
 parser define selector this is a name ++
                                       ^^
 parser print selectors:
-        [ text, operator ]
+        [ code, math, text ]
 parser print selectors:
-        [ text, operator, operator 1 ]
-ERROR: unrecognized selector name in line 22:
+        [ code, math, text, operator 1 ]
+ERROR: unrecognized selector name in line 19:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
-ERROR: in line 23: expected `,' after:
-parser define bracket "[+" ... "+]" [text + operator]
+ERROR: in line 20: expected `,' after:
+parser define bracket "<+" ... "+>" [text + operator]
                                      ^^^^
+======= TEST: line 24:
+parser test <+ hi there +> <+ hi [embedded] there +>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 24:
+parser test <+ hi there +> <+ hi [embedded] there +>
+            ^^^^^^^^^^^^^^
+------- line 24:
+parser test <+ hi there +> <+ hi [embedded] there +>
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST

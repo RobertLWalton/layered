@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 05:53:35 EST 2012
+// Date:	Tue Feb 21 02:08:15 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -251,18 +251,23 @@ void TAB::push_brackets
 	  bool full_line,
 	  TAB::table bracket_table )
 {
-    min::locatable_var<TAB::opening_bracket> opening;
-    opening = ::opening_bracket_type.new_stub();
-    min::locatable_var<TAB::closing_bracket> closing;
-    closing = ::closing_bracket_type.new_stub();
+    min::locatable_var<TAB::opening_bracket> opening
+        ( ::opening_bracket_type.new_stub() );
+    min::locatable_var<TAB::closing_bracket> closing
+        ( ::closing_bracket_type.new_stub() );
+
     label_ref(opening) = opening_label;
     label_ref(closing) = closing_label;
+
     closing_bracket_ref(opening) = closing;
     opening_bracket_ref(closing) = opening;
+
     opening->selectors = selectors;
     closing->selectors = selectors;
+
     opening->new_selectors = new_selectors;
     opening->full_line = full_line;
+
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
 }
@@ -368,38 +373,33 @@ void TAB::push_named_brackets
 	  TAB::table bracket_table )
 {
     min::locatable_var<TAB::named_opening>
-        named_opening;
-    named_opening =
-        ::named_opening_type.new_stub();
+        named_opening
+        ( ::named_opening_type.new_stub() );
 
     min::locatable_var<TAB::named_separator>
-        named_separator;
-    named_separator =
-        ::named_separator_type.new_stub();
+        named_separator
+        ( named_separator_label != min::MISSING() ?
+	  ::named_separator_type.new_stub() :
+	  min::NULL_STUB );
 
     min::locatable_var<TAB::named_middle>
-        named_middle;
-    named_middle =
-        ::named_middle_type.new_stub();
+        named_middle
+        ( named_middle_label != min::MISSING() ?
+	  ::named_middle_type.new_stub() :
+	  min::NULL_STUB );
 
     min::locatable_var<TAB::named_closing>
-        named_closing;
-    named_closing =
-        ::named_closing_type.new_stub();
+        named_closing
+        ( ::named_closing_type.new_stub() );
 
     min::locatable_var
 	    <TAB::named_middle_closing>
-        named_middle_closing;
-    named_middle_closing =
-        ::named_middle_closing_type.new_stub();
+        named_middle_closing
+        ( named_middle_closing_label != min::MISSING() ?
+          ::named_middle_closing_type.new_stub() :
+	  min::NULL_STUB );
 
     label_ref(named_opening) = named_opening_label;
-    label_ref(named_separator) = named_separator_label;
-    label_ref(named_middle) = named_middle_label;
-    label_ref(named_closing) = named_closing_label;
-    label_ref(named_middle_closing) =
-        named_middle_closing_label;
-
     named_separator_ref(named_opening) =
         named_separator;
     named_middle_ref(named_opening) =
@@ -408,32 +408,47 @@ void TAB::push_named_brackets
         named_closing;
     named_middle_closing_ref(named_opening) =
         named_middle_closing;
-
-    named_opening_ref(named_separator) =
-        named_opening;
-    named_opening_ref(named_middle) =
-        named_opening;
-    named_opening_ref(named_closing) =
-        named_opening;
-    named_opening_ref(named_middle_closing) =
-        named_opening;
-
     named_opening->selectors = selectors;
-    named_separator->selectors = selectors;
-    named_middle->selectors = selectors;
-    named_closing->selectors = selectors;
-    named_middle_closing->selectors = selectors;
-
     TAB::push ( bracket_table,
                 (TAB::root) named_opening );
-    TAB::push ( bracket_table,
-                (TAB::root) named_separator );
-    TAB::push ( bracket_table,
-                (TAB::root) named_middle );
+
+    label_ref(named_closing) = named_closing_label;
+    named_opening_ref(named_closing) =
+        named_opening;
+    named_closing->selectors = selectors;
     TAB::push ( bracket_table,
                 (TAB::root) named_closing );
-    TAB::push ( bracket_table,
-                (TAB::root) named_middle_closing );
+
+    if ( named_separator_label != min::MISSING() )
+    {
+	label_ref(named_separator) = named_separator_label;
+	named_opening_ref(named_separator) =
+	    named_opening;
+	named_separator->selectors = selectors;
+	TAB::push ( bracket_table,
+		    (TAB::root) named_separator );
+    }
+
+    if ( named_middle_label != min::MISSING() )
+    {
+	label_ref(named_middle) = named_middle_label;
+	named_opening_ref(named_middle) =
+	    named_opening;
+	named_middle->selectors = selectors;
+	TAB::push ( bracket_table,
+		    (TAB::root) named_middle );
+    }
+
+    if ( named_middle_closing_label != min::MISSING() )
+    {
+	label_ref(named_middle_closing) =
+	    named_middle_closing_label;
+	named_opening_ref(named_middle_closing) =
+	    named_opening;
+	named_middle_closing->selectors = selectors;
+	TAB::push ( bracket_table,
+		    (TAB::root) named_middle_closing );
+    }
 }
 
 // Indentation Marks
@@ -512,31 +527,30 @@ void TAB::push_indentation_mark
 	  TAB::table bracket_table,
 	  TAB::split_table split_table )
 {
-    min::locatable_var<TAB::indentation_mark> imark;
-    imark = ::indentation_mark_type.new_stub();
+    min::locatable_var<TAB::indentation_mark> imark
+        ( ::indentation_mark_type.new_stub() );
     label_ref(imark) = mark_label;
     imark->selectors = selectors;
     imark->new_selectors = new_selectors;
     TAB::push ( bracket_table, (TAB::root) imark );
+
     if ( separator_label != min::MISSING() )
     {
-        MIN_ASSERT ( min::is_str ( separator_label ) );
 	min::locatable_var<TAB::indentation_separator>
-	    separator;
-	separator =
-	    ::indentation_separator_type.new_stub();
+	    separator
+	    ( ::indentation_separator_type.new_stub() );
 	label_ref(separator) = separator_label;
 	indentation_mark_ref(separator) = imark;
 	indentation_separator_ref(imark) = separator;
 	TAB::push ( bracket_table,
 	            (TAB::root) separator );
     }
+
     if ( split_table != NULL_STUB )
     {
         MIN_ASSERT ( min::is_str ( mark_label ) );
 	min::str_ptr s ( mark_label );
 	min::unsptr length = min::strlen ( s );
-        MIN_ASSERT ( length > 0 );
 	min::locatable_var<TAB::indentation_split>
 	    isplit;
 	isplit = ::indentation_split_type.new_stub

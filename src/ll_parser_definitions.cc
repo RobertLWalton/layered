@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 19 23:28:22 EST 2012
+// Date:	Tue Feb 21 01:42:26 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -808,12 +808,93 @@ min::gen PAR::parser_execute_definition
 		    ( parser->printer, ppvec->file,
 		      ppvec[i-1], "`with'" );
 
+	    if ( gluing
+	         &&
+		    LEXSTD::lexical_type_of ( name[0] )
+		 != LEXSTD::mark_t )
+	    {
+		parser->printer
+		    << min::bom << min::set_indent ( 7 )
+		    << "ERROR: gluing indentation mark"
+		       " name "
+		    << min::pgen ( name[0] )
+		    << " is not a mark in "
+		    << min::pline_numbers
+			   ( ppvec->file,
+			     ppvec[5] )  
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file,
+		      ppvec[5] );
+		return min::ERROR();
+	    }
+
 	    TAB::push_indentation_mark
 	        ( name[0],
 		  number_of_names == 2 ?
 		      (min::gen) name[1] :
 		      min::MISSING(),
 		  selectors, new_selectors,
+		  parser->bracket_table,
+		  gluing ? parser->split_table :
+			   (TAB::split_table)
+		           min::NULL_STUB );
+
+	    break;
+	}
+	case ::NAMED_BRACKET:
+	{
+	    if ( i < size )
+		return ::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1], "end of statement" );
+	    bool separator_present =
+	        ( number_of_names % 2 == 1 );
+	    bool middle_present =
+	        ( number_of_names >= 4 );
+
+	    min::unsptr m = 1 + separator_present;
+	    if (    middle_present
+	         && name[m] != name[m+1] )
+	    {
+		min::phrase_position pp;
+		pp.begin = ppvec[m].begin;
+		pp.end   = ppvec[m+1].end;
+		parser->printer
+		    << min::bom << min::set_indent ( 7 )
+		    << "ERROR: named middles "
+		    << min::pgen ( name[m] )
+		    << " and "
+		    << min::pgen ( name[m+1] )
+		    << " do not match in "
+		    << min::pline_numbers
+			   ( ppvec->file, pp )  
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      ppvec->file, pp );
+		return min::ERROR();
+	    }
+
+	    min::gen named_opening = name[0];
+	    min::gen named_separator =
+	        ( separator_present ?
+		  (min::gen) name[1] : min::MISSING() );
+	    min::gen named_middle =
+	        ( middle_present ?
+		  (min::gen) name[m] : min::MISSING() );
+	    min::gen named_closing =
+	        name[1 + separator_present
+		       + 2 * middle_present ];
+
+	    TAB::push_named_brackets
+	        ( named_opening,
+		  named_separator,
+		  named_middle,
+		  named_closing,
+		  min::MISSING(), // TBD
+		  selectors,
 		  parser->bracket_table );
 
 	    break;

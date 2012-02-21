@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 19 23:34:30 EST 2012
+// Date:	Tue Feb 21 01:56:40 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -380,9 +380,17 @@ struct named_opening_struct : public root_struct
     // or
     //	    < ... {# ...}* >
     //
+    //
+    // The named-middle may be MISSING.
+    //
+    // The named-separator may be MISSING.
+    //
     // The named-middle-closing should be specified as
     // MISSING if the named-middle and named-closing
     // cannot glue together into a single lexeme.
+    //
+    // MISSING stub pointers are NULL_STUB and MISSING
+    // min::gen labels are min::MISSING().
 
     const ll::parser::table::named_separator
           named_separator;
@@ -479,9 +487,12 @@ MIN_REF ( ll::parser::table::named_opening,
 void push_named_brackets
 	( min::gen named_opening_label,
 	  min::gen named_separator_label,
+	      // May be min::MISSING().
 	  min::gen named_middle_label,
+	      // May be min::MISSING().
 	  min::gen named_closing_label,
 	  min::gen named_middle_closing_label,
+	      // May be min::MISSING().
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::table bracket_table );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 09:54:49 EST 2012
+// Date:	Wed Feb 22 10:58:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1858,7 +1858,6 @@ static bool parse_explicit_subexpression
 	    {
 	        // No active bracket table entry found.
 
-		named_opening = min::NULL_STUB;
 		split_backup = saved_split_backup;
 		if ( split_backup == min::NULL_STUB )
 		    split_backup = saved_current;

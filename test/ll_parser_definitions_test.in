@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 08:00:41 EST 2012
+// Date:	Wed Feb 22 09:15:01 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -24,5 +24,10 @@ parser define bracket "<+" ... "+>" [code, operator 1]
 parser test <+ hi there +> <+ hi [embedded] there +>
 parser test this is a paragraph +:
     line 1
-    line 2a; line 2b
+    line 2a:: line 2b; line 2c
+    last line
+parser define indentation mark "+:" ... "::" [code]
+parser test this is a paragraph +:
+    line 1
+    line 2a:: line 2b; line 2c
     last line

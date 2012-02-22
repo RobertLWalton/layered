@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 21 01:42:26 EST 2012
+// Date:	Tue Feb 21 19:02:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -888,12 +888,93 @@ min::gen PAR::parser_execute_definition
 	        name[1 + separator_present
 		       + 2 * middle_present ];
 
+	    // compute named_middle_closing if
+	    // necessary.
+	    //
+	    min::locatable_gen named_middle_closing
+	        ( min::MISSING() );;
+	    min::gen middle_last = named_middle;
+	    min::gen closing_first = named_closing;
+	    min::unsptr middle_length = 1;
+	    min::unsptr closing_length = 1;
+
+	    min::lab_ptr middle_ptr ( named_middle );
+	    min::lab_ptr closing_ptr ( named_closing );
+	    if ( middle_ptr != min::NULL_STUB )
+	    {
+		middle_length =
+		    min::length_of ( middle_ptr );
+		middle_last =
+		    middle_ptr[middle_length-1];
+	    }
+	    if ( closing_ptr != min::NULL_STUB )
+	    {
+		closing_length =
+		    min::length_of ( closing_ptr );
+		closing_first =
+		    closing_ptr[closing_length-1];
+	    }
+	    min::uns32 middle_last_type =
+	        LEXSTD::lexical_type_of
+		    ( middle_last );
+	    min::uns32 closing_first_type =
+	        LEXSTD::lexical_type_of
+		    ( closing_first );
+	    if ( middle_last_type == closing_first_type
+	         ||
+		 middle_last_type != LEXSTD::separator_t
+	       )
+	    {
+		min::str_ptr middle_last_ptr
+		    ( middle_last );
+		min::str_ptr closing_first_ptr
+		    ( closing_first );
+		min::unsptr middle_last_length =
+		    min::strlen ( middle_last_ptr );
+		min::unsptr closing_first_length =
+		    min::strlen ( closing_first_ptr );
+		char new_string [   middle_last_length
+		                  + closing_first_length
+				  + 1 ];
+		strcpy
+		    ( & new_string[0],
+		      & middle_last_ptr[0] );
+		strcpy
+		    ( & new_string[middle_last_length],
+		      & closing_first_ptr[0] );
+		named_middle_closing =
+		    min::new_str_gen ( new_string );
+		if (   middle_length
+		     + closing_length > 2 )
+		{
+		    min::gen element
+			[middle_length + closing_length
+				       - 1];
+		    memcpy ( & element[0],
+		             & middle_ptr[0],
+			       ( middle_length - 1 )
+			     * sizeof ( min::gen ) );
+		    memcpy ( & element[middle_length],
+			     & closing_ptr[0],
+			       ( closing_length - 1 )
+			     * sizeof ( min::gen ) );
+		    element[middle_length - 1] =
+			named_middle_closing;
+		    named_middle_closing =
+			min::new_lab_gen
+			    ( element, 
+				middle_last_length
+			      + closing_first_length
+			      - 1 );
+		}
+	    }
+
 	    TAB::push_named_brackets
 	        ( named_opening,
 		  named_separator,
 		  named_middle,
 		  named_closing,
-		  min::MISSING(), // TBD
+		  named_middle_closing,
 		  selectors,
 		  parser->bracket_table );
 

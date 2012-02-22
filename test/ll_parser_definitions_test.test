@@ -43,3 +43,34 @@ parser test <+ hi there +> <+ hi [embedded] there +>
 parser test <+ hi there +> <+ hi [embedded] there +>
                            ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+======= TEST: lines 25-28:
+parser test this is a paragraph +:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line 1
+^^^^^^^^^^
+    line 2a; line 2b
+^^^^^^^^^^^^^^^^^^^^
+    last line
+^^^^^^^^^^^^^
+------- lines 25-28:
+parser test this is a paragraph +:
+                                 ^
+    line 1
+^^^^^^^^^^
+    line 2a; line 2b
+^^^^^^^^^^^^^^^^^^^^
+    last line
+^^^^^^^^^^^^^
+------- line 26:
+    line 1
+    ^^^^^^
+------- line 27:
+    line 2a; line 2b
+    ^^^^^^^^
+------- line 27:
+    line 2a; line 2b
+             ^^^^^^^
+------- line 28:
+    last line
+    ^^^^^^^^^
+======= END TEST

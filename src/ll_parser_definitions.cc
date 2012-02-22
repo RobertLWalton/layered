@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 21 19:02:20 EST 2012
+// Date:	Wed Feb 22 10:06:52 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -716,6 +716,13 @@ min::gen PAR::parser_execute_definition
 	TAB::selectors selectors;
         min::gen sresult = PAR::scan_selectors
 		( vp, i, selectors, parser );
+	if ( sresult == min::ERROR() )
+	    return min::ERROR();
+	else if ( sresult == min::MISSING() )
+	    return ::expected_error
+		( parser->printer,
+		  ppvec->file, ppvec[i-1],
+		  "selectors" );
 
 	switch ( type )
 	{

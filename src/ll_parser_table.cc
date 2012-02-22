@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 07:58:07 EST 2012
+// Date:	Wed Feb 22 10:59:00 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -400,6 +400,7 @@ void TAB::push_named_brackets
 	  min::NULL_STUB );
 
     label_ref(named_opening) = named_opening_label;
+    named_opening->selectors = selectors;
     named_separator_ref(named_opening) =
         named_separator;
     named_middle_ref(named_opening) =
@@ -408,23 +409,22 @@ void TAB::push_named_brackets
         named_closing;
     named_middle_closing_ref(named_opening) =
         named_middle_closing;
-    named_opening->selectors = selectors;
     TAB::push ( bracket_table,
                 (TAB::root) named_opening );
 
     label_ref(named_closing) = named_closing_label;
+    named_closing->selectors = selectors;
     named_opening_ref(named_closing) =
         named_opening;
-    named_closing->selectors = selectors;
     TAB::push ( bracket_table,
                 (TAB::root) named_closing );
 
     if ( named_separator_label != min::MISSING() )
     {
 	label_ref(named_separator) = named_separator_label;
+	named_separator->selectors = selectors;
 	named_opening_ref(named_separator) =
 	    named_opening;
-	named_separator->selectors = selectors;
 	TAB::push ( bracket_table,
 		    (TAB::root) named_separator );
     }
@@ -432,9 +432,9 @@ void TAB::push_named_brackets
     if ( named_middle_label != min::MISSING() )
     {
 	label_ref(named_middle) = named_middle_label;
+	named_middle->selectors = selectors;
 	named_opening_ref(named_middle) =
 	    named_opening;
-	named_middle->selectors = selectors;
 	TAB::push ( bracket_table,
 		    (TAB::root) named_middle );
     }
@@ -443,9 +443,9 @@ void TAB::push_named_brackets
     {
 	label_ref(named_middle_closing) =
 	    named_middle_closing_label;
+	named_middle_closing->selectors = selectors;
 	named_opening_ref(named_middle_closing) =
 	    named_opening;
-	named_middle_closing->selectors = selectors;
 	TAB::push ( bracket_table,
 		    (TAB::root) named_middle_closing );
     }

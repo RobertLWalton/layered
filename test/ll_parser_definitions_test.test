@@ -118,3 +118,20 @@ parser test this is a paragraph +:
     last line
     ^^^^^^^^^
 ======= END TEST
+======= TEST: line 39:
+parser test  <X| hi there |X>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 39:
+parser test  <X| hi there |X>
+             ^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: line 40:
+parser test  <foo bar| hi <p> there |>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 40:
+parser test  <foo bar| hi <p> there |>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 40:
+parser test  <foo bar| hi <p> there |>
+                          ^^^
+======= END TEST

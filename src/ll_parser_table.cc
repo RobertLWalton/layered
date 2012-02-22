@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 21 02:08:15 EST 2012
+// Date:	Wed Feb 22 07:58:07 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -540,6 +540,7 @@ void TAB::push_indentation_mark
 	    separator
 	    ( ::indentation_separator_type.new_stub() );
 	label_ref(separator) = separator_label;
+	separator->selectors = selectors;
 	indentation_mark_ref(separator) = imark;
 	indentation_separator_ref(imark) = separator;
 	TAB::push ( bracket_table,

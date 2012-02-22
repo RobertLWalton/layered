@@ -111,18 +111,48 @@ Ditto with split =:
    Fourth line.
 ^^^^^^^^^^^^^^^
 EXPRESSION: SHORT_OBJ: line 32:
+   Fifth line.
+   ^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 33:
+   Sixth line A; Sixth line B
+   ^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 33:
+   Sixth line A; Sixth line B
+                 ^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 34:
+   Seventh line.
+   ^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: lines 31-34:
+Ditto with separator:
+                    ^
+   Fifth line.
+^^^^^^^^^^^^^^
+   Sixth line A; Sixth line B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   Seventh line.
+^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: lines 31-34:
+Ditto with separator:
+^^^^^^^^^^^^^^^^^^^^^
+   Fifth line.
+^^^^^^^^^^^^^^
+   Sixth line A; Sixth line B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   Seventh line.
+^^^^^^^^^^^^^^^^
+EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
-EXPRESSION: SHORT_OBJ: line 32:
+EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: line 32:
+EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^
-EXPRESSION: SHORT_OBJ: line 32:
+EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                         ^^^^^^^^^^^^^^^^^
-EXPRESSION: SHORT_OBJ: lines 31-32:
+EXPRESSION: SHORT_OBJ: lines 35-36:
 This tests selector changes: <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      { <+ x +> <- y ->} `<+ x +> <- y ->'

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 11:40:55 EST 2012
+// Date:	Wed Feb 22 09:54:49 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1788,20 +1788,20 @@ static bool parse_explicit_subexpression
 
 	indentation_found = min::NULL_STUB;
 
-	// Process tokens that are not separators or
-	// marks.
+	// Process tokens that are not separators,
+	// marks, or words.
 	//
 	if ( current->type != LEXSTD::separator_t
 	     &&
-	     current->type != LEXSTD::mark_t )
+	     current->type != LEXSTD::mark_t
+	     &&
+	     current->type != LEXSTD::word_t )
 	{
 	    split_backup = min::NULL_STUB;
 
 	    if ( named_opening != min::NULL_STUB
 	         &&
 		 !  is_named_opening_bracket
-		 &&
-		 current->type != LEXSTD::word_t
 		 &&
 		    current->type
 		 != LEXSTD::natural_number_t )
@@ -1837,8 +1837,8 @@ static bool parse_explicit_subexpression
 	    continue;
 	}
 
-	// If mark or separator, lookup in bracket
-	// table.
+	// If mark, separator, or word, lookup in
+	// bracket table.
 	//
 	PAR::token saved_current = current;
 	PAR::token saved_split_backup = split_backup;

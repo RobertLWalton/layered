@@ -43,7 +43,20 @@ parser test <+ hi there +> <+ hi [embedded] there +>
 parser test <+ hi there +> <+ hi [embedded] there +>
                            ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-======= TEST: lines 25-28:
+======= TEST: line 27:
+parser test [ a [ b c ] c ] [X a [ b c ] d X]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 27:
+parser test [ a [ b c ] c ] [X a [ b c ] d X]
+            ^^^^^^^^^^^^^^^
+------- line 27:
+parser test [ a [ b c ] c ] [X a [ b c ] d X]
+                ^^^^^^^
+------- line 27:
+parser test [ a [ b c ] c ] [X a [ b c ] d X]
+                            ^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: lines 28-31:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     line 1
@@ -52,7 +65,7 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- lines 25-28:
+------- lines 28-31:
 parser test this is a paragraph +:
                                  ^
     line 1
@@ -61,20 +74,20 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- line 26:
+------- line 29:
     line 1
     ^^^^^^
-------- line 27:
+------- line 30:
     line 2a:: line 2b; line 2c
     ^^^^^^^^^^^^^^^^^^
-------- line 27:
+------- line 30:
     line 2a:: line 2b; line 2c
                        ^^^^^^^
-------- line 28:
+------- line 31:
     last line
     ^^^^^^^^^
 ======= END TEST
-======= TEST: lines 30-33:
+======= TEST: lines 33-36:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     line 1
@@ -83,7 +96,7 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- lines 30-33:
+------- lines 33-36:
 parser test this is a paragraph +:
                                 ^^
     line 1
@@ -92,16 +105,16 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- line 31:
+------- line 34:
     line 1
     ^^^^^^
-------- line 32:
+------- line 35:
     line 2a:: line 2b; line 2c
     ^^^^^^^^^
-------- line 32:
+------- line 35:
     line 2a:: line 2b; line 2c
               ^^^^^^^^^^^^^^^^
-------- line 33:
+------- line 36:
     last line
     ^^^^^^^^^
 ======= END TEST

@@ -29,5 +29,6 @@ int main ( int argc )
         ( PAR::default_parser,
 	    min::GRAPHIC_VSPACE_FLAG
 	  + min::GRAPHIC_NSPACE_FLAG );
+PAR::default_parser->trace |= PAR::TRACE_EXPLICIT_SUBEXPRESSIONS;
     PAR::parse();
 }

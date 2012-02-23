@@ -38,3 +38,6 @@ parser define named bracket
     "<" ... "#" ... "|" ... "|" ... ">" [code]
 parser test  <X| hi there |X>
 parser test  <foo bar| hi <p> there |>
+parser test  <X Y Z # 8| ho ho |X>
+parser test  <X Y Z # 8| ho ho |X Y Z # 8>
+parser test  <X Y Z : 8| ho ho |X Y Z : 8>

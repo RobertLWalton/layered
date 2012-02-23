@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 10:58:24 EST 2012
+// Date:	Wed Feb 22 23:20:04 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1361,6 +1361,10 @@ static bool parse_explicit_subexpression
 	// other token and after finding a token
 	// sequence in the bracket table.
 
+    bool trace =
+        (   parser->trace
+          & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS );
+
     while ( true )
     {
         // Truncate if end of file.
@@ -1867,6 +1871,17 @@ static bool parse_explicit_subexpression
 
 	    min::uns32 subtype =
 		min::packed_subtype_of ( root );
+
+	    if ( trace )
+	        parser->printer
+		    << "EXPLICIT SUBEXPRESSION PARSER"
+		       " FOUND KEY "
+		    << min::pgen ( root->label )
+		    << min::indent << " OF SUBTYPE "
+		    << min::name_of_packed_subtype
+		           ( min::packed_subtype_of
+			         ( root ) )
+		    << min::eol;
 
 	    if ( subtype == TAB::OPENING_BRACKET )
 	    {
@@ -2472,6 +2487,13 @@ static bool parse_explicit_subexpression
 		}
 
 	    }
+
+	    if ( trace )
+	        parser->printer
+		    << "EXPLICIT SUBEXPRESSION PARSER"
+		       " REJECTED KEY "
+		    << min::pgen ( root->label )
+		    << min::eol;
 
 	    root = PAR::find_next_entry
 	               ( parser, current, key_prefix,

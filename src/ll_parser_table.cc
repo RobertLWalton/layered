@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 10:59:00 EST 2012
+// Date:	Wed Feb 22 22:01:56 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -421,7 +421,8 @@ void TAB::push_named_brackets
 
     if ( named_separator_label != min::MISSING() )
     {
-	label_ref(named_separator) = named_separator_label;
+	label_ref(named_separator) =
+	    named_separator_label;
 	named_separator->selectors = selectors;
 	named_opening_ref(named_separator) =
 	    named_opening;

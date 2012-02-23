@@ -1,3 +1,5 @@
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `;'
+     OF SUBTYPE ll::parser::table::indentation_separator_type
 EXPRESSION: SHORT_OBJ: line 11:
 This is a line;
 ^^^^^^^^^^^^^^^
@@ -9,6 +11,10 @@ This is a line containing a large number
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      12345678901234567890.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `('
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `)'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 16:
      ( hi there ).
      ^^^^^^^^^^^^
@@ -17,15 +23,31 @@ This is a line containing a parenthesized subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      ( hi there ).
 ^^^^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `('
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY ``'
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `{'
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `}'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
                ^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `''
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
           ^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `['
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `]'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
                         ^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `)'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 18:
      (x + `y z {p q}' - [ g h ]).
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -34,6 +56,12 @@ This line contains subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + `y z {p q}' - [ g h ]).
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `('
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `{'
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `)'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: missing closing bracket `}' inserted before line 20:
      (x + { y z )
                 ^
@@ -48,6 +76,10 @@ This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + { y z )
 ^^^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `('
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `}'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: spurious closing bracket `}' found and ignored; line 22:
      (x + y }
             ^
@@ -70,6 +102,8 @@ This line includes
 ^^^^^^^^^^^^^^^^^^
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `:'
+     OF SUBTYPE ll::parser::table::indentation_mark_type
 EXPRESSION: SHORT_OBJ: line 26:
    First line.
    ^^^^^^^^^^^
@@ -90,6 +124,8 @@ This line starts in indented paragraph:
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `:'
+     OF SUBTYPE ll::parser::table::indentation_mark_type
 EXPRESSION: SHORT_OBJ: line 29:
    Third line.
    ^^^^^^^^^^^
@@ -110,9 +146,16 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `:'
+     OF SUBTYPE ll::parser::table::indentation_mark_type
 EXPRESSION: SHORT_OBJ: line 32:
    Fifth line.
    ^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `;'
+     OF SUBTYPE ll::parser::table::indentation_separator_type
+EXPLICIT SUBEXPRESSION PARSER REJECTED KEY `;'
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `;'
+     OF SUBTYPE ll::parser::table::indentation_separator_type
 EXPRESSION: SHORT_OBJ: line 33:
    Sixth line A; Sixth line B
    ^^^^^^^^^^^^^
@@ -140,15 +183,34 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    Seventh line.
 ^^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `:'
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+EXPLICIT SUBEXPRESSION PARSER REJECTED KEY `:'
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `{'
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `<+'
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `+>'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `}'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY ``'
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `<-'
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `->'
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^
+EXPLICIT SUBEXPRESSION PARSER FOUND KEY `''
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 EXPRESSION: SHORT_OBJ: line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                         ^^^^^^^^^^^^^^^^^

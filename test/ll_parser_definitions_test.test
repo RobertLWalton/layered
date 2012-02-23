@@ -135,3 +135,57 @@ parser test  <foo bar| hi <p> there |>
 parser test  <foo bar| hi <p> there |>
                           ^^^
 ======= END TEST
+======= TEST: line 41:
+parser test  <X Y Z # 8| ho ho |X>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 41:
+parser test  <X Y Z # 8| ho ho |X>
+             ^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+ERROR: missing named closing bracket `|>' inserted; line 42:
+parser test  <X Y Z # 8| ho ho |X Y Z # 8>
+                                          ^
+======= TEST: line 42:
+parser test  <X Y Z # 8| ho ho |X Y Z # 8>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 42:
+parser test  <X Y Z # 8| ho ho |X Y Z # 8>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+ERROR: missing named closing bracket `|>' inserted; line 43:
+parser test  <X Y Z : 8| ho ho |X Y Z : 8>
+                                          ^
+======= TEST: line 43:
+parser test  <X Y Z : 8| ho ho |X Y Z : 8>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 43:
+parser test  <X Y Z : 8| ho ho |X Y Z : 8>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: line 44:
+parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 44:
+parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: line 45:
+parser test  <X Y Z (foo, bar)| ho ho |X Y>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 45:
+parser test  <X Y Z (foo, bar)| ho ho |X Y>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+ERROR: missing named closing bracket `|>' inserted; line 46:
+parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
+                                                        ^
+======= TEST: line 46:
+parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 46:
+parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 46:
+parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
+                                             ^^^^^^^^^^
+======= END TEST

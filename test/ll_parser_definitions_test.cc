@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 19 11:47:06 EST 2012
+// Date:	Thu Feb 23 09:45:09 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,5 @@ int main ( int argc )
         ( PAR::default_parser,
 	    min::GRAPHIC_VSPACE_FLAG
 	  + min::GRAPHIC_NSPACE_FLAG );
-PAR::default_parser->trace |= PAR::TRACE_EXPLICIT_SUBEXPRESSIONS;
     PAR::parse();
 }

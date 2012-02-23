@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 23:20:04 EST 2012
+// Date:	Thu Feb 23 09:25:00 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2420,8 +2420,13 @@ static bool parse_explicit_subexpression
 				        cp->value
 				     != op->value
 				     ||
-				        cp->value
-				     == min::MISSING()
+				     ( cp->type
+				       !=
+				       LEXSTD::word_t
+				       &&
+				       cp->type
+				       !=
+				       LEXSTD::number_t )
 				   )
 				{
 				    name_match = false;

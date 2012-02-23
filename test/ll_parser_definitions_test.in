@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 09:57:33 EST 2012
+// Date:	Thu Feb 23 09:45:28 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -41,3 +41,6 @@ parser test  <foo bar| hi <p> there |>
 parser test  <X Y Z # 8| ho ho |X>
 parser test  <X Y Z # 8| ho ho |X Y Z # 8>
 parser test  <X Y Z : 8| ho ho |X Y Z : 8>
+parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
+parser test  <X Y Z (foo, bar)| ho ho |X Y>
+parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>

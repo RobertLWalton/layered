@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 9, 2011
+March 1, 2012
  
 \end{center}
 
@@ -378,7 +378,7 @@ and mantissas for various floating point number sizes is as follows:
 \end{tabular}
 \end{center}
 
-An \key{address} (a.k.a. a `\key{pointer}') holds a RAM byte address.
+An \key{address} (one kind of `\key{pointer}') holds a RAM byte address.
 A address is a 32-bit or 64-bit unsigned integer whose size
 is determined by the target machine.  Some of high order bits may be
 required to be all 0's or all 1's, depending upon
@@ -400,7 +400,12 @@ the hardware ignores them when using the output to address memory.
 For example, if the hardware ignores the high order 20 bits, and uses only the
 low order 44 bits,
 this function would just copy its input 64-bit integer to its output
-if $L\geq 44$ and $S=0$.
+if $L\geq 44$ and $S=0$.\footnote{The I86 64-bit architecture only
+uses the low order 48 bits of an address, but \underline{requires}
+the high order 17 bits to all be the same, either all 1's or all 0's.
+However, as it is unlikely that there will ever be an allocated memory region
+that includes address 0 in its interior, it makes no significant difference
+whether we consider addresses to be unsigned or signed.}
 
 Variables can be declared to be of non-address numeric type
 by declarations of the form
@@ -475,9 +480,10 @@ are equivalent to
 
 so that `{\tt ip = \& i}' is a legal assignment.  The compiler arranges
 for appropriate stack addresses to be computed.  `{\tt \& i}' and
-`{\tt \& ip}' are `{\tt constant}', and so cannot be changed, and also
-`{\tt stack}', meaning that they have a lifetime only as long as the
-current stack frame.
+`{\tt \& ip}' are both `{\tt constant}' and `{\tt stack}',
+meaning respectively that they cannot be changed and that
+they have a lifetime guaranteed to last
+only as long as the current stack frame.
 
 Note that if `{\tt stack adr ip}' were changed to
 `{\tt adr ip}' the assignment `{\tt ip = \& i}' would no longer be
@@ -517,7 +523,7 @@ float64 getx ( indexint i ) = x[i];
 Here `{\tt x[i]}' will expand to code containing an implicit
 conversion of {\tt i} from {\tt indexint} to {\tt int}
 and also a check that {\tt i} is in the proper range to be
-in index of {\tt x}, so the code expansion will contain:
+in index of {\tt x}, so the code expansion will effectively contain:
 \begin{indpar}\begin{verbatim}
     fact ( 0 <= i && i < max_index );
     assert ( 0 <= i && i < max_index );
@@ -533,46 +539,45 @@ an address, under the assumption that low addresses are not
 used by the memory system.  A example of subtypes implementing
 this is:
 \begin{indpar}\begin{verbatim}
-defsubtype special unsadr;
-
-inline special .conversion. ( unsadr x ) unchecked:
-    assert ( x < 4096 );
-    return x;
-
-inline unsadr .conversion. ( special x ) unchecked:
-    fact ( x < 4096 );
-    return x;
-
-
 defsubtype specialadr adr;
+    // A specialadr is either an adr or an int in the
+    // range [0,4096).
 
-inline bool is_special ( specialadr a ) unchecked:
+inline bool is_int ( specialadr a ) unchecked:
     unsadr x = a;
     return x < 4096;
+
+inline bool is_adr ( specialadr a ) unchecked:
+    unsadr x = a;
+    return x >= 4096;
 
 inline adr .conversion. ( specialadr a ) unchecked:
     unsadr x = a;
     assert ( x >= 4096 );
     return a;
 
-inline special .conversion. ( specialadr a ) unchecked:
+inline int .conversion. ( specialadr a ) unchecked:
     unsadr x = a;
     assert ( x < 4096 );
     return x;
 
+inline specialadr .conversion. ( int x ) unchecked:
+    unsadr x = a;
+    assert ( 0 <= x && x < 4096 );
+    return a;
+
 inline specialadr .conversion. ( adr a ) unchecked:
     unsadr x = a;
     assert ( x >= 4096 );
-    return a;
-
-inline specialadr .conversion. ( special a ) unchecked:
+        // We could omit this assert if we knew that
+        // every adr was >= 4096.
     return a;
 
 float64 x;
 stack specialadr y = & x -> float64;
 stack specialadr z = 23;
-assert ( ! is_special ( y ) );
-assert ( is_special ( z ) );
+assert ( ! is_int ( y ) );
+assert ( is_int ( z ) );
 float64 x2 = * y;
 float64 z2 = * z;  // Causes assert violation error!
 \end{verbatim}\end{indpar}
@@ -743,8 +748,7 @@ that has the above type.
 Using {\tt =} to assign a signed integer to a displacement
 variable is an unchecked operation that can be used only
 in unchecked code, that is, in code
-that permitted to avoid normal type checking
-rules.
+to which normal type checking rules do not apply.
 
 The type of the expression `{\tt x.member1}' is
 \begin{center}

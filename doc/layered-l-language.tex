@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 1, 2012
+March 4, 2012
  
 \end{center}
 
@@ -867,68 +867,114 @@ Code RAM blocks may be static, stack, or heap blocks.
 \label{POINTER-TYPES}
 
 The standard pointer type is {\tt adr}, which denotes an address.
-But additional pointer types may be defined by
-\begin{center}
-\ttkey{defptr} {\em type-name} {\tt (} {\em length}{\tt ,}
-				       {\em alignment}{\tt ,}
-				       {\em offset}
-				       {\tt )} {\tt ;}
-\end{center}
-
-This works just like {\tt deftype} but additionally declares
-the defined type to be a pointer type.  As such it can be used
-with that same syntax as `{\tt adr}' with the operators
-`{\tt *}' and `{\tt \&}'.  An example is:
-
-\begin{indpar}\begin{verbatim}
-defptr ptr ( 64, 64, 0 );
-void function1 ( ptr x -> int32, ptr -> mystruct y );
-\end{verbatim}\end{indpar}
-
-Here the first argument to {\tt function1},
-{\tt x}, is a \verb|ptr| type pointer to an {\tt int32} value,
-and the second argument is similarly a \verb|ptr| type pointer
-to a {\tt mystruct} value designated by {\tt y}.
+But any type can be used as a pointer type in variable declarations.
 
 The operators `{\tt *}' and `{\tt \&}' are automatically
 defined for pointer types and merely change these types by
 moving the value position within the type.  Thus
 \begin{center}
 \begin{tabular}{lllll}
-\tt *  & converts type & {\em pointer-type} {\tt V ->} {\em data-type}
-       & to            & {\em pointer-type} {\tt ->} {\em data-type} {\tt V} \\
-\tt \& & converts type & {\em pointer-type} {\tt ->} {\em data-type} {\tt V}
-       & to            & {\em pointer-type} {\tt V ->} {\em data-type} \\
-
+\tt *  & converts type & {\em type1} {\tt V ->} {\em type2}
+       & to            & {\em type1} {\tt ->} {\em type2} {\tt V} \\
+\tt \& & converts type & {\em type1} {\tt ->} {\em type2} {\tt V}
+       & to            & {\em type1} {\tt V ->} {\em type2} \\
 \end{tabular}
 \end{center}
 
-Conversion functions can be defined between pointer types.
-Suppose `{\tt ptr}' is an indirect address, that is,
-the address of the
-real adrress of the variable pointed at, and suppose the variable
-is statically allocated.  This could be implemented
-by the code:
+Whether something is a legitimate pointer type depends upon whether
+it may be used to read or write values.  Reading is done by the
+implicitly invoked `{\tt .get.}' function, and writing by the
+implicitly invoked `{\tt .set.}' function.
+
+For example:
 
 \begin{indpar}\begin{verbatim}
-defsubtype ptr adr;
+int8 x -> float64 y;
+float64 z = y;    // Translates to .set.(&z,.get.(.get.(&x))).
+                  // or to simplify z = .get.(x)
+                  // .get.(x) is probably undefined
+y = z;            // Translates to .set.(.get(&x),.get.(&z))
+                  // or to simplify .set.(x,z)
+                  // .set.(x,...) is probably undefined
+\end{verbatim}\end{indpar}
 
-inline static adr .conversion. ( ptr p ) unchecked:
-    adr p2 = p -> static adr; return * p2;
-inline ptr .conversion. ( adr p -> static adr ) unchecked:
+In general, if {\tt x} has type `$T1${\tt ->}$T1$ {\tt x}{\tt ->}$T3$'
+then `{\tt x = ...}' translates to `{\tt .set.(\&x,...)}' and
+`{\tt ... = ... x ...}' translates to `{\tt ... = ... .get.(\&x) ...}',
+but we simplify by writing the untranslated versions in these cases.
+
+The {\tt .get.} and {\tt .set.} functions are likely to be
+undefined for {\tt int8} pointers.  But in special cases
+it may be convenient to define them.  For example, if
+{\tt int8} values are used as file descriptors to reference
+open files, one might have:
+
+\begin{indpar}\begin{verbatim}
+deftype open file (...);
+open file .get. ( int8 -> open file );
+
+int8 V -> open file open ( ... );
+
+int8 x -> open file;
+x = open ( ... );
+open file z = * x;  // Translates to z = .get.(x)
+\end{verbatim}\end{indpar}
+
+Although this is technically correct, it does not make much sense
+for an `{\tt open file}' to be passed directly as a value.  Rather
+its address should be passed.  So if {\tt int8} values are to be
+used as file descriptors, they should be convertable to {\tt adr}
+values, as in the following much improved example:
+
+\begin{indpar}\begin{verbatim}
+deftype open file (...);
+adr V -> open file .convert. ( int8 V -> open file );
+unchecked:
+    disp state = 0 -> uns16 @ open file;
+    . . . . .
+
+int8 V -> open file open ( ... );
+    // Declares function that opens a file.
+
+int8 x -> open file;
+x = open ( ... );
+uns16 y = x.state;    // Translates to
+                       // y = .get.((.convert.(x)).state))
+\end{verbatim}\end{indpar}
+
+Here the implicit~{\tt .convert.}~function is invoked automatically because
+$X${\tt .state} is only defined if $X$ has type `{\tt adr -> open file}'.
+Also, conversions of pointer values only affect the pointer part of a type,
+so if {\tt x} has type `{\tt int8 ->}~$T$' then {\tt .convert.(x)} has type
+`{\tt adr ->}~$T$' for any $T$.
+
+We end this section with a more refined example.
+Suppose `{\tt ptr}' is an indirect address, that is,
+the address of the
+real address of the variable pointed at.  Further suppose
+the real address has the user defined `{\tt relocatable}'
+lifetime qualifier, as described in
+Section~\secref{LIFETIME-QUALIFIERS}, and the
+location where the real address is stored as `{\tt static}'
+lifetime qualifier.
+This could all be implemented by the code:
+
+\begin{indpar}[0.2in]\begin{verbatim}
+defsubtype ptr unsadr;
+
+inline relocatable adr .convert. ( ptr p ) unchecked:
+    adr p2 = p -> relocatable adr; return * p2;
+inline ptr .convert. ( static adr p -> relocatable adr ) unchecked:
     return p;
 
-static adr -> uns32 x allocate_uns32();
-    // Declaration of function that returns a new statically
-    // allocated variable.
-static adr xp = & allocate_uns32() -> uns32;
-    // xp has type stack adr -> static adr xp -> uns32.
-ptr p = & xp -> uns32;
-    // Implied conversion of stack adr V -> static adr -> uns32
-    // to stack ptr p -> uns32.
-uns32 y = * p;
-    // Implied conversion of stack ptr -> uns32 V to
-    // static adr -> uns32 V.
+void allocate ( adr V -> ptr -> uns32 );
+    // Makes ptr point at uns32 value.
+
+relocatable adr stub -> uns32;
+
+ptr p = & stub -> uns32;  // Translates to p = .convert.(&stub)
+* p = 5;                  // Translates to .set(.convert.(p),5)
+uns32 y = * p;            // Translates to y = .get.(.convert.(p))
 \end{verbatim}\end{indpar}
 
 \subsection{Tuples}

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 23 09:25:00 EST 2012
+// Date:	Mon Mar 12 20:27:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,7 +115,7 @@ PAR::string PAR::new_string
     min::locatable_var<PAR::string_insptr> str
         ( (PAR::string_insptr) ::free_strings );
 
-    if ( str == min::NULL_STUB )
+    if ( str == NULL_STUB )
     {
         min::uns32 m = n;
 	if ( m < ::min_string_length )
@@ -130,7 +130,7 @@ PAR::string PAR::new_string
 	    min::resize ( str, n );
 	min::pop ( str, str->length );
     }
-    next_ref(str) = min::NULL_STUB;
+    next_ref(str) = NULL_STUB;
     min::push ( str, n, s );
     return (PAR::string) str;
 }
@@ -146,7 +146,7 @@ PAR::string PAR::free_string ( PAR::string string )
 	 >= ::max_string_free_list_size )
     {
         min::deallocate ( string );
-	return min::NULL_STUB;
+	return NULL_STUB;
     }
 
     PAR::string_insptr str =
@@ -154,7 +154,7 @@ PAR::string PAR::free_string ( PAR::string string )
     next_ref(str) = ::free_strings;
     ::free_strings = str;
     ++ ::number_free_strings;
-    return min::NULL_STUB;
+    return NULL_STUB;
 }
 
 void PAR::set_max_string_free_list_size ( int n )
@@ -209,12 +209,12 @@ PAR::token PAR::new_token ( min::uns32 type )
 {
     min::locatable_var<PAR::token> token
         ( remove ( ::free_tokens ) );
-    if ( token == min::NULL_STUB )
+    if ( token == NULL_STUB )
         token = ::token_type.new_stub();
     else
         -- ::number_free_tokens;
     value_ref(token) = min::MISSING();
-    string_ref(token) = min::NULL_STUB;
+    string_ref(token) = NULL_STUB;
     token->type = type;
     return token;
 }
@@ -523,6 +523,11 @@ static void compact
 	  min::gen arguments = min::MISSING(),
 	  min::gen keys = min::MISSING() )
 {
+    for ( PAR::pass pass = parser->pass_stack;
+    	  pass != min::NULL_STUB;
+	  pass = pass->next )
+        (* pass->run ) ( parser, pass, first, next );
+            
     // Temporary min::gen locatable.
     //
     min::locatable_gen exp;
@@ -2553,6 +2558,17 @@ void PAR::parse ( PAR::parser parser )
     if ( parser->input->init != NULL)
 	( * parser->input->init )
 	    ( parser, parser->input );
+    if (    parser->output != NULL_STUB
+         && parser->output->init != NULL)
+	( * parser->input->init )
+	    ( parser, parser->input );
+    for ( PAR::pass pass = parser->pass_stack;
+    	  pass != min::NULL_STUB;
+	  pass = pass->next )
+    {
+	if ( pass->init != NULL )
+	    ( * pass->init ) ( parser, pass );
+    }
 
     // True if last lexeme was a line break, so an end-
     // of-file is OK.
@@ -2641,7 +2657,7 @@ void PAR::parse ( PAR::parser parser )
 	//
 	PAR::token previous =
 	    current == parser->first ?
-	    (PAR::token) min::NULL_STUB :
+	    (PAR::token) NULL_STUB :
 	    current->previous;
 
 	bool separator_found =
@@ -2652,7 +2668,7 @@ void PAR::parse ( PAR::parser parser )
 		  parser->selectors );
 
 	PAR::token first =
-	    previous == min::NULL_STUB ?
+	    previous == NULL_STUB ?
 	    parser->first :
 	    previous->next;
 
@@ -2889,7 +2905,7 @@ min::gen PAR::scan_name_string_label
 
     ++ i;
 
-    if ( parser->name_scanner == min::NULL_STUB )
+    if ( parser->name_scanner == NULL_STUB )
     {
          LEX::init_program
 	     ( name_scanner_ref ( parser ),

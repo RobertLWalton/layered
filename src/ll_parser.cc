@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 12 20:27:07 EDT 2012
+// Date:	Sun Mar 18 09:25:14 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2761,7 +2761,8 @@ void PAR::parse ( PAR::parser parser )
 TAB::key_prefix PAR::find_key_prefix
 	( PAR::parser parser,
 	  PAR::token & current,
-	  TAB::table table )
+	  TAB::table table,
+	  PAR::token next )
 {
     uns32 phash = min::labhash_initial;
     uns32 table_len = table->length;
@@ -2770,7 +2771,9 @@ TAB::key_prefix PAR::find_key_prefix
     TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
-        if ( current->value == min::MISSING() )
+	if ( current == next
+	     ||
+             current->value == min::MISSING() )
 	    break;
 
 	min::gen e = current->value;
@@ -2826,10 +2829,12 @@ TAB::root PAR::find_entry
 	  PAR::token & current,
 	  TAB::key_prefix & key_prefix,
 	  TAB::selectors selectors,
-	  TAB::table table )
+	  TAB::table table,
+	  PAR::token next )
 {
-    for ( key_prefix = find_key_prefix
-	                   ( parser, current, table );
+    for ( key_prefix =
+	      find_key_prefix
+		  ( parser, current, table, next );
           key_prefix != NULL_STUB;
 	  key_prefix = key_prefix->previous,
 	  current = current->previous )

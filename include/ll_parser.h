@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 18 09:46:57 EDT 2012
+// Date:	Sun Mar 18 15:19:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -439,10 +439,10 @@ struct pass_struct
     //
     bool (*run) ( ll::parser::parser parser,
                   ll::parser::pass pass,
-    		  ll::parser::token & first,
-		  ll::parser::token next,
 		  ll::parser::table::selectors
-		      selectors );
+		      selectors,
+    		  ll::parser::token & first,
+		  ll::parser::token next );
 
     // Function to initialize pass closure.  Called if
     // not NULL when the parser is initialized.
@@ -477,6 +477,7 @@ void init
 	  bool (*run)
 	      ( ll::parser::parser parser,
 	        ll::parser::pass pass,
+	        ll::parser::table::selectors selectors,
 		ll::parser::token & first,
 		ll::parser::token end ),
 	  void (*init)

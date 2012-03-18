@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 18 09:25:14 EDT 2012
+// Date:	Sun Mar 18 15:10:53 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -293,6 +293,7 @@ void PAR::init
 	( min::ref<PAR::pass> pass,
 	  bool (*run)
 	      ( PAR::parser parser, PAR::pass pass,
+	        TAB::selectors selectors,
 	        PAR::token & first, PAR::token end ),
 	  void (*init)
 	      ( PAR::parser parser, PAR::pass pass ) )
@@ -514,6 +515,7 @@ static void convert_token ( PAR::token token )
 //
 static void compact
 	( PAR::parser parser,
+	  TAB::selectors selectors,
 	  PAR::token first, PAR::token next,
 	  min::phrase_position position,
 	  min::gen initiator = min::MISSING(),
@@ -526,7 +528,8 @@ static void compact
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;
 	  pass = pass->next )
-        (* pass->run ) ( parser, pass, first, next );
+        (* pass->run ) ( parser, pass,
+	                 selectors, first, next );
             
     // Temporary min::gen locatable.
     //
@@ -1676,7 +1679,8 @@ static bool parse_explicit_subexpression
 			    }
 
 			    ::compact
-			        ( parser, first, next,
+			        ( parser, selectors,
+				  first, next,
 				  position,
 				  min::MISSING(),
 				  terminator );
@@ -1723,7 +1727,8 @@ static bool parse_explicit_subexpression
 			  indentation_found->label );
 		position.end = next->previous
 		                   ->position.end;
-		::compact ( parser, first, next,
+		::compact ( parser, selectors,
+		            first, next,
 			    position,
 			    indentation_found->label );
 
@@ -1977,7 +1982,8 @@ static bool parse_explicit_subexpression
 			    ( parser, first,
 			      opening_bracket->label );
 		    ::compact
-			( parser, first, next, position,
+			( parser, selectors,
+			  first, next, position,
 			  opening_bracket->label,
 			  opening_bracket->
 			      closing_bracket->
@@ -2019,7 +2025,8 @@ static bool parse_explicit_subexpression
 			::remove
 			    ( parser, first,
 			      opening_bracket->label );
-		    ::compact ( parser, first, current,
+		    ::compact ( parser, selectors,
+		                first, current,
 				position,
 				opening_bracket->label,
 				opening_bracket->
@@ -2257,7 +2264,7 @@ static bool parse_explicit_subexpression
 			      cstack.opening_first,
 			      named_opening->label );
 		    ::compact
-		        ( parser,
+		        ( parser, selectors,
 			  middle_last->next,
 			  current,
 			  position,
@@ -2702,7 +2709,8 @@ void PAR::parse ( PAR::parser parser )
 	        ( g == PAR::parser_lexeme );
 
 	    ::compact
-		( parser, first, current,
+		( parser, parser->selectors,
+		  first, current,
 		  position, min::MISSING(),
 		  terminator );
 

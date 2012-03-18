@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 21 01:56:40 EST 2012
+// Date:	Sat Mar 17 20:38:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -630,6 +630,7 @@ void push_indentation_mark
 	  ll::parser::table::split_table split_table =
 	      NULL_STUB );
 	      // NULL_STUB iff not gluing
+
 } } }
 
 # endif // LL_PARSER_TABLE_H

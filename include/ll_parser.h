@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 18 09:14:00 EDT 2012
+// Date:	Sun Mar 18 09:46:57 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -426,7 +426,7 @@ struct pass_struct
     // Function to execute the pass.
     //
     // The pass is run on the subexpression whose
-    // first token is given.  The `end' token is the
+    // first token is given.  The `next' token is the
     // token immediately after the last token in the
     // subexpression.  The tokens within the subexpres-
     // sion may be edited, and `first' may be reset.
@@ -440,7 +440,9 @@ struct pass_struct
     bool (*run) ( ll::parser::parser parser,
                   ll::parser::pass pass,
     		  ll::parser::token & first,
-		  ll::parser::token end );
+		  ll::parser::token next,
+		  ll::parser::table::selectors
+		      selectors );
 
     // Function to initialize pass closure.  Called if
     // not NULL when the parser is initialized.

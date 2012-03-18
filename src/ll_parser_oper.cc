@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 18 05:31:34 EDT 2012
+// Date:	Sun Mar 18 09:45:51 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,7 @@ static min::packed_vec<oper_stack_struct>
 
 struct oper_pass_struct : public PAR::pass_struct
 {
+    const TAB::table oper_table;
     const ::oper_stack oper_stack;
 };
 
@@ -62,11 +63,13 @@ typedef min::packed_struct_updptr<oper_pass_stuct>
     oper_pass;
 
 MIN_REF ( PAR::pass, next, ::oper_pass );
+MIN_REF ( TAB::table, oper_table, ::oper_pass );
 MIN_REF ( ::oper_stack, oper_stack, ::oper_pass );
 
 static min::uns32 oper_pass_stub_disp[] =
 {
     min::DISP ( & ::oper_pass_struct::next ),
+    min::DISP ( & ::oper_pass_struct::oper_table ),
     min::DISP ( & ::oper_pass_struct::oper_stack ),
     min::DISP_END
 };
@@ -80,7 +83,8 @@ static min::packed_struct_with_base
 static oper_pass_run ( PAR::parser parser,
 		       PAR::pass pass,
 		       PAR::token & first,
-		       PAR::token end )
+		       PAR::token next,
+		       PAR::selectors selectors )
 {
     ::oper_pass oper_pass = pass;
     ::oper_stack oper_stack = oper_pass->oper_stack;
@@ -95,12 +99,27 @@ static oper_pass_run ( PAR::parser parser,
     //
     ::oper_stack_struct D;
     D.first = first;
+    D.precedence = 0;
+
+    bool operator_found = false;
 
     PAR::token current = first;
-    while ( current != end )
+    while ( current != next )
     {
+        TAB::key_prefix key_prefix;
+        TAB::root root = PAR::find_entry
+	    ( parser, current, key_prefix,
+	      selectors, oper_pass->oper_table,
+	      next );
+	if ( root == NULL_STUB )
+	{
+	    current = current->next;
+	    continue;
+	}
+	OPER::oper = (OPER::oper) root;
+	min::uns32 flags = oper->flags;
+
+
+	if ( ! operator_found )
     }
-
-
-
 }

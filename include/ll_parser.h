@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 11:08:06 EST 2012
+// Date:	Sun Mar 18 09:14:00 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -749,9 +749,11 @@ void parse ( ll::parser::parser parser =
 
 // Locate the key prefix in the hash table that
 // corresponds to the longest available string of tokens
-// beginning with `current'.  Tokens are added to the
-// token list as necessary.  Only tokens with a non-
-// MISSING token value are considered.  It is assumed
+// beginning with `current'.  If `next' is NULL_STUB,
+// tokens are added to the token list as necessary, but
+// otherwise only tokens before `next' are considered.
+// Only tokens with a non-MISSING token value are
+// considered.  If `next' is NULL_STUB, it is assumed
 // that the token list finally ends with an end-of-file
 // token, and this cannot be part of any hash table
 // entry (because its token value is MISSING).
@@ -764,13 +766,16 @@ void parse ( ll::parser::parser parser =
 ll::parser::table::key_prefix find_key_prefix
 	( ll::parser::parser parser,
 	  ll::parser::token & current,
-	  ll::parser::table::table table );
+	  ll::parser::table::table table,
+	  ll::parser::token next = NULL_STUB );
 
 // Locate the hash table entry in the hash table that
 // corresponds to the longest available string of tokens
-// beginning with `current'.  Tokens are added to the
-// token list as necessary.  Only tokens with a non-
-// MISSING token value are considered.  It is assumed
+// beginning with `current'.  If `next' is NULL_STUB,
+// tokens are added to the token list as necessary, but
+// otherwise only tokens before `next' are considered.
+// Only tokens with a non-MISSING token value are
+// considered.  If `next' is NULL_STUB, it is assumed
 // that the token list finally ends with an end-of-file
 // token, and this cannot be part of any hash table
 // entry (because its token value is MISSING).
@@ -792,7 +797,8 @@ ll::parser::table::root find_entry
 	  ll::parser::token & current,
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
-	  ll::parser::table::table table );
+	  ll::parser::table::table table,
+	  ll::parser::token next = NULL_STUB );
 
 // Locate the NEXT hash table entry in the hash table
 // after the last entry found by `find_entry' or a

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 16 10:49:49 EDT 2012
+// Date:	Sun Mar 18 05:31:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -82,4 +82,25 @@ static oper_pass_run ( PAR::parser parser,
 		       PAR::token & first,
 		       PAR::token end )
 {
+    ::oper_pass oper_pass = pass;
+    ::oper_stack oper_stack = oper_pass->oper_stack;
+
+    if ( oper_stack == min::NULL_STUB )
+        oper_stack = ::oper_stack_ref ( oper_pass ) =
+	    ::oper_stack_type.new_gen ( 100 );
+    else
+        min::pop ( oper_stack, oper_stack->length );
+
+    // Data that is pushed to oper_stack.
+    //
+    ::oper_stack_struct D;
+    D.first = first;
+
+    PAR::token current = first;
+    while ( current != end )
+    {
+    }
+
+
+
 }

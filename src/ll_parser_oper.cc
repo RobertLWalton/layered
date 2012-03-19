@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 18 09:45:51 EDT 2012
+// Date:	Mon Mar 19 06:17:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,9 +23,9 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
-# define OPER ll::parser::oper
+# define OP ll::parser::oper
 
-min::locatable_gen OPER::oper;
+min::locatable_gen OP::oper;
 
 static void initialize ( void )
 {
@@ -74,6 +74,21 @@ static min::uns32 oper_pass_stub_disp[] =
     min::DISP_END
 };
 
+// Return true iff the argument is a precedence in the
+// oper_stack.
+//
+inline bool check_precedence
+	( int precedence,
+	  OP::oper_stack oper_stack )
+{
+    for ( min::uns32 i = 0; i < oper_stack->lengt; ++ )
+    {
+        if ( oper_stack[i].precedence == precedence )
+	    return true;
+    }
+    return false;
+}
+
 static min::packed_struct_with_base
 	<oper_stack_struct,PAR::pass_struct>
     oper_pass_type
@@ -106,20 +121,52 @@ static oper_pass_run ( PAR::parser parser,
     PAR::token current = first;
     while ( current != next )
     {
-        TAB::key_prefix key_prefix;
-        TAB::root root = PAR::find_entry
+	PAR::token oper_first = current;
+
+	// Find non-AFIX operator.
+	//
+	TAB::key_prefix key_prefix;
+	TAB::root root = PAR::find_entry
 	    ( parser, current, key_prefix,
 	      selectors, oper_pass->oper_table,
 	      next );
-	if ( root == NULL_STUB )
+	OP::oper oper = (OP::oper) root;
+	TAB::root next_root = root;
+	while ( next_root != NULL_STUB
+		&&
+		( oper == NULL_STUB
+		  ||	     
+		  ( oper->flags & OP::AFIX
+		    &&
+		    ( ! operator_found
+		      ||
+		      check_precedence
+		          ( oper->precedence,
+			    oper_stack ) ) )
+		  ||	     
+		  ( oper->flags & OP::PREFIX
+		    &&
+		    oper_first != first ) ) ) )
+	{
+	    next_root = next_root->next;
+	    oper = (OP::oper) next_root;
+	    if ( next_root != NULL_STUB ) continue;
+	    root = PAR::find_next_entry
+		( parser, current, key_prefix,
+		      selectors, root );
+	    next_root = root;
+	    oper = (OP::oper) next_root;
+	}
+
+	if ( oper == NULL_STUB )
 	{
 	    current = current->next;
 	    continue;
 	}
-	OPER::oper = (OPER::oper) root;
-	min::uns32 flags = oper->flags;
 
-
-	if ( ! operator_found )
+	if ( oper_first == first )
+	{
+	    // Prefix or nofix operator required.
+	}
     }
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 17 20:30:59 EDT 2012
+// Date:	Tue Mar 20 04:22:19 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,8 @@ enum oper_flags
     NOFIX	= ( 1 << 3 ),
     AFIX	= ( 1 << 4 )
 };
+const min::int32 NO_PRECEDENCE = -1 << 31;
+    // Value less than any allowed precedence.
 struct oper_struct : public root_struct
 {
     // Packed_struct subtype is OPER.

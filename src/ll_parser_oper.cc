@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 19 06:17:50 EDT 2012
+// Date:	Tue Mar 20 04:22:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,10 @@ struct oper_stack_struct
     //
     min::int32 precedence;
     PAR::token first;
+    bool operator_required;
+        // True first token is a postfix operator
+	// terminated expression, so that the next
+	// thing in the input must be an operator.
 };
 
 typedef min::packed_vec_insptr<oper_stack_stuct>
@@ -81,7 +85,7 @@ inline bool check_precedence
 	( int precedence,
 	  OP::oper_stack oper_stack )
 {
-    for ( min::uns32 i = 0; i < oper_stack->lengt; ++ )
+    for ( min::uns32 i = 0; i < oper_stack->length; ++ )
     {
         if ( oper_stack[i].precedence == precedence )
 	    return true;
@@ -114,16 +118,26 @@ static oper_pass_run ( PAR::parser parser,
     //
     ::oper_stack_struct D;
     D.first = first;
-    D.precedence = 0;
-
-    bool operator_found = false;
+    D.precedence = OP::NO_PRECEDENCE;
+    D.operator_required = false;
 
     PAR::token current = first;
     while ( current != next )
     {
 	PAR::token oper_first = current;
 
-	// Find non-AFIX operator.
+	// Find operator if possible.
+	// * Unselected operator do not qualify.
+	// * AFIX operators only qualify if they have
+	//   a precedence matching a precedence in
+	//   oper_stack.
+	// * PREFIX operators qualify only if
+	//   oper_first == first.
+	// * INFIX and POSTFIX operators qualify only if
+	//   oper_first != first.
+	// After rejection operators deeper in the stack
+	// are tried, and then shorter operators are
+	// tried.
 	//
 	TAB::key_prefix key_prefix;
 	TAB::root root = PAR::find_entry
@@ -143,10 +157,15 @@ static oper_pass_run ( PAR::parser parser,
 		      check_precedence
 		          ( oper->precedence,
 			    oper_stack ) ) )
-		  ||	     
+		  ||
 		  ( oper->flags & OP::PREFIX
 		    &&
-		    oper_first != first ) ) ) )
+		    oper_first != first )
+		  ||
+		  ( oper->flags & (   OP::INFIX
+		                    | OP::POSTFIX )
+		    &&
+		    oper_first == first ) ) )
 	{
 	    next_root = next_root->next;
 	    oper = (OP::oper) next_root;
@@ -160,13 +179,30 @@ static oper_pass_run ( PAR::parser parser,
 
 	if ( oper == NULL_STUB )
 	{
+	    if ( D.oper_required )
+	    {
+	    }
+
 	    current = current->next;
 	    continue;
 	}
 
 	if ( oper_first == first )
 	{
-	    // Prefix or nofix operator required.
+	    // Prefix, nofix, or afix operator.
+	    //
+	    assert ( oper->flags & (   OP::PREFIX
+		                     | OP::NOFIX
+		                     | OP::AFIX ) );
+	}
+	else
+	{
+	    // Postfix, nofix, afix, or infix operator.
+	    //
+	    assert ( oper->flags & (   OP::POSTFIX
+		                     | OP::NOFIX
+		                     | OP::AFIX
+		                     | OP::INFIX ) );
 	}
     }
 }

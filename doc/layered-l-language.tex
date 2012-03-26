@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 4, 2012
+March 26, 2012
  
 \end{center}
 
@@ -275,7 +275,8 @@ The L-Language permits code to be computed by executing programs, and then
 compiled and run.  The computed code can be an entire function, or can
 be embedded within a function.
 
-A main reason for this is to support scientific computing in which
+A main reason for this is to support scientific and large data base
+computing in which
 code specific to a task must be computed and then optimized.
 
 \subsection{Data Declaration}
@@ -312,7 +313,7 @@ TBD
 
 \subsection{Numbers}
 
-\ikey{Numbers}{number} are a basic element of L-Language memory.
+\ikey{Numbers}{number} are the basic element of L-Language memory.
 Numbers are sequences of bits, and each number is one of
 four types, unsigned integer, signed integer, floating point number,
 and address:
@@ -400,8 +401,8 @@ the hardware ignores them when using the output to address memory.
 For example, if the hardware ignores the high order 20 bits, and uses only the
 low order 44 bits,
 this function would just copy its input 64-bit integer to its output
-if $L\geq 44$ and $S=0$.\footnote{The I86 64-bit architecture only
-uses the low order 48 bits of an address, but \underline{requires}
+if $L\geq 44$ and $S=0$.\footnote{The I86 64-bit architecture
+uses only the low order 48 bits of an address, but \underline{requires}
 the high order 17 bits to all be the same, either all 1's or all 0's.
 However, as it is unlikely that there will ever be an allocated memory region
 that includes address 0 in its interior, it makes no significant difference
@@ -410,24 +411,24 @@ whether we consider addresses to be unsigned or signed.}
 Variables can be declared to be of non-address numeric type
 by declarations of the form
 \begin{center}
-{\em type-name} {\em variable-name} {\tt ;}
+{\em type-name} {\em variable-name}
 \end{center}
 For example,
 \begin{indpar}\begin{verbatim}
-int32 i;
-uns128 u;
-float64 f;
+int32 i
+uns128 u
+float64 f
 \end{verbatim}\end{indpar}
 
 Variables can be declared to be of address type by declarations of the form
 \begin{center}
-{\tt adr} {\em variable-name} {\tt ->} {\em variable-declaration} {\tt ;}
+{\tt adr} {\em variable-name} {\tt ->} {\em variable-declaration}
 \end{center}
 For example,
 \begin{indpar}\begin{verbatim}
-adr ip1 -> int32;
-adr ip2 -> int32 i2;
-adr ipp3 -> adr ip3 -> int32 i3;
+adr ip1 -> int32
+adr ip2 -> int32 i2
+adr ipp3 -> adr ip3 -> int32 i3
 \end{verbatim}\end{indpar}
 declare variables {\tt ip1} and {\tt ip2} that store
 the address of an {\tt int32} variable, and a variable
@@ -450,8 +451,8 @@ an {\tt int32} variable.
 Some of the names in address type variable declarations may be omitted,
 as in
 \begin{indpar}\begin{verbatim}
-adr ip -> int32;
-adr    -> int32 i;
+adr ip -> int32
+adr    -> int32 i
 \end{verbatim}\end{indpar}
 
 In both these cases the value stored in the variable is the address
@@ -461,21 +462,21 @@ of `{\tt *}', so `{\tt * ip}' can be used to name the
 integer, and `{\tt \& i}' can be used to name the address.
 Either of these names can be used to assign values, as in
 \begin{indpar}\begin{verbatim}
-* ip = 5;
-& i = ip;
+* ip = 5
+& i = ip
 \end{verbatim}\end{indpar}
 
 Variable declarations are actually short forms for the declaration
 of constant addresses.  For example, the local variable declarations
 \begin{indpar}\begin{verbatim}
-int32 i;
-stack adr ip -> int32;
+int32 i
+stack adr ip -> int32
 \end{verbatim}\end{indpar}
 are equivalent to
 \begin{indpar}
-{\tt constant stack adr =} {\em some-stack-address} {\tt -> int32 i;} \\
+{\tt constant stack adr =} {\em some-stack-address} {\tt -> int32 i} \\
 {\tt constant stack adr =} {\em some-stack-address}
-                           {\tt -> stack adr ip -> int32;}
+                           {\tt -> stack adr ip -> int32}
 \end{indpar}
 
 so that `{\tt ip = \& i}' is a legal assignment.  The compiler arranges
@@ -500,33 +501,34 @@ functions.
 
 One use of a subtype is to make a promise that a value
 is in a given range.  The following is an example of a subtype
-that has the range {\tt 0 .. max\_index-1}:
+that has the range {\tt 0 .. max index-1}:
 
 \begin{indpar}\begin{verbatim}
-defsubtype indexint int;
+defsubtype indexint int32
 
-extern int max_index;
+external:
+    constant int32 max index
 
-inline indexint .conversion. ( int i ) unchecked:
-    assert ( 0 <= i && i < max_index );
-    return i;
+inline indexint .conversion. ( int32 i ) unchecked:
+    assert ( 0 <= i && i < max index )
+    return i
 
-inline int .conversion. ( indexint i ) unchecked:
-    int j = i;
-    fact ( 0 <= j && j < max_index );
-    return j;
+inline int32 .conversion. ( indexint i ) unchecked:
+    int32 j = i
+    fact ( 0 <= j && j < max index )
+    return j
 
-float64 x[max_index];
-float64 getx ( indexint i ) = x[i];
+float64 x[max index]
+float64 getx ( indexint i ) = x[i]
 \end{verbatim}\end{indpar}
 
 Here `{\tt x[i]}' will expand to code containing an implicit
-conversion of {\tt i} from {\tt indexint} to {\tt int}
+conversion of {\tt i} from {\tt indexint} to {\tt int32}
 and also a check that {\tt i} is in the proper range to be
 in index of {\tt x}, so the code expansion will effectively contain:
 \begin{indpar}\begin{verbatim}
-    fact ( 0 <= i && i < max_index );
-    assert ( 0 <= i && i < max_index );
+    fact ( 0 <= i && i < max index )
+    assert ( 0 <= i && i < max index )
 \end{verbatim}\end{indpar}
 The `{\tt fact}' statement allows the `{\tt assert}' statement
 to be optimized away.
@@ -539,47 +541,47 @@ an address, under the assumption that low addresses are not
 used by the memory system.  A example of subtypes implementing
 this is:
 \begin{indpar}\begin{verbatim}
-defsubtype specialadr adr;
-    // A specialadr is either an adr or an int in the
-    // range [0,4096).
+defsubtype specialadr adr
+    // A specialadr is either an adr or an integer
+    // in the range [0,4096).
 
-inline bool is_int ( specialadr a ) unchecked:
-    unsadr x = a;
-    return x < 4096;
+inline bool is int ( specialadr a ) unchecked:
+    unsadr x = a
+    return x < 4096
 
-inline bool is_adr ( specialadr a ) unchecked:
-    unsadr x = a;
-    return x >= 4096;
+inline bool is adr ( specialadr a ) unchecked:
+    unsadr x = a
+    return x >= 4096
 
 inline adr .conversion. ( specialadr a ) unchecked:
-    unsadr x = a;
-    assert ( x >= 4096 );
-    return a;
+    unsadr x = a
+    assert ( x >= 4096 )
+    return a
 
-inline int .conversion. ( specialadr a ) unchecked:
-    unsadr x = a;
-    assert ( x < 4096 );
-    return x;
+inline unsadr .conversion. ( specialadr a ) unchecked:
+    unsadr x = a
+    assert ( x < 4096 )
+    return x
 
-inline specialadr .conversion. ( int x ) unchecked:
-    unsadr x = a;
-    assert ( 0 <= x && x < 4096 );
-    return a;
+inline specialadr .conversion. ( unsadr x ) unchecked:
+    assert ( x < 4096 )
+    adr a = x
+    return a
 
 inline specialadr .conversion. ( adr a ) unchecked:
-    unsadr x = a;
-    assert ( x >= 4096 );
+    unsadr x = a
+    assert ( x >= 4096 )
         // We could omit this assert if we knew that
         // every adr was >= 4096.
-    return a;
+    return a
 
-float64 x;
-stack specialadr y = & x -> float64;
-stack specialadr z = 23;
-assert ( ! is_int ( y ) );
-assert ( is_int ( z ) );
-float64 x2 = * y;
-float64 z2 = * z;  // Causes assert violation error!
+float64 x
+stack specialadr y = & x -> float64
+stack specialadr z = 23
+assert ( ! is int ( y ) )
+assert ( is int ( z ) )
+float64 x2 = * y   // OK
+float64 z2 = * z   // Causes assert violation error!
 \end{verbatim}\end{indpar}
 
 \subsection{Random Access Memory (RAM) and Blocks}
@@ -641,7 +643,7 @@ User defined block data types may be declared by declarations of the form
 \ttkey{deftype} {\em type-name} {\tt (} {\em length}{\tt ,}
 				        {\em alignment}{\tt ,}
 				        {\em offset}
-					{\tt )} {\tt ;}
+					{\tt )}
 \end{center}
 
 The layout of a block of the defined type in memory is:
@@ -712,20 +714,20 @@ if the {\em offset} is equal to or greater than the block {\em length}.
 Blocks contain numbers (including direct addresses) and subblocks.
 Access to these is provided by displacement values.  For example,
 \begin{indpar}\begin{verbatim}
-deftype type1 (48,8);
+deftype type1 (48,8)
 unchecked:
-    disp member1 = 0 -> uns16 @ type1;
-    disp member2 = 2 -> uns16 @ type1;
-    disp member3 = 4 -> uns32 @ type1;
-    disp member4 = 8 -> float32 @ type1;
-    disp member5 = 12 -> adr @ type1 -> type1;
+    disp member1 = 0 -> uns16 @ type1
+    disp member2 = 2 -> uns16 @ type1
+    disp member3 = 4 -> uns32 @ type1
+    disp member4 = 8 -> float32 @ type1
+    disp member5 = 12 -> adr @ type1 -> type1
 . . . . .
-type1 x;
-x.member1 = 9;
-x.member2 = -19;
-x.member3 = 190;
-x.member4 = -0.01 * x.member3;
-x.member5 = & x;
+type1 x
+x.member1 = 9
+x.member2 = -19
+x.member3 = 190
+x.member4 = -0.01 * x.member3
+x.member5 = & x
 \end{verbatim}\end{indpar}
 
 A type of the form
@@ -760,7 +762,7 @@ and \underline{not}
 \end{center}
 The statement
 \begin{center}
-\tt x.member1 = 9;
+\tt x.member1 = 9
 \end{center}
 therefore sets an {\tt uns16} integer variable, and
 \underline{not} an {\tt adr} constant.  In these types
@@ -889,11 +891,11 @@ implicitly invoked `{\tt .set.}' function.
 For example:
 
 \begin{indpar}\begin{verbatim}
-int8 x -> float64 y;
-float64 z = y;    // Translates to .set.(&z,.get.(.get.(&x))).
+int8 x -> float64 y
+float64 z = y     // Translates to .set.(&z,.get.(.get.(&x))).
                   // or to simplify z = .get.(x)
                   // .get.(x) is probably undefined
-y = z;            // Translates to .set.(.get(&x),.get.(&z))
+y = z             // Translates to .set.(.get(&x),.get.(&z))
                   // or to simplify .set.(x,z)
                   // .set.(x,...) is probably undefined
 \end{verbatim}\end{indpar}
@@ -910,14 +912,14 @@ it may be convenient to define them.  For example, if
 open files, one might have:
 
 \begin{indpar}\begin{verbatim}
-deftype open file (...);
-open file .get. ( int8 -> open file );
+deftype open file (...)
+open file .get. ( int8 -> open file )
 
-int8 V -> open file open ( ... );
+int8 V -> open file open ( ... )
 
-int8 x -> open file;
-x = open ( ... );
-open file z = * x;  // Translates to z = .get.(x)
+int8 x -> open file
+x = open ( ... )
+open file z = * x  // Translates to z = .get.(x)
 \end{verbatim}\end{indpar}
 
 Although this is technically correct, it does not make much sense
@@ -927,19 +929,19 @@ used as file descriptors, they should be convertable to {\tt adr}
 values, as in the following much improved example:
 
 \begin{indpar}\begin{verbatim}
-deftype open file (...);
-adr V -> open file .convert. ( int8 V -> open file );
+deftype open file (...)
+adr V -> open file .convert. ( int8 V -> open file )
 unchecked:
-    disp state = 0 -> uns16 @ open file;
+    disp state = 0 -> uns16 @ open file
     . . . . .
 
-int8 V -> open file open ( ... );
+int8 V -> open file open ( ... )
     // Declares function that opens a file.
 
-int8 x -> open file;
-x = open ( ... );
-uns16 y = x.state;    // Translates to
-                       // y = .get.((.convert.(x)).state))
+int8 x -> open file
+x = open ( ... )
+uns16 y = x.state    // Translates to
+                     // y = .get.((.convert.(x)).state))
 \end{verbatim}\end{indpar}
 
 Here the implicit~{\tt .convert.}~function is invoked automatically because
@@ -960,21 +962,21 @@ lifetime qualifier.
 This could all be implemented by the code:
 
 \begin{indpar}[0.2in]\begin{verbatim}
-defsubtype ptr unsadr;
+defsubtype ptr unsadr
 
 inline relocatable adr .convert. ( ptr p ) unchecked:
-    adr p2 = p -> relocatable adr; return * p2;
+    adr p2 = p -> relocatable adr; return * p2
 inline ptr .convert. ( static adr p -> relocatable adr ) unchecked:
-    return p;
+    return p
 
-void allocate ( adr V -> ptr -> uns32 );
+void allocate ( adr V -> ptr -> uns32 )
     // Makes ptr point at uns32 value.
 
-relocatable adr stub -> uns32;
+relocatable adr stub -> uns32
 
-ptr p = & stub -> uns32;  // Translates to p = .convert.(&stub)
-* p = 5;                  // Translates to .set(.convert.(p),5)
-uns32 y = * p;            // Translates to y = .get.(.convert.(p))
+ptr p = & stub -> uns32  // Translates to p = .convert.(&stub)
+* p = 5                  // Translates to .set(.convert.(p),5)
+uns32 y = * p            // Translates to y = .get.(.convert.(p))
 \end{verbatim}\end{indpar}
 
 \subsection{Tuples}
@@ -1054,49 +1056,48 @@ For example:
 //
 ( void pp, unchecked adr pp.begin -> int32,
            unchecked adr pp.end -> int32 )
-    allocate ( uns32 n );
+    allocate ( uns32 n )
 //
 // Prefix operator to dereference a pointer pair.
 //
 ( adr -> int32 V ) "*"
         ( void pp, adr -> unchecked adr pp.begin -> int32,
                    adr -> unchecked adr pp.end   -> int32 )
-    unchecked
-{
-    if ( pp.begin < pp.end ) return * pp.begin;
+    unchecked:
+
+    if ( pp.begin < pp.end ) return * pp.begin
     else fatal error
-        ( "Deferencing empty pointer pair." );
-}
+        ( "Deferencing empty pointer pair." )
+
 //
 // Prefix operator to increment the begin pointer of a pointer
 // pair.
 //
 ( void pp = pp ) "++"
         ( void pp, adr -> unchecked adr pp.begin -> int32 )
-    unchecked
-{
-    ++ pp.begin;
-}
+    unchecked:
+
+    ++ pp.begin
+
 //
 // Example usage:
 //
-void my_function ( void )
-{
+void my function ( void ):
+
     // Vector of 2 elements is allocated and the elements
     // are set equal to 100 and 101.
     //
-    void pp = allocate ( 2 );
-    * pp = 100;
-    * ++ pp = 101;
+    void pp = allocate ( 2 )
+    * pp = 100
+    * ++ pp = 101
     . . . .
-}
 
 \end{verbatim}\end{indpar}
 
 This code is a bit extreme in that the base variable has type
 {\tt void} indicating it has no actual value.  In this code
 the {\tt allocate} function returns the cluster, and in the
-example usage `{\tt void pp = allocate ( 2 );}' constructs
+example usage `{\tt void pp = allocate ( 2 )}' constructs
 \underline{all} the members of the cluster returned by {\tt allocate}.
 The member arguments to the prefix {\tt *} and {\tt ++} operators
 are not given explicit values in calls to the operator functions,
@@ -1119,7 +1120,7 @@ Array variables can be declared by declarations of the form
 \begin{center}
 {\em type-name} {\em variable-name}
 	{\tt [} {\em dimension-spec}
-	       \{ {\tt ,} {\em dimension-spec} \}$^\star$ {\tt ]}{\tt ;}
+	       \{ {\tt ,} {\em dimension-spec} \}$^\star$ {\tt ]}
 \end{center}
 where
 \begin{indpar}
@@ -1130,10 +1131,10 @@ where
 \end{indpar}
 For example,
 \begin{indpar}\begin{verbatim}
-int32 iarray[5];
-int32 adr piarray[1 .. 5] -> int32;
-adr -> int32 irarray[10,20];
-adr -> int32 tirarray[10++1,20++10];
+int32 iarray[5]
+int32 adr piarray[1 .. 5] -> int32
+adr -> int32 irarray[10,20]
+adr -> int32 tirarray[10++1,20++10]
 \end{verbatim}\end{indpar}
 
 Here
@@ -1280,10 +1281,10 @@ C language.}
 
 Given the example from above,
 \begin{indpar}\begin{verbatim}
-int32 iarray[5];
-int32 * piarray[1 .. 5];
-int32 * & irarray[10,20];
-int32 * & tirarray[10++1,20++10];
+int32 iarray[5]
+int32 * piarray[1 .. 5]
+int32 * & irarray[10,20]
+int32 * & tirarray[10++1,20++10]
 \end{verbatim}\end{indpar}
 we have
 \begin{indpar}\begin{verbatim}
@@ -1319,7 +1320,7 @@ When an array is allocated to the stack or to static memory,
 the length of the array is just enough to include all the elements of the
 array.  There can be unused elements.  Thus given
 \begin{indpar}\begin{verbatim}
-int32 x[1 .. 4 ++ 3];
+int32 x[1 .. 4 ++ 3]
 \end{verbatim}\end{indpar}
 then in memory the array {\tt x} is laid out as
 \begin{center}
@@ -1338,8 +1339,8 @@ uns32 constant number = ...
 int64 constant first = ...
 uns32 constant step = ...
 
-int32 x[number];
-int32 y[first .. first + number - 1 ++ step];
+int32 x[number]
+int32 y[first .. first + number - 1 ++ step]
 \end{verbatim}\end{indpar}
 
 The variables used to determine the parameters
@@ -1353,12 +1354,12 @@ More on this below.
 An array can be passed to a function and returned as the value
 of a function.  Some examples are:
 \begin{indpar}\begin{verbatim}
-void sort ( int64 vector[length], int32 length );
+void sort ( int64 vector[length], int32 length )
 void transpose ( float64 array[lb .. ub ++ step1, lb .. ub ++ step2],
-                 int64 lb, int64 ub, int64 step1, int64 step2 );
-(float64 array[length,length]) unit ( uns32 length );
+                 int64 lb, int64 ub, int64 step1, int64 step2 )
+(float64 array[length,length]) unit ( uns32 length )
 (string output[olength], uns32 olength) sort
-        ( string input[ilength], uns32 ilength );
+        ( string input[ilength], uns32 ilength )
 \end{verbatim}\end{indpar}
 
 When an array is passed to a function, the parameters needed to
@@ -1374,16 +1375,16 @@ arrays as output results is called, the array parameters that are
 function parameters or results may be implicitly specified.  Examples using
 the function declarations above are:
 \begin{indpar}\begin{verbatim}
-int64 x[1 .. 100];
+int64 x[1 .. 100]
 . . . compute x . . .
-sort ( x[] );   // length implicitly passed.
-float y[1 .. 5][1 .. 5];
+sort ( x[] )    // length implicitly passed.
+float y[1 .. 5][1 .. 5]
 . . . compute y . . .
-transpose ( y[] );    // lb, ub, step1, step 2 implicitly passed.
-float z[] = unit ( 10 );    // computes z and its parameters.
-string s[10];
+transpose ( y[] )     // lb, ub, step1, step 2 implicitly passed.
+float z[] = unit ( 10 )     // computes z and its parameters.
+string s[10]
 . . . compute s . . .
-string t[] = sort ( s[] );    // ilength and olength implicitly passed.
+string t[] = sort ( s[] )     // ilength and olength implicitly passed.
                               // computes t and its parameters.
 \end{verbatim}\end{indpar}
 
@@ -1405,46 +1406,46 @@ array may be expanded.  An example is:
 \begin{indpar}\begin{verbatim}
 // Implement myarray:
 
-deftype myarray (32,8);
-readonly unsadr *& .n ( myarray *& @ a ) unchecked = a@0;
-readonly unsadr *& .max_n ( myarray *& @ a ) unchecked = a@8;
-readonly unsadr *& .inc_max ( myarray *& @ a ) unchecked = a@16;
+deftype myarray (32,8)
+readonly unsadr *& .n ( myarray *& @ a ) unchecked = a@0
+readonly unsadr *& .max_n ( myarray *& @ a ) unchecked = a@8
+readonly unsadr *& .inc_max ( myarray *& @ a ) unchecked = a@16
 noaccess float64 (readonly *&b) [1 .. a.n] .void ( myarray *& @ a )
-    unchecked = a@24;
+    unchecked = a@24
 (myarray *& @ a) .constructor.() unchecked
 {
-    a.n = 0;
-    a.max_n = 0;
-    a.inc_max = 30;
-    a.void.base = NULL;
+    a.n = 0
+    a.max_n = 0
+    a.inc_max = 30
+    a.void.base = NULL
 }
 void push ( myarray *& a, float64 value ) unchecked
 {
     if ( a.n >= a.max_n )
     {
-        a.max_n += a.inc_max;
+        a.max_n += a.inc_max
         float64 * ap =
-            malloc ( sizeof ( float64 ) * ( a.max_n ) );
+            malloc ( sizeof ( float64 ) * ( a.max_n ) )
         if ( a.void != NULL )
             memcpy ( ap, a.void.base,
-                     a.n * sizeof ( float64 ) );
-        mfree ( a.void.base );
-        a.void.base = ap;
+                     a.n * sizeof ( float64 ) )
+        mfree ( a.void.base )
+        a.void.base = ap
     }
-    ap[a.n] = value;
-    ++ a.n;
+    ap[a.n] = value
+    ++ a.n
 
 }
 
 // Use myarray:
 
-myarray a;
-push ( a, 1.0 );
-push ( a, 2.0 );
-a[1]; // Equals 1.0.
-a[2]; // Equals 2.0.
-a[0]; // Run time error.
-a[3]; // Run time error.
+myarray a
+push ( a, 1.0 )
+push ( a, 2.0 )
+a[1] // Equals 1.0.
+a[2] // Equals 2.0.
+a[0] // Run time error.
+a[3] // Run time error.
 \end{verbatim}\end{indpar}
 
 There are a number of language features introduced in the above code.
@@ -1463,9 +1464,9 @@ aligned on 8 byte boundaries, but as 4 byte pointers will
 fit into 8 bytes, the code will work even with 4 byte pointers.
 
 Third, unchecked code can store a pointer of type `$T$ {\tt *}'
-into $X${\tt .base}.  The line `{\tt a.void.base = ap;}' above
+into $X${\tt .base}.  The line `{\tt a.void.base = ap}' above
 does just this.  Unchecked code can also read the base, as in
-the line `{\tt memcpy ( ap, a.void.base, n );}', and implicitly
+the line `{\tt memcpy ( ap, a.void.base, n )}', and implicitly
 convert the base to a pointer to a `{\tt readwrite}' value.  Checked code
 can also read the base, but the value returned will be given
 the type `noaccess $T$ {\tt *}' since base pointers may not
@@ -1475,7 +1476,7 @@ the first element).
 
 Fourth, `{\tt unchecked}' code can use a pointer as if it were
 a 1-dimensional array with step {\tt +1} and no bounds.  This is
-done in the statement `{\tt ap[a.n] = value;}' above.
+done in the statement `{\tt ap[a.n] = value}' above.
 
 Fifth, `{\tt .base}' when applied to an array,
 and `{\tt .void}' applied to any expression,
@@ -1511,14 +1512,14 @@ should be type-safe in its own right.
 If you want to copy entire arrays you have to apply the `{\tt *}'
 operator to them.  Thus
 \begin{indpar}\begin{verbatim}
-declare alias qualifier same_data;
-same_data int32 x[1 .. 10];
-same_data int32 y[1 .. 10] = x;
+declare alias qualifier same_data
+same_data int32 x[1 .. 10]
+same_data int32 y[1 .. 10] = x
 // Now x and y are the same piece of memory.  This would not be
 // legal without the alias qualifier (described later).
 y[1] = ..., etc.
-int32 z[1 .. 10];
-* z = * y;
+int32 z[1 .. 10]
+* z = * y
 // Now the elements of x (and y) have been copied to
 // the elements of z.
 \end{verbatim}\end{indpar}
@@ -1530,7 +1531,7 @@ Subarrays can be computed by expressions of the form
 \begin{center}
 {\em array-expression}
 	{\tt [} {\em selector-spec}
-	       \{ {\tt ,} {\em selector-spec} \}$^\star$ {\tt ]}{\tt ;}
+	       \{ {\tt ,} {\em selector-spec} \}$^\star$ {\tt ]}
 \end{center}
 where
 \begin{indpar}
@@ -1543,15 +1544,15 @@ steps are increments in these valid subscripts.
 
 For example,
 \begin{indpar}\begin{verbatim}
-declare alias qualifier first_half, second_half;
-first_half second_half int32 x[1 .. 10];
-first_half int32 x1[1 .. 5] = x[1 .. 5];
-second_half int32 x2[1 .. 5] = x[6 .. 10];
+declare alias qualifier first_half, second_half
+first_half second_half int32 x[1 .. 10]
+first_half int32 x1[1 .. 5] = x[1 .. 5]
+second_half int32 x2[1 .. 5] = x[6 .. 10]
 
-declare alias qualifier odd_half, even_half;
-odd_half even_half int32 y[1 .. 10];
-odd_half int32 y1[1 .. 5] = y[1 .. 9 ++ 2];
-even_half int32 y2[1 .. 5] = x[2 .. 10 ++ 2];
+declare alias qualifier odd_half, even_half
+odd_half even_half int32 y[1 .. 10]
+odd_half int32 y1[1 .. 5] = y[1 .. 9 ++ 2]
+even_half int32 y2[1 .. 5] = x[2 .. 10 ++ 2]
 \end{verbatim}\end{indpar}
 
 Here {\tt x1} is the first half of {\tt x} and {\tt x2} is the second
@@ -1569,11 +1570,11 @@ given a \key{linear view} defined by any linear map between
 arbitrary subscripts and the subscripts of the array.  For
 example:
 \begin{indpar}\begin{verbatim}
-declare alias same_data;
-same_data int32 x[1 .. 70];
-same_data int32 y[1 .. 10, 1 .. 7] = ([i,j] ===> x[(i-1)*7 + j]);
-same_data int32 z[1 .. 7, 1 .. 10] = ([i,j] ===> y[j,i]);
-same_data int32 w[1 .. 6] = ([i] ===> y[i,i+1]);
+declare alias same_data
+same_data int32 x[1 .. 70]
+same_data int32 y[1 .. 10, 1 .. 7] = ([i,j] ===> x[(i-1)*7 + j])
+same_data int32 z[1 .. 7, 1 .. 10] = ([i,j] ===> y[j,i])
+same_data int32 w[1 .. 6] = ([i] ===> y[i,i+1])
 \end{verbatim}\end{indpar}
 
 Here {\tt y} is a 2-dimensional array overlaid on the vector {\tt x},
@@ -1587,12 +1588,12 @@ Special forms of array can be defined by adding parameters to the
 array and defining special operators.  For example, a symmetric
 array can be defined by:
 \begin{indpar}\begin{verbatim}
-int32 x[28];
-uns32 x.size = 7;
+int32 x[28]
+uns32 x.size = 7
 int32 *& x[int32 i, int32 j]
 {
-    assert ( 0 <= i < size && 0 <= j < size );
-    return x[i*(i+1)/2 + j];
+    assert ( 0 <= i < size && 0 <= j < size )
+    return x[i*(i+1)/2 + j]
 }
 \end{verbatim}\end{indpar}
 
@@ -1622,8 +1623,8 @@ location cannot be written using the given address of the location.
 For example, the
 declarations
 \begin{indpar}[0.5em]\begin{verbatim}
-constant int32 x = 5;
-stack adr yp = & x -> readonly int32 y;
+constant int32 x = 5
+stack adr yp = & x -> readonly int32 y
 \end{verbatim}\end{indpar}
 promise that after initialization no one will ever
 write into the location {\tt x} (which is {\tt constant}),
@@ -1647,15 +1648,15 @@ Qualifiers may be given in type definitions, and apply to all
 values and memory locations of the defined type.
 For example, if {\tt Q} is a qualifier,
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype Q type1 (48,8);
-type1 x;
-adr yp -> type1;
+deftype Q type1 (48,8)
+type1 x
+adr yp -> type1
 \end{verbatim}\end{indpar}
 is equivalent to
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype type1 (48,8);
-Q type1 x;
-adr yp -> Q type1;
+deftype type1 (48,8)
+Q type1 x
+adr yp -> Q type1
 \end{verbatim}\end{indpar}
 
 Qualifiers may also be applied to code blocks.  Such are called
@@ -1665,7 +1666,7 @@ function definition applies to the code in the
 body.
 For example, if {\tt Q} is a qualifier,
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 function1 () Q = ... ;
+int32 function1 () Q = ... 
 int32 function2 () Q
 {
    . . .
@@ -1677,8 +1678,8 @@ A qualifier just before the name of a function in a function definition
 or declaration applies to calls to the function, and is said to be
 a `\key{function access qualifier}'.  For example,
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 Q function3 ();
-adr -> int32 V Q function4 ();
+int32 Q function3 ()
+adr -> int32 V Q function4 ()
 \end{verbatim}\end{indpar}
 Note that in this last case qualifiers appearing immediately
 before function names
@@ -1821,7 +1822,7 @@ qualifiers.
 Qualifiers may also be \ikey{inherited}{qualifiers}.  For example, if
 {\tt G} is a group qualifier,
 \begin{indpar}\begin{verbatim}
-G? readonly unsadr .n ( adr -> myarray G? a ) unchecked = ...;
+G? readonly unsadr .n ( adr -> myarray G? a ) unchecked = ...
 \end{verbatim}\end{indpar}
 causes any qualifier in group {\tt G} that is present for the
 argument `{\tt a}' to be applied to the function result.
@@ -1925,19 +1926,19 @@ a `{\tt caller}' qualifier.
 
 For example:
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 function1 ( caller adr arg1 -> static adr -> int32 );
+int32 function1 ( caller adr arg1 -> static adr -> int32 )
     // The argument is a pointer to a caller allocated location
     // holding a pointer to a statically allocated int32.
     // function1 can use `*arg1 = value' to return a static
     // adddress to an int32 value, and can also use
     // `**arg1 = value' to return an int32 value.
-int32 function2 ( caller adr arg1 -> caller adr -> int32 );
+int32 function2 ( caller adr arg1 -> caller adr -> int32 )
     // The argument is a pointer to caller allocated location
     // holding a pointer to a caller allocated location holding
     // an int32.  function2 can use `**arg1 = value' to return
     // an int32 value, and can use `*arg1 = value' to return
     // a static address, but not a caller address.
-int32 function3 ( static adr arg1 -> caller adr -> int32 );
+int32 function3 ( static adr arg1 -> caller adr -> int32 )
     // Illegal; a static location cannot contain a value whose
     // lifetime may only last until some function returns.
 \end{verbatim}\end{indpar}
@@ -2087,27 +2088,27 @@ that initializes the location.
 
 The following code has some examples:
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 function1 ( stack adr -> constant int32 arg1 );
-int32 function2 ( stack adr -> readonly int32 arg1 );
-int32 function3 ( stack adr -> int32 arg1 );
+int32 function1 ( stack adr -> constant int32 arg1 )
+int32 function2 ( stack adr -> readonly int32 arg1 )
+int32 function3 ( stack adr -> int32 arg1 )
 . . . . . . . . . .
-constant int32 value1 = 5;
+constant int32 value1 = 5
    // Permitted:
    //   caller adr -> int32 .assign. ( 5 ) is called.
 ... my_function ( ... )
 {
-    value1 = 10; 
+    value1 = 10 
        // Erroneous:
        //   caller adr -> constant int32 .assign. ( 10 ) is called.
-    function1 ( value1 );  // Permitted; arg1 constant.
-    function2 ( value1 );  // Permitted; arg1 readonly.
-    function3 ( value1 );  // Erroneous; arg1 NOT constant
+    function1 ( value1 )   // Permitted; arg1 constant.
+    function2 ( value1 )   // Permitted; arg1 readonly.
+    function3 ( value1 )   // Erroneous; arg1 NOT constant
                            // or readonly.
-    int32 value2 = 15;
-    function1 ( value2 );  // Erroneous.  Function1 might make
+    int32 value2 = 15
+    function1 ( value2 )   // Erroneous.  Function1 might make
                            // a long term cache of value2 which
                            // might then be changed.
-    function2 ( value2 );  // Permitted.  Function2 merely
+    function2 ( value2 )   // Permitted.  Function2 merely
                            // promises not to write value2.
     . . . . . . . . . .
 \end{verbatim}\end{indpar}
@@ -2134,7 +2135,7 @@ function arguments that are passed by value and not by reference.
 The `{\tt constant}' qualifier is automatically applied to temporary
 values.  Thus continuing the above example:
 \begin{indpar}[0.5em]\begin{verbatim}
-    function1 ( value1 + value2 );
+    function1 ( value1 + value2 )
         // Permitted; value1 + value2 is a `constant' int32
         // temporary value.
 \end{verbatim}\end{indpar}
@@ -2196,29 +2197,29 @@ void copy1 ( uns8 source[length],
              uns8 destination[length],
              uns32 length )
 {
-    uns32 i = 0;
+    uns32 i = 0
     loop: {
-        if ( i >= length ) break loop;
-        destination[i] = source[i];
-        ++ i;
+        if ( i >= length ) break loop
+        destination[i] = source[i]
+        ++ i
     }
 }
-declare alias qualifier same_data;
+declare alias qualifier same_data
 void copy2 ( same_data uns8 source[length],
              same_data uns8 destination[length],
              uns32 length )
 {
-    uns32 i = 0;
+    uns32 i = 0
     loop: {
-        if ( i >= length ) break loop;
-        destination[i] = source[i];
-        ++ i;
+        if ( i >= length ) break loop
+        destination[i] = source[i]
+        ++ i
     }
 }
-uns8 x[16];
-x[0] = 0;
-copy1 ( x[0 .. 14], x[1 .. 15], 15 );   // Erroneous.
-copy2 ( x[0 .. 14], x[1 .. 15], 15 );   // Zeros x.
+uns8 x[16]
+x[0] = 0
+copy1 ( x[0 .. 14], x[1 .. 15], 15 )   // Erroneous.
+copy2 ( x[0 .. 14], x[1 .. 15], 15 )   // Zeros x.
 \end{verbatim}\end{indpar}
 
 The call to {\tt copy1} is erroneous because
@@ -2309,23 +2310,23 @@ a list of parallel qualifiers that names all the locations accessible
 at the point of the statement that are tagged with these qualifiers.  An
 example is:
 \begin{indpar}[0.5em]\begin{verbatim}
-declare parallel qualifier pdata, pflag;
-pdata float64 x[3];
-pflag bool done_flag = false;
+declare parallel qualifier pdata, pflag
+pdata float64 x[3]
+pflag bool done_flag = false
 . . . . . . .
 // Output data
-x[0] = 35.87;
-x[1] = -2.90;
-parallel flush write pdata;
+x[0] = 35.87
+x[1] = -2.90
+parallel flush write pdata
 // Set done_flag indicating data has been output
-done_flag = true;
-parallel flush write pflag;
+done_flag = true
+parallel flush write pflag
 // Wait for data to be consumed
 // Consumer clears done_flag after consuming data
 loop: {
-    spin ( 5000 ); // 5000 nanosecond spin
-    parallel flush read pflag;
-    if ( done_flag == false ) break loop;
+    spin ( 5000 ) // 5000 nanosecond spin
+    parallel flush read pflag
+    if ( done_flag == false ) break loop
 }
 // Data has been consumed
 \end{verbatim}\end{indpar}
@@ -2419,28 +2420,28 @@ non-protection qualifiers given the value false are ignored.
 
 For example, given the code
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype type1 (24,4);
-declare protection qualifier constructor(type1);
-(constructor(type1)|constant) type1 my_data;
-void function1 ( type1 *& arg1 );
-void function2 ( constant type1 *& arg1 );
-void function3 ( type1 *& arg1 ) constructor(type1);
+deftype type1 (24,4)
+declare protection qualifier constructor(type1)
+(constructor(type1)|constant) type1 my_data
+void function1 ( type1 *& arg1 )
+void function2 ( constant type1 *& arg1 )
+void function3 ( type1 *& arg1 ) constructor(type1)
 . . . . . . .
-function1 ( my_data);   // Erroneous; my_data is constant for
+function1 ( my_data)    // Erroneous; my_data is constant for
                         // function1.
-function2 ( my_data);   // Legal; my_data is constant for
+function2 ( my_data)    // Legal; my_data is constant for
                         // function2 and so is arg1.
-function3 ( my_data);   // Legal; my_data is NOT constant for
+function3 ( my_data)    // Legal; my_data is NOT constant for
                         // function3.
 \end{verbatim}\end{indpar}
 
 Note the left-to-right clause in the rule for evaluating non-protection
 qualifiers.  For example, given the code:
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype type1 (24,4);
-declare protection qualifier A;
-((A&readonly)|constant) type1 my_data1;
-((A&readonly)|(A&readwrite)|constant) type1 my_data2;
+deftype type1 (24,4)
+declare protection qualifier A
+((A&readonly)|constant) type1 my_data1
+((A&readonly)|(A&readwrite)|constant) type1 my_data2
 \end{verbatim}\end{indpar}
 
 then to a function with protection qualifier {\tt A}, {\tt my\_data1}
@@ -2500,17 +2501,14 @@ An example is:
 \begin{indpar}[0.5em]\begin{verbatim}
 void function1 ( int32 x ) inline { ... }
 void function2 ( int32 x ) outline { ... }
-void function3 ( int32 x ) inline
-{
-    if ( x > 0 )
-    {
+void function3 ( int32 x ) inline:
+
+    if ( x > 0 ):
         ... inlined code ...
-    }
-    else outline
-    {
+
+    else outline:
         ... outlined code ...
-    }
-}
+
 \end{verbatim}\end{indpar}
 
 Calls to {\tt function1} are inlined, those to
@@ -2521,22 +2519,19 @@ which is treated as an out-of-line function.
 Recursive inlining is permitted provided it does not
 lead to unbounded code.  For example:
 \begin{indpar}[0.5em]\begin{verbatim}
-int32 function1 ( int32 n ) inline { ... }
-int32 recurse ( int32 n ) inline
-{
-    if ( n == 0 ) return 0;
-    else return function1 ( n ) + recurse ( n - 1 );
-}
-int32 function2 ( void ) outline
-{
-    return recurse ( 5 );
+int32 function1 ( int32 n ) inline { ... }:
+int32 recurse ( int32 n ) inline:
+    if ( n == 0 ) return 0
+    else return function1 ( n ) + recurse ( n - 1 )
+
+int32 function2 ( void ) outline:
+    return recurse ( 5 )
         // Works, inlining recurse 6 times.
-}
-int32 function3 ( int32 n ) outline
-{
-    return recurse ( n );
+
+int32 function3 ( int32 n ) outline:
+    return recurse ( n )
         // Fails by producing an unbounded amount of code.
-}
+
 \end{verbatim}\end{indpar}
 
 Inlining recursion works because while inlining code
@@ -2559,16 +2554,16 @@ For example:
 \begin{indpar}[0.5em]\begin{verbatim}
 int32 function1 ( int32 n ) inline(1) { ... }
 int32 function2 ( int32 n ) inline(2) { ... }
-int32 function3 ( int32 n ) outline(1)
-{
-    function1(...); // Inlined.
-    function2(...); // NOT inlined.
-}
-int32 function4 ( int32 n ) outline(2)
-{
-    function1(...); // Inlined.
-    function2(...); // Inlined.
-}
+int32 function3 ( int32 n ) outline(1):
+
+    function1(...) // Inlined.
+    function2(...) // NOT inlined.
+
+int32 function4 ( int32 n ) outline(2):
+
+    function1(...) // Inlined.
+    function2(...) // Inlined.
+
 \end{verbatim}\end{indpar}
 
 The numbers associated with the `{\tt inline}' and
@@ -2596,9 +2591,9 @@ transitive and default function access and has `{\tt pure}' as
 its counter qualifier.  Were it not implicitly declared to have
 these properties, it could be declared to have them by:
 \begin{indpar}[0.5em]\begin{verbatim}
-declare transitive qualifier impure;
+declare transitive qualifier impure
 declare default function access qualifier impure
-        with counter qualifier pure;
+        with counter qualifier pure
 \end{verbatim}\end{indpar}
 
 Usually it is protection qualifiers that are declared to be transitive
@@ -2733,10 +2728,10 @@ This is, however, not sufficient, because sometimes one register
 address is a function of another register's datum.  For example,
 consider the unchecked code:
 \begin{indpar}[0.5em]\begin{verbatim}
-struct S { ...; int32 m; ... };
-S * * x;
-S * *& y = * x;
-int32 *& z = y->m;
+struct S { ...; int32 m; ... }
+S * * x
+S * *& y = * x
+int32 *& z = y->m
 \end{verbatim}\end{indpar}
 If we consider {\tt x}, {\tt y}, and {\tt z} to be registers,
 the address of {\tt y} equals the value of {\tt x}, and the

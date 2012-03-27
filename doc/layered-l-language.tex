@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 26, 2012
+March 27, 2012
  
 \end{center}
 
@@ -588,7 +588,7 @@ float64 z2 = * z   // Causes assert violation error!
 
 \ikey{RAM}{Random Access Memory}\index{random access memory!RAM}
 is a set of address/byte pairs.  Each 8-bit byte of RAM has an \key{address}
-that is a unsigned integer.  It is possible for two addresses to refer to the
+that is an unsigned integer.  It is possible for two addresses to refer to the
 same byte, or for an address to refer to no byte.  An address that
 refers to a byte is said to be \key{allocated}, and an address that refers
 to no byte is said to be \key{deallocated}.  A byte that has two (or more)
@@ -609,9 +609,11 @@ A RAM block is \mkey{unshared}{block} if all its bytes are unshared.
 A RAM block is \mkey{shared}{block} if
 it is one of a set of several blocks (sequences of consecutive addresses)
 such that the $n$'th byte of each block in the set is the same.
-Note that a RAM block can be neither allocated or deallocated or
-neither shared nor unshared; i.e., some of the block's bytes may be
-allocated and some deallocated, or some may be shared and some unshared.
+Note that a RAM block can be neither allocated nor deallocated,
+or neither shared nor unshared; e.g., some block bytes may be allocated
+and some deallocated.  Also note that a shared byte must have two
+distinct addresses, and this has nothing to do with whether the byte
+is in two distinct blocks that overlap.
 
 The address space is divided into \skey{page}s, which are RAM blocks that
 have an implementation determined length that is a power of two,
@@ -633,10 +635,16 @@ the same allocation and sharing status.
 
 The builtin RAM blocks in L-Language are link blocks,
 frame blocks (\pagref{CODE-AND-FRAME-BLOCKS}),
-code blocks(\pagref{CODE-AND-FRAME-BLOCKS}), numbers, and segments.
+code RAM blocks(\pagref{CODE-AND-FRAME-BLOCKS}), numbers, and segments.
 All non-segment
 blocks are contained within segments.  User defined (i.e., non-builtin)
 blocks can be contained within segments.
+
+Certain blocks are `\skey{independent block}s'.  These have the
+property that no two distinct independent blocks can overlap.
+Link blocks and frame blocks are independent.
+Blocks allocated by user provided heap managment routines are
+also typically independent.
 
 User defined block data types may be declared by declarations of the form
 \begin{center}
@@ -716,11 +724,11 @@ Access to these is provided by displacement values.  For example,
 \begin{indpar}\begin{verbatim}
 deftype type1 (48,8)
 unchecked:
-    disp member1 = 0 -> uns16 @ type1
-    disp member2 = 2 -> uns16 @ type1
-    disp member3 = 4 -> uns32 @ type1
-    disp member4 = 8 -> float32 @ type1
-    disp member5 = 12 -> adr @ type1 -> type1
+    constant disp member1 = 0 -> uns16 @ type1
+    constant disp member2 = 2 -> uns16 @ type1
+    constant disp member3 = 4 -> uns32 @ type1
+    constant disp member4 = 8 -> float32 @ type1
+    constant disp member5 = 12 -> adr @ type1 -> type1
 . . . . .
 type1 x
 x.member1 = 9
@@ -789,11 +797,15 @@ The difference between the type `{\tt uns16 @ type1.member1}'
 and the type `{\tt uns16}' is that the former specifies an
 {\tt uns16} value that is inside a {\tt type1} value, and is
 in fact at offset {\tt member1} inside that {\tt type1} value.
-This extra information is only used by the compiler to determine
-when variables can be aliased, so it is only used for optimization.
-Nonetheless, if the information is incorrect,
-optimization may not be done correctly, and the program may execute
-erroneously (without detecting that it is doing so).
+For targets of {\tt adr} data this extra information is
+used by the compiler to determine when variables can be aliased.
+For targets of {\tt disp} data, as in
+\begin{center}
+\tt constant disp member1 = 0 -> uns16 @ type1
+\end{center}
+this extra information is
+used by the compiler to type check expressions such as
+`{\tt x.member1}'.
 
 
 \subsection{Code and Frame Blocks}

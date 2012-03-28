@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 28 03:41:46 EDT 2012
+// Date:	Wed Mar 28 14:09:16 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -826,15 +826,16 @@ ll::parser::table::root find_next_entry
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::root last_entry );
 
-// First, invoke passes selected by the `selectors' on
-// the expression consisting of the tokens beginning
-// with `first' and ending just before `next'.
+// First, invokes the given pass and subsequent passes
+// that are selected by the `selectors' on the expres-
+// sion consisting of the tokens beginning with `first'
+// and ending just before `next'.
 //
-// Then replace these tokens (which may have been
+// Then replaces these tokens (which may have been
 // changed by the passes) by an resulting EXPRESSION
-// token.  Add the m attributes whose names and values
-// are given, and allow for the latter addition of n
-// attributes.  Set the position of the new EXPRESSION
+// token.  Adds the m attributes whose names and values
+// are given, and allows for the latter addition of n
+// attributes.  Sets the position of the new EXPRESSION
 // token from the given argument.  The resulting
 // EXPRESSION token is in first == next->previous.
 //
@@ -857,6 +858,7 @@ struct attr
 };
 void compact
 	( ll::parser::parser parser,
+	  ll::parser::pass,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,

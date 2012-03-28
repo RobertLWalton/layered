@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 18 15:10:53 EDT 2012
+// Date:	Wed Mar 28 03:41:35 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -496,34 +496,14 @@ static void convert_token ( PAR::token token )
     token->type = PAR::EXPRESSION;
 }
 
-// Make an expression consisting of the tokens beginning
-// with `first' and ending just before `next'.  Replace
-// these tokens by the resulting EXPRESSION token.  Add
-// the given .initiator, .terminator, .middle, .name,
-// .arguments, and .keys if these are not MISSING.
-// Allow for later addition of a .separator.
-//
-// Set the position of the new token from the given
-// argument.  The resulting token is next->previous.
-//
-// Any token in the expression being output that has a
-// MISSING token value must be a non-natural number or
-// quoted string.  These are replaced by a subexpression
-// whose sole element is the token string of the token
-// as a string general value and whose .initiator is #
-// for a number or " for a quoted string.
-//
-static void compact
-	( PAR::parser parser,
-	  TAB::selectors selectors,
-	  PAR::token first, PAR::token next,
+void PAR::compact
+	( ll::parser::parser parser,
+	  ll::parser::table::selectors selectors,
+	  ll::parser::token & first, PAR::token next,
 	  min::phrase_position position,
-	  min::gen initiator = min::MISSING(),
-	  min::gen terminator = min::MISSING(),
-	  min::gen middle = min::MISSING(),
-	  min::gen name = min::MISSING(),
-	  min::gen arguments = min::MISSING(),
-	  min::gen keys = min::MISSING() )
+	  min::uns32 m,
+	  ll::parser::attr * attributes,
+	  min::uns32 n )
 {
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;
@@ -540,10 +520,10 @@ static void compact
     // Count tokens.  Also replace non-natural numbers
     // and quoted strings by subexpressions.
     //
-    min::uns32 n = 0;
+    min::uns32 t = 0;
     for ( PAR::token current = first;
           current != next;
-	  ++ n, current = current->next )
+	  ++ t, current = current->next )
     {
 	if ( current->value == min::MISSING() )
 	    ::convert_token ( current );
@@ -551,21 +531,19 @@ static void compact
 
     // Count the number of non-MISSING extra attributes.
     //
-    min::uns32 m =
-          ( initiator != min::MISSING() )
-        + ( terminator != min::MISSING() )
-        + ( middle != min::MISSING() )
-        + ( name != min::MISSING() )
-        + ( arguments != min::MISSING() )
-        + ( keys != min::MISSING() )
-	+ 1; // for .position
+    min::uns32 c = n + m + 1;
+        // Add 1 for position.
 
-    exp = min::new_obj_gen
-        ( 3*( m + 2 ) + n,
-	  m == 0 ? 1 : 4 );
+    // Hash table size.
+    //
+    min::uns32 h = c;
+    if ( h == 0 ) h = 1;
+    if ( h > 4 ) h = 4;
+
+    exp = min::new_obj_gen ( 3*( c + 2 ) + t, h );
     min::obj_vec_insptr expvp ( exp );
 
-    min::init ( pos, parser->input_file, position, n );
+    min::init ( pos, parser->input_file, position, t );
 
     for ( PAR::token current = first;
           current != next; )
@@ -580,62 +558,30 @@ static void compact
 		    current->previous ) );
     }
 
-    if ( m > 0 )
+    min::attr_insptr expap ( expvp );
+    min::locate ( expap, PAR::position );
+    min::set ( expap, min::new_stub_gen ( pos ) );
+
+    while ( m -- )
     {
-	min::attr_insptr expap ( expvp );
-	min::locate ( expap, PAR::position );
-	min::set ( expap, min::new_stub_gen ( pos ) );
-
-	if ( initiator != min::MISSING() )
-	{
-	    min::locate ( expap, PAR::initiator );
-	    min::set ( expap, initiator );
-	}
-
-	if ( terminator != min::MISSING() )
-	{
-	    min::locate ( expap, PAR::terminator );
-	    min::set ( expap, terminator );
-	}
-
-	if ( middle != min::MISSING() )
-	{
-	    min::locate ( expap, PAR::middle );
-	    min::set ( expap, middle );
-	}
-
-	if ( name != min::MISSING() )
-	{
-	    min::locate ( expap, PAR::name );
-	    min::set ( expap, name );
-	}
-
-	if ( arguments != min::MISSING() )
-	{
-	    min::locate ( expap, PAR::arguments );
-	    min::set ( expap, arguments );
-	}
-
-	if ( keys != min::MISSING() )
-	{
-	    min::locate ( expap, PAR::keys );
-	    min::set ( expap, keys );
-	}
+	assert ( attributes->value != min::MISSING() );
+	min::locate ( expap, attributes->name );
+	min::set ( expap, attributes->value );
+	++ attributes;
     }
 
-    PAR::token token =
-        PAR::new_token ( PAR::EXPRESSION );
-    PAR::put_before ( first_ref(parser), next, token );
+    first = PAR::new_token ( PAR::EXPRESSION );
+    PAR::put_before ( first_ref(parser), next, first );
 
-    PAR::value_ref(token) = exp;
-    token->position = position;
+    PAR::value_ref(first) = exp;
+    first->position = position;
 
     if (   parser->trace
          & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS )
     {
 	    parser->printer
 	        << "EXPRESSION: "
-		<< min::pgen ( token->value )
+		<< min::pgen ( first->value )
 		<< ": "
 		<< min::pline_numbers
 		        ( parser->input_file,
@@ -1678,12 +1624,16 @@ static bool parse_explicit_subexpression
 				    // removed.
 			    }
 
-			    ::compact
+			    PAR::attr attributes[1] =
+			        { PAR::attr
+				      ( PAR::terminator,
+				        terminator ) };
+
+			    PAR::compact
 			        ( parser, selectors,
 				  first, next,
 				  position,
-				  min::MISSING(),
-				  terminator );
+				  1, attributes );
 			}
 
 			// See if there are more lines.
@@ -1727,10 +1677,17 @@ static bool parse_explicit_subexpression
 			  indentation_found->label );
 		position.end = next->previous
 		                   ->position.end;
-		::compact ( parser, selectors,
-		            first, next,
-			    position,
-			    indentation_found->label );
+
+		PAR::attr attributes[1] =
+		    { PAR::attr
+		          ( PAR::initiator,
+			    indentation_found->
+			        label ) };
+
+		PAR::compact ( parser, selectors,
+		               first, next,
+			       position,
+			       1, attributes );
 
 		// Terminate subexpression if closing
 		// bracket was found during indentation
@@ -1981,13 +1938,22 @@ static bool parse_explicit_subexpression
 			::remove
 			    ( parser, first,
 			      opening_bracket->label );
-		    ::compact
+
+		    PAR::attr attributes[2] =
+			{ PAR::attr
+			      ( PAR::initiator,
+			        opening_bracket->
+				    label ),
+			  PAR::attr
+			        ( PAR::terminator,
+			          opening_bracket->
+			              closing_bracket->
+				          label ) };
+
+		    PAR::compact
 			( parser, selectors,
 			  first, next, position,
-			  opening_bracket->label,
-			  opening_bracket->
-			      closing_bracket->
-				  label );
+			  2, attributes, 1 );
 
 		    if (    cstack.closing_next
 			 == min::NULL_STUB )
@@ -2025,13 +1991,23 @@ static bool parse_explicit_subexpression
 			::remove
 			    ( parser, first,
 			      opening_bracket->label );
-		    ::compact ( parser, selectors,
-		                first, current,
-				position,
-				opening_bracket->label,
-				opening_bracket->
-				    closing_bracket->
-					label );
+
+		    PAR::attr attributes[2] =
+			{ PAR::attr
+			      ( PAR::initiator,
+			        opening_bracket->
+				    label ),
+			  PAR::attr
+			        ( PAR::terminator,
+			        opening_bracket->
+			            closing_bracket->
+				        label ) };
+
+		    PAR::compact
+		        ( parser, selectors,
+			  first, current,
+			  position,
+			  2, attributes, 1 );
 		    break;
 		}
 	    }
@@ -2263,24 +2239,50 @@ static bool parse_explicit_subexpression
 			    ( parser,
 			      cstack.opening_first,
 			      named_opening->label );
-		    ::compact
+
+		    PAR::attr attributes[6] =
+			{ PAR::attr
+			      ( PAR::initiator,
+			        named_opening->label ),
+			  PAR::attr
+			        ( PAR::terminator,
+			        named_opening->
+			            named_closing->
+				        label ),
+			  PAR::attr ( PAR::name, name )
+			};
+		    min::uns32 c = 3;
+		    if ( named_opening->named_middle
+		         !=
+			 min::NULL_STUB )
+		        attributes[c++] =
+			    PAR::attr
+			        ( PAR::middle,
+		                  named_opening->
+				      named_middle->
+				          label );
+		    if ( arguments != min::MISSING() )
+		        attributes[c++] =
+			    PAR::attr ( PAR::arguments,
+		                        arguments );
+		    if ( keys != min::MISSING() )
+		        attributes[c++] =
+			    PAR::attr
+			        ( PAR::keys, keys );
+
+		    PAR::token first =
+		        middle_last->next;
+		    PAR::compact
 		        ( parser, selectors,
-			  middle_last->next,
+			  first,
 			  current,
 			  position,
-			  named_opening->label,
-			  named_opening->named_closing
-			               ->label,
-			  named_opening->named_middle
-			               ->label,
-			  name, arguments, keys );
+			  c, attributes );
 			  
-		    assert
-		        (    current->previous->type
-			  == PAR::EXPRESSION );
-		    assert
-		        (    current->previous
-			  == middle_last->next );
+		    assert (    first->type
+			     == PAR::EXPRESSION );
+		    assert (    first
+			     == middle_last->next );
 
 		    ::remove ( parser,
 		               cstack.opening_first,
@@ -2438,7 +2440,8 @@ static bool parse_explicit_subexpression
 				       &&
 				       cp->type
 				       !=
-				       LEXSTD::number_t )
+				       LEXSTD::number_t
+				     )
 				   )
 				{
 				    name_match = false;
@@ -2708,16 +2711,19 @@ void PAR::parse ( PAR::parser parser )
 	    bool maybe_parser_definition =
 	        ( g == PAR::parser_lexeme );
 
-	    ::compact
+	    PAR::attr attributes[1] =
+		{ PAR::attr ( PAR::terminator,
+		              terminator ) };
+
+	    PAR::compact
 		( parser, parser->selectors,
 		  first, current,
-		  position, min::MISSING(),
-		  terminator );
+		  position,
+		  1, attributes );
 
 	    if ( maybe_parser_definition )
 	    {
-	        min::obj_vec_ptr vp
-		    ( current->previous->value );
+	        min::obj_vec_ptr vp ( first->value );
 		if ( vp != NULL_STUB )
 		{
 		    min::gen result =
@@ -2727,7 +2733,7 @@ void PAR::parse ( PAR::parser parser )
 			PAR::free
 			    ( PAR::remove
 				  ( first_ref(parser),
-				    current->previous )
+				    first )
 			    );
 		    else if ( result == min::ERROR() )
 		    {

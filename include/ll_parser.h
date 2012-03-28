@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 18 15:19:12 EDT 2012
+// Date:	Wed Mar 28 03:41:46 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -825,6 +825,45 @@ ll::parser::table::root find_next_entry
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::root last_entry );
+
+// First, invoke passes selected by the `selectors' on
+// the expression consisting of the tokens beginning
+// with `first' and ending just before `next'.
+//
+// Then replace these tokens (which may have been
+// changed by the passes) by an resulting EXPRESSION
+// token.  Add the m attributes whose names and values
+// are given, and allow for the latter addition of n
+// attributes.  Set the position of the new EXPRESSION
+// token from the given argument.  The resulting
+// EXPRESSION token is in first == next->previous.
+//
+// Any token in the expression being output that has a
+// MISSING token value must be a non-natural number or
+// quoted string.  These are replaced by a subexpression
+// whose sole element is the token string of the token
+// as a string general value and whose .initiator is #
+// for a number or " for a quoted string.
+//
+struct attr
+{
+    min::gen name;
+    min::gen value;
+    attr ( min::gen name, min::gen value )
+        : name ( name ), value ( value ) {}
+    attr ( void )
+        : name ( min::MISSING() ),
+	  value ( min::MISSING() ) {}
+};
+void compact
+	( ll::parser::parser parser,
+	  ll::parser::table::selectors selectors,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  min::phrase_position position,
+	  min::uns32 m = 0,
+	  ll::parser::attr * attributes = NULL,
+	  min::uns32 n = 0 );
 
 // Given a min::gen value, return the .initiator
 // attribute of that value if it is an object with a

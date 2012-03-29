@@ -509,11 +509,11 @@ defsubtype indexint int32
 external:
     constant int32 max index
 
-inline indexint .conversion. ( int32 i ) unchecked:
+inline indexint .convert. ( int32 i ) unchecked:
     assert ( 0 <= i && i < max index )
     return i
 
-inline int32 .conversion. ( indexint i ) unchecked:
+inline int32 .convert. ( indexint i ) unchecked:
     int32 j = i
     fact ( 0 <= j && j < max index )
     return j
@@ -553,22 +553,22 @@ inline bool is adr ( specialadr a ) unchecked:
     unsadr x = a
     return x >= 4096
 
-inline adr .conversion. ( specialadr a ) unchecked:
+inline adr .convert. ( specialadr a ) unchecked:
     unsadr x = a
     assert ( x >= 4096 )
     return a
 
-inline unsadr .conversion. ( specialadr a ) unchecked:
+inline unsadr .convert. ( specialadr a ) unchecked:
     unsadr x = a
     assert ( x < 4096 )
     return x
 
-inline specialadr .conversion. ( unsadr x ) unchecked:
+inline specialadr .convert. ( unsadr x ) unchecked:
     assert ( x < 4096 )
     adr a = x
     return a
 
-inline specialadr .conversion. ( adr a ) unchecked:
+inline specialadr .convert. ( adr a ) unchecked:
     unsadr x = a
     assert ( x >= 4096 )
         // We could omit this assert if we knew that
@@ -953,7 +953,7 @@ y = z             // Translates to .set.(.get(&x),.get.(&z))
                   // .set.(x,...) is probably undefined
 \end{verbatim}\end{indpar}
 
-In general, if {\tt x} has type `$T1${\tt ->}$T1$ {\tt x}{\tt ->}$T3$'
+If {\tt x} has a type of the form `$T1${\tt ->}$T2$ {\tt x}',
 then `{\tt x = ...}' translates to `{\tt .set.(\&x,...)}' and
 `{\tt ... = ... x ...}' translates to `{\tt ... = ... .get.(\&x) ...}',
 but we simplify by writing the untranslated versions in these cases.
@@ -966,9 +966,9 @@ open files, one might have:
 
 \begin{indpar}\begin{verbatim}
 deftype open file (...)
-open file .get. ( int8 -> open file )
+open file .get. ( int8 V -> open file )
 
-int8 V -> open file open ( ... )
+( int8 V -> open file ) open ( ... )
 
 int8 x -> open file
 x = open ( ... )
@@ -979,11 +979,11 @@ Although this is technically correct, it does not make much sense
 for an `{\tt open file}' to be passed directly as a value.  Rather
 its address should be passed.  So if {\tt int8} values are to be
 used as file descriptors, they should be convertable to {\tt adr}
-values, as in the following much improved example:
+values, as in the following improved example:
 
 \begin{indpar}\begin{verbatim}
 deftype open file (...)
-adr V -> open file .convert. ( int8 V -> open file )
+( adr V -> open file ) .convert. ( int8 V -> open file )
 unchecked:
     disp state = 0 -> uns16 @ open file
     . . . . .
@@ -999,9 +999,6 @@ uns16 y = x.state    // Translates to
 
 Here the implicit~{\tt .convert.}~function is invoked automatically because
 $X${\tt .state} is only defined if $X$ has type `{\tt adr -> open file}'.
-Also, conversions of pointer values only affect the pointer part of a type,
-so if {\tt x} has type `{\tt int8 ->}~$T$' then {\tt .convert.(x)} has type
-`{\tt adr ->}~$T$' for any $T$.
 
 We end this section with a more refined example.
 Suppose `{\tt ptr}' is an indirect address, that is,
@@ -1010,27 +1007,39 @@ real address of the variable pointed at.  Further suppose
 the real address has the user defined `{\tt relocatable}'
 lifetime qualifier, as described in
 Section~\secref{LIFETIME-QUALIFIERS}, and the
-location where the real address is stored as `{\tt static}'
+location where the real address is stored has the `{\tt static}'
 lifetime qualifier.
 This could all be implemented by the code:
 
 \begin{indpar}[0.2in]\begin{verbatim}
-defsubtype ptr unsadr
+defsubtype ptr adr
 
 inline relocatable adr .convert. ( ptr p ) unchecked:
     adr p2 = p -> relocatable adr; return * p2
 inline ptr .convert. ( static adr p -> relocatable adr ) unchecked:
     return p
 
-void allocate ( adr V -> ptr -> uns32 )
-    // Makes ptr point at uns32 value.
-
-relocatable adr stub -> uns32
+static:
+    relocatable adr stub -> uns32
+    // The full type of stub is:
+    //     constant static adr -> relocatable adr stub -> uns32
 
 ptr p = & stub -> uns32  // Translates to p = .convert.(&stub)
 * p = 5                  // Translates to .set(.convert.(p),5)
 uns32 y = * p            // Translates to y = .get.(.convert.(p))
+ptr q = & stub -> uns64  // Error! No implicit conversion available.
 \end{verbatim}\end{indpar}
+
+A pointer value of type `$T1${\tt ->}$T2$' can be converted to type
+`$T3${\tt ->}$T4$' by a `{\tt .convert.}' implicit conversion function
+that converts any value of type $T1$ to a value of type $T3$, but
+only if $T2$ is identical to $T4$.  Thus the assignment of {\tt p}
+above is legal and the assignment of {\tt q} is not.
+
+
+\subsection{Displacements}
+\label{DISPLACMENTS}
+
 
 \subsection{Tuples}
 \label{TUPLES}

@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 27, 2012
+March 29, 2012
  
 \end{center}
 
@@ -807,63 +807,28 @@ this extra information is
 used by the compiler to type check expressions such as
 `{\tt x.member1}'.
 
+\subsection{Independent Block Types}
+\label{INDEPENDENT-BLOCK-TYPES}
 
-\subsection{Code and Frame Blocks}
-\label{CODE-AND-FRAME-BLOCKS}
+Some RAM blocks are `independent'.  Two independent blocks
+are guarenteed to not overlap.
 
-A \key{code block} is a sequence of executable program statements
-and code subblocks.  Some code blocks are nested inside other
-code blocks, and some are not.
-
-A function is a code block whose execution is initiated by a
-call statement.  The execution of the code block containing
-the call statement is interrupted in order to execute the function
-code block.  When the call returns, the interrupted execution
-resumes.
-
-Code block executions are grouped into threads.  At any time, only one code
-block at a time may be executing statements within a given thread.
-
-When a code block begins executing, a \key{frame}
-is allocated to the \mkey{stack}{of thread} of the thread containing
-the code block execution.  This frame is a RAM block that holds
-data for the code block execution.  Thus there is a
-1-1 correspondence between code block executions and frame blocks.
-The frame block size can change during the code block execution.
-
-A thread stack is a RAM block, and a frame is a
-RAM subblock of the stack of
-the thread that contains the code block execution associated with
-the frame.  During the code block execution the end of this frame
-is the end of the thread stack, and it is this end which can increase
-or decrease thereby changing the size of both the stack and the frame.
-
-Code blocks are sequences of lexemes, and are \underline{not} RAM blocks.
-Associated with each code block is a \key{code RAM block} which is
-the code block translated into machine code.  The code RAM block of
-a code subblock need not be part of the code RAM block of the containing
-code block, but must be associated with the latter.
-
-\subsection{Block Types}
-\label{BLOCK-TYPES}
-
-There are three basic kinds of blocks: static blocks,
+There are three basic kinds of independent blocks: static blocks,
 stack blocks, and heap blocks.
 
 \ikey{Static blocks}{static block}
 are never deallocated or relocated.  They can be \skey{link block}s that
 are allocated when a program is loaded, or they can be
-user allocated blocks that are never deallocated or relocated.
+user allocated blocks that are never deallocated.
 
 \ikey{Stack blocks}{stack block}
 are allocated to thread stacks.  Frames
-(\pagref{CODE-AND-FRAME-BLOCKS}) are stack blocks.
-Stack blocks are allocated by a code block execution, and cannot
-be deallocated until the code block execution terminates.
-In some run-time systems frame blocks may be relocated.
+(see \secref{CODE-AND-FRAME-BLOCKS}) are stack blocks.
+A stack block is allocated by a code block execution, and is
+deallocated when the code block execution terminates.
 
 \ikey{Heap blocks}{heap block}
-are user allocated blocks that may be deallocated or relocated.
+are user allocated blocks that may be deallocated.
 Usually they are garbage collectible.
 
 All the heap blocks that are garbage collectible by the
@@ -875,7 +840,83 @@ blocks in the heap.  And for each heap and each thread stack
 there is a separate list of stack block locations
 that might hold pointers into blocks in the heap.
 
+Independent RAM blocks may be relocated in RAM.  This applies
+even to link blocks.
+
+\subsection{Code and Frame Blocks}
+\label{CODE-AND-FRAME-BLOCKS}
+
+A \key{code block} is a sequence of executable program statements
+and code subblocks.  Some code blocks are subblocks nested inside other
+code blocks, and some are not.
+
+Code blocks are sequences of lexemes, and are \underline{not} RAM blocks.
+Associated with each code block is a \key{code RAM block} which is
+the code block translated into machine code.  The code RAM block of
+a code subblock need not be part of the code RAM block of the containing
+code block, but must be associated with the latter.
 Code RAM blocks may be static, stack, or heap blocks.
+
+A function is a code block whose execution is initiated by a
+call statement.  The execution of the code block containing
+the call statement is interrupted in order to execute the function
+code block.  When the call returns, the interrupted execution
+resumes.
+
+Similarly the execution of a code subblock interrupts the execution
+of its containing code block.
+
+Code block executions are grouped into \skey{thread}s.
+At any time, only one code
+block may be executing statements within a given thread.
+
+Each thread has a \key{stack}.
+When a code block begins executing, a \key{frame}
+is allocated to the stack of the thread containing
+the code block execution.  This frame is a RAM block that holds
+data for the code block execution.  Thus there is a
+1-1 correspondence between code block executions and frame blocks.
+
+A thread stack is a sequence of RAM block.
+A frame has a fixed part which is allocated when its code block
+execution begins and which has a size determined at compile time.
+A frame may also have extensions which are allocated during its
+code block execution.  Deallocation of all parts of the
+frame occurs only when the frame's code block execution terminates.
+
+Stack variables are themselves independent blocks allocated to
+a frame or its extensions.  A variable whose size is determined
+at compile time and which is sufficiently small will be allocated
+in the fixed part of the frame.  For example, the declaration
+\begin{center}
+\tt int64 x;
+\end{center}
+allocates an independent block for {\tt x} in the frame associated
+with the execution of a code block containing this declaration, and
+the complete type of {\tt x} is
+\begin{center}
+\tt constant stack adr -> int64 x;
+\end{center}
+where {\tt \& x} is the address of {\tt x} within the fixed part of
+the frame.  However a variable of large size, or a variable of size
+not known at compile time, will be allocated to an extension of
+the frame.  For example, the declarations
+\begin{center}
+\tt
+\begin{tabular}{l}
+deftype my type(M) (24+8*M,0,8) \\
+my type(M) y;
+\end{tabular}
+\end{center}
+where {\tt M} is a function argument
+causes {\tt y} to be allocated as an independent block in an
+extension of the frame, and the complete type of {\tt y} is
+\begin{center}
+\tt constant stack adr -> constant stack adr -> my type y;
+\end{center}
+where {\tt \& \& y} is the address of the variable
+{\tt \& y} that is allocated within the fixed part of
+the frame, and the value of this variable is the address of {\tt y}.
 
 \subsection{Pointer Types}
 \label{POINTER-TYPES}

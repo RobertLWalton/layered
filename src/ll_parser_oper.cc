@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 20 04:22:29 EDT 2012
+// Date:	Wed Mar 28 14:30:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,10 +44,8 @@ struct oper_stack_struct
     //
     min::int32 precedence;
     PAR::token first;
-    bool operator_required;
-        // True first token is a postfix operator
-	// terminated expression, so that the next
-	// thing in the input must be an operator.
+    TAB::oper primary_oper;
+    PAR::token primary_oper_token;
 };
 
 typedef min::packed_vec_insptr<oper_stack_stuct>
@@ -119,7 +117,20 @@ static oper_pass_run ( PAR::parser parser,
     ::oper_stack_struct D;
     D.first = first;
     D.precedence = OP::NO_PRECEDENCE;
-    D.operator_required = false;
+    D.primary_oper = min::NULL_STUB;
+    D.primary_oper_token = min::NULL_STUB;
+
+    enum
+    {
+	NO_REQUIREMENT = 0,
+	    // None of below.
+        OPERATOR_REQUIRED = 1,
+	    // Preceding is postfix terminated
+	    // expression.
+	OPERAND_REQUIRED = 2
+	    // Preceding is infix or prefix
+	    // operator.
+    } state = NO_REQUIREMENT;
 
     PAR::token current = first;
     while ( current != next )
@@ -127,7 +138,7 @@ static oper_pass_run ( PAR::parser parser,
 	PAR::token oper_first = current;
 
 	// Find operator if possible.
-	// * Unselected operator do not qualify.
+	// * Unselected operators do not qualify.
 	// * AFIX operators only qualify if they have
 	//   a precedence matching a precedence in
 	//   oper_stack.
@@ -145,16 +156,13 @@ static oper_pass_run ( PAR::parser parser,
 	      selectors, oper_pass->oper_table,
 	      next );
 	OP::oper oper = (OP::oper) root;
-	TAB::root next_root = root;
-	while ( next_root != NULL_STUB
+	while ( root != NULL_STUB
 		&&
 		( oper == NULL_STUB
 		  ||	     
 		  ( oper->flags & OP::AFIX
 		    &&
-		    ( ! operator_found
-		      ||
-		      check_precedence
+		    ( check_precedence
 		          ( oper->precedence,
 			    oper_stack ) ) )
 		  ||
@@ -167,24 +175,48 @@ static oper_pass_run ( PAR::parser parser,
 		    &&
 		    oper_first == first ) ) )
 	{
-	    next_root = next_root->next;
-	    oper = (OP::oper) next_root;
-	    if ( next_root != NULL_STUB ) continue;
 	    root = PAR::find_next_entry
 		( parser, current, key_prefix,
 		      selectors, root );
-	    next_root = root;
-	    oper = (OP::oper) next_root;
+	    oper = (OP::oper) root;
 	}
 
 	if ( oper == NULL_STUB )
 	{
-	    if ( D.oper_required )
+	    if ( state == OPERATION_REQUIRED )
 	    {
+	        // TBD: insert operator
 	    }
+	    else
+	    {
+		current = current->next;
+		state = NO_REQUIREMENT;
+		continue;
+	    }
+	}
+	else if ( state == OPERAND_REQUIRED )
+	{
+	    // TDB: insert before operator
+	}
 
-	    current = current->next;
-	    continue;
+	// TDB: make operator token
+
+	if ( oper->precedence < D.precedence )
+	{
+	    if ( D.primary_oper != min::NULL_STUB )
+		D.primary_oper->reformat
+		    ( parser, pass->next,
+		      D.primary_oper,
+		      first, oper_first,
+		      D.primary_oper_token );
+	    else
+	        OP::default_reformat
+		    ( parser, pass->next,
+		      D.primary_oper,
+		      first, oper_first,
+		      D.primary_oper_token );
+	    while ( oper->precedence < D.precedence )
+	        D = oper_stack.pop();
 	}
 
 	if ( oper_first == first )

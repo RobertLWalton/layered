@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 28 14:30:50 EDT 2012
+// Date:	Sun Apr  1 05:00:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -116,23 +116,28 @@ static oper_pass_run ( PAR::parser parser,
     //
     ::oper_stack_struct D;
     D.first = first;
-    D.precedence = OP::NO_PRECEDENCE;
+    D.precedence = OP::MIN_PRECEDENCE;
     D.primary_oper = min::NULL_STUB;
     D.primary_oper_token = min::NULL_STUB;
 
-    enum
+    enum // Preceeding part of expression is:
     {
-	NO_REQUIREMENT = 0,
-	    // None of below.
-        OPERATOR_REQUIRED = 1,
-	    // Preceding is postfix terminated
-	    // expression.
-	OPERAND_REQUIRED = 2
-	    // Preceding is infix or prefix
-	    // operator.
-    } state = NO_REQUIREMENT;
+	EMPTY			= ( 1 << 0 ),
+	    // Empty
+	OPERAND			= ( 1 << 1 ),
+	    // Non-operator, non-empty
+        POSTFIX		 	= ( 1 << 2 ),
+	    // Subexpression terminated by postfix
+	    // operator
+	PREFIX			= ( 1 << 3 ),
+	    // Prefix operator
+	INFIX			= ( 1 << 4 ),
+	    // Infix operator
+	NOFIX			= ( 1 << 5 ),
+	    // Nofix operator
+    } state = EMPTY;
 
-    PAR::token current = first;
+    PAR::token current = D.first;
     while ( current != next )
     {
 	PAR::token oper_first = current;
@@ -143,9 +148,9 @@ static oper_pass_run ( PAR::parser parser,
 	//   a precedence matching a precedence in
 	//   oper_stack.
 	// * PREFIX operators qualify only if
-	//   oper_first == first.
+	//   oper_first == D.first.
 	// * INFIX and POSTFIX operators qualify only if
-	//   oper_first != first.
+	//   oper_first != D.first.
 	// After rejection operators deeper in the stack
 	// are tried, and then shorter operators are
 	// tried.
@@ -168,12 +173,12 @@ static oper_pass_run ( PAR::parser parser,
 		  ||
 		  ( oper->flags & OP::PREFIX
 		    &&
-		    oper_first != first )
+		    oper_first != D.first )
 		  ||
 		  ( oper->flags & (   OP::INFIX
 		                    | OP::POSTFIX )
 		    &&
-		    oper_first == first ) ) )
+		    oper_first == D.first ) ) )
 	{
 	    root = PAR::find_next_entry
 		( parser, current, key_prefix,
@@ -183,57 +188,72 @@ static oper_pass_run ( PAR::parser parser,
 
 	if ( oper == NULL_STUB )
 	{
-	    if ( state == OPERATION_REQUIRED )
+	    if ( state & POSTFIX )
 	    {
 	        // TBD: insert operator
 	    }
 	    else
 	    {
 		current = current->next;
-		state = NO_REQUIREMENT;
+		state = OPERAND;
 		continue;
 	    }
 	}
-	else if ( state == OPERAND_REQUIRED )
+	else if ( state & ( PREFIX | INFIX ) )
 	{
-	    // TDB: insert before operator
+	    // TDB: insert operand
 	}
 
-	// TDB: make operator token
+	// Make operator token.
+	//
+	while ( oper_first != current->previous )
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			current->previous ) );
 
-	if ( oper->precedence < D.precedence )
+	oper_first->type = PAR::OPERATOR;
+	oper_first->value = oper->label;
+
+	while ( ( oper->precedence <= D.precedence
+	          &&
+		  ( oper->oper_flags & OP::PREFIX ) == 0 )
 	{
 	    if ( D.primary_oper != min::NULL_STUB )
 		D.primary_oper->reformat
 		    ( parser, pass->next,
 		      D.primary_oper,
-		      first, oper_first,
+		      D.first, oper_first,
 		      D.primary_oper_token );
 	    else
 	        OP::default_reformat
 		    ( parser, pass->next,
 		      D.primary_oper,
-		      first, oper_first,
+		      D.first, oper_first,
 		      D.primary_oper_token );
-	    while ( oper->precedence < D.precedence )
-	        D = oper_stack.pop();
+	    D = oper_stack.pop();
 	}
 
-	if ( oper_first == first )
+	if ( oper_first == D.first )
 	{
-	    // Prefix, nofix, or afix operator.
+	    // Prefix or nofix operator.
 	    //
 	    assert ( oper->flags & (   OP::PREFIX
-		                     | OP::NOFIX
-		                     | OP::AFIX ) );
+		                     | OP::NOFIX ) );
+	    D.primary_oper = oper;
+	    D.primary_oper_token = oper_first;
+	    oper_stack.push() = D;
+	    D.first = current;
+	    D.precedence = oper->precedence;
+	    D.primary_oper = NULL_STUB;
+	    D.primary_oper_token = NULL_STUB;
 	}
 	else
 	{
-	    // Postfix, nofix, afix, or infix operator.
+	    // Postfix, nofix, or infix operator.
 	    //
 	    assert ( oper->flags & (   OP::POSTFIX
 		                     | OP::NOFIX
-		                     | OP::AFIX
 		                     | OP::INFIX ) );
 	}
     }

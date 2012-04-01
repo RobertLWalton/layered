@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 28 14:09:16 EDT 2012
+// Date:	Sun Apr  1 03:37:38 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -139,7 +139,8 @@ typedef min::packed_struct_updptr<token_struct>
     token;
 enum // Token types (see below).
 {
-    EXPRESSION		= 0xFFFFFFFF
+    EXPRESSION		= 0xFFFFFFFF,
+    OPERATOR		= 0xFFFFFFFE
 };
 struct token_struct
 {
@@ -153,6 +154,10 @@ struct token_struct
 	// For expressions:
 	//
     	//	EXPRESSION
+	//
+	// For composites:
+	//
+	//	OPERATOR
 
     const min::gen value;
         // Value for some lexeme types and for
@@ -832,7 +837,7 @@ ll::parser::table::root find_next_entry
 // and ending just before `next'.
 //
 // Then replaces these tokens (which may have been
-// changed by the passes) by an resulting EXPRESSION
+// changed by the passes) by a resulting EXPRESSION
 // token.  Adds the m attributes whose names and values
 // are given, and allows for the latter addition of n
 // attributes.  Sets the position of the new EXPRESSION

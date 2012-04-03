@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 2, 2012
+April 3, 2012
  
 \end{center}
 
@@ -1717,6 +1717,7 @@ and
 \emkey{bracket-name} ::= {\em opening-bracket-name}
 			 \ttmkey{...}{in {\em bracket-name}}
 			 {\em closing-bracket-name}
+\label{BRACKET-NAME}
 \\[0.5ex]
 \emkey{opening-bracket-name} ::= {\em quoted-name}
 \\[0.5ex]
@@ -1757,6 +1758,7 @@ and
 	[ {\tt ...} {\em indentation-separator-name} ]
 \\[0.5ex]
 \emkey{indentation-mark-name} ::= {\em quoted-name}
+\label{INDENTATION-MARK-NAME}
 \\[0.5ex]
 \emkey{gluing-indentation-name} \\
     \hspace*{0.2in}~
@@ -2406,11 +2408,11 @@ The syntax of operator definitions is:
 
 \begin{indpar}
 \emkey{operator-definition} \\
-	\hspace*{0.5in}::= \ttkey{define operator}
+	\hspace*{0.5in}::= \ttkey{parser define operator}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
-	    {\em operator-flag}\,$^\star$ \\
-	    {}[ \verb|with precedence| {\em precedence} ] \\
+	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
+	    \verb|with precedence| {\em precedence} \\
 	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
 	    \end{tabular}
 	    \\[1ex]
@@ -2420,7 +2422,7 @@ The syntax of operator definitions is:
 		    $|$ & \verb|indentation mark| {\em indentation-mark-name}
 		    \end{tabular}
 		    \\[1ex]
-{\em simple-operator-name} ::= {\em name}  [see \pagref{NAME}] \\[1ex]
+{\em simple-operator-name} ::= {\em quoted-name} \\[1ex]
 {\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
 {\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
 \emkey{operator-flag} ::= \ttmkey{prefix}{operator flag}
@@ -2429,15 +2431,11 @@ The syntax of operator definitions is:
                     $|$ \ttmkey{nofix}{operator flag}
                     $|$ \ttmkey{afix}{operator flag}
 	\\[1ex]
-\emkey{precedence} ::= {\em sign-option} {\em decimal-natural}
+\emkey{precedence} ::= {\em sign-option} {\em natural-number}
 	\\[1ex]
 \emkey{sign-option} ::= {\em empty} $|$ \verb|+| $|$ \verb|-|
 	\\[1ex]
-\emkey{reformatter-name} ::= {\em function-name }
-	\\[1ex]
-\emkey{function-name} ::= {\em name}
-	\\[1ex]
-{\em name} ::= see \pagref{NAME}
+\emkey{reformatter-name} ::= {\em simple-name }
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression
@@ -2451,7 +2449,7 @@ bracketed by `\verb|{ }|' is used as an afix (see below) to the
 indentation mark).
 
 By abuse of language, the term `\key{operator}' is often used
-as a synonym for `{\em operator-name}'.
+as a synonym for `{\em simple-operator-name}'.
 
 Operators can have \skey{operator flag}s that
 affect parsing of subexpressions of the operator.  The possible
@@ -2461,14 +2459,18 @@ flags are `{\tt infix}', `{\tt prefix}', `{\tt postfix}',
 An \ttkey{infix} operator must be between two non-empty operands,
 while a \ttkey{prefix} operator must precede a non-empty operand,
 and a \ttkey{postfix} operator must follow a non-empty operand.
+A prefix operator can only appear at the beginning of a subexpression and
+has no preceding operand.
+A postfix operator can only appear at then end of a subexpression and has
+no following operand.
 
-A \ttkey{nofix} operator is like an infix operator but may have
-empty operands.  It may appear at the beginning or ending of
-an expression, or two nofix operators may be consecutive.
+A \ttkey{nofix} operator is like an infix operator but may or may not be
+preceded or followed by operands.  It may appear at the beginning or ending of
+an expression, or two nofix operators may be consecutive in an expression.
 
-An \ttkey{afix} operator is like a nofix operator but must follow
-another operator in the expression that has the same
-precedence.  Explicit subexpressions bracketed by `\verb|{ }|'
+An \ttkey{afix} operator is must follow
+another operator that has the same precedence in a subexpression.
+Explicit subexpressions bracketed by `\verb|{ }|'
 are standard afix operators with the same precedence
 as the \verb|<--| operator, so that an expression such as:
 \begin{center}
@@ -2483,37 +2485,42 @@ and \underline{not} as
 \verb|(sum from X through Y) <-- (integer X, integer Y { ... })|
 \end{center}
 
-Inside a subexpression (with brackets removed),
-an operator can be prefix if it begins the subexpression,
-or follows another operator that is not postfix.
-An operator can be postfix if it ends the
-subexpression or precedes another operator that is not prefix.  
-An operator can be infix if it does not begin or end the subexpression,
-follow an operator that is prefix,
-or precede an operator that is postfix.
-
 An\label{FIXITY-RULES}
-operator cannot have two kinds of fixity at once, except that
-a operator can be both prefix and infix, or both prefix and postfix.
-An operator that can be prefix
-and either postfix or infix is taken to be prefix if and only if it begins
-a subexpression or follows an operator previously
-determined in a left-to-right scan to be prefix, infix, nofix, or afix.
+operator must be prefix, infix, postfix, or nofix.
+A prefix operator may also be infix or postfix, but may not be afix.
+An infix operator may also be prefix or afix, but not postfix.
+An postfix operator may also be prefix or afix, but not infix.
+A nofix operator may afix, but not prefix, infix, or postfix.
+
+This can be summarized in the following compatibility table:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|l}
+\cline{1-5}
+prefix & infix  & postfix & nofix & afix & \\
+\hline
+\multicolumn{1}{c|}{}
+       & yes    & yes     & no    & no   &  \multicolumn{1}{|l|}{prefix} \\
+\cline{2-6}
+\multicolumn{2}{c|}{}
+                & no      & no    & yes   &  \multicolumn{1}{|l|}{infix} \\
+\cline{3-6}
+\multicolumn{3}{c|}{}
+                          & no    & yes   &  \multicolumn{1}{|l|}{postfix} \\
+\cline{4-6}
+\multicolumn{4}{c|}{}
+                                  & yes   &  \multicolumn{1}{|l|}{nofix} \\
+\cline{5-6}
+\end{tabular}
+\end{center}
 
 The {\em precedence} of an operator is an integer.  Precedence is used to
 determine which operators are inside and outside implicit brackets.
 Operators with higher precedence are placed inside the 
 implicit brackets that surround operands of operators of lower precedence.
-
-The precedence
-in an operator definition applies only to the operator when it is used
-as an infix, nofix, or afix operator; prefix and postfix operators are always
-treated as having precedence higher than any infix, nofix, or afix operator.
-If several prefix and postfix operators apply to a single operand,
-the postfix operators are all inside the implicit brackets surrounding
-the prefix operator operands (i.e., the postfix operators are
-`executed first').  Thus `\verb|-x[1]|' is equivalent to `\verb|-(x[1])|'
-(where `\verb|[1]|' is treated as a postfix operator).
+Implicit brackets are used to define subexpressions, so that all operators
+in a subexpressions that are not in sub-subexpressions are of the same
+precedence.
 
 The {\em reformatter-name} in an {\em operator-definition} names a
 function that is called after all other parsing has been done to
@@ -2533,10 +2540,11 @@ use parentheses \verb/(|  |)/ to indicate implicit parentheses.
 \subsubsection{Standard Operators}
 \label{STANDARD-OPERATORS}
 
-The following are the standard operators
+The standard operators are given on 
+\pagref{STANDARD-OPERATOR-LIST}.
 
+\begin{figure*}[!p]
 \begin{center}
-
 \begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
 
 precedence & reformatter	& type	& operator	& meaning 
@@ -2583,8 +2591,9 @@ none	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
 none	& \ttkey{subscript}	& \tt postfix	&  \ttnbkey{[...]}
 								& subscript \\
 \end{tabular}
-
 \end{center}
+\label{STANDARD-OPERATOR-LIST}
+\end{figure*}
 
 
 Below be describe the effects of standard operator reformatters.
@@ -2609,8 +2618,7 @@ are introduced by reformatting.  The syntax involving temporaries is:
 
 \begin{indpar}
 \emkey{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
-\emkey{temporary} ::= \verb|$| {\em decimal-natural} \\[1ex]
-{\em decimal-natural} ::= see \pagref{DECIMAL-NATURAL}
+\emkey{temporary} ::= \verb|$| {\em natural-number}
 \end{indpar}
 
 During reformatting, a subexpression may be replaced by
@@ -2967,15 +2975,15 @@ operator of precedence greater than
 the precedence of the infix or postfix operator,
 else the infix or postfix operator is not recognized.
 \item[Rule 3:] A recognized postfix operator must be followed by the end of
-the entire token list or by a postfix, infix, or nofix operator
-of precedence no greater than the precedence of the postfix operator,
+the entire token list or by a postfix, infix, or nofix operator,
 else an `error nofix operator' is inserted after the postfix operator
 and an error is announced.
-\item[Rule 4:] A recognized infix operator must be followed by a non-operator
+\item[Rule 4:] A recognized infix or prefix
+operator must be followed by a non-operator
 token or by a prefix or nofix operator
 of precedence greater than the precedence of the infix operator,
 else an `error operand' which is not an operator
-is inserted after the infix operator
+is inserted after the infix or prefix operator
 and an error is announced.
 \end{itemlist}
 
@@ -3004,6 +3012,10 @@ operator is pushed into $P$.  Similarly for a prefix operator,
 except that it is the precedence of the operator minus one that
 is pushed into $P$.
 
+In the following $F$ is used to denote both the stack $F$ and
+the top element of this stack.  Similarly $P$ is used to denote the
+stack $P$ and the top element of this stack.
+
 Then the operator parser pass algorithm simply repeats the following
 steps in a loop:
 \begin{itemlist}[1.2in]
@@ -3013,8 +3025,7 @@ If $C=F$, infix and postfix operators of precedence equal to or
 greater than $P$ are ignored.  If $C\neq F$, prefix operators are ignored.
 Prefix operators of precedence less than $P$ are ignored.
 Any afix operator whose precedence is not in the $P$ stack is ignored.
-Any prefix operator whose precedence is less than the top of the $P$
-stack is ignored.
+Any prefix operator whose precedence is less than $P$ is ignored.
 Any operator whose selectors are disjoint from the current parser context
 selectors is ignored.  Among all non-ignored operators, a longest
 is selected, and among all the longest, the one with the most recent
@@ -3024,7 +3035,8 @@ If an operator was found in Loop Step 1, replace its tokens by a single
 OPERATOR token and point $C$ at that token.
 \item[Loop Step 3:]
 If $C\neq N$, no operator was find in Loop Step 1, and the token before $C$
-is a postfix operator, insert the error nofix operator as a single
+is a postfix operator, insert the error nofix operator of precedence
+equal to $P$ as a single
 OPERATOR token before $C$, set $C$ to point at it,
 announce an error, and continue as if an operator were found.
 \item[Loop Step 4:]
@@ -3036,13 +3048,13 @@ Note that after this step either $C=N$ or an operator was found in Loop Step 1
 or generated in Loop Step 2.
 \item[Loop Step 5:]
 If $C=N$ or the operator found in Loop Step 1 or generated by Loop Step 2
-has a precedence equal to or below the top of $P$, and if the
+has a precedence equal to or below $P$, and if the
 token before $C$ is a prefix or infix operator, insert
-an error lexeme token before $C$,
+an error operand lexeme token before $C$,
 announce an error, and then continue as if no error were found.
 \item[Loop Step 6:]
 If $C=N$ or the operator found in Loop Step 1 or generated by Loop Step 2
-has precedence less than or equal to the top of the $P$ stack,
+has precedence less than or equal to $P$,
 first apply Step 3 and Step 4 above to the list of tokens beginning with
 $F$ and ending just before $C$, and second pop the $F$ and $P$ stacks.
 
@@ -3050,13 +3062,16 @@ Repeat this step until the operator has precedence greater than $P$
 or the stacks are empty.  Emptying the stacks is only possible if
 $C=N$, and in this case, terminate the algorithm.
 \item[Loop Step 7:]
-Push the location of the token after $C$ into the $F$ stack.
-Into the $P$ stack push the precendence of the operator found
-if that is infix or nofix, the precedence of the operator found
-minus one if the operator is prefix, or the precedence of the
-operator found plus one of the operator is postfix.
+If a postfix operator was found in Loop Step 1,
+move $C$ to the next token (after the postfix operator),
+apply Step 3 and Step 4 above to the list of tokens beginning with
+$F$ and ending just before $C$, point $F$
+at the single non-operator
+token produced by Step 4, an go to the next loop iteration.
 \item[Loop Step 8:]
-Move $C$ to the next token and go to the next loop iteration.
+Move $C$ to the next token, 
+push $C$ into the $F$ stack and the precedence of the operator
+found into the $P$ stack.  Then go to the next loop iteration.
 \end{itemlist}
 
 	
@@ -3065,157 +3080,6 @@ Move $C$ to the next token and go to the next loop iteration.
 
 TBD
 
-a sequence of operators and.  It uses an input list which it initializes to the parser's
-input argument, and an output list which is initially
-empty.  The parser executes a parsing loop that removes lexemes
-from the beginning of the input list and adds lexemes and subexpressions
-to the end of the output list.  When the parser terminates, the output
-list becomes the returned parsed expression.
-
-The operator parser has a helper function that is called with
-a single optional argument called the \key{terminating precedence}.
-The helper function parses an initial segment of the input list,
-discards this segment from the input list, and returns the parsed
-result of this segment as the helper function value.
-The initial segment is terminated by the end of the input list,
-or by an operator whose precedence
-is equal to or less than the terminating precedence argument.
-
-The parser proper does nothing but execute the helper function with
-a terminating precedence lower than that of any operator.
-
-The operator helper function has an output list which it initializes
-to be empty and into which it copies lexemes and subexpressions.
-Some of these may be operators.
-Operators in the output list are identified when they are moved from beginning
-of the input list to the end of the output list.
-The first such operator in the output list is called the \key{lead operator},
-and its definition is called the \key{lead operator definition}.
-This definition provides things like reformatters and evaluators when
-the output list is viewed as an expression.
-
-The helper function uses an operation called \key{reformatting the
-output list}.  This consists of calling the reformatter of the lead
-operator definition, and replacing the output list with the reformatter's
-returned value.  If there is no lead operator, nothing is done.
-
-The helper function also
-uses an operation called \key{compacting a list}.
-If the list contains zero or just one element, nothing is done.  Otherwise
-the list is replaced by a one element list whose only element is
-the previous list.
-
-In reading the following algorithm, it may be useful to recall that an
-operator can have only one fixity, prefix, postfix, infix, nofix, or afix,
-except for the case of a prefix operator, which can also be either infix
-or postfix (but not both) (see \pagref{FIXITY-RULES}).
-
-After initializing its the output list to empty,
-the helper function executes a \key{parsing loop} that repeats the
-following iteration:
-
-\begin{enumerate}
-
-\item The beginning of the input list is inspected to see if it
-begins with an active operator (i.e., an operator with an active
-operator definition in the parsing stack).  Afix operators are ignored.
-If more than one active operator qualifies, the operator whose definition
-is nearest the top of the parsing definition stack is selected
-(even if it is shorter than the other operator).
-If the input list is empty, it does not begin with an operator.
-
-\item If the input list does not begin with a active operator,
-and the list is not empty, the lexeme or subexpression at the
-beginning of the input list is moved to the end of the output list, and
-the parsing loop iterates.
-
-\item If the input list is not empty, it begins with an active operator.
-The \mkey{operator fixity}{in parsing loop}
-and \mkey{operator precedence}{in parsing loop} are determined as follows:
-
-\begin{enumerate}
-
-\item If the output list is empty, and the operator can be prefix
-or nofix, the operator fixity is prefix if the operator can be prefix,
-or nofix otherwise (the operator cannot be both prefix and nofix).
-
-\item If the output list is empty
-and the operator cannot be prefix or nofix, then an error operand
-is inserted into the output list, a parsing error is announced, and
-the operator fixity is determined by the following.
-
-\item If the output list is non-empty and the operator can be postfix,
-infix, or nofix, the operator fixity is postfix if the operator can
-be postfix, infix if the operator can be infix, or nofix if the operator
-can be nofix (the operator cannot be more than one of these fixities).
-
-\item If the output list is non-empty
-and the operator cannot be postfix, infix, or nofix,
-then an error nofix operator is inserted at the \underline{beginning}
-of the \underline{input list}, a parsing error is announced,
-and the fixity is set to nofix.
-
-\item The operator precedence is set to the precedence
-in the active operator definition if the active operator fixity
-is infix or nofix,
-and is otherwise the error precedence if the operator is an error
-nofix operator, the prefix precedence if the operator fixity is
-prefix, or the postfix precedence if the operator fixity is
-postfix.
-
-\end{enumerate}
-
-\item If the input list is empty, or if
-a terminating precedence argument was given, the operator fixity is
-not prefix, and the operator precedence
-is equal to or less than the terminating precedence argument,
-the parsing loop and helper function terminate.
-Nothing is removed from the input list.  The output list is reformatted
-and returned as the value of the helper function.
-
-\item If the output list is non-empty, it
-is reformatted and compacted (becoming the
-first operand of the active operator that is infix or nofix, or
-the only operand of an active operator that is postfix).
-Note that because of what happens below, the output list cannot
-consist of one element that is an operator.
-
-\item The operator is removed from the input list and copied
-to the output list.  The operator will be the first
-operator in the output list, and therefore
-becomes the lead operator of the output list.
-
-\item
-If the operator fixity is prefix, infix, or nofix, then
-a \key{parsing subloop} that repeats the following iteration is executed:
-
-\begin{enumerate}
-
-\item The parsing helper is called with
-the operator precedence as its terminating precedence argument.
-
-\item If the returned parsed expression is the empty list, and
-the operator fixity is prefix or infix, the returned parsed expression is
-replaced by an error operand, and a parsing error is announced.
-
-\item The returned parsed expression is compacted, and then it
-is added by concatenation to the end of the output list (thus
-zero or one element is added to the output list).
-
-\item If the operator fixity is prefix, or if
-the input list now begins with a active operator that cannot be
-infix, nofix, or afix, or that has a precedence below the
-operator precedence,
-the parsing subloop terminates and the parsing loop iterates.
-
-\item The input list must now begin with an infix, nofix, or
-afix active operator whose precedence equals the operator precedence.
-That operator is moved from the input list to the output list,
-and the parsing subloop iterates.
-
-\end{enumerate}
-
-\end{enumerate}
 
 
 \clearpage

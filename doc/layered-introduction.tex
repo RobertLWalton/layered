@@ -2956,15 +2956,14 @@ left to right.  At any point in the scan the pass obeys the
 following rules:
 \begin{itemlist}[0.7in]
 \item[Rule 1:] A prefix operator must be preceded by the beginning of
-the entire token list, or by an infix or nofix operator
-of precedence less than the precedence of the prefix operator,
-or by a prefix operator of precedence less than or equal to
-the precedence of the prefix operator,
+the entire token list, or by a prefix, infix, or nofix operator
+of precedence less than or equal to the precedence of the prefix operator,
 else the prefix operator is not recognized.
 \item[Rule 2:] An infix or postfix operator
 must be preceded by a non-operator token,
-or by an infix, nofix, or postfix
-operator of precedence greater than or equal to
+or by a postfix operator,
+or by a prefix, infix, or nofix
+operator of precedence greater than
 the precedence of the infix or postfix operator,
 else the infix or postfix operator is not recognized.
 \item[Rule 3:] A recognized postfix operator must be followed by the end of
@@ -2972,8 +2971,8 @@ the entire token list or by a postfix, infix, or nofix operator
 of precedence no greater than the precedence of the postfix operator,
 else an `error nofix operator' is inserted after the postfix operator
 and an error is announced.
-\item[Rule 5:] A recognized infix operator must be followed by a non-operator
-token or by a prefix, infix, or nofix operator
+\item[Rule 4:] A recognized infix operator must be followed by a non-operator
+token or by a prefix or nofix operator
 of precedence greater than the precedence of the infix operator,
 else an `error operand' which is not an operator
 is inserted after the infix operator
@@ -3010,9 +3009,9 @@ steps in a loop:
 \begin{itemlist}[1.2in]
 \item[Loop Step 1:]
 If $C\neq N$, find an operator beginning at token $C$, if there is one.
-If $C=F$, infix and postfix operators of precedence greater than $P$
-are ignored.  If $C\neq F$, prefix operators are ignored.
-Prefix operators of precedence equal to or less than $P$ are ignored.
+If $C=F$, infix and postfix operators of precedence equal to or
+greater than $P$ are ignored.  If $C\neq F$, prefix operators are ignored.
+Prefix operators of precedence less than $P$ are ignored.
 Any afix operator whose precedence is not in the $P$ stack is ignored.
 Any prefix operator whose precedence is less than the top of the $P$
 stack is ignored.

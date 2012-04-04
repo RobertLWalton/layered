@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  1 05:00:04 EDT 2012
+// Date:	Wed Apr  4 13:21:08 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,22 +120,10 @@ static oper_pass_run ( PAR::parser parser,
     D.primary_oper = min::NULL_STUB;
     D.primary_oper_token = min::NULL_STUB;
 
-    enum // Preceeding part of expression is:
-    {
-	EMPTY			= ( 1 << 0 ),
-	    // Empty
-	OPERAND			= ( 1 << 1 ),
-	    // Non-operator, non-empty
-        POSTFIX		 	= ( 1 << 2 ),
-	    // Subexpression terminated by postfix
-	    // operator
-	PREFIX			= ( 1 << 3 ),
-	    // Prefix operator
-	INFIX			= ( 1 << 4 ),
-	    // Infix operator
-	NOFIX			= ( 1 << 5 ),
-	    // Nofix operator
-    } state = EMPTY;
+    TAB::oper previous_oper = min::NULL_STUB;
+        // If current->previous is an OPERATOR,
+	// this is its table entry.  Else this is
+	// NULL_STUB.
 
     PAR::token current = D.first;
     while ( current != next )
@@ -150,7 +138,8 @@ static oper_pass_run ( PAR::parser parser,
 	// * PREFIX operators qualify only if
 	//   oper_first == D.first.
 	// * INFIX and POSTFIX operators qualify only if
-	//   oper_first != D.first.
+	//   oper_first != D.first or their precedence
+	//   is less than D.precedence.
 	// After rejection operators deeper in the stack
 	// are tried, and then shorter operators are
 	// tried.
@@ -173,12 +162,18 @@ static oper_pass_run ( PAR::parser parser,
 		  ||
 		  ( oper->flags & OP::PREFIX
 		    &&
-		    oper_first != D.first )
+		    ( oper_first != D.first
+		      ||
+		      oper->precedence < D.precedence
+		    ) )
 		  ||
 		  ( oper->flags & (   OP::INFIX
 		                    | OP::POSTFIX )
 		    &&
-		    oper_first == D.first ) ) )
+		    oper_first == D.first
+		    &&
+		    oper->precedence >= D.precedence
+		  ) ) )
 	{
 	    root = PAR::find_next_entry
 		( parser, current, key_prefix,
@@ -186,38 +181,75 @@ static oper_pass_run ( PAR::parser parser,
 	    oper = (OP::oper) root;
 	}
 
-	if ( oper == NULL_STUB )
-	{
-	    if ( state & POSTFIX )
-	    {
-	        // TBD: insert operator
-	    }
-	    else
-	    {
-		current = current->next;
-		state = OPERAND;
-		continue;
-	    }
-	}
-	else if ( state & ( PREFIX | INFIX ) )
-	{
-	    // TDB: insert operand
-	}
-
 	// Make operator token.
 	//
-	while ( oper_first != current->previous )
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref(parser),
-			current->previous ) );
+	if ( oper != NULL_STUB )
+	{
+	    while ( oper_first != current->previous )
+		PAR::free
+		    ( PAR::remove
+			  ( PAR::first_ref(parser),
+			    current->previous ) );
+	    oper_first->type = PAR::OPERATOR;
+	    oper_first->value = oper->label;
+	}
 
-	oper_first->type = PAR::OPERATOR;
-	oper_first->value = oper->label;
+	// If error insert OPERATOR token.
+	//
+	min::int32 oper_precedence = NO_PRECEDENCE;
+	    // Effective operator precedence.
+	if ( previous_oper != min::NULL_STUB
+	     &&
+	     previous_oper->flags & OP::POSTFIX
+	     &&
+	     ( oper == min::NULL_STUB
+	       ||
+	       ( (   oper->flags
+	           & ( OP::INFIX | OP::NOFIX ) )
+	         &&
+		    oper->precedence
+		 >= previous_oper->precedence ) ) )
+	{
+	    PAR::token t =
+	        PAR::new_token ( PAR::OPERATOR );
+	    PAR::put_before
+	        ( first_ref(parser), current, t );
+	    t->position = // TBD
+	    t->value = // TBD
+	    current = current->previous;
+	    oper_precedence = D.precedence;
+	}
+	else if ( oper != min::NULL_STUB )
+	    oper_precedence = D.precedence;
+	    
+	if ( oper_precedence == NO_PRECEDENCE )
+	{
+	    current = current->next;
+	    previous_oper = NULL_STUB;
+	    continue;
+	}
 
-	while ( ( oper->precedence <= D.precedence
-	          &&
-		  ( oper->oper_flags & OP::PREFIX ) == 0 )
+	// If error insert error operand token.
+	//
+	if ( previous_oper != min::NULL_STUB
+	     &&
+	     (   previous_oper->flags
+	       & ( OP::PREFIX | OP::INFIX )
+	     )
+	     &&
+	     precedence < D.precedence )
+	{
+	    PAR::token t =
+	        PAR::new_token ( LEXSTD::word  );
+	    PAR::put_before
+	        ( first_ref(parser), current, t );
+	    t->position = // TBD
+	    t->value = // TBD
+	}
+
+	// TBD
+
+	while ( ( oper_precedence < D.precedence )
 	{
 	    if ( D.primary_oper != min::NULL_STUB )
 		D.primary_oper->reformat

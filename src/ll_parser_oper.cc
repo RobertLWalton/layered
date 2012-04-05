@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_operator.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  4 13:21:08 EDT 2012
+// Date:	Thu Apr  5 04:43:40 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -194,7 +194,7 @@ static oper_pass_run ( PAR::parser parser,
 	    oper_first->value = oper->label;
 	}
 
-	// If error insert OPERATOR token.
+	// If error insert ERROR'OPERATOR token.
 	//
 	min::int32 oper_precedence = NO_PRECEDENCE;
 	    // Effective operator precedence.
@@ -212,16 +212,22 @@ static oper_pass_run ( PAR::parser parser,
 	{
 	    PAR::token t =
 	        PAR::new_token ( PAR::OPERATOR );
+	    t->position.begin =
+	        current->previous->position.end;
+	    t->position.end =
+	        current->position.begin;
+	    t->value = PAR::error_operator;
 	    PAR::put_before
 	        ( first_ref(parser), current, t );
-	    t->position = // TBD
-	    t->value = // TBD
 	    current = current->previous;
+	    oper_first = current;
 	    oper_precedence = D.precedence;
 	}
 	else if ( oper != min::NULL_STUB )
 	    oper_precedence = D.precedence;
-	    
+
+	// If no operator found, loop to next token.
+	//
 	if ( oper_precedence == NO_PRECEDENCE )
 	{
 	    current = current->next;
@@ -229,7 +235,7 @@ static oper_pass_run ( PAR::parser parser,
 	    continue;
 	}
 
-	// If error insert error operand token.
+	// If error insert ERROR'OPERAND token.
 	//
 	if ( previous_oper != min::NULL_STUB
 	     &&
@@ -241,15 +247,21 @@ static oper_pass_run ( PAR::parser parser,
 	{
 	    PAR::token t =
 	        PAR::new_token ( LEXSTD::word  );
+	    t->position.begin =
+	        current->previous->position.end;
+	    t->position.end =
+	        current->position.begin;
+	    t->value = PAR::error_operand;
 	    PAR::put_before
 	        ( first_ref(parser), current, t );
-	    t->position = // TBD
-	    t->value = // TBD
 	}
 
-	// TBD
-
-	while ( ( oper_precedence < D.precedence )
+	// Close previous subexpressions until
+	// D.precedence < oper_precedence if
+	// this operator is not prefix.
+	//
+	if ( ( oper->flags & OP::PREFIX ) == 0 )
+	while ( oper_precedence < D.precedence )
 	{
 	    if ( D.primary_oper != min::NULL_STUB )
 		D.primary_oper->reformat
@@ -266,27 +278,58 @@ static oper_pass_run ( PAR::parser parser,
 	    D = oper_stack.pop();
 	}
 
-	if ( oper_first == D.first )
+	if ( oper->flags & OP::POSTFIX )
 	{
-	    // Prefix or nofix operator.
-	    //
-	    assert ( oper->flags & (   OP::PREFIX
-		                     | OP::NOFIX ) );
-	    D.primary_oper = oper;
-	    D.primary_oper_token = oper_first;
-	    oper_stack.push() = D;
-	    D.first = current;
-	    D.precedence = oper->precedence;
-	    D.primary_oper = NULL_STUB;
-	    D.primary_oper_token = NULL_STUB;
+	    current = current->next;
+	    if ( D.primary_oper != min::NULL_STUB )
+		D.primary_oper->reformat
+		    ( parser, pass->next,
+		      D.primary_oper,
+		      D.first, current,
+		      D.primary_oper_token );
+	    else
+	        OP::default_reformat
+		    ( parser, pass->next,
+		      D.primary_oper,
+		      D.first, current,
+		      D.primary_oper_token );
+	    D.first = current->previous;
 	}
 	else
 	{
-	    // Postfix, nofix, or infix operator.
-	    //
-	    assert ( oper->flags & (   OP::POSTFIX
-		                     | OP::NOFIX
-		                     | OP::INFIX ) );
+	    current = current->next;
+	    oper_stack.push() = D;
+	    D.precedence = oper_precedence;
+	    D.first = current;
 	}
     }
+
+    while ( true )
+    {
+        bool last =
+	    ( D.precedence == OP::NO_PRECEDENCE );
+	if ( D.primary_oper != min::NULL_STUB )
+	    D.primary_oper->reformat
+		( parser, pass->next,
+		  D.primary_oper,
+		  D.first, oper_first,
+		  D.primary_oper_token );
+	else
+	    OP::default_reformat
+		( parser, pass->next,
+		  D.primary_oper,
+		  D.first, oper_first,
+		  D.primary_oper_token );
+	if ( last ) break;
+	D = oper_stack.pop();
+    }
+
+// TBD
+
+    PAR::run_next_pass ( parser, pass, first, next
+static oper_pass_run ( PAR::parser parser,
+		       PAR::pass pass,
+		       PAR::token & first,
+		       PAR::token next,
+		       PAR::selectors selectors )
 }

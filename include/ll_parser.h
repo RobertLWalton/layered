@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  1 03:37:38 EDT 2012
+// Date:	Thu Apr  5 04:55:38 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,7 +48,9 @@ namespace ll { namespace parser {
 	left_square,    // [
 	right_square,   // ]
 	comma,		// ,
-	parser_lexeme;	// parser
+	parser_lexeme,	// parser
+	error_operator,	// ERROR'OPERATOR
+	error_operand;	// ERROR'OPERAND
 
     extern min::printer_format name_format;
         // Same as min::default_printer_format except

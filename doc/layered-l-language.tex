@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 29, 2012
+April 11, 2012
  
 \end{center}
 
@@ -1040,6 +1040,54 @@ above is legal and the assignment of {\tt q} is not.
 \subsection{Displacements}
 \label{DISPLACMENTS}
 
+
+\subsection{Types and Type Descriptors}
+\label{TYPES-AND-TYPE-DESCRIPTORS}
+
+A \key{type} is a first class compile-time value that merely equals
+the name of the type.  Thus `{\tt int32}' is both the name of a type
+and a type value.
+
+A \key{type descriptor} is a run-time value that give information
+about a type.  A type descriptor itself has a type, and every type
+descriptor type has the special property that there is only one
+value possible of the type descriptor type, and the compiler can
+figure out how to compute that value from the type itself\,%
+\footnote{This is the central idea in the Haskell programming language}.
+
+The most basic descriptor includes the size, alignment, offset, and
+mode of a type.  An example use is
+\begin{indpar}\begin{verbatim}
+basic(int32) b;
+unsadr s    = b.size       // Size of int32
+unsadr a    = b.alignment  // Alignment of int32
+intadr o    = b.offset     // Offset of int32
+type mode m = b.mode       // Mode of int32
+\end{verbatim}\end{indpar}
+
+If $T$ is a type, then {\tt basic(} $T$ {\tt )} is a type that has
+a unique value computable by the compiler and loader, and this
+value has members that give the basic parameters of the type $T$,
+namely $T$'s size, alignment, offset, and mode.
+
+TBD
+
+It is possible to create new type descriptors by supplying
+a function that can be run by the compiler and loader to compute
+the values of the new type descriptors from other values known
+to the compiler and loader.  For example:
+\begin{indpar}\begin{verbatim}
+type descriptor unsadr size ( type T ):
+    basic(T) b
+    return b.size
+\end{verbatim}\end{indpar}
+
+A type descriptor declaration is similar to a function declaration,
+except that the name of the function becomes the type name of the
+type descriptor.  The type descriptor type in turn becomes
+a subtype of the value returned by the function.
+
+TBD
 
 \subsection{Tuples}
 \label{TUPLES}

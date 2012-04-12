@@ -2933,22 +2933,17 @@ with the same precedence.  Furthermore, this precedence is lower
 than the precedence of all operators in EXPRESSION tokens of the list
 that have neither {\tt .initiator} nor {\tt .terminator} attributes
 (i.e., non-explicitly-bracketed subexpressions).
-[TBD: what about consecutive postfix or prefix operators]
 \item[Requirement 2:] 
-If there is a prefix {\tt OPERATOR} token in the list, there is only one,
-it is the first token, and there are at least two tokens in the list.
+All prefix {\tt OPERATOR} tokens in the list are preceded by {\tt OPERATOR}
+tokens or by the beginning of the expression.
+A prefix operator cannot be at the end of the expression.
 \item[Requirement 3:] 
-If there is a postfix {\tt OPERATOR} token in the list, there is only one,
-it is the last token, and there are at least two tokens in the list.
+All postfix {\tt OPERATOR} tokens in the list are followed by {\tt OPERATOR}
+tokens or by the end of the expression.
+A postfix operator cannot be at the beginning of the expression.
 \item[Requirement 4:] 
-If there is an infix {\tt OPERATOR} token in the list, it is neither
-the first nor last token in the list.
-\item[Requirement 5:] 
-Infix, prefix, and postfix {\tt OPERATOR} tokens in the list are not
-next to other {\tt OPERATOR} tokens in the list.
-\item[Requirement 6:] 
-If there is an afix {\tt OPERATOR} token in the list, it is not the
-first {\tt OPERATOR} token in the list.
+All infix {\tt OPERATOR} tokens in the list are both preceded by and
+followed by non-{\tt OPERATOR} tokens.
 \end{itemlist}
 
 A single lexeme token output from the operator parsing pass may be
@@ -2968,26 +2963,37 @@ left to right.  At any point in the scan the pass obeys the
 following rules:
 \begin{itemlist}[0.7in]
 \item[Rule 1:] A prefix operator must be preceded by the beginning of
-the entire token list, or by a prefix, infix, or nofix operator
+the entire token list, or by an operator
 of precedence less than or equal to the precedence of the prefix operator,
 else the prefix operator is not recognized.
-\item[Rule 2:] An infix or postfix operator
-must be preceded by a non-operator token,
-or by a postfix operator,
-or by a prefix, infix, or nofix
-operator of precedence greater than
-the precedence of the infix or postfix operator,
-else the infix or postfix operator is not recognized.
-\item[Rule 3:] A recognized postfix operator must be followed by the end of
-the entire token list or by a postfix, infix, or nofix operator,
-else an `error nofix operator' is inserted after the postfix operator
-and an error is announced.
-\item[Rule 4:] A recognized infix or prefix
+\item[Rule 2:] An infix operator
+must be preceded by a non-operator,
+or by an operator of precedence greater than that of the
+infix operator,
+else the infix operator is not recognized.
+\item[Rule 3:] A postfix operator
+must be preceded by a non-operator,
+or by an operator of precedence greater than or equal to that of the
+postfix operator,
+else the postfix operator is not recognized.
+\item[Rule 4:] A recognized postfix operator must be followed by the end of
+the entire token list or by an operator of precedence equal to or less
+than that of the postfix operator,
+else an `error nofix operator' of the same precedence as the postfix
+operator is inserted after the postfix operator and an error is announced.
+\item[Rule 5:] A recognized prefix
 operator must be followed by a non-operator
-token or by a prefix or nofix operator
+token or by an operator
+of precedence equal to or greater than the precedence of the prefix operator,
+else an `error operand' which is not an operator
+is inserted after the prefix operator
+and an error is announced.
+\item[Rule 6:] A recognized infix
+operator must be followed by a non-operator
+token or by an operator
 of precedence greater than the precedence of the infix operator,
 else an `error operand' which is not an operator
-is inserted after the infix or prefix operator
+is inserted after the infix operator
 and an error is announced.
 \end{itemlist}
 
@@ -3025,61 +3031,69 @@ steps in a loop:
 \begin{itemlist}[1.2in]
 \item[Loop Step 1:]
 If $C\neq N$, find an operator beginning at token $C$, if there is one.
-If $C=F$, infix and postfix operators of precedence equal to or
-greater than $P$ are ignored.  If $C\neq F$, prefix operators are ignored.
-Prefix operators of precedence less than $P$ are ignored.
+
+If $C=F$ (i.e., $C$ is at the beginning of the token list or just after
+an operator of precedence $P$), infix operators of precedence
+greater than or equal to $P$ are ignored,
+postfix operators of precedence greater than $P$ are ignored,
+and prefix operators of precedence less than $P$ are ignored.
+
+If $C\neq F$ (i.e., a non-operator is just before $C$),
+prefix operators are ignored.
+
 Any afix operator whose precedence is not in the $P$ stack is ignored.
+
 Any operator whose selectors are disjoint from the current parser context
-selectors is ignored.  Among all non-ignored operators, a longest
+selectors is ignored.
+
+Among all non-ignored operators, a longest
 is selected, and among all the longest, the one with the most recent
 operator definition is selected.
-\item[Loop Step 2:]
-If an operator was found in Loop Step 1, replace its tokens by a single
+
+If an operator was found, replace its tokens by a single
 OPERATOR token and point $C$ at that token.
-\item[Loop Step 3:]
+\item[Loop Step 2:]
 If the token before $C$ is a postfix operator,
 $C\neq N$, and either no operator was find in Loop Step 1,
 or an operator was found with precedence above that of the
-postfix operator, or a non-postfix operator was found with
-precedence equal to that of the postfix operator,
+postfix operator (this must be a prefix operator),
 insert the error nofix operator of precedence
 equal to $P$ as a single
 OPERATOR token before $C$, set $C$ to point at it,
 announce an error, and continue as if an operator were found.
-\item[Loop Step 4:]
+\item[Loop Step 3:]
 Else if $C\neq N$
 and no operator was find in Loop Step 1 or generated by Loop Step 2,
 repoint $C$ to the next token after $C$ and go to the next loop iteration.
 
 Note that after this step either $C=N$ or an operator was found in Loop Step 1
 or generated in Loop Step 2.
-\item[Loop Step 5:]
+\item[Loop Step 4:]
 If $C=N$ or the operator found in Loop Step 1 or generated by Loop Step 2
 has a precedence equal to or below $P$, and if the
 token before $C$ is a prefix or infix operator, insert
 an error operand lexeme token before $C$,
 announce an error, and then continue as if no error were found.
-\item[Loop Step 6:]
+\item[Loop Step 5:]
 If $C=N$ or the operator found in Loop Step 1 or generated by Loop Step 2
-is a non-prefix operator with precedence less than or equal to $P$,
-first apply Step 3 and Step 4 above to the list of tokens beginning with
-$F$ and ending just before $C$, and second pop the $F$ and $P$ stacks.
-
-Repeat this step until the operator has precedence greater than $P$
-or the stacks are empty.  Emptying the stacks is only possible if
-$C=N$, and in this case, terminate the algorithm (i.e., terminate the
-loop).
-\item[Loop Step 7:]
-If a postfix operator was found in Loop Step 1,
-move $C$ to the next token (after the postfix operator),
+is an operator with precedence $P'$ less than or equal to $P$,
+and if the list of tokens beginning with $F$ and ending just before $C$
+is not empty,
 apply Step 3 and Step 4 above to the list of tokens beginning with
-$F$ and ending just before $C$, point $F$
-at the single non-operator
-token produced by Step 4, an go to the next loop iteration.
-\item[Loop Step 8:]
-Move $C$ to the next token, 
-push $C$ into the $F$ stack and the precedence of the operator
-found into the $P$ stack.  Then go to the next loop iteration.
+$F$ and ending just before $C$.
+
+Then if the $P$ and $F$ stacks are empty, terminate this loop.
+
+Else if $P'$ is less than $P$, pop the $P$ and $F$ stacks and repeat
+this loop step.
+
+Else if $P'$ is greater than $P$, push $P'$ and $C$ into the $P$ and
+$F$ stacks respectively.
+
+Else if $P'$ equals $P$, set $F$ to $C$.
+
+\item[Loop Step 6:]
+Move $C$ to the next token and iterate the loop.
 \end{itemlist}
 
 	

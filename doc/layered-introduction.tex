@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 10, 2012
+April 13, 2012
  
 \end{center}
 
@@ -2500,7 +2500,7 @@ This can be summarized in the following compatibility table:
 prefix & infix  & postfix & nofix & afix & \\
 \hline
 \multicolumn{1}{c|}{}
-       & yes    & yes     & no    & no   &  \multicolumn{1}{|l|}{prefix} \\
+       & yes    & yes     & no    & yes   &  \multicolumn{1}{|l|}{prefix} \\
 \cline{2-6}
 \multicolumn{2}{c|}{}
                 & no      & no    & yes   &  \multicolumn{1}{|l|}{infix} \\
@@ -2932,18 +2932,22 @@ All the {\tt OPERATOR} tokens in the token list are for operators
 with the same precedence.  Furthermore, this precedence is lower
 than the precedence of all operators in EXPRESSION tokens of the list
 that have neither {\tt .initiator} nor {\tt .terminator} attributes
-(i.e., non-explicitly-bracketed subexpressions).
+(i.e., are non-explicitly-bracketed subexpressions).
 \item[Requirement 2:] 
-All prefix {\tt OPERATOR} tokens in the list are preceded by {\tt OPERATOR}
-tokens or by the beginning of the expression.
-A prefix operator cannot be at the end of the expression.
+The first {\tt OPERATOR} token in the list is not afix.
 \item[Requirement 3:] 
-All postfix {\tt OPERATOR} tokens in the list are followed by {\tt OPERATOR}
-tokens or by the end of the expression.
-A postfix operator cannot be at the beginning of the expression.
+All prefix {\tt OPERATOR} tokens in the list are preceded by
+the beginning of the expression or by a prefix {\tt OPERATOR} token.
+A prefix operator is followed by another prefix operator or by a
+non-operator.
 \item[Requirement 4:] 
 All infix {\tt OPERATOR} tokens in the list are both preceded by and
 followed by non-{\tt OPERATOR} tokens.
+\item[Requirement 5:] 
+All postfix {\tt OPERATOR} tokens in the list are followed
+by the end of the expression or by a postfix {\tt OPERATOR} token.
+A postfix operator is preceded by another postfix operator or by a
+non-operator.
 \end{itemlist}
 
 A single lexeme token output from the operator parsing pass may be
@@ -2962,39 +2966,44 @@ The operator parsing pass scans its input token list from
 left to right.  At any point in the scan the pass obeys the
 following rules:
 \begin{itemlist}[0.7in]
-\item[Rule 1:] A prefix operator must be preceded by the beginning of
+\item[Rule 1:] An afix operator is not recognized unless it
+is proceeded by an operator of equal precedence with no
+intervening operators of less precedence.
+\item[Rule 2:] A prefix operator of precedence $P'$
+must be preceded by the beginning of
 the entire token list, or by an operator
-of precedence less than or equal to the precedence of the prefix operator,
+of precedence less than $P'$,
+or by a prefix operator of precedence equal to $P'$,
 else the prefix operator is not recognized.
-\item[Rule 2:] An infix operator
+\item[Rule 3:] An infix operator of precedence $P'$
 must be preceded by a non-operator,
-or by an operator of precedence greater than that of the
-infix operator,
+or by an operator of precedence greater than $P'$,
 else the infix operator is not recognized.
-\item[Rule 3:] A postfix operator
+\item[Rule 4:] A postfix operator or precedence $P'$
 must be preceded by a non-operator,
-or by an operator of precedence greater than or equal to that of the
-postfix operator,
+or by an operator of precedence greater than $P'$,
+or by a postfix operator of precedence equal to $P'$,
 else the postfix operator is not recognized.
-\item[Rule 4:] A recognized postfix operator must be followed by the end of
-the entire token list or by an operator of precedence equal to or less
-than that of the postfix operator,
-else an `error nofix operator' of the same precedence as the postfix
-operator is inserted after the postfix operator and an error is announced.
-\item[Rule 5:] A recognized prefix
-operator must be followed by a non-operator
-token or by an operator
-of precedence equal to or greater than the precedence of the prefix operator,
+\item[Rule 5:] A recognized prefix operator of precedence $P'$
+must be followed by a non-operator or by an operator
+of precedence greater than $P'$,
+or by a prefix operator of precedence equal to $P'$,
 else an `error operand' which is not an operator
 is inserted after the prefix operator
 and an error is announced.
-\item[Rule 6:] A recognized infix
-operator must be followed by a non-operator
-token or by an operator
-of precedence greater than the precedence of the infix operator,
+\item[Rule 6:] A recognized infix operator of precedence $P'$
+must be followed by a non-operator or by an operator
+of precedence greater than $P'$,
 else an `error operand' which is not an operator
 is inserted after the infix operator
 and an error is announced.
+\item[Rule 7:] A recognized postfix operator of precedence $P'$
+must be followed by the end of the entire token list,
+or by an operator of precedence less than $P'$,
+or by a postfix operator of precedence equal to $P'$,
+else an `error nofix operator' of precedence one less than that of
+the postfix
+operator is inserted after the postfix operator and an error is announced.
 \end{itemlist}
 
 Simply by enforcing these rules the operator parser pass enforces
@@ -3008,35 +3017,40 @@ first token in the input.
 \item[$N$:] A pointer to the next token after the subexpression
 being input, which may be an end-of-file token.  Not changed during
 the scan from its initial value.  Initially $C\neq N$.
-\item[$F$:] A stack of pointers to the first token in a subexpression,
-initialized to a one element stack containing a pointer to the first
-token in the input.
 \item[$P$:] A stack of subexpression terminating precedences,
 initialized to a one element stack containing a precedence less
-than any legal operator precedence.
+than any legal operator precedence.  Whenever an operator is found,
+the top of this stack is set to the precedence of the operator
+(the stack may be pushed or popped before this is done).
+\item[$F$:] A stack of pointers to the first token in a subexpression,
+initialized to a one element stack containing a pointer to the first
+token in the input.  Whenever an operator is found, the top of this
+stack is set to point to the token after the operator (the stack
+may be pushed or popped before this is done).
+\item[$T$:] The type of the last operator found.  Valid only if
+$C=F$ (meaning $C$ equals the top of the $F$ stack, and so $C$
+points at the token after the operator).
 \end{itemlist}
 
-After processing an infix or nofix operator, a pointer to the token
-after the operator is pushed into $F$ and the precedence of the
-operator is pushed into $P$.  Similarly for a prefix operator,
-except that it is the precedence of the operator minus one that
-is pushed into $P$.
+In the following $F$ is used to denote either the stack $F$ or
+the top element of this stack.  Similarly $P$ is used to denote either the
+stack $P$ or the top element of this stack.
 
-In the following $F$ is used to denote both the stack $F$ and
-the top element of this stack.  Similarly $P$ is used to denote the
-stack $P$ and the top element of this stack.
-
-Then the operator parser pass algorithm simply repeats the following
+The operator parser pass algorithm simply repeats the following
 steps in a loop:
 \begin{itemlist}[1.2in]
 \item[Loop Step 1:]
 If $C\neq N$, find an operator beginning at token $C$, if there is one.
 
 If $C=F$ (i.e., $C$ is at the beginning of the token list or just after
-an operator of precedence $P$), infix operators of precedence
-greater than or equal to $P$ are ignored,
+an operator of precedence $P$),
+prefix operators of precedence less than $P$ are ignored,
+prefix operators of precedence equal to $P$ are ignored unless
+$T=prefix$,
+infix operators of precedence greater than or equal to $P$ are ignored,
 postfix operators of precedence greater than $P$ are ignored,
-and prefix operators of precedence less than $P$ are ignored.
+postfix operators of precedence equal to $P$ are ignored unless
+$T=postfix$.
 
 If $C\neq F$ (i.e., a non-operator is just before $C$),
 prefix operators are ignored.
@@ -3051,49 +3065,49 @@ is selected, and among all the longest, the one with the most recent
 operator definition is selected.
 
 If an operator was found, replace its tokens by a single
-OPERATOR token and point $C$ at that token.
+OPERATOR token, point $C$ at that token.  Let $P'$ be the precedence
+of the found operator.
 \item[Loop Step 2:]
-If the token before $C$ is a postfix operator,
+If $C=F$ and $T=postfix$ (the token before $C$ is a postfix operator),
 $C\neq N$, and either no operator was find in Loop Step 1,
-or an operator was found with precedence above that of the
-postfix operator (this must be a prefix operator),
+or an operator was found and $P'>P$,
 insert the error nofix operator of precedence
-equal to $P$ as a single
+equal to $P-1$ as a single
 OPERATOR token before $C$, set $C$ to point at it,
+set $P'=P-1$,
 announce an error, and continue as if an operator were found.
 \item[Loop Step 3:]
 Else if $C\neq N$
 and no operator was find in Loop Step 1 or generated by Loop Step 2,
 repoint $C$ to the next token after $C$ and go to the next loop iteration.
 
-Note that after this step either $C=N$ or an operator was found in Loop Step 1
+Note that if the iteration continues after this step,
+then either $C=N$ or an operator was found in Loop Step 1
 or generated in Loop Step 2.
 \item[Loop Step 4:]
-If $C=N$ or the operator found in Loop Step 1 or generated by Loop Step 2
-has a precedence equal to or below $P$, and if the
-token before $C$ is a prefix or infix operator, insert
+If $C=F$, and if
+$C=N$, or $T=infix$ and $P'\leq P$, or $T=prefix$ and $P'<P$,
+then insert
 an error operand lexeme token before $C$,
 announce an error, and then continue as if no error were found.
 \item[Loop Step 5:]
-If $C=N$ or the operator found in Loop Step 1 or generated by Loop Step 2
-is an operator with precedence $P'$ less than or equal to $P$,
-and if the list of tokens beginning with $F$ and ending just before $C$
-is not empty,
+If $C=N$ or $P'\leq P$, and if $C\not=F$,
 apply Step 3 and Step 4 above to the list of tokens beginning with
 $F$ and ending just before $C$.
 
-Then if the $P$ and $F$ stacks are empty, terminate this loop.
+Then if the $P$ and $F$ stacks are empty, terminate this loop
+(can only happen if $C=N$).
 
-Else if $P'$ is less than $P$, pop the $P$ and $F$ stacks and repeat
-this loop step.
+Else if $P'<P$, pop the $P$ and $F$ stacks and repeat this loop step.
 
-Else if $P'$ is greater than $P$, push $P'$ and $C$ into the $P$ and
+Else if $P'>P$, push $P'$ and $C$ into the $P$ and
 $F$ stacks respectively.
 
-Else if $P'$ equals $P$, set $F$ to $C$.
+Else if $P'=P$, set $F$ to $C$.
 
 \item[Loop Step 6:]
-Move $C$ to the next token and iterate the loop.
+Set $T$ to the type of the found operator,
+repoint $C$ to the token after $C$, and iterate the loop.
 \end{itemlist}
 
 	

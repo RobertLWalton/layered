@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 11, 2012
+April 12, 2012
  
 \end{center}
 
@@ -1128,9 +1128,38 @@ More specifically, {\tt list(int32)}, {\tt list(int32,5)}, and
 {\tt list(list(int32))} are types.
 
 Note that types can be arguments to functions and to other types.
-However, type values are not very useful at runtime, as the only
+However, when used as arguments to functions they can often be
+omitted from calls, as they can be dedeuced from the types of the
+non-omitted arguments.  For example:
+\begin{indpar}\begin{verbatim}
+// Note: because T is not pre-declared as a type, ( T z ) must
+// be used for the return value to separate T from `max'.
+//
+( T z ) max ( type T, T x, T y ):
+    if ( x > y ) z = x
+    else z = y
+. . . . . . .
+int32 x = ...
+int32 y = max ( x, 5 )  // Deduces that T = int32
+\end{verbatim}\end{indpar}
+
+In effect, the argument list contains declarations of type names,
+e.g., in the example just given {\tt T} is declared as a type name.
+Because type names have syntactic meaning, such declarations must
+occur in an input argument list to the left of any use in any
+input argument list.  If they appear in an output argument list,
+the output list must be bracketted to separate it from the function
+name.
+
+Also, arguments can be omitted from function calls if the omissions can
+be determined unambigously using only the types of the arguments, and
+values can be supplied by other means.
+In particular, all type arguments, i.e., arguments of type `{\tt type}',
+can be omitted.
+
+Type values are not very useful at runtime, as the only
 operations on them are equality comparison and output.
-Most runtime information about type is encoded in type descriptors.
+Most runtime information about types is encoded in type descriptors.
 
 A \key{type descriptor} is a run-time value that gives information
 about a type.  A type descriptor itself has a type, and every type
@@ -1161,9 +1190,13 @@ a function that can be run by the compiler and loader to compute
 the values of the new type descriptors from other values known
 to the compiler and loader.  For example:
 \begin{indpar}\begin{verbatim}
-type descriptor unsadr size ( type T ):
+defsubtype length ( type T ) of unsadr
+( constant length(T) s) .construct. ( type T ) unchecked:
     basic(T) b
-    return b.size
+    s = b.length
+unsadr .convert. ( type T, length(T) s ) unchecked:
+    unsadr r = s
+    return r
 \end{verbatim}\end{indpar}
 
 A type descriptor declaration is similar to a function declaration,

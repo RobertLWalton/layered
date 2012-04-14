@@ -2936,26 +2936,31 @@ that have neither {\tt .initiator} nor {\tt .terminator} attributes
 \item[Requirement 2:] 
 The first {\tt OPERATOR} token in the list is not afix.
 \item[Requirement 3:] 
-All prefix {\tt OPERATOR} tokens in the list are preceded by
-the beginning of the expression or by a prefix {\tt OPERATOR} token.
-A prefix operator is followed by another prefix operator or by a
-non-operator.
+Any prefix {\tt OPERATOR} token in the list is preceded by
+the beginning of the expression or by another prefix {\tt OPERATOR} token.
+Any prefix {\tt OPERATOR} token in the list
+is followed by another prefix {\tt OPERATOR} token or by a
+non-{\tt OPERATOR} token.
 \item[Requirement 4:] 
 All infix {\tt OPERATOR} tokens in the list are both preceded by and
 followed by non-{\tt OPERATOR} tokens.
 \item[Requirement 5:] 
-All postfix {\tt OPERATOR} tokens in the list are followed
-by the end of the expression or by a postfix {\tt OPERATOR} token.
-A postfix operator is preceded by another postfix operator or by a
-non-operator.
+Any postfix {\tt OPERATOR} token in the list is followed
+by the end of the expression or by another postfix {\tt OPERATOR} token.
+Any postfix {\tt OPERATOR} token is preceded by another
+postfix {\tt OPERATOR} token or by a non-{\tt OPERATOR} token.
 \end{itemlist}
 
-A single lexeme token output from the operator parsing pass may be
+A single non-{\tt OPERATOR}, non-{\tt EXPRESSION}
+lexeme token output by a operator parsing pass may be
 thought of as the equivalent of
-a single {\tt EXPRESSION} token whose value is a
-list of one element, that element being a MIN string equal to the
-lexeme, with the list having either no special attributes, or
-having just an {\tt .initiator} attribute equal to {\tt "} if
+a single {\tt EXPRESSION} token whose token value is the lexeme token value,
+which is a MIN string,
+if the lexeme is not a quoted string or non-natural number,
+or the {\tt EXPRESSION} token value
+is a list of one element with the element being equal to the
+token value converted to a MIN string and with
+an {\tt .initiator} attribute equal to {\tt "} if
 the lexeme represented is a quoted string or {\tt \#} if the
 lexeme represented is a non-natural number.
 When a single lexeme token output from an operator parsing pass
@@ -2979,7 +2984,7 @@ else the prefix operator is not recognized.
 must be preceded by a non-operator,
 or by an operator of precedence greater than $P'$,
 else the infix operator is not recognized.
-\item[Rule 4:] A postfix operator or precedence $P'$
+\item[Rule 4:] A postfix operator of precedence $P'$
 must be preceded by a non-operator,
 or by an operator of precedence greater than $P'$,
 or by a postfix operator of precedence equal to $P'$,
@@ -3001,12 +3006,11 @@ and an error is announced.
 must be followed by the end of the entire token list,
 or by an operator of precedence less than $P'$,
 or by a postfix operator of precedence equal to $P'$,
-else an `error nofix operator' of precedence one less than that of
-the postfix
-operator is inserted after the postfix operator and an error is announced.
+else an `error nofix operator' of precedence $P'-1$
+is inserted after the postfix operator and an error is announced.
 \end{itemlist}
 
-Simply by enforcing these rules the operator parser pass enforces
+By simply by enforcing these rules the operator parser pass enforces
 the requirements listed above.
 
 During its left-to-right scan the operator parser pass maintains
@@ -3030,6 +3034,8 @@ may be pushed or popped before this is done).
 \item[$T$:] The type of the last operator found.  Valid only if
 $C=F$ (meaning $C$ equals the top of the $F$ stack, and so $C$
 points at the token after the operator).
+Can equal {\em prefix}, {\em postfix}, {\em nofix}, {\em infix}, or {\em none}.
+Initialized to {\em none}.
 \end{itemlist}
 
 In the following $F$ is used to denote either the stack $F$ or
@@ -3046,11 +3052,11 @@ If $C=F$ (i.e., $C$ is at the beginning of the token list or just after
 an operator of precedence $P$),
 prefix operators of precedence less than $P$ are ignored,
 prefix operators of precedence equal to $P$ are ignored unless
-$T=prefix$,
+$T=\mbox{\em prefix}$,
 infix operators of precedence greater than or equal to $P$ are ignored,
 postfix operators of precedence greater than $P$ are ignored,
 postfix operators of precedence equal to $P$ are ignored unless
-$T=postfix$.
+$T=\mbox{\em postfix}$.
 
 If $C\neq F$ (i.e., a non-operator is just before $C$),
 prefix operators are ignored.
@@ -3068,7 +3074,8 @@ If an operator was found, replace its tokens by a single
 OPERATOR token, point $C$ at that token.  Let $P'$ be the precedence
 of the found operator.
 \item[Loop Step 2:]
-If $C=F$ and $T=postfix$ (the token before $C$ is a postfix operator),
+If $C=F$ and $T=\mbox{\em postfix}$
+(the token before $C$ is a postfix operator),
 $C\neq N$, and either no operator was find in Loop Step 1,
 or an operator was found and $P'>P$,
 insert the error nofix operator of precedence
@@ -3086,7 +3093,8 @@ then either $C=N$ or an operator was found in Loop Step 1
 or generated in Loop Step 2.
 \item[Loop Step 4:]
 If $C=F$, and if
-$C=N$, or $T=infix$ and $P'\leq P$, or $T=prefix$ and $P'<P$,
+$C=N$, or $T=\mbox{\em infix}$ and $P'\leq P$, or $T=\mbox{\em prefix}$
+and $P'<P$,
 then insert
 an error operand lexeme token before $C$,
 announce an error, and then continue as if no error were found.

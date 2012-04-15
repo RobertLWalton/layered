@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  5 04:55:38 EDT 2012
+// Date:	Sun Apr 15 10:12:23 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -414,6 +414,16 @@ void init
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ) = NULL );
 
+typedef bool ( * run_pass )
+        ( ll::parser::parser parser,
+          ll::parser::pass pass,
+	  ll::parser::table::selectors selectors,
+    	  ll::parser::token & first,
+	  ll::parser::token next );
+typedef void ( * init_pass )
+        ( ll::parser::parser parser,
+	  ll::parser::pass pass );
+
 struct pass_struct
     // Closure to call to execute a pass on a subexpres-
     // sion.  These closures are organized in a list
@@ -444,12 +454,7 @@ struct pass_struct
     // Returns true if no fatal errors, and false if
     // there is a fatal error.
     //
-    bool (*run) ( ll::parser::parser parser,
-                  ll::parser::pass pass,
-		  ll::parser::table::selectors
-		      selectors,
-    		  ll::parser::token & first,
-		  ll::parser::token next );
+    ll::parser::run_pass run_pass;
 
     // Function to initialize pass closure.  Called if
     // not NULL when the parser is initialized.
@@ -458,9 +463,7 @@ struct pass_struct
     // init a pass, but doing so may be useful for
     // keeping statistics.
     //
-    void (*init)
-        ( ll::parser::parser parser,
-	  ll::parser::pass pass );
+    ll::parser::init_pass init_pass;
 
     uns32 trace;
         // Trace flags that output to parser->printer a
@@ -481,15 +484,8 @@ MIN_REF ( ll::parser::pass, next, ll::parser::pass )
 //
 void init
 	( min::ref<ll::parser::pass> pass,
-	  bool (*run)
-	      ( ll::parser::parser parser,
-	        ll::parser::pass pass,
-	        ll::parser::table::selectors selectors,
-		ll::parser::token & first,
-		ll::parser::token end ),
-	  void (*init)
-	      ( ll::parser::parser parser,
-	        ll::parser::pass pass ) = NULL );
+	  ll::parser::run_pass run_pass,
+	  ll::parser::init_pass init_pass = NULL );
 
 // Place `pass' on the parser->pass_stack just after
 // `previous', of if the latter is NULL_STUB, put `pass'

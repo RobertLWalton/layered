@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  5 04:49:44 EDT 2012
+// Date:	Sun Apr 15 12:03:23 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -298,18 +298,14 @@ static min::packed_struct<PAR::pass_struct>
 
 void PAR::init
 	( min::ref<PAR::pass> pass,
-	  bool (*run)
-	      ( PAR::parser parser, PAR::pass pass,
-	        TAB::selectors selectors,
-	        PAR::token & first, PAR::token end ),
-	  void (*init)
-	      ( PAR::parser parser, PAR::pass pass ) )
+	  PAR::run_pass run_pass,
+	  PAR::init_pass init_pass )
 {
     if ( pass == NULL_STUB )
         pass = ::pass_type.new_stub();
 
-    pass->run = run;
-    pass->init = init;
+    pass->run_pass = run_pass;
+    pass->init_pass = init_pass;
 }
 
 void PAR::place
@@ -513,12 +509,9 @@ void PAR::compact
 	  PAR::attr * attributes,
 	  min::uns32 n )
 {
-    for ( ; pass != min::NULL_STUB; pass = pass->next )
-    {
-	if ( pass->selectors & selectors )
-	    (* pass->run ) ( parser, pass,
-			     selectors, first, next );
-    }
+    if ( pass != min::NULL_STUB )
+	(* pass->run_pass )
+	    ( parser, pass, selectors, first, next );
             
     // Temporary min::gen locatable.
     //
@@ -2593,8 +2586,8 @@ void PAR::parse ( PAR::parser parser )
     	  pass != min::NULL_STUB;
 	  pass = pass->next )
     {
-	if ( pass->init != NULL )
-	    ( * pass->init ) ( parser, pass );
+	if ( pass->init_pass != NULL )
+	    ( * pass->init_pass ) ( parser, pass );
     }
 
     // True if last lexeme was a line break, so an end-

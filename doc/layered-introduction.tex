@@ -3115,19 +3115,18 @@ If $C=N$ or $P'\leq P$, and if $C\not=F$,
 apply Step 3 and Step 4 above to the list of tokens beginning with
 $F$ and ending just before $C$.
 
-Then if the $P$ and $F$ stacks are empty, terminate this loop
-(can only happen if $C=N$).
-
-Else if $C=N$, pop the $P$ and $F$ stacks and repeat this loop step.
+If $C=N$, pop the $P$ and $F$ stacks.  If these stacks are now
+empty, terminate the operator parser pass algorithm.  Otherwise
+repeat this loop step.
 
 Else if $P'<P$, pop the $P$ and $F$ stacks and repeat this loop step
 (cannot happen if the $P$ and $F$ stacks have only one entry as
 in that case $P$ is less than any possible $P'$).
 
-Else if $P'>P$, push $P'$ and $C$ into the $P$ and
-$F$ stacks respectively.
+Else if $P'>P$, push $P'$ into the $P$ stack, and push a pointer to the
+next token after $C$ into the $F$ stack.
 
-Else if $P'=P$, set $F$ to $C$.
+Else if $P'=P$, set $F$ to point at the next token after $C$.
 
 \item[Loop Step 6:]
 Set $T$ to the type of the found operator,

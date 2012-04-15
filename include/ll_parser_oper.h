@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 20 04:22:19 EDT 2012
+// Date:	Sun Apr 15 09:59:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,12 +46,20 @@ enum oper_flags
 };
 const min::int32 NO_PRECEDENCE = -1 << 31;
     // Value less than any allowed precedence.
+typedef bool ( * reformatter )
+        ( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::table::selectors selectors,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  ll::parser::oper first_oper );
 struct oper_struct : public root_struct
 {
     // Packed_struct subtype is OPER.
 
     min::uns32 flags;
     min::int32 precedence;
+    ll::parser::oper::reformatter reformatter;
 
 };
 
@@ -60,6 +68,9 @@ MIN_REF ( min::gen, label, ll::parser::table::oper )
 void push_oper
 	( min::gen oper_label,
 	  ll::parser::table::selectors selectors,
+	  min::uns32 flags,
+	  min::int32 precedence,
+	  ll::parser::oper::reformatter reformatter,
 	  ll::parser::table::table oper_table );
 
 } } }

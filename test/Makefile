@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Feb 19 11:48:06 EST 2012
+# Date:		Sun Apr 15 16:04:51 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -414,6 +414,20 @@ ll_parser_standard_brackets.o:	\
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_standard_brackets.cc
+
+ll_parser_oper.o:	\
+	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	../include/ll_lexeme.h \
+	../include/ll_lexeme_standard.h \
+	../include/ll_parser.h \
+	../include/ll_parser_table.h \
+	../include/ll_parser_oper.h \
+	../src/ll_parser_oper.cc \
+	Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_parser_oper.cc
 
 ll_parser_definitions.o:	\
 	${MIN}/include/min.h \

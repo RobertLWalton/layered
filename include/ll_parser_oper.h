@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 15 09:59:59 EDT 2012
+// Date:	Sun Apr 15 16:27:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,8 +52,9 @@ typedef bool ( * reformatter )
 	  ll::parser::table::selectors selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,
-	  ll::parser::oper first_oper );
-struct oper_struct : public root_struct
+	  ll::parser::oper::oper first_oper );
+struct oper_struct
+    : public ll::parser::table::root_struct
 {
     // Packed_struct subtype is OPER.
 
@@ -63,7 +64,7 @@ struct oper_struct : public root_struct
 
 };
 
-MIN_REF ( min::gen, label, ll::parser::table::oper )
+MIN_REF ( min::gen, label, ll::parser::oper::oper )
 
 void push_oper
 	( min::gen oper_label,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 14 21:05:07 EDT 2012
+// Date:	Sun Apr 15 16:26:58 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Operator Table Entries
 //	Operator Parser Pass
 
 // Usage and Setup
@@ -24,14 +25,53 @@
 # define TAB ll::parser::table
 # define OP ll::parser::oper
 
-min::locatable_gen OP::oper;
+static min::locatable_gen oper_lexeme;
 
 static void initialize ( void )
 {
-    PAR::oper
+    ::oper_lexeme
 	= min::new_dot_lab_gen ( "operator" );
 }
 static min::initializer initializer ( ::initialize );
+
+// Operator Table Entries
+// -------- ----- -------
+
+
+static min::uns32 oper_gen_disp[] = {
+    min::DISP ( & TAB::root_struct::label ),
+    min::DISP_END };
+
+static min::uns32 oper_stub_disp[] = {
+    min::DISP ( & OP::oper_struct::next ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<OP::oper_struct, TAB::root_struct>
+    oper_type ( "ll::parser::table::oper_type",
+	        ::oper_gen_disp,
+	        ::oper_stub_disp );
+const min::uns32 & OP::OPER = oper_type.subtype;
+
+void OP::push_oper
+	( min::gen oper_label,
+	  TAB::selectors selectors,
+	  min::uns32 flags,
+	  min::int32 precedence,
+	  OP::reformatter reformatter,
+	  TAB::table oper_table )
+{
+    min::locatable_var<OP::oper> oper
+        ( ::oper_type.new_stub() );
+
+    label_ref(oper) = oper_label;
+    oper->selectors = selectors;
+    oper->flags = flags;
+    oper->precedence = precedence;
+    oper->reformatter = reformatter;
+
+    TAB::push ( oper_table, (TAB::root) oper );
+}
 
 // Operator Parser Pass
 // -------- ------ ----
@@ -48,10 +88,10 @@ struct oper_stack_struct
 	// STUB if none yet.
 };
 
-typedef min::packed_vec_insptr<oper_stack_stuct>
+typedef min::packed_vec_insptr< ::oper_stack_struct >
     oper_stack;
 
-static min::packed_vec<oper_stack_struct>
+static min::packed_vec< ::oper_stack_struct >
     oper_stack_type
         ( "(ll_parser_oper.cc)::oper_stack_type" );
 
@@ -61,7 +101,7 @@ struct oper_pass_struct : public PAR::pass_struct
     const ::oper_stack oper_stack;
 };
 
-typedef min::packed_struct_updptr<oper_pass_stuct>
+typedef min::packed_struct_updptr<oper_pass_struct>
     oper_pass;
 
 MIN_REF ( PAR::pass, next, ::oper_pass );
@@ -81,9 +121,10 @@ static min::uns32 oper_pass_stub_disp[] =
 //
 inline bool check_precedence
 	( int precedence,
-	  OP::oper_stack oper_stack )
+	  ::oper_stack oper_stack )
 {
-    for ( min::uns32 i = 0; i < oper_stack->length; ++ )
+    for ( min::uns32 i = 0; i < oper_stack->length;
+    			    ++ i )
     {
         if ( oper_stack[i].precedence == precedence )
 	    return true;
@@ -92,18 +133,18 @@ inline bool check_precedence
 }
 
 static min::packed_struct_with_base
-	<oper_stack_struct,PAR::pass_struct>
+	< ::oper_pass_struct, PAR::pass_struct >
     oper_pass_type
         ( "(ll_parser_oper.cc)::oper_pass_type",
 	  NULL, oper_pass_stub_disp );
 
 static bool oper_pass_run ( PAR::parser parser,
 		            PAR::pass pass,
-		            PAR::selectors selectors,
+		            TAB::selectors selectors,
 		            PAR::token & first,
 		            PAR::token next )
 {
-    ::oper_pass oper_pass = pass;
+    ::oper_pass oper_pass = (::oper_pass) pass;
     ::oper_stack oper_stack = oper_pass->oper_stack;
 
     if ( oper_stack == min::NULL_STUB )
@@ -144,9 +185,9 @@ static bool oper_pass_run ( PAR::parser parser,
 	    // then find_entry will return NULL_STUB
 	    // and leave next_current == current.
 	OP::oper oper = (OP::oper) root;
-	while ( root != NULL_STUB
+	while ( root != min::NULL_STUB
 		&&
-		( oper == NULL_STUB
+		( oper == min::NULL_STUB
 		  ||	     
 		  ( oper->flags & OP::PREFIX
 		    &&
@@ -178,7 +219,7 @@ static bool oper_pass_run ( PAR::parser parser,
 		      ( oper->precedence == D.precedence
 		        &&
 			   (   last_oper_flags
-			     & OP::POSFIX )
+			     & OP::POSTFIX )
 			== 0 )
 		    )
 		  )
@@ -203,7 +244,7 @@ static bool oper_pass_run ( PAR::parser parser,
 	// and points at the new OPERATOR token.  If no
 	// operator was found, current == next_current.
 	//
-	if ( oper != NULL_STUB )
+	if ( oper != min::NULL_STUB )
 	{
 	    current->position.end =
 	        next_current->previous->position.end;
@@ -213,12 +254,12 @@ static bool oper_pass_run ( PAR::parser parser,
 			  ( PAR::first_ref(parser),
 			    next_current->previous ) );
 	    current->type = PAR::OPERATOR;
-	    current->value = oper->label;
+	    PAR::value_ref ( current ) = oper->label;
 	    MIN_ASSERT
 	      ( current->string == min::NULL_STUB );
 	}
 
-	min::int32 oper_precedence = NO_PRECEDENCE;
+	min::int32 oper_precedence = OP::NO_PRECEDENCE;
 	    // Effective operator precedence.
 
 	// Insert ERROR'OPERATOR token at current
@@ -248,7 +289,8 @@ static bool oper_pass_run ( PAR::parser parser,
 	        next_current->previous->position.end;
 	    current->position.end =
 	        next_current->position.begin;
-	    current->value = PAR::error_operator;
+	    PAR::value_ref ( current ) =
+	        PAR::error_operator;
 	    PAR::put_before
 	        ( first_ref(parser), next_current,
 		  current );
@@ -297,12 +339,12 @@ static bool oper_pass_run ( PAR::parser parser,
 	   )
 	{
 	    PAR::token t =
-	        PAR::new_token ( LEXSTD::word  );
+	        PAR::new_token ( LEXSTD::word_t  );
 	    t->position.begin =
 	        current->previous->position.end;
 	    t->position.end =
 	        current->position.begin;
-	    t->value = PAR::error_operand;
+	    PAR::value_ref ( t ) = PAR::error_operand;
 	    PAR::put_before
 	        ( first_ref(parser), current, t );
 	}
@@ -327,7 +369,7 @@ static bool oper_pass_run ( PAR::parser parser,
 			       D.first, current,
 			       D.first_oper );
 		else if ( pass->next != min::NULL_STUB )
-		    ok = (* pass->next->run)
+		    ok = (* pass->next->run_pass)
 		             ( parser, pass->next,
 			       selectors,
 			       D.first, current );
@@ -337,19 +379,19 @@ static bool oper_pass_run ( PAR::parser parser,
 
 	    if ( current == next )
 	    {
-		D = oper_stack.pop();
+		D = min::pop ( oper_stack );
 		if (    oper_stack->length
 		     == initial_length )
 		    return true;
 	    }
 	    else if ( oper_precedence < D.precedence )
-	        D = oper_stack.pop();
+	        D = min::pop ( oper_stack );
 	    else break;
 	}
 
 	if ( oper_precedence > D.precedence )
 	{
-	    oper_stack.push() = D;
+	    min::push ( oper_stack ) = D;
 	    D.precedence = oper_precedence;
 	    D.first_oper = oper;
 	}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 15 16:26:58 EDT 2012
+// Date:	Mon Apr 16 08:43:36 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Operator Table Entries
 //	Operator Parser Pass
+//	Operator Parser Pass Run Routine
 
 // Usage and Setup
 // ----- --- -----
@@ -36,7 +37,6 @@ static min::initializer initializer ( ::initialize );
 
 // Operator Table Entries
 // -------- ----- -------
-
 
 static min::uns32 oper_gen_disp[] = {
     min::DISP ( & TAB::root_struct::label ),
@@ -76,52 +76,59 @@ void OP::push_oper
 // Operator Parser Pass
 // -------- ------ ----
 
-struct oper_stack_struct
-{
-    // Save of various operator parser variables.
-    // None of these saved values are ACC locatable.
-    //
-    min::int32 precedence;
-    PAR::token first;
-    OP::oper first_oper;
-        // First OPERATOR in subexpression, or NULL_
-	// STUB if none yet.
-};
-
-typedef min::packed_vec_insptr< ::oper_stack_struct >
-    oper_stack;
-
-static min::packed_vec< ::oper_stack_struct >
+static min::packed_vec< OP::oper_stack_struct >
     oper_stack_type
         ( "(ll_parser_oper.cc)::oper_stack_type" );
 
-struct oper_pass_struct : public PAR::pass_struct
-{
-    const TAB::table oper_table;
-    const ::oper_stack oper_stack;
-};
-
-typedef min::packed_struct_updptr<oper_pass_struct>
-    oper_pass;
-
-MIN_REF ( PAR::pass, next, ::oper_pass );
-MIN_REF ( TAB::table, oper_table, ::oper_pass );
-MIN_REF ( ::oper_stack, oper_stack, ::oper_pass );
-
 static min::uns32 oper_pass_stub_disp[] =
 {
-    min::DISP ( & ::oper_pass_struct::next ),
-    min::DISP ( & ::oper_pass_struct::oper_table ),
-    min::DISP ( & ::oper_pass_struct::oper_stack ),
+    min::DISP ( & OP::oper_pass_struct::next ),
+    min::DISP ( & OP::oper_pass_struct::oper_table ),
+    min::DISP ( & OP::oper_pass_struct::oper_stack ),
     min::DISP_END
 };
+
+static min::packed_struct_with_base
+	<OP::oper_pass_struct, PAR::pass_struct>
+    oper_pass_type
+        ( "ll::parser::oper::oper_pass_type",
+	  NULL,
+	  ::oper_pass_stub_disp );
+const min::uns32 & OP::OPER_PASS =
+    ::oper_pass_type.subtype;
+
+static bool run_oper_pass ( PAR::parser parser,
+		            PAR::pass pass,
+		            TAB::selectors selectors,
+		            PAR::token & first,
+		            PAR::token next );
+
+OP::oper_pass OP::place
+	( ll::parser::parser parser,
+	  ll::parser::pass previous )
+{
+    min::locatable_var<OP::oper_pass> oper_pass
+        ( ::oper_pass_type.new_stub() );
+
+    OP::oper_table_ref ( oper_pass ) =
+        TAB::create_table ( 1024 );
+
+    oper_pass->run_pass = ::run_oper_pass;
+
+    PAR::place
+        ( parser, (PAR::pass) oper_pass, previous );
+    return oper_pass;
+}
+
+// Operator Parser Pass Run Routine
+// -------- ------ ---- --- -------
 
 // Return true iff the argument is a precedence in the
 // oper_stack.
 //
 inline bool check_precedence
 	( int precedence,
-	  ::oper_stack oper_stack )
+	 OP::oper_stack oper_stack )
 {
     for ( min::uns32 i = 0; i < oper_stack->length;
     			    ++ i )
@@ -132,23 +139,17 @@ inline bool check_precedence
     return false;
 }
 
-static min::packed_struct_with_base
-	< ::oper_pass_struct, PAR::pass_struct >
-    oper_pass_type
-        ( "(ll_parser_oper.cc)::oper_pass_type",
-	  NULL, oper_pass_stub_disp );
-
-static bool oper_pass_run ( PAR::parser parser,
+static bool run_oper_pass ( PAR::parser parser,
 		            PAR::pass pass,
 		            TAB::selectors selectors,
 		            PAR::token & first,
 		            PAR::token next )
 {
-    ::oper_pass oper_pass = (::oper_pass) pass;
-    ::oper_stack oper_stack = oper_pass->oper_stack;
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+    OP::oper_stack oper_stack = oper_pass->oper_stack;
 
     if ( oper_stack == min::NULL_STUB )
-        oper_stack = ::oper_stack_ref ( oper_pass ) =
+        oper_stack = OP::oper_stack_ref ( oper_pass ) =
 	    ::oper_stack_type.new_gen ( 100 );
 
     // We add to the stack but leave alone what is
@@ -160,7 +161,7 @@ static bool oper_pass_run ( PAR::parser parser,
     // Data that is pushed to oper_stack.  D is in
     // effect the top of the stack.
     //
-    ::oper_stack_struct D;
+    OP::oper_stack_struct D;
     D.first = first;
     D.precedence = OP::NO_PRECEDENCE;
     D.first_oper = min::NULL_STUB;
@@ -239,8 +240,8 @@ static bool oper_pass_run ( PAR::parser parser,
 	}
 
 	// Make OPERATOR token if an operator was found.
-	// Note that next_current ends up pointing after the
-	// OPERATOR token and current is left intact
+	// Note that next_current ends up pointing after
+	// the OPERATOR token and current is left intact
 	// and points at the new OPERATOR token.  If no
 	// operator was found, current == next_current.
 	//

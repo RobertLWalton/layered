@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 15 16:27:44 EDT 2012
+// Date:	Mon Apr 16 07:09:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Operator Table Entries
+//	Operator Pass
 
 // Usage and Setup
 // ----- --- -----
@@ -73,6 +74,58 @@ void push_oper
 	  min::int32 precedence,
 	  ll::parser::oper::reformatter reformatter,
 	  ll::parser::table::table oper_table );
+
+// Operator Pass
+// -------- ----
+
+// An oper_stack is part of each oper_pass.
+//
+struct oper_stack_struct
+{
+    // Save of various operator parser variables.
+    // None of these saved values are ACC locatable.
+    //
+    min::int32 precedence;
+    ll::parser::token first;
+    ll::parser::oper::oper first_oper;
+        // First OPERATOR in subexpression, or NULL_
+	// STUB if none yet.
+};
+
+typedef min::packed_vec_insptr< oper_stack_struct >
+    oper_stack;
+
+struct oper_pass_struct;
+typedef min::packed_struct_updptr<oper_pass_struct>
+        oper_pass;
+extern const uns32 & OPER_PASS;
+    // Subtype of min::packed_struct<oper_pass_struct>.
+struct oper_pass_struct
+    : public ll::parser::pass_struct
+{
+    // Packed_struct subtype is OPER_PASS.
+
+    const ll::parser::table::table oper_table;
+    const ll::parser::oper::oper_stack oper_stack;
+
+};
+
+MIN_REF ( ll::parser::pass, next,
+          ll::parser::oper::oper_pass )
+MIN_REF ( ll::parser::table::table, oper_table,
+          ll::parser::oper::oper_pass )
+MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
+          ll::parser::oper::oper_pass )
+
+// Place an operator parser pass on the parser->pass_
+// stack just after `previous', of if the latter is
+// NULL_STUB, put `pass' at the beginning of the stack.
+// Return the pass placed.
+//
+ll::parser::oper::oper_pass place
+	( ll::parser::parser parser,
+	  ll::parser::pass previous = NULL_STUB );
+
 
 } } }
 

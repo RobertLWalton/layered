@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 12, 2012
+April 20, 2012
  
 \end{center}
 
@@ -504,26 +504,26 @@ is in a given range.  The following is an example of a subtype
 that has the range {\tt 0 .. max index-1}:
 
 \begin{indpar}\begin{verbatim}
-defsubtype indexint of int32
+define subtype index int of int32
 
 external:
     constant int32 max index
 
-inline indexint .convert. ( int32 i ) unchecked:
+inline index int .convert. ( int32 i ) unchecked:
     assert ( 0 <= i && i < max index )
     return i
 
-inline int32 .convert. ( indexint i ) unchecked:
+inline int32 .convert. ( index int i ) unchecked:
     int32 j = i
     fact ( 0 <= j && j < max index )
     return j
 
 float64 x[max index]
-float64 getx ( indexint i ) = x[i]
+float64 getx ( index int i ) = x[i]
 \end{verbatim}\end{indpar}
 
 Here `{\tt x[i]}' will expand to code containing an implicit
-conversion of {\tt i} from {\tt indexint} to {\tt int32}
+conversion of {\tt i} from {\tt index int} to {\tt int32}
 and also a check that {\tt i} is in the proper range to be
 in index of {\tt x}, so the code expansion will effectively contain:
 \begin{indpar}\begin{verbatim}
@@ -541,34 +541,34 @@ an address, under the assumption that low addresses are not
 used by the memory system.  A example of subtypes implementing
 this is:
 \begin{indpar}\begin{verbatim}
-defsubtype specialadr of adr
-    // A specialadr is either an adr or an integer
+define subtype special adr of adr
+    // A special adr is either an adr or an integer
     // in the range [0,4096).
 
-inline bool is int ( specialadr a ) unchecked:
+inline bool is int ( special adr a ) unchecked:
     unsadr x = a
     return x < 4096
 
-inline bool is adr ( specialadr a ) unchecked:
+inline bool is adr ( special adr a ) unchecked:
     unsadr x = a
     return x >= 4096
 
-inline adr .convert. ( specialadr a ) unchecked:
+inline adr .convert. ( special adr a ) unchecked:
     unsadr x = a
     assert ( x >= 4096 )
     return a
 
-inline unsadr .convert. ( specialadr a ) unchecked:
+inline unsadr .convert. ( special adr a ) unchecked:
     unsadr x = a
     assert ( x < 4096 )
     return x
 
-inline specialadr .convert. ( unsadr x ) unchecked:
+inline special adr .convert. ( unsadr x ) unchecked:
     assert ( x < 4096 )
     adr a = x
     return a
 
-inline specialadr .convert. ( adr a ) unchecked:
+inline special adr .convert. ( adr a ) unchecked:
     unsadr x = a
     assert ( x >= 4096 )
         // We could omit this assert if we knew that
@@ -576,8 +576,8 @@ inline specialadr .convert. ( adr a ) unchecked:
     return a
 
 float64 x
-stack specialadr y = & x -> float64
-stack specialadr z = 23
+stack special adr y = & x -> float64
+stack special adr z = 23
 assert ( ! is int ( y ) )
 assert ( is int ( z ) )
 float64 x2 = * y   // OK
@@ -648,11 +648,11 @@ also typically independent.
 
 User defined block data types may be declared by declarations of the form
 \begin{center}
-\ttkey{deftype} {\em type-name} {\tt = (} {\em length}{\tt ,}
-				          {\em alignment}{\tt ,}
-				          {\em offset}
-					  \{{\tt ,} {\em flag}\}$^\star$
-					  {\tt )}
+\ttkey{define type} {\em type-name} {\tt = (} {\em length}{\tt ,}
+				              {\em alignment}{\tt ,}
+				              {\em offset}
+					      \{{\tt ,} {\em flag}\}$^\star$
+					      {\tt )}
 \end{center}
 
 The {\em length}, {\em alignment}, {\em offset}, and {\em flags} are just
@@ -772,22 +772,22 @@ occurs.
 
 Some of the standard default type definitions are
 \begin{indpar}\begin{verbatim}
-deftype int32 = (4,0,0)
-deftype float64 = (8,0,0,floating)
+define type int32 = (4,0,0)
+define type float64 = (8,0,0,floating)
 // On some hardware:
-    deftype adr = (8,0,0,address)
-    deftype unsadr = (8,0,0)
-    deftype insadr = (8,0,0)
+    define type adr = (8,0,0,address)
+    define type unsadr = (8,0,0)
+    define type insadr = (8,0,0)
 // On other hardware:
-    deftype adr = (4,0,0,address)
-    deftype unsadr = (4,0,0)
-    deftype insadr = (4,0,0)
+    define type adr = (4,0,0,address)
+    define type unsadr = (4,0,0)
+    define type insadr = (4,0,0)
 \end{verbatim}\end{indpar}
 
 Blocks contain numbers (including direct addresses) and subblocks.
 Access to these is provided by displacement values.  For example,
 \begin{indpar}\begin{verbatim}
-deftype type1 (48,8)
+define type type1 = (48,8)
 unchecked:
     constant disp member1 = 0 -> uns16 @ type1
     constant disp member2 = 2 -> uns16 @ type1
@@ -969,15 +969,17 @@ the frame.  For example, the declarations
 \begin{center}
 \tt
 \begin{tabular}{l}
-deftype my type(M) (24+8*M,0,8) \\
-my type(M) y;
+define type my type(uns32 M) = (24+8*M,0,8) \\
+. . . . .
+constant uns32 n = ...
+my type(n) y
 \end{tabular}
 \end{center}
-where {\tt M} is a function argument
+where {\tt M} is a type function argument and {\tt n} an argument value
 causes {\tt y} to be allocated as an independent block in an
 extension of the frame, and the complete type of {\tt y} is
 \begin{center}
-\tt constant stack adr -> constant stack adr -> my type y;
+\tt constant stack adr -> constant stack adr -> my type(n) y;
 \end{center}
 where {\tt \& \& y} is the address of the variable
 {\tt \& y} that is allocated within the fixed part of
@@ -1030,7 +1032,7 @@ it may be convenient to define them.  For example, if
 open files, one might have:
 
 \begin{indpar}\begin{verbatim}
-deftype open file (...)
+define type open file = (...)
 open file .get. ( int8 V -> open file )
 
 ( int8 V -> open file ) open ( ... )
@@ -1047,7 +1049,7 @@ used as file descriptors, they should be convertable to {\tt adr}
 values, as in the following improved example:
 
 \begin{indpar}\begin{verbatim}
-deftype open file (...)
+define type open file = (...)
 ( adr V -> open file ) .convert. ( int8 V -> open file )
 unchecked:
     disp state = 0 -> uns16 @ open file
@@ -1077,7 +1079,7 @@ lifetime qualifier.
 This could all be implemented by the code:
 
 \begin{indpar}[0.2in]\begin{verbatim}
-defsubtype ptr of adr
+define subtype ptr of adr
 
 inline relocatable adr .convert. ( ptr p ) unchecked:
     adr p2 = p -> relocatable adr; return * p2
@@ -1105,6 +1107,23 @@ above is legal and the assignment of {\tt q} is not.
 \subsection{Displacements}
 \label{DISPLACMENTS}
 
+Displacment types are just like pointer types in so far as declaration
+and assignment is concerned, but differ in not having
+{\tt .get} and {\tt .set} functions, but instead having
+the {\tt "."} operator that combines an address and a displacement.
+
+Builtin {\tt "."} operators combine {\tt disp} and {\tt adr} values.
+Specifically, given values of types
+\begin{indpar}
+{\tt adr A ->} $T1$ \\
+{\tt disp D ->} $T2$ {\tt @} $T1$
+\end{indpar}
+the expression {\tt A.D} adds the value of {\tt D} to the value of
+{\tt A} to produce a value of type
+\begin{indpar}
+{\tt adr AD ->} $T2$ {\tt @} $T1$
+\end{indpar}
+
 
 \subsection{Types and Type Descriptors}
 \label{TYPES-AND-TYPE-DESCRIPTORS}
@@ -1116,9 +1135,9 @@ and a type value.
 A type name has the same syntax as a function call, and type definitions
 are similar to function prototype definitions.  Some examples are:
 \begin{indpar}\begin{verbatim}
-deftype int32
-deftype list ( type T )
-deftype list ( type T, int32 n )
+define type int32
+define type list ( type T )
+define type list ( type T, int32 n )
 \end{verbatim}\end{indpar}
 
 According to these definitions, {\tt int32} is a type, and
@@ -1190,7 +1209,7 @@ a function that can be run by the compiler and loader to compute
 the values of the new type descriptors from other values known
 to the compiler and loader.  For example:
 \begin{indpar}\begin{verbatim}
-defsubtype length ( type T ) of unsadr
+define subtype length ( type T ) of unsadr
 ( constant length(T) s) .construct. ( type T ) unchecked:
     basic(T) b
     s = b.length
@@ -1631,22 +1650,22 @@ array parameter variables and reconfigure the array: e.g., the
 array may be expanded.  An example is:
 
 \begin{indpar}\begin{verbatim}
-// Implement myarray:
+// Implement my array:
 
-deftype myarray (32,8)
-readonly unsadr *& .n ( myarray *& @ a ) unchecked = a@0
-readonly unsadr *& .max_n ( myarray *& @ a ) unchecked = a@8
-readonly unsadr *& .inc_max ( myarray *& @ a ) unchecked = a@16
-noaccess float64 (readonly *&b) [1 .. a.n] .void ( myarray *& @ a )
+define type my array = (32,8)
+readonly unsadr *& .n ( my array *& @ a ) unchecked = a@0
+readonly unsadr *& .max_n ( my array *& @ a ) unchecked = a@8
+readonly unsadr *& .inc_max ( my array *& @ a ) unchecked = a@16
+noaccess float64 (readonly *&b) [1 .. a.n] .void ( my array *& @ a )
     unchecked = a@24
-(myarray *& @ a) .constructor.() unchecked
+(my array *& @ a) .constructor.() unchecked
 {
     a.n = 0
     a.max_n = 0
     a.inc_max = 30
     a.void.base = NULL
 }
-void push ( myarray *& a, float64 value ) unchecked
+void push ( my array *& a, float64 value ) unchecked
 {
     if ( a.n >= a.max_n )
     {
@@ -1664,9 +1683,9 @@ void push ( myarray *& a, float64 value ) unchecked
 
 }
 
-// Use myarray:
+// Use my array:
 
-myarray a
+my array a
 push ( a, 1.0 )
 push ( a, 2.0 )
 a[1] // Equals 1.0.
@@ -1726,11 +1745,11 @@ In the expression `\verb|float64| \verb|(readonly *&b)| \verb|[1 .. a.n]|'
 it is the array {\tt .base} that is read-only, not the array elements.
 
 Seventh, the code above contains both an implementation of
-{\tt myarray} and a use of {\tt myarray}.  We remind the reader that
+{\tt my array} and a use of {\tt my array}.  We remind the reader that
 the implementation is intended to be written by macros which are called
 by the end user and which ensure that
 the unchecked code generated is in fact type-safe, while the code that
-uses {\tt myarray} is intended to be written by the end user and
+uses {\tt my array} is intended to be written by the end user and
 should be type-safe in its own right.
 
 \subsubsection{Copying Arrays}
@@ -1875,13 +1894,13 @@ Qualifiers may be given in type definitions, and apply to all
 values and memory locations of the defined type.
 For example, if {\tt Q} is a qualifier,
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype Q type1 (48,8)
+define type Q type1 = (48,8)
 type1 x
 adr yp -> type1
 \end{verbatim}\end{indpar}
 is equivalent to
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype type1 (48,8)
+define type type1 = (48,8)
 Q type1 x
 adr yp -> Q type1
 \end{verbatim}\end{indpar}
@@ -2049,7 +2068,7 @@ qualifiers.
 Qualifiers may also be \ikey{inherited}{qualifiers}.  For example, if
 {\tt G} is a group qualifier,
 \begin{indpar}\begin{verbatim}
-G? readonly unsadr .n ( adr -> myarray G? a ) unchecked = ...
+G? readonly unsadr .n ( adr -> my array G? a ) unchecked = ...
 \end{verbatim}\end{indpar}
 causes any qualifier in group {\tt G} that is present for the
 argument `{\tt a}' to be applied to the function result.
@@ -2647,7 +2666,7 @@ non-protection qualifiers given the value false are ignored.
 
 For example, given the code
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype type1 (24,4)
+define type type1 = (24,4)
 declare protection qualifier constructor(type1)
 (constructor(type1)|constant) type1 my_data
 void function1 ( type1 *& arg1 )
@@ -2665,7 +2684,7 @@ function3 ( my_data)    // Legal; my_data is NOT constant for
 Note the left-to-right clause in the rule for evaluating non-protection
 qualifiers.  For example, given the code:
 \begin{indpar}[0.5em]\begin{verbatim}
-deftype type1 (24,4)
+define type type1 = (24,4)
 declare protection qualifier A
 ((A&readonly)|constant) type1 my_data1
 ((A&readonly)|(A&readwrite)|constant) type1 my_data2

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 15 12:03:23 EDT 2012
+// Date:	Sun Apr 22 09:42:10 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -311,28 +311,25 @@ void PAR::init
 void PAR::place
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  PAR::pass previous )
+	  PAR::pass next )
 {
-    if ( previous == NULL_STUB )
+    MIN_ASSERT ( pass->next == NULL_STUB );
+
+    PAR::pass current = parser->pass_stack;
+    if ( current == NULL_STUB )
     {
-        next_ref(pass) = parser->pass_stack;
+        MIN_ASSERT ( next == NULL_STUB );
 	pass_stack_ref(parser) = pass;
     }
     else
     {
-        PAR::pass current = parser->pass_stack;
-	for ( ; current != NULL_STUB;
-	        current = current->next )
+	while ( current->next != next )
 	{
-	    if ( current == previous )
-	    {
-	        next_ref(pass) = current->next;
-		next_ref(current) = pass;
-		return;
-	    }
+	    current = current->next;
+	    MIN_ASSERT ( current != NULL_STUB );
 	}
-	MIN_ABORT
-	    ( "PAR::place could not find `previous'" );
+	next_ref(pass) = current->next;
+	next_ref(current) = pass;
     }
 }
 
@@ -499,7 +496,7 @@ static void convert_token ( PAR::token token )
     token->type = PAR::EXPRESSION;
 }
 
-void PAR::compact
+bool PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::table::selectors selectors,
@@ -509,9 +506,12 @@ void PAR::compact
 	  PAR::attr * attributes,
 	  min::uns32 n )
 {
-    if ( pass != min::NULL_STUB )
-	(* pass->run_pass )
-	    ( parser, pass, selectors, first, next );
+    if ( pass != min::NULL_STUB
+         &&
+	 ! (* pass->run_pass )
+	        ( parser, pass, selectors,
+		  first, next ) )
+	return false;
             
     // Temporary min::gen locatable.
     //
@@ -593,6 +593,8 @@ void PAR::compact
 		( parser->printer,
 		  parser->input_file, position );
     }
+
+    return true;
 }
 
 // In a token sequence, find the next token subsequence
@@ -1631,13 +1633,17 @@ static bool parse_explicit_subexpression
 				      ( PAR::terminator,
 				        terminator ) };
 
-			    PAR::compact
-			        ( parser,
-				  parser->pass_stack,
-				  selectors,
-				  first, next,
-				  position,
-				  1, attributes );
+			    if ( ! PAR::compact
+			              ( parser,
+				        parser->
+					    pass_stack,
+				        selectors,
+				        first, next,
+				        position,
+				        1, attributes )
+			       )
+			        return false;
+
 			}
 
 			// See if there are more lines.
@@ -1688,12 +1694,14 @@ static bool parse_explicit_subexpression
 			    indentation_found->
 			        label ) };
 
-		PAR::compact ( parser,
-			       parser->pass_stack,
-		               selectors,
-		               first, next,
-			       position,
-			       1, attributes );
+		if ( ! PAR::compact
+		           ( parser,
+			     parser->pass_stack,
+		             selectors,
+		             first, next,
+			     position,
+			     1, attributes ) )
+		    return false;
 
 		// Terminate subexpression if closing
 		// bracket was found during indentation
@@ -1956,12 +1964,14 @@ static bool parse_explicit_subexpression
 			              closing_bracket->
 				          label ) };
 
-		    PAR::compact ( parser,
-				   parser->pass_stack,
-				   selectors,
-			           first, next,
-				   position,
-			           2, attributes, 1 );
+		    if ( ! PAR::compact
+		               ( parser,
+				 parser->pass_stack,
+				 selectors,
+			         first, next,
+				 position,
+			         2, attributes, 1 ) )
+		        return false;
 
 		    if (    cstack.closing_next
 			 == min::NULL_STUB )
@@ -2011,12 +2021,14 @@ static bool parse_explicit_subexpression
 			            closing_bracket->
 				        label ) };
 
-		    PAR::compact ( parser,
-				   parser->pass_stack,
-				   selectors,
-			           first, current,
-			           position,
-			           2, attributes, 1 );
+		    if ( ! PAR::compact
+		               ( parser,
+				 parser->pass_stack,
+				 selectors,
+			         first, current,
+			         position,
+			         2, attributes, 1 ) )
+		        return false;
 		    break;
 		}
 	    }
@@ -2281,13 +2293,15 @@ static bool parse_explicit_subexpression
 
 		    PAR::token first =
 		        middle_last->next;
-		    PAR::compact ( parser,
-				   parser->pass_stack,
-				   selectors,
-			  	   first,
-			  	   current,
-			  	   position,
-			  	   c, attributes );
+		    if ( ! PAR::compact
+		               ( parser,
+				 parser->pass_stack,
+				 selectors,
+			  	 first,
+			  	 current,
+			  	 position,
+			  	 c, attributes ) )
+		        return false;
 			  
 		    assert (    first->type
 			     == PAR::EXPRESSION );
@@ -2725,14 +2739,15 @@ void PAR::parse ( PAR::parser parser )
 		{ PAR::attr ( PAR::terminator,
 		              terminator ) };
 
-	    PAR::compact ( parser,
-			   parser->pass_stack,
-	                   parser->selectors,
-		  	   first, current,
-		  	   position,
-		  	   1, attributes );
-
-	    if ( maybe_parser_definition )
+	    if ( PAR::compact
+	             ( parser,
+		       parser->pass_stack,
+	               parser->selectors,
+		       first, current,
+		       position,
+		       1, attributes )
+	         &&
+		 maybe_parser_definition )
 	    {
 	        min::obj_vec_ptr vp ( first->value );
 		if ( vp != NULL_STUB )

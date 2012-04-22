@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 20, 2012
+April 22, 2012
  
 \end{center}
 
@@ -1125,8 +1125,8 @@ the expression {\tt A.D} adds the value of {\tt D} to the value of
 \end{indpar}
 
 
-\subsection{Types and Type Descriptors}
-\label{TYPES-AND-TYPE-DESCRIPTORS}
+\subsection{Types and Descriptors}
+\label{TYPES-AND-DESCRIPTORS}
 
 A \key{type} is a first class compile-time value that merely equals
 the name of the type.  Thus `{\tt int32}' is both the name of a type
@@ -1178,12 +1178,12 @@ can be omitted.
 
 Type values are not very useful at runtime, as the only
 operations on them are equality comparison and output.
-Most runtime information about types is encoded in type descriptors.
+Most runtime information about types is encoded in descriptors.
 
-A \key{type descriptor} is a run-time value that gives information
-about a type.  A type descriptor itself has a type, and every type
+A \key{descriptor} is a run-time value that gives information
+about a type.  A descriptor itself has a type, and every
 descriptor type has the special property that there is only one
-value possible of the type descriptor type, and the compiler can
+value possible of the descriptor type, and the compiler can
 figure out how to compute that value from the type itself\,%
 \footnote{This is the central idea in the Haskell programming language}.
 
@@ -1202,14 +1202,12 @@ a unique value computable by the compiler and loader, and this
 value has members that give the basic parameters of the type $T$,
 namely $T$'s length, alignment, offset, and flags.
 
-TBD
-
-It is possible to create new type descriptors by supplying
-a function that can be run by the compiler and loader to compute
-the values of the new type descriptors from other values known
+It is possible to create new descriptors by supplying
+a constructor that can be run by the compiler and loader to compute
+the values of the new descriptors from other values known
 to the compiler and loader.  For example:
 \begin{indpar}\begin{verbatim}
-define subtype length ( type T ) of unsadr
+define descriptor subtype length ( type T ) of unsadr
 ( constant length(T) s) .construct. ( type T ) unchecked:
     basic(T) b
     s = b.length
@@ -1218,12 +1216,27 @@ unsadr .convert. ( type T, length(T) s ) unchecked:
     return r
 \end{verbatim}\end{indpar}
 
-A type descriptor declaration is similar to a function declaration,
-except that the name of the function becomes the type name of the
-type descriptor.  The type descriptor type in turn becomes
-a subtype of the value returned by the function.
+A descriptor declaration is the same as a type declaration with
+except that it begins with `{\tt define descriptor}' instead of
+just `{\tt define}', which
+marks the type being decleared as a `\mkey{descriptor}{type}'.
+Variables of such a descritor type are not to be given values explicitly.
+Instead, they are given values by their constructor, which takes
+no explicit arguments.  The resulting values must be `constant'. 
 
-TBD
+Another example is:
+\begin{indpar}\begin{verbatim}
+define descriptor type subbase ( type T ) = ( 2*length(unsadr), 8 )
+unchecked:
+    disp length ( type T ) = 0 -> unsadr @ subbase (T)
+    disp offset ( type T ) = length(unsadr) -> unsadr @ subbase (T)
+( constant subbase(T) s) .construct. ( type T ) unchecked:
+    basic(T) b
+    s.length = b.length
+    s.offset = b.offset
+\end{verbatim}\end{indpar}
+
+TBD: variable names like type names can be like function calls
 
 \subsection{Tuples}
 \label{TUPLES}

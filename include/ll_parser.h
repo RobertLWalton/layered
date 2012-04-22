@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 15 10:12:23 EDT 2012
+// Date:	Sun Apr 22 07:55:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -487,16 +487,15 @@ void init
 	  ll::parser::run_pass run_pass,
 	  ll::parser::init_pass init_pass = NULL );
 
-// Place `pass' on the parser->pass_stack just after
-// `previous', of if the latter is NULL_STUB, put `pass'
-// at the beginning of the stack.  `pass' MUST NOT be
-// on any parser->pass_stack when this function is
-// called.
+// Place `pass' on the parser->pass_stack just before
+// `next', or if the latter is NULL_STUB, put `pass'
+// at the end of the stack.  `pass' MUST NOT be on
+// any parser->pass_stack when this function is called.
 //
 void place
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
-	  ll::parser::pass previous = NULL_STUB );
+	  ll::parser::pass next = NULL_STUB );
 
 } }
 
@@ -829,13 +828,15 @@ ll::parser::table::root find_next_entry
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::root last_entry );
 
-// First, invokes the given pass and subsequent passes
-// that are selected by the `selectors' on the expres-
-// sion consisting of the tokens beginning with `first'
-// and ending just before `next'.
+// First, invokes the given pass, if that is not NULL_
+// STUB, on the expression consisting of the tokens
+// beginning with `first' and ending just before `next'.
+// If the pass returns false, this function returns
+// false immediately.  Otherwise this function returns
+// true.
 //
-// Then replaces these tokens (which may have been
-// changed by the passes) by a resulting EXPRESSION
+// Then replaces the expression tokens (which may have
+// been changed by the pass) by a resulting EXPRESSION
 // token.  Adds the m attributes whose names and values
 // are given, and allows for the latter addition of n
 // attributes.  Sets the position of the new EXPRESSION
@@ -859,7 +860,7 @@ struct attr
         : name ( min::MISSING() ),
 	  value ( min::MISSING() ) {}
 };
-void compact
+bool compact
 	( ll::parser::parser parser,
 	  ll::parser::pass,
 	  ll::parser::table::selectors selectors,

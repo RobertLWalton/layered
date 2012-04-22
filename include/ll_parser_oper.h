@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 16 07:09:47 EDT 2012
+// Date:	Sun Apr 22 01:47:40 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,11 +62,15 @@ struct oper_struct
     min::uns32 flags;
     min::int32 precedence;
     ll::parser::oper::reformatter reformatter;
-
+    	// NULL if none.
 };
 
 MIN_REF ( min::gen, label, ll::parser::oper::oper )
 
+// Create an operator definition entry with given
+// label, selectors, flags, precedence, and reformatter,
+// and push it into the given oper_table.
+//
 void push_oper
 	( min::gen oper_label,
 	  ll::parser::table::selectors selectors,
@@ -89,7 +93,10 @@ struct oper_stack_struct
     ll::parser::token first;
     ll::parser::oper::oper first_oper;
         // First OPERATOR in subexpression, or NULL_
-	// STUB if none yet.
+	// STUB if none yet.  first_oper->reformatter
+	// is used as the reformatter, and first_oper->
+	// label is used as the .operator attribute
+	// value by the default reformatter.
 };
 
 typedef min::packed_vec_insptr< oper_stack_struct >
@@ -117,14 +124,14 @@ MIN_REF ( ll::parser::table::table, oper_table,
 MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
           ll::parser::oper::oper_pass )
 
-// Place an operator parser pass on the parser->pass_
-// stack just after `previous', of if the latter is
-// NULL_STUB, put `pass' at the beginning of the stack.
-// Return the pass placed.
+// Create an operator parser pass and place it on the
+// parser->pass_stack just before `next', or if `next'
+// is NULL_STUB, put `pass' at the end of the stack.
+// Return the new operator parser pass.
 //
 ll::parser::oper::oper_pass place
 	( ll::parser::parser parser,
-	  ll::parser::pass previous = NULL_STUB );
+	  ll::parser::pass next = NULL_STUB );
 
 
 } } }

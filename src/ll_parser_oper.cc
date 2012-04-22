@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 16 08:43:36 EDT 2012
+// Date:	Sun Apr 22 08:21:55 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,7 +39,7 @@ static min::initializer initializer ( ::initialize );
 // -------- ----- -------
 
 static min::uns32 oper_gen_disp[] = {
-    min::DISP ( & TAB::root_struct::label ),
+    min::DISP ( & OP::oper_struct::label ),
     min::DISP_END };
 
 static min::uns32 oper_stub_disp[] = {
@@ -105,18 +105,20 @@ static bool run_oper_pass ( PAR::parser parser,
 
 OP::oper_pass OP::place
 	( ll::parser::parser parser,
-	  ll::parser::pass previous )
+	  ll::parser::pass next )
 {
     min::locatable_var<OP::oper_pass> oper_pass
         ( ::oper_pass_type.new_stub() );
 
     OP::oper_table_ref ( oper_pass ) =
         TAB::create_table ( 1024 );
+    OP::oper_stack_ref ( oper_pass ) =
+	::oper_stack_type.new_stub ( 100 );
 
     oper_pass->run_pass = ::run_oper_pass;
 
     PAR::place
-        ( parser, (PAR::pass) oper_pass, previous );
+        ( parser, (PAR::pass) oper_pass, next );
     return oper_pass;
 }
 
@@ -147,10 +149,6 @@ static bool run_oper_pass ( PAR::parser parser,
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
-
-    if ( oper_stack == min::NULL_STUB )
-        oper_stack = OP::oper_stack_ref ( oper_pass ) =
-	    ::oper_stack_type.new_gen ( 100 );
 
     // We add to the stack but leave alone what is
     // already in the stack so this function can be
@@ -263,9 +261,10 @@ static bool run_oper_pass ( PAR::parser parser,
 	min::int32 oper_precedence = OP::NO_PRECEDENCE;
 	    // Effective operator precedence.
 
-	// Insert ERROR'OPERATOR token at current
-	// position if bad stuff found after a postfix
-	// operator.
+	// Insert ERROR'OPERATOR token just before
+	// current position if bad token (e.g.,
+	// non-operator or operator with too high a
+	// precedence) found after a postfix operator.
 	//
 	// Also compute oper_precedence.
 	//
@@ -296,9 +295,10 @@ static bool run_oper_pass ( PAR::parser parser,
 	        ( first_ref(parser), next_current,
 		  current );
 	    oper_precedence = D.precedence - 1;
+	    D.first = current;
 	}
 	else if ( oper != min::NULL_STUB )
-	    oper_precedence = D.precedence;
+	    oper_precedence = oper->precedence;
 
 	// If no operator found and not at end of
 	// expression, move to next token and loop.
@@ -311,8 +311,9 @@ static bool run_oper_pass ( PAR::parser parser,
 	    continue;
 	}
 
-	// If insert ERROR'OPERAND token before current
-	// if bad stuff found after infix or prefix
+	// Insert ERROR'OPERAND token just before
+	// current if bad token (e.g., operator with too
+	// low a precedence) found after infix or prefix
 	// operator.
 	//
 	if ( current == D.first
@@ -348,6 +349,7 @@ static bool run_oper_pass ( PAR::parser parser,
 	    PAR::value_ref ( t ) = PAR::error_operand;
 	    PAR::put_before
 	        ( first_ref(parser), current, t );
+	    D.first = t;
 	}
 
 	// Close previous subexpressions until
@@ -370,20 +372,35 @@ static bool run_oper_pass ( PAR::parser parser,
 			       D.first, current,
 			       D.first_oper );
 		else if ( pass->next != min::NULL_STUB )
-		    ok = (* pass->next->run_pass)
+		{
+		    min::phrase_position position;
+		    position.begin =
+		        D.first->position.begin;
+		    position.end =
+		        current->previous->position.end;
+		    PAR::attr attr
+		        ( PAR::dotoperator,
+			  D.first->oper->label );
+		    ok = compact
 		             ( parser, pass->next,
 			       selectors,
-			       D.first, current );
+			       D.first, current,
+			       position,
+			       1, & attr );
+		}
 
 	        if ( ! ok ) return false;
 	    }
 
 	    if ( current == next )
 	    {
-		D = min::pop ( oper_stack );
 		if (    oper_stack->length
 		     == initial_length )
+		{
+		    first = D.first;
 		    return true;
+		}
+		D = min::pop ( oper_stack );
 	    }
 	    else if ( oper_precedence < D.precedence )
 	        D = min::pop ( oper_stack );

@@ -504,7 +504,7 @@ is in a given range.  The following is an example of a subtype
 that has the range {\tt 0 .. max index-1}:
 
 \begin{indpar}\begin{verbatim}
-define subtype index int of int32
+define type index int = subtype of int32
 
 external:
     constant int32 max index
@@ -541,7 +541,7 @@ an address, under the assumption that low addresses are not
 used by the memory system.  A example of subtypes implementing
 this is:
 \begin{indpar}\begin{verbatim}
-define subtype special adr of adr
+define type special adr = subtype of adr
     // A special adr is either an adr or an integer
     // in the range [0,4096).
 
@@ -1034,59 +1034,9 @@ particularly type arguments, to be deduced via match generated assignments.
 On the other hand, matching complete names merely involves checking for
 equality of names.
 
+Types are declared by `{\tt define type}' statements.
+
 TBD
-
-A \key{type} is a first class compile-time value that merely equals
-the name of the type.  Thus `{\tt int32}' is both the name of a type
-and a type value.
-
-A type name has the same syntax as a function call, and type definitions
-are similar to function prototype definitions.  Some examples are:
-\begin{indpar}\begin{verbatim}
-define type int32
-define type list ( type T )
-define type list ( type T, int32 n )
-\end{verbatim}\end{indpar}
-
-According to these definitions, {\tt int32} is a type, and
-for any type $T$ and {\tt int32} value $i$, {\tt list(}$T${\tt )} and
-{\tt list(}$T${\tt ,}$i${\tt )} are types.
-More specifically, {\tt list(int32)}, {\tt list(int32,5)}, and
-{\tt list(list(int32))} are types.
-
-Note that types can be arguments to functions and to other types.
-However, when used as arguments to functions they can often be
-omitted from calls, as they can be dedeuced from the types of the
-non-omitted arguments.  For example:
-\begin{indpar}\begin{verbatim}
-// Note: because T is not pre-declared as a type, ( T z ) must
-// be used for the return value to separate T from `max'.
-//
-( T z ) max ( type T, T x, T y ):
-    if ( x > y ) z = x
-    else z = y
-. . . . . . .
-int32 x = ...
-int32 y = max ( x, 5 )  // Deduces that T = int32
-\end{verbatim}\end{indpar}
-
-In effect, the argument list contains declarations of type names,
-e.g., in the example just given {\tt T} is declared as a type name.
-Because type names have syntactic meaning, such declarations must
-occur in an input argument list to the left of any use in any
-input argument list.  If they appear in an output argument list,
-the output list must be bracketted to separate it from the function
-name.
-
-Also, arguments can be omitted from function calls if the omissions can
-be determined unambigously using only the types of the arguments, and
-values can be supplied by other means.
-In particular, all type arguments, i.e., arguments of type `{\tt type}',
-can be omitted.
-
-Type values are not very useful at runtime, as the only
-operations on them are equality comparison and output.
-Most runtime information about types is encoded in descriptors.
 
 A \key{descriptor} is a run-time value that gives information
 about a type.  A descriptor itself has a type, and every
@@ -1240,7 +1190,7 @@ lifetime qualifier.
 This could all be implemented by the code:
 
 \begin{indpar}[0.2in]\begin{verbatim}
-define subtype ptr of adr
+define type ptr = subtype of adr
 
 inline relocatable adr .convert. ( ptr p ) unchecked:
     adr p2 = p -> relocatable adr; return * p2

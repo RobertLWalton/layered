@@ -768,6 +768,11 @@ within the caller frame.  But when returned from a called function to a caller,
 the value must be copied into locatable variable before any interrupt
 occurs.
 
+\hspace*{-1em}\ttkey{descriptor} Specifies there is only one possible
+value of the type, and any variable of that value will be initialized
+to that value.  This value is necessarily determined by the type, and
+in general describes the type: see \secref{TYPES-AND-DESCRIPTORS}.
+
 \end{indpar}
 
 Some of the standard default type definitions are

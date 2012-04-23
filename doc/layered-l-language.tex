@@ -771,7 +771,7 @@ occurs.
 \hspace*{-1em}\ttkey{descriptor} Specifies there is only one possible
 value of the type, and any variable of that value will be initialized
 to that value.  This value is necessarily determined by the type, and
-in general describes the type: see \secref{TYPES-AND-DESCRIPTORS}.
+in general describes the type: see \secref{NAMES-AND-TYPES}.
 
 \end{indpar}
 
@@ -990,8 +990,51 @@ where {\tt \& \& y} is the address of the variable
 {\tt \& y} that is allocated within the fixed part of
 the frame, and the value of this variable is the address of {\tt y}.
 
-\subsection{Types and Descriptors}
-\label{TYPES-AND-DESCRIPTORS}
+\subsection{Names and Types}
+\label{NAMES-AND-TYPES}
+
+A `\key{name}' is used to name a variable, type, or function call. 
+All names are sequences of words, natural numbers, quoted strings,
+and bracketted arguments or lists of arguments.
+
+In certain contexts a type must appear before the name of a variable
+or function without any intervening operator or separator.
+Syntactically types, variables, and functions are all names.  The
+types in these contexts are recognized because they must be declared
+as types in advance.
+
+Names may be either `\mkey{complete}{name}' or `\mkey{prototype}{name}'.
+In a complete name all the arguments are specified.  In a prototype
+name, the arguments are represented by argument type/name pairs.
+
+Names may be printed and matched with each other.  Matching may
+induce assignment of argument names in prototypes.
+
+For example,
+
+\begin{indpar}
+\verb|sin ( float64 x )|
+matched with
+\verb|sin ( 3.141529 )| \\
+assigns
+\verb|3.141529| to \verb|x|
+\\[2ex]
+if \verb|x| is of type \verb|int32| then \\
+\verb|max ( type T, T v, T w )|
+matched to
+\verb|max ( x , 2000 )| \\
+assigns 
+\verb|int32| to \verb|T|, \verb|x| to \verb|v|,
+and \verb|.convert.(2000)| to \verb|w|. 
+
+\end{indpar}
+
+Matching prototypes is complex and allows omitted arguments, most
+particularly type arguments, to be deduced via match generated assignments.
+On the other hand, matching complete names merely involves checking for
+equality of names.
+
+TBD
 
 A \key{type} is a first class compile-time value that merely equals
 the name of the type.  Thus `{\tt int32}' is both the name of a type

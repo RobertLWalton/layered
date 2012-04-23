@@ -1034,7 +1034,24 @@ particularly type arguments, to be deduced via match generated assignments.
 On the other hand, matching complete names merely involves checking for
 equality of names.
 
-Types are declared by `{\tt define type}' statements.
+Types are declared by `{\tt define type}' statements which have the
+syntax
+
+\hspace*{0.2in}
+\begin{tabular}{rcl}
+{\em type-declaration}
+& ::= & {\tt define type} {\em type-name} \\
+& $|$ & {\tt define type} {\em type-name} {\tt = } {\em type-flag}$^\star$
+	{\em type-spec} \\
+{\em type-spec}
+& ::= & {\tt (} {\em length}{\tt ,}
+	        {\em alignment}{\tt ,} {\em offset} {\tt )} \\
+& $|$ & {\tt subtype of} {\em type-name} \\
+{\em type-flag}
+& ::= & {\tt floating} $|$ {\tt address} $|$ {\tt extendable} \\
+& $|$ & {\tt locatable variable} $|$ {\tt locatable value} $|$
+	{\tt descriptor}
+\end{tabular}
 
 TBD
 

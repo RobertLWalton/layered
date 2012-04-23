@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 22 07:55:04 EDT 2012
+// Date:	Mon Apr 23 02:19:00 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -831,9 +831,6 @@ ll::parser::table::root find_next_entry
 // First, invokes the given pass, if that is not NULL_
 // STUB, on the expression consisting of the tokens
 // beginning with `first' and ending just before `next'.
-// If the pass returns false, this function returns
-// false immediately.  Otherwise this function returns
-// true.
 //
 // Then replaces the expression tokens (which may have
 // been changed by the pass) by a resulting EXPRESSION
@@ -849,6 +846,11 @@ ll::parser::table::root find_next_entry
 // whose sole element is the token string of the token
 // as a string general value and whose .initiator is #
 // for a number or " for a quoted string.
+//
+// This function returns the value returned by invoking
+// the pass, or returns true if there is no pass, but
+// otherwise ignores pass errors.  This function does
+// not itself detect errors.
 //
 struct attr
 {

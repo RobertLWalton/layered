@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 22 09:42:10 EDT 2012
+// Date:	Mon Apr 23 02:19:16 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -506,12 +506,11 @@ bool PAR::compact
 	  PAR::attr * attributes,
 	  min::uns32 n )
 {
-    if ( pass != min::NULL_STUB
-         &&
-	 ! (* pass->run_pass )
-	        ( parser, pass, selectors,
-		  first, next ) )
-	return false;
+    bool ok = ( pass == min::NULL_STUB
+                ||
+	        (* pass->run_pass )
+	             ( parser, pass, selectors,
+		       first, next ) );
             
     // Temporary min::gen locatable.
     //
@@ -594,7 +593,7 @@ bool PAR::compact
 		  parser->input_file, position );
     }
 
-    return true;
+    return ok;
 }
 
 // In a token sequence, find the next token subsequence
@@ -1283,6 +1282,8 @@ static bool parse_explicit_subexpression
 	  ::bracket_stack * bracket_stack_p,
 	  TAB::selectors selectors )
 {
+    bool ok = true;  // Return value.
+
     TAB::indentation_mark indentation_found =
         min::NULL_STUB;
 	// If not NULL_STUB, last token was this
@@ -1633,17 +1634,15 @@ static bool parse_explicit_subexpression
 				      ( PAR::terminator,
 				        terminator ) };
 
-			    if ( ! PAR::compact
-			              ( parser,
-				        parser->
-					    pass_stack,
-				        selectors,
-				        first, next,
-				        position,
-				        1, attributes )
-			       )
-			        return false;
-
+			    ok = ok
+			      && PAR::compact
+			             ( parser,
+				       parser->
+				           pass_stack,
+				       selectors,
+				       first, next,
+				       position,
+				       1, attributes );
 			}
 
 			// See if there are more lines.
@@ -1694,14 +1693,13 @@ static bool parse_explicit_subexpression
 			    indentation_found->
 			        label ) };
 
-		if ( ! PAR::compact
-		           ( parser,
-			     parser->pass_stack,
-		             selectors,
-		             first, next,
-			     position,
-			     1, attributes ) )
-		    return false;
+		ok = ok && PAR::compact
+		               ( parser,
+			         parser->pass_stack,
+		                 selectors,
+		                 first, next,
+			         position,
+			         1, attributes );
 
 		// Terminate subexpression if closing
 		// bracket was found during indentation
@@ -1964,14 +1962,13 @@ static bool parse_explicit_subexpression
 			              closing_bracket->
 				          label ) };
 
-		    if ( ! PAR::compact
-		               ( parser,
-				 parser->pass_stack,
-				 selectors,
-			         first, next,
-				 position,
-			         2, attributes, 1 ) )
-		        return false;
+		    ok = ok && PAR::compact
+		                   ( parser,
+				     parser->pass_stack,
+				     selectors,
+			             first, next,
+				     position,
+			             2, attributes, 1 );
 
 		    if (    cstack.closing_next
 			 == min::NULL_STUB )
@@ -2021,14 +2018,13 @@ static bool parse_explicit_subexpression
 			            closing_bracket->
 				        label ) };
 
-		    if ( ! PAR::compact
-		               ( parser,
-				 parser->pass_stack,
-				 selectors,
-			         first, current,
-			         position,
-			         2, attributes, 1 ) )
-		        return false;
+		    ok = ok && PAR::compact
+		                   ( parser,
+				     parser->pass_stack,
+				     selectors,
+			             first, current,
+			             position,
+			             2, attributes, 1 );
 		    break;
 		}
 	    }
@@ -2117,7 +2113,7 @@ static bool parse_explicit_subexpression
                 if (    indentation_separator
 			    ->indentation_mark
 		     == indentation_mark )
-		    return true;
+		    return ok;
 	    }
 	    else if ( subtype == TAB::NAMED_OPENING )
 	    {
@@ -2293,15 +2289,14 @@ static bool parse_explicit_subexpression
 
 		    PAR::token first =
 		        middle_last->next;
-		    if ( ! PAR::compact
-		               ( parser,
-				 parser->pass_stack,
-				 selectors,
-			  	 first,
-			  	 current,
-			  	 position,
-			  	 c, attributes ) )
-		        return false;
+		    ok = ok && PAR::compact
+		                   ( parser,
+				     parser->pass_stack,
+				     selectors,
+			  	     first,
+			  	     current,
+			  	     position,
+			  	     c, attributes );
 			  
 		    assert (    first->type
 			     == PAR::EXPRESSION );

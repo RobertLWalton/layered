@@ -1040,9 +1040,19 @@ syntax
 \hspace*{0.2in}
 \begin{tabular}{rcl}
 {\em type-declaration}
-& ::= & {\tt define type} {\em type-name} \\
-& $|$ & {\tt define type} {\em type-name} {\tt = } {\em type-flag}$^\star$
-	{\em type-spec} \\
+& ::= & {\tt define type} {\em qualifier}$^\star$ {\em type-name} \\
+& $|$ & {\tt define type} {\em qualifier}$^\star$ {\em type-name}
+        {\tt =} {\em type-flag}$^\star$ {\em type-spec} \\
+{\em type-name}
+& ::= & {\em simple-name} \\
+& $|$ & {\em argumented-name} {\em argumented-name}$^\star$ \\
+& $|$ & {\em argumented-name} {\em argumented-name}$^\star$ {\em simple-name} \\
+{\em argumented-name}
+& ::= & {\em simple-name} {\em argument-list}
+                          {\em argument-list}$^\star$ \\
+{\em argument-list}
+& ::= & {\tt (} {\em variable-declaration}
+        \{ {\tt ,} {\em variable-declaration} \}$^\star$ {\tt )} \\
 {\em type-spec}
 & ::= & {\tt (} {\em length}{\tt ,}
 	        {\em alignment}{\tt ,} {\em offset} {\tt )} \\
@@ -1051,6 +1061,23 @@ syntax
 & ::= & {\tt floating} $|$ {\tt address} $|$ {\tt extendable} \\
 & $|$ & {\tt locatable variable} $|$ {\tt locatable value} $|$
 	{\tt descriptor}
+\end{tabular}
+
+TBD
+
+\hspace*{0.2in}
+\begin{tabular}{rcl}
+{\em variable-declaration}
+& ::= & {\em simple-variable-declaration} \\
+&     & ~~~~~~~~ \{ {\tt ->} {\em simple-variable-declaration} \}$^\star$ \\
+{\em simple-variable-declaration}
+& ::= & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
+& $|$ & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$
+        {\em variable-name} \\
+& $|$ & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
+&     & ~~~~~~~~ {\em variable-name} {\tt =} {\em initializer} \\
+{\em container}
+& ::= & {\tt @} {\em qualifier}$^\star$ {\em type-name}
 \end{tabular}
 
 TBD

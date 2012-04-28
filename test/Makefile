@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Apr 15 16:04:51 EDT 2012
+# Date:		Thu Apr 26 05:52:19 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -36,7 +36,8 @@ PROGRAMS = ll_lexeme_basic_test \
 	   ll_parser_input_test \
 	   ll_parser_table_test \
 	   ll_parser_explicit_subexpression_test \
-	   ll_parser_definitions_test
+	   ll_parser_definitions_test \
+	   ll_parser_oper_test
 
 TESTS = ${PROGRAMS}
 
@@ -582,6 +583,45 @@ ll_parser_definitions_test.out:	\
 	rm -f $*.out
 	${RUNENV} \
 	    ll_parser_definitions_test < $*.in > $*.out
+
+ll_parser_oper_test:		\
+	    ll_parser_oper_test.cc \
+	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser.o \
+	    ll_parser_definitions.o \
+	    ll_parser_oper.o \
+	    ll_parser_standard_input.o \
+	    ll_parser_standard_brackets.o \
+	    ll_parser_table.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme.o \
+	    ll_lexeme_ndl.o \
+	    ll_lexeme_standard.o \
+	    ll_parser.o \
+	    ll_parser_definitions.o \
+	    ll_parser_oper.o \
+	    ll_parser_standard_input.o \
+	    ll_parser_standard_brackets.o \
+	    ll_parser_table.o \
+	    min.o \
+	    min_os.o \
+	    min_acc.o \
+	    ll_parser_oper_test.cc
+
+ll_parser_oper_test.out:	\
+	    ll_parser_oper_test \
+	    ll_parser_oper_test.in
+	rm -f $*.out
+	${RUNENV} \
+	    ll_parser_oper_test < $*.in > $*.out
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o \

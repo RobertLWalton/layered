@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 11 07:12:31 EDT 2011
+// Date:	Thu Apr 26 08:56:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,7 +12,9 @@
 //
 //	Usage and Setup
 //	Standard Parser Input
+//	Standard Parser Selectors
 //	Standard Parser Brackets
+//	Standard Parser Operators
 
 // Usage and Setup
 // ----- --- -----
@@ -128,6 +130,12 @@ const ll::parser::table::selectors
     MATH	= ( 1ull << 1 ),
     TEXT	= ( 1ull << 2 );
 
+
+
+// Standard Parser Brackets
+// -------- ------ --------
+
+
 // Set the parser->bracket_table and parser->split_table
 // for the standard set of layered language brackets and
 // indentation marks.
@@ -136,6 +144,18 @@ const ll::parser::table::selectors
 //
 void init_brackets
     ( min::ref<ll::parser::parser> parser );
+
+
+
+// Standard Parser Operators
+// -------- ------ ---------
+
+// Add an oper_pass to the parser and set its oper_table
+// to the standard operators.
+//
+void init_oper
+    ( min::ref<ll::parser::parser> parser );
+
 
 } } }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 22 08:21:55 EDT 2012
+// Date:	Thu Apr 26 09:34:27 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -417,5 +417,49 @@ static bool run_oper_pass ( PAR::parser parser,
 	D.first = next_current;
 	last_oper_flags = oper->flags;
 	current = next_current;
+    }
+}
+
+// Operator Reformatters
+// -------- ------------
+
+bool OP::separator_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::selectors selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  OP::oper first_oper )
+{
+    min::gen separator = min::MISSING();
+    bool sep_required = false;
+    for ( PAR::TOKEN t = first; t != next )
+    {
+        if ( t->type == PAR::OPER )
+	{
+	    if ( separator == min::MISSING() )
+	        separator = t->value;
+	    else if ( separator != t->value )
+	    {
+	        // TBD:: error
+	    }
+	    if ( t == first )
+	        first = t->next;
+	    t = t->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			t->previous ) );
+	    sep_required = false;
+	}
+	else if ( sep_required )
+	{
+	    // TBD::error
+	}
+	else
+	{
+	    sep_required = true;
+	    t = t->next;
+	}
     }
 }

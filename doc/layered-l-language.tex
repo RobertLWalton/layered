@@ -995,7 +995,7 @@ the frame, and the value of this variable is the address of {\tt y}.
 
 A `\key{name}' is used to name a variable, type, or function call. 
 All names are sequences of words, natural numbers, quoted strings,
-and bracketted arguments or lists of arguments.
+and bracketted lists of arguments.
 
 In certain contexts a type must appear before the name of a variable
 or function without any intervening operator or separator.
@@ -1003,8 +1003,11 @@ Syntactically types, variables, and functions are all names.  The
 types in these contexts are recognized because they must be declared
 as types in advance.
 
+Similarly qualifiers may appear before types, and qualifiers are
+recognized because they are declared as such in advance.
+
 Names may be either `\mkey{complete}{name}' or `\mkey{prototype}{name}'.
-In a complete name all the arguments are specified.  In a prototype
+In a complete name all argument values are given.  In a prototype
 name, the arguments are represented by argument type/name pairs.
 
 Names may be printed and matched with each other.  Matching may
@@ -1032,7 +1035,7 @@ and \verb|.convert.(2000)| to \verb|w|.
 Matching prototypes is complex and allows omitted arguments, most
 particularly type arguments, to be deduced via match generated assignments.
 On the other hand, matching complete names merely involves checking for
-equality of names.
+equality of names after fully evaluating arguments.
 
 Types are declared by `{\tt define type}' statements which have the
 syntax
@@ -1044,15 +1047,18 @@ syntax
 & $|$ & {\tt define type} {\em qualifier}$^\star$ {\em type-name}
         {\tt =} {\em type-flag}$^\star$ {\em type-spec} \\
 {\em type-name}
-& ::= & {\em simple-name} \\
-& $|$ & {\em argumented-name} {\em argumented-name}$^\star$ \\
-& $|$ & {\em argumented-name} {\em argumented-name}$^\star$ {\em simple-name} \\
-{\em argumented-name}
+& ::= & {\em named-argument-list} {\em named-argument-list}$^\star$ \\
+& $|$ & {\em named-argument-list}$^\star$ {\em simple-name} \\
+{\em simple-name}
+& ::= & {\em word} \{ {\em word} $|$ {\em natural-number} \}$^\star$ \\
+& $|$ & {\em quoted-string} \\
+{\em named-argument-list}
 & ::= & {\em simple-name} {\em argument-list}
                           {\em argument-list}$^\star$ \\
 {\em argument-list}
-& ::= & {\tt (} {\em variable-declaration}
-        \{ {\tt ,} {\em variable-declaration} \}$^\star$ {\tt )} \\
+& ::= & {\tt (} {\em argument} \{ {\tt ,} {\em argument} \}$^\star$ {\tt )} \\
+{\em argument}
+& ::= & {\em expression} $|$ {\em variable-declaration} \\
 {\em type-spec}
 & ::= & {\tt (} {\em length}{\tt ,}
 	        {\em alignment}{\tt ,} {\em offset} {\tt )} \\

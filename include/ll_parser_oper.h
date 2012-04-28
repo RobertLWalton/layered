@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Operator Table Entries
 //	Operator Pass
+//	Operator Reformatters
 
 // Usage and Setup
 // ----- --- -----
@@ -132,7 +133,11 @@ MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
 ll::parser::oper::oper_pass place
 	( ll::parser::parser parser,
 	  ll::parser::pass next = NULL_STUB );
+
+// Operator Reformatters
+// -------- ------------
 
+reformatter separator_reformatter;
 
 } } }
 

@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 23, 2012
+April 29, 2012
  
 \end{center}
 
@@ -997,7 +997,8 @@ A `\key{name}' is used to name a variable, type, or function call.
 All names are sequences of words, natural numbers, quoted strings,
 and bracketted lists of arguments.
 
-In certain contexts a type must appear before the name of a variable
+In certain contexts a type or bracketted argument list
+must appear before the name of a variable
 or function without any intervening operator or separator.
 Syntactically types, variables, and functions are all names.  The
 types in these contexts are recognized because they must be declared
@@ -1007,11 +1008,13 @@ Similarly qualifiers may appear before types, and qualifiers are
 recognized because they are declared as such in advance.
 
 Names may be either `\mkey{complete}{name}' or `\mkey{prototype}{name}'.
-In a complete name all argument values are given.  In a prototype
+In a complete name arguments are given as values.  In a prototype
 name, the arguments are represented by argument type/name pairs.
 
 Names may be printed and matched with each other.  Matching may
-induce assignment of argument names in prototypes.
+induce assignment of argument names in prototypes to values supplied
+by complete names.  A prototype name may be matched with a complete
+name but not with another prototype name.
 
 For example,
 
@@ -1020,21 +1023,22 @@ For example,
 matched with
 \verb|sin ( 3.141529 )| \\
 assigns
-\verb|3.141529| to \verb|x|
+\verb|x = 3.141529|
 \\[2ex]
 if \verb|x| is of type \verb|int32| then \\
 \verb|max ( type T, T v, T w )|
 matched to
 \verb|max ( x , 2000 )| \\
 assigns 
-\verb|int32| to \verb|T|, \verb|x| to \verb|v|,
-and \verb|.convert.(2000)| to \verb|w|. 
+\verb|T = int32|, \verb|v = x|,
+and \verb|w = 2000|. 
 
 \end{indpar}
 
-Matching prototypes is complex and allows omitted arguments, most
+Matching a prototype name to a complete name
+is complex and allows omitted arguments, most
 particularly type arguments, to be deduced via match generated assignments.
-On the other hand, matching complete names merely involves checking for
+On the other hand, matching two complete names merely involves checking for
 equality of names after fully evaluating arguments.
 
 Types are declared by `{\tt define type}' statements which have the

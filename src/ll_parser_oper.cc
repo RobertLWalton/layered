@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 26 09:34:27 EDT 2012
+// Date:	Sun Apr 29 22:51:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,14 +26,6 @@
 # define TAB ll::parser::table
 # define OP ll::parser::oper
 
-static min::locatable_gen oper_lexeme;
-
-static void initialize ( void )
-{
-    ::oper_lexeme
-	= min::new_dot_lab_gen ( "operator" );
-}
-static min::initializer initializer ( ::initialize );
 
 // Operator Table Entries
 // -------- ----- -------
@@ -379,8 +371,8 @@ static bool run_oper_pass ( PAR::parser parser,
 		    position.end =
 		        current->previous->position.end;
 		    PAR::attr attr
-		        ( PAR::dotoperator,
-			  D.first->oper->label );
+		        ( PAR::dot_oper,
+			  D.first_oper->label );
 		    ok = compact
 		             ( parser, pass->next,
 			       selectors,
@@ -423,7 +415,7 @@ static bool run_oper_pass ( PAR::parser parser,
 // Operator Reformatters
 // -------- ------------
 
-bool OP::separator_reformatter
+static bool separator_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::selectors selectors,
@@ -431,18 +423,80 @@ bool OP::separator_reformatter
 	  PAR::token next,
 	  OP::oper first_oper )
 {
+    MIN_ASSERT ( first != next );
+
+    min::phrase_position position;
+    position.begin = first->position.begin;
+    position.end = next->previous->position.end;
+
     min::gen separator = min::MISSING();
     bool sep_required = false;
-    for ( PAR::TOKEN t = first; t != next )
+    for ( PAR::token t = first; t != next; )
     {
-        if ( t->type == PAR::OPER )
+        if ( t->type == PAR::OPERATOR )
 	{
 	    if ( separator == min::MISSING() )
+	    {
 	        separator = t->value;
+		if ( t != first
+		     &&
+		     t != first->next )
+		{
+		    for ( PAR::token t2 = first;
+		          t2->next != t;
+			  t2 = t2->next )
+		    {
+			min::phrase_position position;
+			position.begin =
+			    t2->position.end;
+			position.end =
+			    t2->next->position.begin;
+
+			parser->printer
+			    << min::bom
+			    << min::set_indent ( 7 )
+			    << "ERROR: missing"
+			       " separator `"
+			    << min::pgen
+				 ( separator,
+				   & PAR::name_format )
+			    << "' inserted; "
+			    << min::pline_numbers
+				   ( parser->input_file,
+				     position )
+			    << ":" << min::eom;
+			min::print_phrase_lines
+			    ( parser->printer,
+			      parser->input_file,
+			      position );
+		    }
+		}
+	    }
 	    else if ( separator != t->value )
 	    {
-	        // TBD:: error
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: wrong"
+		       " separator `"
+		    << min::pgen
+			 ( t->value,
+			   & PAR::name_format )
+		    << "' changed to `"
+		    << min::pgen
+			 ( separator,
+			   & PAR::name_format )
+		    << "'; "
+		    << min::pline_numbers
+			   ( parser->input_file,
+			     t->position )
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      t->position );
 	    }
+
 	    if ( t == first )
 	        first = t->next;
 	    t = t->next;
@@ -452,9 +506,33 @@ bool OP::separator_reformatter
 			t->previous ) );
 	    sep_required = false;
 	}
-	else if ( sep_required )
+	else if (    sep_required
+	          && separator != min::MISSING() )
 	{
-	    // TBD::error
+	    min::phrase_position position;
+	    position.begin =
+		t->previous->position.end;
+	    position.end =
+		t->position.begin;
+
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: missing"
+		   " separator `"
+		<< min::pgen
+		     ( separator,
+		       & PAR::name_format )
+		<< "' inserted; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  position );
+	    t = t->next;
 	}
 	else
 	{
@@ -462,4 +540,15 @@ bool OP::separator_reformatter
 	    t = t->next;
 	}
     }
+
+    MIN_ASSERT ( separator != min::MISSING() );
+
+    PAR::attr separator_attr
+        ( PAR::dot_separator, separator );
+
+    return PAR::compact
+        ( parser, pass, selectors, first, next,
+	  position, 1, & separator_attr );
 }
+OP::reformatter OP::separator_reformatter =
+    ::separator_reformatter;

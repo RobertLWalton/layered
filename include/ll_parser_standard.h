@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 26 08:56:39 EDT 2012
+// Date:	Sun Apr 29 17:56:14 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,10 +120,8 @@ extern min::locatable_var<ll::parser::input>
 //
 void init_input ( min::ref<ll::parser::parser> parser );
 
-// Standard Parser Brackets
-// -------- ------ --------
-
-// Standard Selectors:
+// Standard Parser Selectors
+// -------- ------ ---------
 //
 const ll::parser::table::selectors
     CODE	= ( 1ull << 0 ),

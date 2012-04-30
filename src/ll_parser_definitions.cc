@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 10:06:52 EST 2012
+// Date:	Sun Apr 29 23:37:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -130,15 +130,15 @@ static min::gen scan_selectors
         return min::MISSING();
 
     min::attr_ptr subap ( subvp );
-    min::locate ( subap, PAR::initiator );
+    min::locate ( subap, PAR::dot_initiator );
     if ( min::get ( subap ) != PAR::left_square )
         return min::MISSING();
-    min::locate ( subap, PAR::terminator );
+    min::locate ( subap, PAR::dot_terminator );
     if ( min::get ( subap ) != PAR::right_square )
         return min::MISSING();
-    min::locate ( subap, PAR::separator );
+    min::locate ( subap, PAR::dot_separator );
     min::gen separator = min::get ( subap );
-    min::locate ( subap, PAR::position );
+    min::locate ( subap, PAR::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
     assert ( ppvec != min::NULL_STUB );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 22 01:47:40 EDT 2012
+// Date:	Sun Apr 29 17:59:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -137,7 +137,8 @@ ll::parser::oper::oper_pass place
 // Operator Reformatters
 // -------- ------------
 
-reformatter separator_reformatter;
+extern ll::parser::oper::reformatter
+    separator_reformatter;
 
 } } }
 

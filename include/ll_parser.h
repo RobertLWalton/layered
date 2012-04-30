@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 29 23:28:17 EDT 2012
+// Date:	Mon Apr 30 13:19:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -163,8 +163,8 @@ struct token_struct
 	//	OPERATOR
 
     const min::gen value;
-        // Value for some lexeme types and for
-	// expressions.
+        // Value for some lexeme types, for EXPRESSIONs,
+	// and for OPERATORs.
 
     const ll::parser::string string;
         // Character string for some lexeme types.
@@ -517,8 +517,11 @@ enum {
         // Trace processing by the parser->output
 	// closure.
 
-    TRACE_EXPLICIT_SUBEXPRESSIONS = ( 1 << 2 )
+    TRACE_EXPLICIT_SUBEXPRESSIONS = ( 1 << 2 ),
         // Trace explicit subexpressions.
+
+    TRACE_OPERATOR_SUBEXPRESSIONS = ( 1 << 3 )
+        // Trace operator subexpressions.
 };
 
 struct parser_struct
@@ -758,11 +761,12 @@ void parse ( ll::parser::parser parser =
 // beginning with `current'.  If `next' is NULL_STUB,
 // tokens are added to the token list as necessary, but
 // otherwise only tokens before `next' are considered.
-// Only tokens with a non-MISSING token value are
-// considered.  If `next' is NULL_STUB, it is assumed
-// that the token list finally ends with an end-of-file
-// token, and this cannot be part of any hash table
-// entry (because its token value is MISSING).
+// Only non-EXPRESSION, non-OPERATOR tokens with a
+// non-MISSING token value are considered.  If `next' is
+// NULL_STUB, it is assumed that the token list finally
+// ends with an end-of-file token, and this cannot be
+// part of any hash table entry (because its token value
+// is MISSING).
 //
 // Returns NULL_STUB if no such key prefix.  If a key
 // prefix is found, `current' is set to the first token
@@ -848,6 +852,9 @@ ll::parser::table::root find_next_entry
 // as a string general value and whose .initiator is #
 // for a number or " for a quoted string.
 //
+// The `trace' argument should be set if the compacted
+// expression is to be traced.
+//
 // This function returns the value returned by invoking
 // the pass, or returns true if there is no pass, but
 // otherwise ignores pass errors.  This function does
@@ -867,6 +874,7 @@ bool compact
 	( ll::parser::parser parser,
 	  ll::parser::pass,
 	  ll::parser::table::selectors selectors,
+	  bool trace,
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  min::phrase_position position,

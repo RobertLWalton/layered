@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 29 23:37:26 EDT 2012
+// Date:	Mon Apr 30 11:28:15 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -502,6 +502,7 @@ bool PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::table::selectors selectors,
+	  bool trace,
 	  PAR::token & first, PAR::token next,
 	  min::phrase_position position,
 	  min::uns32 m,
@@ -579,13 +580,12 @@ bool PAR::compact
     PAR::value_ref(first) = exp;
     first->position = position;
 
-    if (   parser->trace
-         & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS )
+    if ( trace )
     {
 	    parser->printer
 	        << "EXPRESSION: "
 		<< min::pgen ( first->value )
-		<< ": "
+		<< "; "
 		<< min::pline_numbers
 		        ( parser->input_file,
 			  position )
@@ -1642,6 +1642,7 @@ static bool parse_explicit_subexpression
 				       parser->
 				           pass_stack,
 				       selectors,
+				       trace,
 				       first, next,
 				       position,
 				       1, attributes );
@@ -1699,6 +1700,7 @@ static bool parse_explicit_subexpression
 		               ( parser,
 			         parser->pass_stack,
 		                 selectors,
+				 trace,
 		                 first, next,
 			         position,
 			         1, attributes );
@@ -1968,6 +1970,7 @@ static bool parse_explicit_subexpression
 		                   ( parser,
 				     parser->pass_stack,
 				     selectors,
+				     trace,
 			             first, next,
 				     position,
 			             2, attributes, 1 );
@@ -2024,6 +2027,7 @@ static bool parse_explicit_subexpression
 		                   ( parser,
 				     parser->pass_stack,
 				     selectors,
+				     trace,
 			             first, current,
 			             position,
 			             2, attributes, 1 );
@@ -2297,6 +2301,7 @@ static bool parse_explicit_subexpression
 		                   ( parser,
 				     parser->pass_stack,
 				     selectors,
+				     trace,
 			  	     first,
 			  	     current,
 			  	     position,
@@ -2745,6 +2750,10 @@ void PAR::parse ( PAR::parser parser )
 	             ( parser,
 		       parser->pass_stack,
 	               parser->selectors,
+		       parser->trace
+		       &
+		       PAR::
+		         TRACE_EXPLICIT_SUBEXPRESSIONS,
 		       first, current,
 		       position,
 		       1, attributes )
@@ -2815,7 +2824,11 @@ TAB::key_prefix PAR::find_key_prefix
     {
 	if ( current == next
 	     ||
-             current->value == min::MISSING() )
+             current->value == min::MISSING()
+	     ||
+	     current->type == PAR::OPERATOR
+	     ||
+	     current->type == PAR::EXPRESSION )
 	    break;
 
 	min::gen e = current->value;

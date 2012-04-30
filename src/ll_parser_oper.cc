@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 29 22:51:49 EDT 2012
+// Date:	Mon Apr 30 09:07:14 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,6 +104,7 @@ OP::oper_pass OP::place
 
     OP::oper_table_ref ( oper_pass ) =
         TAB::create_table ( 1024 );
+    min::push ( oper_pass->oper_table, 1024 );
     OP::oper_stack_ref ( oper_pass ) =
 	::oper_stack_type.new_stub ( 100 );
 
@@ -139,8 +140,12 @@ static bool run_oper_pass ( PAR::parser parser,
 		            PAR::token & first,
 		            PAR::token next )
 {
+std::cout << "CALLED OPER PASS" << std::endl;
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
+    bool trace =
+        (   parser->trace
+          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
 
     // We add to the stack but leave alone what is
     // already in the stack so this function can be
@@ -248,6 +253,26 @@ static bool run_oper_pass ( PAR::parser parser,
 	    PAR::value_ref ( current ) = oper->label;
 	    MIN_ASSERT
 	      ( current->string == min::NULL_STUB );
+
+	    if ( trace )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "OPERATOR `"
+		    << min::pgen
+			 ( current->value,
+			   & PAR::name_format )
+		    << "' found; "
+		    << min::pline_numbers
+			   ( parser->input_file,
+			     current->position )
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      current->position );
+	    }
 	}
 
 	min::int32 oper_precedence = OP::NO_PRECEDENCE;
@@ -288,6 +313,22 @@ static bool run_oper_pass ( PAR::parser parser,
 		  current );
 	    oper_precedence = D.precedence - 1;
 	    D.first = current;
+
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: missing"
+		   " operator of precedence "
+		<< oper_precedence
+		<< " inserted; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 current->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  current->position );
 	}
 	else if ( oper != min::NULL_STUB )
 	    oper_precedence = oper->precedence;
@@ -342,6 +383,20 @@ static bool run_oper_pass ( PAR::parser parser,
 	    PAR::put_before
 	        ( first_ref(parser), current, t );
 	    D.first = t;
+
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: missing"
+		   " operand inserted; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 t->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  t->position );
 	}
 
 	// Close previous subexpressions until
@@ -376,12 +431,17 @@ static bool run_oper_pass ( PAR::parser parser,
 		    ok = compact
 		             ( parser, pass->next,
 			       selectors,
+			       trace,
 			       D.first, current,
 			       position,
 			       1, & attr );
 		}
 
-	        if ( ! ok ) return false;
+	        if ( ! ok )
+		{
+std::cout << "OPER PASS DONE FALSE" << std::endl;
+		    return false;
+		}
 	    }
 
 	    if ( current == next )
@@ -390,6 +450,7 @@ static bool run_oper_pass ( PAR::parser parser,
 		     == initial_length )
 		{
 		    first = D.first;
+std::cout << "OPER PASS DONE TRUE" << std::endl;
 		    return true;
 		}
 		D = min::pop ( oper_stack );
@@ -546,8 +607,11 @@ static bool separator_reformatter
     PAR::attr separator_attr
         ( PAR::dot_separator, separator );
 
+    bool trace =
+        (   parser->trace
+          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
     return PAR::compact
-        ( parser, pass, selectors, first, next,
+        ( parser, pass, selectors, trace, first, next,
 	  position, 1, & separator_attr );
 }
 OP::reformatter OP::separator_reformatter =

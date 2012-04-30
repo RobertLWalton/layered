@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 23 02:19:16 EDT 2012
+// Date:	Sun Apr 29 23:37:26 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,14 +28,15 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 
-min::locatable_gen PAR::position;
-min::locatable_gen PAR::initiator;
-min::locatable_gen PAR::terminator;
-min::locatable_gen PAR::separator;
-min::locatable_gen PAR::middle;
-min::locatable_gen PAR::name;
-min::locatable_gen PAR::arguments;
-min::locatable_gen PAR::keys;
+min::locatable_gen PAR::dot_position;
+min::locatable_gen PAR::dot_initiator;
+min::locatable_gen PAR::dot_terminator;
+min::locatable_gen PAR::dot_separator;
+min::locatable_gen PAR::dot_middle;
+min::locatable_gen PAR::dot_name;
+min::locatable_gen PAR::dot_arguments;
+min::locatable_gen PAR::dot_keys;
+min::locatable_gen PAR::dot_oper;
 min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
 min::locatable_gen PAR::new_line;
@@ -51,23 +52,24 @@ min::printer_format PAR::name_format;
 
 static void initialize ( void )
 {
-    min::gen g = PAR::position;
-    PAR::position
+    PAR::dot_position
 	= min::new_dot_lab_gen ( "position" );
-    PAR::initiator
+    PAR::dot_initiator
 	= min::new_dot_lab_gen ( "initiator" );
-    PAR::terminator
+    PAR::dot_terminator
 	= min::new_dot_lab_gen ( "terminator" );
-    PAR::separator
+    PAR::dot_separator
 	= min::new_dot_lab_gen ( "separator" );
-    PAR::middle
+    PAR::dot_middle
 	= min::new_dot_lab_gen ( "middle" );
-    PAR::name
+    PAR::dot_name
 	= min::new_dot_lab_gen ( "name" );
-    PAR::arguments
+    PAR::dot_arguments
 	= min::new_dot_lab_gen ( "arguments" );
-    PAR::keys
+    PAR::dot_keys
 	= min::new_dot_lab_gen ( "keys" );
+    PAR::dot_oper
+	= min::new_dot_lab_gen ( "operator" );
 
     PAR::doublequote = min::new_str_gen ( "\"" );
     PAR::number_sign = min::new_str_gen ( "#" );
@@ -490,7 +492,7 @@ static void convert_token ( PAR::token token )
 	PAR::free_string ( token->string );
 
     min::attr_insptr elemap ( elemvp ); 
-    min::locate ( elemap, PAR::initiator );
+    min::locate ( elemap, PAR::dot_initiator );
     min::set ( elemap, initiator );
 
     token->type = PAR::EXPRESSION;
@@ -560,7 +562,7 @@ bool PAR::compact
     }
 
     min::attr_insptr expap ( expvp );
-    min::locate ( expap, PAR::position );
+    min::locate ( expap, PAR::dot_position );
     min::set ( expap, min::new_stub_gen ( pos ) );
 
     while ( m -- )
@@ -872,11 +874,11 @@ static void named_attributes
 	}
 	min::attr_insptr keysap ( keysvp );
 
-	min::locate ( keysap, PAR::initiator );
+	min::locate ( keysap, PAR::dot_initiator );
 	min::set ( keysap,
 	           named_opening->named_separator
 		                ->label );
-	min::locate ( keysap, PAR::separator );
+	min::locate ( keysap, PAR::dot_separator );
 	min::set ( keysap,
 	           named_opening->named_separator
 		                ->label );
@@ -1630,9 +1632,9 @@ static bool parse_explicit_subexpression
 			    }
 
 			    PAR::attr attributes[1] =
-			        { PAR::attr
-				      ( PAR::terminator,
-				        terminator ) };
+			      { PAR::attr
+			          ( PAR::dot_terminator,
+				    terminator ) };
 
 			    ok = ok
 			      && PAR::compact
@@ -1689,7 +1691,7 @@ static bool parse_explicit_subexpression
 
 		PAR::attr attributes[1] =
 		    { PAR::attr
-		          ( PAR::initiator,
+		          ( PAR::dot_initiator,
 			    indentation_found->
 			        label ) };
 
@@ -1953,11 +1955,11 @@ static bool parse_explicit_subexpression
 
 		    PAR::attr attributes[2] =
 			{ PAR::attr
-			      ( PAR::initiator,
+			      ( PAR::dot_initiator,
 			        opening_bracket->
 				    label ),
 			  PAR::attr
-			        ( PAR::terminator,
+			        ( PAR::dot_terminator,
 			          opening_bracket->
 			              closing_bracket->
 				          label ) };
@@ -2009,11 +2011,11 @@ static bool parse_explicit_subexpression
 
 		    PAR::attr attributes[2] =
 			{ PAR::attr
-			      ( PAR::initiator,
+			      ( PAR::dot_initiator,
 			        opening_bracket->
 				    label ),
 			  PAR::attr
-			        ( PAR::terminator,
+			        ( PAR::dot_terminator,
 			        opening_bracket->
 			            closing_bracket->
 				        label ) };
@@ -2259,14 +2261,15 @@ static bool parse_explicit_subexpression
 
 		    PAR::attr attributes[6] =
 			{ PAR::attr
-			      ( PAR::initiator,
+			      ( PAR::dot_initiator,
 			        named_opening->label ),
 			  PAR::attr
-			        ( PAR::terminator,
+			        ( PAR::dot_terminator,
 			        named_opening->
 			            named_closing->
 				        label ),
-			  PAR::attr ( PAR::name, name )
+			  PAR::attr
+			        ( PAR::dot_name, name )
 			};
 		    min::uns32 c = 3;
 		    if ( named_opening->named_middle
@@ -2274,18 +2277,19 @@ static bool parse_explicit_subexpression
 			 min::NULL_STUB )
 		        attributes[c++] =
 			    PAR::attr
-			        ( PAR::middle,
+			        ( PAR::dot_middle,
 		                  named_opening->
 				      named_middle->
 				          label );
 		    if ( arguments != min::MISSING() )
 		        attributes[c++] =
-			    PAR::attr ( PAR::arguments,
-		                        arguments );
+			    PAR::attr
+			        ( PAR::dot_arguments,
+				  arguments );
 		    if ( keys != min::MISSING() )
 		        attributes[c++] =
 			    PAR::attr
-			        ( PAR::keys, keys );
+			        ( PAR::dot_keys, keys );
 
 		    PAR::token first =
 		        middle_last->next;
@@ -2384,27 +2388,30 @@ static bool parse_explicit_subexpression
 			min::attr_insptr tap ( tvp );
 
 			min::locate
-			    ( tap, PAR::initiator );
+			    ( tap, PAR::dot_initiator );
 			min::set
 			    ( tap,
 			      named_opening->label );
 
 			min::locate
-			    ( tap, PAR::terminator );
+			    ( tap,
+			      PAR::dot_terminator );
 			min::set
 			    ( tap,
 			      named_opening->
 			          named_closing->
 				  label );
 
-			min::locate ( tap, PAR::name );
+			min::locate
+			    ( tap, PAR::dot_name );
 			min::set ( tap, name );
 
 			if (    arguments
 			     != min::MISSING() )
 			{
 			    min::locate
-				( tap, PAR::arguments );
+				( tap,
+				  PAR::dot_arguments );
 			    min::set
 				( tap, arguments );
 			}
@@ -2412,7 +2419,7 @@ static bool parse_explicit_subexpression
 			if ( keys != min::MISSING() )
 			{
 			    min::locate
-			        ( tap, PAR::keys );
+			        ( tap, PAR::dot_keys );
 			    min::set ( tap, keys );
 			}
 
@@ -2731,7 +2738,7 @@ void PAR::parse ( PAR::parser parser )
 	        ( g == PAR::parser_lexeme );
 
 	    PAR::attr attributes[1] =
-		{ PAR::attr ( PAR::terminator,
+		{ PAR::attr ( PAR::dot_terminator,
 		              terminator ) };
 
 	    if ( PAR::compact
@@ -2912,7 +2919,7 @@ min::gen PAR::get_initiator ( min::gen v )
     if ( ! min::is_obj ( v ) ) return min::MISSING();
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
-    min::locate ( ap, PAR::initiator );
+    min::locate ( ap, PAR::dot_initiator );
     min::gen result = min::get ( ap );
     if ( result == min::NONE()
          ||

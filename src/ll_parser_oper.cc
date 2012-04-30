@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 30 09:07:14 EDT 2012
+// Date:	Mon Apr 30 13:22:03 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -418,7 +418,7 @@ std::cout << "CALLED OPER PASS" << std::endl;
 			       selectors,
 			       D.first, current,
 			       D.first_oper );
-		else if ( pass->next != min::NULL_STUB )
+		else if ( D.first_oper != min::NULL_STUB )
 		{
 		    min::phrase_position position;
 		    position.begin =
@@ -436,12 +436,25 @@ std::cout << "CALLED OPER PASS" << std::endl;
 			       position,
 			       1, & attr );
 		}
+		else if ( D.first->next != current )
+		{
+		    min::phrase_position position;
+		    position.begin =
+		        D.first->position.begin;
+		    position.end =
+		        current->previous->position.end;
+		    ok = compact
+		             ( parser, pass->next,
+			       selectors,
+			       trace,
+			       D.first, current,
+			       position );
+		}
+		else
+		    ok = true;
 
 	        if ( ! ok )
-		{
-std::cout << "OPER PASS DONE FALSE" << std::endl;
 		    return false;
-		}
 	    }
 
 	    if ( current == next )
@@ -450,7 +463,6 @@ std::cout << "OPER PASS DONE FALSE" << std::endl;
 		     == initial_length )
 		{
 		    first = D.first;
-std::cout << "OPER PASS DONE TRUE" << std::endl;
 		    return true;
 		}
 		D = min::pop ( oper_stack );

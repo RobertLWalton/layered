@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Apr 26 05:52:19 EDT 2012
+# Date:		Mon Apr 30 07:33:41 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -430,6 +430,19 @@ ll_parser_oper.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_oper.cc
 
+ll_parser_standard_oper.o:	\
+	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	../include/ll_parser.h \
+	../include/ll_parser_table.h \
+	../include/ll_parser_oper.h \
+	../include/ll_parser_standard.h \
+	../src/ll_parser_standard_oper.cc \
+	Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_parser_standard_oper.cc
+
 ll_parser_definitions.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
@@ -594,6 +607,7 @@ ll_parser_oper_test:		\
 	    ll_parser_oper.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
+	    ll_parser_standard_oper.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \
@@ -610,6 +624,7 @@ ll_parser_oper_test:		\
 	    ll_parser_oper.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
+	    ll_parser_standard_oper.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \

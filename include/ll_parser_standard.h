@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 29 17:56:14 EDT 2012
+// Date:	Mon Apr 30 07:42:16 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,7 @@
 # include <ll_lexeme.h>
 # include <ll_parser.h>
 # include <ll_parser_table.h>
+# include <ll_parser_oper.h>
 
 // Standard Parser Input
 // -------- ------ -----
@@ -149,10 +150,11 @@ void init_brackets
 // -------- ------ ---------
 
 // Add an oper_pass to the parser and set its oper_table
-// to the standard operators.
+// to the standard operators.  Return the oper_pass.
 //
-void init_oper
-    ( min::ref<ll::parser::parser> parser );
+ll::parser::oper::oper_pass init_oper
+    ( ll::parser::parser parser,
+      ll::parser::pass next = NULL_STUB );
 
 
 } } }

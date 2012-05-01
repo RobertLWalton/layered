@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 30 13:22:03 EDT 2012
+// Date:	Tue May  1 03:34:54 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -140,7 +140,6 @@ static bool run_oper_pass ( PAR::parser parser,
 		            PAR::token & first,
 		            PAR::token next )
 {
-std::cout << "CALLED OPER PASS" << std::endl;
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
     bool trace =
@@ -403,6 +402,7 @@ std::cout << "CALLED OPER PASS" << std::endl;
 	// D.precedence < oper_precedence or
 	// oper_stack->length == initial_length.
 	//
+	OP::oper first_oper = min::NULL_STUB;
 	while ( current == next
 		||
 		oper_precedence <= D.precedence )
@@ -410,15 +410,15 @@ std::cout << "CALLED OPER PASS" << std::endl;
 	    if ( current != D.first )
 	    {
 		bool ok;
-		if ( D.first_oper != min::NULL_STUB
+		if ( first_oper != min::NULL_STUB
 		     &&
-		     D.first_oper->reformatter != NULL )
-		    ok = ( * D.first_oper->reformatter )
+		     first_oper->reformatter != NULL )
+		    ok = ( * first_oper->reformatter )
 			     ( parser, pass->next,
 			       selectors,
 			       D.first, current,
-			       D.first_oper );
-		else if ( D.first_oper != min::NULL_STUB )
+			       first_oper );
+		else if ( first_oper != min::NULL_STUB )
 		{
 		    min::phrase_position position;
 		    position.begin =
@@ -427,7 +427,7 @@ std::cout << "CALLED OPER PASS" << std::endl;
 		        current->previous->position.end;
 		    PAR::attr attr
 		        ( PAR::dot_oper,
-			  D.first_oper->label );
+			  first_oper->label );
 		    ok = compact
 		             ( parser, pass->next,
 			       selectors,
@@ -436,7 +436,10 @@ std::cout << "CALLED OPER PASS" << std::endl;
 			       position,
 			       1, & attr );
 		}
-		else if ( D.first->next != current )
+		else if ( D.first->next != current
+		          &&
+		             oper_stack->length
+		          != initial_length )
 		{
 		    min::phrase_position position;
 		    position.begin =
@@ -465,10 +468,14 @@ std::cout << "CALLED OPER PASS" << std::endl;
 		    first = D.first;
 		    return true;
 		}
+		first_oper = D.first_oper;
 		D = min::pop ( oper_stack );
 	    }
 	    else if ( oper_precedence < D.precedence )
+	    {
+		first_oper = D.first_oper;
 	        D = min::pop ( oper_stack );
+	    }
 	    else break;
 	}
 

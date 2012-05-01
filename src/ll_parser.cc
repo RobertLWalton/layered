@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 30 11:28:15 EDT 2012
+// Date:	Tue May  1 03:51:20 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -514,6 +514,13 @@ bool PAR::compact
 	        (* pass->run_pass )
 	             ( parser, pass, selectors,
 		       first, next ) );
+
+    if ( first->next == next
+         &&
+	 first->type == PAR::EXPRESSION )
+    {
+         if ( m == 0 ) return ok; 
+    }
             
     // Temporary min::gen locatable.
     //

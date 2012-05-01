@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 29, 2012
+April 30, 2012
  
 \end{center}
 
@@ -648,14 +648,23 @@ also typically independent.
 
 User defined block data types may be declared by declarations of the form
 \begin{center}
-\ttkey{define type} {\em type-name} {\tt = (} {\em length}{\tt ,}
-				              {\em alignment}{\tt ,}
-				              {\em offset}
-					      \{{\tt ,} {\em flag}\}$^\star$
-					      {\tt )}
+\ttkey{define type} {\em type-name} {\tt =}
+     {\em type-flag}\,$^\star$
+     {\tt (} {\em length}{\tt ,} {\em alignment}{\tt ,} {\em offset} {\tt )}
+\\[2ex]
+\begin{tabular}{rrl}
+{\em type-flag} & ::= & {\tt floating} $|$ {\tt address } $|$ {\tt extendable}
+                        \\
+                & $|$ & {\tt locatable variable } $|$ {\tt locatable value} $|$
+		        {\tt descriptor}
+\\[1ex]
+{\em length} & ::= & {\em natural-number} \\
+{\em alignment} & ::= & {\em natural-number} \\
+{\em offset} & ::= & {\em integer} \\
+\end{tabular}
 \end{center}
 
-The {\em length}, {\em alignment}, {\em offset}, and {\em flags} are just
+The {\em type-flags}, {\em length}, {\em alignment}, and {\em offset} are just
 the information needed to allocate a variable of the type to memory and
 control and optimize copying of the values of the type as call arguments
 and return values.
@@ -725,7 +734,7 @@ Note that if the {\em offset} is negative, the block address does not
 address a required byte, and may not address any block byte.  Similarly
 if the {\em offset} is equal to or greater than the block {\em length}.
 
-The {\em flags} a type definition modify the way that blocks are
+The {\em type-flags} in a type definition modify the way that blocks are
 passed between a function caller and the function execution.
 The possible flags are:
 
@@ -771,20 +780,20 @@ occurs.
 \hspace*{-1em}\ttkey{descriptor} Specifies there is only one possible
 value of the type, and any variable of that value will be initialized
 to that value.  This value is necessarily determined by the type, and
-in general describes the type: see \secref{NAMES-AND-TYPES}.
+in general describes the type: see \secref{NAMES-TYPES-VARIABLES-FUNCTIONS}.
 
 \end{indpar}
 
 Some of the standard default type definitions are
 \begin{indpar}\begin{verbatim}
 define type int32 = (4,0,0)
-define type float64 = (8,0,0,floating)
+define type float64 = floating (8,0,0)
 // On some hardware:
-    define type adr = (8,0,0,address)
+    define type adr = address (8,0,0)
     define type unsadr = (8,0,0)
     define type insadr = (8,0,0)
 // On other hardware:
-    define type adr = (4,0,0,address)
+    define type adr = address (4,0,0)
     define type unsadr = (4,0,0)
     define type insadr = (4,0,0)
 \end{verbatim}\end{indpar}
@@ -990,8 +999,8 @@ where {\tt \& \& y} is the address of the variable
 {\tt \& y} that is allocated within the fixed part of
 the frame, and the value of this variable is the address of {\tt y}.
 
-\subsection{Names and Types}
-\label{NAMES-AND-TYPES}
+\subsection{Names, Types, Variables, and Functions}
+\label{NAMES-TYPES-VARIABLES-FUNCTIONS}
 
 A `\key{name}' is used to name a variable, type, or function call. 
 All names are sequences of words, natural numbers, quoted strings,

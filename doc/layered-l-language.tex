@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 30, 2012
+May 2, 2012
  
 \end{center}
 
@@ -1050,16 +1050,11 @@ particularly type arguments, to be deduced via match generated assignments.
 On the other hand, matching two complete names merely involves checking for
 equality of names after fully evaluating arguments.
 
-Types are declared by `{\tt define type}' statements which have the
-syntax
+Names have the syntax:
 
 \hspace*{0.2in}
 \begin{tabular}{rcl}
-{\em type-declaration}
-& ::= & {\tt define type} {\em qualifier}$^\star$ {\em type-name} \\
-& $|$ & {\tt define type} {\em qualifier}$^\star$ {\em type-name}
-        {\tt =} {\em type-flag}$^\star$ {\em type-spec} \\
-{\em type-name}
+{\em name}
 & ::= & {\em named-argument-list} {\em named-argument-list}$^\star$ \\
 & $|$ & {\em named-argument-list}$^\star$ {\em simple-name} \\
 {\em simple-name}
@@ -1070,19 +1065,40 @@ syntax
                           {\em argument-list}$^\star$ \\
 {\em argument-list}
 & ::= & {\tt (} {\em argument} \{ {\tt ,} {\em argument} \}$^\star$ {\tt )} \\
+& $|$ & {\tt [} {\em argument} \{ {\tt ,} {\em argument} \}$^\star$ {\tt ]} \\
+& $|$ & ditto but with brackets other than {\tt (~)} or {\tt [~]} \\
 {\em argument}
 & ::= & {\em expression} $|$ {\em variable-declaration} \\
+\end{tabular}
+
+Types are declared by \skey{type declaration}s which have the
+syntax:
+
+\hspace*{0.2in}
+\begin{tabular}{rcl}
+{\em type-declaration}
+& ::= & {\tt define type} {\em qualifier}$^\star$ {\em type-name} \\
+& $|$ & {\tt define type} {\em qualifier}$^\star$ {\em type-name}
+        {\tt =} {\em type-flag}$^\star$ {\em type-spec} \\
+{\em type-name}
+& ::= & {\em name } \\
 {\em type-spec}
+& ::= & {\em block-type-spec} $|$ {\em subtype-type-spec} \\
+{\em block-type-spec}
 & ::= & {\tt (} {\em length}{\tt ,}
 	        {\em alignment}{\tt ,} {\em offset} {\tt )} \\
-& $|$ & {\tt subtype of} {\em type-name} \\
+& $|$ & {\tt (} {\em length}{\tt ,} {\em alignment} {\tt )} \\
+& $|$ & {\tt (} {\em length} {\tt )} \\
+{\em subtype-type-spec}
+& ::= & {\tt subtype of} {\em type-name} \\
 {\em type-flag}
 & ::= & {\tt floating} $|$ {\tt address} $|$ {\tt extendable} \\
 & $|$ & {\tt locatable variable} $|$ {\tt locatable value} $|$
 	{\tt descriptor}
 \end{tabular}
 
-TBD
+Variables are declared by \skey{variable declaration}s which
+have the syntax:
 
 \hspace*{0.2in}
 \begin{tabular}{rcl}
@@ -1095,11 +1111,30 @@ TBD
         {\em variable-name} \\
 & $|$ & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
 &     & ~~~~~~~~ {\em variable-name} {\tt =} {\em initializer} \\
+{\em variable-name}
+& ::= & {\em name} \\
 {\em container}
 & ::= & {\tt @} {\em qualifier}$^\star$ {\em type-name}
 \end{tabular}
 
+Functions are declared by \skey{function declaration}s which
+have the syntax:
+
+\hspace*{0.2in}
+\begin{tabular}{rcl}
+{\em function-declaration}
+& ::= & {\em function-output-spec} {\em qualifier}$^\star${\em function-name} \\
+{\em function-output-spec}
+& ::= & {\em qualifier}$^\star${\em type-name} \\
+& $|$ & {\em argument-list} \\
+{\em function-name}
+& ::= & {\em name} \\
+\end{tabular}
+
 TBD
+
+\subsection{Descriptors}
+\label{DESCRIPTORS}
 
 A \key{descriptor} is a run-time value that gives information
 about a type.  A descriptor itself has a type, and every
@@ -1128,14 +1163,15 @@ a constructor that can be run by the compiler and loader to compute
 the values of the new descriptors from other values known
 to the compiler and loader.  For example:
 \begin{indpar}\begin{verbatim}
-define descriptor subtype length ( type T ) of unsadr
+define type constant length ( type T ) = descriptor subtype of unsadr
 ( constant length(T) s) .construct. ( type T ) unchecked:
     basic(T) b
     s = b.length
-unsadr .convert. ( type T, length(T) s ) unchecked:
-    unsadr r = s
-    return r
+( unsadr r ) .convert. ( type T, length(T) s ) unchecked:
+    r = s
 \end{verbatim}\end{indpar}
+
+TBD
 
 A descriptor declaration is the same as a type declaration with
 except that it begins with `{\tt define descriptor}' instead of

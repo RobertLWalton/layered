@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 30 13:19:06 EDT 2012
+// Date:	Wed May  2 04:42:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,8 +143,14 @@ typedef min::packed_struct_updptr<token_struct>
 enum // Token types (see below).
 {
     EXPRESSION		= 0xFFFFFFFF,
-    OPERATOR		= 0xFFFFFFFE
+    SEPARATION		= 0xFFFFFFFE,
+    OPERATOR		= 0xFFFFFFFD,
+    MAX_LEXEME		= 0xFFFFFEFF
 };
+inline bool is_lexeme ( min::uns32 token_type )
+{
+    return token_type <= MAX_LEXEME;
+}
 struct token_struct
 {
     uns32 control;
@@ -157,6 +163,11 @@ struct token_struct
 	// For expressions:
 	//
     	//	EXPRESSION
+	//
+	//	SEPARATION: A type of EXPRESSION with
+	//		    a .separator attribute but
+	//		    no bracket attributes (no
+	//		    .initiator or .terminator).
 	//
 	// For composites:
 	//
@@ -176,11 +187,16 @@ struct token_struct
 
     min::uns32 indent;
         // Indent of the first character of the token.
-	// Computed by assuming tabs are set every 8
-	// columns and form feeds and vertical tabs
-	// to not print.  Equal to LEX::AFTER_GRAPHIC
-	// if there is a non-whitespace character before
-	// the token in the line containing the token.
+	// Used for the first token on a line by the
+	// explicit expression parser.
+	//
+	// Equal to LEX::AFTER_GRAPHIC if there is a
+	// non-whitespace character before the token
+	// in the line containing the token.  Otherwise
+	// computed by assuming single spaces are 1
+	// column wide, tabs are set every 8 columns,
+	// and other characters (e.g., form feeds and
+	// vertical tabs) take 0 columns.
 
     const ll::parser::token next, previous;
         // Doubly linked list pointers for tokens.
@@ -761,12 +777,12 @@ void parse ( ll::parser::parser parser =
 // beginning with `current'.  If `next' is NULL_STUB,
 // tokens are added to the token list as necessary, but
 // otherwise only tokens before `next' are considered.
-// Only non-EXPRESSION, non-OPERATOR tokens with a
-// non-MISSING token value are considered.  If `next' is
-// NULL_STUB, it is assumed that the token list finally
-// ends with an end-of-file token, and this cannot be
-// part of any hash table entry (because its token value
-// is MISSING).
+// Only lexeme token types with non-MISSING token value
+// are considered.  If `next' is NULL_STUB, it is
+// assumed that the token list finally ends with an
+// end-of-file token, and this cannot be part of any
+// hash table entry (because its token value is
+// MISSING).
 //
 // Returns NULL_STUB if no such key prefix.  If a key
 // prefix is found, `current' is set to the first token
@@ -851,6 +867,15 @@ ll::parser::table::root find_next_entry
 // whose sole element is the token string of the token
 // as a string general value and whose .initiator is #
 // for a number or " for a quoted string.
+//
+// An exception to the above is made if the tokens to
+// be put in the new expression consist of just a single
+// SEPARATION token, and the m attribute names do NOT
+// include .separator.  Then instead of making a new
+// EXPRESSION token to replace the one SEPARATION token,
+// the m attributes are simply added to the SEPARATION
+// token, which if m > 0 is changed to be an EXPRESSION
+// token.  The position of this token is also reset.
 //
 // The `trace' argument should be set if the compacted
 // expression is to be traced.

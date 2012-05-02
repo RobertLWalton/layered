@@ -12,9 +12,6 @@ parser test [ x ( y ) z {u,v,w} m (n (p)) ]
                         ^^^^^^^
 ------- line 11:
 parser test [ x ( y ) z {u,v,w} m (n (p)) ]
-                         ^^^^^
-------- line 11:
-parser test [ x ( y ) z {u,v,w} m (n (p)) ]
                                   ^^^^^^^
 ------- line 11:
 parser test [ x ( y ) z {u,v,w} m (n (p)) ]

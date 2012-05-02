@@ -629,9 +629,11 @@ static bool separator_reformatter
     bool trace =
         (   parser->trace
           & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
-    return PAR::compact
+    bool ok = PAR::compact
         ( parser, pass, selectors, trace, first, next,
 	  position, 1, & separator_attr );
+    first->type = PAR::SEPARATION;
+    return ok;
 }
 OP::reformatter OP::separator_reformatter =
     ::separator_reformatter;

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  1 03:51:20 EDT 2012
+// Date:	Wed May  2 08:40:42 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -515,77 +515,113 @@ bool PAR::compact
 	             ( parser, pass, selectors,
 		       first, next ) );
 
+    bool found = true;
     if ( first->next == next
          &&
-	 first->type == PAR::EXPRESSION )
+	 first->type == PAR::SEPARATION )
     {
-         if ( m == 0 ) return ok; 
-    }
-            
-    // Temporary min::gen locatable.
-    //
-    min::locatable_gen exp;
-    min::locatable_var<min::phrase_position_vec_insptr>
-        pos;
+	if ( m == 0 ) return ok; 
 
-    // Count tokens.  Also replace non-natural numbers
-    // and quoted strings by subexpressions.
-    //
-    min::uns32 t = 0;
-    for ( PAR::token current = first;
-          current != next;
-	  ++ t, current = current->next )
-    {
-	if ( current->value == min::MISSING() )
-	    ::convert_token ( current );
-    }
+	found = false;
+	for ( min::uns32 i = 0; ! found && i < m; ++ i )
+	    found = (    attributes[i].name
+	              == PAR::dot_separator );
 
-    // Count the number of non-MISSING extra attributes.
-    //
-    min::uns32 c = n + m + 1;
-        // Add 1 for position.
+	if ( ! found )
+	{
+	    min::obj_vec_insptr vp ( first->value );
+	    min::attr_insptr ap ( vp );
 
-    // Hash table size.
-    //
-    min::uns32 h = c;
-    if ( h == 0 ) h = 1;
-    if ( h > 4 ) h = 4;
+	    min::locate ( ap, PAR::dot_position );
+	    min::phrase_position_vec_insptr pos =
+		min::get ( ap );
+	    pos->position = position;
 
-    exp = min::new_obj_gen ( 3*( c + 2 ) + t, h );
-    min::obj_vec_insptr expvp ( exp );
-
-    min::init ( pos, parser->input_file, position, t );
-
-    for ( PAR::token current = first;
-          current != next; )
-    {
-	min::attr_push(expvp) = current->value;
-	min::push ( pos ) = current->position;
-
-        current = current->next;
-	PAR::free
-	    ( PAR::remove
-	          ( PAR::first_ref(parser),
-		    current->previous ) );
+	    while ( m -- )
+	    {
+		assert (    attributes->value
+		         != min::MISSING() );
+		min::locate ( ap, attributes->name );
+		min::set ( ap, attributes->value );
+		++ attributes;
+	    }
+	    first->type = PAR::EXPRESSION;
+	    first->position = position;
+	}
     }
 
-    min::attr_insptr expap ( expvp );
-    min::locate ( expap, PAR::dot_position );
-    min::set ( expap, min::new_stub_gen ( pos ) );
-
-    while ( m -- )
+    if ( found )
     {
-	assert ( attributes->value != min::MISSING() );
-	min::locate ( expap, attributes->name );
-	min::set ( expap, attributes->value );
-	++ attributes;
+	// Temporary min::gen locatable.
+	//
+	min::locatable_gen exp;
+	min::locatable_var
+		<min::phrase_position_vec_insptr>
+	    pos;
+
+	// Count tokens.  Also replace non-natural
+	// numbers and quoted strings by subexpressions.
+	//
+	min::uns32 t = 0;
+	for ( PAR::token current = first;
+	      current != next;
+	      ++ t, current = current->next )
+	{
+	    if ( current->value == min::MISSING() )
+		::convert_token ( current );
+	}
+
+	// Count the number of non-MISSING extra
+	// attributes.
+	//
+	min::uns32 c = n + m + 1;
+	    // Add 1 for position.
+
+	// Hash table size.
+	//
+	min::uns32 h = c;
+	if ( h == 0 ) h = 1;
+	if ( h > 4 ) h = 4;
+
+	exp = min::new_obj_gen ( 3*( c + 2 ) + t, h );
+	min::obj_vec_insptr expvp ( exp );
+
+	min::init ( pos, parser->input_file,
+	            position, t );
+
+	for ( PAR::token current = first;
+	      current != next; )
+	{
+	    min::attr_push(expvp) = current->value;
+	    min::push ( pos ) = current->position;
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			current->previous ) );
+	}
+
+	min::attr_insptr expap ( expvp );
+	min::locate ( expap, PAR::dot_position );
+	min::set ( expap, min::new_stub_gen ( pos ) );
+
+	while ( m -- )
+	{
+	    assert (    attributes->value
+	             != min::MISSING() );
+	    min::locate ( expap, attributes->name );
+	    min::set ( expap, attributes->value );
+	    ++ attributes;
+	}
+
+	first = PAR::new_token ( PAR::EXPRESSION );
+	PAR::put_before
+	    ( first_ref(parser), next, first );
+
+	PAR::value_ref(first) = exp;
+	first->position = position;
     }
-
-    first = PAR::new_token ( PAR::EXPRESSION );
-    PAR::put_before ( first_ref(parser), next, first );
-
-    PAR::value_ref(first) = exp;
-    first->position = position;
 
     if ( trace )
     {
@@ -2833,9 +2869,7 @@ TAB::key_prefix PAR::find_key_prefix
 	     ||
              current->value == min::MISSING()
 	     ||
-	     current->type == PAR::OPERATOR
-	     ||
-	     current->type == PAR::EXPRESSION )
+	     ! is_lexeme ( current->type ) )
 	    break;
 
 	min::gen e = current->value;

@@ -1137,31 +1137,34 @@ TBD
 \label{DESCRIPTORS}
 
 A \key{descriptor} is a run-time value that gives information
-about a type.  A descriptor itself has a type, and every
-descriptor type has the special property that there is only one
-value possible of the descriptor type, and the compiler can
-figure out how to compute that value from the type itself\,%
-\footnote{This is the central idea in the Haskell programming language}.
+about a type.  A descriptor has a type that has the
+`\ttkey{descriptor}' {\em type-flag}, and every
+such type has the special property that there is only one
+value possible of that type\,%
+\footnote{This is a central idea in the Haskell programming language}.
 
-The most basic descriptor includes the size, alignment, offset, and
-mode of a type.  An example use is
+The most basic descriptor includes the length, alignment, offset, and
+flags of a type.  An example use is
 \begin{indpar}\begin{verbatim}
 basic(int32) b;
-unsadr s    = b.length       // Length of int32
-unsadr a    = b.alignment    // Alignment of int32
-intadr o    = b.offset       // Offset of int32
-type flags f = b.flags       // Flags of int32
+unsadr s    = b.length       // Length of int32 (4)
+unsadr a    = b.alignment    // Alignment of int32 (4)
+intadr o    = b.offset       // Offset of int32 (0)
+type flags f = b.flags       // Flags of int32 (none)
 \end{verbatim}\end{indpar}
 
-If $T$ is a type, then {\tt basic(} $T$ {\tt )} is a type that has
+If $T$ is a type, then {\tt basic(} $T$ {\tt )} is a descriptor type that has
 a unique value computable by the compiler and loader, and this
 value has members that give the basic parameters of the type $T$,
 namely $T$'s length, alignment, offset, and flags.
 
-It is possible to create new descriptors by supplying
-a constructor that can be run by the compiler and loader to compute
-the values of the new descriptors from other values known
-to the compiler and loader.  For example:
+It is possible to create new descriptors by defining a descriptor
+type and providing for it a constructor that can be run to compute
+the one and only value of that type.  This constructor can only take
+omitted arguments, which are generally provided by the type itself.
+If the descriptor type is defined as a subtype, a conversion function
+also needs to be supplied.
+For example:
 \begin{indpar}\begin{verbatim}
 define type constant length ( type T ) = descriptor subtype of unsadr
 ( constant length(T) s) .construct. ( type T ) unchecked:
@@ -1171,29 +1174,10 @@ define type constant length ( type T ) = descriptor subtype of unsadr
     r = s
 \end{verbatim}\end{indpar}
 
-TBD
-
-A descriptor declaration is the same as a type declaration with
-except that it begins with `{\tt define descriptor}' instead of
-just `{\tt define}', which
-marks the type being decleared as a `\mkey{descriptor}{type}'.
-Variables of such a descritor type are not to be given values explicitly.
-Instead, they are given values by their constructor, which takes
-no explicit arguments.  The resulting values must be `constant'. 
-
-Another example is:
-\begin{indpar}\begin{verbatim}
-define descriptor type subbase ( type T ) = ( 2*length(unsadr), 8 )
-unchecked:
-    disp length ( type T ) = 0 -> unsadr @ subbase (T)
-    disp offset ( type T ) = length(unsadr) -> unsadr @ subbase (T)
-( constant subbase(T) s) .construct. ( type T ) unchecked:
-    basic(T) b
-    s.length = b.length
-    s.offset = b.offset
-\end{verbatim}\end{indpar}
-
-TBD: variable names like type names can be like function calls
+Values of descriptor types must be declared to be `{\tt constant}'
+(see \pagref{CONSTANT}).  Constructors of such values may not
+be invoked with actual arguments; that is, all their arguments must
+be omitted (and infered from the type of the output).
 
 \subsection{Pointer Types}
 \label{POINTER-TYPES}
@@ -1222,12 +1206,12 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 int8 x -> float64 y
-float64 z = y     // Translates to .set.(&z,.get.(.get.(&x))).
-                  // or to simplify z = .get.(x)
-                  // .get.(x) is probably undefined
-y = z             // Translates to .set.(.get(&x),.get.(&z))
-                  // or to simplify .set.(x,z)
-                  // .set.(x,...) is probably undefined
+float64 z = y     // Translates to .set.(&z,.get.(.get.(&x)));
+                  // or to simplify z = .get.(x) or z = .get.(&y);
+                  // .get.(x) is probably undefined.
+y = z             // Translates to .set.(.get(&x),.get.(&z));
+                  // or to simplify .set.(x,z);
+                  // .set.(x,...) is probably undefined.
 \end{verbatim}\end{indpar}
 
 If {\tt x} has a type of the form `$T1${\tt ->}$T2$ {\tt x}',
@@ -1261,8 +1245,9 @@ values, as in the following improved example:
 \begin{indpar}\begin{verbatim}
 define type open file = (...)
 ( adr V -> open file ) .convert. ( int8 V -> open file )
+    // Declares conversion function which is not defined here.
 unchecked:
-    disp state = 0 -> uns16 @ open file
+    constant disp state = 0 -> uns16 @ open file
     . . . . .
 
 int8 V -> open file open ( ... )
@@ -2431,8 +2416,8 @@ Two kinds are declarable: alias qualifiers and parallel qualifiers.
 
 \begin{indpar}
 
-\hspace*{-1em}\ttkey{constant}~~~~~The memory location is constant and will not
-be modified at all.
+\hspace*{-1em}\ttkey{constant}\label{CONSTANT}~~~~~The
+memory location is constant and will not be modified at all.
 
 The memory location can be cached in registers without
 restriction.

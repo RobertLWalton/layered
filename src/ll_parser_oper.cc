@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  1 03:34:54 EDT 2012
+// Date:	Thu May  3 10:47:28 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -302,7 +302,7 @@ static bool run_oper_pass ( PAR::parser parser,
 	    next_current = current;
 	    current = PAR::new_token ( PAR::OPERATOR );
 	    current->position.begin =
-	        next_current->previous->position.end;
+	        next_current->position.begin;
 	    current->position.end =
 	        next_current->position.begin;
 	    PAR::value_ref ( current ) =
@@ -375,7 +375,7 @@ static bool run_oper_pass ( PAR::parser parser,
 	    PAR::token t =
 	        PAR::new_token ( LEXSTD::word_t  );
 	    t->position.begin =
-	        current->previous->position.end;
+	        current->position.begin;
 	    t->position.end =
 	        current->position.begin;
 	    PAR::value_ref ( t ) = PAR::error_operand;
@@ -505,9 +505,9 @@ static bool separator_reformatter
 {
     MIN_ASSERT ( first != next );
 
-    min::phrase_position position;
-    position.begin = first->position.begin;
-    position.end = next->previous->position.end;
+    min::phrase_position position =
+	{ first->position.begin,
+          next->previous->position.end };
 
     min::gen separator = min::MISSING();
     bool sep_required = false;
@@ -526,11 +526,10 @@ static bool separator_reformatter
 		          t2->next != t;
 			  t2 = t2->next )
 		    {
-			min::phrase_position position;
-			position.begin =
-			    t2->position.end;
-			position.end =
-			    t2->next->position.begin;
+			min::phrase_position position =
+			    { t2->next->position.begin,
+			      t2->next->position.begin
+			    };
 
 			parser->printer
 			    << min::bom
@@ -589,11 +588,9 @@ static bool separator_reformatter
 	else if (    sep_required
 	          && separator != min::MISSING() )
 	{
-	    min::phrase_position position;
-	    position.begin =
-		t->previous->position.end;
-	    position.end =
-		t->position.begin;
+	    min::phrase_position position =
+	        { t->position.begin,
+		  t->position.begin };
 
 	    parser->printer
 		<< min::bom

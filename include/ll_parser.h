@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 04:42:06 EDT 2012
+// Date:	Thu May  3 09:33:32 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -848,6 +848,15 @@ ll::parser::table::root find_next_entry
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::table::root last_entry );
+
+// Put an empty expression token just before a given
+// token t on a list of tokens headed by first.  The
+// empty expression has no elements and only a .position
+// attribute.  The position is just before t.
+//
+void put_empty_before
+	( ll::parser::parser parser,
+	  ll::parser::token t );
 
 // First, invokes the given pass, if that is not NULL_
 // STUB, on the expression consisting of the tokens

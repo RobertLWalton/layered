@@ -2114,11 +2114,10 @@ specifies that the value has a lifetime that begins before the
 called function starts to execute and lasts until
 sometime after that function returns.
 
-In addition user define `calling lifetime qualifiers' {\tt Q} may be defined
-that typically specify that lifetimes will continue until
-an out-of-line function that does \underline{not} have access
-qualifier {\tt Q} is called.
-
+In addition user define `calling lifetime qualifiers' may be defined
+that specify that lifetimes will continue until
+an out-of-line function having or not having given
+access qualifiers (see below) is called.
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
 may be changed, and thence when they may be cached in registers.  The

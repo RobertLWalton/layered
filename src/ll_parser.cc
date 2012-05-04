@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  3 09:33:43 EDT 2012
+// Date:	Fri May  4 03:35:43 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -507,6 +507,30 @@ void PAR::put_empty_before
 
     min::phrase_position position =
         { t->position.begin, t->position.begin };
+    token->position = position;
+    min::locatable_var
+	    <min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file, position, 0 );
+
+    PAR::value_ref(token) = min::new_obj_gen ( 3, 1 );
+    min::obj_vec_insptr vp ( token->value );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, PAR::dot_position );
+    min::set ( ap, min::new_stub_gen ( pos ) );
+}
+
+void PAR::put_empty_after
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( PAR::EXPRESSION );
+    put_before
+        ( PAR::first_ref(parser), t->next, token );
+
+    min::phrase_position position =
+        { t->position.end, t->position.end };
+    token->position = position;
     min::locatable_var
 	    <min::phrase_position_vec_insptr>
 	pos;

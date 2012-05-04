@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  3 09:33:32 EDT 2012
+// Date:	Fri May  4 03:35:31 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -855,6 +855,13 @@ ll::parser::table::root find_next_entry
 // attribute.  The position is just before t.
 //
 void put_empty_before
+	( ll::parser::parser parser,
+	  ll::parser::token t );
+
+// Ditto but the empty expression is put just after t
+// and the position is set to just after t.
+//
+void put_empty_after
 	( ll::parser::parser parser,
 	  ll::parser::token t );
 

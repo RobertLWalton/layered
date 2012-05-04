@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  3 10:47:28 EDT 2012
+// Date:	Fri May  4 03:23:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -510,7 +510,7 @@ static bool separator_reformatter
           next->previous->position.end };
 
     min::gen separator = min::MISSING();
-    bool sep_required = false;
+    bool separator_should_be_next = false;
     for ( PAR::token t = first; t != next; )
     {
         if ( t->type == PAR::OPERATOR )
@@ -576,16 +576,20 @@ static bool separator_reformatter
 		      t->position );
 	    }
 
-	    if ( t == first )
-	        first = t->next;
+	    if ( ! separator_should_be_next )
+	    {
+	        PAR::put_empty_before ( parser, t );
+		if ( t == first ) first = t->previous;
+	    }
+	    else separator_should_be_next = false;
+
 	    t = t->next;
 	    PAR::free
 		( PAR::remove
 		      ( PAR::first_ref(parser),
 			t->previous ) );
-	    sep_required = false;
 	}
-	else if (    sep_required
+	else if (    separator_should_be_next
 	          && separator != min::MISSING() )
 	{
 	    min::phrase_position position =
@@ -613,12 +617,15 @@ static bool separator_reformatter
 	}
 	else
 	{
-	    sep_required = true;
+	    separator_should_be_next = true;
 	    t = t->next;
 	}
     }
 
     MIN_ASSERT ( separator != min::MISSING() );
+
+    if ( ! separator_should_be_next )
+        PAR::put_empty_after ( parser, next->previous );
 
     PAR::attr separator_attr
         ( PAR::dot_separator, separator );

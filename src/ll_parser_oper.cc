@@ -636,8 +636,134 @@ static bool separator_reformatter
     bool ok = PAR::compact
         ( parser, pass, selectors, trace, first, next,
 	  position, 1, & separator_attr );
-    first->type = PAR::SEPARATION;
+    first->type = PAR::BRACKETABLE;
     return ok;
 }
 OP::reformatter OP::separator_reformatter =
     ::separator_reformatter;
+
+static bool right_associative_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::selectors selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  OP::oper first_oper )
+{
+    MIN_ASSERT ( first != next );
+
+    min::phrase_position position =
+	{ first->position.begin,
+          next->previous->position.end };
+
+    // Go through expression adding any missing operands
+    // or operators.
+    //
+    min::gen operator_label = min::MISSING();
+    bool operator_should_be_next = false;
+    for ( PAR::token t = first; t != next; )
+    {
+        if ( t->type == PAR::OPERATOR )
+	{
+	    if ( operator_label == min::MISSING() )
+	    {
+	        operator_label = t->value;
+		if ( t != first
+		     &&
+		     t != first->next )
+		{
+		    for ( PAR::token t2 = first;
+		          t2->next != t;
+			  t2 = t2->next )
+		    {
+			min::phrase_position position =
+			    { t2->next->position.begin,
+			      t2->next->position.begin
+			    };
+
+			parser->printer
+			    << min::bom
+			    << min::set_indent ( 7 )
+			    << "ERROR: missing"
+			       " operator `"
+			    << min::pgen
+				 ( operator_label,
+				   & PAR::name_format )
+			    << "' inserted; "
+			    << min::pline_numbers
+				   ( parser->input_file,
+				     position )
+			    << ":" << min::eom;
+			min::print_phrase_lines
+			    ( parser->printer,
+			      parser->input_file,
+			      position );
+		    }
+		}
+	    }
+
+	    if ( ! operator_should_be_next )
+	    {
+	        PAR::put_empty_before ( parser, t );
+		if ( t == first ) first = t->previous;
+	    }
+	    else operator_should_be_next = false;
+
+	    t = t->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			t->previous ) );
+	}
+	else if (    operator_should_be_next
+	          && operator_label != min::MISSING() )
+	{
+	    min::phrase_position position =
+	        { t->position.begin,
+		  t->position.begin };
+
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: missing"
+		   " separator `"
+		<< min::pgen
+		     ( operator_label,
+		       & PAR::name_format )
+		<< "' inserted; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  position );
+	    t = t->next;
+	}
+	else
+	{
+	    operator_should_be_next = true;
+	    t = t->next;
+	}
+    }
+
+    MIN_ASSERT ( operator_label != min::MISSING() );
+
+    if ( ! operator_should_be_next )
+        PAR::put_empty_after ( parser, next->previous );
+
+    PAR::attr oper_attr
+        ( PAR::dot_oper, operator_label );
+
+    bool trace =
+        (   parser->trace
+          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
+    bool ok = PAR::compact
+        ( parser, pass, selectors, trace, first, next,
+	  position, 1, & oper_attr );
+    first->type = PAR::BRACKETABLE;
+    return ok;
+}
+OP::reformatter OP::right_associative_reformatter =
+    ::right_associative_reformatter;

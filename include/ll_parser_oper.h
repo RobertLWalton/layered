@@ -138,7 +138,13 @@ ll::parser::oper::oper_pass place
 // -------- ------------
 
 extern ll::parser::oper::reformatter
-    separator_reformatter;
+    separator_reformatter,
+    right_associative_reformatter,
+    communtative_reformatter,
+    binary_reformatter,
+    sum_reformatter,
+    compare_reformatter,
+    logical_reformatter;
 
 } } }
 

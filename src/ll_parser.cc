@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 03:35:43 EDT 2012
+// Date:	Fri May  4 09:13:32 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -563,14 +563,17 @@ bool PAR::compact
     bool found = true;
     if ( first->next == next
          &&
-	 first->type == PAR::SEPARATION )
+	 first->type == PAR::BRACKETABLE )
     {
 	if ( m == 0 ) return ok; 
 
 	found = false;
 	for ( min::uns32 i = 0; ! found && i < m; ++ i )
 	    found = (    attributes[i].name
-	              == PAR::dot_separator );
+	              == PAR::dot_separator
+		      ||
+		         attributes[i].name
+		      == PAR::dot_oper );
 
 	if ( ! found )
 	{

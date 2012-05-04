@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 03:35:31 EDT 2012
+// Date:	Fri May  4 10:02:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,7 +143,7 @@ typedef min::packed_struct_updptr<token_struct>
 enum // Token types (see below).
 {
     EXPRESSION		= 0xFFFFFFFF,
-    SEPARATION		= 0xFFFFFFFE,
+    BRACKETABLE		= 0xFFFFFFFE,
     OPERATOR		= 0xFFFFFFFD,
     MAX_LEXEME		= 0xFFFFFEFF
 };
@@ -164,10 +164,13 @@ struct token_struct
 	//
     	//	EXPRESSION
 	//
-	//	SEPARATION: A type of EXPRESSION with
-	//		    a .separator attribute but
-	//		    no bracket attributes (no
-	//		    .initiator or .terminator).
+	//	BRACKETABLE
+	//	    A type of EXPRESSION with a
+	//	    .separator or .operator attribute
+	//          but no bracket attributes (no
+	//	    .initiator or .terminator), to
+	//	    which bracket attributes can be
+	//	    added.
 	//
 	// For composites:
 	//
@@ -886,12 +889,13 @@ void put_empty_after
 //
 // An exception to the above is made if the tokens to
 // be put in the new expression consist of just a single
-// SEPARATION token, and the m attribute names do NOT
-// include .separator.  Then instead of making a new
-// EXPRESSION token to replace the one SEPARATION token,
-// the m attributes are simply added to the SEPARATION
-// token, which if m > 0 is changed to be an EXPRESSION
-// token.  The position of this token is also reset.
+// BRACKETABLE token, and the m attribute names do NOT
+// include .separator or .operator.  Then instead of
+// making a new EXPRESSION token to replace the one
+// BRACKETABLE token, the m attributes are simply added
+// to the BRACKETABLE token, which if m > 0 is changed
+// to be an EXPRESSION token.  The position of this
+// token is also reset.
 //
 // The `trace' argument should be set if the compacted
 // expression is to be traced.

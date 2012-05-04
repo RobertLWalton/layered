@@ -2069,7 +2069,7 @@ int32 Q function3 ()
 ( adr -> int32 V ) Q function4 ()
 \end{verbatim}\end{indpar}
 
-Some qualifiers (e.g., see `{\tt pure}' below)
+Some qualifiers
 are both access and body qualifiers, and these
 are put in the position of function access qualifier.
 
@@ -2118,9 +2118,6 @@ In addition user define `calling lifetime qualifiers' {\tt Q} may be defined
 that typically specify that lifetimes will continue until
 an out-of-line function that does \underline{not} have access
 qualifier {\tt Q} is called.
-The `{\tt pure}' qualifier is often defined in this way.
-Note that such a qualifier is simultaneously a lifetime qualifier,
-a function access qualifier, and a code block qualifier.
 
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
@@ -2662,13 +2659,11 @@ software and hardware caches.
 \subsubsection{Access Qualifiers}
 \label{ACCESS-QUALIFIERS}
 
-Six access qualifiers are builtin:
+Five access qualifiers are builtin:
 `{\tt readwrite}', `{\tt readonly}', `{\tt writeonly}', `{\tt noaccess}',
-`{\tt impure}', and `{\tt unchecked}'.
+and `{\tt unchecked}'.
 The last two are protection qualifiers;
 additional protection qualifiers may be declared.
-In addition the `{\tt pure}' builtin qualifier must be used to prevent the
-`{\tt impure}' qualifier from being applied by default.
 
 \begin{indpar}
 
@@ -2679,20 +2674,6 @@ In addition the `{\tt pure}' builtin qualifier must be used to prevent the
 that is required to access the builtin operators that
 perform explicit or implicit
 type conversions.
-
-\hspace*{-1em}\ttkey{impure}~~~~~A builtin protection qualifier
-that is required to access the builtin operators and that
-may deallocate or reallocate memory locations.  Note that interrupts
-may deallocate or reallocate memory locations, so functions that
-are not `{\tt impure}' are not interruptable.
-
-This qualifier is
-transitive: if used as a function access qualifier, it is also
-applied to the function body.  It is also a default function
-access qualifier,
-whose negation, the `\ttkey{pure}' qualifier, must be used as a
-function access qualifier to
-specify that a function does not have the `{\tt impure}' access qualifier.
 
 \hspace*{-1em}\ikey{Protection Qualifiers}{protection qualifier}%
 \label{PROTECTION-QUALIFIER}~~~~~Protection
@@ -2908,16 +2889,6 @@ meaning that it is applied as a function access qualifier by
 default to all functions that do not have a given
 \key{counter qualifier}.  The counter qualifier merely specifies
 that the default does not apply to a particular function.
-
-The `{\tt impure}' qualifier is a builtin qualifier that is
-transitive and default function access and has `{\tt pure}' as
-its counter qualifier.  Were it not implicitly declared to have
-these properties, it could be declared to have them by:
-\begin{indpar}[0.5em]\begin{verbatim}
-declare transitive qualifier impure
-declare default function access qualifier impure
-        with counter qualifier pure
-\end{verbatim}\end{indpar}
 
 Usually it is protection qualifiers that are declared to be transitive
 or default function access qualifiers.

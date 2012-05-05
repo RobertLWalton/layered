@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 10:02:06 EDT 2012
+// Date:	Fri May  4 20:37:20 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,7 +142,7 @@ typedef min::packed_struct_updptr<token_struct>
     token;
 enum // Token types (see below).
 {
-    EXPRESSION		= 0xFFFFFFFF,
+    BRACKETED		= 0xFFFFFFFF,
     BRACKETABLE		= 0xFFFFFFFE,
     OPERATOR		= 0xFFFFFFFD,
     MAX_LEXEME		= 0xFFFFFEFF
@@ -162,22 +162,20 @@ struct token_struct
 	//
 	// For expressions:
 	//
-    	//	EXPRESSION
-	//
+    	//	BRACKETED
 	//	BRACKETABLE
-	//	    A type of EXPRESSION with a
-	//	    .separator or .operator attribute
-	//          but no bracket attributes (no
-	//	    .initiator or .terminator), to
-	//	    which bracket attributes can be
-	//	    added.
+	//	    Bracketed expressions have
+	//	    .initiator or .terminator
+	//	    attributes, and bracketable
+	//	    expressions do not.  These
+	//	    can be combined with each other.
 	//
 	// For composites:
 	//
 	//	OPERATOR
 
     const min::gen value;
-        // Value for some lexeme types, for EXPRESSIONs,
+        // Value for some lexeme types, for expressions,
 	// and for OPERATORs.
 
     const ll::parser::string string;
@@ -434,7 +432,7 @@ void init
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ) = NULL );
 
-typedef bool ( * run_pass )
+typedef void ( * run_pass )
         ( ll::parser::parser parser,
           ll::parser::pass pass,
 	  ll::parser::table::selectors selectors,
@@ -646,6 +644,12 @@ struct parser_struct
 	// Tokens are added to the end of the list when
 	// the input is called.   Tokens may be dele-
 	// ted from the list or replaced in the list.
+
+    uns32 error_count;
+        // Number of parser error messages output so
+	// far.  To determine if there is an error
+	// in the parse of a given expression, check to
+	// see if this is incremented.
 
     bool eof;
         // True if `input' has delivered an end-of-file
@@ -873,12 +877,14 @@ void put_empty_after
 // beginning with `first' and ending just before `next'.
 //
 // Then replaces the expression tokens (which may have
-// been changed by the pass) by a resulting EXPRESSION
+// been changed by the pass) by a resulting expression
 // token.  Adds the m attributes whose names and values
 // are given, and allows for the latter addition of n
-// attributes.  Sets the position of the new EXPRESSION
+// attributes.  Sets the position of the new expression
 // token from the given argument.  The resulting
-// EXPRESSION token is in first == next->previous.
+// expression token is in first == next->previous.
+// Its type is given in the type argument, and must
+// be either BRACKETED or BRACKETABLE.
 //
 // Any token in the expression being output that has a
 // MISSING token value must be a non-natural number or
@@ -889,21 +895,15 @@ void put_empty_after
 //
 // An exception to the above is made if the tokens to
 // be put in the new expression consist of just a single
-// BRACKETABLE token, and the m attribute names do NOT
-// include .separator or .operator.  Then instead of
-// making a new EXPRESSION token to replace the one
-// BRACKETABLE token, the m attributes are simply added
-// to the BRACKETABLE token, which if m > 0 is changed
-// to be an EXPRESSION token.  The position of this
-// token is also reset.
+// expression token of BRACKETABLE type and the type
+// argument is BRACKETED.  Then instead of making a new
+// BRACKETED token, this function simply adds the m
+// attributes to the BRACKETABLE token which is changed
+// to be a BRACKETED token.  The position of this token
+// is also reset.
 //
 // The `trace' argument should be set if the compacted
 // expression is to be traced.
-//
-// This function returns the value returned by invoking
-// the pass, or returns true if there is no pass, but
-// otherwise ignores pass errors.  This function does
-// not itself detect errors.
 //
 struct attr
 {
@@ -915,11 +915,11 @@ struct attr
         : name ( min::MISSING() ),
 	  value ( min::MISSING() ) {}
 };
-bool compact
+void compact
 	( ll::parser::parser parser,
 	  ll::parser::pass,
 	  ll::parser::table::selectors selectors,
-	  bool trace,
+	  min::uns32 type, bool trace,
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  min::phrase_position position,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 29 17:59:47 EDT 2012
+// Date:	Fri May  4 21:04:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,7 +48,7 @@ enum oper_flags
 };
 const min::int32 NO_PRECEDENCE = -1 << 31;
     // Value less than any allowed precedence.
-typedef bool ( * reformatter )
+typedef void ( * reformatter )
         ( ll::parser::parser parser,
 	  ll::parser::pass pass,
 	  ll::parser::table::selectors selectors,
@@ -139,10 +139,22 @@ ll::parser::oper::oper_pass place
 
 extern ll::parser::oper::reformatter
     separator_reformatter,
+        // Nofix separator.  Empty expression inserted
+	// to make operators all infix.  Operators
+	// deleted and moved to .separator.
     right_associative_reformatter,
-    communtative_reformatter,
+        // Infix right associative operators like
+	// = and +=.  Operators made prefix binary.
+    commutative_reformatter,
+        // Infix commutative operators like *.
+	// All operators must be equal: operator
+	// made prefix with multiple operands.
     binary_reformatter,
+        // Infix binary operator.  Errors announced
+	// if more than one operator.
     sum_reformatter,
+        // Infix + and - operators.  Rewritten to use
+	// prefix - and commutative infix +.
     compare_reformatter,
     logical_reformatter;
 

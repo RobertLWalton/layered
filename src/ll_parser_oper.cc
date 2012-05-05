@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 15:26:31 EDT 2012
+// Date:	Sat May  5 04:39:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -595,7 +595,6 @@ static void separator_reformatter
 	  PAR::BRACKETABLE, trace,
 	  first, next, position,
 	  1, & separator_attr );
-    first->type = PAR::BRACKETABLE;
 }
 OP::reformatter OP::separator_reformatter =
     ::separator_reformatter;
@@ -621,9 +620,9 @@ static void right_associative_reformatter
     // Work from end to beginning taking 3 tokens at a
     // time and rewriting them.
     //
-    for ( PAR::token t = next; t != first; )
+    while ( first->next != next )
     {
-        t = t->previous;
+        PAR::token t = next->previous;
 	MIN_ASSERT ( t->type != PAR::OPERATOR );
 	MIN_ASSERT ( t != first );
         t = t->previous;
@@ -653,7 +652,6 @@ static void right_associative_reformatter
 	      PAR::BRACKETABLE, trace,
 	      t, next, position,
 	      1, & oper_attr );
-	t->type = PAR::BRACKETABLE;
 
 	if ( t_is_first ) first = t;
     }

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 20:40:39 EDT 2012
+// Date:	Sat May  5 04:19:18 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -649,7 +649,7 @@ void PAR::compact
 	    ++ attributes;
 	}
 
-	first = PAR::new_token ( PAR::BRACKETED );
+	first = PAR::new_token ( type );
 	PAR::put_before
 	    ( first_ref(parser), next, first );
 
@@ -660,7 +660,9 @@ void PAR::compact
     if ( trace )
     {
 	    parser->printer
-	        << "EXPRESSION: "
+	        << ( first->type == PAR::BRACKETED ?
+		     "BRACKETED EXPRESSION: " :
+		     "BRACKETABLE EXPRESSION: " )
 		<< min::pgen ( first->value )
 		<< "; "
 		<< min::pline_numbers

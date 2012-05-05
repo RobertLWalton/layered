@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 30 07:36:19 EDT 2012
+// Date:	Sat May  5 04:12:41 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,16 @@ OP::oper_pass PARSTD::init_oper
 {
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );
+    min::locatable_gen equal
+        ( min::new_str_gen ( "=" ) );
+    min::locatable_gen plus_equal
+        ( min::new_str_gen ( "+=" ) );
+    min::locatable_gen minus_equal
+        ( min::new_str_gen ( "-=" ) );
+    min::locatable_gen times_equal
+        ( min::new_str_gen ( "*=" ) );
+    min::locatable_gen divide_equal
+        ( min::new_str_gen ( "/=" ) );
 
     OP::oper_pass oper_pass =
         OP::place ( parser, next );
@@ -44,6 +54,46 @@ OP::oper_pass PARSTD::init_oper
 	  OP::NOFIX,
 	  1000,
 	  OP::separator_reformatter,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( equal,
+	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  OP::INFIX,
+	  900,
+	  OP::right_associative_reformatter,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( plus_equal,
+	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  OP::INFIX,
+	  900,
+	  OP::right_associative_reformatter,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( minus_equal,
+	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  OP::INFIX,
+	  900,
+	  OP::right_associative_reformatter,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( times_equal,
+	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  OP::INFIX,
+	  900,
+	  OP::right_associative_reformatter,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( divide_equal,
+	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  OP::INFIX,
+	  900,
+	  OP::right_associative_reformatter,
 	  oper_pass->oper_table );
 
     return oper_pass;

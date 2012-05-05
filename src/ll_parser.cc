@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 09:13:32 EDT 2012
+// Date:	Fri May  4 20:40:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -386,6 +386,7 @@ void PAR::init ( min::ref<PAR::parser> parser )
 
 	parser->eof = false;
 	parser->finished_tokens = 0;
+	parser->error_count = 0;
     }
 }
 
@@ -453,7 +454,7 @@ void PAR::init_output_stream
 }
 
 // Convert a non-natural number or quoted string token
-// to an EXPRESSION token.  The expression has as its
+// to an expression token.  The expression has as its
 // only element a min::gen string value equal to the
 // translation string of the token's lexeme, and has as
 // its .initiator either # for a non-natural number or
@@ -495,14 +496,14 @@ static void convert_token ( PAR::token token )
     min::locate ( elemap, PAR::dot_initiator );
     min::set ( elemap, initiator );
 
-    token->type = PAR::EXPRESSION;
+    token->type = PAR::BRACKETED;
 }
 
 void PAR::put_empty_before
 	( ll::parser::parser parser,
 	  ll::parser::token t )
 {
-    PAR::token token = new_token ( PAR::EXPRESSION );
+    PAR::token token = new_token ( PAR::BRACKETABLE );
     put_before ( PAR::first_ref(parser), t, token );
 
     min::phrase_position position =
@@ -524,7 +525,7 @@ void PAR::put_empty_after
 	( ll::parser::parser parser,
 	  ll::parser::token t )
 {
-    PAR::token token = new_token ( PAR::EXPRESSION );
+    PAR::token token = new_token ( PAR::BRACKETABLE );
     put_before
         ( PAR::first_ref(parser), t->next, token );
 
@@ -543,62 +544,47 @@ void PAR::put_empty_after
     min::set ( ap, min::new_stub_gen ( pos ) );
 }
 
-bool PAR::compact
+void PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::table::selectors selectors,
-	  bool trace,
+	  min::uns32 type, bool trace,
 	  PAR::token & first, PAR::token next,
 	  min::phrase_position position,
 	  min::uns32 m,
 	  PAR::attr * attributes,
 	  min::uns32 n )
 {
-    bool ok = ( pass == min::NULL_STUB
-                ||
-	        (* pass->run_pass )
-	             ( parser, pass, selectors,
-		       first, next ) );
+    if ( pass != min::NULL_STUB )
+	(* pass->run_pass )
+	     ( parser, pass, selectors, first, next );
 
-    bool found = true;
     if ( first->next == next
          &&
-	 first->type == PAR::BRACKETABLE )
+	 first->type == PAR::BRACKETABLE
+	 &&
+	 type == PAR::BRACKETED )
     {
-	if ( m == 0 ) return ok; 
+	min::obj_vec_insptr vp ( first->value );
+	min::attr_insptr ap ( vp );
 
-	found = false;
-	for ( min::uns32 i = 0; ! found && i < m; ++ i )
-	    found = (    attributes[i].name
-	              == PAR::dot_separator
-		      ||
-		         attributes[i].name
-		      == PAR::dot_oper );
+	min::locate ( ap, PAR::dot_position );
+	min::phrase_position_vec_insptr pos =
+	    min::get ( ap );
+	pos->position = position;
 
-	if ( ! found )
+	while ( m -- )
 	{
-	    min::obj_vec_insptr vp ( first->value );
-	    min::attr_insptr ap ( vp );
-
-	    min::locate ( ap, PAR::dot_position );
-	    min::phrase_position_vec_insptr pos =
-		min::get ( ap );
-	    pos->position = position;
-
-	    while ( m -- )
-	    {
-		assert (    attributes->value
-		         != min::MISSING() );
-		min::locate ( ap, attributes->name );
-		min::set ( ap, attributes->value );
-		++ attributes;
-	    }
-	    first->type = PAR::EXPRESSION;
-	    first->position = position;
+	    assert (    attributes->value
+		     != min::MISSING() );
+	    min::locate ( ap, attributes->name );
+	    min::set ( ap, attributes->value );
+	    ++ attributes;
 	}
+	first->type = PAR::BRACKETED;
+	first->position = position;
     }
-
-    if ( found )
+    else
     {
 	// Temporary min::gen locatable.
 	//
@@ -663,7 +649,7 @@ bool PAR::compact
 	    ++ attributes;
 	}
 
-	first = PAR::new_token ( PAR::EXPRESSION );
+	first = PAR::new_token ( PAR::BRACKETED );
 	PAR::put_before
 	    ( first_ref(parser), next, first );
 
@@ -685,8 +671,6 @@ bool PAR::compact
 		( parser->printer,
 		  parser->input_file, position );
     }
-
-    return ok;
 }
 
 // In a token sequence, find the next token subsequence
@@ -941,6 +925,7 @@ static void named_attributes
 		( parser->printer,
 		  parser->input_file,
 		  tnext->position );
+	    ++ parser->error_count;
 	}
     }
 
@@ -1056,6 +1041,7 @@ static void complain_near_indent
 	( parser->printer,
 	  parser->input_file,
 	  token->position );
+    ++ parser->error_count;
 }
 
 // Return true if token indent is > indent and complain
@@ -1236,10 +1222,10 @@ inline bool is_indented
 // indentation mark definitions are active.  When this
 // function calls itself recursively, upon return it
 // wraps all the tokens of the sub-subexpression found
-// into a single EXPRESSION token (even if this is an
+// into a single expression token (even if this is an
 // empty list).  It also replaces nonnatural numbers and
-// quoted strings in the sub-subexpression by EXPRES-
-// SIONs whose sole elements are the translation strings
+// quoted strings in the sub-subexpression by expres-
+// sions whose sole elements are the translation strings
 // of the token lexemes and whose .initiators are # for
 // number and " for quoted string.
 //
@@ -1375,8 +1361,6 @@ static bool parse_explicit_subexpression
 	  ::bracket_stack * bracket_stack_p,
 	  TAB::selectors selectors )
 {
-    bool ok = true;  // Return value.
-
     TAB::indentation_mark indentation_found =
         min::NULL_STUB;
 	// If not NULL_STUB, last token was this
@@ -1727,16 +1711,14 @@ static bool parse_explicit_subexpression
 			          ( PAR::dot_terminator,
 				    terminator ) };
 
-			    ok = ok
-			      && PAR::compact
-			             ( parser,
-				       parser->
-				           pass_stack,
-				       selectors,
-				       trace,
-				       first, next,
-				       position,
-				       1, attributes );
+			    PAR::compact
+				( parser,
+				  parser->pass_stack,
+				  selectors,
+				  PAR::BRACKETED, trace,
+				  first, next,
+				  position,
+				  1, attributes );
 			}
 
 			// See if there are more lines.
@@ -1787,14 +1769,11 @@ static bool parse_explicit_subexpression
 			    indentation_found->
 			        label ) };
 
-		ok = ok && PAR::compact
-		               ( parser,
-			         parser->pass_stack,
-		                 selectors,
-				 trace,
-		                 first, next,
-			         position,
-			         1, attributes );
+		PAR::compact
+		    ( parser, parser->pass_stack,
+		      selectors, PAR::BRACKETED, trace,
+		      first, next, position,
+		      1, attributes );
 
 		// Terminate subexpression if closing
 		// bracket was found during indentation
@@ -2037,6 +2016,7 @@ static bool parse_explicit_subexpression
 			( parser->printer,
 			  parser->input_file,
 			  next->position );
+		    ++ parser->error_count;
 
 		    min::phrase_position position;
 		    position.end =
@@ -2057,14 +2037,12 @@ static bool parse_explicit_subexpression
 			              closing_bracket->
 				          label ) };
 
-		    ok = ok && PAR::compact
-		                   ( parser,
-				     parser->pass_stack,
-				     selectors,
-				     trace,
-			             first, next,
-				     position,
-			             2, attributes, 1 );
+		    PAR::compact
+		        ( parser, parser->pass_stack,
+			  selectors,
+			  PAR::BRACKETED, trace,
+			  first, next, position,
+			  2, attributes, 1 );
 
 		    if (    cstack.closing_next
 			 == min::NULL_STUB )
@@ -2114,14 +2092,12 @@ static bool parse_explicit_subexpression
 			            closing_bracket->
 				        label ) };
 
-		    ok = ok && PAR::compact
-		                   ( parser,
-				     parser->pass_stack,
-				     selectors,
-				     trace,
-			             first, current,
-			             position,
-			             2, attributes, 1 );
+		    PAR::compact
+		        ( parser, parser->pass_stack,
+			  selectors,
+			  PAR::BRACKETED, trace,
+			  first, current, position,
+			  2, attributes, 1 );
 		    break;
 		}
 	    }
@@ -2184,6 +2160,7 @@ static bool parse_explicit_subexpression
 		    ( parser->printer,
 		      parser->input_file,
 		      position );
+		++ parser->error_count;
 
 		break;
 	    }
@@ -2210,7 +2187,7 @@ static bool parse_explicit_subexpression
                 if (    indentation_separator
 			    ->indentation_mark
 		     == indentation_mark )
-		    return ok;
+		    return true;
 	    }
 	    else if ( subtype == TAB::NAMED_OPENING )
 	    {
@@ -2323,6 +2300,7 @@ static bool parse_explicit_subexpression
 			    ( parser->printer,
 			      parser->input_file,
 			      next->position );
+			++ parser->error_count;
 
 			done = true;
 		    }
@@ -2388,18 +2366,15 @@ static bool parse_explicit_subexpression
 
 		    PAR::token first =
 		        middle_last->next;
-		    ok = ok && PAR::compact
-		                   ( parser,
-				     parser->pass_stack,
-				     selectors,
-				     trace,
-			  	     first,
-			  	     current,
-			  	     position,
-			  	     c, attributes );
+		    PAR::compact
+		        ( parser, parser->pass_stack,
+			  selectors,
+			  PAR::BRACKETED, trace,
+			  first, current, position,
+			  c, attributes );
 			  
 		    assert (    first->type
-			     == PAR::EXPRESSION );
+			     == PAR::BRACKETED );
 		    assert (    first
 			     == middle_last->next );
 
@@ -2469,7 +2444,7 @@ static bool parse_explicit_subexpression
 
 			PAR::token t =
 			    PAR::new_token
-			        ( PAR::EXPRESSION );
+			        ( PAR::BRACKETED );
 			t->position = position;
 
 			PAR::put_before
@@ -2738,6 +2713,10 @@ void PAR::parse ( PAR::parser parser )
     bool first_lexeme = true;
     while ( true )
     {
+        bool trace =
+	    (   parser->trace
+	      & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS );
+
         // If end of file terminate loop.
 	//
         if ( current->type == LEXSTD::end_of_file_t )
@@ -2757,6 +2736,7 @@ void PAR::parse ( PAR::parser parser )
 		    ( parser->printer,
 		      parser->input_file,
 		      current->position );
+		++ parser->error_count;
 	    }
 	    break;
 	}
@@ -2781,6 +2761,7 @@ void PAR::parse ( PAR::parser parser )
 		    ( parser->printer,
 		      parser->input_file,
 		      current->position );
+		++ parser->error_count;
 	    }
 	}
 
@@ -2837,17 +2818,17 @@ void PAR::parse ( PAR::parser parser )
 		{ PAR::attr ( PAR::dot_terminator,
 		              terminator ) };
 
-	    if ( PAR::compact
-	             ( parser,
-		       parser->pass_stack,
-	               parser->selectors,
-		       parser->trace
-		       &
-		       PAR::
-		         TRACE_EXPLICIT_SUBEXPRESSIONS,
-		       first, current,
-		       position,
-		       1, attributes )
+	    min::uns32 error_count_save =
+	        parser->error_count;
+
+	    PAR::compact
+		( parser, parser->pass_stack,
+	          parser->selectors,
+		  PAR::BRACKETED, trace,
+		  first, current, position,
+		  1, attributes );
+
+	    if ( parser->error_count == error_count_save
 	         &&
 		 maybe_parser_definition )
 	    {

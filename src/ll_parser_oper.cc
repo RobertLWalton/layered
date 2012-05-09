@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 04:39:12 EDT 2012
+// Date:	Wed May  9 00:31:09 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,15 @@
 # define TAB ll::parser::table
 # define OP ll::parser::oper
 
+min::locatable_gen OP::dollar;
+min::locatable_gen OP::AND;
+
+static void initialize ( void )
+{
+    OP::dollar = min::new_str_gen ( "$" );
+    OP::AND = min::new_str_gen ( "AND" );
+}
+static min::initializer initializer ( ::initialize );
 
 // Operator Table Entries
 // -------- ----- -------
@@ -109,6 +118,7 @@ OP::oper_pass OP::place
 	::oper_stack_type.new_stub ( 100 );
 
     oper_pass->run_pass = ::run_oper_pass;
+    oper_pass->temporary_count = 0;
 
     PAR::place
         ( parser, (PAR::pass) oper_pass, next );
@@ -658,3 +668,168 @@ static void right_associative_reformatter
 }
 OP::reformatter OP::right_associative_reformatter =
     ::right_associative_reformatter;
+
+static void compare_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::selectors selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  OP::oper first_oper )
+{
+    MIN_ASSERT ( first != next );
+
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
+    bool trace =
+        (   parser->trace
+          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
+
+    // As operators must be infix, operands and
+    // operators must alternate with operands first and
+    // last.
+
+    // Work from beginning to end replacing
+    //
+    //	   operand1 operator operand2
+    //
+    // by
+    //	   (operator operand1 operand2) next-operand1
+    //
+    // For the last operator, next-operand1 is omitted
+    // and operand2 is not assigned a temporary.  For
+    // all other cases final operand2 has the form
+    // ($ T operand) and next-operand1 has the form
+    // ($ T) where T is the next temporary variable
+    // number.
+    //
+    for ( PAR::token operand1 = first;
+          operand1 != next ; )
+    {
+	MIN_ASSERT ( operand1->type != PAR::OPERATOR );
+        PAR::token op = operand1->next;
+	MIN_ASSERT ( op->type == PAR::OPERATOR );
+	MIN_ASSERT ( op != next );
+        PAR::token operand2 = op->next;
+	MIN_ASSERT ( operand2->type != PAR::OPERATOR );
+	MIN_ASSERT ( operand2 != next );
+
+        min::phrase_position position =
+	    { operand1->position.begin,
+	      operand2->position.end };
+
+	// If not last operator, replace operand2 by
+	// ($ T operand2 ), compute next-operand1 to be
+	// ( $ T ), and insert it after operand2.
+	//
+	if ( operand2->next != next )
+	{
+	    // Insert tokens for $ and T before
+	    // operand2.
+	    //
+	    PAR::token t =
+	        PAR::new_token ( LEXSTD::word_t  );
+	    PAR::value_ref ( t ) = OP::dollar;
+	    t->position.begin =
+	        operand2->position.begin;
+	    t->position.end = operand2->position.begin;
+	    PAR::put_before
+		( first_ref(parser), operand2, t );
+
+	    t = PAR::new_token ( LEXSTD::number_t  );
+	    PAR::value_ref ( t ) =
+	        min::new_num_gen
+		    ( oper_pass->temporary_count ++ );
+	    t->position.begin =
+	        operand2->position.begin;
+	    t->position.end = operand2->position.begin;
+	    PAR::put_before
+		( first_ref(parser), operand2, t );
+
+	    // Copy tokens for $ and T after operand2.
+	    //
+	    t = PAR::new_token ( LEXSTD::number_t  );
+	    PAR::value_ref ( t ) =
+	        operand2->previous->value;
+	    t->position = operand2->previous->position;
+	    PAR::put_before
+		( first_ref(parser),
+		  operand2->next, t );
+
+	    t = PAR::new_token ( LEXSTD::word_t  );
+	    PAR::value_ref ( t ) = OP::dollar;
+	    t->position =
+	        operand2->previous->previous->position;
+	    PAR::put_before
+		( first_ref(parser),
+		  operand2->next, t );
+
+	    // Compact new operand2 = ( $ T operand2 ).
+	    //
+	    PAR::attr oper_attr
+		( PAR::dot_oper, OP::dollar );
+	    t = operand2->next;
+	    operand2 = operand2->previous->previous;
+	    PAR::compact
+		( parser, pass, selectors,
+		  PAR::BRACKETABLE, trace,
+		  operand2, t, operand2->position,
+		  1, & oper_attr );
+
+	    // Compact next-operand1 = ( $ T )
+	    //
+	    PAR::compact
+		( parser, pass, selectors,
+		  PAR::BRACKETABLE, trace,
+		  t, t->next->next, operand2->position,
+		  1, & oper_attr );
+	}
+
+	bool is_first = ( operand1 == first );
+	PAR::token next_operand1 = operand2->next;
+
+	// Switch operator and first operand.
+	//
+	PAR::remove ( PAR::first_ref ( parser ), op );
+	PAR::put_before ( PAR::first_ref ( parser ),
+	                  operand1, op );
+
+	PAR::attr oper_attr
+	    ( PAR::dot_oper, op->value );
+	PAR::compact
+	    ( parser, pass, selectors,
+	      PAR::BRACKETABLE, trace,
+	      operand1, next_operand1, position,
+	      1, & oper_attr );
+	if ( is_first ) first = operand1;
+
+	operand1 = next_operand1;
+    }
+
+    if ( first->next != next )
+    {
+        // More than one operator.  Insert AND.
+	//
+	PAR::token t =
+	    PAR::new_token ( LEXSTD::word_t  );
+	PAR::value_ref ( t ) = OP::AND;
+	t->position.begin = first->position.begin;
+	t->position.end = first->position.begin;
+	PAR::put_before ( first_ref(parser), first, t );
+
+	// Compact.
+	//
+        min::phrase_position position =
+	    { first->position.begin,
+	      next->previous->position.end };
+	PAR::attr oper_attr
+	    ( PAR::dot_oper, OP::AND );
+	PAR::compact
+	    ( parser, pass, selectors,
+	      PAR::BRACKETABLE, trace,
+	      first, next, position,
+	      1, & oper_attr );
+    }
+}
+OP::reformatter OP::compare_reformatter =
+    ::compare_reformatter;

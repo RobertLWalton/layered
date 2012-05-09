@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 20:37:20 EDT 2012
+// Date:	Wed May  9 00:28:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -145,7 +145,7 @@ enum // Token types (see below).
     BRACKETED		= 0xFFFFFFFF,
     BRACKETABLE		= 0xFFFFFFFE,
     OPERATOR		= 0xFFFFFFFD,
-    MAX_LEXEME		= 0xFFFFFEFF
+    MAX_LEXEME		= 0x7FFFFFFF
 };
 inline bool is_lexeme ( min::uns32 token_type )
 {

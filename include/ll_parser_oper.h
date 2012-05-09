@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  4 21:04:13 EDT 2012
+// Date:	Wed May  9 02:09:10 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,9 @@
 // instead.
 
 namespace ll { namespace parser { namespace oper {
+
+extern min::locatable_gen dollar;
+extern min::locatable_gen AND;
 
 
 // Operator Table Entries
@@ -115,6 +118,10 @@ struct oper_pass_struct
 
     const ll::parser::table::table oper_table;
     const ll::parser::oper::oper_stack oper_stack;
+    min::uns32 temporary_count;
+        // Number of temporary variables created so far.
+	// The next temporary variable to be create will
+	// be `$ T' where T == temporary_count.
 
 };
 

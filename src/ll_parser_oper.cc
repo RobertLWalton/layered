@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 00:31:09 EDT 2012
+// Date:	Thu May 10 02:02:53 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -424,10 +424,19 @@ static void run_oper_pass ( PAR::parser parser,
 		if ( first_oper != min::NULL_STUB
 		     &&
 		     first_oper->reformatter != NULL )
+		{
+		    if ( pass->next != min::NULL_STUB )
+		    {
+			(* pass->next->run_pass )
+			     ( parser, pass->next,
+			       selectors,
+			       D.first, current );
+		    }
 		    ( * first_oper->reformatter )
 			( parser, pass->next, selectors,
 			  D.first, current,
 			  first_oper );
+		}
 		else if ( first_oper != min::NULL_STUB )
 		{
 		    min::phrase_position position;
@@ -445,10 +454,7 @@ static void run_oper_pass ( PAR::parser parser,
 			  D.first, current, position,
 			  1, & attr );
 		}
-		else if ( D.first->next != current
-		          &&
-		             oper_stack->length
-		          != initial_length )
+		else if ( D.first->next != current )
 		{
 		    min::phrase_position position;
 		    position.begin =
@@ -708,11 +714,11 @@ static void compare_reformatter
     {
 	MIN_ASSERT ( operand1->type != PAR::OPERATOR );
         PAR::token op = operand1->next;
-	MIN_ASSERT ( op->type == PAR::OPERATOR );
 	MIN_ASSERT ( op != next );
+	MIN_ASSERT ( op->type == PAR::OPERATOR );
         PAR::token operand2 = op->next;
-	MIN_ASSERT ( operand2->type != PAR::OPERATOR );
 	MIN_ASSERT ( operand2 != next );
+	MIN_ASSERT ( operand2->type != PAR::OPERATOR );
 
         min::phrase_position position =
 	    { operand1->position.begin,
@@ -727,12 +733,13 @@ static void compare_reformatter
 	    // Insert tokens for $ and T before
 	    // operand2.
 	    //
+	    min::phrase_position position2 =
+	        { operand2->position.begin,
+	          operand2->position.begin };
 	    PAR::token t =
 	        PAR::new_token ( LEXSTD::word_t  );
 	    PAR::value_ref ( t ) = OP::dollar;
-	    t->position.begin =
-	        operand2->position.begin;
-	    t->position.end = operand2->position.begin;
+	    t->position = position2;
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
 
@@ -740,26 +747,24 @@ static void compare_reformatter
 	    PAR::value_ref ( t ) =
 	        min::new_num_gen
 		    ( oper_pass->temporary_count ++ );
-	    t->position.begin =
-	        operand2->position.begin;
-	    t->position.end = operand2->position.begin;
+	    t->position = position2;
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
 
 	    // Copy tokens for $ and T after operand2.
 	    //
-	    t = PAR::new_token ( LEXSTD::number_t  );
-	    PAR::value_ref ( t ) =
-	        operand2->previous->value;
-	    t->position = operand2->previous->position;
+	    PAR::token t2 = operand2->previous;
+	    t = PAR::new_token ( t2->type );
+	    PAR::value_ref ( t ) = t2->value;
+	    t->position = t2->position;
 	    PAR::put_before
 		( first_ref(parser),
 		  operand2->next, t );
 
-	    t = PAR::new_token ( LEXSTD::word_t  );
-	    PAR::value_ref ( t ) = OP::dollar;
-	    t->position =
-	        operand2->previous->previous->position;
+	    t2 = operand2->previous->previous;
+	    t = PAR::new_token ( t2->type );
+	    PAR::value_ref ( t ) = t2->value;
+	    t->position = t2->position;
 	    PAR::put_before
 		( first_ref(parser),
 		  operand2->next, t );
@@ -794,6 +799,8 @@ static void compare_reformatter
 	PAR::put_before ( PAR::first_ref ( parser ),
 	                  operand1, op );
 
+	// Compact ( op operand1 operand2 )
+	//
 	PAR::attr oper_attr
 	    ( PAR::dot_oper, op->value );
 	PAR::compact
@@ -816,6 +823,7 @@ static void compare_reformatter
 	t->position.begin = first->position.begin;
 	t->position.end = first->position.begin;
 	PAR::put_before ( first_ref(parser), first, t );
+	first = t;
 
 	// Compact.
 	//

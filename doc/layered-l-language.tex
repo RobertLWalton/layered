@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 4, 2012
+May 10, 2012
  
 \end{center}
 
@@ -2894,6 +2894,68 @@ or default function access qualifiers.
 
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}
+
+\subsection{Containers and Aliasing}
+\label{CONTAINERS-AND-ALIASING}
+
+For purposes of optimization it is important to be able to accurately
+determine if two pointers may point at overlapping data.  If they
+do, data loaded into a register using one pointer may become invalid
+when the other pointer is used to write data.
+When two pointers point at the same data, they are said to
+`\mkey{aliased}{pointers}'.
+
+The L language uses the concept of container types and type non-overlap
+to track aliasing.  Consider the pointer definitions:
+\begin{indpar}[0.5em]\begin{verbatim}
+define type Tx ...
+define type TxC ...
+define type Ty ...
+define type TyC ...
+. . . . .
+adr xp -> Tx @ TxC x
+adr yp -> Ty @ TyC y
+\end{verbatim}\end{indpar}
+If it is known that data of types {\tt Tx} and {\tt Ty} cannot
+overlap, then the pointers cannot be aliased.  But this is also true
+if it is known that data of types {\tt Tx} and {\tt TyC} cannot overlap,
+or data of types {\tt TxC} and {\tt Ty} cannot overlap, or data of
+types {\tt TxC} and {\tt TyC} cannot overlap.
+
+Type overlap is represented by two relation. The {\tt T1 <@ T2} relation
+means that a datum of type {\tt T1} can be completely contained inside
+a datum of type {\tt T2}.  This relation is assumed to be transitive and
+reflexive, and it is possible for both {\tt T1 <@ T2} and {\tt T2 <@ T1}
+without {\tt T1} and {\tt T2} being the same type.
+The second
+relation {\tt T1 \TILDE@ T2} means that a datum of type {\tt T1} may overlap
+a datum of type {\tt T2} without either data being contained in the other.
+This relation is assumed to be reflexive and symmetric but not transitive.
+
+These relations are specified by including the following in the context
+of a code block that needs to determine whether two pointers are aliased.
+Whenever {\tt T1 @ T2} appears in the context, {\tt T1 <@ T2} is added
+to the {\tt <@} relation.  The other way of adding to the {\tt <2} and
+{\tt \TILDE@} relations are with statement of the form:
+\begin{center}
+{\tt declare overlap}
+{\em type-name}
+\{ {\tt @} $|$ {\tt <@} $|$ {\tt <@>} $|$ {\tt \TILDE@} \}
+{\em type-name}
+\end{center}
+
+where in this statement form {\tt @} is taken to mean {\tt <@} and
+{\tt T1 <@> T2} is taken to mean that both {\tt T1 <@ T2} and
+{\tt T2 <@ T1}.
+
+Then two types {\tt T1} and {\tt T2} are defined to be non-overlapping
+if none of the following is given data or deducible from given data
+using transitivity of {\tt <@} or symmetry or reflexivity of {\tt \TILDE@}:
+{\tt T1 <@ T2},
+{\tt T2 <@ T1},
+{\tt T1 \TILDE@ T2}.
+
+[TBD: virtual containers]
 
 \subsection{Memory Channels}
 \label{MEMORY-CHANNELS}

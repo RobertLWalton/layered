@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 10 02:02:53 EDT 2012
+// Date:	Fri May 11 01:57:55 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -415,9 +415,7 @@ static void run_oper_pass ( PAR::parser parser,
 	// oper_stack->length == initial_length.
 	//
 	OP::oper first_oper = min::NULL_STUB;
-	while ( current == next
-		||
-		oper_precedence <= D.precedence )
+	while ( true )
 	{
 	    if ( current != D.first )
 	    {
@@ -433,7 +431,7 @@ static void run_oper_pass ( PAR::parser parser,
 			       D.first, current );
 		    }
 		    ( * first_oper->reformatter )
-			( parser, pass->next, selectors,
+			( parser, pass, selectors,
 			  D.first, current,
 			  first_oper );
 		}
@@ -607,7 +605,7 @@ static void separator_reformatter
         (   parser->trace
           & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
     PAR::compact
-        ( parser, pass, selectors,
+        ( parser, pass->next, selectors,
 	  PAR::BRACKETABLE, trace,
 	  first, next, position,
 	  1, & separator_attr );
@@ -664,7 +662,7 @@ static void right_associative_reformatter
 	PAR::attr oper_attr
 	    ( PAR::dot_oper, oper->value );
 	PAR::compact
-	    ( parser, pass, selectors,
+	    ( parser, pass->next, selectors,
 	      PAR::BRACKETABLE, trace,
 	      t, next, position,
 	      1, & oper_attr );
@@ -776,7 +774,7 @@ static void compare_reformatter
 	    t = operand2->next;
 	    operand2 = operand2->previous->previous;
 	    PAR::compact
-		( parser, pass, selectors,
+		( parser, pass->next, selectors,
 		  PAR::BRACKETABLE, trace,
 		  operand2, t, operand2->position,
 		  1, & oper_attr );
@@ -784,7 +782,7 @@ static void compare_reformatter
 	    // Compact next-operand1 = ( $ T )
 	    //
 	    PAR::compact
-		( parser, pass, selectors,
+		( parser, pass->next, selectors,
 		  PAR::BRACKETABLE, trace,
 		  t, t->next->next, operand2->position,
 		  1, & oper_attr );
@@ -804,7 +802,7 @@ static void compare_reformatter
 	PAR::attr oper_attr
 	    ( PAR::dot_oper, op->value );
 	PAR::compact
-	    ( parser, pass, selectors,
+	    ( parser, pass->next, selectors,
 	      PAR::BRACKETABLE, trace,
 	      operand1, next_operand1, position,
 	      1, & oper_attr );
@@ -833,7 +831,7 @@ static void compare_reformatter
 	PAR::attr oper_attr
 	    ( PAR::dot_oper, OP::AND );
 	PAR::compact
-	    ( parser, pass, selectors,
+	    ( parser, pass->next, selectors,
 	      PAR::BRACKETABLE, trace,
 	      first, next, position,
 	      1, & oper_attr );

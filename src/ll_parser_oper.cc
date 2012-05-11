@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 11 01:57:55 EDT 2012
+// Date:	Fri May 11 03:03:09 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -804,9 +804,9 @@ static void compare_reformatter
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      PAR::BRACKETABLE, trace,
-	      operand1, next_operand1, position,
+	      op, next_operand1, position,
 	      1, & oper_attr );
-	if ( is_first ) first = operand1;
+	if ( is_first ) first = op;
 
 	operand1 = next_operand1;
     }

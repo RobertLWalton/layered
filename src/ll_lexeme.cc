@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 04:26:17 EST 2012
+// Date:	Mon May 14 06:21:41 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2088,13 +2088,13 @@ min::printer operator <<
 
     LEX::scanner scanner = pinput.scanner;
 
-    printer << min::push_parameters
+    printer << min::save_print_format
             << min::graphic << min::gbreak;
     while ( first < next )
         printer << min::punicode
 	    ( scanner->input_buffer[first++]
 	              .character );
-    return printer << min::pop_parameters;
+    return printer << min::restore_print_format;
 }
 
 min::printer operator <<
@@ -2107,13 +2107,13 @@ min::printer operator <<
     if ( translation_buffer->length == 0 )
         return printer << "<empty>";
 
-    printer << min::push_parameters
+    printer << min::save_print_format
             << min::graphic << min::gbreak;
     for ( unsigned i = 0;
           i < translation_buffer->length; ++ i )
         printer << min::punicode
 	    ( translation_buffer[i] );
-    return printer << min::pop_parameters;
+    return printer << min::restore_print_format;
 }
 
 min::printer operator <<
@@ -2206,10 +2206,10 @@ min::printer operator <<
 	    program[program_header_length + mode];
 	if ( offset != 0 )
 	    return printer
-	        << min::push_parameters
+	        << min::save_print_format
 	        << min::nohbreak
 	        << min::ptr<char> ( php ) + offset
-	        << min::pop_parameters;
+	        << min::restore_print_format;
     }
 
     switch ( mode )
@@ -2223,10 +2223,10 @@ min::printer operator <<
     case SCAN_ERROR:
 	return printer << "SCAN_ERROR";
     default:
-	return printer << min::push_parameters
+	return printer << min::save_print_format
 	               << min::nohbreak
 	               << "TYPE (" << mode << ")"
-	               << min::pop_parameters;
+	               << min::restore_print_format;
     }
 }
 
@@ -2303,7 +2303,7 @@ struct pIDindent
 inline min::printer operator <<
 	( min::printer printer, const pIDindent & p )
 {
-    printer << min::setbreak;
+    printer << min::set_break;
     if ( p.line_number != 0 )
         printer << "#" << p.line_number;
     else
@@ -2322,7 +2322,7 @@ static uns32 print_instruction
 {
     if ( ID == 0 ) return 0;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::set_indent ( indent )
 	    << min::nohbreak
 	    << min::indent;
@@ -2345,8 +2345,7 @@ static uns32 print_instruction
         if ( ! no_line_number )
 	    printer << ID << ": ";
         printer << "ILLEGAL INSTRUCTION TYPE ("
-	        << ihp->pctype << ")" << min::eol
-		<< min::pop_parameters;
+	        << ihp->pctype << ")" << min::eom;
 	return program->length + 1;
     }
 
@@ -2463,7 +2462,7 @@ static uns32 print_instruction
     bool first = true;
 #   define OUT ( first ? ( first = false, printer ) : \
                          printer << ", " ) \
-	       << min::setbreak
+	       << min::set_break
     if ( op & KEEP_FLAG )
         OUT << "KEEP("
 	     << LEX::keep_length ( op )
@@ -2543,11 +2542,10 @@ static uns32 print_instruction
 	      ihp->else_instruction_ID, indent );
     }
 
-    if ( first ) printer << "ACCEPT" << min::eol;
-    else printer << min::eol;
-#   undef OUT
+    if ( first ) printer << "ACCEPT";
+    printer << min::eom;
 
-    printer << min::pop_parameters;
+#   undef OUT
 
     return instruction_length;
 }
@@ -2576,13 +2574,13 @@ struct pclist {
         if ( empty ) return;
 
 	if (   printer->column
-	     < printer->parameters.indent )
+	     < printer->line_break.indent )
 	     printer << min::indent;
 	else if (   printer->column
-	          > printer->parameters.indent )
+	          > printer->line_break.indent )
 	    printer << " ";
 
-	printer << min::setbreak << pgraphic ( c1 );
+	printer << min::set_break << pgraphic ( c1 );
 	if ( c2 != c1 )
 	{
 	    printer << "-";
@@ -2625,7 +2623,7 @@ static uns32 print_cooked_dispatcher
 {
     if ( ID == 0 ) return 0;
 
-    printer << min::push_parameters
+    printer << min::save_print_format
             << min::set_indent ( indent )
 	    << min::nohbreak;
 
@@ -2743,7 +2741,7 @@ static uns32 print_cooked_dispatcher
 		    << min::eol;
     }
 
-    printer << min::pop_parameters;
+    printer << min::restore_print_format;
 
     return length;
 }
@@ -2752,7 +2750,7 @@ uns32 LEX::print_program_component
 	( min::printer printer, LEX::program program,
 	  uns32 ID, bool cooked )
 {
-    printer << min::push_parameters
+    printer << min::save_print_format
             << min::nohbreak
 	    << min::set_indent ( IDwidth );
 
@@ -2835,7 +2833,7 @@ uns32 LEX::print_program_component
 	printer << min::indent << "Max CType: "
 	        << dhp->max_ctype << min::eol;
 	printer << min::indent << "Breaks: "
-	        << min::setbreak
+	        << min::set_break
 	        << "cmin" << min::right ( 16 )
 	        << "type_map_ID" << min::right ( 16 )
 	        << min::eol;
@@ -2857,7 +2855,7 @@ uns32 LEX::print_program_component
 	length += break_element_length
 	        * dhp->max_break_elements;
 	printer << min::indent << "Map:   CType: "
-	        << min::setbreak
+	        << min::set_break
 	        << "dispatcher_ID" << min::right ( 16 )
 	        << "instruction_ID" << min::right ( 16 )
 	        << min::eol;
@@ -2907,7 +2905,7 @@ uns32 LEX::print_program_component
 	}
 	else
 	{
-	    printer << min::push_parameters
+	    printer << min::save_print_format
 	            << min::set_indent ( IDwidth + 6 );
 
 	    min::ptr<uns8> map =
@@ -2924,7 +2922,7 @@ uns32 LEX::print_program_component
 		    {
 			if ( pcl.empty )
 			    printer
-				<< min::setbreak
+				<< min::set_break
 				<< t << ": "
 				<< min::right
 				       ( IDwidth + 6 );
@@ -2938,7 +2936,8 @@ uns32 LEX::print_program_component
 		}
 	    }
 
-	    printer << min::pop_parameters;
+	    printer << min::restore_print_format
+	            << min::set_indent ( IDwidth );
 	}
 	break;
     }
@@ -2952,7 +2951,7 @@ uns32 LEX::print_program_component
     }
     }
 
-    printer << min::pop_parameters;
+    printer << min::restore_print_format;
     return length;
 }
 
@@ -2960,6 +2959,8 @@ void LEX::print_program
 	( min::printer printer, LEX::program program,
 	  bool cooked )
 {
+    printer << min::bom;
+
     uns32 ID = 0;
     while ( ID < program->length )
     {
@@ -2999,6 +3000,7 @@ void LEX::print_program
     if ( ID > program->length )
         printer << "  ILLEGALLY TRUNCATED LAST PROGRAM"
 	           " COMPONENT" << min::eol;
+    printer << min::eom;
 }
 
 // Name String Scanning

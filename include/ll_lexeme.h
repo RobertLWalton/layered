@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  3 10:25:01 EST 2012
+// Date:	Mon May 14 06:21:31 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -988,10 +988,10 @@ namespace ll { namespace lexeme {
 namespace ll { namespace lexeme {
 
     // printer << pgraphic ( c ) does the same thing as
-    //	    printer << min::push_parameters
+    //	    printer << min::save_print_format
     //              << min::graphic
     //              << min::punicode ( c )
-    //              << min::pop_parameters
+    //              << min::restore_print_format
     //
     struct pgraphic {
         uns32 c;
@@ -1145,10 +1145,10 @@ inline min::printer operator <<
 	( min::printer printer,
 	  const ll::lexeme::pgraphic & pgraphic )
 {
-    return printer << min::push_parameters
+    return printer << min::save_print_format
                    << min::graphic
 		   << min::punicode ( pgraphic.c )
-                   << min::pop_parameters;
+                   << min::restore_print_format;
 }
 
 min::printer operator <<

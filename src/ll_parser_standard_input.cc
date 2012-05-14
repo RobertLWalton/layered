@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 04:53:19 EST 2012
+// Date:	Mon May 14 14:33:14 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,12 +39,12 @@ min::locatable_var<LEX::erroneous_atom>
 static min::uns32 input_add_tokens
 	( PAR::parser parser,
 	  PAR::input input );
-static min::printer_format str_format;
+static min::gen_format str_format;
 static void input_init
 	( PAR::parser parser,
 	  PAR::input input )
 {
-    ::str_format = min::default_printer_format;
+    ::str_format = min::default_gen_format;
     ::str_format.str_prefix = "";
     ::str_format.str_postfix = "";
     LEX::init ( PAR::scanner_ref(parser) );
@@ -237,21 +237,21 @@ static min::uns32 input_add_tokens
 		<< ": ";
 	    if ( token->value != min::MISSING() )
 	        printer
-		    << min::push_parameters
+		    << min::save_print_format
 		    << min::graphic
 		    << min::pgen ( token->value,
 		                   & ::str_format )
-		    << min::pop_parameters
+		    << min::restore_print_format
 		    << ": ";
 	    else if ( token->string != min::NULL_STUB )
 	        printer
-		    << min::push_parameters
+		    << min::save_print_format
 		    << min::graphic
 		    << min::punicode
 		            ( token->string->length,
 			      min::begin_ptr_of
 			          ( token->string ) )
-		    << min::pop_parameters
+		    << min::restore_print_format
 		    << ": ";
 	    printer
 		<< LEX::pline_numbers

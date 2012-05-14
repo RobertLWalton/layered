@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 04:19:18 EDT 2012
+// Date:	Mon May 14 14:31:16 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,7 +48,7 @@ min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
 
-min::printer_format PAR::name_format;
+min::gen_format PAR::name_format;
 
 static void initialize ( void )
 {
@@ -86,7 +86,7 @@ static void initialize ( void )
     PAR::error_operand =
         min::new_str_gen ( "ERROR'OPERAND" );
 
-    PAR::name_format = min::default_printer_format;
+    PAR::name_format = min::default_gen_format;
     PAR::name_format.str_prefix = "";
     PAR::name_format.str_postfix = "";
     PAR::name_format.lab_prefix = "";

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 00:14:24 EST 2012
+// Date:	Mon May 14 14:17:53 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -561,7 +561,7 @@ void test_program
 
     LEX::init_input_string
         ( LEX::default_scanner, min::new_ptr ( input ),
-	  printer->parameters.flags );
+	  printer->print_format.flags );
     LEX::init_program
         ( LEX::default_scanner, LEX::default_program );
 
@@ -574,10 +574,10 @@ void test_program
 	    << "Testing Lexical Scan of:"
 	    << min::eol
 	    << min::indent
-	    << min::push_parameters
+	    << min::save_print_format
 	    << min::graphic
 	    << input
-	    << min::pop_parameters
+	    << min::restore_print_format
 	    << min::eol << min::eol;
 
     while ( true )

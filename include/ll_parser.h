@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 00:28:13 EDT 2012
+// Date:	Mon May 14 14:28:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,8 +53,8 @@ namespace ll { namespace parser {
 	error_operator,	// ERROR'OPERATOR
 	error_operand;	// ERROR'OPERAND
 
-    extern min::printer_format name_format;
-        // Same as min::default_printer_format except
+    extern min::gen_format name_format;
+        // Same as min::default_gen_format except
 	// that {str,lab}_{pre,post}fix are all "".
 
 } }

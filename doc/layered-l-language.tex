@@ -2895,17 +2895,17 @@ or default function access qualifiers.
 \subsubsection{Qualifier Inheritance}
 \label{QUALIFIER-INHERITANCE}
 
-\subsection{Containers and Aliasing}
-\label{CONTAINERS-AND-ALIASING}
+\subsection{Aliasing and Containers}
+\label{ALIASING-AND-CONTAINERS}
 
 For purposes of optimization it is important to be able to accurately
 determine if two pointers may point at overlapping data.  If they
 do, data loaded into a register using one pointer may become invalid
 when the other pointer is used to write data.
-When two pointers point at the same data, they are said to
+When two pointers point at overlapping data, they are said to
 `\mkey{aliased}{pointers}'.
 
-The L language uses the concept of container types and type non-overlap
+The L language uses the concept of type non-overlap and container types
 to track aliasing.  Consider the pointer definitions:
 \begin{indpar}[0.5em]\begin{verbatim}
 define type Tx ...
@@ -2922,7 +2922,7 @@ if it is known that data of types {\tt Tx} and {\tt TyC} cannot overlap,
 or data of types {\tt TxC} and {\tt Ty} cannot overlap, or data of
 types {\tt TxC} and {\tt TyC} cannot overlap.
 
-Type overlap is represented by two relation. The {\tt T1 <@ T2} relation
+Type overlap is represented by two relations. The {\tt T1 <@ T2} relation
 means that a datum of type {\tt T1} can be completely contained inside
 a datum of type {\tt T2}.  This relation is assumed to be transitive and
 reflexive, and it is possible for both {\tt T1 <@ T2} and {\tt T2 <@ T1}
@@ -2935,8 +2935,10 @@ This relation is assumed to be reflexive and symmetric but not transitive.
 These relations are specified by including the following in the context
 of a code block that needs to determine whether two pointers are aliased.
 Whenever {\tt T1 @ T2} appears in the context, {\tt T1 <@ T2} is added
-to the {\tt <@} relation.  The other way of adding to the {\tt <2} and
-{\tt \TILDE@} relations are with statement of the form:
+to the {\tt <@} relation.  Whenever a type {\tt T1} is defined to be a subtype
+of the type {\tt T2}, then {\tt T1 <@ T2} is added to the {\tt <@} relation.
+The last of adding to the {\tt <@} relation, and the only way of adding
+to the {\tt \TILDE@} relation, is with statements of the form:
 \begin{center}
 {\tt declare overlap}
 {\em type-name}
@@ -2944,7 +2946,7 @@ to the {\tt <@} relation.  The other way of adding to the {\tt <2} and
 {\em type-name}
 \end{center}
 
-where in this statement form {\tt @} is taken to mean {\tt <@} and
+where here {\tt @} is taken to mean {\tt <@} and
 {\tt T1 <@> T2} is taken to mean that both {\tt T1 <@ T2} and
 {\tt T2 <@ T1}.
 
@@ -2954,6 +2956,12 @@ using transitivity of {\tt <@} or symmetry or reflexivity of {\tt \TILDE@}:
 {\tt T1 <@ T2},
 {\tt T2 <@ T1},
 {\tt T1 \TILDE@ T2}.
+
+Pointer data types are treated a bit differently.  Pointers
+of types {\tt T1P -> T1D} and {\tt T2P -> T2D} are defined to be
+non-overlapping if either {\tt T1P} and {\tt T2P} are non-overlapping
+or if {\tt T1P } and {\tt T2P} are identical and
+{\tt T2D} and {\tt T2D} are non-overlapping.
 
 [TBD: virtual containers]
 

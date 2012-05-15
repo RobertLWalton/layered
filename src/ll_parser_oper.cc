@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 11 03:03:09 EDT 2012
+// Date:	Tue May 15 07:05:46 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -419,51 +419,59 @@ static void run_oper_pass ( PAR::parser parser,
 	{
 	    if ( current != D.first )
 	    {
-		if ( first_oper != min::NULL_STUB
-		     &&
-		     first_oper->reformatter != NULL )
+		if ( first_oper != min::NULL_STUB )
+		{
+		    if (    first_oper->reformatter
+		         != NULL )
+		    {
+			( * first_oper->reformatter )
+			    ( parser, pass, selectors,
+			      D.first, current,
+			      first_oper );
+		    }
+		    else
+		    {
+			min::phrase_position position;
+			position.begin =
+			    D.first->position.begin;
+			position.end =
+			    current->previous
+			           ->position.end;
+			PAR::attr attr
+			    ( PAR::dot_oper,
+			      first_oper->label );
+			PAR::compact
+			    ( parser, pass->next,
+			      selectors,
+			      PAR::BRACKETABLE, trace,
+			      D.first, current,
+			      position,
+			      1, & attr );
+		    }
+		}
+		else
 		{
 		    if ( pass->next != min::NULL_STUB )
-		    {
 			(* pass->next->run_pass )
 			     ( parser, pass->next,
 			       selectors,
 			       D.first, current );
+
+		    if ( D.first->next != current )
+		    {
+			min::phrase_position position;
+			position.begin =
+			    D.first->position.begin;
+			position.end =
+			    current->previous
+			           ->position.end;
+			PAR::compact
+			    ( parser, pass->next,
+			      selectors,
+			      PAR::BRACKETABLE, trace,
+			      D.first, current,
+			      position );
 		    }
-		    ( * first_oper->reformatter )
-			( parser, pass, selectors,
-			  D.first, current,
-			  first_oper );
-		}
-		else if ( first_oper != min::NULL_STUB )
-		{
-		    min::phrase_position position;
-		    position.begin =
-		        D.first->position.begin;
-		    position.end =
-		        current->previous->position.end;
-		    PAR::attr attr
-		        ( PAR::dot_oper,
-			  first_oper->label );
-		    PAR::compact
-		        ( parser, pass->next,
-			  selectors,
-			  PAR::BRACKETABLE, trace,
-			  D.first, current, position,
-			  1, & attr );
-		}
-		else if ( D.first->next != current )
-		{
-		    min::phrase_position position;
-		    position.begin =
-		        D.first->position.begin;
-		    position.end =
-		        current->previous->position.end;
-		    PAR::compact
-			( parser, pass->next,
-			  selectors,
-			  PAR::BRACKETABLE, trace,
-			  D.first, current, position );
 		}
 	    }
 

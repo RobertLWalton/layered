@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 13, 2012
+May 15, 2012
  
 \end{center}
 
@@ -2915,13 +2915,20 @@ operator parsing pass on these, converting them into a single
 {\tt EXPRESSION} or lexeme token.
 \item[Step 2:] Identify operators within the expression and replace them
 with {\tt OPERATOR} tokens.
-\item[Step 3:] Run passes subsequent to the operator parsing pass on
-the expression after the above has been done.
-\item[Step 4:] Run the reformatter of the first operator now in the expression
-on the expression.  This replaces the expression by a single token.
+\item[Step 3:] If no operators were found in the expression,
+run any passes subsequent to the operator parsing pass on the expression,
+and then if the expression still has more than one
+token, replace the expression by a single BRACKETABLE token listing the
+tokens of the expression.
+
+If operators were found in the expression,
+run the reformatter of the first operator
+in the expression.  This replaces the expression by a single token.
 If no reformatter is provided by the first operator, a default
-reformatter is run.  The output of the reformatter must be
-a single non-{\tt OPERATOR} token.
+reformatter is run that replaces the expression by a single BRACKETABLE
+token whose value has the operator label as its {\tt .operator} attribute.
+
+After this step the expression is always a single non-{\tt OPERATOR} token.
 \end{itemlist}
 
 The token list at the point where Step 3 is about to execute
@@ -3111,8 +3118,8 @@ then insert
 an error operand lexeme token before $C$,
 announce an error, and then continue as if no error were found.
 \item[Loop Step 5:]
-If $C=N$ or $P'\leq P$, and if $C\not=F$,
-apply Step 3 and Step 4 above to the list of tokens beginning with
+If $C\not=F$,
+apply Step 3 above to the list of tokens beginning with
 $F$ and ending just before $C$.
 
 If $C=N$, pop the $P$ and $F$ stacks.  If these stacks are now
@@ -3132,14 +3139,6 @@ Else if $P'=P$, set $F$ to point at the next token after $C$.
 Set $T$ to the type of the found operator,
 repoint $C$ to the token after $C$, and iterate the loop.
 \end{itemlist}
-
-	
-
-
-
-TBD
-
-
 
 \clearpage
 

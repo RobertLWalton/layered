@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 14:17:53 EDT 2012
+// Date:	Tue May 15 23:23:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -544,6 +544,10 @@ static void create_program_2 ( void )
 
     min::printer printer =
         LEX::default_scanner->printer;
+    printer << "Uncooked Program 2:"
+            << min::eol << min::eol;
+    LEX::print_program
+        ( printer, LEX::default_program, false );
     printer << "Cooked Program 2:"
             << min::eol << min::eol;
     LEX::print_program

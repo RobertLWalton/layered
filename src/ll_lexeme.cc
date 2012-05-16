@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 06:21:41 EDT 2012
+// Date:	Tue May 15 21:28:26 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1152,8 +1152,8 @@ inline min::printer scan_error
 // number/ID (using pID).
 //
 static uns32 print_instruction
-    ( min::printer printer, LEX::program program,
-      uns32 ID, unsigned indent,
+    ( min::printer printer,
+      LEX::program program, uns32 ID,
       bool no_line_number = false );
 
 // Given a dispatcher_ID and a character c return the
@@ -1386,8 +1386,8 @@ static uns32 scan_atom
 
 	if ( scanner->trace & LEX::TRACE_INSTRUCTION )
 	    print_instruction
-	        ( scanner->printer, program,
-		  instruction_ID, 2 );
+	        ( scanner->printer << "  ",
+		  program, instruction_ID );
 
 	bool fail = false;
 
@@ -2311,21 +2311,24 @@ inline min::printer operator <<
     return printer << ": " << min::right ( IDwidth );
 }
 
-// See documentation .
+// Print instruction at program[ID] at the current
+// column, ending with a new line.  Preface with the
+// instruction line number unless no_line_number is
+// true.  If no_line_number is true, print
+// ELSE(else-ID) instead of ELSE: followed by ELSE
+// instruction.
 //
 static uns32 print_instruction
     ( min::printer printer,
       LEX::program program,
       uns32 ID,
-      unsigned indent,
       bool no_line_number )
 {
     if ( ID == 0 ) return 0;
 
+    min::uns32 indent = printer->column;
     printer << min::bom
-            << min::set_indent ( indent )
-	    << min::nohbreak
-	    << min::indent;
+	    << min::nohbreak;
 
     min::ptr<instruction_header> ihp =
         LEX::ptr<instruction_header> ( program, ID );
@@ -2334,23 +2337,27 @@ static uns32 print_instruction
     uns32 instruction_length =
         instruction_header_length;
 
+    if ( ihp->pctype != INSTRUCTION )
+    {
+        if ( ! no_line_number )
+	    printer << ID << ": ";
+        printer << min::place_indent ( 0 )
+	        << "ILLEGAL INSTRUCTION TYPE ("
+	        << ihp->pctype << ")"
+		<< min::eom;
+	return program->length + 1;
+    }
+
+    if ( ! no_line_number )
+        printer << pID ( ID, program ) << ": ";
+    printer << min::place_indent ( 0 );
+
     if ( op & TRANSLATE_TO_FLAG )
     {
         translate_to_length =
 	    LEX::translate_to_length ( op );
 	instruction_length += translate_to_length;
     }
-    if ( ihp->pctype != INSTRUCTION )
-    {
-        if ( ! no_line_number )
-	    printer << ID << ": ";
-        printer << "ILLEGAL INSTRUCTION TYPE ("
-	        << ihp->pctype << ")" << min::eom;
-	return program->length + 1;
-    }
-
-    if ( ! no_line_number )
-        printer << pID ( ID, program ) << ": ";
 
     if ( ( ( op & MATCH ) != 0 )
 	 +
@@ -2536,13 +2543,27 @@ static uns32 print_instruction
 
     if ( op & ELSE )
     {
-        OUT << "ELSE:" << min::eol;
-	print_instruction
-	    ( printer, program,
-	      ihp->else_instruction_ID, indent );
+	if (    no_line_number
+	     || ihp->else_instruction_ID == 0 )
+	{
+	    OUT << "ELSE("
+		<< pID ( ihp->else_instruction_ID,
+		         program )
+		<< ")";
+	}
+	else
+	{
+	    OUT << "ELSE:"
+		<< min::set_indent ( indent )
+		<< min::indent;
+	    print_instruction
+		( printer,
+		  program, ihp->else_instruction_ID,
+		  false );
+	}
     }
+    else if ( first ) printer << "ACCEPT";
 
-    if ( first ) printer << "ACCEPT";
     printer << min::eom;
 
 #   undef OUT
@@ -2612,23 +2633,21 @@ struct pclist {
     }
 };
 
-// Print the dispatcher at program[ID] with the given
-// indent, if ID is non-zero in the cooked format.
-// Return length of dispatcher component.  If ID is
+// Print the dispatcher at program[ID] with indent
+// equal to the current column in the cooked format.
+// Return length of dispatcher component.  But if ID is
 // zero, do nothing but return 0.
 //
 static uns32 print_cooked_dispatcher
     ( min::printer printer, LEX::program program,
-      uns32 ID, unsigned indent = IDwidth )
+      uns32 ID )
 {
     if ( ID == 0 ) return 0;
 
-    printer << min::save_print_format
-            << min::set_indent ( indent )
+    printer << min::bom
 	    << min::nohbreak;
 
-    printer << pIDindent ( ID, program )
-            << "DISPATCHER" << min::eol;
+    printer << "DISPATCHER" << min::eol;
 
     min::ptr<dispatcher_header> dhp =
 	LEX::ptr<dispatcher_header> ( program, ID );
@@ -2730,9 +2749,10 @@ static uns32 print_cooked_dispatcher
 	pcl.flush();
 	printer << min::eol;
 
-	print_instruction
-	    ( printer, program, mep[t].instruction_ID,
-	               IDwidth + 4 );
+	if ( mep[t].instruction_ID != 0 )
+	    print_instruction
+		( printer << min::indent << "    ",
+		  program, mep[t].instruction_ID );
 	if ( mep[t].dispatcher_ID != 0 )
 	    printer << min::indent
 	            << "    Dispatcher ID: "
@@ -2741,7 +2761,8 @@ static uns32 print_cooked_dispatcher
 		    << min::eol;
     }
 
-    printer << min::restore_print_format;
+    printer << min::restore_line_break
+            << min::restore_print_format;
 
     return length;
 }
@@ -2801,10 +2822,12 @@ uns32 LEX::print_program_component
 	printer << min::indent << "Dispatcher ID: "
 	        << pID ( thp->dispatcher_ID, program )
 		<< min::eol;
-	if ( cooked )
+	if ( thp->instruction_ID == 0 )
+	    /* do nothing */;
+	else if ( cooked )
 	    print_instruction
-		( printer, program,
-		  thp->instruction_ID, IDwidth );
+		( printer << min::indent, program,
+		  thp->instruction_ID );
 	else
 	    printer << min::indent << "Instruction ID: "
 		    << pID ( thp->instruction_ID,
@@ -2816,6 +2839,7 @@ uns32 LEX::print_program_component
     case DISPATCHER:
     if ( cooked )
     {
+	printer << pIDindent ( ID, program );
 	length = print_cooked_dispatcher
 		       ( printer, program, ID );
 	break;
@@ -2884,8 +2908,7 @@ uns32 LEX::print_program_component
     {
 	printer << pIDindent ( ID, program );
 	length = print_instruction
-		   ( printer, program, ID, IDwidth,
-		     true );
+		   ( printer, program, ID, true );
 	break;
     }
     case TYPE_MAP:

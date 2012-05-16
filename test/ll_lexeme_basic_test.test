@@ -13,7 +13,6 @@ Uncooked Program 1:
      #XXXX: TABLE
             Mode: MASTER
             Dispatcher ID: #XXXX
-            Instruction ID: #XXXX
      #XXXX: TABLE
             Mode: SYMBOL
             Dispatcher ID: #XXXX
@@ -45,6 +44,7 @@ Uncooked Program 1:
                4: a-z
      #XXXX: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(#XXXX)
      #XXXX: ACCEPT
+
 Cooked Program 1:
 
      #XXXX: PROGRAM
@@ -74,6 +74,321 @@ Cooked Program 1:
                 Dispatcher ID: #XXXX
             4 6 a-z
                #XXXX: ACCEPT
+
+Uncooked Program 2:
+
+     #XXXX: PROGRAM
+            Initial Table ID[0]:#XXXX
+            Max Type: 6
+                 0: WHITESPACE
+                 1: ERROR
+                 2: END_OF_FILE
+                 3: SYMBOL
+                 4: NUMBER
+                 5: OPERATOR
+                 6: SEPARATOR
+     #XXXX: TABLE
+            Mode: MASTER
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: TABLE
+            Mode: ATOM
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: TYPE_MAP
+               1: \-\
+     #XXXX: TYPE_MAP
+               1: 0-7
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 4
+            Max CType: 2
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   \           #XXXX
+                                   ]           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 4
+            Max CType: 2
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   0           #XXXX
+                                   8           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 4
+            Max CType: 2
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   0           #XXXX
+                                   8           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 4
+            Max CType: 2
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   0           #XXXX
+                                   8           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+     #XXXX: FAIL
+     #XXXX: TRANSLATE_OCT(1,0), ELSE(#XXXX)
+     #XXXX: TABLE
+            Mode: WHITESPACE
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: TABLE
+            Mode: SYMBOL
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: TABLE
+            Mode: NUMBER
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: TABLE
+            Mode: OPERATOR
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: OUTPUT(2)
+     #XXXX: TYPE_MAP
+               0: <NUL>-<BS> <SO>-<US> !-' : <-@ ^-` | ~
+               1: <HT>-<CR> <SP>
+               2: A-Z a-z
+               3: 0-9
+               4: .
+               5: (-) , ; [ ] { }
+               6: *-+ - /
+               7: \
+               8: <DEL>
+     #XXXX: DISPATCHER
+            Break Elements: 2
+            Max Break Elements: 4
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                <80>           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+     #XXXX: KEEP(0), CALL(#XXXX)
+     #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: GOTO(#XXXX)
+     #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: OUTPUT(6)
+     #XXXX: OUTPUT(1)
+     #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
+     #XXXX: KEEP(0), GOTO(#XXXX)
+     #XXXX: KEEP(0), RETURN
+     #XXXX: ACCEPT
+     #XXXX: DISPATCHER
+            Break Elements: 2
+            Max Break Elements: 4
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                <80>           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 5
+            Max Break Elements: 6
+            Max CType: 2
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   A           #XXXX
+                                   [           #XXXX
+                                   a           #XXXX
+                                   {           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+     #XXXX: TYPE_MAP
+               1: a-z
+     #XXXX: TYPE_MAP
+               1: A-Z
+     #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE(#XXXX)
+     #XXXX: TABLE
+            Mode: NUMBER
+            Dispatcher ID: #XXXX
+            Instruction ID: #XXXX
+     #XXXX: GOTO(#XXXX)
+     #XXXX: GOTO(#XXXX)
+     #XXXX: DISPATCHER
+            Break Elements: 5
+            Max Break Elements: 6
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   .           #XXXX
+                                   /           #XXXX
+                                   0           #XXXX
+                                   :           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+     #XXXX: TYPE_MAP
+               1: 0-9
+     #XXXX: TYPE_MAP
+               2: .-.
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 4
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   0           #XXXX
+                                   :           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 2
+            Max Break Elements: 4
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                <80>           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 8
+            Max Break Elements: 10
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   *           #XXXX
+                                   +           #XXXX
+                                   ,           #XXXX
+                                   -           #XXXX
+                                   .           #XXXX
+                                   /           #XXXX
+                                   0           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+     #XXXX: TYPE_MAP
+               1: +-+
+     #XXXX: TYPE_MAP
+               2: ---
+     #XXXX: TYPE_MAP
+               3: /-/
+     #XXXX: TYPE_MAP
+               3: *-*
+     #XXXX: GOTO(#XXXX)
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 10
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   +           #XXXX
+                                   ,           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+     #XXXX: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 10
+            Max CType: 10
+            Breaks:             cmin     type_map_ID
+                               <NUL>           #XXXX
+                                   -           #XXXX
+                                   .           #XXXX
+            Map:   CType:    dispatcher_ID  instruction_ID
+                       0:            #XXXX           #XXXX
+                       1:            #XXXX           #XXXX
+                       2:            #XXXX           #XXXX
+                       3:            #XXXX           #XXXX
+                       4:            #XXXX           #XXXX
+                       5:            #XXXX           #XXXX
+                       6:            #XXXX           #XXXX
+                       7:            #XXXX           #XXXX
+                       8:            #XXXX           #XXXX
+                       9:            #XXXX           #XXXX
+                      10:            #XXXX           #XXXX
+
 Cooked Program 2:
 
      #XXXX: PROGRAM
@@ -216,6 +531,7 @@ Cooked Program 2:
             Max CType: 10
             -
                #XXXX: GOTO(#XXXX)
+
 
 Testing Lexical Scan of:
     <SP>ab<SP>3.4<SP>x+y++z<LF>

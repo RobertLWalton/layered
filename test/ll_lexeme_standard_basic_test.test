@@ -567,7 +567,7 @@
             <
                #XXXX: MATCH(#XXXX), ELSE:
                #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), ERRONEOUS_ATOM(18),
-                ELSE:
+                      ELSE:
                #XXXX: ACCEPT
 
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 06:21:31 EDT 2012
+// Date:	Tue May 15 23:23:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1114,7 +1114,7 @@ namespace ll { namespace lexeme {
     void print_program
     	    ( min::printer printer,
 	      ll::lexeme::program program,
-	      bool cooked );
+	      bool cooked = true );
 
     // Ditto but just print the program component with
     // the given ID.  The size of the program component

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 21:28:26 EDT 2012
+// Date:	Mon May 21 17:45:17 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1106,12 +1106,12 @@ void LEX::init_spool_lines
 	( input_file_ref(scanner), spool_lines );
 }
 
-min::printer LEX::init_output_stream
+min::printer LEX::init_ostream
 	( min::ref<LEX::scanner> scanner,
 	  std::ostream & out )
 {
     init ( scanner );
-    return min::init_output_stream
+    return min::init_ostream
 	( LEX::printer_ref(scanner), out );
 }
 

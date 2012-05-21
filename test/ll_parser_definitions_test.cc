@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 23 09:45:09 EST 2012
+// Date:	Mon May 21 17:47:57 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,7 +23,7 @@ int main ( int argc )
     PARSTD::init_brackets ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
-    PAR::init_output_stream
+    PAR::init_ostream
         ( PAR::default_parser, std::cout );
     PAR::init_print_flags
         ( PAR::default_parser,

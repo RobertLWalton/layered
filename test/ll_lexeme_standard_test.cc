@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 00:11:48 EST 2012
+// Date:	Mon May 21 17:47:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,7 +19,7 @@
 int main ( int argc )
 {
     min::initialize();
-    LEX::init_output_stream
+    LEX::init_ostream
 	    ( LEX::default_scanner, std::cout )
         << min::ascii;
     LEXSTD::init_standard_program();

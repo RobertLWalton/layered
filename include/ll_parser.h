@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 14:28:47 EDT 2012
+// Date:	Mon May 21 17:49:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -763,7 +763,7 @@ void init_input_string
 // the corresponding min::init_... function for
 // parser->printer.
 //
-void init_output_stream
+void init_ostream
 	( min::ref<ll::parser::parser> parser,
 	  std::ostream & ostream );
 

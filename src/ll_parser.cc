@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 14:31:16 EDT 2012
+// Date:	Mon May 21 17:49:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -442,15 +442,13 @@ void PAR::init_input_string
 	  data, print_flags, spool_lines );
 }
 
-void PAR::init_output_stream
+void PAR::init_ostream
 	( min::ref<PAR::parser> parser,
 	  std::ostream & out )
 {
     init ( parser );
 
-    min::init_output_stream
-        ( printer_ref(parser),
-	  out );
+    min::init_ostream ( printer_ref(parser), out );
 }
 
 // Convert a non-natural number or quoted string token

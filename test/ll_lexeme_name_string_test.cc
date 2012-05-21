@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 14:17:09 EDT 2012
+// Date:	Mon May 21 17:47:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,7 +49,7 @@ static void test_string ( const char * s )
 int main ( int argc )
 {
     min::initialize();
-    LEX::init_output_stream
+    LEX::init_ostream
 	    ( LEX::default_scanner, std::cout )
         << min::ascii;
     LEXSTD::init_standard_program();

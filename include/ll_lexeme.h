@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 23:23:06 EDT 2012
+// Date:	Mon May 21 17:45:40 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -937,7 +937,7 @@ namespace ll { namespace lexeme {
     // printer as per min:: function of the same
     // name.
     //
-    min::printer init_output_stream
+    min::printer init_ostream
 	    ( min::ref<ll::lexeme::scanner> scanner,
 	      std::ostream & out );
 

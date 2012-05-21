@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_explicit_subexpression_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 19 22:47:32 EST 2012
+// Date:	Mon May 21 17:48:09 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,7 +24,7 @@ int main ( int argc )
     PARSTD::init_brackets ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
-    PAR::init_output_stream
+    PAR::init_ostream
         ( PAR::default_parser, std::cout );
     PAR::default_parser->trace =
         PAR::TRACE_EXPLICIT_SUBEXPRESSIONS;

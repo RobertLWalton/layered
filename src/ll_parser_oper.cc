@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 07:05:46 EDT 2012
+// Date:	Mon Jun 11 06:21:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -268,11 +268,11 @@ static void run_oper_pass ( PAR::parser parser,
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
-		    << "OPERATOR `"
+		    << "OPERATOR "
 		    << min::pgen
-			 ( current->value,
-			   & PAR::name_format )
-		    << "' found; "
+		           ( current->value,
+		             min::BRACKET_STR_FLAG )
+		    << " found; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     current->position )
@@ -536,15 +536,15 @@ static void separator_reformatter
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: wrong"
-		       " separator `"
+		       " separator "
 		    << min::pgen
 			 ( t->value,
-			   & PAR::name_format )
-		    << "' changed to `"
+			   min::BRACKET_STR_FLAG )
+		    << " changed to "
 		    << min::pgen
 			 ( separator,
-			   & PAR::name_format )
-		    << "'; "
+			   min::BRACKET_STR_FLAG )
+		    << "; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     t->position )
@@ -579,11 +579,11 @@ static void separator_reformatter
 		<< min::bom
 		<< min::set_indent ( 7 )
 		<< "ERROR: missing"
-		   " separator `"
+		   " separator "
 		<< min::pgen
 		     ( separator,
-		       & PAR::name_format )
-		<< "' inserted; "
+		       min::BRACKET_STR_FLAG )
+		<< " inserted; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 position )

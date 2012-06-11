@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 21 17:47:07 EDT 2012
+// Date:	Mon Jun 11 05:55:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,7 +42,9 @@ static void test_string ( const char * s )
 	  ::accepted_types,
 	  ::ignored_types,
 	  ::end_types );
-    printer << "    VALUE: " << min::pgen ( value )
+    printer << "    VALUE: "
+            << min::pgen ( value,
+	                   min::BRACKET_STR_FLAG )
             << min::eol;
 }
 

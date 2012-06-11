@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 21 17:49:07 EDT 2012
+// Date:	Mon Jun 11 06:20:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,28 +48,26 @@ min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
 
-min::gen_format PAR::name_format;
-
 static void initialize ( void )
 {
     PAR::dot_position
-	= min::new_dot_lab_gen ( "position" );
+	= min::new_lab_gen ( ".", "position" );
     PAR::dot_initiator
-	= min::new_dot_lab_gen ( "initiator" );
+	= min::new_lab_gen ( ".", "initiator" );
     PAR::dot_terminator
-	= min::new_dot_lab_gen ( "terminator" );
+	= min::new_lab_gen ( ".", "terminator" );
     PAR::dot_separator
-	= min::new_dot_lab_gen ( "separator" );
+	= min::new_lab_gen ( ".", "separator" );
     PAR::dot_middle
-	= min::new_dot_lab_gen ( "middle" );
+	= min::new_lab_gen ( ".", "middle" );
     PAR::dot_name
-	= min::new_dot_lab_gen ( "name" );
+	= min::new_lab_gen ( ".", "name" );
     PAR::dot_arguments
-	= min::new_dot_lab_gen ( "arguments" );
+	= min::new_lab_gen ( ".", "arguments" );
     PAR::dot_keys
-	= min::new_dot_lab_gen ( "keys" );
+	= min::new_lab_gen ( ".", "keys" );
     PAR::dot_oper
-	= min::new_dot_lab_gen ( "operator" );
+	= min::new_lab_gen ( ".", "operator" );
 
     PAR::doublequote = min::new_str_gen ( "\"" );
     PAR::number_sign = min::new_str_gen ( "#" );
@@ -85,12 +83,6 @@ static void initialize ( void )
         min::new_str_gen ( "ERROR'OPERATOR" );
     PAR::error_operand =
         min::new_str_gen ( "ERROR'OPERAND" );
-
-    PAR::name_format = min::default_gen_format;
-    PAR::name_format.str_prefix = "";
-    PAR::name_format.str_postfix = "";
-    PAR::name_format.lab_prefix = "";
-    PAR::name_format.lab_postfix = "";
 }
 static min::initializer initializer ( ::initialize );
 
@@ -661,8 +653,10 @@ void PAR::compact
 	        << ( first->type == PAR::BRACKETED ?
 		     "BRACKETED EXPRESSION: " :
 		     "BRACKETABLE EXPRESSION: " )
+		<< min::set_break
 		<< min::pgen ( first->value )
 		<< "; "
+		<< min::set_break
 		<< min::pline_numbers
 		        ( parser->input_file,
 			  position )
@@ -1929,7 +1923,9 @@ static bool parse_explicit_subexpression
 	        parser->printer
 		    << "EXPLICIT SUBEXPRESSION PARSER"
 		       " FOUND KEY "
-		    << min::pgen ( root->label )
+		    << min::pgen
+		           ( root->label,
+			     min::BRACKET_STR_FLAG )
 		    << min::indent << " OF SUBTYPE "
 		    << min::name_of_packed_subtype
 		           ( min::packed_subtype_of
@@ -2001,13 +1997,13 @@ static bool parse_explicit_subexpression
 			<< min::bom
 			<< min::set_indent ( 7 )
 			<< "ERROR: missing"
-			   " closing bracket `"
+			   " closing bracket "
 			<< min::pgen
 			     ( opening_bracket->
 			       closing_bracket->
 				   label,
-			       & PAR::name_format )
-			<< "' inserted before "
+			       min::BRACKET_STR_FLAG )
+			<< " inserted before "
 			<< min::pline_numbers
 			       ( parser->input_file,
 				 next->position )
@@ -2147,11 +2143,11 @@ static bool parse_explicit_subexpression
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: spurious"
-		       " closing bracket `"
+		       " closing bracket "
 		    << min::pgen
 			 ( closing_bracket->label,
-			   & PAR::name_format )
-		    << "' found and ignored; "
+			   min::BRACKET_STR_FLAG )
+		    << " found and ignored; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     position )
@@ -2285,13 +2281,13 @@ static bool parse_explicit_subexpression
 			    << min::bom
 			    << min::set_indent ( 7 )
 			    << "ERROR: missing named"
-			       " closing bracket `"
+			       " closing bracket "
 			    << min::pgen
 			       ( named_opening
 			         ->named_middle_closing
 				 ->label,
-				 & PAR::name_format )
-			    << "' inserted; "
+			         min::BRACKET_STR_FLAG )
+			    << " inserted; "
 			    << min::pline_numbers
 				   ( parser->input_file,
 				     next->position )
@@ -2609,7 +2605,9 @@ static bool parse_explicit_subexpression
 	        parser->printer
 		    << "EXPLICIT SUBEXPRESSION PARSER"
 		       " REJECTED KEY "
-		    << min::pgen ( root->label )
+		    << min::pgen
+		           ( root->label,
+			     min::BRACKET_STR_FLAG )
 		    << min::eol;
 
 	    root = PAR::find_next_entry

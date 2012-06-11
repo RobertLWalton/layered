@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 14:32:20 EDT 2012
+// Date:	Mon Jun 11 05:56:37 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -419,8 +419,7 @@ static min::gen parser_execute_print
 	    if ( j > 0 ) parser->printer << ", ";
 	    parser->printer
 		<< min::set_break
-		<< min::pgen
-		       ( t[j], & PAR::name_format );
+		<< min::pgen ( t[j] );
 	}
 	parser->printer << " ]" << min::eom;
     }

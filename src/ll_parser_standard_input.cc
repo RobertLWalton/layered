@@ -39,14 +39,10 @@ min::locatable_var<LEX::erroneous_atom>
 static min::uns32 input_add_tokens
 	( PAR::parser parser,
 	  PAR::input input );
-static min::gen_format str_format;
 static void input_init
 	( PAR::parser parser,
 	  PAR::input input )
 {
-    ::str_format = min::default_gen_format;
-    ::str_format.str_prefix = "";
-    ::str_format.str_postfix = "";
     LEX::init ( PAR::scanner_ref(parser) );
 }
 static void erroneous_atom_announce
@@ -239,8 +235,7 @@ static min::uns32 input_add_tokens
 	        printer
 		    << min::save_print_format
 		    << min::graphic
-		    << min::pgen ( token->value,
-		                   & ::str_format )
+		    << min::pgen ( token->value )
 		    << min::restore_print_format
 		    << ": ";
 	    else if ( token->string != min::NULL_STUB )

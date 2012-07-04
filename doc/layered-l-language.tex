@@ -1273,6 +1273,15 @@ If {\tt x} has a type of the form `$T1${\tt ->}$T2$ {\tt x}',
 then `{\tt x = ...}' translates to `{\tt .set.(\&x,...)}' and
 `{\tt ... = ... x ...}' translates to `{\tt ... = ... .get.(\&x) ...}',
 but we simplify by writing the untranslated versions in these cases.
+Recall that within a function
+\begin{indpar}\begin{verbatim}
+int8 x -> float64 y
+\end{verbatim}\end{indpar}
+is shorthand for
+\begin{indpar}\begin{verbatim}
+constant stack adr -> int8 x -> float64 y
+\end{verbatim}\end{indpar}
+so `{\tt .get.(\&x)}' can be simplified to `{\tt x}'.
 
 The {\tt .get.} and {\tt .set.} functions are likely to be
 undefined for {\tt int8} pointers.  But in special cases
@@ -1281,7 +1290,7 @@ it may be convenient to define them.  For example, if
 open files, one might have:
 
 \begin{indpar}\begin{verbatim}
-define type open file = (...)
+define type open file = ...
 open file .get. ( int8 V -> open file )
 
 ( int8 V -> open file ) open ( ... )
@@ -1298,7 +1307,7 @@ used as file descriptors, they should be convertable to {\tt adr}
 values, as in the following improved example:
 
 \begin{indpar}\begin{verbatim}
-define type open file = (...)
+define type open file = ...
 ( adr V -> open file ) .convert. ( int8 V -> open file )
     // Declares conversion function which is not defined here.
 unchecked:
@@ -1357,7 +1366,7 @@ above is legal and the assignment of {\tt q} is not.
 \subsection{Displacements}
 \label{DISPLACMENTS}
 
-Displacment types are just like pointer types in so far as declaration
+Displacement types are just like pointer types in so far as declaration
 and assignment is concerned, but differ in not having
 {\tt .get} and {\tt .set} functions, but instead having
 the {\tt "."} operator that combines an address and a displacement.

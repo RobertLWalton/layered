@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 10, 2012
+July 4, 2012
  
 \end{center}
 
@@ -984,8 +984,8 @@ the frame.  For example, the declarations
 \tt
 \begin{tabular}{l}
 define type my type(uns32 M) = (24+8*M,0,8) \\
-. . . . .
-constant uns32 n = ...
+. . . . . \\
+constant uns32 n = ... \\
 my type(n) y
 \end{tabular}
 \end{center}
@@ -1002,23 +1002,22 @@ the frame, and the value of this variable is the address of {\tt y}.
 \subsection{Names, Types, Variables, and Functions}
 \label{NAMES-TYPES-VARIABLES-FUNCTIONS}
 
-A `\key{name}' is used to name a variable, type, or function call. 
+A `\key{name}' is used to name a variable, function call, type,
+or qualifier.
 All names are sequences of words, natural numbers, quoted strings,
 and bracketted lists of arguments.
 
-In certain contexts a type or bracketted argument list
-must appear before the name of a variable
-or function without any intervening operator or separator.
-Syntactically types, variables, and functions are all names.  The
-types in these contexts are recognized because they must be declared
-as types in advance.
-
-Similarly qualifiers may appear before types, and qualifiers are
-recognized because they are declared as such in advance.
+In certain contexts several names may appear in a row.
+The name of a variable or function call may be immediately preceded by the
+name of a type or by qualifier names, and the name of a type may
+be immediately preceded by qualifier names.
+In these contexts qualifier names and type names are recognized
+because they have been declared in advance.
 
 Names may be either `\mkey{complete}{name}' or `\mkey{prototype}{name}'.
 In a complete name arguments are given as values.  In a prototype
-name, the arguments are represented by argument type/name pairs.
+name, the arguments are represented by argument type/name pairs
+(with optional qualifiers).
 
 Names may be printed and matched with each other.  Matching may
 induce assignment of argument names in prototypes to values supplied
@@ -1046,7 +1045,10 @@ and \verb|w = 2000|.
 
 Matching a prototype name to a complete name
 is complex and allows omitted arguments, most
-particularly type arguments, to be deduced via match generated assignments.
+particularly type arguments such as {\tt T} in the example,
+to be deduced via match generated assignments.
+Implicit conversions may also be allows, such as the conversion of
+{\tt 2000} to type {\tt T} in the example.
 On the other hand, matching two complete names merely involves checking for
 equality of names after fully evaluating arguments.
 
@@ -1131,7 +1133,14 @@ have the syntax:
 & ::= & {\em name} \\
 \end{tabular}
 
-TBD
+Qualifier declarations are described later.  \ikey{Qualifiers}{qualifier}
+have the syntax:
+
+\hspace*{0.2in}
+\begin{tabular}{rcl}
+{\em qualifier-name}
+& ::= & {\em name} \\
+\end{tabular}
 
 \subsection{Descriptors}
 \label{DESCRIPTORS}
@@ -1200,7 +1209,7 @@ or return values of functions.  However, addresses of locations
 of these types can be used.
 
 Traceable location types
-can be used for open files, all exception catch data, etc.
+can be used for open files, exception catch data, etc.
 
 \hspace*{-1em}\ttkey{traceable value}~~~~~If a value of a
 `{\tt traceable location}' type is stored in a stack or static
@@ -1254,7 +1263,7 @@ For example:
 int8 x -> float64 y
 float64 z = y     // Translates to .set.(&z,.get.(.get.(&x)));
                   // or to simplify z = .get.(x) or z = .get.(&y);
-                  // .get.(x) is probably undefined.
+                  // .get.(x) is probably undefined as x is int8.
 y = z             // Translates to .set.(.get(&x),.get.(&z));
                   // or to simplify .set.(x,z);
                   // .set.(x,...) is probably undefined.

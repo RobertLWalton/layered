@@ -1450,73 +1450,78 @@ names with the same base name and scope are in the same cluster.
 Clusters can be passed to functions and returned from functions.
 For example:
 \begin{indpar}\begin{verbatim}
-// WARNING: This code is not completely type safe
-//          because it does not use protection qualifiers.
+define type pointer pair = subtype of void
+    // if pointer pair pp then
+    //   pp.begin points at the first element
+    //   pp.end points just AFTER the last element
+
+// Out of line function to allocate a vector of n T's.
 //
-// pp is a `pointer pair'
-//   pp.begin points at the first element
-//   pp.end points just AFTER the last element
-//
-// Function to allocate a vector of n int32's.
-//
-( void pp, unchecked adr pp.begin -> int32,
-           unchecked adr pp.end -> int32 )
-    allocate ( uns32 n )
-//
+( pointer pair pp -> T,
+  unchecked adr b == pp.begin -> T,
+  unchecked adr e == pp.end -> T )
+    allocate ( type T, basic(T) descriptor, uns32 n )
+
 // Prefix operator to dereference a pointer pair.
 //
-( adr -> int32 V ) "*"
-        ( void pp, adr -> unchecked adr pp.begin -> int32,
-                   adr -> unchecked adr pp.end   -> int32 )
+( adr a -> T ) "*"
+        ( type T, pointer pair pp -> T,
+          adr -> unchecked adr b == pp.begin -> T,
+          adr -> unchecked adr e == pp.end   -> T )
     unchecked:
 
-    if ( pp.begin < pp.end ) return * pp.begin
+    if ( b < e ) a = b
     else fatal error
         ( "Deferencing empty pointer pair." )
 
-//
 // Prefix operator to increment the begin pointer of a pointer
 // pair.
 //
-( void pp = pp ) "++"
-        ( void pp, adr -> unchecked adr pp.begin -> int32 )
+( pointer pair pp2 == pp -> T ) "++"
+        ( type T, basic(T) descriptor,
+          pointer pair pp -> T,
+          adr -> unchecked adr b == pp.begin -> T )
     unchecked:
 
-    ++ pp.begin
+    b += descriptor.length
 
 //
 // Example usage:
 //
 void my function ( void ):
 
-    // Vector of 2 elements is allocated and the elements
+    // Vector of 2 int32's is allocated and the elements
     // are set equal to 100 and 101.
     //
-    void pp = allocate ( 2 )
+    pointer pair pp -> int32 = allocate ( 2 )
     * pp = 100
     * ++ pp = 101
     . . . .
 
 \end{verbatim}\end{indpar}
 
-This code is a bit extreme in that the base variable has type
-{\tt void} indicating it has no actual value.  In this code
-the {\tt allocate} function returns the cluster, and in the
-example usage `{\tt void pp = allocate ( 2 )}' constructs
-\underline{all} the members of the cluster returned by {\tt allocate}.
-The member arguments to the prefix {\tt *} and {\tt ++} operators
-are not given explicit values in calls to the operator functions,
-but are implicitly defined from the first cluster base argument.
-The argument list of a function is a tuple that is a scope so
-clusters can be defined \underline{within} the argument list.
-Similarly for the return value list.
+Several heretofore unmentioned language features appear in
+this code.
 
-The prefix {\tt ++} operator is unusual in that its declaration
-indicates that it returns its first argument exactly, so that
-the cluster base variable name is in effect returned.  This is
-a stronger statement than just returning an value that
-happens without the compiler's knowning it to be equal to the
-value of the first argument.
+The {\tt ==} operator in an argument or return value
+specification specifies that its two sides must be identical.
+One use is in `{\tt b == pp.begin}' which states that {\tt b}
+and {\tt pp.begin} are identical.  When used as a return value,
+as with the {\tt allocate} function,
+the value {\tt b} is returned, and the compiler then creates
+the variable {\tt pp.begin} and stores the value in it.
+Here {\tt pp.begin} is not otherwise specified.
+When used in an argument, as with the {\tt "*"} function,
+the argument is {\tt b } is implicit and its value is set to
+{\tt pp.begin}.
+
+In a different use, `{\tt pp2 == pp}' used as a return value
+specifies that {\tt pp2} is identical to the input argument {\tt pp}.
+Here it is {\tt pp} that is known and {\tt pp2} that must be
+discovered.  In addition,
+because these are cluster base names known to the caller
+of the function, this means that the caller also identifies
+the members of the clusters involved.
 
 \subsection{Arrays}
 \label{ARRAYS}

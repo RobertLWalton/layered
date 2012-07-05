@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 4, 2012
+July 5, 2012
  
 \end{center}
 
@@ -1464,7 +1464,7 @@ define type pointer pair = subtype of void
 
 // Prefix operator to dereference a pointer pair.
 //
-( adr a -> T ) "*"
+( adr a -> T ) inline "*"
         ( type T, pointer pair pp -> T,
           adr -> unchecked adr b == pp.begin -> T,
           adr -> unchecked adr e == pp.end   -> T )
@@ -1477,13 +1477,14 @@ define type pointer pair = subtype of void
 // Prefix operator to increment the begin pointer of a pointer
 // pair.
 //
-( pointer pair pp2 == pp -> T ) "++"
+( pointer pair pp2 == pp -> T ) inline "++"
         ( type T, basic(T) descriptor,
           pointer pair pp -> T,
           adr -> unchecked adr b == pp.begin -> T )
     unchecked:
 
-    b += descriptor.length
+    unsadr c = b;
+    b = c + descriptor.length;
 
 //
 // Example usage:
@@ -1522,6 +1523,36 @@ discovered.  In addition,
 because these are cluster base names known to the caller
 of the function, this means that the caller also identifies
 the members of the clusters involved.
+
+The above example could use a different implementation of {\tt "++"} as
+follows:
+\begin{indpar}\begin{verbatim}
+// Unchecked prefix operator to increment an adr -> T value.
+//
+( adr -> adr a2 -> T ) inline unchecked "++"
+        ( type T, basic(T) descriptor,
+          caller adr -> adr a -> T )
+    unchecked:
+
+    unsadr b = a;
+    a = b + descriptor.length;
+    & a2 = & a
+
+// Prefix operator to increment the begin pointer of a pointer
+// pair.
+//
+( pointer pair pp2 == pp -> T ) inline "++"
+        ( type T,
+          pointer pair pp -> T,
+          adr -> unchecked adr b == pp.begin -> T )
+    unchecked:
+
+    ++ b
+\end{verbatim}\end{indpar}
+
+Here an {\tt unchecked} {\tt "++"} prefix operator is first implemented
+after the manner of the C programming language for {\tt adr~->~T} values,
+and then this is used to implement the {\tt "++"} operator for pointer pairs.
 
 \subsection{Arrays}
 \label{ARRAYS}

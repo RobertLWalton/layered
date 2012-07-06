@@ -1460,7 +1460,7 @@ define type pointer pair = subtype of void
 ( pointer pair pp -> T,
   unchecked adr b == pp.begin -> T,
   unchecked adr e == pp.end -> T )
-    allocate ( type T, basic(T) descriptor, uns32 n )
+    cluster allocate ( type T, basic(T) descriptor, uns32 n )
 
 // Prefix operator to dereference a pointer pair.
 //
@@ -1494,7 +1494,7 @@ void my function ( void ):
     // Vector of 2 int32's is allocated and the elements
     // are set equal to 100 and 101.
     //
-    pointer pair pp -> int32 = allocate ( 2 )
+    pointer pair pp = allocate ( 2 ) -> int32
     * pp = 100
     * ++ pp = 101
     . . . .
@@ -1523,6 +1523,11 @@ discovered.  In addition,
 because these are cluster base names known to the caller
 of the function, this means that the caller also identifies
 the members of the clusters involved.
+
+If arbitrary code could create clusters, type safety could be
+violated.  Therefore clusters can be created only by functions with
+the `\ttkey{cluster}' qualifier, which create cluster members after
+the fashion of the `{\tt allocate}' function in the example.
 
 The above example could use a different implementation of {\tt "++"} as
 follows:
@@ -1557,7 +1562,59 @@ and then this is used to implement the {\tt "++"} operator for pointer pairs.
 \subsection{Arrays}
 \label{ARRAYS}
 
-Array variables can be declared by declarations of the form
+An array is a cluster that can be used to access many variables whose
+addresses are computable by adding an integer to a pointer.
+The integer to be added is computed from other integers, usually
+by a linear function, though quadratic functions can also be used.
+
+In theory arrays do not have to be built into the language, but they
+are because they are so widely used, and because loop code optimization
+is done specially for arrays, making it necessary to standardize
+the array interface.
+
+They pointer type used as by an array is arbitrary, so long as it
+has an unchecked {\tt "+"} operator that adds an integer to a pointer.
+
+The base of an array cluster is a pointer at the element type.
+If the base cannot be used directly as a pointer,
+it should have an `{\tt unchecked}' access qualifier.
+
+The members of an array cluster are:
+
+\begin{indpar}
+
+\begin{list}{}{}
+
+\item[\ttdkey{dimensions}] Type: any unsigned integer type.
+The number of dimensions (subscripts) of the array.
+
+\item[\ttdkey{step}{$[i]$}]
+Type: any integer type.
+The multiplier
+of the $i+1$'st subscript of the array for the purpose of determining
+the address offset of the element in the array.
+An integer (may be negative).
+The unit of these multipliers is the size of the array element.
+
+\item[\ttdkey{lower\_bound}{$[i]$}]
+Type: any integer type.
+The lower bound (smallest legal value)
+of the $i+1$'st
+subscript of the array.
+An integer (may be negative).
+
+\item[\ttdkey{upper\_bound}{$[i]$}]
+Type: any integer type.
+The upper bound (largest legal value)
+of the $i+1$'st subscript of the array.
+An integer (may be negative).
+
+\end{list}
+
+\end{indpar}
+
+TBD
+
 \begin{center}
 {\em type-name} {\em variable-name}
 	{\tt [} {\em dimension-spec}

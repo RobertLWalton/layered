@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 11 05:56:37 EDT 2012
+// Date:	Fri Jul  6 21:46:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -453,11 +453,21 @@ static min::gen parser_execute_test
 	( min::obj_vec_ptr & vp,
 	  PAR::parser parser )
 {
+    min::gen obj =
+        min::new_stub_gen ( (const min::stub *) vp );
+    vp = min::NULL_STUB;
+        // Close vp so pgen can print obj.
+    parser->printer
+	<< "======= TEST: "
+	<< min::bom << min::flush_pgen ( obj )
+	<< min::eom
+	<< min::flush_id_map();
+    vp = obj;  // Reopen vp.
     min::phrase_position_vec ppvec =
         min::position_of ( vp );
     parser->printer
-        << min::bom << min::set_indent ( 8 )
-	<< "======= TEST: "
+	<< min::bom << min::set_indent ( 8 )
+	<< "------- "
 	<< min::pline_numbers
 	       ( ppvec->file, ppvec->position )
 	<< ":" << min::eom;

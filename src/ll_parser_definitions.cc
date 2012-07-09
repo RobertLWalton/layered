@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  6 21:46:49 EDT 2012
+// Date:	Mon Jul  9 04:14:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -459,9 +459,11 @@ static min::gen parser_execute_test
         // Close vp so pgen can print obj.
     parser->printer
 	<< "======= TEST: "
-	<< min::bom << min::flush_pgen ( obj )
+	<< min::place_indent ( 0 )
+	<< min::bom
+	<< min::flush_pgen ( obj )
 	<< min::eom
-	<< min::flush_id_map();
+	<< min::flush_id_map;
     vp = obj;  // Reopen vp.
     min::phrase_position_vec ppvec =
         min::position_of ( vp );

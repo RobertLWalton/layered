@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 11 06:20:13 EDT 2012
+// Date:	Tue Jul 10 03:23:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -649,21 +649,25 @@ void PAR::compact
 
     if ( trace )
     {
-	    parser->printer
-	        << ( first->type == PAR::BRACKETED ?
-		     "BRACKETED EXPRESSION: " :
-		     "BRACKETABLE EXPRESSION: " )
-		<< min::set_break
-		<< min::pgen ( first->value )
-		<< "; "
-		<< min::set_break
-		<< min::pline_numbers
-		        ( parser->input_file,
-			  position )
-		<< ":" << min::eol;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file, position );
+	min::uns32 GEN_FLAGS = min::GRAPHIC_STR_FLAG
+	                     + min::BRACKET_LAB_FLAG;
+	parser->printer
+	    << ( first->type == PAR::BRACKETED ?
+		 "BRACKETED EXPRESSION: " :
+		 "BRACKETABLE EXPRESSION: " )
+	    << min::pgen ( first->value,
+	                   GEN_FLAGS, GEN_FLAGS )
+	    << min::indent
+	    << min::bom
+	    << min::flush_pgen ( first->value )
+	    << min::indent
+	    << min::pline_numbers
+		    ( parser->input_file,
+		      position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file, position );
     }
 }
 

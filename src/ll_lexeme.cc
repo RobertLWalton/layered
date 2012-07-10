@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 21 17:45:17 EDT 2012
+// Date:	Tue Jul 10 03:14:52 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2761,7 +2761,7 @@ static uns32 print_cooked_dispatcher
 		    << min::eol;
     }
 
-    printer << min::restore_line_break
+    printer << min::restore_indent
             << min::restore_print_format;
 
     return length;

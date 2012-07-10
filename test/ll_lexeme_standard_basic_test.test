@@ -161,9 +161,6 @@
                #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), OUTPUT(15), ELSE:
                #XXXX: MATCH(#XXXX), OUTPUT(16), ELSE:
                #XXXX: KEEP(1), CALL(#XXXX)
-
-
-
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 1
@@ -366,7 +363,6 @@
             0-9
                #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
                #XXXX: KEEP(0), RETURN
-
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 98
@@ -428,8 +424,6 @@
                #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
                #XXXX: KEEP(0), MATCH(#XXXX), RETURN, ELSE:
                #XXXX: ACCEPT
-
-
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 11
@@ -569,8 +563,6 @@
                #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), ERRONEOUS_ATOM(18),
                       ELSE:
                #XXXX: ACCEPT
-
-
                 Dispatcher ID: #XXXX
             <LF>
                #XXXX: KEEP(0), GOTO(#XXXX)
@@ -1235,7 +1227,6 @@
             0-9
                 #XXXX: MATCH(#XXXX), ELSE:
                 #XXXX: FAIL
-
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 3
@@ -1544,7 +1535,6 @@
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-
 COMMENT 0(0)0: //␣Layers␣Language␣Standard␣Lexical␣Analyzer␣Test␣Data
 LINE_BREAK 0(54): ␤
 COMMENT 1(0)0: //

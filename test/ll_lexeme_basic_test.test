@@ -1,3 +1,4 @@
+
 Uncooked Program 1:
 
      #XXXX: PROGRAM
@@ -434,7 +435,6 @@ Cooked Program 2:
             0-7
                #XXXX: TRANSLATE_OCT(1,0), ELSE:
                #XXXX: FAIL
-
      #XXXX: TABLE
             Mode: WHITESPACE
             Dispatcher ID: #XXXX
@@ -476,7 +476,6 @@ Cooked Program 2:
             \
                #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
                #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-
             <DEL>
                #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
      #XXXX: DISPATCHER
@@ -531,7 +530,6 @@ Cooked Program 2:
             Max CType: 10
             -
                #XXXX: GOTO(#XXXX)
-
 
 Testing Lexical Scan of:
     <SP>ab<SP>3.4<SP>x+y++z<LF>
@@ -749,7 +747,6 @@ Start atom scan: table = #XXXX
   Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 7
   #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
   #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-
 Start atom scan: table = #XXXX
   Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 1
   Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 1
@@ -757,7 +754,6 @@ Start atom scan: table = #XXXX
   Character = 2 Dispatcher = #XXXX Type Map = #XXXX CType = 1
   #XXXX: TRANSLATE_OCT(1,0), ELSE:
   #XXXX: FAIL
-
   Character = B Dispatcher = #XXXX Type Map = #XXXX CType = 1
 Start atom scan: table = #XXXX
   Character = C Dispatcher = #XXXX Type Map = #XXXX CType = 2
@@ -766,7 +762,6 @@ Start atom scan: table = #XXXX
   Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 7
   #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
   #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-
 Start atom scan: table = #XXXX
   Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 1
   Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 1
@@ -774,7 +769,6 @@ Start atom scan: table = #XXXX
   Character = 0 Dispatcher = #XXXX Type Map = #XXXX CType = 1
   #XXXX: TRANSLATE_OCT(1,0), ELSE:
   #XXXX: FAIL
-
   Character = @ Dispatcher = #XXXX CType = 0
   #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 ERRONEOUS ATOM: TYPE (100) 0(32): \
@@ -794,7 +788,6 @@ Start atom scan: table = #XXXX
   Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 7
   #XXXX: MATCH(#XXXX), REQUIRE(#XXXX), ELSE:
   #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
-
 Start atom scan: table = #XXXX
   Character = \ Dispatcher = #XXXX Type Map = #XXXX CType = 1
   Character = 1 Dispatcher = #XXXX Type Map = #XXXX CType = 1

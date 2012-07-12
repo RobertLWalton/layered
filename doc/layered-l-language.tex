@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 5, 2012
+July 12, 2012
  
 \end{center}
 
@@ -1612,6 +1612,31 @@ An integer (may be negative).
 \end{list}
 
 \end{indpar}
+
+A number of operations that access array elements are normally defined.
+The following is an example:
+\begin{indpar}\begin{verbatim}
+// Define an array as a subtype of adr.
+//
+define type array = subtype of adr
+
+// Return an element of an array.
+//
+( adr -> T V ) "" ( type T, array a -> T, int32 i0, int32 i1,
+                    a.dimension == 2,
+                    int32 s0 == a.step[0],
+                    int32 s1 == a.step[1],
+                    int32 lb0 == a.lower_bound[0],
+                    int32 lb1 == a.lower_bound[1],
+                    int32 ub0 == a.upper_bound[0],
+                    int32 ub1 == a.upper_bound[1] )
+    unchecked:
+
+    assert ( lb0 <= i0 && i0 <= ub0 )
+    assert ( lb1 <= i1 && i1 <= ub1 )
+    adr base = a -> T
+    return base + s0 * i0 + s1 * i1
+\end{verbatim}\end{indpar}
 
 TBD
 

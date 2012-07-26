@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 11 05:55:39 EDT 2012
+// Date:	Thu Jul 26 19:38:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,7 +48,7 @@ static void test_string ( const char * s )
             << min::eol;
 }
 
-int main ( int argc )
+int main ( int argc, const char * argv[] )
 {
     min::initialize();
     LEX::init_ostream

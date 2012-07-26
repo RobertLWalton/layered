@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 04:30:09 EST 2012
+// Date:	Thu Jul 26 19:43:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,8 @@
 # include <ll_lexeme_ndl.h>
 # include <ll_lexeme_ndl_data.h>
 # include <iostream>
+# include <cstdlib>
+# include <cstdio>
 # include <cstring>
 # include <cassert>
 # define LEX ll::lexeme

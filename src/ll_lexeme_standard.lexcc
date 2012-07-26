@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 05:20:36 EST 2012
+// Date:	Thu Jul 26 19:32:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,7 +52,7 @@ cc
 cc	static void initialize ( void )
 cc	{
 cc	    LEX::uns8 * p = lexeme_type_table;
-cc	    for ( char * q =
+cc	    for ( const char * q =
 cc		      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 cc		      "abcdefghijklmnopqrstuvwxyz";
 cc		  * q; ) p[*q++] = LEXSTD::word_t; 
@@ -62,10 +62,11 @@ cc		  // Only words can begin with a
 cc		  // non-ASCII character.
 cc	    for ( unsigned c = '0'; c <= '9'; ++ c )
 cc		  p[c] = LEXSTD::number_t; 
-cc	    for ( char * q = "+-*~@#$%^&=|>_!?:<./";
+cc	    for ( const char * q =
+cc			     "+-*~@#$%^&=|>_!?:<./";
 cc		  * q; )
 cc		  p[*q++] = LEXSTD::mark_t; 
-cc	    for ( char * q = ";,`'()[]{}"; * q; )
+cc	    for ( const char * q = ";,`'()[]{}"; * q; )
 cc		  p[*q++] = LEXSTD::separator_t; 
 cc	}
 cc	static min::initializer initializer

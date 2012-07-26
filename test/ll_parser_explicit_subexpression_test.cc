@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_explicit_subexpression_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 21 17:48:09 EDT 2012
+// Date:	Thu Jul 26 19:38:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,7 +17,7 @@
 # define PARSTD ll::parser::standard
 using std::cout;
 
-int main ( int argc )
+int main ( int argc, const char * argv[] )
 {
     min::initialize();
     PARSTD::init_input ( PAR::default_parser );

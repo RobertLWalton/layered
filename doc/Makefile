@@ -4,7 +4,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Apr 11 10:20:15 EDT 2009
+# Date:		Sat Jul 28 06:53:26 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -21,35 +21,19 @@ DOCUMENTS = layered-introduction \
 	    layered-l-language \
 	    layered-m-language
 
-dvi: ${DOCUMENTS:=.dvi}
-ps: ${DOCUMENTS:=.ps}
 pdf: ${DOCUMENTS:=.pdf}
-lpr: ${DOCUMENTS:=.lpr}
 
-layered-introduction:	layered-introduction.dvi
-layered-l-language:	layered-l-language.dvi
-layered-m-language:	layered-m-language.dvi
+layered-introduction:	layered-introduction.pdf
+layered-l-language:	layered-l-language.pdf
+layered-m-language:	layered-m-language.pdf
 
 # Kill all implicit rules and make new rule:
 #
 .SUFFIXES:
-.SUFFIXES: .tex .dvi .ps .pdf .lpr
-.tex.dvi:
-	latex $*
+.SUFFIXES: .tex .pdf
+.tex.pdf:
+	pdflatex $*
 	makeindex $*
-	latex $*
-	makeindex $*
-	latex $*
-	makeindex $*
-
-.dvi.ps:
-	dvips -O 0in,1in -o $*.ps $*.dvi
-
-.ps.pdf:
-	ps2pdf $*.ps $*.pdf
-
-.ps.lpr:
-	lpr $*.ps
 
 clean:
 	rm -f ${DOCUMENTS:=.tex.bak}

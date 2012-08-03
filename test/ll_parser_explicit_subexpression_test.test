@@ -63,7 +63,7 @@ BRACKETED EXPRESSION: {| y z
                          {| p q; .position = {| |}; .terminator = };
                             .initiator = { |}; .position = {| |};
                          .terminator = '; .initiator = ` |}
-    ` y z {p q} '
+    `y z {p q}'
     line 18:
      (x + `y z {p q}' - [ g h ]).
           ^^^^^^^^^^^
@@ -87,7 +87,7 @@ BRACKETED EXPRESSION: {| x +
                          {| g h; .position = {| |}; .terminator = ];
                             .initiator = [ |}; .position = {| |};
                          .terminator = ); .initiator = ( |}
-    (x + ` y z {p q} ' - [g h])
+    (x + `y z {p q}' - [g h])
     line 18:
      (x + `y z {p q}' - [ g h ]).
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -102,7 +102,7 @@ BRACKETED EXPRESSION: {| This line contains subsubexpressions
                                .initiator = [ |}; .position = {| |};
                             .terminator = ); .initiator = ( |} .;
                          .terminator = ␤; .position = {| |} |}
-    This line contains subsubexpressions (x + ` y z {p q} ' - [g h]) .
+    This line contains subsubexpressions (x + `y z {p q}' - [g h]) .
     lines 17-18:
 This line contains subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -114,7 +114,7 @@ EXPLICIT SUBEXPRESSION PARSER FOUND KEY "{"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 EXPLICIT SUBEXPRESSION PARSER FOUND KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: missing closing bracket "}" inserted before line 20:
+ERROR: missing closing bracket "}" inserted before ")"; line 20:
      (x + { y z )
                 ^
 BRACKETED EXPRESSION: {| y z; .position = {| |}; .terminator = };
@@ -363,7 +363,7 @@ EXPLICIT SUBEXPRESSION PARSER FOUND KEY "+>"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| x; .position = {| |}; .terminator = +>;
                          .initiator = <+ |}
-    <+ x +>
+    <+x+>
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
@@ -373,7 +373,7 @@ BRACKETED EXPRESSION: {| {| x; .position = {| |}; .terminator = +>;
                             .initiator = <+ |} <- y ->;
                          .position = {| |}; .terminator = };
                          .initiator = { |}
-    {<+ x +> <- y ->}
+    {<+x+> <- y ->}
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^
@@ -385,7 +385,7 @@ EXPLICIT SUBEXPRESSION PARSER FOUND KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| y; .position = {| |}; .terminator = ->;
                          .initiator = <- |}
-    <- y ->
+    <-y->
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^
@@ -395,7 +395,7 @@ BRACKETED EXPRESSION: {| <+ x +>
                          {| y; .position = {| |}; .terminator = ->;
                             .initiator = <- |}; .position = {| |};
                          .terminator = '; .initiator = ` |}
-    ` <+ x +> <- y -> '
+    `<+ x +> <-y->'
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                         ^^^^^^^^^^^^^^^^^
@@ -409,8 +409,8 @@ BRACKETED EXPRESSION: {| This tests selector changes : <+ x +> <- y ->
                                .initiator = <- |}; .position = {| |};
                             .terminator = '; .initiator = ` |};
                          .terminator = ␤; .position = {| |} |}
-    This tests selector changes : <+ x +> <- y -> {<+ x +> <- y ->}
-     ` <+ x +> <- y -> '
+    This tests selector changes : <+ x +> <- y -> {<+x+> <- y ->}
+     `<+ x +> <-y->'
     lines 35-36:
 This tests selector changes: <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 10 03:23:04 EDT 2012
+// Date:	Fri Aug  3 03:29:37 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2007,7 +2007,16 @@ static bool parse_explicit_subexpression
 			       closing_bracket->
 				   label,
 			       min::BRACKET_STR_FLAG )
-			<< " inserted before "
+			<< " inserted before ";
+
+		    if ( next->value != min::MISSING() )
+		        parser->printer
+			    << min::pgen
+			      ( next->value,
+			        min::BRACKET_STR_FLAG )
+			    << "; ";
+
+		    parser->printer
 			<< min::pline_numbers
 			       ( parser->input_file,
 				 next->position )

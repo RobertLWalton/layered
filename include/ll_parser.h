@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 21 17:49:47 EDT 2012
+// Date:	Thu Aug  2 19:02:11 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -176,7 +176,7 @@ struct token_struct
 
     const min::gen value;
         // Value for some lexeme types, for expressions,
-	// and for OPERATORs.
+	// and for OPERATORs.  MISSING if no value.
 
     const ll::parser::string string;
         // Character string for some lexeme types.
@@ -534,10 +534,13 @@ enum {
         // Trace processing by the parser->output
 	// closure.
 
-    TRACE_EXPLICIT_SUBEXPRESSIONS = ( 1 << 2 ),
+    TRACE_PARSER_DEFINITIONS = ( 1 << 2 ),
+        // Print parser definitions that have no errors.
+
+    TRACE_EXPLICIT_SUBEXPRESSIONS = ( 1 << 3 ),
         // Trace explicit subexpressions.
 
-    TRACE_OPERATOR_SUBEXPRESSIONS = ( 1 << 3 )
+    TRACE_OPERATOR_SUBEXPRESSIONS = ( 1 << 4 )
         // Trace operator subexpressions.
 };
 

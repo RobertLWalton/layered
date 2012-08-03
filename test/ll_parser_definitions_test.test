@@ -26,6 +26,8 @@ parser define selector this is a name ++
                                       ^^
 parser print selectors:
         [ code, math, text ]
+parser define selector text
+parser define selector operator 1
 parser print selectors:
         [ code, math, text, operator 1 ]
 ERROR: unrecognized selector name in line 19:
@@ -34,7 +36,10 @@ parser define bracket "[+" ... "+]" [text, operator 2]
 ERROR: in line 20: expected `,' after:
 parser define bracket "<+" ... "+>" [text + operator]
                                      ^^^^
-======= TEST: parser test <+ hi there +> <+ hi [ embedded ] there +>
+parser define bracket "<+" ... "+>" [code, operator 1]
+       with parsing selectors [^ code, - math, + operator 1]
+       with full line
+======= TEST: parser test <+hi there+> <+hi [ embedded ] there+>
 ------- line 24:
 parser test <+ hi there +> <+ hi [embedded] there +>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -45,6 +50,8 @@ parser test <+ hi there +> <+ hi [embedded] there +>
 parser test <+ hi there +> <+ hi [embedded] there +>
                            ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser define bracket "[X" ... "X]" [code, operator 1]
+       with parsing selectors [- code, + operator 1]
 ======= TEST: parser test [a [b c] c] [X a [ b c ] d X]
 ------- line 27:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
@@ -95,9 +102,10 @@ parser test this is a paragraph +:
     last line
     ^^^^^^^^^
 ======= END TEST
+parser define indentation mark "+:" ... "::" [code]
 ======= TEST: parser test this is a paragraph +:
                   line 1
-                  line 2 a ::   line 2 b ; line 2 c
+                  line 2 a::   line 2 b ; line 2 c
                   last line
 
 ------- lines 33-36:
@@ -131,7 +139,9 @@ parser test this is a paragraph +:
     last line
     ^^^^^^^^^
 ======= END TEST
-======= TEST: parser test < hi there >
+parser define named bracket
+    "<" ... "#" ... "|" ... "|" ... ">" [code]
+======= TEST: parser test <X| hi there |>
 ------- line 39:
 parser test  <X| hi there |X>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -139,7 +149,7 @@ parser test  <X| hi there |X>
 parser test  <X| hi there |X>
              ^^^^^^^^^^^^^^^^
 ======= END TEST
-======= TEST: parser test < hi < > there >
+======= TEST: parser test <foo bar| hi <p> there |>
 ------- line 40:
 parser test  <foo bar| hi <p> there |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -150,7 +160,7 @@ parser test  <foo bar| hi <p> there |>
 parser test  <foo bar| hi <p> there |>
                           ^^^
 ======= END TEST
-======= TEST: parser test < ho ho >
+======= TEST: parser test <X Y Z  | ho ho |>
 ------- line 41:
 parser test  <X Y Z # 8| ho ho |X>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -161,7 +171,7 @@ parser test  <X Y Z # 8| ho ho |X>
 ERROR: missing named closing bracket "|>" inserted; line 42:
 parser test  <X Y Z # 8| ho ho |X Y Z # 8>
                                           ^
-======= TEST: parser test < ho ho | X Y Z # 8 > >
+======= TEST: parser test <X Y Z  | ho ho | X Y Z # 8 > |>
 ------- line 42:
 parser test  <X Y Z # 8| ho ho |X Y Z # 8>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -172,7 +182,7 @@ parser test  <X Y Z # 8| ho ho |X Y Z # 8>
 ERROR: missing named closing bracket "|>" inserted; line 43:
 parser test  <X Y Z : 8| ho ho |X Y Z : 8>
                                           ^
-======= TEST: parser test < ho ho | X Y Z : 8 > >
+======= TEST: parser test <X Y Z  | ho ho | X Y Z : 8 > |>
 ------- line 43:
 parser test  <X Y Z : 8| ho ho |X Y Z : 8>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -180,7 +190,7 @@ parser test  <X Y Z : 8| ho ho |X Y Z : 8>
 parser test  <X Y Z : 8| ho ho |X Y Z : 8>
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-======= TEST: parser test < ho ho >
+======= TEST: parser test <X Y Z  | ho ho |>
 ------- line 44:
 parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -188,7 +198,7 @@ parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
 parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-======= TEST: parser test < ho ho >
+======= TEST: parser test <X Y Z  | ho ho |>
 ------- line 45:
 parser test  <X Y Z (foo, bar)| ho ho |X Y>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -199,7 +209,7 @@ parser test  <X Y Z (foo, bar)| ho ho |X Y>
 ERROR: missing named closing bracket "|>" inserted; line 46:
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
                                                         ^
-======= TEST: parser test < ho ho | X Y Z (foo , bar) > >
+======= TEST: parser test <X Y Z  | ho ho | X Y Z (foo , bar) > |>
 ------- line 46:
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

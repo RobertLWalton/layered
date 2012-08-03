@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  9 04:14:47 EDT 2012
+// Date:	Thu Aug  2 21:01:35 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1002,6 +1002,11 @@ min::gen PAR::parser_execute_definition
 	    MIN_ABORT ( "bad parser (un)define type" );
 	}
     }
+
+    if ( parser->trace & PAR::TRACE_PARSER_DEFINITIONS )
+	min::print_phrase_lines
+	    ( parser->printer,
+	      ppvec->file, ppvec->position, 0 );
 
     return min::SUCCESS();
 }

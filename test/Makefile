@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Apr 30 07:33:41 EDT 2012
+# Date:		Sun Aug  5 05:18:50 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -404,6 +404,21 @@ ll_parser_table.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_table.cc
 
+ll_parser_explicit_subexpression.o:	\
+	${MIN}/include/min.h \
+        ${MIN}/include/min_parameters.h \
+	../include/ll_parser.h \
+	../include/ll_parser_table.h \
+	../include/ll_parser_standard.h \
+	../include/ll_lexeme_standard.h \
+	../include/ll_lexeme.h \
+	../src/ll_parser_explicit_subexpression.cc \
+	Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c \
+	    ../src/ll_parser_explicit_subexpression.cc
+
 ll_parser_standard_brackets.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
@@ -461,6 +476,7 @@ ll_parser_input_test:		\
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		ll_parser.o \
+		ll_parser_explicit_subexpression.o \
 		ll_parser_definitions.o \
 		ll_parser_standard_input.o \
 		ll_parser_table.o \
@@ -475,6 +491,7 @@ ll_parser_input_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
@@ -496,6 +513,7 @@ ll_parser_table_test:		\
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o \
 		ll_parser.o \
+		ll_parser_explicit_subexpression.o \
 		ll_parser_definitions.o \
 		ll_parser_standard_input.o \
 		ll_parser_table.o \
@@ -510,6 +528,7 @@ ll_parser_table_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
@@ -529,6 +548,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
@@ -544,6 +564,7 @@ ll_parser_explicit_subexpression_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
@@ -566,6 +587,7 @@ ll_parser_definitions_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
@@ -581,6 +603,7 @@ ll_parser_definitions_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
@@ -603,6 +626,7 @@ ll_parser_oper_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_oper.o \
 	    ll_parser_standard_input.o \
@@ -620,6 +644,7 @@ ll_parser_oper_test:		\
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
+	    ll_parser_explicit_subexpression.o \
 	    ll_parser_definitions.o \
 	    ll_parser_oper.o \
 	    ll_parser_standard_input.o \

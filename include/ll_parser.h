@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  2 19:02:11 EDT 2012
+// Date:	Sat Aug  4 20:27:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -929,6 +929,24 @@ void compact
 	  min::uns32 m = 0,
 	  ll::parser::attr * attributes = NULL,
 	  min::uns32 n = 0 );
+
+// In a token sequence, find the next token subsequence
+// that matches a given separator, or find the end of
+// the token sequence.  The separator is represented as
+// a vector of n min::gen values, where n == 0 if the
+// separator is missing.  `first' is the first token of
+// the token sequence and `next' is the next token AFTER
+// the token sequence.
+//
+// The count of the number of tokens skipped is also
+// returned.
+//
+ll::parser::token find_separator
+	( min::uns32 & count,
+	  ll::parser::token first,
+	  ll::parser::token next,
+	  min::gen * separator,
+	  min::uns32 n );
 
 // Given a min::gen value, return the .initiator
 // attribute of that value if it is an object with a

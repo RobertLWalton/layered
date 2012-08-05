@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  3 03:29:37 EDT 2012
+// Date:	Sat Aug  4 20:27:02 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -489,228 +489,6 @@ static void convert_token ( PAR::token token )
     token->type = PAR::BRACKETED;
 }
 
-void PAR::put_empty_before
-	( ll::parser::parser parser,
-	  ll::parser::token t )
-{
-    PAR::token token = new_token ( PAR::BRACKETABLE );
-    put_before ( PAR::first_ref(parser), t, token );
-
-    min::phrase_position position =
-        { t->position.begin, t->position.begin };
-    token->position = position;
-    min::locatable_var
-	    <min::phrase_position_vec_insptr>
-	pos;
-    min::init ( pos, parser->input_file, position, 0 );
-
-    PAR::value_ref(token) = min::new_obj_gen ( 3, 1 );
-    min::obj_vec_insptr vp ( token->value );
-    min::attr_insptr ap ( vp );
-    min::locate ( ap, PAR::dot_position );
-    min::set ( ap, min::new_stub_gen ( pos ) );
-}
-
-void PAR::put_empty_after
-	( ll::parser::parser parser,
-	  ll::parser::token t )
-{
-    PAR::token token = new_token ( PAR::BRACKETABLE );
-    put_before
-        ( PAR::first_ref(parser), t->next, token );
-
-    min::phrase_position position =
-        { t->position.end, t->position.end };
-    token->position = position;
-    min::locatable_var
-	    <min::phrase_position_vec_insptr>
-	pos;
-    min::init ( pos, parser->input_file, position, 0 );
-
-    PAR::value_ref(token) = min::new_obj_gen ( 3, 1 );
-    min::obj_vec_insptr vp ( token->value );
-    min::attr_insptr ap ( vp );
-    min::locate ( ap, PAR::dot_position );
-    min::set ( ap, min::new_stub_gen ( pos ) );
-}
-
-void PAR::compact
-	( PAR::parser parser,
-	  PAR::pass pass,
-	  PAR::table::selectors selectors,
-	  min::uns32 type, bool trace,
-	  PAR::token & first, PAR::token next,
-	  min::phrase_position position,
-	  min::uns32 m,
-	  PAR::attr * attributes,
-	  min::uns32 n )
-{
-    if ( pass != min::NULL_STUB )
-	(* pass->run_pass )
-	     ( parser, pass, selectors, first, next );
-
-    if ( first->next == next
-         &&
-	 first->type == PAR::BRACKETABLE
-	 &&
-	 type == PAR::BRACKETED )
-    {
-	min::obj_vec_insptr vp ( first->value );
-	min::attr_insptr ap ( vp );
-
-	min::locate ( ap, PAR::dot_position );
-	min::phrase_position_vec_insptr pos =
-	    min::get ( ap );
-	pos->position = position;
-
-	while ( m -- )
-	{
-	    assert (    attributes->value
-		     != min::MISSING() );
-	    min::locate ( ap, attributes->name );
-	    min::set ( ap, attributes->value );
-	    ++ attributes;
-	}
-	first->type = PAR::BRACKETED;
-	first->position = position;
-    }
-    else
-    {
-	// Temporary min::gen locatable.
-	//
-	min::locatable_gen exp;
-	min::locatable_var
-		<min::phrase_position_vec_insptr>
-	    pos;
-
-	// Count tokens.  Also replace non-natural
-	// numbers and quoted strings by subexpressions.
-	//
-	min::uns32 t = 0;
-	for ( PAR::token current = first;
-	      current != next;
-	      ++ t, current = current->next )
-	{
-	    if ( current->value == min::MISSING() )
-		::convert_token ( current );
-	}
-
-	// Count the number of non-MISSING extra
-	// attributes.
-	//
-	min::uns32 c = n + m + 1;
-	    // Add 1 for position.
-
-	// Hash table size.
-	//
-	min::uns32 h = c;
-	if ( h == 0 ) h = 1;
-	if ( h > 4 ) h = 4;
-
-	exp = min::new_obj_gen ( 3*( c + 2 ) + t, h );
-	min::obj_vec_insptr expvp ( exp );
-
-	min::init ( pos, parser->input_file,
-	            position, t );
-
-	for ( PAR::token current = first;
-	      current != next; )
-	{
-	    min::attr_push(expvp) = current->value;
-	    min::push ( pos ) = current->position;
-
-	    current = current->next;
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref(parser),
-			current->previous ) );
-	}
-
-	min::attr_insptr expap ( expvp );
-	min::locate ( expap, PAR::dot_position );
-	min::set ( expap, min::new_stub_gen ( pos ) );
-
-	while ( m -- )
-	{
-	    assert (    attributes->value
-	             != min::MISSING() );
-	    min::locate ( expap, attributes->name );
-	    min::set ( expap, attributes->value );
-	    ++ attributes;
-	}
-
-	first = PAR::new_token ( type );
-	PAR::put_before
-	    ( first_ref(parser), next, first );
-
-	PAR::value_ref(first) = exp;
-	first->position = position;
-    }
-
-    if ( trace )
-    {
-	min::uns32 GEN_FLAGS = min::GRAPHIC_STR_FLAG
-	                     + min::BRACKET_LAB_FLAG;
-	parser->printer
-	    << ( first->type == PAR::BRACKETED ?
-		 "BRACKETED EXPRESSION: " :
-		 "BRACKETABLE EXPRESSION: " )
-	    << min::pgen ( first->value,
-	                   GEN_FLAGS, GEN_FLAGS )
-	    << min::indent
-	    << min::bom
-	    << min::flush_pgen ( first->value )
-	    << min::indent
-	    << min::pline_numbers
-		    ( parser->input_file,
-		      position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file, position );
-    }
-}
-
-// In a token sequence, find the next token subsequence
-// that matches a given separator, or find the end of
-// the token sequence.  The separator is represented as
-// a vector of n min::gen values, where n == 0 if the
-// separator is missing.  `first' is the first token of
-// the token sequence and `next' is the next token AFTER
-// the token sequence.
-//
-// The count of the number of tokens skipped is also
-// returned.
-//
-static PAR::token find_separator
-	( min::uns32 & count,
-	  PAR::token first,
-	  PAR::token next,
-	  min::gen * separator,
-	  min::uns32 n )
-{
-    count = 0;
-
-    for ( ; first != next;
-            first = first->next, ++ count )
-    {
-	if ( n == 0 ) continue;
-
-	if ( first->value != separator[0] ) continue;
-	if ( n == 1 ) break;
-
-	PAR::token t = first->next;
-	min::uns32 i = 1;
-	for ( ; i < n; ++ i, t = t->next )
-	{
-	    if ( t == next ) break;
-	    if ( t->value != separator[i] ) break;
-	}
-	if ( i == n ) break;
-    }
-    return first;
-}
-
 // Given a token sequence with n tokens, return a label
 // whose elements are the values of the tokens.  If
 // there are 0 tokens, return min::MISSING().  If there
@@ -873,7 +651,7 @@ static void named_attributes
     // Count arguments.
     //
     min::uns32 argcount;
-    PAR::token tnext = ::find_separator
+    PAR::token tnext = PAR::find_separator
 	( argcount, t, next, separator, seplen );
 
     // Make argument list.  Convert any quoted string
@@ -905,7 +683,7 @@ static void named_attributes
     while ( tnext != next )
     {
         tnext = ::skip ( tnext, seplen );
-        tnext = ::find_separator
+        tnext = PAR::find_separator
 	    ( keycount, tnext, next,
 	      separator, seplen );
 	if ( keycount > 0 ) ++ sepcount;
@@ -936,7 +714,7 @@ static void named_attributes
 	while ( t != next )
 	{
 	    t = ::skip ( t, seplen );
-	    tnext = ::find_separator
+	    tnext = PAR::find_separator
 		( keycount, t, next,
 		  separator, seplen );
 	    if ( keycount != 0 )
@@ -3006,6 +2784,217 @@ TAB::root PAR::find_next_entry
 	if ( last_entry->selectors & selectors )
 	    return last_entry;
     }
+}
+
+void PAR::put_empty_before
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( PAR::BRACKETABLE );
+    put_before ( PAR::first_ref(parser), t, token );
+
+    min::phrase_position position =
+        { t->position.begin, t->position.begin };
+    token->position = position;
+    min::locatable_var
+	    <min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file, position, 0 );
+
+    PAR::value_ref(token) = min::new_obj_gen ( 3, 1 );
+    min::obj_vec_insptr vp ( token->value );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, PAR::dot_position );
+    min::set ( ap, min::new_stub_gen ( pos ) );
+}
+
+void PAR::put_empty_after
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( PAR::BRACKETABLE );
+    put_before
+        ( PAR::first_ref(parser), t->next, token );
+
+    min::phrase_position position =
+        { t->position.end, t->position.end };
+    token->position = position;
+    min::locatable_var
+	    <min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file, position, 0 );
+
+    PAR::value_ref(token) = min::new_obj_gen ( 3, 1 );
+    min::obj_vec_insptr vp ( token->value );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, PAR::dot_position );
+    min::set ( ap, min::new_stub_gen ( pos ) );
+}
+
+void PAR::compact
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  PAR::table::selectors selectors,
+	  min::uns32 type, bool trace,
+	  PAR::token & first, PAR::token next,
+	  min::phrase_position position,
+	  min::uns32 m,
+	  PAR::attr * attributes,
+	  min::uns32 n )
+{
+    if ( pass != min::NULL_STUB )
+	(* pass->run_pass )
+	     ( parser, pass, selectors, first, next );
+
+    if ( first->next == next
+         &&
+	 first->type == PAR::BRACKETABLE
+	 &&
+	 type == PAR::BRACKETED )
+    {
+	min::obj_vec_insptr vp ( first->value );
+	min::attr_insptr ap ( vp );
+
+	min::locate ( ap, PAR::dot_position );
+	min::phrase_position_vec_insptr pos =
+	    min::get ( ap );
+	pos->position = position;
+
+	while ( m -- )
+	{
+	    assert (    attributes->value
+		     != min::MISSING() );
+	    min::locate ( ap, attributes->name );
+	    min::set ( ap, attributes->value );
+	    ++ attributes;
+	}
+	first->type = PAR::BRACKETED;
+	first->position = position;
+    }
+    else
+    {
+	// Temporary min::gen locatable.
+	//
+	min::locatable_gen exp;
+	min::locatable_var
+		<min::phrase_position_vec_insptr>
+	    pos;
+
+	// Count tokens.  Also replace non-natural
+	// numbers and quoted strings by subexpressions.
+	//
+	min::uns32 t = 0;
+	for ( PAR::token current = first;
+	      current != next;
+	      ++ t, current = current->next )
+	{
+	    if ( current->value == min::MISSING() )
+		::convert_token ( current );
+	}
+
+	// Count the number of non-MISSING extra
+	// attributes.
+	//
+	min::uns32 c = n + m + 1;
+	    // Add 1 for position.
+
+	// Hash table size.
+	//
+	min::uns32 h = c;
+	if ( h == 0 ) h = 1;
+	if ( h > 4 ) h = 4;
+
+	exp = min::new_obj_gen ( 3*( c + 2 ) + t, h );
+	min::obj_vec_insptr expvp ( exp );
+
+	min::init ( pos, parser->input_file,
+	            position, t );
+
+	for ( PAR::token current = first;
+	      current != next; )
+	{
+	    min::attr_push(expvp) = current->value;
+	    min::push ( pos ) = current->position;
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			current->previous ) );
+	}
+
+	min::attr_insptr expap ( expvp );
+	min::locate ( expap, PAR::dot_position );
+	min::set ( expap, min::new_stub_gen ( pos ) );
+
+	while ( m -- )
+	{
+	    assert (    attributes->value
+	             != min::MISSING() );
+	    min::locate ( expap, attributes->name );
+	    min::set ( expap, attributes->value );
+	    ++ attributes;
+	}
+
+	first = PAR::new_token ( type );
+	PAR::put_before
+	    ( first_ref(parser), next, first );
+
+	PAR::value_ref(first) = exp;
+	first->position = position;
+    }
+
+    if ( trace )
+    {
+	min::uns32 GEN_FLAGS = min::GRAPHIC_STR_FLAG
+	                     + min::BRACKET_LAB_FLAG;
+	parser->printer
+	    << ( first->type == PAR::BRACKETED ?
+		 "BRACKETED EXPRESSION: " :
+		 "BRACKETABLE EXPRESSION: " )
+	    << min::pgen ( first->value,
+	                   GEN_FLAGS, GEN_FLAGS )
+	    << min::indent
+	    << min::bom
+	    << min::flush_pgen ( first->value )
+	    << min::indent
+	    << min::pline_numbers
+		    ( parser->input_file,
+		      position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file, position );
+    }
+}
+
+PAR::token PAR::find_separator
+	( min::uns32 & count,
+	  PAR::token first,
+	  PAR::token next,
+	  min::gen * separator,
+	  min::uns32 n )
+{
+    count = 0;
+
+    for ( ; first != next;
+            first = first->next, ++ count )
+    {
+	if ( n == 0 ) continue;
+
+	if ( first->value != separator[0] ) continue;
+	if ( n == 1 ) break;
+
+	PAR::token t = first->next;
+	min::uns32 i = 1;
+	for ( ; i < n; ++ i, t = t->next )
+	{
+	    if ( t == next ) break;
+	    if ( t->value != separator[i] ) break;
+	}
+	if ( i == n ) break;
+    }
+    return first;
 }
 
 min::gen PAR::get_initiator ( min::gen v )

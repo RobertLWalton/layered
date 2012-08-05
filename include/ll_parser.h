@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  4 20:27:12 EDT 2012
+// Date:	Sun Aug  5 05:48:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -980,6 +980,82 @@ min::gen scan_name_string_label
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
 	  min::uns64 end_types );
+
+// Skip n tokens.
+//
+inline ll::parser::token skip
+	( ll::parser::token t, min::uns32 n )
+{
+    while ( n -- ) t = t->next;
+    return t;
+}
+
+// Remove n tokens from before `next', where n is the
+// number of elements of `label' (== 1 if `label' is
+// a symbol or number).  Return the begin position of
+// the last token removed.  Free the removed tokens.
+//
+inline min::position remove
+        ( ll::parser::parser parser,
+	  ll::parser::token next, min::gen label )
+{
+    min::position result;
+    min::uns32 n = 1;
+    if ( min::is_lab ( label ) )
+        n = min::lablen ( label );
+    while ( n -- )
+    {
+        result = next->previous->position.begin;
+        ll::parser::free
+	    ( ll::parser::remove
+		  ( ll::parser::first_ref(parser),
+		    next->previous ) );
+    }
+    return result;
+}
+
+// Remove from the parser and free the tokens from first
+// through the first token before next.  Do nothing if
+// first == next.  The `next' token is left untouched.
+//
+inline void remove
+	( ll::parser::parser parser,
+	  ll::parser::token first,
+	  ll::parser::token next )
+{
+    while ( first != next )
+    {
+	first = first->next;
+	ll::parser::free
+	  ( ll::parser::remove
+	      ( first_ref(parser),
+		first->previous )
+	  );
+    }
+}
+
+// Return the n'th token before `next', where n is the
+// number of elements of `label' (== 1 if `label' is
+// a symbol or number).
+
+inline ll::parser::token backup
+        ( ll::parser::token next, min::gen label )
+{
+    min::uns32 n = 1;
+    if ( min::is_lab ( label ) )
+        n = min::lablen ( label );
+    while ( n -- ) next = next->previous;
+    return next;
+}
+
+// Convert a non-natural number or quoted string token
+// to an expression token.  The expression has as its
+// only element a min::gen string value equal to the
+// translation string of the token's lexeme, and has as
+// its .initiator either # for a non-natural number or
+// " for a quoted string.
+//
+void convert_token ( ll::parser::token token );
 
 // Given a vector pointer vp to an expression, test if
 // the expression is a parser definition.  Do nothing

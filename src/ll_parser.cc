@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 04:29:29 EDT 2012
+// Date:	Mon Aug  6 06:21:55 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define PARDEF ll::parser::definition
 
 min::locatable_gen PAR::dot_position;
 min::locatable_gen PAR::dot_initiator;
@@ -659,8 +660,8 @@ void PAR::parse ( PAR::parser parser )
 		if ( vp != NULL_STUB )
 		{
 		    min::gen result =
-		        parser_execute_definition
-			    ( vp, parser );
+		      PARDEF::parser_execute_definition
+			( vp, parser );
 		    if ( result == min::SUCCESS() )
 			PAR::free
 			    ( PAR::remove

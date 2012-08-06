@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Aug  5 06:26:36 EDT 2012
+# Date:		Mon Aug  6 06:52:23 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -371,6 +371,7 @@ ll_parser.o:	\
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_explicit_subexpression.h \
+	../include/ll_parser_definitions.h \
 	../include/ll_parser_standard.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
@@ -411,6 +412,7 @@ ll_parser_explicit_subexpression.o:	\
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_explicit_subexpression.h \
+	../include/ll_parser_definitions.h \
 	../include/ll_parser_standard.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
@@ -466,6 +468,7 @@ ll_parser_definitions.o:	\
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_standard.h \
+	../include/ll_parser_definitions.h \
 	../src/ll_parser_definitions.cc \
 	Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \

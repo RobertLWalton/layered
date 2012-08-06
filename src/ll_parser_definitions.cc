@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 04:29:06 EDT 2012
+// Date:	Mon Aug  6 06:22:17 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,7 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define PARDEF ll::parser::definition
 
 static min::locatable_gen parser;
 static min::locatable_gen define;
@@ -71,8 +72,11 @@ static void initialize ( void )
     ::line = min::new_str_gen ( "line" );
 }
 static min::initializer initializer ( ::initialize );
+
+// Parser Definition Functions
+// ------ ---------- ---------
 
-static min::gen expected_error
+min::gen PARDEF::expected_error
 	( min::printer printer,
 	  min::file file,
 	  min::phrase_position pp,
@@ -87,7 +91,7 @@ static min::gen expected_error
     return min::ERROR();
 }
 
-static min::gen extra_stuff_after_error
+min::gen PARDEF::extra_stuff_after_error
 	( min::printer printer,
 	  min::file file,
 	  min::phrase_position pp )
@@ -101,7 +105,7 @@ static min::gen extra_stuff_after_error
     return min::ERROR();
 }
 
-static void misspell_warning
+void PARDEF::misspell_warning
 	( min::printer printer,
 	  min::file file,
 	  min::phrase_position pp,
@@ -116,11 +120,8 @@ static void misspell_warning
 	    << min::eom;
     min::print_phrase_lines ( printer, file, pp );
 }
-
-// Parser Definition Functions
-// ------ ---------- ---------
 
-min::gen PAR::scan_simple_label
+min::gen PARDEF::scan_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::uns64 accepted_types )
 {
@@ -221,14 +222,14 @@ static min::gen scan_selectors
 	    {
 	        if ( i == 0 ) op_seen = false;
 		else if ( op_seen )
-		    return ::expected_error
+		    return PARDEF::expected_error
 			( parser->printer, ppvec->file,
 			  ppvec[i-1],
 			  "`+', `-', or `^'" );
 	    }
 	    min::uns32 ibegin = i;
 
-	    selector = PAR::scan_simple_label
+	    selector = PARDEF::scan_simple_label
 		( subvp, i,
 	            ( 1ull << LEXSTD::word_t )
 		  + ( 1ull << LEXSTD::number_t ) );
@@ -246,7 +247,7 @@ static min::gen scan_selectors
 		else
 		    pp = ppvec[i-1];
 
-		return ::expected_error
+		return PARDEF::expected_error
 		    ( parser->printer,
 		      ppvec->file, pp, "name" );
 	    }
@@ -294,11 +295,11 @@ static min::gen scan_selectors
 	    if ( i == size ) break;
 
 	    if ( subvp[i] != PAR::comma)
-		return ::expected_error
+		return PARDEF::expected_error
 		    ( parser->printer, ppvec->file,
 		      ppvec[i-1], "`,'" );
 	    else if ( ++ i >= size )
-		return ::expected_error
+		return PARDEF::expected_error
 		    ( parser->printer, ppvec->file,
 		      ppvec[i-1], "name" );
 	}
@@ -319,7 +320,7 @@ static min::gen scan_selectors
 	    else
 	    {
 		min::uns32 j = 0;
-		selector = PAR::scan_simple_label
+		selector = PARDEF::scan_simple_label
 		    ( np, j,
 	            ( 1ull << LEXSTD::word_t )
 		  + ( 1ull << LEXSTD::number_t ) );
@@ -399,7 +400,7 @@ static min::gen scan_selectors
     return min::SUCCESS();
 }
 
-min::gen PAR::scan_selectors
+min::gen PARDEF::scan_selectors
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::selectors & selectors,
 	  PAR::parser parser )
@@ -410,7 +411,7 @@ min::gen PAR::scan_selectors
 	  parser, false );
 }
 
-min::gen PAR::scan_new_selectors
+min::gen PARDEF::scan_new_selectors
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::new_selectors & new_selectors,
 	  PAR::parser parser )
@@ -455,13 +456,13 @@ static min::gen parser_execute_selector_definition
 	parser->printer << " ]" << min::eom;
 
 	if ( vp[2] != ::selectors )
-	    ::misspell_warning
+	    PARDEF::misspell_warning
 	        ( parser->printer,
 		  ppvec->file,
 		  ppvec[2], vp[2], ::selectors );
 
         if ( size > 3 )
-	    return ::extra_stuff_after_error
+	    return PARDEF::extra_stuff_after_error
 	        ( parser->printer,
 		  ppvec->file,
 		  ppvec[2] );
@@ -476,14 +477,14 @@ static min::gen parser_execute_selector_definition
 
     unsigned i = 3;
     min::locatable_gen name;
-    name = PAR::scan_simple_label
+    name = PARDEF::scan_simple_label
 	( vp, i,
 	    ( 1ull << LEXSTD::word_t )
 	  + ( 1ull << LEXSTD::number_t ) );
     if ( name == min::ERROR() )
 	return min::ERROR();
     else if ( name == min::MISSING() )
-	return ::expected_error
+	return PARDEF::expected_error
 	    ( parser->printer, ppvec->file,
 	      ppvec[i-1], "name" );
 
@@ -515,13 +516,13 @@ static min::gen parser_execute_selector_definition
     }
 
     if ( vp[2] != ::selector )
-	::misspell_warning
+	PARDEF::misspell_warning
 	    ( parser->printer,
 	      ppvec->file,
 	      ppvec[2], vp[2], ::selector );
 
     if ( i < size )
-        return ::extra_stuff_after_error
+        return PARDEF::extra_stuff_after_error
 	    ( parser->printer,
 	      ppvec->file, ppvec[i-1] );
 
@@ -588,7 +589,7 @@ static min::gen parser_execute_test
 // Execute Definition Function
 // ------- ---------- --------
 
-min::gen PAR::parser_execute_definition
+min::gen PARDEF::parser_execute_definition
 	( min::obj_vec_ptr & vp,
 	  PAR::parser parser )
 {
@@ -612,8 +613,9 @@ min::gen PAR::parser_execute_definition
 	result = ::parser_execute_selector_definition
 		    ( vp, ppvec, parser );
     else
-	result = PAR::parser_execute_bracket_definition
-		    ( vp, ppvec, parser );
+	result =
+	    PARDEF::parser_execute_bracket_definition
+		( vp, ppvec, parser );
 
     if ( result == min::SUCCESS()
          &&
@@ -630,7 +632,7 @@ enum definition_type
       INDENTATION_MARK,
       NAMED_BRACKET };
 
-min::gen PAR::parser_execute_bracket_definition
+min::gen PARDEF::parser_execute_bracket_definition
 	( min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
@@ -734,7 +736,7 @@ min::gen PAR::parser_execute_bracket_definition
 	    return min::ERROR();
 	else if (    name[number_of_names]
 	          == min::MISSING() )
-	    return ::expected_error
+	    return PARDEF::expected_error
 	        ( parser->printer, ppvec->file,
 		  ppvec[i-1], "quoted name" );
 	else
@@ -782,12 +784,12 @@ min::gen PAR::parser_execute_bracket_definition
     }
 
     TAB::selectors selectors;
-    min::gen sresult = PAR::scan_selectors
+    min::gen sresult = PARDEF::scan_selectors
 	    ( vp, i, selectors, parser );
     if ( sresult == min::ERROR() )
 	return min::ERROR();
     else if ( sresult == min::MISSING() )
-	return ::expected_error
+	return PARDEF::expected_error
 	    ( parser->printer,
 	      ppvec->file, ppvec[i-1],
 	      "selectors" );
@@ -810,7 +812,7 @@ min::gen PAR::parser_execute_bracket_definition
 	    {
 		i += 2;
 		min::gen result =
-		    PAR::scan_new_selectors
+		    PARDEF::scan_new_selectors
 			( vp, i, new_selectors,
 			  parser );
 		if ( result == min::ERROR() )
@@ -829,14 +831,14 @@ min::gen PAR::parser_execute_bracket_definition
 		full_line = true;
 	    }
 	    else
-		return ::expected_error
+		return PARDEF::expected_error
 		    ( parser->printer, ppvec->file,
 		      ppvec[i-1],
 		      "`parsing selectors'"
 		      " or `full line'" );
 	}
 	if ( i < size )
-	    return ::expected_error
+	    return PARDEF::expected_error
 		( parser->printer, ppvec->file,
 		  ppvec[i-1], "`with'" );
 
@@ -862,7 +864,7 @@ min::gen PAR::parser_execute_bracket_definition
 	    {
 		i += 2;
 		min::gen result =
-		    PAR::scan_new_selectors
+		    PARDEF::scan_new_selectors
 			( vp, i, new_selectors,
 			  parser );
 		if ( result == min::ERROR() )
@@ -872,14 +874,14 @@ min::gen PAR::parser_execute_bracket_definition
 		}
 	    }
 	    else
-		return ::expected_error
+		return PARDEF::expected_error
 		    ( parser->printer, ppvec->file,
 		      ppvec[i-1],
 		      "`parsing selectors'"
 		      " or `full line'" );
 	}
 	if ( i < size )
-	    return ::expected_error
+	    return PARDEF::expected_error
 		( parser->printer, ppvec->file,
 		  ppvec[i-1], "`with'" );
 
@@ -921,7 +923,7 @@ min::gen PAR::parser_execute_bracket_definition
     case ::NAMED_BRACKET:
     {
 	if ( i < size )
-	    return ::expected_error
+	    return PARDEF::expected_error
 		( parser->printer, ppvec->file,
 		  ppvec[i-1], "end of statement" );
 	bool separator_present =

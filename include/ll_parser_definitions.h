@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 04:29:49 EDT 2012
+// Date:	Mon Aug  6 06:18:03 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,6 +17,35 @@
 # include <ll_parser.h>
 
 namespace ll { namespace parser {
+    namespace definition {
+
+// Prints `expected <what> after <file,pp>' error and
+// returns min::ERROR().
+//
+min::gen expected_error
+	( min::printer printer,
+	  min::file file,
+	  min::phrase_position pp,
+	  const char * what );
+
+// Prints `extraneous stuff after <file,pp>' error and
+// returns min::ERROR().
+//
+min::gen extra_stuff_after_error
+	( min::printer printer,
+	  min::file file,
+	  min::phrase_position pp );
+
+
+// Prints `<what_is> should be <should_be>' warning
+// where what_is is at <file,pp>.
+//
+void misspell_warning
+	( min::printer printer,
+	  min::file file,
+	  min::phrase_position pp,
+	  min::gen what_is,
+	  min::gen should_be );
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
@@ -77,6 +106,6 @@ min::gen parser_execute_bracket_definition
 	  min::phrase_position_vec ppvec,
 	  ll::parser::parser parser );
 
-} }
+} } }
 
 # endif // LL_PARSER_DEFINITIONS_H

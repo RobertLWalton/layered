@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_explicit_subexpression.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  5 04:42:08 EDT 2012
+// Date:	Mon Aug  6 13:49:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,7 @@
 //	Usage and Setup
 //	Explicit Subexpression Parser Functions
 //	Explicit Subexpression Parser
-//	Explicit Subexpression Parser Definitions
+//	Parser Execute Bracket Definition Function
 
 // Usage and Setup
 // ----- --- -----
@@ -21,10 +21,37 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
 # include <ll_parser_explicit_subexpression.h>
+# include <ll_parser_definitions.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define PARDEF ll::parser::definition
+
+static min::locatable_gen bracket;
+static min::locatable_gen indentation;
+static min::locatable_gen mark;
+static min::locatable_gen gluing;
+static min::locatable_gen named;
+static min::locatable_gen dotdotdot;
+static min::locatable_gen parsing;
+static min::locatable_gen full;
+static min::locatable_gen line;
+
+static void initialize ( void )
+{
+    ::bracket = min::new_str_gen ( "bracket" );
+    ::indentation = min::new_str_gen
+			    ( "indentation" );
+    ::mark = min::new_str_gen ( "mark" );
+    ::gluing = min::new_str_gen ( "gluing" );
+    ::named = min::new_str_gen ( "named" );
+    ::dotdotdot = min::new_str_gen ( "..." );
+    ::parsing = min::new_str_gen ( "parsing" );
+    ::full = min::new_str_gen ( "full" );
+    ::line = min::new_str_gen ( "line" );
+}
+static min::initializer initializer ( ::initialize );
 
 // Explicit Subexpression Parser Functions
 // -------- ------------- ------ ---------
@@ -1602,4 +1629,444 @@ bool PAR::parse_explicit_subexpression
 
     DONE:
         return false;
+}
+
+// Parser Execute Bracket Definition Function
+// ------ ------- ------- ---------- --------
+
+enum definition_type
+    { BRACKET,
+      INDENTATION_MARK,
+      NAMED_BRACKET };
+
+min::gen PARDEF::parser_execute_bracket_definition
+	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    min::uns32 size = min::size_of ( vp );
+
+    // Scan keywords before names.
+    //
+    bool define;
+        // True if define, false if undefine.
+    definition_type type;
+        // Type of define or undefine.
+    unsigned i = 1;
+        // vp[i] is next lexeme or subexpression to
+	// scan in the define/undefine expression.
+    bool gluing = false;
+        // True if `define/undefine gluing ...', false
+	// if not.
+    unsigned min_names, max_names;
+        // Minimum and maximum number of names allowed.
+
+    if ( vp[i] == PAR::define )
+        define = true;
+    else if ( vp[i] == PAR::undefine )
+        define = false;
+    else
+        return min::FAILURE();
+    ++ i;
+
+    if ( vp[i] == ::bracket )
+    {
+        type = ::BRACKET;
+	min_names = 2;
+	max_names = 2;
+	++ i;
+    }
+    else if ( vp[i] == ::indentation
+              &&
+	      i + 1 < size
+	      &&
+	      vp[i + 1] == ::mark )
+    {
+	type = ::INDENTATION_MARK;
+	min_names = 1;
+	max_names = 2;
+	i += 2;
+    }
+    else if ( vp[i] == ::gluing
+              &&
+	      i + 2 < size
+	      &&
+	      vp[i + 1] == ::indentation
+	      &&
+	      vp[i + 2] == ::mark )
+    {
+	type = ::INDENTATION_MARK;
+	min_names = 1;
+	max_names = 2;
+	gluing = true;
+	i += 3;
+    }
+    else if ( vp[i] == ::named
+              &&
+	      i + 1 < size
+              &&
+	      vp[i + 1] == ::bracket )
+    {
+	type = ::NAMED_BRACKET;
+	min_names = 2;
+	max_names = 6;
+	i += 2;
+    }
+    else
+        return min::FAILURE();
+
+    // Scan mark names.
+    //
+    min::locatable_gen name[max_names+1];
+    unsigned number_of_names = 0;
+
+    while ( true )
+    {
+	// Scan a name.
+	//
+	name[number_of_names] =
+	    PAR::scan_name_string_label
+	        ( vp, i, parser,
+
+	            ( 1ull << LEXSTD::mark_t )
+	          + ( 1ull << LEXSTD::separator_t )
+	          + ( 1ull << LEXSTD::word_t )
+	          + ( 1ull << LEXSTD::number_t ),
+
+	            ( 1ull << LEXSTD::
+		                  horizontal_space_t )
+	          + ( 1ull << LEXSTD::end_of_file_t ),
+
+	            ( 1ull << LEXSTD::end_of_file_t ) );
+
+	if ( name[number_of_names] == min::ERROR() )
+	    return min::ERROR();
+	else if (    name[number_of_names]
+	          == min::MISSING() )
+	    return PARDEF::expected_error
+	        ( parser->printer, ppvec->file,
+		  ppvec[i-1], "quoted name" );
+	else
+	    ++ number_of_names;
+
+	if ( number_of_names > max_names )
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: too many quoted names"
+		   " in "
+		<< min::pline_numbers
+		       ( ppvec->file,
+			 ppvec->position )  
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file,
+		  ppvec->position );
+	    return min::ERROR();
+	}
+
+	if ( i >= size
+	     ||
+	     vp[i] != ::dotdotdot )
+	    break;
+
+	++ i;
+    }
+
+    if ( number_of_names < min_names )
+    {
+	parser->printer
+	    << min::bom << min::set_indent ( 7 )
+	    << "ERROR: too few defined names in "
+	    << min::pline_numbers
+		   ( ppvec->file,
+		     ppvec->position )  
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      ppvec->file,
+	      ppvec->position );
+	return min::ERROR();
+    }
+
+    TAB::selectors selectors;
+    min::gen sresult = PARDEF::scan_selectors
+	    ( vp, i, selectors, parser );
+    if ( sresult == min::ERROR() )
+	return min::ERROR();
+    else if ( sresult == min::MISSING() )
+	return PARDEF::expected_error
+	    ( parser->printer,
+	      ppvec->file, ppvec[i-1],
+	      "selectors" );
+
+    switch ( type )
+    {
+    case ::BRACKET:
+    {
+	bool full_line = false;
+	TAB::new_selectors new_selectors;
+	    // Inited to zeroes.
+	while ( i < size && vp[i] == PAR::with )
+	{
+	    ++ i;
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == ::parsing
+		 &&
+		 vp[i+1] == PAR::selectors )
+	    {
+		i += 2;
+		min::gen result =
+		    PARDEF::scan_new_selectors
+			( vp, i, new_selectors,
+			  parser );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::MISSING() )
+		{
+		}
+	    }
+	    else if ( i + 1 < size
+		      &&
+		      vp[i] == ::full
+		      &&
+		      vp[i+1] == ::line )
+	    {
+		i += 2;
+		full_line = true;
+	    }
+	    else
+		return PARDEF::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1],
+		      "`parsing selectors'"
+		      " or `full line'" );
+	}
+	if ( i < size )
+	    return PARDEF::expected_error
+		( parser->printer, ppvec->file,
+		  ppvec[i-1], "`with'" );
+
+	TAB::push_brackets
+	    ( name[0], name[1],
+	      selectors, new_selectors, full_line,
+	      parser->bracket_table );
+
+	break;
+    }
+    case ::INDENTATION_MARK:
+    {
+	TAB::new_selectors new_selectors;
+	    // Inited to zeroes.
+	while ( i < size && vp[i] == PAR::with )
+	{
+	    ++ i;
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == ::parsing
+		 &&
+		 vp[i+1] == PAR::selectors )
+	    {
+		i += 2;
+		min::gen result =
+		    PARDEF::scan_new_selectors
+			( vp, i, new_selectors,
+			  parser );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::MISSING() )
+		{
+		}
+	    }
+	    else
+		return PARDEF::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1],
+		      "`parsing selectors'"
+		      " or `full line'" );
+	}
+	if ( i < size )
+	    return PARDEF::expected_error
+		( parser->printer, ppvec->file,
+		  ppvec[i-1], "`with'" );
+
+	if ( gluing
+	     &&
+		LEXSTD::lexical_type_of ( name[0] )
+	     != LEXSTD::mark_t )
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: gluing indentation mark"
+		   " name "
+		<< min::pgen ( name[0] )
+		<< " is not a mark in "
+		<< min::pline_numbers
+		       ( ppvec->file,
+			 ppvec[5] )  
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file,
+		  ppvec[5] );
+	    return min::ERROR();
+	}
+
+	TAB::push_indentation_mark
+	    ( name[0],
+	      number_of_names == 2 ?
+		  (min::gen) name[1] :
+		  min::MISSING(),
+	      selectors, new_selectors,
+	      parser->bracket_table,
+	      gluing ? parser->split_table :
+		       (TAB::split_table)
+		       min::NULL_STUB );
+
+	break;
+    }
+    case ::NAMED_BRACKET:
+    {
+	if ( i < size )
+	    return PARDEF::expected_error
+		( parser->printer, ppvec->file,
+		  ppvec[i-1], "end of statement" );
+	bool separator_present =
+	    ( number_of_names % 2 == 1 );
+	bool middle_present =
+	    ( number_of_names >= 4 );
+
+	min::unsptr m = 1 + separator_present;
+	if (    middle_present
+	     && name[m] != name[m+1] )
+	{
+	    min::phrase_position pp;
+	    pp.begin = ppvec[m].begin;
+	    pp.end   = ppvec[m+1].end;
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: named middles "
+		<< min::pgen ( name[m] )
+		<< " and "
+		<< min::pgen ( name[m+1] )
+		<< " do not match in "
+		<< min::pline_numbers
+		       ( ppvec->file, pp )  
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file, pp );
+	    return min::ERROR();
+	}
+
+	min::gen named_opening = name[0];
+	min::gen named_separator =
+	    ( separator_present ?
+	      (min::gen) name[1] : min::MISSING() );
+	min::gen named_middle =
+	    ( middle_present ?
+	      (min::gen) name[m] : min::MISSING() );
+	min::gen named_closing =
+	    name[1 + separator_present
+		   + 2 * middle_present ];
+
+	// compute named_middle_closing if
+	// necessary.
+	//
+	min::locatable_gen named_middle_closing
+	    ( min::MISSING() );;
+	min::gen middle_last = named_middle;
+	min::gen closing_first = named_closing;
+	min::unsptr middle_length = 1;
+	min::unsptr closing_length = 1;
+
+	min::lab_ptr middle_ptr ( named_middle );
+	min::lab_ptr closing_ptr ( named_closing );
+	if ( middle_ptr != min::NULL_STUB )
+	{
+	    middle_length =
+		min::length_of ( middle_ptr );
+	    middle_last =
+		middle_ptr[middle_length-1];
+	}
+	if ( closing_ptr != min::NULL_STUB )
+	{
+	    closing_length =
+		min::length_of ( closing_ptr );
+	    closing_first =
+		closing_ptr[closing_length-1];
+	}
+	min::uns32 middle_last_type =
+	    LEXSTD::lexical_type_of
+		( middle_last );
+	min::uns32 closing_first_type =
+	    LEXSTD::lexical_type_of
+		( closing_first );
+	if ( middle_last_type == closing_first_type
+	     ||
+	     middle_last_type != LEXSTD::separator_t
+	   )
+	{
+	    min::str_ptr middle_last_ptr
+		( middle_last );
+	    min::str_ptr closing_first_ptr
+		( closing_first );
+	    min::unsptr middle_last_length =
+		min::strlen ( middle_last_ptr );
+	    min::unsptr closing_first_length =
+		min::strlen ( closing_first_ptr );
+	    char new_string [   middle_last_length
+			      + closing_first_length
+			      + 1 ];
+	    strcpy
+		( & new_string[0],
+		  & middle_last_ptr[0] );
+	    strcpy
+		( & new_string[middle_last_length],
+		  & closing_first_ptr[0] );
+	    named_middle_closing =
+		min::new_str_gen ( new_string );
+	    if (   middle_length
+		 + closing_length > 2 )
+	    {
+		min::gen element
+		    [middle_length + closing_length
+				   - 1];
+		memcpy ( & element[0],
+			 & middle_ptr[0],
+			   ( middle_length - 1 )
+			 * sizeof ( min::gen ) );
+		memcpy ( & element[middle_length],
+			 & closing_ptr[0],
+			   ( closing_length - 1 )
+			 * sizeof ( min::gen ) );
+		element[middle_length - 1] =
+		    named_middle_closing;
+		named_middle_closing =
+		    min::new_lab_gen
+			( element, 
+			    middle_last_length
+			  + closing_first_length
+			  - 1 );
+	    }
+	}
+
+	TAB::push_named_brackets
+	    ( named_opening,
+	      named_separator,
+	      named_middle,
+	      named_closing,
+	      named_middle_closing,
+	      selectors,
+	      parser->bracket_table );
+
+	break;
+    }
+    default:
+	MIN_ABORT ( "bad parser (un)define type" );
+    }
+
+    return min::SUCCESS();
 }

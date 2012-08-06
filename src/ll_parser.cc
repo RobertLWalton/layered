@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  5 05:17:34 EDT 2012
+// Date:	Mon Aug  6 04:29:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,7 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
 # include <ll_parser_explicit_subexpression.h>
+# include <ll_parser_definitions.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard

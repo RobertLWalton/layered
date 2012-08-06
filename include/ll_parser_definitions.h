@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 17 19:04:46 EST 2012
+// Date:	Mon Aug  6 04:29:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,6 +67,14 @@ min::gen scan_new_selectors
 //
 min::gen parser_execute_definition
 	( min::obj_vec_ptr & vp,
+	  ll::parser::parser parser );
+
+// Ditto but restricted to parser bracket and
+// indentation mark definitions.
+//
+min::gen parser_execute_bracket_definition
+	( min::obj_vec_ptr & vp,
+	  min::phrase_position_vec ppvec,
 	  ll::parser::parser parser );
 
 } }

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 06:21:55 EDT 2012
+// Date:	Mon Aug  6 12:43:51 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,12 @@ min::locatable_gen PAR::comma;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
+min::locatable_gen PAR::define;
+min::locatable_gen PAR::undefine;
+min::locatable_gen PAR::print;
+min::locatable_gen PAR::selector;
+min::locatable_gen PAR::selectors;
+min::locatable_gen PAR::with;
 
 static void initialize ( void )
 {
@@ -86,6 +92,13 @@ static void initialize ( void )
         min::new_str_gen ( "ERROR'OPERATOR" );
     PAR::error_operand =
         min::new_str_gen ( "ERROR'OPERAND" );
+
+    PAR::define = min::new_str_gen ( "define" );
+    PAR::undefine = min::new_str_gen ( "undefine" );
+    PAR::print = min::new_str_gen ( "print" );
+    PAR::selector = min::new_str_gen ( "selector" );
+    PAR::selectors = min::new_str_gen ( "selectors" );
+    PAR::with = min::new_str_gen ( "with" );
 }
 static min::initializer initializer ( ::initialize );
 

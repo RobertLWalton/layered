@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 04:30:13 EDT 2012
+// Date:	Mon Aug  6 14:03:27 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,7 +51,13 @@ namespace ll { namespace parser {
 	comma,		// ,
 	parser_lexeme,	// parser
 	error_operator,	// ERROR'OPERATOR
-	error_operand;	// ERROR'OPERAND
+	error_operand,	// ERROR'OPERAND
+	define,		// define
+	undefine,	// undefine
+	print,		// print
+	selector,	// selector
+	selectors,	// selectors
+	with;		// with
 
     extern min::gen_format name_format;
         // Same as min::default_gen_format except
@@ -441,6 +447,10 @@ typedef void ( * run_pass )
 typedef void ( * init_pass )
         ( ll::parser::parser parser,
 	  ll::parser::pass pass );
+typedef min::gen ( * execute_pass_definition )
+        ( min::obj_vec_ptr & vp,
+	  min::phrase_position_vec ppvec,
+          ll::parser::parser parser );
 
 struct pass_struct
     // Closure to call to execute a pass on a subexpres-
@@ -482,6 +492,17 @@ struct pass_struct
     // keeping statistics.
     //
     ll::parser::init_pass init_pass;
+
+    // Function to execute a parser definition for the
+    // pass.  Definition is the object pointed at by
+    // vp, whose phrase position vector is ppvec.
+    // Returns min::SUCCESS() on success, min::FAILURE()
+    // if definition was not recognized, and min::
+    // ERROR() if an error message was printed.  NULL if
+    // missing.
+    //
+    ll::parser::execute_pass_definition
+        execute_pass_definition;
 
     uns32 trace;
         // Trace flags that output to parser->printer a

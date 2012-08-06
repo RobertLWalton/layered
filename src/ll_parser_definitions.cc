@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definitions.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  2 21:01:35 EDT 2012
+// Date:	Mon Aug  6 04:29:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,6 +85,36 @@ static min::gen expected_error
 	    << min::eom;
     min::print_phrase_lines ( printer, file, pp );
     return min::ERROR();
+}
+
+static min::gen extra_stuff_after_error
+	( min::printer printer,
+	  min::file file,
+	  min::phrase_position pp )
+{
+    printer << min::bom << min::set_indent ( 7 )
+	    << "ERROR: in " << min::pline_numbers
+			           ( file, pp )
+	    << ": extraneous stuff after:"
+	    << min::eom;
+    min::print_phrase_lines ( printer, file, pp );
+    return min::ERROR();
+}
+
+static void misspell_warning
+	( min::printer printer,
+	  min::file file,
+	  min::phrase_position pp,
+	  min::gen what_is,
+	  min::gen should_be )
+{
+    printer << min::bom << min::set_indent ( 7 )
+	    << "WARNING: in " << min::pline_numbers
+			           ( file, pp )
+	    << ": " << what_is
+	    << " should be " << should_be << ":"
+	    << min::eom;
+    min::print_phrase_lines ( printer, file, pp );
 }
 
 // Parser Definition Functions
@@ -394,20 +424,21 @@ min::gen PAR::scan_new_selectors
 // Execute Parser Print Function
 // ------- ------ ----- --------
 
-static min::gen parser_execute_print
+static min::gen parser_execute_selector_definition
 	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
-    if ( size < 3 ) return min::FAILURE();
 
-    int i = 2;
-    TAB::selector_name_table t =
-        parser->selector_name_table;
-
-    if ( vp[i] == ::selectors )
+    bool define;
+    if ( vp[1] == ::print )
     {
-        parser->printer
+
+	TAB::selector_name_table t =
+	    parser->selector_name_table;
+
+	parser->printer
 	    << "parser print selectors:" << min::eol
 	    << min::bom << min::nohbreak
 	    << min::set_indent ( 8 ) << min::indent
@@ -422,7 +453,78 @@ static min::gen parser_execute_print
 		<< min::pgen ( t[j] );
 	}
 	parser->printer << " ]" << min::eom;
+
+	if ( vp[2] != ::selectors )
+	    ::misspell_warning
+	        ( parser->printer,
+		  ppvec->file,
+		  ppvec[2], vp[2], ::selectors );
+
+        if ( size > 3 )
+	    return ::extra_stuff_after_error
+	        ( parser->printer,
+		  ppvec->file,
+		  ppvec[2] );
+
+	return min::SUCCESS();
     }
+    else if ( vp[1] == ::define )
+        define = true;
+    else if ( vp[1] == ::undefine )
+        define = false;
+    else return min::FAILURE();
+
+    unsigned i = 3;
+    min::locatable_gen name;
+    name = PAR::scan_simple_label
+	( vp, i,
+	    ( 1ull << LEXSTD::word_t )
+	  + ( 1ull << LEXSTD::number_t ) );
+    if ( name == min::ERROR() )
+	return min::ERROR();
+    else if ( name == min::MISSING() )
+	return ::expected_error
+	    ( parser->printer, ppvec->file,
+	      ppvec[i-1], "name" );
+
+    int j = TAB::get_index
+	( parser->selector_name_table, name );
+    if ( j < 0 )
+    {
+	if ( parser->selector_name_table
+		   ->length >= 64 )
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: too many selector names;"
+		   " table overflow in "
+		<< min::pline_numbers
+		       ( ppvec->file,
+			 ppvec->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file,
+		  ppvec->position );
+	    return min::ERROR();
+	}
+
+	min::push
+	    ( (TAB::selector_name_table_insptr)
+	      parser->selector_name_table ) = name;
+    }
+
+    if ( vp[2] != ::selector )
+	::misspell_warning
+	    ( parser->printer,
+	      ppvec->file,
+	      ppvec[2], vp[2], ::selector );
+
+    if ( i < size )
+        return ::extra_stuff_after_error
+	    ( parser->printer,
+	      ppvec->file, ppvec[i-1] );
+
     return min::SUCCESS();
 }
 
@@ -433,6 +535,7 @@ static void parser_execute_test_scan
     min::phrase_position_vec ppvec =
         min::position_of ( vp );
     min::unsptr size = min::size_of ( vp );
+
     for ( min::unsptr i = 0; i < size; ++ i )
     {
         min::obj_vec_ptr subvp ( vp[i] );
@@ -441,7 +544,7 @@ static void parser_execute_test_scan
 	    << min::bom << min::set_indent ( 8 )
 	    << "------- "
 	    << min::pline_numbers
-	          ( ppvec->file, ppvec[i] )
+	          ( ppvec->file, ppvec[i])
 	<< ":" << min::eom;
 	min::print_phrase_lines
 	    ( printer, ppvec->file, ppvec[i] );
@@ -451,6 +554,7 @@ static void parser_execute_test_scan
 
 static min::gen parser_execute_test
 	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
     min::gen obj =
@@ -465,8 +569,6 @@ static min::gen parser_execute_test
 	<< min::eom
 	<< min::flush_id_map;
     vp = obj;  // Reopen vp.
-    min::phrase_position_vec ppvec =
-        min::position_of ( vp );
     parser->printer
 	<< min::bom << min::set_indent ( 8 )
 	<< "------- "
@@ -476,7 +578,8 @@ static min::gen parser_execute_test
     min::print_phrase_lines
         ( parser->printer,
 	  ppvec->file, ppvec->position );
-    ::parser_execute_test_scan ( vp, parser->printer );
+    ::parser_execute_test_scan
+        ( vp, parser->printer );
     parser->printer << "======= END TEST" << min::eol;
     return min::SUCCESS();
 }
@@ -485,29 +588,54 @@ static min::gen parser_execute_test
 // Execute Definition Function
 // ------- ---------- --------
 
-enum definition_type
-    { SELECTOR,
-      BRACKET,
-      INDENTATION_MARK,
-      NAMED_BRACKET };
-
 min::gen PAR::parser_execute_definition
 	( min::obj_vec_ptr & vp,
 	  PAR::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
     if ( size < 2 ) return min::FAILURE();
-
     if ( vp[0] != ::parser ) return min::FAILURE();
-    else if ( vp[1] == ::print )
-        return ::parser_execute_print ( vp, parser );
-    else if ( vp[1] == ::test )
-        return ::parser_execute_test ( vp, parser );
-
 
     min::phrase_position_vec ppvec =
         min::position_of ( vp );
     assert ( ppvec != min::NULL_STUB );
+
+    min::locatable_gen result;
+
+    if ( vp[1] == ::test )
+        return ::parser_execute_test
+			( vp, ppvec, parser );
+    else if ( size >= 3
+              &&
+	      (    vp[2] == ::selector
+	        || vp[2] == ::selectors ) )
+	result = ::parser_execute_selector_definition
+		    ( vp, ppvec, parser );
+    else
+	result = PAR::parser_execute_bracket_definition
+		    ( vp, ppvec, parser );
+
+    if ( result == min::SUCCESS()
+         &&
+	 parser->trace & PAR::TRACE_PARSER_DEFINITIONS )
+	min::print_phrase_lines
+	    ( parser->printer,
+	      ppvec->file, ppvec->position, 0 );
+
+    return result;
+}
+
+enum definition_type
+    { BRACKET,
+      INDENTATION_MARK,
+      NAMED_BRACKET };
+
+min::gen PAR::parser_execute_bracket_definition
+	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    min::uns32 size = min::size_of ( vp );
 
     // Scan keywords before names.
     //
@@ -532,14 +660,7 @@ min::gen PAR::parser_execute_definition
         return min::FAILURE();
     ++ i;
 
-    if ( vp[i] == ::selector )
-    {
-        type = ::SELECTOR;
-	min_names = 1;
-	max_names = 1;
-	++ i;
-    }
-    else if ( vp[i] == ::bracket )
+    if ( vp[i] == ::bracket )
     {
         type = ::BRACKET;
 	min_names = 2;
@@ -590,22 +711,7 @@ min::gen PAR::parser_execute_definition
     min::locatable_gen name[max_names+1];
     unsigned number_of_names = 0;
 
-    if ( type == ::SELECTOR )
-    {
-        name[0] = PAR::scan_simple_label
-	    ( vp, i,
-	        ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ) );
-	if ( name[0] == min::ERROR() )
-	    return min::ERROR();
-	else if ( name[0] == min::MISSING() )
-	    return ::expected_error
-	        ( parser->printer, ppvec->file,
-		  ppvec[i-1], "name" );
-	else
-	    ++ number_of_names;
-    }
-    else while ( true )
+    while ( true )
     {
 	// Scan a name.
 	//
@@ -675,338 +781,283 @@ min::gen PAR::parser_execute_definition
 	return min::ERROR();
     }
 
-    if ( type == ::SELECTOR )
+    TAB::selectors selectors;
+    min::gen sresult = PAR::scan_selectors
+	    ( vp, i, selectors, parser );
+    if ( sresult == min::ERROR() )
+	return min::ERROR();
+    else if ( sresult == min::MISSING() )
+	return ::expected_error
+	    ( parser->printer,
+	      ppvec->file, ppvec[i-1],
+	      "selectors" );
+
+    switch ( type )
     {
-        if ( i < size )
+    case ::BRACKET:
+    {
+	bool full_line = false;
+	TAB::new_selectors new_selectors;
+	    // Inited to zeroes.
+	while ( i < size && vp[i] == ::with )
+	{
+	    ++ i;
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == ::parsing
+		 &&
+		 vp[i+1] == ::selectors )
+	    {
+		i += 2;
+		min::gen result =
+		    PAR::scan_new_selectors
+			( vp, i, new_selectors,
+			  parser );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::MISSING() )
+		{
+		}
+	    }
+	    else if ( i + 1 < size
+		      &&
+		      vp[i] == ::full
+		      &&
+		      vp[i+1] == ::line )
+	    {
+		i += 2;
+		full_line = true;
+	    }
+	    else
+		return ::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1],
+		      "`parsing selectors'"
+		      " or `full line'" );
+	}
+	if ( i < size )
+	    return ::expected_error
+		( parser->printer, ppvec->file,
+		  ppvec[i-1], "`with'" );
+
+	TAB::push_brackets
+	    ( name[0], name[1],
+	      selectors, new_selectors, full_line,
+	      parser->bracket_table );
+
+	break;
+    }
+    case ::INDENTATION_MARK:
+    {
+	TAB::new_selectors new_selectors;
+	    // Inited to zeroes.
+	while ( i < size && vp[i] == ::with )
+	{
+	    ++ i;
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == ::parsing
+		 &&
+		 vp[i+1] == ::selectors )
+	    {
+		i += 2;
+		min::gen result =
+		    PAR::scan_new_selectors
+			( vp, i, new_selectors,
+			  parser );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::MISSING() )
+		{
+		}
+	    }
+	    else
+		return ::expected_error
+		    ( parser->printer, ppvec->file,
+		      ppvec[i-1],
+		      "`parsing selectors'"
+		      " or `full line'" );
+	}
+	if ( i < size )
+	    return ::expected_error
+		( parser->printer, ppvec->file,
+		  ppvec[i-1], "`with'" );
+
+	if ( gluing
+	     &&
+		LEXSTD::lexical_type_of ( name[0] )
+	     != LEXSTD::mark_t )
 	{
 	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: extraneous stuff after"
-		   " selector name in "
+		<< "ERROR: gluing indentation mark"
+		   " name "
+		<< min::pgen ( name[0] )
+		<< " is not a mark in "
 		<< min::pline_numbers
 		       ( ppvec->file,
-			 ppvec->position )  
+			 ppvec[5] )  
 		<< ":" << min::eom;
 	    min::print_phrase_lines
 		( parser->printer,
 		  ppvec->file,
-		  ppvec[i] );
+		  ppvec[5] );
 	    return min::ERROR();
 	}
 
-	int i = TAB::get_index
-	    ( parser->selector_name_table, name[0] );
-	if ( i < 0 )
-	{
-	    if ( parser->selector_name_table
-	               ->length >= 64 )
-	    {
-		parser->printer
-		    << min::bom << min::set_indent ( 7 )
-		    << "ERROR: too many selector names;"
-		       " table overflow in "
-		    << min::pline_numbers
-			   ( ppvec->file,
-			     ppvec->position )  
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file,
-		      ppvec->position );
-		return min::ERROR();
-	    }
+	TAB::push_indentation_mark
+	    ( name[0],
+	      number_of_names == 2 ?
+		  (min::gen) name[1] :
+		  min::MISSING(),
+	      selectors, new_selectors,
+	      parser->bracket_table,
+	      gluing ? parser->split_table :
+		       (TAB::split_table)
+		       min::NULL_STUB );
 
-	    min::push
-	        ( (TAB::selector_name_table_insptr)
-	          parser->selector_name_table ) =
-		    name[0];
-	}
+	break;
     }
-    else
+    case ::NAMED_BRACKET:
     {
-	TAB::selectors selectors;
-        min::gen sresult = PAR::scan_selectors
-		( vp, i, selectors, parser );
-	if ( sresult == min::ERROR() )
-	    return min::ERROR();
-	else if ( sresult == min::MISSING() )
+	if ( i < size )
 	    return ::expected_error
+		( parser->printer, ppvec->file,
+		  ppvec[i-1], "end of statement" );
+	bool separator_present =
+	    ( number_of_names % 2 == 1 );
+	bool middle_present =
+	    ( number_of_names >= 4 );
+
+	min::unsptr m = 1 + separator_present;
+	if (    middle_present
+	     && name[m] != name[m+1] )
+	{
+	    min::phrase_position pp;
+	    pp.begin = ppvec[m].begin;
+	    pp.end   = ppvec[m+1].end;
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: named middles "
+		<< min::pgen ( name[m] )
+		<< " and "
+		<< min::pgen ( name[m+1] )
+		<< " do not match in "
+		<< min::pline_numbers
+		       ( ppvec->file, pp )  
+		<< ":" << min::eom;
+	    min::print_phrase_lines
 		( parser->printer,
-		  ppvec->file, ppvec[i-1],
-		  "selectors" );
-
-	switch ( type )
-	{
-	case ::BRACKET:
-	{
-	    bool full_line = false;
-	    TAB::new_selectors new_selectors;
-	        // Inited to zeroes.
-	    while ( i < size && vp[i] == ::with )
-	    {
-	        ++ i;
-		if ( i + 1 < size
-		     &&
-		     vp[i] == ::parsing
-		     &&
-		     vp[i+1] == ::selectors )
-		{
-		    i += 2;
-		    min::gen result =
-		        PAR::scan_new_selectors
-			    ( vp, i, new_selectors,
-			      parser );
-		    if ( result == min::ERROR() )
-		        return min::ERROR();
-		    else if ( result == min::MISSING() )
-		    {
-		    }
-		}
-		else if ( i + 1 < size
-		          &&
-		          vp[i] == ::full
-		          &&
-		          vp[i+1] == ::line )
-		{
-		    i += 2;
-		    full_line = true;
-		}
-		else
-		    return ::expected_error
-			( parser->printer, ppvec->file,
-			  ppvec[i-1],
-			  "`parsing selectors'"
-			  " or `full line'" );
-	    }
-	    if ( i < size )
-		return ::expected_error
-		    ( parser->printer, ppvec->file,
-		      ppvec[i-1], "`with'" );
-
-	    TAB::push_brackets
-	        ( name[0], name[1],
-		  selectors, new_selectors, full_line,
-		  parser->bracket_table );
-
-	    break;
+		  ppvec->file, pp );
+	    return min::ERROR();
 	}
-	case ::INDENTATION_MARK:
+
+	min::gen named_opening = name[0];
+	min::gen named_separator =
+	    ( separator_present ?
+	      (min::gen) name[1] : min::MISSING() );
+	min::gen named_middle =
+	    ( middle_present ?
+	      (min::gen) name[m] : min::MISSING() );
+	min::gen named_closing =
+	    name[1 + separator_present
+		   + 2 * middle_present ];
+
+	// compute named_middle_closing if
+	// necessary.
+	//
+	min::locatable_gen named_middle_closing
+	    ( min::MISSING() );;
+	min::gen middle_last = named_middle;
+	min::gen closing_first = named_closing;
+	min::unsptr middle_length = 1;
+	min::unsptr closing_length = 1;
+
+	min::lab_ptr middle_ptr ( named_middle );
+	min::lab_ptr closing_ptr ( named_closing );
+	if ( middle_ptr != min::NULL_STUB )
 	{
-	    TAB::new_selectors new_selectors;
-	        // Inited to zeroes.
-	    while ( i < size && vp[i] == ::with )
-	    {
-	        ++ i;
-		if ( i + 1 < size
-		     &&
-		     vp[i] == ::parsing
-		     &&
-		     vp[i+1] == ::selectors )
-		{
-		    i += 2;
-		    min::gen result =
-		        PAR::scan_new_selectors
-			    ( vp, i, new_selectors,
-			      parser );
-		    if ( result == min::ERROR() )
-		        return min::ERROR();
-		    else if ( result == min::MISSING() )
-		    {
-		    }
-		}
-		else
-		    return ::expected_error
-			( parser->printer, ppvec->file,
-			  ppvec[i-1],
-			  "`parsing selectors'"
-			  " or `full line'" );
-	    }
-	    if ( i < size )
-		return ::expected_error
-		    ( parser->printer, ppvec->file,
-		      ppvec[i-1], "`with'" );
-
-	    if ( gluing
-	         &&
-		    LEXSTD::lexical_type_of ( name[0] )
-		 != LEXSTD::mark_t )
-	    {
-		parser->printer
-		    << min::bom << min::set_indent ( 7 )
-		    << "ERROR: gluing indentation mark"
-		       " name "
-		    << min::pgen ( name[0] )
-		    << " is not a mark in "
-		    << min::pline_numbers
-			   ( ppvec->file,
-			     ppvec[5] )  
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file,
-		      ppvec[5] );
-		return min::ERROR();
-	    }
-
-	    TAB::push_indentation_mark
-	        ( name[0],
-		  number_of_names == 2 ?
-		      (min::gen) name[1] :
-		      min::MISSING(),
-		  selectors, new_selectors,
-		  parser->bracket_table,
-		  gluing ? parser->split_table :
-			   (TAB::split_table)
-		           min::NULL_STUB );
-
-	    break;
+	    middle_length =
+		min::length_of ( middle_ptr );
+	    middle_last =
+		middle_ptr[middle_length-1];
 	}
-	case ::NAMED_BRACKET:
+	if ( closing_ptr != min::NULL_STUB )
 	{
-	    if ( i < size )
-		return ::expected_error
-		    ( parser->printer, ppvec->file,
-		      ppvec[i-1], "end of statement" );
-	    bool separator_present =
-	        ( number_of_names % 2 == 1 );
-	    bool middle_present =
-	        ( number_of_names >= 4 );
-
-	    min::unsptr m = 1 + separator_present;
-	    if (    middle_present
-	         && name[m] != name[m+1] )
-	    {
-		min::phrase_position pp;
-		pp.begin = ppvec[m].begin;
-		pp.end   = ppvec[m+1].end;
-		parser->printer
-		    << min::bom << min::set_indent ( 7 )
-		    << "ERROR: named middles "
-		    << min::pgen ( name[m] )
-		    << " and "
-		    << min::pgen ( name[m+1] )
-		    << " do not match in "
-		    << min::pline_numbers
-			   ( ppvec->file, pp )  
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file, pp );
-		return min::ERROR();
-	    }
-
-	    min::gen named_opening = name[0];
-	    min::gen named_separator =
-	        ( separator_present ?
-		  (min::gen) name[1] : min::MISSING() );
-	    min::gen named_middle =
-	        ( middle_present ?
-		  (min::gen) name[m] : min::MISSING() );
-	    min::gen named_closing =
-	        name[1 + separator_present
-		       + 2 * middle_present ];
-
-	    // compute named_middle_closing if
-	    // necessary.
-	    //
-	    min::locatable_gen named_middle_closing
-	        ( min::MISSING() );;
-	    min::gen middle_last = named_middle;
-	    min::gen closing_first = named_closing;
-	    min::unsptr middle_length = 1;
-	    min::unsptr closing_length = 1;
-
-	    min::lab_ptr middle_ptr ( named_middle );
-	    min::lab_ptr closing_ptr ( named_closing );
-	    if ( middle_ptr != min::NULL_STUB )
-	    {
-		middle_length =
-		    min::length_of ( middle_ptr );
-		middle_last =
-		    middle_ptr[middle_length-1];
-	    }
-	    if ( closing_ptr != min::NULL_STUB )
-	    {
-		closing_length =
-		    min::length_of ( closing_ptr );
-		closing_first =
-		    closing_ptr[closing_length-1];
-	    }
-	    min::uns32 middle_last_type =
-	        LEXSTD::lexical_type_of
-		    ( middle_last );
-	    min::uns32 closing_first_type =
-	        LEXSTD::lexical_type_of
-		    ( closing_first );
-	    if ( middle_last_type == closing_first_type
-	         ||
-		 middle_last_type != LEXSTD::separator_t
-	       )
-	    {
-		min::str_ptr middle_last_ptr
-		    ( middle_last );
-		min::str_ptr closing_first_ptr
-		    ( closing_first );
-		min::unsptr middle_last_length =
-		    min::strlen ( middle_last_ptr );
-		min::unsptr closing_first_length =
-		    min::strlen ( closing_first_ptr );
-		char new_string [   middle_last_length
-		                  + closing_first_length
-				  + 1 ];
-		strcpy
-		    ( & new_string[0],
-		      & middle_last_ptr[0] );
-		strcpy
-		    ( & new_string[middle_last_length],
-		      & closing_first_ptr[0] );
-		named_middle_closing =
-		    min::new_str_gen ( new_string );
-		if (   middle_length
-		     + closing_length > 2 )
-		{
-		    min::gen element
-			[middle_length + closing_length
-				       - 1];
-		    memcpy ( & element[0],
-		             & middle_ptr[0],
-			       ( middle_length - 1 )
-			     * sizeof ( min::gen ) );
-		    memcpy ( & element[middle_length],
-			     & closing_ptr[0],
-			       ( closing_length - 1 )
-			     * sizeof ( min::gen ) );
-		    element[middle_length - 1] =
-			named_middle_closing;
-		    named_middle_closing =
-			min::new_lab_gen
-			    ( element, 
-				middle_last_length
+	    closing_length =
+		min::length_of ( closing_ptr );
+	    closing_first =
+		closing_ptr[closing_length-1];
+	}
+	min::uns32 middle_last_type =
+	    LEXSTD::lexical_type_of
+		( middle_last );
+	min::uns32 closing_first_type =
+	    LEXSTD::lexical_type_of
+		( closing_first );
+	if ( middle_last_type == closing_first_type
+	     ||
+	     middle_last_type != LEXSTD::separator_t
+	   )
+	{
+	    min::str_ptr middle_last_ptr
+		( middle_last );
+	    min::str_ptr closing_first_ptr
+		( closing_first );
+	    min::unsptr middle_last_length =
+		min::strlen ( middle_last_ptr );
+	    min::unsptr closing_first_length =
+		min::strlen ( closing_first_ptr );
+	    char new_string [   middle_last_length
 			      + closing_first_length
-			      - 1 );
-		}
+			      + 1 ];
+	    strcpy
+		( & new_string[0],
+		  & middle_last_ptr[0] );
+	    strcpy
+		( & new_string[middle_last_length],
+		  & closing_first_ptr[0] );
+	    named_middle_closing =
+		min::new_str_gen ( new_string );
+	    if (   middle_length
+		 + closing_length > 2 )
+	    {
+		min::gen element
+		    [middle_length + closing_length
+				   - 1];
+		memcpy ( & element[0],
+			 & middle_ptr[0],
+			   ( middle_length - 1 )
+			 * sizeof ( min::gen ) );
+		memcpy ( & element[middle_length],
+			 & closing_ptr[0],
+			   ( closing_length - 1 )
+			 * sizeof ( min::gen ) );
+		element[middle_length - 1] =
+		    named_middle_closing;
+		named_middle_closing =
+		    min::new_lab_gen
+			( element, 
+			    middle_last_length
+			  + closing_first_length
+			  - 1 );
 	    }
-
-	    TAB::push_named_brackets
-	        ( named_opening,
-		  named_separator,
-		  named_middle,
-		  named_closing,
-		  named_middle_closing,
-		  selectors,
-		  parser->bracket_table );
-
-	    break;
 	}
-	default:
-	    MIN_ABORT ( "bad parser (un)define type" );
-	}
+
+	TAB::push_named_brackets
+	    ( named_opening,
+	      named_separator,
+	      named_middle,
+	      named_closing,
+	      named_middle_closing,
+	      selectors,
+	      parser->bracket_table );
+
+	break;
     }
-
-    if ( parser->trace & PAR::TRACE_PARSER_DEFINITIONS )
-	min::print_phrase_lines
-	    ( parser->printer,
-	      ppvec->file, ppvec->position, 0 );
+    default:
+	MIN_ABORT ( "bad parser (un)define type" );
+    }
 
     return min::SUCCESS();
 }

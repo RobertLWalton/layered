@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  5 05:48:49 EDT 2012
+// Date:	Mon Aug  6 04:30:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1056,19 +1056,6 @@ inline ll::parser::token backup
 // " for a quoted string.
 //
 void convert_token ( ll::parser::token token );
-
-// Given a vector pointer vp to an expression, test if
-// the expression is a parser definition.  Do nothing
-// but return min::FAILURE() if no.  If yes, process
-// the definition, and if there is no error return
-// min::SUCCESS(), but if there is an error, print an
-// error message too parser->printer and return min::
-// ERROR().  Note that only expressions that begin with
-// `parser' can be parser definitions.
-//
-min::gen parser_execute_definition
-	( min::obj_vec_ptr & vp,
-	  ll::parser::parser parser );
 
 } }
 

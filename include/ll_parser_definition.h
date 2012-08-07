@@ -1,8 +1,8 @@
 // Layers Language Parser Definitions
 //
-// File:	ll_parser_definitions.h
+// File:	ll_parser_definition.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 06:18:03 EDT 2012
+// Date:	Tue Aug  7 06:01:37 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,8 +11,8 @@
 // Usage and Setup
 // ----- --- -----
 
-# ifndef LL_PARSER_DEFINITIONS_H
-# define LL_PARSER_DEFINITIONS_H
+# ifndef LL_PARSER_DEFINITION_H
+# define LL_PARSER_DEFINITION_H
 
 # include <ll_parser.h>
 
@@ -108,4 +108,4 @@ min::gen parser_execute_bracket_definition
 
 } } }
 
-# endif // LL_PARSER_DEFINITIONS_H
+# endif // LL_PARSER_DEFINITION_H

@@ -1,8 +1,8 @@
 // Layers Language Parser Definitions Test
 //
-// File:	ll_parser_definitions_test.cc
+// File:	ll_parser_definition_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  2 21:02:56 EDT 2012
+// Date:	Tue Aug  7 06:06:41 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability

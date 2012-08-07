@@ -1,8 +1,8 @@
 // Layers Language Parser Execute Definition Function
 //
-// File:	ll_parser_definitions.cc
+// File:	ll_parser_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 12:40:32 EDT 2012
+// Date:	Tue Aug  7 06:03:52 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,7 +20,7 @@
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
-# include <ll_parser_definitions.h>
+# include <ll_parser_definition.h>
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table

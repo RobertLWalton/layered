@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_explicit_subexpression.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 13:49:12 EDT 2012
+// Date:	Tue Aug  7 06:03:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,7 +21,7 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
 # include <ll_parser_explicit_subexpression.h>
-# include <ll_parser_definitions.h>
+# include <ll_parser_definition.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser

@@ -1475,7 +1475,8 @@ A token has the following components:
 
 \begin{indpar}
 \begin{tabular}{p{1in}p{4.5in}}
-\tt type	& One of: \hspace{0.5in}\begin{tabular}[t]{l}
+\ttmkey{type}{of token}
+		& One of: \hspace{0.5in}\begin{tabular}[t]{l}
         	          A lexeme type. \\
         	          \ttmnbkey{OPERATOR}{token type} \\
         	          \ttmnbkey{BRACKETED}{token type} \\
@@ -1489,7 +1490,7 @@ A token has the following components:
 		& Standardly the token lexeme types are word, mark, separator,
 		  and natural number which have token {\tt value}s,
 		  number and quoted string which have token {\tt string}s,
-		  and line break, and end of file which have neither
+		  and line break and end of file which have neither
 		  {\tt value} or {\tt string}.
 		  Standardly whitespace and comment lexemes are
 		  not translated into tokens, and error lexemes are
@@ -1502,41 +1503,32 @@ A token has the following components:
 		  produced inside the operator pass and consumed by
 		  expression reformatters invoked by that pass.
 \\[1ex]
-		& For a {\tt BRACKETED} subexpression, the value of the
-		  expression is recorded as a MIN object
-		  in the token {\tt value}.  This MIN object may have
-		  attributes such as an {\tt .initiator} or {\tt .terminator}.
+		& For a {\tt BRACKETED} subexpression, the token {\tt value}
+		  is a MIN object which may have
+		  attributes such as {\tt .initiator} or {\tt .terminator}.
 \\[1ex]  
 		& Empty subexpressions are recorded as {\tt BRACKETED}
 		  subexpressions whose MIN object has no elements and
 		  no attributes.
 \\[1ex]  
-		& Subexpressions whose MIN object would have just a single
-		  element and no attributes are recorded as {\tt BRACKETABLE}
-		  subexpressions instead.
-\\[1ex]
-		& A {\tt BRACKETABLE} subexpression is just a subexpression
-		  that could be represented by a {\tt BRACKETED} subexpression
-		  whose object had a single element and no attributes.
-		  The token {\tt value} of such a subexpression is
-		  this object's single element.
-\\[1ex]  
-		& {\tt BRACKETABLE}
-		  subexpressions are converted to {\tt BRACKETED}
-		  subexpressions if attributes must be added to them.
-		  Otherwise their {\tt value} is used directly as
-		  an element of any containing expression.
+		& A {\tt BRACKTABLE} token with token {\tt value} V
+		  is equivalent to (and an optimization of) a {\tt BRACKETED}
+		  token whose MIN object has just a single element equal to
+		  V and no attributes.  If attributes must be
+		  added, the token is converted to a {\tt BRACKETED} token.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-\tt value	& The token {\tt value}, as described above.  This is
+\ttmkey{value}{of token}
+		& The token {\tt value}, as described above.  This is
 		  MIN string, label, or object.  Numbers are encoded
 		  as MIN strings, so {\tt 001}, {\tt 01}, and {\tt 1}
 		  are all distinct.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-\tt string	& For quoted string and non-natural number lexemes,
+\ttmkey{string}{of token}
+		& For quoted string and non-natural number lexemes,
 		  which do not have token {\tt value}'s,
                   this is the translation string of the lexeme,
 		  stored in a manner that makes
@@ -1546,7 +1538,8 @@ A token has the following components:
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-\tt position    & The positions in the input file of
+\ttmkey{position}{of token}
+		& The positions in the input file of
                   the first character of the token
 		  and the first character after the token in the
 		  input text.  A character position records a line number
@@ -1555,7 +1548,8 @@ A token has the following components:
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-\tt indent      & The indentation of the token from the beginning
+\ttmkey{indent}{of token}
+	        & The indentation of the token from the beginning
                   of the line, for the first token of a line only.
 		  Calculated assuming a single space character is
 		  1 column and horizontal tabs are every 8 columns.
@@ -1623,10 +1617,9 @@ components:
 		  different natural number symbols.
 \end{tabular}
 
-\medskip
-
 \begin{tabular}{p{1in}p{4.5in}}
-\tt type	& The type of the definition.  Each parser pass has
+\ttmkey{type}{of symbol table entry}
+		& The type of the definition.  Each parser pass has
 		  one (or sometimes more) symbol tables containing
 		  definitions of types particular to the pass.
 		  For example, the explicit subexpression recognition
@@ -1635,11 +1628,18 @@ components:
 		  type definitions, among others.
 \end{tabular}
 
-\medskip
+\begin{tabular}{p{1in}p{4.5in}}
+\ttmkey{selectors}{of symbol table entry}
+		& A set of \skey{parsing selector}s that determine if
+		  the definition is active.  See text.
+\end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
-\tt selectors	& A set of \skey{parsing selector}s that determine if
-		  the definition is active.  See text.
+\ttmkey{level}{of symbol table entry}
+		& Block nesting level of the definition block
+		  containing the definition that made this symbol
+		  table entry.  When the block ends, this entry
+		  will be removed from the stack.
 \end{tabular}
 \end{indpar}
 

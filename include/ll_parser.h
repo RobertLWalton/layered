@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  6 14:03:27 EDT 2012
+// Date:	Wed Aug  8 02:19:00 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1013,7 +1013,7 @@ inline ll::parser::token skip
 
 // Remove n tokens from before `next', where n is the
 // number of elements of `label' (== 1 if `label' is
-// a symbol or number).  Return the begin position of
+// a string or number).  Return the begin position of
 // the last token removed.  Free the removed tokens.
 //
 inline min::position remove
@@ -1057,7 +1057,7 @@ inline void remove
 
 // Return the n'th token before `next', where n is the
 // number of elements of `label' (== 1 if `label' is
-// a symbol or number).
+// a string or number).
 
 inline ll::parser::token backup
         ( ll::parser::token next, min::gen label )

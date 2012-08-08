@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 15, 2012
+August 8, 2012
  
 \end{center}
 
@@ -1454,16 +1454,20 @@ The `{\tt goto}', `{\tt call}', and `{\tt return}' instruction components
 \section{Parsing}
 
 The parser is a sequence of passes each of which operates on a list
-of tokens.  A token is either a lexeme or an expression.
-The top level parser pass, the explicit subexpression recognition pass,
-recognizes subexpressions that are bounded by explicit brackets
-such as `{\tt (}' and `{\tt )}' or ends of lines that are not
-followed by indented lines.  The non-top-level passes
-operate on the subexpressions recognized by previous passes.
+of tokens.  A token is either a lexeme, a subexpression, or an operator.
+The top level parser pass, the bracketed subexpression recognition pass,
+recognizes subexpressions that are bounded by brackets
+such as `{\tt (}' and `{\tt )}', by an indentation mark and eventual
+end of indentation, or by a line end.
+The non-top-level passes
+operate on the subexpressions recognized by previous passes;
+for example, the operator pass recognizes
+subexpressions bounded by operators.
 
 Parsing reduces each recognized subexpression, including each input
-line, to a single expression token.  Here input lines may be continued
-by indented lines.
+line and each paragraph,
+to a single expression token.  Here indentation is used to continue
+lines and paragraphs.
 
 \subsection{Tokens}
 
@@ -1473,50 +1477,65 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 \tt type	& One of: \hspace{0.5in}\begin{tabular}[t]{l}
         	          A lexeme type. \\
-        	          \ttmnbkey{EXPRESSION}{token type} \\[1ex]
+        	          \ttmnbkey{OPERATOR}{token type} \\
+        	          \ttmnbkey{BRACKETED}{token type} \\
+        	          \ttmnbkey{BRACKETABLE}{token type} \\[1ex]
 			  \end{tabular}
 \\[1ex]
 		& For a lexeme, the translation of the
 		  lexeme may be recorded in either the token
 		  {\tt value} as a MIN string or in the token {\tt string}.
+\\[1ex]  
+		& Standardly the token lexeme types are word, mark, separator,
+		  and natural number which have token {\tt value}s,
+		  number and quoted string which have token {\tt string}s,
+		  and line break, and end of file which have neither
+		  {\tt value} or {\tt string}.
+		  Standardly whitespace and comment lexemes are
+		  not translated into tokens, and error lexemes are
+		  announced when input but not translated into tokens.
 \\[1ex]
-		& For an {\tt EXPRESSION}, the value of the
-		  expression is re\-corded as a MIN object
-		  in the token {\tt value}.
+		& For an {\tt OPERATOR}, the token {\tt value}
+		  is the operator name recorded as
+		  a MIN string or a MIN label.
+		  Such tokens are
+		  produced inside the operator pass and consumed by
+		  expression reformatters invoked by that pass.
 \\[1ex]
-		& Comment, line break, and end of file tokens have
-		  neither token {\tt string} nor token {\tt value}.
+		& For a {\tt BRACKETED} subexpression, the value of the
+		  expression is recorded as a MIN object
+		  in the token {\tt value}.  This MIN object may have
+		  attributes such as an {\tt .initiator} or {\tt .terminator}.
+\\[1ex]  
+		& Empty subexpressions are recorded as {\tt BRACKETED}
+		  subexpressions whose MIN object has no elements and
+		  no attributes.
+\\[1ex]  
+		& Subexpressions whose MIN object would have just a single
+		  element and no attributes are recorded as {\tt BRACKETABLE}
+		  subexpressions instead.
 \\[1ex]
-		& Whitespace lexemes are
-		  ignored and not translated into tokens, as the
-		  the token {\tt begin} and token {\tt end}
-		  (see below) record the line number, indentation and extent
-		  of non-whitespace tokens.
+		& A {\tt BRACKETABLE} subexpression is just a subexpression
+		  that could be represented by a {\tt BRACKETED} subexpression
+		  whose object had a single element and no attributes.
+		  The token {\tt value} of such a subexpression is
+		  this object's single element.
+\\[1ex]  
+		& {\tt BRACKETABLE}
+		  subexpressions are converted to {\tt BRACKETED}
+		  subexpressions if attributes must be added to them.
+		  Otherwise their {\tt value} is used directly as
+		  an element of any containing expression.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-\tt value	& For lexemes that have a token {\tt value}, this is
-		  the lexeme translation string stored as a MIN string.
-\\[1ex]
-		& The standard parser encodes the translation
-		  strings of words, marks, separators, and natural
-		  numbers as token {\tt value}'s, but \underline{not}
-		  the translation strings of non-natural numbers
-		  or quoted strings.
-\\[1ex]
-		& A token in which the translation string is
-		  encoded as a token {\tt value}
-		  is also called a `\key{symbol token}'.
-		  Note that as symbols {\tt 001}, {\tt 01}, and {\tt 1}
+\tt value	& The token {\tt value}, as described above.  This is
+		  MIN string, label, or object.  Numbers are encoded
+		  as MIN strings, so {\tt 001}, {\tt 01}, and {\tt 1}
 		  are all distinct.
+\end{tabular}
 \\[1ex]
-		& For EXPRESSION tokens, this is a MIN object which
-		  encodes a list.  This list may also have other
-		  attributes, such as
-		  {\tt .initiator}, {\tt .terminator}, {\tt .middle},
-		  {\tt .sep\-arator}, {\tt .name}, {\tt .arguments}, and
-		  {\tt .keys}.
-\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
 \tt string	& For quoted string and non-natural number lexemes,
 		  which do not have token {\tt value}'s,
                   this is the translation string of the lexeme,
@@ -1524,35 +1543,44 @@ A token has the following components:
 		  garbage collection and memory reuse more
 		  efficient than it would be if MIN strings
 		  were used, but makes lookup less efficient.
-
-\end{tabular} \\[1ex]
+\end{tabular}
+\\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-\begin{tabular}[t]{l}
-\tt begin \\
-\tt end
-\end{tabular}   & The positions of the first character of the token
+\tt position    & The positions in the input file of
+                  the first character of the token
 		  and the first character after the token in the
-		  input text.  A position records a line number
+		  input text.  A character position records a line number
 		  and the byte offset within a UTF-8 encoding
 		  of the line.
+\end{tabular}
+\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
+\tt indent      & The indentation of the token from the beginning
+                  of the line, for the first token of a line only.
+		  Calculated assuming a single space character is
+		  1 column and horizontal tabs are every 8 columns.
+		  A special missing value if the token is not the
+		  first token on the line.
+		\\[1ex]
+		& Used by the bracketted subexpression recognizer
+		  to recognize indentation.
 \end{tabular}
 \end{indpar}
 
 Tokens are organized in a doubly threaded list.  A file is translated into
 such a list that ends with a token containing a end-of-file
-lexeme.  Some tokens, like end-of-file and line-break lexeme
-tokens, do not have their translation strings recorded in the token.
+lexeme.
 The tokens of a file are not read in all at once, but are read in as
 needed.
 
 As the parser identifies subexpressions, the tokens in the
-subexpression are replaced by a single {\tt EXPRESSION} token
-which encodes the subexpression.
+subexpression are replaced by a single {\tt BRACKETED} or {\tt BRACKETABLE}
+token which encodes the subexpression.
 File input lines may also be organized into paragraphs containing
 paragraph lines, and both paragraph lines and paragraphs are
 treated as subexpressions.  Although at the top level an entire
 input file can be considered to be a paragraph, the parser \underline{never}
-forms the {\tt EXPRESSION} token that would represent it, but instead
+forms a single token that would represent it, but instead
 delivers top level paragraph lines one at a time for subsequent
 processing.
 

@@ -1622,7 +1622,7 @@ components:
 		& The type of the definition.  Each parser pass has
 		  one (or sometimes more) symbol tables containing
 		  definitions of types particular to the pass.
-		  For example, the explicit subexpression recognition
+		  For example, the bracketed subexpression recognition
 		  pass has {\tt opening bracket}, {\tt closing bracket},
 		  {\tt indentation mark}, and {\tt indentation separator}
 		  type definitions, among others.
@@ -1644,10 +1644,10 @@ components:
 \end{indpar}
 
 Lookup in a parser symbol table takes as input a token sequence
-that is part of a line (for the explicit subexpression recognition pass)
-or subexpression (for other passes), and finds the active symbol table
-entry with the longest label whose symbols match an initial segment
-of the token sequence.  Only symbol tokens, whose lexeme types are word,
+that is part of a line (for the bracketed subexpression recognition pass)
+or subexpression (for other passes), and finds an active symbol table
+entry with a label whose symbols match an initial segment of the
+token sequence.  Only symbol tokens, whose lexeme types are word,
 mark, separator, or natural number, can match label symbols.  These are just
 the token types that have values which are MIN strings equal to the
 translation strings of their lexemes, and it is these values that
@@ -1656,11 +1656,19 @@ When a match is found,
 the initial segment of tokens used in the match is called
 a `\key{matched label}\,'.
 
-Note that in the explicit
+At any point the longest active match is choosen.  Entries may
+not be active because they have the wrong type or wrong selectors
+for the current parser pass or context.
+Entries may be activated only when other entries are recognized
+in the current context, as when afix operators become active
+only after an associated non-afix operator is recognized in
+the same subexpression.
+
+In the bracketed
 subexpression recognition pass matched labels may not span line boundaries.
 In later passes, line boundary tokens are no longer present, and
 matched labels can span line boundaries,
-but cannot cross explicit subexpression
+but cannot cross bracketed subexpression
 boundaries.
 
 The context of a symbol table lookup includes a set of selectors.
@@ -1672,17 +1680,15 @@ position 1{\tt <<}N being on if the N+1'st selector is in the set.
 Thus there can be at most 64 distinct selectors used by any set of
 parser definitions.
 
-Also parser definition activity may depend upon context.  For example,
-if `{\tt <}' is a named opening and `{\tt |}' is its associated named
-middle (see \itemref{NAMED-BRACKETED-SUBEXPRESSIONS}
-below for details), this named middle `{\tt |}'
-is not active unless it is proceeded by
-its associated named opening `{\tt <}' in the current explicit subexpression.
+The context selectors may change when an explicit opening bracket
+is recognized, and remain changed until the associated explicit closing
+bracket is recognized.  No other mechanisms for changing the
+context selectors are permitted.
 
 \subsection{Parser Definitions}
 
 The syntax of a parser definitions in general and those
-associated with the explicit expression recognition pass in particular
+associated with the bracketed expression recognition pass in particular
 is specified on
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 and
@@ -1835,18 +1841,18 @@ A parser definition is a top level input line by itself, and is
 executed by the parser itself
 after the definition is read, thus affecting subsequent parsing.
 
-Parser definitions begin with either the word
-`\ttmkey{define}{in parser definition}' or
-`\ttmkey{undefine}{in parser definition}'.  This is followed
+Parser definitions begin with either 
+`\ttkey{parser} \ttmkey{define}{in parser definition}' or
+`{\tt \bf parser} \ttmkey{undefine}{in parser definition}'.  This is followed
 by a \key{definition type} such as `{\tt bracket}' or
 `{\tt indentation mark}', and this in turn is followed
 by a definition name and then {\em parsing-selectors}.
 The \key{definition name} consists of `{\tt ...}' separated
 {\em quoted-names} that are used as labels of symbol table entries
-and therefore as keys in symbol table lookups.
+and therefore as keys for symbol table lookups.
 
-A \ttmkey{define}{parser definition}
-parser definition makes entries in parser symbol tables.
+A `{\tt \bf parser} \ttmkey{define}{parser definition}'
+line makes entries in parser symbol tables.
 One entry is made for each {\em quoted-name} in the definition name.
 Each entry is assigned the {\em parsing-selectors} from the parsing
 definition.  The selectors determine in which contexts the definition
@@ -1925,9 +1931,9 @@ is popped, its effects are removed from the symbol tables.
 Both {\tt define} and {\tt undefine} parser definitions can be
 removed in this way.
 
-\subsection{The Explicit Subexpression Recognition Pass}
+\subsection{The Bracketed Subexpression Recognition Pass}
 
-The explicit subexpression recognition pass recognizes:
+The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[1.0in]
 \hspace*{-0.5in}unnamed brackets (e.g.~`{\tt (}' and `{\tt )}')
     and unnamed bracketed subexpressions \\
@@ -1939,7 +1945,7 @@ The explicit subexpression recognition pass recognizes:
 \hspace*{-0.5in}named operators (e.g.~`{\tt <p>}')
 \end{indpar}
 
-The syntax of the parser definitions that control explicit
+The syntax of the parser definitions that control bracketed
 subexpression recognition
 is specified on
 \pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
@@ -1958,13 +1964,13 @@ sequences of words, numbers, quoted strings, and unnamed
 bracketed subexpressions, and thence form named brackets
 and named operators.
 
-In explicit subexpression recognition, 
+In bracketed subexpression recognition, 
 multi-lexeme symbol table keys are not recognized in the
 input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
-Also, all explicit subexpression recognition symbol table
+Also, all bracketed subexpression recognition symbol table
 keys consist of only marks and separators, and have no
 words or natural numbers.
 
@@ -2088,7 +2094,7 @@ may be glued to `{\tt =}' to make `{\tt =:}'.
 
 After an indentation mark is split from a previous mark at the end of
 a line, previous tokens are checked to see if they contain
-the label of a symbol table entry used by the explicit subexpression
+the label of a symbol table entry used by the bracketed subexpression
 parser.  More explicitly, any sequence of marks and separators at the
 end of the line is re-parsed, excluding any mark or separator that was
 part of or before a previously recognized symbol table entry.
@@ -2307,7 +2313,7 @@ contents of a {\em named-opening-bracket}.
 
 \subsection{Parser Passes}
 
-After a subexpression has been identified by the top level explicit
+After a subexpression has been identified by the top level bracketed
 subexpression recognition pass, a sequence of passes are run on the
 subexpression.  Which passes are run is determined by the the
 parser pass stack.
@@ -2318,14 +2324,14 @@ recognizes a subexpression, the active parsers in the parser pass stack
 are run in the order that they appear in the stack.
 
 The parsing selectors
-computed by the opening bracket of the explicit subexpression, which
-are used to scan the explicit subexpression, are also attached to that
-explicit subexpression.
-These are used to determine activity of the parser passes run on the explicit
+computed by the opening bracket of the bracketed subexpression, which
+are used to scan the bracketed subexpression, are also attached to that
+bracketed subexpression.
+These are used to determine activity of the parser passes run on the bracketed
 subexpression and also the activity
 of the parser definitions (i.e., parser symbol table entries)
 used by these parser passes.
-Note that only the explicit brackets surrounding an explicit subexpression
+Note that only the brackets surrounding a bracketed subexpression
 can change the parsing selectors in the parser context; the operators
 that bound implicit subexpressions cannot change these parsing selectors.
 
@@ -2402,11 +2408,11 @@ of all tokens.  When a parser pass is called, it is provided with
 a pointer to the first token of this sublist, and a pointer to the
 first token after the sublist.  The pass may edit the sublist.
 
-The explicit subexpression recognition pass calls the other passes,
+The bracketed subexpression recognition pass calls the other passes,
 in the order they appear in the parser pass stack, excluding any
 that are inactive because they have no selector in common with
 the current parser context selectors.  After the last pass has been
-called, the explicit subexpression recognition pass replaces the
+called, the bracketed subexpression recognition pass replaces the
 final sublist, which is the subexpression that has been recognized,
 by an EXPRESSION token with a MIN object value, as described above.
 
@@ -2468,9 +2474,9 @@ The syntax of operator definitions is:
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression
 in order to identify occurrences of the operator.
-The other forms of {\em operator-name} permit explicit subexpressions
+The other forms of {\em operator-name} permit bracketed subexpressions
 with particular kinds of brackets to be parsed as if they were operators.
-Thus in `\verb|x[5]=0|' the explicit subexpression
+Thus in `\verb|x[5]=0|' the bracketed subexpression
 `\verb|[5]|' can be a postfix operator.  A subexpression
 bracketed by `\verb|{ }|' is used as an afix (see below) to the
 \verb|<--| operator (as is a subexpression introduced by the `\verb|:|'
@@ -2498,7 +2504,7 @@ an expression, or two nofix operators may be consecutive in an expression.
 
 An \ttkey{afix} operator is must follow
 another operator that has the same precedence in a subexpression.
-Explicit subexpressions bracketed by `\verb|{ }|'
+Subexpressions bracketed by `\verb|{ }|'
 are standard afix operators with the same precedence
 as the \verb|<--| operator, so that an expression such as:
 \begin{center}

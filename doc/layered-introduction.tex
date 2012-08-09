@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 8, 2012
+August 9, 2012
  
 \end{center}
 
@@ -1685,16 +1685,30 @@ is recognized, and remain changed until the associated explicit closing
 bracket is recognized.  No other mechanisms for changing the
 context selectors are permitted.
 
-\subsection{Parser Definitions}
+\subsection{Parser Commands}
 
-The syntax of a parser definitions in general and those
-associated with the bracketed expression recognition pass in particular
+The syntax of a parser commands in general and in particular those
+associated parser testing and selector definition
 is specified on
-\pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
-and
-\pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
+\pagref{PARSER-COMMANDS}.
 
 \begin{figure*}[!p]
+\emkey{parser-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em parser-block-command} \\
+    $|$ & {\em parser-test-command} \\
+    $|$ & {\em parser-selector-command} \\
+    $|$ & {\em parser-bracket-command} \\
+    $|$ & {\em parser-indentation-command} \\
+    $|$ & {\em parser-operator-command} \\
+    \end{tabular}
+\label{PARSER-COMMAND}
+\\[2ex]
+\emkey{simple-name-component} ::= {\em word} $|$ {\em natural-number}
+\\[0.5ex]
+\emkey{simple-name} ::= {\em simple-name-component}
+                        {\em simple-name-component}\,$^\star$
+\\[2ex]
 \emkey{quoted-name-component} ::=
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em natural-number}
 \\[0.5ex]
@@ -1702,50 +1716,80 @@ and
     {\tt "}{\em quoted-name-component}
            {\em quoted-name-component}\,$^\star${\tt "}
 \\[2ex]
-\emkey{simple-name-component} ::= {\em word} $|$ {\em natural-number}
+\emkey{parser-flag} ::= {\em simple-name}
 \\[0.5ex]
-\emkey{simple-name} ::= {\em simple-name-component}
-                        {\em simple-name-component}\,$^\star$
-\\[2ex]
-\emkey{parsing-selectors} ::= {\em empty}
-			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
-\label{PARSING-SELECTORS}
-\\[0.5ex]
-\emkey{parsing-selector-list} ::= {\em empty}
-    $|$ {\em parsing-selector} \{ \verb|,| {\em parsing-selector} \}\,$^\star$
-\\[0.5ex]
-\emkey{parsing-selector} ::= {\em simple-name}
-\\[2ex]
-\emkey{new-parsing-selectors} \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-    ::= & \underline{\tt [} {\em parsing-selector-list} \underline{\tt ]} \\
-    $|$ & \underline{\tt [} {\em parsing-selector-op} {\em parsing-selector} \\
-        & \hspace*{0.3in}
-          \{ \verb|,| {\em parsing-selector-op} {\em parsing-selector}
-	  \}$^\star$ \underline{\tt ]}
+\emkey{parser-flag-list}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\tt [ ]} \\
+    $|$ & {\tt [} {\em parser-flag}
+          \{ \verb|,| {\em parser-flag} \}\,$^\star$ {\tt ]} \\
     \end{tabular}
-\label{NEW-PARSING-SELECTORS}
 \\[0.5ex]
-\emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
-\\[2ex]
-\emkey{selector-definition}
-    ::= \ttikey{parser define selector}{define selector}
-               {\em parsing-selector}
-\\[2ex]
-\emkey{bracket-definition} \\
+\emkey{parser-new-flag-list}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em parser-flag-list} \\
+    $|$ & {\tt [} {\em parser-flag-op} {\em parser-flag}
+          \{ \verb|,| {\em parser-flag-op} {\em parser-flag} \}\,$^\star$
+	  {\tt ]} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{parser-flag-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
+\\[4ex]
+\emkey{parser-block-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & \ttikey{parser begin}{begin!parser block} {\em block-name} \\
+    $|$ & \ttikey{parser end}{end!parser block} {\em block-name} \\
+    $|$ & \ttikey{parser print blocks}{print!parser blocks} \\
+    \end{tabular}
+\label{PARSER-BLOCK-COMMAND}
+\\[0.5ex]
+\emkey{block-name} ::= {\em simple-name}
+\\[4ex]
+\emkey{parser-test-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-list} \\
+    $|$ & \ttikey{parser print trace}{trace!parser print} \\
+    $|$ & \ttikey{parser test}{test!parser} \ldots \\
+    \end{tabular}
+\label{PARSER-TEST-COMMAND}
+\\[0.5ex]
+\emkey{parser-trace-flag} \begin{tabular}[t]{@{}rl@{}}
+                          ::= & \ttikey{input}{parser trace flag}
+			        $|$ \ttikey{output}{parser trace flag}
+			        $|$ \ttikey{definitions}{parser trace flag} \\
+			  $|$ & \ttikey{bracketed subexpressions}%
+			               {parser trace flag}
+			        $|$ \ttikey{operator subexpressions}%
+			                   {parser trace flag} \\
+			  \end{tabular}
+\\[4ex]
+\emkey{parser-selector-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
+    $|$ & \ttikey{parser print selectors}{selector!print} \\
+    \end{tabular}
+\label{PARSER-SELECTOR-COMMAND}
+\\[0.5ex]
+\emkey{selector} ::= {\em parser-flag}
+\\[0.5ex]
+\emkey{parsing-selectors} ::= {\em parser-flag-list}
+
+\label{PARSER-COMMANDS}
+\end{figure*}
+
+\begin{figure*}[!t]
+\emkey{parser-bracket-command} \\
     \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define bracket}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf bracket}
-	  {\em bracket-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	  {}[ {\tt with full lines} ] \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine bracket}{undefine bracket}
-	  {\em bracket-name} {\em parsing-selectors} \\
+    \begin{tabular}[t]{rll}
+    ::= & \multicolumn{2}{l}{\ttikey{parser define bracket}%
+                                    {bracket!parser define}
+		    {\em bracket-name} {\em parser-selectors}} \\
+	& \hspace*{3em} & [ {\tt with parsing selectors}
+	                    {\em parser-new-selectors} ] \\
+        &               & [ {\tt with full lines} ] \\
+        &               & [ {\tt with reformatter} {\em reformatter-name} ] \\
+    $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}{undefine bracket}
+	  {\em bracket-name} {\em parsing-selectors}} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em opening-bracket-name}
@@ -1757,11 +1801,11 @@ and
 \\[0.5ex]
 \emkey{closing-bracket-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{reformatter-name} ::= {\em simple-name}
+\emkey{parser-new-selectors} ::= {\em parser-new-flag-list}
 \\[0.5ex]
-\emkey{evaluator-name} ::= {\em simple-name}
+\emkey{reformatter-name} ::= {\em simple-name}
 
-\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
+\label{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 \end{figure*}
 
 \begin{figure*}[!t]
@@ -1834,12 +1878,19 @@ and
 \\[0.5ex]
 \emkey{named-closing} ::= {\em quoted-name}
 
-\label{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
+\label{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
 \end{figure*}
 
 A parser definition is a top level input line by itself, and is
 executed by the parser itself
 after the definition is read, thus affecting subsequent parsing.
+The term `\key{parser definition}' is used both in a specific
+sense to mean the `{\tt parser define}' command,and in a general sense
+that includes
+commands such as `{\tt parser print}', `{\tt parser trace}', and
+`{\tt parser test}' that test the parser, `{\tt parser undefine}'
+that disables parser definitions, and `{\tt parser begin}' and
+`{\tt parser end}' that define parser definition blocks.
 
 Parser definitions begin with either 
 `\ttkey{parser} \ttmkey{define}{in parser definition}' or
@@ -1948,9 +1999,9 @@ The bracketed subexpression recognition pass recognizes:
 The syntax of the parser definitions that control bracketed
 subexpression recognition
 is specified on
-\pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
+\pagref{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
 and
-\pagref{EXPLICIT-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
+\pagref{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
 
 Unnamed brackets, indentation marks, and indentation separators are
 symbol table keys.  However named brackets and operators are

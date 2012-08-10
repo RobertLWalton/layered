@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 9, 2012
+August 10, 2012
  
 \end{center}
 
@@ -1685,12 +1685,17 @@ is recognized, and remain changed until the associated explicit closing
 bracket is recognized.  No other mechanisms for changing the
 context selectors are permitted.
 
+The parser symbol tables act like stacks; as new parsing
+definitions are encountered, their effects are `pushed' into the
+symbol tables.  These stacks can be popped, removing
+the parser definitions in reverse order.  When a definition
+is popped, its effects are removed from the symbol tables.
+
 \subsection{Parser Commands}
 
 The syntax of a parser commands in general and in particular those
-associated parser testing and selector definition
-is specified on
-\pagref{PARSER-COMMANDS}.
+associated parser block definition, parser testing, and selector definition
+is specified on \pagref{PARSER-COMMANDS}.
 
 \begin{figure*}[!p]
 \emkey{parser-command}
@@ -1734,7 +1739,7 @@ is specified on
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-flag-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
-\\[4ex]
+\\[3ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser begin}{begin!parser block} {\em block-name} \\
@@ -1744,7 +1749,7 @@ is specified on
 \label{PARSER-BLOCK-COMMAND}
 \\[0.5ex]
 \emkey{block-name} ::= {\em simple-name}
-\\[4ex]
+\\[3ex]
 \emkey{parser-test-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-list} \\
@@ -1758,11 +1763,11 @@ is specified on
 			        $|$ \ttikey{output}{parser trace flag}
 			        $|$ \ttikey{definitions}{parser trace flag} \\
 			  $|$ & \ttikey{bracketed subexpressions}%
-			               {parser trace flag}
-			        $|$ \ttikey{operator subexpressions}%
+			               {parser trace flag} \\
+			  $|$ & \ttikey{operator subexpressions}%
 			                   {parser trace flag} \\
 			  \end{tabular}
-\\[4ex]
+\\[3ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
@@ -1772,111 +1777,142 @@ is specified on
 \\[0.5ex]
 \emkey{selector} ::= {\em parser-flag}
 \\[0.5ex]
-\emkey{parsing-selectors} ::= {\em parser-flag-list}
+\emkey{selectors} ::= {\em parser-flag-list}
 
 \label{PARSER-COMMANDS}
 \end{figure*}
 
-A parser definition is a top level input line by itself, and is
-executed by the parser itself
-after the definition is read, thus affecting subsequent parsing.
-The term `\key{parser definition}' is used both in a specific
-sense to mean the `{\tt parser define}' command,and in a general sense
-that includes
-commands such as `{\tt parser print}', `{\tt parser trace}', and
-`{\tt parser test}' that test the parser, `{\tt parser undefine}'
-that disables parser definitions, and `{\tt parser begin}' and
-`{\tt parser end}' that define parser definition blocks.
+A parser command is a top level input line by itself, and is
+executed by the parser itself after the command is read,
+thus affecting subsequent parsing.  Parser commands are
+themselves parsed before they are executed.
 
-Parser definitions begin with either 
-`\ttkey{parser} \ttmkey{define}{in parser definition}' or
-`{\tt \bf parser} \ttmkey{undefine}{in parser definition}'.  This is followed
-by a \key{definition type} such as `{\tt bracket}' or
-`{\tt indentation mark}', and this in turn is followed
-by a definition name and then {\em parsing-selectors}.
-The \key{definition name} consists of `{\tt ...}' separated
-{\em quoted-names} that are used as labels of symbol table entries
-and therefore as keys for symbol table lookups.
+Parser commands begin with the word `\ttmkey{parser}{in parser command}'.
+Parser commands make use of {\em simple-names} that are just
+sequences of {\em words} and {\em natural-numbers}, and
+{\em quoted-names}, that are arbitrary sequences of {\em word},
+{\em mark}, {\em separator}, and {\em natural-number} lexemes enclosed
+in quotation marks to form a {\em quoted-string} lexeme.
+This embedding of lexemes in a {\em quoted-string} lexeme
+serves to keep the embedded lexemes from being given a special
+interpretation by the parser when the parser command is parsed.
 
-A `{\tt \bf parser} \ttmkey{define}{parser definition}'
-line makes entries in parser symbol tables.
-One entry is made for each {\em quoted-name} in the definition name.
-Each entry is assigned the {\em parsing-selectors} from the parsing
-definition.  The selectors determine in which contexts the definition
-will be active.
-
-If a quoted string is used in a parser definition
-{\em quoted-name}, the quotes are removed
-before the name is installed as a symbol table entry label.  The
-purpose of the quotes is merely to prevent the name from being
-recognized by the parser as a special symbol.  After the quotes
-are removed, the remaining characters must be a valid single lexeme
-separator, mark, word, or natural number.
-
-An example parser definition is
+Parser commands may be organized into \skey{parser-block}s of the form:
 \begin{center}
-{\tt define bracket "("~...~")" [operator text]} \ldots
-\end{center}
-Here `{\tt (}' is an {\em opening-bracket-name},
-`{\tt )}' is a {\em closing-bracket-name},
-and `{\tt operator}' and `{\tt text}' are selectors.
-`{\tt operator}' is the standard selector for programming code
-and algebraic expressions, and `{\tt text}' is the standard
-selector for text processing expressions.
-
-Parser symbol tables are used to look up sequences of tokens that
-match names in the tables.  During lookup the parser has a context that
-contains a set of {\em parsing-selectors}.
-Each {\em parsing-selector}
-has its own name, which is used to denote it in parser definitions.
-In order to be recognized, a symbol table entry must be active, and
-to be active, it must have at least one {\em parsing-selector}
-in its definition that matches a {\em parsing-selector} in the
-parsing context at the time of lookup.
-
-There can be at most 64 distinct {\em parsing-selectors} in all
-the parser definitions together.\footnote{
-Internally a {\em parsing-selectors} set can be represented by
-a 64 bit unsigned integer with one bit per possible {\em selector}.}
-
-When a (named or unnamed)
-opening bracket or indentation mark is recognized, the current set of
-parser context {\em parsing-selectors} is pushed into a stack and
-a new set is computed using the {\em new-parsing-selectors}
-from the definition of the bracket or indentation mark.
-{\em New-parsing-selectors} can either be a list of selectors,
-or a list of operations that modify the previous context selectors.
-In the later case the possible operations are:
-\begin{center}
-\begin{tabular}{l@{\,}lp{3in}}
-\ttmkey{+}{new selector operation} & {\em selector}
-    & Add {\em selector} if it is not in the set.
-\\[0.5ex]
-\ttmkey{-}{new selector operation} & {\em selector}
-    & Remove {\em selector} if it is in the set.
-\\[0.5ex]
-\ttmkey{\CIRCUMFLEX}{new selector operation} & {\em selector}
-    & Flip {\em selector}, that is,
-      add {\em selector} if it is not in the set,
-      and remove {\em selector} if it is in the set.
+\begin{tabular}{l}
+\ttmkey{parser begin}{block} {\em block-name} \\
+{\em parser-command} \\
+.~.~.~.~.~.~.~.~.~. \\
+\ttmkey{parser end}{block} {\em block-name} \\
 \end{tabular}
 \end{center}
 
-An \ttmkey{undefine}{parser definition}
-parser definition modifies the {\em parsing-selectors}
-of any entries that would be added to symbols
-tables by the corresponding {\tt define} parser definition.
-If the {\tt undefine} has a given {\em selector}, that selector is removed
-from all these entries.  {\tt Undefine} parser definitions
-have no other effect.
+When a parser block ends, all changes to the parser tables made in
+the block are erased, so subsequent parsing is as if the block
+had never existed.
+The {\em block-name} merely serves as an error check; it is
+not possible to have one `{\tt parser end}' command end more than
+one parser block.
 
-The parsing symbol tables act like a stack; as new parsing
-definitions are encountered, their effects are `pushed' into the
-symbol tables.  This virtual stack can be popped, removing
-the parser definitions in reverse order.  When a definition
-is popped, its effects are removed from the symbol tables.
-Both {\tt define} and {\tt undefine} parser definitions can be
-removed in this way.
+The parser has two sets of \emkey{parser-flags}\index{flags!parser}:
+the parser trace flags and the
+selectors.  Each set has 64 named flags.  A set of parser flags can be
+specified by giving a {\em parser-flag-list} or a
+{\em parser-new-flag-list} containing {\em parser-flag-op} {\em parser-flag}
+pairs.  In the last case the flag set is made by taking the current
+flag set (trace flags or selectors) and modifying it according to the
+instructions in the pairs.  Here `{\tt +} {\em flag-name}' is an instruction
+to set the named flag, `{\tt -} {\em flag-name}' is an instruction
+to clear the named flag, and `\CIRCUMFLEX {\em flag-name}' is
+an instruction to complement, or flip, the named flag.
+In either the case of a {\tt parser-flag-list} or
+{\em parser-new-flag-list} no flag may be named more than once.
+ 
+The current set of
+\skey{parser trace flag}s\index{trace flag!parser}\index{flag!parser trace}
+may be given or modified by the `\ttkey{parser trace}' command.
+The trace flags cause trace printouts to the printer the parser uses
+for error messages.  The trace flag names are builtin: the
+following gives for each flag the condition
+that triggers a trace printout controlled by the flag,
+and a brief description of that printout:
+
+\begin{indpar}[0.4in]
+\hspace*{-0.2in}\ttmkey{input}{parser trace flag} ~
+    Upon reading a token from the input, a description of the token is printed.
+
+\hspace*{-0.2in}\ttmkey{output}{parser trace flag}
+    Upon producing a final output line, a description of the line is printed.
+
+\hspace*{-0.2in}\ttmkey{definitions}{parser trace flag}
+    Upon successfully finishing the execution of a parser command,
+    the command is printed (if the command is in error the error
+    printout will print the command).
+
+\hspace*{-0.2in}\ttmkey{bracketed subexpressions}{parser trace flag}
+    Upon recognition of a subexpression by the bracketed subexpression
+    recognition pass, the subexpression is printed.
+
+\hspace*{-0.2in}\ttmkey{operator subexpressions}{parser trace flag}
+    Upon recognition of a subexpression by the operator subexpression
+    recognition pass, the subexpression is printed.
+\end{indpar}
+
+The `\ttkey{parser print trace}' command prints the current set of
+parser trace flags.
+
+The `\ttkey{parser test}' command just causes the parse of itself
+to be printed in detail.  Since parser commands are parsed before they
+are executed, any text placed after the words `{\tt parser test}' will
+be parsed and the resulting printout will indicate the details of that
+parse.
+
+Selector names (unlike trace flag names) a \underline{not} buitin,
+and must be defined by the
+`\ttikey{parser define selector}{selector!parser define}'
+command.  When the parser block containing selector name definition
+command ends, the selector name is erased.
+There may be at most 64 selectors defined at any one time.
+The current selector names can be printed by using
+the `\ttikey{parser print selectors}{selector!parser print}'
+command.
+
+In the following sections various `\ttkey{parser define}' commands
+are described.  These push entries in to the parser symbol tables.
+The general syntax of these is
+\begin{center}
+{\tt parser define} {\em type} {\em name} {\em selectors} \ldots 
+\end{center}
+and an example is
+\begin{center}
+{\tt define bracket "("~...~")" [operator text]} \ldots
+\end{center}
+The {\em type}, `{\tt bracket}' in the example, identifies the parser pass into
+whose symbol tables entries are to be pushed.  The {\em name},
+`{\tt "("~...~")"}' in the example, gives {\em quoted-names} that become
+the entry labels.  The {\em selectors},
+`{\tt [operator text]}' in the example, specify the selector set of
+the entries to be pushed.
+
+The end of a parser block pops all entries pushed into parser
+symbol tables during the block.
+
+Associated with each of these `{\tt parser define}' commands is a
+`\ttkey{parser undefine}' command of the form:
+\begin{center}
+{\tt parser undefine} [ {\tt last} $|$ {\tt block} $|$ {\tt all} ]
+         {\em type} {\em name} {\em selectors}
+\end{center}
+
+This command clears the designated selector bits from
+symbol table entries made by their associated `{\tt parser define}'
+commands.  This can be done either for just the `{\tt last}' such
+entry, for all entries in the current parser block,
+or for `{\tt all}' such entries.  Particular bits may be
+cleared, or all bits may be cleared.  When the parser block containing
+a `{\tt parser undefine}' command ends, the symbol table entry
+selector bits are restored to their state at the beginning of the block.
+
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 
@@ -1927,6 +1963,31 @@ is a MIN string equal to the translation string of the quoted string
 lexeme, and whose {\tt .initiator} attribute is equal to {\tt "}.
 Non-natural number lexemes are converted similarly but their
 {\tt .initiator} is {\tt \#}.
+
+TBD
+
+When a (named or unnamed)
+opening bracket or indentation mark is recognized, the current set of
+parser context {\em parsing-selectors} is pushed into a stack and
+a new set is computed using the {\em new-parsing-selectors}
+from the definition of the bracket or indentation mark.
+{\em New-parsing-selectors} can either be a list of selectors,
+or a list of operations that modify the previous context selectors.
+In the later case the possible operations are:
+\begin{center}
+\begin{tabular}{l@{\,}lp{3in}}
+\ttmkey{+}{new selector operation} & {\em selector}
+    & Add {\em selector} if it is not in the set.
+\\[0.5ex]
+\ttmkey{-}{new selector operation} & {\em selector}
+    & Remove {\em selector} if it is in the set.
+\\[0.5ex]
+\ttmkey{\CIRCUMFLEX}{new selector operation} & {\em selector}
+    & Flip {\em selector}, that is,
+      add {\em selector} if it is not in the set,
+      and remove {\em selector} if it is in the set.
+\end{tabular}
+\end{center}
 
 \subsubsection{Unnamed Bracketed Subexpressions}
 

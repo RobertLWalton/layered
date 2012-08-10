@@ -1929,8 +1929,8 @@ The bracketed subexpression recognition pass recognizes:
 \end{indpar}
 
 Unnamed brackets, indentation marks, and indentation separators are
-symbol table keys.  However named brackets and operators are
-not.  Instead, a named bracket or operator is formed by using
+symbol table keys.  However named brackets and named operators are
+not.  Instead, a named bracket or named operator is formed by using
 named openings (e.g.~`{\tt <}'),
 named separators (e.g.~`{\tt \#}'),
 named middles (e.g.~`{\tt |}'),
@@ -1945,10 +1945,6 @@ multi-lexeme symbol table keys are not recognized in the
 input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
-
-Also, all bracketed subexpression recognition symbol table
-keys consist of only marks and separators, and have no
-words or natural numbers.
 
 The output of the parser is one {\tt EXPRESSION} token per
 top level line.  The value of an {\tt EXPRESSION} token is

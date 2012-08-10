@@ -1777,110 +1777,6 @@ is specified on
 \label{PARSER-COMMANDS}
 \end{figure*}
 
-\begin{figure*}[!t]
-\emkey{parser-bracket-command} \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rll}
-    ::= & \multicolumn{2}{l}{\ttikey{parser define bracket}%
-                                    {bracket!parser define}
-		    {\em bracket-name} {\em parser-selectors}} \\
-	& \hspace*{3em} & [ {\tt with parsing selectors}
-	                    {\em parser-new-selectors} ] \\
-        &               & [ {\tt with full lines} ] \\
-        &               & [ {\tt with reformatter} {\em reformatter-name} ] \\
-    $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}{undefine bracket}
-	  {\em bracket-name} {\em parsing-selectors}} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{bracket-name} ::= {\em opening-bracket-name}
-			 \ttmkey{...}{in {\em bracket-name}}
-			 {\em closing-bracket-name}
-\label{BRACKET-NAME}
-\\[0.5ex]
-\emkey{opening-bracket-name} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{closing-bracket-name} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{parser-new-selectors} ::= {\em parser-new-flag-list}
-\\[0.5ex]
-\emkey{reformatter-name} ::= {\em simple-name}
-
-\label{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
-\end{figure*}
-
-\begin{figure*}[!t]
-\emkey{indentation-mark-definition} \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define indentation mark}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf indentation mark}
-	  {\em indentation-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$ & \ttikey{parser define}{define gluing indentation mark}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf gluing indentation mark} \\
-	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$& \ttikey{parser undefine indentation mark}{undefine indentation mark}
-	 {\em indentation-name} {\em parsing-selectors} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{indentation-name} ::= {\em indentation-mark-name}
-	[ {\tt ...} {\em indentation-separator-name} ]
-\\[0.5ex]
-\emkey{indentation-mark-name} ::= {\em quoted-name}
-\label{INDENTATION-MARK-NAME}
-\\[0.5ex]
-\emkey{gluing-indentation-name} \\
-    \hspace*{0.2in}~
-    ::= {\em gluing-indentation-mark-name}
-	[ {\tt ...} {\em indentation-separator-name} ]
-\\[0.5ex]
-\emkey{gluing-indentation-mark-name} ::= {\tt "}{\em mark}\,{\tt "}
-\\[0.5ex]
-\emkey{indentation-separator-name} ::= {\em quoted-name}
-\\[2ex]
-\emkey{named-bracket-definition} \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define named bracket}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf named bracket}
-	  {\em named-bracket-name} {\em parsing-selectors} \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine named bracket}{undefine named bracket}
-	  {\em named-bracket-name}
-	  {\em parsing-selectors} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{named-bracket-name} \\
-    \hspace*{0.2in}
-     ::= \begin{tabular}[t]{@{}l@{}}
-	 {\em named-opening} [ {\tt ...} {\em named-separator} ] \\
-         {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
-	 {\tt ...} {\em named-closing}
-	 \end{tabular}
-\\[0.5ex]
-\emkey{named-opening} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{named-separator} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{named-middle} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{named-closing} ::= {\em quoted-name}
-
-\label{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}
-\end{figure*}
-
 A parser definition is a top level input line by itself, and is
 executed by the parser itself
 after the definition is read, thus affecting subsequent parsing.
@@ -1996,13 +1892,6 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.5in}named operators (e.g.~`{\tt <p>}')
 \end{indpar}
 
-The syntax of the parser definitions that control bracketed
-subexpression recognition
-is specified on
-\pagref{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-1}
-and
-\pagref{BRACKETED-SUBEXPRESSION-RECOGNITION-DEFINITIONS-2}.
-
 Unnamed brackets, indentation marks, and indentation separators are
 symbol table keys.  However named brackets and operators are
 not.  Instead, a named bracket or operator is formed by using
@@ -2041,6 +1930,37 @@ Non-natural number lexemes are converted similarly but their
 
 \subsubsection{Unnamed Bracketed Subexpressions}
 
+\begin{figure*}[!t]
+\emkey{parser-bracket-command} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rll}
+    ::= & \multicolumn{2}{l}{\ttikey{parser define bracket}%
+                                    {bracket!parser define}
+		    {\em bracket-name} {\em parser-selectors}} \\
+	& \hspace*{3em} & [ {\tt with parsing selectors}
+	                    {\em parser-new-selectors} ] \\
+        &               & [ {\tt with full lines} ] \\
+        &               & [ {\tt with reformatter} {\em reformatter-name} ] \\
+    $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}{undefine bracket}
+	  {\em bracket-name} {\em parsing-selectors}} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{bracket-name} ::= {\em opening-bracket-name}
+			 \ttmkey{...}{in {\em bracket-name}}
+			 {\em closing-bracket-name}
+\label{BRACKET-NAME}
+\\[0.5ex]
+\emkey{opening-bracket-name} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{closing-bracket-name} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{parser-new-selectors} ::= {\em parser-new-flag-list}
+\\[0.5ex]
+\emkey{reformatter-name} ::= {\em simple-name}
+
+\label{BRACKET-DEFINITIONS}
+\end{figure*}
+
 An \key{unnamed bracketed subexpression}
 \index{bracketed subexpression!unnamed}
 begins with
@@ -2075,6 +1995,48 @@ containing the unnamed bracketed subexpression,
 or an end of file.
 
 \subsubsection{Indented Paragraph Subexpressions}
+
+\begin{figure*}[!t]
+\emkey{indentation-mark-definition} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{parser define}{define indentation mark}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf indentation mark}
+	  {\em indentation-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$ & \ttikey{parser define}{define gluing indentation mark}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf gluing indentation mark} \\
+	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$& \ttikey{parser undefine indentation mark}{undefine indentation mark}
+	 {\em indentation-name} {\em parsing-selectors} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{indentation-name} ::= {\em indentation-mark-name}
+	[ {\tt ...} {\em indentation-separator-name} ]
+\\[0.5ex]
+\emkey{indentation-mark-name} ::= {\em quoted-name}
+\label{INDENTATION-MARK-NAME}
+\\[0.5ex]
+\emkey{gluing-indentation-name} \\
+    \hspace*{0.2in}~
+    ::= {\em gluing-indentation-mark-name}
+	[ {\tt ...} {\em indentation-separator-name} ]
+\\[0.5ex]
+\emkey{gluing-indentation-mark-name} ::= {\tt "}{\em mark}\,{\tt "}
+\\[0.5ex]
+\emkey{indentation-separator-name} ::= {\em quoted-name}
+
+\label{INDENTATION-DEFINITIONS}
+\end{figure*}
 
 An \key{indented paragraph subexpression}
 begins with an {\em indentation-mark-name} which must be at the end of
@@ -2198,6 +2160,41 @@ in error.
 
 \subsubsection{Named Bracketed Subexpressions}
 \label{NAMED-BRACKETED-SUBEXPRESSIONS}
+
+\begin{figure*}[!t]
+\emkey{named-bracket-definition} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{parser define}{define named bracket}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf named bracket}
+	  {\em named-bracket-name} {\em parsing-selectors} \\
+	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
+	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
+	  \end{tabular} \\
+    $|$ & \ttikey{parser undefine named bracket}{undefine named bracket}
+	  {\em named-bracket-name}
+	  {\em parsing-selectors} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{named-bracket-name} \\
+    \hspace*{0.2in}
+     ::= \begin{tabular}[t]{@{}l@{}}
+	 {\em named-opening} [ {\tt ...} {\em named-separator} ] \\
+         {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
+	 {\tt ...} {\em named-closing}
+	 \end{tabular}
+\\[0.5ex]
+\emkey{named-opening} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{named-separator} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{named-middle} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{named-closing} ::= {\em quoted-name}
+
+\label{NAMED-BRACKET-DEFINITIONS}
+\end{figure*}
 
 An \key{named bracket subexpression}
 \index{bracketed subexpression!named}

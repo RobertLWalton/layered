@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 10, 2012
+August 11, 2012
  
 \end{center}
 
@@ -1506,6 +1506,20 @@ A token has the following components:
 		& For a {\tt BRACKETED} subexpression, the token {\tt value}
 		  is a MIN object which may have
 		  attributes such as {\tt .initiator} or {\tt .terminator}.
+		  The following attributes of a {\tt BRACKETED} token
+		  {\tt value} are directly related to syntax and are called 
+		  `\key{syntax attribute}s':
+		  \begin{center}
+		  \tt
+		  \begin{tabular}{l}
+		  .initiator \\
+		  .terminator \\
+		  .middle \\
+		  .name \\
+		  .arguments \\
+		  .keys \\
+		  \end{tabular}
+		  \end{center}
 \\[1ex]  
 		& Empty subexpressions are recorded as {\tt BRACKETED}
 		  subexpressions whose MIN object has no elements and
@@ -1730,16 +1744,15 @@ is specified on \pagref{PARSER-COMMANDS}.
           \{ \verb|,| {\em parser-flag} \}\,$^\star$ {\tt ]} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{parser-new-flag-list}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em parser-flag-list} \\
-    $|$ & {\tt [} {\em parser-flag-op} {\em parser-flag}
-          \{ \verb|,| {\em parser-flag-op} {\em parser-flag} \}\,$^\star$
-	  {\tt ]} \\
+\emkey{parser-flag-modifier-list}
+    \begin{tabular}[t]{@{}r@{~}l@{~}l@{}}
+    ::= & {\tt [} & {\em parser-flag-op} {\em parser-flag} \\
+        &         & \{ \verb|,| {\em parser-flag-op}
+	                        {\em parser-flag} \}\,$^\star$ {\tt ]} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-flag-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
-\\[3ex]
+\\[2ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser begin}{begin!parser block} {\em block-name} \\
@@ -1749,10 +1762,11 @@ is specified on \pagref{PARSER-COMMANDS}.
 \label{PARSER-BLOCK-COMMAND}
 \\[0.5ex]
 \emkey{block-name} ::= {\em simple-name}
-\\[3ex]
+\\[2ex]
 \emkey{parser-test-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-list} \\
+    $|$ & \ttikey{parser trace}{trace!parser} {\em parser-flag-modifier-list} \\
     $|$ & \ttikey{parser print trace}{trace!parser print} \\
     $|$ & \ttikey{parser test}{test!parser} \ldots \\
     \end{tabular}
@@ -1767,7 +1781,7 @@ is specified on \pagref{PARSER-COMMANDS}.
 			  $|$ & \ttikey{operator subexpressions}%
 			                   {parser trace flag} \\
 			  \end{tabular}
-\\[3ex]
+\\[2ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
@@ -1818,15 +1832,23 @@ The parser has two sets of \emkey{parser-flags}\index{flags!parser}:
 the parser trace flags and the
 selectors.  Each set has 64 named flags.  A set of parser flags can be
 specified by giving a {\em parser-flag-list} or a
-{\em parser-new-flag-list} containing {\em parser-flag-op} {\em parser-flag}
-pairs.  In the last case the flag set is made by taking the current
-flag set (trace flags or selectors) and modifying it according to the
-instructions in the pairs.  Here `{\tt +} {\em flag-name}' is an instruction
-to set the named flag, `{\tt -} {\em flag-name}' is an instruction
-to clear the named flag, and `\CIRCUMFLEX {\em flag-name}' is
-an instruction to complement, or flip, the named flag.
+{\em parser-flag-modifier-list}.
+
+When a \emkey{parser-flag-modifier-list}\label{FLAG-MODIFIER-LIST}
+is used, the flag set is made by modifying the current
+flag set (trace flags or selectors) according to the
+instructions `{\em parser-flag-op} {\em parser-flag}' pairs.
+These pairs are interpreted as follows:
+\begin{center}
+\begin{tabular}{ll}
+{\tt +} {\em parser-flag} & set the named flag \\
+{\tt -} {\em parser-flag} & clear the named flag \\
+\CIRCUMFLEX {\em parser-flag} & complement (flip) the named flag \\
+\end{tabular}
+\end{center}
+
 In either the case of a {\tt parser-flag-list} or
-{\em parser-new-flag-list} no flag may be named more than once.
+{\em parser-flag-modifier-list} no flag may be named more than once.
  
 The current set of
 \skey{parser trace flag}s\index{trace flag!parser}\index{flag!parser trace}
@@ -1918,8 +1940,8 @@ selector bits are restored to their state at the beginning of the block.
 
 The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[1.0in]
-\hspace*{-0.5in}unnamed brackets (e.g.~`{\tt (}' and `{\tt )}')
-    and unnamed bracketed subexpressions \\
+\hspace*{-0.5in}brackets (e.g.~`{\tt (}' and `{\tt )}')
+    and bracketed subexpressions \\
 \hspace*{-0.5in}indentation marks (e.g.~`{\tt :}')
     and separators (e.g.~`{\tt ;}'),
     indented paragraphs, and indented paragraph lines \\
@@ -1928,7 +1950,7 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.5in}named operators (e.g.~`{\tt <p>}')
 \end{indpar}
 
-Unnamed brackets, indentation marks, and indentation separators are
+Brackets, indentation marks, and indentation separators are
 symbol table keys.  However named brackets and named operators are
 not.  Instead, a named bracket or named operator is formed by using
 named openings (e.g.~`{\tt <}'),
@@ -1936,8 +1958,8 @@ named separators (e.g.~`{\tt \#}'),
 named middles (e.g.~`{\tt |}'),
 and named closings (e.g.~`{\tt >}'), which are all symbol table
 keys, to surround or separate
-sequences of words, numbers, quoted strings, and unnamed
-bracketed subexpressions, and thence form named brackets
+sequences of words, numbers, quoted strings, and
+(unnamed) bracketed subexpressions, and thence form named brackets
 and named operators.
 
 In bracketed subexpression recognition, 
@@ -1946,58 +1968,97 @@ input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
-The output of the parser is one {\tt EXPRESSION} token per
-top level line.  The value of an {\tt EXPRESSION} token is
-a MIN object that is called an \key{expression}.
-Expressions are a list of
-\skey{expression component}s plus values for some additional attributes,
-such as the {\tt .initiator} attribute.  An expression component is
-a MIN string equal to the translation string of a word, separator,
-mark, or natural number, or is a (sub)expression (i.e., MIN object).
-Quoted string lexemes are converted to expressions whose only list element
-is a MIN string equal to the translation string of the quoted string
-lexeme, and whose {\tt .initiator} attribute is equal to {\tt "}.
-Non-natural number lexemes are converted similarly but their
-{\tt .initiator} is {\tt \#}.
+The output of the parser is a sequence of {\tt BRACKETED} tokens,
+one per top level line.  The value of one of these tokens is a
+MIN object with a {\tt .terminator} equal to the MIN string
+{\tt "\BACKSLASH{}n"}, and with no other syntax attributes.
+(there may be non-syntax attributes such as {\tt .position}).
 
-TBD
+In general, the bracketed subexpression recognizer converts
+subexpressions to single {\tt BRACK\-ET\-ED} tokens whose {\tt value}'s
+are MIN objects with
+either an {\tt .initiator} attribute or
+a {\tt .terminator} attribute or both.
+The elements of one of these MIN objects
+are the {\tt value}'s of the tokens which make
+up the represented
+subexpression after recursive calls to the bracketed subexpression
+recognizer.  Quoted string and non-natural-number lexemes must be handled
+differently because they have no token {\tt value}.  These are
+represented by MIN objects
+that have the {\tt .initiator} attribute {\tt "\BACKSLASH""} for a quoted
+string and {\tt "\#"} for a non-natural number, and that have a single
+element which is a MIN string equal as a character string to the
+{\tt string} of the token being represented (this is the quoted
+character string or the number lexeme string).
 
-When a (named or unnamed)
-opening bracket or indentation mark is recognized, the current set of
-parser context {\em parsing-selectors} is pushed into a stack and
-a new set is computed using the {\em new-parsing-selectors}
-from the definition of the bracket or indentation mark.
-{\em New-parsing-selectors} can either be a list of selectors,
-or a list of operations that modify the previous context selectors.
-In the later case the possible operations are:
+For example, the line
+\begin{indpar}\begin{verbatim}
+parser test (x 5 "foo")
+\end{verbatim}\end{indpar}
+causes the parser to output a {\tt BRACKETED} token whose {\tt value} is
+\begin{indpar}\begin{verbatim}
+{| parser test
+   {| x 5 {| foo; .initiator = "<Q>"|};
+      .initiator = "("; .terminator = ")"
+   |}
+|}
+\end{verbatim}\end{indpar}
+where a MIN object is represented by
 \begin{center}
-\begin{tabular}{l@{\,}lp{3in}}
-\ttmkey{+}{new selector operation} & {\em selector}
-    & Add {\em selector} if it is not in the set.
-\\[0.5ex]
-\ttmkey{-}{new selector operation} & {\em selector}
-    & Remove {\em selector} if it is in the set.
-\\[0.5ex]
-\ttmkey{\CIRCUMFLEX}{new selector operation} & {\em selector}
-    & Flip {\em selector}, that is,
-      add {\em selector} if it is not in the set,
-      and remove {\em selector} if it is in the set.
-\end{tabular}
+\verb/{|/ {\em element} \ldots{\tt ;} {\em attribute-name} {\tt =}
+				      {\em attribute-value}{\tt ;}
+				      \ldots \verb/|}/
 \end{center}
 
-\subsubsection{Unnamed Bracketed Subexpressions}
+and a MIN string is represented by its character sequence, optionally
+quoted with {\tt "}'s.
 
-\begin{figure*}[!t]
-\emkey{parser-bracket-command} \\
+The parser commands specific to the bracketed subexpression recognizer
+are further divided into those specific the different kinds of subexpression
+recognized by this recognizer:
+
+\begin{indpar}[0.1in]
+\emkey{parser-bracket-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em parser-bracket-command} \\
+    $|$ & {\em parser-indentation-command} \\
+    $|$ & {\em parser-named-bracket-command} \\
+    \end{tabular}
+\label{PARSER-BRACKET-COMMAND}
+\end{indpar}
+
+The following subsections describe these different kinds of commands
+and the subexpressions they control.
+
+\subsubsection{Bracketed Subexpressions}
+
+An \key{bracketed subexpression}\index{bracketed subexpression!unnamed}
+begins with
+an {\em opening-bracket-name} and ends with a match\-ed
+{\em closing-bracket-name} as defined by a \ttkey{define bracket}
+parser definition.  An example of such a definition is
+\begin{center}
+{\tt define bracket "("~...~")" [operator text]} \ldots
+\end{center}
+which specifies `{\tt (}' to be an {\em opening-bracket-name}
+with `{\tt )}' as its corresponding {\em closing-bracket-name}
+and `{\tt operator}' and `{\tt text}' as the definition selectors.
+
+The general syntax of bracket definitions is:
+
+\begin{indpar}[0.1in]
+\emkey{parser-bracket-command}%
+\label{BRACKET-DEFINITION}
+\\
     \hspace*{0.2in}
     \begin{tabular}[t]{rll}
     ::= & \multicolumn{2}{l}{\ttikey{parser define bracket}%
                                     {bracket!parser define}
-		    {\em bracket-name} {\em parser-selectors}} \\
+		    {\em bracket-name} {\em selectors}} \\
 	& \hspace*{3em} & [ {\tt with parsing selectors}
-	                    {\em parser-new-selectors} ] \\
+	                    {\em new-selectors} ] \\
         &               & [ {\tt with full lines} ] \\
-        &               & [ {\tt with reformatter} {\em reformatter-name} ] \\
     $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}{undefine bracket}
 	  {\em bracket-name} {\em parsing-selectors}} \\
     \end{tabular}
@@ -2011,27 +2072,20 @@ In the later case the possible operations are:
 \\[0.5ex]
 \emkey{closing-bracket-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{parser-new-selectors} ::= {\em parser-new-flag-list}
-\\[0.5ex]
-\emkey{reformatter-name} ::= {\em simple-name}
+\emkey{new-selectors} ::= {\em parser-flag-modifier-list}
 
-\label{BRACKET-DEFINITIONS}
-\end{figure*}
+\end{indpar}
 
-An \key{unnamed bracketed subexpression}
-\index{bracketed subexpression!unnamed}
-begins with
-an {\em opening-bracket-name} and ends with a matched
-{\em closing-bracket-name} as defined by a \ttkey{define bracket}
-parser definition.  An example of such a definition is
-\begin{center}
-{\tt define bracket "("~...~")" [operator text]} \ldots
-\end{center}
-which specifies `{\tt (}' to be an {\em opening-bracket-name}
-with `{\tt )}' as its corresponding {\em closing-bracket-name}
-and `{\tt operator}' and `{\tt text}' as the definition selectors.
+Brackets such as `{\tt (}' and `{\tt )}'
+are sometimes called `\key{unnamed brackets}'
+to distinguish them from named brackets
+such as `\verb/<b|/' and `\verb/|b>/'
+in which the name, in this case `{\tt b}',
+is arbitrary.  See Section~\itemref{NAMED-BRACKETED-SUBEXPRESSIONS}
+for a description of named brackets.
 
-An unnamed bracketed subexpression is converted to a
+A bracketed subexpression is converted to a {\tt BRACKETED}
+token whose {\tt value} is a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
 {\em opening-bracket-name} becomes the {\tt .initiator}
@@ -2039,61 +2093,39 @@ attribute of this object, and the {\em closing-bracket-name}
 becomes the {\tt .terminator} attribute of the object.
 
 The {\em opening-bracket-name} and {\em closing-bracket-name} may be
-any sequence of marks and separators.
+any sequence of marks, separators, words, or numbers.
 
-If an unnamed bracketed subexpression ends pre-maturely, before
+If a bracketed subexpression ends pre-maturely, before
 its {\em closing-bracket-name} is discovered, a parsing error is
 announced and the {\em closing-bracket-name} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket-name} of a containing
-unnamed bracketed subexpression, the {\em named-closing-bracket}
+bracketed subexpression, the {\em named-closing-bracket}
 of a containing named bracketed subexpression, the end of the paragraph line
-containing the unnamed bracketed subexpression,
+containing the bracketed subexpression,
 or an end of file.
 
+An exception to this is made if the bracket definition has the
+\ttmkey{full line}{in bracket definition} property.  In this case
+it is expected that the subexpression will consist of one or
+more full input lines.  While the subexpression is being scanned,
+use of indentation is turned off, and only the {\em closing-bracket-name}
+associated with the full line {\em opening-bracket-name}, or an
+end-of-file,
+can terminate the subexpression.  However, subsubexpressions can appear
+in the normal way within the `{\tt full line}' subexpression.
+
+When an {\em opening-bracket-name} is recognized, the current parser
+selector set is saved in a stack and
+a new set is computed by modifying the saved set
+according to the {\em new-selectors} in the bracket definition.
+The saved selector set is restored after the {\em closing-bracket}
+is recognized.  Note that {\em closing-bracket-name}
+recognition does not depend
+upon the current parser selectors, but only on previous recognition
+of an associated {\em opening-bracket-name}.
+
 \subsubsection{Indented Paragraph Subexpressions}
-
-\begin{figure*}[!t]
-\emkey{indentation-mark-definition} \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define indentation mark}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf indentation mark}
-	  {\em indentation-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$ & \ttikey{parser define}{define gluing indentation mark}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf gluing indentation mark} \\
-	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-parsing-selectors} ] \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
-	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
-	  \end{tabular} \\
-    $|$& \ttikey{parser undefine indentation mark}{undefine indentation mark}
-	 {\em indentation-name} {\em parsing-selectors} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{indentation-name} ::= {\em indentation-mark-name}
-	[ {\tt ...} {\em indentation-separator-name} ]
-\\[0.5ex]
-\emkey{indentation-mark-name} ::= {\em quoted-name}
-\label{INDENTATION-MARK-NAME}
-\\[0.5ex]
-\emkey{gluing-indentation-name} \\
-    \hspace*{0.2in}~
-    ::= {\em gluing-indentation-mark-name}
-	[ {\tt ...} {\em indentation-separator-name} ]
-\\[0.5ex]
-\emkey{gluing-indentation-mark-name} ::= {\tt "}{\em mark}\,{\tt "}
-\\[0.5ex]
-\emkey{indentation-separator-name} ::= {\em quoted-name}
-
-\label{INDENTATION-DEFINITIONS}
-\end{figure*}
 
 An \key{indented paragraph subexpression}
 begins with an {\em indentation-mark-name} which must be at the end of
@@ -2133,6 +2165,47 @@ An example is
 which specifies `{\tt :}' to be a {\em gluing-indentation-mark-name}
 with `{\tt ;}' as its corresponding {\em indentation-separator-name}
 and `{\tt operator}' as the sole definition selector.
+
+The general syntax of indentation mark definitions is:
+
+\begin{indpar}[0.1in]
+\emkey{indentation-mark-definition} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{parser define}{define indentation mark}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf indentation mark}
+	  {\em indentation-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-selectors} ] \\
+	  \end{tabular} \\
+    $|$ & \ttikey{parser define}{define gluing indentation mark}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf gluing indentation mark} \\
+	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
+	  {}[ {\tt with parsing selectors} {\em new-selectors} ] \\
+	  \end{tabular} \\
+    $|$& \ttikey{parser undefine indentation mark}{undefine indentation mark}
+	 {\em indentation-name} {\em parsing-selectors} \\
+    \end{tabular}
+\label{INDENTATION-MARK-DEFINITION}
+\\[0.5ex]
+\emkey{indentation-name} ::= {\em indentation-mark-name}
+	[ {\tt ...} {\em indentation-separator-name} ]
+\\[0.5ex]
+\emkey{indentation-mark-name} ::= {\em quoted-name}
+\label{INDENTATION-MARK-NAME}
+\\[0.5ex]
+\emkey{gluing-indentation-name} \\
+    \hspace*{0.2in}~
+    ::= {\em gluing-indentation-mark-name}
+	[ {\tt ...} {\em indentation-separator-name} ]
+\\[0.5ex]
+\emkey{gluing-indentation-mark-name} ::= {\tt "}{\em mark}\,{\tt "}
+\\[0.5ex]
+\emkey{indentation-separator-name} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{new-selectors} ::= {\em parser-flag-modifier-list}
+\end{indpar}
 
 The {\em indentation-separator-name} may be used to separator
 paragraph lines, as long as it is outside subexpressions
@@ -2226,7 +2299,6 @@ in error.
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\tt \bf named bracket}
 	  {\em named-bracket-name} {\em parsing-selectors} \\
-	  {}[ {\tt with reformatter} {\em reformatter-name} ] \\
 	  {}[ {\tt with evaluator} {\em evaluator-name} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine named bracket}{undefine named bracket}

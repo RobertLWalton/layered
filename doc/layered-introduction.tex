@@ -2014,8 +2014,73 @@ where a MIN object is represented by
 and a MIN string is represented by its character sequence, optionally
 quoted with {\tt "}'s.
 
+The MIN object that is the value of a {\tt BRACKETED} token and
+represents a subexpression may have the following `\skey{syntax attribute}s:
+
+\begin{indpar}[0.4in]
+\hspace*{-0.2in}\ttdmkey{initiator}{subexpression attribute}\\
+    A MIN string, or a MIN label whose elements are MIN strings,
+    that equals
+    \begin{center}
+    \begin{tabular}{ll}
+       & the {\em opening-bracket-name} of a bracketed subexpression, \\
+    or & the {\em indentation-mark-name} of an indented subexpression, \\
+    or & the {\em named-opening} of a named bracketed subexpression, \\
+    or & the {\em named-opening} of a named operator, \\
+    or & \verb|"<Q>"| if the MIN object represents a quoted string lexeme.
+    \end{tabular}
+    \end{center}
+\medskip
+\hspace*{-0.2in}\ttdmkey{terminator}{subexpression attribute}\\
+    A MIN string, or a MIN label whose elements are MIN strings,
+    that equals
+    \begin{center}
+    \begin{tabular}{ll}
+       & the {\em closing-bracket-name} of a bracketed subexpression, \\
+    or & \verb|"<NL>"| if the subexpression is an new-line terminated
+         indented line \\
+       & in an indented paragraph, \\
+    or & the {\em indentation-separator-name} used to end a subexpression \\
+       & of an indented paragraph, \\
+    or & the {\em named-closing} of a named bracketed subexpression, \\
+    or & the {\em named-closing} of a named operator. \\
+    \end{tabular}
+    \end{center}
+\medskip
+\hspace*{-0.2in}\ttdmkey{separator}{subexpression attribute}\\
+    A MIN string, or a MIN label whose elements are MIN strings,
+    that equals an operator, such as `{\tt ,}' that acts as a
+    separator in a subexpression.
+\\[2ex]
+\hspace*{-0.2in}\ttdmkey{middle}{subexpression attribute}\\
+    A MIN string, or a MIN label whose elements are MIN strings,
+    that equals the {\em named-middle} of a named bracketed subexpression.
+\\[2ex]
+\hspace*{-0.2in}\ttdmkey{arguments}{subexpression attribute}\\
+    A MIN object whose elements are the arguments of the named
+    bracket of a named bracketed subexpression, and which has
+    no syntax attributes.  Each argument is
+    either a bracketed subexpression or a quoted string, and is
+    represented in the same way as the {\tt value} of a
+    {\tt BRACKETED} token.
+\\[2ex]
+\hspace*{-0.2in}\ttdmkey{keys}{subexpression attribute}\\
+    A MIN object whose elements are the keys of the named
+    bracket of a named bracketed subexpression, and whose
+    {\tt .separator} attribute is the {\em named-separator}
+    that introduces each key.  The keys and the {\tt .separator}
+    attribute are all either MIN strings or MIN labels with MIN string
+    elements.
+
+\end{indpar}
+
+In addition to the attributes just given, a MIN object may have
+a \ttdmkey{position}{of MIN object} attribute that gives the positions
+of the lexemes which the MIN object and its elements represent.
+This is not considered to be a syntax attribute.
+
 The parser commands specific to the bracketed subexpression recognizer
-are further divided into those specific the different kinds of subexpression
+are further divided into those specific to the different kinds of subexpression
 recognized by this recognizer:
 
 \begin{indpar}[0.1in]
@@ -2033,7 +2098,7 @@ and the subexpressions they control.
 
 \subsubsection{Bracketed Subexpressions}
 
-An \key{bracketed subexpression}\index{bracketed subexpression!unnamed}
+A \key{bracketed subexpression}\index{bracketed subexpression!unnamed}
 begins with
 an {\em opening-bracket-name} and ends with a match\-ed
 {\em closing-bracket-name} as defined by a \ttkey{define bracket}

@@ -1,6 +1,6 @@
-// Layers Language Explicit Subexpression Parser
+// Layers Language Bracketed Subexpression Parser
 //
-// File:	ll_parser_explicit_subexpression.cc
+// File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
 // Date:	Tue Aug  7 06:03:12 EDT 2012
 //
@@ -11,16 +11,16 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Explicit Subexpression Parser Functions
-//	Explicit Subexpression Parser
-//	Parser Execute Bracket Definition Function
+//	Bracketed Subexpression Parser Functions
+//	Bracketed Subexpression Parser
+//	Parser Execute Bracket Commands Function
 
 // Usage and Setup
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
-# include <ll_parser_explicit_subexpression.h>
+# include <ll_parser_bracketed.h>
 # include <ll_parser_definition.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
@@ -53,8 +53,8 @@ static void initialize ( void )
 }
 static min::initializer initializer ( ::initialize );
 
-// Explicit Subexpression Parser Functions
-// -------- ------------- ------ ---------
+// Bracketed Subexpression Parser Functions
+// --------- ------------- ------ ---------
 
 // These are all static or inline; if any are useful
 // elsewhere they can be put in the PAR namespace.
@@ -344,10 +344,10 @@ inline bool is_indented
     return near > 0;
 }
 
-// Explicit Subexpression Parser
-// -------- ------------- ------
+// Bracketed Subexpression Parser
+// --------- ------------- ------
 
-bool PAR::parse_explicit_subexpression
+bool PAR::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::selectors selectors,
 	  PAR::token & current,
@@ -393,7 +393,7 @@ bool PAR::parse_explicit_subexpression
 
     bool trace =
         (   parser->trace
-          & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS );
+          & PAR::TRACE_BRACKETED_SUBEXPRESSIONS );
 
     while ( true )
     {
@@ -655,7 +655,7 @@ bool PAR::parse_explicit_subexpression
 			    current->previous;
 			bool separator_found =
 			  PAR::
-			    parse_explicit_subexpression
+			    parse_bracketed_subexpression
 				( parser, new_selectors,
 				  current,
 				  paragraph_indent,
@@ -922,7 +922,7 @@ bool PAR::parse_explicit_subexpression
 
 	    if ( trace )
 	        parser->printer
-		    << "EXPLICIT SUBEXPRESSION PARSER"
+		    << "BRACKETED SUBEXPRESSION PARSER"
 		       " FOUND KEY "
 		    << min::pgen
 		           ( root->label,
@@ -965,7 +965,7 @@ bool PAR::parse_explicit_subexpression
 		    opening_bracket;
 
 		PAR::token previous = current->previous;
-		PAR::parse_explicit_subexpression
+		PAR::parse_bracketed_subexpression
 		    ( parser, new_selectors,
 		      current,
 		      full_line ?
@@ -1244,7 +1244,7 @@ bool PAR::parse_explicit_subexpression
 
 		    PAR::token middle_last =
 		        current->previous;
-		    PAR::parse_explicit_subexpression
+		    PAR::parse_bracketed_subexpression
 			( parser, selectors,
 			  current,
 			  indent, min::NULL_STUB,
@@ -1259,7 +1259,7 @@ bool PAR::parse_explicit_subexpression
 		        // Set if a bracket that was
 			// not ours was found, so we
 			// need to terminate this
-			// call to parse_explicit_
+			// call to parse_bracketed_
 			// subexpression.
 		    min::phrase_position position;
 		        // Beginning of opening named
@@ -1614,7 +1614,7 @@ bool PAR::parse_explicit_subexpression
 
 	    if ( trace )
 	        parser->printer
-		    << "EXPLICIT SUBEXPRESSION PARSER"
+		    << "BRACKETED SUBEXPRESSION PARSER"
 		       " REJECTED KEY "
 		    << min::pgen
 		           ( root->label,
@@ -1631,8 +1631,8 @@ bool PAR::parse_explicit_subexpression
         return false;
 }
 
-// Parser Execute Bracket Definition Function
-// ------ ------- ------- ---------- --------
+// Parser Execute Bracket Commands Function
+// ------ ------- ------- -------- --------
 
 enum definition_type
     { BRACKET,

@@ -1,29 +1,21 @@
-// Layers Language Explicit Subexpression Parser
+// Layers Language Bracketed Subexpression Parser
 //
-// File:	ll_parser.h
+// File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  5 05:53:05 EDT 2012
+// Date:	Mon Aug 13 08:32:56 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
-// Table of Contents
-//
-//	Usage and Setup
-//	Explicit Subexpression Parser Functions
-
-// Usage and Setup
-// ----- --- -----
-
-# ifndef LL_PARSER_EXPLICIT_SUBEXPRESSION_H
-# define LL_PARSER_EXPLICIT_SUBEXPRESSION_H
+# ifndef LL_PARSER_BRACKETED_H
+# define LL_PARSER_BRACKETED_H
 
 # include <ll_parser.h>
 
 namespace ll { namespace parser {
 //
-// Parse an explicit subexpression beginning with the
+// Parse a bracketed subexpression beginning with the
 // `current' token and calling parser->input if more
 // tokens are needed.
 //
@@ -35,7 +27,7 @@ namespace ll { namespace parser {
 // It is assumed that there are always more tokens
 // available via parser->input until an end-of-file
 // token is encountered, and the end-of-file is never
-// part of the explicit subexpression.  Therefore there
+// part of the bracketed subexpression.  Therefore there
 // is always a token immediately after the recognized
 // subexpression.  This token is returned as the updated
 // `current' argument value to mark the end of the
@@ -315,7 +307,7 @@ inline bool is_closed ( ll::parser::bracket_stack * p )
            && p->closing_first != min::NULL_STUB;
 }
 
-bool parse_explicit_subexpression
+bool parse_bracketed_subexpression
 	( ll::parser::parser parser,
 	  ll::parser::table::selectors selectors,
 	  ll::parser::token & current,
@@ -326,4 +318,4 @@ bool parse_explicit_subexpression
 
 } }
 
-# endif // LL_PARSER_EXPLICIT_SUBEXPRESSION_H
+# endif // LL_PARSER_BRACKETED_H

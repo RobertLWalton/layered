@@ -1,8 +1,8 @@
-// Layers Language Parser Explicit Subexpression Test
+// Layers Language Parser Bracketed Subexpression Test
 //
-// File:	ll_parser_explicit_subexpression_test.cc
+// File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 19:38:29 EDT 2012
+// Date:	Mon Aug 13 08:44:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,7 +27,7 @@ int main ( int argc, const char * argv[] )
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
     PAR::default_parser->trace =
-        PAR::TRACE_EXPLICIT_SUBEXPRESSIONS;
+        PAR::TRACE_BRACKETED_SUBEXPRESSIONS;
     PAR::init_print_flags
         ( PAR::default_parser,
 	    min::GRAPHIC_VSPACE_FLAG

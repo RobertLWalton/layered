@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 17 20:38:34 EDT 2012
+// Date:	Mon Aug 13 08:35:27 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -364,10 +364,10 @@ struct named_opening_struct : public root_struct
     //	    named-closing
     //
     // Where ... is any sequence of words, numbers,
-    // quoted strings, or unnamed explicit subexpres-
+    // quoted strings, or unnamed bracketed subexpres-
     // sions (but NOT separators or marks outside
-    // explicit subexpressions), and *** is any
-    // sequence of lexemes and explicit subexpres-
+    // bracketed subexpressions), and *** is any
+    // sequence of lexemes and bracketed subexpres-
     // sions (possibly including named ones).
     //
     // E.g, if the named-opening is <, the named-

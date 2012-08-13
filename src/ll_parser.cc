@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  7 06:02:59 EDT 2012
+// Date:	Mon Aug 13 08:41:15 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,7 +22,7 @@
 
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
-# include <ll_parser_explicit_subexpression.h>
+# include <ll_parser_bracketed.h>
 # include <ll_parser_definition.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
@@ -552,7 +552,7 @@ void PAR::parse ( PAR::parser parser )
     {
         bool trace =
 	    (   parser->trace
-	      & PAR::TRACE_EXPLICIT_SUBEXPRESSIONS );
+	      & PAR::TRACE_BRACKETED_SUBEXPRESSIONS );
 
         // If end of file terminate loop.
 	//
@@ -611,7 +611,7 @@ void PAR::parse ( PAR::parser parser )
 	    current->previous;
 
 	bool separator_found =
-	    PAR::parse_explicit_subexpression
+	    PAR::parse_bracketed_subexpression
 		( parser, parser->selectors,
 		  current,
 		  0, TAB::top_level_indentation_mark,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  8 02:19:00 EDT 2012
+// Date:	Mon Aug 13 08:35:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -195,7 +195,7 @@ struct token_struct
     min::uns32 indent;
         // Indent of the first character of the token.
 	// Used for the first token on a line by the
-	// explicit expression parser.
+	// bracketed expression parser.
 	//
 	// Equal to LEX::AFTER_GRAPHIC if there is a
 	// non-whitespace character before the token
@@ -459,7 +459,7 @@ struct pass_struct
     //
     // The parser performs explict subexpression recog-
     // nition and calls the passes in the pass stack for
-    // each recognized explicit subexpression.
+    // each recognized bracketed subexpression.
 {
     uns32 control;
 
@@ -511,7 +511,7 @@ struct pass_struct
 
     ll::parser::table::selectors selectors;
         // Pass is run only if its selectors match those
-	// of the explicit subexpression.
+	// of the bracketed subexpression.
 };
 
 MIN_REF ( ll::parser::pass, next, ll::parser::pass )
@@ -558,8 +558,8 @@ enum {
     TRACE_PARSER_DEFINITIONS = ( 1 << 2 ),
         // Print parser definitions that have no errors.
 
-    TRACE_EXPLICIT_SUBEXPRESSIONS = ( 1 << 3 ),
-        // Trace explicit subexpressions.
+    TRACE_BRACKETED_SUBEXPRESSIONS = ( 1 << 3 ),
+        // Trace bracketed subexpressions.
 
     TRACE_OPERATOR_SUBEXPRESSIONS = ( 1 << 4 )
         // Trace operator subexpressions.
@@ -587,7 +587,7 @@ struct parser_struct
 	// parser is created.
 
     const ll::parser::pass pass_stack;
-        // List of passes to call for each explicit
+        // List of passes to call for each bracketed
 	// subexpression.  If NULL_STUB there are no
 	// passes.  Set to NULL_STUB when parser is
 	// created.

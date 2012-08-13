@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 19:40:02 EDT 2012
+// Date:	Mon Aug 13 08:50:24 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,7 +35,7 @@ int main ( int argc, const char * argv[] )
 	  + min::GRAPHIC_NSPACE_FLAG );
     if ( debug )
 	PAR::default_parser->trace =
-	    PAR::TRACE_EXPLICIT_SUBEXPRESSIONS +
+	    PAR::TRACE_BRACKETED_SUBEXPRESSIONS +
 	    PAR::TRACE_OPERATOR_SUBEXPRESSIONS;
     PAR::parse();
 }

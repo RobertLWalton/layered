@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  7 06:03:12 EDT 2012
+// Date:	Mon Aug 13 14:45:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -655,7 +655,7 @@ bool PAR::parse_bracketed_subexpression
 			    current->previous;
 			bool separator_found =
 			  PAR::
-			    parse_bracketed_subexpression
+			   parse_bracketed_subexpression
 				( parser, new_selectors,
 				  current,
 				  paragraph_indent,

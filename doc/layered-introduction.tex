@@ -1969,18 +1969,18 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.5in}brackets (e.g.~`{\tt (}' and `{\tt )}')
     and bracketed subexpressions \\
 \hspace*{-0.5in}indentation marks (e.g.~`{\tt :}')
-    and separators (e.g.~`{\tt ;}'),
+    and line separators (e.g.~`{\tt ;}'),
     indented paragraphs, and indented paragraph lines \\
 \hspace*{-0.5in}named brackets (e.g.~`{\tt <b|}' and `{\tt |b>}')
       and named bracketed subexpressions \\
 \hspace*{-0.5in}named operators (e.g.~`{\tt <p>}')
 \end{indpar}
 
-Brackets, indentation marks, and indentation separators are
+Brackets, indentation marks, and line separators are
 symbol table keys.  However named brackets and named operators are
 not.  Instead, a named bracket or named operator is formed by using
 named openings (e.g.~`{\tt <}'),
-named separators (e.g.~`{\tt \#}'),
+named key separators (e.g.~`{\tt \#}'),
 named middles (e.g.~`{\tt |}'),
 and named closings (e.g.~`{\tt >}'), which are all symbol table
 keys, to surround or separate
@@ -1997,8 +1997,8 @@ after line breaks have been removed.
 The output of the parser is a sequence of {\tt BRACKETED} tokens,
 one per top level line.  The value of one of these tokens is a
 MIN object with a {\tt .terminator} equal to the MIN string
-{\tt "\BACKSLASH{}n"}, and with no other syntax attributes.
-(there may be non-syntax attributes such as {\tt .position}).
+{\tt "<NL>"} or {\tt ";"} (this is the line separator at the top level),
+and with no other syntax attributes.
 
 In general, the bracketed subexpression recognizer converts
 subexpressions to single {\tt BRACK\-ET\-ED} tokens whose {\tt value}'s
@@ -2012,7 +2012,7 @@ subexpression after recursive calls to the bracketed subexpression
 recognizer.  Quoted string lexemes must be handled
 differently because they have no token {\tt value}.  These are
 represented by MIN objects
-that have the {\tt .initiator} attribute {\tt "\BACKSLASH""}
+that have the {\tt .initiator} attribute {\tt "<Q>"}
 and that have a single
 element which is a MIN string equal as a character string to the
 {\tt string} of the quoted string token being represented.
@@ -2025,8 +2025,8 @@ causes the parser to output a {\tt BRACKETED} token whose {\tt value} is
 \begin{indpar}\begin{verbatim}
 {| parser test
    {| x 5 {| foo; .initiator = "<Q>"|};
-      .initiator = "("; .terminator = ")"
-   |}
+      .initiator = "("; .terminator = ")" |};
+   .terminator = "<NL>"
 |}
 \end{verbatim}\end{indpar}
 where a MIN object is represented by
@@ -2040,7 +2040,7 @@ and a MIN string is represented by its character sequence, optionally
 quoted with {\tt "}'s.
 
 The MIN object that is the value of a {\tt BRACKETED} token and
-represents a subexpression may have the following `\skey{syntax attribute}s:
+represents a subexpression may have the following `\skey{syntax attribute}s':
 
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttdmkey{initiator}{subexpression attribute}\\
@@ -2065,7 +2065,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s:
     or & \verb|"<NL>"| if the subexpression is an new-line terminated
          indented line \\
        & in an indented paragraph, \\
-    or & the {\em indentation-separator-name} used to separate lines \\
+    or & the {\em line-separator-name} used to separate lines \\
        & of an indented paragraph, \\
     or & the {\em named-closing} of a named bracketed subexpression, \\
     or & the {\em named-closing} of a named operator. \\
@@ -2101,7 +2101,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s:
     or of a {\em named-operator}.  The keys are the elements of
     the object, and the object's only syntax attributes are
     {\tt .initiator} and {\tt .separator} both of which equal the
-    {\em named-separator} of the {\em opening-named-bracket}
+    {\em named-key-separator} of the {\em opening-named-bracket}
     or {\em named-operator}.
     The keys and attributes
     are all either MIN strings or MIN labels with MIN string
@@ -2138,7 +2138,7 @@ begins with
 an {\em opening-bracket-name} and ends with a match\-ed
 {\em closing-bracket-name} as defined by a
 \ttikey{parser define bracket}{bracket!parser define}
-parser definition.  An example of such a definition is
+command.  An example of such a definition is
 \begin{center}
 {\tt parser define bracket "("~...~")" [operator text]} \ldots
 \end{center}
@@ -2160,8 +2160,6 @@ The general syntax of {\em parser-unnamed-bracket-commands} is:
 	& \hspace*{3em} & [ {\tt with parsing selectors}
 	                    {\em new-selectors} ] \\
         &               & [ {\tt with full lines} ] \\
-    $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}{undefine bracket}
-	  {\em bracket-name} {\em parsing-selectors}} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em opening-bracket-name}
@@ -2260,13 +2258,13 @@ An {\em indentation-mark-name} is specified by a
 \ttikey{parser define gluing indentation mark}%
        {gluing indentation mark!parser define}
 parser command, and may have
-an associated {\em indenta\-tion-separator-name} supplied by that definition.
+an associated {\em line-separator-name} supplied by that definition.
 An example is
 \begin{center}
 {\tt define gluing indentation mark ":"~...~";" [operator]} \ldots
 \end{center}
 which specifies `{\tt :}' to be a {\em gluing-indentation-mark-name}
-with `{\tt ;}' as its corresponding {\em indentation-separator-name}
+with `{\tt ;}' as its corresponding {\em line-separator-name}
 and `{\tt operator}' as the sole definition selector.
 
 The general syntax of {\em parser-indentation-mark-commands} is:
@@ -2293,7 +2291,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
 \emkey{indentation-name} ::= {\em indentation-mark-name}
-	[ {\tt ...} {\em indentation-separator-name} ]
+	[ {\tt ...} {\em line-separator-name} ]
 \\[0.5ex]
 \emkey{indentation-mark-name} ::= {\em quoted-name}
 \label{INDENTATION-MARK-NAME}
@@ -2301,30 +2299,30 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{gluing-indentation-name} \\
     \hspace*{0.2in}~
     ::= {\em gluing-indentation-mark-name}
-	[ {\tt ...} {\em indentation-separator-name} ]
+	[ {\tt ...} {\em line-separator-name} ]
 \\[0.5ex]
 \emkey{gluing-indentation-mark-name} ::= {\tt "}{\em mark}\,{\tt "}
 \\[0.5ex]
-\emkey{indentation-separator-name} ::= {\em quoted-name}
+\emkey{line-separator-name} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-modifier-list}
 \end{indpar}
 
-The {\em indentation-separator-name} may be used to separate
+The {\em line-separator-name} may be used to separate
 paragraph lines, as long as it is outside subexpressions
 (unnamed bracketed, named bracketed, or indented subparagraph)
 in the paragraph.
 
 Each paragraph line is converted to a MIN object whose elements are
 the components of the line, treated as subexpression components, except for
-any {\em indentation-separator-name} that ends the line.  This
+any {\em line-separator-name} that ends the line.  This
 object is given a {\tt .terminator} attribute value
-equal to the line ending {\em indentation-separator-name} if this exists, or
+equal to the line ending {\em line-separator-name} if this exists, or
 equal to {\tt "<NL>"}
-if there is no line ending {\em indentation-separator-name}.
+if there is no line ending {\em line-separator-name}.
 
 However, an empty paragraph line with no ending
-{\em indentation-separator-name} is ignored as if it did not exist.
+{\em line-separator-name} is ignored as if it did not exist.
 
 The paragraph as a whole is converted to a MIN object whose elements
 are the paragraph lines, and whose {\tt .initiator} attribute
@@ -2398,12 +2396,13 @@ begins with an {\em opening-named-bracket} and ends with
 a {\em closing-named-bracket}.  These have the syntax:
 
 \begin{indpar}[0.1in]
-\emkey{opening-named-bracket} ::= \\
-    \hspace*{0.4in}\begin{tabular}[t]{@{}l@{}}
-	 {\em named-opening} {\em bracket-name} {\em argument}$^\star$
-	      \{ {\em named-separator} {\em key} \}$^\star$
-	      {\em named-middle} \\
-	 \end{tabular}
+\emkey{opening-named-bracket} ::=
+	\begin{tabular}[t]{@{}l@{~}l@{}}
+	{\em named-opening} & {\em bracket-name} {\em argument}$^\star$ \\
+	                    & \{ {\em named-key-separator}
+			       {\em key} \}$^\star$ \\
+	                    & {\em named-middle} \\
+	\end{tabular}
 \\[0.5ex]
 \emkey{named-opening} ::= as defined by a
     {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
@@ -2413,7 +2412,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 \emkey{argument} ::= {\em unnamed-bracketed-subexpression}
                  $|$ {\em quoted-string}
 \\[0.5ex]
-\emkey{named-separator} ::= as defined by a
+\emkey{named-key-separator} ::= as defined by a
     {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
 \\[0.5ex]
 \emkey{key} ::= {\em key-component} {\em key-component}$^\star$
@@ -2438,7 +2437,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 	\end{tabular}
 \end{indpar}
 
-If the {\em named-opening}, {\em named-separator}, {\em named-middle},
+If the {\em named-opening}, {\em named-key-separator}, {\em named-middle},
 and {\em named-closing} are respectively `{\tt <}', `{\tt \#}',
 `{\tt |}', and `{\tt >}', then an example named bracketed subexpression is
 \begin{center}
@@ -2454,7 +2453,7 @@ in the {\em named-closing-bracket} may be empty, so
 {\tt |>}, {\tt |h>}, or {\tt |h1>} could all be used as closing
 brackets in the above example.
 
-The {\em named-opening}, {\em named-separator}, {\em named-middle},
+The {\em named-opening}, {\em named-key-separator}, {\em named-middle},
 and {\em named-closing} are symbol table keys
 from which named opening and closing
 brackets are constructed.  They are specified by a
@@ -2465,14 +2464,14 @@ which is:
      "<"~...~"\#"~...~"|"~...~"|"~...~">" [text]} \ldots
 \end{center}
 which specifies `{\tt <}' to be a {\em named-opening},
-`{\tt \#}' to be a {\em named-separator},
+`{\tt \#}' to be a {\em named-key-separator},
 `{\tt |}' to be a {\em named-middle},
 `{\tt >}' to be a {\em named-closing},
 and `{\tt text}' to be the sole definition selector.
 Recall that as bracketed subexpression recognizer
 symbol table keys,
 {\em named-openings},
-{\em named-separators},
+{\em named-key-separators},
 {\em named-middles},
 and {\em named-closings}
 may not span multiple lines, but
@@ -2497,14 +2496,14 @@ The general syntax of {\em parser-named-bracket-commands} is:
 \emkey{named-bracket-name} \\
     \hspace*{0.2in}
      ::= \begin{tabular}[t]{@{}l@{}}
-	 {\em named-opening} [ {\tt ...} {\em named-separator} ] \\
+	 {\em named-opening} [ {\tt ...} {\em named-key-separator} ] \\
          {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
 	 {\tt ...} {\em named-closing}
 	 \end{tabular}
 \\[0.5ex]
 \emkey{named-opening} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{named-separator} ::= {\em quoted-name}
+\emkey{named-key-separator} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{named-middle} ::= {\em quoted-name}
 \\[0.5ex]
@@ -2532,7 +2531,7 @@ in the same way as they would be if they were ordinary
 subexpression components.
 The {\tt .keys} attribute is a MIN object whose list elements
 are the individual {\em keys}, and whose {\tt .initiator} and 
-{\tt .separator} attributes are both the {\em named-separator}.
+{\tt .separator} attributes are both the {\em named-key-separator}.
 Every value inside the subexpression object attributes
 that is not a MIN object and not part of an {\em argument}
 is a MIN string or a MIN label with 2 or more
@@ -2570,11 +2569,11 @@ except that the {\em named-operator} ends with a
 {\em named-closing} instead of a {\em named-middle}:
 
 \begin{indpar}[0.1in]
-\emkey{named-operator} \\
-    \hspace*{0.2in}::= \begin{tabular}[t]{@{}l@{}}
-	 {\em named-opening} {\em operator-name} {\em argument}$^\star$
-	      \{ {\em named-separator} {\em key} \}$^\star$
-	      {\em named-closing} \\
+\emkey{named-operator}
+    \begin{tabular}[t]{@{}l@{~}l@{}}
+    {\em named-opening} & {\em operator-name} {\em argument}$^\star$ \\
+	                & \{ {\em named-key-separator} {\em key} \}$^\star$ \\
+	                & {\em named-closing} \\
 	 \end{tabular}
 \\[0.5ex]
 \emkey{operator-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$

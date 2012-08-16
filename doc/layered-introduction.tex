@@ -2285,8 +2285,6 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
 	  {}[ {\tt with parsing selectors} {\em new-selectors} ] \\
 	  \end{tabular} \\
-    $|$& \ttikey{parser undefine indentation mark}{undefine indentation mark}
-	 {\em indentation-name} {\em parsing-selectors} \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
@@ -2336,8 +2334,9 @@ may be glued to `{\tt =}' to make `{\tt =:}'.
 After an indentation mark is split from a previous mark at the end of
 a line, previous tokens are checked to see if they contain
 the label of a symbol table entry used by the bracketed subexpression
-parser.  More explicitly, any sequence of marks and separators at the
-end of the line is re-parsed, excluding any mark or separator that was
+parser.  More explicitly, any sequence of words, numbers, marks,
+and separators at the
+end of the line is re-parsed, excluding lexemes that were
 part of or before a previously recognized symbol table entry.
 
 An anomaly may exist if the selectors that allowed a gluing indentation mark to
@@ -2386,6 +2385,16 @@ if it appears on a line by itself and is less indented than the first
 following non-comment non-blank line.
 Comments at the beginning or end of a file cannot be
 in error.
+
+When an {\em indentation-mark-name} is recognized, the current parser
+selector set is saved in a stack and
+a new set is computed by modifying the saved set
+according to the {\em new-selectors} in the indentation mark definition.
+The saved selector set is restored after the end of paragraph
+is recognized.  However {\em line-separator-name}
+recognition does not depend
+upon the current parser selectors, but only on previous recognition
+of an associated {\em indentation-mark-name}.
 
 \subsubsection{Named Bracketed Subexpressions}
 \label{NAMED-BRACKETED-SUBEXPRESSIONS}
@@ -2489,8 +2498,6 @@ The general syntax of {\em parser-named-bracket-commands} is:
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser define named bracket}{named bracket!parser define}
 	  {\em named-bracket-name} {\em parsing-selectors} \\
-    $|$ & \ttikey{parser undefine named bracket}{named bracket!parser undefine}
-	  {\em named-bracket-name} {\em parsing-selectors} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{named-bracket-name} \\
@@ -2540,9 +2547,9 @@ If there are no {\em arguments}, the {\tt .arguments} attribute
 is not set, and similarly if there are no {\em keys}, the {\tt .keys}
 attribute is not set.
 
-In particular, quoted strings and numbers in {\em keys} are converted to
+In particular, quoted strings in {\em keys} are converted to
 MIN strings whose values equal the translation strings of the
-quoted string or number lexemes.  Thus the keys
+quoted string.  Thus the keys
 `{\tt lemma "5.1.1"}' and `{\tt lemma 5.1.1}' become identical
 when stored in the {\tt .keys} attribute of the parser result.
 
@@ -2620,13 +2627,12 @@ by the following parser definitions:
 \begin{indpar}
 \emkey{parser-pass-definition} \\
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{define}{define parser pass}
+    ::= & \ttikey{parser define pass}{pass!parser define}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf parser pass}
 	  {\em parser-pass-name} {\em parsing-selectors} \\
 	  {\tt after} {\em previous-parser-pass-name}
 	  \end{tabular} \\
-    $|$ & \ttkey{undefine parser pass}
+    $|$ & \ttikey{parser undefine pass}{pass!parser undefine}
 	  {\em parser-pass-name} {\em parsing-selectors} \\
     \end{tabular}
 \\[0.5ex]
@@ -2636,14 +2642,14 @@ by the following parser definitions:
 \emkey{previous-parser-pass-name} ::= {\em pass-name}
 \end{indpar}
 
-The {\tt define parser pass} statement sets the parser pass
+The {\tt parser define pass} statement sets the parser pass
 {\em parsing-selectors}
 and installs the parser pass in the parser pass stack after the
 parser pass already in that stack which has the name
 {\em previous-parser-pass-name}.  If the parser pass was already
 in the stack, it is removed first and reinstalled.
 
-The {\tt undefine parser pass} statement removes the given
+The {\tt parser undefine pass} statement removes the given
 {\em parsing-selectors} from the parser pass if that is in the
 parsing pass stack.
 

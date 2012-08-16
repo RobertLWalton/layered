@@ -32,7 +32,7 @@ layered-m-language:	layered-m-language.pdf
 .SUFFIXES:
 .SUFFIXES: .tex .pdf
 .tex.pdf:
-	pdflatex $*
+	pdflatex $* 
 	makeindex $*
 
 clean:

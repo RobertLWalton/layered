@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 13, 2012
+August 16, 2012
  
 \end{center}
 
@@ -1458,7 +1458,8 @@ of tokens.  A token is either a lexeme, a subexpression, or an operator.
 The top level parser pass, the bracketed subexpression recognition pass,
 recognizes subexpressions that are bounded by brackets
 such as `{\tt (}' and `{\tt )}', by an indentation mark and eventual
-end of indentation, or by a line end.
+end of indentation, by a line end, or by a line separator that is
+equivalent to a line end.
 The non-top-level passes
 operate on the subexpressions recognized by previous passes;
 for example, the operator pass recognizes
@@ -1486,23 +1487,33 @@ A token has the following components:
 		& For a lexeme, the translation of the
 		  lexeme may be recorded in either the token
 		  {\tt value} as a MIN string or in the token {\tt string}.
+\end{tabular}
 \\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
 		& Standardly the token lexeme types are word, mark, separator,
-		  and natural number which have token {\tt value}s,
-		  number and quoted string which have token {\tt string}s,
+		  and number which have token {\tt value}s that are
+		  MIN strings equal to the lexeme characters,
+		  quoted string which has token {\tt string}s equal
+		  to the lexeme translation string,
 		  and line break and end of file which have neither
-		  {\tt value} or {\tt string}.
+		  {\tt value} nor {\tt string}.
+		  Both natural numbers and other numbers are grouped
+		  together as numbers.
 		  Standardly whitespace and comment lexemes are
 		  not translated into tokens, and error lexemes are
 		  announced when input but not translated into tokens.
-\\[1ex]
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
 		& For an {\tt OPERATOR}, the token {\tt value}
 		  is the operator name recorded as
 		  a MIN string or a MIN label.
-		  Such tokens are
+		  {\tt OPERATOR} tokens are
 		  produced inside the operator pass and consumed by
 		  expression reformatters invoked by that pass.
-\\[1ex]
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
 		& For a {\tt BRACKETED} subexpression, the token {\tt value}
 		  is a MIN object which may have
 		  attributes such as {\tt .initiator} or {\tt .terminator}.
@@ -1514,22 +1525,34 @@ A token has the following components:
 		  \begin{tabular}{l}
 		  .initiator \\
 		  .terminator \\
+		  .separator \\
 		  .middle \\
 		  .name \\
 		  .arguments \\
 		  .keys \\
 		  \end{tabular}
 		  \end{center}
+\end{tabular}
 \\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
 		& Empty subexpressions are recorded as {\tt BRACKETED}
 		  subexpressions whose MIN object has no elements and
-		  no attributes.
+		  no syntax attri\-butes.
+\end{tabular}
 \\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
 		& A {\tt BRACKTABLE} token with token {\tt value} V
 		  is equivalent to (and an optimization of) a {\tt BRACKETED}
 		  token whose MIN object has just a single element equal to
-		  V and no attributes.  If attributes must be
+		  V and no syntax attributes
+		  (the equivalent MIN object may
+		  have a non-syntax {\tt .position} attribute
+		  derivable from the {\tt position} of the token).
+		  If attributes must be
 		  added, the token is converted to a {\tt BRACKETED} token.
+		  {\tt BRACTABLE} tokens are
+		  produced inside the operator pass and consumed by
+		  expression reformatters invoked by that pass.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1537,12 +1560,13 @@ A token has the following components:
 		& The token {\tt value}, as described above.  This is
 		  MIN string, label, or object.  Numbers are encoded
 		  as MIN strings, so {\tt 001}, {\tt 01}, and {\tt 1}
-		  are all distinct.
+		  are all distinct, as are {\tt 0.10}, {\tt 0.1},
+		  and {\tt .10}.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{string}{of token}
-		& For quoted string and non-natural number lexemes,
+		& For quoted string lexemes,
 		  which do not have token {\tt value}'s,
                   this is the translation string of the lexeme,
 		  stored in a manner that makes
@@ -1568,15 +1592,15 @@ A token has the following components:
 		  Calculated assuming a single space character is
 		  1 column and horizontal tabs are every 8 columns.
 		  A special missing value if the token is not the
-		  first token on the line.
+		  first token on a line.
 		\\[1ex]
-		& Used by the bracketted subexpression recognizer
+		& Used by the bracketed subexpression recognizer
 		  to recognize indentation.
 \end{tabular}
 \end{indpar}
 
 Tokens are organized in a doubly threaded list.  A file is translated into
-such a list that ends with a token containing a end-of-file
+such a list that ends with a token containing an end-of-file
 lexeme.
 The tokens of a file are not read in all at once, but are read in as
 needed.
@@ -1612,9 +1636,9 @@ components:
 		& A sequence of `symbols' that identifies the definition.
 \\[1ex]
 		& A \key{symbol} is a MIN string equal to the
-		  lexeme translation string of a word, mark, separator,
-		  or natural number lexeme.  Quoted string and non-natural
-		  number lexemes are not symbols.
+		  lexeme string of a word, mark, separator,
+		  or number lexeme.  Quoted string
+		  lexemes are not symbols.
 \\[1ex]
 		& Labels are symbol table `\skey{key}s', that is, they
 		  are what is looked up in a symbol table.
@@ -1624,11 +1648,12 @@ components:
 		  a MIN label whose elements are MIN strings
 		  equal to the symbols.
 \\[1ex]
-		& Note that natural numbers are represented by MIN
+		& Note that numbers are represented by MIN
 		  strings equal to their lexeme translation strings,
 		  and are \underline{not} represented as MIN numbers.
 		  As a consequence `{\tt 01}' and `{\tt 1}' are
-		  different natural number symbols.
+		  different number symbols, as are `{\tt 0.10}'
+		  and `{\tt .1}'.
 \end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1650,10 +1675,11 @@ components:
 
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{level}{of symbol table entry}
-		& Block nesting level of the definition block
+		& Block nesting level, 0, 1, 2, \ldots, of the definition block
 		  containing the definition that made this symbol
 		  table entry.  When the block ends, this entry
-		  will be removed from the stack.
+		  will be removed from the stack.  The top level is
+		  level 0.
 \end{tabular}
 \end{indpar}
 
@@ -1662,7 +1688,7 @@ that is part of a line (for the bracketed subexpression recognition pass)
 or subexpression (for other passes), and finds an active symbol table
 entry with a label whose symbols match an initial segment of the
 token sequence.  Only symbol tokens, whose lexeme types are word,
-mark, separator, or natural number, can match label symbols.  These are just
+mark, separator, or number, can match label symbols.  These are just
 the token types that have values which are MIN strings equal to the
 translation strings of their lexemes, and it is these values that
 are matched for equality with the table entry label symbols.
@@ -1671,7 +1697,7 @@ the initial segment of tokens used in the match is called
 a `\key{matched label}\,'.
 
 At any point the longest active match is choosen.  Entries may
-not be active because they have the wrong type or wrong selectors
+not be active because they have the wrong type or wrong selectors (see below)
 for the current parser pass or context.
 Entries may be activated only when other entries are recognized
 in the current context, as when afix operators become active
@@ -1704,6 +1730,8 @@ definitions are encountered, their effects are `pushed' into the
 symbol tables.  These stacks can be popped, removing
 the parser definitions in reverse order.  When a definition
 is popped, its effects are removed from the symbol tables.
+Definitions are popped by the ends of parser blocks: see
+\pagref{PARSER-BLOCKS}.
 
 \subsection{Parser Commands}
 
@@ -1717,6 +1745,7 @@ is specified on \pagref{PARSER-COMMANDS}.
     ::= & {\em parser-block-command} \\
     $|$ & {\em parser-test-command} \\
     $|$ & {\em parser-selector-command} \\
+    $|$ & {\em parser-undefine-command} \\
     $|$ & {\em parser-bracket-command} \\
     $|$ & {\em parser-operator-command} \\
     \end{tabular}
@@ -1788,6 +1817,9 @@ is specified on \pagref{PARSER-COMMANDS}.
 \emkey{selector} ::= {\em parser-flag}
 \\[0.5ex]
 \emkey{selectors} ::= {\em parser-flag-list}
+\\[2ex]
+\emkey{parser-undefine-command}
+    ::= {\tt parser undefine} {\em quoted-name} {\em selectors}
 
 \label{PARSER-COMMANDS}
 \end{figure*}
@@ -1807,7 +1839,8 @@ This embedding of lexemes in a {\em quoted-string} lexeme
 serves to keep the embedded lexemes from being given a special
 interpretation by the parser when the parser command is parsed.
 
-Parser commands may be organized into \skey{parser-block}s of the form:
+Parser commands may be organized into \skey{parser-block}s of the form:%
+\label{PARSER-BLOCKS}
 \begin{center}
 \begin{tabular}{l}
 \ttmkey{parser begin}{block} {\em block-name} \\
@@ -1826,7 +1859,7 @@ one parser block.
 
 The parser has two sets of \emkey{parser-flags}\index{flags!parser}:
 the parser trace flags and the
-selectors.  Each set has 64 named flags.  A set of parser flags can be
+selectors.  Each set has up to 64 named flags.  A set of parser flags can be
 specified by giving a {\em parser-flag-list} or a
 {\em parser-flag-modifier-list}.
 
@@ -1843,7 +1876,7 @@ These pairs are interpreted as follows:
 \end{tabular}
 \end{center}
 
-In either the case of a {\tt parser-flag-list} or
+In either the case of a {\em parser-flag-list} or
 {\em parser-flag-modifier-list} no flag may be named more than once.
  
 The current set of
@@ -1860,7 +1893,8 @@ and a brief description of that printout:
     Upon reading a token from the input, a description of the token is printed.
 
 \hspace*{-0.2in}\ttmkey{output}{parser trace flag}
-    Upon producing a final output line, a description of the line is printed.
+    Upon producing a final output line token, the token value
+    is printed.
 
 \hspace*{-0.2in}\ttmkey{definitions}{parser trace flag}
     Upon successfully finishing the execution of a parser command,
@@ -1869,11 +1903,11 @@ and a brief description of that printout:
 
 \hspace*{-0.2in}\ttmkey{bracketed subexpressions}{parser trace flag}
     Upon recognition of a subexpression by the bracketed subexpression
-    recognition pass, the subexpression is printed.
+    recognition pass, the value of the subexpression token is printed.
 
 \hspace*{-0.2in}\ttmkey{operator subexpressions}{parser trace flag}
     Upon recognition of a subexpression by the operator subexpression
-    recognition pass, the subexpression is printed.
+    recognition pass, the the value of the subexpression token is printed.
 \end{indpar}
 
 The `\ttkey{parser print trace}' command prints the current set of
@@ -1888,7 +1922,7 @@ parse.
 Selector names (unlike trace flag names) a \underline{not} buitin,
 and must be defined by the
 `\ttikey{parser define selector}{selector!parser define}'
-command.  When the parser block containing selector name definition
+command.  When the parser block containing a selector name definition
 command ends, the selector name is erased.
 There may be at most 64 selectors defined at any one time.
 The current selector names can be printed by using
@@ -1903,7 +1937,7 @@ The general syntax of these is
 \end{center}
 and an example is
 \begin{center}
-{\tt define bracket "("~...~")" [operator text]} \ldots
+{\tt parser define bracket "("~...~")" [operator text]} \ldots
 \end{center}
 The {\em type}, `{\tt bracket}' in the example, identifies the parser pass into
 whose symbol tables entries are to be pushed.  The {\em name},
@@ -1915,22 +1949,18 @@ the entries to be pushed.
 The end of a parser block pops all entries pushed into parser
 symbol tables during the block.
 
-Associated with each of these `{\tt parser define}' commands is a
-`\ttkey{parser undefine}' command of the form:
+The `\ttkey{parser undefine}' command causes a name to become
+unrecognizable by the parser as being in any way special, and
+thereby cancels any meaning the name may have been given by the
+parser symbol tables.  They syntax of
+this command is:
 \begin{center}
-{\tt parser undefine} [ {\tt last} $|$ {\tt block} $|$ {\tt all} ]
-         {\em type} {\em name} {\em selectors}
+{\tt parser undefine} {\em quoted-name} {\em selectors}
 \end{center}
-
-This command clears the designated selector bits from
-symbol table entries made by their associated `{\tt parser define}'
-commands.  This can be done either for just the `{\tt last}' such
-entry, for all entries in the current parser block,
-or for `{\tt all}' such entries.  Particular bits may be
-cleared, or all bits may be cleared.  When the parser block containing
-a `{\tt parser undefine}' command ends, the symbol table entry
-selector bits are restored to their state at the beginning of the block.
-
+An entry is pushed into every parser symbol table in which the
+name appears, so that the command effectively cancels all
+definitions of the given name in any context which has a selector
+in common with one of the {\tt parser undefine} command selectors.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 
@@ -3247,13 +3277,12 @@ lexeme token output by a operator parsing pass may be
 thought of as the equivalent of
 a single {\tt EXPRESSION} token whose token value is the lexeme token value,
 which is a MIN string,
-if the lexeme is not a quoted string or non-natural number,
-or the {\tt EXPRESSION} token value
+if the lexeme is not a quoted string
+or a {\tt EXPRESSION} token value
 is a list of one element with the element being equal to the
 token value converted to a MIN string and with
 an {\tt .initiator} attribute equal to {\tt "} if
-the lexeme represented is a quoted string or {\tt \#} if the
-lexeme represented is a non-natural number.
+the lexeme represented is a quoted string.
 When a single lexeme token output from an operator parsing pass
 must be converted to an
 {\tt EXPRESSION} token, it is converted to this equivalent.

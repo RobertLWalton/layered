@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 22 15:29:30 EDT 2012
+// Date:	Thu Aug 23 08:34:57 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,6 +18,34 @@ namespace ll { namespace parser {
 // Move `current' to the end of the current bracketed
 // subexpression, calling parser->input if more tokens
 // are needed.
+//
+// The parsed subexpression is NOT compacted and tokens
+// in it are left untouched with the following excep-
+// tions.  Line breaks and comments are deleted.  After
+// doing this, consecutive quoted strings are merged.
+// SUBSUBexpressions are identified and replaced by
+// BRACKETED tokens.
+//
+// It is assumed that there are always more tokens
+// available via parser->input until an end-of-file
+// token is encountered, and the end-of-file is never
+// part of the bracketed subexpression.  Therefore there
+// is always a token immediately after the recognized
+// subexpression.  This token is returned as the updated
+// `current' argument value to mark the end of the
+// recognized subexpression.
+//
+// The token list, beginning with the initial value of
+// `current', is edited by this function.  The caller
+// should save `current->previous' before calling this
+// function, so it and `current' as returned by this
+// function can be used to delimit the subexpression.
+// Note that in the case of the top level call, there
+// may be no `current->previous', and parser->first will
+// be the first token of the returned subexpression.
+// For non-top-level calls, there is always an indenta-
+// tion mark or opening bracket before the initial value
+// of `current'.
 //
 // The `bracket_stack' argument specifies brackets that
 // need to be found in order to close bracketed sub-
@@ -38,12 +66,12 @@ namespace ll { namespace parser {
 // of the closing bracket is `closed', any other
 // entries between this entry and the top of the stack
 // are marked `closed', `current' is positioned just
-// after the closing bracket found, and false is
+// after the found closing bracket, and false is
 // returned.
 //
 // If the subexpression is terminated a line separator,
 // the line separator must be that of the `indentation_
-// mark argument, and it must be outside SUBSUBexpres-
+// mark' argument, and it must be outside SUBSUBexpres-
 // sions.  In this case `current' is positioned just
 // after the line separator, and true is returned.
 // If the `indentation_mark' argument is NULL_STUB,
@@ -52,30 +80,15 @@ namespace ll { namespace parser {
 // If the subexpression is terminated by a line break
 // whose first following non-comment, non-line break
 // token has indent <= the `indent' argument, then
-// `current' is positioned at the line break, false is
-// returned, and NO bracket entries are closed.  If
-// `indent' equals MINUS parser->indent_offset, this
-// feature is disabled.
+// `current' is positioned at the line break, all 
+// line break and comment tokens following this are
+// deleted, false is returned, and NO bracket entries
+// are closed.  If `indent' equals MINUS parser->
+// indent_offset, this feature is disabled.
 //
 // If the subexpression is terminated by an end-of-file,
 // `current' is positioned at the end-of-file, false is
 // returned, and NO bracket entries are closed.
-//
-// The parsed subexpression is NOT compacted and tokens
-// in it are left untouched with the following excep-
-// tions.  Line breaks and comments are deleted.  After
-// doing this, consecutive quoted strings are merged.
-// SUBSUBexpressions are identified and replaced by
-// BRACKETED tokens.
-//
-// It is assumed that there are always more tokens
-// available via parser->input until an end-of-file
-// token is encountered, and the end-of-file is never
-// part of the bracketed subexpression.  Therefore there
-// is always a token immediately after the recognized
-// subexpression.  This token is returned as the updated
-// `current' argument value to mark the end of the
-// recognized subexpression.
 //
 // This function calls itself recursively if it finds
 // an opening unnamed or named bracket or an indentation
@@ -91,55 +104,36 @@ namespace ll { namespace parser {
 // are ".
 //
 // The `selectors' argument has no affect on closing
-// bracket or line separator recognition.
-//
-// Subexpressions that would be empty subparagraph lines
-// are ignored.  Thus a closing bracket indented by
-// `indent' will not produce an empty subparagraph line.
-// However, lines terminated by indentation_separators
-// are NOT considered to be empty in this sense (they
-// are given a .terminator).
+// bracket, named middle, named key separator, named
+// closing, or line separator recognition.
 // 
-// More specifically, bracketed SUBSUBexpressions are
+// More specifically, bracketed sub-subexpressions are
 // converted to a list.  For unnamed brackets, the
 // .initiator and .terminator of this list are set to
 // the labels of the opening and closing brackets of the
 // subsubexpression.  For named brackets the .initiator,
 // .middle, and .terminator are set to the labels of the
 // named opening, named middle, and named closing, and
-// the .name, .arguments, and .keys attributes are set
-// as computed by the ::named_attributes function (at-
-// tributes whose values would be MISSING are not set).
+// the .name is set to the bracket name.  If there are
+// bracket arguments, they become the elements of a list
+// that is the .arguments attribute.  Note that the
+// element values of an .arguments attribute value have
+// the same format as a sub-subexpression.  If there are
+// bracket keys, they become the elements of a .keys
+// attribute list, and the named key separator becomes
+// both the .initiator and .separator of that list.
 //
-// SUBSUBexpressions introduced by an indentation mark
+// Sub-subexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list
 // is a list of lines and has the indentation mark label
 // as its .initiator.  The inner lists are paragraph
 // line subexpressions and have "\n" as their .termina-
-// tor if they do not end with an indentation separator,
-// and have the indentation separator label as their
-// .terminator otherwise (and the indentation separator
-// at the end of the paragarph line is omitted from the
-// inner list).
-//
-// When this function detects a subsubexpression with a
-// missing unnamed or named closing bracket, this func-
-// tion produces an error message, and proceeds as if
-// the closing bracket were inserted just before the
-// closing bracket or line break that terminates the
-// subsubexpression.
-//
-// The token list, beginning with the initial value of
-// `current', is edited by this function.  The caller
-// should save `current->previous' before calling this
-// function, so it and `current' as returned by this
-// function can be used to delimit the subexpression.
-// Note that in the case of the top level call, there
-// may be no `current->previous', and parser->first will
-// be the first token of the returned subexpression.
-// For non-top-level calls, there is always an indenta-
-// tion mark or opening bracket before the initial value
-// of `current'.
+// tor if they do not end with an line separator, and
+// have the line separator label as their .terminator
+// otherwise (and the line separator at the end of the
+// paragraph line is omitted from the inner list).
+// Inner lists that would be empty with just a "\n"
+// terminator are deleted.
 //
 // Gluing indentation marks are split from line-ending
 // tokens.  When a gluing indentation mark is split,
@@ -151,7 +145,7 @@ namespace ll { namespace parser {
 // mark not being recognized during the rescan, because
 // a bracket is recognized first during rescan and this
 // changes the selectors so as not to recognize the
-// mark.  However, the mark remains split.
+// mark.  However, in any case the mark remains split.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme
@@ -183,7 +177,7 @@ struct bracket_stack
     ll::parser::token opening_first, opening_next;
         // For named_openings only, the first token
 	// AFTER the named opening and the first token
-	// OF the named middle ; thus bounding the named
+	// OF the named middle; thus bounding the named
 	// bracket name, arguments, and keys.
 
     ll::parser::token closing_first, closing_next;

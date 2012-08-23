@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 13 08:35:39 EDT 2012
+// Date:	Thu Aug 23 17:24:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -862,11 +862,17 @@ ll::parser::table::root find_entry
 // previous call to this `find_next_entry' function.
 //
 // Only hash table entries which have a selector bit
-// on are considered.
+// on are considered.  ALL_SELECTORS can be used to
+// consider all entries.
 //
 // The entries are searched in the order longest first,
 // and then in newest first order (i.e., most recently
 // pushed to the hash table are the newest).
+//
+// If `shorten' is true, entries with labels of the same
+// length as the last entry before this function was
+// called are ignored, and current will always be moved
+// back one or more tokens.
 //
 // This function is for use when in addition to selector
 // bits the entry to be found must meet other criteria
@@ -878,7 +884,8 @@ ll::parser::table::root find_next_entry
 	  ll::parser::token & current,
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::selectors selectors,
-	  ll::parser::table::root last_entry );
+	  ll::parser::table::root last_entry,
+	  bool shorten = false );
 
 // Put an empty expression token just before a given
 // token t on a list of tokens headed by first.  The

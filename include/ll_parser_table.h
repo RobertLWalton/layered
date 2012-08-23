@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 13 08:35:27 EDT 2012
+// Date:	Thu Aug 23 14:05:32 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,8 @@ namespace ll { namespace parser { namespace table {
 // ---------
 
 typedef min::uns64 selectors;
+
+const selectors ALL_SELECTORS = (selectors) -1;
 
 typedef min::packed_vec_ptr<min::gen>
 	selector_name_table;

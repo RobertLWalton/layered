@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 13 08:41:15 EDT 2012
+// Date:	Thu Aug 23 19:43:58 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -815,11 +815,13 @@ TAB::root PAR::find_next_entry
 	  PAR::token & current,
 	  TAB::key_prefix & key_prefix,
 	  TAB::selectors selectors,
-	  TAB::root last_entry )
+	  TAB::root last_entry,
+	  bool shorten )
 {
+    last_entry = shorten ? (TAB::root) NULL_STUB
+                         : last_entry->next;
     while ( true )
     {
-        last_entry = last_entry->next;
 	while ( last_entry == NULL_STUB )
 	{
 	    key_prefix = key_prefix->previous;
@@ -831,6 +833,7 @@ TAB::root PAR::find_next_entry
 
 	if ( last_entry->selectors & selectors )
 	    return last_entry;
+        last_entry = last_entry->next;
     }
 }
 

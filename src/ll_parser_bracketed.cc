@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 13 14:45:07 EDT 2012
+// Date:	Fri Aug 24 15:33:37 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -324,24 +324,25 @@ static void complain_near_indent
     ++ parser->error_count;
 }
 
-// Return true if token indent is > indent and complain
-// if token indent is too near indent.
+// Return token indent - indent and complain if token
+// indent is too near indent.  Assert token has an
+// indent.
 //
-inline bool is_indented
+inline min::int32 relative_indent
 	( PAR::parser parser,
 	  PAR::token token,
 	  min::int32 indent )
 {
-    if ( token->indent == LEX::AFTER_GRAPHIC )
-        return false;
+    assert ( token->indent != LEX::AFTER_GRAPHIC );
 
-    int near = (min::int32) token->indent - indent;
-    if (    near != 0
-	 && near < parser->indent_offset 
-	 && near > - parser->indent_offset )
+    int relative_indent =
+        (min::int32) token->indent - indent;
+    if (    relative_indent != 0
+	 && relative_indent < parser->indent_offset 
+	 && relative_indent > - parser->indent_offset )
         ::complain_near_indent
 	    ( parser, token, indent );
-    return near > 0;
+    return relative_indent;
 }
 
 // Bracketed Subexpression Parser
@@ -357,8 +358,9 @@ bool PAR::parse_bracketed_subexpression
 {
     TAB::indentation_mark indentation_found =
         min::NULL_STUB;
-	// If not NULL_STUB, last token was this
-	// indentation mark.
+	// If not NULL_STUB, current token is an end-of-
+	// line and current->previous token is the last
+	// token of an indentation mark.
     TAB::named_opening named_opening =
         min::NULL_STUB;
 	// If not NULL_STUB, a named opening bracket,
@@ -380,13 +382,11 @@ bool PAR::parse_bracketed_subexpression
         // If an indentation mark is split, back up
 	// to this point if not NULL_STUB.
 	//
-	// This is the first mark or separator of a
-	// sequence of marks and separators that ends
-	// the line and that is after every token
-	// in the line that is part of a sequence of
-	// tokens found in the bracket table.  So
-	// this is set to the current token if that
-	// is a mark or separator and split_backup is
+	// This is the first word, number, mark, or
+	// separator that is after the first previous
+	// quoted string or found key.  So this is set
+	// to the current token if that is a word,
+	// number, mark or separator and split_backup is
 	// NULL_STUB, and is set to NULL_STUB by every
 	// other token and after finding a token
 	// sequence in the bracket table.
@@ -462,6 +462,15 @@ bool PAR::parse_bracketed_subexpression
 			// We have found a gluing mark
 			// at the end of of the last
 			// mark.
+			//
+			// Put new token between
+			// current->previous and
+			// current.  Remember that we
+			// may have split_backup ==
+			// current->previous, so we
+			// want to preserve current->
+			// previous as the last token
+			// of the indentation mark.
 
 		        PAR::value_ref
 			    (current->previous) =
@@ -516,6 +525,9 @@ bool PAR::parse_bracketed_subexpression
 		}
 
 	    }
+
+	    // Come here if last token of line was NOT
+	    // split.
 
 	    // Move forward to next token that is not
 	    // a line break or full line comment.
@@ -601,19 +613,26 @@ bool PAR::parse_bracketed_subexpression
 
 	    if ( indentation_found != min::NULL_STUB )
 	    {
-		// Tokens that bracket lines scanned.
+		// Tokens that bracket lines to be
+		// scanned.  mark_end is the last token
+		// of the indentation mark, and next is
+		// the first token after the paragraph.
 		//
 		PAR::token mark_end = current->previous;
 		PAR::token next = current;
 
-		// Scan lines.
+		// Scan lines of paragraph.
+		//
+		// First be sure paragraph has some
+		// lines.
 		//
 		if (    current->next->type
 		     != LEXSTD::end_of_file_t
 		     &&
-		     is_indented
+		     relative_indent
 		         ( parser,
-			   current->next, indent ) )
+			   current->next, indent )
+			 > 0 )
 		{
 		    // Compute selectors and paragraph
 		    // indent for indented subparagraph.
@@ -634,9 +653,7 @@ bool PAR::parse_bracketed_subexpression
 		        current->next->indent;
 
 		    MIN_ASSERT
-		        ( paragraph_indent < 0
-			  ||
-			     (unsigned) paragraph_indent
+		        (    (unsigned) paragraph_indent
 			  != LEX::AFTER_GRAPHIC );
 
 		    // Delete line break.
@@ -666,8 +683,11 @@ bool PAR::parse_bracketed_subexpression
 			next = current;
 			if ( PAR::is_closed
 			         ( bracket_stack_p ) )
+			{
+			    assert ( ! separator_found );
 			    next = bracket_stack_p
 			              ->closing_first;
+			}
 
 			// Compact line subsubexp.
 			//
@@ -716,7 +736,8 @@ bool PAR::parse_bracketed_subexpression
 				  1, attributes );
 			}
 
-			// See if there are more lines.
+			// See if there are more lines
+			// in the paragraph.
 			//
 			if ( separator_found )
 			    continue;
@@ -747,6 +768,8 @@ bool PAR::parse_bracketed_subexpression
 				( first_ref(parser),
 				  current->previous ) );
 		    }
+
+		    assert ( next == current );
 		}
 
 		PAR::token first = mark_end->next;
@@ -814,8 +837,11 @@ bool PAR::parse_bracketed_subexpression
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.
 	    //
-	    if ( ! ::is_indented
-		       ( parser, next, indent ) )
+	    if ( next->indent != LEX::AFTER_GRAPHIC
+	         &&
+		    relative_indent
+		          ( parser, next, indent )
+		 <= 0 )
 		goto DONE;
 
 	    // Remove line break and move to next token.
@@ -838,31 +864,23 @@ bool PAR::parse_bracketed_subexpression
 	    continue;
 	}
 
-	indentation_found = min::NULL_STUB;
+	assert ( indentation_found == min::NULL_STUB );
+	assert ( current->type != LEXSTD::end_of_file_t );
+	assert ( current->type != LEXSTD::line_break_t );
+	assert ( current->type != LEXSTD::comment_t );
 
-	// Process tokens that are not separators,
-	// marks, or words.
+	// Process quoted strings.
 	//
-	if ( current->type != LEXSTD::separator_t
-	     &&
-	     current->type != LEXSTD::mark_t
-	     &&
-	     current->type != LEXSTD::word_t )
+	if ( current->type == LEXSTD::quoted_string_t )
 	{
 	    split_backup = min::NULL_STUB;
 
 	    if ( named_opening != min::NULL_STUB
 	         &&
-		 !  is_named_opening_bracket
-		 &&
-		    current->type
-		 != LEXSTD::natural_number_t )
+		 !  is_named_opening_bracket )
 		named_opening = min::NULL_STUB;
 
-	    if (    current->type
-		 == LEXSTD::quoted_string_t
-		 &&
-	         current != parser->first
+	    if ( current != parser->first
 	         &&
 		    current->previous->type
 		 == LEXSTD::quoted_string_t )
@@ -874,7 +892,8 @@ bool PAR::parse_bracketed_subexpression
 		    ( (PAR::string_insptr)
 		          current->previous->string,
 		      current->string->length,
-		      current->string + 0 );
+		      min::begin_ptr_of
+		          ( current->string ) );
 		current->previous->position.end =
 		    current->position.end;
 		current = current->next;
@@ -889,8 +908,7 @@ bool PAR::parse_bracketed_subexpression
 	    continue;
 	}
 
-	// If mark, separator, or word, lookup in
-	// bracket table.
+	// If lookup key in bracket table.
 	//
 	PAR::token saved_current = current;
 	PAR::token saved_split_backup = split_backup;

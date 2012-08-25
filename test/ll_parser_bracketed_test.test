@@ -1,4 +1,4 @@
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::indentation_separator_type
 BRACKETED EXPRESSION:
     {| This is a line; .terminator = ;; .position = {| |} |}
@@ -22,9 +22,9 @@ This is a line containing a large number
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      12345678901234567890.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "("
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ")"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| hi there; .position = {| |}; .terminator = );
                          .initiator = ( |}
@@ -43,13 +43,13 @@ This is a line containing a parenthesized subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      ( hi there ).
 ^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "("
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "`"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "{"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "}"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| p q; .position = {| |}; .terminator = };
                          .initiator = { |}
@@ -57,7 +57,7 @@ BRACKETED EXPRESSION: {| p q; .position = {| |}; .terminator = };
     line 18:
      (x + `y z {p q}' - [ g h ]).
                ^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "'"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| y z
                          {| p q; .position = {| |}; .terminator = };
@@ -67,9 +67,9 @@ BRACKETED EXPRESSION: {| y z
     line 18:
      (x + `y z {p q}' - [ g h ]).
           ^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "["
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "]"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| g h; .position = {| |}; .terminator = ];
                          .initiator = [ |}
@@ -77,7 +77,7 @@ BRACKETED EXPRESSION: {| g h; .position = {| |}; .terminator = ];
     line 18:
      (x + `y z {p q}' - [ g h ]).
                         ^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ")"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| x +
                          {| y z
@@ -108,11 +108,11 @@ This line contains subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + `y z {p q}' - [ g h ]).
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "("
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "{"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ")"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: missing closing bracket "}" inserted before ")"; line 20:
      (x + { y z )
@@ -143,32 +143,30 @@ This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + { y z )
 ^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "("
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "}"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: spurious closing bracket "}" found and ignored; line 22:
-     (x + y }
-            ^
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
 ERROR: missing closing bracket ")" inserted before line 22:
      (x + y }
              ^
-BRACKETED EXPRESSION: {| x + y; .position = {| |}; .terminator = );
+BRACKETED EXPRESSION: {| x + y }; .position = {| |}; .terminator = );
                          .initiator = ( |}
-    (x + y)
+    (x + y })
     line 22:
      (x + y }
-     ^^^^^^
+     ^^^^^^^^
 BRACKETED EXPRESSION: {| This line contains an incorrect closing bracket
-                         {| x + y; .position = {| |}; .terminator = );
+                         {| x + y }; .position = {| |}; .terminator = );
                             .initiator = ( |}; .terminator = ␤;
                          .position = {| |} |}
-    This line contains an incorrect closing bracket (x + y)
+    This line contains an incorrect closing bracket (x + y })
     lines 21-22:
 This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + y }
-^^^^^^^^^^^
+^^^^^^^^^^^^^
 ERROR: lexeme indent 1 too near paragraph indent 0; line 24:
  a token with insufficient indent
  ^
@@ -180,7 +178,7 @@ This line includes
 ^^^^^^^^^^^^^^^^^^
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION: {| First line .; .terminator = ␤;
                          .position = {| |} |}
@@ -227,7 +225,7 @@ This line starts in indented paragraph:
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION: {| Third line .; .terminator = ␤;
                          .position = {| |} |}
@@ -274,7 +272,7 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION: {| Fifth line .; .terminator = ␤;
                          .position = {| |} |}
@@ -282,10 +280,10 @@ BRACKETED EXPRESSION: {| Fifth line .; .terminator = ␤;
     line 32:
    Fifth line.
    ^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::indentation_separator_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::indentation_separator_type
 BRACKETED EXPRESSION: {| Sixth line A; .terminator = ;;
                          .position = {| |} |}
@@ -352,14 +350,26 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    Seventh line.
 ^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "{"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<+"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "<+"
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<+"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "+>"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "+>"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<-"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "+>"
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<-"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "->"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "<+"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "+>"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| x; .position = {| |}; .terminator = +>;
                          .initiator = <+ |}
@@ -367,7 +377,13 @@ BRACKETED EXPRESSION: {| x; .position = {| |}; .terminator = +>;
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "}"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<-"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<-"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "->"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| {| x; .position = {| |}; .terminator = +>;
                             .initiator = <+ |} <- y ->;
@@ -377,11 +393,17 @@ BRACKETED EXPRESSION: {| {| x; .position = {| |}; .terminator = +>;
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "`"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "<-"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<+"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "->"
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<+"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "+>"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "+>"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "<-"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| y; .position = {| |}; .terminator = ->;
                          .initiator = <- |}
@@ -389,7 +411,7 @@ BRACKETED EXPRESSION: {| y; .position = {| |}; .terminator = ->;
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND KEY "'"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION: {| <+ x +>
                          {| y; .position = {| |}; .terminator = ->;

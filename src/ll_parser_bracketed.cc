@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 24 15:33:37 EDT 2012
+// Date:	Sat Aug 25 05:42:18 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -400,7 +400,7 @@ bool PAR::parse_bracketed_subexpression
         // Truncate if end of file.
 	//
 	if ( current->type == LEXSTD::end_of_file_t )
-	    goto DONE;
+	    return false;
 
 	// Ensure there is a next token.
 	//
@@ -802,7 +802,7 @@ bool PAR::parse_bracketed_subexpression
 		     ||
 		        current->type
 		     == LEXSTD::end_of_file_t )
-		    goto DONE;
+		    return false;
 
 		// Otherwise fall through to process
 		// line break at current that is after
@@ -829,7 +829,7 @@ bool PAR::parse_bracketed_subexpression
 	    // followed by an end of file.
 	    //
 	    if ( next->type == LEXSTD::end_of_file_t )
-		goto DONE;
+		return false;
 
 	    // Now next is neither a line break or end
 	    // of file or comment.
@@ -842,7 +842,7 @@ bool PAR::parse_bracketed_subexpression
 		    relative_indent
 		          ( parser, next, indent )
 		 <= 0 )
-		goto DONE;
+		return false;
 
 	    // Remove line break and move to next token.
 	    //
@@ -919,11 +919,22 @@ bool PAR::parse_bracketed_subexpression
 	TAB::key_prefix key_prefix;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
-			 selectors,
+			 TAB::ALL_SELECTORS,
 			 parser->bracket_table );
 
 	while ( true )
 	{
+	    // Each iteration of this loop examines the
+	    // found entry to see if it is a selected
+	    // opening unnamed bracket, named opening,
+	    // or indentation mark, or a not necessarily
+	    // selected closing unnamed bracket, line
+	    // separator, named key separator, named
+	    // closing, or named middle closing that
+	    // matches a symbol active because of the
+	    // bracket_stack or indentation_mark
+	    // arguments.
+	    //
 	    if ( root == min::NULL_STUB )
 	    {
 	        // No active bracket table entry found.
@@ -941,7 +952,10 @@ bool PAR::parse_bracketed_subexpression
 	    if ( trace )
 	        parser->printer
 		    << "BRACKETED SUBEXPRESSION PARSER"
-		       " FOUND KEY "
+		       " FOUND "
+		    << ( root->selectors & selectors ?
+		         "SELECTED KEY " :
+			 "UNSELECTED KEY " )
 		    << min::pgen
 		           ( root->label,
 			     min::BRACKET_STR_FLAG )
@@ -951,7 +965,9 @@ bool PAR::parse_bracketed_subexpression
 			         ( root ) )
 		    << min::eol;
 
-	    if ( subtype == TAB::OPENING_BRACKET )
+	    if ( subtype == TAB::OPENING_BRACKET
+	         &&
+		 ( selectors & root->selectors ) != 0 )
 	    {
 	        if ( named_opening != min::NULL_STUB
 		     &&
@@ -1086,7 +1102,7 @@ bool PAR::parse_bracketed_subexpression
 		    // bracket_stack and so needs to
 		    // be kicked to our caller.
 		    //
-		    goto DONE;
+		    return false;
 		}
 		else
 		{
@@ -1155,40 +1171,17 @@ bool PAR::parse_bracketed_subexpression
 			        q->closing_next =
 				    saved_current;
 
-			goto DONE;
+			return false;
 		    }
 		}
 
-		min::phrase_position position;
-		position.end =
-		    current->previous->position.end;
-		position.begin =
-		    PAR::remove
-			( parser, current,
-			  closing_bracket->label );
-
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: spurious"
-		       " closing bracket "
-		    << min::pgen
-			 ( closing_bracket->label,
-			   min::BRACKET_STR_FLAG )
-		    << " found and ignored; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      position );
-		++ parser->error_count;
-
-		break;
+		// Closing bracket does not match any
+		// bracket stack entry; reject key.
 	    }
-	    else if ( subtype == TAB::INDENTATION_MARK )
+	    else if ( subtype == TAB::INDENTATION_MARK
+	              &&
+		         ( selectors & root->selectors )
+		      != 0 )
 	    {
                 if (    current->type
 		     == LEXSTD::line_break_t
@@ -1200,6 +1193,9 @@ bool PAR::parse_bracketed_subexpression
 			(TAB::indentation_mark) root;
 		    break;
 		}
+
+		// Indentation mark not at end of line
+		// or end of file; reject key.
 	    }
 	    else if (    subtype
 	              == TAB::INDENTATION_SEPARATOR )
@@ -1212,10 +1208,19 @@ bool PAR::parse_bracketed_subexpression
 			    ->indentation_mark
 		     == indentation_mark )
 		    return true;
+
+		// Indentation separator does not match
+		// indentation_mark argument; reject
+		// key.
 	    }
-	    else if ( subtype == TAB::NAMED_OPENING )
+	    else if ( subtype == TAB::NAMED_OPENING 
+	              &&
+		         ( selectors & root->selectors )
+		      != 0 )
 	    {
-	        if ( current->type == LEXSTD::word_t )
+	        if ( current->type == LEXSTD::word_t
+		     ||
+	             current->type == LEXSTD::number_t )
 		{
 		    // Possible start of named opening
 		    // bracket or named operator.
@@ -1226,6 +1231,9 @@ bool PAR::parse_bracketed_subexpression
 		    named_first = current;
 		    break;
 		}
+
+		// Name does not begin with word or
+		// number; reject key.
 	    }
 	    else if (    subtype
 	              == TAB::NAMED_SEPARATOR )
@@ -1237,6 +1245,9 @@ bool PAR::parse_bracketed_subexpression
 		        (TAB::named_separator) root
 		     == named_opening->named_separator )
 		    break;
+
+		// Named separator does not match current
+		// named opening; reject key.
 	    }
 	    else if ( subtype == TAB::NAMED_MIDDLE )
 	    {
@@ -1406,20 +1417,41 @@ bool PAR::parse_bracketed_subexpression
 		                  cstack.opening_first,
 			          middle_last->next );
 
-		    if ( done ) goto DONE;
+		    if ( done ) return false;
 		    else	break;
 		}
-		else
+		else if (    named_opening
+		          == min::NULL_STUB )
 		{
-		    // The possible start of a named
-		    // closing bracket has been found.
+		    for ( PAR::bracket_stack * p =
+			      bracket_stack_p;
+			  p != NULL;
+			  p = p->previous )
+		    {
+			if (    p->named_opening
+			     == named_middle->
+				    named_opening )
+			{
+			    // The possible start of a
+			    // named closing bracket has
+			    // been found.
 
-		    named_opening =
-		        named_middle->named_opening;
-		    is_named_opening_bracket = false;
-		    named_first = current;
-		    break;
+			    named_opening =
+				named_middle->
+				    named_opening;
+			    is_named_opening_bracket =
+			        false;
+			    named_first = current;
+			    break;
+			}
+		    }
+		    if ( named_opening != NULL_STUB )
+		        break;
 		}
+
+		// Named middle does not match any
+		// active named opening or any bracket
+		// stack entry; reject key.
 	    }
 	    else if ( subtype == TAB::NAMED_CLOSING )
 	    {
@@ -1591,10 +1623,15 @@ bool PAR::parse_bracketed_subexpression
 				  q->closing_next =
 				    p->closing_first;
 
-			    goto DONE;
+			    return false;
 			}
 		    }
 		}
+
+		// Named closing does not match active
+		// named opening or middle; or named
+		// closing bracket does not match any
+		// bracket stack entry; reject key.
 	    }
 	    else if
 	        ( subtype == TAB::NAMED_MIDDLE_CLOSING )
@@ -1624,10 +1661,12 @@ bool PAR::parse_bracketed_subexpression
 			        q->closing_next =
 				    saved_current;
 
-			goto DONE;
+			return false;
 		    }
 		}
 
+		// Named middle closing does not match
+		// any bracket stack entry; reject key.
 	    }
 
 	    if ( trace )
@@ -1641,12 +1680,11 @@ bool PAR::parse_bracketed_subexpression
 
 	    root = PAR::find_next_entry
 	               ( parser, current, key_prefix,
-			 selectors, root );
+			 TAB::ALL_SELECTORS, root );
 	}
     }
 
-    DONE:
-        return false;
+    return false;
 }
 
 // Parser Execute Bracket Commands Function

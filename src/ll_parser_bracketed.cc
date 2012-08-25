@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 25 05:42:18 EDT 2012
+// Date:	Sat Aug 25 06:15:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1046,6 +1046,19 @@ bool PAR::parse_bracketed_subexpression
 			      ( next->value,
 			        min::BRACKET_STR_FLAG )
 			    << "; ";
+		    else if (    next->type
+		              == LEXSTD::line_break_t )
+		        parser->printer
+			    << "end of line; ";
+		    else if (    next->type
+		              == LEXSTD::end_of_file_t )
+		        parser->printer
+			    << "end of file; ";
+		    else if
+		        (    next->type
+		          == LEXSTD::quoted_string_t )
+		        parser->printer
+			    << "\"...\"; ";
 
 		    parser->printer
 			<< min::pline_numbers

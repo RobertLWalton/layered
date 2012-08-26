@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 23 17:24:06 EDT 2012
+// Date:	Sun Aug 26 02:53:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,6 +54,8 @@ namespace ll { namespace parser {
 	error_operand,	// ERROR'OPERAND
 	define,		// define
 	undefine,	// undefine
+	begin,		// begin
+	end,		// end
 	print,		// print
 	selector,	// selector
 	selectors,	// selectors
@@ -441,7 +443,7 @@ void init
 typedef void ( * run_pass )
         ( ll::parser::parser parser,
           ll::parser::pass pass,
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
     	  ll::parser::token & first,
 	  ll::parser::token next );
 typedef void ( * init_pass )
@@ -509,7 +511,7 @@ struct pass_struct
 	// description of each selected change made in
 	// the parser token list.
 
-    ll::parser::table::selectors selectors;
+    ll::parser::table::flags selectors;
         // Pass is run only if its selectors match those
 	// of the bracketed subexpression.
 };
@@ -634,7 +636,7 @@ struct parser_struct
 	// with the same program and printer as the main
 	// parser scanner.
 
-    const ll::parser::table::selector_name_table
+    const ll::parser::table::flag_name_table
     	    selector_name_table;
         // Selector name table.
 
@@ -646,7 +648,7 @@ struct parser_struct
         // Table for indentation splits associated with
 	// indentation marks that can be split.
 
-    ll::parser::table::selectors selectors;
+    ll::parser::table::flags selectors;
         // Top level selectors.
 
     int32 indent_offset;
@@ -704,7 +706,7 @@ MIN_REF ( ll::parser::table::table, bracket_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::split_table, split_table,
           ll::parser::parser )
-MIN_REF ( ll::parser::table::selector_name_table,
+MIN_REF ( ll::parser::table::flag_name_table,
 		selector_name_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::token, first,
@@ -853,7 +855,7 @@ ll::parser::table::root find_entry
 	( ll::parser::parser parser,
 	  ll::parser::token & current,
 	  ll::parser::table::key_prefix & key_prefix,
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
 	  ll::parser::table::table table,
 	  ll::parser::token next = NULL_STUB );
 
@@ -883,7 +885,7 @@ ll::parser::table::root find_next_entry
 	( ll::parser::parser parser,
 	  ll::parser::token & current,
 	  ll::parser::table::key_prefix & key_prefix,
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
 	  ll::parser::table::root last_entry,
 	  bool shorten = false );
 
@@ -949,7 +951,7 @@ struct attr
 void compact
 	( ll::parser::parser parser,
 	  ll::parser::pass,
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
 	  min::uns32 type, bool trace,
 	  ll::parser::token & first,
 	  ll::parser::token next,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 23 14:05:32 EDT 2012
+// Date:	Sun Aug 26 03:06:05 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Selectors
+//	Flags
 //	Roots
 //	Key Prefixes
 //	Brackets
@@ -33,28 +33,59 @@ namespace ll { namespace parser { namespace table {
     using min::uns64;
     using min::NULL_STUB;
 
-// Selectors
-// ---------
+// Flags
+// -----
 
-typedef min::uns64 selectors;
+typedef min::uns64 flags;
 
-const selectors ALL_SELECTORS = (selectors) -1;
+struct new_flags
+     // Encoding of a flag modification list.  The
+     // modification operation is
+     //
+     // new-flags = (   ( old-flags | or_flags )
+     //		      & ~ not_flags ) ^ xor_flags
+     //
+     // where
+     //		( or_flags & not_flags ) = 0
+     //		( or_flags & xor_flags ) = 0
+     //		( not_flags & xor_flags ) = 0
+     //
+     //	Can also encode a flag list where
+     //
+     //	    or_flags = flags; not_flags = ~ flags;
+     //	    xor_flags = 0
+{
+    ll::parser::table::flags or_flags;
+    ll::parser::table::flags not_flags;
+    ll::parser::table::flags xor_flags;
+
+    new_flags ( flags or_flags = 0,
+                flags not_flags = 0,
+                flags xor_flags = 0 )
+	: or_flags ( or_flags ),
+	  not_flags ( not_flags ),
+	  xor_flags ( xor_flags ) {}
+};
+
+const flags ALL_FLAGS = (flags) -1;
 
 typedef min::packed_vec_ptr<min::gen>
-	selector_name_table;
+	flag_name_table;
 typedef min::packed_vec_insptr<min::gen>
-	selector_name_table_insptr;
+	flag_name_table_insptr;
 
-// Create a selector name table (with max_length = 64).
+// Initialize a flag name table with max_length = 64
+// and length = 0.
 //
-ll::parser::table::selector_name_table
-    create_selector_name_table ( void );
+void init_flag_name_table
+    ( min::ref<ll::parser::table::flag_name_table>
+	  name_table );
 
-// Return the index associated with a name in a selector
+// Return the index associated with a name in a flag
 // name table, or return -1 if none.
 //
 inline int get_index
-    ( ll::parser::table::selector_name_table name_table,
+    ( ll::parser::table::flag_name_table name_table,
       min::gen name )
 {
     int i = name_table->length;
@@ -78,7 +109,7 @@ struct root_struct
     const ll::parser::table::root next;
         // Next entry in the stack with the same key.
 	// NULL_STUB if no next entry.
-    ll::parser::table::selectors selectors;
+    ll::parser::table::flags selectors;
         // Selector bits.
     const min::gen label;
         // Label of hash table entry.  A sequence of one
@@ -202,30 +233,6 @@ ll::parser::table::root find
 //
 void push ( ll::parser::table::table table,
             ll::parser::table::root entry );
-
-struct new_selectors
-     // Upon encountering opening bracket or indentation
-     // mark, new-selectors =
-     //	    ( ( old_selectors | or_selectors )
-     //		    & ~ not_selectors )
-     //		    ^ xor_selectors
-     //
-     // where
-     //		( or_selectors & not_selectors ) = 0
-     //		( or_selectors & xor_selectors ) = 0
-     //		( not_selectors & xor_selectors ) = 0
-{
-    ll::parser::table::selectors or_selectors;
-    ll::parser::table::selectors not_selectors;
-    ll::parser::table::selectors xor_selectors;
-
-    new_selectors ( selectors or_selectors = 0,
-                    selectors not_selectors = 0,
-                    selectors xor_selectors = 0 )
-	: or_selectors ( or_selectors ),
-	  not_selectors ( not_selectors ),
-	  xor_selectors ( xor_selectors ) {}
-};
 
 // Brackets
 // --------
@@ -254,7 +261,7 @@ struct opening_bracket_struct : public root_struct
           closing_bracket;
         // The opposing bracket of the opening bracket.
 
-    ll::parser::table::new_selectors new_selectors;
+    ll::parser::table::new_flags new_selectors;
     	// New selectors associated with this opening
 	// bracket.
 
@@ -285,8 +292,8 @@ MIN_REF ( ll::parser::table::opening_bracket,
 void push_brackets
 	( min::gen opening_label,
 	  min::gen closing_label,
-	  ll::parser::table::selectors selectors,
-	  const ll::parser::table::new_selectors
+	  ll::parser::table::flags selectors,
+	  const ll::parser::table::new_flags
 	      & new_selectors,
 	  bool full_line,
 	  ll::parser::table::table bracket_table );
@@ -495,7 +502,7 @@ void push_named_brackets
 	  min::gen named_closing_label,
 	  min::gen named_middle_closing_label,
 	      // May be min::MISSING().
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
 	  ll::parser::table::table bracket_table );
 
 // Indentation Marks
@@ -552,7 +559,7 @@ ll::parser::table::split_table create_split_table
 
 struct indentation_mark_struct : public root_struct
 {
-    ll::parser::table::new_selectors new_selectors;
+    ll::parser::table::new_flags new_selectors;
 
     const ll::parser::table::indentation_separator
 	    indentation_separator;
@@ -625,8 +632,8 @@ void push_indentation_mark
 	( min::gen mark_label,
 	  min::gen separator_label,
 	      // May be min::MISSING()
-	  ll::parser::table::selectors selectors,
-	  const ll::parser::table::new_selectors
+	  ll::parser::table::flags selectors,
+	  const ll::parser::table::new_flags
 	      & new_selectors,
 	  ll::parser::table::table bracket_table,
 	  ll::parser::table::split_table split_table =

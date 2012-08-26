@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  7 06:03:52 EDT 2012
+// Date:	Sun Aug 26 03:47:22 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,12 +112,12 @@ min::gen PARDEF::scan_simple_label
     return min::new_lab_gen ( elements, i - j );
 }
 
-static min::gen scan_selectors
+static min::gen scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  TAB::selectors & selectors,
-	  TAB::new_selectors & new_selectors,
+	  TAB::flags & flags,
+	  TAB::new_flags & new_flags,
 	  PAR::parser parser,
-	  bool scan_new_selectors )
+	  bool scan_new_flags )
 {
     if ( i >= min::size_of ( vp ) )
         return min::MISSING();
@@ -142,12 +142,12 @@ static min::gen scan_selectors
 
     ++ i;
 
-    selectors = 0;
-    new_selectors.or_selectors = 0;
-    new_selectors.not_selectors = 0;
-    new_selectors.xor_selectors = 0;
+    flags = 0;
+    new_flags.or_flags = 0;
+    new_flags.not_flags = 0;
+    new_flags.xor_flags = 0;
     min::unsptr size = min::size_of ( subvp );
-    min::locatable_gen selector;
+    min::locatable_gen flag;
     bool op_seen = false;
     if ( separator == min::NONE() )
     {
@@ -155,7 +155,7 @@ static min::gen scan_selectors
 	while ( true )
 	{
 	    min::gen op = min::MISSING();
-	    if ( scan_new_selectors
+	    if ( scan_new_flags
 	         &&
 		 ( subvp[i] == ::plus
 	           ||
@@ -169,9 +169,9 @@ static min::gen scan_selectors
 		    parser->printer
 			<< min::bom
 			<< min::set_indent ( 7 )
-			<< "ERROR: selector operation "
+			<< "ERROR: flag operation "
 			<< subvp[i]
-			<< " found after selector with"
+			<< " found after flag with"
 			   " NO operation in "
 			<< min::pline_numbers
 			       ( ppvec->file,
@@ -196,13 +196,13 @@ static min::gen scan_selectors
 	    }
 	    min::uns32 ibegin = i;
 
-	    selector = PARDEF::scan_simple_label
+	    flag = PARDEF::scan_simple_label
 		( subvp, i,
 	            ( 1ull << LEXSTD::word_t )
 		  + ( 1ull << LEXSTD::number_t ) );
-	    if ( selector == min::ERROR() )
+	    if ( flag == min::ERROR() )
 	        return min::ERROR();
-	    else if ( selector == min::MISSING() )
+	    else if ( flag == min::MISSING() )
 	    {
 		min::phrase_position pp;
 		if ( i == 0 )
@@ -221,21 +221,21 @@ static min::gen scan_selectors
 
 	    int j = TAB::get_index
 	        ( parser->selector_name_table,
-		  selector );
+		  flag );
 
 	    if ( j >= 0 )
 	    {
 	        if ( op == ::plus )
-		    new_selectors.or_selectors |=
+		    new_flags.or_flags |=
 		        (min::uns64) 1 << j;
 	        else if ( op == ::minus )
-		    new_selectors.not_selectors |=
+		    new_flags.not_flags |=
 		        (min::uns64) 1 << j;
 	        else if ( op == ::exclusive_or )
-		    new_selectors.xor_selectors |=
+		    new_flags.xor_flags |=
 		        (min::uns64) 1 << j;
 		else
-		    selectors |= (min::uns64) 1 << j;
+		    flags |= (min::uns64) 1 << j;
 	    }
 	    else
 	    {
@@ -246,7 +246,7 @@ static min::gen scan_selectors
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
-		    << "ERROR: unrecognized selector"
+		    << "ERROR: unrecognized flag"
 		       " name in "
 		    << min::pline_numbers
 			   ( ppvec->file, pp )
@@ -278,31 +278,31 @@ static min::gen scan_selectors
 	    min::obj_vec_ptr np ( subvp[i] );
 	    if ( np == min::NULL_STUB )
 	    {
-	        selector = subvp[i];
+	        flag = subvp[i];
 		if (    LEXSTD::lexical_type_of
-		            ( selector )
+		            ( flag )
 		     != LEXSTD::word_t )
-		    selector = min::MISSING();
+		    flag = min::MISSING();
 	    }
 	    else
 	    {
 		min::uns32 j = 0;
-		selector = PARDEF::scan_simple_label
+		flag = PARDEF::scan_simple_label
 		    ( np, j,
 	            ( 1ull << LEXSTD::word_t )
 		  + ( 1ull << LEXSTD::number_t ) );
 
-		if ( selector == min::ERROR() )
+		if ( flag == min::ERROR() )
 		    return min::ERROR();
 	    }
 
-	    if ( selector == min::MISSING() )
+	    if ( flag == min::MISSING() )
 	    {
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: " << subvp[i]
-		    << " is not a selector name in "
+		    << " is not a flag name in "
 		    << min::pline_numbers
 			   ( ppvec->file, ppvec[i] )
 		    << ":" << min::eom;
@@ -316,16 +316,16 @@ static min::gen scan_selectors
 
 	    int j = TAB::get_index
 	        ( parser->selector_name_table,
-		  selector );
+		  flag );
 
 	    if ( j >= 0 )
-	        selectors |= (min::uns64) 1 << j;
+	        flags |= (min::uns64) 1 << j;
 	    else
 	    {
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
-		    << "ERROR: unrecognized selector"
+		    << "ERROR: unrecognized flag"
 		       " name in "
 		    << min::pline_numbers
 			   ( ppvec->file, ppvec[i] )
@@ -358,34 +358,34 @@ static min::gen scan_selectors
 	return min::ERROR();
     }
 
-    if ( ! op_seen && scan_new_selectors )
+    if ( ! op_seen && scan_new_flags )
     {
-        new_selectors.or_selectors = selectors;
-        new_selectors.not_selectors = ~ selectors;
+        new_flags.or_flags = flags;
+        new_flags.not_flags = ~ flags;
     }
 
     return min::SUCCESS();
 }
 
-min::gen PARDEF::scan_selectors
+min::gen PARDEF::scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  TAB::selectors & selectors,
+	  TAB::flags & flags,
 	  PAR::parser parser )
 {
-    TAB::new_selectors new_selectors;
-    return ::scan_selectors
-        ( vp, i, selectors, new_selectors,
+    TAB::new_flags new_flags;
+    return ::scan_flags
+        ( vp, i, flags, new_flags,
 	  parser, false );
 }
 
-min::gen PARDEF::scan_new_selectors
+min::gen PARDEF::scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  TAB::new_selectors & new_selectors,
+	  TAB::new_flags & new_flags,
 	  PAR::parser parser )
 {
-    TAB::selectors selectors;
-    return ::scan_selectors
-        ( vp, i, selectors, new_selectors,
+    TAB::flags flags;
+    return ::scan_flags
+        ( vp, i, flags, new_flags,
 	  parser, true );
 }
 
@@ -403,7 +403,7 @@ static min::gen parser_execute_selector_definition
     if ( vp[1] == PAR::print )
     {
 
-	TAB::selector_name_table t =
+	TAB::flag_name_table t =
 	    parser->selector_name_table;
 
 	parser->printer
@@ -478,7 +478,7 @@ static min::gen parser_execute_selector_definition
 	}
 
 	min::push
-	    ( (TAB::selector_name_table_insptr)
+	    ( (TAB::flag_name_table_insptr)
 	      parser->selector_name_table ) = name;
     }
 
@@ -586,6 +586,8 @@ min::gen PARDEF::parser_execute_definition
 	result =
 	    PARDEF::parser_execute_bracket_definition
 		( vp, ppvec, parser );
+
+
 
     for ( PAR::pass pass = parser->pass_stack;
           result == min::FAILURE() && pass != NULL;

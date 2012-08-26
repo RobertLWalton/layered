@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  7 06:01:37 EDT 2012
+// Date:	Sun Aug 26 03:37:54 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,25 +64,24 @@ min::gen scan_simple_label
 	  min::uns64 accepted_types );
 
 // If vp[i] is a []-bracketed subexpression, treat it
-// as a selectors specification, store the specified
-// set of selectors in the selectors argument, increment
+// as a flags specification, store the specified
+// set of flags in the flags argument, increment
 // i, and return min::SUCCESS().  If it is not a []-
 // bracketed subexpression, just return min::MISSING().
 // If it is a []-bracketed subexpression, print error
 // messages to parser->printer, do NOT increment i, and
 // return min::ERROR().
 //
-min::gen scan_selectors
+min::gen scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  ll::parser::table::selectors & selectors,
+	  ll::parser::table::flags & flags,
 	  ll::parser::parser parser );
 
-// Ditto but scan new_selectors instead of selectors.
+// Ditto but scan new_flags instead of flags.
 //
-min::gen scan_new_selectors
+min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  ll::parser::table::new_selectors &
-	      new_selectors,
+	  ll::parser::table::new_flags & new_flags,
 	  ll::parser::parser parser );
 
 // Given a vector pointer vp to an expression, test if

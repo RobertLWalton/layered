@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 30 07:42:16 EDT 2012
+// Date:	Sun Aug 26 03:11:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -124,7 +124,7 @@ void init_input ( min::ref<ll::parser::parser> parser );
 // Standard Parser Selectors
 // -------- ------ ---------
 //
-const ll::parser::table::selectors
+const ll::parser::table::flags
     CODE	= ( 1ull << 0 ),
     MATH	= ( 1ull << 1 ),
     TEXT	= ( 1ull << 2 );

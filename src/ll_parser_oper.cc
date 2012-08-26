@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 11 06:21:47 EDT 2012
+// Date:	Sun Aug 26 03:43:38 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,7 +56,7 @@ const min::uns32 & OP::OPER = oper_type.subtype;
 
 void OP::push_oper
 	( min::gen oper_label,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  OP::reformatter reformatter,
@@ -100,7 +100,7 @@ const min::uns32 & OP::OPER_PASS =
 
 static void run_oper_pass ( PAR::parser parser,
 		            PAR::pass pass,
-		            TAB::selectors selectors,
+		            TAB::flags selectors,
 		            PAR::token & first,
 		            PAR::token next );
 
@@ -146,7 +146,7 @@ inline bool check_precedence
 
 static void run_oper_pass ( PAR::parser parser,
 		            PAR::pass pass,
-		            TAB::selectors selectors,
+		            TAB::flags selectors,
 		            PAR::token & first,
 		            PAR::token next )
 {
@@ -513,7 +513,7 @@ static void run_oper_pass ( PAR::parser parser,
 static void separator_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
 	  OP::oper first_oper )
@@ -624,7 +624,7 @@ OP::reformatter OP::separator_reformatter =
 static void right_associative_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
 	  OP::oper first_oper )
@@ -684,7 +684,7 @@ OP::reformatter OP::right_associative_reformatter =
 static void compare_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
 	  OP::oper first_oper )

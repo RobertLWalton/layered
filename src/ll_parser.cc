@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 23 19:43:58 EDT 2012
+// Date:	Sun Aug 26 02:53:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,8 @@ min::locatable_gen PAR::comma;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
+min::locatable_gen PAR::begin;
+min::locatable_gen PAR::end;
 min::locatable_gen PAR::define;
 min::locatable_gen PAR::undefine;
 min::locatable_gen PAR::print;
@@ -380,9 +382,8 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	split_table_ref(parser) =
 	    TAB::create_split_table();
 	min::push ( parser->split_table, 256 );
-	selector_name_table_ref(parser) =
-	    TAB::create_selector_name_table();
-	    
+	TAB::init_flag_name_table
+	    ( selector_name_table_ref(parser) );
     }
     else
     {
@@ -790,7 +791,7 @@ TAB::root PAR::find_entry
 	( PAR::parser parser,
 	  PAR::token & current,
 	  TAB::key_prefix & key_prefix,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  TAB::table table,
 	  PAR::token next )
 {
@@ -814,7 +815,7 @@ TAB::root PAR::find_next_entry
 	( PAR::parser parser,
 	  PAR::token & current,
 	  TAB::key_prefix & key_prefix,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  TAB::root last_entry,
 	  bool shorten )
 {
@@ -885,7 +886,7 @@ void PAR::put_empty_after
 void PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  PAR::table::selectors selectors,
+	  PAR::table::flags selectors,
 	  min::uns32 type, bool trace,
 	  PAR::token & first, PAR::token next,
 	  min::phrase_position position,

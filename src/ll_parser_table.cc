@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 22:01:56 EST 2012
+// Date:	Sun Aug 26 03:39:03 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Selectors
+//	Flags
 //	Roots
 //	Key Prefixes
 //	Brackets
@@ -24,21 +24,23 @@
 # include <ll_parser_table.h>
 # define TAB ll::parser::table
 
-// Selectors
-// ---------
+// Flags
+// -----
 
-static min::uns32 selector_name_table_gen_disp[] = {
+static min::uns32 flag_name_table_gen_disp[] = {
     0, min::DISP_END };
 
 static min::packed_vec<min::gen>
-    selector_name_table_type
-        ( "ll::parser::table::selector_name_table_type",
-	   ::selector_name_table_gen_disp );
+    flag_name_table_type
+        ( "ll::parser::table::flag_name_table_type",
+	   ::flag_name_table_gen_disp );
 
-TAB::selector_name_table
-    TAB::create_selector_name_table ( void )
+void TAB::init_flag_name_table
+	( min::ref<TAB::flag_name_table> name_table )
 {
-    return ::selector_name_table_type.new_stub ( 64 );
+    if ( name_table == min::NULL_STUB )
+        name_table =
+	    ::flag_name_table_type.new_stub ( 64 );
 }
 
 
@@ -246,8 +248,8 @@ const min::uns32 & TAB::CLOSING_BRACKET =
 void TAB::push_brackets
 	( min::gen opening_label,
 	  min::gen closing_label,
-	  TAB::selectors selectors,
-	  const TAB::new_selectors & new_selectors,
+	  TAB::flags selectors,
+	  const TAB::new_flags & new_selectors,
 	  bool full_line,
 	  TAB::table bracket_table )
 {
@@ -369,7 +371,7 @@ void TAB::push_named_brackets
 	  min::gen named_middle_label,
 	  min::gen named_closing_label,
 	  min::gen named_middle_closing_label,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  TAB::table bracket_table )
 {
     min::locatable_var<TAB::named_opening>
@@ -523,8 +525,8 @@ TAB::split_table TAB::create_split_table ( void )
 void TAB::push_indentation_mark
 	( min::gen mark_label,
 	  min::gen separator_label,
-	  TAB::selectors selectors,
-	  const TAB::new_selectors & new_selectors,
+	  TAB::flags selectors,
+	  const TAB::new_flags & new_selectors,
 	  TAB::table bracket_table,
 	  TAB::split_table split_table )
 {

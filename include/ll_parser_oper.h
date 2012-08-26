@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 02:09:10 EDT 2012
+// Date:	Sun Aug 26 03:12:31 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,7 +54,7 @@ const min::int32 NO_PRECEDENCE = -1 << 31;
 typedef void ( * reformatter )
         ( ll::parser::parser parser,
 	  ll::parser::pass pass,
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  ll::parser::oper::oper first_oper );
@@ -77,7 +77,7 @@ MIN_REF ( min::gen, label, ll::parser::oper::oper )
 //
 void push_oper
 	( min::gen oper_label,
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  ll::parser::oper::reformatter reformatter,

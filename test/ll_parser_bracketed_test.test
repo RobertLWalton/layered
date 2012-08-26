@@ -148,7 +148,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
-ERROR: missing closing bracket ")" inserted before line 22:
+ERROR: missing closing bracket ")" inserted before end of line; line 22:
      (x + y }
              ^
 BRACKETED EXPRESSION: {| x + y }; .position = {| |}; .terminator = );

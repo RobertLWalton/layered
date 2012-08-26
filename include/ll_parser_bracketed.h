@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 23 08:34:57 EDT 2012
+// Date:	Sun Aug 26 03:38:41 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -212,7 +212,7 @@ inline bool is_closed ( ll::parser::bracket_stack * p )
 
 bool parse_bracketed_subexpression
 	( ll::parser::parser parser,
-	  ll::parser::table::selectors selectors,
+	  ll::parser::table::flags selectors,
 	  ll::parser::token & current,
 	  min::int32 indent,
 	  ll::parser::table::indentation_mark

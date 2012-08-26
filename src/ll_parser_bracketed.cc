@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 25 06:15:29 EDT 2012
+// Date:	Sun Aug 26 03:52:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -350,7 +350,7 @@ inline min::int32 relative_indent
 
 bool PAR::parse_bracketed_subexpression
 	( PAR::parser parser,
-	  TAB::selectors selectors,
+	  TAB::flags selectors,
 	  PAR::token & current,
 	  min::int32 indent,
 	  TAB::indentation_mark indentation_mark,
@@ -637,17 +637,17 @@ bool PAR::parse_bracketed_subexpression
 		    // Compute selectors and paragraph
 		    // indent for indented subparagraph.
 		    //
-		    TAB::selectors new_selectors =
+		    TAB::flags new_selectors =
 			selectors;
 		    new_selectors |=
 			indentation_found->new_selectors
-					 .or_selectors;
+					 .or_flags;
 		    new_selectors &= ~
 			indentation_found->new_selectors
-					 .not_selectors;
+					 .not_flags;
 		    new_selectors ^=
 			indentation_found->new_selectors
-					 .xor_selectors;
+					 .xor_flags;
 
 		    min::int32 paragraph_indent =
 		        current->next->indent;
@@ -919,7 +919,7 @@ bool PAR::parse_bracketed_subexpression
 	TAB::key_prefix key_prefix;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
-			 TAB::ALL_SELECTORS,
+			 TAB::ALL_FLAGS,
 			 parser->bracket_table );
 
 	while ( true )
@@ -977,17 +977,17 @@ bool PAR::parse_bracketed_subexpression
 		TAB::opening_bracket opening_bracket =
 		    (TAB::opening_bracket) root;
 
-		TAB::selectors new_selectors =
+		TAB::flags new_selectors =
 		    selectors;
 		new_selectors |=
 		    opening_bracket->new_selectors
-				    .or_selectors;
+				    .or_flags;
 		new_selectors &= ~
 		    opening_bracket->new_selectors
-				    .not_selectors;
+				    .not_flags;
 		new_selectors ^=
 		    opening_bracket->new_selectors
-				    .xor_selectors;
+				    .xor_flags;
 
 		bool full_line =
 		    opening_bracket->full_line;
@@ -1693,7 +1693,7 @@ bool PAR::parse_bracketed_subexpression
 
 	    root = PAR::find_next_entry
 	               ( parser, current, key_prefix,
-			 TAB::ALL_SELECTORS, root );
+			 TAB::ALL_FLAGS, root );
 	}
     }
 
@@ -1859,8 +1859,8 @@ min::gen PARDEF::parser_execute_bracket_definition
 	return min::ERROR();
     }
 
-    TAB::selectors selectors;
-    min::gen sresult = PARDEF::scan_selectors
+    TAB::flags selectors;
+    min::gen sresult = PARDEF::scan_flags
 	    ( vp, i, selectors, parser );
     if ( sresult == min::ERROR() )
 	return min::ERROR();
@@ -1875,7 +1875,7 @@ min::gen PARDEF::parser_execute_bracket_definition
     case ::BRACKET:
     {
 	bool full_line = false;
-	TAB::new_selectors new_selectors;
+	TAB::new_flags new_selectors;
 	    // Inited to zeroes.
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -1888,7 +1888,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	    {
 		i += 2;
 		min::gen result =
-		    PARDEF::scan_new_selectors
+		    PARDEF::scan_new_flags
 			( vp, i, new_selectors,
 			  parser );
 		if ( result == min::ERROR() )
@@ -1927,7 +1927,7 @@ min::gen PARDEF::parser_execute_bracket_definition
     }
     case ::INDENTATION_MARK:
     {
-	TAB::new_selectors new_selectors;
+	TAB::new_flags new_selectors;
 	    // Inited to zeroes.
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -1940,7 +1940,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	    {
 		i += 2;
 		min::gen result =
-		    PARDEF::scan_new_selectors
+		    PARDEF::scan_new_flags
 			( vp, i, new_selectors,
 			  parser );
 		if ( result == min::ERROR() )

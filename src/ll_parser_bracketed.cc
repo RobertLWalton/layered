@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:52:06 EDT 2012
+// Date:	Mon Aug 27 08:41:25 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1861,7 +1861,8 @@ min::gen PARDEF::parser_execute_bracket_definition
 
     TAB::flags selectors;
     min::gen sresult = PARDEF::scan_flags
-	    ( vp, i, selectors, parser );
+	    ( vp, i, selectors,
+	      parser->selector_name_table, parser );
     if ( sresult == min::ERROR() )
 	return min::ERROR();
     else if ( sresult == min::MISSING() )
@@ -1890,6 +1891,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 		min::gen result =
 		    PARDEF::scan_new_flags
 			( vp, i, new_selectors,
+	                  parser->selector_name_table,
 			  parser );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
@@ -1942,6 +1944,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 		min::gen result =
 		    PARDEF::scan_new_flags
 			( vp, i, new_selectors,
+	                  parser->selector_name_table,
 			  parser );
 		if ( result == min::ERROR() )
 		    return min::ERROR();

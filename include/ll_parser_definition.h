@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:37:54 EDT 2012
+// Date:	Mon Aug 27 04:27:20 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,14 +19,19 @@
 namespace ll { namespace parser {
     namespace definition {
 
-// Prints `expected <what> after <file,pp>' error and
-// returns min::ERROR().
+// Prints
+//
+//   ERROR: in <file:line-#> expected <what> <where>:
+//     <file-lines-with-pp underscored>
+//
+// and returns min::ERROR().
 //
 min::gen expected_error
 	( min::printer printer,
 	  min::file file,
 	  min::phrase_position pp,
-	  const char * what );
+	  const char * what,
+	  const char * where = "after" );
 
 // Prints `extraneous stuff after <file,pp>' error and
 // returns min::ERROR().
@@ -64,25 +69,32 @@ min::gen scan_simple_label
 	  min::uns64 accepted_types );
 
 // If vp[i] is a []-bracketed subexpression, treat it
-// as a flags specification, store the specified
-// set of flags in the flags argument, increment
-// i, and return min::SUCCESS().  If it is not a []-
-// bracketed subexpression, just return min::MISSING().
-// If it is a []-bracketed subexpression, print error
-// messages to parser->printer, do NOT increment i, and
-// return min::ERROR().
+// as a flag list, store the specified set of flags in
+// the flags argument, increment i, and return
+// min::SUCCESS().  If it is not a []-bracketed
+// subexpression, just return min::FAILURE().
+// If it is a []-bracketed subexpression with an error,
+// print error messages to parser->printer, increment i,
+// and return min::ERROR().
 //
 min::gen scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::flags & flags,
+	  ll::parser::table::flag_name_table name_table,
 	  ll::parser::parser parser );
 
-// Ditto but scan new_flags instead of flags.
+// Ditto but scan a flag modifier list into new_flags
+// instead of a flag list into flags.  If allow_flag_
+// list is true, accept either a flag modifier list or a
+// flag list (encode the latter by setting or_flags =
+// flags, not_flags = ~ flags, xor_flags = 0).
 //
 min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::new_flags & new_flags,
-	  ll::parser::parser parser );
+	  ll::parser::table::flag_name_table name_table,
+	  ll::parser::parser parser,
+	  bool allow_flag_list = false );
 
 // Given a vector pointer vp to an expression, test if
 // the expression is a parser definition.  Do nothing

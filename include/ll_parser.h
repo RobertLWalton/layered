@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 02:53:59 EDT 2012
+// Date:	Mon Aug 27 04:24:40 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1086,6 +1086,31 @@ inline ll::parser::token backup
 // " for a quoted string.
 //
 void convert_token ( ll::parser::token token );
+
+// Prints
+//
+//   ERROR: in <file:line-#> <message1><message2>:
+//     <file-lines-with-pp underscored>
+//
+// and returns min::ERROR().  Uses parser->printer
+// and parser->input_file.
+//
+min::gen parse_error
+	( ll::parser::parser parser,
+	  min::phrase_position pp,
+	  const char * message1,
+	  const char * message2 = "" );
+
+// Ditto but message2 is a printer operation and it is
+// followed by message3.  Message2 can be min::pgen...
+// for example.
+//
+min::gen parse_error
+	( ll::parser::parser parser,
+	  min::phrase_position pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3 = "" );
 
 } }
 

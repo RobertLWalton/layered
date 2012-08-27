@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:47:22 EDT 2012
+// Date:	Mon Aug 27 07:58:51 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,12 +47,14 @@ min::gen PARDEF::expected_error
 	( min::printer printer,
 	  min::file file,
 	  min::phrase_position pp,
-	  const char * what )
+	  const char * what,
+	  const char * where )
 {
     printer << min::bom << min::set_indent ( 7 )
 	    << "ERROR: in " << min::pline_numbers
 			           ( file, pp )
-	    << ": expected " << what << " after:"
+	    << ": expected " << what
+	    << " " << where << ":"
 	    << min::eom;
     min::print_phrase_lines ( printer, file, pp );
     return min::ERROR();
@@ -112,257 +114,293 @@ min::gen PARDEF::scan_simple_label
     return min::new_lab_gen ( elements, i - j );
 }
 
-static min::gen scan_flags
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  TAB::flags & flags,
-	  TAB::new_flags & new_flags,
-	  PAR::parser parser,
-	  bool scan_new_flags )
+// Look up a flag in a flag name table and return its
+// index.  If it is not there, print an error message
+// and return -1.  Position is the position of the
+// flag in parser->input_file, for the error message.
+//
+static int lookup_flag
+    ( min::gen flag,
+      TAB::flag_name_table name_table,
+      PAR::parser parser,
+      min::phrase_position pp )
 {
+    int j = TAB::get_index ( name_table, flag );
+
+    if ( j == -1 )
+        PAR::parse_error
+	    ( parser, pp, "unrecognized flag name" );
+
+    return j;
+}
+
+// Scan a `flag-name' or an `operator flag-name' for
+// scan_new_flags below.  Update index i and return
+// op and flag.  If no op, set op to min::MISSING().
+// Return index of flag name in name_table.  If error,
+// including flag name not being in table, print error
+// message and return -1.  ppvec is position of vp
+// object, and ppvec->file == parser->input_file is
+// required.
+//
+static int scan_flag
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::phrase_position_vec ppvec,
+	  min::gen & op,
+	  TAB::flag_name_table name_table,
+	  PAR::parser parser,
+	  bool allow_flag_list,
+	  bool allow_flag_modifier_list,
+	  bool is_subexpression = false )
+{
+    op = min::MISSING();
+    min::unsptr size = min::size_of ( vp );
+
+    assert ( ppvec->file == parser->input_file );
+
+    if ( i >= size )
+    {
+	PAR::parse_error
+	    ( parser,
+	      i == 0 ? ppvec->position :
+	               ppvec[i-1],
+	      ! allow_flag_list ?
+	          "expected `+', `-', `^" :
+	      ! allow_flag_modifier_list ?
+	          "expected file name" :
+	          "expected `+', `-', `^',"
+		  " or flag name",
+	      i == 0 ? " at beginning of" :
+	               " after" );
+	return -1;
+    }
+
+    if ( vp[i] == ::plus )
+        op = ::plus, ++ i;
+    else if ( vp[i] == ::minus )
+        op = ::minus, ++ i;
+    else if ( vp[i] == ::exclusive_or )
+        op = ::exclusive_or, ++ i;
+
+    if (    ! allow_flag_modifier_list
+         && op != min::MISSING() )
+    {
+	PAR::parse_error
+	    ( parser,
+	      i == 1 ? ppvec->position :
+	               ppvec[i-2],
+	      "expected flag name",
+	      i == 1 ? " at beginning of" :
+	                "after" );
+	return -1;
+    }
+    else if (    ! allow_flag_list
+              && op == min::MISSING() )
+    {
+	PAR::parse_error
+	    ( parser,
+	      i == 0 ? ppvec->position :
+	               ppvec[i-1],
+	      "expected `+', `-', `^",
+	      i == 0 ? " at beginning of" :
+	               " after" );
+	return -1;
+    }
+
+    min::uns32 ibegin = i;
+    min::gen flag = PARDEF::scan_simple_label
+	( vp, i,
+	    ( 1ull << LEXSTD::word_t )
+	  + ( 1ull << LEXSTD::number_t ) );
+    if ( flag == min::MISSING() )
+    {
+	PAR::parse_error
+	    ( parser,
+	      i == 0 ? ppvec->position :
+	               ppvec[i-1],
+	      "expected flag name",
+	      i == 0 ? " at beginning of" :
+	               " after" );
+	return -1;
+    }
+
+    min::phrase_position pp;
+    pp.begin = ppvec[ibegin].begin;
+    pp.end = ppvec[i-1].end;
+
+    if ( is_subexpression && i != size )
+	PAR::parse_error
+	    ( parser, pp,
+	      "extra stuff in subexpression after" );
+
+    return ::lookup_flag
+        ( flag, name_table, parser, pp );
+}
+
+// Like scan_new_flags but has separate indicators to
+// specify whether flag lists or flag modifier lists are
+// allowed.  Assumes at least one is allowed.
+//
+static min::gen scan_new_flags
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  TAB::new_flags & new_flags,
+	  TAB::flag_name_table name_table,
+	  PAR::parser parser,
+	  bool allow_flag_list,
+	  bool allow_flag_modifier_list )
+{
+    MIN_ASSERT (    allow_flag_list
+                 || allow_flag_modifier_list );
+
     if ( i >= min::size_of ( vp ) )
-        return min::MISSING();
+        return min::FAILURE();
 
     min::obj_vec_ptr subvp ( vp[i] );
 
     if ( subvp == min::NULL_STUB )
-        return min::MISSING();
+        return min::FAILURE();
 
     min::attr_ptr subap ( subvp );
     min::locate ( subap, PAR::dot_initiator );
     if ( min::get ( subap ) != PAR::left_square )
-        return min::MISSING();
+        return min::FAILURE();
     min::locate ( subap, PAR::dot_terminator );
     if ( min::get ( subap ) != PAR::right_square )
-        return min::MISSING();
+        return min::FAILURE();
     min::locate ( subap, PAR::dot_separator );
     min::gen separator = min::get ( subap );
     min::locate ( subap, PAR::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
     assert ( ppvec != min::NULL_STUB );
+    assert ( ppvec->file == parser->input_file );
 
     ++ i;
 
-    flags = 0;
+    // From now on FAILURE not allowed, and failures
+    // must be ERRORs with printed error message.
+
     new_flags.or_flags = 0;
     new_flags.not_flags = 0;
     new_flags.xor_flags = 0;
     min::unsptr size = min::size_of ( subvp );
-    min::locatable_gen flag;
-    bool op_seen = false;
-    if ( separator == min::NONE() )
+    if ( size == 0 ) /* Do nothing */;
+    else if ( separator == min::NONE() )
     {
+        // Bracketted list has not been parsed.  We
+	// parse it ourselves by calling ::scan_flag.
+
 	min::uns32 i = 0;
 	while ( true )
 	{
 	    min::gen op = min::MISSING();
-	    if ( scan_new_flags
-	         &&
-		 ( subvp[i] == ::plus
-	           ||
-		   subvp[i] == ::minus
-		   ||
-		   subvp[i] == ::exclusive_or ) )
-	    {
-	        if ( i == 0 ) op_seen = true;
-		else if ( ! op_seen )
-		{
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: flag operation "
-			<< subvp[i]
-			<< " found after flag with"
-			   " NO operation in "
-			<< min::pline_numbers
-			       ( ppvec->file,
-				 ppvec[i] )  
-			<< ":" << min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  ppvec->file,
-			  ppvec[i] );
-		    return min::ERROR();
-		}
-	        op = subvp[i++];
-	    }
+	    int j = ::scan_flag
+	        ( subvp, i, ppvec, op, name_table,
+		  parser, allow_flag_list,
+		  allow_flag_modifier_list );
+	    if ( j == -1 ) return min::ERROR();
+	    if ( op == min::MISSING() )
+	        allow_flag_modifier_list = false;
 	    else
-	    {
-	        if ( i == 0 ) op_seen = false;
-		else if ( op_seen )
-		    return PARDEF::expected_error
-			( parser->printer, ppvec->file,
-			  ppvec[i-1],
-			  "`+', `-', or `^'" );
-	    }
-	    min::uns32 ibegin = i;
+	        allow_flag_list = false;
 
-	    flag = PARDEF::scan_simple_label
-		( subvp, i,
-	            ( 1ull << LEXSTD::word_t )
-		  + ( 1ull << LEXSTD::number_t ) );
-	    if ( flag == min::ERROR() )
-	        return min::ERROR();
-	    else if ( flag == min::MISSING() )
-	    {
-		min::phrase_position pp;
-		if ( i == 0 )
-		{
-		    pp = ppvec->position;
-		    pp.end = pp.begin;
-		    ++ pp.end.offset;
-		}
-		else
-		    pp = ppvec[i-1];
-
-		return PARDEF::expected_error
-		    ( parser->printer,
-		      ppvec->file, pp, "name" );
-	    }
-
-	    int j = TAB::get_index
-	        ( parser->selector_name_table,
-		  flag );
-
-	    if ( j >= 0 )
-	    {
-	        if ( op == ::plus )
-		    new_flags.or_flags |=
-		        (min::uns64) 1 << j;
-	        else if ( op == ::minus )
-		    new_flags.not_flags |=
-		        (min::uns64) 1 << j;
-	        else if ( op == ::exclusive_or )
-		    new_flags.xor_flags |=
-		        (min::uns64) 1 << j;
-		else
-		    flags |= (min::uns64) 1 << j;
-	    }
+	    if ( op == ::minus )
+		new_flags.not_flags |=
+		    (min::uns64) 1 << j;
+	    else if ( op == ::exclusive_or )
+		new_flags.xor_flags |=
+		    (min::uns64) 1 << j;
 	    else
-	    {
-		min::phrase_position pp;
-		pp.begin = ppvec[ibegin].begin;
-		pp.end = ppvec[i-1].end;
-
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: unrecognized flag"
-		       " name in "
-		    << min::pline_numbers
-			   ( ppvec->file, pp )
-		    << ":"
-		    << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file, pp );
-
-		return min::ERROR();
-	    }
+		new_flags.or_flags |=
+		    (min::uns64) 1 << j;
 
 	    if ( i == size ) break;
 
-	    if ( subvp[i] != PAR::comma)
-		return PARDEF::expected_error
-		    ( parser->printer, ppvec->file,
-		      ppvec[i-1], "`,'" );
-	    else if ( ++ i >= size )
-		return PARDEF::expected_error
-		    ( parser->printer, ppvec->file,
-		      ppvec[i-1], "name" );
+	    if ( subvp[i] != PAR::comma )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected `,' after" );
+	    ++ i;
 	}
     }
     else if ( separator == PAR::comma )
     {
+        // Bracketted list has been parsed.  We process
+	// elements of the list, using ::scan_flag on
+	// any that are themselves lists.
+        // 
 	for ( min::uns32 i = 0; i < size; ++ i )
 	{
 	    min::obj_vec_ptr np ( subvp[i] );
+	    int j;
+	    min::gen op = min::MISSING();
 	    if ( np == min::NULL_STUB )
 	    {
-	        flag = subvp[i];
+	        // Found flag name as min string.
+
+	        min::gen flag = subvp[i];
+
+	        MIN_ASSERT ( min::is_str ( flag ) );
+
+	        if ( ! allow_flag_list )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "expected `+', `-', or `^'"
+			  " before" );
+		allow_flag_modifier_list = false;
+
 		if (    LEXSTD::lexical_type_of
 		            ( flag )
-		     != LEXSTD::word_t )
-		    flag = min::MISSING();
+		     != LEXSTD::word_t
+		     &&
+		        LEXSTD::lexical_type_of
+		            ( flag )
+		     != LEXSTD::number_t )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "flag name instead of" );
+		j = ::lookup_flag
+		    ( flag, name_table,
+		      parser, ppvec[i] );
 	    }
 	    else
 	    {
-		min::uns32 j = 0;
-		flag = PARDEF::scan_simple_label
-		    ( np, j,
-	            ( 1ull << LEXSTD::word_t )
-		  + ( 1ull << LEXSTD::number_t ) );
-
-		if ( flag == min::ERROR() )
-		    return min::ERROR();
+		min::phrase_position_vec pp =
+		    min::position_of ( np );
+		min::uns32 k = 0;
+	        j = ::scan_flag
+		    ( np, k, pp, op, name_table,
+		      parser, allow_flag_list,
+		      allow_flag_modifier_list,
+		      true );
 	    }
 
-	    if ( flag == min::MISSING() )
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: " << subvp[i]
-		    << " is not a flag name in "
-		    << min::pline_numbers
-			   ( ppvec->file, ppvec[i] )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file,
-		      ppvec[i] );
+	    if ( j == -1 ) return min::ERROR();
 
-		return min::ERROR();
-	    }
-
-	    int j = TAB::get_index
-	        ( parser->selector_name_table,
-		  flag );
-
-	    if ( j >= 0 )
-	        flags |= (min::uns64) 1 << j;
+	    if ( op == ::minus )
+		new_flags.not_flags |=
+		    (min::uns64) 1 << j;
+	    else if ( op == ::exclusive_or )
+		new_flags.xor_flags |=
+		    (min::uns64) 1 << j;
 	    else
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: unrecognized flag"
-		       " name in "
-		    << min::pline_numbers
-			   ( ppvec->file, ppvec[i] )
-		    << ":"
-		    << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      ppvec->file, ppvec[i] );
-
-		return min::ERROR();
-	    }
+		new_flags.or_flags |=
+		    (min::uns64) 1 << j;
 	}
     }
     else
-    {
-	parser->printer
-	    << min::bom << min::set_indent ( 7 )
-	    << "ERROR: bad separator "
-	    << min::pgen ( separator )
-	    << " in "
-	    << min::pline_numbers
-		   ( ppvec->file,
-		     ppvec->position )  
-	    << ":"
-	    << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      ppvec->file,
-	      ppvec->position );
-	return min::ERROR();
-    }
+	return PAR::parse_error
+	    ( parser, ppvec->position,
+	      "bad separator ",
+	      min::pgen ( separator,
+	                  min::BRACKET_STR_FLAG ),
+	      " inside" );
 
-    if ( ! op_seen && scan_new_flags )
-    {
-        new_flags.or_flags = flags;
-        new_flags.not_flags = ~ flags;
-    }
+    // Note that an empty list that could be either a
+    // flag list or a flag modifier list is treated as
+    // a flag modifier list.
+    //
+    if ( ! allow_flag_modifier_list )
+        new_flags.not_flags = ~ new_flags.or_flags;
 
     return min::SUCCESS();
 }
@@ -370,23 +408,27 @@ static min::gen scan_flags
 min::gen PARDEF::scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::flags & flags,
+	  TAB::flag_name_table name_table,
 	  PAR::parser parser )
 {
     TAB::new_flags new_flags;
-    return ::scan_flags
-        ( vp, i, flags, new_flags,
-	  parser, false );
+    min::gen result = ::scan_new_flags
+        ( vp, i, new_flags,
+	  name_table, parser, true, false );
+    flags = new_flags.or_flags;
+    return result;
 }
 
 min::gen PARDEF::scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::new_flags & new_flags,
-	  PAR::parser parser )
+	  TAB::flag_name_table name_table,
+	  PAR::parser parser,
+	  bool allow_flag_list )
 {
-    TAB::flags flags;
-    return ::scan_flags
-        ( vp, i, flags, new_flags,
-	  parser, true );
+    return ::scan_new_flags
+        ( vp, i, new_flags,
+	  name_table, parser, allow_flag_list, true );
 }
 
 // Execute Selector Definition Function
@@ -586,8 +628,6 @@ min::gen PARDEF::parser_execute_definition
 	result =
 	    PARDEF::parser_execute_bracket_definition
 		( vp, ppvec, parser );
-
-
 
     for ( PAR::pass pass = parser->pass_stack;
           result == min::FAILURE() && pass != NULL;

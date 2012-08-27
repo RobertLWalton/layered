@@ -43,53 +43,6 @@ static min::initializer initializer ( ::initialize );
 // Parser Definition Functions
 // ------ ---------- ---------
 
-min::gen PARDEF::expected_error
-	( min::printer printer,
-	  min::file file,
-	  min::phrase_position pp,
-	  const char * what,
-	  const char * where )
-{
-    printer << min::bom << min::set_indent ( 7 )
-	    << "ERROR: in " << min::pline_numbers
-			           ( file, pp )
-	    << ": expected " << what
-	    << " " << where << ":"
-	    << min::eom;
-    min::print_phrase_lines ( printer, file, pp );
-    return min::ERROR();
-}
-
-min::gen PARDEF::extra_stuff_after_error
-	( min::printer printer,
-	  min::file file,
-	  min::phrase_position pp )
-{
-    printer << min::bom << min::set_indent ( 7 )
-	    << "ERROR: in " << min::pline_numbers
-			           ( file, pp )
-	    << ": extraneous stuff after:"
-	    << min::eom;
-    min::print_phrase_lines ( printer, file, pp );
-    return min::ERROR();
-}
-
-void PARDEF::misspell_warning
-	( min::printer printer,
-	  min::file file,
-	  min::phrase_position pp,
-	  min::gen what_is,
-	  min::gen should_be )
-{
-    printer << min::bom << min::set_indent ( 7 )
-	    << "WARNING: in " << min::pline_numbers
-			           ( file, pp )
-	    << ": " << what_is
-	    << " should be " << should_be << ":"
-	    << min::eom;
-    min::print_phrase_lines ( printer, file, pp );
-}
-
 min::gen PARDEF::scan_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::uns64 accepted_types )
@@ -231,7 +184,7 @@ static int scan_flag
     if ( is_subexpression && i != size )
 	PAR::parse_error
 	    ( parser, pp,
-	      "extra stuff in subexpression after" );
+	      "extraneous stuff after" );
 
     return ::lookup_flag
         ( flag, name_table, parser, pp );
@@ -465,16 +418,14 @@ static min::gen parser_execute_selector_definition
 	parser->printer << " ]" << min::eom;
 
 	if ( vp[2] != PAR::selectors )
-	    PARDEF::misspell_warning
-	        ( parser->printer,
-		  ppvec->file,
-		  ppvec[2], vp[2], PAR::selectors );
+	    PAR::parse_warn
+	        ( parser, ppvec[2],
+		  "misspelled; should be `selectors'" );
 
         if ( size > 3 )
-	    return PARDEF::extra_stuff_after_error
-	        ( parser->printer,
-		  ppvec->file,
-		  ppvec[2] );
+	    return PAR::parse_error
+	        ( parser, ppvec[2],
+		  "extraneous stuff after" );
 
 	return min::SUCCESS();
     }
@@ -484,7 +435,8 @@ static min::gen parser_execute_selector_definition
         define = false;
     else return min::FAILURE();
 
-    unsigned i = 3;
+    min::uns32 i = 3;
+    min::uns32 begini = i;
     min::locatable_gen name;
     name = PARDEF::scan_simple_label
 	( vp, i,
@@ -493,9 +445,9 @@ static min::gen parser_execute_selector_definition
     if ( name == min::ERROR() )
 	return min::ERROR();
     else if ( name == min::MISSING() )
-	return PARDEF::expected_error
-	    ( parser->printer, ppvec->file,
-	      ppvec[i-1], "name" );
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected simple name after" );
 
     int j = TAB::get_index
 	( parser->selector_name_table, name );
@@ -504,19 +456,16 @@ static min::gen parser_execute_selector_definition
 	if ( parser->selector_name_table
 		   ->length >= 64 )
 	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: too many selector names;"
-		   " table overflow in "
-		<< min::pline_numbers
-		       ( ppvec->file,
-			 ppvec->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file,
-		  ppvec->position );
-	    return min::ERROR();
+	    min::phrase_position pp;
+	    pp.begin = ppvec[begini].begin;
+	    pp.end = ppvec[i-1].end;
+	    return PAR::parse_error
+	        ( parser, pp,
+		  "too many selector names;"
+		  " cannot process ",
+		  min::pgen ( name,
+		              min::BRACKET_STR_FLAG ),
+		  " in" );
 	}
 
 	min::push
@@ -525,15 +474,14 @@ static min::gen parser_execute_selector_definition
     }
 
     if ( vp[2] != PAR::selector )
-	PARDEF::misspell_warning
-	    ( parser->printer,
-	      ppvec->file,
-	      ppvec[2], vp[2], PAR::selector );
+	PAR::parse_warn
+	    ( parser, ppvec[2],
+	      "misspelled; should be `selector'" );
 
     if ( i < size )
-        return PARDEF::extra_stuff_after_error
-	    ( parser->printer,
-	      ppvec->file, ppvec[i-1] );
+        return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "extraneous stuff after" );
 
     return min::SUCCESS();
 }

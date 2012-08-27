@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 27 04:24:40 EDT 2012
+// Date:	Mon Aug 27 15:39:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1093,7 +1093,8 @@ void convert_token ( ll::parser::token token );
 //     <file-lines-with-pp underscored>
 //
 // and returns min::ERROR().  Uses parser->printer
-// and parser->input_file.
+// and parser->input_file.  Increments parser->error_
+// count.
 //
 min::gen parse_error
 	( ll::parser::parser parser,
@@ -1106,6 +1107,22 @@ min::gen parse_error
 // for example.
 //
 min::gen parse_error
+	( ll::parser::parser parser,
+	  min::phrase_position pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3 = "" );
+
+// Same as above but produces a warning message and not
+// an error message.  Does NOT increment parser->error_
+// count.
+//
+min::gen parse_warn
+	( ll::parser::parser parser,
+	  min::phrase_position pp,
+	  const char * message1,
+	  const char * message2 = "" );
+min::gen parse_warn
 	( ll::parser::parser parser,
 	  min::phrase_position pp,
 	  const char * message1,

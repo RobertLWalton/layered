@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 27 08:41:25 EDT 2012
+// Date:	Mon Aug 27 15:46:05 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1812,28 +1812,16 @@ min::gen PARDEF::parser_execute_bracket_definition
 	    return min::ERROR();
 	else if (    name[number_of_names]
 	          == min::MISSING() )
-	    return PARDEF::expected_error
-	        ( parser->printer, ppvec->file,
-		  ppvec[i-1], "quoted name" );
+	    return PAR::parse_error
+	        ( parser, ppvec[i-1],
+		  "expected quoted name after" );
 	else
 	    ++ number_of_names;
 
 	if ( number_of_names > max_names )
-	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: too many quoted names"
-		   " in "
-		<< min::pline_numbers
-		       ( ppvec->file,
-			 ppvec->position )  
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file,
-		  ppvec->position );
-	    return min::ERROR();
-	}
+	    return PAR::parse_error
+	        ( parser, ppvec->position,
+		  "too many quoted names in" );
 
 	if ( i >= size
 	     ||
@@ -1844,20 +1832,9 @@ min::gen PARDEF::parser_execute_bracket_definition
     }
 
     if ( number_of_names < min_names )
-    {
-	parser->printer
-	    << min::bom << min::set_indent ( 7 )
-	    << "ERROR: too few defined names in "
-	    << min::pline_numbers
-		   ( ppvec->file,
-		     ppvec->position )  
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      ppvec->file,
-	      ppvec->position );
-	return min::ERROR();
-    }
+	return PAR::parse_error
+	    ( parser, ppvec->position,
+	      "too few quoted names in" );
 
     TAB::flags selectors;
     min::gen sresult = PARDEF::scan_flags
@@ -1866,10 +1843,10 @@ min::gen PARDEF::parser_execute_bracket_definition
     if ( sresult == min::ERROR() )
 	return min::ERROR();
     else if ( sresult == min::MISSING() )
-	return PARDEF::expected_error
-	    ( parser->printer,
-	      ppvec->file, ppvec[i-1],
-	      "selectors" );
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected bracketed selector list"
+	      " after" );
 
     switch ( type )
     {
@@ -1896,8 +1873,10 @@ min::gen PARDEF::parser_execute_bracket_definition
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::MISSING() )
-		{
-		}
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected bracketed selector"
+			  " modifier list after" );
 	    }
 	    else if ( i + 1 < size
 		      &&
@@ -1909,16 +1888,15 @@ min::gen PARDEF::parser_execute_bracket_definition
 		full_line = true;
 	    }
 	    else
-		return PARDEF::expected_error
-		    ( parser->printer, ppvec->file,
-		      ppvec[i-1],
-		      "`parsing selectors'"
-		      " or `full line'" );
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected `parsing selectors'"
+		      " or `full line' after" );
 	}
 	if ( i < size )
-	    return PARDEF::expected_error
-		( parser->printer, ppvec->file,
-		  ppvec[i-1], "`with'" );
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `with' after" );
 
 	TAB::push_brackets
 	    ( name[0], name[1],
@@ -1949,42 +1927,32 @@ min::gen PARDEF::parser_execute_bracket_definition
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::MISSING() )
-		{
-		}
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected bracketed selector"
+			  " modifier list after" );
 	    }
 	    else
-		return PARDEF::expected_error
-		    ( parser->printer, ppvec->file,
-		      ppvec[i-1],
-		      "`parsing selectors'"
-		      " or `full line'" );
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected `parsing selectors'"
+		      " or `full line' after" );
 	}
 	if ( i < size )
-	    return PARDEF::expected_error
-		( parser->printer, ppvec->file,
-		  ppvec[i-1], "`with'" );
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `with' after" );
 
 	if ( gluing
 	     &&
 		LEXSTD::lexical_type_of ( name[0] )
 	     != LEXSTD::mark_t )
-	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: gluing indentation mark"
-		   " name "
-		<< min::pgen ( name[0] )
-		<< " is not a mark in "
-		<< min::pline_numbers
-		       ( ppvec->file,
-			 ppvec[5] )  
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file,
-		  ppvec[5] );
-	    return min::ERROR();
-	}
+	    return PAR::parse_error
+		( parser, ppvec[5],
+		  "gluing indentation mark name ",
+		  min::pgen ( name[0],
+		              min::BRACKET_STR_FLAG ),
+		  " is not a mark in" );
 
 	TAB::push_indentation_mark
 	    ( name[0],
@@ -2002,9 +1970,9 @@ min::gen PARDEF::parser_execute_bracket_definition
     case ::NAMED_BRACKET:
     {
 	if ( i < size )
-	    return PARDEF::expected_error
-		( parser->printer, ppvec->file,
-		  ppvec[i-1], "end of statement" );
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected end of statement after" );
 	bool separator_present =
 	    ( number_of_names % 2 == 1 );
 	bool middle_present =
@@ -2030,6 +1998,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	    min::print_phrase_lines
 		( parser->printer,
 		  ppvec->file, pp );
+	    ++ parser->error_count;
 	    return min::ERROR();
 	}
 

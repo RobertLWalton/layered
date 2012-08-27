@@ -15,7 +15,7 @@ parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
                                        ^^^
 ======= END TEST
-ERROR: too few defined names in line 12:
+ERROR: in line 12: too few quoted names in:
 parser define bracket "[+"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line 13: expected quoted name after:

@@ -31,7 +31,7 @@ parser define selector operator 1 ++ extra stuff
 parser print selectors:
         [ code, math, text, operator 1 ]
 parser print selectors
-ERROR: unrecognized flag name in line 18:
+ERROR: in line 18: unrecognized flag name:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
 ERROR: in line 19: expected `,' after:

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 02:53:12 EDT 2012
+// Date:	Mon Aug 27 07:58:40 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1144,4 +1144,41 @@ void PAR::convert_token ( PAR::token token )
     min::set ( elemap, initiator );
 
     token->type = PAR::BRACKETED;
+}
+
+min::gen PAR::parse_error
+	( PAR::parser parser,
+	  min::phrase_position pp,
+	  const char * message1,
+	  const char * message2 )
+{
+    parser->printer << min::bom
+                    << min::set_indent ( 7 )
+	            << "ERROR: in "
+		    << min::pline_numbers
+			   ( parser->input_file, pp )
+	            << ": " << message1 << message2
+		    << ":" << min::eom;
+    min::print_phrase_lines
+        ( parser->printer, parser->input_file, pp );
+    return min::ERROR();
+}
+
+min::gen PAR::parse_error
+	( PAR::parser parser,
+	  min::phrase_position pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3 )
+{
+    parser->printer << min::bom
+                    << min::set_indent ( 7 )
+	            << "ERROR: in "
+		    << min::pline_numbers
+			   ( parser->input_file, pp )
+	            << ": " << message1 << message2
+		    << message3 << ":" << min::eom;
+    min::print_phrase_lines
+        ( parser->printer, parser->input_file, pp );
+    return min::ERROR();
 }

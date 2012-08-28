@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:59:29 EDT 2012
+// Date:	Tue Aug 28 07:42:01 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,10 +66,13 @@ int main ( int argc, const char * argv[] )
     			    bracket_table )
 	     == min::NULL_STUB );
 
+    min::phrase_position pp;
+
     TAB::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
 	  64,
+	  0, pp,
 	  TAB::new_flags(2,4,8),
 	  false,
 	  bracket_table );
@@ -90,6 +93,7 @@ int main ( int argc, const char * argv[] )
     TAB::push_indentation_mark
         ( colon, semicolon,
 	  0,
+	  0, pp,
 	  TAB::new_flags ( 2 ),
 	  bracket_table,
 	  split_table );

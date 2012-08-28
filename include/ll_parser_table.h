@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:06:05 EDT 2012
+// Date:	Tue Aug 28 04:23:56 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@
 namespace ll { namespace parser { namespace table {
 
     using min::uns8;
+    using min::uns16;
     using min::uns32;
     using min::uns64;
     using min::NULL_STUB;
@@ -106,6 +107,11 @@ struct root_struct
 {
     uns32 control;
     	// Packed structure control word.
+	//
+    uns16 block_level;
+        // Parser block_level at time symbol was defined.
+    uns16 padding;
+
     const ll::parser::table::root next;
         // Next entry in the stack with the same key.
 	// NULL_STUB if no next entry.
@@ -120,6 +126,8 @@ struct root_struct
 	//
 	// The `label' is also called the `key' of a
 	// hash table entry.
+    min::phrase_position position;
+        // Definition position.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -293,10 +301,13 @@ void push_brackets
 	( min::gen opening_label,
 	  min::gen closing_label,
 	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
 	  bool full_line,
 	  ll::parser::table::table bracket_table );
+
 
 // Named Brackets
 // ----- --------
@@ -503,6 +514,8 @@ void push_named_brackets
 	  min::gen named_middle_closing_label,
 	      // May be min::MISSING().
 	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  ll::parser::table::table bracket_table );
 
 // Indentation Marks
@@ -633,6 +646,8 @@ void push_indentation_mark
 	  min::gen separator_label,
 	      // May be min::MISSING()
 	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
 	  ll::parser::table::table bracket_table,

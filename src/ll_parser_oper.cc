@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:43:38 EDT 2012
+// Date:	Tue Aug 28 07:44:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,6 +57,8 @@ const min::uns32 & OP::OPER = oper_type.subtype;
 void OP::push_oper
 	( min::gen oper_label,
 	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  OP::reformatter reformatter,
@@ -67,6 +69,8 @@ void OP::push_oper
 
     label_ref(oper) = oper_label;
     oper->selectors = selectors;
+    oper->block_level = block_level;
+    oper->position = position;
     oper->flags = flags;
     oper->precedence = precedence;
     oper->reformatter = reformatter;

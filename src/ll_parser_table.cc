@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:39:03 EDT 2012
+// Date:	Tue Aug 28 07:25:26 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -249,6 +249,8 @@ void TAB::push_brackets
 	( min::gen opening_label,
 	  min::gen closing_label,
 	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
 	  bool full_line,
 	  TAB::table bracket_table )
@@ -265,7 +267,13 @@ void TAB::push_brackets
     opening_bracket_ref(closing) = opening;
 
     opening->selectors = selectors;
-    closing->selectors = selectors;
+    closing->selectors = TAB::ALL_FLAGS;
+
+    opening->block_level = block_level;
+    closing->block_level = block_level;
+
+    opening->position = position;
+    closing->position = position;
 
     opening->new_selectors = new_selectors;
     opening->full_line = full_line;
@@ -372,6 +380,8 @@ void TAB::push_named_brackets
 	  min::gen named_closing_label,
 	  min::gen named_middle_closing_label,
 	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  TAB::table bracket_table )
 {
     min::locatable_var<TAB::named_opening>
@@ -403,6 +413,8 @@ void TAB::push_named_brackets
 
     label_ref(named_opening) = named_opening_label;
     named_opening->selectors = selectors;
+    named_opening->block_level = block_level;
+    named_opening->position = position;
     named_separator_ref(named_opening) =
         named_separator;
     named_middle_ref(named_opening) =
@@ -415,7 +427,9 @@ void TAB::push_named_brackets
                 (TAB::root) named_opening );
 
     label_ref(named_closing) = named_closing_label;
-    named_closing->selectors = selectors;
+    named_closing->selectors = TAB::ALL_FLAGS;
+    named_closing->block_level = block_level;
+    named_closing->position = position;
     named_opening_ref(named_closing) =
         named_opening;
     TAB::push ( bracket_table,
@@ -425,7 +439,9 @@ void TAB::push_named_brackets
     {
 	label_ref(named_separator) =
 	    named_separator_label;
-	named_separator->selectors = selectors;
+	named_separator->selectors = TAB::ALL_FLAGS;
+	named_separator->block_level = block_level;
+	named_separator->position = position;
 	named_opening_ref(named_separator) =
 	    named_opening;
 	TAB::push ( bracket_table,
@@ -435,7 +451,9 @@ void TAB::push_named_brackets
     if ( named_middle_label != min::MISSING() )
     {
 	label_ref(named_middle) = named_middle_label;
-	named_middle->selectors = selectors;
+	named_middle->selectors = TAB::ALL_FLAGS;
+	named_middle->block_level = block_level;
+	named_middle->position = position;
 	named_opening_ref(named_middle) =
 	    named_opening;
 	TAB::push ( bracket_table,
@@ -446,7 +464,10 @@ void TAB::push_named_brackets
     {
 	label_ref(named_middle_closing) =
 	    named_middle_closing_label;
-	named_middle_closing->selectors = selectors;
+	named_middle_closing->selectors =
+	    TAB::ALL_FLAGS;
+	named_middle_closing->block_level = block_level;
+	named_middle_closing->position = position;
 	named_opening_ref(named_middle_closing) =
 	    named_opening;
 	TAB::push ( bracket_table,
@@ -526,6 +547,8 @@ void TAB::push_indentation_mark
 	( min::gen mark_label,
 	  min::gen separator_label,
 	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
 	  TAB::table bracket_table,
 	  TAB::split_table split_table )
@@ -534,6 +557,8 @@ void TAB::push_indentation_mark
         ( ::indentation_mark_type.new_stub() );
     label_ref(imark) = mark_label;
     imark->selectors = selectors;
+    imark->block_level = block_level;
+    imark->position = position;
     imark->new_selectors = new_selectors;
     TAB::push ( bracket_table, (TAB::root) imark );
 
@@ -543,7 +568,9 @@ void TAB::push_indentation_mark
 	    separator
 	    ( ::indentation_separator_type.new_stub() );
 	label_ref(separator) = separator_label;
-	separator->selectors = selectors;
+	separator->selectors = TAB::ALL_FLAGS;
+	separator->block_level = block_level;
+	separator->position = position;
 	indentation_mark_ref(separator) = imark;
 	indentation_separator_ref(imark) = separator;
 	TAB::push ( bracket_table,

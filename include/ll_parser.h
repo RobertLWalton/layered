@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 27 15:39:59 EDT 2012
+// Date:	Tue Aug 28 04:24:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -594,7 +594,7 @@ struct parser_struct
 	// passes.  Set to NULL_STUB when parser is
 	// created.
 
-    uns32 trace;
+    ll::parser::table::flags trace;
         // Parser trace flags: see above.  Tracing is
 	// done to parser->printer.
 
@@ -635,6 +635,10 @@ struct parser_struct
 	// parser definitions.  Defaults to a scanner
 	// with the same program and printer as the main
 	// parser scanner.
+
+    min::uns16 block_level;
+        // Number of unclosed `parser begin' statements,
+	// i.e., current block depth.  Top level is 0.
 
     const ll::parser::table::flag_name_table
     	    selector_name_table;

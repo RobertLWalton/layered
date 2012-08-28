@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:12:31 EDT 2012
+// Date:	Tue Aug 28 07:37:11 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,6 +78,8 @@ MIN_REF ( min::gen, label, ll::parser::oper::oper )
 void push_oper
 	( min::gen oper_label,
 	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  ll::parser::oper::reformatter reformatter,

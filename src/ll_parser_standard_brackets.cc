@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:42:46 EDT 2012
+// Date:	Tue Aug 28 07:17:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,11 +75,13 @@ void PARSTD::init_brackets
 
     parser->selectors = PARSTD::CODE;
 
+    min::phrase_position pp;   // TBD: make top level
 
     TAB::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  parser->bracket_table );
@@ -87,6 +89,7 @@ void PARSTD::init_brackets
         ( opening_square,
           closing_square,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  parser->bracket_table );
@@ -94,6 +97,7 @@ void PARSTD::init_brackets
         ( opening_brace,
           closing_brace,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  0, pp,
 	  TAB::new_flags
 	      ( PARSTD::MATH,
 	        PARSTD::CODE + PARSTD::TEXT, 0 ),
@@ -103,6 +107,7 @@ void PARSTD::init_brackets
         ( opening_quote,
           closing_quote,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  0, pp,
 	  TAB::new_flags
 	      ( PARSTD::TEXT,
 	        PARSTD::CODE + PARSTD::MATH, 0 ),
@@ -112,6 +117,7 @@ void PARSTD::init_brackets
     TAB::push_indentation_mark
         ( colon, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  parser->bracket_table,
 	  parser->split_table );
@@ -119,6 +125,7 @@ void PARSTD::init_brackets
     TAB::push_indentation_mark
         ( top_level, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  parser->bracket_table );
 

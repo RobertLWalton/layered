@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 27 15:46:05 EDT 2012
+// Date:	Tue Aug 28 07:26:21 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1900,7 +1900,10 @@ min::gen PARDEF::parser_execute_bracket_definition
 
 	TAB::push_brackets
 	    ( name[0], name[1],
-	      selectors, new_selectors, full_line,
+	      selectors,
+	      parser->block_level,
+	      ppvec->position,
+	      new_selectors, full_line,
 	      parser->bracket_table );
 
 	break;
@@ -1959,7 +1962,10 @@ min::gen PARDEF::parser_execute_bracket_definition
 	      number_of_names == 2 ?
 		  (min::gen) name[1] :
 		  min::MISSING(),
-	      selectors, new_selectors,
+	      selectors,
+	      parser->block_level,
+	      ppvec->position,
+	      new_selectors,
 	      parser->bracket_table,
 	      gluing ? parser->split_table :
 		       (TAB::split_table)
@@ -2101,6 +2107,8 @@ min::gen PARDEF::parser_execute_bracket_definition
 	      named_closing,
 	      named_middle_closing,
 	      selectors,
+	      parser->block_level,
+	      ppvec->position,
 	      parser->bracket_table );
 
 	break;

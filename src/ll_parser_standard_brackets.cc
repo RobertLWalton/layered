@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 07:17:47 EDT 2012
+// Date:	Wed Aug 29 04:41:45 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -132,5 +132,6 @@ void PARSTD::init_brackets
     TAB::top_level_indentation_mark =
         (TAB::indentation_mark)
 	 TAB::find
-	    ( top_level, parser->bracket_table );
+	    ( top_level, TAB::ALL_FLAGS,
+	      parser->bracket_table );
 }

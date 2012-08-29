@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 29 02:29:13 EDT 2012
+// Date:	Wed Aug 29 03:50:05 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	Flags
 //	Roots
 //	Key Prefixes
+//	Undefineds
 //	Brackets
 //	Named Brackets
 //	Indentation Marks
@@ -236,11 +237,12 @@ ll::parser::table::key_prefix find_key_prefix
 	  ll::parser::table::table table,
 	  bool create = false );
 
-// Return the hash table entry with the given key, or
-// NULL_STUB if there is none.
+// Return the first hash table entry with the given key,
+// and selectors, or NULL_STUB if there is none.
 //
 ll::parser::table::root find
 	( min::gen key,
+	  ll::parser::table::flags selectors,
 	  ll::parser::table::table table );
 
 // Push the given hash table entry into to the top of
@@ -261,6 +263,19 @@ void end_block
           uns32 block_level,
 	  uns64 & collected_key_prefixes,
 	  uns64 & collected_entries );
+
+// Undefineds
+// ----------
+
+extern const uns32 & UNDEFINED;
+    // Subtype of min::packed_struct<root_struct>.
+
+void push_undefined
+	( min::gen label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  ll::parser::table::table table );
 
 // Brackets
 // --------

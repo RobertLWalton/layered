@@ -14,6 +14,7 @@
 //	Flags
 //	Roots
 //	Key Prefixes
+//	Undefineds
 //	Brackets
 //	Named Brackets
 //	Indentation Marks
@@ -197,12 +198,21 @@ TAB::key_prefix TAB::find_key_prefix
     return previous;
 }
 
-TAB::root TAB::find ( min::gen key, TAB::table table )
+TAB::root TAB::find
+	( min::gen key, TAB::flags selectors,
+	  TAB::table table )
 {
     TAB::key_prefix key_prefix =
         TAB::find_key_prefix ( key, table );
     if ( key_prefix == NULL_STUB ) return NULL_STUB;
-    else return key_prefix->first;
+
+    for ( TAB::root root = key_prefix->first;
+          root != NULL_STUB; root = root->next )
+    {
+        if ( root->selectors & selectors )
+	    return root;
+    }
+    return NULL_STUB;
 }
 
 void TAB::push ( TAB::table table, TAB::root entry )
@@ -278,6 +288,41 @@ void TAB::end_block
 		    // Do NOT collect current.
 	}
     }
+}
+
+// Undefineds
+// ----------
+
+static min::packed_struct<TAB::root_struct>
+    undefined_type 
+	( "ll::parser::table::undefined_type",
+	  ::root_gen_disp, ::root_stub_disp );
+const min::uns32 & TAB::UNDEFINED =
+    undefined_type.subtype;
+
+// Don't do anything if label/selector cannot be found.
+//
+void TAB::push_undefined
+	( min::gen label,
+	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  TAB::table table )
+{
+    MIN_ASSERT ( root_type.subtype != TAB::UNDEFINED );
+
+    if (    TAB::find ( label, selectors, table )
+         == NULL_STUB )
+        return;
+
+    min::locatable_var<TAB::root> undefined
+        ( ::undefined_type.new_stub() );
+    label_ref(undefined) = label;
+    undefined->selectors = selectors;
+    undefined->block_level = block_level;
+    undefined->position = position;
+
+    TAB::push ( table, undefined );
 }
 
 // Brackets

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 04:23:56 EDT 2012
+// Date:	Wed Aug 29 02:29:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -109,7 +109,8 @@ struct root_struct
     	// Packed structure control word.
 	//
     uns16 block_level;
-        // Parser block_level at time symbol was defined.
+        // Parser block_level at time symbol was
+	// defined.
     uns16 padding;
 
     const ll::parser::table::root next;
@@ -183,6 +184,12 @@ struct key_prefix_struct
     uns32 control;
 	// Packed_struct subtype is KEY_PREFIX.
 
+    uns32 reference_count;
+        // Number of other key_prefixes in this table
+	// whose previous value equals this key prefix.
+	// This key_prefix can be garbage collected
+	// when this == 0 and first == NULL_STUB.
+
     const min::gen key_element;
         // Last element of the key of this key prefix.
     const ll::parser::table::key_prefix previous;
@@ -241,6 +248,19 @@ ll::parser::table::root find
 //
 void push ( ll::parser::table::table table,
             ll::parser::table::root entry );
+
+// Remove from the hash table all key_entries that
+// have entry block_level > block_level argument.
+// Be sure to remove related entries like indentation_
+// splits first.  Return the number entries and key
+// prefixes that were `garbage collected', i.e., removed
+// from table.
+//
+void end_block
+	( ll::parser::table::table table,
+          uns32 block_level,
+	  uns64 & collected_key_prefixes,
+	  uns64 & collected_entries );
 
 // Brackets
 // --------
@@ -537,13 +557,13 @@ extern min::locatable_var
     // Virtual indentation mark for top level
     // parsing.
 
-struct indentation_separator_struct;
+struct line_separator_struct;
 typedef min::packed_struct_updptr
-	    <indentation_separator_struct>
-        indentation_separator;
-extern const uns32 & INDENTATION_SEPARATOR;
+	    <line_separator_struct>
+        line_separator;
+extern const uns32 & LINE_SEPARATOR;
     // Subtype of min::packed_struct
-    //		       <indentation_separator_struct>.
+    //		       <line_separator_struct>.
 
 // A gluing indentation mark has an associated indenta-
 // tion split that contains the mark label, points at
@@ -574,8 +594,8 @@ struct indentation_mark_struct : public root_struct
 {
     ll::parser::table::new_flags new_selectors;
 
-    const ll::parser::table::indentation_separator
-	    indentation_separator;
+    const ll::parser::table::line_separator
+	    line_separator;
 
     const ll::parser::table::indentation_split
 	    indentation_split;
@@ -585,16 +605,16 @@ struct indentation_mark_struct : public root_struct
 
 MIN_REF ( min::gen, label,
           ll::parser::table::indentation_mark )
-MIN_REF ( ll::parser::table::indentation_separator,
-          indentation_separator,
+MIN_REF ( ll::parser::table::line_separator,
+          line_separator,
           ll::parser::table::indentation_mark )
 MIN_REF ( ll::parser::table::indentation_split,
           indentation_split,
           ll::parser::table::indentation_mark )
 
-struct indentation_separator_struct : public root_struct
+struct line_separator_struct : public root_struct
 {
-    // Packed_struct subtype is INDENTATION_SEPARATOR.
+    // Packed_struct subtype is LINE_SEPARATOR.
 
     const ll::parser::table::indentation_mark
     	    indentation_mark;
@@ -603,10 +623,10 @@ struct indentation_separator_struct : public root_struct
 };
 
 MIN_REF ( min::gen, label,
-          ll::parser::table::indentation_separator )
+          ll::parser::table::line_separator )
 MIN_REF ( ll::parser::table::indentation_mark,
           indentation_mark,
-          ll::parser::table::indentation_separator )
+          ll::parser::table::line_separator )
 
 struct indentation_split_struct
 {
@@ -654,6 +674,16 @@ void push_indentation_mark
 	  ll::parser::table::split_table split_table =
 	      NULL_STUB );
 	      // NULL_STUB iff not gluing
+
+// Remove from the split table all entries that point
+// at indentation_marks which have block_level >
+// block_level argument.  Return the number entries
+// removed.
+//
+void end_block
+	( ll::parser::table::split_table split_table,
+          uns32 block_level,
+	  uns64 & collected_entries );
 
 } } }
 

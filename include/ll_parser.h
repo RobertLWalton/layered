@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 04:24:13 EDT 2012
+// Date:	Tue Aug 28 17:13:03 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -440,6 +440,8 @@ void init
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ) = NULL );
 
+// Pass functions: see below.
+//
 typedef void ( * run_pass )
         ( ll::parser::parser parser,
           ll::parser::pass pass,
@@ -452,6 +454,13 @@ typedef void ( * init_pass )
 typedef min::gen ( * execute_pass_definition )
         ( min::obj_vec_ptr & vp,
 	  min::phrase_position_vec ppvec,
+          ll::parser::parser parser );
+typedef min::gen ( * execute_block_end )
+        ( min::uns32 block_level,
+	  ll::parser::parser parser );
+typedef min::gen ( * execute_undefine )
+        ( min::gen label,
+	  const min::phrase_position & position,
           ll::parser::parser parser );
 
 struct pass_struct
@@ -506,7 +515,23 @@ struct pass_struct
     ll::parser::execute_pass_definition
         execute_pass_definition;
 
-    uns32 trace;
+    // Function to execute the `parser end ...' block
+    // end statement.  Simply remove from any symbol
+    // table stack all definitions with a block level
+    // that is higher than that of the argument.  Called
+    // if not NULL.
+    //
+    ll::parser::execute_block_end execute_block_end;
+
+    // Function to execute the `parser undefine <label>'
+    // statment.  Simply add an ll::parser::table::
+    // UNDEFINED entry to every symbol table that
+    // defines the label.  Use the given phrase_position
+    // and parser->block_level.  Called if not NULL.
+    //
+    ll::parser::execute_undefine execute_undefine;
+
+    ll::parser::table::flags trace;
         // Trace flags that output to parser->printer a
 	// description of each selected change made in
 	// the parser token list.

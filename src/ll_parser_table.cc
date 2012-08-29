@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 07:25:26 EDT 2012
+// Date:	Wed Aug 29 02:32:28 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,6 +188,8 @@ TAB::key_prefix TAB::find_key_prefix
 	    next_ref(last) = kprefix;
 	key_element_ref(kprefix) = e;
 	previous_ref(kprefix) = previous;
+	if ( previous != NULL_STUB )
+	    ++ previous->reference_count;
 
 	previous = kprefix;
     }
@@ -210,6 +212,72 @@ void TAB::push ( TAB::table table, TAB::root entry )
         find_key_prefix ( key, table, true );
     next_ref(entry) = kprefix->first;
     first_ref(kprefix) = entry;
+}
+
+void TAB::end_block
+	( TAB::table table, uns32 block_level,
+	  uns64 & collected_key_prefixes,
+	  uns64 & collected_entries )
+{
+    collected_key_prefixes = 0;
+    collected_entries = 0;
+
+    for ( min::uns32 i = 0; i < table->length; ++ i )
+    for ( TAB::key_prefix key_prefix = table[i];
+          key_prefix != NULL_STUB;
+	  key_prefix = key_prefix->next )
+    {
+        TAB::root root = key_prefix->first;
+	while ( root != NULL_STUB )
+	{
+	    if ( root->block_level <= block_level )
+	        break;
+	    ++ collected_entries;
+	    first_ref ( key_prefix ) = root =
+	        root->next;
+	}
+
+	// Decrement reference counts.
+	//
+	TAB::key_prefix collectible = key_prefix;
+	while ( collectible->first == NULL_STUB
+	        &&
+	        collectible->reference_count == 0 )
+	{
+	    ++ collected_key_prefixes;
+	    collectible = collectible->previous;
+
+	    if ( collectible == NULL_STUB ) break;
+
+	    -- collectible->reference_count;
+	}
+    }
+
+    if ( collected_key_prefixes > 0 )
+    for ( min::uns32 i = 0; i < table->length; ++ i )
+    {
+        TAB::key_prefix previous = NULL_STUB;
+	for ( TAB::key_prefix current = table[i];
+	      current != NULL_STUB;
+	      current = current->next )
+	{
+	    if ( current->reference_count == 0
+	         &&
+		 current->first == NULL_STUB )
+	    {
+	        // Collect current.
+		//
+		if ( previous == NULL_STUB )
+		    table[i] = current->next;
+		else
+		    next_ref ( previous ) =
+		        current->next;
+	    }
+	    else
+	        previous = current;
+		    // Do NOT collect current.
+	}
+    }
 }
 
 // Brackets
@@ -481,7 +549,7 @@ void TAB::push_named_brackets
 static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & TAB::indentation_mark_struct::next ),
     min::DISP ( & TAB::indentation_mark_struct
-                     ::indentation_separator ),
+                     ::line_separator ),
     min::DISP ( & TAB::indentation_mark_struct
                      ::indentation_split ),
     min::DISP_END };
@@ -495,23 +563,19 @@ static min::packed_struct_with_base
 const min::uns32 & TAB::INDENTATION_MARK =
     indentation_mark_type.subtype;
 
-static min::uns32 indentation_separator_stub_disp[] = {
-    min::DISP ( & TAB::indentation_separator_struct
-                     ::next ),
-    min::DISP ( & TAB::indentation_separator_struct
+static min::uns32 line_separator_stub_disp[] = {
+    min::DISP ( & TAB::line_separator_struct::next ),
+    min::DISP ( & TAB::line_separator_struct
                      ::indentation_mark ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<TAB::indentation_separator_struct,
-	 TAB::root_struct>
-    indentation_separator_type
-	( "ll::parser::table"
-	    "::indentation_separator_type",
-	  ::root_gen_disp,
-	  ::indentation_separator_stub_disp );
-const min::uns32 & TAB::INDENTATION_SEPARATOR =
-    indentation_separator_type.subtype;
+	<TAB::line_separator_struct, TAB::root_struct>
+    line_separator_type
+	( "ll::parser::table::line_separator_type",
+	  ::root_gen_disp, ::line_separator_stub_disp );
+const min::uns32 & TAB::LINE_SEPARATOR =
+    line_separator_type.subtype;
 
 static min::uns32 indentation_split_stub_disp[] = {
     min::DISP ( & TAB::indentation_split_struct
@@ -564,15 +628,15 @@ void TAB::push_indentation_mark
 
     if ( separator_label != min::MISSING() )
     {
-	min::locatable_var<TAB::indentation_separator>
+	min::locatable_var<TAB::line_separator>
 	    separator
-	    ( ::indentation_separator_type.new_stub() );
+	    ( ::line_separator_type.new_stub() );
 	label_ref(separator) = separator_label;
 	separator->selectors = TAB::ALL_FLAGS;
 	separator->block_level = block_level;
 	separator->position = position;
 	indentation_mark_ref(separator) = imark;
-	indentation_separator_ref(imark) = separator;
+	line_separator_ref(imark) = separator;
 	TAB::push ( bracket_table,
 	            (TAB::root) separator );
     }
@@ -603,5 +667,36 @@ void TAB::push_indentation_mark
 	    p = & next_ref ( * p );
 	next_ref(isplit) = * p;
 	* p = isplit;
+    }
+}
+
+void TAB::end_block
+	( TAB::split_table split_table,
+	  uns32 block_level,
+	  uns64 & collected_entries )
+{
+    collected_entries = 0;
+    for ( min::uns32 i = 0;
+          i < split_table->length; ++ i )
+    {
+        TAB::indentation_split previous = NULL_STUB; 
+	for ( TAB::indentation_split current =
+	          split_table[i];
+	      current != NULL_STUB;
+	      current = current->next )
+	{
+	    if (   current->indentation_mark
+	                   ->block_level
+	         > block_level )
+	    {
+	        ++ collected_entries;
+		if ( previous == NULL_STUB )
+		    split_table[i] = current->next;
+		else
+		    next_ref ( previous ) =
+		        current->next;
+	    }
+	        else previous = current;
+	}
     }
 }

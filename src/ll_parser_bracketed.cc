@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 07:26:21 EDT 2012
+// Date:	Wed Aug 29 02:33:45 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -684,7 +684,8 @@ bool PAR::parse_bracketed_subexpression
 			if ( PAR::is_closed
 			         ( bracket_stack_p ) )
 			{
-			    assert ( ! separator_found );
+			    assert
+			        ( ! separator_found );
 			    next = bracket_stack_p
 			              ->closing_first;
 			}
@@ -708,9 +709,7 @@ bool PAR::parse_bracketed_subexpression
 			        terminator =
 				  indentation_found
 				  ->
-				  indentation_separator
-				  ->
-				  label;
+				  line_separator->label;
 
 			        PAR::remove
 				    ( parser,
@@ -864,10 +863,14 @@ bool PAR::parse_bracketed_subexpression
 	    continue;
 	}
 
-	assert ( indentation_found == min::NULL_STUB );
-	assert ( current->type != LEXSTD::end_of_file_t );
-	assert ( current->type != LEXSTD::line_break_t );
-	assert ( current->type != LEXSTD::comment_t );
+	assert
+	    ( indentation_found == min::NULL_STUB );
+	assert
+	    ( current->type != LEXSTD::end_of_file_t );
+	assert
+	    ( current->type != LEXSTD::line_break_t );
+	assert
+	    ( current->type != LEXSTD::comment_t );
 
 	// Process quoted strings.
 	//
@@ -1211,14 +1214,12 @@ bool PAR::parse_bracketed_subexpression
 		// or end of file; reject key.
 	    }
 	    else if (    subtype
-	              == TAB::INDENTATION_SEPARATOR )
+	              == TAB::LINE_SEPARATOR )
 	    {
-		TAB::indentation_separator
-		    indentation_separator =
-			(TAB::indentation_separator)
-			root;
-                if (    indentation_separator
-			    ->indentation_mark
+		TAB::line_separator
+		    line_separator =
+			(TAB::line_separator) root;
+                if (    line_separator->indentation_mark
 		     == indentation_mark )
 		    return true;
 
@@ -1259,8 +1260,8 @@ bool PAR::parse_bracketed_subexpression
 		     == named_opening->named_separator )
 		    break;
 
-		// Named separator does not match current
-		// named opening; reject key.
+		// Named separator does not match
+		// current named opening; reject key.
 	    }
 	    else if ( subtype == TAB::NAMED_MIDDLE )
 	    {

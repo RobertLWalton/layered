@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 07:42:01 EDT 2012
+// Date:	Wed Aug 29 04:59:57 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,6 +63,7 @@ int main ( int argc, const char * argv[] )
     semicolon = min::new_str_gen ( ";" );
 
     ASSERT (    TAB::find ( opening_parenthesis,
+		            TAB::ALL_FLAGS,
     			    bracket_table )
 	     == min::NULL_STUB );
 
@@ -79,9 +80,11 @@ int main ( int argc, const char * argv[] )
 
     TAB::opening_bracket oparen = (TAB::opening_bracket)
         TAB::find ( opening_parenthesis,
+		    TAB::ALL_FLAGS,
 	            bracket_table );
     TAB::closing_bracket cparen = (TAB::closing_bracket)
         TAB::find ( closing_parenthesis,
+		    TAB::ALL_FLAGS,
 	            bracket_table );
     ASSERT ( oparen->closing_bracket == cparen );
     ASSERT ( cparen->opening_bracket == oparen );
@@ -92,14 +95,16 @@ int main ( int argc, const char * argv[] )
 
     TAB::push_indentation_mark
         ( colon, semicolon,
-	  0,
+	  TAB::ALL_FLAGS,
 	  0, pp,
 	  TAB::new_flags ( 2 ),
 	  bracket_table,
 	  split_table );
     TAB::indentation_mark imark =
         (TAB::indentation_mark)
-        TAB::find ( colon, bracket_table ); 
+        TAB::find ( colon,
+		    TAB::ALL_FLAGS,
+	            bracket_table ); 
     TAB::indentation_split isplit =
         split_table[':'];
 

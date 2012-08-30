@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 17:13:03 EDT 2012
+// Date:	Thu Aug 30 03:31:48 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,8 +28,11 @@
 
 namespace ll { namespace parser {
 
+    using min::uns8;
+    using min::uns16;
     using min::uns32;
     using min::int32;
+    using min::uns64;
     using min::NULL_STUB;
 
     extern min::locatable_gen
@@ -700,11 +703,17 @@ struct parser_struct
 	// the input is called.   Tokens may be dele-
 	// ted from the list or replaced in the list.
 
-    uns32 error_count;
+    uns64 error_count;
         // Number of parser error messages output so
 	// far.  To determine if there is an error
 	// in the parse of a given expression, check to
 	// see if this is incremented.
+
+    uns64 max_error_count;
+        // Maximum allowed value of error_count.  When
+	// this value is reached, the parser returns,
+	// even if it has not yet reached an end of
+	// file.  Default 100.
 
     bool eof;
         // True if `input' has delivered an end-of-file

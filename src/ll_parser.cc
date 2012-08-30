@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 29 02:32:51 EDT 2012
+// Date:	Thu Aug 30 03:28:36 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -398,6 +398,7 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	parser->error_count = 0;
 	parser->block_level = 0;
     }
+    parser->max_error_count = 100;
 }
 
 void PAR::init_input_stream
@@ -552,6 +553,17 @@ void PAR::parse ( PAR::parser parser )
     bool first_lexeme = true;
     while ( true )
     {
+        if (   parser->error_count
+	     > parser->max_error_count )
+	{
+	    parser->printer
+		<< "PARSER MAXIMUM ALLOWED ERROR COUNT"
+		<< "(" << parser->max_error_count
+		<< ") EXCEEDED: PARSER QUITTING"
+	        << min::eol;
+	    break;
+	}
+
         bool trace =
 	    (   parser->trace
 	      & PAR::TRACE_BRACKETED_SUBEXPRESSIONS );
@@ -666,28 +678,32 @@ void PAR::parse ( PAR::parser parser )
 		  first, current, position,
 		  1, attributes );
 
-	    if ( parser->error_count == error_count_save
-	         &&
-		 maybe_parser_definition )
+	    min::gen result = min::FAILURE();
+	    if (    parser->error_count
+	         != error_count_save )
+		result = min::ERROR();
+	    else if ( maybe_parser_definition )
 	    {
-	        min::obj_vec_ptr vp ( first->value );
+	        min::obj_vec_ptr vp
+		    ( current->previous->value );
 		if ( vp != NULL_STUB )
-		{
-		    min::gen result =
+		    result =
 		      PARDEF::parser_execute_definition
 			( vp, parser );
-		    if ( result == min::SUCCESS() )
-			PAR::free
-			    ( PAR::remove
-				  ( first_ref(parser),
-				    first )
-			    );
-		    else if ( result == min::ERROR() )
-		    {
-		        // TBD
-		    }
-		}
 	    }
+
+	    if ( result == min::FAILURE() )
+	    {
+		++ parser->finished_tokens;
+	        if ( parser->output != NULL )
+		    (* parser->output->remove_tokens)
+		        ( parser, parser->output );
+	    }
+	    else
+		PAR::free
+		    ( PAR::remove
+			( PAR::first_ref ( parser ),
+			  current->previous ) );
 	}
 
         // As there is no bracket stack, the token after

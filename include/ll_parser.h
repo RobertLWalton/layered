@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 30 03:31:48 EDT 2012
+// Date:	Thu Aug 30 21:24:46 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -594,6 +594,10 @@ enum {
     TRACE_OPERATOR_SUBEXPRESSIONS = ( 1 << 4 )
         // Trace operator subexpressions.
 };
+
+extern min::locatable_var
+	<ll::parser::table::flag_name_table>
+    trace_flag_name_table;
 
 struct parser_struct
 {

@@ -95,6 +95,19 @@ inline int get_index
     return i;
 }
 
+// Push into a flag name table (overcoming the fact
+// that its readonly).  Name argument must be protected
+// from garbage collection.
+//
+inline void push_flag_name
+	( ll::parser::table::flag_name_table table,
+	  min::gen name )
+{
+    min::push
+        ( (ll::parser::table::flag_name_table_insptr)
+	  table ) = name;
+}
+
 
 // Roots
 // -----

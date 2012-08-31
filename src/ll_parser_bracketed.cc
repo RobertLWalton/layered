@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 29 02:33:45 EDT 2012
+// Date:	Thu Aug 30 22:51:54 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1873,7 +1873,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 			  parser );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
-		else if ( result == min::MISSING() )
+		else if ( result == min::FAILURE() )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
 			  "expected bracketed selector"
@@ -1930,7 +1930,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 			  parser );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
-		else if ( result == min::MISSING() )
+		else if ( result == min::FAILURE() )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
 			  "expected bracketed selector"

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 29 03:50:05 EDT 2012
+// Date:	Fri Aug 31 07:08:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Flags
+//	Name Tables
 //	Roots
 //	Key Prefixes
 //	Undefineds
@@ -70,24 +71,30 @@ struct new_flags
 };
 
 const flags ALL_FLAGS = (flags) -1;
+
+// Name Tables
+// ---- ------
 
 typedef min::packed_vec_ptr<min::gen>
-	flag_name_table;
+	name_table;
 typedef min::packed_vec_insptr<min::gen>
-	flag_name_table_insptr;
+	name_table_insptr;
 
 // Initialize a flag name table with max_length = 64
 // and length = 0.
 //
-void init_flag_name_table
-    ( min::ref<ll::parser::table::flag_name_table>
-	  name_table );
+void init_name_table
+    ( min::ref<ll::parser::table::name_table>
+	  name_table,
+      min::uns32 max_length = 64 );
 
 // Return the index associated with a name in a flag
-// name table, or return -1 if none.
+// name table, or return -1 if none.  If there is more
+// then one index associated with the name, return the
+// largest such index.
 //
 inline int get_index
-    ( ll::parser::table::flag_name_table name_table,
+    ( ll::parser::table::name_table name_table,
       min::gen name )
 {
     int i = name_table->length;
@@ -99,13 +106,24 @@ inline int get_index
 // that its readonly).  Name argument must be protected
 // from garbage collection.
 //
-inline void push_flag_name
-	( ll::parser::table::flag_name_table table,
+inline void push_name
+	( ll::parser::table::name_table table,
 	  min::gen name )
 {
     min::push
-        ( (ll::parser::table::flag_name_table_insptr)
+        ( (ll::parser::table::name_table_insptr)
 	  table ) = name;
+}
+//
+// Pop a flag name table (overcoming the fact that its
+// readonly).
+//
+inline min::gen pop_name
+	( ll::parser::table::name_table table )
+{
+    return min::pop
+        ( (ll::parser::table::name_table_insptr)
+	  table );
 }
 
 

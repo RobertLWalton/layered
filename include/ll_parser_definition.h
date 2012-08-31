@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 27 04:27:20 EDT 2012
+// Date:	Fri Aug 31 05:28:28 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,7 +80,7 @@ min::gen scan_simple_label
 min::gen scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::flags & flags,
-	  ll::parser::table::flag_name_table name_table,
+	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser );
 
 // Ditto but scan a flag modifier list into new_flags
@@ -92,7 +92,7 @@ min::gen scan_flags
 min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::new_flags & new_flags,
-	  ll::parser::table::flag_name_table name_table,
+	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser,
 	  bool allow_flag_list = false );
 

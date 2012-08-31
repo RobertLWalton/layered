@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 29 04:41:45 EDT 2012
+// Date:	Thu Aug 30 23:18:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,12 +66,12 @@ void PARSTD::init_brackets
     min::locatable_gen text
         ( min::new_str_gen ( "text" ) );
 
-    min::push ( (TAB::flag_name_table_insptr)
-                parser->selector_name_table ) = code;
-    min::push ( (TAB::flag_name_table_insptr)
-                parser->selector_name_table ) = math;
-    min::push ( (TAB::flag_name_table_insptr)
-                parser->selector_name_table ) = text;
+    TAB::push_flag_name
+	( parser->selector_name_table, code );
+    TAB::push_flag_name
+	( parser->selector_name_table, math );
+    TAB::push_flag_name
+	( parser->selector_name_table, text );
 
     parser->selectors = PARSTD::CODE;
 

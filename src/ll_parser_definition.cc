@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 27 07:58:51 EDT 2012
+// Date:	Thu Aug 30 21:39:28 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,17 +26,76 @@
 # define TAB ll::parser::table
 # define PARDEF ll::parser::definition
 
-static min::locatable_gen test;
 static min::locatable_gen plus;
 static min::locatable_gen minus;
 static min::locatable_gen exclusive_or;
 
+static min::locatable_gen test;
+static min::locatable_gen trace;
+
+min::locatable_var<TAB::flag_name_table>
+    PAR::trace_flag_name_table;
+
 static void initialize ( void )
 {
-    ::test = min::new_str_gen ( "test" );
     ::plus = min::new_str_gen ( "+" );
     ::minus = min::new_str_gen ( "-" );
     ::exclusive_or = min::new_str_gen ( "^" );
+
+    ::test = min::new_str_gen ( "test" );
+    ::trace = min::new_str_gen ( "trace" );
+
+    {
+	TAB::init_flag_name_table
+	    ( PAR::trace_flag_name_table );
+        TAB::flag_name_table table =
+	    PAR::trace_flag_name_table;
+
+	min::locatable_gen input
+	    ( min::new_str_gen ( "input" ) );
+	min::locatable_gen output
+	    ( min::new_str_gen ( "output" ) );
+	min::locatable_gen parser_definitions
+	    ( min::new_lab_gen
+	        ( "parser", "definitions" ) );
+	min::locatable_gen bracketed_subexpressions
+	    ( min::new_lab_gen
+	        ( "bracketed", "subexpressions" ) );
+	min::locatable_gen operator_subexpressions
+	    ( min::new_lab_gen
+	        ( "operator", "subexpressions" ) );
+
+	TAB::push_flag_name
+	    ( table, input );
+	TAB::push_flag_name
+	    ( table, output );
+	TAB::push_flag_name
+	    ( table, parser_definitions );
+	TAB::push_flag_name
+	    ( table, bracketed_subexpressions );
+	TAB::push_flag_name
+	    ( table, operator_subexpressions );
+
+#	define CHECK_TRACE_FLAG(flag,name) \
+        MIN_ASSERT \
+	    (    PAR::flag \
+	      ==    (min::uns64) 1 \
+	         << TAB::get_index ( table, name ) )
+	CHECK_TRACE_FLAG
+	    ( TRACE_INPUT, input );
+	CHECK_TRACE_FLAG
+	    ( TRACE_OUTPUT, output );
+	CHECK_TRACE_FLAG
+	    ( TRACE_PARSER_DEFINITIONS,
+	      parser_definitions );
+	CHECK_TRACE_FLAG
+	    ( TRACE_BRACKETED_SUBEXPRESSIONS,
+	      bracketed_subexpressions );
+	CHECK_TRACE_FLAG
+	    ( TRACE_OPERATOR_SUBEXPRESSIONS,
+	      operator_subexpressions );
+#	undef CHECK_TRACE_FLAG
+    }
 }
 static min::initializer initializer ( ::initialize );
 
@@ -442,9 +501,7 @@ static min::gen parser_execute_selector_definition
 	( vp, i,
 	    ( 1ull << LEXSTD::word_t )
 	  + ( 1ull << LEXSTD::number_t ) );
-    if ( name == min::ERROR() )
-	return min::ERROR();
-    else if ( name == min::MISSING() )
+    if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected simple name after" );
@@ -545,6 +602,33 @@ static min::gen parser_execute_test
     return min::SUCCESS();
 }
 
+// Parser Execute Trace Function
+// ------ ------- ----- --------
+
+static min::gen parser_execute_trace
+	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    TAB::new_flags new_flags;
+    min::uns32 i = 2;
+    min::gen result = PARDEF::scan_new_flags
+        ( vp, i, new_flags, PAR::trace_flag_name_table,
+	  parser, true );
+    if ( result == min::ERROR() )
+        return min::ERROR();
+    else if ( result == min::FAILURE() )
+        return PAR::parse_error
+	    ( parser, ppvec[1],
+	      "expected bracketed flag (modifier) list"
+	      " after" );
+
+    parser->trace |= new_flags.or_flags;
+    parser->trace &= ~ new_flags.not_flags;
+    parser->trace ^= new_flags.xor_flags;
+    return min::SUCCESS();
+}
+
 // Execute Definition Function
 // ------- ---------- --------
 
@@ -565,12 +649,21 @@ min::gen PARDEF::parser_execute_definition
 
     if ( vp[1] == ::test )
         return ::parser_execute_test
-			( vp, ppvec, parser );
+	    ( vp, ppvec, parser );
     else if ( size >= 3
               &&
 	      (    vp[2] == PAR::selector
 	        || vp[2] == PAR::selectors ) )
 	result = ::parser_execute_selector_definition
+		    ( vp, ppvec, parser );
+    else if ( size <= 3
+              &&
+	      vp[1] == ::trace
+	      &&
+	      ( size == 2
+	        ||
+	        min::is_obj ( vp[2] ) ) )
+	result = ::parser_execute_trace
 		    ( vp, ppvec, parser );
     else
 	result =

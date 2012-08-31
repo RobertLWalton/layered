@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 30 21:24:46 EDT 2012
+// Date:	Fri Aug 31 05:23:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -460,11 +460,13 @@ typedef min::gen ( * execute_pass_definition )
           ll::parser::parser parser );
 typedef min::gen ( * execute_block_end )
         ( min::uns32 block_level,
-	  ll::parser::parser parser );
+	  ll::parser::parser parser,
+	  ll::parser::pass pass );
 typedef min::gen ( * execute_undefine )
         ( min::gen label,
 	  const min::phrase_position & position,
-          ll::parser::parser parser );
+          ll::parser::parser parser,
+	  ll::parser::pass pass );
 
 struct pass_struct
     // Closure to call to execute a pass on a subexpres-
@@ -596,8 +598,8 @@ enum {
 };
 
 extern min::locatable_var
-	<ll::parser::table::flag_name_table>
-    trace_flag_name_table;
+	<ll::parser::table::name_table>
+    trace_name_table;
 
 struct parser_struct
 {
@@ -672,7 +674,12 @@ struct parser_struct
         // Number of unclosed `parser begin' statements,
 	// i.e., current block depth.  Top level is 0.
 
-    const ll::parser::table::flag_name_table
+    const ll::parser::table::name_table
+    	    block_name_table;
+        // Names of current blocks, in order they were
+	// entered.
+
+    const ll::parser::table::name_table
     	    selector_name_table;
         // Selector name table.
 
@@ -748,7 +755,10 @@ MIN_REF ( ll::parser::table::table, bracket_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::split_table, split_table,
           ll::parser::parser )
-MIN_REF ( ll::parser::table::flag_name_table,
+MIN_REF ( ll::parser::table::name_table,
+		block_name_table,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::name_table,
 		selector_name_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::token, first,

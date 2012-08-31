@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 30 21:39:28 EDT 2012
+// Date:	Fri Aug 31 05:23:11 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,9 +12,11 @@
 //
 //	Usage and Setup
 //	Parser Definition Functions
-//	Execute Selector Definition Function
-//	Parser Execute Test Function
-//	Execute Definition Function
+//	Execute Selector Definition
+//	Execute Test
+//	Execute Trace
+//	Execute Begin/End
+//	Execute Definition
 
 // Usage and Setup
 // ----- --- -----
@@ -33,8 +35,8 @@ static min::locatable_gen exclusive_or;
 static min::locatable_gen test;
 static min::locatable_gen trace;
 
-min::locatable_var<TAB::flag_name_table>
-    PAR::trace_flag_name_table;
+min::locatable_var<TAB::name_table>
+    PAR::trace_name_table;
 
 static void initialize ( void )
 {
@@ -46,10 +48,8 @@ static void initialize ( void )
     ::trace = min::new_str_gen ( "trace" );
 
     {
-	TAB::init_flag_name_table
-	    ( PAR::trace_flag_name_table );
-        TAB::flag_name_table table =
-	    PAR::trace_flag_name_table;
+	TAB::init_name_table ( PAR::trace_name_table );
+        TAB::name_table table = PAR::trace_name_table;
 
 	min::locatable_gen input
 	    ( min::new_str_gen ( "input" ) );
@@ -65,15 +65,15 @@ static void initialize ( void )
 	    ( min::new_lab_gen
 	        ( "operator", "subexpressions" ) );
 
-	TAB::push_flag_name
+	TAB::push_name
 	    ( table, input );
-	TAB::push_flag_name
+	TAB::push_name
 	    ( table, output );
-	TAB::push_flag_name
+	TAB::push_name
 	    ( table, parser_definitions );
-	TAB::push_flag_name
+	TAB::push_name
 	    ( table, bracketed_subexpressions );
-	TAB::push_flag_name
+	TAB::push_name
 	    ( table, operator_subexpressions );
 
 #	define CHECK_TRACE_FLAG(flag,name) \
@@ -133,7 +133,7 @@ min::gen PARDEF::scan_simple_label
 //
 static int lookup_flag
     ( min::gen flag,
-      TAB::flag_name_table name_table,
+      TAB::name_table name_table,
       PAR::parser parser,
       min::phrase_position pp )
 {
@@ -159,7 +159,7 @@ static int scan_flag
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::phrase_position_vec ppvec,
 	  min::gen & op,
-	  TAB::flag_name_table name_table,
+	  TAB::name_table name_table,
 	  PAR::parser parser,
 	  bool allow_flag_list,
 	  bool allow_flag_modifier_list,
@@ -220,10 +220,11 @@ static int scan_flag
     }
 
     min::uns32 ibegin = i;
-    min::gen flag = PARDEF::scan_simple_label
-	( vp, i,
-	    ( 1ull << LEXSTD::word_t )
-	  + ( 1ull << LEXSTD::number_t ) );
+    min::locatable_gen flag
+        ( PARDEF::scan_simple_label
+	    ( vp, i,
+		( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ) ) );
     if ( flag == min::MISSING() )
     {
 	PAR::parse_error
@@ -256,7 +257,7 @@ static int scan_flag
 static min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::new_flags & new_flags,
-	  TAB::flag_name_table name_table,
+	  TAB::name_table name_table,
 	  PAR::parser parser,
 	  bool allow_flag_list,
 	  bool allow_flag_modifier_list )
@@ -420,7 +421,7 @@ static min::gen scan_new_flags
 min::gen PARDEF::scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::flags & flags,
-	  TAB::flag_name_table name_table,
+	  TAB::name_table name_table,
 	  PAR::parser parser )
 {
     TAB::new_flags new_flags;
@@ -434,7 +435,7 @@ min::gen PARDEF::scan_flags
 min::gen PARDEF::scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::new_flags & new_flags,
-	  TAB::flag_name_table name_table,
+	  TAB::name_table name_table,
 	  PAR::parser parser,
 	  bool allow_flag_list )
 {
@@ -443,10 +444,10 @@ min::gen PARDEF::scan_new_flags
 	  name_table, parser, allow_flag_list, true );
 }
 
-// Execute Selector Definition Function
-// ------- -------- ---------- --------
+// Execute Selector Definition
+// ------- -------- ----------
 
-static min::gen parser_execute_selector_definition
+static min::gen execute_selector_definition
 	( min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
@@ -457,7 +458,7 @@ static min::gen parser_execute_selector_definition
     if ( vp[1] == PAR::print )
     {
 
-	TAB::flag_name_table t =
+	TAB::name_table t =
 	    parser->selector_name_table;
 
 	parser->printer
@@ -526,7 +527,7 @@ static min::gen parser_execute_selector_definition
 	}
 
 	min::push
-	    ( (TAB::flag_name_table_insptr)
+	    ( (TAB::name_table_insptr)
 	      parser->selector_name_table ) = name;
     }
 
@@ -543,10 +544,10 @@ static min::gen parser_execute_selector_definition
     return min::SUCCESS();
 }
 
-// Parser Execute Test Function
-// ------ ------- ---- --------
+// Execute Test
+// ------- ----
 
-static void parser_execute_test_scan
+static void execute_test_scan
 	( min::obj_vec_ptr & vp,
 	  min::printer printer )
 {
@@ -566,11 +567,11 @@ static void parser_execute_test_scan
 	<< ":" << min::eom;
 	min::print_phrase_lines
 	    ( printer, ppvec->file, ppvec[i] );
-	::parser_execute_test_scan ( subvp, printer );
+	::execute_test_scan ( subvp, printer );
     }
 }
 
-static min::gen parser_execute_test
+static min::gen execute_test
 	( min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
@@ -596,16 +597,16 @@ static min::gen parser_execute_test
     min::print_phrase_lines
         ( parser->printer,
 	  ppvec->file, ppvec->position );
-    ::parser_execute_test_scan
+    ::execute_test_scan
         ( vp, parser->printer );
     parser->printer << "======= END TEST" << min::eol;
     return min::SUCCESS();
 }
 
-// Parser Execute Trace Function
-// ------ ------- ----- --------
+// Execute Trace
+// ------- -----
 
-static min::gen parser_execute_trace
+static min::gen execute_trace
 	( min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
@@ -613,7 +614,7 @@ static min::gen parser_execute_trace
     TAB::new_flags new_flags;
     min::uns32 i = 2;
     min::gen result = PARDEF::scan_new_flags
-        ( vp, i, new_flags, PAR::trace_flag_name_table,
+        ( vp, i, new_flags, PAR::trace_name_table,
 	  parser, true );
     if ( result == min::ERROR() )
         return min::ERROR();
@@ -629,8 +630,101 @@ static min::gen parser_execute_trace
     return min::SUCCESS();
 }
 
-// Execute Definition Function
-// ------- ---------- --------
+// Execute Begin/End
+// ------- ---------
+
+static min::gen execute_begin
+	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    min::uns32 i = 2;
+    min::locatable_gen name
+        ( PARDEF::scan_simple_label
+	    ( vp, i, 
+	        ( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ) ) );
+    if ( name == min::MISSING() )
+	return PAR::parse_error
+	    ( parser,
+	      ppvec[1],
+	      "expected block name after" );
+    if ( i != min::size_of ( vp ) )
+        return PAR::parse_error
+	    ( parser,
+	      ppvec[i-1],
+	      "extraneous stuff after" );
+    MIN_ASSERT ( parser->block_name_table->length
+                 ==
+		 parser->block_level );
+    TAB::push_name ( parser->block_name_table, name );
+    ++ parser->block_level;
+    return min::SUCCESS();
+}
+
+static min::gen execute_end
+	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    min::uns32 i = 2;
+    min::locatable_gen name
+        ( PARDEF::scan_simple_label
+	    ( vp, i, 
+	        ( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ) ) );
+    if ( name == min::MISSING() )
+	return PAR::parse_error
+	    ( parser,
+	      ppvec[1],
+	      "expected block name after" );
+    min::uns32 size = min::size_of ( vp );
+    if ( i != size )
+        return PAR::parse_error
+	    ( parser,
+	      ppvec[i-1],
+	      "extraneous stuff after" );
+    min::phrase_position pp =
+        { ppvec[2].begin, ppvec[size-1].end };
+    if (    TAB::get_index
+                ( parser->block_name_table, name )
+	 == -1 )
+        return PAR::parse_error
+	    ( parser,
+	      pp,
+	      "unrecognized block name" );
+        
+    MIN_ASSERT ( parser->block_name_table->length
+                 ==
+		 parser->block_level );
+    min::gen result = min::SUCCESS();
+    do {
+        -- parser->block_level;
+
+	for ( PAR::pass pass = parser->pass_stack;
+	      result == min::SUCCESS() && pass != NULL;
+	      pass = pass->next )
+	{
+	    min::gen saved_result = result;
+	    if ( pass->execute_block_end != NULL )
+		result = (* pass->execute_block_end )
+		    ( parser->block_level,
+		      parser, pass );
+	    if ( saved_result == min::ERROR()
+		 ||
+		 result == min::FAILURE() )
+		result = saved_result;
+	}
+
+    } while ( TAB::pop_name ( parser->block_name_table )
+              !=
+	      name );
+
+    return result;
+}
+
+// Execute Definition
+// ------- ----------
 
 min::gen PARDEF::parser_execute_definition
 	( min::obj_vec_ptr & vp,
@@ -646,37 +740,60 @@ min::gen PARDEF::parser_execute_definition
     assert ( ppvec != min::NULL_STUB );
 
     min::locatable_gen result;
+    bool call_all_passes = false;
 
     if ( vp[1] == ::test )
-        return ::parser_execute_test
+        return ::execute_test
 	    ( vp, ppvec, parser );
     else if ( size >= 3
               &&
 	      (    vp[2] == PAR::selector
 	        || vp[2] == PAR::selectors ) )
-	result = ::parser_execute_selector_definition
+	result = ::execute_selector_definition
 		    ( vp, ppvec, parser );
-    else if ( size <= 3
+    else if ( size >= 2
               &&
 	      vp[1] == ::trace
 	      &&
 	      ( size == 2
 	        ||
 	        min::is_obj ( vp[2] ) ) )
-	result = ::parser_execute_trace
+	result = ::execute_trace
+		    ( vp, ppvec, parser );
+    else if ( size >= 2
+              &&
+	      vp[1] == PAR::begin )
+	result = ::execute_begin
+		    ( vp, ppvec, parser );
+    else if ( size >= 2
+              &&
+	      vp[1] == PAR::end )
+	result = ::execute_end
 		    ( vp, ppvec, parser );
     else
 	result =
 	    PARDEF::parser_execute_bracket_definition
 		( vp, ppvec, parser );
 
+    // If call_all_passes, set result to the highest
+    // priority result where the order is:
+    //
+    //   (lowest) FAILURE, SUCCESS, ERROR (highest)
+    //
     for ( PAR::pass pass = parser->pass_stack;
-          result == min::FAILURE() && pass != NULL;
+          ( result == min::FAILURE() || call_all_passes)
+	  &&
+	  pass != NULL;
 	  pass = pass->next )
     {
+        min::gen saved_result = result;
         if ( pass->execute_pass_definition != NULL )
 	    result = (* pass->execute_pass_definition )
 	        ( vp, ppvec, parser );
+	if ( saved_result == min::ERROR()
+	     ||
+	     result == min::FAILURE() )
+	    result = saved_result;
     }
 
     if ( result == min::SUCCESS()

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 29 02:32:28 EDT 2012
+// Date:	Fri Aug 31 05:26:10 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Flags
+//	Name Tables
 //	Roots
 //	Key Prefixes
 //	Undefineds
@@ -25,23 +25,24 @@
 # include <ll_parser_table.h>
 # define TAB ll::parser::table
 
-// Flags
-// -----
+// Name Tables
+// ---- ------
 
-static min::uns32 flag_name_table_gen_disp[] = {
+static min::uns32 name_table_gen_disp[] = {
     0, min::DISP_END };
 
 static min::packed_vec<min::gen>
-    flag_name_table_type
-        ( "ll::parser::table::flag_name_table_type",
-	   ::flag_name_table_gen_disp );
+    name_table_type
+        ( "ll::parser::table::name_table_type",
+	   ::name_table_gen_disp );
 
-void TAB::init_flag_name_table
-	( min::ref<TAB::flag_name_table> name_table )
+void TAB::init_name_table
+	( min::ref<TAB::name_table> name_table,
+	  min::uns32 max_length )
 {
     if ( name_table == min::NULL_STUB )
         name_table =
-	    ::flag_name_table_type.new_stub ( 64 );
+	     ::name_table_type.new_stub ( max_length );
 }
 
 

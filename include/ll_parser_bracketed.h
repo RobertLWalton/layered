@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 22:58:15 EDT 2012
+// Date:	Fri Aug 31 23:57:25 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,10 +39,30 @@ struct bracketed_pass_struct
 {
     // Packed_struct subtype is BRACKETED_PASS.
 
+    const ll::parser::table::table bracket_table;
+        // Hash table for brackets and indentation
+	// marks.
+
+    const ll::parser::table::split_table split_table;
+        // Table for indentation splits associated with
+	// indentation marks that can be split.
+
+    int32 indent_offset;
+        // Amount the indentation of a line has to be
+	// offset from the indentation of an indented
+	// paragraph in order to avoid error messages.
+	// Must be signed integer so indentations can
+	// be set to - indent_offset and indentation
+	// check computations are signed, but is
+	// always >= 0.  Defaults to 2.
 
 };
 
 MIN_REF ( ll::parser::pass, next,
+          ll::parser::bracketed::bracketed_pass )
+MIN_REF ( ll::parser::table::table, bracket_table,
+          ll::parser::bracketed::bracketed_pass )
+MIN_REF ( ll::parser::table::split_table, split_table,
           ll::parser::bracketed::bracketed_pass )
 
 // Create an bracketed subexpression pass and place it

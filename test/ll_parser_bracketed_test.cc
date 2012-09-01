@@ -2,18 +2,20 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 07:43:45 EDT 2012
+// Date:	Fri Aug 31 23:54:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
 # include <ll_parser.h>
+# include <ll_parser_bracketed.h>
 # include <ll_parser_standard.h>
 # include <iostream>
 # include <cassert>
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define PARBRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
 using std::cout;
 
@@ -43,6 +45,10 @@ int main ( int argc, const char * argv[] )
 
     min::phrase_position pp; // TBD: set to top level.
 
+    PARBRA::bracketed_pass bracketed_pass =
+	(PARBRA::bracketed_pass)
+	PAR::default_parser->pass_stack;
+
     TAB::push_brackets
         ( openplus,
           closeplus,
@@ -50,7 +56,7 @@ int main ( int argc, const char * argv[] )
 	  PAR::default_parser->block_level, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
-	  PAR::default_parser->bracket_table );
+	  bracketed_pass->bracket_table );
     TAB::push_brackets
         ( openminus,
           closeminus,
@@ -58,6 +64,6 @@ int main ( int argc, const char * argv[] )
 	  PAR::default_parser->block_level, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
-	  PAR::default_parser->bracket_table );
+	  bracketed_pass->bracket_table );
     PAR::parse();
 }

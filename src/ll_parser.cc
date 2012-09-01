@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 05:25:50 EDT 2012
+// Date:	Fri Aug 31 23:04:54 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define PARBRA ll::parser::bracketed
 # define PARDEF ll::parser::definition
 
 min::locatable_gen PAR::dot_position;
@@ -627,7 +628,7 @@ void PAR::parse ( PAR::parser parser )
 	    current->previous;
 
 	bool separator_found =
-	    PAR::parse_bracketed_subexpression
+	    PARBRA::parse_bracketed_subexpression
 		( parser, parser->selectors,
 		  current,
 		  0, TAB::top_level_indentation_mark,

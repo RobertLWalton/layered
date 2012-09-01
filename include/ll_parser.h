@@ -473,9 +473,13 @@ struct pass_struct
     // sion.  These closures are organized in a list
     // called the `pass stack'.
     //
-    // The parser performs explict subexpression recog-
-    // nition and calls the passes in the pass stack for
-    // each recognized bracketed subexpression.
+    // The parser performs bracketed subexpression
+    // recognition and calls the passes in the pass
+    // stack for each recognized bracketed subexpres-
+    // sion.  However, the first pass is always the 
+    // bracketed subexpression recognition pass whose
+    // run_pass function is never used (its NULL),
+    // but whose other functions are used normally.
 {
     uns32 control;
 
@@ -497,6 +501,10 @@ struct pass_struct
     // Error messages are sent to parser->printer.
     // Returns true if no fatal errors, and false if
     // there is a fatal error.
+    //
+    // This function is NULL and unused for the first
+    // pass, which is always the bracketed subexpression
+    // recognition pass.
     //
     ll::parser::run_pass run_pass;
 

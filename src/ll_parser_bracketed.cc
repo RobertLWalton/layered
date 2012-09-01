@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 30 22:51:54 EDT 2012
+// Date:	Fri Aug 31 22:58:33 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define PARBRA ll::parser::bracketed
 # define PARDEF ll::parser::definition
 
 static min::locatable_gen bracket;
@@ -348,13 +349,13 @@ inline min::int32 relative_indent
 // Bracketed Subexpression Parser
 // --------- ------------- ------
 
-bool PAR::parse_bracketed_subexpression
+bool PARBRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
 	  PAR::token & current,
 	  min::int32 indent,
 	  TAB::indentation_mark indentation_mark,
-	  PAR::bracket_stack * bracket_stack_p )
+	  PARBRA::bracket_stack * bracket_stack_p )
 {
     TAB::indentation_mark indentation_found =
         min::NULL_STUB;
@@ -671,7 +672,7 @@ bool PAR::parse_bracketed_subexpression
 			PAR::token previous =
 			    current->previous;
 			bool separator_found =
-			  PAR::
+			  PARBRA::
 			   parse_bracketed_subexpression
 				( parser, new_selectors,
 				  current,
@@ -681,7 +682,7 @@ bool PAR::parse_bracketed_subexpression
 			PAR::token first =
 			    previous->next;
 			next = current;
-			if ( PAR::is_closed
+			if ( PARBRA::is_closed
 			         ( bracket_stack_p ) )
 			{
 			    assert
@@ -741,7 +742,7 @@ bool PAR::parse_bracketed_subexpression
 			if ( separator_found )
 			    continue;
 			else if
-			    ( PAR::is_closed
+			    ( PARBRA::is_closed
 			          ( bracket_stack_p )
 			      ||
 			         current->type
@@ -797,7 +798,8 @@ bool PAR::parse_bracketed_subexpression
 		// processing, or if current token is an
 		// end of file.
 		// 
-		if ( PAR::is_closed ( bracket_stack_p )
+		if ( PARBRA::is_closed
+			 ( bracket_stack_p )
 		     ||
 		        current->type
 		     == LEXSTD::end_of_file_t )
@@ -995,14 +997,14 @@ bool PAR::parse_bracketed_subexpression
 		bool full_line =
 		    opening_bracket->full_line;
 
-		PAR::bracket_stack cstack
+		PARBRA::bracket_stack cstack
 		    ( full_line ? NULL :
 		                  bracket_stack_p );
 		cstack.opening_bracket =
 		    opening_bracket;
 
 		PAR::token previous = current->previous;
-		PAR::parse_bracketed_subexpression
+		PARBRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
 		      current,
 		      full_line ?
@@ -1163,7 +1165,7 @@ bool PAR::parse_bracketed_subexpression
 		TAB::closing_bracket closing_bracket =
 		    (TAB::closing_bracket) root;
 
-		for ( PAR::bracket_stack * p =
+		for ( PARBRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;
 		      p = p->previous )
@@ -1179,8 +1181,8 @@ bool PAR::parse_bracketed_subexpression
 			    saved_current;
 			p->closing_next = current;
 
-			for ( PAR::bracket_stack * q =
-				  bracket_stack_p;
+			for ( PARBRA::bracket_stack *
+			          q = bracket_stack_p;
 			      q != p;
 			      q = q->previous )
 			    q->closing_first =
@@ -1278,7 +1280,7 @@ bool PAR::parse_bracketed_subexpression
 		    // The end of a named opening
 		    // bracket has been found.
 
-		    PAR::bracket_stack cstack
+		    PARBRA::bracket_stack cstack
 			( bracket_stack_p );
 		    cstack.named_opening =
 			named_opening;
@@ -1287,11 +1289,12 @@ bool PAR::parse_bracketed_subexpression
 
 		    PAR::token middle_last =
 		        current->previous;
-		    PAR::parse_bracketed_subexpression
-			( parser, selectors,
-			  current,
-			  indent, min::NULL_STUB,
-			  & cstack );
+		    PARBRA::
+		        parse_bracketed_subexpression
+			    ( parser, selectors,
+			      current,
+			      indent, min::NULL_STUB,
+			      & cstack );
 
 		    PAR::token next = current;
 		        // Token just after last sub-
@@ -1437,7 +1440,7 @@ bool PAR::parse_bracketed_subexpression
 		else if (    named_opening
 		          == min::NULL_STUB )
 		{
-		    for ( PAR::bracket_stack * p =
+		    for ( PARBRA::bracket_stack * p =
 			      bracket_stack_p;
 			  p != NULL;
 			  p = p->previous )
@@ -1575,7 +1578,7 @@ bool PAR::parse_bracketed_subexpression
 		    // it is discarded as not really
 		    // being a named closing bracket.
 
-		    for ( PAR::bracket_stack * p =
+		    for ( PARBRA::bracket_stack * p =
 			      bracket_stack_p;
 			  p != NULL;
 			  p = p->previous )
@@ -1628,8 +1631,8 @@ bool PAR::parse_bracketed_subexpression
 					  label );
 			    p->closing_next = current;
 
-			    for ( PAR::bracket_stack *
-			              q =
+			    for ( PARBRA::bracket_stack
+			              * q =
 				      bracket_stack_p;
 				  q != p;
 				  q = q->previous )
@@ -1654,7 +1657,7 @@ bool PAR::parse_bracketed_subexpression
 		    named_middle_closing =
 		    (TAB::named_middle_closing) root;
 
-		for ( PAR::bracket_stack * p =
+		for ( PARBRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;
 		      p = p->previous )
@@ -1667,8 +1670,8 @@ bool PAR::parse_bracketed_subexpression
 			    saved_current;
 			p->closing_next = current;
 
-			for ( PAR::bracket_stack * q =
-				  bracket_stack_p;
+			for ( PARBRA::bracket_stack
+			    * q = bracket_stack_p;
 			      q != p;
 			      q = q->previous )
 			    q->closing_first =

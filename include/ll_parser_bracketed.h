@@ -2,19 +2,59 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 26 03:38:41 EDT 2012
+// Date:	Fri Aug 31 22:58:15 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
+
+// Table of Contents
+//
+//	Usage and Setup
+//	Bracketed ...
+//	Bracketed Subexpression Pass
+//	Parse Bracketed Subexpression Function
+
+// Usage and Setup
+// ----- --- -----
 
 # ifndef LL_PARSER_BRACKETED_H
 # define LL_PARSER_BRACKETED_H
 
 # include <ll_parser.h>
 
-namespace ll { namespace parser {
+namespace ll { namespace parser { namespace bracketed {
+
+// Bracketed Subexpression Pass
+// --------- ------------- ----
+
+struct bracketed_pass_struct;
+typedef min::packed_struct_updptr<bracketed_pass_struct>
+        bracketed_pass;
+extern const uns32 & BRACKETED_PASS;
+    // Subtype of
+    //     min::packed_struct<bracketed_pass_struct>.
+struct bracketed_pass_struct
+    : public ll::parser::pass_struct
+{
+    // Packed_struct subtype is BRACKETED_PASS.
+
+
+};
+
+MIN_REF ( ll::parser::pass, next,
+          ll::parser::bracketed::bracketed_pass )
+
+// Create an bracketed subexpression pass and place it
+// as the first pass on the parser->pass_stack.
+// Return the new bracketed subexpression pass.
 //
+ll::parser::bracketed::bracketed_pass place
+	( ll::parser::parser parser );
+
+// Parse Bracketed Subexpression Function
+// ----- --------- ------------- --------
+
 // Move `current' to the end of the current bracketed
 // subexpression, calling parser->input if more tokens
 // are needed.
@@ -190,11 +230,12 @@ struct bracket_stack
 	// was missing and should be inserted just
 	// before next.
 
-    ll::parser::bracket_stack * previous;
+    ll::parser::bracketed::bracket_stack * previous;
         // Stack is NULL terminated.
 
     bracket_stack
-	    ( ll::parser::bracket_stack * previous )
+	    ( ll::parser::bracketed
+	                ::bracket_stack * previous )
         : opening_bracket ( min::NULL_STUB ),
           named_opening ( min::NULL_STUB ),
           opening_first ( min::NULL_STUB ),
@@ -204,7 +245,8 @@ struct bracket_stack
 	  previous ( previous ) {}
 };
 
-inline bool is_closed ( ll::parser::bracket_stack * p )
+inline bool is_closed ( ll::parser::bracketed
+                                  ::bracket_stack * p )
 {
     return    p != NULL
            && p->closing_first != min::NULL_STUB;
@@ -219,6 +261,6 @@ bool parse_bracketed_subexpression
 	      indentation_mark,
 	  bracket_stack * bracket_stack_p  = NULL );
 
-} }
+} } }
 
 # endif // LL_PARSER_BRACKETED_H

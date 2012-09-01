@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 05:27:56 EDT 2012
+// Date:	Fri Aug 31 23:51:25 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,12 +16,14 @@
 // Usage and Setup
 // ----- --- -----
 
-# include <ll_parser.h>
-# include <ll_parser_standard.h>
 # include <ll_parser_table.h>
+# include <ll_parser.h>
+# include <ll_parser_bracketed.h>
+# include <ll_parser_standard.h>
 # define PAR ll::parser
-# define PARSTD ll::parser::standard
 # define TAB ll::parser::table
+# define PARBRA ll::parser::bracketed
+# define PARSTD ll::parser::standard
 
 // Standard Brackets
 // -------- --------
@@ -29,6 +31,8 @@
 void PARSTD::init_brackets
 	( min::ref<PAR::parser> parser )
 {
+    PARBRA::bracketed_pass bracketed_pass =
+        (PARBRA::bracketed_pass) parser->pass_stack;
     min::locatable_gen opening_parenthesis
         ( min::new_str_gen ( "(" ) );
     min::locatable_gen closing_parenthesis
@@ -84,7 +88,7 @@ void PARSTD::init_brackets
 	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
-	  parser->bracket_table );
+	  bracketed_pass->bracket_table );
     TAB::push_brackets
         ( opening_square,
           closing_square,
@@ -92,7 +96,7 @@ void PARSTD::init_brackets
 	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
-	  parser->bracket_table );
+	  bracketed_pass->bracket_table );
     TAB::push_brackets
         ( opening_brace,
           closing_brace,
@@ -102,7 +106,7 @@ void PARSTD::init_brackets
 	      ( PARSTD::MATH,
 	        PARSTD::CODE + PARSTD::TEXT, 0 ),
 	  false,
-	  parser->bracket_table );
+	  bracketed_pass->bracket_table );
     TAB::push_brackets
         ( opening_quote,
           closing_quote,
@@ -112,26 +116,26 @@ void PARSTD::init_brackets
 	      ( PARSTD::TEXT,
 	        PARSTD::CODE + PARSTD::MATH, 0 ),
 	  false,
-	  parser->bracket_table );
+	  bracketed_pass->bracket_table );
 
     TAB::push_indentation_mark
         ( colon, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  parser->bracket_table,
-	  parser->split_table );
+	  bracketed_pass->bracket_table,
+	  bracketed_pass->split_table );
 
     TAB::push_indentation_mark
         ( top_level, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  0, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  parser->bracket_table );
+	  bracketed_pass->bracket_table );
 
     TAB::top_level_indentation_mark =
         (TAB::indentation_mark)
 	 TAB::find
 	    ( top_level, TAB::ALL_FLAGS,
-	      parser->bracket_table );
+	      bracketed_pass->bracket_table );
 }

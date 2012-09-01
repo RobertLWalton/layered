@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 29 04:59:57 EDT 2012
+// Date:	Fri Aug 31 23:48:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,8 +18,10 @@
 
 # include <ll_parser_table.h>
 # include <ll_parser.h>
+# include <ll_parser_bracketed.h>
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define PARBRA ll::parser::bracketed
 
 # include <iostream>
 # include <cstdlib>
@@ -42,10 +44,13 @@ int main ( int argc, const char * argv[] )
 {
     min::initialize();
     PAR::init ( PAR::default_parser );
+    PARBRA::bracketed_pass bracketed_pass =
+        (PARBRA::bracketed_pass)
+	PAR::default_parser->pass_stack;
     TAB::table bracket_table =
-        PAR::default_parser->bracket_table;
+        bracketed_pass->bracket_table;
     TAB::split_table split_table =
-        PAR::default_parser->split_table;
+        bracketed_pass->split_table;
 
     min::locatable_gen opening_parenthesis;
     opening_parenthesis = min::new_str_gen ( "(" );

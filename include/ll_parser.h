@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 05:23:30 EDT 2012
+// Date:	Fri Aug 31 23:18:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -691,25 +691,8 @@ struct parser_struct
     	    selector_name_table;
         // Selector name table.
 
-    const ll::parser::table::table bracket_table;
-        // Hash table for brackets and indentation
-	// marks.
-
-    const ll::parser::table::split_table split_table;
-        // Table for indentation splits associated with
-	// indentation marks that can be split.
-
     ll::parser::table::flags selectors;
         // Top level selectors.
-
-    int32 indent_offset;
-        // Amount the indentation of a line has to be
-	// offset from the indentation of an indented
-	// paragraph in order to avoid error messages.
-	// Must be signed integer so indentations can
-	// be set to - indent_offset and indentation
-	// check computations are signed, but is
-	// always >= 0.  Defaults to 2.
 
     // Parser state:
 
@@ -758,10 +741,6 @@ MIN_REF ( min::file, input_file,
 MIN_REF ( min::printer, printer,
           ll::parser::parser )
 MIN_REF ( ll::lexeme::scanner, name_scanner,
-          ll::parser::parser )
-MIN_REF ( ll::parser::table::table, bracket_table,
-          ll::parser::parser )
-MIN_REF ( ll::parser::table::split_table, split_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::name_table,
 		block_name_table,

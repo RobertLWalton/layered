@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:04:54 EDT 2012
+// Date:	Fri Aug 31 23:47:43 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -357,8 +357,6 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::scanner ),
     min::DISP ( & PAR::parser_struct::input_file ),
     min::DISP ( & PAR::parser_struct::printer ),
-    min::DISP ( & PAR::parser_struct::bracket_table ),
-    min::DISP ( & PAR::parser_struct::split_table ),
     min::DISP ( & PAR::parser_struct
                      ::selector_name_table ),
     min::DISP ( & PAR::parser_struct::first ),
@@ -376,17 +374,11 @@ void PAR::init ( min::ref<PAR::parser> parser )
     if ( parser == NULL_STUB )
     {
         parser = ::parser_type.new_stub();
-	parser->indent_offset = 2;
-	bracket_table_ref(parser) =
-	    TAB::create_table ( 256 );
-	min::push ( parser->bracket_table, 256 );
-	split_table_ref(parser) =
-	    TAB::create_split_table();
-	min::push ( parser->split_table, 256 );
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
 	TAB::init_name_table
 	    ( block_name_table_ref(parser) );
+	PARBRA::place ( parser );
     }
     else
     {
@@ -675,7 +667,7 @@ void PAR::parse ( PAR::parser parser )
 	        parser->error_count;
 
 	    PAR::compact
-		( parser, parser->pass_stack,
+		( parser, parser->pass_stack->next,
 	          parser->selectors,
 		  PAR::BRACKETED, trace,
 		  first, current, position,

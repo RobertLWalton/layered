@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 05:23:11 EDT 2012
+// Date:	Sun Sep  2 07:23:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -659,7 +659,23 @@ static min::gen execute_begin
 		 parser->block_level );
     TAB::push_name ( parser->block_name_table, name );
     ++ parser->block_level;
-    return min::SUCCESS();
+
+    min::gen result = min::SUCCESS();
+    for ( PAR::pass pass = parser->pass_stack;
+	  result == min::SUCCESS() && pass != NULL;
+	  pass = pass->next )
+    {
+	min::gen saved_result = result;
+	if ( pass->begin_block != NULL )
+	    result = (* pass->begin_block )
+		( parser, pass, vp, ppvec, name );
+	if ( saved_result == min::ERROR()
+	     ||
+	     result == min::FAILURE() )
+	    result = saved_result;
+    }
+
+    return result;
 }
 
 static min::gen execute_end
@@ -684,41 +700,44 @@ static min::gen execute_end
 	    ( parser,
 	      ppvec[i-1],
 	      "extraneous stuff after" );
+
     min::phrase_position pp =
         { ppvec[2].begin, ppvec[size-1].end };
-    if (    TAB::get_index
-                ( parser->block_name_table, name )
-	 == -1 )
+
+    int index = TAB::get_index
+		    ( parser->block_name_table, name );
+    if ( index == -1 )
         return PAR::parse_error
 	    ( parser,
 	      pp,
 	      "unrecognized block name" );
+    else if (    (min::uns32) index
+              != parser->block_name_table->length - 1 )
+        return PAR::parse_error
+	    ( parser,
+	      pp,
+	      "innermost block name does not match" );
         
     MIN_ASSERT ( parser->block_name_table->length
                  ==
 		 parser->block_level );
+
     min::gen result = min::SUCCESS();
-    do {
-        -- parser->block_level;
+    for ( PAR::pass pass = parser->pass_stack;
+	  result == min::SUCCESS() && pass != NULL;
+	  pass = pass->next )
+    {
+	min::gen saved_result = result;
+	if ( pass->end_block != NULL )
+	    result = (* pass->end_block )
+		( parser, pass, vp, ppvec, name );
+	if ( saved_result == min::ERROR()
+	     ||
+	     result == min::FAILURE() )
+	    result = saved_result;
+    }
 
-	for ( PAR::pass pass = parser->pass_stack;
-	      result == min::SUCCESS() && pass != NULL;
-	      pass = pass->next )
-	{
-	    min::gen saved_result = result;
-	    if ( pass->execute_block_end != NULL )
-		result = (* pass->execute_block_end )
-		    ( parser->block_level,
-		      parser, pass );
-	    if ( saved_result == min::ERROR()
-		 ||
-		 result == min::FAILURE() )
-		result = saved_result;
-	}
-
-    } while ( TAB::pop_name ( parser->block_name_table )
-              !=
-	      name );
+    -- parser->block_level;
 
     return result;
 }
@@ -787,9 +806,9 @@ min::gen PARDEF::parser_execute_definition
 	  pass = pass->next )
     {
         min::gen saved_result = result;
-        if ( pass->execute_pass_definition != NULL )
-	    result = (* pass->execute_pass_definition )
-	        ( vp, ppvec, parser );
+        if ( pass->parser_command != NULL )
+	    result = (* pass->parser_command )
+	        ( parser, pass, vp, ppvec );
 	if ( saved_result == min::ERROR()
 	     ||
 	     result == min::FAILURE() )

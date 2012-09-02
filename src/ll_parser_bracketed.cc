@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:47:32 EDT 2012
+// Date:	Sun Sep  2 06:53:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,6 +79,25 @@ static min::packed_struct_with_base
 const min::uns32 & PARBRA::BRACKETED_PASS =
     ::bracketed_pass_type.subtype;
 
+static void init_bracketed_pass
+	( PAR::parser parser,
+	  PAR::pass pass )
+{
+    PARBRA::bracketed_pass bracketed_pass =
+        (PARBRA::bracketed_pass) pass;
+    TAB::table bracket_table =
+        bracketed_pass->bracket_table;
+    TAB::split_table split_table =
+        bracketed_pass->split_table;
+    for ( min::uns32 i = 0;
+          i < bracket_table->length; ++ i )
+        bracket_table[i] = min::NULL_STUB;
+    for ( min::uns32 i = 0;
+          i < split_table->length; ++ i )
+        split_table[i] = min::NULL_STUB;
+    bracketed_pass->indent_offset = 2;
+}
+
 PARBRA::bracketed_pass PARBRA::place
 	( PAR::parser parser )
 {
@@ -86,7 +105,7 @@ PARBRA::bracketed_pass PARBRA::place
 	bracketed_pass
 	    ( ::bracketed_pass_type.new_stub() );
 
-    bracketed_pass->run_pass = NULL;
+    // bracketed_pass->init = ::init_bracketed_pass;
     bracketed_pass->indent_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_table ( 256 );

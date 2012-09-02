@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 07:44:04 EDT 2012
+// Date:	Sun Sep  2 07:29:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -102,11 +102,11 @@ static min::packed_struct_with_base
 const min::uns32 & OP::OPER_PASS =
     ::oper_pass_type.subtype;
 
-static void run_oper_pass ( PAR::parser parser,
-		            PAR::pass pass,
-		            TAB::flags selectors,
-		            PAR::token & first,
-		            PAR::token next );
+static void oper_parse ( PAR::parser parser,
+		         PAR::pass pass,
+		         TAB::flags selectors,
+		         PAR::token & first,
+		         PAR::token next );
 
 OP::oper_pass OP::place
 	( ll::parser::parser parser,
@@ -121,7 +121,7 @@ OP::oper_pass OP::place
     OP::oper_stack_ref ( oper_pass ) =
 	::oper_stack_type.new_stub ( 100 );
 
-    oper_pass->run_pass = ::run_oper_pass;
+    oper_pass->parse = ::oper_parse;
     oper_pass->temporary_count = 0;
 
     PAR::place
@@ -148,11 +148,11 @@ inline bool check_precedence
     return false;
 }
 
-static void run_oper_pass ( PAR::parser parser,
-		            PAR::pass pass,
-		            TAB::flags selectors,
-		            PAR::token & first,
-		            PAR::token next )
+static void oper_parse ( PAR::parser parser,
+		         PAR::pass pass,
+		         TAB::flags selectors,
+		         PAR::token & first,
+		         PAR::token next )
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
@@ -456,7 +456,7 @@ static void run_oper_pass ( PAR::parser parser,
 		else
 		{
 		    if ( pass->next != min::NULL_STUB )
-			(* pass->next->run_pass )
+			(* pass->next->parse )
 			     ( parser, pass->next,
 			       selectors,
 			       D.first, current );

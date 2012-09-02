@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:47:43 EDT 2012
+// Date:	Sun Sep  2 06:52:52 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -309,18 +309,6 @@ void PAR::init
 static min::packed_struct<PAR::pass_struct>
     pass_type ( "ll::parser::pass_type" );
 
-void PAR::init
-	( min::ref<PAR::pass> pass,
-	  PAR::run_pass run_pass,
-	  PAR::init_pass init_pass )
-{
-    if ( pass == NULL_STUB )
-        pass = ::pass_type.new_stub();
-
-    pass->run_pass = run_pass;
-    pass->init_pass = init_pass;
-}
-
 void PAR::place
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -394,6 +382,13 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	parser->block_level = 0;
     }
     parser->max_error_count = 100;
+    for ( PAR::pass pass = parser->pass_stack;
+    	  pass != min::NULL_STUB;
+	  pass = pass->next )
+    {
+	if ( pass->init != NULL )
+	    ( * pass->init ) ( parser, pass );
+    }
 }
 
 void PAR::init_input_stream
@@ -504,12 +499,13 @@ void PAR::parse ( PAR::parser parser )
          && parser->output->init != NULL)
 	( * parser->input->init )
 	    ( parser, parser->input );
+
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;
 	  pass = pass->next )
     {
-	if ( pass->init_pass != NULL )
-	    ( * pass->init_pass ) ( parser, pass );
+	if ( pass->begin_parse != NULL )
+	    ( * pass->begin_parse ) ( parser, pass );
     }
 
     // True if last lexeme was a line break, so an end-
@@ -725,6 +721,14 @@ void PAR::parse ( PAR::parser parser )
 	}
 	else eof_ok = false;
     }
+
+    for ( PAR::pass pass = parser->pass_stack;
+    	  pass != min::NULL_STUB;
+	  pass = pass->next )
+    {
+	if ( pass->end_parse != NULL )
+	    ( * pass->end_parse ) ( parser, pass );
+    }
 }
 
 // Parser Functions
@@ -906,7 +910,7 @@ void PAR::compact
 	  min::uns32 n )
 {
     if ( pass != min::NULL_STUB )
-	(* pass->run_pass )
+	(* pass->parse )
 	     ( parser, pass, selectors, first, next );
 
     if ( first->next == next

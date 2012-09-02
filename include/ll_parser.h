@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:18:04 EDT 2012
+// Date:	Sun Sep  2 06:40:33 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -443,30 +443,113 @@ void init
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ) = NULL );
 
-// Pass functions: see below.
-//
-typedef void ( * run_pass )
-        ( ll::parser::parser parser,
-          ll::parser::pass pass,
-	  ll::parser::table::flags selectors,
-    	  ll::parser::token & first,
-	  ll::parser::token next );
-typedef void ( * init_pass )
-        ( ll::parser::parser parser,
-	  ll::parser::pass pass );
-typedef min::gen ( * execute_pass_definition )
-        ( min::obj_vec_ptr & vp,
-	  min::phrase_position_vec ppvec,
-          ll::parser::parser parser );
-typedef min::gen ( * execute_block_end )
-        ( min::uns32 block_level,
-	  ll::parser::parser parser,
-	  ll::parser::pass pass );
-typedef min::gen ( * execute_undefine )
-        ( min::gen label,
-	  const min::phrase_position & position,
-          ll::parser::parser parser,
-	  ll::parser::pass pass );
+namespace pass_function {
+
+    // Function called (if not NULL) when the parser
+    // is initialized via the `init' function.  This
+    // function should empty pass symbol tables, etc.
+    //
+    typedef void ( * init )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass );
+
+    // Function called (if not NULL) at the beginning
+    // of a parse function execution.  This function
+    // typically does nothing but initialize statistics.
+    //
+    typedef min::gen ( * begin_parse )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass );
+
+    // Function called to execute the pass to parse a
+    // subexpression.
+    //
+    // The pass is run on the subexpression whose
+    // first token is given.  The `next' token is the
+    // token immediately after the last token in the
+    // subexpression.  The tokens within the subexpres-
+    // sion may be edited, and `first' may be reset.
+    // If first == end the subexpression is or became
+    // empty.
+    //
+    // Error messages are sent to parser->printer.
+    // Errors are counted in parser->error_count.
+    // Returns true if no fatal errors, and false if
+    // there is a fatal error.
+    //
+    // This function is NULL and unused for the first
+    // pass, which is always the bracketed subexpression
+    // recognition pass.
+    //
+    typedef void ( * parse )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass,
+	      ll::parser::table::flags selectors,
+	      ll::parser::token & first,
+	      ll::parser::token next );
+
+    // Function called (if not NULL) when at the end of
+    // a parse function execution.  This function
+    // typically does nothing but print statistics.
+    //
+    typedef min::gen ( * end_parse )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass );
+
+    // Function called (if not NULL) to execute a parser
+    // command.  Vp points at the command, ppvec is the
+    // phrase position vector of vp.
+    //
+    // Return min::SUCCESS() on success, min::FAILURE()
+    // if command was not recognized, and min::ERROR()
+    // if an error message was printed.  Increment
+    // parser->error_count on printing an error message.
+    //
+    typedef min::gen ( * parser_command )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass,
+	      min::obj_vec_ptr & vp,
+	      min::phrase_position_vec ppvec );
+
+    // Function called (if not NULL) by `parser begin
+    // <name>' AFTER parser->block_level has been
+    // incremented.  Normally there is nothing to do.
+    // Vp is the parser command, ppvec is its phrase
+    // position vector, and name is the block name.
+    //
+    typedef min::gen ( * begin_block )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass,
+	      min::obj_vec_ptr & vp,
+	      min::phrase_position_vec ppvec,
+	      min::gen name );
+
+    // Ditto but called by `parser end <name>' BEFORE
+    // parser->block_level has been decremented.  This
+    // function should remove all pass symbol table
+    // entries with block level == parser->block_level.
+    //
+    typedef min::gen ( * end_block )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass,
+	      min::obj_vec_ptr & vp,
+	      min::phrase_position_vec ppvec,
+	      min::gen name );
+
+    // Function called (if not NULL) by `parser undefine
+    // <name>.  This function should push an UNDEFINED
+    // entry into every pass symbol table that defines
+    // the given name.  Vp is the parser command, ppvec
+    // is its phrase position vector, and name is the
+    // name to be undefined.
+    //
+    typedef min::gen ( * undefine )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass,
+	      min::obj_vec_ptr & vp,
+	      min::phrase_position_vec ppvec,
+	      min::gen name );
+}
 
 struct pass_struct
     // Closure to call to execute a pass on a subexpres-
@@ -488,61 +571,15 @@ struct pass_struct
 	// The parser executes passes in `next-later'
 	// order on a subexpression.
 
-    // Function to execute the pass.
-    //
-    // The pass is run on the subexpression whose
-    // first token is given.  The `next' token is the
-    // token immediately after the last token in the
-    // subexpression.  The tokens within the subexpres-
-    // sion may be edited, and `first' may be reset.
-    // If first == end the subexpression is or became
-    // empty.
-    //
-    // Error messages are sent to parser->printer.
-    // Returns true if no fatal errors, and false if
-    // there is a fatal error.
-    //
-    // This function is NULL and unused for the first
-    // pass, which is always the bracketed subexpression
-    // recognition pass.
-    //
-    ll::parser::run_pass run_pass;
-
-    // Function to initialize pass closure.  Called if
-    // not NULL when the parser is initialized.
-    //
-    // For normal operations there is no need to
-    // init a pass, but doing so may be useful for
-    // keeping statistics.
-    //
-    ll::parser::init_pass init_pass;
-
-    // Function to execute a parser definition for the
-    // pass.  Definition is the object pointed at by
-    // vp, whose phrase position vector is ppvec.
-    // Returns min::SUCCESS() on success, min::FAILURE()
-    // if definition was not recognized, and min::
-    // ERROR() if an error message was printed.  NULL if
-    // missing.
-    //
-    ll::parser::execute_pass_definition
-        execute_pass_definition;
-
-    // Function to execute the `parser end ...' block
-    // end statement.  Simply remove from any symbol
-    // table stack all definitions with a block level
-    // that is higher than that of the argument.  Called
-    // if not NULL.
-    //
-    ll::parser::execute_block_end execute_block_end;
-
-    // Function to execute the `parser undefine <label>'
-    // statment.  Simply add an ll::parser::table::
-    // UNDEFINED entry to every symbol table that
-    // defines the label.  Use the given phrase_position
-    // and parser->block_level.  Called if not NULL.
-    //
-    ll::parser::execute_undefine execute_undefine;
+    ll::parser::pass_function::init init;
+    ll::parser::pass_function::begin_parse begin_parse;
+    ll::parser::pass_function::parse parse;
+    ll::parser::pass_function::end_parse end_parse;
+    ll::parser::pass_function::parser_command
+        parser_command;
+    ll::parser::pass_function::begin_block begin_block;
+    ll::parser::pass_function::end_block end_block;
+    ll::parser::pass_function::undefine undefine;
 
     ll::parser::table::flags trace;
         // Trace flags that output to parser->printer a
@@ -555,16 +592,6 @@ struct pass_struct
 };
 
 MIN_REF ( ll::parser::pass, next, ll::parser::pass )
-
-// Set pass closure functions.  If `pass' is NULL_
-// STUB, create closure and set `pass' to a pointer
-// to the created closure.  `pass' must be loca-
-// table by garbage collector.
-//
-void init
-	( min::ref<ll::parser::pass> pass,
-	  ll::parser::run_pass run_pass,
-	  ll::parser::init_pass init_pass = NULL );
 
 // Place `pass' on the parser->pass_stack just before
 // `next', or if the latter is NULL_STUB, put `pass'

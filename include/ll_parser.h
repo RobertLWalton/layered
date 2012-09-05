@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  2 06:40:33 EDT 2012
+// Date:	Wed Sep  5 04:06:02 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -446,10 +446,12 @@ void init
 namespace pass_function {
 
     // Function called (if not NULL) when the parser
-    // is initialized via the `init' function.  This
-    // function should empty pass symbol tables, etc.
+    // is reset via the `ll::parser::reset' function.
+    // This function should reset parameters to default
+    // values and remove all symbol table entries with
+    // block_level > 0.
     //
-    typedef void ( * init )
+    typedef void ( * reset )
 	    ( ll::parser::parser parser,
 	      ll::parser::pass pass );
 
@@ -571,7 +573,7 @@ struct pass_struct
 	// The parser executes passes in `next-later'
 	// order on a subexpression.
 
-    ll::parser::pass_function::init init;
+    ll::parser::pass_function::reset reset;
     ll::parser::pass_function::begin_parse begin_parse;
     ll::parser::pass_function::parse parse;
     ll::parser::pass_function::end_parse end_parse;
@@ -781,29 +783,22 @@ MIN_REF ( ll::parser::token, first,
 extern min::locatable_var<ll::parser::parser>
        default_parser;
 
-// There are several parameters that when set cause a
-// parser to be (re)initialized.  These are all settable
-// by init parser functions.  For these the parser is
-// specified by a variable, and if this == NULL_STUB,
-// a new parser is created and a pointer to it is stored
-// in the variable.  This variable MUST BE locatable by
-// the garbage collector.
+// This `init' function creates a parser and stores a
+// pointer to it in the argument variable, if the
+// variable's previous value is NULL_STUB.  The variable
+// MUST BE locatable by the garbage collector.
 //
-// When a new parser is created, parser parameters are
-// are set to defaults.  Otherwise these are left un-
-// touched, and can be set either before or immediately
-// after a call to init parser.  Also, several of these
-// functions can be called one after the other to set
-// non-conflicting parameters.
+void init ( min::ref<ll::parser::parser> parser );
 
-// Simply (re)initialize a parser.
+// This `reset' function restores parser parameters to
+// the values they had when the parser was first
+// created.
 //
-void init
-	( min::ref<ll::parser::parser> parser );
+void reset ( min::ref<ll::parser::parser> parser );
 
-// Reinitialize and set a parameter.  Some parameters
-// are copied to both parser and any scanner that
-// exists for the parser.
+// Initialize parser if necessary and set a parameter.
+// Some parameters are copied to both parser and any
+// scanner that exists for the parser.
 //
 inline void init_print_flags
 	( min::ref<ll::parser::parser> parser,

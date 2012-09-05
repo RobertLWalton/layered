@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  2 06:52:52 EDT 2012
+// Date:	Wed Sep  5 04:04:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -362,33 +362,41 @@ void PAR::init ( min::ref<PAR::parser> parser )
     if ( parser == NULL_STUB )
     {
         parser = ::parser_type.new_stub();
+	parser->max_error_count = 100;
+
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
 	TAB::init_name_table
 	    ( block_name_table_ref(parser) );
+
 	PARBRA::place ( parser );
     }
-    else
-    {
-	PAR::token token;  // WARNING:: not locatable.
-	while (    ( token = PAR::remove
-			 ( PAR::first_ref(parser)) )
-		!= NULL_STUB )
-	    PAR::free ( token );
+}
 
-	parser->eof = false;
-	parser->finished_tokens = 0;
-	parser->error_count = 0;
-	parser->block_level = 0;
-    }
-    parser->max_error_count = 100;
+void PAR::reset ( min::ref<PAR::parser> parser )
+{
+    PAR::init ( parser );
+
+    PAR::token token;  // WARNING:: not locatable.
+    while (    ( token = PAR::remove
+		     ( PAR::first_ref(parser)) )
+	    != NULL_STUB )
+	PAR::free ( token );
+
+    parser->eof = false;
+    parser->finished_tokens = 0;
+
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;
 	  pass = pass->next )
     {
-	if ( pass->init != NULL )
-	    ( * pass->init ) ( parser, pass );
+	if ( pass->reset != NULL )
+	    ( * pass->reset ) ( parser, pass );
     }
+
+    parser->block_level = 0;
+    parser->error_count = 0;
+    parser->max_error_count = 100;
 }
 
 void PAR::init_input_stream

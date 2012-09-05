@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  2 06:53:39 EDT 2012
+// Date:	Wed Sep  5 10:12:57 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,7 +79,7 @@ static min::packed_struct_with_base
 const min::uns32 & PARBRA::BRACKETED_PASS =
     ::bracketed_pass_type.subtype;
 
-static void init_bracketed_pass
+static void bracketed_pass_reset
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
@@ -89,13 +89,44 @@ static void init_bracketed_pass
         bracketed_pass->bracket_table;
     TAB::split_table split_table =
         bracketed_pass->split_table;
-    for ( min::uns32 i = 0;
-          i < bracket_table->length; ++ i )
-        bracket_table[i] = min::NULL_STUB;
-    for ( min::uns32 i = 0;
-          i < split_table->length; ++ i )
-        split_table[i] = min::NULL_STUB;
+
+    min::uns64 collected_entries,
+               collected_key_prefixes;
+
+    TAB::end_block
+        ( split_table, 0, collected_entries );
+    TAB::end_block
+        ( bracket_table, 0,
+	  collected_key_prefixes, collected_entries );
     bracketed_pass->indent_offset = 2;
+}
+
+static min::gen bracketed_pass_end_block
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  min::obj_vec_ptr & vp,
+	  min::phrase_position_vec ppvec,
+	  min::gen name )
+{
+    PARBRA::bracketed_pass bracketed_pass =
+        (PARBRA::bracketed_pass) pass;
+    TAB::table bracket_table =
+        bracketed_pass->bracket_table;
+    TAB::split_table split_table =
+        bracketed_pass->split_table;
+
+    min::uns64 collected_entries,
+               collected_key_prefixes;
+
+    assert ( parser->block_level > 0 );
+    TAB::end_block
+        ( split_table, parser->block_level - 1,
+	  collected_entries );
+    TAB::end_block
+        ( bracket_table, parser->block_level - 1,
+	  collected_key_prefixes, collected_entries );
+
+    return min::SUCCESS();
 }
 
 PARBRA::bracketed_pass PARBRA::place
@@ -105,7 +136,10 @@ PARBRA::bracketed_pass PARBRA::place
 	bracketed_pass
 	    ( ::bracketed_pass_type.new_stub() );
 
-    // bracketed_pass->init = ::init_bracketed_pass;
+    bracketed_pass->reset =
+        ::bracketed_pass_reset;
+    bracketed_pass->end_block =
+        ::bracketed_pass_end_block;
     bracketed_pass->indent_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_table ( 256 );

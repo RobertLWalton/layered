@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  2 07:29:12 EDT 2012
+// Date:	Thu Sep  6 18:01:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -102,6 +102,47 @@ static min::packed_struct_with_base
 const min::uns32 & OP::OPER_PASS =
     ::oper_pass_type.subtype;
 
+static void oper_pass_reset
+	( PAR::parser parser,
+	  PAR::pass pass )
+{
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
+    TAB::table oper_table = oper_pass->oper_table;
+    OP::oper_stack oper_stack = oper_pass->oper_stack;
+    min::pop ( oper_stack, oper_stack->length );
+
+    min::uns64 collected_entries,
+               collected_key_prefixes;
+
+    TAB::end_block
+        ( oper_table, 0,
+	  collected_key_prefixes, collected_entries );
+
+    oper_pass->temporary_count = 0;
+}
+
+static min::gen oper_pass_end_block
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  min::obj_vec_ptr & vp,
+	  min::phrase_position_vec ppvec,
+	  min::gen name )
+{
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+    TAB::table oper_table = oper_pass->oper_table;
+
+    min::uns64 collected_entries,
+               collected_key_prefixes;
+
+    assert ( parser->block_level > 0 );
+    TAB::end_block
+        ( oper_table, parser->block_level - 1,
+	  collected_key_prefixes, collected_entries );
+
+    return min::SUCCESS();
+}
+
 static void oper_parse ( PAR::parser parser,
 		         PAR::pass pass,
 		         TAB::flags selectors,
@@ -122,7 +163,8 @@ OP::oper_pass OP::place
 	::oper_stack_type.new_stub ( 100 );
 
     oper_pass->parse = ::oper_parse;
-    oper_pass->temporary_count = 0;
+    oper_pass->reset = ::oper_pass_reset;
+    oper_pass->end_block = ::oper_pass_end_block;
 
     PAR::place
         ( parser, (PAR::pass) oper_pass, next );

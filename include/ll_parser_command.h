@@ -1,8 +1,8 @@
 // Layers Language Parser Definitions
 //
-// File:	ll_parser_definition.h
+// File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 05:28:28 EDT 2012
+// Date:	Fri Sep  7 05:47:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,13 +11,12 @@
 // Usage and Setup
 // ----- --- -----
 
-# ifndef LL_PARSER_DEFINITION_H
-# define LL_PARSER_DEFINITION_H
+# ifndef LL_PARSER_COMMAND_H
+# define LL_PARSER_COMMAND_H
 
 # include <ll_parser.h>
 
-namespace ll { namespace parser {
-    namespace definition {
+namespace ll { namespace parser { namespace command {
 
 // Prints
 //
@@ -97,26 +96,18 @@ min::gen scan_new_flags
 	  bool allow_flag_list = false );
 
 // Given a vector pointer vp to an expression, test if
-// the expression is a parser definition.  Do nothing
-// but return min::FAILURE() if no.  If yes, process
-// the definition, and if there is no error return
+// the expression is a parser command.  Do nothing but
+// return min::FAILURE() if no.  If yes, process the
+// command, and if there is no error return
 // min::SUCCESS(), but if there is an error, print an
 // error message too parser->printer and return min::
 // ERROR().  Note that only expressions that begin with
-// `parser' can be parser definitions.
+// `parser' can be parser commands.
 //
-min::gen parser_execute_definition
+min::gen parser_execute_command
 	( min::obj_vec_ptr & vp,
-	  ll::parser::parser parser );
-
-// Ditto but restricted to parser bracket and
-// indentation mark definitions.
-//
-min::gen parser_execute_bracket_definition
-	( min::obj_vec_ptr & vp,
-	  min::phrase_position_vec ppvec,
 	  ll::parser::parser parser );
 
 } } }
 
-# endif // LL_PARSER_DEFINITION_H
+# endif // LL_PARSER_COMMAND_H

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  5 10:12:57 EDT 2012
+// Date:	Fri Sep  7 07:55:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,21 +14,21 @@
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Bracketed Subexpression Parser
-//	Parser Execute Bracket Commands Function
+//	Bracketed Pass Command Execution Function
 
 // Usage and Setup
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
+# include <ll_parser_command.h>
 # include <ll_parser_bracketed.h>
-# include <ll_parser_definition.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
-# define PARBRA ll::parser::bracketed
-# define PARDEF ll::parser::definition
+# define COM ll::parser::command
+# define BRA ll::parser::bracketed
 
 static min::locatable_gen bracket;
 static min::locatable_gen indentation;
@@ -60,31 +60,31 @@ static min::initializer initializer ( ::initialize );
 
 static min::uns32 bracketed_pass_stub_disp[] =
 {
-    min::DISP ( & PARBRA::bracketed_pass_struct
-                        ::next ),
-    min::DISP ( & PARBRA::bracketed_pass_struct
-                        ::bracket_table ),
-    min::DISP ( & PARBRA::bracketed_pass_struct
-                        ::split_table ),
+    min::DISP ( & BRA::bracketed_pass_struct
+                     ::next ),
+    min::DISP ( & BRA::bracketed_pass_struct
+                     ::bracket_table ),
+    min::DISP ( & BRA::bracketed_pass_struct
+                     ::split_table ),
     min::DISP_END
 };
 
 static min::packed_struct_with_base
-	<PARBRA::bracketed_pass_struct,
+	<BRA::bracketed_pass_struct,
 	 PAR::pass_struct>
     bracketed_pass_type
         ( "ll::parser::bracketed::bracketed_pass_type",
 	  NULL,
 	  ::bracketed_pass_stub_disp );
-const min::uns32 & PARBRA::BRACKETED_PASS =
+const min::uns32 & BRA::BRACKETED_PASS =
     ::bracketed_pass_type.subtype;
 
 static void bracketed_pass_reset
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
-    PARBRA::bracketed_pass bracketed_pass =
-        (PARBRA::bracketed_pass) pass;
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) pass;
     TAB::table bracket_table =
         bracketed_pass->bracket_table;
     TAB::split_table split_table =
@@ -108,8 +108,8 @@ static min::gen bracketed_pass_end_block
 	  min::phrase_position_vec ppvec,
 	  min::gen name )
 {
-    PARBRA::bracketed_pass bracketed_pass =
-        (PARBRA::bracketed_pass) pass;
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) pass;
     TAB::table bracket_table =
         bracketed_pass->bracket_table;
     TAB::split_table split_table =
@@ -129,10 +129,16 @@ static min::gen bracketed_pass_end_block
     return min::SUCCESS();
 }
 
-PARBRA::bracketed_pass PARBRA::place
+static min::gen bracketed_pass_command
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec );
+
+BRA::bracketed_pass BRA::place
 	( PAR::parser parser )
 {
-    min::locatable_var<PARBRA::bracketed_pass>
+    min::locatable_var<BRA::bracketed_pass>
 	bracketed_pass
 	    ( ::bracketed_pass_type.new_stub() );
 
@@ -140,6 +146,8 @@ PARBRA::bracketed_pass PARBRA::place
         ::bracketed_pass_reset;
     bracketed_pass->end_block =
         ::bracketed_pass_end_block;
+    bracketed_pass->parser_command =
+        ::bracketed_pass_command;
     bracketed_pass->indent_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_table ( 256 );
@@ -450,16 +458,16 @@ inline min::int32 relative_indent
 // Bracketed Subexpression Parser
 // --------- ------------- ------
 
-bool PARBRA::parse_bracketed_subexpression
+bool BRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
 	  PAR::token & current,
 	  min::int32 indent,
 	  TAB::indentation_mark indentation_mark,
-	  PARBRA::bracket_stack * bracket_stack_p )
+	  BRA::bracket_stack * bracket_stack_p )
 {
-    PARBRA::bracketed_pass pass =
-        (PARBRA::bracketed_pass) parser->pass_stack;
+    BRA::bracketed_pass pass =
+        (BRA::bracketed_pass) parser->pass_stack;
 
     TAB::indentation_mark indentation_found =
         min::NULL_STUB;
@@ -776,7 +784,7 @@ bool PARBRA::parse_bracketed_subexpression
 			PAR::token previous =
 			    current->previous;
 			bool separator_found =
-			  PARBRA::
+			  BRA::
 			   parse_bracketed_subexpression
 				( parser, new_selectors,
 				  current,
@@ -786,7 +794,7 @@ bool PARBRA::parse_bracketed_subexpression
 			PAR::token first =
 			    previous->next;
 			next = current;
-			if ( PARBRA::is_closed
+			if ( BRA::is_closed
 			         ( bracket_stack_p ) )
 			{
 			    assert
@@ -846,7 +854,7 @@ bool PARBRA::parse_bracketed_subexpression
 			if ( separator_found )
 			    continue;
 			else if
-			    ( PARBRA::is_closed
+			    ( BRA::is_closed
 			          ( bracket_stack_p )
 			      ||
 			         current->type
@@ -902,8 +910,7 @@ bool PARBRA::parse_bracketed_subexpression
 		// processing, or if current token is an
 		// end of file.
 		// 
-		if ( PARBRA::is_closed
-			 ( bracket_stack_p )
+		if ( BRA::is_closed ( bracket_stack_p )
 		     ||
 		        current->type
 		     == LEXSTD::end_of_file_t )
@@ -1102,14 +1109,14 @@ bool PARBRA::parse_bracketed_subexpression
 		bool full_line =
 		    opening_bracket->full_line;
 
-		PARBRA::bracket_stack cstack
+		BRA::bracket_stack cstack
 		    ( full_line ? NULL :
 		                  bracket_stack_p );
 		cstack.opening_bracket =
 		    opening_bracket;
 
 		PAR::token previous = current->previous;
-		PARBRA::parse_bracketed_subexpression
+		BRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
 		      current,
 		      full_line ?
@@ -1270,7 +1277,7 @@ bool PARBRA::parse_bracketed_subexpression
 		TAB::closing_bracket closing_bracket =
 		    (TAB::closing_bracket) root;
 
-		for ( PARBRA::bracket_stack * p =
+		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;
 		      p = p->previous )
@@ -1286,7 +1293,7 @@ bool PARBRA::parse_bracketed_subexpression
 			    saved_current;
 			p->closing_next = current;
 
-			for ( PARBRA::bracket_stack *
+			for ( BRA::bracket_stack *
 			          q = bracket_stack_p;
 			      q != p;
 			      q = q->previous )
@@ -1385,7 +1392,7 @@ bool PARBRA::parse_bracketed_subexpression
 		    // The end of a named opening
 		    // bracket has been found.
 
-		    PARBRA::bracket_stack cstack
+		    BRA::bracket_stack cstack
 			( bracket_stack_p );
 		    cstack.named_opening =
 			named_opening;
@@ -1394,12 +1401,11 @@ bool PARBRA::parse_bracketed_subexpression
 
 		    PAR::token middle_last =
 		        current->previous;
-		    PARBRA::
-		        parse_bracketed_subexpression
-			    ( parser, selectors,
-			      current,
-			      indent, min::NULL_STUB,
-			      & cstack );
+		    BRA::parse_bracketed_subexpression
+			( parser, selectors,
+			  current,
+			  indent, min::NULL_STUB,
+			  & cstack );
 
 		    PAR::token next = current;
 		        // Token just after last sub-
@@ -1545,7 +1551,7 @@ bool PARBRA::parse_bracketed_subexpression
 		else if (    named_opening
 		          == min::NULL_STUB )
 		{
-		    for ( PARBRA::bracket_stack * p =
+		    for ( BRA::bracket_stack * p =
 			      bracket_stack_p;
 			  p != NULL;
 			  p = p->previous )
@@ -1683,7 +1689,7 @@ bool PARBRA::parse_bracketed_subexpression
 		    // it is discarded as not really
 		    // being a named closing bracket.
 
-		    for ( PARBRA::bracket_stack * p =
+		    for ( BRA::bracket_stack * p =
 			      bracket_stack_p;
 			  p != NULL;
 			  p = p->previous )
@@ -1736,7 +1742,7 @@ bool PARBRA::parse_bracketed_subexpression
 					  label );
 			    p->closing_next = current;
 
-			    for ( PARBRA::bracket_stack
+			    for ( BRA::bracket_stack
 			              * q =
 				      bracket_stack_p;
 				  q != p;
@@ -1762,7 +1768,7 @@ bool PARBRA::parse_bracketed_subexpression
 		    named_middle_closing =
 		    (TAB::named_middle_closing) root;
 
-		for ( PARBRA::bracket_stack * p =
+		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;
 		      p = p->previous )
@@ -1775,13 +1781,13 @@ bool PARBRA::parse_bracketed_subexpression
 			    saved_current;
 			p->closing_next = current;
 
-			for ( PARBRA::bracket_stack
-			    * q = bracket_stack_p;
-			      q != p;
-			      q = q->previous )
-			    q->closing_first =
-			        q->closing_next =
-				    saved_current;
+			for ( BRA::bracket_stack
+				* q = bracket_stack_p;
+				  q != p;
+				  q = q->previous )
+				q->closing_first =
+				    q->closing_next =
+					saved_current;
 
 			return false;
 		    }
@@ -1809,21 +1815,22 @@ bool PARBRA::parse_bracketed_subexpression
     return false;
 }
 
-// Parser Execute Bracket Commands Function
-// ------ ------- ------- -------- --------
+// Bracketed Pass Command Execution Function
+// --------- ---- ------- --------- --------
 
 enum definition_type
     { BRACKET,
       INDENTATION_MARK,
       NAMED_BRACKET };
 
-min::gen PARDEF::parser_execute_bracket_definition
-	( min::obj_vec_ptr & vp,
-          min::phrase_position_vec ppvec,
-	  PAR::parser parser )
+static min::gen bracketed_pass_command
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec )
 {
-    PARBRA::bracketed_pass pass =
-        (PARBRA::bracketed_pass) parser->pass_stack;
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) pass;
 
     min::uns32 size = min::size_of ( vp );
 
@@ -1949,7 +1956,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	      "too few quoted names in" );
 
     TAB::flags selectors;
-    min::gen sresult = PARDEF::scan_flags
+    min::gen sresult = COM::scan_flags
 	    ( vp, i, selectors,
 	      parser->selector_name_table, parser );
     if ( sresult == min::ERROR() )
@@ -1978,7 +1985,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	    {
 		i += 2;
 		min::gen result =
-		    PARDEF::scan_new_flags
+		    COM::scan_new_flags
 			( vp, i, new_selectors,
 	                  parser->selector_name_table,
 			  parser );
@@ -2016,7 +2023,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	      parser->block_level,
 	      ppvec->position,
 	      new_selectors, full_line,
-	      pass->bracket_table );
+	      bracketed_pass->bracket_table );
 
 	break;
     }
@@ -2035,7 +2042,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	    {
 		i += 2;
 		min::gen result =
-		    PARDEF::scan_new_flags
+		    COM::scan_new_flags
 			( vp, i, new_selectors,
 	                  parser->selector_name_table,
 			  parser );
@@ -2078,8 +2085,8 @@ min::gen PARDEF::parser_execute_bracket_definition
 	      parser->block_level,
 	      ppvec->position,
 	      new_selectors,
-	      pass->bracket_table,
-	      gluing ? pass->split_table :
+	      bracketed_pass->bracket_table,
+	      gluing ? bracketed_pass->split_table :
 		       (TAB::split_table)
 		       min::NULL_STUB );
 
@@ -2221,7 +2228,7 @@ min::gen PARDEF::parser_execute_bracket_definition
 	      selectors,
 	      parser->block_level,
 	      ppvec->position,
-	      pass->bracket_table );
+	      bracketed_pass->bracket_table );
 
 	break;
     }

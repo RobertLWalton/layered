@@ -1,6 +1,6 @@
-// Layers Language Parser Definition Test Data
+// Layers Language Parser Command Test Data
 //
-// File:	ll_parser_definition_test.in
+// File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
 // Date:	Thu Aug 30 23:11:48 EDT 2012
 //
@@ -44,6 +44,6 @@ parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
 parser test  <X Y Z (foo, bar)| ho ho |X Y>
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
 parser trace [+ foo]
-parser trace [+ parser definitions]
-parser trace [- parser definitions]
-parser trace [+ parser definitions]
+parser trace [+ parser commands]
+parser trace [- parser commands]
+parser trace [+ parser commands]

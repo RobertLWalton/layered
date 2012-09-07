@@ -1,8 +1,8 @@
 // Layers Language Parser Execute Definition Function
 //
-// File:	ll_parser_definition.cc
+// File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 03:45:31 EDT 2012
+// Date:	Fri Sep  7 07:31:24 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,11 +22,11 @@
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
-# include <ll_parser_definition.h>
+# include <ll_parser_command.h>
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
-# define PARDEF ll::parser::definition
+# define COM ll::parser::command
 
 static min::locatable_gen plus;
 static min::locatable_gen minus;
@@ -55,9 +55,9 @@ static void initialize ( void )
 	    ( min::new_str_gen ( "input" ) );
 	min::locatable_gen output
 	    ( min::new_str_gen ( "output" ) );
-	min::locatable_gen parser_definitions
+	min::locatable_gen parser_commands
 	    ( min::new_lab_gen
-	        ( "parser", "definitions" ) );
+	        ( "parser", "commands" ) );
 	min::locatable_gen bracketed_subexpressions
 	    ( min::new_lab_gen
 	        ( "bracketed", "subexpressions" ) );
@@ -70,7 +70,7 @@ static void initialize ( void )
 	TAB::push_name
 	    ( table, output );
 	TAB::push_name
-	    ( table, parser_definitions );
+	    ( table, parser_commands );
 	TAB::push_name
 	    ( table, bracketed_subexpressions );
 	TAB::push_name
@@ -86,8 +86,8 @@ static void initialize ( void )
 	CHECK_TRACE_FLAG
 	    ( TRACE_OUTPUT, output );
 	CHECK_TRACE_FLAG
-	    ( TRACE_PARSER_DEFINITIONS,
-	      parser_definitions );
+	    ( TRACE_PARSER_COMMANDS,
+	      parser_commands );
 	CHECK_TRACE_FLAG
 	    ( TRACE_BRACKETED_SUBEXPRESSIONS,
 	      bracketed_subexpressions );
@@ -102,7 +102,7 @@ static min::initializer initializer ( ::initialize );
 // Parser Definition Functions
 // ------ ---------- ---------
 
-min::gen PARDEF::scan_simple_label
+min::gen COM::scan_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::uns64 accepted_types )
 {
@@ -221,7 +221,7 @@ static int scan_flag
 
     min::uns32 ibegin = i;
     min::locatable_gen flag
-        ( PARDEF::scan_simple_label
+        ( COM::scan_simple_label
 	    ( vp, i,
 		( 1ull << LEXSTD::word_t )
 	      + ( 1ull << LEXSTD::number_t ) ) );
@@ -418,7 +418,7 @@ static min::gen scan_new_flags
     return min::SUCCESS();
 }
 
-min::gen PARDEF::scan_flags
+min::gen COM::scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::flags & flags,
 	  TAB::name_table name_table,
@@ -432,7 +432,7 @@ min::gen PARDEF::scan_flags
     return result;
 }
 
-min::gen PARDEF::scan_new_flags
+min::gen COM::scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::new_flags & new_flags,
 	  TAB::name_table name_table,
@@ -498,7 +498,7 @@ static min::gen execute_selector_definition
     min::uns32 i = 3;
     min::uns32 begini = i;
     min::locatable_gen name;
-    name = PARDEF::scan_simple_label
+    name = COM::scan_simple_label
 	( vp, i,
 	    ( 1ull << LEXSTD::word_t )
 	  + ( 1ull << LEXSTD::number_t ) );
@@ -613,7 +613,7 @@ static min::gen execute_trace
 {
     TAB::new_flags new_flags;
     min::uns32 i = 2;
-    min::gen result = PARDEF::scan_new_flags
+    min::gen result = COM::scan_new_flags
         ( vp, i, new_flags, PAR::trace_name_table,
 	  parser, true );
     if ( result == min::ERROR() )
@@ -640,7 +640,7 @@ static min::gen execute_begin
 {
     min::uns32 i = 2;
     min::locatable_gen name
-        ( PARDEF::scan_simple_label
+        ( COM::scan_simple_label
 	    ( vp, i, 
 	        ( 1ull << LEXSTD::word_t )
 	      + ( 1ull << LEXSTD::number_t ) ) );
@@ -685,7 +685,7 @@ static min::gen execute_end
 {
     min::uns32 i = 2;
     min::locatable_gen name
-        ( PARDEF::scan_simple_label
+        ( COM::scan_simple_label
 	    ( vp, i, 
 	        ( 1ull << LEXSTD::word_t )
 	      + ( 1ull << LEXSTD::number_t ) ) );
@@ -746,7 +746,7 @@ static min::gen execute_end
 // Execute Definition
 // ------- ----------
 
-min::gen PARDEF::parser_execute_definition
+min::gen COM::parser_execute_command
 	( min::obj_vec_ptr & vp,
 	  PAR::parser parser )
 {
@@ -759,7 +759,7 @@ min::gen PARDEF::parser_execute_definition
         min::position_of ( vp );
     assert ( ppvec != min::NULL_STUB );
 
-    min::locatable_gen result;
+    min::gen result = min::FAILURE();
     bool call_all_passes = false;
 
     if ( vp[1] == ::test )
@@ -790,10 +790,6 @@ min::gen PARDEF::parser_execute_definition
 	      vp[1] == PAR::end )
 	result = ::execute_end
 		    ( vp, ppvec, parser );
-    else
-	result =
-	    PARDEF::parser_execute_bracket_definition
-		( vp, ppvec, parser );
 
     // If call_all_passes, set result to the highest
     // priority result where the order is:
@@ -818,7 +814,7 @@ min::gen PARDEF::parser_execute_definition
 
     if ( result == min::SUCCESS()
          &&
-	 parser->trace & PAR::TRACE_PARSER_DEFINITIONS )
+	 parser->trace & PAR::TRACE_PARSER_COMMANDS )
 	min::print_phrase_lines
 	    ( parser->printer,
 	      ppvec->file, ppvec->position, 0 );

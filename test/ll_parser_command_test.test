@@ -225,5 +225,5 @@ parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
 ERROR: in line 46: unrecognized flag name:
 parser trace [+ foo]
                 ^^^
-parser trace [+ parser definitions]
-parser trace [+ parser definitions]
+parser trace [+ parser commands]
+parser trace [+ parser commands]

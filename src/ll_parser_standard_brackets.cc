@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:51:25 EDT 2012
+// Date:	Fri Sep  7 10:22:28 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,7 +22,7 @@
 # include <ll_parser_standard.h>
 # define PAR ll::parser
 # define TAB ll::parser::table
-# define PARBRA ll::parser::bracketed
+# define BRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
 
 // Standard Brackets
@@ -31,8 +31,8 @@
 void PARSTD::init_brackets
 	( min::ref<PAR::parser> parser )
 {
-    PARBRA::bracketed_pass bracketed_pass =
-        (PARBRA::bracketed_pass) parser->pass_stack;
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
     min::locatable_gen opening_parenthesis
         ( min::new_str_gen ( "(" ) );
     min::locatable_gen closing_parenthesis

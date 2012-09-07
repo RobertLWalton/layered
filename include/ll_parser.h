@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  5 04:06:02 EDT 2012
+// Date:	Fri Sep  7 05:51:51 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -624,8 +624,8 @@ enum {
         // Trace processing by the parser->output
 	// closure.
 
-    TRACE_PARSER_DEFINITIONS = ( 1 << 2 ),
-        // Print parser definitions that have no errors.
+    TRACE_PARSER_COMMANDS = ( 1 << 2 ),
+        // Print parser commands that have no errors.
 
     TRACE_BRACKETED_SUBEXPRESSIONS = ( 1 << 3 ),
         // Trace bracketed subexpressions.
@@ -703,7 +703,7 @@ struct parser_struct
 
     const ll::lexeme::scanner name_scanner;
         // Scanner used to scan name strings, e.g., by
-	// parser definitions.  Defaults to a scanner
+	// parser commands.  Defaults to a scanner
 	// with the same program and printer as the main
 	// parser scanner.
 

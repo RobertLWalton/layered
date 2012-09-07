@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_definition.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  2 07:23:59 EDT 2012
+// Date:	Fri Sep  7 03:45:31 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -738,6 +738,7 @@ static min::gen execute_end
     }
 
     -- parser->block_level;
+    TAB::pop_name ( parser->block_name_table );
 
     return result;
 }

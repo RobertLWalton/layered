@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Aug 13 08:46:32 EDT 2012
+# Date:		Fri Sep  7 10:24:05 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -36,7 +36,7 @@ PROGRAMS = ll_lexeme_basic_test \
 	   ll_parser_input_test \
 	   ll_parser_table_test \
 	   ll_parser_bracketed_test \
-	   ll_parser_definition_test \
+	   ll_parser_command_test \
 	   ll_parser_oper_test
 
 TESTS = ${PROGRAMS}
@@ -371,7 +371,7 @@ ll_parser.o:	\
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_bracketed.h \
-	../include/ll_parser_definition.h \
+	../include/ll_parser_command.h \
 	../include/ll_parser_standard.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
@@ -412,7 +412,7 @@ ll_parser_bracketed.o:	\
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_bracketed.h \
-	../include/ll_parser_definition.h \
+	../include/ll_parser_command.h \
 	../include/ll_parser_standard.h \
 	../include/ll_lexeme_standard.h \
 	../include/ll_lexeme.h \
@@ -462,18 +462,18 @@ ll_parser_standard_oper.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_standard_oper.cc
 
-ll_parser_definition.o:	\
+ll_parser_command.o:	\
 	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
 	../include/ll_parser_standard.h \
-	../include/ll_parser_definition.h \
-	../src/ll_parser_definition.cc \
+	../include/ll_parser_command.h \
+	../src/ll_parser_command.cc \
 	Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_parser_definition.cc
+	    -c ../src/ll_parser_command.cc
 
 ll_parser_input_test:		\
 		ll_parser_input_test.cc \
@@ -482,7 +482,7 @@ ll_parser_input_test:		\
 		ll_lexeme_standard.o \
 		ll_parser.o \
 		ll_parser_bracketed.o \
-		ll_parser_definition.o \
+		ll_parser_command.o \
 		ll_parser_standard_input.o \
 		ll_parser_table.o \
 		min.o \
@@ -497,7 +497,7 @@ ll_parser_input_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
@@ -519,7 +519,7 @@ ll_parser_table_test:		\
 		ll_lexeme_standard.o \
 		ll_parser.o \
 		ll_parser_bracketed.o \
-		ll_parser_definition.o \
+		ll_parser_command.o \
 		ll_parser_standard_input.o \
 		ll_parser_table.o \
 		min.o \
@@ -534,7 +534,7 @@ ll_parser_table_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_table.o \
 	    min.o \
@@ -554,7 +554,7 @@ ll_parser_bracketed_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \
@@ -570,7 +570,7 @@ ll_parser_bracketed_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \
@@ -586,14 +586,14 @@ ll_parser_bracketed_test.out:	\
 	${RUNENV} $* < ll_parser_standard_test.in \
 	             > $*.out
 
-ll_parser_definition_test:		\
-	    ll_parser_definition_test.cc \
+ll_parser_command_test:		\
+	    ll_parser_command_test.cc \
 	    ll_lexeme.o \
 	    ll_lexeme_ndl.o \
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \
@@ -609,21 +609,21 @@ ll_parser_definition_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
 	    ll_parser_table.o \
 	    min.o \
 	    min_os.o \
 	    min_acc.o \
-	    ll_parser_definition_test.cc
+	    ll_parser_command_test.cc
 
-ll_parser_definition_test.out:	\
-	    ll_parser_definition_test \
-	    ll_parser_definition_test.in
+ll_parser_command_test.out:	\
+	    ll_parser_command_test \
+	    ll_parser_command_test.in
 	rm -f $*.out
 	${RUNENV} \
-	    ll_parser_definition_test < $*.in > $*.out
+	    ll_parser_command_test < $*.in > $*.out
 
 ll_parser_oper_test:		\
 	    ll_parser_oper_test.cc \
@@ -632,7 +632,7 @@ ll_parser_oper_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_oper.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \
@@ -650,7 +650,7 @@ ll_parser_oper_test:		\
 	    ll_lexeme_standard.o \
 	    ll_parser.o \
 	    ll_parser_bracketed.o \
-	    ll_parser_definition.o \
+	    ll_parser_command.o \
 	    ll_parser_oper.o \
 	    ll_parser_standard_input.o \
 	    ll_parser_standard_brackets.o \

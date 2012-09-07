@@ -1,8 +1,8 @@
-// Layers Language Parser Definitions Test
+// Layers Language Parser Command Test
 //
-// File:	ll_parser_definition_test.cc
+// File:	ll_parser_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  7 06:06:41 EDT 2012
+// Date:	Fri Sep  7 08:23:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,6 @@ int main ( int argc, const char * argv[] )
 	    min::GRAPHIC_VSPACE_FLAG
 	  + min::GRAPHIC_NSPACE_FLAG );
     PAR::default_parser->trace |=
-        PAR::TRACE_PARSER_DEFINITIONS;
+        PAR::TRACE_PARSER_COMMANDS;
     PAR::parse();
 }

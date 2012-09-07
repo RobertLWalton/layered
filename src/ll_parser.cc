@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  5 04:04:44 EDT 2012
+// Date:	Fri Sep  7 05:54:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,14 +23,14 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser.h>
 # include <ll_parser_bracketed.h>
-# include <ll_parser_definition.h>
+# include <ll_parser_command.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
-# define PARBRA ll::parser::bracketed
-# define PARDEF ll::parser::definition
+# define BRA ll::parser::bracketed
+# define COM ll::parser::command
 
 min::locatable_gen PAR::dot_position;
 min::locatable_gen PAR::dot_initiator;
@@ -369,7 +369,7 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	TAB::init_name_table
 	    ( block_name_table_ref(parser) );
 
-	PARBRA::place ( parser );
+	BRA::place ( parser );
     }
 }
 
@@ -624,7 +624,7 @@ void PAR::parse ( PAR::parser parser )
 	    current->previous;
 
 	bool separator_found =
-	    PARBRA::parse_bracketed_subexpression
+	    BRA::parse_bracketed_subexpression
 		( parser, parser->selectors,
 		  current,
 		  0, TAB::top_level_indentation_mark,
@@ -660,7 +660,7 @@ void PAR::parse ( PAR::parser parser )
 	    }
 
 	    min::gen g = first->value;
-	    bool maybe_parser_definition =
+	    bool maybe_parser_command =
 	        ( g == PAR::parser_lexeme );
 
 	    PAR::attr attributes[1] =
@@ -681,13 +681,13 @@ void PAR::parse ( PAR::parser parser )
 	    if (    parser->error_count
 	         != error_count_save )
 		result = min::ERROR();
-	    else if ( maybe_parser_definition )
+	    else if ( maybe_parser_command )
 	    {
 	        min::obj_vec_ptr vp
 		    ( current->previous->value );
 		if ( vp != NULL_STUB )
 		    result =
-		      PARDEF::parser_execute_definition
+		      COM::parser_execute_command
 			( vp, parser );
 	    }
 

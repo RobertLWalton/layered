@@ -1,8 +1,8 @@
-// Layers Language Parser Definitions
+// Layers Language Parser Commands
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 05:47:47 EDT 2012
+// Date:	Fri Sep  7 20:27:47 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability

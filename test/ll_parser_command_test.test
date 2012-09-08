@@ -227,3 +227,33 @@ parser trace [+ foo]
                 ^^^
 parser trace [+ parser commands]
 parser trace [+ parser commands]
+parser begin block 1
+parser define bracket "<*" ... "*>" [code]
+======= TEST: parser test <*hi there A*>
+------- line 52:
+parser test <* hi there A *>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 52:
+parser test <* hi there A *>
+            ^^^^^^^^^^^^^^^^
+======= END TEST
+ERROR: in line 53: unrecognized block name:
+parser end block x
+           ^^^^^^^
+======= TEST: parser test <*hi there B*>
+------- line 54:
+parser test <* hi there B *>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 54:
+parser test <* hi there B *>
+            ^^^^^^^^^^^^^^^^
+======= END TEST
+parser end block 1
+======= TEST: parser test <* hi there C *>
+------- line 56:
+parser test <* hi there C *>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+ERROR: in line 57: unrecognized block name:
+parser end block 1
+           ^^^^^^^

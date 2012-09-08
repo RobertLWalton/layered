@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 30 23:11:48 EDT 2012
+// Date:	Fri Sep  7 20:37:13 EDT 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -47,3 +47,11 @@ parser trace [+ foo]
 parser trace [+ parser commands]
 parser trace [- parser commands]
 parser trace [+ parser commands]
+parser begin block 1
+parser define bracket "<*" ... "*>" [code]
+parser test <* hi there A *>
+parser end block x
+parser test <* hi there B *>
+parser end block 1
+parser test <* hi there C *>
+parser end block 1

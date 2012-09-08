@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 05:54:50 EDT 2012
+// Date:	Fri Sep  7 20:35:15 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,6 +96,8 @@ static void initialize ( void )
     PAR::error_operand =
         min::new_str_gen ( "ERROR'OPERAND" );
 
+    PAR::begin = min::new_str_gen ( "begin" );
+    PAR::end = min::new_str_gen ( "end" );
     PAR::define = min::new_str_gen ( "define" );
     PAR::undefine = min::new_str_gen ( "undefine" );
     PAR::print = min::new_str_gen ( "print" );

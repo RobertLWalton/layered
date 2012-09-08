@@ -1,8 +1,8 @@
-// Layers Language Parser Execute Definition Function
+// Layers Language Parser Execute Command Function
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 07:31:24 EDT 2012
+// Date:	Fri Sep  7 20:28:41 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,12 +11,12 @@
 // Table of Contents:
 //
 //	Usage and Setup
-//	Parser Definition Functions
+//	Parser Command Functions
 //	Execute Selector Definition
 //	Execute Test
 //	Execute Trace
 //	Execute Begin/End
-//	Execute Definition
+//	Execute Command
 
 // Usage and Setup
 // ----- --- -----
@@ -99,8 +99,8 @@ static void initialize ( void )
 }
 static min::initializer initializer ( ::initialize );
 
-// Parser Definition Functions
-// ------ ---------- ---------
+// Parser Command Functions
+// ------ ------- ---------
 
 min::gen COM::scan_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
@@ -743,8 +743,8 @@ static min::gen execute_end
     return result;
 }
 
-// Execute Definition
-// ------- ----------
+// Execute Command
+// ------- -------
 
 min::gen COM::parser_execute_command
 	( min::obj_vec_ptr & vp,
@@ -771,23 +771,17 @@ min::gen COM::parser_execute_command
 	        || vp[2] == PAR::selectors ) )
 	result = ::execute_selector_definition
 		    ( vp, ppvec, parser );
-    else if ( size >= 2
-              &&
-	      vp[1] == ::trace
+    else if ( vp[1] == ::trace
 	      &&
 	      ( size == 2
 	        ||
 	        min::is_obj ( vp[2] ) ) )
 	result = ::execute_trace
 		    ( vp, ppvec, parser );
-    else if ( size >= 2
-              &&
-	      vp[1] == PAR::begin )
+    else if ( vp[1] == PAR::begin )
 	result = ::execute_begin
 		    ( vp, ppvec, parser );
-    else if ( size >= 2
-              &&
-	      vp[1] == PAR::end )
+    else if ( vp[1] == PAR::end )
 	result = ::execute_end
 		    ( vp, ppvec, parser );
 

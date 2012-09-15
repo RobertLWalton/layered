@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 20:28:41 EDT 2012
+// Date:	Sat Sep 15 07:12:55 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,9 +35,6 @@ static min::locatable_gen exclusive_or;
 static min::locatable_gen test;
 static min::locatable_gen trace;
 
-min::locatable_var<TAB::name_table>
-    PAR::trace_name_table;
-
 static void initialize ( void )
 {
     ::plus = min::new_str_gen ( "+" );
@@ -46,56 +43,6 @@ static void initialize ( void )
 
     ::test = min::new_str_gen ( "test" );
     ::trace = min::new_str_gen ( "trace" );
-
-    {
-	TAB::init_name_table ( PAR::trace_name_table );
-        TAB::name_table table = PAR::trace_name_table;
-
-	min::locatable_gen input
-	    ( min::new_str_gen ( "input" ) );
-	min::locatable_gen output
-	    ( min::new_str_gen ( "output" ) );
-	min::locatable_gen parser_commands
-	    ( min::new_lab_gen
-	        ( "parser", "commands" ) );
-	min::locatable_gen bracketed_subexpressions
-	    ( min::new_lab_gen
-	        ( "bracketed", "subexpressions" ) );
-	min::locatable_gen operator_subexpressions
-	    ( min::new_lab_gen
-	        ( "operator", "subexpressions" ) );
-
-	TAB::push_name
-	    ( table, input );
-	TAB::push_name
-	    ( table, output );
-	TAB::push_name
-	    ( table, parser_commands );
-	TAB::push_name
-	    ( table, bracketed_subexpressions );
-	TAB::push_name
-	    ( table, operator_subexpressions );
-
-#	define CHECK_TRACE_FLAG(flag,name) \
-        MIN_ASSERT \
-	    (    PAR::flag \
-	      ==    (min::uns64) 1 \
-	         << TAB::get_index ( table, name ) )
-	CHECK_TRACE_FLAG
-	    ( TRACE_INPUT, input );
-	CHECK_TRACE_FLAG
-	    ( TRACE_OUTPUT, output );
-	CHECK_TRACE_FLAG
-	    ( TRACE_PARSER_COMMANDS,
-	      parser_commands );
-	CHECK_TRACE_FLAG
-	    ( TRACE_BRACKETED_SUBEXPRESSIONS,
-	      bracketed_subexpressions );
-	CHECK_TRACE_FLAG
-	    ( TRACE_OPERATOR_SUBEXPRESSIONS,
-	      operator_subexpressions );
-#	undef CHECK_TRACE_FLAG
-    }
 }
 static min::initializer initializer ( ::initialize );
 
@@ -526,9 +473,8 @@ static min::gen execute_selector_definition
 		  " in" );
 	}
 
-	min::push
-	    ( (TAB::name_table_insptr)
-	      parser->selector_name_table ) = name;
+	TAB::push_name
+	    ( parser->selector_name_table, name );
     }
 
     if ( vp[2] != PAR::selector )
@@ -614,7 +560,8 @@ static min::gen execute_trace
     TAB::new_flags new_flags;
     min::uns32 i = 2;
     min::gen result = COM::scan_new_flags
-        ( vp, i, new_flags, PAR::trace_name_table,
+        ( vp, i, new_flags,
+	  parser->trace_flag_name_table,
 	  parser, true );
     if ( result == min::ERROR() )
         return min::ERROR();
@@ -624,9 +571,9 @@ static min::gen execute_trace
 	      "expected bracketed flag (modifier) list"
 	      " after" );
 
-    parser->trace |= new_flags.or_flags;
-    parser->trace &= ~ new_flags.not_flags;
-    parser->trace ^= new_flags.xor_flags;
+    parser->trace_flags |= new_flags.or_flags;
+    parser->trace_flags &= ~ new_flags.not_flags;
+    parser->trace_flags ^= new_flags.xor_flags;
     return min::SUCCESS();
 }
 
@@ -808,7 +755,8 @@ min::gen COM::parser_execute_command
 
     if ( result == min::SUCCESS()
          &&
-	 parser->trace & PAR::TRACE_PARSER_COMMANDS )
+	 (   parser->trace_flags
+	   & parser->trace_commands ) )
 	min::print_phrase_lines
 	    ( parser->printer,
 	      ppvec->file, ppvec->position, 0 );

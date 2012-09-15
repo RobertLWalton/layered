@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 07:55:50 EDT 2012
+// Date:	Sat Sep 15 06:01:03 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,7 @@ static min::locatable_gen dotdotdot;
 static min::locatable_gen parsing;
 static min::locatable_gen full;
 static min::locatable_gen line;
+static min::locatable_gen bracketed_subexpression;
 
 static void initialize ( void )
 {
@@ -52,6 +53,9 @@ static void initialize ( void )
     ::parsing = min::new_str_gen ( "parsing" );
     ::full = min::new_str_gen ( "full" );
     ::line = min::new_str_gen ( "line" );
+    ::bracketed_subexpression =
+        min::new_lab_gen
+	    ( "bracketed", "subexpression" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -155,6 +159,14 @@ BRA::bracketed_pass BRA::place
     split_table_ref(bracketed_pass) =
 	TAB::create_split_table();
     min::push ( bracketed_pass->split_table, 256 );
+
+    int index = TAB::find_name
+        ( parser->trace_flag_name_table,
+	  ::bracketed_subexpression );
+    assert
+      ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
+    bracketed_pass->trace_subexpressions =
+        1ull << index;
 
     PAR::place
         ( parser, (PAR::pass) bracketed_pass,
@@ -505,8 +517,8 @@ bool BRA::parse_bracketed_subexpression
 	// sequence in the bracket table.
 
     bool trace =
-        (   parser->trace
-          & PAR::TRACE_BRACKETED_SUBEXPRESSIONS );
+        (   parser->trace_flags
+	  & pass->trace_subexpressions );
 
     while ( true )
     {

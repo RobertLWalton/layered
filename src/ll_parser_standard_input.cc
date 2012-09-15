@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 14:33:14 EDT 2012
+// Date:	Sat Sep 15 07:14:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -118,7 +118,8 @@ static min::uns32 input_add_tokens
         scanner->input_buffer;
     LEX::translation_buffer translation_buffer =
         scanner->translation_buffer;
-    bool trace = ( parser->trace & PAR::TRACE_INPUT );
+    bool trace = (   parser->trace_flags
+                   & parser->trace_input );
 
     min::uns32 first, next, count = 0;
     min::locatable_var<PAR::token> token;

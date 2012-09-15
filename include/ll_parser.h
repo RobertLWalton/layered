@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 05:51:51 EDT 2012
+// Date:	Fri Sep 14 08:45:48 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -361,7 +361,7 @@ struct input_struct
     //
     // Error messages are sent to parser->printer.
     // Tracing to parser->printer is enabled by
-    // `parcer->trace' flags.
+    // parser->trace_flags.
     //
     uns32 (*add_tokens)
 	    ( ll::parser::parser parser,
@@ -415,7 +415,7 @@ struct output_struct
     //
     // Error messages are sent to parser->printer.
     // Tracing to parser->printer is enabled by
-    // `parcer->trace' flags.
+    // parser->trace_flags.
     //
     void (*remove_tokens)
 	( ll::parser::parser parser,
@@ -583,11 +583,6 @@ struct pass_struct
     ll::parser::pass_function::end_block end_block;
     ll::parser::pass_function::undefine undefine;
 
-    ll::parser::table::flags trace;
-        // Trace flags that output to parser->printer a
-	// description of each selected change made in
-	// the parser token list.
-
     ll::parser::table::flags selectors;
         // Pass is run only if its selectors match those
 	// of the bracketed subexpression.
@@ -611,32 +606,6 @@ void place
 // ------
 
 namespace ll { namespace parser {
-
-// Parser Trace Flags:
-//
-enum {
-
-    TRACE_INPUT		= ( 1 << 0 ),
-        // Trace each token input by the parser->input
-	// closure (e.g. from the lexical scanner).
-
-    TRACE_OUTPUT	= ( 1 << 1 ),
-        // Trace processing by the parser->output
-	// closure.
-
-    TRACE_PARSER_COMMANDS = ( 1 << 2 ),
-        // Print parser commands that have no errors.
-
-    TRACE_BRACKETED_SUBEXPRESSIONS = ( 1 << 3 ),
-        // Trace bracketed subexpressions.
-
-    TRACE_OPERATOR_SUBEXPRESSIONS = ( 1 << 4 )
-        // Trace operator subexpressions.
-};
-
-extern min::locatable_var
-	<ll::parser::table::name_table>
-    trace_name_table;
 
 struct parser_struct
 {
@@ -665,9 +634,28 @@ struct parser_struct
 	// passes.  Set to NULL_STUB when parser is
 	// created.
 
-    ll::parser::table::flags trace;
+    ll::parser::table::flags trace_flags;
         // Parser trace flags: see above.  Tracing is
 	// done to parser->printer.
+
+    const ll::parser::table::name_table
+    	    trace_flag_name_table;
+        // Trace flag names.
+
+    ll::parser::table::flags trace_input;
+        // Trace flag with name `parser input' that
+	// traces each token input by the parser->input
+	// closure (e.g. from the lexical scanner).  
+
+    ll::parser::table::flags trace_output;
+        // Trace flag with the name `parser output' that
+	// traces processing by the parser->output
+	// closure.
+
+    ll::parser::table::flags trace_commands;
+        // Trace flag with the name `parser commands'
+	// that traces all parser commands that have no
+	// errors.
 
     const ll::lexeme::scanner scanner;
         // Scanner for those parser `input' closures
@@ -762,6 +750,9 @@ MIN_REF ( ll::parser::input, input,
 MIN_REF ( ll::parser::output, output,
           ll::parser::parser )
 MIN_REF ( ll::parser::pass, pass_stack,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::name_table,
+		trace_flag_name_table,
           ll::parser::parser )
 MIN_REF ( ll::lexeme::scanner, scanner,
           ll::parser::parser )

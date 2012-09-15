@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:54:34 EDT 2012
+// Date:	Sat Sep 15 07:17:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,7 +15,7 @@
 # include <cassert>
 # define PAR ll::parser
 # define TAB ll::parser::table
-# define PARBRA ll::parser::bracketed
+# define BRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
 using std::cout;
 
@@ -28,8 +28,13 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cin );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
-    PAR::default_parser->trace =
-        PAR::TRACE_BRACKETED_SUBEXPRESSIONS;
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass)
+	PAR::default_parser->pass_stack;
+    PAR::default_parser->trace_flags =
+        bracketed_pass->trace_subexpressions
+	+
+	PAR::default_parser->trace_output;
     PAR::init_print_flags
         ( PAR::default_parser,
 	    min::GRAPHIC_VSPACE_FLAG
@@ -44,10 +49,6 @@ int main ( int argc, const char * argv[] )
         ( min::new_str_gen ( "->" ) );
 
     min::phrase_position pp; // TBD: set to top level.
-
-    PARBRA::bracketed_pass bracketed_pass =
-	(PARBRA::bracketed_pass)
-	PAR::default_parser->pass_stack;
 
     TAB::push_brackets
         ( openplus,

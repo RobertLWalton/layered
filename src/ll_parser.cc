@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 20:35:15 EDT 2012
+// Date:	Sat Sep 15 08:45:40 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,6 +60,10 @@ min::locatable_gen PAR::selector;
 min::locatable_gen PAR::selectors;
 min::locatable_gen PAR::with;
 
+static min::locatable_gen parser_input;
+static min::locatable_gen parser_output;
+static min::locatable_gen parser_commands;
+
 static void initialize ( void )
 {
     PAR::dot_position
@@ -104,6 +108,13 @@ static void initialize ( void )
     PAR::selector = min::new_str_gen ( "selector" );
     PAR::selectors = min::new_str_gen ( "selectors" );
     PAR::with = min::new_str_gen ( "with" );
+
+    ::parser_input =
+        min::new_lab_gen ( "parser", "input" );
+    ::parser_output =
+        min::new_lab_gen ( "parser", "output" );
+    ::parser_commands =
+        min::new_lab_gen ( "parser", "commands" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -344,9 +355,14 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::input ),
     min::DISP ( & PAR::parser_struct::output ),
     min::DISP ( & PAR::parser_struct::pass_stack ),
+    min::DISP ( & PAR::parser_struct
+                     ::trace_flag_name_table ),
     min::DISP ( & PAR::parser_struct::scanner ),
     min::DISP ( & PAR::parser_struct::input_file ),
     min::DISP ( & PAR::parser_struct::printer ),
+    min::DISP ( & PAR::parser_struct::name_scanner ),
+    min::DISP ( & PAR::parser_struct
+                     ::block_name_table ),
     min::DISP ( & PAR::parser_struct
                      ::selector_name_table ),
     min::DISP ( & PAR::parser_struct::first ),
@@ -365,6 +381,21 @@ void PAR::init ( min::ref<PAR::parser> parser )
     {
         parser = ::parser_type.new_stub();
 	parser->max_error_count = 100;
+
+	TAB::init_name_table
+	    ( trace_flag_name_table_ref(parser) );
+	parser->trace_input =
+	    1ull << TAB::push_name
+	        ( parser->trace_flag_name_table,
+		  ::parser_input );
+	parser->trace_output =
+	    1ull << TAB::push_name
+	        ( parser->trace_flag_name_table,
+		  ::parser_output );
+	parser->trace_commands =
+	    1ull << TAB::push_name
+	        ( parser->trace_flag_name_table,
+		  ::parser_commands );
 
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
@@ -566,8 +597,11 @@ void PAR::parse ( PAR::parser parser )
 	}
 
         bool trace =
-	    (   parser->trace
-	      & PAR::TRACE_BRACKETED_SUBEXPRESSIONS );
+	    ( ( parser->output == NULL_STUB )
+	      &&
+	         (   parser->trace_flags
+		   & parser->trace_output )
+	      != 0 );
 
         // If end of file terminate loop.
 	//

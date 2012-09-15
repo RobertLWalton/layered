@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 16, 2012
+September 15, 2012
  
 \end{center}
 
@@ -1750,19 +1750,19 @@ is specified on \pagref{PARSER-COMMANDS}.
     $|$ & {\em parser-operator-command} \\
     \end{tabular}
 \label{PARSER-COMMAND}
-\\[2ex]
+\\[1.5ex]
 \emkey{simple-name-component} ::= {\em word} $|$ {\em number}
 \\[0.5ex]
 \emkey{simple-name} ::= {\em simple-name-component}
                         {\em simple-name-component}\,$^\star$
-\\[2ex]
+\\[1.5ex]
 \emkey{quoted-name-component} ::=
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
 \\[0.5ex]
 \emkey{quoted-name} ::=
     {\tt "}{\em quoted-name-component}
            {\em quoted-name-component}\,$^\star${\tt "}
-\\[2ex]
+\\[1.5ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.5ex]
 \emkey{parser-flag-list}
@@ -1777,7 +1777,7 @@ is specified on \pagref{PARSER-COMMANDS}.
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-flag-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
-\\[2ex]
+\\[1.5ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser begin}{begin!parser block} {\em block-name} \\
@@ -1787,7 +1787,7 @@ is specified on \pagref{PARSER-COMMANDS}.
 \label{PARSER-BLOCK-COMMAND}
 \\[0.5ex]
 \emkey{block-name} ::= {\em simple-name}
-\\[2ex]
+\\[1.5ex]
 \emkey{parser-test-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-list} \\
@@ -1798,15 +1798,16 @@ is specified on \pagref{PARSER-COMMANDS}.
 \label{PARSER-TEST-COMMAND}
 \\[0.5ex]
 \emkey{parser-trace-flag} \begin{tabular}[t]{@{}rl@{}}
-                          ::= & \ttikey{input}{parser trace flag}
-			        $|$ \ttikey{output}{parser trace flag}
-			        $|$ \ttikey{definitions}{parser trace flag} \\
+                          ::= & \ttikey{parser input}{parser trace flag}
+			  $|$ \ttikey{parser output}{parser trace flag} \\
+			  $|$ & \ttikey{parser commands}%
+				       {parser trace flag} \\
 			  $|$ & \ttikey{bracketed subexpressions}%
 			               {parser trace flag} \\
 			  $|$ & \ttikey{operator subexpressions}%
 			                   {parser trace flag} \\
 			  \end{tabular}
-\\[2ex]
+\\[1.5ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
@@ -1817,7 +1818,7 @@ is specified on \pagref{PARSER-COMMANDS}.
 \emkey{selector} ::= {\em parser-flag}
 \\[0.5ex]
 \emkey{selectors} ::= {\em parser-flag-list}
-\\[2ex]
+\\[1.5ex]
 \emkey{parser-undefine-command}
     ::= {\tt parser undefine} {\em quoted-name} {\em selectors}
 

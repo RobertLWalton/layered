@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 07:08:04 EDT 2012
+// Date:	Sat Sep 15 07:08:19 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,17 +104,33 @@ inline int get_index
 
 // Push into a flag name table (overcoming the fact
 // that its readonly).  Name argument must be protected
-// from garbage collection.
+// from garbage collection.  Returns index of name.
 //
-inline void push_name
+inline int push_name
 	( ll::parser::table::name_table table,
 	  min::gen name )
 {
+    int result = table->length;
     min::push
         ( (ll::parser::table::name_table_insptr)
 	  table ) = name;
+    return result;
 }
+
+// Same as get_index if name is already in table, or
+// push_name if name is not already in table.
+// Returns index of name.
 //
+inline int find_name
+	( ll::parser::table::name_table table,
+	  min::gen name )
+{
+    int result = get_index ( table, name );
+    if ( result == -1 )
+        result = push_name ( table, name );
+    return result;
+}
+
 // Pop a flag name table (overcoming the fact that its
 // readonly).
 //

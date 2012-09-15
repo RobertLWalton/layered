@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep  6 18:01:07 EDT 2012
+// Date:	Sat Sep 15 06:46:46 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,11 +28,15 @@
 
 min::locatable_gen OP::dollar;
 min::locatable_gen OP::AND;
+static min::locatable_gen operator_subexpression;
 
 static void initialize ( void )
 {
     OP::dollar = min::new_str_gen ( "$" );
     OP::AND = min::new_str_gen ( "AND" );
+    ::operator_subexpression =
+        min::new_lab_gen
+	    ( "operator", "subexpression" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -166,6 +170,15 @@ OP::oper_pass OP::place
     oper_pass->reset = ::oper_pass_reset;
     oper_pass->end_block = ::oper_pass_end_block;
 
+    int index = TAB::find_name
+        ( parser->trace_flag_name_table,
+	  ::operator_subexpression );
+    assert
+      ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
+    
+    oper_pass->trace_subexpressions =
+        1ull << index;
+
     PAR::place
         ( parser, (PAR::pass) oper_pass, next );
     return oper_pass;
@@ -199,8 +212,8 @@ static void oper_parse ( PAR::parser parser,
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
     bool trace =
-        (   parser->trace
-          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
+        (   parser->trace_flags
+          & oper_pass->trace_subexpressions );
 
     // We add to the stack but leave alone what is
     // already in the stack so this function can be
@@ -566,6 +579,8 @@ static void separator_reformatter
 {
     MIN_ASSERT ( first != next );
 
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
     min::phrase_position position =
 	{ first->position.begin,
           next->previous->position.end };
@@ -656,8 +671,8 @@ static void separator_reformatter
         ( PAR::dot_separator, separator );
 
     bool trace =
-        (   parser->trace
-          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
+        (   parser->trace_flags
+          & oper_pass->trace_subexpressions );
     PAR::compact
         ( parser, pass->next, selectors,
 	  PAR::BRACKETABLE, trace,
@@ -677,9 +692,11 @@ static void right_associative_reformatter
 {
     MIN_ASSERT ( first != next );
 
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
     bool trace =
-        (   parser->trace
-          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
+        (   parser->trace_flags
+          & oper_pass->trace_subexpressions );
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -740,8 +757,8 @@ static void compare_reformatter
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
     bool trace =
-        (   parser->trace
-          & PAR::TRACE_OPERATOR_SUBEXPRESSIONS );
+        (   parser->trace_flags
+          & oper_pass->trace_subexpressions );
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:57:25 EDT 2012
+// Date:	Sat Sep 15 08:44:43 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,10 @@ struct bracketed_pass_struct
 	// be set to - indent_offset and indentation
 	// check computations are signed, but is
 	// always >= 0.  Defaults to 2.
+
+    ll::parser::table::flags trace_subexpressions;
+        // Trace flag named `bracketed subexpressions'
+	// that traces bracketed subexpressions.
 
 };
 

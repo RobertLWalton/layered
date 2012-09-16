@@ -1,22 +1,22 @@
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_separator_type
 BRACKETED EXPRESSION:
-    {| This is a line; .terminator = ;; .position = {| |} |}
     This is a line;
+    {| This is a line; .terminator = ;; .position = {| |} |}
     line 11:
 This is a line;
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| This is a line containing a
-                         {| quoted␣string; .initiator = " |} .;
-                         .terminator = ␤; .position = {| |} |}
+BRACKETED EXPRESSION:
     This is a line containing a "quoted␣string" .
+    {| This is a line containing a {| quoted␣string; .initiator = " |}
+       .; .terminator = ␤; .position = {| |} |}
     line 12:
 This is a line containing a "quoted string".
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| This is a line containing a large number
-                         12345678901234567890 .; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     This is a line containing a large number 12345678901234567890 .
+    {| This is a line containing a large number 12345678901234567890 .;
+       .terminator = ␤; .position = {| |} |}
     lines 13-14:
 This is a line containing a large number
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -26,18 +26,17 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| hi there; .position = {| |}; .terminator = );
-                         .initiator = ( |}
+BRACKETED EXPRESSION:
     (hi there)
+    {| hi there; .position = {| |}; .terminator = ); .initiator = ( |}
     line 16:
      ( hi there ).
      ^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| This is a line containing a parenthesized
-                         subexpression
-                         {| hi there; .position = {| |};
-                            .terminator = ); .initiator = ( |} .;
-                         .terminator = ␤; .position = {| |} |}
+BRACKETED EXPRESSION:
     This is a line containing a parenthesized subexpression (hi there) .
+    {| This is a line containing a parenthesized subexpression
+       {| hi there; .position = {| |}; .terminator = );
+          .initiator = ( |} .; .terminator = ␤; .position = {| |} |}
     lines 15-16:
 This is a line containing a parenthesized subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -51,19 +50,19 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| p q; .position = {| |}; .terminator = };
-                         .initiator = { |}
+BRACKETED EXPRESSION:
     {p q}
+    {| p q; .position = {| |}; .terminator = }; .initiator = { |}
     line 18:
      (x + `y z {p q}' - [ g h ]).
                ^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| y z
-                         {| p q; .position = {| |}; .terminator = };
-                            .initiator = { |}; .position = {| |};
-                         .terminator = '; .initiator = ` |}
+BRACKETED EXPRESSION:
     `y z {p q}'
+    {| y z
+       {| p q; .position = {| |}; .terminator = }; .initiator = { |};
+       .position = {| |}; .terminator = '; .initiator = ` |}
     line 18:
      (x + `y z {p q}' - [ g h ]).
           ^^^^^^^^^^^
@@ -71,38 +70,36 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| g h; .position = {| |}; .terminator = ];
-                         .initiator = [ |}
+BRACKETED EXPRESSION:
     [g h]
+    {| g h; .position = {| |}; .terminator = ]; .initiator = [ |}
     line 18:
      (x + `y z {p q}' - [ g h ]).
                         ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| x +
-                         {| y z
-                            {| p q; .position = {| |}; .terminator = };
-                               .initiator = { |}; .position = {| |};
-                            .terminator = '; .initiator = ` |} -
-                         {| g h; .position = {| |}; .terminator = ];
-                            .initiator = [ |}; .position = {| |};
-                         .terminator = ); .initiator = ( |}
+BRACKETED EXPRESSION:
     (x + `y z {p q}' - [g h])
+    {| x +
+       {| y z
+          {| p q; .position = {| |}; .terminator = }; .initiator = { |};
+          .position = {| |}; .terminator = '; .initiator = ` |} -
+       {| g h; .position = {| |}; .terminator = ]; .initiator = [ |};
+       .position = {| |}; .terminator = ); .initiator = ( |}
     line 18:
      (x + `y z {p q}' - [ g h ]).
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| This line contains subsubexpressions
-                         {| x +
-                            {| y z
-                               {| p q; .position = {| |};
-                                  .terminator = }; .initiator = { |};
-                               .position = {| |}; .terminator = ';
-                               .initiator = ` |} -
-                            {| g h; .position = {| |}; .terminator = ];
-                               .initiator = [ |}; .position = {| |};
-                            .terminator = ); .initiator = ( |} .;
-                         .terminator = ␤; .position = {| |} |}
+BRACKETED EXPRESSION:
     This line contains subsubexpressions (x + `y z {p q}' - [g h]) .
+    {| This line contains subsubexpressions
+       {| x +
+          {| y z
+             {| p q; .position = {| |}; .terminator = };
+                .initiator = { |}; .position = {| |}; .terminator = ';
+             .initiator = ` |} -
+          {| g h; .position = {| |}; .terminator = ]; .initiator = [ |};
+          .position = {| |}; .terminator = ); .initiator = ( |} .;
+       .terminator = ␤; .position = {| |} |}
     lines 17-18:
 This line contains subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -117,27 +114,27 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
 ERROR: missing closing bracket "}" inserted before ")"; line 20:
      (x + { y z )
                 ^
-BRACKETED EXPRESSION: {| y z; .position = {| |}; .terminator = };
-                         .initiator = { |}
+BRACKETED EXPRESSION:
     {y z}
+    {| y z; .position = {| |}; .terminator = }; .initiator = { |}
     line 20:
      (x + { y z )
           ^^^^^
-BRACKETED EXPRESSION: {| x +
-                         {| y z; .position = {| |}; .terminator = };
-                            .initiator = { |}; .position = {| |};
-                         .terminator = ); .initiator = ( |}
+BRACKETED EXPRESSION:
     (x + {y z})
+    {| x +
+       {| y z; .position = {| |}; .terminator = }; .initiator = { |};
+       .position = {| |}; .terminator = ); .initiator = ( |}
     line 20:
      (x + { y z )
      ^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| This line contains a missing closing bracket
-                         {| x +
-                            {| y z; .position = {| |}; .terminator = };
-                               .initiator = { |}; .position = {| |};
-                            .terminator = ); .initiator = ( |};
-                         .terminator = ␤; .position = {| |} |}
+BRACKETED EXPRESSION:
     This line contains a missing closing bracket (x + {y z})
+    {| This line contains a missing closing bracket
+       {| x +
+          {| y z; .position = {| |}; .terminator = }; .initiator = { |};
+          .position = {| |}; .terminator = ); .initiator = ( |};
+       .terminator = ␤; .position = {| |} |}
     lines 19-20:
 This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -151,17 +148,17 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
 ERROR: missing closing bracket ")" inserted before end of line; line 22:
      (x + y }
              ^
-BRACKETED EXPRESSION: {| x + y }; .position = {| |}; .terminator = );
-                         .initiator = ( |}
+BRACKETED EXPRESSION:
     (x + y })
+    {| x + y }; .position = {| |}; .terminator = ); .initiator = ( |}
     line 22:
      (x + y }
      ^^^^^^^^
-BRACKETED EXPRESSION: {| This line contains an incorrect closing bracket
-                         {| x + y }; .position = {| |}; .terminator = );
-                            .initiator = ( |}; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     This line contains an incorrect closing bracket (x + y })
+    {| This line contains an incorrect closing bracket
+       {| x + y }; .position = {| |}; .terminator = ); .initiator = ( |};
+       .terminator = ␤; .position = {| |} |}
     lines 21-22:
 This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -170,9 +167,10 @@ This line contains an incorrect closing bracket
 ERROR: lexeme indent 1 too near paragraph indent 0; line 24:
  a token with insufficient indent
  ^
-BRACKETED EXPRESSION: {| This line includes a token with insufficient
-                         indent; .terminator = ␤; .position = {| |} |}
+BRACKETED EXPRESSION:
     This line includes a token with insufficient indent
+    {| This line includes a token with insufficient indent;
+       .terminator = ␤; .position = {| |} |}
     lines 23-24:
 This line includes
 ^^^^^^^^^^^^^^^^^^
@@ -180,46 +178,44 @@ This line includes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED EXPRESSION: {| First line .; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     First line .
+    {| First line .; .terminator = ␤; .position = {| |} |}
     line 26:
    First line.
    ^^^^^^^^^^^
-BRACKETED EXPRESSION: {| Second line .; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Second line .
+    {| Second line .; .terminator = ␤; .position = {| |} |}
     line 27:
    Second line.
    ^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| {| First line .; .terminator = ␤;
-                            .position = {| |} |}
-                         {| Second line .; .terminator = ␤;
-                            .position = {| |} |}; .initiator = :;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     :
         First line .
         Second line .
+    {| {| First line .; .terminator = ␤; .position = {| |} |}
+       {| Second line .; .terminator = ␤; .position = {| |} |};
+       .initiator = :; .position = {| |} |}
     lines 25-27:
-This line starts in indented paragraph:
+This line starts an indented paragraph:
                                       ^
    First line.
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| This line starts in indented paragraph
-                         {| {| First line .; .terminator = ␤;
-                               .position = {| |} |}
-                            {| Second line .; .terminator = ␤;
-                               .position = {| |} |}; .initiator = :;
-                            .position = {| |} |}; .terminator = ␤;
-                         .position = {| |} |}
-    This line starts in indented paragraph :
+BRACKETED EXPRESSION:
+    This line starts an indented paragraph :
         First line .
         Second line .
 
+    {| This line starts an indented paragraph
+       {| {| First line .; .terminator = ␤; .position = {| |} |}
+          {| Second line .; .terminator = ␤; .position = {| |} |};
+          .initiator = :; .position = {| |} |}; .terminator = ␤;
+       .position = {| |} |}
     lines 25-27:
-This line starts in indented paragraph:
+This line starts an indented paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    First line.
 ^^^^^^^^^^^^^^
@@ -227,26 +223,25 @@ This line starts in indented paragraph:
 ^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED EXPRESSION: {| Third line .; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Third line .
+    {| Third line .; .terminator = ␤; .position = {| |} |}
     line 29:
    Third line.
    ^^^^^^^^^^^
-BRACKETED EXPRESSION: {| Fourth line .; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Fourth line .
+    {| Fourth line .; .terminator = ␤; .position = {| |} |}
     line 30:
    Fourth line.
    ^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| {| Third line .; .terminator = ␤;
-                            .position = {| |} |}
-                         {| Fourth line .; .terminator = ␤;
-                            .position = {| |} |}; .initiator = :;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     :
         Third line .
         Fourth line .
+    {| {| Third line .; .terminator = ␤; .position = {| |} |}
+       {| Fourth line .; .terminator = ␤; .position = {| |} |};
+       .initiator = :; .position = {| |} |}
     lines 28-30:
 Ditto with split =:
                   ^
@@ -254,17 +249,16 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| Ditto with split =
-                         {| {| Third line .; .terminator = ␤;
-                               .position = {| |} |}
-                            {| Fourth line .; .terminator = ␤;
-                               .position = {| |} |}; .initiator = :;
-                            .position = {| |} |}; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Ditto with split = :
         Third line .
         Fourth line .
 
+    {| Ditto with split =
+       {| {| Third line .; .terminator = ␤; .position = {| |} |}
+          {| Fourth line .; .terminator = ␤; .position = {| |} |};
+          .initiator = :; .position = {| |} |}; .terminator = ␤;
+       .position = {| |} |}
     lines 28-30:
 Ditto with split =:
 ^^^^^^^^^^^^^^^^^^^
@@ -274,9 +268,9 @@ Ditto with split =:
 ^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED EXPRESSION: {| Fifth line .; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Fifth line .
+    {| Fifth line .; .terminator = ␤; .position = {| |} |}
     line 32:
    Fifth line.
    ^^^^^^^^^^^
@@ -285,37 +279,34 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_separator_type
-BRACKETED EXPRESSION: {| Sixth line A; .terminator = ;;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Sixth line A;
+    {| Sixth line A; .terminator = ;; .position = {| |} |}
     line 33:
    Sixth line A; Sixth line B
    ^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| Sixth line B; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Sixth line B
+    {| Sixth line B; .terminator = ␤; .position = {| |} |}
     line 33:
    Sixth line A; Sixth line B
                  ^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| Seventh line .; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Seventh line .
+    {| Seventh line .; .terminator = ␤; .position = {| |} |}
     line 34:
    Seventh line.
    ^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| {| Fifth line .; .terminator = ␤;
-                            .position = {| |} |}
-                         {| Sixth line A; .terminator = ;;
-                            .position = {| |} |}
-                         {| Sixth line B; .terminator = ␤;
-                            .position = {| |} |}
-                         {| Seventh line .; .terminator = ␤;
-                            .position = {| |} |}; .initiator = :;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     :
         Fifth line .
         Sixth line A;   Sixth line B
         Seventh line .
+    {| {| Fifth line .; .terminator = ␤; .position = {| |} |}
+       {| Sixth line A; .terminator = ;; .position = {| |} |}
+       {| Sixth line B; .terminator = ␤; .position = {| |} |}
+       {| Seventh line .; .terminator = ␤; .position = {| |} |};
+       .initiator = :; .position = {| |} |}
     lines 31-34:
 Ditto with separator:
                     ^
@@ -325,22 +316,19 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    Seventh line.
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| Ditto with separator
-                         {| {| Fifth line .; .terminator = ␤;
-                               .position = {| |} |}
-                            {| Sixth line A; .terminator = ;;
-                               .position = {| |} |}
-                            {| Sixth line B; .terminator = ␤;
-                               .position = {| |} |}
-                            {| Seventh line .; .terminator = ␤;
-                               .position = {| |} |}; .initiator = :;
-                            .position = {| |} |}; .terminator = ␤;
-                         .position = {| |} |}
+BRACKETED EXPRESSION:
     Ditto with separator :
         Fifth line .
         Sixth line A;   Sixth line B
         Seventh line .
 
+    {| Ditto with separator
+       {| {| Fifth line .; .terminator = ␤; .position = {| |} |}
+          {| Sixth line A; .terminator = ;; .position = {| |} |}
+          {| Sixth line B; .terminator = ␤; .position = {| |} |}
+          {| Seventh line .; .terminator = ␤; .position = {| |} |};
+          .initiator = :; .position = {| |} |}; .terminator = ␤;
+       .position = {| |} |}
     lines 31-34:
 Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^
@@ -371,9 +359,9 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "<+"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "+>"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| x; .position = {| |}; .terminator = +>;
-                         .initiator = <+ |}
+BRACKETED EXPRESSION:
     <+x+>
+    {| x; .position = {| |}; .terminator = +>; .initiator = <+ |}
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
@@ -385,11 +373,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| {| x; .position = {| |}; .terminator = +>;
-                            .initiator = <+ |} <- y ->;
-                         .position = {| |}; .terminator = };
-                         .initiator = { |}
+BRACKETED EXPRESSION:
     {<+x+> <- y ->}
+    {| {| x; .position = {| |}; .terminator = +>; .initiator = <+ |} <-
+       y ->; .position = {| |}; .terminator = }; .initiator = { |}
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^
@@ -405,34 +392,32 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "<-"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| y; .position = {| |}; .terminator = ->;
-                         .initiator = <- |}
+BRACKETED EXPRESSION:
     <-y->
+    {| y; .position = {| |}; .terminator = ->; .initiator = <- |}
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION: {| <+ x +>
-                         {| y; .position = {| |}; .terminator = ->;
-                            .initiator = <- |}; .position = {| |};
-                         .terminator = '; .initiator = ` |}
+BRACKETED EXPRESSION:
     `<+ x +> <-y->'
+    {| <+ x +>
+       {| y; .position = {| |}; .terminator = ->; .initiator = <- |};
+       .position = {| |}; .terminator = '; .initiator = ` |}
     line 36:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                         ^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: {| This tests selector changes : <+ x +> <- y ->
-                         {| {| x; .position = {| |}; .terminator = +>;
-                               .initiator = <+ |} <- y ->;
-                            .position = {| |}; .terminator = };
-                            .initiator = { |}
-                         {| <+ x +>
-                            {| y; .position = {| |}; .terminator = ->;
-                               .initiator = <- |}; .position = {| |};
-                            .terminator = '; .initiator = ` |};
-                         .terminator = ␤; .position = {| |} |}
+BRACKETED EXPRESSION:
     This tests selector changes : <+ x +> <- y -> {<+x+> <- y ->}
      `<+ x +> <-y->'
+    {| This tests selector changes : <+ x +> <- y ->
+       {| {| x; .position = {| |}; .terminator = +>; .initiator = <+ |}
+          <- y ->; .position = {| |}; .terminator = }; .initiator = { |}
+       {| <+ x +>
+          {| y; .position = {| |}; .terminator = ->; .initiator = <- |};
+          .position = {| |}; .terminator = '; .initiator = ` |};
+       .terminator = ␤; .position = {| |} |}
     lines 35-36:
 This tests selector changes: <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 02:48:52 EDT 2012
+// Date:	Sun Sep 16 03:31:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -642,7 +642,9 @@ enum {
     TRACE_SUBEXPRESSION_LINES		= 1ull << 5,
 	// Trace flag with name `subexpression lines'
 	// that causes subexpression values to be
-	// printed with min::print_phrase_lines.
+	// printed with min::print_phrase_lines.  If
+	// no TRACE_SUBEXPRESSION_XXX flag is on, this
+	// is assumed as a default.
     TRACE_KEYS				= 1ull << 6,
 	// Trace flag with name `keys' that causes
 	// the finding or rejecting of sequences of

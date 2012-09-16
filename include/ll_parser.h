@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 14 08:45:48 EDT 2012
+// Date:	Sun Sep 16 02:48:52 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -607,6 +607,52 @@ void place
 
 namespace ll { namespace parser {
 
+enum {
+    // Built in trace flags that have compiled offsets
+    // in parser->trace_flags.  Other trace flags are
+    // assigned offsets dynamically.
+
+    // Global flags.
+    //
+    TRACE_PARSER_INPUT			= 1ull << 0,
+        // Trace flag with name `parser input' that
+	// traces each token input by the parser->input
+	// closure (e.g. from the lexical scanner).  
+
+    TRACE_PARSER_OUTPUT			= 1ull << 1,
+        // Trace flag with the name `parser output' that
+	// traces processing by the parser->output
+	// closure.
+
+    TRACE_PARSER_COMMANDS		= 1ull << 2,
+        // Trace flag with the name `parser commands'
+	// that traces all parser commands that have no
+	// errors.
+
+    // Flags that modify the tracing of passes.
+    //
+    TRACE_SUBEXPRESSION_ELEMENTS	= 1ull << 3,
+	// Trace flag with name `subexpression elements'
+	// that causes subexpression values to be
+	// printed with min::flush_pgen.
+    TRACE_SUBEXPRESSION_DETAILS		= 1ull << 4,
+	// Trace flag with name `subexpression details'
+	// that causes subexpression values to be
+	// printed with min::pgen.
+    TRACE_SUBEXPRESSION_LINES		= 1ull << 5,
+	// Trace flag with name `subexpression lines'
+	// that causes subexpression values to be
+	// printed with min::print_phrase_lines.
+    TRACE_KEYS				= 1ull << 6,
+	// Trace flag with name `keys' that causes
+	// the finding or rejecting of sequences of
+	// tokens (called keys) in the symbol tables
+	// to be printed.
+
+    TRACE_FLAGS				= 7
+        // Total number of built in trace flags.
+};
+
 struct parser_struct
 {
     uns32 control;
@@ -641,21 +687,6 @@ struct parser_struct
     const ll::parser::table::name_table
     	    trace_flag_name_table;
         // Trace flag names.
-
-    ll::parser::table::flags trace_input;
-        // Trace flag with name `parser input' that
-	// traces each token input by the parser->input
-	// closure (e.g. from the lexical scanner).  
-
-    ll::parser::table::flags trace_output;
-        // Trace flag with the name `parser output' that
-	// traces processing by the parser->output
-	// closure.
-
-    ll::parser::table::flags trace_commands;
-        // Trace flag with the name `parser commands'
-	// that traces all parser commands that have no
-	// errors.
 
     const ll::lexeme::scanner scanner;
         // Scanner for those parser `input' closures

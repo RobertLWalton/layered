@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 07:20:03 EDT 2012
+// Date:	Sun Sep 16 03:03:42 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,6 @@ int main ( int argc, const char * argv[] )
 	    min::GRAPHIC_VSPACE_FLAG
 	  + min::GRAPHIC_NSPACE_FLAG );
     PAR::default_parser->trace_flags |=
-        PAR::default_parser->trace_commands;
+        PAR::TRACE_PARSER_COMMANDS;
     PAR::parse();
 }

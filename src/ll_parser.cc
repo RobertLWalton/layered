@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 08:45:40 EDT 2012
+// Date:	Sun Sep 16 02:50:26 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,6 +63,10 @@ min::locatable_gen PAR::with;
 static min::locatable_gen parser_input;
 static min::locatable_gen parser_output;
 static min::locatable_gen parser_commands;
+static min::locatable_gen subexpression_elements;
+static min::locatable_gen subexpression_details;
+static min::locatable_gen subexpression_lines;
+static min::locatable_gen keys;
 
 static void initialize ( void )
 {
@@ -115,6 +119,16 @@ static void initialize ( void )
         min::new_lab_gen ( "parser", "output" );
     ::parser_commands =
         min::new_lab_gen ( "parser", "commands" );
+    ::subexpression_elements =
+        min::new_lab_gen
+	    ( "subexpression", "elements" );
+    ::subexpression_details =
+        min::new_lab_gen
+	    ( "subexpression", "details" );
+    ::subexpression_lines =
+        min::new_lab_gen
+	    ( "subexpression", "lines" );
+    ::keys = min::new_str_gen ( "keys" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -384,18 +398,34 @@ void PAR::init ( min::ref<PAR::parser> parser )
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
-	parser->trace_input =
-	    1ull << TAB::push_name
-	        ( parser->trace_flag_name_table,
-		  ::parser_input );
-	parser->trace_output =
-	    1ull << TAB::push_name
-	        ( parser->trace_flag_name_table,
-		  ::parser_output );
-	parser->trace_commands =
-	    1ull << TAB::push_name
-	        ( parser->trace_flag_name_table,
-		  ::parser_commands );
+	assert (    PAR::TRACE_PARSER_INPUT
+	         == 1ull << TAB::push_name
+	              ( parser->trace_flag_name_table,
+		        ::parser_input ) );
+	assert (    PAR::TRACE_PARSER_OUTPUT
+	         == 1ull << TAB::push_name
+		      ( parser->trace_flag_name_table,
+		        ::parser_output ) );
+	assert (    PAR::TRACE_PARSER_COMMANDS
+	         == 1ull << TAB::push_name
+		      ( parser->trace_flag_name_table,
+		        ::parser_commands ) );
+	assert (    PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	         == 1ull << TAB::push_name
+		      ( parser->trace_flag_name_table,
+		        ::subexpression_elements ) );
+	assert (    PAR::TRACE_SUBEXPRESSION_DETAILS
+	         == 1ull << TAB::push_name
+		      ( parser->trace_flag_name_table,
+		        ::subexpression_details ) );
+	assert (    PAR::TRACE_SUBEXPRESSION_LINES
+	         == 1ull << TAB::push_name
+		      ( parser->trace_flag_name_table,
+		        ::subexpression_lines ) );
+	assert (    PAR::TRACE_KEYS
+	         == 1ull << TAB::push_name
+		      ( parser->trace_flag_name_table,
+		        ::keys ) );
 
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
@@ -600,7 +630,7 @@ void PAR::parse ( PAR::parser parser )
 	    ( ( parser->output == NULL_STUB )
 	      &&
 	         (   parser->trace_flags
-		   & parser->trace_output )
+		   & PAR::TRACE_PARSER_OUTPUT )
 	      != 0 );
 
         // If end of file terminate loop.

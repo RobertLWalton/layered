@@ -1087,25 +1087,45 @@ void PAR::compact
 
     if ( trace )
     {
-	min::uns32 GEN_FLAGS = min::GRAPHIC_STR_FLAG
-	                     + min::BRACKET_LAB_FLAG;
+	const min::uns32 GEN_FLAGS =
+	      min::GRAPHIC_STR_FLAG
+	    + min::BRACKET_LAB_FLAG;
+	TAB::flags flags = parser->trace_flags;
+	flags &= (   PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	           + PAR::TRACE_SUBEXPRESSION_DETAILS
+	           + PAR::TRACE_SUBEXPRESSION_LINES );
+	if ( flags == 0 )
+	    flags = PAR::TRACE_SUBEXPRESSION_LINES;
+
 	parser->printer
 	    << ( first->type == PAR::BRACKETED ?
 		 "BRACKETED EXPRESSION: " :
-		 "BRACKETABLE EXPRESSION: " )
-	    << min::pgen ( first->value,
-	                   GEN_FLAGS, GEN_FLAGS )
-	    << min::indent
-	    << min::bom
-	    << min::flush_pgen ( first->value )
-	    << min::indent
-	    << min::pline_numbers
+		 "BRACKETABLE EXPRESSION: " );
+
+	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
+	    parser->printer
+		<< min::indent
+		<< min::bom
+		<< min::flush_pgen ( first->value )
+		<< min::eom;
+	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
+	    parser->printer
+		<< min::indent
+	        << min::pgen ( first->value,
+	                       GEN_FLAGS, GEN_FLAGS )
+		<< min::eol;
+	if ( flags & PAR::TRACE_SUBEXPRESSION_LINES )
+	{
+	    parser->printer
+		<< min::spaces_if_before_indent
+	        << min::pline_numbers
 		    ( parser->input_file,
 		      position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file, position );
+	        << ":" << min::eol;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file, position );
+	}
     }
 }
 

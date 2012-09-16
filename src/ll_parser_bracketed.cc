@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 06:01:03 EDT 2012
+// Date:	Sun Sep 16 06:13:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -519,6 +519,10 @@ bool BRA::parse_bracketed_subexpression
     bool trace =
         (   parser->trace_flags
 	  & pass->trace_subexpressions );
+    bool trace_keys =
+           trace
+        &&    ( parser->trace_flags & PAR::TRACE_KEYS )
+	   != 0;
 
     while ( true )
     {
@@ -1078,7 +1082,7 @@ bool BRA::parse_bracketed_subexpression
 	    min::uns32 subtype =
 		min::packed_subtype_of ( root );
 
-	    if ( trace )
+	    if ( trace_keys )
 	        parser->printer
 		    << "BRACKETED SUBEXPRESSION PARSER"
 		       " FOUND "
@@ -1809,7 +1813,7 @@ bool BRA::parse_bracketed_subexpression
 		// any bracket stack entry; reject key.
 	    }
 
-	    if ( trace )
+	    if ( trace_keys )
 	        parser->printer
 		    << "BRACKETED SUBEXPRESSION PARSER"
 		       " REJECTED KEY "

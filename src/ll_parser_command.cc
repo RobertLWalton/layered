@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 07:12:55 EDT 2012
+// Date:	Sun Sep 16 02:58:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -756,7 +756,7 @@ min::gen COM::parser_execute_command
     if ( result == min::SUCCESS()
          &&
 	 (   parser->trace_flags
-	   & parser->trace_commands ) )
+	   & PAR::TRACE_PARSER_COMMANDS ) )
 	min::print_phrase_lines
 	    ( parser->printer,
 	      ppvec->file, ppvec->position, 0 );

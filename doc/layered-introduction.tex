@@ -3040,8 +3040,9 @@ With these things in mind, the reformatters are:
 \ttmkey{separator}{reformatter} \hfill \OP{;} ~~~ \OP{,}
 
 \begin{indpar}[0.5em]
-The operator tokens are the separator.  There must be at least one
-operator token, and all the operator token values must be identical.
+There must be at least one operator, all operator values must
+be identical, and any two operands must be separated by an operator
+(but operators my be consecutive and may begin or end the subexpression).
 
 A list of all between-operator subexpressions is made, with empty
 between-operator subexpressions being represented by empty lists.
@@ -3050,8 +3051,18 @@ the last operator and one preceding the first operator.
 The list of subexpressions is given a
 \ttmkey{.separator}{produced by parsing}
 attribute with value of the operator token,
-and is returned as the result of the reformatting.
+and is returned as the result of the reformatting.  Examples:
 
+\hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
+\verb|x , y| & $\Longrightarrow$ & \verb|x y|
+					& with {\tt .separator} {\tt ,} \\
+\verb|, y| & $\Longrightarrow$ & \verb|() y|
+					& with {\tt .separator} {\tt ,} \\
+\verb|x ,| & $\Longrightarrow$ & \verb|x ()|
+					& with {\tt .separator} {\tt ,} \\
+\verb|x ,, y| & $\Longrightarrow$ & \verb|x () y|
+					& with {\tt .separator} {\tt ,} \\
+\end{tabular}
 \end{indpar}
 
 \bigskip
@@ -3109,12 +3120,16 @@ Operands and operators must alternate, with the first and last subexpression
 elements being operands, and there must be at least one operator.
 If there is only one operator, it is simply moved to the front.  If there
 are several, they are rewritten as one operator subexpressions so the
-rightmost executes first.  For example,
+rightmost executes first.  Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|y = z| & $\Longrightarrow$ & \verb|= y z| \\
 \verb|x = y = z| & $\Longrightarrow$ & \verb|= x (= y z)| \\
-\verb|x += y *= z| & $\Longrightarrow$ & \verb|+= x (*= y z)|
+\verb|x += y *= z| & $\Longrightarrow$ & \verb|+= x (*= y z)| \\
+\verb|= y *= z| & $\Longrightarrow$ & error \\
+\verb|x = y *=| & $\Longrightarrow$ & error \\
+\verb|x = *= z| & $\Longrightarrow$ & error \\
+\verb|x = y z| & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
@@ -3124,10 +3139,12 @@ rightmost executes first.  For example,
 
 \begin{indpar}[0.5em]
 The subexpression must have exactly two elements, an operator followed
-by an operand.  The subexpression is left unchanged.  Example:
+by an operand.  The subexpression is left unchanged.  Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|NOT x| & $\Longrightarrow$ & \verb|NOT x| \\
+\verb|x NOT y| & $\Longrightarrow$ & error \\
+\verb|x NOT| & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
@@ -3187,11 +3204,15 @@ Examples:
 	\NBOP{=<} ~~~ \NBOP{<=}
 
 \begin{indpar}[0.5em]
-The expression is rewritten using a multi-argument {\tt AND}
-function and two-argument compare functions.  Temporaries
+Operands and operators must alternate, with the first and last subexpression
+elements being operands, and there must be at least one operator.
+If there is only one operator, it is simply moved to the front.  Otherwise
+the expression is rewritten so the operators become two-argument functions
+whose values are combined by a multi-argument {\tt AND} and whose
+shared operands are represented by temporaries to avoid computing
+an operand twice. 
 (\pagref{TEMPORARY})
-are used to name intermediate expression values to
-avoid recomputing arguments.
+Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x < y < z| & $\Longrightarrow$ &

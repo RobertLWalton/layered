@@ -3236,38 +3236,34 @@ E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
 \ttmkey{sum}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
-The results are rewritten using the multi-argument summation function \verb|+|
-and the unary negation function \verb|-|.
+Operands and operators must alternate, with the last subexpression
+element being an operand, and there must be at least one operator.
+The operators must be either `\verb|+|' or `\verb|-|'.
+
+If there is only one operator at the front of the subexpression,
+the subexpression is left unchanged.
+Otherwise if `\verb|+|' is only one operator
+it is simply moved to the front.  Otherwise
+the results are rewritten using the multi-argument summation function
+`\verb|+|' and the unary negation function `\verb|-|'.  Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x - y + z - w| & $\Longrightarrow$ & \verb|+ x (- y) z (- w)|
-\end{tabular}
-\end{indpar}
-
-\bigskip
-
-\ttmkey{product}{reformatter} \hfill \NBOP{/} ~~~ \NBOP{*}
-					      ~~~ \NBOP{\CIRCUMFLEX}
-
-\begin{indpar}[0.5em]
-These different operators, \verb|/|, \verb|*|, and \verb|^|,
-have different precedences and therefore
-cannot be mixed in the same expression.  There may not be more than one
-\verb|/| or \verb|^| operator in the expression.
-The results are rewritten using
-the multi-argument multiplication function \verb|*|,
-the binary division function \verb|/|, 
-or the binary exponentiation function \verb|^|. 
-E.g.:
-
-\hspace*{2em}\begin{tabular}{lcl}
-\verb|x * y * z| & $\Longrightarrow$ & \verb|* x y z| \\
-\verb|x / y| & $\Longrightarrow$ & \verb|/ x y| \\
-\verb|x ^ y| & $\Longrightarrow$ & \verb|^ x y| \\
-\verb|x / y / z| & $\Longrightarrow$ & error \\
-\verb|x ^ y ^ z| & $\Longrightarrow$ & error \\
+\verb|- x| & $\Longrightarrow$ & \verb|- x| \\
+\verb|+ x| & $\Longrightarrow$ & \verb|+ x| \\
+\verb|x + y| & $\Longrightarrow$ & \verb|+ x y| \\
+\verb|+ x + y| & $\Longrightarrow$ & \verb|+ x y| \\
+\verb|x - y| & $\Longrightarrow$ & \verb|+ x (- y)| \\
+\verb|- x - y| & $\Longrightarrow$ & \verb|+ (- x) (- y)| \\
+\verb|x - y + z - w| & $\Longrightarrow$ & \verb|+ x (- y) z (- w)| \\
+\verb|x + y z| & $\Longrightarrow$ & error \\
+\verb|x +| & $\Longrightarrow$ & error \\
+\verb|x + - y| & $\Longrightarrow$ & error \\
 \end{tabular}
 
+Note that prefix `\verb|-|' has the same precedence as infix
+`\verb|+|', which differs from mathematics and classical programming languages.
+E.g., \verb|x * - y| becomes \verb|+ ( x * ) ( - y )| which would of
+course be in error.
 \end{indpar}
 
 \bigskip

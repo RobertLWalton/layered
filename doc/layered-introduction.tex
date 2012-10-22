@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 21, 2012
+October 22, 2012
  
 \end{center}
 
@@ -1452,6 +1452,14 @@ The `{\tt goto}', `{\tt call}', and `{\tt return}' instruction components
 \underline{cannot} be used in an atom table.
 
 \section{Parsing}
+
+The layered languages parser attempts to promote human efficiency
+both by standardizing many aspects of syntax and my permitting
+substantial additions to syntax.  Humans reason
+syntactically, and therefore new types of data and algorithm often
+need to be supported by new syntax.  But this new syntax needs to
+integrate with the old syntax, so the goal of the parser is to make
+possible syntactic additions that integrate well with existing syntax.
 
 The parser is a sequence of passes each of which operates on a list
 of tokens.  A token is either a lexeme, a subexpression, or an operator.
@@ -2903,8 +2911,9 @@ precedence & reformatter	& type	& operator	& meaning
 	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
 							 ... \RIGHTBRACKET}
 								& block \\
-+1000	& \ttkey{assign}	& \tt infix	& \ttnbkey{=}	& assignment \\
-     	&               	&          	& \ttnbkey{+=}	& increment \\
++1000	& \tt \bf binary right	& \tt infix	& \ttnbkey{=}	& assignment \\
+     	& \tt \bf associative\ttindex{binary right associative}
+				&          	& \ttnbkey{+=}	& increment \\
      	&               	&          	& \ttnbkey{-=}	& decrement \\
      	&               	&          	& \ttnbkey{*=}	& multiply by \\
      	&               	&          	& \ttnbkey{/=}	& divide by \\
@@ -2928,10 +2937,10 @@ precedence & reformatter	& type	& operator	& meaning
 	&			&		& \ttnbkey{=>}	& ditto \\
 +5000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
 	&			&		& \ttnbkey{-}	& subtraction \\
-+5100	& \ttkey{product}	& \tt infix	& \ttnbkey{/}	& division \\
-+5200	& \ttkey{product}	& \tt infix	& \ttnbkey{*}
++5100	& \ttkey{binary}	& \tt infix	& \ttnbkey{/}	& division \\
++5200	& \ttkey{single infix}	& \tt infix	& \ttnbkey{*}
 							& multiplication \\
-+5300	& \ttkey{product}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
++5300	& \ttkey{binary}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
 							& exponentiation \\
 none	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
 	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
@@ -2961,6 +2970,36 @@ merely written here to indicate sublists in the expression structure.
 
 Reformatters can detect parsing errors, such the missing operand
 in `\verb|x AND AND y|'.
+
+In some circumstances 
+the bracketed subexpression recognition pass merges the brackets
+it finds into a list returned by a reformater.
+If the bracketed subexpression recognition pass
+would otherwise
+return a list (with {\tt .initiator} or {\tt .terminator}) that has a single
+element which is a list without an {\tt .initiator} or
+{\tt .terminator}, then instead of forming the outer list,
+the bracketed subexpression recognition
+pass copies its attributes to the inner list.
+
+Thus given `\verb|(x,y)|', the `\verb|separator|'
+reformatter will return
+\begin{indpar}\begin{verbatim}
+@1 = x y {| .separator = "," |}
+\end{verbatim}\end{indpar}
+so without this merging the bracketed subexpression recognition
+pass would produce
+\begin{indpar}\begin{verbatim}
+@2 = @1 {| .initiator = "("; .terminator = ")" |}
+@1 = x y {| .separator = "," |}
+\end{verbatim}\end{indpar}
+but instead it produces
+\begin{indpar}\begin{verbatim}
+@3 = x y :|
+    .initiator = "("
+    .terminator = ")"
+    .separator = ","
+\end{verbatim}\end{indpar}
 
 Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
 are introduced by reformatting.  The syntax involving temporaries is:
@@ -2999,37 +3038,17 @@ With these things in mind, the reformatters are:
 \ttmkey{separator}{reformatter} \hfill \OP{;} ~~~ \OP{,}
 
 \begin{indpar}[0.5em]
-Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
-precedences, and so cannot appear together in the same expression.
+The operator tokens are the separator.  There must be at least one
+operator token, and all the operator token values must be identical.
 
-A list of all between-separator subexpressions is made, with empty
-between-separator subexpressions being represented by empty lists.
+A list of all between-operator subexpressions is made, with empty
+between-operator subexpressions being represented by empty lists.
 There will be at least two subexpressions: one following
-the last separator and one preceding the first separator.
+the last operator and one preceding the first operator.
 The list of subexpressions is given a
 \ttmkey{.separator}{produced by parsing}
-attribute with value of the separator (\verb|";"| or \verb|","|),
+attribute with value of the operator token,
 and is returned as the result of the reformatting.
-
-The standard bracket reformatters will merge the returned list with
-their brackets.  Thus given `\verb|(x,y)|', the `\verb|separator|'
-reformatter will return
-\begin{indpar}\begin{verbatim}
-@1 = x y {| .separator = "," |}
-\end{verbatim}\end{indpar}
-so the input to the \verb|( )| reformatter will be
-\begin{indpar}\begin{verbatim}
-@2 = @1 {| .initiator = "("; .terminator = ")" |}
-@1 = x y {| .separator = "," |}
-\end{verbatim}\end{indpar}
-and this reformatter will merge the two lists into one,
-returning
-\begin{indpar}\begin{verbatim}
-@3 = x y :|
-    .initiator = "("
-    .terminator = ")"
-    .separator = ","
-\end{verbatim}\end{indpar}
 
 \end{indpar}
 

@@ -2918,10 +2918,12 @@ precedence & reformatter	& type	& operator	& meaning
      	&               	&          	& \ttnbkey{*=}	& multiply by \\
      	&               	&          	& \ttnbkey{/=}	& divide by \\
 +2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
-+3000	& \ttkey{logical}	& \tt nofix	& \ttkey{AND}	& logical and \\
++3000	& \ttkey{unary}		& \tt nofix	& \ttkey{NOT}	& logical not \\
++3000	& \ttkey{binary}	& \tt nofix	& \ttkey{BUT NOT}
+								& logical and
+								  not \\
++3100	& \ttkey{infix}		& \tt nofix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
-	&			&		& \ttkey{NOT}  & logical not \\
-	&			&		& \ttkey{BUT}  & logical filler
 								 \\
 +4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
 	&			&		& \ttnbkey{/=}  & not equal \\
@@ -2938,7 +2940,7 @@ precedence & reformatter	& type	& operator	& meaning
 +5000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
 	&			&		& \ttnbkey{-}	& subtraction \\
 +5100	& \ttkey{binary}	& \tt infix	& \ttnbkey{/}	& division \\
-+5200	& \ttkey{single infix}	& \tt infix	& \ttnbkey{*}
++5200	& \ttkey{infix}		& \tt infix	& \ttnbkey{*}
 							& multiplication \\
 +5300	& \ttkey{binary}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
 							& exponentiation \\
@@ -3099,13 +3101,15 @@ end up as `\verb|<-- x ( y { z } )|', and instead we get results like:
 \bigskip
 
 
-\ttmkey{assign}{reformatter} \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=}
-				           ~~~ \NBOP{*=} ~~~ \NBOP{/=}
+\ttmkey{binary right associative}{reformatter}
+    \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
+Operands and operators must alternate, with the first and last subexpression
+elements being operands, and there must be at least one operator.
 If there is only one operator, it is simply moved to the front.  If there
 are several, they are rewritten as one operator subexpressions so the
-rightmost executes first.
+rightmost executes first.  For example,
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|y = z| & $\Longrightarrow$ & \verb|= y z| \\
@@ -3116,67 +3120,61 @@ rightmost executes first.
 
 \bigskip
 
-\ttmkey{logical}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{NOT}
-							      ~~~ \NBOP{BUT}
+\ttmkey{unary}{reformatter} \hfill \NBOP{NOT}
 
 \begin{indpar}[0.5em]
-If there is only one operator and it is at the beginning of the expression,
-then the expression is not changed.  It is a reformatter detected parsing
-error if this operator is \verb|BUT|, or if the operator is \verb|NOT|
-and there are zero or more than one operand.
+The subexpression must have exactly two elements, an operator followed
+by an operand.  The subexpression is left unchanged.  Example:
 
-Otherwise if the expression has only \verb|AND| or only \verb|OR| operators
-the expression is rewritten with the operator at the beginning.  It is
-a reformatter detected error if there are missing operands, either between
-operators, before the first operator, or after the last operator.  Thus:
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|NOT x| & $\Longrightarrow$ & \verb|NOT x| \\
+\end{tabular}
+\end{indpar}
+
+\bigskip
+\ttmkey{binary}{reformatter} \hfill \NBOP{BUT NOT} ~~~ \NBOP{/}
+					           ~~~ \NBOP{\CIRCUMFLEX}
+
+\begin{indpar}[0.5em]
+The subexpression must have exactly three elements, an operand
+followed by an operator followed by an operand.  The operator is moved
+to the beginning of the expression.  Examples:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x BUT NOT y| & $\Longrightarrow$ & \verb|BUT NOT x y| \\
+\verb|x / y| & $\Longrightarrow$ & \verb|/ x y| \\
+\verb|x ^ y| & $\Longrightarrow$ & \verb|^ x y| \\
+\verb|x / y / z| & $\Longrightarrow$ & error \\
+\verb|/ y| & $\Longrightarrow$ & error \\
+\verb|x /| & $\Longrightarrow$ & error \\
+\end{tabular}
+
+Note that in these examples `{\tt BUT NOT}' is a single label element
+of the resulting subexpression,
+and \underline{not} two word elements of the subexpression.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{infix}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{*}
+
+\begin{indpar}[0.5em]
+Operands and operators must alternate, with the first and last subexpression
+elements being operands, there must be at least one operator, and all
+operators must have the same value.  The first operator is moved to the
+front of the subexpression, and the other operators are removed.
+Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x AND y| & $\Longrightarrow$ & \verb|AND x y| \\
 \verb|x AND y AND z| & $\Longrightarrow$ & \verb|AND x y z| \\
 \verb|x OR y| & $\Longrightarrow$ & \verb|OR x y| \\
 \verb|x OR y OR z| & $\Longrightarrow$ & \verb|OR x y z| \\
+\verb|x * y| & $\Longrightarrow$ & \verb|* x y| \\
+\verb|x * y * z| & $\Longrightarrow$ & \verb|* x y z| \\
 \verb|AND y AND z| & $\Longrightarrow$ & error \\
 \verb|x AND AND z| & $\Longrightarrow$ & error \\
 \verb|x AND y AND| & $\Longrightarrow$ & error \\
-\end{tabular}
-
-Otherwise the expression must have the operator sequence `\ttnbkey{BUT NOT}'
-and one of the forms:
-
-\hspace*{2em}\begin{tabular}{l}
-$e_1$ \verb|BUT NOT| $e_3$ \\
-$e_1$ \verb|BUT NOT| $e_3$ \verb|OR| $e_4$ \verb|OR| \ldots{} \\
-$e_1$ \verb|AND| $e_2$ \verb|AND| \ldots{} \verb|BUT NOT| $e_3$ \\
-$e_1$ \verb|AND| $e_2$ \verb|AND| \ldots{} \verb|BUT NOT|
-$e_3$ \verb|OR| $e_4$ \verb|OR| \ldots{} \\
-\end{tabular}
-
-There can be \verb|AND|'s before the \verb|BUT NOT| and \verb|OR|'s after
-the \verb|BUT NOT|,
-but there must be at least one operand before the \verb|BUT NOT|
-and at least one after.  These expressions are rewritten using prefix
-\verb|AND| and \verb|NOT| operators:
-
-\hspace*{2em}\begin{tabular}{lcl}
-\verb|x BUT NOT v| & $\Longrightarrow$ & \verb|AND x (NOT v)| \\
-\verb|x AND y BUT NOT v| & $\Longrightarrow$ & \verb|AND x y (NOT v)| \\
-\verb|x BUT NOT v OR w| & $\Longrightarrow$ & \verb|AND x (NOT v) (NOT w)| \\
-\verb|x AND y BUT NOT v OR w|
-    & $\Longrightarrow$ & \verb|AND x y (NOT v) (NOT w)| \\
-\end{tabular}
-
-All other forms of expression are reformatter detected parsing errors.
-
-Note that {\tt NOT} is not a classical prefix operator, which would have
-higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
-and {\tt OR} may not be used in the same logical expression without using
-explicit brackets, unless there is a {\tt BUT NOT}.  Thus:
-
-\hspace*{2em}\begin{tabular}{lcl}
-\verb|x AND y OR z| & $\Longrightarrow$ & error \\
-\verb|x AND NOT y| & $\Longrightarrow$ & error \\
-\verb|x AND NOT v OR w| & $\Longrightarrow$ & error \\
-\verb|NOT x < y| & $\Longrightarrow$ & \verb|NOT (x < y )| \\
 \end{tabular}
 \end{indpar}
 

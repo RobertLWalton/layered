@@ -2911,8 +2911,8 @@ precedence & reformatter	& type	& operator	& meaning
 	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
 							 ... \RIGHTBRACKET}
 								& block \\
-+1000	& \tt \bf binary right	& \tt infix	& \ttnbkey{=}	& assignment \\
-     	& \tt \bf associative\ttindex{binary right associative}
++1000	& \tt \bf right		& \tt infix	& \ttnbkey{=}	& assignment \\
+     	& \tt \bf associative\ttindex{right associative}
 				&          	& \ttnbkey{+=}	& increment \\
      	&               	&          	& \ttnbkey{-=}	& decrement \\
      	&               	&          	& \ttnbkey{*=}	& multiply by \\
@@ -3112,7 +3112,7 @@ end up as `\verb|<-- x ( y { z } )|', and instead we get results like:
 \bigskip
 
 
-\ttmkey{binary right associative}{reformatter}
+\ttmkey{right associative}{reformatter}
     \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
@@ -3271,7 +3271,9 @@ course be in error.
 \ttmkey{subscript}{reformatter} \hfill \NBOP{[~...~]}
 
 \begin{indpar}[0.5em]
-The expression is rewritten using the binary subscript function:
+The subexpression must consist of two elements, an operand followed
+by an operator.
+The subexpression is rewritten using the binary subscript function:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x[y]| & $\Longrightarrow$ & \verb|subscript x y| \\

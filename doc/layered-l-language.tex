@@ -601,10 +601,12 @@ is a set of address/byte pairs.  Each 8-bit byte of RAM has an \key{address}
 that is an unsigned integer.  It is possible for two addresses to refer to the
 same byte, or for an address to refer to no byte.  An address that
 refers to a byte is said to be \key{allocated}, and an address that refers
-to no byte is said to be \key{deallocated}.  A byte that has two (or more)
+to no byte is said to be \key{deallocated}.  An allocated
+byte that has two (or more)
 distinct
-addresses is said to be \key{shared}, and a byte with just one address is
+addresses is said to be \key{shared}, and a byte with exactly one address is
 \key{unshared}.
+A deallocated byte is neither shared nor unshared.
 
 A \key{RAM block}\index{block!of RAM} is a sequence of RAM bytes with
 consecutively increasing addresses.
@@ -635,7 +637,7 @@ of RAM.  There are operations to deallocate a page, and to make
 two pages be shared (map to the same bytes of RAM).
 
 Pages are the units of allocation and sharing.  Each page of the
-address space is either allocated or deallocated, and each page is
+address space is either allocated or deallocated, and each allocated page is
 either shared or unshared.  The only way for an arbitrary RAM block to
 have allocated bytes is to overlap an allocated page, and similarly
 for deallocated bytes, shared bytes, and unshared bytes.
@@ -774,7 +776,7 @@ to that value.  This value is necessarily determined by the type, and
 in general describes the type: see \secref{NAMES-TYPES-VARIABLES-FUNCTIONS}.
 
 \hspace*{-1em}\ttkey{locatable variable} Specifies
-the value must be stored in the thread stack in a particular
+the value must be stored in the thread stack in a
 locatable variable:
 see TBD for details.
 Such values cannot be moved from their locatable variable,
@@ -844,10 +846,12 @@ A statement of the form
 assigns the {\em value} to the {\em member-name} variable
 that has the above type.
 
+Above `{\tt unchecked:}' introduces a block of unchecked
+code, that is, code in which normal type checking rules
+do not apply.
 Using {\tt =} to assign a signed integer to a displacement
 variable is an unchecked operation that can be used only
-in unchecked code, that is, in code
-to which normal type checking rules do not apply.
+in unchecked code.
 
 The type of the expression `{\tt x.member1}' is
 \begin{center}
@@ -857,12 +861,7 @@ and \underline{not}
 \begin{center}
 \tt constant stack adr V -> uns16 @ type1.member1
 \end{center}
-The statement
-\begin{center}
-\tt x.member1 = 9
-\end{center}
-therefore sets an {\tt uns16} integer variable, and
-\underline{not} an {\tt adr} constant.  In these types
+In these types
 the {\em variable-name} {\tt V} is used to indicate which
 value, the integer or the address, is the value of the expression.
 This is the value that will be read if the expression appears to
@@ -872,6 +871,13 @@ the address type, and we say that {\tt V} specifies the value
 position inside the address type.
 Any other {\em variable-name} besides {\tt V} could be used
 to specify the value position in an address type.
+
+Therefore the statement
+\begin{center}
+\tt x.member1 = 9
+\end{center}
+sets an {\tt uns16} integer variable, and
+\underline{not} an {\tt adr} constant.
 
 Notice that
 the expression `{\tt x.member1}' has type
@@ -914,7 +920,7 @@ user allocated blocks that are never deallocated.
 are allocated to thread stacks.  Frames
 (see \secref{CODE-AND-FRAME-BLOCKS}) are stack blocks.
 A stack block is allocated by a code block execution, and is
-deallocated when the code block execution terminates.
+deallocated when that code block execution terminates.
 
 \ikey{Heap blocks}{heap block}
 are user allocated blocks that may be deallocated.
@@ -929,7 +935,7 @@ blocks in the heap.  And for each heap and each thread stack
 there is a separate list of stack block locations
 that might hold pointers into blocks in the heap.
 
-Independent RAM blocks may be relocated in RAM.  This applies
+Independent RAM blocks may be relocated (i.e., moved) in RAM.  This applies
 even to link blocks.
 
 \subsection{Code and Frame Blocks}

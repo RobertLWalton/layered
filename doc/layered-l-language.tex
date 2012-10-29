@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 12, 2012
+October 29, 2012
  
 \end{center}
 
@@ -358,10 +358,11 @@ lengths of 8, 16, 32, 64, or 128 bits.
 Numbers are stored in random access memory (RAM).
 
 An \key{unsigned integer} of length $L$ is a binary integer with
-$L$ binary digits (\skey{bit}s).
+$L$ binary digits (\skey{bit}s) and range from $0$ to $2^L-1$.
 
 A \key{signed integer} of length $L$ is a two's complement integer
-of length $L$.  This represents an integer $I$
+of length $L$ and range from $-2^{L-1}$ to $+2^{L-1}-1$.
+This represents the integer $I$ in the given range
 by the unsigned $L$-bit integer equal to $I~\mbox{modulo}~2^L$.
 
 A \key{floating point number} of length $L$ is a floating point number
@@ -369,13 +370,15 @@ represented according to the IEEE 754 standard.  The sizes of exponents
 and mantissas for various floating point number sizes is as follows:
 
 \begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
-\bf Floating Point \\
-\bf Number Size & \bf Exponent Size & \bf Mantissa Size \\[2ex]
-16 bits & 5 bits & 10 bits \\
-32 bits & 8 bits & 23 bits \\
-64 bits & 11 bits & 52 bits \\
-128 bits & 15 bits & 112 bits \\
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}r@{~~~~~~}r}
+                   &              &              &             & \bf Maximum \\
+\bf Floating Point & \bf Exponent & \bf Mantissa & \bf Decimal & \bf Decimal\\
+\bf Number Size    & \bf Size     & \bf Size     & \bf Digits  & \bf Exponent
+\\[2ex]
+16 bits & 5 bits & 10 bits & 3.31 & 4.51 \\
+32 bits & 8 bits & 23 bits & 7.22 & 38.23 \\
+64 bits & 11 bits & 52 bits & 15.95 & 307.95 \\
+128 bits & 15 bits & 112 bits & 34.02 & 4931.77 \\
 \end{tabular}
 \end{center}
 
@@ -385,7 +388,7 @@ is determined by the target machine.  Some of high order bits may be
 required to be all 0's or all 1's, depending upon
 the target machine.  The \verb|unsadr| and \verb|intptr|
 unsigned and signed integer types of the same size
-as a address are provided for storing indices and offsets.
+as an address are provided for storing indices and offsets.
 
 A reasonable assumption for 64-bit addresses is that only the low
 order 48-bits of the address are actually used.  This assumption can
@@ -434,6 +437,9 @@ declare variables {\tt ip1} and {\tt ip2} that store
 the address of an {\tt int32} variable, and a variable
 {\tt ipp3} that stores the address of a variable that stores
 the address of an {\tt int32} variable.
+The variable pointed at by an address can be given a name;
+e.g., {\tt i2} is the variable pointed at by the address stored
+in {\tt ip2}.
 The unary `{\tt *}' operator is used to reference the variable
 pointed at by an address, so
 here
@@ -466,8 +472,12 @@ Either of these names can be used to assign values, as in
 & i = ip
 \end{verbatim}\end{indpar}
 
-Variable declarations are actually short forms for the declaration
-of constant addresses.  For example, the local variable declarations
+Variable declarations within a code block
+(\secref{CODE-AND-FRAME-BLOCKS})
+are actually short forms for the declaration
+of constant stack addresses.  For example,
+within a function code block
+the variable declarations
 \begin{indpar}\begin{verbatim}
 int32 i
 stack adr ip -> int32
@@ -483,8 +493,8 @@ so that `{\tt ip = \& i}' is a legal assignment.  The compiler arranges
 for appropriate stack addresses to be computed.  `{\tt \& i}' and
 `{\tt \& ip}' are both `{\tt constant}' and `{\tt stack}',
 meaning respectively that they cannot be changed and that
-they have a lifetime guaranteed to last
-only as long as the current stack frame.
+they have a lifetime guaranteed to last only as long as function
+code block is executing.
 
 Note that if `{\tt stack adr ip}' were changed to
 `{\tt adr ip}' the assignment `{\tt ip = \& i}' would no longer be
@@ -2380,6 +2390,7 @@ as long as the current function execution.  Equivalent to
 `{\tt static}' values are convertable to `{\tt stack}' values.
 
 \hspace*{-1em}\ttkey{stack(n)}~~~~~
+\label{STACK(N)}
 Specifies the value lives at least as long as the execution of
 the current code block of nested level
 {\tt n} within the currently executing function.

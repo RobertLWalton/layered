@@ -505,8 +505,8 @@ indefinite lifetime promised by `{\tt adr ip}' unqualified by `{\tt stack}'.
 
 A subtype of a parent type is a type whose values are formatted
 and aligned in the same manner as values of the parent type and
-which can be implicitly converted to or from the parent type by
-unchecked code.  It is also possible to define checked conversion
+whose values can be implicitly converted to or from the parent type by
+unchecked code.  Given this, it is possible to define checked conversion
 functions.
 
 One use of a subtype is to make a promise that a value
@@ -548,7 +548,7 @@ for special meaning.  For example, an {\tt adr} address value
 in the range from 0 through 4095 might be interpreted as an
 integer and not
 an address, under the assumption that low addresses are not
-used by the memory system.  A example of subtypes implementing
+used by the memory system.  An example of a subtype implementing
 this is:
 \begin{indpar}\begin{verbatim}
 define type special adr = subtype of adr
@@ -587,7 +587,7 @@ inline special adr .convert. ( adr a ) unchecked:
 
 float64 x
 stack special adr y = & x -> float64
-stack special adr z = 23
+stack special adr z = 23 -> float64
 assert ( ! is int ( y ) )
 assert ( is int ( z ) )
 float64 x2 = * y   // OK

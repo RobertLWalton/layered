@@ -905,8 +905,8 @@ used by the compiler to type check expressions such as
 \subsection{Independent Block Types}
 \label{INDEPENDENT-BLOCK-TYPES}
 
-Some RAM blocks are `independent'.  Two independent blocks
-are guarenteed to not overlap.
+Some RAM blocks are `independent'.  Two different independent blocks
+are guarenteed to not overlap each other.
 
 There are three basic kinds of independent blocks: static blocks,
 stack blocks, and heap blocks.
@@ -917,8 +917,8 @@ are allocated when a program is loaded, or they can be
 user allocated blocks that are never deallocated.
 
 \ikey{Stack blocks}{stack block}
-are allocated to thread stacks.  Frames
-(see \secref{CODE-AND-FRAME-BLOCKS}) are stack blocks.
+are allocated within thread stack frames
+(see \secref{CODE-AND-FRAME-BLOCKS}).
 A stack block is allocated by a code block execution, and is
 deallocated when that code block execution terminates.
 
@@ -972,15 +972,18 @@ the code block execution.  This frame is a RAM block that holds
 data for the code block execution.  Thus there is a
 1-1 correspondence between code block executions and frame blocks.
 
-A thread stack is a sequence of RAM block.
+A thread stack is a sequence of RAM blocks.
 A frame has a fixed part which is allocated when its code block
 execution begins and which has a size determined at compile time.
 A frame may also have extensions which are allocated during its
 code block execution.  Deallocation of all parts of the
-frame occurs only when the frame's code block execution terminates.
+frame occurs precisely when the frame's code block execution terminates.
 
-Stack variables are themselves independent blocks allocated to
-a frame or its extensions.  A variable whose size is determined
+Frame blocks do not overlap each other, static blocks, or heap blocks.
+Therefore blocks allocated within frame blocks that do not overlap
+other blocks within the same frame are independent.
+Stack variables are independent blocks allocated to a frame or its extensions.
+A variable whose size is determined
 at compile time and which is sufficiently small will be allocated
 in the fixed part of the frame.  For example, the declaration
 \begin{center}

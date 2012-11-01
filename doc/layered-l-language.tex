@@ -1125,7 +1125,7 @@ have the syntax:
 \hspace*{0.2in}
 \begin{tabular}{rcl}
 {\em variable-declaration}
-& ::= & {\em simple-variable-declaration} \\
+& ::= & {\em simple-variable-declaration} \label{SIMPLE-VARIABLE-DECLARATION} \\
 &     & ~~~~~~~~ \{ {\tt ->} {\em simple-variable-declaration} \}$^\star$ \\
 {\em simple-variable-declaration}
 & ::= & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
@@ -1262,9 +1262,43 @@ of location that are not stack or static.
 The standard pointer type is {\tt adr}, which denotes an address.
 But any type can be used as a pointer type in variable declarations.
 
-The operators `{\tt *}' and `{\tt \&}' are automatically
-defined for pointer types and merely change these types by
-moving the value position within the type.  Thus
+The general syntax of declarations in involving pointer types is
+
+\hspace*{0.2in}
+\begin{tabular}{rcl}
+{\em pointer-declaration}
+& ::= & {\em pointer-variable-declaration} \\
+&     & ~~~~~ {\tt ->} {\em target-variable-declaration} \\
+{\em pointer-variable-declaration}
+& ::= & {\em simple-variable-declaration} \\
+{\em target-variable-declaration}
+& ::= & {\em pointer-variable-declaration} \\
+& $|$ & {\em simple-variable-declaration} \\
+{\em simple-variable-declaration}
+& ::= & see \pagref{SIMPLE-VARIABLE-DECLARATION} \\
+\end{tabular}
+
+A {\em pointer-declaration} can be used specify a \key{pointer type}.
+When this is done,
+a single arbitrary variable name is placed within the declaration
+to indicate the `\key{value position}' of the type.  Thus in
+the pointer types
+\begin{indpar}\begin{verbatim}
+adr V -> int32
+adr -> int32 W
+\end{verbatim}\end{indpar}
+the first is the type of an address pointer variable pointing at an
+integer target variable, and the second is the type of an integer
+target variable pointed at by an address variable.
+The variable names choosen, in this case {\tt V} and {\tt W},
+have no significance; any variable names could be substituted here.
+
+
+The operators `{\tt *}' and `{\tt \&}' are automatically defined
+for pointer types and variables of these types.   These operators merely
+move the value position in the types.  When applied to variables, these
+operators permit reference to pointer and target variables
+not explicitly named.  Thus
 \begin{center}
 \begin{tabular}{lllll}
 \tt *  & converts type & {\em type1} {\tt V ->} {\em type2}
@@ -1273,6 +1307,14 @@ moving the value position within the type.  Thus
        & to            & {\em type1} {\tt V ->} {\em type2} \\
 \end{tabular}
 \end{center}
+and in
+\begin{indpar}\begin{verbatim}
+int32 z                // Implicitly: constant stack adr -> int32 z
+stack adr y -> int32   // Implicitly: constant stack adr ->
+                       //                stack adr y -> int32
+y = & z                // & z is address of z
+int32 w = * y          // * y is target of y
+\end{verbatim}\end{indpar}
 
 Whether something is a legitimate pointer type depends upon whether
 it may be used to read or write values.  Reading is done by the
@@ -1295,15 +1337,6 @@ If {\tt x} has a type of the form `$T1${\tt ->}$T2$ {\tt x}',
 then `{\tt x = ...}' translates to `{\tt .set.(\&x,...)}' and
 `{\tt ... = ... x ...}' translates to `{\tt ... = ... .get.(\&x) ...}',
 but we simplify by writing the untranslated versions in these cases.
-Recall that within a function
-\begin{indpar}\begin{verbatim}
-int8 x -> float64 y
-\end{verbatim}\end{indpar}
-is shorthand for
-\begin{indpar}\begin{verbatim}
-constant stack adr -> int8 x -> float64 y
-\end{verbatim}\end{indpar}
-so `{\tt .get.(\&x)}' can be simplified to `{\tt x}'.
 
 The {\tt .get.} and {\tt .set.} functions are likely to be
 undefined for {\tt int8} pointers.  But in special cases

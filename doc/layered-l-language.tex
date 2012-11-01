@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 29, 2012
+November 1, 2012
  
 \end{center}
 
@@ -905,7 +905,7 @@ used by the compiler to type check expressions such as
 \subsection{Independent Block Types}
 \label{INDEPENDENT-BLOCK-TYPES}
 
-Some RAM blocks are `independent'.  Two different independent blocks
+Some RAM blocks are `\key{independent}'.  Two different independent blocks
 are guarenteed to not overlap each other.
 
 There are three basic kinds of independent blocks: static blocks,
@@ -1023,7 +1023,7 @@ the frame, and the value of this variable is the address of {\tt y}.
 
 A `\key{name}' is used to name a variable, function call, type,
 or qualifier.
-All names are sequences of words, natural numbers, quoted strings,
+All names are sequences of words, numbers, quoted strings,
 and bracketted lists of arguments.
 
 In certain contexts several names may appear in a row.
@@ -1066,7 +1066,7 @@ Matching a prototype name to a complete name
 is complex and allows omitted arguments, most
 particularly type arguments such as {\tt T} in the example,
 to be deduced via match generated assignments.
-Implicit conversions may also be allows, such as the conversion of
+Implicit conversions may also be allowed, such as the conversion of
 {\tt 2000} to type {\tt T} in the example.
 On the other hand, matching two complete names merely involves checking for
 equality of names after fully evaluating arguments.
@@ -1079,7 +1079,7 @@ Names have the syntax:
 & ::= & {\em named-argument-list} {\em named-argument-list}$^\star$ \\
 & $|$ & {\em named-argument-list}$^\star$ {\em simple-name} \\
 {\em simple-name}
-& ::= & {\em word} \{ {\em word} $|$ {\em natural-number} \}$^\star$ \\
+& ::= & {\em word} \{ {\em word} $|$ {\em number} \}$^\star$ \\
 & $|$ & {\em quoted-string} \\
 {\em named-argument-list}
 & ::= & {\em simple-name} {\em argument-list}
@@ -1088,6 +1088,7 @@ Names have the syntax:
 & ::= & {\tt (} {\em argument} \{ {\tt ,} {\em argument} \}$^\star$ {\tt )} \\
 & $|$ & {\tt [} {\em argument} \{ {\tt ,} {\em argument} \}$^\star$ {\tt ]} \\
 & $|$ & ditto but with brackets other than {\tt (~)} or {\tt [~]} \\
+&     & and/or separators other than {\tt ,} \\
 {\em argument}
 & ::= & {\em expression} $|$ {\em variable-declaration} \\
 \end{tabular}
@@ -1152,7 +1153,8 @@ have the syntax:
 & ::= & {\em name} \\
 \end{tabular}
 
-Qualifier declarations are described later.  \ikey{Qualifiers}{qualifier}
+Qualifier declarations are described later (\secref{QUALIFIERS}).
+\ikey{Qualifiers}{qualifier}
 have the syntax:
 
 \hspace*{0.2in}
@@ -1171,7 +1173,8 @@ such type has the special property that there is only one
 value possible of that type\,%
 \footnote{This is a central idea in the Haskell programming language}.
 
-The most basic descriptor includes the length, alignment, offset, and
+The `\ttmkey{basic}{descriptor}'
+descriptor includes the length, alignment, offset, and
 flags of a type.  An example use is
 \begin{indpar}\begin{verbatim}
 basic(int32) b;
@@ -1213,7 +1216,7 @@ be omitted (and infered from the type of the output).
 The traceable type flags specify that values of a given type are locatable if
 they are stored in `{\tt static}' or `{\tt stack}' locations,
 that is, in locations
-whose pointer is an address of `{\tt adr}' type that has either
+with an address of `{\tt adr}' type that has either
 the `{\tt static}' or `{\tt stack}' qualifier, so the location
 is either static or in a code block frame.
 
@@ -1228,10 +1231,10 @@ or return values of functions.  However, addresses of locations
 of these types can be used.
 
 Traceable location types
-can be used for open files, exception catch data, etc.
+are typically used for open files, exception catch data, etc.
 
 \hspace*{-1em}\ttkey{traceable value}~~~~~If a value of a
-`{\tt traceable location}' type is stored in a stack or static
+`{\tt traceable value}' type is stored in a stack or static
 location, then at least one such location containing the value
 can be found by appropriate trace operations.
 If one tracable location contains the value, the value may be
@@ -1245,13 +1248,13 @@ value, traceable return values which are to be stored in a stack or static
 location are stored in a caller traceable location as part of the
 call return operation.
 
-Traceable value types can be used for data of interest to a garbage
+Traceable value types are typically used for data of interest to a garbage
 collector.
 
 \end{indpar}
 
-Note that the traceable type flags have no effect when a type
-is used for a location that is not stack or static.
+Note that the traceable type flags are not allowed for types
+of location that are not stack or static.
 
 \subsection{Pointer Types}
 \label{POINTER-TYPES}

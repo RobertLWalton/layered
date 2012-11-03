@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 1, 2012
+November 2, 2012
  
 \end{center}
 
@@ -1133,6 +1133,8 @@ have the syntax:
         {\em variable-name} \\
 & $|$ & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
 &     & ~~~~~~~~ {\em variable-name} {\tt =} {\em initializer} \\
+& $|$ & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
+&     & ~~~~~~~~ {\em variable-name} {\tt ==} {\em equivalent} \\
 {\em variable-name}
 & ::= & {\em name} \\
 {\em container}
@@ -1439,29 +1441,49 @@ the expression {\tt A.D} adds the value of {\tt D} to the value of
 \end{indpar}
 
 
-\subsection{Tuples}
+\subsection{Tuples and Parameter Memory}
 \label{TUPLES}
 
 A \key{tuple} is a sequence of zero or more values, where the values
-need not all have the same type.  A tuple is \underline{not}
+need not all have the same type.
+Tuples are surrounded by brackets and their values are separated by
+separators.  The kind of bracket and separator determine the
+`\mkey{type}{of a tuple}' of the tuple.  For example, there can be
+`{\tt (,)}'-tuples that are values bracketed with parentheses `{\tt (~)}'
+and separated by commas `{\tt ,}', and there can be
+`{\tt [;]}'-tuples that are values bracketed with square brackets `{\tt [~]}'
+and separated by semi-colons `{\tt ;}'.
+
+A tuple is \underline{not}
 a first class datum; it cannot be stored in most kinds of memory.
 Tuples are temporary data used to pass values to functions and
-return values from functions.  A call to a function involves
-at least two tuples, one holding the
+return values from functions.  A call to a function typically involves
+two tuples, one holding the
 \smkey{argument}s{of function} of the function
 and another holding the \smkey{return value}s{of function} of the function.
+However calls may involve many tuples or no tuples.
 
 It is also possible for one code block to transfer to another.
 This is like a call in which the first code block execution
 terminates just as the second code block execution begins.
 A tuple can be transferred along with control.
 
-Tuples may be \key{flattened}.  For example, 
-`{\tt (1, 2, (3, 4), 5)}' is equivalent to
-`{\tt (1, 2, 3, 4, 5)}'.  [TBD: more discussion, and special
-treatment for cluster members.]
+Nested tuples are \key{flattened} when they have the same
+tuple type, that is, the same brackets and separators.  For example, 
+`{\tt (1, 2, (3, 4), 5)}' is equivalent to `{\tt (1, 2, 3, 4, 5)}'.
+As another example, if the function call `{\tt function1()}' returns
+the tuple `{\tt (1, 2, 3)}', then the expression `{\tt (function1())}'
+is equivalent to `{\tt ((1, 2, 3))}' which is equivalent to
+`{\tt (1, 2, 3)}'.  Note that a singleton tuple has no separator,
+but for purposes of tuple type matching `no separator' matches
+every specific separator.
 
-[TBD: what is the difference between input and output?]
+Tuples are stored in \key{parameter memory}, which is a kind of
+memory used to pass function arguments and results.  It is implementation
+dependent whether parts of parameter memory are actually RAM memory;
+they may be registers, or some other kind of memory.
+Different tuple values are independent blocks; they do not overlap
+other tuple values or blocks not stored in parameter memory.
 
 \subsection{Clusters}
 \label{CLUSTERS}
@@ -1496,11 +1518,11 @@ adding either a member name preceded by `{\tt .}' or a
 integer constant subscripts to
 either the base name of the cluster or to another member name
 of the cluster.  Two variable names with different base names
-belong to different clusters.  Two variable names allocated in
-different scopes are in different clusters (a scope is a function,
-a block within the function, the part of a package external to
-functions, or a tuple).  Two variable
-names with the same base name and scope are in the same cluster.
+belong to different clusters.  Base names must refer to independent
+blocks of memory (\secref{INDEPENDENT-BLOCK-TYPES}),
+and are different if and only if the memory
+blocks they refer are not at the same memory location
+(and therefore being independent do not overlap).
 
 Clusters can be passed to functions and returned from functions.
 For example:
@@ -1510,22 +1532,24 @@ define type pointer pair = subtype of void
     //   pp.begin points at the first element
     //   pp.end points just AFTER the last element
 
-// Out of line function to allocate a vector of n T's.
+// Declaration of out of line function to allocate
+// a vector of n T's.
 //
 ( pointer pair pp -> T,
-  unchecked adr b == pp.begin -> T,
-  unchecked adr e == pp.end -> T )
+  unchecked adr pp.begin -> T,
+  unchecked adr pp.end -> T )
     cluster allocate ( type T, basic(T) descriptor, uns32 n )
 
 // Prefix operator to dereference a pointer pair.
 //
-( adr a -> T ) inline "*"
-        ( type T, pointer pair pp -> T,
-          adr -> unchecked adr b == pp.begin -> T,
-          adr -> unchecked adr e == pp.end   -> T )
+( adr -> T V ) inline "*"
+        ( type T,
+          pointer pair pp -> T,
+          unchecked adr pp.begin -> T,
+          unchecked adr pp.end   -> T )
     unchecked:
 
-    if ( b < e ) a = b
+    if ( pp.begin < pp.end ) return * pp.begin
     else fatal error
         ( "Deferencing empty pointer pair." )
 
@@ -1533,13 +1557,14 @@ define type pointer pair = subtype of void
 // pair.
 //
 ( pointer pair pp2 == pp -> T ) inline "++"
-        ( type T, basic(T) descriptor,
+        ( type T,
+          basic(T) descriptor,
           pointer pair pp -> T,
-          adr -> unchecked adr b == pp.begin -> T )
+          adr -> unchecked adr pp.begin -> T )
     unchecked:
 
-    unsadr c = b;
-    b = c + descriptor.length;
+    unsadr c = pp.begin;
+    pp.begin = c + descriptor.length;
 
 //
 // Example usage:
@@ -1558,6 +1583,8 @@ void my function ( void ):
 
 Several heretofore unmentioned language features appear in
 this code.
+
+TBD
 
 The {\tt ==} operator in an argument or return value
 specification specifies that its two sides must be identical.

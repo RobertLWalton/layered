@@ -1556,7 +1556,7 @@ define type pointer pair = subtype of void
 // Prefix operator to increment the begin pointer of a pointer
 // pair.
 //
-( pointer pair pp2 == pp -> T ) inline "++"
+( pointer pair pp -> T ) inline "++"
         ( type T,
           basic(T) descriptor,
           pointer pair pp -> T,
@@ -1584,57 +1584,55 @@ void my function ( void ):
 Several heretofore unmentioned language features appear in
 this code.
 
-TBD
+First, cluster member names are used as prototype parameter
+names, with the base of these names also being a prototype
+parameter.  This specifies that some parameters are related
+by being in the same cluster.
 
-The {\tt ==} operator in an argument or return value
-specification specifies that its two sides must be identical.
-One use is in `{\tt b == pp.begin}' which states that {\tt b}
-and {\tt pp.begin} are identical.  When used as a return value,
-as with the {\tt allocate} function,
-the value {\tt b} is returned, and the compiler then creates
-the variable {\tt pp.begin} and stores the value in it.
-Here {\tt pp.begin} is not otherwise specified.
-When used in an argument, as with the {\tt "*"} function,
-the argument is {\tt b } is implicit and its value is set to
-{\tt pp.begin}.
+When this is done for arguments, the cluster base must
+also be an argument, and the cluster member values
+will be derived from the base, and must be omitted in calls.
 
-In a different use, `{\tt pp2 == pp}' used as a return value
-specifies that {\tt pp2} is identical to the input argument {\tt pp}.
-Here it is {\tt pp} that is known and {\tt pp2} that must be
-discovered.  In addition,
-because these are cluster base names known to the caller
-of the function, this means that the caller also identifies
-the members of the clusters involved.
+When this is done for results, the cluster base may be
+either an argument or a result, and the values of the designated
+members of the cluster are set from the results.
+If the function has the `\ttmkey{cluster}{qualifier}' qualifier,
+then any returned cluster members that do not already exists
+are created as variables
+in the local code block, as is done by `{\tt allocate}' above.
 
-If arbitrary code could create clusters, type safety could be
-violated.  Therefore clusters can be created only by functions with
-the `\ttkey{cluster}' qualifier, which create cluster members after
-the fashion of the `{\tt allocate}' function in the example.
+Also, a result parameter may have the same name as an argument
+parameter, as is done for the {\tt pp} parameter in
+the prototype of {\tt "++"} above.  This specifies that the
+result parameter is the same as the argument parameter,
+and is merely being moved from argument to result in order to
+make the syntax work.
 
 The above example could use a different implementation of {\tt "++"} as
 follows:
 \begin{indpar}\begin{verbatim}
 // Unchecked prefix operator to increment an adr -> T value.
 //
-( adr -> adr a2 -> T ) inline unchecked "++"
-        ( type T, basic(T) descriptor,
-          caller adr -> adr a -> T )
+( adr -> adr -> T ) inline unchecked "++"
+        ( type T,
+          basic(T) descriptor,
+          adr -> adr a -> T )
     unchecked:
 
     unsadr b = a;
     a = b + descriptor.length;
-    & a2 = & a
+    return & a
 
 // Prefix operator to increment the begin pointer of a pointer
 // pair.
 //
-( pointer pair pp2 == pp -> T ) inline "++"
+( pointer pair pp -> T ) inline "++"
         ( type T,
           pointer pair pp -> T,
-          adr -> unchecked adr b == pp.begin -> T )
+          adr -> unchecked adr pp.begin -> T )
     unchecked:
 
-    ++ b
+    ++ pp.begin
 \end{verbatim}\end{indpar}
 
 Here an {\tt unchecked} {\tt "++"} prefix operator is first implemented

@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 4, 2012
+November 5, 2012
  
 \end{center}
 
@@ -1702,22 +1702,53 @@ The following is an example:
 //
 define type array = subtype of adr
 
-// Return an element of an array.
+// Allocate a 2D array.
 //
-( adr -> T V ) "" ( type T, array a -> T, int32 i0, int32 i1,
-                    a.dimension == 2,
-                    int32 s0 == a.step[0],
-                    int32 s1 == a.step[1],
-                    int32 lb0 == a.lower_bound[0],
-                    int32 lb1 == a.lower_bound[1],
-                    int32 ub0 == a.upper_bound[0],
-                    int32 ub1 == a.upper_bound[1] )
+( array a -> T,
+  int32 a.dimension = 2,
+  int32 a.upper_bound[0],
+  int32 a.upper_bound[1],
+  int32 a.lower_bound[0],
+  int32 a.lower_bound[1],
+  int32 a.step[0],
+  int32 a.step[1] )
+    new_array ( type T,
+                int32 upper_bound_0,
+                int32 upper_bound_1,
+                int32 lower_bound_0 = 1,
+                int32 lower_bound_1 = 1,
+                int32 step_0 = upper_bound_1
+                             - lower_bound_1 + 1,
+                int32 step_1 = 1 )
+
+// Return an element of a 2D array.
+//
+( adr -> T V ) ( type T, array a -> T, 
+                 a.dimension == 2,
+                 int32 a.upper_bound[0],
+                 int32 a.upper_bound[1],
+                 int32 a.lower_bound[0],
+                 int32 a.lower_bound[1],
+                 int32 a.step[0],
+                 int32 a.step[1] )
+               [ int32 i0, int32 i1 ]
     unchecked:
 
-    assert ( lb0 <= i0 && i0 <= ub0 )
-    assert ( lb1 <= i1 && i1 <= ub1 )
+    assert ( a.lower_bound[0] <= i0
+             &&
+             i0 <= a.upper_bound[0] )
+    assert ( a.lower_bound[1] <= i1
+             &&
+             i1 <= a.upper_bound[1] )
     adr base = a -> T
-    return base + s0 * i0 + s1 * i1
+    return base + a.step[0] * i0 + a.step[1] * i1
+
+// Sample usage
+
+   . . .
+   array m -> float64 = new_array ( 100, 300 )
+   m[3,5] = 3.141529
+   float64 y = m[3,5]
 \end{verbatim}\end{indpar}
 
 TBD

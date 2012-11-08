@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 5, 2012
+November 8, 2012
  
 \end{center}
 
@@ -1075,21 +1075,21 @@ Names have the syntax:
 
 \hspace*{0.2in}
 \begin{tabular}{rcl}
-{\em name}
+\emkey{name}
 & ::= & {\em named-argument-list} {\em named-argument-list}$^\star$ \\
 & $|$ & {\em named-argument-list}$^\star$ {\em simple-name} \\
-{\em simple-name}
+\emkey{simple-name}
 & ::= & {\em word} \{ {\em word} $|$ {\em number} \}$^\star$ \\
 & $|$ & {\em quoted-string} \\
-{\em named-argument-list}
+\emkey{named-argument-list}
 & ::= & {\em simple-name} {\em argument-list}
                           {\em argument-list}$^\star$ \\
-{\em argument-list}
+\emkey{argument-list}
 & ::= & {\tt (} {\em argument} \{ {\tt ,} {\em argument} \}$^\star$ {\tt )} \\
 & $|$ & {\tt [} {\em argument} \{ {\tt ,} {\em argument} \}$^\star$ {\tt ]} \\
 & $|$ & ditto but with brackets other than {\tt (~)} or {\tt [~]} \\
 &     & and/or separators other than {\tt ,} \\
-{\em argument}
+\emkey{argument}
 & ::= & {\em expression} $|$ {\em variable-declaration} \\
 \end{tabular}
 
@@ -1098,22 +1098,22 @@ syntax:
 
 \hspace*{0.2in}
 \begin{tabular}{rcl}
-{\em type-declaration}
+\emkey{type-declaration}
 & ::= & {\tt define type} {\em qualifier}$^\star$ {\em type-name} \\
 & $|$ & {\tt define type} {\em qualifier}$^\star$ {\em type-name}
         {\tt =} {\em type-flag}$^\star$ {\em type-spec} \\
-{\em type-name}
+\emkey{type-name}
 & ::= & {\em name } \\
-{\em type-spec}
+\emkey{type-spec}
 & ::= & {\em block-type-spec} $|$ {\em subtype-type-spec} \\
-{\em block-type-spec}
+\emkey{block-type-spec}
 & ::= & {\tt (} {\em length}{\tt ,}
 	        {\em alignment}{\tt ,} {\em offset} {\tt )} \\
 & $|$ & {\tt (} {\em length}{\tt ,} {\em alignment} {\tt )} \\
 & $|$ & {\tt (} {\em length} {\tt )} \\
-{\em subtype-type-spec}
+\emkey{subtype-type-spec}
 & ::= & {\tt subtype of} {\em type-name} \\
-{\em type-flag}
+\emkey{type-flag}
 & ::= & {\tt floating} $|$ {\tt address} $|$ {\tt extendable} \\
 & $|$ & {\tt locatable variable} $|$ {\tt locatable value} $|$
 	{\tt descriptor}
@@ -1124,10 +1124,10 @@ have the syntax:
 
 \hspace*{0.2in}
 \begin{tabular}{rcl}
-{\em variable-declaration}
+\emkey{variable-declaration}
 & ::= & {\em simple-variable-declaration} \label{SIMPLE-VARIABLE-DECLARATION} \\
 &     & ~~~~~~~~ \{ {\tt ->} {\em simple-variable-declaration} \}$^\star$ \\
-{\em simple-variable-declaration}
+\emkey{simple-variable-declaration}
 & ::= & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
 & $|$ & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$
         {\em variable-name} \\
@@ -1135,9 +1135,9 @@ have the syntax:
 &     & ~~~~~~~~ {\em variable-name} {\tt =} {\em initializer} \\
 & $|$ & {\em qualifier}$^\star$ {\em type-name} {\em container}$^\star$ \\
 &     & ~~~~~~~~ {\em variable-name} {\tt ==} {\em equivalent} \\
-{\em variable-name}
+\emkey{variable-name}
 & ::= & {\em name} \\
-{\em container}
+\emkey{container}
 & ::= & {\tt @} {\em qualifier}$^\star$ {\em type-name}
 \end{tabular}
 
@@ -1146,12 +1146,12 @@ have the syntax:
 
 \hspace*{0.2in}
 \begin{tabular}{rcl}
-{\em function-declaration}
+\emkey{function-declaration}
 & ::= & {\em function-output-spec} {\em qualifier}$^\star${\em function-name} \\
-{\em function-output-spec}
+\emkey{function-output-spec}
 & ::= & {\em qualifier}$^\star${\em type-name} \\
 & $|$ & {\em argument-list} \\
-{\em function-name}
+\emkey{function-name}
 & ::= & {\em name} \\
 \end{tabular}
 
@@ -1161,9 +1161,10 @@ have the syntax:
 
 \hspace*{0.2in}
 \begin{tabular}{rcl}
-{\em qualifier-name}
+\emkey{qualifier-name}
 & ::= & {\em name} \\
-\end{tabular}
+\end{tabular}%
+\label{QUALIFIER-NAME}
 
 \subsection{Descriptors}
 \label{DESCRIPTORS}
@@ -2241,11 +2242,8 @@ with `{\tt [ ]}' instead of `{\tt ( )}'.
 \label{QUALIFIERS}
 
 The L-Language controls the way memory is accessed via \skey{qualifier}s.
-A qualifier is either a qualifier name followed by optional
-parameters in parentheses, or is a parentheses surrounded
-qualifier expression.
-Qualifier parameters may be expressions written
-in a sublanguage special to the type of qualifier.
+A qualifier is either a {\em name} (\pagref{QUALIFIER-NAME}),
+or is a parentheses surrounded qualifier expression.
 
 Qualifiers may be applied to values or to locations of memory.  Some
 types of qualifiers apply to values and some to locations.
@@ -2253,7 +2251,7 @@ For example, `{\tt stack}' is a value qualifier that says that
 a value is not valid after the currently executing function returns,
 `{\tt constant}' is a location qualifier that says that the
 location will never ever be written into,
-and `{\tt readlonly}' is a location qualifier that says that the
+and `{\tt readonly}' is a location qualifier that says that the
 location cannot be written using the given address of the location.
 
 For example, the
@@ -2319,8 +2317,9 @@ int32 Q function3 ()
 \end{verbatim}\end{indpar}
 
 Some qualifiers
-are both access and body qualifiers, and these
-are put in the position of function access qualifier.
+are both access and body qualifiers, and when these
+are put in the position of function access qualifier,
+they also apply to the function body.
 
 If in the above examples we assume that
 {\tt Q} is a protection qualifier, then {\tt function3}
@@ -2356,8 +2355,8 @@ There are three builtin lifetime qualifiers.
 The `{\tt static}' qualifier specifies that the value
 has unlimited lifetime.
 The `{\tt stack}' qualifier specifies that the value
-has a lifetime that lasts at least until the
-current function execution terminates.
+has a lifetime that lasts at least until a
+current code block execution terminates.
 The `{\tt caller}' qualifier
 specifies that the value has a lifetime that begins before the
 called function starts to execute and lasts until

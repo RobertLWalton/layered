@@ -2376,13 +2376,13 @@ with other locations, and,
 in particular, that a location passed from a caller to
 a called function does not overlap with any other location so passed
 or with any location accessible from other data.
-\ikey{Parallel qualifiers}{parallel qualifier} may be declared to
-identify memory locations whose register \underline{and hardware}
-caches are to be flushed by explicit cache flushing statements in the
-L-Language.
-These are used for memory locations shared between different hardware
-processing units (e.g., between a central processing unit and an
-IO device, or between two different central processing units).
+
+In addition user define `calling cache qualifiers' may be defined
+that specify that software cache lifetimes will continue until
+a code block having a given access qualifier (see below) is executed.
+If such a code block flushes hardware caches, it can be used
+in combination with these user defined qualifiers to flush both
+software and hardware caches.
 
 \ikey{Access qualifiers}{access qualifier} may be declared
 to control which functions can access a memory location or call other

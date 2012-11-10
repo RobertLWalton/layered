@@ -2364,8 +2364,11 @@ sometime after that function returns.
 
 In addition user define `calling lifetime qualifiers' may be defined
 that specify that lifetimes will continue until
-an out-of-line function having or not having given
-access qualifiers (see below) is called.
+an out-of-line function having a given
+access qualifier (see below) is called.
+For example, a `{\tt relocatable}' lifetime qualifier can specify
+that a value lifetime ends when a function with
+the `{\tt relocating}' access qualifier is called.
 
 \ikey{Caching qualifiers}{caching qualifier} specify when memory locations
 may be changed, and thence when they may be cached in registers.  The
@@ -2383,6 +2386,9 @@ a code block having a given access qualifier (see below) is executed.
 If such a code block flushes hardware caches, it can be used
 in combination with these user defined qualifiers to flush both
 software and hardware caches.
+
+Cachine qualifiers, types and container types, and regions are used together
+to specify aliasing (\secref{ALIASING}).
 
 \ikey{Access qualifiers}{access qualifier} may be declared
 to control which functions can access a memory location or call other

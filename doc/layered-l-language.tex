@@ -236,7 +236,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 8, 2012
+November 12, 2012
  
 \end{center}
 
@@ -2447,7 +2447,7 @@ See \secref{QUALIFIER-INHERITANCE}.
 
 Lifetime qualifiers determine when value lifetimes expire.
 For example, the lifetime of the address of a stack variable allocated
-in a function frame expires when the function execution terminates.
+in a code block frame expires when the code block execution terminates.
 
 The `{\tt static}' lifetime qualifier that indicates a value has
 an unlimited lifetime is applied by default to numeric values.
@@ -2457,7 +2457,8 @@ as an open file designator, it may be given a limited lifetime.
 
 A lifetime qualifier {\tt Q1} is said to be `\key{convertible}'
 to a lifetime qualifier {\tt Q2} if {\tt Q1} promises a lifetime
-at least as long as {\tt Q2} promises.
+at least as long as {\tt Q2} promises.  Thus the `{\tt static}'
+lifetime qualifier is convertible to any other lifetime qualifier.
 
 If {\tt Q} is a lifetime qualifier in the type
 \begin{center}
@@ -2502,14 +2503,15 @@ as long as the current function execution.  Equivalent to
 Specifies the value lives at least as long as the execution of
 the current code block of nested level
 {\tt n} within the currently executing function.
-Unnested code within the function is considered to be at nested level {\tt 0}.
+Unnested code within the function body
+is considered to be at nested level {\tt 0}.
 {\tt stack(n)} is automatically applied
 to the addresses of locations allocated to the
-current function frame by code in a level {\tt n} block (such locations
-are freed when the block of level {\tt n} terminates).
+current frame by code in a level {\tt n} code block (such locations
+are freed when the code block of level {\tt n} terminates).
 
 `{\tt stack(m)}' is convertable during the execution of
-a block of level {\tt n}$>${\tt m} to `{\tt stack(n)}'.
+a code block of level {\tt n}$>${\tt m} to `{\tt stack(n)}'.
 
 
 A `{\tt stack(n)}' qualifier \underline{cannot}
@@ -2553,9 +2555,9 @@ int32 function2 ( caller adr arg1 -> caller adr -> int32 )
     // an int32.  function2 can use `**arg1 = value' to return
     // an int32 value, and can use `*arg1 = value' to return
     // a static address, but not a caller address.
-int32 function3 ( static adr arg1 -> caller adr -> int32 )
-    // Illegal; a static location cannot contain a value whose
-    // lifetime may only last until some function returns.
+int32 function3 ( static adr arg1 -> stack adr -> int32 )
+    // Illegal; an argument type cannot contain a `stack'
+    // lifetime qualifier.
 \end{verbatim}\end{indpar}
 
 The `{\tt caller}' lifetime qualifier is the default
@@ -2565,7 +2567,7 @@ lifetime qualifier.  Thus in the above example the `{\tt caller}'
 qualifiers could have been omitted.
 
 The `{\tt caller}' lifetime qualifier may \underline{not} be used
-except in function argument and return value declarations.
+except in function argument and return value types.
 
 \end{indpar}
 

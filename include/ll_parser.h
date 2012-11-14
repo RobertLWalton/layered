@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 03:31:29 EDT 2012
+// Date:	Wed Nov 14 00:28:39 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -514,7 +514,7 @@ namespace pass_function {
 	      min::phrase_position_vec ppvec );
 
     // Function called (if not NULL) by `parser begin
-    // <name>' AFTER parser->block_level has been
+    // <name>' AFTER parser block_level has been
     // incremented.  Normally there is nothing to do.
     // Vp is the parser command, ppvec is its phrase
     // position vector, and name is the block name.
@@ -527,25 +527,11 @@ namespace pass_function {
 	      min::gen name );
 
     // Ditto but called by `parser end <name>' BEFORE
-    // parser->block_level has been decremented.  This
+    // parser block_level has been decremented.  This
     // function should remove all pass symbol table
-    // entries with block level == parser->block_level.
+    // entries with block level == parser block_level.
     //
     typedef min::gen ( * end_block )
-	    ( ll::parser::parser parser,
-	      ll::parser::pass pass,
-	      min::obj_vec_ptr & vp,
-	      min::phrase_position_vec ppvec,
-	      min::gen name );
-
-    // Function called (if not NULL) by `parser undefine
-    // <name>.  This function should push an UNDEFINED
-    // entry into every pass symbol table that defines
-    // the given name.  Vp is the parser command, ppvec
-    // is its phrase position vector, and name is the
-    // name to be undefined.
-    //
-    typedef min::gen ( * undefine )
 	    ( ll::parser::parser parser,
 	      ll::parser::pass pass,
 	      min::obj_vec_ptr & vp,
@@ -581,7 +567,6 @@ struct pass_struct
         parser_command;
     ll::parser::pass_function::begin_block begin_block;
     ll::parser::pass_function::end_block end_block;
-    ll::parser::pass_function::undefine undefine;
 
     ll::parser::table::flags selectors;
         // Pass is run only if its selectors match those
@@ -728,14 +713,17 @@ struct parser_struct
 	// with the same program and printer as the main
 	// parser scanner.
 
-    min::uns16 block_level;
-        // Number of unclosed `parser begin' statements,
-	// i.e., current block depth.  Top level is 0.
+    const ll::parser::table::undefined_stack
+    	    undefined_stack;
+	// Undefined records that record ll::parser::
+	// table::root selectors replaced by undefine
+	// commands.
 
-    const ll::parser::table::name_table
-    	    block_name_table;
-        // Names of current blocks, in order they were
-	// entered.
+    const ll::parser::table::block_stack
+    	    block_stack;
+        // Information about blocks.  length is the
+	// parser `block_level', i.e., the level of
+	// the current block.
 
     const ll::parser::table::name_table
     	    selector_name_table;
@@ -778,6 +766,12 @@ struct parser_struct
 	// produces finished tokens and calls `output'.
 };
 
+inline min::uns32 block_level
+	( ll::parser::parser parser )
+{
+    return parser->block_stack->length;
+}
+
 MIN_REF ( ll::parser::input, input,
           ll::parser::parser )
 MIN_REF ( ll::parser::output, output,
@@ -795,8 +789,11 @@ MIN_REF ( min::printer, printer,
           ll::parser::parser )
 MIN_REF ( ll::lexeme::scanner, name_scanner,
           ll::parser::parser )
-MIN_REF ( ll::parser::table::name_table,
-		block_name_table,
+MIN_REF ( ll::parser::table::undefined_stack,
+		undefined_stack,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::block_stack,
+		block_stack,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::name_table,
 		selector_name_table,

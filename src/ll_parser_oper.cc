@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 06:46:46 EDT 2012
+// Date:	Wed Nov 14 06:24:13 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,8 @@
 //	Usage and Setup
 //	Operator Table Entries
 //	Operator Parser Pass
-//	Operator Parser Pass Run Routine
+//	Operator Parse Function
+//	Operator Reformatters
 
 // Usage and Setup
 // ----- --- -----
@@ -139,9 +140,11 @@ static min::gen oper_pass_end_block
     min::uns64 collected_entries,
                collected_key_prefixes;
 
-    assert ( parser->block_level > 0 );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+    assert ( block_level > 0 );
     TAB::end_block
-        ( oper_table, parser->block_level - 1,
+        ( oper_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
 
     return min::SUCCESS();
@@ -184,8 +187,8 @@ OP::oper_pass OP::place
     return oper_pass;
 }
 
-// Operator Parser Pass Run Routine
-// -------- ------ ---- --- -------
+// Operator Parse Function
+// -------- ----- --------
 
 // Return true iff the argument is a precedence in the
 // oper_stack.

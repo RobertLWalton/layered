@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 05:26:10 EDT 2012
+// Date:	Wed Nov 14 01:24:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,6 +15,7 @@
 //	Roots
 //	Key Prefixes
 //	Undefineds
+//	Blocks
 //	Brackets
 //	Named Brackets
 //	Indentation Marks
@@ -23,6 +24,7 @@
 // ----- --- -----
 
 # include <ll_parser_table.h>
+# define MUP min::unprotected
 # define TAB ll::parser::table
 
 // Name Tables
@@ -294,36 +296,47 @@ void TAB::end_block
 // Undefineds
 // ----------
 
-static min::packed_struct<TAB::root_struct>
-    undefined_type 
-	( "ll::parser::table::undefined_type",
-	  ::root_gen_disp, ::root_stub_disp );
-const min::uns32 & TAB::UNDEFINED =
-    undefined_type.subtype;
+static min::uns32 undefined_stack_stub_disp[] = {
+    min::DISP ( & TAB::undefined_struct::root ),
+    min::DISP_END };
 
-// Don't do anything if label/selector cannot be found.
-//
-void TAB::push_undefined
-	( min::gen label,
-	  TAB::flags selectors,
-	  min::uns32 block_level,
-	  const min::phrase_position & position,
-	  TAB::table table )
+static min::packed_vec<TAB::undefined_struct>
+    undefined_stack_type 
+	( "ll::parser::table::undefined_stack_type",
+	  NULL, ::undefined_stack_stub_disp );
+
+void TAB::init_undefined_stack
+	( min::ref<TAB::undefined_stack> undefined_stack,
+	  min::uns32 max_length )
 {
-    MIN_ASSERT ( root_type.subtype != TAB::UNDEFINED );
+    if ( undefined_stack == min::NULL_STUB )
+        undefined_stack =
+	     ::undefined_stack_type
+	         .new_stub ( max_length );
+}
 
-    if (    TAB::find ( label, selectors, table )
-         == NULL_STUB )
-        return;
 
-    min::locatable_var<TAB::root> undefined
-        ( ::undefined_type.new_stub() );
-    label_ref(undefined) = label;
-    undefined->selectors = selectors;
-    undefined->block_level = block_level;
-    undefined->position = position;
 
-    TAB::push ( table, undefined );
+// Blocks
+// ------
+
+static min::uns32 block_stack_gen_disp[] = {
+    min::DISP ( & TAB::block_struct::name ),
+    min::DISP_END };
+
+static min::packed_vec<TAB::block_struct>
+    block_stack_type 
+	( "ll::parser::table::block_stack_type",
+	   ::block_stack_gen_disp );
+
+void TAB::init_block_stack
+	( min::ref<TAB::block_stack> block_stack,
+	  min::uns32 max_length )
+{
+    if ( block_stack == min::NULL_STUB )
+        block_stack =
+	     ::block_stack_type
+	         .new_stub ( max_length );
 }
 
 // Brackets

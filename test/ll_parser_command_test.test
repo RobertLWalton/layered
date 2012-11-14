@@ -237,7 +237,7 @@ parser test <* hi there A *>
 parser test <* hi there A *>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 53: unrecognized block name:
+ERROR: in line 53: innermost block name does not match:
 parser end block x
            ^^^^^^^
 ======= TEST: parser test <*hi there B*>
@@ -254,6 +254,6 @@ parser end block 1
 parser test <* hi there C *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 57: unrecognized block name:
+ERROR: in line 57: not inside a block (no begin block to end):
 parser end block 1
            ^^^^^^^

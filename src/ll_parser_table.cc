@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 01:24:54 EST 2012
+// Date:	Wed Nov 14 12:02:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -306,7 +306,8 @@ static min::packed_vec<TAB::undefined_struct>
 	  NULL, ::undefined_stack_stub_disp );
 
 void TAB::init_undefined_stack
-	( min::ref<TAB::undefined_stack> undefined_stack,
+	( min::ref<TAB::undefined_stack>
+	      undefined_stack,
 	  min::uns32 max_length )
 {
     if ( undefined_stack == min::NULL_STUB )

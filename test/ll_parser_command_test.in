@@ -55,3 +55,10 @@ parser test <* hi there B *>
 parser end block 1
 parser test <* hi there C *>
 parser end block 1
+parser define bracket "<|" ... "|>" [code]
+parser test <| hi there D |>
+parser begin block 1
+parser undefine bracket "<|" ... "|>" [code]
+parser test <| hi there E |>
+parser end block 1
+parser test <| hi there F |>

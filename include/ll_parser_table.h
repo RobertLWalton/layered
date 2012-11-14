@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 00:33:02 EST 2012
+// Date:	Wed Nov 14 08:01:48 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -339,13 +339,15 @@ void init_undefined_stack
 inline void push_undefined
 	( ll::parser::table::undefined_stack
 	      undefined_stack,
-	  ll::parser::table::root root )
+	  ll::parser::table::root root,
+	  ll::parser::table::flags excluded_selectors )
 {
     ll::parser::table::undefined_struct u =
         { root, root->selectors };
     min::push ( undefined_stack ) = u;
     min::unprotected::acc_write_update
         ( undefined_stack, root );
+    root->selectors &= ~ excluded_selectors;
 }
 
 // Blocks

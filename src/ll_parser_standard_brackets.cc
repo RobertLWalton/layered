@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 07:03:30 EST 2012
+// Date:	Wed Nov 14 12:02:52 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -81,7 +81,8 @@ void PARSTD::init_brackets
 
     min::phrase_position pp;   // TBD: make top level
 
-    min::uns32 block_level = PAR::block_level ( parser );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
     TAB::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,

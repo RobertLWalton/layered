@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 06:21:18 EST 2012
+// Date:	Wed Nov 14 11:55:12 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1986,7 +1986,64 @@ static min::gen bracketed_pass_command
 	      "expected bracketed selector list"
 	      " after" );
 
+    // Some type specific error checking common to
+    // define and undefine.
+    //
     switch ( type )
+    {
+    case ::BRACKET:
+        break;
+
+    case ::INDENTATION_MARK:
+    {
+	if ( gluing
+	     &&
+		LEXSTD::lexical_type_of ( name[0] )
+	     != LEXSTD::mark_t )
+	    return PAR::parse_error
+		( parser, ppvec[5],
+		  "gluing indentation mark name ",
+		  min::pgen ( name[0],
+		              min::BRACKET_STR_FLAG ),
+		  " is not a mark in" );
+	break;
+    }
+    case ::NAMED_BRACKET:
+    {
+	bool separator_present =
+	    ( number_of_names % 2 == 1 );
+	bool middle_present =
+	    ( number_of_names >= 4 );
+
+	min::unsptr m = 1 + separator_present;
+	if (    middle_present
+	     && name[m] != name[m+1] )
+	{
+	    min::phrase_position pp;
+	    pp.begin = ppvec[m].begin;
+	    pp.end   = ppvec[m+1].end;
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: named middles "
+		<< min::pgen ( name[m] )
+		<< " and "
+		<< min::pgen ( name[m+1] )
+		<< " do not match in "
+		<< min::pline_numbers
+		       ( ppvec->file, pp )  
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file, pp );
+	    ++ parser->error_count;
+	    return min::ERROR();
+	}
+
+	break;
+    }
+    }
+
+    if ( define ) switch ( type )
     {
     case ::BRACKET:
     {
@@ -2084,17 +2141,6 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "expected `with' after" );
 
-	if ( gluing
-	     &&
-		LEXSTD::lexical_type_of ( name[0] )
-	     != LEXSTD::mark_t )
-	    return PAR::parse_error
-		( parser, ppvec[5],
-		  "gluing indentation mark name ",
-		  min::pgen ( name[0],
-		              min::BRACKET_STR_FLAG ),
-		  " is not a mark in" );
-
 	TAB::push_indentation_mark
 	    ( name[0],
 	      number_of_names == 2 ?
@@ -2117,34 +2163,11 @@ static min::gen bracketed_pass_command
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected end of statement after" );
+
 	bool separator_present =
 	    ( number_of_names % 2 == 1 );
 	bool middle_present =
 	    ( number_of_names >= 4 );
-
-	min::unsptr m = 1 + separator_present;
-	if (    middle_present
-	     && name[m] != name[m+1] )
-	{
-	    min::phrase_position pp;
-	    pp.begin = ppvec[m].begin;
-	    pp.end   = ppvec[m+1].end;
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: named middles "
-		<< min::pgen ( name[m] )
-		<< " and "
-		<< min::pgen ( name[m+1] )
-		<< " do not match in "
-		<< min::pline_numbers
-		       ( ppvec->file, pp )  
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file, pp );
-	    ++ parser->error_count;
-	    return min::ERROR();
-	}
 
 	min::gen named_opening = name[0];
 	min::gen named_separator =
@@ -2152,7 +2175,8 @@ static min::gen bracketed_pass_command
 	      (min::gen) name[1] : min::MISSING() );
 	min::gen named_middle =
 	    ( middle_present ?
-	      (min::gen) name[m] : min::MISSING() );
+	      (min::gen) name[1+separator_present] :
+	      min::MISSING() );
 	min::gen named_closing =
 	    name[1 + separator_present
 		   + 2 * middle_present ];
@@ -2252,7 +2276,128 @@ static min::gen bracketed_pass_command
 	break;
     }
     default:
-	MIN_ABORT ( "bad parser (un)define type" );
+	MIN_ABORT ( "bad parser define type" );
+    }
+    else /* if ( ! define ) */ 
+    {
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "unexpected stuff after" );
+
+	TAB::key_prefix key_prefix =
+	    TAB::find_key_prefix
+	        ( name[0],
+		  bracketed_pass->bracket_table );
+
+	if ( key_prefix != min::NULL_STUB )
+	for ( TAB::root root = key_prefix->first;
+	      root != min::NULL_STUB;
+	      root = root->next )
+	{
+	    if (    ( root->selectors & selectors )
+		 == 0 )
+		continue;
+
+	    min::uns32 subtype =
+		min::packed_subtype_of ( root );
+
+	    switch ( type )
+	    {
+	    case ::BRACKET:
+	    {
+		if ( subtype != TAB::OPENING_BRACKET )
+		    continue;
+
+		TAB::opening_bracket opening_bracket =
+		    (TAB::opening_bracket) root;
+		TAB::closing_bracket closing_bracket =
+		    opening_bracket->closing_bracket;
+
+		if ( closing_bracket->label != name[1] )
+		    continue;
+
+		break;
+	    }
+
+	    case ::INDENTATION_MARK:
+	    {
+		if ( subtype != TAB::INDENTATION_MARK )
+		    continue;
+
+		TAB::indentation_mark indentation_mark =
+		    (TAB::indentation_mark) root;
+		TAB::line_separator line_separator =
+		    indentation_mark->line_separator;
+		if ( line_separator == min::NULL_STUB
+		     &&
+		     number_of_names == 2 )
+		    continue;
+		if ( line_separator != min::NULL_STUB
+		     &&
+		     number_of_names == 1 )
+		    continue;
+		if ( line_separator != min::NULL_STUB
+		     &&
+		     line_separator->label != name[1] )
+		    continue;
+
+		break;
+	    }
+	    case ::NAMED_BRACKET:
+	    {
+		if ( subtype != TAB::NAMED_OPENING )
+		    continue;
+
+		bool separator_present =
+		    ( number_of_names % 2 == 1 );
+		bool middle_present =
+		    ( number_of_names >= 4 );
+
+		TAB::named_opening named_opening =
+		    (TAB::named_opening) root;
+		TAB::named_separator named_separator =
+		    named_opening->named_separator;
+		TAB::named_closing named_closing =
+		    named_opening->named_closing;
+		TAB::named_middle named_middle =
+		    named_opening->named_middle;
+
+		if ( (    named_separator
+		       == min::NULL_STUB )
+		     !=
+		     separator_present )
+		    continue;
+		if ( named_separator != min::NULL_STUB
+		     &&
+		     named_separator->label != name[1] )
+		    continue;
+		if ( ( named_middle == min::NULL_STUB )
+		     !=
+		     middle_present )
+		    continue;
+		if ( named_middle != min::NULL_STUB
+		     &&
+		         named_middle->label
+		     != name[1+separator_present] )
+		    continue;
+		if ( named_closing->label
+		     !=
+		     name[1 + separator_present
+			    + 2 * middle_present ] )
+		    continue;
+
+		break;
+	    }
+	    default:
+		MIN_ABORT
+		    ( "bad parser undefine type" );
+	    }
+
+	    TAB::push_undefined
+	        ( parser->undefined_stack,
+		  root, selectors );
+	}
     }
 
     return min::SUCCESS();

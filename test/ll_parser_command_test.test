@@ -257,3 +257,28 @@ parser test <* hi there C *>
 ERROR: in line 57: not inside a block (no begin block to end):
 parser end block 1
            ^^^^^^^
+parser define bracket "<|" ... "|>" [code]
+======= TEST: parser test <|hi there D|>
+------- line 59:
+parser test <| hi there D |>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 59:
+parser test <| hi there D |>
+            ^^^^^^^^^^^^^^^^
+======= END TEST
+parser begin block 1
+parser undefine bracket "<|" ... "|>" [code]
+======= TEST: parser test <| hi there E |>
+------- line 62:
+parser test <| hi there E |>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+parser end block 1
+======= TEST: parser test <|hi there F|>
+------- line 64:
+parser test <| hi there F |>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 64:
+parser test <| hi there F |>
+            ^^^^^^^^^^^^^^^^
+======= END TEST

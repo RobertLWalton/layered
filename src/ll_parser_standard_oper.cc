@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 28 07:38:11 EDT 2012
+// Date:	Wed Nov 14 07:05:37 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,10 +64,12 @@ OP::oper_pass PARSTD::init_oper
 
     min::phrase_position pp;  // TBD: set to top level.
 
+    min::uns32 block_level =
+        PAR::block_level ( parser );
     OP::push_oper
         ( comma,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::NOFIX,
 	  4000,
 	  OP::separator_reformatter,
@@ -76,7 +78,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  9000,
 	  OP::right_associative_reformatter,
@@ -85,7 +87,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( plus_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  9000,
 	  OP::right_associative_reformatter,
@@ -94,7 +96,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( minus_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  9000,
 	  OP::right_associative_reformatter,
@@ -103,7 +105,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( times_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  9000,
 	  OP::right_associative_reformatter,
@@ -112,7 +114,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( divide_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  9000,
 	  OP::right_associative_reformatter,
@@ -121,7 +123,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( equal_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  15000,
 	  OP::compare_reformatter,
@@ -130,7 +132,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( less_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  15000,
 	  OP::compare_reformatter,
@@ -139,7 +141,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( greater_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  15000,
 	  OP::compare_reformatter,
@@ -148,7 +150,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( not_equal,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  15000,
 	  OP::compare_reformatter,
@@ -157,7 +159,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( less_than,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  15000,
 	  OP::compare_reformatter,
@@ -166,7 +168,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( greater_than,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  parser->block_level, pp,
+	  block_level, pp,
 	  OP::INFIX,
 	  15000,
 	  OP::compare_reformatter,

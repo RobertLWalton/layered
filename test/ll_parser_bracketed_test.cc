@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 03:59:18 EDT 2012
+// Date:	Wed Nov 14 07:31:56 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,11 +58,13 @@ int main ( int argc, const char * argv[] )
 
     min::phrase_position pp; // TBD: set to top level.
 
+    min::uns32 block_level =
+        PAR::block_level ( PAR::default_parser );
     TAB::push_brackets
         ( openplus,
           closeplus,
 	  PARSTD::MATH,
-	  PAR::default_parser->block_level, pp,
+	  block_level, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
@@ -70,7 +72,7 @@ int main ( int argc, const char * argv[] )
         ( openminus,
           closeminus,
 	  PARSTD::TEXT,
-	  PAR::default_parser->block_level, pp,
+	  block_level, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );

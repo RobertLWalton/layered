@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 07:08:19 EDT 2012
+// Date:	Wed Nov 14 00:33:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,7 @@
 //	Roots
 //	Key Prefixes
 //	Undefineds
+//	Blocks
 //	Brackets
 //	Named Brackets
 //	Indentation Marks
@@ -80,7 +81,7 @@ typedef min::packed_vec_ptr<min::gen>
 typedef min::packed_vec_insptr<min::gen>
 	name_table_insptr;
 
-// Initialize a flag name table with max_length = 64
+// Initialize a flag name table with given max_length
 // and length = 0.
 //
 void init_name_table
@@ -156,10 +157,9 @@ struct root_struct
     uns32 control;
     	// Packed structure control word.
 	//
-    uns16 block_level;
+    uns32 block_level;
         // Parser block_level at time symbol was
 	// defined.
-    uns16 padding;
 
     const ll::parser::table::root next;
         // Next entry in the stack with the same key.
@@ -314,15 +314,77 @@ void end_block
 // Undefineds
 // ----------
 
-extern const uns32 & UNDEFINED;
-    // Subtype of min::packed_struct<root_struct>.
+struct undefined_struct
+    // Records the zeroing of a root selectors field.
+{
+    ll::parser::table::root root;
+        // root->selectors is zeroed.
 
-void push_undefined
-	( min::gen label,
-	  ll::parser::table::flags selectors,
-	  min::uns32 block_level,
-	  const min::phrase_position & position,
-	  ll::parser::table::table table );
+    ll::parser::table::flags saved_selectors;
+        // Value of root->selectors before it is zeroed.
+};
+
+typedef min::packed_vec_insptr
+            <ll::parser::table::undefined_struct>
+	undefined_stack;
+
+// Initialize an undefined stack with given max_length
+// and length = 0.
+//
+void init_undefined_stack
+    ( min::ref<ll::parser::table::undefined_stack>
+	  undefined_stack,
+      min::uns32 max_length = 64 );
+
+inline void push_undefined
+	( ll::parser::table::undefined_stack
+	      undefined_stack,
+	  ll::parser::table::root root )
+{
+    ll::parser::table::undefined_struct u =
+        { root, root->selectors };
+    min::push ( undefined_stack ) = u;
+    min::unprotected::acc_write_update
+        ( undefined_stack, root );
+}
+
+// Blocks
+// ------
+
+struct block_struct
+    // Records information about a block.
+{
+    min::gen name;
+        // Block name.
+
+    min::uns32 saved_undefined_stack_length;
+        // Undefined_stack length when block begins.
+};
+
+typedef min::packed_vec_insptr
+            <ll::parser::table::block_struct>
+	block_stack;
+
+// Initialize a block stack with given max_length
+// and length = 0.
+//
+void init_block_stack
+    ( min::ref<ll::parser::table::block_stack>
+	  block_stack,
+      min::uns32 max_length = 64 );
+
+inline void push_block
+	( ll::parser::table::block_stack block_stack,
+	  min::gen name,
+	  ll::parser::table::undefined_stack
+	      undefined_stack )
+{
+    ll::parser::table::block_struct b =
+        { name, undefined_stack->length };
+    min::push ( block_stack ) = b;
+    min::unprotected::acc_write_update
+        ( block_stack, name );
+}
 
 // Brackets
 // --------

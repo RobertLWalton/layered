@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 02:58:59 EDT 2012
+// Date:	Wed Nov 14 06:15:33 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -601,11 +601,8 @@ static min::gen execute_begin
 	    ( parser,
 	      ppvec[i-1],
 	      "extraneous stuff after" );
-    MIN_ASSERT ( parser->block_name_table->length
-                 ==
-		 parser->block_level );
-    TAB::push_name ( parser->block_name_table, name );
-    ++ parser->block_level;
+    TAB::push_block ( parser->block_stack, name,
+                      parser->undefined_stack );
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
@@ -651,24 +648,32 @@ static min::gen execute_end
     min::phrase_position pp =
         { ppvec[2].begin, ppvec[size-1].end };
 
-    int index = TAB::get_index
-		    ( parser->block_name_table, name );
-    if ( index == -1 )
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+    if ( block_level == 0 )
         return PAR::parse_error
 	    ( parser,
 	      pp,
-	      "unrecognized block name" );
-    else if (    (min::uns32) index
-              != parser->block_name_table->length - 1 )
+	      "not inside a block"
+	      " (no begin block to end)" );
+    else if ( name != parser->block_stack
+                          [block_level-1].name )
         return PAR::parse_error
 	    ( parser,
 	      pp,
 	      "innermost block name does not match" );
-        
-    MIN_ASSERT ( parser->block_name_table->length
-                 ==
-		 parser->block_level );
 
+    min::uns32 length =
+        parser->block_stack
+	    [parser->block_stack->length-1]
+	    .saved_undefined_stack_length;
+    while ( parser->undefined_stack->length > length )
+    {
+        TAB::undefined_struct u =
+	    min::pop ( parser->undefined_stack );
+	u.root->selectors = u.saved_selectors;
+    }
+        
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
 	  result == min::SUCCESS() && pass != NULL;
@@ -684,8 +689,7 @@ static min::gen execute_end
 	    result = saved_result;
     }
 
-    -- parser->block_level;
-    TAB::pop_name ( parser->block_name_table );
+    min::pop ( parser->block_stack );
 
     return result;
 }

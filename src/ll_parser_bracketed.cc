@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 06:13:49 EDT 2012
+// Date:	Wed Nov 14 06:21:18 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -122,12 +122,15 @@ static min::gen bracketed_pass_end_block
     min::uns64 collected_entries,
                collected_key_prefixes;
 
-    assert ( parser->block_level > 0 );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+    assert ( block_level > 0 );
+
     TAB::end_block
-        ( split_table, parser->block_level - 1,
+        ( split_table, block_level - 1,
 	  collected_entries );
     TAB::end_block
-        ( bracket_table, parser->block_level - 1,
+        ( bracket_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
 
     return min::SUCCESS();
@@ -2036,7 +2039,7 @@ static min::gen bracketed_pass_command
 	TAB::push_brackets
 	    ( name[0], name[1],
 	      selectors,
-	      parser->block_level,
+	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors, full_line,
 	      bracketed_pass->bracket_table );
@@ -2098,7 +2101,7 @@ static min::gen bracketed_pass_command
 		  (min::gen) name[1] :
 		  min::MISSING(),
 	      selectors,
-	      parser->block_level,
+	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
 	      bracketed_pass->bracket_table,
@@ -2242,7 +2245,7 @@ static min::gen bracketed_pass_command
 	      named_closing,
 	      named_middle_closing,
 	      selectors,
-	      parser->block_level,
+	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      bracketed_pass->bracket_table );
 

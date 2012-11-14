@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 02:50:26 EDT 2012
+// Date:	Wed Nov 14 05:55:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -375,8 +375,8 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::input_file ),
     min::DISP ( & PAR::parser_struct::printer ),
     min::DISP ( & PAR::parser_struct::name_scanner ),
-    min::DISP ( & PAR::parser_struct
-                     ::block_name_table ),
+    min::DISP ( & PAR::parser_struct::undefined_stack ),
+    min::DISP ( & PAR::parser_struct::block_stack ),
     min::DISP ( & PAR::parser_struct
                      ::selector_name_table ),
     min::DISP ( & PAR::parser_struct::first ),
@@ -427,10 +427,13 @@ void PAR::init ( min::ref<PAR::parser> parser )
 		      ( parser->trace_flag_name_table,
 		        ::keys ) );
 
+	TAB::init_undefined_stack
+	    ( undefined_stack_ref(parser) );
+	TAB::init_block_stack
+	    ( block_stack_ref(parser) );
+
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
-	TAB::init_name_table
-	    ( block_name_table_ref(parser) );
 
 	BRA::place ( parser );
     }
@@ -449,6 +452,18 @@ void PAR::reset ( min::ref<PAR::parser> parser )
     parser->eof = false;
     parser->finished_tokens = 0;
 
+    // Restore any block_level 0 definition selectors.
+    //
+    while ( parser->undefined_stack->length > 0 )
+    {
+        TAB::undefined_struct u =
+	    min::pop ( parser->undefined_stack );
+	u.root->selectors = u.saved_selectors;
+    }
+
+    min::pop ( parser->block_stack,
+               parser->block_stack->length );
+
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;
 	  pass = pass->next )
@@ -457,7 +472,6 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	    ( * pass->reset ) ( parser, pass );
     }
 
-    parser->block_level = 0;
     parser->error_count = 0;
     parser->max_error_count = 100;
 }

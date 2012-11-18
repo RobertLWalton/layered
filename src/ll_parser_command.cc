@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 06:15:33 EST 2012
+// Date:	Sat Nov 17 20:01:47 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,8 +28,6 @@
 # define TAB ll::parser::table
 # define COM ll::parser::command
 
-static min::locatable_gen plus;
-static min::locatable_gen minus;
 static min::locatable_gen exclusive_or;
 
 static min::locatable_gen test;
@@ -37,8 +35,6 @@ static min::locatable_gen trace;
 
 static void initialize ( void )
 {
-    ::plus = min::new_str_gen ( "+" );
-    ::minus = min::new_str_gen ( "-" );
     ::exclusive_or = min::new_str_gen ( "^" );
 
     ::test = min::new_str_gen ( "test" );
@@ -51,7 +47,8 @@ static min::initializer initializer ( ::initialize );
 
 min::gen COM::scan_simple_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::uns64 accepted_types )
+	  min::uns64 accepted_types,
+	  min::gen end_value )
 {
     min::uns32 j = i;
     min::uns32 s = min::size_of ( vp );
@@ -59,7 +56,9 @@ min::gen COM::scan_simple_label
     {
 	min::uns32 t =
 	    LEXSTD::lexical_type_of ( vp[i] );
-	if ( ( 1ull << t ) & accepted_types )
+	if ( ( ( 1ull << t ) & accepted_types )
+	     &&
+	     vp[i] != end_value )
 	    ++ i;
 	else
 	    break;
@@ -134,10 +133,10 @@ static int scan_flag
 	return -1;
     }
 
-    if ( vp[i] == ::plus )
-        op = ::plus, ++ i;
-    else if ( vp[i] == ::minus )
-        op = ::minus, ++ i;
+    if ( vp[i] == PAR::plus )
+        op = PAR::plus, ++ i;
+    else if ( vp[i] == PAR::minus )
+        op = PAR::minus, ++ i;
     else if ( vp[i] == ::exclusive_or )
         op = ::exclusive_or, ++ i;
 
@@ -263,7 +262,7 @@ static min::gen scan_new_flags
 	    else
 	        allow_flag_list = false;
 
-	    if ( op == ::minus )
+	    if ( op == PAR::minus )
 		new_flags.not_flags |=
 		    (min::uns64) 1 << j;
 	    else if ( op == ::exclusive_or )
@@ -336,7 +335,7 @@ static min::gen scan_new_flags
 
 	    if ( j == -1 ) return min::ERROR();
 
-	    if ( op == ::minus )
+	    if ( op == PAR::minus )
 		new_flags.not_flags |=
 		    (min::uns64) 1 << j;
 	    else if ( op == ::exclusive_or )

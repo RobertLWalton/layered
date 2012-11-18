@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 11:55:12 EST 2012
+// Date:	Sat Nov 17 20:36:14 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,7 @@
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Bracketed Subexpression Parser
-//	Bracketed Pass Command Execution Function
+//	Bracketed Pass Command Function
 
 // Usage and Setup
 // ----- --- -----
@@ -35,7 +35,6 @@ static min::locatable_gen indentation;
 static min::locatable_gen mark;
 static min::locatable_gen gluing;
 static min::locatable_gen named;
-static min::locatable_gen dotdotdot;
 static min::locatable_gen parsing;
 static min::locatable_gen full;
 static min::locatable_gen line;
@@ -49,7 +48,6 @@ static void initialize ( void )
     ::mark = min::new_str_gen ( "mark" );
     ::gluing = min::new_str_gen ( "gluing" );
     ::named = min::new_str_gen ( "named" );
-    ::dotdotdot = min::new_str_gen ( "..." );
     ::parsing = min::new_str_gen ( "parsing" );
     ::full = min::new_str_gen ( "full" );
     ::line = min::new_str_gen ( "line" );
@@ -1834,8 +1832,8 @@ bool BRA::parse_bracketed_subexpression
     return false;
 }
 
-// Bracketed Pass Command Execution Function
-// --------- ---- ------- --------- --------
+// Bracketed Pass Command Function
+// --------- ---- ------- --------
 
 enum definition_type
     { BRACKET,
@@ -1963,7 +1961,7 @@ static min::gen bracketed_pass_command
 
 	if ( i >= size
 	     ||
-	     vp[i] != ::dotdotdot )
+	     vp[i] != PAR::dotdotdot )
 	    break;
 
 	++ i;

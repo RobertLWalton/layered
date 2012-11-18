@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 06:24:13 EST 2012
+// Date:	Sat Nov 17 03:58:28 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,29 +15,49 @@
 //	Operator Parser Pass
 //	Operator Parse Function
 //	Operator Reformatters
+//	Operator Pass Command Function
 
 // Usage and Setup
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
+# include <ll_parser_command.h>
 # include <ll_parser_oper.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define TAB ll::parser::table
+# define COM ll::parser::command
 # define OP ll::parser::oper
 
 min::locatable_gen OP::dollar;
 min::locatable_gen OP::AND;
+min::locatable_gen OP::prefix;
+min::locatable_gen OP::infix;
+min::locatable_gen OP::postfix;
+min::locatable_gen OP::afix;
+min::locatable_gen OP::nofix;
 static min::locatable_gen operator_subexpression;
+static min::locatable_gen oper;
+static min::locatable_gen precedence;
+static min::locatable_gen reformatter;
 
 static void initialize ( void )
 {
-    OP::dollar = min::new_str_gen ( "$" );
-    OP::AND = min::new_str_gen ( "AND" );
+    OP::dollar  = min::new_str_gen ( "$" );
+    OP::AND     = min::new_str_gen ( "AND" );
+    OP::prefix  = min::new_str_gen ( "prefix" );
+    OP::infix   = min::new_str_gen ( "infix" );
+    OP::postfix = min::new_str_gen ( "postfix" );
+    OP::afix    = min::new_str_gen ( "afix" );
+    OP::nofix   = min::new_str_gen ( "nofix" );
+
     ::operator_subexpression =
         min::new_lab_gen
 	    ( "operator", "subexpression" );
+    ::oper = min::new_str_gen ( "operator" );
+    ::precedence = min::new_str_gen ( "precedence" );
+    ::reformatter = min::new_str_gen ( "reformatter" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -682,8 +702,6 @@ static void separator_reformatter
 	  first, next, position,
 	  1, & separator_attr );
 }
-OP::reformatter OP::separator_reformatter =
-    ::separator_reformatter;
 
 static void right_associative_reformatter
         ( PAR::parser parser,
@@ -744,8 +762,6 @@ static void right_associative_reformatter
 	if ( t_is_first ) first = t;
     }
 }
-OP::reformatter OP::right_associative_reformatter =
-    ::right_associative_reformatter;
 
 static void compare_reformatter
         ( PAR::parser parser,
@@ -911,5 +927,305 @@ static void compare_reformatter
 	      1, & oper_attr );
     }
 }
-OP::reformatter OP::compare_reformatter =
-    ::compare_reformatter;
+
+min::locatable_var<OP::reformatter_table_type>
+    OP::reformatter_table;
+
+static min::uns32 reformatter_table_gen_disp[] = {
+    min::DISP ( & OP::reformatter_table_struct::name ),
+    min::DISP_END };
+
+static min::packed_vec<OP::reformatter_table_struct>
+    reformatter_table_type
+        ( "ll::parser::oper::reformatter_table_type",
+	  ::reformatter_table_gen_disp );
+
+static void reformatter_table_initialize ( void )
+{
+    OP::reformatter_table =
+        ::reformatter_table_type.new_stub ( 32 );
+
+    min::locatable_gen separator
+        ( min::new_str_gen ( "separator" ) );
+    OP::push_reformatter
+        ( separator, ::separator_reformatter );
+    min::locatable_gen right_associative
+        ( min::new_lab_gen ( "right", "associative" ) );
+    OP::push_reformatter
+        ( right_associative,
+	  ::right_associative_reformatter );
+
+    min::locatable_gen compare
+        ( min::new_str_gen ( "compare" ) );
+    OP::push_reformatter
+        ( compare, ::compare_reformatter );
+}
+static min::initializer reformatter_initializer
+    ( ::reformatter_table_initialize );
+
+// Operator Pass Command Function
+// -------- ---- ------- --------
+
+static min::gen oper_pass_command
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec )
+{
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
+    min::uns32 size = min::size_of ( vp );
+
+    // Scan keywords before names.
+    //
+    bool define;
+        // True if define, false if undefine.
+    min::uns32 i = 1;
+        // vp[i] is next lexeme or subexpression to
+	// scan in the define/undefine expression.
+
+    if ( vp[i] == PAR::define )
+        define = true;
+    else if ( vp[i] == PAR::undefine )
+        define = false;
+    else
+        return min::FAILURE();
+    ++ i;
+
+    if ( vp[i] == ::oper )
+	++ i;
+    else
+        return min::FAILURE();
+
+    // Scan operator names.
+    //
+    min::locatable_gen name[3];
+    unsigned number_of_names = 0;
+
+    while ( true )
+    {
+	// Scan a name.
+	//
+	name[number_of_names] =
+	    PAR::scan_name_string_label
+	        ( vp, i, parser,
+
+	            ( 1ull << LEXSTD::mark_t )
+	          + ( 1ull << LEXSTD::separator_t )
+	          + ( 1ull << LEXSTD::word_t )
+	          + ( 1ull << LEXSTD::number_t ),
+
+	            ( 1ull << LEXSTD::
+		                  horizontal_space_t )
+	          + ( 1ull << LEXSTD::end_of_file_t ),
+
+	            ( 1ull << LEXSTD::end_of_file_t ) );
+
+	if ( name[number_of_names] == min::ERROR() )
+	    return min::ERROR();
+	else if (    name[number_of_names]
+	          == min::MISSING() )
+	    return PAR::parse_error
+	        ( parser, ppvec[i-1],
+		  "expected quoted name after" );
+	else
+	    ++ number_of_names;
+
+	if ( number_of_names > 2 )
+	    return PAR::parse_error
+	        ( parser, ppvec->position,
+		  "too many quoted names in" );
+
+	if ( i >= size
+	     ||
+	     vp[i] != PAR::dotdotdot )
+	    break;
+
+	++ i;
+    }
+
+    if ( number_of_names < 1 )
+	return PAR::parse_error
+	    ( parser, ppvec->position,
+	      "too few quoted names in" );
+
+    // Scan selectors.
+    //
+    TAB::flags selectors;
+    min::gen sresult = COM::scan_flags
+	    ( vp, i, selectors,
+	      parser->selector_name_table, parser );
+    if ( sresult == min::ERROR() )
+	return min::ERROR();
+    else if ( sresult == min::MISSING() )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected bracketed selector list"
+	      " after" );
+
+    // Scan operator flags.
+    //
+    min::uns32 oper_flags = 0;
+
+    while ( i < size )
+    {
+	min::uns32 new_oper_flag;
+        if ( vp[i] == OP::prefix )
+	    new_oper_flag = OP::PREFIX;
+        else if ( vp[i] == OP::infix )
+	    new_oper_flag = OP::INFIX;
+        else if ( vp[i] == OP::postfix )
+	    new_oper_flag = OP::POSTFIX;
+        else if ( vp[i] == OP::afix )
+	    new_oper_flag = OP::AFIX;
+        else if ( vp[i] == OP::nofix )
+	    new_oper_flag = OP::NOFIX;
+	else break;
+
+	if ( oper_flags & new_oper_flag )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "operator flag ",
+		  min::pgen ( vp[i] ),
+		  " appears twice" );
+
+	oper_flags |= new_oper_flag;
+	++ i;
+    }
+
+    if ( oper_flags == 0 )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected operator flags after" );
+
+    min::int32 precedence;
+    bool precedence_found = false;
+    OP::reformatter reformatter = NULL;
+    while ( i < size && vp[i] == PAR::with )
+    {
+	++ i;
+	if ( i < size
+	     &&
+	     vp[i] == ::precedence )
+	{
+	    ++ i;
+	    int sign = +1;
+	    if ( i >= size )
+		/* do nothing */;
+	    else if ( vp[i] == PAR::plus )
+		sign = +1, ++ i;
+	    else if ( vp[i] == PAR::minus )
+		sign = -1, ++ i;
+	    if ( i >= size
+		 ||
+		 ! min::strto ( precedence,
+				vp[i], 10 ) )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected precedence integer"
+		      " after" );
+	    precedence *= sign;
+	    precedence_found = true;
+	    ++ i;
+	    continue;
+
+	}
+	else if ( i < size )
+	{
+	    min::uns32 j = i;
+	    min::locatable_gen name
+	      ( COM::scan_simple_label
+		  ( vp, j,
+		      ( 1ull << LEXSTD::word_t )
+		    + ( 1ull << LEXSTD::number_t ),
+		    ::reformatter ) );
+	    if (    j < size
+		 && vp[j] == ::reformatter )
+	    {
+		reformatter =
+		    OP::find_reformatter ( name );
+		if ( reformatter == NULL )
+		{
+		    min::phrase_position position =
+			{ ppvec[i].begin,
+			  ppvec[j-1].end };
+		    return PAR::parse_error
+			( parser, position,
+			  "undefined reformatter"
+			  " name" );
+		}
+		i = j + 1;
+		continue;
+	    }
+	}
+
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      define ? "expected `with precedence ...'"
+	               " or `with ... reformatter'"
+		       " after"
+		     : "expected `with precedence ...'"
+		       " after" );
+
+    }
+    if ( i < size )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected `with' after" );
+    if ( ! precedence_found )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected `with precedence ...'"
+	      " after" );
+
+    if ( define )
+	OP::push_oper
+	    ( name[0],
+	      selectors,
+	      PAR::block_level ( parser ),
+	      ppvec->position,
+	      oper_flags, precedence, reformatter,
+	      oper_pass->oper_table );
+
+    else // if ( ! define )
+    {
+	if ( reformatter == NULL )
+	    return PAR::parse_error
+		( parser, ppvec->position,
+		  "did NOT expect"
+		  " `with ... reformater'" );
+
+	TAB::key_prefix key_prefix =
+	    TAB::find_key_prefix
+	        ( name[0],
+		  oper_pass->oper_table );
+
+	if ( key_prefix != min::NULL_STUB )
+	for ( TAB::root root = key_prefix->first;
+	      root != min::NULL_STUB;
+	      root = root->next )
+	{
+	    if (    ( root->selectors & selectors )
+		 == 0 )
+		continue;
+
+	    min::uns32 subtype =
+		min::packed_subtype_of ( root );
+
+	    if ( subtype != OP::OPER )
+		continue;
+
+	    OP::oper oper = (OP::oper) root;
+	    if ( oper->precedence != precedence )
+	        continue;
+	    if ( oper->flags != oper_flags )
+	        continue;
+
+	    TAB::push_undefined
+	        ( parser->undefined_stack,
+		  root, selectors );
+	}
+    }
+
+    return min::SUCCESS();
+}

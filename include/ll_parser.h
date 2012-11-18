@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 00:28:39 EST 2012
+// Date:	Sat Nov 17 20:06:41 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,7 +62,10 @@ namespace ll { namespace parser {
 	print,		// print
 	selector,	// selector
 	selectors,	// selectors
-	with;		// with
+	with,		// with
+	plus,		// +
+	minus,		// -
+	dotdotdot;	// ...
 
     extern min::gen_format name_format;
         // Same as min::default_gen_format except
@@ -499,8 +502,11 @@ namespace pass_function {
 	      ll::parser::pass pass );
 
     // Function called (if not NULL) to execute a parser
-    // command.  Vp points at the command, ppvec is the
-    // phrase position vector of vp.
+    // command, other than `parser begin/end block ...',
+    // that may require action by a pass.  Examples are
+    // `parser define/undefine ...'.  Vp points at the
+    // command, ppvec is the phrase position vector of
+    // vp.
     //
     // Return min::SUCCESS() on success, min::FAILURE()
     // if command was not recognized, and min::ERROR()

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 08:44:52 EDT 2012
+// Date:	Sat Nov 17 03:57:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,11 @@ namespace ll { namespace parser { namespace oper {
 
 extern min::locatable_gen dollar;
 extern min::locatable_gen AND;
+extern min::locatable_gen prefix;
+extern min::locatable_gen infix;
+extern min::locatable_gen postfix;
+extern min::locatable_gen afix;
+extern min::locatable_gen nofix;
 
 
 // Operator Table Entries
@@ -150,26 +155,74 @@ ll::parser::oper::oper_pass place
 // Operator Reformatters
 // -------- ------------
 
-extern ll::parser::oper::reformatter
-    separator_reformatter,
-        // Nofix separator.  Empty expression inserted
-	// to make operators all infix.  Operators
-	// deleted and moved to .separator.
-    right_associative_reformatter,
-        // Infix right associative operators like
-	// = and +=.  Operators made prefix binary.
-    commutative_reformatter,
-        // Infix commutative operators like *.
-	// All operators must be equal: operator
-	// made prefix with multiple operands.
-    binary_reformatter,
-        // Infix binary operator.  Errors announced
-	// if more than one operator.
-    sum_reformatter,
-        // Infix + and - operators.  Rewritten to use
-	// prefix - and commutative infix +.
-    compare_reformatter,
-    logical_reformatter;
+// There is a single reformatter table set up by program
+// initialization.  This maps reformatter names to
+// reformatters and vice versa.
+
+struct reformatter_table_struct
+{
+    min::gen name;
+    ll::parser::oper::reformatter reformatter;
+};
+
+struct reformatter_table_struct;
+typedef min::packed_vec_insptr
+	    <reformatter_table_struct>
+	reformatter_table_type;
+extern const uns32 & REFORMATTER_TABLE_TYPE;
+    // Subtype of min::packed_vec
+    // //              <reformatter_table_struct>.
+
+// The one and only reformatter table.
+//
+extern min::locatable_var
+	<ll::parser::oper::reformatter_table_type>
+    reformatter_table;
+
+// Look up reformatter name in reformatter table, and
+// return reformatter if found, or NULL if not found.
+//
+inline ll::parser::oper::reformatter find_reformatter
+	( min::gen name )
+{
+    ll::parser::oper::reformatter_table_type t =
+        ll::parser::oper::reformatter_table;
+    for ( min::uns32 i = 0; i < t->length; ++ i )
+        if ( t[i].name == name )
+	    return t[i].reformatter;
+    return NULL;
+}
+//
+// Look up reformatter in reformatter table, and return
+// reformatter name if found, or MISSING if not found.
+//
+inline min::gen find_name
+	( ll::parser::oper::reformatter reformatter )
+{
+    ll::parser::oper::reformatter_table_type t =
+        ll::parser::oper::reformatter_table;
+    for ( min::uns32 i = 0; i < t->length; ++ i )
+        if ( t[i].reformatter == reformatter )
+	    return t[i].name;
+    return min::MISSING();
+}
+
+// Push reformatter name and reformatter into
+// reformatter table.
+//
+inline void push_reformatter
+    ( min::gen name,
+      ll::parser::oper::reformatter reformatter )
+{
+    reformatter_table_struct e = { name, reformatter };
+    min::push ( (ll::parser
+                   ::oper::reformatter_table_type)
+                ll::parser::oper::reformatter_table )
+        = e;
+    min::unprotected::acc_write_update 
+	( ll::parser::oper::reformatter_table,
+	  name );
+}
 
 } } }
 

@@ -60,5 +60,9 @@ parser test <| hi there D |>
 parser begin block 1
 parser undefine bracket "<|" ... "|>" [code]
 parser test <| hi there E |>
+parser undefine bracket "<|" ... "|>" [code]
 parser end block 1
 parser test <| hi there F |>
+parser undefine bracket "<|" ... "|>" [code]
+parser test <| hi there F |>
+parser undefine bracket "<|" ... "|>" [code]

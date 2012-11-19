@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 18 20:11:02 EST 2012
+// Date:	Mon Nov 19 16:58:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2402,11 +2402,11 @@ static min::gen bracketed_pass_command
 	}
 
 	if ( count == 0 )
-	    return PAR::parse_warn
+	    PAR::parse_warn
 		( parser, ppvec->position,
 		  "undefine found no definition" );
 	else if ( count > 1 )
-	    return PAR::parse_warn
+	    PAR::parse_warn
 		( parser, ppvec->position,
 		  "undefine cancelled more than one"
 		  " definition" );

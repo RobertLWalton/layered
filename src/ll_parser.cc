@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 17 20:06:55 EST 2012
+// Date:	Mon Nov 19 16:48:46 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,6 +63,7 @@ min::locatable_gen PAR::plus;
 min::locatable_gen PAR::minus;
 min::locatable_gen PAR::dotdotdot;
 
+static min::locatable_gen warnings;
 static min::locatable_gen parser_input;
 static min::locatable_gen parser_output;
 static min::locatable_gen parser_commands;
@@ -119,6 +120,7 @@ static void initialize ( void )
     PAR::minus = min::new_str_gen ( "-" );
     PAR::dotdotdot = min::new_str_gen ( "..." );
 
+    ::warnings = min::new_str_gen ( "warnings" );
     ::parser_input =
         min::new_lab_gen ( "parser", "input" );
     ::parser_output =
@@ -404,6 +406,10 @@ void PAR::init ( min::ref<PAR::parser> parser )
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
+	assert (    PAR::TRACE_WARNINGS
+	         == 1ull << TAB::push_name
+	              ( parser->trace_flag_name_table,
+		        ::warnings ) );
 	assert (    PAR::TRACE_PARSER_INPUT
 	         == 1ull << TAB::push_name
 	              ( parser->trace_flag_name_table,
@@ -1314,12 +1320,16 @@ min::gen PAR::parse_error
     return min::ERROR();
 }
 
-min::gen PAR::parse_warn
+void PAR::parse_warn
 	( PAR::parser parser,
 	  min::phrase_position pp,
 	  const char * message1,
 	  const char * message2 )
 {
+    if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
+         == 0 )
+        return;
+
     parser->printer << min::bom
                     << min::set_indent ( 9 )
 	            << "WARNING: in "
@@ -1329,16 +1339,19 @@ min::gen PAR::parse_warn
 		    << ":" << min::eom;
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
-    return min::ERROR();
 }
 
-min::gen PAR::parse_warn
+void PAR::parse_warn
 	( PAR::parser parser,
 	  min::phrase_position pp,
 	  const char * message1,
 	  const min::op & message2,
 	  const char * message3 )
 {
+    if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
+         == 0 )
+        return;
+
     parser->printer << min::bom
                     << min::set_indent ( 9 )
 	            << "WARNING: in "
@@ -1348,5 +1361,4 @@ min::gen PAR::parse_warn
 		    << message3 << ":" << min::eom;
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
-    return min::ERROR();
 }

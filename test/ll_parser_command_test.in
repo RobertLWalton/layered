@@ -47,6 +47,7 @@ parser trace [+ foo]
 parser trace [+ parser commands]
 parser trace [- parser commands]
 parser trace [+ parser commands]
+parser trace [+ warnings]
 parser begin block 1
 parser define bracket "<*" ... "*>" [code]
 parser test <* hi there A *>

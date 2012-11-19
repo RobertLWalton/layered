@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 17 03:58:28 EST 2012
+// Date:	Sun Nov 18 06:47:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -176,6 +176,12 @@ static void oper_parse ( PAR::parser parser,
 		         PAR::token & first,
 		         PAR::token next );
 
+static min::gen oper_pass_command
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec );
+
 OP::oper_pass OP::place
 	( ll::parser::parser parser,
 	  ll::parser::pass next )
@@ -189,6 +195,7 @@ OP::oper_pass OP::place
     OP::oper_stack_ref ( oper_pass ) =
 	::oper_stack_type.new_stub ( 100 );
 
+    oper_pass->parser_command = ::oper_pass_command;
     oper_pass->parse = ::oper_parse;
     oper_pass->reset = ::oper_pass_reset;
     oper_pass->end_block = ::oper_pass_end_block;
@@ -1161,10 +1168,9 @@ static min::gen oper_pass_command
 
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      define ? "expected `with precedence ...'"
-	               " or `with ... reformatter'"
-		       " after"
-		     : "expected `with precedence ...'"
+	      define ? "expected `precedence ...'"
+	               " or `... reformatter' after"
+		     : "expected `precedence ...'"
 		       " after" );
 
     }
@@ -1189,7 +1195,7 @@ static min::gen oper_pass_command
 
     else // if ( ! define )
     {
-	if ( reformatter == NULL )
+	if ( reformatter != NULL )
 	    return PAR::parse_error
 		( parser, ppvec->position,
 		  "did NOT expect"

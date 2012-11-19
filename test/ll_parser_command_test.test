@@ -273,12 +273,24 @@ parser undefine bracket "<|" ... "|>" [code]
 parser test <| hi there E |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+WARNING: in line 63: undefine found no definition:
+parser undefine bracket "<|" ... "|>" [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser end block 1
 ======= TEST: parser test <|hi there F|>
-------- line 64:
+------- line 65:
 parser test <| hi there F |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 64:
+------- line 65:
 parser test <| hi there F |>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
+parser undefine bracket "<|" ... "|>" [code]
+======= TEST: parser test <| hi there F |>
+------- line 67:
+parser test <| hi there F |>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+WARNING: in line 68: undefine found no definition:
+parser undefine bracket "<|" ... "|>" [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

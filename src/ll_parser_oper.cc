@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 18 06:47:31 EST 2012
+// Date:	Mon Nov 19 18:12:39 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1206,6 +1206,8 @@ static min::gen oper_pass_command
 	        ( name[0],
 		  oper_pass->oper_table );
 
+	min::uns32 count = 0;
+
 	if ( key_prefix != min::NULL_STUB )
 	for ( TAB::root root = key_prefix->first;
 	      root != min::NULL_STUB;
@@ -1230,7 +1232,19 @@ static min::gen oper_pass_command
 	    TAB::push_undefined
 	        ( parser->undefined_stack,
 		  root, selectors );
+
+	    ++ count;
 	}
+
+	if ( count == 0 )
+	    PAR::parse_warn
+		( parser, ppvec->position,
+		  "undefine found no definition" );
+	else if ( count > 1 )
+	    PAR::parse_warn
+		( parser, ppvec->position,
+		  "undefine cancelled more than one"
+		  " definition" );
     }
 
     return min::SUCCESS();

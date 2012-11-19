@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 17 20:06:41 EST 2012
+// Date:	Mon Nov 19 16:57:25 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -605,44 +605,47 @@ enum {
 
     // Global flags.
     //
-    TRACE_PARSER_INPUT			= 1ull << 0,
+    TRACE_WARNINGS			= 1ull << 0,
+        // Print warning messages.
+
+    TRACE_PARSER_INPUT			= 1ull << 1,
         // Trace flag with name `parser input' that
 	// traces each token input by the parser->input
 	// closure (e.g. from the lexical scanner).  
 
-    TRACE_PARSER_OUTPUT			= 1ull << 1,
+    TRACE_PARSER_OUTPUT			= 1ull << 2,
         // Trace flag with the name `parser output' that
 	// traces processing by the parser->output
 	// closure.
 
-    TRACE_PARSER_COMMANDS		= 1ull << 2,
+    TRACE_PARSER_COMMANDS		= 1ull << 3,
         // Trace flag with the name `parser commands'
 	// that traces all parser commands that have no
 	// errors.
 
     // Flags that modify the tracing of passes.
     //
-    TRACE_SUBEXPRESSION_ELEMENTS	= 1ull << 3,
+    TRACE_SUBEXPRESSION_ELEMENTS	= 1ull << 4,
 	// Trace flag with name `subexpression elements'
 	// that causes subexpression values to be
 	// printed with min::flush_pgen.
-    TRACE_SUBEXPRESSION_DETAILS		= 1ull << 4,
+    TRACE_SUBEXPRESSION_DETAILS		= 1ull << 5,
 	// Trace flag with name `subexpression details'
 	// that causes subexpression values to be
 	// printed with min::pgen.
-    TRACE_SUBEXPRESSION_LINES		= 1ull << 5,
+    TRACE_SUBEXPRESSION_LINES		= 1ull << 6,
 	// Trace flag with name `subexpression lines'
 	// that causes subexpression values to be
 	// printed with min::print_phrase_lines.  If
 	// no TRACE_SUBEXPRESSION_XXX flag is on, this
 	// is assumed as a default.
-    TRACE_KEYS				= 1ull << 6,
+    TRACE_KEYS				= 1ull << 7,
 	// Trace flag with name `keys' that causes
 	// the finding or rejecting of sequences of
 	// tokens (called keys) in the symbol tables
 	// to be printed.
 
-    TRACE_FLAGS				= 7
+    TRACE_FLAGS				= 8
         // Total number of built in trace flags.
 };
 
@@ -1202,15 +1205,16 @@ min::gen parse_error
 	  const char * message3 = "" );
 
 // Same as above but produces a warning message and not
-// an error message.  Does NOT increment parser->error_
+// an error message, but only if parser TRACE_WARNINGS
+// flag is on.  Does NOT increment parser->error_
 // count.
 //
-min::gen parse_warn
+void parse_warn
 	( ll::parser::parser parser,
 	  min::phrase_position pp,
 	  const char * message1,
 	  const char * message2 = "" );
-min::gen parse_warn
+void parse_warn
 	( ll::parser::parser parser,
 	  min::phrase_position pp,
 	  const char * message1,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 17 20:01:47 EST 2012
+// Date:	Tue Nov 20 07:07:56 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -605,7 +605,7 @@ static min::gen execute_begin
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
-	  result == min::SUCCESS() && pass != NULL;
+	  pass != NULL;
 	  pass = pass->next )
     {
 	min::gen saved_result = result;
@@ -675,7 +675,7 @@ static min::gen execute_end
         
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
-	  result == min::SUCCESS() && pass != NULL;
+	  pass != NULL;
 	  pass = pass->next )
     {
 	min::gen saved_result = result;

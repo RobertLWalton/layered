@@ -1,0 +1,57 @@
+parser print selectors:
+        [ code, math, text ]
+parser trace [+ parser commands, + warnings, + operator subexpression ]
+BRACKETABLE EXPRESSION: line 13:
+parser test ( x + y * z )
+              ^^^^^^^^^
+BRACKETABLE EXPRESSION: line 13:
+parser test ( x + y * z )
+^^^^^^^^^^^^^^^^^^^^^^^^^
+======= TEST: parser test (x + y * z)
+------- line 13:
+parser test ( x + y * z )
+^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 13:
+parser test ( x + y * z )
+            ^^^^^^^^^^^^^
+======= END TEST
+BRACKETABLE EXPRESSION: line 14:
+parser define operator "+" [code, math] infix with precedence 5200
+                            ^^^^^^^^^^
+BRACKETABLE EXPRESSION: line 14:
+parser define operator "+" [code, math] infix with precedence 5200
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser define operator "+" [code, math] infix with precedence 5200
+BRACKETABLE EXPRESSION: line 15:
+parser define operator "*" [code, math] infix with precedence 5000
+                            ^^^^^^^^^^
+BRACKETABLE EXPRESSION: line 15:
+parser define operator "*" [code, math] infix with precedence 5000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser define operator "*" [code, math] infix with precedence 5000
+OPERATOR "*" found; line 16:
+parser test ( x * y + z )
+                ^
+OPERATOR "+" found; line 16:
+parser test ( x * y + z )
+                    ^
+BRACKETABLE EXPRESSION: line 16:
+parser test ( x * y + z )
+                  ^^^^^
+BRACKETABLE EXPRESSION: line 16:
+parser test ( x * y + z )
+              ^^^^^^^^^
+BRACKETABLE EXPRESSION: line 16:
+parser test ( x * y + z )
+^^^^^^^^^^^^^^^^^^^^^^^^^
+======= TEST: parser test (x * y + z)
+------- line 16:
+parser test ( x * y + z )
+^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 16:
+parser test ( x * y + z )
+            ^^^^^^^^^^^^^
+------- line 16:
+parser test ( x * y + z )
+                  ^^^^^
+======= END TEST

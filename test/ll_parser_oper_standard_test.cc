@@ -1,8 +1,8 @@
-// Layers Language Operator Parser Test
+// Layers Language Parser Operator Standard Test
 //
-// File:	ll_parser_oper_test.cc
+// File:	ll_parser_oper_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 15 08:27:50 EDT 2012
+// Date:	Tue Nov 20 01:39:51 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability

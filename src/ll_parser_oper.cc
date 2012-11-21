@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 19 18:12:39 EST 2012
+// Date:	Wed Nov 21 06:29:48 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -770,6 +770,104 @@ static void right_associative_reformatter
     }
 }
 
+static void unary_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  OP::oper first_oper )
+{
+    MIN_ASSERT ( first != next );
+
+    // There should be exactly two tokens, the first an
+    // operator, and the second not.
+    //
+    if ( first->type != PAR::OPERATOR )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: operator expected at beginning"
+	             " of subexpression; subexpression"
+		     " should be `operator operand'; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     first->position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      first->position );
+	++ parser->error_count;
+    }
+
+    if ( first->next == next )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: subexpression too short;"
+	       " should be `operator operand'; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     first->position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      first->position );
+	++ parser->error_count;
+
+	return; // Bail out.
+    }
+
+    if ( first->next->type == PAR::OPERATOR )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: subexpression should be"
+	             " `operator operand'; the operator "
+	    << min::pgen
+		 ( first->next->value,
+		   min::BRACKET_STR_FLAG )
+	    << " should not be after beginning of"
+	       " subexpression; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     first->next->position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      first->next->position );
+	++ parser->error_count;
+    }
+
+    if ( first->next->next != next )
+    {
+        min::phrase_position position =
+	    { first->position.begin,
+	      next->previous->position.end };
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: subexpression should be"
+	             " `operator operand';"
+		     " subexpression is too long; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      position );
+	++ parser->error_count;
+    }
+}
+
 static void compare_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -956,11 +1054,17 @@ static void reformatter_table_initialize ( void )
         ( min::new_str_gen ( "separator" ) );
     OP::push_reformatter
         ( separator, ::separator_reformatter );
+
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     OP::push_reformatter
         ( right_associative,
 	  ::right_associative_reformatter );
+
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
+    OP::push_reformatter
+        ( unary, ::unary_reformatter );
 
     min::locatable_gen compare
         ( min::new_str_gen ( "compare" ) );

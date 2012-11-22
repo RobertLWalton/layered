@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 21 07:17:42 EST 2012
+// Date:	Thu Nov 22 07:44:10 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -992,6 +992,70 @@ static void binary_reformatter
     }
 }
 
+static void infix_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  OP::oper first_oper )
+{
+    MIN_ASSERT ( first != next );
+
+    // As operators must be infix, operands and
+    // operators must alternate with operands first and
+    // last.  All operators must be the same; the first
+    // is moved to the front and the others deleted.
+
+    // Remove all operators but first, and check that
+    // they are the same as first operator.
+    //
+    MIN_ASSERT ( first->next->type == PAR::OPERATOR );
+    for ( PAR::token t = first->next->next;
+          t->next != next; t = t->next )
+    {
+        MIN_ASSERT ( t->next->type == PAR::OPERATOR );
+	if ( t->next->value != first->next->value )
+	{
+	    min::phrase_position position =
+		{ first->position.begin,
+		  next->previous->position.end };
+
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: operator "
+		<< min::pgen
+		       ( t->value,
+		         min::BRACKET_STR_FLAG )
+		<< " is not the same as first operator "
+		<< min::pgen
+		       ( first->next->value,
+		         min::BRACKET_STR_FLAG )
+		<< "in subexpression; all operators"
+		   " must be the same in this"
+		   " subexpression; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  position );
+	    ++ parser->error_count;
+	}
+        PAR::free
+	    ( PAR::remove
+		  ( PAR::first_ref(parser), t->next ) );
+    }
+    PAR::put_before
+	( PAR::first_ref(parser), first,
+	  PAR::remove
+	      ( PAR::first_ref(parser), first->next ) );
+    first = first->previous;
+}
+
 static void compare_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1195,6 +1259,11 @@ static void reformatter_table_initialize ( void )
     OP::push_reformatter
         ( binary, ::binary_reformatter );
 
+    min::locatable_gen infix
+        ( min::new_str_gen ( "infix" ) );
+    OP::push_reformatter
+        ( infix, ::infix_reformatter );
+
     min::locatable_gen compare
         ( min::new_str_gen ( "compare" ) );
     OP::push_reformatter
@@ -1307,6 +1376,9 @@ static min::gen oper_pass_command
     //
     min::uns32 oper_flags = 0;
 
+    min::phrase_position oper_flags_position;
+    oper_flags_position.begin = ppvec[i].begin;
+
     while ( i < size )
     {
 	min::uns32 new_oper_flag;
@@ -1337,6 +1409,37 @@ static min::gen oper_pass_command
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected operator flags after" );
+
+    oper_flags_position.end = ppvec[i-1].end;
+
+    if ( ( oper_flags & OP::NOFIX )
+          &&
+	 ( oper_flags & OP::PREFIX ) )
+	return PAR::parse_error
+	    ( parser, oper_flags_position,
+	      "operator flags nofix and prefix"
+	      " are incompatible" );
+    if ( ( oper_flags & OP::NOFIX )
+          &&
+	 ( oper_flags & OP::INFIX ) )
+	return PAR::parse_error
+	    ( parser, oper_flags_position,
+	      "operator flags nofix and infix"
+	      " are incompatible" );
+    if ( ( oper_flags & OP::NOFIX )
+          &&
+	 ( oper_flags & OP::POSTFIX ) )
+	return PAR::parse_error
+	    ( parser, oper_flags_position,
+	      "operator flags nofix and postfix"
+	      " are incompatible" );
+    if ( ( oper_flags & OP::INFIX )
+          &&
+	 ( oper_flags & OP::POSTFIX ) )
+	return PAR::parse_error
+	    ( parser, oper_flags_position,
+	      "operator flags infix and postfix"
+	      " are incompatible" );
 
     min::int32 precedence;
     bool precedence_found = false;

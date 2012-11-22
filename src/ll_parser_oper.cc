@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 21 06:29:48 EST 2012
+// Date:	Wed Nov 21 07:17:42 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -599,6 +599,37 @@ static void oper_parse ( PAR::parser parser,
 // Operator Reformatters
 // -------- ------------
 
+// Given a sequence of tokens starting at `first' and
+// ending just BEFORE `next', return the token_count of
+// the number of tokens in the sequence, the oper_count
+// of the number of operators in the sequence, and if
+// there are operators, the position i of the first
+// operator (i == 0 for `first'), and the value of
+// that operator's token.
+//
+static void count_operators
+	( PAR::token first, PAR::token next,
+	  min::uns32 & token_count,
+	  min::uns32 & oper_count,
+	  min::uns32 & i,
+	  min::gen & value )
+{
+    token_count = 0;
+    oper_count = 0;
+    for ( ; first != next;
+          ++ token_count, first = first->next )
+    {
+        if ( first->type != PAR::OPERATOR )
+	    continue;
+	if ( oper_count == 0 )
+	{
+	    i = token_count;
+	    value = first->value;
+	}
+	++ oper_count;
+    }
+}
+
 static void separator_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -783,79 +814,172 @@ static void unary_reformatter
     // There should be exactly two tokens, the first an
     // operator, and the second not.
     //
-    if ( first->type != PAR::OPERATOR )
+    min::uns32 token_count, oper_count, i;
+    min::gen value;
+    count_operators
+        ( first, next,
+	  token_count, oper_count,
+	  i, value );
+    if ( token_count == 2 && oper_count == 1 && i == 0 )
+        return;
+
+    min::phrase_position position =
+	{ first->position.begin,
+	  next->previous->position.end };
+
+    MIN_ASSERT ( oper_count > 0 );
+
+    if ( oper_count > 1 )
     {
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: operator expected at beginning"
-	             " of subexpression; subexpression"
-		     " should be `operator operand'; "
+	    << "ERROR: too many operators in"
+	    	     " subexpression; subexpression"
+		     " should be of form"
+		     " `operator operand'; "
 	    << min::pline_numbers
 		   ( parser->input_file,
-		     first->position )
+		     position )
 	    << ":" << min::eom;
 	min::print_phrase_lines
 	    ( parser->printer,
 	      parser->input_file,
-	      first->position );
+	      position );
 	++ parser->error_count;
     }
-
-    if ( first->next == next )
+    else if ( i != 0 )
     {
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: subexpression too short;"
-	       " should be `operator operand'; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     first->position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      first->position );
-	++ parser->error_count;
-
-	return; // Bail out.
-    }
-
-    if ( first->next->type == PAR::OPERATOR )
-    {
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: subexpression should be"
-	             " `operator operand'; the operator "
+	    << "ERROR: operator "
 	    << min::pgen
-		 ( first->next->value,
+		 ( value,
 		   min::BRACKET_STR_FLAG )
-	    << " should not be after beginning of"
-	       " subexpression; "
+	    << " NOT at beginning of subexpression;"
+	       " subexpression should be of form"
+	       " `operator operand'; "
 	    << min::pline_numbers
 		   ( parser->input_file,
-		     first->next->position )
+		     position )
 	    << ":" << min::eom;
 	min::print_phrase_lines
 	    ( parser->printer,
 	      parser->input_file,
-	      first->next->position );
+	      position );
 	++ parser->error_count;
     }
 
-    if ( first->next->next != next )
+    if ( token_count != 2 )
     {
-        min::phrase_position position =
-	    { first->position.begin,
-	      next->previous->position.end };
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: subexpression should be"
-	             " `operator operand';"
-		     " subexpression is too long; "
+	    << "ERROR: subexpression is too "
+	    << ( token_count < 2 ? "short" : "long" )
+	    << "; subexpression should be of form"
+	       " `operator operand'; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      position );
+	++ parser->error_count;
+    }
+}
+
+static void binary_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  OP::oper first_oper )
+{
+    MIN_ASSERT ( first != next );
+
+    // There should be exactly three tokens, the second
+    // an operator, and the other two not.  The operator
+    // token is moved to the beginning.
+    //
+    min::uns32 token_count, oper_count, i;
+    min::gen value;
+    count_operators
+        ( first, next,
+	  token_count, oper_count,
+	  i, value );
+    if ( token_count == 3 && oper_count == 1 && i == 1 )
+    {
+        PAR::token oper_token = PAR::remove
+	    ( PAR::first_ref ( parser ), first->next );
+	PAR::put_before
+	    ( PAR::first_ref ( parser ),
+	      first, oper_token );
+	first = oper_token;
+        return;
+    }
+
+    min::phrase_position position =
+	{ first->position.begin,
+	  next->previous->position.end };
+
+    MIN_ASSERT ( oper_count > 0 );
+
+    if ( oper_count > 1 )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: too many operators in"
+	    	     " subexpression; subexpression"
+		     " should be of form"
+		     " `operand operator operand'; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      position );
+	++ parser->error_count;
+    }
+    else if ( i != 1 )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: operator "
+	    << min::pgen
+		 ( value,
+		   min::BRACKET_STR_FLAG )
+	    << " NOT in middle of subexpression;"
+	       " subexpression should be of form"
+	       " `operand operator operand'; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      position );
+	++ parser->error_count;
+    }
+
+    if ( token_count != 3 )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: subexpression is too "
+	    << ( token_count < 3 ? "short" : "long" )
+	    << "; subexpression should be of form"
+	       " `operand operator operand'; "
 	    << min::pline_numbers
 		   ( parser->input_file,
 		     position )
@@ -1065,6 +1189,11 @@ static void reformatter_table_initialize ( void )
         ( min::new_str_gen ( "unary" ) );
     OP::push_reformatter
         ( unary, ::unary_reformatter );
+
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+    OP::push_reformatter
+        ( binary, ::binary_reformatter );
 
     min::locatable_gen compare
         ( min::new_str_gen ( "compare" ) );

@@ -9,35 +9,94 @@ parser test (NOT x y)
 parser test (NOT x y)
             ^^^^^^^^^
 ======= END TEST
-parser define operator "NOT" [code, math] prefix with precedence 3000
+parser define operator "NOT" [code, math] nofix with precedence 3000
        with unary reformatter
+parser define operator "BUT NOT" [code, math] nofix with precedence 3000
+       with binary reformatter
 ======= TEST: parser test (NOT x y)
-------- line 16:
+------- line 18:
 parser test (NOT x y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 16:
+------- line 18:
 parser test (NOT x y)
             ^^^^^^^^^
-------- line 16:
+------- line 18:
 parser test (NOT x y)
                  ^^^
 ======= END TEST
+ERROR: operator "NOT" NOT at beginning of subexpression; subexpression
+       should be of form `operator operand'; line 19:
+parser test (x NOT y)
+             ^^^^^^^
+ERROR: subexpression is too long; subexpression should be of form
+       `operator operand'; line 19:
+parser test (x NOT y)
+             ^^^^^^^
 ======= TEST: parser test (x NOT y)
-------- line 17:
+------- line 19:
 parser test (x NOT y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 17:
+------- line 19:
 parser test (x NOT y)
             ^^^^^^^^^
 ======= END TEST
+ERROR: too many operators in subexpression; subexpression should be of
+       form `operator operand'; line 20:
+parser test (NOT x NOT y)
+             ^^^^^^^^^^^
+ERROR: subexpression is too long; subexpression should be of form
+       `operator operand'; line 20:
+parser test (NOT x NOT y)
+             ^^^^^^^^^^^
 ======= TEST: parser test (NOT x NOT y)
-------- line 18:
+------- line 20:
 parser test (NOT x NOT y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 18:
+------- line 20:
 parser test (NOT x NOT y)
             ^^^^^^^^^^^^^
-------- line 18:
-parser test (NOT x NOT y)
-                 ^^^^^^^
+======= END TEST
+======= TEST: parser test (BUT NOT x y)
+------- line 21:
+parser test (x BUT NOT y)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 21:
+parser test (x BUT NOT y)
+            ^^^^^^^^^^^^^
+======= END TEST
+ERROR: operator "BUT" "NOT" NOT in middle of subexpression;
+       subexpression should be of form `operand operator
+       operand'; line 22:
+parser test (BUT NOT x y)
+             ^^^^^^^^^^^
+ERROR: subexpression is too short; subexpression should be of form
+       `operand operator operand'; line 22:
+parser test (BUT NOT x y)
+             ^^^^^^^^^^^
+======= TEST: parser test (BUT NOT x y)
+------- line 22:
+parser test (BUT NOT x y)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 22:
+parser test (BUT NOT x y)
+            ^^^^^^^^^^^^^
+------- line 22:
+parser test (BUT NOT x y)
+                     ^^^
+======= END TEST
+ERROR: too many operators in subexpression; subexpression should be of
+       form `operator operand'; line 23:
+parser test (NOT x BUT NOT y)
+             ^^^^^^^^^^^^^^^
+ERROR: subexpression is too long; subexpression should be of form
+       `operator operand'; line 23:
+parser test (NOT x BUT NOT y)
+             ^^^^^^^^^^^^^^^
+======= TEST: parser test (NOT x BUT NOT y)
+------- line 23:
+parser test (NOT x BUT NOT y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 23:
+parser test (NOT x BUT NOT y)
+            ^^^^^^^^^^^^^^^^^
 ======= END TEST

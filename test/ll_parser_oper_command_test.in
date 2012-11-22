@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 21 06:18:05 EST 2012
+// Date:	Wed Nov 21 16:50:51 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -11,8 +11,13 @@
 parser print selectors
 parser trace [+ parser commands, + warnings ]
 parser test (NOT x y)
-parser define operator "NOT" [code, math] prefix with precedence 3000
+parser define operator "NOT" [code, math] nofix with precedence 3000
        with unary reformatter
+parser define operator "BUT NOT" [code, math] nofix with precedence 3000
+       with binary reformatter
 parser test (NOT x y)
 parser test (x NOT y)
 parser test (NOT x NOT y)
+parser test (x BUT NOT y)
+parser test (BUT NOT x y)
+parser test (NOT x BUT NOT y)

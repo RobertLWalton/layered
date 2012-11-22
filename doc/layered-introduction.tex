@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 22, 2012
+November 22, 2012
  
 \end{center}
 
@@ -2906,7 +2906,6 @@ The standard operators are given on
 
 precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
--1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
 +0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
 	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
 							 ... \RIGHTBRACKET}
@@ -2917,12 +2916,12 @@ precedence & reformatter	& type	& operator	& meaning
      	&               	&          	& \ttnbkey{-=}	& decrement \\
      	&               	&          	& \ttnbkey{*=}	& multiply by \\
      	&               	&          	& \ttnbkey{/=}	& divide by \\
-+2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
++2000	& \ttkey{separator}	& \tt nofix	& \ttkey{,}	& separator \\
 +3000	& \ttkey{unary}		& \tt nofix	& \ttkey{NOT}	& logical not \\
 +3000	& \ttkey{binary}	& \tt nofix	& \ttkey{BUT NOT}
 								& logical and
 								  not \\
-+3100	& \ttkey{infix}		& \tt nofix	& \ttkey{AND}	& logical and \\
++3100	& \ttkey{infix}		& \tt infix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
 								 \\
 +4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
@@ -3116,8 +3115,12 @@ end up as `\verb|<-- x ( y { z } )|', and instead we get results like:
     \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
-Operands and operators must alternate, with the first and last subexpression
+Use only with {\tt infix} operators.
+
+Operands and operators are assumed to alternate,
+with the first and last subexpression
 elements being operands, and there must be at least one operator.
+
 If there is only one operator, it is simply moved to the front.  If there
 are several, they are rewritten as one operator subexpressions so the
 rightmost executes first.  Examples:
@@ -3126,10 +3129,6 @@ rightmost executes first.  Examples:
 \verb|y = z| & $\Longrightarrow$ & \verb|= y z| \\
 \verb|x = y = z| & $\Longrightarrow$ & \verb|= x (= y z)| \\
 \verb|x += y *= z| & $\Longrightarrow$ & \verb|+= x (*= y z)| \\
-\verb|= y *= z| & $\Longrightarrow$ & error \\
-\verb|x = y *=| & $\Longrightarrow$ & error \\
-\verb|x = *= z| & $\Longrightarrow$ & error \\
-\verb|x = y z| & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
@@ -3138,13 +3137,17 @@ rightmost executes first.  Examples:
 \ttmkey{unary}{reformatter} \hfill \NBOP{NOT}
 
 \begin{indpar}[0.5em]
+May be used with {\tt nofix} operators.  Has no effect if used
+with {\tt prefix} operators.
+
 The subexpression must have exactly two elements, an operator followed
 by an operand.  The subexpression is left unchanged.  Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|NOT x| & $\Longrightarrow$ & \verb|NOT x| \\
-\verb|x NOT y| & $\Longrightarrow$ & error \\
 \verb|x NOT| & $\Longrightarrow$ & error \\
+\verb|x NOT y| & $\Longrightarrow$ & error \\
+\verb|NOT NOT x| & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
@@ -3153,6 +3156,8 @@ by an operand.  The subexpression is left unchanged.  Examples:
 					           ~~~ \NBOP{\CIRCUMFLEX}
 
 \begin{indpar}[0.5em]
+May be used with {\tt nofix} or {\tt infix} operators.
+
 The subexpression must have exactly three elements, an operand
 followed by an operator followed by an operand.  The operator is moved
 to the beginning of the expression.  Examples:
@@ -3176,6 +3181,8 @@ and \underline{not} two word elements of the subexpression.
 \ttmkey{infix}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{*}
 
 \begin{indpar}[0.5em]
+Use only with {\tt infix} operators.
+
 Operands and operators must alternate, with the first and last subexpression
 elements being operands, there must be at least one operator, and all
 operators must have the same value.  The first operator is moved to the

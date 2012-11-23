@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 22, 2012
+November 23, 2012
  
 \end{center}
 
@@ -3137,7 +3137,7 @@ rightmost executes first.  Examples:
 \ttmkey{unary}{reformatter} \hfill \NBOP{NOT}
 
 \begin{indpar}[0.5em]
-May be used with {\tt nofix} operators.  Has no effect if used
+May be used with {\tt nofix} or {\tt prefix} operators.  Has no effect if used
 with {\tt prefix} operators.
 
 The subexpression must have exactly two elements, an operator followed
@@ -3211,6 +3211,9 @@ Examples:
 	\NBOP{=<} ~~~ \NBOP{<=}
 
 \begin{indpar}[0.5em]
+Use only with {\tt infix} operators.
+
+Operands and operators must alternate, with the first and last subexpression
 Operands and operators must alternate, with the first and last subexpression
 elements being operands, and there must be at least one operator.
 If there is only one operator, it is simply moved to the front.  Otherwise
@@ -3243,6 +3246,8 @@ E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
 \ttmkey{sum}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
+Use only with {\tt infix} operators.
+
 Operands and operators must alternate, with the last subexpression
 element being an operand, and there must be at least one operator.
 The operators must be either `\verb|+|' or `\verb|-|'.

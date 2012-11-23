@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 23 03:35:13 EST 2012
+// Date:	Fri Nov 23 08:00:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,7 +52,9 @@ enum oper_flags
     INFIX	= ( 1 << 1 ),
     POSTFIX	= ( 1 << 2 ),
     NOFIX	= ( 1 << 3 ),
-    AFIX	= ( 1 << 4 )
+    AFIX	= ( 1 << 4 ),
+    ALLFIX	= PREFIX | INFIX | POSTFIX
+                | NOFIX | AFIX
 };
 const min::int32 NO_PRECEDENCE = -1 << 31;
     // Value less than any allowed precedence.
@@ -177,11 +179,14 @@ ll::parser::oper::oper_pass place
 
 // There is a single reformatter table set up by program
 // initialization.  This maps reformatter names to
-// reformatters and vice versa.
+// reformatters and vice versa.  A reformatter is legal
+// only for operators all of whose operator flags are
+// in the set of legal operator flags given.
 
 struct reformatter_table_struct
 {
     min::gen name;
+    min::uns32 oper_flags;
     ll::parser::oper::reformatter reformatter;
 };
 
@@ -201,15 +206,21 @@ extern min::locatable_var
 
 // Look up reformatter name in reformatter table, and
 // return reformatter if found, or NULL if not found.
+// If a reformatter is found, also return the set
+// of operator flags allowed for operators having the
+// reformatter.
 //
 inline ll::parser::oper::reformatter find_reformatter
-	( min::gen name )
+	( min::gen name, min::uns32 & oper_flags )
 {
     ll::parser::oper::reformatter_table_type t =
         ll::parser::oper::reformatter_table;
     for ( min::uns32 i = 0; i < t->length; ++ i )
         if ( t[i].name == name )
+	{
+	    oper_flags = t[i].oper_flags;
 	    return t[i].reformatter;
+	}
     return NULL;
 }
 //
@@ -232,9 +243,11 @@ inline min::gen find_name
 //
 inline void push_reformatter
     ( min::gen name,
+      min::uns32 oper_flags,
       ll::parser::oper::reformatter reformatter )
 {
-    reformatter_table_struct e = { name, reformatter };
+    reformatter_table_struct e =
+        { name, oper_flags, reformatter };
     min::push ( (ll::parser
                    ::oper::reformatter_table_type)
                 ll::parser::oper::reformatter_table )

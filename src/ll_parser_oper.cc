@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 23 08:35:52 EST 2012
+// Date:	Fri Nov 23 09:42:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1222,6 +1222,75 @@ static bool compare_reformatter
     return false;
 }
 
+static bool sum_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  OP::oper first_oper,
+	  min::phrase_position & position )
+{
+    MIN_ASSERT ( first != next );
+
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
+    bool trace =
+        (   parser->trace_flags
+          & oper_pass->trace_subexpressions );
+
+    // As operators must be infix, operands and
+    // operators must alternate with operands first and
+    // last.  The operators must be `+' and `-'.  The
+    // `+'s are deleted and a `+' is inserted at the
+    // beginning.  Any `- x' is made into a
+    // subexpression with prefix `-'.
+
+    // Remove all operators and replace operands x
+    // preceeded by `-' with `- x' subexpressions.
+    //
+    for ( PAR::token t = first; t->next != next; )
+    {
+        MIN_ASSERT ( t->next->type == PAR::OPERATOR );
+	min::gen op = t->next->value;
+	MIN_ASSERT
+	    ( op == PAR::plus || op == PAR::minus );
+	if ( op == PAR::plus )
+	{
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			t->next ) );
+	    t = t->next;
+	}
+	else
+	{
+	    t = t->next;
+	    min::phrase_position position =
+		{ t->position.begin,
+		  t->next->position.end };
+	    PAR::attr oper_attr
+		( PAR::dot_oper, PAR::minus );
+	    PAR::compact
+		( parser, pass->next, selectors,
+		  PAR::BRACKETABLE, trace,
+		  t, t->next->next, position,
+		  1, & oper_attr );
+	}
+    }
+
+    PAR::token new_first =
+	PAR::new_token ( PAR::OPERATOR );
+    new_first->position.begin = first->position.begin;
+    new_first->position.end   = first->position.begin;
+    PAR::value_ref ( new_first ) = PAR::plus;
+    PAR::put_before
+	( first_ref(parser), first, new_first );
+    first = new_first;
+
+    return true;
+}
+
 min::locatable_var<OP::reformatter_table_type>
     OP::reformatter_table;
 
@@ -1274,6 +1343,12 @@ static void reformatter_table_initialize ( void )
     OP::push_reformatter
         ( compare, OP::INFIX,
 	  ::compare_reformatter );
+
+    min::locatable_gen sum
+        ( min::new_str_gen ( "sum" ) );
+    OP::push_reformatter
+        ( sum, OP::INFIX,
+	  ::sum_reformatter );
 }
 static min::initializer reformatter_initializer
     ( ::reformatter_table_initialize );
@@ -1513,7 +1588,8 @@ static min::gen oper_pass_command
 		    char buffer[200];
 		    char * s = buffer;
 		    s += sprintf
-		        ( s, " incompatible with" );
+		        ( s, " reformatter incompatible"
+			     " with" );
 		    if ( illegal_flags & OP::PREFIX )
 		        s += sprintf ( s, " prefix" );
 		    if ( illegal_flags & OP::INFIX )
@@ -1525,10 +1601,10 @@ static min::gen oper_pass_command
 		    if ( illegal_flags & OP::AFIX )
 		        s += sprintf ( s, " afix" );
 		    s += sprintf
-		        ( s, " operator flags" );
+		        ( s, " operator flag(s)" );
 		    return PAR::parse_error
 			    ( parser, ppvec->position,
-			      "reformatter ",
+			      "",
 			      min::pgen ( name ),
 			      buffer );
 		}

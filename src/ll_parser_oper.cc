@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 23 03:51:20 EST 2012
+// Date:	Fri Nov 23 08:35:52 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,7 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser_command.h>
 # include <ll_parser_oper.h>
+# include <cstdio>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -1241,33 +1242,38 @@ static void reformatter_table_initialize ( void )
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
     OP::push_reformatter
-        ( separator, ::separator_reformatter );
+        ( separator, OP::ALLFIX,
+	  ::separator_reformatter );
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     OP::push_reformatter
-        ( right_associative,
+        ( right_associative, OP::INFIX,
 	  ::right_associative_reformatter );
 
     min::locatable_gen unary
         ( min::new_str_gen ( "unary" ) );
     OP::push_reformatter
-        ( unary, ::unary_reformatter );
+        ( unary, OP::PREFIX + OP::NOFIX,
+	  ::unary_reformatter );
 
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
     OP::push_reformatter
-        ( binary, ::binary_reformatter );
+        ( binary, OP::INFIX + OP::NOFIX,
+	  ::binary_reformatter );
 
     min::locatable_gen infix
         ( min::new_str_gen ( "infix" ) );
     OP::push_reformatter
-        ( infix, ::infix_reformatter );
+        ( infix, OP::INFIX,
+	  ::infix_reformatter );
 
     min::locatable_gen compare
         ( min::new_str_gen ( "compare" ) );
     OP::push_reformatter
-        ( compare, ::compare_reformatter );
+        ( compare, OP::INFIX,
+	  ::compare_reformatter );
 }
 static min::initializer reformatter_initializer
     ( ::reformatter_table_initialize );
@@ -1485,8 +1491,10 @@ static min::gen oper_pass_command
 	    if (    j < size
 		 && vp[j] == ::reformatter )
 	    {
+		min::uns32 allowed_oper_flags;
 		reformatter =
-		    OP::find_reformatter ( name );
+		    OP::find_reformatter
+		        ( name, allowed_oper_flags );
 		if ( reformatter == NULL )
 		{
 		    min::phrase_position position =
@@ -1497,6 +1505,34 @@ static min::gen oper_pass_command
 			  "undefined reformatter"
 			  " name" );
 		}
+
+		min::uns32 illegal_flags =
+		    oper_flags & ~ allowed_oper_flags;
+		if ( illegal_flags != 0 )
+		{
+		    char buffer[200];
+		    char * s = buffer;
+		    s += sprintf
+		        ( s, " incompatible with" );
+		    if ( illegal_flags & OP::PREFIX )
+		        s += sprintf ( s, " prefix" );
+		    if ( illegal_flags & OP::INFIX )
+		        s += sprintf ( s, " infix" );
+		    if ( illegal_flags & OP::POSTFIX )
+		        s += sprintf ( s, " postfix" );
+		    if ( illegal_flags & OP::NOFIX )
+		        s += sprintf ( s, " nofix" );
+		    if ( illegal_flags & OP::AFIX )
+		        s += sprintf ( s, " afix" );
+		    s += sprintf
+		        ( s, " operator flags" );
+		    return PAR::parse_error
+			    ( parser, ppvec->position,
+			      "reformatter ",
+			      min::pgen ( name ),
+			      buffer );
+		}
+
 		i = j + 1;
 		continue;
 	    }

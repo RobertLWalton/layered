@@ -15,6 +15,10 @@ parser define operator "+" [code, math] infix
        with binary reformatter
 parser define operator "+" [code, math] infix nofix with precedence 3000
        with binary reformatter
+parser define operator "+" [code, math] nofix with precedence 3000
+       with right associative reformatter
+parser define operator "+" [code, math] nofix with precedence 3000
+       with none such reformatter
 
 parser test (NOT x y)
 parser define operator "NOT" [code, math] nofix with precedence 3000
@@ -37,3 +41,15 @@ parser test (NOT x AND y)
 parser test (x AND y OR z)
 parser test (x AND y BUT NOT z OR w)
 parser test (x AND y AND NOT z)
+
+parser define operator "+" [code, math] infix with precedence 5000
+       with sum reformatter
+parser define operator "-" [code, math] infix with precedence 5000
+       with sum reformatter
+parser test ( x + y - z + w - v - u )
+parser test ( - x + y - z )
+
+
+parser define operator "+" [code, math] prefix with precedence 10000
+parser define operator "-" [code, math] prefix with precedence 10000
+parser test ( - x + y - z )

@@ -2906,25 +2906,25 @@ The standard operators are given on
 
 precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
-+0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
+0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
 	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
 							 ... \RIGHTBRACKET}
 								& block \\
-+1000	& \tt \bf right		& \tt infix	& \ttnbkey{=}	& assignment \\
+1000	& \tt \bf right		& \tt infix	& \ttnbkey{=}	& assignment \\
      	& \tt \bf associative\ttindex{right associative}
 				&          	& \ttnbkey{+=}	& increment \\
      	&               	&          	& \ttnbkey{-=}	& decrement \\
      	&               	&          	& \ttnbkey{*=}	& multiply by \\
      	&               	&          	& \ttnbkey{/=}	& divide by \\
-+2000	& \ttkey{separator}	& \tt nofix	& \ttkey{,}	& separator \\
-+3000	& \ttkey{unary}		& \tt nofix	& \ttkey{NOT}	& logical not \\
-+3000	& \ttkey{binary}	& \tt nofix	& \ttkey{BUT NOT}
+2000	& \ttkey{separator}	& \tt nofix	& \ttkey{,}	& separator \\
+3000	& \ttkey{unary}		& \tt nofix	& \ttkey{NOT}	& logical not \\
+3000	& \ttkey{binary}	& \tt nofix	& \ttkey{BUT NOT}
 								& logical and
 								  not \\
-+3100	& \ttkey{infix}		& \tt infix	& \ttkey{AND}	& logical and \\
+3100	& \ttkey{infix}		& \tt infix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
 								 \\
-+4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
+4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
 	&			&		& \ttnbkey{/=}  & not equal \\
 	&			&		& \ttnbkey{!=}	& ditto \\
 	&		      	&		& \ttnbkey{<}	& less than \\
@@ -2936,14 +2936,14 @@ precedence & reformatter	& type	& operator	& meaning
 	&			&		& \ttnbkey{>=}	& greater than
 								  or equal \\
 	&			&		& \ttnbkey{=>}	& ditto \\
-+5000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
+5000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
 	&			&		& \ttnbkey{-}	& subtraction \\
-+5100	& \ttkey{binary}	& \tt infix	& \ttnbkey{/}	& division \\
-+5200	& \ttkey{infix}		& \tt infix	& \ttnbkey{*}
+5100	& \ttkey{binary}	& \tt infix	& \ttnbkey{/}	& division \\
+5200	& \ttkey{infix}		& \tt infix	& \ttnbkey{*}
 							& multiplication \\
-+5300	& \ttkey{binary}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
+5300	& \ttkey{binary}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
 							& exponentiation \\
-none	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
+10000	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
 	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
 	& 			& \tt prefix	&  \ttnbkey{@}	& object
 	                                                          identifier \\

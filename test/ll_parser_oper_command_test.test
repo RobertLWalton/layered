@@ -110,3 +110,71 @@ parser define operator "AND" [code, math] infix with precedence 3100
        with infix reformatter
 parser define operator "OR" [code, math] infix with precedence 3100
        with infix reformatter
+======= TEST: parser test (AND x y z)
+------- line 35:
+parser test (x AND y AND z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 35:
+parser test (x AND y AND z)
+            ^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: parser test (NOT AND x y)
+------- line 36:
+parser test (NOT x AND y)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 36:
+parser test (NOT x AND y)
+            ^^^^^^^^^^^^^
+------- line 36:
+parser test (NOT x AND y)
+                 ^^^^^^^
+======= END TEST
+ERROR: operator "OR" is not the same as first operator "AND" in
+       subexpression; all operators must be the same in this
+       subexpression; line 37:
+parser test (x AND y OR z)
+             ^^^^^^^^^^^^
+======= TEST: parser test (AND x y z)
+------- line 37:
+parser test (x AND y OR z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 37:
+parser test (x AND y OR z)
+            ^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: parser test (BUT NOT AND x y OR z w)
+------- line 38:
+parser test (x AND y BUT NOT z OR w)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 38:
+parser test (x AND y BUT NOT z OR w)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 38:
+parser test (x AND y BUT NOT z OR w)
+             ^^^^^^^
+------- line 38:
+parser test (x AND y BUT NOT z OR w)
+                             ^^^^^^
+======= END TEST
+ERROR: missing operand inserted; line 39:
+parser test (x AND y AND NOT z)
+                         ^
+ERROR: operator "NOT" NOT at beginning of subexpression; subexpression
+       should be of form `operator operand'; line 39:
+parser test (x AND y AND NOT z)
+             ^^^^^^^^^^^^^^^^^
+ERROR: subexpression is too long; subexpression should be of form
+       `operator operand'; line 39:
+parser test (x AND y AND NOT z)
+             ^^^^^^^^^^^^^^^^^
+======= TEST: parser test (AND x y ERROR'OPERAND NOT z)
+------- line 39:
+parser test (x AND y AND NOT z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 39:
+parser test (x AND y AND NOT z)
+            ^^^^^^^^^^^^^^^^^^^
+------- line 39:
+parser test (x AND y AND NOT z)
+             ^^^^^^^^^^^^
+======= END TEST

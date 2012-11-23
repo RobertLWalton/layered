@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 22 07:44:10 EST 2012
+// Date:	Fri Nov 23 03:51:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -508,27 +508,26 @@ static void oper_parse ( PAR::parser parser,
 	{
 	    if ( current != D.first )
 	    {
+		min::phrase_position position;
+		position.begin =
+		    D.first->position.begin;
+		position.end =
+		    current->previous ->position.end;
+
 		if ( first_oper != min::NULL_STUB )
 		{
+		    PAR::attr attr
+			( PAR::dot_oper,
+			  first_oper->label );
+
 		    if (    first_oper->reformatter
-		         != NULL )
-		    {
-			( * first_oper->reformatter )
-			    ( parser, pass, selectors,
-			      D.first, current,
-			      first_oper );
-		    }
-		    else
-		    {
-			min::phrase_position position;
-			position.begin =
-			    D.first->position.begin;
-			position.end =
-			    current->previous
-			           ->position.end;
-			PAR::attr attr
-			    ( PAR::dot_oper,
-			      first_oper->label );
+		         == NULL
+			 ||
+			 ( * first_oper->reformatter )
+			     ( parser, pass, selectors,
+			       D.first, current,
+			       first_oper,
+			       position ) )
 			PAR::compact
 			    ( parser, pass->next,
 			      selectors,
@@ -536,7 +535,6 @@ static void oper_parse ( PAR::parser parser,
 			      D.first, current,
 			      position,
 			      1, & attr );
-		    }
 		}
 		else
 		{
@@ -630,21 +628,18 @@ static void count_operators
     }
 }
 
-static void separator_reformatter
+static bool separator_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  OP::oper first_oper )
+	  OP::oper first_oper,
+	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
-
-    min::phrase_position position =
-	{ first->position.begin,
-          next->previous->position.end };
 
     min::gen separator = first_oper->label;
     bool separator_should_be_next = false;
@@ -739,15 +734,18 @@ static void separator_reformatter
 	  PAR::BRACKETABLE, trace,
 	  first, next, position,
 	  1, & separator_attr );
+
+    return false;
 }
 
-static void right_associative_reformatter
+static bool right_associative_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  OP::oper first_oper )
+	  OP::oper first_oper,
+	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
@@ -799,15 +797,18 @@ static void right_associative_reformatter
 
 	if ( t_is_first ) first = t;
     }
+
+    return false;
 }
 
-static void unary_reformatter
+static bool unary_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  OP::oper first_oper )
+	  OP::oper first_oper,
+	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
@@ -821,11 +822,7 @@ static void unary_reformatter
 	  token_count, oper_count,
 	  i, value );
     if ( token_count == 2 && oper_count == 1 && i == 0 )
-        return;
-
-    min::phrase_position position =
-	{ first->position.begin,
-	  next->previous->position.end };
+        return true;
 
     MIN_ASSERT ( oper_count > 0 );
 
@@ -890,15 +887,18 @@ static void unary_reformatter
 	      position );
 	++ parser->error_count;
     }
+
+    return true;
 }
 
-static void binary_reformatter
+static bool binary_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  OP::oper first_oper )
+	  OP::oper first_oper,
+	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
@@ -920,12 +920,8 @@ static void binary_reformatter
 	    ( PAR::first_ref ( parser ),
 	      first, oper_token );
 	first = oper_token;
-        return;
+        return true;
     }
-
-    min::phrase_position position =
-	{ first->position.begin,
-	  next->previous->position.end };
 
     MIN_ASSERT ( oper_count > 0 );
 
@@ -990,15 +986,18 @@ static void binary_reformatter
 	      position );
 	++ parser->error_count;
     }
+
+    return true;
 }
 
-static void infix_reformatter
+static bool infix_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  OP::oper first_oper )
+	  OP::oper first_oper,
+	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
@@ -1017,22 +1016,18 @@ static void infix_reformatter
         MIN_ASSERT ( t->next->type == PAR::OPERATOR );
 	if ( t->next->value != first->next->value )
 	{
-	    min::phrase_position position =
-		{ first->position.begin,
-		  next->previous->position.end };
-
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 7 )
 		<< "ERROR: operator "
 		<< min::pgen
-		       ( t->value,
+		       ( t->next->value,
 		         min::BRACKET_STR_FLAG )
 		<< " is not the same as first operator "
 		<< min::pgen
 		       ( first->next->value,
 		         min::BRACKET_STR_FLAG )
-		<< "in subexpression; all operators"
+		<< " in subexpression; all operators"
 		   " must be the same in this"
 		   " subexpression; "
 		<< min::pline_numbers
@@ -1054,15 +1049,18 @@ static void infix_reformatter
 	  PAR::remove
 	      ( PAR::first_ref(parser), first->next ) );
     first = first->previous;
+
+    return true;
 }
 
-static void compare_reformatter
+static bool compare_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  OP::oper first_oper )
+	  OP::oper first_oper,
+	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
@@ -1219,6 +1217,8 @@ static void compare_reformatter
 	      first, next, position,
 	      1, & oper_attr );
     }
+
+    return false;
 }
 
 min::locatable_var<OP::reformatter_table_type>

@@ -30,5 +30,10 @@ parser test (NOT x BUT NOT y)
 
 parser define operator "AND" [code, math] infix with precedence 3100
        with infix reformatter
-parser define operator "OR" [code, math] infix with precedence 3200
+parser define operator "OR" [code, math] infix with precedence 3100
        with infix reformatter
+parser test (x AND y AND z)
+parser test (NOT x AND y)
+parser test (x AND y OR z)
+parser test (x AND y BUT NOT z OR w)
+parser test (x AND y AND NOT z)

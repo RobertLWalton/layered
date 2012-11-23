@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 17 03:57:54 EST 2012
+// Date:	Fri Nov 23 03:35:13 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,13 +56,33 @@ enum oper_flags
 };
 const min::int32 NO_PRECEDENCE = -1 << 31;
     // Value less than any allowed precedence.
-typedef void ( * reformatter )
+typedef bool ( * reformatter )
         ( ll::parser::parser parser,
 	  ll::parser::pass pass,
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,
-	  ll::parser::oper::oper first_oper );
+	  ll::parser::oper::oper first_oper,
+	  min::phrase_position & position );
+    // A reformatter reformats the tokens from first to
+    // next->previous.  First_oper is the first OPERATOR
+    // in these and `position' is the position of these.
+    // Pass is the operator pass, and parser and
+    // selectors are the current parser and selectors.
+    //
+    // The reformatter may change `first'.  Note that if
+    // this is done, a recalculated position would be
+    // incorrect, which is why `position' is calculated
+    // before the reformatter is called.
+    //
+    // If true is returned, the caller of the
+    // reformatter will immediately call ll:: parser::
+    // compact (even if first->next == next) to make a
+    // BRACKETABLE token with no syntax attributes, but
+    // with the given `position' as the .position
+    // attribute and with first_oper->label as the
+    // .operator attribute.
+
 struct oper_struct
     : public ll::parser::table::root_struct
 {

@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 23, 2012
+November 24, 2012
  
 \end{center}
 
@@ -1515,7 +1515,10 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 		& For an {\tt OPERATOR}, the token {\tt value}
 		  is the operator name recorded as
-		  a MIN string or a MIN label.
+		  a MIN string or a MIN label, or in the case
+		  where a bracketed subexpression is an operator,
+		  the {\tt value} is the MIN object as described
+		  for {\tt BRACKETED} tokens below.
 		  {\tt OPERATOR} tokens are
 		  produced inside the operator pass and consumed by
 		  expression reformatters invoked by that pass.
@@ -1543,24 +1546,24 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Empty subexpressions are recorded as {\tt BRACKETED}
-		  subexpressions whose MIN object has no elements and
-		  no syntax attri\-butes.
+		& A {\tt BRACKETABLE} token
+		  is equivalent to (and an optimization of) a {\tt BRACKETED}
+		  token whose MIN object value has no syntax attributes other
+		  than the {\tt .separator} attribute.  If such a token
+		  is to become the only element of a containing {\tt BRACKETED}
+		  token subexpression, instead of creating a new
+		  {\tt BRACKETED} token, its attributes are added to
+		  the {\tt BRACKETABLE} token, and the type of that
+		  token is then
+		  changed to {\tt BRACKETED}.  When this is done the
+		  {\tt .position} attribute is also changed to include
+		  the added syntax attributes.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& A {\tt BRACKTABLE} token with token {\tt value} V
-		  is equivalent to (and an optimization of) a {\tt BRACKETED}
-		  token whose MIN object has just a single element equal to
-		  V and no syntax attributes
-		  (the equivalent MIN object may
-		  have a non-syntax {\tt .position} attribute
-		  derivable from the {\tt position} of the token).
-		  If attributes must be
-		  added, the token is converted to a {\tt BRACKETED} token.
-		  {\tt BRACTABLE} tokens are
-		  produced inside the operator pass and consumed by
-		  expression reformatters invoked by that pass.
+		& Empty subexpressions are recorded as {\tt BRACKETABLE}
+		  subexpressions whose MIN object has no elements and
+		  no syntax attri\-butes.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1621,8 +1624,11 @@ paragraph lines, and both paragraph lines and paragraphs are
 treated as subexpressions.  Although at the top level an entire
 input file can be considered to be a paragraph, the parser \underline{never}
 forms a single token that would represent it, but instead
-delivers top level paragraph lines one at a time for subsequent
-processing.
+delivers top level paragraph line tokens one at a time for subsequent
+processing.  These top level paragraph line tokens are placed at the
+beginning of the token stream, and as they are never again accessed
+by the parser, they may be removed from the token stream at any time
+by post-parser processing.
 
 \subsection{Parser Symbol Table}
 
@@ -1741,13 +1747,22 @@ is popped, its effects are removed from the symbol tables.
 Definitions are popped by the ends of parser blocks: see
 \pagref{PARSER-BLOCKS}.
 
+It is also possible to `\mkey{undefine}{parser symbol table entry}'
+parser symbol table entries by clearing some or all of their selectors.
+One can also think of `undefine's as being pushed into and popped
+from symbol tables,
+where pushing corresponds to clearing selectors from some entries
+and popping corresponds to restoring those selectors to their
+previous state.
+
 \subsection{Parser Commands}
 
+A parser command is a top level line that changes parser tables.
 The syntax of a parser commands in general and in particular those
 associated parser block definition, parser testing, and selector definition
 is specified on \pagref{PARSER-COMMANDS}.
 
-\begin{figure*}[!p]
+\begin{boxedfigure}[!p]
 \emkey{parser-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em parser-block-command} \\
@@ -1804,17 +1819,8 @@ is specified on \pagref{PARSER-COMMANDS}.
     $|$ & \ttikey{parser test}{test!parser} \ldots \\
     \end{tabular}
 \label{PARSER-TEST-COMMAND}
-\\[0.5ex]
-\emkey{parser-trace-flag} \begin{tabular}[t]{@{}rl@{}}
-                          ::= & \ttikey{parser input}{parser trace flag}
-			  $|$ \ttikey{parser output}{parser trace flag} \\
-			  $|$ & \ttikey{parser commands}%
-				       {parser trace flag} \\
-			  $|$ & \ttikey{bracketed subexpressions}%
-			               {parser trace flag} \\
-			  $|$ & \ttikey{operator subexpressions}%
-			                   {parser trace flag} \\
-			  \end{tabular}
+\\[1.5ex]
+\emkey{parser-trace-flag} ::= see page \pageref{PARSER-TRACE-FLAGS}
 \\[1.5ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
@@ -1826,12 +1832,13 @@ is specified on \pagref{PARSER-COMMANDS}.
 \emkey{selector} ::= {\em parser-flag}
 \\[0.5ex]
 \emkey{selectors} ::= {\em parser-flag-list}
-\\[1.5ex]
-\emkey{parser-undefine-command}
-    ::= {\tt parser undefine} {\em quoted-name} {\em selectors}
+
+\bigskip
+
+\centerline{\bf Parser Command Syntax}
 
 \label{PARSER-COMMANDS}
-\end{figure*}
+\end{boxedfigure}
 
 A parser command is a top level input line by itself, and is
 executed by the parser itself after the command is read,

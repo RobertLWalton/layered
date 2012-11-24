@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 19 16:57:25 EST 2012
+// Date:	Sat Nov 24 04:50:15 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -983,7 +983,8 @@ ll::parser::table::root find_next_entry
 // Put an empty expression token just before a given
 // token t on a list of tokens headed by first.  The
 // empty expression has no elements and only a .position
-// attribute.  The position is just before t.
+// attribute, and is BRACKETABLE.  The position is just
+// before t.
 //
 void put_empty_before
 	( ll::parser::parser parser,

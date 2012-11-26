@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 25 21:58:33 EST 2012
+// Date:	Mon Nov 26 07:00:08 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,75 +63,67 @@ void PARSTD::init_brackets
         // Note TOP-LEVEL is not a legal lexeme and
 	// so cannot appear in the input.
 
-    min::locatable_gen code
-        ( min::new_str_gen ( "code" ) );
-    min::locatable_gen math
-        ( min::new_str_gen ( "math" ) );
-    min::locatable_gen text
-        ( min::new_str_gen ( "text" ) );
-
-    TAB::push_name
-	( parser->selector_name_table, code );
-    TAB::push_name
-	( parser->selector_name_table, math );
-    TAB::push_name
-	( parser->selector_name_table, text );
-
-    parser->selectors = PARSTD::CODE;
-
-    min::phrase_position pp;   // TBD: make top level
+    parser->selectors = PAR::CODE_SELECTOR;
 
     min::uns32 block_level =
         PAR::block_level ( parser );
     BRA::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  block_level, pp,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_square,
           closing_square,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  block_level, pp,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_brace,
           closing_brace,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  block_level, pp,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( PARSTD::MATH,
-	        PARSTD::CODE + PARSTD::TEXT, 0 ),
+	      ( PAR::MATH_SELECTOR,
+	        PAR::CODE_SELECTOR + PAR::TEXT_SELECTOR,
+		0 ),
 	  false,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_quote,
           closing_quote,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  block_level, pp,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( PARSTD::TEXT,
-	        PARSTD::CODE + PARSTD::MATH, 0 ),
+	      ( PAR::TEXT_SELECTOR,
+	        PAR::CODE_SELECTOR + PAR::MATH_SELECTOR,
+		0 ),
 	  false,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark
         ( colon, semicolon,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  block_level, pp,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  bracketed_pass->bracket_table,
 	  bracketed_pass->split_table );
 
     BRA::push_indentation_mark
         ( top_level, semicolon,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
-	  block_level, pp,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  bracketed_pass->bracket_table );
 

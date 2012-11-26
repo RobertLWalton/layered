@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 23 08:38:51 EST 2012
+// Date:	Mon Nov 26 07:44:12 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -76,7 +76,8 @@ OP::oper_pass PARSTD::init_oper
     min::uns32 forget;
     OP::push_oper
         ( comma,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::NOFIX,
 	  4000,
@@ -86,7 +87,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  9000,
@@ -96,7 +98,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( plus_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  9000,
@@ -106,7 +109,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( minus_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  9000,
@@ -116,7 +120,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( times_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  9000,
@@ -126,7 +131,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( divide_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  9000,
@@ -136,7 +142,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( equal_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  15000,
@@ -146,7 +153,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( less_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  15000,
@@ -156,7 +164,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( greater_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  15000,
@@ -166,7 +175,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( not_equal,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  15000,
@@ -176,7 +186,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( less_than,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  15000,
@@ -186,7 +197,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( greater_than,
-	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
+	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
+	                     + PAR::TEXT_SELECTOR,
 	  block_level, pp,
 	  OP::INFIX,
 	  15000,

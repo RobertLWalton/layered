@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 25 21:58:19 EST 2012
+// Date:	Mon Nov 26 10:04:18 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,7 +94,10 @@ TAB::table TAB::create_table ( uns32 length )
     //
     assert ( ( length & ( length -1 ) ) == 0 );
 
-    return ::table_type.new_stub ( length );
+    TAB::table table = ::table_type.new_stub ( length );
+    for ( uns32 i = 0; i < length; ++ i )
+	min::push ( table ) = NULL_STUB;
+    return table;
 }
 
 TAB::key_prefix TAB::find_key_prefix

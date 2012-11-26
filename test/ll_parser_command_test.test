@@ -22,14 +22,14 @@ ERROR: in line 13: expected quoted name after:
 parser define bracket "[+" ...
                            ^^^
 parser print selectors:
-        [ code, math, text ]
+        [ parser, code, math, text ]
 parser print selectors
 parser define selector text
 ERROR: in line 16: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
                                 ^
 parser print selectors:
-        [ code, math, text, operator 1 ]
+        [ parser, code, math, text, operator 1 ]
 parser print selectors
 ERROR: in line 18: unrecognized flag name:
 parser define bracket "[+" ... "+]" [text, operator 2]

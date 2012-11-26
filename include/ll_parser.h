@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 25 22:50:03 EST 2012
+// Date:	Mon Nov 26 07:29:03 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -684,6 +684,16 @@ enum {
         // Total number of built in trace flags.
 };
 
+enum {
+    // Built in selectors that have compiled values.
+    // Other selectors are assigned values dynamically.
+
+    PARSER_SELECTOR			= 1ull << 0,
+    CODE_SELECTOR			= 1ull << 1,
+    MATH_SELECTOR			= 1ull << 2,
+    TEXT_SELECTOR			= 1ull << 3
+};
+
 struct parser_struct
 {
     uns32 control;
@@ -853,6 +863,8 @@ MIN_REF ( ll::parser::token, first,
 
 extern min::locatable_var<ll::parser::parser>
        default_parser;
+
+extern min::phrase_position top_level_position;
 
 // This `init' function creates a parser and stores a
 // pointer to it in the argument variable, if the

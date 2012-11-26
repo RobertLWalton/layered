@@ -1,5 +1,5 @@
 parser print selectors:
-        [ code, math, text ]
+        [ parser, code, math, text ]
 parser trace [+ parser commands, + warnings ]
 ERROR: in line 15: expected `with precedence ...' after:
        with binary reformatter

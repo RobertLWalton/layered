@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 25 23:02:32 EST 2012
+// Date:	Mon Nov 26 06:12:40 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	Strings
 //	Tokens
 //	Parser Closures
+//	Contexts
 //	Parser
 //	Parser Functions
 
@@ -369,8 +370,47 @@ void PAR::place
     }
 }
 
+// Contexts
+// --------
+
+static min::uns32 context_stub_disp[] = {
+    min::DISP ( & PAR::context_struct::next ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<PAR::context_struct, TAB::root_struct>
+    context_type
+	( "ll::parser::context_type",
+	  TAB::root_gen_disp,
+	  ::context_stub_disp );
+const min::uns32 & PAR::CONTEXT = context_type.subtype;
+
+void PAR::push_context
+	( min::gen label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  const ll::parser::table::new_flags
+	      & new_selectors,
+	  ll::parser::table::table context_table )
+{
+    min::locatable_var<PAR::context> context
+        ( ::context_type.new_stub() );
+
+    label_ref(context) = label;
+    context->selectors = selectors;
+    context->block_level = block_level;
+    context->position = position;
+    context->new_selectors = new_selectors;
+
+    TAB::push ( context_table, (TAB::root) context );
+}
+
 // Parser
 // ------
+//
+min::phrase_position PAR::top_level_position =
+    { { 0, 0 }, { 0, 0 } };
 
 static min::uns32 parser_stub_disp[] =
 {
@@ -448,8 +488,52 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
 
+	min::locatable_gen code
+	    ( min::new_str_gen ( "code" ) );
+	min::locatable_gen math
+	    ( min::new_str_gen ( "math" ) );
+	min::locatable_gen text
+	    ( min::new_str_gen ( "text" ) );
+
+	assert (    PAR::PARSER_SELECTOR
+		 == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::parser_lexeme ) );
+	assert (    PAR::CODE_SELECTOR
+		 == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			code ) );
+	assert (    PAR::MATH_SELECTOR
+		 == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			math ) );
+	assert (    PAR::TEXT_SELECTOR
+		 == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			text ) );
+
 	PAR::context_table_ref(parser) =
 	    TAB::create_table ( 256 );
+
+	PAR::push_context
+	    ( PAR::parser_lexeme,
+	      0,
+	      0,
+	      PAR::top_level_position,
+	      TAB::new_flags
+	          ( PAR::PARSER_SELECTOR, 0, 0 ),
+	      parser->context_table );
+
+	min::locatable_gen parser_test
+	    ( min::new_lab_gen ( "parser", "test" ) );
+
+	PAR::push_context
+	    ( parser_test,
+	      0,
+	      0,
+	      PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      parser->context_table );
 
 	BRA::place ( parser );
     }

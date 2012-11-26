@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 31 23:48:04 EDT 2012
+// Date:	Sun Nov 25 21:44:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,7 +21,7 @@
 # include <ll_parser_bracketed.h>
 # define PAR ll::parser
 # define TAB ll::parser::table
-# define PARBRA ll::parser::bracketed
+# define BRA ll::parser::bracketed
 
 # include <iostream>
 # include <cstdlib>
@@ -44,12 +44,12 @@ int main ( int argc, const char * argv[] )
 {
     min::initialize();
     PAR::init ( PAR::default_parser );
-    PARBRA::bracketed_pass bracketed_pass =
-        (PARBRA::bracketed_pass)
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass)
 	PAR::default_parser->pass_stack;
     TAB::table bracket_table =
         bracketed_pass->bracket_table;
-    TAB::split_table split_table =
+    BRA::split_table split_table =
         bracketed_pass->split_table;
 
     min::locatable_gen opening_parenthesis;
@@ -74,7 +74,7 @@ int main ( int argc, const char * argv[] )
 
     min::phrase_position pp;
 
-    TAB::push_brackets
+    BRA::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
 	  64,
@@ -83,11 +83,11 @@ int main ( int argc, const char * argv[] )
 	  false,
 	  bracket_table );
 
-    TAB::opening_bracket oparen = (TAB::opening_bracket)
+    BRA::opening_bracket oparen = (BRA::opening_bracket)
         TAB::find ( opening_parenthesis,
 		    TAB::ALL_FLAGS,
 	            bracket_table );
-    TAB::closing_bracket cparen = (TAB::closing_bracket)
+    BRA::closing_bracket cparen = (BRA::closing_bracket)
         TAB::find ( closing_parenthesis,
 		    TAB::ALL_FLAGS,
 	            bracket_table );
@@ -98,19 +98,19 @@ int main ( int argc, const char * argv[] )
     ASSERT ( oparen->new_selectors.not_flags == 4 );
     ASSERT ( oparen->new_selectors.xor_flags == 8 );
 
-    TAB::push_indentation_mark
+    BRA::push_indentation_mark
         ( colon, semicolon,
 	  TAB::ALL_FLAGS,
 	  0, pp,
 	  TAB::new_flags ( 2 ),
 	  bracket_table,
 	  split_table );
-    TAB::indentation_mark imark =
-        (TAB::indentation_mark)
+    BRA::indentation_mark imark =
+        (BRA::indentation_mark)
         TAB::find ( colon,
 		    TAB::ALL_FLAGS,
 	            bracket_table ); 
-    TAB::indentation_split isplit =
+    BRA::indentation_split isplit =
         split_table[':'];
 
     ASSERT ( isplit->indentation_mark == imark );

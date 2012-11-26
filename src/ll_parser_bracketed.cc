@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 19 16:58:54 EST 2012
+// Date:	Sun Nov 25 21:58:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,9 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Brackets
+//	Named Brackets
+//	Indentation Marks
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Bracketed Subexpression Parser
@@ -57,6 +60,428 @@ static void initialize ( void )
 }
 static min::initializer initializer ( ::initialize );
 
+// Brackets
+// --------
+
+static min::uns32 opening_bracket_stub_disp[] = {
+    min::DISP ( & BRA::opening_bracket_struct::next ),
+    min::DISP ( & BRA::opening_bracket_struct
+                     ::closing_bracket ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::opening_bracket_struct, TAB::root_struct>
+    opening_bracket_type
+	( "ll::parser::table::opening_bracket_type",
+	  TAB::root_gen_disp,
+	  ::opening_bracket_stub_disp );
+const min::uns32 & BRA::OPENING_BRACKET =
+    opening_bracket_type.subtype;
+
+static min::uns32 closing_bracket_stub_disp[] = {
+    min::DISP ( & BRA::closing_bracket_struct::next ),
+    min::DISP ( & BRA::closing_bracket_struct
+                     ::opening_bracket ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::closing_bracket_struct, TAB::root_struct>
+    closing_bracket_type
+	( "ll::parser::table::closing_bracket_type",
+	  TAB::root_gen_disp,
+	  ::closing_bracket_stub_disp );
+const min::uns32 & BRA::CLOSING_BRACKET =
+    closing_bracket_type.subtype;
+
+void BRA::push_brackets
+	( min::gen opening_label,
+	  min::gen closing_label,
+	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  const TAB::new_flags & new_selectors,
+	  bool full_line,
+	  TAB::table bracket_table )
+{
+    min::locatable_var<BRA::opening_bracket> opening
+        ( ::opening_bracket_type.new_stub() );
+    min::locatable_var<BRA::closing_bracket> closing
+        ( ::closing_bracket_type.new_stub() );
+
+    label_ref(opening) = opening_label;
+    label_ref(closing) = closing_label;
+
+    closing_bracket_ref(opening) = closing;
+    opening_bracket_ref(closing) = opening;
+
+    opening->selectors = selectors;
+    closing->selectors = TAB::ALL_FLAGS;
+
+    opening->block_level = block_level;
+    closing->block_level = block_level;
+
+    opening->position = position;
+    closing->position = position;
+
+    opening->new_selectors = new_selectors;
+    opening->full_line = full_line;
+
+    TAB::push ( bracket_table, (TAB::root) opening );
+    TAB::push ( bracket_table, (TAB::root) closing );
+}
+
+// Named Brackets
+// ----- --------
+
+static min::uns32 named_opening_stub_disp[] = {
+    min::DISP ( & BRA::named_opening_struct
+                     ::next ),
+    min::DISP ( & BRA::named_opening_struct
+                     ::named_separator ),
+    min::DISP ( & BRA::named_opening_struct
+                     ::named_middle ),
+    min::DISP ( & BRA::named_opening_struct
+                     ::named_closing ),
+    min::DISP ( & BRA::named_opening_struct
+                     ::named_middle_closing ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::named_opening_struct, TAB::root_struct>
+    named_opening_type
+	( "ll::parser::table::named_opening_type",
+	  TAB::root_gen_disp,
+	  ::named_opening_stub_disp );
+const min::uns32 & BRA::NAMED_OPENING =
+    named_opening_type.subtype;
+
+static min::uns32 named_separator_stub_disp[] = {
+    min::DISP ( & BRA::named_separator_struct
+    		     ::next ),
+    min::DISP ( & BRA::named_separator_struct
+                     ::named_opening ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::named_separator_struct, TAB::root_struct>
+    named_separator_type
+	( "ll::parser::table::named_separator_type",
+	  TAB::root_gen_disp,
+	  ::named_separator_stub_disp );
+const min::uns32 & BRA::NAMED_SEPARATOR =
+    named_separator_type.subtype;
+
+static min::uns32 named_middle_stub_disp[] = {
+    min::DISP ( & BRA::named_middle_struct
+                     ::next ),
+    min::DISP ( & BRA::named_middle_struct
+                     ::named_opening ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::named_middle_struct, TAB::root_struct>
+    named_middle_type
+	( "ll::parser::table::named_middle_type",
+	  TAB::root_gen_disp,
+	  ::named_middle_stub_disp );
+const min::uns32 & BRA::NAMED_MIDDLE =
+    named_middle_type.subtype;
+
+static min::uns32 named_closing_stub_disp[] = {
+    min::DISP ( & BRA::named_closing_struct
+                     ::next ),
+    min::DISP ( & BRA::named_closing_struct
+                     ::named_opening ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::named_closing_struct, TAB::root_struct>
+    named_closing_type
+	( "ll::parser::table::named_closing_type",
+	  TAB::root_gen_disp,
+	  ::named_closing_stub_disp );
+const min::uns32 & BRA::NAMED_CLOSING =
+    named_closing_type.subtype;
+
+static min::uns32 named_middle_closing_stub_disp[] = {
+    min::DISP ( & BRA::named_middle_closing_struct
+	             ::next ),
+    min::DISP ( & BRA::named_middle_closing_struct
+                     ::named_opening ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::named_middle_closing_struct,
+	 TAB::root_struct>
+    named_middle_closing_type
+	( "ll::parser::table"
+	    "::named_middle_closing_type",
+	  TAB::root_gen_disp,
+	  ::named_middle_closing_stub_disp );
+const min::uns32 & BRA::NAMED_MIDDLE_CLOSING =
+    named_middle_closing_type.subtype;
+
+void BRA::push_named_brackets
+	( min::gen named_opening_label,
+	  min::gen named_separator_label,
+	  min::gen named_middle_label,
+	  min::gen named_closing_label,
+	  min::gen named_middle_closing_label,
+	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  TAB::table bracket_table )
+{
+    min::locatable_var<BRA::named_opening>
+        named_opening
+        ( ::named_opening_type.new_stub() );
+
+    min::locatable_var<BRA::named_separator>
+        named_separator
+        ( named_separator_label != min::MISSING() ?
+	  ::named_separator_type.new_stub() :
+	  min::NULL_STUB );
+
+    min::locatable_var<BRA::named_middle>
+        named_middle
+        ( named_middle_label != min::MISSING() ?
+	  ::named_middle_type.new_stub() :
+	  min::NULL_STUB );
+
+    min::locatable_var<BRA::named_closing>
+        named_closing
+        ( ::named_closing_type.new_stub() );
+
+    min::locatable_var
+	    <BRA::named_middle_closing>
+        named_middle_closing
+        ( named_middle_closing_label != min::MISSING() ?
+          ::named_middle_closing_type.new_stub() :
+	  min::NULL_STUB );
+
+    label_ref(named_opening) = named_opening_label;
+    named_opening->selectors = selectors;
+    named_opening->block_level = block_level;
+    named_opening->position = position;
+    named_separator_ref(named_opening) =
+        named_separator;
+    named_middle_ref(named_opening) =
+        named_middle;
+    named_closing_ref(named_opening) =
+        named_closing;
+    named_middle_closing_ref(named_opening) =
+        named_middle_closing;
+    TAB::push ( bracket_table,
+                (TAB::root) named_opening );
+
+    label_ref(named_closing) = named_closing_label;
+    named_closing->selectors = TAB::ALL_FLAGS;
+    named_closing->block_level = block_level;
+    named_closing->position = position;
+    named_opening_ref(named_closing) =
+        named_opening;
+    TAB::push ( bracket_table,
+                (TAB::root) named_closing );
+
+    if ( named_separator_label != min::MISSING() )
+    {
+	label_ref(named_separator) =
+	    named_separator_label;
+	named_separator->selectors = TAB::ALL_FLAGS;
+	named_separator->block_level = block_level;
+	named_separator->position = position;
+	named_opening_ref(named_separator) =
+	    named_opening;
+	TAB::push ( bracket_table,
+		    (TAB::root) named_separator );
+    }
+
+    if ( named_middle_label != min::MISSING() )
+    {
+	label_ref(named_middle) = named_middle_label;
+	named_middle->selectors = TAB::ALL_FLAGS;
+	named_middle->block_level = block_level;
+	named_middle->position = position;
+	named_opening_ref(named_middle) =
+	    named_opening;
+	TAB::push ( bracket_table,
+		    (TAB::root) named_middle );
+    }
+
+    if ( named_middle_closing_label != min::MISSING() )
+    {
+	label_ref(named_middle_closing) =
+	    named_middle_closing_label;
+	named_middle_closing->selectors =
+	    TAB::ALL_FLAGS;
+	named_middle_closing->block_level = block_level;
+	named_middle_closing->position = position;
+	named_opening_ref(named_middle_closing) =
+	    named_opening;
+	TAB::push ( bracket_table,
+		    (TAB::root) named_middle_closing );
+    }
+}
+
+// Indentation Marks
+// ----------- -----
+
+static min::uns32 indentation_mark_stub_disp[] = {
+    min::DISP ( & BRA::indentation_mark_struct::next ),
+    min::DISP ( & BRA::indentation_mark_struct
+                     ::line_separator ),
+    min::DISP ( & BRA::indentation_mark_struct
+                     ::indentation_split ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::indentation_mark_struct, TAB::root_struct>
+    indentation_mark_type
+	( "ll::parser::table::indentation_mark_type",
+	  TAB::root_gen_disp,
+	  ::indentation_mark_stub_disp );
+const min::uns32 & BRA::INDENTATION_MARK =
+    indentation_mark_type.subtype;
+
+static min::uns32 line_separator_stub_disp[] = {
+    min::DISP ( & BRA::line_separator_struct::next ),
+    min::DISP ( & BRA::line_separator_struct
+                     ::indentation_mark ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::line_separator_struct, TAB::root_struct>
+    line_separator_type
+	( "ll::parser::table::line_separator_type",
+	  TAB::root_gen_disp,
+	  ::line_separator_stub_disp );
+const min::uns32 & BRA::LINE_SEPARATOR =
+    line_separator_type.subtype;
+
+static min::uns32 indentation_split_stub_disp[] = {
+    min::DISP ( & BRA::indentation_split_struct
+                     ::next ),
+    min::DISP ( & BRA::indentation_split_struct
+                     ::indentation_mark ),
+    min::DISP_END };
+
+static min::packed_vec
+	<min::uns8,BRA::indentation_split_struct>
+    indentation_split_type
+	( "ll::parser::table::indentation_split_type",
+	  NULL, NULL, NULL,
+	  ::indentation_split_stub_disp );
+
+static min::uns32 split_table_stub_disp[] = {
+    0, min::DISP_END };
+
+static min::packed_vec<BRA::indentation_split>
+    split_table_type
+	( "ll::parser::table::split_table_type",
+	  NULL, ::split_table_stub_disp );
+
+min::locatable_var<BRA::indentation_mark>
+    BRA::top_level_indentation_mark;
+
+BRA::split_table BRA::create_split_table ( void )
+{
+    return ::split_table_type.new_stub ( 256 );
+}
+
+void BRA::push_indentation_mark
+	( min::gen mark_label,
+	  min::gen separator_label,
+	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  const TAB::new_flags & new_selectors,
+	  TAB::table bracket_table,
+	  BRA::split_table split_table )
+{
+    min::locatable_var<BRA::indentation_mark> imark
+        ( ::indentation_mark_type.new_stub() );
+    label_ref(imark) = mark_label;
+    imark->selectors = selectors;
+    imark->block_level = block_level;
+    imark->position = position;
+    imark->new_selectors = new_selectors;
+    TAB::push ( bracket_table, (TAB::root) imark );
+
+    if ( separator_label != min::MISSING() )
+    {
+	min::locatable_var<BRA::line_separator>
+	    separator
+	    ( ::line_separator_type.new_stub() );
+	label_ref(separator) = separator_label;
+	separator->selectors = TAB::ALL_FLAGS;
+	separator->block_level = block_level;
+	separator->position = position;
+	indentation_mark_ref(separator) = imark;
+	line_separator_ref(imark) = separator;
+	TAB::push ( bracket_table,
+	            (TAB::root) separator );
+    }
+
+    if ( split_table != NULL_STUB )
+    {
+        MIN_ASSERT ( min::is_str ( mark_label ) );
+	min::str_ptr s ( mark_label );
+	min::unsptr length = min::strlen ( s );
+	min::locatable_var<BRA::indentation_split>
+	    isplit;
+	isplit = ::indentation_split_type.new_stub
+			( length );
+	min::push
+	    ( isplit, length,
+	      (min::uns8 *)
+	      (const char *) min::begin_ptr_of ( s ) );
+	indentation_mark_ref(isplit) = imark;
+	indentation_split_ref(imark) = isplit;
+
+	min::uns8 lastb = s[length - 1];
+
+	min::ptr<BRA::indentation_split> p =
+	    & split_table[lastb];
+	while ( * p != NULL_STUB
+	        &&
+		(*p)->length > length )
+	    p = & next_ref ( * p );
+	next_ref(isplit) = * p;
+	* p = isplit;
+    }
+}
+
+void BRA::end_block
+	( BRA::split_table split_table,
+	  uns32 block_level,
+	  uns64 & collected_entries )
+{
+    collected_entries = 0;
+    for ( min::uns32 i = 0;
+          i < split_table->length; ++ i )
+    {
+        BRA::indentation_split previous = NULL_STUB; 
+	for ( BRA::indentation_split current =
+	          split_table[i];
+	      current != NULL_STUB;
+	      current = current->next )
+	{
+	    if (   current->indentation_mark
+	                   ->block_level
+	         > block_level )
+	    {
+	        ++ collected_entries;
+		if ( previous == NULL_STUB )
+		    split_table[i] = current->next;
+		else
+		    next_ref ( previous ) =
+		        current->next;
+	    }
+	        else previous = current;
+	}
+    }
+}
+
 // Bracketed Subexpression Pass
 // --------- ------------- ----
 
@@ -89,13 +514,13 @@ static void bracketed_pass_reset
         (BRA::bracketed_pass) pass;
     TAB::table bracket_table =
         bracketed_pass->bracket_table;
-    TAB::split_table split_table =
+    BRA::split_table split_table =
         bracketed_pass->split_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
 
-    TAB::end_block
+    BRA::end_block
         ( split_table, 0, collected_entries );
     TAB::end_block
         ( bracket_table, 0,
@@ -114,7 +539,7 @@ static min::gen bracketed_pass_end_block
         (BRA::bracketed_pass) pass;
     TAB::table bracket_table =
         bracketed_pass->bracket_table;
-    TAB::split_table split_table =
+    BRA::split_table split_table =
         bracketed_pass->split_table;
 
     min::uns64 collected_entries,
@@ -124,7 +549,7 @@ static min::gen bracketed_pass_end_block
         PAR::block_level ( parser );
     assert ( block_level > 0 );
 
-    TAB::end_block
+    BRA::end_block
         ( split_table, block_level - 1,
 	  collected_entries );
     TAB::end_block
@@ -158,7 +583,7 @@ BRA::bracketed_pass BRA::place
 	TAB::create_table ( 256 );
     min::push ( bracketed_pass->bracket_table, 256 );
     split_table_ref(bracketed_pass) =
-	TAB::create_split_table();
+	BRA::create_split_table();
     min::push ( bracketed_pass->split_table, 256 );
 
     int index = TAB::find_name
@@ -286,7 +711,7 @@ static void named_attributes
 	  min::ref<min::gen> name,
 	  min::ref<min::gen> arguments,
 	  min::ref<min::gen> keys,
-	  TAB::named_opening named_opening,
+	  BRA::named_opening named_opening,
 	  PAR::token first, PAR::token next )
 {
     MIN_ASSERT ( first != next );
@@ -299,7 +724,7 @@ static void named_attributes
     // Recast named_separator as a vector of min::gen
     // elements.
     //
-    TAB::named_separator nsep =
+    BRA::named_separator nsep =
         named_opening->named_separator;
     min::gen sep =
 	( nsep == min::NULL_STUB ? min::MISSING()
@@ -476,18 +901,18 @@ bool BRA::parse_bracketed_subexpression
 	  TAB::flags selectors,
 	  PAR::token & current,
 	  min::int32 indent,
-	  TAB::indentation_mark indentation_mark,
+	  BRA::indentation_mark indentation_mark,
 	  BRA::bracket_stack * bracket_stack_p )
 {
     BRA::bracketed_pass pass =
         (BRA::bracketed_pass) parser->pass_stack;
 
-    TAB::indentation_mark indentation_found =
+    BRA::indentation_mark indentation_found =
         min::NULL_STUB;
 	// If not NULL_STUB, current token is an end-of-
 	// line and current->previous token is the last
 	// token of an indentation mark.
-    TAB::named_opening named_opening =
+    BRA::named_opening named_opening =
         min::NULL_STUB;
 	// If not NULL_STUB, a named opening bracket,
 	// named closing bracket, or named operator
@@ -559,7 +984,7 @@ bool BRA::parse_bracketed_subexpression
 	        min::str_ptr sp
 		    ( current->previous->value );
 		min::uns32 length = min::strlen ( sp );
-		TAB::indentation_split split =
+		BRA::indentation_split split =
 		    min::NULL_STUB;
 		if ( length != 0 )
 		{
@@ -1099,7 +1524,7 @@ bool BRA::parse_bracketed_subexpression
 			         ( root ) )
 		    << min::eol;
 
-	    if ( subtype == TAB::OPENING_BRACKET
+	    if ( subtype == BRA::OPENING_BRACKET
 	         &&
 		 ( selectors & root->selectors ) != 0 )
 	    {
@@ -1108,8 +1533,8 @@ bool BRA::parse_bracketed_subexpression
 		     !  is_named_opening_bracket )
 		    named_opening = min::NULL_STUB;
 
-		TAB::opening_bracket opening_bracket =
-		    (TAB::opening_bracket) root;
+		BRA::opening_bracket opening_bracket =
+		    (BRA::opening_bracket) root;
 
 		TAB::flags new_selectors =
 		    selectors;
@@ -1289,10 +1714,10 @@ bool BRA::parse_bracketed_subexpression
 		}
 	    }
 
-	    else if ( subtype == TAB::CLOSING_BRACKET )
+	    else if ( subtype == BRA::CLOSING_BRACKET )
 	    {
-		TAB::closing_bracket closing_bracket =
-		    (TAB::closing_bracket) root;
+		BRA::closing_bracket closing_bracket =
+		    (BRA::closing_bracket) root;
 
 		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
@@ -1325,7 +1750,7 @@ bool BRA::parse_bracketed_subexpression
 		// Closing bracket does not match any
 		// bracket stack entry; reject key.
 	    }
-	    else if ( subtype == TAB::INDENTATION_MARK
+	    else if ( subtype == BRA::INDENTATION_MARK
 	              &&
 		         ( selectors & root->selectors )
 		      != 0 )
@@ -1337,7 +1762,7 @@ bool BRA::parse_bracketed_subexpression
 		     == LEXSTD::end_of_file_t )
 		{
 		    indentation_found =
-			(TAB::indentation_mark) root;
+			(BRA::indentation_mark) root;
 		    break;
 		}
 
@@ -1345,11 +1770,11 @@ bool BRA::parse_bracketed_subexpression
 		// or end of file; reject key.
 	    }
 	    else if (    subtype
-	              == TAB::LINE_SEPARATOR )
+	              == BRA::LINE_SEPARATOR )
 	    {
-		TAB::line_separator
+		BRA::line_separator
 		    line_separator =
-			(TAB::line_separator) root;
+			(BRA::line_separator) root;
                 if (    line_separator->indentation_mark
 		     == indentation_mark )
 		    return true;
@@ -1358,7 +1783,7 @@ bool BRA::parse_bracketed_subexpression
 		// indentation_mark argument; reject
 		// key.
 	    }
-	    else if ( subtype == TAB::NAMED_OPENING 
+	    else if ( subtype == BRA::NAMED_OPENING 
 	              &&
 		         ( selectors & root->selectors )
 		      != 0 )
@@ -1371,7 +1796,7 @@ bool BRA::parse_bracketed_subexpression
 		    // bracket or named operator.
 
 		    named_opening =
-			(TAB::named_opening) root;
+			(BRA::named_opening) root;
 		    is_named_opening_bracket = true;
 		    named_first = current;
 		    break;
@@ -1381,23 +1806,23 @@ bool BRA::parse_bracketed_subexpression
 		// number; reject key.
 	    }
 	    else if (    subtype
-	              == TAB::NAMED_SEPARATOR )
+	              == BRA::NAMED_SEPARATOR )
 	    {
 	        if ( named_opening != min::NULL_STUB
 		     &&
 		     is_named_opening_bracket
 		     &&
-		        (TAB::named_separator) root
+		        (BRA::named_separator) root
 		     == named_opening->named_separator )
 		    break;
 
 		// Named separator does not match
 		// current named opening; reject key.
 	    }
-	    else if ( subtype == TAB::NAMED_MIDDLE )
+	    else if ( subtype == BRA::NAMED_MIDDLE )
 	    {
-	        TAB::named_middle named_middle =
-		    (TAB::named_middle) root;
+	        BRA::named_middle named_middle =
+		    (BRA::named_middle) root;
 
 	        if ( named_opening != min::NULL_STUB
 		     &&
@@ -1598,10 +2023,10 @@ bool BRA::parse_bracketed_subexpression
 		// active named opening or any bracket
 		// stack entry; reject key.
 	    }
-	    else if ( subtype == TAB::NAMED_CLOSING )
+	    else if ( subtype == BRA::NAMED_CLOSING )
 	    {
-		TAB::named_closing named_closing =
-		    (TAB::named_closing) root;
+		BRA::named_closing named_closing =
+		    (BRA::named_closing) root;
 
 	        if ( named_opening != min::NULL_STUB
 		     &&
@@ -1779,11 +2204,11 @@ bool BRA::parse_bracketed_subexpression
 		// bracket stack entry; reject key.
 	    }
 	    else if
-	        ( subtype == TAB::NAMED_MIDDLE_CLOSING )
+	        ( subtype == BRA::NAMED_MIDDLE_CLOSING )
 	    {
-		TAB::named_middle_closing
+		BRA::named_middle_closing
 		    named_middle_closing =
-		    (TAB::named_middle_closing) root;
+		    (BRA::named_middle_closing) root;
 
 		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
@@ -2091,7 +2516,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "expected `with' after" );
 
-	TAB::push_brackets
+	BRA::push_brackets
 	    ( name[0], name[1],
 	      selectors,
 	      PAR::block_level ( parser ),
@@ -2139,7 +2564,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "expected `with' after" );
 
-	TAB::push_indentation_mark
+	BRA::push_indentation_mark
 	    ( name[0],
 	      number_of_names == 2 ?
 		  (min::gen) name[1] :
@@ -2150,7 +2575,7 @@ static min::gen bracketed_pass_command
 	      new_selectors,
 	      bracketed_pass->bracket_table,
 	      gluing ? bracketed_pass->split_table :
-		       (TAB::split_table)
+		       (BRA::split_table)
 		       min::NULL_STUB );
 
 	break;
@@ -2260,7 +2685,7 @@ static min::gen bracketed_pass_command
 	    }
 	}
 
-	TAB::push_named_brackets
+	BRA::push_named_brackets
 	    ( named_opening,
 	      named_separator,
 	      named_middle,
@@ -2306,12 +2731,12 @@ static min::gen bracketed_pass_command
 	    {
 	    case ::BRACKET:
 	    {
-		if ( subtype != TAB::OPENING_BRACKET )
+		if ( subtype != BRA::OPENING_BRACKET )
 		    continue;
 
-		TAB::opening_bracket opening_bracket =
-		    (TAB::opening_bracket) root;
-		TAB::closing_bracket closing_bracket =
+		BRA::opening_bracket opening_bracket =
+		    (BRA::opening_bracket) root;
+		BRA::closing_bracket closing_bracket =
 		    opening_bracket->closing_bracket;
 
 		if ( closing_bracket->label != name[1] )
@@ -2322,12 +2747,12 @@ static min::gen bracketed_pass_command
 
 	    case ::INDENTATION_MARK:
 	    {
-		if ( subtype != TAB::INDENTATION_MARK )
+		if ( subtype != BRA::INDENTATION_MARK )
 		    continue;
 
-		TAB::indentation_mark indentation_mark =
-		    (TAB::indentation_mark) root;
-		TAB::line_separator line_separator =
+		BRA::indentation_mark indentation_mark =
+		    (BRA::indentation_mark) root;
+		BRA::line_separator line_separator =
 		    indentation_mark->line_separator;
 		if ( line_separator == min::NULL_STUB
 		     &&
@@ -2346,7 +2771,7 @@ static min::gen bracketed_pass_command
 	    }
 	    case ::NAMED_BRACKET:
 	    {
-		if ( subtype != TAB::NAMED_OPENING )
+		if ( subtype != BRA::NAMED_OPENING )
 		    continue;
 
 		bool separator_present =
@@ -2354,13 +2779,13 @@ static min::gen bracketed_pass_command
 		bool middle_present =
 		    ( number_of_names >= 4 );
 
-		TAB::named_opening named_opening =
-		    (TAB::named_opening) root;
-		TAB::named_separator named_separator =
+		BRA::named_opening named_opening =
+		    (BRA::named_opening) root;
+		BRA::named_separator named_separator =
 		    named_opening->named_separator;
-		TAB::named_closing named_closing =
+		BRA::named_closing named_closing =
 		    named_opening->named_closing;
-		TAB::named_middle named_middle =
+		BRA::named_middle named_middle =
 		    named_opening->named_middle;
 
 		if ( (    named_separator

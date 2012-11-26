@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 12:02:52 EST 2012
+// Date:	Sun Nov 25 21:58:33 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,7 +83,7 @@ void PARSTD::init_brackets
 
     min::uns32 block_level =
         PAR::block_level ( parser );
-    TAB::push_brackets
+    BRA::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
@@ -91,7 +91,7 @@ void PARSTD::init_brackets
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
-    TAB::push_brackets
+    BRA::push_brackets
         ( opening_square,
           closing_square,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
@@ -99,7 +99,7 @@ void PARSTD::init_brackets
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
-    TAB::push_brackets
+    BRA::push_brackets
         ( opening_brace,
           closing_brace,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
@@ -109,7 +109,7 @@ void PARSTD::init_brackets
 	        PARSTD::CODE + PARSTD::TEXT, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
-    TAB::push_brackets
+    BRA::push_brackets
         ( opening_quote,
           closing_quote,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
@@ -120,7 +120,7 @@ void PARSTD::init_brackets
 	  false,
 	  bracketed_pass->bracket_table );
 
-    TAB::push_indentation_mark
+    BRA::push_indentation_mark
         ( colon, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  block_level, pp,
@@ -128,15 +128,15 @@ void PARSTD::init_brackets
 	  bracketed_pass->bracket_table,
 	  bracketed_pass->split_table );
 
-    TAB::push_indentation_mark
+    BRA::push_indentation_mark
         ( top_level, semicolon,
 	  PARSTD::CODE + PARSTD::MATH + PARSTD::TEXT,
 	  block_level, pp,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  bracketed_pass->bracket_table );
 
-    TAB::top_level_indentation_mark =
-        (TAB::indentation_mark)
+    BRA::top_level_indentation_mark =
+        (BRA::indentation_mark)
 	 TAB::find
 	    ( top_level, TAB::ALL_FLAGS,
 	      bracketed_pass->bracket_table );

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 19 16:48:46 EST 2012
+// Date:	Sun Nov 25 21:57:53 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -719,7 +719,7 @@ void PAR::parse ( PAR::parser parser )
 	    BRA::parse_bracketed_subexpression
 		( parser, parser->selectors,
 		  current,
-		  0, TAB::top_level_indentation_mark,
+		  0, BRA::top_level_indentation_mark,
 		  NULL );
 
 	PAR::token first =
@@ -745,7 +745,7 @@ void PAR::parse ( PAR::parser parser )
 		// and make it into the terminator.
 		//
 		terminator =
-		    TAB::top_level_indentation_mark
+		    BRA::top_level_indentation_mark
 			     ->line_separator->label;
 		PAR::remove
 		    ( parser, current, terminator );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 14 07:31:56 EST 2012
+// Date:	Sun Nov 25 21:46:22 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,7 +60,7 @@ int main ( int argc, const char * argv[] )
 
     min::uns32 block_level =
         PAR::block_level ( PAR::default_parser );
-    TAB::push_brackets
+    BRA::push_brackets
         ( openplus,
           closeplus,
 	  PARSTD::MATH,
@@ -68,7 +68,7 @@ int main ( int argc, const char * argv[] )
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
-    TAB::push_brackets
+    BRA::push_brackets
         ( openminus,
           closeminus,
 	  PARSTD::TEXT,

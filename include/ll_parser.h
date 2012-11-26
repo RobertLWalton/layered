@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 24 04:50:15 EST 2012
+// Date:	Sun Nov 25 22:50:03 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -593,6 +593,41 @@ void place
 
 } }
 
+// Contexts
+// --------
+
+namespace ll { namespace parser {
+
+// Context definition.
+//
+struct context_struct;
+typedef min::packed_struct_updptr<context_struct>
+        context;
+extern const min::uns32 & CONTEXT;
+    // Subtype of min::packed_struct<context_struct>.
+struct context_struct :
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is CONTEXT.
+
+    ll::parser::table::new_flags new_selectors;
+    	// New selectors associated with this context.
+
+};
+
+MIN_REF ( min::gen, label, ll::parser::context )
+
+void push_context
+	( min::gen label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  const ll::parser::table::new_flags
+	      & new_selectors,
+	  ll::parser::table::table context_table );
+
+} }
+
 // Parser
 // ------
 
@@ -741,6 +776,9 @@ struct parser_struct
     ll::parser::table::flags selectors;
         // Top level selectors.
 
+    const ll::parser::table::table context_table;
+        // Context symbol table.
+
     // Parser state:
 
     const ll::parser::token first;
@@ -806,6 +844,9 @@ MIN_REF ( ll::parser::table::block_stack,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::name_table,
 		selector_name_table,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::table,
+		context_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::token, first,
           ll::parser::parser )

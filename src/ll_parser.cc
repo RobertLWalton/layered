@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 26 06:12:40 EST 2012
+// Date:	Tue Nov 27 03:28:08 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -428,6 +428,8 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct
                      ::selector_name_table ),
     min::DISP ( & PAR::parser_struct::context_table ),
+    min::DISP ( & PAR::parser_struct
+                     ::top_level_indentation_mark ),
     min::DISP ( & PAR::parser_struct::first ),
     min::DISP_END
 };
@@ -521,7 +523,10 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	      0,
 	      PAR::top_level_position,
 	      TAB::new_flags
-	          ( PAR::PARSER_SELECTOR, 0, 0 ),
+	          ( PAR::PARSER_SELECTOR,
+		      TAB::ALL_FLAGS
+		    - PAR::PARSER_SELECTOR,
+		    0 ),
 	      parser->context_table );
 
 	min::locatable_gen parser_test
@@ -535,7 +540,21 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	      TAB::new_flags ( 0, 0, 0 ),
 	      parser->context_table );
 
-	BRA::place ( parser );
+	BRA::bracketed_pass bracketed_pass =
+	    BRA::place ( parser );
+
+	min::locatable_gen top_level
+	    ( min::new_str_gen ( "TOP-LEVEL" ) );
+	    // Note TOP-LEVEL is not a standard legal
+	    // lexeme and so cannot appear in standard
+	    // input.
+
+	top_level_indentation_mark_ref(parser) =
+	    BRA::push_indentation_mark
+		( top_level, PAR::semicolon,
+		  0, 0, PAR::top_level_position,
+		  TAB::new_flags ( 0, 0, 0 ),
+		  bracketed_pass->bracket_table );
     }
 }
 
@@ -807,7 +826,8 @@ void PAR::parse ( PAR::parser parser )
 	    BRA::parse_bracketed_subexpression
 		( parser, parser->selectors,
 		  current,
-		  0, BRA::top_level_indentation_mark,
+		  0,
+		  parser->top_level_indentation_mark,
 		  NULL );
 
 	PAR::token first =
@@ -833,7 +853,7 @@ void PAR::parse ( PAR::parser parser )
 		// and make it into the terminator.
 		//
 		terminator =
-		    BRA::top_level_indentation_mark
+		    parser->top_level_indentation_mark
 			     ->line_separator->label;
 		PAR::remove
 		    ( parser, current, terminator );

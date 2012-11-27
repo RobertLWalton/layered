@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 25 21:58:05 EST 2012
+// Date:	Tue Nov 27 03:39:43 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,7 +93,8 @@ static min::packed_struct_with_base
 const min::uns32 & BRA::CLOSING_BRACKET =
     closing_bracket_type.subtype;
 
-void BRA::push_brackets
+BRA::opening_bracket
+    BRA::push_brackets
 	( min::gen opening_label,
 	  min::gen closing_label,
 	  TAB::flags selectors,
@@ -128,6 +129,8 @@ void BRA::push_brackets
 
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
+
+    return opening;
 }
 
 // Named Brackets
@@ -221,7 +224,8 @@ static min::packed_struct_with_base
 const min::uns32 & BRA::NAMED_MIDDLE_CLOSING =
     named_middle_closing_type.subtype;
 
-void BRA::push_named_brackets
+BRA::named_opening
+    BRA::push_named_brackets
 	( min::gen named_opening_label,
 	  min::gen named_separator_label,
 	  min::gen named_middle_label,
@@ -321,6 +325,8 @@ void BRA::push_named_brackets
 	TAB::push ( bracket_table,
 		    (TAB::root) named_middle_closing );
     }
+
+    return named_opening;
 }
 
 // Indentation Marks
@@ -380,15 +386,13 @@ static min::packed_vec<BRA::indentation_split>
 	( "ll::parser::table::split_table_type",
 	  NULL, ::split_table_stub_disp );
 
-min::locatable_var<BRA::indentation_mark>
-    BRA::top_level_indentation_mark;
-
 BRA::split_table BRA::create_split_table ( void )
 {
     return ::split_table_type.new_stub ( 256 );
 }
 
-void BRA::push_indentation_mark
+BRA::indentation_mark
+    BRA::push_indentation_mark
 	( min::gen mark_label,
 	  min::gen separator_label,
 	  TAB::flags selectors,
@@ -449,6 +453,8 @@ void BRA::push_indentation_mark
 	next_ref(isplit) = * p;
 	* p = isplit;
     }
+
+    return imark;
 }
 
 void BRA::end_block

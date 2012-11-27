@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 25 21:21:56 EST 2012
+// Date:	Tue Nov 27 03:42:34 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -84,7 +84,8 @@ MIN_REF ( ll::parser::bracketed::opening_bracket,
           opening_bracket,
           ll::parser::bracketed::closing_bracket )
 
-void push_brackets
+ll::parser::bracketed::opening_bracket
+    push_brackets
 	( min::gen opening_label,
 	  min::gen closing_label,
 	  ll::parser::table::flags selectors,
@@ -295,7 +296,8 @@ MIN_REF ( ll::parser::bracketed::named_opening,
           ll::parser::bracketed
 	    ::named_middle_closing )
 
-void push_named_brackets
+ll::parser::bracketed::named_opening
+    push_named_brackets
 	( min::gen named_opening_label,
 	  min::gen named_separator_label,
 	      // May be min::MISSING().
@@ -321,12 +323,6 @@ typedef min::packed_struct_updptr
 extern const uns32 & INDENTATION_MARK;
     // Subtype of min::packed_struct
     //		       <indentation_mark_struct>.
-
-extern min::locatable_var
-	<ll::parser::bracketed::indentation_mark>
-	top_level_indentation_mark;
-    // Virtual indentation mark for top level
-    // parsing.
 
 struct line_separator_struct;
 typedef min::packed_struct_updptr
@@ -434,7 +430,8 @@ MIN_REF ( ll::parser::bracketed::indentation_mark,
           indentation_mark,
           ll::parser::bracketed::indentation_split )
 
-void push_indentation_mark
+ll::parser::bracketed::indentation_mark
+    push_indentation_mark
 	( min::gen mark_label,
 	  min::gen separator_label,
 	      // May be min::MISSING()

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Nov 20 01:40:03 EST 2012
+# Date:		Tue Nov 27 04:00:02 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -378,6 +378,7 @@ ll_parser_standard_brackets.o:	\
 	${LEXEME_H} \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
+	../include/ll_parser_bracketed.h \
 	../include/ll_parser_standard.h \
 	../src/ll_parser_standard_brackets.cc \
 	Makefile

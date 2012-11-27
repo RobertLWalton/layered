@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 26 07:00:08 EST 2012
+// Date:	Tue Nov 27 04:09:15 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,11 +57,6 @@ void PARSTD::init_brackets
         ( min::new_str_gen ( ":" ) );
     min::locatable_gen semicolon
         ( min::new_str_gen ( ";" ) );
-
-    min::locatable_gen top_level
-        ( min::new_str_gen ( "TOP-LEVEL" ) );
-        // Note TOP-LEVEL is not a legal lexeme and
-	// so cannot appear in the input.
 
     parser->selectors = PAR::CODE_SELECTOR;
 
@@ -118,18 +113,4 @@ void PARSTD::init_brackets
 	  TAB::new_flags ( 0, 0, 0 ),
 	  bracketed_pass->bracket_table,
 	  bracketed_pass->split_table );
-
-    BRA::push_indentation_mark
-        ( top_level, semicolon,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
-	  bracketed_pass->bracket_table );
-
-    BRA::top_level_indentation_mark =
-        (BRA::indentation_mark)
-	 TAB::find
-	    ( top_level, TAB::ALL_FLAGS,
-	      bracketed_pass->bracket_table );
 }

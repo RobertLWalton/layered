@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 26 07:29:03 EST 2012
+// Date:	Tue Nov 27 04:06:12 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -694,6 +694,17 @@ enum {
     TEXT_SELECTOR			= 1ull << 3
 };
 
+namespace bracketed {
+
+    // We need to save the top level indentation mark
+    // for use by the parse function.
+
+    struct indentation_mark_struct;
+    typedef min::packed_struct_updptr
+		<indentation_mark_struct>
+	    indentation_mark;
+}
+
 struct parser_struct
 {
     uns32 control;
@@ -789,6 +800,11 @@ struct parser_struct
     const ll::parser::table::table context_table;
         // Context symbol table.
 
+    const ll::parser::bracketed::indentation_mark
+	    top_level_indentation_mark;
+	// Top level indentation mark for parse
+	// function.
+
     // Parser state:
 
     const ll::parser::token first;
@@ -857,6 +873,9 @@ MIN_REF ( ll::parser::table::name_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::table,
 		context_table,
+          ll::parser::parser )
+MIN_REF ( ll::parser::bracketed::indentation_mark,
+		top_level_indentation_mark,
           ll::parser::parser )
 MIN_REF ( ll::parser::token, first,
           ll::parser::parser )

@@ -1,5 +1,8 @@
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_separator_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_separator_type
 BRACKETED EXPRESSION:
     This is a line;
     {| This is a line; .terminator = ;; .position = {| |} |}
@@ -274,9 +277,6 @@ BRACKETED EXPRESSION:
     line 32:
    Fifth line.
    ^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_separator_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_separator_type
 BRACKETED EXPRESSION:

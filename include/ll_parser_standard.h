@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 26 07:25:38 EST 2012
+// Date:	Fri Nov 30 05:57:10 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Standard Parser Input
+//	Standard Parser Block
 //	Standard Parser Brackets
 //	Standard Parser Operators
 
@@ -120,6 +121,16 @@ extern min::locatable_var<ll::parser::input>
 //
 void init_input ( min::ref<ll::parser::parser> parser );
 
+// Standard Parser Block
+// -------- ------ -----
+
+// Begin the standard parser block and set
+// parser->selectors to the "code" selector.
+//
+void init_block
+    ( min::ref<ll::parser::parser> parser );
+
+
 // Standard Parser Brackets
 // -------- ------ --------
 
@@ -127,8 +138,6 @@ void init_input ( min::ref<ll::parser::parser> parser );
 // Set the parser->bracket_table and parser->split_table
 // for the standard set of layered language brackets and
 // indentation marks.
-//
-// Also set parser->selectors = CODE;
 //
 void init_brackets
     ( min::ref<ll::parser::parser> parser );

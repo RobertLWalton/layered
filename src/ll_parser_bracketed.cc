@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 27 03:39:43 EST 2012
+// Date:	Fri Nov 30 07:16:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -537,8 +537,7 @@ static void bracketed_pass_reset
 static min::gen bracketed_pass_end_block
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  min::obj_vec_ptr & vp,
-	  min::phrase_position_vec ppvec,
+	  const min::phrase_position & position,
 	  min::gen name )
 {
     BRA::bracketed_pass bracketed_pass =

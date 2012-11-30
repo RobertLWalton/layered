@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 23 09:42:20 EST 2012
+// Date:	Fri Nov 30 07:17:09 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -151,8 +151,7 @@ static void oper_pass_reset
 static min::gen oper_pass_end_block
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  min::obj_vec_ptr & vp,
-	  min::phrase_position_vec ppvec,
+	  const min::phrase_position & position,
 	  min::gen name )
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;

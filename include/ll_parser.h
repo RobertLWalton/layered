@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 27 04:06:12 EST 2012
+// Date:	Fri Nov 30 07:34:47 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,6 +53,7 @@ namespace ll { namespace parser {
 	right_square,   // ]
 	comma,		// ,
 	parser_lexeme,	// parser
+	standard_lexeme,// standard
 	error_operator,	// ERROR'OPERATOR
 	error_operand,	// ERROR'OPERAND
 	define,		// define
@@ -522,14 +523,13 @@ namespace pass_function {
     // Function called (if not NULL) by `parser begin
     // <name>' AFTER parser block_level has been
     // incremented.  Normally there is nothing to do.
-    // Vp is the parser command, ppvec is its phrase
-    // position vector, and name is the block name.
+    // Position is the position of the parser command,
+    // and name is the block name.
     //
     typedef min::gen ( * begin_block )
 	    ( ll::parser::parser parser,
 	      ll::parser::pass pass,
-	      min::obj_vec_ptr & vp,
-	      min::phrase_position_vec ppvec,
+	      const min::phrase_position & position,
 	      min::gen name );
 
     // Ditto but called by `parser end <name>' BEFORE
@@ -540,8 +540,7 @@ namespace pass_function {
     typedef min::gen ( * end_block )
 	    ( ll::parser::parser parser,
 	      ll::parser::pass pass,
-	      min::obj_vec_ptr & vp,
-	      min::phrase_position_vec ppvec,
+	      const min::phrase_position & position,
 	      min::gen name );
 }
 
@@ -968,6 +967,21 @@ void parse ( ll::parser::parser parser =
 // Parser Functions
 // ------ ---------
 
+// Begin/end a parser block with the given name.  Return
+// min::SUCCESS() on success and min::ERROR() if an
+// error message was written to parser->printer (see
+// ll::parser::parse_error below).  The position should
+// be the position of the entire parser command.  End_
+// block checks that `name' matches the name of the
+// block being ended.
+//
+min::gen begin_block
+    ( ll::parser::parser parser, min::gen name,
+      const min::phrase_position & position );
+min::gen end_block
+    ( ll::parser::parser parser, min::gen name,
+      const min::phrase_position & position );
+
 // Locate the key prefix in the hash table that
 // corresponds to the longest available string of tokens
 // beginning with `current'.  If `next' is NULL_STUB,
@@ -1262,7 +1276,7 @@ void convert_token ( ll::parser::token token );
 //
 min::gen parse_error
 	( ll::parser::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const char * message2 = "" );
 
@@ -1272,7 +1286,7 @@ min::gen parse_error
 //
 min::gen parse_error
 	( ll::parser::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const min::op & message2,
 	  const char * message3 = "" );
@@ -1284,12 +1298,12 @@ min::gen parse_error
 //
 void parse_warn
 	( ll::parser::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const char * message2 = "" );
 void parse_warn
 	( ll::parser::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const min::op & message2,
 	  const char * message3 = "" );

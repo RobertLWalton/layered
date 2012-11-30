@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 27 04:09:15 EST 2012
+// Date:	Fri Nov 30 05:21:19 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,6 +33,24 @@ void PARSTD::init_brackets
 {
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+    min::locatable_gen text_name
+        ( min::new_str_gen ( "text" ) );
+
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+    TAB::flags math =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, math_name );
+    TAB::flags text =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, text_name );
+
     min::locatable_gen opening_parenthesis
         ( min::new_str_gen ( "(" ) );
     min::locatable_gen closing_parenthesis
@@ -58,15 +76,14 @@ void PARSTD::init_brackets
     min::locatable_gen semicolon
         ( min::new_str_gen ( ";" ) );
 
-    parser->selectors = PAR::CODE_SELECTOR;
+    parser->selectors = code;
 
     min::uns32 block_level =
         PAR::block_level ( parser );
     BRA::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
@@ -74,8 +91,7 @@ void PARSTD::init_brackets
     BRA::push_brackets
         ( opening_square,
           closing_square,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
@@ -83,32 +99,23 @@ void PARSTD::init_brackets
     BRA::push_brackets
         ( opening_brace,
           closing_brace,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( PAR::MATH_SELECTOR,
-	        PAR::CODE_SELECTOR + PAR::TEXT_SELECTOR,
-		0 ),
+	  TAB::new_flags ( math, code + text, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_quote,
           closing_quote,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( PAR::TEXT_SELECTOR,
-	        PAR::CODE_SELECTOR + PAR::MATH_SELECTOR,
-		0 ),
+	  TAB::new_flags ( text, code + math, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark
         ( colon, semicolon,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  bracketed_pass->bracket_table,

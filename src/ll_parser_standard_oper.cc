@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 26 07:44:12 EST 2012
+// Date:	Fri Nov 30 05:34:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,6 +32,21 @@ OP::oper_pass PARSTD::init_oper
 	( PAR::parser parser,
 	  PAR::pass next )
 {
+    OP::oper_pass oper_pass =
+        OP::place ( parser, next );
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+    TAB::flags math =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, math_name );
+
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );
 
@@ -59,9 +74,6 @@ OP::oper_pass PARSTD::init_oper
     min::locatable_gen less_than
         ( min::new_str_gen ( "<" ) );
 
-    OP::oper_pass oper_pass =
-        OP::place ( parser, next );
-
     min::locatable_gen compare
         ( min::new_str_gen ( "compare" ) );
     min::locatable_gen right_associative
@@ -69,16 +81,13 @@ OP::oper_pass PARSTD::init_oper
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
 
-    min::phrase_position pp;  // TBD: set to top level.
-
     min::uns32 block_level =
         PAR::block_level ( parser );
     min::uns32 forget;
     OP::push_oper
         ( comma,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  4000,
 	  OP::find_reformatter
@@ -87,9 +96,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
 	  OP::find_reformatter
@@ -98,9 +106,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( plus_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
 	  OP::find_reformatter
@@ -109,9 +116,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( minus_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
 	  OP::find_reformatter
@@ -120,9 +126,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( times_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
 	  OP::find_reformatter
@@ -131,9 +136,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( divide_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
 	  OP::find_reformatter
@@ -142,9 +146,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( equal_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
@@ -153,9 +156,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( less_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
@@ -164,9 +166,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( greater_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
@@ -175,9 +176,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( not_equal,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
@@ -186,9 +186,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( less_than,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
@@ -197,9 +196,8 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( greater_than,
-	  PAR::CODE_SELECTOR + PAR::MATH_SELECTOR
-	                     + PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  code + math,
+	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter

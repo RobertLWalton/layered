@@ -238,9 +238,9 @@ parser test <* hi there A *>
 parser test <* hi there A *>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 54: innermost block name does not match:
+ERROR: in line 54: innermost block name does not match `block x':
 parser end block x
-           ^^^^^^^
+^^^^^^^^^^^^^^^^^^
 ======= TEST: parser test <*hi there B*>
 ------- line 55:
 parser test <* hi there B *>
@@ -257,7 +257,7 @@ parser test <* hi there C *>
 ======= END TEST
 ERROR: in line 58: not inside a block (no begin block to end):
 parser end block 1
-           ^^^^^^^
+^^^^^^^^^^^^^^^^^^
 parser define bracket "<|" ... "|>" [code]
 ======= TEST: parser test <|hi there D|>
 ------- line 60:

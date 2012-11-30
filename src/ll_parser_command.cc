@@ -600,25 +600,9 @@ static min::gen execute_begin
 	    ( parser,
 	      ppvec[i-1],
 	      "extraneous stuff after" );
-    TAB::push_block ( parser->block_stack, name,
-                      parser->undefined_stack );
 
-    min::gen result = min::SUCCESS();
-    for ( PAR::pass pass = parser->pass_stack;
-	  pass != NULL;
-	  pass = pass->next )
-    {
-	min::gen saved_result = result;
-	if ( pass->begin_block != NULL )
-	    result = (* pass->begin_block )
-		( parser, pass, vp, ppvec, name );
-	if ( saved_result == min::ERROR()
-	     ||
-	     result == min::FAILURE() )
-	    result = saved_result;
-    }
-
-    return result;
+    return PAR::begin_block
+    		( parser, name, ppvec->position );
 }
 
 static min::gen execute_end
@@ -644,53 +628,8 @@ static min::gen execute_end
 	      ppvec[i-1],
 	      "extraneous stuff after" );
 
-    min::phrase_position pp =
-        { ppvec[2].begin, ppvec[size-1].end };
-
-    min::uns32 block_level =
-        PAR::block_level ( parser );
-    if ( block_level == 0 )
-        return PAR::parse_error
-	    ( parser,
-	      pp,
-	      "not inside a block"
-	      " (no begin block to end)" );
-    else if ( name != parser->block_stack
-                          [block_level-1].name )
-        return PAR::parse_error
-	    ( parser,
-	      pp,
-	      "innermost block name does not match" );
-
-    min::uns32 length =
-        parser->block_stack
-	    [parser->block_stack->length-1]
-	    .saved_undefined_stack_length;
-    while ( parser->undefined_stack->length > length )
-    {
-        TAB::undefined_struct u =
-	    min::pop ( parser->undefined_stack );
-	u.root->selectors = u.saved_selectors;
-    }
-        
-    min::gen result = min::SUCCESS();
-    for ( PAR::pass pass = parser->pass_stack;
-	  pass != NULL;
-	  pass = pass->next )
-    {
-	min::gen saved_result = result;
-	if ( pass->end_block != NULL )
-	    result = (* pass->end_block )
-		( parser, pass, vp, ppvec, name );
-	if ( saved_result == min::ERROR()
-	     ||
-	     result == min::FAILURE() )
-	    result = saved_result;
-    }
-
-    min::pop ( parser->block_stack );
-
-    return result;
+    return PAR::end_block
+    		( parser, name, ppvec->position );
 }
 
 // Execute Command

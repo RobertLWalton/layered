@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 27 03:28:08 EST 2012
+// Date:	Fri Nov 30 06:41:00 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,7 @@ min::locatable_gen PAR::left_square;
 min::locatable_gen PAR::right_square;
 min::locatable_gen PAR::comma;
 min::locatable_gen PAR::parser_lexeme;
+min::locatable_gen PAR::standard_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
 min::locatable_gen PAR::begin;
@@ -103,6 +104,8 @@ static void initialize ( void )
     PAR::comma = min::new_str_gen ( "," );
 
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
+    PAR::standard_lexeme =
+        min::new_str_gen ( "standard" );
 
     PAR::error_operator =
         min::new_str_gen ( "ERROR'OPERATOR" );
@@ -555,6 +558,19 @@ void PAR::init ( min::ref<PAR::parser> parser )
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  bracketed_pass->bracket_table );
+
+	min::locatable_gen opening_square
+	    ( min::new_str_gen ( "[" ) );
+	min::locatable_gen closing_square
+	    ( min::new_str_gen ( "]" ) );
+
+	BRA::push_brackets
+	    ( opening_square, closing_square,
+	      PAR::PARSER_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      false,
+	      bracketed_pass->bracket_table );
     }
 }
 
@@ -941,6 +957,83 @@ void PAR::parse ( PAR::parser parser )
 
 // Parser Functions
 // ------ ---------
+
+min::gen PAR::begin_block
+	( PAR::parser parser, min::gen name,
+	  const min::phrase_position & position )
+{
+    TAB::push_block ( parser->block_stack, name,
+                      parser->undefined_stack );
+
+    min::gen result = min::SUCCESS();
+    for ( PAR::pass pass = parser->pass_stack;
+	  pass != NULL;
+	  pass = pass->next )
+    {
+	min::gen saved_result = result;
+	if ( pass->begin_block != NULL )
+	    result = (* pass->begin_block )
+		( parser, pass, position, name );
+	if ( saved_result == min::ERROR()
+	     ||
+	     result == min::FAILURE() )
+	    result = saved_result;
+    }
+
+    return result;
+}
+
+min::gen PAR::end_block
+	( PAR::parser parser, min::gen name,
+	  const min::phrase_position & position )
+{
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    if ( block_level == 0 )
+        return PAR::parse_error
+	    ( parser,
+	      position,
+	      "not inside a block"
+	      " (no begin block to end)" );
+    else if ( name != parser->block_stack
+                          [block_level-1].name )
+        return PAR::parse_error
+	    ( parser,
+	      position,
+	      "innermost block name does not match `",
+	      min::pgen ( name ), "'" );
+
+    min::uns32 length =
+        parser->block_stack
+	    [parser->block_stack->length-1]
+	    .saved_undefined_stack_length;
+    while ( parser->undefined_stack->length > length )
+    {
+        TAB::undefined_struct u =
+	    min::pop ( parser->undefined_stack );
+	u.root->selectors = u.saved_selectors;
+    }
+        
+    min::gen result = min::SUCCESS();
+    for ( PAR::pass pass = parser->pass_stack;
+	  pass != NULL;
+	  pass = pass->next )
+    {
+	min::gen saved_result = result;
+	if ( pass->end_block != NULL )
+	    result = (* pass->end_block )
+		( parser, pass, position, name );
+	if ( saved_result == min::ERROR()
+	     ||
+	     result == min::FAILURE() )
+	    result = saved_result;
+    }
+
+    min::pop ( parser->block_stack );
+
+    return result;
+}
 
 TAB::key_prefix PAR::find_key_prefix
 	( PAR::parser parser,
@@ -1391,7 +1484,7 @@ void PAR::convert_token ( PAR::token token )
 
 min::gen PAR::parse_error
 	( PAR::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const char * message2 )
 {
@@ -1410,7 +1503,7 @@ min::gen PAR::parse_error
 
 min::gen PAR::parse_error
 	( PAR::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const min::op & message2,
 	  const char * message3 )
@@ -1430,7 +1523,7 @@ min::gen PAR::parse_error
 
 void PAR::parse_warn
 	( PAR::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const char * message2 )
 {
@@ -1451,7 +1544,7 @@ void PAR::parse_warn
 
 void PAR::parse_warn
 	( PAR::parser parser,
-	  min::phrase_position pp,
+	  const min::phrase_position & pp,
 	  const char * message1,
 	  const min::op & message2,
 	  const char * message3 )

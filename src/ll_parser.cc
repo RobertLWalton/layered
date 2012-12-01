@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 30 06:41:00 EST 2012
+// Date:	Sat Dec  1 01:10:55 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,7 @@
 # include <ll_parser.h>
 # include <ll_parser_bracketed.h>
 # include <ll_parser_command.h>
+# include <ll_parser_standard.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
@@ -32,6 +33,7 @@
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
 # define COM ll::parser::command
+# define STD ll::parser::standard
 
 min::locatable_gen PAR::dot_position;
 min::locatable_gen PAR::dot_initiator;
@@ -443,7 +445,8 @@ static min::packed_struct<PAR::parser_struct>
 
 min::locatable_var<PAR::parser> PAR::default_parser;
 
-void PAR::init ( min::ref<PAR::parser> parser )
+void PAR::init ( min::ref<PAR::parser> parser,
+                 bool define_standard )
 {
     if ( parser == NULL_STUB )
     {
@@ -571,6 +574,13 @@ void PAR::init ( min::ref<PAR::parser> parser )
 	      TAB::new_flags ( 0, 0, 0 ),
 	      false,
 	      bracketed_pass->bracket_table );
+
+	if ( define_standard )
+	{
+	    STD::init_block ( parser );
+	    STD::init_brackets ( parser );
+	    STD::init_oper ( parser );
+	}
     }
 }
 

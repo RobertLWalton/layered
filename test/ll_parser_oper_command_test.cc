@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 20 01:29:32 EST 2012
+// Date:	Sat Dec  1 01:37:48 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,16 +22,8 @@ using std::cout;
 
 int main ( int argc, const char * argv[] )
 {
-    bool debug = ( argc > 1 );
-
     min::initialize();
     PARSTD::init_input ( PAR::default_parser );
-    PARSTD::init_brackets ( PAR::default_parser );
-    BRA::bracketed_pass bracketed_pass =
-	(BRA::bracketed_pass)
-	PAR::default_parser->pass_stack;
-    OP::oper_pass oper_pass =
-        OP::place ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
     PAR::init_ostream
@@ -41,11 +33,5 @@ int main ( int argc, const char * argv[] )
 	    min::EOL_FLUSH_FLAG
 	  + min::GRAPHIC_VSPACE_FLAG
 	  + min::GRAPHIC_NSPACE_FLAG );
-    if ( debug )
-	PAR::default_parser->trace_flags =
-	    bracketed_pass->trace_subexpressions
-	    +
-	    oper_pass->trace_subexpressions;
-	    
     PAR::parse();
 }

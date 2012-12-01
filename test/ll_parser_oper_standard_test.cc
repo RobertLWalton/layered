@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 20 01:39:51 EST 2012
+// Date:	Sat Dec  1 01:38:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@ int main ( int argc, const char * argv[] )
     bool debug = ( argc > 1 );
 
     min::initialize();
+    PAR::init ( PAR::default_parser, false );
     PARSTD::init_input ( PAR::default_parser );
     PARSTD::init_brackets ( PAR::default_parser );
     BRA::bracketed_pass bracketed_pass =

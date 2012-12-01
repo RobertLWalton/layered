@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Nov 30 07:27:19 EST 2012
+# Date:		Sat Dec  1 01:13:43 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -56,6 +56,17 @@ LEXEME_O =	${MIN_O} \
 		ll_lexeme.o \
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o
+
+PARSER_O =	${LEXEME_O} \
+		ll_parser.o \
+		ll_parser_table.o \
+		ll_parser_command.o \
+		ll_parser_bracketed.o \
+		ll_parser_oper.o \
+		ll_parser_standard.o \
+		ll_parser_standard_input.o \
+		ll_parser_standard_brackets.o \
+		ll_parser_standard_oper.o
 
 .SECONDARY:	${TESTS:=.out}
 
@@ -433,23 +444,13 @@ ll_parser_command.o:	\
 	    -c ../src/ll_parser_command.cc
 
 ll_parser_input_test:		\
+		${PARSER_O} \
 		ll_parser_input_test.cc \
-		ll_parser.o \
-		ll_parser_bracketed.o \
-		ll_parser_command.o \
-		ll_parser_standard_input.o \
-		ll_parser_table.o \
-		${LEXEME_O} \
 		Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    ll_parser_input_test.cc
 
 ll_parser_input_test.out:		\
@@ -461,22 +462,12 @@ ll_parser_input_test.out:		\
 
 ll_parser_table_test:		\
 		ll_parser_table_test.cc \
-		ll_parser.o \
-		ll_parser_bracketed.o \
-		ll_parser_command.o \
-		ll_parser_standard_input.o \
-		ll_parser_table.o \
-		${LEXEME_O} \
+		${PARSER_O} \
 		Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    ll_parser_table_test.cc
 
 ll_parser_table_test.out:		\
@@ -486,26 +477,12 @@ ll_parser_table_test.out:		\
 
 ll_parser_bracketed_test:		\
 	    ll_parser_bracketed_test.cc \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    ll_parser_bracketed_test.cc
 
 ll_parser_bracketed_test.out:	\
@@ -517,26 +494,12 @@ ll_parser_bracketed_test.out:	\
 
 ll_parser_command_test:		\
 	    ll_parser_command_test.cc \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    ll_parser_command_test.cc
 
 ll_parser_command_test.out:	\
@@ -548,30 +511,12 @@ ll_parser_command_test.out:	\
 
 ll_parser_oper_standard_test:		\
 	    ll_parser_oper_standard_test.cc \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_oper.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_standard_oper.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_oper.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_standard_oper.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    ll_parser_oper_standard_test.cc
 
 ll_parser_oper_standard_test.out:	\
@@ -583,28 +528,12 @@ ll_parser_oper_standard_test.out:	\
 
 ll_parser_oper_command_test:		\
 	    ll_parser_oper_command_test.cc \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_oper.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser.o \
-	    ll_parser_bracketed.o \
-	    ll_parser_command.o \
-	    ll_parser_oper.o \
-	    ll_parser_standard.o \
-	    ll_parser_standard_input.o \
-	    ll_parser_standard_brackets.o \
-	    ll_parser_table.o \
-	    ${LEXEME_O} \
+	    ${PARSER_O} \
 	    ll_parser_oper_command_test.cc
 
 ll_parser_oper_command_test.out:	\

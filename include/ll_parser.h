@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 30 07:34:47 EST 2012
+// Date:	Sat Dec  1 01:19:56 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -889,7 +889,13 @@ extern min::phrase_position top_level_position;
 // variable's previous value is NULL_STUB.  The variable
 // MUST BE locatable by the garbage collector.
 //
-void init ( min::ref<ll::parser::parser> parser );
+// When the parser is created, if define_standard is
+// true, a `standard' parser block is begun with the
+// standard brackets, operators, etc.  Setting define_
+// standard to false is used only for testing.
+//
+void init ( min::ref<ll::parser::parser> parser,
+            bool define_standard = true );
 
 // This `reset' function restores parser parameters to
 // the values they had when the parser was first

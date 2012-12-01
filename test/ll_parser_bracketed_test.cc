@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 26 08:32:33 EST 2012
+// Date:	Sat Dec  1 01:34:32 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,6 +22,7 @@ using std::cout;
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
+    PAR::init ( PAR::default_parser, false );
     PARSTD::init_input ( PAR::default_parser );
     PARSTD::init_brackets ( PAR::default_parser );
     PAR::init_input_stream

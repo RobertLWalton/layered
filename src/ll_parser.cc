@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  3 00:59:52 EST 2012
+// Date:	Mon Dec  3 01:17:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -836,9 +836,33 @@ void PAR::parse ( PAR::parser parser )
 	    (PAR::token) NULL_STUB :
 	    current->previous;
 
+
+	TAB::flags selectors = parser->selectors;
+
+	{
+	    PAR::token current_save = current;
+	    TAB::key_prefix prefix =
+		PAR::find_key_prefix 
+		    ( parser, current,
+		      parser->context_table );
+	    if ( prefix != NULL_STUB )
+	    {
+	        current = current_save;
+		PAR::context context =
+		    (PAR::context) prefix->first;
+		MIN_ASSERT ( context != NULL_STUB );
+		selectors |=
+		    context->new_selectors.or_flags;
+		selectors &= ~
+		    context->new_selectors.not_flags;
+		selectors ^=
+		    context->new_selectors.xor_flags;
+	    }
+	}
+
 	bool separator_found =
 	    BRA::parse_bracketed_subexpression
-		( parser, parser->selectors,
+		( parser, selectors,
 		  current,
 		  0,
 		  parser->top_level_indentation_mark,

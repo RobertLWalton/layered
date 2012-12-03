@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:19:56 EST 2012
+// Date:	Mon Dec  3 00:59:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -688,9 +688,6 @@ enum {
     // Other selectors are assigned values dynamically.
 
     PARSER_SELECTOR			= 1ull << 0,
-    CODE_SELECTOR			= 1ull << 1,
-    MATH_SELECTOR			= 1ull << 2,
-    TEXT_SELECTOR			= 1ull << 3
 };
 
 namespace bracketed {

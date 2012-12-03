@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:34:32 EST 2012
+// Date:	Mon Dec  3 01:04:13 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,6 +48,21 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser,
 	    min::GRAPHIC_VSPACE_FLAG
 	  + min::GRAPHIC_NSPACE_FLAG );
+
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+    min::locatable_gen text_name
+        ( min::new_str_gen ( "text" ) );
+
+    TAB::flags math =
+        1ull << TAB::find_name
+	    ( PAR::default_parser->selector_name_table,
+	      math_name );
+    TAB::flags text =
+        1ull << TAB::find_name
+	    ( PAR::default_parser->selector_name_table,
+	      text_name );
+
     min::locatable_gen openplus
         ( min::new_str_gen ( "<+" ) );
     min::locatable_gen closeplus
@@ -57,23 +72,21 @@ int main ( int argc, const char * argv[] )
     min::locatable_gen closeminus
         ( min::new_str_gen ( "->" ) );
 
-    min::phrase_position pp; // TBD: set to top level.
-
     min::uns32 block_level =
         PAR::block_level ( PAR::default_parser );
     BRA::push_brackets
         ( openplus,
           closeplus,
-	  PAR::MATH_SELECTOR,
-	  block_level, pp,
+	  math,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( openminus,
           closeminus,
-	  PAR::TEXT_SELECTOR,
-	  block_level, pp,
+	  text,
+	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  false,
 	  bracketed_pass->bracket_table );

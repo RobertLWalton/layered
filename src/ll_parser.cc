@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:10:55 EST 2012
+// Date:	Mon Dec  3 00:59:52 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -507,18 +507,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		 == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::parser_lexeme ) );
-	assert (    PAR::CODE_SELECTOR
-		 == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			code ) );
-	assert (    PAR::MATH_SELECTOR
-		 == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			math ) );
-	assert (    PAR::TEXT_SELECTOR
-		 == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			text ) );
 
 	PAR::context_table_ref(parser) =
 	    TAB::create_table ( 256 );

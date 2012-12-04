@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  3 01:17:02 EST 2012
+// Date:	Tue Dec  4 09:05:19 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -910,7 +910,7 @@ void PAR::parse ( PAR::parser parser )
 
 	    PAR::compact
 		( parser, parser->pass_stack->next,
-	          parser->selectors,
+	          selectors,
 		  PAR::BRACKETED, trace,
 		  first, current, position,
 		  1, attributes );

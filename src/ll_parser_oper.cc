@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 30 07:17:09 EST 2012
+// Date:	Thu Dec  6 00:04:43 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,7 +38,7 @@ min::locatable_gen OP::infix;
 min::locatable_gen OP::postfix;
 min::locatable_gen OP::afix;
 min::locatable_gen OP::nofix;
-static min::locatable_gen operator_subexpression;
+static min::locatable_gen operator_subexpressions;
 static min::locatable_gen oper;
 static min::locatable_gen precedence;
 static min::locatable_gen reformatter;
@@ -53,9 +53,9 @@ static void initialize ( void )
     OP::afix    = min::new_str_gen ( "afix" );
     OP::nofix   = min::new_str_gen ( "nofix" );
 
-    ::operator_subexpression =
+    ::operator_subexpressions =
         min::new_lab_gen
-	    ( "operator", "subexpression" );
+	    ( "operator", "subexpressions" );
     ::oper = min::new_str_gen ( "operator" );
     ::precedence = min::new_str_gen ( "precedence" );
     ::reformatter = min::new_str_gen ( "reformatter" );
@@ -202,7 +202,7 @@ OP::oper_pass OP::place
 
     int index = TAB::find_name
         ( parser->trace_flag_name_table,
-	  ::operator_subexpression );
+	  ::operator_subexpressions );
     assert
       ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
     

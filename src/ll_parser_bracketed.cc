@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 30 07:16:20 EST 2012
+// Date:	Thu Dec  6 00:05:43 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,7 +41,7 @@ static min::locatable_gen named;
 static min::locatable_gen parsing;
 static min::locatable_gen full;
 static min::locatable_gen line;
-static min::locatable_gen bracketed_subexpression;
+static min::locatable_gen bracketed_subexpressions;
 
 static void initialize ( void )
 {
@@ -54,9 +54,9 @@ static void initialize ( void )
     ::parsing = min::new_str_gen ( "parsing" );
     ::full = min::new_str_gen ( "full" );
     ::line = min::new_str_gen ( "line" );
-    ::bracketed_subexpression =
+    ::bracketed_subexpressions =
         min::new_lab_gen
-	    ( "bracketed", "subexpression" );
+	    ( "bracketed", "subexpressions" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -593,7 +593,7 @@ BRA::bracketed_pass BRA::place
 
     int index = TAB::find_name
         ( parser->trace_flag_name_table,
-	  ::bracketed_subexpression );
+	  ::bracketed_subexpressions );
     assert
       ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
     bracketed_pass->trace_subexpressions =

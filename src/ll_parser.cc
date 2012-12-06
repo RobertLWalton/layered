@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  4 09:05:19 EST 2012
+// Date:	Thu Dec  6 00:14:07 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,7 @@ min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::standard_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
+min::locatable_gen PAR::test;
 min::locatable_gen PAR::begin;
 min::locatable_gen PAR::end;
 min::locatable_gen PAR::define;
@@ -114,6 +115,7 @@ static void initialize ( void )
     PAR::error_operand =
         min::new_str_gen ( "ERROR'OPERAND" );
 
+    PAR::test = min::new_str_gen ( "test" );
     PAR::begin = min::new_str_gen ( "begin" );
     PAR::end = min::new_str_gen ( "end" );
     PAR::define = min::new_str_gen ( "define" );
@@ -773,13 +775,6 @@ void PAR::parse ( PAR::parser parser )
 	    break;
 	}
 
-        bool trace =
-	    ( ( parser->output == NULL_STUB )
-	      &&
-	         (   parser->trace_flags
-		   & PAR::TRACE_PARSER_OUTPUT )
-	      != 0 );
-
         // If end of file terminate loop.
 	//
         if ( current->type == LEXSTD::end_of_file_t )
@@ -907,6 +902,13 @@ void PAR::parse ( PAR::parser parser )
 
 	    min::uns32 error_count_save =
 	        parser->error_count;
+
+	    bool trace =
+		( ( parser->output == NULL_STUB )
+		  &&
+		     (   parser->trace_flags
+		       & PAR::TRACE_PARSER_OUTPUT )
+		  != 0 );
 
 	    PAR::compact
 		( parser, parser->pass_stack->next,

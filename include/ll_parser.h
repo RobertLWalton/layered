@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  3 00:59:24 EST 2012
+// Date:	Thu Dec  6 00:13:56 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,6 +58,7 @@ namespace ll { namespace parser {
 	error_operand,	// ERROR'OPERAND
 	define,		// define
 	undefine,	// undefine
+	test,		// test
 	begin,		// begin
 	end,		// end
 	print,		// print

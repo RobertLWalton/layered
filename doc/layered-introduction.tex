@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 24, 2012
+December 4, 2012
  
 \end{center}
 
@@ -1472,6 +1472,9 @@ The non-top-level passes
 operate on the subexpressions recognized by previous passes;
 for example, the operator pass recognizes
 subexpressions bounded by operators.
+Brackets can be used to change syntax, so, for example,
+the syntax of a {\tt ( )} bracketed expression may differ from
+the syntax of a {\tt ` '} bracketed expression.
 
 Parsing reduces each recognized subexpression, including each input
 line and each paragraph,
@@ -1557,7 +1560,8 @@ A token has the following components:
 		  token is then
 		  changed to {\tt BRACKETED}.  When this is done the
 		  {\tt .position} attribute is also changed to include
-		  the added syntax attributes.
+		  the added syntax attributes.  Other non-syntax
+		  attributes are inherited from the {\tt BRACKATABLE} token.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1639,7 +1643,7 @@ A parser symbol table is conceptually a stack of
 
 In fact, there are different
 symbol tables for different parser passes, as each pass
-looks up only definitions of pass specific types.
+looks up only pass specific definitions.
 
 Each parser definition has the following
 components:
@@ -1689,11 +1693,11 @@ components:
 
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{level}{of symbol table entry}
-		& Block nesting level, 0, 1, 2, \ldots, of the definition block
+		& Block nesting level, 0, 1, 2, \ldots, of the parser block
 		  containing the definition that made this symbol
 		  table entry.  When the block ends, this entry
-		  will be removed from the stack.  The top level is
-		  level 0.
+		  will be removed from the symbol table stack.  The top level is
+		  level 0, which outside all blocks.
 \end{tabular}
 \end{indpar}
 
@@ -1716,7 +1720,7 @@ for the current parser pass or context.
 Entries may be activated only when other entries are recognized
 in the current context, as when afix operators become active
 only after an associated non-afix operator is recognized in
-the same subexpression.
+the same subexpression (see \pagref{AFIX-OPERATOR}).
 
 In the bracketed
 subexpression recognition pass matched labels may not span line boundaries.
@@ -1732,12 +1736,16 @@ A selector set is represented as a 64-bit unsigned integer value
 with the bit in
 position 1{\tt <<}N being on if the N+1'st selector is in the set.
 Thus there can be at most 64 distinct selectors used by any set of
-parser definitions.
+parser definitions.  For convenience, the selectors that can be
+currently used are given names that a sequences of symbols.
 
 The context selectors may change when an explicit opening bracket
 is recognized, and remain changed until the associated explicit closing
-bracket is recognized.  No other mechanisms for changing the
-context selectors are permitted.
+bracket is recognized.  The initial context selectors used to scan a
+top level line are determined by a context key at the beginning of
+the line, or by the absence of any such key.
+There are no other mechanisms for setting or changing the
+context selectors.
 
 The parser symbol tables act like stacks; as new parsing
 definitions are encountered, their effects are `pushed' into the
@@ -2832,7 +2840,7 @@ A \ttkey{nofix} operator is like an infix operator but may or may not be
 preceded or followed by operands.  It may appear at the beginning or ending of
 an expression, or two nofix operators may be consecutive in an expression.
 
-An \ttkey{afix} operator is must follow
+An \ttkey{afix} operator\label{AFIX-OPERATOR} must follow
 another operator that has the same precedence in a subexpression.
 Subexpressions bracketed by `\verb|{ }|'
 are standard afix operators with the same precedence

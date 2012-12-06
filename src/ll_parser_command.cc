@@ -12,7 +12,7 @@
 //
 //	Usage and Setup
 //	Parser Command Functions
-//	Execute Selector Definition
+//	Execute Selectors
 //	Execute Test
 //	Execute Trace
 //	Execute Begin/End
@@ -390,10 +390,10 @@ min::gen COM::scan_new_flags
 	  name_table, parser, allow_flag_list, true );
 }
 
-// Execute Selector Definition
-// ------- -------- ----------
+// Execute Selectors
+// ------- ---------
 
-static min::gen execute_selector_definition
+static min::gen execute_selectors
 	( min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
@@ -556,6 +556,41 @@ static min::gen execute_trace
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
+    if ( vp[1] == PAR::print )
+    {
+
+	TAB::name_table t =
+	    parser->trace_flag_name_table;
+
+	parser->printer
+	    << "parser print trace: [ "
+	    << min::bom << min::nohbreak;
+
+	bool first = true;
+	for ( unsigned j = 0; j < t->length; ++ j )
+	{
+	    if ( ( parser->trace_flags & ( 1ull << j ) )
+	         ==
+		 0 )
+	        continue;
+
+	    if ( first ) first = false;
+	    else parser->printer << ", ";
+
+	    parser->printer
+		<< min::set_break
+		<< min::pgen ( t[j] );
+	}
+	parser->printer << " ]" << min::eom;
+
+        if ( min::size_of ( vp ) > 3 )
+	    return PAR::parse_error
+	        ( parser, ppvec[2],
+		  "extraneous stuff after" );
+
+	return min::SUCCESS();
+    }
+
     TAB::new_flags new_flags;
     min::uns32 i = 2;
     min::gen result = COM::scan_new_flags
@@ -658,13 +693,20 @@ min::gen COM::parser_execute_command
               &&
 	      (    vp[2] == PAR::selector
 	        || vp[2] == PAR::selectors ) )
-	result = ::execute_selector_definition
+	result = ::execute_selectors
 		    ( vp, ppvec, parser );
     else if ( vp[1] == ::trace
 	      &&
 	      ( size == 2
 	        ||
 	        min::is_obj ( vp[2] ) ) )
+	result = ::execute_trace
+		    ( vp, ppvec, parser );
+    else if ( size >= 3
+              &&
+	      vp[1] == PAR::print
+	      &&
+	      vp[2] == ::trace )
 	result = ::execute_trace
 		    ( vp, ppvec, parser );
     else if ( vp[1] == PAR::begin )

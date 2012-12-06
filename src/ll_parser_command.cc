@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 20 07:07:56 EST 2012
+// Date:	Thu Dec  6 00:17:25 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,15 +29,11 @@
 # define COM ll::parser::command
 
 static min::locatable_gen exclusive_or;
-
-static min::locatable_gen test;
 static min::locatable_gen trace;
 
 static void initialize ( void )
 {
     ::exclusive_or = min::new_str_gen ( "^" );
-
-    ::test = min::new_str_gen ( "test" );
     ::trace = min::new_str_gen ( "trace" );
 }
 static min::initializer initializer ( ::initialize );
@@ -686,7 +682,7 @@ min::gen COM::parser_execute_command
     min::gen result = min::FAILURE();
     bool call_all_passes = false;
 
-    if ( vp[1] == ::test )
+    if ( vp[1] == PAR::test )
         return ::execute_test
 	    ( vp, ppvec, parser );
     else if ( size >= 3

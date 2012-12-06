@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 4, 2012
+December 6, 2012
  
 \end{center}
 
@@ -1936,21 +1936,22 @@ parser trace flags.
     Enables tracing for the parser operator recognition pass.
 
 \hspace*{-0.2in}\ttmkey{subexpression lines}{parser trace flag}
-    Upon recognition of a subexpression by a trace-enabled parser 
-    pass, the lines containing the value of the resulting subexpression token
-    are printed, with the subexpression underlined.
+    The printing of a value by the `{\tt parser output}' or
+    `\ldots{} {\tt subexpressions}' trace flags includes
+    the lines containing the value with the value producing subexpression
+    within these lines underlined.
 
 \hspace*{-0.2in}\ttmkey{subexpression elements}{parser trace flag}
-    Upon recognition of a subexpression by a trace-enabled parser 
-    pass, the value of the resulting subexpression token
-    is printed.
+    The printing of a value by the `{\tt parser output}' or
+    `\ldots{} {\tt subexpressions}' trace flags includes
+    a direct rendition of the value with implicit brackets and
+    graphic representations of non-graphic characters
+    shown.
 
 \hspace*{-0.2in}\ttmkey{subexpression details}{parser trace flag}
-    Ditto but the value is printed with non-printing string characters
-    given printable representations and labels printed in the format:
-    \begin{center}
-    {\tt [:} {\em label-element}{\tt ,} \ldots{} {\tt :]}
-    \end{center}
+    The printing of a value by the `{\tt parser output}' or
+    `\ldots{} {\tt subexpressions}' trace flags includes
+    a detailed rendition of the value with all attributes shown.
 
 \hspace*{-0.2in}\ttmkey{keys}{parser trace flag}
     During execution of a subexpression by a trace-enabled parser 
@@ -1972,7 +1973,7 @@ are executed, any text placed after the words `{\tt parser test}' will
 be parsed and the resulting printout will indicate the details of that
 parse.
 
-Selector names (unlike trace flag names) a \underline{not} buitin,
+Selector names (unlike trace flag names) are \underline{not} buitin,
 and must be defined by the
 `\ttikey{parser define selector}{selector!parser define}'
 command.  When the parser block containing a selector name definition

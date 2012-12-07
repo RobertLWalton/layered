@@ -2,13 +2,24 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  7 20:37:13 EDT 2012
+// Date:	Fri Dec  7 02:12:27 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+parser trace [+ subexpression lines]
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+parser trace [- subexpression lines]
+parser trace [+ subexpression details]
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+parser trace [+ subexpression elements]
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+parser trace [- subexpression details]
+parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+parser trace [+ subexpression lines]
+
 parser define bracket "[+"
 parser define bracket "[+" ...
 parser print selectors

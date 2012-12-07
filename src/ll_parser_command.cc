@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  6 00:17:25 EST 2012
+// Date:	Fri Dec  7 02:21:50 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -517,30 +517,80 @@ static min::gen execute_test
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
-    min::gen obj =
-        min::new_stub_gen ( (const min::stub *) vp );
-    vp = min::NULL_STUB;
-        // Close vp so pgen can print obj.
-    parser->printer
-	<< "======= TEST: "
-	<< min::place_indent ( 0 )
-	<< min::bom
-	<< min::flush_pgen ( obj )
-	<< min::eom
-	<< min::flush_id_map;
-    vp = obj;  // Reopen vp.
-    parser->printer
-	<< min::bom << min::set_indent ( 8 )
-	<< "------- "
-	<< min::pline_numbers
-	       ( ppvec->file, ppvec->position )
-	<< ":" << min::eom;
-    min::print_phrase_lines
-        ( parser->printer,
-	  ppvec->file, ppvec->position );
-    ::execute_test_scan
-        ( vp, parser->printer );
-    parser->printer << "======= END TEST" << min::eol;
+    const min::uns64 TRACE_ANY =
+	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	+ PAR::TRACE_SUBEXPRESSION_DETAILS
+	+ PAR::TRACE_SUBEXPRESSION_LINES;
+    const min::uns64 TRACE_E_OR_D =
+	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	+ PAR::TRACE_SUBEXPRESSION_DETAILS;
+
+    TAB::flags flags = parser->trace_flags;
+    flags &= TRACE_ANY;
+    if ( flags == 0 )
+	flags = PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+
+    if ( flags & TRACE_E_OR_D )
+    {
+	min::gen obj =
+	    min::new_stub_gen ( (const min::stub *) vp );
+	vp = min::NULL_STUB;
+	    // Close vp so pgen can print obj.
+
+	const min::uns32 GEN_FLAGS =
+	      min::GRAPHIC_STR_FLAG
+	    + min::BRACKET_LAB_FLAG;
+
+	parser->printer
+	    << min::save_print_format << min::nohbreak
+	    << "======= TEST: "
+	    << min::restore_print_format
+	    << min::bom;
+
+	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
+	    parser->printer
+		<< min::flush_pgen ( obj )
+		<< min::eom
+		<< min::flush_id_map;
+
+	if ( ( flags & TRACE_E_OR_D ) == TRACE_E_OR_D)
+	    parser->printer
+		<< min::indent
+		<< min::bom;
+
+	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
+	    parser->printer
+		<< min::pgen
+		       ( obj, GEN_FLAGS, GEN_FLAGS )
+		<< min::eom;
+
+	vp = obj;  // Reopen vp.
+    }
+
+    if ( flags & PAR::TRACE_SUBEXPRESSION_LINES )
+    {
+        if ( ( flags & TRACE_E_OR_D ) == 0 )
+	    parser->printer
+	        << "======= TEST:" << min::eol;
+
+	parser->printer
+	    << "------- "
+	    << min::bom
+	    << min::pline_numbers
+		   ( ppvec->file, ppvec->position )
+	    << ":" << min::eom;
+
+	min::print_phrase_lines
+	    ( parser->printer,
+	      ppvec->file, ppvec->position );
+	::execute_test_scan
+	    ( vp, parser->printer );
+
+	parser->printer
+	    << "======= END TEST" << min::eol;
+    }
+
+
     return min::SUCCESS();
 }
 

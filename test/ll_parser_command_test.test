@@ -1,69 +1,98 @@
 ======= TEST: parser test [x <+ y +> z {u , v , w} m (n (p))]
-------- line 11:
+parser trace [+ subexpression lines]
+======= TEST:
+------- line 13:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 11:
+------- line 13:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 11:
+------- line 13:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
                           ^^^^^^^
-------- line 11:
+------- line 13:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
                                     ^^^^^^^
-------- line 11:
+------- line 13:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
                                        ^^^
 ======= END TEST
-ERROR: in line 12: too few quoted names in:
+parser trace [- subexpression lines]
+parser trace [+ subexpression details]
+======= TEST: {| parser test
+                 {| x <+ y +> z
+                    {| u , v , w; .position = {| |}; .terminator = };
+                       .initiator = { |} m
+                    {| n
+                       {| p; .position = {| |}; .terminator = );
+                          .initiator = ( |}; .position = {| |};
+                       .terminator = ); .initiator = ( |};
+                    .position = {| |}; .terminator = ];
+                    .initiator = [ |}; .terminator = ␤;
+                 .position = {| |} |}
+parser trace [+ subexpression elements]
+======= TEST: parser test [x <+ y +> z {u , v , w} m (n (p))]
+    {| parser test
+       {| x <+ y +> z
+          {| u , v , w; .position = {| |}; .terminator = };
+             .initiator = { |} m
+          {| n
+             {| p; .position = {| |}; .terminator = ); .initiator = ( |};
+             .position = {| |}; .terminator = ); .initiator = ( |};
+          .position = {| |}; .terminator = ]; .initiator = [ |};
+       .terminator = ␤; .position = {| |} |}
+parser trace [- subexpression details]
+======= TEST: parser test [x <+ y +> z {u , v , w} m (n (p))]
+parser trace [+ subexpression lines]
+ERROR: in line 23: too few quoted names in:
 parser define bracket "[+"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 13: expected quoted name after:
+ERROR: in line 24: expected quoted name after:
 parser define bracket "[+" ...
                            ^^^
 parser print selectors:
         [ parser, code, math, text ]
 parser print selectors
 parser define selector text
-ERROR: in line 16: extraneous stuff after:
+ERROR: in line 27: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
                                 ^
 parser print selectors:
         [ parser, code, math, text, operator 1 ]
 parser print selectors
-ERROR: in line 18: unrecognized flag name:
+ERROR: in line 29: unrecognized flag name:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
-ERROR: in line 19: expected `,' after:
+ERROR: in line 30: expected `,' after:
 parser define bracket "<+" ... "+>" [text + operator]
                                      ^^^^
 parser define bracket "<+" ... "+>" [code, operator 1]
        with parsing selectors [^ code, - math, + operator 1]
        with full line
 ======= TEST: parser test <+hi there+> <+hi [ embedded ] there+>
-------- line 23:
+------- line 34:
 parser test <+ hi there +> <+ hi [embedded] there +>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 23:
+------- line 34:
 parser test <+ hi there +> <+ hi [embedded] there +>
             ^^^^^^^^^^^^^^
-------- line 23:
+------- line 34:
 parser test <+ hi there +> <+ hi [embedded] there +>
                            ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser define bracket "[X" ... "X]" [code, operator 1]
        with parsing selectors [- code, + operator 1]
 ======= TEST: parser test [a [b c] c] [X a [ b c ] d X]
-------- line 26:
+------- line 37:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 26:
+------- line 37:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
             ^^^^^^^^^^^^^^^
-------- line 26:
+------- line 37:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
                 ^^^^^^^
-------- line 26:
+------- line 37:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
                             ^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -72,7 +101,7 @@ parser test [ a [ b c ] c ] [X a [ b c ] d X]
                   line 2 a :: line 2 b;   line 2 c
                   last line
 
-------- lines 27-30:
+------- lines 38-41:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     line 1
@@ -81,7 +110,7 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- lines 27-30:
+------- lines 38-41:
 parser test this is a paragraph +:
                                  ^
     line 1
@@ -90,16 +119,16 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- line 28:
+------- line 39:
     line 1
     ^^^^^^
-------- line 29:
+------- line 40:
     line 2a:: line 2b; line 2c
     ^^^^^^^^^^^^^^^^^^
-------- line 29:
+------- line 40:
     line 2a:: line 2b; line 2c
                        ^^^^^^^
-------- line 30:
+------- line 41:
     last line
     ^^^^^^^^^
 ======= END TEST
@@ -109,7 +138,7 @@ parser define indentation mark "+:" ... "::" [code]
                   line 2 a::   line 2 b ; line 2 c
                   last line
 
-------- lines 32-35:
+------- lines 43-46:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     line 1
@@ -118,7 +147,7 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- lines 32-35:
+------- lines 43-46:
 parser test this is a paragraph +:
                                 ^^
     line 1
@@ -127,102 +156,102 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- line 33:
+------- line 44:
     line 1
     ^^^^^^
-------- line 34:
+------- line 45:
     line 2a:: line 2b; line 2c
     ^^^^^^^^^
-------- line 34:
+------- line 45:
     line 2a:: line 2b; line 2c
               ^^^^^^^^^^^^^^^^
-------- line 35:
+------- line 46:
     last line
     ^^^^^^^^^
 ======= END TEST
 parser define named bracket
     "<" ... "#" ... "|" ... "|" ... ">" [code]
 ======= TEST: parser test <X| hi there |>
-------- line 38:
+------- line 49:
 parser test  <X| hi there |X>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 38:
+------- line 49:
 parser test  <X| hi there |X>
              ^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test <foo bar| hi <p> there |>
-------- line 39:
+------- line 50:
 parser test  <foo bar| hi <p> there |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 39:
+------- line 50:
 parser test  <foo bar| hi <p> there |>
              ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 39:
+------- line 50:
 parser test  <foo bar| hi <p> there |>
                           ^^^
 ======= END TEST
 ======= TEST: parser test <X Y Z # 8| ho ho |>
-------- line 40:
+------- line 51:
 parser test  <X Y Z # 8| ho ho |X>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 40:
+------- line 51:
 parser test  <X Y Z # 8| ho ho |X>
              ^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: missing named closing bracket "|>" inserted; line 41:
+ERROR: missing named closing bracket "|>" inserted; line 52:
 parser test  <X Y Z # 8| ho ho |X Y Z # 8>
                                           ^
 ======= TEST: parser test <X Y Z # 8| ho ho | X Y Z # 8 > |>
-------- line 41:
+------- line 52:
 parser test  <X Y Z # 8| ho ho |X Y Z # 8>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 41:
+------- line 52:
 parser test  <X Y Z # 8| ho ho |X Y Z # 8>
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: missing named closing bracket "|>" inserted; line 42:
+ERROR: missing named closing bracket "|>" inserted; line 53:
 parser test  <X Y Z : 8| ho ho |X Y Z : 8>
                                           ^
 ======= TEST: parser test <X Y Z : 8| ho ho | X Y Z : 8 > |>
-------- line 42:
+------- line 53:
 parser test  <X Y Z : 8| ho ho |X Y Z : 8>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 42:
+------- line 53:
 parser test  <X Y Z : 8| ho ho |X Y Z : 8>
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test <X Y Z # 8 # 8.64 T| ho ho |>
-------- line 43:
+------- line 54:
 parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 43:
+------- line 54:
 parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test <X Y Z (foo , bar) | ho ho |>
-------- line 44:
+------- line 55:
 parser test  <X Y Z (foo, bar)| ho ho |X Y>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 44:
+------- line 55:
 parser test  <X Y Z (foo, bar)| ho ho |X Y>
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: missing named closing bracket "|>" inserted; line 45:
+ERROR: missing named closing bracket "|>" inserted; line 56:
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
                                                         ^
 ======= TEST: parser test
                <X Y Z (foo , bar) | ho ho | X Y Z (foo , bar) > |>
-------- line 45:
+------- line 56:
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 45:
+------- line 56:
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 45:
+------- line 56:
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
                                              ^^^^^^^^^^
 ======= END TEST
-ERROR: in line 46: unrecognized flag name:
+ERROR: in line 57: unrecognized flag name:
 parser trace [+ foo]
                 ^^^
 parser trace [+ parser commands]
@@ -231,69 +260,69 @@ parser trace [+ warnings]
 parser begin block 1
 parser define bracket "<*" ... "*>" [code]
 ======= TEST: parser test <*hi there A*>
-------- line 53:
+------- line 64:
 parser test <* hi there A *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 53:
+------- line 64:
 parser test <* hi there A *>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 54: innermost block name does not match `block x':
+ERROR: in line 65: innermost block name does not match `block x':
 parser end block x
 ^^^^^^^^^^^^^^^^^^
 ======= TEST: parser test <*hi there B*>
-------- line 55:
+------- line 66:
 parser test <* hi there B *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 55:
+------- line 66:
 parser test <* hi there B *>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1
 ======= TEST: parser test <* hi there C *>
-------- line 57:
+------- line 68:
 parser test <* hi there C *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 58: not inside a block (no begin block to end):
+ERROR: in line 69: not inside a block (no begin block to end):
 parser end block 1
 ^^^^^^^^^^^^^^^^^^
 parser define bracket "<|" ... "|>" [code]
 ======= TEST: parser test <|hi there D|>
-------- line 60:
+------- line 71:
 parser test <| hi there D |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 60:
+------- line 71:
 parser test <| hi there D |>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
 parser begin block 1
 parser undefine bracket "<|" ... "|>" [code]
 ======= TEST: parser test <| hi there E |>
-------- line 63:
+------- line 74:
 parser test <| hi there E |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-WARNING: in line 64: undefine found no definition:
+WARNING: in line 75: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]
 parser end block 1
 ======= TEST: parser test <|hi there F|>
-------- line 66:
+------- line 77:
 parser test <| hi there F |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 66:
+------- line 77:
 parser test <| hi there F |>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
 parser undefine bracket "<|" ... "|>" [code]
 ======= TEST: parser test <| hi there F |>
-------- line 68:
+------- line 79:
 parser test <| hi there F |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-WARNING: in line 69: undefine found no definition:
+WARNING: in line 80: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]

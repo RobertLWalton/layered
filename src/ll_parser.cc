@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  6 00:14:07 EST 2012
+// Date:	Fri Dec  7 02:23:32 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1346,7 +1346,7 @@ void PAR::compact
 	           + PAR::TRACE_SUBEXPRESSION_DETAILS
 	           + PAR::TRACE_SUBEXPRESSION_LINES );
 	if ( flags == 0 )
-	    flags = PAR::TRACE_SUBEXPRESSION_LINES;
+	    flags = PAR::TRACE_SUBEXPRESSION_ELEMENTS;
 
 	parser->printer
 	    << ( first->type == PAR::BRACKETED ?

@@ -1994,30 +1994,29 @@ The general syntax of these is
 \end{center}
 and an example is
 \begin{center}
-{\tt parser define bracket "("~...~")" [operator text]} \ldots
+{\tt parser define bracket "("~...~")" [operator, text]} \ldots
 \end{center}
 The {\em type}, `{\tt bracket}' in the example, identifies the parser pass into
 whose symbol tables entries are to be pushed.  The {\em name},
 `{\tt "("~...~")"}' in the example, gives {\em quoted-names} that become
 the entry labels.  The {\em selectors},
-`{\tt [operator text]}' in the example, specify the selector set of
+`{\tt [operator, text]}' in the example, specify the selector set of
 the entries to be pushed.
 
 The end of a parser block pops all entries pushed into parser
 symbol tables during the block.
 
-The `\ttkey{parser undefine}' command causes a name to become
-unrecognizable by the parser as being in any way special, and
-thereby cancels any meaning the name may have been given by the
-parser symbol tables.  They syntax of
-this command is:
+The `\ttkey{parser undefine}' command effectively undoes
+{\tt parser define} commands by clearing selector bits in
+the designated symbol table entries.  Its syntax is
 \begin{center}
-{\tt parser undefine} {\em quoted-name} {\em selectors}
+{\tt parser undefine} {\em type} {\em name} {\em selectors}
 \end{center}
-An entry is pushed into every parser symbol table in which the
-name appears, so that the command effectively cancels all
-definitions of the given name in any context which has a selector
-in common with one of the {\tt parser undefine} command selectors.
+and it clears the specified selector bits from \underline{all} symbol table
+entries with the same {\em type} and {\em name}.  When the
+block containing a {\tt parser undefine} command ends, the
+effects of that command are undone by restoring the cleared
+selector bits to their previous state.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 
@@ -2197,7 +2196,7 @@ an {\em opening-bracket-name} and ends with a match\-ed
 \ttikey{parser define bracket}{bracket!parser define}
 command.  An example of such a definition is
 \begin{center}
-{\tt parser define bracket "("~...~")" [operator text]} \ldots
+{\tt parser define bracket "("~...~")" [operator, text]} \ldots
 \end{center}
 which specifies `{\tt (}' to be an {\em opening-bracket-name}
 with `{\tt )}' as its corresponding {\em closing-bracket-name}

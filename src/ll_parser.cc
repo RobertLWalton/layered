@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  7 02:23:32 EST 2012
+// Date:	Sat Dec  8 04:33:51 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -903,17 +903,28 @@ void PAR::parse ( PAR::parser parser )
 	    min::uns32 error_count_save =
 	        parser->error_count;
 
-	    bool trace =
-		( ( parser->output == NULL_STUB )
+	    TAB::flags trace_flags =
+	        parser->trace_flags;
+	    if ( ( parser->output == NULL_STUB )
 		  &&
-		     (   parser->trace_flags
-		       & PAR::TRACE_PARSER_OUTPUT )
-		  != 0 );
+		  (   trace_flags
+		    & PAR::TRACE_PARSER_OUTPUT ) )
+	    {
+		 trace_flags &=
+		       PAR::TRACE_SUBEXPRESSION_ELEMENTS
+		     + PAR::TRACE_SUBEXPRESSION_DETAILS
+		     + PAR::TRACE_SUBEXPRESSION_LINES;
+		if ( trace_flags == 0 )
+		    trace_flags =
+		      PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+	    }
+	    else
+	        trace_flags = 0;
 
 	    PAR::compact
 		( parser, parser->pass_stack->next,
 	          selectors,
-		  PAR::BRACKETED, trace,
+		  PAR::BRACKETED, trace_flags,
 		  first, current, position,
 		  1, attributes );
 
@@ -1227,7 +1238,7 @@ void PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::table::flags selectors,
-	  min::uns32 type, bool trace,
+	  min::uns32 type, TAB::flags trace_flags,
 	  PAR::token & first, PAR::token next,
 	  min::phrase_position position,
 	  min::uns32 m,
@@ -1336,36 +1347,37 @@ void PAR::compact
 	first->position = position;
     }
 
-    if ( trace )
+    trace_flags &= (   PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	             + PAR::TRACE_SUBEXPRESSION_DETAILS
+	             + PAR::TRACE_SUBEXPRESSION_LINES );
+
+    if ( trace_flags )
     {
 	const min::uns32 GEN_FLAGS =
 	      min::GRAPHIC_STR_FLAG
 	    + min::BRACKET_LAB_FLAG;
-	TAB::flags flags = parser->trace_flags;
-	flags &= (   PAR::TRACE_SUBEXPRESSION_ELEMENTS
-	           + PAR::TRACE_SUBEXPRESSION_DETAILS
-	           + PAR::TRACE_SUBEXPRESSION_LINES );
-	if ( flags == 0 )
-	    flags = PAR::TRACE_SUBEXPRESSION_ELEMENTS;
 
 	parser->printer
 	    << ( first->type == PAR::BRACKETED ?
 		 "BRACKETED EXPRESSION: " :
 		 "BRACKETABLE EXPRESSION: " );
 
-	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
+	if (   trace_flags
+	     & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
 	    parser->printer
 		<< min::indent
 		<< min::bom
 		<< min::flush_pgen ( first->value )
 		<< min::eom;
-	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
+	if (   trace_flags
+	     & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	    parser->printer
 		<< min::indent
 	        << min::pgen ( first->value,
 	                       GEN_FLAGS, GEN_FLAGS )
 		<< min::eol;
-	if ( flags & PAR::TRACE_SUBEXPRESSION_LINES )
+	if (   trace_flags
+	     & PAR::TRACE_SUBEXPRESSION_LINES )
 	{
 	    parser->printer
 		<< min::spaces_if_before_indent

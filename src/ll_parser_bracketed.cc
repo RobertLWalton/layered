@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  6 00:05:43 EST 2012
+// Date:	Sat Dec  8 04:42:21 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -947,13 +947,20 @@ bool BRA::parse_bracketed_subexpression
 	// other token and after finding a token
 	// sequence in the bracket table.
 
-    bool trace =
-        (   parser->trace_flags
-	  & pass->trace_subexpressions );
-    bool trace_keys =
-           trace
-        &&    ( parser->trace_flags & PAR::TRACE_KEYS )
-	   != 0;
+    TAB::flags trace_flags = parser->trace_flags;
+    if ( trace_flags & pass->trace_subexpressions )
+    {
+	trace_flags &=
+	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	    + PAR::TRACE_SUBEXPRESSION_DETAILS
+	    + PAR::TRACE_SUBEXPRESSION_LINES
+	    + PAR::TRACE_KEYS;
+	if ( trace_flags == 0 )
+	    trace_flags =
+	        PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+    }
+    else
+        trace_flags = 0;
 
     while ( true )
     {
@@ -1289,7 +1296,8 @@ bool BRA::parse_bracketed_subexpression
 				( parser,
 				  pass->next,
 				  selectors,
-				  PAR::BRACKETED, trace,
+				  PAR::BRACKETED,
+				  trace_flags,
 				  first, next,
 				  position,
 				  1, attributes );
@@ -1348,7 +1356,8 @@ bool BRA::parse_bracketed_subexpression
 
 		PAR::compact
 		    ( parser, pass->next,
-		      selectors, PAR::BRACKETED, trace,
+		      selectors, PAR::BRACKETED,
+		      trace_flags,
 		      first, next, position,
 		      1, attributes );
 
@@ -1513,7 +1522,7 @@ bool BRA::parse_bracketed_subexpression
 	    min::uns32 subtype =
 		min::packed_subtype_of ( root );
 
-	    if ( trace_keys )
+	    if ( trace_flags & PAR::TRACE_KEYS )
 	        parser->printer
 		    << "BRACKETED SUBEXPRESSION PARSER"
 		       " FOUND "
@@ -1657,7 +1666,8 @@ bool BRA::parse_bracketed_subexpression
 		    PAR::compact
 		        ( parser, pass->next,
 			  selectors,
-			  PAR::BRACKETED, trace,
+			  PAR::BRACKETED,
+			  trace_flags,
 			  first, next, position,
 			  2, attributes, 1 );
 
@@ -1712,7 +1722,8 @@ bool BRA::parse_bracketed_subexpression
 		    PAR::compact
 		        ( parser, pass->next,
 			  selectors,
-			  PAR::BRACKETED, trace,
+			  PAR::BRACKETED,
+			  trace_flags,
 			  first, current, position,
 			  2, attributes, 1 );
 		    break;
@@ -1979,7 +1990,8 @@ bool BRA::parse_bracketed_subexpression
 		    PAR::compact
 		        ( parser, pass->next,
 			  selectors,
-			  PAR::BRACKETED, trace,
+			  PAR::BRACKETED,
+			  trace_flags,
 			  first, current, position,
 			  c, attributes );
 			  
@@ -2244,7 +2256,7 @@ bool BRA::parse_bracketed_subexpression
 		// any bracket stack entry; reject key.
 	    }
 
-	    if ( trace_keys )
+	    if ( trace_flags & PAR::TRACE_KEYS )
 	        parser->printer
 		    << "BRACKETED SUBEXPRESSION PARSER"
 		       " REJECTED KEY "

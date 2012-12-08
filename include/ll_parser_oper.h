@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 23 08:00:02 EST 2012
+// Date:	Sat Dec  8 04:58:37 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,11 +64,14 @@ typedef bool ( * reformatter )
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,
+	  ll::parser::table::flags trace_flags,
 	  ll::parser::oper::oper first_oper,
 	  min::phrase_position & position );
     // A reformatter reformats the tokens from first to
-    // next->previous.  First_oper is the first OPERATOR
-    // in these and `position' is the position of these.
+    // next->previous.  Trace_flags are passed to
+    // `compact' if the reformatter calls that.
+    // First_oper is the first OPERATOR in the tokens
+    // and `position' is the position of the tokens.
     // Pass is the operator pass, and parser and
     // selectors are the current parser and selectors.
     //

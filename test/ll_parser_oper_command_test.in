@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  7 02:16:12 EST 2012
+// Date:	Sat Dec  8 06:21:54 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -21,7 +21,9 @@ parser define operator "+" [code, math] nofix with precedence 3000
 parser define operator "+" [code, math] nofix with precedence 3000
        with none such reformatter
 
+parser trace [+ keys, + operator subexpressions]
 parser test (NOT x y)
+parser trace [- keys, - operator subexpressions]
 parser define operator "NOT" [code, math] nofix with precedence 3000
        with unary reformatter
 parser define operator "BUT NOT" [code, math] nofix with precedence 3000
@@ -31,7 +33,9 @@ parser test (x NOT y)
 parser test (NOT x NOT y)
 parser test (x BUT NOT y)
 parser test (BUT NOT x y)
+parser trace [+ keys, + operator subexpressions]
 parser test (NOT x BUT NOT y)
+parser trace [- keys, - operator subexpressions]
 
 parser define operator "AND" [code, math] infix with precedence 3100
        with infix reformatter

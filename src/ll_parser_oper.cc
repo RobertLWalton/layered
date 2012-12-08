@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  8 05:00:59 EST 2012
+// Date:	Sat Dec  8 14:44:50 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -526,6 +526,11 @@ static void oper_parse ( PAR::parser parser,
 		position.end =
 		    current->previous ->position.end;
 
+		TAB::flags reformatter_trace_flags =
+		       oper_stack->length
+		    != initial_length ?
+		    trace_flags : 0;
+
 		if ( first_oper != min::NULL_STUB )
 		{
 		    PAR::attr attr
@@ -538,14 +543,14 @@ static void oper_parse ( PAR::parser parser,
 			 ( * first_oper->reformatter )
 			     ( parser, pass, selectors,
 			       D.first, current,
-			       trace_flags,
+			       reformatter_trace_flags,
 			       first_oper,
 			       position ) )
 			PAR::compact
 			    ( parser, pass->next,
 			      selectors,
 			      PAR::BRACKETABLE,
-			      trace_flags,
+			      reformatter_trace_flags,
 			      D.first, current,
 			      position,
 			      1, & attr );
@@ -570,7 +575,7 @@ static void oper_parse ( PAR::parser parser,
 			    ( parser, pass->next,
 			      selectors,
 			      PAR::BRACKETABLE,
-			      trace_flags,
+			      reformatter_trace_flags,
 			      D.first, current,
 			      position );
 		    }

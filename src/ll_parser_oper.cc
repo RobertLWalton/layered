@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  6 00:04:43 EST 2012
+// Date:	Sat Dec  8 05:00:59 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -241,9 +241,21 @@ static void oper_parse ( PAR::parser parser,
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
-    bool trace =
-        (   parser->trace_flags
-          & oper_pass->trace_subexpressions );
+
+    TAB::flags trace_flags = parser->trace_flags;
+    if ( trace_flags & oper_pass->trace_subexpressions )
+    {
+	trace_flags &=
+	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	    + PAR::TRACE_SUBEXPRESSION_DETAILS
+	    + PAR::TRACE_SUBEXPRESSION_LINES
+	    + PAR::TRACE_KEYS;
+	if ( trace_flags == 0 )
+	    trace_flags =
+	        PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+    }
+    else
+        trace_flags = 0;
 
     // We add to the stack but leave alone what is
     // already in the stack so this function can be
@@ -352,7 +364,7 @@ static void oper_parse ( PAR::parser parser,
 	    MIN_ASSERT
 	      ( current->string == min::NULL_STUB );
 
-	    if ( trace )
+	    if ( trace_flags & PAR::TRACE_KEYS )
 	    {
 		parser->printer
 		    << min::bom
@@ -526,12 +538,14 @@ static void oper_parse ( PAR::parser parser,
 			 ( * first_oper->reformatter )
 			     ( parser, pass, selectors,
 			       D.first, current,
+			       trace_flags,
 			       first_oper,
 			       position ) )
 			PAR::compact
 			    ( parser, pass->next,
 			      selectors,
-			      PAR::BRACKETABLE, trace,
+			      PAR::BRACKETABLE,
+			      trace_flags,
 			      D.first, current,
 			      position,
 			      1, & attr );
@@ -555,7 +569,8 @@ static void oper_parse ( PAR::parser parser,
 			PAR::compact
 			    ( parser, pass->next,
 			      selectors,
-			      PAR::BRACKETABLE, trace,
+			      PAR::BRACKETABLE,
+			      trace_flags,
 			      D.first, current,
 			      position );
 		    }
@@ -634,6 +649,7 @@ static bool separator_reformatter
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  TAB::flags trace_flags,
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
@@ -726,12 +742,9 @@ static bool separator_reformatter
     PAR::attr separator_attr
         ( PAR::dot_separator, separator );
 
-    bool trace =
-        (   parser->trace_flags
-          & oper_pass->trace_subexpressions );
     PAR::compact
         ( parser, pass->next, selectors,
-	  PAR::BRACKETABLE, trace,
+	  PAR::BRACKETABLE, trace_flags,
 	  first, next, position,
 	  1, & separator_attr );
 
@@ -744,16 +757,13 @@ static bool right_associative_reformatter
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  TAB::flags trace_flags,
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
-
-    bool trace =
-        (   parser->trace_flags
-          & oper_pass->trace_subexpressions );
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -791,7 +801,7 @@ static bool right_associative_reformatter
 	    ( PAR::dot_oper, oper->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      PAR::BRACKETABLE, trace,
+	      PAR::BRACKETABLE, trace_flags,
 	      t, next, position,
 	      1, & oper_attr );
 
@@ -807,6 +817,7 @@ static bool unary_reformatter
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  TAB::flags trace_flags,
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
@@ -897,6 +908,7 @@ static bool binary_reformatter
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  TAB::flags trace_flags,
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
@@ -996,6 +1008,7 @@ static bool infix_reformatter
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  TAB::flags trace_flags,
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
@@ -1059,16 +1072,13 @@ static bool compare_reformatter
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  TAB::flags trace_flags,
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
-
-    bool trace =
-        (   parser->trace_flags
-          & oper_pass->trace_subexpressions );
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -1156,7 +1166,7 @@ static bool compare_reformatter
 	    operand2 = operand2->previous->previous;
 	    PAR::compact
 		( parser, pass->next, selectors,
-		  PAR::BRACKETABLE, trace,
+		  PAR::BRACKETABLE, trace_flags,
 		  operand2, t, operand2->position,
 		  1, & oper_attr );
 
@@ -1164,7 +1174,7 @@ static bool compare_reformatter
 	    //
 	    PAR::compact
 		( parser, pass->next, selectors,
-		  PAR::BRACKETABLE, trace,
+		  PAR::BRACKETABLE, trace_flags,
 		  t, t->next->next, operand2->position,
 		  1, & oper_attr );
 	}
@@ -1184,7 +1194,7 @@ static bool compare_reformatter
 	    ( PAR::dot_oper, op->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      PAR::BRACKETABLE, trace,
+	      PAR::BRACKETABLE, trace_flags,
 	      op, next_operand1, position,
 	      1, & oper_attr );
 	if ( is_first ) first = op;
@@ -1213,7 +1223,7 @@ static bool compare_reformatter
 	    ( PAR::dot_oper, OP::AND );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      PAR::BRACKETABLE, trace,
+	      PAR::BRACKETABLE, trace_flags,
 	      first, next, position,
 	      1, & oper_attr );
     }
@@ -1227,16 +1237,13 @@ static bool sum_reformatter
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  TAB::flags trace_flags,
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
 
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
-
-    bool trace =
-        (   parser->trace_flags
-          & oper_pass->trace_subexpressions );
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -1272,7 +1279,7 @@ static bool sum_reformatter
 		( PAR::dot_oper, PAR::minus );
 	    PAR::compact
 		( parser, pass->next, selectors,
-		  PAR::BRACKETABLE, trace,
+		  PAR::BRACKETABLE, trace_flags,
 		  t, t->next->next, position,
 		  1, & oper_attr );
 	}

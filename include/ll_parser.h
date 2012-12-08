@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  6 00:13:56 EST 2012
+// Date:	Sat Dec  8 06:16:17 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1117,8 +1117,9 @@ void put_empty_after
 // to be a BRACKETED token.  The position of this token
 // is also reset.
 //
-// The `trace' argument should be set if the compacted
-// expression is to be traced.
+// If TRACE_ELEMENTS/DETAILS/LINES flags are presence in
+// the `trace_flags' argument, they cause the new
+// expression to be output as the flags indicate.
 //
 struct attr
 {
@@ -1134,7 +1135,8 @@ void compact
 	( ll::parser::parser parser,
 	  ll::parser::pass,
 	  ll::parser::table::flags selectors,
-	  min::uns32 type, bool trace,
+	  min::uns32 type,
+	  ll::parser::table::flags trace_flags,
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  min::phrase_position position,

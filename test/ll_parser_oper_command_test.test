@@ -1,5 +1,5 @@
 parser print selectors:
-        [ parser, code, math, text ]
+    [ - parser, + code, - math, - text ]
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements, + subexpression lines ]
 ERROR: in line 16: expected `with precedence ...' after:

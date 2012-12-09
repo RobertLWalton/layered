@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:35:09 EST 2012
+// Date:	Sun Dec  9 12:19:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,7 +21,7 @@ int main ( int argc, const char * argv[] )
     min::initialize();
     PAR::init ( PAR::default_parser, false );
     PARSTD::init_input ( PAR::default_parser );
-    PARSTD::init_brackets ( PAR::default_parser );
+    PARSTD::init_block ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
     PAR::init_ostream

@@ -1,11 +1,11 @@
 parser print selectors:
-    [ - parser, + code, - math, - text ]
+    [ - parser, + code ]
 parser define selector my selector
 ERROR: in line 13: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
                                 ^
 parser print selectors:
-    [ - parser, + code, - math, - text, - my selector, - operator 1 ]
+    [ - parser, + code, - my selector, - operator 1 ]
 parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
@@ -58,66 +58,26 @@ parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
-======= TEST: parser test [x <+ y +> z {u , v , w} m (n (p))]
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 parser trace [+ subexpression lines]
 ======= TEST:
 ------- line 24:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 24:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 24:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-                          ^^^^^^^
-------- line 24:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-                                    ^^^^^^^
-------- line 24:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-                                       ^^^
 ======= END TEST
 parser trace [- subexpression lines]
 parser trace [+ subexpression details]
-======= TEST: {| parser test
-                 {| x <+ y +> z
-                    {| u , v , w; .position = {| |}; .terminator = };
-                       .initiator = { |} m
-                    {| n
-                       {| p; .position = {| |}; .terminator = );
-                          .initiator = ( |}; .position = {| |};
-                       .terminator = ); .initiator = ( |};
-                    .position = {| |}; .terminator = ];
-                    .initiator = [ |}; .terminator = ␤;
-                 .position = {| |} |}
+======= TEST: {| parser test [ x <+ y +> z { u , v , w } m ( n ( p ) )
+                 ]; .terminator = ␤; .position = {| |} |}
 parser trace [+ subexpression elements]
-======= TEST: parser test [x <+ y +> z {u , v , w} m (n (p))]
-    {| parser test
-       {| x <+ y +> z
-          {| u , v , w; .position = {| |}; .terminator = };
-             .initiator = { |} m
-          {| n
-             {| p; .position = {| |}; .terminator = ); .initiator = ( |};
-             .position = {| |}; .terminator = ); .initiator = ( |};
-          .position = {| |}; .terminator = ]; .initiator = [ |};
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
+    {| parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ];
        .terminator = ␤; .position = {| |} |}
 parser trace [- subexpression details]
-======= TEST: parser test [x <+ y +> z {u , v , w} m (n (p))]
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 parser trace [+ subexpression lines]
-======= TEST: parser test [x <+ y +> z {u , v , w} m (n (p))]
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 ------- line 33:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 33:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 33:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-                          ^^^^^^^
-------- line 33:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-                                    ^^^^^^^
-------- line 33:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-                                       ^^^
 ======= END TEST

@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 7, 2012
+December 9, 2012
  
 \end{center}
 
@@ -2031,6 +2031,9 @@ The bracketed subexpression recognition pass recognizes:
       and named bracketed subexpressions \\
 \hspace*{-0.5in}named operators (e.g.~`{\tt <p>}')
 \end{indpar}
+
+The bracketed subexpression recognition pass also merges
+consecutive quoted strings.
 
 Brackets, indentation marks, and line separators are
 symbol table keys.  However named brackets and named operators are

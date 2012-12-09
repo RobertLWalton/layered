@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  7 02:21:50 EST 2012
+// Date:	Sun Dec  9 07:32:49 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,11 +30,17 @@
 
 static min::locatable_gen exclusive_or;
 static min::locatable_gen trace;
+static min::gen PRINTED;
+    // Parser execute_... functions return :PRINTED to
+    // mean they were successful and also printed
+    // output so the command itself need not be printed
+    // by the `parser command' trace flag.
 
 static void initialize ( void )
 {
     ::exclusive_or = min::new_str_gen ( "^" );
     ::trace = min::new_str_gen ( "trace" );
+    ::PRINTED = min::new_special_gen ( 0 );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -406,15 +412,18 @@ static min::gen execute_selectors
 	parser->printer
 	    << "parser print selectors:" << min::eol
 	    << min::bom << min::nohbreak
-	    << min::set_indent ( 8 ) << min::indent
+	    << min::set_indent ( 4 ) << min::indent
 	    << "["
-	    << min::set_indent ( 10 ) << min::indent;
+	    << min::set_indent ( 6 ) << min::indent;
 
+	TAB::flags selectors = parser->selectors;
 	for ( unsigned j = 0; j < t->length; ++ j )
 	{
 	    if ( j > 0 ) parser->printer << ", ";
 	    parser->printer
 		<< min::set_break
+		<< ( ( selectors & ( 1ull << j ) ) ?
+		     "+ " : "- " )
 		<< min::pgen ( t[j] );
 	}
 	parser->printer << " ]" << min::eom;
@@ -429,7 +438,7 @@ static min::gen execute_selectors
 	        ( parser, ppvec[2],
 		  "extraneous stuff after" );
 
-	return min::SUCCESS();
+	return ::PRINTED;
     }
     else if ( vp[1] == PAR::define )
         define = true;
@@ -590,8 +599,7 @@ static min::gen execute_test
 	    << "======= END TEST" << min::eol;
     }
 
-
-    return min::SUCCESS();
+    return ::PRINTED;
 }
 
 // Execute Trace
@@ -609,22 +617,21 @@ static min::gen execute_trace
 	    parser->trace_flag_name_table;
 
 	parser->printer
-	    << "parser print trace: [ "
-	    << min::bom << min::nohbreak;
+	    << "parser print trace:" << min::eol
+	    << min::bom << min::nohbreak
+	    << min::set_indent ( 4 ) << min::indent
+	    << "["
+	    << min::set_indent ( 6 ) << min::indent;
 
-	bool first = true;
+	TAB::flags trace_flags = parser->trace_flags;
 	for ( unsigned j = 0; j < t->length; ++ j )
 	{
-	    if ( ( parser->trace_flags & ( 1ull << j ) )
-	         ==
-		 0 )
-	        continue;
-
-	    if ( first ) first = false;
-	    else parser->printer << ", ";
+	    if ( j > 0 ) parser->printer << ", ";
 
 	    parser->printer
 		<< min::set_break
+	        << ( ( trace_flags & ( 1ull << j ) ) ?
+		   	"+ " : "- " )
 		<< min::pgen ( t[j] );
 	}
 	parser->printer << " ]" << min::eom;
@@ -634,7 +641,7 @@ static min::gen execute_trace
 	        ( parser, ppvec[2],
 		  "extraneous stuff after" );
 
-	return min::SUCCESS();
+	return ::PRINTED;
     }
 
     TAB::new_flags new_flags;
@@ -733,7 +740,7 @@ min::gen COM::parser_execute_command
     bool call_all_passes = false;
 
     if ( vp[1] == PAR::test )
-        return ::execute_test
+        result = ::execute_test
 	    ( vp, ppvec, parser );
     else if ( size >= 3
               &&
@@ -790,6 +797,8 @@ min::gen COM::parser_execute_command
 	min::print_phrase_lines
 	    ( parser->printer,
 	      ppvec->file, ppvec->position, 0 );
+    else if ( result == ::PRINTED )
+        result = min::SUCCESS();
 
     return result;
 }

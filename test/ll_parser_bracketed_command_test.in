@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  9 14:39:32 EST 2012
+// Date:	Mon Dec 10 12:15:38 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -23,7 +23,7 @@ parser define bracket "[+" ... "+]" [text, operator 2]
 parser define bracket "<+" ... "+>" [text + operator]
 parser define bracket "<+" ... "+>" [code, operator 1]
        with parsing selectors [^ code, - math, + operator 1]
-       with full line
+       with full lines
 
 parser test "abc"
             "def"
@@ -80,3 +80,9 @@ parser test <| hi there F |>
 parser undefine bracket "<|" ... "|>" [code]
 parser test <| hi there F |>
 parser undefine bracket "<|" ... "|>" [code]
+
+parser define bracket "```" ... "'''" [code]
+       with full lines
+parser test ( ```
+)
+''' )

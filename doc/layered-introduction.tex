@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 9, 2012
+December 10, 2012
  
 \end{center}
 
@@ -1785,7 +1785,7 @@ is specified on \pagref{PARSER-COMMANDS}.
     $|$ & {\em parser-test-command} \\
     $|$ & {\em parser-selector-command} \\
     $|$ & {\em parser-undefine-command} \\
-    $|$ & {\em parser-bracket-command} \\
+    $|$ & {\em parser-bracketed-command} \\
     $|$ & {\em parser-operator-command} \\
     \end{tabular}
 \label{PARSER-COMMAND}
@@ -2151,8 +2151,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     or & \verb|"<NL>"| if the subexpression is an new-line terminated
          indented line \\
        & in an indented paragraph, \\
-    or & the {\em line-separator-name} used to separate lines \\
-       & of an indented paragraph, \\
+    or & the {\em line-separator-name} used to separate lines of an
+         indented paragraph, \\
     or & the {\em named-closing} of a named bracketed subexpression, \\
     or & the {\em named-closing} of a named operator. \\
     \end{tabular}
@@ -2175,11 +2175,10 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 \hspace*{-0.2in}\ttdmkey{arguments}{subexpression attribute}\\
     A MIN object whose elements are the arguments of the
     {\em opening-named-bracket} of a named bracketed subexpression,
-    or of a {\em named-operator}.  The arguments are the elements of
-    the object, and the object has no syntax attributes.  Each argument is
-    either a bracketed subexpression or a quoted string, and is
-    represented in the same way as the {\tt value} of a
-    {\tt BRACKETED} token.
+    or of a {\em named-operator}.  The object is formatted like the
+    {\tt value} of a {\tt BRACkETED} token, except that it has no syntax
+    attributes.  Each argument is either a bracketed subexpression
+    or a quoted string.
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{keys}{subexpression attribute}\\
     A MIN object whose elements are the keys of the
@@ -2196,7 +2195,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 \end{indpar}
 
 In addition to the attributes just given, a MIN object may have
-a \ttdmkey{position}{of MIN object} attribute that gives the positions
+a \ttdmkey{position}{of MIN object} attribute that is a
+{\tt min::\EOL phrase\_\EOL position\_\EOL vec} giving the positions
 of the lexemes which the MIN object and its elements represent.
 This is not considered to be a syntax attribute.
 
@@ -2205,13 +2205,13 @@ are further divided into those specific to the different kinds of subexpression
 recognized by this recognizer:
 
 \begin{indpar}[0.1in]
-\emkey{parser-bracket-command}
+\emkey{parser-bracketed-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em parser-unnamed-bracket-command} \\
+    ::= & {\em parser-bracket-command} \\
     $|$ & {\em parser-indentation-mark-command} \\
     $|$ & {\em parser-named-bracket-command} \\
     \end{tabular}
-\label{PARSER-BRACKET-COMMAND}
+\label{PARSER-BRACKETED-COMMAND}
 \end{indpar}
 
 The following subsections describe these different kinds of commands
@@ -2232,11 +2232,11 @@ which specifies `{\tt (}' to be an {\em opening-bracket-name}
 with `{\tt )}' as its corresponding {\em closing-bracket-name}
 and `{\tt operator}' and `{\tt text}' as the definition selectors.
 
-The general syntax of {\em parser-unnamed-bracket-commands} is:
+The general syntax of {\em parser-bracket-commands} is:
 
 \begin{indpar}[0.1in]
-\emkey{parser-unnamed-bracket-command}%
-\label{PARSER-UNNAMED-BRACKET-COMMAND}
+\emkey{parser-bracket-command}%
+\label{PARSER-BRACKET-COMMAND}
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rll}
@@ -2246,6 +2246,9 @@ The general syntax of {\em parser-unnamed-bracket-commands} is:
 	& \hspace*{3em} & [ {\tt with parsing selectors}
 	                    {\em new-selectors} ] \\
         &               & [ {\tt with full lines} ] \\
+    $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
+                                    {bracket!parser undefine}
+		    {\em bracket-name} {\em selectors}} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em opening-bracket-name}
@@ -2504,7 +2507,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
 \\[0.5ex]
-\emkey{argument} ::= {\em unnamed-bracketed-subexpression}
+\emkey{argument} ::= {\em bracketed-subexpression}
                  $|$ {\em quoted-string}
 \\[0.5ex]
 \emkey{named-key-separator} ::= as defined by a

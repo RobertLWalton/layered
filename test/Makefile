@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Dec  9 08:19:47 EST 2012
+# Date:		Sun Dec  9 18:57:02 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -36,7 +36,7 @@ PROGRAMS = ll_lexeme_basic_test \
 	   ll_parser_input_test \
 	   ll_parser_table_test \
 	   ll_parser_command_test \
-	   ll_parser_bracketed_test \
+	   ll_parser_bracketed_standard_test \
 	   ll_parser_bracketed_command_test \
 	   ll_parser_oper_standard_test \
 	   ll_parser_oper_command_test
@@ -476,22 +476,23 @@ ll_parser_table_test.out:		\
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
-ll_parser_bracketed_test:		\
-	    ll_parser_bracketed_test.cc \
+ll_parser_bracketed_standard_test:		\
+	    ll_parser_bracketed_standard_test.cc \
 	    ${PARSER_O} \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
 	    ${PARSER_O} \
-	    ll_parser_bracketed_test.cc
+	    ll_parser_bracketed_standard_test.cc
 
-ll_parser_bracketed_test.out:	\
-	    ll_parser_bracketed_test \
-	    ll_parser_standard_test.in
+ll_parser_bracketed_standard_test.out:	\
+	    ll_parser_bracketed_standard_test \
+	    ll_parser_bracketed_standard_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_parser_standard_test.in \
-	             > $*.out
+	${RUNENV} $* < \
+	    ll_parser_bracketed_standard_test.in \
+	    > $*.out
 
 ll_parser_command_test:		\
 	    ll_parser_command_test.cc \

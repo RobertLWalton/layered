@@ -507,11 +507,19 @@ table that serves as the initial lexical table.
 The lexemes in a lexical program are specified on
 \pagref{LEXEME-PROGRAM-LEXEMES}.
 
-Consecutive quoted string lexemes are glued together.  Thus
-\begin{center}
-\tt "hello" " " "there"
-\end{center}
-is equivalent to {\tt "hello there"}.  This is useful for
+Consecutive quoted string lexemes are glued together if they are in the
+same (possibly continued) line.  Thus
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence"
+    " than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+This is useful for
 breaking long quoted string lexemes across line boundaries.
 But there is an important case where there is not an exact equivalence
 between the glued and unglued versions.  \verb|"<" "LF" ">"| is
@@ -2033,7 +2041,26 @@ The bracketed subexpression recognition pass recognizes:
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
-consecutive quoted strings.
+consecutive quoted strings if they are on the same
+(possibly continued) line.  Thus
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence"
+    " than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+This is useful for
+breaking long quoted string lexemes across line boundaries.
+But there is an important case where there is not an exact equivalence
+between the glued and unglued versions.  \verb|"<" "LF" ">"| is
+\underline{not} equivalent to \verb|"<LF>"|.  The former is a 4-character
+quoted string, the characters being \verb|<|, \verb|L|, \verb|F|,
+and \verb|>|.  The latter is a 1-character quoted string, the character
+being a line feed.
 
 Brackets, indentation marks, and line separators are
 symbol table keys.  However named brackets and named operators are

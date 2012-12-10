@@ -23,7 +23,7 @@ parser define bracket "<+" ... "+>" [text + operator]
                                      ^^^^
 parser define bracket "<+" ... "+>" [code, operator 1]
        with parsing selectors [^ code, - math, + operator 1]
-       with full line
+       with full lines
 ======= TEST: parser test "abcdef"
 ======= TEST: parser test :
                   "abc"
@@ -288,3 +288,28 @@ WARNING: in line 82: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]
+parser define bracket "```" ... "'''" [code]
+       with full lines
+======= TEST: parser test (```)''')
+------- lines 86-88:
+parser test ( ```
+^^^^^^^^^^^^^^^^^
+)
+^
+''' )
+^^^^^
+------- lines 86-88:
+parser test ( ```
+            ^^^^^
+)
+^
+''' )
+^^^^^
+------- lines 86-88:
+parser test ( ```
+              ^^^
+)
+^
+''' )
+^^^
+======= END TEST

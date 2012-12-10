@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 06:09:17 EDT 2012
+// Date:	Sun Dec  9 19:24:42 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,8 @@ This is a line containing a large number
      12345678901234567890.
 This is a line containing a parenthesized subexpression
      ( hi there ).
-This line contains subsubexpressions
+This line contains subsubexpressions (x 5 "foo")
+This line contains more subsubexpressions
      (x + `y z {p q}' - [ g h ]).
 This line contains a missing closing bracket
      (x + { y z )

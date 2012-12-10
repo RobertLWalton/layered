@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 27 03:42:34 EST 2012
+// Date:	Mon Dec 10 12:11:38 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,7 +59,7 @@ struct opening_bracket_struct :
     	// New selectors associated with this opening
 	// bracket.
 
-    bool full_line;
+    bool full_lines;
 
 };
 struct closing_bracket_struct : 
@@ -93,7 +93,7 @@ ll::parser::bracketed::opening_bracket
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
-	  bool full_line,
+	  bool full_lines,
 	  ll::parser::table::table bracket_table );
 
 
@@ -655,7 +655,7 @@ ll::parser::bracketed::bracketed_pass place
 // indentation separator `;', and bracket_stack == NULL.
 //
 // If an unnamed opening bracket is found with its
-// `full_line' feature on, the resulting recursive call
+// `full_lines' feature on, the resulting recursive call
 // to this function has a disabled `indent', NULL_STUB
 // indentation mark, and has a bracket stack consisting
 // solely of one entry for the unnamed opening bracket.

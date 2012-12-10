@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  8 04:42:21 EST 2012
+// Date:	Mon Dec 10 12:11:04 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,7 +40,7 @@ static min::locatable_gen gluing;
 static min::locatable_gen named;
 static min::locatable_gen parsing;
 static min::locatable_gen full;
-static min::locatable_gen line;
+static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
 
 static void initialize ( void )
@@ -53,7 +53,7 @@ static void initialize ( void )
     ::named = min::new_str_gen ( "named" );
     ::parsing = min::new_str_gen ( "parsing" );
     ::full = min::new_str_gen ( "full" );
-    ::line = min::new_str_gen ( "line" );
+    ::lines = min::new_str_gen ( "lines" );
     ::bracketed_subexpressions =
         min::new_lab_gen
 	    ( "bracketed", "subexpressions" );
@@ -101,7 +101,7 @@ BRA::opening_bracket
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
-	  bool full_line,
+	  bool full_lines,
 	  TAB::table bracket_table )
 {
     min::locatable_var<BRA::opening_bracket> opening
@@ -125,7 +125,7 @@ BRA::opening_bracket
     closing->position = position;
 
     opening->new_selectors = new_selectors;
-    opening->full_line = full_line;
+    opening->full_lines = full_lines;
 
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
@@ -1562,12 +1562,12 @@ bool BRA::parse_bracketed_subexpression
 		    opening_bracket->new_selectors
 				    .xor_flags;
 
-		bool full_line =
-		    opening_bracket->full_line;
+		bool full_lines =
+		    opening_bracket->full_lines;
 
 		BRA::bracket_stack cstack
-		    ( full_line ? NULL :
-		                  bracket_stack_p );
+		    ( full_lines ? NULL :
+		                   bracket_stack_p );
 		cstack.opening_bracket =
 		    opening_bracket;
 
@@ -1575,7 +1575,7 @@ bool BRA::parse_bracketed_subexpression
 		BRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
 		      current,
-		      full_line ?
+		      full_lines ?
 			  - pass->indent_offset :
 			  indent,
 		      min::NULL_STUB,
@@ -2487,7 +2487,7 @@ static min::gen bracketed_pass_command
     {
     case ::BRACKET:
     {
-	bool full_line = false;
+	bool full_lines = false;
 	TAB::new_flags new_selectors;
 	    // Inited to zeroes.
 	while ( i < size && vp[i] == PAR::with )
@@ -2517,16 +2517,16 @@ static min::gen bracketed_pass_command
 		      &&
 		      vp[i] == ::full
 		      &&
-		      vp[i+1] == ::line )
+		      vp[i+1] == ::lines )
 	    {
 		i += 2;
-		full_line = true;
+		full_lines = true;
 	    }
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected `parsing selectors'"
-		      " or `full line' after" );
+		      " or `full lines' after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error
@@ -2538,7 +2538,7 @@ static min::gen bracketed_pass_command
 	      selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      new_selectors, full_line,
+	      new_selectors, full_lines,
 	      bracketed_pass->bracket_table );
 
 	break;
@@ -2574,7 +2574,7 @@ static min::gen bracketed_pass_command
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected `parsing selectors'"
-		      " or `full line' after" );
+		      " or `full lines' after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error

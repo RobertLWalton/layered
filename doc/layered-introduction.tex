@@ -2463,6 +2463,16 @@ indentation, or continuing the current paragraph line if its indentation
 is greater than the paragraph indentation.  Here $N$ is called the
 \key{parser indent offset}, and is a parser parameter.
 
+When an {\em indentation-mark-name} is recognized, the current parser
+selector set is saved in a stack and
+a new set is computed by modifying the saved set
+according to the {\em new-selectors} in the indentation mark definition.
+The saved selector set is restored after the end of paragraph
+is recognized.  However {\em line-separator-name}
+recognition does not depend
+upon the current parser selectors, but only on previous recognition
+of an associated {\em indentation-mark-name}.
+
 \ikey{Top level parsing}{top level parsing}
 of a file recognizes paragraph lines as if the whole
 file were a paragraph, and forms each line into a MIN object.  However,
@@ -2481,16 +2491,6 @@ if it appears on a line by itself and is less indented than the first
 following non-comment non-blank line.
 Comments at the beginning or end of a file cannot be
 in error.
-
-When an {\em indentation-mark-name} is recognized, the current parser
-selector set is saved in a stack and
-a new set is computed by modifying the saved set
-according to the {\em new-selectors} in the indentation mark definition.
-The saved selector set is restored after the end of paragraph
-is recognized.  However {\em line-separator-name}
-recognition does not depend
-upon the current parser selectors, but only on previous recognition
-of an associated {\em indentation-mark-name}.
 
 \subsubsection{Named Bracketed Subexpressions}
 \label{NAMED-BRACKETED-SUBEXPRESSIONS}

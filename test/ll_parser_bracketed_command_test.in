@@ -81,8 +81,14 @@ parser undefine bracket "<|" ... "|>" [code]
 parser test <| hi there F |>
 parser undefine bracket "<|" ... "|>" [code]
 
+parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
        with full lines
+parser test ( ``` ) ''' )
 parser test ( ```
 )
 ''' )
+parser test ( ` ) ' )
+parser test ( `
+)
+' )

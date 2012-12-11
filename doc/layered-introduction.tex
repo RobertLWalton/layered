@@ -2291,16 +2291,16 @@ containing the bracketed subexpression,
 or an end of file.
 
 An exception to this is made if the bracket definition has the
-\ttmkey{full line}{in bracket definition} property.  In this case
+\ttmkey{full lines}{in bracket definition} property.  In this case
 it is expected that the subexpression will consist of one or
 more full input lines.  While the subexpression is being scanned,
 use of indentation is turned off, and only the {\em closing-bracket-name}
-associated with the full line {\em opening-bracket-name}, or an
+associated with the full lines {\em opening-bracket-name}, or an
 end-of-file,
 can terminate the subexpression.  During parsing of a
-`{\tt full line}' subexpression, the parser only knows about
+`{\tt full lines}' subexpression, the parser only knows about
 subexpressions and paragraphs that are included completely inside the
-`{\tt full line}' subexpression.
+`{\tt full lines}' subexpression.
 
 When an {\em opening-bracket-name} is recognized, the current parser
 selector set is saved in a stack and

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 10 12:11:04 EST 2012
+// Date:	Tue Dec 11 03:02:04 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2771,6 +2771,9 @@ static min::gen bracketed_pass_command
 		    (BRA::indentation_mark) root;
 		BRA::line_separator line_separator =
 		    indentation_mark->line_separator;
+		BRA::indentation_split
+			indentation_split =
+		    indentation_mark->indentation_split;
 		if ( line_separator == min::NULL_STUB
 		     &&
 		     number_of_names == 2 )
@@ -2782,6 +2785,14 @@ static min::gen bracketed_pass_command
 		if ( line_separator != min::NULL_STUB
 		     &&
 		     line_separator->label != name[1] )
+		    continue;
+		if ( indentation_split == min::NULL_STUB
+		     &&
+		     gluing )
+		    continue;
+		if ( indentation_split != min::NULL_STUB
+		     &&
+		     ! gluing )
 		    continue;
 
 		break;

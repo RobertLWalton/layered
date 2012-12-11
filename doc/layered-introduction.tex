@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 10, 2012
+December 11, 2012
  
 \end{center}
 
@@ -2316,7 +2316,7 @@ of an associated {\em opening-bracket-name}.
 
 An \key{indented paragraph subexpression}
 begins with an {\em indentation-mark-name} which must be at the end of
-a line.  This is followed an \key{indented paragraph}
+a line.  This is followed by an \key{indented paragraph}
 consisting of zero or more \skey{paragraph line}s,
 each beginning at the same indentation which
 is called the \key{paragraph indentation}.  The paragraph indentation
@@ -2374,6 +2374,13 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
 	  {}[ {\tt with parsing selectors} {\em new-selectors} ] \\
 	  \end{tabular} \\
+    $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
+	  {\em indentation-name} {\em parsing-selectors} \\
+    $|$ & \ttikey{parser undefine}{undefine gluing indentation mark}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\tt \bf gluing indentation mark} \\
+	  {\em gluing-indentation-name} {\em parsing-selectors} \\
+	  \end{tabular} \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
@@ -2420,7 +2427,7 @@ A {\em gluing-indentation-mark-name} is a single mark that may be glued
 to a preceding mark at the end of its line.  For example, `{\tt :}'
 may be glued to `{\tt =}' to make `{\tt =:}'.
 
-After an indentation mark is split from a previous mark at the end of
+After a gluing indentation mark is split from a previous mark at the end of
 a line, previous tokens are checked to see if they contain
 the label of a symbol table entry used by the bracketed subexpression
 parser.  More explicitly, any sequence of words, numbers, marks,
@@ -2436,8 +2443,8 @@ on rescan
 and change the selectors so the indentation mark is no longer
 recognizable, and then the indentation mark will be scanned and not recognized.
 This situation can be avoided by not allowing
-brackets to change selectors to enable gluing indentation marks if the
-closing bracket ends with a mark.
+brackets that might be glued to indentation marks
+to change selectors that control recognition of those marks.
 
 No differences exist between {\em gluing-indentation-mark-names} and
 {\em indentation-\EOL mark-\EOL names}

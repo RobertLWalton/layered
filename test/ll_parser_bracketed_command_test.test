@@ -288,28 +288,71 @@ WARNING: in line 82: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]
+parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
        with full lines
 ======= TEST: parser test (```)''')
-------- lines 86-88:
+------- line 87:
+parser test ( ``` ) ''' )
+^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 87:
+parser test ( ``` ) ''' )
+            ^^^^^^^^^^^^^
+------- line 87:
+parser test ( ``` ) ''' )
+              ^^^^^^^^^
+======= END TEST
+======= TEST: parser test (```)''')
+------- lines 88-90:
 parser test ( ```
 ^^^^^^^^^^^^^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines 86-88:
+------- lines 88-90:
 parser test ( ```
             ^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines 86-88:
+------- lines 88-90:
 parser test ( ```
               ^^^
 )
 ^
 ''' )
 ^^^
+======= END TEST
+ERROR: missing closing bracket "'" inserted before ")"; line 91:
+parser test ( ` ) ' )
+                ^
+======= TEST: parser test (`') ' )
+------- line 91:
+parser test ( ` ) ' )
+^^^^^^^^^^^^^^^^^^^^^
+------- line 91:
+parser test ( ` ) ' )
+            ^^^^^
+------- line 91:
+parser test ( ` ) ' )
+              ^
+======= END TEST
+ERROR: missing closing bracket "'" inserted before end of line; line 92:
+parser test ( `
+               ^
+ERROR: missing closing bracket ")" inserted before end of line; line 92:
+parser test ( `
+               ^
+======= TEST: parser test (`')
+------- line 92:
+parser test ( `
+^^^^^^^^^^^^^^^
+------- line 92:
+parser test ( `
+            ^^^
+------- line 92:
+parser test ( `
+              ^
 ======= END TEST

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  8 04:33:51 EST 2012
+// Date:	Wed Dec 12 05:21:00 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1037,7 +1037,7 @@ min::gen PAR::end_block
 	    ( parser,
 	      position,
 	      "innermost block name does not match `",
-	      min::pgen ( name ), "'" );
+	      min::name_pgen ( name ), "'" );
 
     min::uns32 length =
         parser->block_stack
@@ -1353,10 +1353,6 @@ void PAR::compact
 
     if ( trace_flags )
     {
-	const min::uns32 GEN_FLAGS =
-	      min::GRAPHIC_STR_FLAG
-	    + min::BRACKET_LAB_FLAG;
-
 	parser->printer
 	    << ( first->type == PAR::BRACKETED ?
 		 "BRACKETED EXPRESSION: " :
@@ -1373,9 +1369,15 @@ void PAR::compact
 	     & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	    parser->printer
 		<< min::indent
-	        << min::pgen ( first->value,
-	                       GEN_FLAGS, GEN_FLAGS )
-		<< min::eol;
+		<< min::bom
+		<< min::clear_value_gen_flags
+			( min::OBJ_EXP_FLAG )
+		<< min::clear_name_gen_flags
+			( min::OBJ_EXP_FLAG )
+	        << min::pgen ( first->value )
+		<< min::eol
+		<< min::flush_id_map
+		<< min::eom;
 	if (   trace_flags
 	     & PAR::TRACE_SUBEXPRESSION_LINES )
 	{

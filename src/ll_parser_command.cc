@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  9 07:32:49 EST 2012
+// Date:	Wed Dec 12 02:34:40 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -424,7 +424,7 @@ static min::gen execute_selectors
 		<< min::set_break
 		<< ( ( selectors & ( 1ull << j ) ) ?
 		     "+ " : "- " )
-		<< min::pgen ( t[j] );
+		<< min::name_pgen ( t[j] );
 	}
 	parser->printer << " ]" << min::eom;
 
@@ -546,10 +546,6 @@ static min::gen execute_test
 	vp = min::NULL_STUB;
 	    // Close vp so pgen can print obj.
 
-	const min::uns32 GEN_FLAGS =
-	      min::GRAPHIC_STR_FLAG
-	    + min::BRACKET_LAB_FLAG;
-
 	parser->printer
 	    << min::save_print_format << min::nohbreak
 	    << "======= TEST: "
@@ -568,10 +564,17 @@ static min::gen execute_test
 		<< min::bom;
 
 	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
+	{
 	    parser->printer
-		<< min::pgen
-		       ( obj, GEN_FLAGS, GEN_FLAGS )
+	        << min::clear_value_gen_flags
+			( min::OBJ_EXP_FLAG )
+	        << min::clear_name_gen_flags
+			( min::OBJ_EXP_FLAG )
+		<< min::flush_pgen ( obj )
+		<< min::eol
+		<< min::flush_id_map
 		<< min::eom;
+	}
 
 	vp = obj;  // Reopen vp.
     }
@@ -632,7 +635,7 @@ static min::gen execute_trace
 		<< min::set_break
 	        << ( ( trace_flags & ( 1ull << j ) ) ?
 		   	"+ " : "- " )
-		<< min::pgen ( t[j] );
+		<< min::name_pgen ( t[j] );
 	}
 	parser->printer << " ]" << min::eom;
 

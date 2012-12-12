@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  8 14:44:50 EST 2012
+// Date:	Wed Dec 12 05:29:25 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -369,11 +369,9 @@ static void oper_parse ( PAR::parser parser,
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
-		    << "OPERATOR "
-		    << min::pgen
-		           ( current->value,
-		             min::BRACKET_STR_FLAG )
-		    << " found; "
+		    << "OPERATOR `"
+		    << min::name_pgen ( current->value )
+		    << "' found; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     current->position )
@@ -673,16 +671,11 @@ static bool separator_reformatter
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
-		    << "ERROR: wrong"
-		       " separator "
-		    << min::pgen
-			 ( t->value,
-			   min::BRACKET_STR_FLAG )
-		    << " changed to "
-		    << min::pgen
-			 ( separator,
-			   min::BRACKET_STR_FLAG )
-		    << "; "
+		    << "ERROR: wrong separator `"
+		    << min::name_pgen ( t->value )
+		    << "' changed to `"
+		    << min::name_pgen ( separator )
+		    << "'; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     t->position )
@@ -716,12 +709,9 @@ static bool separator_reformatter
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 7 )
-		<< "ERROR: missing"
-		   " separator "
-		<< min::pgen
-		     ( separator,
-		       min::BRACKET_STR_FLAG )
-		<< " inserted; "
+		<< "ERROR: missing separator `"
+		<< min::name_pgen ( separator )
+		<< "' inserted; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 position )
@@ -866,11 +856,9 @@ static bool unary_reformatter
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: operator "
-	    << min::pgen
-		 ( value,
-		   min::BRACKET_STR_FLAG )
-	    << " NOT at beginning of subexpression;"
+	    << "ERROR: operator `"
+	    << min::name_pgen ( value )
+	    << "' NOT at beginning of subexpression;"
 	       " subexpression should be of form"
 	       " `operator operand'; "
 	    << min::pline_numbers
@@ -966,11 +954,9 @@ static bool binary_reformatter
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: operator "
-	    << min::pgen
-		 ( value,
-		   min::BRACKET_STR_FLAG )
-	    << " NOT in middle of subexpression;"
+	    << "ERROR: operator `"
+	    << min::name_pgen ( value )
+	    << "' NOT in middle of subexpression;"
 	       " subexpression should be of form"
 	       " `operand operator operand'; "
 	    << min::pline_numbers
@@ -1037,15 +1023,12 @@ static bool infix_reformatter
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 7 )
-		<< "ERROR: operator "
-		<< min::pgen
-		       ( t->next->value,
-		         min::BRACKET_STR_FLAG )
-		<< " is not the same as first operator "
-		<< min::pgen
-		       ( first->next->value,
-		         min::BRACKET_STR_FLAG )
-		<< " in subexpression; all operators"
+		<< "ERROR: operator `"
+		<< min::name_pgen ( t->next->value )
+		<< "' is not the same as"
+		   " first operator `"
+		<< min::name_pgen ( first->next->value )
+		<< "' in subexpression; all operators"
 		   " must be the same in this"
 		   " subexpression; "
 		<< min::pline_numbers
@@ -1489,9 +1472,9 @@ static min::gen oper_pass_command
 	if ( oper_flags & new_oper_flag )
 	    return PAR::parse_error
 		( parser, ppvec[i],
-		  "operator flag ",
-		  min::pgen ( vp[i] ),
-		  " appears twice" );
+		  "operator flag `",
+		  min::name_pgen ( vp[i] ),
+		  "' appears twice" );
 
 	oper_flags |= new_oper_flag;
 	++ i;
@@ -1599,7 +1582,7 @@ static min::gen oper_pass_command
 		    char buffer[200];
 		    char * s = buffer;
 		    s += sprintf
-		        ( s, " reformatter incompatible"
+		        ( s, "' reformatter incompatible"
 			     " with" );
 		    if ( illegal_flags & OP::PREFIX )
 		        s += sprintf ( s, " prefix" );
@@ -1615,8 +1598,8 @@ static min::gen oper_pass_command
 		        ( s, " operator flag(s)" );
 		    return PAR::parse_error
 			    ( parser, ppvec->position,
-			      "",
-			      min::pgen ( name ),
+			      "`",
+			      min::name_pgen ( name ),
 			      buffer );
 		}
 

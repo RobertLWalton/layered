@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 05:29:25 EST 2012
+// Date:	Wed Dec 12 12:56:40 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1582,8 +1582,8 @@ static min::gen oper_pass_command
 		    char buffer[200];
 		    char * s = buffer;
 		    s += sprintf
-		        ( s, "' reformatter incompatible"
-			     " with" );
+		        ( s, "' reformatter"
+			     " incompatible with" );
 		    if ( illegal_flags & OP::PREFIX )
 		        s += sprintf ( s, " prefix" );
 		    if ( illegal_flags & OP::INFIX )

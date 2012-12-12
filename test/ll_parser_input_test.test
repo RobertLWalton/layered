@@ -54,31 +54,31 @@ LINE_BREAK: lines 9-10:
                  ^
 <BLANK-LINE>
 ^
-WORD: abc: line 11:
+WORD: "abc": line 11:
 abc 3.4+z (x,y)
 ^^^
 NUMBER: 3.4: line 11:
 abc 3.4+z (x,y)
     ^^^
-MARK: +: line 11:
+MARK: "+": line 11:
 abc 3.4+z (x,y)
        ^
-WORD: z: line 11:
+WORD: "z": line 11:
 abc 3.4+z (x,y)
         ^
-SEPARATOR: (: line 11:
+SEPARATOR: "(": line 11:
 abc 3.4+z (x,y)
           ^
-WORD: x: line 11:
+WORD: "x": line 11:
 abc 3.4+z (x,y)
            ^
-SEPARATOR: ,: line 11:
+SEPARATOR: ",": line 11:
 abc 3.4+z (x,y)
             ^
-WORD: y: line 11:
+WORD: "y": line 11:
 abc 3.4+z (x,y)
              ^
-SEPARATOR: ): line 11:
+SEPARATOR: ")": line 11:
 abc 3.4+z (x,y)
               ^
 LINE_BREAK: line 11:
@@ -93,85 +93,85 @@ QUOTED_STRING: ho␉x␣y<>z␤: line 12:
 LINE_BREAK: line 12:
 "hi" "ho<HT>x y<>z<LF>"
                        ^
-WORD: 'tis: line 13:
+WORD: "'tis": line 13:
 'tis noth'ng `but' a h'dache.
 ^^^^
-WORD: noth'ng: line 13:
+WORD: "noth'ng": line 13:
 'tis noth'ng `but' a h'dache.
      ^^^^^^^
-SEPARATOR: `: line 13:
+SEPARATOR: "`": line 13:
 'tis noth'ng `but' a h'dache.
              ^
-WORD: but: line 13:
+WORD: "but": line 13:
 'tis noth'ng `but' a h'dache.
               ^^^
-SEPARATOR: ': line 13:
+SEPARATOR: "'": line 13:
 'tis noth'ng `but' a h'dache.
                  ^
-WORD: a: line 13:
+WORD: "a": line 13:
 'tis noth'ng `but' a h'dache.
                    ^
-WORD: h'dache: line 13:
+WORD: "h'dache": line 13:
 'tis noth'ng `but' a h'dache.
                      ^^^^^^^
-MARK: .: line 13:
+MARK: ".": line 13:
 'tis noth'ng `but' a h'dache.
                             ^
 LINE_BREAK: line 13:
 'tis noth'ng `but' a h'dache.
                              ^
-WORD: a: line 14:
+WORD: "a": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
 ^
 NUMBER: .1.2.3: line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
  ^^^^^^
-MARK: .: line 14:
+MARK: ".": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
        ^
-WORD: b: line 14:
+WORD: "b": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
         ^
-MARK: .: line 14:
+MARK: ".": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
          ^
-WORD: c: line 14:
+WORD: "c": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
           ^
-WORD: e: line 14:
+WORD: "e": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
             ^
-NATURAL_NUMBER: 5: line 14:
+NATURAL_NUMBER: "5": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
              ^
-WORD: f: line 14:
+WORD: "f": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
               ^
-WORD: x: line 14:
+WORD: "x": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                 ^
-NATURAL_NUMBER: 7: line 14:
+NATURAL_NUMBER: "7": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                  ^
-MARK: +: line 14:
+MARK: "+": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                   ^
-WORD: y: line 14:
+WORD: "y": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                    ^
-NATURAL_NUMBER: 6: line 14:
+NATURAL_NUMBER: "6": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                     ^
-SEPARATOR: (: line 14:
+SEPARATOR: "(": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                      ^
-NATURAL_NUMBER: 5: line 14:
+NATURAL_NUMBER: "5": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                       ^
-WORD: z: line 14:
+WORD: "z": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                        ^
-SEPARATOR: ): line 14:
+SEPARATOR: ")": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                         ^
 LINE_BREAK: line 14:
@@ -183,10 +183,10 @@ NUMBER: 12.3: line 15:
 NUMBER: .4: line 15:
 12.3 .4 5. 6/7
      ^^
-NATURAL_NUMBER: 5: line 15:
+NATURAL_NUMBER: "5": line 15:
 12.3 .4 5. 6/7
         ^
-MARK: .: line 15:
+MARK: ".": line 15:
 12.3 .4 5. 6/7
          ^
 NUMBER: 6/7: line 15:
@@ -210,37 +210,37 @@ NUMBER: 8888.12,3,4: line 16:
 LINE_BREAK: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                                                   ^
-MARK: /: line 17:
+MARK: "/": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
 ^
-NATURAL_NUMBER: 3: line 17:
+NATURAL_NUMBER: "3": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
  ^
 NUMBER: 6.34.56: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
    ^^^^^^^
-MARK: /: line 17:
+MARK: "/": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
           ^
-NATURAL_NUMBER: 3: line 17:
+NATURAL_NUMBER: "3": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
             ^
-SEPARATOR: ,: line 17:
+SEPARATOR: ",": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
              ^
-NATURAL_NUMBER: 4: line 17:
+NATURAL_NUMBER: "4": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                ^
-SEPARATOR: ,: line 17:
+SEPARATOR: ",": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                 ^
-SEPARATOR: ,: line 17:
+SEPARATOR: ",": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                   ^
-NATURAL_NUMBER: 5: line 17:
+NATURAL_NUMBER: "5": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                    ^
-SEPARATOR: ,: line 17:
+SEPARATOR: ",": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                      ^
 NUMBER: 6.7,8.9: line 17:
@@ -249,13 +249,13 @@ NUMBER: 6.7,8.9: line 17:
 LINE_BREAK: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                              ^
-MARK: +-*~@#$%^&=|<>_!?:: line 18:
+MARK: "+-*~@#$%^&=|<>_!?:": line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
 ^^^^^^^^^^^^^^^^^^
 QUOTED_STRING: foo: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                   ^^^^^
-WORD: x: line 18:
+WORD: "x": line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                        ^
 ERROR: ascii escape sequence; line 18:
@@ -264,58 +264,58 @@ ERROR: ascii escape sequence; line 18:
 ERROR: ascii escape sequence; line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                             ^^^^
-MARK: <: line 18:
+MARK: "<": line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                 ^
-WORD: LF: line 18:
+WORD: "LF": line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                  ^^
-MARK: >: line 18:
+MARK: ">": line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                    ^
 LINE_BREAK: line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                                     ^
-MARK: .: line 19:
+MARK: ".": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
 ^
-WORD: foo: line 19:
+WORD: "foo": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
  ^^^
-MARK: /: line 19:
+MARK: "/": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
      ^
-WORD: foo: line 19:
+WORD: "foo": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
       ^^^
-NATURAL_NUMBER: 3: line 19:
+NATURAL_NUMBER: "3": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
           ^
-MARK: /: line 19:
+MARK: "/": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
            ^
-WORD: x: line 19:
+WORD: "x": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
             ^
-WORD: x: line 19:
+WORD: "x": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
               ^
-MARK: /: line 19:
+MARK: "/": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                ^
-NATURAL_NUMBER: 3: line 19:
+NATURAL_NUMBER: "3": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                 ^
-NATURAL_NUMBER: 3: line 19:
+NATURAL_NUMBER: "3": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                   ^
-MARK: .: line 19:
+MARK: ".": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                    ^
-WORD: x: line 19:
+WORD: "x": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                     ^
-WORD: x: line 19:
+WORD: "x": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                       ^
 NUMBER: .3: line 19:
@@ -327,76 +327,76 @@ COMMENT: line 19:
 LINE_BREAK: line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                                            ^
-WORD: a: line 20:
+WORD: "a": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 ^
-SEPARATOR: (: line 20:
+SEPARATOR: "(": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
  ^
-WORD: b: line 20:
+WORD: "b": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
   ^
-SEPARATOR: ,: line 20:
+SEPARATOR: ",": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
    ^
-WORD: c: line 20:
+WORD: "c": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
     ^
-SEPARATOR: ): line 20:
+SEPARATOR: ")": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
      ^
-WORD: d: line 20:
+WORD: "d": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
        ^
-SEPARATOR: {: line 20:
+SEPARATOR: "{": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
         ^
-WORD: e: line 20:
+WORD: "e": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
          ^
-SEPARATOR: ;: line 20:
+SEPARATOR: ";": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
           ^
-WORD: f: line 20:
+WORD: "f": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
            ^
-SEPARATOR: }: line 20:
+SEPARATOR: "}": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
             ^
-WORD: g: line 20:
+WORD: "g": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
               ^
-SEPARATOR: [: line 20:
+SEPARATOR: "[": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                ^
-WORD: h: line 20:
+WORD: "h": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                 ^
-SEPARATOR: ,: line 20:
+SEPARATOR: ",": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                  ^
-WORD: i: line 20:
+WORD: "i": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                   ^
-SEPARATOR: ]: line 20:
+SEPARATOR: "]": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                    ^
-SEPARATOR: `: line 20:
+SEPARATOR: "`": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                      ^
-SEPARATOR: `: line 20:
+SEPARATOR: "`": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                       ^
-WORD: foobar: line 20:
+WORD: "foobar": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                        ^^^^^^
-SEPARATOR: ': line 20:
+SEPARATOR: "'": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                              ^
-WORD: fum: line 20:
+WORD: "fum": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                                ^^^
-SEPARATOR: ': line 20:
+SEPARATOR: "'": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                                   ^
 LINE_BREAK: line 20:
@@ -420,10 +420,10 @@ COMMENT: line 23:
 LINE_BREAK: line 23:
 // carriage return ␍
                    ^
-WORD: z: line 24:
+WORD: "z": line 24:
 z       x // horizontal tab
 ^
-WORD: x: line 24:
+WORD: "x": line 24:
 z       x // horizontal tab
         ^
 COMMENT: line 24:
@@ -432,28 +432,28 @@ z       x // horizontal tab
 LINE_BREAK: line 24:
 z       x // horizontal tab
                            ^
-WORD: all: line 25:
+WORD: "all": line 25:
 all     ␌␋␍
 ^^^
 LINE_BREAK: line 25:
 all     ␌␋␍
         ^^^
-WORD: control: line 26:
+WORD: "control": line 26:
 control A␁B␂C␃
 ^^^^^^^
-WORD: A: line 26:
+WORD: "A": line 26:
 control A␁B␂C␃
         ^
 ERROR: misplaced character; line 26:
 control A␁B␂C␃
          ^
-WORD: B: line 26:
+WORD: "B": line 26:
 control A␁B␂C␃
           ^
 ERROR: misplaced character; line 26:
 control A␁B␂C␃
            ^
-WORD: C: line 26:
+WORD: "C": line 26:
 control A␁B␂C␃
             ^
 ERROR: misplaced character; line 26:
@@ -477,10 +477,10 @@ ERROR: ascii escape sequence; line 28:
 ERROR: ascii escape sequence; line 28:
 <0041><00000042>C D<00000045><0046>G
       ^^^^^^^^^^
-WORD: C: line 28:
+WORD: "C": line 28:
 <0041><00000042>C D<00000045><0046>G
                 ^
-WORD: D: line 28:
+WORD: "D": line 28:
 <0041><00000042>C D<00000045><0046>G
                   ^
 ERROR: ascii escape sequence; line 28:
@@ -489,7 +489,7 @@ ERROR: ascii escape sequence; line 28:
 ERROR: ascii escape sequence; line 28:
 <0041><00000042>C D<00000045><0046>G
                              ^^^^^^
-WORD: G: line 28:
+WORD: "G": line 28:
 <0041><00000042>C D<00000045><0046>G
                                    ^
 LINE_BREAK: line 28:
@@ -498,16 +498,16 @@ LINE_BREAK: line 28:
 ERROR: ascii escape sequence; line 29:
 <0041><000000B5>C D<000000E3><0006>G
 ^^^^^^
-WORD: µC: line 29:
+WORD: "µC": line 29:
 <0041><000000B5>C D<000000E3><0006>G
       ^^^^^^^^^^^
-WORD: Dã: line 29:
+WORD: "Dã": line 29:
 <0041><000000B5>C D<000000E3><0006>G
                   ^^^^^^^^^^^
 ERROR: ascii escape sequence; line 29:
 <0041><000000B5>C D<000000E3><0006>G
                              ^^^^^^
-WORD: G: line 29:
+WORD: "G": line 29:
 <0041><000000B5>C D<000000E3><0006>G
                                    ^
 LINE_BREAK: line 29:
@@ -552,25 +552,25 @@ QUOTED_STRING: misplaced␣control␣: line 35:
 LINE_BREAK: line 35:
 "misplaced control ␁"
                      ^
-WORD: misplaced: line 36:
+WORD: "misplaced": line 36:
 misplaced space ␌ here and ␍ here
 ^^^^^^^^^
-WORD: space: line 36:
+WORD: "space": line 36:
 misplaced space ␌ here and ␍ here
           ^^^^^
 ERROR: misplaced space; line 36:
 misplaced space ␌ here and ␍ here
                 ^
-WORD: here: line 36:
+WORD: "here": line 36:
 misplaced space ␌ here and ␍ here
                   ^^^^
-WORD: and: line 36:
+WORD: "and": line 36:
 misplaced space ␌ here and ␍ here
                        ^^^
 ERROR: misplaced space; line 36:
 misplaced space ␌ here and ␍ here
                            ^
-WORD: here: line 36:
+WORD: "here": line 36:
 misplaced space ␌ here and ␍ here
                              ^^^^
 LINE_BREAK: line 36:

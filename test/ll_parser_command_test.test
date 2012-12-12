@@ -5,31 +5,31 @@ ERROR: in line 13: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
                                 ^
 parser print selectors:
-    [ - parser, + code, - my selector, - operator 1 ]
+    [ - parser, + code, - my selector, - operator1 ]
 parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser trace [+ parser input]
-WORD: parser: line 19:
+WORD: "parser": line 19:
 parser trace [- parser input]
 ^^^^^^
-WORD: trace: line 19:
+WORD: "trace": line 19:
 parser trace [- parser input]
        ^^^^^
-SEPARATOR: [: line 19:
+SEPARATOR: "[": line 19:
 parser trace [- parser input]
              ^
-MARK: -: line 19:
+MARK: "-": line 19:
 parser trace [- parser input]
               ^
-WORD: parser: line 19:
+WORD: "parser": line 19:
 parser trace [- parser input]
                 ^^^^^^
-WORD: input: line 19:
+WORD: "input": line 19:
 parser trace [- parser input]
                        ^^^^^
-SEPARATOR: ]: line 19:
+SEPARATOR: "]": line 19:
 parser trace [- parser input]
                             ^
 LINE_BREAK: line 19:
@@ -39,13 +39,13 @@ parser print trace:
     [ - warnings, + parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
-WORD: parser: line 20:
+WORD: "parser": line 20:
 parser print trace
 ^^^^^^
-WORD: print: line 20:
+WORD: "print": line 20:
 parser print trace
        ^^^^^
-WORD: trace: line 20:
+WORD: "trace": line 20:
 parser print trace
              ^^^^^
 LINE_BREAK: lines 20-21:
@@ -67,12 +67,14 @@ parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ======= END TEST
 parser trace [- subexpression lines]
 parser trace [+ subexpression details]
-======= TEST: {| parser test [ x <+ y +> z { u , v , w } m ( n ( p ) )
-                 ]; .terminator = ␤; .position = {| |} |}
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ] |:
+              .terminator = "␤"
+              .position = {| |}
 parser trace [+ subexpression elements]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
-    {| parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ];
-       .terminator = ␤; .position = {| |} |}
+    parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ] |:
+    .terminator = "␤"
+    .position = {| |}
 parser trace [- subexpression details]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 parser trace [+ subexpression lines]

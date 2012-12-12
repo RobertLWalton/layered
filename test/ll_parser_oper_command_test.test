@@ -8,7 +8,7 @@ ERROR: in line 16: expected `with precedence ...' after:
 ERROR: in line 17: operator flags nofix and infix are incompatible:
 parser define operator "+" [code, math] infix nofix with precedence 3000
                                         ^^^^^^^^^^^
-ERROR: in lines 19-20: right associative reformatter incompatible with
+ERROR: in lines 19-20: `right associative' reformatter incompatible with
        nofix operator flag(s):
 parser define operator "+" [code, math] nofix with precedence 3000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,7 +42,7 @@ parser test (NOT x y)
 parser test (NOT x y)
                  ^^^
 ======= END TEST
-ERROR: operator "NOT" NOT at beginning of subexpression; subexpression
+ERROR: operator `NOT' NOT at beginning of subexpression; subexpression
        should be of form `operator operand'; line 32:
 parser test (x NOT y)
              ^^^^^^^
@@ -82,9 +82,8 @@ parser test (x BUT NOT y)
 parser test (x BUT NOT y)
             ^^^^^^^^^^^^^
 ======= END TEST
-ERROR: operator "BUT" "NOT" NOT in middle of subexpression;
-       subexpression should be of form `operand operator
-       operand'; line 35:
+ERROR: operator `BUT NOT' NOT in middle of subexpression; subexpression
+       should be of form `operand operator operand'; line 35:
 parser test (BUT NOT x y)
              ^^^^^^^^^^^
 ERROR: subexpression is too short; subexpression should be of form
@@ -103,10 +102,10 @@ parser test (BUT NOT x y)
                      ^^^
 ======= END TEST
 parser trace [+ keys, + operator subexpressions]
-OPERATOR "NOT" found; line 37:
+OPERATOR `NOT' found; line 37:
 parser test (NOT x BUT NOT y)
              ^^^
-OPERATOR "BUT" "NOT" found; line 37:
+OPERATOR `BUT NOT' found; line 37:
 parser test (NOT x BUT NOT y)
                    ^^^^^^^
 ERROR: too many operators in subexpression; subexpression should be of
@@ -149,7 +148,7 @@ parser test (NOT x AND y)
 parser test (NOT x AND y)
                  ^^^^^^^
 ======= END TEST
-ERROR: operator "OR" is not the same as first operator "AND" in
+ERROR: operator `OR' is not the same as first operator `AND' in
        subexpression; all operators must be the same in this
        subexpression; line 46:
 parser test (x AND y OR z)
@@ -179,7 +178,7 @@ parser test (x AND y BUT NOT z OR w)
 ERROR: missing operand inserted; line 48:
 parser test (x AND y AND NOT z)
                          ^
-ERROR: operator "NOT" NOT at beginning of subexpression; subexpression
+ERROR: operator `NOT' NOT at beginning of subexpression; subexpression
        should be of form `operator operand'; line 48:
 parser test (x AND y AND NOT z)
              ^^^^^^^^^^^^^^^^^

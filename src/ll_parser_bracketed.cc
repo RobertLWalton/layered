@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 11 03:02:04 EST 2012
+// Date:	Thu Dec 13 06:51:14 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,8 @@ static min::locatable_gen parsing;
 static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
+static min::locatable_gen indent;
+static min::locatable_gen offset;
 
 static void initialize ( void )
 {
@@ -57,6 +59,8 @@ static void initialize ( void )
     ::bracketed_subexpressions =
         min::new_lab_gen
 	    ( "bracketed", "subexpressions" );
+    ::indent = min::new_str_gen ( "indent" );
+    ::offset = min::new_str_gen ( "offset" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -491,6 +495,11 @@ void BRA::end_block
 // Bracketed Subexpression Pass
 // --------- ------------- ----
 
+static min::packed_vec<min::int32>
+    indent_offset_stack_type
+        ( "ll::parser::bracketed"
+	    "::indent_offset_stack_type" );
+
 static min::uns32 bracketed_pass_stub_disp[] =
 {
     min::DISP ( & BRA::bracketed_pass_struct
@@ -534,6 +543,22 @@ static void bracketed_pass_reset
     bracketed_pass->indent_offset = 2;
 }
 
+static min::gen bracketed_pass_begin_block
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  const min::phrase_position & position,
+	  min::gen name )
+{
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) pass;
+
+    min::push ( bracketed_pass->indent_offset_stack ) =
+	bracketed_pass->indent_offset;
+
+    return min::SUCCESS();
+}
+
+
 static min::gen bracketed_pass_end_block
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -561,6 +586,10 @@ static min::gen bracketed_pass_end_block
         ( bracket_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
 
+    bracketed_pass->indent_offset =
+        min::pop
+	    ( bracketed_pass->indent_offset_stack );
+
     return min::SUCCESS();
 }
 
@@ -579,6 +608,8 @@ BRA::bracketed_pass BRA::place
 
     bracketed_pass->reset =
         ::bracketed_pass_reset;
+    bracketed_pass->begin_block =
+        ::bracketed_pass_begin_block;
     bracketed_pass->end_block =
         ::bracketed_pass_end_block;
     bracketed_pass->parser_command =
@@ -590,6 +621,8 @@ BRA::bracketed_pass BRA::place
     split_table_ref(bracketed_pass) =
 	BRA::create_split_table();
     min::push ( bracketed_pass->split_table, 256 );
+    indent_offset_stack_ref(bracketed_pass) =
+        ::indent_offset_stack_type.new_stub ( 16 );
 
     int index = TAB::find_name
         ( parser->trace_flag_name_table,
@@ -2315,6 +2348,33 @@ static min::gen bracketed_pass_command
     else
         return min::FAILURE();
     ++ i;
+
+    if ( vp[i] == ::indent )
+    {
+	if ( ! define
+	     ||
+	     i + 1 >= size
+	     ||
+	     vp[i+1] != ::offset )
+	    return min::FAILURE();
+
+	else if ( i + 2 >= size
+	          ||
+		  ! min::strto
+	                ( bracketed_pass->indent_offset,
+		          vp[i+2], 10 ) )
+	    return PAR::parse_error
+		( parser, ppvec[i+1],
+		  "expected reasonable sized integer"
+		  " after" );
+
+	else if ( i + 3 < size )
+	    return PAR::parse_error
+		( parser, ppvec[i+2],
+		  "unexpected stuff after" );
+
+	return min::SUCCESS();
+    }
 
     if ( vp[i] == ::bracket )
     {

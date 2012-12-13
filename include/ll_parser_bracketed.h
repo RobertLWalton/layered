@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 10 12:11:38 EST 2012
+// Date:	Thu Dec 13 06:52:41 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -460,6 +460,9 @@ void end_block
 // Bracketed Subexpression Pass
 // --------- ------------- ----
 
+typedef min::packed_vec_insptr<int32>
+        indent_offset_stack;
+
 struct bracketed_pass_struct;
 typedef min::packed_struct_updptr<bracketed_pass_struct>
         bracketed_pass;
@@ -489,6 +492,11 @@ struct bracketed_pass_struct
 	// check computations are signed, but is
 	// always >= 0.  Defaults to 2.
 
+    const ll::parser::bracketed::indent_offset_stack
+            indent_offset_stack;
+	// Stack of indent_offset values saved by
+	// current parser blocks.
+
     ll::parser::table::flags trace_subexpressions;
         // Trace flag named `bracketed subexpressions'
 	// that traces bracketed subexpressions.
@@ -501,6 +509,9 @@ MIN_REF ( ll::parser::table::table, bracket_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::bracketed::split_table,
           split_table,
+          ll::parser::bracketed::bracketed_pass )
+MIN_REF ( ll::parser::bracketed::indent_offset_stack,
+          indent_offset_stack,
           ll::parser::bracketed::bracketed_pass )
 
 // Create an bracketed subexpression pass and place it

@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 11, 2012
+December 14, 2012
  
 \end{center}
 
@@ -2381,6 +2381,8 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  {\tt \bf gluing indentation mark} \\
 	  {\em gluing-indentation-name} {\em parsing-selectors} \\
 	  \end{tabular} \\
+    $|$ & \ttikey{parser define indentation offset}{define indentation offset}
+	  {\em indentation-offset}  \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
@@ -2400,6 +2402,8 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{line-separator-name} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-modifier-list}
+\\[0.5ex]
+\emkey{indentation-offset} ::= unsigned integer
 \end{indpar}
 
 The {\em line-separator-name} may be used to separate
@@ -2461,7 +2465,10 @@ No corrective action is taken; the line is accepted as either ending
 the paragraph if its indentation is less than the paragraph
 indentation, or continuing the current paragraph line if its indentation
 is greater than the paragraph indentation.  Here $N$ is called the
-\key{parser indent offset}, and is a parser parameter.
+\key{parser indent offset}, and is a parser parameter that can be
+changed with the {\tt parser define indentation offset} command.
+If changed in a parser block, the original value is reinstated at the
+end of the block.
 
 When an {\em indentation-mark-name} is recognized, the current parser
 selector set is saved in a stack and

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  8 06:21:54 EST 2012
+// Date:	Mon Dec 31 07:49:11 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,19 @@
 parser print selectors
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements, + subexpression lines ]
+
+parser begin block
+parser test ( x / y ^ z w )
+parser define operator "/" [code, math] infix
+       with binary reformatter with precedence 5100
+parser define operator "^" [code, math] infix
+       with binary reformatter with precedence 5300
+parser test ( x / y ^ z w )
+parser undefine operator "/" [code, math] infix
+       with precedence 5100
+parser test ( x / y ^ z w )
+parser end block
+parser test ( x / y ^ z w )
 
 parser define operator "+" [code, math] infix
        with binary reformatter

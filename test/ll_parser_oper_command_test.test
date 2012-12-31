@@ -2,27 +2,79 @@ parser print selectors:
     [ - parser, + code, - math, - text ]
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements, + subexpression lines ]
-ERROR: in line 16: expected `with precedence ...' after:
+parser begin block
+======= TEST: parser test (x / y ^ z w)
+------- line 16:
+parser test ( x / y ^ z w )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 16:
+parser test ( x / y ^ z w )
+            ^^^^^^^^^^^^^^^
+======= END TEST
+parser define operator "/" [code, math] infix
+       with binary reformatter with precedence 5100
+parser define operator "^" [code, math] infix
+       with binary reformatter with precedence 5300
+======= TEST: parser test (/ x [. ^ y [. z w .] .])
+------- line 21:
+parser test ( x / y ^ z w )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 21:
+parser test ( x / y ^ z w )
+            ^^^^^^^^^^^^^^^
+------- line 21:
+parser test ( x / y ^ z w )
+                  ^^^^^^^
+------- line 21:
+parser test ( x / y ^ z w )
+                      ^^^
+======= END TEST
+parser undefine operator "/" [code, math] infix
+       with precedence 5100
+======= TEST: parser test (^ [. x / y .] [. z w .])
+------- line 24:
+parser test ( x / y ^ z w )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 24:
+parser test ( x / y ^ z w )
+            ^^^^^^^^^^^^^^^
+------- line 24:
+parser test ( x / y ^ z w )
+              ^^^^^
+------- line 24:
+parser test ( x / y ^ z w )
+                      ^^^
+======= END TEST
+parser end block
+======= TEST: parser test (x / y ^ z w)
+------- line 26:
+parser test ( x / y ^ z w )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 26:
+parser test ( x / y ^ z w )
+            ^^^^^^^^^^^^^^^
+======= END TEST
+ERROR: in line 29: expected `with precedence ...' after:
        with binary reformatter
                    ^^^^^^^^^^^
-ERROR: in line 17: operator flags nofix and infix are incompatible:
+ERROR: in line 30: operator flags nofix and infix are incompatible:
 parser define operator "+" [code, math] infix nofix with precedence 3000
                                         ^^^^^^^^^^^
-ERROR: in lines 19-20: `right associative' reformatter incompatible with
+ERROR: in lines 32-33: `right associative' reformatter incompatible with
        nofix operator flag(s):
 parser define operator "+" [code, math] nofix with precedence 3000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with right associative reformatter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 22: undefined reformatter name:
+ERROR: in line 35: undefined reformatter name:
        with none such reformatter
             ^^^^^^^^^
 parser trace [+ keys, + operator subexpressions]
 ======= TEST: parser test (NOT x y)
-------- line 25:
+------- line 38:
 parser test (NOT x y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 25:
+------- line 38:
 parser test (NOT x y)
             ^^^^^^^^^
 ======= END TEST
@@ -32,95 +84,95 @@ parser define operator "NOT" [code, math] nofix with precedence 3000
 parser define operator "BUT NOT" [code, math] nofix with precedence 3000
        with binary reformatter
 ======= TEST: parser test (NOT [. x y .])
-------- line 31:
+------- line 44:
 parser test (NOT x y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 31:
+------- line 44:
 parser test (NOT x y)
             ^^^^^^^^^
-------- line 31:
+------- line 44:
 parser test (NOT x y)
                  ^^^
 ======= END TEST
 ERROR: operator `NOT' NOT at beginning of subexpression; subexpression
-       should be of form `operator operand'; line 32:
+       should be of form `operator operand'; line 45:
 parser test (x NOT y)
              ^^^^^^^
 ERROR: subexpression is too long; subexpression should be of form
-       `operator operand'; line 32:
+       `operator operand'; line 45:
 parser test (x NOT y)
              ^^^^^^^
 ======= TEST: parser test (x NOT y)
-------- line 32:
+------- line 45:
 parser test (x NOT y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 32:
+------- line 45:
 parser test (x NOT y)
             ^^^^^^^^^
 ======= END TEST
 ERROR: too many operators in subexpression; subexpression should be of
-       form `operator operand'; line 33:
+       form `operator operand'; line 46:
 parser test (NOT x NOT y)
              ^^^^^^^^^^^
 ERROR: subexpression is too long; subexpression should be of form
-       `operator operand'; line 33:
+       `operator operand'; line 46:
 parser test (NOT x NOT y)
              ^^^^^^^^^^^
 ======= TEST: parser test (NOT x NOT y)
-------- line 33:
+------- line 46:
 parser test (NOT x NOT y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 33:
+------- line 46:
 parser test (NOT x NOT y)
             ^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test (BUT NOT x y)
-------- line 34:
+------- line 47:
 parser test (x BUT NOT y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 34:
+------- line 47:
 parser test (x BUT NOT y)
             ^^^^^^^^^^^^^
 ======= END TEST
 ERROR: operator `BUT NOT' NOT in middle of subexpression; subexpression
-       should be of form `operand operator operand'; line 35:
+       should be of form `operand operator operand'; line 48:
 parser test (BUT NOT x y)
              ^^^^^^^^^^^
 ERROR: subexpression is too short; subexpression should be of form
-       `operand operator operand'; line 35:
+       `operand operator operand'; line 48:
 parser test (BUT NOT x y)
              ^^^^^^^^^^^
 ======= TEST: parser test (BUT NOT [. x y .])
-------- line 35:
+------- line 48:
 parser test (BUT NOT x y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 35:
+------- line 48:
 parser test (BUT NOT x y)
             ^^^^^^^^^^^^^
-------- line 35:
+------- line 48:
 parser test (BUT NOT x y)
                      ^^^
 ======= END TEST
 parser trace [+ keys, + operator subexpressions]
-OPERATOR `NOT' found; line 37:
+OPERATOR `NOT' found; line 50:
 parser test (NOT x BUT NOT y)
              ^^^
-OPERATOR `BUT NOT' found; line 37:
+OPERATOR `BUT NOT' found; line 50:
 parser test (NOT x BUT NOT y)
                    ^^^^^^^
 ERROR: too many operators in subexpression; subexpression should be of
-       form `operator operand'; line 37:
+       form `operator operand'; line 50:
 parser test (NOT x BUT NOT y)
              ^^^^^^^^^^^^^^^
 ERROR: subexpression is too long; subexpression should be of form
-       `operator operand'; line 37:
+       `operator operand'; line 50:
 parser test (NOT x BUT NOT y)
              ^^^^^^^^^^^^^^^
 ======= TEST: parser test (NOT x BUT NOT y)
-------- line 37:
+------- line 50:
 parser test (NOT x BUT NOT y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 37:
+------- line 50:
 parser test (NOT x BUT NOT y)
             ^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -130,70 +182,70 @@ parser define operator "AND" [code, math] infix with precedence 3100
 parser define operator "OR" [code, math] infix with precedence 3100
        with infix reformatter
 ======= TEST: parser test (AND x y z)
-------- line 44:
+------- line 57:
 parser test (x AND y AND z)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 44:
+------- line 57:
 parser test (x AND y AND z)
             ^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test (NOT [. AND x y .])
-------- line 45:
+------- line 58:
 parser test (NOT x AND y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 45:
+------- line 58:
 parser test (NOT x AND y)
             ^^^^^^^^^^^^^
-------- line 45:
+------- line 58:
 parser test (NOT x AND y)
                  ^^^^^^^
 ======= END TEST
 ERROR: operator `OR' is not the same as first operator `AND' in
        subexpression; all operators must be the same in this
-       subexpression; line 46:
+       subexpression; line 59:
 parser test (x AND y OR z)
              ^^^^^^^^^^^^
 ======= TEST: parser test (AND x y z)
-------- line 46:
+------- line 59:
 parser test (x AND y OR z)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 46:
+------- line 59:
 parser test (x AND y OR z)
             ^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test (BUT NOT [. AND x y .] [. OR z w .])
-------- line 47:
+------- line 60:
 parser test (x AND y BUT NOT z OR w)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 47:
+------- line 60:
 parser test (x AND y BUT NOT z OR w)
             ^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 47:
+------- line 60:
 parser test (x AND y BUT NOT z OR w)
              ^^^^^^^
-------- line 47:
+------- line 60:
 parser test (x AND y BUT NOT z OR w)
                              ^^^^^^
 ======= END TEST
-ERROR: missing operand inserted; line 48:
+ERROR: missing operand inserted; line 61:
 parser test (x AND y AND NOT z)
                          ^
 ERROR: operator `NOT' NOT at beginning of subexpression; subexpression
-       should be of form `operator operand'; line 48:
+       should be of form `operator operand'; line 61:
 parser test (x AND y AND NOT z)
              ^^^^^^^^^^^^^^^^^
 ERROR: subexpression is too long; subexpression should be of form
-       `operator operand'; line 48:
+       `operator operand'; line 61:
 parser test (x AND y AND NOT z)
              ^^^^^^^^^^^^^^^^^
 ======= TEST: parser test ([. AND x y ERROR'OPERAND .] NOT z)
-------- line 48:
+------- line 61:
 parser test (x AND y AND NOT z)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 48:
+------- line 61:
 parser test (x AND y AND NOT z)
             ^^^^^^^^^^^^^^^^^^^
-------- line 48:
+------- line 61:
 parser test (x AND y AND NOT z)
              ^^^^^^^^^^^^
 ======= END TEST
@@ -202,49 +254,49 @@ parser define operator "+" [code, math] infix with precedence 5000
 parser define operator "-" [code, math] infix with precedence 5000
        with sum reformatter
 ======= TEST: parser test (+ x y [. - z .] w [. - v .] [. - u .])
-------- line 54:
+------- line 67:
 parser test ( x + y - z + w - v - u )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 54:
+------- line 67:
 parser test ( x + y - z + w - v - u )
             ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 54:
+------- line 67:
 parser test ( x + y - z + w - v - u )
                     ^^^
-------- line 54:
+------- line 67:
 parser test ( x + y - z + w - v - u )
                             ^^^
-------- line 54:
+------- line 67:
 parser test ( x + y - z + w - v - u )
                                 ^^^
 ======= END TEST
 ======= TEST: parser test (+ [. - x .] y [. - z .])
-------- line 55:
+------- line 68:
 parser test ( - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 55:
+------- line 68:
 parser test ( - x + y - z )
             ^^^^^^^^^^^^^^^
-------- line 55:
+------- line 68:
 parser test ( - x + y - z )
               ^^^
-------- line 55:
+------- line 68:
 parser test ( - x + y - z )
                       ^^^
 ======= END TEST
 parser define operator "+" [code, math] prefix with precedence 10000
 parser define operator "-" [code, math] prefix with precedence 10000
 ======= TEST: parser test (+ [. - x .] y [. - z .])
-------- line 60:
+------- line 73:
 parser test ( - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 60:
+------- line 73:
 parser test ( - x + y - z )
             ^^^^^^^^^^^^^^^
-------- line 60:
+------- line 73:
 parser test ( - x + y - z )
               ^^^
-------- line 60:
+------- line 73:
 parser test ( - x + y - z )
                       ^^^
 ======= END TEST

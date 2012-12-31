@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 14, 2012
+December 30, 2012
  
 \end{center}
 
@@ -2600,6 +2600,8 @@ The general syntax of {\em parser-named-bracket-commands} is:
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser define named bracket}{named bracket!parser define}
+	  {\em named-bracket-name} {\em parsing-selectors} \\
+    $|$ & \ttikey{parser undefine named bracket}{named bracket!parser undefine}
 	  {\em named-bracket-name} {\em parsing-selectors} \\
     \end{tabular}
 \\[0.5ex]

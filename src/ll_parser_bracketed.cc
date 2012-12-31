@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 13 06:51:14 EST 2012
+// Date:	Sun Dec 30 16:51:15 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2877,7 +2877,7 @@ static min::gen bracketed_pass_command
 		    named_opening->named_middle;
 
 		if ( (    named_separator
-		       == min::NULL_STUB )
+		       != min::NULL_STUB )
 		     !=
 		     separator_present )
 		    continue;
@@ -2885,7 +2885,7 @@ static min::gen bracketed_pass_command
 		     &&
 		     named_separator->label != name[1] )
 		    continue;
-		if ( ( named_middle == min::NULL_STUB )
+		if ( ( named_middle != min::NULL_STUB )
 		     !=
 		     middle_present )
 		    continue;

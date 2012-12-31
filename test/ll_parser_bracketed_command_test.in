@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 13 07:56:12 EST 2012
+// Date:	Sun Dec 30 20:02:59 EST 2012
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -46,6 +46,7 @@ parser test this is a paragraph +:
     line 1
     line 2a:: line 2b; line 2c
     last line
+parser test  <X| hi there |X>
 parser define named bracket
     "<" ... "#" ... "|" ... "|" ... ">" [code]
 parser test  <X| hi there |X>
@@ -56,6 +57,10 @@ parser test  <X Y Z : 8| ho ho |X Y Z : 8>
 parser test  <X Y Z # 8 # 8.64 T| ho ho |X Y>
 parser test  <X Y Z (foo, bar)| ho ho |X Y>
 parser test  <X Y Z (foo, bar)| ho ho |X Y Z (foo, bar)>
+parser test  <X| hi there |X>
+parser undefine named bracket
+    "<" ... "#" ... "|" ... "|" ... ">" [code]
+parser test  <X| hi there |X>
 parser trace [+ foo]
 parser trace [+ parser commands]
 parser trace [- parser commands]

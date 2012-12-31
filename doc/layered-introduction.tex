@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 30, 2012
+December 31, 2012
  
 \end{center}
 
@@ -2832,20 +2832,28 @@ The syntax of operator definitions is:
 
 \begin{indpar}
 \emkey{operator-definition} \\
-	\hspace*{0.5in}::= \ttkey{parser define operator}
+    \hspace*{0.5in}\begin{tabular}{rl}
+    ::= & \ttkey{parser define operator}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
 	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
 	    \verb|with precedence| {\em precedence} \\
 	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
-	    \end{tabular}
-	    \\[1ex]
+	    \end{tabular} \\
+    $|$ & \ttkey{parser undefine operator}
+	    \begin{tabular}[t]{@{}l@{}}
+	    {\em operator-name} {\em parsing-selectors} \\
+	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
+	    \verb|with precedence| {\em precedence} \\
+	    \end{tabular} \\
+    \end{tabular}
+\\[1ex]
 \emkey{operator-name} \begin{tabular}[t]{rl}
 		    ::= & {\em simple-operator-name} \\
 		    $|$ & \verb|bracket| {\em bracket-name} \\
 		    $|$ & \verb|indentation mark| {\em indentation-mark-name}
 		    \end{tabular}
-		    \\[1ex]
+\\[1ex]
 {\em simple-operator-name} ::= {\em quoted-name} \\[1ex]
 {\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
 {\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]

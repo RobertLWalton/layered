@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 12:56:40 EST 2012
+// Date:	Tue Jan  1 12:39:25 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -522,7 +522,7 @@ static void oper_parse ( PAR::parser parser,
 		position.begin =
 		    D.first->position.begin;
 		position.end =
-		    current->previous ->position.end;
+		    current->previous->position.end;
 
 		TAB::flags reformatter_trace_flags =
 		       oper_stack->length
@@ -694,6 +694,14 @@ static bool separator_reformatter
 	    }
 	    else separator_should_be_next = false;
 
+	    if ( t->next == next )
+	    {
+	        // We need to do this before removing
+		// operator as we need operator
+		// position.
+		//
+		PAR::put_empty_after ( parser, t );
+	    }
 	    t = t->next;
 	    PAR::free
 		( PAR::remove
@@ -730,9 +738,6 @@ static bool separator_reformatter
 	    t = t->next;
 	}
     }
-
-    if ( ! separator_should_be_next )
-        PAR::put_empty_after ( parser, next->previous );
 
     PAR::attr separator_attr
         ( PAR::dot_separator, separator );

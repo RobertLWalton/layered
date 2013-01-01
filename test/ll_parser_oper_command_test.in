@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 31 07:49:11 EST 2012
+// Date:	Tue Jan  1 08:17:28 EST 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -10,8 +10,11 @@
 
 parser print selectors
 parser trace [+ parser commands, + warnings ]
-parser trace [+ subexpression elements, + subexpression lines ]
+parser trace [+ subexpression elements,
+              + subexpression lines ]
 
+// Test define and undefine
+//
 parser begin block
 parser test ( x / y ^ z w )
 parser define operator "/" [code, math] infix
@@ -25,21 +28,44 @@ parser test ( x / y ^ z w )
 parser end block
 parser test ( x / y ^ z w )
 
+// Test erroneous defines and undefines
+//
 parser define operator "+" [code, math] infix
        with binary reformatter
-parser define operator "+" [code, math] infix nofix with precedence 3000
+parser define operator "+" [code, math]
+       with precedence 3000
        with binary reformatter
-parser define operator "+" [code, math] nofix with precedence 3000
+parser define operator "+" [code, math] infix nofix
+       with precedence 3000
+       with binary reformatter
+parser define operator "+" [code, math] nofix
+       with precedence 3000
        with right associative reformatter
-parser define operator "+" [code, math] nofix with precedence 3000
+parser define operator "+" [code, math] nofix
+       with precedence 3000
        with none such reformatter
+parser undefine operator "+" [code, math] infix
+parser undefine operator "+" [code, math] infix
+       with precedence 3000
+       with binary reformatter
+parser undefine operator "+" [code, math]
+       with precedence 3000
+
+// Operators are introduces lowest precedence first
+
+parser define operator "," [code, math] nofix
+       with precedence 1000
+       with separator reformatter
+parser test (x,y1,z w,,3,)
 
 parser trace [+ keys, + operator subexpressions]
 parser test (NOT x y)
 parser trace [- keys, - operator subexpressions]
-parser define operator "NOT" [code, math] nofix with precedence 3000
+parser define operator "NOT" [code, math] nofix
+       with precedence 3000
        with unary reformatter
-parser define operator "BUT NOT" [code, math] nofix with precedence 3000
+parser define operator "BUT NOT" [code, math] nofix
+       with precedence 3000
        with binary reformatter
 parser test (NOT x y)
 parser test (x NOT y)
@@ -50,9 +76,11 @@ parser trace [+ keys, + operator subexpressions]
 parser test (NOT x BUT NOT y)
 parser trace [- keys, - operator subexpressions]
 
-parser define operator "AND" [code, math] infix with precedence 3100
+parser define operator "AND" [code, math] infix
+       with precedence 3100
        with infix reformatter
-parser define operator "OR" [code, math] infix with precedence 3100
+parser define operator "OR" [code, math] infix
+       with precedence 3100
        with infix reformatter
 parser test (x AND y AND z)
 parser test (NOT x AND y)
@@ -60,14 +88,18 @@ parser test (x AND y OR z)
 parser test (x AND y BUT NOT z OR w)
 parser test (x AND y AND NOT z)
 
-parser define operator "+" [code, math] infix with precedence 5000
+parser define operator "+" [code, math] infix
+       with precedence 5000
        with sum reformatter
-parser define operator "-" [code, math] infix with precedence 5000
+parser define operator "-" [code, math] infix
+       with precedence 5000
        with sum reformatter
 parser test ( x + y - z + w - v - u )
 parser test ( - x + y - z )
 
 
-parser define operator "+" [code, math] prefix with precedence 10000
-parser define operator "-" [code, math] prefix with precedence 10000
+parser define operator "+" [code, math] prefix
+       with precedence 10000
+parser define operator "-" [code, math] prefix
+       with precedence 10000
 parser test ( - x + y - z )

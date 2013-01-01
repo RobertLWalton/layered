@@ -36,7 +36,7 @@ parser test (,x,y,,z,,)
                      ^
 ------- line 12:
 parser test (,x,y,,z,,)
-                     ^
+                      ^
 ======= END TEST
 ======= TEST: parser test (= x [. += y z .])
 ------- line 13:

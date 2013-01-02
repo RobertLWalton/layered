@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  1 08:17:28 EST 2013
+// Date:	Wed Jan  2 00:36:28 EST 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -53,40 +53,46 @@ parser undefine operator "+" [code, math]
 
 // Operators are introduces lowest precedence first
 
-parser define operator "," [code, math] nofix
+parser define operator "=" [code, math] infix
        with precedence 1000
+       with right associative reformatter
+parser define operator "+=" [code, math] infix
+       with precedence 1000
+       with right associative reformatter
+parser define operator "-=" [code, math] infix
+       with precedence 1000
+       with right associative reformatter
+parser define operator "*=" [code, math] infix
+       with precedence 1000
+       with right associative reformatter
+parser define operator "/=" [code, math] infix
+       with precedence 1000
+       with right associative reformatter
+parser test (x = y += z w *= p q r = t v)
+
+parser define operator "," [code, math] nofix
+       with precedence 2000
        with separator reformatter
 parser test (x,y1,z w,,3,)
 
-parser trace [+ keys, + operator subexpressions]
-parser test (NOT x y)
-parser trace [- keys, - operator subexpressions]
-parser define operator "NOT" [code, math] nofix
-       with precedence 3000
-       with unary reformatter
 parser define operator "BUT NOT" [code, math] nofix
        with precedence 3000
        with binary reformatter
-parser test (NOT x y)
-parser test (x NOT y)
-parser test (NOT x NOT y)
-parser test (x BUT NOT y)
-parser test (BUT NOT x y)
-parser trace [+ keys, + operator subexpressions]
-parser test (NOT x BUT NOT y)
-parser trace [- keys, - operator subexpressions]
-
 parser define operator "AND" [code, math] infix
        with precedence 3100
        with infix reformatter
 parser define operator "OR" [code, math] infix
        with precedence 3100
        with infix reformatter
-parser test (x AND y AND z)
+parser define operator "NOT" [code, math] nofix
+       with precedence 3100
+       with unary reformatter
+parser test (x OR y BUT NOT z AND w)
+parser test (x OR y BUT NOT z AND w OR p)
+parser test (NOT x y)
+parser test (x NOT y)
 parser test (NOT x AND y)
-parser test (x AND y OR z)
-parser test (x AND y BUT NOT z OR w)
-parser test (x AND y AND NOT z)
+parser test (x AND NOT y)
 
 parser define operator "+" [code, math] infix
        with precedence 5000

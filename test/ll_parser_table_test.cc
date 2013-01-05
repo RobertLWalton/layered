@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:33:55 EST 2012
+// Date:	Sat Jan  5 10:36:46 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,7 +47,7 @@ int main ( int argc, const char * argv[] )
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass)
 	PAR::default_parser->pass_stack;
-    TAB::table bracket_table =
+    TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
     BRA::split_table split_table =
         bracketed_pass->split_table;

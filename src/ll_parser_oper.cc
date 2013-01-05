@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 09:00:29 EST 2013
+// Date:	Sat Jan  5 10:36:03 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,7 +75,7 @@ static min::uns32 oper_stub_disp[] = {
 
 static min::packed_struct_with_base
 	<OP::oper_struct, TAB::root_struct>
-    oper_type ( "ll::parser::table::oper_type",
+    oper_type ( "ll::parser::oper::oper_type",
 	        ::oper_gen_disp,
 	        ::oper_stub_disp );
 const min::uns32 & OP::OPER = oper_type.subtype;
@@ -88,7 +88,7 @@ void OP::push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  OP::reformatter reformatter,
-	  TAB::table oper_table )
+	  TAB::key_table oper_table )
 {
     min::locatable_var<OP::oper> oper
         ( ::oper_type.new_stub() );
@@ -134,7 +134,7 @@ static void oper_pass_reset
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
-    TAB::table oper_table = oper_pass->oper_table;
+    TAB::key_table oper_table = oper_pass->oper_table;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
     min::pop ( oper_stack, oper_stack->length );
 
@@ -155,7 +155,7 @@ static min::gen oper_pass_end_block
 	  min::gen name )
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
-    TAB::table oper_table = oper_pass->oper_table;
+    TAB::key_table oper_table = oper_pass->oper_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
@@ -190,7 +190,7 @@ OP::oper_pass OP::place
         ( ::oper_pass_type.new_stub() );
 
     OP::oper_table_ref ( oper_pass ) =
-        TAB::create_table ( 1024 );
+        TAB::create_key_table ( 1024 );
     min::push ( oper_pass->oper_table, 1024 );
     OP::oper_stack_ref ( oper_pass ) =
 	::oper_stack_type.new_stub ( 100 );

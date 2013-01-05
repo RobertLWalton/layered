@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 25 21:21:43 EST 2012
+// Date:	Sat Jan  5 10:14:52 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -185,17 +185,17 @@ MIN_REF ( min::gen, label,
 // Key Prefixes
 // --- --------
 
-// A hash table maps keys, which are labels (see Roots
+// A key table maps keys, which are labels (see Roots
 // above), to stacks of hash entries.  A key is a
 // sequence of one or more symbols, each represented
-// in the hash table by a min::gen string value and in
+// in the key table by a min::gen string value and in
 // the input by a symbol token whose value is a min::gen
 // string.
 //
 // A key prefix is an initial segment of a key, viewing
 // the key as a list of key elements.
 //
-// A hash table more specifically takes a key prefix and
+// A key table more specifically takes a key prefix and
 // finds a key_prefix structure whose key is the key
 // prefix.  The key_prefix structure points at the list
 // of hash table entries whose labels equal the key of
@@ -231,10 +231,11 @@ struct key_prefix_struct
 	// Packed_struct subtype is KEY_PREFIX.
 
     uns32 reference_count;
-        // Number of other key_prefixes in this table
-	// whose previous value equals this key prefix.
-	// This key_prefix can be garbage collected
-	// when this == 0 and first == NULL_STUB.
+        // Number of other key_prefixes in this key
+	// table whose previous value equals this key
+	// prefix.  This key_prefix can be garbage
+	// collected when this == 0 and first ==
+	// NULL_STUB.
 
     const min::gen key_element;
         // Last element of the key of this key prefix.
@@ -262,49 +263,50 @@ MIN_REF ( ll::parser::table::root, first,
 MIN_REF ( ll::parser::table::key_prefix, next,
           ll::parser::table::key_prefix )
 
-// A Hash table is just a vector of key_prefix values.
+// A key table is just a vector of key_prefix values.
 // The `length' of this vector MUST BE a power of two.
 //
 typedef min::packed_vec_insptr
-	    <ll::parser::table::key_prefix> table;
+	    <ll::parser::table::key_prefix> key_table;
 
-// Create a hash table of given length which MUST BE a
+// Create a key table of given length which MUST BE a
 // power of two.
 //
-ll::parser::table::table create_table ( uns32 length );
+ll::parser::table::key_table create_key_table
+        ( uns32 length );
 
-// Return the hash table key_prefix with the given key.
+// Return the key table key_prefix with the given key.
 // If none and `create' is true, create the key_prefix.
 // If none and `create' is false, return NULL_STUB.
 //
 ll::parser::table::key_prefix find_key_prefix
 	( min::gen key,
-	  ll::parser::table::table table,
+	  ll::parser::table::key_table key_table,
 	  bool create = false );
 
-// Return the first hash table entry with the given key,
-// and selectors, or NULL_STUB if there is none.
+// Return the first key table hash entry with the given
+// key and selectors, or NULL_STUB if there is none.
 //
 ll::parser::table::root find
 	( min::gen key,
 	  ll::parser::table::flags selectors,
-	  ll::parser::table::table table );
+	  ll::parser::table::key_table key_table );
 
-// Push the given hash table entry into to the top of
-// the hash table stack for key = entry->label.
+// Push the given key table hash entry into to the top
+// of the key table stack for key = entry->label.
 //
-void push ( ll::parser::table::table table,
+void push ( ll::parser::table::key_table key_table,
             ll::parser::table::root entry );
 
-// Remove from the hash table all key_entries that
-// have entry block_level > block_level argument.
-// Be sure to remove related entries like indentation_
-// splits first.  Return the number entries and key
-// prefixes that were `garbage collected', i.e., removed
-// from table.
+// Remove from the key table all hash entries that have
+// entry block_level > block_level argument.  Be sure to
+// remove related entries like indentation_splits first.
+// Return the number of hash entries and key prefixes
+// that were `garbage collected', i.e., removed from
+// table.
 //
 void end_block
-	( ll::parser::table::table table,
+	( ll::parser::table::key_table key_table,
           uns32 block_level,
 	  uns64 & collected_key_prefixes,
 	  uns64 & collected_entries );

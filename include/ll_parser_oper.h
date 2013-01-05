@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  8 04:58:37 EST 2012
+// Date:	Sat Jan  5 10:27:05 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -113,7 +113,7 @@ void push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  ll::parser::oper::reformatter reformatter,
-	  ll::parser::table::table oper_table );
+	  ll::parser::table::key_table oper_table );
 
 // Operator Pass
 // -------- ----
@@ -148,7 +148,7 @@ struct oper_pass_struct
 {
     // Packed_struct subtype is OPER_PASS.
 
-    const ll::parser::table::table oper_table;
+    const ll::parser::table::key_table oper_table;
     const ll::parser::oper::oper_stack oper_stack;
     min::uns32 temporary_count;
         // Number of temporary variables created so far.
@@ -163,7 +163,7 @@ struct oper_pass_struct
 
 MIN_REF ( ll::parser::pass, next,
           ll::parser::oper::oper_pass )
-MIN_REF ( ll::parser::table::table, oper_table,
+MIN_REF ( ll::parser::table::key_table, oper_table,
           ll::parser::oper::oper_pass )
 MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
           ll::parser::oper::oper_pass )

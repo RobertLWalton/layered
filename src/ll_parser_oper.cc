@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  1 12:39:25 EST 2013
+// Date:	Sat Jan  5 09:00:29 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -282,104 +282,123 @@ static void oper_parse ( PAR::parser parser,
 	// Find operator if possible.
 	//
 	PAR::token next_current = current;
-	TAB::key_prefix key_prefix;
-	TAB::root root = PAR::find_entry
-	    ( parser, next_current, key_prefix,
-	      selectors, oper_pass->oper_table,
-	      next );
-	    // If current == next at beginning of loop,
-	    // then find_entry will return NULL_STUB
-	    // and leave next_current == current.
-	OP::oper oper = (OP::oper) root;
-	while ( root != min::NULL_STUB
-		&&
-		( oper == min::NULL_STUB
-		  ||	     
-		  ( oper->flags & OP::PREFIX
-		    &&
-		    ( current != D.first
-		      ||
-		      oper->precedence < D.precedence
-		      ||
-		      ( oper->precedence == D.precedence
-		        &&
-			   (   last_oper_flags
-			     & OP::PREFIX )
-			== 0 )
-		    )
-		  )
-		  ||
-		  ( oper->flags & OP::INFIX
-		    &&
-		    current == D.first
-		    &&
-		    oper->precedence >= D.precedence
-		  )
-		  ||
-		  ( oper->flags & OP::POSTFIX
-		    &&
-		    current == D.first
-		    &&
-		    ( oper->precedence > D.precedence
-		      ||
-		      ( oper->precedence == D.precedence
-		        &&
-			   (   last_oper_flags
-			     & OP::POSTFIX )
-			== 0 )
-		    )
-		  )
-		  ||
-		  ( oper->flags & OP::AFIX
-		    &&
-		    ! check_precedence
-		          ( oper->precedence,
-			    oper_stack ) )
-		  )
-              )
+	OP::oper oper = min::NULL_STUB;
+
+	if ( current != next
+	     &&
+	     current->type != PAR::BRACKETED )
 	{
-	    root = PAR::find_next_entry
+
+	    TAB::key_prefix key_prefix;
+	    TAB::root root = PAR::find_entry
 		( parser, next_current, key_prefix,
-		      selectors, root );
+		  selectors, oper_pass->oper_table,
+		  next );
+		// If current == next at beginning of
+		// loop, then find_entry will return
+		// NULL_STUB and leave next_current ==
+		// current.
 	    oper = (OP::oper) root;
-	}
-
-	// Make OPERATOR token if an operator was found.
-	// Note that next_current ends up pointing after
-	// the OPERATOR token and current is left intact
-	// and points at the new OPERATOR token.  If no
-	// operator was found, current == next_current.
-	//
-	if ( oper != min::NULL_STUB )
-	{
-	    current->position.end =
-	        next_current->previous->position.end;
-	    while ( current != next_current->previous )
-		PAR::free
-		    ( PAR::remove
-			  ( PAR::first_ref(parser),
-			    next_current->previous ) );
-	    current->type = PAR::OPERATOR;
-	    PAR::value_ref ( current ) = oper->label;
-	    MIN_ASSERT
-	      ( current->string == min::NULL_STUB );
-
-	    if ( trace_flags & PAR::TRACE_KEYS )
+	    while ( root != min::NULL_STUB
+		    &&
+		    ( oper == min::NULL_STUB
+		      ||	     
+		      ( oper->flags & OP::PREFIX
+			&&
+			( current != D.first
+			  ||
+			    oper->precedence
+			  < D.precedence
+			  ||
+			  (    oper->precedence
+			    == D.precedence
+			    &&
+			       (   last_oper_flags
+				 & OP::PREFIX )
+			    == 0 )
+			)
+		      )
+		      ||
+		      ( oper->flags & OP::INFIX
+			&&
+			current == D.first
+			&&
+			oper->precedence >= D.precedence
+		      )
+		      ||
+		      ( oper->flags & OP::POSTFIX
+			&&
+			current == D.first
+			&&
+			(   oper->precedence
+			  > D.precedence
+			  ||
+			  (    oper->precedence
+			    == D.precedence
+			    &&
+			       (   last_oper_flags
+				 & OP::POSTFIX )
+			    == 0 )
+			)
+		      )
+		      ||
+		      ( oper->flags & OP::AFIX
+			&&
+			! check_precedence
+			      ( oper->precedence,
+				oper_stack ) )
+		      )
+		  )
 	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "OPERATOR `"
-		    << min::name_pgen ( current->value )
-		    << "' found; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     current->position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      current->position );
+		root = PAR::find_next_entry
+		    ( parser, next_current, key_prefix,
+			  selectors, root );
+		oper = (OP::oper) root;
+	    }
+
+	    // Make OPERATOR token if an operator was
+	    // found.  Note that next_current ends up
+	    // pointing after the OPERATOR token and
+	    // current is left intact and points at the
+	    // new OPERATOR token.  If no operator was
+	    // found, current == next_current.
+	    //
+	    if ( oper != min::NULL_STUB )
+	    {
+		current->position.end =
+		    next_current->previous
+		                ->position.end;
+		while (    current
+		        != next_current->previous )
+		    PAR::free
+			( PAR::remove
+			      ( PAR::first_ref(parser),
+				next_current->
+				    previous ) );
+		current->type = PAR::OPERATOR;
+		PAR::value_ref ( current ) =
+		    oper->label;
+		MIN_ASSERT
+		  ( current->string == min::NULL_STUB );
+
+		if ( trace_flags & PAR::TRACE_KEYS )
+		{
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "OPERATOR `"
+			<< min::name_pgen
+			       ( current->value )
+			<< "' found; "
+			<< min::pline_numbers
+			       ( parser->input_file,
+				 current->position )
+			<< ":" << min::eom;
+		    min::print_phrase_lines
+			( parser->printer,
+			  parser->input_file,
+			  current->position );
+		}
 	    }
 	}
 

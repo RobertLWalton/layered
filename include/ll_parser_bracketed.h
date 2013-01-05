@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 13 06:52:41 EST 2012
+// Date:	Sat Jan  5 10:26:37 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,7 +94,7 @@ ll::parser::bracketed::opening_bracket
 	  const ll::parser::table::new_flags
 	      & new_selectors,
 	  bool full_lines,
-	  ll::parser::table::table bracket_table );
+	  ll::parser::table::key_table bracket_table );
 
 
 // Named Brackets
@@ -309,7 +309,7 @@ ll::parser::bracketed::named_opening
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  ll::parser::table::table bracket_table );
+	  ll::parser::table::key_table bracket_table );
 
 // Indentation Marks
 // ----------- -----
@@ -440,7 +440,7 @@ ll::parser::bracketed::indentation_mark
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
-	  ll::parser::table::table bracket_table,
+	  ll::parser::table::key_table bracket_table,
 	  ll::parser::bracketed
 	            ::split_table split_table =
 	      NULL_STUB );
@@ -474,7 +474,7 @@ struct bracketed_pass_struct
 {
     // Packed_struct subtype is BRACKETED_PASS.
 
-    const ll::parser::table::table bracket_table;
+    const ll::parser::table::key_table bracket_table;
         // Hash table for brackets and indentation
 	// marks.
 
@@ -505,7 +505,7 @@ struct bracketed_pass_struct
 
 MIN_REF ( ll::parser::pass, next,
           ll::parser::bracketed::bracketed_pass )
-MIN_REF ( ll::parser::table::table, bracket_table,
+MIN_REF ( ll::parser::table::key_table, bracket_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::bracketed::split_table,
           split_table,

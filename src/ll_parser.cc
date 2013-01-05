@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 10:39:33 EST 2012
+// Date:	Sat Jan  5 10:33:54 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -399,7 +399,7 @@ void PAR::push_context
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
-	  ll::parser::table::table context_table )
+	  ll::parser::table::key_table context_table )
 {
     min::locatable_var<PAR::context> context
         ( ::context_type.new_stub() );
@@ -511,7 +511,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 			PAR::parser_lexeme ) );
 
 	PAR::context_table_ref(parser) =
-	    TAB::create_table ( 256 );
+	    TAB::create_key_table ( 256 );
 
 	PAR::push_context
 	    ( PAR::parser_lexeme,
@@ -1073,11 +1073,11 @@ min::gen PAR::end_block
 TAB::key_prefix PAR::find_key_prefix
 	( PAR::parser parser,
 	  PAR::token & current,
-	  TAB::table table,
+	  TAB::key_table key_table,
 	  PAR::token next )
 {
     uns32 phash = min::labhash_initial;
-    uns32 table_len = table->length;
+    uns32 table_len = key_table->length;
     uns32 mask = table_len - 1;
     MIN_ASSERT ( ( table_len & mask ) == 0 );
     TAB::key_prefix previous = NULL_STUB;
@@ -1111,7 +1111,7 @@ TAB::key_prefix PAR::find_key_prefix
 	// Locate key prefix.
 	//
 	TAB::key_prefix key_prefix =
-	    table[hash & mask];
+	    key_table[hash & mask];
 	while ( key_prefix != NULL_STUB )
 	{
 	    if ( key_prefix->key_element == e
@@ -1143,12 +1143,12 @@ TAB::root PAR::find_entry
 	  PAR::token & current,
 	  TAB::key_prefix & key_prefix,
 	  TAB::flags selectors,
-	  TAB::table table,
+	  TAB::key_table key_table,
 	  PAR::token next )
 {
     for ( key_prefix =
 	      find_key_prefix
-		  ( parser, current, table, next );
+		  ( parser, current, key_table, next );
           key_prefix != NULL_STUB;
 	  key_prefix = key_prefix->previous,
 	  current = current->previous )

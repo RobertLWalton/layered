@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 26 10:04:18 EST 2012
+// Date:	Sat Jan  5 10:28:19 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -84,24 +84,26 @@ static min::uns32 table_stub_disp[] = {
     0, min::DISP_END };
 
 static min::packed_vec<TAB::key_prefix>
-    table_type
-        ( "ll::parser::table::table_type",
+    key_table_type
+        ( "ll::parser::table::key_table_type",
 	   NULL, ::table_stub_disp );
 
-TAB::table TAB::create_table ( uns32 length )
+TAB::key_table TAB::create_key_table ( uns32 length )
 {
     // Check for power of two.
     //
     assert ( ( length & ( length -1 ) ) == 0 );
 
-    TAB::table table = ::table_type.new_stub ( length );
+    TAB::key_table key_table =
+        ::key_table_type.new_stub ( length );
     for ( uns32 i = 0; i < length; ++ i )
-	min::push ( table ) = NULL_STUB;
-    return table;
+	min::push ( key_table ) = NULL_STUB;
+    return key_table;
 }
 
 TAB::key_prefix TAB::find_key_prefix
-	( min::gen key, TAB::table table, bool create )
+	( min::gen key, TAB::key_table key_table,
+	  bool create )
 {
 
     // Set len to the number of elements in the key and
@@ -125,7 +127,7 @@ TAB::key_prefix TAB::find_key_prefix
     // to the key prefix found for the last element.
     //
     uns32 hash;
-    uns32 table_len = table->length;
+    uns32 table_len = key_table->length;
     uns32 mask = table_len - 1;
     MIN_ASSERT ( ( table_len & mask ) == 0 );
     TAB::key_prefix previous = NULL_STUB;
@@ -162,7 +164,8 @@ TAB::key_prefix TAB::find_key_prefix
 	// key prefix in hash list.
 	//
 	TAB::key_prefix last = NULL_STUB;
-	TAB::key_prefix current = table[hash & mask];
+	TAB::key_prefix current =
+	    key_table[hash & mask];
 	while ( current != NULL_STUB )
 	{
 	    if ( current->key_element == e
@@ -187,7 +190,7 @@ TAB::key_prefix TAB::find_key_prefix
 	TAB::key_prefix kprefix =
 	    ::key_prefix_type.new_stub();
 	if ( last == NULL_STUB )
-	    table[hash & mask] = kprefix;
+	    key_table[hash & mask] = kprefix;
 	else
 	    next_ref(last) = kprefix;
 	key_element_ref(kprefix) = e;
@@ -203,10 +206,10 @@ TAB::key_prefix TAB::find_key_prefix
 
 TAB::root TAB::find
 	( min::gen key, TAB::flags selectors,
-	  TAB::table table )
+	  TAB::key_table key_table )
 {
     TAB::key_prefix key_prefix =
-        TAB::find_key_prefix ( key, table );
+        TAB::find_key_prefix ( key, key_table );
     if ( key_prefix == NULL_STUB ) return NULL_STUB;
 
     for ( TAB::root root = key_prefix->first;
@@ -218,25 +221,27 @@ TAB::root TAB::find
     return NULL_STUB;
 }
 
-void TAB::push ( TAB::table table, TAB::root entry )
+void TAB::push
+        ( TAB::key_table key_table, TAB::root entry )
 {
     min::gen key = entry->label;
     TAB::key_prefix kprefix =
-        find_key_prefix ( key, table, true );
+        find_key_prefix ( key, key_table, true );
     next_ref(entry) = kprefix->first;
     first_ref(kprefix) = entry;
 }
 
 void TAB::end_block
-	( TAB::table table, uns32 block_level,
+	( TAB::key_table key_table, uns32 block_level,
 	  uns64 & collected_key_prefixes,
 	  uns64 & collected_entries )
 {
     collected_key_prefixes = 0;
     collected_entries = 0;
 
-    for ( min::uns32 i = 0; i < table->length; ++ i )
-    for ( TAB::key_prefix key_prefix = table[i];
+    for ( min::uns32 i = 0; i < key_table->length;
+                            ++ i )
+    for ( TAB::key_prefix key_prefix = key_table[i];
           key_prefix != NULL_STUB;
 	  key_prefix = key_prefix->next )
     {
@@ -267,10 +272,11 @@ void TAB::end_block
     }
 
     if ( collected_key_prefixes > 0 )
-    for ( min::uns32 i = 0; i < table->length; ++ i )
+    for ( min::uns32 i = 0; i < key_table->length;
+                            ++ i )
     {
         TAB::key_prefix previous = NULL_STUB;
-	for ( TAB::key_prefix current = table[i];
+	for ( TAB::key_prefix current = key_table[i];
 	      current != NULL_STUB;
 	      current = current->next )
 	{
@@ -281,7 +287,7 @@ void TAB::end_block
 	        // Collect current.
 		//
 		if ( previous == NULL_STUB )
-		    table[i] = current->next;
+		    key_table[i] = current->next;
 		else
 		    next_ref ( previous ) =
 		        current->next;

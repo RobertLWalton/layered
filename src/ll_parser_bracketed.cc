@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 30 16:51:15 EST 2012
+// Date:	Sat Jan  5 10:35:05 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -106,7 +106,7 @@ BRA::opening_bracket
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
 	  bool full_lines,
-	  TAB::table bracket_table )
+	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::opening_bracket> opening
         ( ::opening_bracket_type.new_stub() );
@@ -238,7 +238,7 @@ BRA::named_opening
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  TAB::table bracket_table )
+	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::named_opening>
         named_opening
@@ -403,7 +403,7 @@ BRA::indentation_mark
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
-	  TAB::table bracket_table,
+	  TAB::key_table bracket_table,
 	  BRA::split_table split_table )
 {
     min::locatable_var<BRA::indentation_mark> imark
@@ -527,7 +527,7 @@ static void bracketed_pass_reset
 {
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) pass;
-    TAB::table bracket_table =
+    TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
     BRA::split_table split_table =
         bracketed_pass->split_table;
@@ -567,7 +567,7 @@ static min::gen bracketed_pass_end_block
 {
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) pass;
-    TAB::table bracket_table =
+    TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
     BRA::split_table split_table =
         bracketed_pass->split_table;
@@ -616,7 +616,7 @@ BRA::bracketed_pass BRA::place
         ::bracketed_pass_command;
     bracketed_pass->indent_offset = 2;
     bracket_table_ref(bracketed_pass) =
-	TAB::create_table ( 256 );
+	TAB::create_key_table ( 256 );
     min::push ( bracketed_pass->bracket_table, 256 );
     split_table_ref(bracketed_pass) =
 	BRA::create_split_table();

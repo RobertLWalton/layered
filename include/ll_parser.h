@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  8 06:16:17 EST 2012
+// Date:	Sat Jan  5 10:26:04 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -624,7 +624,7 @@ void push_context
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
-	  ll::parser::table::table context_table );
+	  ll::parser::table::key_table context_table );
 
 } }
 
@@ -794,7 +794,7 @@ struct parser_struct
     ll::parser::table::flags selectors;
         // Top level selectors.
 
-    const ll::parser::table::table context_table;
+    const ll::parser::table::key_table context_table;
         // Context symbol table.
 
     const ll::parser::bracketed::indentation_mark
@@ -868,7 +868,7 @@ MIN_REF ( ll::parser::table::block_stack,
 MIN_REF ( ll::parser::table::name_table,
 		selector_name_table,
           ll::parser::parser )
-MIN_REF ( ll::parser::table::table,
+MIN_REF ( ll::parser::table::key_table,
 		context_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::bracketed::indentation_mark,
@@ -986,7 +986,7 @@ min::gen end_block
     ( ll::parser::parser parser, min::gen name,
       const min::phrase_position & position );
 
-// Locate the key prefix in the hash table that
+// Locate the key prefix in the key table that
 // corresponds to the longest available string of tokens
 // beginning with `current'.  If `next' is NULL_STUB,
 // tokens are added to the token list as necessary, but
@@ -995,7 +995,7 @@ min::gen end_block
 // are considered.  If `next' is NULL_STUB, it is
 // assumed that the token list finally ends with an
 // end-of-file token, and this cannot be part of any
-// hash table entry (because its token value is
+// key table entry (because its token value is
 // MISSING).
 //
 // Returns NULL_STUB if no such key prefix.  If a key
@@ -1006,10 +1006,10 @@ min::gen end_block
 ll::parser::table::key_prefix find_key_prefix
 	( ll::parser::parser parser,
 	  ll::parser::token & current,
-	  ll::parser::table::table table,
+	  ll::parser::table::key_table key_table,
 	  ll::parser::token next = NULL_STUB );
 
-// Locate the hash table entry in the hash table that
+// Locate the key table entry in the key table that
 // corresponds to the longest available string of tokens
 // beginning with `current'.  If `next' is NULL_STUB,
 // tokens are added to the token list as necessary, but
@@ -1017,10 +1017,10 @@ ll::parser::table::key_prefix find_key_prefix
 // Only tokens with a non-MISSING token value are
 // considered.  If `next' is NULL_STUB, it is assumed
 // that the token list finally ends with an end-of-file
-// token, and this cannot be part of any hash table
+// token, and this cannot be part of any key table
 // entry (because its token value is MISSING).
 //
-// Only hash table entries which have a selector bit
+// Only key table hash entries which have a selector bit
 // on are considered.
 //
 // Returns NULL_STUB if no such entry.  If an entry is
@@ -1037,20 +1037,20 @@ ll::parser::table::root find_entry
 	  ll::parser::token & current,
 	  ll::parser::table::key_prefix & key_prefix,
 	  ll::parser::table::flags selectors,
-	  ll::parser::table::table table,
+	  ll::parser::table::key_table key_table,
 	  ll::parser::token next = NULL_STUB );
 
-// Locate the NEXT hash table entry in the hash table
-// after the last entry found by `find_entry' or a
-// previous call to this `find_next_entry' function.
+// Locate the NEXT hash entry in the key table after the
+// last entry found by `find_entry' or a previous call
+// to this `find_next_entry' function.
 //
-// Only hash table entries which have a selector bit
-// on are considered.  ALL_SELECTORS can be used to
-// consider all entries.
+// Only hash entries which have a selector bit on are
+// considered.  ALL_SELECTORS can be used to consider
+// all entries.
 //
 // The entries are searched in the order longest first,
 // and then in newest first order (i.e., most recently
-// pushed to the hash table are the newest).
+// pushed to the key table are the newest).
 //
 // If `shorten' is true, entries with labels of the same
 // length as the last entry before this function was

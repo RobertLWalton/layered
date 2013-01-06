@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  6 04:32:51 EST 2013
+// Date:	Sun Jan  6 06:46:40 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -692,8 +692,6 @@ static bool separator_reformatter
 {
     MIN_ASSERT ( first != next );
 
-    OP::oper_pass oper_pass = (OP::oper_pass) pass;
-
     min::gen separator = first_oper->label;
     bool separator_should_be_next = false;
     for ( PAR::token t = first; t != next; )
@@ -796,8 +794,6 @@ static bool right_associative_reformatter
 	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
-
-    OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -1269,8 +1265,6 @@ static bool sum_reformatter
 	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
-
-    OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and

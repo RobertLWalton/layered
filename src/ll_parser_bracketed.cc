@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:35:05 EST 2013
+// Date:	Sun Jan  6 04:41:51 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -617,7 +617,6 @@ BRA::bracketed_pass BRA::place
     bracketed_pass->indent_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_key_table ( 256 );
-    min::push ( bracketed_pass->bracket_table, 256 );
     split_table_ref(bracketed_pass) =
 	BRA::create_split_table();
     min::push ( bracketed_pass->split_table, 256 );

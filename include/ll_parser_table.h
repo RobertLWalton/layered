@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:14:52 EST 2013
+// Date:	Sun Jan  6 04:18:27 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,7 @@
 //	Flags
 //	Name Tables
 //	Roots
-//	Key Prefixes
+//	Key Tables
 //	Undefineds
 //	Blocks
 
@@ -182,8 +182,8 @@ MIN_REF ( ll::parser::table::root, next,
 MIN_REF ( min::gen, label,
           ll::parser::table::root )
 
-// Key Prefixes
-// --- --------
+// Key Tables
+// --- ------
 
 // A key table maps keys, which are labels (see Roots
 // above), to stacks of hash entries.  A key is a

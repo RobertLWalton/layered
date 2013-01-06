@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:27:05 EST 2013
+// Date:	Sun Jan  6 04:32:11 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -148,8 +148,18 @@ struct oper_pass_struct
 {
     // Packed_struct subtype is OPER_PASS.
 
-    const ll::parser::table::key_table oper_table;
+    const ll::parser::table::key_table
+        oper_table;
+	// Table of normal operators.
+
+    const ll::parser::table::key_table
+        oper_bracket_table;
+	// Table of bracket and indentation mark
+	// operators.  The .initiators are the root
+	// labels.
+
     const ll::parser::oper::oper_stack oper_stack;
+
     min::uns32 temporary_count;
         // Number of temporary variables created so far.
 	// The next temporary variable to be create will
@@ -164,6 +174,9 @@ struct oper_pass_struct
 MIN_REF ( ll::parser::pass, next,
           ll::parser::oper::oper_pass )
 MIN_REF ( ll::parser::table::key_table, oper_table,
+          ll::parser::oper::oper_pass )
+MIN_REF ( ll::parser::table::key_table,
+          oper_bracket_table,
           ll::parser::oper::oper_pass )
 MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
           ll::parser::oper::oper_pass )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:36:03 EST 2013
+// Date:	Sun Jan  6 04:32:51 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,6 +115,8 @@ static min::uns32 oper_pass_stub_disp[] =
 {
     min::DISP ( & OP::oper_pass_struct::next ),
     min::DISP ( & OP::oper_pass_struct::oper_table ),
+    min::DISP ( & OP::oper_pass_struct
+                    ::oper_bracket_table ),
     min::DISP ( & OP::oper_pass_struct::oper_stack ),
     min::DISP_END
 };
@@ -135,6 +137,8 @@ static void oper_pass_reset
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
     TAB::key_table oper_table = oper_pass->oper_table;
+    TAB::key_table oper_bracket_table =
+        oper_pass->oper_bracket_table;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
     min::pop ( oper_stack, oper_stack->length );
 
@@ -143,6 +147,9 @@ static void oper_pass_reset
 
     TAB::end_block
         ( oper_table, 0,
+	  collected_key_prefixes, collected_entries );
+    TAB::end_block
+        ( oper_bracket_table, 0,
 	  collected_key_prefixes, collected_entries );
 
     oper_pass->temporary_count = 0;
@@ -156,6 +163,8 @@ static min::gen oper_pass_end_block
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
     TAB::key_table oper_table = oper_pass->oper_table;
+    TAB::key_table oper_bracket_table =
+        oper_pass->oper_bracket_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
@@ -165,6 +174,9 @@ static min::gen oper_pass_end_block
     assert ( block_level > 0 );
     TAB::end_block
         ( oper_table, block_level - 1,
+	  collected_key_prefixes, collected_entries );
+    TAB::end_block
+        ( oper_bracket_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
 
     return min::SUCCESS();
@@ -191,7 +203,10 @@ OP::oper_pass OP::place
 
     OP::oper_table_ref ( oper_pass ) =
         TAB::create_key_table ( 1024 );
-    min::push ( oper_pass->oper_table, 1024 );
+
+    OP::oper_bracket_table_ref ( oper_pass ) =
+        TAB::create_key_table ( 256 );
+
     OP::oper_stack_ref ( oper_pass ) =
 	::oper_stack_type.new_stub ( 100 );
 

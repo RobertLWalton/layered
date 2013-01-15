@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 30 05:34:05 EST 2012
+// Date:	Tue Jan 15 10:26:34 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -86,6 +86,7 @@ OP::oper_pass PARSTD::init_oper
     min::uns32 forget;
     OP::push_oper
         ( comma,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
@@ -96,6 +97,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -106,6 +108,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( plus_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -116,6 +119,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( minus_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -126,6 +130,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( times_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -136,6 +141,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( divide_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -146,6 +152,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( equal_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -156,6 +163,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( less_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -166,6 +174,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( greater_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -176,6 +185,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( not_equal,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -186,6 +196,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( less_than,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
@@ -196,6 +207,7 @@ OP::oper_pass PARSTD::init_oper
 
     OP::push_oper
         ( greater_than,
+	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,

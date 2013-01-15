@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  6 04:32:11 EST 2013
+// Date:	Tue Jan 15 06:19:39 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,18 +95,28 @@ struct oper_struct
 
     min::uns32 flags;
     min::int32 precedence;
+    min::gen terminator;
+        // For an entry in the oper_bracket_table, this
+	// is the terminator required of a BRACKETTED
+	// expression in order for that to be recognized
+	// as an operator.  The root label is the
+	// required initiator.  Not used for an entry
+	// in the oper_table.
     ll::parser::oper::reformatter reformatter;
     	// NULL if none.
 };
 
 MIN_REF ( min::gen, label, ll::parser::oper::oper )
+MIN_REF ( min::gen, terminator, ll::parser::oper::oper )
 
 // Create an operator definition entry with given
-// label, selectors, flags, precedence, and reformatter,
-// and push it into the given oper_table.
+// label, terminator (MISSING except for oper_bracket_
+// table), selectors, flags, precedence, and
+// reformatter, and push it into the given oper_table.
 //
 void push_oper
 	( min::gen oper_label,
+	  min::gen terminator,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  6 06:46:40 EST 2013
+// Date:	Tue Jan 15 08:06:00 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,9 @@ min::locatable_gen OP::afix;
 min::locatable_gen OP::nofix;
 static min::locatable_gen operator_subexpressions;
 static min::locatable_gen oper;
+static min::locatable_gen bracket;
+static min::locatable_gen indentation;
+static min::locatable_gen mark;
 static min::locatable_gen precedence;
 static min::locatable_gen reformatter;
 
@@ -57,6 +60,9 @@ static void initialize ( void )
         min::new_lab_gen
 	    ( "operator", "subexpressions" );
     ::oper = min::new_str_gen ( "operator" );
+    ::bracket = min::new_str_gen ( "bracket" );
+    ::indentation = min::new_str_gen ( "indentation" );
+    ::mark = min::new_str_gen ( "mark" );
     ::precedence = min::new_str_gen ( "precedence" );
     ::reformatter = min::new_str_gen ( "reformatter" );
 }
@@ -67,6 +73,7 @@ static min::initializer initializer ( ::initialize );
 
 static min::uns32 oper_gen_disp[] = {
     min::DISP ( & OP::oper_struct::label ),
+    min::DISP ( & OP::oper_struct::terminator ),
     min::DISP_END };
 
 static min::uns32 oper_stub_disp[] = {
@@ -82,6 +89,7 @@ const min::uns32 & OP::OPER = oper_type.subtype;
 
 void OP::push_oper
 	( min::gen oper_label,
+	  min::gen terminator,
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
@@ -94,6 +102,7 @@ void OP::push_oper
         ( ::oper_type.new_stub() );
 
     label_ref(oper) = oper_label;
+    terminator_ref(oper) = terminator;
     oper->selectors = selectors;
     oper->block_level = block_level;
     oper->position = position;
@@ -1397,6 +1406,11 @@ static min::gen oper_pass_command
     //
     bool define;
         // True if define, false if undefine.
+    bool bracket = false;
+        // True if bracket, false if not.
+    bool indentation_mark = false;
+        // True if indentation mark, false if not.
+
     min::uns32 i = 1;
         // vp[i] is next lexeme or subexpression to
 	// scan in the define/undefine expression.
@@ -1413,6 +1427,21 @@ static min::gen oper_pass_command
 	++ i;
     else
         return min::FAILURE();
+
+    if ( vp[i] == ::bracket )
+    {
+	++ i;
+	bracket = true;
+    }
+    else if ( vp[i] == ::indentation
+              &&
+	      i + 1 < size
+	      &&
+	      vp[i+1] == ::mark )
+    {
+        i += 2;
+	indentation_mark = true;
+    }
 
     // Scan operator names.
     //
@@ -1461,10 +1490,18 @@ static min::gen oper_pass_command
 	++ i;
     }
 
-    if ( number_of_names < 1 )
+    if ( number_of_names < ( bracket ? 2 : 1 ) )
 	return PAR::parse_error
 	    ( parser, ppvec->position,
 	      "too few quoted names in" );
+    else if ( ! bracket && number_of_names > 1 )
+	return PAR::parse_error
+	    ( parser, ppvec->position,
+	      "too many quoted names in" );
+    else if ( indentation_mark )
+        name[1] = PAR::new_line;
+    else if ( ! bracket )
+        name[1] = min::MISSING();
 
     // Scan selectors.
     //
@@ -1661,12 +1698,14 @@ static min::gen oper_pass_command
 
     if ( define )
 	OP::push_oper
-	    ( name[0],
+	    ( name[0], name[1],
 	      selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      oper_flags, precedence, reformatter,
-	      oper_pass->oper_table );
+	      bracket || indentation_mark ?
+	          oper_pass->oper_bracket_table :
+		  oper_pass->oper_table );
 
     else // if ( ! define )
     {
@@ -1679,7 +1718,9 @@ static min::gen oper_pass_command
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
 	        ( name[0],
-		  oper_pass->oper_table );
+	          bracket || indentation_mark ?
+		      oper_pass->oper_bracket_table :
+		      oper_pass->oper_table );
 
 	min::uns32 count = 0;
 
@@ -1702,6 +1743,8 @@ static min::gen oper_pass_command
 	    if ( oper->precedence != precedence )
 	        continue;
 	    if ( oper->flags != oper_flags )
+	        continue;
+	    if ( oper->terminator != name[1] )
 	        continue;
 
 	    TAB::push_undefined

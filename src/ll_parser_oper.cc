@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 15 08:06:00 EST 2013
+// Date:	Sat Jan 26 12:01:18 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -308,20 +308,21 @@ static void oper_parse ( PAR::parser parser,
 	PAR::token next_current = current;
 	OP::oper oper = min::NULL_STUB;
 
-	if ( current != next
-	     &&
-	     current->type != PAR::BRACKETED )
+	if ( current != next )
 	{
+	    bool bracketed =
+	        ( current->type == PAR::BRACKETED );
 
 	    TAB::key_prefix key_prefix;
-	    TAB::root root = PAR::find_entry
-		( parser, next_current, key_prefix,
-		  selectors, oper_pass->oper_table,
-		  next );
-		// If current == next at beginning of
-		// loop, then find_entry will return
-		// NULL_STUB and leave next_current ==
-		// current.
+	    TAB::root root = min::NULL_STUB;
+	    
+	    if ( bracketed ) {}
+	    else
+	        root = PAR::find_entry
+		    ( parser, next_current, key_prefix,
+		      selectors, oper_pass->oper_table,
+		      next );
+
 	    oper = (OP::oper) root;
 	    while ( root != min::NULL_STUB
 		    &&
@@ -374,9 +375,14 @@ static void oper_parse ( PAR::parser parser,
 		      )
 		  )
 	    {
-		root = PAR::find_next_entry
-		    ( parser, next_current, key_prefix,
-			  selectors, root );
+	        if ( bracketed )
+		    root = root->next;
+		else
+		    root = PAR::find_next_entry
+			( parser, next_current,
+			          key_prefix,
+			          selectors, root );
+
 		oper = (OP::oper) root;
 	    }
 
@@ -389,39 +395,46 @@ static void oper_parse ( PAR::parser parser,
 	    //
 	    if ( oper != min::NULL_STUB )
 	    {
-		current->position.end =
-		    next_current->previous
-		                ->position.end;
-		while (    current
-		        != next_current->previous )
-		    PAR::free
-			( PAR::remove
-			      ( PAR::first_ref(parser),
-				next_current->
-				    previous ) );
-		current->type = PAR::OPERATOR;
-		PAR::value_ref ( current ) =
-		    oper->label;
-		MIN_ASSERT
-		  ( current->string == min::NULL_STUB );
-
-		if ( trace_flags & PAR::TRACE_KEYS )
+	        if ( bracketed )
+		    current->type = PAR::OPERATOR;
+		else
 		{
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "OPERATOR `"
-			<< min::name_pgen
-			       ( current->value )
-			<< "' found; "
-			<< min::pline_numbers
-			       ( parser->input_file,
-				 current->position )
-			<< ":" << min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  parser->input_file,
-			  current->position );
+		    current->position.end =
+			next_current->previous
+				    ->position.end;
+		    while (    current
+			    != next_current->previous )
+			PAR::free
+			    ( PAR::remove
+				  ( PAR::first_ref
+				             (parser),
+				    next_current->
+					previous ) );
+		    current->type = PAR::OPERATOR;
+		    PAR::value_ref ( current ) =
+			oper->label;
+		    MIN_ASSERT
+		      (    current->string
+		        == min::NULL_STUB );
+
+		    if ( trace_flags & PAR::TRACE_KEYS )
+		    {
+			parser->printer
+			    << min::bom
+			    << min::set_indent ( 7 )
+			    << "OPERATOR `"
+			    << min::name_pgen
+				   ( current->value )
+			    << "' found; "
+			    << min::pline_numbers
+				   ( parser->input_file,
+				     current->position )
+			    << ":" << min::eom;
+			min::print_phrase_lines
+			    ( parser->printer,
+			      parser->input_file,
+			      current->position );
+		    }
 		}
 	    }
 	}

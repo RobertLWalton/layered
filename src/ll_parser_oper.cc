@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 26 12:01:18 EST 2013
+// Date:	Sun Jan 27 04:03:17 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -315,15 +315,43 @@ static void oper_parse ( PAR::parser parser,
 
 	    TAB::key_prefix key_prefix;
 	    TAB::root root = min::NULL_STUB;
+	    min::gen initiator, terminator;
 	    
-	    if ( bracketed ) {}
+	    if ( bracketed )
+	    {
+		min::obj_vec_ptr vp ( current->value );
+		min::attr_ptr ap ( vp );
+
+		min::locate ( ap, PAR::dot_initiator );
+		initiator = min::get ( ap );
+		min::locate ( ap, PAR::dot_terminator );
+		terminator = min::get ( ap );
+
+	        root = TAB::find
+		    ( initiator, selectors,
+		      oper_pass->oper_bracket_table );
+		oper = (OP::oper) root;
+		while ( oper != min::NULL_STUB
+		        &&
+			(    (   oper->selectors
+			       & selectors )
+			  == 0
+			  ||
+			     oper->terminator
+			  != terminator ) )
+		{
+		    root = root->next;
+		    oper = (OP::oper) root;
+		}
+	    }
 	    else
+	    {
 	        root = PAR::find_entry
 		    ( parser, next_current, key_prefix,
 		      selectors, oper_pass->oper_table,
 		      next );
-
-	    oper = (OP::oper) root;
+		oper = (OP::oper) root;
+	    }
 	    while ( root != min::NULL_STUB
 		    &&
 		    ( oper == min::NULL_STUB
@@ -376,14 +404,29 @@ static void oper_parse ( PAR::parser parser,
 		  )
 	    {
 	        if ( bracketed )
-		    root = root->next;
+		{
+		    do
+		    {
+			root = root->next;
+			oper = (OP::oper) root;
+		    }
+		    while ( oper != min::NULL_STUB
+			    &&
+			    (    (   oper->selectors
+				   & selectors )
+			      == 0
+			      ||
+			         oper->terminator
+			      != terminator ) );
+		}
 		else
+		{
 		    root = PAR::find_next_entry
 			( parser, next_current,
 			          key_prefix,
 			          selectors, root );
-
-		oper = (OP::oper) root;
+		    oper = (OP::oper) root;
+		}
 	    }
 
 	    // Make OPERATOR token if an operator was

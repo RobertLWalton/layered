@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  2 01:26:38 EST 2013
+// Date:	Tue Apr 16 07:48:22 EDT 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -131,6 +131,7 @@ parser define operator "-" [code, math] infix
        with sum reformatter
 parser test ( x + y - z + w - v - u )
 parser test ( - x + y - z )
+parser test ( x < y + 5 <= z )
 
 parser define operator "/" [code, math] infix
        with precedence 5100
@@ -154,3 +155,6 @@ parser define operator "@" [code, math] prefix
 parser test ( - x + y - z )
 parser test ( p * - x + y - z )
 parser test ( @ x + y - @ z )
+
+// Temporary tests
+

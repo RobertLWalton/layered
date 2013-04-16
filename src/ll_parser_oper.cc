@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 27 04:03:17 EST 2013
+// Date:	Tue Apr 16 07:39:37 EDT 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1211,12 +1211,14 @@ static bool compare_reformatter
 	    // operand2.
 	    //
 	    min::phrase_position position2 =
+	        operand2->position;
+	    min::phrase_position before_position2 =
 	        { operand2->position.begin,
 	          operand2->position.begin };
 	    PAR::token t =
 	        PAR::new_token ( LEXSTD::word_t  );
 	    PAR::value_ref ( t ) = OP::dollar;
-	    t->position = position2;
+	    t->position = before_position2;
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
 
@@ -1224,7 +1226,7 @@ static bool compare_reformatter
 	    PAR::value_ref ( t ) =
 	        min::new_num_gen
 		    ( oper_pass->temporary_count ++ );
-	    t->position = position2;
+	    t->position = before_position2;
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
 
@@ -1233,7 +1235,7 @@ static bool compare_reformatter
 	    PAR::token t2 = operand2->previous;
 	    t = PAR::new_token ( t2->type );
 	    PAR::value_ref ( t ) = t2->value;
-	    t->position = t2->position;
+	    t->position = before_position2;
 	    PAR::put_before
 		( first_ref(parser),
 		  operand2->next, t );
@@ -1241,7 +1243,7 @@ static bool compare_reformatter
 	    t2 = operand2->previous->previous;
 	    t = PAR::new_token ( t2->type );
 	    PAR::value_ref ( t ) = t2->value;
-	    t->position = t2->position;
+	    t->position = before_position2;
 	    PAR::put_before
 		( first_ref(parser),
 		  operand2->next, t );
@@ -1255,7 +1257,7 @@ static bool compare_reformatter
 	    PAR::compact
 		( parser, pass->next, selectors,
 		  PAR::BRACKETABLE, trace_flags,
-		  operand2, t, operand2->position,
+		  operand2, t, position2,
 		  1, & oper_attr );
 
 	    // Compact next-operand1 = ( $ T )
@@ -1263,7 +1265,7 @@ static bool compare_reformatter
 	    PAR::compact
 		( parser, pass->next, selectors,
 		  PAR::BRACKETABLE, trace_flags,
-		  t, t->next->next, operand2->position,
+		  t, t->next->next, position2,
 		  1, & oper_attr );
 	}
 

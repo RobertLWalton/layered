@@ -78,7 +78,7 @@ ERROR: in line 46: undefined reformatter name:
 ERROR: in line 47: expected `with precedence ...' after:
 parser undefine operator "+" [code, math] infix
                                           ^^^^^
-ERROR: in lines 48-50: did NOT expect `with ... reformater':
+ERROR: in lines 48-50: did NOT expect `with ... reformatter':
 parser undefine operator "+" [code, math] infix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with precedence 3000
@@ -472,55 +472,78 @@ parser test ( x ^ 2 * y ^ 2 / y * z )
 ======= END TEST
 parser define operator "+" [code, math] prefix
        with precedence 10000
+       with prefix reformatter
 parser define operator "-" [code, math] prefix
        with precedence 10000
+       with prefix reformatter
 parser define operator "@" [code, math] prefix
        with precedence 10000
+       with prefix reformatter
 ======= TEST: parser test (+ [. - x .] y [. - z .])
-------- line 155:
+------- line 158:
 parser test ( - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 155:
+------- line 158:
 parser test ( - x + y - z )
             ^^^^^^^^^^^^^^^
-------- line 155:
+------- line 158:
 parser test ( - x + y - z )
               ^^^
-------- line 155:
+------- line 158:
 parser test ( - x + y - z )
                       ^^^
 ======= END TEST
 ======= TEST: parser test (+ [. * p [. - x .] .] y [. - z .])
-------- line 156:
+------- line 159:
 parser test ( p * - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 156:
+------- line 159:
 parser test ( p * - x + y - z )
             ^^^^^^^^^^^^^^^^^^^
-------- line 156:
+------- line 159:
 parser test ( p * - x + y - z )
               ^^^^^^^
-------- line 156:
+------- line 159:
 parser test ( p * - x + y - z )
                   ^^^
-------- line 156:
+------- line 159:
 parser test ( p * - x + y - z )
                           ^^^
 ======= END TEST
 ======= TEST: parser test (+ [. @ x .] y [. - [. @ z .] .])
-------- line 157:
+------- line 160:
 parser test ( @ x + y - @ z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 157:
+------- line 160:
 parser test ( @ x + y - @ z )
             ^^^^^^^^^^^^^^^^^
-------- line 157:
+------- line 160:
 parser test ( @ x + y - @ z )
               ^^^
-------- line 157:
+------- line 160:
 parser test ( @ x + y - @ z )
                       ^^^^^
-------- line 157:
+------- line 160:
 parser test ( @ x + y - @ z )
                         ^^^
+======= END TEST
+======= TEST: parser test (+ [. - [. + [. - [. x y .] .] .] .])
+------- line 161:
+parser test ( + - + - x y )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 161:
+parser test ( + - + - x y )
+            ^^^^^^^^^^^^^^^
+------- line 161:
+parser test ( + - + - x y )
+                ^^^^^^^^^
+------- line 161:
+parser test ( + - + - x y )
+                  ^^^^^^^
+------- line 161:
+parser test ( + - + - x y )
+                    ^^^^^
+------- line 161:
+parser test ( + - + - x y )
+                      ^^^
 ======= END TEST

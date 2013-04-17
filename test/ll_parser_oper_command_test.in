@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 16 07:48:22 EDT 2013
+// Date:	Tue Apr 16 09:44:33 EDT 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -148,13 +148,17 @@ parser test ( x ^ 2 * y ^ 2 / y * z )
 
 parser define operator "+" [code, math] prefix
        with precedence 10000
+       with prefix reformatter
 parser define operator "-" [code, math] prefix
        with precedence 10000
+       with prefix reformatter
 parser define operator "@" [code, math] prefix
        with precedence 10000
+       with prefix reformatter
 parser test ( - x + y - z )
 parser test ( p * - x + y - z )
 parser test ( @ x + y - @ z )
+parser test ( + - + - x y )
 
 // Temporary tests
 

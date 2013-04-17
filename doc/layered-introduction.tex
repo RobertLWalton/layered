@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 2, 2013
+April 16, 2013
  
 \end{center}
 
@@ -3017,7 +3017,7 @@ precedence & reformatter	& type	& operator	& meaning
 							& multiplication \\
 5300	& \ttkey{binary}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
 							& exponentiation \\
-10000	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
+10000	& \ttkey{prefix}	& \tt prefix	&  \ttnbkey{-}	& minus \\
 	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
 	& 			& \tt prefix	&  \ttnbkey{@}	& object
 	                                                          identifier \\
@@ -3226,6 +3226,28 @@ by an operand.  The subexpression is left unchanged.  Examples:
 \end{indpar}
 
 \bigskip
+
+\ttmkey{prefix}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{@}
+
+\begin{indpar}[0.5em]
+May be used with {\tt prefix} operators.
+
+The subexpression must consist of one or more operators followed by a single
+operand.  If there is more than one operator, sub-subexpressions of the
+form `operator operand' at the end of the subexpression are
+recursively parenthesized until just two elements
+are left in the subexpression.  Examples:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|- - x| & $\Longrightarrow$ & \verb|- (- x)| \\
+\verb|+ - x| & $\Longrightarrow$ & \verb|+ (- x)| \\
+\verb|- @ x| & $\Longrightarrow$ & \verb|- (@ x)| \\
+\verb|- @ @ x| & $\Longrightarrow$ & \verb|- (@ (@ x))| \\
+\end{tabular}
+\end{indpar}
+
+\bigskip
+
 \ttmkey{binary}{reformatter} \hfill \NBOP{BUT NOT} ~~~ \NBOP{/}
 					           ~~~ \NBOP{\CIRCUMFLEX}
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 16 07:39:37 EDT 2013
+// Date:	Wed Apr 17 01:08:19 EDT 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -995,6 +995,95 @@ static bool unary_reformatter
     return true;
 }
 
+static bool prefix_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  TAB::flags trace_flags,
+	  OP::oper first_oper,
+	  min::phrase_position & position )
+{
+    MIN_ASSERT ( first != next );
+
+    // There may be two or more tokens, with all but the
+    // last being operators.  If there is more than one
+    // operator, subexpressions are created by recur-
+    // sively taking `operator operand' from the end of
+    // the list and replacing it by a subexpression.
+
+    if ( next->previous->type == PAR::OPERATOR )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: subexpression ends with an"
+	             " the operator `"
+	    << min::name_pgen
+	           ( next->previous->value )
+	    <<	     "';"
+	    << min::eol
+	    << "       error operand inserted at end of"
+	             " subexpression; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      position );
+	++ parser->error_count;
+
+	PAR::token t = PAR::new_token ( LEXSTD::word_t );
+	t->position.begin = next->position.begin;
+	t->position.end = next->position.begin;
+	PAR::value_ref ( t ) = PAR::error_operand;
+	PAR::put_before ( first_ref(parser), next, t );
+    }
+
+    while ( next->previous->previous != first
+            &&
+	       next->previous->previous->type
+	    == PAR::OPERATOR )
+    {
+	PAR::token t2 = next->previous;
+	PAR::token t1 = t2->previous;
+        min::phrase_position position =
+	    { t1->position.begin,
+	      t2->position.end };
+	PAR::attr oper_attr
+	    ( PAR::dot_oper, t1->value );
+	PAR::compact
+	    ( parser, pass->next, selectors,
+	      PAR::BRACKETABLE, trace_flags,
+	      t1, next, position, 1, & oper_attr );
+    }
+
+    if ( next->previous->previous->type != PAR::OPERATOR )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: subexpression contains"
+	             " non-operator as a non-last"
+		     " element; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     next->previous->previous
+		         ->position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      next->previous->previous->position );
+	++ parser->error_count;
+    }
+
+    return true;
+}
+
 static bool binary_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1215,8 +1304,8 @@ static bool compare_reformatter
 	    min::phrase_position before_position2 =
 	        { operand2->position.begin,
 	          operand2->position.begin };
-	    PAR::token t =
-	        PAR::new_token ( LEXSTD::word_t  );
+	    min::locatable_var<PAR::token> t
+	        ( PAR::new_token ( LEXSTD::word_t  ) );
 	    PAR::value_ref ( t ) = OP::dollar;
 	    t->position = before_position2;
 	    PAR::put_before
@@ -1419,6 +1508,12 @@ static void reformatter_table_initialize ( void )
     OP::push_reformatter
         ( unary, OP::PREFIX + OP::NOFIX,
 	  ::unary_reformatter );
+
+    min::locatable_gen prefix
+        ( min::new_str_gen ( "prefix" ) );
+    OP::push_reformatter
+        ( prefix, OP::PREFIX,
+	  ::prefix_reformatter );
 
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
@@ -1771,7 +1866,7 @@ static min::gen oper_pass_command
 	    return PAR::parse_error
 		( parser, ppvec->position,
 		  "did NOT expect"
-		  " `with ... reformater'" );
+		  " `with ... reformatter'" );
 
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix

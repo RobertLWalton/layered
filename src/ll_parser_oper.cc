@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 17 01:08:19 EDT 2013
+// Date:	Wed Apr 17 20:05:17 EDT 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1036,7 +1036,8 @@ static bool prefix_reformatter
 	      position );
 	++ parser->error_count;
 
-	PAR::token t = PAR::new_token ( LEXSTD::word_t );
+	PAR::token t =
+	    PAR::new_token ( LEXSTD::word_t );
 	t->position.begin = next->position.begin;
 	t->position.end = next->position.begin;
 	PAR::value_ref ( t ) = PAR::error_operand;
@@ -1061,7 +1062,8 @@ static bool prefix_reformatter
 	      t1, next, position, 1, & oper_attr );
     }
 
-    if ( next->previous->previous->type != PAR::OPERATOR )
+    if (    next->previous->previous->type
+         != PAR::OPERATOR )
     {
 	parser->printer
 	    << min::bom
@@ -1304,8 +1306,8 @@ static bool compare_reformatter
 	    min::phrase_position before_position2 =
 	        { operand2->position.begin,
 	          operand2->position.begin };
-	    min::locatable_var<PAR::token> t
-	        ( PAR::new_token ( LEXSTD::word_t  ) );
+	    PAR::token t =
+	        PAR::new_token ( LEXSTD::word_t  );
 	    PAR::value_ref ( t ) = OP::dollar;
 	    t->position = before_position2;
 	    PAR::put_before

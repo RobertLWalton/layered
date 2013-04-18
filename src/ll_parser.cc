@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:33:54 EST 2013
+// Date:	Wed Apr 17 10:17:20 EDT 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -260,22 +260,49 @@ static min::packed_struct<PAR::token_struct>
                  ::token_gen_disp,
                  ::token_stub_disp );
 
-// Free list of tokens.
+// Free and allocated lists of tokens.
 //
-static min::locatable_var<PAR::token> free_tokens;
+static min::locatable_var<PAR::token>
+    free_list_first;
+min::locatable_var<PAR::token>
+    PAR::internal::allocated_list_first;
 
-static int number_free_tokens = 0;
+static min::int32 number_free_tokens = 0;
+    // Does not count first element on list which is
+    // never removed.
 
-static int max_token_free_list_size = 1000;
+static min::int32 max_token_free_list_size = 1000;
+
+static void token_initialize ( void )
+{
+    PAR::token t;
+    ::free_list_first = t = ::token_type.new_stub();
+    next_ref ( t ) = t;
+    previous_ref ( t ) = t;
+    PAR::internal::allocated_list_first = t =
+        ::token_type.new_stub();
+    next_ref ( t ) = t;
+    previous_ref ( t ) = t;
+}
+
+static min::initializer
+       token_initializer ( ::token_initialize );
 
 PAR::token PAR::new_token ( min::uns32 type )
 {
-    min::locatable_var<PAR::token> token
-        ( remove ( ::free_tokens ) );
-    if ( token == NULL_STUB )
+    PAR::token token =
+        ::free_list_first->next;
+    if ( token == token->next )
         token = ::token_type.new_stub();
     else
-        -- ::number_free_tokens;
+    {
+	PAR::internal::remove ( token );
+	-- number_free_tokens;
+    }
+
+    PAR::internal::put_before
+        ( PAR::internal::allocated_list_first, token );
+
     value_ref(token) = min::MISSING();
     string_ref(token) = NULL_STUB;
     token->type = type;
@@ -284,20 +311,21 @@ PAR::token PAR::new_token ( min::uns32 type )
 
 void PAR::free ( PAR::token token )
 {
+    string_ref(token) = free_string ( token->string );
+    value_ref(token) = min::MISSING();
+
+    PAR::internal::remove ( token );
     if ( ::max_token_free_list_size >= 0
          &&
             ::number_free_tokens
 	 >= ::max_token_free_list_size )
-    {
-	free_string ( token->string );
         min::deallocate ( token );
-	return;
+    else
+    {
+	PAR::internal::put_before
+	    ( ::free_list_first, token );
+	++ ::number_free_tokens;
     }
-
-    value_ref(token) = min::MISSING();
-    string_ref(token) = free_string ( token->string );
-    put_at_end ( ::free_tokens, token );
-    ++ ::number_free_tokens;
 }
 
 void PAR::set_max_token_free_list_size ( int n )
@@ -305,7 +333,10 @@ void PAR::set_max_token_free_list_size ( int n )
     ::max_token_free_list_size = n;
     if ( n >= 0 ) while ( ::number_free_tokens > n )
     {
-        min::deallocate ( remove ( ::free_tokens ) );
+	PAR::token token = ::free_list_first->next;
+	MIN_ASSERT ( token != ::free_list_first );
+	PAR::internal::remove ( token );
+        min::deallocate ( token );
 	-- ::number_free_tokens;
     }
 }

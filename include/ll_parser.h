@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:26:04 EST 2013
+// Date:	Wed Apr 17 06:55:52 EDT 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -228,14 +228,47 @@ MIN_REF ( ll::parser::token, next,
 MIN_REF ( ll::parser::token, previous,
           ll::parser::token )
 
-// Allocate a new token of the given type.  Value is set
-// to min::MISSING() and string to min::NULL_STUB.
+// To avoid garbage collection, tokens are always on one
+// of the following lists: free list, allocated list, or
+// one of many working lists (e.g., the list of all
+// tokens input from a file).  The free and allocated
+// lists are hidden, and the working lists are defined
+// by the user using a variable of the form
+//
+//   min::locatable_var<ll::parser::token>
+//       working_list_first;
+//
+// or equivalent pointing to the first element of the
+// working list.
+//
+// Allocation moves a token from the free list to the
+// allocated list.  Putting a token on an working list
+// moves the token from the allocated list to the
+// working list.  Removing a token moves the token from
+// a working list to the allocated list.  Freeing the
+// token moves the token from the allocated list to the
+// free list.  If the free list gets too long, tokens on
+// it are removed and forgotten, allowing them to be
+// garbage collected.  If the free list gets to short
+// the regular memory allocator is called to create a
+// token.
+//
+// To make inline code more efficient by eliminating
+// internal checks, the free and allocated lists are
+// initialized to non-empty and the first token on
+// these lists is never changed or removed.
+
+// Allocate a new token of the given type by moving the
+// token from the free list to the allocated list and
+// setting its type.  Its value is set to min::MISSING()
+// and its string to min::NULL_STUB.
 //
 ll::parser::token new_token ( uns32 type );
 
-// Free token and return NULL_STUB.  Token is put on
-// internal free list after its value is set to MISSING
-// and its string is freed and set to NULL_STUB.
+// Free token and return NULL_STUB.  Token is moved from
+// the allocated list to the free list after its value
+// is set to MISSING and its string is freed and set to
+// NULL_STUB.
 //
 void free ( ll::parser::token token );
 
@@ -245,72 +278,90 @@ void free ( ll::parser::token token );
 //
 void set_max_token_free_list_size ( int n );
 
-// Put a token just before a given token t on a list of
-// tokens.
-//
-inline void put_before
-	( ll::parser::token t,
-	  ll::parser::token token )
-{
-    next_ref(token) = t;
-    previous_ref(token) = t->previous;
-    next_ref(token->previous) = token;
-    previous_ref(token->next) = token;
+namespace internal {
+
+    // Put a token just before a given token t on a list
+    // of tokens.
+    //
+    inline void put_before
+	    ( ll::parser::token t,
+	      ll::parser::token token )
+    {
+	next_ref(token) = t;
+	previous_ref(token) = t->previous;
+	next_ref(token->previous) = token;
+	previous_ref(token->next) = token;
+    }
+
+    // Remove a token from the list it is on.
+    //
+    inline void remove ( ll::parser::token token )
+    {
+        next_ref(token->previous) = token->next;
+	previous_ref(token->next) = token->previous;
+    }
+
+    extern min::locatable_var<ll::parser::token>
+	allocated_list_first;
 }
 
-// Put a token just before a given token t on a list of
-// tokens headed by first.
+// Take token from the allocated list and put it just
+// before a given token t that is on the working list
+// headed by first.  If t is the first token on the
+// working list, then `token' becomes the first token
+// on the working list.
 //
 inline void put_before
 	( min::ref<ll::parser::token> first,
 	  ll::parser::token t,
 	  ll::parser::token token )
 {
-    put_before ( t, token );
+    internal::remove ( token );
+    internal::put_before ( t, token );
     if ( first == t ) first = token;
 }
 
-// Put a token on the end of a token list with given
-// first element.
+// Take token from the allocated list and put it at the
+// end of the working list with given first element.  If
+// the working list was empty, the token becomes the
+// only element of the working list.
 //
 inline void put_at_end
 	( min::ref<ll::parser::token> first,
 	  ll::parser::token token )
 {
+    internal::remove ( token );
     if ( first == min::NULL_STUB )
     {
         first = token;
 	previous_ref(token) = next_ref(token) = token;
     }
-    else put_before ( first, token );
+    else internal::put_before ( first, token );
 }
 
-// Remove token from the token list with given first
-// token and return the token removed.  Note that the
-// removed token is NOT freed.
+// Remove token from the working list with given first
+// token and put the token on the allocated list.
+// Return the token removed.
 //
 inline ll::parser::token remove
 	( min::ref<ll::parser::token> first,
 	  ll::parser::token token )
 {
-
     if ( token == first )
-    {
-        first = token->next;
-	if ( first == token )
-	{
-	    first = min::NULL_STUB;
-	    return token;
-	}
-    }
-    next_ref(token->previous) = token->next;
-    previous_ref(token->next) = token->previous;
+        first = ( token == token->next ?
+	          (ll::parser::token) min::NULL_STUB :
+		  token->next );
+    internal::remove ( token );
+    internal::put_before
+        ( internal::allocated_list_first, token );
     return token;
 }
 
-// Remove first token from a list of tokens with given
-// first token.  Return min::NULL_STUB if list empty.
-// Note that the removed token is NOT freed.
+// Remove first token from the working list of tokens
+// with the given first token, and put the token on
+// the allocated list.  Returned the removed token
+// (now on the allocated list).  But return min::NULL_
+// STUB instead if working list was empty.
 //
 inline ll::parser::token remove
 	( min::ref<ll::parser::token> first )
@@ -318,7 +369,16 @@ inline ll::parser::token remove
     if ( first == min::NULL_STUB )
         return min::NULL_STUB;
     else
-    	return remove ( first, first );
+    {
+	ll::parser::token token = first;
+	first = ( token == token->next ?
+		  (ll::parser::token) min::NULL_STUB :
+		  token->next );
+	ll::parser::internal::remove ( token );
+	ll::parser::internal::put_before
+	    ( internal::allocated_list_first, token );
+	return token;
+    }
 }
 
 } }

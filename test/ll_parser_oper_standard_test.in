@@ -1,8 +1,8 @@
-// Layers Language Operations Parser Test Data
+// Layers Language Standard Operations Parser Test Data
 //
-// File:	ll_parser_oper_test.in
+// File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 30 09:00:35 EDT 2012
+// Date:	Thu Apr 18 02:24:43 EDT 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability

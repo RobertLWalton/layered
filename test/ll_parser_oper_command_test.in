@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 16 09:44:33 EDT 2013
+// Date:	Thu Apr 18 02:00:22 EDT 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -160,5 +160,15 @@ parser test ( p * - x + y - z )
 parser test ( @ x + y - @ z )
 parser test ( + - + - x y )
 
-// Temporary tests
+parser define operator "declare" [code] nofix
+       with precedence 0
+parser define operator "<--" [code] afix
+       with precedence 0
+parser define operator bracket "{" ... "}" [code] afix
+       with precedence 0
+parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
 
+// Temporary tests
+parser define operator bracket "{" ... "}" [code] infix
+	with precedence 1
+parser test ( x y { z w } m n )

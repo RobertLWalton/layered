@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 17 20:05:17 EDT 2013
+// Date:	Fri Apr 19 20:46:52 EDT 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -319,13 +319,22 @@ static void oper_parse ( PAR::parser parser,
 	    
 	    if ( bracketed )
 	    {
-		min::obj_vec_ptr vp ( current->value );
-		min::attr_ptr ap ( vp );
+	        {
+		    min::obj_vec_ptr vp
+		        ( current->value );
+		    min::attr_ptr ap ( vp );
 
-		min::locate ( ap, PAR::dot_initiator );
-		initiator = min::get ( ap );
-		min::locate ( ap, PAR::dot_terminator );
-		terminator = min::get ( ap );
+		    min::locate
+		        ( ap, PAR::dot_initiator );
+		    initiator = min::get ( ap );
+		    min::locate
+		        ( ap, PAR::dot_terminator );
+		    terminator = min::get ( ap );
+
+		    // Destroy object pointers to make
+		    // object current->value non-
+		    // OBJ_PRIVATE.
+		}
 
 	        root = TAB::find
 		    ( initiator, selectors,
@@ -397,6 +406,8 @@ static void oper_parse ( PAR::parser parser,
 		      ||
 		      ( oper->flags & OP::AFIX
 			&&
+			oper->precedence != D.precedence
+			&&
 			! check_precedence
 			      ( oper->precedence,
 				oper_stack ) )
@@ -439,7 +450,10 @@ static void oper_parse ( PAR::parser parser,
 	    if ( oper != min::NULL_STUB )
 	    {
 	        if ( bracketed )
+		{
 		    current->type = PAR::OPERATOR;
+		    next_current = current->next;
+		}
 		else
 		{
 		    current->position.end =
@@ -459,25 +473,25 @@ static void oper_parse ( PAR::parser parser,
 		    MIN_ASSERT
 		      (    current->string
 		        == min::NULL_STUB );
+		}
 
-		    if ( trace_flags & PAR::TRACE_KEYS )
-		    {
-			parser->printer
-			    << min::bom
-			    << min::set_indent ( 7 )
-			    << "OPERATOR `"
-			    << min::name_pgen
-				   ( current->value )
-			    << "' found; "
-			    << min::pline_numbers
-				   ( parser->input_file,
-				     current->position )
-			    << ":" << min::eom;
-			min::print_phrase_lines
-			    ( parser->printer,
-			      parser->input_file,
-			      current->position );
-		    }
+		if ( trace_flags & PAR::TRACE_KEYS )
+		{
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "OPERATOR `"
+			<< min::name_pgen
+			       ( current->value )
+			<< "' found; "
+			<< min::pline_numbers
+			       ( parser->input_file,
+				 current->position )
+			<< ":" << min::eom;
+		    min::print_phrase_lines
+			( parser->printer,
+			  parser->input_file,
+			  current->position );
 		}
 	    }
 	}

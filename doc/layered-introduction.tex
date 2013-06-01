@@ -3571,13 +3571,13 @@ operator definition is selected.
 
 If an operator was found, replace its tokens by a single
 OPERATOR token, point $C$ at that token.  Let $P'$ be the precedence
-of the found operator.
+of the found operator and $T'$ be its type.
 \item[Loop Step 2:]
 If $C=F$ and $T=\mbox{\em postfix}$
 (the token before $C$ is a postfix operator),
 $C\neq N$, and either no operator was find in Loop Step 1,
-or an operator was found and $P'>P$,
-or a non-postfix operator was found and $P=P'$,
+or an operator was found and either $P'>P$
+or both $P'=P$ and $T'\not=\mbox{\em postfix}$,
 insert the error nofix operator of precedence
 equal to $P-1$ as a single
 OPERATOR token before $C$, set $C$ to point at it,
@@ -3599,36 +3599,37 @@ If $C=F$ and any of the following are true:
 \hspace*{0.2in}
 \begin{tabular}{@{}l@{}}
 $T=\mbox{\em infix}$ and $C=N$ or $P'\leq P$, \\
-$T=\mbox{\em prefix}$ and $C=N$ or $P'<P$, \\
-$T=\mbox{\em prefix}$ \begin{tabular}[t]{@{}l@{}}
-                      and $C\not=N$ and $P'=P$ \\
-		      and the found operator is not a prefix operator,
-		      \end{tabular}
+$T=\mbox{\em prefix}$ and $C=N$ or $P'<P$
+    or both $P'=P$ and $T'\not=\mbox{\em prefix}$
 \end{tabular}
 \\[1ex]
 then insert
-an error operand lexeme token before $C$,
+an new error operand lexeme token before $C$,
+set $F$ to this new token,
 announce an error, and then continue as if no error were found.
 \item[Loop Step 5:]
 If $C\not=F$,
 apply Step 3 above to the list of tokens beginning with
-$F$ and ending just before $C$.
+$F$ and ending just before $C$.  This replaces this list of tokens
+by a single non-operator token.
 
 If $C=N$, pop the $P$ and $F$ stacks.  If these stacks are now
 empty, terminate the operator parser pass algorithm.  Otherwise
 repeat this loop step.
 
-Else if $P'<P$, pop the $P$ and $F$ stacks and repeat this loop step
+Else if $P'<P$ or both $P'=P$ and $T=\mbox{\em postfix}$,
+pop the $P$ and $F$ stacks and repeat this loop step
 (cannot happen if the $P$ and $F$ stacks have only one entry as
 in that case $P$ is less than any possible $P'$).
 
-Else if $P'>P$, push $P'$ into the $P$ stack, and push a pointer to the
+Else if $P'>P$ or both $P'=P$ and $T=\mbox{\em prefix}$,
+push $P'$ into the $P$ stack, and push a pointer to the
 next token after $C$ into the $F$ stack.
 
 Else if $P'=P$, set $F$ to point at the next token after $C$.
 
 \item[Loop Step 6:]
-Set $T$ to the type of the found operator,
+Set $T=T'$,
 repoint $C$ to the token after $C$, and iterate the loop.
 \end{itemlist}
 

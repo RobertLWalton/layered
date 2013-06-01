@@ -2997,7 +2997,7 @@ precedence & reformatter	& type	& operator	& meaning
 								  not \\
 3100	& \ttkey{infix}		& \tt infix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
-3100	& \ttkey{unary}		& \tt nofix	& \ttkey{NOT}	& logical not \\
+3100	& \ttkey{prefix}	& \tt nofix	& \ttkey{NOT}	& logical not \\
 4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
 	&			&		& \ttnbkey{/=}  & not equal \\
 	&			&		& \ttnbkey{!=}	& ditto \\
@@ -3021,7 +3021,7 @@ precedence & reformatter	& type	& operator	& meaning
 	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
 	& 			& \tt prefix	&  \ttnbkey{@}	& object
 	                                                          identifier \\
-none	& \ttkey{subscript}	& \tt postfix	&  \ttnbkey{[...]}
+20000	& \ttkey{postfix}	& \tt postfix	&  \ttnbkey{[...]}
 								& subscript \\
 \end{tabular}
 \end{center}
@@ -3208,11 +3208,11 @@ rightmost executes first.  Examples:
 
 \bigskip
 
-\ttmkey{unary}{reformatter} \hfill \NBOP{NOT}
+\ttmkey{prefix}{reformatter}
+    \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{@}
 
 \begin{indpar}[0.5em]
-May be used with {\tt nofix} or {\tt prefix} operators.  Has no effect if used
-with {\tt prefix} operators.
+May be used with {\tt nofix} or {\tt prefix} operators.
 
 The subexpression must have exactly two elements, an operator followed
 by an operand.  The subexpression is left unchanged.  Examples:
@@ -3222,27 +3222,22 @@ by an operand.  The subexpression is left unchanged.  Examples:
 \verb|x NOT| & $\Longrightarrow$ & error \\
 \verb|x NOT y| & $\Longrightarrow$ & error \\
 \verb|NOT NOT x| & $\Longrightarrow$ & error \\
+\verb|- x y| & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
 \bigskip
 
-\ttmkey{prefix}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{@}
+\ttmkey{postfix}{reformatter}
 
 \begin{indpar}[0.5em]
-May be used with {\tt prefix} operators.
+May be used with {\tt nofix} or {\tt postfix} operators.
 
-The subexpression must consist of one or more operators followed by a single
-operand.  If there is more than one operator, sub-subexpressions of the
-form `operator operand' at the end of the subexpression are
-recursively parenthesized until just two elements
-are left in the subexpression.  Examples:
+The subexpression must have exactly two elements, an operand followed
+by an operator.  The subexpression is left unchanged.  Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|- - x| & $\Longrightarrow$ & \verb|- (- x)| \\
-\verb|+ - x| & $\Longrightarrow$ & \verb|+ (- x)| \\
-\verb|- @ x| & $\Longrightarrow$ & \verb|- (@ x)| \\
-\verb|- @ @ x| & $\Longrightarrow$ & \verb|- (@ (@ x))| \\
+TBD
 \end{tabular}
 \end{indpar}
 
@@ -3436,19 +3431,16 @@ that have neither {\tt .initiator} nor {\tt .terminator} attributes
 \item[Requirement 2:] 
 The first {\tt OPERATOR} token in the list is not afix.
 \item[Requirement 3:] 
-Any prefix {\tt OPERATOR} token in the list is preceded by
-the beginning of the expression or by another prefix {\tt OPERATOR} token.
-Any prefix {\tt OPERATOR} token in the list
-is followed by another prefix {\tt OPERATOR} token or by a
+If the list contains a prefix {\tt OPERATOR} token, that is the first
+token in the list, and it is followed in the list by a
 non-{\tt OPERATOR} token.
 \item[Requirement 4:] 
 All infix {\tt OPERATOR} tokens in the list are both preceded by and
 followed by non-{\tt OPERATOR} tokens.
 \item[Requirement 5:] 
-Any postfix {\tt OPERATOR} token in the list is followed
-by the end of the expression or by another postfix {\tt OPERATOR} token.
-Any postfix {\tt OPERATOR} token is preceded by another
-postfix {\tt OPERATOR} token or by a non-{\tt OPERATOR} token.
+If the list contains a postfix {\tt OPERATOR} token, that is the last
+token in the list, and it is preceded in the list by a
+non-{\tt OPERATOR} token.
 \end{itemlist}
 
 A single non-{\tt OPERATOR}, non-{\tt EXPRESSION}
@@ -3510,7 +3502,7 @@ is inserted after the postfix operator and an error is announced.
 \end{itemlist}
 
 By simply by enforcing these rules the operator parser pass enforces
-the requirements listed above.
+the requirements listed above [what about prefix and postfix operators].
 
 During its left-to-right scan the operator parser pass maintains
 the following state:

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 18 02:00:22 EDT 2013
+// Date:	Sat Jun  1 04:51:55 EDT 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -86,7 +86,7 @@ parser define operator "OR" [code, math] infix
        with infix reformatter
 parser define operator "NOT" [code, math] nofix
        with precedence 3100
-       with unary reformatter
+       with prefix reformatter
 parser test (x OR y BUT NOT z AND w)
 parser test (x OR y BUT NOT z AND w OR p)
 parser test (NOT x y)
@@ -159,6 +159,15 @@ parser test ( - x + y - z )
 parser test ( p * - x + y - z )
 parser test ( @ x + y - @ z )
 parser test ( + - + - x y )
+
+parser define operator "++" [code, math] postfix
+       with precedence 10001
+       with postfix reformatter
+parser define operator "--" [code, math] postfix
+       with precedence 10001
+       with postfix reformatter
+parser test ( x ++ + y - z -- )
+parser test ( x y ++ -- ++ -- )
 
 parser define operator "declare" [code] nofix
        with precedence 0

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 19 20:46:52 EDT 2013
+// Date:	Sat Jun  1 03:36:12 EDT 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -624,7 +624,10 @@ static void oper_parse ( PAR::parser parser,
 
 	// Close previous subexpressions until
 	// D.precedence < oper_precedence or
-	// oper_stack->length == initial_length.
+	// D.precedence == oper_precedence and last
+	// operator is postfix or current == next.
+	// If current == next and oper_stack->length
+	// == initial_length return to caller.
 	//
 	OP::oper first_oper = min::NULL_STUB;
 	while ( true )
@@ -704,7 +707,13 @@ static void oper_parse ( PAR::parser parser,
 		first_oper = D.first_oper;
 		D = min::pop ( oper_stack );
 	    }
-	    else if ( oper_precedence < D.precedence )
+	    else if ( oper_precedence < D.precedence
+	              ||
+		      ( oper_precedence == D.precedence
+		        &&
+		        last_oper_flags & OP::POSTFIX )
+		    )
+
 	    {
 		first_oper = D.first_oper;
 	        D = min::pop ( oper_stack );
@@ -712,7 +721,15 @@ static void oper_parse ( PAR::parser parser,
 	    else break;
 	}
 
-	if ( oper_precedence > D.precedence )
+	// Start new subexpression if oper_precedence
+	// > D.precedence or oper_precedence ==
+	// D.precedence and last operator was prefix.
+	//
+	if ( oper_precedence > D.precedence
+	     ||
+	     ( oper_precedence == D.precedence
+	       &&
+	       last_oper_flags & OP::PREFIX ) )
 	{
 	    min::push ( oper_stack ) = D;
 	    D.precedence = oper_precedence;
@@ -920,7 +937,7 @@ static bool right_associative_reformatter
     return false;
 }
 
-static bool unary_reformatter
+static bool prefix_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1009,7 +1026,7 @@ static bool unary_reformatter
     return true;
 }
 
-static bool prefix_reformatter
+static bool postfix_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1021,25 +1038,29 @@ static bool prefix_reformatter
 {
     MIN_ASSERT ( first != next );
 
-    // There may be two or more tokens, with all but the
-    // last being operators.  If there is more than one
-    // operator, subexpressions are created by recur-
-    // sively taking `operator operand' from the end of
-    // the list and replacing it by a subexpression.
+    // There should be exactly two tokens, the second an
+    // operator, and the first not.
+    //
+    min::uns32 token_count, oper_count, i;
+    min::gen value;
+    count_operators
+        ( first, next,
+	  token_count, oper_count,
+	  i, value );
+    if ( token_count == 2 && oper_count == 1 && i == 1 )
+        return true;
 
-    if ( next->previous->type == PAR::OPERATOR )
+    MIN_ASSERT ( oper_count > 0 );
+
+    if ( oper_count > 1 )
     {
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: subexpression ends with an"
-	             " the operator `"
-	    << min::name_pgen
-	           ( next->previous->value )
-	    <<	     "';"
-	    << min::eol
-	    << "       error operand inserted at end of"
-	             " subexpression; "
+	    << "ERROR: too many operators in"
+	    	     " subexpression; subexpression"
+		     " should be of form"
+		     " `operand operator'; "
 	    << min::pline_numbers
 		   ( parser->input_file,
 		     position )
@@ -1049,51 +1070,45 @@ static bool prefix_reformatter
 	      parser->input_file,
 	      position );
 	++ parser->error_count;
-
-	PAR::token t =
-	    PAR::new_token ( LEXSTD::word_t );
-	t->position.begin = next->position.begin;
-	t->position.end = next->position.begin;
-	PAR::value_ref ( t ) = PAR::error_operand;
-	PAR::put_before ( first_ref(parser), next, t );
     }
-
-    while ( next->previous->previous != first
-            &&
-	       next->previous->previous->type
-	    == PAR::OPERATOR )
-    {
-	PAR::token t2 = next->previous;
-	PAR::token t1 = t2->previous;
-        min::phrase_position position =
-	    { t1->position.begin,
-	      t2->position.end };
-	PAR::attr oper_attr
-	    ( PAR::dot_oper, t1->value );
-	PAR::compact
-	    ( parser, pass->next, selectors,
-	      PAR::BRACKETABLE, trace_flags,
-	      t1, next, position, 1, & oper_attr );
-    }
-
-    if (    next->previous->previous->type
-         != PAR::OPERATOR )
+    else if ( i != 1 )
     {
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: subexpression contains"
-	             " non-operator as a non-last"
-		     " element; "
+	    << "ERROR: operator `"
+	    << min::name_pgen ( value )
+	    << "' NOT at end of subexpression;"
+	       " subexpression should be of form"
+	       " `operand operator'; "
 	    << min::pline_numbers
 		   ( parser->input_file,
-		     next->previous->previous
-		         ->position )
+		     position )
 	    << ":" << min::eom;
 	min::print_phrase_lines
 	    ( parser->printer,
 	      parser->input_file,
-	      next->previous->previous->position );
+	      position );
+	++ parser->error_count;
+    }
+
+    if ( token_count != 2 )
+    {
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: subexpression is too "
+	    << ( token_count < 2 ? "short" : "long" )
+	    << "; subexpression should be of form"
+	       " `operand operator'; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      position );
 	++ parser->error_count;
     }
 
@@ -1519,17 +1534,17 @@ static void reformatter_table_initialize ( void )
         ( right_associative, OP::INFIX,
 	  ::right_associative_reformatter );
 
-    min::locatable_gen unary
-        ( min::new_str_gen ( "unary" ) );
-    OP::push_reformatter
-        ( unary, OP::PREFIX + OP::NOFIX,
-	  ::unary_reformatter );
-
     min::locatable_gen prefix
         ( min::new_str_gen ( "prefix" ) );
     OP::push_reformatter
-        ( prefix, OP::PREFIX,
+        ( prefix, OP::PREFIX + OP::NOFIX,
 	  ::prefix_reformatter );
+
+    min::locatable_gen postfix
+        ( min::new_str_gen ( "postfix" ) );
+    OP::push_reformatter
+        ( postfix, OP::POSTFIX + OP::NOFIX,
+	  ::postfix_reformatter );
 
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );

@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 1, 2013
+June 5, 2013
  
 \end{center}
 
@@ -3424,20 +3424,24 @@ obeys the following requirements:
 \begin{itemlist}[1.3in]
 \item[Requirement 1:] 
 All the {\tt OPERATOR} tokens in the token list are for operators
-with the same precedence.  Furthermore, this precedence is lower
-than the precedence of all operators in EXPRESSION tokens of the list
-that have neither {\tt .initiator} nor {\tt .terminator} attributes
-(i.e., are non-explicitly-bracketed subexpressions).
+with the same precedence.  Furthermore, if $P$ is this precedence, and
+$P'$ is the precedence of operators in an EXPRESSION token of the list
+that has neither {\tt .initiator} nor {\tt .terminator} attributes
+(i.e., is a non-explicitly-bracketed subexpression), then either
+$P<P'$ or both $P=P'$ and either both expressions begin with a prefix
+operator or both end with a postfix operator.
 \item[Requirement 2:] 
-The first {\tt OPERATOR} token in the list is not afix.
+The list does \underline{not} contain two consecutive non-{\tt OPERATOR} tokens.
 \item[Requirement 3:] 
+The first {\tt OPERATOR} token in the list is not afix.
+\item[Requirement 4:] 
 If the list contains a prefix {\tt OPERATOR} token, that is the first
 token in the list, and it is followed in the list by a
 non-{\tt OPERATOR} token.
-\item[Requirement 4:] 
+\item[Requirement 5:] 
 All infix {\tt OPERATOR} tokens in the list are both preceded by and
 followed by non-{\tt OPERATOR} tokens.
-\item[Requirement 5:] 
+\item[Requirement 6:] 
 If the list contains a postfix {\tt OPERATOR} token, that is the last
 token in the list, and it is preceded in the list by a
 non-{\tt OPERATOR} token.
@@ -3459,7 +3463,9 @@ must be converted to an
 {\tt EXPRESSION} token, it is converted to this equivalent.
 
 The operator parsing pass scans its input token list from
-left to right.  At any point in the scan the pass obeys the
+left to right, recognizing operators, beginning non-explicitly
+bracketed subexpressions, and ending such subexpressions.
+At any point in the scan the pass obeys the
 following rules:
 \begin{itemlist}[0.7in]
 \item[Rule 1:] An afix operator is not recognized unless it
@@ -3499,10 +3505,25 @@ or by an operator of precedence less than $P'$,
 or by a postfix operator of precedence equal to $P'$,
 else an `error nofix operator' of precedence $P'-1$
 is inserted after the postfix operator and an error is announced.
+\item[Rule 8:] A subexpression whose precedence is lower than that
+of any operator is begun at the beginning of the list.
+A subexpression whose precedence is that of the operator just
+found is begin before that operator if either that operator
+has precedence greater than the current subexpression precedence
+or both the operator has precedence equal to the current subexpression
+precedence and the operator immediately follows a prefix operator.
+\item[Rule 9:] A subexpression is ended just before an operator
+which has precedence lower than the precedence of the subexpression,
+just before the end of the list, or just before an operator which
+has precedence equal to the precedence of the subexpression if that
+operator immediately follows a postfix operator.
+\item[Rule 10:] A subexpression 
+is replaced when it ends by a single EXPRESSION
+token with no {\tt .initiator} and no {\tt .terminator}.
 \end{itemlist}
 
 By simply by enforcing these rules the operator parser pass enforces
-the requirements listed above [what about prefix and postfix operators].
+the requirements listed above.
 
 During its left-to-right scan the operator parser pass maintains
 the following state:

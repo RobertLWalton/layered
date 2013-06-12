@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 5, 2013
+June 12, 2013
  
 \end{center}
 
@@ -1577,6 +1577,12 @@ A token has the following components:
 		  subexpressions whose MIN object has no elements and
 		  no syntax attri\-butes.
 \end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+		& {\tt BRACKETED} and {\tt BRACKTABLE} tokens are called
+		  \skey{expression token}s and {\tt OPERATOR} and lexeme
+		  tokens are called non-expression tokens.
+\end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value}{of token}
@@ -1629,8 +1635,9 @@ The tokens of a file are not read in all at once, but are read in as
 needed.
 
 As the parser identifies subexpressions, the tokens in the
-subexpression are replaced by a single {\tt BRACKETED} or {\tt BRACKETABLE}
-token which encodes the subexpression.
+subexpression are replaced by a single expression token (of
+type {\tt BRACKETED} or {\tt BRACKETABLE})
+that encodes the subexpression.
 File input lines may also be organized into paragraphs containing
 paragraph lines, and both paragraph lines and paragraphs are
 treated as subexpressions.  Although at the top level an entire
@@ -2176,7 +2183,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     A MIN object whose elements are the arguments of the
     {\em opening-named-bracket} of a named bracketed subexpression,
     or of a {\em named-operator}.  The object is formatted like the
-    {\tt value} of a {\tt BRACkETED} token, except that it has no syntax
+    {\tt value} of a {\tt BRACKETED} token, except that it has no syntax
     attributes.  Each argument is either a bracketed subexpression
     or a quoted string.
 \\[2ex]
@@ -2804,7 +2811,7 @@ that are inactive because they have no selector in common with
 the current parser context selectors.  After the last pass has been
 called, the bracketed subexpression recognition pass replaces the
 final sublist, which is the subexpression that has been recognized,
-by an EXPRESSION token with a MIN object value, as described above.
+by an expression token with a MIN object value, as described above.
 
 \subsection{The Operator Parsing Pass}
 \label{OPERATOR-PARSING-PASS}
@@ -3400,23 +3407,26 @@ To do this it performs the following steps:
 \begin{itemlist}[0.7in]
 \item[Step 1:] Identify subexpressions within the expression and run the
 operator parsing pass on these, converting them into a single
-{\tt EXPRESSION} or lexeme token.
+{\tt BRACKETABLE} or lexeme token.
 \item[Step 2:] Identify operators within the expression and replace them
 with {\tt OPERATOR} tokens.
 \item[Step 3:] If no operators were found in the expression,
 run any passes subsequent to the operator parsing pass on the expression,
-and then if the expression still has more than one
-token, replace the expression by a single BRACKETABLE token listing the
+and then if the expression (after running the subsequent passes)
+has zero or more than one
+token, replace the expression by a single {\tt BRACKETABLE} token listing the
 tokens of the expression.
 
 If operators were found in the expression,
 run the reformatter of the first operator
-in the expression.  This replaces the expression by a single token.
+in the expression.  This replaces the expression by a single
+{\tt BRACKTABLE} or lexeme token.
 If no reformatter is provided by the first operator, a default
-reformatter is run that replaces the expression by a single BRACKETABLE
+reformatter is run that replaces the expression by a single {\tt BRACKETABLE}
 token whose value has the operator label as its {\tt .operator} attribute.
 
-After this step the expression is always a single non-{\tt OPERATOR} token.
+After this step the expression is always a single {\tt BRACKETABLE} or
+lexeme token.
 \end{itemlist}
 
 The token list at the point where Step 3 is about to execute
@@ -3425,11 +3435,15 @@ obeys the following requirements:
 \item[Requirement 1:] 
 All the {\tt OPERATOR} tokens in the token list are for operators
 with the same precedence.  Furthermore, if $P$ is this precedence, and
-$P'$ is the precedence of operators in an EXPRESSION token of the list
-that has neither {\tt .initiator} nor {\tt .terminator} attributes
-(i.e., is a non-explicitly-bracketed subexpression), then either
-$P<P'$ or both $P=P'$ and either both expressions begin with a prefix
-operator or both end with a postfix operator.
+$P'$ is the precedence of operators in an {\tt BRACKETABLE} token of the list,
+then either $P<P'$ or all of the following are true:
+\begin{itemize}
+\item[(a)] $P=P'$
+\item[(b)] The token list contains only two members, an operator and
+a {\tt BRACK\-ET\-ABLE} token operand.
+\item[(c)] Either the token list and the operand both begin with a prefix
+operator, or both end with a postfix operator.
+\end{itemize}
 \item[Requirement 2:] 
 The list does \underline{not} contain two consecutive non-{\tt OPERATOR} tokens.
 \item[Requirement 3:] 
@@ -3447,20 +3461,23 @@ token in the list, and it is preceded in the list by a
 non-{\tt OPERATOR} token.
 \end{itemlist}
 
-A single non-{\tt OPERATOR}, non-{\tt EXPRESSION}
+A single
 lexeme token output by a operator parsing pass may be
-thought of as the equivalent of
-a single {\tt EXPRESSION} token whose token value is the lexeme token value,
-which is a MIN string,
-if the lexeme is not a quoted string
-or a {\tt EXPRESSION} token value
-is a list of one element with the element being equal to the
+thought of as the equivalent of one of the following:
+\begin{itemize}
+\item[(a)] If the token is not a quoted string, and therefore
+has a token value that is a MIN string, the token is equivalent to
+a single {\tt BRACKETABLE} token whose token value is a MIN object
+with no {\tt .separator} attribute whose only element is this MIN string.
+\item[(b)] If the token is a quoted string, the token is equivalent to
+a single {\tt BRACKETED} token whose token value
+is a MIN object with one element equal to the
 token value converted to a MIN string and with
-an {\tt .initiator} attribute equal to {\tt "} if
-the lexeme represented is a quoted string.
+an {\tt .initiator} attribute equal to {\tt "}.
+\end{itemize}
 When a single lexeme token output from an operator parsing pass
-must be converted to an
-{\tt EXPRESSION} token, it is converted to this equivalent.
+must be converted to an expression token, it is converted according
+to this equivalence.
 
 The operator parsing pass scans its input token list from
 left to right, recognizing operators, beginning non-explicitly
@@ -3505,21 +3522,28 @@ or by an operator of precedence less than $P'$,
 or by a postfix operator of precedence equal to $P'$,
 else an `error nofix operator' of precedence $P'-1$
 is inserted after the postfix operator and an error is announced.
-\item[Rule 8:] A subexpression whose precedence is lower than that
-of any operator is begun at the beginning of the list.
-A subexpression whose precedence is that of the operator just
-found is begin before that operator if either that operator
-has precedence greater than the current subexpression precedence
-or both the operator has precedence equal to the current subexpression
-precedence and the operator immediately follows a prefix operator.
+\item[Rule 8:] When an operator is found, a new subexpression
+with the precedence of the found operator is begin if one of
+the following is true:
+\begin{itemize}
+\item[(a)] There is no previous operator outside all ended subexpressions.
+\item[(b)] The found operator has higher precedence than the nearest
+previous operator outside all ended subexpressions.
+\item[(c)] The found operator is immediately preceded by a prefix
+operator of equal precedence to the found operator.
+\end{itemize}
+The new subexpression begins just after the nearest previous operator
+that is outside all ended subexpressions, if there is such an operator,
+or at the beginning of the entire list, otherwise.
 \item[Rule 9:] A subexpression is ended just before an operator
 which has precedence lower than the precedence of the subexpression,
 just before the end of the list, or just before an operator which
 has precedence equal to the precedence of the subexpression if that
 operator immediately follows a postfix operator.
 \item[Rule 10:] A subexpression 
-is replaced when it ends by a single EXPRESSION
-token with no {\tt .initiator} and no {\tt .terminator}.
+is replaced when it ends by a single BRACKETABLE whose
+elements are the values of the tokens in the subexpression, unless
+the subexpression contains just a single non-operator token.
 \end{itemlist}
 
 By simply by enforcing these rules the operator parser pass enforces

@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 12, 2013
+June 20, 2013
  
 \end{center}
 
@@ -1510,16 +1510,16 @@ A token has the following components:
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& Standardly the token lexeme types are word, mark, separator,
-		  and number which have token {\tt value}s that are
-		  MIN strings equal to the lexeme characters,
-		  quoted string which has token {\tt string}s equal
+		  and number whose tokens have a {\tt value} that is
+		  a MIN string equal to the lexeme characters,
+		  quoted string whose tokens have a {\tt string} equal
 		  to the lexeme translation string,
-		  and line break and end of file which have neither
+		  and line break and end of file whose tokens have neither
 		  {\tt value} nor {\tt string}.
 		  Both natural numbers and other numbers are grouped
 		  together as numbers.
 		  Standardly whitespace and comment lexemes are
-		  not translated into tokens, and error lexemes are
+		  not translated into tokens, and erroneous lexemes are
 		  announced when input but not translated into tokens.
 \end{tabular}
 \\[1ex]  
@@ -1536,7 +1536,12 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& For a {\tt BRACKETED} subexpression, the token {\tt value}
+		& {\tt BRACKETED} are {\tt BRACKETABLE} tokens
+		  are used to represent subexpressions.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+		& The value of a {\tt BRACKETED} token
 		  is a MIN object which may have
 		  attributes such as {\tt .initiator} or {\tt .terminator}.
 		  The following attributes of a {\tt BRACKETED} token
@@ -1560,16 +1565,19 @@ A token has the following components:
 		& A {\tt BRACKETABLE} token
 		  is equivalent to (and an optimization of) a {\tt BRACKETED}
 		  token whose MIN object value has no syntax attributes other
-		  than the {\tt .separator} attribute.  If such a token
-		  is to become the only element of a containing {\tt BRACKETED}
-		  token subexpression, instead of creating a new
-		  {\tt BRACKETED} token, its attributes are added to
-		  the {\tt BRACKETABLE} token, and the type of that
-		  token is then
-		  changed to {\tt BRACKETED}.  When this is done the
-		  {\tt .position} attribute is also changed to include
-		  the added syntax attributes.  Other non-syntax
-		  attributes are inherited from the {\tt BRACKATABLE} token.
+		  than possibly the {\tt .separator} attribute.  If such a token
+		  is to become the only element of a containing bracketed
+		  subexpression, instead of creating a new
+		  {\tt BRACKETED} token, the bracketed subexpression's
+		  syntax attributes (which do not include a {\tt .separator}
+		  attribute) are added to the {\tt BRACKETABLE} token (which
+		  has no syntax attributes other than a possible
+		  {\tt .separator} attribute),
+		  the type of that token is changed to {\tt BRACKETED}, and
+		  the {\tt .position} attribute of that token
+		  is changed to include the added syntax attributes.
+		  The non-syntax attributes of the
+		  {\tt BRACKATABLE} token are left as is.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1666,7 +1674,8 @@ components:
 \begin{indpar}
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{label}{of symbol table entry}
-		& A sequence of `symbols' that identifies the definition.
+		& A non-empty
+		  sequence of `symbols' that identifies the definition.
 \\[1ex]
 		& A \key{symbol} is a MIN string equal to the
 		  lexeme string of a word, mark, separator,
@@ -1710,9 +1719,9 @@ components:
 \ttmkey{level}{of symbol table entry}
 		& Block nesting level, 0, 1, 2, \ldots, of the parser block
 		  containing the definition that made this symbol
-		  table entry.  When the block ends, this entry
+		  table entry.  When the parser block ends, this entry
 		  will be removed from the symbol table stack.  The top level is
-		  level 0, which outside all blocks.
+		  level 0, which outside all parser blocks.
 \end{tabular}
 \end{indpar}
 
@@ -1752,7 +1761,7 @@ with the bit in
 position 1{\tt <<}N being on if the N+1'st selector is in the set.
 Thus there can be at most 64 distinct selectors used by any set of
 parser definitions.  For convenience, the selectors that can be
-currently used are given names that a sequences of symbols.
+currently used are given names that are sequences of symbols.
 
 The context selectors may change when an explicit opening bracket
 is recognized, and remain changed until the associated explicit closing

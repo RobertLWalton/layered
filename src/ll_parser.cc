@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 17 10:17:20 EDT 2013
+// Date:	Sun Nov 10 06:04:30 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -528,13 +528,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
-
-	min::locatable_gen code
-	    ( min::new_str_gen ( "code" ) );
-	min::locatable_gen math
-	    ( min::new_str_gen ( "math" ) );
-	min::locatable_gen text
-	    ( min::new_str_gen ( "text" ) );
 
 	assert (    PAR::PARSER_SELECTOR
 		 == 1ull << TAB::push_name

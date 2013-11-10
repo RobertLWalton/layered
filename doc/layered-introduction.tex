@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 20, 2013
+November 10, 2013
  
 \end{center}
 
@@ -1791,8 +1791,8 @@ previous state.
 
 A parser command is a top level line that changes parser tables.
 The syntax of a parser commands in general and in particular those
-associated parser block definition, parser testing, and selector definition
-is specified on \pagref{PARSER-COMMANDS}.
+associated parser block definition, parser testing, selector definition,
+and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 
 \begin{boxedfigure}[!p]
 \emkey{parser-command}
@@ -1800,39 +1800,42 @@ is specified on \pagref{PARSER-COMMANDS}.
     ::= & {\em parser-block-command} \\
     $|$ & {\em parser-test-command} \\
     $|$ & {\em parser-selector-command} \\
-    $|$ & {\em parser-undefine-command} \\
+    $|$ & {\em parser-context-command} \\
     $|$ & {\em parser-bracketed-command} \\
     $|$ & {\em parser-operator-command} \\
     \end{tabular}
 \label{PARSER-COMMAND}
-\\[1.5ex]
+\\[0.8ex]
 \emkey{simple-name-component} ::= {\em word} $|$ {\em number}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{simple-name} ::= {\em simple-name-component}
                         {\em simple-name-component}\,$^\star$
-\\[1.5ex]
+\\[0.8ex]
 \emkey{quoted-name-component} ::=
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{quoted-name} ::=
     {\tt "}{\em quoted-name-component}
            {\em quoted-name-component}\,$^\star${\tt "}
-\\[1.5ex]
+\\[0.8ex]
 \emkey{parser-flag} ::= {\em simple-name}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{parser-flag-list}
     ::= {\tt [ ]}  $|$ {\tt [} {\em parser-flag}
           \{ \verb|,| {\em parser-flag} \}\,$^\star$ {\tt ]}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{parser-flag-modifier-list}
     \begin{tabular}[t]{@{}r@{~}l@{~}l@{}}
     ::= & {\tt [} & {\em parser-flag-op} {\em parser-flag} \\
         &         & \{ \verb|,| {\em parser-flag-op}
 	                        {\em parser-flag} \}\,$^\star$ {\tt ]} \\
     \end{tabular}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{parser-flag-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
-\\[1.5ex]
+\\[0.0ex]
+\emkey{parser-flag-spec} ::= {\em parser-flag-list} $|$
+                              {\em parser-flag-modifier-list}
+\\[0.8ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser begin}{begin!parser block} {\em block-name} \\
@@ -1840,30 +1843,38 @@ is specified on \pagref{PARSER-COMMANDS}.
     $|$ & \ttikey{parser print blocks}{print!parser blocks} \\
     \end{tabular}
 \label{PARSER-BLOCK-COMMAND}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{block-name} ::= {\em simple-name}
-\\[1.5ex]
+\\[0.8ex]
 \emkey{parser-test-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-list} \\
-    $|$ & \ttikey{parser trace}{trace!parser} {\em parser-flag-modifier-list} \\
+    ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-spec} \\
     $|$ & \ttikey{parser print trace}{trace!parser print} \\
     $|$ & \ttikey{parser test}{test!parser} \ldots \\
     \end{tabular}
 \label{PARSER-TEST-COMMAND}
-\\[1.5ex]
+\\[0.8ex]
 \emkey{parser-trace-flag} ::= see page \pageref{PARSER-TRACE-FLAGS}
-\\[1.5ex]
+\\[0.8ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
     $|$ & \ttikey{parser print selectors}{selector!print} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{selector} ::= {\em parser-flag}
-\\[0.5ex]
+\\[0.0ex]
 \emkey{selectors} ::= {\em parser-flag-list}
+\\[0.8ex]
+\emkey{parser-context-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & \ttikey{parser define context}{selector!define} {\em context-name} \\
+        & ~~~ [ {\tt with parsing selectors} {\em parser-flag-spec} ] \\
+    \end{tabular}
+\\[0.0ex]
+\emkey{context-name} ::= {\em simple-name}
+\label{PARSER-CONTEXT-COMMAND}
 
 \bigskip
 
@@ -2000,8 +2011,8 @@ are executed, any text placed after the words `{\tt parser test}' will
 be parsed and the resulting printout will indicate the details of that
 parse.
 
-Selector names (unlike trace flag names) are \underline{not} buitin,
-and must be defined by the
+The only builtin selector name is `\ttikey{parser}{selector name}'.
+Other selector names must be defined by the
 `\ttikey{parser define selector}{selector!parser define}'
 command.  When the parser block containing a selector name definition
 command ends, the selector name is erased.
@@ -2009,6 +2020,40 @@ There may be at most 64 selectors defined at any one time.
 The current selector names can be printed by using
 the `\ttikey{parser print selectors}{selector!parser print}'
 command.
+
+The \key{standard parser} creates a single initial parsing block
+names `\ttikey{standard}{parsing block}' and defines in it the selectors
+\begin{center}
+\ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
+\end{center}
+The standard parser also sets the top level selector set to
+`{\tt [code]}'.  Note that the actions of the standard parser can be
+cancelled by a `{\tt parser end standard}' command.
+
+If a top level line begins with a \emkey{context-name}, the top level
+selector set is modified according to a {\em parser-flag-spec}
+associated with the {\em context-name}.  There are two builtin
+{\em context-names} used by parser commands:
+\begin{center}
+\begin{tabular}{ll}
+\em Context-Name & \em Parser-Flag-Spec \\
+\hline
+\ttkey{parser}  & \tt [parser] \\
+\ttkey{parser test}  & none; equivalent to an empty
+                      {\em parser-flag-modifier-list})
+\end{tabular}
+\end{center}
+
+So most {\em parser-commands} are parsed with just the parser selector
+set `{\tt [parser]}',
+as {\em parser-commands} begin with the {\em context-name}
+{\tt parser}', but the `{\tt parser test}' command is parsed with whatever
+top level selectors are normally in effect, as the longest
+{\em contex-name} at the beginning of a top level line is the one that
+is recognized.  Note that these two {\em context-names} are builtin, and
+not defined within the `{\tt standard}' parser block.
+
+TBD define context
 
 In the following sections various `\ttkey{parser define}' commands
 are described.  These push entries in to the parser symbol tables.
@@ -2030,8 +2075,9 @@ the entries to be pushed.
 The end of a parser block pops all entries pushed into parser
 symbol tables during the block.
 
-The `\ttkey{parser undefine}' command effectively undoes
-{\tt parser define} commands by clearing selector bits in
+For many `{\tt parser define}' commands there is a companion
+`\ttkey{parser undefine}' command that effectively undoes
+the {\tt parser define} command by clearing selector bits in
 the designated symbol table entries.  Its syntax is
 \begin{center}
 {\tt parser undefine} {\em type} {\em name} {\em selectors}

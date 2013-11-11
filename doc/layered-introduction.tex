@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 10, 2013
+November 11, 2013
  
 \end{center}
 
@@ -1873,7 +1873,7 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
         & ~~~ [ {\tt with parsing selectors} {\em parser-flag-spec} ] \\
     \end{tabular}
 \\[0.0ex]
-\emkey{context-name} ::= {\em simple-name}
+\emkey{context-name} ::= {\em quoted-name}
 \label{PARSER-CONTEXT-COMMAND}
 
 \bigskip
@@ -2070,7 +2070,7 @@ is the builtin `{\tt parser test}' {\em context-name}.
 The `\ttikey{default}{context-name}' {\em context-name} is special
 and refers to the top level selectors in effect when a top level
 line does \underline{not} begin with any {\em context-name}.
-For a `{\tt parser define context default} \ldots' command the
+For a `{\tt parser define context "default"} \ldots' command the
 {\em parser-flag-spec} must be given and must be a
 {\em parser-flag-list}.
 
@@ -2081,7 +2081,7 @@ parser begin standard
 parser define selector code
 parser define selector math
 parser define selector text
-parser define context default [code]
+parser define context "default" with parsing selectors [code]
 \end{verbatim}\end{indpar}
 
 The end of a parser block erases the effects of any

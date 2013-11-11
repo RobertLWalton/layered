@@ -19,6 +19,14 @@ parser print trace
 parser trace [- parser input]
 parser print trace
 
+parser print selectors
+parser define context "default"
+       with parsing selectors [parser,my selector]
+parser print selectors
+parser define context "default"
+       with parsing selectors [code]
+parser print selectors
+
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser trace [+ subexpression lines]
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
@@ -31,3 +39,10 @@ parser trace [- subexpression details]
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser trace [+ subexpression lines]
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
+
+parser begin special
+parser define context "parser test special"
+       with parsing selectors [parser]
+parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
+parser end special
+parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]

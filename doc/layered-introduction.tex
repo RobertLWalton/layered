@@ -2012,9 +2012,11 @@ be parsed and the resulting printout will indicate the details of that
 parse.
 
 The only builtin selector name is `\ttikey{parser}{selector name}'.
-Other selector names must be defined by the
-`\ttikey{parser define selector}{selector!parser define}'
-command.  When the parser block containing a selector name definition
+Other selector names must be defined by the {\em parser-selector-command}:
+\begin{center}
+    {\tt parser define selector} {\em selector}
+\end{center}
+When the parser block containing a selector name definition
 command ends, the selector name is erased.
 There may be at most 64 selectors defined at any one time.
 The current selector names can be printed by using
@@ -2022,7 +2024,7 @@ the `\ttikey{parser print selectors}{selector!parser print}'
 command.
 
 The \key{standard parser} creates a single initial parsing block
-names `\ttikey{standard}{parsing block}' and defines in it the selectors
+named `\ttikey{standard}{parsing block}' and defines in it the selectors
 \begin{center}
 \ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
 \end{center}
@@ -2040,20 +2042,51 @@ associated with the {\em context-name}.  There are two builtin
 \hline
 \ttkey{parser}  & \tt [parser] \\
 \ttkey{parser test}  & none; equivalent to an empty
-                      {\em parser-flag-modifier-list})
+                      {\em parser-flag-modifier-list}
 \end{tabular}
 \end{center}
 
 So most {\em parser-commands} are parsed with just the parser selector
 set `{\tt [parser]}',
 as {\em parser-commands} begin with the {\em context-name}
-{\tt parser}', but the `{\tt parser test}' command is parsed with whatever
+`{\tt parser}', but the `{\tt parser test}' command is parsed with whatever
 top level selectors are normally in effect, as the longest
 {\em contex-name} at the beginning of a top level line is the one that
 is recognized.  Note that these two {\em context-names} are builtin, and
-not defined within the `{\tt standard}' parser block.
+\underline{not} defined within the `{\tt standard}' parser block.  Also a
+{\em context-name} beginning a top level line is \underline{not} skipped
+by the parser, and \underline{is} included in the parser output for the line.
 
-TBD define context
+New {\em context-names} can be defined by the {\em parser-context-command}:
+\begin{center}
+    {\tt parser define context} {\em context-name}
+        [ {\tt with parsing selectors} {\em parser-flag-spec} ]
+\end{center}
+If no {\em parser-flag-spec} is given, the {\em context-name} does
+not modify the top level selectors, as if the {\em parser-flag-spec}
+were an empty {\em parser-flag-modifier-list}.  An example of this
+is the builtin `{\tt parser test}' {\em context-name}.
+
+The `\ttikey{default}{context-name}' {\em context-name} is special
+and refers to the top level selectors in effect when a top level
+line does \underline{not} begin with any {\em context-name}.
+For a `{\tt parser define context default} \ldots' command the
+{\em parser-flag-spec} must be given and must be a
+{\em parser-flag-list}.
+
+Thus the standard parser specified above begins by executing the
+equivalent of
+\begin{indpar}\begin{verbatim}
+parser begin standard
+parser define selector code
+parser define selector math
+parser define selector text
+parser define context default [code]
+\end{verbatim}\end{indpar}
+
+The end of a parser block erases the effects of any
+{\em parser-selector-commands} and {\em parser-context-commands}
+executed during the block.
 
 In the following sections various `\ttkey{parser define}' commands
 are described.  These push entries in to the parser symbol tables.
@@ -2075,7 +2108,8 @@ the entries to be pushed.
 The end of a parser block pops all entries pushed into parser
 symbol tables during the block.
 
-For many `{\tt parser define}' commands there is a companion
+For `{\tt parser define}' commands defined in the following sections
+there is a companion
 `\ttkey{parser undefine}' command that effectively undoes
 the {\tt parser define} command by clearing selector bits in
 the designated symbol table entries.  Its syntax is

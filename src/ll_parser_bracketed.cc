@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  6 04:41:51 EST 2013
+// Date:	Mon Nov 11 03:07:30 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,7 +38,6 @@ static min::locatable_gen indentation;
 static min::locatable_gen mark;
 static min::locatable_gen gluing;
 static min::locatable_gen named;
-static min::locatable_gen parsing;
 static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
@@ -53,7 +52,6 @@ static void initialize ( void )
     ::mark = min::new_str_gen ( "mark" );
     ::gluing = min::new_str_gen ( "gluing" );
     ::named = min::new_str_gen ( "named" );
-    ::parsing = min::new_str_gen ( "parsing" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
     ::bracketed_subexpressions =
@@ -2554,7 +2552,7 @@ static min::gen bracketed_pass_command
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::parsing
+		 vp[i] == PAR::parsing
 		 &&
 		 vp[i+1] == PAR::selectors )
 	    {
@@ -2611,7 +2609,7 @@ static min::gen bracketed_pass_command
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::parsing
+		 vp[i] == PAR::parsing
 		 &&
 		 vp[i+1] == PAR::selectors )
 	    {

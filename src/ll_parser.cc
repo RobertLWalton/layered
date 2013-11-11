@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 10 06:04:30 EST 2013
+// Date:	Mon Nov 11 02:03:09 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1022,7 +1022,8 @@ min::gen PAR::begin_block
 	  const min::phrase_position & position )
 {
     TAB::push_block ( parser->block_stack, name,
-                      parser->undefined_stack );
+                      parser->undefined_stack,
+		      parser->selectors );
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
@@ -1048,6 +1049,8 @@ min::gen PAR::end_block
 {
     min::uns32 block_level =
         PAR::block_level ( parser );
+    TAB::block_struct & b =
+        parser->block_stack[block_level-1];
 
     if ( block_level == 0 )
         return PAR::parse_error
@@ -1055,24 +1058,22 @@ min::gen PAR::end_block
 	      position,
 	      "not inside a block"
 	      " (no begin block to end)" );
-    else if ( name != parser->block_stack
-                          [block_level-1].name )
+    else if ( name != b.name )
         return PAR::parse_error
 	    ( parser,
 	      position,
 	      "innermost block name does not match `",
 	      min::name_pgen ( name ), "'" );
 
-    min::uns32 length =
-        parser->block_stack
-	    [parser->block_stack->length-1]
-	    .saved_undefined_stack_length;
+    min::uns32 length = b.saved_undefined_stack_length;
     while ( parser->undefined_stack->length > length )
     {
         TAB::undefined_struct u =
 	    min::pop ( parser->undefined_stack );
 	u.root->selectors = u.saved_selectors;
     }
+
+    parser->selectors = b.saved_selectors;
         
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;

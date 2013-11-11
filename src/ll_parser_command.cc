@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 02:29:39 EST 2013
+// Date:	Mon Nov 11 12:17:19 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -505,15 +505,27 @@ static min::gen execute_context
     if ( vp[1] != PAR::define ) return min::FAILURE();
 
     min::uns32 i = 3;
-    min::locatable_gen name;
-    name = COM::scan_simple_label
-	( vp, i,
-	    ( 1ull << LEXSTD::word_t )
-	  + ( 1ull << LEXSTD::number_t ) );
-    if ( name == min::MISSING() )
+    min::locatable_gen name
+	( PAR::scan_name_string_label
+	    ( vp, i, parser,
+
+		( 1ull << LEXSTD::mark_t )
+	      + ( 1ull << LEXSTD::separator_t )
+	      + ( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ),
+
+		( 1ull << LEXSTD::
+			      horizontal_space_t )
+	      + ( 1ull << LEXSTD::end_of_file_t ),
+
+		( 1ull << LEXSTD::end_of_file_t ) ) );
+
+    if ( name == min::ERROR() )
+	return min::ERROR();
+    else if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected simple name after" );
+	      "expected quoted name after" );
 
     TAB::flags selectors;
     TAB::new_flags new_flags;

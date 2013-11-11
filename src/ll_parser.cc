@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 03:04:52 EST 2013
+// Date:	Mon Nov 11 13:11:41 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1057,6 +1057,7 @@ min::gen PAR::end_block
 {
     min::uns32 block_level =
         PAR::block_level ( parser );
+    assert ( block_level > 0 );
     TAB::block_struct & b =
         parser->block_stack[block_level-1];
 
@@ -1082,6 +1083,13 @@ min::gen PAR::end_block
     }
 
     parser->selectors = b.saved_selectors;
+
+    min::uns64 collected_entries,
+               collected_key_prefixes;
+
+    TAB::end_block
+        ( parser->context_table, block_level - 1,
+	  collected_key_prefixes, collected_entries );
         
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;

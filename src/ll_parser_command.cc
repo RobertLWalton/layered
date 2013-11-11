@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 12:56:10 EST 2012
+// Date:	Mon Nov 11 02:29:39 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Parser Command Functions
 //	Execute Selectors
+//	Execute Context
 //	Execute Test
 //	Execute Trace
 //	Execute Begin/End
@@ -402,7 +403,6 @@ static min::gen execute_selectors
 {
     min::uns32 size = min::size_of ( vp );
 
-    bool define;
     if ( vp[1] == PAR::print )
     {
 
@@ -440,11 +440,8 @@ static min::gen execute_selectors
 
 	return ::PRINTED;
     }
-    else if ( vp[1] == PAR::define )
-        define = true;
-    else if ( vp[1] == PAR::undefine )
-        define = false;
-    else return min::FAILURE();
+    else if ( vp[1] != PAR::define )
+	return min::FAILURE();
 
     min::uns32 i = 3;
     min::uns32 begini = i;
@@ -485,6 +482,87 @@ static min::gen execute_selectors
 	PAR::parse_warn
 	    ( parser, ppvec[2],
 	      "misspelled; should be `selector'" );
+
+    if ( i < size )
+        return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "extraneous stuff after" );
+
+    return min::SUCCESS();
+}
+
+// Execute Context
+// ------- -------
+
+static min::gen execute_context
+	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    min::uns32 size = min::size_of ( vp );
+    assert ( size >= 3 );
+
+    if ( vp[1] != PAR::define ) return min::FAILURE();
+
+    min::uns32 i = 3;
+    min::locatable_gen name;
+    name = COM::scan_simple_label
+	( vp, i,
+	    ( 1ull << LEXSTD::word_t )
+	  + ( 1ull << LEXSTD::number_t ) );
+    if ( name == min::MISSING() )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected simple name after" );
+
+    TAB::flags selectors;
+    TAB::new_flags new_flags;
+    if ( size >= i + 4
+         &&
+	 vp[i] == PAR::with
+	 &&
+	 vp[i+1] == PAR::parsing
+	 &&
+	 vp[i+2] == PAR::selectors )
+    {
+	i += 3;
+	min::gen result;
+	if ( name == PAR::default_lexeme )
+	    result = COM::scan_flags
+		( vp, i, selectors,
+		  parser->selector_name_table,
+		  parser );
+	else
+	    result = COM::scan_new_flags
+		( vp, i, new_flags,
+		  parser->selector_name_table,
+		  parser, true );
+	if ( result != min::SUCCESS() ) return result;
+    }
+    else if ( name != PAR::default_lexeme )
+    {
+        new_flags.or_flags = 0;
+        new_flags.not_flags = 0;
+        new_flags.xor_flags = 0;
+    }
+    else
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected `with parsing selectors'"
+	      " after" );
+
+    if ( name == PAR::default_lexeme )
+        parser->selectors = selectors;
+    else
+    {
+	min::phrase_position pp;
+	pp.begin = ppvec[0].begin;
+	pp.end = ppvec[i-1].end;
+
+	PAR::push_context
+	    ( name, 0, PAR::block_level ( parser ), pp,
+	      new_flags, parser->context_table );
+    }
 
     if ( i < size )
         return PAR::parse_error
@@ -751,6 +829,11 @@ min::gen COM::parser_execute_command
 	      (    vp[2] == PAR::selector
 	        || vp[2] == PAR::selectors ) )
 	result = ::execute_selectors
+		    ( vp, ppvec, parser );
+    else if ( size >= 3
+              &&
+	      vp[2] == PAR::context_lexeme )
+	result = ::execute_context
 		    ( vp, ppvec, parser );
     else if ( vp[1] == ::trace
 	      &&

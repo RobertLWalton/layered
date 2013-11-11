@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  6 04:18:27 EST 2013
+// Date:	Mon Nov 11 01:53:24 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -361,6 +361,9 @@ struct block_struct
 
     min::uns32 saved_undefined_stack_length;
         // Undefined_stack length when block begins.
+
+    ll::parser::table::flags saved_selectors;
+    	// Top level selectors when block begins.
 };
 
 typedef min::packed_vec_insptr
@@ -379,10 +382,11 @@ inline void push_block
 	( ll::parser::table::block_stack block_stack,
 	  min::gen name,
 	  ll::parser::table::undefined_stack
-	      undefined_stack )
+	      undefined_stack,
+	  ll::parser::table::flags selectors )
 {
     ll::parser::table::block_struct b =
-        { name, undefined_stack->length };
+        { name, undefined_stack->length, selectors };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, name );

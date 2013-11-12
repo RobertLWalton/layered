@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 12:17:19 EST 2013
+// Date:	Tue Nov 12 01:42:51 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -391,6 +391,62 @@ min::gen COM::scan_new_flags
     return ::scan_new_flags
         ( vp, i, new_flags,
 	  name_table, parser, allow_flag_list, true );
+}
+
+void COM::print_new_flags
+	( const TAB::new_flags & new_flags,
+	  TAB::name_table name_table,
+	  PAR::parser parser,
+	  bool allow_flag_list )
+{
+	parser->printer << "["
+	                << min::suppressible_space
+	                << min::save_indent
+	                << min::nohbreak;
+
+	bool is_flag_list =
+	    allow_flag_list
+	    &&
+	    new_flags.xor_flags == 0
+	    &&
+	    new_flags.or_flags == ~ new_flags.not_flags;
+	min::uns64 suppress =
+	    ( is_flag_list ? new_flags.not_flags
+	                   : TAB::ALL_FLAGS
+			     & ~ new_flags.or_flags
+	                     & ~ new_flags.not_flags
+	                     & ~ new_flags.xor_flags );
+
+	bool first = true;
+	for ( min::unsptr i = 0;
+	      i < name_table->length; ++ i )
+	{
+	    min::uns64 mask = 1ull << i;
+	    if ( mask & suppress ) continue;
+
+	    if ( ! first )
+	        parser->printer << ", "
+		                << min::set_break;
+	    else
+	        first = false;
+
+	    if ( ! is_flag_list )
+	    {
+	        if ( mask & new_flags.or_flags )
+		    parser->printer << "+";
+	        if ( mask & new_flags.not_flags )
+		    parser->printer << "-";
+	        if ( mask & new_flags.xor_flags )
+		    parser->printer << "^";
+	    }
+
+	    parser->printer << min::name_pgen
+	                           ( name_table[i] );
+	}
+
+	parser->printer << min::suppressible_space
+	                << "]"
+	                << min::restore_indent;
 }
 
 // Execute Selectors

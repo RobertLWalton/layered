@@ -254,7 +254,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 11, 2013
+November 12, 2013
  
 \end{center}
 
@@ -2407,6 +2407,24 @@ is recognized.  However {\em closing-bracket-name}
 recognition does not depend
 upon the current parser selectors, but only on previous recognition
 of an associated {\em opening-bracket-name}.
+
+The definition
+\begin{indpar}\begin{verbatim}
+parser define bracket "[" ... "]" [parser]
+\end{verbatim}\end{indpar}
+is builtin.
+
+The definitions
+\begin{indpar}\begin{verbatim}
+parser define bracket "(" ... ")" [code,math,text]
+parser define bracket "[" ... "]" [code,math,text]
+parser define bracket "{" ... "}" [code,math,text]
+       with parsing selectors [ + math, - code, - text]
+parser define bracket "`" ... "'" [code,math,text]
+       with parsing selectors [ + text, - code, - math]
+\end{verbatim}\end{indpar}
+are included by the standard parser at the beginning of
+its `{\tt standard}' parser block.
 
 \subsubsection{Indented Paragraph Subexpressions}
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 17 20:00:12 EST 2012
+// Date:	Tue Nov 12 01:43:08 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,6 +93,23 @@ min::gen scan_flags
 min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::new_flags & new_flags,
+	  ll::parser::table::name_table name_table,
+	  ll::parser::parser parser,
+	  bool allow_flag_list = false );
+
+// Print flag modifier list.  If allow_flag_list is
+// true and new_flags is a flag list (or_flags ==
+// ~ not_flags and xor_flags == 0) then a flag list
+// is printed instead.  The list is surrounded by [ ]
+// brackets and `,' is the separator.  If a modifier
+// list is being printed, the operator characters
+// `+', `-', and `^' are printed before the flag name.
+// Illegal modifier lists result in more than one
+// operator for the same flag name (e.g., `+^').
+//
+void print_new_flags
+	( const ll::parser::table::new_flags
+	    & new_flags,
 	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser,
 	  bool allow_flag_list = false );

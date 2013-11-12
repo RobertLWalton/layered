@@ -1805,19 +1805,19 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     $|$ & {\em parser-operator-command} \\
     \end{tabular}
 \label{PARSER-COMMAND}
-\\[0.8ex]
+\\[0.6ex]
 \emkey{simple-name-component} ::= {\em word} $|$ {\em number}
 \\[0.0ex]
 \emkey{simple-name} ::= {\em simple-name-component}
                         {\em simple-name-component}\,$^\star$
-\\[0.8ex]
+\\[0.6ex]
 \emkey{quoted-name-component} ::=
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
 \\[0.0ex]
 \emkey{quoted-name} ::=
     {\tt "}{\em quoted-name-component}
            {\em quoted-name-component}\,$^\star${\tt "}
-\\[0.8ex]
+\\[0.6ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.0ex]
 \emkey{parser-flag-list}
@@ -1835,7 +1835,7 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \\[0.0ex]
 \emkey{parser-flag-spec} ::= {\em parser-flag-list} $|$
                               {\em parser-flag-modifier-list}
-\\[0.8ex]
+\\[0.6ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser begin}{begin!parser block} {\em block-name} \\
@@ -1845,7 +1845,7 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \label{PARSER-BLOCK-COMMAND}
 \\[0.0ex]
 \emkey{block-name} ::= {\em simple-name}
-\\[0.8ex]
+\\[0.6ex]
 \emkey{parser-test-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-spec} \\
@@ -1853,9 +1853,9 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     $|$ & \ttikey{parser test}{test!parser} \ldots \\
     \end{tabular}
 \label{PARSER-TEST-COMMAND}
-\\[0.8ex]
+\\[0.6ex]
 \emkey{parser-trace-flag} ::= see page \pageref{PARSER-TRACE-FLAGS}
-\\[0.8ex]
+\\[0.6ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
@@ -1866,17 +1866,18 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \emkey{selector} ::= {\em parser-flag}
 \\[0.0ex]
 \emkey{selectors} ::= {\em parser-flag-list}
-\\[0.8ex]
+\\[0.6ex]
 \emkey{parser-context-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{parser define context}{selector!define} {\em context-name} \\
+    ::= & \ttikey{parser define context}{context!define} {\em context-name} \\
         & ~~~ [ {\tt with parsing selectors} {\em parser-flag-spec} ] \\
+    $|$ & \ttkey{parser print context} {\em context-name} \\
     \end{tabular}
 \\[0.0ex]
 \emkey{context-name} ::= {\em quoted-name}
 \label{PARSER-CONTEXT-COMMAND}
 
-\bigskip
+\medskip
 
 \centerline{\bf Parser Command Syntax}
 
@@ -2121,6 +2122,16 @@ entries with the same {\em type} and {\em name}.  When the
 block containing a {\tt parser undefine} command ends, the
 effects of that command are undone by restoring the cleared
 selector bits to their previous state.
+
+For `{\tt parser define}' commands defined in the following sections,
+and also for the `{\tt parser define context}' command defined above,
+there is a companion
+`\ttkey{parser print}' command that prints the contents of the
+parser symbol table entries with the designated {\em type} and {\em name}.
+Its syntax is
+\begin{center}
+{\tt parser print} {\em type} {\em name}
+\end{center}
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 

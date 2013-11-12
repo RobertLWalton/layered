@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 13:11:41 EST 2013
+// Date:	Tue Nov 12 03:10:23 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,7 @@
 # define COM ll::parser::command
 # define STD ll::parser::standard
 
+min::locatable_gen PAR::top_level;
 min::locatable_gen PAR::dot_position;
 min::locatable_gen PAR::dot_initiator;
 min::locatable_gen PAR::dot_terminator;
@@ -82,6 +83,8 @@ static min::locatable_gen keys;
 
 static void initialize ( void )
 {
+    PAR::top_level
+	= min::new_str_gen ( "TOP-LEVEL" );
     PAR::dot_position
 	= min::new_lab_gen ( ".", "position" );
     PAR::dot_initiator
@@ -571,15 +574,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	BRA::bracketed_pass bracketed_pass =
 	    BRA::place ( parser );
 
-	min::locatable_gen top_level
-	    ( min::new_str_gen ( "TOP-LEVEL" ) );
-	    // Note TOP-LEVEL is not a standard legal
-	    // lexeme and so cannot appear in standard
-	    // input.
-
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( top_level, PAR::semicolon,
+		( PAR::top_level, PAR::semicolon,
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  bracketed_pass->bracket_table );

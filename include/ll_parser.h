@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 03:04:41 EST 2013
+// Date:	Tue Nov 12 02:45:19 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,7 @@ namespace ll { namespace parser {
     using min::NULL_STUB;
 
     extern min::locatable_gen
+        top_level,	// TOP-LEVEL (not legal lexeme)
         dot_position,	// . position
 	dot_initiator,	// . initiator
 	dot_terminator,	// . terminator
@@ -904,6 +905,16 @@ inline min::uns32 block_level
 	( ll::parser::parser parser )
 {
     return parser->block_stack->length;
+}
+inline min::gen block_name
+	( ll::parser::parser parser,
+	  min::uns32 block_level )
+{
+    assert
+        ( block_level <= parser->block_stack->length );
+    return block_level == 0 ?
+           (min::gen) ll::parser::top_level :
+	   parser->block_stack[block_level-1].name;
 }
 
 MIN_REF ( ll::parser::input, input,

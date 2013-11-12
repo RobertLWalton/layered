@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 12 01:42:51 EST 2013
+// Date:	Tue Nov 12 03:10:44 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -399,6 +399,16 @@ void COM::print_new_flags
 	  PAR::parser parser,
 	  bool allow_flag_list )
 {
+	min::uns64 all_flags = new_flags.or_flags
+	                     | new_flags.not_flags
+	                     | new_flags.xor_flags;
+
+	if ( all_flags == 0 )
+	{
+	    parser->printer << "none";
+	    return;
+	}
+
 	parser->printer << "["
 	                << min::suppressible_space
 	                << min::save_indent
@@ -411,11 +421,9 @@ void COM::print_new_flags
 	    &&
 	    new_flags.or_flags == ~ new_flags.not_flags;
 	min::uns64 suppress =
-	    ( is_flag_list ? new_flags.not_flags
-	                   : TAB::ALL_FLAGS
-			     & ~ new_flags.or_flags
-	                     & ~ new_flags.not_flags
-	                     & ~ new_flags.xor_flags );
+	    ( is_flag_list ?
+	        new_flags.not_flags :
+	        TAB::ALL_FLAGS & ~ all_flags );
 
 	bool first = true;
 	for ( min::unsptr i = 0;
@@ -438,6 +446,7 @@ void COM::print_new_flags
 		    parser->printer << "-";
 	        if ( mask & new_flags.xor_flags )
 		    parser->printer << "^";
+	        parser->printer << " ";
 	    }
 
 	    parser->printer << min::name_pgen
@@ -558,7 +567,9 @@ static min::gen execute_context
     min::uns32 size = min::size_of ( vp );
     assert ( size >= 3 );
 
-    if ( vp[1] != PAR::define ) return min::FAILURE();
+    if (    vp[1] != PAR::define
+         && vp[1] != PAR::print )
+	return min::FAILURE();
 
     min::uns32 i = 3;
     min::locatable_gen name
@@ -582,6 +593,50 @@ static min::gen execute_context
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected quoted name after" );
+
+    if ( vp[1] == PAR::print )
+    {
+	parser->printer
+	    << "parser print context "
+	    << min::pgen ( vp[3], min::OBJ_EXP_FLAG )
+	    << ":" << min::eol
+	    << min::bom << min::nohbreak
+	    << min::set_indent ( 4 );
+
+	TAB::key_prefix prefix =
+	    TAB::find_key_prefix 
+		( name, parser->context_table );
+	if ( prefix != min::NULL_STUB )
+	{
+	    PAR::context context =
+		(PAR::context) prefix->first;
+	    MIN_ASSERT ( context != min::NULL_STUB );
+	    while ( context != min::NULL_STUB )
+	    {
+	        parser->printer << min::indent
+		                << "block "
+				<< min::pgen
+				     ( PAR::block_name
+				       ( parser,
+				         context->
+					   block_level
+				       ), 0 )
+				<< ": selectors = ";
+		COM::print_new_flags
+		    ( context->new_selectors,
+		      parser->selector_name_table,
+		      parser, true );
+
+		context = (PAR::context) context->next;
+	    }
+	    parser->printer << min::eom;
+	}
+	else
+	    parser->printer << min::indent
+	                    << "not found"
+			    << min::eom;
+	return min::SUCCESS();
+    }
 
     TAB::flags selectors;
     TAB::new_flags new_flags;

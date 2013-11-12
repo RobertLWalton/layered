@@ -96,19 +96,36 @@ parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser begin special
 parser define context "parser test special"
        with parsing selectors [parser]
+parser print context "parser test special":
+    block special: selectors = [parser]
+parser print context "parser test special"
 ======= TEST: parser test special
               [x <+ y +> z { u , v , w } m ( n ( p ) )]
-------- line 46:
+------- line 47:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 46:
+------- line 47:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser print context "default":
+    block special: selectors = [code]
+    block standard: selectors = [code]
+    block TOP-LEVEL: selectors = []
+parser print context "default"
 parser end special
+parser print context "parser test special":
+    not found
+parser print context "parser test special"
+parser print context "parser test":
+    block TOP-LEVEL: selectors = none
+parser print context "parser test"
+parser print context "parser":
+    block TOP-LEVEL: selectors = [parser]
+parser print context "parser"
 ======= TEST: parser test special [ x <+ y +> z { u , v , w } m ( n ( p
               ) ) ]
-------- line 48:
+------- line 53:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

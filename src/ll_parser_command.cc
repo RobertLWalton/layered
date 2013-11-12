@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 12 03:10:44 EST 2013
+// Date:	Tue Nov 12 06:20:03 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -603,38 +603,76 @@ static min::gen execute_context
 	    << min::bom << min::nohbreak
 	    << min::set_indent ( 4 );
 
-	TAB::key_prefix prefix =
-	    TAB::find_key_prefix 
-		( name, parser->context_table );
-	if ( prefix != min::NULL_STUB )
+	if ( name == PAR::default_lexeme )
 	{
-	    PAR::context context =
-		(PAR::context) prefix->first;
-	    MIN_ASSERT ( context != min::NULL_STUB );
-	    while ( context != min::NULL_STUB )
+	    TAB::new_flags new_flags;
+	    new_flags.xor_flags = 0;
+	    new_flags.or_flags = parser->selectors;
+	    for ( min::uns32 i =
+	              parser->block_stack->length;
+		  0 <= i; -- i )
 	    {
+	        min::gen block_name =
+		    ( i == 0 ?
+		      (min::gen) PAR::top_level :
+		      parser->block_stack[i-1].name );
+		new_flags.not_flags =
+		    ~ new_flags.or_flags;
+
 	        parser->printer << min::indent
 		                << "block "
 				<< min::pgen
-				     ( PAR::block_name
-				       ( parser,
-				         context->
-					   block_level
-				       ), 0 )
+				     ( block_name, 0 )
 				<< ": selectors = ";
 		COM::print_new_flags
-		    ( context->new_selectors,
+		    ( new_flags,
 		      parser->selector_name_table,
 		      parser, true );
 
-		context = (PAR::context) context->next;
+		if ( i == 0 ) break;
+
+		new_flags.or_flags =
+		    parser->block_stack[i-1]
+			.saved_selectors;
 	    }
-	    parser->printer << min::eom;
 	}
 	else
-	    parser->printer << min::indent
-	                    << "not found"
-			    << min::eom;
+	{
+	    TAB::key_prefix prefix =
+		TAB::find_key_prefix 
+		    ( name, parser->context_table );
+	    if ( prefix != min::NULL_STUB )
+	    {
+		PAR::context context =
+		    (PAR::context) prefix->first;
+		MIN_ASSERT
+		    ( context != min::NULL_STUB );
+		while ( context != min::NULL_STUB )
+		{
+		    min::gen block_name =
+			PAR::block_name
+			    ( parser,
+			      context->block_level );
+		    parser->printer
+		        << min::indent
+			<< "block "
+			<< min::pgen ( block_name, 0 )
+			<< ": selectors = ";
+		    COM::print_new_flags
+			( context->new_selectors,
+			  parser->selector_name_table,
+			  parser, true );
+
+		    context =
+		        (PAR::context) context->next;
+		}
+	    }
+	    else
+		parser->printer << min::indent
+				<< "not found";
+	}
+
+	parser->printer << min::eom;
 	return min::SUCCESS();
     }
 

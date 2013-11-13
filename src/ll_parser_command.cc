@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 12 06:20:03 EST 2013
+// Date:	Wed Nov 13 03:18:50 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -457,6 +457,19 @@ void COM::print_new_flags
 	                << "]"
 	                << min::restore_indent;
 }
+
+void COM::print_flags
+	( TAB::flags flags,
+	  TAB::name_table name_table,
+	  PAR::parser parser )
+{
+    TAB::new_flags new_flags;
+    new_flags.or_flags = flags;
+    new_flags.not_flags = ~ flags;
+    new_flags.xor_flags = 0;
+    COM::print_new_flags
+        ( new_flags, name_table, parser, true );
+}
 
 // Execute Selectors
 // ------- ---------
@@ -605,9 +618,7 @@ static min::gen execute_context
 
 	if ( name == PAR::default_lexeme )
 	{
-	    TAB::new_flags new_flags;
-	    new_flags.xor_flags = 0;
-	    new_flags.or_flags = parser->selectors;
+	    TAB::flags flags = parser->selectors;
 	    for ( min::uns32 i =
 	              parser->block_stack->length;
 		  0 <= i; -- i )
@@ -616,24 +627,21 @@ static min::gen execute_context
 		    ( i == 0 ?
 		      (min::gen) PAR::top_level :
 		      parser->block_stack[i-1].name );
-		new_flags.not_flags =
-		    ~ new_flags.or_flags;
 
 	        parser->printer << min::indent
 		                << "block "
 				<< min::pgen
 				     ( block_name, 0 )
 				<< ": selectors = ";
-		COM::print_new_flags
-		    ( new_flags,
+		COM::print_flags
+		    ( flags,
 		      parser->selector_name_table,
-		      parser, true );
+		      parser );
 
 		if ( i == 0 ) break;
 
-		new_flags.or_flags =
-		    parser->block_stack[i-1]
-			.saved_selectors;
+		flags = parser->block_stack[i-1]
+			    .saved_selectors;
 	    }
 	}
 	else

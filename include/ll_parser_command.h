@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 12 01:43:08 EST 2013
+// Date:	Wed Nov 13 03:19:09 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -113,6 +113,13 @@ void print_new_flags
 	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser,
 	  bool allow_flag_list = false );
+
+// Print flag list.
+//
+void print_flags
+	( ll::parser::table::flags flags,
+	  ll::parser::table::name_table name_table,
+	  ll::parser::parser parser );
 
 // Given a vector pointer vp to an expression, test if
 // the expression is a parser command.  Do nothing but

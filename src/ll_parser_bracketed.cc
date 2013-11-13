@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 03:51:20 EST 2013
+// Date:	Wed Nov 13 06:41:16 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2943,6 +2943,75 @@ static min::gen bracketed_pass_command
 		    ( root->selectors,
 		      parser->selector_name_table,
 		      parser );
+		parser->printer
+		    << " " << min::save_indent;
+
+		switch ( type )
+		{
+		case ::BRACKET:
+		{
+		    BRA::opening_bracket opening_bracket =
+			(BRA::opening_bracket) root;
+
+		    TAB::new_flags new_selectors =
+			opening_bracket->new_selectors;
+
+		    if ( ! TAB::is_empty
+		               ( new_selectors ) )
+		    {
+		        parser->printer
+			    << "with parsing"
+			       " selectors ";
+			COM::print_new_flags
+			    ( new_selectors,
+			      parser->
+			          selector_name_table,
+			      parser );
+		    }
+
+		    if ( opening_bracket->full_lines )
+		        parser->printer
+			    << " " << min::set_break
+			    << "with full lines";
+
+		    break;
+		}
+
+		case ::INDENTATION_MARK:
+		{
+		    BRA::indentation_mark indentation_mark =
+			(BRA::indentation_mark) root;
+
+		    TAB::new_flags new_selectors =
+			indentation_mark->new_selectors;
+
+		    if ( ! TAB::is_empty
+		               ( new_selectors ) )
+		    {
+		        parser->printer
+			    << "with parsing"
+			       " selectors ";
+			COM::print_new_flags
+			    ( new_selectors,
+			      parser->
+			          selector_name_table,
+			      parser );
+		    }
+
+		    break;
+		}
+		case ::NAMED_BRACKET:
+		{
+		    break;
+		}
+		default:
+		    MIN_ABORT
+			( "bad parser undefine/print"
+			  " type" );
+		}
+
+		parser->printer << min::restore_indent
+		                << min::eol;
 	    }
 
 	    ++ count;

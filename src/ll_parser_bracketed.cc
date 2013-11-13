@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 03:07:30 EST 2013
+// Date:	Wed Nov 13 02:20:24 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2325,30 +2325,29 @@ static min::gen bracketed_pass_command
 
     // Scan keywords before names.
     //
-    bool define;
-        // True if define, false if undefine.
-    definition_type type;
-        // Type of define or undefine.
     unsigned i = 1;
         // vp[i] is next lexeme or subexpression to
 	// scan in the define/undefine expression.
+    min::gen command = vp[i];
+        // define, undefine, or print.
+    definition_type type;
+        // Type of command (see above).
     bool gluing = false;
-        // True if `define/undefine gluing ...', false
-	// if not.
+        // True if `command gluing ...', false if not.
     unsigned min_names, max_names;
         // Minimum and maximum number of names allowed.
 
-    if ( vp[i] == PAR::define )
-        define = true;
-    else if ( vp[i] == PAR::undefine )
-        define = false;
-    else
+    if ( command != PAR::define
+         &&
+	 command != PAR::undefine
+         &&
+	 command != PAR::print )
         return min::FAILURE();
     ++ i;
 
     if ( vp[i] == ::indent )
     {
-	if ( ! define
+	if ( command != PAR::define
 	     ||
 	     i + 1 >= size
 	     ||
@@ -2471,20 +2470,8 @@ static min::gen bracketed_pass_command
 	    ( parser, ppvec->position,
 	      "too few quoted names in" );
 
-    TAB::flags selectors;
-    min::gen sresult = COM::scan_flags
-	    ( vp, i, selectors,
-	      parser->selector_name_table, parser );
-    if ( sresult == min::ERROR() )
-	return min::ERROR();
-    else if ( sresult == min::MISSING() )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected bracketed selector list"
-	      " after" );
-
     // Some type specific error checking common to
-    // define and undefine.
+    // define/undefine/print.
     //
     switch ( type )
     {
@@ -2540,7 +2527,19 @@ static min::gen bracketed_pass_command
     }
     }
 
-    if ( define ) switch ( type )
+    TAB::flags selectors;
+    min::gen sresult = COM::scan_flags
+	    ( vp, i, selectors,
+	      parser->selector_name_table, parser );
+    if ( sresult == min::ERROR() )
+	return min::ERROR();
+    else if ( sresult == min::MISSING() )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected bracketed selector list"
+	      " after" );
+
+    if ( command == PAR::define ) switch ( type )
     {
     case ::BRACKET:
     {
@@ -2775,7 +2774,7 @@ static min::gen bracketed_pass_command
     default:
 	MIN_ABORT ( "bad parser define type" );
     }
-    else /* if ( ! define ) */ 
+    else /* if ( define == PAR::undefine ) */ 
     {
 	if ( i < size )
 	    return PAR::parse_error

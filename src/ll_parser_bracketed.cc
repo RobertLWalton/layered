@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 02:20:24 EST 2013
+// Date:	Wed Nov 13 03:51:20 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2528,16 +2528,19 @@ static min::gen bracketed_pass_command
     }
 
     TAB::flags selectors;
-    min::gen sresult = COM::scan_flags
-	    ( vp, i, selectors,
-	      parser->selector_name_table, parser );
-    if ( sresult == min::ERROR() )
-	return min::ERROR();
-    else if ( sresult == min::MISSING() )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected bracketed selector list"
-	      " after" );
+    if ( command != PAR::print )
+    {
+	min::gen sresult = COM::scan_flags
+		( vp, i, selectors,
+		  parser->selector_name_table, parser );
+	if ( sresult == min::ERROR() )
+	    return min::ERROR();
+	else if ( sresult == min::MISSING() )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected bracketed selector list"
+		  " after" );
+    }
 
     if ( command == PAR::define ) switch ( type )
     {
@@ -2774,12 +2777,28 @@ static min::gen bracketed_pass_command
     default:
 	MIN_ABORT ( "bad parser define type" );
     }
-    else /* if ( define == PAR::undefine ) */ 
+    else /* if command == PAR::undefine or PAR::print */
     {
 	if ( i < size )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "unexpected stuff after" );
+
+	if ( command == PAR::print )
+	{
+	    for ( min::uns32 j = 0; j < size; ++ j )
+	    {
+		parser->printer
+		    << ( j == 0 ? "" : " " )
+		    << min::pgen ( vp[j],
+				   min::OBJ_EXP_FLAG );
+	    }
+
+	    parser->printer
+		<< ":" << min::eol
+		<< min::bom << min::nohbreak
+		<< min::set_indent ( 4 );
+	}
 
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
@@ -2793,8 +2812,10 @@ static min::gen bracketed_pass_command
 	      root != min::NULL_STUB;
 	      root = root->next )
 	{
-	    if (    ( root->selectors & selectors )
-		 == 0 )
+	    if ( command == PAR::undefine
+	         &&
+		 ( root->selectors & selectors ) == 0
+	       )
 		continue;
 
 	    min::uns32 subtype =
@@ -2900,25 +2921,52 @@ static min::gen bracketed_pass_command
 	    }
 	    default:
 		MIN_ABORT
-		    ( "bad parser undefine type" );
+		    ( "bad parser undefine/print"
+		      " type" );
 	    }
 
-	    TAB::push_undefined
-	        ( parser->undefined_stack,
-		  root, selectors );
+	    if ( command == PAR::undefine )
+		TAB::push_undefined
+		    ( parser->undefined_stack,
+		      root, selectors );
+	    else /* if ( command == PAR::print ) */
+	    {
+	        parser->printer
+		    << min::indent << "block "
+		    << min::pgen
+		           ( PAR::block_name
+		                 ( parser,
+				   root->block_level ),
+			     0 )
+		    << ": ";
+		COM::print_flags
+		    ( root->selectors,
+		      parser->selector_name_table,
+		      parser );
+	    }
 
 	    ++ count;
 	}
 
-	if ( count == 0 )
-	    PAR::parse_warn
-		( parser, ppvec->position,
-		  "undefine found no definition" );
-	else if ( count > 1 )
-	    PAR::parse_warn
-		( parser, ppvec->position,
-		  "undefine cancelled more than one"
-		  " definition" );
+	if ( command == PAR::undefine )
+	{
+	    if ( count == 0 )
+		PAR::parse_warn
+		    ( parser, ppvec->position,
+		      "undefine found no definition" );
+	    else if ( count > 1 )
+		PAR::parse_warn
+		    ( parser, ppvec->position,
+		      "undefine cancelled more than one"
+		      " definition" );
+	}
+	else /* if ( command == PAR::print ) */
+	{
+	    if ( count == 0 )
+	        parser->printer << "not found";
+	    parser->printer << min::eom;
+	}
+      
     }
 
     return min::SUCCESS();

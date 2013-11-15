@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 06:14:11 EST 2013
+// Date:	Fri Nov 15 04:06:50 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -318,6 +318,79 @@ void end_block
           uns32 block_level,
 	  uns64 & collected_key_prefixes,
 	  uns64 & collected_entries );
+
+// Iterator that finds all the root entries in a
+// key_table.  Must be created in a stack frame.
+// Assumes that the key table is not changed or
+// garbage collected while the iterator is in use
+// (but it may be compacted).
+//
+struct key_table_iterator
+{
+    ll::parser::table::key_table key_table;
+        // Key table.
+    ll::parser::table::root root;
+        // Value returned by next().
+    ll::parser::table::key_prefix key_prefix;
+        // Next key_prefix to use.  key_prefix.first
+	// must NOT be NULL_STUB.  NULL_STUB if no more
+	// key_prefixes with non-NULL_STUB .first in
+	// table.
+    min::uns32 index;
+        // Index of next element in key_table to use.
+	// >= key_table->length if no more elements
+	// to use.
+
+    // Return next root in table, and update iterator to
+    // point at the root following that.  Returns min::
+    // NULL_STUB if no more roots.
+    //
+    ll::parser::table::root next ( void )
+    {
+        ll::parser::table::root result = root;
+	if ( root == min::NULL_STUB ) return result;
+	root = root->next;
+	if ( root != min::NULL_STUB ) return result;
+	if ( key_prefix == min::NULL_STUB )
+	    return result;
+	root = key_prefix->first;
+	while ( true )
+	{
+	    key_prefix = key_prefix->next;
+	    while ( key_prefix == min::NULL_STUB )
+	    {
+	        if ( index >= key_table->length )
+		    return result;
+		key_prefix = key_table[index++];
+	    }
+	    if ( key_prefix->first != min::NULL_STUB )
+	        return result;
+	}
+    }
+
+    // Construct an iterator.
+    //
+    key_table_iterator
+	    ( ll::parser::table::key_table key_table )
+	: key_table ( key_table )
+    {
+	root = min::NULL_STUB;
+        for ( index = 0; index < key_table->length; )
+	{
+	    key_prefix = key_table[index++];
+	    while ( key_prefix != min::NULL_STUB )
+	    {
+		if ( root == min::NULL_STUB )
+		    root = key_prefix->first;
+		else if (    key_prefix->first
+		          != min::NULL_STUB )
+		    return;
+	        key_prefix = key_prefix->next;
+	    }
+	}
+    }
+};
+
 
 // Undefineds
 // ----------
@@ -367,6 +440,9 @@ struct block_struct
     min::gen name;
         // Block name.
 
+    min::uns32 saved_selector_name_table_length;
+        // Selector_name_table length when block begins.
+
     min::uns32 saved_undefined_stack_length;
         // Undefined_stack length when block begins.
 
@@ -389,12 +465,17 @@ void init_block_stack
 inline void push_block
 	( ll::parser::table::block_stack block_stack,
 	  min::gen name,
+	  ll::parser::table::name_table
+	      selector_name_table,
 	  ll::parser::table::undefined_stack
 	      undefined_stack,
 	  ll::parser::table::flags selectors )
 {
     ll::parser::table::block_struct b =
-        { name, undefined_stack->length, selectors };
+        { name,
+	  selector_name_table->length,
+	  undefined_stack->length,
+	  selectors };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, name );

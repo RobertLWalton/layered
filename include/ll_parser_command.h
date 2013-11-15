@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 03:19:09 EST 2013
+// Date:	Fri Nov 15 06:04:53 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -131,6 +131,13 @@ void print_flags
 // `parser' can be parser commands.
 //
 min::gen parser_execute_command
+	( min::obj_vec_ptr & vp,
+	  ll::parser::parser parser );
+
+// Print the command stored in vp.  No min::eol or other
+// control command is executed.
+//
+void print_command
 	( min::obj_vec_ptr & vp,
 	  ll::parser::parser parser );
 

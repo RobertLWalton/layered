@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 12 03:10:23 EST 2013
+// Date:	Fri Nov 15 04:12:37 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1026,7 +1026,9 @@ min::gen PAR::begin_block
 	( PAR::parser parser, min::gen name,
 	  const min::phrase_position & position )
 {
-    TAB::push_block ( parser->block_stack, name,
+    TAB::push_block ( parser->block_stack,
+                      name,
+		      parser->selector_name_table,
                       parser->undefined_stack,
 		      parser->selectors );
 
@@ -1070,6 +1072,11 @@ min::gen PAR::end_block
 	      position,
 	      "innermost block name does not match `",
 	      min::name_pgen ( name ), "'" );
+
+    while ( parser->selector_name_table->length
+            >
+	    b.saved_selector_name_table_length )
+        TAB::pop_name ( parser->selector_name_table );
 
     min::uns32 length = b.saved_undefined_stack_length;
     while ( parser->undefined_stack->length > length )
@@ -1483,7 +1490,8 @@ min::gen PAR::scan_name_string_label
 	  ll::parser::parser parser,
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
-	  min::uns64 end_types )
+	  min::uns64 end_types,
+	  bool empty_name_ok )
 {
     if ( i >= min::size_of ( vp ) )
         return min::MISSING();
@@ -1518,7 +1526,8 @@ min::gen PAR::scan_name_string_label
 
     return LEX::scan_name_string
 	( name_scanner_ref ( parser ),
-	  accepted_types, ignored_types, end_types );
+	  accepted_types, ignored_types, end_types,
+	  empty_name_ok );
 }
 
 void PAR::convert_token ( PAR::token token )

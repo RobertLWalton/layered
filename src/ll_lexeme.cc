@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 10 03:14:52 EDT 2012
+// Date:	Fri Nov 15 04:44:50 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3071,6 +3071,7 @@ static min::gen scan_name_string_next_element
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
 	  min::uns64 end_types,
+	  bool empty_name_ok,
 	  ::scan_name_string_var * previous = NULL,
 	  min::uns32 count = 0 )
 {
@@ -3108,7 +3109,9 @@ static min::gen scan_name_string_next_element
 	    {
 	        if ( flag & end_types )
 		{
-		    if ( count == 0 )
+		    if ( count == 0
+		         &&
+			 ! empty_name_ok )
 		    {
 			scanner->printer
 			    << "ERROR: empty name"
@@ -3154,6 +3157,7 @@ static min::gen scan_name_string_next_element
 	      accepted_types,
 	      ignored_types,
 	      end_types,
+	      empty_name_ok,
 	      & var, count );
 }
 
@@ -3161,7 +3165,8 @@ min::gen LEX::scan_name_string
 	( min::ref<ll::lexeme::scanner> scanner,
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
-	  min::uns64 end_types )
+	  min::uns64 end_types,
+	  bool empty_name_ok )
 {
 
    if ( scanner->erroneous_atom == NULL_STUB )
@@ -3170,5 +3175,6 @@ min::gen LEX::scan_name_string
 
     return ::scan_name_string_next_element
         ( scanner,
-	  accepted_types, ignored_types, end_types );
+	  accepted_types, ignored_types, end_types,
+	  empty_name_ok );
 }

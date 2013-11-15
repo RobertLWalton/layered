@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 12 02:45:19 EST 2013
+// Date:	Fri Nov 15 06:04:24 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1268,7 +1268,8 @@ min::gen scan_name_string_label
 	  ll::parser::parser parser,
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
-	  min::uns64 end_types );
+	  min::uns64 end_types,
+	  bool empty_name_ok = false );
 
 // Skip n tokens.
 //

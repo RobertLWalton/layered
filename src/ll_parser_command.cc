@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 03:18:50 EST 2013
+// Date:	Fri Nov 15 06:06:07 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -469,6 +469,22 @@ void COM::print_flags
     new_flags.xor_flags = 0;
     COM::print_new_flags
         ( new_flags, name_table, parser, true );
+} 
+
+void COM::print_command
+	( min::obj_vec_ptr & vp,
+	  PAR::parser parser )
+{
+
+    min::uns32 size = min::size_of ( vp );
+
+    for ( min::uns32 i = 0; i < size; ++ i )
+    {
+	parser->printer
+	    << ( i == 0 ? "" : " " )
+	    << min::pgen ( vp[i],
+			   min::OBJ_EXP_FLAG );
+    }
 }
 
 // Execute Selectors
@@ -479,92 +495,130 @@ static min::gen execute_selectors
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
-    min::uns32 size = min::size_of ( vp );
-
-    if ( vp[1] == PAR::print )
-    {
-
-	TAB::name_table t =
-	    parser->selector_name_table;
-
-	parser->printer
-	    << "parser print selectors:" << min::eol
-	    << min::bom << min::nohbreak
-	    << min::set_indent ( 4 ) << min::indent
-	    << "["
-	    << min::set_indent ( 6 ) << min::indent;
-
-	TAB::flags selectors = parser->selectors;
-	for ( unsigned j = 0; j < t->length; ++ j )
-	{
-	    if ( j > 0 ) parser->printer << ", ";
-	    parser->printer
-		<< min::set_break
-		<< ( ( selectors & ( 1ull << j ) ) ?
-		     "+ " : "- " )
-		<< min::name_pgen ( t[j] );
-	}
-	parser->printer << " ]" << min::eom;
-
-	if ( vp[2] != PAR::selectors )
-	    PAR::parse_warn
-	        ( parser, ppvec[2],
-		  "misspelled; should be `selectors'" );
-
-        if ( size > 3 )
-	    return PAR::parse_error
-	        ( parser, ppvec[2],
-		  "extraneous stuff after" );
-
-	return ::PRINTED;
-    }
-    else if ( vp[1] != PAR::define )
+    if ( vp[1] != PAR::define
+         &&
+	 vp[1] != PAR::print )
 	return min::FAILURE();
+
+    min::uns32 size = min::size_of ( vp );
 
     min::uns32 i = 3;
     min::uns32 begini = i;
     min::locatable_gen name;
-    name = COM::scan_simple_label
-	( vp, i,
-	    ( 1ull << LEXSTD::word_t )
-	  + ( 1ull << LEXSTD::number_t ) );
-    if ( name == min::MISSING() )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected simple name after" );
-
-    int j = TAB::get_index
-	( parser->selector_name_table, name );
-    if ( j < 0 )
+    if ( vp[1] == PAR::define )
     {
-	if ( parser->selector_name_table
-		   ->length >= 64 )
-	{
-	    min::phrase_position pp;
-	    pp.begin = ppvec[begini].begin;
-	    pp.end = ppvec[i-1].end;
+	name = COM::scan_simple_label
+	    ( vp, i,
+		( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ) );
+	if ( name == min::MISSING() )
 	    return PAR::parse_error
-	        ( parser, pp,
-		  "too many selector names;"
-		  " cannot process ",
-		  min::pgen ( name,
-		              min::BRACKET_STR_FLAG ),
-		  " in" );
-	}
-
-	TAB::push_name
-	    ( parser->selector_name_table, name );
+		( parser, ppvec[i-1],
+		  "expected simple name after" );
     }
+    else /* if vp[1] == PAR::print */
+    {
+	name = PAR::scan_name_string_label
+	    ( vp, i, parser,
 
-    if ( vp[2] != PAR::selector )
-	PAR::parse_warn
-	    ( parser, ppvec[2],
-	      "misspelled; should be `selector'" );
+		( 1ull << LEXSTD::mark_t )
+	      + ( 1ull << LEXSTD::separator_t )
+	      + ( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ),
+
+		( 1ull << LEXSTD::
+			      horizontal_space_t )
+	      + ( 1ull << LEXSTD::end_of_file_t ),
+
+		( 1ull << LEXSTD::end_of_file_t ),
+	      true /* empty name ok */ );
+
+	if ( name == min::ERROR() )
+	    return min::ERROR();
+	else if ( name == min::MISSING() )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected quoted name after" );
+    }
 
     if ( i < size )
         return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "extraneous stuff after" );
+
+    if ( vp[1] == PAR::define )
+    {
+	int j = TAB::get_index
+	    ( parser->selector_name_table, name );
+	if ( j < 0 )
+	{
+	    if ( parser->selector_name_table
+		       ->length >= 64 )
+	    {
+		min::phrase_position pp;
+		pp.begin = ppvec[begini].begin;
+		pp.end = ppvec[i-1].end;
+		return PAR::parse_error
+		    ( parser, pp,
+		      "too many selector names;"
+		      " cannot process ",
+		      min::pgen
+		          ( name,
+			    min::BRACKET_STR_FLAG ),
+		      " in" );
+	    }
+
+	    TAB::push_name
+		( parser->selector_name_table, name );
+	}
+    }
+    else /* if vp[1] == PAR::print */
+    {
+        COM::print_command ( vp, parser );
+	parser->printer
+	    << ":" << min::eol
+	    << min::bom << min::nohbreak
+	    << min::set_indent ( 4 );
+	int count = 0;
+
+	TAB::name_table t =
+	    parser->selector_name_table;
+
+	min::uns32 block_level =
+	    PAR::block_level ( parser );
+	for ( min::uns32 j = t->length; 0 < j --; )
+	{
+	    if (   min::is_subsequence ( name, t[j] )
+	         < 0 )
+	        continue;
+
+	    while ( block_level > 0
+	            &&
+		    parser->block_stack[block_level-1]
+		      .saved_selector_name_table_length
+		    >= j )
+	        -- block_level;
+
+	    min::gen block_name =
+	        PAR::block_name ( parser, block_level );
+
+	    parser->printer << min::indent
+			    << "block "
+			    << min::pgen
+				 ( block_name, 0 )
+			    << ": "
+		            << min::name_pgen ( t[j] );
+
+	    ++ count;
+	}
+
+	if ( count == 0 )
+	    parser->printer << min::indent
+	                    << "not found";
+	parser->printer << min::eom;
+
+	return ::PRINTED;
+    }
 
     return min::SUCCESS();
 }
@@ -598,7 +652,8 @@ static min::gen execute_context
 			      horizontal_space_t )
 	      + ( 1ull << LEXSTD::end_of_file_t ),
 
-		( 1ull << LEXSTD::end_of_file_t ) ) );
+		( 1ull << LEXSTD::end_of_file_t ),
+		vp[1] == PAR::print ) );
 
     if ( name == min::ERROR() )
 	return min::ERROR();
@@ -609,9 +664,14 @@ static min::gen execute_context
 
     if ( vp[1] == PAR::print )
     {
+
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "extraneous stuff after" );
+
+        COM::print_command ( vp, parser );
 	parser->printer
-	    << "parser print context "
-	    << min::pgen ( vp[3], min::OBJ_EXP_FLAG )
 	    << ":" << min::eol
 	    << min::bom << min::nohbreak
 	    << min::set_indent ( 4 );
@@ -632,7 +692,7 @@ static min::gen execute_context
 		                << "block "
 				<< min::pgen
 				     ( block_name, 0 )
-				<< ": selectors = ";
+				<< ": \"default\" ";
 		COM::print_flags
 		    ( flags,
 		      parser->selector_name_table,
@@ -646,42 +706,48 @@ static min::gen execute_context
 	}
 	else
 	{
-	    TAB::key_prefix prefix =
-		TAB::find_key_prefix 
-		    ( name, parser->context_table );
-	    if ( prefix != min::NULL_STUB )
+	    TAB::key_table_iterator it
+	        ( parser->context_table );
+	    int count = 0;
+	    while ( true )
 	    {
+	        TAB::root root = it.next();
+		if ( root == min::NULL_STUB ) break;
 		PAR::context context =
-		    (PAR::context) prefix->first;
+		    (PAR::context) root;
 		MIN_ASSERT
 		    ( context != min::NULL_STUB );
-		while ( context != min::NULL_STUB )
-		{
-		    min::gen block_name =
-			PAR::block_name
-			    ( parser,
-			      context->block_level );
-		    parser->printer
-		        << min::indent
-			<< "block "
-			<< min::pgen ( block_name, 0 )
-			<< ": selectors = ";
-		    COM::print_new_flags
-			( context->new_selectors,
-			  parser->selector_name_table,
-			  parser, true );
 
-		    context =
-		        (PAR::context) context->next;
-		}
+		if ( min::is_subsequence
+		         ( name, context->label ) < 0 )
+		    continue;
+
+		min::gen block_name =
+		    PAR::block_name
+			( parser,
+			  context->block_level );
+		parser->printer
+		    << min::indent
+		    << "block "
+		    << min::pgen ( block_name, 0 )
+		    << ": "
+		    << context->label
+		    << " ";
+		COM::print_new_flags
+		    ( context->new_selectors,
+		      parser->selector_name_table,
+		      parser, true );
+
+		++ count;
 	    }
-	    else
+
+	    if ( count == 0 )
 		parser->printer << min::indent
 				<< "not found";
 	}
 
 	parser->printer << min::eom;
-	return min::SUCCESS();
+	return ::PRINTED;
     }
 
     TAB::flags selectors;
@@ -995,8 +1061,7 @@ min::gen COM::parser_execute_command
 	    ( vp, ppvec, parser );
     else if ( size >= 3
               &&
-	      (    vp[2] == PAR::selector
-	        || vp[2] == PAR::selectors ) )
+	      vp[2] == PAR::selector )
 	result = ::execute_selectors
 		    ( vp, ppvec, parser );
     else if ( size >= 3

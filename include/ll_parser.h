@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 15 06:04:24 EST 2013
+// Date:	Thu Nov 21 02:09:57 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -728,11 +728,12 @@ enum {
     TRACE_SUBEXPRESSION_ELEMENTS	= 1ull << 4,
 	// Trace flag with name `subexpression elements'
 	// that causes subexpression values to be
-	// printed with min::flush_pgen.
+	// printed with min::indent_pgen.
     TRACE_SUBEXPRESSION_DETAILS		= 1ull << 5,
 	// Trace flag with name `subexpression details'
 	// that causes subexpression values to be
-	// printed with min::pgen.
+	// printed with min::pgen with min::no_exp_
+	// context_gen_flags.
     TRACE_SUBEXPRESSION_LINES		= 1ull << 6,
 	// Trace flag with name `subexpression lines'
 	// that causes subexpression values to be

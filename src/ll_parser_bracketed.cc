@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 06:41:16 EST 2013
+// Date:	Thu Nov 21 02:08:33 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2933,11 +2933,11 @@ static min::gen bracketed_pass_command
 	    {
 	        parser->printer
 		    << min::indent << "block "
-		    << min::pgen
+		    << min::name_pgen
 		           ( PAR::block_name
 		                 ( parser,
-				   root->block_level ),
-			     0 )
+				   root->block_level )
+			   )
 		    << ": ";
 		COM::print_flags
 		    ( root->selectors,

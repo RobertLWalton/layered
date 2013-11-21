@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 15 06:06:07 EST 2013
+// Date:	Thu Nov 21 02:05:21 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -561,11 +561,9 @@ static min::gen execute_selectors
 		return PAR::parse_error
 		    ( parser, pp,
 		      "too many selector names;"
-		      " cannot process ",
-		      min::pgen
-		          ( name,
-			    min::BRACKET_STR_FLAG ),
-		      " in" );
+		      " cannot process \"",
+		      min::name_pgen ( name ),
+		      "\" in" );
 	    }
 
 	    TAB::push_name
@@ -604,8 +602,8 @@ static min::gen execute_selectors
 
 	    parser->printer << min::indent
 			    << "block "
-			    << min::pgen
-				 ( block_name, 0 )
+			    << min::name_pgen
+				 ( block_name )
 			    << ": "
 		            << min::name_pgen ( t[j] );
 
@@ -690,8 +688,8 @@ static min::gen execute_context
 
 	        parser->printer << min::indent
 		                << "block "
-				<< min::pgen
-				     ( block_name, 0 )
+				<< min::name_pgen
+				     ( block_name )
 				<< ": \"default\" ";
 		COM::print_flags
 		    ( flags,
@@ -729,10 +727,10 @@ static min::gen execute_context
 		parser->printer
 		    << min::indent
 		    << "block "
-		    << min::pgen ( block_name, 0 )
-		    << ": "
-		    << context->label
-		    << " ";
+		    << min::name_pgen ( block_name )
+		    << ": \""
+		    << min::name_pgen ( context->label )
+		    << "\" ";
 		COM::print_new_flags
 		    ( context->new_selectors,
 		      parser->selector_name_table,
@@ -868,7 +866,7 @@ static min::gen execute_test
 
 	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
 	    parser->printer
-		<< min::flush_pgen ( obj )
+		<< min::indent_pgen ( obj )
 		<< min::eom
 		<< min::flush_id_map;
 
@@ -880,11 +878,10 @@ static min::gen execute_test
 	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	{
 	    parser->printer
-	        << min::clear_value_gen_flags
-			( min::OBJ_EXP_FLAG )
-	        << min::clear_name_gen_flags
-			( min::OBJ_EXP_FLAG )
-		<< min::flush_pgen ( obj )
+	        << min::set_context_gen_flags
+			( & min::
+			    no_exp_context_gen_flags )
+		<< min::indent_pgen ( obj )
 		<< min::eol
 		<< min::flush_id_map
 		<< min::eom;

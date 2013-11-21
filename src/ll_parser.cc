@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 15 04:12:37 EST 2013
+// Date:	Thu Nov 21 02:00:28 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1408,20 +1408,15 @@ void PAR::compact
 	    parser->printer
 		<< min::indent
 		<< min::bom
-		<< min::clear_value_gen_flags
-			( min::OBJ_ID_FLAG )
-		<< min::clear_name_gen_flags
-			( min::OBJ_ID_FLAG )
-		<< min::flush_pgen ( first->value )
+		<< min::indent_pgen ( first->value )
 		<< min::eom;
 	if (   trace_flags
 	     & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	    parser->printer
 		<< min::save_print_format
-		<< min::clear_value_gen_flags
-			( min::OBJ_EXP_FLAG )
-		<< min::clear_name_gen_flags
-			( min::OBJ_EXP_FLAG )
+		<< min::set_context_gen_flags
+			( & min::
+			    no_exp_context_gen_flags )
 	        << min::map_pgen ( first->value )
 		<< min::eol
 		<< min::restore_print_format;

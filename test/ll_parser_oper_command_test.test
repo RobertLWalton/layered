@@ -1,5 +1,6 @@
-parser print selectors:
-    [ - parser, + code, - math, - text ]
+parser print context "default":
+    block standard: "default" [code]
+    block TOP-LEVEL: "default" []
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]

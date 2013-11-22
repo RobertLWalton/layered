@@ -1,54 +1,62 @@
-parser print selectors:
-    [ - parser, + code ]
+parser print selector "":
+    block TOP-LEVEL: code
+    block TOP-LEVEL: parser
 parser define selector my selector
 ERROR: in line 13: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
                                 ^
-parser print selectors:
-    [ - parser, + code, - my selector, - operator1 ]
+parser print selector "":
+    block standard: my selector
+    block TOP-LEVEL: code
+    block TOP-LEVEL: parser
+parser print context "":
+    block standard: "default" [code]
+    block TOP-LEVEL: "default" []
+    block TOP-LEVEL: "parser" [parser]
+    block TOP-LEVEL: "parser test" none
 parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser trace [+ parser input]
-WORD: "parser": line 19:
+WORD: "parser": line 20:
 parser trace [- parser input]
 ^^^^^^
-WORD: "trace": line 19:
+WORD: "trace": line 20:
 parser trace [- parser input]
        ^^^^^
-SEPARATOR: "[": line 19:
+SEPARATOR: "[": line 20:
 parser trace [- parser input]
              ^
-MARK: "-": line 19:
+MARK: "-": line 20:
 parser trace [- parser input]
               ^
-WORD: "parser": line 19:
+WORD: "parser": line 20:
 parser trace [- parser input]
                 ^^^^^^
-WORD: "input": line 19:
+WORD: "input": line 20:
 parser trace [- parser input]
                        ^^^^^
-SEPARATOR: "]": line 19:
+SEPARATOR: "]": line 20:
 parser trace [- parser input]
                             ^
-LINE_BREAK: line 19:
+LINE_BREAK: line 20:
 parser trace [- parser input]
                              ^
 parser print trace:
     [ - warnings, + parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
-WORD: "parser": line 20:
+WORD: "parser": line 21:
 parser print trace
 ^^^^^^
-WORD: "print": line 20:
+WORD: "print": line 21:
 parser print trace
        ^^^^^
-WORD: "trace": line 20:
+WORD: "trace": line 21:
 parser print trace
              ^^^^^
-LINE_BREAK: lines 20-21:
+LINE_BREAK: lines 21-22:
 parser print trace
                   ^
 <BLANK-LINE>
@@ -58,20 +66,29 @@ parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
-parser print selectors:
-    [ - parser, + code, - my selector, - operator1 ]
+parser print context "":
+    block standard: "default" [code]
+    block TOP-LEVEL: "default" []
+    block TOP-LEVEL: "parser" [parser]
+    block TOP-LEVEL: "parser test" none
 parser define context "default"
        with parsing selectors [parser,my selector]
-parser print selectors:
-    [ + parser, - code, + my selector, - operator1 ]
+parser print context "":
+    block standard: "default" [parser, my selector]
+    block TOP-LEVEL: "default" []
+    block TOP-LEVEL: "parser" [parser]
+    block TOP-LEVEL: "parser test" none
 parser define context "default"
        with parsing selectors [code]
-parser print selectors:
-    [ - parser, + code, - my selector, - operator1 ]
+parser print context "":
+    block standard: "default" [code]
+    block TOP-LEVEL: "default" []
+    block TOP-LEVEL: "parser" [parser]
+    block TOP-LEVEL: "parser test" none
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 parser trace [+ subexpression lines]
 ======= TEST:
-------- line 32:
+------- line 33:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -89,7 +106,7 @@ parser trace [- subexpression details]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 parser trace [+ subexpression lines]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
-------- line 41:
+------- line 42:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -97,35 +114,31 @@ parser begin special
 parser define context "parser test special"
        with parsing selectors [parser]
 parser print context "parser test special":
-    block special: selectors = [parser]
-parser print context "parser test special"
+    block special: "parser test special" [parser]
 ======= TEST: parser test special
               [x <+ y +> z { u , v , w } m ( n ( p ) )]
-------- line 47:
+------- line 48:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 47:
+------- line 48:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser print context "default":
-    block special: selectors = [code]
-    block standard: selectors = [code]
-    block TOP-LEVEL: selectors = []
-parser print context "default"
+    block special: "default" [code]
+    block standard: "default" [code]
+    block TOP-LEVEL: "default" []
 parser end special
 parser print context "parser test special":
     not found
-parser print context "parser test special"
 parser print context "parser test":
-    block TOP-LEVEL: selectors = none
-parser print context "parser test"
+    block TOP-LEVEL: "parser test" none
 parser print context "parser":
-    block TOP-LEVEL: selectors = [parser]
-parser print context "parser"
+    block TOP-LEVEL: "parser" [parser]
+    block TOP-LEVEL: "parser test" none
 ======= TEST: parser test special [ x <+ y +> z { u , v , w } m ( n ( p
               ) ) ]
-------- line 53:
+------- line 54:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

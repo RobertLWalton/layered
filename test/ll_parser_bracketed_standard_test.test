@@ -142,7 +142,7 @@ BRACKETED EXPRESSION:
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This line contains more subsubexpressions (x + `y z {p q}' - [g h])
-     .
+    .
 @14 = This line contains more subsubexpressions @13 . |:
     .terminator = "␤"
     .position = {| |}
@@ -380,7 +380,7 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     :
         Fifth line .
-        Sixth line A;   Sixth line B
+        Sixth line A;  Sixth line B
         Seventh line .
 @33 = @29 @30 @31 @32 |:
     .initiator = ":"
@@ -398,7 +398,7 @@ Ditto with separator:
 BRACKETED EXPRESSION:
     Ditto with separator :
         Fifth line .
-        Sixth line A;   Sixth line B
+        Sixth line A;  Sixth line B
         Seventh line .
 
 @34 = Ditto with separator @33 |:
@@ -499,7 +499,7 @@ BRACKETED EXPRESSION:
                         ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This tests selector changes : <+ x +> <- y -> {<+x+> <- y ->}
-     `<+ x +> <-y->'
+    `<+ x +> <-y->'
 @39 = This tests selector changes : <+ x +> <- y -> @36 @38 |:
     .terminator = "␤"
     .position = {| |}

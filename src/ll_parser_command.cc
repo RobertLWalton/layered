@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 22 02:35:27 EST 2013
+// Date:	Fri Nov 22 14:42:11 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1055,7 +1055,6 @@ min::gen COM::parser_execute_command
     assert ( ppvec != min::NULL_STUB );
 
     min::gen result = min::FAILURE();
-    bool call_all_passes = false;
 
     if ( vp[1] == PAR::test )
         result = ::execute_test
@@ -1091,13 +1090,13 @@ min::gen COM::parser_execute_command
 	result = ::execute_end
 		    ( vp, ppvec, parser );
 
-    // If call_all_passes, set result to the highest
-    // priority result where the order is:
+    // Set result to the highest priority result where
+    // the order is:
     //
     //   (lowest) FAILURE, SUCCESS, ERROR (highest)
     //
     for ( PAR::pass pass = parser->pass_stack;
-          ( result == min::FAILURE() || call_all_passes)
+          result == min::FAILURE()
 	  &&
 	  pass != NULL;
 	  pass = pass->next )

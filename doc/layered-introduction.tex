@@ -6,6 +6,7 @@
   
 \documentclass[12pt]{article}
 
+\usepackage[T1]{fontenc}
 \usepackage{makeidx}
 \usepackage{pictex}
 
@@ -153,53 +154,11 @@
 \end{lrbox}
 \newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
 
-\newsavebox{\LEFTBRACKETBOX}
-\begin{lrbox}{\LEFTBRACKETBOX}
-\verb|{|
-\end{lrbox}
-\newcommand{\LEFTBRACKET}{\usebox{\LEFTBRACKETBOX}}
-
-\newsavebox{\RIGHTBRACKETBOX}
-\begin{lrbox}{\RIGHTBRACKETBOX}
-\verb|}|
-\end{lrbox}
-\newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
-
-\newsavebox{\UNDERLINEBOX}
-\begin{lrbox}{\UNDERLINEBOX}
-\verb|_|
-\end{lrbox}
-\newcommand{\UNDERLINE}{\usebox{\UNDERLINEBOX}}
-
 \newsavebox{\CIRCUMFLEXBOX}
 \begin{lrbox}{\CIRCUMFLEXBOX}
 \verb|^|
 \end{lrbox}
 \newcommand{\CIRCUMFLEX}{\usebox{\CIRCUMFLEXBOX}}
-
-\newsavebox{\BARBOX}
-\begin{lrbox}{\BARBOX}
-\verb/|/
-\end{lrbox}
-\newcommand{\BAR}{\usebox{\BARBOX}}
-
-\newsavebox{\LESSTHANBOX}
-\begin{lrbox}{\LESSTHANBOX}
-\verb/</
-\end{lrbox}
-\newcommand{\LESSTHAN}{\usebox{\LESSTHANBOX}}
-
-\newsavebox{\GREATERTHANBOX}
-\begin{lrbox}{\GREATERTHANBOX}
-\verb/>/
-\end{lrbox}
-\newcommand{\GREATERTHAN}{\usebox{\GREATERTHANBOX}}
-
-\newsavebox{\DOUBLEQUOTEBOX}
-\begin{lrbox}{\DOUBLEQUOTEBOX}
-\verb/"/
-\end{lrbox}
-\newcommand{\DOUBLEQUOTE}{\usebox{\DOUBLEQUOTEBOX}}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -254,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 12, 2013
+November 22, 2013
  
 \end{center}
 
@@ -1020,8 +979,8 @@ only matches atoms of a particular length.
 
 
 The special character pattern name
-{\tt \bf \LESSTHAN other\GREATERTHAN}%
-\index{other@{\tt \LESSTHAN other\GREATERTHAN}}%
+{\tt <{\bf other}>}%
+\index{other@{\tt <other>}}%
 \label{<OTHER>}
 can be used in an atom pattern to match any character not otherwise
 matched.  More specifically, in the atom pattern
@@ -1796,12 +1755,12 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 
 \begin{boxedfigure}[!p]
 \emkey{parser-command}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em parser-block-command} \\
+    \begin{tabular}[t]{@{}rlrl@{}}
+    ::= & {\em parser-block-command} &
     $|$ & {\em parser-test-command} \\
-    $|$ & {\em parser-selector-command} \\
+    $|$ & {\em parser-selector-command} &
     $|$ & {\em parser-context-command} \\
-    $|$ & {\em parser-bracketed-command} \\
+    $|$ & {\em parser-bracketed-command} &
     $|$ & {\em parser-operator-command} \\
     \end{tabular}
 \label{PARSER-COMMAND}
@@ -1810,13 +1769,15 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \\[0.0ex]
 \emkey{simple-name} ::= {\em simple-name-component}
                         {\em simple-name-component}\,$^\star$
-\\[0.6ex]
+\\[0.0ex]
 \emkey{quoted-name-component} ::=
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
 \\[0.0ex]
 \emkey{quoted-name} ::=
     {\tt "}{\em quoted-name-component}
            {\em quoted-name-component}\,$^\star${\tt "}
+\\[0.0ex]
+\emkey{partial-name} ::= {\em quoted-name}
 \\[0.6ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.0ex]
@@ -1859,7 +1820,7 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
-    $|$ & \ttikey{parser print selectors}{selector!print} \\
+    $|$ & \ttikey{parser print selector}{selector!print} {\em partial-name} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
 \\[0.0ex]
@@ -1871,7 +1832,7 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define context}{context!define} {\em context-name} \\
         & ~~~ [ {\tt with parsing selectors} {\em parser-flag-spec} ] \\
-    $|$ & \ttkey{parser print context} {\em context-name} \\
+    $|$ & \ttkey{parser print context} {\em partial-name} \\
     \end{tabular}
 \\[0.0ex]
 \emkey{context-name} ::= {\em quoted-name}
@@ -2020,9 +1981,6 @@ Other selector names must be defined by the {\em parser-selector-command}:
 When the parser block containing a selector name definition
 command ends, the selector name is erased.
 There may be at most 64 selectors defined at any one time.
-The current selector names can be printed by using
-the `\ttikey{parser print selectors}{selector!parser print}'
-command.
 
 The \key{standard parser} creates a single initial parsing block
 named `\ttikey{standard}{parsing block}' and defines in it the selectors
@@ -2124,14 +2082,20 @@ effects of that command are undone by restoring the cleared
 selector bits to their previous state.
 
 For `{\tt parser define}' commands defined in the following sections,
-and also for the `{\tt parser define context}' command defined above,
+and also for the `{\tt parser define selector}' and
+`{\tt parser define context}' commands defined above,
 there is a companion
 `\ttkey{parser print}' command that prints the contents of the
-parser symbol table entries with the designated {\em type} and {\em name}.
+parser symbol table entries with the designated {\em type} and any
+{\em name} containing within it
+the {\em partial-name} supplied by the print command.
 Its syntax is
 \begin{center}
-{\tt parser print} {\em type} {\em name}
+{\tt parser print} {\em type} {\em partial-name}
 \end{center}
+The {\em partial-name} and {\em name} are both treated as sequences
+of complete lexemes, and the former can be any subsequence of the
+latter, not just an initial subsequence.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 
@@ -3107,9 +3071,7 @@ The standard operators are given on
 precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
 0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
-	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
-							 ... \RIGHTBRACKET}
-								& block \\
+	&			& \tt afix	& \ttkey{\{ ... \}} & block \\
 1000	& \tt \bf right		& \tt infix	& \ttnbkey{=}	& assignment \\
      	& \tt \bf associative\ttindex{right associative}
 				&          	& \ttnbkey{+=}	& increment \\
@@ -3265,8 +3227,7 @@ and is returned as the result of the reformatting.  Examples:
 
 \bigskip
 
-\ttmkey{define}{reformatter} \hfill \NBOP{<--} ~~~
-	\NBOP{\LEFTBRACKET \RIGHTBRACKET} ~~~ \OP{:}
+\ttmkey{define}{reformatter} \hfill \NBOP{<--} ~~~ \NBOP{\{\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
 

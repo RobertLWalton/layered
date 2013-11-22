@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 02:05:21 EST 2013
+// Date:	Fri Nov 22 02:35:27 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -674,7 +674,10 @@ static min::gen execute_context
 	    << min::bom << min::nohbreak
 	    << min::set_indent ( 4 );
 
-	if ( name == PAR::default_lexeme )
+	int count = 0;
+
+	if ( min::is_subsequence
+		 ( name, PAR::default_lexeme ) >= 0 )
 	{
 	    TAB::flags flags = parser->selectors;
 	    for ( min::uns32 i =
@@ -696,17 +699,18 @@ static min::gen execute_context
 		      parser->selector_name_table,
 		      parser );
 
+		++ count;
+
 		if ( i == 0 ) break;
 
 		flags = parser->block_stack[i-1]
 			    .saved_selectors;
 	    }
 	}
-	else
+
 	{
 	    TAB::key_table_iterator it
 	        ( parser->context_table );
-	    int count = 0;
 	    while ( true )
 	    {
 	        TAB::root root = it.next();
@@ -738,11 +742,11 @@ static min::gen execute_context
 
 		++ count;
 	    }
-
-	    if ( count == 0 )
-		parser->printer << min::indent
-				<< "not found";
 	}
+
+	if ( count == 0 )
+	    parser->printer << min::indent
+			    << "not found";
 
 	parser->printer << min::eom;
 	return ::PRINTED;

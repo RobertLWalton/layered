@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 12 06:19:27 EST 2013
+// Date:	Fri Nov 22 06:13:49 EST 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@ parser print selector ""
 parser define selector my selector
 parser define selector operator 1 ++ extra stuff
 parser print selector ""
+parser print context ""
 
 parser print trace
 parser trace [+ parser input]
@@ -19,13 +20,13 @@ parser print trace
 parser trace [- parser input]
 parser print trace
 
-parser print selector ""
+parser print context ""
 parser define context "default"
        with parsing selectors [parser,my selector]
-parser print selector ""
+parser print context ""
 parser define context "default"
        with parsing selectors [code]
-parser print selector ""
+parser print context ""
 
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser trace [+ subexpression lines]

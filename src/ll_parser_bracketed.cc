@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 02:08:33 EST 2013
+// Date:	Sat Nov 23 01:50:38 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1661,7 +1661,7 @@ bool BRA::parse_bracketed_subexpression
 		        (    next->type
 		          == LEXSTD::quoted_string_t )
 		        parser->printer
-			    << "\"...\"; ";
+			    << "\"... \"; ";
 
 		    parser->printer
 			<< min::pline_numbers
@@ -2372,7 +2372,15 @@ static min::gen bracketed_pass_command
 	return min::SUCCESS();
     }
 
-    if ( vp[i] == ::bracket )
+    if ( command == PAR::print )
+    {
+        if ( vp[i] != ::bracket )
+	    return min::FAILURE();
+	min_names = 1;
+	max_names = 1;
+	++ i;
+    }
+    else if ( vp[i] == ::bracket )
     {
         type = ::BRACKET;
 	min_names = 2;
@@ -2440,7 +2448,8 @@ static min::gen bracketed_pass_command
 		                  horizontal_space_t )
 	          + ( 1ull << LEXSTD::end_of_file_t ),
 
-	            ( 1ull << LEXSTD::end_of_file_t ) );
+	            ( 1ull << LEXSTD::end_of_file_t ),
+		  command == PAR::print );
 
 	if ( name[number_of_names] == min::ERROR() )
 	    return min::ERROR();
@@ -2470,8 +2479,199 @@ static min::gen bracketed_pass_command
 	    ( parser, ppvec->position,
 	      "too few quoted names in" );
 
+    if ( command == PAR::print )
+    {
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "unexpected stuff after" );
+
+	COM::print_command ( vp, parser );
+
+	parser->printer
+	    << ":" << min::eol
+	    << min::bom << min::nohbreak
+	    << min::set_indent ( 4 );
+
+	int count = 0;
+	TAB::key_table_iterator it
+	    ( bracketed_pass->bracket_table );
+	while ( true )
+	{
+	    TAB::root root = it.next();
+	    if ( root == min::NULL_STUB ) break;
+
+	    if ( min::is_subsequence
+		     ( name[0], root->label ) < 0 )
+		continue;
+
+	    min::uns32 subtype =
+		min::packed_subtype_of ( root );
+
+	    if ( subtype != BRA::OPENING_BRACKET
+	         &&
+		 subtype != BRA::INDENTATION_MARK
+	         &&
+		 subtype != BRA::NAMED_OPENING )
+	        continue;
+
+	    ++ count;
+
+	    min::gen block_name =
+		PAR::block_name
+		    ( parser,
+		      root->block_level );
+	    parser->printer
+		<< min::indent
+		<< "block "
+		<< min::name_pgen ( block_name )
+		<< ": " << min::save_indent;
+
+	    if ( subtype == BRA::OPENING_BRACKET )
+	    {
+		BRA::opening_bracket opening_bracket =
+		    (BRA::opening_bracket) root;
+		BRA::closing_bracket closing_bracket =
+		    opening_bracket->closing_bracket;
+
+		parser->printer
+		    << "bracket \""
+		    << min::name_pgen
+		           ( opening_bracket->label )
+		    << "\" ... \""
+		    << min::name_pgen
+		           ( closing_bracket->label )
+		    << "\" ";
+		COM::print_flags
+		    ( root->selectors,
+		      parser->selector_name_table,
+		      parser );
+
+		TAB::new_flags new_selectors =
+		    opening_bracket->new_selectors;
+
+		if ( ! TAB::is_empty
+			   ( new_selectors ) )
+		{
+		    parser->printer
+		        << min::indent
+			<< "with parsing"
+			   " selectors ";
+		    COM::print_new_flags
+			( new_selectors,
+			  parser->
+			      selector_name_table,
+			  parser );
+		}
+
+		if ( opening_bracket->full_lines )
+		    parser->printer
+			<< min::indent
+			<< "with full lines";
+	    }
+	    else if ( subtype == BRA::INDENTATION_MARK )
+	    {
+		BRA::indentation_mark indentation_mark =
+		    (BRA::indentation_mark) root;
+		BRA::line_separator line_separator =
+		    indentation_mark->line_separator;
+		bool gluing =    
+		    (    indentation_mark
+		             ->indentation_split
+		      != min::NULL_STUB );
+
+		parser->printer
+		    << ( gluing ?  "gluing " : "" )
+		    << "indentation mark \""
+		    << min::name_pgen
+		        ( indentation_mark->label );
+		if ( line_separator != min::NULL_STUB )
+		    parser->printer
+		        << "\" ... \""
+			<< min::name_pgen
+			    ( line_separator->label );
+		parser->printer
+		    << "\" ";
+		COM::print_flags
+		    ( root->selectors,
+		      parser->selector_name_table,
+		      parser );
+
+		TAB::new_flags new_selectors =
+		    indentation_mark->new_selectors;
+
+		if ( ! TAB::is_empty
+			   ( new_selectors ) )
+		{
+		    parser->printer
+			<< min::indent
+			<< "with parsing"
+			   " selectors ";
+		    COM::print_new_flags
+			( new_selectors,
+			  parser->
+			      selector_name_table,
+			  parser );
+		}
+	    }
+	    else if ( subtype == BRA::NAMED_OPENING )
+	    {
+		BRA::named_opening named_opening =
+		    (BRA::named_opening) root;
+		BRA::named_separator named_separator =
+		    named_opening->named_separator;
+		BRA::named_closing named_closing =
+		    named_opening->named_closing;
+		BRA::named_middle named_middle =
+		    named_opening->named_middle;
+
+		parser->printer
+		    << "named bracket \""
+		    << min::name_pgen
+		        ( named_opening->label );
+		if ( named_separator != min::NULL_STUB )
+		    parser->printer
+		        << "\" ... \""
+			<< min::name_pgen
+			    ( named_separator->label );
+		if ( named_middle != min::NULL_STUB )
+		    parser->printer
+		        << "\" ... \""
+			<< min::name_pgen
+			    ( named_middle->label )
+		        << "\" ... \""
+			<< min::name_pgen
+			    ( named_middle->label );
+		parser->printer
+		    << "\" ... \""
+		    << min::name_pgen
+			( named_closing->label )
+		    << "\" ";
+		COM::print_flags
+		    ( root->selectors,
+		      parser->selector_name_table,
+		      parser );
+	    }
+	    else
+	    {
+		MIN_ABORT
+		    ( "bad parser print type" );
+	    }
+
+	    parser->printer << min::restore_indent
+			    << min::eol;
+	}
+
+	if ( count == 0 )
+	    parser->printer << min::indent
+	                    << "not found";
+	parser->printer << min::eom;
+
+        return COM::PRINTED;
+    }
+
     // Some type specific error checking common to
-    // define/undefine/print.
+    // define/undefine.
     //
     switch ( type )
     {
@@ -2528,19 +2728,16 @@ static min::gen bracketed_pass_command
     }
 
     TAB::flags selectors;
-    if ( command != PAR::print )
-    {
-	min::gen sresult = COM::scan_flags
-		( vp, i, selectors,
-		  parser->selector_name_table, parser );
-	if ( sresult == min::ERROR() )
-	    return min::ERROR();
-	else if ( sresult == min::MISSING() )
-	    return PAR::parse_error
-		( parser, ppvec[i-1],
-		  "expected bracketed selector list"
-		  " after" );
-    }
+    min::gen sresult = COM::scan_flags
+	    ( vp, i, selectors,
+	      parser->selector_name_table, parser );
+    if ( sresult == min::ERROR() )
+	return min::ERROR();
+    else if ( sresult == min::MISSING() )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected bracketed selector list"
+	      " after" );
 
     if ( command == PAR::define ) switch ( type )
     {
@@ -2777,28 +2974,12 @@ static min::gen bracketed_pass_command
     default:
 	MIN_ABORT ( "bad parser define type" );
     }
-    else /* if command == PAR::undefine or PAR::print */
+    else /* if command == PAR::undefine */
     {
 	if ( i < size )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "unexpected stuff after" );
-
-	if ( command == PAR::print )
-	{
-	    for ( min::uns32 j = 0; j < size; ++ j )
-	    {
-		parser->printer
-		    << ( j == 0 ? "" : " " )
-		    << min::pgen ( vp[j],
-				   min::OBJ_EXP_FLAG );
-	    }
-
-	    parser->printer
-		<< ":" << min::eol
-		<< min::bom << min::nohbreak
-		<< min::set_indent ( 4 );
-	}
 
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
@@ -2812,10 +2993,7 @@ static min::gen bracketed_pass_command
 	      root != min::NULL_STUB;
 	      root = root->next )
 	{
-	    if ( command == PAR::undefine
-	         &&
-		 ( root->selectors & selectors ) == 0
-	       )
+	    if ( ( root->selectors & selectors ) == 0 )
 		continue;
 
 	    min::uns32 subtype =
@@ -2921,121 +3099,25 @@ static min::gen bracketed_pass_command
 	    }
 	    default:
 		MIN_ABORT
-		    ( "bad parser undefine/print"
-		      " type" );
+		    ( "bad parser undefine type" );
 	    }
 
-	    if ( command == PAR::undefine )
-		TAB::push_undefined
-		    ( parser->undefined_stack,
-		      root, selectors );
-	    else /* if ( command == PAR::print ) */
-	    {
-	        parser->printer
-		    << min::indent << "block "
-		    << min::name_pgen
-		           ( PAR::block_name
-		                 ( parser,
-				   root->block_level )
-			   )
-		    << ": ";
-		COM::print_flags
-		    ( root->selectors,
-		      parser->selector_name_table,
-		      parser );
-		parser->printer
-		    << " " << min::save_indent;
-
-		switch ( type )
-		{
-		case ::BRACKET:
-		{
-		    BRA::opening_bracket opening_bracket =
-			(BRA::opening_bracket) root;
-
-		    TAB::new_flags new_selectors =
-			opening_bracket->new_selectors;
-
-		    if ( ! TAB::is_empty
-		               ( new_selectors ) )
-		    {
-		        parser->printer
-			    << "with parsing"
-			       " selectors ";
-			COM::print_new_flags
-			    ( new_selectors,
-			      parser->
-			          selector_name_table,
-			      parser );
-		    }
-
-		    if ( opening_bracket->full_lines )
-		        parser->printer
-			    << " " << min::set_break
-			    << "with full lines";
-
-		    break;
-		}
-
-		case ::INDENTATION_MARK:
-		{
-		    BRA::indentation_mark indentation_mark =
-			(BRA::indentation_mark) root;
-
-		    TAB::new_flags new_selectors =
-			indentation_mark->new_selectors;
-
-		    if ( ! TAB::is_empty
-		               ( new_selectors ) )
-		    {
-		        parser->printer
-			    << "with parsing"
-			       " selectors ";
-			COM::print_new_flags
-			    ( new_selectors,
-			      parser->
-			          selector_name_table,
-			      parser );
-		    }
-
-		    break;
-		}
-		case ::NAMED_BRACKET:
-		{
-		    break;
-		}
-		default:
-		    MIN_ABORT
-			( "bad parser undefine/print"
-			  " type" );
-		}
-
-		parser->printer << min::restore_indent
-		                << min::eol;
-	    }
+	    TAB::push_undefined
+		( parser->undefined_stack,
+		  root, selectors );
 
 	    ++ count;
 	}
 
-	if ( command == PAR::undefine )
-	{
-	    if ( count == 0 )
-		PAR::parse_warn
-		    ( parser, ppvec->position,
-		      "undefine found no definition" );
-	    else if ( count > 1 )
-		PAR::parse_warn
-		    ( parser, ppvec->position,
-		      "undefine cancelled more than one"
-		      " definition" );
-	}
-	else /* if ( command == PAR::print ) */
-	{
-	    if ( count == 0 )
-	        parser->printer << "not found";
-	    parser->printer << min::eom;
-	}
-      
+	if ( count == 0 )
+	    PAR::parse_warn
+		( parser, ppvec->position,
+		  "undefine found no definition" );
+	else if ( count > 1 )
+	    PAR::parse_warn
+		( parser, ppvec->position,
+		  "undefine cancelled more than one"
+		  " definition" );
     }
 
     return min::SUCCESS();

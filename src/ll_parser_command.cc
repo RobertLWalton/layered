@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 22 14:42:11 EST 2013
+// Date:	Sat Nov 23 02:44:34 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,17 +31,13 @@
 
 static min::locatable_gen exclusive_or;
 static min::locatable_gen trace;
-static min::gen PRINTED;
-    // Parser execute_... functions return :PRINTED to
-    // mean they were successful and also printed
-    // output so the command itself need not be printed
-    // by the `parser command' trace flag.
+min::locatable_gen COM::PRINTED;
 
 static void initialize ( void )
 {
     ::exclusive_or = min::new_str_gen ( "^" );
     ::trace = min::new_str_gen ( "trace" );
-    ::PRINTED = min::new_special_gen ( 0 );
+    COM::PRINTED = min::new_special_gen ( 0 );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -615,7 +611,7 @@ static min::gen execute_selectors
 	                    << "not found";
 	parser->printer << min::eom;
 
-	return ::PRINTED;
+	return COM::PRINTED;
     }
 
     return min::SUCCESS();
@@ -749,7 +745,7 @@ static min::gen execute_context
 			    << "not found";
 
 	parser->printer << min::eom;
-	return ::PRINTED;
+	return COM::PRINTED;
     }
 
     TAB::flags selectors;
@@ -917,7 +913,7 @@ static min::gen execute_test
 	    << "======= END TEST" << min::eol;
     }
 
-    return ::PRINTED;
+    return COM::PRINTED;
 }
 
 // Execute Trace
@@ -959,7 +955,7 @@ static min::gen execute_trace
 	        ( parser, ppvec[2],
 		  "extraneous stuff after" );
 
-	return ::PRINTED;
+	return COM::PRINTED;
     }
 
     TAB::new_flags new_flags;
@@ -1090,10 +1086,9 @@ min::gen COM::parser_execute_command
 	result = ::execute_end
 		    ( vp, ppvec, parser );
 
-    // Set result to the highest priority result where
-    // the order is:
-    //
-    //   (lowest) FAILURE, SUCCESS, ERROR (highest)
+    // As long as command is unrecognized (i.e.,
+    // result == FAILURE) call pass parser_command
+    // functions.
     //
     for ( PAR::pass pass = parser->pass_stack;
           result == min::FAILURE()
@@ -1101,14 +1096,9 @@ min::gen COM::parser_execute_command
 	  pass != NULL;
 	  pass = pass->next )
     {
-        min::gen saved_result = result;
         if ( pass->parser_command != NULL )
 	    result = (* pass->parser_command )
 	        ( parser, pass, vp, ppvec );
-	if ( saved_result == min::ERROR()
-	     ||
-	     result == min::FAILURE() )
-	    result = saved_result;
     }
 
     if ( result == min::SUCCESS()
@@ -1118,7 +1108,7 @@ min::gen COM::parser_execute_command
 	min::print_phrase_lines
 	    ( parser->printer,
 	      ppvec->file, ppvec->position, 0 );
-    else if ( result == ::PRINTED )
+    else if ( result == COM::PRINTED )
         result = min::SUCCESS();
 
     return result;

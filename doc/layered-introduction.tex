@@ -213,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 22, 2013
+November 23, 2013
  
 \end{center}
 
@@ -2281,6 +2281,7 @@ recognized by this recognizer:
     ::= & {\em parser-bracket-command} \\
     $|$ & {\em parser-indentation-mark-command} \\
     $|$ & {\em parser-named-bracket-command} \\
+    $|$ & {\em parser-print-bracket-command} \\
     \end{tabular}
 \label{PARSER-BRACKETED-COMMAND}
 \end{indpar}
@@ -2790,6 +2791,33 @@ the {\tt .terminator} is the {\em named-closing},
 and the {\tt .arguments} and {\tt .keys} are set from the
 contents of the {\em named-operator} just as they would be from the
 contents of a {\em named-opening-bracket}.
+
+\subsubsection{Print Bracket Commands}
+
+A {\em parser-print-bracket-command} has the syntax:
+
+\begin{indpar}
+\emkey{parser-print-bracket-command}%
+\label{PARSER-PRINT-BRACKET-COMMAND}
+\\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{parser print bracket}{parser print bracket}
+	  {\em partial-name} \\
+    \end{tabular}
+\end{indpar}
+
+All bracket symbol table entries are printed whose first name
+component includes the {\em partial-name}, where the first name
+component is one of
+\begin{indpar}
+\em
+opening-bracket-name \\
+indentation-mark-name \\
+gluing-indentation-mark-name \\
+named-opening
+\end{indpar}
+
 
 \subsection{Parser Passes}
 

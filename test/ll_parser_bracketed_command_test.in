@@ -2,11 +2,13 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 22 07:56:33 EST 2013
+// Date:	Sat Nov 23 01:50:23 EST 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
+
+parser print bracket ""
 
 parser define bracket "[+"
 parser define bracket "[+" ...
@@ -19,15 +21,15 @@ parser print selector ""
 parser print context "default"
 parser define bracket "(" ... ")" [code, math, text]
 parser define bracket "[" ... "]" [code, math, text]
-parser print bracket "[" ... "]"
+parser print bracket "["
 parser define gluing indentation mark ":" ... ";" [code, math, text]
-parser print gluing indentation mark ":" ... ";"
+parser print bracket ":"
 parser define bracket "[+" ... "+]" [text, operator 2]
 parser define bracket "<+" ... "+>" [text + operator]
 parser define bracket "<+" ... "+>" [code, operator 1]
        with parsing selectors [^ code, - math, + operator 1]
        with full lines
-parser print bracket "<+" ... "+>"
+parser print bracket "<+"
 
 parser test "abc"
             "def"
@@ -53,8 +55,7 @@ parser test this is a paragraph +:
 parser test  <X| hi there |X>
 parser define named bracket
     "<" ... "#" ... "|" ... "|" ... ">" [code]
-parser print named bracket
-    "<" ... "#" ... "|" ... "|" ... ">"
+parser print bracket "<"
 parser test  <X| hi there |X>
 parser test  <foo bar| hi <p> there |>
 parser test  <X Y Z # 8| ho ho |X>
@@ -95,6 +96,7 @@ parser undefine bracket "<|" ... "|>" [code]
 parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
        with full lines
+parser print bracket ""
 parser test ( ``` ) ''' )
 parser test ( ```
 )

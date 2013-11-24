@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 23 01:50:38 EST 2013
+// Date:	Sun Nov 24 01:50:41 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -632,6 +632,7 @@ BRA::bracketed_pass BRA::place
     PAR::place
         ( parser, (PAR::pass) bracketed_pass,
 	  parser->pass_stack );
+
     return bracketed_pass;
 }
 
@@ -2347,11 +2348,52 @@ static min::gen bracketed_pass_command
 
     if ( vp[i] == ::indent )
     {
-	if ( command != PAR::define
-	     ||
-	     i + 1 >= size
+	if ( i + 1 >= size
 	     ||
 	     vp[i+1] != ::offset )
+	    return min::FAILURE();
+
+        else if ( command == PAR::print )
+	{
+	    if ( i + 2 < size )
+		return PAR::parse_error
+		    ( parser, ppvec[i+1],
+		      "unexpected stuff after" );
+
+	    COM::print_command ( vp, parser );
+	    parser->printer
+		<< ":" << min::eol
+		<< min::bom << min::nohbreak
+		<< min::set_indent ( 4 );
+
+	    min::int32 offset =
+	        bracketed_pass->indent_offset; 
+	    for ( min::uns32 i =
+	              bracketed_pass->
+		          indent_offset_stack->length;
+		  0 <= i; -- i )
+	    {
+	        min::gen block_name =
+		    ( i == 0 ?
+		      (min::gen) PAR::top_level :
+		      parser->block_stack[i-1].name );
+
+	        parser->printer << min::indent
+		                << "block "
+				<< min::name_pgen
+				     ( block_name )
+				<< ": " << offset;
+
+		if ( i == 0 ) break;
+
+		offset = bracketed_pass->
+		            indent_offset_stack[i-1];
+	    }
+
+	    parser->printer << min::eom;
+	    return COM::PRINTED;
+	}
+	else if ( command != PAR::define )
 	    return min::FAILURE();
 
 	else if ( i + 2 >= size

@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 22 05:37:20 EST 2013
+// Date:	Sun Nov 24 01:55:36 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -417,6 +417,25 @@ void PAR::place
 	next_ref(pass) = current->next;
 	next_ref(current) = pass;
     }
+}
+
+PAR::pass PAR::remove
+	( PAR::parser parser,
+	  PAR::pass pass )
+{
+    min::ref<PAR::pass> p = pass_stack_ref ( parser );
+    for ( PAR::pass current = p;
+	  current != min::NULL_STUB;
+	  current = p )
+    {
+        if ( current == pass )
+	{
+	    p = current->next;
+	    return pass;
+	}
+	p = PAR::next_ref ( current );
+    }
+    return min::NULL_STUB;
 }
 
 // Contexts

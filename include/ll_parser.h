@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 02:09:57 EST 2013
+// Date:	Sun Nov 24 01:52:40 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -655,6 +655,14 @@ void place
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
 	  ll::parser::pass next = NULL_STUB );
+
+// Remove `pass' from `parser->pass_stack' and return
+// `pass'.  Return min::NULL_STUB if `pass' is NOT in
+// `parser->pass_stack'.
+//
+ll::parser::pass remove
+	( ll::parser::parser parser,
+	  ll::parser::pass pass );
 
 } }
 

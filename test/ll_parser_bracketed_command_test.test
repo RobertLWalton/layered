@@ -421,13 +421,20 @@ parser test ( `
 ======= END TEST
 parser begin block 1
 parser define indent offset 4
-ERROR: lexeme indent 1 too near paragraph indent 0; line 112:
+parser print indent offset:
+    block block1: 4
+    block standard: 2
+    block TOP-LEVEL: 2
+ERROR: lexeme indent 1 too near paragraph indent 0; line 113:
  line with indent 1
  ^^^^
-ERROR: lexeme indent 2 too near paragraph indent 0; line 114:
+ERROR: lexeme indent 2 too near paragraph indent 0; line 115:
   line with indent 2
   ^^^^
 parser end block 1
-ERROR: lexeme indent 1 too near paragraph indent 0; line 120:
+parser print indent offset:
+    block standard: 2
+    block TOP-LEVEL: 2
+ERROR: lexeme indent 1 too near paragraph indent 0; line 122:
  line with indent 1
  ^^^^

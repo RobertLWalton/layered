@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:26:37 EST 2013
+// Date:	Mon Nov 25 01:53:06 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -461,7 +461,7 @@ void end_block
 // --------- ------------- ----
 
 typedef min::packed_vec_insptr<int32>
-        indent_offset_stack;
+        indentation_offset_stack;
 
 struct bracketed_pass_struct;
 typedef min::packed_struct_updptr<bracketed_pass_struct>
@@ -483,18 +483,19 @@ struct bracketed_pass_struct
         // Table for indentation splits associated with
 	// indentation marks that can be split.
 
-    int32 indent_offset;
+    int32 indentation_offset;
         // Amount the indentation of a line has to be
 	// offset from the indentation of an indented
 	// paragraph in order to avoid error messages.
 	// Must be signed integer so indentations can
-	// be set to - indent_offset and indentation
-	// check computations are signed, but is
+	// be set to - indentation_offset and indenta-
+	// tion check computations are signed, but is
 	// always >= 0.  Defaults to 2.
 
-    const ll::parser::bracketed::indent_offset_stack
-            indent_offset_stack;
-	// Stack of indent_offset values saved by
+    const ll::parser::bracketed
+                    ::indentation_offset_stack
+            indentation_offset_stack;
+	// Stack of indentation_offset values saved by
 	// current parser blocks.
 
     ll::parser::table::flags trace_subexpressions;
@@ -510,8 +511,9 @@ MIN_REF ( ll::parser::table::key_table, bracket_table,
 MIN_REF ( ll::parser::bracketed::split_table,
           split_table,
           ll::parser::bracketed::bracketed_pass )
-MIN_REF ( ll::parser::bracketed::indent_offset_stack,
-          indent_offset_stack,
+MIN_REF ( ll::parser::bracketed
+                    ::indentation_offset_stack,
+          indentation_offset_stack,
           ll::parser::bracketed::bracketed_pass )
 
 // Create an bracketed subexpression pass and place it
@@ -593,7 +595,7 @@ ll::parser::bracketed::bracketed_pass place
 // line break and comment tokens following this are
 // deleted, false is returned, and NO bracket entries
 // are closed.  If `indent' equals MINUS parser->
-// indent_offset, this feature is disabled.
+// indentation_offset, this feature is disabled.
 //
 // If the subexpression is terminated by an end-of-file,
 // `current' is positioned at the end-of-file, false is

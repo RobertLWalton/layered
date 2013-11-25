@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 24 01:50:41 EST 2013
+// Date:	Mon Nov 25 01:54:43 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,7 +41,6 @@ static min::locatable_gen named;
 static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
-static min::locatable_gen indent;
 static min::locatable_gen offset;
 
 static void initialize ( void )
@@ -57,7 +56,6 @@ static void initialize ( void )
     ::bracketed_subexpressions =
         min::new_lab_gen
 	    ( "bracketed", "subexpressions" );
-    ::indent = min::new_str_gen ( "indent" );
     ::offset = min::new_str_gen ( "offset" );
 }
 static min::initializer initializer ( ::initialize );
@@ -494,9 +492,9 @@ void BRA::end_block
 // --------- ------------- ----
 
 static min::packed_vec<min::int32>
-    indent_offset_stack_type
+    indentation_offset_stack_type
         ( "ll::parser::bracketed"
-	    "::indent_offset_stack_type" );
+	    "::indentation_offset_stack_type" );
 
 static min::uns32 bracketed_pass_stub_disp[] =
 {
@@ -538,7 +536,7 @@ static void bracketed_pass_reset
     TAB::end_block
         ( bracket_table, 0,
 	  collected_key_prefixes, collected_entries );
-    bracketed_pass->indent_offset = 2;
+    bracketed_pass->indentation_offset = 2;
 }
 
 static min::gen bracketed_pass_begin_block
@@ -550,8 +548,9 @@ static min::gen bracketed_pass_begin_block
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) pass;
 
-    min::push ( bracketed_pass->indent_offset_stack ) =
-	bracketed_pass->indent_offset;
+    min::push ( bracketed_pass->
+                    indentation_offset_stack ) =
+	bracketed_pass->indentation_offset;
 
     return min::SUCCESS();
 }
@@ -584,9 +583,10 @@ static min::gen bracketed_pass_end_block
         ( bracket_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
 
-    bracketed_pass->indent_offset =
+    bracketed_pass->indentation_offset =
         min::pop
-	    ( bracketed_pass->indent_offset_stack );
+	    ( bracketed_pass->
+	          indentation_offset_stack );
 
     return min::SUCCESS();
 }
@@ -612,14 +612,14 @@ BRA::bracketed_pass BRA::place
         ::bracketed_pass_end_block;
     bracketed_pass->parser_command =
         ::bracketed_pass_command;
-    bracketed_pass->indent_offset = 2;
+    bracketed_pass->indentation_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_key_table ( 256 );
     split_table_ref(bracketed_pass) =
 	BRA::create_split_table();
     min::push ( bracketed_pass->split_table, 256 );
-    indent_offset_stack_ref(bracketed_pass) =
-        ::indent_offset_stack_type.new_stub ( 16 );
+    indentation_offset_stack_ref(bracketed_pass) =
+        ::indentation_offset_stack_type.new_stub ( 16 );
 
     int index = TAB::find_name
         ( parser->trace_flag_name_table,
@@ -913,7 +913,7 @@ static void complain_near_indent
 //
 inline min::int32 relative_indent
 	( PAR::parser parser,
-	  min::int32 indent_offset,
+	  min::int32 indentation_offset,
 	  PAR::token token,
 	  min::int32 indent )
 {
@@ -922,8 +922,8 @@ inline min::int32 relative_indent
     int relative_indent =
         (min::int32) token->indent - indent;
     if (    relative_indent != 0
-	 && relative_indent < indent_offset 
-	 && relative_indent > - indent_offset )
+	 && relative_indent < indentation_offset 
+	 && relative_indent > - indentation_offset )
         ::complain_near_indent
 	    ( parser, token, indent );
     return relative_indent;
@@ -1228,7 +1228,8 @@ bool BRA::parse_bracketed_subexpression
 		     != LEXSTD::end_of_file_t
 		     &&
 		     relative_indent
-		         ( parser, pass->indent_offset,
+		         ( parser,
+			   pass->indentation_offset,
 			   current->next, indent )
 			 > 0 )
 		{
@@ -1439,7 +1440,8 @@ bool BRA::parse_bracketed_subexpression
 	    if ( next->indent != LEX::AFTER_GRAPHIC
 	         &&
 		    relative_indent
-		          ( parser, pass->indent_offset,
+		          ( parser,
+			    pass->indentation_offset,
 			    next, indent )
 		 <= 0 )
 		return false;
@@ -1607,7 +1609,7 @@ bool BRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
 		      current,
 		      full_lines ?
-			  - pass->indent_offset :
+			  - pass->indentation_offset :
 			  indent,
 		      min::NULL_STUB,
 		      & cstack );
@@ -2346,14 +2348,13 @@ static min::gen bracketed_pass_command
         return min::FAILURE();
     ++ i;
 
-    if ( vp[i] == ::indent )
+    if ( vp[i] == ::indentation
+         &&
+	 i + 1 < size
+	 &&
+	 vp[i+1] == ::offset )
     {
-	if ( i + 1 >= size
-	     ||
-	     vp[i+1] != ::offset )
-	    return min::FAILURE();
-
-        else if ( command == PAR::print )
+        if ( command == PAR::print )
 	{
 	    if ( i + 2 < size )
 		return PAR::parse_error
@@ -2367,10 +2368,11 @@ static min::gen bracketed_pass_command
 		<< min::set_indent ( 4 );
 
 	    min::int32 offset =
-	        bracketed_pass->indent_offset; 
+	        bracketed_pass->indentation_offset; 
 	    for ( min::uns32 i =
 	              bracketed_pass->
-		          indent_offset_stack->length;
+		          indentation_offset_stack->
+			      length;
 		  0 <= i; -- i )
 	    {
 	        min::gen block_name =
@@ -2386,8 +2388,9 @@ static min::gen bracketed_pass_command
 
 		if ( i == 0 ) break;
 
-		offset = bracketed_pass->
-		            indent_offset_stack[i-1];
+		offset =
+		    bracketed_pass->
+		        indentation_offset_stack[i-1];
 	    }
 
 	    parser->printer << min::eom;
@@ -2399,7 +2402,8 @@ static min::gen bracketed_pass_command
 	else if ( i + 2 >= size
 	          ||
 		  ! min::strto
-	                ( bracketed_pass->indent_offset,
+	                ( bracketed_pass->
+			      indentation_offset,
 		          vp[i+2], 10 ) )
 	    return PAR::parse_error
 		( parser, ppvec[i+1],

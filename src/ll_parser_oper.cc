@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  1 03:36:12 EDT 2013
+// Date:	Mon Nov 25 15:13:56 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1588,8 +1588,6 @@ static min::gen oper_pass_command
 
     // Scan keywords before names.
     //
-    bool define;
-        // True if define, false if undefine.
     bool bracket = false;
         // True if bracket, false if not.
     bool indentation_mark = false;
@@ -1599,20 +1597,21 @@ static min::gen oper_pass_command
         // vp[i] is next lexeme or subexpression to
 	// scan in the define/undefine expression.
 
-    if ( vp[i] == PAR::define )
-        define = true;
-    else if ( vp[i] == PAR::undefine )
-        define = false;
-    else
-        return min::FAILURE();
-    ++ i;
+    min::gen command = vp[i++];
 
-    if ( vp[i] == ::oper )
-	++ i;
-    else
+    if ( command != PAR::define
+         &&
+	 command != PAR::undefine
+         &&
+	 command != PAR::print )
         return min::FAILURE();
 
-    if ( vp[i] == ::bracket )
+    if ( i >= size || vp[i++] != ::oper )
+        return min::FAILURE();
+
+    if ( i >= size || command == PAR::print )
+        /* Do nothing. */;
+    else if ( vp[i] == ::bracket )
     {
 	++ i;
 	bracket = true;
@@ -1649,7 +1648,8 @@ static min::gen oper_pass_command
 		                  horizontal_space_t )
 	          + ( 1ull << LEXSTD::end_of_file_t ),
 
-	            ( 1ull << LEXSTD::end_of_file_t ) );
+	            ( 1ull << LEXSTD::end_of_file_t ),
+		  command == PAR::print );
 
 	if ( name[number_of_names] == min::ERROR() )
 	    return min::ERROR();
@@ -1686,6 +1686,70 @@ static min::gen oper_pass_command
         name[1] = PAR::new_line;
     else if ( ! bracket )
         name[1] = min::MISSING();
+
+    if ( command == PAR::print )
+    {
+
+	COM::print_command ( vp, parser );
+
+	parser->printer
+	    << ":" << min::eol
+	    << min::bom << min::nohbreak
+	    << min::set_indent ( 4 );
+
+	int count = 0;
+
+	{
+	    TAB::key_table_iterator it
+		( oper_pass->oper_table );
+	    while ( true )
+	    {
+		TAB::root root = it.next();
+		if ( root == min::NULL_STUB ) break;
+
+		if ( min::is_subsequence
+			 ( name[0], root->label ) < 0 )
+		    continue;
+
+		min::uns32 subtype =
+		    min::packed_subtype_of ( root );
+
+		OP::oper op = (OP::oper) root;
+		MIN_ASSERT ( op != min::NULL_STUB );
+
+		++ count;
+
+		min::gen block_name =
+		    PAR::block_name
+			( parser,
+			  root->block_level );
+		parser->printer
+		    << min::indent
+		    << "block "
+		    << min::name_pgen ( block_name )
+		    << ": " << min::save_indent
+		    << "operator \""
+		    << min::name_pgen ( root->label )
+		    << "\" " << min::set_break;
+		COM::print_flags
+		    ( root->selectors,
+		      parser->selector_name_table,
+		      parser );
+
+		parser->printer
+		    << min::indent
+		    << "with precedence "
+		    << op->precedence;
+	    }
+	}
+
+	if ( count == 0 )
+	    parser->printer << min::indent
+	                    << "not found";
+	parser->printer << min::eom;
+
+    	return COM::PRINTED;
+    }
 
     // Scan selectors.
     //
@@ -1864,10 +1928,10 @@ static min::gen oper_pass_command
 
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      define ? "expected `precedence ...'"
-	               " or `... reformatter' after"
-		     : "expected `precedence ...'"
-		       " after" );
+	      command == PAR::define ?
+	      "expected `precedence ...' or"
+	      " `... reformatter' after" :
+	      "expected `precedence ...' after" );
 
     }
     if ( i < size )
@@ -1880,7 +1944,7 @@ static min::gen oper_pass_command
 	      "expected `with precedence ...'"
 	      " after" );
 
-    if ( define )
+    if ( command == PAR::define )
 	OP::push_oper
 	    ( name[0], name[1],
 	      selectors,
@@ -1891,7 +1955,7 @@ static min::gen oper_pass_command
 	          oper_pass->oper_bracket_table :
 		  oper_pass->oper_table );
 
-    else // if ( ! define )
+    else // if ( command == PAR::undefine )
     {
 	if ( reformatter != NULL )
 	    return PAR::parse_error

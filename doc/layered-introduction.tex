@@ -213,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 23, 2013
+November 25, 2013
  
 \end{center}
 
@@ -2473,6 +2473,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \end{tabular} \\
     $|$ & \ttikey{parser define indentation offset}{define indentation offset}
 	  {\em indentation-offset}  \\
+    $|$ & \ttikey{parser print indentation offset}{define indentation offset} \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
@@ -2555,10 +2556,11 @@ No corrective action is taken; the line is accepted as either ending
 the paragraph if its indentation is less than the paragraph
 indentation, or continuing the current paragraph line if its indentation
 is greater than the paragraph indentation.  Here $N$ is called the
-\key{parser indent offset}, and is a parser parameter that can be
+\key{parser indentation offset}, and is a parser parameter that can be
 changed with the {\tt parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
-end of the block.
+end of the block.  The indentation offsets of the current blocks
+can be printed by the {\tt parser print indentation offset} command.
 
 When an {\em indentation-mark-name} is recognized, the current parser
 selector set is saved in a stack and

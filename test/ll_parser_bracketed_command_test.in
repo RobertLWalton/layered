@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 24 01:58:14 EST 2013
+// Date:	Mon Nov 25 02:01:03 EST 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -107,8 +107,8 @@ parser test ( `
 ' )
 
 parser begin block 1
-parser define indent offset 4
-parser print indent offset
+parser define indentation offset 4
+parser print indentation offset
 first line with indent 0
  line with indent 1
 second line with indent 0
@@ -117,7 +117,7 @@ third line with indent 0
     line with indent 4
 parser end block 1
 
-parser print indent offset
+parser print indentation offset
 first line with indent 0
  line with indent 1
 second line with indent 0

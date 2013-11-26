@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 25 15:13:56 EST 2013
+// Date:	Mon Nov 25 19:27:11 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1576,6 +1576,84 @@ static min::initializer reformatter_initializer
 // Operator Pass Command Function
 // -------- ---- ------- --------
 
+// Print op subroutine for print command.
+//
+enum table_type { OPERATOR, BRACKET, NAME };
+void static print_op
+	( OP::oper op,
+	  ::table_type table_type,
+	  PAR::parser parser )
+{
+    MIN_ASSERT ( op != min::NULL_STUB );
+
+    min::gen block_name =
+	PAR::block_name
+	    ( parser,
+	      op->block_level );
+    parser->printer
+	<< min::indent
+	<< "block "
+	<< min::name_pgen ( block_name )
+	<< ": " << min::save_indent;
+
+    if ( table_type == ::OPERATOR )
+	parser->printer
+	    << "operator \""
+	    << min::name_pgen ( op->label );
+    else if ( table_type == ::BRACKET )
+	parser->printer
+	    << "bracket \""
+	    << min::name_pgen ( op->label )
+	    << "\" ... \""
+	    << min::name_pgen ( op->terminator );
+
+    parser->printer
+	<< "\" " << min::set_break;
+
+    COM::print_flags
+	( op->selectors,
+	  parser->selector_name_table,
+	  parser );
+
+    parser->printer << min::indent;
+    if ( op->flags & OP::PREFIX )
+	parser->printer << "prefix";
+    if ( op->flags & OP::INFIX )
+	parser->printer
+	    << min::space_if_after_indent
+	    << "infix";
+    if ( op->flags & OP::POSTFIX )
+	parser->printer
+	    << min::space_if_after_indent
+	    << "postfix";
+    if ( op->flags & OP::NOFIX )
+	parser->printer
+	    << min::space_if_after_indent
+	    << "nofix";
+    if ( op->flags & OP::AFIX )
+	parser->printer
+	    << min::space_if_after_indent
+	    << "afix";
+
+    parser->printer
+	<< min::indent
+	<< "with precedence "
+	<< op->precedence;
+
+    if ( op->reformatter != NULL )
+    {
+	min::gen name = OP::find_name
+	    ( op->reformatter );
+	parser->printer
+	    << min::indent
+	    << "with reformatter "
+	    << min::name_pgen ( name );
+    }
+
+    parser->printer
+	<< min::restore_indent;
+}
+
 static min::gen oper_pass_command
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -1700,46 +1778,40 @@ static min::gen oper_pass_command
 	int count = 0;
 
 	{
-	    TAB::key_table_iterator it
+	    TAB::key_table_iterator oper_it
 		( oper_pass->oper_table );
 	    while ( true )
 	    {
-		TAB::root root = it.next();
+		TAB::root root = oper_it.next();
 		if ( root == min::NULL_STUB ) break;
 
 		if ( min::is_subsequence
 			 ( name[0], root->label ) < 0 )
 		    continue;
 
-		min::uns32 subtype =
-		    min::packed_subtype_of ( root );
-
-		OP::oper op = (OP::oper) root;
-		MIN_ASSERT ( op != min::NULL_STUB );
+		::print_op ( (OP::oper) root,
+		             ::OPERATOR,
+		             parser );
 
 		++ count;
+	    }
 
-		min::gen block_name =
-		    PAR::block_name
-			( parser,
-			  root->block_level );
-		parser->printer
-		    << min::indent
-		    << "block "
-		    << min::name_pgen ( block_name )
-		    << ": " << min::save_indent
-		    << "operator \""
-		    << min::name_pgen ( root->label )
-		    << "\" " << min::set_break;
-		COM::print_flags
-		    ( root->selectors,
-		      parser->selector_name_table,
-		      parser );
+	    TAB::key_table_iterator bracket_it
+		( oper_pass->oper_bracket_table );
+	    while ( true )
+	    {
+		TAB::root root = bracket_it.next();
+		if ( root == min::NULL_STUB ) break;
 
-		parser->printer
-		    << min::indent
-		    << "with precedence "
-		    << op->precedence;
+		if ( min::is_subsequence
+			 ( name[0], root->label ) < 0 )
+		    continue;
+
+		::print_op ( (OP::oper) root,
+		             ::BRACKET,
+		             parser );
+
+		++ count;
 	    }
 	}
 

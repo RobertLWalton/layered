@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 15 06:19:39 EST 2013
+// Date:	Mon Nov 25 19:26:35 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -100,8 +100,9 @@ struct oper_struct
 	// is the terminator required of a BRACKETTED
 	// expression in order for that to be recognized
 	// as an operator.  The root label is the
-	// required initiator.  Not used for an entry
-	// in the oper_table.
+	// required initiator.  min::MISSING() if
+	// entry as no terminator (as do entries in the
+	// oper_table).
     ll::parser::oper::reformatter reformatter;
     	// NULL if none.
 };

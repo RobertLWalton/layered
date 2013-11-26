@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 25 15:14:22 EST 2013
+// Date:	Tue Nov 26 02:51:23 EST 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,8 @@ parser print context "default"
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]
+parser print selector ""
+parser print operator ""
 
 // Test define and undefine
 //
@@ -19,15 +21,16 @@ parser begin block
 parser test ( x / y ^ z w )
 parser define operator "/" [code, math] infix
        with binary reformatter with precedence 5100
+parser print operator "/"
 parser define operator "^" [code, math] infix
        with binary reformatter with precedence 5300
-parser print operator ""
 parser test ( x / y ^ z w )
 parser undefine operator "/" [code, math] infix
        with precedence 5100
-parser print operator ""
+parser print operator "/"
 parser test ( x / y ^ z w )
 parser end block
+parser print operator "/"
 parser test ( x / y ^ z w )
 
 // Test erroneous defines and undefines
@@ -52,8 +55,9 @@ parser undefine operator "+" [code, math] infix
        with binary reformatter
 parser undefine operator "+" [code, math]
        with precedence 3000
+parser print operator ""
 
-// Operators are introduces lowest precedence first
+// Operators are introduced lowest precedence first
 
 parser define operator "=" [code, math] infix
        with precedence 1000
@@ -178,6 +182,8 @@ parser define operator "<--" [code] afix
 parser define operator bracket "{" ... "}" [code] afix
        with precedence 0
 parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
+
+parser print operator ""
 
 // Temporary tests
 parser define operator bracket "{" ... "}" [code] infix

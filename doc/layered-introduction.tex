@@ -213,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 25, 2013
+November 26, 2013
  
 \end{center}
 
@@ -2794,7 +2794,7 @@ and the {\tt .arguments} and {\tt .keys} are set from the
 contents of the {\em named-operator} just as they would be from the
 contents of a {\em named-opening-bracket}.
 
-\subsubsection{Print Bracket Commands}
+\subsubsection{The Print Bracket Command}
 
 A {\em parser-print-bracket-command} has the syntax:
 
@@ -2934,6 +2934,18 @@ are defined by operator definitions that can be added to the
 parsing definition stack.  List separators, such as `\verb|,|', are treated
 as operators, and have operator definitions.
 
+{\em Parser-operator-commands} modify and print
+the parsing definition stack:
+
+\begin{indpar}[0.1in]
+\emkey{parser-operator-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em parser-operator-definition} \\
+    $|$ & {\em parser-print-operator-command} \\
+    \end{tabular}
+\label{PARSER-BRACKETED-COMMAND}
+\end{indpar}
+
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITION}
 
@@ -2950,7 +2962,7 @@ Evaluator
 The syntax of operator definitions is:
 
 \begin{indpar}
-\emkey{operator-definition} \\
+\emkey{parser-operator-definition} \\
     \hspace*{0.5in}\begin{tabular}{rl}
     ::= & \ttkey{parser define operator}
 	    \begin{tabular}[t]{@{}l@{}}
@@ -3086,6 +3098,32 @@ with `\verb/(|-x|)+(|* 6 y|)/', since `\verb|+|' is the first operator in
 this subexpression \underline{after} subexpressions have been handled.
 This reformatter returns `\verb/+ (|-x|) (|* 6 y|)/'.  Here we have
 use parentheses \verb/(|  |)/ to indicate implicit parentheses.
+
+\subsubsection{The Print Operator Command}
+
+A {\em parser-print-operator-command} has the syntax:
+
+\begin{indpar}
+\emkey{parser-print-operator-command}%
+\label{PARSER-PRINT-OPERATOR-COMMAND}
+\\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{parser print operator}{parser print operator}
+	  {\em partial-name} \\
+    \end{tabular}
+\end{indpar}
+
+All operator symbol table entries are printed whose first name
+component includes the {\em partial-name}, where the first name
+component is one of
+\begin{indpar}
+\em
+simple-operator-name \\
+opening-bracket-name \\
+indentation-mark-name \\
+gluing-indentation-mark-name \\
+\end{indpar}
 
 
 \subsubsection{Standard Operators}

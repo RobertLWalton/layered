@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 19:32:59 EDT 2012
+// Date:	Wed Dec 25 12:47:27 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -825,13 +825,13 @@ lex	   // In order to recognize , and / surrounded
 lex	   // by digits as number atoms, entries to this
 lex	   // table upon recognizing "X<digit>" must do
 lex	   // a `keep 1' so the digit will be left to be
-lex	   // recognized by <digit>/<digit> or
-lex	   // <digit>,<digit>.
+lex	   // recognized by <digit>/<digit> etc.
 lex
 lex	   // Alternatively we could have a separate
 lex	   // table for the state where the last atom
 lex	   // ended with a digit.
 lex
+lex	   "<digit>:<digit>" keep 2 goto number;
 lex	   "<digit>/<digit>" keep 2 goto number;
 lex	   "<digit>,<digit>" keep 2 goto number;
 lex	   "<digit>" accept;
@@ -880,6 +880,7 @@ cc
 lex	   // See note on , and / in `natural number'
 lex	   // table above.
 lex
+lex	   "<digit>:<digit>" keep 2;
 lex	   "<digit>/<digit>" keep 2;
 lex	   "<digit>,<digit>" keep 2;
 lex	   "<digit>" accept;

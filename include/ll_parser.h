@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 24 01:52:40 EST 2013
+// Date:	Thu Dec 26 06:51:52 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -549,6 +549,13 @@ namespace pass_function {
     // Returns true if no fatal errors, and false if
     // there is a fatal error.
     //
+    // After the pass runs on the subexpression, it must
+    // call the next pass in the parser pass stack
+    // before returning.  This is often done by calling
+    // the ll::parser::compact function with pass->next
+    // to call the next pass and compact the subexpres-
+    // sion.
+    //
     // This function is NULL and unused for the first
     // pass, which is always the bracketed subexpression
     // recognition pass.
@@ -663,6 +670,70 @@ void place
 ll::parser::pass remove
 	( ll::parser::parser parser,
 	  ll::parser::pass pass );
+
+// There is a single parser pass table (not the same as
+// the parser pass stack) set up by program  initializa-
+// tion.  This maps parser pass names to parser passes
+// and vice versa.
+
+struct pass_table_struct
+{
+    min::gen name;
+    ll::parser::pass pass;
+};
+
+struct pass_table_struct;
+typedef min::packed_vec_insptr
+	    <pass_table_struct>
+	pass_table_type;
+extern const uns32 & PASS_TABLE_TYPE;
+    // Subtype of min::packed_vec<pass_table_struct>.
+
+// The one and only parser pass table.
+//
+extern min::locatable_var
+	<ll::parser::pass_table_type>
+    pass_table;
+
+// Look up parser pass name in parser pass table, and
+// return parser pass if found, or NULL if not found.
+//
+inline ll::parser::pass find_pass ( min::gen name )
+{
+    ll::parser::pass_table_type t =
+        ll::parser::pass_table;
+    for ( min::uns32 i = 0; i < t->length; ++ i )
+    {
+        if ( t[i].name == name ) return t[i].pass;
+    }
+    return NULL;
+}
+//
+// Look up parser pass in parser pass table, and return
+// parser pass name if found, or MISSING if not found.
+//
+inline min::gen find_name ( ll::parser::pass pass )
+{
+    ll::parser::pass_table_type t =
+        ll::parser::pass_table;
+    for ( min::uns32 i = 0; i < t->length; ++ i )
+        if ( t[i].pass == pass ) return t[i].name;
+    return min::MISSING();
+}
+
+// Push parser pass name and parser pass into
+// parser pass table.
+//
+inline void push_pass
+    ( min::gen name, ll::parser::pass pass )
+{
+    pass_table_struct e = { name, pass };
+    min::push ( (ll::parser::pass_table_type)
+                ll::parser::pass_table )
+        = e;
+    min::unprotected::acc_write_update 
+	( ll::parser::pass_table, name );
+}
 
 } }
 

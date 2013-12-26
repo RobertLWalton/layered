@@ -2,7 +2,7 @@
 //
 // File:	ll__parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 24 01:55:36 EST 2013
+// Date:	Thu Dec 26 18:31:48 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -437,6 +437,38 @@ PAR::pass PAR::remove
     }
     return min::NULL_STUB;
 }
+
+min::locatable_var<PAR::pass_table_type>
+    PAR::pass_table;
+
+static min::uns32 pass_table_gen_disp[] = {
+    min::DISP ( & PAR::pass_table_struct::name ),
+    min::DISP_END };
+
+static min::uns32 pass_table_stub_disp[] = {
+    min::DISP ( & PAR::pass_table_struct::pass ),
+    min::DISP_END };
+
+static min::packed_vec<PAR::pass_table_struct>
+    pass_table_type
+        ( "ll::parser::pass_table_type",
+	  ::pass_table_gen_disp,
+	  ::pass_table_stub_disp );
+
+void PAR::push_pass
+    ( min::gen name, PAR::pass pass )
+{
+    if ( PAR::pass_table == min::NULL_STUB )
+	PAR::pass_table =
+	    ::pass_table_type.new_stub ( 32 );
+
+    pass_table_struct e = { name, pass };
+    min::push ( (ll::parser::pass_table_type)
+                ll::parser::pass_table )
+        = e;
+    min::unprotected::acc_write_update 
+	( ll::parser::pass_table, name );
+}
 
 // Contexts
 // --------
@@ -592,6 +624,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	BRA::bracketed_pass bracketed_pass =
 	    BRA::place ( parser );
+
+	min::locatable_gen top
+	    ( min::new_str_gen ( "top" ) );
+	PAR::push_pass
+	    ( top, (PAR::pass) bracketed_pass );
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark

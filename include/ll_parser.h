@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 26 06:51:52 EST 2013
+// Date:	Thu Dec 26 18:32:06 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -724,16 +724,7 @@ inline min::gen find_name ( ll::parser::pass pass )
 // Push parser pass name and parser pass into
 // parser pass table.
 //
-inline void push_pass
-    ( min::gen name, ll::parser::pass pass )
-{
-    pass_table_struct e = { name, pass };
-    min::push ( (ll::parser::pass_table_type)
-                ll::parser::pass_table )
-        = e;
-    min::unprotected::acc_write_update 
-	( ll::parser::pass_table, name );
-}
+void push_pass ( min::gen name, ll::parser::pass pass );
 
 } }
 

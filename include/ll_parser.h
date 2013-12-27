@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 03:13:09 EST 2013
+// Date:	Fri Dec 27 04:59:33 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -515,6 +515,15 @@ void init
 
 namespace pass_function {
 
+    // Function called (if not NULL) when the pass is
+    // put on a parser stack.  This function may do
+    // things like look up the trace flag of the pass
+    // in the parser.
+    //
+    typedef void ( * place )
+	    ( ll::parser::parser parser,
+	      ll::parser::pass pass );
+
     // Function called (if not NULL) when the parser
     // is reset via the `ll::parser::reset' function.
     // This function should reset parameters to default
@@ -646,6 +655,7 @@ struct pass_struct
         // Pass is run only if its selectors match those
 	// of the bracketed subexpression.
 
+    ll::parser::pass_function::place place;
     ll::parser::pass_function::reset reset;
     ll::parser::pass_function::begin_parse begin_parse;
     ll::parser::pass_function::parse parse;
@@ -674,60 +684,54 @@ void place
 //
 void remove ( ll::parser::pass pass );
 
-// There is a single parser pass table (not the same as
-// the parser pass stack) set up by program  initializa-
-// tion.  This maps parser pass names to parser passes
-// and vice versa.
+// There is a single parser new pass table (not the same
+// as a parser pass stack) set up by program initializa-
+// tion.  This maps parser pass names to `new_pass'
+// functions that create passes.
 
-struct pass_table_struct
+typedef ll::parser::pass ( * new_pass ) ( void );
+
+struct new_pass_table_struct
 {
     min::gen name;
-    ll::parser::pass pass;
+    ll::parser::new_pass new_pass;
 };
 
-struct pass_table_struct;
+struct new_pass_table_struct;
 typedef min::packed_vec_insptr
-	    <pass_table_struct>
-	pass_table_type;
-extern const uns32 & PASS_TABLE_TYPE;
-    // Subtype of min::packed_vec<pass_table_struct>.
+	    <new_pass_table_struct>
+	new_pass_table_type;
+extern const uns32 & NEW_PASS_TABLE_TYPE;
+    // Subtype of min::packed_vec
+    //                <new_pass_table_struct>.
 
-// The one and only parser pass table.
+// The one and only parser new pass table.
 //
 extern min::locatable_var
-	<ll::parser::pass_table_type>
-    pass_table;
+	<ll::parser::new_pass_table_type>
+    new_pass_table;
 
-// Look up parser pass name in parser pass table, and
-// return parser pass if found, or NULL if not found.
+// Look up parser pass name in parser new pass table,
+// and return parser new_pass function found, or NULL
+// if none found.
 //
-inline ll::parser::pass find_pass ( min::gen name )
+inline ll::parser::new_pass find_new_pass
+	( min::gen name )
 {
-    ll::parser::pass_table_type t =
-        ll::parser::pass_table;
+    ll::parser::new_pass_table_type t =
+        ll::parser::new_pass_table;
     for ( min::uns32 i = 0; i < t->length; ++ i )
     {
-        if ( t[i].name == name ) return t[i].pass;
+        if ( t[i].name == name ) return t[i].new_pass;
     }
     return NULL;
 }
-//
-// Look up parser pass in parser pass table, and return
-// parser pass name if found, or MISSING if not found.
-//
-inline min::gen find_name ( ll::parser::pass pass )
-{
-    ll::parser::pass_table_type t =
-        ll::parser::pass_table;
-    for ( min::uns32 i = 0; i < t->length; ++ i )
-        if ( t[i].pass == pass ) return t[i].name;
-    return min::MISSING();
-}
 
-// Push parser pass name and parser pass into
-// parser pass table.
+// Push parser pass name and parser new_pass function
+// into parser pass table.
 //
-void push_pass ( min::gen name, ll::parser::pass pass );
+void push_new_pass ( min::gen name,
+                     ll::parser::new_pass new_pass );
 
 } }
 

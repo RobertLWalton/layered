@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 03:34:12 EST 2013
+// Date:	Fri Dec 27 04:50:27 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -194,14 +194,9 @@ MIN_REF ( ll::parser::table::key_table,
 MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
           ll::parser::oper::oper_pass )
 
-// Create an operator parser pass and place it on the
-// parser->pass_stack just before `next', or if `next'
-// is NULL_STUB, put `pass' at the end of the stack.
-// Return the new operator parser pass.
+// Return a new operator parser pass.
 //
-ll::parser::oper::oper_pass place
-	( ll::parser::parser parser,
-	  ll::parser::pass next = NULL_STUB );
+ll::parser::pass new_pass ( void );
 
 // Operator Reformatters
 // -------- ------------

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 26 02:24:14 EST 2013
+// Date:	Fri Dec 27 04:53:32 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,7 +25,8 @@ int main ( int argc, const char * argv[] )
     min::initialize();
 
     PAR::init ( PAR::default_parser, false );
-    OP::place ( PAR::default_parser );
+    PAR::pass oper_pass = OP::new_pass();
+    PAR::place ( PAR::default_parser, oper_pass );
     STD::init_block ( PAR::default_parser );
     STD::init_brackets ( PAR::default_parser );
 

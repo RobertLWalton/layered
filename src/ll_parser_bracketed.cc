@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 03:29:46 EST 2013
+// Date:	Fri Dec 27 05:03:15 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,6 +57,10 @@ static void initialize ( void )
         min::new_lab_gen
 	    ( "bracketed", "subexpressions" );
     ::offset = min::new_str_gen ( "offset" );
+
+    min::locatable_gen top
+        ( min::new_str_gen ( "top" ) ); 
+    PAR::push_new_pass ( top, BRA::new_pass );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -519,6 +523,22 @@ static min::packed_struct_with_base
 const min::uns32 & BRA::BRACKETED_PASS =
     ::bracketed_pass_type.subtype;
 
+static void bracketed_pass_place
+	( PAR::parser parser,
+	  PAR::pass pass )
+{
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) pass;
+
+    int index = TAB::find_name
+        ( parser->trace_flag_name_table,
+	  ::bracketed_subexpressions );
+    assert
+      ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
+    bracketed_pass->trace_subexpressions =
+        1ull << index;
+}
+
 static void bracketed_pass_reset
 	( PAR::parser parser,
 	  PAR::pass pass )
@@ -599,13 +619,14 @@ static min::gen bracketed_pass_command
 	  min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec );
 
-BRA::bracketed_pass BRA::place
-	( PAR::parser parser )
+PAR::pass BRA::new_pass ( void )
 {
     min::locatable_var<BRA::bracketed_pass>
 	bracketed_pass
 	    ( ::bracketed_pass_type.new_stub() );
 
+    bracketed_pass->place =
+        ::bracketed_pass_place;
     bracketed_pass->reset =
         ::bracketed_pass_reset;
     bracketed_pass->begin_block =
@@ -623,19 +644,7 @@ BRA::bracketed_pass BRA::place
     indentation_offset_stack_ref(bracketed_pass) =
         ::indentation_offset_stack_type.new_stub ( 16 );
 
-    int index = TAB::find_name
-        ( parser->trace_flag_name_table,
-	  ::bracketed_subexpressions );
-    assert
-      ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
-    bracketed_pass->trace_subexpressions =
-        1ull << index;
-
-    PAR::place
-        ( parser, (PAR::pass) bracketed_pass,
-	  parser->pass_stack );
-
-    return bracketed_pass;
+    return (PAR::pass) bracketed_pass;
 }
 
 // Bracketed Subexpression Parser Functions

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:03:15 EST 2013
+// Date:	Fri Dec 27 05:34:20 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,7 @@ static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
 static min::locatable_gen offset;
+static min::locatable_gen top;
 
 static void initialize ( void )
 {
@@ -57,10 +58,9 @@ static void initialize ( void )
         min::new_lab_gen
 	    ( "bracketed", "subexpressions" );
     ::offset = min::new_str_gen ( "offset" );
+    ::top = min::new_str_gen ( "top" );
 
-    min::locatable_gen top
-        ( min::new_str_gen ( "top" ) ); 
-    PAR::push_new_pass ( top, BRA::new_pass );
+    PAR::push_new_pass ( ::top, BRA::new_pass );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -527,6 +527,10 @@ static void bracketed_pass_place
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
+    // Bracketed pass must be at top of stack.
+    //
+    MIN_ASSERT ( parser->pass_stack == pass );
+
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) pass;
 
@@ -624,6 +628,8 @@ PAR::pass BRA::new_pass ( void )
     min::locatable_var<BRA::bracketed_pass>
 	bracketed_pass
 	    ( ::bracketed_pass_type.new_stub() );
+
+    BRA::name_ref ( bracketed_pass ) = ::top;
 
     bracketed_pass->place =
         ::bracketed_pass_place;

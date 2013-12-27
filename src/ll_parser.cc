@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:03:04 EST 2013
+// Date:	Fri Dec 27 05:41:45 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -400,32 +400,47 @@ static min::packed_struct<PAR::pass_struct>
     pass_type ( "ll::parser::pass_type",
                 NULL, ::pass_stub_disp );
 
-void PAR::place
+void PAR::place_after
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  PAR::pass next )
+	  PAR::pass previous )
 {
     PAR::remove ( pass );
 
-    PAR::pass current = parser->pass_stack;
-    if ( current == NULL_STUB )
+    if ( previous == NULL_STUB )
     {
-        MIN_ASSERT ( next == NULL_STUB );
+	next_ref(pass) = parser->pass_stack;
 	pass_stack_ref(parser) = pass;
     }
     else
     {
-	while ( current->next != next )
-	{
-	    current = current->next;
-	    MIN_ASSERT ( current != NULL_STUB );
-	}
-	next_ref(pass) = current->next;
-	next_ref(current) = pass;
+        MIN_ASSERT ( previous->parser == parser );
+	next_ref(pass) = previous->next;
+	next_ref(previous) = pass;
     }
+
     PAR::parser_ref ( pass ) = parser;
     if ( pass->place != NULL )
 	( * pass->place ) ( parser, pass );
+}
+
+void PAR::place_at_end
+	( PAR::parser parser,
+	  PAR::pass pass )
+{
+    PAR::remove ( pass );
+        // In case pass is already at end.
+
+    PAR::pass previous = parser->pass_stack;
+    if ( previous != min::NULL_STUB )
+	while ( true )
+	{
+	    PAR::pass next = previous->next;
+	    if ( next == min::NULL_STUB ) break;
+	    previous = next;
+	}
+
+    PAR::place_after ( parser, pass, previous );
 }
 
 void PAR::remove ( PAR::pass pass )
@@ -632,8 +647,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	BRA::bracketed_pass bracketed_pass =
 	    (BRA::bracketed_pass) BRA::new_pass();
-	PAR::place ( parser,
-	             (PAR::pass) bracketed_pass );
+	PAR::place_after ( parser,
+	                   (PAR::pass) bracketed_pass );
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark

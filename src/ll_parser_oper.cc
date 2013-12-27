@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:03:28 EST 2013
+// Date:	Fri Dec 27 05:36:51 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -226,6 +226,8 @@ PAR::pass OP::new_pass ( void )
 {
     min::locatable_var<OP::oper_pass> oper_pass
         ( ::oper_pass_type.new_stub() );
+
+    OP::name_ref ( oper_pass ) = ::oper;
 
     OP::oper_table_ref ( oper_pass ) =
         TAB::create_key_table ( 1024 );

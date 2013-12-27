@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 04:59:45 EST 2013
+// Date:	Fri Dec 27 05:35:29 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -504,6 +504,8 @@ struct bracketed_pass_struct
 
 };
 
+MIN_REF ( min::gen, name,
+          ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::parser, parser,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::pass, next,

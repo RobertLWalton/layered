@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 04:59:33 EST 2013
+// Date:	Fri Dec 27 05:25:25 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -641,6 +641,9 @@ struct pass_struct
 {
     uns32 control;
 
+    const min::gen name;
+        // Pass name as per new pass table.
+
     const ll::parser::pass next;
         // Next pass in the pass stack, or NULL_STUB.
 	// The parser executes passes in `next-later'
@@ -666,18 +669,27 @@ struct pass_struct
     ll::parser::pass_function::end_block end_block;
 };
 
+MIN_REF ( min::gen, name, ll::parser::pass )
 MIN_REF ( ll::parser::parser, parser, ll::parser::pass )
 MIN_REF ( ll::parser::pass, next, ll::parser::pass )
 
-// Place `pass' on the parser->pass_stack just before
-// `next', or if the latter is NULL_STUB, put `pass'
-// at the end of the stack.  `pass' is removed from
-// any parser pass stack it was previously on.
+// Place `pass' on the parser->pass_stack just after
+// `previous', or if the latter is NULL_STUB, put `pass'
+// at the beginning of the stack.  `pass' is removed
+// from any parser pass stack it was previously on.
 //
-void place
+void place_after
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
-	  ll::parser::pass next = NULL_STUB );
+	  ll::parser::pass previous = NULL_STUB );
+
+// Place `pass' at end of the parser->pass_stack.
+// `pass' is removed from any parser pass stack it was
+// previously on.
+//
+void place_at_end
+	( ll::parser::parser parser,
+	  ll::parser::pass pass );
 
 // Remove `pass' from the pass stack of `pass->parser'
 // if the latter is not NULL_STUB.

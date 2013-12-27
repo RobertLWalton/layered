@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 03:34:00 EST 2013
+// Date:	Fri Dec 27 04:59:45 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -518,12 +518,9 @@ MIN_REF ( ll::parser::bracketed
           indentation_offset_stack,
           ll::parser::bracketed::bracketed_pass )
 
-// Create an bracketed subexpression pass and place it
-// as the first pass on the parser->pass_stack.
-// Return the new bracketed subexpression pass.
+// Return a new bracketed subexpression pass.
 //
-ll::parser::bracketed::bracketed_pass place
-	( ll::parser::parser parser );
+ll::parser::pass new_pass ( void );
 
 // Parse Bracketed Subexpression Function
 // ----- --------- ------------- --------

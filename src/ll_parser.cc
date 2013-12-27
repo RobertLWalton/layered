@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 03:15:34 EST 2013
+// Date:	Fri Dec 27 05:03:04 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -424,6 +424,8 @@ void PAR::place
 	next_ref(current) = pass;
     }
     PAR::parser_ref ( pass ) = parser;
+    if ( pass->place != NULL )
+	( * pass->place ) ( parser, pass );
 }
 
 void PAR::remove ( PAR::pass pass )
@@ -449,36 +451,31 @@ void PAR::remove ( PAR::pass pass )
                 " pass stack" );
 }
 
-min::locatable_var<PAR::pass_table_type>
-    PAR::pass_table;
+min::locatable_var<PAR::new_pass_table_type>
+    PAR::new_pass_table;
 
-static min::uns32 pass_table_gen_disp[] = {
-    min::DISP ( & PAR::pass_table_struct::name ),
+static min::uns32 new_pass_table_gen_disp[] = {
+    min::DISP ( & PAR::new_pass_table_struct::name ),
     min::DISP_END };
 
-static min::uns32 pass_table_stub_disp[] = {
-    min::DISP ( & PAR::pass_table_struct::pass ),
-    min::DISP_END };
+static min::packed_vec<PAR::new_pass_table_struct>
+    new_pass_table_type
+        ( "ll::parser::new_pass_table_type",
+	  ::new_pass_table_gen_disp );
 
-static min::packed_vec<PAR::pass_table_struct>
-    pass_table_type
-        ( "ll::parser::pass_table_type",
-	  ::pass_table_gen_disp,
-	  ::pass_table_stub_disp );
-
-void PAR::push_pass
-    ( min::gen name, PAR::pass pass )
+void PAR::push_new_pass
+    ( min::gen name, PAR::new_pass new_pass )
 {
-    if ( PAR::pass_table == min::NULL_STUB )
-	PAR::pass_table =
-	    ::pass_table_type.new_stub ( 32 );
+    if ( PAR::new_pass_table == min::NULL_STUB )
+	PAR::new_pass_table =
+	    ::new_pass_table_type.new_stub ( 32 );
 
-    pass_table_struct e = { name, pass };
-    min::push ( (ll::parser::pass_table_type)
-                ll::parser::pass_table )
+    new_pass_table_struct e = { name, new_pass };
+    min::push ( (ll::parser::new_pass_table_type)
+                ll::parser::new_pass_table )
         = e;
     min::unprotected::acc_write_update 
-	( ll::parser::pass_table, name );
+	( ll::parser::new_pass_table, name );
 }
 
 // Contexts
@@ -634,12 +631,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      parser->context_table );
 
 	BRA::bracketed_pass bracketed_pass =
-	    BRA::place ( parser );
-
-	min::locatable_gen top
-	    ( min::new_str_gen ( "top" ) );
-	PAR::push_pass
-	    ( top, (PAR::pass) bracketed_pass );
+	    (BRA::bracketed_pass) BRA::new_pass();
+	PAR::place ( parser,
+	             (PAR::pass) bracketed_pass );
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark

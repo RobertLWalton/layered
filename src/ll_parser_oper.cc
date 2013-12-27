@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 03:30:13 EST 2013
+// Date:	Fri Dec 27 05:03:28 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,6 +65,8 @@ static void initialize ( void )
     ::mark = min::new_str_gen ( "mark" );
     ::precedence = min::new_str_gen ( "precedence" );
     ::reformatter = min::new_str_gen ( "reformatter" );
+
+    PAR::push_new_pass ( ::oper, OP::new_pass );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -140,6 +142,22 @@ static min::packed_struct_with_base
 const min::uns32 & OP::OPER_PASS =
     ::oper_pass_type.subtype;
 
+static void oper_pass_place
+	( PAR::parser parser,
+	  PAR::pass pass )
+{
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
+    int index = TAB::find_name
+        ( parser->trace_flag_name_table,
+	  ::operator_subexpressions );
+    assert
+      ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
+    
+    oper_pass->trace_subexpressions =
+        1ull << index;
+}
+
 static void oper_pass_reset
 	( PAR::parser parser,
 	  PAR::pass pass )
@@ -204,9 +222,7 @@ static min::gen oper_pass_command
 	  min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec );
 
-OP::oper_pass OP::place
-	( ll::parser::parser parser,
-	  ll::parser::pass next )
+PAR::pass OP::new_pass ( void )
 {
     min::locatable_var<OP::oper_pass> oper_pass
         ( ::oper_pass_type.new_stub() );
@@ -222,21 +238,11 @@ OP::oper_pass OP::place
 
     oper_pass->parser_command = ::oper_pass_command;
     oper_pass->parse = ::oper_parse;
+    oper_pass->place = ::oper_pass_place;
     oper_pass->reset = ::oper_pass_reset;
     oper_pass->end_block = ::oper_pass_end_block;
 
-    int index = TAB::find_name
-        ( parser->trace_flag_name_table,
-	  ::operator_subexpressions );
-    assert
-      ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
-    
-    oper_pass->trace_subexpressions =
-        1ull << index;
-
-    PAR::place
-        ( parser, (PAR::pass) oper_pass, next );
-    return oper_pass;
+    return (PAR::pass) oper_pass;
 }
 
 // Operator Parse Function

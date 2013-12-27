@@ -1,8 +1,8 @@
 // Layers Language Parser Functions
 //
-// File:	ll__parser.cc
+// File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 26 18:31:48 EST 2013
+// Date:	Fri Dec 27 03:15:34 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -391,15 +391,21 @@ void PAR::init
     output->init = init;
 }
 
+static min::uns32 pass_stub_disp[] = {
+    min::DISP ( & PAR::pass_struct::parser ),
+    min::DISP ( & PAR::pass_struct::next ),
+    min::DISP_END };
+
 static min::packed_struct<PAR::pass_struct>
-    pass_type ( "ll::parser::pass_type" );
+    pass_type ( "ll::parser::pass_type",
+                NULL, ::pass_stub_disp );
 
 void PAR::place
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::pass next )
 {
-    MIN_ASSERT ( pass->next == NULL_STUB );
+    PAR::remove ( pass );
 
     PAR::pass current = parser->pass_stack;
     if ( current == NULL_STUB )
@@ -417,12 +423,14 @@ void PAR::place
 	next_ref(pass) = current->next;
 	next_ref(current) = pass;
     }
+    PAR::parser_ref ( pass ) = parser;
 }
 
-PAR::pass PAR::remove
-	( PAR::parser parser,
-	  PAR::pass pass )
+void PAR::remove ( PAR::pass pass )
 {
+    PAR::parser parser = pass->parser;
+    if ( parser == min::NULL_STUB ) return;
+
     min::ref<PAR::pass> p = pass_stack_ref ( parser );
     for ( PAR::pass current = p;
 	  current != min::NULL_STUB;
@@ -431,11 +439,14 @@ PAR::pass PAR::remove
         if ( current == pass )
 	{
 	    p = current->next;
-	    return pass;
+	    PAR::parser_ref ( pass ) = min::NULL_STUB;
+	    PAR::next_ref ( pass ) = min::NULL_STUB;
+	    return;
 	}
 	p = PAR::next_ref ( current );
     }
-    return min::NULL_STUB;
+    MIN_ABORT ( "Could not find pass on pass->parser"
+                " pass stack" );
 }
 
 min::locatable_var<PAR::pass_table_type>

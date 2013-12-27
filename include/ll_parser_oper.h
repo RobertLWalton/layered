@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 25 19:26:35 EST 2013
+// Date:	Fri Dec 27 03:34:12 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -182,6 +182,8 @@ struct oper_pass_struct
 
 };
 
+MIN_REF ( ll::parser::parser, parser,
+          ll::parser::oper::oper_pass )
 MIN_REF ( ll::parser::pass, next,
           ll::parser::oper::oper_pass )
 MIN_REF ( ll::parser::table::key_table, oper_table,

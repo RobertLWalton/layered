@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 26 18:32:06 EST 2013
+// Date:	Fri Dec 27 03:13:09 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -637,6 +637,15 @@ struct pass_struct
 	// The parser executes passes in `next-later'
 	// order on a subexpression.
 
+    const ll::parser::parser parser;
+        // Parser whose pass stack this pass is on,
+	// or NULL_STUB if the pass is not on any
+	// pass stack.
+
+    ll::parser::table::flags selectors;
+        // Pass is run only if its selectors match those
+	// of the bracketed subexpression.
+
     ll::parser::pass_function::reset reset;
     ll::parser::pass_function::begin_parse begin_parse;
     ll::parser::pass_function::parse parse;
@@ -645,31 +654,25 @@ struct pass_struct
         parser_command;
     ll::parser::pass_function::begin_block begin_block;
     ll::parser::pass_function::end_block end_block;
-
-    ll::parser::table::flags selectors;
-        // Pass is run only if its selectors match those
-	// of the bracketed subexpression.
 };
 
+MIN_REF ( ll::parser::parser, parser, ll::parser::pass )
 MIN_REF ( ll::parser::pass, next, ll::parser::pass )
 
 // Place `pass' on the parser->pass_stack just before
 // `next', or if the latter is NULL_STUB, put `pass'
-// at the end of the stack.  `pass' MUST NOT be on
-// any parser->pass_stack when this function is called.
+// at the end of the stack.  `pass' is removed from
+// any parser pass stack it was previously on.
 //
 void place
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
 	  ll::parser::pass next = NULL_STUB );
 
-// Remove `pass' from `parser->pass_stack' and return
-// `pass'.  Return min::NULL_STUB if `pass' is NOT in
-// `parser->pass_stack'.
+// Remove `pass' from the pass stack of `pass->parser'
+// if the latter is not NULL_STUB.
 //
-ll::parser::pass remove
-	( ll::parser::parser parser,
-	  ll::parser::pass pass );
+void remove ( ll::parser::pass pass );
 
 // There is a single parser pass table (not the same as
 // the parser pass stack) set up by program  initializa-

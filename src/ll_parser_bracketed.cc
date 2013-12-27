@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 25 01:54:43 EST 2013
+// Date:	Fri Dec 27 03:29:46 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -498,6 +498,8 @@ static min::packed_vec<min::int32>
 
 static min::uns32 bracketed_pass_stub_disp[] =
 {
+    min::DISP ( & BRA::bracketed_pass_struct
+                     ::parser ),
     min::DISP ( & BRA::bracketed_pass_struct
                      ::next ),
     min::DISP ( & BRA::bracketed_pass_struct

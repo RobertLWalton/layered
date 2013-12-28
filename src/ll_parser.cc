@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:41:45 EST 2013
+// Date:	Sat Dec 28 06:41:56 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -405,42 +405,51 @@ void PAR::place_after
 	  PAR::pass pass,
 	  PAR::pass previous )
 {
+    MIN_ASSERT ( pass != previous );
+
     PAR::remove ( pass );
 
-    if ( previous == NULL_STUB )
-    {
-	next_ref(pass) = parser->pass_stack;
-	pass_stack_ref(parser) = pass;
-    }
-    else
-    {
-        MIN_ASSERT ( previous->parser == parser );
-	next_ref(pass) = previous->next;
-	next_ref(previous) = pass;
-    }
+    MIN_ASSERT ( previous->parser == parser );
+    next_ref(pass) = previous->next;
+    next_ref(previous) = pass;
 
     PAR::parser_ref ( pass ) = parser;
     if ( pass->place != NULL )
 	( * pass->place ) ( parser, pass );
 }
 
-void PAR::place_at_end
+void PAR::place_before
 	( PAR::parser parser,
-	  PAR::pass pass )
+	  PAR::pass pass,
+	  PAR::pass next )
 {
+    MIN_ASSERT ( pass != next );
+
     PAR::remove ( pass );
-        // In case pass is already at end.
 
-    PAR::pass previous = parser->pass_stack;
-    if ( previous != min::NULL_STUB )
-	while ( true )
+    if ( parser->pass_stack == NULL_STUB )
+    {
+        MIN_ASSERT ( next == NULL_STUB );
+
+	next_ref(pass) = NULL_STUB;
+	pass_stack_ref(parser) = pass;
+    }
+    else
+    {
+        PAR::pass current = parser->pass_stack;
+        MIN_ASSERT ( current != next );
+	while ( current->next != next )
 	{
-	    PAR::pass next = previous->next;
-	    if ( next == min::NULL_STUB ) break;
-	    previous = next;
+	    MIN_ASSERT ( current->next != NULL_STUB );
+	    current = current->next;
 	}
+	next_ref(pass) = current->next;
+	next_ref(current) = pass;
+    }
 
-    PAR::place_after ( parser, pass, previous );
+    PAR::parser_ref ( pass ) = parser;
+    if ( pass->place != NULL )
+	( * pass->place ) ( parser, pass );
 }
 
 void PAR::remove ( PAR::pass pass )
@@ -464,6 +473,18 @@ void PAR::remove ( PAR::pass pass )
     }
     MIN_ABORT ( "Could not find pass on pass->parser"
                 " pass stack" );
+}
+
+PAR::pass PAR::find_on_pass_stack
+	( PAR::parser parser, min::gen name )
+{
+    PAR::pass pass = parser->pass_stack;
+    while ( pass != NULL_STUB )
+    {
+        if ( pass->name == name ) break;
+	pass = pass->next;
+    }
+    return pass;
 }
 
 min::locatable_var<PAR::new_pass_table_type>
@@ -647,7 +668,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	BRA::bracketed_pass bracketed_pass =
 	    (BRA::bracketed_pass) BRA::new_pass();
-	PAR::place_after ( parser,
+	PAR::place_before ( parser,
 	                   (PAR::pass) bracketed_pass );
 
 	top_level_indentation_mark_ref(parser) =

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:25:25 EST 2013
+// Date:	Sat Dec 28 06:42:13 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -674,27 +674,36 @@ MIN_REF ( ll::parser::parser, parser, ll::parser::pass )
 MIN_REF ( ll::parser::pass, next, ll::parser::pass )
 
 // Place `pass' on the parser->pass_stack just after
-// `previous', or if the latter is NULL_STUB, put `pass'
-// at the beginning of the stack.  `pass' is removed
-// from any parser pass stack it was previously on.
+// `previous', which must be a pass on parser->pass_
+// stack.  `pass' is first removed from any parser pass
+// stack it was previously on.
 //
 void place_after
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
-	  ll::parser::pass previous = NULL_STUB );
+	  ll::parser::pass previous );
 
-// Place `pass' at end of the parser->pass_stack.
-// `pass' is removed from any parser pass stack it was
-// previously on.
+// Place `pass' on the parser->pass_stack just before
+// `next', or if the latter is NULL_STUB, put `pass'
+// at the end of the stack.  `pass' is first removed
+// from any parser pass stack it was previously on.
+// `next' cannot be the top of the stack.
 //
-void place_at_end
+void place_before
 	( ll::parser::parser parser,
-	  ll::parser::pass pass );
+	  ll::parser::pass pass,
+	  ll::parser::pass next = NULL_STUB );
 
 // Remove `pass' from the pass stack of `pass->parser'
 // if the latter is not NULL_STUB.
 //
 void remove ( ll::parser::pass pass );
+
+// Return the pass with the given name on the parser's
+// pass stack.  Return NULL_STUB if none.
+//
+ll::parser::pass find_on_pass_stack
+	( ll::parser::parser parser, min::gen name );
 
 // There is a single parser new pass table (not the same
 // as a parser pass stack) set up by program initializa-

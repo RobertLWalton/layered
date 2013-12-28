@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:34:20 EST 2013
+// Date:	Sat Dec 28 06:45:54 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,8 +59,6 @@ static void initialize ( void )
 	    ( "bracketed", "subexpressions" );
     ::offset = min::new_str_gen ( "offset" );
     ::top = min::new_str_gen ( "top" );
-
-    PAR::push_new_pass ( ::top, BRA::new_pass );
 }
 static min::initializer initializer ( ::initialize );
 

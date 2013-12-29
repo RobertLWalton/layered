@@ -2,12 +2,13 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 26 02:51:23 EST 2013
+// Date:	Sun Dec 29 01:11:11 EST 2013
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
+parser print pass
 parser print context "default"
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,

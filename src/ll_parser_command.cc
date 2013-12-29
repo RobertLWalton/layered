@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 23 02:44:34 EST 2013
+// Date:	Sun Dec 29 00:56:59 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Parser Command Functions
+//	Execute Pass
 //	Execute Selectors
 //	Execute Context
 //	Execute Test
@@ -481,6 +482,76 @@ void COM::print_command
 	    << min::pgen ( vp[i],
 			   min::OBJ_EXP_FLAG );
     }
+}
+
+// Execute Pass
+// ------- ----
+
+static min::gen execute_pass
+	( min::obj_vec_ptr & vp,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    if ( vp[1] != PAR::define
+         &&
+	 vp[1] != PAR::undefine
+         &&
+	 vp[1] != PAR::print )
+	return min::FAILURE();
+
+    min::uns32 size = min::size_of ( vp );
+
+    min::uns32 i = 3;
+    min::locatable_gen name;
+    if ( vp[1] != PAR::print )
+    {
+	name = COM::scan_simple_label
+	    ( vp, i,
+		( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::number_t ) );
+	if ( name == min::MISSING() )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected simple name after" );
+    }
+
+    if ( i < size )
+        return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "extraneous stuff after" );
+
+    if ( vp[1] == PAR::print )
+    {
+        COM::print_command ( vp, parser );
+	parser->printer
+	    << ":" << min::eol
+	    << min::bom << min::nohbreak
+	    << min::set_indent ( 4 );
+	int count = 0;
+
+	PAR::pass pass = parser->pass_stack;
+	if ( pass == min::NULL_STUB )
+	    parser->printer << min::indent
+	                    << "parser stack is empty";
+	else while ( pass != min::NULL_STUB )
+	{
+	    parser->printer << min::indent
+			    << min::name_pgen
+				 ( pass->name );
+	    pass = pass->next;
+	}
+	parser->printer << min::eom;
+
+	return COM::PRINTED;
+    }
+    else if ( vp[1] == PAR::define )
+    {
+    }
+    else /* if vp[1] == PAR::undefine */
+    {
+    }
+
+    return min::SUCCESS();
 }
 
 // Execute Selectors
@@ -1055,6 +1126,11 @@ min::gen COM::parser_execute_command
     if ( vp[1] == PAR::test )
         result = ::execute_test
 	    ( vp, ppvec, parser );
+    else if ( size >= 3
+              &&
+	      vp[2] == PAR::pass_lexeme )
+	result = ::execute_pass
+		    ( vp, ppvec, parser );
     else if ( size >= 3
               &&
 	      vp[2] == PAR::selector )

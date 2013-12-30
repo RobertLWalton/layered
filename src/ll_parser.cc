@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 29 00:57:44 EST 2013
+// Date:	Mon Dec 30 01:11:18 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -69,6 +69,9 @@ min::locatable_gen PAR::context_lexeme;
 min::locatable_gen PAR::default_lexeme;
 min::locatable_gen PAR::with;
 min::locatable_gen PAR::parsing;
+min::locatable_gen PAR::after;
+min::locatable_gen PAR::before;
+min::locatable_gen PAR::at;
 min::locatable_gen PAR::plus;
 min::locatable_gen PAR::minus;
 min::locatable_gen PAR::dotdotdot;
@@ -137,6 +140,9 @@ static void initialize ( void )
         min::new_str_gen ( "default" );
     PAR::with = min::new_str_gen ( "with" );
     PAR::parsing = min::new_str_gen ( "parsing" );
+    PAR::after = min::new_str_gen ( "after" );
+    PAR::before = min::new_str_gen ( "before" );
+    PAR::at = min::new_str_gen ( "at" );
     PAR::plus = min::new_str_gen ( "+" );
     PAR::minus = min::new_str_gen ( "-" );
     PAR::dotdotdot = min::new_str_gen ( "..." );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 29 00:56:59 EST 2013
+// Date:	Mon Dec 30 00:38:32 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -502,9 +502,12 @@ static min::gen execute_pass
     min::uns32 size = min::size_of ( vp );
 
     min::uns32 i = 3;
-    min::locatable_gen name;
+    min::locatable_gen name, name2;
+    PAR::new_pass new_pass = NULL;
+    TAB::flags selectors;
     if ( vp[1] != PAR::print )
     {
+	min::uns32 begini = i;
 	name = COM::scan_simple_label
 	    ( vp, i,
 		( 1ull << LEXSTD::word_t )
@@ -513,6 +516,96 @@ static min::gen execute_pass
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected simple name after" );
+
+	new_pass = PAR::find_new_pass ( name );
+	if ( new_pass == NULL )
+	{
+	    min::phrase_position pp;
+	    pp.begin = ppvec[begini].begin;
+	    pp.end = ppvec[i-1].end;
+	    return PAR::parse_error
+		( parser, pp, "is not a pass name" );
+	}
+    }
+
+    PAR::pass previous = min::NULL_STUB;
+    PAR::pass next = min::NULL_STUB;
+    if ( vp[1] == PAR::define )
+    {
+	min::gen result = COM::scan_flags
+		    ( vp, i, selectors,
+		      parser->selector_name_table,
+		      parser );
+	if ( result == min::ERROR() )
+	    return result;
+	else if ( result == min::FAILURE() )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected parsing selectors after" );
+
+	if ( vp[i] == PAR::after
+	     ||
+	     vp[i] == PAR::before )
+	{
+	    ++ i;
+	    min::uns32 begini = i;
+	    name2 = COM::scan_simple_label
+		( vp, i,
+		    ( 1ull << LEXSTD::word_t )
+		  + ( 1ull << LEXSTD::number_t ) );
+	    if ( name2 == min::MISSING() )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected simple name after" );
+
+	    if ( PAR::find_new_pass ( name2 ) == NULL )
+	    {
+		min::phrase_position pp;
+		pp.begin = ppvec[begini].begin;
+		pp.end = ppvec[i-1].end;
+		return PAR::parse_error
+		    ( parser, pp,
+		      "is not a pass name" );
+	    }
+	    PAR::pass pass2 =
+		PAR::find_on_pass_stack
+		    ( parser, name2 );
+	    if ( pass2 == min::NULL_STUB )
+	    {
+		min::phrase_position pp;
+		pp.begin = ppvec[begini].begin;
+		pp.end = ppvec[i-1].end;
+		return PAR::parse_error
+		    ( parser, pp,
+		      "is not on the pass stack" );
+	    }
+
+	    if ( vp[begini-1] == PAR::after )
+	        previous = pass2;
+	    else
+	    {
+	        if ( pass2 == parser->pass_stack )
+		{
+		    min::phrase_position pp;
+		    pp.begin = ppvec[begini-1].begin;
+		    pp.end = ppvec[i-1].end;
+		    return PAR::parse_error
+			( parser, pp,
+			  "cannot put pass at"
+			  " top of stack" );
+		}
+		next = pass2;
+	    }
+	}
+	else if ( vp[i] == PAR::at
+	          &&
+		  vp[i+1] == PAR::end )
+	    i += 2;  // previous == next == NULL_STUB
+	else
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `after', `before', or"
+		  " `at end' after" );
     }
 
     if ( i < size )
@@ -527,7 +620,6 @@ static min::gen execute_pass
 	    << ":" << min::eol
 	    << min::bom << min::nohbreak
 	    << min::set_indent ( 4 );
-	int count = 0;
 
 	PAR::pass pass = parser->pass_stack;
 	if ( pass == min::NULL_STUB )
@@ -546,9 +638,24 @@ static min::gen execute_pass
     }
     else if ( vp[1] == PAR::define )
     {
+        PAR::pass pass =
+	    PAR::find_on_pass_stack ( parser, name );
+	if ( pass == min::NULL_STUB )
+	    pass = (* new_pass)();
+	else
+	    PAR::remove ( pass );
+	pass->selectors = selectors;
+	if ( previous != min::NULL_STUB )
+	    PAR::place_after ( parser, pass, previous );
+	else
+	    PAR::place_before ( parser, pass, next );
     }
     else /* if vp[1] == PAR::undefine */
     {
+        PAR::pass pass =
+	    PAR::find_on_pass_stack ( parser, name );
+	if ( pass != min::NULL_STUB )
+	    PAR::remove ( pass );
     }
 
     return min::SUCCESS();
@@ -841,7 +948,13 @@ static min::gen execute_context
 		( vp, i, new_flags,
 		  parser->selector_name_table,
 		  parser, true );
-	if ( result != min::SUCCESS() ) return result;
+	if ( result == min::ERROR() )
+	    return min::ERROR();
+	else if ( result == min::FAILURE() )
+	    return PAR::parse_error
+		( parser, ppvec[1],
+		  "expected bracketed flag (modifier)"
+		  " list after" );
     }
     else if ( name != PAR::default_lexeme )
     {

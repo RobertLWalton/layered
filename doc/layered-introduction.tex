@@ -213,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 25, 2013
+December 30, 2013
  
 \end{center}
 
@@ -1762,7 +1762,8 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     $|$ & {\em parser-selector-command} &
     $|$ & {\em parser-context-command} \\
     $|$ & {\em parser-bracketed-command} &
-    $|$ & {\em parser-operator-command} \\
+    $|$ & {\em parser-pass-command} \\
+    $|$ & {\em parser-operator-command}
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.6ex]
@@ -2852,46 +2853,46 @@ Note that only the brackets surrounding a bracketed subexpression
 can change the parsing selectors in the parser context; the operators
 that bound implicit subexpressions cannot change these parsing selectors.
 
-The parser pass stack can be altered
+The parser pass stack can be altered and inspected
 by the following parser definitions:
 
 \begin{indpar}
-\emkey{parser-pass-definition} \\
+\emkey{parser-pass-command} \\
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser define pass}{pass!parser define}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em parser-pass-name} {\em parsing-selectors} \\
-	  {\tt after} {\em previous-parser-pass-name}
+	  {\em parser-pass-stack-location} \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine pass}{pass!parser undefine}
-	  {\em parser-pass-name} {\em parsing-selectors} \\
+	  {\em parser-pass-name} \\
+    $|$ & \ttikey{parser print pass}{pass!parser print}
+    \end{tabular}
+\\[0.5ex]
+\emkey{parser-pass-stack-location}
+    \begin{tabular}[t]{rl}
+    ::= & {\tt after} {\em previous-parser-pass-name} \\
+    $|$ & {\tt before} {\em next-parser-pass-name} \\
+    $|$ & {\tt at end} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-pass-name}
     ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
 \\[0.5ex]
-\emkey{previous-parser-pass-name} ::= {\em pass-name}
+\emkey{previous-parser-pass-name} ::= {\em parser-pass-name}
+\\[0.5ex]
+\emkey{next-parser-pass-name} ::= {\em parser-pass-name}
 \end{indpar}
-
-The {\tt parser define pass} statement sets the parser pass
-{\em parsing-selectors}
-and installs the parser pass in the parser pass stack after the
-parser pass already in that stack which has the name
-{\em previous-parser-pass-name}.  If the parser pass was already
-in the stack, it is removed first and reinstalled.
-
-The {\tt parser undefine pass} statement removes the given
-{\em parsing-selectors} from the parser pass if that is in the
-parsing pass stack.
 
 The set of passes that may be run is currently builtin, and
 cannot be changed.  The following are permitted {\em parser-pass-names}:
 
 \begin{indpar}
 \begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
-top & This refers to an imaginary pass at the top of the parser pass stack,
+top & This refers to the bracketed subexpression recognition pass which is
+      always at the top of the parser pass stack,
       and can only be used as a {\em previous-parser-pass-name} to place
-      a pass at the top of the stack.
+      a pass just below it on the stack.
 \\[1ex]
 operator & Parses expressions with computational operators (e.g., \verb|+| and
 \verb|*|).
@@ -2918,19 +2919,31 @@ numeric units (e.g., \verb|4*ft| and \verb|$*4.99|).
 \end{tabular}
 \end{indpar}
 
+The {\tt parser define pass} statement sets the parser pass
+{\em parsing-selectors}
+and installs the parser pass in the parser pass stack at the
+location specified.
+If the pass was previously on the stack, it is removed first
+and then reinstalled.  The {\em parser-pass-name} and
+{\em next-parser-pass-name} cannot be `{\tt top}'.
+Any {\em previous-parser-pass-name} or {\em next-parser-pass-name}
+given must name a pass already in the stack that is different from
+the pass being installed.
+
+The {\tt parser undefine pass} statement removes the named
+parser pass from the stack, if it is in the stack, and does
+nothing otherwise.
 
 The input and output of a parser pass is a sublist of the list
 of all tokens.  When a parser pass is called, it is provided with
 a pointer to the first token of this sublist, and a pointer to the
 first token after the sublist.  The pass may edit the sublist.
+The pass is responsible for calling the next pass on the parser
+pass stack, and may edit the sublist before and/or after calling
+this next pass.
 
-The bracketed subexpression recognition pass calls the other passes,
-in the order they appear in the parser pass stack, excluding any
-that are inactive because they have no selector in common with
-the current parser context selectors.  After the last pass has been
-called, the bracketed subexpression recognition pass replaces the
-final sublist, which is the subexpression that has been recognized,
-by an expression token with a MIN object value, as described above.
+The bracketed subexpression pass is called for each top level input line
+and replaces that line with a MIN object token.
 
 \subsection{The Operator Parsing Pass}
 \label{OPERATOR-PARSING-PASS}
@@ -2950,7 +2963,7 @@ the parsing definition stack:
     ::= & {\em parser-operator-definition} \\
     $|$ & {\em parser-print-operator-command} \\
     \end{tabular}
-\label{PARSER-BRACKETED-COMMAND}
+\label{PARSER-OPERATOR-COMMAND}
 \end{indpar}
 
 \subsubsection{Operator Definitions}
@@ -3129,7 +3142,7 @@ component is one of
 simple-operator-name \\
 opening-bracket-name \\
 indentation-mark-name \\
-gluing-indentation-mark-name \\
+gluing-indentation-mark-name
 \end{indpar}
 
 

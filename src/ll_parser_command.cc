@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 30 00:38:32 EST 2013
+// Date:	Tue Dec 31 03:54:19 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -505,6 +505,7 @@ static min::gen execute_pass
     min::locatable_gen name, name2;
     PAR::new_pass new_pass = NULL;
     TAB::flags selectors;
+    min::phrase_position name_pp;
     if ( vp[1] != PAR::print )
     {
 	min::uns32 begini = i;
@@ -516,16 +517,14 @@ static min::gen execute_pass
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected simple name after" );
+	name_pp.begin = ppvec[begini].begin;
+	name_pp.end = ppvec[i-1].end;
 
 	new_pass = PAR::find_new_pass ( name );
 	if ( new_pass == NULL )
-	{
-	    min::phrase_position pp;
-	    pp.begin = ppvec[begini].begin;
-	    pp.end = ppvec[i-1].end;
 	    return PAR::parse_error
-		( parser, pp, "is not a pass name" );
-	}
+		( parser, name_pp,
+		  "is not a pass name" );
     }
 
     PAR::pass previous = min::NULL_STUB;
@@ -557,43 +556,31 @@ static min::gen execute_pass
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected simple name after" );
+	    min::phrase_position name2_pp;
+	    name2_pp.begin = ppvec[begini].begin;
+	    name2_pp.end = ppvec[i-1].end;
 
 	    if ( PAR::find_new_pass ( name2 ) == NULL )
-	    {
-		min::phrase_position pp;
-		pp.begin = ppvec[begini].begin;
-		pp.end = ppvec[i-1].end;
 		return PAR::parse_error
-		    ( parser, pp,
+		    ( parser, name2_pp,
 		      "is not a pass name" );
-	    }
 	    PAR::pass pass2 =
 		PAR::find_on_pass_stack
 		    ( parser, name2 );
 	    if ( pass2 == min::NULL_STUB )
-	    {
-		min::phrase_position pp;
-		pp.begin = ppvec[begini].begin;
-		pp.end = ppvec[i-1].end;
 		return PAR::parse_error
-		    ( parser, pp,
+		    ( parser, name2_pp,
 		      "is not on the pass stack" );
-	    }
 
 	    if ( vp[begini-1] == PAR::after )
 	        previous = pass2;
 	    else
 	    {
 	        if ( pass2 == parser->pass_stack )
-		{
-		    min::phrase_position pp;
-		    pp.begin = ppvec[begini-1].begin;
-		    pp.end = ppvec[i-1].end;
 		    return PAR::parse_error
-			( parser, pp,
-			  "cannot put pass at"
-			  " top of stack" );
-		}
+			( parser, name2_pp,
+			  "cannot put pass before"
+			  " `top' pass" );
 		next = pass2;
 	    }
 	}
@@ -640,7 +627,11 @@ static min::gen execute_pass
     {
         PAR::pass pass =
 	    PAR::find_on_pass_stack ( parser, name );
-	if ( pass == min::NULL_STUB )
+	if ( pass == parser->pass_stack )
+	    return PAR::parse_error
+		( parser, name_pp,
+		  "cannot define `top' pass" );
+	else if ( pass == min::NULL_STUB )
 	    pass = (* new_pass)();
 	else
 	    PAR::remove ( pass );
@@ -654,7 +645,11 @@ static min::gen execute_pass
     {
         PAR::pass pass =
 	    PAR::find_on_pass_stack ( parser, name );
-	if ( pass != min::NULL_STUB )
+	if ( pass == parser->pass_stack )
+	    return PAR::parse_error
+		( parser, name_pp,
+		  "cannot undefine `top' pass" );
+	else if ( pass != min::NULL_STUB )
 	    PAR::remove ( pass );
     }
 

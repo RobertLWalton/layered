@@ -213,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 31, 2013
+January 1, 2014
  
 \end{center}
 
@@ -497,24 +497,24 @@ represents a line feed (same as \verb|<LF>|).
 \begin{tabular}{p{2.2in}rl}
 \emkey{lexeme} & ::= & {\em symbol} $|$ {\em non-natural-number}
                                     $|$ {\em quoted-string}
-\\[0.5ex]
+\\[0.3ex]
 \emkey{symbol} & ::= & {\em word} $|$ {\em mark} $|$ {\em separator}
 	         $|$ {\em natural-number}
-\\[0.5ex]
+\\[0.3ex]
 \emkey{word} & ::= & {\em word-character} {\em word-character}\,$^\star$ 
-\\[0.5ex]
+\\[0.3ex]
 \emkey{mark} & ::= & {\em mark-character} {\em mark-character}\,$^\star$
-\\[0.5ex]
+\\[0.3ex]
 \emkey{number} & ::= &
         {\em number-character} {\em number-character}\,$^\star$
-\\[0.5ex]
+\\[0.3ex]
 \emkey{natural-number} & ::= & {\em digit} {\em digit}\,$^\star$
-\\[0.5ex]
+\\[0.3ex]
 \emkey{quoted-string} & ::= &
     \verb|"| {\em character-representative}\,$^\star$ \verb|"|
-\\[0.5ex]
+\\[0.3ex]
 \emkey{separator} & ::= & {\em separator-character}
-\\[0.5ex]
+\\[0.3ex]
 \emkey{white-space} & ::= & {\em white-space-character}
                             {\em white-space-character}\,$^\star$
 \\[2ex]
@@ -576,7 +576,7 @@ represents a line feed (same as \verb|<LF>|).
 			    $|$\verb|X|%
 			    $|$\verb|Y|%
 			    $|$\verb|Z|
-\\[0.5ex]
+\\[0.3ex]
 \emkey{mark-character} & ::= &
                                 \verb|+|%
 		             $|$\verb|-|%
@@ -600,7 +600,7 @@ represents a line feed (same as \verb|<LF>|).
 		     & $|$ & \verb|.| not followed by a {\em digit} \\
 		     & $|$ & \verb|:| not surrounded by {\em digits} \\
 		     & $|$ & \verb|/| not surrounded by {\em digits}
-\\[0.5ex]
+\\[0.3ex]
 \emkey{separator-character} & ::= &
 		        \verb|(|
 	       	    $|$ \verb|)|
@@ -612,7 +612,7 @@ represents a line feed (same as \verb|<LF>|).
 	       	    $|$ \verb|`| \\
 		& $|$ & \verb|,| not surrounded by {\em digits} \\
 		& $|$ & \verb|'| not followed by a letter 
-\\[0.5ex]
+\\[0.3ex]
 \emkey{number-character} & ::= & {\em digit} \\
 		& $|$ & \verb|.| followed by by a {\em digit } \\
 		& $|$ & \verb|,| surrounded by {\em digits} \\
@@ -629,7 +629,7 @@ represents a line feed (same as \verb|<LF>|).
 		$|$\verb|7|%
 		$|$\verb|8|%
 		$|$\verb|9| 
-\\[2.0ex]
+\\[1.0ex]
 \emkey{character-representative}
     & ::= & {\em graphic-character} \\
     & $|$ & {\tt <}{\em upper-case-letter}$^+$%
@@ -637,7 +637,7 @@ represents a line feed (same as \verb|<LF>|).
 \emkey{graphic-character} & ::= &
     {\em non-whitespace-non-control-character} \\
 \emkey{angle-brackets} & ::= & \verb|<| $|$ \verb|>|
-\\[2.0ex]
+\\[1.0ex]
 \emkey{white-space-character}
     & ::= & {\em horizontal-space-character} \\
     & $|$ & {\em vertical-space-character} \\
@@ -1713,9 +1713,9 @@ matched labels can span line boundaries,
 but cannot cross bracketed subexpression
 boundaries.
 
-The context of a symbol table lookup includes a set of selectors.
+The context of a symbol table lookup includes a set of \skey{parsing selector}s.
 In order to be active, a symbol table entry's set of selectors
-must have some selector in common with the context set of selectors.
+must have some selector in common with the parsing selectors.
 A selector set is represented as a 64-bit unsigned integer value
 with the bit in
 position 1{\tt <<}N being on if the N+1'st selector is in the set.
@@ -1723,13 +1723,13 @@ Thus there can be at most 64 distinct selectors used by any set of
 parser definitions.  For convenience, the selectors that can be
 currently used are given names that are sequences of symbols.
 
-The context selectors may change when an explicit opening bracket
+The parsing selectors may change when an explicit opening bracket
 is recognized, and remain changed until the associated explicit closing
-bracket is recognized.  The initial context selectors used to scan a
+bracket is recognized.  The initial parsing selectors used to scan a
 top level line are determined by a context key at the beginning of
 the line, or by the absence of any such key.
 There are no other mechanisms for setting or changing the
-context selectors.
+parsing selectors.
 
 The parser symbol tables act like stacks; as new parsing
 definitions are encountered, their effects are `pushed' into the
@@ -2837,14 +2837,15 @@ subexpression.  Which passes are run is determined by the the
 parser pass stack.
 
 The \key{parser pass stack} is a list of parser passes with a set of
-selectors associated with each pass.  After the top level pass
+selectors associated with each pass.  A pass in this list is active
+if it has a selector in common with the parsing selectors computed
+by the bracketed subexpression recognition pass.  After the top level pass
 recognizes a subexpression, the active passes in the parser pass stack
 are run in the order that they appear in the stack.
 
 The parsing selectors
-computed by the opening bracket of the bracketed subexpression, which
-are used to scan the bracketed subexpression, are also attached to that
-bracketed subexpression.
+computed by the opening bracket of the bracketed subexpression
+are attached to that bracketed subexpression.
 These are used to determine activity of the parser passes run on the bracketed
 subexpression and also the activity
 of the parser definitions (i.e., parser symbol table entries)
@@ -2888,40 +2889,40 @@ The set of passes that may be run is builtin, and
 cannot be changed.  The following are permitted {\em parser-pass-names}:
 
 \begin{indpar}
-\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
-top & This refers to the bracketed subexpression recognition pass which is
-      always at the top of the parser pass stack,
-      and can only be used as a {\em previous-parser-pass-name} to place
-      a pass just below it on the stack.
-\\[1ex]
-operator & Parses expressions with computational operators (e.g., \verb|+| and
-\verb|*|).
-\\[1ex]
-lexeme replacement & Replaces sequences of lexemes with other
-sequences of lexemes (e.g., replaces plurals by singulars).
-\end{tabular} \\
-\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
-radix number recognition & Recognizes numbers with non-decimal radixes.
-\\[1ex]
-scientific number recognition & Recognizes numbers with exponents.
-\\[1ex]
-number pair recognition & Recognizes pairs of numbers (e.g., \verb|4 1/2|).
-\end{tabular} \\
-\begin{tabular}{@{}p{1.9in}p{4.0in}@{}}
-number unit grouping & Groups numbers and numeric units
-(e.g., \verb|4ft 5in|).
-\\[1ex]
-\begin{tabular}[t]{@{}l@{}}
-unit multiplication \\
-insertion 
-\end{tabular} & Inserts multipliers between numbers and
-numeric units (e.g., \verb|4*ft| and \verb|$*4.99|).
-\end{tabular}
+\hspace*{-0.2in}\ttmkey{top}{parser pass name}\\
+    This refers to the bracketed subexpression recognition pass which is
+    always at the top of the parser pass stack,
+    and can only be used as a {\em previous-parser-pass-name} to place
+    a pass just below it on the stack.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{operator}{parser pass name}\\
+    Parses expressions with computational operators (e.g., \verb|+| and
+    \verb|*|).
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{lexeme replacement}{parser pass name}\\
+    Replaces sequences of lexemes with other
+    sequences of lexemes (e.g., replaces plurals by singulars).
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{radix number recognition}{parser pass name}\\
+    Recognizes numbers with non-decimal radixes.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{scientific number recognition}{parser pass name}\\
+    Recognizes numbers with exponents.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{number pair recognition}{parser pass name}\\
+    Recognizes pairs of numbers (e.g., \verb|4 1/2|).
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{number unit grouping}{parser pass name}\\
+    Groups numbers and numeric units (e.g., \verb|4ft 5in|).
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{unit multiplication insertion}{parser pass name}\\
+    Inserts multipliers between numbers and
+    numeric units (e.g., \verb|4*ft| and \verb|$*4.99|).
 \end{indpar}
 
-The {\tt parser define pass} statement sets the parser pass
-{\em parsing-selectors}
-and installs the parser pass in the parser pass stack at the
+The {\tt parser define pass} statement sets the
+{\em parsing-selectors} of the named parser pass
+and installs that pass in the parser pass stack at the
 location specified.
 If the pass was previously on the stack, it is removed first
 and then reinstalled.  The {\em parser-pass-name} and
@@ -2932,7 +2933,9 @@ the pass being installed.
 
 The {\tt parser undefine pass} statement removes the named
 parser pass from the stack, if it is in the stack, and does
-nothing otherwise.
+nothing otherwise.  The `{\tt top}' pass cannot be undefined.
+
+The {\tt parser print pass} statement prints the parsing pass stack.
 
 The input and output of a parser pass is a sublist of the list
 of all tokens.  When a parser pass is called, it is provided with

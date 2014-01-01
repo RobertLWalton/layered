@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 31 03:54:19 EST 2013
+// Date:	Wed Jan  1 08:10:17 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -564,6 +564,11 @@ static min::gen execute_pass
 		return PAR::parse_error
 		    ( parser, name2_pp,
 		      "is not a pass name" );
+	    if ( name2 == name )
+		return PAR::parse_error
+		    ( parser, name2_pp,
+		      "a pass cannot be installed"
+		      " before or after itself" );
 	    PAR::pass pass2 =
 		PAR::find_on_pass_stack
 		    ( parser, name2 );
@@ -617,6 +622,16 @@ static min::gen execute_pass
 	    parser->printer << min::indent
 			    << min::name_pgen
 				 ( pass->name );
+
+	    if ( pass != parser->pass_stack )
+	    {
+		parser->printer << " ";
+		COM::print_flags
+		    ( pass->selectors,
+		      parser->selector_name_table,
+		      parser );
+	    }
+
 	    pass = pass->next;
 	}
 	parser->printer << min::eom;

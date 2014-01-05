@@ -1,5 +1,5 @@
 parser print selector "":
-    block TOP-LEVEL: code
+    block standard: code
     block TOP-LEVEL: parser
 parser define selector my selector
 ERROR: in line 13: extraneous stuff after:
@@ -7,7 +7,7 @@ parser define selector operator 1 ++ extra stuff
                                 ^
 parser print selector "":
     block standard: my selector
-    block TOP-LEVEL: code
+    block standard: code
     block TOP-LEVEL: parser
 parser print context "":
     block standard: "default" [code]

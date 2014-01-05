@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 30 01:10:33 EST 2013
+// Date:	Sun Jan  5 02:40:07 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -676,6 +676,30 @@ struct pass_struct
 MIN_REF ( min::gen, name, ll::parser::pass )
 MIN_REF ( ll::parser::parser, parser, ll::parser::pass )
 MIN_REF ( ll::parser::pass, next, ll::parser::pass )
+
+// Execute pass->parse if pass != NULL_STUB and pass->
+// selectors & selectors is not 0, and otherwise if
+// pass != NULL_STUB repeat with pass = pass->next.
+//
+inline void execute_pass_parse
+	( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token & first,
+	  ll::parser::token next )
+{
+    while ( pass != min::NULL_STUB )
+    {
+        if ( ( pass->selectors & selectors ) != 0 )
+	{
+	    (* pass->parse )
+		 ( parser, pass, selectors,
+		           first, next );
+	    break;
+	}
+	pass = pass->next;
+    }
+}
 
 // Place `pass' on the parser->pass_stack just after
 // `previous', which must be a pass on parser->pass_

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  1 14:35:12 EST 2014
+// Date:	Sun Jan  5 02:43:55 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1395,9 +1395,8 @@ void PAR::compact
 	  PAR::attr * attributes,
 	  min::uns32 n )
 {
-    if ( pass != min::NULL_STUB )
-	(* pass->parse )
-	     ( parser, pass, selectors, first, next );
+    PAR::execute_pass_parse
+	 ( parser, pass, selectors, first, next );
 
     if ( first->next == next
          &&

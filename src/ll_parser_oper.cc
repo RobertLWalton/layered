@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:36:51 EST 2013
+// Date:	Sun Jan  5 02:43:21 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -680,11 +680,10 @@ static void oper_parse ( PAR::parser parser,
 		}
 		else
 		{
-		    if ( pass->next != min::NULL_STUB )
-			(* pass->next->parse )
-			     ( parser, pass->next,
-			       selectors,
-			       D.first, current );
+		    PAR::execute_pass_parse
+			 ( parser, pass->next,
+			   selectors,
+			   D.first, current );
 
 		    if ( D.first->next != current )
 		    {

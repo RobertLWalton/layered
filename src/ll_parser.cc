@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 30 01:11:18 EST 2013
+// Date:	Wed Jan  1 14:35:12 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -465,22 +465,22 @@ void PAR::remove ( PAR::pass pass )
     PAR::parser parser = pass->parser;
     if ( parser == min::NULL_STUB ) return;
 
-    min::ref<PAR::pass> p = pass_stack_ref ( parser );
-    for ( PAR::pass current = p;
+    min::ptr<PAR::pass> p = & pass_stack_ref ( parser );
+    for ( PAR::pass current = * p;
 	  current != min::NULL_STUB;
-	  current = p )
+	  current = * p )
     {
         if ( current == pass )
 	{
-	    p = current->next;
+	    * p = current->next;
 	    PAR::parser_ref ( pass ) = min::NULL_STUB;
 	    PAR::next_ref ( pass ) = min::NULL_STUB;
 	    return;
 	}
-	p = PAR::next_ref ( current );
+	p = & PAR::next_ref ( current );
     }
     MIN_ABORT ( "Could not find pass on pass->parser"
-                " pass stack" );
+                "_pass_stack" );
 }
 
 PAR::pass PAR::find_on_pass_stack

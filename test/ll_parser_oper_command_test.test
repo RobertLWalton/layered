@@ -1,9 +1,11 @@
 parser print pass:
     top
-    operator
 parser print context "default":
     block standard: "default" [code]
     block TOP-LEVEL: "default" []
+parser print pass:
+    top
+    operator [code, math]
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]
@@ -16,10 +18,10 @@ parser print operator "":
     not found
 parser begin block
 ======= TEST: parser test (x / y ^ z w)
-------- line 22:
+------- line 24:
 parser test ( x / y ^ z w )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 22:
+------- line 24:
 parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
 ======= END TEST
@@ -33,16 +35,16 @@ parser print operator "/":
 parser define operator "^" [code, math] infix
        with binary reformatter with precedence 5300
 ======= TEST: parser test (/ x [. ^ y [. z w .] .])
-------- line 28:
+------- line 30:
 parser test ( x / y ^ z w )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 28:
+------- line 30:
 parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
-------- line 28:
+------- line 30:
 parser test ( x / y ^ z w )
                   ^^^^^^^
-------- line 28:
+------- line 30:
 parser test ( x / y ^ z w )
                       ^^^
 ======= END TEST
@@ -54,16 +56,16 @@ parser print operator "/":
                  with precedence 5100
                  with reformatter binary
 ======= TEST: parser test (^ [. x / y .] [. z w .])
-------- line 32:
+------- line 34:
 parser test ( x / y ^ z w )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 32:
+------- line 34:
 parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
-------- line 32:
+------- line 34:
 parser test ( x / y ^ z w )
               ^^^^^
-------- line 32:
+------- line 34:
 parser test ( x / y ^ z w )
                       ^^^
 ======= END TEST
@@ -71,23 +73,23 @@ parser end block
 parser print operator "/":
     not found
 ======= TEST: parser test (x / y ^ z w)
-------- line 35:
+------- line 37:
 parser test ( x / y ^ z w )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 35:
+------- line 37:
 parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 40: expected `with precedence ...' after:
+ERROR: in line 42: expected `with precedence ...' after:
        with binary reformatter
                    ^^^^^^^^^^^
-ERROR: in line 41: expected operator flags after:
+ERROR: in line 43: expected operator flags after:
 parser define operator "+" [code, math]
                            ^^^^^^^^^^^^
-ERROR: in line 44: operator flags nofix and infix are incompatible:
+ERROR: in line 46: operator flags nofix and infix are incompatible:
 parser define operator "+" [code, math] infix nofix
                                         ^^^^^^^^^^^
-ERROR: in lines 47-49: `right associative' reformatter incompatible with
+ERROR: in lines 49-51: `right associative' reformatter incompatible with
        nofix operator flag(s):
 parser define operator "+" [code, math] nofix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,20 +97,20 @@ parser define operator "+" [code, math] nofix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with right associative reformatter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 52: undefined reformatter name:
+ERROR: in line 54: undefined reformatter name:
        with none such reformatter
             ^^^^^^^^^
-ERROR: in line 53: expected `with precedence ...' after:
+ERROR: in line 55: expected `with precedence ...' after:
 parser undefine operator "+" [code, math] infix
                                           ^^^^^
-ERROR: in lines 54-56: did NOT expect `with ... reformatter':
+ERROR: in lines 56-58: did NOT expect `with ... reformatter':
 parser undefine operator "+" [code, math] infix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with precedence 3000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with binary reformatter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 57: expected operator flags after:
+ERROR: in line 59: expected operator flags after:
 parser undefine operator "+" [code, math]
                              ^^^^^^^^^^^^
 parser print operator "":
@@ -132,28 +134,28 @@ parser define operator "/=" [code, math] infix
               (= x
                [. += y
                   [. *= [. z w .] [. = [. p q r .] [. t v .] .] .] .])
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
                  ^^^^^^^^^^^^^^^^^^^^^^^
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
                       ^^^^^^^^^^^^^^^^^^
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
                       ^^^
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
                              ^^^^^^^^^^^
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
                              ^^^^^
-------- line 78:
+------- line 80:
 parser test (x = y += z w *= p q r = t v)
                                      ^^^
 ======= END TEST
@@ -161,22 +163,22 @@ parser define operator "," [code, math] nofix
        with precedence 2000
        with separator reformatter
 ======= TEST: parser test (x, [. y 1 .], [. z w .], [.  .], 3, [.  .])
-------- line 83:
+------- line 85:
 parser test (x,y1,z w,,3,)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 83:
+------- line 85:
 parser test (x,y1,z w,,3,)
             ^^^^^^^^^^^^^^
-------- line 83:
+------- line 85:
 parser test (x,y1,z w,,3,)
                ^^
-------- line 83:
+------- line 85:
 parser test (x,y1,z w,,3,)
                   ^^^
-------- line 83:
+------- line 85:
 parser test (x,y1,z w,,3,)
                       ^
-------- line 83:
+------- line 85:
 parser test (x,y1,z w,,3,)
                          ^
 ======= END TEST
@@ -193,94 +195,94 @@ parser define operator "NOT" [code, math] nofix
        with precedence 3100
        with prefix reformatter
 ======= TEST: parser test (BUT NOT [. OR x y .] [. AND z w .])
-------- line 97:
+------- line 99:
 parser test (x OR y BUT NOT z AND w)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 97:
+------- line 99:
 parser test (x OR y BUT NOT z AND w)
             ^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 97:
+------- line 99:
 parser test (x OR y BUT NOT z AND w)
              ^^^^^^
-------- line 97:
+------- line 99:
 parser test (x OR y BUT NOT z AND w)
                             ^^^^^^^
 ======= END TEST
 ERROR: operator `OR' is not the same as first operator `AND' in
        subexpression; all operators must be the same in this
-       subexpression; line 98:
+       subexpression; line 100:
 parser test (x OR y BUT NOT z AND w OR p)
                             ^^^^^^^^^^^^
 ======= TEST: parser test (BUT NOT [. OR x y .] [. AND z w p .])
-------- line 98:
+------- line 100:
 parser test (x OR y BUT NOT z AND w OR p)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 98:
+------- line 100:
 parser test (x OR y BUT NOT z AND w OR p)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 98:
+------- line 100:
 parser test (x OR y BUT NOT z AND w OR p)
              ^^^^^^
-------- line 98:
+------- line 100:
 parser test (x OR y BUT NOT z AND w OR p)
                             ^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test (NOT [. x y .])
-------- line 99:
+------- line 101:
 parser test (NOT x y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 99:
+------- line 101:
 parser test (NOT x y)
             ^^^^^^^^^
-------- line 99:
+------- line 101:
 parser test (NOT x y)
                  ^^^
 ======= END TEST
 ERROR: operator `NOT' NOT at beginning of subexpression; subexpression
-       should be of form `operator operand'; line 100:
+       should be of form `operator operand'; line 102:
 parser test (x NOT y)
              ^^^^^^^
 ERROR: subexpression is too long; subexpression should be of form
-       `operator operand'; line 100:
+       `operator operand'; line 102:
 parser test (x NOT y)
              ^^^^^^^
 ======= TEST: parser test (x NOT y)
-------- line 100:
+------- line 102:
 parser test (x NOT y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 100:
+------- line 102:
 parser test (x NOT y)
             ^^^^^^^^^
 ======= END TEST
 ERROR: too many operators in subexpression; subexpression should be of
-       form `operator operand'; line 101:
+       form `operator operand'; line 103:
 parser test (NOT x AND y)
              ^^^^^^^^^^^
 ERROR: subexpression is too long; subexpression should be of form
-       `operator operand'; line 101:
+       `operator operand'; line 103:
 parser test (NOT x AND y)
              ^^^^^^^^^^^
 ======= TEST: parser test (NOT x AND y)
-------- line 101:
+------- line 103:
 parser test (NOT x AND y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 101:
+------- line 103:
 parser test (NOT x AND y)
             ^^^^^^^^^^^^^
 ======= END TEST
-ERROR: missing operand inserted; line 102:
+ERROR: missing operand inserted; line 104:
 parser test (x AND NOT y)
                    ^
 ERROR: operator `NOT' is not the same as first operator `AND' in
        subexpression; all operators must be the same in this
-       subexpression; line 102:
+       subexpression; line 104:
 parser test (x AND NOT y)
              ^^^^^^^^^^^
 ======= TEST: parser test (AND x ERROR'OPERAND y)
-------- line 102:
+------- line 104:
 parser test (x AND NOT y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 102:
+------- line 104:
 parser test (x AND NOT y)
             ^^^^^^^^^^^^^
 ======= END TEST
@@ -316,55 +318,55 @@ parser define operator "=>" [code, math] infix
                [. > [. $ 1 .] [. $ 2 w .] .]
                [. != [. $ 2 .] [. $ 3 [. p q .] .] .]
                [. =< [. $ 3 .] [. u v .] .])
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
               ^^^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                   ^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                   ^^^^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                   ^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                        ^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                        ^^^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                        ^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                            ^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                            ^^^^^^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                            ^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^^^^^^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^
-------- line 131:
+------- line 133:
 parser test ( x < y <= z > w != p q =< u v )
                                        ^^^
 ======= END TEST
@@ -375,57 +377,57 @@ parser define operator "-" [code, math] infix
        with precedence 5000
        with sum reformatter
 ======= TEST: parser test (+ x y [. - z .] w [. - v .] [. - u .])
-------- line 139:
+------- line 141:
 parser test ( x + y - z + w - v - u )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 139:
+------- line 141:
 parser test ( x + y - z + w - v - u )
             ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 139:
+------- line 141:
 parser test ( x + y - z + w - v - u )
                     ^^^
-------- line 139:
+------- line 141:
 parser test ( x + y - z + w - v - u )
                             ^^^
-------- line 139:
+------- line 141:
 parser test ( x + y - z + w - v - u )
                                 ^^^
 ======= END TEST
 ======= TEST: parser test (+ [. - x .] y [. - z .])
-------- line 140:
+------- line 142:
 parser test ( - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 140:
+------- line 142:
 parser test ( - x + y - z )
             ^^^^^^^^^^^^^^^
-------- line 140:
+------- line 142:
 parser test ( - x + y - z )
               ^^^
-------- line 140:
+------- line 142:
 parser test ( - x + y - z )
                       ^^^
 ======= END TEST
 ======= TEST: parser test
               (AND [. < x [. $ 4 [. + y 5 .] .] .] [. <= [. $ 4 .] z .])
-------- line 141:
+------- line 143:
 parser test ( x < y + 5 <= z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 141:
+------- line 143:
 parser test ( x < y + 5 <= z )
             ^^^^^^^^^^^^^^^^^^
-------- line 141:
+------- line 143:
 parser test ( x < y + 5 <= z )
               ^^^^^^^^^
-------- line 141:
+------- line 143:
 parser test ( x < y + 5 <= z )
                   ^^^^^
-------- line 141:
+------- line 143:
 parser test ( x < y + 5 <= z )
                   ^^^^^
-------- line 141:
+------- line 143:
 parser test ( x < y + 5 <= z )
                   ^^^^^^^^^^
-------- line 141:
+------- line 143:
 parser test ( x < y + 5 <= z )
                   ^^^^^
 ======= END TEST
@@ -439,59 +441,59 @@ parser define operator "^" [code, math] infix
        with precedence 5300
        with binary reformatter
 ======= TEST: parser test (/ [. * x y .] [. * [. z q .] [. m p .] .])
-------- line 152:
+------- line 154:
 parser test ( x * y / z q * m p )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 152:
+------- line 154:
 parser test ( x * y / z q * m p )
             ^^^^^^^^^^^^^^^^^^^^^
-------- line 152:
+------- line 154:
 parser test ( x * y / z q * m p )
               ^^^^^
-------- line 152:
+------- line 154:
 parser test ( x * y / z q * m p )
                       ^^^^^^^^^
-------- line 152:
+------- line 154:
 parser test ( x * y / z q * m p )
                       ^^^
-------- line 152:
+------- line 154:
 parser test ( x * y / z q * m p )
                             ^^^
 ======= END TEST
 ERROR: too many operators in subexpression; subexpression should be of
-       form `operand operator operand'; line 153:
+       form `operand operator operand'; line 155:
 parser test ( x / y / z )
               ^^^^^^^^^
 ERROR: subexpression is too long; subexpression should be of form
-       `operand operator operand'; line 153:
+       `operand operator operand'; line 155:
 parser test ( x / y / z )
               ^^^^^^^^^
 ======= TEST: parser test (x / y / z)
-------- line 153:
+------- line 155:
 parser test ( x / y / z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 153:
+------- line 155:
 parser test ( x / y / z )
             ^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
               (/ [. * [. ^ x 2 .] [. ^ y 2 .] .] [. * y z .])
-------- line 154:
+------- line 156:
 parser test ( x ^ 2 * y ^ 2 / y * z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 154:
+------- line 156:
 parser test ( x ^ 2 * y ^ 2 / y * z )
             ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 154:
+------- line 156:
 parser test ( x ^ 2 * y ^ 2 / y * z )
               ^^^^^^^^^^^^^
-------- line 154:
+------- line 156:
 parser test ( x ^ 2 * y ^ 2 / y * z )
               ^^^^^
-------- line 154:
+------- line 156:
 parser test ( x ^ 2 * y ^ 2 / y * z )
                       ^^^^^
-------- line 154:
+------- line 156:
 parser test ( x ^ 2 * y ^ 2 / y * z )
                               ^^^^^
 ======= END TEST
@@ -505,70 +507,70 @@ parser define operator "@" [code, math] prefix
        with precedence 10000
        with prefix reformatter
 ======= TEST: parser test (+ [. - x .] y [. - z .])
-------- line 165:
+------- line 167:
 parser test ( - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 165:
+------- line 167:
 parser test ( - x + y - z )
             ^^^^^^^^^^^^^^^
-------- line 165:
+------- line 167:
 parser test ( - x + y - z )
               ^^^
-------- line 165:
+------- line 167:
 parser test ( - x + y - z )
                       ^^^
 ======= END TEST
 ======= TEST: parser test (+ [. * p [. - x .] .] y [. - z .])
-------- line 166:
+------- line 168:
 parser test ( p * - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 166:
+------- line 168:
 parser test ( p * - x + y - z )
             ^^^^^^^^^^^^^^^^^^^
-------- line 166:
+------- line 168:
 parser test ( p * - x + y - z )
               ^^^^^^^
-------- line 166:
+------- line 168:
 parser test ( p * - x + y - z )
                   ^^^
-------- line 166:
+------- line 168:
 parser test ( p * - x + y - z )
                           ^^^
 ======= END TEST
 ======= TEST: parser test (+ [. @ x .] y [. - [. @ z .] .])
-------- line 167:
+------- line 169:
 parser test ( @ x + y - @ z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 167:
+------- line 169:
 parser test ( @ x + y - @ z )
             ^^^^^^^^^^^^^^^^^
-------- line 167:
+------- line 169:
 parser test ( @ x + y - @ z )
               ^^^
-------- line 167:
+------- line 169:
 parser test ( @ x + y - @ z )
                       ^^^^^
-------- line 167:
+------- line 169:
 parser test ( @ x + y - @ z )
                         ^^^
 ======= END TEST
 ======= TEST: parser test (+ [. - [. + [. - [. x y .] .] .] .])
-------- line 168:
+------- line 170:
 parser test ( + - + - x y )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 168:
+------- line 170:
 parser test ( + - + - x y )
             ^^^^^^^^^^^^^^^
-------- line 168:
+------- line 170:
 parser test ( + - + - x y )
                 ^^^^^^^^^
-------- line 168:
+------- line 170:
 parser test ( + - + - x y )
                   ^^^^^^^
-------- line 168:
+------- line 170:
 parser test ( + - + - x y )
                     ^^^^^
-------- line 168:
+------- line 170:
 parser test ( + - + - x y )
                       ^^^
 ======= END TEST
@@ -579,39 +581,39 @@ parser define operator "--" [code, math] postfix
        with precedence 10001
        with postfix reformatter
 ======= TEST: parser test (+ [. x ++ .] y [. - [. z -- .] .])
-------- line 176:
+------- line 178:
 parser test ( x ++ + y - z -- )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 176:
+------- line 178:
 parser test ( x ++ + y - z -- )
             ^^^^^^^^^^^^^^^^^^^
-------- line 176:
+------- line 178:
 parser test ( x ++ + y - z -- )
               ^^^^
-------- line 176:
+------- line 178:
 parser test ( x ++ + y - z -- )
                        ^^^^^^
-------- line 176:
+------- line 178:
 parser test ( x ++ + y - z -- )
                          ^^^^
 ======= END TEST
 ======= TEST: parser test ([. [. [. [. x y .] ++ .] -- .] ++ .] --)
-------- line 177:
+------- line 179:
 parser test ( x y ++ -- ++ -- )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 177:
+------- line 179:
 parser test ( x y ++ -- ++ -- )
             ^^^^^^^^^^^^^^^^^^^
-------- line 177:
+------- line 179:
 parser test ( x y ++ -- ++ -- )
               ^^^^^^^^^^^^
-------- line 177:
+------- line 179:
 parser test ( x y ++ -- ++ -- )
               ^^^^^^^^^
-------- line 177:
+------- line 179:
 parser test ( x y ++ -- ++ -- )
               ^^^^^^
-------- line 177:
+------- line 179:
 parser test ( x y ++ -- ++ -- )
               ^^^
 ======= END TEST
@@ -624,19 +626,19 @@ parser define operator bracket "{" ... "}" [code] afix
 ======= TEST: parser test
               (we declare [. foo bar .] <-- [. boo bat .]
                {fee fie fo fum})
-------- line 185:
+------- line 187:
 parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 185:
+------- line 187:
 parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 185:
+------- line 187:
 parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
                          ^^^^^^^
-------- line 185:
+------- line 187:
 parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
                                      ^^^^^^^
-------- line 185:
+------- line 187:
 parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
                                              ^^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -769,19 +771,19 @@ parser print operator "":
 parser define operator bracket "{" ... "}" [code] infix
         with precedence 1
 ======= TEST: parser test ([. x y .] {z w} [. m n .])
-------- line 192:
+------- line 194:
 parser test ( x y { z w } m n )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 192:
+------- line 194:
 parser test ( x y { z w } m n )
             ^^^^^^^^^^^^^^^^^^^
-------- line 192:
+------- line 194:
 parser test ( x y { z w } m n )
               ^^^
-------- line 192:
+------- line 194:
 parser test ( x y { z w } m n )
                   ^^^^^^^
-------- line 192:
+------- line 194:
 parser test ( x y { z w } m n )
                           ^^^
 ======= END TEST

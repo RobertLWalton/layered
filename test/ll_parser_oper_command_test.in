@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 29 01:11:11 EST 2013
+// Date:	Sat Jan  4 19:46:34 EST 2014
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -10,6 +10,8 @@
 
 parser print pass
 parser print context "default"
+parser define pass operator [code, math] after top
+parser print pass
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]

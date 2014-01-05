@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 28 06:44:22 EST 2013
+// Date:	Sat Jan  4 07:32:41 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,6 +48,8 @@ OP::oper_pass PARSTD::init_oper
     TAB::flags math =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, math_name );
+
+    oper_pass->selectors = code | math;
 
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );

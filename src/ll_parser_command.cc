@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  1 08:10:17 EST 2014
+// Date:	Sat Jan  4 18:44:31 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,12 +33,14 @@
 static min::locatable_gen exclusive_or;
 static min::locatable_gen trace;
 min::locatable_gen COM::PRINTED;
+static min::locatable_gen top;
 
 static void initialize ( void )
 {
     ::exclusive_or = min::new_str_gen ( "^" );
     ::trace = min::new_str_gen ( "trace" );
     COM::PRINTED = min::new_special_gen ( 0 );
+    ::top = min::new_str_gen ( "top" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -521,7 +523,7 @@ static min::gen execute_pass
 	name_pp.end = ppvec[i-1].end;
 
 	new_pass = PAR::find_new_pass ( name );
-	if ( new_pass == NULL )
+	if ( new_pass == NULL && name != ::top )
 	    return PAR::parse_error
 		( parser, name_pp,
 		  "is not a pass name" );
@@ -560,7 +562,8 @@ static min::gen execute_pass
 	    name2_pp.begin = ppvec[begini].begin;
 	    name2_pp.end = ppvec[i-1].end;
 
-	    if ( PAR::find_new_pass ( name2 ) == NULL )
+	    if (    PAR::find_new_pass ( name2 ) == NULL
+	         && name2 != ::top )
 		return PAR::parse_error
 		    ( parser, name2_pp,
 		      "is not a pass name" );

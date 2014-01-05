@@ -8,8 +8,9 @@
 // domain; they make no warranty and accept no liability
 // for this data.
 
+parser print selector ""
 parser print pass
-parser print context "default"
+parser print context ""
 parser define pass operator [code, math] after top
 parser print pass
 parser trace [+ parser commands, + warnings ]

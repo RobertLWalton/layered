@@ -18,7 +18,7 @@ parser print selector "":
     block standard: operator1
     block standard: math
     block standard: text
-    block TOP-LEVEL: code
+    block standard: code
     block TOP-LEVEL: parser
 parser print context "default":
     block standard: "default" [code]

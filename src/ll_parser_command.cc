@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  4 18:44:31 EST 2014
+// Date:	Sun Jan  5 03:39:26 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -781,7 +781,7 @@ static min::gen execute_selectors
 	            &&
 		    parser->block_stack[block_level-1]
 		      .saved_selector_name_table_length
-		    >= j )
+		    > j )
 	        -- block_level;
 
 	    min::gen block_name =

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  5 03:39:26 EST 2014
+// Date:	Sun Jan  5 12:05:44 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,13 +47,14 @@ static min::initializer initializer ( ::initialize );
 // Parser Command Functions
 // ------ ------- ---------
 
-min::gen COM::scan_simple_label
+min::gen COM::scan_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::uns64 accepted_types,
 	  min::gen end_value )
 {
     min::uns32 j = i;
     min::uns32 s = min::size_of ( vp );
+    min::uns64 accepted_types = 1ull << LEXSTD::word_t;
+
     while ( i < s )
     {
 	min::uns32 t =
@@ -64,6 +65,7 @@ min::gen COM::scan_simple_label
 	    ++ i;
 	else
 	    break;
+	accepted_types |= 1ull << LEXSTD::number_t;
     }
 
     if ( i == j ) return min::MISSING();
@@ -169,10 +171,7 @@ static int scan_flag
 
     min::uns32 ibegin = i;
     min::locatable_gen flag
-        ( COM::scan_simple_label
-	    ( vp, i,
-		( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ) ) );
+        ( COM::scan_simple_name ( vp, i ) );
     if ( flag == min::MISSING() )
     {
 	PAR::parse_error
@@ -511,10 +510,7 @@ static min::gen execute_pass
     if ( vp[1] != PAR::print )
     {
 	min::uns32 begini = i;
-	name = COM::scan_simple_label
-	    ( vp, i,
-		( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ) );
+	name = COM::scan_simple_name ( vp, i );
 	if ( name == min::MISSING() )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
@@ -550,10 +546,7 @@ static min::gen execute_pass
 	{
 	    ++ i;
 	    min::uns32 begini = i;
-	    name2 = COM::scan_simple_label
-		( vp, i,
-		    ( 1ull << LEXSTD::word_t )
-		  + ( 1ull << LEXSTD::number_t ) );
+	    name2 = COM::scan_simple_name ( vp, i );
 	    if ( name2 == min::MISSING() )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
@@ -694,10 +687,7 @@ static min::gen execute_selectors
     min::locatable_gen name;
     if ( vp[1] == PAR::define )
     {
-	name = COM::scan_simple_label
-	    ( vp, i,
-		( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ) );
+	name = COM::scan_simple_name ( vp, i );
 	if ( name == min::MISSING() )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
@@ -1185,10 +1175,7 @@ static min::gen execute_begin
 {
     min::uns32 i = 2;
     min::locatable_gen name
-        ( COM::scan_simple_label
-	    ( vp, i, 
-	        ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ) ) );
+        ( COM::scan_simple_name ( vp, i ) );
     if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser,
@@ -1211,10 +1198,7 @@ static min::gen execute_end
 {
     min::uns32 i = 2;
     min::locatable_gen name
-        ( COM::scan_simple_label
-	    ( vp, i, 
-	        ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ) ) );
+        ( COM::scan_simple_name ( vp, i ) );
     if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser,

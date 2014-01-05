@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 23 02:53:50 EST 2013
+// Date:	Sun Jan  5 12:05:53 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,20 +53,19 @@ void misspell_warning
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
-// object attribute vector, then increment as long
-// as the i+1'st element of the object vector has a
-// lexical type t such that the bit 1<<t is on in
-// accepted_types and this element does not equal
-// end_value.  Then if i has been incremented at least
-// once, make and return a label from the elements
-// scanned over.  If there is only 1 element, return
-// just that element.  If there is more than one, return
-// the MIN label containing the elements.  If there are
-// no elements, return min::MISSING().
+// vector, then if vp[i] is a word not equal to
+// end_value, increment i until i >= size of vp or vp[i]
+// is not a word or number or is equal to end_value.
 //
-min::gen scan_simple_label
+// If i has been incremented at least once, make and
+// return a label from the elements scanned over.  If
+// there is only 1 element, return just that element.
+// If there is more than one, return the MIN label
+// containing the elements.  If there are no elements,
+// return min::MISSING().
+//
+min::gen scan_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::uns64 accepted_types,
 	  min::gen end_value = min::MISSING() );
 
 // If vp[i] is a []-bracketed subexpression, treat it

@@ -213,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 1, 2014
+January 5, 2014
  
 \end{center}
 
@@ -1148,7 +1148,7 @@ The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
 first $m$ and last $n$ characters of the matched atom and, viewing the rest as
 hexadecimal digits, converts these into an 32 bit unsigned integer
 UNICODE character code, which becomes the 1-character atom translation.
-An example is the the lexical table entry
+An example is the lexical table entry
 \begin{center}
 \verb|"<0<hex-digit><hex-digit>>" translate hex 2 1;|
 \end{center}
@@ -1767,10 +1767,7 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.6ex]
-\emkey{simple-name-component} ::= {\em word} $|$ {\em number}
-\\[0.0ex]
-\emkey{simple-name} ::= {\em simple-name-component}
-                        {\em simple-name-component}\,$^\star$
+\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
 \\[0.0ex]
 \emkey{quoted-name-component} ::=
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
@@ -1853,8 +1850,8 @@ thus affecting subsequent parsing.  Parser commands are
 themselves parsed before they are executed.
 
 Parser commands begin with the word `\ttmkey{parser}{in parser command}'.
-Parser commands make use of {\em simple-names} that are just
-sequences of {\em word} and {\em number} lexemes, and
+Parser commands make use of {\em simple-names} that are just a {\em word}
+optionally followed by a sequence of {\em words} and/or {\em numbers}, and
 {\em quoted-names}, that are arbitrary sequences of {\em word},
 {\em mark}, {\em separator}, and {\em number} lexemes enclosed
 in quotation marks to form a {\em quoted-string} lexeme.
@@ -2613,7 +2610,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 \emkey{named-opening} ::= as defined by a
     {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
 \\[0.5ex]
-\emkey{bracket-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
+\emkey{bracket-name} ::= {\em simple-name}
 \\[0.5ex]
 \emkey{argument} ::= {\em bracketed-subexpression}
                  $|$ {\em quoted-string}
@@ -2639,7 +2636,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 \emkey{bracket-name-initial-segment}~~
 	\begin{tabular}[t]{@{}rl@{}}
         ::= & {\em empty } \\
-	$|$ & {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
+	$|$ & {\em simple-name}
 	\end{tabular}
 \end{indpar}
 
@@ -2788,7 +2785,7 @@ except that the {\em named-operator} ends with a
 	                & {\em named-closing} \\
 	 \end{tabular}
 \\[0.5ex]
-\emkey{operator-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
+\emkey{operator-name} ::= {\em simple-name}
 \end{indpar}
 
 A {\em named-operator} is converted to a MIN object which has the
@@ -2833,8 +2830,8 @@ named-opening
 
 After a subexpression has been identified by the top level bracketed
 subexpression recognition pass, a sequence of passes are run on the
-subexpression.  Which passes are run is determined by the the
-parser pass stack.
+subexpression.  Which passes are run is determined by the
+parser pass stack and parser selectors.
 
 The \key{parser pass stack} is a list of parser passes with a set of
 selectors associated with each pass.  A pass in this list is active
@@ -2877,8 +2874,7 @@ by the following parser definitions:
     $|$ & {\tt at end} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{parser-pass-name}
-    ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
+\emkey{parser-pass-name} ::= {\em simple-name}
 \\[0.5ex]
 \emkey{previous-parser-pass-name} ::= {\em parser-pass-name}
 \\[0.5ex]

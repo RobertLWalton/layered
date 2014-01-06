@@ -213,7 +213,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 5, 2014
+January 6, 2014
  
 \end{center}
 
@@ -1537,7 +1537,7 @@ A token has the following components:
 		  the {\tt .position} attribute of that token
 		  is changed to include the added syntax attributes.
 		  The non-syntax attributes of the
-		  {\tt BRACKATABLE} token are left as is.
+		  {\tt BRACKETABLE} token are left as is.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1547,7 +1547,7 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& {\tt BRACKETED} and {\tt BRACKTABLE} tokens are called
+		& {\tt BRACKETED} and {\tt BRACKETABLE} tokens are called
 		  \skey{expression token}s and {\tt OPERATOR} and lexeme
 		  tokens are called non-expression tokens.
 \end{tabular}
@@ -1698,7 +1698,7 @@ When a match is found,
 the initial segment of tokens used in the match is called
 a `\key{matched label}\,'.
 
-At any point the longest active match is choosen.  Entries may
+At any point the longest active match is chosen.  Entries may
 not be active because they have the wrong type or wrong selectors (see below)
 for the current parser pass or context.
 Entries may be activated only when other entries are recognized
@@ -1988,7 +1988,7 @@ named `\ttikey{standard}{parsing block}' and defines in it the selectors
 \end{center}
 The standard parser also sets the top level selector set to
 `{\tt [code]}'.  Note that the actions of the standard parser can be
-cancelled by a `{\tt parser end standard}' command.
+canceled by a `{\tt parser end standard}' command.
 
 If a top level line begins with a \emkey{context-name}, the top level
 selector set is modified according to a {\em parser-flag-spec}
@@ -2009,7 +2009,7 @@ set `{\tt [parser]}',
 as {\em parser-commands} begin with the {\em context-name}
 `{\tt parser}', but the `{\tt parser test}' command is parsed with whatever
 top level selectors are normally in effect, as the longest
-{\em contex-name} at the beginning of a top level line is the one that
+{\em context-name} at the beginning of a top level line is the one that
 is recognized.  Note that these two {\em context-names} are builtin, and
 \underline{not} defined within the `{\tt standard}' parser block.  Also a
 {\em context-name} beginning a top level line is \underline{not} skipped
@@ -2533,7 +2533,7 @@ An anomaly may exist if the selectors that allowed a gluing indentation mark to
 be recognized are changed by a closing bracket that is glued to the indentation
 mark so the indentation mark is no longer recognized.
 The indentation mark will be split, the closing bracket will be recognized
-on rescan
+on re-scan
 and change the selectors so the indentation mark is no longer
 recognizable, and then the indentation mark will be scanned and not recognized.
 This situation can be avoided by not allowing
@@ -2543,7 +2543,7 @@ to change selectors that control recognition of those marks.
 No differences exist between {\em gluing-indentation-mark-names} and
 {\em indentation-\EOL mark-\EOL names}
 other than that the former can be
-glued to a preceeding mark and that the former must be a single mark
+glued to a preceding mark and that the former must be a single mark
 lexeme, while the latter can be any sequence of marks, separators, numbers,
 and words.
 
@@ -2829,8 +2829,8 @@ named-opening
 \subsection{Parser Passes}
 
 After a subexpression has been identified by the top level bracketed
-subexpression recognition pass, a sequence of passes are run on the
-subexpression.  Which passes are run is determined by the
+subexpression recognition pass, a sequence of passes is run on the
+subexpression.  Which passes are in the sequence is determined by the
 parser pass stack and parser selectors.
 
 The \key{parser pass stack} is a list of parser passes with a set of
@@ -2921,7 +2921,7 @@ The {\tt parser define pass} statement sets the
 and installs that pass in the parser pass stack at the
 location specified.
 If the pass was previously on the stack, it is removed first
-and then reinstalled.  The {\em parser-pass-name} and
+and then re-installed.  The {\em parser-pass-name} and
 {\em next-parser-pass-name} cannot be `{\tt top}'.
 Any {\em previous-parser-pass-name} or {\em next-parser-pass-name}
 given must name a pass already in the stack that is different from
@@ -2931,18 +2931,33 @@ The {\tt parser undefine pass} statement removes the named
 parser pass from the stack, if it is in the stack, and does
 nothing otherwise.  The `{\tt top}' pass cannot be undefined.
 
-The {\tt parser print pass} statement prints the parsing pass stack.
+The {\tt parser undefine pass} statement destroys any symbol
+table associated with the pass being undefined.  First undefining and then
+redefining a pass effectively clears this symbol table.  Thus
+first undefining and then redefining the `{\tt operator}' pass
+clears the symbol table set by `{\tt parser define operator \ldots}'
+commands.  On the other hand,
+a `{\tt parser define pass operator \ldots}' statement 
+may be used to change the `{\tt operator}' pass selectors or
+position in the pass stack without clearing the operator symbol
+table.
+
+The {\tt parser print pass} statement prints the parser pass stack passes
+with their associated selectors.
 
 The input and output of a parser pass is a sublist of the list
 of all tokens.  When a parser pass is called, it is provided with
 a pointer to the first token of this sublist, and a pointer to the
 first token after the sublist.  The pass may edit the sublist.
-The pass is responsible for calling the next pass on the parser
+The pass is responsible for calling the next pass down in the parser
 pass stack, and may edit the sublist before and/or after calling
 this next pass.
 
-The bracketed subexpression pass is called for each top level input line
-and replaces that line with a MIN object token.
+The bracketed subexpression pass, also known as the `{\tt top}' pass,
+is the first pass called for each
+top level input line, recognizes bracketed subexpressions,
+calls the next active lower pass for each bracketed subexpression,
+and then replaces the bracketed subexpression by a single MIN object.
 
 \subsection{The Operator Parsing Pass}
 \label{OPERATOR-PARSING-PASS}
@@ -3222,7 +3237,7 @@ in `\verb|x AND AND y|'.
 
 In some circumstances 
 the bracketed subexpression recognition pass merges the brackets
-it finds into a list returned by a reformater.
+it finds into a list returned by a reformatter.
 If the bracketed subexpression recognition pass
 would otherwise
 return a list (with {\tt .initiator} or {\tt .terminator}) that has a single
@@ -3586,7 +3601,7 @@ tokens of the expression.
 If operators were found in the expression,
 run the reformatter of the first operator
 in the expression.  This replaces the expression by a single
-{\tt BRACKTABLE} or lexeme token.
+{\tt BRACKETABLE} or lexeme token.
 If no reformatter is provided by the first operator, a default
 reformatter is run that replaces the expression by a single {\tt BRACKETABLE}
 token whose value has the operator label as its {\tt .operator} attribute.
@@ -3791,7 +3806,7 @@ Loop Step 1).
 \item[Loop Step 3:]
 Else if $C\neq N$
 and no operator was find in Loop Step 1 or generated by Loop Step 2,
-repoint $C$ to the next token after $C$ and go to the next loop iteration.
+re-point $C$ to the next token after $C$ and go to the next loop iteration.
 
 Note that if the iteration continues after this step,
 then either $C=N$ or an operator was found in Loop Step 1
@@ -3833,7 +3848,7 @@ Else if $P'=P$, set $F$ to point at the next token after $C$.
 
 \item[Loop Step 6:]
 Set $T=T'$,
-repoint $C$ to the token after $C$, and iterate the loop.
+re-point $C$ to the token after $C$, and iterate the loop.
 \end{itemlist}
 
 \clearpage

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  5 12:08:07 EST 2014
+// Date:	Fri Jan 17 11:17:56 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -254,7 +254,7 @@ PAR::pass OP::new_pass ( void )
 // oper_stack.
 //
 inline bool check_precedence
-	( int precedence,
+	( min::int32 precedence,
 	 OP::oper_stack oper_stack )
 {
     for ( min::uns32 i = 0; i < oper_stack->length;

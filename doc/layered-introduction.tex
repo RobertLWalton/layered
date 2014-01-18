@@ -160,6 +160,30 @@
 \end{lrbox}
 \newcommand{\CIRCUMFLEX}{\usebox{\CIRCUMFLEXBOX}}
 
+\newsavebox{\LACCENTBOX}
+\begin{lrbox}{\LACCENTBOX}
+{\tt \`{}}
+\end{lrbox}
+\newcommand{\LACCENT}{\usebox{\LACCENTBOX}}
+
+\newsavebox{\RACCENTBOX}
+\begin{lrbox}{\RACCENTBOX}
+{\tt \'{}}
+\end{lrbox}
+\newcommand{\RACCENT}{\usebox{\RACCENTBOX}}
+
+\newsavebox{\LAQUOTEBOX}
+\begin{lrbox}{\LAQUOTEBOX}
+{\tt \guillemotleft}
+\end{lrbox}
+\newcommand{\LAQUOTE}{\usebox{\LAQUOTEBOX}}
+
+\newsavebox{\RAQUOTEBOX}
+\begin{lrbox}{\RAQUOTEBOX}
+{\tt \guillemotright}
+\end{lrbox}
+\newcommand{\RAQUOTE}{\usebox{\RAQUOTEBOX}}
+
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
 \addtolength{\figurewidth}{-0.40in}
@@ -213,7 +237,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 17, 2014
+January 18, 2014
  
 \end{center}
 
@@ -3217,12 +3241,12 @@ precedence & reformatter	& type	& operator	& meaning
 \end{figure*}
 
 
-Below be describe the effects of standard operator reformatters.
+Below we describe the effects of standard operator reformatters.
 We use notation such as
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x = y = z + w| & $\Longrightarrow$ & \verb|= x ( = y (+ x w))| \\
-\verb|x AND AND y| & $\Longrightarrow$ & error
+\verb|x AND y OR z| & $\Longrightarrow$ & error
 \end{tabular}
 
 Here $\Longrightarrow$ means `is reformatted as'.  Furthermore, the
@@ -3231,8 +3255,21 @@ which means that the lists they bracket have \underline{no}
 \verb|.initiator| or \verb|.terminator|, and the parentheses are
 merely written here to indicate sublists in the expression structure.
 
-Reformatters can detect parsing errors, such the missing operand
-in `\verb|x AND AND y|'.
+Reformatters can detect parsing errors, such the fact that both
+operators in `\verb|x AND y OR z|' are not identical (when both are
+infix operators with the same precedence).
+
+Note that what would be parsing errors in some other parsing systems
+are not in this system.  For example,
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x AND AND y| & $\Longrightarrow$ & \verb|AND x (AND y)| \\
+\end{tabular}
+
+because the second {\tt AND} is not considered to be an operator and
+`{\tt AND y}' is considered to be a valid subexpression that might be
+a variable name.  If this does not name anything, a naming error should
+be detected, but this is not a parsing error.
 
 In some circumstances 
 the bracketed subexpression recognition pass merges the brackets

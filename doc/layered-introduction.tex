@@ -3047,10 +3047,11 @@ indentation mark).
 By abuse of language, the term `\key{operator}' is often used
 as a synonym for `{\em simple-operator-name}'.
 
-Operators can have \skey{operator flag}s that
+Operators have \skey{operator flag}s that
 affect parsing of subexpressions of the operator.  The possible
 flags are `{\tt infix}', `{\tt prefix}', `{\tt postfix}',
-`{\tt nofix}', and `{\tt afix}'.  By default an operator is `{\tt nofix}'.
+`{\tt nofix}', and `{\tt afix}'.  An operator must have at least
+one of these flags.
 
 An \ttkey{infix} operator must be between two non-empty operands,
 while a \ttkey{prefix} operator must precede a non-empty operand,
@@ -3082,7 +3083,7 @@ and \underline{not} as
 \end{center}
 
 An\label{FIXITY-RULES}
-operator must be prefix, infix, postfix, or nofix.
+operator must be prefix, infix, postfix, nofix, or afix.
 A prefix operator may also be infix or postfix, but may not be afix.
 An infix operator may also be prefix or afix, but not postfix.
 An postfix operator may also be prefix or afix, but not infix.
@@ -3091,22 +3092,21 @@ A nofix operator may afix, but not prefix, infix, or postfix.
 This can be summarized in the following compatibility table:
 
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|l}
-\cline{1-5}
-prefix & infix  & postfix & nofix & afix & \\
+\begin{tabular}{|c|c|c|c|l}
+\cline{1-4}
+infix  & postfix & nofix & afix & \\
 \hline
+yes    & yes     & no    & yes   &  \multicolumn{1}{|l|}{prefix} \\
+\cline{1-5}
 \multicolumn{1}{c|}{}
-       & yes    & yes     & no    & yes   &  \multicolumn{1}{|l|}{prefix} \\
-\cline{2-6}
+       & no      & no    & yes   &  \multicolumn{1}{|l|}{infix} \\
+\cline{2-5}
 \multicolumn{2}{c|}{}
-                & no      & no    & yes   &  \multicolumn{1}{|l|}{infix} \\
-\cline{3-6}
+                 & no    & yes   &  \multicolumn{1}{|l|}{postfix} \\
+\cline{3-5}
 \multicolumn{3}{c|}{}
-                          & no    & yes   &  \multicolumn{1}{|l|}{postfix} \\
-\cline{4-6}
-\multicolumn{4}{c|}{}
-                                  & yes   &  \multicolumn{1}{|l|}{nofix} \\
-\cline{5-6}
+                         & yes   &  \multicolumn{1}{|l|}{nofix} \\
+\cline{4-5}
 \end{tabular}
 \end{center}
 
@@ -3115,7 +3115,7 @@ determine which operators are inside and outside implicit brackets.
 Operators with higher precedence are placed inside the 
 implicit brackets that surround operands of operators of lower precedence.
 Implicit brackets are used to define subexpressions, so that all operators
-in a subexpressions that are not in sub-subexpressions are of the same
+in a subexpression that are not in sub-subexpressions are of the same
 precedence.
 
 The {\em reformatter-name} in an {\em operator-definition} names a
@@ -3125,12 +3125,12 @@ For example, given the expression `\verb|-x+6*y|', the subexpression
 `\verb|6*y|' is extracted, and as its first operator is `\verb|*|',
 the reformatter for that operator is called and yields `\verb|* 6 y|'.
 Similarly the subexpression `\verb|-x|' is extracted but the reformatter
-for `\verb|-|' does not change it.
+for `\verb|-|' does not change `\verb|-x|'.
 Then the reformatter for `\verb|+|' is called
-with `\verb/(|-x|)+(|* 6 y|)/', since `\verb|+|' is the first operator in
+with `\verb/[. -x .]+[. * 6 y .]/', since `\verb|+|' is the first operator in
 this subexpression \underline{after} subexpressions have been handled.
-This reformatter returns `\verb/+ (|-x|) (|* 6 y|)/'.  Here we have
-use parentheses \verb/(|  |)/ to indicate implicit parentheses.
+This reformatter returns `\verb/+ [. -x .] [. * 6 y .]/'.  Here we have
+use parentheses \verb/[. .]/ to indicate implicit parentheses.
 
 \subsubsection{The Print Operator Command}
 

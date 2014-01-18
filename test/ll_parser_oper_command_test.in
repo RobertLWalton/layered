@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 17 14:09:02 EST 2014
+// Date:	Sat Jan 18 00:45:29 EST 2014
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -104,6 +104,7 @@ parser test (NOT x y)
 parser test (x NOT y)
 parser test (NOT x AND y)
 parser test (x AND NOT y)
+parser test (x AND AND y)
 
 parser define operator "==" [code, math] infix
        with precedence 4000

@@ -648,62 +648,119 @@ parser define operator "<--" [code] nofix
        with precedence 0
 parser define operator bracket "{" ... "}" [code] afix
        with precedence 0
+parser define operator indentation mark ":" [code] afix
+       with precedence 0
 ======= TEST: parser test
               ([. foo bar .] <-- [. boo bat .] {fee fie fo fum})
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
               ^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
                           ^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
                                   ^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test ([. foo bar .] <-- {fee fie fo fum})
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- { fee fie fo fum } )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- { fee fie fo fum } )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- { fee fie fo fum } )
               ^^^^^^^
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- { fee fie fo fum } )
                           ^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test (<-- [. boo bat .] {fee fie fo fum})
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat { fee fie fo fum } )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat { fee fie fo fum } )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat { fee fie fo fum } )
                   ^^^^^^^
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat { fee fie fo fum } )
                           ^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test ([. foo bar .] <--)
-------- line 191:
+------- line 193:
 parser test ( foo bar <-- )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 191:
+------- line 193:
 parser test ( foo bar <-- )
             ^^^^^^^^^^^^^^^
-------- line 191:
+------- line 193:
 parser test ( foo bar <-- )
               ^^^^^^^
+======= END TEST
+======= TEST: parser test :
+                  [. foo bar .] <-- [. boo bat :
+                                           fee fie fo fum
+                                           he ha ho hum
+ .]
+
+------- lines 194-197:
+parser test:
+^^^^^^^^^^^^
+    foo bar <-- boo bat:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^
+        he ha ho hum
+^^^^^^^^^^^^^^^^^^^^
+------- lines 194-197:
+parser test:
+           ^
+    foo bar <-- boo bat:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^
+        he ha ho hum
+^^^^^^^^^^^^^^^^^^^^
+------- lines 195-197:
+    foo bar <-- boo bat:
+    ^^^^^^^^^^^^^^^^^^^^
+        fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^
+        he ha ho hum
+^^^^^^^^^^^^^^^^^^^^
+------- line 195:
+    foo bar <-- boo bat:
+    ^^^^^^^
+------- lines 195-197:
+    foo bar <-- boo bat:
+                ^^^^^^^^
+        fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^
+        he ha ho hum
+^^^^^^^^^^^^^^^^^^^^
+------- lines 195-197:
+    foo bar <-- boo bat:
+                       ^
+        fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^
+        he ha ho hum
+^^^^^^^^^^^^^^^^^^^^
+------- line 196:
+        fee fie fo fum
+        ^^^^^^^^^^^^^^
+------- line 197:
+        he ha ho hum
+        ^^^^^^^^^^^^
 ======= END TEST
 parser print operator "":
     block standard: operator "*" [code, math]
@@ -825,6 +882,9 @@ parser print operator "":
                     infix
                     with precedence 1000
                     with reformatter right associative
+    block standard: bracket ":" ... "␤" [code]
+                    afix
+                    with precedence 0
     block standard: bracket "{" ... "}" [code]
                     afix
                     with precedence 0

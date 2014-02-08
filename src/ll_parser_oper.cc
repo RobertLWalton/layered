@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 17 11:17:56 EST 2014
+// Date:	Sat Feb  8 14:30:16 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -345,9 +345,12 @@ static void oper_parse ( PAR::parser parser,
 		    // OBJ_PRIVATE.
 		}
 
-	        root = TAB::find
-		    ( initiator, selectors,
-		      oper_pass->oper_bracket_table );
+		if ( initiator == min::NONE() )
+		    root = min::NULL_STUB;
+		else
+		    root = TAB::find
+			( initiator, selectors,
+			  oper_pass->oper_bracket_table );
 		oper = (OP::oper) root;
 		while ( oper != min::NULL_STUB
 		        &&

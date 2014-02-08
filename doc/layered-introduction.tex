@@ -237,7 +237,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 18, 2014
+February 8, 2014
  
 \end{center}
 
@@ -3369,27 +3369,25 @@ and is returned as the result of the reformatting.  Examples:
 
 \begin{indpar}[0.5em]
 
-There will be a \verb|<--| operator (the other operators are afix),
-and it is a parsing error
-detected by the reformatter if there is more than one.
-The one \verb|<--| operator is moved to the front of the expression:
+There must be exactly one operator that is not a bracketed subexpression,
+that operator must be the first operator, and there must be no operands
+after the first bracketed subexpression operator (so the only operands
+must be just before or after the first operator).  If the first operator is not
+preceded by an operand, an empty list preceding operand is inserted.
+Similarly if first operator is not followed by an operand, an empty
+list following operand is inserted.  Then the first operator is moved to the
+beginning of the expression and the bracketed operators are converted to
+operands.
+Indented subexpressions may be treated like bracketed subexpressions.
+
+For example, if the first operator is \verb|<--|, and the afix operators
+are \verb|{ }| bracketed subexpressions and \verb|:| indented subexpressions:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x <-- y { z }| & $\Longrightarrow$ & \verb|<-- x y { z }| \\
-\verb|x <-- { z }| & $\Longrightarrow$ & \verb|<-- x { z }| \\
-\verb|x <--| & $\Longrightarrow$ & \verb|<-- x|
-\end{tabular}
-
-Indented subexpressions introduced by the \verb|:| indentation
-mark are parsed like final \verb|{ }|
-bracketed subexpressions.  Because they are afix operators with the
-same precedence as \verb|<--|,
-`\verb|x <-- y { z }|' does \underline{not}
-end up as `\verb|<-- x ( y { z } )|', and instead we get results like:
-
-\hspace*{2em}\begin{tabular}{lcl}
-
-\verb|x <-- u v w { z }| & $\Longrightarrow$ & \verb|<-- x ( u v w ) { z }|
+\verb|x <-- { z }| & $\Longrightarrow$ & \verb|<-- x () { z }| \\
+\verb|<-- y { z }| & $\Longrightarrow$ & \verb|<-- () y { z }| \\
+\verb|x <--| & $\Longrightarrow$ & \verb|<-- x ()|
 \\[1ex]
 \begin{tabular}{@{}l@{}}
 \verb|x <-- u v w:| \\
@@ -3400,9 +3398,12 @@ end up as `\verb|<-- x ( y { z } )|', and instead we get results like:
 \verb|<-- x ( u v w ):| \\
 \verb|    z|
 \end{tabular}
-
 \end{tabular}
 
+Note that because \verb|{ }| bracketed subexpressions are afix operators
+with same precedence as \verb|<--|,
+`\verb|x <-- y { z }|' does \underline{not}
+end up as `\verb|<-- x ( y { z } )|'.
 
 \end{indpar}
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 18 00:45:29 EST 2014
+// Date:	Sat Feb  8 04:08:25 EST 2014
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -181,17 +181,15 @@ parser define operator "--" [code, math] postfix
 parser test ( x ++ + y - z -- )
 parser test ( x y ++ -- ++ -- )
 
-parser define operator "declare" [code] nofix
-       with precedence 0
-parser define operator "<--" [code] afix
+parser define operator "<--" [code] nofix
        with precedence 0
 parser define operator bracket "{" ... "}" [code] afix
        with precedence 0
-parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
+parser test ( foo bar <-- boo bat { fee fie fo fum } )
+parser test ( foo bar <-- { fee fie fo fum } )
+parser test ( <-- boo bat { fee fie fo fum } )
+parser test ( foo bar <-- )
 
 parser print operator ""
 
 // Temporary tests
-parser define operator bracket "{" ... "}" [code] infix
-	with precedence 1
-parser test ( x y { z w } m n )

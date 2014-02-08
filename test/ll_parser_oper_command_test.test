@@ -644,30 +644,66 @@ parser test ( x y ++ -- ++ -- )
 parser test ( x y ++ -- ++ -- )
               ^^^
 ======= END TEST
-parser define operator "declare" [code] nofix
-       with precedence 0
-parser define operator "<--" [code] afix
+parser define operator "<--" [code] nofix
        with precedence 0
 parser define operator bracket "{" ... "}" [code] afix
        with precedence 0
 ======= TEST: parser test
-              (we declare [. foo bar .] <-- [. boo bat .]
-               {fee fie fo fum})
+              ([. foo bar .] <-- [. boo bat .] {fee fie fo fum})
+------- line 188:
+parser test ( foo bar <-- boo bat { fee fie fo fum } )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 188:
+parser test ( foo bar <-- boo bat { fee fie fo fum } )
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 188:
+parser test ( foo bar <-- boo bat { fee fie fo fum } )
+              ^^^^^^^
+------- line 188:
+parser test ( foo bar <-- boo bat { fee fie fo fum } )
+                          ^^^^^^^
+------- line 188:
+parser test ( foo bar <-- boo bat { fee fie fo fum } )
+                                  ^^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: parser test ([. foo bar .] <-- {fee fie fo fum})
+------- line 189:
+parser test ( foo bar <-- { fee fie fo fum } )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 189:
+parser test ( foo bar <-- { fee fie fo fum } )
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 189:
+parser test ( foo bar <-- { fee fie fo fum } )
+              ^^^^^^^
+------- line 189:
+parser test ( foo bar <-- { fee fie fo fum } )
+                          ^^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: parser test (<-- [. boo bat .] {fee fie fo fum})
 ------- line 190:
-parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( <-- boo bat { fee fie fo fum } )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 190:
-parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( <-- boo bat { fee fie fo fum } )
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 190:
-parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
-                         ^^^^^^^
+parser test ( <-- boo bat { fee fie fo fum } )
+                  ^^^^^^^
 ------- line 190:
-parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
-                                     ^^^^^^^
-------- line 190:
-parser test ( we declare foo bar <-- boo bat { fee fie fo fum } )
-                                             ^^^^^^^^^^^^^^^^^^
+parser test ( <-- boo bat { fee fie fo fum } )
+                          ^^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: parser test ([. foo bar .] <--)
+------- line 191:
+parser test ( foo bar <-- )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 191:
+parser test ( foo bar <-- )
+            ^^^^^^^^^^^^^^^
+------- line 191:
+parser test ( foo bar <-- )
+              ^^^^^^^
 ======= END TEST
 parser print operator "":
     block standard: operator "*" [code, math]
@@ -727,15 +763,12 @@ parser print operator "":
                     with precedence 3100
                     with reformatter prefix
     block standard: operator "<--" [code]
-                    afix
+                    nofix
                     with precedence 0
     block standard: operator "BUT NOT" [code, math]
                     nofix
                     with precedence 3000
                     with reformatter binary
-    block standard: operator "declare" [code]
-                    nofix
-                    with precedence 0
     block standard: operator "*=" [code, math]
                     infix
                     with precedence 1000
@@ -795,22 +828,3 @@ parser print operator "":
     block standard: bracket "{" ... "}" [code]
                     afix
                     with precedence 0
-parser define operator bracket "{" ... "}" [code] infix
-        with precedence 1
-======= TEST: parser test ([. x y .] {z w} [. m n .])
-------- line 197:
-parser test ( x y { z w } m n )
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 197:
-parser test ( x y { z w } m n )
-            ^^^^^^^^^^^^^^^^^^^
-------- line 197:
-parser test ( x y { z w } m n )
-              ^^^
-------- line 197:
-parser test ( x y { z w } m n )
-                  ^^^^^^^
-------- line 197:
-parser test ( x y { z w } m n )
-                          ^^^
-======= END TEST

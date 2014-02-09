@@ -711,7 +711,7 @@ parser test ( foo bar <-- )
                   [. foo bar .] <-- [. boo bat :
                                            fee fie fo fum
                                            he ha ho hum
- .]
+                                        .]
 
 ------- lines 194-197:
 parser test:

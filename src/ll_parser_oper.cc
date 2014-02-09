@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  8 14:30:16 EST 2014
+// Date:	Sun Feb  9 18:39:10 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1771,10 +1771,8 @@ static min::gen oper_pass_command
 	return PAR::parse_error
 	    ( parser, ppvec->position,
 	      "too many quoted names in" );
-    else if ( indentation_mark )
-        name[1] = PAR::new_line;
     else if ( ! bracket )
-        name[1] = min::MISSING();
+        name[1] = min::NONE();
 
     if ( command == PAR::print )
     {

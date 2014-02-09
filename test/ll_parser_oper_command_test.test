@@ -708,10 +708,10 @@ parser test ( foo bar <-- )
               ^^^^^^^
 ======= END TEST
 ======= TEST: parser test :
-                  [. foo bar .] <-- [. boo bat :
-                                           fee fie fo fum
-                                           he ha ho hum
-                                        .]
+                  [. foo bar .] <-- [. boo bat .] :
+                      fee fie fo fum
+                      he ha ho hum
+
 
 ------- lines 194-197:
 parser test:
@@ -741,13 +741,9 @@ parser test:
 ------- line 195:
     foo bar <-- boo bat:
     ^^^^^^^
-------- lines 195-197:
+------- line 195:
     foo bar <-- boo bat:
-                ^^^^^^^^
-        fee fie fo fum
-^^^^^^^^^^^^^^^^^^^^^^
-        he ha ho hum
-^^^^^^^^^^^^^^^^^^^^
+                ^^^^^^^
 ------- lines 195-197:
     foo bar <-- boo bat:
                        ^
@@ -882,7 +878,7 @@ parser print operator "":
                     infix
                     with precedence 1000
                     with reformatter right associative
-    block standard: bracket ":" ... "␤" [code]
+    block standard: bracket ":" ... "NONE" [code]
                     afix
                     with precedence 0
     block standard: bracket "{" ... "}" [code]

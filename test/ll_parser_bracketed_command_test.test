@@ -81,7 +81,7 @@ parser test [ a [ b c ] c ] [X a [ b c ] d X]
 ======= END TEST
 ======= TEST: parser test this is a paragraph + :
                   line 1
-                  line 2 a :: line 2 b;  line 2 c
+                  line 2 a :: line 2 b; line 2 c
                   last line
 
 ------- lines 46-49:
@@ -118,7 +118,7 @@ parser test this is a paragraph +:
 parser define indentation mark "+:" ... "::" [code]
 ======= TEST: parser test this is a paragraph +:
                   line 1
-                  line 2 a::  line 2 b ; line 2 c
+                  line 2 a:: line 2 b ; line 2 c
                   last line
 
 ------- lines 51-54:

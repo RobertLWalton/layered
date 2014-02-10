@@ -237,7 +237,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 8, 2014
+February 10, 2014
  
 \end{center}
 
@@ -3195,7 +3195,7 @@ The standard operators are given on
 
 precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
-0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
+0000	& \ttkey{declare}	& \tt nofix	& \ttnbkey{<--}	& define \\
 	&			& \tt afix	& \ttkey{\{ ... \}} & block \\
 1000	& \tt \bf right		& \tt infix	& \ttnbkey{=}	& assignment \\
      	& \tt \bf associative\ttindex{right associative}
@@ -3365,7 +3365,7 @@ and is returned as the result of the reformatting.  Examples:
 
 \bigskip
 
-\ttmkey{define}{reformatter} \hfill \NBOP{<--} ~~~ \NBOP{\{\}} ~~~ \OP{:}
+\ttmkey{declare}{reformatter} \hfill \NBOP{<--} ~~~ \NBOP{\{\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
 
@@ -3373,12 +3373,14 @@ There must be exactly one operator that is not a bracketed subexpression,
 that operator must be the first operator, and there must be no operands
 after the first bracketed subexpression operator (so the only operands
 must be just before or after the first operator).  If the first operator is not
-preceded by an operand, an empty list preceding operand is inserted.
+preceded by an operand, an empty list is inserted as the preceding operand.
 Similarly if first operator is not followed by an operand, an empty
-list following operand is inserted.  Then the first operator is moved to the
+list is inserted as the following operand.
+Then the first operator is moved to the
 beginning of the expression and the bracketed operators are converted to
 operands.
-Indented subexpressions may be treated like bracketed subexpressions.
+Indented subexpressions may be treated like bracketed subexpressions and
+be bracketed operands.
 
 For example, if the first operator is \verb|<--|, and the afix operators
 are \verb|{ }| bracketed subexpressions and \verb|:| indented subexpressions:

@@ -878,7 +878,7 @@ parser print operator "":
                     infix
                     with precedence 1000
                     with reformatter right associative
-    block standard: bracket ":" ... "NONE" [code]
+    block standard: bracket ":" ... "MISSING" [code]
                     afix
                     with precedence 0
     block standard: bracket "{" ... "}" [code]

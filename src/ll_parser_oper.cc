@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  9 18:39:10 EST 2014
+// Date:	Mon Feb 10 07:19:45 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -351,6 +351,8 @@ static void oper_parse ( PAR::parser parser,
 		    root = TAB::find
 			( initiator, selectors,
 			  oper_pass->oper_bracket_table );
+		if ( terminator == min::NONE() )
+		    terminator = min::MISSING();
 		oper = (OP::oper) root;
 		while ( oper != min::NULL_STUB
 		        &&
@@ -888,6 +890,85 @@ static bool separator_reformatter
 	  1, & separator_attr );
 
     return false;
+}
+
+static bool declare_reformatter
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  TAB::flags trace_flags,
+	  OP::oper first_oper,
+	  min::phrase_position & position )
+{
+    MIN_ASSERT ( first != next );
+
+    PAR::token t = first;
+
+    if ( t->type != PAR::OPERATOR )
+    {
+	MIN_ASSERT
+	    (    t->next != next
+	      && t->next->type == PAR::OPERATOR );
+	PAR::token oper =
+	    PAR::remove ( PAR::first_ref ( parser ),
+	                  t->next );
+	PAR::put_before ( PAR::first_ref ( parser ),
+	                  t, oper );
+	first = oper;
+    }
+    else
+    {
+	MIN_ASSERT ( t->type == PAR::OPERATOR );
+	PAR::put_empty_after ( parser, t );
+	t = t->next;
+    }
+
+    t = t->next;
+
+    if ( t == next || t->type == PAR::OPERATOR )
+	PAR::put_empty_before ( parser, t );
+    else
+	t = t->next;
+
+    while ( t != next )
+    {
+        if ( t->type != PAR::OPERATOR
+	     ||
+	     ! min::is_obj ( t->value ) )
+	{
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: expected bracketed"
+		   " expression and got `"
+		<< min::name_pgen ( t->value )
+		<< "'; deleted; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 t->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  t->position );
+	    ++ parser->error_count;
+
+	    t = t->next;
+	    PAR::free
+	        ( PAR::remove
+		      ( PAR::first_ref ( parser ),
+		        t->previous ) );
+	}
+	else
+	{
+	    t->type == PAR::BRACKETED;
+	    t = t->next;
+	}
+    }
+
+    return true;
 }
 
 static bool right_associative_reformatter
@@ -1772,7 +1853,7 @@ static min::gen oper_pass_command
 	    ( parser, ppvec->position,
 	      "too many quoted names in" );
     else if ( ! bracket )
-        name[1] = min::NONE();
+        name[1] = min::MISSING();
 
     if ( command == PAR::print )
     {

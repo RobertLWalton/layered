@@ -237,7 +237,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 10, 2014
+February 12, 2014
  
 \end{center}
 
@@ -3026,7 +3026,12 @@ The syntax of operator definitions is:
 	    {\em operator-name} {\em parsing-selectors} \\
 	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
 	    \verb|with precedence| {\em precedence} \\
-	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
+	    {}[ \verb|with|
+	                   \begin{tabular}[t]{l}
+			   \tt reformatter \\
+			   ~~~~ {\em reformatter-name} \\
+			   ~~~~~~~~ {\em reformatter-arguments} ] \\
+	                   \end{tabular} \\
 	    \end{tabular} \\
     $|$ & \ttkey{parser undefine operator}
 	    \begin{tabular}[t]{@{}l@{}}
@@ -3055,7 +3060,14 @@ The syntax of operator definitions is:
 	\\[1ex]
 \emkey{sign-option} ::= {\em empty} $|$ \verb|+| $|$ \verb|-|
 	\\[1ex]
-\emkey{reformatter-name} ::= {\em simple-name }
+\emkey{reformatter-name} ::= {\em simple-name } \\
+\emkey{reformatter-arguments} \begin{tabular}[t]{@{}rl}
+			      ::= & {\em empty} $|$ {\tt ()} \\
+			      $|$ & {\tt (} {\em reformatter-argument} \\
+			          & ~~~~ \{ {\tt ,} {\em reformatter-argument}
+				         \}$^\star$ {\tt )} \\
+			      \end{tabular} \\
+\emkey{reformatter-argument} ::= {\em quoted-name}
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression
@@ -3155,6 +3167,11 @@ with `\verb/[. -x .]+[. * 6 y .]/', since `\verb|+|' is the first operator in
 this subexpression \underline{after} subexpressions have been handled.
 This reformatter returns `\verb/+ [. -x .] [. * 6 y .]/'.  Here we have
 use parentheses \verb/[. .]/ to indicate implicit parentheses.
+
+The optional {\em reformatter-arguments} are arguments to the reformatter
+function.  For example, the `{\tt summation}' reformatter takes two
+arguments, `{\tt (} {\em plus-op}{\tt ,} {\em minus-op} {\tt )}', which
+are usually `{\tt ("+","-")}'.
 
 \subsubsection{The Print Operator Command}
 
@@ -3338,28 +3355,28 @@ With these things in mind, the reformatters are:
 \ttmkey{separator}{reformatter} \hfill \OP{;} ~~~ \OP{,}
 
 \begin{indpar}[0.5em]
-There must be at least one operator, all operator values must
-be identical, and any two operands must be separated by an operator
-(but operators my be consecutive and may begin or end the subexpression).
+Use only with {\tt nofix} operators.
 
-A list of all between-operator subexpressions is made, with empty
-between-operator subexpressions being represented by empty lists.
-There will be at least two subexpressions: one following
-the last operator and one preceding the first operator.
-The list of subexpressions is given a
-\ttmkey{.separator}{produced by parsing}
+There must be at least one operator, and all operator values must
+be identical.  Necessarily any two operands are separated by an operator,
+but operators my be consecutive and may begin or end the subexpression.
+
+Empty list operands are inserted to make all operators
+infix.  Then the operators are deleted, the resulting list of
+operands is given a \ttmkey{.separator}{produced by parsing}
 attribute with value of the operator token,
-and is returned as the result of the reformatting.  Examples:
+and this is returned as the result of the reformatting.  Examples
+with `{\tt ,}' as the operator are:
 
 \hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
 \verb|x , y| & $\Longrightarrow$ & \verb|x y|
-					& with {\tt .separator} {\tt ,} \\
+					& with {\tt .separator} {\tt ","} \\
 \verb|, y| & $\Longrightarrow$ & \verb|() y|
-					& with {\tt .separator} {\tt ,} \\
+					& with {\tt .separator} {\tt ","} \\
 \verb|x ,| & $\Longrightarrow$ & \verb|x ()|
-					& with {\tt .separator} {\tt ,} \\
+					& with {\tt .separator} {\tt ","} \\
 \verb|x ,, y| & $\Longrightarrow$ & \verb|x () y|
-					& with {\tt .separator} {\tt ,} \\
+					& with {\tt .separator} {\tt ","} \\
 \end{tabular}
 \end{indpar}
 
@@ -3368,6 +3385,8 @@ and is returned as the result of the reformatting.  Examples:
 \ttmkey{declare}{reformatter} \hfill \NBOP{<--} ~~~ \NBOP{\{\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
+Use only with {\tt nofix}, {\tt prefix}, or {\tt infix} operators.
+
 
 There must be exactly one operator that is not a bracketed subexpression,
 that operator must be the first operator, and there must be no operands

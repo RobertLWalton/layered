@@ -646,74 +646,84 @@ parser test ( x y ++ -- ++ -- )
 ======= END TEST
 parser define operator "<--" [code] nofix
        with precedence 0
+       with declare reformatter
 parser define operator bracket "{" ... "}" [code] afix
        with precedence 0
 parser define operator indentation mark ":" [code] afix
        with precedence 0
 ======= TEST: parser test
-              ([. foo bar .] <-- [. boo bat .] {fee fie fo fum})
-------- line 190:
+              (<-- [. foo bar .] [. boo bat .] {fee fie fo fum})
+------- line 191:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 190:
+------- line 191:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 190:
+------- line 191:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
               ^^^^^^^
-------- line 190:
+------- line 191:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
                           ^^^^^^^
-------- line 190:
+------- line 191:
 parser test ( foo bar <-- boo bat { fee fie fo fum } )
                                   ^^^^^^^^^^^^^^^^^^
 ======= END TEST
-======= TEST: parser test ([. foo bar .] <-- {fee fie fo fum})
-------- line 191:
+======= TEST: parser test (<-- [. foo bar .] [.  .] {fee fie fo fum})
+------- line 192:
 parser test ( foo bar <-- { fee fie fo fum } )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 191:
+------- line 192:
 parser test ( foo bar <-- { fee fie fo fum } )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 191:
+------- line 192:
 parser test ( foo bar <-- { fee fie fo fum } )
               ^^^^^^^
-------- line 191:
+------- line 192:
+parser test ( foo bar <-- { fee fie fo fum } )
+                         ^
+------- line 192:
 parser test ( foo bar <-- { fee fie fo fum } )
                           ^^^^^^^^^^^^^^^^^^
 ======= END TEST
-======= TEST: parser test (<-- [. boo bat .] {fee fie fo fum})
-------- line 192:
+======= TEST: parser test (<-- [.  .] [. boo bat .] {fee fie fo fum})
+------- line 193:
 parser test ( <-- boo bat { fee fie fo fum } )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 192:
+------- line 193:
 parser test ( <-- boo bat { fee fie fo fum } )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 192:
+------- line 193:
+parser test ( <-- boo bat { fee fie fo fum } )
+              ^
+------- line 193:
 parser test ( <-- boo bat { fee fie fo fum } )
                   ^^^^^^^
-------- line 192:
+------- line 193:
 parser test ( <-- boo bat { fee fie fo fum } )
                           ^^^^^^^^^^^^^^^^^^
 ======= END TEST
-======= TEST: parser test ([. foo bar .] <--)
-------- line 193:
+======= TEST: parser test (<-- [. foo bar .] [.  .])
+------- line 194:
 parser test ( foo bar <-- )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 193:
+------- line 194:
 parser test ( foo bar <-- )
             ^^^^^^^^^^^^^^^
-------- line 193:
+------- line 194:
 parser test ( foo bar <-- )
               ^^^^^^^
+------- line 194:
+parser test ( foo bar <-- )
+                         ^
 ======= END TEST
 ======= TEST: parser test :
-                  [. foo bar .] <-- [. boo bat .] :
+                  <-- [. foo bar .] [. boo bat .] :
                       fee fie fo fum
                       he ha ho hum
 
 
-------- lines 194-197:
+------- lines 195-198:
 parser test:
 ^^^^^^^^^^^^
     foo bar <-- boo bat:
@@ -722,7 +732,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- lines 194-197:
+------- lines 195-198:
 parser test:
            ^
     foo bar <-- boo bat:
@@ -731,30 +741,30 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- lines 195-197:
+------- lines 196-198:
     foo bar <-- boo bat:
     ^^^^^^^^^^^^^^^^^^^^
         fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- line 195:
+------- line 196:
     foo bar <-- boo bat:
     ^^^^^^^
-------- line 195:
+------- line 196:
     foo bar <-- boo bat:
                 ^^^^^^^
-------- lines 195-197:
+------- lines 196-198:
     foo bar <-- boo bat:
                        ^
         fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- line 196:
+------- line 197:
         fee fie fo fum
         ^^^^^^^^^^^^^^
-------- line 197:
+------- line 198:
         he ha ho hum
         ^^^^^^^^^^^^
 ======= END TEST
@@ -818,6 +828,7 @@ parser print operator "":
     block standard: operator "<--" [code]
                     nofix
                     with precedence 0
+                    with reformatter declare
     block standard: operator "BUT NOT" [code, math]
                     nofix
                     with precedence 3000

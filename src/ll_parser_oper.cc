@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 10 07:19:45 EST 2014
+// Date:	Wed Feb 12 02:31:57 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -904,33 +904,37 @@ static bool declare_reformatter
 {
     MIN_ASSERT ( first != next );
 
+    // We need to be careful to insert empty operands
+    // using put_empty_before/after the operator so
+    // the positions of the empty operands are correctly
+    // set to be just before or after the operator.
+
     PAR::token t = first;
 
-    if ( t->type != PAR::OPERATOR )
+    if ( t->type == PAR::OPERATOR )
     {
-	MIN_ASSERT
-	    (    t->next != next
-	      && t->next->type == PAR::OPERATOR );
-	PAR::token oper =
-	    PAR::remove ( PAR::first_ref ( parser ),
-	                  t->next );
-	PAR::put_before ( PAR::first_ref ( parser ),
-	                  t, oper );
-	first = oper;
+	PAR::put_empty_before ( parser, t );
+	first = t->previous;
     }
     else
-    {
-	MIN_ASSERT ( t->type == PAR::OPERATOR );
-	PAR::put_empty_after ( parser, t );
-	t = t->next;
-    }
+        t = t->next;
+
+    MIN_ASSERT
+	( t != next && t->type == PAR::OPERATOR );
 
     t = t->next;
 
     if ( t == next || t->type == PAR::OPERATOR )
-	PAR::put_empty_before ( parser, t );
+	PAR::put_empty_after ( parser, t->previous );
     else
-	t = t->next;
+        t = t->next;
+
+    PAR::token oper =
+	PAR::remove ( PAR::first_ref ( parser ),
+		      first->next );
+    PAR::put_before ( PAR::first_ref ( parser ),
+		      first, oper );
+    first = oper;
 
     while ( t != next )
     {
@@ -963,7 +967,7 @@ static bool declare_reformatter
 	}
 	else
 	{
-	    t->type == PAR::BRACKETED;
+	    t->type = PAR::BRACKETED;
 	    t = t->next;
 	}
     }
@@ -1617,8 +1621,13 @@ static void reformatter_table_initialize ( void )
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
     OP::push_reformatter
-        ( separator, OP::ALLFIX,
+        ( separator, OP::NOFIX,
 	  ::separator_reformatter );
+    min::locatable_gen declare
+        ( min::new_str_gen ( "declare" ) );
+    OP::push_reformatter
+        ( declare, OP::NOFIX + OP::PREFIX + OP::INFIX,
+	  ::declare_reformatter );
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );

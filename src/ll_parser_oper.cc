@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 12 04:09:14 EST 2014
+// Date:	Wed Feb 12 15:18:39 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1750,6 +1750,23 @@ void static print_op
 	    << min::indent
 	    << "with reformatter "
 	    << min::name_pgen ( name );
+
+	OP::reformatter_arguments args =
+	    op->reformatter_arguments;
+        if ( args != min::NULL_STUB )
+	{
+	    parser->printer << " ( " << min::set_break;
+	    for ( min::uns32 i = 0; i < args->length;
+	                            ++ i )
+	    {
+		if ( i != 0 )
+		    parser->printer << ", "
+		                    << min::set_break;
+	        parser->printer
+		    << min::name_pgen ( args[i] );
+	    }
+	    parser->printer << " )";
+	}
     }
 
     parser->printer

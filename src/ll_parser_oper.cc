@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 12 15:18:39 EST 2014
+// Date:	Thu Feb 13 03:43:09 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1751,7 +1751,7 @@ void static print_op
 	    << "with reformatter "
 	    << min::name_pgen ( name );
 
-	OP::reformatter_arguments args =
+	min::packed_vec_ptr<min::gen> args =
 	    op->reformatter_arguments;
         if ( args != min::NULL_STUB )
 	{

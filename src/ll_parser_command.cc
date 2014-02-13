@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 03:51:41 EST 2014
+// Date:	Thu Feb 13 14:03:59 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -123,7 +123,7 @@ min::gen COM::scan_names
     {
         name =
 	    ( PAR::scan_name_string_label
-		( vp, j, parser,
+		( subvp, j, parser,
 
 		    ( 1ull << LEXSTD::mark_t )
 		  + ( 1ull << LEXSTD::separator_t )
@@ -141,7 +141,7 @@ min::gen COM::scan_names
 
 	if ( name == min::MISSING() )
 	{
-            name = COM::scan_simple_name ( vp, j );
+            name = COM::scan_simple_name ( subvp, j );
 
 	    if ( name == min::MISSING() )
 	    {
@@ -156,7 +156,7 @@ min::gen COM::scan_names
 
 	if ( j < s )
 	{
-	    if ( vp[j] != PAR::comma )
+	    if ( subvp[j] != PAR::comma )
 		return PAR::parse_error
 		    ( parser, ppvec[j-1],
 		      "expected `,' after" );

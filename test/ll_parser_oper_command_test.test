@@ -315,31 +315,31 @@ parser test (x AND AND y)
 ======= END TEST
 parser define operator "==" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator "/=" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator "!=" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator "<" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator "<=" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator "=<" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator ">" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator ">=" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 parser define operator "=>" [code, math] infix
        with precedence 4000
-       with compare reformatter
+       with compare reformatter ( "AND" )
 ======= TEST: parser test
               (AND [. < x [. $ 0 y .] .] [. <= [. $ 0 .] [. $ 1 z .] .]
                [. > [. $ 1 .] [. $ 2 w .] .]
@@ -399,10 +399,10 @@ parser test ( x < y <= z > w != p q =< u v )
 ======= END TEST
 parser define operator "+" [code, math] infix
        with precedence 5000
-       with sum reformatter
+       with sum reformatter ( "+", "-" )
 parser define operator "-" [code, math] infix
        with precedence 5000
-       with sum reformatter
+       with sum reformatter ( "+", "-" )
 ======= TEST: parser test (+ x y [. - z .] w [. - v .] [. - u .])
 ------- line 144:
 parser test ( x + y - z + w - v - u )
@@ -780,7 +780,7 @@ parser print operator "":
     block standard: operator "+" [code, math]
                     infix
                     with precedence 5000
-                    with reformatter sum
+                    with reformatter sum ( "+", "-" )
     block standard: operator "," [code, math]
                     nofix
                     with precedence 2000
@@ -792,7 +792,7 @@ parser print operator "":
     block standard: operator "-" [code, math]
                     infix
                     with precedence 5000
-                    with reformatter sum
+                    with reformatter sum ( "+", "-" )
     block standard: operator "/" [code, math]
                     infix
                     with precedence 5100
@@ -800,7 +800,7 @@ parser print operator "":
     block standard: operator "<" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "=" [code, math]
                     infix
                     with precedence 1000
@@ -808,7 +808,7 @@ parser print operator "":
     block standard: operator ">" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "@" [code, math]
                     prefix
                     with precedence 10000
@@ -816,7 +816,7 @@ parser print operator "":
     block standard: operator "!=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "^" [code, math]
                     infix
                     with precedence 5300
@@ -848,7 +848,7 @@ parser print operator "":
     block standard: operator "<=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "AND" [code, math]
                     infix
                     with precedence 3100
@@ -856,11 +856,11 @@ parser print operator "":
     block standard: operator "=<" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "==" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "--" [code, math]
                     postfix
                     with precedence 10001
@@ -868,7 +868,7 @@ parser print operator "":
     block standard: operator "=>" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "-=" [code, math]
                     infix
                     with precedence 1000
@@ -876,7 +876,7 @@ parser print operator "":
     block standard: operator ">=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "OR" [code, math]
                     infix
                     with precedence 3100
@@ -884,7 +884,7 @@ parser print operator "":
     block standard: operator "/=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare
+                    with reformatter compare ( "AND" )
     block standard: operator "/=" [code, math]
                     infix
                     with precedence 1000

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 03:43:09 EST 2014
+// Date:	Thu Feb 13 11:26:05 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,7 +80,8 @@ static min::uns32 oper_gen_disp[] = {
 
 static min::uns32 oper_stub_disp[] = {
     min::DISP ( & OP::oper_struct::next ),
-    min::DISP ( & OP::oper_struct::reformatter_arguments ),
+    min::DISP ( & OP::oper_struct
+                    ::reformatter_arguments ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -99,6 +100,8 @@ void OP::push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  OP::reformatter reformatter,
+	  min::packed_vec_ptr<min::gen>
+	      reformatter_arguments,
 	  TAB::key_table oper_table )
 {
     min::locatable_var<OP::oper> oper
@@ -112,6 +115,8 @@ void OP::push_oper
     oper->flags = flags;
     oper->precedence = precedence;
     oper->reformatter = reformatter;
+    reformatter_arguments_ref(oper) =
+	reformatter_arguments;
 
     TAB::push ( oper_table, (TAB::root) oper );
 }
@@ -351,7 +356,8 @@ static void oper_parse ( PAR::parser parser,
 		else
 		    root = TAB::find
 			( initiator, selectors,
-			  oper_pass->oper_bracket_table );
+			  oper_pass->
+			      oper_bracket_table );
 		if ( terminator == min::NONE() )
 		    terminator = min::MISSING();
 		oper = (OP::oper) root;
@@ -1763,7 +1769,8 @@ void static print_op
 		    parser->printer << ", "
 		                    << min::set_break;
 	        parser->printer
-		    << min::name_pgen ( args[i] );
+		    << '"' << min::name_pgen ( args[i] )
+		    << '"';
 	    }
 	    parser->printer << " )";
 	}
@@ -2026,6 +2033,9 @@ static min::gen oper_pass_command
     min::int32 precedence;
     bool precedence_found = false;
     OP::reformatter reformatter = NULL;
+    min::locatable_var
+    	    < min::packed_vec_ptr<min::gen> >
+        reformatter_arguments ( min::NULL_STUB );
     while ( i < size && vp[i] == PAR::with )
     {
 	++ i;
@@ -2108,6 +2118,13 @@ static min::gen oper_pass_command
 		}
 
 		i = j + 1;
+
+		name = COM::scan_names
+		    ( vp, i, reformatter_arguments,
+		          parser );
+		if ( name == min::ERROR() )
+		    return min::ERROR();
+
 		continue;
 	    }
 	}
@@ -2137,6 +2154,7 @@ static min::gen oper_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      oper_flags, precedence, reformatter,
+	      reformatter_arguments,
 	      bracket || indentation_mark ?
 	          oper_pass->oper_bracket_table :
 		  oper_pass->oper_table );

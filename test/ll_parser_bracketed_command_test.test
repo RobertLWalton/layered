@@ -1,5 +1,6 @@
 parser print bracket "":
     block TOP-LEVEL: indentation mark "TOP-LEVEL" ... ";" []
+    block TOP-LEVEL: bracket "(" ... ")" [parser]
     block TOP-LEVEL: bracket "[" ... "]" [parser]
 ERROR: in line 13: too few quoted names in:
 parser define bracket "[+"
@@ -339,6 +340,7 @@ parser print bracket "":
     block standard: bracket "[X" ... "X]" [code, operator1]
                     with parsing selectors [- code, + operator1]
     block standard: bracket "(" ... ")" [code, text, math]
+    block TOP-LEVEL: bracket "(" ... ")" [parser]
     block standard: gluing indentation mark ":" ... ";" [code, text,
                                                          math]
     block standard: named bracket "<" ... "#" ... "|" ... "|" ... ">" []

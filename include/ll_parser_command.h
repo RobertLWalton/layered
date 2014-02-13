@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 03:38:00 EST 2014
+// Date:	Thu Feb 13 03:53:38 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,9 +77,16 @@ min::gen scan_simple_name
 // messages to parser->printer, increment i, and return
 // min::ERROR().
 //
-// It is assumed that the ()-bracketed subexpression
-// does NOT have a separator and any comma separators
-// are simply elements of the subexpression.
+// A name may be a simple name or a quoted name, and
+// names are separated by commas.  It is assumed that
+// the ()-bracketed subexpression does NOT have a
+// separator and any commas are simply elements of the
+// subexpression.
+//
+// If min::FAILURE() is not returned, name_vec is
+// created if it does not exist, initially emptied if it
+// does exists, and has any successfully scanned names
+// pushed into it.
 //
 min::gen scan_names
 	( min::obj_vec_ptr & vp, min::uns32 & i,

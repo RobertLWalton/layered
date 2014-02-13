@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  5 02:43:55 EST 2014
+// Date:	Thu Feb 13 05:11:38 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,6 +49,8 @@ min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
 min::locatable_gen PAR::new_line;
 min::locatable_gen PAR::semicolon;
+min::locatable_gen PAR::left_parenthesis;
+min::locatable_gen PAR::right_parenthesis;
 min::locatable_gen PAR::left_square;
 min::locatable_gen PAR::right_square;
 min::locatable_gen PAR::comma;
@@ -112,6 +114,8 @@ static void initialize ( void )
     PAR::number_sign = min::new_str_gen ( "#" );
     PAR::new_line = min::new_str_gen ( "\n" );
     PAR::semicolon = min::new_str_gen ( ";" );
+    PAR::left_parenthesis = min::new_str_gen ( "(" );
+    PAR::right_parenthesis = min::new_str_gen ( ")" );
     PAR::left_square = min::new_str_gen ( "[" );
     PAR::right_square = min::new_str_gen ( "]" );
     PAR::comma = min::new_str_gen ( "," );
@@ -686,13 +690,17 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  bracketed_pass->bracket_table );
 
-	min::locatable_gen opening_square
-	    ( min::new_str_gen ( "[" ) );
-	min::locatable_gen closing_square
-	    ( min::new_str_gen ( "]" ) );
+	BRA::push_brackets
+	    ( PAR::left_parenthesis,
+	      PAR::right_parenthesis,
+	      PAR::PARSER_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      false,
+	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
-	    ( opening_square, closing_square,
+	    ( PAR::left_square, PAR::right_square,
 	      PAR::PARSER_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),

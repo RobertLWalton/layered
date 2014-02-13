@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 03:38:30 EST 2014
+// Date:	Thu Feb 13 03:51:41 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -74,6 +74,97 @@ min::gen COM::scan_simple_name
     min::gen elements[i-j];
     memcpy ( elements, & vp[j], sizeof ( elements ) );
     return min::new_lab_gen ( elements, i - j );
+}
+
+min::gen COM::scan_names
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+          min::ref< min::packed_vec_ptr<min::gen> >
+	      name_vec,
+	  ll::parser::parser parser )
+{
+    if ( i >= min::size_of ( vp ) )
+        return min::FAILURE();
+
+    min::obj_vec_ptr subvp ( vp[i] );
+
+    if ( subvp == min::NULL_STUB )
+        return min::FAILURE();
+
+    min::attr_ptr subap ( subvp );
+    min::locate ( subap, PAR::dot_initiator );
+    if ( min::get ( subap ) != PAR::left_parenthesis )
+        return min::FAILURE();
+    min::locate ( subap, PAR::dot_terminator );
+    if ( min::get ( subap ) != PAR::right_parenthesis )
+        return min::FAILURE();
+    min::locate ( subap, PAR::dot_position );
+    min::phrase_position_vec ppvec = min::get ( subap );
+    assert ( ppvec != min::NULL_STUB );
+    assert ( ppvec->file == parser->input_file );
+
+    ++ i;
+
+    min::packed_vec_insptr<min::gen> names =
+        (const min::stub *)
+	(min::packed_vec_ptr<min::gen>) name_vec;
+    if ( names == min::NULL_STUB )
+    {
+	names = 
+	    min::gen_packed_vec_type.new_stub ( 10 );
+	name_vec = names;
+    }
+    else
+        min::pop ( names, name_vec->length );
+    
+    min::uns32 s = min::size_of ( subvp );
+    min::uns32 j = 0;
+    min::locatable_gen name;
+    while ( j < s )
+    {
+        name =
+	    ( PAR::scan_name_string_label
+		( vp, j, parser,
+
+		    ( 1ull << LEXSTD::mark_t )
+		  + ( 1ull << LEXSTD::separator_t )
+		  + ( 1ull << LEXSTD::word_t )
+		  + ( 1ull << LEXSTD::number_t ),
+
+		    ( 1ull << LEXSTD::
+				  horizontal_space_t )
+		  + ( 1ull << LEXSTD::end_of_file_t ),
+
+		    ( 1ull << LEXSTD::end_of_file_t )
+		) );
+
+	if ( name == min::ERROR() ) return min::ERROR();
+
+	if ( name == min::MISSING() )
+	{
+            name = COM::scan_simple_name ( vp, j );
+
+	    if ( name == min::MISSING() )
+	    {
+
+		return PAR::parse_error
+		    ( parser, ppvec[j],
+		      "expected name instead of" );
+	    }
+	}
+
+	min::push ( names ) = name;
+
+	if ( j < s )
+	{
+	    if ( vp[j] != PAR::comma )
+		return PAR::parse_error
+		    ( parser, ppvec[j-1],
+		      "expected `,' after" );
+	    ++ j;
+	}
+    }
+
+    return min::SUCCESS();
 }
 
 // Look up a flag in a flag name table and return its

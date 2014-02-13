@@ -1,4 +1,4 @@
-TAB::find ( opening_parenthesis, TAB::ALL_FLAGS, bracket_table ) == min::NULL_STUB is true
+TAB::find ( opening_brace, TAB::ALL_FLAGS, bracket_table ) == min::NULL_STUB is true
 oparen->closing_bracket == cparen is true
 cparen->opening_bracket == oparen is true
 oparen->selectors == 64 is true

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:36:46 EST 2013
+// Date:	Thu Feb 13 05:35:50 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@ unsigned failed_count = 0;
 # define ASSERT(exp) \
     cout << #exp \
          << ( exp ? " is true" \
-	          : ( ++ failed_count, "is false" ) ) \
+	          : ( ++ failed_count, " is false" ) ) \
 	 << endl;
 
 // Test
@@ -67,7 +67,7 @@ int main ( int argc, const char * argv[] )
     min::locatable_gen semicolon;
     semicolon = min::new_str_gen ( ";" );
 
-    ASSERT (    TAB::find ( opening_parenthesis,
+    ASSERT (    TAB::find ( opening_brace,
 		            TAB::ALL_FLAGS,
     			    bracket_table )
 	     == min::NULL_STUB );
@@ -125,6 +125,8 @@ int main ( int argc, const char * argv[] )
     {
         cout << failed_count
 	     << " ASSERTs are false" << endl;
-	exit ( 1 );
+	return 1;
     }
+    
+    return 0;
 }

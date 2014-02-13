@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  5 02:40:07 EST 2014
+// Date:	Thu Feb 13 05:11:52 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,6 +51,10 @@ namespace ll { namespace parser {
 	number_sign,	// #
 	new_line,	// \n
 	semicolon,	// ;
+	left_parenthesis,
+			// (
+	right_parenthesis,
+			// )
 	left_square,    // [
 	right_square,   // ]
 	comma,		// ,

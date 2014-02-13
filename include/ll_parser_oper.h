@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 03:41:07 EST 2014
+// Date:	Thu Feb 13 14:48:12 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -105,7 +105,8 @@ struct oper_struct
 	// oper_table).
     ll::parser::oper::reformatter reformatter;
     	// NULL if none.
-    min::packed_vec_ptr<min::gen> reformatter_arguments;
+    const min::packed_vec_ptr<min::gen>
+	    reformatter_arguments;
         // Vector of arguments each a min string or
 	// label.  NULL if none.
 };
@@ -130,6 +131,8 @@ void push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  ll::parser::oper::reformatter reformatter,
+	  min::packed_vec_ptr<min::gen>
+	      reformatter_arguments,
 	  ll::parser::table::key_table oper_table );
 
 // Operator Pass

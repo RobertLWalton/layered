@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  4 07:32:41 EST 2014
+// Date:	Thu Feb 13 13:57:47 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -97,6 +97,7 @@ OP::oper_pass PARSTD::init_oper
 	  4000,
 	  OP::find_reformatter
 	      ( separator, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -108,6 +109,7 @@ OP::oper_pass PARSTD::init_oper
 	  9000,
 	  OP::find_reformatter
 	      ( right_associative, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -119,6 +121,7 @@ OP::oper_pass PARSTD::init_oper
 	  9000,
 	  OP::find_reformatter
 	      ( right_associative, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -130,6 +133,7 @@ OP::oper_pass PARSTD::init_oper
 	  9000,
 	  OP::find_reformatter
 	      ( right_associative, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -141,6 +145,7 @@ OP::oper_pass PARSTD::init_oper
 	  9000,
 	  OP::find_reformatter
 	      ( right_associative, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -152,6 +157,7 @@ OP::oper_pass PARSTD::init_oper
 	  9000,
 	  OP::find_reformatter
 	      ( right_associative, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -163,6 +169,7 @@ OP::oper_pass PARSTD::init_oper
 	  15000,
 	  OP::find_reformatter
 	      ( compare, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -174,6 +181,7 @@ OP::oper_pass PARSTD::init_oper
 	  15000,
 	  OP::find_reformatter
 	      ( compare, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -185,6 +193,7 @@ OP::oper_pass PARSTD::init_oper
 	  15000,
 	  OP::find_reformatter
 	      ( compare, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -196,6 +205,7 @@ OP::oper_pass PARSTD::init_oper
 	  15000,
 	  OP::find_reformatter
 	      ( compare, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -207,6 +217,7 @@ OP::oper_pass PARSTD::init_oper
 	  15000,
 	  OP::find_reformatter
 	      ( compare, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -218,6 +229,7 @@ OP::oper_pass PARSTD::init_oper
 	  15000,
 	  OP::find_reformatter
 	      ( compare, forget ),
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     return oper_pass;

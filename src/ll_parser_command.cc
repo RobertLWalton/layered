@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  5 12:05:44 EST 2014
+// Date:	Thu Feb 13 03:38:30 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,8 +112,7 @@ static int scan_flag
 	  TAB::name_table name_table,
 	  PAR::parser parser,
 	  bool allow_flag_list,
-	  bool allow_flag_modifier_list,
-	  bool is_subexpression = false )
+	  bool allow_flag_modifier_list )
 {
     op = min::MISSING();
     min::unsptr size = min::size_of ( vp );
@@ -188,11 +187,6 @@ static int scan_flag
     pp.begin = ppvec[ibegin].begin;
     pp.end = ppvec[i-1].end;
 
-    if ( is_subexpression && i != size )
-	PAR::parse_error
-	    ( parser, pp,
-	      "extraneous stuff after" );
-
     return ::lookup_flag
         ( flag, name_table, parser, pp );
 }
@@ -227,8 +221,6 @@ static min::gen scan_new_flags
     min::locate ( subap, PAR::dot_terminator );
     if ( min::get ( subap ) != PAR::right_square )
         return min::FAILURE();
-    min::locate ( subap, PAR::dot_separator );
-    min::gen separator = min::get ( subap );
     min::locate ( subap, PAR::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
     assert ( ppvec != min::NULL_STUB );
@@ -243,10 +235,9 @@ static min::gen scan_new_flags
     new_flags.not_flags = 0;
     new_flags.xor_flags = 0;
     min::unsptr size = min::size_of ( subvp );
-    if ( size == 0 ) /* Do nothing */;
-    else if ( separator == min::NONE() )
+    if ( size != 0 )
     {
-        // Bracketted list has not been parsed.  We
+        // Bracketted list which not been parsed.  We
 	// parse it ourselves by calling ::scan_flag.
 
 	min::uns32 i = 0;
@@ -282,78 +273,6 @@ static min::gen scan_new_flags
 	    ++ i;
 	}
     }
-    else if ( separator == PAR::comma )
-    {
-        // Bracketted list has been parsed.  We process
-	// elements of the list, using ::scan_flag on
-	// any that are themselves lists.
-        // 
-	for ( min::uns32 i = 0; i < size; ++ i )
-	{
-	    min::obj_vec_ptr np ( subvp[i] );
-	    int j;
-	    min::gen op = min::MISSING();
-	    if ( np == min::NULL_STUB )
-	    {
-	        // Found flag name as min string.
-
-	        min::gen flag = subvp[i];
-
-	        MIN_ASSERT ( min::is_str ( flag ) );
-
-	        if ( ! allow_flag_list )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "expected `+', `-', or `^'"
-			  " before" );
-		allow_flag_modifier_list = false;
-
-		if (    LEXSTD::lexical_type_of
-		            ( flag )
-		     != LEXSTD::word_t
-		     &&
-		        LEXSTD::lexical_type_of
-		            ( flag )
-		     != LEXSTD::number_t )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "flag name instead of" );
-		j = ::lookup_flag
-		    ( flag, name_table,
-		      parser, ppvec[i] );
-	    }
-	    else
-	    {
-		min::phrase_position_vec pp =
-		    min::position_of ( np );
-		min::uns32 k = 0;
-	        j = ::scan_flag
-		    ( np, k, pp, op, name_table,
-		      parser, allow_flag_list,
-		      allow_flag_modifier_list,
-		      true );
-	    }
-
-	    if ( j == -1 ) return min::ERROR();
-
-	    if ( op == PAR::minus )
-		new_flags.not_flags |=
-		    (min::uns64) 1 << j;
-	    else if ( op == ::exclusive_or )
-		new_flags.xor_flags |=
-		    (min::uns64) 1 << j;
-	    else
-		new_flags.or_flags |=
-		    (min::uns64) 1 << j;
-	}
-    }
-    else
-	return PAR::parse_error
-	    ( parser, ppvec->position,
-	      "bad separator ",
-	      min::pgen ( separator,
-	                  min::BRACKET_STR_FLAG ),
-	      " inside" );
 
     // Note that an empty list that could be either a
     // flag list or a flag modifier list is treated as

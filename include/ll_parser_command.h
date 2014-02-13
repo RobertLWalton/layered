@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  5 12:05:53 EST 2014
+// Date:	Thu Feb 13 03:38:00 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,6 +68,25 @@ min::gen scan_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::gen end_value = min::MISSING() );
 
+// If vp[i] is a ()-bracketed subexpression, treat it
+// as a name list, store the specified set of names in
+// the name vector, increment i, and return min::
+// SUCCESS().  If it is not a ()-bracketed subexpres-
+// sion, just return min::FAILURE().  If it is a
+// ()-bracketed subexpression with an error, print error
+// messages to parser->printer, increment i, and return
+// min::ERROR().
+//
+// It is assumed that the ()-bracketed subexpression
+// does NOT have a separator and any comma separators
+// are simply elements of the subexpression.
+//
+min::gen scan_names
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+          min::ref< min::packed_vec_ptr<min::gen> >
+	      name_vec,
+	  ll::parser::parser parser );
+
 // If vp[i] is a []-bracketed subexpression, treat it
 // as a flag list, store the specified set of flags in
 // the flags argument, increment i, and return
@@ -76,6 +95,10 @@ min::gen scan_simple_name
 // If it is a []-bracketed subexpression with an error,
 // print error messages to parser->printer, increment i,
 // and return min::ERROR().
+//
+// It is assumed that the []-bracketed subexpression
+// does NOT have a separator and any comma separators
+// are simply elements of the subexpression.
 //
 min::gen scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,

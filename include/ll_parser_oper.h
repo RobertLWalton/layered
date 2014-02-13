@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 12 04:06:56 EST 2014
+// Date:	Thu Feb 13 03:41:07 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -88,8 +88,6 @@ typedef bool ( * reformatter )
     // attribute and with first_oper->label as the
     // .operator attribute.
 
-typedef min::packed_vec_insptr<min::gen>
-        reformatter_arguments; 
 struct oper_struct
     : public ll::parser::table::root_struct
 {
@@ -107,15 +105,14 @@ struct oper_struct
 	// oper_table).
     ll::parser::oper::reformatter reformatter;
     	// NULL if none.
-    ll::parser::oper::reformatter_arguments
-            reformatter_arguments; 
+    min::packed_vec_ptr<min::gen> reformatter_arguments;
         // Vector of arguments each a min string or
 	// label.  NULL if none.
 };
 
 MIN_REF ( min::gen, label, ll::parser::oper::oper )
 MIN_REF ( min::gen, terminator, ll::parser::oper::oper )
-MIN_REF ( ll::parser::oper::reformatter_arguments,
+MIN_REF ( min::packed_vec_ptr<min::gen>,
           reformatter_arguments,
 	  ll::parser::oper::oper )
 

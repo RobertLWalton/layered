@@ -237,7 +237,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 12, 2014
+February 14, 2014
  
 \end{center}
 
@@ -3355,7 +3355,7 @@ With these things in mind, the reformatters are:
 \ttmkey{separator}{reformatter} \hfill \OP{;} ~~~ \OP{,}
 
 \begin{indpar}[0.5em]
-Use only with {\tt nofix} operators.
+May only be used with {\tt nofix} operators.
 
 There must be at least one operator, and all operator values must
 be identical.  Necessarily any two operands are separated by an operator,
@@ -3385,24 +3385,23 @@ with `{\tt ,}' as the operator are:
 \ttmkey{declare}{reformatter} \hfill \NBOP{<--} ~~~ \NBOP{\{\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
-Use only with {\tt nofix}, {\tt prefix}, or {\tt infix} operators.
+May only be used with {\tt nofix}, {\tt prefix}, or {\tt infix} operators.
 
 
-There must be exactly one operator that is not a bracketed subexpression,
-that operator must be the first operator, and there must be no operands
-after the first bracketed subexpression operator (so the only operands
-must be just before or after the first operator).  If the first operator is not
-preceded by an operand, an empty list is inserted as the preceding operand.
+All operators but the first must be bracketed subexpressions,
+and any operands must be just before or just after the first operator.
+If the first operator is not preceded by an operand,
+an empty list is inserted as the preceding operand.
 Similarly if first operator is not followed by an operand, an empty
 list is inserted as the following operand.
 Then the first operator is moved to the
-beginning of the expression and the bracketed operators are converted to
-operands.
-Indented subexpressions may be treated like bracketed subexpressions and
-be bracketed operands.
+beginning of the expression and the remaining
+bracketed operators are converted to operands.
+Indented subexpressions are treated as bracketed subexpressions.
 
-For example, if the first operator is \verb|<--|, and the afix operators
-are \verb|{ }| bracketed subexpressions and \verb|:| indented subexpressions:
+For example, if \verb|<--| is a nofix operator with this reformatter, and
+\verb|{ }| bracketed subexpressions and \verb|:| indented subexpressions
+are afix operators of the same precedence:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x <-- y { z }| & $\Longrightarrow$ & \verb|<-- x y { z }| \\
@@ -3435,15 +3434,16 @@ end up as `\verb|<-- x ( y { z } )|'.
     \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
-Use only with {\tt infix} operators.
+May only be used with {\tt infix} operators.
 
-Operands and operators are assumed to alternate,
+Therefore operands and operators alternate,
 with the first and last subexpression
-elements being operands, and there must be at least one operator.
+elements being operands, and there is at least one operator.
 
 If there is only one operator, it is simply moved to the front.  If there
 are several, they are rewritten as one operator subexpressions so the
-rightmost executes first.  Examples:
+rightmost executes first.  Thus if {\tt =}, {\tt +=}, and {\tt *=}
+are all infix operators of the same precedence with this reformatter:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|y = z| & $\Longrightarrow$ & \verb|= y z| \\
@@ -3458,7 +3458,7 @@ rightmost executes first.  Examples:
     \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{@}
 
 \begin{indpar}[0.5em]
-May be used with {\tt nofix} or {\tt prefix} operators.
+May only be used with {\tt nofix} or {\tt prefix} operators.
 
 The subexpression must have exactly two elements, an operator followed
 by an operand.  The subexpression is left unchanged.  Examples:
@@ -3477,7 +3477,7 @@ by an operand.  The subexpression is left unchanged.  Examples:
 \ttmkey{postfix}{reformatter}
 
 \begin{indpar}[0.5em]
-May be used with {\tt nofix} or {\tt postfix} operators.
+May only be used with {\tt nofix} or {\tt postfix} operators.
 
 The subexpression must have exactly two elements, an operand followed
 by an operator.  The subexpression is left unchanged.  Examples:
@@ -3493,7 +3493,7 @@ TBD
 					           ~~~ \NBOP{\CIRCUMFLEX}
 
 \begin{indpar}[0.5em]
-May be used with {\tt nofix} or {\tt infix} operators.
+May only be used with {\tt nofix} or {\tt infix} operators.
 
 The subexpression must have exactly three elements, an operand
 followed by an operator followed by an operand.  The operator is moved
@@ -3518,7 +3518,7 @@ and \underline{not} two word elements of the subexpression.
 \ttmkey{infix}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{*}
 
 \begin{indpar}[0.5em]
-Use only with {\tt infix} operators.
+May only be used with {\tt infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
 elements being operands, there must be at least one operator, and all
@@ -3548,7 +3548,7 @@ Examples:
 	\NBOP{=<} ~~~ \NBOP{<=}
 
 \begin{indpar}[0.5em]
-Use only with {\tt infix} operators.
+May only be used with {\tt infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
 Operands and operators must alternate, with the first and last subexpression
@@ -3583,7 +3583,7 @@ E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
 \ttmkey{sum}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
-Use only with {\tt infix} operators.
+May only be used with {\tt infix} operators.
 
 Operands and operators must alternate, with the last subexpression
 element being an operand, and there must be at least one operator.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 11:26:05 EST 2014
+// Date:	Fri Feb 14 00:15:07 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -856,32 +856,11 @@ static bool separator_reformatter
 		      ( PAR::first_ref(parser),
 			t->previous ) );
 	}
-	else if ( separator_should_be_next )
-	{
-	    min::phrase_position position =
-	        { t->position.begin,
-		  t->position.begin };
-
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: missing separator `"
-		<< min::name_pgen ( separator )
-		<< "' inserted; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  position );
-	    ++ parser->error_count;
-
-	    t = t->next;
-	}
 	else
 	{
+	    MIN_ASSERT ( ! separator_should_be_next );
+	        // Two operands should never be in
+		// next to each other.
 	    separator_should_be_next = true;
 	    t = t->next;
 	}

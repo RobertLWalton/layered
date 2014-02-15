@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 13:57:47 EST 2014
+// Date:	Sat Feb 15 15:01:23 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,9 +77,16 @@ OP::oper_pass PARSTD::init_oper
         ( min::new_str_gen ( ">" ) );
     min::locatable_gen less_than
         ( min::new_str_gen ( "<" ) );
+    min::locatable_gen and_op
+        ( min::new_str_gen ( "AND" ) );
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        and_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( and_arguments ) = and_op;
 
-    min::locatable_gen compare
-        ( min::new_str_gen ( "compare" ) );
+    min::locatable_gen infix_and
+        ( min::new_lab_gen ( "infix", "and" ) );
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     min::locatable_gen separator
@@ -168,8 +175,8 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
-	      ( compare, forget ),
-	  min::NULL_STUB,
+	      ( infix_and, forget ),
+	  and_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -180,8 +187,8 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
-	      ( compare, forget ),
-	  min::NULL_STUB,
+	      ( infix_and, forget ),
+	  and_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -192,8 +199,8 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
-	      ( compare, forget ),
-	  min::NULL_STUB,
+	      ( infix_and, forget ),
+	  and_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -204,8 +211,8 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
-	      ( compare, forget ),
-	  min::NULL_STUB,
+	      ( infix_and, forget ),
+	  and_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -216,8 +223,8 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
-	      ( compare, forget ),
-	  min::NULL_STUB,
+	      ( infix_and, forget ),
+	  and_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -228,8 +235,8 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  15000,
 	  OP::find_reformatter
-	      ( compare, forget ),
-	  min::NULL_STUB,
+	      ( infix_and, forget ),
+	  and_arguments,
 	  oper_pass->oper_table );
 
     return oper_pass;

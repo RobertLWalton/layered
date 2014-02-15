@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 05:11:52 EST 2014
+// Date:	Fri Feb 14 21:17:59 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1290,6 +1290,22 @@ void put_empty_before
 // and the position is set to just after t.
 //
 void put_empty_after
+	( ll::parser::parser parser,
+	  ll::parser::token t );
+
+// Ditto but put ERROR'OPERAND or ERROR'OPERATOR before
+// or after.
+//
+void put_error_operand_before
+	( ll::parser::parser parser,
+	  ll::parser::token t );
+void put_error_operand_after
+	( ll::parser::parser parser,
+	  ll::parser::token t );
+void put_error_operator_before
+	( ll::parser::parser parser,
+	  ll::parser::token t );
+void put_error_operator_after
 	( ll::parser::parser parser,
 	  ll::parser::token t );
 

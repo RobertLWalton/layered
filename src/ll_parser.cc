@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 05:11:38 EST 2014
+// Date:	Fri Feb 14 21:17:50 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1390,6 +1390,60 @@ void PAR::put_empty_after
     min::attr_insptr ap ( vp );
     min::locate ( ap, PAR::dot_position );
     min::set ( ap, min::new_stub_gen ( pos ) );
+}
+
+void PAR::put_error_operand_before
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( LEXSTD::word_t );
+    put_before ( PAR::first_ref(parser), t, token );
+    PAR::value_ref ( token ) = PAR::error_operand;
+
+    min::phrase_position position =
+        { t->position.begin, t->position.begin };
+    token->position = position;
+}
+
+void PAR::put_error_operand_after
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( LEXSTD::word_t );
+    put_before ( PAR::first_ref(parser), t->next,
+                                         token );
+    PAR::value_ref ( token ) = PAR::error_operand;
+
+    min::phrase_position position =
+        { t->position.end, t->position.end };
+    token->position = position;
+}
+
+void PAR::put_error_operator_before
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( PAR::OPERATOR );
+    put_before ( PAR::first_ref(parser), t, token );
+    PAR::value_ref ( token ) = PAR::error_operator;
+
+    min::phrase_position position =
+        { t->position.begin, t->position.begin };
+    token->position = position;
+}
+
+void PAR::put_error_operator_after
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( PAR::OPERATOR );
+    put_before ( PAR::first_ref(parser), t->next,
+                                         token );
+    PAR::value_ref ( token ) = PAR::error_operator;
+
+    min::phrase_position position =
+        { t->position.end, t->position.end };
+    token->position = position;
 }
 
 void PAR::compact

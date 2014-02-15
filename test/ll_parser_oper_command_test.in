@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 14:45:28 EST 2014
+// Date:	Fri Feb 14 21:38:15 EST 2014
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -86,7 +86,7 @@ parser define operator "," [code, math] nofix
        with separator reformatter
 parser test (x,y1,z w,,3,)
 
-parser define operator "BUT NOT" [code, math] nofix
+parser define operator "BUT NOT" [code, math] infix
        with precedence 3000
        with binary reformatter
 parser define operator "AND" [code, math] infix
@@ -97,7 +97,7 @@ parser define operator "OR" [code, math] infix
        with infix reformatter
 parser define operator "NOT" [code, math] nofix
        with precedence 3100
-       with prefix reformatter
+       with unary reformatter
 parser test (x OR y BUT NOT z AND w)
 parser test (x OR y BUT NOT z AND w OR p)
 parser test (NOT x y)
@@ -105,6 +105,8 @@ parser test (x NOT y)
 parser test (NOT x AND y)
 parser test (x AND NOT y)
 parser test (x AND AND y)
+parser test (NOT NOT x y)
+parser test (NOT NOT)
 
 parser define operator "==" [code, math] infix
        with precedence 4000
@@ -160,13 +162,10 @@ parser test ( x ^ 2 * y ^ 2 / y * z )
 
 parser define operator "+" [code, math] prefix
        with precedence 10000
-       with prefix reformatter
 parser define operator "-" [code, math] prefix
        with precedence 10000
-       with prefix reformatter
 parser define operator "@" [code, math] prefix
        with precedence 10000
-       with prefix reformatter
 parser test ( - x + y - z )
 parser test ( p * - x + y - z )
 parser test ( @ x + y - @ z )
@@ -174,10 +173,8 @@ parser test ( + - + - x y )
 
 parser define operator "++" [code, math] postfix
        with precedence 10001
-       with postfix reformatter
 parser define operator "--" [code, math] postfix
        with precedence 10001
-       with postfix reformatter
 parser test ( x ++ + y - z -- )
 parser test ( x y ++ -- ++ -- )
 

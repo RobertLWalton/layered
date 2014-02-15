@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 14 00:15:07 EST 2014
+// Date:	Sat Feb 15 03:17:16 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -796,6 +796,8 @@ static bool separator_reformatter
 
     min::gen separator = first_oper->label;
     bool separator_should_be_next = false;
+        // Equivalent meaning: the last token was an
+	// operand.
     for ( PAR::token t = first; t != next; )
     {
         if ( t->type == PAR::OPERATOR )
@@ -883,6 +885,8 @@ static bool declare_reformatter
 
     PAR::token t = first;
 
+    // Ensure first element is operand.
+    //
     if ( t->type == PAR::OPERATOR )
     {
 	PAR::put_empty_before ( parser, t );
@@ -891,16 +895,22 @@ static bool declare_reformatter
     else
         t = t->next;
 
+    // Second element must be operator.
+    //
     MIN_ASSERT
 	( t != next && t->type == PAR::OPERATOR );
 
     t = t->next;
 
+    // Ensure third element is operand.
+    //
     if ( t == next || t->type == PAR::OPERATOR )
 	PAR::put_empty_after ( parser, t->previous );
     else
         t = t->next;
 
+    // Move second element to head of list.
+    //
     PAR::token oper =
 	PAR::remove ( PAR::first_ref ( parser ),
 		      first->next );
@@ -908,6 +918,10 @@ static bool declare_reformatter
 		      first, oper );
     first = oper;
 
+    // Check that remaining elements (other than first
+    // three) are bracketted operators and convert them
+    // to operands.
+    //
     while ( t != next )
     {
         if ( t->type != PAR::OPERATOR
@@ -1094,10 +1108,14 @@ static bool unary_reformatter
 	t = t->next;
     }
 
+    // Delete extra stuff from end of list.
+    //
     t = t->next;
-
-    while ( t != next )
+    if ( t != next )
     {
+        min::phrase_position position =
+	    { t->position.begin,
+	      next->previous->position.end };
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
@@ -1105,19 +1123,22 @@ static bool unary_reformatter
 	       " expression; deleted; "
 	    << min::pline_numbers
 		   ( parser->input_file,
-		     t->position )
+		     position )
 	    << ":" << min::eom;
 	min::print_phrase_lines
 	    ( parser->printer,
 	      parser->input_file,
-	      t->position );
+	      position );
 	++ parser->error_count;
 
-	t = t->next;
-	PAR::free
-	    ( PAR::remove
-		  ( PAR::first_ref ( parser ),
-		    t->previous ) );
+	while ( t != next )
+	{
+	    t = t->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref ( parser ),
+			t->previous ) );
+	}
     }
 
     return true;
@@ -1135,38 +1156,95 @@ static bool binary_reformatter
 {
     MIN_ASSERT ( first != next );
 
-    // There should be exactly three tokens, the second
-    // an operator, and the other two not.  The operator
-    // token is moved to the beginning.
+    // We need to be careful to insert error operands
+    // using put_error_operand_before/after the operator
+    // so the positions of the error operands are
+    // correctly set to be just before or after the
+    // operator.
+
+    PAR::token t = first;
+
+    // Ensure first element is operand.
     //
-    min::uns32 token_count, oper_count, i;
-    min::gen value;
-    count_operators
-        ( first, next,
-	  token_count, oper_count,
-	  i, value );
-    if ( token_count == 3 && oper_count == 1 && i == 1 )
-    {
-        PAR::token oper_token = PAR::remove
-	    ( PAR::first_ref ( parser ), first->next );
-	PAR::put_before
-	    ( PAR::first_ref ( parser ),
-	      first, oper_token );
-	first = oper_token;
-        return true;
-    }
-
-    MIN_ASSERT ( oper_count > 0 );
-
-    if ( oper_count > 1 )
+    if ( t->type == PAR::OPERATOR )
     {
 	parser->printer
 	    << min::bom
 	    << min::set_indent ( 7 )
-	    << "ERROR: too many operators in"
-	    	     " subexpression; subexpression"
-		     " should be of form"
-		     " `operand operator operand'; "
+	    << "ERROR: expected operand before `"
+	    << min::name_pgen ( t->value )
+	    << "'; inserted ERROR'OPERAND; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     t->position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      t->position );
+	++ parser->error_count;
+
+	PAR::put_error_operand_before ( parser, t );
+	first = t->previous;
+    }
+    else
+        t = t->next;
+
+    // Second element must be operator.
+    //
+    MIN_ASSERT
+	( t != next && t->type == PAR::OPERATOR );
+
+    t = t->next;
+
+    // Ensure third element is operand.
+    //
+    if ( t == next || t->type == PAR::OPERATOR )
+    {
+	t = t->previous;
+
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: expected operand after `"
+	    << min::name_pgen ( t->value )
+	    << "'; inserted ERROR'OPERAND; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     t->position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      t->position );
+	++ parser->error_count;
+
+	PAR::put_error_operand_after ( parser, t );
+	t = t->next;
+    }
+
+    // Move second element to head of list.
+    //
+    PAR::token oper =
+	PAR::remove ( PAR::first_ref ( parser ),
+		      first->next );
+    PAR::put_before ( PAR::first_ref ( parser ),
+		      first, oper );
+    first = oper;
+
+    // Delete extra stuff from end of list.
+    //
+    t = t->next;
+    if ( t != next )
+    {
+        min::phrase_position position =
+	    { t->position.begin,
+	      next->previous->position.end };
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: extra stuff at end of binary"
+	       " expression; deleted; "
 	    << min::pline_numbers
 		   ( parser->input_file,
 		     position )
@@ -1176,46 +1254,15 @@ static bool binary_reformatter
 	      parser->input_file,
 	      position );
 	++ parser->error_count;
-    }
-    else if ( i != 1 )
-    {
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: operator `"
-	    << min::name_pgen ( value )
-	    << "' NOT in middle of subexpression;"
-	       " subexpression should be of form"
-	       " `operand operator operand'; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      position );
-	++ parser->error_count;
-    }
 
-    if ( token_count != 3 )
-    {
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: subexpression is too "
-	    << ( token_count < 3 ? "short" : "long" )
-	    << "; subexpression should be of form"
-	       " `operand operator operand'; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      position );
-	++ parser->error_count;
+	while ( t != next )
+	{
+	    t = t->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref ( parser ),
+			t->previous ) );
+	}
     }
 
     return true;
@@ -1251,12 +1298,11 @@ static bool infix_reformatter
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 7 )
-		<< "ERROR: operator `"
+		<< "ERROR: wrong operator `"
 		<< min::name_pgen ( t->next->value )
-		<< "' is not the same as"
-		   " first operator `"
+		<< "' changed to `"
 		<< min::name_pgen ( first->next->value )
-		<< "' in subexpression; all operators"
+		<< "'; all operators"
 		   " must be the same in this"
 		   " subexpression; "
 		<< min::pline_numbers
@@ -1273,6 +1319,10 @@ static bool infix_reformatter
 	    ( PAR::remove
 		  ( PAR::first_ref(parser), t->next ) );
     }
+
+    // Move first operator (second element) to head of
+    // list.
+    //
     PAR::put_before
 	( PAR::first_ref(parser), first,
 	  PAR::remove

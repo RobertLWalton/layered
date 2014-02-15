@@ -237,7 +237,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 14, 2014
+February 15, 2014
  
 \end{center}
 
@@ -3250,8 +3250,6 @@ precedence & reformatter	& type	& operator	& meaning
 	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
 	& 			& \tt prefix	&  \ttnbkey{@}	& object
 	                                                          identifier \\
-20000	& \ttkey{postfix}	& \tt postfix	&  \ttnbkey{[...]}
-								& subscript \\
 \end{tabular}
 \end{center}
 \label{STANDARD-OPERATOR-LIST}
@@ -3397,7 +3395,8 @@ list is inserted as the following operand.
 Then the first operator is moved to the
 beginning of the expression and the remaining
 bracketed operators are converted to operands.
-Indented subexpressions are treated as bracketed subexpressions.
+Indented subexpressions are treated as bracketed subexpressions and
+may be bracketed operators.
 
 For example, if \verb|<--| is a nofix operator with this reformatter, and
 \verb|{ }| bracketed subexpressions and \verb|:| indented subexpressions
@@ -3454,7 +3453,7 @@ are all infix operators of the same precedence with this reformatter:
 
 \bigskip
 
-\ttmkey{prefix}{reformatter}
+\ttmkey{unary}{reformatter}
     \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{@}
 
 \begin{indpar}[0.5em]
@@ -3469,21 +3468,6 @@ by an operand.  The subexpression is left unchanged.  Examples:
 \verb|x NOT y| & $\Longrightarrow$ & error \\
 \verb|NOT NOT x| & $\Longrightarrow$ & error \\
 \verb|- x y| & $\Longrightarrow$ & error \\
-\end{tabular}
-\end{indpar}
-
-\bigskip
-
-\ttmkey{postfix}{reformatter}
-
-\begin{indpar}[0.5em]
-May only be used with {\tt nofix} or {\tt postfix} operators.
-
-The subexpression must have exactly two elements, an operand followed
-by an operator.  The subexpression is left unchanged.  Examples:
-
-\hspace*{2em}\begin{tabular}{lcl}
-TBD
 \end{tabular}
 \end{indpar}
 
@@ -3522,7 +3506,7 @@ May only be used with {\tt infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
 elements being operands, there must be at least one operator, and all
-operators must have the same value.  The first operator is moved to the
+operators must be the same.  The first operator is moved to the
 front of the subexpression, and the other operators are removed.
 Examples:
 

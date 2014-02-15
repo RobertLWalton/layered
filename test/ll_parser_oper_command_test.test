@@ -224,9 +224,8 @@ parser test (x OR y BUT NOT z AND w)
 parser test (x OR y BUT NOT z AND w)
                             ^^^^^^^
 ======= END TEST
-ERROR: operator `OR' is not the same as first operator `AND' in
-       subexpression; all operators must be the same in this
-       subexpression; line 102:
+ERROR: wrong operator `OR' changed to `AND'; all operators must be the
+       same in this subexpression; line 102:
 parser test (x OR y BUT NOT z AND w OR p)
                             ^^^^^^^^^^^^
 ======= TEST: parser test (BUT NOT [. OR x y .] [. AND z w p .])
@@ -267,10 +266,7 @@ parser test (x NOT y)
 ======= END TEST
 ERROR: extra stuff at end of unary expression; deleted; line 105:
 parser test (NOT x AND y)
-                   ^^^
-ERROR: extra stuff at end of unary expression; deleted; line 105:
-parser test (NOT x AND y)
-                       ^
+                   ^^^^^
 ======= TEST: parser test (NOT x)
 ------- line 105:
 parser test (NOT x AND y)
@@ -282,9 +278,8 @@ parser test (NOT x AND y)
 ERROR: missing operand inserted; line 106:
 parser test (x AND NOT y)
                    ^
-ERROR: operator `NOT' is not the same as first operator `AND' in
-       subexpression; all operators must be the same in this
-       subexpression; line 106:
+ERROR: wrong operator `NOT' changed to `AND'; all operators must be the
+       same in this subexpression; line 106:
 parser test (x AND NOT y)
              ^^^^^^^^^^^
 ======= TEST: parser test (AND x ERROR'OPERAND y)
@@ -508,15 +503,10 @@ parser test ( x * y / z q * m p )
 parser test ( x * y / z q * m p )
                             ^^^
 ======= END TEST
-ERROR: too many operators in subexpression; subexpression should be of
-       form `operand operator operand'; line 160:
+ERROR: extra stuff at end of binary expression; deleted; line 160:
 parser test ( x / y / z )
-              ^^^^^^^^^
-ERROR: subexpression is too long; subexpression should be of form
-       `operand operator operand'; line 160:
-parser test ( x / y / z )
-              ^^^^^^^^^
-======= TEST: parser test (x / y / z)
+                    ^^^
+======= TEST: parser test (/ x y)
 ------- line 160:
 parser test ( x / y / z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^

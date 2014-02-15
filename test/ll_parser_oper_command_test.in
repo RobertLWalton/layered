@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 14 21:38:15 EST 2014
+// Date:	Sat Feb 15 15:03:34 EST 2014
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -110,31 +110,31 @@ parser test (NOT NOT)
 
 parser define operator "==" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "/=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "!=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "<" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "<=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "=<" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator ">" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator ">=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "=>" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser test ( x < y <= z > w != p q =< u v )
 
 parser define operator "+" [code, math] infix

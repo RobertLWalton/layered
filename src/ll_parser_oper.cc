@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 15 05:16:15 EST 2014
+// Date:	Sat Feb 15 15:06:56 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -735,10 +735,10 @@ static void oper_parse ( PAR::parser parser,
 	     ||
 	     ( oper_precedence == D.precedence
 	       &&
-	       last_oper_flags & OP::PREFIX )
+	       last_oper_flags & OP::PREFIX
 	       &&
 	          current->previous->type
-	       == PAR::OPERATOR )
+	       == PAR::OPERATOR ) )
 	{
 	    min::push ( oper_stack ) = D;
 	    D.precedence = oper_precedence;
@@ -1335,7 +1335,7 @@ static bool infix_reformatter
     return true;
 }
 
-static bool compare_reformatter
+static bool infix_and_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1475,11 +1475,13 @@ static bool compare_reformatter
 
     if ( first->next != next )
     {
-        // More than one operator.  Insert AND.
+        // More than one operator.  Insert and_op.
 	//
+	min::gen and_op =
+	    first_oper->reformatter_arguments[0];
 	PAR::token t =
-	    PAR::new_token ( LEXSTD::word_t  );
-	PAR::value_ref ( t ) = OP::AND;
+	    PAR::new_token ( PAR::OPERATOR  );
+	PAR::value_ref ( t ) = and_op;
 	t->position.begin = first->position.begin;
 	t->position.end = first->position.begin;
 	PAR::put_before ( first_ref(parser), first, t );
@@ -1491,7 +1493,7 @@ static bool compare_reformatter
 	    { first->position.begin,
 	      next->previous->position.end };
 	PAR::attr oper_attr
-	    ( PAR::dot_oper, OP::AND );
+	    ( PAR::dot_oper, and_op );
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      PAR::BRACKETABLE, trace_flags,
@@ -1618,11 +1620,11 @@ static void reformatter_table_initialize ( void )
         ( infix, OP::INFIX,
 	  ::infix_reformatter );
 
-    min::locatable_gen compare
-        ( min::new_str_gen ( "compare" ) );
+    min::locatable_gen infix_and
+        ( min::new_lab_gen ( "infix", "and" ) );
     OP::push_reformatter
-        ( compare, OP::INFIX,
-	  ::compare_reformatter );
+        ( infix_and, OP::INFIX,
+	  ::infix_and_reformatter );
 
     min::locatable_gen sum
         ( min::new_str_gen ( "sum" ) );

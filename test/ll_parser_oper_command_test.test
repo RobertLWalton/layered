@@ -331,31 +331,31 @@ parser test (NOT NOT)
 ======= END TEST
 parser define operator "==" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "/=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "!=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "<" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "<=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "=<" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator ">" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator ">=" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "=>" [code, math] infix
        with precedence 4000
-       with compare reformatter ( "AND" )
+       with infix and reformatter ( "AND" )
 ======= TEST: parser test
               (AND [. < x [. $ 0 y .] .] [. <= [. $ 0 .] [. $ 1 z .] .]
                [. > [. $ 1 .] [. $ 2 w .] .]
@@ -804,7 +804,7 @@ parser print operator "":
     block standard: operator "<" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "=" [code, math]
                     infix
                     with precedence 1000
@@ -812,14 +812,14 @@ parser print operator "":
     block standard: operator ">" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "@" [code, math]
                     prefix
                     with precedence 10000
     block standard: operator "!=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "^" [code, math]
                     infix
                     with precedence 5300
@@ -850,7 +850,7 @@ parser print operator "":
     block standard: operator "<=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "AND" [code, math]
                     infix
                     with precedence 3100
@@ -858,18 +858,18 @@ parser print operator "":
     block standard: operator "=<" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "==" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "--" [code, math]
                     postfix
                     with precedence 10001
     block standard: operator "=>" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "-=" [code, math]
                     infix
                     with precedence 1000
@@ -877,7 +877,7 @@ parser print operator "":
     block standard: operator ">=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "OR" [code, math]
                     infix
                     with precedence 3100
@@ -885,7 +885,7 @@ parser print operator "":
     block standard: operator "/=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter compare ( "AND" )
+                    with reformatter infix and ( "AND" )
     block standard: operator "/=" [code, math]
                     infix
                     with precedence 1000

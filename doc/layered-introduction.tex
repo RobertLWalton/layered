@@ -3226,7 +3226,7 @@ precedence & reformatter	& type	& operator	& meaning
 								  not \\
 3100	& \ttkey{infix}		& \tt infix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
-3100	& \ttkey{prefix}	& \tt nofix	& \ttkey{NOT}	& logical not \\
+3100	& \ttkey{unary}		& \tt prefix	& \ttkey{NOT}	& logical not \\
 4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
 	&			&		& \ttnbkey{/=}  & not equal \\
 	&			&		& \ttnbkey{!=}	& ditto \\
@@ -3246,7 +3246,7 @@ precedence & reformatter	& type	& operator	& meaning
 							& multiplication \\
 5300	& \ttkey{binary}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
 							& exponentiation \\
-10000	& \ttkey{prefix}	& \tt prefix	&  \ttnbkey{-}	& minus \\
+10000	& 			& \tt prefix	&  \ttnbkey{-}	& minus \\
 	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
 	& 			& \tt prefix	&  \ttnbkey{@}	& object
 	                                                          identifier \\

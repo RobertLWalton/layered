@@ -277,7 +277,7 @@ parser test (NOT x AND y)
 ======= END TEST
 ERROR: missing operand inserted; line 106:
 parser test (x AND NOT y)
-                   ^
+                  ^
 ERROR: wrong operator `NOT' changed to `AND'; all operators must be the
        same in this subexpression; line 106:
 parser test (x AND NOT y)

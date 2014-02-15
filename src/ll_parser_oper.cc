@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 15 03:17:16 EST 2014
+// Date:	Sat Feb 15 05:16:15 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -609,15 +609,14 @@ static void oper_parse ( PAR::parser parser,
 	     )
 	   )
 	{
-	    PAR::put_error_operand_before
-	        ( parser, current );
+	    PAR::put_error_operand_after
+	        ( parser, current->previous );
 	    D.first = current->previous;
 
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 7 )
-		<< "ERROR: missing"
-		   " operand inserted; "
+		<< "ERROR: missing operand inserted; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 D.first->position )
@@ -729,13 +728,17 @@ static void oper_parse ( PAR::parser parser,
 
 	// Start new subexpression if oper_precedence
 	// > D.precedence or oper_precedence ==
-	// D.precedence and last operator was prefix.
+	// D.precedence, last operator was prefix,
+	// and last operator is previous token.
 	//
 	if ( oper_precedence > D.precedence
 	     ||
 	     ( oper_precedence == D.precedence
 	       &&
-	       last_oper_flags & OP::PREFIX ) )
+	       last_oper_flags & OP::PREFIX )
+	       &&
+	          current->previous->type
+	       == PAR::OPERATOR )
 	{
 	    min::push ( oper_stack ) = D;
 	    D.precedence = oper_precedence;

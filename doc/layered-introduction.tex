@@ -3227,7 +3227,7 @@ precedence & reformatter	& type	& operator	& meaning
 3100	& \ttkey{infix}		& \tt infix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
 3100	& \ttkey{unary}		& \tt prefix	& \ttkey{NOT}	& logical not \\
-4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
+4000 	& \ttkey{infix and}	& \tt infix	& \ttnbkey{==}	& equal \\
 	&			&		& \ttnbkey{/=}  & not equal \\
 	&			&		& \ttnbkey{!=}	& ditto \\
 	&		      	&		& \ttnbkey{<}	& less than \\
@@ -3525,8 +3525,8 @@ Examples:
 
 \bigskip
 
-\ttmkey{compare}{reformatter} \hfill
-	\NBOP{=} ~~~ \NBOP{<} ~~~ \NBOP{>} ~~~
+\ttmkey{infix and}{reformatter} {\tt (} {\em and\_op} {\tt )} \hfill
+	\NBOP{==} ~~~ \NBOP{<} ~~~ \NBOP{>} ~~~
 	\NBOP{/=} ~~~ \NBOP{!=} ~~~
 	\NBOP{=>} ~~~ \NBOP{>=} ~~~
 	\NBOP{=<} ~~~ \NBOP{<=}
@@ -3535,15 +3535,14 @@ Examples:
 May only be used with {\tt infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
-Operands and operators must alternate, with the first and last subexpression
 elements being operands, and there must be at least one operator.
 If there is only one operator, it is simply moved to the front.  Otherwise
 the expression is rewritten so the operators become two-argument functions
-whose values are combined by a multi-argument {\tt AND} and whose
-shared operands are represented by temporaries to avoid computing
-an operand twice. 
-(\pagref{TEMPORARY})
-Examples:
+whose values are combined by a multi-argument {\em and\_op} and whose
+shared operands are represented by temporaries (\pagref{TEMPORARY})
+to avoid computing an operand twice. 
+Examples in which \verb|<|, \verb|==|, \verb|!=|, and \verb|<=| all have
+the same precedence and this reformatter with {\em and\_op} being `{\tt AND}':
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x < y < z| & $\Longrightarrow$ &
@@ -3564,56 +3563,34 @@ E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
 
 \bigskip
 
-\ttmkey{sum}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-}
+\ttmkey{sum}{reformatter} {\tt (} {\em plus\_op} {\em minus\_op} {\tt )}
+			  \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
 May only be used with {\tt infix} operators.
 
 Operands and operators must alternate, with the last subexpression
 element being an operand, and there must be at least one operator.
-The operators must be either `\verb|+|' or `\verb|-|'.
+The operators must be either {\em plus\_op} or {\em minus\_op}.
 
-If there is only one operator at the front of the subexpression,
-the subexpression is left unchanged.
-Otherwise if `\verb|+|' is only one operator
-it is simply moved to the front.  Otherwise
-the results are rewritten using the multi-argument summation function
-`\verb|+|' and the unary negation function `\verb|-|'.  Examples:
+Every `{\em minus\_op} {\em operand}' is rewritten as
+`{\em plus\_op} {\tt (} {\em minus\_op} {\em operand} {\tt )}'.
+Then the first {\em plus\_op} is moved to the front and the other
+{\em plus\_op}'s are removed.
+
+For example, if {\em plus\_op} is `\verb|+|' and {\em minus\_op} is
+`\verb|-|' and both these operators are infix with the same precedence
+and this reformatter:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|- x| & $\Longrightarrow$ & \verb|- x| \\
-\verb|+ x| & $\Longrightarrow$ & \verb|+ x| \\
 \verb|x + y| & $\Longrightarrow$ & \verb|+ x y| \\
-\verb|+ x + y| & $\Longrightarrow$ & \verb|+ x y| \\
 \verb|x - y| & $\Longrightarrow$ & \verb|+ x (- y)| \\
-\verb|- x - y| & $\Longrightarrow$ & \verb|+ (- x) (- y)| \\
 \verb|x - y + z - w| & $\Longrightarrow$ & \verb|+ x (- y) z (- w)| \\
-\verb|x + y z| & $\Longrightarrow$ & error \\
-\verb|x +| & $\Longrightarrow$ & error \\
-\verb|x + - y| & $\Longrightarrow$ & error \\
 \end{tabular}
 
-Note that prefix `\verb|-|' has the same precedence as infix
-`\verb|+|', which differs from mathematics and classical programming languages.
-E.g., \verb|x * - y| becomes \verb|+ ( x * ) ( - y )| which would of
-course be in error.
 \end{indpar}
 
 \bigskip
-
-\ttmkey{subscript}{reformatter} \hfill \NBOP{[~...~]}
-
-\begin{indpar}[0.5em]
-The subexpression must consist of two elements, an operand followed
-by an operator.
-The subexpression is rewritten using the binary subscript function:
-
-\hspace*{2em}\begin{tabular}{lcl}
-\verb|x[y]| & $\Longrightarrow$ & \verb|subscript x y| \\
-\end{tabular}
-
-\end{indpar}
-
 
 \end{indpar}
 

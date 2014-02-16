@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 15 15:06:56 EST 2014
+// Date:	Sun Feb 16 04:11:08 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -754,37 +754,6 @@ static void oper_parse ( PAR::parser parser,
 // Operator Reformatters
 // -------- ------------
 
-// Given a sequence of tokens starting at `first' and
-// ending just BEFORE `next', return the token_count of
-// the number of tokens in the sequence, the oper_count
-// of the number of operators in the sequence, and if
-// there are operators, the position i of the first
-// operator (i == 0 for `first'), and the value of
-// that operator's token.
-//
-static void count_operators
-	( PAR::token first, PAR::token next,
-	  min::uns32 & token_count,
-	  min::uns32 & oper_count,
-	  min::uns32 & i,
-	  min::gen & value )
-{
-    token_count = 0;
-    oper_count = 0;
-    for ( ; first != next;
-          ++ token_count, first = first->next )
-    {
-        if ( first->type != PAR::OPERATOR )
-	    continue;
-	if ( oper_count == 0 )
-	{
-	    i = token_count;
-	    value = first->value;
-	}
-	++ oper_count;
-    }
-}
-
 static bool separator_reformatter
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1398,36 +1367,36 @@ static bool infix_and_reformatter
 	          operand2->position.begin };
 	    PAR::token t =
 	        PAR::new_token ( LEXSTD::word_t  );
-	    PAR::value_ref ( t ) = OP::dollar;
-	    t->position = before_position2;
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
+	    PAR::value_ref ( t ) = OP::dollar;
+	    t->position = before_position2;
 
 	    t = PAR::new_token ( LEXSTD::number_t  );
+	    PAR::put_before
+		( first_ref(parser), operand2, t );
 	    PAR::value_ref ( t ) =
 	        min::new_num_gen
 		    ( oper_pass->temporary_count ++ );
 	    t->position = before_position2;
-	    PAR::put_before
-		( first_ref(parser), operand2, t );
 
 	    // Copy tokens for $ and T after operand2.
 	    //
 	    PAR::token t2 = operand2->previous;
 	    t = PAR::new_token ( t2->type );
-	    PAR::value_ref ( t ) = t2->value;
-	    t->position = before_position2;
 	    PAR::put_before
 		( first_ref(parser),
 		  operand2->next, t );
+	    PAR::value_ref ( t ) = t2->value;
+	    t->position = t2->position;
 
 	    t2 = operand2->previous->previous;
 	    t = PAR::new_token ( t2->type );
-	    PAR::value_ref ( t ) = t2->value;
-	    t->position = before_position2;
 	    PAR::put_before
 		( first_ref(parser),
 		  operand2->next, t );
+	    PAR::value_ref ( t ) = t2->value;
+	    t->position = t2->position;
 
 	    // Compact new operand2 = ( $ T operand2 ).
 	    //
@@ -1477,14 +1446,16 @@ static bool infix_and_reformatter
     {
         // More than one operator.  Insert and_op.
 	//
+        min::phrase_position first_position =
+	    { first->position.begin,
+	      first->position.begin };
 	min::gen and_op =
 	    first_oper->reformatter_arguments[0];
 	PAR::token t =
 	    PAR::new_token ( PAR::OPERATOR  );
-	PAR::value_ref ( t ) = and_op;
-	t->position.begin = first->position.begin;
-	t->position.end = first->position.begin;
 	PAR::put_before ( first_ref(parser), first, t );
+	PAR::value_ref ( t ) = and_op;
+	t->position = first_position;
 	first = t;
 
 	// Compact.
@@ -1515,54 +1486,89 @@ static bool sum_reformatter
 	  min::phrase_position & position )
 {
     MIN_ASSERT ( first != next );
+    MIN_ASSERT ( first->type != PAR::OPERATOR );
+    MIN_ASSERT ( first->next != next );
+
+    min::gen plus_op =
+	first_oper->reformatter_arguments[0];
+    min::gen minus_op =
+	first_oper->reformatter_arguments[1];
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
-    // last.  The operators must be `+' and `-'.  The
-    // `+'s are deleted and a `+' is inserted at the
-    // beginning.  Any `- x' is made into a
-    // subexpression with prefix `-'.
+    // last.  The operators must be plus_op and minus_op.
 
-    // Remove all operators and replace operands x
-    // preceeded by `-' with `- x' subexpressions.
+    // Replace every `plus_op x' by `x' and every
+    // `minus_op x' by `(minus_op x)'.
     //
-    for ( PAR::token t = first; t->next != next; )
+    for ( PAR::token t = first->next; t != next; )
     {
-        MIN_ASSERT ( t->next->type == PAR::OPERATOR );
-	min::gen op = t->next->value;
-	MIN_ASSERT
-	    ( op == PAR::plus || op == PAR::minus );
-	if ( op == PAR::plus )
+        MIN_ASSERT ( t->type == PAR::OPERATOR );
+        MIN_ASSERT ( t->next != next );
+
+	min::gen op = t->value;
+	if ( op != minus_op )
 	{
+	    if ( op != plus_op )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: wrong operator `"
+		    << min::name_pgen ( t->value )
+		    << "' changed to `"
+		    << min::name_pgen ( plus_op )
+		    << "'; all operators in this"
+		       " subexpression must be `"
+		    << min::name_pgen ( plus_op )
+		    << "' or `"
+		    << min::name_pgen ( minus_op )
+		    << "'; "
+		    << min::pline_numbers
+			   ( parser->input_file,
+			     t->position )
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      t->position );
+		++ parser->error_count;
+	    }
+
+	    t = t->next;
 	    PAR::free
 		( PAR::remove
 		      ( PAR::first_ref(parser),
-			t->next ) );
-	    t = t->next;
+			t->previous ) );
 	}
 	else
 	{
-	    t = t->next;
 	    min::phrase_position position =
 		{ t->position.begin,
 		  t->next->position.end };
 	    PAR::attr oper_attr
-		( PAR::dot_oper, PAR::minus );
+		( PAR::dot_oper, minus_op );
 	    PAR::compact
 		( parser, pass->next, selectors,
 		  PAR::BRACKETABLE, trace_flags,
 		  t, t->next->next, position,
 		  1, & oper_attr );
 	}
+
+	t = t->next;
     }
 
+    // Put plus_op at beginning of subexpression.
+    //
+    min::phrase_position first_position =
+	{ first->position.begin,
+	  first->position.end };
     PAR::token new_first =
 	PAR::new_token ( PAR::OPERATOR );
-    new_first->position.begin = first->position.begin;
-    new_first->position.end   = first->position.begin;
-    PAR::value_ref ( new_first ) = PAR::plus;
     PAR::put_before
 	( first_ref(parser), first, new_first );
+    PAR::value_ref ( new_first ) = plus_op;
+    new_first->position = first_position;
     first = new_first;
 
     return true;

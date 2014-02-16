@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 14:48:12 EST 2014
+// Date:	Sun Feb 16 06:12:48 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Reformatter Table Entries
 //	Operator Table Entries
 //	Operator Pass
-//	Operator Reformatters
 
 // Usage and Setup
 // ----- --- -----
@@ -37,15 +37,112 @@ extern min::locatable_gen afix;
 extern min::locatable_gen nofix;
 
 
+// Reformatter Table Entries
+// ----------- ----- -------
+
+// There is a single reformatter stack set up by program
+// initialization.  This lists all the reformatters.  A
+// reformatter is legal only for operators all of whose
+// operator flags are in the set of legal operator flags
+// given.  A minimum and maximum is also given for the
+// number of arguments that a reformatter may have.
+
+struct oper_struct;
+typedef min::packed_struct_updptr<oper_struct> oper;
+extern const uns32 & OPER;
+    // Subtype of min::packed_struct<oper_struct>.
+
+typedef bool ( * reformatter_function )
+        ( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  ll::parser::table::flags trace_flags,
+	  ll::parser::oper::oper first_oper,
+	  min::phrase_position & position );
+    //
+    // A reformatter_function reformats the tokens from
+    // first to next->previous.  Trace_flags are passed
+    // to `compact', if the function calls that.
+    // First_oper is the first OPERATOR in the tokens
+    // and `position' is the position of the tokens.
+    // Pass is the operator pass, and parser and
+    // selectors are the current parser and selectors.
+    //
+    // The function may change `first'.  Note that if
+    // this is done, a recalculated position would be
+    // incorrect, which is why `position' is calculated
+    // before the function is called.
+    //
+    // If true is returned, the caller of the function
+    // will immediately call ll:: parser::compact (even
+    // if first->next == next) to make a BRACKETABLE
+    // token with no syntax attributes, but with the
+    // given `position' as the .position attribute and
+    // with first_oper->label as the .operator
+    // attribute.
+
+struct reformatter_struct;
+typedef min::packed_struct_updptr<reformatter_struct>
+        reformatter;
+extern const uns32 & REFORMATTER;
+    // Subtype of
+    // min::packed_struct<reformatter_struct>.
+struct reformatter_struct
+{
+    min::uns32 control;
+
+    ll::parser::oper::reformatter next;
+    min::gen name;
+    min::uns32 oper_flags;
+    min::uns32 minimum_arguments, maximum_arguments;
+        // Minimum and maximum number of arguments.
+    ll::parser::oper::reformatter_function
+        reformatter_function;
+};
+MIN_REF ( ll::parser::oper::reformatter, next,
+          ll::parser::oper::reformatter )
+MIN_REF ( min::gen, name,
+          ll::parser::oper::reformatter )
+
+// The head of the reformatter stack.
+//
+extern min::locatable_var<ll::parser::oper::reformatter>
+    reformatter_stack;
+
+// Look up reformatter name in reformatter stack, and
+// return reformatter if found, or NULL_STUB if not
+// found.
+//
+inline ll::parser::oper::reformatter find_reformatter
+	( min::gen name )
+{
+    ll::parser::oper::reformatter r =
+        ll::parser::oper::reformatter_stack;
+    while ( r != min::NULL_STUB )
+    {
+        if ( r->name == name ) return r;
+	r = r->next;
+    }
+    return min::NULL_STUB;
+}
+
+// Push a new reformatter into the reformatter stack.
+//
+void push_reformatter
+    ( min::gen name,
+      min::uns32 oper_flags,
+      min::uns32 minimum_arguments, 
+      min::uns32 maximum_arguments,
+      ll::parser::oper::reformatter_function
+          reformatter_function );
+
 // Operator Table Entries
 // -------- ----- -------
 
 // Operator definition.
 //
-struct oper_struct;
-typedef min::packed_struct_updptr<oper_struct> oper;
-extern const uns32 & OPER;
-    // Subtype of min::packed_struct<oper_struct>.
 enum oper_flags
 {
     PREFIX	= ( 1 << 0 ),
@@ -58,35 +155,6 @@ enum oper_flags
 };
 const min::int32 NO_PRECEDENCE = -1 << 31;
     // Value less than any allowed precedence.
-typedef bool ( * reformatter )
-        ( ll::parser::parser parser,
-	  ll::parser::pass pass,
-	  ll::parser::table::flags selectors,
-	  ll::parser::token & first,
-	  ll::parser::token next,
-	  ll::parser::table::flags trace_flags,
-	  ll::parser::oper::oper first_oper,
-	  min::phrase_position & position );
-    // A reformatter reformats the tokens from first to
-    // next->previous.  Trace_flags are passed to
-    // `compact' if the reformatter calls that.
-    // First_oper is the first OPERATOR in the tokens
-    // and `position' is the position of the tokens.
-    // Pass is the operator pass, and parser and
-    // selectors are the current parser and selectors.
-    //
-    // The reformatter may change `first'.  Note that if
-    // this is done, a recalculated position would be
-    // incorrect, which is why `position' is calculated
-    // before the reformatter is called.
-    //
-    // If true is returned, the caller of the
-    // reformatter will immediately call ll:: parser::
-    // compact (even if first->next == next) to make a
-    // BRACKETABLE token with no syntax attributes, but
-    // with the given `position' as the .position
-    // attribute and with first_oper->label as the
-    // .operator attribute.
 
 struct oper_struct
     : public ll::parser::table::root_struct
@@ -113,6 +181,8 @@ struct oper_struct
 
 MIN_REF ( min::gen, label, ll::parser::oper::oper )
 MIN_REF ( min::gen, terminator, ll::parser::oper::oper )
+MIN_REF ( ll::parser::oper::reformatter, reformatter,
+          ll::parser::oper::oper )
 MIN_REF ( min::packed_vec_ptr<min::gen>,
           reformatter_arguments,
 	  ll::parser::oper::oper )
@@ -208,89 +278,6 @@ MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
 // Return a new operator parser pass.
 //
 ll::parser::pass new_pass ( void );
-
-// Operator Reformatters
-// -------- ------------
-
-// There is a single reformatter table set up by program
-// initialization.  This maps reformatter names to
-// reformatters and vice versa.  A reformatter is legal
-// only for operators all of whose operator flags are
-// in the set of legal operator flags given.
-
-struct reformatter_table_struct
-{
-    min::gen name;
-    min::uns32 oper_flags;
-    ll::parser::oper::reformatter reformatter;
-};
-
-struct reformatter_table_struct;
-typedef min::packed_vec_insptr
-	    <reformatter_table_struct>
-	reformatter_table_type;
-extern const uns32 & REFORMATTER_TABLE_TYPE;
-    // Subtype of min::packed_vec
-    // //              <reformatter_table_struct>.
-
-// The one and only reformatter table.
-//
-extern min::locatable_var
-	<ll::parser::oper::reformatter_table_type>
-    reformatter_table;
-
-// Look up reformatter name in reformatter table, and
-// return reformatter if found, or NULL if not found.
-// If a reformatter is found, also return the set
-// of operator flags allowed for operators having the
-// reformatter.
-//
-inline ll::parser::oper::reformatter find_reformatter
-	( min::gen name, min::uns32 & oper_flags )
-{
-    ll::parser::oper::reformatter_table_type t =
-        ll::parser::oper::reformatter_table;
-    for ( min::uns32 i = 0; i < t->length; ++ i )
-        if ( t[i].name == name )
-	{
-	    oper_flags = t[i].oper_flags;
-	    return t[i].reformatter;
-	}
-    return NULL;
-}
-//
-// Look up reformatter in reformatter table, and return
-// reformatter name if found, or MISSING if not found.
-//
-inline min::gen find_name
-	( ll::parser::oper::reformatter reformatter )
-{
-    ll::parser::oper::reformatter_table_type t =
-        ll::parser::oper::reformatter_table;
-    for ( min::uns32 i = 0; i < t->length; ++ i )
-        if ( t[i].reformatter == reformatter )
-	    return t[i].name;
-    return min::MISSING();
-}
-
-// Push reformatter name and reformatter into
-// reformatter table.
-//
-inline void push_reformatter
-    ( min::gen name,
-      min::uns32 oper_flags,
-      ll::parser::oper::reformatter reformatter )
-{
-    reformatter_table_struct e =
-        { name, oper_flags, reformatter };
-    min::push ( (ll::parser
-                   ::oper::reformatter_table_type)
-                ll::parser::oper::reformatter_table )
-        = e;
-    min::unprotected::acc_write_update 
-	( ll::parser::oper::reformatter_table,
-	  name );
-}
 
 } } }
 

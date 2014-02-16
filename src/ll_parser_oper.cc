@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 16 04:11:08 EST 2014
+// Date:	Sun Feb 16 06:11:28 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,6 +80,7 @@ static min::uns32 oper_gen_disp[] = {
 
 static min::uns32 oper_stub_disp[] = {
     min::DISP ( & OP::oper_struct::next ),
+    min::DISP ( & OP::oper_struct::reformatter ),
     min::DISP ( & OP::oper_struct
                     ::reformatter_arguments ),
     min::DISP_END };
@@ -89,7 +90,7 @@ static min::packed_struct_with_base
     oper_type ( "ll::parser::oper::oper_type",
 	        ::oper_gen_disp,
 	        ::oper_stub_disp );
-const min::uns32 & OP::OPER = oper_type.subtype;
+const min::uns32 & OP::OPER = ::oper_type.subtype;
 
 void OP::push_oper
 	( min::gen oper_label,
@@ -114,7 +115,7 @@ void OP::push_oper
     oper->position = position;
     oper->flags = flags;
     oper->precedence = precedence;
-    oper->reformatter = reformatter;
+    reformatter_ref(oper) = reformatter;
     reformatter_arguments_ref(oper) =
 	reformatter_arguments;
 
@@ -658,9 +659,11 @@ static void oper_parse ( PAR::parser parser,
 			  first_oper->label );
 
 		    if (    first_oper->reformatter
-		         == NULL
+		         == min::NULL_STUB
 			 ||
-			 ( * first_oper->reformatter )
+			 ( * first_oper
+			       ->reformatter
+			       ->reformatter_function )
 			     ( parser, pass, selectors,
 			       D.first, current,
 			       reformatter_trace_flags,
@@ -754,7 +757,7 @@ static void oper_parse ( PAR::parser parser,
 // Operator Reformatters
 // -------- ------------
 
-static bool separator_reformatter
+static bool separator_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -838,7 +841,7 @@ static bool separator_reformatter
     return false;
 }
 
-static bool declare_reformatter
+static bool declare_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -933,7 +936,7 @@ static bool declare_reformatter
     return true;
 }
 
-static bool right_associative_reformatter
+static bool right_associative_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -991,7 +994,7 @@ static bool right_associative_reformatter
     return false;
 }
 
-static bool unary_reformatter
+static bool unary_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1116,7 +1119,7 @@ static bool unary_reformatter
     return true;
 }
 
-static bool binary_reformatter
+static bool binary_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1240,7 +1243,7 @@ static bool binary_reformatter
     return true;
 }
 
-static bool infix_reformatter
+static bool infix_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1304,7 +1307,7 @@ static bool infix_reformatter
     return true;
 }
 
-static bool infix_and_reformatter
+static bool infix_and_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1475,7 +1478,7 @@ static bool infix_and_reformatter
     return false;
 }
 
-static bool sum_reformatter
+static bool sum_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1574,72 +1577,95 @@ static bool sum_reformatter
     return true;
 }
 
-min::locatable_var<OP::reformatter_table_type>
-    OP::reformatter_table;
+min::locatable_var<OP::reformatter>
+    OP::reformatter_stack ( min::NULL_STUB );
 
-static min::uns32 reformatter_table_gen_disp[] = {
-    min::DISP ( & OP::reformatter_table_struct::name ),
+static min::uns32 reformatter_gen_disp[] = {
+    min::DISP ( & OP::reformatter_struct::name ),
     min::DISP_END };
 
-static min::packed_vec<OP::reformatter_table_struct>
-    reformatter_table_type
-        ( "ll::parser::oper::reformatter_table_type",
-	  ::reformatter_table_gen_disp );
+static min::uns32 reformatter_stub_disp[] = {
+    min::DISP ( & OP::reformatter_struct::next ),
+    min::DISP_END };
 
-static void reformatter_table_initialize ( void )
+static min::packed_struct<OP::reformatter_struct>
+    reformatter_type
+        ( "ll::parser::oper::reformatter_type",
+	  ::reformatter_gen_disp,
+	  ::reformatter_stub_disp );
+const min::uns32 & OP::REFORMATTER =
+    ::reformatter_type.subtype;
+
+void OP::push_reformatter
+    ( min::gen name,
+      min::uns32 oper_flags,
+      min::uns32 minimum_arguments, 
+      min::uns32 maximum_arguments,
+      OP::reformatter_function reformatter_function )
 {
-    OP::reformatter_table =
-        ::reformatter_table_type.new_stub ( 32 );
+    min::locatable_var<OP::reformatter> r
+        ( ::reformatter_type.new_stub() );
+    OP::next_ref(r) = OP::reformatter_stack;
+    OP::name_ref(r) = name;
+    r->oper_flags = oper_flags;
+    r->minimum_arguments = minimum_arguments;
+    r->maximum_arguments = maximum_arguments;
+    r->reformatter_function = reformatter_function;
+    OP::reformatter_stack = r;
+}
 
+static void reformatter_stack_initialize ( void )
+{
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
     OP::push_reformatter
-        ( separator, OP::NOFIX,
-	  ::separator_reformatter );
+        ( separator, OP::NOFIX, 0, 0,
+	  ::separator_reformatter_function );
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
     OP::push_reformatter
-        ( declare, OP::NOFIX + OP::PREFIX + OP::INFIX,
-	  ::declare_reformatter );
+        ( declare,
+	  OP::NOFIX + OP::PREFIX + OP::INFIX, 0, 0,
+	  ::declare_reformatter_function );
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     OP::push_reformatter
-        ( right_associative, OP::INFIX,
-	  ::right_associative_reformatter );
+        ( right_associative, OP::INFIX, 0, 0,
+	  ::right_associative_reformatter_function );
 
     min::locatable_gen prefix
         ( min::new_str_gen ( "unary" ) );
     OP::push_reformatter
-        ( prefix, OP::PREFIX + OP::NOFIX,
-	  ::unary_reformatter );
+        ( prefix, OP::PREFIX + OP::NOFIX, 0, 0,
+	  ::unary_reformatter_function );
 
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
     OP::push_reformatter
-        ( binary, OP::INFIX + OP::NOFIX,
-	  ::binary_reformatter );
+        ( binary, OP::INFIX + OP::NOFIX, 0, 0,
+	  ::binary_reformatter_function );
 
     min::locatable_gen infix
         ( min::new_str_gen ( "infix" ) );
     OP::push_reformatter
-        ( infix, OP::INFIX,
-	  ::infix_reformatter );
+        ( infix, OP::INFIX, 0, 0,
+	  ::infix_reformatter_function );
 
     min::locatable_gen infix_and
         ( min::new_lab_gen ( "infix", "and" ) );
     OP::push_reformatter
-        ( infix_and, OP::INFIX,
-	  ::infix_and_reformatter );
+        ( infix_and, OP::INFIX, 1, 1,
+	  ::infix_and_reformatter_function );
 
     min::locatable_gen sum
         ( min::new_str_gen ( "sum" ) );
     OP::push_reformatter
-        ( sum, OP::INFIX,
-	  ::sum_reformatter );
+        ( sum, OP::INFIX, 2, 2,
+	  ::sum_reformatter_function );
 }
 static min::initializer reformatter_initializer
-    ( ::reformatter_table_initialize );
+    ( ::reformatter_stack_initialize );
 
 // Operator Pass Command Function
 // -------- ---- ------- --------
@@ -1708,14 +1734,13 @@ void static print_op
 	<< "with precedence "
 	<< op->precedence;
 
-    if ( op->reformatter != NULL )
+    if ( op->reformatter != min::NULL_STUB )
     {
-	min::gen name = OP::find_name
-	    ( op->reformatter );
 	parser->printer
 	    << min::indent
 	    << "with reformatter "
-	    << min::name_pgen ( name );
+	    << min::name_pgen
+	           ( op->reformatter->name );
 
 	min::packed_vec_ptr<min::gen> args =
 	    op->reformatter_arguments;
@@ -1992,7 +2017,7 @@ static min::gen oper_pass_command
 
     min::int32 precedence;
     bool precedence_found = false;
-    OP::reformatter reformatter = NULL;
+    OP::reformatter reformatter = min::NULL_STUB;
     min::locatable_var
     	    < min::packed_vec_ptr<min::gen> >
         reformatter_arguments ( min::NULL_STUB );
@@ -2034,11 +2059,9 @@ static min::gen oper_pass_command
 	    if (    j < size
 		 && vp[j] == ::reformatter )
 	    {
-		min::uns32 allowed_oper_flags;
 		reformatter =
-		    OP::find_reformatter
-		        ( name, allowed_oper_flags );
-		if ( reformatter == NULL )
+		    OP::find_reformatter ( name );
+		if ( reformatter == min::NULL_STUB )
 		{
 		    min::phrase_position position =
 			{ ppvec[i].begin,
@@ -2050,7 +2073,8 @@ static min::gen oper_pass_command
 		}
 
 		min::uns32 illegal_flags =
-		    oper_flags & ~ allowed_oper_flags;
+		        oper_flags
+		    & ~ reformatter->oper_flags;
 		if ( illegal_flags != 0 )
 		{
 		    char buffer[200];
@@ -2108,20 +2132,29 @@ static min::gen oper_pass_command
 	      " after" );
 
     if ( command == PAR::define )
+    {
+        if ( reformatter != min::NULL_STUB )
+	{
+	    min::uns32 arg_count =
+	           reformatter_arguments
+		== min::NULL_STUB ? 0 :
+		reformatter_arguments->length;
+	}
 	OP::push_oper
 	    ( name[0], name[1],
 	      selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      oper_flags, precedence, reformatter,
-	      reformatter_arguments,
+	      oper_flags, precedence,
+	      reformatter, reformatter_arguments,
 	      bracket || indentation_mark ?
 	          oper_pass->oper_bracket_table :
 		  oper_pass->oper_table );
+    }
 
     else // if ( command == PAR::undefine )
     {
-	if ( reformatter != NULL )
+	if ( reformatter != min::NULL_STUB )
 	    return PAR::parse_error
 		( parser, ppvec->position,
 		  "did NOT expect"

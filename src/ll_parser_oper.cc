@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 16 06:11:28 EST 2014
+// Date:	Sun Feb 16 19:14:29 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -520,13 +520,15 @@ static void oper_parse ( PAR::parser parser,
 
 	min::int32 oper_precedence = OP::NO_PRECEDENCE;
 	    // Effective operator precedence.
+	min::uns32 oper_flags = 0;
+	    // Effective operator flags.
 
 	// Insert ERROR'OPERATOR token just before
 	// current position if bad token (e.g.,
 	// operand or operator with too high a
 	// precedence) found after a postfix operator.
 	//
-	// Also compute oper_precedence.
+	// Also compute oper_precedence and oper_flags.
 	//
 	if ( current == D.first
 	     &&
@@ -568,7 +570,10 @@ static void oper_parse ( PAR::parser parser,
 	    ++ parser->error_count;
 	}
 	else if ( oper != min::NULL_STUB )
+	{
 	    oper_precedence = oper->precedence;
+	    oper_flags = oper->flags;
+	}
 
 	// If no operator found and not at end of
 	// expression, move to next token and loop.
@@ -601,9 +606,9 @@ static void oper_parse ( PAR::parser parser,
 		   ||
 		   oper_precedence < D.precedence
 		   ||
-	           ( oper->precedence == D.precedence
+	           ( oper_precedence == D.precedence
 	             &&
-		        ( oper->flags & OP::PREFIX )
+		        ( oper_flags & OP::PREFIX )
 		     == 0 )
 		 )
 	       )
@@ -749,7 +754,7 @@ static void oper_parse ( PAR::parser parser,
 	}
 
 	D.first = next_current;
-	last_oper_flags = oper->flags;
+	last_oper_flags = oper_flags;
 	current = next_current;
     }
 }
@@ -1497,9 +1502,9 @@ static bool sum_reformatter_function
     min::gen minus_op =
 	first_oper->reformatter_arguments[1];
 
-    // As operators must be infix, operands and
-    // operators must alternate with operands first and
-    // last.  The operators must be plus_op and minus_op.
+    // As operators must be infix, operands and opera-
+    // tors must alternate with operands first and last.
+    // The operators must be plus_op and minus_op.
 
     // Replace every `plus_op x' by `x' and every
     // `minus_op x' by `(minus_op x)'.
@@ -2059,13 +2064,12 @@ static min::gen oper_pass_command
 	    if (    j < size
 		 && vp[j] == ::reformatter )
 	    {
+		min::phrase_position position =
+		    { ppvec[i].begin, ppvec[j].end };
 		reformatter =
 		    OP::find_reformatter ( name );
 		if ( reformatter == min::NULL_STUB )
 		{
-		    min::phrase_position position =
-			{ ppvec[i].begin,
-			  ppvec[j-1].end };
 		    return PAR::parse_error
 			( parser, position,
 			  "undefined reformatter"
@@ -2108,6 +2112,36 @@ static min::gen oper_pass_command
 		          parser );
 		if ( name == min::ERROR() )
 		    return min::ERROR();
+		if (    reformatter_arguments
+		     == min::NULL_STUB )
+		{
+		    if ( reformatter->minimum_arguments
+		         > 0 )
+			return PAR::parse_error
+				( parser, position,
+				  "reformatter"
+				  " arguments"
+				  " missing" );
+		}
+		else
+		{
+		    position.end = ppvec[i-1].end;
+
+		    if (   reformatter_arguments->length
+			 < reformatter->
+			       minimum_arguments )
+			return PAR::parse_error
+				( parser, position,
+				  "too few reformatter"
+				  " arguments" );
+		    if (   reformatter_arguments->length
+			 > reformatter->
+			       maximum_arguments )
+			return PAR::parse_error
+				( parser, position,
+				  "too many reformatter"
+				  " arguments" );
+		}
 
 		continue;
 	    }
@@ -2133,13 +2167,6 @@ static min::gen oper_pass_command
 
     if ( command == PAR::define )
     {
-        if ( reformatter != min::NULL_STUB )
-	{
-	    min::uns32 arg_count =
-	           reformatter_arguments
-		== min::NULL_STUB ? 0 :
-		reformatter_arguments->length;
-	}
 	OP::push_oper
 	    ( name[0], name[1],
 	      selectors,

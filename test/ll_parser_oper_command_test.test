@@ -115,7 +115,7 @@ parser define operator "+" [code, math] nofix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line 56: undefined reformatter name:
        with none such reformatter
-            ^^^^^^^^^
+            ^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line 57: expected `with precedence ...' after:
 parser undefine operator "+" [code, math] infix
                                           ^^^^^

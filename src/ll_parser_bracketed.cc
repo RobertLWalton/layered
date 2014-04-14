@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 28 06:45:54 EST 2013
+// Date:	Fri Apr 11 16:25:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -787,7 +787,7 @@ static void named_attributes
     min::gen separator[seplen];
     if ( seplen == 1 ) separator[0] = sep;
     else if ( seplen > 1 )
-        min::lab_of ( separator, seplen, sep );
+        min::labncpy ( separator, sep, seplen );
 
     // Count elements of name.
     //
@@ -2953,14 +2953,14 @@ static min::gen bracketed_pass_command
 	if ( middle_ptr != min::NULL_STUB )
 	{
 	    middle_length =
-		min::length_of ( middle_ptr );
+		min::lablen ( middle_ptr );
 	    middle_last =
 		middle_ptr[middle_length-1];
 	}
 	if ( closing_ptr != min::NULL_STUB )
 	{
 	    closing_length =
-		min::length_of ( closing_ptr );
+		min::lablen ( closing_ptr );
 	    closing_first =
 		closing_ptr[closing_length-1];
 	}

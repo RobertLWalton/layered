@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 15 04:47:24 EST 2013
+// Date:	Mon Apr 14 16:52:49 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -923,7 +923,9 @@ namespace ll { namespace lexeme {
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input
-	    ( min::ref<ll::lexeme::scanner> scanner );
+	    ( min::ref<ll::lexeme::scanner> scanner,
+	      uns32 print_flags = 0,
+	      uns32 spool_lines = min::ALL_LINES );
 
     void init_print_flags
 	    ( min::ref<ll::lexeme::scanner> scanner,

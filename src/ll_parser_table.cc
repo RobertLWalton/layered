@@ -120,7 +120,7 @@ TAB::key_prefix TAB::find_key_prefix
 	len = 1;
     min::gen element[len];
     if ( is_label )
-	min::lab_of ( element, len, key );
+	min::labncpy ( element, key, len );
     else element[0] = key;
 
     // Loop through the elements setting `previous'

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 15 04:44:50 EST 2013
+// Date:	Mon Apr 14 16:53:00 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1082,10 +1082,14 @@ void LEX::init_input_string
 }
 
 void LEX::init_input
-	( min::ref<LEX::scanner> scanner )
+	( min::ref<LEX::scanner> scanner,
+	  min::uns32 print_flags,
+	  uns32 spool_lines )
 {
     init ( scanner );
-    min::init_input ( input_file_ref(scanner) );
+    min::init_input
+        ( input_file_ref(scanner),
+	  print_flags, spool_lines );
 }
 
 void LEX::init_print_flags
@@ -1095,15 +1099,6 @@ void LEX::init_print_flags
     init ( scanner );
     min::init_print_flags
 	( input_file_ref(scanner), print_flags );
-}
-
-void LEX::init_spool_lines
-	( min::ref<LEX::scanner> scanner,
-	  min::uns32 spool_lines )
-{
-    init ( scanner );
-    min::init_spool_lines
-	( input_file_ref(scanner), spool_lines );
 }
 
 min::printer LEX::init_ostream

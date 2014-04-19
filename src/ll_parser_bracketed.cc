@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 16:25:02 EDT 2014
+// Date:	Sat Apr 19 06:12:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -439,8 +439,8 @@ BRA::indentation_mark
 			( length );
 	min::push
 	    ( isplit, length,
-	      (min::uns8 *)
-	      (const char *) min::begin_ptr_of ( s ) );
+	      (min::ptr<min::uns8>)
+	      min::begin_ptr_of ( s ) );
 	indentation_mark_ref(isplit) = imark;
 	indentation_split_ref(imark) = isplit;
 
@@ -1061,8 +1061,7 @@ bool BRA::parse_bracketed_subexpression
 		        if ( split->length >= length )
 			    continue;
 			if ( memcmp
-			       (   (const char *)
-			           min::begin_ptr_of
+			       (   ! min::begin_ptr_of
 				       ( sp )
 				 + (  length
 			            - split->length ),

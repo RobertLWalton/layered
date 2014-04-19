@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 14 21:17:59 EST 2014
+// Date:	Sat Apr 19 06:27:53 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -139,7 +139,14 @@ MIN_REF ( ll::parser::string_insptr, next,
 // Allocate a new string and return a pointer to it.
 //
 ll::parser::string new_string
-	( uns32 n, const uns32 * s );
+	( uns32 n, min::ptr<const min::uns32> s );
+
+inline ll::parser::string new_string
+	( uns32 n, const uns32 * s )
+{
+    return ll::parser::new_string
+        ( n, min::new_ptr ( s ) );
+}
 
 // Free a string and return NULL_STUB.
 //

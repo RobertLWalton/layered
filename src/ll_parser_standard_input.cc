@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 16 03:01:41 EDT 2012
+// Date:	Sat Apr 19 06:28:51 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -208,11 +208,11 @@ static min::uns32 input_add_tokens
 	case LEXSTD::number_t:
 	{
 	    int length = translation_buffer->length;
-	    min::uns32 * p =
-	        min::begin_ptr_of
-		    ( translation_buffer );
 	    PAR::string_ref(token) =
-	        PAR::new_string ( length, p );
+	        PAR::new_string
+		    ( length,
+		      min::begin_ptr_of
+			  ( translation_buffer ) );
 	    break;
 	}
 	case LEXSTD::comment_t:

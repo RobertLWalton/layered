@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 14 21:17:50 EST 2014
+// Date:	Sat Apr 19 07:28:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -196,7 +196,7 @@ static int max_string_free_list_size = 100;
 static unsigned min_string_length = 80;
 
 PAR::string PAR::new_string
-	( min::uns32 n, const min::uns32 * s )
+	( min::uns32 n, min::ptr<const min::uns32> s )
 {
     min::locatable_var<PAR::string_insptr> str
         ( (PAR::string_insptr) ::free_strings );

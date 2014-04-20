@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 16:53:00 EDT 2014
+// Date:	Sun Apr 20 06:24:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -455,19 +455,19 @@ static bool attach_type_map_to_dispatcher
     uns32 i = 0;
     for ( ; i + 1 < dhp->break_elements
             &&
-	    bep[i+1].cmin <= tmhp->cmin;
+	    (&bep[i+1])->cmin <= tmhp->cmin;
 	    ++ i );
 
     bool split_next =
 	( i == dhp->break_elements - 1 ?
 	  tmhp->cmax != 0xFFFFFFFF :
-	  tmhp->cmax != bep[i+1].cmin - 1 );
+	  tmhp->cmax != (&bep[i+1])->cmin - 1 );
 
-    if ( bep[i].type_map_ID != 0 )
+    if ( (&bep[i])->type_map_ID != 0 )
     {
-	uns32 old_cmin = bep[i].cmin;
+	uns32 old_cmin = (&bep[i])->cmin;
 	uns32 old_cmax = i+1 < dhp->break_elements ?
-	                 bep[i+1].cmin - 1 :
+	                 (&bep[i+1])->cmin - 1 :
 		         0xFFFFFFFF;
         ERR << "Attempt to attach type map "
 	    << pID ( type_map_ID, program )
@@ -479,7 +479,7 @@ static bool attach_type_map_to_dispatcher
 	    << pID ( dispatcher_ID, program )
 	    << " conflicts with previous attachment of"
 	       " type map "
-	    << pID ( bep[i].type_map_ID, program )
+	    << pID ( (&bep[i])->type_map_ID, program )
 	    << " to range "
 	    << min::puns ( old_cmin, "0x%X" )
 	    << "-"
@@ -490,12 +490,12 @@ static bool attach_type_map_to_dispatcher
 
     if ( i + 1 != dhp->break_elements
          &&
-	 bep[i+1].cmin < tmhp->cmin )
+	 (&bep[i+1])->cmin < tmhp->cmin )
     {
-        assert ( bep[i+1].type_map_ID != 0 );
-	uns32 old_cmin = bep[i+1].cmin;
+        assert ( (&bep[i+1])->type_map_ID != 0 );
+	uns32 old_cmin = (&bep[i+1])->cmin;
 	uns32 old_cmax = i+2 < dhp->break_elements ?
-	                 bep[i+2].cmin - 1 :
+	                 (&bep[i+2])->cmin - 1 :
 		         0xFFFFFFFF;
         ERR << "Attempt to attach type map "
 	    << pID ( type_map_ID, program )
@@ -507,7 +507,7 @@ static bool attach_type_map_to_dispatcher
 	    << pID ( dispatcher_ID, program )
 	    << " conflicts with previous attachment of"
 	       " type map "
-	    << pID ( bep[i+1].type_map_ID, program )
+	    << pID ( (&bep[i+1])->type_map_ID, program )
 	    << " to range "
 	    << min::puns ( old_cmin, "0x%X" )
 	    << "-"
@@ -517,7 +517,7 @@ static bool attach_type_map_to_dispatcher
     }
 
     int n = 2; // Number of new break elements needed.
-    if ( bep[i].cmin == tmhp->cmin ) -- n;
+    if ( (&bep[i])->cmin == tmhp->cmin ) -- n;
     if ( ! split_next ) -- n;
     if (   dhp->break_elements + n
          > dhp->max_break_elements )
@@ -533,24 +533,24 @@ static bool attach_type_map_to_dispatcher
     }
 
     if ( n != 0 )
-        memmove ( & bep[i+n], & bep[i],
+        memmove ( ! & bep[i+n], ! & bep[i],
 		    ( dhp->break_elements - i )
 		  * sizeof ( break_element ) );
-    if ( bep[i].cmin < tmhp->cmin )
+    if ( (&bep[i])->cmin < tmhp->cmin )
     {
 	++ i;
-	bep[i].cmin = tmhp->cmin;
-	bep[i].type_map_ID  = 0;
+	(&bep[i])->cmin = tmhp->cmin;
+	(&bep[i])->type_map_ID  = 0;
     }
 
     if ( split_next )
     {
-	bep[i+1].cmin = tmhp->cmax + 1;
-	bep[i+1].type_map_ID  = 0;
+	(&bep[i+1])->cmin = tmhp->cmax + 1;
+	(&bep[i+1])->type_map_ID  = 0;
     }
 
     dhp->break_elements += n;
-    bep[i].type_map_ID = type_map_ID;
+    (&bep[i])->type_map_ID = type_map_ID;
     return true;
 }
 
@@ -1180,8 +1180,8 @@ static uns32 ctype ( LEX::scanner scanner,
     // Binary search of break elements.
     //
     // Invariant:
-    //     bep[low].cmin <= c < bep[high].cmin
-    // where bep[high].cmin = infinity if
+    //     (&bep[low])->cmin <= c < (&bep[high])->cmin
+    // where (&bep[high])->cmin = infinity if
     // high == dhp->break_elements.
     //
     uns32 low = 0,
@@ -1190,7 +1190,7 @@ static uns32 ctype ( LEX::scanner scanner,
     while ( high - low >= 2 )
     {
 	mid = ( high + low ) / 2;
-	if ( bep[mid].cmin <= c )
+	if ( (&bep[mid])->cmin <= c )
 	    low = mid;
 	else
 	    high = mid;
@@ -1198,7 +1198,7 @@ static uns32 ctype ( LEX::scanner scanner,
 
     // Compute ctype from bep[low].
     //
-    uns32 type_map_ID = bep[low].type_map_ID;
+    uns32 type_map_ID = (&bep[low])->type_map_ID;
     uns32 ctype = 0;
     if ( type_map_ID != 0 )
     {
@@ -1213,7 +1213,7 @@ static uns32 ctype ( LEX::scanner scanner,
 		( program, type_map_ID );
 	ctype = tmhp->singleton_ctype;
 	if ( ctype == 0 )
-	    ctype = ( (uns8 *) ( & tmhp[1] ) )
+	    ctype = ( (uns8 *) ( ! & tmhp[1] ) )
 		    [c - tmhp->cmin];
     }
 
@@ -1348,14 +1348,14 @@ static uns32 scan_atom
 		  + dispatcher_header_length
 		  +   break_element_length
 		    * dhp->max_break_elements );
-	if ( mep[ctype].instruction_ID != 0 )
+	if ( (&mep[ctype])->instruction_ID != 0 )
 	{
-	    instruction_ID = mep[ctype].instruction_ID;
+	    instruction_ID = (&mep[ctype])->instruction_ID;
 	    assert ( program[instruction_ID]
 		     == INSTRUCTION );
 	    atom_length = length;
 	}
-	dispatcher_ID = mep[ctype].dispatcher_ID;
+	dispatcher_ID = (&mep[ctype])->dispatcher_ID;
 	assert ( dispatcher_ID == 0
 		 ||
 		    program[dispatcher_ID]
@@ -1589,7 +1589,7 @@ static uns32 scan_atom
 			    * dhp->max_break_elements );
 
 		dispatcher_ID =
-		    mep[ctype].dispatcher_ID;
+		    (&mep[ctype])->dispatcher_ID;
 	    }
 	}
 
@@ -2673,11 +2673,11 @@ static uns32 print_cooked_dispatcher
     for ( uns32 t1 = 0; t1 <= dhp->max_ctype; ++ t1 )
     {
         uns32 t2 = 0;
-	while (    mep[t2].instruction_ID
-	        != mep[t1].instruction_ID
+	while (    (&mep[t2])->instruction_ID
+	        != (&mep[t1])->instruction_ID
 		||
-		   mep[t2].dispatcher_ID
-		!= mep[t1].dispatcher_ID ) ++ t2;
+		   (&mep[t2])->dispatcher_ID
+		!= (&mep[t1])->dispatcher_ID ) ++ t2;
 	tmap[t1] = t2;
     }
 
@@ -2690,22 +2690,22 @@ static uns32 print_cooked_dispatcher
     for ( uns32 t = 0; t <= dhp->max_ctype; ++ t )
     {
         if ( t != tmap[t] ) continue;
-	if ( mep[t].instruction_ID == 0
+	if ( (&mep[t])->instruction_ID == 0
 	     &&
-	     mep[t].dispatcher_ID == 0 )
+	     (&mep[t])->dispatcher_ID == 0 )
 	    continue;
 
 	pclist pcl ( printer );
 	for ( uns32 b = 0; b < dhp->break_elements;
 	                   ++ b )
 	{
-	    uns32 cmin = bep[b].cmin;
+	    uns32 cmin = (&bep[b])->cmin;
 	    uns32 cmax =
 		( b == dhp->break_elements - 1 ?
 		  0xFFFFFFFF :
-		  bep[b+1].cmin - 1 );
+		  (&bep[b+1])->cmin - 1 );
 
-	    uns32 type_map_ID = bep[b].type_map_ID;
+	    uns32 type_map_ID = (&bep[b])->type_map_ID;
 
 	    if ( type_map_ID == 0 )
 	    {
@@ -2744,14 +2744,14 @@ static uns32 print_cooked_dispatcher
 	pcl.flush();
 	printer << min::eol;
 
-	if ( mep[t].instruction_ID != 0 )
+	if ( (&mep[t])->instruction_ID != 0 )
 	    print_instruction
 		( printer << min::indent << "    ",
-		  program, mep[t].instruction_ID );
-	if ( mep[t].dispatcher_ID != 0 )
+		  program, (&mep[t])->instruction_ID );
+	if ( (&mep[t])->dispatcher_ID != 0 )
 	    printer << min::indent
 	            << "    Dispatcher ID: "
-	            << pID ( mep[t].dispatcher_ID,
+	            << pID ( (&mep[t])->dispatcher_ID,
 		             program )
 		    << min::eol;
     }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 19 06:12:34 EDT 2014
+// Date:	Sun Apr 20 06:23:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2987,10 +2987,12 @@ static min::gen bracketed_pass_command
 			      + 1 ];
 	    strcpy
 		( & new_string[0],
-		  & middle_last_ptr[0] );
+		  ! min::begin_ptr_of
+		        ( middle_last_ptr ) );
 	    strcpy
 		( & new_string[middle_last_length],
-		  & closing_first_ptr[0] );
+		  ! min::begin_ptr_of
+		        ( closing_first_ptr ) );
 	    named_middle_closing =
 		min::new_str_gen ( new_string );
 	    if (   middle_length
@@ -3000,11 +3002,13 @@ static min::gen bracketed_pass_command
 		    [middle_length + closing_length
 				   - 1];
 		memcpy ( & element[0],
-			 & middle_ptr[0],
+			 ! min::begin_ptr_of
+			       ( middle_ptr ),
 			   ( middle_length - 1 )
 			 * sizeof ( min::gen ) );
 		memcpy ( & element[middle_length],
-			 & closing_ptr[0],
+			 ! min::begin_ptr_of
+			       ( closing_ptr ),
 			   ( closing_length - 1 )
 			 * sizeof ( min::gen ) );
 		element[middle_length - 1] =

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 19:38:29 EDT 2012
+// Date:	Mon Apr 21 07:14:54 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -114,7 +114,8 @@ static void create_program_1 ( void )
         LEX::create_instruction
 	    ( __LINE__,
 	      KEEP(1)+TRANSLATE_TO(3)+GOTO,
-	      translation, 0, 0, 0, 0, 0, atable1 );
+	      min::new_ptr ( translation ),
+	      0, 0, 0, 0, 0, atable1 );
     uns32 instruction2 =
         LEX::create_instruction ( __LINE__, ACCEPT );
 
@@ -192,7 +193,8 @@ static void create_program_2 ( void )
         LEX::create_instruction
 	    ( __LINE__,
 	      TRANSLATE_OCT(1,0)+ELSE,
-	      NULL, 0, 0, fail_instruction );
+	      LEX::NULL_TV(),
+	      0, 0, fail_instruction );
     check_attach ( oct_dispatcher3,
                    1, translate_oct_instruction );
     check_attach ( oct_atom,
@@ -220,7 +222,8 @@ static void create_program_2 ( void )
         LEX::create_instruction
 	    ( __LINE__,
 	      ACCEPT+OUTPUT,
-	      NULL, 0, 0, 0, 0, END_OF_FILE );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, END_OF_FILE );
     check_attach ( master, end_of_file_instruction );
 
     uns8 cmap[128] =
@@ -365,35 +368,44 @@ static void create_program_2 ( void )
         LEX::create_instruction
 	    ( __LINE__,
 	      KEEP(0)+CALL,
-	      NULL, 0, 0, 0, 0, 0, 0, symbol );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, 0, symbol );
     uns32 number_instruction =
         LEX::create_instruction
 	    ( __LINE__,
 	      KEEP(0)+GOTO,
-	      NULL, 0, 0, 0, 0, 0, number );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, number );
     uns32 whitespace_instruction =
         LEX::create_instruction
 	    ( __LINE__,
 	      ACCEPT+GOTO,
-	      NULL, 0, 0, 0, 0, 0, whitespace );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, whitespace );
     uns32 operator_instruction =
         LEX::create_instruction
 	    ( __LINE__,
-	      KEEP(0)+GOTO, NULL, 0, 0, 0, 0, 0, oper );
+	      KEEP(0)+GOTO,
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, oper );
     uns32 separator_instruction =
         LEX::create_instruction
 	    ( __LINE__,
 	      ACCEPT+OUTPUT,
-	      NULL, 0, 0, 0, 0, SEPARATOR );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, SEPARATOR );
     uns32 error_instruction =
         LEX::create_instruction
 	    ( __LINE__,
-	      ACCEPT+OUTPUT, NULL, 0, 0, 0, 0, ERROR );
+	      ACCEPT+OUTPUT,
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, ERROR );
     uns32 err_atom_instruction =
         LEX::create_instruction
 	    ( __LINE__,
 	      ERRONEOUS_ATOM+TRANSLATE_TO(0),
-	      NULL, 0, 0, 0, 100 );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 100 );
     check_attach ( master_dispatcher, 0,
                    error_instruction );
     check_attach ( master_dispatcher, white,
@@ -415,7 +427,8 @@ static void create_program_2 ( void )
         LEX::create_instruction
 	    ( __LINE__,
 	      KEEP(0)+GOTO,
-	      NULL, 0, 0, 0, 0, 0, master );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, master );
     uns32 return_instruction =
         LEX::create_instruction
 	    ( __LINE__, KEEP(0)+RETURN );
@@ -451,7 +464,7 @@ static void create_program_2 ( void )
         LEX::create_instruction
 	    ( __LINE__,
 	      MATCH+REQUIRE+ELSE,
-	      NULL, oct_atom,
+	      LEX::NULL_TV(), oct_atom,
 	            letter_dispatcher,
 	            err_atom_instruction );
     check_attach ( symbol_dispatcher, escape,
@@ -463,13 +476,15 @@ static void create_program_2 ( void )
         LEX::create_instruction
 	    ( __LINE__,
 	      ACCEPT+GOTO,
-	      NULL, 0, 0, 0, 0, 0, fraction );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, fraction );
 
     uns32 digit_instruction =
         LEX::create_instruction
 	    ( __LINE__,
 	      ACCEPT+GOTO,
-	      NULL, 0, 0, 0, 0, 0, number );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, number );
     uns32 number_dispatcher =
         LEX::create_dispatcher ( __LINE__, 5, 10 );
     uns32 digit_map =
@@ -516,7 +531,8 @@ static void create_program_2 ( void )
     uns32 master_accept =
         LEX::create_instruction
 	    ( __LINE__, ACCEPT+GOTO,
-	      NULL, 0, 0, 0, 0, 0, master );
+	      LEX::NULL_TV(),
+	      0, 0, 0, 0, 0, master );
     uns32 plus_dispatcher =
         LEX::create_dispatcher ( __LINE__, 9, 10 );
     uns32 minus_dispatcher =

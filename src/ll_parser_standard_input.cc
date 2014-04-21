@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 19 06:28:51 EDT 2014
+// Date:	Mon Apr 21 06:39:48 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,7 +188,7 @@ static min::uns32 input_add_tokens
 	    scanner->next_position;
 	token->indent =
 	    first < input_buffer->length ?
-	    input_buffer[first].indent :
+	    (&input_buffer[first])->indent :
 	    scanner->next_indent;
 
 	switch ( type )

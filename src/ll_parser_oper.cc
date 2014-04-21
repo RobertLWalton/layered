@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 16 19:14:29 EST 2014
+// Date:	Mon Apr 21 06:36:51 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -267,7 +267,8 @@ inline bool check_precedence
     for ( min::uns32 i = 0; i < oper_stack->length;
     			    ++ i )
     {
-        if ( oper_stack[i].precedence == precedence )
+        if (    (&oper_stack[i])->precedence
+	     == precedence )
 	    return true;
     }
     return false;
@@ -1956,7 +1957,7 @@ static min::gen oper_pass_command
     min::uns32 oper_flags = 0;
 
     min::phrase_position oper_flags_position;
-    oper_flags_position.begin = ppvec[i].begin;
+    oper_flags_position.begin = (&ppvec[i])->begin;
 
     while ( i < size )
     {
@@ -1989,7 +1990,7 @@ static min::gen oper_pass_command
 	    ( parser, ppvec[i-1],
 	      "expected operator flags after" );
 
-    oper_flags_position.end = ppvec[i-1].end;
+    oper_flags_position.end = (&ppvec[i-1])->end;
 
     if ( ( oper_flags & OP::NOFIX )
           &&
@@ -2065,7 +2066,8 @@ static min::gen oper_pass_command
 		 && vp[j] == ::reformatter )
 	    {
 		min::phrase_position position =
-		    { ppvec[i].begin, ppvec[j].end };
+		    { (&ppvec[i])->begin,
+		      (&ppvec[j])->end };
 		reformatter =
 		    OP::find_reformatter ( name );
 		if ( reformatter == min::NULL_STUB )
@@ -2125,7 +2127,7 @@ static min::gen oper_pass_command
 		}
 		else
 		{
-		    position.end = ppvec[i-1].end;
+		    position.end = (&ppvec[i-1])->end;
 
 		    if (   reformatter_arguments->length
 			 < reformatter->

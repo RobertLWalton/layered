@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 20 06:24:43 EDT 2014
+// Date:	Mon Apr 21 06:41:15 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -218,7 +218,7 @@ void LEX::create_program
 	uns32 next_length = ::round32 ( next_origin );
 	min::push ( program, next_length - length );
 
-	strcpy ( (char *) & program[ID] + origin,
+	strcpy ( (char *) ! & program[ID] + origin,
 	         type_name[t] );
 	origin = next_origin;
 	length = next_length;
@@ -280,7 +280,7 @@ uns32 LEX::create_type_map
 
     uns32 length = cmax - cmin + 1;
     min::push ( program, ::round32 ( length ) );
-    memcpy ( & program[ID+type_map_header_length],
+    memcpy ( ! & program[ID+type_map_header_length],
              map, length );
 
     return ID;
@@ -310,7 +310,7 @@ uns32 LEX::create_type_map
 uns32 LEX::create_instruction
 	( uns32 line_number,
 	  uns32 operation,
-	  uns32 * translation_vector,
+	  min::ptr<uns32> translation_vector,
 	  uns32 atom_table_ID,
 	  uns32 require_dispatcher_ID,
 	  uns32 else_instruction_ID,
@@ -361,9 +361,9 @@ uns32 LEX::create_instruction
 	0;
 
     if ( translate_to_length > 0 )
-        assert ( translation_vector != NULL );
+        assert ( translation_vector != NULL_TV() );
     else
-        assert ( translation_vector == NULL );
+        assert ( translation_vector == NULL_TV() );
 
     if ( operation & MATCH )
         assert ( atom_table_ID != 0 );
@@ -683,7 +683,7 @@ bool LEX::attach
 	assert ( ! "assert failure" );
 }
 
-inline uns32 conv ( uns32 & v )
+inline uns32 conv ( min::ref<min::uns32> v )
 {
     uns32 b0 = v >> 24;
     uns32 b1 = ( v >> 16 ) & 0xFF;
@@ -808,14 +808,14 @@ static bool default_input_get
 	add_eol = false;
     }
     else
-        length = ::strlen ( & file->buffer[offset] );
+        length = ::strlen ( ! & file->buffer[offset] );
 
     LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
     while ( length != 0 )
     {
-	const char * beginp = & file->buffer[offset];
+	const char * beginp = ! & file->buffer[offset];
 	const char * endp = beginp + length;
 	const char * p = beginp;
 	uns32 unicode =
@@ -1313,8 +1313,8 @@ static uns32 scan_atom
 	    (   scanner->next + length
 	      < input_buffer->length );
 	uns32 c =
-	    input_buffer[scanner->next + length]
-	                .character;
+	    (&input_buffer[scanner->next + length])
+	                ->character;
 	++ length;
 
 	uns32 ctype =
@@ -1350,7 +1350,8 @@ static uns32 scan_atom
 		    * dhp->max_break_elements );
 	if ( (&mep[ctype])->instruction_ID != 0 )
 	{
-	    instruction_ID = (&mep[ctype])->instruction_ID;
+	    instruction_ID =
+	        (&mep[ctype])->instruction_ID;
 	    assert ( program[instruction_ID]
 		     == INSTRUCTION );
 	    atom_length = length;
@@ -1485,7 +1486,7 @@ static uns32 scan_atom
 		{
 		    tc <<= 4;
 		    uns32 d =
-			input_buffer[p++].character;
+			(&input_buffer[p++])->character;
 		    if ( '0' <= d && d <= '9' )
 			tc += d - '0';
 		    else if ( 'a' <= d && d <= 'f' )
@@ -1503,7 +1504,7 @@ static uns32 scan_atom
 		{
 		    tc <<= 3;
 		    uns32 d =
-			input_buffer[p++].character;
+			(&input_buffer[p++])->character;
 		    if ( '0' <= d && d <= '7' )
 			tc += d - '0';
 		    else
@@ -1676,7 +1677,7 @@ static uns32 scan_atom
 	    uns32 p = scanner->next;
 	    for ( uns32 i = 0; i < atom_length; ++ i )
 		min::push(translation_buffer) =
-		    input_buffer[p++].character;
+		    (&input_buffer[p++])->character;
 	}
 
 	if ( op & ERRONEOUS_ATOM )
@@ -1809,8 +1810,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	// down, eliminating characters in lexemes
 	// already returned.
 	//
-        memmove ( & input_buffer[0],
-	          & input_buffer[scanner->next],
+        memmove ( ! & input_buffer[0],
+	          ! & input_buffer[scanner->next],
 		    (   input_buffer->length
 		      - scanner->next )
 		  * sizeof ( LEX::inchar ) );
@@ -2053,7 +2054,7 @@ static min::printer scan_error
 	    scanner->next_position;
     min::uns32 indent =
 	scanner->next < scanner->input_buffer->length ?
-	    scanner->input_buffer[next].indent :
+	    (&scanner->input_buffer[next])->indent :
 	    scanner->next_indent;
     min::error_message << ": position "
 	               << position.line << "("
@@ -2087,8 +2088,8 @@ min::printer operator <<
             << min::graphic << min::gbreak;
     while ( first < next )
         printer << min::punicode
-	    ( scanner->input_buffer[first++]
-	              .character );
+	    ( (&scanner->input_buffer[first++])
+	              ->character );
     return printer << min::restore_print_format;
 }
 
@@ -2151,7 +2152,7 @@ min::printer operator <<
 	    scanner->next_position;
     min::uns32 indent =
         first < input_buffer->length ?
-	    input_buffer[first].indent :
+	    (&input_buffer[first])->indent :
 	    scanner->next_indent;
 
     printer << position.line << "("
@@ -2179,7 +2180,7 @@ bool LEX::translation_is_exact
         return false;
     while ( first < next )
     {
-        if (    input_buffer[first].character
+        if (    (&input_buffer[first])->character
 	     != translation_buffer[i] )
 	    return false;
 	++ first, ++ i;

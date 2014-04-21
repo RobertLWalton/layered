@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 16:52:49 EDT 2014
+// Date:	Mon Apr 21 06:40:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -266,10 +266,15 @@ namespace ll { namespace lexeme {
     // components defined below in `Program Instruc-
     // tions'.  Return the ID of the new instruction.
     //
+    inline min::ptr<uns32> NULL_TV ( void )
+    {
+        return min::ptr<uns32>();
+    }
     uns32 create_instruction
 	    ( uns32 line_number,
 	      uns32 operation,
-	      uns32 * translation_vector = NULL,
+	      min::ptr<uns32> translation_vector =
+	          NULL_TV(),
 	      uns32 atom_table_ID = 0,
 	      uns32 require_dispatcher_ID = 0,
 	      uns32 else_instruction_ID = 0,

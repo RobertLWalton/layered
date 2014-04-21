@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 19 06:27:53 EDT 2014
+// Date:	Mon Apr 21 06:40:55 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -782,7 +782,8 @@ inline ll::parser::new_pass find_new_pass
         ll::parser::new_pass_table;
     for ( min::uns32 i = 0; i < t->length; ++ i )
     {
-        if ( t[i].name == name ) return t[i].new_pass;
+        if ( (&t[i])->name == name )
+	    return (&t[i])->new_pass;
     }
     return NULL;
 }
@@ -1052,7 +1053,7 @@ inline min::gen block_name
         ( block_level <= parser->block_stack->length );
     return block_level == 0 ?
            (min::gen) ll::parser::top_level :
-	   parser->block_stack[block_level-1].name;
+	   (&parser->block_stack[block_level-1])->name;
 }
 
 MIN_REF ( ll::parser::input, input,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 14:03:59 EST 2014
+// Date:	Mon Apr 21 06:34:26 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -275,8 +275,8 @@ static int scan_flag
     }
 
     min::phrase_position pp;
-    pp.begin = ppvec[ibegin].begin;
-    pp.end = ppvec[i-1].end;
+    pp.begin = (&ppvec[ibegin])->begin;
+    pp.end = (&ppvec[i-1])->end;
 
     return ::lookup_flag
         ( flag, name_table, parser, pp );
@@ -525,8 +525,8 @@ static min::gen execute_pass
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected simple name after" );
-	name_pp.begin = ppvec[begini].begin;
-	name_pp.end = ppvec[i-1].end;
+	name_pp.begin = (&ppvec[begini])->begin;
+	name_pp.end = (&ppvec[i-1])->end;
 
 	new_pass = PAR::find_new_pass ( name );
 	if ( new_pass == NULL && name != ::top )
@@ -562,8 +562,8 @@ static min::gen execute_pass
 		    ( parser, ppvec[i-1],
 		      "expected simple name after" );
 	    min::phrase_position name2_pp;
-	    name2_pp.begin = ppvec[begini].begin;
-	    name2_pp.end = ppvec[i-1].end;
+	    name2_pp.begin = (&ppvec[begini])->begin;
+	    name2_pp.end = (&ppvec[i-1])->end;
 
 	    if (    PAR::find_new_pass ( name2 ) == NULL
 	         && name2 != ::top )
@@ -743,8 +743,8 @@ static min::gen execute_selectors
 		       ->length >= 64 )
 	    {
 		min::phrase_position pp;
-		pp.begin = ppvec[begini].begin;
-		pp.end = ppvec[i-1].end;
+		pp.begin = (&ppvec[begini])->begin;
+		pp.end = (&ppvec[i-1])->end;
 		return PAR::parse_error
 		    ( parser, pp,
 		      "too many selector names;"
@@ -779,8 +779,9 @@ static min::gen execute_selectors
 
 	    while ( block_level > 0
 	            &&
-		    parser->block_stack[block_level-1]
-		      .saved_selector_name_table_length
+		    (&parser->block_stack
+		          [block_level-1])
+		      ->saved_selector_name_table_length
 		    > j )
 	        -- block_level;
 
@@ -874,7 +875,8 @@ static min::gen execute_context
 	        min::gen block_name =
 		    ( i == 0 ?
 		      (min::gen) PAR::top_level :
-		      parser->block_stack[i-1].name );
+		      (&parser->block_stack[i-1])
+		          ->name );
 
 	        parser->printer << min::indent
 		                << "block "
@@ -890,8 +892,8 @@ static min::gen execute_context
 
 		if ( i == 0 ) break;
 
-		flags = parser->block_stack[i-1]
-			    .saved_selectors;
+		flags = (&parser->block_stack[i-1])
+			    ->saved_selectors;
 	    }
 	}
 
@@ -986,8 +988,8 @@ static min::gen execute_context
     else
     {
 	min::phrase_position pp;
-	pp.begin = ppvec[0].begin;
-	pp.end = ppvec[i-1].end;
+	pp.begin = (&ppvec[0])->begin;
+	pp.end = (&ppvec[i-1])->end;
 
 	PAR::push_context
 	    ( name, 0, PAR::block_level ( parser ), pp,

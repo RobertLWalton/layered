@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 31 10:11:46 EST 2012
+// Date:	Mon Apr 21 06:41:49 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -135,8 +135,8 @@ static void set_codes
 
     uns32 line =
         first < scanner->input_buffer->length ?
-        scanner->input_buffer[first].line :
-	scanner->next_position.line;
+        (&scanner->input_buffer[first])->line :
+	(&scanner->next_position)->line;
     if ( ::next_line <= line ) set_line ( line );
 
     uns32 begin_column =

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 19 06:02:45 EDT 2014
+// Date:	Mon Apr 21 04:10:20 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,19 +158,22 @@ static SUBSTATE substate;
 
 // Return current or parent dispatcher or instruction.
 //
-inline dispatcher & current_dispatcher ( void )
+inline min::ref<dispatcher> current_dispatcher
+	( void )
 {
     uns32 dindex = dispatchers->length;
     assert ( dindex >= 1 );
     return dispatchers[dindex-1];
 }
-inline dispatcher & parent_dispatcher ( void )
+inline min::ref<dispatcher> parent_dispatcher
+	( void )
 {
     uns32 dindex = dispatchers->length;
     assert ( dindex >= 2 );
     return dispatchers[dindex-2];
 }
-inline instruction & current_instruction ( void )
+inline min::ref<instruction> current_instruction
+	( void )
 {
     uns32 iindex = instructions->length;
     assert ( iindex >= 1 );
@@ -238,29 +241,29 @@ void LEXNDL::new_table
 static void push_dispatcher ( bool is_others = false )
 {
     if ( dispatchers->length > 0 && ! is_others )
-        ++ current_dispatcher().max_type_code;
+        ++ (&current_dispatcher())->max_type_code;
 
     dispatcher & d = min::push ( dispatchers );
 
-    memset ( d.ascii_map, 0, 128 );
-    d.line_number = LEXNDL::line;
-    d.max_type_code = 0;
-    d.type_map_count = 0;
-    d.others_dispatcher_ID = 0;
-    d.others_instruction_ID = 0;
-    d.is_others_dispatcher = is_others;
+    memset ( (&d)->ascii_map, 0, 128 );
+    (&d)->line_number = LEXNDL::line;
+    (&d)->max_type_code = 0;
+    (&d)->type_map_count = 0;
+    (&d)->others_dispatcher_ID = 0;
+    (&d)->others_instruction_ID = 0;
+    (&d)->is_others_dispatcher = is_others;
 
     instruction & ci = min::push ( instructions );
 
-    ci.line_number = 0;
-    ci.operation = 0;
-    ci.atom_table_ID = 0;
-    ci.require_dispatcher_ID = 0;
-    ci.erroneous_atom_type = 0;
-    ci.output_type = 0;
-    ci.goto_table_ID = 0;
-    ci.call_table_ID = 0;
-    ci.accept = false;
+    (&ci)->line_number = 0;
+    (&ci)->operation = 0;
+    (&ci)->atom_table_ID = 0;
+    (&ci)->require_dispatcher_ID = 0;
+    (&ci)->erroneous_atom_type = 0;
+    (&ci)->output_type = 0;
+    (&ci)->goto_table_ID = 0;
+    (&ci)->call_table_ID = 0;
+    (&ci)->accept = false;
 
     substate = is_others ? DISPATCHERS
                          : ADD_CHARACTERS;
@@ -275,15 +278,17 @@ static uns32 pop_instruction_group ( uns32 line_number )
     uns32 instruction_ID = 0;
     while ( true )
     {
-	instruction & ci = current_instruction();
+	min::ref<instruction> ci =
+	    current_instruction();
 
 	uns32 translate_to_length = 0;
-	if ( ci.operation & LEX::TRANSLATE_TO_FLAG )
+	if ( (&ci)->operation & LEX::TRANSLATE_TO_FLAG )
 	    translate_to_length =
 	        LEX::translate_to_length
-		    ( ci.operation );
+		    ( (&ci)->operation );
 
-        uns32 * translation_vector = NULL;
+        min::ptr<uns32> translation_vector =
+	    LEX::NULL_TV();
 	uns32 length = uns32_stack->length;
 	assert ( translate_to_length <= length );
 	if ( translate_to_length > 0 )
@@ -291,18 +296,18 @@ static uns32 pop_instruction_group ( uns32 line_number )
 	        & uns32_stack
 		    [length - translate_to_length];
 
-	if ( ci.operation != 0 || ci.accept )
+	if ( (&ci)->operation != 0 || (&ci)->accept )
 	    instruction_ID = LEX::create_instruction
-		( ci.line_number,
-		  ci.operation,
+		( (&ci)->line_number,
+		  (&ci)->operation,
 		  translation_vector,
-		  ci.atom_table_ID,
-		  ci.require_dispatcher_ID,
+		  (&ci)->atom_table_ID,
+		  (&ci)->require_dispatcher_ID,
 		  instruction_ID,
-		  ci.erroneous_atom_type,
-		  ci.output_type,
-		  ci.goto_table_ID,
-		  ci.call_table_ID );
+		  (&ci)->erroneous_atom_type,
+		  (&ci)->output_type,
+		  (&ci)->goto_table_ID,
+		  (&ci)->call_table_ID );
 
 	if ( translate_to_length > 0 )
 	    min::pop ( uns32_stack,
@@ -312,7 +317,7 @@ static uns32 pop_instruction_group ( uns32 line_number )
 
 	if ( instructions->length == 0
 	     ||
-	     ! ( current_instruction().operation
+	     ! ( (&current_instruction())->operation
 	         & LEX::ELSE ) )
 	    break;
 
@@ -335,30 +340,30 @@ static uns32 pop_instruction_group ( uns32 line_number )
 static void pop_dispatcher
 	( bool discard_dispatcher = false )
 {
-    dispatcher & d = current_dispatcher();
+    min::ref<dispatcher> d = current_dispatcher();
 
     uns32 instruction_ID =
-        pop_instruction_group ( d.line_number );
+        pop_instruction_group ( (&d)->line_number );
 
     uns32 cmin = 0;
     uns32 cmax = 127;
-    while ( cmin <= cmax && d.ascii_map[cmin] == 0 )
+    while ( cmin <= cmax && (&d)->ascii_map[cmin] == 0 )
         ++ cmin;
-    while ( cmin <= cmax && d.ascii_map[cmax] == 0 )
+    while ( cmin <= cmax && (&d)->ascii_map[cmax] == 0 )
         -- cmax;
     bool ascii_used = ( cmin <= cmax );
 
     if ( discard_dispatcher )
     {
-        assert ( d.max_type_code == 0 );
+        assert ( (&d)->max_type_code == 0 );
         assert ( instruction_ID == 0 );
 	assert ( ! ascii_used );
-	assert ( d.others_dispatcher_ID == 0 );
-	assert ( d.others_instruction_ID == 0 );
+	assert ( (&d)->others_dispatcher_ID == 0 );
+	assert ( (&d)->others_instruction_ID == 0 );
 
 	min::push(uns32_stack) = 0;
 	min::push(uns32_stack) = instruction_ID;
-	min::push(uns32_stack) = d.type_map_count;
+	min::push(uns32_stack) = (&d)->type_map_count;
 
 	min::pop ( dispatchers );
 
@@ -368,7 +373,7 @@ static void pop_dispatcher
 
     uns32 total_type_map_count = 0;
     const uns32 * p = ! min::end_ptr_of ( uns32_stack );
-    for ( uns32 tcode = d.max_type_code;
+    for ( uns32 tcode = (&d)->max_type_code;
           0 < tcode; -- tcode )
     {
         uns32 sub_type_map_count = p[-1];
@@ -378,25 +383,25 @@ static void pop_dispatcher
 
     uns32 dispatcher_ID =
         LEX::create_dispatcher
-	    ( d.line_number,
+	    ( (&d)->line_number,
 	      2 * ( total_type_map_count + ascii_used ),
-	      d.max_type_code );
+	      (&d)->max_type_code );
 
     if ( ascii_used )
         ATTACH ( dispatcher_ID,
 	         LEX::create_type_map
-		     ( d.line_number,
+		     ( (&d)->line_number,
 		       cmin, cmax,
-		       d.ascii_map + cmin ) );
+		       (&d)->ascii_map + cmin ) );
 
-    if ( d.others_dispatcher_ID != 0 )
+    if ( (&d)->others_dispatcher_ID != 0 )
         ATTACH ( dispatcher_ID, 0,
-	         d.others_dispatcher_ID );
-    if ( d.others_instruction_ID != 0 )
+	         (&d)->others_dispatcher_ID );
+    if ( (&d)->others_instruction_ID != 0 )
         ATTACH ( dispatcher_ID, 0,
-	         d.others_instruction_ID );
+	         (&d)->others_instruction_ID );
 
-    for ( uns32 tcode = d.max_type_code;
+    for ( uns32 tcode = (&d)->max_type_code;
           0 < tcode; -- tcode )
     {
         uns32 sub_type_map_count =
@@ -424,23 +429,26 @@ static void pop_dispatcher
 	    uns32 min_char = min::pop ( uns32_stack );
 	    ATTACH ( dispatcher_ID,
 	             LEX::create_type_map
-		        ( d.line_number,
+		        ( (&d)->line_number,
 			  min_char, max_char, tcode ) );
 	}
     }
 
-    if ( d.is_others_dispatcher )
+    if ( (&d)->is_others_dispatcher )
     {
-	dispatcher & parent = parent_dispatcher();
-	parent.others_dispatcher_ID = dispatcher_ID;
-	parent.others_instruction_ID = instruction_ID;
-	assert ( d.type_map_count == 0 );
+	min::ref<dispatcher> parent =
+	    parent_dispatcher();
+	(&parent)->others_dispatcher_ID =
+	    dispatcher_ID;
+	(&parent)->others_instruction_ID =
+	    instruction_ID;
+	assert ( (&d)->type_map_count == 0 );
     }
     else
     {
 	min::push(uns32_stack) = dispatcher_ID;
 	min::push(uns32_stack) = instruction_ID;
-	min::push(uns32_stack) = d.type_map_count;
+	min::push(uns32_stack) = (&d)->type_map_count;
     }
 
     min::pop ( dispatchers );
@@ -499,7 +507,7 @@ static void internal_add_characters
 	( const char * include_chars,
 	  const char * exclude_chars )
 {
-    dispatcher & d = parent_dispatcher();
+    min::ref<dispatcher> d = parent_dispatcher();
     int c;  // use int instead of char to prevent
             // 0 <= c or c < 128 warning message.
     while ( ( c = * include_chars ++ ) != 0 )
@@ -509,11 +517,11 @@ static void internal_add_characters
 	ASSERT ( 0 <= c && c < 128,
 	         "non-ASCII character in"
 		 " include_chars" );
-        ASSERT ( d.ascii_map[c] == 0,
+        ASSERT ( (&d)->ascii_map[c] == 0,
 	         "character 0x%X in use by"
 		 " previous dispatcher",
 	         c );
-	d.ascii_map[c] = d.max_type_code;
+	(&d)->ascii_map[c] = (&d)->max_type_code;
     }
 }
 
@@ -602,15 +610,16 @@ void LEXNDL::add_characters
 
     if ( min_char < 128 )
     {
-	dispatcher & d = parent_dispatcher();
+	min::ref<dispatcher> d = parent_dispatcher();
 
 	while ( min_char < 128 && min_char <= max_char )
 	{
-	    ASSERT ( d.ascii_map[min_char] == 0,
+	    ASSERT ( (&d)->ascii_map[min_char] == 0,
 		     "character 0x%X in use by"
 		     " previous dispatcher",
 		     min_char );
-	    d.ascii_map[min_char] = d.max_type_code;
+	    (&d)->ascii_map[min_char] =
+	        (&d)->max_type_code;
 	    ++ min_char;
 	}
 
@@ -618,9 +627,9 @@ void LEXNDL::add_characters
     }
 
 
-    dispatcher & d = current_dispatcher();
+    min::ref<dispatcher> d = current_dispatcher();
 
-    ++ d.type_map_count;
+    ++ (&d)->type_map_count;
     min::push(uns32_stack) = min_char;
     min::push(uns32_stack) = max_char;
 }
@@ -640,10 +649,10 @@ void LEXNDL::begin_dispatch
 
     if ( is_others )
     {
-        dispatcher & d = current_dispatcher();
-	ASSERT ( d.others_dispatcher_ID == 0
+	min::ref<dispatcher> d = current_dispatcher();
+	ASSERT ( (&d)->others_dispatcher_ID == 0
 	         &&
-		 d.others_instruction_ID == 0,
+		 (&d)->others_instruction_ID == 0,
 		 "more than one OTHERS dispatchers"
 		 " under one parent" );
     }
@@ -666,8 +675,8 @@ void LEXNDL::end_dispatch ( void )
 }
 
 # define INSTRUCTION_LINE \
-    if ( ci.line_number == 0 ) \
-	ci.line_number = LEXNDL::line
+    if ( (&ci)->line_number == 0 ) \
+	(&ci)->line_number = LEXNDL::line
 
 void LEXNDL::accept ( void )
 {
@@ -676,16 +685,16 @@ void LEXNDL::accept ( void )
              "accept() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "accept() conflicts with another"
 	     " accept()" );
-    ASSERT ( ci.operation == 0,
+    ASSERT ( (&ci)->operation == 0,
              "accept() conflicts with another"
 	     " instruction component" );
 
     INSTRUCTION_LINE;
-    ci.accept = true;
+    (&ci)->accept = true;
 }
 
 void LEXNDL::keep ( uns32 n )
@@ -695,17 +704,17 @@ void LEXNDL::keep ( uns32 n )
              "accept() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "keep() conflicts with accept()" );
-    ASSERT ( ! ( ci.operation & LEX::KEEP_FLAG ),
+    ASSERT ( ! ( (&ci)->operation & LEX::KEEP_FLAG ),
              "keep() conflicts with another keep()" );
     ASSERT ( n <= LEX::KEEP_LENGTH_MASK,
              "keep() length (%d) too large (> %d)",
 	     n, LEX::KEEP_LENGTH_MASK );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::KEEP ( n );
+    (&ci)->operation |= LEX::KEEP ( n );
 }
 
 void LEXNDL::translate_to
@@ -725,10 +734,10 @@ void LEXNDL::translate_to
              "translate_to() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "translate_to() conflicts with accept()" );
-    ASSERT ( ! (   ci.operation
+    ASSERT ( ! (   (&ci)->operation
                  & (   LEX::TRANSLATE_TO_FLAG
 	             | LEX::TRANSLATE_OCT_FLAG
 	             | LEX::TRANSLATE_HEX_FLAG ) ),
@@ -744,7 +753,7 @@ void LEXNDL::translate_to
 		 " translation_string == NULL" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::TRANSLATE_TO ( n );
+    (&ci)->operation |= LEX::TRANSLATE_TO ( n );
     while ( n -- )
         min::push(uns32_stack) =
 	    * translation_string ++;
@@ -757,11 +766,11 @@ void LEXNDL::translate_oct ( uns32 m, uns32 n )
              "translate_oct() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "translate_oct() conflicts with"
 	     " accept()" );
-    ASSERT ( ! (   ci.operation
+    ASSERT ( ! (   (&ci)->operation
                  & (   LEX::TRANSLATE_TO_FLAG
 	             | LEX::TRANSLATE_OCT_FLAG
 	             | LEX::TRANSLATE_HEX_FLAG ) ),
@@ -777,7 +786,7 @@ void LEXNDL::translate_oct ( uns32 m, uns32 n )
 	     n, LEX::POSTFIX_LENGTH_MASK );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::TRANSLATE_OCT ( m, n );
+    (&ci)->operation |= LEX::TRANSLATE_OCT ( m, n );
 }
 
 void LEXNDL::translate_hex ( uns32 m, uns32 n )
@@ -787,11 +796,11 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
              "translate_hex() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "translate_hex() conflicts with"
 	     " accept()" );
-    ASSERT ( ! (   ci.operation
+    ASSERT ( ! (   (&ci)->operation
                  & (   LEX::TRANSLATE_TO_FLAG
 	             | LEX::TRANSLATE_OCT_FLAG
 	             | LEX::TRANSLATE_HEX_FLAG ) ),
@@ -807,7 +816,7 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
 	     n, LEX::POSTFIX_LENGTH_MASK );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::TRANSLATE_HEX ( m, n );
+    (&ci)->operation |= LEX::TRANSLATE_HEX ( m, n );
 }
 
 void LEXNDL::match ( uns32 table_name )
@@ -817,9 +826,9 @@ void LEXNDL::match ( uns32 table_name )
              "match() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
+    min::ref<instruction> ci = current_instruction();
 
-    ASSERT ( ! ci.accept,
+    ASSERT ( ! (&ci)->accept,
              "match() conflicts with accept()" );
 
     ASSERT (    LEX::component_type ( table_name )
@@ -827,8 +836,8 @@ void LEXNDL::match ( uns32 table_name )
              "table_name does not reference a table" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::MATCH;
-    ci.atom_table_ID = table_name;
+    (&ci)->operation |= LEX::MATCH;
+    (&ci)->atom_table_ID = table_name;
 }
 
 void LEXNDL::require ( uns32 atom_pattern_name )
@@ -844,12 +853,12 @@ void LEXNDL::require ( uns32 atom_pattern_name )
              "atom_pattern_name does not reference an"
 	     " atom pattern" );
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "require() conflicts with accept()" );
-    ASSERT ( ! ( ci.operation & REQUIRE ),
+    ASSERT ( ! ( (&ci)->operation & REQUIRE ),
              "multiple require()'s in instruction" );
-    ASSERT (   ci.operation
+    ASSERT (   (&ci)->operation
              & (   LEX::TRANSLATE_OCT_FLAG
 	         | LEX::TRANSLATE_HEX_FLAG
 	         | LEX::MATCH ),
@@ -857,8 +866,8 @@ void LEXNDL::require ( uns32 atom_pattern_name )
 	     " translate_oct/hex()" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::REQUIRE;
-    ci.require_dispatcher_ID = atom_pattern_name;
+    (&ci)->operation |= LEX::REQUIRE;
+    (&ci)->require_dispatcher_ID = atom_pattern_name;
 }
 
 void LEXNDL::erroneous_atom ( uns32 type_name )
@@ -868,17 +877,18 @@ void LEXNDL::erroneous_atom ( uns32 type_name )
              "erroneous_atom() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "erroneous_atom() conflicts with"
 	     " accept()" );
-    ASSERT ( ! ( ci.operation & LEX::ERRONEOUS_ATOM ),
+    ASSERT ( ! (   (&ci)->operation
+                 & LEX::ERRONEOUS_ATOM ),
              "erroneous_atom() conflicts with another"
 	     " erroneous_atom()" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::ERRONEOUS_ATOM;
-    ci.erroneous_atom_type = type_name;
+    (&ci)->operation |= LEX::ERRONEOUS_ATOM;
+    (&ci)->erroneous_atom_type = type_name;
 }
 
 void LEXNDL::output ( uns32 type_name )
@@ -890,16 +900,16 @@ void LEXNDL::output ( uns32 type_name )
              "output() in atom table" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "output() conflicts with accept()" );
-    ASSERT ( ! ( ci.operation & LEX::OUTPUT ),
+    ASSERT ( ! ( (&ci)->operation & LEX::OUTPUT ),
              "output() conflicts with another"
 	     " output()" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::OUTPUT;
-    ci.output_type = type_name;
+    (&ci)->operation |= LEX::OUTPUT;
+    (&ci)->output_type = type_name;
 }
 
 void LEXNDL::go ( uns32 table_name )
@@ -911,10 +921,10 @@ void LEXNDL::go ( uns32 table_name )
              "goto() in atom table" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "go() conflicts with accept()" );
-    ASSERT ( ! (   ci.operation
+    ASSERT ( ! (   (&ci)->operation
                  & (   LEX::GOTO
 	             | LEX::RETURN ) ),
              "go() conflicts with another go() or"
@@ -930,8 +940,8 @@ void LEXNDL::go ( uns32 table_name )
 	     " table" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::GOTO;
-    ci.goto_table_ID = table_name;
+    (&ci)->operation |= LEX::GOTO;
+    (&ci)->goto_table_ID = table_name;
 }
 
 void LEXNDL::call ( uns32 table_name )
@@ -943,10 +953,10 @@ void LEXNDL::call ( uns32 table_name )
              "call() in atom table" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "call() conflicts with accept()" );
-    ASSERT ( ! (   ci.operation
+    ASSERT ( ! (   (&ci)->operation
                  & (   LEX::CALL
 	             | LEX::RETURN ) ),
              "call() conflicts with another call() or"
@@ -966,8 +976,8 @@ void LEXNDL::call ( uns32 table_name )
 	     " table" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::CALL;
-    ci.call_table_ID = table_name;
+    (&ci)->operation |= LEX::CALL;
+    (&ci)->call_table_ID = table_name;
 }
 
 void LEXNDL::ret ( void )
@@ -979,10 +989,10 @@ void LEXNDL::ret ( void )
              "ret() in atom table" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "ret() conflicts with accept()" );
-    ASSERT ( ! (   ci.operation
+    ASSERT ( ! (   (&ci)->operation
                  & (   LEX::GOTO
 	             | LEX::CALL
 	             | LEX::RETURN ) ),
@@ -990,7 +1000,7 @@ void LEXNDL::ret ( void )
 	     " with call() or go()" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::RETURN;
+    (&ci)->operation |= LEX::RETURN;
 }
 
 void LEXNDL::fail ( void )
@@ -1002,14 +1012,14 @@ void LEXNDL::fail ( void )
              "fail() in non-atom table" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT ( ! ci.accept,
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
              "fail() conflicts with accept()" );
-    ASSERT ( ! ( ci.operation & LEX::FAIL ),
+    ASSERT ( ! ( (&ci)->operation & LEX::FAIL ),
              "fail() conflicts with another fail()" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::FAIL;
+    (&ci)->operation |= LEX::FAIL;
 }
 
 void LEXNDL::ELSE ( void )
@@ -1019,8 +1029,8 @@ void LEXNDL::ELSE ( void )
              "ELSE() misplaced" );
     substate = ::INSTRUCTION;
 
-    instruction & ci = current_instruction();
-    ASSERT (   ci.operation
+    min::ref<instruction> ci = current_instruction();
+    ASSERT (   (&ci)->operation
              & (   LEX::TRANSLATE_OCT_FLAG
 	         | LEX::TRANSLATE_HEX_FLAG
 	         | LEX::MATCH
@@ -1029,7 +1039,7 @@ void LEXNDL::ELSE ( void )
 	     " translate_oct/hex(), or require()" );
 
     INSTRUCTION_LINE;
-    ci.operation |= LEX::ELSE;
+    (&ci)->operation |= LEX::ELSE;
 
     instruction & i2 = min::push ( instructions );
     i2.operation = 0;

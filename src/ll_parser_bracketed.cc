@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 20 06:23:36 EDT 2014
+// Date:	Mon Apr 21 06:34:37 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1065,7 +1065,7 @@ bool BRA::parse_bracketed_subexpression
 				       ( sp )
 				 + (  length
 			            - split->length ),
-			         & split[0],
+			         ! & split[0],
 				 split->length )
 			     == 0 ) break;
 		    }
@@ -2392,7 +2392,8 @@ static min::gen bracketed_pass_command
 	        min::gen block_name =
 		    ( i == 0 ?
 		      (min::gen) PAR::top_level :
-		      parser->block_stack[i-1].name );
+		      (&parser->block_stack[i-1])
+		          ->name );
 
 	        parser->printer << min::indent
 		                << "block "
@@ -2764,8 +2765,8 @@ static min::gen bracketed_pass_command
 	     && name[m] != name[m+1] )
 	{
 	    min::phrase_position pp;
-	    pp.begin = ppvec[m].begin;
-	    pp.end   = ppvec[m+1].end;
+	    pp.begin = (&ppvec[m])->begin;
+	    pp.end   = (&ppvec[m+1])->end;
 	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
 		<< "ERROR: named middles "

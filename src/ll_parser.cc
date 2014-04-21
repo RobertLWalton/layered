@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 19 07:28:13 EDT 2014
+// Date:	Mon Apr 21 06:42:00 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1170,7 +1170,7 @@ min::gen PAR::end_block
     min::uns32 block_level =
         PAR::block_level ( parser );
     assert ( block_level > 0 );
-    TAB::block_struct & b =
+    min::ref<TAB::block_struct> b =
         parser->block_stack[block_level-1];
 
     if ( block_level == 0 )
@@ -1179,7 +1179,7 @@ min::gen PAR::end_block
 	      position,
 	      "not inside a block"
 	      " (no begin block to end)" );
-    else if ( name != b.name )
+    else if ( name != (&b)->name )
         return PAR::parse_error
 	    ( parser,
 	      position,
@@ -1188,10 +1188,11 @@ min::gen PAR::end_block
 
     while ( parser->selector_name_table->length
             >
-	    b.saved_selector_name_table_length )
+	    (&b)->saved_selector_name_table_length )
         TAB::pop_name ( parser->selector_name_table );
 
-    min::uns32 length = b.saved_undefined_stack_length;
+    min::uns32 length =
+        (&b)->saved_undefined_stack_length;
     while ( parser->undefined_stack->length > length )
     {
         TAB::undefined_struct u =
@@ -1199,7 +1200,7 @@ min::gen PAR::end_block
 	u.root->selectors = u.saved_selectors;
     }
 
-    parser->selectors = b.saved_selectors;
+    parser->selectors = (&b)->saved_selectors;
 
     min::uns64 collected_entries,
                collected_key_prefixes;

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 04:10:20 EDT 2014
+// Date:	Tue Apr 22 03:29:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -243,7 +243,8 @@ static void push_dispatcher ( bool is_others = false )
     if ( dispatchers->length > 0 && ! is_others )
         ++ (&current_dispatcher())->max_type_code;
 
-    dispatcher & d = min::push ( dispatchers );
+    min::ref<dispatcher> d =
+        min::push ( dispatchers );
 
     memset ( (&d)->ascii_map, 0, 128 );
     (&d)->line_number = LEXNDL::line;
@@ -253,7 +254,8 @@ static void push_dispatcher ( bool is_others = false )
     (&d)->others_instruction_ID = 0;
     (&d)->is_others_dispatcher = is_others;
 
-    instruction & ci = min::push ( instructions );
+    min::ref<instruction> ci =
+        min::push ( instructions );
 
     (&ci)->line_number = 0;
     (&ci)->operation = 0;
@@ -1041,13 +1043,15 @@ void LEXNDL::ELSE ( void )
     INSTRUCTION_LINE;
     (&ci)->operation |= LEX::ELSE;
 
-    instruction & i2 = min::push ( instructions );
-    i2.operation = 0;
-    i2.atom_table_ID = 0;
-    i2.require_dispatcher_ID = 0;
-    i2.erroneous_atom_type = 0;
-    i2.output_type = 0;
-    i2.goto_table_ID = 0;
-    i2.call_table_ID = 0;
-    i2.accept = false;
+    min::ref<instruction> i2 =
+        min::push ( instructions );
+
+    (&i2)->operation = 0;
+    (&i2)->atom_table_ID = 0;
+    (&i2)->require_dispatcher_ID = 0;
+    (&i2)->erroneous_atom_type = 0;
+    (&i2)->output_type = 0;
+    (&i2)->goto_table_ID = 0;
+    (&i2)->call_table_ID = 0;
+    (&i2)->accept = false;
 }

@@ -4,7 +4,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jul 28 06:53:26 EDT 2012
+# Date:		Fri Jun 20 14:59:22 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -26,6 +26,11 @@ pdf: ${DOCUMENTS:=.pdf}
 layered-introduction:	layered-introduction.pdf
 layered-l-language:	layered-l-language.pdf
 layered-m-language:	layered-m-language.pdf
+
+# Discontinued
+#
+layered-l-2012-language:	\
+			layered-l-2012-language.pdf
 
 # Kill all implicit rules and make new rule:
 #

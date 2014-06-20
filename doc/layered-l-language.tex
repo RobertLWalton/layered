@@ -1,0 +1,513 @@
+% The Layered Low (L) Programming Language
+%
+% File:         layered-l-language.tex
+% Author:       Bob Walton (walton@acm.org)
+% Version:      1a
+  
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{makeidx}
+\usepackage{pictex}
+
+\makeindex
+
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\raggedbottom
+
+\setlength{\unitlength}{1in}
+
+\pagestyle{headings}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{1ex}
+
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\newcommand{\subsubsubsection}[1]{\paragraph[#1]{#1.}}
+\newcommand{\subsubsubsubsection}[1]{\subparagraph[#1]{#1.}}
+
+% Begin \tableofcontents surgery.
+
+\newcount\AtCatcode
+\AtCatcode=\catcode`@
+\catcode `@=11	% @ is now a letter
+
+\renewcommand{\contentsname}{}
+\renewcommand\l@section{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\l@table{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\tableofcontents{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}}%
+    \item\@starttoc{toc}%
+    \end{list}}
+\renewcommand\listoftables{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}%
+	      }%
+    \item\@starttoc{lot}%
+    \end{list}}
+
+\catcode `@=\AtCatcode	% @ is now restored
+
+% End \tableofcontents surgery.
+
+\newcommand{\CN}[2]%	Change Notice.
+    {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
+     $^{\mbox{#1}}$#2}}
+    % Change notice.
+
+\newcommand{\TT}[1]{{\tt \bfseries #1}}
+
+\newcommand{\key}[1]{{\bf \em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
+\newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
+\newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
+\newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
+\newcommand{\ttikey}[2]{\TT{#1}\index{#2@{\tt #2}}}
+\newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
+
+\newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
+\newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
+\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
+\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
+\newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
+\newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
+\newcommand{\emmkey}[2]{{\bf \em #1}\index{#1@{\em #1}!#2}}
+\newcommand{\emsmkey}[3]{{\bf \em #1#2}\index{#1@{\em #1}!#3}}
+\newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
+\newcommand{\itemref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\pagref}[1]{p\pageref{#1}}
+\newcommand{\pagnote}[1]{\,\textsuperscript{p\pageref{#1}}}
+
+\newcommand{\EOL}{\penalty \exhyphenpenalty}
+
+\newcommand{\STAR}{{\Large $^\star$}}
+\newcommand{\PLUS}[1][]{{$^{+#1}$}}
+\newcommand{\QMARK}{{$^{\,\mbox{\footnotesize ?}}$}}
+\newcommand{\OPEN}{{$\{$}}
+\newcommand{\CLOSE}{{$\}$}}
+
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.40in}
+
+\newsavebox{\figurebox}
+
+\newenvironment{boxedfigure}[1][!btp]%
+	{\begin{figure*}[#1]
+	 \begin{lrbox}{\figurebox}
+	 \begin{minipage}{\figurewidth}
+
+	 \vspace*{1ex}}%
+	{
+	 \vspace*{1ex}
+
+	 \end{minipage}
+	 \end{lrbox}
+	 \begin{center}
+	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
+	 \end{center}
+	 \end{figure*}}
+
+\newenvironment{indpar}[1][0.3in]%
+	{\begin{list}{}%
+		     {\setlength{\itemsep}{0in}%
+		      \setlength{\topsep}{0in}%
+		      \setlength{\parsep}{1ex}%
+		      \setlength{\labelwidth}{#1}%
+		      \setlength{\leftmargin}{#1}%
+		      \addtolength{\leftmargin}{\labelsep}}%
+	 \item}%
+	{\end{list}}
+
+\newenvironment{itemlist}[1][0.5in]%
+	{\begin{list}{}{\setlength{\labelwidth}{#1}%
+	                \setlength{\leftmargin}{#1}%
+		        \addtolength{\leftmargin}{\labelsep}}}%
+	{\end{list}}
+
+\begin{document}
+        
+\begin{center}
+
+{\Large
+The Lower (L) Layered Programming Language \\[0.5ex]
+(Draft 1a)}
+
+\medskip
+
+Robert L. Walton\footnote{This document is dedicated to the memory
+of Professor Thomas Cheatham of Harvard University.}
+
+June 20, 2014
+ 
+\end{center}
+
+{\small \tableofcontents}
+
+\newpage
+
+\section{Introduction}
+
+This document describes the Lower Layer Programming Language, or
+L-Language.  See the Introduction to the Layered
+Programming Languages for basic syntax and for an overview of the related
+Middle Layer M-Language and Higher Layer H-Language.
+
+The L-Language is intended to be a target language for compilers of
+higher level languages.  As such it is optimized first to be an easy to 
+use as a target language, and second to be easy to
+compile into reasonably efficient debuggable assembly language code.
+
+The L-Language is similar to the C programming language
+differs in the following ways:
+
+\begin{enumerate}
+
+\item
+L-Language facilitates isolating untype-safe code into small inline functions.
+
+\item
+All L-Language data types are builtin number types or subtypes of
+builtin number types.  All data managed directly by L-Language consists
+of single numbers allocated to the stack.
+
+Other memory is handled by code
+encapsulated in small untype-safe inline functions by the programmer.
+Memory references other than those to single stack allocated numbers
+are treated in a manner reminiscent of input/output.
+
+\item
+The type `\TT{type}' is first class, is a subtype of integers, and
+is assigned a unique small integer value for each type.  Constant
+number argument values, such as the value of a `\TT{type}' valued
+argument, can be used to select overloaded functions.
+
+\item
+All L-Language functions are inline.  Programmer written untype-safe
+functions are used to implement out-of-line function calls.
+
+\item
+L-Language associates formatting functions
+with data types for use in displaying and in some cases inputting
+data during debugging.
+
+\item
+L-Language uses a semi-single-assignment style of program structure
+to encourage
+efficient code that leaves an audit trail for debugging in the stack.
+Partial evaluation of expressions and inline code is supported without
+compromising debuggability.
+
+\item
+L-Language uses the Layered Language Module Structure to manage
+multi-file source code in a well-ordered and type-safe manner.
+
+
+\end{enumerate}
+
+
+\section{Memory}
+\label{MEMORY}
+
+\subsection{Numbers}
+
+\ikey{Numbers}{number} are the basic element of L-Language memory.
+Numbers are sequences of bits, and each number is one of
+four types, unsigned integer, signed integer, floating point number,
+and address:
+
+\begin{indpar}
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\bf Name & \bf Kind & \bf Length \\[2ex]
+\ttkey{uns8}		& unsigned integer & 8 bits \\
+\ttkey{uns16}		& unsigned integer & 16 bits \\
+\ttkey{uns32}		& unsigned integer & 32 bits \\
+\ttkey{uns64}		& unsigned integer & 64 bits \\
+\ttkey{uns128}		& unsigned integer & 128 bits
+\end{tabular}
+
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\ttkey{int8}		& signed integer & 8 bits \\
+\ttkey{int16}		& signed integer & 16 bits \\
+\ttkey{int32}		& signed integer & 32 bits \\
+\ttkey{int64}		& signed integer & 64 bits \\
+\ttkey{int128}		& signed integer & 128 bits
+\end{tabular}
+
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\ttkey{float16}		& IEEE floating point number & 16 bits \\
+\ttkey{float32}		& IEEE floating point number & 32 bits \\
+\ttkey{float64}		& IEEE floating point number & 64 bits \\
+\ttkey{float128}	& IEEE floating point number & 128 bits
+\end{tabular}
+
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\ttkey{adr}		& address & 32 bits or 64 bits (see text) \\
+\ttkey{unsadr}		& unsigned integer & size of address \\
+\ttkey{intadr}		& signed integer & size of address \\
+\end{tabular}
+\end{indpar}
+
+The \mkey{length}{of number}
+of a number is the number of its bits.  Numbers can have
+different lengths: for example, unsigned integers can have
+lengths of 8, 16, 32, 64, or 128 bits.
+
+Numbers are stored in random access memory (RAM).
+
+An \key{unsigned integer} of length $L$ is a binary integer with
+$L$ binary digits (\skey{bit}s) and range from $0$ to $2^L-1$.
+
+A \key{signed integer} of length $L$ is a two's complement integer
+of length $L$ and range from $-2^{L-1}$ to $+2^{L-1}-1$.
+This represents the integer $I$ in the given range
+by the unsigned $L$-bit integer equal to $I~\mbox{modulo}~2^L$.
+
+A \key{floating point number} of length $L$ is a floating point number
+represented according to the IEEE 754 standard.  The sizes of exponents
+and mantissas for various floating point number sizes is as follows:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}r@{~~~~~~}r}
+                   &              &              &             & \bf Maximum \\
+\bf Floating Point & \bf Exponent & \bf Mantissa & \bf Decimal & \bf Decimal\\
+\bf Number Size    & \bf Size     & \bf Size     & \bf Digits  & \bf Exponent
+\\[2ex]
+16 bits & 5 bits & 10 bits & 3.31 & 4.51 \\
+32 bits & 8 bits & 23 bits & 7.22 & 38.23 \\
+64 bits & 11 bits & 52 bits & 15.95 & 307.95 \\
+128 bits & 15 bits & 112 bits & 34.02 & 4931.77 \\
+\end{tabular}
+\end{center}
+
+An \key{address} (one kind of `\key{pointer}') holds a RAM byte address.
+A address is a 32-bit or 64-bit unsigned integer whose size
+is determined by the target machine.  Some of high order bits may be
+required to be all 0's or all 1's, depending upon
+the target machine.  The \verb|unsadr| and \verb|intptr|
+unsigned and signed integer types of the same size
+as an address are provided for storing indices and offsets.
+
+A reasonable assumption for 64-bit addresses is that only the low
+order 48-bits of the address are actually used.  This assumption can
+be used to put other information in the high order 16 bits
+of a 64-bit number containing an address.  For example, an address
+can be embedded in a 64-bit floating point NaN.  The L-Language does
+\underline{not} depend upon this assumption, but does provide a builtin function
+that takes as input a 64-bit integer and two small integers, $L$ and $S$,
+and returns a 64-bit address containing
+the byte address equal to the low order $L$ bits of the input integer
+left shifted by $S$.  The output may have undefined high order bits if
+the hardware ignores them when using the output to address memory.
+For example, if the hardware ignores the high order 20 bits, and uses only the
+low order 44 bits,
+this function would just copy its input 64-bit integer to its output
+if $L\geq 44$ and $S=0$.\footnote{The I86 64-bit architecture
+uses only the low order 48 bits of an address, but \underline{requires}
+the high order 17 bits to all be the same, either all 1's or all 0's.
+However, as it is unlikely that there will ever be an allocated memory region
+that includes address 0 in its interior, it makes no significant difference
+whether we consider addresses to be unsigned or signed.}
+
+Variables can be declared to be of non-address numeric type
+by declarations of the form
+\begin{center}
+{\em type-name} {\em variable-name}
+\end{center}
+For example,
+\begin{indpar}\begin{verbatim}
+int32 i
+uns128 u
+float64 f
+\end{verbatim}\end{indpar}
+
+
+\subsection{Memory Channels}
+\label{MEMORY-CHANNELS}
+
+A \key{memory channel} is a mechanism for accessing a set of blocks in RAM
+that permits blocks to be announced substantially in advance of being
+accessed.  Thus memory channels implement `\key{look ahead}' for
+memory accesses.
+
+A memory channel implements a \key{window}, which is a
+structured set of elements each associated with a member of
+some data set.  Each window element contains a
+\key{block descriptor} that holds the address and length of the
+memory block that contains the data associated with the element.
+Block descriptors can also be marked as
+\mkey{empty}{block descriptor}, meaning there is no block to be accessed.
+The window has a \key{reference point}, and window elements are addressed
+relative to this reference point.  There are shift operations that move
+the reference point to a nearby window element.
+
+Although we talk about blocks here, a block can be just a numeric array
+element, and can be as small as a single bit.  Although we talk about
+each element of a memory channel window having its own block descriptor,
+an actual memory channel may use only block group descriptors, each of
+which functions as a group of more than one individual element
+block descriptor.
+
+A memory channel is stored in a cluster.  As such it is mostly an
+inline construction, though it can be passed to or returned from a
+function, and the function can be all or partly out-of-line.
+
+The most common type of memory channel has a window that appears to be
+an array with \ttdmkey{dimensions}{of memory channel},
+\ttdmkey{lower\_bound}{of memory channel}{\tt [}$i${\tt ]},
+and \ttdmkey{upper\_bound}{of memory channel}{\tt [}$i${\tt ]}
+being defined memory channel members.  Such are called
+\key{array windows}.
+If the memory channel cluster name is $M$, the window elements are
+referred to by $M$\verb|[|$i_0$\verb|,|$i_1$\verb|,|\ldots\verb|]|,
+with $M$\verb|[0,0,|\ldots\verb|]| being the \key{reference point}.
+
+The reference point can be shifted along any of the window's
+dimensions by the command
+$M$\ttdkey{center}{\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]}, which shifts
+the window so that what was
+$M${\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]} becomes
+$M${\tt [0,0,}\ldots{\tt ]}.
+
+Creating memory channels and completely reseting their reference points
+are specific to the type of memory channel, and are not covered in
+this section.
+
+For most kinds of memory channels, block descriptors are computed
+automatically when channel is created, when the window is
+shifted, or when the data of
+a neighboring window element is arrives from memory.
+Immediately after a block descriptor is created, a read-ahead of
+the block is initiated.  This read-ahead overlaps computation that
+does not use the block contents.
+
+If a memory channel accesses arrays stored in memory,
+the channel block descriptors can be computed from the array coordinates
+of the reference point.  Other memory channels use the contents
+of a block to compute the block descriptors of neighboring blocks
+in the window.
+
+An example of the latter is a binary tree memory channel.
+Let $M$ be such a channel, and let `{\tt .L}' denote the left
+child of a binary tree element, `{\tt .R}' the right child, and
+`{\tt .P}' the parent.  Then $M\!$\verb|.L.R| denotes the right
+child of the left child of the reference point, $M\!$\verb|.P.L|
+denotes the left child of the parent of the reference point,
+and $M\!$\verb|.P.L.center| moves the reference point to this last element.
+The window of such a memory channel might contain the depth 2
+subtree of the reference point plus that closest 4 ancestors of the
+reference point if these have been visited.  When the reference
+point is moved, as soon as the reference point element has been
+read from memory, the descriptors for its children are built and
+the read of the children is initiated in parallel with other
+computation.  When the children arrive from memory, the descriptors
+of their children are built and reads of the data pointed at
+are initiated.\footnote{All this can actually be done with modern
+hardware: code is executed to read the reference point children and initiate the
+reads of their children, and a modern processor will automatically
+save the code that
+executes when a read of a reference point child completes and execute
+other code in parallel until the read does complete.}
+
+Some standard memory channel types are built into the L-Language.
+Others can be defined by users.
+
+\section{To Do}
+
+How can dynamically initialized locations be static.
+
+Indirect address protocol.
+\label{INDIRECT-ADDRESS-PROTOCOL}
+
+Functions.
+\label{FUNCTIONS}
+
+Threads.
+\label{THREADS}
+
+Function calls should be able to serve as lvalues so
+\verb|x[i]=z| can update gc flags.
+
+\appendix
+
+\section{Aliasing Hardware}
+\label{ALIASING-HARDWARE}
+
+The ultimate solution to the aliasing problem is new hardware.
+At its simplest, registers, which currently hold a datum,
+are replaced by triples of registers which hold a datum,
+an address, and selection codes.  The register datum equals the value
+of the memory location at the register address.  The selection
+codes determine which part of this memory location is read or written
+when the register is read or written.  If any memory location is
+changed, the address of the location is checked against all the
+register addresses, and if any match, the corresponding register
+data are changed.
+
+This is, however, not sufficient, because sometimes one register
+address is a function of another register's datum.  For example,
+consider the unchecked code:
+\begin{indpar}[0.5em]\begin{verbatim}
+struct S { ...; int32 m; ... }
+S * * x
+S * *& y = * x
+int32 *& z = y->m
+\end{verbatim}\end{indpar}
+If we consider {\tt x}, {\tt y}, and {\tt z} to be registers,
+the address of {\tt y} equals the value of {\tt x}, and the
+address of {\tt z} equals the value of {\tt y} plus the offset of
+{\tt m} in {\tt S}.
+
+If the value of {\tt x} changes, this changes the address of {\tt y},
+which may change the datum of {\tt y} and that may change the value
+of {\tt y}.  If the value of {\tt y} changes, this changes the address
+of {\tt z}, which may change the datum and value of {\tt z}.
+
+The way we accommodate this is to use the selection codes of {\tt y}
+to specify that the address of {\tt y} contains the value of {\tt x}
+as an additive component, so
+that if the value of {\tt x} is changed by adding $\Delta${\tt x}
+then the address of {\tt y} should be changed by adding $\Delta${\tt x}.
+And similarly the selection codes
+of {\tt z} specify that the address of {\tt z}
+contains the value of {\tt y} as an additive component.
+
+So why should we bother with automatically updating
+additive inclusions of one value in the
+address of another value, and not bother with other expressions.
+The reason is that expressions such as
+`\verb|(*x)->m|' are likely to be reused frequently in code (actually,
+in automatically generated code) and
+therefore need to be cached, whereas an expressions of the form
+`\verb|c*d|' will be reused comparatively rarely code
+and therefore are not worth special hardware.
+
+
+\bibliographystyle{plain}
+\bibliography{layered-l-2012-language}
+
+\printindex
+
+\end{document}
+

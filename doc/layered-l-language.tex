@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 20, 2014
+June 21, 2014
  
 \end{center}
 
@@ -403,8 +403,73 @@ compile-time type.
 \subsection{Type Descriptors}
 \label{TYPE-DESCRIPTORS}
 
+\section{Assignment Statements}
+\label{ASSIGNMENT-STATEMENTS}
 
-\subsection{Memory Channels}
+In the following {\em expressions} produce a list of one
+or more values of well defined types.
+
+Functions have stack frames that contain \underline{all} their variables.
+These variables are allocated and their values are computed by
+assignment statements:
+
+\begin{indpar}
+\emkey{value-assignment-statement}
+    ::= {\em variable-list} \TT{=} {\em expression}
+\\[0.5ex]
+\emkey{variable-list}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em type-name} {\em variable-name} \\
+    $|$ & \TT{(} {\em type-name} {\em variable-name}
+	   \{ \TT{,} {\em type-name} {\em variable-name} \}\STAR{} \TT{)} \\
+    \end{tabular}
+\end{indpar}
+
+This allocates new variables of the given {\em variable-names} and types
+to the stack and stores values from the {\em expression} in the variables.
+The {\em expression} produces a list of values, and this list must have
+at least as many elements as there are variables.  Each variable is
+assigned its value in order, and this value must be implicitly
+convertable to the variable's type.  If the {\em expression} produces
+too many values, the excess values at the end of the value list will be
+discarded.
+
+The {\em expression} may only input values that are constants or are
+the values of other variables in the same function stack frame (including
+arguments passed to the function).  In particular,
+no input can come from RAM memory outside the function stack frame.
+
+Implicitly when a variable value is set this way, the value is first
+computed in a register, then stored in the stack, and for some time
+afterwards the value is left in the register which becomes a cache
+on the stack value.  This is hidden from the programmer.
+
+Another variant of the assignment statement is the-
+
+\begin{indpar}
+\emkey{block-assignment-statement}
+    ::= \begin{tabular}[t]{l}
+        {\em variable-list} \TT{=:} \\
+	~~~~ {\em executable-statement}\STAR{}
+	\end{tabular}
+\end{indpar}
+
+The {\em executable-statements} in the block can include
+{\em assignment-statements} in which the {\em type-names}
+of variables in the {\em executable-statement's} {\em variable-list}
+are omitted if these variables have the same name as a variable
+in the {\em block-assignment-statement's} {\em variable-list}.
+These {\em executable-statements} assign values to the variables
+in the {\em block-assignment-statement's} {\em variable-list}.
+
+
+\section{Functions}
+\label{FUNCTIONS}
+
+All functions are inline.  An inline function can call out-of-line
+code in either a classical or non-classical manner.
+
+\section{Memory Channels}
 \label{MEMORY-CHANNELS}
 
 A \key{memory channel} is a mechanism for accessing a set of blocks in RAM

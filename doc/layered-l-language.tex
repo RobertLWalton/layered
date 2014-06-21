@@ -199,8 +199,8 @@ are treated in a manner reminiscent of input/output.
 
 \item
 The type `\TT{type}' is first class, is a subtype of integers, and
-is assigned a unique small integer value for each type.  Constant
-number argument values, such as the value of a `\TT{type}' valued
+is assigned a unique constant address value for each type.  Constant
+argument values, such as the value of a `\TT{type}' valued
 argument, can be used to select overloaded functions.
 
 \item
@@ -227,12 +227,15 @@ multi-file source code in a well-ordered and type-safe manner.
 \end{enumerate}
 
 
-\section{Memory}
-\label{MEMORY}
+\section{Types}
+\label{TYPES}
 
-\subsection{Numbers}
+All builtin types are number types.  All defined types are subtypes
+of number types.
 
-\ikey{Numbers}{number} are the basic element of L-Language memory.
+\subsection{Number Types}
+\label{NUMBER-TYPES}
+
 Numbers are sequences of bits, and each number is one of
 four types, unsigned integer, signed integer, floating point number,
 and address:
@@ -263,10 +266,22 @@ and address:
 \end{tabular}
 
 \begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-\ttkey{adr}		& address & 32 bits or 64 bits (see text) \\
 \ttkey{unsadr}		& unsigned integer & size of address \\
 \ttkey{intadr}		& signed integer & size of address \\
 \end{tabular}
+\end{indpar}
+
+These are the \key{built in types}:
+\begin{indpar}
+{\em builtin-type-name}
+    \begin{tabular}[t]{@{}cl}
+    ::= & \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
+                    $|$ \TT{uns128} \\
+    $|$ & \TT{int8} $|$ \TT{int16} $|$ \TT{int32} $|$ \TT{int64}
+                    $|$ \TT{int128} \\
+    $|$ & \TT{float16} $|$ \TT{float32} $|$ \TT{float64} $|$ \TT{float128} \\
+    $|$ & \TT{unsadr} $|$ \TT{intadr} \\
+    \end{tabular}
 \end{indpar}
 
 The \mkey{length}{of number}
@@ -301,11 +316,11 @@ and mantissas for various floating point number sizes is as follows:
 \end{tabular}
 \end{center}
 
-An \key{address} (one kind of `\key{pointer}') holds a RAM byte address.
+An \key{address} holds a RAM byte address.
 A address is a 32-bit or 64-bit unsigned integer whose size
 is determined by the target machine.  Some of high order bits may be
 required to be all 0's or all 1's, depending upon
-the target machine.  The \verb|unsadr| and \verb|intptr|
+the target machine.  The \TT{unsadr} and \TT{intptr}
 unsigned and signed integer types of the same size
 as an address are provided for storing indices and offsets.
 
@@ -330,17 +345,63 @@ However, as it is unlikely that there will ever be an allocated memory region
 that includes address 0 in its interior, it makes no significant difference
 whether we consider addresses to be unsigned or signed.}
 
-Variables can be declared to be of non-address numeric type
-by declarations of the form
+The following \underline{implicit} conversion operators are defined:
 \begin{center}
-{\em type-name} {\em variable-name}
+
+\begin{tabular}{rcl}
+\hspace*{2.0in} & & \hspace*{2.0in} \\[-2ex]
+\TT{uns}$x$ & \TT{<{}<++} & \TT{uns}$y${\em -value} \\
+\TT{int}$x$ & \TT{<{}<++} & \TT{uns}$y${\em -value} \\
+\TT{float}$x$ & \TT{<{}<++} & \TT{uns}$y${\em -value} \\
+\TT{int}$x$ & \TT{<{}<++} & \TT{int}$y${\em -value} \\
+\TT{float}$x$ & \TT{<{}<++} & \TT{int}$y${\em -value} \\
+\TT{float}$x$ & \TT{<{}<++} & \TT{float}$y${\em -value} \\
+\end{tabular}
+
+where $x>y$
+
 \end{center}
-For example,
-\begin{indpar}\begin{verbatim}
-int32 i
-uns128 u
-float64 f
-\end{verbatim}\end{indpar}
+
+For all these implicit conversions no information is lost from
+the value when it is converted to the new type.
+
+The following \underline{unchecked} conversion operator is
+defined:
+\begin{center}
+
+$t1${\em -type-value} ~~ \TT{**>{}>} ~~ $t2$
+
+for any two builtin types $t1$ and $t2$
+
+\end{center}
+
+Here the results are undefined if the value cannot be expressed
+as type $t2$.
+
+
+\subsection{Defined Types}
+\label{DEFINED-TYPES}
+
+A statement of the following form defines a type:
+\begin{center}
+\TT{type} {\em defined-type-name} \TT{is} {\em builtin-type-name}
+\end{center}
+Here the builtin type is called the \key{underlying type} of the
+\key{defined type}.
+
+A value of a defined type may be converted to or from its underlying
+type by the \underline{unchecked} \TT{**>{}>} operators:
+\begin{center}
+\begin{tabular}{rcl}
+{\em defined-type-value} & \TT{**>{}>} & {\em builtin-type-name} \\
+{\em builtin-type-value} & \TT{**>{}>} & {\em defined-type-name} \\
+\end{tabular}
+\end{center}
+These operators do not change the actual value, but merely its
+compile-time type.
+
+\subsection{Type Descriptors}
+\label{TYPE-DESCRIPTORS}
 
 
 \subsection{Memory Channels}

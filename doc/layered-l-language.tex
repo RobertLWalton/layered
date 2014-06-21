@@ -444,7 +444,7 @@ computed in a register, then stored in the stack, and for some time
 afterwards the value is left in the register which becomes a cache
 on the stack value.  This is hidden from the programmer.
 
-Another variant of the assignment statement is the-
+Another variant of the assignment statement is:
 
 \begin{indpar}
 \emkey{block-assignment-statement}
@@ -461,13 +461,120 @@ are omitted if these variables have the same name as a variable
 in the {\em block-assignment-statement's} {\em variable-list}.
 These {\em executable-statements} assign values to the variables
 in the {\em block-assignment-statement's} {\em variable-list}.
+Furthermore, every variable in the
+{\em block-assignment-statement's} {\em variable-list} must be
+assigned a value by one of the {\em executable-statements}.
+Also the values of the variables in the {\em variable-list} cannot
+be input to any of the {\em executable-statements}.
 
+Conditional assignment statements are similar:
+
+\begin{indpar}
+\emkey{conditional-assignment-statement}
+    ::= \begin{tabular}[t]{l}
+        {\em variable-list} \TT{= if:} \\
+	~~~~ {\em condition-expression}\TT{:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	~~~~ {\em condition-expression}\TT{:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	~~~~ \ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
+	~~~~ \TT{else:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+In this case the {\em condition-expressions} are evaluated in order
+until either one evaluates to true or the `\TT{else}' condition is
+reached, and then the {\em executable-statements} subject to the
+first true condition are executed.  Each separate group of
+{\em executable-statements} must set \underline{every} variable
+in the {\em condition-assignment-statement's} {\em variable-list}.
+
+Lastly loop assignment statements are similar:
+
+\begin{indpar}
+\emkey{loop-assignment-statement}
+    ::= \begin{tabular}[t]{l}
+        {\em result-variable-list}
+	    \TT{= loop} {\em iteration-variable-list}\TT{:} \\
+	~~~~ \TT{initially}\TT{:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	~~~~ \TT{while} {\em condition-expression}\TT{:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	~~~~ \TT{finally}\TT{:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+This is somwhat like the conditional assignment statement
+except the {\em executable-statements} are repeated.  The
+{\em executable-statements} qualified by `\TT{initially}'
+only execute on the first repetition, and they must
+set all the variables in the {\em iteration-variable-list}.
+The {\em executable-statements} qualified by `\TT{while}
+{\em condition-expression}' only execute if the
+{\em condition-expression} evaluates to true, and they
+for every variable \TT{v} in the {\em iteration-variable-list}
+they must set the variable `\TT{next v}', as if it were in
+this list.  The `\TT{next v}' variable is in fact the iteration
+variable in the next iteration of the loop.  Lastly, when
+the {\em condition-expression} evaluates to false, the
+{\em executable-statements} qualified by `\TT{finally}'
+execute, and they must set all the variables in the
+{\em result-variable-list}.  At this point the loop stops
+executing.
+
+Loops are always in effect unravelled so multiple copies of
+the loop exist at one time.  `\TT{next v}' refers to \TT{v} in the
+next iteration of the loop, which exists simultaneously with
+the current iteration.  Instead of setting \TT{v} in the
+\TT{initially} statements and \TT{next v} in the \TT{while}
+statements, it is permissible to set both \TT{v} and \TT{next v}
+in the \TT{initially} statements and \TT{next next v} in the
+\TT{while} statements.
+
+There are always at least 4 iterations of the loop with variables
+in the current function frame stack: the current iteration,
+the previous iteration (if any), and the next two iterations.
+Then the third iteration of the loop needs to start, the first
+iteration may be garbage collected, as it were, and so forth.
 
 \section{Functions}
 \label{FUNCTIONS}
 
 All functions are inline.  An inline function can call out-of-line
 code in either a classical or non-classical manner.
+
+Function definitions have the form:
+
+\begin{indpar}
+\emkey{function-definition}
+    ::= \begin{tabular}[t]{l}
+        {\em function-prototype}\TT{:} \\
+	~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{function-prototype}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em result-variable-list} \TT{=} {\em function-name}
+	    {\em argument-variable-list}\QMARK{}\TT{:} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}\TT{:} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
+            \TT{=} {\em input-variable-list}\TT{:} \\
+    \end{tabular}
+\end{indpar}
+
+A function call is in effect replaced by a {\em block-assignment-statement}
+with the {\em function-definition's} {\em result-variable-list} becoming the 
+{\em block-assignment-statement's} {\em variable-list} and the
+{\em function-definition's} {\em executable-statements} becoming the 
+{\em block-assignment-statement's} {\em executable-statements}.
+Actual arguments from the function call are mapped to varibles in
+the definition {\em argument-variable-list}.  The values produced in
+the {\em result-variable-list's} variables become the values of the
+function call when it is used as part of an {\em expression}.
+
+
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}
@@ -565,9 +672,6 @@ How can dynamically initialized locations be static.
 
 Indirect address protocol.
 \label{INDIRECT-ADDRESS-PROTOCOL}
-
-Functions.
-\label{FUNCTIONS}
 
 Threads.
 \label{THREADS}

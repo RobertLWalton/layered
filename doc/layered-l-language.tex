@@ -560,19 +560,36 @@ Function definitions have the form:
 	    {\em argument-variable-list}\QMARK{}\TT{:} \\
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}\TT{:} \\
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
-            \TT{=} {\em input-variable-list}\TT{:} \\
+            \TT{=} {\em input-expression}\TT{:} \\
     \end{tabular}
 \end{indpar}
 
-A function call is in effect replaced by a {\em block-assignment-statement}
+A function call with a {\em result-variable-list}
+is in effect replaced by a {\em block-assignment-statement}
 with the {\em function-definition's} {\em result-variable-list} becoming the 
 {\em block-assignment-statement's} {\em variable-list} and the
 {\em function-definition's} {\em executable-statements} becoming the 
 {\em block-assignment-statement's} {\em executable-statements}.
-Actual arguments from the function call are mapped to varibles in
+Actual argument values from the function call are assigned to variables in
 the definition {\em argument-variable-list}.  The values produced in
 the {\em result-variable-list's} variables become the values of the
 function call when it is used as part of an {\em expression}.
+
+A function call without any {\em result-variable-list} or
+{\em input-expression} is just like a function call with an empty
+{\em result-variable-list}.
+
+A function call with an {\em input-expression} is just syntactic
+sugar for a function call with neither a {\em result-variable-list}
+or {\em input-expression}.  Specifically
+\begin{center}
+{\tt F(a1,a2,...)~=~(e1,e2,...)} \\
+is syntactic sugar for \\
+{\tt F(a1,a2,...,e1,e2,...)} \\
+\end{center}
+
+
+
 
 
 
@@ -607,10 +624,10 @@ inline construction, though it can be passed to or returned from a
 function, and the function can be all or partly out-of-line.
 
 The most common type of memory channel has a window that appears to be
-an array with \ttdmkey{dimensions}{of memory channel},
+an array with \ttikey{.di\-men\-sions}{dimensions!of memory channel},
 \ttdmkey{lower\_bound}{of memory channel}{\tt [}$i${\tt ]},
 and \ttdmkey{upper\_bound}{of memory channel}{\tt [}$i${\tt ]}
-being defined memory channel members.  Such are called
+being memory channel members.  Such are called
 \key{array windows}.
 If the memory channel cluster name is $M$, the window elements are
 referred to by $M$\verb|[|$i_0$\verb|,|$i_1$\verb|,|\ldots\verb|]|,
@@ -618,7 +635,10 @@ with $M$\verb|[0,0,|\ldots\verb|]| being the \key{reference point}.
 
 The reference point can be shifted along any of the window's
 dimensions by the command
-$M$\ttdkey{center}{\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]}, which shifts
+\begin{center}
+$M$\ttdkey{center}{\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]}
+\end{center}
+This shifts
 the window so that what was
 $M${\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]} becomes
 $M${\tt [0,0,}\ldots{\tt ]}.

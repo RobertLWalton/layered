@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 21, 2014
+July 3, 2014
  
 \end{center}
 
@@ -590,6 +590,192 @@ is syntactic sugar for \\
 
 
 
+\subsection{Clusters}
+\label{CLUSTERS}
+
+A \key{cluster} is a group of related variables.  One variable of
+the cluster is the \mkey{base variable}{of cluster} of the cluster, and the
+other variables have names that are derived from the
+name of the base variable using the syntax:
+
+
+\begin{indpar}
+{\em variable-name} ::=
+    {\em base-name} {\em member-selector}$^\star$ \\[1ex]
+{\em member-selector} \begin{tabular}[t]{@{}rl}
+    ::= & {\tt .}{\em member-name} \\
+    $|$ & {\tt [}{\em member-index-list}{\tt ]}
+    \end{tabular} \\[1ex]
+{\em member-index-list} \begin{tabular}[t]{@{}rl}
+    ::= & {\em member-index} \\
+    $|$ & {\em member-index} {\tt ,} {\em member-index-list}
+    \end{tabular} \\[1ex]
+{\em member-index} ::= {\em integer-constant-expression}
+\end{indpar}
+
+Thus a cluster
+is like a structure, but it is a set of variables and not a
+piece of memory.
+
+More specifically, the members of the cluster can be named by
+adding either a member name preceded by `{\tt .}' or a
+`{\tt []}' bracketed list of
+integer constant subscripts to
+either the base variable name of the cluster or to another member name
+of the cluster.  Two variable names with different base variable names
+belong to different clusters.
+
+The main feature of clusters is that members are passed to or returned
+from functions implicitly when their the base variable is named
+explicitly.  For example:
+\begin{indpar}\begin{verbatim}
+type pointer pair is void
+    // if pointer pair pp then
+    //   unsadr pp.begin points at the first element
+    //   unsadr pp.end points just AFTER the last element
+    //   type pp.type is type of element
+
+// Declaration of function to allocate a vector of n T's.
+//
+( mem pointer pair pp,
+  unsadr pp.begin, unsadr pp.end, type pp.type ) =
+	mem allocate ( type T, uns32 n ):
+    pp.type = T;
+    pp.begin = allocate ( T, n );
+    pp.end = pp.begin + sizeof ( T ) * n;
+
+
+// Prefix operator to dereference a pointer pair to read
+// memory.
+//
+( mem pp.type out, unsadr out.adr  ) =
+        mem "*" ( mem pointer pair pp )
+    out.adr = if:
+        pp.begin < pp.end:
+	    out.adr = pp.begin
+	else:
+	    fatal error
+                ( "Deferencing empty pointer pair." )
+
+// Prefix operator to dereference a pointer pair to
+// write memory.
+//
+mem "*" ( mem pointer pair pp, unsadr pp.begin, unsadr pp.end,
+                               type pp.type ) =
+        ( pp.type in ):
+    if:
+        pp.begin < pp.end:
+	    in --> pp.begin
+	else:
+	    fatal error
+                ( "Deferencing empty pointer pair." )
+
+// Prefix operator to increment the begin pointer of a pointer
+// pair.  Note the result is a NEW pointer pair.
+//
+( pointer pair pp2, unsadr pp2.begin, unsadr pp2.end,
+                    type pp2.type )
+    "++" ( pointer pair pp, type pp.type,
+                            unsadr pp.begin, unsadr pp.end ):
+      pp2.begin = pp.begin + sizeof ( T )
+      pp2.end = pp.end;
+      pp2.T = pp.T
+
+// Example usage:
+//
+TBD: out of line function header
+
+    // Vector of 2 int32's is allocated and the elements
+    // are set equal to 100 and 101.
+    //
+    mem pointer pair pp = allocate ( int32, 2 )
+    * pp = 100
+    mem pointer pair pp2 = ++ pp;
+    * pp2 = 101
+    . . . .
+    // Vector of 1000 float64's is summed.
+    //
+    mem pointer pair ppf = allocate ( float64, 1000 )
+    ... set 1000 elements ...
+    float64 sum = loop ( unsadr i,s
+                         float65 partial sum,
+			 mem pointer pair ppf2,
+			 unsadr ppf2.begin,
+			 unsadr ppf2.end,
+			 unsadr ppf2.type ):
+        initially:
+	    i = ppf.end - ppf.begin
+	    partial sum = 0;
+	    ppf2.begin = pp.begin;
+	    ppf2.end = ppf2.end;
+	    ppf2.type = ppf.type;
+	when i > 0:
+	    next i = i - sizeof ( ppf.type )
+	    next sum = sum + * ppf2
+	    next ppf2 = ++ ppf2
+	finally:
+	    sum = partial sum
+\end{verbatim}\end{indpar}
+
+Several heretofore unmentioned language features appear in
+this code.
+
+TBD
+
+First, cluster member names are used as prototype parameter
+names, with the base of these names also being a prototype
+parameter.  This specifies that some parameters are related
+by being in the same cluster.
+
+When this is done for arguments, the cluster base must
+also be an argument, and the cluster member values
+will be derived from the base, and must be omitted in calls.
+
+When this is done for results, the cluster base may be
+either an argument or a result, and the values of the designated
+members of the cluster are set from the results.
+If the function has the `\ttmkey{cluster}{qualifier}' qualifier,
+then any returned cluster members that do not already exists
+are created as variables
+in the local code block, as is done by `{\tt allocate}' above.
+
+Also, a result parameter may have the same name as an argument
+parameter, as is done for the {\tt pp} parameter in
+the prototype of {\tt "++"} above.  This specifies that the
+result parameter is the same as the argument parameter,
+and is merely being moved from argument to result in order to
+make the syntax work.
+
+The above example could use a different implementation of {\tt "++"} as
+follows:
+\begin{indpar}\begin{verbatim}
+// Unchecked prefix operator to increment an adr -> T value.
+//
+( adr -> adr -> T ) inline unchecked "++"
+        ( type T,
+          basic(T) descriptor,
+          adr -> adr a -> T )
+    unchecked:
+
+    unsadr b = a;
+    a = b + descriptor.length;
+    return & a
+
+// Prefix operator to increment the begin pointer of a pointer
+// pair.
+//
+( pointer pair pp -> T ) inline "++"
+        ( type T,
+          pointer pair pp -> T,
+          adr -> unchecked adr pp.begin -> T )
+    unchecked:
+
+    ++ pp.begin
+\end{verbatim}\end{indpar}
+
+Here an {\tt unchecked} {\tt "++"} prefix operator is first implemented
+after the manner of the C programming language for {\tt adr~->~T} values,
+and then this is used to implement the {\tt "++"} operator for pointer pairs.
 
 
 

@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 3, 2014
+July 20, 2014
  
 \end{center}
 
@@ -400,8 +400,41 @@ type by the \underline{unchecked} \TT{**>{}>} operators:
 These operators do not change the actual value, but merely its
 compile-time type.
 
-\subsection{Type Descriptors}
-\label{TYPE-DESCRIPTORS}
+\subsection{Type Values}
+\label{TYPE-VALUES}
+
+Each type is associated with a unique unsigned integer
+value of type `\TT{type}'.  This value is known at both
+run time and compile time.
+
+Functions can be overloaded based on the number and types
+of their arguments and also on the values of arguments that
+are known at compile time.  Thus different functions with
+the common prototype
+\begin{indpar}\begin{verbatim}
+(unsadr length) = size of ( type T )
+\end{verbatim}\end{indpar}
+may be defined for different values of \TT{T}.  
+This is done automatically for the following functions:
+
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}{\tt (unsadr size) = \ttkey{size of}
+			( type T )} \\
+Returns \TT{size}, the number of bytes in a value of type \TT{T}.
+
+\hspace*{-0.3in}{\tt (unsadr alignment) = \ttkey{alignment of}
+			( type T )} \\
+Returns \TT{alignment}, a strictly positive integer.
+The address of a value of type \TT{T} in RAM should
+optimally be a multiple of the \TT{alignment}.
+The alignment of builtin types is usually their size.
+
+\hspace*{-0.3in}{\tt (type B) = \ttkey{base of}
+			( type T )} \\
+Returns the parent type \TT{B} of the type \TT{T}.  For defined
+types this is the associated builtin type.  For builtin types, it is
+\TT{T} itself.
+\end{indpar}
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -443,6 +476,17 @@ Implicitly when a variable value is set this way, the value is first
 computed in a register, then stored in the stack, and for some time
 afterwards the value is left in the register which becomes a cache
 on the stack value.  This is hidden from the programmer.
+
+If a variable value is copied from another variable, usually the
+new variable simply becomes a compile-time alias for the old variable.
+No executable code is used, no new register is allocated, and no new
+value is pushed into the stack.
+
+Similarly if a variable value can be computed from previous variable
+values by in-line code, 
+its value may not be pushed into the stack.  Instead its
+value can be recovered at any time by repeating the computation
+of the variable from the other values.
 
 Another variant of the assignment statement is:
 
@@ -538,6 +582,20 @@ in the current function frame stack: the current iteration,
 the previous iteration (if any), and the next two iterations.
 Then the third iteration of the loop needs to start, the first
 iteration may be garbage collected, as it were, and so forth.
+
+\subsection{Variable Reuse}
+\label{VARIABLE-RESUSE}
+
+Two variables in the same block of code may not have the same
+name.  Thus variable are only assigned values once.
+
+However, if an assignment statement uses the word `\TT{next}' in
+place of the type of a variable being assigned a value, and
+if the variable previously exists, a new variable with the same
+name and type as the previous variable is allocated.
+
+Note that `\TT{next}' behaves differently for loop interation
+variables that it does for other variables.
 
 \section{Functions}
 \label{FUNCTIONS}
@@ -639,148 +697,122 @@ type pointer pair is void
 //
 ( mem pointer pair pp,
   unsadr pp.begin, unsadr pp.end, type pp.type ) =
-	mem allocate ( type T, uns32 n ):
-    pp.type = T;
-    pp.begin = allocate ( T, n );
-    pp.end = pp.begin + sizeof ( T ) * n;
+        mem allocate ( type T, uns32 n ):
+    pp.type = T
+    unsadr length = size of ( T ) * n
+    pp.begin = allocate ( length )
+    pp.end = pp.begin + length
 
 
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
 ( mem pp.type out, unsadr out.adr  ) =
-        mem "*" ( mem pointer pair pp )
+        mem "*" ( mem pointer pair pp,
+                  type pp.type, unsadr pp.begin,
+                  unsadr pp.end )
     out.adr = if:
         pp.begin < pp.end:
-	    out.adr = pp.begin
-	else:
-	    fatal error
+            out.adr = pp.begin
+        else:
+            fatal error
                 ( "Deferencing empty pointer pair." )
 
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
-mem "*" ( mem pointer pair pp, unsadr pp.begin, unsadr pp.end,
-                               type pp.type ) =
+mem "*" ( mem pointer pair pp,
+              unsadr pp.begin, unsadr pp.end,
+              type pp.type ) =
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-	    in --> pp.begin
-	else:
-	    fatal error
+            in --> pp.begin
+        else:
+            fatal error
                 ( "Deferencing empty pointer pair." )
 
-// Prefix operator to increment the begin pointer of a pointer
-// pair.  Note the result is a NEW pointer pair.
+// Prefix operator to increment the begin pointer of a
+// pointer pair.  Note the result is a NEW pointer pair.
 //
-( pointer pair pp2, unsadr pp2.begin, unsadr pp2.end,
-                    type pp2.type )
-    "++" ( pointer pair pp, type pp.type,
-                            unsadr pp.begin, unsadr pp.end ):
-      pp2.begin = pp.begin + sizeof ( T )
-      pp2.end = pp.end;
-      pp2.T = pp.T
+( mem pointer pair pp2,
+  unsadr pp2.begin, unsadr pp2.end, type pp2.type ) =
+        mem "++" ( pointer pair pp,
+                   type pp.type,
+                   unsadr pp.begin, unsadr pp.end ):
+      pp2.begin = pp.begin + size of ( T )
+      pp2.end = pp.end
+      pp2.type = pp.type
 
 // Example usage:
 //
-TBD: out of line function header
+    ... out-of-line function header ...
 
     // Vector of 2 int32's is allocated and the elements
     // are set equal to 100 and 101.
     //
     mem pointer pair pp = allocate ( int32, 2 )
     * pp = 100
-    mem pointer pair pp2 = ++ pp;
-    * pp2 = 101
+    next mem pointer pair pp = ++ pp
+    * pp = 101
     . . . .
     // Vector of 1000 float64's is summed.
     //
     mem pointer pair ppf = allocate ( float64, 1000 )
     ... set 1000 elements ...
-    float64 sum = loop ( unsadr i,s
-                         float65 partial sum,
-			 mem pointer pair ppf2,
-			 unsadr ppf2.begin,
-			 unsadr ppf2.end,
-			 unsadr ppf2.type ):
+    float64 sum = loop ( float64 partial sum,
+                         mem pointer pair ppf2,
+                         unsadr ppf2.begin,
+                         unsadr ppf2.end,
+                         unsadr ppf2.type ):
         initially:
-	    i = ppf.end - ppf.begin
-	    partial sum = 0;
-	    ppf2.begin = pp.begin;
-	    ppf2.end = ppf2.end;
-	    ppf2.type = ppf.type;
-	when i > 0:
-	    next i = i - sizeof ( ppf.type )
-	    next sum = sum + * ppf2
-	    next ppf2 = ++ ppf2
-	finally:
-	    sum = partial sum
+            partial sum = 0
+            ppf2.begin = pp.begin
+            ppf2.end = ppf2.end
+            ppf2.type = ppf.type
+        while ppf2.begin < ppf2.end
+            next partial sum = partial sum + * ppf2
+            next ppf2 = ++ ppf2
+        finally:
+            sum = partial sum
 \end{verbatim}\end{indpar}
 
-Several heretofore unmentioned language features appear in
-this code.
-
-TBD
-
-First, cluster member names are used as prototype parameter
+Cluster member names may be used as prototype parameter
 names, with the base of these names also being a prototype
-parameter.  This specifies that some parameters are related
+parameter.  This specifies that the parameters are related
 by being in the same cluster.
 
 When this is done for arguments, the cluster base must
 also be an argument, and the cluster member values
-will be derived from the base, and must be omitted in calls.
+will be derived from the base, and \underline{must}
+be omitted in calls.
 
-When this is done for results, the cluster base may be
-either an argument or a result, and the values of the designated
+When this is done for results, the cluster base must similarly
+be a result, and the values of the designated
 members of the cluster are set from the results.
-If the function has the `\ttmkey{cluster}{qualifier}' qualifier,
-then any returned cluster members that do not already exists
-are created as variables
-in the local code block, as is done by `{\tt allocate}' above.
+Again the cluster members \underline{must} be omitted in calls.
 
-Also, a result parameter may have the same name as an argument
-parameter, as is done for the {\tt pp} parameter in
-the prototype of {\tt "++"} above.  This specifies that the
-result parameter is the same as the argument parameter,
-and is merely being moved from argument to result in order to
-make the syntax work.
+A variable of \TT{void} type has no actual value
+and must not be assigned one.  Such variable are only useful
+as cluster bases or cluster members which have submembers.
 
-The above example could use a different implementation of {\tt "++"} as
-follows:
-\begin{indpar}\begin{verbatim}
-// Unchecked prefix operator to increment an adr -> T value.
-//
-( adr -> adr -> T ) inline unchecked "++"
-        ( type T,
-          basic(T) descriptor,
-          adr -> adr a -> T )
-    unchecked:
+In the above example `\TT{mem}' is a protection qualifier
+which can be applied to both variables and functions.
+A qualifier applied to a cluster base automatically is applied
+to the cluster members.
 
-    unsadr b = a;
-    a = b + descriptor.length;
-    return & a
-
-// Prefix operator to increment the begin pointer of a pointer
-// pair.
-//
-( pointer pair pp -> T ) inline "++"
-        ( type T,
-          pointer pair pp -> T,
-          adr -> unchecked adr pp.begin -> T )
-    unchecked:
-
-    ++ pp.begin
-\end{verbatim}\end{indpar}
-
-Here an {\tt unchecked} {\tt "++"} prefix operator is first implemented
-after the manner of the C programming language for {\tt adr~->~T} values,
-and then this is used to implement the {\tt "++"} operator for pointer pairs.
-
+The `\TT{mem}' qualifier has the special property that given a variable
+\TT{v} of type \TT{T} and qualifier \TT{mem}, then if \TT{v} is allocated,
+and \TT{v.adr} of type \TT{unsadr} is allocated and
+assigned a value, the base \TT{v} will also be automatically allocated
+and assigned as its value the value read from RAM address \TT{v.adr}.
+It is an error in this case to explicitly assign a value to \TT{v}.
 
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}
+
+OLD STUFF: REVISE.
 
 A \key{memory channel} is a mechanism for accessing a set of blocks in RAM
 that permits blocks to be announced substantially in advance of being

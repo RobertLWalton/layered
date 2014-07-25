@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 20, 2014
+July 25, 2014
  
 \end{center}
 
@@ -213,7 +213,7 @@ with data types for use in displaying and in some cases inputting
 data during debugging.
 
 \item
-L-Language uses a semi-single-assignment style of program structure
+L-Language uses a single-assignment style of program structure
 to encourage
 efficient code that leaves an audit trail for debugging in the stack.
 Partial evaluation of expressions and inline code is supported without
@@ -230,8 +230,9 @@ multi-file source code in a well-ordered and type-safe manner.
 \section{Types}
 \label{TYPES}
 
-All builtin types are number types.  All defined types are subtypes
-of number types.
+The basic builtin types are the number and \TT{void} types.
+All defined types are subtypes of these types.
+There is one builtin define type, the `\TT{type}' type.
 
 \subsection{Number Types}
 \label{NUMBER-TYPES}
@@ -268,19 +269,20 @@ and address:
 \begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \ttkey{unsadr}		& unsigned integer & size of address \\
 \ttkey{intadr}		& signed integer & size of address \\
+\ttkey{adr}		& signed or unsigned integer & size of address \\
 \end{tabular}
 \end{indpar}
 
-These are the \key{built in types}:
+These are the \key{built in number types}:
 \begin{indpar}
-{\em builtin-type-name}
+{\em builtin-number-type-name}
     \begin{tabular}[t]{@{}cl}
     ::= & \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
                     $|$ \TT{uns128} \\
     $|$ & \TT{int8} $|$ \TT{int16} $|$ \TT{int32} $|$ \TT{int64}
                     $|$ \TT{int128} \\
     $|$ & \TT{float16} $|$ \TT{float32} $|$ \TT{float64} $|$ \TT{float128} \\
-    $|$ & \TT{unsadr} $|$ \TT{intadr} \\
+    $|$ & \TT{unsadr} $|$ \TT{intadr} $|$ \TT{adr} \\
     \end{tabular}
 \end{indpar}
 
@@ -289,7 +291,7 @@ of a number is the number of its bits.  Numbers can have
 different lengths: for example, unsigned integers can have
 lengths of 8, 16, 32, 64, or 128 bits.
 
-Numbers are stored in random access memory (RAM).
+Numbers are stored in registers or in random access memory (RAM).
 
 An \key{unsigned integer} of length $L$ is a binary integer with
 $L$ binary digits (\skey{bit}s) and range from $0$ to $2^L-1$.
@@ -301,7 +303,7 @@ by the unsigned $L$-bit integer equal to $I~\mbox{modulo}~2^L$.
 
 A \key{floating point number} of length $L$ is a floating point number
 represented according to the IEEE 754 standard.  The sizes of exponents
-and mantissas for various floating point number sizes is as follows:
+and mantissas for various floating point number sizes are as follows:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}r@{~~~~~~}r}
@@ -320,7 +322,7 @@ An \key{address} holds a RAM byte address.
 A address is a 32-bit or 64-bit unsigned integer whose size
 is determined by the target machine.  Some of high order bits may be
 required to be all 0's or all 1's, depending upon
-the target machine.  The \TT{unsadr} and \TT{intptr}
+the target machine.  The \TT{unsadr} and \TT{intadr}
 unsigned and signed integer types of the same size
 as an address are provided for storing indices and offsets.
 
@@ -371,12 +373,23 @@ defined:
 
 $t1${\em -type-value} ~~ \TT{**>{}>} ~~ $t2$
 
-for any two builtin types $t1$ and $t2$
+for any two builtin number types $t1$ and $t2$
 
 \end{center}
 
 Here the results are undefined if the value cannot be expressed
 as type $t2$.
+
+
+\subsection{The Void Type}
+\label{THE-VOID-TYPE}
+
+A \ttkey{void} type variable has no value.  No value can be
+assigned to such a variable.  Nevertheless such variables have
+uses, for example, as base variable in clusters (\pagref{CLUSTERS}).
+When used as the base variable of a cluster, an assignment statement
+may appear to be assigning a value to a \TT{void} variable, but
+in fact it is assigning values to cluster members.
 
 
 \subsection{Defined Types}
@@ -399,6 +412,7 @@ type by the \underline{unchecked} \TT{**>{}>} operators:
 \end{center}
 These operators do not change the actual value, but merely its
 compile-time type.
+
 
 \subsection{Type Values}
 \label{TYPE-VALUES}
@@ -479,7 +493,7 @@ on the stack value.  This is hidden from the programmer.
 
 If a variable value is copied from another variable, usually the
 new variable simply becomes a compile-time alias for the old variable.
-No executable code is used, no new register is allocated, and no new
+No executable copy code is created, no new register is allocated, and no new
 value is pushed into the stack.
 
 Similarly if a variable value can be computed from previous variable
@@ -487,6 +501,20 @@ values by in-line code,
 its value may not be pushed into the stack.  Instead its
 value can be recovered at any time by repeating the computation
 of the variable from the other values.
+
+Two variables in the same block of code may not have the same
+name.  Thus variables are only assigned values once.
+
+However, if an assignment statement uses the word `\TT{next}' in
+place of the type of a variable being assigned a value, and
+if the variable previously exists, a new variable with the same
+name and type as the previous variable is allocated.
+
+Note that `\TT{next}' behaves differently for loop interation
+variables (see below) than it does for other variables.
+
+\subsection{Block Assignment Statements}
+\label{BlOCK-ASSIGNMENT-STATEMENTS}
 
 Another variant of the assignment statement is:
 
@@ -511,6 +539,12 @@ assigned a value by one of the {\em executable-statements}.
 Also the values of the variables in the {\em variable-list} cannot
 be input to any of the {\em executable-statements}.
 
+Variables allocated in the block are not visible outside the
+block.
+
+\subsection{Conditional Assignment Statements}
+\label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
+
 Conditional assignment statements are similar:
 
 \begin{indpar}
@@ -530,9 +564,25 @@ Conditional assignment statements are similar:
 In this case the {\em condition-expressions} are evaluated in order
 until either one evaluates to true or the `\TT{else}' condition is
 reached, and then the {\em executable-statements} subject to the
-first true condition are executed.  Each separate group of
+first true condition (a.k.a the \key{subblock} of that condition)
+are executed.  Each separate subblock of
 {\em executable-statements} must set \underline{every} variable
-in the {\em condition-assignment-statement's} {\em variable-list}.
+in the {\em condition-assignment-statement's} {\em variable-list},
+with exceptions for defaults described next.
+
+In addition to an `\TT{else:}' subblock,
+a {\em conditional-assignment-statement} may have one or
+more `\ttkey{default}\TT{:}' subblocks.  Each assigns one or more
+variables in the {\em variable-list}.  A default subblock
+executes after another subblock executes if and only if all of the
+{\em variable-list} variables set by the default subblock have
+\underline{not} been set yet.  This means that multiple subblocks
+may execute; if this happens, the order of execution is the order
+in which the subblocks appear in the program, but variables allocated
+by one subblock are not visible outside that subblock.
+
+\subsection{Loop Assignment Statements}
+\label{LOOP-ASSIGNMENT-STATEMENTS}
 
 Lastly loop assignment statements are similar:
 
@@ -550,7 +600,7 @@ Lastly loop assignment statements are similar:
 	\end{tabular}
 \end{indpar}
 
-This is somwhat like the conditional assignment statement
+This is somewhat like the conditional assignment statement
 except the {\em executable-statements} are repeated.  The
 {\em executable-statements} qualified by `\TT{initially}'
 only execute on the first repetition, and they must
@@ -582,20 +632,6 @@ in the current function frame stack: the current iteration,
 the previous iteration (if any), and the next two iterations.
 Then the third iteration of the loop needs to start, the first
 iteration may be garbage collected, as it were, and so forth.
-
-\subsection{Variable Reuse}
-\label{VARIABLE-RESUSE}
-
-Two variables in the same block of code may not have the same
-name.  Thus variable are only assigned values once.
-
-However, if an assignment statement uses the word `\TT{next}' in
-place of the type of a variable being assigned a value, and
-if the variable previously exists, a new variable with the same
-name and type as the previous variable is allocated.
-
-Note that `\TT{next}' behaves differently for loop interation
-variables that it does for other variables.
 
 \section{Functions}
 \label{FUNCTIONS}

@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 25, 2014
+July 26, 2014
  
 \end{center}
 
@@ -577,7 +577,8 @@ variables in the {\em variable-list}.  A default subblock
 executes after another subblock executes if and only if all of the
 {\em variable-list} variables set by the default subblock have
 \underline{not} been set yet.  This means that multiple subblocks
-may execute; if this happens, the order of execution is the order
+may execute (only the first can be a non-default subblock);
+if this happens, the order of execution is the order
 in which the subblocks appear in the program, but variables allocated
 by one subblock are not visible outside that subblock.
 
@@ -603,11 +604,11 @@ Lastly loop assignment statements are similar:
 This is somewhat like the conditional assignment statement
 except the {\em executable-statements} are repeated.  The
 {\em executable-statements} qualified by `\TT{initially}'
-only execute on the first repetition, and they must
+execute before the first repetition, and they must
 set all the variables in the {\em iteration-variable-list}.
 The {\em executable-statements} qualified by `\TT{while}
 {\em condition-expression}' only execute if the
-{\em condition-expression} evaluates to true, and they
+{\em condition-expression} evaluates to true, and
 for every variable \TT{v} in the {\em iteration-variable-list}
 they must set the variable `\TT{next v}', as if it were in
 this list.  The `\TT{next v}' variable is in fact the iteration
@@ -621,17 +622,25 @@ executing.
 Loops are always in effect unravelled so multiple copies of
 the loop exist at one time.  `\TT{next v}' refers to \TT{v} in the
 next iteration of the loop, which exists simultaneously with
-the current iteration.  Instead of setting \TT{v} in the
-\TT{initially} statements and \TT{next v} in the \TT{while}
-statements, it is permissible to set both \TT{v} and \TT{next v}
-in the \TT{initially} statements and \TT{next next v} in the
-\TT{while} statements.
+the current iteration.
+
+It is also permissible for the \TT{initially} subblock to set
+both \TT{v} and `\TT{next v}' for some variable \TT{v}, in which
+case the \TT{while} subblock must set `\TT{next next v}' and not
+`\TT{next v}.  Here the \TT{initially} block is setting \TT{v} for
+both the first and second iteration, and each iteration is setting
+\TT{v} for the interation after the iteration after the current
+iteration.
+
+However, no variable may be set more than once.  If an
+\TT{initially} statement sets \TT{next v}, 
+no \TT{while} statement may set \TT{next v}, and vice versa.
 
 There are always at least 4 iterations of the loop with variables
 in the current function frame stack: the current iteration,
 the previous iteration (if any), and the next two iterations.
-Then the third iteration of the loop needs to start, the first
-iteration may be garbage collected, as it were, and so forth.
+When the third iteration of the loop needs to start, the first
+iteration can be garbage collected, as it were, and so forth.
 
 \section{Functions}
 \label{FUNCTIONS}
@@ -725,14 +734,14 @@ explicitly.  For example:
 \begin{indpar}\begin{verbatim}
 type pointer pair is void
     // if pointer pair pp then
-    //   unsadr pp.begin points at the first element
-    //   unsadr pp.end points just AFTER the last element
+    //   adr pp.begin points at the first element
+    //   adr pp.end points just AFTER the last element
     //   type pp.type is type of element
 
 // Declaration of function to allocate a vector of n T's.
 //
 ( mem pointer pair pp,
-  unsadr pp.begin, unsadr pp.end, type pp.type ) =
+  adr pp.begin, adr pp.end, type pp.type ) =
         mem allocate ( type T, uns32 n ):
     pp.type = T
     unsadr length = size of ( T ) * n
@@ -743,10 +752,9 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
-( mem pp.type out, unsadr out.adr  ) =
+( mem pp.type out, adr out.adr  ) =
         mem "*" ( mem pointer pair pp,
-                  type pp.type, unsadr pp.begin,
-                  unsadr pp.end )
+                  type pp.type, adr pp.begin, adr pp.end ):
     out.adr = if:
         pp.begin < pp.end:
             out.adr = pp.begin
@@ -758,8 +766,7 @@ type pointer pair is void
 // write memory.
 //
 mem "*" ( mem pointer pair pp,
-              unsadr pp.begin, unsadr pp.end,
-              type pp.type ) =
+              adr pp.begin, adr pp.end, type pp.type ) =
         ( pp.type in ):
     if:
         pp.begin < pp.end:
@@ -772,10 +779,10 @@ mem "*" ( mem pointer pair pp,
 // pointer pair.  Note the result is a NEW pointer pair.
 //
 ( mem pointer pair pp2,
-  unsadr pp2.begin, unsadr pp2.end, type pp2.type ) =
+  adr pp2.begin, adr pp2.end, type pp2.type ) =
         mem "++" ( pointer pair pp,
                    type pp.type,
-                   unsadr pp.begin, unsadr pp.end ):
+                   adr pp.begin, adr pp.end ):
       pp2.begin = pp.begin + size of ( T )
       pp2.end = pp.end
       pp2.type = pp.type
@@ -789,7 +796,7 @@ mem "*" ( mem pointer pair pp,
     //
     mem pointer pair pp = allocate ( int32, 2 )
     * pp = 100
-    next mem pointer pair pp = ++ pp
+    next pp = ++ pp
     * pp = 101
     . . . .
     // Vector of 1000 float64's is summed.
@@ -798,9 +805,9 @@ mem "*" ( mem pointer pair pp,
     ... set 1000 elements ...
     float64 sum = loop ( float64 partial sum,
                          mem pointer pair ppf2,
-                         unsadr ppf2.begin,
-                         unsadr ppf2.end,
-                         unsadr ppf2.type ):
+                         adr ppf2.begin,
+                         adr ppf2.end,
+                         type ppf2.type ):
         initially:
             partial sum = 0
             ppf2.begin = pp.begin
@@ -829,7 +836,7 @@ members of the cluster are set from the results.
 Again the cluster members \underline{must} be omitted in calls.
 
 A variable of \TT{void} type has no actual value
-and must not be assigned one.  Such variable are only useful
+and must not be assigned one.  Such variables are only useful
 as cluster bases or cluster members which have submembers.
 
 In the above example `\TT{mem}' is a protection qualifier
@@ -839,11 +846,20 @@ to the cluster members.
 
 The `\TT{mem}' qualifier has the special property that given a variable
 \TT{v} of type \TT{T} and qualifier \TT{mem}, then if \TT{v} is allocated,
-and \TT{v.adr} of type \TT{unsadr} is allocated and
-assigned a value, the base \TT{v} will also be automatically allocated
-and assigned as its value the value read from RAM address \TT{v.adr}.
+and \TT{v.adr} of type \TT{adr} is allocated and
+assigned a value, the base \TT{v} will also be automatically
+assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
 
+
+\section{TBD}
+
+\TT{track} qualifier: variables recomputed after out-of-line
+function call.
+
+\TT{pure} functions that do not need such recomputation.
+
+\TT{trace} variables which can be located in stack by GC.
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}
@@ -949,9 +965,6 @@ Indirect address protocol.
 
 Threads.
 \label{THREADS}
-
-Function calls should be able to serve as lvalues so
-\verb|x[i]=z| can update gc flags.
 
 \appendix
 

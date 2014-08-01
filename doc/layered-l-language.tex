@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 26, 2014
+August 1, 2014
  
 \end{center}
 
@@ -851,6 +851,13 @@ assigned a value, the base \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
 
+\section{Qualifiers}
+
+Variables may be qualified by \skey{qualifier}s, such as the
+\TT{mem} qualifier in the example above.  In order for a function
+prototype variable to match an actual variable, if the prototype
+variable has qualifiers, each of these must be present on the
+actual variable.
 
 \section{TBD}
 

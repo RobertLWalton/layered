@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 1, 2014
+August 3, 2014
  
 \end{center}
 
@@ -728,8 +728,13 @@ either the base variable name of the cluster or to another member name
 of the cluster.  Two variable names with different base variable names
 belong to different clusters.
 
+Variables in clusters are thus organized into trees, with clusters
+that have different bases being disjoint.  Any variable can be considered
+as the \mkey{root}{of cluster} of a subtree of cluster members, and
+the subtree is called a \key{subcluster}.
+
 The main feature of clusters is that members are passed to or returned
-from functions implicitly when their the base variable is named
+from functions implicitly when their the root variable is named
 explicitly.  For example:
 \begin{indpar}\begin{verbatim}
 type pointer pair is void
@@ -821,27 +826,27 @@ mem "*" ( mem pointer pair pp,
 \end{verbatim}\end{indpar}
 
 Cluster member names may be used as prototype parameter
-names, with the base of these names also being a prototype
+names, with the root of these names also being a prototype
 parameter.  This specifies that the parameters are related
 by being in the same cluster.
 
-When this is done for arguments, the cluster base must
+When this is done for arguments, the cluster root must
 also be an argument, and the cluster member values
-will be derived from the base, and \underline{must}
+will be derived from the root, and \underline{must}
 be omitted in calls.
 
-When this is done for results, the cluster base must similarly
+When this is done for results, the cluster root must similarly
 be a result, and the values of the designated
 members of the cluster are set from the results.
 Again the cluster members \underline{must} be omitted in calls.
 
 A variable of \TT{void} type has no actual value
 and must not be assigned one.  Such variables are only useful
-as cluster bases or cluster members which have submembers.
+as cluster roots.
 
-In the above example `\TT{mem}' is a protection qualifier
+In the above example `\TT{mem}' is a qualifier
 which can be applied to both variables and functions.
-A qualifier applied to a cluster base automatically is applied
+A qualifier applied to a cluster root is applied automatically
 to the cluster members.
 
 The `\TT{mem}' qualifier has the special property that given a variable
@@ -858,6 +863,76 @@ Variables may be qualified by \skey{qualifier}s, such as the
 prototype variable to match an actual variable, if the prototype
 variable has qualifiers, each of these must be present on the
 actual variable.
+
+Qualifiers may be defined by:
+\begin{center}
+\ttkey{qualifier} {\em defined-qualifier-name}
+\end{center}
+
+Syntactically {\em qualifiers} immediately preceed {\em type-names}
+that are before {\em variable-names}.
+
+A qualifier applied to the root variable of a cluster is automatically
+applied to all the member variables.
+
+Two qualifiers, \TT{mem} and \TT{trace}, are builtin and have special
+effects.  In addition any qualifier can be used with the special
+\TT{reload} command descibed below.
+
+\subsection{The Memory Qualifier}
+\label{THE-MEM-QUALIFIER}
+
+\subsection{The Trace Qualifier}
+\label{THE-TRACE-QUALIFIER}
+
+\subsection{The Reload Command}
+\label{THE-RELOAD-COMMAND}
+
+The reload command has the syntax:
+\begin{center}
+\ttkey{reload} {\em qualifier-name} \{ \TT{,} {\em qualifier-name} \}\STAR{}
+\end{center}
+
+This command declares the values of all variables with the designated
+qualifiers to be out-of-date and unusable.  If any of these variables
+is used subsequently, statements to recompute and the members of
+its cluster are automatically inserted into the code.
+
+If \TT{q} is one of the designated qualifiers and
+a variable \TT{v} has been declared by the statements:
+\begin{center}
+\begin{tabular}{l}
+\TT{q mem} {\em type-name} \TT{v} \\
+\TT{adr v.adr =} {\em expression}
+\end{tabular}
+\end{center}
+
+then the statements:
+\begin{center}
+\begin{tabular}{l}
+\TT{next} \TT{v} \\
+\TT{adr v.adr =} {\em expression}
+\end{tabular}
+\end{center}
+
+are implied and \TT{v} is reloaded from memory.
+
+If instead \TT{v} has been declared by the statement:
+\begin{center}
+\TT{q} {\em type-name} \TT{v =} {\em expression}
+\end{center}
+
+then the statement:
+\begin{center}
+\TT{next} \TT{v =} {\em expression}
+\end{center}
+
+is implied and \TT{v} is recomputed.
+
+In many cases the compiler will be able to show that recomputation
+will do nothing, the implied statements will be converted to variable
+renames by the compiler, and no actual executable code will be
+produced for the implied statements.
 
 \section{TBD}
 

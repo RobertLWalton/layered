@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 3, 2014
+August 7, 2014
  
 \end{center}
 
@@ -691,9 +691,7 @@ is syntactic sugar for \\
 {\tt F(a1,a2,...,e1,e2,...)} \\
 \end{center}
 
-
-
-\subsection{Clusters}
+\section{Clusters}
 \label{CLUSTERS}
 
 A \key{cluster} is a group of related variables.  One variable of
@@ -859,21 +857,36 @@ It is an error in this case to explicitly assign a value to \TT{v}.
 \section{Qualifiers}
 
 Variables may be qualified by \skey{qualifier}s, such as the
-\TT{mem} qualifier in the example above.  In order for a function
-prototype variable to match an actual variable, if the prototype
-variable has qualifiers, each of these must be present on the
-actual variable.
-
-Qualifiers may be defined by:
-\begin{center}
-\ttkey{qualifier} {\em defined-qualifier-name}
-\end{center}
+\TT{mem} qualifier in the example above.
 
 Syntactically {\em qualifiers} immediately preceed {\em type-names}
 that are before {\em variable-names}.
 
+Some qualifiers are \skey{protection qualifier}s and some are not.
+The two kinds of qualifiers may be declared by:
+\begin{center}
+\ttkey{qualifier} {\em defined-qualifier-name} \\
+\ttkey{protection qualifier} {\em defined-protection-qualifier-name} \\
+\end{center}
+
 A qualifier applied to the root variable of a cluster is automatically
 applied to all the member variables.
+
+In order for a function
+prototype variable to match an actual variable, if the prototype
+variable has qualifiers, each of these must be present on the
+actual variable.
+
+A variable with a protection qualifier can only be assigned its
+value by being matched with a function result variable
+that also has the protection qualifier.
+
+As an example of the above rules, the \TT{mem} qualifier is
+a protection qualifier, so if \TT{t} is a type and \TT{v} a
+variable, an {\em value-assignment-statement} for \TT{v} must have the
+form `\TT{mem t v = }{\em expression}' where \TT{v} is matched
+with some result variable that has the \TT{mem} qualifier of some
+function called in {\em expression}.
 
 Two qualifiers, \TT{mem} and \TT{trace}, are builtin and have special
 effects.  In addition any qualifier can be used with the special
@@ -885,54 +898,42 @@ effects.  In addition any qualifier can be used with the special
 \subsection{The Trace Qualifier}
 \label{THE-TRACE-QUALIFIER}
 
-\subsection{The Reload Command}
+\subsection{The Reload Statement}
 \label{THE-RELOAD-COMMAND}
 
-The reload command has the syntax:
+The reload statement has the syntax:
 \begin{center}
 \ttkey{reload} {\em qualifier-name} \{ \TT{,} {\em qualifier-name} \}\STAR{}
 \end{center}
 
-This command declares the values of all variables with the designated
+This statement declares the values of all variables with the designated
 qualifiers to be out-of-date and unusable.  If any of these variables
-is used subsequently, statements to recompute and the members of
-its cluster are automatically inserted into the code.
+is used subsequently, statements to recompute the variable value
+may be inserted automatically into the code at the point of the
+\TT{reload} statement.
 
-If \TT{q} is one of the designated qualifiers and
-a variable \TT{v} has been declared by the statements:
-\begin{center}
-\begin{tabular}{l}
-\TT{q mem} {\em type-name} \TT{v} \\
-\TT{adr v.adr =} {\em expression}
-\end{tabular}
-\end{center}
+Variable values are recomputed in the same order as they were
+originally computed.  How each variable is recomputed depends upon
+how it was originally computed.
 
-then the statements:
-\begin{center}
-\begin{tabular}{l}
-\TT{next} \TT{v} \\
-\TT{adr v.adr =} {\em expression}
-\end{tabular}
-\end{center}
+If the variable \TT{v} was originally computed by
+a {\em value-assignment-statement}
+of the form `{\em type} \TT{v =} {\em expression}', then if
+no input to {\em expression} has changed, the variable value does not
+need to be recomputed, but if some input has changed, the
+statement `\TT{next v =} {\em expression}' is generated.
 
-are implied and \TT{v} is reloaded from memory.
+If the variable \TT{v} was originally computed by being loaded from
+RAM, using the statement `{\em type} \TT{v}' to allocate the variable,
+it is assumed that RAM has changed, and the statement `\TT{next v}' is
+generated to reload the variable.  Note that in this case, as \TT{v.adr}
+has all the qualifiers of \TT{v} and was originally computed first,
+it will have been recomputed before \TT{v} is reloaded.
 
-If instead \TT{v} has been declared by the statement:
-\begin{center}
-\TT{q} {\em type-name} \TT{v =} {\em expression}
-\end{center}
+TBD: conditional assignment, loop assignment
 
-then the statement:
-\begin{center}
-\TT{next} \TT{v =} {\em expression}
-\end{center}
-
-is implied and \TT{v} is recomputed.
-
-In many cases the compiler will be able to show that recomputation
-will do nothing, the implied statements will be converted to variable
-renames by the compiler, and no actual executable code will be
-produced for the implied statements.
+If a recomputed variable value is never used, the automatically generated
+statements that recompute the value are suppressed.
 
 \section{TBD}
 

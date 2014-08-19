@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 7, 2014
+August 19, 2014
  
 \end{center}
 
@@ -467,13 +467,15 @@ assignment statements:
 \emkey{variable-list}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em type-name} {\em variable-name} \\
-    $|$ & \TT{(} {\em type-name} {\em variable-name}
-	   \{ \TT{,} {\em type-name} {\em variable-name} \}\STAR{} \TT{)} \\
+    $|$ & \TT{(~}{\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    $|$ & \TT{~~} \{ \TT{,} {\em qualifier}\STAR{} {\em type-name}
+	             {\em variable-name} \}\STAR{} \TT{)} \\
     \end{tabular}
 \end{indpar}
 
 This allocates new variables of the given {\em variable-names} and types
-to the stack and stores values from the {\em expression} in the variables.
+to the stack and stores values from the {\em expression} in the variables
+({\em qualifiers} are not described until section \itemref{QUALIFIERS}).
 The {\em expression} produces a list of values, and this list must have
 at least as many elements as there are variables.  Each variable is
 assigned its value in order, and this value must be implicitly
@@ -551,6 +553,8 @@ Conditional assignment statements are similar:
 \emkey{conditional-assignment-statement}
     ::= \begin{tabular}[t]{l}
         {\em variable-list} \TT{= if:} \\
+	~~~~ \TT{default:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
 	~~~~ {\em condition-expression}\TT{:} \\
 	~~~~~~~~~ {\em executable-statement}\STAR{} \\
 	~~~~ {\em condition-expression}\TT{:} \\
@@ -570,17 +574,21 @@ are executed.  Each separate subblock of
 in the {\em condition-assignment-statement's} {\em variable-list},
 with exceptions for defaults described next.
 
-In addition to an `\TT{else:}' subblock,
-a {\em conditional-assignment-statement} may have one or
+A {\em conditional-assignment-statement} may have one or
 more `\ttkey{default}\TT{:}' subblocks.  Each assigns one or more
 variables in the {\em variable-list}.  A default subblock
 executes after another subblock executes if and only if all of the
 {\em variable-list} variables set by the default subblock have
 \underline{not} been set yet.  This means that multiple subblocks
-may execute (only the first can be a non-default subblock);
-if this happens, the order of execution is the order
-in which the subblocks appear in the program, but variables allocated
+may execute, but only the first can be a non-default subblock.
+If this happens, the order in which the default subblocks execute
+does not matter because (1) no two default subblocks may set the same
+{\em variable-list} variable, (2) default subblocks execute after
+any non-default subblock executes, and (3) variables allocated
 by one subblock are not visible outside that subblock.
+
+Every variable in the {\em variable-list} \underline{must} be set by some
+single subblock that executes.
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -855,6 +863,7 @@ assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
 
 \section{Qualifiers}
+\label{QUALIFIERS}
 
 Variables may be qualified by \skey{qualifier}s, such as the
 \TT{mem} qualifier in the example above.
@@ -877,16 +886,19 @@ prototype variable to match an actual variable, if the prototype
 variable has qualifiers, each of these must be present on the
 actual variable.
 
-A variable with a protection qualifier can only be assigned its
-value by being matched with a function result variable
-that also has the protection qualifier.
+If a variable is initialized by being matched to a prototype result variable
+of a function, the variable is implicitly given all the protection qualifiers
+of the prototype variable.  This is the only way a variable may acquire
+a protection qualifier.  Thus protection qualifiers are only explicitly
+given for prototype variables.
 
 As an example of the above rules, the \TT{mem} qualifier is
 a protection qualifier, so if \TT{t} is a type and \TT{v} a
-variable, an {\em value-assignment-statement} for \TT{v} must have the
-form `\TT{mem t v = }{\em expression}' where \TT{v} is matched
+variable, and the {\em value-assignment-statement} allocating \TT{v} has the
+form `\TT{t v = }{\em expression}' where \TT{v} is matched
 with some result variable that has the \TT{mem} qualifier of some
-function called in {\em expression}.
+function called in {\em expression}, then \TT{v} will be implicitly
+given the \TT{mem} qualifier.
 
 Two qualifiers, \TT{mem} and \TT{trace}, are builtin and have special
 effects.  In addition any qualifier can be used with the special
@@ -945,8 +957,8 @@ If the variable \TT{v} was originally computed by being loaded from
 RAM, using the statement `{\em type} \TT{v}' to allocate the variable,
 it is assumed that RAM has changed, and the statement `\TT{next v}' is
 generated to reload the variable.  Note that in this case, as \TT{v.adr}
-has all the qualifiers of \TT{v} and was originally computed first,
-it will have been recomputed before \TT{v} is reloaded.
+has all the qualifiers of \TT{v}, it is assumed that \TT{v.adr} was
+computed first, so it is recomputed before \TT{v} is reloaded.
 
 TBD: conditional assignment, loop assignment
 

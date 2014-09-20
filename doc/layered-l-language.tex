@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 19, 2014
+September 20, 2014
  
 \end{center}
 
@@ -367,8 +367,8 @@ where $x>y$
 For all these implicit conversions no information is lost from
 the value when it is converted to the new type.
 
-The following \underline{unchecked} conversion operator is
-defined:
+The following \underline{unchecked} (\itemref{UNCHECKED-BLOCKS})
+conversion operator is defined:
 \begin{center}
 
 $t1${\em -type-value} ~~ \TT{**>{}>} ~~ $t2$
@@ -403,7 +403,9 @@ Here the builtin type is called the \key{underlying type} of the
 \key{defined type}.
 
 A value of a defined type may be converted to or from its underlying
-type by the \underline{unchecked} \TT{**>{}>} operators:
+type by the \underline{unchecked}
+\underline{unchecked} (\itemref{UNCHECKED-BLOCKS})
+\TT{**>{}>} operators:
 \begin{center}
 \begin{tabular}{rcl}
 {\em defined-type-value} & \TT{**>{}>} & {\em builtin-type-name} \\
@@ -450,13 +452,33 @@ types this is the associated builtin type.  For builtin types, it is
 \TT{T} itself.
 \end{indpar}
 
+\section{Unchecked Blocks}
+\label{UNCHECKED-BLOCKS}
+
+Unchecked operations, such as certain type conversions mentioned above,
+can only be executed in an \mkey{unchecked}{code block}
+code block of the form:
+
+\begin{indpar}
+\emkey{unchecked-block}
+    ::= \begin{tabular}[t]{l}
+	\TT{unchecked}\TT{:} \\
+	~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+A fully \key{type checked} piece of code will not contain any
+unchecked code blocks.  A goal of the L-Language is to migrate
+all unchecked code into small inline data access functions.
+
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
 In the following {\em expressions} produce a list of one
 or more values of well defined types.
 
-Functions have stack frames that contain \underline{all} their variables.
+Function executions have stack frames that contain \underline{all}
+their variables.
 These variables are allocated and their values are computed by
 assignment statements:
 
@@ -466,14 +488,20 @@ assignment statements:
 \\[0.5ex]
 \emkey{variable-list}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em type-name} {\em variable-name} \\
-    $|$ & \TT{(~}{\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
-    $|$ & \TT{~~} \{ \TT{,} {\em qualifier}\STAR{} {\em type-name}
-	             {\em variable-name} \}\STAR{} \TT{)} \\
+    ::= & {\em variable-declaration} \\
+    $|$ & \TT{(~}{\em variable-declaration}
+          \{ \TT{,} {\em variable-declaration} \}\STAR{} \TT{)} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{variable-declaration}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    $|$ & \TT{next} {\em variable-name}
     \end{tabular}
 \end{indpar}
 
-This allocates new variables of the given {\em variable-names} and types
+This allocates new variables of the given {\em variable-names}, types,
+and qualifiers
 to the stack and stores values from the {\em expression} in the variables
 ({\em qualifiers} are not described until section \itemref{QUALIFIERS}).
 The {\em expression} produces a list of values, and this list must have
@@ -483,10 +511,13 @@ convertable to the variable's type.  If the {\em expression} produces
 too many values, the excess values at the end of the value list will be
 discarded.
 
+See \itemref{QUALIFIERS} for a discussion of {\em qualifiers}.
+
 The {\em expression} may only input values that are constants or are
-the values of other variables in the same function stack frame (including
-arguments passed to the function).  In particular,
-no input can come from RAM memory outside the function stack frame.
+the values of other variables in the same function execution
+stack frame (including
+arguments passed to the function execution).  In particular,
+no input can come from RAM memory outside the function execution stack frame.
 
 Implicitly when a variable value is set this way, the value is first
 computed in a register, then stored in the stack, and for some time
@@ -508,9 +539,10 @@ Two variables in the same block of code may not have the same
 name.  Thus variables are only assigned values once.
 
 However, if an assignment statement uses the word `\TT{next}' in
-place of the type of a variable being assigned a value, and
+place of the {\em qualifiers} and {\em type}
+of a variable being assigned a value, and
 if the variable previously exists, a new variable with the same
-name and type as the previous variable is allocated.
+name, type, and qualifiers as the previous variable is allocated.
 
 Note that `\TT{next}' behaves differently for loop interation
 variables (see below) than it does for other variables.
@@ -529,15 +561,16 @@ Another variant of the assignment statement is:
 \end{indpar}
 
 The {\em executable-statements} in the block can include
-{\em assignment-statements} in which the {\em type-names}
-of variables in the {\em executable-statement's} {\em variable-list}
-are omitted if these variables have the same name as a variable
+{\em assignment-statements} in which {\em variable-declarations}
+are replaced by simple {\em variable-names}
+if these variables have the same name as a variable
 in the {\em block-assignment-statement's} {\em variable-list}.
 These {\em executable-statements} assign values to the variables
 in the {\em block-assignment-statement's} {\em variable-list}.
 Furthermore, every variable in the
-{\em block-assignment-statement's} {\em variable-list} must be
-assigned a value by one of the {\em executable-statements}.
+{\em block-assignment-statement's} {\em variable-list}
+\underline{must} be assigned a value
+by one of the {\em executable-statements}.
 Also the values of the variables in the {\em variable-list} cannot
 be input to any of the {\em executable-statements}.
 
@@ -555,6 +588,9 @@ Conditional assignment statements are similar:
         {\em variable-list} \TT{= if:} \\
 	~~~~ \TT{default:} \\
 	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	~~~~ \TT{default:} \\
+	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	~~~~ \ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
 	~~~~ {\em condition-expression}\TT{:} \\
 	~~~~~~~~~ {\em executable-statement}\STAR{} \\
 	~~~~ {\em condition-expression}\TT{:} \\
@@ -569,7 +605,8 @@ In this case the {\em condition-expressions} are evaluated in order
 until either one evaluates to true or the `\TT{else}' condition is
 reached, and then the {\em executable-statements} subject to the
 first true condition (a.k.a the \key{subblock} of that condition)
-are executed.  Each separate subblock of
+are executed, or if no condition is true, the {\em executable-statements}
+of the `\TT{else}' subblock are executed.  Each separate subblock of
 {\em executable-statements} must set \underline{every} variable
 in the {\em condition-assignment-statement's} {\em variable-list},
 with exceptions for defaults described next.
@@ -581,14 +618,20 @@ executes after another subblock executes if and only if all of the
 {\em variable-list} variables set by the default subblock have
 \underline{not} been set yet.  This means that multiple subblocks
 may execute, but only the first can be a non-default subblock.
-If this happens, the order in which the default subblocks execute
-does not matter because (1) no two default subblocks may set the same
-{\em variable-list} variable, (2) default subblocks execute after
-any non-default subblock executes, and (3) variables allocated
-by one subblock are not visible outside that subblock.
+If this happens, the non-default subblock executes first, and
+the order in which the default subblocks execute
+is the order that they appear in the `\TT{if}' subblock.
+
+No two default subblocks may set the same {\em variable-list}
+variable.  This rule is purely to prevent overly clever code that
+uses the execution of earlier default blocks to disable the
+execution of later default blocks.
 
 Every variable in the {\em variable-list} \underline{must} be set by some
-single subblock that executes.
+single subblock that executes, variables in the
+{\em variable-list} cannot be read by subblock {\em executable-statements},
+and variables declared in the subblocks are not visible outside their
+subblock.
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -618,9 +661,9 @@ The {\em executable-statements} qualified by `\TT{while}
 {\em condition-expression}' only execute if the
 {\em condition-expression} evaluates to true, and
 for every variable \TT{v} in the {\em iteration-variable-list}
-they must set the variable `\TT{next v}', as if it were in
-this list.  The `\TT{next v}' variable is in fact the iteration
-variable in the next iteration of the loop.  Lastly, when
+they must set the variable `\TT{next v}' or `\TT{next next v}',
+as indicated below.
+Lastly, when
 the {\em condition-expression} evaluates to false, the
 {\em executable-statements} qualified by `\TT{finally}'
 execute, and they must set all the variables in the
@@ -630,22 +673,18 @@ executing.
 Loops are always in effect unravelled so multiple copies of
 the loop exist at one time.  `\TT{next v}' refers to \TT{v} in the
 next iteration of the loop, which exists simultaneously with
-the current iteration.
+the current iteration.  `\TT{next next v}' refers to \TT{v}
+in the next iteration to the next iteration of the loop, which
+also exists simultaneously with the current iteration.
 
-It is also permissible for the \TT{initially} subblock to set
-both \TT{v} and `\TT{next v}' for some variable \TT{v}, in which
-case the \TT{while} subblock must set `\TT{next next v}' and not
-`\TT{next v}.  Here the \TT{initially} block is setting \TT{v} for
-both the first and second iteration, and each iteration is setting
-\TT{v} for the interation after the iteration after the current
-iteration.
-
-However, no variable may be set more than once.  If an
-\TT{initially} statement sets \TT{next v}, 
-no \TT{while} statement may set \TT{next v}, and vice versa.
+For a given iteration variable \TT{v},
+either the \TT{initially} subblock sets \TT{v}
+and the `\TT{while}' subblock sets `\TT{next v}',
+or the \TT{initially} subblock sets both \TT{v} and `\TT{next v}'
+and the `\TT{while}' subblock sets `\TT{next next v}'.
 
 There are always at least 4 iterations of the loop with variables
-in the current function frame stack: the current iteration,
+in the current function execution frame stack: the current iteration,
 the previous iteration (if any), and the next two iterations.
 When the third iteration of the loop needs to start, the first
 iteration can be garbage collected, as it were, and so forth.

@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 20, 2014
+September 21, 2014
  
 \end{center}
 
@@ -686,8 +686,10 @@ and the `\TT{while}' subblock sets `\TT{next next v}'.
 There are always at least 4 iterations of the loop with variables
 in the current function execution frame stack: the current iteration,
 the previous iteration (if any), and the next two iterations.
-When the third iteration of the loop needs to start, the first
-iteration can be garbage collected, as it were, and so forth.
+When the third iteration of the loop starts, the first
+iteration can be discarded, and so forth.
+
+
 
 \section{Functions}
 \label{FUNCTIONS}
@@ -737,6 +739,37 @@ or {\em input-expression}.  Specifically
 is syntactic sugar for \\
 {\tt F(a1,a2,...,e1,e2,...)} \\
 \end{center}
+
+\section{Memory Allocation}
+\label{-MEMORY-ALLOCATION}
+
+L-Language has built-in operations to allocate memory blocks to the
+stack, but not to any other region of RAM.  Allocators to other
+regions of RAM are provided by the function library.
+
+The \ttkey{stack\_allocate} function allocates \TT{N} bytes of
+memory to the stack and returns its address:
+
+\begin{indpar}\begin{verbatim}
+( adr address ) = stack_allocate ( unsadr N )
+\end{verbatim}\end{indpar}
+
+The memory is freed when the \TT{address} variable is freed, that is,
+at the end of the subblock containing the call to \TT{stack\_allocate}.
+
+The memory allocated is always alligned on an \TT{8} byte boundary.
+
+If you want a different alignment you can use:
+
+\begin{indpar}\begin{verbatim}
+( adr address ) =
+    stack_allocate ( unsadr N, unsadr O, unsadr A )
+\end{verbatim}\end{indpar}
+
+where \TT{A} must be a power of 2.  This will align the \TT{O+1}'st
+byte of the allocated memory block
+at an address which is a multiple of \TT{A}\,.
+
 
 \section{Clusters}
 \label{CLUSTERS}

@@ -709,10 +709,10 @@ Function definitions have the form:
 \emkey{function-prototype}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em result-variable-list} \TT{=} {\em function-name}
-	    {\em argument-variable-list}\QMARK{}\TT{:} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}\TT{:} \\
+	    {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
-            \TT{=} {\em input-expression}\TT{:} \\
+            \TT{=} {\em input-variable-list} \\
     \end{tabular}
 \end{indpar}
 
@@ -728,16 +728,16 @@ the {\em result-variable-list's} variables become the values of the
 function call when it is used as part of an {\em expression}.
 
 A function call without any {\em result-variable-list} or
-{\em input-expression} is just like a function call with an empty
+{\em input-variable-list} is just like a function call with an empty
 {\em result-variable-list}.
 
-A function call with an {\em input-expression} is just syntactic
+A function call with an {\em input-variable-list} is just syntactic
 sugar for a function call with neither a {\em result-variable-list}
-or {\em input-expression}.  Specifically
+or {\em input-variable-list}.  Specifically
 \begin{center}
-{\tt F(a1,a2,...)~=~(e1,e2,...)} \\
+{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
 is syntactic sugar for \\
-{\tt F(a1,a2,...,e1,e2,...)} \\
+{\tt F(a1,a2,...,b1,b2,...)} \\
 \end{center}
 
 \section{Memory Allocation}

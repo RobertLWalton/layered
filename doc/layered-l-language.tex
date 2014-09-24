@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 21, 2014
+September 24, 2014
  
 \end{center}
 
@@ -807,8 +807,9 @@ of the cluster.  Two variable names with different base variable names
 belong to different clusters.
 
 Variables in clusters are thus organized into trees, with clusters
-that have different bases being disjoint.  Any variable can be considered
-as the \mkey{root}{of cluster} of a subtree of cluster members, and
+that have different bases being disjoint.  Any variable in a cluster
+can be considered
+as the \mkey{root}{of subcluster} of a subtree of cluster members, and
 the subtree is called a \key{subcluster}.
 
 The main feature of clusters is that members are passed to or returned
@@ -821,11 +822,11 @@ type pointer pair is void
     //   adr pp.end points just AFTER the last element
     //   type pp.type is type of element
 
-// Declaration of function to allocate a vector of n T's.
+// Function to allocate a vector of n T's.
 //
 ( mem pointer pair pp,
   adr pp.begin, adr pp.end, type pp.type ) =
-        mem allocate ( type T, uns32 n ):
+        allocate ( type T, uns32 n ):
     pp.type = T
     unsadr length = size of ( T ) * n
     pp.begin = allocate ( length )
@@ -836,8 +837,8 @@ type pointer pair is void
 // memory.
 //
 ( mem pp.type out, adr out.adr  ) =
-        mem "*" ( mem pointer pair pp,
-                  type pp.type, adr pp.begin, adr pp.end ):
+        "*" ( mem pointer pair pp,
+              type pp.type, adr pp.begin, adr pp.end ):
     out.adr = if:
         pp.begin < pp.end:
             out.adr = pp.begin
@@ -848,12 +849,12 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
-mem "*" ( mem pointer pair pp,
-              adr pp.begin, adr pp.end, type pp.type ) =
+"*" ( mem pointer pair pp,
+      adr pp.begin, adr pp.end, type pp.type ) =
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            in --> pp.begin
+            unchecked: in --> pp.begin
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -863,10 +864,21 @@ mem "*" ( mem pointer pair pp,
 //
 ( mem pointer pair pp2,
   adr pp2.begin, adr pp2.end, type pp2.type ) =
-        mem "++" ( pointer pair pp,
-                   type pp.type,
-                   adr pp.begin, adr pp.end ):
+        "++" ( mem pointer pair pp,
+               type pp.type,
+               adr pp.begin, adr pp.end ):
       pp2.begin = pp.begin + size of ( T )
+      pp2.end = pp.end
+      pp2.type = pp.type
+
+// Assignment operator for pointer pairs.
+//
+( mem pointer pair pp2,
+  adr pp2.begin, adr pp2.end, type pp2.type ) =
+        "=" ( mem pointer pair pp,
+              type pp.type,
+              adr pp.begin, adr pp.end ):
+      pp2.begin = pp.begin
       pp2.end = pp.end
       pp2.type = pp.type
 
@@ -893,9 +905,7 @@ mem "*" ( mem pointer pair pp,
                          type ppf2.type ):
         initially:
             partial sum = 0
-            ppf2.begin = pp.begin
-            ppf2.end = ppf2.end
-            ppf2.type = ppf.type
+	    ppf2 = ppf
         while ppf2.begin < ppf2.end
             next partial sum = partial sum + * ppf2
             next ppf2 = ++ ppf2
@@ -923,7 +933,7 @@ and must not be assigned one.  Such variables are only useful
 as cluster roots.
 
 In the above example `\TT{mem}' is a qualifier
-which can be applied to both variables and functions.
+which can be applied to variables.
 A qualifier applied to a cluster root is applied automatically
 to the cluster members.
 

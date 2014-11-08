@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:41:15 EDT 2014
+// Date:	Fri Nov  7 23:39:42 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1045,7 +1045,7 @@ void LEX::init_printer
 bool LEX::init_input_named_file
 	( min::ref<LEX::scanner> scanner,
 	  min::gen file_name,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  min::uns32 spool_lines )
 	  
 {
@@ -1053,52 +1053,52 @@ bool LEX::init_input_named_file
     return min::init_input_named_file
 	( input_file_ref(scanner),
 	  file_name,
-	  print_flags,
+	  line_display,
 	  spool_lines );
 }
 
 void LEX::init_input_stream
 	( min::ref<LEX::scanner> scanner,
 	  std::istream & istream,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  uns32 spool_lines )
 {
     init ( scanner );
     min::init_input_stream
 	( input_file_ref(scanner),
-	  istream, print_flags, spool_lines );
+	  istream, line_display, spool_lines );
 }
 
 void LEX::init_input_string
 	( min::ref<LEX::scanner> scanner,
 	  min::ptr<const char> data,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  uns32 spool_lines )
 {
     init ( scanner );
     min::init_input_string
 	( input_file_ref(scanner),
-	  data, print_flags, spool_lines );
+	  data, line_display, spool_lines );
 }
 
 void LEX::init_input
 	( min::ref<LEX::scanner> scanner,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  uns32 spool_lines )
 {
     init ( scanner );
     min::init_input
         ( input_file_ref(scanner),
-	  print_flags, spool_lines );
+	  line_display, spool_lines );
 }
 
-void LEX::init_print_flags
+void LEX::init_line_display
 	( min::ref<LEX::scanner> scanner,
-	  min::uns32 print_flags )
+	  min::uns32 line_display )
 {
     init ( scanner );
-    min::init_print_flags
-	( input_file_ref(scanner), print_flags );
+    min::init_line_display
+	( input_file_ref(scanner), line_display );
 }
 
 min::printer LEX::init_ostream
@@ -2085,7 +2085,8 @@ min::printer operator <<
     LEX::scanner scanner = pinput.scanner;
 
     printer << min::save_print_format
-            << min::graphic << min::gbreak;
+            << min::graphic_only
+	    << min::break_before_all;
     while ( first < next )
         printer << min::punicode
 	    ( (&scanner->input_buffer[first++])
@@ -2104,7 +2105,8 @@ min::printer operator <<
         return printer << "<empty>";
 
     printer << min::save_print_format
-            << min::graphic << min::gbreak;
+            << min::graphic_only
+	    << min::break_before_all;
     for ( unsigned i = 0;
           i < translation_buffer->length; ++ i )
         printer << min::punicode
@@ -2203,7 +2205,7 @@ min::printer operator <<
 	if ( offset != 0 )
 	    return printer
 	        << min::save_print_format
-	        << min::nohbreak
+	        << min::no_auto_break
 	        << min::ptr<char> ( php ) + offset
 	        << min::restore_print_format;
     }
@@ -2220,7 +2222,7 @@ min::printer operator <<
 	return printer << "SCAN_ERROR";
     default:
 	return printer << min::save_print_format
-	               << min::nohbreak
+	               << min::no_auto_break
 	               << "TYPE (" << mode << ")"
 	               << min::restore_print_format;
     }
@@ -2279,7 +2281,7 @@ void LEX::print_phrase_lines
 // Printing Programs
 // -------- --------
 
-// Program lines are printed with min::nohbreak
+// Program lines are printed with min::no_auto_break
 // and min::set_indent ( IDwidth ).
 
 static const unsigned IDwidth = 12;
@@ -2324,7 +2326,7 @@ static uns32 print_instruction
 
     min::uns32 indent = printer->column;
     printer << min::bom
-	    << min::nohbreak;
+	    << min::no_auto_break;
 
     min::ptr<instruction_header> ihp =
         LEX::ptr<instruction_header> ( program, ID );
@@ -2641,7 +2643,7 @@ static uns32 print_cooked_dispatcher
     if ( ID == 0 ) return 0;
 
     printer << min::bom
-	    << min::nohbreak;
+	    << min::no_auto_break;
 
     printer << "DISPATCHER" << min::eol;
 
@@ -2768,7 +2770,7 @@ uns32 LEX::print_program_component
 	  uns32 ID, bool cooked )
 {
     printer << min::save_print_format
-            << min::nohbreak
+            << min::no_auto_break
 	    << min::set_indent ( IDwidth );
 
     uns32 length;

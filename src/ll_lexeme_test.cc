@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:41:49 EDT 2014
+// Date:	Sat Nov  8 06:00:08 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,7 +101,7 @@ static void flush_codes ( void )
     if ( lexeme_codes->length > 0 )
     {
 	min::push(lexeme_codes) = 0;
-	printer << min::bom << min::nohbreak
+	printer << min::bom << min::no_auto_break
 		<< & lexeme_codes[0]
 		<< min::eom;
 	min::pop ( lexeme_codes,
@@ -139,20 +139,28 @@ static void set_codes
 	(&scanner->next_position)->line;
     if ( ::next_line <= line ) set_line ( line );
 
+    min::printer printer = scanner->printer;
+    const min::print_format & print_format =
+        printer->print_format;
+
     uns32 begin_column =
         min::print_line_column
 	    ( scanner->input_file,
 	      first < scanner->input_buffer->length ?
 	        (min::position)
 		    scanner->input_buffer[first] :
-	        scanner->next_position );
+	        scanner->next_position,
+	      print_format.op_flags,
+	      print_format );
     uns32 end_column =
         min::print_line_column
 	    ( scanner->input_file,
               next < scanner->input_buffer->length ?
                 (min::position)
 		    scanner->input_buffer[next] :
-		scanner->next_position );
+		scanner->next_position,
+	      print_format.op_flags,
+	      print_format );
 
     if ( end_column <= begin_column )
 	    end_column = ::line_width;

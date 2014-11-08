@@ -133,19 +133,18 @@
             Break Elements: 98
             Max Break Elements: 101
             Max CType: 1
-            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
-            <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
-            <202A>-<202E> <203F>-<2040> <2054> <2060>-<20CF>
-            <2100>-<218F> <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF>
-            <2E80>-<2FFF> <3004>-<3007> <3021>-<302F> <3031>-<0D7FF>
-            <0F900>-<0FD3D> <0FD40>-<0FDCF> <0FDF0>-<0FE1F>
-            <0FE30>-<0FE44> <0FE47>-<ILL> <10000>-<1FFFD>
-            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
-            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
-            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
-            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
-            <0E0000>-<0EFFFD>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
                #XXXX: CALL(#XXXX)
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
@@ -203,8 +202,8 @@
             Max CType: 13
             <NUL>-<BS> <SO>-<US> \ <DEL>-<0A7> <0A9> <0AB>-<0AC> <0AE>
             <0B0>-<0B1> <0B6> <0BB> <0BF> <0D7> <0F7> <300>-<36F> <1680>
-            <180E> <1DC0>-<1DFF> <2000>-<200A> <200E>-<2029>
-            <202F>-<203E> <2041>-<2053> <2055>-<205F> <20D0>-<20FF>
+            <MVS> <1DC0>-<1DFF> <2000>-<200A> <LRM>-<2029>
+            <NNBSP>-<203E> <2041>-<2053> <2055>-<MMSP> <20D0>-<20FF>
             <2190>-<245F> <2500>-<2775> <2794>-<2BFF> <2E00>-<2E7F>
             <3000>-<3003> <3008>-<3020> <3030> <0D800>-<0F8FF>
             <0FD3E>-<0FD3F> <0FDD0>-<0FDEF> <0FE20>-<0FE2F>
@@ -228,19 +227,18 @@
             <VT>-<CR>
                #XXXX: CALL(#XXXX)
                 Dispatcher ID: #XXXX
-            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
-            <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
-            <202A>-<202E> <203F>-<2040> <2054> <2060>-<20CF>
-            <2100>-<218F> <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF>
-            <2E80>-<2FFF> <3004>-<3007> <3021>-<302F> <3031>-<0D7FF>
-            <0F900>-<0FD3D> <0FD40>-<0FDCF> <0FDF0>-<0FE1F>
-            <0FE30>-<0FE44> <0FE47>-<ILL> <10000>-<1FFFD>
-            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
-            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
-            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
-            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
-            <0E0000>-<0EFFFD>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
                #XXXX: CALL(#XXXX)
                 Dispatcher ID: #XXXX
             '
@@ -337,19 +335,18 @@
             Break Elements: 98
             Max Break Elements: 101
             Max CType: 1
-            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
-            <1681>-<180D> <180F>-<1DBF> <1E00>-<1FFF> <200B>-<200D>
-            <202A>-<202E> <203F>-<2040> <2054> <2060>-<20CF>
-            <2100>-<218F> <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF>
-            <2E80>-<2FFF> <3004>-<3007> <3021>-<302F> <3031>-<0D7FF>
-            <0F900>-<0FD3D> <0FD40>-<0FDCF> <0FDF0>-<0FE1F>
-            <0FE30>-<0FE44> <0FE47>-<ILL> <10000>-<1FFFD>
-            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
-            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
-            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
-            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
-            <0E0000>-<0EFFFD>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
                #XXXX: ACCEPT
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
@@ -368,13 +365,13 @@
             Break Elements: 98
             Max Break Elements: 109
             Max CType: 3
-            A-Z a-z <0A8> <0AA> <0AD> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
             <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
-            <1681>-<180D> <180F>-<1FFF> <200B>-<200D> <202A>-<202E>
-            <203F>-<2040> <2054> <2060>-<218F> <2460>-<24FF>
-            <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007>
-            <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
-            <0FDF0>-<0FE44> <0FE47>-<ILL> <10000>-<1FFFD>
+            <1681>-<FVS3> <180F>-<1FFF> <ZWSP>-<ZWJ> <LRE>-<RLO>
+            <203F>-<2040> <2054> <WJ>-<218F> <2460>-<24FF> <2776>-<2793>
+            <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007> <3021>-<302F>
+            <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
+            <0FDF0>-<0FE44> <0FE47>-<UUC> <10000>-<1FFFD>
             <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
             <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
             <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
@@ -570,8 +567,8 @@
             <CR>
                #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(17)
                 Dispatcher ID: #XXXX
-            <NUL>-<HT> <VT>-<FF> <SO>-<US> <DEL>-<0A0> <2000>-<200F>
-            <2011> <2028>-<202F> <205F>-<206F>
+            <NUL>-<HT> <VT>-<FF> <SO>-<US> <DEL>-<NBSP> <2000>-<RLM>
+            <2011> <2028>-<NNBSP> <MMSP>-<206F>
                #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(17)
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
@@ -778,7 +775,7 @@
             Max Break Elements: 3
             Max CType: 1
             >
-                #XXXX: TRANSLATE_TO(1,<EM>)
+                #XXXX: TRANSLATE_TO(1,<EOM>)
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 1
@@ -1536,23 +1533,23 @@
             Max Break Elements: 1
             Max CType: 0
 COMMENT 0(0)0: //␣Layers␣Language␣Standard␣Lexical␣Analyzer␣Test␣Data
-LINE_BREAK 0(54): ␤
+LINE_BREAK 0(54): ␊
 COMMENT 1(0)0: //
-LINE_BREAK 1(2): ␤
+LINE_BREAK 1(2): ␊
 COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in
-LINE_BREAK 2(35): ␤
+LINE_BREAK 2(35): ␊
 COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
-LINE_BREAK 3(38): ␤
+LINE_BREAK 3(38): ␊
 COMMENT 4(0)0: //␣Date:␉Fri␣Jun␣24␣08:37:02␣EDT␣2011
-LINE_BREAK 4(37): ␤
+LINE_BREAK 4(37): ␊
 COMMENT 5(0)0: //
-LINE_BREAK 5(2): ␤
+LINE_BREAK 5(2): ␊
 COMMENT 6(0)0: //␣The␣authors␣have␣placed␣this␣data␣in␣the␣public
-LINE_BREAK 6(50): ␤
+LINE_BREAK 6(50): ␊
 COMMENT 7(0)0: //␣domain;␣they␣make␣no␣warranty␣and␣accept␣no␣liability
-LINE_BREAK 7(56): ␤
+LINE_BREAK 7(56): ␊
 COMMENT 8(0)0: //␣for␣this␣data.
-LINE_BREAK 8(17): ␤␤
+LINE_BREAK 8(17): ␊␊
 WORD 10(0)0: abc
 HORIZONTAL_SPACE 10(3): ␣
 NUMBER 10(4): 3.4
@@ -1564,11 +1561,11 @@ WORD 10(11): x
 SEPARATOR 10(12): ,
 WORD 10(13): y
 SEPARATOR 10(14): )
-LINE_BREAK 10(15): ␤
+LINE_BREAK 10(15): ␊
 QUOTED_STRING 11(0)0: "hi" translated to: hi
 HORIZONTAL_SPACE 11(4): ␣
-QUOTED_STRING 11(5): "ho<HT>x␣y<>z<LF>" translated to: ho␉x␣y<>z␤
-LINE_BREAK 11(23): ␤
+QUOTED_STRING 11(5): "ho<HT>x␣y<>z<LF>" translated to: ho␉x␣y<>z␊
+LINE_BREAK 11(23): ␊
 WORD 12(0)0: 'tis
 HORIZONTAL_SPACE 12(4): ␣
 WORD 12(5): noth'ng
@@ -1581,7 +1578,7 @@ WORD 12(19): a
 HORIZONTAL_SPACE 12(20): ␣
 WORD 12(21): h'dache
 MARK 12(28): .
-LINE_BREAK 12(29): ␤
+LINE_BREAK 12(29): ␊
 WORD 13(0)0: a
 NUMBER 13(1): .1.2.3
 MARK 13(7): .
@@ -1602,7 +1599,7 @@ SEPARATOR 13(21): (
 NATURAL_NUMBER 13(22): 5
 WORD 13(23): z
 SEPARATOR 13(24): )
-LINE_BREAK 13(25): ␤
+LINE_BREAK 13(25): ␊
 NUMBER 14(0)0: 12.3
 HORIZONTAL_SPACE 14(4): ␣
 NUMBER 14(5): .4
@@ -1611,7 +1608,7 @@ NATURAL_NUMBER 14(8): 5
 MARK 14(9): .
 HORIZONTAL_SPACE 14(10): ␣
 NUMBER 14(11): 6/7
-LINE_BREAK 14(14): ␤
+LINE_BREAK 14(14): ␊
 NUMBER 15(0)0: 1,23,456
 HORIZONTAL_SPACE 15(8): ␣
 NUMBER 15(9): 1,234/6,789
@@ -1619,7 +1616,7 @@ HORIZONTAL_SPACE 15(20): ␣
 NUMBER 15(21): 1/2/3/4,5/6,7,8/9
 HORIZONTAL_SPACE 15(38): ␣
 NUMBER 15(39): 8888.12,3,4
-LINE_BREAK 15(50): ␤
+LINE_BREAK 15(50): ␊
 MARK 16(0)0: /
 NATURAL_NUMBER 16(1): 3
 HORIZONTAL_SPACE 16(2): ␣
@@ -1637,7 +1634,7 @@ NATURAL_NUMBER 16(19): 5
 HORIZONTAL_SPACE 16(20): ␣
 SEPARATOR 16(21): ,
 NUMBER 16(22): 6.7,8.9
-LINE_BREAK 16(29): ␤
+LINE_BREAK 16(29): ␊
 MARK 17(0)0: +-*~@#$%^&=|<>_!?:
 QUOTED_STRING 17(18): "foo" translated to: foo
 WORD 17(23): x
@@ -1646,7 +1643,7 @@ ASCII_ESCAPE_SEQUENCE 17(28): <05> translated to: ␅
 MARK 17(32): <
 WORD 17(33): LF
 MARK 17(35): >
-LINE_BREAK 17(36): ␤
+LINE_BREAK 17(36): ␊
 MARK 18(0)0: .
 WORD 18(1): foo
 HORIZONTAL_SPACE 18(4): ␣
@@ -1668,7 +1665,7 @@ HORIZONTAL_SPACE 18(21): ␣
 WORD 18(22): x
 NUMBER 18(23): .3
 COMMENT 18(25): //␣comment␣<89>␣"'
-LINE_BREAK 18(43): ␤
+LINE_BREAK 18(43): ␊
 WORD 19(0)0: a
 SEPARATOR 19(1): (
 WORD 19(2): b
@@ -1697,22 +1694,22 @@ SEPARATOR 19(29): '
 HORIZONTAL_SPACE 19(30): ␣
 WORD 19(31): fum
 SEPARATOR 19(34): '
-LINE_BREAK 19(35): ␤
+LINE_BREAK 19(35): ␊
 COMMENT 20(0)0: //␣form␣feed␣
-LINE_BREAK 20(13): ␌␤
+LINE_BREAK 20(13): ␌␊
 COMMENT 21(0)0: //␣vertical␣tab␣
-LINE_BREAK 21(16): ␋␤
+LINE_BREAK 21(16): ␋␊
 COMMENT 22(0)0: //␣carriage␣return␣
-LINE_BREAK 22(19): ␍␤
+LINE_BREAK 22(19): ␍␊
 WORD 23(0)0: z
 HORIZONTAL_SPACE 23(1): ␉
 WORD 23(2): x
 HORIZONTAL_SPACE 23(3): ␣
 COMMENT 23(4): //␣horizontal␣tab
-LINE_BREAK 23(21): ␤
+LINE_BREAK 23(21): ␊
 WORD 24(0)0: all
 HORIZONTAL_SPACE 24(3): ␣␉
-LINE_BREAK 24(5): ␌␋␍␤
+LINE_BREAK 24(5): ␌␋␍␊
 WORD 25(0)0: control
 HORIZONTAL_SPACE 25(7): ␣
 WORD 25(8): A
@@ -1721,11 +1718,11 @@ WORD 25(10): B
 MISPLACED_CHARACTER 25(11): ␂
 WORD 25(12): C
 MISPLACED_CHARACTER 25(13): ␃
-LINE_BREAK 25(14): ␤
+LINE_BREAK 25(14): ␊
 ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 26(28): <XX>
 QUOTED_STRING 26(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
-     translated to: "␤␍␉␈␌␋␣â␁
-LINE_BREAK 26(45): ␤
+     translated to: "␊␍␉␈␌␋␣â␁
+LINE_BREAK 26(45): ␊
 ASCII_ESCAPE_SEQUENCE 27(0)0: <0041> translated to: A
 ASCII_ESCAPE_SEQUENCE 27(6): <00000042> translated to: B
 WORD 27(16): C
@@ -1734,32 +1731,32 @@ WORD 27(18): D
 ASCII_ESCAPE_SEQUENCE 27(19): <00000045> translated to: E
 ASCII_ESCAPE_SEQUENCE 27(29): <0046> translated to: F
 WORD 27(35): G
-LINE_BREAK 27(36): ␤
+LINE_BREAK 27(36): ␊
 ASCII_ESCAPE_SEQUENCE 28(0)0: <0041> translated to: A
 WORD 28(6): <000000B5>C translated to: µC
 HORIZONTAL_SPACE 28(17): ␣
 WORD 28(18): D<000000E3> translated to: Dã
 ASCII_ESCAPE_SEQUENCE 28(29): <0006> translated to: ␆
 WORD 28(35): G
-LINE_BREAK 28(36): ␤
+LINE_BREAK 28(36): ␊
 ASCII_ESCAPE_SEQUENCE 29(0)0: <0001> translated to: ␁
-LINE_BREAK 29(6): ␤
+LINE_BREAK 29(6): ␊
 QUOTED_STRING 30(0)0: "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
      translated to: ␀␁␂␃␄␅␆␇
-LINE_BREAK 30(42): ␤
+LINE_BREAK 30(42): ␊
 QUOTED_STRING 31(0)0: "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
-     translated to: ␈␉␤␤␋␌␍␎␏
-LINE_BREAK 31(38): ␤
+     translated to: ␈␉␊␊␋␌␍␎␏
+LINE_BREAK 31(38): ␊
 QUOTED_STRING 32(0)0: "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
      translated to: ␐␑␒␓␔␕␖␗
-LINE_BREAK 32(42): ␤
+LINE_BREAK 32(42): ␊
 QUOTED_STRING 33(0)0: "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
      translated to: ␘␙␚␛␜␝␞␟␡
-LINE_BREAK 33(42): ␤
+LINE_BREAK 33(42): ␊
 ERRONEOUS ATOM: MISPLACED_CONTROL_CHARACTER 34(19): ␁
 QUOTED_STRING 34(0)0: "misplaced␣control␣␁"
      translated to: misplaced␣control␣
-LINE_BREAK 34(21): ␤
+LINE_BREAK 34(21): ␊
 WORD 35(0)0: misplaced
 HORIZONTAL_SPACE 35(9): ␣
 WORD 35(10): space
@@ -1773,11 +1770,11 @@ HORIZONTAL_SPACE 35(26): ␣
 MISPLACED_SPACE 35(27): ␍
 HORIZONTAL_SPACE 35(28): ␣
 WORD 35(29): here
-LINE_BREAK 35(33): ␤
+LINE_BREAK 35(33): ␊
 QUOTED_STRING 36(0)0: "premature␣end␣of␣line
      translated to: premature␣end␣of␣line
 PREMATURE_END_OF_LINE 36(22): <empty>
-LINE_BREAK 36(22): ␤
+LINE_BREAK 36(22): ␊
 QUOTED_STRING 37(0)0: "premature␣end␣of␣file
      translated to: premature␣end␣of␣file
 PREMATURE_END_OF_FILE 37(22): <empty>

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jul  1 14:13:44 EDT 2014
+# Date:		Sat Nov  8 06:30:11 EST 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -46,7 +46,10 @@ TESTS = ${PROGRAMS}
 MIN_H =	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
         ${MIN}/include/min_os.h \
-        ${MIN}/include/min_unicode.h
+        ${MIN}/include/min_unicode.h \
+        ${MIN}/unicode/unicode_data.h \
+        ${MIN}/unicode/unicode_data_support_sets.h
+
 
 MIN_O =	min.o min_os.o min_acc.o min_unicode.o
 
@@ -163,7 +166,7 @@ min_acc.o:	${MIN_H} \
 min_unicode.o:	${MIN_H} \
         ${MIN}/include/min_unicode.h \
 	${MIN}/src/min_unicode.cc \
-	${MIN}/unicode/unicode_types.cc \
+	${MIN}/unicode/unicode_data.cc \
 	Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \

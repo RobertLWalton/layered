@@ -183,7 +183,7 @@ Uncooked Program 2:
             Max CType: 10
             Breaks:             cmin     type_map_ID
                                <NUL>           #XXXX
-                                <80>           #XXXX
+                               <PAD>           #XXXX
             Map:   CType:    dispatcher_ID  instruction_ID
                        0:            #XXXX           #XXXX
                        1:            #XXXX           #XXXX
@@ -212,7 +212,7 @@ Uncooked Program 2:
             Max CType: 10
             Breaks:             cmin     type_map_ID
                                <NUL>           #XXXX
-                                <80>           #XXXX
+                               <PAD>           #XXXX
             Map:   CType:    dispatcher_ID  instruction_ID
                        0:            #XXXX           #XXXX
                        1:            #XXXX           #XXXX
@@ -302,7 +302,7 @@ Uncooked Program 2:
             Max CType: 10
             Breaks:             cmin     type_map_ID
                                <NUL>           #XXXX
-                                <80>           #XXXX
+                               <PAD>           #XXXX
             Map:   CType:    dispatcher_ID  instruction_ID
                        0:            #XXXX           #XXXX
                        1:            #XXXX           #XXXX
@@ -455,7 +455,7 @@ Cooked Program 2:
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
-            <NUL>-<BS> <SO>-<US> !-' : <-@ ^-` | ~ <80>-
+            <NUL>-<BS> <SO>-<US> !-' : <-@ ^-` | ~ <PAD>-
                #XXXX: OUTPUT(1)
             <HT>-<CR> <SP>
                #XXXX: GOTO(#XXXX)

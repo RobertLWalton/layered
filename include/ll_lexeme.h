@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:40:45 EDT 2014
+// Date:	Fri Nov  7 23:17:53 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -912,29 +912,29 @@ namespace ll { namespace lexeme {
     bool init_input_named_file
 	    ( min::ref<ll::lexeme::scanner> scanner,
 	      min::gen file_name,
-	      uns32 print_flags = 0,
+	      uns32 line_display = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_stream
 	    ( min::ref<ll::lexeme::scanner> scanner,
 	      std::istream & istream,
-	      uns32 print_flags = 0,
+	      uns32 line_display = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
 	    ( min::ref<ll::lexeme::scanner> scanner,
 	      min::ptr<const char> data,
-	      uns32 print_flags = 0,
+	      uns32 line_display = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input
 	    ( min::ref<ll::lexeme::scanner> scanner,
-	      uns32 print_flags = 0,
+	      uns32 line_display = 0,
 	      uns32 spool_lines = min::ALL_LINES );
 
-    void init_print_flags
+    void init_line_display
 	    ( min::ref<ll::lexeme::scanner> scanner,
-	      uns32 print_flags );
+	      uns32 line_display );
 
     void init_spool_lines
 	    ( min::ref<ll::lexeme::scanner> scanner,
@@ -995,10 +995,11 @@ namespace ll { namespace lexeme {
 namespace ll { namespace lexeme {
 
     // printer << pgraphic ( c ) does the same thing as
-    //	    printer << min::save_print_format
-    //              << min::graphic
-    //              << min::punicode ( c )
-    //              << min::restore_print_format
+    //	   printer
+    //	     << min::save_print_format
+    //       << min::graphic_only
+    //       << min::punicode ( c )
+    //       << min::restore_print_format
     //
     struct pgraphic {
         uns32 c;
@@ -1152,10 +1153,11 @@ inline min::printer operator <<
 	( min::printer printer,
 	  const ll::lexeme::pgraphic & pgraphic )
 {
-    return printer << min::save_print_format
-                   << min::graphic
-		   << min::punicode ( pgraphic.c )
-                   << min::restore_print_format;
+    return printer
+        << min::save_print_format
+        << min::graphic_only
+        << min::punicode ( pgraphic.c )
+        << min::restore_print_format;
 }
 
 min::printer operator <<
@@ -1221,8 +1223,8 @@ namespace ll { namespace lexeme {
     // with a program and printer, and if desired an
     // initial_table and/or a trace.  Then init_input_
     // string is called to define the string to be
-    // scanned, and init_print_flags may be called to
-    // initialize print flags for error messages.  If
+    // scanned, and init_line_display may be called to
+    // initialize line display for error messages.  If
     // the erroneous_atom closure is not initialized,
     // this function gives it the default value with
     // NO_LINE_NUMBERS mode.

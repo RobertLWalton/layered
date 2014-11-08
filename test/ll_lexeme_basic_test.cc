@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 07:14:54 EDT 2014
+// Date:	Fri Nov  7 23:40:10 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -581,7 +581,7 @@ void test_program
 
     LEX::init_input_string
         ( LEX::default_scanner, min::new_ptr ( input ),
-	  printer->print_format.flags );
+	  printer->print_format.op_flags );
     LEX::init_program
         ( LEX::default_scanner, LEX::default_program );
 
@@ -595,7 +595,7 @@ void test_program
 	    << min::eol
 	    << min::indent
 	    << min::save_print_format
-	    << min::graphic
+	    << min::graphic_only
 	    << input
 	    << min::restore_print_format
 	    << min::eol << min::eol;
@@ -624,7 +624,7 @@ int main ( int argc, const char * argv[] )
     min::initialize();
     LEX::init_ostream
 	    ( LEX::default_scanner, std::cout )
-	<< min::eol_flush << min::ascii;
+	<< min::flush_on_eol << min::ascii;
     LEX::init
 	( LEX::erroneous_atom_ref
 	      ( LEX::default_scanner ),

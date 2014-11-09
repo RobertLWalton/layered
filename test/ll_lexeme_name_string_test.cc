@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 05:36:08 EST 2012
+// Date:	Sun Nov  9 01:33:05 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,21 +31,19 @@ static void test_string ( const char * s )
     printer
         << "TESTING \""
         << min::bom
-	<< min::ascii << min::graphic
+	<< min::ascii << min::graphic_only
 	<< s << "\"" << min::eom;
     LEX::init_input_string
     	( LEX::default_scanner,
 	  min::new_ptr ( s ),
-	  min::ASCII_FLAG + min::GRAPHIC_FLAGS );
+	  min::DISPLAY_NON_GRAPHIC );
     min::gen value = LEX::scan_name_string
     	( LEX::default_scanner,
 	  ::accepted_types,
 	  ::ignored_types,
 	  ::end_types );
     printer << "    VALUE: "
-            << min::pgen ( value,
-	                     min::BRACKET_STR_FLAG
-			   + min::BRACKET_LAB_FLAG )
+            << min::pgen ( value )
             << min::eol;
 }
 

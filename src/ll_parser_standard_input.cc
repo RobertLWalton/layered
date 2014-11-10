@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:39:48 EDT 2014
+// Date:	Mon Nov 10 00:52:54 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -235,20 +235,23 @@ static min::uns32 input_add_tokens
 	    if ( token->value != min::MISSING() )
 	        printer
 		    << min::save_print_format
-		    << min::graphic
-		    << min::pgen ( token->value )
+		    << min::graphic_only
+		    << min::pgen_quote ( token->value )
 		    << min::restore_print_format
 		    << ": ";
 	    else if ( token->string != min::NULL_STUB )
-	        printer
-		    << min::save_print_format
-		    << min::graphic
-		    << min::punicode
-		            ( token->string->length,
-			      min::begin_ptr_of
-			          ( token->string ) )
-		    << min::restore_print_format
-		    << ": ";
+	    {
+	        printer << min::save_print_format
+		        << min::graphic_only;
+		min::print_unicode
+		    ( printer,
+		      token->string->length,
+		      min::begin_ptr_of
+			       ( token->string ),
+		      min::quote_all_str_format );
+		printer << min::restore_print_format
+		        << ": ";
+	    }
 	    printer
 		<< LEX::pline_numbers
 		        ( scanner, first, next )

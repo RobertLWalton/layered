@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:33:19 EST 2012
+// Date:	Mon Nov 10 00:53:49 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,9 +27,5 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cout );
     PAR::default_parser->trace_flags =
         PAR::TRACE_PARSER_INPUT;
-    PAR::init_print_flags
-        ( PAR::default_parser,
-	    min::GRAPHIC_VSPACE_FLAG
-	  + min::GRAPHIC_NSPACE_FLAG );
     PAR::parse();
 }

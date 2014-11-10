@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:34:26 EDT 2014
+// Date:	Mon Nov 10 00:21:13 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -417,10 +417,9 @@ void COM::print_new_flags
 	    return;
 	}
 
-	parser->printer << "["
-	                << min::suppressible_space
+	parser->printer << "[ "
 	                << min::save_indent
-	                << min::nohbreak;
+	                << min::no_auto_break;
 
 	bool is_flag_list =
 	    allow_flag_list
@@ -457,12 +456,11 @@ void COM::print_new_flags
 	        parser->printer << " ";
 	    }
 
-	    parser->printer << min::name_pgen
+	    parser->printer << min::pgen_name
 	                           ( name_table[i] );
 	}
 
-	parser->printer << min::suppressible_space
-	                << "]"
+	parser->printer << " ]"
 	                << min::restore_indent;
 }
 
@@ -490,8 +488,7 @@ void COM::print_command
     {
 	parser->printer
 	    << ( i == 0 ? "" : " " )
-	    << min::pgen ( vp[i],
-			   min::OBJ_EXP_FLAG );
+	    << min::pgen ( vp[i] );
     }
 }
 
@@ -616,7 +613,7 @@ static min::gen execute_pass
         COM::print_command ( vp, parser );
 	parser->printer
 	    << ":" << min::eol
-	    << min::bom << min::nohbreak
+	    << min::bom << min::no_auto_break
 	    << min::set_indent ( 4 );
 
 	PAR::pass pass = parser->pass_stack;
@@ -626,7 +623,7 @@ static min::gen execute_pass
 	else while ( pass != min::NULL_STUB )
 	{
 	    parser->printer << min::indent
-			    << min::name_pgen
+			    << min::pgen_name
 				 ( pass->name );
 
 	    if ( pass != parser->pass_stack )
@@ -749,7 +746,7 @@ static min::gen execute_selectors
 		    ( parser, pp,
 		      "too many selector names;"
 		      " cannot process \"",
-		      min::name_pgen ( name ),
+		      min::pgen_name ( name ),
 		      "\" in" );
 	    }
 
@@ -762,7 +759,7 @@ static min::gen execute_selectors
         COM::print_command ( vp, parser );
 	parser->printer
 	    << ":" << min::eol
-	    << min::bom << min::nohbreak
+	    << min::bom << min::no_auto_break
 	    << min::set_indent ( 4 );
 	int count = 0;
 
@@ -790,10 +787,10 @@ static min::gen execute_selectors
 
 	    parser->printer << min::indent
 			    << "block "
-			    << min::name_pgen
+			    << min::pgen_name
 				 ( block_name )
 			    << ": "
-		            << min::name_pgen ( t[j] );
+		            << min::pgen_name ( t[j] );
 
 	    ++ count;
 	}
@@ -859,7 +856,7 @@ static min::gen execute_context
         COM::print_command ( vp, parser );
 	parser->printer
 	    << ":" << min::eol
-	    << min::bom << min::nohbreak
+	    << min::bom << min::no_auto_break
 	    << min::set_indent ( 4 );
 
 	int count = 0;
@@ -880,7 +877,7 @@ static min::gen execute_context
 
 	        parser->printer << min::indent
 		                << "block "
-				<< min::name_pgen
+				<< min::pgen_name
 				     ( block_name )
 				<< ": \"default\" ";
 		COM::print_flags
@@ -920,9 +917,9 @@ static min::gen execute_context
 		parser->printer
 		    << min::indent
 		    << "block "
-		    << min::name_pgen ( block_name )
+		    << min::pgen_name ( block_name )
 		    << ": \""
-		    << min::name_pgen ( context->label )
+		    << min::pgen_name ( context->label )
 		    << "\" ";
 		COM::print_new_flags
 		    ( context->new_selectors,
@@ -1058,14 +1055,15 @@ static min::gen execute_test
 	    // Close vp so pgen can print obj.
 
 	parser->printer
-	    << min::save_print_format << min::nohbreak
+	    << min::save_print_format
+	    << min::no_auto_break
 	    << "======= TEST: "
 	    << min::restore_print_format
 	    << min::bom;
 
 	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
 	    parser->printer
-		<< min::indent_pgen ( obj )
+		<< min::pgen ( obj )
 		<< min::eom
 		<< min::flush_id_map;
 
@@ -1077,10 +1075,8 @@ static min::gen execute_test
 	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	{
 	    parser->printer
-	        << min::set_context_gen_flags
-			( & min::
-			    no_exp_context_gen_flags )
-		<< min::indent_pgen ( obj )
+		<< min::pgen ( obj,
+		               min::id_map_gen_format )
 		<< min::eol
 		<< min::flush_id_map
 		<< min::eom;
@@ -1131,7 +1127,7 @@ static min::gen execute_trace
 
 	parser->printer
 	    << "parser print trace:" << min::eol
-	    << min::bom << min::nohbreak
+	    << min::bom << min::no_auto_break
 	    << min::set_indent ( 4 ) << min::indent
 	    << "["
 	    << min::set_indent ( 6 ) << min::indent;
@@ -1145,7 +1141,7 @@ static min::gen execute_trace
 		<< min::set_break
 	        << ( ( trace_flags & ( 1ull << j ) ) ?
 		   	"+ " : "- " )
-		<< min::name_pgen ( t[j] );
+		<< min::pgen_name ( t[j] );
 	}
 	parser->printer << " ]" << min::eom;
 

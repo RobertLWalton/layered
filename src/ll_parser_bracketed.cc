@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:34:37 EDT 2014
+// Date:	Mon Nov 10 00:28:16 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1576,9 +1576,7 @@ bool BRA::parse_bracketed_subexpression
 		    << ( root->selectors & selectors ?
 		         "SELECTED KEY " :
 			 "UNSELECTED KEY " )
-		    << min::pgen
-		           ( root->label,
-			     min::BRACKET_STR_FLAG )
+		    << min::pgen_quote ( root->label )
 		    << min::indent << " OF SUBTYPE "
 		    << min::name_of_packed_subtype
 		           ( min::packed_subtype_of
@@ -1653,18 +1651,16 @@ bool BRA::parse_bracketed_subexpression
 			<< min::set_indent ( 7 )
 			<< "ERROR: missing"
 			   " closing bracket "
-			<< min::pgen
+			<< min::pgen_quote
 			     ( opening_bracket->
 			       closing_bracket->
-				   label,
-			       min::BRACKET_STR_FLAG )
+				   label )
 			<< " inserted before ";
 
 		    if ( next->value != min::MISSING() )
 		        parser->printer
-			    << min::pgen
-			      ( next->value,
-			        min::BRACKET_STR_FLAG )
+			    << min::pgen_quote
+			      ( next->value )
 			    << "; ";
 		    else if (    next->type
 		              == LEXSTD::line_break_t )
@@ -1954,11 +1950,10 @@ bool BRA::parse_bracketed_subexpression
 			    << min::set_indent ( 7 )
 			    << "ERROR: missing named"
 			       " closing bracket "
-			    << min::pgen
+			    << min::pgen_quote
 			       ( named_opening
 			         ->named_middle_closing
-				 ->label,
-			         min::BRACKET_STR_FLAG )
+				 ->label )
 			    << " inserted; "
 			    << min::pline_numbers
 				   ( parser->input_file,
@@ -2307,9 +2302,7 @@ bool BRA::parse_bracketed_subexpression
 	        parser->printer
 		    << "BRACKETED SUBEXPRESSION PARSER"
 		       " REJECTED KEY "
-		    << min::pgen
-		           ( root->label,
-			     min::BRACKET_STR_FLAG )
+		    << min::pgen_quote ( root->label )
 		    << min::eol;
 
 	    root = PAR::find_next_entry
@@ -2378,7 +2371,7 @@ static min::gen bracketed_pass_command
 	    COM::print_command ( vp, parser );
 	    parser->printer
 		<< ":" << min::eol
-		<< min::bom << min::nohbreak
+		<< min::bom << min::no_auto_break
 		<< min::set_indent ( 4 );
 
 	    min::int32 offset =
@@ -2397,7 +2390,7 @@ static min::gen bracketed_pass_command
 
 	        parser->printer << min::indent
 		                << "block "
-				<< min::name_pgen
+				<< min::pgen_name
 				     ( block_name )
 				<< ": " << offset;
 
@@ -2551,7 +2544,7 @@ static min::gen bracketed_pass_command
 
 	parser->printer
 	    << ":" << min::eol
-	    << min::bom << min::nohbreak
+	    << min::bom << min::no_auto_break
 	    << min::set_indent ( 4 );
 
 	int count = 0;
@@ -2585,7 +2578,7 @@ static min::gen bracketed_pass_command
 	    parser->printer
 		<< min::indent
 		<< "block "
-		<< min::name_pgen ( block_name )
+		<< min::pgen_name ( block_name )
 		<< ": " << min::save_indent;
 
 	    if ( subtype == BRA::OPENING_BRACKET )
@@ -2597,10 +2590,10 @@ static min::gen bracketed_pass_command
 
 		parser->printer
 		    << "bracket \""
-		    << min::name_pgen
+		    << min::pgen_name
 		           ( opening_bracket->label )
 		    << "\" ... \""
-		    << min::name_pgen
+		    << min::pgen_name
 		           ( closing_bracket->label )
 		    << "\" ";
 		COM::print_flags
@@ -2644,12 +2637,12 @@ static min::gen bracketed_pass_command
 		parser->printer
 		    << ( gluing ?  "gluing " : "" )
 		    << "indentation mark \""
-		    << min::name_pgen
+		    << min::pgen_name
 		        ( indentation_mark->label );
 		if ( line_separator != min::NULL_STUB )
 		    parser->printer
 		        << "\" ... \""
-			<< min::name_pgen
+			<< min::pgen_name
 			    ( line_separator->label );
 		parser->printer
 		    << "\" ";
@@ -2688,24 +2681,24 @@ static min::gen bracketed_pass_command
 
 		parser->printer
 		    << "named bracket \""
-		    << min::name_pgen
+		    << min::pgen_name
 		        ( named_opening->label );
 		if ( named_separator != min::NULL_STUB )
 		    parser->printer
 		        << "\" ... \""
-			<< min::name_pgen
+			<< min::pgen_name
 			    ( named_separator->label );
 		if ( named_middle != min::NULL_STUB )
 		    parser->printer
 		        << "\" ... \""
-			<< min::name_pgen
+			<< min::pgen_name
 			    ( named_middle->label )
 		        << "\" ... \""
-			<< min::name_pgen
+			<< min::pgen_name
 			    ( named_middle->label );
 		parser->printer
 		    << "\" ... \""
-		    << min::name_pgen
+		    << min::pgen_name
 			( named_closing->label )
 		    << "\" ";
 		COM::print_flags
@@ -2748,8 +2741,7 @@ static min::gen bracketed_pass_command
 	    return PAR::parse_error
 		( parser, ppvec[5],
 		  "gluing indentation mark name ",
-		  min::pgen ( name[0],
-		              min::BRACKET_STR_FLAG ),
+		  min::pgen_quote ( name[0] ),
 		  " is not a mark in" );
 	break;
     }

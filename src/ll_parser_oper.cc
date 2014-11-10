@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:36:51 EDT 2014
+// Date:	Mon Nov 10 00:51:32 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -504,7 +504,7 @@ static void oper_parse ( PAR::parser parser,
 			<< min::bom
 			<< min::set_indent ( 7 )
 			<< "OPERATOR `"
-			<< min::name_pgen
+			<< min::pgen_name
 			       ( current->value )
 			<< "' found; "
 			<< min::pline_numbers
@@ -789,9 +789,9 @@ static bool separator_reformatter_function
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: wrong separator `"
-		    << min::name_pgen ( t->value )
+		    << min::pgen_name ( t->value )
 		    << "' changed to `"
-		    << min::name_pgen ( separator )
+		    << min::pgen_name ( separator )
 		    << "'; "
 		    << min::pline_numbers
 			   ( parser->input_file,
@@ -914,7 +914,7 @@ static bool declare_reformatter_function
 		<< min::set_indent ( 7 )
 		<< "ERROR: expected bracketed"
 		   " expression and got `"
-		<< min::name_pgen ( t->value )
+		<< min::pgen_name ( t->value )
 		<< "'; deleted; "
 		<< min::pline_numbers
 		       ( parser->input_file,
@@ -1019,7 +1019,7 @@ static bool unary_reformatter_function
 	    << min::bom
 	    << min::set_indent ( 7 )
 	    << "ERROR: expected an operator and got `"
-	    << min::name_pgen ( first->value )
+	    << min::pgen_name ( first->value )
 	    << "'; deleted; "
 	    << min::pline_numbers
 		   ( parser->input_file,
@@ -1046,7 +1046,7 @@ static bool unary_reformatter_function
 	    << min::bom
 	    << min::set_indent ( 7 )
 	    << "ERROR: expected operand and got `"
-	    << min::name_pgen ( t->value )
+	    << min::pgen_name ( t->value )
 	    << "'; deleted; "
 	    << min::pline_numbers
 		   ( parser->input_file,
@@ -1073,7 +1073,7 @@ static bool unary_reformatter_function
 	    << min::bom
 	    << min::set_indent ( 7 )
 	    << "ERROR: expected operand after `"
-	    << min::name_pgen ( t->value )
+	    << min::pgen_name ( t->value )
 	    << "'; inserted ERROR'OPERAND; "
 	    << min::pline_numbers
 		   ( parser->input_file,
@@ -1153,7 +1153,7 @@ static bool binary_reformatter_function
 	    << min::bom
 	    << min::set_indent ( 7 )
 	    << "ERROR: expected operand before `"
-	    << min::name_pgen ( t->value )
+	    << min::pgen_name ( t->value )
 	    << "'; inserted ERROR'OPERAND; "
 	    << min::pline_numbers
 		   ( parser->input_file,
@@ -1188,7 +1188,7 @@ static bool binary_reformatter_function
 	    << min::bom
 	    << min::set_indent ( 7 )
 	    << "ERROR: expected operand after `"
-	    << min::name_pgen ( t->value )
+	    << min::pgen_name ( t->value )
 	    << "'; inserted ERROR'OPERAND; "
 	    << min::pline_numbers
 		   ( parser->input_file,
@@ -1280,9 +1280,9 @@ static bool infix_reformatter_function
 		<< min::bom
 		<< min::set_indent ( 7 )
 		<< "ERROR: wrong operator `"
-		<< min::name_pgen ( t->next->value )
+		<< min::pgen_name ( t->next->value )
 		<< "' changed to `"
-		<< min::name_pgen ( first->next->value )
+		<< min::pgen_name ( first->next->value )
 		<< "'; all operators"
 		   " must be the same in this"
 		   " subexpression; "
@@ -1524,14 +1524,14 @@ static bool sum_reformatter_function
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: wrong operator `"
-		    << min::name_pgen ( t->value )
+		    << min::pgen_name ( t->value )
 		    << "' changed to `"
-		    << min::name_pgen ( plus_op )
+		    << min::pgen_name ( plus_op )
 		    << "'; all operators in this"
 		       " subexpression must be `"
-		    << min::name_pgen ( plus_op )
+		    << min::pgen_name ( plus_op )
 		    << "' or `"
-		    << min::name_pgen ( minus_op )
+		    << min::pgen_name ( minus_op )
 		    << "'; "
 		    << min::pline_numbers
 			   ( parser->input_file,
@@ -1693,19 +1693,19 @@ void static print_op
     parser->printer
 	<< min::indent
 	<< "block "
-	<< min::name_pgen ( block_name )
+	<< min::pgen_name ( block_name )
 	<< ": " << min::save_indent;
 
     if ( table_type == ::OPERATOR )
 	parser->printer
 	    << "operator \""
-	    << min::name_pgen ( op->label );
+	    << min::pgen_name ( op->label );
     else if ( table_type == ::BRACKET )
 	parser->printer
 	    << "bracket \""
-	    << min::name_pgen ( op->label )
+	    << min::pgen_name ( op->label )
 	    << "\" ... \""
-	    << min::name_pgen ( op->terminator );
+	    << min::pgen_name ( op->terminator );
 
     parser->printer
 	<< "\" " << min::set_break;
@@ -1745,7 +1745,7 @@ void static print_op
 	parser->printer
 	    << min::indent
 	    << "with reformatter "
-	    << min::name_pgen
+	    << min::pgen_name
 	           ( op->reformatter->name );
 
 	min::packed_vec_ptr<min::gen> args =
@@ -1760,7 +1760,7 @@ void static print_op
 		    parser->printer << ", "
 		                    << min::set_break;
 	        parser->printer
-		    << '"' << min::name_pgen ( args[i] )
+		    << '"' << min::pgen_name ( args[i] )
 		    << '"';
 	    }
 	    parser->printer << " )";
@@ -1887,7 +1887,7 @@ static min::gen oper_pass_command
 
 	parser->printer
 	    << ":" << min::eol
-	    << min::bom << min::nohbreak
+	    << min::bom << min::no_auto_break
 	    << min::set_indent ( 4 );
 
 	int count = 0;
@@ -1978,7 +1978,7 @@ static min::gen oper_pass_command
 	    return PAR::parse_error
 		( parser, ppvec[i],
 		  "operator flag `",
-		  min::name_pgen ( vp[i] ),
+		  min::pgen_name ( vp[i] ),
 		  "' appears twice" );
 
 	oper_flags |= new_oper_flag;
@@ -2103,7 +2103,7 @@ static min::gen oper_pass_command
 		    return PAR::parse_error
 			    ( parser, ppvec->position,
 			      "`",
-			      min::name_pgen ( name ),
+			      min::pgen_name ( name ),
 			      buffer );
 		}
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  9 20:15:00 EST 2014
+// Date:	Tue Nov 11 02:39:48 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@ int main ( int argc, const char * argv[] )
         ( LEX::default_scanner,
 	  std::cin,
 	    min::DISPLAY_PICTURE
+	  + min::DISPLAY_NON_GRAPHIC
 	  + min::DISPLAY_EOL );
     LEX::test_input ( LEXCPP::type_code,
                       LEXCPP::end_of_file_t );

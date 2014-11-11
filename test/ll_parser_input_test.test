@@ -57,7 +57,7 @@ LINE_BREAK: lines 9-10:
 WORD: "abc": line 11:
 abc 3.4+z (x,y)
 ^^^
-NUMBER: 3.4: line 11:
+NUMBER: "3.4": line 11:
 abc 3.4+z (x,y)
     ^^^
 MARK: "+": line 11:
@@ -84,10 +84,10 @@ abc 3.4+z (x,y)
 LINE_BREAK: line 11:
 abc 3.4+z (x,y)
                ^
-QUOTED_STRING: hi: line 12:
+QUOTED_STRING: "hi": line 12:
 "hi" "ho<HT>x y<>z<LF>"
 ^^^^
-QUOTED_STRING: ho␉x␣y<>z␤: line 12:
+QUOTED_STRING: "ho␉x␣y<>z␊": line 12:
 "hi" "ho<HT>x y<>z<LF>"
      ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 12:
@@ -123,7 +123,7 @@ LINE_BREAK: line 13:
 WORD: "a": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
 ^
-NUMBER: .1.2.3: line 14:
+NUMBER: ".1.2.3": line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
  ^^^^^^
 MARK: ".": line 14:
@@ -177,10 +177,10 @@ a.1.2.3.b.c e5f x7+y6(5z)
 LINE_BREAK: line 14:
 a.1.2.3.b.c e5f x7+y6(5z)
                          ^
-NUMBER: 12.3: line 15:
+NUMBER: "12.3": line 15:
 12.3 .4 5. 6/7
 ^^^^
-NUMBER: .4: line 15:
+NUMBER: ".4": line 15:
 12.3 .4 5. 6/7
      ^^
 NATURAL_NUMBER: "5": line 15:
@@ -189,22 +189,22 @@ NATURAL_NUMBER: "5": line 15:
 MARK: ".": line 15:
 12.3 .4 5. 6/7
          ^
-NUMBER: 6/7: line 15:
+NUMBER: "6/7": line 15:
 12.3 .4 5. 6/7
            ^^^
 LINE_BREAK: line 15:
 12.3 .4 5. 6/7
               ^
-NUMBER: 1,23,456: line 16:
+NUMBER: "1,23,456": line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
 ^^^^^^^^
-NUMBER: 1,234/6,789: line 16:
+NUMBER: "1,234/6,789": line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
          ^^^^^^^^^^^
-NUMBER: 1/2/3/4,5/6,7,8/9: line 16:
+NUMBER: "1/2/3/4,5/6,7,8/9": line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                      ^^^^^^^^^^^^^^^^^
-NUMBER: 8888.12,3,4: line 16:
+NUMBER: "8888.12,3,4": line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                                        ^^^^^^^^^^^
 LINE_BREAK: line 16:
@@ -216,7 +216,7 @@ MARK: "/": line 17:
 NATURAL_NUMBER: "3": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
  ^
-NUMBER: 6.34.56: line 17:
+NUMBER: "6.34.56": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
    ^^^^^^^
 MARK: "/": line 17:
@@ -243,7 +243,7 @@ NATURAL_NUMBER: "5": line 17:
 SEPARATOR: ",": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                      ^
-NUMBER: 6.7,8.9: line 17:
+NUMBER: "6.7,8.9": line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9
                       ^^^^^^^
 LINE_BREAK: line 17:
@@ -252,7 +252,7 @@ LINE_BREAK: line 17:
 MARK: "+-*~@#$%^&=|<>_!?:": line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
 ^^^^^^^^^^^^^^^^^^
-QUOTED_STRING: foo: line 18:
+QUOTED_STRING: "foo": line 18:
 +-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
                   ^^^^^
 WORD: "x": line 18:
@@ -318,7 +318,7 @@ WORD: "x": line 19:
 WORD: "x": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                       ^
-NUMBER: .3: line 19:
+NUMBER: ".3": line 19:
 .foo /foo 3/x x/3 3.x x.3// comment <89> "'
                        ^^
 COMMENT: line 19:
@@ -465,7 +465,7 @@ control A␁B␂C␃
 ERROR: unrecognized escape sequence; line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                             ^^^^
-QUOTED_STRING: "␤␍␉␈␌␋␣â␁: line 27:
+QUOTED_STRING: "<Q>␊␍␉␈␌␋␣â␁": line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 27:
@@ -519,25 +519,25 @@ ERROR: ascii escape sequence; line 30:
 LINE_BREAK: line 30:
 <0001>
       ^
-QUOTED_STRING: ␀␁␂␃␄␅␆␇: line 31:
+QUOTED_STRING: "␀␁␂␃␄␅␆␇": line 31:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 31:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
                                           ^
-QUOTED_STRING: ␈␉␤␤␋␌␍␎␏: line 32:
+QUOTED_STRING: "␈␉␊␊␋␌␍␎␏": line 32:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 32:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
                                       ^
-QUOTED_STRING: ␐␑␒␓␔␕␖␗: line 33:
+QUOTED_STRING: "␐␑␒␓␔␕␖␗": line 33:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 33:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
                                           ^
-QUOTED_STRING: ␘␙␚␛␜␝␞␟␡: line 34:
+QUOTED_STRING: "␘␙␚␛␜␝␞␟␡": line 34:
 "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 34:
@@ -546,7 +546,7 @@ LINE_BREAK: line 34:
 ERROR: misplaced control character; line 35:
 "misplaced control ␁"
                    ^
-QUOTED_STRING: misplaced␣control␣: line 35:
+QUOTED_STRING: "misplaced␣control␣": line 35:
 "misplaced control ␁"
 ^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 35:
@@ -576,7 +576,7 @@ misplaced space ␌ here and ␍ here
 LINE_BREAK: line 36:
 misplaced space ␌ here and ␍ here
                                  ^
-QUOTED_STRING: premature␣end␣of␣line: line 37:
+QUOTED_STRING: "premature␣end␣of␣line": line 37:
 "premature end of line
 ^^^^^^^^^^^^^^^^^^^^^^
 ERROR: premature end of line; line 37:
@@ -585,7 +585,7 @@ ERROR: premature end of line; line 37:
 LINE_BREAK: line 37:
 "premature end of line
                       ^
-QUOTED_STRING: premature␣end␣of␣file: line 38:
+QUOTED_STRING: "premature␣end␣of␣file": line 38:
 "premature end of file<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^
 ERROR: premature end of file; line 38:

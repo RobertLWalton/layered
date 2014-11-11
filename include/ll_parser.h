@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  9 20:19:30 EST 2014
+// Date:	Tue Nov 11 03:09:03 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,10 +38,6 @@ namespace ll { namespace parser {
 
     extern min::locatable_gen
         top_level,	// TOP-LEVEL (not legal lexeme)
-        dot_position,	// . position
-	dot_initiator,	// . initiator
-	dot_terminator,	// . terminator
-	dot_separator,	// . separator
 	dot_middle,	// . middle
 	dot_name,	// . name
 	dot_arguments,	// . arguments

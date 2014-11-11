@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 10 00:28:16 EST 2014
+// Date:	Tue Nov 11 03:11:46 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -886,11 +886,11 @@ static void named_attributes
 	}
 	min::attr_insptr keysap ( keysvp );
 
-	min::locate ( keysap, PAR::dot_initiator );
+	min::locate ( keysap, min::dot_initiator );
 	min::set ( keysap,
 	           named_opening->named_separator
 		                ->label );
-	min::locate ( keysap, PAR::dot_separator );
+	min::locate ( keysap, min::dot_separator );
 	min::set ( keysap,
 	           named_opening->named_separator
 		                ->label );
@@ -1335,7 +1335,7 @@ bool BRA::parse_bracketed_subexpression
 
 			    PAR::attr attributes[1] =
 			      { PAR::attr
-			          ( PAR::dot_terminator,
+			          ( min::dot_terminator,
 				    terminator ) };
 
 			    PAR::compact
@@ -1396,7 +1396,7 @@ bool BRA::parse_bracketed_subexpression
 
 		PAR::attr attributes[1] =
 		    { PAR::attr
-		          ( PAR::dot_initiator,
+		          ( min::dot_initiator,
 			    indentation_found->
 			        label ) };
 
@@ -1697,11 +1697,11 @@ bool BRA::parse_bracketed_subexpression
 
 		    PAR::attr attributes[2] =
 			{ PAR::attr
-			      ( PAR::dot_initiator,
+			      ( min::dot_initiator,
 			        opening_bracket->
 				    label ),
 			  PAR::attr
-			        ( PAR::dot_terminator,
+			        ( min::dot_terminator,
 			          opening_bracket->
 			              closing_bracket->
 				          label ) };
@@ -1753,11 +1753,11 @@ bool BRA::parse_bracketed_subexpression
 
 		    PAR::attr attributes[2] =
 			{ PAR::attr
-			      ( PAR::dot_initiator,
+			      ( min::dot_initiator,
 			        opening_bracket->
 				    label ),
 			  PAR::attr
-			        ( PAR::dot_terminator,
+			        ( min::dot_terminator,
 			        opening_bracket->
 			            closing_bracket->
 				        label ) };
@@ -1997,10 +1997,10 @@ bool BRA::parse_bracketed_subexpression
 
 		    PAR::attr attributes[6] =
 			{ PAR::attr
-			      ( PAR::dot_initiator,
+			      ( min::dot_initiator,
 			        named_opening->label ),
 			  PAR::attr
-			        ( PAR::dot_terminator,
+			        ( min::dot_terminator,
 			        named_opening->
 			            named_closing->
 				        label ),
@@ -2144,14 +2144,14 @@ bool BRA::parse_bracketed_subexpression
 			min::attr_insptr tap ( tvp );
 
 			min::locate
-			    ( tap, PAR::dot_initiator );
+			    ( tap, min::dot_initiator );
 			min::set
 			    ( tap,
 			      named_opening->label );
 
 			min::locate
 			    ( tap,
-			      PAR::dot_terminator );
+			      min::dot_terminator );
 			min::set
 			    ( tap,
 			      named_opening->

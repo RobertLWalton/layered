@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 10 00:14:47 EST 2014
+// Date:	Tue Nov 11 03:11:21 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,10 +36,6 @@
 # define STD ll::parser::standard
 
 min::locatable_gen PAR::top_level;
-min::locatable_gen PAR::dot_position;
-min::locatable_gen PAR::dot_initiator;
-min::locatable_gen PAR::dot_terminator;
-min::locatable_gen PAR::dot_separator;
 min::locatable_gen PAR::dot_middle;
 min::locatable_gen PAR::dot_name;
 min::locatable_gen PAR::dot_arguments;
@@ -91,14 +87,6 @@ static void initialize ( void )
 {
     PAR::top_level
 	= min::new_str_gen ( "TOP-LEVEL" );
-    PAR::dot_position
-	= min::new_lab_gen ( ".", "position" );
-    PAR::dot_initiator
-	= min::new_lab_gen ( ".", "initiator" );
-    PAR::dot_terminator
-	= min::new_lab_gen ( ".", "terminator" );
-    PAR::dot_separator
-	= min::new_lab_gen ( ".", "separator" );
     PAR::dot_middle
 	= min::new_lab_gen ( ".", "middle" );
     PAR::dot_name
@@ -1039,7 +1027,7 @@ void PAR::parse ( PAR::parser parser )
 	        ( g == PAR::parser_lexeme );
 
 	    PAR::attr attributes[1] =
-		{ PAR::attr ( PAR::dot_terminator,
+		{ PAR::attr ( min::dot_terminator,
 		              terminator ) };
 
 	    min::uns32 error_count_save =
@@ -1366,7 +1354,7 @@ void PAR::put_empty_before
     PAR::value_ref(token) = min::new_obj_gen ( 3, 1 );
     min::obj_vec_insptr vp ( token->value );
     min::attr_insptr ap ( vp );
-    min::locate ( ap, PAR::dot_position );
+    min::locate ( ap, min::dot_position );
     min::set ( ap, min::new_stub_gen ( pos ) );
 }
 
@@ -1389,7 +1377,7 @@ void PAR::put_empty_after
     PAR::value_ref(token) = min::new_obj_gen ( 3, 1 );
     min::obj_vec_insptr vp ( token->value );
     min::attr_insptr ap ( vp );
-    min::locate ( ap, PAR::dot_position );
+    min::locate ( ap, min::dot_position );
     min::set ( ap, min::new_stub_gen ( pos ) );
 }
 
@@ -1470,7 +1458,7 @@ void PAR::compact
 	min::obj_vec_insptr vp ( first->value );
 	min::attr_insptr ap ( vp );
 
-	min::locate ( ap, PAR::dot_position );
+	min::locate ( ap, min::dot_position );
 	min::phrase_position_vec_insptr pos =
 	    min::get ( ap );
 	pos->position = position;
@@ -1539,7 +1527,7 @@ void PAR::compact
 	}
 
 	min::attr_insptr expap ( expvp );
-	min::locate ( expap, PAR::dot_position );
+	min::locate ( expap, min::dot_position );
 	min::set ( expap, min::new_stub_gen ( pos ) );
 
 	while ( m -- )
@@ -1635,7 +1623,7 @@ min::gen PAR::get_initiator ( min::gen v )
     if ( ! min::is_obj ( v ) ) return min::MISSING();
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
-    min::locate ( ap, PAR::dot_initiator );
+    min::locate ( ap, min::dot_initiator );
     min::gen result = min::get ( ap );
     if ( result == min::NONE()
          ||
@@ -1723,7 +1711,7 @@ void PAR::convert_token ( PAR::token token )
 	PAR::free_string ( token->string );
 
     min::attr_insptr elemap ( elemvp ); 
-    min::locate ( elemap, PAR::dot_initiator );
+    min::locate ( elemap, min::dot_initiator );
     min::set ( elemap, initiator );
 
     token->type = PAR::BRACKETED;

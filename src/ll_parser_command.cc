@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 10 00:21:13 EST 2014
+// Date:	Tue Nov 11 04:33:07 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -91,13 +91,13 @@ min::gen COM::scan_names
         return min::FAILURE();
 
     min::attr_ptr subap ( subvp );
-    min::locate ( subap, PAR::dot_initiator );
+    min::locate ( subap, min::dot_initiator );
     if ( min::get ( subap ) != PAR::left_parenthesis )
         return min::FAILURE();
-    min::locate ( subap, PAR::dot_terminator );
+    min::locate ( subap, min::dot_terminator );
     if ( min::get ( subap ) != PAR::right_parenthesis )
         return min::FAILURE();
-    min::locate ( subap, PAR::dot_position );
+    min::locate ( subap, min::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
     assert ( ppvec != min::NULL_STUB );
     assert ( ppvec->file == parser->input_file );
@@ -306,13 +306,13 @@ static min::gen scan_new_flags
         return min::FAILURE();
 
     min::attr_ptr subap ( subvp );
-    min::locate ( subap, PAR::dot_initiator );
+    min::locate ( subap, min::dot_initiator );
     if ( min::get ( subap ) != PAR::left_square )
         return min::FAILURE();
-    min::locate ( subap, PAR::dot_terminator );
+    min::locate ( subap, min::dot_terminator );
     if ( min::get ( subap ) != PAR::right_square )
         return min::FAILURE();
-    min::locate ( subap, PAR::dot_position );
+    min::locate ( subap, min::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
     assert ( ppvec != min::NULL_STUB );
     assert ( ppvec->file == parser->input_file );

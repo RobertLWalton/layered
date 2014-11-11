@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 10 00:51:32 EST 2014
+// Date:	Tue Nov 11 03:12:29 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -342,10 +342,10 @@ static void oper_parse ( PAR::parser parser,
 		    min::attr_ptr ap ( vp );
 
 		    min::locate
-		        ( ap, PAR::dot_initiator );
+		        ( ap, min::dot_initiator );
 		    initiator = min::get ( ap );
 		    min::locate
-		        ( ap, PAR::dot_terminator );
+		        ( ap, min::dot_terminator );
 		    terminator = min::get ( ap );
 
 		    // Destroy object pointers to make
@@ -836,7 +836,7 @@ static bool separator_reformatter_function
     }
 
     PAR::attr separator_attr
-        ( PAR::dot_separator, separator );
+        ( min::dot_separator, separator );
 
     PAR::compact
         ( parser, pass->next, selectors,

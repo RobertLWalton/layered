@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  3 01:04:13 EST 2012
+// Date:	Wed Nov 12 04:24:39 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,10 +44,9 @@ int main ( int argc, const char * argv[] )
 	PAR::TRACE_KEYS
 	+
 	PAR::TRACE_PARSER_OUTPUT;
-    PAR::init_print_flags
+    PAR::init_line_display
         ( PAR::default_parser,
-	    min::GRAPHIC_VSPACE_FLAG
-	  + min::GRAPHIC_NSPACE_FLAG );
+	    min::DISPLAY_PICTURE );
 
     min::locatable_gen math_name
         ( min::new_str_gen ( "math" ) );

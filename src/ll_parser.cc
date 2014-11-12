@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 11 03:11:21 EST 2014
+// Date:	Wed Nov 12 08:11:25 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1569,8 +1569,7 @@ void PAR::compact
 	     & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	    parser->printer
 		<< min::save_print_format
-		<< min::pgen ( first->value,
-		               min::id_map_gen_format )
+		<< min::map_pgen ( first->value )
 		<< min::eol
 		<< min::restore_print_format;
 	if (   trace_flags

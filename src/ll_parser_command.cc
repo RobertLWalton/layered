@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 11 04:33:07 EST 2014
+// Date:	Wed Nov 12 04:13:53 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -417,7 +417,8 @@ void COM::print_new_flags
 	    return;
 	}
 
-	parser->printer << "[ "
+	parser->printer << "["
+	                << min::leading
 	                << min::save_indent
 	                << min::no_auto_break;
 
@@ -460,7 +461,7 @@ void COM::print_new_flags
 	                           ( name_table[i] );
 	}
 
-	parser->printer << " ]"
+	parser->printer << min::trailing << "]"
 	                << min::restore_indent;
 }
 

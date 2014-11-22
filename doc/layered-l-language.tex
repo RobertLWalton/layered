@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 24, 2014
+November 22, 2014
  
 \end{center}
 
@@ -416,12 +416,73 @@ These operators do not change the actual value, but merely its
 compile-time type.
 
 
+\subsection{Enumeration Values}
+\label{Enumeration-VALUES}
+
+A defined type with an integer underlying type
+may have \skey{enumeration value}s.  These are unique integer
+values assigned to enumeration constant names during compilation,
+and then reassigned to possibly different values during linking.
+
+A statement of the following form defines a type with enumeration
+values:
+\begin{center}
+\TT{type} {\em defined-type-name} \TT{is} {\em builtin-type-name}
+    \TT{with enum} {\em enum-range}\QMARK{}
+\end{center}
+where
+\begin{center}
+\begin{tabular}{rrl}
+\emkey{enum-range}
+    & ::= & \TT{[} {\em first-enum} \TT{...} {\em last-enum} \TT{]} \\
+    & $|$ & \TT{[} {\em first-enum} \TT{...} \TT{]} \\
+\emkey{first-enum}
+    & ::= & {\em compile-time-integer-expression} \\
+\emkey{second-enum}
+    & ::= & {\em compile-time-integer-expression} \\
+\end{tabular}
+\end{center}
+
+Enumeration values can be assigned by statements of the form
+\begin{indpar}
+\emkey{enum-assignment}
+    ::= {\em type-name} {\em constant-name} \TT{=} \TT{next enum}
+\end{indpar}
+
+Within a compilation the compiler assignes the value {\em first-enum}
+to the first constant named in an {\em enum-assignment} statement for
+the given type, and then
+assigned values in increasing order if {\em first-enum} < {\em last-enum},
+or in decreasing order if {\em first-enum} > {\em last-enum}, to
+constants named in subsequent {\em enum-assignment} statements for
+the given type.  The assignments occur when the statements are
+compiled, not when they are executed.
+
+Within a linked load the process is the same, but the values assigned
+to a constant may differ from those assigned during compilation,
+so that all such assignments for a given type within a linked load
+will be distinct.  The assignments occur when the code containing
+the statements is linked, not when that code is executed.
+
+These values should only be tested for equality, and not for
+relative order.
+
+If {\em last-enum} is not given, it is assumed to be the maximum
+value of the underlying type.  If {\em enum-range} is not given,
+it is assumed to be `\TT[0 ...]'.
+
 \subsection{Type Values}
 \label{TYPE-VALUES}
 
-Each type is associated with a unique unsigned integer
-value of type `\TT{type}'.  This value is known at both
-run time and compile time.
+The type `\TT{type}' is an enumeration type implicitly declared
+after the manner of
+\begin{center}
+\TT{type type is uns32 with enum [0 ...]}
+\end{center}
+Each type is associated with a unique enumeration value
+of type `\TT{type}', and this value can be used at both
+compile and run time to test whether two `\TT{type}'s are
+equal.
 
 Functions can be overloaded based on the number and types
 of their arguments and also on the values of arguments that

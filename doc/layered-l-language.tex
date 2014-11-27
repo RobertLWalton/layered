@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 22, 2014
+November 27, 2014
  
 \end{center}
 
@@ -845,12 +845,12 @@ name of the base variable using the syntax:
 {\em variable-name} ::=
     {\em base-name} {\em member-selector}$^\star$ \\[1ex]
 {\em member-selector} \begin{tabular}[t]{@{}rl}
-    ::= & {\tt .}{\em member-name} \\
-    $|$ & {\tt [}{\em member-index-list}{\tt ]}
+    ::= & \TT{.}{\em member-name} \\
+    $|$ & \TT{[}{\em member-index-list}\TT{]}
     \end{tabular} \\[1ex]
 {\em member-index-list} \begin{tabular}[t]{@{}rl}
     ::= & {\em member-index} \\
-    $|$ & {\em member-index} {\tt ,} {\em member-index-list}
+    $|$ & {\em member-index} \TT{,} {\em member-index-list}
     \end{tabular} \\[1ex]
 {\em member-index} ::= {\em integer-constant-expression}
 \end{indpar}
@@ -860,8 +860,8 @@ is like a structure, but it is a set of variables and not a
 piece of memory.
 
 More specifically, the members of the cluster can be named by
-adding either a member name preceded by `{\tt .}' or a
-`{\tt []}' bracketed list of
+adding either a member name preceded by `\TT{.}' or a
+`\TT{[]}' bracketed list of
 integer constant subscripts to
 either the base variable name of the cluster or to another member name
 of the cluster.  Two variable names with different base variable names
@@ -1151,23 +1151,23 @@ function, and the function can be all or partly out-of-line.
 
 The most common type of memory channel has a window that appears to be
 an array with \ttikey{.di\-men\-sions}{dimensions!of memory channel},
-\ttdmkey{lower\_bound}{of memory channel}{\tt [}$i${\tt ]},
-and \ttdmkey{upper\_bound}{of memory channel}{\tt [}$i${\tt ]}
+\ttdmkey{lower\_bound}{of memory channel}\TT{[}$i$\TT{]},
+and \ttdmkey{upper\_bound}{of memory channel}\TT{[}$i$\TT{]}
 being memory channel members.  Such are called
 \key{array windows}.
 If the memory channel cluster name is $M$, the window elements are
-referred to by $M$\verb|[|$i_0$\verb|,|$i_1$\verb|,|\ldots\verb|]|,
-with $M$\verb|[0,0,|\ldots\verb|]| being the \key{reference point}.
+referred to by $M$\TT{[}$i_0$\TT{,}$i_1$\TT{,}\ldots\TT{]},
+with $M$\TT{[0,0,}\ldots\TT{]} being the \key{reference point}.
 
 The reference point can be shifted along any of the window's
 dimensions by the command
 \begin{center}
-$M$\ttdkey{center}{\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]}
+$M$\ttdkey{center}\TT{[}$i_0$\TT{,}$i_1$\TT{,}\ldots\TT{]}
 \end{center}
 This shifts
 the window so that what was
-$M${\tt [}$i_0${\tt ,}$i_1${\tt ,}\ldots{\tt ]} becomes
-$M${\tt [0,0,}\ldots{\tt ]}.
+$M$\TT{[}$i_0$\TT{,}$i_1$\TT{,}\ldots\TT{]} becomes
+$M$\TT{[0,0,}\ldots\TT{]}.
 
 Creating memory channels and completely reseting their reference points
 are specific to the type of memory channel, and are not covered in
@@ -1188,12 +1188,12 @@ of a block to compute the block descriptors of neighboring blocks
 in the window.
 
 An example of the latter is a binary tree memory channel.
-Let $M$ be such a channel, and let `{\tt .L}' denote the left
-child of a binary tree element, `{\tt .R}' the right child, and
-`{\tt .P}' the parent.  Then $M\!$\verb|.L.R| denotes the right
-child of the left child of the reference point, $M\!$\verb|.P.L|
+Let $M$ be such a channel, and let `\TT{.L}' denote the left
+child of a binary tree element, `\TT{.R}' the right child, and
+`\TT{.P}' the parent.  Then $M\!$\TT{.L.R} denotes the right
+child of the left child of the reference point, $M\!$\TT{.P.L}
 denotes the left child of the parent of the reference point,
-and $M\!$\verb|.P.L.center| moves the reference point to this last element.
+and $M\!$\TT{.P.L.center} moves the reference point to this last element.
 The window of such a memory channel might contain the depth 2
 subtree of the reference point plus that closest 4 ancestors of the
 reference point if these have been visited.  When the reference
@@ -1247,33 +1247,33 @@ S * * x
 S * *& y = * x
 int32 *& z = y->m
 \end{verbatim}\end{indpar}
-If we consider {\tt x}, {\tt y}, and {\tt z} to be registers,
-the address of {\tt y} equals the value of {\tt x}, and the
-address of {\tt z} equals the value of {\tt y} plus the offset of
-{\tt m} in {\tt S}.
+If we consider \TT{x}, \TT{y}, and \TT{z} to be registers,
+the address of \TT{y} equals the value of \TT{x}, and the
+address of \TT{z} equals the value of \TT{y} plus the offset of
+\TT{m} in \TT{S}.
 
-If the value of {\tt x} changes, this changes the address of {\tt y},
-which may change the datum of {\tt y} and that may change the value
-of {\tt y}.  If the value of {\tt y} changes, this changes the address
-of {\tt z}, which may change the datum and value of {\tt z}.
+If the value of \TT{x} changes, this changes the address of \TT{y},
+which may change the datum of \TT{y} and that may change the value
+of \TT{y}.  If the value of \TT{y} changes, this changes the address
+of \TT{z}, which may change the datum and value of \TT{z}.
 
-The way we accommodate this is to use the selection codes of {\tt y}
-to specify that the address of {\tt y} contains the value of {\tt x}
+The way we accommodate this is to use the selection codes of \TT{y}
+to specify that the address of \TT{y} contains the value of \TT{x}
 as an additive component, so
-that if the value of {\tt x} is changed by adding $\Delta${\tt x}
-then the address of {\tt y} should be changed by adding $\Delta${\tt x}.
+that if the value of \TT{x} is changed by adding $\Delta$\TT{x}
+then the address of \TT{y} should be changed by adding $\Delta$\TT{x}.
 And similarly the selection codes
-of {\tt z} specify that the address of {\tt z}
-contains the value of {\tt y} as an additive component.
+of \TT{z} specify that the address of \TT{z}
+contains the value of \TT{y} as an additive component.
 
 So why should we bother with automatically updating
 additive inclusions of one value in the
 address of another value, and not bother with other expressions.
 The reason is that expressions such as
-`\verb|(*x)->m|' are likely to be reused frequently in code (actually,
+`\TT{(*x)->m}' are likely to be reused frequently in code (actually,
 in automatically generated code) and
 therefore need to be cached, whereas an expressions of the form
-`\verb|c*d|' will be reused comparatively rarely code
+`\TT{c*d}' will be reused comparatively rarely code
 and therefore are not worth special hardware.
 
 

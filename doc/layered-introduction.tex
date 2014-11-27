@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 26, 2014
+November 27, 2014
  
 \end{center}
 
@@ -276,8 +276,8 @@ The L-, M-, and H-Languages are each encoded as UTF-8 text
 files (UTF-8 is an encoding of UNICODE that extends ASCII).
 These files are read and converted to a sequence of lexemes
 by a process known as lexical scanning.  A lexeme is a UTF-8
-character string: e.g., `{\tt hello}', `{\tt +}', `{\tt ;}',
-`{\tt 9.200}' are four lexemes.
+character string: e.g., `\TT{hello}', `\TT{+}', `\TT{;}',
+`\TT{9.200}' are four lexemes.
 
 The lexical scanner is written in the M-Language and can be
 replaced.  This section describes the standard scanner which
@@ -308,20 +308,20 @@ The standard scanner also produces a translation of each
 lexeme.  This may just be a copy of the 32-bit characters
 in the lexeme, or it may have some changes, or `translations',
 of some of these characters.  For example, the lexeme
-\verb|"a line<LF>"| may have a translation that omits the
-\verb|"|'s and converts the four characters \verb|<LF>| into
+\TT{"a line<LF>"} may have a translation that omits the
+\TT{"}'s and converts the four characters \TT{<LF>} into
 a single linefeed character.
 
 When the standard scanner identifies a lexeme it also identifies
 a `\mkey{type}{of lexeme}' for the lexeme.
-For example, the lexeme \verb|9.35| may have type `{\tt number}'
-while the lexeme \verb|"abc"| may have the type `{\tt quoted string}'.
+For example, the lexeme \TT{9.35} may have type `\TT{number}'
+while the lexeme \TT{"abc"} may have the type `\TT{quoted string}'.
 
 At its most fundamental level the
 standard scanner identifies lexical atoms in the input text.
 A \key{lexical atom} is a single character (e.g., the letters
 in an identifier or word) or a short string of characters
-(e.g., the 4-character atom \verb|<LF>| in a quoted string).
+(e.g., the 4-character atom \TT{<LF>} in a quoted string).
 Lexical atoms are read left to right and
 grouped by the scanner into \skey{lexeme}s.
 
@@ -342,7 +342,7 @@ and translate into the empty string, whereas the middle atom
 The scanner has a state containing a current point 
 in the input UNICODE character stream,
 a \key{current lexical table} identifier, a \key{current lexeme type}
-which may be `{\tt none}', and a \key{return stack}
+which may be `\TT{none}', and a \key{return stack}
 of lexical table identifiers.  A
 \key{lexical table} is a set of atom patterns
 that match atoms, and for each pattern an
@@ -360,16 +360,16 @@ character pattern.  A \key{character pattern} is simply a
 specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
-characters such as the 4-character sequence \verb|<LF>| which matches
-the atom pattern \verb|"<" "LF" ">"|
+characters such as the 4-character sequence \TT{<LF>} which matches
+the atom pattern \TT{"<" \# "LF" \# ">"}
 (in which the quoted string has been broken into three parts to prevent
-\verb|<LF>| being treated as representing a single line feed character)
-or the 4-character sequence \verb|<0a>| which matches the atom pattern
+\TT{<LF>} being treated as representing a single line feed character)
+or the 4-character sequence \TT{<0a>} which matches the atom pattern
 \begin{center}
-\verb|"<0<hex-digit>>"|
+\TT{"<0<hex-digit>>"}
 \end{center}
-where \verb|<hex-digit>| names a character pattern matching characters
-in the ranges \verb|0-9|, \verb|a-f|, and \verb|A-F|.
+where \TT{<hex-digit>} names a character pattern matching characters
+in the ranges \TT{0-9}, \TT{a-f}, and \TT{A-F}.
 
 The atom patterns of a single lexical table must not conflict:
 no character string can be recognized by two atom patterns of the
@@ -409,7 +409,7 @@ recognize whitespace, and one to recognize comments.
 Lexeme tables have \ikey{types}{type!of lexeme table}.
 When the current lexical table becomes a lexeme table,
 the current lexeme type is set equal to the type of that table.
-The `{\tt output} {\em type}' and `{\tt output none}'
+The `\TT{output} {\em type}' and `\TT{output none}'
 instruction components can also be
 used to change the current lexeme type.
 
@@ -419,18 +419,18 @@ have no associated type and do not reset the current lexeme type.
 Upon finishing the execution of an instruction, if the
 current lexical table is a master table,
 the currently accumulated lexeme is output
-with the current lexeme type, if that is not `{\tt none}', or the
+with the current lexeme type, if that is not `\TT{none}', or the
 currently accumulated lexeme is discarded if the current lexeme
-type is `{\tt none}'.
-The current lexeme type is reset to `{\tt none}' whenever
+type is `\TT{none}'.
+The current lexeme type is reset to `\TT{none}' whenever
 the current lexical table becomes a master table.
 
 Thus if an lexical table of
-type `\verb|whitespace|' cannot recognized any atom and
+type `\TT{whitespace}' cannot recognized any atom and
 the default instruction associated with it
 changes the current lexical table to a master table,
 the lexeme accumulated so far will
-be output as a lexeme of type `\verb|whitespace|'.
+be output as a lexeme of type `\TT{whitespace}'.
 
 When it is between lexemes the current lexical table in the scanner state
 is always a master table.  Master tables correspond to lexical
@@ -445,16 +445,16 @@ see Appendix \itemref{C++-LEXICAL-PROGRAM}.
 
 The standard scanner can report errors in one of two ways.  It may
 simply output a lexeme with a type that indicates an error.  For
-example, the character \verb|\| appearing outside a quoted string
-might be returned as a 1-character lexeme of type `{\tt unrecognized
+example, the character \TT{\textbackslash} appearing outside a quoted string
+might be returned as a 1-character lexeme of type `\TT{unrecognized
 character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
-of the scanner.  For example, if \verb|<H>| appears in a quoted
+of the scanner.  For example, if \TT{<H>} appears in a quoted
 string, it may be reported as an erroneous atom of type
-`{\tt unrecognized escape sequence}'.  Otherwise this atom will be processed
+`\TT{unrecognized escape sequence}'.  Otherwise this atom will be processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the DEL
-character (hex code \verb|7f|).
+character (hex code \TT{7f}).
 
 \ikey{Instructions}{instruction!in lexical program}
 that are associated with atom patterns contain optional instruction
@@ -507,17 +507,17 @@ is equivalent to
 This is useful for
 breaking long quoted string lexemes across line boundaries.
 But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \verb|"<" "LF" ">"| is
-\underline{not} equivalent to \verb|"<LF>"|.  The former is a 4-character
-quoted string, the characters being \verb|<|, \verb|L|, \verb|F|,
-and \verb|>|.  The latter is a 1-character quoted string, the character
+between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+\underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
+quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
+and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
 The special {\em character-representatives} generally consist of
 the ASCII character name surrounded by angle brackets.  Examples are
-\verb|<NUL>|, \verb|<LF>|, \verb|<SP>|.  There are two other cases:
-\verb|<Q>| represents the doublequote \verb|"|, and \verb|<NL>| (new line)
-represents a line feed (same as \verb|<LF>|).
+\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}.  There are two other cases:
+\TT{<Q>} represents the doublequote \TT{"}, and \TT{<NL>} (new line)
+represents a line feed (same as \TT{<LF>}).
 
 \begin{figure*}[!p]
 \begin{tabular}{p{2.2in}rl}
@@ -537,7 +537,7 @@ represents a line feed (same as \verb|<LF>|).
 \emkey{natural-number} & ::= & {\em digit} {\em digit}\,$^\star$
 \\[0.3ex]
 \emkey{quoted-string} & ::= &
-    \verb|"| {\em character-representative}\,$^\star$ \verb|"|
+    \TT{"} {\em character-representative}\,$^\star$ \TT{"}
 \\[0.3ex]
 \emkey{separator} & ::= & {\em separator-character}
 \\[0.3ex]
@@ -545,124 +545,124 @@ represents a line feed (same as \verb|<LF>|).
                             {\em white-space-character}\,$^\star$
 \\[2ex]
 \emkey{word-character} & ::= & {\em letter} \\
-		       & $|$ & \verb|'| followed by a letter \\
+		       & $|$ & \TT{'} followed by a letter \\
 \emkey{letter} & ::= & {\em lower-case-letter} $|$ {\em upper-case-letter} \\
 \emkey{lower-case-letter} & ::= &
-                               \verb|a|%
-			    $|$\verb|b|%
-			    $|$\verb|c|%
-			    $|$\verb|d|%
-			    $|$\verb|e|%
-			    $|$\verb|f|%
-			    $|$\verb|g|%
-			    $|$\verb|h|%
-			    $|$\verb|i|%
-			    $|$\verb|j|%
-			    $|$\verb|k|%
-			    $|$\verb|l|%
-			    $|$\verb|m|%
-			    $|$\verb|n|%
-			    $|$\verb|o|%
-			    $|$\verb|p|%
-			    $|$\verb|q|%
-			    $|$\verb|r|%
-			    $|$\verb|s|%
-			    $|$\verb|t|%
-			    $|$\verb|u|%
-			    $|$\verb|v|%
-			    $|$\verb|w|%
-			    $|$\verb|x|%
-			    $|$\verb|y|%
-			    $|$\verb|z|
+                               \TT{a}%
+			    $|$\TT{b}%
+			    $|$\TT{c}%
+			    $|$\TT{d}%
+			    $|$\TT{e}%
+			    $|$\TT{f}%
+			    $|$\TT{g}%
+			    $|$\TT{h}%
+			    $|$\TT{i}%
+			    $|$\TT{j}%
+			    $|$\TT{k}%
+			    $|$\TT{l}%
+			    $|$\TT{m}%
+			    $|$\TT{n}%
+			    $|$\TT{o}%
+			    $|$\TT{p}%
+			    $|$\TT{q}%
+			    $|$\TT{r}%
+			    $|$\TT{s}%
+			    $|$\TT{t}%
+			    $|$\TT{u}%
+			    $|$\TT{v}%
+			    $|$\TT{w}%
+			    $|$\TT{x}%
+			    $|$\TT{y}%
+			    $|$\TT{z}
 			    \\
 \emkey{upper-case-letter} & ::= &
-                               \verb|A|%
-			    $|$\verb|B|%
-			    $|$\verb|C|%
-			    $|$\verb|D|%
-			    $|$\verb|E|%
-			    $|$\verb|F|%
-			    $|$\verb|G|%
-			    $|$\verb|H|%
-			    $|$\verb|I|%
-			    $|$\verb|J|%
-			    $|$\verb|K|%
-			    $|$\verb|L|%
-			    $|$\verb|M|%
-			    $|$\verb|N|%
-			    $|$\verb|O|%
-			    $|$\verb|p|%
-			    $|$\verb|Q|%
-			    $|$\verb|R|%
-			    $|$\verb|S|%
-			    $|$\verb|T|%
-			    $|$\verb|U|%
-			    $|$\verb|V|%
-			    $|$\verb|W|%
-			    $|$\verb|X|%
-			    $|$\verb|Y|%
-			    $|$\verb|Z|
+                               \TT{A}%
+			    $|$\TT{B}%
+			    $|$\TT{C}%
+			    $|$\TT{D}%
+			    $|$\TT{E}%
+			    $|$\TT{F}%
+			    $|$\TT{G}%
+			    $|$\TT{H}%
+			    $|$\TT{I}%
+			    $|$\TT{J}%
+			    $|$\TT{K}%
+			    $|$\TT{L}%
+			    $|$\TT{M}%
+			    $|$\TT{N}%
+			    $|$\TT{O}%
+			    $|$\TT{P}%
+			    $|$\TT{Q}%
+			    $|$\TT{R}%
+			    $|$\TT{S}%
+			    $|$\TT{T}%
+			    $|$\TT{U}%
+			    $|$\TT{V}%
+			    $|$\TT{W}%
+			    $|$\TT{X}%
+			    $|$\TT{Y}%
+			    $|$\TT{Z}
 \\[0.3ex]
 \emkey{mark-character} & ::= &
-                                \verb|+|%
-		             $|$\verb|-|%
-		             $|$\verb|*|%
-		             $|$\verb|/|%
-		             $|$\verb|\|%
-		             $|$\verb|~|%
-		             $|$\verb|@|%
-		             $|$\verb|#|%
-		             $|$\verb|$|%
-		             $|$\verb|%|%
-		             $|$\verb|^|%
-		             $|$\verb|&|%
-		             $|$\verb|=|%
-		             $|$\verb/|/%
-		             $|$\verb|<|%
-		             $|$\verb|>|%
-		             $|$\verb|_|%
-		             $|$\verb|!|%
-		             $|$\verb|?| \\
-		     & $|$ & \verb|.| not followed by a {\em digit} \\
-		     & $|$ & \verb|:| not surrounded by {\em digits} \\
-		     & $|$ & \verb|/| not surrounded by {\em digits}
+                                \TT{+}%
+		             $|$\TT{-}%
+		             $|$\TT{*}%
+		             $|$\TT{/}%
+		             $|$\TT{\textbackslash}%
+		             $|$\TT{\textasciitilde}%
+		             $|$\TT{@}%
+		             $|$\TT{\#}%
+		             $|$\TT{\$}%
+		             $|$\TT{\%}%
+		             $|$\TT{\^{ }}%
+		             $|$\TT{\&}%
+		             $|$\TT{=}%
+		             $|$\TT{|}%
+		             $|$\TT{<}%
+		             $|$\TT{>}%
+		             $|$\TT{\_}%
+		             $|$\TT{!}%
+		             $|$\TT{?} \\
+		     & $|$ & \TT{.} not followed by a {\em digit} \\
+		     & $|$ & \TT{:} not surrounded by {\em digits} \\
+		     & $|$ & \TT{/} not surrounded by {\em digits}
 \\[0.3ex]
 \emkey{separator-character} & ::= &
-		        \verb|(|
-	       	    $|$ \verb|)|
-	       	    $|$ \verb|[|
-	       	    $|$ \verb|]|
-	       	    $|$ \verb|{|
-	       	    $|$ \verb|}|
-	       	    $|$ \verb|;|
-	       	    $|$ \verb|`| \\
-		& $|$ & \verb|,| not surrounded by {\em digits} \\
-		& $|$ & \verb|'| not followed by a letter 
+		        \TT{(}
+	       	    $|$ \TT{)}
+	       	    $|$ \TT{[}
+	       	    $|$ \TT{]}
+	       	    $|$ \TT{\{}
+	       	    $|$ \TT{\}}
+	       	    $|$ \TT{;}
+	       	    $|$ \TT{`} \\
+		& $|$ & \TT{,} not surrounded by {\em digits} \\
+		& $|$ & \TT{'} not followed by a letter 
 \\[0.3ex]
 \emkey{number-character} & ::= & {\em digit} \\
-		& $|$ & \verb|.| followed by by a {\em digit } \\
-		& $|$ & \verb|,| surrounded by {\em digits} \\
-		& $|$ & \verb|:| surrounded by {\em digits} \\
-		& $|$ & \verb|/| surrounded by {\em digits} \\
+		& $|$ & \TT{.} followed by by a {\em digit } \\
+		& $|$ & \TT{,} surrounded by {\em digits} \\
+		& $|$ & \TT{:} surrounded by {\em digits} \\
+		& $|$ & \TT{/} surrounded by {\em digits} \\
 \emkey{digit} & ::= &
-                   \verb|0|%
-		$|$\verb|1|%
-		$|$\verb|2|%
-		$|$\verb|3|%
-		$|$\verb|4|%
-		$|$\verb|5|%
-		$|$\verb|6|%
-		$|$\verb|7|%
-		$|$\verb|8|%
-		$|$\verb|9| 
+                   \TT{0}%
+		$|$\TT{1}%
+		$|$\TT{2}%
+		$|$\TT{3}%
+		$|$\TT{4}%
+		$|$\TT{5}%
+		$|$\TT{6}%
+		$|$\TT{7}%
+		$|$\TT{8}%
+		$|$\TT{9} 
 \\[1.0ex]
 \emkey{character-representative}
     & ::= & {\em graphic-character} \\
-    & $|$ & {\tt <}{\em upper-case-letter}$^+$%
-	    \{{\tt -}{\em upper-case-letter}$^+$\}$^\star${\tt >} \\
+    & $|$ & \TT{<}{\em upper-case-letter}$^+$%
+	    \{\TT{-}{\em upper-case-letter}$^+$\}$^\star$\TT{>} \\
 \emkey{graphic-character} & ::= &
     {\em non-whitespace-non-control-character} \\
-\emkey{angle-brackets} & ::= & \verb|<| $|$ \verb|>|
+\emkey{angle-brackets} & ::= & \TT{<} $|$ \TT{>}
 \\[1.0ex]
 \emkey{white-space-character}
     & ::= & {\em horizontal-space-character} \\
@@ -689,9 +689,9 @@ The syntax of a lexical program is specified on
 \\[1ex]
 \begin{tabular}{p{2.2in}rl}
 \emkey{lexical-program} & ::= &
-	{\tt begin} {\em program-name} {\tt lexical program;}\\
+	\TT{begin} {\em program-name} \TT{lexical program;}\\
 	& &  ~~~~{\em lexical-program-unit}$^\star$ \\
-	& & {\tt end} {\em program-name} {\tt lexical program};
+	& & \TT{end} {\em program-name} \TT{lexical program};
 \\[1ex]
 \emkey{program-name} & ::= & {\em name}
 \\[1ex]
@@ -700,58 +700,58 @@ The syntax of a lexical program is specified on
 	& $|$ & {\em lexical-table-definition} \\
 	& $|$ & {\em program-inclusion}
 \\[1ex]
-\emkey{program-inclusion} & ::= & {\tt include} {\em program-name}
-				  {\em remove-clause}$^\star$ {\tt ;}
+\emkey{program-inclusion} & ::= & \TT{include} {\em program-name}
+				  {\em remove-clause}$^\star$ \TT{;}
 \\[1ex]
-\emkey{remove-clause} & ::= & {\tt remove} {\em lexical-table-name} \\
-                      & $|$ & {\tt remove} {\tt "}{\em cpat-name}{\tt "}
+\emkey{remove-clause} & ::= & \TT{remove} {\em lexical-table-name} \\
+                      & $|$ & \TT{remove} \TT{"}{\em cpat-name}\TT{"}
 \\[1ex]
 \multicolumn{3}{l}{~~~~~~Note: `{\em cpat}\,' abbreviates
                                `{\em character-pattern}\,'}
 \\[1ex]
 \emkey{cpat-definition} & ::= &
-	{\tt "}{\em cpat-name}{\tt "} {\tt =}
-		{\em cpat-expression} {\tt ;}
+	\TT{"}{\em cpat-name}\TT{"} \TT{=}
+		{\em cpat-expression} \TT{;}
 \\[1ex]
 \emkey{cpat-name} & ::= &
-	{\tt <}{\em letter}$^+$\{{\tt -}{\em letter}$^+$\}$^\star${\tt >} \\
+	\TT{<}{\em letter}$^+$\{\TT{-}{\em letter}$^+$\}$^\star$\TT{>} \\
 	\multicolumn{2}{r}{but not} &
-	{\tt <}{\em upper-case-letter}$^+$%
-	\{{\tt -}{\em upper-case-letter}$^+$\}$^\star${\tt >} \\
+	\TT{<}{\em upper-case-letter}$^+$%
+	\{\TT{-}{\em upper-case-letter}$^+$\}$^\star$\TT{>} \\
 \\[1ex]
 \emkey{cpat-expression} & ::= &
 	{\em cpat-term}
-	\{ {\tt |} {\em cpat-term} \}$^\star$ \\
+	\{ \TT{|} {\em cpat-term} \}$^\star$ \\
        & $|$ &
 	{\em cpat-term}
-	\{ {\tt \&} {\em cpat-term} \}$^\star$
+	\{ \TT{\&} {\em cpat-term} \}$^\star$
 \\[1ex]
 \emkey{cpat-term} & ::= & {\em cpat-factor} $|$ \TT{\textasciitilde} {\em cpat-factor}
 \\[1ex]
-\emkey{cpat-factor} & ::= & {\tt "}{\em quotable-character}{\tt "} \\
-		    & $|$ & {\tt "}{\em quotable-character}{\tt -}%
-		                   {\em quotable-character}{\tt "} \\
-		    & $|$ & {\tt "}{\em cpat-name}{\tt "} \\
-		    & $|$ & {\tt (} {\em cpat-expression}
-		                {\tt )}
+\emkey{cpat-factor} & ::= & \TT{"}{\em quotable-character}\TT{"} \\
+		    & $|$ & \TT{"}{\em quotable-character}\TT{-}%
+		                   {\em quotable-character}\TT{"} \\
+		    & $|$ & \TT{"}{\em cpat-name}\TT{"} \\
+		    & $|$ & \TT{(} {\em cpat-expression}
+		                \TT{)}
 \\[1ex]
 \emkey{quotable-character} & ::= & {\em character-representative}
 \\[1ex]
 \emkey{lexical-table-definition} & ::= &
-	{\tt begin} {\em lexical-table-name}
-		    {\em lexical-table-kind} {\tt table} {\tt ;} \\
+	\TT{begin} {\em lexical-table-name}
+		    {\em lexical-table-kind} \TT{table} \TT{;} \\
 	& &  ~~~~{\em lexical-table-entry}$^\star$ \\
 	& &  ~~~~{\em default-instruction-group} \\
-	& & {\tt end} {\em lexical-table-name}
-		      {\em lexical-table-kind} {\tt table} {\tt ;}
+	& & \TT{end} {\em lexical-table-name}
+		      {\em lexical-table-kind} \TT{table} \TT{;}
 \\[1ex]
 \emkey{lexical-table-kind} & ::= &
-    {\tt master} $|$ {\tt lexeme} $|$ {\tt sublexeme} $|$ {\tt atom}
+    \TT{master} $|$ \TT{lexeme} $|$ \TT{sublexeme} $|$ \TT{atom}
 \\[1ex]
 \emkey{lexical-table-name} & ::=
-    & {\em name} except {\tt scan error} or {\tt none}
+    & {\em name} except \TT{scan error} or \TT{none}
 \\[1ex]
-\emkey{type} & ::= & {\em name} except {\tt scan error} or {\tt none}
+\emkey{type} & ::= & {\em name} except \TT{scan error} or \TT{none}
 \end{tabular}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
@@ -762,39 +762,39 @@ The syntax of a lexical program is specified on
 	& ::= &  {\em empty} $|$ {\em instruction-group}
 \\[1ex]
 \emkey{lexical-table-entry}
-	& ::= & {\em atom-pattern} {\em instruction-group} {\tt ;} \\
-	& $|$ & {\em atom-pattern} {\tt ;}
+	& ::= & {\em atom-pattern} {\em instruction-group} \TT{;} \\
+	& $|$ & {\em atom-pattern} \TT{;}
 \\[1ex]
 \emkey{atom-pattern} & ::= &
-	{\tt "}\{{\em quotable-character}$|${\em cpat-name}\}$^+${\tt "}
+	\TT{"}\{{\em quotable-character}$|${\em cpat-name}\}$^+$\TT{"}
 \\[1ex]
 \emkey{instruction-group}
 	& ::= & {\em instruction}
-	        \{ {\tt else} {\em instruction} \}$^\star$
+	        \{ \TT{else} {\em instruction} \}$^\star$
 
 \\[1ex]
 \emkey{instruction} & ::= & {\em instruction-component}$^+$
 \\[1ex]
 \emkey{instruction-component}
-	& ::= & {\tt accept} \\
-	& $|$ & {\tt match} {\em atom-table-name} \\
-	& $|$ & {\tt keep} {\em natural-number} \\
-	& $|$ & {\tt translate to} {\em translation-string} \\
-	& $|$ & {\tt translate hex}
+	& ::= & \TT{accept} \\
+	& $|$ & \TT{match} {\em atom-table-name} \\
+	& $|$ & \TT{keep} {\em natural-number} \\
+	& $|$ & \TT{translate to} {\em translation-string} \\
+	& $|$ & \TT{translate hex}
 			{\em natural-number} {\em natural-number} \\
-	& $|$ & {\tt translate oct}
+	& $|$ & \TT{translate oct}
 			{\em natural-number} {\em natural-number} \\
-	& $|$ & {\tt require} {\em atom-pattern} \\
-	& $|$ & {\tt error} {\em type} \\
-	& $|$ & {\tt output} {\em type} \\
-	& $|$ & {\tt output} {\tt none} \\
-	& $|$ & {\tt goto} {\em master-table-name} \\
-	& $|$ & {\tt goto} {\em lexeme-table-name} \\
-	& $|$ & {\tt goto} {\em sublexeme-table-name} \\
-	& $|$ & {\tt call} {\em lexeme-table-name} \\
-	& $|$ & {\tt call} {\em sublexeme-table-name} \\
-	& $|$ & {\tt return} \\
-	& $|$ & {\tt fail} \\
+	& $|$ & \TT{require} {\em atom-pattern} \\
+	& $|$ & \TT{error} {\em type} \\
+	& $|$ & \TT{output} {\em type} \\
+	& $|$ & \TT{output} \TT{none} \\
+	& $|$ & \TT{goto} {\em master-table-name} \\
+	& $|$ & \TT{goto} {\em lexeme-table-name} \\
+	& $|$ & \TT{goto} {\em sublexeme-table-name} \\
+	& $|$ & \TT{call} {\em lexeme-table-name} \\
+	& $|$ & \TT{call} {\em sublexeme-table-name} \\
+	& $|$ & \TT{return} \\
+	& $|$ & \TT{fail} \\
 \\[1ex]
 \emkey{atom-table-name} & ::= & {\em lexical-table-name}
 \\[1ex]
@@ -812,7 +812,7 @@ The syntax of a lexical program is specified on
 An example lexical program that recognizes
 whitespace and quoted strings is given
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
-\verb|<LF>| is the only {\em character-representative} recognized
+\TT{<LF>} is the only {\em character-representative} recognized
 in quoted strings by this example.
 
 \begin{figure*}[!p]
@@ -877,7 +877,7 @@ A \emkey{program-inclusion} names a previously defined lexical program
 whose units are to be included in the current lexical program
 at the point of the {\em program-inclusion}.
 There is a simple example of a program inclusion at the end of
-the {\tt example} lexical program on
+the \TT{example} lexical program on
 \pagref{EXAMPLE-LEXEME-PROGRAM}.
 Identical definitions
 may be repeated without error,
@@ -894,9 +894,9 @@ definitions.
 A \emkey{character-pattern-definition} (abbreviated as
 \emkey{cpat-definition}) assigns a set of characters to a
 {\em character-pattern-name}.  The latter is just a string of
-letters and hyphens (\verb|-|) surrounded by angle brackets (\verb|< >|)
+letters and hyphens (\TT{-}) surrounded by angle brackets (\TT{< >})
 with hyphens occurring only between letters.  Examples:
-\verb|<digit>| and \verb|<line-break>|.  However, a {\em character-pattern-name}
+\TT{<digit>} and \TT{<line-break>}.  However, a {\em character-pattern-name}
 cannot contain only upper case letters, as this could conflict with
 some {\em character-representative}.
 
@@ -904,35 +904,35 @@ The character set is denoted by a \emkey{character-pattern-expression}.
 The simplest character pattern
 expression is just a single {\em quotable-character} in quotes, which denotes
 the character set containing only the quoted character.  Examples:
-\verb|"0"| and \verb|"+"|.  The next simplest is two {\em quotable-characters}
-separated by a hyphen (\verb|-|) denoting the character set consisting
+\TT{"0"} and \TT{"+"}.  The next simplest is two {\em quotable-characters}
+separated by a hyphen (\TT{-}) denoting the character set consisting
 of all characters in the range from the first to the second of the two
-characters.  Examples: \verb|"0-9"| and \verb|"A-Z"|.  The characters
+characters.  Examples: \TT{"0-9"} and \TT{"A-Z"}.  The characters
 are ordered according to their 32 bit unsigned UNICODE value, and the
 second of the two characters must not be smaller than the first.
 
 A {\em quotable-character} is a representative of a single UNICODE
-character that can be used inside quotes (\verb|"|).
+character that can be used inside quotes (\TT{"}).
 Printable ASCII characters represent themselves.  Other characters
 are represented by character sequences surrounded by the angle
-brackets \verb|<| and \verb|>| (which are also the less than and
+brackets \TT{<} and \TT{>} (which are also the less than and
 greater than signs).
 For example, a line feed can be represented by any of the
-following: \verb|<LF>|, \verb|<0A>|,
-\verb|<00A>|, \ldots, or \verb|<00000000A>|.
+following: \TT{<LF>}, \TT{<0A>},
+\TT{<00A>}, \ldots, or \TT{<00000000A>}.
 
 A quoted {\em character-pattern-name} denotes the character set associated
 with that name by a \underline{previous} {\em character-pattern-definition}.
 
-The \verb/|/, \verb|&|, and \verb|~| operators and can be used to take
+The \TT{|}, \TT{\&}, and \TT{\textasciitilde} operators and can be used to take
 the union, intersection, and complements of character sets.  The complement
 is relative to the universe of all 32 bit unsigned integer UNICODE
-character codes.  Thus \verb|~ "b-y"| denotes the same character set as
-\verb$"<0>-a" | "z-<0FFFFFFFF>"$.
+character codes.  Thus \TT{\textasciitilde "b-y"} denotes the same character set as
+\TT{"<0>-a" | "z-<0FFFFFFFF>"}.
 
 Parentheses may be used in {\em character-pattern-expressions} as is
 normal in algebraic expressions.
-Note that the \verb/|/ and \verb|&| operators cannot be used together
+Note that the \TT{|} and \TT{\&} operators cannot be used together
 in the same expression without intervening parentheses as neither
 takes precedence over the other.  This is done to prevent ambiguity.
 
@@ -963,20 +963,20 @@ The {\em lexical-table-kinds} are
 \mkey{sublexeme}{lexical table kind}, or
 \mkey{atom}{lexical table kind}.
 In a master table {\em atom-patterns} are typically associated
-with {\tt goto} or {\tt call} instructions
+with \TT{goto} or \TT{call} instructions
 that change the current table from the
 master table to a lexeme or sublexeme table.
 In a lexeme or sublexeme table {\em atom-patterns}
-are typically associated with {\tt accept} instructions which
+are typically associated with \TT{accept} instructions which
 accept the matched atom as part of the current lexeme.  In a lexeme
 or sublexeme
-table the default instruction is typically a {\tt goto} or {\tt return}
+table the default instruction is typically a \TT{goto} or \TT{return}
 back to a
 master table, and because this changes the current lexical table
 to a master table, it causes any accumulated lexeme
 to be output with its lexeme type being the current lexeme type
-if that is not `{\tt none}', or it causes any accumulated lexeme
-to be discarded if the current lexeme type is `{\tt none}'.
+if that is not `\TT{none}', or it causes any accumulated lexeme
+to be discarded if the current lexeme type is `\TT{none}'.
 
 Atom tables permit sets of atom patterns to be used in
 several places without copying all the patterns.  Details are
@@ -984,8 +984,8 @@ on \pagref{ATOM-TABLE}.
 
 The first master table in a lexical program
 becomes the current lexical table when the scanner
-is initialized.  This table is typically named `{\tt main}',
-as it is in the {\tt example} lexical program on
+is initialized.  This table is typically named `\TT{main}',
+as it is in the \TT{example} lexical program on
 \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 A lexical table consists of {\em lexical-table-entries}%
@@ -998,23 +998,23 @@ in the named set of characters.  Thus
 \begin{center}
 \verb|"<0<hex-digit><hex-digit>>"|
 \end{center}
-matches 5-character atoms consisting of a \verb|<| followed by an
-\verb|0| followed by two characters each in the character set
-named by \verb|<hex-digit>| followed by a \verb|>|.
+matches 5-character atoms consisting of a \TT{<} followed by an
+\TT{0} followed by two characters each in the character set
+named by \TT{<hex-digit>} followed by a \TT{>}.
 Note that each {\em atom-pattern}
 only matches atoms of a particular length.
 
 
 The special character pattern name
-{\tt <{\bf other}>}%
+\TT{<{other}>}%
 \index{other@{\tt <other>}}%
 \label{<OTHER>}
 can be used in an atom pattern to match any character not otherwise
 matched.  More specifically, in the atom pattern
-\verb|"|$P$\verb|<other>|$Q$\verb|"|,
-the prefix \verb|<other>| matches any characters not matched by
+\TT{"}$P$\TT{<other>}$Q$\TT{"},
+the prefix \TT{<other>} matches any characters not matched by
 any other character pattern $C$ that is an some atom pattern of the form
-\verb|"|$PCR$\verb|"| in the same lexical table.
+\TT{"}$PCR$\TT{"} in the same lexical table.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 There must be no sequence of characters that matches the
@@ -1026,13 +1026,13 @@ initial segment that matches another pattern; in this case the
 longer pattern takes precedence.  The order of {\em lexical-table-entries}
 in a {\em lexical-table} is not significant.
 
-The atom pattern \verb|""| which would recognize zero length atoms is
+The atom pattern \TT{""} which would recognize zero length atoms is
 \underline{not} permitted, but the {\em default-instruction-group} at the
 end of the lexical table executes in the equivalent case where no atom
 pattern in the table matches the remaining input.  In particular
 the {\em default-instruction-group} always executes if the input has reached
-an end of file.  This fact is used in both the `{\tt main master table}'
-and `{\tt quoted string lexeme table}'
+an end of file.  This fact is used in both the `\TT{main master table}'
+and `\TT{quoted string lexeme table}'
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 \subsubsection{Lexical Instructions}
@@ -1040,7 +1040,7 @@ on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 A \emkey{lexical-table-entry} contains an
 {\em atom-pattern} and an optional
 \emkey{instruction-group} that consists of one or more {\em instructions}
-separated by {\tt else}'s.  Most {\em instruction-groups} contain just
+separated by \TT{else}'s.  Most {\em instruction-groups} contain just
 a single {\em instruction}, so we will explain this first.
 {\em Instruction-groups} with more than one instruction contain
 instructions that can fail, causing
@@ -1054,9 +1054,9 @@ a set of {\em instruction-components} each of which controls part of the
 atom processing.
 
 The {\em default-instruction-group} at the end of an lexical table behaves as
-if a it was associated with the {\em atom-pattern} \verb|""|
+if a it was associated with the {\em atom-pattern} \TT{""}
 that recognizes zero length atoms.  Note that actual {\em atom-patterns}
-are not allowed to be \verb|""|.
+are not allowed to be \TT{""}.
 
 The order of processing {\em instruction-components} in an {\em instruction}
 is:
@@ -1064,23 +1064,23 @@ is:
 \begin{tabular}{ll}
 \multicolumn{2}{l}{Components that may
 cause their containing instruction to fail:} \\[1ex]
-~~~~~~~~ & {\tt match}, {\tt translate oct}, or {\tt translate hex} \\
-~~~~~~~~ & {\tt require}
+~~~~~~~~ & \TT{match}, \TT{translate oct}, or \TT{translate hex} \\
+~~~~~~~~ & \TT{require}
 \\[2ex]
 \multicolumn{2}{l}{Components that only execute if their
 containing instruction does not fail:} \\[1ex]
-~~~~~~~~ & {\tt keep} \\
-~~~~~~~~ & {\tt translate to}\\
-~~~~~~~~ & {\tt error} \\
-~~~~~~~~ & {\tt output} \\
-~~~~~~~~ & {\tt goto}, {\tt call}, {\tt return}, or {\tt fail} \\
+~~~~~~~~ & \TT{keep} \\
+~~~~~~~~ & \TT{translate to}\\
+~~~~~~~~ & \TT{error} \\
+~~~~~~~~ & \TT{output} \\
+~~~~~~~~ & \TT{goto}, \TT{call}, \TT{return}, or \TT{fail} \\
 \end{tabular}
 \end{center}
 
 An {\em instruction} with no {\em instruction-components} simply accepts
 the matched atom and copies it into the translation.  In order to
 indicate this, the instruction may be written as if it had a single
-`{\tt accept}' instruction component.  If this component is present
+`\TT{accept}' instruction component.  If this component is present
 in an {\em instruction}, no other {\em instruction-components}
 may be present in the {\em instruction}.
 
@@ -1097,19 +1097,19 @@ whether the containing {\em instruction} fails.
 
 Atom tables match only a single atom and implicitly return
 to their invoking instruction after matching one atom.  The
-{\tt output}, {\tt goto}, {\tt call}, and {\tt return}
+\TT{output}, \TT{goto}, \TT{call}, and \TT{return}
 {\em instruction-components} \underline{cannot} be used in an
-atom table.  However, the {\tt fail} {\em instruction-component}
+atom table.  However, the \TT{fail} {\em instruction-component}
 can only be used in an atom table, and when executed indicates
 that the atom table invoking {\em instruction} has failed, so that
 {\em instruction} becomes a no-operation and the next
 {\em instruction} in the invoking
 {\em instruction-group} (i.e., the {\em instruction}
-after the `{\tt else}' following the failed {\em instruction}) is
+after the `\TT{else}' following the failed {\em instruction}) is
 executed.
 
-{\tt accept}, {\tt match}, {\tt keep}, {\tt require}, and
-any of the {\tt translate} {\em instruction-components} can be used in
+\TT{accept}, \TT{match}, \TT{keep}, \TT{require}, and
+any of the \TT{translate} {\em instruction-components} can be used in
 an atom table {\em instruction}.  An atom table
 instruction may invoke another atom table, but recursion
 is prohibited.
@@ -1121,30 +1121,30 @@ to be executed is replaced by the atom matched by the
 atom table, and the atom translation is that provided by the atom table.
 
 An instruction that invokes an atom table fails if the atom table
-fails or if the instruction has a {\tt require} component that fails
+fails or if the instruction has a \TT{require} component that fails
 when applied to the atom translation produced by the atom table.
 If the instruction fails, the
 original atom match is reinstated (the instruction becomes a
 no-operation) before the next {\em instruction} in the {\em instruction group}
 executes.
 
-The {\tt error} instruction component can also be used in an atom
-table, but if the atom table fails, or if a subsequent {\tt require}
-causes a {\tt match} that invoked the atom table to fail, the
-effects of the {\tt error} instruction component will \underline{not}
+The \TT{error} instruction component can also be used in an atom
+table, but if the atom table fails, or if a subsequent \TT{require}
+causes a \TT{match} that invoked the atom table to fail, the
+effects of the \TT{error} instruction component will \underline{not}
 be undone.  Normally the only effect is to announce an error.
 
 Atom tables may have a {\em default-instruction-group}.
-However, this only makes sense if it is just a `{\tt fail}', or
-if it is contains {\tt match} components.  If an atom table
+However, this only makes sense if it is just a `\TT{fail}', or
+if it is contains \TT{match} components.  If an atom table
 is invoked and none of its {\em atom-patterns} match an atom,
 and if the table has \underline{no} {\em default-instruction-group},
-then a scan error is signaled (i.e., `{\tt fail}' is \underline{not}
+then a scan error is signaled (i.e., `\TT{fail}' is \underline{not}
 implicit).
 
 \subsubsubsection{Translate Hex/Oct Instruction Components}
 
-\hfill The {\tt translate hex/\EOL oct} \\ components are applied to a matched
+\hfill The \TT{translate hex/\EOL oct} \\ components are applied to a matched
 atom to produce a single UNICODE character translation of the atom.
 
 An instruction can contain at most one of the following components:
@@ -1158,15 +1158,15 @@ This is because all three of these components independently produce
 an atom translation.
 
 Note that if any previous instruction in an instruction group contains
-a {\tt match} component, that instruction must have failed, and the
+a \TT{match} component, that instruction must have failed, and the
 atom as it was when the instruction group started to execute must have
-been reinstated, so {\tt translate hex/oct} components are always
+been reinstated, so \TT{translate hex/oct} components are always
 applied to the matched atom as it was when the containing instruction
-group started to execute, before any {\tt match} components in the
+group started to execute, before any \TT{match} components in the
 group executed.
 
-Also note that any {\tt keep} component executes \underline{after}
-{\tt translate hex/oct} components, and so does not affect the
+Also note that any \TT{keep} component executes \underline{after}
+\TT{translate hex/oct} components, and so does not affect the
 matched atom used by these components.
 
 The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
@@ -1181,9 +1181,9 @@ An example is the lexical table entry
 which might be used to accept a character representative in a quoted string
 and copy the appropriate hexadecimally related character code into
 the lexeme translation.  If characters that
-are supposed to be hexadecimal digits are not, the {\tt translate-hex}
+are supposed to be hexadecimal digits are not, the \TT{translate-hex}
 component fails (but in our example
-this cannot happen because the definition of \verb|<hex-digit>|
+this cannot happen because the definition of \TT{<hex-digit>}
 restricts these characters appropriately).
 
 The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
@@ -1200,11 +1200,11 @@ The `\ttmkey{require}{in lexical program} {\em atom-pattern}'
 {\em instruction-component} tests whether the atom translation
 matches the given {\em atom-pattern},
 and if \underline{no}, causes the {\em instruction} to fail.
-A {\tt require} should only appear in an
-{\em instruction} which is followed by an `{\tt else}' in an
+A \TT{require} should only appear in an
+{\em instruction} which is followed by an `\TT{else}' in an
 {\em instruction-group}.
-A {\tt require} should only appear in an instruction that also
-contains a {\tt match}, {\tt translate hex}, or {\tt translate oct}
+A \TT{require} should only appear in an instruction that also
+contains a \TT{match}, \TT{translate hex}, or \TT{translate oct}
 instruction component, and is only useful for testing the
 translations produced by these latter components.
 
@@ -1214,14 +1214,14 @@ An example use would be the lexical table entry
 \verb|    require "<letter>" else| \\
 \verb|    translate to "" error bad character in identifier;|
 \end{indpar}
-which might be used to process an atom of the form \verb|\uXXXX| in
+which might be used to process an atom of the form \TT{\textbackslash uXXXX} in
 an identifier, accepting the atom as a legitimate representation of a
 character if that character is a letter, and otherwise designating
 the atom as an error while not putting anything in the lexeme translation
-(see below for the definition of the `{\tt error}' instruction component).
+(see below for the definition of the `\TT{error}' instruction component).
 
 The last {\em instruction} in an {\em instruction-group} must
-never fail, and so cannot contain a {\tt require} {\em instruction-component}.
+never fail, and so cannot contain a \TT{require} {\em instruction-component}.
 
 \subsubsubsection{Keep Instruction Components}
 
@@ -1232,11 +1232,11 @@ to be shortened to $n$.  For example, the lexical table entry
 \verb|",<digit>" keep 1;|
 \end{center}
 will recognize a 1-character atom consisting of just a comma as long as
-the comma is followed by character in the \verb|<digit>| character pattern
-character set.  Atoms may not be lengthened by {\tt keep}.
+the comma is followed by character in the \TT{<digit>} character pattern
+character set.  Atoms may not be lengthened by \TT{keep}.
 
-A {\tt keep} component in the same instruction as a {\tt match} component
-applies to the atom matched by the atom table invoked by the {\tt match}
+A \TT{keep} component in the same instruction as a \TT{match} component
+applies to the atom matched by the atom table invoked by the \TT{match}
 component.
 
 \subsubsubsection{Translate To Instruction Components}
@@ -1250,17 +1250,17 @@ A {\em translation-string} may be empty, as in the lexical table entry
 \begin{center}
 \verb|"<Q>" translate to "" goto main;|
 \end{center}
-which can be used to recognize the last \verb|"| of a quoted string, avoid
+which can be used to recognize the last \TT{"} of a quoted string, avoid
 copying anything into the lexeme translation, and then switch to the
-`{\tt main}' lexical table.
+`\TT{main}' lexical table.
 See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
-The {\tt translate to} component is executed \underline{after}
-any {\tt match}, {\tt translate hex}, or {\tt translate oct}, or
-{\tt require} components are executed, and overrides the translations produced
+The \TT{translate to} component is executed \underline{after}
+any \TT{match}, \TT{translate hex}, or \TT{translate oct}, or
+\TT{require} components are executed, and overrides the translations produced
 by these components.  It is therefore possible to produce a translation,
-test it with {\tt require}, and if the test is successful, override the
-translation with {\tt translate to}.  An example is
+test it with \TT{require}, and if the test is successful, override the
+translation with \TT{translate to}.  An example is
 \begin{center}
 \begin{tabular}{l}
 \verb|"<"  "<digit>" match escaped char| \\
@@ -1272,13 +1272,13 @@ translation with {\tt translate to}.  An example is
 which announces that any escape sequence producing an ASCII character
 is an erroneous atom and replaces that atom by the empty translation
 so it is as if the atom did not exist in the input.
-One could also use `{\tt translate to "?"}' to replace the atom
+One could also use `\TT{translate to "?"}' to replace the atom
 by a question mark.
 
-If an instruction does not contain any {\tt match}, {\tt translate hex},
-{\tt translate oct}, or {\tt translate to} components, the translation
+If an instruction does not contain any \TT{match}, \TT{translate hex},
+\TT{translate oct}, or \TT{translate to} components, the translation
 of an atom defaults to a copy of the atom itself, \underline{after}
-any {\tt keep} component has been used to change the length of the atom.
+any \TT{keep} component has been used to change the length of the atom.
 
 \subsubsubsection{Error Instruction Component}
 
@@ -1286,7 +1286,7 @@ A `\ttmkey{error}{in lexical program} {\em type}\,' {\em instruction-component}
 announces the current atom as an erroneous atom of the given {\em type}.
 The atom remains part of the current lexeme,
 and its translation is governed
-independently by {\tt match} and translate instruction components.
+independently by \TT{match} and translate instruction components.
 The following are some examples:
 \begin{indpar}\begin{verbatim}
 "\<other>" error bad escape sequence;
@@ -1297,12 +1297,12 @@ These might be entries in an lexical table for a quoted string.
 All identify an atom consisting of a backslash followed by any
 character that does not match any character pattern $C$ that is in
 a lexical table
-atom pattern of the form \verb|"\|$C$\ldots\verb|"| where $C$ is a character
-pattern other than \verb|<other>| (see \pagref{<OTHER>}).
+atom pattern of the form \TT{"\textbackslash}$C$\ldots\TT{"} where $C$ is a character
+pattern other than \TT{<other>} (see \pagref{<OTHER>}).
 The first entry copies the entire 2-character atom, including the
 backslash, into the lexeme translation.  The second entry copies
-nothing (the empty string \verb|""|) into the lexeme translation.
-The third entry copies the DEL character (hex code \verb|7f|)
+nothing (the empty string \TT{""}) into the lexeme translation.
+The third entry copies the DEL character (hex code \TT{7f})
 into the lexeme translation.  An alternative is the entry
 \begin{indpar}\begin{verbatim}
 "\<other>" keep 1 error bad escape;
@@ -1322,10 +1322,10 @@ begin bad escape atom table;
 end bad escape atom table;
 \end{verbatim}\end{indpar}
 in which the lexical table entry will be invoked if the next character
-in the input is \verb|\| and no longer
-lexical table atom pattern of the form \verb|"\|\ldots\verb|"| is matched, 
-and as a result the \verb|\| and the next three characters will be identified
-as a `{\tt bad escape}'
+in the input is \TT{\textbackslash} and no longer
+lexical table atom pattern of the form \TT{"\textbackslash}\ldots\TT{"} is matched, 
+and as a result the \TT{\textbackslash} and the next three characters will be identified
+as a `\TT{bad escape}'
 erroneous atom and translated to the empty character sequence.
 
 
@@ -1351,22 +1351,22 @@ and no special operations for detecting or announcing them.
 \hfill A `\ttmkey{output}{in lexical program} {\em type}\,'
 {\em instruction-component} sets the \key{current lexeme type}.
 
-The {\tt output} {\em instruction-component} is
+The \TT{output} {\em instruction-component} is
 used to change the type of the lexeme to be output from
 the type of the table containing the instruction.
 For example, at the top of \pagref{EXAMPLE-LEXEME-PROGRAM} the
-{\tt main} master table has `{\tt output end of file;}' as its
+\TT{main} master table has `\TT{output end of file;}' as its
 {\em default-instruction-group}, thereby outputting a zero length
-lexeme with `{\tt end of file}' type whenever the input is at the
+lexeme with `\TT{end of file}' type whenever the input is at the
 end of file.
 
-As another example, the `{\tt main}' master table at the top of
+As another example, the `\TT{main}' master table at the top of
 \pagref{EXAMPLE-LEXEME-PROGRAM} contains the entry:
 \begin{indpar}\begin{verbatim}
 "<other>" output bad character;
 \end{verbatim}\end{indpar}
 which causes an unrecognized character to be treated as a 1-character
-lexeme of type `{\tt bad character}'.  The translation of this lexeme is
+lexeme of type `\TT{bad character}'.  The translation of this lexeme is
 the character itself, but if the entry:
 \begin{indpar}\begin{verbatim}
 "<other>" translate to "<DEL>" output bad character;
@@ -1377,10 +1377,10 @@ had been used instead the translation would have been the ASCII delete
 Upon finishing the execution of an instruction, if the
 current lexical table is a master table,
 the currently accumulated lexeme is output
-with the current lexeme type, if that is not `{\tt none}', or the
+with the current lexeme type, if that is not `\TT{none}', or the
 currently accumulated lexeme is discarded if the current lexeme
-type is `{\tt none}'.
-The current lexeme type is reset to `{\tt none}' whenever
+type is `\TT{none}'.
+The current lexeme type is reset to `\TT{none}' whenever
 the current lexical table becomes a master table.
 
 \subsubsubsection{Goto, Call, Return, and Fail Instruction Components}
@@ -1388,50 +1388,50 @@ the current lexical table becomes a master table.
 A `\ttmkey{goto}{in lexical program} {\em lexical-table-name}\,'
 {\em instruction-component} switches the current lexical table after
 the current atom is processed.  If the table switches
-to a master table and the current lexeme type is not `{\tt none}',
+to a master table and the current lexeme type is not `\TT{none}',
 then the current lexeme is output with the
 current lexeme type as its type.
 
 A `\ttmkey{call}{in lexical program} {\em lexeme-table-name}\,'
-{\em instruction-component} is just like `{\tt goto}' except
+{\em instruction-component} is just like `\TT{goto}' except
 that it also pushes the identifier of the lexical table in which
-the `{\tt call}' occurs (the `caller') into the return stack.
+the `\TT{call}' occurs (the `caller') into the return stack.
 The \key{return stack} is a stack of up to 16 lexical table identifiers
-used by the `{\tt call}' and `{\tt return}' instruction components
-and also by the `{\tt match} {\em atom-table-name}'
+used by the `\TT{call}' and `\TT{return}' instruction components
+and also by the `\TT{match} {\em atom-table-name}'
 instruction components.  Recursive calls are prohibited.
 Whenever a master table becomes the current lexical table, the
 return stack is cleared.
 
 A `\ttmkey{return}{in lexical program}'
-{\em instruction-component} is just like `{\tt goto}' except
+{\em instruction-component} is just like `\TT{goto}' except
 that uses the lexical table identifier at the top of the return
 stack to determine the next lexical table.  This identifier is
 also popped from the stack.
 
 The return stack is set to empty whenever the current lexical table
 becomes a master table.
-A {\tt call} \underline{cannot} be used
-to call a master or atom table.  A {\tt return} can only
+A \TT{call} \underline{cannot} be used
+to call a master or atom table.  A \TT{return} can only
 appear in a lexeme or sublexeme table.
-A {\tt goto} \underline{cannot} be used to go to an atom table.
+A \TT{goto} \underline{cannot} be used to go to an atom table.
 
-The `{\tt call}' and `{\tt goto}' instruction components
+The `\TT{call}' and `\TT{goto}' instruction components
 can both be used in the same {\em instruction}, in 
-which case the {\tt goto} lexical table identifier is pushed into the
+which case the \TT{goto} lexical table identifier is pushed into the
 return stack instead of the current lexical table identifier.
-The `{\tt return}' instruction component cannot be used with
-`{\tt call}' or `{\tt goto}' (if `{\tt return}' and `{\tt call}'
+The `\TT{return}' instruction component cannot be used with
+`\TT{call}' or `\TT{goto}' (if `\TT{return}' and `\TT{call}'
 could be used together, they would have the same affect as
-a simple `{\tt goto}')
+a simple `\TT{goto}')
 
-The `{\tt call}' and `{\tt return}' instruction components
+The `\TT{call}' and `\TT{return}' instruction components
 permit a lexeme or sublexeme table to be shared among different
 master, lexeme, and sublexeme tables.  For example, a lexeme table to scan
 a comment lexeme may be shared among several master tables;
 see Appendix \itemref{C++-LEXICAL-PROGRAM} for examples.
 
-The `{\tt call}' and `{\tt return}' instruction components
+The `\TT{call}' and `\TT{return}' instruction components
 add nothing new to the lexical scanning language, since they
 cannot be used recursively,
 and they can always be eliminated by making
@@ -1442,7 +1442,7 @@ substantially reduce the size of the lexical program.
 A `\ttmkey{fail}{in lexical program}'
 {\em instruction-component} can only be used in an atom
 table and causes the instruction invoking the atom table to fail.
-The `{\tt goto}', `{\tt call}', and `{\tt return}' instruction components
+The `\TT{goto}', `\TT{call}', and `\TT{return}' instruction components
 \underline{cannot} be used in an atom table.
 
 \section{Parsing}
@@ -1459,7 +1459,7 @@ The parser is a sequence of passes each of which operates on a list
 of tokens.  A token is either a lexeme, a subexpression, or an operator.
 The top level parser pass, the bracketed subexpression recognition pass,
 recognizes subexpressions that are bounded by brackets
-such as `{\tt (}' and `{\tt )}', by an indentation mark and eventual
+such as `\TT{(}' and `\TT{)}', by an indentation mark and eventual
 end of indentation, by a line end, or by a line separator that is
 equivalent to a line end.
 The non-top-level passes
@@ -1467,8 +1467,8 @@ operate on the subexpressions recognized by previous passes;
 for example, the operator pass recognizes
 subexpressions bounded by operators.
 Brackets can be used to change syntax, so, for example,
-the syntax of a {\tt ( )} bracketed expression may differ from
-the syntax of a {\tt ` '} bracketed expression.
+the syntax of a \TT{( )} bracketed expression may differ from
+the syntax of a \TT{` '} bracketed expression.
 
 Parsing reduces each recognized subexpression, including each input
 line and each paragraph,
@@ -1491,17 +1491,17 @@ A token has the following components:
 \\[1ex]
 		& For a lexeme, the translation of the
 		  lexeme may be recorded in either the token
-		  {\tt value} as a MIN string or in the token {\tt string}.
+		  \TT{value} as a MIN string or in the token \TT{string}.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& Standardly the token lexeme types are word, mark, separator,
-		  and number whose tokens have a {\tt value} that is
+		  and number whose tokens have a \TT{value} that is
 		  a MIN string equal to the lexeme characters,
-		  quoted string whose tokens have a {\tt string} equal
+		  quoted string whose tokens have a \TT{string} equal
 		  to the lexeme translation string,
 		  and line break and end of file whose tokens have neither
-		  {\tt value} nor {\tt string}.
+		  \TT{value} nor \TT{string}.
 		  Both natural numbers and other numbers are grouped
 		  together as numbers.
 		  Standardly whitespace and comment lexemes are
@@ -1510,28 +1510,28 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& For an {\tt OPERATOR}, the token {\tt value}
+		& For an \TT{OPERATOR}, the token \TT{value}
 		  is the operator name recorded as
 		  a MIN string or a MIN label, or in the case
 		  where a bracketed subexpression is an operator,
-		  the {\tt value} is the MIN object as described
-		  for {\tt BRACKETED} tokens below.
-		  {\tt OPERATOR} tokens are
+		  the \TT{value} is the MIN object as described
+		  for \TT{BRACKETED} tokens below.
+		  \TT{OPERATOR} tokens are
 		  produced inside the operator pass and consumed by
 		  expression reformatters invoked by that pass.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& {\tt BRACKETED} are {\tt BRACKETABLE} tokens
+		& \TT{BRACKETED} are \TT{BRACKETABLE} tokens
 		  are used to represent subexpressions.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& The value of a {\tt BRACKETED} token
+		& The value of a \TT{BRACKETED} token
 		  is a MIN object which may have
-		  attributes such as {\tt .initiator} or {\tt .terminator}.
-		  The following attributes of a {\tt BRACKETED} token
-		  {\tt value} are directly related to syntax and are called 
+		  attributes such as \TT{.initiator} or \TT{.terminator}.
+		  The following attributes of a \TT{BRACKETED} token
+		  \TT{value} are directly related to syntax and are called 
 		  `\key{syntax attribute}s':
 		  \begin{center}
 		  \tt
@@ -1548,49 +1548,49 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& A {\tt BRACKETABLE} token
-		  is equivalent to (and an optimization of) a {\tt BRACKETED}
+		& A \TT{BRACKETABLE} token
+		  is equivalent to (and an optimization of) a \TT{BRACKETED}
 		  token whose MIN object value has no syntax attributes other
-		  than possibly the {\tt .separator} attribute.  If such a token
+		  than possibly the \TT{.separator} attribute.  If such a token
 		  is to become the only element of a containing bracketed
 		  subexpression, instead of creating a new
-		  {\tt BRACKETED} token, the bracketed subexpression's
-		  syntax attributes (which do not include a {\tt .separator}
-		  attribute) are added to the {\tt BRACKETABLE} token (which
+		  \TT{BRACKETED} token, the bracketed subexpression's
+		  syntax attributes (which do not include a \TT{.separator}
+		  attribute) are added to the \TT{BRACKETABLE} token (which
 		  has no syntax attributes other than a possible
-		  {\tt .separator} attribute),
-		  the type of that token is changed to {\tt BRACKETED}, and
-		  the {\tt .position} attribute of that token
+		  \TT{.separator} attribute),
+		  the type of that token is changed to \TT{BRACKETED}, and
+		  the \TT{.position} attribute of that token
 		  is changed to include the added syntax attributes.
 		  The non-syntax attributes of the
-		  {\tt BRACKETABLE} token are left as is.
+		  \TT{BRACKETABLE} token are left as is.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Empty subexpressions are recorded as {\tt BRACKETABLE}
+		& Empty subexpressions are recorded as \TT{BRACKETABLE}
 		  subexpressions whose MIN object has no elements and
 		  no syntax attri\-butes.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& {\tt BRACKETED} and {\tt BRACKETABLE} tokens are called
-		  \skey{expression token}s and {\tt OPERATOR} and lexeme
+		& \TT{BRACKETED} and \TT{BRACKETABLE} tokens are called
+		  \skey{expression token}s and \TT{OPERATOR} and lexeme
 		  tokens are called non-expression tokens.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value}{of token}
-		& The token {\tt value}, as described above.  This is
+		& The token \TT{value}, as described above.  This is
 		  MIN string, label, or object.  Numbers are encoded
-		  as MIN strings, so {\tt 001}, {\tt 01}, and {\tt 1}
-		  are all distinct, as are {\tt 0.10}, {\tt 0.1},
-		  and {\tt .10}.
+		  as MIN strings, so \TT{001}, \TT{01}, and \TT{1}
+		  are all distinct, as are \TT{0.10}, \TT{0.1},
+		  and \TT{.10}.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{string}{of token}
 		& For quoted string lexemes,
-		  which do not have token {\tt value}'s,
+		  which do not have token \TT{value}'s,
                   this is the translation string of the lexeme,
 		  stored in a manner that makes
 		  garbage collection and memory reuse more
@@ -1630,7 +1630,7 @@ needed.
 
 As the parser identifies subexpressions, the tokens in the
 subexpression are replaced by a single expression token (of
-type {\tt BRACKETED} or {\tt BRACKETABLE})
+type \TT{BRACKETED} or \TT{BRACKETABLE})
 that encodes the subexpression.
 File input lines may also be organized into paragraphs containing
 paragraph lines, and both paragraph lines and paragraphs are
@@ -1679,9 +1679,9 @@ components:
 		& Note that numbers are represented by MIN
 		  strings equal to their lexeme translation strings,
 		  and are \underline{not} represented as MIN numbers.
-		  As a consequence `{\tt 01}' and `{\tt 1}' are
-		  different number symbols, as are `{\tt 0.10}'
-		  and `{\tt .1}'.
+		  As a consequence `\TT{01}' and `\TT{1}' are
+		  different number symbols, as are `\TT{0.10}'
+		  and `\TT{.1}'.
 \end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1690,8 +1690,8 @@ components:
 		  one (or sometimes more) symbol tables containing
 		  definitions of types particular to the pass.
 		  For example, the bracketed subexpression recognition
-		  pass has {\tt opening bracket}, {\tt closing bracket},
-		  {\tt indentation mark}, and {\tt indentation separator}
+		  pass has \TT{opening bracket}, \TT{closing bracket},
+		  \TT{indentation mark}, and \TT{indentation separator}
 		  type definitions, among others.
 \end{tabular}
 
@@ -1744,7 +1744,7 @@ In order to be active, a symbol table entry's set of selectors
 must have some selector in common with the parsing selectors.
 A selector set is represented as a 64-bit unsigned integer value
 with the bit in
-position 1{\tt <<}N being on if the N+1'st selector is in the set.
+position 1\TT{<{}<}N being on if the N+1'st selector is in the set.
 Thus there can be at most 64 distinct selectors used by any set of
 parser definitions.  For convenience, the selectors that can be
 currently used are given names that are sequences of symbols.
@@ -1799,25 +1799,25 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
 \\[0.0ex]
 \emkey{quoted-name} ::=
-    {\tt "}{\em quoted-name-component}
-           {\em quoted-name-component}\,$^\star${\tt "}
+    \TT{"}{\em quoted-name-component}
+           {\em quoted-name-component}\,$^\star$\TT{"}
 \\[0.0ex]
 \emkey{partial-name} ::= {\em quoted-name}
 \\[0.6ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.0ex]
 \emkey{parser-flag-list}
-    ::= {\tt [ ]}  $|$ {\tt [} {\em parser-flag}
-          \{ \verb|,| {\em parser-flag} \}\,$^\star$ {\tt ]}
+    ::= \TT{[ ]}  $|$ \TT{[} {\em parser-flag}
+          \{ \TT{,} {\em parser-flag} \}\,$^\star$ \TT{]}
 \\[0.0ex]
 \emkey{parser-flag-modifier-list}
     \begin{tabular}[t]{@{}r@{~}l@{~}l@{}}
-    ::= & {\tt [} & {\em parser-flag-op} {\em parser-flag} \\
-        &         & \{ \verb|,| {\em parser-flag-op}
-	                        {\em parser-flag} \}\,$^\star$ {\tt ]} \\
+    ::= & \TT{[} & {\em parser-flag-op} {\em parser-flag} \\
+        &         & \{ \TT{,} {\em parser-flag-op}
+	                        {\em parser-flag} \}\,$^\star$ \TT{]} \\
     \end{tabular}
 \\[0.0ex]
-\emkey{parser-flag-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
+\emkey{parser-flag-op} ::= \TT{+} $|$ \TT{-} $|$ \TT{\^{ }}
 \\[0.0ex]
 \emkey{parser-flag-spec} ::= {\em parser-flag-list} $|$
                               {\em parser-flag-modifier-list}
@@ -1856,7 +1856,7 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \emkey{parser-context-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define context}{context!define} {\em context-name} \\
-        & ~~~ [ {\tt with parsing selectors} {\em parser-flag-spec} ] \\
+        & ~~~ [ \TT{with parsing selectors} {\em parser-flag-spec} ] \\
     $|$ & \ttkey{parser print context} {\em partial-name} \\
     \end{tabular}
 \\[0.0ex]
@@ -1900,7 +1900,7 @@ When a parser block ends, all changes to the parser tables made in
 the block are erased, so subsequent parsing is as if the block
 had never existed.
 The {\em block-name} merely serves as an error check; it is
-not possible to have one `{\tt parser end}' command end more than
+not possible to have one `\TT{parser end}' command end more than
 one parser block.
 
 The parser has two sets of \emkey{parser-flags}\index{flags!parser}:
@@ -1916,8 +1916,8 @@ instructions `{\em parser-flag-op} {\em parser-flag}' pairs.
 These pairs are interpreted as follows:
 \begin{center}
 \begin{tabular}{ll}
-{\tt +} {\em parser-flag} & set the named flag \\
-{\tt -} {\em parser-flag} & clear the named flag \\
+\TT{+} {\em parser-flag} & set the named flag \\
+\TT{-} {\em parser-flag} & clear the named flag \\
 \TT{\^{ }}{\em parser-flag} & complement (flip) the named flag \\
 \end{tabular}
 \end{center}
@@ -1958,24 +1958,24 @@ parser trace flags.
     Enables tracing for the parser operator recognition pass.
 
 \hspace*{-0.2in}\ttmkey{subexpression lines}{parser trace flag}
-    The printing of a value by the `{\tt parser output}' or
-    `\ldots{} {\tt subexpressions}' trace flags, or the
-    {\tt parser test} command, includes
+    The printing of a value by the `\TT{parser output}' or
+    `\ldots{} \TT{subexpressions}' trace flags, or the
+    \TT{parser test} command, includes
     the lines containing the value with the value producing subexpression
     within these lines underlined.
 
 \hspace*{-0.2in}\ttmkey{subexpression elements}{parser trace flag}
-    The printing of a value by the `{\tt parser output}' or
-    `\ldots{} {\tt subexpressions}' trace flags, or the
-    {\tt parser test} command, includes
+    The printing of a value by the `\TT{parser output}' or
+    `\ldots{} \TT{subexpressions}' trace flags, or the
+    \TT{parser test} command, includes
     a direct rendition of the value with implicit brackets and
     graphic representations of non-graphic characters
     shown.  This is the default.
 
 \hspace*{-0.2in}\ttmkey{subexpression details}{parser trace flag}
-    The printing of a value by the `{\tt parser output}' or
-    `\ldots{} {\tt subexpressions}' trace flags, or the
-    {\tt parser test} command, includes
+    The printing of a value by the `\TT{parser output}' or
+    `\ldots{} \TT{subexpressions}' trace flags, or the
+    \TT{parser test} command, includes
     a detailed rendition of the value with all attributes shown.
 
 \hspace*{-0.2in}\ttmkey{keys}{parser trace flag}
@@ -1994,14 +1994,14 @@ parser trace flags.
 
 The `\ttkey{parser test}' command just causes the parse of itself
 to be printed in detail.  Since parser commands are parsed before they
-are executed, any text placed after the words `{\tt parser test}' will
+are executed, any text placed after the words `\TT{parser test}' will
 be parsed and the resulting printout will indicate the details of that
 parse.
 
 The only builtin selector name is `\ttikey{parser}{selector name}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
-    {\tt parser define selector} {\em selector}
+    \TT{parser define selector} {\em selector}
 \end{center}
 When the parser block containing a selector name definition
 command ends, the selector name is erased.
@@ -2013,8 +2013,8 @@ named `\ttikey{standard}{parsing block}' and defines in it the selectors
 \ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
 \end{center}
 The standard parser also sets the top level selector set to
-`{\tt [code]}'.  Note that the actions of the standard parser can be
-canceled by a `{\tt parser end standard}' command.
+`\TT{[code]}'.  Note that the actions of the standard parser can be
+canceled by a `\TT{parser end standard}' command.
 
 If a top level line begins with a \emkey{context-name}, the top level
 selector set is modified according to a {\em parser-flag-spec}
@@ -2031,30 +2031,30 @@ associated with the {\em context-name}.  There are two builtin
 \end{center}
 
 So most {\em parser-commands} are parsed with just the parser selector
-set `{\tt [parser]}',
+set `\TT{[parser]}',
 as {\em parser-commands} begin with the {\em context-name}
-`{\tt parser}', but the `{\tt parser test}' command is parsed with whatever
+`\TT{parser}', but the `\TT{parser test}' command is parsed with whatever
 top level selectors are normally in effect, as the longest
 {\em context-name} at the beginning of a top level line is the one that
 is recognized.  Note that these two {\em context-names} are builtin, and
-\underline{not} defined within the `{\tt standard}' parser block.  Also a
+\underline{not} defined within the `\TT{standard}' parser block.  Also a
 {\em context-name} beginning a top level line is \underline{not} skipped
 by the parser, and \underline{is} included in the parser output for the line.
 
 New {\em context-names} can be defined by the {\em parser-context-command}:
 \begin{center}
-    {\tt parser define context} {\em context-name}
-        [ {\tt with parsing selectors} {\em parser-flag-spec} ]
+    \TT{parser define context} {\em context-name}
+        [ \TT{with parsing selectors} {\em parser-flag-spec} ]
 \end{center}
 If no {\em parser-flag-spec} is given, the {\em context-name} does
 not modify the top level selectors, as if the {\em parser-flag-spec}
 were an empty {\em parser-flag-modifier-list}.  An example of this
-is the builtin `{\tt parser test}' {\em context-name}.
+is the builtin `\TT{parser test}' {\em context-name}.
 
 The `\ttikey{default}{context-name}' {\em context-name} is special
 and refers to the top level selectors in effect when a top level
 line does \underline{not} begin with any {\em context-name}.
-For a `{\tt parser define context "default"} \ldots' command the
+For a `\TT{parser define context "default"} \ldots' command the
 {\em parser-flag-spec} must be given and must be a
 {\em parser-flag-list}.
 
@@ -2076,39 +2076,39 @@ In the following sections various `\ttkey{parser define}' commands
 are described.  These push entries in to the parser symbol tables.
 The general syntax of these is
 \begin{center}
-{\tt parser define} {\em type} {\em name} {\em selectors} \ldots 
+\TT{parser define} {\em type} {\em name} {\em selectors} \ldots 
 \end{center}
 and an example is
 \begin{center}
-{\tt parser define bracket "("~...~")" [operator, text]} \ldots
+\TT{parser define bracket "("~...~")" [operator, text]} \ldots
 \end{center}
-The {\em type}, `{\tt bracket}' in the example, identifies the parser pass into
+The {\em type}, `\TT{bracket}' in the example, identifies the parser pass into
 whose symbol tables entries are to be pushed.  The {\em name},
-`{\tt "("~...~")"}' in the example, gives {\em quoted-names} that become
+`\TT{"("~...~")"}' in the example, gives {\em quoted-names} that become
 the entry labels.  The {\em selectors},
-`{\tt [operator, text]}' in the example, specify the selector set of
+`\TT{[operator, text]}' in the example, specify the selector set of
 the entries to be pushed.
 
 The end of a parser block pops all entries pushed into parser
 symbol tables during the block.
 
-For `{\tt parser define}' commands defined in the following sections
+For `\TT{parser define}' commands defined in the following sections
 there is a companion
 `\ttkey{parser undefine}' command that effectively undoes
-the {\tt parser define} command by clearing selector bits in
+the \TT{parser define} command by clearing selector bits in
 the designated symbol table entries.  Its syntax is
 \begin{center}
-{\tt parser undefine} {\em type} {\em name} {\em selectors}
+\TT{parser undefine} {\em type} {\em name} {\em selectors}
 \end{center}
 and it clears the specified selector bits from \underline{all} symbol table
 entries with the same {\em type} and {\em name}.  When the
-block containing a {\tt parser undefine} command ends, the
+block containing a \TT{parser undefine} command ends, the
 effects of that command are undone by restoring the cleared
 selector bits to their previous state.
 
-For `{\tt parser define}' commands defined in the following sections,
-and also for the `{\tt parser define selector}' and
-`{\tt parser define context}' commands defined above,
+For `\TT{parser define}' commands defined in the following sections,
+and also for the `\TT{parser define selector}' and
+`\TT{parser define context}' commands defined above,
 there is a companion
 `\ttkey{parser print}' command that prints the contents of the
 parser symbol table entries with the designated {\em type} and any
@@ -2116,7 +2116,7 @@ parser symbol table entries with the designated {\em type} and any
 the {\em partial-name} supplied by the print command.
 Its syntax is
 \begin{center}
-{\tt parser print} {\em type} {\em partial-name}
+\TT{parser print} {\em type} {\em partial-name}
 \end{center}
 The {\em partial-name} and {\em name} are both treated as sequences
 of complete lexemes, and the former can be any subsequence of the
@@ -2126,14 +2126,14 @@ latter, not just an initial subsequence.
 
 The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[1.0in]
-\hspace*{-0.5in}brackets (e.g.~`{\tt (}' and `{\tt )}')
+\hspace*{-0.5in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
-\hspace*{-0.5in}indentation marks (e.g.~`{\tt :}')
-    and line separators (e.g.~`{\tt ;}'),
+\hspace*{-0.5in}indentation marks (e.g.~`\TT{:}')
+    and line separators (e.g.~`\TT{;}'),
     indented paragraphs, and indented paragraph lines \\
-\hspace*{-0.5in}named brackets (e.g.~`{\tt <b|}' and `{\tt |b>}')
+\hspace*{-0.5in}named brackets (e.g.~`\TT{<b|}' and `\TT{|b>}')
       and named bracketed subexpressions \\
-\hspace*{-0.5in}named operators (e.g.~`{\tt <p>}')
+\hspace*{-0.5in}named operators (e.g.~`\TT{<p>}')
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
@@ -2152,19 +2152,19 @@ is equivalent to
 This is useful for
 breaking long quoted string lexemes across line boundaries.
 But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \verb|"<" "LF" ">"| is
-\underline{not} equivalent to \verb|"<LF>"|.  The former is a 4-character
-quoted string, the characters being \verb|<|, \verb|L|, \verb|F|,
-and \verb|>|.  The latter is a 1-character quoted string, the character
+between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+\underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
+quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
+and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
 Brackets, indentation marks, and line separators are
 symbol table keys.  However named brackets and named operators are
 not.  Instead, a named bracket or named operator is formed by using
-named openings (e.g.~`{\tt <}'),
-named key separators (e.g.~`{\tt \#}'),
-named middles (e.g.~`{\tt |}'),
-and named closings (e.g.~`{\tt >}'), which are all symbol table
+named openings (e.g.~`\TT{<}'),
+named key separators (e.g.~`\TT{\#}'),
+named middles (e.g.~`\TT{|}'),
+and named closings (e.g.~`\TT{>}'), which are all symbol table
 keys, to surround or separate
 sequences of words, numbers, quoted strings, and
 (unnamed) bracketed subexpressions, and thence form named brackets
@@ -2176,34 +2176,34 @@ input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
-The output of the parser is a sequence of {\tt BRACKETED} tokens,
+The output of the parser is a sequence of \TT{BRACKETED} tokens,
 one per top level line.  The value of one of these tokens is a
-MIN object with a {\tt .terminator} equal to the MIN string
-{\tt "<NL>"} or {\tt ";"} (this is the line separator at the top level),
+MIN object with a \TT{.terminator} equal to the MIN string
+\TT{"<NL>"} or \TT{";"} (this is the line separator at the top level),
 and with no other syntax attributes.
 
 In general, the bracketed subexpression recognizer converts
-subexpressions to single {\tt BRACK\-ET\-ED} tokens whose {\tt value}'s
+subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
 are MIN objects with
-either an {\tt .initiator} attribute or
-a {\tt .terminator} attribute or both.
+either an \TT{.initiator} attribute or
+a \TT{.terminator} attribute or both.
 The elements of one of these MIN objects
-are the {\tt value}'s of the tokens which make
+are the \TT{value}'s of the tokens which make
 up the represented
 subexpression after recursive calls to the bracketed subexpression
 recognizer.  Quoted string lexemes must be handled
-differently because they have no token {\tt value}.  These are
+differently because they have no token \TT{value}.  These are
 represented by MIN objects
-that have the {\tt .initiator} attribute {\tt "<Q>"}
+that have the \TT{.initiator} attribute \TT{"<Q>"}
 and that have a single
 element which is a MIN string equal as a character string to the
-{\tt string} of the quoted string token being represented.
+\TT{string} of the quoted string token being represented.
 
 For example, the line
 \begin{indpar}\begin{verbatim}
 parser test (x 5 "foo")
 \end{verbatim}\end{indpar}
-causes the parser to output a {\tt BRACKETED} token whose {\tt value} is
+causes the parser to output a \TT{BRACKETED} token whose \TT{value} is
 \begin{indpar}\begin{verbatim}
 {| parser test
    {| x 5 {| foo; .initiator = "<Q>"|};
@@ -2213,15 +2213,15 @@ causes the parser to output a {\tt BRACKETED} token whose {\tt value} is
 \end{verbatim}\end{indpar}
 where a MIN object is represented by
 \begin{center}
-\verb/{|/ {\em element} \ldots{\tt ;} {\em attribute-name} {\tt =}
-				      {\em attribute-value}{\tt ;}
-				      \ldots \verb/|}/
+\TT{\{|} {\em element} \ldots\TT{;} {\em attribute-name} \TT{=}
+				      {\em attribute-value}\TT{;}
+				      \ldots \TT{|\}}
 \end{center}
 
 and a MIN string is represented by its character sequence, optionally
-quoted with {\tt "}'s.
+quoted with \TT{"}'s.
 
-The MIN object that is the value of a {\tt BRACKETED} token and
+The MIN object that is the value of a \TT{BRACKETED} token and
 represents a subexpression may have the following `\skey{syntax attribute}s':
 
 \begin{indpar}[0.4in]
@@ -2234,7 +2234,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     or & the {\em indentation-mark-name} of an indented subexpression, \\
     or & the {\em named-opening} of a named bracketed subexpression, \\
     or & the {\em named-opening} of a named operator, \\
-    or & \verb|"<Q>"| if the MIN object represents a quoted string lexeme.
+    or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme.
     \end{tabular}
     \end{center}
 \medskip
@@ -2244,7 +2244,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     \begin{center}
     \begin{tabular}{ll}
        & the {\em closing-bracket-name} of a bracketed subexpression, \\
-    or & \verb|"<NL>"| if the subexpression is an new-line terminated
+    or & \TT{"<NL>"} if the subexpression is an new-line terminated
          indented line \\
        & in an indented paragraph, \\
     or & the {\em line-separator-name} used to separate lines of an
@@ -2256,7 +2256,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 \medskip
 \hspace*{-0.2in}\ttdmkey{separator}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    that equals an operator, such as `{\tt ,}' that acts as a
+    that equals an operator, such as `\TT{,}' that acts as a
     separator in a subexpression.
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{middle}{subexpression attribute}\\
@@ -2272,7 +2272,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     A MIN object whose elements are the arguments of the
     {\em opening-named-bracket} of a named bracketed subexpression,
     or of a {\em named-operator}.  The object is formatted like the
-    {\tt value} of a {\tt BRACKETED} token, except that it has no syntax
+    \TT{value} of a \TT{BRACKETED} token, except that it has no syntax
     attributes.  Each argument is either a bracketed subexpression
     or a quoted string.
 \\[2ex]
@@ -2281,7 +2281,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     {\em opening-named-bracket} of a named bracketed subexpression,
     or of a {\em named-operator}.  The keys are the elements of
     the object, and the object's only syntax attributes are
-    {\tt .initiator} and {\tt .separator} both of which equal the
+    \TT{.initiator} and \TT{.separator} both of which equal the
     {\em named-key-separator} of the {\em opening-named-bracket}
     or {\em named-operator}.
     The keys and attributes
@@ -2292,7 +2292,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 
 In addition to the attributes just given, a MIN object may have
 a \ttdmkey{position}{of MIN object} attribute that is a
-{\tt min::\EOL phrase\_\EOL position\_\EOL vec} giving the positions
+\TT{min::\EOL phrase\_\EOL position\_\EOL vec} giving the positions
 of the lexemes which the MIN object and its elements represent.
 This is not considered to be a syntax attribute.
 
@@ -2323,11 +2323,11 @@ an {\em opening-bracket-name} and ends with a match\-ed
 \ttikey{parser define bracket}{bracket!parser define}
 command.  An example of such a definition is
 \begin{center}
-{\tt parser define bracket "("~...~")" [operator, text]} \ldots
+\TT{parser define bracket "("~...~")" [operator, text]} \ldots
 \end{center}
-which specifies `{\tt (}' to be an {\em opening-bracket-name}
-with `{\tt )}' as its corresponding {\em closing-bracket-name}
-and `{\tt operator}' and `{\tt text}' as the definition selectors.
+which specifies `\TT{(}' to be an {\em opening-bracket-name}
+with `\TT{)}' as its corresponding {\em closing-bracket-name}
+and `\TT{operator}' and `\TT{text}' as the definition selectors.
 
 The general syntax of {\em parser-bracket-commands} is:
 
@@ -2340,9 +2340,9 @@ The general syntax of {\em parser-bracket-commands} is:
     ::= & \multicolumn{2}{l}{\ttikey{parser define bracket}%
                                     {bracket!parser define}
 		    {\em bracket-name} {\em selectors}} \\
-	& \hspace*{3em} & [ {\tt with parsing selectors}
+	& \hspace*{3em} & [ \TT{with parsing selectors}
 	                    {\em new-selectors} ] \\
-        &               & [ {\tt with full lines} ] \\
+        &               & [ \TT{with full lines} ] \\
     $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
                                     {bracket!parser undefine}
 		    {\em bracket-name} {\em selectors}} \\
@@ -2361,21 +2361,21 @@ The general syntax of {\em parser-bracket-commands} is:
 
 \end{indpar}
 
-Brackets such as `{\tt (}' and `{\tt )}'
+Brackets such as `\TT{(}' and `\TT{)}'
 are sometimes called `\key{unnamed brackets}'
 to distinguish them from named brackets
-such as `\verb/<b|/' and `\verb/|b>/'
-in which the name, in this case `{\tt b}',
+such as `\TT{<b|}' and `\TT{|b>}'
+in which the name, in this case `\TT{b}',
 is arbitrary.  See Section~\itemref{NAMED-BRACKETED-SUBEXPRESSIONS}
 for a description of named brackets.
 
-A bracketed subexpression is converted to a {\tt BRACKETED}
-token whose {\tt value} is a
+A bracketed subexpression is converted to a \TT{BRACKETED}
+token whose \TT{value} is a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
-{\em opening-bracket-name} becomes the {\tt .initiator}
+{\em opening-bracket-name} becomes the \TT{.initiator}
 attribute of this object, and the {\em closing-bracket-name}
-becomes the {\tt .terminator} attribute of the object.
+becomes the \TT{.terminator} attribute of the object.
 
 If a bracketed subexpression ends pre-maturely, before
 its {\em closing-bracket-name} is discovered, a parsing error is
@@ -2395,9 +2395,9 @@ use of indentation is turned off, and only the {\em closing-bracket-name}
 associated with the full lines {\em opening-bracket-name}, or an
 end-of-file,
 can terminate the subexpression.  During parsing of a
-`{\tt full lines}' subexpression, the parser only knows about
+`\TT{full lines}' subexpression, the parser only knows about
 subexpressions and paragraphs that are included completely inside the
-`{\tt full lines}' subexpression.
+`\TT{full lines}' subexpression.
 
 When an {\em opening-bracket-name} is recognized, the current parser
 selector set is saved in a stack and
@@ -2425,7 +2425,7 @@ parser define bracket "`" ... "'" [code,math,text]
        with parsing selectors [ + text, - code, - math]
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of
-its `{\tt standard}' parser block.
+its `\TT{standard}' parser block.
 
 \subsubsection{Indented Paragraph Subexpressions}
 
@@ -2439,7 +2439,7 @@ is defined as the indentation of the first paragraph line of the paragraph.
 A paragraph line may have a continuation lines that are indented with
 respect to the paragraph indentation.
 
-The following is an example using `{\tt :}' as an {\em indentation-mark-name}:
+The following is an example using `\TT{:}' as an {\em indentation-mark-name}:
 \begin{indpar}\begin{verbatim}
 the line before the outer paragraph
 this is an outer paragraph:
@@ -2465,11 +2465,11 @@ parser command, and may have
 an associated {\em line-separator-name} supplied by that definition.
 An example is
 \begin{center}
-{\tt define gluing indentation mark ":"~...~";" [operator]} \ldots
+\TT{define gluing indentation mark ":"~...~";" [operator]} \ldots
 \end{center}
-which specifies `{\tt :}' to be a {\em gluing-indentation-mark-name}
-with `{\tt ;}' as its corresponding {\em line-separator-name}
-and `{\tt operator}' as the sole definition selector.
+which specifies `\TT{:}' to be a {\em gluing-indentation-mark-name}
+with `\TT{;}' as its corresponding {\em line-separator-name}
+and `\TT{operator}' as the sole definition selector.
 
 The general syntax of {\em parser-indentation-mark-commands} is:
 
@@ -2479,21 +2479,21 @@ The general syntax of {\em parser-indentation-mark-commands} is:
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser define}{define indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf indentation mark}
+	  \TT{indentation mark}
 	  {\em indentation-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-selectors} ] \\
+	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser define}{define gluing indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf gluing indentation mark} \\
+	  \TT{gluing indentation mark} \\
 	  \hspace*{5em} {\em gluing-indentation-name} {\em parsing-selectors} \\
-	  {}[ {\tt with parsing selectors} {\em new-selectors} ] \\
+	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
 	  {\em indentation-name} {\em parsing-selectors} \\
     $|$ & \ttikey{parser undefine}{undefine gluing indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\tt \bf gluing indentation mark} \\
+	  \TT{gluing indentation mark} \\
 	  {\em gluing-indentation-name} {\em parsing-selectors} \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser define indentation offset}{define indentation offset}
@@ -2503,7 +2503,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
 \emkey{indentation-name} ::= {\em indentation-mark-name}
-	[ {\tt ...} {\em line-separator-name} ]
+	[ \TT{...} {\em line-separator-name} ]
 \\[0.5ex]
 \emkey{indentation-mark-name} ::= {\em quoted-name}
 \label{INDENTATION-MARK-NAME}
@@ -2511,9 +2511,9 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{gluing-indentation-name} \\
     \hspace*{0.2in}~
     ::= {\em gluing-indentation-mark-name}
-	[ {\tt ...} {\em line-separator-name} ]
+	[ \TT{...} {\em line-separator-name} ]
 \\[0.5ex]
-\emkey{gluing-indentation-mark-name} ::= {\tt "}{\em mark}\,{\tt "}
+\emkey{gluing-indentation-mark-name} ::= \TT{"}{\em mark}\,\TT{"}
 \\[0.5ex]
 \emkey{line-separator-name} ::= {\em quoted-name}
 \\[0.5ex]
@@ -2530,22 +2530,22 @@ in the paragraph.
 Each paragraph line is converted to a MIN object whose elements are
 the components of the line, treated as subexpression components, except for
 any {\em line-separator-name} that ends the line.  This
-object is given a {\tt .terminator} attribute value
+object is given a \TT{.terminator} attribute value
 equal to the line ending {\em line-separator-name} if this exists, or
-equal to {\tt "<NL>"}
+equal to \TT{"<NL>"}
 if there is no line ending {\em line-separator-name}.
 
 However, an empty paragraph line with no ending
 {\em line-separator-name} is ignored as if it did not exist.
 
 The paragraph as a whole is converted to a MIN object whose elements
-are the paragraph lines, and whose {\tt .initiator} attribute
+are the paragraph lines, and whose \TT{.initiator} attribute
 is the {\em indentation-mark-name} that introduced the paragraph.
 A paragraph may be empty (have no paragraph lines).
 
 A {\em gluing-indentation-mark-name} is a single mark that may be glued
-to a preceding mark at the end of its line.  For example, `{\tt :}'
-may be glued to `{\tt =}' to make `{\tt =:}'.
+to a preceding mark at the end of its line.  For example, `\TT{:}'
+may be glued to `\TT{=}' to make `\TT{=:}'.
 
 After a gluing indentation mark is split from a previous mark at the end of
 a line, previous tokens are checked to see if they contain
@@ -2582,10 +2582,10 @@ the paragraph if its indentation is less than the paragraph
 indentation, or continuing the current paragraph line if its indentation
 is greater than the paragraph indentation.  Here $N$ is called the
 \key{parser indentation offset}, and is a parser parameter that can be
-changed with the {\tt parser define indentation offset} command.
+changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
 end of the block.  The indentation offsets of the current blocks
-can be printed by the {\tt parser print indentation offset} command.
+can be printed by the \TT{parser print indentation offset} command.
 
 When an {\em indentation-mark-name} is recognized, the current parser
 selector set is saved in a stack and
@@ -2667,19 +2667,19 @@ a {\em closing-named-bracket}.  These have the syntax:
 \end{indpar}
 
 If the {\em named-opening}, {\em named-key-separator}, {\em named-middle},
-and {\em named-closing} are respectively `{\tt <}', `{\tt \#}',
-`{\tt |}', and `{\tt >}', then an example named bracketed subexpression is
+and {\em named-closing} are respectively `\TT{<}', `\TT{\#}',
+`\TT{|}', and `\TT{>}', then an example named bracketed subexpression is
 \begin{center}
-{\tt <h1(2) \# Diamond Lemma|} ~~~\ldots~~~ {\tt |h>}
+\TT{<h1(2) \# Diamond Lemma|} ~~~\ldots~~~ \TT{|h>}
 \end{center}
 
 Here the {\em named-opening-bracket} contains the {\em bracket-name}
-`{\tt h1}' (note `{\tt h}' and `{\tt 1}' are separate lexemes),
-the {\em argument} `{\tt (2)}', and the {\em key} `{\tt Diamond Lemma}',
+`\TT{h1}' (note `\TT{h}' and `\TT{1}' are separate lexemes),
+the {\em argument} `\TT{(2)}', and the {\em key} `\TT{Diamond Lemma}',
 while the {\em named-closing-bracket} contains just an initial
 segment of the {\em bracket-name}.   The initial name segment
 in the {\em named-closing-bracket} may be empty, so
-{\tt |>}, {\tt |h>}, or {\tt |h1>} could all be used as
+\TT{|>}, \TT{|h>}, or \TT{|h1>} could all be used as
 {\em named-closing-brackets} in the above example.
 
 The {\em named-opening}, {\em named-key-separator}, {\em named-middle},
@@ -2689,14 +2689,14 @@ brackets are constructed.  They are specified by a
 \ttkey{parser defined named bracket} parser definition, an example of
 which is:
 \begin{center}
-{\tt parser define named bracket
+\TT{parser define named bracket
      "<"~...~"\#"~...~"|"~...~"|"~...~">" [text]} \ldots
 \end{center}
-which specifies `{\tt <}' to be a {\em named-opening},
-`{\tt \#}' to be a {\em named-key-separator},
-`{\tt |}' to be a {\em named-middle},
-`{\tt >}' to be a {\em named-closing},
-and `{\tt text}' to be the sole definition selector.
+which specifies `\TT{<}' to be a {\em named-opening},
+`\TT{\#}' to be a {\em named-key-separator},
+`\TT{|}' to be a {\em named-middle},
+`\TT{>}' to be a {\em named-closing},
+and `\TT{text}' to be the sole definition selector.
 Recall that as bracketed subexpression recognizer
 symbol table keys,
 {\em named-openings},
@@ -2726,9 +2726,9 @@ The general syntax of {\em parser-named-bracket-commands} is:
 \emkey{named-bracket-name} \\
     \hspace*{0.2in}
      ::= \begin{tabular}[t]{@{}l@{}}
-	 {\em named-opening} [ {\tt ...} {\em named-key-separator} ] \\
-         {}[ {\tt ...} {\em named-middle} {\tt ...} {\em named-middle} ] \\
-	 {\tt ...} {\em named-closing}
+	 {\em named-opening} [ \TT{...} {\em named-key-separator} ] \\
+         {}[ \TT{...} {\em named-middle} \TT{...} {\em named-middle} ] \\
+	 \TT{...} {\em named-closing}
 	 \end{tabular}
 \\[0.5ex]
 \emkey{named-opening} ::= {\em quoted-name}
@@ -2749,42 +2749,42 @@ be identical.
 A named bracketed subexpression is converted to a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
-{\em named-opening} becomes the {\tt .initiator}
+{\em named-opening} becomes the \TT{.initiator}
 attribute of this object, the {\em named-middle} becomes
-the {\tt .middle} attribute of this object,
-the {\em named-closing} becomes the {\tt .terminator} attribute
+the \TT{.middle} attribute of this object,
+the {\em named-closing} becomes the \TT{.terminator} attribute
 of the object, the {\em bracket-name} (from the {\em named-opening-bracket})
 becomes the
-{\tt .name} attribute of the object, the {\em arguments}
-become the {\tt .arguments} attribute of the object,
-and the {\tt keys} become the {\tt .keys} attribute of the object.
-The {\tt .arguments} attribute value is itself a MIN object
+\TT{.name} attribute of the object, the {\em arguments}
+become the \TT{.arguments} attribute of the object,
+and the \TT{keys} become the \TT{.keys} attribute of the object.
+The \TT{.arguments} attribute value is itself a MIN object
 whose list elements are the argument subexpressions formatted
 in the same way as they would be if they were ordinary
 subexpression components.
-The {\tt .keys} attribute is a MIN object whose list elements
-are the individual {\em keys}, and whose {\tt .initiator} and 
-{\tt .separator} attributes are both the {\em named-key-separator}.
+The \TT{.keys} attribute is a MIN object whose list elements
+are the individual {\em keys}, and whose \TT{.initiator} and 
+\TT{.separator} attributes are both the {\em named-key-separator}.
 Every value inside the subexpression object attributes
 that is not a MIN object and not part of an {\em argument}
 is a MIN string or a MIN label with 2 or more
 elements that are MIN strings.
-If there are no {\em arguments}, the {\tt .arguments} attribute
-is not set, and similarly if there are no {\em keys}, the {\tt .keys}
+If there are no {\em arguments}, the \TT{.arguments} attribute
+is not set, and similarly if there are no {\em keys}, the \TT{.keys}
 attribute is not set.
 
 In particular, quoted strings in {\em keys} are converted to
 MIN strings whose values equal the translation strings of the
 quoted string.  Thus the keys
-`{\tt lemma "5.1.1"}' and `{\tt lemma 5.1.1}' become identical
-when stored in the {\tt .keys} attribute of the parser result.
+`\TT{lemma "5.1.1"}' and `\TT{lemma 5.1.1}' become identical
+when stored in the \TT{.keys} attribute of the parser result.
 
 If the {\em named-middle} ends in a mark and the {\em named-closing}
 begins with a mark, the {\em named-middle} may be glued to the
 {\em named-closing} to make a
 {\em named-closing-bracket} with empty {\em bracket-name-initial-segment}.
-Thus in our example the single mark `{\tt |>}' may be used in place of
-the two separate marks `{\tt | >}'.
+Thus in our example the single mark `\TT{|>}' may be used in place of
+the two separate marks `\TT{| >}'.
 
 If a named bracketed subexpression ends pre-maturely, before
 its {\em named-closing-bracket} is discovered, a parsing error is
@@ -2816,12 +2816,12 @@ except that the {\em named-operator} ends with a
 
 A {\em named-operator} is converted to a MIN object which has the
 same structure as a named bracketed subexpression with an empty list
-but with its {\tt .name} attribute equal to
+but with its \TT{.name} attribute equal to
 the {\em operator-name} instead of a {\em bracket-name} and with
-no {\tt .middle} attribute.  As for a named bracketed subexpression,
-the {\tt .initiator} is the {\em named-opening},
-the {\tt .terminator} is the {\em named-closing},
-and the {\tt .arguments} and {\tt .keys} are set from the
+no \TT{.middle} attribute.  As for a named bracketed subexpression,
+the \TT{.initiator} is the {\em named-opening},
+the \TT{.terminator} is the {\em named-closing},
+and the \TT{.arguments} and \TT{.keys} are set from the
 contents of the {\em named-operator} just as they would be from the
 contents of a {\em named-opening-bracket}.
 
@@ -2895,9 +2895,9 @@ by the following parser definitions:
 \\[0.5ex]
 \emkey{parser-pass-stack-location}
     \begin{tabular}[t]{rl}
-    ::= & {\tt after} {\em previous-parser-pass-name} \\
-    $|$ & {\tt before} {\em next-parser-pass-name} \\
-    $|$ & {\tt at end} \\
+    ::= & \TT{after} {\em previous-parser-pass-name} \\
+    $|$ & \TT{before} {\em next-parser-pass-name} \\
+    $|$ & \TT{at end} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-pass-name} ::= {\em simple-name}
@@ -2918,8 +2918,8 @@ cannot be changed.  The following are permitted {\em parser-pass-names}:
     a pass just below it on the stack.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{operator}{parser pass name}\\
-    Parses expressions with computational operators (e.g., \verb|+| and
-    \verb|*|).
+    Parses expressions with computational operators (e.g., \TT{+} and
+    \TT{*}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{lexeme replacement}{parser pass name}\\
     Replaces sequences of lexemes with other
@@ -2932,43 +2932,43 @@ cannot be changed.  The following are permitted {\em parser-pass-names}:
     Recognizes numbers with exponents.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{number pair recognition}{parser pass name}\\
-    Recognizes pairs of numbers (e.g., \verb|4 1/2|).
+    Recognizes pairs of numbers (e.g., \TT{4 1/2}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{number unit grouping}{parser pass name}\\
-    Groups numbers and numeric units (e.g., \verb|4ft 5in|).
+    Groups numbers and numeric units (e.g., \TT{4ft 5in}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{unit multiplication insertion}{parser pass name}\\
     Inserts multipliers between numbers and
-    numeric units (e.g., \verb|4*ft| and \verb|$*4.99|).
+    numeric units (e.g., \TT{4*ft} and \TT{\$*4.99}).
 \end{indpar}
 
-The {\tt parser define pass} statement sets the
+The \TT{parser define pass} statement sets the
 {\em parsing-selectors} of the named parser pass
 and installs that pass in the parser pass stack at the
 location specified.
 If the pass was previously on the stack, it is removed first
 and then re-installed.  The {\em parser-pass-name} and
-{\em next-parser-pass-name} cannot be `{\tt top}'.
+{\em next-parser-pass-name} cannot be `\TT{top}'.
 Any {\em previous-parser-pass-name} or {\em next-parser-pass-name}
 given must name a pass already in the stack that is different from
 the pass being installed.
 
-The {\tt parser undefine pass} statement removes the named
+The \TT{parser undefine pass} statement removes the named
 parser pass from the stack, if it is in the stack, and does
-nothing otherwise.  The `{\tt top}' pass cannot be undefined.
+nothing otherwise.  The `\TT{top}' pass cannot be undefined.
 
-The {\tt parser undefine pass} statement destroys any symbol
+The \TT{parser undefine pass} statement destroys any symbol
 table associated with the pass being undefined.  First undefining and then
 redefining a pass effectively clears this symbol table.  Thus
-first undefining and then redefining the `{\tt operator}' pass
-clears the symbol table set by `{\tt parser define operator \ldots}'
+first undefining and then redefining the `\TT{operator}' pass
+clears the symbol table set by `\TT{parser define operator \ldots}'
 commands.  On the other hand,
-a `{\tt parser define pass operator \ldots}' statement 
-may be used to change the `{\tt operator}' pass selectors or
+a `\TT{parser define pass operator \ldots}' statement 
+may be used to change the `\TT{operator}' pass selectors or
 position in the pass stack without clearing the operator symbol
 table.
 
-The {\tt parser print pass} statement prints the parser pass stack passes
+The \TT{parser print pass} statement prints the parser pass stack passes
 with their associated selectors.
 
 The input and output of a parser pass is a sublist of the list
@@ -2979,7 +2979,7 @@ The pass is responsible for calling the next pass down in the parser
 pass stack, and may edit the sublist before and/or after calling
 this next pass.
 
-The bracketed subexpression pass, also known as the `{\tt top}' pass,
+The bracketed subexpression pass, also known as the `\TT{top}' pass,
 is the first pass called for each
 top level input line, recognizes bracketed subexpressions,
 calls the next active lower pass for each bracketed subexpression,
@@ -2991,7 +2991,7 @@ and then replaces the bracketed subexpression by a single MIN object.
 The \key{operator parsing pass} is an expression parser pass that uses
 operators to restructure expressions.  Operators
 are defined by operator definitions that can be added to the
-parsing definition stack.  List separators, such as `\verb|,|', are treated
+parsing definition stack.  List separators, such as `\TT{,}', are treated
 as operators, and have operator definitions.
 
 {\em Parser-operator-commands} modify and print
@@ -3027,8 +3027,8 @@ The syntax of operator definitions is:
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
 	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
-	    \verb|with precedence| {\em precedence} \\
-	    {}[ \verb|with|
+	    \TT{with precedence} {\em precedence} \\
+	    {}[ \TT{with}
 	                   \begin{tabular}[t]{l}
 			   \tt reformatter \\
 			   ~~~~ {\em reformatter-name} \\
@@ -3039,14 +3039,14 @@ The syntax of operator definitions is:
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
 	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
-	    \verb|with precedence| {\em precedence} \\
+	    \TT{with precedence} {\em precedence} \\
 	    \end{tabular} \\
     \end{tabular}
 \\[1ex]
 \emkey{operator-name} \begin{tabular}[t]{rl}
 		    ::= & {\em simple-operator-name} \\
-		    $|$ & \verb|bracket| {\em bracket-name} \\
-		    $|$ & \verb|indentation mark| {\em indentation-mark-name}
+		    $|$ & \TT{bracket} {\em bracket-name} \\
+		    $|$ & \TT{indentation mark} {\em indentation-mark-name}
 		    \end{tabular}
 \\[1ex]
 {\em simple-operator-name} ::= {\em quoted-name} \\[1ex]
@@ -3060,14 +3060,14 @@ The syntax of operator definitions is:
 	\\[1ex]
 \emkey{precedence} ::= {\em sign-option} {\em natural-number}
 	\\[1ex]
-\emkey{sign-option} ::= {\em empty} $|$ \verb|+| $|$ \verb|-|
+\emkey{sign-option} ::= {\em empty} $|$ \TT{+} $|$ \TT{-}
 	\\[1ex]
 \emkey{reformatter-name} ::= {\em simple-name } \\
 \emkey{reformatter-arguments} \begin{tabular}[t]{@{}rl}
-			      ::= & {\em empty} $|$ {\tt ()} \\
-			      $|$ & {\tt (} {\em reformatter-argument} \\
-			          & ~~~~ \{ {\tt ,} {\em reformatter-argument}
-				         \}$^\star$ {\tt )} \\
+			      ::= & {\em empty} $|$ \TT{()} \\
+			      $|$ & \TT{(} {\em reformatter-argument} \\
+			          & ~~~~ \{ \TT{,} {\em reformatter-argument}
+				         \}$^\star$ \TT{)} \\
 			      \end{tabular} \\
 \emkey{reformatter-argument} ::= {\em quoted-name}
 \end{indpar}
@@ -3076,10 +3076,10 @@ A {\em simple-operator-name} is matched to lexemes in a subexpression
 in order to identify occurrences of the operator.
 The other forms of {\em operator-name} permit bracketed subexpressions
 with particular kinds of brackets to be parsed as if they were operators.
-Thus in `\verb|x[5]=0|' the bracketed subexpression
-`\verb|[5]|' can be a postfix operator.  A subexpression
-bracketed by `\verb|{ }|' is used as an afix (see below) to the
-\verb|<--| operator (as is a subexpression introduced by the `\verb|:|'
+Thus in `\TT{x[5]=0}' the bracketed subexpression
+`\TT{[5]}' can be a postfix operator.  A subexpression
+bracketed by `\TT{\{ \}}' is used as an afix (see below) to the
+\TT{<-{}-} operator (as is a subexpression introduced by the `\TT{:}'
 indentation mark).
 
 By abuse of language, the term `\key{operator}' is often used
@@ -3087,8 +3087,8 @@ as a synonym for `{\em simple-operator-name}'.
 
 Operators have \skey{operator flag}s that
 affect parsing of subexpressions of the operator.  The possible
-flags are `{\tt infix}', `{\tt prefix}', `{\tt postfix}',
-`{\tt nofix}', and `{\tt afix}'.  An operator must have at least
+flags are `\TT{infix}', `\TT{prefix}', `\TT{postfix}',
+`\TT{nofix}', and `\TT{afix}'.  An operator must have at least
 one of these flags.
 
 An \ttkey{infix} operator must be between two non-empty operands,
@@ -3105,9 +3105,9 @@ an expression, or two nofix operators may be consecutive in an expression.
 
 An \ttkey{afix} operator\label{AFIX-OPERATOR} must follow
 another operator that has the same precedence in a subexpression.
-Subexpressions bracketed by `\verb|{ }|'
+Subexpressions bracketed by `\TT{\{ \}}'
 are standard afix operators with the same precedence
-as the \verb|<--| operator, so that an expression such as:
+as the \TT{<-{}-} operator, so that an expression such as:
 \begin{center}
 \verb|sum from X through Y <-- integer X, integer Y { ... }|
 \end{center}
@@ -3159,21 +3159,21 @@ precedence.
 The {\em reformatter-name} in an {\em operator-definition} names a
 function that is called after all other parsing has been done to
 reformat a subexpression whose first operator is the defined operator.
-For example, given the expression `\verb|-x+6*y|', the subexpression
-`\verb|6*y|' is extracted, and as its first operator is `\verb|*|',
-the reformatter for that operator is called and yields `\verb|* 6 y|'.
-Similarly the subexpression `\verb|-x|' is extracted but the reformatter
-for `\verb|-|' does not change `\verb|-x|'.
-Then the reformatter for `\verb|+|' is called
-with `\verb/[. -x .]+[. * 6 y .]/', since `\verb|+|' is the first operator in
+For example, given the expression `\TT{-x+6*y}', the subexpression
+`\TT{6*y}' is extracted, and as its first operator is `\TT{*}',
+the reformatter for that operator is called and yields `\TT{* 6 y}'.
+Similarly the subexpression `\TT{-x}' is extracted but the reformatter
+for `\TT{-}' does not change `\TT{-x}'.
+Then the reformatter for `\TT{+}' is called
+with `\TT{[. -x .]+[. * 6 y .]}', since `\TT{+}' is the first operator in
 this subexpression \underline{after} subexpressions have been handled.
-This reformatter returns `\verb/+ [. -x .] [. * 6 y .]/'.  Here we have
-use parentheses \verb/[. .]/ to indicate implicit parentheses.
+This reformatter returns `\TT{+ [. -x .] [. * 6 y .]}'.  Here we have
+use parentheses \TT{[. .]} to indicate implicit parentheses.
 
 The optional {\em reformatter-arguments} are arguments to the reformatter
-function.  For example, the `{\tt summation}' reformatter takes two
-arguments, `{\tt (} {\em plus-op}{\tt ,} {\em minus-op} {\tt )}', which
-are usually `{\tt ("+","-")}'.
+function.  For example, the `\TT{summation}' reformatter takes two
+arguments, `\TT{(} {\em plus-op}\TT{,} {\em minus-op} \TT{)}', which
+are usually `\TT{("+","-")}'.
 
 \subsubsection{The Print Operator Command}
 
@@ -3214,22 +3214,22 @@ The standard operators are given on
 
 precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
-0000	& \ttkey{declare}	& \tt nofix	& \ttkey{<--}	& define \\
-	&			& \tt afix	& \ttkey{\{ ... \}} & block \\
-1000	& \tt \bf right		& \tt infix	& \ttkey{=}	& assignment \\
-     	& \tt \bf associative\ttindex{right associative}
+0000	& \ttkey{declare}	& \TT{nofix}	& \ttkey{<-{}-}	& define \\
+	&			& \TT{afix}	& \ttkey{\{ ... \}} & block \\
+1000	& \TT{right}		& \TT{infix}	& \ttkey{=}	& assignment \\
+     	& \TT{associative\ttindex{right associative}}
 				&          	& \ttkey{+=}	& increment \\
      	&               	&          	& \ttkey{-=}	& decrement \\
      	&               	&          	& \ttkey{*=}	& multiply by \\
      	&               	&          	& \ttkey{/=}	& divide by \\
-2000	& \ttkey{separator}	& \tt nofix	& \ttkey{,}	& separator \\
-3000	& \ttkey{binary}	& \tt nofix	& \ttkey{BUT NOT}
+2000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{,}	& separator \\
+3000	& \ttkey{binary}	& \TT{nofix}	& \ttkey{BUT NOT}
 								& logical and
 								  not \\
-3100	& \ttkey{infix}		& \tt infix	& \ttkey{AND}	& logical and \\
+3100	& \ttkey{infix}		& \TT{infix}	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
-3100	& \ttkey{unary}		& \tt prefix	& \ttkey{NOT}	& logical not \\
-4000 	& \ttkey{infix and}	& \tt infix	& \ttkey{==}	& equal \\
+3100	& \ttkey{unary}		& \TT{prefix}	& \ttkey{NOT}	& logical not \\
+4000 	& \ttkey{infix and}	& \TT{infix}	& \ttkey{==}	& equal \\
 	&			&		& \ttkey{/=}  & not equal \\
 	&			&		& \ttkey{!=}	& ditto \\
 	&		      	&		& \ttkey{<}	& less than \\
@@ -3241,16 +3241,16 @@ precedence & reformatter	& type	& operator	& meaning
 	&			&		& \TT{>=}	& greater than
 								  or equal \\
 	&			&		& \TT{=>}	& ditto \\
-5000	& \ttkey{sum}		& \tt infix	&  \TT{+}	& addition \\
+5000	& \ttkey{sum}		& \TT{infix}	&  \TT{+}	& addition \\
 	&			&		& \TT{-}	& subtraction \\
-5100	& \ttkey{binary}	& \tt infix	& \TT{/}	& division \\
-5200	& \ttkey{infix}		& \tt infix	& \TT{*}
+5100	& \ttkey{binary}	& \TT{infix}	& \TT{/}	& division \\
+5200	& \ttkey{infix}		& \TT{infix}	& \TT{*}
 							& multiplication \\
-5300	& \ttkey{binary}	& \tt infix	& \TT{\^{ }}
+5300	& \ttkey{binary}	& \TT{infix}	& \TT{\^{ }}
 							& exponentiation \\
-10000	& 			& \tt prefix	&  \TT{-}	& minus \\
-	& 			& \tt prefix	&  \TT{+}	& plus \\
-	& 			& \tt prefix	&  \TT{@}	& object
+10000	& 			& \TT{prefix}	&  \TT{-}	& minus \\
+	& 			& \TT{prefix}	&  \TT{+}	& plus \\
+	& 			& \TT{prefix}	&  \TT{@}	& object
 	                                                          identifier \\
 \end{tabular}
 \end{center}
@@ -3262,29 +3262,29 @@ Below we describe the effects of standard operator reformatters.
 We use notation such as
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x = y = z + w| & $\Longrightarrow$ & \verb|= x ( = y (+ x w))| \\
-\verb|x AND y OR z| & $\Longrightarrow$ & error
+\TT{x = y = z + w} & $\Longrightarrow$ & \TT{= x ( = y (+ x w))} \\
+\TT{x AND y OR z} & $\Longrightarrow$ & error
 \end{tabular}
 
 Here $\Longrightarrow$ means `is reformatted as'.  Furthermore, the
 parentheses introduced by the rewrite are \underline{implied},
 which means that the lists they bracket have \underline{no}
-\verb|.initiator| or \verb|.terminator|, and the parentheses are
+\TT{.initiator} or \TT{.terminator}, and the parentheses are
 merely written here to indicate sublists in the expression structure.
 
 Reformatters can detect parsing errors, such the fact that both
-operators in `\verb|x AND y OR z|' are not identical (when both are
+operators in `\TT{x AND y OR z}' are not identical (when both are
 infix operators with the same precedence).
 
 Note that what would be parsing errors in some other parsing systems
 are not in this system.  For example,
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x AND AND y| & $\Longrightarrow$ & \verb|AND x (AND y)| \\
+\TT{x AND AND y} & $\Longrightarrow$ & \TT{AND x (AND y)} \\
 \end{tabular}
 
-because the second {\tt AND} is not considered to be an operator and
-`{\tt AND y}' is considered to be a valid subexpression that might be
+because the second \TT{AND} is not considered to be an operator and
+`\TT{AND y}' is considered to be a valid subexpression that might be
 a variable name.  If this does not name anything, a naming error should
 be detected, but this is not a parsing error.
 
@@ -3293,13 +3293,13 @@ the bracketed subexpression recognition pass merges the brackets
 it finds into a list returned by a reformatter.
 If the bracketed subexpression recognition pass
 would otherwise
-return a list (with {\tt .initiator} or {\tt .terminator}) that has a single
-element which is a list without an {\tt .initiator} or
-{\tt .terminator}, then instead of forming the outer list,
+return a list (with \TT{.initiator} or \TT{.terminator}) that has a single
+element which is a list without an \TT{.initiator} or
+\TT{.terminator}, then instead of forming the outer list,
 the bracketed subexpression recognition
 pass copies its attributes to the inner list.
 
-Thus given `\verb|(x,y)|', the `\verb|separator|'
+Thus given `\TT{(x,y)}', the `\TT{separator}'
 reformatter will return
 \begin{indpar}\begin{verbatim}
 @1 = x y {| .separator = "," |}
@@ -3323,7 +3323,7 @@ are introduced by reformatting.  The syntax involving temporaries is:
 
 \begin{indpar}
 \emkey{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
-\emkey{temporary} ::= \verb|$| {\em natural-number}
+\emkey{temporary} ::= \TT{\$} {\em natural-number}
 \end{indpar}
 
 During reformatting, a subexpression may be replaced by
@@ -3333,11 +3333,11 @@ Then the {\em temporary} can be used in the reformatted
 expression to refer to this value.  An example is
 
 \begin{center}
-\verb|x == y + 3 == z| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (== x ($ 563 (+ y 3))) (== ($ 563) z)|
+\TT{x == y + 3 == z} ~~~ $\Longrightarrow$ ~~~
+\TT{AND (== x (\$ 563 (+ y 3))) (== (\$ 563) z)}
 \end{center}
 
-Here the temporary has been used to avoid computing \verb|y + 3|
+Here the temporary has been used to avoid computing \TT{y + 3}
 more than once.
 
 The {\em decimal-naturals} in {\em temporaries} must be assigned so no
@@ -3355,7 +3355,7 @@ With these things in mind, the reformatters are:
 \ttmkey{separator}{reformatter} \hfill \OP{;} ~~~ \OP{,}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt nofix} operators.
+May only be used with \TT{nofix} operators.
 
 There must be at least one operator, and all operator values must
 be identical.  Necessarily any two operands are separated by an operator,
@@ -3366,26 +3366,26 @@ infix.  Then the operators are deleted, the resulting list of
 operands is given a \ttmkey{.separator}{produced by parsing}
 attribute with value of the operator token,
 and this is returned as the result of the reformatting.  Examples
-with `{\tt ,}' as the operator are:
+with `\TT{,}' as the operator are:
 
 \hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
-\verb|x , y| & $\Longrightarrow$ & \verb|x y|
-					& with {\tt .separator} {\tt ","} \\
-\verb|, y| & $\Longrightarrow$ & \verb|() y|
-					& with {\tt .separator} {\tt ","} \\
-\verb|x ,| & $\Longrightarrow$ & \verb|x ()|
-					& with {\tt .separator} {\tt ","} \\
-\verb|x ,, y| & $\Longrightarrow$ & \verb|x () y|
-					& with {\tt .separator} {\tt ","} \\
+\TT{x , y} & $\Longrightarrow$ & \TT{x y}
+					& with \TT{.separator} \TT{","} \\
+\TT{, y} & $\Longrightarrow$ & \TT{() y}
+					& with \TT{.separator} \TT{","} \\
+\TT{x ,} & $\Longrightarrow$ & \TT{x ()}
+					& with \TT{.separator} \TT{","} \\
+\TT{x ,, y} & $\Longrightarrow$ & \TT{x () y}
+					& with \TT{.separator} \TT{","} \\
 \end{tabular}
 \end{indpar}
 
 \bigskip
 
-\ttmkey{declare}{reformatter} \hfill \NBOP{<--} ~~~ \NBOP{\{\}} ~~~ \OP{:}
+\ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \NBOP{\{\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt nofix}, {\tt prefix}, or {\tt infix} operators.
+May only be used with \TT{nofix}, \TT{prefix}, or \TT{infix} operators.
 
 
 All operators but the first must be bracketed subexpressions,
@@ -3400,31 +3400,31 @@ bracketed operators are converted to operands.
 Indented subexpressions are treated as bracketed subexpressions and
 may be bracketed operators.
 
-For example, if \verb|<--| is a nofix operator with this reformatter, and
-\verb|{ }| bracketed subexpressions and \verb|:| indented subexpressions
+For example, if \TT{<-{}-} is a nofix operator with this reformatter, and
+\TT{\{ \}} bracketed subexpressions and \TT{:} indented subexpressions
 are afix operators of the same precedence:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x <-- y { z }| & $\Longrightarrow$ & \verb|<-- x y { z }| \\
-\verb|x <-- { z }| & $\Longrightarrow$ & \verb|<-- x () { z }| \\
-\verb|<-- y { z }| & $\Longrightarrow$ & \verb|<-- () y { z }| \\
-\verb|x <--| & $\Longrightarrow$ & \verb|<-- x ()|
+\TT{x <-{}- y \{ z \}} & $\Longrightarrow$ & \TT{<-{}- x y \{ z \}} \\
+\TT{x <-{}- \{ z \}} & $\Longrightarrow$ & \TT{<-{}- x () \{ z \}} \\
+\TT{<-{}- y \{ z \}} & $\Longrightarrow$ & \TT{<-{}- () y \{ z \}} \\
+\TT{x <-{}-} & $\Longrightarrow$ & \TT{<-{}- x ()}
 \\[1ex]
 \begin{tabular}{@{}l@{}}
-\verb|x <-- u v w:| \\
-\verb|    z|
+\TT{x~<-{}-~u v w:} \\
+\TT{~~~~~~z}
 \end{tabular}
 & $\Longrightarrow$ &
 \begin{tabular}{@{}l@{}}
-\verb|<-- x ( u v w ):| \\
-\verb|    z|
+\TT{<-{}- x ( u v w ):} \\
+\TT{~~~~z}
 \end{tabular}
 \end{tabular}
 
-Note that because \verb|{ }| bracketed subexpressions are afix operators
-with same precedence as \verb|<--|,
-`\verb|x <-- y { z }|' does \underline{not}
-end up as `\verb|<-- x ( y { z } )|'.
+Note that because \TT{\{ \}} bracketed subexpressions are afix operators
+with same precedence as \TT{<-{}-},
+`\TT{x <-{}- y \{ z \}}' does \underline{not}
+end up as `\TT{<-{}- x ( y \{ z \} )}'.
 
 \end{indpar}
 
@@ -3435,7 +3435,7 @@ end up as `\verb|<-- x ( y { z } )|'.
     \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt infix} operators.
+May only be used with \TT{infix} operators.
 
 Therefore operands and operators alternate,
 with the first and last subexpression
@@ -3443,13 +3443,13 @@ elements being operands, and there is at least one operator.
 
 If there is only one operator, it is simply moved to the front.  If there
 are several, they are rewritten as one operator subexpressions so the
-rightmost executes first.  Thus if {\tt =}, {\tt +=}, and {\tt *=}
+rightmost executes first.  Thus if \TT{=}, \TT{+=}, and \TT{*=}
 are all infix operators of the same precedence with this reformatter:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|y = z| & $\Longrightarrow$ & \verb|= y z| \\
-\verb|x = y = z| & $\Longrightarrow$ & \verb|= x (= y z)| \\
-\verb|x += y *= z| & $\Longrightarrow$ & \verb|+= x (*= y z)| \\
+\TT{y = z} & $\Longrightarrow$ & \TT{= y z} \\
+\TT{x = y = z} & $\Longrightarrow$ & \TT{= x (= y z)} \\
+\TT{x += y *= z} & $\Longrightarrow$ & \TT{+= x (*= y z)} \\
 \end{tabular}
 \end{indpar}
 
@@ -3459,17 +3459,17 @@ are all infix operators of the same precedence with this reformatter:
     \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{@}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt nofix} or {\tt prefix} operators.
+May only be used with \TT{nofix} or \TT{prefix} operators.
 
 The subexpression must have exactly two elements, an operator followed
 by an operand.  The subexpression is left unchanged.  Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|NOT x| & $\Longrightarrow$ & \verb|NOT x| \\
-\verb|x NOT| & $\Longrightarrow$ & error \\
-\verb|x NOT y| & $\Longrightarrow$ & error \\
-\verb|NOT NOT x| & $\Longrightarrow$ & error \\
-\verb|- x y| & $\Longrightarrow$ & error \\
+\TT{NOT x} & $\Longrightarrow$ & \TT{NOT x} \\
+\TT{x NOT} & $\Longrightarrow$ & error \\
+\TT{x NOT y} & $\Longrightarrow$ & error \\
+\TT{NOT NOT x} & $\Longrightarrow$ & error \\
+\TT{- x y} & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
@@ -3479,22 +3479,22 @@ by an operand.  The subexpression is left unchanged.  Examples:
 					           ~~~ \NBOP{\^{ }}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt nofix} or {\tt infix} operators.
+May only be used with \TT{nofix} or \TT{infix} operators.
 
 The subexpression must have exactly three elements, an operand
 followed by an operator followed by an operand.  The operator is moved
 to the beginning of the expression.  Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x BUT NOT y| & $\Longrightarrow$ & \verb|BUT NOT x y| \\
-\verb|x / y| & $\Longrightarrow$ & \verb|/ x y| \\
-\verb|x ^ y| & $\Longrightarrow$ & \verb|^ x y| \\
-\verb|x / y / z| & $\Longrightarrow$ & error \\
-\verb|/ y| & $\Longrightarrow$ & error \\
-\verb|x /| & $\Longrightarrow$ & error \\
+\TT{x BUT NOT y} & $\Longrightarrow$ & \TT{BUT NOT x y} \\
+\TT{x / y} & $\Longrightarrow$ & \TT{/ x y} \\
+\TT{x \^{ } y} & $\Longrightarrow$ & \TT{\^{ } x y} \\
+\TT{x / y / z} & $\Longrightarrow$ & error \\
+\TT{/ y} & $\Longrightarrow$ & error \\
+\TT{x /} & $\Longrightarrow$ & error \\
 \end{tabular}
 
-Note that in these examples `{\tt BUT NOT}' is a single label element
+Note that in these examples `\TT{BUT NOT}' is a single label element
 of the resulting subexpression,
 and \underline{not} two word elements of the subexpression.
 \end{indpar}
@@ -3504,7 +3504,7 @@ and \underline{not} two word elements of the subexpression.
 \ttmkey{infix}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{*}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt infix} operators.
+May only be used with \TT{infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
 elements being operands, there must be at least one operator, and all
@@ -3513,28 +3513,28 @@ front of the subexpression, and the other operators are removed.
 Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x AND y| & $\Longrightarrow$ & \verb|AND x y| \\
-\verb|x AND y AND z| & $\Longrightarrow$ & \verb|AND x y z| \\
-\verb|x OR y| & $\Longrightarrow$ & \verb|OR x y| \\
-\verb|x OR y OR z| & $\Longrightarrow$ & \verb|OR x y z| \\
-\verb|x * y| & $\Longrightarrow$ & \verb|* x y| \\
-\verb|x * y * z| & $\Longrightarrow$ & \verb|* x y z| \\
-\verb|AND y AND z| & $\Longrightarrow$ & error \\
-\verb|x AND AND z| & $\Longrightarrow$ & error \\
-\verb|x AND y AND| & $\Longrightarrow$ & error \\
+\TT{x AND y} & $\Longrightarrow$ & \TT{AND x y} \\
+\TT{x AND y AND z} & $\Longrightarrow$ & \TT{AND x y z} \\
+\TT{x OR y} & $\Longrightarrow$ & \TT{OR x y} \\
+\TT{x OR y OR z} & $\Longrightarrow$ & \TT{OR x y z} \\
+\TT{x * y} & $\Longrightarrow$ & \TT{* x y} \\
+\TT{x * y * z} & $\Longrightarrow$ & \TT{* x y z} \\
+\TT{AND y AND z} & $\Longrightarrow$ & error \\
+\TT{x AND AND z} & $\Longrightarrow$ & error \\
+\TT{x AND y AND} & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
 \bigskip
 
-\ttmkey{infix and}{reformatter} {\tt (} {\em and\_op} {\tt )} \hfill
+\ttmkey{infix and}{reformatter} \TT{(} {\em and\_op} \TT{)} \hfill
 	\NBOP{==} ~~~ \NBOP{<} ~~~ \NBOP{>} ~~~
 	\NBOP{/=} ~~~ \NBOP{!=} ~~~
 	\NBOP{=>} ~~~ \NBOP{>=} ~~~
 	\NBOP{=<} ~~~ \NBOP{<=}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt infix} operators.
+May only be used with \TT{infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
 elements being operands, and there must be at least one operator.
@@ -3543,51 +3543,51 @@ the expression is rewritten so the operators become two-argument functions
 whose values are combined by a multi-argument {\em and\_op} and whose
 shared operands are represented by temporaries (\pagref{TEMPORARY})
 to avoid computing an operand twice. 
-Examples in which \verb|<|, \verb|==|, \verb|!=|, and \verb|<=| all have
-the same precedence and this reformatter with {\em and\_op} being `{\tt AND}':
+Examples in which \TT{<}, \TT{==}, \TT{!=}, and \TT{<=} all have
+the same precedence and this reformatter with {\em and\_op} being `\TT{AND}':
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x < y < z| & $\Longrightarrow$ &
-    \verb|AND (< x ($ 56 y)) (< ($ 56) z))| \\[1ex]
-\verb|w == x != y <= z| & $\Longrightarrow$
+\TT{x < y < z} & $\Longrightarrow$ &
+    \TT{AND (< x (\$ 56 y)) (< (\$ 56) z))} \\[1ex]
+\TT{w == x != y <= z} & $\Longrightarrow$
              & \begin{tabular}[t]{@{}l@{~}l@{}}
-	       \verb|AND| & \verb|(== w ($ 57 x))| \\
-			  & \verb|(!= ($ 57) ($ 58 y))| \\
-			  & \verb|(<= ($ 58) z)| \\
+	       \TT{AND} & \TT{(== w (\$ 57 x))} \\
+			  & \TT{(!= (\$ 57) (\$ 58 y))} \\
+			  & \TT{(<= (\$ 58) z)} \\
 	       \end{tabular}
 \end{tabular}
 
 Note that sequences of comparison operators are treated as they are
 in mathematics and not as they are in classical programming languages.
-E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
-\verb|(x<y)<z|.
+E.g., \TT{x<y<z} means \TT{x<y AND y<z} and \underline{not}
+\TT{(x<y)<z}.
 \end{indpar}
 
 \bigskip
 
-\ttmkey{sum}{reformatter} {\tt (} {\em plus\_op} {\em minus\_op} {\tt )}
+\ttmkey{sum}{reformatter} \TT{(} {\em plus\_op} {\em minus\_op} \TT{)}
 			  \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
-May only be used with {\tt infix} operators.
+May only be used with \TT{infix} operators.
 
 Operands and operators must alternate, with the last subexpression
 element being an operand, and there must be at least one operator.
 The operators must be either {\em plus\_op} or {\em minus\_op}.
 
 Every `{\em minus\_op} {\em operand}' is rewritten as
-`{\em plus\_op} {\tt (} {\em minus\_op} {\em operand} {\tt )}'.
+`{\em plus\_op} \TT{(} {\em minus\_op} {\em operand} \TT{)}'.
 Then the first {\em plus\_op} is moved to the front and the other
 {\em plus\_op}'s are removed.
 
-For example, if {\em plus\_op} is `\verb|+|' and {\em minus\_op} is
-`\verb|-|' and both these operators are infix with the same precedence
+For example, if {\em plus\_op} is `\TT{+}' and {\em minus\_op} is
+`\TT{-}' and both these operators are infix with the same precedence
 and this reformatter:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|x + y| & $\Longrightarrow$ & \verb|+ x y| \\
-\verb|x - y| & $\Longrightarrow$ & \verb|+ x (- y)| \\
-\verb|x - y + z - w| & $\Longrightarrow$ & \verb|+ x (- y) z (- w)| \\
+\TT{x + y} & $\Longrightarrow$ & \TT{+ x y} \\
+\TT{x - y} & $\Longrightarrow$ & \TT{+ x (- y)} \\
+\TT{x - y + z - w} & $\Longrightarrow$ & \TT{+ x (- y) z (- w)} \\
 \end{tabular}
 
 \end{indpar}
@@ -3609,25 +3609,25 @@ To do this it performs the following steps:
 \begin{itemlist}[0.7in]
 \item[Step 1:] Identify subexpressions within the expression and run the
 operator parsing pass on these, converting them into a single
-{\tt BRACKETABLE} or lexeme token.
+\TT{BRACKETABLE} or lexeme token.
 \item[Step 2:] Identify operators within the expression and replace them
-with {\tt OPERATOR} tokens.
+with \TT{OPERATOR} tokens.
 \item[Step 3:] If no operators were found in the expression,
 run any passes subsequent to the operator parsing pass on the expression,
 and then if the expression (after running the subsequent passes)
 has zero or more than one
-token, replace the expression by a single {\tt BRACKETABLE} token listing the
+token, replace the expression by a single \TT{BRACKETABLE} token listing the
 tokens of the expression.
 
 If operators were found in the expression,
 run the reformatter of the first operator
 in the expression.  This replaces the expression by a single
-{\tt BRACKETABLE} or lexeme token.
+\TT{BRACKETABLE} or lexeme token.
 If no reformatter is provided by the first operator, a default
-reformatter is run that replaces the expression by a single {\tt BRACKETABLE}
-token whose value has the operator label as its {\tt .operator} attribute.
+reformatter is run that replaces the expression by a single \TT{BRACKETABLE}
+token whose value has the operator label as its \TT{.operator} attribute.
 
-After this step the expression is always a single {\tt BRACKETABLE} or
+After this step the expression is always a single \TT{BRACKETABLE} or
 lexeme token.
 \end{itemlist}
 
@@ -3635,32 +3635,32 @@ The token list at the point where Step 3 is about to execute
 obeys the following requirements:
 \begin{itemlist}[1.3in]
 \item[Requirement 1:] 
-All the {\tt OPERATOR} tokens in the token list are for operators
+All the \TT{OPERATOR} tokens in the token list are for operators
 with the same precedence.  Furthermore, if $P$ is this precedence, and
-$P'$ is the precedence of operators in an {\tt BRACKETABLE} token of the list,
+$P'$ is the precedence of operators in an \TT{BRACKETABLE} token of the list,
 then either $P<P'$ or all of the following are true:
 \begin{itemize}
 \item[(a)] $P=P'$
 \item[(b)] The token list contains only two members, an operator and
-a {\tt BRACK\-ET\-ABLE} token operand.
+a \TT{BRACK\-ET\-ABLE} token operand.
 \item[(c)] Either the token list and the operand both begin with a prefix
 operator, or both end with a postfix operator.
 \end{itemize}
 \item[Requirement 2:] 
-The list does \underline{not} contain two consecutive non-{\tt OPERATOR} tokens.
+The list does \underline{not} contain two consecutive non-\TT{OPERATOR} tokens.
 \item[Requirement 3:] 
-The first {\tt OPERATOR} token in the list is not afix.
+The first \TT{OPERATOR} token in the list is not afix.
 \item[Requirement 4:] 
-If the list contains a prefix {\tt OPERATOR} token, that is the first
+If the list contains a prefix \TT{OPERATOR} token, that is the first
 token in the list, and it is followed in the list by a
-non-{\tt OPERATOR} token.
+non-\TT{OPERATOR} token.
 \item[Requirement 5:] 
-All infix {\tt OPERATOR} tokens in the list are both preceded by and
-followed by non-{\tt OPERATOR} tokens.
+All infix \TT{OPERATOR} tokens in the list are both preceded by and
+followed by non-\TT{OPERATOR} tokens.
 \item[Requirement 6:] 
-If the list contains a postfix {\tt OPERATOR} token, that is the last
+If the list contains a postfix \TT{OPERATOR} token, that is the last
 token in the list, and it is preceded in the list by a
-non-{\tt OPERATOR} token.
+non-\TT{OPERATOR} token.
 \end{itemlist}
 
 A single
@@ -3669,13 +3669,13 @@ thought of as the equivalent of one of the following:
 \begin{itemize}
 \item[(a)] If the token is not a quoted string, and therefore
 has a token value that is a MIN string, the token is equivalent to
-a single {\tt BRACKETABLE} token whose token value is a MIN object
-with no {\tt .separator} attribute whose only element is this MIN string.
+a single \TT{BRACKETABLE} token whose token value is a MIN object
+with no \TT{.separator} attribute whose only element is this MIN string.
 \item[(b)] If the token is a quoted string, the token is equivalent to
-a single {\tt BRACKETED} token whose token value
+a single \TT{BRACKETED} token whose token value
 is a MIN object with one element equal to the
 token value converted to a MIN string and with
-an {\tt .initiator} attribute equal to {\tt "}.
+an \TT{.initiator} attribute equal to \TT{"}.
 \end{itemize}
 When a single lexeme token output from an operator parsing pass
 must be converted to an expression token, it is converted according

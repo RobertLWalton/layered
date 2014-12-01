@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 27, 2014
+November 28, 2014
  
 \end{center}
 
@@ -453,8 +453,8 @@ of the scanner.  For example, if \TT{<H>} appears in a quoted
 string, it may be reported as an erroneous atom of type
 `\TT{unrecognized escape sequence}'.  Otherwise this atom will be processed
 normally; it might, for example, be omitted from the lexeme
-translation or be represented in that translation by the DEL
-character (hex code \TT{7f}).
+translation or be represented in that translation by the Unicode
+Replacement Character (hex code \TT{FFFD}).
 
 \ikey{Instructions}{instruction!in lexical program}
 that are associated with atom patterns contain optional instruction
@@ -470,7 +470,8 @@ components that can do the following:
 \item announce the reduced length atom as an erroneous atom of a given type
 \item change the current lexeme type
 \item change the current lexical table
-\item force the instruction containing atom table to fail to match any atom
+\item force the atom table that contains the instruction
+      to fail to match any atom
 \end{itemize}
 
 An instruction can fail while invoking an atom table or making
@@ -527,25 +528,25 @@ represents a line feed (same as \TT{<LF>}).
 \emkey{symbol} & ::= & {\em word} $|$ {\em mark} $|$ {\em separator}
 	         $|$ {\em natural-number}
 \\[0.3ex]
-\emkey{word} & ::= & {\em word-character} {\em word-character}\,$^\star$ 
+\emkey{word} & ::= & {\em word-prefix-character}\STAR{} \\
+             &     & {\em word-character} {\em word-character}\,\STAR{}
 \\[0.3ex]
-\emkey{mark} & ::= & {\em mark-character} {\em mark-character}\,$^\star$
+\emkey{mark} & ::= & {\em mark-character} {\em mark-character}\,\STAR{}
 \\[0.3ex]
 \emkey{number} & ::= &
-        {\em number-character} {\em number-character}\,$^\star$
+        {\em number-character} {\em number-character}\,\STAR{}
 \\[0.3ex]
-\emkey{natural-number} & ::= & {\em digit} {\em digit}\,$^\star$
+\emkey{natural-number} & ::= & {\em digit} {\em digit}\,\STAR{}
 \\[0.3ex]
 \emkey{quoted-string} & ::= &
-    \TT{"} {\em character-representative}\,$^\star$ \TT{"}
+    \TT{"} {\em character-representative}\,\STAR{} \TT{"}
 \\[0.3ex]
 \emkey{separator} & ::= & {\em separator-character}
 \\[0.3ex]
 \emkey{white-space} & ::= & {\em white-space-character}
-                            {\em white-space-character}\,$^\star$
+                            {\em white-space-character}\,\STAR{}
 \\[2ex]
-\emkey{word-character} & ::= & {\em letter} \\
-		       & $|$ & \TT{'} followed by a letter \\
+\emkey{word-character} & ::= & {\em letter} $|$ \TT{'} followed by a letter \\
 \emkey{letter} & ::= & {\em lower-case-letter} $|$ {\em upper-case-letter} \\
 \emkey{lower-case-letter} & ::= &
                                \TT{a}%
@@ -603,6 +604,9 @@ represents a line feed (same as \TT{<LF>}).
 			    $|$\TT{Y}%
 			    $|$\TT{Z}
 \\[0.3ex]
+\emkey{word-prefix-character} & ::= & \TT{.} followed by a
+                                      \TT{.} or {\em letter}
+\\[0.3ex]
 \emkey{mark-character} & ::= &
                                 \TT{+}%
 		             $|$\TT{-}%
@@ -658,8 +662,11 @@ represents a line feed (same as \TT{<LF>}).
 \\[1.0ex]
 \emkey{character-representative}
     & ::= & {\em graphic-character} \\
-    & $|$ & \TT{<}{\em upper-case-letter}$^+$%
-	    \{\TT{-}{\em upper-case-letter}$^+$\}$^\star$\TT{>} \\
+    & $|$ & \TT{<}{\em character-code}%
+	    \{\TT{-}{\em character-code}\}\QMARK{}\TT{>} \\
+\emkey{character-code} & ::= & {\em character-code-character}\PLUS{} \\
+\emkey{character-code-character} & ::= & {\em upper-case-letter} $|$
+                                         {\em digit} \\
 \emkey{graphic-character} & ::= &
     {\em non-whitespace-non-control-character} \\
 \emkey{angle-brackets} & ::= & \TT{<} $|$ \TT{>}
@@ -682,15 +689,15 @@ The syntax of a lexical program is specified on
 \begin{figure*}[!p]
 \begin{tabular}{l}
 \emkey{name} ::= 
-	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
+	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
 	{\em word}
-	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}$^\star$
+	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
 \end{tabular}
 \\[1ex]
-\begin{tabular}{p{2.2in}rl}
+\begin{tabular}{p{2.0in}rl}
 \emkey{lexical-program} & ::= &
 	\TT{begin} {\em program-name} \TT{lexical program;}\\
-	& &  ~~~~{\em lexical-program-unit}$^\star$ \\
+	& &  ~~~~{\em lexical-program-unit}\STAR{} \\
 	& & \TT{end} {\em program-name} \TT{lexical program};
 \\[1ex]
 \emkey{program-name} & ::= & {\em name}
@@ -701,7 +708,7 @@ The syntax of a lexical program is specified on
 	& $|$ & {\em program-inclusion}
 \\[1ex]
 \emkey{program-inclusion} & ::= & \TT{include} {\em program-name}
-				  {\em remove-clause}$^\star$ \TT{;}
+				  {\em remove-clause}\STAR{} \TT{;}
 \\[1ex]
 \emkey{remove-clause} & ::= & \TT{remove} {\em lexical-table-name} \\
                       & $|$ & \TT{remove} \TT{"}{\em cpat-name}\TT{"}
@@ -714,17 +721,16 @@ The syntax of a lexical program is specified on
 		{\em cpat-expression} \TT{;}
 \\[1ex]
 \emkey{cpat-name} & ::= &
-	\TT{<}{\em letter}$^+$\{\TT{-}{\em letter}$^+$\}$^\star$\TT{>} \\
+	\TT{<}{\em letter}\PLUS{}\{\TT{-}{\em letter}\PLUS{}\}\STAR{}\TT{>} \\
 	\multicolumn{2}{r}{but not} &
-	\TT{<}{\em upper-case-letter}$^+$%
-	\{\TT{-}{\em upper-case-letter}$^+$\}$^\star$\TT{>} \\
+	{\em character-representive} \\
 \\[1ex]
 \emkey{cpat-expression} & ::= &
 	{\em cpat-term}
-	\{ \TT{|} {\em cpat-term} \}$^\star$ \\
+	\{ \TT{|} {\em cpat-term} \}\STAR{} \\
        & $|$ &
 	{\em cpat-term}
-	\{ \TT{\&} {\em cpat-term} \}$^\star$
+	\{ \TT{\&} {\em cpat-term} \}\STAR{}
 \\[1ex]
 \emkey{cpat-term} & ::= & {\em cpat-factor} $|$ \TT{\textasciitilde} {\em cpat-factor}
 \\[1ex]
@@ -740,7 +746,7 @@ The syntax of a lexical program is specified on
 \emkey{lexical-table-definition} & ::= &
 	\TT{begin} {\em lexical-table-name}
 		    {\em lexical-table-kind} \TT{table} \TT{;} \\
-	& &  ~~~~{\em lexical-table-entry}$^\star$ \\
+	& &  ~~~~{\em lexical-table-entry}\STAR{} \\
 	& &  ~~~~{\em default-instruction-group} \\
 	& & \TT{end} {\em lexical-table-name}
 		      {\em lexical-table-kind} \TT{table} \TT{;}
@@ -765,15 +771,20 @@ The syntax of a lexical program is specified on
 	& ::= & {\em atom-pattern} {\em instruction-group} \TT{;} \\
 	& $|$ & {\em atom-pattern} \TT{;}
 \\[1ex]
-\emkey{atom-pattern} & ::= &
-	\TT{"}\{{\em quotable-character}$|${\em cpat-name}\}$^+$\TT{"}
+\emkey{atom-pattern} & ::= & \TT{"}{\em atom-factor}\PLUS{}\TT{"}
+\\[1ex]
+\emkey{atom-factor} & ::= &
+	{\em atom-primary} $|$ {\em atom-primary}\TT{<repeat>}
+\\[1ex]
+\emkey{atom-primary} & ::= & {\em quotable-character} $|$
+                             {\em cpat-name} except \TT{<repeat>}
 \\[1ex]
 \emkey{instruction-group}
 	& ::= & {\em instruction}
-	        \{ \TT{else} {\em instruction} \}$^\star$
+	        \{ \TT{else} {\em instruction} \}\STAR{}
 
 \\[1ex]
-\emkey{instruction} & ::= & {\em instruction-component}$^+$
+\emkey{instruction} & ::= & {\em instruction-component}\PLUS{}
 \\[1ex]
 \emkey{instruction-component}
 	& ::= & \TT{accept} \\
@@ -1016,6 +1027,21 @@ the prefix \TT{<other>} matches any characters not matched by
 any other character pattern $C$ that is an some atom pattern of the form
 \TT{"}$PCR$\TT{"} in the same lexical table.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+
+The special character pattern name
+\TT{<{repeat}>}%
+\index{repeat@{\tt <repeat>}}%
+\label{<REPEAT>}
+can be used in an atom pattern to match zero or more occurences of
+the previous character pattern.  There must be a previous character
+pattern, and that pattern \underline{cannot} be \TT{<other>}.
+The number of repetitions is the maximum number of characters in
+the input that match the previous character pattern.
+As an example use, the atom pattern \TT{"\textbackslash x<hex-digit><repeat>"}
+will recognize an atom consisting of the characters \TT{\textbackslash x}
+followed by one or more characters matching the character pattern
+\TT{<hex-digit>}.  This particular atom pattern will match a C++
+hexadecimal escape sequence.
 
 There must be no sequence of characters that matches the
 {\em atom-patterns} of two distinct {\em lexical-table-entries}
@@ -1276,7 +1302,7 @@ One could also use `\TT{translate to "?"}' to replace the atom
 by a question mark.
 
 If an instruction does not contain any \TT{match}, \TT{translate hex},
-\TT{translate oct}, or \TT{translate to} components, the translation
+\TT{translate oct}, or \TT{trans\-late to} components, the translation
 of an atom defaults to a copy of the atom itself, \underline{after}
 any \TT{keep} component has been used to change the length of the atom.
 
@@ -1793,14 +1819,14 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.6ex]
-\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}$^\star$
+\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}\STAR{}
 \\[0.0ex]
 \emkey{quoted-name-component} ::=
     {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
 \\[0.0ex]
 \emkey{quoted-name} ::=
     \TT{"}{\em quoted-name-component}
-           {\em quoted-name-component}\,$^\star$\TT{"}
+           {\em quoted-name-component}\,\STAR{}\TT{"}
 \\[0.0ex]
 \emkey{partial-name} ::= {\em quoted-name}
 \\[0.6ex]
@@ -1808,13 +1834,13 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \\[0.0ex]
 \emkey{parser-flag-list}
     ::= \TT{[ ]}  $|$ \TT{[} {\em parser-flag}
-          \{ \TT{,} {\em parser-flag} \}\,$^\star$ \TT{]}
+          \{ \TT{,} {\em parser-flag} \}\,\STAR{} \TT{]}
 \\[0.0ex]
 \emkey{parser-flag-modifier-list}
     \begin{tabular}[t]{@{}r@{~}l@{~}l@{}}
     ::= & \TT{[} & {\em parser-flag-op} {\em parser-flag} \\
         &         & \{ \TT{,} {\em parser-flag-op}
-	                        {\em parser-flag} \}\,$^\star$ \TT{]} \\
+	                        {\em parser-flag} \}\,\STAR{} \TT{]} \\
     \end{tabular}
 \\[0.0ex]
 \emkey{parser-flag-op} ::= \TT{+} $|$ \TT{-} $|$ \TT{\^{ }}
@@ -2627,9 +2653,9 @@ a {\em closing-named-bracket}.  These have the syntax:
 \begin{indpar}[0.1in]
 \emkey{opening-named-bracket} ::=
 	\begin{tabular}[t]{@{}l@{~}l@{}}
-	{\em named-opening} & {\em bracket-name} {\em argument}$^\star$ \\
+	{\em named-opening} & {\em bracket-name} {\em argument}\STAR{} \\
 	                    & \{ {\em named-key-separator}
-			       {\em key} \}$^\star$ \\
+			       {\em key} \}\STAR{} \\
 	                    & {\em named-middle} \\
 	\end{tabular}
 \\[0.5ex]
@@ -2644,7 +2670,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 \emkey{named-key-separator} ::= as defined by a
     {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
 \\[0.5ex]
-\emkey{key} ::= {\em key-component} {\em key-component}$^\star$
+\emkey{key} ::= {\em key-component} {\em key-component}\STAR{}
 \\[0.5ex]
 \emkey{key-component} ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
 \\[0.5ex]
@@ -2806,8 +2832,8 @@ except that the {\em named-operator} ends with a
 \begin{indpar}[0.1in]
 \emkey{named-operator} ::=
     \begin{tabular}[t]{@{}l@{~}l@{}}
-    {\em named-opening} & {\em operator-name} {\em argument}$^\star$ \\
-	                & \{ {\em named-key-separator} {\em key} \}$^\star$ \\
+    {\em named-opening} & {\em operator-name} {\em argument}\STAR{} \\
+	                & \{ {\em named-key-separator} {\em key} \}\STAR{} \\
 	                & {\em named-closing} \\
 	 \end{tabular}
 \\[0.5ex]
@@ -3026,7 +3052,7 @@ The syntax of operator definitions is:
     ::= & \ttkey{parser define operator}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
-	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
+	    {\em operator-flag} {\em operator-flag}\,\STAR{} \\
 	    \TT{with precedence} {\em precedence} \\
 	    {}[ \TT{with}
 	                   \begin{tabular}[t]{l}
@@ -3038,7 +3064,7 @@ The syntax of operator definitions is:
     $|$ & \ttkey{parser undefine operator}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
-	    {\em operator-flag} {\em operator-flag}\,$^\star$ \\
+	    {\em operator-flag} {\em operator-flag}\,\STAR{} \\
 	    \TT{with precedence} {\em precedence} \\
 	    \end{tabular} \\
     \end{tabular}
@@ -3067,7 +3093,7 @@ The syntax of operator definitions is:
 			      ::= & {\em empty} $|$ \TT{()} \\
 			      $|$ & \TT{(} {\em reformatter-argument} \\
 			          & ~~~~ \{ \TT{,} {\em reformatter-argument}
-				         \}$^\star$ \TT{)} \\
+				         \}\STAR{} \TT{)} \\
 			      \end{tabular} \\
 \emkey{reformatter-argument} ::= {\em quoted-name}
 \end{indpar}

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Nov  8 06:30:11 EST 2014
+# Date:		Fri Nov 28 18:17:41 EST 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -28,20 +28,25 @@ WFLAGS = -Wall -Wno-char-subscripts
 #
 OPTIMIZE = -O3
 
-PROGRAMS = ll_lexeme_basic_test \
-           ll_lexeme_standard_basic_test \
-           ll_lexeme_standard_test \
-           ll_lexeme_name_string_test \
-           ll_lexeme_c++_test \
-	   ll_parser_input_test \
-	   ll_parser_table_test \
-	   ll_parser_command_test \
-	   ll_parser_bracketed_standard_test \
-	   ll_parser_bracketed_command_test \
-	   ll_parser_oper_standard_test \
-	   ll_parser_oper_command_test
+LEXEME_PROGRAMS = ll_lexeme_basic_test \
+                  ll_lexeme_standard_basic_test \
+                  ll_lexeme_standard_test \
+                  ll_lexeme_name_string_test \
+                  ll_lexeme_c++_test
 
-TESTS = ${PROGRAMS}
+PARSER_PROGRAMS = ll_parser_input_test \
+	          ll_parser_table_test \
+	          ll_parser_command_test \
+	          ll_parser_bracketed_standard_test \
+	          ll_parser_bracketed_command_test \
+	          ll_parser_oper_standard_test \
+	          ll_parser_oper_command_test
+
+PROGRAMS = ${LEXEME_PROGRAMS} ${PARSER_PROGRAMS}
+
+LEXEME_TESTS = ${LEXEME_PROGRAMS}
+PARSER_TESTS = ${PARSER_PROGRAMS}
+TESTS = ${LEXEME_TESTS} ${PARSER_TESTS}
 
 MIN_H =	${MIN}/include/min.h \
         ${MIN}/include/min_parameters.h \
@@ -78,6 +83,8 @@ PARSER_O =	${LEXEME_O} \
 all:		diff ll_lexeme_standard.lex \
 	        ll_lexeme_c++.lex
 
+lexeme_diff:	${LEXEME_TESTS:=.diff}
+parser_diff:	${PARSER_TESTS:=.diff}
 diff:		${TESTS:=.diff}
 
 out:		${PROGRAMS:=.out}

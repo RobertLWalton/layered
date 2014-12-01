@@ -6,7 +6,7 @@ ccb
 cccccccccccccccccccccccccccccccccccb
 //␣Author:␉Bob␣Walton␣(walton@acm.org)␤
 ccccccccccccccccccccccccccccccccccccccb
-//␣Date:␉Fri␣Jun␣24␣08:37:02␣EDT␣2011␤
+//␣Date:␉Sun␣Nov␣30␣23:08:35␣EST␣2014␤
 cccccccccccccccccccccccccccccccccccccb
 //␤
 ccb
@@ -69,6 +69,8 @@ qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
 qqqqqqqqqqqqqqqqqqqXqb
 misplaced␣space␣␌␣here␣and␣␍␣here␤
 wwwwwwwwwhwwwwwhShwwwwhwwwhShwwwwb
+=<9=<8␤
+mmnmmnb
 "premature␣end␣of␣line␤
 qqqqqqqqqqqqqqqqqqqqqqb
 "premature␣end␣of␣file<END-OF-FILE>

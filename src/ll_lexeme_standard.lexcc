@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 25 12:47:27 EST 2013
+// Date:	Sun Nov 30 23:00:19 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -798,7 +798,7 @@ cc			      ( escaped_hex_char );
 cc		         NDL::keep ( 0 );
 cc			 NDL::ret();
 cc		      NDL::ELSE();
-cc		         NDL::accept();
+cc		         NDL::keep ( 1 );
 cc		      NDL::end_dispatch();
 cc
 cc		      NDL::accept();

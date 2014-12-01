@@ -23,10 +23,10 @@ LINE_BREAK: line 4:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 COMMENT: line 5:
-// Date:        Fri Jun 24 08:37:02 EDT 2011
+// Date:        Sun Nov 30 23:08:35 EST 2014
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 5:
-// Date:        Fri Jun 24 08:37:02 EDT 2011
+// Date:        Sun Nov 30 23:08:35 EST 2014
                                             ^
 COMMENT: line 6:
 //
@@ -576,24 +576,39 @@ misplaced space ␌ here and ␍ here
 LINE_BREAK: line 36:
 misplaced space ␌ here and ␍ here
                                  ^
-QUOTED_STRING: "premature␣end␣of␣line": line 37:
-"premature end of line
-^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of line; line 37:
-"premature end of line
-                      ^
+MARK: "=<": line 37:
+=<9=<8
+^^
+NATURAL_NUMBER: "9": line 37:
+=<9=<8
+  ^
+MARK: "=<": line 37:
+=<9=<8
+   ^^
+NATURAL_NUMBER: "8": line 37:
+=<9=<8
+     ^
 LINE_BREAK: line 37:
+=<9=<8
+      ^
+QUOTED_STRING: "premature␣end␣of␣line": line 38:
+"premature end of line
+^^^^^^^^^^^^^^^^^^^^^^
+ERROR: premature end of line; line 38:
 "premature end of line
                       ^
-QUOTED_STRING: "premature␣end␣of␣file": line 38:
+LINE_BREAK: line 38:
+"premature end of line
+                      ^
+QUOTED_STRING: "premature␣end␣of␣file": line 39:
 "premature end of file<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of file; line 38:
+ERROR: premature end of file; line 39:
 "premature end of file<END-OF-FILE>
                       ^
-END_OF_FILE: line 38:
+END_OF_FILE: line 39:
 "premature end of file<END-OF-FILE>
                       ^
-ERROR: line break missing from end of file; line 38:
+ERROR: line break missing from end of file; line 39:
 "premature end of file<END-OF-FILE>
                       ^

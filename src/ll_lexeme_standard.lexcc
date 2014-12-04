@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 30 23:00:19 EST 2014
+// Date:	Thu Dec  4 05:00:30 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,9 @@ cc	using namespace ll::lexeme::ndl;
 cc	# define LEX ll::lexeme
 cc	# define LEXSTD ll::lexeme::standard
 cc	using namespace LEXSTD;
+cc
+cc	const min::Uchar UUC[1] =
+cc	    { min::UNKNOWN_UCHAR };
 cc
 
 // Lexical Type Support
@@ -301,7 +304,10 @@ lex	              | "#" | "$" | "%" | "^" | "&"
 lex	              | "=" | "|" | ">" | "_" | "!"
 lex	              | "?" | ":";
 lex	              //
-lex	              // Also . not followed by a digit
+lex	              // Also . not surrounded by digits
+lex		      //        and not both followed by
+lex		      //        a letter and preceeded
+lex		      //        by a non-mark character
 lex	              //      / not surrounded by digits
 lex	              //        or followed by /
 lex	              //      < not beginning escaped
@@ -365,11 +371,10 @@ lex	   // they could be replaced by horizontal space
 lex	   // without changing the semantics of the
 lex	   // output.
 lex	   //
-lex	   // Inside quoted strings, unrecognized
-lex	   // escapes are treated as erroneous atoms,
-lex	   // translated to "", and ignored.  The
-lex	   // lexemes output would be the same if they
-lex	   // were removed.
+lex	   // Inside quoted strings, unrecognized char-
+lex	   // acter representatives, such as unrecog-
+lex	   // nized escapes, are treated as erroneous
+lex	   // atoms and translated to "<UUC>".
 lex
 
 lex	   // Whitespace is separated out into 4 types
@@ -504,16 +509,13 @@ cc		      NDL::call ( natural_number );
 cc	    	   NDL::end_dispatch();
 cc
 
-lex	   ".<digit>" keep 1 call number;
-lex	              // We keep 1 so number can recog-
-lex	              // nize <digit>,<digit> etc.
+lex	   ".<letter>" call word;
 lex	   "." call mark;
 lex
 cc	    	   NDL::begin_dispatch ( "." );
-cc		      NDL::begin_dispatch
-cc			   ( digit );
-cc			 NDL::keep ( 1 );
-cc			 NDL::call ( number );
+cc	              NDL::begin_dispatch ( ascii_letter );
+cc		          add_non_ascii_letters ();
+cc			 NDL::call ( word );
 cc		      NDL::end_dispatch();
 cc
 cc		      NDL::call ( mark );
@@ -742,23 +744,12 @@ cc	    NDL::begin_table ( mark );
 cc
 
 lex	   "<mark-char>" accept;
+lex	   "." accept;
 lex	   "<non-ascii-combining-char>" accept;
 lex
 cc	           NDL::begin_dispatch ( mark_char );
+cc		       NDL::add_characters ( "." );
 cc		       add_non_ascii_combining_chars ();
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
-cc
-
-lex	   ".<digit>" keep 0 return;
-lex	   "." accept;
-lex
-cc	           NDL::begin_dispatch ( "." );
-cc		       NDL::begin_dispatch ( digit );
-cc			   NDL::keep ( 0 );
-cc			   NDL::ret();
-cc		       NDL::end_dispatch();
-cc
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -776,15 +767,15 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<" "<digit>"
-lex	          match escaped hex char
-lex	          require "<non-ascii-combining-char>"
-lex	      else
-lex	          match escaped hex char
-lex	          keep 0 return;
-lex	      else
-lex	          keep 1;
-lex	    "<" accept;
+lex	   "<" "<digit>"
+lex	            match escaped hex char
+lex	            require "<non-ascii-combining-char>"
+lex	        else
+lex	            match escaped hex char
+lex	            keep 0 return;
+lex	        else
+lex	            keep 1;
+lex	   "<" accept;
 lex
 cc		   NDL::begin_dispatch ( "<" );
 cc		      NDL::begin_dispatch ( digit );
@@ -821,16 +812,18 @@ lex
 cc	    NDL::begin_table ( natural_number );
 cc
 lex
-lex	   // In order to recognize , and / surrounded
-lex	   // by digits as number atoms, entries to this
-lex	   // table upon recognizing "X<digit>" must do
-lex	   // a `keep 1' so the digit will be left to be
-lex	   // recognized by <digit>/<digit> etc.
+lex	   // In order to recognize X (e.g., : or /)
+lex	   // surrounded by digits as number atoms,
+lex	   // entries to this table upon recognizing
+lex	   // "<digit>X<digit>" must do a `keep 2' so
+lex	   // the last digit will be left to be
+lex	   // recognized by <digit>Y<digit> etc.
 lex
 lex	   // Alternatively we could have a separate
 lex	   // table for the state where the last atom
 lex	   // ended with a digit.
 lex
+lex	   "<digit>.<digit>" keep 2 goto number;
 lex	   "<digit>:<digit>" keep 2 goto number;
 lex	   "<digit>/<digit>" keep 2 goto number;
 lex	   "<digit>,<digit>" keep 2 goto number;
@@ -838,7 +831,7 @@ lex	   "<digit>" accept;
 lex
 cc	           NDL::begin_dispatch ( digit );
 cc
-cc		       NDL::begin_dispatch ( "/," );
+cc		       NDL::begin_dispatch ( ".:/," );
 cc			   NDL::begin_dispatch
 cc			        ( digit );
 cc			       NDL::keep ( 2 );
@@ -847,17 +840,6 @@ cc			   NDL::end_dispatch();
 cc		       NDL::end_dispatch();
 cc
 cc		       NDL::accept();
-cc		   NDL::end_dispatch();
-cc
-
-lex	   ".<digit>" keep 1 goto number;
-lex
-cc	           NDL::begin_dispatch ( "." );
-cc		       NDL::begin_dispatch
-cc			    ( digit );
-cc			   NDL::keep ( 1 );
-cc			   NDL::go ( number );
-cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
@@ -877,9 +859,10 @@ lex
 cc	    NDL::begin_table ( number );
 cc
 
-lex	   // See note on , and / in `natural number'
+lex	   // See note about `keep 2' in natural number
 lex	   // table above.
 lex
+lex	   "<digit>.<digit>" keep 2;
 lex	   "<digit>:<digit>" keep 2;
 lex	   "<digit>/<digit>" keep 2;
 lex	   "<digit>,<digit>" keep 2;
@@ -887,7 +870,7 @@ lex	   "<digit>" accept;
 lex
 cc	           NDL::begin_dispatch ( digit );
 cc
-cc		       NDL::begin_dispatch ( "/," );
+cc		       NDL::begin_dispatch ( ".:/," );
 cc			   NDL::begin_dispatch
 cc				( digit );
 cc			      NDL::keep ( 2 );
@@ -895,16 +878,6 @@ cc			   NDL::end_dispatch();
 cc		       NDL::end_dispatch();
 cc
 cc		       NDL::accept();
-cc		   NDL::end_dispatch();
-cc
-
-lex	   ".<digit>" keep 1;
-lex
-cc	           NDL::begin_dispatch ( "." );
-cc		       NDL::begin_dispatch
-cc			    ( digit );
-cc			  NDL::keep ( 1 );
-cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
@@ -936,7 +909,7 @@ cc
 lex	    "<" match escaped char
 lex	        else match unrecognized escape seq
 lex	             error unrecognized escape seq
-lex	             translate to ""
+lex	             translate to "<UUC>"
 lex	        else accept;
 lex
 cc		   NDL::begin_dispatch ( "<" );
@@ -946,7 +919,7 @@ cc			 NDL::match
 cc			  ( unrec_escape_seq );
 cc			 NDL::erroneous_atom
 cc			  ( unrec_escape_seq_t );
-cc			 NDL::translate_to ( "" );
+cc			 NDL::translate_to ( 1, UUC );
 cc		      NDL::ELSE();
 cc			 NDL::accept();
 cc		   NDL::end_dispatch();
@@ -965,7 +938,7 @@ lex	    "<CR><LF>"
 lex	        keep 0 goto premature end of line;
 lex	    "<CR>"
 lex	        error misplaced control char
-lex	        translate to "";
+lex	        translate to "<UUC>";
 lex
 cc	           NDL::begin_dispatch ( "\r" );
 cc	              NDL::begin_dispatch ( "\n" );
@@ -976,13 +949,13 @@ cc		      NDL::end_dispatch();
 cc
 cc		      NDL::erroneous_atom
 cc		         ( misplaced_control_char_t );
-cc		      NDL::translate_to ( "" );
+cc		      NDL::translate_to ( 1, UUC );
 cc		   NDL::end_dispatch();
 cc
 
 lex	    "<control-char-except-CR-LF>"
 lex	        error misplaced control char
-lex	        translate to "";
+lex	        translate to "<UUC>";
 lex
 cc	           NDL::begin_dispatch ( "" );
 cc		      NDL::add_characters
@@ -997,7 +970,7 @@ cc
 cc		      add_non_ascii_control_chars();
 cc		      NDL::erroneous_atom
 cc		         ( misplaced_control_char_t );
-cc		      NDL::translate_to ( "" );
+cc		      NDL::translate_to ( 1, UUC );
 cc		   NDL::end_dispatch();
 cc
 

@@ -42,7 +42,7 @@
      #XXXX: TABLE
             Mode: QUOTED_STRING
             Dispatcher ID: #XXXX
-            #XXXX: GOTO(#XXXX)
+           #XXXX: GOTO(#XXXX)
      #XXXX: TABLE
             Mode: SEPARATOR
             Dispatcher ID: 0
@@ -174,11 +174,22 @@
             Max Break Elements: 1
             Max CType: 0
      #XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
+            Break Elements: 98
+            Max Break Elements: 101
             Max CType: 1
-            0-9
-               #XXXX: KEEP(1), CALL(#XXXX)
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
+               #XXXX: CALL(#XXXX)
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 1
@@ -395,17 +406,6 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            0-9
-               #XXXX: KEEP(0), RETURN
-                Dispatcher ID: #XXXX
-     #XXXX: DISPATCHER
-            Break Elements: 1
-            Max Break Elements: 1
-            Max CType: 0
-     #XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 1
             /
                #XXXX: KEEP(0), RETURN
                 Dispatcher ID: #XXXX
@@ -425,12 +425,9 @@
      #XXXX: DISPATCHER
             Break Elements: 11
             Max Break Elements: 11
-            Max CType: 4
-            ! #-& *-+ - : =-@ ^-_ | ~ <300>-<36F> <1DC0>-<1DFF>
+            Max CType: 3
+            ! #-& *-+ --. : =-@ ^-_ | ~ <300>-<36F> <1DC0>-<1DFF>
             <20D0>-<20FF> <0FE20>-<0FE2F>
-               #XXXX: ACCEPT
-                Dispatcher ID: #XXXX
-            .
                #XXXX: ACCEPT
                 Dispatcher ID: #XXXX
             /
@@ -454,27 +451,14 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            , /
+            , .-/ :
                 Dispatcher ID: #XXXX
-     #XXXX: DISPATCHER
-            Break Elements: 1
-            Max Break Elements: 1
-            Max CType: 0
      #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-               #XXXX: KEEP(1), GOTO(#XXXX)
-                Dispatcher ID: #XXXX
-     #XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 2
-            0-9
                #XXXX: ACCEPT
-                Dispatcher ID: #XXXX
-            .
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 1
@@ -491,27 +475,14 @@
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
-            , /
+            , .-/ :
                 Dispatcher ID: #XXXX
-     #XXXX: DISPATCHER
-            Break Elements: 1
-            Max Break Elements: 1
-            Max CType: 0
      #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             0-9
-               #XXXX: KEEP(1)
-                Dispatcher ID: #XXXX
-     #XXXX: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 3
-            Max CType: 2
-            0-9
                #XXXX: ACCEPT
-                Dispatcher ID: #XXXX
-            .
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 1
@@ -550,26 +521,26 @@
             Max CType: 5
             <SP>-! #-; =-~ <0A1>-<1FFF> <2010> <2012>-<2027>
             <2030>-<205E> <2070>-
-                #XXXX: ACCEPT
+               #XXXX: ACCEPT
                 Dispatcher ID: #XXXX
             "
                #XXXX: TRANSLATE_TO(0), RETURN
                 Dispatcher ID: #XXXX
             <
                #XXXX: MATCH(#XXXX), ELSE:
-               #XXXX: TRANSLATE_TO(0), MATCH(#XXXX), ERRONEOUS_ATOM(18),
-                      ELSE:
+               #XXXX: TRANSLATE_TO(1,<UUC>), MATCH(#XXXX),
+                      ERRONEOUS_ATOM(18), ELSE:
                #XXXX: ACCEPT
                 Dispatcher ID: #XXXX
             <LF>
                #XXXX: KEEP(0), GOTO(#XXXX)
                 Dispatcher ID: #XXXX
             <CR>
-               #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(17)
+               #XXXX: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(17)
                 Dispatcher ID: #XXXX
             <NUL>-<HT> <VT>-<FF> <SO>-<US> <DEL>-<NBSP> <2000>-<RLM>
             <2011> <2028>-<NNBSP> <MMSP>-<206F>
-               #XXXX: TRANSLATE_TO(0), ERRONEOUS_ATOM(17)
+               #XXXX: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(17)
                 Dispatcher ID: #XXXX
      #XXXX: DISPATCHER
             Break Elements: 1
@@ -1540,7 +1511,7 @@ COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in
 LINE_BREAK 2(35): ␊
 COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
 LINE_BREAK 3(38): ␊
-COMMENT 4(0)0: //␣Date:␉Sun␣Nov␣30␣23:08:35␣EST␣2014
+COMMENT 4(0)0: //␣Date:␉Wed␣Dec␣␣3␣22:59:11␣EST␣2014
 LINE_BREAK 4(37): ␊
 COMMENT 5(0)0: //
 LINE_BREAK 5(2): ␊
@@ -1580,29 +1551,31 @@ WORD 12(21): h'dache
 MARK 12(28): .
 LINE_BREAK 12(29): ␊
 WORD 13(0)0: a
-NUMBER 13(1): .1.2.3
-MARK 13(7): .
-WORD 13(8): b
-MARK 13(9): .
-WORD 13(10): c
-HORIZONTAL_SPACE 13(11): ␣
-WORD 13(12): e
-NATURAL_NUMBER 13(13): 5
-WORD 13(14): f
-HORIZONTAL_SPACE 13(15): ␣
-WORD 13(16): x
-NATURAL_NUMBER 13(17): 7
-MARK 13(18): +
-WORD 13(19): y
-NATURAL_NUMBER 13(20): 6
-SEPARATOR 13(21): (
-NATURAL_NUMBER 13(22): 5
-WORD 13(23): z
-SEPARATOR 13(24): )
-LINE_BREAK 13(25): ␊
+MARK 13(1): .
+NUMBER 13(2): 1.2.3
+MARK 13(7): ..
+WORD 13(9): b
+MARK 13(10): ...
+WORD 13(13): c
+HORIZONTAL_SPACE 13(14): ␣
+WORD 13(15): e
+NATURAL_NUMBER 13(16): 5
+WORD 13(17): f
+HORIZONTAL_SPACE 13(18): ␣
+WORD 13(19): x
+NATURAL_NUMBER 13(20): 7
+MARK 13(21): +
+WORD 13(22): y
+NATURAL_NUMBER 13(23): 6
+SEPARATOR 13(24): (
+NATURAL_NUMBER 13(25): 5
+WORD 13(26): z
+SEPARATOR 13(27): )
+LINE_BREAK 13(28): ␊
 NUMBER 14(0)0: 12.3
 HORIZONTAL_SPACE 14(4): ␣
-NUMBER 14(5): .4
+MARK 14(5): .
+NATURAL_NUMBER 14(6): 4
 HORIZONTAL_SPACE 14(7): ␣
 NATURAL_NUMBER 14(8): 5
 MARK 14(9): .
@@ -1640,12 +1613,12 @@ QUOTED_STRING 17(18): "foo" translated to: foo
 WORD 17(23): x
 ASCII_ESCAPE_SEQUENCE 17(24): <79> translated to: y
 ASCII_ESCAPE_SEQUENCE 17(28): <05> translated to: ␅
-MARK 17(32): <
-WORD 17(33): LF
-MARK 17(35): >
-LINE_BREAK 17(36): ␊
-MARK 18(0)0: .
-WORD 18(1): foo
+NON_LETTER_ESCAPE_SEQUENCE 17(32): <80> translated to: <PAD>
+MARK 17(36): <
+WORD 17(37): LF
+MARK 17(39): >
+LINE_BREAK 17(40): ␊
+WORD 18(0)0: .foo
 HORIZONTAL_SPACE 18(4): ␣
 MARK 18(5): /
 WORD 18(6): foo
@@ -1659,11 +1632,11 @@ MARK 18(15): /
 NATURAL_NUMBER 18(16): 3
 HORIZONTAL_SPACE 18(17): ␣
 NATURAL_NUMBER 18(18): 3
-MARK 18(19): .
-WORD 18(20): x
+WORD 18(19): .x
 HORIZONTAL_SPACE 18(21): ␣
 WORD 18(22): x
-NUMBER 18(23): .3
+MARK 18(23): .
+NATURAL_NUMBER 18(24): 3
 COMMENT 18(25): //␣comment␣<89>␣"'
 LINE_BREAK 18(43): ␊
 WORD 19(0)0: a
@@ -1721,7 +1694,7 @@ MISPLACED_CHARACTER 25(13): ␃
 LINE_BREAK 25(14): ␊
 ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 26(28): <XX>
 QUOTED_STRING 26(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
-     translated to: "␊␍␉␈␌␋␣â␁
+     translated to: "␊␍␉␈␌␋␥␣â␁
 LINE_BREAK 26(45): ␊
 ASCII_ESCAPE_SEQUENCE 27(0)0: <0041> translated to: A
 ASCII_ESCAPE_SEQUENCE 27(6): <00000042> translated to: B
@@ -1755,7 +1728,7 @@ QUOTED_STRING 33(0)0: "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
 LINE_BREAK 33(42): ␊
 ERRONEOUS ATOM: MISPLACED_CONTROL_CHARACTER 34(19): ␁
 QUOTED_STRING 34(0)0: "misplaced␣control␣␁"
-     translated to: misplaced␣control␣
+     translated to: misplaced␣control␣␥
 LINE_BREAK 34(21): ␊
 WORD 35(0)0: misplaced
 HORIZONTAL_SPACE 35(9): ␣

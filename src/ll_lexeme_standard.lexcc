@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  4 05:00:30 EST 2014
+// Date:	Fri Dec  5 01:30:56 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -178,6 +178,8 @@ cc	    uns32 number;
 cc	    NDL::new_table ( number, number_t );
 cc	    uns32 mark;
 cc	    NDL::new_table ( mark, mark_t );
+cc	    uns32 repeating_bar;
+cc	    NDL::new_table ( repeating_bar );
 cc	    uns32 quoted_string;
 cc	    NDL::new_table
 cc		( quoted_string, quoted_string_t );
@@ -301,8 +303,8 @@ lex
 
 lex	"<mark-char>" = "+" | "-" | "*" | "~" | "@"
 lex	              | "#" | "$" | "%" | "^" | "&"
-lex	              | "=" | "|" | ">" | "_" | "!"
-lex	              | "?" | ":";
+lex	              | "=" | ">" | "_" | "!" | "?"
+lex                   | ":";
 lex	              //
 lex	              // Also . not surrounded by digits
 lex		      //        and not both followed by
@@ -314,7 +316,7 @@ lex	              //      < not beginning escaped
 lex	              //        hex character
 lex
 cc	    const char * mark_char =
-cc		"+-*~@#$%^&=|>_!?:";
+cc		"+-*~@#$%^&=>_!?:";
 cc
 
 lex	"<non-slash-char>" = ~ "/";
@@ -325,6 +327,8 @@ lex	                   | "{" | "}" | ";" | "`";
 lex	              //
 lex	              // Also , not surrounded by digits
 lex	              //      ' not followed by a letter
+lex		      //        or a digit
+lex		      //      | (possibly repeated)
 lex
 cc	    const char * separator_char = "()[]{};`";
 cc
@@ -439,6 +443,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "'<letter>" call word;
+lex	   "'<digit>" keep 1 call number;
 lex	   "'" output separator;
 lex
 cc		   NDL::begin_dispatch ( "'" );
@@ -446,6 +451,10 @@ cc		      NDL::begin_dispatch
 cc			( ascii_letter );
 cc			 add_non_ascii_letters ();
 cc			 NDL::call ( word );
+cc		      NDL::end_dispatch();
+cc		      NDL::begin_dispatch ( digit );
+cc			 NDL::keep ( 1 );
+cc			 NDL::call ( number );
 cc		      NDL::end_dispatch();
 cc
 cc		   NDL::output ( separator_t );
@@ -527,6 +536,13 @@ lex
 cc	    	   NDL::begin_dispatch
 cc			( separator_char );
 cc		      NDL::output ( separator_t );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   "|" call repeating bar;
+lex
+cc	    	   NDL::begin_dispatch ( "|" );
+cc		      NDL::call ( repeating_bar );
 cc	    	   NDL::end_dispatch();
 cc
 
@@ -843,6 +859,16 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
+lex	   "'<digit>" keep 1 goto number;
+lex
+cc		   NDL::begin_dispatch ( "'" );
+cc		      NDL::begin_dispatch ( digit );
+cc			 NDL::keep ( 1 );
+cc			 NDL::go ( number );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
 lex	   return;
 lex
 cc	    	   NDL::ret();
@@ -881,12 +907,45 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
+lex	   "'<digit>" keep 1;
+lex
+cc		   NDL::begin_dispatch ( "'" );
+cc		      NDL::begin_dispatch ( digit );
+cc			 NDL::keep ( 1 );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
 lex	   return;
 lex
 cc	    	   NDL::ret();
 cc
 
 lex	end number lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin repeating bar sublexeme table;
+lex
+cc	    NDL::begin_table ( repeating_bar );
+cc
+
+lex	   "|" accept;
+lex
+cc	    	   NDL::begin_dispatch ( "|" );
+cc		      NDL::accept();
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   output separator goto main;
+lex
+cc	    	   NDL::output ( separator_t );
+cc	    	   NDL::go ( main );
+cc
+
+lex	end repeating bar sublexeme table;
 lex
 cc	    NDL::end_table();
 cc

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  3 22:59:11 EST 2014
+// Date:	Fri Dec  5 02:03:27 EST 2014
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -13,10 +13,10 @@ abc 3.4+z (x,y)
 'tis noth'ng `but' a h'dache.
 a.1.2.3..b...c e5f x7+y6(5z)
 12.3 .4 5. 6/7
-1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><80><LF>
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 // form feed 
 // vertical tab 

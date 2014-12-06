@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  7 23:39:42 EST 2014
+// Date:	Sat Dec  6 04:18:10 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -681,6 +681,45 @@ bool LEX::attach
     }
     else
 	assert ( ! "assert failure" );
+}
+
+bool LEX::set_repeat_count
+	( uns32 target_ID,
+	  uns32 ctype,
+	  uns32 repeat_count,
+	  LEX::program program )
+{
+    min::ptr<dispatcher_header> dhp =
+        LEX::ptr<dispatcher_header>
+	    ( program, target_ID );
+    assert ( dhp->pctype == DISPATCHER );
+    assert ( repeat_count > 0 );
+    assert ( ctype <= dhp->max_ctype );
+    min::ptr<map_element> mep =
+        LEX::ptr<map_element>
+	    ( program,   target_ID
+	               + dispatcher_header_length
+		       +   break_element_length
+		         * dhp->max_break_elements
+		       +   map_element_length
+		         * ctype );
+
+    if ( mep->repeat_count != 0 )
+    {
+	ERR << "Attempt to set repeat count "
+	    << repeat_count
+	    << " for dispatcher "
+	    << pID ( target_ID, program )
+	    << " ctype "
+	    << ctype
+	    << " conflicts with previously set"
+	       " repeat count "
+	    << mep->repeat_count
+	    << min::eol;
+	return false;
+    }
+    mep->repeat_count = repeat_count;
+    return true;
 }
 
 inline uns32 conv ( min::ref<min::uns32> v )
@@ -2876,10 +2915,11 @@ uns32 LEX::print_program_component
 	}
 	length += break_element_length
 	        * dhp->max_break_elements;
-	printer << min::indent << "Map:   CType: "
+	printer << min::indent << "CType:"
 	        << min::set_break
 	        << "dispatcher_ID" << min::right ( 16 )
 	        << "instruction_ID" << min::right ( 16 )
+	        << "repeat_count" << min::right ( 14 )
 	        << min::eol;
 	uns32 t;
 	for ( p = ID + length, t = 0;
@@ -2889,13 +2929,15 @@ uns32 LEX::print_program_component
 	    min::ptr<map_element> mep =
 		LEX::ptr<map_element> ( program, p );
 	    printer << min::indent
-		    << t << ": " << min::right ( 14 )
+		    << t << ":" << min::right ( 6 )
 		    << pID ( mep->dispatcher_ID,
 		             program )
 		    << min::right ( 16 )
 		    << pID ( mep->instruction_ID,
 		             program )
 		    << min::right ( 16 )
+		    << mep->repeat_count
+		    << min::right ( 14 )
 		    << min::eol;
 	}
 	length += map_element_length

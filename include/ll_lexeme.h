@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  7 23:17:53 EST 2014
+// Date:	Fri Dec  5 15:06:32 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -311,6 +311,24 @@ namespace ll { namespace lexeme {
     	    ( uns32 target_ID,
     	      uns32 ctype,
 	      uns32 component_ID,
+	      ll::lexeme::program program =
+	          default_program );
+
+    // Set the repeat count of a ctype of a dispatcher
+    // target.  Return true if no error.  Return false
+    // and do nothing but write an error message consis-
+    // ting of one or more complete lines to min::error_
+    // message if there is a conflict with a previous
+    // setting.  The repeat count set must be non-zero
+    // and is ONE LESS THAN the number of consecutive
+    // characters in a sequence of characters with given
+    // ctype for the dispatcher.
+    //
+    const uns32 INFINITE_REPETITION = 0xFFFFFFFF;
+    bool set_repeat_count
+    	    ( uns32 target_ID,
+    	      uns32 ctype,
+	      uns32 repeat_count = INFINITE_REPETITION,
 	      ll::lexeme::program program =
 	          default_program );
 

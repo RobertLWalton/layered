@@ -28,12 +28,12 @@ Uncooked Program 1:
                                    :           #XXXX
                                    a           #XXXX
                                    {           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
      #XXXX: TYPE_MAP
                0: 0
                1: 1 9
@@ -108,10 +108,10 @@ Uncooked Program 2:
                                <NUL>           #XXXX
                                    \           #XXXX
                                    ]           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
      #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
@@ -120,10 +120,10 @@ Uncooked Program 2:
                                <NUL>           #XXXX
                                    0           #XXXX
                                    8           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
      #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
@@ -132,10 +132,10 @@ Uncooked Program 2:
                                <NUL>           #XXXX
                                    0           #XXXX
                                    8           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
      #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
@@ -144,10 +144,10 @@ Uncooked Program 2:
                                <NUL>           #XXXX
                                    0           #XXXX
                                    8           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
      #XXXX: FAIL
      #XXXX: TRANSLATE_OCT(1,0), ELSE(#XXXX)
      #XXXX: TABLE
@@ -184,18 +184,18 @@ Uncooked Program 2:
             Breaks:             cmin     type_map_ID
                                <NUL>           #XXXX
                                <PAD>           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
      #XXXX: KEEP(0), CALL(#XXXX)
      #XXXX: KEEP(0), GOTO(#XXXX)
      #XXXX: GOTO(#XXXX)
@@ -213,18 +213,18 @@ Uncooked Program 2:
             Breaks:             cmin     type_map_ID
                                <NUL>           #XXXX
                                <PAD>           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
      #XXXX: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
@@ -235,10 +235,10 @@ Uncooked Program 2:
                                    [           #XXXX
                                    a           #XXXX
                                    {           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
      #XXXX: TYPE_MAP
                1: a-z
      #XXXX: TYPE_MAP
@@ -260,18 +260,18 @@ Uncooked Program 2:
                                    /           #XXXX
                                    0           #XXXX
                                    :           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
      #XXXX: TYPE_MAP
                1: 0-9
      #XXXX: TYPE_MAP
@@ -284,18 +284,18 @@ Uncooked Program 2:
                                <NUL>           #XXXX
                                    0           #XXXX
                                    :           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
      #XXXX: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
@@ -303,18 +303,18 @@ Uncooked Program 2:
             Breaks:             cmin     type_map_ID
                                <NUL>           #XXXX
                                <PAD>           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
      #XXXX: DISPATCHER
             Break Elements: 8
             Max Break Elements: 10
@@ -328,18 +328,18 @@ Uncooked Program 2:
                                    .           #XXXX
                                    /           #XXXX
                                    0           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
      #XXXX: TYPE_MAP
                1: +-+
      #XXXX: TYPE_MAP
@@ -357,18 +357,18 @@ Uncooked Program 2:
                                <NUL>           #XXXX
                                    +           #XXXX
                                    ,           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
      #XXXX: DISPATCHER
             Break Elements: 3
             Max Break Elements: 10
@@ -377,18 +377,18 @@ Uncooked Program 2:
                                <NUL>           #XXXX
                                    -           #XXXX
                                    .           #XXXX
-            Map:   CType:    dispatcher_ID  instruction_ID
-                       0:            #XXXX           #XXXX
-                       1:            #XXXX           #XXXX
-                       2:            #XXXX           #XXXX
-                       3:            #XXXX           #XXXX
-                       4:            #XXXX           #XXXX
-                       5:            #XXXX           #XXXX
-                       6:            #XXXX           #XXXX
-                       7:            #XXXX           #XXXX
-                       8:            #XXXX           #XXXX
-                       9:            #XXXX           #XXXX
-                      10:            #XXXX           #XXXX
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:           #XXXX           #XXXX             0
+                1:           #XXXX           #XXXX             0
+                2:           #XXXX           #XXXX             0
+                3:           #XXXX           #XXXX             0
+                4:           #XXXX           #XXXX             0
+                5:           #XXXX           #XXXX             0
+                6:           #XXXX           #XXXX             0
+                7:           #XXXX           #XXXX             0
+                8:           #XXXX           #XXXX             0
+                9:           #XXXX           #XXXX             0
+               10:           #XXXX           #XXXX             0
 
 Cooked Program 2:
 

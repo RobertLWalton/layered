@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 18:30:16 EST 2012
+// Date:	Fri Dec  5 11:32:23 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -152,8 +152,9 @@ const uns32 break_element_length = 2;
 struct map_element {
     uns32 dispatcher_ID;
     uns32 instruction_ID;
+    uns32 repeat_count;
 };
-const uns32 map_element_length = 2;
+const uns32 map_element_length = 3;
 
 // A type map maps a character range to either
 // a singleton_ctype is that is non-zero, or to

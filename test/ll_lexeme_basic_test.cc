@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  7 23:40:10 EST 2014
+// Date:	Sun Dec  7 02:22:51 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,8 @@ using LEX::inchar;
 
 using LEX::MASTER;
 using LEX::ATOM;
+
+using LEX::INFINITE_REPETITION;
 
 using LEX::ACCEPT;
 using LEX::MATCH;
@@ -92,6 +94,18 @@ static void check_attach
         cout << min::error_message;
 }
 
+static void check_set_repeat_count
+        ( uns32 target_ID, uns32 ctype,
+	  uns32 repeat_count )
+{
+    if ( ! LEX::set_repeat_count
+               ( target_ID, ctype, repeat_count ) )
+        cout << min::error_message;
+}
+
+// Program 1 is just used to test program creator and
+// printer, and is not used to scan.
+//
 static void create_program_1 ( void )
 {
     LEX::create_program
@@ -103,6 +117,8 @@ static void create_program_1 ( void )
         LEX::create_table ( __LINE__, SYMBOL );
     uns32 dispatcher1 =
         LEX::create_dispatcher ( __LINE__, 10, 4 );
+    uns32 dispatcher2 =
+        LEX::create_dispatcher ( __LINE__, 10, 0 );
     uns8 map1[10] = { 0, 1, 2, 3, 4, 5, 4, 3, 2, 1 };
     uns32 tmap1 =
         LEX::create_type_map
@@ -126,8 +142,10 @@ static void create_program_1 ( void )
     check_attach ( dispatcher1, tmap2 );
 
     check_attach ( dispatcher1, 1, instruction1 );
-    check_attach ( dispatcher1, 2, dispatcher1 );
+    check_attach ( dispatcher1, 2, dispatcher2 );
     check_attach ( dispatcher1, 4, instruction2 );
+    check_set_repeat_count
+        ( dispatcher1, 4, INFINITE_REPETITION );
 
     min::printer printer =
         LEX::default_scanner->printer;
@@ -141,6 +159,80 @@ static void create_program_1 ( void )
         ( printer, LEX::default_program, true );
 }
 
+// Program 2 is used to test scanner.
+//
+// begin program_2 lexical program
+//
+//     "<white>" = "<HT>" | "<LF>" | "<FF>" | "<VT>"
+//               | "<CR"> | "<SP>"
+//     "<sep>" = "(" | ")" | "," | ";" | "[" | "]"
+//             | "{" | "}"
+//     "<op>" = "+" | "=" | "*" | "/"
+//     "<point>" = "."
+//     "<digit>" = "<0-9>"
+//     "<letter>" = "<a-z>" | "<A-Z>"
+//     "<escape>" = "\\"
+//     "<err_atom>" = "<DEL>"
+//
+//     begin oct_atom atom table
+//         "\\<0-7><0-7><0-7>" translate 1 0
+//                             else
+//                             fail
+//         fail
+//     end oct_atom atom table
+//
+//     begin whitespace lexeme table
+//     end whitespace lexeme table
+//
+//     begin master master table
+//         "<white>" goto whitespace
+//         "<sep>" output separator
+//         "<op>" keep 0 goto op
+//         "<digit>" keep 0 goto number
+//         "<point>" keep 0 goto number
+//         "<letter>" keep 0 call symbol
+//         "<escape>" keep 0 call symbol
+//         "<other>" translate to "" output error
+//         output end_of_file
+//     end master master table
+//
+//     begin symbol lexeme table
+//         "<letter>" accept
+//         "<digit>" accept
+//         "<escape>" match oct_atom require "<letter>"
+//                    else
+//                    fail
+//         "<err_atom>" translate to "" error 100
+//         return
+//     end symbol lexeme table
+//
+//     begin number lexeme table
+//         "<digit>" accept
+//         "<point>" goto fraction
+//         goto master
+//     end number lexeme table
+//
+//     begin fraction sublexeme table
+//         "<digit>" accept
+//         goto master
+//     end fraction sublexeme table
+//
+//     begin whitespace lexeme table
+//         "<white>" accept
+//         goto master
+//     end whitespace lexeme table
+//
+//     begin oper lexeme table
+//         "++" goto master
+//         "+" goto master
+//         "--" goto master
+//         "-" goto master
+//         "*" goto master
+//         "/" goto master
+//         goto master
+//     end oper lexeme table
+//
+// end program_2 lexical program
 static void create_program_2 ( void )
 {
     LEX::create_program
@@ -221,7 +313,7 @@ static void create_program_2 ( void )
     uns32 end_of_file_instruction =
         LEX::create_instruction
 	    ( __LINE__,
-	      ACCEPT+OUTPUT,
+	      OUTPUT,
 	      LEX::NULL_TV(),
 	      0, 0, 0, 0, END_OF_FILE );
     check_attach ( master, end_of_file_instruction );
@@ -379,7 +471,7 @@ static void create_program_2 ( void )
     uns32 whitespace_instruction =
         LEX::create_instruction
 	    ( __LINE__,
-	      ACCEPT+GOTO,
+	      GOTO,
 	      LEX::NULL_TV(),
 	      0, 0, 0, 0, 0, whitespace );
     uns32 operator_instruction =
@@ -391,13 +483,13 @@ static void create_program_2 ( void )
     uns32 separator_instruction =
         LEX::create_instruction
 	    ( __LINE__,
-	      ACCEPT+OUTPUT,
+	      OUTPUT,
 	      LEX::NULL_TV(),
 	      0, 0, 0, 0, SEPARATOR );
     uns32 error_instruction =
         LEX::create_instruction
 	    ( __LINE__,
-	      ACCEPT+OUTPUT,
+	      OUTPUT,
 	      LEX::NULL_TV(),
 	      0, 0, 0, 0, ERROR );
     uns32 err_atom_instruction =
@@ -431,7 +523,7 @@ static void create_program_2 ( void )
 	      0, 0, 0, 0, 0, master );
     uns32 return_instruction =
         LEX::create_instruction
-	    ( __LINE__, KEEP(0)+RETURN );
+	    ( __LINE__, RETURN );
     uns32 accept_instruction =
         LEX::create_instruction
 	    ( __LINE__, ACCEPT );
@@ -471,20 +563,14 @@ static void create_program_2 ( void )
                    escape_instruction );
 
     uns32 fraction =
-        LEX::create_table ( __LINE__, NUMBER );
+        LEX::create_table ( __LINE__ );
     uns32 fraction_instruction =
         LEX::create_instruction
 	    ( __LINE__,
-	      ACCEPT+GOTO,
+	      GOTO,
 	      LEX::NULL_TV(),
 	      0, 0, 0, 0, 0, fraction );
 
-    uns32 digit_instruction =
-        LEX::create_instruction
-	    ( __LINE__,
-	      ACCEPT+GOTO,
-	      LEX::NULL_TV(),
-	      0, 0, 0, 0, 0, number );
     uns32 number_dispatcher =
         LEX::create_dispatcher ( __LINE__, 5, 10 );
     uns32 digit_map =
@@ -496,7 +582,7 @@ static void create_program_2 ( void )
     check_attach ( number_dispatcher, digit_map );
     check_attach ( number_dispatcher, point_map );
     check_attach ( number_dispatcher, 1,
-    	           digit_instruction );
+    	           accept_instruction );
     check_attach ( number_dispatcher, 2,
     	           fraction_instruction );
 
@@ -506,7 +592,7 @@ static void create_program_2 ( void )
     check_attach ( fraction, master_instruction );
     check_attach ( fraction_dispatcher, digit_map );
     check_attach ( fraction_dispatcher, 1,
-    	           fraction_instruction );
+    	           accept_instruction );
 
     uns32 whitespace_dispatcher =
         LEX::create_dispatcher ( __LINE__, 3, 10 );
@@ -514,7 +600,7 @@ static void create_program_2 ( void )
     check_attach ( whitespace, master_instruction );
     check_attach ( whitespace_dispatcher, tmap );
     check_attach ( whitespace_dispatcher, white,
-                   whitespace_instruction );
+                   accept_instruction );
 
     uns32 operation_dispatcher =
         LEX::create_dispatcher ( __LINE__, 9, 10 );
@@ -530,7 +616,7 @@ static void create_program_2 ( void )
         LEX::create_type_map ( __LINE__, '*', '*', 3 );
     uns32 master_accept =
         LEX::create_instruction
-	    ( __LINE__, ACCEPT+GOTO,
+	    ( __LINE__, GOTO,
 	      LEX::NULL_TV(),
 	      0, 0, 0, 0, 0, master );
     uns32 plus_dispatcher =

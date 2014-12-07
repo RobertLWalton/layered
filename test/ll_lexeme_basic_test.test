@@ -1,7 +1,7 @@
 
 Uncooked Program 1:
 
-      ####: PROGRAM
+     #####: PROGRAM
             Initial Table ID[0]:###
             Max Type: 6
                  0: WHITESPACE
@@ -24,31 +24,39 @@ Uncooked Program 1:
             Max CType: 4
             Breaks:             cmin     type_map_ID
                                <NUL>              ##
-                                   0             ###
+                                   0            ####
                                    :              ##
-                                   a             ###
+                                   a            ####
                                    {              ##
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##            ####             0
                 2:             ###              ##             0
                 3:              ##              ##             0
-                4:              ##            ####             0
-    ######: TYPE_MAP
+                4:              ##            ####      INFINITY
+    ######: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 11
+            Max CType: 0
+            Breaks:             cmin     type_map_ID
+                               <NUL>              ##
+            CType:   dispatcher_ID  instruction_ID  repeat_count
+                0:              ##              ##             0
+   #######: TYPE_MAP
                0: 0
                1: 1 9
                2: 2 8
                3: 3 7
                4: 4 6
                5: 5
-    ######: TYPE_MAP
+   #######: TYPE_MAP
                4: a-z
    #######: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(###)
    #######: ACCEPT
 
 Cooked Program 1:
 
-      ####: PROGRAM
+     #####: PROGRAM
             Initial Table ID[0]:###
             Max Type: 6
                  0: WHITESPACE
@@ -73,8 +81,12 @@ Cooked Program 1:
                 ####: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(###)
             2 8
                 Dispatcher ID: ###
-            4 6 a-z
+            4 6 a-z [repeat(INFINITY)]
                 ####: ACCEPT
+    ######: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 11
+            Max CType: 0
 
 Uncooked Program 2:
 
@@ -204,7 +216,7 @@ Uncooked Program 2:
    #######: OUTPUT(1)
    #######: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
    #######: KEEP(0), GOTO(###)
-   #######: KEEP(0), RETURN
+   #######: RETURN
    #######: ACCEPT
    #######: DISPATCHER
             Break Elements: 2
@@ -245,10 +257,9 @@ Uncooked Program 2:
                1: A-Z
    #######: MATCH(###), REQUIRE(####), ELSE(####)
    #######: TABLE
-            Mode: NUMBER
+            Mode: NONE
             Dispatcher ID: ####
             Instruction ID: ####
-   #######: GOTO(####)
    #######: GOTO(####)
    #######: DISPATCHER
             Break Elements: 5
@@ -442,7 +453,7 @@ Cooked Program 2:
    #######: TABLE
             Mode: SYMBOL
             Dispatcher ID: ####
-            ####: KEEP(0), RETURN
+            ####: RETURN
    #######: TABLE
             Mode: NUMBER
             Dispatcher ID: ####
@@ -483,7 +494,7 @@ Cooked Program 2:
             Max Break Elements: 6
             Max CType: 2
    #######: TABLE
-            Mode: NUMBER
+            Mode: NONE
             Dispatcher ID: ####
             ####: KEEP(0), GOTO(###)
    #######: DISPATCHER
@@ -491,7 +502,7 @@ Cooked Program 2:
             Max Break Elements: 6
             Max CType: 10
             0-9
-                ####: GOTO(####)
+                ####: ACCEPT
             .
                 ####: GOTO(####)
    #######: DISPATCHER
@@ -499,13 +510,13 @@ Cooked Program 2:
             Max Break Elements: 4
             Max CType: 10
             0-9
-                ####: GOTO(####)
+                ####: ACCEPT
    #######: DISPATCHER
             Break Elements: 2
             Max Break Elements: 4
             Max CType: 10
             <HT>-<CR> <SP>
-                ####: GOTO(####)
+                ####: ACCEPT
    #######: DISPATCHER
             Break Elements: 8
             Max Break Elements: 10
@@ -594,7 +605,7 @@ Start atom scan: table = ####
   ####: ACCEPT
 Start atom scan: table = ####
   Character = * Dispatcher = #### Type Map = #### CType = 6
-  ####: KEEP(0), RETURN
+  ####: RETURN
 Scan Returned: SYMBOL 0(1): a
 Start atom scan: table = ###
   Character = * Dispatcher = #### Type Map = #### CType = 6
@@ -618,7 +629,7 @@ Start atom scan: table = ####
   ####: ACCEPT
 Start atom scan: table = ####
   Character = + Dispatcher = #### Type Map = #### CType = 6
-  ####: KEEP(0), RETURN
+  ####: RETURN
 Scan Returned: SYMBOL 0(4): b
 Start atom scan: table = ###
   Character = + Dispatcher = #### Type Map = #### CType = 6
@@ -644,7 +655,7 @@ Start atom scan: table = ####
   ####: ACCEPT
 Start atom scan: table = ####
   Character = ( Dispatcher = #### Type Map = #### CType = 5
-  ####: KEEP(0), RETURN
+  ####: RETURN
 Scan Returned: SYMBOL 0(8): c
 Start atom scan: table = ###
   Character = ( Dispatcher = #### Type Map = #### CType = 5
@@ -673,7 +684,7 @@ Start atom scan: table = ####
   ####: ACCEPT
 Start atom scan: table = ####
   Character = % Dispatcher = #### Type Map = #### CType = 0
-  ####: KEEP(0), RETURN
+  ####: RETURN
 Scan Returned: SYMBOL 0(11): d<DEL>e translated to: de
 Start atom scan: table = ###
   Character = % Dispatcher = #### Type Map = #### CType = 0
@@ -690,7 +701,7 @@ Start atom scan: table = ####
   ####: ACCEPT
 Start atom scan: table = ####
   Character = - Dispatcher = #### Type Map = #### CType = 6
-  ####: KEEP(0), RETURN
+  ####: RETURN
 Scan Returned: SYMBOL 0(15): f0
 Start atom scan: table = ###
   Character = - Dispatcher = #### Type Map = #### CType = 6
@@ -705,13 +716,13 @@ Start atom scan: table = ###
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
   Character = 1 Dispatcher = #### Type Map = #### CType = 1
-  ####: GOTO(####)
+  ####: ACCEPT
 Start atom scan: table = ####
   Character = . Dispatcher = #### Type Map = #### CType = 2
   ####: GOTO(####)
 Start atom scan: table = ####
   Character = 2 Dispatcher = #### Type Map = #### CType = 1
-  ####: GOTO(####)
+  ####: ACCEPT
 Start atom scan: table = ####
   Character = . Dispatcher = #### CType = 0
   ####: KEEP(0), GOTO(###)
@@ -724,7 +735,7 @@ Start atom scan: table = ####
   ####: GOTO(####)
 Start atom scan: table = ####
   Character = 3 Dispatcher = #### Type Map = #### CType = 1
-  ####: GOTO(####)
+  ####: ACCEPT
 Start atom scan: table = ####
   Character = <SOH> Dispatcher = #### CType = 0
   ####: KEEP(0), GOTO(###)
@@ -807,7 +818,7 @@ Start atom scan: table = ####
   ####: ACCEPT
 Start atom scan: table = ####
   Character = <LF> Dispatcher = #### Type Map = #### CType = 1
-  ####: KEEP(0), RETURN
+  ####: RETURN
 Scan Returned: SYMBOL 0(26): A\102C\100D\10E
      translated to: ABC100D10E
 Start atom scan: table = ###

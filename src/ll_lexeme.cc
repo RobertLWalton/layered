@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  6 18:18:05 EST 2014
+// Date:	Sun Dec  7 02:31:19 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2777,6 +2777,16 @@ static uns32 print_cooked_dispatcher
 	if ( pcl.empty ) continue;
 
 	pcl.flush();
+	if ( (&mep[t])->repeat_count > 0 )
+	{
+	    if (    (&mep[t])->repeat_count
+	         == LEX::INFINITE_REPETITION )
+	        printer << " [repeat(INFINITY)]";
+	    else
+	        printer << " [repeat("
+		        << (&mep[t])->repeat_count
+			<< ")]";
+	}
 	printer << min::eol;
 
 	if ( (&mep[t])->instruction_ID != 0 )
@@ -2928,9 +2938,13 @@ uns32 LEX::print_program_component
 		    << min::right ( 16 )
 		    << pID ( mep->instruction_ID,
 		             program )
-		    << min::right ( 16 )
-		    << mep->repeat_count
-		    << min::right ( 14 )
+		    << min::right ( 16 );
+	    if (    mep->repeat_count
+	         == LEX::INFINITE_REPETITION )
+	        printer << "INFINITY";
+	    else
+	        printer << mep->repeat_count;
+	    printer << min::right ( 14 )
 		    << min::eol;
 	}
 	length += map_element_length

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  5 15:06:32 EST 2014
+// Date:	Sun Dec  7 04:53:11 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -213,7 +213,7 @@ namespace ll { namespace lexeme {
     //
     uns32 create_table
 	    ( uns32 line_number,
-	      uns32 mode,
+	      uns32 mode = ll::lexeme::NONE,
 	      ll::lexeme::program program =
 	          default_program );
 

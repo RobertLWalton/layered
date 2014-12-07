@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  6 04:18:10 EST 2014
+// Date:	Sat Dec  6 18:18:05 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,8 +87,7 @@ min::locatable_var<LEX::erroneous_atom>
 min::locatable_var<LEX::scanner>
      LEX::default_scanner;
 
-// printer << pID ( ID, program ) prints `ID' or
-// `#line_number' (if line_number != 0 ).
+// printer << pID ( ID, program ) prints `ID#'.
 //
 struct pID
 {
@@ -99,10 +98,7 @@ struct pID
 inline min::printer operator <<
 	( min::printer printer, const pID & p )
 {
-    if ( p.line_number != 0 )
-        return printer << "#" << p.line_number;
-    else
-        return printer << p.ID;
+    return printer << p.ID << "#";
 }
 
 // Program Construction
@@ -2327,9 +2323,9 @@ static const unsigned IDwidth = 12;
     // Width of field containing ID at the beginning
     // of each print_program line.
 
-// printer << pIDindent ( ID, program ) prints `ID: ' or
-// `#line_number: ' (if line_number != 0 ) right
-// adjusted in a field of width IDwidth.
+// printer << pIDindent ( ID, program ) prints
+// `ID#line_number: ' right adjusted in a field
+// of width IDwidth.
 //
 struct pIDindent
 {
@@ -2341,10 +2337,7 @@ inline min::printer operator <<
 	( min::printer printer, const pIDindent & p )
 {
     printer << min::set_break;
-    if ( p.line_number != 0 )
-        printer << "#" << p.line_number;
-    else
-        printer << p.ID;
+    printer << p.ID << "#" << p.line_number;
     return printer << ": " << min::right ( IDwidth );
 }
 

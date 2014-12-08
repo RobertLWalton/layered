@@ -107,7 +107,7 @@ Uncooked Program 2:
     ######: TABLE
             Mode: ATOM
             Dispatcher ID: ###
-            Instruction ID: ####
+            Instruction ID: ###
     ######: TYPE_MAP
                1: \-\
     ######: TYPE_MAP
@@ -134,34 +134,10 @@ Uncooked Program 2:
                                    8              ##
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
-                1:             ###              ##             0
+                1:              ##            ####             2
                 2:              ##              ##             0
-    ######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
-            Max CType: 2
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   0             ###
-                                   8              ##
-            CType:   dispatcher_ID  instruction_ID  repeat_count
-                0:              ##              ##             0
-                1:            ####              ##             0
-                2:              ##              ##             0
-   #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
-            Max CType: 2
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   0             ###
-                                   8              ##
-            CType:   dispatcher_ID  instruction_ID  repeat_count
-                0:              ##              ##             0
-                1:              ##            ####             0
-                2:              ##              ##             0
-   #######: FAIL
-   #######: TRANSLATE_OCT(1,0), ELSE(####)
+    ######: FAIL
+   #######: TRANSLATE_OCT(1,0), ELSE(###)
    #######: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
@@ -423,7 +399,7 @@ Cooked Program 2:
     ######: TABLE
             Mode: ATOM
             Dispatcher ID: ###
-            ####: FAIL
+            ###: FAIL
     ######: DISPATCHER
             Break Elements: 3
             Max Break Elements: 4
@@ -434,21 +410,9 @@ Cooked Program 2:
             Break Elements: 3
             Max Break Elements: 4
             Max CType: 2
-            0-7
-                Dispatcher ID: ###
-    ######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
-            Max CType: 2
-            0-7
-                Dispatcher ID: ####
-   #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
-            Max CType: 2
-            0-7
+            0-7 [repeat(2)]
                 ####: TRANSLATE_OCT(1,0), ELSE:
-                ####: FAIL
+                ###: FAIL
    #######: DISPATCHER
             Break Elements: 5
             Max Break Elements: 6
@@ -590,8 +554,7 @@ Scan Returned: ERROR 0(25): <STX>
 Scan Returned: SYMBOL 0(26): A\102C translated to: ABC
 Scan Returned: ERROR 0(32): \100 translated to: @
 Scan Returned: SYMBOL 0(36): D
-Scan Returned: ERROR 0(37): \
-Scan Returned: NUMBER 0(38): 10
+Scan Returned: ERROR 0(37): \10 translated to: <BS>
 Scan Returned: SYMBOL 0(40): E
 Scan Returned: WHITESPACE 0(41): <LF>
 Scan Returned: END_OF_FILE 1(0)0: <empty>
@@ -771,9 +734,9 @@ Start atom scan: table = ###
   Character = \ Dispatcher = ### Type Map = ### CType = 1
   Character = 1 Dispatcher = ### Type Map = ### CType = 1
   Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 2 Dispatcher = #### Type Map = ### CType = 1
+  Character = 2 Dispatcher = ### Type Map = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
-  ####: FAIL
+  ###: FAIL
   Character = B Dispatcher = #### Type Map = #### CType = 1
 Start atom scan: table = ####
   Character = C Dispatcher = #### Type Map = #### CType = 2
@@ -786,9 +749,9 @@ Start atom scan: table = ###
   Character = \ Dispatcher = ### Type Map = ### CType = 1
   Character = 1 Dispatcher = ### Type Map = ### CType = 1
   Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = #### Type Map = ### CType = 1
+  Character = 0 Dispatcher = ### Type Map = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
-  ####: FAIL
+  ###: FAIL
   Character = @ Dispatcher = #### CType = 0
   ####: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(26): A\102C translated to: ABC
@@ -801,9 +764,9 @@ Start atom scan: table = ###
   Character = \ Dispatcher = ### Type Map = ### CType = 1
   Character = 1 Dispatcher = ### Type Map = ### CType = 1
   Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = #### Type Map = ### CType = 1
+  Character = 0 Dispatcher = ### Type Map = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
-  ####: FAIL
+  ###: FAIL
   Character = @ Dispatcher = #### CType = 0
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
@@ -811,9 +774,9 @@ Start atom scan: table = ###
   Character = \ Dispatcher = ### Type Map = ### CType = 1
   Character = 1 Dispatcher = ### Type Map = ### CType = 1
   Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = #### Type Map = ### CType = 1
+  Character = 0 Dispatcher = ### Type Map = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
-  ####: FAIL
+  ###: FAIL
 Scan Returned: ERROR 0(32): \100 translated to: @
 Start atom scan: table = ###
   Character = D Dispatcher = #### Type Map = #### CType = 2
@@ -829,8 +792,10 @@ Start atom scan: table = ###
   Character = \ Dispatcher = ### Type Map = ### CType = 1
   Character = 1 Dispatcher = ### Type Map = ### CType = 1
   Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = E Dispatcher = #### CType = 0
-  ####: FAIL
+  Character = E Dispatcher = ### CType = 0
+  ####: TRANSLATE_OCT(1,0), ELSE:
+  ###: FAIL
+  Character = <BS> Dispatcher = #### CType = 0
   ####: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(36): D
 Start atom scan: table = ###
@@ -842,31 +807,20 @@ Start atom scan: table = ###
   Character = \ Dispatcher = ### Type Map = ### CType = 1
   Character = 1 Dispatcher = ### Type Map = ### CType = 1
   Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = E Dispatcher = #### CType = 0
-  ####: FAIL
+  Character = E Dispatcher = ### CType = 0
+  ####: TRANSLATE_OCT(1,0), ELSE:
+  ###: FAIL
+  Character = <BS> Dispatcher = #### CType = 0
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
 Start atom scan: table = ###
   Character = \ Dispatcher = ### Type Map = ### CType = 1
   Character = 1 Dispatcher = ### Type Map = ### CType = 1
   Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = E Dispatcher = #### CType = 0
-  ####: FAIL
-  ####: OUTPUT(1)
-Scan Returned: ERROR 0(37): \
-Start atom scan: table = ###
-  Character = 1 Dispatcher = #### Type Map = #### CType = 3
-  ####: KEEP(0), GOTO(####)
-Start atom scan: table = ####
-  Character = 1 Dispatcher = #### Type Map = #### CType = 1
-  ####: ACCEPT
-Start atom scan: table = ####
-  Character = 0 Dispatcher = #### Type Map = #### CType = 1
-  ####: ACCEPT
-Start atom scan: table = ####
-  Character = E Dispatcher = #### CType = 0
-  ####: KEEP(0), GOTO(###)
-Scan Returned: NUMBER 0(38): 10
+  Character = E Dispatcher = ### CType = 0
+  ####: TRANSLATE_OCT(1,0), ELSE:
+  ###: FAIL
+Scan Returned: ERROR 0(37): \10 translated to: <BS>
 Start atom scan: table = ###
   Character = E Dispatcher = #### Type Map = #### CType = 2
   ####: KEEP(0), CALL(####)

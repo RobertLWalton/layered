@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  8 00:29:43 EST 2014
+// Date:	Mon Dec  8 01:10:09 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -175,7 +175,7 @@ static void create_program_1 ( void )
 //     "<err_atom>" = "<DEL>"
 //
 //     begin oct_atom atom table
-//         "\\<0-7><0-7><0-7>" translate 1 0
+//         "\\<0-7><repeat 2>" translate 1 0
 //                             else
 //                             fail
 //         fail
@@ -265,27 +265,16 @@ static void create_program_2 ( void )
         LEX::create_dispatcher
 	    ( __LINE__, 3, 2 );
     check_attach ( escape_dispatcher, escape_tmap );
-    uns32 oct_dispatcher1 =
+    uns32 oct_dispatcher =
         LEX::create_dispatcher
 	    ( __LINE__, 3, 2 );
-    check_attach ( oct_dispatcher1, oct_tmap );
-    uns32 oct_dispatcher2 =
-        LEX::create_dispatcher
-	    ( __LINE__, 3, 2 );
-    check_attach ( oct_dispatcher2, oct_tmap );
-    uns32 oct_dispatcher3 =
-        LEX::create_dispatcher
-	    ( __LINE__, 3, 2 );
-    check_attach ( oct_dispatcher3, oct_tmap );
+    check_attach ( oct_dispatcher, oct_tmap );
 
     check_attach ( oct_atom,
                    escape_dispatcher );
     check_attach ( escape_dispatcher,
-                   1, oct_dispatcher1 );
-    check_attach ( oct_dispatcher1,
-                   1, oct_dispatcher2 );
-    check_attach ( oct_dispatcher2,
-                   1, oct_dispatcher3 );
+                   1, oct_dispatcher );
+    check_set_repeat_count ( oct_dispatcher, 1, 2 );
 
     uns32 fail_instruction =
         LEX::create_instruction ( __LINE__, FAIL );
@@ -295,7 +284,7 @@ static void create_program_2 ( void )
 	      TRANSLATE_OCT(1,0)+ELSE,
 	      LEX::NULL_TV(),
 	      0, 0, fail_instruction );
-    check_attach ( oct_dispatcher3,
+    check_attach ( oct_dispatcher,
                    1, translate_oct_instruction );
     check_attach ( oct_atom,
                    fail_instruction );

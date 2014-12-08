@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  7 02:31:19 EST 2014
+// Date:	Mon Dec  8 00:52:31 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1371,11 +1371,6 @@ static uns32 scan_atom
 	    return SCAN_ERROR;
 	}
 
-	// Map to next dispatcher and current
-	// instruction.  If there is a current
-	// instruction, we have recognized a longer
-	// atom.
-	//
 	min::ptr<map_element> mep =
 	    LEX::ptr<map_element>
 		( program,
@@ -1383,6 +1378,36 @@ static uns32 scan_atom
 		  + dispatcher_header_length
 		  +   break_element_length
 		    * dhp->max_break_elements );
+
+	uns32 count = (&mep[ctype])->repeat_count;
+	if ( count != 0 ) while ( count -- )
+	{
+	    if (    scanner->next + length
+		 >= input_buffer->length
+		 &&
+		 ! (*scanner->input->get)
+		     ( scanner, scanner->input ) )
+		break; // End of file.
+
+	    assert
+		(   scanner->next + length
+		  < input_buffer->length );
+
+	    c = (&input_buffer[scanner->next + length])
+			    ->character;
+	    uns32 ctype2 =
+		::ctype ( scanner, dispatcher_ID, c );
+
+	    if ( ctype2 != ctype ) break;
+
+	    ++ length;
+	}
+
+	// Map to next dispatcher and current
+	// instruction.  If there is a current
+	// instruction, we have recognized a longer
+	// atom.
+	//
 	if ( (&mep[ctype])->instruction_ID != 0 )
 	{
 	    instruction_ID =

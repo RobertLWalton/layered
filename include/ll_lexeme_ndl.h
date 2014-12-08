@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  5 05:07:05 EDT 2011
+// Date:	Mon Dec  8 07:16:02 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,7 +101,13 @@
 //	 NDL::end_atom_pattern();
 //
 //   // An atom pattern consists of one or more
-//   // character patterns separated by `NDL::NEXT();'.
+//   // atom primaries separated by `NDL::NEXT();'.
+//   // The atom primaries match the successive
+//   // characters of an atom.  An atom primary is
+//   // effectively a character pattern which defines
+//   // a set of characters that are defined in turn
+//   // by <character-adder>s, plus an optional repeat
+//   // count (REPEAT(.) is a <character-adder>).
 //
 //   // NEXT(incl,excl) is equivalent to
 //   // `NEXT(); add_characters(incl,excl)'.
@@ -109,8 +115,8 @@
 //   <included-chars> ::=
 //          C++ const char * quoted string expression
 //      // List of ASCII characters that are included
-//      // in the current character pattern if they are
-//	// not also in <excluded-chars>
+//      // in the current atom primary if they are NOT
+//	// also in <excluded-chars>
 //
 //   <excluded-chars> ::=
 //          C++ const char * quoted string expression
@@ -122,12 +128,21 @@
 //		    [, <excluded-chars>] ] );
 //	| NDL::add_characters
 //	      ( <min-char>, <max-char> );
+//	| NDL::REPEAT();
+//	| NDL::REPEAT ( <repeat-count> );
 //
 //   <min-char> ::= C++ uns32 UNICODE character code
 //   <max-char> ::= C++ uns32 UNICODE character code
 //	// Minimum and maximum characters in a range
 //      // of UNICODE characters to be added to the
-//      // current character pattern.
+//      // current atom primary.
+//
+//   // REPEAT(n) is eqivalent to putting `<repeat n>'
+//   // after an atom primary in an atom pattern.
+//   // REPEAT() is equivalent to `<repeat>' or
+//   // REPEAT(<infinity>).
+//
+//   <repeat-count> ::= C++ unsigned integer constant
 //
 //   <table-definition> ::=
 //      NDL::begin_table ( <table-name> );
@@ -150,11 +165,11 @@
 //	NDL::end_dispatch();
 //
 //   // A <dispatch> tells what to do when the NEXT
-//   // character of an atom matches a character
-//   // pattern.  There is an optional instruction to
-//   // execute if the atom ends with this character
-//   // and nested dispatches to be made on the
-//   // following character in the atom.
+//   // character of an atom matches the atom primary
+//   // defined by the <dispatch>.  There is an optional
+//   // instruction to execute if the atom ends with
+//   // this character and nested dispatches to be made
+//   // on the following character in the atom.
 //
 //   // begin_dispatch(incl,excl) is equivalent to
 //   // `begin_dispatch(); add_characters(incl,excl)'.
@@ -162,10 +177,10 @@
 //   // Two <dispatch>es at the same nesting level
 //   // cannot both match the same character.
 //
-//   // In the OTHER case the pattern includes just
-//   // those characters not in the patterns of other
-//   // dispatchers for the same atom character (i.e.,
-//   // other sybling dispatchers).
+//   // In the OTHER case the dispatcher's atom primary
+//   // includes just those characters not in the char-
+//   // acter sets of other dispatchers for the same
+//   // atom character (i.e., sybling dispatchers).
 //
 //   <instruction-group> ::=
 //	<instruction> { NDL::ELSE(); <instruction> }*
@@ -338,6 +353,10 @@ namespace ll { namespace lexeme { namespace ndl {
 	  const char * excluded_chars = "" );
     void add_characters
         ( uns32 min_char, uns32 max_char );
+
+    void REPEAT
+        ( uns32 repeat_count =
+	      ll::lexeme::INFINITE_REPETITION );
 
     void begin_table ( uns32 table_name );
     void end_table ( void );

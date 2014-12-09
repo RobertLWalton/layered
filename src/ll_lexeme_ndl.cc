@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  8 17:43:55 EST 2014
+// Date:	Tue Dec  9 05:13:16 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -669,6 +669,27 @@ void LEXNDL::add_characters
     ++ (&d)->type_map_count;
     min::push(uns32_stack) = min_char;
     min::push(uns32_stack) = max_char;
+}
+
+void LEXNDL::REPEAT ( uns32 repeat_count )
+{
+    FUNCTION ( "REPEAT" );
+    ASSERT ( state == INSIDE_TABLE
+             ||
+	     state == INSIDE_ATOM_PATTERN,
+             "REPEAT() misplaced" );
+    ASSERT ( substate == ADD_CHARACTERS,
+             "REPEAT() misplaced" );
+    ASSERT ( repeat_count > 0,
+             "REPEAT(0) with 0 repeat_count illegal" );
+
+    min::ref<dispatcher> d = current_dispatcher();
+
+    ASSERT ( (&d)->repeat_count == 0,
+             "REPEAT() previously called for this"
+	     " dispatcher" );
+
+    (&d)->repeat_count = repeat_count;
 }
 
 void LEXNDL::begin_dispatch

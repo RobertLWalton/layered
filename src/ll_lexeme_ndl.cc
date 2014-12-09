@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 03:29:33 EDT 2014
+// Date:	Mon Dec  8 17:43:55 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -90,6 +90,8 @@ static char message_buffer[500];
 //	    `( <test> FAILED! )'.
 //	ATTACH(...) executes `LEX::attach(...)' and
 //	    issues an error message if this fails.
+//	SET_REPEAT_COUNT(...) executes `LEX::set_repeat_
+//	    count(...)' and
 //
 # define FUNCTION(name) function_name = name
 # define ASSERT(test,...) \
@@ -98,8 +100,12 @@ static char message_buffer[500];
                 ( sprintf ( message_buffer, \
 		            __VA_ARGS__ ), \
 		  message_buffer ) ) )
-# define ATTACH(...) ( LEX::attach(__VA_ARGS__) ? 0 : \
+# define ATTACH(...) \
+    ( LEX::attach(__VA_ARGS__) ? 0 : \
     attach_error ( __FILE__, __LINE__ ) )
+# define SET_REPEAT_COUNT(...) \
+    ( LEX::set_repeat_count(__VA_ARGS__) ? 0 : \
+    set_repeat_count_error ( __FILE__, __LINE__ ) )
 
 // Called by ASSERT macro to print error message and
 // exit.
@@ -123,6 +129,24 @@ static int attach_error
 	( const char * file, uns32 line )
 {
     cout << "NDL SYSTEM ERROR: ATTACH FAILED: FILE: "
+         << file << " LINE: " << line << endl
+	 << "   CALLED FROM FILE: " << LEXNDL::file
+	 << " LINE: " << LEXNDL::line << endl
+	 << min::error_message
+	 << "    NOTE: possible cause:" << endl
+	 << "          begin_table ( name ) called"
+	             " twice for a given name" << endl;
+    exit ( 1 );
+}
+
+// Called by SET_REPEAT_COUNT macro to print attach failure
+// error message.
+//
+static int set_repeat_count_error
+	( const char * file, uns32 line )
+{
+    cout << "NDL SYSTEM ERROR: SET_REPEAT_COUNT FAILED:"
+            " FILE: "
          << file << " LINE: " << line << endl
 	 << "   CALLED FROM FILE: " << LEXNDL::file
 	 << " LINE: " << LEXNDL::line << endl
@@ -250,6 +274,7 @@ static void push_dispatcher ( bool is_others = false )
     (&d)->line_number = LEXNDL::line;
     (&d)->max_type_code = 0;
     (&d)->type_map_count = 0;
+    (&d)->repeat_count = 0;
     (&d)->others_dispatcher_ID = 0;
     (&d)->others_instruction_ID = 0;
     (&d)->is_others_dispatcher = is_others;
@@ -365,6 +390,7 @@ static void pop_dispatcher
 
 	min::push(uns32_stack) = 0;
 	min::push(uns32_stack) = instruction_ID;
+	min::push(uns32_stack) = (&d)->repeat_count;
 	min::push(uns32_stack) = (&d)->type_map_count;
 
 	min::pop ( dispatchers );
@@ -380,7 +406,7 @@ static void pop_dispatcher
     {
         uns32 sub_type_map_count = p[-1];
         total_type_map_count += sub_type_map_count;
-	p -= 3 + 2 * sub_type_map_count;
+	p -= 4 + 2 * sub_type_map_count;
     }
 
     uns32 dispatcher_ID =
@@ -408,6 +434,8 @@ static void pop_dispatcher
     {
         uns32 sub_type_map_count =
 	    min::pop ( uns32_stack );
+        uns32 sub_repeat_count =
+	    min::pop ( uns32_stack );
 	uns32 sub_instruction_ID =
 	    min::pop ( uns32_stack );
 	uns32 sub_dispatcher_ID =
@@ -423,6 +451,10 @@ static void pop_dispatcher
 	if ( sub_instruction_ID != 0 )
 	    ATTACH ( dispatcher_ID, tcode,
 		     sub_instruction_ID );
+
+	if ( sub_repeat_count != 0 )
+	    SET_REPEAT_COUNT ( dispatcher_ID, tcode,
+		               sub_repeat_count );
 
 	for ( uns32 i = 0;
 	      i < sub_type_map_count; ++ i )
@@ -450,6 +482,7 @@ static void pop_dispatcher
     {
 	min::push(uns32_stack) = dispatcher_ID;
 	min::push(uns32_stack) = instruction_ID;
+	min::push(uns32_stack) = (&d)->repeat_count;
 	min::push(uns32_stack) = (&d)->type_map_count;
     }
 
@@ -490,6 +523,7 @@ void LEXNDL::end_table ( void )
     pop_dispatcher();
 
     uns32 type_map_count = min::pop ( uns32_stack );
+    uns32 repeat_count = min::pop ( uns32_stack );
     uns32 instruction_ID = min::pop ( uns32_stack );
     uns32 dispatcher_ID  = min::pop ( uns32_stack );
 
@@ -500,6 +534,7 @@ void LEXNDL::end_table ( void )
     ATTACH ( table_name, dispatcher_ID );
     if ( instruction_ID != 0 )
 	ATTACH ( table_name, instruction_ID );
+    assert ( repeat_count == 0 );
     assert ( type_map_count == 0 );
 
     state = INSIDE_PROGRAM;
@@ -572,7 +607,7 @@ void LEXNDL::end_atom_pattern ( void )
 
     * atom_pattern_name_p = uns32_stack[0];
 
-    min::pop ( uns32_stack, 3 );
+    min::pop ( uns32_stack, 4 );
 
     assert ( dispatchers->length == 0 );
     assert ( instructions->length == 0 );

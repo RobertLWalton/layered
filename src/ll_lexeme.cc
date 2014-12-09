@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  8 00:52:31 EST 2014
+// Date:	Tue Dec  9 04:57:09 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1544,6 +1544,11 @@ static uns32 scan_atom
 	    if ( op & TRANSLATE_HEX_FLAG )
 		while ( p < endp )
 		{
+		    if ( tc & 0xF0000000 )
+		    {
+			fail = true;
+			break;
+		    }
 		    tc <<= 4;
 		    uns32 d =
 			(&input_buffer[p++])->character;
@@ -1562,6 +1567,11 @@ static uns32 scan_atom
 	    else if ( op & TRANSLATE_OCT_FLAG )
 		while ( p < endp )
 		{
+		    if ( tc & 0xE0000000 )
+		    {
+			fail = true;
+			break;
+		    }
 		    tc <<= 3;
 		    uns32 d =
 			(&input_buffer[p++])->character;

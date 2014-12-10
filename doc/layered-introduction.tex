@@ -7,7 +7,7 @@
 \documentclass[12pt]{article}
 
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
+\usepackage{times}
 \usepackage{makeidx}
 \usepackage{pictex}
 \usepackage{upquote}
@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 28, 2014
+December 10, 2014
  
 \end{center}
 
@@ -521,34 +521,47 @@ the ASCII character name surrounded by angle brackets.  Examples are
 represents a line feed (same as \TT{<LF>}).
 
 \begin{figure*}[!p]
-\begin{tabular}{p{2.2in}rl}
-\emkey{lexeme} & ::= & {\em symbol} $|$ {\em non-natural-number}
-                                    $|$ {\em quoted-string}
+\begin{indpar}
+\emkey{lexeme} ::= {\em word}
+               $|$ {\em numeric}
+               $|$ {\em mark}
+	       $|$ {\em separator}
+	       $|$ {\em quoted-string}
+	       $|$ {\em comment}
 \\[0.3ex]
-\emkey{symbol} & ::= & {\em word} $|$ {\em mark} $|$ {\em separator}
-	         $|$ {\em natural-number}
+\emkey{word} :::= {\em word-prefix-character}\QMARK{}
+                 {\em word-character}\PLUS{}
 \\[0.3ex]
-\emkey{word} & ::= & {\em word-prefix-character}\STAR{} \\
-             &     & {\em word-character} {\em word-character}\,\STAR{}
+\emkey{numeric} :::= {\em numeric-character}\PLUS{}
 \\[0.3ex]
-\emkey{mark} & ::= & {\em mark-character} {\em mark-character}\,\STAR{}
+\emkey{natural-number} :::= {\em digit}\PLUS{}
 \\[0.3ex]
-\emkey{number} & ::= &
-        {\em number-character} {\em number-character}\,\STAR{}
+\emkey{non-natural-numeric} ::= {\em numeric} except {\em natural-number}
 \\[0.3ex]
-\emkey{natural-number} & ::= & {\em digit} {\em digit}\,\STAR{}
+\emkey{mark} :::= {\em mark-character}\PLUS{}
 \\[0.3ex]
-\emkey{quoted-string} & ::= &
+\emkey{quoted-string} :::=
     \TT{"} {\em character-representative}\,\STAR{} \TT{"}
 \\[0.3ex]
-\emkey{separator} & ::= & {\em separator-character}
+\emkey{comment} :::= \TT{//}{\em comment-character}\STAR{}
 \\[0.3ex]
-\emkey{white-space} & ::= & {\em white-space-character}
-                            {\em white-space-character}\,\STAR{}
+\emkey{separator} ::= {\em separator-character} except \TT{|} $|$ \TT{|}\PLUS{}
 \\[2ex]
-\emkey{word-character} & ::= & {\em letter} $|$ \TT{'} followed by a letter \\
-\emkey{letter} & ::= & {\em lower-case-letter} $|$ {\em upper-case-letter} \\
-\emkey{lower-case-letter} & ::= &
+\emkey{word-prefix-character} ::= \TT{.}
+	\begin{tabular}[t]{@{}l@{}}
+	followed by a {\em letter} \\
+	and \underline{not} preceded by a {\em mark-character}
+	\end{tabular}
+\\[0.3ex]
+\emkey{word-character}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em letter} \\
+	$|$ & \TT{'} followed by a letter \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter}
+\\[0.3ex]
+\emkey{lower-case-letter} ::=
                                \TT{a}%
 			    $|$\TT{b}%
 			    $|$\TT{c}%
@@ -575,8 +588,8 @@ represents a line feed (same as \TT{<LF>}).
 			    $|$\TT{x}%
 			    $|$\TT{y}%
 			    $|$\TT{z}
-			    \\
-\emkey{upper-case-letter} & ::= &
+\\[0.3ex]
+\emkey{upper-case-letter} ::=
                                \TT{A}%
 			    $|$\TT{B}%
 			    $|$\TT{C}%
@@ -604,81 +617,94 @@ represents a line feed (same as \TT{<LF>}).
 			    $|$\TT{Y}%
 			    $|$\TT{Z}
 \\[0.3ex]
-\emkey{word-prefix-character} & ::= & \TT{.} followed by a
-                                      \TT{.} or {\em letter}
+\emkey{mark-character}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{+}%
+        $|$\TT{-}%
+        $|$\TT{*}%
+        $|$\TT{/}%
+        $|$\TT{\textbackslash}%
+        $|$\TT{\textasciitilde}%
+        $|$\TT{@}%
+        $|$\TT{\#}%
+        $|$\TT{\$}%
+        $|$\TT{\%}%
+        $|$\TT{\^{ }}%
+        $|$\TT{\&}%
+        $|$\TT{=}%
+        $|$\TT{|}%
+        $|$\TT{<}%
+        $|$\TT{>}%
+        $|$\TT{\_}%
+        $|$\TT{!}%
+        $|$\TT{?} \\
+        $|$ & \TT{.} \begin{tabular}[t]{@{}l@{}}
+	             not surrounded by {\em digits} \\
+		     and either preceded by a {\em mark-character} \\
+		     or \underline{not} followed by a {\em letter} \\
+		     \end{tabular} \\
+        $|$ & \TT{:} not surrounded by {\em digits} \\
+        $|$ & \TT{/} not surrounded by {\em digits}
+	\end{tabular}
 \\[0.3ex]
-\emkey{mark-character} & ::= &
-                                \TT{+}%
-		             $|$\TT{-}%
-		             $|$\TT{*}%
-		             $|$\TT{/}%
-		             $|$\TT{\textbackslash}%
-		             $|$\TT{\textasciitilde}%
-		             $|$\TT{@}%
-		             $|$\TT{\#}%
-		             $|$\TT{\$}%
-		             $|$\TT{\%}%
-		             $|$\TT{\^{ }}%
-		             $|$\TT{\&}%
-		             $|$\TT{=}%
-		             $|$\TT{|}%
-		             $|$\TT{<}%
-		             $|$\TT{>}%
-		             $|$\TT{\_}%
-		             $|$\TT{!}%
-		             $|$\TT{?} \\
-		     & $|$ & \TT{.} not followed by a {\em digit} \\
-		     & $|$ & \TT{:} not surrounded by {\em digits} \\
-		     & $|$ & \TT{/} not surrounded by {\em digits}
+\emkey{separator-character}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{(}
+	$|$ \TT{)}
+	$|$ \TT{[}
+	$|$ \TT{]}
+	$|$ \TT{\{}
+	$|$ \TT{\}}
+	$|$ \TT{;}
+	$|$ \TT{`}
+	$|$ \TT{|} \\
+	$|$ & \TT{,} not surrounded by {\em digits} \\
+	$|$ & \TT{'} not followed by a letter 
+	\end{tabular}
 \\[0.3ex]
-\emkey{separator-character} & ::= &
-		        \TT{(}
-	       	    $|$ \TT{)}
-	       	    $|$ \TT{[}
-	       	    $|$ \TT{]}
-	       	    $|$ \TT{\{}
-	       	    $|$ \TT{\}}
-	       	    $|$ \TT{;}
-	       	    $|$ \TT{`} \\
-		& $|$ & \TT{,} not surrounded by {\em digits} \\
-		& $|$ & \TT{'} not followed by a letter 
+\emkey{number-character}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em digit} \\
+	$|$ & \TT{.} followed by by a {\em digit } \\
+	$|$ & \TT{,} surrounded by {\em digits} \\
+	$|$ & \TT{:} surrounded by {\em digits} \\
+	$|$ & \TT{/} surrounded by {\em digits} \\
+	\end{tabular}
 \\[0.3ex]
-\emkey{number-character} & ::= & {\em digit} \\
-		& $|$ & \TT{.} followed by by a {\em digit } \\
-		& $|$ & \TT{,} surrounded by {\em digits} \\
-		& $|$ & \TT{:} surrounded by {\em digits} \\
-		& $|$ & \TT{/} surrounded by {\em digits} \\
-\emkey{digit} & ::= &
-                   \TT{0}%
-		$|$\TT{1}%
-		$|$\TT{2}%
-		$|$\TT{3}%
-		$|$\TT{4}%
-		$|$\TT{5}%
-		$|$\TT{6}%
-		$|$\TT{7}%
-		$|$\TT{8}%
-		$|$\TT{9} 
-\\[1.0ex]
+\emkey{digit} ::= \TT{0}%
+	      $|$\TT{1}%
+	      $|$\TT{2}%
+	      $|$\TT{3}%
+	      $|$\TT{4}%
+	      $|$\TT{5}%
+	      $|$\TT{6}%
+	      $|$\TT{7}%
+	      $|$\TT{8}%
+	      $|$\TT{9} 
+\\[0.3ex]
 \emkey{character-representative}
-    & ::= & {\em graphic-character} \\
-    & $|$ & \TT{<}{\em character-code}%
-	    \{\TT{-}{\em character-code}\}\QMARK{}\TT{>} \\
-\emkey{character-code} & ::= & {\em character-code-character}\PLUS{} \\
-\emkey{character-code-character} & ::= & {\em upper-case-letter} $|$
-                                         {\em digit} \\
-\emkey{graphic-character} & ::= &
-    {\em non-whitespace-non-control-character} \\
-\emkey{angle-brackets} & ::= & \TT{<} $|$ \TT{>}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em graphic-character} other than \TT{"} \\
+	$|$ & {\em single-space-character} \\
+	$|$ & {\em special-character-representative} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{graphic-character} ::= character than makes a mark on paper
+\\[0.3ex]
+\emkey{special-character-representative} ::=
+    \TT{<} {\em upper-case-letter}
+           \{ {\em upper-case-letter} $|$ {\em digit} \}\STAR{} \TT{>}
 \\[1.0ex]
+\emkey{white-space} ::= {\em white-space-character}\PLUS{}
+\\[0.3ex]
 \emkey{white-space-character}
-    & ::= & {\em horizontal-space-character} \\
-    & $|$ & {\em vertical-space-character} \\
-\emkey{horizontal-space-character} & ::= &
+    ::= {\em horizontal-space-character} \\
+    $|$ {\em vertical-space-character} \\
+\emkey{horizontal-space-character} ::=
     {\em space} $|$ {\em horizontal-tab} \\
-\emkey{vertical-space-character} & ::= &
+\emkey{vertical-space-character} ::=
     {\em line-feed} $|$ {\em vertical-tab} $|$ {\em form-feed}
-\end{tabular}
+\end{indpar}
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{figure*}
 

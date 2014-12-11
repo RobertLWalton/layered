@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 10, 2014
+December 11, 2014
  
 \end{center}
 
@@ -491,7 +491,46 @@ The top level lexical program must begin with a master
 table that serves as the initial lexical table.
 
 The lexemes in a lexical program are specified on
-\pagref{LEXEME-PROGRAM-LEXEMES}.
+\pagref{LEXEME-PROGRAM-LEXEMES}.  Lexemes may be separated by
+{\em white-space}:
+\begin{indpar}
+\emkey{white-space} ::= {\em horizontal-space} $|$ {\em vertical-space}
+\\[0.3ex]
+\emkey{horizontal-space} ::= {\em horizontal-space-character}\PLUS{}
+\\[0.3ex]
+\emkey{horizontal-space-character} ::=
+    {\em single-space-character} $|$ {\em horizontal-tab-character}
+\\[0.3ex]
+\emkey{vertical-space} ::= {\em line-end}\PLUS{}
+\\[0.3ex]
+\emkey{line-end} ::= {\em line-end-modifier}\STAR{}
+		     {\em line-feed-character}~
+		     {\em line-end-modifier}\STAR{}
+\\[0.3ex]
+\emkey{line-end-modifier}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em form-feed-character} \\
+	$|$ & {\em vertical-tab-character} \\
+	$|$ & {\em carriage-return-character}
+	\end{tabular}
+\end{indpar}
+
+The line number and beginning column of each lexeme is recorded
+for use in error messages.
+
+The beginning column of the first
+lexeme on a line is also used syntactically to determine
+indentation.  Line numbers are used syntactically to identify line ends
+and blank lines.
+
+Lines are ended by {\em line-ends}; the
+{\em line-end-modifier} characters are ignored when computing
+line numbers.  Note that {\em line-end-modifier} characters must
+be within a {\em line-end}, else they are ignored and a warning
+message issued.  Other control characters are ignored and a
+warning message is issued.
+
+TBD
 
 Consecutive quoted string lexemes are glued together if they are in the
 same (possibly continued) line.  Thus
@@ -546,7 +585,7 @@ represents a line feed (same as \TT{<LF>}).
 \emkey{comment} :::= \TT{//}{\em comment-character}\STAR{}
 \\[0.3ex]
 \emkey{separator} ::= {\em separator-character} except \TT{|} $|$ \TT{|}\PLUS{}
-\\[2ex]
+\\[1ex]
 \emkey{word-prefix-character} ::= \TT{.}
 	\begin{tabular}[t]{@{}l@{}}
 	followed by a {\em letter} \\
@@ -554,10 +593,8 @@ represents a line feed (same as \TT{<LF>}).
 	\end{tabular}
 \\[0.3ex]
 \emkey{word-character}
-	\begin{tabular}[t]{@{}rl@{}}
-	::= & {\em letter} \\
-	$|$ & \TT{'} followed by a letter \\
-	\end{tabular}
+	::= {\em letter}
+	$|$ \TT{'} followed by a letter
 \\[0.3ex]
 \emkey{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter}
 \\[0.3ex]
@@ -662,10 +699,10 @@ represents a line feed (same as \TT{<LF>}).
 	$|$ & \TT{'} not followed by a letter 
 	\end{tabular}
 \\[0.3ex]
-\emkey{number-character}
+\emkey{numeric-character}
 	\begin{tabular}[t]{@{}rl@{}}
 	::= & {\em digit} \\
-	$|$ & \TT{.} followed by by a {\em digit } \\
+	$|$ & \TT{.} surrounded by {\em digits} \\
 	$|$ & \TT{,} surrounded by {\em digits} \\
 	$|$ & \TT{:} surrounded by {\em digits} \\
 	$|$ & \TT{/} surrounded by {\em digits} \\
@@ -694,16 +731,12 @@ represents a line feed (same as \TT{<LF>}).
 \emkey{special-character-representative} ::=
     \TT{<} {\em upper-case-letter}
            \{ {\em upper-case-letter} $|$ {\em digit} \}\STAR{} \TT{>}
-\\[1.0ex]
-\emkey{white-space} ::= {\em white-space-character}\PLUS{}
 \\[0.3ex]
-\emkey{white-space-character}
-    ::= {\em horizontal-space-character} \\
-    $|$ {\em vertical-space-character} \\
-\emkey{horizontal-space-character} ::=
-    {\em space} $|$ {\em horizontal-tab} \\
-\emkey{vertical-space-character} ::=
-    {\em line-feed} $|$ {\em vertical-tab} $|$ {\em form-feed}
+\emkey{comment-character}
+    ::= {\em graphic-character}
+    $|$ {\em single-space-character}
+    $|$ {\em horizontal-tab}
+
 \end{indpar}
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{figure*}
@@ -713,136 +746,149 @@ The syntax of a lexical program is specified on
 \pagref{LEXEME-PROGRAM-SYNTAX-2}.
 
 \begin{figure*}[!p]
-\begin{tabular}{l}
+\begin{indpar}
 \emkey{name} ::= 
 	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
 	{\em word}
 	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
-\end{tabular}
-\\[1ex]
-\begin{tabular}{p{2.0in}rl}
-\emkey{lexical-program} & ::= &
+\\[0.3ex]
+\emkey{lexical-program} ::=
+        \begin{tabular}[t]{@{}l@{}}
 	\TT{begin} {\em program-name} \TT{lexical program;}\\
-	& &  ~~~~{\em lexical-program-unit}\STAR{} \\
-	& & \TT{end} {\em program-name} \TT{lexical program};
-\\[1ex]
-\emkey{program-name} & ::= & {\em name}
-\\[1ex]
+	~~~~{\em lexical-program-unit}\STAR{} \\
+	\TT{end} {\em program-name} \TT{lexical program};
+	\end{tabular}
+\\[0.3ex]
+\emkey{program-name} ::= {\em name}
+\\[0.3ex]
 \emkey{lexical-program-unit}
-	& ::= & {\em cpat-definition} \\
-	& $|$ & {\em lexical-table-definition} \\
-	& $|$ & {\em program-inclusion}
-\\[1ex]
-\emkey{program-inclusion} & ::= & \TT{include} {\em program-name}
+        \begin{tabular}[t]{@{}rl@{}}
+	::= & {\em cpat-definition} \\
+	$|$ & {\em lexical-table-definition} \\
+	$|$ & {\em program-inclusion}
+	\end{tabular}
+\\[0.3ex]
+\emkey{program-inclusion} ::= \TT{include} {\em program-name}
 				  {\em remove-clause}\STAR{} \TT{;}
-\\[1ex]
-\emkey{remove-clause} & ::= & \TT{remove} {\em lexical-table-name} \\
-                      & $|$ & \TT{remove} \TT{"}{\em cpat-name}\TT{"}
-\\[1ex]
-\multicolumn{3}{l}{~~~~~~Note: `{\em cpat}\,' abbreviates
-                               `{\em character-pattern}\,'}
-\\[1ex]
-\emkey{cpat-definition} & ::= &
+\\[0.3ex]
+\emkey{remove-clause}
+        \begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{remove} {\em lexical-table-name} \\
+	$|$ & \TT{remove} \TT{"}{\em cpat-name}\TT{"}
+	\end{tabular}
+\\[2.0ex]
+\hspace*{0.2in}
+    {\bf Note:} `{\em cpat}\,' abbreviates `{\em character-pattern}\,'
+\\[0.3ex]
+\emkey{cpat-definition} ::=
 	\TT{"}{\em cpat-name}\TT{"} \TT{=}
 		{\em cpat-expression} \TT{;}
-\\[1ex]
-\emkey{cpat-name} & ::= &
-	\TT{<}{\em letter}\PLUS{}\{\TT{-}{\em letter}\PLUS{}\}\STAR{}\TT{>} \\
-	\multicolumn{2}{r}{but not} &
-	{\em character-representive} \\
-\\[1ex]
-\emkey{cpat-expression} & ::= &
-	{\em cpat-term}
-	\{ \TT{|} {\em cpat-term} \}\STAR{} \\
-       & $|$ &
-	{\em cpat-term}
-	\{ \TT{\&} {\em cpat-term} \}\STAR{}
-\\[1ex]
-\emkey{cpat-term} & ::= & {\em cpat-factor} $|$ \TT{\textasciitilde} {\em cpat-factor}
-\\[1ex]
-\emkey{cpat-factor} & ::= & \TT{"}{\em quotable-character}\TT{"} \\
-		    & $|$ & \TT{"}{\em quotable-character}\TT{-}%
-		                   {\em quotable-character}\TT{"} \\
-		    & $|$ & \TT{"}{\em cpat-name}\TT{"} \\
-		    & $|$ & \TT{(} {\em cpat-expression}
-		                \TT{)}
-\\[1ex]
-\emkey{quotable-character} & ::= & {\em character-representative}
-\\[1ex]
-\emkey{lexical-table-definition} & ::= &
+\\[0.3ex]
+\emkey{cpat-name}
+        \begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{<}{\em letter}\PLUS{}\{\TT{-}{\em letter}\PLUS{}\}\STAR{}%
+	       \TT{>} \\
+	    & but not {\em character-representive} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{cpat-expression}
+        \begin{tabular}[t]{@{}rl@{}}
+	::= & {\em cpat-term} \{ \TT{|} {\em cpat-term} \}\STAR{} \\
+        $|$ & {\em cpat-term} \{ \TT{\&} {\em cpat-term} \}\STAR{}
+	\end{tabular}
+\\[0.3ex]
+\emkey{cpat-term} ::= {\em cpat-factor}
+                  $|$ \TT{\textasciitilde} {\em cpat-factor}
+\\[0.3ex]
+\emkey{cpat-factor}
+        \begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{"}{\em character-representative}\TT{"} \\
+	$|$ & \TT{"}{\em character-representative}\TT{-}%
+		    {\em character-representative}\TT{"} \\
+	$|$ & \TT{"}{\em cpat-name}\TT{"} \\
+	$|$ & \TT{(} {\em cpat-expression} \TT{)}
+	\end{tabular}
+\\[2.0ex]
+\emkey{lexical-table-definition} ::=
+        \begin{tabular}[t]{@{}l@{}}
 	\TT{begin} {\em lexical-table-name}
 		    {\em lexical-table-kind} \TT{table} \TT{;} \\
-	& &  ~~~~{\em lexical-table-entry}\STAR{} \\
-	& &  ~~~~{\em default-instruction-group} \\
-	& & \TT{end} {\em lexical-table-name}
-		      {\em lexical-table-kind} \TT{table} \TT{;}
-\\[1ex]
-\emkey{lexical-table-kind} & ::= &
+	~~~~{\em lexical-table-entry}\STAR{} \\
+	~~~~{\em default-instruction-group} \\
+	\TT{end} {\em lexical-table-name}
+		 {\em lexical-table-kind} \TT{table} \TT{;}
+	\end{tabular}
+\\[0.3ex]
+\emkey{lexical-table-kind} ::=
     \TT{master} $|$ \TT{lexeme} $|$ \TT{sublexeme} $|$ \TT{atom}
-\\[1ex]
-\emkey{lexical-table-name} & ::=
-    & {\em name} except \TT{scan error} or \TT{none}
-\\[1ex]
-\emkey{type} & ::= & {\em name} except \TT{scan error} or \TT{none}
-\end{tabular}
+\\[0.3ex]
+\emkey{lexical-table-name} ::=
+    {\em name} except \TT{scan error} or \TT{none}
+\\[0.3ex]
+\emkey{type} ::= {\em name} except \TT{scan error} or \TT{none}
+\end{indpar}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
 
 \begin{figure*}[!t]
-\begin{tabular}{p{2.2in}rl}
+\begin{indpar}
 \emkey{default-instruction-group}
-	& ::= &  {\em empty} $|$ {\em instruction-group}
-\\[1ex]
+	::= {\em empty} $|$ {\em instruction-group}
+\\[0.3ex]
 \emkey{lexical-table-entry}
-	& ::= & {\em atom-pattern} {\em instruction-group} \TT{;} \\
-	& $|$ & {\em atom-pattern} \TT{;}
-\\[1ex]
-\emkey{atom-pattern} & ::= & \TT{"}{\em atom-factor}\PLUS{}\TT{"}
-\\[1ex]
-\emkey{atom-factor} & ::= &
-	{\em atom-primary} $|$ {\em atom-primary}\TT{<repeat>}
-\\[1ex]
-\emkey{atom-primary} & ::= & {\em quotable-character} $|$
-                             {\em cpat-name} except \TT{<repeat>}
-\\[1ex]
+        \begin{tabular}[t]{@{}rl@{}}
+	::= & {\em atom-pattern} {\em instruction-group} \TT{;} \\
+	$|$ & {\em atom-pattern} \TT{;}
+	\end{tabular}
+\\[0.3ex]
+\emkey{atom-pattern} ::= \TT{"}{\em atom-factor}\PLUS{}\TT{"}
+\\[0.3ex]
+\emkey{atom-factor} ::= {\em atom-primary} {\em repeat}\QMARK{}
+\\[0.3ex]
+\emkey{atom-primary} ::= {\em character-representative} $|$
+                             {\em cpat-name} except {\em repeat}
+\\[0.3ex]
+\emkey{repeat} ::= \TT{<repeat>} $|$ \TT{<repeat-}{\em digit}\PLUS{}\TT{>}
+\\[0.3ex]
 \emkey{instruction-group}
-	& ::= & {\em instruction}
+	::= {\em instruction}
 	        \{ \TT{else} {\em instruction} \}\STAR{}
-
-\\[1ex]
-\emkey{instruction} & ::= & {\em instruction-component}\PLUS{}
-\\[1ex]
+\\[0.3ex]
+\emkey{instruction} ::= {\em instruction-component}\PLUS{}
+\\[0.3ex]
 \emkey{instruction-component}
-	& ::= & \TT{accept} \\
-	& $|$ & \TT{match} {\em atom-table-name} \\
-	& $|$ & \TT{keep} {\em natural-number} \\
-	& $|$ & \TT{translate to} {\em translation-string} \\
-	& $|$ & \TT{translate hex}
+        \begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{accept} \\
+	$|$ & \TT{match} {\em atom-table-name} \\
+	$|$ & \TT{keep} {\em natural-number} \\
+	$|$ & \TT{translate to} {\em translation-string} \\
+	$|$ & \TT{translate hex}
 			{\em natural-number} {\em natural-number} \\
-	& $|$ & \TT{translate oct}
+	$|$ & \TT{translate oct}
 			{\em natural-number} {\em natural-number} \\
-	& $|$ & \TT{require} {\em atom-pattern} \\
-	& $|$ & \TT{error} {\em type} \\
-	& $|$ & \TT{output} {\em type} \\
-	& $|$ & \TT{output} \TT{none} \\
-	& $|$ & \TT{goto} {\em master-table-name} \\
-	& $|$ & \TT{goto} {\em lexeme-table-name} \\
-	& $|$ & \TT{goto} {\em sublexeme-table-name} \\
-	& $|$ & \TT{call} {\em lexeme-table-name} \\
-	& $|$ & \TT{call} {\em sublexeme-table-name} \\
-	& $|$ & \TT{return} \\
-	& $|$ & \TT{fail} \\
-\\[1ex]
-\emkey{atom-table-name} & ::= & {\em lexical-table-name}
-\\[1ex]
-\emkey{lexeme-table-name} & ::= & {\em lexical-table-name}
-\\[1ex]
-\emkey{sublexeme-table-name} & ::= & {\em lexical-table-name}
-\\[1ex]
-\emkey{master-table-name} & ::= & {\em lexical-table-name}
-\\[1ex]
-\emkey{translation-string} & ::= & {\em quoted-string}
-\end{tabular}
+	$|$ & \TT{require} {\em atom-pattern} \\
+	$|$ & \TT{error} {\em type} \\
+	$|$ & \TT{output} {\em type} \\
+	$|$ & \TT{output} \TT{none} \\
+	$|$ & \TT{goto} {\em master-table-name} \\
+	$|$ & \TT{goto} {\em lexeme-table-name} \\
+	$|$ & \TT{goto} {\em sublexeme-table-name} \\
+	$|$ & \TT{call} {\em lexeme-table-name} \\
+	$|$ & \TT{call} {\em sublexeme-table-name} \\
+	$|$ & \TT{return} \\
+	$|$ & \TT{fail} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{atom-table-name} ::= {\em lexical-table-name}
+\\[0.3ex]
+\emkey{lexeme-table-name} ::= {\em lexical-table-name}
+\\[0.3ex]
+\emkey{sublexeme-table-name} ::= {\em lexical-table-name}
+\\[0.3ex]
+\emkey{master-table-name} ::= {\em lexical-table-name}
+\\[0.3ex]
+\emkey{translation-string} ::= {\em quoted-string}
+\end{indpar}
 \label{LEXEME-PROGRAM-SYNTAX-2}
 \end{figure*}
 
@@ -857,7 +903,8 @@ in quoted strings by this example.
 \begin{indpar}\begin{verbatim}
 begin example lexical program;
 
-"<whitespace-char>" = " " | "<LF>" | "<HT>" | "<VT>" | "<FF>";
+"<whitespace-char>" = " " | "<HT>"
+                    | "<LF>" | "<VT>" | "<FF>";
 
 begin main master table;
     "<whitespace-char>" goto whitespace;
@@ -939,16 +986,17 @@ some {\em character-representative}.
 
 The character set is denoted by a \emkey{character-pattern-expression}.
 The simplest character pattern
-expression is just a single {\em quotable-character} in quotes, which denotes
+expression is just a single {\em character-representative} in quotes,
+which denotes
 the character set containing only the quoted character.  Examples:
-\TT{"0"} and \TT{"+"}.  The next simplest is two {\em quotable-characters}
+\TT{"0"} and \TT{"+"}.  The next simplest is two {\em character-representative}
 separated by a hyphen (\TT{-}) denoting the character set consisting
 of all characters in the range from the first to the second of the two
 characters.  Examples: \TT{"0-9"} and \TT{"A-Z"}.  The characters
 are ordered according to their 32 bit unsigned UNICODE value, and the
 second of the two characters must not be smaller than the first.
 
-A {\em quotable-character} is a representative of a single UNICODE
+A {\em character-representative} is a representative of a single UNICODE
 character that can be used inside quotes (\TT{"}).
 Printable ASCII characters represent themselves.  Other characters
 are represented by character sequences surrounded by the angle
@@ -1029,7 +1077,7 @@ A lexical table consists of {\em lexical-table-entries}%
 \emindex{lexical-table-entry} each containing an {\em atom-pattern} and
 an {\em instruc\-tion-group}.  The \emkey{atom-pattern} is matched against
 the remaining input characters.  The pattern consists of a sequence
-of {\em quotable-characters}, each of which match only themselves,
+of {\em character-representatives}, each of which match only themselves,
 and {\em character-pattern-names}, each of which match any character
 in the named set of characters.  Thus
 \begin{center}

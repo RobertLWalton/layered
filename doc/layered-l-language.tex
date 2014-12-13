@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 27, 2014
+December 12, 2014
  
 \end{center}
 
@@ -232,7 +232,7 @@ multi-file source code in a well-ordered and type-safe manner.
 
 The basic builtin types are the number and \TT{void} types.
 All defined types are subtypes of these types.
-There is one builtin define type, the `\TT{type}' type.
+There is one builtin define typed, the `\TT{type}' type.
 
 \subsection{Number Types}
 \label{NUMBER-TYPES}
@@ -319,8 +319,9 @@ and mantissas for various floating point number sizes are as follows:
 \end{center}
 
 An \key{address} holds a RAM byte address.
-A address is a 32-bit or 64-bit unsigned integer whose size
-is determined by the target machine.  Some of high order bits may be
+An address is a 32-bit or 64-bit signed or unsigned integer whose size
+and signage are determined by the target machine.
+Some of high order bits may be
 required to be all 0's or all 1's, depending upon
 the target machine.  The \TT{unsadr} and \TT{intadr}
 unsigned and signed integer types of the same size
@@ -371,7 +372,7 @@ The following \underline{unchecked} (\itemref{UNCHECKED-BLOCKS})
 conversion operator is defined:
 \begin{center}
 
-$t1${\em -type-value} ~~ \TT{**>{}>} ~~ $t2$
+$t2$ ~~ \TT{<{}<**} ~~ $t1${\em -type-value}
 
 for any two builtin number types $t1$ and $t2$
 
@@ -405,11 +406,11 @@ Here the builtin type is called the \key{underlying type} of the
 A value of a defined type may be converted to or from its underlying
 type by the \underline{unchecked}
 \underline{unchecked} (\itemref{UNCHECKED-BLOCKS})
-\TT{**>{}>} operators:
+\TT{<{}<**} operators:
 \begin{center}
 \begin{tabular}{rcl}
-{\em defined-type-value} & \TT{**>{}>} & {\em builtin-type-name} \\
-{\em builtin-type-value} & \TT{**>{}>} & {\em defined-type-name} \\
+{\em builtin-type-name} & \TT{<{}<**} & {\em defined-type-value} \\
+{\em defined-type-name} & \TT{<{}<**} & {\em builtin-type-value} \\
 \end{tabular}
 \end{center}
 These operators do not change the actual value, but merely its
@@ -449,10 +450,10 @@ Enumeration values can be assigned by statements of the form
     ::= {\em type-name} {\em constant-name} \TT{=} \TT{next enum}
 \end{indpar}
 
-Within a compilation the compiler assignes the value {\em first-enum}
+Within a compilation the compiler assigns the value {\em first-enum}
 to the first constant named in an {\em enum-assignment} statement for
 the given type, and then
-assigned values in increasing order if {\em first-enum} < {\em last-enum},
+assigns values in increasing order if {\em first-enum} < {\em last-enum},
 or in decreasing order if {\em first-enum} > {\em last-enum}, to
 constants named in subsequent {\em enum-assignment} statements for
 the given type.  The assignments occur when the statements are
@@ -469,7 +470,8 @@ relative order.
 
 If {\em last-enum} is not given, it is assumed to be the maximum
 value of the underlying type.  If {\em enum-range} is not given,
-it is assumed to be `\TT[0 ...]'.
+it is assumed to be `\TT[0 ...]'.  It is an error if `\TT{next enum}'
+would return a value beyond the {\em last-enum} value in a range.
 
 \subsection{Type Values}
 \label{TYPE-VALUES}
@@ -600,7 +602,7 @@ Two variables in the same block of code may not have the same
 name.  Thus variables are only assigned values once.
 
 However, if an assignment statement uses the word `\TT{next}' in
-place of the {\em qualifiers} and {\em type}
+place of the {\em qualifiers} and {\em type-name}
 of a variable being assigned a value, and
 if the variable previously exists, a new variable with the same
 name, type, and qualifiers as the previous variable is allocated.
@@ -693,6 +695,18 @@ single subblock that executes, variables in the
 {\em variable-list} cannot be read by subblock {\em executable-statements},
 and variables declared in the subblocks are not visible outside their
 subblock.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+int result = max ( int x, int y, int z ):
+    result =
+        if x > y and x > z:
+	    result = x
+	else if y > z:
+	    result = y
+	default:
+	    result = z
+\end{verbatim}\end{indpar}
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -831,6 +845,8 @@ where \TT{A} must be a power of 2.  This will align the \TT{O+1}'st
 byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
 
+TBD: prevent return of stack addresses from block allocating them
+
 
 \section{Clusters}
 \label{CLUSTERS}
@@ -966,7 +982,7 @@ type pointer pair is void
                          type ppf2.type ):
         initially:
             partial sum = 0
-	    ppf2 = ppf
+            ppf2 = ppf
         while ppf2.begin < ppf2.end
             next partial sum = partial sum + * ppf2
             next ppf2 = ++ ppf2
@@ -996,7 +1012,7 @@ as cluster roots.
 In the above example `\TT{mem}' is a qualifier
 which can be applied to variables.
 A qualifier applied to a cluster root is applied automatically
-to the cluster members.
+to the cluster members.  See \itemref{QUALIFIERS}.
 
 The `\TT{mem}' qualifier has the special property that given a variable
 \TT{v} of type \TT{T} and qualifier \TT{mem}, then if \TT{v} is allocated,
@@ -1004,6 +1020,7 @@ and \TT{v.adr} of type \TT{adr} is allocated and
 assigned a value, the base \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
+See \itemref{THE-MEM-QUALIFIER}.
 
 \section{Qualifiers}
 \label{QUALIFIERS}
@@ -1045,7 +1062,7 @@ given the \TT{mem} qualifier.
 
 Two qualifiers, \TT{mem} and \TT{trace}, are builtin and have special
 effects.  In addition any qualifier can be used with the special
-\TT{reload} command descibed below.
+\TT{reload} statement descibed below.
 
 \subsection{The Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
@@ -1062,7 +1079,8 @@ must be created as matches to result variables of a function.
 So only functions can effect a load of RAM contents to a variable.
 
 It is further required that both \TT{v} and \TT{v.adr} be created
-by the same function call.  This function will assign a value to
+by the same function call assignment statement.
+The function must assign a value to
 \TT{v.adr}, but not to \TT{v}.  Thus all memory reads are hidden
 inside functions which have the \TT{mem} qualifier on some of
 their result variables.
@@ -1089,31 +1107,32 @@ Variable values are recomputed in the same order as they were
 originally computed.  How each variable is recomputed depends upon
 how it was originally computed.
 
+If the variable \TT{v} was originally computed by being loaded from
+RAM, using the statement `{\em type} \TT{v}' to allocate the variable,
+it is assumed that RAM has changed.  The statement `\TT{next v}' is
+generated at the point of the \TT{reload} statement in order
+to reload the variable.  As \TT{v.adr}
+has all the qualifiers of \TT{v} and was 
+computed first, it is recomputed before \TT{v} is reloaded.
+
 If the variable \TT{v} was originally computed by
 a {\em value-assignment-statement}
 of the form `{\em type} \TT{v =} {\em expression}', then if
-no input to {\em expression} has changed, the variable value does not
+no input to {\em expression} has been recomputed, the variable value does not
 need to be recomputed, but if some input has changed, the
-statement `\TT{next v =} {\em expression}' is generated.
+statement `\TT{next v =} {\em expression}' is generated at the
+point of the \TT{reload} statement.
 
-If the variable \TT{v} was originally computed by being loaded from
-RAM, using the statement `{\em type} \TT{v}' to allocate the variable,
-it is assumed that RAM has changed, and the statement `\TT{next v}' is
-generated to reload the variable.  Note that in this case, as \TT{v.adr}
-has all the qualifiers of \TT{v}, it is assumed that \TT{v.adr} was
-computed first, so it is recomputed before \TT{v} is reloaded.
+If a recomputed variable value is not used after the \TT{reload} statement,
+the automatically generated
+statements that recompute its value are suppressed.
 
-TBD: conditional assignment, loop assignment
-
-If a recomputed variable value is never used, the automatically generated
-statements that recompute the value are suppressed.
+TBD: conditional assignment, loop assignment, side effects
 
 \section{TBD}
 
-\TT{track} qualifier: variables recomputed after out-of-line
-function call.
-
-\TT{pure} functions that do not need such recomputation.
+\TT{pure} functions that do not need recomputation and have no
+visible side effects
 
 \TT{trace} variables which can be located in stack by GC.
 

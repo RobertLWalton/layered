@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 14 05:19:47 EST 2012
+// Date:	Mon Dec 15 07:05:15 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -69,29 +69,20 @@ namespace ll { namespace lexeme { namespace standard {
         // A sequence of carriage returns, form feed,
 	// and vertical tabs that does not contain
 	// a line feed.
-    const uns32 ascii_escape_seq_t		= 15;
-        // A <0...> escape sequence that represents any
-	// ASCII character and is outside a quoted
-	// string.
-    const uns32 non_letter_escape_seq_t		= 16;
-        // A <0...> escape sequence in a lexeme begin-
-	// ning position that does not represent a
-	// letter.
 
     // Erroneous Atom Types:
     //
     //    These are translated to "" and ignored, so
     //    removal will not change the lexemes produced.
     //
-    const uns32 misplaced_control_char_t	= 17;
+    const uns32 misplaced_control_char_t	= 15;
         // Any control character in a quoted string.
-    const uns32 unrecognized_escape_seq_t	= 18;
+    const uns32 unrecognized_escape_seq_t	= 16;
         // Any unrecognized <...> sequence in a quoted
-	// string where ... is at most 12 characters
-	// that are all upper case letters, digits,
-	// or `-'s.
+	// string where ... is all upper case letters
+	// and digits.
 
-    const unsigned MAX_TYPE = 18;
+    const unsigned MAX_TYPE = 16;
 
     extern const char * const type_name[MAX_TYPE+1];
 

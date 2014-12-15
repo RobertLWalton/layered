@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 12 08:11:25 EST 2014
+// Date:	Mon Dec 15 05:55:26 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1617,12 +1617,12 @@ PAR::token PAR::find_separator
     return first;
 }
 
-min::gen PAR::get_initiator ( min::gen v )
+min::gen PAR::get_type ( min::gen v )
 {
     if ( ! min::is_obj ( v ) ) return min::MISSING();
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
-    min::locate ( ap, min::dot_initiator );
+    min::locate ( ap, min::dot_type );
     min::gen result = min::get ( ap );
     if ( result == min::NONE()
          ||
@@ -1645,7 +1645,7 @@ min::gen PAR::scan_name_string_label
 
     min::gen element = vp[i];
 
-    if ( get_initiator ( element ) != PAR::doublequote )
+    if ( get_type ( element ) != PAR::doublequote )
         return min::MISSING();
 
     min::obj_vec_ptr ep = element;
@@ -1681,17 +1681,17 @@ void PAR::convert_token ( PAR::token token )
 {
     assert ( token->value == min::MISSING() );
 
-    min::gen initiator;
+    min::gen type;
 
     if (    token->type
 	 == LEXSTD::quoted_string_t )
-	initiator = PAR::doublequote;
+	type = PAR::doublequote;
     else
     {
 	assert (    token->type
 		 == LEXSTD::number_t );
 
-	initiator = PAR::number_sign;
+	type = PAR::number_sign;
     }
 
 
@@ -1710,8 +1710,8 @@ void PAR::convert_token ( PAR::token token )
 	PAR::free_string ( token->string );
 
     min::attr_insptr elemap ( elemvp ); 
-    min::locate ( elemap, min::dot_initiator );
-    min::set ( elemap, initiator );
+    min::locate ( elemap, min::dot_type );
+    min::set ( elemap, type );
 
     token->type = PAR::BRACKETED;
 }

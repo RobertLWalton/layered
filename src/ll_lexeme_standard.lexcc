@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  9 04:46:47 EST 2014
+// Date:	Mon Dec 15 06:48:13 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,13 +99,11 @@ cc	    "PREMATURE_END_OF_LINE",
 cc	    "PREMATURE_END_OF_FILE",
 cc	    "MISPLACED_CHARACTER",
 cc	    "MISPLACED_SPACE",
-cc	    "ASCII_ESCAPE_SEQUENCE",
-cc	    "NON_LETTER_ESCAPE_SEQUENCE",
 cc	    "MISPLACED_CONTROL_CHARACTER",
 cc	    "UNRECOGNIZED_ESCAPE_SEQUENCE" };
 cc
 cc	const char * LEXSTD::type_code =
-cc	    "?wn#mqschbeLFCSANXU";
+cc	    "?wn#mqschbeLFCSXU";
 cc
 cc	struct char_range { uns32 min, max; }
 cc	    non_ascii_letters[] =
@@ -212,8 +210,6 @@ cc	    NDL::new_table ( escaped_hex_char, ATOM );
 cc	    uns32 unrec_escape_seq;
 cc	    NDL::new_table ( unrec_escape_seq, ATOM );
 cc
-cc	    uns32 non_letter_seq_t =
-cc		non_letter_escape_seq_t;
 cc	    uns32 unrec_escape_seq_t =
 cc		unrecognized_escape_seq_t;
 cc
@@ -303,8 +299,8 @@ lex
 
 lex	"<mark-char>" = "+" | "-" | "*" | "~" | "@"
 lex	              | "#" | "$" | "%" | "^" | "&"
-lex	              | "=" | ">" | "_" | "!" | "?"
-lex                   | ":";
+lex	              | "=" | "<" | ">" | "_" | "!"
+lex		      | "?" | ":";
 lex	              //
 lex	              // Also . not surrounded by digits
 lex		      //        and not both followed by
@@ -312,11 +308,9 @@ lex		      //        a letter and preceeded
 lex		      //        by a non-mark character
 lex	              //      / not surrounded by digits
 lex	              //        or followed by /
-lex	              //      < not beginning escaped
-lex	              //        hex character
 lex
 cc	    const char * mark_char =
-cc		"+-*~@#$%^&=>_!?:";
+cc		"+-*~@#$%^&=<>_!?:";
 cc
 
 lex	"<non-slash-char>" = ~ "/";
@@ -459,46 +453,6 @@ cc		      NDL::end_dispatch();
 cc
 cc		   NDL::output ( separator_t );
 cc		   NDL::end_dispatch();
-cc
-
-lex	  "<" "<digit>"
-lex	          match escaped hex char
-lex	          require "<non-ascii-letter>"
-lex	          call word
-lex	     else match escaped hex char
-lex	          require "<ascii-char>"
-lex	          output ascii escape seq
-lex	     else match escaped hex char
-lex	          output non letter escape seq
-lex	     else keep 1 call mark;
-lex	   "<" call mark;
-lex
-cc	    	   NDL::begin_dispatch ( "<" );
-cc	    	      NDL::begin_dispatch
-cc				( digit );
-cc			  NDL::match
-cc			      ( escaped_hex_char );
-cc			  NDL::require
-cc			      ( non_ascii_letter );
-cc			  NDL::call ( word );
-cc		      NDL::ELSE();
-cc			  NDL::match
-cc			      ( escaped_hex_char );
-cc			  NDL::require ( ascii_char );
-cc			  NDL::output
-cc			      ( ascii_escape_seq_t );
-cc		      NDL::ELSE();
-cc			  NDL::match
-cc			      ( escaped_hex_char );
-cc			  NDL::output
-cc			      ( non_letter_seq_t );
-cc		      NDL::ELSE();
-cc		          NDL::keep ( 1 );
-cc		          NDL::call ( mark );
-cc		      NDL::end_dispatch();
-cc
-cc		      NDL::call ( mark );
-cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<mark-char>" call mark;
@@ -725,24 +679,6 @@ cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<" "<digit>"
-lex	              match escaped hex char
-lex	              require "<non-ascii-word-char>"
-lex	         else keep 0 return;
-lex
-cc		   NDL::begin_dispatch ( "<" );
-cc		      NDL::begin_dispatch ( digit );
-cc			 NDL::match
-cc			    ( escaped_hex_char );
-cc			 NDL::require
-cc			    ( non_ascii_word_char );
-cc		      NDL::ELSE();
-cc			 NDL::keep ( 0 );
-cc			 NDL::ret();
-cc		      NDL::end_dispatch();
-cc		   NDL::end_dispatch();
-cc
-
 lex	   return;
 lex
 cc	    	   NDL::ret();
@@ -780,35 +716,6 @@ cc			   NDL::ret();
 cc		       NDL::end_dispatch();
 cc
 cc		       NDL::accept();
-cc		   NDL::end_dispatch();
-cc
-
-lex	   "<" "<digit>"
-lex	            match escaped hex char
-lex	            require "<non-ascii-combining-char>"
-lex	        else
-lex	            match escaped hex char
-lex	            keep 0 return;
-lex	        else
-lex	            keep 1;
-lex	   "<" accept;
-lex
-cc		   NDL::begin_dispatch ( "<" );
-cc		      NDL::begin_dispatch ( digit );
-cc		         NDL::match
-cc			      ( escaped_hex_char );
-cc		         NDL::require
-cc			   ( non_ascii_combining_char );
-cc		      NDL::ELSE();
-cc			 NDL::match
-cc			      ( escaped_hex_char );
-cc		         NDL::keep ( 0 );
-cc			 NDL::ret();
-cc		      NDL::ELSE();
-cc		         NDL::keep ( 1 );
-cc		      NDL::end_dispatch();
-cc
-cc		      NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 

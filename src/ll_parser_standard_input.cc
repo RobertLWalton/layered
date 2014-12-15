@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 10 00:52:54 EST 2014
+// Date:	Mon Dec 15 07:17:39 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -152,13 +152,6 @@ static min::uns32 input_add_tokens
 	    break;
 	case LEXSTD::misplaced_space_t:
 	    message = "ERROR: misplaced space; ";
-	    break;
-	case LEXSTD::ascii_escape_seq_t:
-	    message = "ERROR: ascii escape sequence; ";
-	    break;
-	case LEXSTD::non_letter_escape_seq_t:
-	    message = "ERROR: non-letter escape"
-	              " sequence; ";
 	    break;
 	}
 

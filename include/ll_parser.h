@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 11 03:09:03 EST 2014
+// Date:	Mon Dec 15 05:53:57 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1388,12 +1388,12 @@ ll::parser::token find_separator
 	  min::gen * separator,
 	  min::uns32 n );
 
-// Given a min::gen value, return the .initiator
-// attribute of that value if it is an object with a
-// single .initiator attribute value, or return
-// min::MISSING() otherwise.
+// Given a min::gen value, return the .type attribute of
+// that value if that value is an object with a .type
+// attribute that has a single value (is not missing or
+// multi-valued), or return min::MISSING() otherwise.
 //
-min::gen get_initiator ( min::gen v );
+min::gen get_type ( min::gen v );
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
@@ -1493,8 +1493,8 @@ inline ll::parser::token backup
 // to an expression token.  The expression has as its
 // only element a min::gen string value equal to the
 // translation string of the token's lexeme, and has as
-// its .initiator either # for a non-natural number or
-// " for a quoted string.
+// its .type either # for a non-natural number or " for
+// a quoted string.
 //
 void convert_token ( ll::parser::token token );
 

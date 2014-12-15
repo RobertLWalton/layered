@@ -23,10 +23,10 @@ LINE_BREAK: line 4:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 COMMENT: line 5:
-// Date:        Sun Nov 30 23:08:35 EST 2014
+// Date:        Fri Dec  5 02:03:27 EST 2014
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 5:
-// Date:        Sun Nov 30 23:08:35 EST 2014
+// Date:        Fri Dec  5 02:03:27 EST 2014
                                             ^
 COMMENT: line 6:
 //
@@ -121,68 +121,74 @@ LINE_BREAK: line 13:
 'tis noth'ng `but' a h'dache.
                              ^
 WORD: "a": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z)
 ^
-NUMBER: ".1.2.3": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
- ^^^^^^
 MARK: ".": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-       ^
+a.1.2.3..b...c e5f x7+y6(5z)
+ ^
+NUMBER: "1.2.3": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+  ^^^^^
+MARK: "..": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+       ^^
 WORD: "b": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-        ^
-MARK: ".": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z)
          ^
+MARK: "...": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+          ^^^
 WORD: "c": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-          ^
-WORD: "e": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-            ^
-NATURAL_NUMBER: "5": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z)
              ^
-WORD: "f": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-              ^
-WORD: "x": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-                ^
-NATURAL_NUMBER: "7": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-                 ^
-MARK: "+": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-                  ^
-WORD: "y": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-                   ^
-NATURAL_NUMBER: "6": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-                    ^
-SEPARATOR: "(": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
-                     ^
+WORD: "e": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+               ^
 NATURAL_NUMBER: "5": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z)
+                ^
+WORD: "f": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+                 ^
+WORD: "x": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+                   ^
+NATURAL_NUMBER: "7": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+                    ^
+MARK: "+": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+                     ^
+WORD: "y": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
                       ^
-WORD: "z": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
+NATURAL_NUMBER: "6": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
                        ^
-SEPARATOR: ")": line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
+SEPARATOR: "(": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
                         ^
-LINE_BREAK: line 14:
-a.1.2.3.b.c e5f x7+y6(5z)
+NATURAL_NUMBER: "5": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
                          ^
+WORD: "z": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+                          ^
+SEPARATOR: ")": line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+                           ^
+LINE_BREAK: line 14:
+a.1.2.3..b...c e5f x7+y6(5z)
+                            ^
 NUMBER: "12.3": line 15:
 12.3 .4 5. 6/7
 ^^^^
-NUMBER: ".4": line 15:
+MARK: ".": line 15:
 12.3 .4 5. 6/7
-     ^^
+     ^
+NATURAL_NUMBER: "4": line 15:
+12.3 .4 5. 6/7
+      ^
 NATURAL_NUMBER: "5": line 15:
 12.3 .4 5. 6/7
         ^
@@ -196,137 +202,170 @@ LINE_BREAK: line 15:
 12.3 .4 5. 6/7
               ^
 NUMBER: "1,23,456": line 16:
-1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
 ^^^^^^^^
 NUMBER: "1,234/6,789": line 16:
-1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
          ^^^^^^^^^^^
 NUMBER: "1/2/3/4,5/6,7,8/9": line 16:
-1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
                      ^^^^^^^^^^^^^^^^^
 NUMBER: "8888.12,3,4": line 16:
-1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
                                        ^^^^^^^^^^^
+NATURAL_NUMBER: "2": line 16:
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
+                                                   ^
+SEPARATOR: "|": line 16:
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
+                                                    ^
+NATURAL_NUMBER: "3": line 16:
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
+                                                     ^
+SEPARATOR: "||": line 16:
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
+                                                      ^^
+NATURAL_NUMBER: "4": line 16:
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
+                                                        ^
 LINE_BREAK: line 16:
-1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
-                                                  ^
+1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4 2|3||4
+                                                         ^
 MARK: "/": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
 ^
 NATURAL_NUMBER: "3": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
  ^
 NUMBER: "6.34.56": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
    ^^^^^^^
 MARK: "/": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
           ^
 NATURAL_NUMBER: "3": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
             ^
 SEPARATOR: ",": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
              ^
 NATURAL_NUMBER: "4": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                ^
 SEPARATOR: ",": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                 ^
 SEPARATOR: ",": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                   ^
 NATURAL_NUMBER: "5": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                    ^
 SEPARATOR: ",": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                      ^
 NUMBER: "6.7,8.9": line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                       ^^^^^^^
+NUMBER: "'05": line 17:
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
+                              ^^^
+NUMBER: "'1'2'3'4": line 17:
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
+                                  ^^^^^^^^
+SEPARATOR: "'": line 17:
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
+                                          ^
 LINE_BREAK: line 17:
-/3 6.34.56/ 3, 4, ,5 ,6.7,8.9
-                             ^
-MARK: "+-*~@#$%^&=|<>_!?:": line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-^^^^^^^^^^^^^^^^^^
+/3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
+                                           ^
+MARK: "+-*~@#$%^&=<>_!?.:/": line 18:
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+^^^^^^^^^^^^^^^^^^^
 QUOTED_STRING: "foo": line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                  ^^^^^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                   ^^^^^
 WORD: "x": line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                       ^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                        ^
 ERROR: ascii escape sequence; line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                        ^^^^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                         ^^^^
 ERROR: ascii escape sequence; line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                            ^^^^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                             ^^^^
+ERROR: non-letter escape sequence; line 18:
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                                 ^^^^
 MARK: "<": line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                                ^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                                     ^
 WORD: "LF": line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                                 ^^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                                      ^^
 MARK: ">": line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                                   ^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                                        ^
 LINE_BREAK: line 18:
-+-*~@#$%^&=|<>_!?:"foo"x<79><05><LF>
-                                    ^
-MARK: ".": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-^
-WORD: "foo": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
- ^^^
++-*~@#$%^&=<>_!?.:/"foo"x<79><05><80><LF>
+                                         ^
+WORD: ".foo": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+^^^^
 MARK: "/": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
      ^
 WORD: "foo": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
       ^^^
+MARK: "..": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+          ^^
+WORD: "foo": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+            ^^^
+MARK: ".=": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                ^^
 NATURAL_NUMBER: "3": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-          ^
-MARK: "/": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-           ^
-WORD: "x": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-            ^
-WORD: "x": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-              ^
-MARK: "/": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-               ^
-NATURAL_NUMBER: "3": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-                ^
-NATURAL_NUMBER: "3": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-                  ^
-MARK: ".": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                    ^
-WORD: "x": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
+MARK: "/": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                     ^
 WORD: "x": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-                      ^
-NUMBER: ".3": line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-                       ^^
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                     ^
+WORD: "x": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                       ^
+MARK: "/": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                        ^
+NATURAL_NUMBER: "3": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                         ^
+NATURAL_NUMBER: "3": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                           ^
+WORD: ".x": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                            ^^
+WORD: "x": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                               ^
+MARK: ".": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                                ^
+NATURAL_NUMBER: "3": line 19:
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                                 ^
 COMMENT: line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-                         ^^^^^^^^^^^^^^^^^^
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                                  ^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 19:
-.foo /foo 3/x x/3 3.x x.3// comment <89> "'
-                                           ^
+.foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
+                                                    ^
 WORD: "a": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 ^
@@ -465,7 +504,7 @@ control A␁B␂C␃
 ERROR: unrecognized escape sequence; line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                             ^^^^
-QUOTED_STRING: "<Q>␊␍␉␈␌␋␣â␁": line 27:
+QUOTED_STRING: "<Q>␊␍␉␈␌␋␥␣â␁": line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 27:
@@ -546,7 +585,7 @@ LINE_BREAK: line 34:
 ERROR: misplaced control character; line 35:
 "misplaced control ␁"
                    ^
-QUOTED_STRING: "misplaced␣control␣": line 35:
+QUOTED_STRING: "misplaced␣control␣␥": line 35:
 "misplaced control ␁"
 ^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 35:

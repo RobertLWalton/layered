@@ -1047,6 +1047,14 @@ static min::gen execute_test
     if ( flags == 0 )
 	flags = PAR::TRACE_SUBEXPRESSION_ELEMENTS;
 
+    if ( flags & TRACE_ANY )
+	parser->printer
+	    << min::bol
+	    << min::save_print_format
+	    << min::no_auto_break
+	    << "======= TEST: "
+	    << min::restore_print_format;
+
     if ( flags & TRACE_E_OR_D )
     {
 	min::gen obj =
@@ -1055,27 +1063,20 @@ static min::gen execute_test
 	vp = min::NULL_STUB;
 	    // Close vp so pgen can print obj.
 
-	parser->printer
-	    << min::save_print_format
-	    << min::no_auto_break
-	    << "======= TEST: "
-	    << min::restore_print_format
-	    << min::bom;
-
 	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
 	    parser->printer
+	        << min::bom
 		<< min::pgen ( obj )
 		<< min::eom
 		<< min::flush_id_map;
 
 	if ( ( flags & TRACE_E_OR_D ) == TRACE_E_OR_D)
-	    parser->printer
-		<< min::indent
-		<< min::bom;
+	    parser->printer << min::indent;
 
 	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	{
 	    parser->printer
+		<< min::bom
 		<< min::pgen ( obj,
 		               min::id_map_gen_format )
 		<< min::eol
@@ -1088,11 +1089,8 @@ static min::gen execute_test
 
     if ( flags & PAR::TRACE_SUBEXPRESSION_LINES )
     {
-        if ( ( flags & TRACE_E_OR_D ) == 0 )
-	    parser->printer
-	        << "======= TEST:" << min::eol;
-
 	parser->printer
+	    << min::bol
 	    << "------- "
 	    << min::bom
 	    << min::pline_numbers
@@ -1104,10 +1102,11 @@ static min::gen execute_test
 	      ppvec->file, ppvec->position );
 	::execute_test_scan
 	    ( vp, parser->printer );
+    }
 
+    if ( flags & TRACE_ANY )
 	parser->printer
 	    << "======= END TEST" << min::eol;
-    }
 
     return COM::PRINTED;
 }

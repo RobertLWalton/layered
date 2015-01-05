@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 4, 2015
+January 5, 2015
  
 \end{center}
 
@@ -686,7 +686,10 @@ represents a line feed (same as \TT{<LF>}).
 	             and either preceded by a \TT{:} \\
 	             or followed by a {\em mark-character} \\
 		     \end{tabular} \\
-        $|$ & \TT{/} not surrounded by {\em digits}
+        $|$ & \TT{/} \begin{tabular}[t]{@{}l@{}}
+	             not surrounded by {\em digits} \\
+		     or followed by a \TT{/} \\
+		     \end{tabular} \\
 	\end{tabular}
 \\[0.3ex]
 \emkey{separator-character}

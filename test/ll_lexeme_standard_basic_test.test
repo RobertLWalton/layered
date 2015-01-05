@@ -169,6 +169,38 @@
             Max Break Elements: 1
             Max CType: 0
   ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            /
+                #####: KEEP(1), OUTPUT(6)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 3
+            ! #-& *-+ --. <-@ ^-_ ~
+                #####: CALL(####)
+                Dispatcher ID: #####
+            : [repeat(INFINITY)]
+                #####: CALL(####)
+                Dispatcher ID: #####
+            /
+                #####: CALL(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
             Break Elements: 98
             Max Break Elements: 101
             Max CType: 1
@@ -209,7 +241,7 @@
   ########: DISPATCHER
             Break Elements: 98
             Max Break Elements: 101
-            Max CType: 13
+            Max CType: 14
             <NUL>-<BS> <SO>-<US> \ <DEL>-<0A7> <0A9> <0AB>-<0AC> <0AE>
             <0B0>-<0B1> <0B6> <0BB> <0BF> <0D7> <0F7> <300>-<36F> <1680>
             <MVS> <1DC0>-<1DFF> <2000>-<200A> <LRM>-<2029>
@@ -254,8 +286,11 @@
             '
                 #####: OUTPUT(6)
                 Dispatcher ID: #####
-            ! #-& *-+ - : <-@ ^-_ ~
+            ! #-& *-+ - <-@ ^-_ ~
                 #####: CALL(####)
+                Dispatcher ID: #####
+            :
+                #####: OUTPUT(6)
                 Dispatcher ID: #####
             0-9
                 #####: KEEP(0), CALL(####)
@@ -395,15 +430,50 @@
                 #####: KEEP(0), RETURN
                 Dispatcher ID: #####
   ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            /
+                #####: KEEP(0), RETURN
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 3
+            ! #-& *-+ --. <-@ ^-_ ~
+                #####: ACCEPT
+                Dispatcher ID: #####
+            : [repeat(INFINITY)]
+                #####: ACCEPT
+                Dispatcher ID: #####
+            /
+                #####: ACCEPT
+                Dispatcher ID: #####
+  ########: DISPATCHER
             Break Elements: 11
             Max Break Elements: 11
-            Max CType: 2
-            ! #-& *-+ --. : <-@ ^-_ ~ <300>-<36F> <1DC0>-<1DFF>
+            Max CType: 3
+            ! #-& *-+ --. <-@ ^-_ ~ <300>-<36F> <1DC0>-<1DFF>
             <20D0>-<20FF> <0FE20>-<0FE2F>
                 #####: ACCEPT
                 Dispatcher ID: #####
             /
                 #####: ACCEPT
+                Dispatcher ID: #####
+            :
+                #####: KEEP(0), RETURN
                 Dispatcher ID: #####
   ########: DISPATCHER
             Break Elements: 1
@@ -517,7 +587,7 @@
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
@@ -548,58 +618,58 @@
             <2011> <2028>-<NNBSP> <MMSP>-<206F>
                 #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(15)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
                 #####: TRANSLATE_TO(1,<ACK>)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             K
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             C
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
                 #####: TRANSLATE_TO(1,<BEL>)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             L
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
                 #####: TRANSLATE_TO(1,<BS>)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
@@ -607,35 +677,35 @@
                 Dispatcher ID: #####
             S
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
                 #####: TRANSLATE_TO(1,<CAN>)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             N
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1
             >
                 #####: TRANSLATE_TO(1,<CR>)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 2
@@ -1164,7 +1234,7 @@
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 16
@@ -1202,7 +1272,7 @@
                 #####: MATCH(####), ELSE:
                 #####: FAIL
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Break Elements: 3
             Max Break Elements: 3
             Max CType: 1

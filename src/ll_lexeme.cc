@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  9 04:57:09 EST 2014
+// Date:	Sun Jan 11 06:00:34 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -827,7 +827,7 @@ static bool default_input_get
     ic.line = scanner->next_position.line;
     ic.offset = scanner->next_position.offset;
     ic.indent = scanner->next_indent;
-    MIN_ASSERT (    ic.line
+    MIN_REQUIRE (    ic.line
                  == file->next_line_number );
 
     min::uns32 offset = min::next_line ( file );

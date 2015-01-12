@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 11 03:11:46 EST 2014
+// Date:	Mon Jan 12 12:04:22 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -430,7 +430,9 @@ BRA::indentation_mark
 
     if ( split_table != NULL_STUB )
     {
-        MIN_ASSERT ( min::is_str ( mark_label ) );
+        MIN_ASSERT ( min::is_str ( mark_label ),
+	             "mark_label argument is not a"
+		     " string" );
 	min::str_ptr s ( mark_label );
 	min::unsptr length = min::strlen ( s );
 	min::locatable_var<BRA::indentation_split>
@@ -527,7 +529,9 @@ static void bracketed_pass_place
 {
     // Bracketed pass must be at top of stack.
     //
-    MIN_ASSERT ( parser->pass_stack == pass );
+    MIN_ASSERT ( parser->pass_stack == pass,
+                 "bracketed pass is not at top of"
+		 " parser pass_stack ");
 
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) pass;
@@ -535,7 +539,7 @@ static void bracketed_pass_place
     int index = TAB::find_name
         ( parser->trace_flag_name_table,
 	  ::bracketed_subexpressions );
-    assert
+    MIN_REQUIRE
       ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
     bracketed_pass->trace_subexpressions =
         1ull << index;
@@ -598,7 +602,7 @@ static min::gen bracketed_pass_end_block
 
     min::uns32 block_level =
         PAR::block_level ( parser );
-    assert ( block_level > 0 );
+    MIN_REQUIRE ( block_level > 0 );
 
     BRA::end_block
         ( split_table, block_level - 1,
@@ -687,7 +691,7 @@ static min::gen make_label
     {
         if ( first->value == min::MISSING() )
 	{
-	    MIN_ASSERT
+	    MIN_REQUIRE
 	        ( first->type == LEXSTD::number_t
 		  ||
 		     first->type
@@ -702,7 +706,7 @@ static min::gen make_label
 	        PAR::free_string ( first->string );
 	}
 	else
-	    MIN_ASSERT
+	    MIN_REQUIRE
 	        ( first->type == LEXSTD::word_t
 		  ||
 		     first->type
@@ -765,8 +769,8 @@ static void named_attributes
 	  BRA::named_opening named_opening,
 	  PAR::token first, PAR::token next )
 {
-    MIN_ASSERT ( first != next );
-    MIN_ASSERT ( first->type == LEXSTD::word_t );
+    MIN_REQUIRE ( first != next );
+    MIN_REQUIRE ( first->type == LEXSTD::word_t );
 
     // Temporary min::gen locatable.
     //
@@ -805,7 +809,7 @@ static void named_attributes
 
     // Construct name label.
     //
-    assert ( n > 0 );
+    MIN_REQUIRE ( n > 0 );
     name = ::make_label ( first, n );
 
     // Count arguments.
@@ -932,7 +936,7 @@ inline min::int32 relative_indent
 	  PAR::token token,
 	  min::int32 indent )
 {
-    assert ( token->indent != LEX::AFTER_GRAPHIC );
+    MIN_REQUIRE ( token->indent != LEX::AFTER_GRAPHIC );
 
     int relative_indent =
         (min::int32) token->indent - indent;
@@ -1021,7 +1025,7 @@ bool BRA::parse_bracketed_subexpression
 	{
 	    parser->input->add_tokens
 		( parser, parser->input );
-	    assert
+	    MIN_REQUIRE
 		( current->next != parser->first );
 	}
 
@@ -1129,8 +1133,9 @@ bool BRA::parse_bracketed_subexpression
 			// will equal the mark that was
 			// split or be before that.
 			//
-			assert (    split_backup 
-			         != min::NULL_STUB );
+			MIN_REQUIRE
+			    (    split_backup 
+			      != min::NULL_STUB );
 			current = split_backup;
 			continue;
 		    }
@@ -1156,8 +1161,9 @@ bool BRA::parse_bracketed_subexpression
 		{
 		    parser->input->add_tokens
 			( parser, parser->input );
-		    assert (    next->next
-			     != parser->first );
+		    MIN_REQUIRE
+		        (    next->next
+			  != parser->first );
 		}
 		next = next->next;
 	    }
@@ -1265,7 +1271,7 @@ bool BRA::parse_bracketed_subexpression
 		    min::int32 paragraph_indent =
 		        current->next->indent;
 
-		    MIN_ASSERT
+		    MIN_REQUIRE
 		        (    (unsigned) paragraph_indent
 			  != LEX::AFTER_GRAPHIC );
 
@@ -1297,7 +1303,7 @@ bool BRA::parse_bracketed_subexpression
 			if ( BRA::is_closed
 			         ( bracket_stack_p ) )
 			{
-			    assert
+			    MIN_REQUIRE
 			        ( ! separator_found );
 			    next = bracket_stack_p
 			              ->closing_first;
@@ -1382,7 +1388,7 @@ bool BRA::parse_bracketed_subexpression
 				  current->previous ) );
 		    }
 
-		    assert ( next == current );
+		    MIN_REQUIRE ( next == current );
 		}
 
 		PAR::token first = mark_end->next;
@@ -1430,14 +1436,14 @@ bool BRA::parse_bracketed_subexpression
 	    // line break followed by a token that is
 	    // not a line break or comment.
 	    //
-	    assert (    current->type
-	             == LEXSTD::line_break_t );
+	    MIN_REQUIRE (    current->type
+	                  == LEXSTD::line_break_t );
 	    next = current->next;
-	    assert (    next->type
-	             != LEXSTD::line_break_t
-		     &&
-		        next->type
-		     != LEXSTD::comment_t );
+	    MIN_REQUIRE (    next->type
+	                  != LEXSTD::line_break_t
+		          &&
+		             next->type
+		          != LEXSTD::comment_t );
 
 	    // Truncate expression if line break is
 	    // followed by an end of file.
@@ -1480,13 +1486,13 @@ bool BRA::parse_bracketed_subexpression
 	    continue;
 	}
 
-	assert
+	MIN_REQUIRE
 	    ( indentation_found == min::NULL_STUB );
-	assert
+	MIN_REQUIRE
 	    ( current->type != LEXSTD::end_of_file_t );
-	assert
+	MIN_REQUIRE
 	    ( current->type != LEXSTD::line_break_t );
-	assert
+	MIN_REQUIRE
 	    ( current->type != LEXSTD::comment_t );
 
 	// Process quoted strings.
@@ -1736,8 +1742,8 @@ bool BRA::parse_bracketed_subexpression
 		}
 		else
 		{
-		    assert (    cstack.closing_next
-		             == current );
+		    MIN_REQUIRE (    cstack.closing_next
+		                  == current );
 
 		    min::phrase_position position;
 		    position.end =
@@ -2037,10 +2043,11 @@ bool BRA::parse_bracketed_subexpression
 			  first, current, position,
 			  c, attributes );
 			  
-		    assert (    first->type
-			     == PAR::BRACKETED );
-		    assert (    first
-			     == middle_last->next );
+		    MIN_REQUIRE
+		        (    first->type
+			  == PAR::BRACKETED );
+		    MIN_REQUIRE
+		        ( first == middle_last->next );
 
 		    PAR::remove ( parser,
 		                  cstack.opening_first,
@@ -2108,7 +2115,7 @@ bool BRA::parse_bracketed_subexpression
 			      named_first,
 			      saved_current );
 
-			assert
+			MIN_REQUIRE
 			    ( name != min::MISSING() );
 
 			min::phrase_position position;

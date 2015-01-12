@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  5 10:28:19 EST 2013
+// Date:	Mon Jan 12 11:16:50 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -92,7 +92,9 @@ TAB::key_table TAB::create_key_table ( uns32 length )
 {
     // Check for power of two.
     //
-    assert ( ( length & ( length -1 ) ) == 0 );
+    MIN_ASSERT ( ( length & ( length - 1 ) ) == 0,
+                 "length argument is not a power of"
+		 " 2" );
 
     TAB::key_table key_table =
         ::key_table_type.new_stub ( length );
@@ -114,7 +116,9 @@ TAB::key_prefix TAB::find_key_prefix
     if ( is_label )
     {
 	len = min::lablen ( key );
-	MIN_ASSERT ( len > 1 );
+	MIN_ASSERT ( len > 1,
+	             "key argument is label of length"
+		     " <= 1" );
     }
     else
 	len = 1;
@@ -129,7 +133,7 @@ TAB::key_prefix TAB::find_key_prefix
     uns32 hash;
     uns32 table_len = key_table->length;
     uns32 mask = table_len - 1;
-    MIN_ASSERT ( ( table_len & mask ) == 0 );
+    MIN_REQUIRE ( ( table_len & mask ) == 0 );
     TAB::key_prefix previous = NULL_STUB;
     for ( min::unsptr i = 0; i < len; ++ i )
     {
@@ -142,7 +146,7 @@ TAB::key_prefix TAB::find_key_prefix
 	else if ( min::is_num ( e ) )
 	{
 	    int v = min::int_of ( e );
-	    MIN_ASSERT ( 0 <= v && v < (1<<28) );
+	    MIN_REQUIRE ( 0 <= v && v < (1<<28) );
 	    ehash = min::numhash ( e );
 	}
 	else

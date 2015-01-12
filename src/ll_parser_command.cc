@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 12 04:13:53 EST 2014
+// Date:	Mon Jan 12 11:49:21 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,8 +99,11 @@ min::gen COM::scan_names
         return min::FAILURE();
     min::locate ( subap, min::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
-    assert ( ppvec != min::NULL_STUB );
-    assert ( ppvec->file == parser->input_file );
+    MIN_ASSERT ( ppvec != min::NULL_STUB,
+                 ".position attribute missing" );
+    MIN_ASSERT ( ppvec->file == parser->input_file,
+                 ".position attribute value file is"
+		 " not the same as parser input_file" );
 
     ++ i;
 
@@ -208,7 +211,7 @@ static int scan_flag
     op = min::MISSING();
     min::unsptr size = min::size_of ( vp );
 
-    assert ( ppvec->file == parser->input_file );
+    MIN_REQUIRE ( ppvec->file == parser->input_file );
 
     if ( i >= size )
     {
@@ -295,7 +298,9 @@ static min::gen scan_new_flags
 	  bool allow_flag_modifier_list )
 {
     MIN_ASSERT (    allow_flag_list
-                 || allow_flag_modifier_list );
+                 || allow_flag_modifier_list,
+		 "allow_flag_list and allow_flag_"
+		 "modifier_list arguments both false" );
 
     if ( i >= min::size_of ( vp ) )
         return min::FAILURE();
@@ -314,8 +319,11 @@ static min::gen scan_new_flags
         return min::FAILURE();
     min::locate ( subap, min::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
-    assert ( ppvec != min::NULL_STUB );
-    assert ( ppvec->file == parser->input_file );
+    MIN_ASSERT ( ppvec != min::NULL_STUB,
+                 ".position attribute missing" );
+    MIN_ASSERT ( ppvec->file == parser->input_file,
+                 ".position attribute value file is"
+		 " not the same as parser input_file" );
 
     ++ i;
 
@@ -816,7 +824,7 @@ static min::gen execute_context
 	  PAR::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
-    assert ( size >= 3 );
+    MIN_REQUIRE ( size >= 3 );
 
     if (    vp[1] != PAR::define
          && vp[1] != PAR::print )
@@ -904,7 +912,7 @@ static min::gen execute_context
 		if ( root == min::NULL_STUB ) break;
 		PAR::context context =
 		    (PAR::context) root;
-		MIN_ASSERT
+		MIN_REQUIRE
 		    ( context != min::NULL_STUB );
 
 		if ( min::is_subsequence
@@ -1237,7 +1245,8 @@ min::gen COM::parser_execute_command
 
     min::phrase_position_vec ppvec =
         min::position_of ( vp );
-    assert ( ppvec != min::NULL_STUB );
+    MIN_ASSERT ( ppvec != min::NULL_STUB,
+                 "missing .position attribute" );
 
     min::gen result = min::FAILURE();
 

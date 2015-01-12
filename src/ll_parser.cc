@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 11 06:04:01 EST 2015
+// Date:	Mon Jan 12 07:32:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -435,7 +435,10 @@ void PAR::place_before
 
     if ( parser->pass_stack == NULL_STUB )
     {
-        MIN_ASSERT ( next == NULL_STUB );
+        MIN_ASSERT ( next == NULL_STUB,
+	             "next argument is not NULL_STUB"
+		     " but parser pass_stack is"
+		     " emtpy" );
 
 	next_ref(pass) = NULL_STUB;
 	pass_stack_ref(parser) = pass;
@@ -443,10 +446,16 @@ void PAR::place_before
     else
     {
         PAR::pass current = parser->pass_stack;
-        MIN_ASSERT ( current != next );
+        MIN_ASSERT ( current != next,
+	             "next argument equals current"
+		     " beginning of parser"
+		     " pass_stack" );
 	while ( current->next != next )
 	{
-	    MIN_ASSERT ( current->next != NULL_STUB );
+	    MIN_ASSERT ( current->next != NULL_STUB,
+	                 "next argument is not a pass"
+			 " that is in the parser"
+			 " pass_stack" );
 	    current = current->next;
 	}
 	next_ref(pass) = current->next;
@@ -600,36 +609,44 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
-	assert (    PAR::TRACE_WARNINGS
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_WARNINGS
+	      == 1ull << TAB::push_name
 	              ( parser->trace_flag_name_table,
 		        ::warnings ) );
-	assert (    PAR::TRACE_PARSER_INPUT
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_PARSER_INPUT
+	      == 1ull << TAB::push_name
 	              ( parser->trace_flag_name_table,
 		        ::parser_input ) );
-	assert (    PAR::TRACE_PARSER_OUTPUT
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_PARSER_OUTPUT
+	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::parser_output ) );
-	assert (    PAR::TRACE_PARSER_COMMANDS
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_PARSER_COMMANDS
+	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::parser_commands ) );
-	assert (    PAR::TRACE_SUBEXPRESSION_ELEMENTS
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::subexpression_elements ) );
-	assert (    PAR::TRACE_SUBEXPRESSION_DETAILS
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_SUBEXPRESSION_DETAILS
+	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::subexpression_details ) );
-	assert (    PAR::TRACE_SUBEXPRESSION_LINES
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_SUBEXPRESSION_LINES
+	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::subexpression_lines ) );
-	assert (    PAR::TRACE_KEYS
-	         == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::TRACE_KEYS
+	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::keys ) );
 
@@ -641,8 +658,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
 
-	assert (    PAR::PARSER_SELECTOR
-		 == 1ull << TAB::push_name
+	MIN_REQUIRE
+	    (    PAR::PARSER_SELECTOR
+	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::parser_lexeme ) );
 
@@ -874,7 +892,7 @@ void PAR::parse ( PAR::parser parser )
     parser->input->add_tokens
 	( parser, parser->input );
     PAR::token current = parser->first;
-    assert ( current != NULL_STUB );
+    MIN_REQUIRE ( current != NULL_STUB );
     while ( current->type == LEXSTD::line_break_t
             ||
 	    current->type == LEXSTD::comment_t )
@@ -886,8 +904,8 @@ void PAR::parse ( PAR::parser parser )
 	{
 	    parser->input->add_tokens
 		( parser, parser->input );
-	    assert (    current->next
-		     != parser->first );
+	    MIN_REQUIRE (    current->next
+		          != parser->first );
 	}
 	current = current->next;
 	PAR::free
@@ -981,7 +999,7 @@ void PAR::parse ( PAR::parser parser )
 	        current = current_save;
 		PAR::context context =
 		    (PAR::context) prefix->first;
-		MIN_ASSERT ( context != NULL_STUB );
+		MIN_REQUIRE ( context != NULL_STUB );
 		selectors |=
 		    context->new_selectors.or_flags;
 		selectors &= ~
@@ -1105,8 +1123,8 @@ void PAR::parse ( PAR::parser parser )
 	    {
 		parser->input->add_tokens
 		    ( parser, parser->input );
-		assert (    current->next
-			 != parser->first );
+		MIN_REQUIRE (    current->next
+			      != parser->first );
 	    }
 	    current = current->next;
 	    PAR::free
@@ -1163,7 +1181,7 @@ min::gen PAR::end_block
 {
     min::uns32 block_level =
         PAR::block_level ( parser );
-    assert ( block_level > 0 );
+    MIN_REQUIRE ( block_level > 0 );
     min::ref<TAB::block_struct> b =
         parser->block_stack[block_level-1];
 
@@ -1232,7 +1250,7 @@ TAB::key_prefix PAR::find_key_prefix
     uns32 phash = min::labhash_initial;
     uns32 table_len = key_table->length;
     uns32 mask = table_len - 1;
-    MIN_ASSERT ( ( table_len & mask ) == 0 );
+    MIN_REQUIRE ( ( table_len & mask ) == 0 );
     TAB::key_prefix previous = NULL_STUB;
     while ( true )
     {
@@ -1250,7 +1268,7 @@ TAB::key_prefix PAR::find_key_prefix
 	else if ( min::is_num ( e ) )
 	{
 	    int v = min::int_of ( e );
-	    MIN_ASSERT ( 0 <= v && v < (1<<28) );
+	    MIN_REQUIRE ( 0 <= v && v < (1<<28) );
 	    hash = min::numhash ( e );
 	}
 	else
@@ -1281,7 +1299,7 @@ TAB::key_prefix PAR::find_key_prefix
 	{
 	    parser->input->add_tokens
 		( parser, parser->input);
-	    assert
+	    MIN_REQUIRE
 	        ( current->next != parser->first );
 	}
 
@@ -1471,8 +1489,8 @@ void PAR::compact
 
 	while ( m -- )
 	{
-	    assert (    attributes->value
-		     != min::MISSING() );
+	    MIN_REQUIRE (    attributes->value
+		          != min::MISSING() );
 	    min::locate ( ap, attributes->name );
 	    min::set ( ap, attributes->value );
 	    ++ attributes;
@@ -1538,8 +1556,8 @@ void PAR::compact
 
 	while ( m -- )
 	{
-	    assert (    attributes->value
-	             != min::MISSING() );
+	    MIN_REQUIRE (    attributes->value
+	                  != min::MISSING() );
 	    min::locate ( expap, attributes->name );
 	    min::set ( expap, attributes->value );
 	    ++ attributes;
@@ -1685,7 +1703,7 @@ min::gen PAR::scan_name_string_label
 
 void PAR::convert_token ( PAR::token token )
 {
-    assert ( token->value == min::MISSING() );
+    MIN_REQUIRE ( token->value == min::MISSING() );
 
     min::gen type;
 
@@ -1694,8 +1712,8 @@ void PAR::convert_token ( PAR::token token )
 	type = PAR::doublequote;
     else
     {
-	assert (    token->type
-		 == LEXSTD::number_t );
+	MIN_REQUIRE (    token->type
+		      == LEXSTD::number_t );
 
 	type = PAR::number_sign;
     }

@@ -1045,8 +1045,9 @@ inline min::gen block_name
 	( ll::parser::parser parser,
 	  min::uns32 block_level )
 {
-    assert
-        ( block_level <= parser->block_stack->length );
+    MIN_ASSERT
+        ( block_level <= parser->block_stack->length,
+	  "block_level argument too large" );
     return block_level == 0 ?
            (min::gen) ll::parser::top_level :
 	   (&parser->block_stack[block_level-1])->name;

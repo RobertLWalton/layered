@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  9 05:13:16 EST 2014
+// Date:	Mon Jan 12 07:11:19 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,7 +23,6 @@
 # include <cstdlib>
 # include <cstdio>
 # include <cstring>
-# include <cassert>
 # define LEX ll::lexeme
 # define LEXNDL ll::lexeme::ndl
 # define LEXNDLDATA ll::lexeme::ndl::data
@@ -139,8 +138,8 @@ static int attach_error
     exit ( 1 );
 }
 
-// Called by SET_REPEAT_COUNT macro to print attach failure
-// error message.
+// Called by SET_REPEAT_COUNT macro to print attach
+// failure error message.
 //
 static int set_repeat_count_error
 	( const char * file, uns32 line )
@@ -186,21 +185,21 @@ inline min::ref<dispatcher> current_dispatcher
 	( void )
 {
     uns32 dindex = dispatchers->length;
-    assert ( dindex >= 1 );
+    MIN_REQUIRE ( dindex >= 1 );
     return dispatchers[dindex-1];
 }
 inline min::ref<dispatcher> parent_dispatcher
 	( void )
 {
     uns32 dindex = dispatchers->length;
-    assert ( dindex >= 2 );
+    MIN_REQUIRE ( dindex >= 2 );
     return dispatchers[dindex-2];
 }
 inline min::ref<instruction> current_instruction
 	( void )
 {
     uns32 iindex = instructions->length;
-    assert ( iindex >= 1 );
+    MIN_REQUIRE ( iindex >= 1 );
     return instructions[iindex-1];
 }
 
@@ -236,9 +235,9 @@ void LEXNDL::end_program ( void )
              "misplaced end_program()" );
     state = OUTSIDE_PROGRAM;
 
-    assert ( uns32_stack->length == 0 );
-    assert ( dispatchers->length == 0 );
-    assert ( instructions->length == 0 );
+    MIN_REQUIRE ( uns32_stack->length == 0 );
+    MIN_REQUIRE ( dispatchers->length == 0 );
+    MIN_REQUIRE ( instructions->length == 0 );
 }
 
 void LEXNDL::new_table
@@ -317,7 +316,7 @@ static uns32 pop_instruction_group ( uns32 line_number )
         min::ptr<uns32> translation_vector =
 	    LEX::NULL_TV();
 	uns32 length = uns32_stack->length;
-	assert ( translate_to_length <= length );
+	MIN_REQUIRE ( translate_to_length <= length );
 	if ( translate_to_length > 0 )
 	    translation_vector =
 	        & uns32_stack
@@ -382,11 +381,12 @@ static void pop_dispatcher
 
     if ( discard_dispatcher )
     {
-        assert ( (&d)->max_type_code == 0 );
-        assert ( instruction_ID == 0 );
-	assert ( ! ascii_used );
-	assert ( (&d)->others_dispatcher_ID == 0 );
-	assert ( (&d)->others_instruction_ID == 0 );
+        MIN_REQUIRE ( (&d)->max_type_code == 0 );
+        MIN_REQUIRE ( instruction_ID == 0 );
+	MIN_REQUIRE ( ! ascii_used );
+	MIN_REQUIRE ( (&d)->others_dispatcher_ID == 0 );
+	MIN_REQUIRE
+	    ( (&d)->others_instruction_ID == 0 );
 
 	min::push(uns32_stack) = 0;
 	min::push(uns32_stack) = instruction_ID;
@@ -476,7 +476,7 @@ static void pop_dispatcher
 	    dispatcher_ID;
 	(&parent)->others_instruction_ID =
 	    instruction_ID;
-	assert ( (&d)->type_map_count == 0 );
+	MIN_REQUIRE ( (&d)->type_map_count == 0 );
     }
     else
     {
@@ -506,8 +506,8 @@ void LEXNDL::begin_table ( uns32 table_name )
              "table_name does not reference a table" );
     ::table_mode = LEX::table_mode ( table_name );
 
-    assert ( dispatchers->length == 0 );
-    assert ( instructions->length == 0 );
+    MIN_REQUIRE ( dispatchers->length == 0 );
+    MIN_REQUIRE ( instructions->length == 0 );
     push_dispatcher();
     substate = DISPATCHERS;
 }
@@ -527,15 +527,15 @@ void LEXNDL::end_table ( void )
     uns32 instruction_ID = min::pop ( uns32_stack );
     uns32 dispatcher_ID  = min::pop ( uns32_stack );
 
-    assert ( dispatchers->length == 0 );
-    assert ( instructions->length == 0 );
-    assert ( uns32_stack->length == 0 );
+    MIN_REQUIRE ( dispatchers->length == 0 );
+    MIN_REQUIRE ( instructions->length == 0 );
+    MIN_REQUIRE ( uns32_stack->length == 0 );
 
     ATTACH ( table_name, dispatcher_ID );
     if ( instruction_ID != 0 )
 	ATTACH ( table_name, instruction_ID );
-    assert ( repeat_count == 0 );
-    assert ( type_map_count == 0 );
+    MIN_REQUIRE ( repeat_count == 0 );
+    MIN_REQUIRE ( type_map_count == 0 );
 
     state = INSIDE_PROGRAM;
 }
@@ -609,9 +609,9 @@ void LEXNDL::end_atom_pattern ( void )
 
     min::pop ( uns32_stack, 4 );
 
-    assert ( dispatchers->length == 0 );
-    assert ( instructions->length == 0 );
-    assert ( uns32_stack->length == 0 );
+    MIN_REQUIRE ( dispatchers->length == 0 );
+    MIN_REQUIRE ( instructions->length == 0 );
+    MIN_REQUIRE ( uns32_stack->length == 0 );
 
     state = INSIDE_PROGRAM;
 }

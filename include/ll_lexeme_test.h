@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 08:02:00 EST 2011
+// Date:	Sun Jan 11 11:47:31 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,7 +21,6 @@
 
 # include <min.h>
 # include <iostream>
-# include <cassert>
 
 // Testers
 // -------

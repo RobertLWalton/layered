@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  9 07:54:00 EST 2014
+// Date:	Mon Jan 12 07:07:34 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,7 +20,6 @@
 # include <ll_lexeme.h>
 # include <ll_lexeme_test.h>
 # include <iostream>
-# include <cassert>
 # define LEX ll::lexeme
 using std::cout;
 using std::endl;
@@ -116,7 +115,7 @@ void set_line ( LEX::uns32 line )
     LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
 
-    assert ( ::next_line <= line );
+    MIN_REQUIRE ( ::next_line <= line );
 
     flush_codes();
 
@@ -181,7 +180,7 @@ static void erroneous_atom_announce
 	  LEX::scanner scanner,
 	  LEX::erroneous_atom erroneous_atom )
 {
-    assert ( scanner == LEX::default_scanner );
+    MIN_REQUIRE ( scanner == LEX::default_scanner );
     set_codes ( ::erroneous_atom_codes,
                 first, next, type );
 }

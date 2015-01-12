@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  7 04:53:11 EST 2014
+// Date:	Sun Jan 11 11:48:21 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,7 +27,6 @@
 
 # include <min.h>
 # include <iostream>
-# include <cassert>
 
 // Data
 // ----
@@ -567,8 +566,9 @@ namespace ll { namespace lexeme {
     //
     inline uns32 KEEP ( uns32 keep_length )
     {
-        assert
-	  ( keep_length <= KEEP_LENGTH_MASK );
+        MIN_ASSERT
+	  ( keep_length <= KEEP_LENGTH_MASK,
+	    "keep length argument too large" );
 	return KEEP_FLAG
 	     + (    keep_length
 	         << KEEP_LENGTH_SHIFT );
@@ -576,8 +576,11 @@ namespace ll { namespace lexeme {
     inline uns32 TRANSLATE_TO
 	    ( uns32 translate_to_length )
     {
-        assert (    translate_to_length
-	         <= TRANSLATE_TO_LENGTH_MASK );
+        MIN_ASSERT
+	    (    translate_to_length
+	      <= TRANSLATE_TO_LENGTH_MASK,
+	      "translate_to length argument too"
+	      " large" );
 	return TRANSLATE_TO_FLAG
 	     + (    translate_to_length
 	         << TRANSLATE_TO_LENGTH_SHIFT );
@@ -585,10 +588,12 @@ namespace ll { namespace lexeme {
     inline uns32 TRANSLATE_HEX
     	( uns32 prefix_length, uns32 postfix_length )
     {
-        assert
-	  ( prefix_length <= PREFIX_LENGTH_MASK );
-        assert
-	  ( postfix_length <= POSTFIX_LENGTH_MASK );
+        MIN_ASSERT
+	  ( prefix_length <= PREFIX_LENGTH_MASK,
+	    "prefix length argument too large" );
+        MIN_ASSERT
+	  ( postfix_length <= POSTFIX_LENGTH_MASK,
+	    "postfix length argument too large" );
 	return TRANSLATE_HEX_FLAG
 	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
 	     + (    postfix_length
@@ -597,10 +602,12 @@ namespace ll { namespace lexeme {
     inline uns32 TRANSLATE_OCT
     	( uns32 prefix_length, uns32 postfix_length )
     {
-        assert
-	  ( prefix_length <= PREFIX_LENGTH_MASK );
-        assert
-	  ( postfix_length <= POSTFIX_LENGTH_MASK );
+        MIN_ASSERT
+	  ( prefix_length <= PREFIX_LENGTH_MASK,
+	    "prefix length argument too large" );
+        MIN_ASSERT
+	  ( postfix_length <= POSTFIX_LENGTH_MASK,
+	    "postfix length argument too large" );
 	return TRANSLATE_OCT_FLAG
 	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
 	     + (    postfix_length

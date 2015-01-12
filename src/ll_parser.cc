@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 15 05:55:26 EST 2014
+// Date:	Sun Jan 11 06:04:01 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -345,7 +345,7 @@ void PAR::set_max_token_free_list_size ( int n )
     if ( n >= 0 ) while ( ::number_free_tokens > n )
     {
 	PAR::token token = ::free_list_first->next;
-	MIN_ASSERT ( token != ::free_list_first );
+	MIN_REQUIRE ( token != ::free_list_first );
 	PAR::internal::remove ( token );
         min::deallocate ( token );
 	-- ::number_free_tokens;
@@ -405,11 +405,15 @@ void PAR::place_after
 	  PAR::pass pass,
 	  PAR::pass previous )
 {
-    MIN_ASSERT ( pass != previous );
+    MIN_ASSERT ( pass != previous,
+                 "pass and previous arguments are"
+		 " the same" );
 
     PAR::remove ( pass );
 
-    MIN_ASSERT ( previous->parser == parser );
+    MIN_ASSERT ( previous->parser == parser,
+                 "previous argument parser != parser"
+		 " argument" );
     next_ref(pass) = previous->next;
     next_ref(previous) = pass;
 
@@ -423,7 +427,9 @@ void PAR::place_before
 	  PAR::pass pass,
 	  PAR::pass next )
 {
-    MIN_ASSERT ( pass != next );
+    MIN_ASSERT ( pass != next,
+                 "pass and next arguments are"
+		 " the same" );
 
     PAR::remove ( pass );
 

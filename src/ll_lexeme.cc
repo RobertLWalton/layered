@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 11 06:00:34 EST 2015
+// Date:	Mon Jan 12 04:37:47 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,6 @@
 # include <cstring>
 # include <cstdio>
 # include <cerrno>
-# include <cassert>
 # define LEX ll::lexeme
 using std::cout;
 using std::endl;
@@ -108,8 +107,9 @@ inline min::printer operator <<
     << "LEXICAL PROGRAM CONSTRUCTION ERROR: "
 
 # define PUSH(header,length) \
-    assert (    sizeof ( header ) \
-             == (length) * sizeof ( min::uns32 ) ); \
+    MIN_REQUIRE \
+        (    sizeof ( header ) \
+	  == (length) * sizeof ( min::uns32 ) ); \
     min::push ( program, \
 		(length), \
                 (min::uns32 *) & (header) )
@@ -126,11 +126,13 @@ uns32 LEX::create_table
 {
     min::ptr<program_header> php =
 	LEX::ptr<program_header> ( program, 0 );
-    if (    mode != ATOM
-         && mode != MASTER
-	 && mode != NONE )
-	assert (    php->max_type == 0
-	         || mode <= php->max_type );
+
+    MIN_ASSERT (    mode == ATOM
+    		 || mode == MASTER
+    		 || mode == NONE
+    		 || php->max_type == 0
+	         || mode <= php->max_type,
+		 "mode argument too large" );
 
     uns32 ID = program->length;
     table_header h;
@@ -185,7 +187,7 @@ void LEX::create_program
     LEX::program program = program_arg;
 
     uns32 ID = program->length;
-    assert ( ID == 0 );
+    MIN_REQUIRE ( ID == 0 );
 
     program_header h;
     h.pctype = PROGRAM;
@@ -241,12 +243,12 @@ uns32 LEX::create_dispatcher
     h.max_ctype = max_ctype;
     PUSH ( h, dispatcher_header_length );
 
-    assert (    sizeof ( break_element )
-             ==   break_element_length
-                * sizeof ( uns32 ) );
-    assert (    sizeof ( map_element )
-             ==   map_element_length
-                * sizeof ( uns32 ) );
+    MIN_REQUIRE (    sizeof ( break_element )
+                  ==   break_element_length
+                     * sizeof ( uns32 ) );
+    MIN_REQUIRE (    sizeof ( map_element )
+                  ==   map_element_length
+                     * sizeof ( uns32 ) );
     min::push
         ( program,
 	      break_element_length
@@ -263,7 +265,9 @@ uns32 LEX::create_type_map
 	  uns8 * map,
 	  LEX::program program )
 {
-    assert ( cmax >= cmin );
+    MIN_ASSERT ( cmax >= cmin,
+                 "cmin argument greater than cmax"
+		 " argument" );
     uns32 ID = program->length;
 
     type_map_header h;
@@ -288,7 +292,9 @@ uns32 LEX::create_type_map
 	  uns32 ctype,
 	  LEX::program program )
 {
-    assert ( cmax >= cmin );
+    MIN_ASSERT ( cmax >= cmin,
+                 "cmin argument greater than cmax"
+		 " argument" );
     uns32 ID = program->length;
 
     type_map_header h;
@@ -296,7 +302,8 @@ uns32 LEX::create_type_map
     h.line_number = line_number;
     h.cmin = cmin;
     h.cmax = cmax;
-    assert ( ctype != 0 );
+    MIN_ASSERT ( ctype != 0,
+                 "ctype argument is zero" );
     h.singleton_ctype = ctype;
     PUSH ( h, type_map_header_length );
 
@@ -316,40 +323,57 @@ uns32 LEX::create_instruction
 	  uns32 call_table_ID,
 	  LEX::program program )
 {
-    assert ( ( ( operation & MATCH ) != 0 )
-	     +
-             ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
-	     +
-             ( ( operation & TRANSLATE_OCT_FLAG ) != 0 )
-	     <= 1 );
+    MIN_ASSERT
+        ( ( ( operation & MATCH ) != 0 )
+	  +
+	  ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
+	  +
+	  ( ( operation & TRANSLATE_OCT_FLAG ) != 0 )
+	  <= 1,
+	  "operation argument has more than one of"
+	  " MATCH, TRANSLATE HEX, and TRANSLATE OCT" );
 
-    assert ( ( operation & REQUIRE ) == 0
-             ||
-	     ( operation & TRANSLATE_HEX_FLAG )
-             ||
-	     ( operation & TRANSLATE_OCT_FLAG )
-             ||
-	     ( operation & MATCH ) );
+    MIN_ASSERT
+        ( ( operation & REQUIRE ) == 0
+          ||
+	  ( operation & TRANSLATE_HEX_FLAG )
+          ||
+	  ( operation & TRANSLATE_OCT_FLAG )
+          ||
+	  ( operation & MATCH ),
+	  "operation argument has REQUIRE but does not"
+	  " have MATCH, TRANSLATE HEX,"
+	  " or TRANSLATE OCT" );
 
-    assert ( ( operation & ELSE ) == 0
-             ||
-	     ( operation & TRANSLATE_HEX_FLAG )
-             ||
-	     ( operation & TRANSLATE_OCT_FLAG )
-             ||
-	     ( operation & MATCH )
-             ||
-	     ( operation & REQUIRE ) );
+    MIN_ASSERT
+        ( ( operation & ELSE ) == 0
+          ||
+	  ( operation & TRANSLATE_HEX_FLAG )
+          ||
+	  ( operation & TRANSLATE_OCT_FLAG )
+          ||
+	  ( operation & MATCH )
+          ||
+	  ( operation & REQUIRE ),
+	  "operation argument has ELSE but does not"
+	  " have MATCH, TRANSLATE HEX, TRANSLATE OCT,"
+	  " or REQUIRE" );
 
-    assert ( ( ( operation & GOTO ) != 0 )
-             +
-	     ( ( operation & RETURN ) != 0 )
-	     <= 1 );
+    MIN_ASSERT
+        ( ( ( operation & GOTO ) != 0 )
+          +
+	  ( ( operation & RETURN ) != 0 )
+	  <= 1,
+	  "operation argument has both GOTO and"
+	  " RETURN" );
 
-    assert ( ( ( operation & CALL ) != 0 )
-             +
-	     ( ( operation & RETURN ) != 0 )
-	     <= 1 );
+    MIN_ASSERT
+        ( ( ( operation & CALL ) != 0 )
+          +
+	  ( ( operation & RETURN ) != 0 )
+	  <= 1,
+	  "operation argument has both CALL and"
+	  " RETURN" );
 
     uns32 translate_to_length =
         ( operation & TRANSLATE_TO_FLAG ) ?
@@ -357,51 +381,95 @@ uns32 LEX::create_instruction
 	0;
 
     if ( translate_to_length > 0 )
-        assert ( translation_vector != NULL_TV() );
+        MIN_ASSERT ( translation_vector != NULL_TV(),
+	             "translation vector argument is"
+		     " NULL for TRANSLATE_TO"
+		     " operation" );
     else
-        assert ( translation_vector == NULL_TV() );
+        MIN_ASSERT ( translation_vector == NULL_TV(),
+	             "translation vector argument is"
+		     " NOT NULL when there is no"
+		     " TRANSLATE_TO operation or"
+		     " that operation has 0 length" );
 
     if ( operation & MATCH )
-        assert ( atom_table_ID != 0 );
+        MIN_ASSERT ( atom_table_ID != 0,
+	             "atom_table_ID argument is 0 for"
+		     " MATCH operation" );
     else
-        assert ( atom_table_ID == 0 );
+        MIN_ASSERT ( atom_table_ID == 0,
+	             "atom_table_ID argument is non-"
+		     "zero and there is NO MATCH"
+		     " operation" );
 
     if ( operation & REQUIRE )
-        assert ( require_dispatcher_ID != 0 );
+        MIN_ASSERT ( require_dispatcher_ID != 0,
+	             "require_dispatcher_ID argument is"
+		     " 0 for REQUIRE operation" );
     else
-        assert ( require_dispatcher_ID == 0 );
+        MIN_ASSERT ( require_dispatcher_ID == 0,
+	             "require_dispatcher_ID argument is"
+		     " non-zero and there is NO REQUIRE"
+		     " operation" );
 
     if ( operation & ELSE )
-        assert ( else_instruction_ID != 0 );
+        MIN_ASSERT ( else_instruction_ID != 0,
+	             "else_instruction_ID argument is"
+		     " 0 for ELSE operation" );
     else
-        assert ( else_instruction_ID == 0 );
+        MIN_ASSERT ( else_instruction_ID == 0,
+	             "else_instruction_ID argument is"
+		     " non-zero and there is NO ELSE"
+		     " operation" );
 
     if ( operation & ERRONEOUS_ATOM )
-        assert ( erroneous_atom_type != 0 );
+        MIN_ASSERT ( erroneous_atom_type != 0,
+	             "erroneous_atom_type argument is 0"
+		     " for ERRONEOUS_ATOM operation" );
     else
-        assert ( erroneous_atom_type == 0 );
+        MIN_ASSERT ( erroneous_atom_type == 0,
+	             "erroneous_atom_type argument is"
+		     " non-zero and there is NO"
+		     " ERRONEOUS_ATOM operation" );
 
     if ( operation & OUTPUT )
     {
-        assert ( output_type != 0 );
+        MIN_ASSERT ( output_type != 0,
+	             "output_type argument is 0"
+		     " for OUTPUT operation" );
 
 	min::ptr<program_header> php =
 	    LEX::ptr<program_header> ( program, 0 );
-	assert (    php->max_type == 0
-		 || output_type <= php->max_type );
+	MIN_ASSERT (    php->max_type == 0
+		     || output_type <= php->max_type,
+		     "output_type argument is too"
+		     " large for OUTPUT operation" );
     }
     else
-        assert ( output_type == 0 );
+        MIN_ASSERT ( output_type == 0,
+	             "output_type argument is non-zero"
+		     " and there is NO OUTPUT"
+		     " operation" );
 
     if ( operation & GOTO )
-        assert ( goto_table_ID != 0 );
+        MIN_ASSERT ( goto_table_ID != 0,
+	             "goto_table_ID argument is 0"
+		     " for GOTO operation" );
     else
-        assert ( goto_table_ID == 0 );
+        MIN_ASSERT ( goto_table_ID == 0,
+	             "goto_table_ID argument is"
+		     " non-zero and there is NO GOTO"
+		     " operation" );
 
     if ( operation & CALL )
-        assert ( call_table_ID != 0 );
+        MIN_ASSERT ( call_table_ID != 0,
+	             "call_table_ID argument is 0"
+		     " for CALL operation" );
     else
-        assert ( call_table_ID == 0 );
+        MIN_ASSERT ( call_table_ID == 0,
+	             "call_table_ID argument is"
+		     " non-zero and there is NO CALL"
+		     " operation" );
 
     uns32 ID = program->length;
 
@@ -437,11 +505,15 @@ static bool attach_type_map_to_dispatcher
     min::ptr<dispatcher_header> dhp =
         LEX::ptr<dispatcher_header>
 	    ( program, dispatcher_ID );
-    assert ( dhp->pctype == DISPATCHER );
+    MIN_ASSERT ( dhp->pctype == DISPATCHER,
+                 "dispatcher_ID argument does NOT"
+		 " identify a dispatcher" );
     min::ptr<type_map_header> tmhp =
         LEX::ptr<type_map_header>
 	    (program, type_map_ID );
-    assert ( tmhp->pctype == TYPE_MAP );
+    MIN_ASSERT ( tmhp->pctype == TYPE_MAP,
+                 "type_map_ID argument does NOT"
+		 " identify a type map" );
 
     min::ptr<break_element> bep =
         LEX::ptr<break_element>
@@ -488,7 +560,7 @@ static bool attach_type_map_to_dispatcher
          &&
 	 (&bep[i+1])->cmin < tmhp->cmin )
     {
-        assert ( (&bep[i+1])->type_map_ID != 0 );
+        MIN_REQUIRE ( (&bep[i+1])->type_map_ID != 0 );
 	uns32 old_cmin = (&bep[i+1])->cmin;
 	uns32 old_cmax = i+2 < dhp->break_elements ?
 	                 (&bep[i+2])->cmin - 1 :
@@ -600,8 +672,9 @@ bool LEX::attach
 	    thp->instruction_ID = component_ID;
 	    return true;
 	}
-	else assert
-	    ( ! "bad attach component pctypes" );
+	else
+	    MIN_ABORT
+		( "bad attach component pctypes" );
     }
     else if ( target_pctype == DISPATCHER
               &&
@@ -609,7 +682,7 @@ bool LEX::attach
         return attach_type_map_to_dispatcher
 	    ( target_ID, component_ID, program );
     else
-	assert ( ! "bad attach component pctypes" );
+	MIN_ABORT ( "bad attach component pctypes" );
 }
 
 bool LEX::attach
@@ -621,13 +694,19 @@ bool LEX::attach
     min::ptr<dispatcher_header> dhp =
         LEX::ptr<dispatcher_header>
 	    ( program, target_ID );
-    assert ( dhp->pctype == DISPATCHER );
+    MIN_ASSERT ( dhp->pctype == DISPATCHER,
+                 "target_ID argument does NOT"
+		 " identify a dispatcher" );
 
     uns32 component_pctype = program[component_ID];
-    assert ( component_pctype == DISPATCHER
-             ||
-	     component_pctype == INSTRUCTION );
-    assert ( ctype <= dhp->max_ctype );
+    MIN_ASSERT ( component_pctype == DISPATCHER
+                 ||
+	         component_pctype == INSTRUCTION,
+                 "component_ID argument does NOT"
+		 " identify a dispatcher or"
+		 " instruction" );
+    MIN_ASSERT ( ctype <= dhp->max_ctype,
+                 "ctype argument is too large" );
     min::ptr<map_element> mep =
         LEX::ptr<map_element>
 	    ( program,   target_ID
@@ -676,7 +755,9 @@ bool LEX::attach
 	return true;
     }
     else
-	assert ( ! "assert failure" );
+	MIN_ABORT ( "component_ID argument does NOT"
+		    " identify a dispatcher or"
+		    " instruction" );
 }
 
 bool LEX::set_repeat_count
@@ -688,9 +769,13 @@ bool LEX::set_repeat_count
     min::ptr<dispatcher_header> dhp =
         LEX::ptr<dispatcher_header>
 	    ( program, target_ID );
-    assert ( dhp->pctype == DISPATCHER );
-    assert ( repeat_count > 0 );
-    assert ( ctype <= dhp->max_ctype );
+    MIN_ASSERT ( dhp->pctype == DISPATCHER,
+                 "target_ID argument does NOT"
+		 " identify a dispatcher" );
+    MIN_ASSERT ( repeat_count > 0,
+                 "repeat_count argument is zero" );
+    MIN_ASSERT ( ctype <= dhp->max_ctype,
+                 "ctype argument is too large" );
     min::ptr<map_element> mep =
         LEX::ptr<map_element>
 	    ( program,   target_ID
@@ -856,7 +941,7 @@ static bool default_input_get
 	uns32 unicode =
 	    min::utf8_to_unicode ( p, endp );
 	uns32 bytes_read = p - beginp;
-	assert ( length >= bytes_read );
+	MIN_REQUIRE ( length >= bytes_read );
 	offset += bytes_read;
 	length -= bytes_read;
 
@@ -1013,9 +1098,9 @@ inline bool is_recursive
 
 // We assume the program is well formed, in that an
 // XXX_ID actually points at a program component of
-// pctype XXX.  We check this with asserts (the attach
-// statements check this).  Everything else found
-// wrong with the program is a SCAN_ERROR.
+// pctype XXX.  We check this with MIN_ASSERTs (the
+// attach statements check this).  Everything else
+// found wrong with the program is a SCAN_ERROR.
 
 void LEX::init ( min::ref<LEX::scanner> scanner )
 {
@@ -1237,8 +1322,8 @@ static uns32 ctype ( LEX::scanner scanner,
     uns32 ctype = 0;
     if ( type_map_ID != 0 )
     {
-	assert (    program[type_map_ID]
-		 == TYPE_MAP );
+	MIN_REQUIRE (    program[type_map_ID]
+		      == TYPE_MAP );
 	if ( trace )
 	    scanner->printer
 	        << " Type Map = "
@@ -1320,14 +1405,18 @@ static uns32 scan_atom
 	// Save of current translation buffer position
 	// for REQUIRE and ELSE.
 
-    assert ( instruction_ID == 0
-	     ||
-		program[instruction_ID]
-	     == INSTRUCTION );
-    assert ( dispatcher_ID == 0
-	     ||
-		program[dispatcher_ID]
-	     == DISPATCHER );
+    MIN_ASSERT ( instruction_ID == 0
+	         ||
+		    program[instruction_ID]
+	         == INSTRUCTION,
+                 "non-zero instruction_ID argument"
+		 " does NOT identify an instruction" );
+    MIN_ASSERT ( dispatcher_ID == 0
+	         ||
+		    program[dispatcher_ID]
+	         == DISPATCHER,
+                 "non-zero dispatcher_ID argument"
+		 " does NOT identify an dispatcher" );
 
     while ( true )
     {
@@ -1344,7 +1433,7 @@ static uns32 scan_atom
 	         ( scanner, scanner->input ) )
 	    break; // End of file.
 
-	assert
+	MIN_REQUIRE
 	    (   scanner->next + length
 	      < input_buffer->length );
 	uns32 c =
@@ -1389,7 +1478,7 @@ static uns32 scan_atom
 		     ( scanner, scanner->input ) )
 		break; // End of file.
 
-	    assert
+	    MIN_REQUIRE
 		(   scanner->next + length
 		  < input_buffer->length );
 
@@ -1412,15 +1501,15 @@ static uns32 scan_atom
 	{
 	    instruction_ID =
 	        (&mep[ctype])->instruction_ID;
-	    assert ( program[instruction_ID]
-		     == INSTRUCTION );
+	    MIN_REQUIRE (    program[instruction_ID]
+		          == INSTRUCTION );
 	    atom_length = length;
 	}
 	dispatcher_ID = (&mep[ctype])->dispatcher_ID;
-	assert ( dispatcher_ID == 0
-		 ||
-		    program[dispatcher_ID]
-		 == DISPATCHER );
+	MIN_REQUIRE ( dispatcher_ID == 0
+		      ||
+		         program[dispatcher_ID]
+		      == DISPATCHER );
     }
 
     // We are done dispatching characters.
@@ -1434,7 +1523,7 @@ static uns32 scan_atom
 
 	if ( instruction_ID == 0 )
 	{
-	    assert ( atom_length == 0 );
+	    MIN_REQUIRE ( atom_length == 0 );
 	    scan_error ( scanner, length )
 		<< "No instruction found" << min::eol;
 	    return SCAN_ERROR;
@@ -1463,7 +1552,7 @@ static uns32 scan_atom
 	    min::ptr<table_header> thp =
 		LEX::ptr<table_header>
 		    ( program, ihp->atom_table_ID );
-	    assert ( cathp->pctype == TABLE );
+	    MIN_REQUIRE ( cathp->pctype == TABLE );
 	    if ( thp->mode != ATOM )
 	    {
 		scan_error ( scanner, atom_length )
@@ -1607,8 +1696,8 @@ static uns32 scan_atom
 				    ->length );
 		    break;
 		}
-		assert (    program[dispatcher_ID]
-			 == DISPATCHER );
+		MIN_REQUIRE (    program[dispatcher_ID]
+			      == DISPATCHER );
 
 		if (    tnext + tlength
 		     >= translation_buffer->length )
@@ -1687,8 +1776,8 @@ static uns32 scan_atom
 			<< min::eol;
 		    return SCAN_ERROR;
 		}
-		assert (    program[instruction_ID]
-			 == INSTRUCTION );
+		MIN_REQUIRE (    program[instruction_ID]
+			      == INSTRUCTION );
 
 		// Loop to next instruction.
 		//
@@ -1855,11 +1944,11 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    LEX::ptr<table_header>
 		( scanner->program,
 		  scanner->current_table_ID );
-	assert ( cathp->pctype == TABLE );
-	assert ( cathp->mode == MASTER );
+	MIN_REQUIRE ( cathp->pctype == TABLE );
+	MIN_REQUIRE ( cathp->mode == MASTER );
     }
 
-    assert ( scanner->scan_error == false );
+    MIN_REQUIRE ( scanner->scan_error == false );
 
     if (    scanner->trace != 0
 	 && scanner->printer == NULL_STUB )
@@ -1927,7 +2016,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		( program,
 		  scanner->current_table_ID );
 
-	assert ( cathp->mode != ATOM );
+	MIN_REQUIRE ( cathp->mode != ATOM );
 
 	if ( cathp->mode == MASTER )
 	{
@@ -1982,9 +2071,9 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	    }
 	    scanner->current_table_ID =
 		return_stack[--return_stack_p];
-	    assert (    program
-	                    [scanner->current_table_ID]
-		     == TABLE );
+	    MIN_REQUIRE
+	        (    program[scanner->current_table_ID]
+		  == TABLE );
 	}
 	else if ( op & GOTO )
 	{
@@ -1994,7 +2083,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		LEX::ptr<table_header>
 		    ( program,
 		      scanner->current_table_ID );
-	    assert ( cathp->pctype == TABLE );
+	    MIN_REQUIRE ( cathp->pctype == TABLE );
 	    if ( cathp->mode == ATOM )
 
 	    {
@@ -2054,7 +2143,7 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		LEX::ptr<table_header>
 		    ( program,
 		      scanner->current_table_ID );
-	    assert ( cathp->pctype == TABLE );
+	    MIN_REQUIRE ( cathp->pctype == TABLE );
 	    if ( cathp->mode == MASTER
 	         ||
 		 cathp->mode == ATOM )
@@ -2683,8 +2772,8 @@ struct pclist {
     //
     void add ( uns32 c1, uns32 c2 )
     {
-	assert ( empty || this->c2 < c1 );
-	assert ( c1 <= c2 );
+	MIN_REQUIRE ( empty || this->c2 < c1 );
+	MIN_REQUIRE ( c1 <= c2 );
 
         if ( ! empty && c1 == this->c2 + 1 )
 	    this->c2 = c2;
@@ -2784,8 +2873,8 @@ static uns32 print_cooked_dispatcher
 	    }
 	    else
 	    {
-	        assert (    program[type_map_ID]
-		         == TYPE_MAP );
+	        MIN_REQUIRE (    program[type_map_ID]
+		              == TYPE_MAP );
 		min::ptr<type_map_header> tmhp =
 		    LEX::ptr<type_map_header>
 			( program, type_map_ID );
@@ -3133,7 +3222,7 @@ static min::gen scan_name_string_make_label
 
     if ( count == 1 )
     {
-        assert ( last->previous == NULL );
+        MIN_REQUIRE ( last->previous == NULL );
 	return last->element;
     }
 
@@ -3144,7 +3233,7 @@ static min::gen scan_name_string_make_label
         elements[i] = last->element;
 	last = last->previous;
     }
-    assert ( last == NULL );
+    MIN_REQUIRE ( last == NULL );
 
     return min::new_lab_gen ( elements, count );
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  7 02:19:24 EST 2012
+// Date:	Fri Jan 16 07:07:20 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,10 +38,9 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cin );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
-    PAR::init_print_flags
+    PAR::init_line_display
         ( PAR::default_parser,
-	    min::GRAPHIC_VSPACE_FLAG
-	  + min::GRAPHIC_NSPACE_FLAG );
+	    min::DISPLAY_PICTURE );
     PAR::default_parser->trace_flags =
     	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
     	+ PAR::TRACE_SUBEXPRESSION_LINES;

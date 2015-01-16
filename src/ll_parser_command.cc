@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 12 11:49:21 EST 2015
+// Date:	Fri Jan 16 07:17:36 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -754,9 +754,9 @@ static min::gen execute_selectors
 		return PAR::parse_error
 		    ( parser, pp,
 		      "too many selector names;"
-		      " cannot process \"",
-		      min::pgen_name ( name ),
-		      "\" in" );
+		      " cannot process ",
+		      min::pgen_quote ( name ),
+		      " in" );
 	    }
 
 	    TAB::push_name
@@ -927,9 +927,9 @@ static min::gen execute_context
 		    << min::indent
 		    << "block "
 		    << min::pgen_name ( block_name )
-		    << ": \""
-		    << min::pgen_name ( context->label )
-		    << "\" ";
+		    << ": "
+		    << min::pgen_quote ( context->label )
+		    << " ";
 		COM::print_new_flags
 		    ( context->new_selectors,
 		      parser->selector_name_table,

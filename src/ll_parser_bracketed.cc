@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 16 06:57:09 EST 2015
+// Date:	Fri Jan 16 07:20:02 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2598,13 +2598,13 @@ static min::gen bracketed_pass_command
 		    opening_bracket->closing_bracket;
 
 		parser->printer
-		    << "bracket \""
-		    << min::pgen_name
+		    << "bracket "
+		    << min::pgen_quote
 		           ( opening_bracket->label )
-		    << "\" ... \""
-		    << min::pgen_name
+		    << " ... "
+		    << min::pgen_quote
 		           ( closing_bracket->label )
-		    << "\" ";
+		    << " ";
 		COM::print_flags
 		    ( root->selectors,
 		      parser->selector_name_table,
@@ -2645,16 +2645,16 @@ static min::gen bracketed_pass_command
 
 		parser->printer
 		    << ( gluing ?  "gluing " : "" )
-		    << "indentation mark \""
-		    << min::pgen_name
+		    << "indentation mark "
+		    << min::pgen_quote
 		        ( indentation_mark->label );
 		if ( line_separator != min::NULL_STUB )
 		    parser->printer
-		        << "\" ... \""
-			<< min::pgen_name
+		        << " ... "
+			<< min::pgen_quote
 			    ( line_separator->label );
 		parser->printer
-		    << "\" ";
+		    << " ";
 		COM::print_flags
 		    ( root->selectors,
 		      parser->selector_name_table,
@@ -2689,27 +2689,27 @@ static min::gen bracketed_pass_command
 		    named_opening->named_middle;
 
 		parser->printer
-		    << "named bracket \""
-		    << min::pgen_name
+		    << "named bracket "
+		    << min::pgen_quote
 		        ( named_opening->label );
 		if ( named_separator != min::NULL_STUB )
 		    parser->printer
-		        << "\" ... \""
-			<< min::pgen_name
+		        << " ... "
+			<< min::pgen_quote
 			    ( named_separator->label );
 		if ( named_middle != min::NULL_STUB )
 		    parser->printer
-		        << "\" ... \""
-			<< min::pgen_name
+		        << " ... "
+			<< min::pgen_quote
 			    ( named_middle->label )
-		        << "\" ... \""
-			<< min::pgen_name
+		        << " ... "
+			<< min::pgen_quote
 			    ( named_middle->label );
 		parser->printer
-		    << "\" ... \""
-		    << min::pgen_name
+		    << " ... "
+		    << min::pgen_quote
 			( named_closing->label )
-		    << "\" ";
+		    << " ";
 		COM::print_flags
 		    ( root->selectors,
 		      parser->selector_name_table,

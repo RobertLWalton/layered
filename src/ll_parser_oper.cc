@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 13 02:28:10 EST 2015
+// Date:	Fri Jan 16 07:12:46 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1727,17 +1727,17 @@ void static print_op
 
     if ( table_type == ::OPERATOR )
 	parser->printer
-	    << "operator \""
-	    << min::pgen_name ( op->label );
+	    << "operator "
+	    << min::pgen_quote ( op->label );
     else if ( table_type == ::BRACKET )
 	parser->printer
-	    << "bracket \""
-	    << min::pgen_name ( op->label )
-	    << "\" ... \""
-	    << min::pgen_name ( op->terminator );
+	    << "bracket "
+	    << min::pgen_quote ( op->label )
+	    << " ... "
+	    << min::pgen_quote ( op->terminator );
 
     parser->printer
-	<< "\" " << min::set_break;
+	<< " " << min::set_break;
 
     COM::print_flags
 	( op->selectors,
@@ -1789,8 +1789,7 @@ void static print_op
 		    parser->printer << ", "
 		                    << min::set_break;
 	        parser->printer
-		    << '"' << min::pgen_name ( args[i] )
-		    << '"';
+		    << min::pgen_quote ( args[i] );
 	    }
 	    parser->printer << " )";
 	}

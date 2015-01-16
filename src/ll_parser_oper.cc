@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 11 03:12:29 EST 2014
+// Date:	Tue Jan 13 02:28:10 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,7 +158,7 @@ static void oper_pass_place
     int index = TAB::find_name
         ( parser->trace_flag_name_table,
 	  ::operator_subexpressions );
-    assert
+    MIN_REQUIRE
       ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
     
     oper_pass->trace_subexpressions =
@@ -206,7 +206,7 @@ static min::gen oper_pass_end_block
 
     min::uns32 block_level =
         PAR::block_level ( parser );
-    assert ( block_level > 0 );
+    MIN_REQUIRE ( block_level > 0 );
     TAB::end_block
         ( oper_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
@@ -493,7 +493,7 @@ static void oper_parse ( PAR::parser parser,
 		    current->type = PAR::OPERATOR;
 		    PAR::value_ref ( current ) =
 			oper->label;
-		    MIN_ASSERT
+		    MIN_REQUIRE
 		      (    current->string
 		        == min::NULL_STUB );
 		}
@@ -773,7 +773,7 @@ static bool separator_reformatter_function
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
-    MIN_ASSERT ( first != next );
+    MIN_REQUIRE ( first != next );
 
     min::gen separator = first_oper->label;
     bool separator_should_be_next = false;
@@ -827,7 +827,9 @@ static bool separator_reformatter_function
 	}
 	else
 	{
-	    MIN_ASSERT ( ! separator_should_be_next );
+	    MIN_ASSERT ( ! separator_should_be_next,
+	                 "separator expected but"
+			 " operand found" );
 	        // Two operands should never be in
 		// next to each other.
 	    separator_should_be_next = true;
@@ -857,7 +859,7 @@ static bool declare_reformatter_function
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
-    MIN_ASSERT ( first != next );
+    MIN_REQUIRE ( first != next );
 
     // We need to be careful to insert empty operands
     // using put_empty_before/after the operator so
@@ -879,7 +881,8 @@ static bool declare_reformatter_function
     // Second element must be operator.
     //
     MIN_ASSERT
-	( t != next && t->type == PAR::OPERATOR );
+	( t != next && t->type == PAR::OPERATOR,
+	  "second element is missing or not operator" );
 
     t = t->next;
 
@@ -952,7 +955,7 @@ static bool right_associative_reformatter_function
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
-    MIN_ASSERT ( first != next );
+    MIN_REQUIRE ( first != next );
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -964,13 +967,21 @@ static bool right_associative_reformatter_function
     while ( first->next != next )
     {
         PAR::token t = next->previous;
-	MIN_ASSERT ( t->type != PAR::OPERATOR );
-	MIN_ASSERT ( t != first );
+	MIN_ASSERT ( t != first,
+	             "premature expression end" );
+	MIN_ASSERT ( t->type != PAR::OPERATOR,
+	             "operand expected but operator"
+		     " found" );
         t = t->previous;
-	MIN_ASSERT ( t->type == PAR::OPERATOR );
-	MIN_ASSERT ( t != first );
+	MIN_ASSERT ( t->type == PAR::OPERATOR,
+	             "operator expected but operand"
+		     " found" );
+	MIN_ASSERT ( t != first,
+	             "premature expression end" );
         t = t->previous;
-	MIN_ASSERT ( t->type != PAR::OPERATOR );
+	MIN_ASSERT ( t->type != PAR::OPERATOR,
+	             "operand expected but operator"
+		     " found" );
 
         min::phrase_position position =
 	    { t->position.begin,
@@ -1013,7 +1024,8 @@ static bool unary_reformatter_function
 
     while ( first->type != PAR::OPERATOR )
     {
-	MIN_ASSERT ( first != next );
+	MIN_ASSERT ( first != next,
+	             "unexpected expression end" );
 
 	parser->printer
 	    << min::bom
@@ -1135,7 +1147,7 @@ static bool binary_reformatter_function
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
-    MIN_ASSERT ( first != next );
+    MIN_REQUIRE ( first != next );
 
     // We need to be careful to insert error operands
     // using put_error_operand_before/after the operator
@@ -1174,7 +1186,8 @@ static bool binary_reformatter_function
     // Second element must be operator.
     //
     MIN_ASSERT
-	( t != next && t->type == PAR::OPERATOR );
+	( t != next && t->type == PAR::OPERATOR,
+	  "second element is missing or not operator" );
 
     t = t->next;
 
@@ -1259,7 +1272,7 @@ static bool infix_reformatter_function
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
-    MIN_ASSERT ( first != next );
+    MIN_REQUIRE ( first != next );
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -1269,11 +1282,14 @@ static bool infix_reformatter_function
     // Remove all operators but first, and check that
     // they are the same as first operator.
     //
-    MIN_ASSERT ( first->next->type == PAR::OPERATOR );
+    MIN_ASSERT ( first->next->type == PAR::OPERATOR,
+                 "second element is not operator" );
     for ( PAR::token t = first->next->next;
           t->next != next; t = t->next )
     {
-        MIN_ASSERT ( t->next->type == PAR::OPERATOR );
+        MIN_ASSERT ( t->next->type == PAR::OPERATOR,
+	             "operator expected but operand"
+		     " found" );
 	if ( t->next->value != first->next->value )
 	{
 	    parser->printer
@@ -1323,7 +1339,7 @@ static bool infix_and_reformatter_function
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
-    MIN_ASSERT ( first != next );
+    MIN_REQUIRE ( first != next );
 
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
@@ -1348,13 +1364,21 @@ static bool infix_and_reformatter_function
     for ( PAR::token operand1 = first;
           operand1 != next ; )
     {
-	MIN_ASSERT ( operand1->type != PAR::OPERATOR );
+	MIN_ASSERT ( operand1->type != PAR::OPERATOR,
+	             "operand expected but operator"
+		     " found" );
         PAR::token op = operand1->next;
-	MIN_ASSERT ( op != next );
-	MIN_ASSERT ( op->type == PAR::OPERATOR );
+	MIN_ASSERT ( op != next,
+	             "unexpected expression end" );
+	MIN_ASSERT ( op->type == PAR::OPERATOR,
+	             "operator expected but operand"
+		     " found" );
         PAR::token operand2 = op->next;
-	MIN_ASSERT ( operand2 != next );
-	MIN_ASSERT ( operand2->type != PAR::OPERATOR );
+	MIN_ASSERT ( operand2 != next,
+	             "unexpected expression end" );
+	MIN_ASSERT ( operand2->type != PAR::OPERATOR,
+	             "operand expected but operator"
+		     " found" );
 
         min::phrase_position position =
 	    { operand1->position.begin,
@@ -1494,9 +1518,11 @@ static bool sum_reformatter_function
 	  OP::oper first_oper,
 	  min::phrase_position & position )
 {
-    MIN_ASSERT ( first != next );
-    MIN_ASSERT ( first->type != PAR::OPERATOR );
-    MIN_ASSERT ( first->next != next );
+    MIN_REQUIRE ( first != next );
+    MIN_ASSERT ( first->type != PAR::OPERATOR,
+                 "first element should be operand" );
+    MIN_ASSERT ( first->next != next,
+                 "unexpected expression end" );
 
     min::gen plus_op =
 	first_oper->reformatter_arguments[0];
@@ -1512,8 +1538,11 @@ static bool sum_reformatter_function
     //
     for ( PAR::token t = first->next; t != next; )
     {
-        MIN_ASSERT ( t->type == PAR::OPERATOR );
-        MIN_ASSERT ( t->next != next );
+        MIN_ASSERT ( t->type == PAR::OPERATOR,
+	             "operator expected but operand"
+		     " found" );
+        MIN_ASSERT ( t->next != next,
+		     "unexpected expression end" );
 
 	min::gen op = t->value;
 	if ( op != minus_op )
@@ -1684,7 +1713,7 @@ void static print_op
 	  ::table_type table_type,
 	  PAR::parser parser )
 {
-    MIN_ASSERT ( op != min::NULL_STUB );
+    MIN_REQUIRE ( op != min::NULL_STUB );
 
     min::gen block_name =
 	PAR::block_name

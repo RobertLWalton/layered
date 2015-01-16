@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 12 12:04:22 EST 2015
+// Date:	Fri Jan 16 06:57:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2185,6 +2185,8 @@ bool BRA::parse_bracketed_subexpression
 			        ( tap, PAR::dot_keys );
 			    min::set ( tap, keys );
 			}
+
+			named_opening = min::NULL_STUB;
 
 			break;
 		    }

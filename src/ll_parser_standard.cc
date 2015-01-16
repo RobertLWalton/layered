@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:12:34 EST 2012
+// Date:	Tue Jan 13 02:45:51 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@ void PARSTD::init_block ( PAR::parser parser )
 	    ( parser, PAR::standard_lexeme,
 	      PAR::top_level_position );
 
-    MIN_ASSERT ( result == min::SUCCESS() );
+    MIN_REQUIRE ( result == min::SUCCESS() );
 
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );

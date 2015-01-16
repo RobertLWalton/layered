@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  4 19:46:25 EST 2014
+// Date:	Fri Jan 16 07:06:58 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,10 +33,9 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cin );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
-    PAR::init_print_flags
+    PAR::init_line_display
         ( PAR::default_parser,
-	    min::EOL_FLUSH_FLAG
-	  + min::GRAPHIC_VSPACE_FLAG
-	  + min::GRAPHIC_NSPACE_FLAG );
+	    min::FLUSH_ON_EOL
+	  + min::DISPLAY_PICTURE );
     PAR::parse();
 }

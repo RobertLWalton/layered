@@ -10,10 +10,10 @@ parser print selector "":
     block standard: code
     block TOP-LEVEL: parser
 parser print context "":
-    block standard: "default" [code]
-    block TOP-LEVEL: "default" [ ]
-    block TOP-LEVEL: "parser" [parser]
-    block TOP-LEVEL: "parser test" none
+    block standard: default [code]
+    block TOP-LEVEL: default [ ]
+    block TOP-LEVEL: parser [parser]
+    block TOP-LEVEL: parser test [ ]
 parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
@@ -67,24 +67,24 @@ parser print trace:
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser print context "":
-    block standard: "default" [code]
-    block TOP-LEVEL: "default" [ ]
-    block TOP-LEVEL: "parser" [parser]
-    block TOP-LEVEL: "parser test" none
+    block standard: default [code]
+    block TOP-LEVEL: default [ ]
+    block TOP-LEVEL: parser [parser]
+    block TOP-LEVEL: parser test [ ]
 parser define context "default"
        with parsing selectors [parser,my selector]
 parser print context "":
-    block standard: "default" [parser, my selector]
-    block TOP-LEVEL: "default" [ ]
-    block TOP-LEVEL: "parser" [parser]
-    block TOP-LEVEL: "parser test" none
+    block standard: default [parser, my selector]
+    block TOP-LEVEL: default [ ]
+    block TOP-LEVEL: parser [parser]
+    block TOP-LEVEL: parser test [ ]
 parser define context "default"
        with parsing selectors [code]
 parser print context "":
-    block standard: "default" [code]
-    block TOP-LEVEL: "default" [ ]
-    block TOP-LEVEL: "parser" [parser]
-    block TOP-LEVEL: "parser test" none
+    block standard: default [code]
+    block TOP-LEVEL: default [ ]
+    block TOP-LEVEL: parser [parser]
+    block TOP-LEVEL: parser test [ ]
 ======= TEST: {"": .terminator = "<LF>"|
               parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m
               "(" n "(" p ")" ")" "]" |}
@@ -128,7 +128,7 @@ parser begin special
 parser define context "parser test special"
        with parsing selectors [parser]
 parser print context "parser<SP>test<SP>special":
-    block special: "parser test special" [parser]
+    block special: parser test special [parser]
 ======= TEST: {"": .terminator = "<LF>"|
               parser test special
               [ x "<+" y "+>" z "{" u "," v "," w "}" m ( n ( p ) ) ] |}
@@ -146,17 +146,17 @@ parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
                                                ^^^
 ======= END TEST
 parser print context "default":
-    block special: "default" [code]
-    block standard: "default" [code]
-    block TOP-LEVEL: "default" [ ]
+    block special: default [code]
+    block standard: default [code]
+    block TOP-LEVEL: default [ ]
 parser end special
 parser print context "parser<SP>test<SP>special":
     not found
 parser print context "parser<SP>test":
-    block TOP-LEVEL: "parser test" none
+    block TOP-LEVEL: parser test [ ]
 parser print context "parser":
-    block TOP-LEVEL: "parser" [parser]
-    block TOP-LEVEL: "parser test" none
+    block TOP-LEVEL: parser [parser]
+    block TOP-LEVEL: parser test [ ]
 ======= TEST: {"": .terminator = "<LF>"|
               parser test special "[" x "<+" y "+>" z "{" u "," v "," w
               "}" m "(" n "(" p ")" ")" "]" |}

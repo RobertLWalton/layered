@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 16 07:17:36 EST 2015
+// Date:	Fri Jan 16 19:19:22 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -418,12 +418,6 @@ void COM::print_new_flags
 	min::uns64 all_flags = new_flags.or_flags
 	                     | new_flags.not_flags
 	                     | new_flags.xor_flags;
-
-	if ( all_flags == 0 )
-	{
-	    parser->printer << "none";
-	    return;
-	}
 
 	parser->printer << "["
 	                << min::leading
@@ -888,7 +882,7 @@ static min::gen execute_context
 		                << "block "
 				<< min::pgen_name
 				     ( block_name )
-				<< ": \"default\" ";
+				<< ": default ";
 		COM::print_flags
 		    ( flags,
 		      parser->selector_name_table,
@@ -928,7 +922,7 @@ static min::gen execute_context
 		    << "block "
 		    << min::pgen_name ( block_name )
 		    << ": "
-		    << min::pgen_quote ( context->label )
+		    << min::pgen_name ( context->label )
 		    << " ";
 		COM::print_new_flags
 		    ( context->new_selectors,

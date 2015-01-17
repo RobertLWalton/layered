@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 16 07:20:02 EST 2015
+// Date:	Sat Jan 17 06:26:36 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1341,7 +1341,7 @@ bool BRA::parse_bracketed_subexpression
 
 			    PAR::attr attributes[1] =
 			      { PAR::attr
-			          ( min::dot_terminator,
+			          ( min::dot_type,
 				    terminator ) };
 
 			    PAR::compact
@@ -1402,7 +1402,7 @@ bool BRA::parse_bracketed_subexpression
 
 		PAR::attr attributes[1] =
 		    { PAR::attr
-		          ( min::dot_initiator,
+		          ( min::dot_type,
 			    indentation_found->
 			        label ) };
 

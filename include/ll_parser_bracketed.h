@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 05:35:29 EST 2013
+// Date:	Sat Jan 17 06:50:56 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -612,8 +612,7 @@ ll::parser::pass new_pass ( void );
 // this is an empty list).  It also replaces quoted
 // strings in the wrapped sub-subexpression by expres-
 // sions whose sole elements are the translation strings
-// of the quoted string lexemes and whose .initiators
-// are ".
+// of the quoted string lexemes and whose .types are ".
 //
 // The `selectors' argument has no affect on closing
 // bracket, named middle, named key separator, named
@@ -638,14 +637,13 @@ ll::parser::pass new_pass ( void );
 // Sub-subexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list
 // is a list of lines and has the indentation mark label
-// as its .initiator.  The inner lists are paragraph
-// line subexpressions and have "\n" as their .termina-
-// tor if they do not end with an line separator, and
-// have the line separator label as their .terminator
-// otherwise (and the line separator at the end of the
-// paragraph line is omitted from the inner list).
-// Inner lists that would be empty with just a "\n"
-// terminator are deleted.
+// as its .type.  The inner lists are paragraph line
+// subexpressions and have "\n" as their .type if they
+// do not end with an line separator, and have the line
+// separator label as their .type otherwise (and the
+// line separator at the end of the paragraph line is
+// omitted from the inner list).  Inner lists that would
+// be empty with just a "\n" type are deleted.
 //
 // Gluing indentation marks are split from line-ending
 // tokens.  When a gluing indentation mark is split,

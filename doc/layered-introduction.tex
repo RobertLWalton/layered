@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 5, 2015
+January 20, 2015
  
 \end{center}
 
@@ -531,8 +531,6 @@ be within a {\em line-end}, else they are ignored and a warning
 message issued.  Other control characters are ignored and a
 warning message is issued.
 
-TBD
-
 Consecutive quoted string lexemes are glued together if they are in the
 same (possibly continued) line.  Thus
 \begin{indpar}\begin{verbatim}
@@ -554,11 +552,16 @@ quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
-The special {\em character-representatives} generally consist of
+A special {\em character-representative} can consist of
 the ASCII character name surrounded by angle brackets.  Examples are
 \TT{<NUL>}, \TT{<LF>}, \TT{<SP>}.  There are two other cases:
 \TT{<Q>} represents the doublequote \TT{"}, and \TT{<NL>} (new line)
 represents a line feed (same as \TT{<LF>}).
+
+A special {\em character-representative} can also consist of
+a hexadecimal UNICODE character code, which must begin with a digit.
+Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
+a form feed.
 
 \begin{figure*}[!p]
 \begin{indpar}
@@ -585,7 +588,9 @@ represents a line feed (same as \TT{<LF>}).
 \\[0.3ex]
 \emkey{comment} :::= \TT{//}{\em comment-character}\STAR{}
 \\[0.3ex]
-\emkey{separator} ::= {\em separator-character} except \TT{|} $|$ \TT{|}\PLUS{}
+\emkey{separator} ::= {\em separator-character} except \TT{|} or \TT{:}
+                  $|$ \TT{|}\PLUS{}
+                  $|$ \TT{:}\PLUS{}
 \\[1ex]
 \emkey{word-prefix-character} ::= \TT{.}
 	\begin{tabular}[t]{@{}l@{}}
@@ -681,11 +686,6 @@ represents a line feed (same as \TT{<LF>}).
 		     and either preceded by a {\em mark-character} \\
 		     or \underline{not} followed by a {\em letter} \\
 		     \end{tabular} \\
-        $|$ & \TT{:} \begin{tabular}[t]{@{}l@{}}
-	             not surrounded by {\em digits} \\
-	             and either preceded by a \TT{:} \\
-	             or followed by a {\em mark-character} \\
-		     \end{tabular} \\
         $|$ & \TT{/} \begin{tabular}[t]{@{}l@{}}
 	             not surrounded by {\em digits} \\
 		     or followed by a \TT{/} \\
@@ -704,12 +704,8 @@ represents a line feed (same as \TT{<LF>}).
 	$|$ \TT{`}
 	$|$ \TT{|} \\
 	$|$ & \TT{,} not surrounded by {\em digits} \\
+	$|$ & \TT{:} not surrounded by {\em digits} \\
 	$|$ & \TT{'} not followed by a letter \\
-        $|$ & \TT{:} \begin{tabular}[t]{@{}l@{}}
-	             not surrounded by {\em digits}, \\
-	             not preceded by a \TT{:}, \\
-	             and not followed by a {\em mark-character} \\
-		     \end{tabular} \\
 	\end{tabular}
 \\[0.3ex]
 \emkey{numeric-character}
@@ -742,8 +738,7 @@ represents a line feed (same as \TT{<LF>}).
 \emkey{graphic-character} ::= character than makes a mark on paper
 \\[0.3ex]
 \emkey{special-character-representative} ::=
-    \TT{<} {\em upper-case-letter}
-           \{ {\em upper-case-letter} $|$ {\em digit} \}\STAR{} \TT{>}
+    \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
 \\[0.3ex]
 \emkey{comment-character}
     ::= {\em graphic-character}

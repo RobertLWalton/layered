@@ -85,9 +85,7 @@ parser print context "":
     block TOP-LEVEL: default [ ]
     block TOP-LEVEL: parser [parser]
     block TOP-LEVEL: parser test [ ]
-======= TEST: {"": .terminator = "<LF>"|
-              parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m
-              "(" n "(" p ")" ")" "]" |}
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 ======= END TEST
 parser trace [+ subexpression lines]
 ======= TEST:
@@ -99,27 +97,21 @@ parser trace [- subexpression lines]
 parser trace [+ subexpression details]
 ======= TEST: parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m
               "(" n "(" p ")" ")" "]":
-                  .terminator = "<LF>"
+                  .type = "<LF>"
 
 ======= END TEST
 parser trace [+ subexpression elements]
-======= TEST: {"": .terminator = "<LF>"|
-              parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m
-              "(" n "(" p ")" ")" "]" |}
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
     parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m "(" n "(" p
     ")" ")" "]":
-        .terminator = "<LF>"
+        .type = "<LF>"
 
 ======= END TEST
 parser trace [- subexpression details]
-======= TEST: {"": .terminator = "<LF>"|
-              parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m
-              "(" n "(" p ")" ")" "]" |}
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 ======= END TEST
 parser trace [+ subexpression lines]
-======= TEST: {"": .terminator = "<LF>"|
-              parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m
-              "(" n "(" p ")" ")" "]" |}
+======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 ------- line 42:
 parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -129,9 +121,9 @@ parser define context "parser test special"
        with parsing selectors [parser]
 parser print context "parser<SP>test<SP>special":
     block special: parser test special [parser]
-======= TEST: {"": .terminator = "<LF>"|
-              parser test special
-              [ x "<+" y "+>" z "{" u "," v "," w "}" m ( n ( p ) ) ] |}
+======= TEST: parser test special
+                  [ x "<+" y "+>" z "{" u "," v "," w "}" m
+                    ( n ( p ) ) ]
 ------- line 48:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -157,9 +149,8 @@ parser print context "parser<SP>test":
 parser print context "parser":
     block TOP-LEVEL: parser [parser]
     block TOP-LEVEL: parser test [ ]
-======= TEST: {"": .terminator = "<LF>"|
-              parser test special "[" x "<+" y "+>" z "{" u "," v "," w
-              "}" m "(" n "(" p ")" ")" "]" |}
+======= TEST: parser test special [ x <+ y +> z { u , v , w } m ( n ( p
+                  ) ) ]
 ------- line 54:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

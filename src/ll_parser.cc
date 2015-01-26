@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 25 01:50:14 EST 2015
+// Date:	Mon Jan 26 04:21:36 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1588,7 +1588,7 @@ void PAR::compact
 		<< min::indent
 		<< min::bom
 		<< min::set_gen_format
-		   ( min::paragraph_element_gen_format )
+		   ( min::line_gen_format )
 		<< min::pgen ( first->value )
 		<< min::eom;
 	if (   trace_flags

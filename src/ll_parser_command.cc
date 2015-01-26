@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 25 01:48:18 EST 2015
+// Date:	Mon Jan 26 04:22:15 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1069,7 +1069,7 @@ static min::gen execute_test
 	    parser->printer
 	        << min::bom
 		<< min::set_gen_format
-		   ( min::paragraph_element_gen_format )
+		   ( min::line_gen_format )
 		<< min::pgen ( obj )
 		<< min::eom
 		<< min::flush_id_map;

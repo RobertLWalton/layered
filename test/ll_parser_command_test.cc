@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 11 04:34:10 EST 2014
+// Date:	Wed Jan 28 07:44:02 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,5 +31,32 @@ int main ( int argc, const char * argv[] )
 	  min::DISPLAY_PICTURE );
     PAR::default_parser->trace_flags |=
         PAR::TRACE_PARSER_COMMANDS;
+
+    // Since subexpressions are not being parsed, we
+    // change the gen_formats to not suppress spaces
+    // between lexemes and not quote brackets.
+    //
+    min::gen_format altered_line_gen_format =
+        * min::line_gen_format;
+    min::obj_format altered_line_obj_format =
+        * min::line_obj_format;
+    min::gen_format altered_line_element_gen_format =
+        * min::line_element_gen_format;
+    min::obj_format altered_line_element_obj_format =
+        * min::line_element_obj_format;
+
+    altered_line_gen_format.obj_format =
+        & altered_line_obj_format;
+    altered_line_obj_format.line_format =
+        & altered_line_element_gen_format;
+    altered_line_element_gen_format.obj_format =
+        & altered_line_element_obj_format;
+    altered_line_element_gen_format.str_format =
+        min::quote_non_graphic_str_format;
+    altered_line_element_obj_format.obj_sep =
+        (const min::ustring *) "\x01\x01" " ";
+
+    PAR::default_parser->subexpression_gen_format =
+        & altered_line_gen_format;
     PAR::parse();
 }

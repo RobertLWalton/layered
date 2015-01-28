@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 26 04:22:15 EST 2015
+// Date:	Wed Jan 28 00:33:14 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1068,25 +1068,15 @@ static min::gen execute_test
 	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
 	    parser->printer
 	        << min::bom
+		<< min::adjust_indent ( 4 )
 		<< min::set_gen_format
-		   ( min::line_gen_format )
+		   ( parser->subexpression_gen_format )
 		<< min::pgen ( obj )
 		<< min::eom
 		<< min::flush_id_map;
 
-	if ( ( flags & TRACE_E_OR_D ) == TRACE_E_OR_D)
-	    parser->printer << min::indent;
-
 	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
-	{
-	    parser->printer
-		<< min::bom
-		<< min::pgen ( obj,
-		               min::id_map_gen_format )
-		<< min::eol
-		<< min::flush_id_map
-		<< min::eom;
-	}
+	    parser->printer << min::map_pgen ( obj );
 
 	vp = obj;  // Reopen vp.
     }

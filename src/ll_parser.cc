@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 26 04:21:36 EST 2015
+// Date:	Wed Jan 28 00:32:22 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -606,6 +606,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
     {
         parser = ::parser_type.new_stub();
 	parser->max_error_count = 100;
+	parser->subexpression_gen_format =
+	    min::line_gen_format;
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
@@ -1578,6 +1580,8 @@ void PAR::compact
     if ( trace_flags )
     {
 	parser->printer
+	    << min::bol << min::save_indent
+	    << min::adjust_indent ( 4 )
 	    << ( first->type == PAR::BRACKETED ?
 		 "BRACKETED EXPRESSION: " :
 		 "BRACKETABLE EXPRESSION: " );
@@ -1587,17 +1591,16 @@ void PAR::compact
 	    parser->printer
 		<< min::indent
 		<< min::bom
+		<< min::adjust_indent ( 4 )
 		<< min::set_gen_format
-		   ( min::line_gen_format )
+		   ( parser->subexpression_gen_format )
 		<< min::pgen ( first->value )
 		<< min::eom;
 	if (   trace_flags
 	     & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	    parser->printer
-		<< min::save_print_format
-		<< min::map_pgen ( first->value )
-		<< min::eol
-		<< min::restore_print_format;
+		<< min::map_pgen ( first->value );
+
 	if (   trace_flags
 	     & PAR::TRACE_SUBEXPRESSION_LINES )
 	{
@@ -1611,6 +1614,8 @@ void PAR::compact
 		( parser->printer,
 		  parser->input_file, position );
 	}
+
+	parser->printer << min::restore_indent;
     }
 }
 

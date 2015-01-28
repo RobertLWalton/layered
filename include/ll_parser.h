@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 15 05:53:57 EST 2014
+// Date:	Tue Jan 27 15:07:49 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -861,13 +861,12 @@ enum {
     //
     TRACE_SUBEXPRESSION_ELEMENTS	= 1ull << 4,
 	// Trace flag with name `subexpression elements'
-	// that causes subexpression values to be
-	// printed with min::indent_pgen.
+	// that causes subexpression values to be print-
+	// ed with parser->subexpression_gen_format.
     TRACE_SUBEXPRESSION_DETAILS		= 1ull << 5,
 	// Trace flag with name `subexpression details'
 	// that causes subexpression values to be
-	// printed with min::pgen with min::no_exp_
-	// context_gen_flags.
+	// printed with min::map_pgen.
     TRACE_SUBEXPRESSION_LINES		= 1ull << 6,
 	// Trace flag with name `subexpression lines'
 	// that causes subexpression values to be
@@ -914,6 +913,8 @@ struct parser_struct
 	// be set to a value other than NULL_STUB before
 	// the `parse' function is called.  Set to
 	// NULL_STUB when the parser is created.
+	//
+	// Also see TRACE_PARSER_INPUT trace flag.
 
     const ll::parser::output output;
         // Closure to call to remove finished tokens
@@ -922,6 +923,8 @@ struct parser_struct
 	// finished tokens are left in the list when
 	// `parse' returns).  Set to NULL_STUB when
 	// parser is created.
+	//
+	// Also see TRACE_PARSER_OUTPUT trace flag.
 
     const ll::parser::pass pass_stack;
         // List of passes to call for each bracketed
@@ -932,6 +935,12 @@ struct parser_struct
     ll::parser::table::flags trace_flags;
         // Parser trace flags: see above.  Tracing is
 	// done to parser->printer.
+
+    const min::gen_format * subexpression_gen_format;
+        // min::gen_format used to print subexpressions
+	// when the TRACE_SUBEXPRESSIONS_ELEMENTS flag
+	// is in trace_flags.  Defaults to min::line_
+	// gen_format.
 
     const ll::parser::table::name_table
     	    trace_flag_name_table;

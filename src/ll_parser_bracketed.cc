@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 17 06:26:36 EST 2015
+// Date:	Wed Jan 28 18:25:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2604,7 +2604,7 @@ static min::gen bracketed_pass_command
 		    << " ... "
 		    << min::pgen_quote
 		           ( closing_bracket->label )
-		    << " ";
+		    << " " << min::set_break;
 		COM::print_flags
 		    ( root->selectors,
 		      parser->selector_name_table,
@@ -2654,7 +2654,7 @@ static min::gen bracketed_pass_command
 			<< min::pgen_quote
 			    ( line_separator->label );
 		parser->printer
-		    << " ";
+		    << " " << min::set_break;
 		COM::print_flags
 		    ( root->selectors,
 		      parser->selector_name_table,
@@ -2709,7 +2709,7 @@ static min::gen bracketed_pass_command
 		    << " ... "
 		    << min::pgen_quote
 			( named_closing->label )
-		    << " ";
+		    << " " << min::set_break;
 		COM::print_flags
 		    ( root->selectors,
 		      parser->selector_name_table,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 28 18:25:09 EST 2015
+// Date:	Fri Jan 30 13:19:44 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,7 +12,6 @@
 //
 //	Usage and Setup
 //	Brackets
-//	Named Brackets
 //	Indentation Marks
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
@@ -37,7 +36,6 @@ static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen mark;
 static min::locatable_gen gluing;
-static min::locatable_gen named;
 static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
@@ -51,7 +49,6 @@ static void initialize ( void )
 			    ( "indentation" );
     ::mark = min::new_str_gen ( "mark" );
     ::gluing = min::new_str_gen ( "gluing" );
-    ::named = min::new_str_gen ( "named" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
     ::bracketed_subexpressions =
@@ -133,202 +130,6 @@ BRA::opening_bracket
     TAB::push ( bracket_table, (TAB::root) closing );
 
     return opening;
-}
-
-// Named Brackets
-// ----- --------
-
-static min::uns32 named_opening_stub_disp[] = {
-    min::DISP ( & BRA::named_opening_struct
-                     ::next ),
-    min::DISP ( & BRA::named_opening_struct
-                     ::named_separator ),
-    min::DISP ( & BRA::named_opening_struct
-                     ::named_middle ),
-    min::DISP ( & BRA::named_opening_struct
-                     ::named_closing ),
-    min::DISP ( & BRA::named_opening_struct
-                     ::named_middle_closing ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<BRA::named_opening_struct, TAB::root_struct>
-    named_opening_type
-	( "ll::parser::table::named_opening_type",
-	  TAB::root_gen_disp,
-	  ::named_opening_stub_disp );
-const min::uns32 & BRA::NAMED_OPENING =
-    named_opening_type.subtype;
-
-static min::uns32 named_separator_stub_disp[] = {
-    min::DISP ( & BRA::named_separator_struct
-    		     ::next ),
-    min::DISP ( & BRA::named_separator_struct
-                     ::named_opening ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<BRA::named_separator_struct, TAB::root_struct>
-    named_separator_type
-	( "ll::parser::table::named_separator_type",
-	  TAB::root_gen_disp,
-	  ::named_separator_stub_disp );
-const min::uns32 & BRA::NAMED_SEPARATOR =
-    named_separator_type.subtype;
-
-static min::uns32 named_middle_stub_disp[] = {
-    min::DISP ( & BRA::named_middle_struct
-                     ::next ),
-    min::DISP ( & BRA::named_middle_struct
-                     ::named_opening ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<BRA::named_middle_struct, TAB::root_struct>
-    named_middle_type
-	( "ll::parser::table::named_middle_type",
-	  TAB::root_gen_disp,
-	  ::named_middle_stub_disp );
-const min::uns32 & BRA::NAMED_MIDDLE =
-    named_middle_type.subtype;
-
-static min::uns32 named_closing_stub_disp[] = {
-    min::DISP ( & BRA::named_closing_struct
-                     ::next ),
-    min::DISP ( & BRA::named_closing_struct
-                     ::named_opening ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<BRA::named_closing_struct, TAB::root_struct>
-    named_closing_type
-	( "ll::parser::table::named_closing_type",
-	  TAB::root_gen_disp,
-	  ::named_closing_stub_disp );
-const min::uns32 & BRA::NAMED_CLOSING =
-    named_closing_type.subtype;
-
-static min::uns32 named_middle_closing_stub_disp[] = {
-    min::DISP ( & BRA::named_middle_closing_struct
-	             ::next ),
-    min::DISP ( & BRA::named_middle_closing_struct
-                     ::named_opening ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<BRA::named_middle_closing_struct,
-	 TAB::root_struct>
-    named_middle_closing_type
-	( "ll::parser::table"
-	    "::named_middle_closing_type",
-	  TAB::root_gen_disp,
-	  ::named_middle_closing_stub_disp );
-const min::uns32 & BRA::NAMED_MIDDLE_CLOSING =
-    named_middle_closing_type.subtype;
-
-BRA::named_opening
-    BRA::push_named_brackets
-	( min::gen named_opening_label,
-	  min::gen named_separator_label,
-	  min::gen named_middle_label,
-	  min::gen named_closing_label,
-	  min::gen named_middle_closing_label,
-	  TAB::flags selectors,
-	  min::uns32 block_level,
-	  const min::phrase_position & position,
-	  TAB::key_table bracket_table )
-{
-    min::locatable_var<BRA::named_opening>
-        named_opening
-        ( ::named_opening_type.new_stub() );
-
-    min::locatable_var<BRA::named_separator>
-        named_separator
-        ( named_separator_label != min::MISSING() ?
-	  ::named_separator_type.new_stub() :
-	  min::NULL_STUB );
-
-    min::locatable_var<BRA::named_middle>
-        named_middle
-        ( named_middle_label != min::MISSING() ?
-	  ::named_middle_type.new_stub() :
-	  min::NULL_STUB );
-
-    min::locatable_var<BRA::named_closing>
-        named_closing
-        ( ::named_closing_type.new_stub() );
-
-    min::locatable_var
-	    <BRA::named_middle_closing>
-        named_middle_closing
-        ( named_middle_closing_label != min::MISSING() ?
-          ::named_middle_closing_type.new_stub() :
-	  min::NULL_STUB );
-
-    label_ref(named_opening) = named_opening_label;
-    named_opening->selectors = selectors;
-    named_opening->block_level = block_level;
-    named_opening->position = position;
-    named_separator_ref(named_opening) =
-        named_separator;
-    named_middle_ref(named_opening) =
-        named_middle;
-    named_closing_ref(named_opening) =
-        named_closing;
-    named_middle_closing_ref(named_opening) =
-        named_middle_closing;
-    TAB::push ( bracket_table,
-                (TAB::root) named_opening );
-
-    label_ref(named_closing) = named_closing_label;
-    named_closing->selectors = TAB::ALL_FLAGS;
-    named_closing->block_level = block_level;
-    named_closing->position = position;
-    named_opening_ref(named_closing) =
-        named_opening;
-    TAB::push ( bracket_table,
-                (TAB::root) named_closing );
-
-    if ( named_separator_label != min::MISSING() )
-    {
-	label_ref(named_separator) =
-	    named_separator_label;
-	named_separator->selectors = TAB::ALL_FLAGS;
-	named_separator->block_level = block_level;
-	named_separator->position = position;
-	named_opening_ref(named_separator) =
-	    named_opening;
-	TAB::push ( bracket_table,
-		    (TAB::root) named_separator );
-    }
-
-    if ( named_middle_label != min::MISSING() )
-    {
-	label_ref(named_middle) = named_middle_label;
-	named_middle->selectors = TAB::ALL_FLAGS;
-	named_middle->block_level = block_level;
-	named_middle->position = position;
-	named_opening_ref(named_middle) =
-	    named_opening;
-	TAB::push ( bracket_table,
-		    (TAB::root) named_middle );
-    }
-
-    if ( named_middle_closing_label != min::MISSING() )
-    {
-	label_ref(named_middle_closing) =
-	    named_middle_closing_label;
-	named_middle_closing->selectors =
-	    TAB::ALL_FLAGS;
-	named_middle_closing->block_level = block_level;
-	named_middle_closing->position = position;
-	named_opening_ref(named_middle_closing) =
-	    named_opening;
-	TAB::push ( bracket_table,
-		    (TAB::root) named_middle_closing );
-    }
-
-    return named_opening;
 }
 
 // Indentation Marks
@@ -718,189 +519,6 @@ static min::gen make_label
     else return min::new_lab_gen ( label, n );
 }
 
-// Compute attributes from a named bracket or named
-// operator.  The `name', which is a label, is computed.
-// If there are arguments, an `arguments' list is
-// computed.  If there are keys, a `keys' list is
-// computed.
-//
-// The named bracket or named operator is defined by
-// `first' and `next'.  `first' is the first token AFTER
-// the named opening, and `next' is the first token of
-// the named middle (for a named bracket) or named
-// closing (for a named operator).  No tokens are
-// deleted, but some may have their values modified
-// (e.g., quoted string tokens).
-//
-// `first' MUST BE a word.  The name is this word plus
-// any following words and natural numbers.
-//
-// The arguments are any subexpressions, non-natural
-// numbers, and quoted strings following the name but
-// proceeding any named separator.  If there are no
-// arguments, `arguments' is set to MISSING.  Otherwise
-// `arguments' is set to a list that has only list
-// elements, namely the arguments.  Any quoted string
-// or non-natural number argument is converted as per
-// PAR::convert_token before being put into this list.
-// 
-// A key is any sequence of words, numbers, or quoted
-// strings following a named separator and preceeding
-// any next named separator.  There MUST not be any
-// marks, separators, or subexpressions in keys.  If
-// there are no keys, `keys' is set to MISSING.  Other-
-// wise, `keys' is set to a list object whose list
-// elements are the keys, which are min::gen strings or
-// min::gen labels.  The keys are made by ::make_label,
-// and any quoted string or non-natural number tokens
-// in keys are converted to min::gen strings equal to
-// the translation string of the token lexeme.  The
-// keys list object has .initiator and .separator BOTH
-// equal to named_opening->separator->label.
-//
-// If a key is an empty string, a parsing error is
-// announced and the key is ignored.
-//
-static void named_attributes
-	( PAR::parser parser,
-	  min::ref<min::gen> name,
-	  min::ref<min::gen> arguments,
-	  min::ref<min::gen> keys,
-	  BRA::named_opening named_opening,
-	  PAR::token first, PAR::token next )
-{
-    MIN_REQUIRE ( first != next );
-    MIN_REQUIRE ( first->type == LEXSTD::word_t );
-
-    // Temporary min::gen locatable.
-    //
-    min::locatable_gen exp;
-
-    // Recast named_separator as a vector of min::gen
-    // elements.
-    //
-    BRA::named_separator nsep =
-        named_opening->named_separator;
-    min::gen sep =
-	( nsep == min::NULL_STUB ? min::MISSING()
-	                         : nsep->label );
-    min::uns32 seplen =
-        sep == min::MISSING() ? 0 :
-	min::is_lab ( sep ) ? min::lablen ( sep ) :
-	                      1;
-    min::gen separator[seplen];
-    if ( seplen == 1 ) separator[0] = sep;
-    else if ( seplen > 1 )
-        min::labncpy ( separator, sep, seplen );
-
-    // Count elements of name.
-    //
-    min::uns32 n = 0;
-    PAR::token t = first;
-    while ( t != next
-            &&
-	    ( t->type == LEXSTD::word_t
-              ||
-	      t->type == LEXSTD::natural_number_t ) )
-    {
-        t = t->next;
-	++ n;
-    }
-
-    // Construct name label.
-    //
-    MIN_REQUIRE ( n > 0 );
-    name = ::make_label ( first, n );
-
-    // Count arguments.
-    //
-    min::uns32 argcount;
-    PAR::token tnext = PAR::find_separator
-	( argcount, t, next, separator, seplen );
-
-    // Make argument list.  Convert any quoted string
-    // or (non-natural) numbers to subexpressions.
-    //
-    if ( argcount == 0 )
-        arguments = min::MISSING();
-    else
-    {
-        arguments = min::new_obj_gen ( argcount );
-	min::obj_vec_insptr argp ( arguments );
-
-	for ( ; t != tnext; t = t->next )
-	{
-	    if ( t->value == min::MISSING() )
-	        PAR::convert_token ( t );
-	    min::attr_push(argp) = t->value;
-	}
-    }
-
-    t = tnext;
-
-    // Count the number of non-empty keys and announce
-    // empty keys as errors.
-    //
-    min::uns32 sepcount = 0;
-    min::uns32 keycount;
-
-    while ( tnext != next )
-    {
-        tnext = PAR::skip ( tnext, seplen );
-        tnext = PAR::find_separator
-	    ( keycount, tnext, next,
-	      separator, seplen );
-	if ( keycount > 0 ) ++ sepcount;
-	else
-	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: empty key in named bracket"
-		<< " or operator; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 tnext->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  tnext->position );
-	    ++ parser->error_count;
-	}
-    }
-
-    if ( sepcount == 0 )
-        keys = min::MISSING();
-    else
-    {
-        keys = min::new_obj_gen ( sepcount + 6, 2 );
-	min::obj_vec_insptr keysvp ( keys );
-	while ( t != next )
-	{
-	    t = PAR::skip ( t, seplen );
-	    tnext = PAR::find_separator
-		( keycount, t, next,
-		  separator, seplen );
-	    if ( keycount != 0 )
-	    {
-		exp = ::make_label ( t, keycount );
-		min::attr_push(keysvp) = exp;
-	    }
-	    t = tnext;
-	}
-	min::attr_insptr keysap ( keysvp );
-
-	min::locate ( keysap, min::dot_initiator );
-	min::set ( keysap,
-	           named_opening->named_separator
-		                ->label );
-	min::locate ( keysap, min::dot_separator );
-	min::set ( keysap,
-	           named_opening->named_separator
-		                ->label );
-    }
-}
-
 // Complain that token indent is too near indent.
 //
 static void complain_near_indent
@@ -967,23 +585,6 @@ bool BRA::parse_bracketed_subexpression
 	// If not NULL_STUB, current token is an end-of-
 	// line and current->previous token is the last
 	// token of an indentation mark.
-    BRA::named_opening named_opening =
-        min::NULL_STUB;
-	// If not NULL_STUB, a named opening bracket,
-	// named closing bracket, or named operator
-	// with this symbol table entry is being
-	// scanned.
-    bool is_named_opening_bracket;
-        // If named_opening != NULL_STUB, this is true
-	// if a named opening bracket or named operator
-	// is being scanned, and false if a named
-	// closing bracket is being scanned.
-    PAR::token named_first = min::NULL_STUB;
-        // If named_opening != NULL_STUB, this is the
-	// first token after the named opening if is_
-	// named_opening_bracket is true or after the
-	// named middle if is_named_opening_bracket is
-	// false.
     PAR::token split_backup = min::NULL_STUB;
         // If an indentation mark is split, back up
 	// to this point if not NULL_STUB.
@@ -1501,11 +1102,6 @@ bool BRA::parse_bracketed_subexpression
 	{
 	    split_backup = min::NULL_STUB;
 
-	    if ( named_opening != min::NULL_STUB
-	         &&
-		 !  is_named_opening_bracket )
-		named_opening = min::NULL_STUB;
-
 	    if ( current != parser->first
 	         &&
 		    current->previous->type
@@ -1552,14 +1148,11 @@ bool BRA::parse_bracketed_subexpression
 	{
 	    // Each iteration of this loop examines the
 	    // found entry to see if it is a selected
-	    // opening unnamed bracket, named opening,
-	    // or indentation mark, or a not necessarily
-	    // selected closing unnamed bracket, line
-	    // separator, named key separator, named
-	    // closing, or named middle closing that
-	    // matches a symbol active because of the
-	    // bracket_stack or indentation_mark
-	    // arguments.
+	    // opening bracket or indentation mark, or a
+	    // not necessarily selected closing bracket
+	    // or line separator that matches a symbol
+	    // active because of the bracket_stack or
+	    // indentation_mark arguments.
 	    //
 	    if ( root == min::NULL_STUB )
 	    {
@@ -1593,11 +1186,6 @@ bool BRA::parse_bracketed_subexpression
 	         &&
 		 ( selectors & root->selectors ) != 0 )
 	    {
-	        if ( named_opening != min::NULL_STUB
-		     &&
-		     !  is_named_opening_bracket )
-		    named_opening = min::NULL_STUB;
-
 		BRA::opening_bracket opening_bracket =
 		    (BRA::opening_bracket) root;
 
@@ -1848,464 +1436,6 @@ bool BRA::parse_bracketed_subexpression
 		// indentation_mark argument; reject
 		// key.
 	    }
-	    else if ( subtype == BRA::NAMED_OPENING 
-	              &&
-		         ( selectors & root->selectors )
-		      != 0 )
-	    {
-	        if ( current->type == LEXSTD::word_t
-		     ||
-	             current->type == LEXSTD::number_t )
-		{
-		    // Possible start of named opening
-		    // bracket or named operator.
-
-		    named_opening =
-			(BRA::named_opening) root;
-		    is_named_opening_bracket = true;
-		    named_first = current;
-		    break;
-		}
-
-		// Name does not begin with word or
-		// number; reject key.
-	    }
-	    else if (    subtype
-	              == BRA::NAMED_SEPARATOR )
-	    {
-	        if ( named_opening != min::NULL_STUB
-		     &&
-		     is_named_opening_bracket
-		     &&
-		        (BRA::named_separator) root
-		     == named_opening->named_separator )
-		    break;
-
-		// Named separator does not match
-		// current named opening; reject key.
-	    }
-	    else if ( subtype == BRA::NAMED_MIDDLE )
-	    {
-	        BRA::named_middle named_middle =
-		    (BRA::named_middle) root;
-
-	        if ( named_opening != min::NULL_STUB
-		     &&
-		     is_named_opening_bracket
-		     &&
-		        named_middle
-		     == named_opening->named_middle )
-		{
-		    // The end of a named opening
-		    // bracket has been found.
-
-		    BRA::bracket_stack cstack
-			( bracket_stack_p );
-		    cstack.named_opening =
-			named_opening;
-		    cstack.opening_first = named_first;
-		    cstack.opening_next = saved_current;
-
-		    PAR::token middle_last =
-		        current->previous;
-		    BRA::parse_bracketed_subexpression
-			( parser, selectors,
-			  current,
-			  indent, min::NULL_STUB,
-			  & cstack );
-
-		    PAR::token next = current;
-		        // Token just after last sub-
-			// expression token AFTER any
-			// named closing bracket has
-			// been deleted.
-		    bool done = false;
-		        // Set if a bracket that was
-			// not ours was found, so we
-			// need to terminate this
-			// call to parse_bracketed_
-			// subexpression.
-		    min::phrase_position position;
-		        // Beginning of opening named
-			// bracket and end of closing
-			// named bracket.
-
-		    if (    cstack.closing_next
-		         == cstack.closing_first )
-		    {
-			// Found a closing bracket that
-			// is not ours, or found a line
-			// break or end of file that
-			// terminates a paragraph with
-			// the closing bracket missing.
-
-			// Compute location `next' just
-			// before which closing bracket
-			// should be inserted.
-			//
-			if (    cstack.closing_next
-			     != min::NULL_STUB )
-			    next = cstack.closing_next;
-
-			position.end =
-			    next->previous
-			         ->position.end;
-
-			parser->printer
-			    << min::bom
-			    << min::set_indent ( 7 )
-			    << "ERROR: missing named"
-			       " closing bracket "
-			    << min::pgen_quote
-			       ( named_opening
-			         ->named_middle_closing
-				 ->label )
-			    << " inserted; "
-			    << min::pline_numbers
-				   ( parser->input_file,
-				     next->position )
-			    << ":" << min::eom;
-			min::print_phrase_lines
-			    ( parser->printer,
-			      parser->input_file,
-			      next->position );
-			++ parser->error_count;
-
-			done = true;
-		    }
-		    else
-		    {
-		        position.end =
-			    current->previous
-			           ->position.end;
-		        PAR::remove
-			    ( parser,
-			      cstack.closing_first,
-			      current );
-		    }
-
-		    min::locatable_gen name,
-		    		       arguments,
-				       keys;
-
-		    ::named_attributes
-			( parser,
-			  name, arguments, keys,
-			  named_opening,
-			  cstack.opening_first,
-			  cstack.opening_next );
-
-		    position.begin =
-		        PAR::remove
-			    ( parser,
-			      cstack.opening_first,
-			      named_opening->label );
-
-		    PAR::attr attributes[6] =
-			{ PAR::attr
-			      ( min::dot_initiator,
-			        named_opening->label ),
-			  PAR::attr
-			        ( min::dot_terminator,
-			        named_opening->
-			            named_closing->
-				        label ),
-			  PAR::attr
-			        ( PAR::dot_name, name )
-			};
-		    min::uns32 c = 3;
-		    if ( named_opening->named_middle
-		         !=
-			 min::NULL_STUB )
-		        attributes[c++] =
-			    PAR::attr
-			        ( PAR::dot_middle,
-		                  named_opening->
-				      named_middle->
-				          label );
-		    if ( arguments != min::MISSING() )
-		        attributes[c++] =
-			    PAR::attr
-			        ( PAR::dot_arguments,
-				  arguments );
-		    if ( keys != min::MISSING() )
-		        attributes[c++] =
-			    PAR::attr
-			        ( PAR::dot_keys, keys );
-
-		    PAR::token first =
-		        middle_last->next;
-		    PAR::compact
-		        ( parser, pass->next,
-			  selectors,
-			  PAR::BRACKETED,
-			  trace_flags,
-			  first, current, position,
-			  c, attributes );
-			  
-		    MIN_REQUIRE
-		        (    first->type
-			  == PAR::BRACKETED );
-		    MIN_REQUIRE
-		        ( first == middle_last->next );
-
-		    PAR::remove ( parser,
-		                  cstack.opening_first,
-			          middle_last->next );
-
-		    if ( done ) return false;
-		    else	break;
-		}
-		else if (    named_opening
-		          == min::NULL_STUB )
-		{
-		    for ( BRA::bracket_stack * p =
-			      bracket_stack_p;
-			  p != NULL;
-			  p = p->previous )
-		    {
-			if (    p->named_opening
-			     == named_middle->
-				    named_opening )
-			{
-			    // The possible start of a
-			    // named closing bracket has
-			    // been found.
-
-			    named_opening =
-				named_middle->
-				    named_opening;
-			    is_named_opening_bracket =
-			        false;
-			    named_first = current;
-			    break;
-			}
-		    }
-		    if ( named_opening != NULL_STUB )
-		        break;
-		}
-
-		// Named middle does not match any
-		// active named opening or any bracket
-		// stack entry; reject key.
-	    }
-	    else if ( subtype == BRA::NAMED_CLOSING )
-	    {
-		BRA::named_closing named_closing =
-		    (BRA::named_closing) root;
-
-	        if ( named_opening != min::NULL_STUB
-		     &&
-		        named_closing
-		     == named_opening->named_closing )
-		{
-		    if ( is_named_opening_bracket )
-		    {
-			// A named operator has been
-			// found.
-
-			min::locatable_gen name,
-					   arguments,
-					   keys;
-
-			::named_attributes
-			    ( parser,
-			      name, arguments, keys,
-			      named_opening,
-			      named_first,
-			      saved_current );
-
-			MIN_REQUIRE
-			    ( name != min::MISSING() );
-
-			min::phrase_position position;
-			position.begin =
-			    PAR::remove
-				( parser,
-				  named_first,
-				  named_opening->label
-				);
-			position.end =
-			    current->previous
-			           ->position.end;
-
-			PAR::remove
-			    ( parser,
-			      named_first,
-			      current );
-
-			PAR::token t =
-			    PAR::new_token
-			        ( PAR::BRACKETED );
-			t->position = position;
-
-			PAR::put_before
-			    ( first_ref(parser),
-			      current, t );
-			value_ref(t) =
-			    min::new_obj_gen
-			        ( 12, 5 );
-
-			min::obj_vec_insptr tvp
-			    ( t->value );
-			min::attr_insptr tap ( tvp );
-
-			min::locate
-			    ( tap, min::dot_initiator );
-			min::set
-			    ( tap,
-			      named_opening->label );
-
-			min::locate
-			    ( tap,
-			      min::dot_terminator );
-			min::set
-			    ( tap,
-			      named_opening->
-			          named_closing->
-				  label );
-
-			min::locate
-			    ( tap, PAR::dot_name );
-			min::set ( tap, name );
-
-			if (    arguments
-			     != min::MISSING() )
-			{
-			    min::locate
-				( tap,
-				  PAR::dot_arguments );
-			    min::set
-				( tap, arguments );
-			}
-
-			if ( keys != min::MISSING() )
-			{
-			    min::locate
-			        ( tap, PAR::dot_keys );
-			    min::set ( tap, keys );
-			}
-
-			named_opening = min::NULL_STUB;
-
-			break;
-		    }
-
-		    // The end of a possible named
-		    // closing bracket has been found.
-		    //
-		    // The named closing bracket must
-		    // match a bracket stack entry, or
-		    // it is discarded as not really
-		    // being a named closing bracket.
-
-		    for ( BRA::bracket_stack * p =
-			      bracket_stack_p;
-			  p != NULL;
-			  p = p->previous )
-		    {
-			if (    p->named_opening
-			     == named_opening )
-			{
-			    PAR::token cp = named_first;
-			    PAR::token op =
-			        p->opening_first;
-			    bool name_match = true;
-			    while ( name_match )
-			    {
-			        if (    cp
-				     == saved_current )
-				    break;
-				if (    op
-				     == p->opening_next
-				     ||
-				        cp->type
-				     != op->type
-				     ||
-				        cp->value
-				     != op->value
-				     ||
-				     ( cp->type
-				       !=
-				       LEXSTD::word_t
-				       &&
-				       cp->type
-				       !=
-				       LEXSTD::number_t
-				     )
-				   )
-				{
-				    name_match = false;
-				    break;
-				}
-				cp = cp->next;
-				op = op->next;
-			    }
-			    if ( ! name_match )
-			        continue;
-
-			    p->closing_first =
-				PAR::backup
-				    ( named_first,
-				      named_opening->
-				          named_middle->
-					  label );
-			    p->closing_next = current;
-
-			    for ( BRA::bracket_stack
-			              * q =
-				      bracket_stack_p;
-				  q != p;
-				  q = q->previous )
-				q->closing_first =
-				  q->closing_next =
-				    p->closing_first;
-
-			    return false;
-			}
-		    }
-		}
-
-		// Named closing does not match active
-		// named opening or middle; or named
-		// closing bracket does not match any
-		// bracket stack entry; reject key.
-	    }
-	    else if
-	        ( subtype == BRA::NAMED_MIDDLE_CLOSING )
-	    {
-		BRA::named_middle_closing
-		    named_middle_closing =
-		    (BRA::named_middle_closing) root;
-
-		for ( BRA::bracket_stack * p =
-			  bracket_stack_p;
-		      p != NULL;
-		      p = p->previous )
-		{
-		    if (    p->named_opening
-			 == named_middle_closing->
-			        named_opening )
-		    {
-		        p->closing_first =
-			    saved_current;
-			p->closing_next = current;
-
-			for ( BRA::bracket_stack
-				* q = bracket_stack_p;
-				  q != p;
-				  q = q->previous )
-				q->closing_first =
-				    q->closing_next =
-					saved_current;
-
-			return false;
-		    }
-		}
-
-		// Named middle closing does not match
-		// any bracket stack entry; reject key.
-	    }
 
 	    if ( trace_flags & PAR::TRACE_KEYS )
 	        parser->printer
@@ -2328,8 +1458,7 @@ bool BRA::parse_bracketed_subexpression
 
 enum definition_type
     { BRACKET,
-      INDENTATION_MARK,
-      NAMED_BRACKET };
+      INDENTATION_MARK };
 
 static min::gen bracketed_pass_command
 	( PAR::parser parser,
@@ -2475,17 +1604,6 @@ static min::gen bracketed_pass_command
 	gluing = true;
 	i += 3;
     }
-    else if ( vp[i] == ::named
-              &&
-	      i + 1 < size
-              &&
-	      vp[i + 1] == ::bracket )
-    {
-	type = ::NAMED_BRACKET;
-	min_names = 2;
-	max_names = 6;
-	i += 2;
-    }
     else
         return min::FAILURE();
 
@@ -2573,9 +1691,7 @@ static min::gen bracketed_pass_command
 
 	    if ( subtype != BRA::OPENING_BRACKET
 	         &&
-		 subtype != BRA::INDENTATION_MARK
-	         &&
-		 subtype != BRA::NAMED_OPENING )
+		 subtype != BRA::INDENTATION_MARK )
 	        continue;
 
 	    ++ count;
@@ -2677,44 +1793,6 @@ static min::gen bracketed_pass_command
 			  parser );
 		}
 	    }
-	    else if ( subtype == BRA::NAMED_OPENING )
-	    {
-		BRA::named_opening named_opening =
-		    (BRA::named_opening) root;
-		BRA::named_separator named_separator =
-		    named_opening->named_separator;
-		BRA::named_closing named_closing =
-		    named_opening->named_closing;
-		BRA::named_middle named_middle =
-		    named_opening->named_middle;
-
-		parser->printer
-		    << "named bracket "
-		    << min::pgen_quote
-		        ( named_opening->label );
-		if ( named_separator != min::NULL_STUB )
-		    parser->printer
-		        << " ... "
-			<< min::pgen_quote
-			    ( named_separator->label );
-		if ( named_middle != min::NULL_STUB )
-		    parser->printer
-		        << " ... "
-			<< min::pgen_quote
-			    ( named_middle->label )
-		        << " ... "
-			<< min::pgen_quote
-			    ( named_middle->label );
-		parser->printer
-		    << " ... "
-		    << min::pgen_quote
-			( named_closing->label )
-		    << " " << min::set_break;
-		COM::print_flags
-		    ( root->selectors,
-		      parser->selector_name_table,
-		      parser );
-	    }
 	    else
 	    {
 		MIN_ABORT
@@ -2752,39 +1830,6 @@ static min::gen bracketed_pass_command
 		  "gluing indentation mark name ",
 		  min::pgen_quote ( name[0] ),
 		  " is not a mark in" );
-	break;
-    }
-    case ::NAMED_BRACKET:
-    {
-	bool separator_present =
-	    ( number_of_names % 2 == 1 );
-	bool middle_present =
-	    ( number_of_names >= 4 );
-
-	min::unsptr m = 1 + separator_present;
-	if (    middle_present
-	     && name[m] != name[m+1] )
-	{
-	    min::phrase_position pp;
-	    pp.begin = (&ppvec[m])->begin;
-	    pp.end   = (&ppvec[m+1])->end;
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: named middles "
-		<< min::pgen ( name[m] )
-		<< " and "
-		<< min::pgen ( name[m+1] )
-		<< " do not match in "
-		<< min::pline_numbers
-		       ( ppvec->file, pp )  
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file, pp );
-	    ++ parser->error_count;
-	    return min::ERROR();
-	}
-
 	break;
     }
     }
@@ -2915,128 +1960,6 @@ static min::gen bracketed_pass_command
 
 	break;
     }
-    case ::NAMED_BRACKET:
-    {
-	if ( i < size )
-	    return PAR::parse_error
-		( parser, ppvec[i-1],
-		  "expected end of statement after" );
-
-	bool separator_present =
-	    ( number_of_names % 2 == 1 );
-	bool middle_present =
-	    ( number_of_names >= 4 );
-
-	min::gen named_opening = name[0];
-	min::gen named_separator =
-	    ( separator_present ?
-	      (min::gen) name[1] : min::MISSING() );
-	min::gen named_middle =
-	    ( middle_present ?
-	      (min::gen) name[1+separator_present] :
-	      min::MISSING() );
-	min::gen named_closing =
-	    name[1 + separator_present
-		   + 2 * middle_present ];
-
-	// compute named_middle_closing if
-	// necessary.
-	//
-	min::locatable_gen named_middle_closing
-	    ( min::MISSING() );;
-	min::gen middle_last = named_middle;
-	min::gen closing_first = named_closing;
-	min::unsptr middle_length = 1;
-	min::unsptr closing_length = 1;
-
-	min::lab_ptr middle_ptr ( named_middle );
-	min::lab_ptr closing_ptr ( named_closing );
-	if ( middle_ptr != min::NULL_STUB )
-	{
-	    middle_length =
-		min::lablen ( middle_ptr );
-	    middle_last =
-		middle_ptr[middle_length-1];
-	}
-	if ( closing_ptr != min::NULL_STUB )
-	{
-	    closing_length =
-		min::lablen ( closing_ptr );
-	    closing_first =
-		closing_ptr[closing_length-1];
-	}
-	min::uns32 middle_last_type =
-	    LEXSTD::lexical_type_of
-		( middle_last );
-	min::uns32 closing_first_type =
-	    LEXSTD::lexical_type_of
-		( closing_first );
-	if ( middle_last_type == closing_first_type
-	     ||
-	     middle_last_type != LEXSTD::separator_t
-	   )
-	{
-	    min::str_ptr middle_last_ptr
-		( middle_last );
-	    min::str_ptr closing_first_ptr
-		( closing_first );
-	    min::unsptr middle_last_length =
-		min::strlen ( middle_last_ptr );
-	    min::unsptr closing_first_length =
-		min::strlen ( closing_first_ptr );
-	    char new_string [   middle_last_length
-			      + closing_first_length
-			      + 1 ];
-	    strcpy
-		( & new_string[0],
-		  ! min::begin_ptr_of
-		        ( middle_last_ptr ) );
-	    strcpy
-		( & new_string[middle_last_length],
-		  ! min::begin_ptr_of
-		        ( closing_first_ptr ) );
-	    named_middle_closing =
-		min::new_str_gen ( new_string );
-	    if (   middle_length
-		 + closing_length > 2 )
-	    {
-		min::gen element
-		    [middle_length + closing_length
-				   - 1];
-		memcpy ( & element[0],
-			 ! min::begin_ptr_of
-			       ( middle_ptr ),
-			   ( middle_length - 1 )
-			 * sizeof ( min::gen ) );
-		memcpy ( & element[middle_length],
-			 ! min::begin_ptr_of
-			       ( closing_ptr ),
-			   ( closing_length - 1 )
-			 * sizeof ( min::gen ) );
-		element[middle_length - 1] =
-		    named_middle_closing;
-		named_middle_closing =
-		    min::new_lab_gen
-			( element, 
-			    middle_last_length
-			  + closing_first_length
-			  - 1 );
-	    }
-	}
-
-	BRA::push_named_brackets
-	    ( named_opening,
-	      named_separator,
-	      named_middle,
-	      named_closing,
-	      named_middle_closing,
-	      selectors,
-	      PAR::block_level ( parser ),
-	      ppvec->position,
-	      bracketed_pass->bracket_table );
-
-	break;
-    }
     default:
 	MIN_ABORT ( "bad parser define type" );
     }
@@ -3114,51 +2037,6 @@ static min::gen bracketed_pass_command
 		if ( indentation_split != min::NULL_STUB
 		     &&
 		     ! gluing )
-		    continue;
-
-		break;
-	    }
-	    case ::NAMED_BRACKET:
-	    {
-		if ( subtype != BRA::NAMED_OPENING )
-		    continue;
-
-		bool separator_present =
-		    ( number_of_names % 2 == 1 );
-		bool middle_present =
-		    ( number_of_names >= 4 );
-
-		BRA::named_opening named_opening =
-		    (BRA::named_opening) root;
-		BRA::named_separator named_separator =
-		    named_opening->named_separator;
-		BRA::named_closing named_closing =
-		    named_opening->named_closing;
-		BRA::named_middle named_middle =
-		    named_opening->named_middle;
-
-		if ( (    named_separator
-		       != min::NULL_STUB )
-		     !=
-		     separator_present )
-		    continue;
-		if ( named_separator != min::NULL_STUB
-		     &&
-		     named_separator->label != name[1] )
-		    continue;
-		if ( ( named_middle != min::NULL_STUB )
-		     !=
-		     middle_present )
-		    continue;
-		if ( named_middle != min::NULL_STUB
-		     &&
-		         named_middle->label
-		     != name[1+separator_present] )
-		    continue;
-		if ( named_closing->label
-		     !=
-		     name[1 + separator_present
-			    + 2 * middle_present ] )
 		    continue;
 
 		break;

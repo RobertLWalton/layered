@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 28 00:32:22 EST 2015
+// Date:	Sun Feb  1 05:34:27 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,10 +36,6 @@
 # define STD ll::parser::standard
 
 min::locatable_gen PAR::top_level;
-min::locatable_gen PAR::dot_middle;
-min::locatable_gen PAR::dot_name;
-min::locatable_gen PAR::dot_arguments;
-min::locatable_gen PAR::dot_keys;
 min::locatable_gen PAR::dot_oper;
 min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
@@ -86,17 +82,9 @@ static min::locatable_gen keys;
 static void initialize ( void )
 {
     PAR::top_level
-	= min::new_str_gen ( "TOP-LEVEL" );
-    PAR::dot_middle
-	= min::new_lab_gen ( ".", "middle" );
-    PAR::dot_name
-	= min::new_lab_gen ( ".", "name" );
-    PAR::dot_arguments
-	= min::new_lab_gen ( ".", "arguments" );
-    PAR::dot_keys
-	= min::new_lab_gen ( ".", "keys" );
+	= min::new_lab_gen ( "TOP", "LEVEL" );
     PAR::dot_oper
-	= min::new_lab_gen ( ".", "operator" );
+	= min::new_str_gen ( ".operator" );
 
     PAR::doublequote = min::new_str_gen ( "\"" );
     PAR::number_sign = min::new_str_gen ( "#" );

@@ -1,6 +1,6 @@
 parser print selector "":
     block standard: code
-    block TOP-LEVEL: parser
+    block TOP LEVEL: parser
 parser define selector my selector
 ERROR: in line 13: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
@@ -8,12 +8,12 @@ parser define selector operator 1 ++ extra stuff
 parser print selector "":
     block standard: my selector
     block standard: code
-    block TOP-LEVEL: parser
+    block TOP LEVEL: parser
 parser print context "":
     block standard: default [code]
-    block TOP-LEVEL: default [ ]
-    block TOP-LEVEL: parser [parser]
-    block TOP-LEVEL: parser test [ ]
+    block TOP LEVEL: default [ ]
+    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser test [ ]
 parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
@@ -68,23 +68,23 @@ parser print trace:
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser print context "":
     block standard: default [code]
-    block TOP-LEVEL: default [ ]
-    block TOP-LEVEL: parser [parser]
-    block TOP-LEVEL: parser test [ ]
+    block TOP LEVEL: default [ ]
+    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser test [ ]
 parser define context "default"
        with parsing selectors [parser,my selector]
 parser print context "":
     block standard: default [parser, my selector]
-    block TOP-LEVEL: default [ ]
-    block TOP-LEVEL: parser [parser]
-    block TOP-LEVEL: parser test [ ]
+    block TOP LEVEL: default [ ]
+    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser test [ ]
 parser define context "default"
        with parsing selectors [code]
 parser print context "":
     block standard: default [code]
-    block TOP-LEVEL: default [ ]
-    block TOP-LEVEL: parser [parser]
-    block TOP-LEVEL: parser test [ ]
+    block TOP LEVEL: default [ ]
+    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser test [ ]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
 ======= END TEST
 parser trace [+ subexpression lines]
@@ -95,17 +95,16 @@ parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 ======= END TEST
 parser trace [- subexpression lines]
 parser trace [+ subexpression details]
-======= TEST: parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m
-              "(" n "(" p ")" ")" "]":
-                  .type = "<LF>"
-
+======= TEST:
+@1 = parser test "[" x <+ y +> z "{" u , v , w "}" m "(" n "(" p ")" ")"
+             "]":
+         .type = "<LF>"
 ======= END TEST
 parser trace [+ subexpression elements]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
-    parser test "[" x "<+" y "+>" z "{" u "," v "," w "}" m "(" n "(" p
-    ")" ")" "]":
-        .type = "<LF>"
-
+@2 = parser test "[" x <+ y +> z "{" u , v , w "}" m "(" n "(" p ")" ")"
+             "]":
+         .type = "<LF>"
 ======= END TEST
 parser trace [- subexpression details]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
@@ -122,8 +121,7 @@ parser define context "parser test special"
 parser print context "parser<SP>test<SP>special":
     block special: parser test special [parser]
 ======= TEST: parser test special
-                  [ x "<+" y "+>" z "{" u "," v "," w "}" m
-                    ( n ( p ) ) ]
+                  [ x <+ y +> z "{" u , v , w "}" m ( n ( p ) ) ]
 ------- line 48:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -140,15 +138,15 @@ parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser print context "default":
     block special: default [code]
     block standard: default [code]
-    block TOP-LEVEL: default [ ]
+    block TOP LEVEL: default [ ]
 parser end special
 parser print context "parser<SP>test<SP>special":
     not found
 parser print context "parser<SP>test":
-    block TOP-LEVEL: parser test [ ]
+    block TOP LEVEL: parser test [ ]
 parser print context "parser":
-    block TOP-LEVEL: parser [parser]
-    block TOP-LEVEL: parser test [ ]
+    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser test [ ]
 ======= TEST: parser test special [ x <+ y +> z { u , v , w } m ( n ( p
                   ) ) ]
 ------- line 54:

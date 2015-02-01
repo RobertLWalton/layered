@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 27 15:07:49 EST 2015
+// Date:	Sun Feb  1 05:34:18 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,12 +37,8 @@ namespace ll { namespace parser {
     using min::NULL_STUB;
 
     extern min::locatable_gen
-        top_level,	// TOP-LEVEL (not legal lexeme)
-	dot_middle,	// . middle
-	dot_name,	// . name
-	dot_arguments,	// . arguments
-	dot_keys,	// . keys
-	dot_oper,	// . operator
+        top_level,	// TOP LEVEL
+	dot_oper,	// .operator
 	doublequote,	// "
 	number_sign,	// #
 	new_line,	// \n

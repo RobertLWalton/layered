@@ -1,4 +1,4 @@
-======= TEST: parser test [x (y) z {u, v, w} m (n (p))]
+======= TEST: parser test [ x ( y ) z { u, v, w } m ( n ( p ) ) ]
 ------- line 11:
 parser test [ x ( y ) z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -18,7 +18,7 @@ parser test [ x ( y ) z {u,v,w} m (n (p)) ]
 parser test [ x ( y ) z {u,v,w} m (n (p)) ]
                                      ^^^
 ======= END TEST
-======= TEST: parser test ([.  .], x, y, [.  .], z, [.  .], [.  .])
+======= TEST: parser test ( {}, x, y, {}, z, {}, {} )
 ------- line 12:
 parser test (,x,y,,z,,)
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -38,7 +38,9 @@ parser test (,x,y,,z,,)
 parser test (,x,y,,z,,)
                       ^
 ======= END TEST
-======= TEST: parser test (= x [. += y z .])
+======= TEST: parser test
+                   {"": .operator = "=", .terminator = ")", .initiator =
+                        "("| = x {"": .operator = "+="| += y z |} |}
 ------- line 13:
 parser test ( x = y += z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -49,7 +51,11 @@ parser test ( x = y += z )
 parser test ( x = y += z )
                   ^^^^^^
 ======= END TEST
-======= TEST: parser test {= [. x 1 .] [. += [. y 2 .] z .]}
+======= TEST: parser test
+                   {"": .operator = "=", .terminator = "}", .initiator =
+                        "{"|
+                  = {| x 1 |} {"": .operator = "+="|
+                  += {| y 2 |} z |} |}
 ------- line 14:
 parser test { x1 = y2 += z }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -67,8 +73,8 @@ parser test { x1 = y2 += z }
                    ^^
 ======= END TEST
 ======= TEST: parser test
-              {[. = [. x 1 .] [. y 2 .] .],
-               [. += [. z 2 .] [. z 5 .] .]}
+                   { {"": .operator = "="| = {| x 1 |} {| y 2 |} |},
+                     {"": .operator = "+="| += {| z 2 |} {| z 5 |} |} }
 ------- line 15:
 parser test { x1 = y2, z2 += z5 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,7 +101,12 @@ parser test { x1 = y2, z2 += z5 }
                              ^^
 ======= END TEST
 ======= TEST: parser test
-              {AND [. < x [. $ 0 y .] .] [. < [. $ 0 .] z .]}
+                   {"": .operator = AND, .terminator = "}", .initiator =
+                        "{"|
+                  AND {"": .operator = "<"|
+                  < x {"": .operator = "$"| $ 0 y |} |}
+                   {"": .operator = "<"|
+                  < {"": .operator = "$"| $ 0 |} z |} |}
 ------- line 16:
 parser test { x < y < z }
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -115,7 +126,12 @@ parser test { x < y < z }
 parser test { x < y < z }
                   ^
 ======= END TEST
-======= TEST: parser test [= x (< y z)]
+======= TEST: parser test
+                   {"": .operator = "=", .terminator = "]", .initiator =
+                        "["|
+                  = x
+                   {"": .operator = "<", .terminator = ")", .initiator =
+                        "("| < y z |} |}
 ------- line 17:
 parser test [ x = ( y < z ) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -127,7 +143,13 @@ parser test [ x = ( y < z ) ]
                   ^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
-              [= x [. AND [. < w [. $ 1 y .] .] [. < [. $ 1 .] z .] .]]
+                   {"": .operator = "=", .terminator = "]", .initiator =
+                        "["|
+                  = x {"": .operator = AND|
+                  AND {"": .operator = "<"|
+                  < w {"": .operator = "$"| $ 1 y |} |}
+                   {"": .operator = "<"|
+                  < {"": .operator = "$"| $ 1 |} z |} |} |}
 ------- line 18:
 parser test [ x = w < y < z ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

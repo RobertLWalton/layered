@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 30 13:19:44 EST 2015
+// Date:	Tue Feb  3 07:26:29 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1821,15 +1821,18 @@ static min::gen bracketed_pass_command
 
     case ::INDENTATION_MARK:
     {
+	min::uns32 ltype =
+	    LEXSTD::lexical_type_of ( name[0] );
 	if ( gluing
 	     &&
-		LEXSTD::lexical_type_of ( name[0] )
-	     != LEXSTD::mark_t )
+	     ltype != LEXSTD::mark_t
+	     &&
+	     ltype != LEXSTD::separator_t )
 	    return PAR::parse_error
 		( parser, ppvec[5],
 		  "gluing indentation mark name ",
 		  min::pgen_quote ( name[0] ),
-		  " is not a mark in" );
+		  " is not a mark or separator in" );
 	break;
     }
     }

@@ -55,7 +55,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ( x "5" "foo" )
+    ( x 5 "foo" )
 @7 = x 5 @8:
          .terminator = ")"
          .initiator = "("
@@ -112,7 +112,7 @@ BRACKETED EXPRESSION:
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ( x "+" ` y z { p q } ' "-" [ g h ] )
+    ( x + ` y z { p q } ' - [ g h ] )
 @13 = x + @11 - @12:
           .terminator = ")"
           .initiator = "("
@@ -147,7 +147,7 @@ BRACKETED EXPRESSION:
      (x + { y z )
           ^^^^^
 BRACKETED EXPRESSION:
-    ( x "+" { y z } )
+    ( x + { y z } )
 @16 = x + @15:
           .terminator = ")"
           .initiator = "("
@@ -172,7 +172,7 @@ ERROR: missing closing bracket ")" inserted before end of line; line 23:
      (x + y }
              ^
 BRACKETED EXPRESSION:
-    ( x "+" y "}" )
+    ( x + y "}" )
 @18 = x + y "}":
           .terminator = ")"
           .initiator = "("
@@ -217,8 +217,8 @@ BRACKETED EXPRESSION:
    Second line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| First line "." |"<LF>"}
-          {"<LF>"| Second line "." |"<LF>"} |":"}
+    {":"| {"<LF>"| First line . |"<LF>"}
+          {"<LF>"| Second line . |"<LF>"} |":"}
 @23 = @21 @22:
           .type = ":"
     lines 26-28:
@@ -258,8 +258,8 @@ BRACKETED EXPRESSION:
    Fourth line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| Third line "." |"<LF>"}
-          {"<LF>"| Fourth line "." |"<LF>"} |":"}
+    {":"| {"<LF>"| Third line . |"<LF>"}
+          {"<LF>"| Fourth line . |"<LF>"} |":"}
 @27 = @25 @26:
           .type = ":"
     lines 29-31:
@@ -315,9 +315,9 @@ BRACKETED EXPRESSION:
    Seventh line.
    ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| Fifth line "." |"<LF>"} {; Sixth line A ;}
+    {":"| {"<LF>"| Fifth line . |"<LF>"} {; Sixth line A ;}
           {"<LF>"| Sixth line B |"<LF>"}
-          {"<LF>"| Seventh line "." |"<LF>"} |":"}
+          {"<LF>"| Seventh line . |"<LF>"} |":"}
 @33 = @29 @30 @31 @32:
           .type = ":"
     lines 32-35:
@@ -345,9 +345,6 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    Seventh line.
 ^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<+"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<+"
@@ -369,8 +366,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "+>"
 BRACKETED EXPRESSION:
     <+ x +>
 @35 = x:
-          .terminator = "+>"
-          .initiator = "<+"
+          .terminator = +>
+          .initiator = <+
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
@@ -383,7 +380,7 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    { <+ x +> "<-" y "->" }
+    { <+ x +> <- y -> }
 @36 = @35 <- y ->:
           .terminator = "}"
           .initiator = "{"
@@ -405,15 +402,15 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
 BRACKETED EXPRESSION:
     <- y ->
 @37 = y:
-          .terminator = "->"
-          .initiator = "<-"
+          .terminator = ->
+          .initiator = <-
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ` "<+" x "+>" <- y -> '
+    ` <+ x +> <- y -> '
 @38 = <+ x +> @37:
           .terminator = "'"
           .initiator = "`"
@@ -421,12 +418,12 @@ BRACKETED EXPRESSION:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                         ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This tests selector changes: <+ x +> <- y -> { <+ x +> <- y -> }
+    This tests selector changes --- <+ x +> <- y -> { <+ x +> <- y -> }
          ` <+ x +> <- y -> '
-@39 = This tests selector changes : <+ x +> <- y -> @36 @38:
+@39 = This tests selector changes --- <+ x +> <- y -> @36 @38:
           .type = "<LF>"
     lines 36-37:
-This tests selector changes: <+ x +> <- y ->
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This tests selector changes --- <+ x +> <- y ->
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      { <+ x +> <- y ->} `<+ x +> <- y ->'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

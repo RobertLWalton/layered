@@ -96,14 +96,14 @@ parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
 parser trace [- subexpression lines]
 parser trace [+ subexpression details]
 ======= TEST:
-@1 = parser test "[" x <+ y +> z "{" u , v , w "}" m "(" n "(" p ")" ")"
-             "]":
+@1 = parser test "[" x <+ y +> z "{" u "," v "," w "}" m "(" n "(" p ")"
+             ")" "]":
          .type = "<LF>"
 ======= END TEST
 parser trace [+ subexpression elements]
 ======= TEST: parser test [ x <+ y +> z { u , v , w } m ( n ( p ) ) ]
-@2 = parser test "[" x <+ y +> z "{" u , v , w "}" m "(" n "(" p ")" ")"
-             "]":
+@2 = parser test "[" x <+ y +> z "{" u "," v "," w "}" m "(" n "(" p ")"
+             ")" "]":
          .type = "<LF>"
 ======= END TEST
 parser trace [- subexpression details]
@@ -121,7 +121,7 @@ parser define context "parser test special"
 parser print context "parser<SP>test<SP>special":
     block special: parser test special [parser]
 ======= TEST: parser test special
-                  [ x <+ y +> z "{" u , v , w "}" m ( n ( p ) ) ]
+                  [ x <+ y +> z "{" u "," v "," w "}" m ( n ( p ) ) ]
 ------- line 48:
 parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -3,11 +3,11 @@ TESTING "("
 TESTING "(|"
     VALUE: [: "(" "|" :]
 TESTING "<+"
-    VALUE: "<+"
+    VALUE: <+
 TESTING "<+<SP>-"
-    VALUE: [: "<+" "-" :]
+    VALUE: [: <+ - :]
 TESTING "<SP><SP><+<SP><SP>+><SP>"
-    VALUE: [: "<+" "+>" :]
+    VALUE: [: <+ +> :]
 TESTING "<SP><SP><HT><SP><SP>"
 ERROR: empty name string
     VALUE: [$ERROR$]

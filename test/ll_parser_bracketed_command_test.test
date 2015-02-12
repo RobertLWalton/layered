@@ -16,7 +16,7 @@ parser define selector code
 parser define selector math
 parser define selector operator 1
 parser print selector "":
-    block standard: operator "1"
+    block standard: operator 1
     block standard: math
     block standard: text
     block standard: code
@@ -43,9 +43,9 @@ parser define bracket "<+" ... "+>" [code, operator 1]
        with parsing selectors [^ code, - math, + operator 1]
        with full lines
 parser print bracket "<+":
-    block standard: bracket "<+" ... "+>" [code, operator "1"]
+    block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
-                                            + operator "1"]
+                                            + operator 1]
                     with full lines
 parser trace [ + subexpression lines,
                + subexpression elements]
@@ -120,7 +120,7 @@ parser test [ a [ b c ] c ] [X a [ b c ] d X]
 ======= END TEST
 ======= TEST: parser test this is a paragraph + :
                   line 1
-                  line 2 a:: line 2 b; line 2 c
+                  line 2 a "::" line 2 b; line 2 c
                   last line
 ------- lines 46-49:
 parser test this is a paragraph +:
@@ -155,10 +155,9 @@ parser test this is a paragraph +:
 ======= END TEST
 parser define indentation mark "+:" ... "::" [code]
 ======= TEST: parser test this is a paragraph
-                  {"+" ":"| {"<LF>"| line 1 |"<LF>"}
-                            {"::"| line 2 a |"::"}
-                            {"<LF>"| line 2 b; line 2 c |"<LF>"}
-                            {"<LF>"| last line |"<LF>"} |"+" ":"}
+                  {+ ":"| {"<LF>"| line 1 |"<LF>"} {:: line 2 a ::}
+                          {"<LF>"| line 2 b ";" line 2 c |"<LF>"}
+                          {"<LF>"| last line |"<LF>"} |+ ":"}
 ------- lines 51-54:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -228,7 +227,7 @@ parser end block 1
 parser test <* hi there C *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 68: innermost block name does not match `block "1"':
+ERROR: in line 68: innermost block name does not match `block 1':
 parser end block 1
 ^^^^^^^^^^^^^^^^^^
 parser define bracket "<|" ... "|>" [code]
@@ -275,8 +274,8 @@ parser define bracket "```" ... "'''" [code]
        with full lines
 parser print bracket "":
     block standard: bracket [: "[" "X" :] ... [: "X" "]" :]
-                    [code, operator "1"]
-                    with parsing selectors [- code, + operator "1"]
+                    [code, operator 1]
+                    with parsing selectors [- code, + operator 1]
     block standard: bracket "(" ... ")" [code, text, math]
     block TOP LEVEL: bracket "(" ... ")" [parser]
     block standard: gluing indentation mark ":" ... ";"
@@ -290,9 +289,9 @@ parser print bracket "":
     block standard: bracket [: "<" "|" :] ... [: "|" ">" :] [ ]
     block standard: indentation mark [: "+" ":" :] ... "::" [code]
     block TOP LEVEL: indentation mark [: "TOP" "LEVEL" :] ... ";" [ ]
-    block standard: bracket "<+" ... "+>" [code, operator "1"]
+    block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
-                                            + operator "1"]
+                                            + operator 1]
                     with full lines
 ======= TEST: parser test ( ``` ")" ''' )
 ------- line 85:
@@ -362,7 +361,7 @@ parser test ( `
 parser begin block 1
 parser define indentation offset 4
 parser print indentation offset:
-    block block "1": 4
+    block block 1: 4
     block standard: 2
     block TOP LEVEL: 2
 ERROR: lexeme indent 1 too near paragraph indent 0; line 98:

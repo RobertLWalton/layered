@@ -217,8 +217,8 @@ BRACKETED EXPRESSION:
    Second line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| First line . |"<LF>"}
-          {"<LF>"| Second line . |"<LF>"} |":"}
+    {":"| {"<LF>"| First line . |"<LF>"} {"<LF>"| Second line . |"<LF>"}
+          |":"}
 @23 = @21 @22:
           .type = ":"
     lines 26-28:
@@ -258,8 +258,8 @@ BRACKETED EXPRESSION:
    Fourth line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| Third line . |"<LF>"}
-          {"<LF>"| Fourth line . |"<LF>"} |":"}
+    {":"| {"<LF>"| Third line . |"<LF>"} {"<LF>"| Fourth line . |"<LF>"}
+          |":"}
 @27 = @25 @26:
           .type = ":"
     lines 29-31:
@@ -366,8 +366,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "+>"
 BRACKETED EXPRESSION:
     <+ x +>
 @35 = x:
-          .terminator = +>
-          .initiator = <+
+          .terminator = "+>"
+          .initiator = "<+"
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
@@ -402,8 +402,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
 BRACKETED EXPRESSION:
     <- y ->
 @37 = y:
-          .terminator = ->
-          .initiator = <-
+          .terminator = "->"
+          .initiator = "<-"
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^

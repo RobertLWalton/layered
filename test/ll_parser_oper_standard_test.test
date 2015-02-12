@@ -100,12 +100,12 @@ parser test { x1 = y2, z2 += z5 }
                              ^^
 ======= END TEST
 ======= TEST: parser test
-                   {"": .operator = AND, .terminator = "}", .initiator =
-                        "{"| AND
+                   {"": .operator = "AND", .terminator = "}",
+                        .initiator = "{"| AND
                          {"": .operator = "<"| < x
-                               {"": .operator = "$"| $ 0 y |} |}
+                              {"": .operator = "$"| $ 0 y |} |}
                          {"": .operator = "<"| <
-                               {"": .operator = "$"| $ 0 |} z |} |}
+                              {"": .operator = "$"| $ 0 |} z |} |}
 ------- line 16:
 parser test { x < y < z }
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -143,11 +143,12 @@ parser test [ x = ( y < z ) ]
 ======= TEST: parser test
                    {"": .operator = "=", .terminator = "]", .initiator =
                         "["| = x
-                         {"": .operator = AND| AND
-                               {"": .operator = "<"| < w
-                                     {"": .operator = "$"| $ 1 y |} |}
-                               {"": .operator = "<"| <
-                                     {"": .operator = "$"| $ 1 |} z |} |} |}
+                         {"": .operator = "AND"| AND
+                              {"": .operator = "<"| < w
+                                   {"": .operator = "$"| $ 1 y |} |}
+                              {"": .operator = "<"| <
+                                   {"": .operator = "$"| $ 1 |} z |} |}
+                        |}
 ------- line 18:
 parser test [ x = w < y < z ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

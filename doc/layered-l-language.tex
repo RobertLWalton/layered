@@ -827,7 +827,7 @@ memory to the stack and returns its address:
 
 \begin{indpar}\begin{verbatim}
 ( adr address ) = stack_allocate ( unsadr N )
-\end{verbatim}\end{indpar}
+\end{verbatim}\end{indpar}\label{STACK-ALLOCATE}
 
 The memory is freed when the \TT{address} variable is freed, that is,
 at the end of the subblock containing the call to \TT{stack\_allocate}.
@@ -1032,37 +1032,54 @@ Syntactically {\em qualifiers} immediately preceed {\em type-names}
 that are before {\em variable-names}.
 
 Some qualifiers are \skey{protection qualifier}s and some are not.
-The two kinds of qualifiers may be declared by:
+Some qualifiers are \key{inverted} but most are not.
+The kinds of qualifiers may be declared by:
 \begin{center}
 \ttkey{qualifier} {\em defined-qualifier-name} \\
 \ttkey{protection qualifier} {\em defined-protection-qualifier-name} \\
+\ttkey{inverted qualifier} {\em defined-qualifier-name} \\
+\ttkey{inverted protection qualifier} {\em defined-protection-qualifier-name} \\
 \end{center}
 
 A qualifier applied to the root variable of a cluster is automatically
 applied to all the member variables.
 
 In order for a function
-prototype variable to match an actual variable, if the prototype
-variable has qualifiers, each of these must be present on the
-actual variable.
+prototype (argument or result) variable to match an actual variable,
+if the prototype variable has a non-inverted qualifier, the actual
+variable must have this qualifier, and if the prototype variable
+does \underline{not} have an inverted qualifier, the actual variable
+must \underline{not} have this qualifier.
 
 If a variable is initialized by being matched to a prototype result variable
 of a function, the variable is implicitly given all the protection qualifiers
-of the prototype variable.  This is the only way a variable may acquire
+of the prototype variable.  This is the only way a non-prototype
+variable may acquire
 a protection qualifier.  Thus protection qualifiers are only explicitly
 given for prototype variables.
 
 As an example of the above rules, the \TT{mem} qualifier is
-a protection qualifier, so if \TT{t} is a type and \TT{v} a
+a non-inverted protection qualifier, so if \TT{t} is a type and \TT{v} a
 variable, and the {\em value-assignment-statement} allocating \TT{v} has the
 form `\TT{t v = }{\em expression}' where \TT{v} is matched
 with some result variable that has the \TT{mem} qualifier of some
 function called in {\em expression}, then \TT{v} will be implicitly
-given the \TT{mem} qualifier.
+given the \TT{mem} qualifier.  Because \TT{mem} is non-inverting,
+\TT{v} can then be matched to any prototype variable of the same type
+whether or not that prototype variable has the \TT{mem} qualifier,
+and thus the value of \TT{v} can be freely used.
 
-Two qualifiers, \TT{mem} and \TT{trace}, are builtin and have special
-effects.  In addition any qualifier can be used with the special
-\TT{reload} statement descibed below.
+As another example of the above rules, the \TT{stack} qualifier is
+an inverted protection qualifier given the result variable of
+a call to \TT{stack\_allocate} function (\pagref{STACK-ALLOCATE}).
+Values with this qualifier can only be passed to prototype variables
+have also have the qualifier.
+
+Three qualifiers, \TT{mem}, \TT{stack},
+and \TT{trace}, are builtin and have special
+effects described below.
+In addition any qualifier can be used with the special \TT{reload} statement
+descibed below.
 
 \subsection{The Memory Qualifier}
 \label{THE-MEM-QUALIFIER}

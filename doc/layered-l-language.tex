@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 12, 2014
+March 25, 2015
  
 \end{center}
 
@@ -826,26 +826,26 @@ The \ttkey{stack\_allocate} function allocates \TT{N} bytes of
 memory to the stack and returns its address:
 
 \begin{indpar}\begin{verbatim}
-( adr address ) = stack_allocate ( unsadr N )
+( stack adr address ) = stack_allocate ( unsadr N )
 \end{verbatim}\end{indpar}\label{STACK-ALLOCATE}
 
 The memory is freed when the \TT{address} variable is freed, that is,
 at the end of the subblock containing the call to \TT{stack\_allocate}.
+To indicate this the address is given the \TT{stack} qualifier:
+see \itemref{THE-STACK-QUALIFIER}.
 
 The memory allocated is always alligned on an \TT{8} byte boundary.
 
 If you want a different alignment you can use:
 
 \begin{indpar}\begin{verbatim}
-( adr address ) =
+( stack adr address ) =
     stack_allocate ( unsadr N, unsadr O, unsadr A )
 \end{verbatim}\end{indpar}
 
 where \TT{A} must be a power of 2.  This will align the \TT{O+1}'st
 byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
-
-TBD: prevent return of stack addresses from block allocating them
 
 
 \section{Clusters}
@@ -1101,6 +1101,21 @@ The function must assign a value to
 \TT{v.adr}, but not to \TT{v}.  Thus all memory reads are hidden
 inside functions which have the \TT{mem} qualifier on some of
 their result variables.
+
+\subsection{The Stack Qualifier}
+\label{THE-STACK-QUALIFIER}
+
+The \ttkey{stack} qualifier is an inverted protection qualifier
+attached to the address returned by builtin stack memory
+allocation functions.  It is used in conjunction with the 
+copy down, copy up operations which we will describe here
+to keep a stack address from being copied to variables higher
+in the stack than the stack address.
+
+Copying a value into a variable is done by an implied copy
+operator.  If the variable is a function argument.
+
+TBD
 
 
 \subsection{The Trace Qualifier}

@@ -1108,12 +1108,19 @@ their result variables.
 The \ttkey{stack} qualifier is an inverted protection qualifier
 attached to the address returned by builtin stack memory
 allocation functions.  It is used in conjunction with the 
-copy down, copy up operations which we will describe here
+copy-down, copy-up operations
 to keep a stack address from being copied to variables higher
 in the stack than the stack address.
 
-Copying a value into a variable is done by an implied copy
-operator.  If the variable is a function argument.
+A copy-down operation is executed by a statement to copy
+a value into a variable that is in the same block as the
+statement context, or is in a subblock of that block
+(e.g., an argument variable).
+
+A copy-up operation is executed by a statement to copy
+a value into a variable that may not be in the same block
+as the statement context, or a subblock of that block
+(e.g., a result variable).
 
 TBD
 

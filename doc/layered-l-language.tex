@@ -1107,6 +1107,65 @@ effects described below.
 In addition any qualifier can be used with the special \TT{reload} statement
 descibed below.
 
+\subsection{Qualifier Values}
+\label{QUALIFIER-VALUES}
+
+The type `\ttkey{qualifier}' is an enumeration type implicitely
+declared after the manner of
+\begin{center}
+\TT{type qualifier is uns32 with enum [0 ...]}
+\end{center}
+Each qualifier is associated with a unique enumeration value
+of type `\TT{qualifier}', and this value can be used at both
+compile and run time to test whether two `\TT{qualifier}'s are
+equal.
+
+The type `\ttkey{qualifiers}' denotes a set of qualifier values.
+Constants equal to such sets are denoted by the names of the
+qualifier values in \TT{\{\{~\}\}} brackets.  For example,
+`\TT{\{\{stack mem\}\}}'.
+
+A {\em function-prototypes} can have implicit \TT{qualifiers} arguments.
+These are implicitly given as their value the smallest set of qualifiers
+that allows the {\em function-prototype} to match a call.  For example:
+
+\begin{indpar}\begin{verbatim}
+Q T result = foo ( type T, qualifiers Q, Q T value )
+
+// Example usage:
+//
+qualifier bar
+bar int32 x = ...
+int32 y = foo ( x )      // Illegal, y has no bar qualifier.
+                         // Would be OK if bar were a
+                         // protection qualifier.
+bar int32 z = foo ( x )  // Legal.
+\end{verbatim}\end{indpar}
+
+Function prototypes can have at their end a condition in \TT{[[~]]}
+brackets that must be satisfied in order for the prototype to match
+a call.  This condition may use qualifier values and sets (as well
+as type values and sets and constant numeric expression values and
+sets), which \TT{\&} denoting set `AND' and `\TT{\textasciitilde}' denoting
+set complement (in the universe of all possible qualifiers).
+An example is:
+
+\begin{indpar}\begin{verbatim}
+Q T result = fum ( type T, qualifiers Q, Q T value )
+    [[ Q & {{bar}} == {{}} ]]
+
+// Example usage:
+//
+qualifier bar
+qualifier boo
+bar int32 x = ...
+boo int32 y = ...
+int32 z = foo ( x )      // Illegal, Q must contain bar to
+                         // match x with value, but condition
+                         // prohibits Q from containing bar.
+boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
+\end{verbatim}\end{indpar}
+
 \subsection{The Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
 
@@ -1128,8 +1187,6 @@ The function must assign a value to
 inside functions which have the \TT{mem} qualifier on some of
 their result variables.
 
-\subsection{Qualifier Values and Variables}
-\label{QUALIFIER-VALUES-AND-VARIABLES}
 
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}

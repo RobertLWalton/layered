@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 25, 2015
+March 26, 2015
  
 \end{center}
 
@@ -815,6 +815,32 @@ is syntactic sugar for \\
 {\tt F(a1,a2,...,b1,b2,...)} \\
 \end{center}
 
+An argument or return variable can have the `\TT{type}' type.
+If an argument variable has type `\TT{type}', its value can be used as the
+type of other argument variables that are
+after it in the {\em argument-variable-list},
+or of any result variable.  For example:
+
+\begin{indpar}\begin{verbatim}
+( T result ) = add ( type T, T v1, T v2 ):
+    result = v1 + v2
+
+// Example usage
+//
+int32 x = ...
+int32 y = ...
+int32 z = add ( int32, x, y )
+\end{verbatim}\end{indpar}
+
+Much more complex {\em function-prototypes} can be written:
+see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+In particular, the first argument \TT{T}
+of `\TT{add}' can be implied, as in
+
+\begin{indpar}\begin{verbatim}
+int32 z = add ( x, y )
+\end{verbatim}\end{indpar}
+
 \section{Memory Allocation}
 \label{-MEMORY-ALLOCATION}
 
@@ -1102,6 +1128,9 @@ The function must assign a value to
 inside functions which have the \TT{mem} qualifier on some of
 their result variables.
 
+\subsection{Qualifier Values and Variables}
+\label{QUALIFIER-VALUES-AND-VARIABLES}
+
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}
 
@@ -1122,7 +1151,19 @@ a value into a variable that may not be in the same block
 as the statement context, or a subblock of that block
 (e.g., a result variable).
 
-TBD
+These operations are controlled by function prototypes,
+which can be declared by the programmer but are by default:
+
+\begin{indpar}\begin{verbatim}
+Q T result = copy down
+    ( type T, qualifiers Q, Q T value )
+Q T result = copy up
+    ( type T, qualifiers Q, Q T value )
+    [[ Q & {stack} == {} ]]
+\end{verbatim}\end{indpar}
+
+These allow copies except a `\TT{copy up}' value may
+\underline{not} have a `\TT{stack}' qualifier.
 
 
 \subsection{The Trace Qualifier}
@@ -1167,6 +1208,9 @@ the automatically generated
 statements that recompute its value are suppressed.
 
 TBD: conditional assignment, loop assignment, side effects
+
+\section{Function Prototypes and Calls}
+\label{FUNCTION-PROTOTYPES-AND-CALLS}
 
 \section{TBD}
 

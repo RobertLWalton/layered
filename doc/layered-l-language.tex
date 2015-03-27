@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 26, 2015
+March 27, 2015
  
 \end{center}
 
@@ -199,7 +199,7 @@ are treated in a manner reminiscent of input/output.
 
 \item
 The type `\TT{type}' is first class, is a subtype of integers, and
-is assigned a unique constant address value for each type.  Constant
+is assigned a unique constant small integer value for each type.  Constant
 argument values, such as the value of a `\TT{type}' valued
 argument, can be used to select overloaded functions.
 
@@ -379,7 +379,8 @@ for any two builtin number types $t1$ and $t2$
 \end{center}
 
 Here the results are undefined if the value cannot be expressed
-as type $t2$.
+as type $t2$, and approximate if the value can be expressed
+with low order numeric bits lost.
 
 
 \subsection{The Void Type}
@@ -425,8 +426,8 @@ may have \skey{enumeration value}s.  These are unique integer
 values assigned to enumeration constant names during compilation,
 and then reassigned to possibly different values during linking.
 
-A statement of the following form defines a type with enumeration
-values:
+A statement of the following form defines an \key{enumeration type}
+that has enumeration values:
 \begin{center}
 \TT{type} {\em defined-type-name} \TT{is} {\em builtin-type-name}
     \TT{with enum} {\em enum-range}\QMARK{}
@@ -439,7 +440,7 @@ where
     & $|$ & \TT{[} {\em first-enum} \TT{...} \TT{]} \\
 \emkey{first-enum}
     & ::= & {\em compile-time-integer-expression} \\
-\emkey{second-enum}
+\emkey{last-enum}
     & ::= & {\em compile-time-integer-expression} \\
 \end{tabular}
 \end{center}
@@ -513,6 +514,13 @@ The alignment of builtin types is usually their size.
 Returns the parent type \TT{B} of the type \TT{T}.  For defined
 types this is the associated builtin type.  For builtin types, it is
 \TT{T} itself.
+
+\hspace*{-0.3in}{\tt (T value) = \ttkey{min enum of}
+			( type T )} \\
+\hspace*{-0.3in}{\tt (T value) = \ttkey{max enum of}
+			( type T )} \\
+Returns the minimum or maximum value of an enumeration type \TT{T}.
+It is a compile time error if \TT{T} is not an enumeration type.
 \end{indpar}
 
 \section{Unchecked Blocks}
@@ -698,15 +706,20 @@ subblock.
 
 An example is:
 \begin{indpar}\begin{verbatim}
-int result = max ( int x, int y, int z ):
+float64 result = max ( float64 x, float64 y, float64 z ):
     result =
-        if x > y and x > z:
-	    result = x
-	else if y > z:
-	    result = y
-	default:
-	    result = z
+        default:
+            result = NaN
+        x > y and x > z:
+            result = x
+        y > z && y > x:
+            result = y
+        z > y && z > x:
+            result = z
 \end{verbatim}\end{indpar}
+
+where \TT{NaN} means `\key{not-a-number}' and is the missing
+value for \TT{float64} variables.
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -1067,8 +1080,9 @@ The kinds of qualifiers may be declared by:
 \ttkey{inverted protection qualifier} {\em defined-protection-qualifier-name} \\
 \end{center}
 
-A qualifier applied to the root variable of a cluster is automatically
-applied to all the member variables.
+A qualifier applied to the root variable of a cluster or subcluster
+is automatically applied to all the member variables in the cluster
+or subcluster.
 
 In order for a function
 prototype (argument or result) variable to match an actual variable,
@@ -1081,7 +1095,7 @@ If a variable is initialized by being matched to a prototype result variable
 of a function, the variable is implicitly given all the protection qualifiers
 of the prototype variable.  This is the only way a non-prototype
 variable may acquire
-a protection qualifier.  Thus protection qualifiers are only explicitly
+a protection qualifier.  Thus protection qualifiers may only be explicitly
 given for prototype variables.
 
 As an example of the above rules, the \TT{mem} qualifier is
@@ -1125,7 +1139,7 @@ Constants equal to such sets are denoted by the names of the
 qualifier values in \TT{\{\{~\}\}} brackets.  For example,
 `\TT{\{\{stack mem\}\}}'.
 
-A {\em function-prototypes} can have implicit \TT{qualifiers} arguments.
+A {\em function-prototype} can have implicit \TT{qualifiers} arguments.
 These are implicitly given as their value the smallest set of qualifiers
 that allows the {\em function-prototype} to match a call.  For example:
 
@@ -1144,9 +1158,8 @@ bar int32 z = foo ( x )  // Legal.
 
 Function prototypes can have at their end a condition in \TT{[[~]]}
 brackets that must be satisfied in order for the prototype to match
-a call.  This condition may use qualifier values and sets (as well
-as type values and sets and constant numeric expression values and
-sets), which \TT{\&} denoting set `AND' and `\TT{\textasciitilde}' denoting
+a call.  This condition may use qualifier values and sets, with
+\TT{\&} denoting set `AND' and `\TT{\textasciitilde}' denoting
 set complement (in the universe of all possible qualifiers).
 An example is:
 
@@ -1160,8 +1173,8 @@ qualifier bar
 qualifier boo
 bar int32 x = ...
 boo int32 y = ...
-int32 z = foo ( x )      // Illegal, Q must contain bar to
-                         // match x with value, but condition
+bar int32 z = foo ( x )  // Illegal, Q must contain bar to
+                         // match x and z values, but condition
                          // prohibits Q from containing bar.
 boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
 \end{verbatim}\end{indpar}
@@ -1222,6 +1235,11 @@ Q T result = copy up
 These allow copies except a `\TT{copy up}' value may
 \underline{not} have a `\TT{stack}' qualifier.
 
+Although the `\TT{copy down}' and `\TT{copy up}' operations
+can be given {\em function-prototypes}, they cannot be given
+function bodies, and during execution merely copy the value to
+the result without conversions or invocations of other implied
+operators.
 
 \subsection{The Trace Qualifier}
 \label{THE-TRACE-QUALIFIER}

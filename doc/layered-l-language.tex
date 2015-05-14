@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 27, 2015
+May 14, 2015
  
 \end{center}
 
@@ -528,19 +528,24 @@ It is a compile time error if \TT{T} is not an enumeration type.
 
 Unchecked operations, such as certain type conversions mentioned above,
 can only be executed in an \mkey{unchecked}{code block}
-code block of the form:
+code block.  If this block does not assign any variables outside
+of itself, it has the form:
 
 \begin{indpar}
 \emkey{unchecked-block}
     ::= \begin{tabular}[t]{l}
-	\TT{unchecked}\TT{:} \\
-	~~~~ {\em executable-statement}\STAR{} \\
+	\TT{*UNCHECKED*}\TT{:} \\
+	\TT{~~~~}{\em executable-statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
 A fully \key{type checked} piece of code will not contain any
 unchecked code blocks.  A goal of the L-Language is to migrate
 all unchecked code into small inline data access functions.
+
+The blocks in block assignment statements can also be made
+unchecked by adding the `\TT{*UNCHECKED}' qualification to the
+statement.
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -626,8 +631,8 @@ Another variant of the assignment statement is:
 \begin{indpar}
 \emkey{block-assignment-statement}
     ::= \begin{tabular}[t]{l}
-        {\em variable-list} \TT{=:} \\
-	~~~~ {\em executable-statement}\STAR{}
+        {\em variable-list} \TT{=} \TT{*UNCHECKED*}\QMARK \TT{:} \\
+	\TT{~~~~}{\em executable-statement}\STAR{}
 	\end{tabular}
 \end{indpar}
 
@@ -651,24 +656,25 @@ block.
 \subsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
 
-Conditional assignment statements are similar:
+Conditional assignment statements are similar to block assignment
+statements:
 
 \begin{indpar}
 \emkey{conditional-assignment-statement}
     ::= \begin{tabular}[t]{l}
-        {\em variable-list} \TT{= if:} \\
-	~~~~ \TT{default:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
-	~~~~ \TT{default:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
-	~~~~ \ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
-	~~~~ {\em condition-expression}\TT{:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
-	~~~~ {\em condition-expression}\TT{:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
-	~~~~ \ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
-	~~~~ \TT{else:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+        {\em variable-list} \TT{=} \TT{*UNCHECKED*}\QMARK \TT{if:} \\
+	\TT{~~~~}\TT{default:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~}\TT{default:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
+	\TT{~~~~}{\em condition-expression}\TT{:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~}{\em condition-expression}\TT{:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
+	\TT{~~~~}\TT{else:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
@@ -719,33 +725,38 @@ float64 result = max ( float64 x, float64 y, float64 z ):
 \end{verbatim}\end{indpar}
 
 where \TT{NaN} means `\key{not-a-number}' and is the missing
-value for \TT{float64} variables.
+value for \TT{float64} variables.  \TT{x~>~y} is false if
+\TT{y} is less than \TT{x} \underline{or} if either \TT{x}
+or \TT{y} is a \TT{NaN}.
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
-Lastly loop assignment statements are similar:
+Lastly loop assignment statements are similar to block assignment
+and conditional assignment statements:
 
 \begin{indpar}
 \emkey{loop-assignment-statement}
-    ::= \begin{tabular}[t]{l}
+    ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
         {\em result-variable-list}
-	    \TT{= loop} {\em iteration-variable-list}\TT{:} \\
-	~~~~ \TT{initially}\TT{:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
-	~~~~ \TT{while} {\em condition-expression}\TT{:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
-	~~~~ \TT{finally}\TT{:} \\
-	~~~~~~~~~ {\em executable-statement}\STAR{} \\
+	    \TT{=} \TT{*UNCHECKED*}\QMARK \TT{loop}
+	           {\em iteration-variable-list}\TT{:} \\
+	\TT{~~~~}\TT{initially}\TT{:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~}\TT{while} {\em condition-expression}\TT{:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~}\TT{finally}\TT{:} \\
+	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
 This is somewhat like the conditional assignment statement
-except the {\em executable-statements} are repeated.  The
-{\em executable-statements} qualified by `\TT{initially}'
+except the subblocks are repeated.  The
+subblocks qualified by `\TT{initially}'
 execute before the first repetition, and they must
 set all the variables in the {\em iteration-variable-list}.
-The {\em executable-statements} qualified by `\TT{while}
+The subblocks qualified by `\TT{while}
 {\em condition-expression}' only execute if the
 {\em condition-expression} evaluates to true, and
 for every variable \TT{v} in the {\em iteration-variable-list}
@@ -753,7 +764,7 @@ they must set the variable `\TT{next v}' or `\TT{next next v}',
 as indicated below.
 Lastly, when
 the {\em condition-expression} evaluates to false, the
-{\em executable-statements} qualified by `\TT{finally}'
+subblocks qualified by `\TT{finally}'
 execute, and they must set all the variables in the
 {\em result-variable-list}.  At this point the loop stops
 executing.

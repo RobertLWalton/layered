@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 14, 2015
+May 15, 2015
  
 \end{center}
 
@@ -543,9 +543,9 @@ A fully \key{type checked} piece of code will not contain any
 unchecked code blocks.  A goal of the L-Language is to migrate
 all unchecked code into small inline data access functions.
 
-The blocks in block assignment statements can also be made
-unchecked by adding the `\TT{*UNCHECKED}' qualification to the
-statement.
+By adding the `\TT{*UNCHECKED}' qualification to a
+block assignment statement, the {\em executable-statements}
+in the block can be made unchecked.
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -626,7 +626,7 @@ variables (see below) than it does for other variables.
 \subsection{Block Assignment Statements}
 \label{BlOCK-ASSIGNMENT-STATEMENTS}
 
-Another variant of the assignment statement is:
+Another variant of the assignment statement is\index{block assignment}:
 
 \begin{indpar}
 \emkey{block-assignment-statement}
@@ -656,8 +656,8 @@ block.
 \subsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
 
-Conditional assignment statements are similar to block assignment
-statements:
+\ikey{Conditional assignment statements}{conditional assignment}
+are similar to block assignment statements:
 
 \begin{indpar}
 \emkey{conditional-assignment-statement}
@@ -732,12 +732,12 @@ or \TT{y} is a \TT{NaN}.
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
-Lastly loop assignment statements are similar to block assignment
+\ikey{Loop assignment statements}{loop assignment}
+are similar to block assignment
 and conditional assignment statements:
 
 \begin{indpar}
-\emkey{loop-assignment-statement}
-    ::= \\
+\emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         {\em result-variable-list}
 	    \TT{=} \TT{*UNCHECKED*}\QMARK \TT{loop}
@@ -788,6 +788,50 @@ the previous iteration (if any), and the next two iterations.
 When the third iteration of the loop starts, the first
 iteration can be discarded, and so forth.
 
+
+\subsection{Call Assignment Statements}
+\label{CALL-ASSIGNMENT-STATEMENTS}
+
+\ikey{Call assignment statements}{call assignment}
+are used to call out-of-line functions:
+
+\begin{indpar}
+\emkey{call-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        {\em variable-list} \TT{=} \TT{*UNCHECKED*}\QMARK \TT{*REVERSE*}\QMARK
+		~\TT{call}~ {\em function-expression} \TT{:} \\
+	\TT{~~~~}{\em assignment-statement}\STAR{}
+	\end{tabular}
+\end{indpar}
+
+The {\em function-expression} evaluates to a function to be called,
+and its type \TT{T} must have the \TT{adr} type as its underlying type.
+The values of the variables created by the assignment statements
+are the arguments to the function, in top to bottom, left to right
+order.  The results of the function call are stored in the
+{\em variable-list} variables.
+
+A call assignment must be \TT{*UNCHECKED*} unless \TT{T} is declared
+by a function type declaration of the form:
+\begin{center}
+\TT{function type} {\em result-variable-list } \TT{=} {\em defined-type-name}
+    {\em argument-variable-list}
+\end{center}
+
+This makes \TT{adr} the underlying type, and declares the prototype
+for the function call after the manner of section \itemref{FUNCTIONS}.
+Then a call assignment statement is type-checked like an inline function
+call whose arguments are the variable names in the call subblock.
+
+Normally arguments are passed to the function
+in top to bottom, left to right order.  However the
+\TT{*REVERSE*} qualification reverses this order.
+
+Normally the standard call linkage for the computer environment of
+the program is used.  Other implementation specific qualifications
+may alter the call linkage used if the call is \TT{*UNCHECKED*},
+or such qualifications may be applied to the function's type and
+used in checked calls.
 
 
 \section{Functions}
@@ -1185,8 +1229,9 @@ qualifier boo
 bar int32 x = ...
 boo int32 y = ...
 bar int32 z = foo ( x )  // Illegal, Q must contain bar to
-                         // match x and z values, but condition
-                         // prohibits Q from containing bar.
+                         // match x and z values, but
+                         // condition prohibits Q from
+                         // containing bar.
 boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
 \end{verbatim}\end{indpar}
 

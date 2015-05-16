@@ -523,6 +523,81 @@ Returns the minimum or maximum value of an enumeration type \TT{T}.
 It is a compile time error if \TT{T} is not an enumeration type.
 \end{indpar}
 
+\section{Functions}
+\label{FUNCTIONS}
+
+All functions are inline.  An inline function can call out-of-line
+code in either a classical or non-classical manner.
+
+Function definitions have the form:
+
+\begin{indpar}
+\emkey{function-definition}
+    ::= \begin{tabular}[t]{l}
+        {\em function-prototype}\TT{:} \\
+	~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{function-prototype}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em result-variable-list} \TT{=} {\em function-name}
+	    {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
+            \TT{=} {\em input-variable-list} \\
+    \end{tabular}
+\end{indpar}
+
+A function call with a {\em result-variable-list}
+is in effect replaced by a {\em block-assignment-statement}
+with the {\em function-definition's} {\em result-variable-list} becoming the 
+{\em block-assignment-statement's} {\em variable-list} and the
+{\em function-definition's} {\em executable-statements} becoming the 
+{\em block-assignment-statement's} {\em executable-statements}.
+Actual argument values from the function call are assigned to variables in
+the definition {\em argument-variable-list}.  The values produced in
+the {\em result-variable-list's} variables become the values of the
+function call when it is used as part of an {\em expression}.
+
+A function call without any {\em result-variable-list} or
+{\em input-variable-list} is just like a function call with an empty
+{\em result-variable-list}.
+
+A function call with an {\em input-variable-list} is just syntactic
+sugar for a function call with neither a {\em result-variable-list}
+or {\em input-variable-list}.  Specifically
+\begin{center}
+{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
+is syntactic sugar for \\
+{\tt F(a1,a2,...,b1,b2,...)} \\
+\end{center}
+
+An argument or return variable can have the `\TT{type}' type.
+If an argument variable has type `\TT{type}', its value can be used as the
+type of other argument variables that are
+after it in the {\em argument-variable-list},
+or of any result variable.  For example:
+
+\begin{indpar}\begin{verbatim}
+( T result ) = add ( type T, T v1, T v2 ):
+    result = v1 + v2
+
+// Example usage
+//
+int32 x = ...
+int32 y = ...
+int32 z = add ( int32, x, y )
+\end{verbatim}\end{indpar}
+
+Much more complex {\em function-prototypes} can be written:
+see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+Also the first argument \TT{T}
+of `\TT{add}' can be implied, as in
+
+\begin{indpar}\begin{verbatim}
+int32 z = add ( x, y )
+\end{verbatim}\end{indpar}
+
 \section{Unchecked Blocks}
 \label{UNCHECKED-BLOCKS}
 
@@ -798,10 +873,12 @@ are used to call out-of-line functions:
 \begin{indpar}
 \emkey{call-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        {\em variable-list} \TT{=} \TT{*UNCHECKED*}\QMARK \TT{*REVERSE*}\QMARK
+        {\em variable-list} \TT{=} {\em call-assignment-option}\STAR
 		~\TT{call}~ {\em function-expression} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{}
-	\end{tabular}
+	\end{tabular} \\[1ex]
+\emkey{call-assignment-option} ::=
+	\TT{*UNCHECKED*} $|$ \TT{*REVERSE*} $|$ \TT{*NO-RELOAD*}
 \end{indpar}
 
 The {\em function-expression} evaluates to a function to be called,
@@ -814,7 +891,9 @@ order.  The results of the function call are stored in the
 A call assignment must be \TT{*UNCHECKED*} unless \TT{T} is declared
 by a function type declaration of the form:
 \begin{center}
-\TT{function type} {\em result-variable-list } \TT{=} {\em defined-type-name}
+\TT{function type} {\em result-variable-list } \TT{=}
+    {\em call-assignment-option}\STAR{}
+    {\em defined-type-name}
     {\em argument-variable-list}
 \end{center}
 
@@ -825,99 +904,138 @@ call whose arguments are the variable names in the call subblock.
 
 Normally arguments are passed to the function
 in top to bottom, left to right order.  However the
-\TT{*REVERSE*} qualification reverses this order.
+\TT{*REVERSE*} option reverses this order.
+
+
+Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
+is inserted automatically
+upon returning from the called function, but the
+\TT{*NO-RELOAD*} option suppresses this.
 
 Normally the standard call linkage for the computer environment of
-the program is used.  Other implementation specific qualifications
-may alter the call linkage used if the call is \TT{*UNCHECKED*},
-or such qualifications may be applied to the function's type and
+the program is used.  Other implementation specific options
+may alter the call linkage used.
+
+Options other than \TT{*UNCHECKED*} can be given in a function type
+definition and will then be applied to all calls to functions of the
+defined type.
+
 used in checked calls.
 
 
-\section{Functions}
-\label{FUNCTIONS}
+\section{Stack Management}
+\label{STACK-MANAGEMENT}
 
-All functions are inline.  An inline function can call out-of-line
-code in either a classical or non-classical manner.
+Each execution thread has a stack that is not in any other
+stack.  Each external function
+execution is a block execution that has a stack which is
+by default a substack of the thread in which the function
+execution is running.  Each subblock in turn has a stack
+which is by default a substack of the stack of its containing block.
+And each global area has a stack that is not in any other stack.
 
-Function definitions have the form:
+Conceptually, the assignment statements in a block each allocate memory for
+their variable to the block stack and copy values to these
+variables.  As noted above, the memory and associated copies may be
+optimized away in some cases.
+
+Stacks relocatable and can be moved.  Substacks cannot move independently,
+but move whenever their containing stack moves.
+
+There are a couple of situations in which stacks move.
+
+Memory of runtime determined size can be allocated to the end of
+a stack by the \TT{allocate} function described below, and this may
+require that the stack be moved to a memory region where there is
+more free memory available.
+
+In a program being debugged, stacks may be saved after they are no
+longer needed by the program, in order to permit them to be analyzed
+by a debbuger if the program detects and error.  In this situations
+stacks are allocated to a very big circular buffer, and overwritten
+after they are no longer needed by the program.  It may happen that
+a stack whose block is still running is in the way of a allocating
+a new stack to the circular buffer, in which case the still running
+block's stack may be moved.
+
+Lastly, global stacks may be deallocated when programs that
+can reference them are still running, or may not yet be allocated
+when these programs run.  Such global stacks are treated as if
+they were allocated to inaccessible memory, so deallocating them
+is like moving them to inaccessible memory, and referencing
+them when they are deallocated gives a memory fault.
+
+
+\subsection{Unwind Blocks}
+\label{Unwind Blocks}
+
+\ikey{Unwind blocks}{unwind block} are executed only when their
+containing block terminates:
 
 \begin{indpar}
-\emkey{function-definition}
+\emkey{unwind-block}
     ::= \begin{tabular}[t]{l}
-        {\em function-prototype}\TT{:} \\
-	~~~~ {\em executable-statement}\STAR{} \\
+	\TT{*UNCHECKED*}\QMARK{} \tt{unwind} \TT{:} \\
+	\TT{~~~~}{\em executable-statement}\STAR{} \\
 	\end{tabular}
-\\[1ex]
-\emkey{function-prototype}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em result-variable-list} \TT{=} {\em function-name}
-	    {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
-            \TT{=} {\em input-variable-list} \\
-    \end{tabular}
 \end{indpar}
 
-A function call with a {\em result-variable-list}
-is in effect replaced by a {\em block-assignment-statement}
-with the {\em function-definition's} {\em result-variable-list} becoming the 
-{\em block-assignment-statement's} {\em variable-list} and the
-{\em function-definition's} {\em executable-statements} becoming the 
-{\em block-assignment-statement's} {\em executable-statements}.
-Actual argument values from the function call are assigned to variables in
-the definition {\em argument-variable-list}.  The values produced in
-the {\em result-variable-list's} variables become the values of the
-function call when it is used as part of an {\em expression}.
+Specifically, when an unwind block is encountered while
+executing its containing block, the unwind block is marked
+as enabled, but is skipped.  Then when the containing block
+terminates, all its enabled unwind blocks are executed in
+the reverse order of that in which they were enabled.
 
-A function call without any {\em result-variable-list} or
-{\em input-variable-list} is just like a function call with an empty
-{\em result-variable-list}.
+Unwind blocks are used to close or deallocate things that were opened.
+For example, right after a statement that opens a file there may be
+an unwind block that closes the file.  This ensures that the file
+will be closed even if the block that opened it terminates later
+prematurely with an error, such as a memory fault.
 
-A function call with an {\em input-variable-list} is just syntactic
-sugar for a function call with neither a {\em result-variable-list}
-or {\em input-variable-list}.  Specifically
-\begin{center}
-{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
-is syntactic sugar for \\
-{\tt F(a1,a2,...,b1,b2,...)} \\
-\end{center}
+Unwind blocks are used to implement the \TT{*CATCH*} statement that
+complements the \TT{*THROW*} statement:
 
-An argument or return variable can have the `\TT{type}' type.
-If an argument variable has type `\TT{type}', its value can be used as the
-type of other argument variables that are
-after it in the {\em argument-variable-list},
-or of any result variable.  For example:
+\begin{indpar}
+\emkey{throw-statement} ::= \TT{*THROW*} \\[1ex]
+\emkey{catch-statement} ::= \TT{*CATCH*}
+\end{indpar}
 
-\begin{indpar}\begin{verbatim}
-( T result ) = add ( type T, T v1, T v2 ):
-    result = v1 + v2
+A block can terminate \ikey{normally}{normal block termination}
+or \ikey{abnormally}{abnormal block termination}.  Normal termination
+only occurs at the end of the block.  Abnormal termination occurs
+when the block executes a \TT{*THROW*} statement.
 
-// Example usage
-//
-int32 x = ...
-int32 y = ...
-int32 z = add ( int32, x, y )
-\end{verbatim}\end{indpar}
+If a block terminates normally, then after its \TT{unwind} subblocks
+execute in reverse order, execution continues after the normally
+terminating block in the block that contains it.
 
-Much more complex {\em function-prototypes} can be written:
-see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
-In particular, the first argument \TT{T}
-of `\TT{add}' can be implied, as in
+If a block terminates abnormally, then after its \underline{enabled}
+\TT{unwind} subblocks
+execute in reverse order,
+the block that contains the abnormally terminating block itself
+terminates abnormally.
 
-\begin{indpar}\begin{verbatim}
-int32 z = add ( x, y )
-\end{verbatim}\end{indpar}
+The \TT{*CATCH*} statement changes this by forcing the block containing
+the smallest \TT{unwind} block containing the \TT{*CATCH*} statement
+to terminate normally, even if it was otherwise terminating abnormally.
+Thus a \TT{*CATCH*} statement can be used allow an \TT{unwind} block
+to allow continuation after its containing block even if there are
+errors causing an abnormal termination of that containing block.
 
-\section{Memory Allocation}
-\label{-MEMORY-ALLOCATION}
+Before a \TT{*THROW*} statement is executed, the program should record
+in memory the reason for the throw.  An \TT{unwind} block can then
+look for this, and if it is satisfied that it can recover the error,
+execute a \TT{*CATCH*} statement.
 
-L-Language has built-in operations to allocate memory blocks to the
-stack, but not to any other region of RAM.  Allocators to other
-regions of RAM are provided by the function library.
+Machine errors, i.e. memory segment faults, invoke callable functions
+which can record error information and execute a \TT{*THROW*}.
+
+
+\subsection{Stack Memory Allocation}
+\label{STACK-MEMORY-ALLOCATION}
 
 The \ttkey{stack\_allocate} function allocates \TT{N} bytes of
-memory to the stack and returns its address:
+memory to the current stack and returns its address:
 
 \begin{indpar}\begin{verbatim}
 ( stack adr address ) = stack_allocate ( unsadr N )

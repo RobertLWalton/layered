@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 11 02:57:41 EST 2015
+// Date:	Mon May 18 04:32:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,6 +32,8 @@ int main ( int argc, const char * argv[] )
     PAR::default_parser->trace_flags |=
         PAR::TRACE_PARSER_COMMANDS;
 
+# ifdef NONE_SUCH
+
     // Since subexpressions are not being parsed, we
     // change the gen_formats to not suppress spaces
     // between lexemes and not quote brackets.
@@ -58,5 +60,8 @@ int main ( int argc, const char * argv[] )
 
     PAR::default_parser->subexpression_gen_format =
         & altered_line_gen_format;
+
+# endif // NONE_SUCH
+
     PAR::parse();
 }

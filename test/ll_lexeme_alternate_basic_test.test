@@ -1,0 +1,1545 @@
+       ###: PROGRAM
+            Initial Table ID[0]:###
+            Max Type: 16
+                 1: WORD
+                 2: NATURAL_NUMBER
+                 3: NUMBER
+                 4: MARK
+                 5: QUOTED_STRING
+                 6: SEPARATOR
+                 7: COMMENT
+                 8: HORIZONTAL_SPACE
+                 9: LINE_BREAK
+                10: END_OF_FILE
+                11: PREMATURE_END_OF_LINE
+                12: PREMATURE_END_OF_FILE
+                13: MISPLACED_CHARACTER
+                14: MISPLACED_SPACE
+                15: MISPLACED_CONTROL_CHARACTER
+                16: UNRECOGNIZED_ESCAPE_SEQUENCE
+    ######: TABLE
+            Mode: MASTER
+            Dispatcher ID: #####
+            #####: OUTPUT(10)
+    ######: TABLE
+            Mode: WORD
+            Dispatcher ID: #####
+            #####: RETURN
+   #######: TABLE
+            Mode: NATURAL_NUMBER
+            Dispatcher ID: #####
+            #####: RETURN
+   #######: TABLE
+            Mode: NUMBER
+            Dispatcher ID: #####
+            #####: RETURN
+   #######: TABLE
+            Mode: MARK
+            Dispatcher ID: #####
+            #####: RETURN
+   #######: TABLE
+            Mode: QUOTED_STRING
+            Dispatcher ID: #####
+            #####: GOTO(####)
+   #######: TABLE
+            Mode: SEPARATOR
+            Dispatcher ID: ##
+   #######: TABLE
+            Mode: COMMENT
+            Dispatcher ID: #####
+            #####: GOTO(####)
+   #######: TABLE
+            Mode: HORIZONTAL_SPACE
+            Dispatcher ID: #####
+            #####: RETURN
+   #######: TABLE
+            Mode: LINE_BREAK
+            Dispatcher ID: #####
+            #####: RETURN
+   #######: TABLE
+            Mode: MISPLACED_SPACE
+            Dispatcher ID: #####
+            #####: RETURN
+   #######: TABLE
+            Mode: MASTER
+            Dispatcher ID: #####
+            #####: OUTPUT(11), GOTO(###)
+   #######: TABLE
+            Mode: MASTER
+            Dispatcher ID: #####
+            #####: OUTPUT(12), GOTO(###)
+   #######: TABLE
+            Mode: ATOM
+            Dispatcher ID: #####
+            #####: FAIL
+   #######: TABLE
+            Mode: ATOM
+            Dispatcher ID: #####
+            #####: FAIL
+   #######: TABLE
+            Mode: ATOM
+            Dispatcher ID: #####
+            #####: FAIL
+   #######: DISPATCHER
+            Break Elements: 2
+            Max Break Elements: 3
+            Max CType: 1
+   #######: DISPATCHER
+            Break Elements: 96
+            Max Break Elements: 99
+            Max CType: 1
+   #######: DISPATCHER
+            Break Elements: 9
+            Max Break Elements: 9
+            Max CType: 1
+   #######: DISPATCHER
+            Break Elements: 96
+            Max Break Elements: 107
+            Max CType: 1
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            /
+                #####: CALL(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 98
+            Max Break Elements: 101
+            Max CType: 2
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
+                #####: CALL(###)
+                Dispatcher ID: #####
+            0-9
+                #####: KEEP(1), CALL(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 98
+            Max Break Elements: 101
+            Max CType: 1
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
+                #####: CALL(###)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 98
+            Max Break Elements: 101
+            Max CType: 14
+            <NUL>-<BS> <SO>-<US> \ <DEL>-<0A7> <0A9> <0AB>-<0AC> <0AE>
+            <0B0>-<0B1> <0B6> <0BB> <0BF> <0D7> <0F7> <300>-<36F> <1680>
+            <MVS> <1DC0>-<1DFF> <2000>-<200A> <LRM>-<2029>
+            <NNBSP>-<203E> <2041>-<2053> <2055>-<MMSP> <20D0>-<20FF>
+            <2190>-<245F> <2500>-<2775> <2794>-<2BFF> <2E00>-<2E7F>
+            <3000>-<3003> <3008>-<3020> <3030> <0D800>-<0F8FF>
+            <0FD3E>-<0FD3F> <0FDD0>-<0FDEF> <0FE20>-<0FE2F>
+            <0FE45>-<0FE46> <0FFFE>-<0FFFF> <1FFFE>-<1FFFF>
+            <2FFFE>-<2FFFF> <3FFFE>-<3FFFF> <4FFFE>-<4FFFF>
+            <5FFFE>-<5FFFF> <6FFFE>-<6FFFF> <7FFFE>-<7FFFF>
+            <8FFFE>-<8FFFF> <9FFFE>-<9FFFF> <0AFFFE>-<0AFFFF>
+            <0BFFFE>-<0BFFFF> <0CFFFE>-<0CFFFF> <0DFFFE>-<0DFFFF>
+            <0EFFFE>-
+                #####: OUTPUT(13)
+                Dispatcher ID: #####
+            /
+                #####: CALL(####)
+                Dispatcher ID: #####
+            <HT> <SP>
+                #####: CALL(####)
+                Dispatcher ID: #####
+            <LF>
+                #####: CALL(####)
+                Dispatcher ID: #####
+            <VT>-<CR>
+                #####: CALL(####)
+                Dispatcher ID: #####
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
+                #####: CALL(###)
+                Dispatcher ID: #####
+            '
+                #####: OUTPUT(6)
+                Dispatcher ID: #####
+            ! #-& *-+ - <-@ ^-_ ~
+                #####: CALL(####)
+                Dispatcher ID: #####
+            0-9
+                #####: KEEP(0), CALL(####)
+                Dispatcher ID: #####
+            .
+                #####: CALL(####)
+                Dispatcher ID: #####
+            (-) ; [ ] ` { }
+                #####: OUTPUT(6)
+                Dispatcher ID: #####
+            : [repeat(INFINITY)]
+                #####: OUTPUT(6)
+                Dispatcher ID: #####
+            | [repeat(INFINITY)]
+                #####: OUTPUT(6)
+                Dispatcher ID: #####
+            ,
+                #####: OUTPUT(6)
+                Dispatcher ID: #####
+            "
+                #####: TRANSLATE_TO(0), CALL(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <NUL>-<HT> <SO>-
+                #####: ACCEPT
+                Dispatcher ID: #####
+            <LF>-<CR>
+                #####: KEEP(0), RETURN
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <HT> <SP>
+                #####: ACCEPT
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            <LF>
+                #####: GOTO(####)
+                Dispatcher ID: #####
+            <VT>-<CR>
+                #####: ACCEPT
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <LF>-<CR>
+                #####: ACCEPT
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 98
+            Max Break Elements: 101
+            Max CType: 1
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<2FF> <370>-<167F>
+            <1681>-<FVS3> <180F>-<1DBF> <1E00>-<1FFF> <ZWSP>-<ZWJ>
+            <LRE>-<RLO> <203F>-<2040> <2054> <WJ>-<20CF> <2100>-<218F>
+            <2460>-<24FF> <2776>-<2793> <2C00>-<2DFF> <2E80>-<2FFF>
+            <3004>-<3007> <3021>-<302F> <3031>-<0D7FF> <0F900>-<0FD3D>
+            <0FD40>-<0FDCF> <0FDF0>-<0FE1F> <0FE30>-<0FE44>
+            <0FE47>-<UUC> <10000>-<1FFFD> <20000>-<2FFFD>
+            <30000>-<3FFFD> <40000>-<4FFFD> <50000>-<5FFFD>
+            <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
+            <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
+            <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
+                #####: ACCEPT
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 98
+            Max Break Elements: 109
+            Max CType: 2
+            A-Z a-z <0A8> <0AA> <SHY> <0AF> <0B2>-<0B5> <0B7>-<0BA>
+            <0BC>-<0BE> <0C0>-<0D6> <0D8>-<0F6> <0F8>-<167F>
+            <1681>-<FVS3> <180F>-<1FFF> <ZWSP>-<ZWJ> <LRE>-<RLO>
+            <203F>-<2040> <2054> <WJ>-<218F> <2460>-<24FF> <2776>-<2793>
+            <2C00>-<2DFF> <2E80>-<2FFF> <3004>-<3007> <3021>-<302F>
+            <3031>-<0D7FF> <0F900>-<0FD3D> <0FD40>-<0FDCF>
+            <0FDF0>-<0FE44> <0FE47>-<UUC> <10000>-<1FFFD>
+            <20000>-<2FFFD> <30000>-<3FFFD> <40000>-<4FFFD>
+            <50000>-<5FFFD> <60000>-<6FFFD> <70000>-<7FFFD>
+            <80000>-<8FFFD> <90000>-<9FFFD> <0A0000>-<0AFFFD>
+            <0B0000>-<0BFFFD> <0C0000>-<0CFFFD> <0D0000>-<0DFFFD>
+            <0E0000>-<0EFFFD>
+                #####: ACCEPT
+                Dispatcher ID: #####
+            '
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            /
+                #####: KEEP(0), RETURN
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 11
+            Max Break Elements: 11
+            Max CType: 2
+            ! #-& *-+ --. <-@ ^-_ ~ <300>-<36F> <1DC0>-<1DFF>
+            <20D0>-<20FF> <0FE20>-<0FE2F>
+                #####: ACCEPT
+                Dispatcher ID: #####
+            /
+                #####: ACCEPT
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            0-9
+                #####: KEEP(2), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            , .-/ :
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            0-9
+                #####: KEEP(1), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            0-9
+                #####: ACCEPT
+                Dispatcher ID: #####
+            '
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            0-9
+                #####: KEEP(2)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            , .-/ :
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            0-9
+                #####: KEEP(1)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            0-9
+                #####: ACCEPT
+                Dispatcher ID: #####
+            '
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <LF>
+                #####: KEEP(0), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 11
+            Max Break Elements: 13
+            Max CType: 5
+            <SP>-! #-; =-~ <0A1>-<1FFF> <2010> <2012>-<2027>
+            <2030>-<205E> <2070>-
+                #####: ACCEPT
+                Dispatcher ID: #####
+            "
+                #####: TRANSLATE_TO(0), RETURN
+                Dispatcher ID: #####
+            <
+                #####: MATCH(####), ELSE:
+                #####: TRANSLATE_TO(1,<UUC>), MATCH(####),
+                       ERRONEOUS_ATOM(16), ELSE:
+                #####: ACCEPT
+                Dispatcher ID: #####
+            <LF>
+                #####: KEEP(0), GOTO(####)
+                Dispatcher ID: #####
+            <CR>
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(15)
+                Dispatcher ID: #####
+            <NUL>-<HT> <VT>-<FF> <SO>-<US> <DEL>-<NBSP> <2000>-<RLM>
+            <2011> <2028>-<NNBSP> <MMSP>-<206F>
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(15)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<ACK>)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            K
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            C
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<BEL>)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            L
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<BS>)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            E
+                Dispatcher ID: #####
+            S
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<CAN>)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            N
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<CR>)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            A
+                Dispatcher ID: #####
+            R
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<DC1>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<DC2>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<DC3>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<DC4>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 4
+            1
+                Dispatcher ID: #####
+            2
+                Dispatcher ID: #####
+            3
+                Dispatcher ID: #####
+            4
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<DEL>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            L
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<DLE>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            E
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 3
+            C
+                Dispatcher ID: #####
+            E
+                Dispatcher ID: #####
+            L
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<EOM>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<ENQ>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            Q
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<EOT>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            T
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<ESC>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            C
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<ETB>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<ETX>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            B
+                Dispatcher ID: #####
+            X
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 5
+            M
+                Dispatcher ID: #####
+            N
+                Dispatcher ID: #####
+            O
+                Dispatcher ID: #####
+            S
+                Dispatcher ID: #####
+            T
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<FF>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<FS>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            F
+                Dispatcher ID: #####
+            S
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<GS>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            S
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<HT>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            T
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<LF>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            F
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<NAK>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            K
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<LF>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<NUL>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            L
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 3
+            A
+                Dispatcher ID: #####
+            L
+                Dispatcher ID: #####
+            U
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,")
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<RS>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            S
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<SI>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<SOH>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            H
+                Dispatcher ID: #####
+            >
+                #####: TRANSLATE_TO(1,<SO>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<SP>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<STX>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            X
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<SUB>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            B
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<SYN>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            N
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 6
+            I
+                Dispatcher ID: #####
+            O
+                Dispatcher ID: #####
+            P
+                Dispatcher ID: #####
+            T
+                Dispatcher ID: #####
+            U
+                Dispatcher ID: #####
+            Y
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<US>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            S
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_TO(1,<VT>)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            T
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 16
+            A
+                Dispatcher ID: #####
+            B
+                Dispatcher ID: #####
+            C
+                Dispatcher ID: #####
+            D
+                Dispatcher ID: #####
+            E
+                Dispatcher ID: #####
+            F
+                Dispatcher ID: #####
+            G
+                Dispatcher ID: #####
+            H
+                Dispatcher ID: #####
+            L
+                Dispatcher ID: #####
+            N
+                Dispatcher ID: #####
+            Q
+                Dispatcher ID: #####
+            R
+                Dispatcher ID: #####
+            S
+                Dispatcher ID: #####
+            U
+                Dispatcher ID: #####
+            V
+                Dispatcher ID: #####
+            0-9
+                #####: MATCH(####), ELSE:
+                #####: FAIL
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 2
+            >
+                #####: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #####
+            0-9 A-F [repeat(INFINITY)]
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            0-9
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            >
+                #####: ACCEPT
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            - 0-9 A-Z [repeat(INFINITY)]
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 3
+            Max Break Elements: 3
+            Max CType: 1
+            <
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+ #########: DISPATCHER
+            Break Elements: 1
+            Max Break Elements: 1
+            Max CType: 0
+COMMENT 0(0)0:
+    //␣Layered␣Languages␣Alternate␣Lexical␣Analyzer␣Test␣Data
+LINE_BREAK 0(57): ␊
+COMMENT 1(0)0: //
+LINE_BREAK 1(2): ␊
+COMMENT 2(0)0: //␣File:␉ll_lexeme_alternate_test.in
+LINE_BREAK 2(36): ␊
+COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
+LINE_BREAK 3(38): ␊
+COMMENT 4(0)0: //␣Date:␉Tue␣May␣19␣15:44:38␣EDT␣2015
+LINE_BREAK 4(37): ␊
+COMMENT 5(0)0: //
+LINE_BREAK 5(2): ␊
+COMMENT 6(0)0: //␣The␣authors␣have␣placed␣this␣data␣in␣the␣public
+LINE_BREAK 6(50): ␊
+COMMENT 7(0)0: //␣domain;␣they␣make␣no␣warranty␣and␣accept␣no␣liability
+LINE_BREAK 7(56): ␊
+COMMENT 8(0)0: //␣for␣this␣data.
+LINE_BREAK 8(17): ␊␊
+COMMENT 10(0)0: //␣This␣file␣was␣copied␣from␣ll_lexeme_standard_test.in
+LINE_BREAK 10(55): ␊
+COMMENT 11(0)0: //␣on␣Tue␣May␣19␣15:44:38␣EDT␣2015.␣␣See␣the␣earlier
+LINE_BREAK 11(52): ␊
+COMMENT 12(0)0: //␣history␣of␣that␣file␣for␣the␣earlier␣history␣of␣this
+LINE_BREAK 12(55): ␊
+COMMENT 13(0)0: //␣file.
+LINE_BREAK 13(8): ␊␊
+WORD 15(0)0: abc
+HORIZONTAL_SPACE 15(3): ␣
+NUMBER 15(4): 3.4
+MARK 15(7): +
+WORD 15(8): z
+HORIZONTAL_SPACE 15(9): ␣
+SEPARATOR 15(10): (
+WORD 15(11): x
+SEPARATOR 15(12): ,
+WORD 15(13): y
+SEPARATOR 15(14): )
+LINE_BREAK 15(15): ␊
+QUOTED_STRING 16(0)0: "hi" translated to: hi
+HORIZONTAL_SPACE 16(4): ␣
+QUOTED_STRING 16(5): "ho<HT>x␣y<>z<LF>" translated to: ho␉x␣y<>z␊
+LINE_BREAK 16(23): ␊
+WORD 17(0)0: 'tis
+HORIZONTAL_SPACE 17(4): ␣
+WORD 17(5): noth'ng
+HORIZONTAL_SPACE 17(12): ␣
+SEPARATOR 17(13): `
+WORD 17(14): but
+SEPARATOR 17(17): '
+HORIZONTAL_SPACE 17(18): ␣
+WORD 17(19): a
+HORIZONTAL_SPACE 17(20): ␣
+WORD 17(21): h'dache
+MARK 17(28): .
+LINE_BREAK 17(29): ␊
+WORD 18(0)0: a
+MARK 18(1): .
+NUMBER 18(2): 1.2.3
+MARK 18(7): ..
+WORD 18(9): b
+MARK 18(10): ...
+WORD 18(13): c
+HORIZONTAL_SPACE 18(14): ␣
+WORD 18(15): e
+NATURAL_NUMBER 18(16): 5
+WORD 18(17): f
+HORIZONTAL_SPACE 18(18): ␣
+WORD 18(19): x
+NATURAL_NUMBER 18(20): 7
+MARK 18(21): +
+WORD 18(22): y
+NATURAL_NUMBER 18(23): 6
+SEPARATOR 18(24): (
+NATURAL_NUMBER 18(25): 5
+WORD 18(26): z
+SEPARATOR 18(27): )
+LINE_BREAK 18(28): ␊
+NUMBER 19(0)0: 12.3
+HORIZONTAL_SPACE 19(4): ␣
+MARK 19(5): .
+NATURAL_NUMBER 19(6): 4
+HORIZONTAL_SPACE 19(7): ␣
+NATURAL_NUMBER 19(8): 5
+MARK 19(9): .
+HORIZONTAL_SPACE 19(10): ␣
+NUMBER 19(11): 6/7
+HORIZONTAL_SPACE 19(14): ␣
+NATURAL_NUMBER 19(15): 2
+SEPARATOR 19(16): |
+NATURAL_NUMBER 19(17): 3
+SEPARATOR 19(18): ||
+NUMBER 19(20): 4:5
+SEPARATOR 19(23): ::
+NATURAL_NUMBER 19(25): 6
+SEPARATOR 19(26): :
+WORD 19(27): A
+SEPARATOR 19(28): :
+WORD 19(29): B
+SEPARATOR 19(30): :
+LINE_BREAK 19(31): ␊
+NUMBER 20(0)0: 1,23,456
+HORIZONTAL_SPACE 20(8): ␣
+NUMBER 20(9): 1,234/6,789
+HORIZONTAL_SPACE 20(20): ␣
+NUMBER 20(21): 1/2/3/4,5/6,7,8/9
+HORIZONTAL_SPACE 20(38): ␣
+NUMBER 20(39): 8888.12,3,4
+LINE_BREAK 20(50): ␊
+MARK 21(0)0: /
+NATURAL_NUMBER 21(1): 3
+HORIZONTAL_SPACE 21(2): ␣
+NUMBER 21(3): 6.34.56
+MARK 21(10): /
+HORIZONTAL_SPACE 21(11): ␣
+NATURAL_NUMBER 21(12): 3
+SEPARATOR 21(13): ,
+HORIZONTAL_SPACE 21(14): ␣
+NATURAL_NUMBER 21(15): 4
+SEPARATOR 21(16): ,
+HORIZONTAL_SPACE 21(17): ␣
+SEPARATOR 21(18): ,
+NATURAL_NUMBER 21(19): 5
+HORIZONTAL_SPACE 21(20): ␣
+SEPARATOR 21(21): ,
+NUMBER 21(22): 6.7,8.9
+HORIZONTAL_SPACE 21(29): ␣
+NUMBER 21(30): '05
+HORIZONTAL_SPACE 21(33): ␣
+NUMBER 21(34): '1'2'3'4
+SEPARATOR 21(42): '
+LINE_BREAK 21(43): ␊
+MARK 22(0)0: +-*~@#$%^&=<>_!?./
+SEPARATOR 22(18): :
+QUOTED_STRING 22(19): "foo" translated to: foo
+WORD 22(24): x
+MARK 22(25): <
+NATURAL_NUMBER 22(26): 79
+MARK 22(28): ><
+WORD 22(30): LF
+MARK 22(32): >
+LINE_BREAK 22(33): ␊
+WORD 23(0)0: .foo
+HORIZONTAL_SPACE 23(4): ␣
+MARK 23(5): /
+WORD 23(6): foo
+HORIZONTAL_SPACE 23(9): ␣
+MARK 23(10): ..
+WORD 23(12): foo
+HORIZONTAL_SPACE 23(15): ␣
+MARK 23(16): .=
+HORIZONTAL_SPACE 23(18): ␣
+NATURAL_NUMBER 23(19): 3
+MARK 23(20): /
+WORD 23(21): x
+HORIZONTAL_SPACE 23(22): ␣
+WORD 23(23): x
+MARK 23(24): /
+NATURAL_NUMBER 23(25): 3
+HORIZONTAL_SPACE 23(26): ␣
+NATURAL_NUMBER 23(27): 3
+WORD 23(28): .x
+HORIZONTAL_SPACE 23(30): ␣
+WORD 23(31): x
+MARK 23(32): .
+NATURAL_NUMBER 23(33): 3
+COMMENT 23(34): //␣comment␣<89>␣"'
+LINE_BREAK 23(52): ␊
+WORD 24(0)0: a
+SEPARATOR 24(1): (
+WORD 24(2): b
+SEPARATOR 24(3): ,
+WORD 24(4): c
+SEPARATOR 24(5): )
+HORIZONTAL_SPACE 24(6): ␣
+WORD 24(7): d
+SEPARATOR 24(8): {
+WORD 24(9): e
+SEPARATOR 24(10): ;
+WORD 24(11): f
+SEPARATOR 24(12): }
+HORIZONTAL_SPACE 24(13): ␣
+WORD 24(14): g
+SEPARATOR 24(15): [
+WORD 24(16): h
+SEPARATOR 24(17): ,
+WORD 24(18): i
+SEPARATOR 24(19): ]
+HORIZONTAL_SPACE 24(20): ␣
+SEPARATOR 24(21): `
+SEPARATOR 24(22): `
+WORD 24(23): foobar
+SEPARATOR 24(29): '
+HORIZONTAL_SPACE 24(30): ␣
+WORD 24(31): fum
+SEPARATOR 24(34): '
+LINE_BREAK 24(35): ␊
+COMMENT 25(0)0: //␣form␣feed␣
+LINE_BREAK 25(13): ␌␊
+COMMENT 26(0)0: //␣vertical␣tab␣
+LINE_BREAK 26(16): ␋␊
+COMMENT 27(0)0: //␣carriage␣return␣
+LINE_BREAK 27(19): ␍␊
+WORD 28(0)0: z
+HORIZONTAL_SPACE 28(1): ␉
+WORD 28(2): x
+HORIZONTAL_SPACE 28(3): ␣
+COMMENT 28(4): //␣horizontal␣tab
+LINE_BREAK 28(21): ␊
+WORD 29(0)0: all
+HORIZONTAL_SPACE 29(3): ␣␉
+LINE_BREAK 29(5): ␌␋␍␊
+WORD 30(0)0: control
+HORIZONTAL_SPACE 30(7): ␣
+WORD 30(8): A
+MISPLACED_CHARACTER 30(9): ␁
+WORD 30(10): B
+MISPLACED_CHARACTER 30(11): ␂
+WORD 30(12): C
+MISPLACED_CHARACTER 30(13): ␃
+LINE_BREAK 30(14): ␊
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE 31(28): <XX>
+QUOTED_STRING 31(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
+     translated to: "␊␍␉␈␌␋␥␣â␁
+LINE_BREAK 31(45): ␊
+QUOTED_STRING 32(0)0: "<0041><00000042>C␣D<00000045><0046>G"
+     translated to: ABC␣DEFG
+LINE_BREAK 32(38): ␊
+QUOTED_STRING 33(0)0: "<0041><000000B5>C␣D<000000E3><0006>G"
+     translated to: AµC␣Dã␆G
+LINE_BREAK 33(38): ␊
+QUOTED_STRING 34(0)0: "<0001>" translated to: ␁
+LINE_BREAK 34(8): ␊
+QUOTED_STRING 35(0)0: "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
+     translated to: ␀␁␂␃␄␅␆␇
+LINE_BREAK 35(42): ␊
+QUOTED_STRING 36(0)0: "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
+     translated to: ␈␉␊␊␋␌␍␎␏
+LINE_BREAK 36(38): ␊
+QUOTED_STRING 37(0)0: "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
+     translated to: ␐␑␒␓␔␕␖␗
+LINE_BREAK 37(42): ␊
+QUOTED_STRING 38(0)0: "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
+     translated to: ␘␙␚␛␜␝␞␟␡
+LINE_BREAK 38(42): ␊
+ERRONEOUS ATOM: MISPLACED_CONTROL_CHARACTER 39(19): ␁
+QUOTED_STRING 39(0)0: "misplaced␣control␣␁"
+     translated to: misplaced␣control␣␥
+LINE_BREAK 39(21): ␊
+WORD 40(0)0: misplaced
+HORIZONTAL_SPACE 40(9): ␣
+WORD 40(10): space
+HORIZONTAL_SPACE 40(15): ␣
+MISPLACED_SPACE 40(16): ␌
+HORIZONTAL_SPACE 40(17): ␣
+WORD 40(18): here
+HORIZONTAL_SPACE 40(22): ␣
+WORD 40(23): and
+HORIZONTAL_SPACE 40(26): ␣
+MISPLACED_SPACE 40(27): ␍
+HORIZONTAL_SPACE 40(28): ␣
+WORD 40(29): here
+LINE_BREAK 40(33): ␊
+MARK 41(0)0: =<
+NATURAL_NUMBER 41(2): 9
+MARK 41(3): =<
+NATURAL_NUMBER 41(5): 8
+LINE_BREAK 41(6): ␊
+QUOTED_STRING 42(0)0: "premature␣end␣of␣line
+     translated to: premature␣end␣of␣line
+PREMATURE_END_OF_LINE 42(22): <empty>
+LINE_BREAK 42(22): ␊
+QUOTED_STRING 43(0)0: "premature␣end␣of␣file
+     translated to: premature␣end␣of␣file
+PREMATURE_END_OF_FILE 43(22): <empty>
+END_OF_FILE 43(22): <empty>

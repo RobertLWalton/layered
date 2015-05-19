@@ -1,0 +1,1294 @@
+// Layered Languages Alternate Lexical Analyzer
+//
+// File:	ll_lexeme_alternate.lexcc
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Tue May 19 15:44:38 EDT 2015
+//
+// The authors have placed this program in the public
+// domain; they make no warranty and accept no liability
+// for this program.
+
+// This file was copied from ll_lexeme_standard.lexcc
+// on Tue May 19 15:44:38 EDT 2015.  See the earlier
+// history of that file for the earlier history of this
+// file.
+
+cc	// This lexical analyzer was the original
+cc	// layered lanugage standard lexical analyzer,
+cc	// but was replaced in that role.
+cc
+lex	// This lexical analyzer was the original
+lex	// layered lanugage standard lexical analyzer,
+lex	// but was replaced in that role.
+lex
+
+// Lines beginning with `lex<HT>' and lines equal to
+// `lex' are copied to ll_lexeme_alternate.lex and then
+// to the Alternate Lexical Program appendix of
+// ../doc/layered-introduction.tex.
+//
+// Lines beginning with `cc<HT>' and lines equal to `cc'
+// are copied to ll_lexeme_alternate.cc and compiled to
+// produce code that can create an alternate lexical
+// program.
+
+// Table of Contents
+//
+//	Usage and Setup
+//	Program Construction
+
+// Usage and Setup
+// ----- --- -----
+
+cc	// This file was automatically generated from
+cc	// ll_lexeme_alternate.lexcc.
+cc
+lex	// This file was automatically generated from
+lex	// ll_lexeme_alternate.lexcc.
+lex
+cc	# include <ll_lexeme_ndl.h>
+cc	# include <ll_lexeme_alternate.h>
+cc	# include <ll_lexeme_non_ascii_characters.h>
+cc	using namespace ll::lexeme::ndl;
+cc	# define LEX ll::lexeme
+cc	# define LEXSTD ll::lexeme::alternate
+cc	using namespace LEXSTD;
+cc
+cc	const min::Uchar UUC[1] =
+cc	    { min::UNKNOWN_UCHAR };
+cc
+
+// Lexical Type Support
+// ------- ---- -------
+
+cc	static LEX::uns8 lexeme_type_table[256] = { 0 };
+cc	const LEX::uns8 * LEXSTD::internal
+cc			        ::lexeme_type_table =
+cc	    ::lexeme_type_table;
+cc
+cc	static void initialize ( void )
+cc	{
+cc	    LEX::uns8 * p = lexeme_type_table;
+cc	    for ( const char * q =
+cc		      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+cc		      "abcdefghijklmnopqrstuvwxyz";
+cc		  * q; ) p[*q++] = LEXSTD::word_t; 
+cc	    for ( unsigned c = 128; c < 256; ++ c )
+cc		  p[c] = LEXSTD::word_t; 
+cc		  // Only words can begin with a
+cc		  // non-ASCII character.
+cc	    for ( unsigned c = '0'; c <= '9'; ++ c )
+cc		  p[c] = LEXSTD::number_t; 
+cc	    for ( const char * q =
+cc			     "+-*~@#$%^&=|>_!?<./";
+cc		  * q; )
+cc		  p[*q++] = LEXSTD::mark_t; 
+cc	    for ( const char * q = ":;,`'()[]{}"; * q; )
+cc		  p[*q++] = LEXSTD::separator_t; 
+cc	}
+cc	static min::initializer initializer
+cc	    ( ::initialize );
+
+// Program Construction
+// ------- ------------
+
+cc	min::locatable_var<LEX::program>
+cc	    LEXSTD::default_program;
+cc
+cc	const char * const
+cc		LEXSTD::type_name[MAX_TYPE+1] = {
+cc
+cc	    NULL,
+cc	    "WORD",
+cc	    "NATURAL_NUMBER",
+cc	    "NUMBER",
+cc	    "MARK",
+cc	    "QUOTED_STRING",
+cc	    "SEPARATOR",
+cc	    "COMMENT",
+cc	    "HORIZONTAL_SPACE",
+cc	    "LINE_BREAK",
+cc	    "END_OF_FILE",
+cc	    "PREMATURE_END_OF_LINE",
+cc	    "PREMATURE_END_OF_FILE",
+cc	    "MISPLACED_CHARACTER",
+cc	    "MISPLACED_SPACE",
+cc	    "MISPLACED_CONTROL_CHARACTER",
+cc	    "UNRECOGNIZED_ESCAPE_SEQUENCE" };
+cc
+cc	const char * LEXSTD::type_code =
+cc	    "?wn#mqschbeLFCSXU";
+cc
+cc	struct char_range { uns32 min, max; }
+cc	    non_ascii_letters[] =
+cc	{
+cc		// { min,		max },
+cc		   NON_ASCII_LETTERS,
+cc		   { 0,                0 }
+cc	};
+cc
+cc	static void add_non_ascii_letters ( void )
+cc	{
+cc	    for ( char_range *p = non_ascii_letters;
+cc		  p->min != 0 || p->max != 0; ++ p )
+cc		NDL::add_characters ( p->min, p->max );
+cc	}
+cc
+cc	char_range non_ascii_combining_chars[] =
+cc	{
+cc		// { min,		max },
+cc		   NON_ASCII_COMBINING_CHARACTERS,
+cc		   { 0,                0 }
+cc	};
+cc
+cc	static void add_non_ascii_combining_chars
+cc		( void )
+cc	{
+cc	    for ( char_range *p =
+cc		      non_ascii_combining_chars;
+cc		  p->min != 0 || p->max != 0; ++ p )
+cc		NDL::add_characters ( p->min, p->max );
+cc	}
+cc
+cc	char_range non_ascii_control_chars[] =
+cc	{
+cc		// { min,		max },
+cc		   NON_ASCII_CONTROL_CHARACTERS,
+cc		   { 0,                0 }
+cc	};
+cc
+cc	static void add_non_ascii_control_chars
+cc		( void )
+cc	{
+cc	    for ( char_range *p =
+cc		      non_ascii_control_chars;
+cc		  p->min != 0 || p->max != 0; ++ p )
+cc		NDL::add_characters ( p->min, p->max );
+cc	}
+cc
+cc	void LEXSTD::init_alternate_program
+cc		( void )
+cc	{
+cc	    if ( LEXSTD::default_program != NULL_STUB )
+cc	        return;
+cc
+
+lex
+lex	begin alternate lexical program;
+lex
+cc	    begin_program ( type_name, MAX_TYPE );
+cc
+cc	    uns32 main;
+cc	    NDL::new_table ( main, MASTER );
+cc
+cc	    uns32 word;
+cc	    NDL::new_table ( word, word_t );
+cc	    uns32 natural_number;
+cc	    NDL::new_table
+cc		( natural_number, natural_number_t );
+cc	    uns32 number;
+cc	    NDL::new_table ( number, number_t );
+cc	    uns32 mark;
+cc	    NDL::new_table ( mark, mark_t );
+cc	    uns32 quoted_string;
+cc	    NDL::new_table
+cc		( quoted_string, quoted_string_t );
+cc	    uns32 separator;
+cc	    NDL::new_table ( separator, separator_t );
+cc	    uns32 comment;
+cc	    NDL::new_table ( comment, comment_t );
+cc	    uns32 horizontal_space;
+cc	    NDL::new_table
+cc		( horizontal_space,
+cc		  horizontal_space_t );
+cc	    uns32 line_break;
+cc	    NDL::new_table ( line_break, line_break_t );
+cc	    uns32 misplaced_space;
+cc	    NDL::new_table
+cc		( misplaced_space,
+cc		  misplaced_space_t );
+cc
+cc	    uns32 premature_end_of_line;
+cc	    NDL::new_table
+cc		( premature_end_of_line, MASTER );
+cc	    uns32 premature_end_of_file;
+cc	    NDL::new_table
+cc		( premature_end_of_file, MASTER );
+cc
+cc	    uns32 escaped_char;
+cc	    NDL::new_table ( escaped_char, ATOM );
+cc	    uns32 escaped_hex_char;
+cc	    NDL::new_table ( escaped_hex_char, ATOM );
+cc	    uns32 unrec_escape_seq;
+cc	    NDL::new_table ( unrec_escape_seq, ATOM );
+cc
+cc	    uns32 unrec_escape_seq_t =
+cc		unrecognized_escape_seq_t;
+cc
+
+lex	"<ascii-char>" = "<0>-<7F>"  [ASCII Character]
+lex
+cc	    uns32 ascii_char;
+cc	    NDL::begin_atom_pattern ( ascii_char );
+cc		NDL::add_characters ( 0x00, 0x7F );
+cc	    NDL::end_atom_pattern();
+cc
+
+lex	// NON_ASCII_LETTERS, NON_ASCII_COMBINING_
+lex	// CHARACTERS, NON_ASCII_CONTROL_CHARACTERS are
+lex	// defined in ll_lexeme_non_ascii_characters.h.
+lex
+lex	"<non-ascii-letter>" = NON_ASCII_LETTERS
+lex
+cc	    uns32 non_ascii_letter;
+cc	    NDL::begin_atom_pattern
+cc		    ( non_ascii_letter );
+cc		add_non_ascii_letters();
+cc	    NDL::end_atom_pattern();
+cc
+
+lex	"<non-ascii-combining-char>" =
+lex	    NON_ASCII_COMBINING_CHARACTERS
+lex
+cc	    uns32 non_ascii_combining_char;
+cc	    NDL::begin_atom_pattern
+cc		    ( non_ascii_combining_char );
+cc		add_non_ascii_combining_chars();
+cc	    NDL::end_atom_pattern();
+cc
+
+lex	"<non-ascii-control-char>" =
+lex	    NON_ASCII_CONTROL_CHARACTERS
+lex
+
+lex	"<ascii-letter>" = "a-z" | "A-Z";
+lex
+cc	    const char * ascii_letter =
+cc	        "abcdefghijklmnopqrstuvwxyz"
+cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+cc
+
+lex	"<digit>" = "0-9";
+lex
+cc	    const char * digit = "0123456789";
+cc
+
+lex	"<hex-digit>" = "0-9" | "A-F";
+lex
+cc	    const char * hex_digit =
+cc		"0123456789ABCDEF";
+cc
+
+lex	"<non-digit>" = ~ "<digit>";
+lex
+
+lex	"<letter>" = "<ascii-letter>"
+lex	           | "<non-ascii-letter>"
+lex
+
+lex	"<non-ascii-word-char>" =
+lex	      "<non-ascii-letter>"
+lex	    | "<non-ascii-combining-char>"
+lex
+cc	    uns32 non_ascii_word_char;
+cc	    NDL::begin_atom_pattern
+cc		    ( non_ascii_word_char );
+cc		add_non_ascii_letters();
+cc		add_non_ascii_combining_chars();
+cc	    NDL::end_atom_pattern();
+cc
+
+lex	// Context sensitive character classifications,
+lex	// e.g., classifying ' as a word character if it
+lex	// is followed by a letter, cannot be included
+lex	// in character pattern definitions, but are
+lex	// noted in comments.  They are accounted for
+lex	// by separate lexeme table entries below.
+lex
+
+lex	"<non-letter>" = ~ "<letter>";
+lex
+
+lex	"<mark-char>" = "+" | "-" | "*" | "~" | "@"
+lex	              | "#" | "$" | "%" | "^" | "&"
+lex	              | "=" | "<" | ">" | "_" | "!"
+lex		      | "?" ;
+lex	              //
+lex	              // Also . not surrounded by digits
+lex		      //        and not both followed by
+lex		      //        a letter and preceeded
+lex		      //        by a non-mark character
+lex	              //      / not surrounded by digits
+lex	              //        or followed by /
+lex
+cc	    const char * mark_char =
+cc		"+-*~@#$%^&=<>_!?";
+cc
+
+lex	"<non-slash-char>" = ~ "/";
+lex
+
+lex	"<separator-char>" = "(" | ")" | "[" | "]"
+lex	                   | "{" | "}" | ";" | "`";
+lex	              //
+lex	              // Also , not surrounded by digits
+lex	              //      ' not followed by a letter
+lex		      //        or a digit
+lex		      //      | (possibly repeated)
+lex		      //      : (possibly repeated)
+lex
+cc	    const char * separator_char = "()[]{};`";
+cc
+
+lex	"<misplaced-space-char>" =
+lex	        "<CR>" | "<VT>" | "<FF>"
+lex
+cc	    const char * misplaced_space_char =
+cc		"\r\v\f";
+cc
+
+lex	"<ascii-control-char>" = "<0>-<1F>" | "<7F>"
+lex
+lex	"<control-char>" = "<ascii-control-char>"
+lex	                 | "<non-ascii-control-char>"
+lex
+lex	"<control-char-except-CR-LF>" =
+lex	    "<control-char>" & ~ "<CR>" & ~ "<LF>"
+lex
+
+lex	"<horizontal-space-char>" = " " | "<HT>";
+lex
+cc	    const char * horizontal_space_char = " \t";
+cc
+
+lex	"<escape-char>" = "A-Z" | "0-9" | "-";
+lex
+cc	    const char * escape_char =
+cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
+cc
+
+lex
+lex	begin main master table;
+lex
+cc	    NDL::begin_table ( main );
+cc
+
+lex	   // Unrecognized characters or escapes, etc,
+lex	   // outside quoted strings are output as
+lex	   // lexemes, and can separate other lexemes.
+lex	   // If these are treated by post-processing
+lex	   // in the same manner as horizontal space,
+lex	   // they could be replaced by horizontal space
+lex	   // without changing the semantics of the
+lex	   // output.
+lex	   //
+lex	   // Inside quoted strings, unrecognized char-
+lex	   // acter representatives, such as unrecog-
+lex	   // nized escapes, are treated as erroneous
+lex	   // atoms and translated to "<UUC>".
+lex
+
+lex	   // Whitespace is separated out into 4 types
+lex	   // of lexemes:
+lex	   //
+lex	   //   `space'
+lex	   //       single spaces and horizontal tabs
+lex	   //   `line break'
+lex	   //       linefeeds, carriage returns, form
+lex	   //       feeds, and vertical tabs, with at
+lex	   //       least one line feed
+lex	   //   `misplaced space'
+lex	   //       ditto but with no line feed
+lex	   //   `comments'
+lex	   //       `//' up to just before next line
+lex	   //        break, misplaced space, or (pre-
+lex	   //        mature) end of file
+lex	   //
+lex	   "//" call comment;
+lex	   "/"  call mark;
+lex
+cc		   NDL::begin_dispatch ( "/" );
+cc		      NDL::begin_dispatch ( "/" );
+cc			 NDL::call ( comment );
+cc		      NDL::end_dispatch();
+cc
+cc		      NDL::call ( mark );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<horizontal-space-char>"
+lex	        call horizontal space;
+lex
+cc		   NDL::begin_dispatch
+cc			( horizontal_space_char );
+cc		      NDL::call ( horizontal_space );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<LF>" call line break;
+cc		   NDL::begin_dispatch
+cc			( "\n" );
+cc		      NDL::call ( line_break );
+cc		   NDL::end_dispatch();
+cc
+lex	   "<misplaced-space-char>"
+lex	        call misplaced space;
+lex
+cc		   NDL::begin_dispatch
+cc			( misplaced_space_char );
+cc		      NDL::call ( misplaced_space );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<letter>" call word;
+lex
+cc		   NDL::begin_dispatch
+cc			( ascii_letter );
+cc		      add_non_ascii_letters ();
+cc		      NDL::call ( word );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "'<letter>" call word;
+lex	   "'<digit>" keep 1 call number;
+lex	   "'" output separator;
+lex
+cc		   NDL::begin_dispatch ( "'" );
+cc		      NDL::begin_dispatch
+cc			( ascii_letter );
+cc			 add_non_ascii_letters ();
+cc			 NDL::call ( word );
+cc		      NDL::end_dispatch();
+cc		      NDL::begin_dispatch ( digit );
+cc			 NDL::keep ( 1 );
+cc			 NDL::call ( number );
+cc		      NDL::end_dispatch();
+cc
+cc		   NDL::output ( separator_t );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<mark-char>" call mark;
+lex
+cc	    	   NDL::begin_dispatch ( mark_char );
+cc		      NDL::call ( mark );
+cc	    	   NDL::end_dispatch();
+cc
+
+
+lex	   "<digit>" keep 0 call natural number;
+lex	             // We keep 0 so natural number can
+lex	             // recognize <digit>,<digit> etc.
+lex
+cc	    	   NDL::begin_dispatch ( digit );
+cc		      NDL::keep ( 0 );
+cc		      NDL::call ( natural_number );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   ".<letter>" call word;
+lex	   "." call mark;
+lex
+cc	    	   NDL::begin_dispatch ( "." );
+cc	              NDL::begin_dispatch ( ascii_letter );
+cc		          add_non_ascii_letters ();
+cc			 NDL::call ( word );
+cc		      NDL::end_dispatch();
+cc
+cc		      NDL::call ( mark );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   "<separator-char>" output separator;
+lex
+cc	    	   NDL::begin_dispatch
+cc			( separator_char );
+cc		      NDL::output ( separator_t );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   ":<repeat>" output separator;
+lex	   "|<repeat>" output separator;
+lex
+cc	    	   NDL::begin_dispatch ( ":" );
+cc		      NDL::REPEAT();
+cc		      NDL::output ( separator_t );
+cc	    	   NDL::end_dispatch();
+cc	    	   NDL::begin_dispatch ( "|" );
+cc		      NDL::REPEAT();
+cc		      NDL::output ( separator_t );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   "," output separator;
+lex
+cc	    	   NDL::begin_dispatch ( "," );
+cc		      NDL::output ( separator_t );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   "<Q>" translate to "" call quoted string;
+lex
+cc	    	   NDL::begin_dispatch ( "\"" );
+cc		      NDL::translate_to ( "" );
+cc		      NDL::call ( quoted_string );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   "<other>" output misplaced char;
+lex
+cc	    	   NDL::begin_dispatch ( OTHER );
+cc		      NDL::output ( misplaced_char_t );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   output end of file;
+lex
+cc		   NDL::output ( end_of_file_t );
+cc
+
+lex	end main master table;
+lex
+cc	    	NDL::end_table();
+cc
+
+lex
+lex	// The below tables are entered from the master
+lex	// table with the first zero, one, or two
+lex	// characters scanned.
+lex
+lex
+lex	begin comment lexeme table;
+lex
+cc	    NDL::begin_table ( comment );
+cc	    	   
+
+lex	   "<LF>" keep 0 return;
+lex	   "<misplaced-space-char>" keep 0 return;
+lex
+cc	           NDL::begin_dispatch
+cc			( misplaced_space_char );
+cc		       NDL::add_characters ( "\n" );
+cc		       NDL::keep ( 0 );
+cc		       NDL::ret();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<other>" accept;
+lex
+cc	           NDL::begin_dispatch ( OTHER );
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   goto premature end of file;
+lex
+cc	           NDL::go ( premature_end_of_file );
+cc
+
+lex	end comment lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin horizontal space lexeme table;
+lex
+cc	    NDL::begin_table ( horizontal_space );
+cc
+
+lex	   "<horizontal-space-char>" accept;
+lex
+cc	           NDL::begin_dispatch
+cc			( horizontal_space_char );
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end horizontal space lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin misplaced space lexeme table;
+lex
+cc	    NDL::begin_table ( misplaced_space );
+cc
+
+lex	   "<LF>" goto line break;
+lex
+cc	           NDL::begin_dispatch ( "\n" );
+cc		       NDL::go ( line_break );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<misplaced-space-char>" accept;
+lex
+cc	           NDL::begin_dispatch
+cc			( misplaced_space_char );
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end misplaced space lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin line break lexeme table;
+lex
+cc	    NDL::begin_table ( line_break );
+cc
+
+lex	   "<LF>" accept;
+lex	   "<misplaced-space-char>" accept;
+lex
+cc	           NDL::begin_dispatch
+cc			( misplaced_space_char );
+cc		       NDL::add_characters ( "\n" );
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end line break lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin word lexeme table;
+lex
+cc	    NDL::begin_table ( word );
+cc
+
+lex	   "<letter>" accept;
+lex	   "<non-ascii-combining-char>" accept;
+lex
+cc	           NDL::begin_dispatch ( ascii_letter );
+cc		       add_non_ascii_letters ();
+cc		       add_non_ascii_combining_chars ();
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "'<letter>" accept;
+lex
+cc		   NDL::begin_dispatch ( "'" );
+cc		      NDL::begin_dispatch
+cc			   ( ascii_letter );
+cc			 add_non_ascii_letters ();
+cc			 NDL::accept();
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end word lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin mark lexeme table;
+lex
+cc	    NDL::begin_table ( mark );
+cc
+
+lex	   "<mark-char>" accept;
+lex	   "." accept;
+lex	   "<non-ascii-combining-char>" accept;
+lex
+cc	           NDL::begin_dispatch ( mark_char );
+cc		       NDL::add_characters ( "." );
+cc		       add_non_ascii_combining_chars ();
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "//" keep 0 return;
+lex	   "/" accept;
+lex
+cc	           NDL::begin_dispatch ( "/" );
+cc		       NDL::begin_dispatch ( "/" );
+cc			   NDL::keep ( 0 );
+cc			   NDL::ret();
+cc		       NDL::end_dispatch();
+cc
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end mark lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin natural number lexeme table;
+lex
+cc	    NDL::begin_table ( natural_number );
+cc
+lex
+lex	   // In order to recognize X (e.g., : or /)
+lex	   // surrounded by digits as number atoms,
+lex	   // entries to this table upon recognizing
+lex	   // "<digit>X<digit>" must do a `keep 2' so
+lex	   // the last digit will be left to be
+lex	   // recognized by <digit>Y<digit> etc.
+lex
+lex	   // Alternatively we could have a separate
+lex	   // table for the state where the last atom
+lex	   // ended with a digit.
+lex
+lex	   "<digit>.<digit>" keep 2 goto number;
+lex	   "<digit>:<digit>" keep 2 goto number;
+lex	   "<digit>/<digit>" keep 2 goto number;
+lex	   "<digit>,<digit>" keep 2 goto number;
+lex	   "<digit>" accept;
+lex
+cc	           NDL::begin_dispatch ( digit );
+cc
+cc		       NDL::begin_dispatch ( ".:/," );
+cc			   NDL::begin_dispatch
+cc			        ( digit );
+cc			       NDL::keep ( 2 );
+cc			       NDL::go ( number );
+cc			   NDL::end_dispatch();
+cc		       NDL::end_dispatch();
+cc
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "'<digit>" keep 1 goto number;
+lex
+cc		   NDL::begin_dispatch ( "'" );
+cc		      NDL::begin_dispatch ( digit );
+cc			 NDL::keep ( 1 );
+cc			 NDL::go ( number );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end natural number lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin number lexeme table;
+lex
+cc	    NDL::begin_table ( number );
+cc
+
+lex	   // See note about `keep 2' in natural number
+lex	   // table above.
+lex
+lex	   "<digit>.<digit>" keep 2;
+lex	   "<digit>:<digit>" keep 2;
+lex	   "<digit>/<digit>" keep 2;
+lex	   "<digit>,<digit>" keep 2;
+lex	   "<digit>" accept;
+lex
+cc	           NDL::begin_dispatch ( digit );
+cc
+cc		       NDL::begin_dispatch ( ".:/," );
+cc			   NDL::begin_dispatch
+cc				( digit );
+cc			      NDL::keep ( 2 );
+cc			   NDL::end_dispatch();
+cc		       NDL::end_dispatch();
+cc
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "'<digit>" keep 1;
+lex
+cc		   NDL::begin_dispatch ( "'" );
+cc		      NDL::begin_dispatch ( digit );
+cc			 NDL::keep ( 1 );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   return;
+lex
+cc	    	   NDL::ret();
+cc
+
+lex	end number lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin quoted string lexeme table;
+lex
+cc	    NDL::begin_table ( quoted_string );
+cc
+
+lex	    "<Q>" translate to "" return;
+lex	            // End quoted string.
+lex
+cc	           NDL::begin_dispatch ( "\"" );
+cc		      NDL::translate_to ( "" );
+cc		      NDL::ret();
+cc		   NDL::end_dispatch();
+cc
+
+lex	    "<" match escaped char
+lex	        else match unrecognized escape seq
+lex	             error unrecognized escape seq
+lex	             translate to "<UUC>"
+lex	        else accept;
+lex
+cc		   NDL::begin_dispatch ( "<" );
+cc			 NDL::match ( escaped_char );
+cc		      NDL::ELSE();
+cc			 NDL::match
+cc			  ( unrec_escape_seq );
+cc			 NDL::erroneous_atom
+cc			  ( unrec_escape_seq_t );
+cc			 NDL::translate_to ( 1, UUC );
+cc		      NDL::ELSE();
+cc			 NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	    "<LF>"
+lex	        keep 0 goto premature end of line;
+lex
+cc	           NDL::begin_dispatch ( "\n" );
+cc		      NDL::keep ( 0 );
+cc		      NDL::go ( premature_end_of_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	    "<CR><LF>"
+lex	        keep 0 goto premature end of line;
+lex	    "<CR>"
+lex	        error misplaced control char
+lex	        translate to "<UUC>";
+lex
+cc	           NDL::begin_dispatch ( "\r" );
+cc	              NDL::begin_dispatch ( "\n" );
+cc		         NDL::keep ( 0 );
+cc		         NDL::go
+cc			    ( premature_end_of_line );
+cc		      NDL::end_dispatch();
+cc
+cc		      NDL::erroneous_atom
+cc		         ( misplaced_control_char_t );
+cc		      NDL::translate_to ( 1, UUC );
+cc		   NDL::end_dispatch();
+cc
+
+lex	    "<control-char-except-CR-LF>"
+lex	        error misplaced control char
+lex	        translate to "<UUC>";
+lex
+cc	           NDL::begin_dispatch ( "" );
+cc		      NDL::add_characters
+cc			 ( 0x00, '\n'-1 );
+cc		      NDL::add_characters
+cc			 ( '\n'+1, '\r'-1 );
+cc		      NDL::add_characters
+cc			 ( '\r'+1, 0x1F );
+cc		      NDL::add_characters
+cc			 ( 0x7F, 0x7F );
+cc
+cc		      add_non_ascii_control_chars();
+cc		      NDL::erroneous_atom
+cc		         ( misplaced_control_char_t );
+cc		      NDL::translate_to ( 1, UUC );
+cc		   NDL::end_dispatch();
+cc
+
+lex	    "<other>" accept;
+lex
+cc	           NDL::begin_dispatch ( OTHER );
+cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	    goto premature end of file;
+lex
+cc		    NDL::go ( premature_end_of_file );
+cc
+
+lex	end quoted string lexeme table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin escaped char atom table;
+lex
+cc	    NDL::begin_table ( escaped_char );
+cc	       NDL::begin_dispatch ( "<" );
+cc
+cc	#      define BEG(x) NDL::begin_dispatch ( x )
+cc	#      define TO(y)  NDL::begin_dispatch \
+cc				( ">" ); \
+cc				NDL::translate_to \
+cc				    ( y ); \
+cc			     NDL::end_dispatch()
+cc	#      define END    NDL::end_dispatch()
+
+lex	    "<" "ACK" ">" translate to "<ACK>";
+cc	          BEG ( "A" ); BEG ( "C" ); BEG ( "K" );
+cc		     TO ( "\006" );
+cc		  END; END; END;
+cc
+
+lex	    "<" "BEL" ">" translate to "<BEL>";
+lex	    "<" "BS" ">" translate to "<BS>";
+cc	    	  BEG ( "B" );
+cc		     BEG ( "E" ); BEG ( "L" );
+cc		           TO ( "\007" );
+cc		     END; END;
+cc		     BEG ( "S" );
+cc		        TO ( "\b" );
+cc		     END;
+cc		  END;
+cc
+
+lex	    "<" "CAN" ">" translate to "<CAN>";
+lex	    "<" "CR" ">" translate to "<CR>";
+cc	          BEG ( "C" );
+cc		     BEG ( "A" ); BEG ( "N" );
+cc		           TO ( "\030" );
+cc		     END; END;
+cc		     BEG ( "R" );
+cc		        TO ( "\r" );
+cc		     END;
+cc		  END;
+cc
+
+lex	    "<" "DC1" ">" translate to "<DC1>";
+lex	    "<" "DC2" ">" translate to "<DC2>";
+lex	    "<" "DC3" ">" translate to "<DC3>";
+lex	    "<" "DC4" ">" translate to "<DC4>";
+lex	    "<" "DEL" ">" translate to "<DEL>";
+lex	    "<" "DLE" ">" translate to "<DLE>";
+cc	          BEG ( "D" );
+cc		     BEG ( "C" );
+cc		         BEG ( "1" );
+cc		             TO ( "\021" );
+cc		         END;
+cc		         BEG ( "2" );
+cc		             TO ( "\022" );
+cc		         END;
+cc		         BEG ( "3" );
+cc		             TO ( "\023" );
+cc		         END;
+cc		         BEG ( "4" );
+cc		             TO ( "\024" );
+cc		         END;
+cc		     END;
+cc		     BEG ( "E" ); BEG ( "L" );
+cc		         TO ( "\177" );
+cc		     END; END;
+cc		     BEG ( "L" ); BEG ( "E" );
+cc		         TO ( "\020" );
+cc		     END; END;
+cc		  END;
+
+lex	    "<" "EM" ">" translate to "<EM>";
+lex	    "<" "ENQ" ">" translate to "<ENQ>";
+lex	    "<" "EOT" ">" translate to "<EOT>";
+lex	    "<" "ESC" ">" translate to "<ESC>";
+lex	    "<" "ETB" ">" translate to "<ETB>";
+lex	    "<" "ETX" ">" translate to "<ETX>";
+cc	          BEG ( "E" );
+cc		     BEG ( "M" );
+cc		         TO ( "\031" );
+cc		     END;
+cc		     BEG ( "N" ); BEG ( "Q" );
+cc		         TO ( "\005" );
+cc		     END; END;
+cc		     BEG ( "O" ); BEG ( "T" );
+cc		         TO ( "\004" );
+cc		     END; END;
+cc		     BEG ( "S" ); BEG ( "C" );
+cc		         TO ( "\033" );
+cc		     END; END;
+cc		     BEG ( "T" );
+cc		         BEG ( "B" );
+cc		             TO ( "\027" );
+cc		         END;
+cc		         BEG ( "X" );
+cc		             TO ( "\003" );
+cc		         END;
+cc		     END;
+cc		  END;
+
+lex	    "<" "FF" ">" translate to "<FF>";
+lex	    "<" "FS" ">" translate to "<FS>";
+cc	          BEG ( "F" );
+cc		     BEG ( "F" );
+cc		        TO ( "\f" );
+cc		     END;
+cc		     BEG ( "S" );
+cc		        TO ( "\034" );
+cc		     END;
+cc		  END;
+cc
+
+lex	    "<" "GS" ">" translate to "<GS>";
+cc	          BEG ( "G" ); BEG ( "S" );
+cc		     TO ( "\035" );
+cc		  END; END;
+cc
+
+lex	    "<" "HT" ">" translate to "<HT>";
+cc	          BEG ( "H" ); BEG ( "T" );
+cc		     TO ( "\t" );
+cc		  END; END;
+cc
+
+lex	    "<" "LF" ">" translate to "<LF>";
+cc	          BEG ( "L" ); BEG ( "F" );
+cc		     TO ( "\n" );
+cc		  END; END;
+cc
+
+lex	    "<" "NAK" ">" translate to "<NAK>";
+lex	    "<" "NL" ">" translate to "<NL>";
+lex	    "<" "NUL" ">" translate to "<NUL>";
+cc	          BEG ( "N" );
+cc		     BEG ( "A" ); BEG ( "K" );
+cc		        TO ( "\025" );
+cc		     END; END;
+cc		     BEG ( "L" );
+cc		        TO ( "\n" );
+cc		     END;
+cc		     BEG ( "U" ); BEG ( "L" );
+cc		        begin_dispatch ( ">" );
+cc		        {
+cc			    static uns32 NUL = 0;
+cc		            NDL::translate_to
+cc				( 1, & NUL );
+cc		        }
+cc		        end_dispatch();
+cc		     END; END;
+cc		  END;
+cc
+
+lex	    "<" "Q" ">" translate to "<Q>";
+cc	          BEG ( "Q" );
+cc		     TO ( "\"" );
+cc		  END;
+cc
+
+lex	    "<" "RS" ">" translate to "<RS>";
+cc	          BEG ( "R" ); BEG ( "S" );
+cc		     TO ( "\036" );
+cc		  END; END;
+cc
+
+lex	    "<" "SI" ">" translate to "<SI>";
+lex	    "<" "SO" ">" translate to "<SO>";
+lex	    "<" "SOH" ">" translate to "<SOH>";
+lex	    "<" "SP" ">" translate to "<SP>";
+lex	    "<" "STX" ">" translate to "<STX>";
+lex	    "<" "SUB" ">" translate to "<SUB>";
+lex	    "<" "SYN" ">" translate to "<SYN>";
+cc	          BEG ( "S" );
+cc		     BEG ( "I" );
+cc		         TO ( "\017" );
+cc		     END;
+cc		     BEG ( "O" );
+cc			BEG ( "H" );
+cc		            TO ( "\001" );
+cc		        END;
+cc			TO ( "\016" );
+cc		     END;
+cc		     BEG ( "P" );
+cc		         TO ( " " );
+cc		     END;
+cc		     BEG ( "T" ); BEG ( "X" );
+cc		         TO ( "\002" );
+cc		     END; END;
+cc		     BEG ( "U" ); BEG ( "B" );
+cc		         TO ( "\032" );
+cc		     END; END;
+cc		     BEG ( "Y" ); BEG ( "N" );
+cc		         TO ( "\026" );
+cc		     END; END;
+cc		  END;
+
+lex	    "<" "US" ">" translate to "<US>";
+cc	          BEG ( "U" ); BEG ( "S" );
+cc		     TO ( "\037" );
+cc		  END; END;
+cc
+
+lex	    "<" "VT" ">" translate to "<VT>";
+lex
+cc	          BEG ( "V" ); BEG ( "T" );
+cc		     TO ( "\v" );
+cc		  END; END;
+cc
+
+cc	#	undef BEG
+cc	#	undef TO
+cc	#	undef END
+
+lex	    "<" "<digit>" match escaped hex char
+lex	            else fail;
+lex
+cc	    	    NDL::begin_dispatch ( digit );
+cc		       NDL::match ( escaped_hex_char );
+cc		    NDL::ELSE();
+cc		       NDL::fail();
+cc		    NDL::end_dispatch();
+cc	       NDL::end_dispatch();
+cc
+
+lex	    fail;
+lex
+cc	       NDL::fail();
+cc
+
+lex	end escaped char atom table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin escaped hex char atom table;
+lex
+cc	    NDL::begin_table ( escaped_hex_char );
+cc
+
+lex	    "<" "<digit>" ">" translate hex 1 1;
+lex	    "<" "<digit><hex-digit><repeat>" ">"
+lex	              translate hex 1 1;
+lex
+cc	       NDL::begin_dispatch ( "<" );
+cc	    	    NDL::begin_dispatch ( digit );
+cc	    	      NDL::begin_dispatch ( ">" );
+cc	                NDL::translate_hex ( 1, 1 );
+cc	              NDL::end_dispatch();
+cc	    	      NDL::begin_dispatch ( hex_digit );
+cc	    	        NDL::REPEAT();
+cc	    	        NDL::begin_dispatch ( ">" );
+cc	                  NDL::translate_hex ( 1, 1 );
+cc	                NDL::end_dispatch();
+cc	              NDL::end_dispatch();
+cc	            NDL::end_dispatch();
+cc	       NDL::end_dispatch();
+
+lex	    fail;
+lex
+cc	    	    NDL::fail();
+cc
+
+lex	end escaped hex char atom table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin unrecognized escape seq atom table;
+lex
+cc	    NDL::begin_table ( unrec_escape_seq );
+cc
+
+lex	    "<" "<escape-char><repeat>" ">";
+lex
+cc	       NDL::begin_dispatch ( "<" );
+cc	            NDL::begin_dispatch ( escape_char );
+cc	    	      NDL::REPEAT();
+cc	    	      NDL::begin_dispatch ( ">" );
+cc	                NDL::accept();
+cc	              NDL::end_dispatch();
+cc	            NDL::end_dispatch();
+cc	       NDL::end_dispatch();
+cc
+
+lex	    fail;
+lex
+cc	    	    NDL::fail();
+cc
+
+lex	end unrecognized escape seq atom table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin premature end of line master table;
+lex
+cc	    NDL::begin_table ( premature_end_of_line );
+cc
+
+lex	    output premature end of line goto main;
+lex
+cc	        NDL::output ( premature_end_of_line_t );
+cc		NDL::go ( main );
+cc
+
+lex	end premature end of line master table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin premature end of file master table;
+lex
+cc
+cc	    NDL::begin_table ( premature_end_of_file );
+cc
+
+lex	    output premature end of file goto main;
+lex
+cc	        NDL::output ( premature_end_of_file_t );
+cc	        NDL::go ( main );
+cc
+
+lex	end premature end of file master table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	end alternate lexical program;
+cc	    NDL::end_program();
+cc
+cc	    LEXSTD::default_program =
+cc		LEX::default_program;
+cc	}

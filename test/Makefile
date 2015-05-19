@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jan 17 15:10:06 EST 2015
+# Date:		Tue May 19 16:24:08 EDT 2015
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -31,6 +31,8 @@ OPTIMIZE = -O3
 LEXEME_PROGRAMS = ll_lexeme_basic_test \
                   ll_lexeme_standard_basic_test \
                   ll_lexeme_standard_test \
+                  ll_lexeme_alternate_basic_test \
+                  ll_lexeme_alternate_test \
                   ll_lexeme_name_string_test \
                   ll_lexeme_c++_test
 
@@ -68,6 +70,17 @@ LEXEME_O =	${MIN_O} \
 		ll_lexeme_ndl.o \
 		ll_lexeme_standard.o
 
+LEXEME_ALTERNATE_H = \
+		${MIN_H} \
+		../include/ll_lexeme_alternate.h \
+		../include/ll_lexeme.h
+
+LEXEME_ALTERNATE_O = \
+		${MIN_O} \
+		ll_lexeme.o \
+		ll_lexeme_ndl.o \
+		ll_lexeme_alternate.o
+
 PARSER_O =	${LEXEME_O} \
 		ll_parser.o \
 		ll_parser_table.o \
@@ -81,7 +94,9 @@ PARSER_O =	${LEXEME_O} \
 
 .SECONDARY:	${TESTS:=.out}
 
-all:		diff ll_lexeme_standard.lex \
+all:		diff \
+		ll_lexeme_standard.lex \
+		ll_lexeme_alternate.lex \
 	        ll_lexeme_c++.lex
 
 lexeme_diff:	${LEXEME_TESTS:=.diff}
@@ -291,10 +306,63 @@ ll_lexeme_standard_test.out:		\
 	${RUNENV} $* < ll_lexeme_standard_test.in \
 	             > $*.out
 
+ll_lexeme_alternate.lex:	\
+		../src/ll_lexeme_alternate.lexcc
+
+ll_lexeme_alternate.cc:	\
+		../src/ll_lexeme_alternate.lexcc
+
+ll_lexeme_alternate.o:	\
+		ll_lexeme_alternate.cc \
+		${LEXEME_ALTERNATE_H} \
+		../include/ll_lexeme_ndl.h \
+		Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ll_lexeme_alternate.cc
+
+ll_lexeme_alternate_basic_test:		\
+		ll_lexeme_alternate_basic_test.cc \
+		${LEXEME_ALTERNATE_O} \
+		ll_lexeme_test.o \
+		Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ${LEXEME_ALTERNATE_O} \
+	    ll_lexeme_test.o \
+	    ll_lexeme_alternate_basic_test.cc
+
+ll_lexeme_alternate_basic_test.out:		\
+	    ll_lexeme_alternate_basic_test \
+	    ll_lexeme_alternate_test.in
+	rm -f $*.out
+	${RUNENV} $* < ll_lexeme_alternate_test.in \
+	             > $*.out
+
+ll_lexeme_alternate_test:		\
+		ll_lexeme_alternate_test.cc \
+		ll_lexeme_test.o \
+		${LEXEME_ALTERNATE_O} \
+		Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ll_lexeme_test.o \
+	    ${LEXEME_ALTERNATE_O} \
+	    ll_lexeme_alternate_test.cc
+
+ll_lexeme_alternate_test.out:		\
+	    ll_lexeme_alternate_test \
+	    ll_lexeme_alternate_test.in
+	rm -f $*.out
+	${RUNENV} $* < ll_lexeme_alternate_test.in \
+	             > $*.out
+
 ll_lexeme_name_string_test:		\
 		ll_lexeme_name_string_test.cc \
 		ll_lexeme_test.o \
-		${LEXEME_O} \
+		${LEXEME_ALTERNATE_O} \
 		Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \

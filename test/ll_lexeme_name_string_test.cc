@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  9 01:33:05 EST 2014
+// Date:	Tue May 19 04:53:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,9 @@ static void test_string ( const char * s )
 	  ::ignored_types,
 	  ::end_types );
     printer << "    VALUE: "
-            << min::pgen ( value )
+            << min::pgen
+	           ( value,
+		     min::always_quote_gen_format )
             << min::eol;
 }
 

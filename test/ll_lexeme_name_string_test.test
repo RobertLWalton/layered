@@ -1,33 +1,33 @@
 TESTING "("
     VALUE: "("
 TESTING "(|"
-    VALUE: [: "(" "|" :]
+    VALUE: [< "(" "|" >]
 TESTING "<+"
-    VALUE: <+
+    VALUE: "<+"
 TESTING "<+<SP>-"
-    VALUE: [: <+ - :]
+    VALUE: [< "<+" "-" >]
 TESTING "<SP><SP><+<SP><SP>+><SP>"
-    VALUE: [: <+ +> :]
+    VALUE: [< "<+" "+>" >]
 TESTING "<SP><SP><HT><SP><SP>"
 ERROR: empty name string
-    VALUE: [$ERROR$]
+    VALUE: [$ ERROR $]
 TESTING "<+<SP>foo<SP>+>"
 ERROR: Lexeme of illegal type (WORD) in name string:
 <+<SP>foo<SP>+>
       ^^^
-    VALUE: [$ERROR$]
+    VALUE: [$ ERROR $]
 TESTING "<+<SP><LF><SP>+>"
 ERROR: Lexeme of illegal type (LINE_BREAK) in name string:
 <+<SP>
       ^
-    VALUE: [$ERROR$]
+    VALUE: [$ ERROR $]
 TESTING "<+<SP><SOH><SP>+>"
 ERROR: Lexeme of illegal type (MISPLACED_CHARACTER) in name string:
 <+<SP><SOH><SP>+>
       ^^^^^
-    VALUE: [$ERROR$]
+    VALUE: [$ ERROR $]
 TESTING ""<FOO>"
 ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:
 "<FOO>
  ^^^^^
-    VALUE: [$ERROR$]
+    VALUE: [$ ERROR $]

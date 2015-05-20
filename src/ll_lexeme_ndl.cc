@@ -1,4 +1,4 @@
-// Layers Language Lexical Nested Description Language
+// Layered Languages Lexical Nested Description Language
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)

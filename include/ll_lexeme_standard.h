@@ -1,4 +1,4 @@
-// Layers Language Standard Lexical Analyzer
+// Layered Languages Standard Lexical Analyzer
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)

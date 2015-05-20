@@ -1,4 +1,4 @@
-// Layers Language Lexeme Nested Description Language
+// Layered Languages Lexeme Nested Description Language
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)

@@ -1,4 +1,4 @@
-// Layers Language Lexical Analyzer Program Data
+// Layered Languages Lexical Analyzer Program Data
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)

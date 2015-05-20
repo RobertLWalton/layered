@@ -1,4 +1,4 @@
-// Layers Language Parser Table Functions
+// Layered Languages Parser Table Functions
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)

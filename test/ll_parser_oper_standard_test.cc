@@ -1,4 +1,4 @@
-// Layers Language Parser Operator Standard Test
+// Layered Languages Parser Operator Standard Test
 //
 // File:	ll_parser_oper_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)

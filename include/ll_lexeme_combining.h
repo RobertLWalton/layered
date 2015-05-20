@@ -1,4 +1,4 @@
-// Layers Language Combining Characters Table
+// Layered Languages Combining Characters Table
 //
 // File:	ll_lexeme_combining.h
 // Author:	Bob Walton (walton@acm.org)

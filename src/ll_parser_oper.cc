@@ -1,4 +1,4 @@
-// Layers Language Operator Parser Pass
+// Layered Languages Operator Parser Pass
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)

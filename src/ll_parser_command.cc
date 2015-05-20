@@ -1,4 +1,4 @@
-// Layers Language Parser Execute Command Function
+// Layered Languages Parser Execute Command Function
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)

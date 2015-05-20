@@ -1,4 +1,4 @@
-// Layers Language Parser Table Test
+// Layered Languages Parser Table Test
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)

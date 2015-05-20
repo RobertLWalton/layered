@@ -1,4 +1,4 @@
-// Layers Language Standard Parser Settings
+// Layered Languages Standard Parser Settings
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)

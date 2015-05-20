@@ -1,4 +1,4 @@
-// Layers Language Standard Brackets Parser
+// Layered Languages Standard Brackets Parser
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)

@@ -1,4 +1,4 @@
-// Layers Language Parser Commands
+// Layered Languages Parser Commands
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)

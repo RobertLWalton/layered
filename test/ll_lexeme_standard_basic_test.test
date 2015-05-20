@@ -1267,8 +1267,8 @@
             Break Elements: 1
             Max Break Elements: 1
             Max CType: 0
-COMMENT 0(0)0: //␣Layers␣Language␣Standard␣Lexical␣Analyzer␣Test␣Data
-LINE_BREAK 0(54): ␊
+COMMENT 0(0)0: //␣Layered␣Languages␣Standard␣Lexical␣Analyzer␣Test␣Data
+LINE_BREAK 0(56): ␊
 COMMENT 1(0)0: //
 LINE_BREAK 1(2): ␊
 COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in

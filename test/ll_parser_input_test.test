@@ -1,9 +1,9 @@
 COMMENT: line 1:
-// Layers Language Standard Lexical Analyzer Test Data
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Layered Languages Standard Lexical Analyzer Test Data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 1:
-// Layers Language Standard Lexical Analyzer Test Data
-                                                      ^
+// Layered Languages Standard Lexical Analyzer Test Data
+                                                        ^
 COMMENT: line 2:
 //
 ^^

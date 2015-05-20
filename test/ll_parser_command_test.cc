@@ -1,4 +1,4 @@
-// Layers Language Parser Command Test
+// Layered Languages Parser Command Test
 //
 // File:	ll_parser_command_test.cc
 // Author:	Bob Walton (walton@acm.org)

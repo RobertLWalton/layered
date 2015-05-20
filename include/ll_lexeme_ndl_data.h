@@ -1,4 +1,4 @@
-// Layers Language Lexeme Nested Description Language
+// Layered Languages Lexeme Nested Description Language
 // Internal Data
 //
 // File:	ll_lexeme_ndl_data.h

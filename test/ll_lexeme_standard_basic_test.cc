@@ -1,4 +1,4 @@
-// Layers Language Standard Lexical Analyzer Test
+// Layered Languages Standard Lexical Analyzer Test
 //
 // File:	ll_lexeme_standard_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)

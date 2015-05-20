@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 20, 2015
+May 20, 2015
  
 \end{center}
 
@@ -249,21 +249,38 @@ This introduces the Layered Programming Languages:
 \begin{center}
 \begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
 \key{L}	& The Lower Language, or L-Language. \\
-	& A machine independent reduced instruction set architecture
-	  programming language.
+	& A C level language with facilities for writing
+	  C++ like libraries and strongly type checking their
+	  usage but not their implementation.
 \\[1ex]
 \key{M}	& The Middle Language, or M-Language. \\
-	& Similar to the C programming language but more flexible.
+	& The L-Language plus libraries.
 \\[1ex]
 \key{H}	& The Higher Language, or H-Language. \\
-	& Implements standardized lists, symbols, arrays, etc. to extend
-	  the M-language to something comparable to LISP and TCL.
+	& An interpreted/compiled language extending the
+	  M-language to something comparable to LISP and TCL.
 \end{tabular}
 \end{center}
 
 This document gives a brief tutorial introduction for each
 of these languages, and then specifies the common syntax
 shared by all three languages.
+
+There are a few fundamental principals that inform the design
+of these languages:
+
+\begin{indpar}
+{\bf The Syntax Hypothesis}~ People reason syntactically
+rather than semantically, so language syntax is very important,
+and the ability to extend syntax to support
+new library functionality is very important.
+
+{\bf The Type Checking Segregation Hypothesis}~ A strongly typed
+completely capable language is impossible.  What is possible is
+to segregate code into small inline library functions that are not
+type checkable, and code that uses these functions is a is
+strongly type checkable.
+\end{indpar}
 
 \section{Tutorial Introduction to the L-Language}
 
@@ -286,13 +303,13 @@ is driven by the lexical tables and is capable scanning
 lexemes of common languages such as C and C++.
 
 The standard scanner attempts to be both machine and human
-efficient.  It attempts to be machine efficient by being
+efficient.  It attempts to be \key{machine efficient} by being
 deterministic\footnote{Unlike regular expression scanners.}
-and attempts to be human efficient by supporting algorithms
+and attempts to be \key{human efficient} by supporting algorithms
 that people can readily understand and hopefully quickly
 learn to mimic.\footnote{A possibly non-verifiable goal.}
 
-The standard scanner also tries to promote `distrubuted modularity',
+The standard scanner also tries to promote `\key{distrubuted modularity}',
 meaning that enhancements made by non-communicating users are
 more likely to fit together.
 
@@ -301,9 +318,9 @@ UNICODE characters.  Each character is associated with
 a position value that specifies from where the character
 came.  For example, a position value may encode a file name,
 line-within-file number, and column-within-line number.
-The standard scanner identifies a lexeme as a sequence
-of input stream UNICODE 32-bit characters each with a
-corresponding position value.
+The standard scanner identifies a lexeme as a consecutive sequence
+of input stream UNICODE 32-bit characters with
+corresponding consecutive position values.
 
 The standard scanner also produces a translation of each
 lexeme.  This may just be a copy of the 32-bit characters
@@ -315,19 +332,30 @@ a single linefeed character.
 
 When the standard scanner identifies a lexeme it also identifies
 a `\mkey{type}{of lexeme}' for the lexeme.
-For example, the lexeme \TT{9.35} may have type `\TT{number}'
+For example, the lexeme \TT{9.35} may have type `\TT{numeric}'
 while the lexeme \TT{"abc"} may have the type `\TT{quoted string}'.
 
 At its most fundamental level the
 standard scanner identifies lexical atoms in the input text.
 A \key{lexical atom} is a single character (e.g., the letters
-in an identifier or word) or a short string of characters
-(e.g., the 4-character atom \TT{<LF>} in a quoted string).
+in an identifier or word), a short string of characters
+(e.g., the 4-character atom \TT{<LF>} in a quoted string),
+or in some cases a longer string of characters containing
+a repetition of characters from some character set (e.g., an arbitrarily
+long string of hexadecimal digits).
+
 Lexical atoms are read left to right and
 grouped by the scanner into \skey{lexeme}s.
-
-Lexical atoms have fixed small lengths.  Lexemes, in contrast,
-can be of arbitrary length.
+Lexical atoms are the unit of backup in the scanner; recognition
+of a lexical atom can fail after some number of characters, but
+once it is recognized, the scanner cannot back up past a lexical atom.
+This permits limited look ahead in lexical scanning.  For example,
+in some application
+the string \TT{<LF>X} may begin with the lexical atom \TT{<LF>},
+while the string \TT{<LFX} may begin with the lexical atom \TT{<}.
+However, the syntax of lexical atom patterns is simple, so such
+look ahead is limited.  Also, in most cases actual
+lexical atoms are very short.
 
 Each atom is translated individually to produce an
 \key{atom translation}.  Just as the sequence of atoms in a lexeme
@@ -338,7 +366,9 @@ may be the empty string, in effect omitting the atom from the
 lexeme translation.  For example, the lexeme \TT{"x"} might
 consist of three atoms, the first and last of which are \TT{"}
 and translate into the empty string, whereas the middle atom
-\TT{x} translates to itself.
+\TT{x} translates to itself.  Similarly \TT{"<LF>"} might also
+consist of three atoms, with the middle atom \TT{<LF>} translating
+to a single line feed character.
 
 The scanner has a state containing a current point 
 in the input UNICODE character stream,
@@ -353,8 +383,8 @@ the lexical table that
 determines what to do when no table pattern matches the next characters
 in the input stream.
 
-An \key{atom pattern}\index{pattern!lexical atom} is a fixed
-length sequence of character patterns, and matches any sequence of
+Most \skey{atom pattern}s\index{pattern!lexical atom} are fixed
+length sequences of character patterns that match any sequence of
 input characters of the same length as the atom pattern
 if each input character of the sequence matches the corresponding
 character pattern.  A \key{character pattern} is simply a
@@ -362,15 +392,23 @@ specification of a set of characters, e.g., letters or digits.
 Thus one can construct an atom pattern that will recognize
 single letters, or one that will recognize the sequence of
 characters such as the 4-character sequence \TT{<LF>} which matches
-the atom pattern \TT{"<" \# "LF" \# ">"}
+the atom pattern \TT{"<" "LF" ">"}
 (in which the quoted string has been broken into three parts to prevent
 \TT{<LF>} being treated as representing a single line feed character)
 or the 4-character sequence \TT{<0a>} which matches the atom pattern
 \begin{center}
-\TT{"<0<hex-digit>>"}
+\TT{"<0<hex-digit>{}>"}
 \end{center}
 where \TT{<hex-digit>} names a character pattern matching characters
 in the ranges \TT{0-9}, \TT{a-f}, and \TT{A-F}.
+
+Atom patterns can also contain the special indicator
+\TT{<repeat>} that allows an immediately preceding character pattern
+to be repeated zero or more times.  Thus the pattern
+\begin{center}
+\TT{"<{}<hex-digit><hex-digit><hex-digit><repeat>{}>"}
+\end{center}
+recognizes any sequence of 2 or more \TT{<hex-digit>}'s.
 
 The atom patterns of a single lexical table must not conflict:
 no character string can be recognized by two atom patterns of the
@@ -491,45 +529,109 @@ and lexical tables.  A lexical program can include another lexical program.
 The top level lexical program must begin with a master
 table that serves as the initial lexical table.
 
-The lexemes in a lexical program are specified on
-\pagref{LEXEME-PROGRAM-LEXEMES}.  Lexemes may be separated by
+The lexemes of a lexical program
+are defined in terms of
+the following character classes:
+
+\begin{indpar}
+\emkey{horizontal-space-character}
+    \begin{tabular}[t]{rl}
+    :::= & characters in UNICODE category \TT{Zs} \\
+         & (includes single space) \\
+    $|$  & {\em horizontal-tab-character}
+    \end{tabular}
+\\
+\emkey{vertical-space-character}
+    \begin{tabular}[t]{rl}
+    :::= & {\em line-feed} $|$ {\em carriage-return} \\
+    $|$ & {\em form-feed} $|$ {\em vertical-tab}
+    \end{tabular}
+\\[1ex]
+\emkey{graphic-character} ::= characters in UNICODE categories
+                              \TT{L}, \TT{M}, \TT{N}, \TT{P}, and \TT{S}
+\\
+\emkey{control-character} ::= characters in UNICODE categories \TT{C} and \TT{Z}
+\\[1ex]
+\emkey{isolated-separator-character} :::=
+    \begin{tabular}[t]{l}
+    characters in UNICODE categories \TT{Ps}, \TT{Pi}, \TT{Pe}, and \TT{Pf}; \\
+    includes \TT{\{ ( [ << >> ] ) \}}
+    \end{tabular}
+\\
+\emkey{repeating-separator-character} :::= \TT{|}
+\\
+\emkey{separator-character} :::= {\em isolated-separator-character}
+                             $|$ {\em repeating-separator-character}
+\\[1ex]
+\emkey{repeating-leading-character} :::=
+	\TT{`} $|$ \TT{\$} $|$
+	\TT{\textexclamdown} $|$ \TT{\textquestiondown}
+\\
+\emkey{repeating-trailing-character} :::=
+	\TT{'} $|$ \TT{!} $|$ \TT{?} $|$ \TT{.} $|$ \TT{:} $|$ \TT{\%}
+\\
+\emkey{isolated-trailing-character} :::=
+	\TT{,} $|$ \TT{;}
+\\[1ex]
+\emkey{letter} :::=
+    characters in UNICODE category \TT{L}
+\\
+\emkey{digit} :::=
+    characters in UNICODE category \TT{Nd}
+    (includes \TT{0}, \ldots, \TT{9})
+\\
+\emkey{mark-character} :::=
+    \begin{tabular}[t]{l}
+    characters in UNICODE categories \TT{P} and \TT{S}
+    (punctuation and symbols), \\
+    but \underline{not} \TT{"} or {\em separator-characters}
+    \end{tabular}
+\end{indpar}
+
+Lexemes may be separated by
 {\em white-space}:
 \begin{indpar}
 \emkey{white-space} ::= {\em horizontal-space} $|$ {\em vertical-space}
 \\[0.3ex]
 \emkey{horizontal-space} ::= {\em horizontal-space-character}\PLUS{}
 \\[0.3ex]
-\emkey{horizontal-space-character} ::=
-    {\em single-space-character} $|$ {\em horizontal-tab-character}
-\\[0.3ex]
-\emkey{vertical-space} ::= {\em line-end}\PLUS{}
-\\[0.3ex]
-\emkey{line-end} ::= {\em line-end-modifier}\STAR{}
-		     {\em line-feed-character}~
-		     {\em line-end-modifier}\STAR{}
-\\[0.3ex]
-\emkey{line-end-modifier}
-	\begin{tabular}[t]{@{}rl@{}}
-	::= & {\em form-feed-character} \\
-	$|$ & {\em vertical-tab-character} \\
-	$|$ & {\em carriage-return-character}
-	\end{tabular}
+\emkey{vertical-space} ::= {\em vertical-space-character}\PLUS{}
 \end{indpar}
 
-The line number and beginning column of each lexeme is recorded
-for use in error messages.
+{\em Vertical-space} that has \underline{no} {\em line-feeds} is
+illegal.  {\em Control-characters} not in {\em white-space} are illegal.
+Illegal characters generate warning messages and are ignored.
+{\em Horizontal-space} just before {\em vertical-space}
+or the end of input is just ignored.
+
+The line number and beginning column of each input character is
+recorded for use in error messages.  The line number is 1 plus the
+number of {\em line-feeds} preceeding the character.  The column
+number of a character is the sum of the columns taken by all the
+characters between the first {\em vertical-space} preceeding the
+character (or beginning of input if there is no {\em vertical-space})
+and the character.
+Characters in UNICODE class \TT{Mn} (combining marks)
+and {\em control-characters} that are not
+{\em horizontal-space-characters} take zero columns.  All other characters
+take one column, except for horizontal tab, which takes from
+1 to 7 columns, with tabs being set every 8 columns in the line,
+so the column number of the character after a horizontal tab
+is always divisible by 8.
+
+Lexemes are tagged with the line number and column of their first
+character and of the first character after the lexeme (which may be
+an imaginary end-of-file character after the end of the input).
+
+Note that line numbers begin at 1 while column numbers begin at 0.
 
 The beginning column of the first
 lexeme on a line is also used syntactically to determine
 indentation.  Line numbers are used syntactically to identify line ends
 and blank lines.
 
-Lines are ended by {\em line-ends}; the
-{\em line-end-modifier} characters are ignored when computing
-line numbers.  Note that {\em line-end-modifier} characters must
-be within a {\em line-end}, else they are ignored and a warning
-message issued.  Other control characters are ignored and a
-warning message is issued.
+The lexemes in a lexical program are specified on
+\pagref{LEXEME-PROGRAM-LEXEMES}.
 
 Consecutive quoted string lexemes are glued together if they are in the
 same (possibly continued) line.  Thus
@@ -546,7 +648,7 @@ is equivalent to
 This is useful for
 breaking long quoted string lexemes across line boundaries.
 But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+between the glued and unglued versions.  \TT{"<" "LF" ">"} is
 \underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
 quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
@@ -565,168 +667,37 @@ a form feed.
 
 \begin{figure*}[!p]
 \begin{indpar}
-\emkey{lexeme} ::= {\em word}
-               $|$ {\em numeric}
-               $|$ {\em mark}
-	       $|$ {\em separator}
-	       $|$ {\em quoted-string}
-	       $|$ {\em comment}
-\\[0.3ex]
-\emkey{word} :::= {\em word-prefix-character}\QMARK{}
-                 {\em word-character}\PLUS{}
-\\[0.3ex]
-\emkey{numeric} :::= {\em numeric-character}\PLUS{}
-\\[0.3ex]
-\emkey{natural-number} :::= {\em digit}\PLUS{}
-\\[0.3ex]
-\emkey{non-natural-numeric} ::= {\em numeric} except {\em natural-number}
-\\[0.3ex]
-\emkey{mark} :::= {\em mark-character}\PLUS{}
-\\[0.3ex]
+
+\emkey{lexeme}
+	::= {\em word} $|$ {\em mark} $|$ {\em numeric}
+	$|$ {\em separator}
+	$|$ {\em quoted-string}
+	$|$ {\em comment}
+\label{LEXEME}
+\\[1ex]
+\emkey{strict-separator} :::= {\em isolated-separator-character} $|$
+                              \TT{|}\PLUS{}
+\\[0.5ex]
+\emkey{leading-separator} :::=
+	\TT{`}\PLUS{} $|$ \TT{\$}\PLUS{} $|$
+	\TT{\textexclamdown}\PLUS{} $|$ \TT{\textquestiondown}\PLUS{}
+\\[0.5ex]
+\emkey{trailing-separator} :::= \TT{'}\PLUS{} $|$
+				   \TT{!}\PLUS{} $|$
+				   \TT{?}\PLUS{} $|$
+				   \TT{.}\PLUS{} $|$
+				   \TT{:}\PLUS{} $|$
+				   \TT{\%}\PLUS{} $|$
+				   \TT{;} $|$
+				   \TT{,}
+\\[0.5ex]
+\emkey{separator}
+    ::= {\em strict-separator} 
+    $|$ {\em leading-separator}
+    $|$ {\em trailing-separator}
+\\[1ex]
 \emkey{quoted-string} :::=
     \TT{"} {\em character-representative}\,\STAR{} \TT{"}
-\\[0.3ex]
-\emkey{comment} :::= \TT{//}{\em comment-character}\STAR{}
-\\[0.3ex]
-\emkey{separator} ::= {\em separator-character} except \TT{|} or \TT{:}
-                  $|$ \TT{|}\PLUS{}
-                  $|$ \TT{:}\PLUS{}
-\\[1ex]
-\emkey{word-prefix-character} ::= \TT{.}
-	\begin{tabular}[t]{@{}l@{}}
-	followed by a {\em letter} \\
-	and \underline{not} preceded by a {\em mark-character}
-	\end{tabular}
-\\[0.3ex]
-\emkey{word-character}
-	::= {\em letter}
-	$|$ \TT{'} followed by a letter
-\\[0.3ex]
-\emkey{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter}
-\\[0.3ex]
-\emkey{lower-case-letter} ::=
-                               \TT{a}%
-			    $|$\TT{b}%
-			    $|$\TT{c}%
-			    $|$\TT{d}%
-			    $|$\TT{e}%
-			    $|$\TT{f}%
-			    $|$\TT{g}%
-			    $|$\TT{h}%
-			    $|$\TT{i}%
-			    $|$\TT{j}%
-			    $|$\TT{k}%
-			    $|$\TT{l}%
-			    $|$\TT{m}%
-			    $|$\TT{n}%
-			    $|$\TT{o}%
-			    $|$\TT{p}%
-			    $|$\TT{q}%
-			    $|$\TT{r}%
-			    $|$\TT{s}%
-			    $|$\TT{t}%
-			    $|$\TT{u}%
-			    $|$\TT{v}%
-			    $|$\TT{w}%
-			    $|$\TT{x}%
-			    $|$\TT{y}%
-			    $|$\TT{z}
-\\[0.3ex]
-\emkey{upper-case-letter} ::=
-                               \TT{A}%
-			    $|$\TT{B}%
-			    $|$\TT{C}%
-			    $|$\TT{D}%
-			    $|$\TT{E}%
-			    $|$\TT{F}%
-			    $|$\TT{G}%
-			    $|$\TT{H}%
-			    $|$\TT{I}%
-			    $|$\TT{J}%
-			    $|$\TT{K}%
-			    $|$\TT{L}%
-			    $|$\TT{M}%
-			    $|$\TT{N}%
-			    $|$\TT{O}%
-			    $|$\TT{P}%
-			    $|$\TT{Q}%
-			    $|$\TT{R}%
-			    $|$\TT{S}%
-			    $|$\TT{T}%
-			    $|$\TT{U}%
-			    $|$\TT{V}%
-			    $|$\TT{W}%
-			    $|$\TT{X}%
-			    $|$\TT{Y}%
-			    $|$\TT{Z}
-\\[0.3ex]
-\emkey{mark-character}
-	\begin{tabular}[t]{@{}rl@{}}
-	::= & \TT{+}%
-        $|$\TT{-}%
-        $|$\TT{*}%
-        $|$\TT{/}%
-        $|$\TT{\textbackslash}%
-        $|$\TT{\textasciitilde}%
-        $|$\TT{@}%
-        $|$\TT{\#}%
-        $|$\TT{\$}%
-        $|$\TT{\%}%
-        $|$\TT{\^{ }}%
-        $|$\TT{\&}%
-        $|$\TT{=}%
-        $|$\TT{|}%
-        $|$\TT{<}%
-        $|$\TT{>}%
-        $|$\TT{\_}%
-        $|$\TT{!}%
-        $|$\TT{?} \\
-        $|$ & \TT{.} \begin{tabular}[t]{@{}l@{}}
-	             not surrounded by {\em digits} \\
-		     and either preceded by a {\em mark-character} \\
-		     or \underline{not} followed by a {\em letter} \\
-		     \end{tabular} \\
-        $|$ & \TT{/} \begin{tabular}[t]{@{}l@{}}
-	             not surrounded by {\em digits} \\
-		     or followed by a \TT{/} \\
-		     \end{tabular} \\
-	\end{tabular}
-\\[0.3ex]
-\emkey{separator-character}
-	\begin{tabular}[t]{@{}rl@{}}
-	::= & \TT{(}
-	$|$ \TT{)}
-	$|$ \TT{[}
-	$|$ \TT{]}
-	$|$ \TT{\{}
-	$|$ \TT{\}}
-	$|$ \TT{;}
-	$|$ \TT{`}
-	$|$ \TT{|} \\
-	$|$ & \TT{,} not surrounded by {\em digits} \\
-	$|$ & \TT{:} not surrounded by {\em digits} \\
-	$|$ & \TT{'} not followed by a letter \\
-	\end{tabular}
-\\[0.3ex]
-\emkey{numeric-character}
-	\begin{tabular}[t]{@{}rl@{}}
-	::= & {\em digit} \\
-	$|$ & \TT{.} surrounded by {\em digits} \\
-	$|$ & \TT{,} surrounded by {\em digits} \\
-	$|$ & \TT{:} surrounded by {\em digits} \\
-	$|$ & \TT{/} surrounded by {\em digits} \\
-	\end{tabular}
-\\[0.3ex]
-\emkey{digit} ::= \TT{0}%
-	      $|$\TT{1}%
-	      $|$\TT{2}%
-	      $|$\TT{3}%
-	      $|$\TT{4}%
-	      $|$\TT{5}%
-	      $|$\TT{6}%
-	      $|$\TT{7}%
-	      $|$\TT{8}%
-	      $|$\TT{9} 
 \\[0.3ex]
 \emkey{character-representative}
 	\begin{tabular}[t]{@{}rl@{}}
@@ -735,19 +706,102 @@ a form feed.
 	$|$ & {\em special-character-representative} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{graphic-character} ::= character than makes a mark on paper
-\\[0.3ex]
 \emkey{special-character-representative} ::=
     \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
-\\[0.3ex]
-\emkey{comment-character}
-    ::= {\em graphic-character}
-    $|$ {\em single-space-character}
-    $|$ {\em horizontal-tab}
+\\[1ex]
+\emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
+                       not beginning with \TT{//}
+\\[0.5ex]
+\emkey{lexical-item-character} :::=
+	\begin{tabular}[t]{l}
+        {\em graphic-character} other than \\
+	{\em isolated-separator-character} or \TT{|} or \TT{"}
+	\end{tabular}
+\\
+\emkey{lexical-item} :::= {\em leading-separator}\STAR{}
+			  {\em middle-lexeme}\QMARK{}
+                          {\em trailing-separator}\STAR{}
+\\[0.5ex]
+\emkey{middle-lexeme} :::= see text
+\\[0.5ex]
+\emkey{mark} :::= {\em mark-character}\PLUS{} but not {\em separator}
+\\[0.5ex]
+\emkey{word} :::= {\em middle-lexeme} beginning with a {\em letter}
+\\[0.5ex]
+\emkey{numeric} :::= {\em middle-lexeme} containing a {\em digit}
+                     and not beginning with a {\em letter}
+\\[1ex]
+\emkey{comment} :::=
+    \TT{//} {\em comment-character}\,$^\star$
+\\[1ex]
+\emkey{comment-charcter} :::= {\em graphic-character}
+                          $|$ {\em horizontal-space-character}
+\label{COMMENT}
 
 \end{indpar}
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{figure*}
+
+TBD
+
+Lexemes may be separated by \key{white-space}, which
+is a sequence of white-space characters (single space, horizontal tab, form
+feed, etc.), but is not itself a lexeme.
+
+\begin{indpar}
+\emkey{white-space} :::= {\em white-space-character}
+                         {\em white-space-character}\,$^\star$ \\[1ex]
+\emkey{white-space-character}
+    \begin{tabular}[t]{rl}
+    :::= & {\em horizontal-space-character} \\
+    $|$ & {\em vertical-space-character}
+    \end{tabular}
+    \\[1ex]
+\emkey{horizontal-space-character} :::=
+    \key{space} $|$ \key{horizontal-tab} \\[1ex]
+\emkey{vertical-space-character} :::=
+    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
+\end{indpar}
+
+The character set is UTF-8 encoded UNICODE.
+
+The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
+that define lexemes or parts of lexemes whose syntactic elements are
+character sequences that must \underline{not} be separated by {\em white-space}.
+The symbol `\ttmkey{::=}{in syntax equation}'
+is used in syntax equations that define sequences of lexemes that may
+and sometimes must be separated by {\em white-space}.
+{\em Comments} are treated as lexemes, but are discarded before the
+lexeme stream is transmitted to the parser.
+
+Non-{\em white-space} control characters are ignored, as if they
+did not exist, except that a warning message may be issued.  However
+no warning is issued for \emskey{carriage-return}s that are next to
+a {\em vertical-space-character}.
+
+The tabs used by the {\em horizontal-tab} character are set every
+8 columns.
+
+Every {\em vertical-space-character} causes the current position to
+return to the beginning of a new line.
+{\em Horizontal-space-characters} before a {\em vertical-space-character}
+are ignored, as if they did not exist.
+Warning messages are issued for {\em form-feeds} and {\em vertical-tabs}
+that occur when the column position is not at the beginning of a line.
+
+The definition of a {\em token} is unusual: it is what is left over
+after removing {\em leading-separators} and {\em trailing-separators}
+from a {\em token-item}.  The lexical scan first scans a
+{\em token-item}, and then removes
+{\em leading-separators} and {\em trailing-separators} from it.
+Also {\em trailing-separators} are removed
+from the end of a {\em token-item} by a right-to-left scan, and not
+the usual left-to-right scan which is used for everything else.
+Thus the {\em token-item} `\TT{\$\$4,987,,::}' yields the
+{\em leading-separator} `\TT{\$\$}', the {\em token} `\TT{4,987}',
+and the three {\em trailing-separators} `\TT{,}' `\TT{,}' and `\TT{::}'.
+
+TBD END
 
 The syntax of a lexical program is specified on
 \pagref{LEXEME-PROGRAM-SYNTAX-1} and
@@ -756,9 +810,9 @@ The syntax of a lexical program is specified on
 \begin{figure*}[!p]
 \begin{indpar}
 \emkey{name} ::= 
-	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
+	\{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string} \}\STAR{}
 	{\em word}
-	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
+	\{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string} \}\STAR{}
 \\[0.3ex]
 \emkey{lexical-program} ::=
         \begin{tabular}[t]{@{}l@{}}
@@ -1904,10 +1958,10 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.6ex]
-\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}\STAR{}
+\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em numeric} \}\STAR{}
 \\[0.0ex]
 \emkey{quoted-name-component} ::=
-    {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
+    {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em numeric}
 \\[0.0ex]
 \emkey{quoted-name} ::=
     \TT{"}{\em quoted-name-component}
@@ -1990,7 +2044,7 @@ Parser commands begin with the word `\ttmkey{parser}{in parser command}'.
 Parser commands make use of {\em simple-names} that are just a {\em word}
 optionally followed by a sequence of {\em words} and/or {\em numbers}, and
 {\em quoted-names}, that are arbitrary sequences of {\em word},
-{\em mark}, {\em separator}, and {\em number} lexemes enclosed
+{\em mark}, {\em separator}, and {\em numeric} lexemes enclosed
 in quotation marks to form a {\em quoted-string} lexeme.
 This embedding of lexemes in a {\em quoted-string} lexeme
 serves to keep the embedded lexemes from being given a special
@@ -2263,7 +2317,7 @@ is equivalent to
 This is useful for
 breaking long quoted string lexemes across line boundaries.
 But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+between the glued and unglued versions.  \TT{"<" "LF" ">"} is
 \underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
 quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
@@ -2760,7 +2814,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 \\[0.5ex]
 \emkey{key} ::= {\em key-component} {\em key-component}\STAR{}
 \\[0.5ex]
-\emkey{key-component} ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
+\emkey{key-component} ::= {\em word} $|$ {\em numeric} $|$ {\em quoted-string}
 \\[0.5ex]
 \emkey{named-middle} ::= as defined by a
     {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
@@ -4473,6 +4527,614 @@ end premature end of file master table;
 
 
 end standard lexical program;
+\end{verbatim}
+\end{indpar}
+
+\newpage
+
+\section{Alternate Lexical Program}
+\label{ALTERNATE-LEXICAL-PROGRAM}
+
+This \key{alternate lexical scheme} is the original version
+of the standard lexical scheme defined on
+\pagref{LEXEME-PROGRAM-LEXEMES}.  The main difference is
+that the character sequence
+\begin{center}
+\TT{(AB,CD+E,)}
+\end{center}
+scans as the 4 lexemes
+\begin{center}
+\TT{( AB,CD+E , )}
+\end{center}
+in the standard scheme, and as the 8 lexemes
+\begin{center}
+\TT{( AB , CD + E , )}
+\end{center}
+in this alternate scheme.  That is, in the alternate scheme
+word lexemes can only contain letters, mark lexemes can only
+contain marks, separator lexemes can only contain separators,
+and so forth.  Special exceptions are made for period followed
+by a digit, comma surrounded by digits, and so forth.
+
+The syntax equations for the alternative lexical scheme and
+the lexical program for that scheme are:
+
+\begin{indpar}
+\emkey{lexeme} ::= {\em word}
+               $|$ {\em numeric}
+               $|$ {\em mark}
+	       $|$ {\em separator}
+	       $|$ {\em quoted-string}
+	       $|$ {\em comment}
+\\[0.3ex]
+\emkey{word} :::= {\em word-prefix-character}\QMARK{}
+                 {\em word-character}\PLUS{}
+\\[0.3ex]
+\emkey{numeric} :::= {\em numeric-character}\PLUS{}
+\\[0.3ex]
+\emkey{natural-number} :::= {\em digit}\PLUS{}
+\\[0.3ex]
+\emkey{non-natural-numeric} ::= {\em numeric} except {\em natural-number}
+\\[0.3ex]
+\emkey{mark} :::= {\em mark-character}\PLUS{}
+\\[0.3ex]
+\emkey{quoted-string} :::=
+    \TT{"} {\em character-representative}\,\STAR{} \TT{"}
+\\[0.3ex]
+\emkey{comment} :::= \TT{//}{\em comment-character}\STAR{}
+\\[0.3ex]
+\emkey{separator} ::= {\em separator-character} except \TT{|} or \TT{:}
+                  $|$ \TT{|}\PLUS{}
+                  $|$ \TT{:}\PLUS{}
+\\[1ex]
+\emkey{word-prefix-character} ::= \TT{.}
+	\begin{tabular}[t]{@{}l@{}}
+	followed by a {\em letter} \\
+	and \underline{not} preceded by a {\em mark-character}
+	\end{tabular}
+\\[0.3ex]
+\emkey{word-character}
+	::= {\em letter}
+	$|$ \TT{'} followed by a letter
+\\[0.3ex]
+\emkey{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter}
+\\[0.3ex]
+\emkey{lower-case-letter} ::=
+                               \TT{a}%
+			    $|$\TT{b}%
+			    $|$\TT{c}%
+			    $|$\TT{d}%
+			    $|$\TT{e}%
+			    $|$\TT{f}%
+			    $|$\TT{g}%
+			    $|$\TT{h}%
+			    $|$\TT{i}%
+			    $|$\TT{j}%
+			    $|$\TT{k}%
+			    $|$\TT{l}%
+			    $|$\TT{m}%
+			    $|$\TT{n}%
+			    $|$\TT{o}%
+			    $|$\TT{p}%
+			    $|$\TT{q}%
+			    $|$\TT{r}%
+			    $|$\TT{s}%
+			    $|$\TT{t}%
+			    $|$\TT{u}%
+			    $|$\TT{v}%
+			    $|$\TT{w}%
+			    $|$\TT{x}%
+			    $|$\TT{y}%
+			    $|$\TT{z}
+\\[0.3ex]
+\emkey{upper-case-letter} ::=
+                               \TT{A}%
+			    $|$\TT{B}%
+			    $|$\TT{C}%
+			    $|$\TT{D}%
+			    $|$\TT{E}%
+			    $|$\TT{F}%
+			    $|$\TT{G}%
+			    $|$\TT{H}%
+			    $|$\TT{I}%
+			    $|$\TT{J}%
+			    $|$\TT{K}%
+			    $|$\TT{L}%
+			    $|$\TT{M}%
+			    $|$\TT{N}%
+			    $|$\TT{O}%
+			    $|$\TT{P}%
+			    $|$\TT{Q}%
+			    $|$\TT{R}%
+			    $|$\TT{S}%
+			    $|$\TT{T}%
+			    $|$\TT{U}%
+			    $|$\TT{V}%
+			    $|$\TT{W}%
+			    $|$\TT{X}%
+			    $|$\TT{Y}%
+			    $|$\TT{Z}
+\\[0.3ex]
+\emkey{mark-character}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{+}%
+        $|$\TT{-}%
+        $|$\TT{*}%
+        $|$\TT{/}%
+        $|$\TT{\textbackslash}%
+        $|$\TT{\textasciitilde}%
+        $|$\TT{@}%
+        $|$\TT{\#}%
+        $|$\TT{\$}%
+        $|$\TT{\%}%
+        $|$\TT{\^{ }}%
+        $|$\TT{\&}%
+        $|$\TT{=}%
+        $|$\TT{|}%
+        $|$\TT{<}%
+        $|$\TT{>}%
+        $|$\TT{\_}%
+        $|$\TT{!}%
+        $|$\TT{?} \\
+        $|$ & \TT{.} \begin{tabular}[t]{@{}l@{}}
+	             not surrounded by {\em digits} \\
+		     and either preceded by a {\em mark-character} \\
+		     or \underline{not} followed by a {\em letter} \\
+		     \end{tabular} \\
+        $|$ & \TT{/} \begin{tabular}[t]{@{}l@{}}
+	             not surrounded by {\em digits} \\
+		     or followed by a \TT{/} \\
+		     \end{tabular} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{separator-character}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & \TT{(}
+	$|$ \TT{)}
+	$|$ \TT{[}
+	$|$ \TT{]}
+	$|$ \TT{\{}
+	$|$ \TT{\}}
+	$|$ \TT{;}
+	$|$ \TT{`}
+	$|$ \TT{|} \\
+	$|$ & \TT{,} not surrounded by {\em digits} \\
+	$|$ & \TT{:} not surrounded by {\em digits} \\
+	$|$ & \TT{'} not followed by a letter \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{numeric-character}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em digit} \\
+	$|$ & \TT{.} surrounded by {\em digits} \\
+	$|$ & \TT{,} surrounded by {\em digits} \\
+	$|$ & \TT{:} surrounded by {\em digits} \\
+	$|$ & \TT{/} surrounded by {\em digits} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{digit} ::= \TT{0}%
+	      $|$\TT{1}%
+	      $|$\TT{2}%
+	      $|$\TT{3}%
+	      $|$\TT{4}%
+	      $|$\TT{5}%
+	      $|$\TT{6}%
+	      $|$\TT{7}%
+	      $|$\TT{8}%
+	      $|$\TT{9} 
+\\[0.3ex]
+\emkey{character-representative}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em graphic-character} other than \TT{"} \\
+	$|$ & {\em single-space-character} \\
+	$|$ & {\em special-character-representative} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{graphic-character} ::= character than makes a mark on paper
+\\[0.3ex]
+\emkey{special-character-representative} ::=
+    \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
+\\[0.3ex]
+\emkey{comment-character}
+    ::= {\em graphic-character}
+    $|$ {\em single-space-character}
+    $|$ {\em horizontal-tab}
+
+\end{indpar}
+
+\begin{indpar}
+\begin{verbatim}
+// This lexical analyzer was the original
+// layered lanugage standard lexical analyzer,
+// but was replaced in that role.
+
+// This file was automatically generated from
+// ll_lexeme_alternate.lexcc.
+
+
+begin alternate lexical program;
+
+"<ascii-char>" = "<0>-<7F>"  [ASCII Character]
+
+// NON_ASCII_LETTERS, NON_ASCII_COMBINING_
+// CHARACTERS, NON_ASCII_CONTROL_CHARACTERS are
+// defined in ll_lexeme_non_ascii_characters.h.
+
+"<non-ascii-letter>" = NON_ASCII_LETTERS
+
+"<non-ascii-combining-char>" =
+    NON_ASCII_COMBINING_CHARACTERS
+
+"<non-ascii-control-char>" =
+    NON_ASCII_CONTROL_CHARACTERS
+
+"<ascii-letter>" = "a-z" | "A-Z";
+
+"<digit>" = "0-9";
+
+"<hex-digit>" = "0-9" | "A-F";
+
+"<non-digit>" = ~ "<digit>";
+
+"<letter>" = "<ascii-letter>"
+           | "<non-ascii-letter>"
+
+"<non-ascii-word-char>" =
+      "<non-ascii-letter>"
+    | "<non-ascii-combining-char>"
+
+// Context sensitive character classifications,
+// e.g., classifying ' as a word character if it
+// is followed by a letter, cannot be included
+// in character pattern definitions, but are
+// noted in comments.  They are accounted for
+// by separate lexeme table entries below.
+
+"<non-letter>" = ~ "<letter>";
+
+"<mark-char>" = "+" | "-" | "*" | "~" | "@"
+              | "#" | "$" | "%" | "^" | "&"
+              | "=" | "<" | ">" | "_" | "!"
+	      | "?" ;
+              //
+              // Also . not surrounded by digits
+	      //        and not both followed by
+	      //        a letter and preceeded
+	      //        by a non-mark character
+              //      / not surrounded by digits
+              //        or followed by /
+
+"<non-slash-char>" = ~ "/";
+
+"<separator-char>" = "(" | ")" | "[" | "]"
+                   | "{" | "}" | ";" | "`";
+              //
+              // Also , not surrounded by digits
+              //      ' not followed by a letter
+	      //        or a digit
+	      //      | (possibly repeated)
+	      //      : (possibly repeated)
+
+"<misplaced-space-char>" =
+        "<CR>" | "<VT>" | "<FF>"
+
+"<ascii-control-char>" = "<0>-<1F>" | "<7F>"
+
+"<control-char>" = "<ascii-control-char>"
+                 | "<non-ascii-control-char>"
+
+"<control-char-except-CR-LF>" =
+    "<control-char>" & ~ "<CR>" & ~ "<LF>"
+
+"<horizontal-space-char>" = " " | "<HT>";
+
+"<escape-char>" = "A-Z" | "0-9" | "-";
+
+
+begin main master table;
+
+   // Unrecognized characters or escapes, etc,
+   // outside quoted strings are output as
+   // lexemes, and can separate other lexemes.
+   // If these are treated by post-processing
+   // in the same manner as horizontal space,
+   // they could be replaced by horizontal space
+   // without changing the semantics of the
+   // output.
+   //
+   // Inside quoted strings, unrecognized char-
+   // acter representatives, such as unrecog-
+   // nized escapes, are treated as erroneous
+   // atoms and translated to "<UUC>".
+
+   // Whitespace is separated out into 4 types
+   // of lexemes:
+   //
+   //   `space'
+   //       single spaces and horizontal tabs
+   //   `line break'
+   //       linefeeds, carriage returns, form
+   //       feeds, and vertical tabs, with at
+   //       least one line feed
+   //   `misplaced space'
+   //       ditto but with no line feed
+   //   `comments'
+   //       `//' up to just before next line
+   //        break, misplaced space, or (pre-
+   //        mature) end of file
+   //
+   "//" call comment;
+   "/"  call mark;
+
+   "<horizontal-space-char>"
+        call horizontal space;
+
+   "<LF>" call line break;
+   "<misplaced-space-char>"
+        call misplaced space;
+
+   "<letter>" call word;
+
+   "'<letter>" call word;
+   "'<digit>" keep 1 call number;
+   "'" output separator;
+
+   "<mark-char>" call mark;
+
+   "<digit>" keep 0 call natural number;
+             // We keep 0 so natural number can
+             // recognize <digit>,<digit> etc.
+
+   ".<letter>" call word;
+   "." call mark;
+
+   "<separator-char>" output separator;
+
+   ":<repeat>" output separator;
+   "|<repeat>" output separator;
+
+   "," output separator;
+
+   "<Q>" translate to "" call quoted string;
+
+   "<other>" output misplaced char;
+
+   output end of file;
+
+end main master table;
+
+
+// The below tables are entered from the master
+// table with the first zero, one, or two
+// characters scanned.
+
+
+begin comment lexeme table;
+
+   "<LF>" keep 0 return;
+   "<misplaced-space-char>" keep 0 return;
+
+   "<other>" accept;
+
+   goto premature end of file;
+
+end comment lexeme table;
+
+
+begin horizontal space lexeme table;
+
+   "<horizontal-space-char>" accept;
+
+   return;
+
+end horizontal space lexeme table;
+
+
+begin misplaced space lexeme table;
+
+   "<LF>" goto line break;
+
+   "<misplaced-space-char>" accept;
+
+   return;
+
+end misplaced space lexeme table;
+
+
+begin line break lexeme table;
+
+   "<LF>" accept;
+   "<misplaced-space-char>" accept;
+
+   return;
+
+end line break lexeme table;
+
+
+begin word lexeme table;
+
+   "<letter>" accept;
+   "<non-ascii-combining-char>" accept;
+
+   "'<letter>" accept;
+
+   return;
+
+end word lexeme table;
+
+
+begin mark lexeme table;
+
+   "<mark-char>" accept;
+   "." accept;
+   "<non-ascii-combining-char>" accept;
+
+   "//" keep 0 return;
+   "/" accept;
+
+   return;
+
+end mark lexeme table;
+
+
+begin natural number lexeme table;
+
+
+   // In order to recognize X (e.g., : or /)
+   // surrounded by digits as number atoms,
+   // entries to this table upon recognizing
+   // "<digit>X<digit>" must do a `keep 2' so
+   // the last digit will be left to be
+   // recognized by <digit>Y<digit> etc.
+
+   // Alternatively we could have a separate
+   // table for the state where the last atom
+   // ended with a digit.
+
+   "<digit>.<digit>" keep 2 goto number;
+   "<digit>:<digit>" keep 2 goto number;
+   "<digit>/<digit>" keep 2 goto number;
+   "<digit>,<digit>" keep 2 goto number;
+   "<digit>" accept;
+
+   "'<digit>" keep 1 goto number;
+
+   return;
+
+end natural number lexeme table;
+
+
+begin number lexeme table;
+
+   // See note about `keep 2' in natural number
+   // table above.
+
+   "<digit>.<digit>" keep 2;
+   "<digit>:<digit>" keep 2;
+   "<digit>/<digit>" keep 2;
+   "<digit>,<digit>" keep 2;
+   "<digit>" accept;
+
+   "'<digit>" keep 1;
+
+   return;
+
+end number lexeme table;
+
+
+begin quoted string lexeme table;
+
+    "<Q>" translate to "" return;
+            // End quoted string.
+
+    "<" match escaped char
+        else match unrecognized escape seq
+             error unrecognized escape seq
+             translate to "<UUC>"
+        else accept;
+
+    "<LF>"
+        keep 0 goto premature end of line;
+
+    "<CR><LF>"
+        keep 0 goto premature end of line;
+    "<CR>"
+        error misplaced control char
+        translate to "<UUC>";
+
+    "<control-char-except-CR-LF>"
+        error misplaced control char
+        translate to "<UUC>";
+
+    "<other>" accept;
+
+    goto premature end of file;
+
+end quoted string lexeme table;
+
+
+begin escaped char atom table;
+
+    "<" "ACK" ">" translate to "<ACK>";
+    "<" "BEL" ">" translate to "<BEL>";
+    "<" "BS" ">" translate to "<BS>";
+    "<" "CAN" ">" translate to "<CAN>";
+    "<" "CR" ">" translate to "<CR>";
+    "<" "DC1" ">" translate to "<DC1>";
+    "<" "DC2" ">" translate to "<DC2>";
+    "<" "DC3" ">" translate to "<DC3>";
+    "<" "DC4" ">" translate to "<DC4>";
+    "<" "DEL" ">" translate to "<DEL>";
+    "<" "DLE" ">" translate to "<DLE>";
+    "<" "EM" ">" translate to "<EM>";
+    "<" "ENQ" ">" translate to "<ENQ>";
+    "<" "EOT" ">" translate to "<EOT>";
+    "<" "ESC" ">" translate to "<ESC>";
+    "<" "ETB" ">" translate to "<ETB>";
+    "<" "ETX" ">" translate to "<ETX>";
+    "<" "FF" ">" translate to "<FF>";
+    "<" "FS" ">" translate to "<FS>";
+    "<" "GS" ">" translate to "<GS>";
+    "<" "HT" ">" translate to "<HT>";
+    "<" "LF" ">" translate to "<LF>";
+    "<" "NAK" ">" translate to "<NAK>";
+    "<" "NL" ">" translate to "<NL>";
+    "<" "NUL" ">" translate to "<NUL>";
+    "<" "Q" ">" translate to "<Q>";
+    "<" "RS" ">" translate to "<RS>";
+    "<" "SI" ">" translate to "<SI>";
+    "<" "SO" ">" translate to "<SO>";
+    "<" "SOH" ">" translate to "<SOH>";
+    "<" "SP" ">" translate to "<SP>";
+    "<" "STX" ">" translate to "<STX>";
+    "<" "SUB" ">" translate to "<SUB>";
+    "<" "SYN" ">" translate to "<SYN>";
+    "<" "US" ">" translate to "<US>";
+    "<" "VT" ">" translate to "<VT>";
+
+    "<" "<digit>" match escaped hex char
+            else fail;
+
+    fail;
+
+end escaped char atom table;
+
+
+begin escaped hex char atom table;
+
+    "<" "<digit>" ">" translate hex 1 1;
+    "<" "<digit><hex-digit><repeat>" ">"
+              translate hex 1 1;
+
+    fail;
+
+end escaped hex char atom table;
+
+
+begin unrecognized escape seq atom table;
+
+    "<" "<escape-char><repeat>" ">";
+
+    fail;
+
+end unrecognized escape seq atom table;
+
+
+begin premature end of line master table;
+
+    output premature end of line goto main;
+
+end premature end of line master table;
+
+
+begin premature end of file master table;
+
+    output premature end of file goto main;
+
+end premature end of file master table;
+
+
+end alternate lexical program;
 \end{verbatim}
 \end{indpar}
 

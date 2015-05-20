@@ -1,4 +1,4 @@
-// Layers Language Parser Table
+// Layered Languages Parser Table
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)

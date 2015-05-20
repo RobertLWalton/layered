@@ -1,4 +1,4 @@
-// Layers Language Name String Test
+// Layered Languages Name String Test
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)

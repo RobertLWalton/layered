@@ -1,4 +1,4 @@
-// Layers Language Parsers
+// Layered Languages Parsers
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)

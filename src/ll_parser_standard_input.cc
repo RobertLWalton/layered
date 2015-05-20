@@ -1,4 +1,4 @@
-// Layers Language Standard Input Parser
+// Layered Languages Standard Input Parser
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)

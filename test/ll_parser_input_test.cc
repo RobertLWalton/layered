@@ -1,4 +1,4 @@
-// Layers Language Parser Input Test
+// Layered Languages Parser Input Test
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)

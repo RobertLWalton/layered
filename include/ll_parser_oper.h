@@ -1,4 +1,4 @@
-// Layers Language Operator Parser
+// Layered Languages Operator Parser
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)

@@ -1,4 +1,4 @@
-// Layers Language Parser Bracketed Subexpression Test
+// Layered Languages Parser Bracketed Subexpression Test
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)

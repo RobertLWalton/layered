@@ -1,4 +1,4 @@
-// Layers Language Standard Operators Parser
+// Layered Languages Standard Operators Parser
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)

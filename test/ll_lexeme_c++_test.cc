@@ -1,4 +1,4 @@
-// Layers Language C++ Lexical Analyzer Test
+// Layered Languages C++ Lexical Analyzer Test
 //
 // File:	ll_lexeme_c++_test.cc
 // Author:	Bob Walton (walton@acm.org)

@@ -1,4 +1,4 @@
-// Layers Language Bracketed Subexpression Parser
+// Layered Languages Bracketed Subexpression Parser
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)

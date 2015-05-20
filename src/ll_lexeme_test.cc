@@ -1,4 +1,4 @@
-// Layers Language Lexical Analyzer Test Functions
+// Layered Languages Lexical Analyzer Test Functions
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)

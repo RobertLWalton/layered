@@ -1,4 +1,4 @@
-// Layers Language Parser Functions
+// Layered Languages Parser Functions
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)

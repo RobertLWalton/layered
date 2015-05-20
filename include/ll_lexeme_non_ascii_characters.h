@@ -1,4 +1,4 @@
-// Layers Language Non-Ascii Characters Tables
+// Layered Languages Non-Ascii Characters Tables
 //
 // File:	ll_lexeme_non_ascii_characters.h
 // Author:	Bob Walton (walton@acm.org)

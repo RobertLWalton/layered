@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  1 05:34:27 EST 2015
+// Date:	Fri May 22 12:49:14 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1370,6 +1370,7 @@ void PAR::put_empty_before
     min::attr_insptr ap ( vp );
     min::locate ( ap, min::dot_position );
     min::set ( ap, min::new_stub_gen ( pos ) );
+    min::set_flag ( ap, min::standard_attr_hide_flag );
 }
 
 void PAR::put_empty_after
@@ -1393,6 +1394,7 @@ void PAR::put_empty_after
     min::attr_insptr ap ( vp );
     min::locate ( ap, min::dot_position );
     min::set ( ap, min::new_stub_gen ( pos ) );
+    min::set_flag ( ap, min::standard_attr_hide_flag );
 }
 
 void PAR::put_error_operand_before
@@ -1543,6 +1545,8 @@ void PAR::compact
 	min::attr_insptr expap ( expvp );
 	min::locate ( expap, min::dot_position );
 	min::set ( expap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( expap, min::standard_attr_hide_flag );
 
 	while ( m -- )
 	{

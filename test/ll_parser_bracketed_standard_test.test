@@ -7,22 +7,25 @@ BRACKETED EXPRESSION:
     This is a line;
 @1 = This is a line:
          .type = ";"
+         .position[H] = {}
     line 11:
 This is a line;
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a "quoted<SP>string".
+    This is a line containing a "quoted<SP>string" .
 @2 = This is a line containing a @3 .:
          .type = "<LF>"
+         .position[H] = {}
 @3 = "quoted<SP>string":
          .type = "<Q>"
     line 12:
 This is a line containing a "quoted string".
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a large number 12345678901234567890.
+    This is a line containing a large number 12345678901234567890 .
 @4 = This is a line containing a large number 12345678901234567890 .:
          .type = "<LF>"
+         .position[H] = {}
     lines 13-14:
 This is a line containing a large number
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -33,18 +36,19 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ( hi there )
+    (hi there)
 @5 = hi there:
          .terminator = ")"
          .initiator = "("
+         .position[H] = {}
     line 16:
      ( hi there ).
      ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a parenthesized subexpression ( hi there )
-        .
+    This is a line containing a parenthesized subexpression (hi there) .
 @6 = This is a line containing a parenthesized subexpression @5 .:
          .type = "<LF>"
+         .position[H] = {}
     lines 15-16:
 This is a line containing a parenthesized subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,19 +59,21 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ( x 5 "foo" )
+    (x 5 "foo")
 @7 = x 5 @8:
          .terminator = ")"
          .initiator = "("
+         .position[H] = {}
 @8 = foo:
          .type = "<Q>"
     line 17:
 This line contains subsubexpressions (x 5 "foo")
                                      ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains subsubexpressions ( x 5 "foo" )
+    This line contains subsubexpressions (x 5 "foo")
 @9 = This line contains subsubexpressions @7:
          .type = "<LF>"
+         .position[H] = {}
     line 17:
 This line contains subsubexpressions (x 5 "foo")
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -80,20 +86,22 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    { p q }
+    {p q}
 @10 = p q:
           .terminator = "}"
           .initiator = "{"
+          .position[H] = {}
     line 19:
      (x + `y z {p q}' - [ g h ]).
                ^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ` y z { p q } '
+    `y z {p q}'
 @11 = y z @10:
           .terminator = "'"
           .initiator = "`"
+          .position[H] = {}
     line 19:
      (x + `y z {p q}' - [ g h ]).
           ^^^^^^^^^^^
@@ -102,28 +110,31 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    [ g h ]
+    [g h]
 @12 = g h:
           .terminator = "]"
           .initiator = "["
+          .position[H] = {}
     line 19:
      (x + `y z {p q}' - [ g h ]).
                         ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ( x + ` y z { p q } ' - [ g h ] )
+    (x + `y z {p q}' - [g h])
 @13 = x + @11 - @12:
           .terminator = ")"
           .initiator = "("
+          .position[H] = {}
     line 19:
      (x + `y z {p q}' - [ g h ]).
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains more subsubexpressions
-         ( x + ` y z { p q } ' - [ g h ] ).
+    This line contains more subsubexpressions (x + `y z {p q}' - [g h])
+        .
 @14 = This line contains more subsubexpressions @13 .:
           .type = "<LF>"
+          .position[H] = {}
     lines 18-19:
 This line contains more subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -139,25 +150,28 @@ ERROR: missing closing bracket "}" inserted before ")"; line 21:
      (x + { y z )
                 ^
 BRACKETED EXPRESSION:
-    { y z }
+    {y z}
 @15 = y z:
           .terminator = "}"
           .initiator = "{"
+          .position[H] = {}
     line 21:
      (x + { y z )
           ^^^^^
 BRACKETED EXPRESSION:
-    ( x + { y z } )
+    (x + {y z})
 @16 = x + @15:
           .terminator = ")"
           .initiator = "("
+          .position[H] = {}
     line 21:
      (x + { y z )
      ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains a missing closing bracket ( x + { y z } )
+    This line contains a missing closing bracket (x + {y z})
 @17 = This line contains a missing closing bracket @16:
           .type = "<LF>"
+          .position[H] = {}
     lines 20-21:
 This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -172,17 +186,19 @@ ERROR: missing closing bracket ")" inserted before end of line; line 23:
      (x + y }
              ^
 BRACKETED EXPRESSION:
-    ( x + y "}" )
-@18 = x + y "}":
+    (x + y })
+@18 = x + y }:
           .terminator = ")"
           .initiator = "("
+          .position[H] = {}
     line 23:
      (x + y }
      ^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains an incorrect closing bracket ( x + y "}" )
+    This line contains an incorrect closing bracket (x + y })
 @19 = This line contains an incorrect closing bracket @18:
           .type = "<LF>"
+          .position[H] = {}
     lines 22-23:
 This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -195,6 +211,7 @@ BRACKETED EXPRESSION:
     This line includes a token with insufficient indent
 @20 = This line includes a token with insufficient indent:
           .type = "<LF>"
+          .position[H] = {}
     lines 24-25:
 This line includes
 ^^^^^^^^^^^^^^^^^^
@@ -203,24 +220,26 @@ This line includes
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
-    First line.
+    First line .
 @21 = First line .:
           .type = "<LF>"
+          .position[H] = {}
     line 27:
    First line.
    ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    Second line.
+    Second line .
 @22 = Second line .:
           .type = "<LF>"
+          .position[H] = {}
     line 28:
    Second line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| First line . |"<LF>"} {"<LF>"| Second line . |"<LF>"}
-          |":"}
+    {: {"<LF>"|First line .|"<LF>"} {"<LF>"|Second line .|"<LF>"} :}
 @23 = @21 @22:
           .type = ":"
+          .position[H] = {}
     lines 26-28:
 This line starts an indented paragraph:
                                       ^
@@ -230,10 +249,11 @@ This line starts an indented paragraph:
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This line starts an indented paragraph:
-        First line.
-        Second line.
+        First line .
+        Second line .
 @24 = This line starts an indented paragraph @23:
           .type = "<LF>"
+          .position[H] = {}
     lines 26-28:
 This line starts an indented paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -244,24 +264,26 @@ This line starts an indented paragraph:
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
-    Third line.
+    Third line .
 @25 = Third line .:
           .type = "<LF>"
+          .position[H] = {}
     line 30:
    Third line.
    ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    Fourth line.
+    Fourth line .
 @26 = Fourth line .:
           .type = "<LF>"
+          .position[H] = {}
     line 31:
    Fourth line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| Third line . |"<LF>"} {"<LF>"| Fourth line . |"<LF>"}
-          |":"}
+    {: {"<LF>"|Third line .|"<LF>"} {"<LF>"|Fourth line .|"<LF>"} :}
 @27 = @25 @26:
           .type = ":"
+          .position[H] = {}
     lines 29-31:
 Ditto with split =:
                   ^
@@ -271,10 +293,11 @@ Ditto with split =:
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Ditto with split =:
-        Third line.
-        Fourth line.
+        Third line .
+        Fourth line .
 @28 = Ditto with split = @27:
           .type = "<LF>"
+          .position[H] = {}
     lines 29-31:
 Ditto with split =:
 ^^^^^^^^^^^^^^^^^^^
@@ -285,9 +308,10 @@ Ditto with split =:
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
-    Fifth line.
+    Fifth line .
 @29 = Fifth line .:
           .type = "<LF>"
+          .position[H] = {}
     line 33:
    Fifth line.
    ^^^^^^^^^^^
@@ -297,6 +321,7 @@ BRACKETED EXPRESSION:
     Sixth line A;
 @30 = Sixth line A:
           .type = ";"
+          .position[H] = {}
     line 34:
    Sixth line A; Sixth line B
    ^^^^^^^^^^^^^
@@ -304,22 +329,24 @@ BRACKETED EXPRESSION:
     Sixth line B
 @31 = Sixth line B:
           .type = "<LF>"
+          .position[H] = {}
     line 34:
    Sixth line A; Sixth line B
                  ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    Seventh line.
+    Seventh line .
 @32 = Seventh line .:
           .type = "<LF>"
+          .position[H] = {}
     line 35:
    Seventh line.
    ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {":"| {"<LF>"| Fifth line . |"<LF>"} {; Sixth line A ;}
-          {"<LF>"| Sixth line B |"<LF>"}
-          {"<LF>"| Seventh line . |"<LF>"} |":"}
+    {: {"<LF>"|Fifth line .|"<LF>"} {; Sixth line A ;}
+       {"<LF>"|Sixth line B|"<LF>"} {"<LF>"|Seventh line .|"<LF>"} :}
 @33 = @29 @30 @31 @32:
           .type = ":"
+          .position[H] = {}
     lines 32-35:
 Ditto with separator:
                     ^
@@ -331,11 +358,12 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Ditto with separator:
-        Fifth line.
-        Sixth line A; Sixth line B
-        Seventh line.
+        Fifth line .
+        Sixth line A;  Sixth line B
+        Seventh line .
 @34 = Ditto with separator @33:
           .type = "<LF>"
+          .position[H] = {}
     lines 32-35:
 Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^
@@ -368,6 +396,7 @@ BRACKETED EXPRESSION:
 @35 = x:
           .terminator = "+>"
           .initiator = "<+"
+          .position[H] = {}
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
        ^^^^^^^
@@ -380,10 +409,11 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    { <+ x +> <- y -> }
+    {<+ x +> <- y ->}
 @36 = @35 <- y ->:
           .terminator = "}"
           .initiator = "{"
+          .position[H] = {}
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^
@@ -404,24 +434,27 @@ BRACKETED EXPRESSION:
 @37 = y:
           .terminator = "->"
           .initiator = "<-"
+          .position[H] = {}
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                                  ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    ` <+ x +> <- y -> '
+    `<+ x +> <- y ->'
 @38 = <+ x +> @37:
           .terminator = "'"
           .initiator = "`"
+          .position[H] = {}
     line 37:
      { <+ x +> <- y ->} `<+ x +> <- y ->'
                         ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This tests selector changes --- <+ x +> <- y -> { <+ x +> <- y -> }
-         ` <+ x +> <- y -> '
+    This tests selector changes --- <+ x +> <- y -> {<+ x +> <- y ->}
+        `<+ x +> <- y ->'
 @39 = This tests selector changes --- <+ x +> <- y -> @36 @38:
           .type = "<LF>"
+          .position[H] = {}
     lines 36-37:
 This tests selector changes --- <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

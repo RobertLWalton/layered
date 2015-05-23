@@ -12,8 +12,8 @@ BRACKETED EXPRESSION:
 This is a line;
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a "quoted<SP>string" .
-@2 = This is a line containing a @3 .:
+    This is a line containing a "quoted<SP>string" "."
+@2 = This is a line containing a @3 ".":
          .type = "<LF>"
          .position[H] = {}
 @3 = "quoted<SP>string":
@@ -22,8 +22,8 @@ BRACKETED EXPRESSION:
 This is a line containing a "quoted string".
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a large number 12345678901234567890 .
-@4 = This is a line containing a large number 12345678901234567890 .:
+    This is a line containing a large number 12345678901234567890 "."
+@4 = This is a line containing a large number 12345678901234567890 ".":
          .type = "<LF>"
          .position[H] = {}
     lines 13-14:
@@ -45,8 +45,9 @@ BRACKETED EXPRESSION:
      ( hi there ).
      ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a parenthesized subexpression (hi there) .
-@6 = This is a line containing a parenthesized subexpression @5 .:
+    This is a line containing a parenthesized subexpression (hi there)
+        "."
+@6 = This is a line containing a parenthesized subexpression @5 ".":
          .type = "<LF>"
          .position[H] = {}
     lines 15-16:
@@ -131,8 +132,8 @@ BRACKETED EXPRESSION:
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This line contains more subsubexpressions (x + `y z {p q}' - [g h])
-        .
-@14 = This line contains more subsubexpressions @13 .:
+        "."
+@14 = This line contains more subsubexpressions @13 ".":
           .type = "<LF>"
           .position[H] = {}
     lines 18-19:
@@ -186,8 +187,8 @@ ERROR: missing closing bracket ")" inserted before end of line; line 23:
      (x + y }
              ^
 BRACKETED EXPRESSION:
-    (x + y })
-@18 = x + y }:
+    (x + y "}")
+@18 = x + y "}":
           .terminator = ")"
           .initiator = "("
           .position[H] = {}
@@ -195,7 +196,7 @@ BRACKETED EXPRESSION:
      (x + y }
      ^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains an incorrect closing bracket (x + y })
+    This line contains an incorrect closing bracket (x + y "}")
 @19 = This line contains an incorrect closing bracket @18:
           .type = "<LF>"
           .position[H] = {}
@@ -220,23 +221,23 @@ This line includes
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
-    First line .
-@21 = First line .:
+    First line "."
+@21 = First line ".":
           .type = "<LF>"
           .position[H] = {}
     line 27:
    First line.
    ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    Second line .
-@22 = Second line .:
+    Second line "."
+@22 = Second line ".":
           .type = "<LF>"
           .position[H] = {}
     line 28:
    Second line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {: {"<LF>"|First line .|"<LF>"} {"<LF>"|Second line .|"<LF>"} :}
+    {: {"<LF>"|First line "."|"<LF>"} {"<LF>"|Second line "."|"<LF>"} :}
 @23 = @21 @22:
           .type = ":"
           .position[H] = {}
@@ -249,8 +250,8 @@ This line starts an indented paragraph:
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This line starts an indented paragraph:
-        First line .
-        Second line .
+        First line "."
+        Second line "."
 @24 = This line starts an indented paragraph @23:
           .type = "<LF>"
           .position[H] = {}
@@ -264,23 +265,23 @@ This line starts an indented paragraph:
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
-    Third line .
-@25 = Third line .:
+    Third line "."
+@25 = Third line ".":
           .type = "<LF>"
           .position[H] = {}
     line 30:
    Third line.
    ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    Fourth line .
-@26 = Fourth line .:
+    Fourth line "."
+@26 = Fourth line ".":
           .type = "<LF>"
           .position[H] = {}
     line 31:
    Fourth line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {: {"<LF>"|Third line .|"<LF>"} {"<LF>"|Fourth line .|"<LF>"} :}
+    {: {"<LF>"|Third line "."|"<LF>"} {"<LF>"|Fourth line "."|"<LF>"} :}
 @27 = @25 @26:
           .type = ":"
           .position[H] = {}
@@ -293,8 +294,8 @@ Ditto with split =:
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Ditto with split =:
-        Third line .
-        Fourth line .
+        Third line "."
+        Fourth line "."
 @28 = Ditto with split = @27:
           .type = "<LF>"
           .position[H] = {}
@@ -308,8 +309,8 @@ Ditto with split =:
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
-    Fifth line .
-@29 = Fifth line .:
+    Fifth line "."
+@29 = Fifth line ".":
           .type = "<LF>"
           .position[H] = {}
     line 33:
@@ -334,16 +335,16 @@ BRACKETED EXPRESSION:
    Sixth line A; Sixth line B
                  ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    Seventh line .
-@32 = Seventh line .:
+    Seventh line "."
+@32 = Seventh line ".":
           .type = "<LF>"
           .position[H] = {}
     line 35:
    Seventh line.
    ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {: {"<LF>"|Fifth line .|"<LF>"} {; Sixth line A ;}
-       {"<LF>"|Sixth line B|"<LF>"} {"<LF>"|Seventh line .|"<LF>"} :}
+    {: {"<LF>"|Fifth line "."|"<LF>"} {; Sixth line A ;}
+       {"<LF>"|Sixth line B|"<LF>"} {"<LF>"|Seventh line "."|"<LF>"} :}
 @33 = @29 @30 @31 @32:
           .type = ":"
           .position[H] = {}
@@ -358,9 +359,9 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Ditto with separator:
-        Fifth line .
+        Fifth line "."
         Sixth line A;  Sixth line B
-        Seventh line .
+        Seventh line "."
 @34 = Ditto with separator @33:
           .type = "<LF>"
           .position[H] = {}

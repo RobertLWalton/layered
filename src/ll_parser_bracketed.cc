@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  3 07:26:29 EST 2015
+// Date:	Sat May 23 11:49:17 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -922,11 +922,16 @@ bool BRA::parse_bracketed_subexpression
 			        next->previous
 				    ->position.end;
 
-			    min::gen terminator =
-			        PAR::new_line;
+			    PAR::attr attributes[2];
+			    unsigned n = 0;
+			    attributes[n++] =
+			        PAR::attr
+			          ( min::dot_type,
+				    PAR::new_line );
+
 			    if ( separator_found )
 			    {
-			        terminator =
+			        min::gen terminator =
 				  indentation_found
 				  ->
 				  line_separator->label;
@@ -938,12 +943,12 @@ bool BRA::parse_bracketed_subexpression
 				first = previous->next;
 				    // In case first was
 				    // removed.
+				attributes[n++] =
+				    PAR::attr
+				      ( min::
+				        dot_terminator,
+					terminator );
 			    }
-
-			    PAR::attr attributes[1] =
-			      { PAR::attr
-			          ( min::dot_type,
-				    terminator ) };
 
 			    PAR::compact
 				( parser,
@@ -953,7 +958,7 @@ bool BRA::parse_bracketed_subexpression
 				  trace_flags,
 				  first, next,
 				  position,
-				  1, attributes );
+				  n, attributes );
 			}
 
 			// See if there are more lines

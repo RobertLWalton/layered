@@ -360,7 +360,7 @@ Ditto with separator:
 BRACKETED EXPRESSION:
     Ditto with separator:
         Fifth line "."
-        Sixth line A;  Sixth line B
+        Sixth line A; Sixth line B
         Seventh line "."
 @34 = Ditto with separator @33:
           .type = "<LF>"

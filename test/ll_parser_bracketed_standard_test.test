@@ -6,7 +6,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
 BRACKETED EXPRESSION:
     This is a line;
 @1 = This is a line:
-         .type = ";"
+         .terminator = ";"
+         .type = "<LF>"
          .position[H] = {}
     line 11:
 This is a line;
@@ -321,7 +322,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
 BRACKETED EXPRESSION:
     Sixth line A;
 @30 = Sixth line A:
-          .type = ";"
+          .terminator = ";"
+          .type = "<LF>"
           .position[H] = {}
     line 34:
    Sixth line A; Sixth line B
@@ -343,7 +345,8 @@ BRACKETED EXPRESSION:
    Seventh line.
    ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {: {"<LF>"|Fifth line "."|"<LF>"} {; Sixth line A ;}
+    {: {"<LF>"|Fifth line "."|"<LF>"}
+       {"<LF>": .terminator = ";"|Sixth line A|"<LF>"}
        {"<LF>"|Sixth line B|"<LF>"} {"<LF>"|Seventh line "."|"<LF>"} :}
 @33 = @29 @30 @31 @32:
           .type = ":"

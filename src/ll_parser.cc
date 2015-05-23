@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 22 12:49:14 EDT 2015
+// Date:	Sat May 23 15:11:27 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1021,7 +1021,12 @@ void PAR::parse ( PAR::parser parser )
 	        { first->position.begin,
 	          current->previous->position.end };
 
-	    min::gen terminator = PAR::new_line;
+	    PAR::attr attributes[2];
+	    unsigned n = 0;
+	    attributes[n++] =
+		PAR::attr ( min::dot_type,
+	                    PAR::new_line );
+
 	    if ( separator_found )
 	    {
 	        // If subexpression ends with an inden-
@@ -1029,20 +1034,20 @@ void PAR::parse ( PAR::parser parser )
 		// the separator from the subexpression
 		// and make it into the terminator.
 		//
-		terminator =
+		min::gen terminator =
 		    parser->top_level_indentation_mark
 			     ->line_separator->label;
 		PAR::remove
 		    ( parser, current, terminator );
+
+		attributes[n++] =
+		    PAR::attr ( min::dot_terminator,
+				terminator );
 	    }
 
 	    min::gen g = first->value;
 	    bool maybe_parser_command =
 	        ( g == PAR::parser_lexeme );
-
-	    PAR::attr attributes[1] =
-		{ PAR::attr ( min::dot_type,
-		              terminator ) };
 
 	    min::uns32 error_count_save =
 	        parser->error_count;
@@ -1070,7 +1075,7 @@ void PAR::parse ( PAR::parser parser )
 	          selectors,
 		  PAR::BRACKETED, trace_flags,
 		  first, current, position,
-		  1, attributes );
+		  n, attributes );
 
 	    min::gen result = min::FAILURE();
 	    if (    parser->error_count

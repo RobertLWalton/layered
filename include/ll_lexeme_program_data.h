@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 05:48:49 EDT 2015
+// Date:	Sun May 24 15:43:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,6 +67,11 @@ namespace ll { namespace lexeme
 // computes the type code and type name corresponding to
 // t.
 //
+// If a type name is missing its offset is 0.  If a type
+// code is missing, it is 0.  If no type names or codes
+// were given, max_type may be 0, and there will be one
+// 0 offset and one 0 char type code.
+//
 // program[component_length] is the first location after
 // the program header, i.e., after the type name
 // strings.  The type name UTF-8 strings therefore
@@ -85,6 +90,52 @@ struct program_header {
 };
 const uns32 program_header_length =
     4 + ll::lexeme::MAX_INITIAL_TABLES;
+
+// Returns max_type from program header.
+//
+inline min::uns32 max_type
+	( ll::lexeme::program program )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    return php->max_type;
+}
+
+// Returns pointer to type name of type t, or if none,
+// returns min::ptr<const char)>().  The last includes
+// the case where t > max_type of the program header.
+//
+inline min::ptr<const char> type_name
+	( ll::lexeme::program program, uns32 t )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    min::uns32 max_type = php->max_type;
+    if ( t > max_type )
+        return min::ptr<const char>();
+    min::uns32 offset =
+        program[program_header_length + t];
+    if ( offset == 0 )
+	return min::ptr<const char>();
+    else
+	return   ll::lexeme::ptr<const char>
+	             ( program, 0 )
+	       + offset;
+}
+
+// Returns pointer to type codes of a program.
+//
+inline min::ptr<const char> type_codes
+	( ll::lexeme::program program )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    min::uns32 max_type = php->max_type;
+    return ll::lexeme::ptr<const char>
+	       ( program,
+		   program_header_length
+		 + max_type + 1 );
+}
 
 // A (lexical) table consists of just a header which
 // records the mode, the dispatcher for the first char-

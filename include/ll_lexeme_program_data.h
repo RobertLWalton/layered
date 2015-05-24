@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  5 11:32:23 EST 2014
+// Date:	Sun May 24 05:48:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,16 +48,24 @@ namespace ll { namespace lexeme
 //
 // The lexeme types are 0 .. max_type.  The program
 // header is followed by a vector of max_type+1 uns32
-// values which are indices of type names.  This vector
-// is followed by the type names as NUL terminated UTF-8
+// values which are offsets of type names.  This vector
+// is followed by a vector of max_type+1 char values
+// that are printable type codes.  This vector is
+// followed by the type names as NUL terminated UTF-8
 // character strings.  Given type t then
 //
-//	uns32 offset = program[program_header_length+t];
-//	const char * type_name =
-//	    offset == 0 ? NULL :
-//	        (const char *) & program[0] + offset;
+//      const char * type_codes =
+//          (const char *)
+//          ! & program[program_header + max_type + 1];
+//      char type_code_of_t = type_codes[t];
 //
-// computes the type name corresponding to t.
+//	uns32 offset = program[program_header_length+t];
+//	const char * type_name_of_t =
+//	    offset == 0 ? NULL :
+//	        (const char *) ! & program[0] + offset;
+//
+// computes the type code and type name corresponding to
+// t.
 //
 // program[component_length] is the first location after
 // the program header, i.e., after the type name

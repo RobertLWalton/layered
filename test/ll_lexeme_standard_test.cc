@@ -31,6 +31,6 @@ int main ( int argc, const char * argv[] )
 	    min::DISPLAY_PICTURE
 	  + min::DISPLAY_NON_GRAPHIC
 	  + min::DISPLAY_EOL );
-    LEX::test_input ( LEXSTD::type_code,
+    LEX::test_input ( LEXSTD::type_codes,
                       LEXSTD::end_of_file_t );
 }

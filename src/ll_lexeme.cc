@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 12 04:37:47 EST 2015
+// Date:	Sun May 24 06:48:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,7 +166,8 @@ uns32 LEX::table_mode
 
 void LEX::create_program
 	( uns32 line_number,
-	  const char * const * type_name,
+	  const char * const * type_names,
+	  const char * type_codes,
 	  uns32 max_type,
 	  min::ref<LEX::program> program_arg )
 {
@@ -199,11 +200,22 @@ void LEX::create_program
     PUSH ( h, program_header_length );
 
     min::push ( program, max_type + 1 );
-    uns32 length = program_header_length + max_type + 1;
+    uns32 type_codes_length =
+        ::round32 ( max_type + 1 );
+    min::push ( program, type_codes_length );
+    uns32 type_codes_offset = program_header_length
+                            + max_type + 1;
+    uns32 length = type_codes_offset
+                 + type_codes_length;
     uns32 origin = sizeof ( uns32 ) * length;
     for ( uns32 t = 0; t <= max_type; ++ t )
     {
-	if ( type_name == NULL || type_name[t] == NULL )
+	if ( type_codes != NULL )
+	    * (   (char *)
+	          ! & program[type_codes_offset]
+	        + t ) = type_codes[t];
+	if (    type_names == NULL
+	     || type_names[t] == NULL )
 	{
 	    program[ID + program_header_length + t] = 0;
 	    continue;
@@ -211,13 +223,13 @@ void LEX::create_program
 	program[ID + program_header_length + t] =
 	    origin;
 
-	uns32 next_origin = origin
-	                  + strlen ( type_name[t] ) + 1;
+	uns32 next_origin =
+	    origin + strlen ( type_names[t] ) + 1;
 	uns32 next_length = ::round32 ( next_origin );
 	min::push ( program, next_length - length );
 
 	strcpy ( (char *) ! & program[ID] + origin,
-	         type_name[t] );
+	         type_names[t] );
 	origin = next_origin;
 	length = next_length;
     }

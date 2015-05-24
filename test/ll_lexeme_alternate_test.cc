@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_alternate_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 19 15:44:38 EDT 2015
+// Date:	Sun May 24 07:05:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,6 @@ int main ( int argc, const char * argv[] )
 	    min::DISPLAY_PICTURE
 	  + min::DISPLAY_NON_GRAPHIC
 	  + min::DISPLAY_EOL );
-    LEX::test_input ( LEXSTD::type_code,
+    LEX::test_input ( LEXSTD::type_codes,
                       LEXSTD::end_of_file_t );
 }

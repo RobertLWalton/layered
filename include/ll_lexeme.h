@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 11 11:48:21 EST 2015
+// Date:	Sun May 24 06:09:29 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -171,16 +171,17 @@ namespace ll { namespace lexeme {
     //
     // The header contains a map of lexeme types to type
     // names that is used for printouts.  Lexeme type
-    // t maps to name type_name[t].  This may be NULL
+    // t maps to name type_names[t].  This may be NULL
     // if t is not used.
     //
-    // If type_name is NULL, no type names are given.
+    // If type_names is NULL, no type names are given.
     // If max_type != 0, all lexeme types are required
     // to be <= max_type.
     //
     void create_program
 	    ( uns32 line_number = 0,
-	      const char * const * type_name = NULL,
+	      const char * const * type_names = NULL,
+	      const char * type_codes = NULL,
 	      uns32 max_type = 0,
 	      min::ref<ll::lexeme::program> program =
 	          default_program );

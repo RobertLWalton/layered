@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 17 05:26:15 EDT 2011
+// Date:	Sun May 24 07:05:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -131,9 +131,9 @@ namespace ll { namespace lexeme { namespace cpp {
 
     const unsigned MAX_TYPE = 29;
 
-    extern const char * const type_name[MAX_TYPE+1];
+    extern const char * const type_names[MAX_TYPE+1];
 
-    extern const char * type_code;
+    extern const char * type_codes;
         // Type codes for ll:lexeme::test_input.
 
 } } }

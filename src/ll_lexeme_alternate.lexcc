@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_alternate.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 19 15:44:38 EDT 2015
+// Date:	Sun May 24 06:55:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,7 +96,7 @@ cc	min::locatable_var<LEX::program>
 cc	    LEXSTD::default_program;
 cc
 cc	const char * const
-cc		LEXSTD::type_name[MAX_TYPE+1] = {
+cc		LEXSTD::type_names[MAX_TYPE+1] = {
 cc
 cc	    NULL,
 cc	    "WORD",
@@ -116,7 +116,7 @@ cc	    "MISPLACED_SPACE",
 cc	    "MISPLACED_CONTROL_CHARACTER",
 cc	    "UNRECOGNIZED_ESCAPE_SEQUENCE" };
 cc
-cc	const char * LEXSTD::type_code =
+cc	const char * LEXSTD::type_codes =
 cc	    "?wn#mqschbeLFCSXU";
 cc
 cc	struct char_range { uns32 min, max; }
@@ -176,7 +176,8 @@ cc
 lex
 lex	begin alternate lexical program;
 lex
-cc	    begin_program ( type_name, MAX_TYPE );
+cc	    begin_program
+cc	        ( type_names, type_codes, MAX_TYPE );
 cc
 cc	    uns32 main;
 cc	    NDL::new_table ( main, MASTER );

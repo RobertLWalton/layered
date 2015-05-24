@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_alternate.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 19 15:44:38 EDT 2015
+// Date:	Sun May 24 07:04:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -89,9 +89,9 @@ namespace ll { namespace lexeme { namespace alternate {
 
     const unsigned MAX_TYPE = 16;
 
-    extern const char * const type_name[MAX_TYPE+1];
+    extern const char * const type_names[MAX_TYPE+1];
 
-    extern const char * type_code;
+    extern const char * type_codes;
         // Type codes for ll::lexeme::test_input.
 
     namespace internal {

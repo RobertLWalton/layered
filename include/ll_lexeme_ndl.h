@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  8 07:16:02 EST 2014
+// Date:	Sun May 24 05:30:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,7 @@
 // The program is constructed in LEX::default_program.
 //
 //   <ndl-program> ::=
+//      # include <ll_lexeme_ndl.h>
 //      using ll::lexeme::ndl::MASTER;
 //      using ll::lexeme::ndl::ATOM;
 //      using ll::lexeme::ndl::NONE;
@@ -51,19 +52,23 @@
 //      using ll::lexeme::ndl::uns32;
 //
 //	const uns32 max_type = ...
-//	const char * const type_name[max_type+1] =
+//	const char * const type_names[max_type+1] =
 //	    { "xxx", "yyy", ..., NULL, "zzz", ... };
+//	const char type_codes[max_type+1] =
+//	    "xy...?z...";
 //
-//	NDL::begin_program ( type_name, max_type );
+//	NDL::begin_program
+//	    ( type_names, type_codes, max_type );
 //	<declaration>*
 //	<table-definition>*
 //	NDL::end_program();
 //
-//   // type_name[t] is the printable name of <type-
+//   // type_names[t] is the printable name of <type-
 //   // name> t (see below), where t <= max_type.  One
-//   // can omit the type_name and max_type arguments to
-//   // NDL::begin_program if one wants to print numbers
-//   // instead of names for <type-name>s.
+//   // can omit the type_names, type_codes, and
+//   // max_type arguments to NDL::begin_program if
+//   // one wants to print numbers instead of names
+//   // for <type-name>s and not use type codes.
 //
 //   <declaration> := <table-declaration>
 //		    | <atom-pattern-declaration>
@@ -332,7 +337,8 @@ namespace ll { namespace lexeme { namespace ndl {
     // all of the below must have void return type.
 
     void begin_program
-	    ( const char * const * type_name,
+	    ( const char * const * type_names,
+	      const char * type_codes,
 	      uns32 max_type );
     void end_program ( void );
 

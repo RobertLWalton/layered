@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  8 01:10:09 EST 2014
+// Date:	Sun May 24 07:01:12 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,7 +62,7 @@ enum {
     OPERATOR,
     SEPARATOR,
     MAX_TYPE = SEPARATOR };
-static const char * const type_name[MAX_TYPE+1] = {
+static const char * const type_names[MAX_TYPE+1] = {
    "WHITESPACE",
    "ERROR",
    "END_OF_FILE",
@@ -109,7 +109,7 @@ static void check_set_repeat_count
 static void create_program_1 ( void )
 {
     LEX::create_program
-        ( __LINE__, type_name, MAX_TYPE );
+        ( __LINE__, type_names, NULL, MAX_TYPE );
 
     LEX::create_table ( __LINE__, MASTER );
 
@@ -244,7 +244,7 @@ static void create_program_1 ( void )
 static void create_program_2 ( void )
 {
     LEX::create_program
-        ( __LINE__, type_name, MAX_TYPE );
+        ( __LINE__, type_names, NULL, MAX_TYPE );
     uns32 master =
         LEX::create_table ( __LINE__, MASTER );
 

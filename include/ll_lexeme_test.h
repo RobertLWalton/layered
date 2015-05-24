@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 11 11:47:31 EST 2015
+// Date:	Sun May 24 15:22:53 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,7 +47,7 @@ namespace ll { namespace lexeme {
     // line another line containing the type codes of
     // the lexemes in the line.  Under a character in a
     // lexeme or erroneous atom of type t, print the
-    // code type_code[t].  If two codes, one for a
+    // code type_codes[t].  If two codes, one for a
     // lexeme and one for an erroneous atom, are to be
     // printed in the same place, the erroneous atom
     // code take precedence.
@@ -59,12 +59,14 @@ namespace ll { namespace lexeme {
     // input and will spool recently read lines for
     // printing.
     //
+    // The type_codes are taken from the lexical program
+    // of the scanner.  If there is no type code for
+    // a type t, a single space is printed.
+    //
     // This function terminates after printing a lexeme
     // of type end_of_file_t.
     //
-    void test_input
-	    ( const char * type_code,
-	      uns32 end_of_file_t );
+    void test_input ( uns32 end_of_file_t );
 
 } }
 

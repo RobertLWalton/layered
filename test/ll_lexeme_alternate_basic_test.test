@@ -21,7 +21,7 @@
             Mode: MASTER
             Dispatcher ID: #####
             #####: OUTPUT(10)
-    ######: TABLE
+   #######: TABLE
             Mode: WORD
             Dispatcher ID: #####
             #####: RETURN
@@ -147,7 +147,7 @@
             <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
             <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
             <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
-                #####: CALL(###)
+                #####: CALL(####)
                 Dispatcher ID: #####
             0-9
                 #####: KEEP(1), CALL(####)
@@ -180,7 +180,7 @@
             <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
             <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
             <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
-                #####: CALL(###)
+                #####: CALL(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Break Elements: 1
@@ -249,7 +249,7 @@
             <60000>-<6FFFD> <70000>-<7FFFD> <80000>-<8FFFD>
             <90000>-<9FFFD> <0A0000>-<0AFFFD> <0B0000>-<0BFFFD>
             <0C0000>-<0CFFFD> <0D0000>-<0DFFFD> <0E0000>-<0EFFFD>
-                #####: CALL(###)
+                #####: CALL(####)
                 Dispatcher ID: #####
             '
                 #####: OUTPUT(6)

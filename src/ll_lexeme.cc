@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 06:48:03 EDT 2015
+// Date:	Sun May 24 15:37:14 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,7 @@
 # include <cstdio>
 # include <cerrno>
 # define LEX ll::lexeme
+# define LEXDATA ll::lexeme::program_data
 using std::cout;
 using std::endl;
 using std::setw;
@@ -210,10 +211,9 @@ void LEX::create_program
     uns32 origin = sizeof ( uns32 ) * length;
     for ( uns32 t = 0; t <= max_type; ++ t )
     {
-	if ( type_codes != NULL )
-	    * (   (char *)
-	          ! & program[type_codes_offset]
-	        + t ) = type_codes[t];
+        ((char *) ! & program[type_codes_offset])[t] =
+	    ( type_codes != NULL ?  type_codes[t] : 0 );
+
 	if (    type_names == NULL
 	     || type_names[t] == NULL )
 	{
@@ -2371,13 +2371,13 @@ min::printer operator <<
         LEX::ptr<program_header> ( program, 0 );
     if ( pmode.mode <= php->max_type )
     {
-        uns32 offset =
-	    program[program_header_length + mode];
-	if ( offset != 0 )
+        min::ptr<const char> type_name =
+	    LEXDATA::type_name ( program, mode );
+	if ( type_name != min::ptr<const char>() )
 	    return printer
 	        << min::save_print_format
 	        << min::no_auto_break
-	        << min::ptr<char> ( php ) + offset
+	        << type_name
 	        << min::restore_print_format;
     }
 

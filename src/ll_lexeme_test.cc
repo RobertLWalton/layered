@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 12 07:07:34 EST 2015
+// Date:	Sun May 24 11:53:52 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,9 +18,11 @@
 // ----- --- -----
 
 # include <ll_lexeme.h>
+# include <ll_lexeme_program_data.h>
 # include <ll_lexeme_test.h>
 # include <iostream>
 # define LEX ll::lexeme
+# define LEXDATA ll::lexeme::program_data
 using std::cout;
 using std::endl;
 using LEX::uns32;
@@ -70,8 +72,14 @@ static min::locatable_var<min::packed_vec_insptr<char> >
 static min::packed_vec<char> codes_type
     ( "ll::lexeme::codes_type" );
 
-static const char * type_code;
-    // Save of type_code argument for general use.
+static min::locatable_var < min::ptr<const char> >
+	type_codes;
+    // Save of type_codes from lexical program for
+    // general use.
+
+static min::uns32 max_type;
+    // Save of max_type from lexical program for
+    // general use.
 
 static LEX::uns32 next_line;
     // Line number of next line to be printed.
@@ -169,7 +177,8 @@ static void set_codes
     while ( codes->length < end_column )
         min::push(codes) = ' ';
     for ( uns32 i = begin_column; i < end_column; ++ i )
-        codes[i] = ::type_code[type];
+        codes[i] = ( type <= ::max_type ?
+	             ::type_codes[type] : ' ' );
 }
 
 static min::locatable_var<LEX::erroneous_atom>
@@ -185,9 +194,7 @@ static void erroneous_atom_announce
                 first, next, type );
 }
 
-void LEX::test_input
-	( const char * type_code,
-	  uns32 end_of_file_t )
+void LEX::test_input ( uns32 end_of_file_t )
 {
     LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
@@ -197,7 +204,12 @@ void LEX::test_input
           ::erroneous_atom_announce );
     erroneous_atom_ref(scanner) = ::test_erroneous_atom;
 
-    ::type_code = type_code;
+    
+    ::type_codes =
+        LEXDATA::type_codes ( scanner->program );
+    ::max_type =
+        LEXDATA::max_type ( scanner->program );
+
     ::next_line = 0;
 
     if ( lexeme_codes == min::NULL_STUB )

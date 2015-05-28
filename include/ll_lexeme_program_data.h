@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 15:43:37 EDT 2015
+// Date:	Thu May 28 05:47:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -154,14 +154,23 @@ const uns32 table_header_length = 5;
 // The format of a dispatcher is
 //
 //	dispatcher header
-//	vector of dispatcher break elements
 //	vector of dispatcher map elements
+//	vector of dispatcher character types (ctype_map)
 //
-// The dispatcher break elements map a character C to a
-// type map M.  The type map M maps C to a character
-// type (a.k.a. `ctype') T, and then the dispatcher map
-// elements map T to an instruction I and another
-// dispatcher D.
+// The vector of dispatcher character types (the ctype
+// map) maps the UNICODE character index of a character
+// C (i.e., cindex = min::Uindex(C)) to an uns8 charac-
+// ter type, ctype.  The vector has ctype_map_size uns8
+// elements.  If cindex is too large for the vector
+// (i.e., cindex >= ctype_map_size), then ctype is 0.
+// It is always true that ctype <= max_ctype.
+//
+// The dispatcher map elements map the ctype to an
+// instruction I, another dispatcher D, and a repeat
+// count R.  There are max_ctype+1 map elements.  I and
+// D are represented by instruction and dispatcher IDs,
+// which are 0 if I or D is absent.  The repetition
+// count is 0 if it is absent.
 //
 // If I is present it is the instruction executed if
 // the current atom ends with C.  If D is present it
@@ -170,66 +179,32 @@ const uns32 table_header_length = 5;
 // neither I or D are present then C is not legal in
 // the current atom, which must end before C.
 //
-// If there are n breakpoints in a dispatcher there are
-// n+1 break elements in the dispatcher.  Each break
-// element applies to the range of characters cmin ..
-// cmax, where cmin is a member of the break element,
-// and cmax = next break element's cmin - 1, if there
-// is a next break element, or = 0xFFFFFFFF if there
-// is no next break element.  The first break element
-// always has cmin = 0.  Break elements are sorted
-// to have ascending cmin values, so a binary search
-// of the break elements can be used to map C to a
-// break element.
+// A non-zero repeat count R means that characters after
+// C are examined to see if they have the same ctype as
+// C, and if they do, as many as R are recognized by
+// this the dispatcher, as if D had been this dispatcher
+// itself.  When there are no more characters with the
+// same ctype as C, or when R characters have been
+// processed, execution continues to dispatcher D.
 //
-// A character C maps to the break element for which
-// cmin <= C <= cmax.  The character is then further
-// mapped by the type map M whose ID is given in the
-// break element, if that ID is non-zero.  If the ID
-// is zero, the character is mapped to ctype 0.
-//
-// If a character is mapped to ctype T (by M if it is
-// present, or to T = 0 otherwise), then T is mapped to
-// the T+1'st dispatcher map element.  This gives the
-// IDs of the instruction I and dispatcher D indicated
-// above.  If either ID is 0 the instruction or
-// dispatcher is missing.
+// component_length is the total number of uns32
+// elements in the dispatcher, including the
+// ctype_map_size uns8 ctype elements at the end.
 //
 struct dispatcher_header {
     uns32 pctype;		// == DISPATCHER
     uns32 line_number;
-    uns32 break_elements;
-    uns32 max_break_elements;
     uns32 max_ctype;
+    uns32 ctype_map_size;
+    uns32 component_length;
 };
 const uns32 dispatcher_header_length = 5;
-struct break_element {
-    uns32 cmin;
-    uns32 type_map_ID;
-};
-const uns32 break_element_length = 2;
 struct map_element {
     uns32 dispatcher_ID;
     uns32 instruction_ID;
     uns32 repeat_count;
 };
 const uns32 map_element_length = 3;
-
-// A type map maps a character range to either
-// a singleton_ctype is that is non-zero, or to
-// map[c-cmin] otherwise, where map is the uns8 *
-// pointer to the first byte after the type map
-// header.  The component length is type_map_
-// header_length + ( cmax - cmin + 4 ) / 4 if
-// singleton_ctype is zero.
-//
-struct type_map_header {
-    uns32 pctype;	    // == TYPE_MAP
-    uns32 line_number;
-    uns32 cmin, cmax;	    // Character range.
-    uns32 singleton_ctype;  // If 0 use vector.
-};
-const uns32 type_map_header_length = 5;
 
 // Instruction.  If operation includes TRANSLATE_TO(n)
 // this is followed by the n uns32 characters of the

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 06:09:29 EDT 2015
+// Date:	Thu May 28 05:47:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -145,9 +145,8 @@ namespace ll { namespace lexeme {
     enum {
 	PROGRAM			= 1,
 	TABLE			= 2,
-	TYPE_MAP		= 3,
-	DISPATCHER		= 4,
-	INSTRUCTION		= 5
+	DISPATCHER		= 3,
+	INSTRUCTION		= 4
     };
 
     // Return the type of the component at the given
@@ -232,35 +231,24 @@ namespace ll { namespace lexeme {
     //
     uns32 create_dispatcher
 	    ( uns32 line_number,
-	      uns32 max_breakpointers,
 	      uns32 max_ctype,
+	      uns32 ctype_map_size,
+	      min::ptr<const uns8> ctype_map,
 	      ll::lexeme::program program =
 	          default_program );
-
-    // Create a type map for characters in the range
-    // cmin .. cmax.  Return the type map ID.  Copy
-    // map[0..(cmax-cmin)] into type map, so the map
-    // will give character c the ctype map[c-cmin].
-    //
-    uns32 create_type_map
+    inline uns32 create_dispatcher
 	    ( uns32 line_number,
-	      uns32 cmin, uns32 cmax,
-	      uns8 * map,
+	      uns32 max_ctype,
+	      uns32 ctype_map_size,
+	      const uns8 * ctype_map,
 	      ll::lexeme::program program =
-	          default_program );
-
-    // Create a type map for characters in the range
-    // cmin .. cmax.  Return the type map ID.  This
-    // form of type map will map all characters in the
-    // range to the given ctype, which must not be 0.
-    //
-    uns32 create_type_map
-	    ( uns32 line_number,
-	      uns32 cmin, uns32 cmax,
-	      uns32 ctype,
-	      ll::lexeme::program program =
-	          default_program );
-
+	          default_program )
+    {
+        return create_dispatcher
+	    ( line_number, max_ctype, ctype_map_size,
+	      min::new_ptr<const uns8> ( ctype_map ),
+	      program );
+    }
 
     // Create an instruction.  Instructions are program
     // components defined below in `Program Instruc-
@@ -286,8 +274,7 @@ namespace ll { namespace lexeme {
 	          default_program );
 
     // Attach a dispatcher or an instruction program
-    // component to a lexical table target, or a type
-    // map component to a dispatcher target.  Return
+    // component to a lexical table target.  Return
     // true if no error.  Return false and do nothing
     // but write an error message consisting of one or
     // more complete lines to min::error_message if

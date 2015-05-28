@@ -19,38 +19,69 @@ Uncooked Program 1:
             Dispatcher ID: ###
             Instruction ID: ####
     ######: DISPATCHER
-            Break Elements: 5
-            Max Break Elements: 11
-            Max CType: 4
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   0            ####
-                                   :              ##
-                                   a            ####
-                                   {              ##
+            Max CType: 10
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##            ####             0
-                2:             ###              ##             0
+                2:            ####              ##             0
                 3:              ##              ##             0
                 4:              ##            ####      INFINITY
-    ######: DISPATCHER
-            Break Elements: 1
-            Max Break Elements: 11
-            Max CType: 0
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
+                5:              ##              ##             0
+                6:              ##              ##             0
+                7:              ##              ##             0
+                8:              ##              ##             0
+                9:              ##              ##             0
+               10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    0    0    0    0    0    0
+                  30:     0    1    2    3    4    5    4    3
+                  38:     2    1    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    4    4    4    4    4    4    4
+                  68:     4    4    4    4    4    4    4    4
+                  70:     4    4    4    4    4    4    4    4
+                  78:     4    4    4    0    0    0    0    0
+   #######: DISPATCHER
+            Max CType: 10
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
-   #######: TYPE_MAP
-               0: 0
-               1: 1 9
-               2: 2 8
-               3: 3 7
-               4: 4 6
-               5: 5
-   #######: TYPE_MAP
-               4: a-z
+                1:              ##              ##             0
+                2:              ##              ##             0
+                3:              ##              ##             0
+                4:              ##              ##             0
+                5:              ##              ##             0
+                6:              ##              ##             0
+                7:              ##              ##             0
+                8:              ##              ##             0
+                9:              ##              ##             0
+               10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    0    0    0    0    0    0
+                  30:     0    0    0    0    0    0    0    0
+                  38:     0    0    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
    #######: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(###)
    #######: ACCEPT
 
@@ -74,19 +105,17 @@ Cooked Program 1:
             Dispatcher ID: ###
             ####: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(###)
     ######: DISPATCHER
-            Break Elements: 5
-            Max Break Elements: 11
-            Max CType: 4
+            Max CType: 10
+            Ctype Map Size: 128
             1 9
                 ####: KEEP(1), TRANSLATE_TO(3,XYZ), GOTO(###)
             2 8
-                Dispatcher ID: ###
+                Dispatcher ID: ####
             4 6 a-z [repeat(INFINITY)]
                 ####: ACCEPT
-    ######: DISPATCHER
-            Break Elements: 1
-            Max Break Elements: 11
-            Max CType: 0
+   #######: DISPATCHER
+            Max CType: 10
+            Ctype Map Size: 128
 
 Uncooked Program 2:
 
@@ -108,54 +137,80 @@ Uncooked Program 2:
             Mode: ATOM
             Dispatcher ID: ###
             Instruction ID: ####
-    ######: TYPE_MAP
-               1: \-\
-    ######: TYPE_MAP
-               1: 0-7
     ######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
             Max CType: 2
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   \             ###
-                                   ]              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:             ###              ##             0
                 2:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    0    0    0    0    0    0
+                  30:     0    0    0    0    0    0    0    0
+                  38:     0    0    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    1    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
     ######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
             Max CType: 2
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   0             ###
-                                   8              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##            ####             2
                 2:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    0    0    0    0    0    0
+                  30:     1    1    1    1    1    1    1    1
+                  38:     0    0    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
    #######: FAIL
    #######: TRANSLATE_OCT(1,0), ELSE(####)
    #######: DISPATCHER
-            Break Elements: 5
-            Max Break Elements: 6
             Max CType: 2
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   A            ####
-                                   [              ##
-                                   a            ####
-                                   {              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##              ##             0
                 2:              ##              ##             0
-   #######: TYPE_MAP
-               1: a-z
-   #######: TYPE_MAP
-               1: A-Z
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    0    0    0    0    0    0
+                  30:     0    0    0    0    0    0    0    0
+                  38:     0    0    0    0    0    0    0    0
+                  40:     0    1    1    1    1    1    1    1
+                  48:     1    1    1    1    1    1    1    1
+                  50:     1    1    1    1    1    1    1    1
+                  58:     1    1    1    0    0    0    0    0
+                  60:     0    1    1    1    1    1    1    1
+                  68:     1    1    1    1    1    1    1    1
+                  70:     1    1    1    1    1    1    1    1
+                  78:     1    1    1    0    0    0    0    0
    #######: TABLE
             Mode: WHITESPACE
             Dispatcher ID: ####
@@ -173,16 +228,6 @@ Uncooked Program 2:
             Dispatcher ID: ####
             Instruction ID: ####
    #######: OUTPUT(2)
-   #######: TYPE_MAP
-               0: <NUL>-<BS> <SO>-<US> !-' : <-@ ^-` | ~
-               1: <HT>-<CR> <SP>
-               2: A-Z a-z
-               3: 0-9
-               4: .
-               5: (-) , ; [ ] { }
-               6: *-+ - /
-               7: \
-               8: <DEL>
    #######: KEEP(0), CALL(####)
    #######: KEEP(0), GOTO(####)
    #######: GOTO(####)
@@ -193,12 +238,8 @@ Uncooked Program 2:
    #######: MATCH(###), OUTPUT(1), ELSE(####)
    #######: MATCH(###), REQUIRE(####), CALL(####), ELSE(####)
    #######: DISPATCHER
-            Break Elements: 2
-            Max Break Elements: 4
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>            ####
-                               <PAD>              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##            ####             0
                 1:              ##            ####             0
@@ -211,17 +252,30 @@ Uncooked Program 2:
                 8:              ##              ##             0
                 9:              ##              ##             0
                10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    1    1    1    1    1    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     1    0    0    0    0    0    0    0
+                  28:     5    5    6    6    5    6    4    6
+                  30:     3    3    3    3    3    3    3    3
+                  38:     3    3    0    5    0    0    0    0
+                  40:     0    2    2    2    2    2    2    2
+                  48:     2    2    2    2    2    2    2    2
+                  50:     2    2    2    2    2    2    2    2
+                  58:     2    2    2    5    7    5    0    0
+                  60:     0    2    2    2    2    2    2    2
+                  68:     2    2    2    2    2    2    2    2
+                  70:     2    2    2    2    2    2    2    2
+                  78:     2    2    2    5    0    5    0    8
    #######: KEEP(0), GOTO(###)
    #######: RETURN
    #######: KEEP(0), RETURN
    #######: ACCEPT
    #######: DISPATCHER
-            Break Elements: 2
-            Max Break Elements: 4
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>            ####
-                               <PAD>              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##              ##             0
@@ -234,6 +288,23 @@ Uncooked Program 2:
                 8:              ##            ####             0
                 9:              ##              ##             0
                10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    1    1    1    1    1    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     1    0    0    0    0    0    0    0
+                  28:     5    5    6    6    5    6    4    6
+                  30:     3    3    3    3    3    3    3    3
+                  38:     3    3    0    5    0    0    0    0
+                  40:     0    2    2    2    2    2    2    2
+                  48:     2    2    2    2    2    2    2    2
+                  50:     2    2    2    2    2    2    2    2
+                  58:     2    2    2    5    7    5    0    0
+                  60:     0    2    2    2    2    2    2    2
+                  68:     2    2    2    2    2    2    2    2
+                  70:     2    2    2    2    2    2    2    2
+                  78:     2    2    2    5    0    5    0    8
    #######: MATCH(###), REQUIRE(####), ELSE(####)
    #######: TABLE
             Mode: NONE
@@ -241,15 +312,8 @@ Uncooked Program 2:
             Instruction ID: ####
    #######: GOTO(####)
    #######: DISPATCHER
-            Break Elements: 5
-            Max Break Elements: 6
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   .            ####
-                                   /              ##
-                                   0            ####
-                                   :              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##            ####             0
@@ -262,18 +326,26 @@ Uncooked Program 2:
                 8:              ##              ##             0
                 9:              ##              ##             0
                10:              ##              ##             0
-   #######: TYPE_MAP
-               1: 0-9
-   #######: TYPE_MAP
-               2: .-.
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    0    0    0    0    2    0
+                  30:     1    1    1    1    1    1    1    1
+                  38:     1    1    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
    #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   0            ####
-                                   :              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##            ####             0
@@ -286,13 +358,26 @@ Uncooked Program 2:
                 8:              ##              ##             0
                 9:              ##              ##             0
                10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    0    0    0    0    2    0
+                  30:     1    1    1    1    1    1    1    1
+                  38:     1    1    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
    #######: DISPATCHER
-            Break Elements: 2
-            Max Break Elements: 4
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>            ####
-                               <PAD>              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##            ####             0
@@ -305,19 +390,26 @@ Uncooked Program 2:
                 8:              ##              ##             0
                 9:              ##              ##             0
                10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    1    1    1    1    1    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     1    0    0    0    0    0    0    0
+                  28:     5    5    6    6    5    6    4    6
+                  30:     3    3    3    3    3    3    3    3
+                  38:     3    3    0    5    0    0    0    0
+                  40:     0    2    2    2    2    2    2    2
+                  48:     2    2    2    2    2    2    2    2
+                  50:     2    2    2    2    2    2    2    2
+                  58:     2    2    2    5    7    5    0    0
+                  60:     0    2    2    2    2    2    2    2
+                  68:     2    2    2    2    2    2    2    2
+                  70:     2    2    2    2    2    2    2    2
+                  78:     2    2    2    5    0    5    0    8
    #######: DISPATCHER
-            Break Elements: 8
-            Max Break Elements: 10
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   *            ####
-                                   +            ####
-                                   ,              ##
-                                   -            ####
-                                   .              ##
-                                   /            ####
-                                   0              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:            ####            ####             0
@@ -330,23 +422,27 @@ Uncooked Program 2:
                 8:              ##              ##             0
                 9:              ##              ##             0
                10:              ##              ##             0
-   #######: TYPE_MAP
-               1: +-+
-   #######: TYPE_MAP
-               2: ---
-   #######: TYPE_MAP
-               3: /-/
-   #######: TYPE_MAP
-               3: *-*
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    3    1    0    2    0    3
+                  30:     0    0    0    0    0    0    0    0
+                  38:     0    0    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
    #######: GOTO(###)
    #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 10
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   +            ####
-                                   ,              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##            ####             0
@@ -359,14 +455,26 @@ Uncooked Program 2:
                 8:              ##              ##             0
                 9:              ##              ##             0
                10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    3    1    0    2    0    3
+                  30:     0    0    0    0    0    0    0    0
+                  38:     0    0    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
    #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 10
             Max CType: 10
-            Breaks:             cmin     type_map_ID
-                               <NUL>              ##
-                                   -            ####
-                                   .              ##
+            Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
                 1:              ##              ##             0
@@ -379,6 +487,23 @@ Uncooked Program 2:
                 8:              ##              ##             0
                 9:              ##              ##             0
                10:              ##              ##             0
+            CTYPE VECTOR:
+                   0:     0    0    0    0    0    0    0    0
+                   8:     0    0    0    0    0    0    0    0
+                  10:     0    0    0    0    0    0    0    0
+                  18:     0    0    0    0    0    0    0    0
+                  20:     0    0    0    0    0    0    0    0
+                  28:     0    0    3    1    0    2    0    3
+                  30:     0    0    0    0    0    0    0    0
+                  38:     0    0    0    0    0    0    0    0
+                  40:     0    0    0    0    0    0    0    0
+                  48:     0    0    0    0    0    0    0    0
+                  50:     0    0    0    0    0    0    0    0
+                  58:     0    0    0    0    0    0    0    0
+                  60:     0    0    0    0    0    0    0    0
+                  68:     0    0    0    0    0    0    0    0
+                  70:     0    0    0    0    0    0    0    0
+                  78:     0    0    0    0    0    0    0    0
 
 Cooked Program 2:
 
@@ -401,22 +526,19 @@ Cooked Program 2:
             Dispatcher ID: ###
             ####: FAIL
     ######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
             Max CType: 2
+            Ctype Map Size: 128
             \
                 Dispatcher ID: ###
     ######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
             Max CType: 2
+            Ctype Map Size: 128
             0-7 [repeat(2)]
                 ####: TRANSLATE_OCT(1,0), ELSE:
                 ####: FAIL
    #######: DISPATCHER
-            Break Elements: 5
-            Max Break Elements: 6
             Max CType: 2
+            Ctype Map Size: 128
    #######: TABLE
             Mode: WHITESPACE
             Dispatcher ID: ####
@@ -434,10 +556,9 @@ Cooked Program 2:
             Dispatcher ID: ####
             ####: KEEP(0), GOTO(###)
    #######: DISPATCHER
-            Break Elements: 2
-            Max Break Elements: 4
             Max CType: 10
-            <NUL>-<BS> <SO>-<US> !-' : <-@ ^-` | ~ <PAD>-
+            Ctype Map Size: 128
+            <NUL>-<BS> <SO>-<US> !-' : <-@ ^-` | ~ <PAD>-<30000>
                 ####: OUTPUT(1)
             <HT>-<CR> <SP>
                 ####: GOTO(####)
@@ -454,9 +575,8 @@ Cooked Program 2:
                 ####: MATCH(###), OUTPUT(1), ELSE:
                 ####: OUTPUT(1)
    #######: DISPATCHER
-            Break Elements: 2
-            Max Break Elements: 4
             Max CType: 10
+            Ctype Map Size: 128
             0-9 A-Z a-z
                 ####: ACCEPT
             \
@@ -469,29 +589,25 @@ Cooked Program 2:
             Dispatcher ID: ####
             ####: KEEP(0), GOTO(###)
    #######: DISPATCHER
-            Break Elements: 5
-            Max Break Elements: 6
             Max CType: 10
+            Ctype Map Size: 128
             0-9
                 ####: ACCEPT
             .
                 ####: GOTO(####)
    #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 4
             Max CType: 10
+            Ctype Map Size: 128
             0-9
                 ####: ACCEPT
    #######: DISPATCHER
-            Break Elements: 2
-            Max Break Elements: 4
             Max CType: 10
+            Ctype Map Size: 128
             <HT>-<CR> <SP>
                 ####: ACCEPT
    #######: DISPATCHER
-            Break Elements: 8
-            Max Break Elements: 10
             Max CType: 10
+            Ctype Map Size: 128
             +
                 ####: GOTO(###)
                 Dispatcher ID: ####
@@ -501,15 +617,13 @@ Cooked Program 2:
             * /
                 ####: GOTO(###)
    #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 10
             Max CType: 10
+            Ctype Map Size: 128
             +
                 ####: GOTO(###)
    #######: DISPATCHER
-            Break Elements: 3
-            Max Break Elements: 10
             Max CType: 10
+            Ctype Map Size: 128
             -
                 ####: GOTO(###)
 
@@ -563,276 +677,276 @@ Testing Lexical Scan of:
     *a**b+++c(+d<DEL>e%f0--1.2.3<SOH><STX>A\102C\100D\10E<LF>
 
 Start atom scan: table = ###
-  Character = * Dispatcher = #### Type Map = #### CType = 6
+  Character = * Dispatcher = #### CType = 6
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = * Dispatcher = #### Type Map = #### CType = 3
+  Character = * Dispatcher = #### CType = 3
   ####: GOTO(###)
 Scan Returned: OPERATOR 0(0)0: *
 Start atom scan: table = ###
-  Character = a Dispatcher = #### Type Map = #### CType = 2
+  Character = a Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = a Dispatcher = #### Type Map = #### CType = 2
+  Character = a Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = * Dispatcher = #### Type Map = #### CType = 6
+  Character = * Dispatcher = #### CType = 6
   ####: RETURN
 Scan Returned: SYMBOL 0(1): a
 Start atom scan: table = ###
-  Character = * Dispatcher = #### Type Map = #### CType = 6
+  Character = * Dispatcher = #### CType = 6
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = * Dispatcher = #### Type Map = #### CType = 3
+  Character = * Dispatcher = #### CType = 3
   ####: GOTO(###)
 Scan Returned: OPERATOR 0(2): *
 Start atom scan: table = ###
-  Character = * Dispatcher = #### Type Map = #### CType = 6
+  Character = * Dispatcher = #### CType = 6
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = * Dispatcher = #### Type Map = #### CType = 3
+  Character = * Dispatcher = #### CType = 3
   ####: GOTO(###)
 Scan Returned: OPERATOR 0(3): *
 Start atom scan: table = ###
-  Character = b Dispatcher = #### Type Map = #### CType = 2
+  Character = b Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = b Dispatcher = #### Type Map = #### CType = 2
+  Character = b Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = + Dispatcher = #### Type Map = #### CType = 6
+  Character = + Dispatcher = #### CType = 6
   ####: RETURN
 Scan Returned: SYMBOL 0(4): b
 Start atom scan: table = ###
-  Character = + Dispatcher = #### Type Map = #### CType = 6
+  Character = + Dispatcher = #### CType = 6
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = + Dispatcher = #### Type Map = #### CType = 1
-  Character = + Dispatcher = #### Type Map = #### CType = 1
+  Character = + Dispatcher = #### CType = 1
+  Character = + Dispatcher = #### CType = 1
   ####: GOTO(###)
 Scan Returned: OPERATOR 0(5): ++
 Start atom scan: table = ###
-  Character = + Dispatcher = #### Type Map = #### CType = 6
+  Character = + Dispatcher = #### CType = 6
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = + Dispatcher = #### Type Map = #### CType = 1
+  Character = + Dispatcher = #### CType = 1
   Character = c Dispatcher = #### CType = 0
   ####: GOTO(###)
 Scan Returned: OPERATOR 0(7): +
 Start atom scan: table = ###
-  Character = c Dispatcher = #### Type Map = #### CType = 2
+  Character = c Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = c Dispatcher = #### Type Map = #### CType = 2
+  Character = c Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = ( Dispatcher = #### Type Map = #### CType = 5
+  Character = ( Dispatcher = #### CType = 5
   ####: RETURN
 Scan Returned: SYMBOL 0(8): c
 Start atom scan: table = ###
-  Character = ( Dispatcher = #### Type Map = #### CType = 5
+  Character = ( Dispatcher = #### CType = 5
   ####: OUTPUT(6)
 Scan Returned: SEPARATOR 0(9): (
 Start atom scan: table = ###
-  Character = + Dispatcher = #### Type Map = #### CType = 6
+  Character = + Dispatcher = #### CType = 6
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = + Dispatcher = #### Type Map = #### CType = 1
+  Character = + Dispatcher = #### CType = 1
   Character = d Dispatcher = #### CType = 0
   ####: GOTO(###)
 Scan Returned: OPERATOR 0(10): +
 Start atom scan: table = ###
-  Character = d Dispatcher = #### Type Map = #### CType = 2
+  Character = d Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = d Dispatcher = #### Type Map = #### CType = 2
+  Character = d Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = <DEL> Dispatcher = #### Type Map = #### CType = 8
+  Character = <DEL> Dispatcher = #### CType = 8
   ####: TRANSLATE_TO(0), ERRONEOUS_ATOM(100)
 ERRONEOUS ATOM: TYPE (100) 0(12): <DEL>
 Start atom scan: table = ####
-  Character = e Dispatcher = #### Type Map = #### CType = 2
+  Character = e Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = % Dispatcher = #### Type Map = #### CType = 0
+  Character = % Dispatcher = #### CType = 0
   ####: RETURN
 Scan Returned: SYMBOL 0(11): d<DEL>e translated to: de
 Start atom scan: table = ###
-  Character = % Dispatcher = #### Type Map = #### CType = 0
+  Character = % Dispatcher = #### CType = 0
   ####: OUTPUT(1)
 Scan Returned: ERROR 0(14): %
 Start atom scan: table = ###
-  Character = f Dispatcher = #### Type Map = #### CType = 2
+  Character = f Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = f Dispatcher = #### Type Map = #### CType = 2
+  Character = f Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = 0 Dispatcher = #### Type Map = #### CType = 3
+  Character = 0 Dispatcher = #### CType = 3
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = - Dispatcher = #### Type Map = #### CType = 6
+  Character = - Dispatcher = #### CType = 6
   ####: RETURN
 Scan Returned: SYMBOL 0(15): f0
 Start atom scan: table = ###
-  Character = - Dispatcher = #### Type Map = #### CType = 6
+  Character = - Dispatcher = #### CType = 6
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = - Dispatcher = #### Type Map = #### CType = 2
-  Character = - Dispatcher = #### Type Map = #### CType = 2
+  Character = - Dispatcher = #### CType = 2
+  Character = - Dispatcher = #### CType = 2
   ####: GOTO(###)
 Scan Returned: OPERATOR 0(17): --
 Start atom scan: table = ###
-  Character = 1 Dispatcher = #### Type Map = #### CType = 3
+  Character = 1 Dispatcher = #### CType = 3
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = 1 Dispatcher = #### Type Map = #### CType = 1
+  Character = 1 Dispatcher = #### CType = 1
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = . Dispatcher = #### Type Map = #### CType = 2
+  Character = . Dispatcher = #### CType = 2
   ####: GOTO(####)
 Start atom scan: table = ####
-  Character = 2 Dispatcher = #### Type Map = #### CType = 1
+  Character = 2 Dispatcher = #### CType = 1
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = . Dispatcher = #### CType = 0
+  Character = . Dispatcher = #### CType = 2
   ####: KEEP(0), GOTO(###)
 Scan Returned: NUMBER 0(19): 1.2
 Start atom scan: table = ###
-  Character = . Dispatcher = #### Type Map = #### CType = 4
+  Character = . Dispatcher = #### CType = 4
   ####: KEEP(0), GOTO(####)
 Start atom scan: table = ####
-  Character = . Dispatcher = #### Type Map = #### CType = 2
+  Character = . Dispatcher = #### CType = 2
   ####: GOTO(####)
 Start atom scan: table = ####
-  Character = 3 Dispatcher = #### Type Map = #### CType = 1
+  Character = 3 Dispatcher = #### CType = 1
   ####: ACCEPT
 Start atom scan: table = ####
   Character = <SOH> Dispatcher = #### CType = 0
   ####: KEEP(0), GOTO(###)
 Scan Returned: NUMBER 0(22): .3
 Start atom scan: table = ###
-  Character = <SOH> Dispatcher = #### Type Map = #### CType = 0
+  Character = <SOH> Dispatcher = #### CType = 0
   ####: OUTPUT(1)
 Scan Returned: ERROR 0(24): <SOH>
 Start atom scan: table = ###
-  Character = <STX> Dispatcher = #### Type Map = #### CType = 0
+  Character = <STX> Dispatcher = #### CType = 0
   ####: OUTPUT(1)
 Scan Returned: ERROR 0(25): <STX>
 Start atom scan: table = ###
-  Character = A Dispatcher = #### Type Map = #### CType = 2
+  Character = A Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = A Dispatcher = #### Type Map = #### CType = 2
+  Character = A Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = \ Dispatcher = #### Type Map = #### CType = 7
+  Character = \ Dispatcher = #### CType = 7
   ####: MATCH(###), REQUIRE(####), ELSE:
   ####: KEEP(0), RETURN
 Start atom scan: table = ###
-  Character = \ Dispatcher = ### Type Map = ### CType = 1
-  Character = 1 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 2 Dispatcher = ### Type Map = ### CType = 1
+  Character = \ Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
+  Repeat Character = 2 Dispatcher = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Character = B Dispatcher = #### Type Map = #### CType = 1
+  Repeat Character = B Dispatcher = #### CType = 1
 Start atom scan: table = ####
-  Character = C Dispatcher = #### Type Map = #### CType = 2
+  Character = C Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = \ Dispatcher = #### Type Map = #### CType = 7
+  Character = \ Dispatcher = #### CType = 7
   ####: MATCH(###), REQUIRE(####), ELSE:
   ####: KEEP(0), RETURN
 Start atom scan: table = ###
-  Character = \ Dispatcher = ### Type Map = ### CType = 1
-  Character = 1 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
+  Character = \ Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Character = @ Dispatcher = #### CType = 0
+  Repeat Character = @ Dispatcher = #### CType = 0
   ####: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(26): A\102C translated to: ABC
 Start atom scan: table = ###
-  Character = \ Dispatcher = #### Type Map = #### CType = 7
+  Character = \ Dispatcher = #### CType = 7
   ####: MATCH(###), REQUIRE(####), CALL(####), ELSE:
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
 Start atom scan: table = ###
-  Character = \ Dispatcher = ### Type Map = ### CType = 1
-  Character = 1 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
+  Character = \ Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Character = @ Dispatcher = #### CType = 0
+  Repeat Character = @ Dispatcher = #### CType = 0
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
 Start atom scan: table = ###
-  Character = \ Dispatcher = ### Type Map = ### CType = 1
-  Character = 1 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
+  Character = \ Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
 Scan Returned: ERROR 0(32): \100 translated to: @
 Start atom scan: table = ###
-  Character = D Dispatcher = #### Type Map = #### CType = 2
+  Character = D Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = D Dispatcher = #### Type Map = #### CType = 2
+  Character = D Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = \ Dispatcher = #### Type Map = #### CType = 7
+  Character = \ Dispatcher = #### CType = 7
   ####: MATCH(###), REQUIRE(####), ELSE:
   ####: KEEP(0), RETURN
 Start atom scan: table = ###
-  Character = \ Dispatcher = ### Type Map = ### CType = 1
-  Character = 1 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = E Dispatcher = ### CType = 0
+  Character = \ Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
+  Repeat Character = E Dispatcher = ### CType = 0
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Character = <BS> Dispatcher = #### CType = 0
+  Repeat Character = <BS> Dispatcher = #### CType = 0
   ####: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(36): D
 Start atom scan: table = ###
-  Character = \ Dispatcher = #### Type Map = #### CType = 7
+  Character = \ Dispatcher = #### CType = 7
   ####: MATCH(###), REQUIRE(####), CALL(####), ELSE:
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
 Start atom scan: table = ###
-  Character = \ Dispatcher = ### Type Map = ### CType = 1
-  Character = 1 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = E Dispatcher = ### CType = 0
+  Character = \ Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
+  Repeat Character = E Dispatcher = ### CType = 0
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Character = <BS> Dispatcher = #### CType = 0
+  Repeat Character = <BS> Dispatcher = #### CType = 0
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
 Start atom scan: table = ###
-  Character = \ Dispatcher = ### Type Map = ### CType = 1
-  Character = 1 Dispatcher = ### Type Map = ### CType = 1
-  Character = 0 Dispatcher = ### Type Map = ### CType = 1
-  Character = E Dispatcher = ### CType = 0
+  Character = \ Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = ### CType = 1
+  Repeat Character = 0 Dispatcher = ### CType = 1
+  Repeat Character = E Dispatcher = ### CType = 0
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
 Scan Returned: ERROR 0(37): \10 translated to: <BS>
 Start atom scan: table = ###
-  Character = E Dispatcher = #### Type Map = #### CType = 2
+  Character = E Dispatcher = #### CType = 2
   ####: KEEP(0), CALL(####)
 Start atom scan: table = ####
-  Character = E Dispatcher = #### Type Map = #### CType = 2
+  Character = E Dispatcher = #### CType = 2
   ####: ACCEPT
 Start atom scan: table = ####
-  Character = <LF> Dispatcher = #### Type Map = #### CType = 1
+  Character = <LF> Dispatcher = #### CType = 1
   ####: RETURN
 Scan Returned: SYMBOL 0(40): E
 Start atom scan: table = ###
-  Character = <LF> Dispatcher = #### Type Map = #### CType = 1
+  Character = <LF> Dispatcher = #### CType = 1
   ####: GOTO(####)
 Start atom scan: table = ####
   ####: KEEP(0), GOTO(###)

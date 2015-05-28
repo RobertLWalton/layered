@@ -33,8 +33,8 @@ LEXEME_PROGRAMS = ll_lexeme_basic_test \
                   ll_lexeme_standard_test \
                   ll_lexeme_alternate_basic_test \
                   ll_lexeme_alternate_test \
-                  ll_lexeme_name_string_test \
-                  ll_lexeme_c++_test
+                  ll_lexeme_name_string_test
+#TBD                  ll_lexeme_c++_test
 
 PARSER_PROGRAMS = ll_parser_input_test \
 	          ll_parser_table_test \

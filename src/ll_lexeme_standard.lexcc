@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 06:57:50 EDT 2015
+// Date:	Thu May 28 06:59:33 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,6 @@ lex	// ll_lexeme_standard.lexcc.
 lex
 cc	# include <ll_lexeme_ndl.h>
 cc	# include <ll_lexeme_standard.h>
-cc	# include <ll_lexeme_non_ascii_characters.h>
 cc	using namespace ll::lexeme::ndl;
 cc	# define LEX ll::lexeme
 cc	# define LEXSTD ll::lexeme::standard
@@ -105,53 +104,6 @@ cc
 cc	const char * LEXSTD::type_codes =
 cc	    "?wn#mqschbeLFCSXU";
 cc
-cc	struct char_range { uns32 min, max; }
-cc	    non_ascii_letters[] =
-cc	{
-cc		// { min,		max },
-cc		   NON_ASCII_LETTERS,
-cc		   { 0,                0 }
-cc	};
-cc
-cc	static void add_non_ascii_letters ( void )
-cc	{
-cc	    for ( char_range *p = non_ascii_letters;
-cc		  p->min != 0 || p->max != 0; ++ p )
-cc		NDL::add_characters ( p->min, p->max );
-cc	}
-cc
-cc	char_range non_ascii_combining_chars[] =
-cc	{
-cc		// { min,		max },
-cc		   NON_ASCII_COMBINING_CHARACTERS,
-cc		   { 0,                0 }
-cc	};
-cc
-cc	static void add_non_ascii_combining_chars
-cc		( void )
-cc	{
-cc	    for ( char_range *p =
-cc		      non_ascii_combining_chars;
-cc		  p->min != 0 || p->max != 0; ++ p )
-cc		NDL::add_characters ( p->min, p->max );
-cc	}
-cc
-cc	char_range non_ascii_control_chars[] =
-cc	{
-cc		// { min,		max },
-cc		   NON_ASCII_CONTROL_CHARACTERS,
-cc		   { 0,                0 }
-cc	};
-cc
-cc	static void add_non_ascii_control_chars
-cc		( void )
-cc	{
-cc	    for ( char_range *p =
-cc		      non_ascii_control_chars;
-cc		  p->min != 0 || p->max != 0; ++ p )
-cc		NDL::add_characters ( p->min, p->max );
-cc	}
-cc
 cc	void LEXSTD::init_standard_program
 cc		( void )
 cc	{
@@ -213,52 +165,8 @@ cc	    uns32 unrec_escape_seq_t =
 cc		unrecognized_escape_seq_t;
 cc
 
-lex	"<ascii-char>" = "<0>-<7F>"  [ASCII Character]
+lex	"<digit>" = "<UNICODE-CATEGORY-Nd>"
 lex
-cc	    uns32 ascii_char;
-cc	    NDL::begin_atom_pattern ( ascii_char );
-cc		NDL::add_characters ( 0x00, 0x7F );
-cc	    NDL::end_atom_pattern();
-cc
-
-lex	// NON_ASCII_LETTERS, NON_ASCII_COMBINING_
-lex	// CHARACTERS, NON_ASCII_CONTROL_CHARACTERS are
-lex	// defined in ll_lexeme_non_ascii_characters.h.
-lex
-lex	"<non-ascii-letter>" = NON_ASCII_LETTERS
-lex
-cc	    uns32 non_ascii_letter;
-cc	    NDL::begin_atom_pattern
-cc		    ( non_ascii_letter );
-cc		add_non_ascii_letters();
-cc	    NDL::end_atom_pattern();
-cc
-
-lex	"<non-ascii-combining-char>" =
-lex	    NON_ASCII_COMBINING_CHARACTERS
-lex
-cc	    uns32 non_ascii_combining_char;
-cc	    NDL::begin_atom_pattern
-cc		    ( non_ascii_combining_char );
-cc		add_non_ascii_combining_chars();
-cc	    NDL::end_atom_pattern();
-cc
-
-lex	"<non-ascii-control-char>" =
-lex	    NON_ASCII_CONTROL_CHARACTERS
-lex
-
-lex	"<ascii-letter>" = "a-z" | "A-Z";
-lex
-cc	    const char * ascii_letter =
-cc	        "abcdefghijklmnopqrstuvwxyz"
-cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-cc
-
-lex	"<digit>" = "0-9";
-lex
-cc	    const char * digit = "0123456789";
-cc
 
 lex	"<hex-digit>" = "0-9" | "A-F";
 lex
@@ -269,21 +177,11 @@ cc
 lex	"<non-digit>" = ~ "<digit>";
 lex
 
-lex	"<letter>" = "<ascii-letter>"
-lex	           | "<non-ascii-letter>"
+lex	"<letter>" = "<UNICODE-CATEGORY-L>"
 lex
 
-lex	"<non-ascii-word-char>" =
-lex	      "<non-ascii-letter>"
-lex	    | "<non-ascii-combining-char>"
+lex	"<combining-character>" = "<UNICODE-CATEGORY-M>"
 lex
-cc	    uns32 non_ascii_word_char;
-cc	    NDL::begin_atom_pattern
-cc		    ( non_ascii_word_char );
-cc		add_non_ascii_letters();
-cc		add_non_ascii_combining_chars();
-cc	    NDL::end_atom_pattern();
-cc
 
 lex	// Context sensitive character classifications,
 lex	// e.g., classifying ' as a word character if it
@@ -334,10 +232,7 @@ cc	    const char * misplaced_space_char =
 cc		"\r\v\f";
 cc
 
-lex	"<ascii-control-char>" = "<0>-<1F>" | "<7F>"
-lex
-lex	"<control-char>" = "<ascii-control-char>"
-lex	                 | "<non-ascii-control-char>"
+lex	"<control-char>" = "<UNICODE-CATEGORY-C>"
 lex
 lex	"<control-char-except-CR-LF>" =
 lex	    "<control-char>" & ~ "<CR>" & ~ "<LF>"
@@ -429,9 +324,8 @@ cc
 
 lex	   "<letter>" call word;
 lex
-cc		   NDL::begin_dispatch
-cc			( ascii_letter );
-cc		      add_non_ascii_letters ();
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_category ( "L" );
 cc		      NDL::call ( word );
 cc		   NDL::end_dispatch();
 cc
@@ -441,12 +335,12 @@ lex	   "'<digit>" keep 1 call number;
 lex	   "'" output separator;
 lex
 cc		   NDL::begin_dispatch ( "'" );
-cc		      NDL::begin_dispatch
-cc			( ascii_letter );
-cc			 add_non_ascii_letters ();
+cc		      NDL::begin_dispatch();
+cc		         NDL::add_category ( "L" );
 cc			 NDL::call ( word );
 cc		      NDL::end_dispatch();
-cc		      NDL::begin_dispatch ( digit );
+cc		      NDL::begin_dispatch();
+cc			 NDL::add_category ( "Nd" );
 cc			 NDL::keep ( 1 );
 cc			 NDL::call ( number );
 cc		      NDL::end_dispatch();
@@ -467,7 +361,8 @@ lex	   "<digit>" keep 0 call natural number;
 lex	             // We keep 0 so natural number can
 lex	             // recognize <digit>,<digit> etc.
 lex
-cc	    	   NDL::begin_dispatch ( digit );
+cc	    	   NDL::begin_dispatch();
+cc		      NDL::add_category ( "Nd" );
 cc		      NDL::keep ( 0 );
 cc		      NDL::call ( natural_number );
 cc	    	   NDL::end_dispatch();
@@ -477,8 +372,8 @@ lex	   ".<letter>" call word;
 lex	   "." call mark;
 lex
 cc	    	   NDL::begin_dispatch ( "." );
-cc	              NDL::begin_dispatch ( ascii_letter );
-cc		          add_non_ascii_letters ();
+cc	              NDL::begin_dispatch();
+cc		         NDL::add_category ( "L" );
 cc			 NDL::call ( word );
 cc		      NDL::end_dispatch();
 cc
@@ -555,7 +450,7 @@ lex	   "<misplaced-space-char>" keep 0 return;
 lex
 cc	           NDL::begin_dispatch
 cc			( misplaced_space_char );
-cc		       NDL::add_characters ( "\n" );
+cc		       NDL::add_char ( '\n' );
 cc		       NDL::keep ( 0 );
 cc		       NDL::ret();
 cc		   NDL::end_dispatch();
@@ -644,7 +539,7 @@ lex	   "<misplaced-space-char>" accept;
 lex
 cc	           NDL::begin_dispatch
 cc			( misplaced_space_char );
-cc		       NDL::add_characters ( "\n" );
+cc		       NDL::add_char ( '\n' );
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -666,11 +561,11 @@ cc	    NDL::begin_table ( word );
 cc
 
 lex	   "<letter>" accept;
-lex	   "<non-ascii-combining-char>" accept;
+lex	   "<combining-char>" accept;
 lex
-cc	           NDL::begin_dispatch ( ascii_letter );
-cc		       add_non_ascii_letters ();
-cc		       add_non_ascii_combining_chars ();
+cc	           NDL::begin_dispatch();
+cc		       NDL::add_category ( "L" );
+cc		       NDL::add_category ( "M" );
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -678,9 +573,8 @@ cc
 lex	   "'<letter>" accept;
 lex
 cc		   NDL::begin_dispatch ( "'" );
-cc		      NDL::begin_dispatch
-cc			   ( ascii_letter );
-cc			 add_non_ascii_letters ();
+cc		      NDL::begin_dispatch();
+cc		         NDL::add_category ( "L" );
 cc			 NDL::accept();
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
@@ -704,11 +598,11 @@ cc
 
 lex	   "<mark-char>" accept;
 lex	   "." accept;
-lex	   "<non-ascii-combining-char>" accept;
+lex	   "<combining-char>" accept;
 lex
 cc	           NDL::begin_dispatch ( mark_char );
-cc		       NDL::add_characters ( "." );
-cc		       add_non_ascii_combining_chars ();
+cc		       NDL::add_char ( '.' );
+cc		       NDL::add_category ( "M" );
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -759,11 +653,13 @@ lex	   "<digit>/<digit>" keep 2 goto number;
 lex	   "<digit>,<digit>" keep 2 goto number;
 lex	   "<digit>" accept;
 lex
-cc	           NDL::begin_dispatch ( digit );
+cc	           NDL::begin_dispatch();
+cc		      NDL::add_category ( "Nd" );
 cc
 cc		       NDL::begin_dispatch ( ".:/," );
-cc			   NDL::begin_dispatch
-cc			        ( digit );
+cc			   NDL::begin_dispatch();
+cc		               NDL::add_category
+cc	                           ( "Nd" );
 cc			       NDL::keep ( 2 );
 cc			       NDL::go ( number );
 cc			   NDL::end_dispatch();
@@ -776,7 +672,8 @@ cc
 lex	   "'<digit>" keep 1 goto number;
 lex
 cc		   NDL::begin_dispatch ( "'" );
-cc		      NDL::begin_dispatch ( digit );
+cc		      NDL::begin_dispatch();
+cc		         NDL::add_category ( "Nd" );
 cc			 NDL::keep ( 1 );
 cc			 NDL::go ( number );
 cc		      NDL::end_dispatch();
@@ -808,11 +705,13 @@ lex	   "<digit>/<digit>" keep 2;
 lex	   "<digit>,<digit>" keep 2;
 lex	   "<digit>" accept;
 lex
-cc	           NDL::begin_dispatch ( digit );
+cc	           NDL::begin_dispatch();
+cc		       NDL::add_category ( "Nd" );
 cc
 cc		       NDL::begin_dispatch ( ".:/," );
-cc			   NDL::begin_dispatch
-cc				( digit );
+cc			   NDL::begin_dispatch();
+cc		              NDL::add_category
+cc	                          ( "Nd" );
 cc			      NDL::keep ( 2 );
 cc			   NDL::end_dispatch();
 cc		       NDL::end_dispatch();
@@ -824,7 +723,8 @@ cc
 lex	   "'<digit>" keep 1;
 lex
 cc		   NDL::begin_dispatch ( "'" );
-cc		      NDL::begin_dispatch ( digit );
+cc		      NDL::begin_dispatch();
+cc		         NDL::add_category ( "Nd" );
 cc			 NDL::keep ( 1 );
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
@@ -907,16 +807,9 @@ lex	        error misplaced control char
 lex	        translate to "<UUC>";
 lex
 cc	           NDL::begin_dispatch ( "" );
-cc		      NDL::add_characters
-cc			 ( 0x00, '\n'-1 );
-cc		      NDL::add_characters
-cc			 ( '\n'+1, '\r'-1 );
-cc		      NDL::add_characters
-cc			 ( '\r'+1, 0x1F );
-cc		      NDL::add_characters
-cc			 ( 0x7F, 0x7F );
-cc
-cc		      add_non_ascii_control_chars();
+cc		      NDL::add_category ( "C" );
+cc		      NDL::sub_char ( '\r' );
+cc		      NDL::sub_char ( '\n' );
 cc		      NDL::erroneous_atom
 cc		         ( misplaced_control_char_t );
 cc		      NDL::translate_to ( 1, UUC );
@@ -1157,7 +1050,8 @@ cc	#	undef END
 lex	    "<" "<digit>" match escaped hex char
 lex	            else fail;
 lex
-cc	    	    NDL::begin_dispatch ( digit );
+cc	    	    NDL::begin_dispatch();
+cc		       NDL::add_category ( "Nd" );
 cc		       NDL::match ( escaped_hex_char );
 cc		    NDL::ELSE();
 cc		       NDL::fail();
@@ -1186,7 +1080,8 @@ lex	    "<" "<digit><hex-digit><repeat>" ">"
 lex	              translate hex 1 1;
 lex
 cc	       NDL::begin_dispatch ( "<" );
-cc	    	    NDL::begin_dispatch ( digit );
+cc	    	    NDL::begin_dispatch();
+cc		      NDL::add_category ( "Nd" );
 cc	    	      NDL::begin_dispatch ( ">" );
 cc	                NDL::translate_hex ( 1, 1 );
 cc	              NDL::end_dispatch();

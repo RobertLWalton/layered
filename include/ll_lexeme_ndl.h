@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 05:30:00 EDT 2015
+// Date:	Thu May 28 05:47:19 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,14 +93,10 @@
 //   <atom-pattern-declaration> ::=
 //       uns32 <atom-pattern-name>;
 //	 NDL::begin_atom_pattern
-//	     ( <atom-pattern-name>,
-//             [<included-chars>
-//		      [, <excluded-chars>] ] );
+//	     ( <atom-pattern-name> [, <ASCII-chars>] );
 //	     <character-adder>*
 //	     {
-//	       NDL::NEXT
-//	           ( [<included-chars>
-//		            [, <excluded-chars>] ] );
+//	       NDL::NEXT ( [<ASCII-chars>] );
 //	       <character-adder>*
 //	     }*
 //	 NDL::end_atom_pattern();
@@ -114,33 +110,40 @@
 //   // by <character-adder>s, plus an optional repeat
 //   // count (REPEAT(.) is a <character-adder>).
 //
-//   // NEXT(incl,excl) is equivalent to
-//   // `NEXT(); add_characters(incl,excl)'.
+//   // NEXT(<ASCII-chars>) is equivalent to
+//   // `NEXT(); add_chars(<ASCII-chars>)'.
 //
-//   <included-chars> ::=
+//   <ASCII-chars> ::=
 //          C++ const char * quoted string expression
-//      // List of ASCII characters that are included
-//      // in the current atom primary if they are NOT
-//	// also in <excluded-chars>
+//      // List of ASCII characters to be added to or
+//      // subtracted from dispatcher character set.
 //
-//   <excluded-chars> ::=
+//   <UNICODE-char> ::= uns32 character code
+//      // Unicode character to be added to or subtract-
+//      // ed from dispatcher character set.  Must be
+//      // < 256 (i.e., LATIN1 or ASCII).
+//
+//   <UNICODE-category> ::=
 //          C++ const char * quoted string expression
-//      // See <included-chars>.
+//      // UNICODE category or subcategory name of char-
+//      // acters to be added to or subtracted from
+//      // dispatcher character set.
+//
+//   // If a character is added to a subdispatcher of a
+//   // dispatcher D, then additions or subtractions of
+//   // that character to subsequent subdispatchers of
+//   // D have no effect; the character remains added
+//   // to its original subdispatcher.
 //
 //   <character-adder> :=
-//	  NDL::add_characters
-//	      ( [<included-chars>
-//		    [, <excluded-chars>] ] );
-//	| NDL::add_characters
-//	      ( <min-char>, <max-char> );
+//	  NDL::add_chars ( <ASCII-chars )
+//	| NDL::sub_chars ( <ASCII-chars )
+//	| NDL::add_char ( <UNICODE-char> )
+//	| NDL::sub_char ( <UNICODE-char> )
+//	| NDL::add_category ( <UNICODE-category> )
+//	| NDL::sub_category ( <UNICODE-category> )
 //	| NDL::REPEAT();
 //	| NDL::REPEAT ( <repeat-count> );
-//
-//   <min-char> ::= C++ uns32 UNICODE character code
-//   <max-char> ::= C++ uns32 UNICODE character code
-//	// Minimum and maximum characters in a range
-//      // of UNICODE characters to be added to the
-//      // current atom primary.
 //
 //   // REPEAT(n) is eqivalent to putting `<repeat n>'
 //   // after an atom primary in an atom pattern.
@@ -156,9 +159,7 @@
 //      NDL::end_table();
 //
 //   <dispatch> :=
-//	NDL::begin_dispatch
-//	     ( [<included-chars>
-//	           [, <excluded-chars>] ] );
+//	NDL::begin_dispatch ( [<ASCII-chars>] )
 //	        <character-adder>*
 //	        <dispatch>*
 //	        [<instruction-group>]
@@ -169,23 +170,27 @@
 //	        [<instruction-group>]
 //	NDL::end_dispatch();
 //
-//   // A <dispatch> tells what to do when the NEXT
+//   // A <dispatch> tells what to do when the next
 //   // character of an atom matches the atom primary
 //   // defined by the <dispatch>.  There is an optional
 //   // instruction to execute if the atom ends with
 //   // this character and nested dispatches to be made
 //   // on the following character in the atom.
 //
-//   // begin_dispatch(incl,excl) is equivalent to
-//   // `begin_dispatch(); add_characters(incl,excl)'.
+//   // begin_dispatch( <ASCII-chars> ) is equivalent to
+//   // `begin_dispatch(); add_chars( <ASCII-chars> )'.
 //
 //   // Two <dispatch>es at the same nesting level
-//   // cannot both match the same character.
+//   // (i.e., syblings) cannot both match the same
+//   // character.  However the <character-adder>'s make
+//   // this happen automatically by not adding charac-
+//   // ters to the current <dispatch> if they were
+//   // added to previous sybling <dispatch>'s.
 //
-//   // In the OTHER case the dispatcher's atom primary
+//   // In the OTHER case the <dispatch>'s atom primary
 //   // includes just those characters not in the char-
-//   // acter sets of other dispatchers for the same
-//   // atom character (i.e., sybling dispatchers).
+//   // acter sets of sybling dispatchers.  A OTHER
+//   // <dispatch> must have at least one sybling.
 //
 //   <instruction-group> ::=
 //	<instruction> { NDL::ELSE(); <instruction> }*
@@ -347,18 +352,16 @@ namespace ll { namespace lexeme { namespace ndl {
 
     void begin_atom_pattern
 	( uns32 & atom_pattern_name,
-	  const char * included_chars = "",
-	  const char * excluded_chars = "" );
-    void NEXT
-	( const char * included_chars = "",
-	  const char * excluded_chars = "" );
+	  const char * ASCII_chars = NULL );
+    void NEXT ( const char * ASCII_chars = NULL );
     void end_atom_pattern ( void );
 
-    void add_characters
-	( const char * included_chars = "",
-	  const char * excluded_chars = "" );
-    void add_characters
-        ( uns32 min_char, uns32 max_char );
+    void add_chars ( const char * ASCII_chars );
+    void sub_chars ( const char * ASCII_chars );
+    void add_char ( uns32 c );
+    void sub_char ( uns32 c );
+    void add_category ( const char * category );
+    void sub_category ( const char * category );
 
     void REPEAT
         ( uns32 repeat_count =
@@ -368,8 +371,7 @@ namespace ll { namespace lexeme { namespace ndl {
     void end_table ( void );
 
     void begin_dispatch
-	( const char * included_chars = "",
-	  const char * excluded_chars = "" );
+	( const char * ASCII_chars = NULL );
     void end_dispatch ( void );
 
     void accept ( void );

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 06:48:46 EDT 2015
+// Date:	Wed May 27 05:31:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,9 @@ using namespace LEXNDLDATA;
 
 // Stacks
 
+static min::packed_vec<LEX::uns8>
+       uns8_vec_type
+           ( "ll::lexeme::ndl::uns8_vec_type" );
 static min::packed_vec<LEX::uns32>
        uns32_vec_type
            ( "ll::lexeme::ndl::uns32_vec_type" );
@@ -45,6 +48,8 @@ static min::packed_vec<LEXNDLDATA::instruction>
        instruction_vec_type
            ( "ll::lexeme::ndl::instruction_vec_type" );
 
+min::packed_vec_insptr<LEX::uns8>
+    LEXNDLDATA::uns8_stack;
 min::packed_vec_insptr<LEX::uns32>
     LEXNDLDATA::uns32_stack;
 min::packed_vec_insptr<LEXNDLDATA::dispatcher>
@@ -54,6 +59,8 @@ min::packed_vec_insptr<LEXNDLDATA::instruction>
 
 static void initialize ( void )
 {
+    LEXNDLDATA::uns8_stack =
+        uns8_vec_type.new_gen();
     LEXNDLDATA::uns32_stack =
         uns32_vec_type.new_gen();
     LEXNDLDATA::dispatchers =
@@ -218,8 +225,10 @@ void LEXNDL::begin_program
              "misplaced begin_program(...)" );
     state = INSIDE_PROGRAM;
 
+    min::pop ( uns8_stack, uns8_stack->length );
+    min::resize ( uns8_stack, 10 * CTYPE_MAP_SIZE );
     min::pop ( uns32_stack, uns32_stack->length );
-    min::resize ( uns32_stack, 1000 );
+    min::resize ( uns32_stack, 4000 );
     min::pop ( dispatchers, dispatchers->length );
     min::resize ( dispatchers, 20 );
     min::pop ( instructions, instructions->length );
@@ -237,6 +246,7 @@ void LEXNDL::end_program ( void )
              "misplaced end_program()" );
     state = OUTSIDE_PROGRAM;
 
+    MIN_REQUIRE ( uns8_stack->length == 0 );
     MIN_REQUIRE ( uns32_stack->length == 0 );
     MIN_REQUIRE ( dispatchers->length == 0 );
     MIN_REQUIRE ( instructions->length == 0 );
@@ -271,14 +281,15 @@ static void push_dispatcher ( bool is_others = false )
     min::ref<dispatcher> d =
         min::push ( dispatchers );
 
-    memset ( (&d)->ascii_map, 0, 128 );
     (&d)->line_number = LEXNDL::line;
     (&d)->max_type_code = 0;
-    (&d)->type_map_count = 0;
     (&d)->repeat_count = 0;
     (&d)->others_dispatcher_ID = 0;
     (&d)->others_instruction_ID = 0;
     (&d)->is_others_dispatcher = is_others;
+    (&d)->ctype_map_offset = uns8_stack->length;
+
+    min::push ( uns8_stack, CTYPE_MAP_SIZE );
 
     min::ref<instruction> ci =
         min::push ( instructions );
@@ -373,19 +384,19 @@ static void pop_dispatcher
     uns32 instruction_ID =
         pop_instruction_group ( (&d)->line_number );
 
-    uns32 cmin = 0;
-    uns32 cmax = 127;
-    while ( cmin <= cmax && (&d)->ascii_map[cmin] == 0 )
-        ++ cmin;
-    while ( cmin <= cmax && (&d)->ascii_map[cmax] == 0 )
-        -- cmax;
-    bool ascii_used = ( cmin <= cmax );
+    min::ptr<const uns8> ctype_map =
+        & uns8_stack[(&d)->ctype_map_offset];
+
+    uns32 ctype_map_size = CTYPE_MAP_SIZE;
+    while (    ctype_map_size > 0
+            && ctype_map[ctype_map_size-1] == 0 )
+        -- ctype_map_size;
 
     if ( discard_dispatcher )
     {
         MIN_REQUIRE ( (&d)->max_type_code == 0 );
         MIN_REQUIRE ( instruction_ID == 0 );
-	MIN_REQUIRE ( ! ascii_used );
+	MIN_REQUIRE ( ctype_map_size == 0 );
 	MIN_REQUIRE ( (&d)->others_dispatcher_ID == 0 );
 	MIN_REQUIRE
 	    ( (&d)->others_instruction_ID == 0 );
@@ -393,7 +404,6 @@ static void pop_dispatcher
 	min::push(uns32_stack) = 0;
 	min::push(uns32_stack) = instruction_ID;
 	min::push(uns32_stack) = (&d)->repeat_count;
-	min::push(uns32_stack) = (&d)->type_map_count;
 
 	min::pop ( dispatchers );
 
@@ -401,28 +411,12 @@ static void pop_dispatcher
     	return;
     }
 
-    uns32 total_type_map_count = 0;
-    const uns32 * p = ! min::end_ptr_of ( uns32_stack );
-    for ( uns32 tcode = (&d)->max_type_code;
-          0 < tcode; -- tcode )
-    {
-        uns32 sub_type_map_count = p[-1];
-        total_type_map_count += sub_type_map_count;
-	p -= 4 + 2 * sub_type_map_count;
-    }
-
     uns32 dispatcher_ID =
         LEX::create_dispatcher
 	    ( (&d)->line_number,
-	      2 * ( total_type_map_count + ascii_used ),
-	      (&d)->max_type_code );
-
-    if ( ascii_used )
-        ATTACH ( dispatcher_ID,
-	         LEX::create_type_map
-		     ( (&d)->line_number,
-		       cmin, cmax,
-		       (&d)->ascii_map + cmin ) );
+	      (&d)->max_type_code,
+	      ctype_map_size,
+	      ctype_map );
 
     if ( (&d)->others_dispatcher_ID != 0 )
         ATTACH ( dispatcher_ID, 0,
@@ -434,8 +428,6 @@ static void pop_dispatcher
     for ( uns32 tcode = (&d)->max_type_code;
           0 < tcode; -- tcode )
     {
-        uns32 sub_type_map_count =
-	    min::pop ( uns32_stack );
         uns32 sub_repeat_count =
 	    min::pop ( uns32_stack );
 	uns32 sub_instruction_ID =
@@ -457,17 +449,6 @@ static void pop_dispatcher
 	if ( sub_repeat_count != 0 )
 	    SET_REPEAT_COUNT ( dispatcher_ID, tcode,
 		               sub_repeat_count );
-
-	for ( uns32 i = 0;
-	      i < sub_type_map_count; ++ i )
-	{
-	    uns32 max_char = min::pop ( uns32_stack );
-	    uns32 min_char = min::pop ( uns32_stack );
-	    ATTACH ( dispatcher_ID,
-	             LEX::create_type_map
-		        ( (&d)->line_number,
-			  min_char, max_char, tcode ) );
-	}
     }
 
     if ( (&d)->is_others_dispatcher )
@@ -478,17 +459,16 @@ static void pop_dispatcher
 	    dispatcher_ID;
 	(&parent)->others_instruction_ID =
 	    instruction_ID;
-	MIN_REQUIRE ( (&d)->type_map_count == 0 );
     }
     else
     {
 	min::push(uns32_stack) = dispatcher_ID;
 	min::push(uns32_stack) = instruction_ID;
 	min::push(uns32_stack) = (&d)->repeat_count;
-	min::push(uns32_stack) = (&d)->type_map_count;
     }
 
     min::pop ( dispatchers );
+    min::pop ( uns8_stack, CTYPE_MAP_SIZE );
 
     substate = DISPATCHERS;
 }
@@ -524,7 +504,6 @@ void LEXNDL::end_table ( void )
 
     pop_dispatcher();
 
-    uns32 type_map_count = min::pop ( uns32_stack );
     uns32 repeat_count = min::pop ( uns32_stack );
     uns32 instruction_ID = min::pop ( uns32_stack );
     uns32 dispatcher_ID  = min::pop ( uns32_stack );
@@ -532,43 +511,53 @@ void LEXNDL::end_table ( void )
     MIN_REQUIRE ( dispatchers->length == 0 );
     MIN_REQUIRE ( instructions->length == 0 );
     MIN_REQUIRE ( uns32_stack->length == 0 );
+    MIN_REQUIRE ( uns8_stack->length == 0 );
 
     ATTACH ( table_name, dispatcher_ID );
     if ( instruction_ID != 0 )
 	ATTACH ( table_name, instruction_ID );
     MIN_REQUIRE ( repeat_count == 0 );
-    MIN_REQUIRE ( type_map_count == 0 );
 
     state = INSIDE_PROGRAM;
 }
 
-static void internal_add_characters
-	( const char * include_chars,
-	  const char * exclude_chars )
+static void internal_add_sub_chars
+	( const char * ASCII_chars, bool sub = false )
 {
+    if ( ASCII_chars == NULL ) return;
+
     min::ref<dispatcher> d = parent_dispatcher();
     int c;  // use int instead of char to prevent
             // 0 <= c or c < 128 warning message.
-    while ( ( c = * include_chars ++ ) != 0 )
+    uns32 t = (&d)->max_type_code;
+    min::ptr<uns8> ctype_map =
+        & uns8_stack[(&d)->ctype_map_offset];
+    while ( ( c = * ASCII_chars ++ ) != 0 )
     {
-	if ( index ( exclude_chars, c ) ) continue;
-
 	ASSERT ( 0 <= c && c < 128,
 	         "non-ASCII character in"
-		 " include_chars" );
-        ASSERT ( (&d)->ascii_map[c] == 0,
-	         "character 0x%X in use by"
-		 " previous dispatcher",
-	         c );
-	(&d)->ascii_map[c] = (&d)->max_type_code;
+		 " ASCII_chars" );
+
+	if ( sub )
+	{
+	    if ( ctype_map[c] == 0 ) continue;
+	    if ( ctype_map[c] != t ) continue;
+	    ctype_map[c] = 0;
+	}
+	else
+	{
+	    if ( ctype_map[c] == t ) continue;
+	    if ( ctype_map[c] != 0 ) continue;
+	    ctype_map[c] = t;
+	}
+
     }
 }
 
 static uns32 * atom_pattern_name_p;
 void LEXNDL::begin_atom_pattern
 	( uns32 & atom_pattern_name,
-	  const char * include_chars,
-	  const char * exclude_chars )
+	  const char * ASCII_chars )
 {
     FUNCTION ( "begin_atom_pattern" );
     ASSERT ( state == INSIDE_PROGRAM,
@@ -577,23 +566,19 @@ void LEXNDL::begin_atom_pattern
 
     push_dispatcher();
     push_dispatcher();
-    internal_add_characters
-        ( include_chars, exclude_chars );
+    internal_add_sub_chars ( ASCII_chars );
 
     atom_pattern_name_p = & atom_pattern_name;
 }
 
-void LEXNDL::NEXT
-	( const char * include_chars,
-	  const char * exclude_chars )
+void LEXNDL::NEXT ( const char * ASCII_chars )
 {
     FUNCTION ( "NEXT" );
     ASSERT ( state == INSIDE_ATOM_PATTERN,
              "NEXT() misplaced" );
 
     push_dispatcher();
-    internal_add_characters
-	( include_chars, exclude_chars );
+    internal_add_sub_chars ( ASCII_chars );
 }
 
 void LEXNDL::end_atom_pattern ( void )
@@ -614,63 +599,135 @@ void LEXNDL::end_atom_pattern ( void )
     MIN_REQUIRE ( dispatchers->length == 0 );
     MIN_REQUIRE ( instructions->length == 0 );
     MIN_REQUIRE ( uns32_stack->length == 0 );
+    MIN_REQUIRE ( uns8_stack->length == 0 );
 
     state = INSIDE_PROGRAM;
 }
 
-void LEXNDL::add_characters
-	( const char * include_chars,
-	  const char * exclude_chars )
+void LEXNDL::add_chars ( const char * ASCII_chars )
 {
-    FUNCTION ( "add_characters" );
+    FUNCTION ( "add_chars" );
     ASSERT ( state == INSIDE_TABLE
              ||
 	     state == INSIDE_ATOM_PATTERN,
-             "add_characters() misplaced" );
+             "add_chars() misplaced" );
     ASSERT ( substate == ADD_CHARACTERS,
-             "add_characters() misplaced" );
+             "add_chars() misplaced" );
 
-    internal_add_characters
-        ( include_chars, exclude_chars );
+    internal_add_sub_chars ( ASCII_chars );
 }
 
-void LEXNDL::add_characters
-	( uns32 min_char, uns32 max_char )
+void LEXNDL::sub_chars ( const char * ASCII_chars )
 {
-    FUNCTION ( "add_characters" );
+    FUNCTION ( "sub_chars" );
     ASSERT ( state == INSIDE_TABLE
              ||
 	     state == INSIDE_ATOM_PATTERN,
-             "add_characters() misplaced" );
+             "sub_chars() misplaced" );
     ASSERT ( substate == ADD_CHARACTERS,
-             "add_characters() misplaced" );
-    ASSERT ( min_char <= max_char,
-             "add_characters() min_char > max_char" );
+             "sub_chars() misplaced" );
 
-    if ( min_char < 128 )
+    internal_add_sub_chars ( ASCII_chars, true );
+}
+
+void LEXNDL::add_char ( uns32 c )
+{
+    FUNCTION ( "add_char" );
+    ASSERT ( state == INSIDE_TABLE
+             ||
+	     state == INSIDE_ATOM_PATTERN,
+             "add_char() misplaced" );
+    ASSERT ( substate == ADD_CHARACTERS,
+             "add_char() misplaced" );
+    ASSERT ( c < 256,
+             "add_char() c is not LATIN1 or ASCII" );
+
+    min::ref<dispatcher> d = parent_dispatcher();
+    uns32 t = (&d)->max_type_code;
+    min::ptr<uns8> ctype_map =
+        & uns8_stack[(&d)->ctype_map_offset];
+    if ( ctype_map[c] == t ) return;
+    if ( ctype_map[c] != 0 ) return;
+    ctype_map[c] = t;
+}
+
+void LEXNDL::sub_char ( uns32 c )
+{
+    FUNCTION ( "sub_char" );
+    ASSERT ( state == INSIDE_TABLE
+             ||
+	     state == INSIDE_ATOM_PATTERN,
+             "sub_char() misplaced" );
+    ASSERT ( substate == ADD_CHARACTERS,
+             "sub_char() misplaced" );
+    ASSERT ( c < 256,
+             "sub_char() c is not LATIN1 or ASCII" );
+
+    min::ref<dispatcher> d = parent_dispatcher();
+    uns32 t = (&d)->max_type_code;
+    min::ptr<uns8> ctype_map =
+        & uns8_stack[(&d)->ctype_map_offset];
+    if ( ctype_map[c] == 0 ) return;
+    if ( ctype_map[c] != t ) return;
+    ctype_map[c] = 0;
+}
+
+void LEXNDL::add_category ( const char * category )
+{
+    FUNCTION ( "add_category" );
+    ASSERT ( state == INSIDE_TABLE
+             ||
+	     state == INSIDE_ATOM_PATTERN,
+             "add_category() misplaced" );
+    ASSERT ( substate == ADD_CHARACTERS,
+             "add_category() misplaced" );
+
+    min::ref<dispatcher> d = parent_dispatcher();
+    uns32 t = (&d)->max_type_code;
+    min::ptr<uns8> ctype_map =
+        & uns8_stack[(&d)->ctype_map_offset];
+    unsigned len = strlen ( category );
+    for ( uns32 cindex = 0; cindex < CTYPE_MAP_SIZE;
+                            ++ cindex )
     {
-	min::ref<dispatcher> d = parent_dispatcher();
-
-	while ( min_char < 128 && min_char <= max_char )
-	{
-	    ASSERT ( (&d)->ascii_map[min_char] == 0,
-		     "character 0x%X in use by"
-		     " previous dispatcher",
-		     min_char );
-	    (&d)->ascii_map[min_char] =
-	        (&d)->max_type_code;
-	    ++ min_char;
-	}
-
-	if ( min_char > max_char ) return;
+	const char * cat =
+	    min::unicode::category[cindex];
+        if (    cat == NULL
+	     || strncmp ( category, cat, len ) != 0 )
+	    continue;
+	if ( ctype_map[cindex] == t ) continue;
+	if ( ctype_map[cindex] != 0 ) continue;
+	ctype_map[cindex] = t;
     }
+}
 
+void LEXNDL::sub_category ( const char * category )
+{
+    FUNCTION ( "sub_category" );
+    ASSERT ( state == INSIDE_TABLE
+             ||
+	     state == INSIDE_ATOM_PATTERN,
+             "sub_category() misplaced" );
+    ASSERT ( substate == ADD_CHARACTERS,
+             "sub_category() misplaced" );
 
-    min::ref<dispatcher> d = current_dispatcher();
-
-    ++ (&d)->type_map_count;
-    min::push(uns32_stack) = min_char;
-    min::push(uns32_stack) = max_char;
+    min::ref<dispatcher> d = parent_dispatcher();
+    uns32 t = (&d)->max_type_code;
+    min::ptr<uns8> ctype_map =
+        & uns8_stack[(&d)->ctype_map_offset];
+    unsigned len = strlen ( category );
+    for ( uns32 cindex = 0; cindex < CTYPE_MAP_SIZE;
+                            ++ cindex )
+    {
+	const char * cat =
+	    min::unicode::category[cindex];
+        if (    cat == NULL
+	     || strncmp ( category, cat, len ) != 0 )
+	    continue;
+	if ( ctype_map[cindex] == 0 ) continue;
+	if ( ctype_map[cindex] != t ) continue;
+	ctype_map[cindex] = 0;
+    }
 }
 
 void LEXNDL::REPEAT ( uns32 repeat_count )
@@ -694,9 +751,7 @@ void LEXNDL::REPEAT ( uns32 repeat_count )
     (&d)->repeat_count = repeat_count;
 }
 
-void LEXNDL::begin_dispatch
-	( const char * include_chars,
-	  const char * exclude_chars )
+void LEXNDL::begin_dispatch ( const char * ASCII_chars )
 {
     FUNCTION ( "begin_dispatch" );
     ASSERT ( state == INSIDE_TABLE,
@@ -705,7 +760,7 @@ void LEXNDL::begin_dispatch
              "begin_dispatch() misplaced" );
 
     bool is_others =
-        ( include_chars == LEXNDL::OTHER );
+        ( ASCII_chars == LEXNDL::OTHER );
 
     if ( is_others )
     {
@@ -720,8 +775,7 @@ void LEXNDL::begin_dispatch
     push_dispatcher ( is_others );
 
     if ( ! is_others )
-	internal_add_characters
-	    ( include_chars, exclude_chars );
+	internal_add_sub_chars ( ASCII_chars );
 }
 
 void LEXNDL::end_dispatch ( void )

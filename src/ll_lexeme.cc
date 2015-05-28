@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 15:37:14 EDT 2015
+// Date:	Thu May 28 06:15:29 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -241,8 +241,9 @@ void LEX::create_program
 
 uns32 LEX::create_dispatcher
 	( uns32 line_number,
-	  uns32 max_breakpoints,
 	  uns32 max_ctype,
+	  uns32 ctype_map_size,
+	  min::ptr<const uns8> ctype_map,
 	  LEX::program program )
 {
 
@@ -250,74 +251,29 @@ uns32 LEX::create_dispatcher
     dispatcher_header h;
     h.pctype = DISPATCHER;
     h.line_number = line_number;
-    h.break_elements = 1;
-    h.max_break_elements = max_breakpoints + 1;
     h.max_ctype = max_ctype;
+    h.ctype_map_size = ctype_map_size;
+    h.component_length =
+          dispatcher_header_length
+	+   map_element_length
+	  * ( max_ctype + 1 )
+	+   ( ctype_map_size + sizeof ( uns32 ) - 1 )
+	  / sizeof ( uns32 );
     PUSH ( h, dispatcher_header_length );
 
-    MIN_REQUIRE (    sizeof ( break_element )
-                  ==   break_element_length
-                     * sizeof ( uns32 ) );
     MIN_REQUIRE (    sizeof ( map_element )
                   ==   map_element_length
                      * sizeof ( uns32 ) );
     min::push
-        ( program,
-	      break_element_length
-	    * ( max_breakpoints + 1 )
-	  +   map_element_length
-	    * ( max_ctype + 1 ) );
+        ( program,   h.component_length
+	           - dispatcher_header_length );
 
-    return ID;
-}
-
-uns32 LEX::create_type_map
-	( uns32 line_number,
-	  uns32 cmin, uns32 cmax,
-	  uns8 * map,
-	  LEX::program program )
-{
-    MIN_ASSERT ( cmax >= cmin,
-                 "cmin argument greater than cmax"
-		 " argument" );
-    uns32 ID = program->length;
-
-    type_map_header h;
-    h.pctype = TYPE_MAP;
-    h.line_number = line_number;
-    h.cmin = cmin;
-    h.cmax = cmax;
-    h.singleton_ctype = 0;
-    PUSH ( h, type_map_header_length );
-
-    uns32 length = cmax - cmin + 1;
-    min::push ( program, ::round32 ( length ) );
-    memcpy ( ! & program[ID+type_map_header_length],
-             map, length );
-
-    return ID;
-}
-
-uns32 LEX::create_type_map
-	( uns32 line_number,
-	  uns32 cmin, uns32 cmax,
-	  uns32 ctype,
-	  LEX::program program )
-{
-    MIN_ASSERT ( cmax >= cmin,
-                 "cmin argument greater than cmax"
-		 " argument" );
-    uns32 ID = program->length;
-
-    type_map_header h;
-    h.pctype = TYPE_MAP;
-    h.line_number = line_number;
-    h.cmin = cmin;
-    h.cmax = cmax;
-    MIN_ASSERT ( ctype != 0,
-                 "ctype argument is zero" );
-    h.singleton_ctype = ctype;
-    PUSH ( h, type_map_header_length );
+    if ( ctype_map_size != 0 )
+	memcpy ( ! & program[  ID
+			     + dispatcher_header_length
+			     +   map_element_length
+			       * ( max_ctype + 1 )],
+		 ! ctype_map, ctype_map_size );    
 
     return ID;
 }
@@ -505,135 +461,6 @@ uns32 LEX::create_instruction
     return ID;
 }
 
-// This function is LEX::attach for the difficult
-// case where break elements may need to be inserted
-// into the dispatcher.
-//
-static bool attach_type_map_to_dispatcher
-	( uns32 dispatcher_ID,
-	  uns32 type_map_ID,
-	  LEX::program program )
-{
-    min::ptr<dispatcher_header> dhp =
-        LEX::ptr<dispatcher_header>
-	    ( program, dispatcher_ID );
-    MIN_ASSERT ( dhp->pctype == DISPATCHER,
-                 "dispatcher_ID argument does NOT"
-		 " identify a dispatcher" );
-    min::ptr<type_map_header> tmhp =
-        LEX::ptr<type_map_header>
-	    (program, type_map_ID );
-    MIN_ASSERT ( tmhp->pctype == TYPE_MAP,
-                 "type_map_ID argument does NOT"
-		 " identify a type map" );
-
-    min::ptr<break_element> bep =
-        LEX::ptr<break_element>
-	    ( program,   dispatcher_ID
-                       + dispatcher_header_length );
-
-    uns32 i = 0;
-    for ( ; i + 1 < dhp->break_elements
-            &&
-	    (&bep[i+1])->cmin <= tmhp->cmin;
-	    ++ i );
-
-    bool split_next =
-	( i == dhp->break_elements - 1 ?
-	  tmhp->cmax != 0xFFFFFFFF :
-	  tmhp->cmax != (&bep[i+1])->cmin - 1 );
-
-    if ( (&bep[i])->type_map_ID != 0 )
-    {
-	uns32 old_cmin = (&bep[i])->cmin;
-	uns32 old_cmax = i+1 < dhp->break_elements ?
-	                 (&bep[i+1])->cmin - 1 :
-		         0xFFFFFFFF;
-        ERR << "Attempt to attach type map "
-	    << pID ( type_map_ID, program )
-	    << " with range "
-	    << min::puns ( tmhp->cmin, "0x%X" )
-	    << "-"
-	    << min::puns ( tmhp->cmax, "0x%X" )
-	    << " to dispatcher "
-	    << pID ( dispatcher_ID, program )
-	    << " conflicts with previous attachment of"
-	       " type map "
-	    << pID ( (&bep[i])->type_map_ID, program )
-	    << " to range "
-	    << min::puns ( old_cmin, "0x%X" )
-	    << "-"
-	    << min::puns ( old_cmax, "0x%X" )
-	    << min::eol;
-        return false;
-    }
-
-    if ( i + 1 != dhp->break_elements
-         &&
-	 (&bep[i+1])->cmin < tmhp->cmin )
-    {
-        MIN_REQUIRE ( (&bep[i+1])->type_map_ID != 0 );
-	uns32 old_cmin = (&bep[i+1])->cmin;
-	uns32 old_cmax = i+2 < dhp->break_elements ?
-	                 (&bep[i+2])->cmin - 1 :
-		         0xFFFFFFFF;
-        ERR << "Attempt to attach type map "
-	    << pID ( type_map_ID, program )
-	    << " with range "
-	    << min::puns ( tmhp->cmin, "0x%X" )
-	    << "-"
-	    << min::puns ( tmhp->cmax, "0x%X" )
-	    << " to dispatcher "
-	    << pID ( dispatcher_ID, program )
-	    << " conflicts with previous attachment of"
-	       " type map "
-	    << pID ( (&bep[i+1])->type_map_ID, program )
-	    << " to range "
-	    << min::puns ( old_cmin, "0x%X" )
-	    << "-"
-	    << min::puns ( old_cmax, "0x%X" )
-	    << min::eol;
-        return false;
-    }
-
-    int n = 2; // Number of new break elements needed.
-    if ( (&bep[i])->cmin == tmhp->cmin ) -- n;
-    if ( ! split_next ) -- n;
-    if (   dhp->break_elements + n
-         > dhp->max_break_elements )
-    {
-        ERR << "Attempt to attach type map "
-	    << pID ( type_map_ID, program )
-	    << " to dispatcher "
-	    << pID ( dispatcher_ID, program )
-            << " fails because dispatcher already has"
-	       " too many breaks"
-	    << min::eol;
-	return false;
-    }
-
-    if ( n != 0 )
-        memmove ( ! & bep[i+n], ! & bep[i],
-		    ( dhp->break_elements - i )
-		  * sizeof ( break_element ) );
-    if ( (&bep[i])->cmin < tmhp->cmin )
-    {
-	++ i;
-	(&bep[i])->cmin = tmhp->cmin;
-	(&bep[i])->type_map_ID  = 0;
-    }
-
-    if ( split_next )
-    {
-	(&bep[i+1])->cmin = tmhp->cmax + 1;
-	(&bep[i+1])->type_map_ID  = 0;
-    }
-
-    dhp->break_elements += n;
-    (&bep[i])->type_map_ID = type_map_ID;
-    return true;
-}
-
 bool LEX::attach
 	( uns32 target_ID,
 	  uns32 component_ID,
@@ -686,15 +513,10 @@ bool LEX::attach
 	}
 	else
 	    MIN_ABORT
-		( "bad attach component pctypes" );
+		( "bad attach component pctype" );
     }
-    else if ( target_pctype == DISPATCHER
-              &&
-	      component_pctype == TYPE_MAP )
-        return attach_type_map_to_dispatcher
-	    ( target_ID, component_ID, program );
     else
-	MIN_ABORT ( "bad attach component pctypes" );
+	MIN_ABORT ( "bad attach target pctype" );
 }
 
 bool LEX::attach
@@ -723,8 +545,6 @@ bool LEX::attach
         LEX::ptr<map_element>
 	    ( program,   target_ID
 	               + dispatcher_header_length
-		       +   break_element_length
-		         * dhp->max_break_elements
 		       +   map_element_length
 		         * ctype );
 
@@ -792,8 +612,6 @@ bool LEX::set_repeat_count
         LEX::ptr<map_element>
 	    ( program,   target_ID
 	               + dispatcher_header_length
-		       +   break_element_length
-		         * dhp->max_break_elements
 		       +   map_element_length
 		         * ctype );
 
@@ -861,22 +679,9 @@ bool LEX::convert_program_endianhood
 	    min::ptr<dispatcher_header> dhp =
 		LEX::ptr<dispatcher_header>
 		    ( program, cID );
-	    FOR(i,  break_element_length
-		  * dhp->max_break_elements) NEXT;
 	    FOR(i,  map_element_length
 		  * ( dhp->max_ctype + 1 )) NEXT;
-	    break;
-	}
-	case TYPE_MAP:
-	{
-	    FOR(i,type_map_header_length-1) NEXT;
-
-	    min::ptr<type_map_header> tmhp =
-		LEX::ptr<type_map_header>
-		    ( program, cID );
-	    if ( tmhp->singleton_ctype == 0 )
-		ID += ( tmhp->cmax - tmhp->cmin + 4 )
-		    / 4;
+	    ID = cID + dhp->component_length;
 	    break;
 	}
 	case INSTRUCTION:
@@ -1283,79 +1088,6 @@ static uns32 print_instruction
       LEX::program program, uns32 ID,
       bool no_line_number = false );
 
-// Given a dispatcher_ID and a character c return the
-// ctype that the dispatcher maps c onto.
-//
-static uns32 ctype ( LEX::scanner scanner,
-                     uns32 dispatcher_ID, uns32 c )
-{
-    LEX::program program = scanner->program;
-
-    bool trace =
-        ( scanner->trace & LEX::TRACE_DISPATCH );
-
-    if ( trace )
-	scanner->printer
-	    << "  Character = " << pgraphic ( c )
-	    << " Dispatcher = "
-	    << pID ( dispatcher_ID, program );
-
-    min::ptr<dispatcher_header> dhp =
-	LEX::ptr<dispatcher_header>
-	    ( program, dispatcher_ID );
-
-    min::ptr<break_element> bep =
-	LEX::ptr<break_element>
-	    ( program,   dispatcher_ID
-		       + dispatcher_header_length );
-
-    // Binary search of break elements.
-    //
-    // Invariant:
-    //     (&bep[low])->cmin <= c < (&bep[high])->cmin
-    // where (&bep[high])->cmin = infinity if
-    // high == dhp->break_elements.
-    //
-    uns32 low = 0,
-	  high = dhp->break_elements,
-	  mid;
-    while ( high - low >= 2 )
-    {
-	mid = ( high + low ) / 2;
-	if ( (&bep[mid])->cmin <= c )
-	    low = mid;
-	else
-	    high = mid;
-    }
-
-    // Compute ctype from bep[low].
-    //
-    uns32 type_map_ID = (&bep[low])->type_map_ID;
-    uns32 ctype = 0;
-    if ( type_map_ID != 0 )
-    {
-	MIN_REQUIRE (    program[type_map_ID]
-		      == TYPE_MAP );
-	if ( trace )
-	    scanner->printer
-	        << " Type Map = "
-		<< pID ( type_map_ID, program );
-	min::ptr<type_map_header> tmhp =
-	    LEX::ptr<type_map_header>
-		( program, type_map_ID );
-	ctype = tmhp->singleton_ctype;
-	if ( ctype == 0 )
-	    ctype = ( (uns8 *) ( ! & tmhp[1] ) )
-		    [c - tmhp->cmin];
-    }
-
-    if ( trace )
-	scanner->printer
-	    << " CType = " << ctype << min::eol;
-
-    return ctype;
-}
-
 // Scan atom given current table.  Locate and process
 // instruction group, but not
 //
@@ -1372,6 +1104,53 @@ static uns32 ctype ( LEX::scanner scanner,
 // error, return atom_length in argument variable and
 // add translation of atom to translation buffer.
 //
+inline uns32 get_ctype
+	( uns32 c,
+	  LEX::scanner scanner,
+	  LEX::program program,
+	  uns32 dispatcher_ID,
+	  min::ptr<dispatcher_header> dhp,
+	  uns32 length,
+	  bool trace_dispatch,
+	  const char * trace_tag )
+{
+    min::ptr<const uns8> ctype_map =
+	LEX::ptr<const uns8>
+	    ( program,
+		dispatcher_ID
+	      + dispatcher_header_length
+	      +   ( dhp->max_ctype + 1 )
+		* map_element_length );
+
+    uns32 cindex = min::Uindex ( c );
+    uns32 ctype = ( cindex < dhp->ctype_map_size ?
+	            ctype_map[cindex] : 0 );
+
+    if ( trace_dispatch )
+	scanner->printer
+	    << "  " << trace_tag << "Character = "
+	    << pgraphic ( c )
+	    << " Dispatcher = "
+	    << pID ( dispatcher_ID, program )
+	    << " CType = " << ctype << min::eol;
+
+    if ( ctype > dhp->max_ctype )
+    {
+	scan_error ( scanner, length )
+	    << "Ctype " << ctype
+	    << " computed for character "
+	    << pgraphic ( c )
+	    << " is too large for"
+	       " dispatcher "
+	    << pID ( dispatcher_ID,
+		     program )
+	    << min::eol;
+	return LEX::SCAN_ERROR;
+    }
+
+    return ctype;
+}
+
 static uns32 scan_atom
     ( LEX::scanner scanner,
       uns32 return_stack[LEX::return_stack_size],
@@ -1394,6 +1173,8 @@ static uns32 scan_atom
 	    << pID ( scanner->current_table_ID,
 	             program )
 	    << min::eol;
+    bool trace_dispatch =
+        ( scanner->trace & LEX::TRACE_DISPATCH );
 
     min::ptr<table_header> cathp =
 	LEX::ptr<table_header>
@@ -1453,32 +1234,21 @@ static uns32 scan_atom
 	                ->character;
 	++ length;
 
-	uns32 ctype =
-	    ::ctype ( scanner, dispatcher_ID, c );
-
 	min::ptr<dispatcher_header> dhp =
 	    LEX::ptr<dispatcher_header>
 	        ( program, dispatcher_ID );
 
-	if ( ctype > dhp->max_ctype )
-	{
-	    scan_error ( scanner, length )
-		    << "Ctype " << ctype
-		    << " computed for character "
-		    << LEX::pgraphic ( c )
-		    << " is too large for dispatcher "
-		    << pID ( dispatcher_ID, program )
-		    << min::eol;
+	uns32 ctype = get_ctype
+	    ( c, scanner, program, dispatcher_ID, dhp,
+	      length, trace_dispatch, "" );
+	if ( ctype == LEX::SCAN_ERROR )
 	    return SCAN_ERROR;
-	}
 
 	min::ptr<map_element> mep =
 	    LEX::ptr<map_element>
 		( program,
 		    dispatcher_ID
-		  + dispatcher_header_length
-		  +   break_element_length
-		    * dhp->max_break_elements );
+		  + dispatcher_header_length );
 
 	uns32 count = (&mep[ctype])->repeat_count;
 	if ( count != 0 ) while ( count -- )
@@ -1496,8 +1266,13 @@ static uns32 scan_atom
 
 	    c = (&input_buffer[scanner->next + length])
 			    ->character;
-	    uns32 ctype2 =
-		::ctype ( scanner, dispatcher_ID, c );
+
+	    uns32 ctype2 = get_ctype
+		( c, scanner, program, dispatcher_ID,
+		  dhp, length, trace_dispatch,
+		  "Repeat " );
+	    if ( ctype == LEX::SCAN_ERROR )
+	        return SCAN_ERROR;
 
 	    if ( ctype2 != ctype ) break;
 
@@ -1722,27 +1497,17 @@ static uns32 scan_atom
 			      [tnext + tlength];
 		++ tlength;
 
-		uns32 ctype =
-		    ::ctype ( scanner,
-		              dispatcher_ID, c );
-
 		min::ptr<dispatcher_header> dhp =
 		    LEX::ptr<dispatcher_header>
 		        ( program, dispatcher_ID );
 
-		if ( ctype > dhp->max_ctype )
-		{
-		    scan_error ( scanner, length )
-		        << "Ctype " << ctype
-			<< " computed for character "
-			<< pgraphic ( c )
-			<< " is too large for"
-			   " dispatcher "
-		        << pID ( dispatcher_ID,
-			         program )
-			<< min::eol;
+		uns32 ctype = get_ctype
+		    ( c, scanner, program,
+		      dispatcher_ID, dhp,
+		      length, trace_dispatch,
+		      "Repeat " );
+		if ( ctype == LEX::SCAN_ERROR )
 		    return SCAN_ERROR;
-		}
 
 		if ( ctype == 0 )
 		{
@@ -1756,9 +1521,7 @@ static uns32 scan_atom
 		    LEX::ptr<map_element>
 			( program,
 			    dispatcher_ID
-			  + dispatcher_header_length
-			  +   break_element_length
-			    * dhp->max_break_elements );
+			  + dispatcher_header_length );
 
 		dispatcher_ID =
 		    (&mep[ctype])->dispatcher_ID;
@@ -2778,22 +2541,20 @@ struct pclist {
 	empty = true;
     }
 
-    // Add c1-c2 to the list of characters printed.
-    // c1 == c2 is possible.  Must be called in order
-    // of increasing c; c2 >= c1 required.
+    // Add c to the list of characters printed.  Must be
+    // called in order of increasing c.
     //
-    void add ( uns32 c1, uns32 c2 )
+    void add ( uns32 c )
     {
-	MIN_REQUIRE ( empty || this->c2 < c1 );
-	MIN_REQUIRE ( c1 <= c2 );
+	MIN_REQUIRE ( empty || this->c2 < c );
 
-        if ( ! empty && c1 == this->c2 + 1 )
-	    this->c2 = c2;
+        if ( ! empty && c == this->c2 + 1 )
+	    this->c2 = c;
 	else
 	{
 	    flush();
-	    this->c1 = c1;
-	    this->c2 = c2;
+	    this->c1 = c;
+	    this->c2 = c;
 	    empty = false;
 	}
     }
@@ -2819,23 +2580,22 @@ static uns32 print_cooked_dispatcher
 	LEX::ptr<dispatcher_header> ( program, ID );
 
     uns32 length = dispatcher_header_length;
-    min::ptr<break_element> bep =
-        LEX::ptr<break_element>
-            ( program, ID + length );
-    length += break_element_length
-	    * dhp->max_break_elements;
     min::ptr<map_element> mep =
         LEX::ptr<map_element>
 	    ( program, ID + length );
     length += map_element_length
 	    * ( dhp->max_ctype + 1 );
+    min::ptr<const uns8> ctype_map =
+        dhp->ctype_map_size > 0 ?
+        LEX::ptr<const uns8>
+	    ( program, ID + length ) :
+	min::ptr<const uns8>();
+    length = dhp->component_length;
 
-    printer << min::indent << "Break Elements: "
-	<< dhp->break_elements << min::eol;
-    printer << min::indent << "Max Break Elements: "
-	<< dhp->max_break_elements << min::eol;
     printer << min::indent << "Max CType: "
 	<< dhp->max_ctype << min::eol;
+    printer << min::indent << "Ctype Map Size: "
+	<< dhp->ctype_map_size << min::eol;
 
     // Construct tmap so that t2 = tmap[t1] iff t2 is
     // the smallest ctype such that mep[t2] == mep[t1].
@@ -2848,71 +2608,46 @@ static uns32 print_cooked_dispatcher
 	        != (&mep[t1])->instruction_ID
 		||
 		   (&mep[t2])->dispatcher_ID
-		!= (&mep[t1])->dispatcher_ID ) ++ t2;
+		!= (&mep[t1])->dispatcher_ID
+		||
+		   (&mep[t2])->repeat_count
+		!= (&mep[t1])->repeat_count ) ++ t2;
 	tmap[t1] = t2;
     }
 
     // For each t such that tmap[t] == t, mep[t] has
-    // a non-zero dispatcher_ID or instruction_ID, and
-    // some characters map to t, print the list all
-    // characters that map to to t and instruction and
-    // dispatcher_ID if these are non-zero.
+    // a non-zero dispatcher_ID, instruction_ID or
+    // repeat_count, and some characters map to t, print
+    // the list of all characters that map to to t,
+    // and then print repeat count if it is non-zero,
+    // the instruction if the instruction_ID is non-
+    // zero, and the dispatcher_ID if it is non-zero.
     //
+    uns32 ctype_map_size = dhp->ctype_map_size;
     for ( uns32 t = 0; t <= dhp->max_ctype; ++ t )
     {
         if ( t != tmap[t] ) continue;
 	if ( (&mep[t])->instruction_ID == 0
 	     &&
-	     (&mep[t])->dispatcher_ID == 0 )
+	     (&mep[t])->dispatcher_ID == 0
+	     &&
+	     (&mep[t])->repeat_count == 0 )
 	    continue;
 
 	pclist pcl ( printer );
-	for ( uns32 b = 0; b < dhp->break_elements;
-	                   ++ b )
+	for ( min::Uchar c = 0;
+	      c < min::unicode::index_size; ++ c )
 	{
-	    uns32 cmin = (&bep[b])->cmin;
-	    uns32 cmax =
-		( b == dhp->break_elements - 1 ?
-		  0xFFFFFFFF :
-		  (&bep[b+1])->cmin - 1 );
-
-	    uns32 type_map_ID = (&bep[b])->type_map_ID;
-
-	    if ( type_map_ID == 0 )
-	    {
-	        if ( tmap[0] == t )
-		    pcl.add ( cmin, cmax );
-	    }
-	    else
-	    {
-	        MIN_REQUIRE (    program[type_map_ID]
-		              == TYPE_MAP );
-		min::ptr<type_map_header> tmhp =
-		    LEX::ptr<type_map_header>
-			( program, type_map_ID );
-		uns32 ctype = tmhp->singleton_ctype;
-		if ( ctype != 0 )
-		{
-		    if ( tmap[ctype] == t )
-			pcl.add ( cmin, cmax );
-		}
-		else
-		{
-		    min::ptr<uns8> p =
-		        min::ptr<uns8> ( tmhp + 1 );
-		    for ( uns32 c = cmin;
-		          c <= cmax; ++ c )
-		    {
-		        if ( tmap[p[c-cmin]] == t )
-			    pcl.add ( c, c );
-		    }
-		}
-	    }
+	    uns32 cindex = min::Uindex ( c );
+	    uns32 ctype = cindex < ctype_map_size ?
+	                  ctype_map[cindex] : 0;
+	    if ( tmap[ctype] == t ) pcl.add ( c );
 	}
 
 	if ( pcl.empty ) continue;
 
 	pcl.flush();
+
 	if ( (&mep[t])->repeat_count > 0 )
 	{
 	    if (    (&mep[t])->repeat_count
@@ -3026,41 +2761,18 @@ uns32 LEX::print_program_component
 	        << "DISPATCHER" << min::eol;
 	min::ptr<dispatcher_header> dhp =
 	    LEX::ptr<dispatcher_header> ( program, ID );
-	printer << min::indent << "Break Elements: "
-	        << dhp->break_elements << min::eol;
-	printer << min::indent << "Max Break Elements: "
-	        << dhp->max_break_elements << min::eol;
 	printer << min::indent << "Max CType: "
 	        << dhp->max_ctype << min::eol;
-	printer << min::indent << "Breaks: "
-	        << min::set_break
-	        << "cmin" << min::right ( 16 )
-	        << "type_map_ID" << min::right ( 16 )
-	        << min::eol;
+	printer << min::indent << "Ctype Map Size: "
+	        << dhp->ctype_map_size << min::eol;
 	length = dispatcher_header_length;
-	uns32 p, n;
-	for ( p = ID + length, n = 0;
-	      n < dhp->break_elements;
-	      p += break_element_length, ++ n )
-	{
-	    min::ptr<break_element> bep =
-		LEX::ptr<break_element> ( program, p );
-	    printer << min::indent
-		    << pgraphic ( bep->cmin )
-		    << min::right ( 24 )
-		    << pID ( bep->type_map_ID, program )
-		    << min::right ( 16 )
-		    << min::eol;
-	}
-	length += break_element_length
-	        * dhp->max_break_elements;
 	printer << min::indent << "CType:"
 	        << min::set_break
 	        << "dispatcher_ID" << min::right ( 16 )
 	        << "instruction_ID" << min::right ( 16 )
 	        << "repeat_count" << min::right ( 14 )
 	        << min::eol;
-	uns32 t;
+	uns32 p, t;
 	for ( p = ID + length, t = 0;
 	      t <= dhp->max_ctype;
 	      p += map_element_length, ++ t )
@@ -3085,6 +2797,24 @@ uns32 LEX::print_program_component
 	}
 	length += map_element_length
 	        * ( dhp->max_ctype + 1 );
+
+	min::ptr<const uns8> ctype_map =
+	    LEX::ptr<const uns8>
+	        ( program, ID + length );
+	printer << min::indent << "CTYPE VECTOR:";
+	for ( uns32 cindex = 0;
+	      cindex < dhp->ctype_map_size; ++ cindex )
+	{
+	    if ( cindex % 8 == 0 )
+	        printer << min::indent
+		        << min::puns ( cindex,
+			               "%8X: " );
+	    uns32 ctype = ctype_map[cindex];
+	    printer << min::puns ( ctype, "%5u" );
+	}
+	printer << min::bol;
+
+	length = dhp->component_length;
 	break;
     }
     case INSTRUCTION:
@@ -3092,59 +2822,6 @@ uns32 LEX::print_program_component
 	printer << pIDindent ( ID, program );
 	length = print_instruction
 		   ( printer, program, ID, true );
-	break;
-    }
-    case TYPE_MAP:
-    {
-	printer << pIDindent ( ID, program )
-	        << "TYPE_MAP" << min::eol;
-	min::ptr<type_map_header> tmhp =
-	    LEX::ptr<type_map_header> ( program, ID );
-	length = type_map_header_length;
-	if ( tmhp->singleton_ctype > 0 )
-	{
-	    printer << tmhp->singleton_ctype
-	            << min::right ( IDwidth + 4 )
-		    << ": " << pgraphic ( tmhp->cmin )
-	            << "-" << pgraphic ( tmhp->cmax )
-		    << min::eol;
-	}
-	else
-	{
-	    printer << min::save_print_format
-	            << min::set_indent ( IDwidth + 6 );
-
-	    min::ptr<uns8> map =
-	        min::ptr<uns8> ( tmhp + 1 );
-	    length += ( tmhp->cmax - tmhp->cmin + 4 )
-	            / 4;
-	    for ( unsigned t = 0; t < 256; ++ t )
-	    {
-		pclist pcl ( printer );
-		for ( uns32 c = tmhp->cmin;
-		      c <= tmhp->cmax; ++ c )
-		{
-		    if ( map[c - tmhp->cmin] == t )
-		    {
-			if ( pcl.empty )
-			    printer
-				<< min::set_break
-				<< t << ": "
-				<< min::right
-				       ( IDwidth + 6 );
-			pcl.add ( c, c );
-		    }
-		}
-		if ( ! pcl.empty )
-		{
-		    pcl.flush();
-		    printer << min::eol;
-		}
-	    }
-
-	    printer << min::restore_print_format
-	            << min::set_indent ( IDwidth );
-	}
 	break;
     }
     default:
@@ -3184,17 +2861,6 @@ void LEX::print_program
 		 & LEX::TRANSLATE_TO_FLAG )
 		ID += LEX::translate_to_length
 			    ( ihp->operation );
-	    continue;
-	}
-	case TYPE_MAP:
-	{
-	    min::ptr<type_map_header> tmhp =
-		LEX::ptr<type_map_header>
-		    ( program, ID );
-	    ID += type_map_header_length;
-	    if ( tmhp->singleton_ctype == 0 )
-		ID += ( tmhp->cmax - tmhp->cmin + 4 )
-		    / 4;
 	    continue;
 	}
 	}

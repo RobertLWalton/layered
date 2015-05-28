@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 12 07:12:48 EST 2015
+// Date:	Thu May 28 05:47:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,128 +32,77 @@ namespace ll { namespace lexeme
     using ll::lexeme::uns32;
 
     // Various things are pushed into and popped from
-    // the stacks.
+    // the following stacks:
+    //
+    // 		dispatchers stack
+    // 		instructions stack
+    // 		uns32_stack
+    // 		uns8_stack
     //
     // A begin_table, begin_dispatcher, and begin_atom_
     // pattern push a dispatcher to the dispatchers
     // stack.  Whenever a dispatcher is pushed an
     // instruction is simultaneously pushed into the
     // instructions stack, and ELSE's push additional
-    // instructions into that stack.  An end_table,
-    // end_dispatcher, and end_atom_pattern pop these
-    // stacks.
+    // instructions into that stack forming an instru-
+    // tion group associated with the dispatcher.  Dis-
+    // patchers and instruction groups are in 1-1
+    // correspondence.  An end_table, end_dispatcher,
+    // and end_atom_pattern pop these stacks.
     //
-    // The <character-adder>s of a <dispatch> add char-
-    // acters to the SECOND from topmost dispatcher.
-    // Successive <dispatch> siblings get consecutive
-    // character types within this second from topmost
-    // dispatcher, beginning with 1.  An OTHERS sibling
-    // gets type 0.
+    // Whenever a dispatcher is pushed a CTYPE_MAP_SIZE
+    // vector is allocated to (pushed to the end of) the
+    // uns8_stack to hold the character type map (ctype_
+    // map) of the dispatcher.  Popping the dispatcher
+    // pops its ctype_map vector.  The only reason there
+    // is a separate vector is that CTYPE_MAP_SIZE is
+    // not a compile constant so its awkward to include
+    // a dispatcher's ctype_map inside the dispatcher
+    // struct.
     //
-    // Characters-adder's that add ASCII characters
-    // modify the ascii_map of the second from topmost
-    // dispatchers stack entry.
+    // A dispatcher D has a character type counter (max_
+    // type_code) initialized to 0.  When a subdispatch-
+    // er of dispatcher D is pushed into the dispatcher
+    // stack, this counter is incremented and its new
+    // value becomes the character type associated with
+    // the subdispatcher.  When <character-adder>s are
+    // executed for the subdispatcher, they associate
+    // characters the ctype_map of D (D is now the
+    // SECOND from topmost dispatcher in the stack) with
+    // this character type.  When the subdispatcher is
+    // popped from the stack, it and its associated
+    // instruction and repetition count are associated
+    // with this character type in dispatcher D.
     //
-    // Characters-adder's that add sequences of non-
-    // ASCII characters are recorded in a separate
-    // uns32_stack and the number of these is counted
-    // in the topmost dispatchers stack entry.
+    // An OTHERS subdispatcher is a special case and
+    // is associated with character type 0.  A table is
+    // treated as a dispatcher that has no parent.
     //
-    // Instructions are recorded in the instructions
-    // stack, and any translation strings they use
-    // are recorded in the uns32_stack.
+    // Popping a dispatcher stack entry pushes the
+    // following into the uns32_stack:
     //
-    // Repetition counts are recorded in the topmost
-    // entry.
+    //	    dispatcher ID of created dispatcher
+    //	    instruction ID of created instruction
+    //	    repetition count from popped dispatcher
     //
-    // When the topmost dispatchers stack entry is
-    // popped, it may or may not generate a dispatcher.
-    // The topmost instructions stack entry is popped
-    // simultaneously, and may or may not generate an
-    // instruction.  The dispatcher ID of any generated
-    // dispatcher and instruction ID of any generated
-    // instruction, along with the number of non-ASCII
-    // character sequences added and the repetition
-    // count, are all pushed into the uns32_stack for
-    // use in generating a dispatcher from the next
-    // to topmost dispatchers stack entry.  All these
-    // are associated in that dispatcher with the
-    // character type associated with the topmost
-    // dispatcher stack entry being popped.
+    // The popped dispatcher stack entry only creates
+    // a dispatcher if it had subdispatchers (so its
+    // max_type_code character type counter became > 0).
+    // Otherwise the dispatcher ID above is 0.
     //
-    // The begin_table function pushes 1 entry into the
-    // dispatchers stack, and this generates the dispat-
-    // cher of the table.  Each begin_dispatch pushes
-    // another entry.  If a <dispatch> has no sub-<dis-
-    // patch>es, its dispatchers stack entry does NOT
-    // generate an actual dispatcher when the entry is
-    // popped, but the other dispatchers stack entries
-    // created within a table do generate actual dispat-
-    // chers when they are popped.
-    //
-    // Begin_atom_pattern pushes two entries into the
-    // dispatchers stack.  Each NEXT() pushes one more
-    // entry.  End_atom_pattern pops all these entries
-    // and generates a dispatcher for each but the
-    // topmost.  All characters added have character
-    // type 1, and there are no instructions.
-    //
-    // When the dispatchers and instructions stacks are
-    // popped, the uns32_stack has the following in
-    // order, where d is the dispatcher at the top of
-    // the dispatchers stack before popping that stack:
-    //    
-    //	  d.type_map_count pairs from add_characters
-    //        calls for this dispatcher:
-    //		char_min
-    //		char_max
-    //    for each non-OTHERS subdispatcher (child of
-    //		  this dispatcher):
-    //	      subdispatcher type_map_count pairs:
-    //		char_min
-    //		char_max
-    //	      the quadruple:
-    //		subdispatcher dispatcher_ID
-    //		subdispatcher instruction_ID
-    //		subdispatcher repeat_count
-    //		subdispatcher type_map_count
-    //    for each instruction in the instruction stack,
-    //	      translate_to_length uns32's giving the
-    //	      translate vector in memory order
-    //
-    // Popping a dispatcher in a table pops an instruc-
-    // tion group from the instruction stack and removes
-    // the instruction and subdispatcher elements from
-    // the uns32_stack, leaving the d.type_map_count
-    // pairs from add_characters for the dispatcher d
-    // being popped.  It then pushes into this stack the
-    // new quadruple:
-    //
-    //	  dispatcher_ID of dispatcher generated by
-    //	                popped dispatchers stack entry,
-    //	                or 0 if no dispatcher generated
-    //	  instruction_ID of instruction generated by
-    //	                 popped instructions stack
-    //	                 entry, or 0 if no instruction
-    //	                 generated
-    //	  d.repeat_count
-    //	  d.type_map_count
-    //
-    // describing the popped dispatcher and instruction
-    // group and giving information needed to map char-
-    // acters to the character type of the popped entry.
-    // The dispatchers stack entry being popped might
-    // not create a dispatcher, in which case the pushed
-    // dispatcher_ID will be 0; and similarly there may
-    // have been no instruction, so the instructions
-    // stack entry popped contains no instruction, in
-    // which case the instruction_ID is 0.
-    //
-    // However, if the popped dispatcher is an OTHERS
-    // dispatcher, this last quadruple is not pushed,
-    // and the dispatcher_ID and instruction_ID are
-    // instead copied to the parent dispatcher (the
-    // repeat_count and type_map_count will be zero).
+    // The instruction group for a dispatcher D is
+    // created by NDL code executed after the NDL code
+    // that creates subdispatchers of D.  It is recorded
+    // in the topmost instruction stack entry, and in
+    // the case of an instruction group, in entries
+    // pushed after that entry.  When a dispatcher stack
+    // entry is popped, the instruction group stack
+    // entries are popped and generate an instruction ID
+    // that is pushed into the uns32_stack as indicated
+    // above.  If no instruction is created for a dis-
+    // patcher, the sole popped instruction stack entry
+    // will be `unused', and the instruction ID will be
+    // 0.
     //
     // Note that `popping an instruction group' means
     // popping all the instructions in a sequence
@@ -164,6 +113,40 @@ namespace ll { namespace lexeme
     // instruction (last instruction popped) as the
     // instruction_ID of the group.
     //
+    // When an instruction with a translation string
+    // is created, the translation string is pushed
+    // into the uns32_stack.  This translation string
+    // is popped when its corresponding instruction
+    // stack entry is popped.
+    //
+    // After creating an instruction ID for a dispatcher
+    // stack entry being popped, the uns32_stack will
+    // contain the information given above for all the
+    // non-OTHER subdispatchers of the entry being pop-
+    // ped, and this information is used to create a
+    // dispatcher.  At this point the number of non-
+    // OTHER subdispatchers of the dispatcher being
+    // popped is the max_type_count of the dispatcher
+    // being popped.
+    //
+    // Exceptions are the instruction ID and dispatcher
+    // ID of an OTHERS subdispatcher and the repetition
+    // count of the dispatcher being popped.  These
+    // are recorded in the dispatcher stack entry being
+    // popped.
+    //
+    // A dispatcher with an OTHERS subdispatcher MUST
+    // also have some non-OTHERS subdispatcher (i.e.,
+    // max_type_count > 0).
+    //
+    // Begin_atom_pattern pushes two entries into the
+    // dispatchers stack.  Each NEXT() pushes one more
+    // entry.  End_atom_pattern pops all these entries
+    // and generates a dispatcher for each but the
+    // topmost.  All characters added have character
+    // type 1, and there are no instructions.
+    //
+    extern min::packed_vec_insptr<uns8> uns8_stack;
     extern min::packed_vec_insptr<uns32> uns32_stack;
 
     // Accumulated information use to construct a
@@ -174,37 +157,20 @@ namespace ll { namespace lexeme
     // characters indicated to this dispatcher's max_
     // type_code.
     // 
+    const unsigned CTYPE_MAP_SIZE =
+        min::unicode::index_limit;
     struct dispatcher
     {
         uns32 line_number;
 	    // Line number of begin_dispatch,
 	    // begin_atom_pattern, begin_table,
 	    // or NEXT.
-        uns8 ascii_map[128];
-	    // Type codes of ASCII characters.
-	    // 0 if none.  Subdispatchers modify this
-	    // when they add ASCII characters to their
-	    // character patterns via their begin_
-	    // dispatcher call or add_characters calls
-	    // with ASCII quoted strings.
 	uns8 max_type_code;
-	    // Last type code assigned to this dispat-
-	    // cher.  Incremented when a non-OTHER's
+	    // Character type code counter.  Last type
+	    // code assigned to this dispatcher.  Initi-
+	    // aly 0.  Incremented when a non-OTHER's
 	    // subdispatcher is pushed into the dispat-
-	    // chers stack.  This subdispatcher uses the
-	    // incremented value as the type code to
-	    // attach to.  OTHER's subdispatchers attach
-	    // to type code 0.
-	uns32 type_map_count;
-	    // Number of min_char,max_char pairs in
-	    // the uns32_stack for the type code in
-	    // this dispatcher's parent that this
-	    // dispatcher will be attached to.
-	    // Pushed into the uns32_stack with the
-	    // other data from this dispatcher for
-	    // use by its parent dispatcher.
-	    //
-	    // Must be 0 for an OTHER's dispatcher.
+	    // chers stack.
 	uns32 repeat_count;
 	    // Repeat_count value for the character
 	    // type in this dispatcher's parent that
@@ -220,6 +186,19 @@ namespace ll { namespace lexeme
 	bool is_others_dispatcher;
 	    // True if and only if this is an OTHER's
 	    // dispatcher.
+        uns32 ctype_map_offset;
+	    // Offset of dispatcher ctype_map in
+	    // uns8_stack.  The ctype_map has size
+	    // CTYPE_MAP_SIZE.
+	    //
+	    // Subdispatchers modify this ctype_map when
+	    // they add characters to their character
+	    // patterns via their begin_dispatcher call
+	    // or add_char... calls.
+	    //
+	    // The ctype_map is truncated when it is
+	    // used to create the actual dispatcher by
+	    // removing 0 elements from its end.
     };
 
     extern min::packed_vec_insptr<dispatcher>

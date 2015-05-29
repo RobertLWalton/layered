@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 06:59:33 EDT 2015
+// Date:	Fri May 29 04:28:52 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -167,6 +167,8 @@ cc
 
 lex	"<digit>" = "<UNICODE-CATEGORY-Nd>"
 lex
+cc	    const char * Digit = "Nd";
+cc
 
 lex	"<hex-digit>" = "0-9" | "A-F";
 lex
@@ -179,9 +181,13 @@ lex
 
 lex	"<letter>" = "<UNICODE-CATEGORY-L>"
 lex
+cc	    const char * Letter = "L";
+cc
 
 lex	"<combining-character>" = "<UNICODE-CATEGORY-M>"
 lex
+cc	    const char * Combining = "M";
+cc
 
 lex	// Context sensitive character classifications,
 lex	// e.g., classifying ' as a word character if it
@@ -234,6 +240,9 @@ cc
 
 lex	"<control-char>" = "<UNICODE-CATEGORY-C>"
 lex
+cc	    const char * Control = "C";
+cc
+
 lex	"<control-char-except-CR-LF>" =
 lex	    "<control-char>" & ~ "<CR>" & ~ "<LF>"
 lex
@@ -325,7 +334,7 @@ cc
 lex	   "<letter>" call word;
 lex
 cc		   NDL::begin_dispatch();
-cc		      NDL::add_category ( "L" );
+cc		      NDL::add_category ( Letter );
 cc		      NDL::call ( word );
 cc		   NDL::end_dispatch();
 cc
@@ -336,11 +345,11 @@ lex	   "'" output separator;
 lex
 cc		   NDL::begin_dispatch ( "'" );
 cc		      NDL::begin_dispatch();
-cc		         NDL::add_category ( "L" );
+cc		         NDL::add_category ( Letter );
 cc			 NDL::call ( word );
 cc		      NDL::end_dispatch();
 cc		      NDL::begin_dispatch();
-cc			 NDL::add_category ( "Nd" );
+cc			 NDL::add_category ( Digit );
 cc			 NDL::keep ( 1 );
 cc			 NDL::call ( number );
 cc		      NDL::end_dispatch();
@@ -362,7 +371,7 @@ lex	             // We keep 0 so natural number can
 lex	             // recognize <digit>,<digit> etc.
 lex
 cc	    	   NDL::begin_dispatch();
-cc		      NDL::add_category ( "Nd" );
+cc		      NDL::add_category ( Digit );
 cc		      NDL::keep ( 0 );
 cc		      NDL::call ( natural_number );
 cc	    	   NDL::end_dispatch();
@@ -373,7 +382,7 @@ lex	   "." call mark;
 lex
 cc	    	   NDL::begin_dispatch ( "." );
 cc	              NDL::begin_dispatch();
-cc		         NDL::add_category ( "L" );
+cc		         NDL::add_category ( Letter );
 cc			 NDL::call ( word );
 cc		      NDL::end_dispatch();
 cc
@@ -564,8 +573,8 @@ lex	   "<letter>" accept;
 lex	   "<combining-char>" accept;
 lex
 cc	           NDL::begin_dispatch();
-cc		       NDL::add_category ( "L" );
-cc		       NDL::add_category ( "M" );
+cc		       NDL::add_category ( Letter );
+cc		       NDL::add_category ( Combining );
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -574,7 +583,7 @@ lex	   "'<letter>" accept;
 lex
 cc		   NDL::begin_dispatch ( "'" );
 cc		      NDL::begin_dispatch();
-cc		         NDL::add_category ( "L" );
+cc		         NDL::add_category ( Letter );
 cc			 NDL::accept();
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
@@ -602,7 +611,7 @@ lex	   "<combining-char>" accept;
 lex
 cc	           NDL::begin_dispatch ( mark_char );
 cc		       NDL::add_char ( '.' );
-cc		       NDL::add_category ( "M" );
+cc		       NDL::add_category ( Combining );
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -654,12 +663,12 @@ lex	   "<digit>,<digit>" keep 2 goto number;
 lex	   "<digit>" accept;
 lex
 cc	           NDL::begin_dispatch();
-cc		      NDL::add_category ( "Nd" );
+cc		      NDL::add_category ( Digit );
 cc
 cc		       NDL::begin_dispatch ( ".:/," );
 cc			   NDL::begin_dispatch();
 cc		               NDL::add_category
-cc	                           ( "Nd" );
+cc	                           ( Digit );
 cc			       NDL::keep ( 2 );
 cc			       NDL::go ( number );
 cc			   NDL::end_dispatch();
@@ -673,7 +682,7 @@ lex	   "'<digit>" keep 1 goto number;
 lex
 cc		   NDL::begin_dispatch ( "'" );
 cc		      NDL::begin_dispatch();
-cc		         NDL::add_category ( "Nd" );
+cc		         NDL::add_category ( Digit );
 cc			 NDL::keep ( 1 );
 cc			 NDL::go ( number );
 cc		      NDL::end_dispatch();
@@ -706,12 +715,12 @@ lex	   "<digit>,<digit>" keep 2;
 lex	   "<digit>" accept;
 lex
 cc	           NDL::begin_dispatch();
-cc		       NDL::add_category ( "Nd" );
+cc		       NDL::add_category ( Digit );
 cc
 cc		       NDL::begin_dispatch ( ".:/," );
 cc			   NDL::begin_dispatch();
 cc		              NDL::add_category
-cc	                          ( "Nd" );
+cc	                          ( Digit );
 cc			      NDL::keep ( 2 );
 cc			   NDL::end_dispatch();
 cc		       NDL::end_dispatch();
@@ -724,7 +733,7 @@ lex	   "'<digit>" keep 1;
 lex
 cc		   NDL::begin_dispatch ( "'" );
 cc		      NDL::begin_dispatch();
-cc		         NDL::add_category ( "Nd" );
+cc		         NDL::add_category ( Digit );
 cc			 NDL::keep ( 1 );
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
@@ -807,7 +816,7 @@ lex	        error misplaced control char
 lex	        translate to "<UUC>";
 lex
 cc	           NDL::begin_dispatch ( "" );
-cc		      NDL::add_category ( "C" );
+cc		      NDL::add_category ( Control );
 cc		      NDL::sub_char ( '\r' );
 cc		      NDL::sub_char ( '\n' );
 cc		      NDL::erroneous_atom
@@ -1051,7 +1060,7 @@ lex	    "<" "<digit>" match escaped hex char
 lex	            else fail;
 lex
 cc	    	    NDL::begin_dispatch();
-cc		       NDL::add_category ( "Nd" );
+cc		       NDL::add_category ( Digit );
 cc		       NDL::match ( escaped_hex_char );
 cc		    NDL::ELSE();
 cc		       NDL::fail();
@@ -1081,7 +1090,7 @@ lex	              translate hex 1 1;
 lex
 cc	       NDL::begin_dispatch ( "<" );
 cc	    	    NDL::begin_dispatch();
-cc		      NDL::add_category ( "Nd" );
+cc		      NDL::add_category ( Digit );
 cc	    	      NDL::begin_dispatch ( ">" );
 cc	                NDL::translate_hex ( 1, 1 );
 cc	              NDL::end_dispatch();

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 27 05:31:28 EDT 2015
+// Date:	Fri May 29 04:18:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -406,6 +406,7 @@ static void pop_dispatcher
 	min::push(uns32_stack) = (&d)->repeat_count;
 
 	min::pop ( dispatchers );
+	min::pop ( uns8_stack, CTYPE_MAP_SIZE );
 
 	substate = DISPATCHERS;
     	return;
@@ -594,7 +595,7 @@ void LEXNDL::end_atom_pattern ( void )
 
     * atom_pattern_name_p = uns32_stack[0];
 
-    min::pop ( uns32_stack, 4 );
+    min::pop ( uns32_stack, 3 );
 
     MIN_REQUIRE ( dispatchers->length == 0 );
     MIN_REQUIRE ( instructions->length == 0 );

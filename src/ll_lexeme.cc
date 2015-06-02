@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 06:15:29 EDT 2015
+// Date:	Tue Jun  2 07:05:17 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -409,7 +409,8 @@ uns32 LEX::create_instruction
 	min::ptr<program_header> php =
 	    LEX::ptr<program_header> ( program, 0 );
 	MIN_ASSERT (    php->max_type == 0
-		     || output_type <= php->max_type,
+		     || output_type <= php->max_type
+		     || output_type == NONE,
 		     "output_type argument is too"
 		     " large for OUTPUT operation" );
     }

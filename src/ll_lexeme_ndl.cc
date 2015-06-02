@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 29 04:18:10 EDT 2015
+// Date:	Tue Jun  2 06:05:38 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -178,7 +178,8 @@ static STATE state;
 // table, atom pattern, or dispatcher.
 //
 enum SUBSTATE {
-    ADD_CHARACTERS,
+    ADD_CHARACTERS,	// For non-OTHERS dispatchers
+    ADD_REPEAT,		// For OTHERS dispatchers
     DISPATCHERS,
     INSTRUCTION };
 
@@ -268,7 +269,7 @@ void LEXNDL::new_table
 // increment its max_type_code.
 //
 // However, if is_others is true, set the substate to
-// DISPATCHERS (add_characters is not allowed in an
+// ADD_REPEAT (add_characters is not allowed in an
 // OTHER's dispatcher), do NOT increment the parent
 // max_type_code, and set is_others_dispatcher true
 // in the pushed dispatcher.
@@ -286,6 +287,7 @@ static void push_dispatcher ( bool is_others = false )
     (&d)->repeat_count = 0;
     (&d)->others_dispatcher_ID = 0;
     (&d)->others_instruction_ID = 0;
+    (&d)->others_repeat_count = 0;
     (&d)->is_others_dispatcher = is_others;
     (&d)->ctype_map_offset = uns8_stack->length;
 
@@ -304,7 +306,7 @@ static void push_dispatcher ( bool is_others = false )
     (&ci)->call_table_ID = 0;
     (&ci)->accept = false;
 
-    substate = is_others ? DISPATCHERS
+    substate = is_others ? ADD_REPEAT
                          : ADD_CHARACTERS;
 }
 
@@ -400,6 +402,8 @@ static void pop_dispatcher
 	MIN_REQUIRE ( (&d)->others_dispatcher_ID == 0 );
 	MIN_REQUIRE
 	    ( (&d)->others_instruction_ID == 0 );
+	MIN_REQUIRE
+	    ( (&d)->others_repeat_count == 0 );
 
 	min::push(uns32_stack) = 0;
 	min::push(uns32_stack) = instruction_ID;
@@ -425,6 +429,10 @@ static void pop_dispatcher
     if ( (&d)->others_instruction_ID != 0 )
         ATTACH ( dispatcher_ID, 0,
 	         (&d)->others_instruction_ID );
+    if ( (&d)->others_repeat_count != 0 )
+	SET_REPEAT_COUNT
+	    ( dispatcher_ID, 0,
+	      (&d)->others_repeat_count );
 
     for ( uns32 tcode = (&d)->max_type_code;
           0 < tcode; -- tcode )
@@ -460,6 +468,8 @@ static void pop_dispatcher
 	    dispatcher_ID;
 	(&parent)->others_instruction_ID =
 	    instruction_ID;
+	(&parent)->others_repeat_count =
+	    (&d)->repeat_count;
     }
     else
     {
@@ -738,7 +748,9 @@ void LEXNDL::REPEAT ( uns32 repeat_count )
              ||
 	     state == INSIDE_ATOM_PATTERN,
              "REPEAT() misplaced" );
-    ASSERT ( substate == ADD_CHARACTERS,
+    ASSERT ( substate == ADD_CHARACTERS
+             ||
+	     substate == ADD_REPEAT,
              "REPEAT() misplaced" );
     ASSERT ( repeat_count > 0,
              "REPEAT(0) with 0 repeat_count illegal" );
@@ -768,7 +780,9 @@ void LEXNDL::begin_dispatch ( const char * ASCII_chars )
 	min::ref<dispatcher> d = current_dispatcher();
 	ASSERT ( (&d)->others_dispatcher_ID == 0
 	         &&
-		 (&d)->others_instruction_ID == 0,
+		 (&d)->others_instruction_ID == 0
+	         &&
+		 (&d)->others_repeat_count == 0,
 		 "more than one OTHERS dispatchers"
 		 " under one parent" );
     }

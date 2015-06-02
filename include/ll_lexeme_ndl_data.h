@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 05:47:10 EDT 2015
+// Date:	Tue Jun  2 05:47:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -180,6 +180,7 @@ namespace ll { namespace lexeme
 	    // use by its parent dispatcher.
 	uns32 others_dispatcher_ID;
 	uns32 others_instruction_ID;
+	uns32 others_repeat_count;
 	    // Data from an OTHER's subdispatcher.
 	    // Attached to type code 0 of this
 	    // dispatcher.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 23 11:49:17 EDT 2015
+// Date:	Wed Jun  3 06:47:12 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -493,7 +493,7 @@ static min::gen make_label
         if ( first->value == min::MISSING() )
 	{
 	    MIN_REQUIRE
-	        ( first->type == LEXSTD::number_t
+	        ( first->type == LEXSTD::numeric_t
 		  ||
 		     first->type
 		  == LEXSTD::quoted_string_t );
@@ -511,7 +511,7 @@ static min::gen make_label
 	        ( first->type == LEXSTD::word_t
 		  ||
 		     first->type
-		  == LEXSTD::natural_number_t );
+		  == LEXSTD::natural_t );
 
 	label[i] = first->value;
     }
@@ -1628,13 +1628,17 @@ static min::gen bracketed_pass_command
 	            ( 1ull << LEXSTD::mark_t )
 	          + ( 1ull << LEXSTD::separator_t )
 	          + ( 1ull << LEXSTD::word_t )
-	          + ( 1ull << LEXSTD::number_t ),
+	          + ( 1ull << LEXSTD::numeric_t ),
 
 	            ( 1ull << LEXSTD::
 		                  horizontal_space_t )
+	          + ( 1ull << LEXSTD::
+		              premature_end_of_file_t )
 	          + ( 1ull << LEXSTD::end_of_file_t ),
 
-	            ( 1ull << LEXSTD::end_of_file_t ),
+	            ( 1ull << LEXSTD::
+		              premature_end_of_file_t )
+	          + ( 1ull << LEXSTD::end_of_file_t ),
 		  command == PAR::print );
 
 	if ( name[number_of_names] == min::ERROR() )

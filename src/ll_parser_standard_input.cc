@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 07:07:02 EDT 2015
+// Date:	Wed Jun  3 06:51:04 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,13 +80,25 @@ static void erroneous_atom_announce
     const char * message;
     switch ( type )
     {
-    case LEXSTD::unrecognized_escape_seq_t:
+    case LEXSTD::misplaced_vertical_t:
+	message = "ERROR: vertical control character"
+	          " sequence with no line feed; ";
+	break;
+    case LEXSTD::illegal_control_t:
+	message = "ERROR: illegal control"
+	          " character sequence; ";
+	break;
+    case LEXSTD::unrecognized_character_t:
+	message = "ERROR: unrecognized"
+	          " character sequence; ";
+	break;
+    case LEXSTD::unrecognized_escape_t:
 	message = "ERROR: unrecognized escape"
 	          " sequence; ";
 	break;
-    case LEXSTD::misplaced_control_char_t:
-	message = "ERROR: misplaced control"
-	          " character; ";
+    case LEXSTD::misplaced_horizontal_t:
+	message = "ERROR: horizontal characters other"
+	          " than single space; ";
 	break;
     default:
 	message = "ERROR: system error: unrecognized"
@@ -141,17 +153,23 @@ static min::uns32 input_add_tokens
 	case LEXSTD::horizontal_space_t:
 	    continue;
 
-	case LEXSTD::premature_end_of_line_t:
-	    message = "ERROR: premature end of line; ";
+	case LEXSTD::premature_end_of_string_t:
+	    message = "ERROR: premature end of string; ";
 	    break;
 	case LEXSTD::premature_end_of_file_t:
 	    message = "ERROR: premature end of file; ";
 	    break;
-	case LEXSTD::misplaced_char_t:
-	    message = "ERROR: misplaced character; ";
+	case LEXSTD::misplaced_vertical_t:
+	    message = "ERROR: vertical control character"
+	              " sequence with no line feed; ";
 	    break;
-	case LEXSTD::misplaced_space_t:
-	    message = "ERROR: misplaced space; ";
+	case LEXSTD::illegal_control_t:
+	    message = "ERROR: illegal control character"
+	              " sequence; ";
+	    break;
+	case LEXSTD::unrecognized_character_t:
+	    message = "ERROR: unrecognized character"
+	              " sequence; ";
 	    break;
 	}
 
@@ -189,7 +207,7 @@ static min::uns32 input_add_tokens
 	case LEXSTD::word_t:
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
-	case LEXSTD::natural_number_t:
+	case LEXSTD::natural_t:
 	{
 	    value_ref(token) = min::new_str_gen
 	        ( min::begin_ptr_of
@@ -198,7 +216,7 @@ static min::uns32 input_add_tokens
 	    break;
 	}
 	case LEXSTD::quoted_string_t:
-	case LEXSTD::number_t:
+	case LEXSTD::numeric_t:
 	{
 	    int length = translation_buffer->length;
 	    PAR::string_ref(token) =

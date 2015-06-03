@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 21 16:43:45 EDT 2015
+// Date:	Wed Jun  3 06:43:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,7 +65,7 @@ min::gen COM::scan_simple_name
 	    ++ i;
 	else
 	    break;
-	accepted_types |= 1ull << LEXSTD::number_t;
+	accepted_types |= 1ull << LEXSTD::numeric_t;
     }
 
     if ( i == j ) return min::MISSING();
@@ -131,13 +131,17 @@ min::gen COM::scan_names
 		    ( 1ull << LEXSTD::mark_t )
 		  + ( 1ull << LEXSTD::separator_t )
 		  + ( 1ull << LEXSTD::word_t )
-		  + ( 1ull << LEXSTD::number_t ),
+		  + ( 1ull << LEXSTD::numeric_t ),
 
 		    ( 1ull << LEXSTD::
 				  horizontal_space_t )
+		  + ( 1ull << LEXSTD::
+		              premature_end_of_file_t )
 		  + ( 1ull << LEXSTD::end_of_file_t ),
 
-		    ( 1ull << LEXSTD::end_of_file_t )
+		    ( 1ull << LEXSTD::
+		              premature_end_of_file_t )
+		  + ( 1ull << LEXSTD::end_of_file_t )
 		) );
 
 	if ( name == min::ERROR() ) return min::ERROR();
@@ -709,13 +713,17 @@ static min::gen execute_selectors
 		( 1ull << LEXSTD::mark_t )
 	      + ( 1ull << LEXSTD::separator_t )
 	      + ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ),
+	      + ( 1ull << LEXSTD::numeric_t ),
 
 		( 1ull << LEXSTD::
 			      horizontal_space_t )
+	      + ( 1ull << LEXSTD::
+		          premature_end_of_file_t )
 	      + ( 1ull << LEXSTD::end_of_file_t ),
 
-		( 1ull << LEXSTD::end_of_file_t ),
+		( 1ull << LEXSTD::
+		          premature_end_of_file_t )
+	      + ( 1ull << LEXSTD::end_of_file_t ),
 	      true /* empty name ok */ );
 
 	if ( name == min::ERROR() )
@@ -830,13 +838,17 @@ static min::gen execute_context
 		( 1ull << LEXSTD::mark_t )
 	      + ( 1ull << LEXSTD::separator_t )
 	      + ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::number_t ),
+	      + ( 1ull << LEXSTD::numeric_t ),
 
 		( 1ull << LEXSTD::
 			      horizontal_space_t )
+	      + ( 1ull << LEXSTD::
+		          premature_end_of_file_t )
 	      + ( 1ull << LEXSTD::end_of_file_t ),
 
-		( 1ull << LEXSTD::end_of_file_t ),
+		( 1ull << LEXSTD::
+		          premature_end_of_file_t )
+	      + ( 1ull << LEXSTD::end_of_file_t ),
 		vp[1] == PAR::print ) );
 
     if ( name == min::ERROR() )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 23 15:11:27 EDT 2015
+// Date:	Wed Jun  3 06:43:24 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1717,7 +1717,7 @@ void PAR::convert_token ( PAR::token token )
     else
     {
 	MIN_REQUIRE (    token->type
-		      == LEXSTD::number_t );
+		      == LEXSTD::numeric_t );
 
 	type = PAR::number_sign;
     }

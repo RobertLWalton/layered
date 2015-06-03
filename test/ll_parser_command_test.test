@@ -72,7 +72,7 @@ parser print context "":
     block TOP LEVEL: parser [parser]
     block TOP LEVEL: parser test []
 parser define context "default"
-       with parsing selectors [parser,my selector]
+       with parsing selectors [parser, my selector]
 parser print context "":
     block standard: default [parser, my selector]
     block TOP LEVEL: default []
@@ -91,8 +91,8 @@ parser print context "":
 parser trace [+ subexpression lines]
 ======= TEST:
 ------- line 33:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test [ x <+ y +> z {u, v, w} m (n (p)) ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser trace [- subexpression lines]
 parser trace [+ subexpression details]
@@ -118,8 +118,8 @@ parser trace [+ subexpression lines]
 ======= TEST: parser test "[" x <+ y +> z "{" u "," v "," w "}" m "(" n
                   "(" p ")" ")" "]"
 ------- line 42:
-parser test [ x <+ y +> z {u,v,w} m (n (p)) ]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test [ x <+ y +> z {u, v, w} m (n (p)) ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser begin special
 parser define context "parser test special"
@@ -129,17 +129,17 @@ parser print context "parser<SP>test<SP>special":
 ======= TEST: parser test special
                   [x <+ y +> z "{" u "," v "," w "}" m (n (p))]
 ------- line 48:
-parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test special [ x <+ y +> z {u, v, w} m (n (p)) ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 48:
-parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test special [ x <+ y +> z {u, v, w} m (n (p)) ]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 48:
-parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
-                                            ^^^^^^^
+parser test special [ x <+ y +> z {u, v, w} m (n (p)) ]
+                                              ^^^^^^^
 ------- line 48:
-parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
-                                               ^^^
+parser test special [ x <+ y +> z {u, v, w} m (n (p)) ]
+                                                 ^^^
 ======= END TEST
 parser print context "default":
     block special: default [code]
@@ -156,6 +156,6 @@ parser print context "parser":
 ======= TEST: parser test special "[" x <+ y +> z "{" u "," v "," w "}"
                   m "(" n "(" p ")" ")" "]"
 ------- line 54:
-parser test special [ x <+ y +> z {u,v,w} m (n (p)) ]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test special [ x <+ y +> z {u, v, w} m (n (p)) ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

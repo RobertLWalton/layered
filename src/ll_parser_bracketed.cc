@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 06:47:12 EDT 2015
+// Date:	Wed Jun  3 15:23:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1628,6 +1628,7 @@ static min::gen bracketed_pass_command
 	            ( 1ull << LEXSTD::mark_t )
 	          + ( 1ull << LEXSTD::separator_t )
 	          + ( 1ull << LEXSTD::word_t )
+	          + ( 1ull << LEXSTD::natural_t )
 	          + ( 1ull << LEXSTD::numeric_t ),
 
 	            ( 1ull << LEXSTD::

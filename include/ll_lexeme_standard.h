@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 05:33:10 EDT 2015
+// Date:	Tue Jun  2 19:36:39 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,19 +70,30 @@ namespace ll { namespace lexeme { namespace standard {
 
     // Erroneous Lexeme Types:
     //
-    //    These separated other lexemes in the same way
-    //    as line breaks do.
-    //
     const uns32 premature_end_of_string_t	= 11;
-        // A line break or erroneous equivalent was en-
-	// countered in a quoted string.  The quoted
-	// string is ended as if by ", and this 0-length
-	// lexeme is output before the line break or
-	// erroneous equivalent lexeme.
+        // A line break was encountered in a quoted
+	// string.  The quoted string is ended as if by
+	// ", and this 0-length lexeme is output just
+	// before the line break.
     const uns32 premature_end_of_file_t		= 12;
         // End of file not following a line break.
-	// Includes case of empty input.  Followed by
-	// an end of file lexeme.
+	// Includes case of empty input.  This 0-length
+	// lexeme is output just before the end of file
+	// lexeme.
+
+    // Erroneous Lexeme AND erroneous Atom Types:
+    //
+    //     Sequences of various types of illegal charac-
+    //     ters.  If appearing outside comments and
+    //     quoted strings, these act like horizontal
+    //     space lexemes, and are themselves lexemes.
+    //     If appearing inside comments or quoted
+    //     strings, these act as erroneous atoms, but
+    //     are translated to themselves, so a program
+    //     that does not output error messages for these
+    //     as erroneous atoms in effect allows them
+    //     in comments and quoted strings.
+    //
     const uns32 misplaced_vertical_t		= 13;
         // Sequence of carriage returns, vertical tabs,
 	// and form feeds that does not abutt a line
@@ -102,9 +113,11 @@ namespace ll { namespace lexeme { namespace standard {
 	// string where ... is all upper case letters
 	// and digits.  Translated to <UUC>.
     const uns32 misplaced_horizontal_t		= 17;
-        // Horizontal character other than single
-	// space in a quoted string.  Translated to
-	// single space, except <HT> is not translated.
+        // A sequence of horizontal characters other
+	// than single space in a quoted string.
+	// Translated to itself.  Such a sequence is
+	// legal and not erroneous if it is part of a
+	// horizontal space or comment lexeme.
 
     const unsigned MAX_TYPE = 17;
 

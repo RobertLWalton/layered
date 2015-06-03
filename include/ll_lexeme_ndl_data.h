@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 05:47:25 EDT 2015
+// Date:	Tue Jun  2 20:49:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -122,10 +122,10 @@ namespace ll { namespace lexeme
     // After creating an instruction ID for a dispatcher
     // stack entry being popped, the uns32_stack will
     // contain the information given above for all the
-    // non-OTHER subdispatchers of the entry being pop-
+    // non-OTHERS subdispatchers of the entry being pop-
     // ped, and this information is used to create a
     // dispatcher.  At this point the number of non-
-    // OTHER subdispatchers of the dispatcher being
+    // OTHERS subdispatchers of the dispatcher being
     // popped is the max_type_count of the dispatcher
     // being popped.
     //

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 16 07:12:46 EST 2015
+// Date:	Wed Jun  3 06:50:11 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1405,7 +1405,7 @@ static bool infix_and_reformatter_function
 	    PAR::value_ref ( t ) = OP::dollar;
 	    t->position = before_position2;
 
-	    t = PAR::new_token ( LEXSTD::number_t  );
+	    t = PAR::new_token ( LEXSTD::numeric_t  );
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
 	    PAR::value_ref ( t ) =
@@ -1865,13 +1865,17 @@ static min::gen oper_pass_command
 	            ( 1ull << LEXSTD::mark_t )
 	          + ( 1ull << LEXSTD::separator_t )
 	          + ( 1ull << LEXSTD::word_t )
-	          + ( 1ull << LEXSTD::number_t ),
+	          + ( 1ull << LEXSTD::numeric_t ),
 
 	            ( 1ull << LEXSTD::
 		                  horizontal_space_t )
+	          + ( 1ull << LEXSTD::
+		              premature_end_of_file_t )
 	          + ( 1ull << LEXSTD::end_of_file_t ),
 
-	            ( 1ull << LEXSTD::end_of_file_t ),
+	            ( 1ull << LEXSTD::
+		              premature_end_of_file_t )
+	          + ( 1ull << LEXSTD::end_of_file_t ),
 		  command == PAR::print );
 
 	if ( name[number_of_names] == min::ERROR() )

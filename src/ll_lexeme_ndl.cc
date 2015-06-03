@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 06:05:38 EDT 2015
+// Date:	Tue Jun  2 20:51:24 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,7 +72,7 @@ static min::initializer initializer ( ::initialize );
 
 // Other global data.
 //
-char LEXNDL::OTHER[1];
+char LEXNDL::OTHERS[1];
 
 // Error data.
 //
@@ -270,7 +270,7 @@ void LEXNDL::new_table
 //
 // However, if is_others is true, set the substate to
 // ADD_REPEAT (add_characters is not allowed in an
-// OTHER's dispatcher), do NOT increment the parent
+// OTHERS's dispatcher), do NOT increment the parent
 // max_type_code, and set is_others_dispatcher true
 // in the pushed dispatcher.
 //
@@ -773,7 +773,7 @@ void LEXNDL::begin_dispatch ( const char * ASCII_chars )
              "begin_dispatch() misplaced" );
 
     bool is_others =
-        ( ASCII_chars == LEXNDL::OTHER );
+        ( ASCII_chars == LEXNDL::OTHERS );
 
     if ( is_others )
     {

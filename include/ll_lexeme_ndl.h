@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 05:47:19 EDT 2015
+// Date:	Tue Jun  2 20:50:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,7 +48,7 @@
 //      using ll::lexeme::ndl::MASTER;
 //      using ll::lexeme::ndl::ATOM;
 //      using ll::lexeme::ndl::NONE;
-//      using ll::lexeme::ndl::OTHER;
+//      using ll::lexeme::ndl::OTHERS;
 //      using ll::lexeme::ndl::uns32;
 //
 //	const uns32 max_type = ...
@@ -165,7 +165,7 @@
 //	        [<instruction-group>]
 //	NDL::end_dispatch();
 //    |
-//      NDL::begin_dispatch ( OTHER );
+//      NDL::begin_dispatch ( OTHERS );
 //	        <dispatch>*
 //	        [<instruction-group>]
 //	NDL::end_dispatch();
@@ -187,9 +187,9 @@
 //   // ters to the current <dispatch> if they were
 //   // added to previous sybling <dispatch>'s.
 //
-//   // In the OTHER case the <dispatch>'s atom primary
+//   // In the OTHERS case the <dispatch>'s atom primary
 //   // includes just those characters not in the char-
-//   // acter sets of sybling dispatchers.  A OTHER
+//   // acter sets of sybling dispatchers.  A OTHERS
 //   // <dispatch> must have at least one sybling.
 //
 //   <instruction-group> ::=
@@ -329,7 +329,7 @@ namespace ll { namespace lexeme { namespace ndl {
     using ll::lexeme::ATOM;
     using ll::lexeme::NONE;
 
-    extern char OTHER[];
+    extern char OTHERS[];
 
     extern const char * file;
     extern uns32 line;

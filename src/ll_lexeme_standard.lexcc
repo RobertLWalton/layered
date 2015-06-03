@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  1 21:20:16 EDT 2015
+// Date:	Tue Jun  2 19:46:45 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -139,10 +139,16 @@ lex	"<horizontal>" = "<UNICODE-CATEGORY-Zs>"
 lex		       | "<HT>";
 lex
 
-lex	"<misplaced-horizontal-space>" =
+lex	"<misplaced-horizontal>" =
 lex		  "<UNICODE-CATEGORY-Zs>"
+lex		| "<HT>";
 lex		& ~ "<SP>";
 lex
+cc	# define MISPLACED_HORIZONTAL \
+cc	           NDL::add_category ( "Zs" ); \
+cc	           NDL::add_char ( '\t' ); \
+cc	           NDL::sub_char ( ' ' );
+cc
 
 lex	"<vertical>" = "<CR>" | "<VT>" | "<FF>"
 lex
@@ -216,10 +222,10 @@ cc	    //     // Unused
 cc
 
 lex	"<trailing>"
-lex		= "'" | "!" | "?" | "." | "%"
+lex		= "'" | "!" | "?" | "." | "%" | ":"
 lex		| "," | ";"
 lex
-cc	    const char * trailing = "'!?.%,;";
+cc	    const char * trailing = "'!?.%:,;";
 cc
 
 lex	"<letter>" = "<UNICODE-CATEGORY-L>"
@@ -473,10 +479,10 @@ cc		      NDL::go ( quoted_string );
 cc	    	   NDL::end_dispatch();
 cc
 
-lex	   "<other><repeat>"
+lex	   "<others><repeat>"
 lex		error unrecognized character
 lex
-cc	    	   NDL::begin_dispatch ( OTHER );
+cc	    	   NDL::begin_dispatch ( OTHERS );
 cc		      NDL::REPEAT();
 cc		      NDL::output
 cc			( unrecognized_character_t );
@@ -514,7 +520,45 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
+lex	   "<LF>" keep 0 goto main
+lex	   "<vertical><repeat><LF>" keep 0 goto main
+lex	   "<vertical><repeat>"
+lex		error mispaced vertical
+lex	   "<illegal-control><repeat>"
+lex		error illegal control
+lex	   "<others><repeat>"
+lex		error unrecognized character
+cc		   NDL::begin_dispatch ( "\n" );
+cc		       NDL::keep ( 0 );
+cc		       NDL::go ( main );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch ( vertical );
+cc		       NDL::REPEAT();
+cc		       NDL::begin_dispatch ( "\n" );
+cc		           NDL::keep ( 0 );
+cc		           NDL::go ( main );
+cc		       NDL::end_dispatch();
+cc		       NDL::erroneous_atom
+cc			   ( misplaced_vertical_t );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch();
+cc		       ILLEGAL_CONTROL;
+cc		       NDL::REPEAT();
+cc		       NDL::erroneous_atom
+cc			   ( illegal_control_t );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch ( OTHERS );
+cc		       NDL::REPEAT();
+cc		       NDL::erroneous_atom
+cc			   ( unrecognized_character_t );
+cc		   NDL::end_dispatch();
+cc
+
 lex	   goto main
+lex	      // which will output premature end of file
 lex	end comment lexeme table;
 lex
 cc	           NDL::go ( main );
@@ -562,9 +606,9 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "<other>" keep 0 goto main
+lex	   "<others>" keep 0 goto main
 lex
-cc	           NDL::begin_dispatch ( OTHER );
+cc	           NDL::begin_dispatch ( OTHERS );
 cc		       NDL::keep ( 0 );
 cc	    	       NDL::go ( main );
 cc		   NDL::end_dispatch();
@@ -899,30 +943,62 @@ cc			 NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<HT>"
-lex	        error misplaced horizontal
-lex	    "<misplaced-horizontal-space>"
-lex	        error misplaced horizontal
-lex	        translate to " ";
-lex
-cc	           NDL::begin_dispatch ( "\t" );
-cc		      NDL::erroneous_atom
-cc			( misplaced_horizontal_t );
-cc		   NDL::end_dispatch();
-cc
-cc	           NDL::begin_dispatch();
-cc		      NDL::add_category ( "Zs" );
-cc		      NDL::sub_char ( ' ' );
-cc		      NDL::erroneous_atom
-cc			( misplaced_horizontal_t );
-cc		      NDL::translate_to ( " " );
-cc		   NDL::end_dispatch();
-
 lex	    "<directly-quotable>" accept;
 lex
 cc	           NDL::begin_dispatch();
 cc		       DIRECTLY_QUOTABLE;
 cc		       NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<LF>"
+lex		keep 0 goto premature end of string
+lex	   "<vertical><repeat><LF>"
+lex		keep 0 goto premature end of string
+lex	   "<vertical><repeat>"
+lex		error mispaced vertical
+lex	    "<misplaced-horizontal><repeat>"
+lex	        error misplaced horizontal
+lex	   "<illegal-control><repeat>"
+lex		error illegal control
+lex	   "<others><repeat>"
+lex		error unrecognized character
+lex
+cc		   NDL::begin_dispatch ( "\n" );
+cc		       NDL::keep ( 0 );
+cc		       NDL::go
+cc			   ( premature_end_of_string );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch ( vertical );
+cc		       NDL::REPEAT();
+cc		       NDL::begin_dispatch ( "\n" );
+cc		           NDL::keep ( 0 );
+cc		           NDL::go
+cc			    ( premature_end_of_string );
+cc		       NDL::end_dispatch();
+cc		       NDL::erroneous_atom
+cc			   ( misplaced_vertical_t );
+cc		   NDL::end_dispatch();
+cc
+cc	           NDL::begin_dispatch();
+cc		       MISPLACED_HORIZONTAL;
+cc		       NDL::REPEAT();
+cc		       NDL::erroneous_atom
+cc			   ( misplaced_horizontal_t );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch();
+cc		       ILLEGAL_CONTROL;
+cc		       NDL::REPEAT();
+cc		       NDL::erroneous_atom
+cc			   ( illegal_control_t );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch ( OTHERS );
+cc		       NDL::REPEAT();
+cc		       NDL::erroneous_atom
+cc			   ( unrecognized_character_t );
 cc		   NDL::end_dispatch();
 cc
 

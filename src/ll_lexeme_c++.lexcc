@@ -631,7 +631,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "<other>" accept;
 lex
-cc		NDL::begin_dispatch ( OTHER );
+cc		NDL::begin_dispatch ( OTHERS );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
@@ -659,7 +659,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "<other>" accept;
 lex
-cc		NDL::begin_dispatch ( OTHER );
+cc		NDL::begin_dispatch ( OTHERS );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
@@ -693,7 +693,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "<other>" accept;
 lex
-cc		NDL::begin_dispatch ( OTHER );
+cc		NDL::begin_dispatch ( OTHERS );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
@@ -731,7 +731,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "<other>" accept;
 lex
-cc		NDL::begin_dispatch ( OTHER );
+cc		NDL::begin_dispatch ( OTHERS );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
@@ -962,7 +962,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "<other>" output misplaced char;
 lex
-cc		NDL::begin_dispatch ( OTHER );
+cc		NDL::begin_dispatch ( OTHERS );
 cc		   NDL::output ( misplaced_char_t );
 cc		NDL::end_dispatch();
 cc
@@ -1722,7 +1722,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "<other>" accept
 lex
-cc		NDL::begin_dispatch ( OTHER );
+cc		NDL::begin_dispatch ( OTHERS );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
@@ -1762,7 +1762,7 @@ cc		NDL::end_dispatch();
 cc
 lex	    "<other>" accept
 lex
-cc		NDL::begin_dispatch ( OTHER );
+cc		NDL::begin_dispatch ( OTHERS );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
@@ -1969,7 +1969,7 @@ cc
 lex	"\<other>" error ill formed escape
 lex	           translate to "";
 lex
-cc	        NDL::begin_dispatch ( OTHER );
+cc	        NDL::begin_dispatch ( OTHERS );
 cc	           NDL::erroneous_atom
 cc		        ( ill_formed_escape_t );
 cc		   NDL::translate_to ( "" );

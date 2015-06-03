@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 19 04:53:23 EDT 2015
+// Date:	Wed Jun  3 05:29:06 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,9 +20,11 @@ const min::uns64 accepted_types =
     + ( 1ull << LEXSTD::separator_t );
 const min::uns64 ignored_types =
       ( 1ull << LEXSTD::horizontal_space_t )
-    + ( 1ull << LEXSTD::end_of_file_t );
+    + ( 1ull << LEXSTD::end_of_file_t )
+    + ( 1ull << LEXSTD::premature_end_of_file_t );
 const min::uns64 end_types =
-      ( 1ull << LEXSTD::end_of_file_t );
+      ( 1ull << LEXSTD::end_of_file_t )
+    + ( 1ull << LEXSTD::premature_end_of_file_t );
 
 static void test_string ( const char * s )
 {

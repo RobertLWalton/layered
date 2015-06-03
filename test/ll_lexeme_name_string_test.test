@@ -22,12 +22,12 @@ ERROR: Lexeme of illegal type (LINE_BREAK) in name string:
       ^
     VALUE: [$ ERROR $]
 TESTING "<+<SP><SOH><SP>+>"
-ERROR: Lexeme of illegal type (MISPLACED_CHARACTER) in name string:
+ERROR: Lexeme of illegal type (ILLEGAL_CONTROL) in name string:
 <+<SP><SOH><SP>+>
       ^^^^^
     VALUE: [$ ERROR $]
 TESTING ""<FOO>"
-ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE_SEQUENCE:
+ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE:
 "<FOO>
  ^^^^^
     VALUE: [$ ERROR $]

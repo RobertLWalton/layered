@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 06:43:35 EDT 2015
+// Date:	Wed Jun  3 15:16:27 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,7 +65,8 @@ min::gen COM::scan_simple_name
 	    ++ i;
 	else
 	    break;
-	accepted_types |= 1ull << LEXSTD::numeric_t;
+	accepted_types |= 1ull << LEXSTD::natural_t
+	               |  1ull << LEXSTD::numeric_t;
     }
 
     if ( i == j ) return min::MISSING();
@@ -131,6 +132,7 @@ min::gen COM::scan_names
 		    ( 1ull << LEXSTD::mark_t )
 		  + ( 1ull << LEXSTD::separator_t )
 		  + ( 1ull << LEXSTD::word_t )
+		  + ( 1ull << LEXSTD::natural_t )
 		  + ( 1ull << LEXSTD::numeric_t ),
 
 		    ( 1ull << LEXSTD::
@@ -713,6 +715,7 @@ static min::gen execute_selectors
 		( 1ull << LEXSTD::mark_t )
 	      + ( 1ull << LEXSTD::separator_t )
 	      + ( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::natural_t )
 	      + ( 1ull << LEXSTD::numeric_t ),
 
 		( 1ull << LEXSTD::
@@ -838,6 +841,7 @@ static min::gen execute_context
 		( 1ull << LEXSTD::mark_t )
 	      + ( 1ull << LEXSTD::separator_t )
 	      + ( 1ull << LEXSTD::word_t )
+	      + ( 1ull << LEXSTD::natural_t )
 	      + ( 1ull << LEXSTD::numeric_t ),
 
 		( 1ull << LEXSTD::

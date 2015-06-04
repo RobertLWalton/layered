@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 20, 2015
+June 4, 2015
  
 \end{center}
 
@@ -298,7 +298,8 @@ character string: e.g., `\TT{hello}', `\TT{+}', `\TT{;}',
 `\TT{9.200}' are four lexemes.
 
 The lexical scanner is written in the M-Language and can be
-replaced.  This section describes the standard scanner which
+replaced.\footnote{As of 2015 the scanner is actually written
+in C++.}  This section describes the standard scanner which
 is driven by the lexical tables and is capable scanning
 lexemes of common languages such as C and C++.
 
@@ -317,7 +318,9 @@ The standard scanner operates on an input stream of 32-bit
 UNICODE characters.  Each character is associated with
 a position value that specifies from where the character
 came.  For example, a position value may encode a file name,
-line-within-file number, and column-within-line number.
+line-within-file number, and column-within-line number.\footnote{
+Currently positions encode a byte-within-line number from which the
+column-within-line number may be derived.}
 The standard scanner identifies a lexeme as a consecutive sequence
 of input stream UNICODE 32-bit characters with
 corresponding consecutive position values.
@@ -355,7 +358,7 @@ the string \TT{<LF>X} may begin with the lexical atom \TT{<LF>},
 while the string \TT{<LFX} may begin with the lexical atom \TT{<}.
 However, the syntax of lexical atom patterns is simple, so such
 look ahead is limited.  Also, in most cases actual
-lexical atoms are very short.
+lexical atoms are very short, and actual backup is rare.
 
 Each atom is translated individually to produce an
 \key{atom translation}.  Just as the sequence of atoms in a lexeme
@@ -397,7 +400,7 @@ the atom pattern \TT{"<" "LF" ">"}
 \TT{<LF>} being treated as representing a single line feed character)
 or the 4-character sequence \TT{<0a>} which matches the atom pattern
 \begin{center}
-\TT{"<0<hex-digit>{}>"}
+\TT{"0<hex-digit>"}
 \end{center}
 where \TT{<hex-digit>} names a character pattern matching characters
 in the ranges \TT{0-9}, \TT{a-f}, and \TT{A-F}.
@@ -406,7 +409,7 @@ Atom patterns can also contain the special indicator
 \TT{<repeat>} that allows an immediately preceding character pattern
 to be repeated zero or more times.  Thus the pattern
 \begin{center}
-\TT{"<{}<hex-digit><hex-digit><hex-digit><repeat>{}>"}
+\TT{"<hex-digit><hex-digit><repeat>"}
 \end{center}
 recognizes any sequence of 2 or more \TT{<hex-digit>}'s.
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 15:18:31 EDT 2015
+// Date:	Thu Jun  4 04:16:29 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2075,10 +2075,22 @@ static min::gen oper_pass_command
 		sign = +1, ++ i;
 	    else if ( vp[i] == PAR::minus )
 		sign = -1, ++ i;
-	    if ( i >= size
-		 ||
-		 ! min::strto ( precedence,
-				vp[i], 10 ) )
+	    min::gen pg = min::MISSING();
+	    if ( i < size )
+	    {
+		if ( PAR::get_type ( vp[i] )
+		          ==
+			  PAR::number_sign )
+		{
+		    min::obj_vec_ptr pvp = vp[i];
+		    if ( min::size_of ( pvp ) == 1 )
+		        pg = pvp[0];
+		}
+		else
+		    pg = vp[i];
+	    }
+	        
+	    if ( ! min::strto ( precedence, pg, 10 ) )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected precedence integer"

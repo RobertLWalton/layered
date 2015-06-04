@@ -185,25 +185,22 @@ parser test (x = y += z w *= p q r = t v)
 parser define operator "," [code, math] nofix
        with precedence 2000
        with separator reformatter
-======= TEST: parser test (x, {|y 1|}, {|z w|}, {}, 3, {})
+======= TEST: parser test (x, y1, {|z w|}, {}, 3, {})
 ------- line 87:
-parser test (x,y1,z w,,3,)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test (x, y1, z w,, 3,)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 87:
-parser test (x,y1,z w,,3,)
-            ^^^^^^^^^^^^^^
+parser test (x, y1, z w,, 3,)
+            ^^^^^^^^^^^^^^^^^
 ------- line 87:
-parser test (x,y1,z w,,3,)
-               ^^
+parser test (x, y1, z w,, 3,)
+                    ^^^
 ------- line 87:
-parser test (x,y1,z w,,3,)
-                  ^^^
+parser test (x, y1, z w,, 3,)
+                        ^
 ------- line 87:
-parser test (x,y1,z w,,3,)
-                      ^
-------- line 87:
-parser test (x,y1,z w,,3,)
-                         ^
+parser test (x, y1, z w,, 3,)
+                            ^
 ======= END TEST
 parser define operator "BUT NOT" [code, math] infix
        with precedence 3000

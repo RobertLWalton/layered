@@ -622,10 +622,11 @@ the following character classes:
     $|$ & {\em form-feed} $|$ {\em vertical-tab}
     \end{tabular}
 \\[1ex]
-\emkey{graphic-character} ::= characters in UNICODE categories
+\emkey{graphic-character} :::= characters in UNICODE categories
                               \TT{L}, \TT{M}, \TT{N}, \TT{P}, and \TT{S}
 \\
-\emkey{control-character} ::= characters in UNICODE categories \TT{C} and \TT{Z}
+\emkey{control-character} :::=
+	characters in UNICODE categories \TT{C} and \TT{Z}
 \\[1ex]
 \emkey{isolated-separator-character} :::=
     \begin{tabular}[t]{l}
@@ -650,9 +651,12 @@ the following character classes:
 \emkey{letter} :::=
     characters in UNICODE category \TT{L}
 \\
+\emkey{ASCII-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+                     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
+\\
 \emkey{digit} :::=
     characters in UNICODE category \TT{Nd}
-    (includes \TT{0}, \ldots, \TT{9})
+    (includes {\em ASCII-digits})
 \\
 \emkey{mark-character} :::=
     \begin{tabular}[t]{l}
@@ -664,49 +668,71 @@ the following character classes:
     \end{tabular}
 \end{indpar}
 
-Lexemes may be separated by
-{\em white-space}:
+Lexemes may be separated by {\em white-space}, which
+is a sequence of white-space characters (single space, horizontal tab, form
+feed, etc.), but is not itself a lexeme:
 \begin{indpar}
 \emkey{white-space} ::= {\em horizontal-space} $|$ {\em vertical-space}
 \\[0.3ex]
-\emkey{horizontal-space} ::= {\em horizontal-space-character}\PLUS{}
+\emkey{horizontal-space} :::= {\em horizontal-space-character}\PLUS{}
 \\[0.3ex]
-\emkey{vertical-space} ::= {\em vertical-space-character}\PLUS{}
+\emkey{vertical-space} :::= {\em vertical-space-character}\PLUS{}
 \end{indpar}
 
+{\em Horizontal-\EOL space-\EOL characters}\label{ILLEGAL-CHARACTERS}
+other than single
+space are illegal inside {\em quoted-string} lexemes (defined below).
 {\em Vertical-space} that has \underline{no} {\em line-feeds} is
-illegal.  {\em Control-characters} not in {\em white-space} are illegal.
+illegal.
+{\em Control-characters} not in {\em white-space} are illegal.
 Characters that have no UNICODE category are {\em unrecognized-characters}
-are are illegal:
+and are illegal:
 \begin{indpar}
-\emkey{misplaced-vertical-space-character} ::= {\em vertical-space-character}
+\emkey{misplaced-horizontal-space-character} :::=
+    \begin{tabular}[t]{l}
+    {\em horizontal-space-character}, other than \\ single space
+    \end{tabular}
+\\[0.3ex]
+\emkey{misplaced-vertical-space-character} :::= {\em vertical-space-character}
 	other than {\em line-feed}
 \\[0.3ex]
-\emkey{illegal-control-character} ::=
-    \begin{tabular}[t]{p{4in}}
-    {\em control-character}
-    but \underline{not} a {\em horizontal-space-character}
+\emkey{illegal-control-character} :::=
+    \begin{tabular}[t]{l}
+    {\em control-character},
+    but \underline{not} a {\em horizontal-space-character} \\
     or {\em vertical-space-character}
     \end{tabular}
 \\[0.3ex]
-\emkey{unrecognized-character} ::=
-    \begin{tabular}[t]{p{4in}}
-    UNICODE character with no UNICODE category
-    or with a category not mentioned above
+\emkey{unrecognized-character} :::=
+    \begin{tabular}[t]{l}
+    UNICODE character with no UNICODE category or \\
+    with a category not mentioned above
     \end{tabular}
 \end{indpar}
 
-Sequences of illegal characters can be used like {\em horizontal-space}
-to separate lexemes, and can be included in {\em comment} and
-{\em quoted-string} lexemes, but in all cases will generate warning
-messages.  The three kinds of illegal sequences are:
+Sequences of these characters generate warning messages,
+but are otherwise like {\em horizontal-space}:
 \begin{indpar}
-\emkey{misplaced-vertical} ::= {\em misplaced-vertical-character}\PLUS{}
+\emkey{misplaced-horizontal} :::= {\em misplaced-horizontal-character}\PLUS{}
 \\[0.3ex]
-\emkey{illegal-control} ::= {\em illegal-control-character}\PLUS{}
+\emkey{misplaced-vertical} :::= {\em misplaced-vertical-character}\PLUS{}
 \\[0.3ex]
-\emkey{unrecognized} ::= {\em unrecognized-character}\PLUS{}
+\emkey{illegal-control} :::= {\em illegal-control-character}\PLUS{}
+\\[0.3ex]
+\emkey{unrecognized} :::= {\em unrecognized-character}\PLUS{}
 \end{indpar}
+
+{\em Misplaced-horizontal} is only illegal inside a {\em quoted-string},
+but the other three sequences are illegal everywhere.  When illegal
+these strings generate warning messages, but otherwise they behave
+like {\em horizontal-space}.  Specifically, outside {\em quoted-strings}
+and {\em comments} these sequences can be used to separate other lexemes,
+just as {\em horizontal-space} can be used,
+whereas inside {\em quoted-strings} and
+{\em comments} these sequences do nothing special, aside from generating
+warning messages.  If the warning messages are turned off, these
+sequences can be included in {\em quoted-strings} and {\em comments}
+just like other characters can be included.
 
 The line number and beginning column of each input character is
 recorded for use in error messages.  The line number is 1 plus the
@@ -734,8 +760,19 @@ lexeme on a line is also used syntactically to determine
 indentation.  Line numbers are used syntactically to identify line ends
 and blank lines.
 
-The lexemes in a lexical program are specified on
-\pagref{LEXEME-PROGRAM-LEXEMES}.
+The lexemes in a lexical program are specified on page
+\pageref{LEXEME-PROGRAM-LEXEMES}.  This specification assumes there
+are no illegal characters in the input; see page \pageref{ILLEGAL-CHARACTERS}
+above to account for such characters.
+
+The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
+that define lexemes or parts of lexemes whose syntactic elements are
+character sequences that must \underline{not} be separated by {\em white-space}.
+The symbol `\ttmkey{::=}{in syntax equation}'
+is used in syntax equations that define sequences of lexemes that may
+and sometimes must be separated by {\em white-space}.
+{\em Comments} are treated as lexemes, but are discarded before the
+lexeme stream is transmitted to the parser.
 
 Consecutive quoted string lexemes are glued together if they are in the
 same (possibly continued) line.  Thus
@@ -750,7 +787,7 @@ is equivalent to
 "And this is a second sentence."
 \end{verbatim}\end{indpar}
 This is useful for
-breaking long quoted string lexemes across line boundaries.
+breaking long quoted string lexemes across line continuations.
 But there is an important case where there is not an exact equivalence
 between the glued and unglued versions.  \TT{"<" "LF" ">"} is
 \underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
@@ -759,8 +796,8 @@ and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
 A special {\em character-representative} can consist of
-the ASCII character name surrounded by angle brackets.  Examples are
-\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}.  There are two other cases:
+the UNICODE character name surrounded by angle brackets.  Examples are
+\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{NBSP}.  There are two other cases:
 \TT{<Q>} represents the doublequote \TT{"}, and \TT{<NL>} (new line)
 represents a line feed (same as \TT{<LF>}).
 
@@ -773,7 +810,7 @@ a form feed.
 \begin{indpar}
 
 \emkey{lexeme}
-	::= {\em word} $|$ {\em mark} $|$ {\em numeric}
+	::= {\em word} $|$ {\em mark} $|$ {\em number}
 	$|$ {\em separator}
 	$|$ {\em quoted-string}
 	$|$ {\em comment}
@@ -810,7 +847,7 @@ a form feed.
 	$|$ & {\em special-character-representative} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{special-character-representative} ::=
+\emkey{special-character-representative} :::=
     \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
 \\[1ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
@@ -828,17 +865,28 @@ a form feed.
 \\[0.5ex]
 \emkey{middle-lexeme} :::= see text
 \\[0.5ex]
-\emkey{mark} :::= {\em mark-character}\PLUS{} but not {\em separator}
+\emkey{word} :::= {\em middle-lexeme} containing a {\em letter} before any
+                  {\em digit}
 \\[0.5ex]
-\emkey{word} :::= {\em middle-lexeme} beginning with a {\em letter}
+\emkey{natural} :::= {\em ASCII-digit}\PLUS{} not beginning with \TT{0}
+                     $|$ \TT{0}
 \\[0.5ex]
 \emkey{numeric} :::= {\em middle-lexeme} containing a {\em digit}
-                     and not beginning with a {\em letter}
+                     before any {\em letter}, but \underline{not} a
+		     {\em natural}
+\\[0.5ex]
+\emkey{number} :::= {\em natural} $|$ {\em numeric}
+\\[0.5ex]
+\emkey{mark} :::= \begin{tabular}[t]{l}
+                  {\em mark-character}\PLUS{} but not {\em separator} \\
+		  (or {\em middle-lexeme} that is not a {\em word},
+		  {\em natural}, or {\em numeric})
+		  \end{tabular}
 \\[1ex]
 \emkey{comment} :::=
     \TT{//} {\em comment-character}\,$^\star$
 \\[1ex]
-\emkey{comment-charcter} :::= {\em graphic-character}
+\emkey{comment-character} :::= {\em graphic-character}
                           $|$ {\em horizontal-space-character}
 \label{COMMENT}
 
@@ -846,66 +894,23 @@ a form feed.
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{figure*}
 
-TBD
-
-Lexemes may be separated by \key{white-space}, which
-is a sequence of white-space characters (single space, horizontal tab, form
-feed, etc.), but is not itself a lexeme.
-
-\begin{indpar}
-\emkey{white-space} :::= {\em white-space-character}
-                         {\em white-space-character}\,$^\star$ \\[1ex]
-\emkey{white-space-character}
-    \begin{tabular}[t]{rl}
-    :::= & {\em horizontal-space-character} \\
-    $|$ & {\em vertical-space-character}
-    \end{tabular}
-    \\[1ex]
-\emkey{horizontal-space-character} :::=
-    \key{space} $|$ \key{horizontal-tab} \\[1ex]
-\emkey{vertical-space-character} :::=
-    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
-\end{indpar}
-
-The character set is UTF-8 encoded UNICODE.
-
-The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
-that define lexemes or parts of lexemes whose syntactic elements are
-character sequences that must \underline{not} be separated by {\em white-space}.
-The symbol `\ttmkey{::=}{in syntax equation}'
-is used in syntax equations that define sequences of lexemes that may
-and sometimes must be separated by {\em white-space}.
-{\em Comments} are treated as lexemes, but are discarded before the
-lexeme stream is transmitted to the parser.
-
-Non-{\em white-space} control characters are ignored, as if they
-did not exist, except that a warning message may be issued.  However
-no warning is issued for \emskey{carriage-return}s that are next to
-a {\em vertical-space-character}.
-
-The tabs used by the {\em horizontal-tab} character are set every
-8 columns.
-
-Every {\em vertical-space-character} causes the current position to
-return to the beginning of a new line.
-{\em Horizontal-space-characters} before a {\em vertical-space-character}
-are ignored, as if they did not exist.
-Warning messages are issued for {\em form-feeds} and {\em vertical-tabs}
-that occur when the column position is not at the beginning of a line.
-
-The definition of a {\em token} is unusual: it is what is left over
+The definition of a {\em middle-lexeme} is unusual: it is what is left over
 after removing {\em leading-separators} and {\em trailing-separators}
-from a {\em token-item}.  The lexical scan first scans a
-{\em token-item}, and then removes
+from a {\em lexical-item}.  The lexical scan first scans a
+{\em lexical-item}, and then removes
 {\em leading-separators} and {\em trailing-separators} from it.
 Also {\em trailing-separators} are removed
-from the end of a {\em token-item} by a right-to-left scan, and not
+from the end of a {\em lexical-item} by a right-to-left scan, and not
 the usual left-to-right scan which is used for everything else.
-Thus the {\em token-item} `\TT{\$\$4,987,,::}' yields the
-{\em leading-separator} `\TT{\$\$}', the {\em token} `\TT{4,987}',
-and the three {\em trailing-separators} `\TT{,}' `\TT{,}' and `\TT{::}'.
-
-TBD END
+Thus the {\em lexical-item} `\TT{\$\$4,987,,::}' yields the
+{\em leading-separator} `\TT{\$\$}', the {\em middle-lexeme} `\TT{4,987}',
+and the three {\em trailing-separators} `\TT{,}' `\TT{,}' and `\TT{::}'.%
+\footnote{It is possible to use a strictly left to right scan with
+backup over lexical atoms to perform
+the right to left removal of {\em trailing-separators} from a
+{\em lexical-item}, by recoginzing a sequence of {\em trailing-separators}
+as an atom that is backed up over and rescanned:
+see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 
 The syntax of a lexical program is specified on
 \pagref{LEXEME-PROGRAM-SYNTAX-1} and
@@ -914,9 +919,9 @@ The syntax of a lexical program is specified on
 \begin{figure*}[!p]
 \begin{indpar}
 \emkey{name} ::= 
-	\{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string} \}\STAR{}
+	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
 	{\em word}
-	\{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string} \}\STAR{}
+	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
 \\[0.3ex]
 \emkey{lexical-program} ::=
         \begin{tabular}[t]{@{}l@{}}
@@ -945,7 +950,7 @@ The syntax of a lexical program is specified on
 \\[2.0ex]
 \hspace*{0.2in}
     {\bf Note:} `{\em cpat}\,' abbreviates `{\em character-pattern}\,'
-\\[0.3ex]
+\\[2.0ex]
 \emkey{cpat-definition} ::=
 	\TT{"}{\em cpat-name}\TT{"} \TT{=}
 		{\em cpat-expression} \TT{;}
@@ -956,6 +961,16 @@ The syntax of a lexical program is specified on
 	       \TT{>} \\
 	    & but not {\em character-representive} \\
 	\end{tabular}
+\\[0.3ex]
+\emkey{special-cpat-name}
+        \begin{tabular}[t]{@{}rl@{}}
+	:::= & \TT{<UNICODE-}{\em category}\TT{>} \\
+	 $|$ & \TT{<UNICODE-}{\em subcategory}\TT{>} \\
+	 $|$ & \TT{<others>} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{category} :::= UNICODE category, e.g., \TT{L} \\
+\emkey{subcategory} :::= UNICODE subcategory, e.g., \TT{Lu}
 \\[0.3ex]
 \emkey{cpat-expression}
         \begin{tabular}[t]{@{}rl@{}}
@@ -1075,7 +1090,7 @@ begin example lexical program;
 begin main master table;
     "<whitespace-char>" goto whitespace;
     "<Q>" translate to "" goto quoted string;
-    "<other>" output bad character;
+    "<others>" output bad character;
     output end of file;
 end main master table;
 
@@ -1088,7 +1103,7 @@ begin quoted string lexeme table;
     "<Q>" translate to "" goto main;
     "<LF>" keep 0 goto premature end of line;
     "<" "LF" ">" translate to "<LF>";
-    "<other>" accept;
+    "<others>" accept;
     goto premature end of file;
 end quoted string lexeme table;
 
@@ -1173,7 +1188,16 @@ following: \TT{<LF>}, \TT{<0A>},
 \TT{<00A>}, \ldots, or \TT{<00000000A>}.
 
 A quoted {\em character-pattern-name} denotes the character set associated
-with that name by a \underline{previous} {\em character-pattern-definition}.
+with that name by a \underline{previous} {\em character-pattern-definition},
+or in the case of {\em special-character-pattern-names}, by one of the
+following rules:
+\begin{center}
+\begin{tabular}{ll}
+\TT{<UNICODE-$C$>} & all characters in UNICODE category $C$ \\
+\TT{<UNICODE-$SC$>} & all characters in UNICODE subcategory $SC$ \\
+\TT{<others>} & see page \pageref{<OTHERS>} \\
+\end{tabular}
+\end{center}
 
 The \TT{|}, \TT{\&}, and \TT{\textasciitilde} operators and can be used to take
 the union, intersection, and complements of character sets.  The complement
@@ -1199,6 +1223,13 @@ Some example {\em character-pattern-definitions} are:
     ( "<020>-<07E>" & ~ "$" & ~ "@" & ~ "`" )
     | "<whitespace-char>";
 \end{verbatim}\end{indpar}
+
+Current implementations require that any two non-LATIN1 UNICODE
+characters that have the same UNICODE subcategory, UNICODE name
+(a.k.a. `alias', e.g., \TT{HT} or \TT{SOH} or \TT{NBSP}, or may be `missing'),
+and UNICODE numeric value (e.g., \TT{3} or \TT{1/3}, or may be `missing'),
+must be treated identically: that is, one is in a character pattern's set
+if and only if the other is in the set.
 
 \subsubsection{Lexical Tables}
 
@@ -1258,13 +1289,13 @@ only matches atoms of a particular length.
 
 
 The special character pattern name
-\TT{<{other}>}%
-\index{other@{\tt <other>}}%
-\label{<OTHER>}
+\TT{<{others}>}%
+\index{others@{\tt <others>}}%
+\label{<OTHERS>}
 can be used in an atom pattern to match any character not otherwise
 matched.  More specifically, in the atom pattern
-\TT{"}$P$\TT{<other>}$Q$\TT{"},
-the prefix \TT{<other>} matches any characters not matched by
+\TT{"}$P$\TT{<others>}$Q$\TT{"},
+the prefix \TT{<others>} matches any characters not matched by
 any other character pattern $C$ that is an some atom pattern of the form
 \TT{"}$PCR$\TT{"} in the same lexical table.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
@@ -1275,7 +1306,7 @@ The special character pattern name
 \label{<REPEAT>}
 can be used in an atom pattern to match zero or more occurences of
 the previous character pattern.  There must be a previous character
-pattern, and that pattern \underline{cannot} be \TT{<other>}.
+pattern.  That pattern can be \TT{<others>}.
 The number of repetitions is the maximum number of characters in
 the input that match the previous character pattern.
 As an example use, the atom pattern \TT{"\textbackslash x<hex-digit><repeat>"}
@@ -1284,10 +1315,17 @@ followed by one or more characters matching the character pattern
 \TT{<hex-digit>}.  This particular atom pattern will match a C++
 hexadecimal escape sequence.
 
+The special character pattern name
+\TT{<{repeat-$N$}>}%
+\index{repeat-N@{\tt <repeat-$N$>}}%
+is similar but matches zero through $N$ occurences of the previous
+character pattern, where $N$ is a sequence of {\em ASCII-digits}
+not beginning with \TT{0}.
+
 There must be no sequence of characters that matches the
 {\em atom-patterns} of two distinct {\em lexical-table-entries}
-in the same {\em lexical-table}.  Since {\em atom-patterns} can only
-match atoms of a particular length, it is permissible for
+in the same {\em lexical-table}.
+It is permissible for
 a sequence of characters that matches one pattern to have a proper
 initial segment that matches another pattern; in this case the
 longer pattern takes precedence.  The order of {\em lexical-table-entries}
@@ -1298,7 +1336,7 @@ The atom pattern \TT{""} which would recognize zero length atoms is
 end of the lexical table executes in the equivalent case where no atom
 pattern in the table matches the remaining input.  In particular
 the {\em default-instruction-group} always executes if the input has reached
-an end of file.  This fact is used in both the `\TT{main master table}'
+its end.  This fact is used in both the `\TT{main master table}'
 and `\TT{quoted string lexeme table}'
 on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
@@ -1558,23 +1596,23 @@ and its translation is governed
 independently by \TT{match} and translate instruction components.
 The following are some examples:
 \begin{indpar}\begin{verbatim}
-"\<other>" error bad escape sequence;
-"\<other>" translate to "" error bad escape sequence;
-"\<other>" translate to "<DEL>" error bad escape sequence;
+"\<others>" error bad escape sequence;
+"\<others>" translate to "" error bad escape sequence;
+"\<others>" translate to "<DEL>" error bad escape sequence;
 \end{verbatim}\end{indpar}
 These might be entries in an lexical table for a quoted string.
 All identify an atom consisting of a backslash followed by any
 character that does not match any character pattern $C$ that is in
 a lexical table
 atom pattern of the form \TT{"\textbackslash}$C$\ldots\TT{"} where $C$ is a character
-pattern other than \TT{<other>} (see \pagref{<OTHER>}).
+pattern other than \TT{<others>} (see \pagref{<OTHERS>}).
 The first entry copies the entire 2-character atom, including the
 backslash, into the lexeme translation.  The second entry copies
 nothing (the empty string \TT{""}) into the lexeme translation.
 The third entry copies the DEL character (hex code \TT{7f})
 into the lexeme translation.  An alternative is the entry
 \begin{indpar}\begin{verbatim}
-"\<other>" keep 1 error bad escape;
+"\<others>" keep 1 error bad escape;
 \end{verbatim}\end{indpar}
 that reduces the atom size to 1 character, just the backslash,
 which is announced as an error without its following character,
@@ -1632,13 +1670,13 @@ end of file.
 As another example, the `\TT{main}' master table at the top of
 \pagref{EXAMPLE-LEXEME-PROGRAM} contains the entry:
 \begin{indpar}\begin{verbatim}
-"<other>" output bad character;
+"<others>" output bad character;
 \end{verbatim}\end{indpar}
 which causes an unrecognized character to be treated as a 1-character
 lexeme of type `\TT{bad char\-ac\-ter}'.  The translation of this lexeme is
 the character itself, but if the entry:
 \begin{indpar}\begin{verbatim}
-"<other>" translate to "<DEL>" output bad character;
+"<others>" translate to "<DEL>" output bad character;
 \end{verbatim}\end{indpar}
 had been used instead the translation would have been the ASCII delete
 (DEL) character.
@@ -2062,10 +2100,10 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.6ex]
-\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em numeric} \}\STAR{}
+\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}\STAR{}
 \\[0.0ex]
 \emkey{quoted-name-component} ::=
-    {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em numeric}
+    {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em number}
 \\[0.0ex]
 \emkey{quoted-name} ::=
     \TT{"}{\em quoted-name-component}
@@ -2148,7 +2186,7 @@ Parser commands begin with the word `\ttmkey{parser}{in parser command}'.
 Parser commands make use of {\em simple-names} that are just a {\em word}
 optionally followed by a sequence of {\em words} and/or {\em numbers}, and
 {\em quoted-names}, that are arbitrary sequences of {\em word},
-{\em mark}, {\em separator}, and {\em numeric} lexemes enclosed
+{\em mark}, {\em separator}, and {\em number} lexemes enclosed
 in quotation marks to form a {\em quoted-string} lexeme.
 This embedding of lexemes in a {\em quoted-string} lexeme
 serves to keep the embedded lexemes from being given a special
@@ -2918,7 +2956,7 @@ a {\em closing-named-bracket}.  These have the syntax:
 \\[0.5ex]
 \emkey{key} ::= {\em key-component} {\em key-component}\STAR{}
 \\[0.5ex]
-\emkey{key-component} ::= {\em word} $|$ {\em numeric} $|$ {\em quoted-string}
+\emkey{key-component} ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
 \\[0.5ex]
 \emkey{named-middle} ::= as defined by a
     {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
@@ -4315,7 +4353,7 @@ begin main master table;
 
    "<Q>" translate to "" call quoted string;
 
-   "<other>" output misplaced char;
+   "<others>" output misplaced char;
 
    output end of file;
 
@@ -4332,7 +4370,7 @@ begin comment lexeme table;
    "<LF>" keep 0 return;
    "<misplaced-space-char>" keep 0 return;
 
-   "<other>" accept;
+   "<others>" accept;
 
    goto premature end of file;
 
@@ -4478,7 +4516,7 @@ begin quoted string lexeme table;
         error misplaced control char
         translate to "";
 
-    "<other>" accept;
+    "<others>" accept;
 
     goto premature end of file;
 
@@ -5001,7 +5039,7 @@ begin main master table;
 
    "<Q>" translate to "" call quoted string;
 
-   "<other>" output misplaced char;
+   "<others>" output misplaced char;
 
    output end of file;
 
@@ -5018,7 +5056,7 @@ begin comment lexeme table;
    "<LF>" keep 0 return;
    "<misplaced-space-char>" keep 0 return;
 
-   "<other>" accept;
+   "<others>" accept;
 
    goto premature end of file;
 
@@ -5150,7 +5188,7 @@ begin quoted string lexeme table;
         error misplaced control char
         translate to "<UUC>";
 
-    "<other>" accept;
+    "<others>" accept;
 
     goto premature end of file;
 
@@ -5542,7 +5580,7 @@ begin "/*" comment lexeme table;
     "*/" return;
     "*" accept;
 
-    "<other>" accept;
+    "<others>" accept;
 
     translate_to "*/"
     goto premature end of file;
@@ -5554,7 +5592,7 @@ begin "//" comment lexeme table;
 
     "<NL>" keep 0 return;
 
-    "<other>" accept;
+    "<others>" accept;
 
     goto premature end of file;
 
@@ -5568,7 +5606,7 @@ begin bracketed header name lexeme table;
     "<NL>"
         keep 0 goto premature newline;
 
-    "<other>" accept;
+    "<others>" accept;
 
     goto premature end of file;
 
@@ -5586,7 +5624,7 @@ begin quoted header name lexeme table;
     "<NL>"
         keep 0 goto premature newline;
 
-    "<other>" accept;
+    "<others>" accept;
 
     goto premature end of file;
 
@@ -5667,7 +5705,7 @@ begin normal master table;
 
     "<NL>" output newline goto initial;
 
-    "<other>" output misplaced char;
+    "<others>" output misplaced char;
 
     output end of file;
 
@@ -5917,7 +5955,7 @@ begin char literal sublexeme table;
     "\" match escaped char
         // match should always succeed
 
-    "<other>" accept
+    "<others>" accept
 
     goto premature end of file
 
@@ -5933,7 +5971,7 @@ begin string literal sublexeme table;
     "\" match escaped char
         // match should always succeed
 
-    "<other>" accept
+    "<others>" accept
 
     goto premature end of file
 
@@ -6030,7 +6068,7 @@ begin escaped char atom table;
         error ill formed escape
         translate to "";
 
-"\<other>" error ill formed escape
+"\<others>" error ill formed escape
            translate to "";
 
 "\" error ill formed escape

@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 4, 2015
+June 5, 2015
  
 \end{center}
 
@@ -247,7 +247,7 @@ June 4, 2015
 This introduces the Layered Programming Languages:
 
 \begin{center}
-\begin{tabular}{l@{~~~~~~~~~~}p{4.0in}}
+\begin{tabular}{l@{~~~~~~~~~~}p{5.0in}}
 \key{L}	& The Lower Language, or L-Language. \\
 	& A C level language with facilities for writing
 	  C++ like libraries and strongly type checking their
@@ -430,10 +430,19 @@ the next atom, and an instruction associated with its matching
 atom pattern is then executed.  If no atom pattern can be matched,
 the default instruction associated with the lexical table is executed instead.
 
-A lexical table
-instruction can optionally reduce the length of a matched atom
-and optionally change the current lexical table.  It can also do other
-things described below.
+A single lexical table instruction can do many things.
+It can optionally reduce the length of a matched atom,
+translated the matched atom to a different character string,
+replace the matched atom and its translation,
+or change the current lexical table.
+An instruction can fail if the atom cannot be replaced or the
+translated atom does not match a given pattern.
+An \key{instruction group} is a sequence of instructions
+such that the first successful instruction will be the effective
+instruction in the group.  An instruction group, instead of a single
+instruction, may be associated with an atom pattern or be the default
+instruction of a lexical table.
+
 
 There are four kinds of lexical tables:
 \mkey{master}{lexical table} tables,
@@ -500,53 +509,90 @@ normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the Unicode
 Replacement Character (hex code \TT{FFFD}).
 
-We can be a bit more precise by saying that scanning
-a lexeme executes the following pseudo-code:
+The algorithm for scanning a lexeme is given on page
+\pageref{LEXICAL-SCANNING-ALGORITHM}.
 
+\begin{figure*}[!p]
 \begin{center}
 \begin{tabular}{l}
 To scan a lexeme: \\
 ~~~~\begin{tabular}[t]{l}
-input: \TT{current} \TT{table} which must be a \TT{MASTER} table \\
-set \TT{current} \TT{type} = \TT{NONE} \\
-make \TT{return} \TT{stack} empty \\
-make \TT{translation} \TT{buffer} empty \\
-loop: \\
-~~~~\begin{tabular}[t]{l}
-if \TT{current} \TT{table} is a \TT{MASTER} table and 
-   \TT{current} \TT{type} is \underline{not} \TT{NONE}: \\
-~~~~~~~~terminate loop \\
-if \TT{current} \TT{table} is a lexeme table: \\
-~~~~~~~~set \TT{current} \TT{type} to the lexeme table type \\
-    \end{tabular}
+    input: \begin{tabular}[t]{l}
+           \TT{current} \TT{lexical} \TT{table} which must be a
+	       \TT{MASTER} table \\
+           \TT{input position} in input UNICODE character stream \\
+           \end{tabular} \\
+    set \TT{current} \TT{lexeme} \TT{type} = \TT{NONE} \\
+    make \TT{return} \TT{stack} empty \\
+    make \TT{translation} \TT{buffer} empty \\
+    loop: \\
+    ~~~~\begin{tabular}[t]{l}
+        if \begin{tabular}[t]{l}
+	   \TT{current} \TT{lexical} \TT{table} is a \TT{MASTER} table and  \\
+           ~~~~~~~~\TT{current} \TT{lexeme} \TT{type} is \underline{not}
+	       \TT{NONE}: \\
+	   \end{tabular} \\
+        ~~~~~~~~terminate loop \\
+        if \TT{current} \TT{lexical} \TT{table} is a lexeme table: \\
+        ~~~~~~~~set \TT{current} \TT{lexical} \TT{lexeme} \TT{type} to the
+	        lexeme table type \\
+        find the longest atom in beginning at the \TT{input} \TT{position} \\
+        ~~~~~~~~that matches an atom pattern in the \TT{current} \TT{lexical}
+	        {table}, if any \\
+        if an atom was found: \\
+        ~~~~\begin{tabular}[t]{l}
+            copy the atom to the end of the \TT{translation} \TT{buffer} \\
+	    ~~~~and update the \TT{input position} to point after the atom \\
+            execute the \TT{instruction} associated with the atom
+	        pattern used \\
+	    ~~~~(the simplest \TT{instruction} is `\TT{accept}' which does
+	        nothing) \\
+            \end{tabular} \\
+	else: \\
+	~~~~\begin{tabular}[t]{l}
+	    execute the \TT{default instruction} associated with \\
+	    ~~~~the \TT{current} \TT{lexical} \TT{table} \\
+	    ~~~~(the simplest of these just change the
+	     \TT{current} \TT{lexical} \TT{table})
+            \end{tabular} \\
+        \end{tabular} \\
+    output: \begin{tabular}[t]{l}
+            a lexeme consisting of the \TT{translation} \TT{buffer} contents \\
+	    ~~~~(which may be empty) \\
+	    ~~~~with the \TT{current} \TT{lexeme} \TT{type} as its type \\
+	    ~~~~(which may \underline{not} be \TT{NONE}) \\
+            the \TT{current} \TT{lexical} \TT{table}
+	        (which is a \TT{MASTER} table) \\
+            the \TT{input} \TT{position} which has moved to just after
+	        the lexeme \\
+            \end{tabular}
     \end{tabular}
 \end{tabular}
 \end{center}
+\label{LEXICAL-SCANNING-ALGORITHM}
+\end{figure*}
 
 
-\ikey{Instructions}{instruction!in lexical program}
-that are associated with atom patterns contain optional instruction
-components that can do the following:
+A single \mkey{instruction}{in lexical program} can do the following:
 \begin{itemize}
 \raggedright
 \item invoke an atom table to replace the matched atom and translate it
-\item reduce the length of the matched atom
-\item translate the reduced length atom to a different character string
+\item reduce the length of the matched atom (before it is copied to the
+      \TT{translation} \TT{buffer}) (the length can be reduced to \TT{0})
+\item translate the reduced length atom in the \TT{translation} \TT{buffer}
+to a different character string
 (otherwise the translation of an atom is a copy of the atom)
 \item make instruction success conditional
       on the translated atom matching an atom pattern
 \item announce the reduced length atom as an erroneous atom of a given type
-\item change the current lexeme type
-\item change the current lexical table
+\item change the \TT{current} \TT{lexeme} \TT{type} (the type can be changed
+      to \TT{NONE})
+\item change the \TT{current} \TT{lexical} \TT{table} - the previous
+      table ID can be pushed into the \TT{return} \TT{stack}, or the
+      new table ID can be popped from this stack
 \item force the atom table that contains the instruction
       to fail to match any atom
 \end{itemize}
-
-An instruction can fail while invoking an atom table or making
-a translation of the atom or if the translation does not match
-an atom pattern.  An \key{instruction group} is a sequence of instructions
-such that the first successful instruction will be the effective
-instruction in the group.
 
 Details and examples are given in the next section.
 
@@ -583,14 +629,11 @@ the following character classes:
 \\[1ex]
 \emkey{isolated-separator-character} :::=
     \begin{tabular}[t]{l}
-    characters in UNICODE categories \TT{Ps}, \TT{Pi}, \TT{Pe}, and \TT{Pf}; \\
-    includes \TT{\{ ( [ << >> ] ) \}}
+    characters in UNICODE categories \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
+    and \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
     \end{tabular}
 \\
 \emkey{repeating-separator-character} :::= \TT{|}
-\\
-\emkey{separator-character} :::= {\em isolated-separator-character}
-                             $|$ {\em repeating-separator-character}
 \\[1ex]
 \emkey{repeating-leading-character} :::=
 	\TT{`} $|$ \TT{\$} $|$
@@ -602,6 +645,8 @@ the following character classes:
 \emkey{isolated-trailing-character} :::=
 	\TT{,} $|$ \TT{;}
 \\[1ex]
+\emkey{quoting-character} :::= \TT{"}
+\\[1ex]
 \emkey{letter} :::=
     characters in UNICODE category \TT{L}
 \\
@@ -611,9 +656,11 @@ the following character classes:
 \\
 \emkey{mark-character} :::=
     \begin{tabular}[t]{l}
-    characters in UNICODE categories \TT{P} and \TT{S}
-    (punctuation and symbols), \\
-    but \underline{not} \TT{"} or {\em separator-characters}
+    {\em graphic-character} that is \underline{not} a {\em letter},
+    {\em digit}, \\
+    {\em isolated-separator-character},
+    {\em repeating-separator-character}, \\
+    or {\em quoting-character}
     \end{tabular}
 \end{indpar}
 
@@ -629,9 +676,37 @@ Lexemes may be separated by
 
 {\em Vertical-space} that has \underline{no} {\em line-feeds} is
 illegal.  {\em Control-characters} not in {\em white-space} are illegal.
-Illegal characters generate warning messages and are ignored.
-{\em Horizontal-space} just before {\em vertical-space}
-or the end of input is just ignored.
+Characters that have no UNICODE category are {\em unrecognized-characters}
+are are illegal:
+\begin{indpar}
+\emkey{misplaced-vertical-space-character} ::= {\em vertical-space-character}
+	other than {\em line-feed}
+\\[0.3ex]
+\emkey{illegal-control-character} ::=
+    \begin{tabular}[t]{p{4in}}
+    {\em control-character}
+    but \underline{not} a {\em horizontal-space-character}
+    or {\em vertical-space-character}
+    \end{tabular}
+\\[0.3ex]
+\emkey{unrecognized-character} ::=
+    \begin{tabular}[t]{p{4in}}
+    UNICODE character with no UNICODE category
+    or with a category not mentioned above
+    \end{tabular}
+\end{indpar}
+
+Sequences of illegal characters can be used like {\em horizontal-space}
+to separate lexemes, and can be included in {\em comment} and
+{\em quoted-string} lexemes, but in all cases will generate warning
+messages.  The three kinds of illegal sequences are:
+\begin{indpar}
+\emkey{misplaced-vertical} ::= {\em misplaced-vertical-character}\PLUS{}
+\\[0.3ex]
+\emkey{illegal-control} ::= {\em illegal-control-character}\PLUS{}
+\\[0.3ex]
+\emkey{unrecognized} ::= {\em unrecognized-character}\PLUS{}
+\end{indpar}
 
 The line number and beginning column of each input character is
 recorded for use in error messages.  The line number is 1 plus the

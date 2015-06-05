@@ -376,11 +376,13 @@ to a single line feed character.
 The scanner has a state containing a current point 
 in the input UNICODE character stream,
 a \key{current lexical table} identifier, a \key{current lexeme type}
-which may be `\TT{none}', and a \key{return stack}
-of lexical table identifiers.  A
+which may be `\TT{none}', a \key{return stack}
+of lexical table identifiers, and a \key{translation buffer} holding
+translations of atoms.  A
 \key{lexical table} is a set of atom patterns
 that match atoms, and for each pattern an
-instruction that determines what to do when the pattern is matched.
+\ikey{instruction}{lexical}
+that determines what to do when the pattern is matched.
 There is also a \key{default instruction} associated with
 the lexical table that
 determines what to do when no table pattern matches the next characters
@@ -493,10 +495,34 @@ character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
 of the scanner.  For example, if \TT{<H>} appears in a quoted
 string, it may be reported as an erroneous atom of type
-`\TT{unrecognized escape sequence}'.  Otherwise this atom will be processed
+`\TT{unrecognized escape}'.  Otherwise this atom will be processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the Unicode
 Replacement Character (hex code \TT{FFFD}).
+
+We can be a bit more precise by saying that scanning
+a lexeme executes the following pseudo-code:
+
+\begin{center}
+\begin{tabular}{l}
+To scan a lexeme: \\
+~~~~\begin{tabular}[t]{l}
+input: \TT{current} \TT{table} which must be a \TT{MASTER} table \\
+set \TT{current} \TT{type} = \TT{NONE} \\
+make \TT{return} \TT{stack} empty \\
+make \TT{translation} \TT{buffer} empty \\
+loop: \\
+~~~~\begin{tabular}[t]{l}
+if \TT{current} \TT{table} is a \TT{MASTER} table and 
+   \TT{current} \TT{type} is \underline{not} \TT{NONE}: \\
+~~~~~~~~terminate loop \\
+if \TT{current} \TT{table} is a lexeme table: \\
+~~~~~~~~set \TT{current} \TT{type} to the lexeme table type \\
+    \end{tabular}
+    \end{tabular}
+\end{tabular}
+\end{center}
+
 
 \ikey{Instructions}{instruction!in lexical program}
 that are associated with atom patterns contain optional instruction

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 20:50:20 EDT 2015
+// Date:	Sat Jun  6 16:37:29 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -235,14 +235,15 @@
 //           // string.
 //	| NDL::translate_oct ( <m>, <n> );
 //	| NDL::translate_hex ( <m>, <n> );
-//	     // Put an oct or hex conversion of the in-
-//	     // terior of the matched atom (modified by
-//	     // keep) into the translation buffer
-//	     // instead of the matched atom.  The first
-//	     // <m> and last <n> characters of the atom
-//	     // are ignored and the rest is the conver-
-//	     // ted interior.  Overrides any translation
-//	     // made by `match'.
+//	| NDL::translate_name ( <m>, <n> );
+//	     // Put an oct, hex, or name conversion of
+//	     // the interior of the matched atom
+//	     // (modified by keep) into the translation
+//	     // buffer // instead of the matched atom.
+//	     // The first <m> and last <n> characters of
+//	     // the atom are ignored and the rest is the
+//	     // converted interior.  Overrides any trans-
+//	     // lation made by `match'.
 //
 //   <m> ::= C++ uns32 integer
 //   <n> ::= C++ uns32 integer
@@ -257,8 +258,8 @@
 //	     // match the given atom pattern.
 //	     //
 //           // require() must appear after match(),
-//	     // translate_oct(), or translate_hex() in
-//	     // an <instruction>.
+//	     // translate_oct(), translate_hex(), or
+//	     // translation_name() in an <instruction>.
 //
 //   <erroneous-atom-component> ::=
 //	  NDL::erroneous_atom ( <type-name> );
@@ -383,6 +384,7 @@ namespace ll { namespace lexeme { namespace ndl {
         ( uns32 n, const uns32 * translation_string );
     void translate_oct ( uns32 m, uns32 n );
     void translate_hex ( uns32 m, uns32 n );
+    void translate_name ( uns32 m, uns32 n );
     void match ( uns32 table_name );
 
     void require ( uns32 atom_pattern_name );

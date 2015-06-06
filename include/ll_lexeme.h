@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 05:47:00 EDT 2015
+// Date:	Sat Jun  6 05:31:40 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -419,6 +419,14 @@ namespace ll { namespace lexeme {
     //			mal or octal, the instruction
     //			fails.
     //
+    //   TRANSLATE_NAME(prefix,postfix)
+    //   		Ditto but instead of treating
+    //   		atom characters as a number,
+    //   		they are looked up in the
+    //   		ll::lexeme::character_name_table
+    //   		which has UNICODE character
+    //   		names.  Fails if name not found.
+    //
     //   REQUIRE	Require the atom translation to
     //			match the atom pattern defined
     //			by the require_dispatcher_ID.
@@ -476,7 +484,13 @@ namespace ll { namespace lexeme {
     //	 ELSE		If the instruction fails, then
     //			execute the instruction at the
     //			else_instruction_ID.
+
+    // Character name table.  Default is all UNICODE
+    // character names (a.k.a., aliases) plus <NL> and
+    // <Q>.
     //
+    extern min::locatable_var<min::unicode_name_table>
+        character_name_table;
 
     // Bits 0-15 of an instruction operation are
     // reserved for instruction component flags:
@@ -488,14 +502,15 @@ namespace ll { namespace lexeme {
 	TRANSLATE_TO_FLAG	= ( 1 << 2 ),
 	TRANSLATE_HEX_FLAG	= ( 1 << 3 ),
 	TRANSLATE_OCT_FLAG	= ( 1 << 4 ),
-	REQUIRE			= ( 1 << 5 ),
-	ERRONEOUS_ATOM		= ( 1 << 6 ),
-	OUTPUT			= ( 1 << 7 ),
-	GOTO			= ( 1 << 8 ),
-	CALL			= ( 1 << 9 ),
-	RETURN			= ( 1 << 10 ),
-	FAIL			= ( 1 << 11 ),
-	ELSE			= ( 1 << 12 ),
+	TRANSLATE_NAME_FLAG	= ( 1 << 5 ),
+	REQUIRE			= ( 1 << 6 ),
+	ERRONEOUS_ATOM		= ( 1 << 7 ),
+	OUTPUT			= ( 1 << 8 ),
+	GOTO			= ( 1 << 9 ),
+	CALL			= ( 1 << 10 ),
+	RETURN			= ( 1 << 11 ),
+	FAIL			= ( 1 << 12 ),
+	ELSE			= ( 1 << 13 ),
     };
 
     // Instruction component lengths are stored in bits
@@ -597,6 +612,20 @@ namespace ll { namespace lexeme {
 	  ( postfix_length <= POSTFIX_LENGTH_MASK,
 	    "postfix length argument too large" );
 	return TRANSLATE_OCT_FLAG
+	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
+	     + (    postfix_length
+	         << POSTFIX_LENGTH_SHIFT );
+    }
+    inline uns32 TRANSLATE_NAME
+    	( uns32 prefix_length, uns32 postfix_length )
+    {
+        MIN_ASSERT
+	  ( prefix_length <= PREFIX_LENGTH_MASK,
+	    "prefix length argument too large" );
+        MIN_ASSERT
+	  ( postfix_length <= POSTFIX_LENGTH_MASK,
+	    "postfix length argument too large" );
+	return TRANSLATE_NAME_FLAG
 	     + ( prefix_length << PREFIX_LENGTH_SHIFT )
 	     + (    postfix_length
 	         << POSTFIX_LENGTH_SHIFT );

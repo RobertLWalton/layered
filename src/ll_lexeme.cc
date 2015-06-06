@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 07:05:17 EDT 2015
+// Date:	Sat Jun  6 05:52:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -86,6 +86,12 @@ min::locatable_var<LEX::erroneous_atom>
      LEX::default_erroneous_atom;
 min::locatable_var<LEX::scanner>
      LEX::default_scanner;
+
+min::locatable_var<min::unicode_name_table>
+     LEX::character_name_table;
+     // If not initialized, will be initialized when
+     // first used by TRANSLATE_NAME to UNICODE names
+     // (aliases) plus <NL> and <Q>.
 
 // printer << pID ( ID, program ) prints `ID#'.
 //
@@ -297,9 +303,12 @@ uns32 LEX::create_instruction
 	  ( ( operation & TRANSLATE_HEX_FLAG ) != 0 )
 	  +
 	  ( ( operation & TRANSLATE_OCT_FLAG ) != 0 )
+	  +
+	  ( ( operation & TRANSLATE_NAME_FLAG ) != 0 )
 	  <= 1,
 	  "operation argument has more than one of"
-	  " MATCH, TRANSLATE HEX, and TRANSLATE OCT" );
+	  " MATCH, TRANSLATE HEX, TRANSLATE OCT,"
+	  " and TRANSLATE_NAME" );
 
     MIN_ASSERT
         ( ( operation & REQUIRE ) == 0
@@ -308,10 +317,12 @@ uns32 LEX::create_instruction
           ||
 	  ( operation & TRANSLATE_OCT_FLAG )
           ||
+	  ( operation & TRANSLATE_NAME_FLAG )
+          ||
 	  ( operation & MATCH ),
 	  "operation argument has REQUIRE but does not"
-	  " have MATCH, TRANSLATE HEX,"
-	  " or TRANSLATE OCT" );
+	  " have MATCH, TRANSLATE HEX, TRANSLATE OCT,"
+	  " or TRANSLATE NAME" );
 
     MIN_ASSERT
         ( ( operation & ELSE ) == 0
@@ -320,12 +331,14 @@ uns32 LEX::create_instruction
           ||
 	  ( operation & TRANSLATE_OCT_FLAG )
           ||
+	  ( operation & TRANSLATE_NAME_FLAG )
+          ||
 	  ( operation & MATCH )
           ||
 	  ( operation & REQUIRE ),
 	  "operation argument has ELSE but does not"
 	  " have MATCH, TRANSLATE HEX, TRANSLATE OCT,"
-	  " or REQUIRE" );
+	  " TRANSLATE NAME, or REQUIRE" );
 
     MIN_ASSERT
         ( ( ( operation & GOTO ) != 0 )
@@ -1409,7 +1422,8 @@ static uns32 scan_atom
 	    	fail = true;
 	}
 	else if ( op & (   TRANSLATE_HEX_FLAG
-		         | TRANSLATE_OCT_FLAG ) )
+		         | TRANSLATE_OCT_FLAG
+			 | TRANSLATE_NAME_FLAG ) )
 	{
 	    uns32 p = scanner->next
 		    + LEX::prefix_length ( op );
@@ -1460,6 +1474,43 @@ static uns32 scan_atom
 			break;
 		    }
 		}
+	    else if ( op & TRANSLATE_NAME_FLAG )
+	    {
+	        if (    LEX::character_name_table
+		     == min::NULL_STUB )
+		{
+		    min::init
+		        ( LEX::character_name_table );
+		    min::add
+		        ( LEX::character_name_table,
+			  (min::ustring)
+			      "\x02\x02" "LF", '\n' );
+		    min::add
+		        ( LEX::character_name_table,
+			  (min::ustring)
+			      "\x01\x01" "Q", '"' );
+		}
+
+		min::uns32 length = endp - p;
+		min::Uchar buffer[length];
+		min::Uchar * bp = buffer;
+		while ( p < endp )
+		    * bp ++ =
+		        (&input_buffer[p++])->character;
+
+		char name[7*length+1];
+		const min::Uchar * cbp = buffer;
+		char * np = name;
+		min::unicode_to_utf8
+		    ( np, name+7*length,
+		      cbp, buffer+length );
+		* np = 0;
+		tc = min::find
+		        ( LEX::character_name_table,
+			  name );
+		if ( tc == min::NO_UCHAR )
+		    fail = true;
+	    }
 
 	    if ( ! fail )
 		min::push(translation_buffer) = tc;
@@ -1607,6 +1658,7 @@ static uns32 scan_atom
 	}
 	else if ( ! ( op & (   MATCH
 	                     | TRANSLATE_HEX_FLAG
+	                     | TRANSLATE_NAME_FLAG
 	                     | TRANSLATE_OCT_FLAG ) ) )
 	{
 	    uns32 p = scanner->next;
@@ -2293,12 +2345,16 @@ static uns32 print_instruction
 	 +
          ( ( op & TRANSLATE_HEX_FLAG ) != 0 )
 	 +
+         ( ( op & TRANSLATE_NAME_FLAG ) != 0 )
+	 +
          ( ( op & TRANSLATE_OCT_FLAG ) != 0 )
 	 > 1 ) printer << "ILLEGAL: ";
     else
     if ( ( op & REQUIRE ) != 0
          &&
 	 ( op & TRANSLATE_HEX_FLAG ) == 0
+         &&
+	 ( op & TRANSLATE_NAME_FLAG ) == 0
          &&
 	 ( op & TRANSLATE_OCT_FLAG ) == 0
          &&
@@ -2308,6 +2364,8 @@ static uns32 print_instruction
     if ( ( op & ELSE ) != 0
          &&
 	 ( op & TRANSLATE_HEX_FLAG ) == 0
+         &&
+	 ( op & TRANSLATE_NAME_FLAG ) == 0
          &&
 	 ( op & TRANSLATE_OCT_FLAG ) == 0
          &&
@@ -2431,6 +2489,13 @@ static uns32 print_instruction
 
     if ( op & TRANSLATE_OCT_FLAG )
         OUT << "TRANSLATE_OCT("
+	    << LEX::prefix_length ( op )
+	    << ","
+	    << LEX::postfix_length ( op )
+	    << ")";
+
+    if ( op & TRANSLATE_NAME_FLAG )
+        OUT << "TRANSLATE_NAME("
 	    << LEX::prefix_length ( op )
 	    << ","
 	    << LEX::postfix_length ( op )

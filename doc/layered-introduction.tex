@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 5, 2015
+June 6, 2015
  
 \end{center}
 
@@ -1161,9 +1161,11 @@ A \emkey{character-pattern-definition} (abbreviated as
 {\em character-pattern-name}.  The latter is just a string of
 letters and hyphens (\TT{-}) surrounded by angle brackets (\TT{< >})
 with hyphens occurring only between letters.  Examples:
-\TT{<digit>} and \TT{<line-break>}.  However, a {\em character-pattern-name}
+\TT{<digit>} and \TT{<line-break>}.  However, the
+{\em character-pattern-name} defined by a {\em character-pattern-definition}
 cannot contain only upper case letters, as this could conflict with
-some {\em character-representative}.
+some {\em character-representative}
+(some {\em special-character-pattern-names} which have builtin definitions do contain only upper case letters).
 
 The character set is denoted by a \emkey{character-pattern-expression}.
 The simplest character pattern
@@ -1179,7 +1181,7 @@ second of the two characters must not be smaller than the first.
 
 A {\em character-representative} is a representative of a single UNICODE
 character that can be used inside quotes (\TT{"}).
-Printable ASCII characters represent themselves.  Other characters
+Most graphic UNICODE characters represent themselves.  Other characters
 are represented by character sequences surrounded by the angle
 brackets \TT{<} and \TT{>} (which are also the less than and
 greater than signs).
@@ -1229,7 +1231,10 @@ characters that have the same UNICODE subcategory, UNICODE name
 (a.k.a. `alias', e.g., \TT{HT} or \TT{SOH} or \TT{NBSP}, or may be `missing'),
 and UNICODE numeric value (e.g., \TT{3} or \TT{1/3}, or may be `missing'),
 must be treated identically: that is, one is in a character pattern's set
-if and only if the other is in the set.
+if and only if the other is in the set.  This means that the
+character pattern expression \TT{"<0FFFF>-<0FFFFFF>"} is not implemented,
+for example, although \TT{"<0F>-<0FF>"} is implemented because it
+involves only LATIN1 characters.
 
 \subsubsection{Lexical Tables}
 
@@ -1322,13 +1327,24 @@ is similar but matches zero through $N$ occurences of the previous
 character pattern, where $N$ is a sequence of {\em ASCII-digits}
 not beginning with \TT{0}.
 
-There must be no sequence of characters that matches the
-{\em atom-patterns} of two distinct {\em lexical-table-entries}
-in the same {\em lexical-table}.
+If {\em atom-patterns} of two distinct {\em lexical-table-entries}
+in the same {\em lexical-table} have the forms 
+\TT{"}$PC_1Q_1$\TT{"} and \TT{"}$PC_2Q_2$\TT{"} with a common
+prefix $P$ where
+$C_1$ and $C_2$ are both character patterns optionally followed
+by \TT{<repeat>} or \TT{<repeat-$N$>} and
+$Q_1$ and $Q_2$ are either both empty or both non-empty,
+then the character sets of $C_1$ and $C_2$ \underline{must}
+be disjoint.  This permits a deterministic finite automaton that
+recognizes the atoms of the lexical table to be constructed.
+
 It is permissible for
 a sequence of characters that matches one pattern to have a proper
 initial segment that matches another pattern; in this case the
-longer pattern takes precedence.  The order of {\em lexical-table-entries}
+longer pattern takes precedence.  This is why either $Q_1$ or $Q_2$
+in the previous paragraph can be empty, but not both.
+
+The order of {\em lexical-table-entries}
 in a {\em lexical-table} is not significant.
 
 The atom pattern \TT{""} which would recognize zero length atoms is
@@ -1533,7 +1549,8 @@ never fail, and so cannot contain a \TT{require} {\em instruction-component}.
 
 The `\ttmkey{keep}{in lexical program} $n$'
 {\em instruction-component} causes the atom length
-to be shortened to $n$.  For example, the lexical table entry
+to be shortened to $n$ UNICODE characters.
+For example, the lexical table entry
 \begin{center}
 \verb|",<digit>" keep 1;|
 \end{center}
@@ -1689,6 +1706,10 @@ currently accumulated lexeme is discarded if the current lexeme
 type is `\TT{none}'.
 The current lexeme type is reset to `\TT{none}' whenever
 the current lexical table becomes a master table.
+
+The `\TT{output none}' instruction can be used to reset the current
+lexeme type to `\TT{none}' in order to discard the currently
+accumulated lexeme.
 
 \subsubsubsection{Goto, Call, Return, and Fail Instruction Components}
 

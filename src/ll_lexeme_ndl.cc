@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 20:51:24 EDT 2015
+// Date:	Sat Jun  6 16:26:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -869,6 +869,7 @@ void LEXNDL::translate_to
     ASSERT ( ! (   (&ci)->operation
                  & (   LEX::TRANSLATE_TO_FLAG
 	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_NAME_FLAG
 	             | LEX::TRANSLATE_HEX_FLAG ) ),
              "translate_to() conflicts with another"
 	     " translate...()" );
@@ -902,6 +903,7 @@ void LEXNDL::translate_oct ( uns32 m, uns32 n )
     ASSERT ( ! (   (&ci)->operation
                  & (   LEX::TRANSLATE_TO_FLAG
 	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_NAME_FLAG
 	             | LEX::TRANSLATE_HEX_FLAG ) ),
              "translate_oct() conflicts with another"
 	     " translate...()" );
@@ -932,6 +934,7 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
     ASSERT ( ! (   (&ci)->operation
                  & (   LEX::TRANSLATE_TO_FLAG
 	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_NAME_FLAG
 	             | LEX::TRANSLATE_HEX_FLAG ) ),
              "translate_hex() conflicts with another"
 	     " translate...()" );
@@ -946,6 +949,36 @@ void LEXNDL::translate_hex ( uns32 m, uns32 n )
 
     INSTRUCTION_LINE;
     (&ci)->operation |= LEX::TRANSLATE_HEX ( m, n );
+}
+void LEXNDL::translate_name ( uns32 m, uns32 n )
+{
+    FUNCTION ( "translate_name" );
+    ASSERT ( state == INSIDE_TABLE,
+             "translate_name() misplaced" );
+    substate = ::INSTRUCTION;
+
+    min::ref<instruction> ci = current_instruction();
+    ASSERT ( ! (&ci)->accept,
+             "translate_name() conflicts with"
+	     " accept()" );
+    ASSERT ( ! (   (&ci)->operation
+                 & (   LEX::TRANSLATE_TO_FLAG
+	             | LEX::TRANSLATE_OCT_FLAG
+	             | LEX::TRANSLATE_NAME_FLAG
+	             | LEX::TRANSLATE_HEX_FLAG ) ),
+             "translate_name() conflicts with another"
+	     " translate...()" );
+    ASSERT ( m <= LEX::PREFIX_LENGTH_MASK,
+             "translate_name() prefix length (%d)"
+	     " too large (> %d)",
+	     m, LEX::PREFIX_LENGTH_MASK );
+    ASSERT ( n <= LEX::POSTFIX_LENGTH_MASK,
+             "translate_name() postfix length (%d)"
+	     " too large (> %d)",
+	     n, LEX::POSTFIX_LENGTH_MASK );
+
+    INSTRUCTION_LINE;
+    (&ci)->operation |= LEX::TRANSLATE_NAME ( m, n );
 }
 
 void LEXNDL::match ( uns32 table_name )
@@ -989,10 +1022,11 @@ void LEXNDL::require ( uns32 atom_pattern_name )
              "multiple require()'s in instruction" );
     ASSERT (   (&ci)->operation
              & (   LEX::TRANSLATE_OCT_FLAG
+	         | LEX::TRANSLATE_NAME_FLAG
 	         | LEX::TRANSLATE_HEX_FLAG
 	         | LEX::MATCH ),
              "require() is not after a match() or"
-	     " translate_oct/hex()" );
+	     " translate_oct/hex/name()" );
 
     INSTRUCTION_LINE;
     (&ci)->operation |= LEX::REQUIRE;
@@ -1161,11 +1195,13 @@ void LEXNDL::ELSE ( void )
     min::ref<instruction> ci = current_instruction();
     ASSERT (   (&ci)->operation
              & (   LEX::TRANSLATE_OCT_FLAG
+	         | LEX::TRANSLATE_NAME_FLAG
 	         | LEX::TRANSLATE_HEX_FLAG
 	         | LEX::MATCH
 		 | LEX::REQUIRE ),
              "ELSE() is not after a match(),"
-	     " translate_oct/hex(), or require()" );
+	     " translate_oct/hex/name(), or"
+	     " require()" );
 
     INSTRUCTION_LINE;
     (&ci)->operation |= LEX::ELSE;

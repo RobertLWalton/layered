@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  6 05:52:28 EDT 2015
+// Date:	Sat Jun  6 16:26:26 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -307,7 +307,7 @@ uns32 LEX::create_instruction
 	  ( ( operation & TRANSLATE_NAME_FLAG ) != 0 )
 	  <= 1,
 	  "operation argument has more than one of"
-	  " MATCH, TRANSLATE HEX, TRANSLATE OCT,"
+	  " MATCH, TRANSLATE_HEX, TRANSLATE_OCT,"
 	  " and TRANSLATE_NAME" );
 
     MIN_ASSERT
@@ -321,8 +321,8 @@ uns32 LEX::create_instruction
           ||
 	  ( operation & MATCH ),
 	  "operation argument has REQUIRE but does not"
-	  " have MATCH, TRANSLATE HEX, TRANSLATE OCT,"
-	  " or TRANSLATE NAME" );
+	  " have MATCH, TRANSLATE_HEX, TRANSLATE_OCT,"
+	  " or TRANSLATE_NAME" );
 
     MIN_ASSERT
         ( ( operation & ELSE ) == 0
@@ -337,8 +337,8 @@ uns32 LEX::create_instruction
           ||
 	  ( operation & REQUIRE ),
 	  "operation argument has ELSE but does not"
-	  " have MATCH, TRANSLATE HEX, TRANSLATE OCT,"
-	  " TRANSLATE NAME, or REQUIRE" );
+	  " have MATCH, TRANSLATE_HEX, TRANSLATE_OCT,"
+	  " TRANSLATE_NAME, or REQUIRE" );
 
     MIN_ASSERT
         ( ( ( operation & GOTO ) != 0 )

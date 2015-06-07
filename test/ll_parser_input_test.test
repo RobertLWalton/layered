@@ -23,10 +23,10 @@ LINE_BREAK: line 4:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 COMMENT: line 5:
-// Date:        Mon Dec 15 07:09:45 EST 2014
+// Date:        Sun Jun  7 04:47:37 EDT 2015
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 5:
-// Date:        Mon Dec 15 07:09:45 EST 2014
+// Date:        Sun Jun  7 04:47:37 EDT 2015
                                             ^
 COMMENT: line 6:
 //
@@ -430,11 +430,11 @@ LINE_BREAK: line 33:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
                                           ^
 QUOTED_STRING: "␘␙␚␛␜␝␞␟␡": line 34:
-"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 34:
-"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
-                                          ^
+"<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
+                                           ^
 ERROR: illegal control character sequence; line 35:
 "misplaced control ␁"
                    ^

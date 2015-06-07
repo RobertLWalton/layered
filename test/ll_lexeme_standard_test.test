@@ -6,7 +6,7 @@ ccb
 cccccccccccccccccccccccccccccccccccb
 //␣Author:␉Bob␣Walton␣(walton@acm.org)␤
 ccccccccccccccccccccccccccccccccccccccb
-//␣Date:␉Mon␣Dec␣15␣07:09:45␣EST␣2014␤
+//␣Date:␉Sun␣Jun␣␣7␣04:47:37␣EDT␣2015␤
 cccccccccccccccccccccccccccccccccccccb
 //␤
 ccb
@@ -63,8 +63,8 @@ qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
 qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"␤
 qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
-"<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"␤
-qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
+"<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"␤
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqb
 "misplaced␣control␣␁"␤
 qqqqqqqqqqqqqqqqqqqCqb
 misplaced␣space␣␌␣here␣and␣␍␣here␤

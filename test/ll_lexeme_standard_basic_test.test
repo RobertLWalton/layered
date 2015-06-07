@@ -73,18 +73,6 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-   #######: TABLE
-            Mode: ATOM
-            Dispatcher ID: #####
-            #####: FAIL
-   #######: TABLE
-            Mode: ATOM
-            Dispatcher ID: #####
-            #####: FAIL
-   #######: TABLE
-            Mode: ATOM
-            Dispatcher ID: #####
-            #####: FAIL
    #######: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
@@ -3020,16 +3008,19 @@
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-  ########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-  ########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 11
-            <LF>
-                #####: KEEP(0), GOTO(####)
+            Ctype Map Size: 63
+            >
+                #####: TRANSLATE_HEX(1,1), ELSE:
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(16)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 91
+            >
+                #####: TRANSLATE_HEX(1,1)
+                Dispatcher ID: #####
+            0-9 A-Z [repeat(INFINITY)]
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -3038,6 +3029,50 @@
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 63
+            >
+                #####: TRANSLATE_NAME(1,1), ELSE:
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(16)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 91
+            >
+                #####: TRANSLATE_NAME(1,1), ELSE:
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(16)
+                Dispatcher ID: #####
+            0-9 A-Z [repeat(INFINITY)]
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 91
+            0-9
+                Dispatcher ID: #####
+            A-Z
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 11
+            <LF>
+                #####: KEEP(0), GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
@@ -3193,9 +3228,6 @@
                 #####: TRANSLATE_TO(0), GOTO(###)
                 Dispatcher ID: #####
             <
-                #####: MATCH(####), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), MATCH(####),
-                       ERRONEOUS_ATOM(16), ELSE:
                 #####: ACCEPT
                 Dispatcher ID: #####
             <SP>-! #-; =-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F>
@@ -3385,611 +3417,6 @@
             Max CType: 0
             Ctype Map Size: 0
  #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<ACK>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 76
-            K
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 68
-            C
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<BEL>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 77
-            L
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<BS>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 2
-            Ctype Map Size: 84
-            E
-                Dispatcher ID: #####
-            S
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<CAN>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 79
-            N
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<CR>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 2
-            Ctype Map Size: 83
-            A
-                Dispatcher ID: #####
-            R
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<DC1>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<DC2>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<DC3>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<DC4>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 4
-            Ctype Map Size: 53
-            1
-                Dispatcher ID: #####
-            2
-                Dispatcher ID: #####
-            3
-                Dispatcher ID: #####
-            4
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<DEL>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 77
-            L
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<DLE>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 70
-            E
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 3
-            Ctype Map Size: 77
-            C
-                Dispatcher ID: #####
-            E
-                Dispatcher ID: #####
-            L
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<EOM>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<ENQ>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 82
-            Q
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<EOT>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 85
-            T
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<ESC>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 68
-            C
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<ETB>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<ETX>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 2
-            Ctype Map Size: 89
-            B
-                Dispatcher ID: #####
-            X
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 5
-            Ctype Map Size: 85
-            M
-                Dispatcher ID: #####
-            N
-                Dispatcher ID: #####
-            O
-                Dispatcher ID: #####
-            S
-                Dispatcher ID: #####
-            T
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<FF>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<FS>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 2
-            Ctype Map Size: 84
-            F
-                Dispatcher ID: #####
-            S
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<GS>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 84
-            S
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<HT>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 85
-            T
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<LF>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 71
-            F
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<NAK>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 76
-            K
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<LF>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<NUL>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 77
-            L
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 3
-            Ctype Map Size: 86
-            A
-                Dispatcher ID: #####
-            L
-                Dispatcher ID: #####
-            U
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,")
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<RS>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 84
-            S
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<SI>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<SOH>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 2
-            Ctype Map Size: 73
-            H
-                Dispatcher ID: #####
-            >
-                #####: TRANSLATE_TO(1,<SO>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<SP>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<STX>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 89
-            X
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<SUB>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 67
-            B
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<SYN>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 79
-            N
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 6
-            Ctype Map Size: 90
-            I
-                Dispatcher ID: #####
-            O
-                Dispatcher ID: #####
-            P
-                Dispatcher ID: #####
-            T
-                Dispatcher ID: #####
-            U
-                Dispatcher ID: #####
-            Y
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<US>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 84
-            S
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_TO(1,<VT>)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 85
-            T
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 16
-            Ctype Map Size: 87
-            A
-                Dispatcher ID: #####
-            B
-                Dispatcher ID: #####
-            C
-                Dispatcher ID: #####
-            D
-                Dispatcher ID: #####
-            E
-                Dispatcher ID: #####
-            F
-                Dispatcher ID: #####
-            G
-                Dispatcher ID: #####
-            H
-                Dispatcher ID: #####
-            L
-                Dispatcher ID: #####
-            N
-                Dispatcher ID: #####
-            Q
-                Dispatcher ID: #####
-            R
-                Dispatcher ID: #####
-            S
-                Dispatcher ID: #####
-            U
-                Dispatcher ID: #####
-            V
-                Dispatcher ID: #####
-            0-9
-                #####: MATCH(####), ELSE:
-                #####: FAIL
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 61
-            <
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: TRANSLATE_HEX(1,1)
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 2
-            Ctype Map Size: 71
-            >
-                #####: TRANSLATE_HEX(1,1)
-                Dispatcher ID: #####
-            0-9 A-F [repeat(INFINITY)]
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 58
-            0-9
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 61
-            <
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 63
-            >
-                #####: ACCEPT
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 91
-            0-9 A-Z [repeat(INFINITY)]
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 61
-            <
-                Dispatcher ID: #####
- #########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
- #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
  #########: DISPATCHER
@@ -4003,7 +3430,7 @@ COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in
 LINE_BREAK 2(35): ␊
 COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
 LINE_BREAK 3(38): ␊
-COMMENT 4(0)0: //␣Date:␉Mon␣Dec␣15␣07:09:45␣EST␣2014
+COMMENT 4(0)0: //␣Date:␉Sun␣Jun␣␣7␣04:47:37␣EDT␣2015
 LINE_BREAK 4(37): ␊
 COMMENT 5(0)0: //
 LINE_BREAK 5(2): ␊
@@ -4185,9 +3612,9 @@ LINE_BREAK 31(38): ␊
 QUOTED_STRING 32(0)0: "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
      translated to: ␐␑␒␓␔␕␖␗
 LINE_BREAK 32(42): ␊
-QUOTED_STRING 33(0)0: "<CAN><EM><SUB><ESC><FS><GS><RS><US><DEL>"
+QUOTED_STRING 33(0)0: "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
      translated to: ␘␙␚␛␜␝␞␟␡
-LINE_BREAK 33(42): ␊
+LINE_BREAK 33(43): ␊
 ERRONEOUS ATOM: ILLEGAL_CONTROL 34(19): ␁
 QUOTED_STRING 34(0)0: "misplaced␣control␣␁"
      translated to: misplaced␣control␣␁

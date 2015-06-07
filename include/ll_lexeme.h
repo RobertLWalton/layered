@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  6 05:31:40 EDT 2015
+// Date:	Sun Jun  7 04:43:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -486,8 +486,8 @@ namespace ll { namespace lexeme {
     //			else_instruction_ID.
 
     // Character name table.  Default is all UNICODE
-    // character names (a.k.a., aliases) plus <NL> and
-    // <Q>.
+    // character names (a.k.a., aliases) plus <NL>,
+    // <Q>, and <UUC>.
     //
     extern min::locatable_var<min::unicode_name_table>
         character_name_table;

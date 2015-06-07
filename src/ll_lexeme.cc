@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  6 16:26:26 EDT 2015
+// Date:	Sun Jun  7 04:43:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -91,7 +91,7 @@ min::locatable_var<min::unicode_name_table>
      LEX::character_name_table;
      // If not initialized, will be initialized when
      // first used by TRANSLATE_NAME to UNICODE names
-     // (aliases) plus <NL> and <Q>.
+     // (aliases) plus <NL>, <Q>, and <UUC>.
 
 // printer << pID ( ID, program ) prints `ID#'.
 //
@@ -1475,35 +1475,26 @@ static uns32 scan_atom
 		    }
 		}
 	    else if ( op & TRANSLATE_NAME_FLAG )
-	    {
-	        if (    LEX::character_name_table
+	    { if (    LEX::character_name_table
 		     == min::NULL_STUB )
 		{
 		    min::init
 		        ( LEX::character_name_table );
 		    min::add
 		        ( LEX::character_name_table,
-			  (min::ustring)
-			      "\x02\x02" "LF", '\n' );
+			  "NL", '\n', true );
 		    min::add
 		        ( LEX::character_name_table,
-			  (min::ustring)
-			      "\x01\x01" "Q", '"' );
+			  "Q", '"' );
 		}
 
 		min::uns32 length = endp - p;
-		min::Uchar buffer[length];
-		min::Uchar * bp = buffer;
-		while ( p < endp )
-		    * bp ++ =
-		        (&input_buffer[p++])->character;
-
 		char name[7*length+1];
-		const min::Uchar * cbp = buffer;
 		char * np = name;
-		min::unicode_to_utf8
-		    ( np, name+7*length,
-		      cbp, buffer+length );
+		while ( p < endp )
+		    min::unicode_to_utf8
+		        ( np, (&input_buffer[p++])
+			          ->character );
 		* np = 0;
 		tc = min::find
 		        ( LEX::character_name_table,

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  6 16:37:29 EDT 2015
+// Date:	Sat Jun  6 21:07:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -239,7 +239,7 @@
 //	     // Put an oct, hex, or name conversion of
 //	     // the interior of the matched atom
 //	     // (modified by keep) into the translation
-//	     // buffer // instead of the matched atom.
+//	     // buffer, instead of the matched atom.
 //	     // The first <m> and last <n> characters of
 //	     // the atom are ignored and the rest is the
 //	     // converted interior.  Overrides any trans-

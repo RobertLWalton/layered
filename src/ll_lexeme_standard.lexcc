@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 19:46:45 EDT 2015
+// Date:	Sun Jun  7 03:00:21 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -126,14 +126,6 @@ cc	    uns32 stop;
 cc	    NDL::new_table
 cc		( stop, MASTER );
 cc
-cc	    uns32 escaped;
-cc	    NDL::new_table ( escaped, ATOM );
-cc	    uns32 escaped_hex;
-cc	    NDL::new_table ( escaped_hex, ATOM );
-cc	    uns32 unrecognized_escape;
-cc	    NDL::new_table
-cc		( unrecognized_escape, ATOM );
-cc
 
 lex	"<horizontal>" = "<UNICODE-CATEGORY-Zs>"
 lex		       | "<HT>";
@@ -236,12 +228,6 @@ cc
 lex	"<digit>" = "<UNICODE-CATEGORY-Nd>"
 lex
 cc	    const char * Digit = "Nd";
-cc
-
-lex	"<hex-digit>" = "0-9" | "A-F";
-lex
-cc	    const char * hex_digit =
-cc		"0123456789ABCDEF";
 cc
 
 lex	"<non-ASCII-digit>" = "<digit> & ~ "0-9"
@@ -924,23 +910,72 @@ cc		      NDL::go ( main );
 cc		   NDL::end_dispatch();
 cc
 
-lex	    "<" match escaped char
-lex	        else match unrecognized escape
-lex	             error unrecognized escape
+lex	    "<" "<0-9>" ">"
+lex		translate hex 1 1
+lex	    "<" "<0-9><escape><repeat>" ">"
+lex	        translate hex 1 1
+lex	        else error unrecognized escape
 lex	             translate to "<UUC>"
-lex	        else accept;
+lex	    "<" "<A-Z>" ">"
+lex		     translate name 1 1
+lex	        else error unrecognized escape
+lex	             translate to "<UUC>"
+lex	    "<" "<A-Z><escape><repeat>" ">"
+lex	           translate name 1 1
+lex	        else error unrecognized escape
+lex	             translate to "<UUC>"
+lex	    "<"
+lex	        accept;
 lex
-cc		   NDL::begin_dispatch ( "<" );
-cc			 NDL::match ( escaped );
-cc		      NDL::ELSE();
-cc			 NDL::match
-cc			  ( unrecognized_escape );
-cc			 NDL::erroneous_atom
-cc			  ( unrecognized_escape_t );
-cc			 NDL::translate_to ( 1, UUC );
-cc		      NDL::ELSE();
-cc			 NDL::accept();
-cc		   NDL::end_dispatch();
+lex
+cc	       NDL::begin_dispatch ( "<" );
+cc	    	 NDL::begin_dispatch();
+cc		   NDL::add_chars ( "0123456789" );
+cc
+cc	    	   NDL::begin_dispatch ( ">" );
+cc	             NDL::translate_hex ( 1, 1 );
+cc	           NDL::end_dispatch();
+cc
+cc	    	   NDL::begin_dispatch ( escape );
+cc	    	     NDL::REPEAT();
+cc	    	     NDL::begin_dispatch ( ">" );
+cc	                  NDL::translate_hex ( 1, 1 );
+cc		       NDL::ELSE();
+cc			  NDL::erroneous_atom
+cc			   ( unrecognized_escape_t );
+cc			  NDL::translate_to ( 1, UUC );
+cc	             NDL::end_dispatch();
+cc
+cc	           NDL::end_dispatch();
+cc	         NDL::end_dispatch();
+cc
+cc	    	 NDL::begin_dispatch();
+cc		   NDL::add_chars
+cc		     ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+cc
+cc	    	   NDL::begin_dispatch ( ">" );
+cc	                NDL::translate_name ( 1, 1 );
+cc		     NDL::ELSE();
+cc			NDL::erroneous_atom
+cc			      ( unrecognized_escape_t );
+cc			NDL::translate_to ( 1, UUC );
+cc	           NDL::end_dispatch();
+cc
+cc	    	   NDL::begin_dispatch ( escape );
+cc	    	     NDL::REPEAT();
+cc	    	     NDL::begin_dispatch ( ">" );
+cc	                  NDL::translate_name ( 1, 1 );
+cc		       NDL::ELSE();
+cc			  NDL::erroneous_atom
+cc			      ( unrecognized_escape_t );
+cc			  NDL::translate_to ( 1, UUC );
+cc	             NDL::end_dispatch();
+cc
+cc	           NDL::end_dispatch();
+cc	         NDL::end_dispatch();
+cc
+cc		 NDL::accept();
+cc	       NDL::end_dispatch();
 cc
 
 lex	    "<directly-quotable>" accept;
@@ -1006,305 +1041,6 @@ lex	    goto premature end of string;
 lex	end quoted string lexeme table;
 lex
 cc		    NDL::go ( premature_end_of_string );
-cc	    NDL::end_table();
-cc
-
-lex
-lex	begin escaped char atom table;
-lex
-cc	    NDL::begin_table ( escaped );
-cc	       NDL::begin_dispatch ( "<" );
-cc
-cc	#      define BEG(x) NDL::begin_dispatch ( x )
-cc	#      define TO(y)  NDL::begin_dispatch \
-cc				( ">" ); \
-cc				NDL::translate_to \
-cc				    ( y ); \
-cc			     NDL::end_dispatch()
-cc	#      define END    NDL::end_dispatch()
-cc
-
-lex	    "<" "ACK" ">" translate to "<ACK>";
-cc	          BEG ( "A" ); BEG ( "C" ); BEG ( "K" );
-cc		     TO ( "\006" );
-cc		  END; END; END;
-cc
-
-lex	    "<" "BEL" ">" translate to "<BEL>";
-lex	    "<" "BS" ">" translate to "<BS>";
-cc	    	  BEG ( "B" );
-cc		     BEG ( "E" ); BEG ( "L" );
-cc		           TO ( "\007" );
-cc		     END; END;
-cc		     BEG ( "S" );
-cc		        TO ( "\b" );
-cc		     END;
-cc		  END;
-cc
-
-lex	    "<" "CAN" ">" translate to "<CAN>";
-lex	    "<" "CR" ">" translate to "<CR>";
-cc	          BEG ( "C" );
-cc		     BEG ( "A" ); BEG ( "N" );
-cc		           TO ( "\030" );
-cc		     END; END;
-cc		     BEG ( "R" );
-cc		        TO ( "\r" );
-cc		     END;
-cc		  END;
-cc
-
-lex	    "<" "DC1" ">" translate to "<DC1>";
-lex	    "<" "DC2" ">" translate to "<DC2>";
-lex	    "<" "DC3" ">" translate to "<DC3>";
-lex	    "<" "DC4" ">" translate to "<DC4>";
-lex	    "<" "DEL" ">" translate to "<DEL>";
-lex	    "<" "DLE" ">" translate to "<DLE>";
-cc	          BEG ( "D" );
-cc		     BEG ( "C" );
-cc		         BEG ( "1" );
-cc		             TO ( "\021" );
-cc		         END;
-cc		         BEG ( "2" );
-cc		             TO ( "\022" );
-cc		         END;
-cc		         BEG ( "3" );
-cc		             TO ( "\023" );
-cc		         END;
-cc		         BEG ( "4" );
-cc		             TO ( "\024" );
-cc		         END;
-cc		     END;
-cc		     BEG ( "E" ); BEG ( "L" );
-cc		         TO ( "\177" );
-cc		     END; END;
-cc		     BEG ( "L" ); BEG ( "E" );
-cc		         TO ( "\020" );
-cc		     END; END;
-cc		  END;
-cc
-
-lex	    "<" "EM" ">" translate to "<EM>";
-lex	    "<" "ENQ" ">" translate to "<ENQ>";
-lex	    "<" "EOT" ">" translate to "<EOT>";
-lex	    "<" "ESC" ">" translate to "<ESC>";
-lex	    "<" "ETB" ">" translate to "<ETB>";
-lex	    "<" "ETX" ">" translate to "<ETX>";
-cc	          BEG ( "E" );
-cc		     BEG ( "M" );
-cc		         TO ( "\031" );
-cc		     END;
-cc		     BEG ( "N" ); BEG ( "Q" );
-cc		         TO ( "\005" );
-cc		     END; END;
-cc		     BEG ( "O" ); BEG ( "T" );
-cc		         TO ( "\004" );
-cc		     END; END;
-cc		     BEG ( "S" ); BEG ( "C" );
-cc		         TO ( "\033" );
-cc		     END; END;
-cc		     BEG ( "T" );
-cc		         BEG ( "B" );
-cc		             TO ( "\027" );
-cc		         END;
-cc		         BEG ( "X" );
-cc		             TO ( "\003" );
-cc		         END;
-cc		     END;
-cc		  END;
-cc
-
-lex	    "<" "FF" ">" translate to "<FF>";
-lex	    "<" "FS" ">" translate to "<FS>";
-cc	          BEG ( "F" );
-cc		     BEG ( "F" );
-cc		        TO ( "\f" );
-cc		     END;
-cc		     BEG ( "S" );
-cc		        TO ( "\034" );
-cc		     END;
-cc		  END;
-cc
-
-lex	    "<" "GS" ">" translate to "<GS>";
-cc	          BEG ( "G" ); BEG ( "S" );
-cc		     TO ( "\035" );
-cc		  END; END;
-cc
-
-lex	    "<" "HT" ">" translate to "<HT>";
-cc	          BEG ( "H" ); BEG ( "T" );
-cc		     TO ( "\t" );
-cc		  END; END;
-cc
-
-lex	    "<" "LF" ">" translate to "<LF>";
-cc	          BEG ( "L" ); BEG ( "F" );
-cc		     TO ( "\n" );
-cc		  END; END;
-cc
-
-lex	    "<" "NAK" ">" translate to "<NAK>";
-lex	    "<" "NL" ">" translate to "<NL>";
-lex	    "<" "NUL" ">" translate to "<NUL>";
-cc	          BEG ( "N" );
-cc		     BEG ( "A" ); BEG ( "K" );
-cc		        TO ( "\025" );
-cc		     END; END;
-cc		     BEG ( "L" );
-cc		        TO ( "\n" );
-cc		     END;
-cc		     BEG ( "U" ); BEG ( "L" );
-cc		        begin_dispatch ( ">" );
-cc		        {
-cc			    static uns32 NUL = 0;
-cc		            NDL::translate_to
-cc				( 1, & NUL );
-cc		        }
-cc		        end_dispatch();
-cc		     END; END;
-cc		  END;
-cc
-
-lex	    "<" "Q" ">" translate to "<Q>";
-cc	          BEG ( "Q" );
-cc		     TO ( "\"" );
-cc		  END;
-cc
-
-lex	    "<" "RS" ">" translate to "<RS>";
-cc	          BEG ( "R" ); BEG ( "S" );
-cc		     TO ( "\036" );
-cc		  END; END;
-cc
-
-lex	    "<" "SI" ">" translate to "<SI>";
-lex	    "<" "SO" ">" translate to "<SO>";
-lex	    "<" "SOH" ">" translate to "<SOH>";
-lex	    "<" "SP" ">" translate to "<SP>";
-lex	    "<" "STX" ">" translate to "<STX>";
-lex	    "<" "SUB" ">" translate to "<SUB>";
-lex	    "<" "SYN" ">" translate to "<SYN>";
-cc	          BEG ( "S" );
-cc		     BEG ( "I" );
-cc		         TO ( "\017" );
-cc		     END;
-cc		     BEG ( "O" );
-cc			BEG ( "H" );
-cc		            TO ( "\001" );
-cc		        END;
-cc			TO ( "\016" );
-cc		     END;
-cc		     BEG ( "P" );
-cc		         TO ( " " );
-cc		     END;
-cc		     BEG ( "T" ); BEG ( "X" );
-cc		         TO ( "\002" );
-cc		     END; END;
-cc		     BEG ( "U" ); BEG ( "B" );
-cc		         TO ( "\032" );
-cc		     END; END;
-cc		     BEG ( "Y" ); BEG ( "N" );
-cc		         TO ( "\026" );
-cc		     END; END;
-cc		  END;
-cc
-
-lex	    "<" "US" ">" translate to "<US>";
-cc	          BEG ( "U" ); BEG ( "S" );
-cc		     TO ( "\037" );
-cc		  END; END;
-cc
-
-lex	    "<" "VT" ">" translate to "<VT>";
-lex
-cc	          BEG ( "V" ); BEG ( "T" );
-cc		     TO ( "\v" );
-cc		  END; END;
-cc
-
-cc	#	undef BEG
-cc	#	undef TO
-cc	#	undef END
-cc
-
-lex	    "<" "<0-9>" match escaped hex char
-lex	            else fail;
-lex
-cc	    	    NDL::begin_dispatch();
-cc		       NDL::add_chars ( "0123456789" );
-cc		       NDL::match ( escaped_hex );
-cc		    NDL::ELSE();
-cc		       NDL::fail();
-cc		    NDL::end_dispatch();
-cc	       NDL::end_dispatch();
-cc
-
-lex	    fail;
-lex	end escaped char atom table;
-lex
-cc	       NDL::fail();
-cc	    NDL::end_table();
-cc
-
-lex
-lex	begin escaped hex char atom table;
-lex
-cc	    NDL::begin_table ( escaped_hex );
-cc
-
-lex	    "<" "<0-9>" ">" translate hex 1 1;
-lex	    "<" "<0-9><hex-digit><repeat>" ">"
-lex	              translate hex 1 1;
-lex
-cc	       NDL::begin_dispatch ( "<" );
-cc	    	    NDL::begin_dispatch();
-cc		      NDL::add_chars ( "0123456789" );
-cc
-cc	    	      NDL::begin_dispatch ( ">" );
-cc	                NDL::translate_hex ( 1, 1 );
-cc	              NDL::end_dispatch();
-cc
-cc	    	      NDL::begin_dispatch ( hex_digit );
-cc	    	        NDL::REPEAT();
-cc	    	        NDL::begin_dispatch ( ">" );
-cc	                  NDL::translate_hex ( 1, 1 );
-cc	                NDL::end_dispatch();
-cc
-cc	              NDL::end_dispatch();
-cc	            NDL::end_dispatch();
-cc	       NDL::end_dispatch();
-cc
-
-lex	    fail;
-lex	end escaped hex char atom table;
-lex
-cc	    	    NDL::fail();
-cc	    NDL::end_table();
-cc
-
-lex
-lex	begin unrecognized escape atom table;
-lex
-cc	    NDL::begin_table ( unrecognized_escape );
-cc
-
-lex	    "<" "<escape><repeat>" ">" accept
-lex
-cc	       NDL::begin_dispatch ( "<" );
-cc	            NDL::begin_dispatch ( escape );
-cc	    	        NDL::REPEAT();
-cc	    	        NDL::begin_dispatch ( ">" );
-cc	                  NDL::accept();
-cc	                NDL::end_dispatch();
-cc	            NDL::end_dispatch();
-cc	       NDL::end_dispatch();
-cc
-
-lex	    fail;
-lex	end unrecognized escape atom table;
-lex
-cc	    	    NDL::fail();
 cc	    NDL::end_table();
 cc
 

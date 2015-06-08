@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 15, 2015
+June 8, 2015
  
 \end{center}
 
@@ -920,9 +920,6 @@ Options other than \TT{*UNCHECKED*} can be given in a function type
 definition and will then be applied to all calls to functions of the
 defined type.
 
-used in checked calls.
-
-
 \section{Stack Management}
 \label{STACK-MANAGEMENT}
 
@@ -1356,7 +1353,7 @@ boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
 \subsection{The Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
 
-The \ttkey{mem} qualifier is a protection qualifier that behaves
+The \ttkey{mem} qualifier is a non-inverted protection qualifier that behaves
 in a special way when a variable \TT{v} has this qualifier and
 there is a variable \TT{v.adr} of type \TT{adr}.  Then the
 variable \TT{v} must \underline{not} be given a value by an

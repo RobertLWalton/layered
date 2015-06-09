@@ -955,9 +955,10 @@ a stack whose block is still running is in the way of a allocating
 a new stack to the circular buffer, in which case the still running
 block's stack may be moved.
 
-Lastly, global stacks may be deallocated when programs that
+Lastly, global area stacks (\pagref{GLOBAL-AREAS})
+may be deallocated when programs that
 can reference them are still running, or may not yet be allocated
-when these programs run.  Such global stacks are treated as if
+when these programs run.  Such global area stacks are treated as if
 they were allocated to inaccessible memory, so deallocating them
 is like moving them to inaccessible memory, and referencing
 them when they are deallocated gives a memory fault.
@@ -972,7 +973,7 @@ containing block terminates:
 \begin{indpar}
 \emkey{unwind-block}
     ::= \begin{tabular}[t]{l}
-	\TT{*UNCHECKED*}\QMARK{} \tt{unwind} \TT{:} \\
+	\TT{*UNCHECKED*}\QMARK{} \TT{unwind} \TT{:} \\
 	\TT{~~~~}{\em executable-statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
@@ -1056,6 +1057,50 @@ where \TT{A} must be a power of 2.  This will align the \TT{O+1}'st
 byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
 
+
+\section{Global Areas}
+\label{GLOBAL-AREAS}
+
+A global area is like the stack frame of a function that has no
+arguments or return value, except that after this function executes,
+the global area remains allocated and its variables can be referenced
+by other code.  The syntax is:
+\begin{indpar}
+\emkey{global-area}
+    ::= \begin{tabular}[t]{l}
+	\TT{*UNCHECKED*}\QMARK{} \TT{global} {\em global-area-name} \TT{:} \\
+	\TT{~~~~}{\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+In order to be accessed a global area must be named in an `\TT{extern}'
+statement:
+\begin{indpar}
+\emkey{extern-statement}
+    ::= \begin{tabular}[t]{l}
+	\TT{extern} {\em global-area-abbreviation}
+	            \TT{is} {\em global-area-name} \TT{:} \\
+	\TT{~~~~}{\em extern-variable-statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{extern-variable statement}
+    ::= \TT{extern} {\em variable-abbreviation} \TT{is} {\em variable-name}
+\end{indpar}
+
+A variable named \TT{V} in a global area with {\em global-area-abbreviation}
+\TT{A} may be named as \TT{A.V}, or if the variable has its own
+abbreviation \TT{VA}, that by itself (and \underline{not} \TT{A.VA})
+may be used to name the variable.  Abbreviations are only affective
+within the source code file containing the `\TT{extern}' statements
+that define them.
+
+TBD: memory within global area: stub offset addresses.
+
+The code of a global area is executed when the file containing it is
+loaded, and the memory of the area is allocated and defined at that
+time.  Global areas may be deallocated.  References to a global area
+that is not yet allocated or has been deallocated cause segmentation
+faults.
 
 \section{Clusters}
 \label{CLUSTERS}

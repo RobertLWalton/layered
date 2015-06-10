@@ -302,7 +302,8 @@ parser print bracket "":
     block standard: bracket "[" ... "]" [code, text, math]
     block TOP LEVEL: bracket "[" ... "]" [parser]
     block standard: bracket "`" ... "'" [code]
-    block standard: bracket "```" ... "'''" [code]
+    block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
+                    [code]
                     with full lines
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
     block standard: indentation mark [< "+" ":" >] ... "::" [code]

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  6 21:07:48 EDT 2015
+// Date:	Wed Jun 10 03:55:40 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -242,8 +242,8 @@
 //	     // buffer, instead of the matched atom.
 //	     // The first <m> and last <n> characters of
 //	     // the atom are ignored and the rest is the
-//	     // converted interior.  Overrides any trans-
-//	     // lation made by `match'.
+//	     // converted interior.  Overrides any
+//	     // translation made by `match'.
 //
 //   <m> ::= C++ uns32 integer
 //   <n> ::= C++ uns32 integer

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 06:51:04 EDT 2015
+// Date:	Wed Jun 10 03:54:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -154,14 +154,16 @@ static min::uns32 input_add_tokens
 	    continue;
 
 	case LEXSTD::premature_end_of_string_t:
-	    message = "ERROR: premature end of string; ";
+	    message = "ERROR: premature end of"
+	              " string; ";
 	    break;
 	case LEXSTD::premature_end_of_file_t:
 	    message = "ERROR: premature end of file; ";
 	    break;
 	case LEXSTD::misplaced_vertical_t:
-	    message = "ERROR: vertical control character"
-	              " sequence with no line feed; ";
+	    message = "ERROR: vertical control"
+	              " character sequence with no line"
+		      " feed; ";
 	    break;
 	case LEXSTD::illegal_control_t:
 	    message = "ERROR: illegal control character"

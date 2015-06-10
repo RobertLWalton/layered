@@ -306,9 +306,12 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum'
 SEPARATOR: "]": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                    ^
-SEPARATOR: "``": line 20:
+SEPARATOR: "`": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
-                     ^^
+                     ^
+SEPARATOR: "`": line 20:
+a(b,c) d{e;f} g[h,i] ``foobar' fum'
+                      ^
 WORD: "foobar": line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                        ^^^^^^

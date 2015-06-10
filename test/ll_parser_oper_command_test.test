@@ -386,18 +386,17 @@ parser define operator "=>" [code, math] infix
                   {"": .operator = "AND", .terminator = ")",
                        .initiator = "("|AND
                        {"": .operator = "<"|< x
-                            {"": .operator = "$"|"$" 0 y|}|}
+                            {"": .operator = "$"|$ 0 y|}|}
                        {"": .operator = "<="|<=
-                            {"": .operator = "$"|"$" 0|}
-                            {"": .operator = "$"|"$" 1 z|}|}
-                       {"": .operator = ">"|>
-                            {"": .operator = "$"|"$" 1|}
-                            {"": .operator = "$"|"$" 2 w|}|}
+                            {"": .operator = "$"|$ 0|}
+                            {"": .operator = "$"|$ 1 z|}|}
+                       {"": .operator = ">"|> {"": .operator = "$"|$ 1|}
+                            {"": .operator = "$"|$ 2 w|}|}
                        {"": .operator = "!="|!=
-                            {"": .operator = "$"|"$" 2|}
-                            {"": .operator = "$"|"$" 3 {|p q|}|}|}
+                            {"": .operator = "$"|$ 2|}
+                            {"": .operator = "$"|$ 3 {|p q|}|}|}
                        {"": .operator = "=<"|=<
-                            {"": .operator = "$"|"$" 3|} {|u v|}|}|}
+                            {"": .operator = "$"|$ 3|} {|u v|}|}|}
 ------- line 138:
 parser test ( x < y <= z > w != p q =< u v )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -497,10 +496,10 @@ parser test ( - x + y - z )
                   {"": .operator = "AND", .terminator = ")",
                        .initiator = "("|AND
                        {"": .operator = "<"|< x
-                            {"": .operator = "$"|"$" 4
+                            {"": .operator = "$"|$ 4
                                  {"": .operator = "+"|+ y 5|}|}|}
                        {"": .operator = "<="|<=
-                            {"": .operator = "$"|"$" 4|} z|}|}
+                            {"": .operator = "$"|$ 4|} z|}|}
 ------- line 148:
 parser test ( x < y + 5 <= z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

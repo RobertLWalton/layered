@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 7, 2015
+June 10, 2015
  
 \end{center}
 
@@ -278,7 +278,7 @@ new library functionality is very important.
 {\bf The Type Checking Segregation Hypothesis}~ A strongly typed
 completely capable language is impossible.  What is possible is
 to segregate code into small inline library functions that are not
-type checkable, and code that uses these functions is a is
+type checkable, while code that uses these functions is
 strongly type checkable.
 \end{indpar}
 
@@ -300,7 +300,7 @@ character string: e.g., `\TT{hello}', `\TT{+}', `\TT{;}',
 The lexical scanner is written in the M-Language and can be
 replaced.\footnote{As of 2015 the scanner is actually written
 in C++.}  This section describes the standard scanner which
-is driven by the lexical tables and is capable scanning
+is driven by the lexical tables and is capable of scanning
 lexemes of common languages such as C and C++.
 
 The standard scanner attempts to be both machine and human
@@ -402,10 +402,10 @@ the atom pattern \TT{"<" "LF" ">"}
 \TT{<LF>} being treated as representing a single line feed character)
 or the 4-character sequence \TT{<0a>} which matches the atom pattern
 \begin{center}
-\TT{"0<hex-digit>"}
+\TT{"<0<hex-digit>{}>"}
 \end{center}
 where \TT{<hex-digit>} names a character pattern matching characters
-in the ranges \TT{0-9}, \TT{a-f}, and \TT{A-F}.
+in the ranges \TT{0-9} and \TT{A-F}.
 
 Atom patterns can also contain the special indicator
 \TT{<repeat>} that allows an immediately preceding character pattern
@@ -478,7 +478,7 @@ type is `\TT{none}'.
 The current lexeme type is reset to `\TT{none}' whenever
 the current lexical table becomes a master table.
 
-Thus if an lexical table of
+Thus if a lexeme table of
 type `\TT{whitespace}' cannot recognized any atom and
 the default instruction associated with it
 changes the current lexical table to a master table,
@@ -489,7 +489,7 @@ When it is between lexemes the current lexical table in the scanner state
 is always a master table.  Master tables correspond to lexical
 contexts.  A well designed language has only one main master
 table, plus a few small master tables to handle error situations
-such a premature new-line and premature end-of-file;
+such as premature end-of-file;
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.
 Legacy languages
 may have more master tables: C/C++ has several to handle
@@ -499,7 +499,7 @@ see Appendix \itemref{C++-LEXICAL-PROGRAM}.
 The standard scanner can report errors in one of two ways.  It may
 simply output a lexeme with a type that indicates an error.  For
 example, the character \TT{\textbackslash} appearing outside a quoted string
-might be returned as a 1-character lexeme of type `\TT{unrecognized
+might be returned as a 1-character lexeme of type `\TT{misplaced
 character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
 of the scanner.  For example, if \TT{<H>} appears in a quoted
@@ -536,7 +536,7 @@ To scan a lexeme: \\
         if \TT{current} \TT{lexical} \TT{table} is a lexeme table: \\
         ~~~~~~~~set \TT{current} \TT{lexical} \TT{lexeme} \TT{type} to the
 	        lexeme table type \\
-        find the longest atom in beginning at the \TT{input} \TT{position} \\
+        find the longest atom beginning at the \TT{input} \TT{position} \\
         ~~~~~~~~that matches an atom pattern in the \TT{current} \TT{lexical}
 	        {table}, if any \\
         if an atom was found: \\
@@ -563,8 +563,8 @@ To scan a lexeme: \\
 	    ~~~~(which may \underline{not} be \TT{NONE}) \\
             the \TT{current} \TT{lexical} \TT{table}
 	        (which is a \TT{MASTER} table) \\
-            the \TT{input} \TT{position} which has moved to just after
-	        the lexeme \\
+            the \TT{input} \TT{position} (which has moved to just after
+	        the lexeme) \\
             \end{tabular}
     \end{tabular}
 \end{tabular}
@@ -584,11 +584,13 @@ to a different character string
 (otherwise the translation of an atom is a copy of the atom)
 \item make instruction success conditional
       on the translated atom matching an atom pattern
-\item announce the reduced length atom as an erroneous atom of a given type
+\item announce the reduced length (untranslated) atom
+      as an erroneous atom of a given type
 \item change the \TT{current} \TT{lexeme} \TT{type} (the type can be changed
       to \TT{NONE})
-\item change the \TT{current} \TT{lexical} \TT{table} - the previous
-      table ID can be pushed into the \TT{return} \TT{stack}, or the
+\item change the \TT{current} \TT{lexical} \TT{table} - optionally the previous
+      table ID can be pushed into the \TT{return} \TT{stack},
+      or optionally the
       new table ID can be popped from this stack
 \item force the atom table that contains the instruction
       to fail to match any atom
@@ -628,23 +630,20 @@ the following character classes:
 \emkey{control-character} :::=
 	characters in UNICODE categories \TT{C} and \TT{Z}
 \\[1ex]
-\emkey{isolated-separator-character} :::=
+\emkey{isolated-separating-character} :::=
     \begin{tabular}[t]{l}
     characters in UNICODE categories \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
     and \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
     \end{tabular}
 \\
-\emkey{repeating-separator-character} :::= \TT{|}
+\emkey{separating-character} :::= \TT{|} $|$ {\em isolated-separating-character}
 \\[1ex]
-\emkey{repeating-leading-character} :::=
-	\TT{`} $|$ \TT{\$} $|$
-	\TT{\textexclamdown} $|$ \TT{\textquestiondown}
+\emkey{leading-separator-character} :::=
+	\TT{`} $|$ \TT{\textexclamdown} $|$ \TT{\textquestiondown}
 \\
-\emkey{repeating-trailing-character} :::=
-	\TT{'} $|$ \TT{!} $|$ \TT{?} $|$ \TT{.} $|$ \TT{:} $|$ \TT{\%}
-\\
-\emkey{isolated-trailing-character} :::=
-	\TT{,} $|$ \TT{;}
+\emkey{trailing-separator-character} :::=
+	\TT{'} $|$ \TT{!} $|$ \TT{?} $|$ \TT{.} $|$ \TT{:}
+	       $|$ \TT{,} $|$ \TT{;}
 \\[1ex]
 \emkey{quoting-character} :::= \TT{"}
 \\[1ex]
@@ -658,14 +657,11 @@ the following character classes:
     characters in UNICODE category \TT{Nd}
     (includes {\em ASCII-digits})
 \\
-\emkey{mark-character} :::=
-    \begin{tabular}[t]{l}
-    {\em graphic-character} that is \underline{not} a {\em letter},
-    {\em digit}, \\
-    {\em isolated-separator-character},
-    {\em repeating-separator-character}, \\
-    or {\em quoting-character}
-    \end{tabular}
+\emkey{lexical-item-character} :::=
+	\begin{tabular}[t]{l}
+        {\em graphic-character} other than \\
+	{\em separating-character} or \TT{"}
+	\end{tabular}
 \end{indpar}
 
 Lexemes may be separated by {\em white-space}, which
@@ -713,9 +709,11 @@ and are illegal:
 Sequences of these characters generate warning messages,
 but are otherwise like {\em horizontal-space}:
 \begin{indpar}
-\emkey{misplaced-horizontal} :::= {\em misplaced-horizontal-character}\PLUS{}
+\emkey{misplaced-horizontal} :::=
+    {\em misplaced-horizontal-space-character}\PLUS{}
 \\[0.3ex]
-\emkey{misplaced-vertical} :::= {\em misplaced-vertical-character}\PLUS{}
+\emkey{misplaced-vertical} :::=
+    {\em misplaced-vertical-space-character}\PLUS{}
 \\[0.3ex]
 \emkey{illegal-control} :::= {\em illegal-control-character}\PLUS{}
 \\[0.3ex]
@@ -741,7 +739,8 @@ number of a character is the sum of the columns taken by all the
 characters between the first {\em vertical-space} preceeding the
 character (or beginning of input if there is no {\em vertical-space})
 and the character.
-Characters in UNICODE class \TT{Mn} (combining marks)
+Characters in UNICODE subcategories \TT{Mn} (combining marks)
+and \TT{Me} (enclosing marks),
 and {\em control-characters} that are not
 {\em horizontal-space-characters} take zero columns.  All other characters
 take one column, except for horizontal tab, which takes from
@@ -797,9 +796,11 @@ being a line feed.
 
 A special {\em character-representative} can consist of
 the UNICODE character name surrounded by angle brackets.  Examples are
-\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{NBSP}.  There are two other cases:
-\TT{<Q>} represents the doublequote \TT{"}, and \TT{<NL>} (new line)
-represents a line feed (same as \TT{<LF>}).
+\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{NBSP}.  There are three other cases:
+\TT{<Q>} represents the doublequote \TT{"}, \TT{<NL>} (new line)
+represents a line feed (same as \TT{<LF>}), and \TT{<UUC>} represents
+the `unknown UNICODE character' which in turn is used to represent
+illegal UTF-8 character encodings.
 
 A special {\em character-representative} can also consist of
 a hexadecimal UNICODE character code, which must begin with a digit.
@@ -816,19 +817,18 @@ a form feed.
 	$|$ {\em comment}
 \label{LEXEME}
 \\[1ex]
-\emkey{strict-separator} :::= {\em isolated-separator-character} $|$
+\emkey{strict-separator} :::= {\em isolated-separating-character} $|$
                               \TT{|}\PLUS{}
 \\[0.5ex]
 \emkey{leading-separator} :::=
-	\TT{`}\PLUS{} $|$ \TT{\$}\PLUS{} $|$
+	\TT{`} $|$ 
 	\TT{\textexclamdown}\PLUS{} $|$ \TT{\textquestiondown}\PLUS{}
 \\[0.5ex]
-\emkey{trailing-separator} :::= \TT{'}\PLUS{} $|$
+\emkey{trailing-separator} :::= \TT{'} $|$
 				   \TT{!}\PLUS{} $|$
 				   \TT{?}\PLUS{} $|$
 				   \TT{.}\PLUS{} $|$
 				   \TT{:}\PLUS{} $|$
-				   \TT{\%}\PLUS{} $|$
 				   \TT{;} $|$
 				   \TT{,}
 \\[0.5ex]
@@ -853,17 +853,16 @@ a form feed.
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
                        not beginning with \TT{//}
 \\[0.5ex]
-\emkey{lexical-item-character} :::=
-	\begin{tabular}[t]{l}
-        {\em graphic-character} other than \\
-	{\em isolated-separator-character} or \TT{|} or \TT{"}
-	\end{tabular}
-\\
 \emkey{lexical-item} :::= {\em leading-separator}\STAR{}
 			  {\em middle-lexeme}\QMARK{}
                           {\em trailing-separator}\STAR{}
 \\[0.5ex]
-\emkey{middle-lexeme} :::= see text
+\emkey{middle-lexeme} :::=
+	\begin{tabular}[t]{l}
+	{\em lexical-item} \\
+	not beginning with a {\em leading-separator-character} \\
+	or ending with a {\em trailing-separator-character} \\
+	\end{tabular}
 \\[0.5ex]
 \emkey{word} :::= {\em middle-lexeme} containing a {\em letter} before any
                   {\em digit}
@@ -877,11 +876,8 @@ a form feed.
 \\[0.5ex]
 \emkey{number} :::= {\em natural} $|$ {\em numeric}
 \\[0.5ex]
-\emkey{mark} :::= \begin{tabular}[t]{l}
-                  {\em mark-character}\PLUS{} but not {\em separator} \\
-		  (or {\em middle-lexeme} that is not a {\em word},
-		  {\em natural}, or {\em numeric})
-		  \end{tabular}
+\emkey{mark} :::= {\em middle-lexeme} that is not a {\em word},
+		  {\em natural}, or {\em numeric}
 \\[1ex]
 \emkey{comment} :::=
     \TT{//} {\em comment-character}\,$^\star$
@@ -908,7 +904,8 @@ and the three {\em trailing-separators} `\TT{,}' `\TT{,}' and `\TT{::}'.%
 \footnote{It is possible to use a strictly left to right scan with
 backup over lexical atoms to perform
 the right to left removal of {\em trailing-separators} from a
-{\em lexical-item}, by recoginzing a sequence of {\em trailing-separators}
+{\em lexical-item}, by recoginzing a sequence of
+{\em trailing-separator-characters}
 as an atom that is backed up over and rescanned:
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 

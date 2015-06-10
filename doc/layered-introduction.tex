@@ -956,7 +956,7 @@ The syntax of a lexical program is specified on
         \begin{tabular}[t]{@{}rl@{}}
 	::= & \TT{<}{\em letter}\PLUS{}\{\TT{-}{\em letter}\PLUS{}\}\STAR{}%
 	       \TT{>} \\
-	    & but not {\em character-representive} \\
+	    & but not \TT{<}{\em upper-case-ASCII-letter}\PLUS{}\TT{>}
 	\end{tabular}
 \\[0.3ex]
 \emkey{special-cpat-name}
@@ -1002,8 +1002,6 @@ The syntax of a lexical program is specified on
 \\[0.3ex]
 \emkey{lexical-table-name} ::=
     {\em name} except \TT{scan error} or \TT{none}
-\\[0.3ex]
-\emkey{type} ::= {\em name} except \TT{scan error} or \TT{none}
 \end{indpar}
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{figure*}
@@ -1047,8 +1045,8 @@ The syntax of a lexical program is specified on
 	$|$ & \TT{translate name}
 			{\em natural-number} {\em natural-number} \\
 	$|$ & \TT{require} {\em atom-pattern} \\
-	$|$ & \TT{error} {\em type} \\
-	$|$ & \TT{output} {\em type} \\
+	$|$ & \TT{error} {\em type-name} \\
+	$|$ & \TT{output} {\em type-name} \\
 	$|$ & \TT{output} \TT{none} \\
 	$|$ & \TT{goto} {\em master-table-name} \\
 	$|$ & \TT{goto} {\em lexeme-table-name} \\
@@ -1058,6 +1056,8 @@ The syntax of a lexical program is specified on
 	$|$ & \TT{return} \\
 	$|$ & \TT{fail} \\
 	\end{tabular}
+\\[0.3ex]
+\emkey{type-name} ::= {\em name} except \TT{scan error} or \TT{none}
 \\[0.3ex]
 \emkey{atom-table-name} ::= {\em lexical-table-name}
 \\[0.3ex]
@@ -1089,7 +1089,7 @@ begin example lexical program;
 begin main master table;
     "<whitespace-char>" goto whitespace;
     "<Q>" translate to "" goto quoted string;
-    "<others>" output bad character;
+    "<others>" output misplaced character;
     output end of file;
 end main master table;
 
@@ -1171,7 +1171,8 @@ The simplest character pattern
 expression is just a single {\em character-representative} in quotes,
 which denotes
 the character set containing only the quoted character.  Examples:
-\TT{"0"} and \TT{"+"}.  The next simplest is two {\em character-representative}
+\TT{"0"} and \TT{"+"}.
+The next simplest is two {\em character-representatives}
 separated by a hyphen (\TT{-}) denoting the character set consisting
 of all characters in the range from the first to the second of the two
 characters.  Examples: \TT{"0-9"} and \TT{"A-Z"}.  The characters
@@ -1227,7 +1228,8 @@ Some example {\em character-pattern-definitions} are:
 
 Current implementations require that any two non-LATIN1 UNICODE
 characters that have the same UNICODE subcategory, UNICODE name
-(a.k.a. `alias', e.g., \TT{HT} or \TT{SOH} or \TT{NBSP}, or may be `missing'),
+(a.k.a. `abbreviation alias',
+e.g., \TT{HT} or \TT{SOH} or \TT{NBSP}, or may be `missing'),
 and UNICODE numeric value (e.g., \TT{3} or \TT{1/3}, or may be `missing'),
 must be treated identically: that is, one is in a character pattern's set
 if and only if the other is in the set.  This means that the
@@ -1552,7 +1554,7 @@ An example use would be the lexical table entry
 \verb|"\u<hex-digit><hex-digit><hex-digit><hex-digit>"| \\
 \verb|    translate hex 2 0| \\
 \verb|    require "<letter>" else| \\
-\verb|    translate to "" error bad character in identifier;|
+\verb|    translate to "" error misplaced character in identifier;|
 \end{indpar}
 which might be used to process an atom of the form \TT{\textbackslash uXXXX} in
 an identifier, accepting the atom as a legitimate representation of a
@@ -1705,13 +1707,14 @@ end of file.
 As another example, the `\TT{main}' master table at the top of
 \pagref{EXAMPLE-LEXEME-PROGRAM} contains the entry:
 \begin{indpar}\begin{verbatim}
-"<others>" output bad character;
+"<others>" output misplaced character;
 \end{verbatim}\end{indpar}
 which causes an unrecognized character to be treated as a 1-character
-lexeme of type `\TT{bad char\-ac\-ter}'.  The translation of this lexeme is
+lexeme of type `\TT{misplaced char\-ac\-ter}'.
+The translation of this lexeme is
 the character itself, but if the entry:
 \begin{indpar}\begin{verbatim}
-"<others>" translate to "<DEL>" output bad character;
+"<others>" translate to "<DEL>" output misplaced character;
 \end{verbatim}\end{indpar}
 had been used instead the translation would have been the ASCII delete
 (DEL) character.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  1 01:10:10 EST 2012
+// Date:	Thu Jun 11 16:43:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,8 +38,8 @@ extern min::locatable_var<ll::lexeme::erroneous_atom>
 extern min::locatable_var<ll::parser::input>
     input;
 
-// Set a parser input to produce a stream of lexemes
-// read from a standard lexeme scanner.
+// Set a parser input to produce a stream of tokens
+// encoding lexemes read from a standard lexeme scanner.
 //
 // The lexeme types are as in ll_lexeme_standard.h.
 //
@@ -50,7 +50,7 @@ extern min::locatable_var<ll::parser::input>
 //	word_t
 //	mark_t
 //	separator_t
-//	natural_number_t
+//	natural_t
 //
 // These are called `symbol tokens'.  Other tokens have
 // min::MISSING() token values.
@@ -59,7 +59,7 @@ extern min::locatable_var<ll::parser::input>
 // token strings equal to their lexeme's translation
 // character strings:
 //
-//	number_t
+//	numeric_t
 //	quoted_string_t
 //
 // Other tokens have min::NULL_STUB token strings.
@@ -80,27 +80,29 @@ extern min::locatable_var<ll::parser::input>
 // errors and otherwise ignored, that is, they are not
 // made into tokens:
 //
-//	premature_end_of_line_t
+//	premature_end_of_string_t
 //	premature_end_of_file_t
-//	misplaced_char_t
-//	misplaced_space_t
-//	ascii_escape_seq_t
-//	non_letter_escape_seq_t
+//	misplaced_vertical_t
+//	illegal_control_t
+//	unrecognized_character_t
 //
 // The following erroneous atoms are announced as
 // errors and otherwise ignored:
 //
-//	misplaced_control_char_t
-//	unrecognized_escape_seq_t
+//	misplaced_vertical_t
+//	illegal_control_t
+//	unrecognized_character_t
+//	unrecognized_escape_t
+//	misplaced_horizontal_t
 //
 // Note that indentation and line breaks are implicitly
 // encoded in the token `begin' and `end' positions.
 // Also note that all tokens output by this input
 // closure except the line_break_t tokens are on a
-// single line.  Lastly note that natural_number_t
-// tokens have min::gen token values that are strings
-// and not numbers; therefore 001, 01, and 1 have
-// different min::gen token values.
+// single line.  Lastly note that natural_t tokens have
+// min::gen token values that are strings and not
+// numbers, in spite of the 1-1 correspondence between
+// natural lexeme numbers and strings.
 //
 // This function may only be called if parser or
 // parser->scanner is NULL_STUB.  This function

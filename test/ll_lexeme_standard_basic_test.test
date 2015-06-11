@@ -1,5 +1,5 @@
        ###: PROGRAM
-            Initial Table ID[0]:###
+            Initial Table ID[0]:####
             Max Type: 17
                  1: WORD
                  2: NATURAL
@@ -18,14 +18,14 @@
                 15: UNRECOGNIZED_CHARACTER
                 16: UNRECOGNIZED_ESCAPE
                 17: MISPLACED_HORIZONTAL
-     #####: TABLE
+    ######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
             ####: OUTPUT(12), GOTO(####)
     ######: TABLE
             Mode: SEPARATOR
             Dispatcher ID: #####
-            #####: OUTPUT(4294967292), GOTO(###)
+            #####: OUTPUT(4294967292), GOTO(####)
     ######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
@@ -33,19 +33,19 @@
     ######: TABLE
             Mode: NONE
             Dispatcher ID: #####
-            #####: GOTO(###)
+            #####: GOTO(####)
    #######: TABLE
             Mode: NONE
             Dispatcher ID: #####
-            #####: OUTPUT(2), GOTO(###)
+            #####: OUTPUT(2), GOTO(####)
    #######: TABLE
             Mode: NATURAL
             Dispatcher ID: #####
-            #####: GOTO(###)
+            #####: GOTO(####)
    #######: TABLE
             Mode: MARK
             Dispatcher ID: #####
-            #####: GOTO(###)
+            #####: GOTO(####)
    #######: TABLE
             Mode: QUOTED_STRING
             Dispatcher ID: #####
@@ -53,7 +53,7 @@
    #######: TABLE
             Mode: COMMENT
             Dispatcher ID: #####
-            #####: GOTO(###)
+            #####: GOTO(####)
    #######: TABLE
             Mode: LINE_BREAK
             Dispatcher ID: #####
@@ -61,11 +61,11 @@
    #######: TABLE
             Mode: MISPLACED_VERTICAL
             Dispatcher ID: #####
-            #####: GOTO(###)
+            #####: GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(11), GOTO(###)
+            #####: OUTPUT(11), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
@@ -904,7 +904,7 @@
             Max CType: 1
             Ctype Map Size: 11
             <LF>
-                #####: KEEP(0), GOTO(###)
+                #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -1227,7 +1227,7 @@
                 #####: ACCEPT
                 Dispatcher ID: #####
             <LF>
-                #####: KEEP(0), GOTO(###)
+                #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
                 #####: ERRONEOUS_ATOM(13)
@@ -1264,7 +1264,7 @@
             Max CType: 1
             Ctype Map Size: 14
             <NUL>-<HT> <SO>-<30000>
-                #####: KEEP(0), GOTO(###)
+                #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <LF>-<CR>
                 #####: ACCEPT
@@ -3201,7 +3201,7 @@
                 #####: ERRONEOUS_ATOM(15)
                 Dispatcher ID: #####
             "
-                #####: TRANSLATE_TO(0), GOTO(###)
+                #####: TRANSLATE_TO(0), GOTO(####)
                 Dispatcher ID: #####
             <
                 #####: ACCEPT

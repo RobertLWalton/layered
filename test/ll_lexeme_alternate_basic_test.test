@@ -1,5 +1,5 @@
        ###: PROGRAM
-            Initial Table ID[0]:###
+            Initial Table ID[0]:####
             Max Type: 16
                  1: WORD
                  2: NATURAL_NUMBER
@@ -17,7 +17,7 @@
                 14: MISPLACED_SPACE
                 15: MISPLACED_CONTROL_CHARACTER
                 16: UNRECOGNIZED_ESCAPE_SEQUENCE
-    ######: TABLE
+   #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
             #####: OUTPUT(10)
@@ -63,11 +63,11 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(11), GOTO(###)
+            #####: OUTPUT(11), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(12), GOTO(###)
+            #####: OUTPUT(12), GOTO(####)
    #######: TABLE
             Mode: ATOM
             Dispatcher ID: #####
@@ -569,7 +569,7 @@
             <1EEA4> <1EEAA> <1EEBC>-<1FFFF> <20001>-<2A6D5>
             <2A6D7>-<2A6FF> <2A701>-<2B733> <2B735>-<2B73F>
             <2B741>-<2B81C> <2B81E>-<2F7FF> <2FA1E>-<30000>
-                ####: OUTPUT(13)
+                #####: OUTPUT(13)
                 Dispatcher ID: #####
             /
                 ####: CALL(####)

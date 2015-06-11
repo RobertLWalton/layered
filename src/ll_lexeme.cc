@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  7 04:43:59 EDT 2015
+// Date:	Thu Jun 11 05:52:43 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -355,6 +355,11 @@ uns32 LEX::create_instruction
 	  <= 1,
 	  "operation argument has both CALL and"
 	  " RETURN" );
+
+    if ( operation & FAIL )
+        MIN_ASSERT ( operation == FAIL,
+	             "FAIL operation is not the sole"
+		     " operation in an instruction" );
 
     uns32 translate_to_length =
         ( operation & TRANSLATE_TO_FLAG ) ?
@@ -1548,7 +1553,7 @@ static uns32 scan_atom
 		    ( c, scanner, program,
 		      dispatcher_ID, dhp,
 		      length, trace_dispatch,
-		      "Repeat " );
+		      "Require " );
 		if ( ctype == LEX::SCAN_ERROR )
 		    return SCAN_ERROR;
 

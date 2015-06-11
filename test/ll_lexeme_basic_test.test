@@ -142,7 +142,7 @@ Uncooked Program 2:
             Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
                 0:              ##              ##             0
-                1:             ###              ##             0
+                1:            ####              ##             0
                 2:              ##              ##             0
             CTYPE VECTOR:
                    0:     0    0    0    0    0    0    0    0
@@ -161,7 +161,7 @@ Uncooked Program 2:
                   68:     0    0    0    0    0    0    0    0
                   70:     0    0    0    0    0    0    0    0
                   78:     0    0    0    0    0    0    0    0
-    ######: DISPATCHER
+   #######: DISPATCHER
             Max CType: 2
             Ctype Map Size: 128
             CType:   dispatcher_ID  instruction_ID  repeat_count
@@ -529,8 +529,8 @@ Cooked Program 2:
             Max CType: 2
             Ctype Map Size: 128
             \
-                Dispatcher ID: ###
-    ######: DISPATCHER
+                Dispatcher ID: ####
+   #######: DISPATCHER
             Max CType: 2
             Ctype Map Size: 128
             0-7 [repeat(2)]
@@ -846,12 +846,12 @@ Start atom scan: table = ####
   ####: KEEP(0), RETURN
 Start atom scan: table = ###
   Character = \ Dispatcher = ### CType = 1
-  Character = 1 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
-  Repeat Character = 2 Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
+  Repeat Character = 2 Dispatcher = #### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Repeat Character = B Dispatcher = #### CType = 1
+  Require Character = B Dispatcher = #### CType = 1
 Start atom scan: table = ####
   Character = C Dispatcher = #### CType = 2
   ####: ACCEPT
@@ -861,12 +861,12 @@ Start atom scan: table = ####
   ####: KEEP(0), RETURN
 Start atom scan: table = ###
   Character = \ Dispatcher = ### CType = 1
-  Character = 1 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Repeat Character = @ Dispatcher = #### CType = 0
+  Require Character = @ Dispatcher = #### CType = 0
   ####: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(26): A\102C translated to: ABC
 Start atom scan: table = ###
@@ -876,19 +876,19 @@ Start atom scan: table = ###
   ####: OUTPUT(1)
 Start atom scan: table = ###
   Character = \ Dispatcher = ### CType = 1
-  Character = 1 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Repeat Character = @ Dispatcher = #### CType = 0
+  Require Character = @ Dispatcher = #### CType = 0
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
 Start atom scan: table = ###
   Character = \ Dispatcher = ### CType = 1
-  Character = 1 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
+  Character = 1 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
 Scan Returned: ERROR 0(32): \100 translated to: @
@@ -904,12 +904,12 @@ Start atom scan: table = ####
   ####: KEEP(0), RETURN
 Start atom scan: table = ###
   Character = \ Dispatcher = ### CType = 1
-  Character = 1 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
-  Repeat Character = E Dispatcher = ### CType = 0
+  Character = 1 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
+  Repeat Character = E Dispatcher = #### CType = 0
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Repeat Character = <BS> Dispatcher = #### CType = 0
+  Require Character = <BS> Dispatcher = #### CType = 0
   ####: KEEP(0), RETURN
 Scan Returned: SYMBOL 0(36): D
 Start atom scan: table = ###
@@ -919,19 +919,19 @@ Start atom scan: table = ###
   ####: OUTPUT(1)
 Start atom scan: table = ###
   Character = \ Dispatcher = ### CType = 1
-  Character = 1 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
-  Repeat Character = E Dispatcher = ### CType = 0
+  Character = 1 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
+  Repeat Character = E Dispatcher = #### CType = 0
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
-  Repeat Character = <BS> Dispatcher = #### CType = 0
+  Require Character = <BS> Dispatcher = #### CType = 0
   ####: MATCH(###), OUTPUT(1), ELSE:
   ####: OUTPUT(1)
 Start atom scan: table = ###
   Character = \ Dispatcher = ### CType = 1
-  Character = 1 Dispatcher = ### CType = 1
-  Repeat Character = 0 Dispatcher = ### CType = 1
-  Repeat Character = E Dispatcher = ### CType = 0
+  Character = 1 Dispatcher = #### CType = 1
+  Repeat Character = 0 Dispatcher = #### CType = 1
+  Repeat Character = E Dispatcher = #### CType = 0
   ####: TRANSLATE_OCT(1,0), ELSE:
   ####: FAIL
 Scan Returned: ERROR 0(37): \10 translated to: <BS>

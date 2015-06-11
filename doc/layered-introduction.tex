@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 10, 2015
+June 11, 2015
  
 \end{center}
 
@@ -1445,8 +1445,10 @@ executed.
 \TT{accept}, \TT{match}, \TT{keep}, \TT{require}, and
 any of the \TT{translate} {\em instruction-components} can be used in
 an atom table {\em instruction}.  An atom table
-instruction may invoke another atom table, but recursion
-is prohibited.
+instruction may contain a \TT{match} that invokes another atom table,
+but recursion is prohibited, and as \TT{match} uses the
+\TT{return stack}, a very deep nesting of \TT{match}'es may
+exceed the stack limit (which is at least \TT{32}).
 
 If an instruction invokes an atom table and
 the atom table does not fail,
@@ -1495,13 +1497,13 @@ an atom translation.
 Note that if any previous instruction in an instruction group contains
 a \TT{match} component, that instruction must have failed, and the
 atom as it was when the instruction group started to execute will have
-been reinstated, so \TT{translate hex/oct} components are always
+been reinstated, so \TT{translate hex/oct/name} components are always
 applied to the matched atom as it was when the containing instruction
 group started to execute, before any \TT{match} components in the
 group executed.
 
 Also note that any \TT{keep} component executes \underline{after}
-\TT{translate hex/oct} components, and so does not affect the
+\TT{translate hex/oct/name} components, and so does not affect the
 matched atom used by these components.
 
 The `\ttmkey{translate hex}{in lexical program} $m$ $n$'
@@ -1514,12 +1516,15 @@ An example is the lexical table entry
 \verb|"<0<hex-digit><hex-digit>>" translate hex 2 1;|
 \end{center}
 which might be used to accept a character representative in a quoted string
-and copy the appropriate hexadecimally related character code into
+and copy the appropriate hexadecimally represented character code into
 the lexeme translation.  If characters that
 are supposed to be hexadecimal digits are not, the \TT{translate-hex}
 component fails (but in our example
 this cannot happen because the definition of \TT{<hex-digit>}
-restricts these characters appropriately).
+restricts these characters appropriately).  The `\TT{translate hex}
+instruction component accepts the characters \TT{a-f}, \TT{A-F},
+and \TT{0-9} as hexadecimal digits (but \TT{<hex-digit>} in the
+example might not accept all these).
 
 The `\ttmkey{translate oct}{in lexical program} $m$ $n$'
 {\em instruction-component} is identical but
@@ -1536,9 +1541,11 @@ views the rest of the characters as the UNICODE name
 of a character.
 An example use would be the lexical table entry
 \begin{center}
-\verb|"<<A-Z><repeat>>" translate name 1 1;|
+\verb|"<<upper-case-ASCII-letter><repeat>>" translate name 1 1;|
 \end{center}
 which would translate the atom `\TT{<LF>}' to a line feed.
+Note that UNICODE names consist of ASCII upper case letters and
+digits, with a letter being first.
 In addition to standard UNICODE character names, \TT{NL} is
 recoginized as the name of the line feed character,
 \TT{Q} is recognized as the name of the \TT{"} character,
@@ -1576,6 +1583,11 @@ the atom as an error while not putting anything in the lexeme translation
 The last {\em instruction} in an {\em instruction-group} must
 never fail, and so cannot contain a \TT{require} {\em instruction-component}.
 
+A \TT{require} component executes before any \TT{translate to}
+component (\pagref{TRANSLATE-TO-INSTRUCTION-COMPONENTS} below),
+so the translation tested by \TT{require} can be replaced by
+\TT{translate to}.
+
 \subsubsubsection{Keep Instruction Components}
 
 The `\ttmkey{keep}{in lexical program} $n$'
@@ -1594,6 +1606,7 @@ applies to the atom matched by the atom table invoked by the \TT{match}
 component.
 
 \subsubsubsection{Translate To Instruction Components}
+\label{TRANSLATE-TO-INSTRUCTION-COMPONENTS}
 
 A `\ttmkey{translate to}{in lexical program}~~{\em translation-string}'
 {\em in\-struc\-tion-com\-po\-nent}
@@ -1610,7 +1623,8 @@ copying anything into the lexeme translation, and then switch to the
 See the example on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 The \TT{translate to} component is executed \underline{after}
-any \TT{match}, \TT{translate hex}, or \TT{tran\-slate oct}, or
+any \TT{match}, \TT{translate hex}, \TT{tran\-slate oct},
+\TT{translate name}, or
 \TT{require} components are executed, and overrides the translations produced
 by these components.  It is therefore possible to produce a translation,
 test it with \TT{require}, and if the test is successful, override the
@@ -1630,7 +1644,8 @@ One could also use `\TT{translate to "?"}' to replace the atom
 by a question mark.
 
 If an instruction does not contain any of the components \TT{match},
-\TT{translate hex}, \TT{tran\-s\-late oct}, or \TT{trans\-late to},
+\TT{translate hex}, \TT{tran\-s\-late oct},
+\TT{trans\-late name}, or \TT{trans\-late to},
 the translation
 of an atom defaults to a copy of the atom itself, \underline{after}
 any \TT{keep} component has been used to change the length of the atom.
@@ -1801,7 +1816,10 @@ substantially reduce the size of the lexical program.
 
 A `\ttmkey{fail}{in lexical program}'
 {\em instruction-component} can only be used in an atom
-table and causes the instruction invoking the atom table to fail.
+table and cannot be used with any other instruction components.
+It causes the instruction invoking the atom table to fail, but
+the instruction containing the `\TT{fail}' succeeds.
+
 The `\TT{goto}', `\TT{call}', and `\TT{return}' instruction components
 \underline{cannot} be used in an atom table.
 

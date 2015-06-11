@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  7 04:43:46 EDT 2015
+// Date:	Thu Jun 11 05:50:36 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -744,8 +744,8 @@ namespace ll { namespace lexeme {
 	    // Trace instructions executed.
     };
 
-    const uns32 return_stack_size = 16;
-    const uns32 MAX_INITIAL_TABLES = 8;
+    const uns32 return_stack_size = 32;
+    const uns32 MAX_INITIAL_TABLES = 16;
     struct scanner_struct
     {
         const uns32 control;

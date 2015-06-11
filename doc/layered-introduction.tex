@@ -270,16 +270,20 @@ There are a few fundamental principals that inform the design
 of these languages:
 
 \begin{indpar}
-{\bf The Syntax Hypothesis}~ People reason syntactically
+\key{Syntax Hypothesis}~~~~ People reason syntactically
 rather than semantically, so language syntax is very important,
 and the ability to extend syntax to support
 new library functionality is very important.
 
-{\bf The Type Checking Segregation Hypothesis}~ A strongly typed
+\key{Type Checking Segregation Hypothesis}~~~~ A strongly typed
 completely capable language is impossible.  What is possible is
 to segregate code into small inline library functions that are not
 type checkable, while code that uses these functions is
 strongly type checkable.
+
+\key{Distrubuted Modularity}~~~~ 
+Enhancements made by non-communicating users can be fit together
+without too much labor.
 \end{indpar}
 
 \section{Tutorial Introduction to the L-Language}
@@ -1835,22 +1839,26 @@ possible syntactic additions that integrate well with existing syntax.
 The parser is a sequence of passes each of which operates on a list
 of tokens.  A token is either a lexeme, a subexpression, or an operator.
 The top level parser pass, the bracketed subexpression recognition pass,
-recognizes subexpressions that are bounded by brackets
-such as `\TT{(}' and `\TT{)}', by an indentation mark and eventual
-end of indentation, by a line end, or by a line separator that is
-equivalent to a line end.
+recognizes subexpressions that are bounded by `prefix separators' such as
+`\TT{\{p\}}' and `\TT{\{code\}}', by brackets
+such as `\TT{(}' and `\TT{)}', by an indentation mark such as `\TT{:}'
+at the end of a line and eventual
+end of indentation, by a line end, or by a line separator such as `\TT{;}'
+that is equivalent to a line end.
 The non-top-level passes
 operate on the subexpressions recognized by previous passes;
-for example, the operator pass recognizes
+for example, the operator pass operates on bracketed subexpressions
+and recognizes
 subexpressions bounded by operators.
-Brackets can be used to change syntax, so, for example,
+Prefix separators and brackets can be used to change syntax, so, for example,
+the syntax of a \TT{\{p\}} paragraph may differ from the
+the syntax of a \TT{\{code\}} paragraph, and
 the syntax of a \TT{( )} bracketed expression may differ from
 the syntax of a \TT{` '} bracketed expression.
 
-Parsing reduces each recognized subexpression, including each input
-line and each paragraph,
-to a single expression token.  Here indentation is used to continue
-lines and paragraphs.
+Parsing reduces each recognized subexpression, including each paragraph,
+to a single expression token.  Here indentation may or may not
+be used to continue lines and paragraphs.
 
 \subsection{Tokens}
 
@@ -1873,14 +1881,13 @@ A token has the following components:
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& Standardly the token lexeme types are word, mark, separator,
-		  and number whose tokens have a \TT{value} that is
+		  and natural whose tokens have a \TT{value} that is
 		  a MIN string equal to the lexeme characters,
-		  quoted string whose tokens have a \TT{string} equal
+		  quoted string and numeric whose tokens
+		  have a \TT{string} equal
 		  to the lexeme translation string,
 		  and line break and end of file whose tokens have neither
 		  \TT{value} nor \TT{string}.
-		  Both natural numbers and other numbers are grouped
-		  together as numbers.
 		  Standardly whitespace and comment lexemes are
 		  not translated into tokens, and erroneous lexemes are
 		  announced when input but not translated into tokens.
@@ -1899,7 +1906,7 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& \TT{BRACKETED} are \TT{BRACKETABLE} tokens
+		& \TT{BRACKETED} and \TT{BRACKETABLE} tokens
 		  are used to represent subexpressions.
 \end{tabular}
 \\[1ex]  
@@ -1913,13 +1920,10 @@ A token has the following components:
 		  \begin{center}
 		  \tt
 		  \begin{tabular}{l}
+		  .type \\
 		  .initiator \\
 		  .terminator \\
 		  .separator \\
-		  .middle \\
-		  .name \\
-		  .arguments \\
-		  .keys \\
 		  \end{tabular}
 		  \end{center}
 \end{tabular}
@@ -1958,15 +1962,13 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value}{of token}
 		& The token \TT{value}, as described above.  This is
-		  MIN string, label, or object.  Numbers are encoded
-		  as MIN strings, so \TT{001}, \TT{01}, and \TT{1}
-		  are all distinct, as are \TT{0.10}, \TT{0.1},
-		  and \TT{.10}.
+		  a MIN string, label, or object.  Naturals are encoded
+		  as MIN strings.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{string}{of token}
-		& For quoted string lexemes,
+		& For quoted string and numeric lexemes,
 		  which do not have token \TT{value}'s,
                   this is the translation string of the lexeme,
 		  stored in a manner that makes

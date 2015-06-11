@@ -1652,11 +1652,13 @@ any \TT{keep} component has been used to change the length of the atom.
 
 \subsubsubsection{Error Instruction Component}
 
-A `\ttmkey{error}{in lexical program} {\em type}\,' {\em instruction-component}
-announces the current atom as an erroneous atom of the given {\em type}.
+~~~~ An `\ttmkey{error}{in lexical program} {\em type-name}\,'
+{\em instruction-component}
+an\-noun\-ces the current atom as an erroneous atom of the given {\em type}.
 The atom remains part of the current lexeme,
 and its translation is governed
-independently by \TT{match} and translate instruction components.
+independently by \TT{match} and \TT{translate} instruction components
+(or the absence of such).
 The following are some examples:
 \begin{indpar}\begin{verbatim}
 "\<others>" error bad escape sequence;
@@ -1703,10 +1705,7 @@ The routine that announces an error atom is given the position
 of the atom in the input stream, so characters surrounding the
 atom may also be included in the announcement.  For example,
 the line containing the atom may be printed with marks under the
-characters of the atom.  So the fact that the erroneous atom
-proper in the last example might be just the backslash does not
-prevent the characters after the backslash from being included
-in the error announcement.
+characters of the atom.
 
 An erroneous atom is different from an erroneous lexeme.
 An erroneous lexeme is simply a lexeme whose {\em type}
@@ -1718,7 +1717,7 @@ and no special operations for detecting or announcing them.
 
 \subsubsubsection{Output Instruction Component}
 
-\hfill A `\ttmkey{output}{in lexical program} {\em type}\,'
+\hfill An `\ttmkey{output}{in lexical program} {\em type-name}\,'
 {\em instruction-component} sets the \key{current lexeme type}.
 
 The \TT{output} {\em instruction-component} is
@@ -1764,14 +1763,14 @@ A `\ttmkey{goto}{in lexical program} {\em lexical-table-name}\,'
 {\em instruction-component} switches the current lexical table after
 the current atom is processed.  If the table switches
 to a master table and the current lexeme type is not `\TT{none}',
-then the current lexeme is output with the
+then the current lexeme translation is output with the
 current lexeme type as its type.
 
 A `\ttmkey{call}{in lexical program} {\em lexeme-table-name}\,'
 {\em instruction-component} is just like `\TT{goto}' except
 that it also pushes the identifier of the lexical table in which
 the `\TT{call}' occurs (the `caller') into the return stack.
-The \key{return stack} is a stack of up to 16 lexical table identifiers
+The \key{return stack} is a stack of up to 32 lexical table identifiers
 used by the `\TT{call}' and `\TT{return}' instruction components
 and also by the `\TT{match} {\em atom-table-name}'
 instruction components.  Recursive calls are prohibited.

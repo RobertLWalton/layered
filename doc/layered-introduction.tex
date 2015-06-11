@@ -1024,7 +1024,7 @@ The syntax of a lexical program is specified on
 \emkey{atom-primary} ::= {\em character-representative} $|$
                              {\em cpat-name} except {\em repeat}
 \\[0.3ex]
-\emkey{repeat} ::= \TT{<repeat>} $|$ \TT{<repeat-}{\em digit}\PLUS{}\TT{>}
+\emkey{repeat} ::= \TT{<repeat>} $|$ \TT{<repeat-}{\em ASCII-digit}\PLUS{}\TT{>}
 \\[0.3ex]
 \emkey{instruction-group}
 	::= {\em instruction}
@@ -1290,8 +1290,8 @@ in the named set of characters.  Thus
 matches 5-character atoms consisting of a \TT{<} followed by an
 \TT{0} followed by two characters each in the character set
 named by \TT{<hex-digit>} followed by a \TT{>}.
-Note that each {\em atom-pattern}
-only matches atoms of a particular length.
+Note that this {\em atom-pattern}
+only matches atoms that are 5 characters long.
 
 
 The special character pattern name
@@ -1301,8 +1301,8 @@ The special character pattern name
 can be used in an atom pattern to match any character not otherwise
 matched.  More specifically, in the atom pattern
 \TT{"}$P$\TT{<others>}$Q$\TT{"},
-the prefix \TT{<others>} matches any characters not matched by
-any other character pattern $C$ that is an some atom pattern of the form
+the pattern name \TT{<others>} matches any characters not matched by
+any other character pattern $C$ that is in some atom pattern of the form
 \TT{"}$PCR$\TT{"} in the same lexical table.
 There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
@@ -1328,11 +1328,22 @@ is similar but matches zero through $N$ occurences of the previous
 character pattern, where $N$ is a sequence of {\em ASCII-digits}
 not beginning with \TT{0}.
 
+Note that if \TT{$C_1$<repeat>$C_2$} is part of an atom pattern where
+$C_1$ and $C_2$ are character patterns or representatives, then
+any atom recognized by the pattern must contain some number of
+$C_1$ characters followed by a $C_2$ character that is \underline{not} also
+a $C_1$ character.
+For example, the pattern
+\TT{"X<repeat>X"} cannot recognize the atom \TT{XXX} because the
+string \TT{XXX} will match \TT{X<repeat>} leaving nothing to match
+the final \TT{X} in the pattern.
+
 If {\em atom-patterns} of two distinct {\em lexical-table-entries}
 in the same {\em lexical-table} have the forms 
 \TT{"}$PC_1Q_1$\TT{"} and \TT{"}$PC_2Q_2$\TT{"} with a common
 prefix $P$ where
-$C_1$ and $C_2$ are both character patterns optionally followed
+$C_1$ and $C_2$ are both character patterns or representatives
+optionally followed
 by \TT{<repeat>} or \TT{<repeat-$N$>} and
 $Q_1$ and $Q_2$ are either both empty or both non-empty,
 then the character sets of $C_1$ and $C_2$ \underline{must}
@@ -1478,7 +1489,7 @@ translate hex \\
 translate oct \\
 translate name
 \end{center}
-This is because all three of these components independently produce
+This is because all four of these components independently produce
 an atom translation.
 
 Note that if any previous instruction in an instruction group contains

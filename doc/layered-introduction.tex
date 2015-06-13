@@ -2011,13 +2011,13 @@ As the parser identifies subexpressions, the tokens in the
 subexpression are replaced by a single expression token (of
 type \TT{BRACKETED} or \TT{BRACKETABLE})
 that encodes the subexpression.
-File input lines may also be organized into paragraphs containing
-paragraph lines, and both paragraph lines and paragraphs are
-treated as subexpressions.  Although at the top level an entire
-input file can be considered to be a paragraph, the parser \underline{never}
+Although at the top level an entire
+input file can be considered to be a list of paragraphs,
+the parser \underline{never}
 forms a single token that would represent it, but instead
-delivers top level paragraph line tokens one at a time for subsequent
-processing.  These top level paragraph line tokens are placed at the
+delivers either top level paragraph tokens or top level line tokens
+one at a time for subsequent
+processing.  These top level tokens are placed at the
 beginning of the token stream, and as they are never again accessed
 by the parser, they may be removed from the token stream at any time
 by post-parser processing.
@@ -2044,7 +2044,7 @@ components:
 \\[1ex]
 		& A \key{symbol} is a MIN string equal to the
 		  lexeme string of a word, mark, separator,
-		  or number lexeme.  Quoted string
+		  or natural lexeme.  Quoted string
 		  lexemes are not symbols.
 \\[1ex]
 		& Labels are symbol table `\skey{key}s', that is, they
@@ -2055,12 +2055,9 @@ components:
 		  a MIN label whose elements are MIN strings
 		  equal to the symbols.
 \\[1ex]
-		& Note that numbers are represented by MIN
+		& Note that naturals are represented by MIN
 		  strings equal to their lexeme translation strings,
 		  and are \underline{not} represented as MIN numbers.
-		  As a consequence `\TT{01}' and `\TT{1}' are
-		  different number symbols, as are `\TT{0.10}'
-		  and `\TT{.1}'.
 \end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2095,7 +2092,7 @@ that is part of a line (for the bracketed subexpression recognition pass)
 or subexpression (for other passes), and finds an active symbol table
 entry with a label whose symbols match an initial segment of the
 token sequence.  Only symbol tokens, whose lexeme types are word,
-mark, separator, or number, can match label symbols.  These are just
+mark, separator, or natural, can match label symbols.  These are just
 the token types that have values which are MIN strings equal to the
 translation strings of their lexemes, and it is these values that
 are matched for equality with the table entry label symbols.

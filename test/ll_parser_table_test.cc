@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 05:35:50 EST 2014
+// Date:	Sun Jun 14 07:29:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,8 +49,6 @@ int main ( int argc, const char * argv[] )
 	PAR::default_parser->pass_stack;
     TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
-    BRA::split_table split_table =
-        bracketed_pass->split_table;
 
     min::locatable_gen opening_parenthesis;
     opening_parenthesis = min::new_str_gen ( "(" );
@@ -103,20 +101,13 @@ int main ( int argc, const char * argv[] )
 	  TAB::ALL_FLAGS,
 	  0, pp,
 	  TAB::new_flags ( 2 ),
-	  bracket_table,
-	  split_table );
+	  bracket_table );
     BRA::indentation_mark imark =
         (BRA::indentation_mark)
         TAB::find ( colon,
 		    TAB::ALL_FLAGS,
 	            bracket_table ); 
-    BRA::indentation_split isplit =
-        split_table[':'];
 
-    ASSERT ( isplit->indentation_mark == imark );
-    ASSERT ( imark->indentation_split == isplit );
-    ASSERT ( isplit->length == 1 );
-    ASSERT ( isplit[0] == ':' );
     ASSERT ( imark->new_selectors.or_flags == 2 );
     ASSERT ( imark->new_selectors.not_flags == 0 );
     ASSERT ( imark->new_selectors.xor_flags == 0 );

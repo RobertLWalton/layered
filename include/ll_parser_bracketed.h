@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 31 06:23:42 EST 2015
+// Date:	Sun Jun 14 05:14:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -117,31 +117,6 @@ extern const uns32 & LINE_SEPARATOR;
     // Subtype of min::packed_struct
     //		       <line_separator_struct>.
 
-// A gluing indentation mark has an associated indenta-
-// tion split that contains the mark label, points at
-// the indentation mark, and is entered in an indenta-
-// tion split table.
-//
-struct indentation_split_struct;
-typedef min::packed_vec_insptr
-	    <uns8,indentation_split_struct>
-        indentation_split;
-
-// A split table has exactly 256 elements, each the
-// head of a length-sorted list of indentation_splits.
-// Each split is entered in the list indexed by the
-// last byte of its indentation mark's label.
-//
-typedef min::packed_vec_insptr
-	    <ll::parser::bracketed::indentation_split>
-	split_table;
-
-// Create an indentation split table.  Note that the
-// length is always 256 (table index is uns8).
-//
-ll::parser::bracketed::split_table create_split_table
-	( void );
-
 struct indentation_mark_struct : 
 	public ll::parser::table::root_struct
 {
@@ -149,20 +124,12 @@ struct indentation_mark_struct :
 
     const ll::parser::bracketed::line_separator
 	    line_separator;
-
-    const ll::parser::bracketed::indentation_split
-	    indentation_split;
-	// If gluing, the split for this indentation.
-	// If non-gluing, NULL_STUB.
 };
 
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::indentation_mark )
 MIN_REF ( ll::parser::bracketed::line_separator,
           line_separator,
-          ll::parser::bracketed::indentation_mark )
-MIN_REF ( ll::parser::bracketed::indentation_split,
-          indentation_split,
           ll::parser::bracketed::indentation_mark )
 
 struct line_separator_struct : 
@@ -182,39 +149,6 @@ MIN_REF ( ll::parser::bracketed::indentation_mark,
           indentation_mark,
           ll::parser::bracketed::line_separator )
 
-struct indentation_split_struct
-{
-    const min::uns32 control;
-    const min::uns32 length;
-    const min::uns32 max_length;
-
-    const ll::parser::bracketed::indentation_split next;
-        // Next in the length-sorted list of splits
-	// whose head is an indentation_split table
-	// element.
-
-    const ll::parser::bracketed::indentation_mark
-	    indentation_mark;
-	// Indentation_mark associated with split.
-
-    // The vector of min::uns8 elements is the indenta-
-    // tion mark label in UTF-8.  Lexemes at the end of
-    // a line can be checked to see if they end with
-    // this.  The last byte is used as a hash in the
-    // indentation split table, so, for example, most
-    // line ending lexemes (e.g. those ending in
-    // letters) will not need to be checked (while
-    // those ending in `:' probably will be checked).
-
-};
-
-MIN_REF ( ll::parser::bracketed::indentation_split,
-          next,
-          ll::parser::bracketed::indentation_split )
-MIN_REF ( ll::parser::bracketed::indentation_mark,
-          indentation_mark,
-          ll::parser::bracketed::indentation_split )
-
 ll::parser::bracketed::indentation_mark
     push_indentation_mark
 	( min::gen mark_label,
@@ -225,22 +159,7 @@ ll::parser::bracketed::indentation_mark
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
-	  ll::parser::table::key_table bracket_table,
-	  ll::parser::bracketed
-	            ::split_table split_table =
-	      NULL_STUB );
-	      // NULL_STUB iff not gluing
-
-// Remove from the split table all entries that point
-// at indentation_marks which have block_level >
-// block_level argument.  Return the number entries
-// removed.
-//
-void end_block
-	( ll::parser::bracketed
-	            ::split_table split_table,
-          uns32 block_level,
-	  uns64 & collected_entries );
+	  ll::parser::table::key_table bracket_table );
 
 // Bracketed Subexpression Pass
 // --------- ------------- ----
@@ -262,11 +181,6 @@ struct bracketed_pass_struct
     const ll::parser::table::key_table bracket_table;
         // Hash table for brackets and indentation
 	// marks.
-
-    const ll::parser::bracketed
-                    ::split_table split_table;
-        // Table for indentation splits associated with
-	// indentation marks that can be split.
 
     int32 indentation_offset;
         // Amount the indentation of a line has to be
@@ -296,9 +210,6 @@ MIN_REF ( ll::parser::parser, parser,
 MIN_REF ( ll::parser::pass, next,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::table::key_table, bracket_table,
-          ll::parser::bracketed::bracketed_pass )
-MIN_REF ( ll::parser::bracketed::split_table,
-          split_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::bracketed
                     ::indentation_offset_stack,
@@ -421,18 +332,6 @@ ll::parser::pass new_pass ( void );
 // line separator at the end of the paragraph line is
 // omitted from the inner list).  Inner lists that would
 // be empty with just a "\n" type are deleted.
-//
-// Gluing indentation marks are split from line-ending
-// tokens.  When a gluing indentation mark is split,
-// the scan backs up to the first word, number, mark,
-// or separator that is AFTER any token that is not
-// a quoted string or part of a recognized symbol,
-// and the tokens backed over are rescanned.  In un-
-// usual situations, this can result in the indentation
-// mark not being recognized during the rescan, because
-// a bracket is recognized first during rescan and this
-// changes the selectors so as not to recognize the
-// mark.  However, in any case the mark remains split.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme

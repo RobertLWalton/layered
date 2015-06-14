@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 15:23:37 EDT 2015
+// Date:	Sun Jun 14 05:10:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,7 +35,6 @@
 static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen mark;
-static min::locatable_gen gluing;
 static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
@@ -48,7 +47,6 @@ static void initialize ( void )
     ::indentation = min::new_str_gen
 			    ( "indentation" );
     ::mark = min::new_str_gen ( "mark" );
-    ::gluing = min::new_str_gen ( "gluing" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
     ::bracketed_subexpressions =
@@ -139,8 +137,6 @@ static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::next ),
     min::DISP ( & BRA::indentation_mark_struct
                      ::line_separator ),
-    min::DISP ( & BRA::indentation_mark_struct
-                     ::indentation_split ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -167,33 +163,6 @@ static min::packed_struct_with_base
 const min::uns32 & BRA::LINE_SEPARATOR =
     line_separator_type.subtype;
 
-static min::uns32 indentation_split_stub_disp[] = {
-    min::DISP ( & BRA::indentation_split_struct
-                     ::next ),
-    min::DISP ( & BRA::indentation_split_struct
-                     ::indentation_mark ),
-    min::DISP_END };
-
-static min::packed_vec
-	<min::uns8,BRA::indentation_split_struct>
-    indentation_split_type
-	( "ll::parser::table::indentation_split_type",
-	  NULL, NULL, NULL,
-	  ::indentation_split_stub_disp );
-
-static min::uns32 split_table_stub_disp[] = {
-    0, min::DISP_END };
-
-static min::packed_vec<BRA::indentation_split>
-    split_table_type
-	( "ll::parser::table::split_table_type",
-	  NULL, ::split_table_stub_disp );
-
-BRA::split_table BRA::create_split_table ( void )
-{
-    return ::split_table_type.new_stub ( 256 );
-}
-
 BRA::indentation_mark
     BRA::push_indentation_mark
 	( min::gen mark_label,
@@ -202,8 +171,7 @@ BRA::indentation_mark
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
-	  TAB::key_table bracket_table,
-	  BRA::split_table split_table )
+	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::indentation_mark> imark
         ( ::indentation_mark_type.new_stub() );
@@ -229,69 +197,9 @@ BRA::indentation_mark
 	            (TAB::root) separator );
     }
 
-    if ( split_table != NULL_STUB )
-    {
-        MIN_ASSERT ( min::is_str ( mark_label ),
-	             "mark_label argument is not a"
-		     " string" );
-	min::str_ptr s ( mark_label );
-	min::unsptr length = min::strlen ( s );
-	min::locatable_var<BRA::indentation_split>
-	    isplit;
-	isplit = ::indentation_split_type.new_stub
-			( length );
-	min::push
-	    ( isplit, length,
-	      (min::ptr<min::uns8>)
-	      min::begin_ptr_of ( s ) );
-	indentation_mark_ref(isplit) = imark;
-	indentation_split_ref(imark) = isplit;
-
-	min::uns8 lastb = s[length - 1];
-
-	min::ptr<BRA::indentation_split> p =
-	    & split_table[lastb];
-	while ( * p != NULL_STUB
-	        &&
-		(*p)->length > length )
-	    p = & next_ref ( * p );
-	next_ref(isplit) = * p;
-	* p = isplit;
-    }
-
     return imark;
 }
 
-void BRA::end_block
-	( BRA::split_table split_table,
-	  uns32 block_level,
-	  uns64 & collected_entries )
-{
-    collected_entries = 0;
-    for ( min::uns32 i = 0;
-          i < split_table->length; ++ i )
-    {
-        BRA::indentation_split previous = NULL_STUB; 
-	for ( BRA::indentation_split current =
-	          split_table[i];
-	      current != NULL_STUB;
-	      current = current->next )
-	{
-	    if (   current->indentation_mark
-	                   ->block_level
-	         > block_level )
-	    {
-	        ++ collected_entries;
-		if ( previous == NULL_STUB )
-		    split_table[i] = current->next;
-		else
-		    next_ref ( previous ) =
-		        current->next;
-	    }
-	        else previous = current;
-	}
-    }
-}
 
 // Bracketed Subexpression Pass
 // --------- ------------- ----
@@ -309,8 +217,6 @@ static min::uns32 bracketed_pass_stub_disp[] =
                      ::next ),
     min::DISP ( & BRA::bracketed_pass_struct
                      ::bracket_table ),
-    min::DISP ( & BRA::bracketed_pass_struct
-                     ::split_table ),
     min::DISP_END
 };
 
@@ -354,14 +260,10 @@ static void bracketed_pass_reset
         (BRA::bracketed_pass) pass;
     TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
-    BRA::split_table split_table =
-        bracketed_pass->split_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
 
-    BRA::end_block
-        ( split_table, 0, collected_entries );
     TAB::end_block
         ( bracket_table, 0,
 	  collected_key_prefixes, collected_entries );
@@ -395,8 +297,6 @@ static min::gen bracketed_pass_end_block
         (BRA::bracketed_pass) pass;
     TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
-    BRA::split_table split_table =
-        bracketed_pass->split_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
@@ -405,9 +305,6 @@ static min::gen bracketed_pass_end_block
         PAR::block_level ( parser );
     MIN_REQUIRE ( block_level > 0 );
 
-    BRA::end_block
-        ( split_table, block_level - 1,
-	  collected_entries );
     TAB::end_block
         ( bracket_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
@@ -447,9 +344,6 @@ PAR::pass BRA::new_pass ( void )
     bracketed_pass->indentation_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_key_table ( 256 );
-    split_table_ref(bracketed_pass) =
-	BRA::create_split_table();
-    min::push ( bracketed_pass->split_table, 256 );
     indentation_offset_stack_ref(bracketed_pass) =
         ::indentation_offset_stack_type.new_stub ( 16 );
 
@@ -585,18 +479,6 @@ bool BRA::parse_bracketed_subexpression
 	// If not NULL_STUB, current token is an end-of-
 	// line and current->previous token is the last
 	// token of an indentation mark.
-    PAR::token split_backup = min::NULL_STUB;
-        // If an indentation mark is split, back up
-	// to this point if not NULL_STUB.
-	//
-	// This is the first word, number, mark, or
-	// separator that is after the first previous
-	// quoted string or found key.  So this is set
-	// to the current token if that is a word,
-	// number, mark or separator and split_backup is
-	// NULL_STUB, and is set to NULL_STUB by every
-	// other token and after finding a token
-	// sequence in the bracket table.
 
     TAB::flags trace_flags = parser->trace_flags;
     if ( trace_flags & pass->trace_subexpressions )
@@ -634,119 +516,6 @@ bool BRA::parse_bracketed_subexpression
 	//
 	if ( current->type == LEXSTD::line_break_t )
 	{
-	    // Look at last token and see if we can
-	    // split an indentation mark from it.
-	    //
-	    if ( current != parser->first
-	         &&
-		    current->previous->type
-		 == LEXSTD::mark_t
-		 &&
-		 indentation_found == min::NULL_STUB )
-	    {
-	        min::str_ptr sp
-		    ( current->previous->value );
-		min::uns32 length = min::strlen ( sp );
-		BRA::indentation_split split =
-		    min::NULL_STUB;
-		if ( length != 0 )
-		{
-		    min::uns8 lastc =
-			(min::uns8) sp[length-1];
-		    split = pass->split_table[lastc];
-		    for ( ; split != min::NULL_STUB;
-		            split = split->next )
-		    {
-			if ( ( selectors
-			       &
-			       split->indentation_mark
-			             ->selectors )
-			     == 0 )
-			    continue;
-		        if ( split->length >= length )
-			    continue;
-			if ( memcmp
-			       (   ! min::begin_ptr_of
-				       ( sp )
-				 + (  length
-			            - split->length ),
-			         ! & split[0],
-				 split->length )
-			     == 0 ) break;
-		    }
-		    if ( split != min::NULL_STUB )
-		    {
-			// We have found a gluing mark
-			// at the end of of the last
-			// mark.
-			//
-			// Put new token between
-			// current->previous and
-			// current.  Remember that we
-			// may have split_backup ==
-			// current->previous, so we
-			// want to preserve current->
-			// previous as the last token
-			// of the indentation mark.
-
-		        PAR::value_ref
-			    (current->previous) =
-			    min::new_str_gen
-			        ( min::begin_ptr_of
-				      ( sp ),
-				    length
-				  - split->length );
-			PAR::put_before
-			    ( PAR::first_ref(parser),
-			      current,
-			      PAR::new_token
-			          ( LEXSTD::mark_t ) );
-			PAR::value_ref
-			    (current->previous) =
-			    split->indentation_mark
-			          ->label;
-
-			// Fix up the positions and
-			// indentations in the tokens.
-			// The indentation mark has
-			// split->length bytes.
-			//
-			current->previous
-			       ->position.end =
-			    current->previous
-			           ->previous
-				   ->position.end;
-			current->previous
-			       ->position.begin =
-			    current->previous
-			           ->position.end;
-			current->previous
-			       ->position.begin.offset
-			    -= split->length;
-			current->previous->indent
-			    = LEX::AFTER_GRAPHIC;
-			current->previous->previous
-			       ->position.end
-			    = current->previous
-			             ->position.begin;
-
-			// Back up to split_backup which
-			// will equal the mark that was
-			// split or be before that.
-			//
-			MIN_REQUIRE
-			    (    split_backup 
-			      != min::NULL_STUB );
-			current = split_backup;
-			continue;
-		    }
-		}
-
-	    }
-
-	    // Come here if last token of line was NOT
-	    // split.
-
 	    // Move forward to next token that is not
 	    // a line break or full line comment.
 	    //
@@ -1077,7 +846,6 @@ bool BRA::parse_bracketed_subexpression
 	    PAR::free ( PAR::remove ( first_ref(parser),
 		                      current ) );
 	    current = next;
-	    split_backup = min::NULL_STUB;
 	    continue;
 	}
 	else if ( current->type == LEXSTD::comment_t )
@@ -1105,8 +873,6 @@ bool BRA::parse_bracketed_subexpression
 	//
 	if ( current->type == LEXSTD::quoted_string_t )
 	{
-	    split_backup = min::NULL_STUB;
-
 	    if ( current != parser->first
 	         &&
 		    current->previous->type
@@ -1138,8 +904,6 @@ bool BRA::parse_bracketed_subexpression
 	// If lookup key in bracket table.
 	//
 	PAR::token saved_current = current;
-	PAR::token saved_split_backup = split_backup;
-	split_backup = min::NULL_STUB;
 	    // Assume for the moment that we will find
 	    // an active bracket table entry.
 
@@ -1163,9 +927,6 @@ bool BRA::parse_bracketed_subexpression
 	    {
 	        // No active bracket table entry found.
 
-		split_backup = saved_split_backup;
-		if ( split_backup == min::NULL_STUB )
-		    split_backup = saved_current;
 		current = saved_current->next;
 		break;
 	    }
@@ -1485,8 +1246,6 @@ static min::gen bracketed_pass_command
         // define, undefine, or print.
     definition_type type;
         // Type of command (see above).
-    bool gluing = false;
-        // True if `command gluing ...', false if not.
     unsigned min_names, max_names;
         // Minimum and maximum number of names allowed.
 
@@ -1594,20 +1353,6 @@ static min::gen bracketed_pass_command
 	min_names = 1;
 	max_names = 2;
 	i += 2;
-    }
-    else if ( vp[i] == ::gluing
-              &&
-	      i + 2 < size
-	      &&
-	      vp[i + 1] == ::indentation
-	      &&
-	      vp[i + 2] == ::mark )
-    {
-	type = ::INDENTATION_MARK;
-	min_names = 1;
-	max_names = 2;
-	gluing = true;
-	i += 3;
     }
     else
         return min::FAILURE();
@@ -1764,13 +1509,8 @@ static min::gen bracketed_pass_command
 		    (BRA::indentation_mark) root;
 		BRA::line_separator line_separator =
 		    indentation_mark->line_separator;
-		bool gluing =    
-		    (    indentation_mark
-		             ->indentation_split
-		      != min::NULL_STUB );
 
 		parser->printer
-		    << ( gluing ?  "gluing " : "" )
 		    << "indentation mark "
 		    << min::pgen_quote
 		        ( indentation_mark->label );
@@ -1819,32 +1559,6 @@ static min::gen bracketed_pass_command
 	parser->printer << min::eom;
 
         return COM::PRINTED;
-    }
-
-    // Some type specific error checking common to
-    // define/undefine.
-    //
-    switch ( type )
-    {
-    case ::BRACKET:
-        break;
-
-    case ::INDENTATION_MARK:
-    {
-	min::uns32 ltype =
-	    LEXSTD::lexical_type_of ( name[0] );
-	if ( gluing
-	     &&
-	     ltype != LEXSTD::mark_t
-	     &&
-	     ltype != LEXSTD::separator_t )
-	    return PAR::parse_error
-		( parser, ppvec[5],
-		  "gluing indentation mark name ",
-		  min::pgen_quote ( name[0] ),
-		  " is not a mark or separator in" );
-	break;
-    }
     }
 
     TAB::flags selectors;
@@ -1966,10 +1680,7 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
-	      bracketed_pass->bracket_table,
-	      gluing ? bracketed_pass->split_table :
-		       (BRA::split_table)
-		       min::NULL_STUB );
+	      bracketed_pass->bracket_table );
 
 	break;
     }
@@ -2028,9 +1739,6 @@ static min::gen bracketed_pass_command
 		    (BRA::indentation_mark) root;
 		BRA::line_separator line_separator =
 		    indentation_mark->line_separator;
-		BRA::indentation_split
-			indentation_split =
-		    indentation_mark->indentation_split;
 		if ( line_separator == min::NULL_STUB
 		     &&
 		     number_of_names == 2 )
@@ -2042,14 +1750,6 @@ static min::gen bracketed_pass_command
 		if ( line_separator != min::NULL_STUB
 		     &&
 		     line_separator->label != name[1] )
-		    continue;
-		if ( indentation_split == min::NULL_STUB
-		     &&
-		     gluing )
-		    continue;
-		if ( indentation_split != min::NULL_STUB
-		     &&
-		     ! gluing )
 		    continue;
 
 		break;

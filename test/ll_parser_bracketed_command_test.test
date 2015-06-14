@@ -29,10 +29,9 @@ parser define bracket "[" ... "]" [code, math, text]
 parser print bracket "[":
     block standard: bracket "[" ... "]" [code, text, math]
     block TOP LEVEL: bracket "[" ... "]" [parser]
-parser define gluing indentation mark ":" ... ";" [code, math, text]
+parser define indentation mark ":" ... ";" [code, math, text]
 parser print bracket ":":
-    block standard: gluing indentation mark ":" ... ";"
-                    [code, text, math]
+    block standard: indentation mark ":" ... ";" [code, text, math]
 ERROR: in line 27: unrecognized flag name:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
@@ -297,8 +296,7 @@ parser print bracket "":
                     with parsing selectors [- code, + operator 1]
     block standard: bracket "(" ... ")" [code, text, math]
     block TOP LEVEL: bracket "(" ... ")" [parser]
-    block standard: gluing indentation mark ":" ... ";"
-                    [code, text, math]
+    block standard: indentation mark ":" ... ";" [code, text, math]
     block standard: bracket "[" ... "]" [code, text, math]
     block TOP LEVEL: bracket "[" ... "]" [parser]
     block standard: bracket "`" ... "'" [code]

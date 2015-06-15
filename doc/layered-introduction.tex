@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 11, 2015
+June 15, 2015
  
 \end{center}
 
@@ -1839,7 +1839,7 @@ possible syntactic additions that integrate well with existing syntax.
 The parser is a sequence of passes each of which operates on a list
 of tokens.  A token is either a lexeme, a subexpression, or an operator.
 The top level parser pass, the bracketed subexpression recognition pass,
-recognizes subexpressions that are bounded by `prefix separators' such as
+recognizes subexpressions that are bounded by `named prefix separators' such as
 `\TT{\{p\}}' and `\TT{\{code\}}', by brackets
 such as `\TT{(}' and `\TT{)}', by an indentation mark such as `\TT{:}'
 at the end of a line and eventual
@@ -2507,9 +2507,9 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.5in}indentation marks (e.g.~`\TT{:}')
     and line separators (e.g.~`\TT{;}'),
     indented paragraphs, and indented paragraph lines \\
-\hspace*{-0.5in}named brackets (e.g.~`\TT{<b|}' and `\TT{|b>}')
+\hspace*{-0.5in}named brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
       and named bracketed subexpressions \\
-\hspace*{-0.5in}named operators (e.g.~`\TT{<p>}')
+\hspace*{-0.5in}named prefix separators (e.g.~`\TT{\{p\}}')
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
@@ -2535,39 +2535,49 @@ and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
 Brackets, indentation marks, and line separators are
-symbol table keys.  However named brackets and named operators are
-not.  Instead, a named bracket or named operator is formed by using
-named openings (e.g.~`\TT{<}'),
-named key separators (e.g.~`\TT{\#}'),
+symbol table keys.  However named brackets and named prefix separators are
+not.  Instead, a named bracket or named prefix separator is formed by using
+named openings (e.g.~`\TT{\{}'),
+named property introducers (e.g.~`\TT{:}'),
+named property equators (e.g.~`\TT{=}'),
+named property separators (e.g.~`\TT{,}'),
 named middles (e.g.~`\TT{|}'),
-and named closings (e.g.~`\TT{>}'), which are all symbol table
+and named closings (e.g.~`\TT{\}}'), which are all symbol table
 keys, to surround or separate
 sequences of words, numbers, quoted strings, and
-(unnamed) bracketed subexpressions, and thence form named brackets
-and named operators.
+bracketed subexpressions, and thence form named brackets
+and named prefix separators.
 
+TBD
 In bracketed subexpression recognition, 
 multi-lexeme symbol table keys are not recognized in the
 input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
+TBD
 The output of the parser is a sequence of \TT{BRACKETED} tokens,
 one per top level line.  The value of one of these tokens is a
-MIN object with a \TT{.terminator} equal to the MIN string
-\TT{"<NL>"} or \TT{";"} (this is the line separator at the top level),
-and with no other syntax attributes.
+MIN object with a \TT{.type} equal to the MIN string
+\TT{"<NL>"} and optionally a \TT{.terminator} equal
+to the line separator at the top level (e.g., \TT{";"}),
+but with no other syntax attributes.
 
 In general, the bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
-are MIN objects with
-either an \TT{.initiator} attribute or
-a \TT{.termina\-tor} attribute or both.
-The elements of one of these MIN objects
-are the \TT{value}'s of the tokens which make
-up the represented
-subexpression after recursive calls to the bracketed subexpression
-recognizer.  Quoted string lexemes must be handled
+are MIN objects with attributes determined by the brackets
+and elements dermined by tokens between the brackets.
+For unnamed brackets that only
+attributes are the syntax attributes \TT{.initiator} and \TT{.terminator}
+plus a \TT{.type} attribute derived from these.  For named brackets
+the only syntax attribute is the \TT{.type} attribute, but arbitrary
+non-syntax attributes may be encoded in the named brackets.
+
+Subexpressions may occur among the list of tokens that determine the
+object elements or the value of a non-syntax attribute in a named
+bracket.  These are reduced by the parser to BACKETTED tokens
+with a \TT{value} before the MIN object is formed.
+Quoted string lexemes must be handled
 differently because they have no token \TT{value}.  These are
 represented by MIN objects
 that have the \TT{.initiator} attribute \TT{"<Q>"}
@@ -2582,16 +2592,16 @@ parser test (x 5 "foo")
 causes the parser to output a \TT{BRACKETED} token whose \TT{value} is
 \begin{indpar}\begin{verbatim}
 {| parser test
-   {| x 5 {| foo; .initiator = "<Q>"|};
-      .initiator = "("; .terminator = ")" |};
-   .terminator = "<NL>"
+   {"<NL>"| {"": .initiator "(", .terminator = ")"|
+                 x 5 {"<Q>"|foo|} |}
+   |}
 |}
 \end{verbatim}\end{indpar}
 where a MIN object is represented by
 \begin{center}
-\TT{\{|} {\em element} \ldots\TT{;} {\em attribute-name} \TT{=}
-				      {\em attribute-value}\TT{;}
-				      \ldots \TT{|\}}
+\TT{\{} {\em type}\TT{:}
+        {\em attribute-name} \TT{=} {\em attribute-value}\TT{,} \ldots \TT{|}
+	{\em element} \ldots \TT{|\}}
 \end{center}
 
 and a MIN string is represented by its character sequence, optionally

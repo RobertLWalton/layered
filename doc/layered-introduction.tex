@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 15, 2015
+June 16, 2015
  
 \end{center}
 
@@ -2618,8 +2618,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     \begin{tabular}{ll}
        & the {\em opening-bracket-name} of a bracketed subexpression, \\
     or & the {\em indentation-mark-name} of an indented subexpression, \\
-    or & the {\em named-opening} of a named bracketed subexpression, \\
-    or & the {\em named-opening} of a named operator, \\
+    or & the {\em typed-opening} of a named bracketed subexpression, \\
+    or & the {\em typed-opening} of a named operator, \\
     or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme.
     \end{tabular}
     \end{center}
@@ -2635,8 +2635,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
        & in an indented paragraph, \\
     or & the {\em line-separator-name} used to separate lines of an
          indented paragraph, \\
-    or & the {\em named-closing} of a named bracketed subexpression, \\
-    or & the {\em named-closing} of a named operator. \\
+    or & the {\em typed-closing} of a named bracketed subexpression, \\
+    or & the {\em typed-closing} of a named operator. \\
     \end{tabular}
     \end{center}
 \medskip
@@ -2647,29 +2647,29 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{middle}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    that equals the {\em named-middle} of a named bracketed subexpression.
+    that equals the {\em typed-middle} of a named bracketed subexpression.
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{name}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
     that equals the {\em bracket-name} of a named bracketed subexpression
-    or the {\em operator-name} of a {\em named-operator}.
+    or the {\em operator-name} of a {\em typed-operator}.
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{arguments}{subexpression attribute}\\
     A MIN object whose elements are the arguments of the
-    {\em opening-named-bracket} of a named bracketed subexpression,
-    or of a {\em named-operator}.  The object is formatted like the
+    {\em opening-typed-bracket} of a named bracketed subexpression,
+    or of a {\em typed-operator}.  The object is formatted like the
     \TT{value} of a \TT{BRACKETED} token, except that it has no syntax
     attributes.  Each argument is either a bracketed subexpression
     or a quoted string.
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{keys}{subexpression attribute}\\
     A MIN object whose elements are the keys of the
-    {\em opening-named-bracket} of a named bracketed subexpression,
-    or of a {\em named-operator}.  The keys are the elements of
+    {\em opening-typed-bracket} of a named bracketed subexpression,
+    or of a {\em typed-operator}.  The keys are the elements of
     the object, and the object's only syntax attributes are
     \TT{.initiator} and \TT{.separator} both of which equal the
-    {\em named-key-separator} of the {\em opening-named-bracket}
-    or {\em named-operator}.
+    {\em typed-key-separator} of the {\em opening-typed-bracket}
+    or {\em typed-operator}.
     The keys and attributes
     are all either MIN strings or MIN labels with MIN string
     elements.
@@ -2691,7 +2691,7 @@ recognized by this recognizer:
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em parser-bracket-command} \\
     $|$ & {\em parser-indentation-mark-command} \\
-    $|$ & {\em parser-named-bracket-command} \\
+    $|$ & {\em parser-typed-bracket-command} \\
     $|$ & {\em parser-print-bracket-command} \\
     \end{tabular}
 \label{PARSER-BRACKETED-COMMAND}
@@ -2752,7 +2752,7 @@ are sometimes called `\key{unnamed brackets}'
 to distinguish them from named brackets
 such as `\TT{<b|}' and `\TT{|b>}'
 in which the name, in this case `\TT{b}',
-is arbitrary.  See Section~\itemref{NAMED-BRACKETED-SUBEXPRESSIONS}
+is arbitrary.  See Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
 for a description of named brackets.
 
 A bracketed subexpression is converted to a \TT{BRACKETED}
@@ -2768,7 +2768,7 @@ its {\em closing-bracket-name} is discovered, a parsing error is
 announced and the {\em closing-bracket-name} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket-name} of a containing
-bracketed subexpression, the {\em named-closing-bracket}
+bracketed subexpression, the {\em typed-closing-bracket}
 of a containing named bracketed subexpression, the end of the paragraph line
 containing the bracketed subexpression,
 or an end of file.
@@ -3005,74 +3005,162 @@ following non-comment non-blank line.
 Comments at the beginning or end of a file cannot be
 in error.
 
-\subsubsection{Named Bracketed Subexpressions}
-\label{NAMED-BRACKETED-SUBEXPRESSIONS}
+\subsubsection{Typed Bracketed Subexpressions}
+\label{TYPED-BRACKETED-SUBEXPRESSIONS}
 
-An \key{named bracket subexpression}
-\index{bracketed subexpression!named}
-begins with an {\em opening-named-bracket} and ends with
-a {\em closing-named-bracket}.  These have the syntax:
+The following are examples of
+\skey{typed bracketed subexpression}s\index{bracketed subexpression!typed},
+where \ldots{} denotes a list of elements:
+\begin{center}
+\TT{\{my type|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{|} ~~~\ldots~~~ \TT{|my type\}} \\
+\TT{\{my type|} ~~~\ldots~~~ \TT{|my type\}} \\
+\TT{\{my type||\}} \\
+\TT{\{||my type\}} \\
+\TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{my type: my attribute = 5, my option = FALSE|} ~~~\ldots~~~
+    \TT{|my type\}} \\
+\TT{\{my type|} ~~~\ldots~~~
+    \TT{|my type: my attribute = 5, my option\}} \\
+\TT{\{|} ~~~\ldots~~~ \TT{|my type: my attribute = 5, my option\}} \\
+\TT{\{|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{||\}} \\
+\TT{\{\}} \\
+\TT{\{"": my attribute = 5, not my option|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{*} ~~~\ldots~~~ \TT{*\}} \\
+\end{center}
+
+The basic form is
+\begin{center}
+\TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~
+    \TT{|my type\}} \\
+\end{center}
+from which various parts can be omitted.  The attributes can be moved to
+the end (but may not be at both beginning and end).
+The attribute value `\TT{= TRUE}' can be omitted (as in
+`\TT{my option}'), and the attribute value `\TT{= FALSE}' can be represented
+by omitting it and prefacing the attribute label with `\TT{no}'
+(as in `\TT{no my option}').
+The type can be omitted from either beginning or end if there are no attributes
+after it.  If there are no elements, `\TT{|~|}' can be collapsed into
+a single lexeme `\TT{||}'.  A missing type is denoted
+by \TT{""} and may be omitted if there are no attributes.
+`\TT{\{||\}}' can be collapsed into `\TT{\{\}}'.  If the type is
+a single {\em mark} lexeme and there are no attributes,
+the `\TT{|}'s surrounding
+the elements are always omitted.  Note that type and attribute labels
+cannot contain separators or marks unless these are quoted.
+
+The general syntax is:
 
 \begin{indpar}[0.1in]
-\emkey{opening-named-bracket} ::=
-	\begin{tabular}[t]{@{}l@{~}l@{}}
-	{\em named-opening} & {\em bracket-name} {\em argument}\STAR{} \\
-	                    & \{ {\em named-key-separator}
-			       {\em key} \}\STAR{} \\
-	                    & {\em named-middle} \\
+\emkey{typed-bracketed-subexpression} \\
+\hspace*{3em}\begin{tabular}[t]{@{}rl}
+	::= & {\em typed-opening} {\em type-label} {\em attributes}\QMARK{}
+	      {\em elements}
+	      {\em type-label}\QMARK{}
+	      {\em typed-closing} \\
+	$|$ & {\em typed-opening} {\em type-label}\QMARK{}
+	      {\em elements}
+	      {\em type-label} {\em attributes}\QMARK{}
+	      {\em typed-closing} \\
+	$|$ & {\em typed-opening} {\em elements}\QMARK{} {\em typed-closing} \\
+	$|$ & {\em typed-opening} {\em mark-type}
+	      {\em element}\STAR{}
+	      {\em mark-type} {\em typed-closing} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{named-opening} ::= as defined by a
-    {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
-\\[0.5ex]
-\emkey{bracket-name} ::= {\em simple-name}
-\\[0.5ex]
-\emkey{argument} ::= {\em bracketed-subexpression}
-                 $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{named-key-separator} ::= as defined by a
-    {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
-\\[0.5ex]
-\emkey{key} ::= {\em key-component} {\em key-component}\STAR{}
-\\[0.5ex]
-\emkey{key-component} ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{named-middle} ::= as defined by a
-    {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
-\\[2ex]
-\emkey{closing-named-bracket} ::= \\
-	\hspace*{0.4in}
-	    {\em named-middle} {\em bracket-name-initial-segment}
-	                       {\em named-closing}
-\\[0.5ex]
-\emkey{named-closing} ::= as defined by a
-    {\em parser-named-bracket-command} (\pagref{PARSER-NAMED-BRACKET-COMMAND})
-\\[0.5ex]
-\emkey{bracket-name-initial-segment}~~
-	\begin{tabular}[t]{@{}rl@{}}
-        ::= & {\em empty } \\
-	$|$ & {\em simple-name}
+\emkey{elements}
+	\begin{tabular}[t]{@{}rl}
+	::= & {\em typed-middle} {\em element}\STAR{} {\em typed-middle} \\
+	$|$ & {\em doubled-typed-middle}
 	\end{tabular}
+\\[0.5ex]
+\emkey{element} \begin{tabular}[t]{@{}rl}
+                ::= & {\em word} $|$ {\em natural} $|$ {\em numeric} $|$
+		      {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
+                $|$ & {\em bracketed-subexpression} \\
+		    & but not ({\em doubled-}){\em typed-middle}
+		      if not {\em mark-type} expression \\
+		    & or `{\em mark-type} {\em typed-closing}'
+		      if {\em mark-type} expression \\
+		\end{tabular}
+\\[0.5ex]
+\emkey{attributes} ::= {\em typed-attribute-begin}
+		       {\em attribute-list}
+\\[0.5ex]
+\emkey{attribute-list} ::= {\em attribute}
+	\{ {\em typed-attribute-separator} {\em attribute} \}\STAR{}
+\\[0.5ex]
+\emkey{attribute} \begin{tabular}[t]{@{}rl}
+                  ::= & {\em attribute-label}
+	                {\em typed-attribute-equal} {\em attribute-value} \\
+                  ::= & {\em attribute-label} \\
+                  ::= & {\em typed-attribute-negative} {\em attribute-label} \\
+		  \end{tabular}
+\\[0.5ex]
+\emkey{typed-opening} ::= as defined by a
+    {\em parser-typed-bracket-command} (\pagref{PARSER-TYPED-BRACKET-COMMAND})
+    ~~~~~ [e.g., `\TT{\{}']
+\\[0.5ex]
+\emkey{typed-middle} ::= ditto
+    ~~~~~ [e.g., `\TT{|}']
+\\[0.5ex]
+\emkey{doubled-typed-middle} :::= {\em typed-middle} {\em typed-middle}
+    as a single lexeme
+    ~~~~~ [e.g., `\TT{||}']
+\\[0.5ex]
+\emkey{typed-closing} ::= ditto
+    ~~~~~ [e.g., `\TT{\}}']
+\\[0.5ex]
+\emkey{typed-attribute-begin} ::= ditto
+    ~~~~~ [e.g., `\TT{:}']
+\\[0.5ex]
+\emkey{typed-attribute-separator} ::= ditto
+    ~~~~~ [e.g., `\TT{,}']
+\\[0.5ex]
+\emkey{typed-attribute-equal} ::= ditto
+    ~~~~~ [e.g., `\TT{=}']
+\\[0.5ex]
+\emkey{typed-attribute-negative} ::= ditto
+    ~~~~~ [e.g., `\TT{no}']
+\\[0.5ex]
+\emkey{mark-type} ::= {\em mark}
+\\[0.5ex]
+\emkey{label} ::= {\em label-component}\PLUS{}
+\\[0.5ex]
+\emkey{label-component} ::= {\em word} $|$ {\em natural} $|$
+                            {\em numeric} $|$ {\em quoted-string}
+\\[0.5ex]
+\emkey{type-label} ::= {\em label} not containing
+    {\em typed-attribute-begin} or ({\em doubled-}){\em typed-middle}
+\\[0.5ex]
+\emkey{attribute-label} ::= \begin{tabular}[t]{l}
+    {\em label} not containing
+    {\em typed-attribute-equal} or
+    {\em typed-attribute-separator} \\
+    or ({\em doubled-}){\em typed-middle}
+    \end{tabular}
 \end{indpar}
 
-If the {\em named-opening}, {\em named-key-separator}, {\em named-middle},
-and {\em named-closing} are respectively `\TT{<}', `\TT{\#}',
+If the {\em typed-opening}, {\em typed-key-separator}, {\em typed-middle},
+and {\em typed-closing} are respectively `\TT{<}', `\TT{\#}',
 `\TT{|}', and `\TT{>}', then an example named bracketed subexpression is
 \begin{center}
 \TT{<h1(2) \# Diamond Lemma|} ~~~\ldots~~~ \TT{|h>}
 \end{center}
 
-Here the {\em named-opening-bracket} contains the {\em bracket-name}
+Here the {\em typed-opening-bracket} contains the {\em bracket-name}
 `\TT{h1}' (note `\TT{h}' and `\TT{1}' are separate lexemes),
 the {\em argument} `\TT{(2)}', and the {\em key} `\TT{Diamond Lemma}',
-while the {\em named-closing-bracket} contains just an initial
+while the {\em typed-closing-bracket} contains just an initial
 segment of the {\em bracket-name}.   The initial name segment
-in the {\em named-closing-bracket} may be empty, so
+in the {\em typed-closing-bracket} may be empty, so
 \TT{|>}, \TT{|h>}, or \TT{|h1>} could all be used as
-{\em named-closing-brackets} in the above example.
+{\em typed-closing-brackets} in the above example.
 
-The {\em named-opening}, {\em named-key-separator}, {\em named-middle},
-and {\em named-closing} are symbol table keys
+The {\em typed-opening}, {\em typed-key-separator}, {\em typed-middle},
+and {\em typed-closing} are symbol table keys
 from which named opening and closing
 brackets are constructed.  They are specified by a
 \ttkey{parser defined named bracket} parser definition, an example of
@@ -3081,74 +3169,74 @@ which is:
 \TT{parser define named bracket
      "<"~...~"\#"~...~"|"~...~"|"~...~">" [text]} \ldots
 \end{center}
-which specifies `\TT{<}' to be a {\em named-opening},
-`\TT{\#}' to be a {\em named-key-separator},
-`\TT{|}' to be a {\em named-middle},
-`\TT{>}' to be a {\em named-closing},
+which specifies `\TT{<}' to be a {\em typed-opening},
+`\TT{\#}' to be a {\em typed-key-separator},
+`\TT{|}' to be a {\em typed-middle},
+`\TT{>}' to be a {\em typed-closing},
 and `\TT{text}' to be the sole definition selector.
 Recall that as bracketed subexpression recognizer
 symbol table keys,
-{\em named-openings},
-{\em named-key-separators},
-{\em named-middles},
-and {\em named-closings}
+{\em typed-openings},
+{\em typed-key-separators},
+{\em typed-middles},
+and {\em typed-closings}
 may not span multiple lines, but
-{\em named-opening-brackets},
-{\em named-closing-brackets},
-and {\em named-operators} (as per \itemref{NAMED-OPERATORS})
+{\em typed-opening-brackets},
+{\em typed-closing-brackets},
+and {\em typed-operators} (as per \itemref{TYPED-OPERATORS})
 may span multiple lines.
 
-The general syntax of {\em parser-named-bracket-commands} is:
+The general syntax of {\em parser-typed-bracket-commands} is:
 
 \begin{indpar}
-\emkey{parser-named-bracket-command}%
-\label{PARSER-NAMED-BRACKET-COMMAND}
+\emkey{parser-typed-bracket-command}%
+\label{PARSER-TYPED-BRACKET-COMMAND}
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser define named bracket}{named bracket!parser define}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\em named-bracket-name} \\
+	  {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine named bracket}{named bracket!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\em named-bracket-name} \\
+	  {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{named-bracket-name} \\
+\emkey{typed-bracket-name} \\
     \hspace*{0.2in}
      ::= \begin{tabular}[t]{@{}l@{}}
-	 {\em named-opening} [ \TT{...} {\em named-key-separator} ] \\
-         {}[ \TT{...} {\em named-middle} \TT{...} {\em named-middle} ] \\
-	 \TT{...} {\em named-closing}
+	 {\em typed-opening} [ \TT{...} {\em typed-key-separator} ] \\
+         {}[ \TT{...} {\em typed-middle} \TT{...} {\em typed-middle} ] \\
+	 \TT{...} {\em typed-closing}
 	 \end{tabular}
 \\[0.5ex]
-\emkey{named-opening} ::= {\em quoted-name}
+\emkey{typed-opening} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{named-key-separator} ::= {\em quoted-name}
+\emkey{typed-key-separator} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{named-middle} ::= {\em quoted-name}
+\emkey{typed-middle} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{named-closing} ::= {\em quoted-name}
+\emkey{typed-closing} ::= {\em quoted-name}
 
-\label{NAMED-BRACKET-DEFINITIONS}
+\label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
 
-Note that if a {\em named-middle} is given in a {\em named-bracket-name},
-the {\em named-middle} must be repeated twice and both copies must
+Note that if a {\em typed-middle} is given in a {\em typed-bracket-name},
+the {\em typed-middle} must be repeated twice and both copies must
 be identical.
 
 A named bracketed subexpression is converted to a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
-{\em named-opening} becomes the \TT{.initia\-tor}
-attribute of this object, the {\em named-middle} becomes
+{\em typed-opening} becomes the \TT{.initia\-tor}
+attribute of this object, the {\em typed-middle} becomes
 the \TT{.middle} attribute of this object,
-the {\em named-closing} becomes the \TT{.terminator} attribute
-of the object, the {\em bracket-name} (from the {\em named-opening-bracket})
+the {\em typed-closing} becomes the \TT{.terminator} attribute
+of the object, the {\em bracket-name} (from the {\em typed-opening-bracket})
 becomes the
 \TT{.name} attribute of the object, the {\em arguments}
 become the \TT{.arguments} attribute of the object,
@@ -3159,7 +3247,7 @@ in the same way as they would be if they were ordinary
 subexpression components.
 The \TT{.keys} attribute is a MIN object whose list elements
 are the individual {\em keys}, and whose \TT{.initiator} and 
-\TT{.separator} attributes are both the {\em named-key-separator}.
+\TT{.separator} attributes are both the {\em typed-key-separator}.
 Every value inside the subexpression object attributes
 that is not a MIN object and not part of an {\em argument}
 is a MIN string or a MIN label with 2 or more
@@ -3174,51 +3262,51 @@ quoted string.  Thus the keys
 `\TT{lemma "5.1.1"}' and `\TT{lemma 5.1.1}' become identical
 when stored in the \TT{.keys} attribute of the parser result.
 
-If the {\em named-middle} ends in a mark and the {\em named-closing}
-begins with a mark, the {\em named-middle} may be glued to the
-{\em named-closing} to make a
-{\em named-closing-bracket} with empty {\em bracket-name-initial-segment}.
+If the {\em typed-middle} ends in a mark and the {\em typed-closing}
+begins with a mark, the {\em typed-middle} may be glued to the
+{\em typed-closing} to make a
+{\em typed-closing-bracket} with empty {\em bracket-name-initial-segment}.
 Thus in our example the single mark `\TT{|>}' may be used in place of
 the two separate marks `\TT{| >}'.
 
 If a named bracketed subexpression ends pre-maturely, before
-its {\em named-closing-bracket} is discovered, a parsing error is
-announced and the {\em named-closing-bracket} is inserted in the input
+its {\em typed-closing-bracket} is discovered, a parsing error is
+announced and the {\em typed-closing-bracket} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket-name} of a containing
-unnamed bracketed subexpression, the {\em named-closing-bracket}
+unnamed bracketed subexpression, the {\em typed-closing-bracket}
 of a containing named bracketed subexpression, the end of the paragraph line
 containing the named bracketed subexpression,
 or an end of file.
 
 \subsubsection{Named Operators}
-\label{NAMED-OPERATORS}
+\label{TYPED-OPERATORS}
 
-A \key{named operator} has the same syntax as an {\em opening-named-bracket}
-except that the {\em named-operator} ends with a
-{\em named-closing} instead of a {\em named-middle}:
+A \key{named operator} has the same syntax as an {\em opening-typed-bracket}
+except that the {\em typed-operator} ends with a
+{\em typed-closing} instead of a {\em typed-middle}:
 
 \begin{indpar}[0.1in]
-\emkey{named-operator} ::=
+\emkey{typed-operator} ::=
     \begin{tabular}[t]{@{}l@{~}l@{}}
-    {\em named-opening} & {\em operator-name} {\em argument}\STAR{} \\
-	                & \{ {\em named-key-separator} {\em key} \}\STAR{} \\
-	                & {\em named-closing} \\
+    {\em typed-opening} & {\em operator-name} {\em argument}\STAR{} \\
+	                & \{ {\em typed-key-separator} {\em key} \}\STAR{} \\
+	                & {\em typed-closing} \\
 	 \end{tabular}
 \\[0.5ex]
 \emkey{operator-name} ::= {\em simple-name}
 \end{indpar}
 
-A {\em named-operator} is converted to a MIN object which has the
+A {\em typed-operator} is converted to a MIN object which has the
 same structure as a named bracketed subexpression with an empty list
 but with its \TT{.name} attribute equal to
 the {\em operator-name} instead of a {\em bracket-name} and with
 no \TT{.middle} attribute.  As for a named bracketed subexpression,
-the \TT{.initiator} is the {\em named-opening},
-the \TT{.terminator} is the {\em named-closing},
+the \TT{.initiator} is the {\em typed-opening},
+the \TT{.terminator} is the {\em typed-closing},
 and the \TT{.arguments} and \TT{.keys} are set from the
-contents of the {\em named-operator} just as they would be from the
-contents of a {\em named-opening-bracket}.
+contents of the {\em typed-operator} just as they would be from the
+contents of a {\em typed-opening-bracket}.
 
 \subsubsection{The Print Bracket Command}
 
@@ -3243,7 +3331,7 @@ component is one of
 opening-bracket-name \\
 indentation-mark-name \\
 gluing-indentation-mark-name \\
-named-opening
+typed-opening
 \end{indpar}
 
 

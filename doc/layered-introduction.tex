@@ -1839,7 +1839,7 @@ possible syntactic additions that integrate well with existing syntax.
 The parser is a sequence of passes each of which operates on a list
 of tokens.  A token is either a lexeme, a subexpression, or an operator.
 The top level parser pass, the bracketed subexpression recognition pass,
-recognizes subexpressions that are bounded by `named prefix separators' such as
+recognizes subexpressions that are bounded by `typed prefix separators' such as
 `\TT{\{p\}}' and `\TT{\{code\}}', by brackets
 such as `\TT{(}' and `\TT{)}', by an indentation mark such as `\TT{:}'
 at the end of a line and eventual
@@ -2507,9 +2507,9 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.5in}indentation marks (e.g.~`\TT{:}')
     and line separators (e.g.~`\TT{;}'),
     indented paragraphs, and indented paragraph lines \\
-\hspace*{-0.5in}named brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
-      and named bracketed subexpressions \\
-\hspace*{-0.5in}named prefix separators (e.g.~`\TT{\{p\}}')
+\hspace*{-0.5in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
+      and typed bracketed subexpressions \\
+\hspace*{-0.5in}typed prefix separators (e.g.~`\TT{\{p\}}')
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
@@ -2535,18 +2535,18 @@ and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
 Brackets, indentation marks, and line separators are
-symbol table keys.  However named brackets and named prefix separators are
-not.  Instead, a named bracket or named prefix separator is formed by using
-named openings (e.g.~`\TT{\{}'),
-named property introducers (e.g.~`\TT{:}'),
-named property equators (e.g.~`\TT{=}'),
-named property separators (e.g.~`\TT{,}'),
-named middles (e.g.~`\TT{|}'),
-and named closings (e.g.~`\TT{\}}'), which are all symbol table
+symbol table keys.  However typed brackets and typed prefix separators are
+not.  Instead, a typed bracket or typed prefix separator is formed by using
+typed openings (e.g.~`\TT{\{}'),
+typed property introducers (e.g.~`\TT{:}'),
+typed property equators (e.g.~`\TT{=}'),
+typed property separators (e.g.~`\TT{,}'),
+typed middles (e.g.~`\TT{|}'),
+and typed closings (e.g.~`\TT{\}}'), which are all symbol table
 keys, to surround or separate
 sequences of words, numbers, quoted strings, and
-bracketed subexpressions, and thence form named brackets
-and named prefix separators.
+bracketed subexpressions, and thence form typed brackets
+and typed prefix separators.
 
 TBD
 In bracketed subexpression recognition, 
@@ -2567,11 +2567,11 @@ In general, the bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
 are MIN objects with attributes determined by the brackets
 and elements dermined by tokens between the brackets.
-For unnamed brackets that only
+For untyped brackets that only
 attributes are the syntax attributes \TT{.initiator} and \TT{.terminator}
-plus a \TT{.type} attribute derived from these.  For named brackets
+plus a \TT{.type} attribute derived from these.  For typed brackets
 the only syntax attribute is the \TT{.type} attribute, but arbitrary
-non-syntax attributes may be encoded in the named brackets.
+non-syntax attributes may be encoded in the typed brackets.
 
 Subexpressions may occur among the list of tokens that determine the
 object elements or the value of a non-syntax attribute in a named
@@ -2618,8 +2618,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     \begin{tabular}{ll}
        & the {\em opening-bracket-name} of a bracketed subexpression, \\
     or & the {\em indentation-mark-name} of an indented subexpression, \\
-    or & the {\em typed-opening} of a named bracketed subexpression, \\
-    or & the {\em typed-opening} of a named operator, \\
+    or & the {\em typed-opening} of a typed bracketed subexpression, \\
+    or & the {\em typed-opening} of a typed operator, \\
     or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme.
     \end{tabular}
     \end{center}
@@ -2635,8 +2635,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
        & in an indented paragraph, \\
     or & the {\em line-separator-name} used to separate lines of an
          indented paragraph, \\
-    or & the {\em typed-closing} of a named bracketed subexpression, \\
-    or & the {\em typed-closing} of a named operator. \\
+    or & the {\em typed-closing} of a typed bracketed subexpression, \\
+    or & the {\em typed-closing} of a typed operator. \\
     \end{tabular}
     \end{center}
 \medskip
@@ -2647,16 +2647,16 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{middle}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    that equals the {\em typed-middle} of a named bracketed subexpression.
+    that equals the {\em typed-middle} of a typed bracketed subexpression.
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{name}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    that equals the {\em bracket-name} of a named bracketed subexpression
+    that equals the {\em bracket-name} of a typed bracketed subexpression
     or the {\em operator-name} of a {\em typed-operator}.
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{arguments}{subexpression attribute}\\
     A MIN object whose elements are the arguments of the
-    {\em opening-typed-bracket} of a named bracketed subexpression,
+    {\em opening-typed-bracket} of a typed bracketed subexpression,
     or of a {\em typed-operator}.  The object is formatted like the
     \TT{value} of a \TT{BRACKETED} token, except that it has no syntax
     attributes.  Each argument is either a bracketed subexpression
@@ -2664,7 +2664,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 \\[2ex]
 \hspace*{-0.2in}\ttdmkey{keys}{subexpression attribute}\\
     A MIN object whose elements are the keys of the
-    {\em opening-typed-bracket} of a named bracketed subexpression,
+    {\em opening-typed-bracket} of a typed bracketed subexpression,
     or of a {\em typed-operator}.  The keys are the elements of
     the object, and the object's only syntax attributes are
     \TT{.initiator} and \TT{.separator} both of which equal the
@@ -2702,17 +2702,47 @@ and the subexpressions they control.
 
 \subsubsection{Bracketed Subexpressions}
 
-A \key{bracketed subexpression}\index{bracketed subexpression!unnamed}
+The following are examples of
+\skey{bracketed subexpression}s
+where \ldots{} denotes a list of elements:
+\begin{center}
+\TT{(} ~~~\ldots~~~ \TT{)} \\
+\TT{(|} ~~~\ldots~~~ \TT{|)} \\
+\TT{[} ~~~\ldots~~~ \TT{]} \\
+\TT{[<} ~~~\ldots~~~ \TT{>]} \\
+\end{center}
+
+
+The general syntax is:
+
+\begin{indpar}[0.1in]
+\emkey{bracketed-subexpression} ::=
+	{\em opening-bracket} {\em element}\STAR{} {\em closing-bracket}
+\\[0.5ex]
+\emkey{opening-bracket} ::= as defined by a
+    {\em parser-bracket-command} (\pagref{PARSER-BRACKET-COMMAND})
+    ~~~~~ [e.g., `\TT{(}' or `\TT{[<}']
+\\[0.5ex]
+\emkey{closing-bracket} ::= ditto
+    ~~~~~ [e.g., `\TT{)}' or `\TT{>]}']
+\\[0.5ex]
+\emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
+                    {\em separator} $|$ {\em subexpression}
+\\[0.5ex]
+Note: {\em element}\STAR{} is terminated by the first {\em closing-bracket}
+\end{indpar}
+
+A \key{bracketed subexpression}\index{bracketed subexpression!untyped}
 begins with
-an {\em opening-bracket-name} and ends with a match\-ed
-{\em clos\-ing-bracket-name} as defined by a
+an {\em opening-bracket} and ends with a match\-ed
+{\em clos\-ing-bracket} as defined by a
 \ttikey{parser define bracket}{bracket!parser define}
-command.  An example of such a definition is
+command.  An example of such a command is
 \begin{center}
 \TT{parser define bracket "("~...~")" [operator, text]} \ldots
 \end{center}
-which specifies `\TT{(}' to be an {\em opening-bracket-name}
-with `\TT{)}' as its corresponding {\em closing-bracket-name}
+which specifies `\TT{(}' to be an {\em opening-bracket}
+with `\TT{)}' as its corresponding {\em closing-bracket}
 and `\TT{operator}' and `\TT{text}' as the definition selectors.
 
 The general syntax of {\em parser-bracket-commands} is:
@@ -2734,42 +2764,42 @@ The general syntax of {\em parser-bracket-commands} is:
 		    {\em bracket-name} {\em selectors}} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{bracket-name} ::= {\em opening-bracket-name}
+\emkey{bracket-name} ::= {\em opening-bracket}
 			 \ttmkey{...}{in {\em bracket-name}}
-			 {\em closing-bracket-name}
+			 {\em closing-bracket}
 \label{BRACKET-NAME}
 \\[0.5ex]
-\emkey{opening-bracket-name} ::= {\em quoted-name}
+\emkey{opening-bracket} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{closing-bracket-name} ::= {\em quoted-name}
+\emkey{closing-bracket} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-modifier-list}
 
 \end{indpar}
 
 Brackets such as `\TT{(}' and `\TT{)}'
-are sometimes called `\key{unnamed brackets}'
-to distinguish them from named brackets
-such as `\TT{<b|}' and `\TT{|b>}'
-in which the name, in this case `\TT{b}',
+are sometimes called `\key{untyped brackets}'
+to distinguish them from typed brackets
+such as `\TT{\{b|}' and `\TT{|b\}}'
+in which the type, in this case `\TT{b}',
 is arbitrary.  See Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
-for a description of named brackets.
+for a description of typed brackets.
 
 A bracketed subexpression is converted to a \TT{BRACKETED}
 token whose \TT{value} is a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
-{\em opening-bracket-name} becomes the \TT{.initiator}
-attribute of this object, and the {\em closing-bracket-name}
+{\em opening-bracket} becomes the \TT{.initiator}
+attribute of this object, and the {\em closing-bracket}
 becomes the \TT{.terminator} attribute of the object.
 
 If a bracketed subexpression ends pre-maturely, before
-its {\em closing-bracket-name} is discovered, a parsing error is
-announced and the {\em closing-bracket-name} is inserted in the input
+its {\em closing-bracket} is discovered, a parsing error is
+announced and the {\em closing-bracket} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
-discovered by finding the {\em closing-bracket-name} of a containing
+discovered by finding the {\em closing-bracket} of a containing
 bracketed subexpression, the {\em typed-closing-bracket}
-of a containing named bracketed subexpression, the end of the paragraph line
+of a containing typed bracketed subexpression, the end of the paragraph line
 containing the bracketed subexpression,
 or an end of file.
 
@@ -2777,23 +2807,23 @@ An exception to this is made if the bracket definition has the
 \ttmkey{full lines}{in bracket definition} property.  In this case
 it is expected that the subexpression will consist of one or
 more full input lines.  While the subexpression is being scanned,
-use of indentation is turned off, and only the {\em closing-bracket-name}
-associated with the full lines {\em opening-bracket-name}, or an
+use of indentation is turned off, and only the {\em closing-bracket}
+associated with the full lines {\em opening-bracket}, or an
 end-of-file,
 can terminate the subexpression.  During parsing of a
 `\TT{full lines}' subexpression, the parser only knows about
 subexpressions and paragraphs that are included completely inside the
 `\TT{full lines}' subexpression.
 
-When an {\em opening-bracket-name} is recognized, the current parser
+When an {\em opening-bracket} is recognized, the current parser
 selector set is saved in a stack and
 a new set is computed by modifying the saved set
 according to the {\em new-selectors} in the bracket definition.
 The saved selector set is restored after the {\em closing-bracket}
-is recognized.  However {\em closing-bracket-name}
+is recognized.  However {\em closing-bracket}
 recognition does not depend
 upon the current parser selectors, but only on previous recognition
-of an associated {\em opening-bracket-name}.
+of an associated {\em opening-bracket}.
 
 The definition
 \begin{indpar}\begin{verbatim}
@@ -2913,7 +2943,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 
 The {\em line-separator-name} may be used to separate
 paragraph lines, as long as it is outside subexpressions
-(unnamed bracketed, named bracketed, or indented subparagraph)
+(untyped bracketed, typed bracketed, or indented subparagraph)
 in the paragraph.
 
 Each paragraph line is converted to a MIN object whose elements are
@@ -3145,7 +3175,7 @@ The general syntax is:
 
 If the {\em typed-opening}, {\em typed-key-separator}, {\em typed-middle},
 and {\em typed-closing} are respectively `\TT{<}', `\TT{\#}',
-`\TT{|}', and `\TT{>}', then an example named bracketed subexpression is
+`\TT{|}', and `\TT{>}', then an example typed bracketed subexpression is
 \begin{center}
 \TT{<h1(2) \# Diamond Lemma|} ~~~\ldots~~~ \TT{|h>}
 \end{center}
@@ -3161,12 +3191,12 @@ in the {\em typed-closing-bracket} may be empty, so
 
 The {\em typed-opening}, {\em typed-key-separator}, {\em typed-middle},
 and {\em typed-closing} are symbol table keys
-from which named opening and closing
+from which typed opening and closing
 brackets are constructed.  They are specified by a
-\ttkey{parser defined named bracket} parser definition, an example of
+\ttkey{parser defined typed bracket} parser definition, an example of
 which is:
 \begin{center}
-\TT{parser define named bracket
+\TT{parser define typed bracket
      "<"~...~"\#"~...~"|"~...~"|"~...~">" [text]} \ldots
 \end{center}
 which specifies `\TT{<}' to be a {\em typed-opening},
@@ -3194,12 +3224,12 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define named bracket}{named bracket!parser define}
+    ::= & \ttikey{parser define typed bracket}{typed bracket!parser define}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine named bracket}{named bracket!parser undefine}
+    $|$ & \ttikey{parser undefine typed bracket}{typed bracket!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
@@ -3229,7 +3259,7 @@ Note that if a {\em typed-middle} is given in a {\em typed-bracket-name},
 the {\em typed-middle} must be repeated twice and both copies must
 be identical.
 
-A named bracketed subexpression is converted to a
+A typed bracketed subexpression is converted to a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
 {\em typed-opening} becomes the \TT{.initia\-tor}
@@ -3269,20 +3299,20 @@ begins with a mark, the {\em typed-middle} may be glued to the
 Thus in our example the single mark `\TT{|>}' may be used in place of
 the two separate marks `\TT{| >}'.
 
-If a named bracketed subexpression ends pre-maturely, before
+If a typed bracketed subexpression ends pre-maturely, before
 its {\em typed-closing-bracket} is discovered, a parsing error is
 announced and the {\em typed-closing-bracket} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket-name} of a containing
-unnamed bracketed subexpression, the {\em typed-closing-bracket}
-of a containing named bracketed subexpression, the end of the paragraph line
-containing the named bracketed subexpression,
+untyped bracketed subexpression, the {\em typed-closing-bracket}
+of a containing typed bracketed subexpression, the end of the paragraph line
+containing the typed bracketed subexpression,
 or an end of file.
 
 \subsubsection{Named Operators}
 \label{TYPED-OPERATORS}
 
-A \key{named operator} has the same syntax as an {\em opening-typed-bracket}
+A \key{typed operator} has the same syntax as an {\em opening-typed-bracket}
 except that the {\em typed-operator} ends with a
 {\em typed-closing} instead of a {\em typed-middle}:
 
@@ -3298,10 +3328,10 @@ except that the {\em typed-operator} ends with a
 \end{indpar}
 
 A {\em typed-operator} is converted to a MIN object which has the
-same structure as a named bracketed subexpression with an empty list
+same structure as a typed bracketed subexpression with an empty list
 but with its \TT{.name} attribute equal to
 the {\em operator-name} instead of a {\em bracket-name} and with
-no \TT{.middle} attribute.  As for a named bracketed subexpression,
+no \TT{.middle} attribute.  As for a typed bracketed subexpression,
 the \TT{.initiator} is the {\em typed-opening},
 the \TT{.terminator} is the {\em typed-closing},
 and the \TT{.arguments} and \TT{.keys} are set from the

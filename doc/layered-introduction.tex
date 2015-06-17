@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 16, 2015
+June 17, 2015
  
 \end{center}
 
@@ -2689,7 +2689,7 @@ recognized by this recognizer:
 \begin{indpar}[0.1in]
 \emkey{parser-bracketed-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em parser-bracket-command} \\
+    ::= & {\em parser-untyped-bracket-command} \\
     $|$ & {\em parser-indentation-mark-command} \\
     $|$ & {\em parser-typed-bracket-command} \\
     $|$ & {\em parser-print-bracket-command} \\
@@ -2702,8 +2702,8 @@ and the subexpressions they control.
 
 \subsubsection{Bracketed Subexpressions}
 
-The following are examples of (untyped)
-\ikey{bracketed subexpressions}{bracketed subexpressions!untyped},
+The following are examples of
+\ikey{untyped bracketed expressions}{bracketed expressions!untyped},
 where \ldots{} denotes a list of elements:
 \begin{center}
 \TT{(} ~~~\ldots~~~ \TT{)} \\
@@ -2712,24 +2712,33 @@ where \ldots{} denotes a list of elements:
 \TT{[<} ~~~\ldots~~~ \TT{>]} \\
 \end{center}
 
-
 The general syntax is:
 
 \begin{indpar}[0.1in]
-\emkey{bracketed-subexpression} ::=
-	{\em opening-bracket} {\em element}\STAR{} {\em closing-bracket}
+\emkey{untyped-bracketed-expression} ::=
+	{\em opening-bracket} {\em element-list} {\em closing-bracket}
 \\[0.5ex]
 \emkey{opening-bracket} ::= as defined by a
-    {\em parser-bracket-command} (\pagref{PARSER-BRACKET-COMMAND})
+    {\em parser-untyped-bracket-command} (\pagref{PARSER-BRACKET-COMMAND})
     ~~~~~ [e.g., `\TT{(}' or `\TT{[<}']
 \\[0.5ex]
 \emkey{closing-bracket} ::= ditto
     ~~~~~ [e.g., `\TT{)}' or `\TT{>]}']
 \\[0.5ex]
-\emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
-                    {\em separator} $|$ {\em subexpression}
+\emkey{element-list} ::= {\em simple-element-list} $|$
+                         {\em prefix-0-list}
+\label{ELEMENT-LIST}
 \\[0.5ex]
-Note: {\em element}\STAR{} is terminated by the first {\em closing-bracket}
+\emkey{simple-element-list} ::= {\em element}\STAR{} but not {\em prefix-0-list}
+\\[0.5ex]
+\emkey{prefix-0-list} ::= specialized form of {\em element}\PLUS{};
+                          see \pagref{PREFIX-0-LIST}
+\\[0.5ex]
+\emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
+                    {\em separator} $|$ {\em bracketed-expression}
+\\[0.5ex]
+Note: An {\em untyped-bracketed-expression} {\em element-list}
+is terminated by the first {\em closing-bracket}.
 \end{indpar}
 
 A \key{bracketed subexpression}\index{bracketed subexpression!untyped}
@@ -2745,10 +2754,10 @@ which specifies `\TT{(}' to be an {\em opening-bracket}
 with `\TT{)}' as its corresponding {\em closing-bracket}
 and `\TT{operator}' and `\TT{text}' as the definition selectors.
 
-The general syntax of {\em parser-bracket-commands} is:
+The general syntax of {\em parser-untyped-bracket-commands} is:
 
 \begin{indpar}[0.1in]
-\emkey{parser-bracket-command}%
+\emkey{parser-untyped-bracket-command}%
 \label{PARSER-BRACKET-COMMAND}
 \\
     \hspace*{0.2in}
@@ -2865,7 +2874,8 @@ the line after the outer paragraph
 \end{verbatim}\end{indpar}
 
 An \key{indented paragraph subexpression}
-begins with an {\em indentation-mark} which must be at the end of
+begins with an {\em indentation-mark} (e.g. `\TT{:}')
+which must be at the end of
 a line.  This is followed by an \key{indented paragraph}
 consisting of zero or more \skey{paragraph line}s,
 each beginning at the same indentation which
@@ -2875,6 +2885,62 @@ and must be greater than the indentation of the line containing the
 {\em indentation-mark}.
 A paragraph line may have a continuation lines that are indented with
 respect to the paragraph indentation.
+
+The general syntax is:
+
+\begin{indpar}[0.1in]
+\emkey{indented-paragraph-expression} ::=
+	\begin{tabular}[t]{@{}l}
+	{\em indentation-mark} {\em line-break} \\
+	~~~~ {\em paragraph-line-group}\STAR{} \\
+	{\em paragraph-end}
+	\end{tabular}
+\\[0.5ex]
+\emkey{paragraph-line-group}
+	\begin{tabular}[t]{@{}rl}
+	::= & {\em separated-paragraph-line}\STAR{}
+	      {\em non-separated-paragraph-line} \\
+	$|$ & {\em separated-paragraph-line}\PLUS{} \\
+	\end{tabular}
+\\[0.5ex]
+Note: \begin{tabular}[t]{@{}l}
+      A {\em paragraph-line-group} must begin at the paragraph indent \\
+      and may contain continuation lines: see text.
+      \end{tabular}
+\\[0.5ex]
+\emkey{paragraph-end} ::= beginning of a line whose indent is less than
+			  the paragraph indent
+\\[0.5ex]
+\emkey{separated-paragraph-line} ::= {\em element-list} {\em line-separator}
+\\[0.5ex]
+\emkey{non-separated-paragraph-line} ::=
+    {\em element-list} {\em non-continuation-line-break}
+\\[0.5ex]
+\emkey{non-continuation-line-break} ::= {\em line-break} not followed by a
+				   continuation line
+\\[0.5ex]
+\emkey{indentation-mark} ::= as defined by a
+    {\em parser-indentation-mark-command}
+    (\pagref{PARSER-INDENTATION-MARK-COMMAND})
+    ~~~~~ [e.g., `\TT{:}']
+\\[0.5ex]
+\emkey{line-separator} ::= ditto
+    ~~~~~ [e.g., `\TT{;}']
+\\[0.5ex]
+\emkey{element-list} ::= see \pagref{ELEMENT-LIST}
+\\[0.5ex]
+Note: \begin{tabular}[t]{@{}l}
+      A {\em paragraph-line} {\em element-list} is terminated by the
+      first {\em line-separator} \\
+      or {\em non-continuation-line-break}.
+      \end{tabular}
+\end{indpar}
+
+A {\em paragraph-line-group} may be continued by continuation lines
+which a lines indented more than the indentation of the beginning
+of the {\em paragraph-line-group}.  Another way of putting it is
+that {\em line-breaks} before a continuation line are deleted before
+parsing is done.
 
 An {\em indentation-mark} is specified by a
 \ttikey{parser define indentation mark}{indentation mark!parser define}

@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 17, 2015
+June 18, 2015
  
 \end{center}
 
@@ -3143,7 +3143,15 @@ The general syntax is:
 \\[0.5ex]
 \emkey{attribute} \begin{tabular}[t]{@{}rl}
                   ::= & {\em attribute-label}
-	                {\em typed-attribute-equal} {\em attribute-value} \\
+	                {\em typed-attribute-equal}
+			{\em single-attribute-value} \\
+                  ::= & {\em attribute-label}
+		        \begin{tabular}[t]{@{}l}
+	                {\em typed-attribute-equal}
+			{\em double-attribute-value} \\
+	                {\em typed-attribute-equal}
+			{\em attribute-label} \\
+			\end{tabular} \\
                   ::= & {\em attribute-label} \\
                   ::= & {\em typed-attribute-negative} {\em attribute-label} \\
 		  \end{tabular}
@@ -3189,6 +3197,12 @@ The general syntax is:
     {\em typed-attribute-equal} or
     {\em typed-attribute-separator} \\
     or ({\em doubled-}){\em typed-middle}
+    \end{tabular}
+\\[0.5ex]
+\emkey{single-attribute-value}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em label} \\
+    $|$ & \TT{\{*} {\em label} \{ \TT{,} {\em label} \}\STAR{} \TT{*\}}
     \end{tabular}
 \end{indpar}
 

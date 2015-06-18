@@ -2718,9 +2718,14 @@ The general syntax is:
 \emkey{untyped-bracketed-expression} ::=
 	{\em opening-bracket} {\em element-list} {\em closing-bracket}
 \\[0.5ex]
-\emkey{opening-bracket} ::= as defined by a
-    {\em parser-untyped-bracket-command} (\pagref{PARSER-BRACKET-COMMAND})
-    ~~~~~ [e.g., `\TT{(}' or `\TT{[<}']
+\emkey{opening-bracket} ::=
+   \begin{tabular}[t]{@{}l}
+   \{ {\em mark} $|$ {\em separator} \}\PLUS{}
+    ~~~~~ [e.g., `\TT{(}' or `\TT{[<}'] \\
+    as defined by a
+    {\em parser-untyped-bracket-command}
+    (\pagref{PARSER-UNTYPED-BRACKET-COMMAND})
+    \end{tabular}
 \\[0.5ex]
 \emkey{closing-bracket} ::= ditto
     ~~~~~ [e.g., `\TT{)}' or `\TT{>]}']
@@ -2735,18 +2740,24 @@ The general syntax is:
                           see \pagref{PREFIX-0-LIST}
 \\[0.5ex]
 \emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
-                    {\em separator} $|$ {\em bracketed-expression}
+                    {\em separator} $|$ {\em quoted-string} $|$
+		    {\em bracketed-expression}
 \\[0.5ex]
-Note: An {\em untyped-bracketed-expression} {\em element-list}
-is terminated by the first {\em closing-bracket}.
+Note: \begin{minipage}[t]{5.8in}
+      An {\em untyped-bracketed-expression} {\em element-list}
+      is normally terminated by the expression's {\em closing-bracket}.
+      It may be abnormally terminated by an outer {\em bracketed-expression's}
+      {\em closing-bracket}, {\em typed-middle}, {\em typed-closing},
+      or {\em non-continuation-line-break}, but \underline{not}
+      by a {\em line-separator}.
+      \end{minipage}
 \end{indpar}
 
 A \key{bracketed subexpression}\index{bracketed subexpression!untyped}
 begins with
 an {\em opening-bracket} and ends with a match\-ed
 {\em clos\-ing-bracket} as defined by a
-\ttikey{parser define bracket}{bracket!parser define}
-command.  An example of such a command is
+\TT{parser define bracket} command, an example of which is
 \begin{center}
 \TT{parser define bracket "("~...~")" [operator, text]} \ldots
 \end{center}
@@ -2758,7 +2769,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 
 \begin{indpar}[0.1in]
 \emkey{parser-untyped-bracket-command}%
-\label{PARSER-BRACKET-COMMAND}
+\label{PARSER-UNTYPED-BRACKET-COMMAND}
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rll}
@@ -2903,10 +2914,10 @@ The general syntax is:
 	$|$ & {\em separated-paragraph-line}\PLUS{} \\
 	\end{tabular}
 \\[0.5ex]
-Note: \begin{tabular}[t]{@{}l}
-      A {\em paragraph-line-group} must begin at the paragraph indent \\
+Note: \begin{minipage}[t]{5.8in}
+      A {\em paragraph-line-group} must begin at the paragraph indent
       and may contain continuation lines: see text.
-      \end{tabular}
+      \end{minipage}
 \\[0.5ex]
 \emkey{paragraph-end} ::= beginning of a line whose indent is less than
 			  the paragraph indent
@@ -2919,21 +2930,24 @@ Note: \begin{tabular}[t]{@{}l}
 \emkey{non-continuation-line-break} ::= {\em line-break} not followed by a
 				   continuation line
 \\[0.5ex]
-\emkey{indentation-mark} ::= as defined by a
+\emkey{indentation-mark} ::=
+   \begin{tabular}[t]{@{}l}
+   \{ {\em mark} $|$ {\em separator} \}\PLUS{}
+    ~~~~~ [e.g., `\TT{:}'] \\
+    as defined by a
     {\em parser-indentation-mark-command}
     (\pagref{PARSER-INDENTATION-MARK-COMMAND})
-    ~~~~~ [e.g., `\TT{:}']
+    \end{tabular}
 \\[0.5ex]
 \emkey{line-separator} ::= ditto
     ~~~~~ [e.g., `\TT{;}']
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
-Note: \begin{tabular}[t]{@{}l}
+Note: \begin{minipage}[t]{5.8in}
       A {\em paragraph-line} {\em element-list} is terminated by the
-      first {\em line-separator} \\
-      or {\em non-continuation-line-break}.
-      \end{tabular}
+      first {\em line-separator} or {\em non-continuation-line-break}.
+      \end{minipage}
 \end{indpar}
 
 A {\em paragraph-line-group} may be continued by continuation lines
@@ -3106,37 +3120,30 @@ The general syntax is:
 \emkey{typed-bracketed-subexpression} \\
 \hspace*{3em}\begin{tabular}[t]{@{}rl}
 	::= & {\em typed-opening} {\em type-label} {\em attributes}\QMARK{}
-	      {\em elements}
+	      {\em typed-elements}
 	      {\em type-label}\QMARK{}
 	      {\em typed-closing} \\
 	$|$ & {\em typed-opening} {\em type-label}\QMARK{}
-	      {\em elements}
+	      {\em typed-elements}
 	      {\em type-label} {\em attributes}\QMARK{}
 	      {\em typed-closing} \\
-	$|$ & {\em typed-opening} {\em elements}\QMARK{} {\em typed-closing} \\
+	$|$ & {\em typed-opening} {\em typed-elements}\QMARK{}
+	      {\em typed-closing} \\
 	$|$ & {\em typed-opening} {\em type-mark}
-	      {\em element}\STAR{}
+	      {\em element-list}
 	      {\em type-mark} {\em typed-closing} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{elements}
+\emkey{typed-elements}
 	\begin{tabular}[t]{@{}rl}
-	::= & {\em typed-middle} {\em element}\STAR{} {\em typed-middle} \\
+	::= & {\em typed-middle} {\em element-list} {\em typed-middle} \\
 	$|$ & {\em doubled-typed-middle}
 	\end{tabular}
 \\[0.5ex]
-\emkey{element} \begin{tabular}[t]{@{}rl}
-                ::= & {\em word} $|$ {\em natural} $|$ {\em numeric} $|$
-		      {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
-                $|$ & {\em bracketed-subexpression} \\
-		    & but not ({\em doubled-}){\em typed-middle}
-		      if not {\em type-mark} expression \\
-		    & or `{\em type-mark} {\em typed-closing}'
-		      if {\em type-mark} expression \\
-		\end{tabular}
+\emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
 \emkey{attributes} ::= {\em typed-attribute-begin}
-		       {\em attribute-list}
+		       {\em attribute-list}\QMARK{}
 \\[0.5ex]
 \emkey{attribute-list} ::= {\em attribute}
 	\{ {\em typed-attribute-separator} {\em attribute} \}\STAR{}
@@ -3156,20 +3163,61 @@ The general syntax is:
                   ::= & {\em typed-attribute-negative} {\em attribute-label} \\
 		  \end{tabular}
 \\[0.5ex]
+\emkey{label} ::= {\em label-component}\PLUS{}
+\\[0.5ex]
+\emkey{label-component} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em word} $|$ {\em natural} $|$ {\em numeric} $|$ {\em quoted-string} \\
+    but \underline{not} {\em mark} or {\em separator} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{type-label} ::= {\em label}
+\\[0.5ex]
+\emkey{attribute-label} ::= {\em label} {\em attribute-flags}\QMARK{}
+\\[0.5ex]
+\emkey{attribute-flags}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em typed-attribute-flags-opening} {\em attribute-flags} \\
+        & \{ {\em typed-attribute-flags-separator}
+	  {\em attribute-flag-index} \}\STAR{} \\
+	& {\em typed-attribute-flags-closing} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{attribute-flags}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} or {\em mark} containing only letters
+			    and/or \TT{@\#\$\%\&*-+=<>/} \\
+    $|$ & {\em attribute-flags-index} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{attribute-flag-index} ::= {\em natural}
+\\[0.5ex]
+\emkey{single-attribute-value}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em value} \\
+    $|$ & {\em attribute-multivalue-opening} {\em value} \\
+        & \{ {\em attribute-multivalue-separator} {\em value} \}\STAR{} \\
+	& {\em attribute-multivalue-closing} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{value} ::= {\em label} $|$ {\em bracketed-expression}
+\\[0.5ex]
 \emkey{typed-opening} ::=
    \begin{tabular}[t]{@{}l}
-   \{ {\em mark} $|$ {\em separator} \}\PLUS{} \\
+   \{ {\em mark} $|$ {\em separator} \}\PLUS{}
+    ~~~~~ [e.g., `\TT{\{}'] \\
     as defined by a {\em parser-typed-bracket-command}
     (\pagref{PARSER-TYPED-BRACKET-COMMAND})
-    ~~~~~ [e.g., `\TT{\{}']
     \end{tabular}
 \\[0.5ex]
 \emkey{typed-middle} ::= ditto
     ~~~~~ [e.g., `\TT{|}']
 \\[0.5ex]
-\emkey{doubled-typed-middle} :::= {\em typed-middle} {\em typed-middle}
-    as a single lexeme if appropriate: see text
-    ~~~~~ [e.g., `\TT{||}']
+\emkey{doubled-typed-middle} :::=
+    \begin{tabular}[t]{@{}l}
+    {\em typed-middle} {\em typed-middle} ~~~~~ [e.g., `\TT{||}'] \\
+    as a single lexeme (when possible): see text
+    \end{tabular}
 \\[0.5ex]
 \emkey{typed-closing} ::= ditto
     ~~~~~ [e.g., `\TT{\}}']
@@ -3186,41 +3234,25 @@ The general syntax is:
 \emkey{typed-attribute-negative} ::= ditto
     ~~~~~ [e.g., `\TT{no}']
 \\[0.5ex]
-\emkey{value-opening} ::= ditto
+\emkey{typed-attribute-flags-opening} ::= ditto
+    ~~~~~ [e.g., `\TT{[}']
+\\[0.5ex]
+\emkey{typed-attribute-flags-separator} ::= ditto
+    ~~~~~ [e.g., `\TT{,}']
+\\[0.5ex]
+\emkey{typed-attribute-flags-closing} ::= ditto
+    ~~~~~ [e.g., `\TT{]}']
+\\[0.5ex]
+\emkey{attribute-multivalue-opening} ::= ditto
     ~~~~~ [e.g., `\TT{\{*}']
 \\[0.5ex]
-\emkey{value-separator} ::= ditto
-    ~~~~~ [e.g., `\TT{\{,}']
+\emkey{attribute-multivalue-separator} ::= ditto
+    ~~~~~ [e.g., `\TT{,}']
 \\[0.5ex]
-\emkey{value-closing} ::= ditto
+\emkey{attribute-multivalue-closing} ::= ditto
     ~~~~~ [e.g., `\TT{*\}}']
 \\[0.5ex]
 \emkey{type-mark} ::= {\em mark}
-\\[0.5ex]
-\emkey{label} ::= {\em label-component}\PLUS{}
-\\[0.5ex]
-\emkey{label-component} ::= {\em word} $|$ {\em natural} $|$
-                            {\em numeric} $|$ {\em quoted-string}
-\\[0.5ex]
-\emkey{type-label} ::= {\em label} not containing
-    {\em typed-attribute-begin} or ({\em doubled-}){\em typed-middle}
-\\[0.5ex]
-\emkey{attribute-label} ::= \begin{tabular}[t]{l}
-    {\em label} not containing
-    {\em typed-attribute-equal} or
-    {\em typed-attribute-separator} \\
-    or ({\em doubled-}){\em typed-middle}
-    \end{tabular}
-\\[0.5ex]
-\emkey{single-attribute-value}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em value} \\
-    $|$ & {\em multi-value-opening} {\em value} \\
-        & \{ {\em multi-value-separator} {\em value} \}\STAR{} \\
-	& {\em multi-value-closing} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{value} ::= {\em label} $|$ {\em bracketed-expression}
 \end{indpar}
 
 The {\em typed-opening/middle/closing} and
@@ -3232,22 +3264,34 @@ brackets are constructed.  They are specified by a
 which is:
 \begin{center}
 \begin{tabular}{l}
-\TT{parser define typed bracket} \\
-\TT{~~~~"\{"~...~":"~...~"="~...~","~...~"|"~...~"|"~...~"\}"} \\
+\TT{parser define typed bracket "\{"~...~"|"~...~"|"~...~"\}"} \\
 \TT{~~~~[text]~} \\
+\TT{~~~~with attributes ":"~...~"="~...~","} \\
 \TT{~~~~with attribute negative "no"} \\
+\TT{~~~~with attribute flags "["~...~","~...~"]"} \\
+\TT{~~~~with attribute multivalue "{*"~...~","~...~"*}"} \\
 \TT{~~~~}\ldots
 \end{tabular}
 \end{center}
-which specifies `\TT{\{}' to be a {\em typed-opening},
-`\TT{:}' to be a {\em typed-attribute-begin},
-`\TT{=}' to be a {\em typed-attribute-equal},
-`\TT{,}' to be a {\em typed-attribute-separator},
-`\TT{|}' to be a {\em typed-middle},
-`\TT{\}}' to be a {\em typed-closing},
-`\TT{text}' to be the sole definition selector,
-and
-`\TT{no}' to be a {\em typed-attribute-negative}.
+which specifies
+\begin{center}
+\begin{tabular}{l}
+`\TT{\{}' to be a {\em typed-opening} \\
+`\TT{|}' to be a {\em typed-middle} \\
+`\TT{\}}' to be a {\em typed-closing} \\
+`\TT{text}' to be the sole definition selector \\
+`\TT{:}' to be the {\em typed-attribute-begin} \\
+`\TT{=}' to be the {\em typed-attribute-equal} \\
+`\TT{,}' to be the {\em typed-attribute-separator} \\
+`\TT{no}' to be the {\em typed-attribute-negative} \\
+`\TT{[}' to be the {\em typed-attribute-flags-opening} \\
+`\TT{,}' to be the {\em typed-attribute-flags-separator} \\
+`\TT{]}' to be the {\em typed-attribute-flags-closing} \\
+`\TT{\{*}' to be the {\em typed-attribute-multivalue-opening} \\
+`\TT{,}' to be the {\em typed-attribute-multivalue-separator} \\
+`\TT{*\}}' to be the {\em typed-attribute-multivalue-closing} \\
+\end{tabular}
+\end{center}
 
 The general syntax of {\em parser-typed-bracket-commands} is:
 
@@ -3330,39 +3374,31 @@ or an end of file.
 \subsubsection{Typed Prefix Separators}
 \label{TYPED-PREFIX-SEPARATORS}
 
-TBD
-
 A \key{typed prefix separator}
 has the same syntax as an {\em typed-bracketed-expression}
-ending with
+but without the {\em element-list}, meaning there are no
+{\em typed-middles} (e.g., `\TT{|}'s) or {\em elements}.
+Some examples are:
 \begin{center}
-{\em typed-middle} {\em typed-middle} {\em typed-closing}
+\TT{\{my type\}} \\
+\TT{\{my type: my attribute = 5, my option = TRUE\}} \\
+\TT{\{my type: my attribute = 5, my option = FALSE\}} \\
+\TT{\{my type: my attribute = 5, my option\}} \\
+\TT{\{"": my attribute = 5, not my option\}} \\
 \end{center}
-(e.g., `\TT{||\}}') but with the two {\em typed-middles} omitted.
 
-TBD
+The general syntax is:
 
 \begin{indpar}[0.1in]
-\emkey{typed-operator} ::=
-    \begin{tabular}[t]{@{}l@{~}l@{}}
-    {\em typed-opening} & {\em operator-name} {\em argument}\STAR{} \\
-	                & \{ {\em typed-key-separator} {\em key} \}\STAR{} \\
-	                & {\em typed-closing} \\
-	 \end{tabular}
-\\[0.5ex]
-\emkey{operator-name} ::= {\em simple-name}
+\emkey{typed-prefix-separator} ::=
+    {\em typed-opening} {\em type-label} {\em attributes}\QMARK{}
+	                {\em typed-closing} \\
 \end{indpar}
 
-A {\em typed-operator} is converted to a MIN object which has the
-same structure as a typed bracketed subexpression with an empty list
-but with its \TT{.name} attribute equal to
-the {\em operator-name} instead of a {\em bracket-name} and with
-no \TT{.middle} attribute.  As for a typed bracketed subexpression,
-the \TT{.initiator} is the {\em typed-opening},
-the \TT{.terminator} is the {\em typed-closing},
-and the \TT{.arguments} and \TT{.keys} are set from the
-contents of the {\em typed-operator} just as they would be from the
-contents of a {\em typed-opening-bracket}.
+A {\em typed-prefix-separator} is converted to a MIN object which has the
+same structure as a typed bracketed subexpression with an empty list.
+
+TBD
 
 \subsubsection{The Print Bracket Command}
 

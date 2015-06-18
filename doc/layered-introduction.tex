@@ -3156,15 +3156,19 @@ The general syntax is:
                   ::= & {\em typed-attribute-negative} {\em attribute-label} \\
 		  \end{tabular}
 \\[0.5ex]
-\emkey{typed-opening} ::= as defined by a
-    {\em parser-typed-bracket-command} (\pagref{PARSER-TYPED-BRACKET-COMMAND})
+\emkey{typed-opening} ::=
+   \begin{tabular}[t]{@{}l}
+   \{ {\em mark} $|$ {\em separator} \}\PLUS{} \\
+    as defined by a {\em parser-typed-bracket-command}
+    (\pagref{PARSER-TYPED-BRACKET-COMMAND})
     ~~~~~ [e.g., `\TT{\{}']
+    \end{tabular}
 \\[0.5ex]
 \emkey{typed-middle} ::= ditto
     ~~~~~ [e.g., `\TT{|}']
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::= {\em typed-middle} {\em typed-middle}
-    as a single lexeme
+    as a single lexeme if appropriate: see text
     ~~~~~ [e.g., `\TT{||}']
 \\[0.5ex]
 \emkey{typed-closing} ::= ditto
@@ -3181,6 +3185,15 @@ The general syntax is:
 \\[0.5ex]
 \emkey{typed-attribute-negative} ::= ditto
     ~~~~~ [e.g., `\TT{no}']
+\\[0.5ex]
+\emkey{value-opening} ::= ditto
+    ~~~~~ [e.g., `\TT{\{*}']
+\\[0.5ex]
+\emkey{value-separator} ::= ditto
+    ~~~~~ [e.g., `\TT{\{,}']
+\\[0.5ex]
+\emkey{value-closing} ::= ditto
+    ~~~~~ [e.g., `\TT{*\}}']
 \\[0.5ex]
 \emkey{type-mark} ::= {\em mark}
 \\[0.5ex]
@@ -3201,9 +3214,13 @@ The general syntax is:
 \\[0.5ex]
 \emkey{single-attribute-value}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em label} \\
-    $|$ & \TT{\{*} {\em label} \{ \TT{,} {\em label} \}\STAR{} \TT{*\}}
+    ::= & {\em value} \\
+    $|$ & {\em multi-value-opening} {\em value} \\
+        & \{ {\em multi-value-separator} {\em value} \}\STAR{} \\
+	& {\em multi-value-closing} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{value} ::= {\em label} $|$ {\em bracketed-expression}
 \end{indpar}
 
 The {\em typed-opening/middle/closing} and

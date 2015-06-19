@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 18, 2015
+June 19, 2015
  
 \end{center}
 
@@ -2730,14 +2730,16 @@ The general syntax is:
 \emkey{closing-bracket} ::= ditto
     ~~~~~ [e.g., `\TT{)}' or `\TT{>]}']
 \\[0.5ex]
-\emkey{element-list} ::= {\em simple-element-list} $|$
-                         {\em prefix-0-list}
+\emkey{element-list} ::= {\em prefix-0-list}
 \label{ELEMENT-LIST}
 \\[0.5ex]
-\emkey{simple-element-list} ::= {\em element}\STAR{} but not {\em prefix-0-list}
+\emkey{prefix-0-list}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em simple-element-list} \\
+    $|$ & see \pagref{PREFIX-0-LIST}
+    \end{tabular}
 \\[0.5ex]
-\emkey{prefix-0-list} ::= specialized form of {\em element}\PLUS{};
-                          see \pagref{PREFIX-0-LIST}
+\emkey{simple-element-list} ::= {\em element}\STAR{}
 \\[0.5ex]
 \emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
                     {\em separator} $|$ {\em quoted-string} $|$
@@ -2944,7 +2946,7 @@ Note: \begin{minipage}[t]{5.8in}
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
-Note: \begin{minipage}[t]{5.8in}
+Note: \begin{minipage}[t]{5.6in}
       A {\em paragraph-line} {\em element-list} is terminated by the
       first {\em line-separator} or {\em non-continuation-line-break}.
       \end{minipage}
@@ -2971,7 +2973,8 @@ and `\TT{operator}' as the sole definition selector.
 The general syntax of {\em parser-indentation-mark-commands} is:
 
 \begin{indpar}[0.1in]
-\emkey{parser-indentation-mark-command} \\
+\emkey{parser-indentation-mark-command}%
+\label{PARSER-INDENTATION-MARK-COMMAND} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser define}{define indentation mark}
@@ -3385,20 +3388,87 @@ Some examples are:
 \TT{\{my type: my attribute = 5, my option = FALSE\}} \\
 \TT{\{my type: my attribute = 5, my option\}} \\
 \TT{\{"": my attribute = 5, not my option\}} \\
+\TT{\{*\}} \\
 \end{center}
 
 The general syntax is:
 
 \begin{indpar}[0.1in]
-\emkey{typed-prefix-separator} ::=
-    {\em typed-opening} {\em type-label} {\em attributes}\QMARK{}
-	                {\em typed-closing} \\
+\emkey{typed-prefix-separator}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em typed-opening} {\em type-label} {\em attributes}\QMARK{}
+	                      {\em typed-closing} \\
+    $|$ & {\em typed-opening} {\em type-mark} {\em typed-closing} \\
+    \end{tabular}
 \end{indpar}
 
 A {\em typed-prefix-separator} is converted to a MIN object which has the
 same structure as a typed bracketed subexpression with an empty list.
 
-TBD
+{\em Typed-prefix-separators} are used to form {\em prefix-N-lists}.%
+\label{PREFIX-0-LIST}
+The following is an example in which {\em line-breaks} are ignored:
+
+
+\begin{tabular}{lll}
+Text	& Separator &  Syntactic Category
+\\\hline
+\tt \{p\} \{s\} This is a sentence.	& \tt \{p\} & \em prefix-0-list \\
+\tt ~~~ \{s\} And another. \\
+\tt \{p\} \{s\} And a new \{foo\} paragraph.
+\\\hline
+\tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list \\
+\tt \{s\} And another.
+\\\hline
+\tt This is a sentence.	& (none) & \em prefix-2-list
+\\\hline
+\tt And another. & (none) & \em prefix-2-list
+\\\hline
+\tt \{s\} And a new \{foo\} paragraph. & \tt \{s\} & \em prefix-1-list
+\\\hline
+\tt And a new \{foo\} paragraph. & (none) & \em prefix-2-list \\
+			       &        & \TT{\{foo\}} is in error \\
+			       &        & and is ignored (deleted).
+\end{tabular}
+
+The {\em prefix-0-list} in this example is equivalent to:
+\begin{indpar}\begin{verbatim}
+{|  {p|  {s| This is a sentence . |}
+         {s| And another . |} |}
+    {p|  {s| And a new paragraph . |} |} |}
+             // `{foo}' deleted
+\end{verbatim}\end{indpar}
+
+The general syntax is:
+
+\begin{indpar}[0.1in]
+\emkey{prefix-n-list}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \{ {\em prefix-n} {\em prefix-(n+1)-list} \}\PLUS{} \\
+    $|$ & {\em simple-element-list} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{prefix-n} ::= {\em typed-prefix-separator}
+\\[0.5ex]
+Note: \begin{minipage}[t]{5.8in}
+      All the {\em prefix-n}'s in a given {\em prefix-n-list} must
+      have the same type (i.e., \TT{.type} attribute).
+      \end{minipage}
+\end{indpar}
+
+The elements of a {\em prefix-n-list} are modified by taking
+each `{\em prefix-n} {\em prefix-(n+1)-list}' component and
+moving the {\em prefix-(n+1)-list} elements to the
+the MIN object represented by {\em prefix-n}.  So, for example,
+\begin{center}
+\TT{\{T\} X Y Z}
+\end{center}
+is just alternate syntax for
+\begin{center}
+\TT{\{T| X Y Z |\}}
+\end{center}
+
+
 
 \subsubsection{The Print Bracket Command}
 

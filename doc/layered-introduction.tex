@@ -2574,13 +2574,13 @@ the only syntax attribute is the \TT{.type} attribute, but arbitrary
 non-syntax attributes may be encoded in the typed brackets.
 
 Subexpressions may occur among the list of tokens that determine the
-object elements or the value of a non-syntax attribute in a named
-bracket.  These are reduced by the parser to BACKETTED tokens
+object elements or the value of a non-syntax attribute.
+These are reduced by the parser to \TT{BACKETTED} tokens
 with a \TT{value} before the MIN object is formed.
 Quoted string lexemes must be handled
 differently because they have no token \TT{value}.  These are
 represented by MIN objects
-that have the \TT{.initiator} attribute \TT{"<Q>"}
+that have the \TT{.type} attribute \TT{"<Q>"}
 and that have a single
 element which is a MIN string equal as a character string to the
 \TT{string} of the quoted string token being represented.
@@ -2591,11 +2591,9 @@ parser test (x 5 "foo")
 \end{verbatim}\end{indpar}
 causes the parser to output a \TT{BRACKETED} token whose \TT{value} is
 \begin{indpar}\begin{verbatim}
-{| parser test
-   {"<NL>"| {"": .initiator "(", .terminator = ")"|
-                 x 5 {"<Q>"|foo|} |}
-   |}
-|}
+{"<LF>"| parser test
+         {"": .initiator "(", .terminator = ")"|
+              x 5 {"<Q>"|foo|} |} |}
 \end{verbatim}\end{indpar}
 where a MIN object is represented by
 \begin{center}

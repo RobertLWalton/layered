@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 19, 2015
+June 21, 2015
  
 \end{center}
 
@@ -1838,27 +1838,43 @@ possible syntactic additions that integrate well with existing syntax.
 
 The parser is a sequence of passes each of which operates on a list
 of tokens.  A token is either a lexeme, a subexpression, or an operator.
+
 The top level parser pass, the bracketed subexpression recognition pass,
-recognizes subexpressions that are bounded by `typed prefix separators' such as
-`\TT{\{p\}}' and `\TT{\{code\}}', by brackets
-such as `\TT{(}' and `\TT{)}', by an indentation mark such as `\TT{:}'
-at the end of a line and eventual
-end of indentation, by a line end, or by a line separator such as `\TT{;}'
-that is equivalent to a line end.
+recognizes:
+\begin{itemize}
+\item Top level paragraphs, bounded by blank lines, and optionally
+introduced by `typed prefix separators' such as
+`\TT{\{p\}}' and `\TT{\{code\}}'.
+\item Typed separated subexpressions that are introduced by 
+`typed prefix separators' such as
+`\TT{\{s\}}' but which are not top level paragraphs.
+\item Bracketed subexpressions bounded by brackets
+such as `\TT{(}' and `\TT{)}'.
+\item Typed bracketed subexpressions bounded by typed brackets
+such as `\TT{\{b|}' and `\TT{|b\}}'.
+\item Indented paragraphs, introduced by line-ending
+indentation marks such as `\TT{:}', and terminated by the end of indentation.
+\item
+Lines in paragraphs which have line elements, such as indented paragraphs.
+These may be continued
+with indented lines, and are terminated by the next non-indented line,
+or by a line separator such as `\TT{;}'.
+\end{itemize}
+
 The non-top-level passes
 operate on the subexpressions recognized by previous passes;
 for example, the operator pass operates on bracketed subexpressions
 and recognizes
 subexpressions bounded by operators.
+
 Prefix separators and brackets can be used to change syntax, so, for example,
-the syntax of a \TT{\{p\}} paragraph may differ from the
-the syntax of a \TT{\{code\}} paragraph, and
-the syntax of a \TT{( )} bracketed expression may differ from
-the syntax of a \TT{` '} bracketed expression.
+the syntax within a \TT{\{p\}} paragraph may differ from the
+the syntax within a \TT{\{code\}} paragraph, and
+the syntax within a \TT{[ ]} bracketed subexpression may differ from
+the syntax within a \TT{` '} bracketed subexpression.
 
 Parsing reduces each recognized subexpression, including each paragraph,
-to a single expression token.  Here indentation may or may not
-be used to continue lines and paragraphs.
+to a single expression token.
 
 \subsection{Tokens}
 

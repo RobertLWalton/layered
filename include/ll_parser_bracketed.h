@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 14 05:14:00 EDT 2015
+// Date:	Mon Jun 22 06:56:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,8 +11,9 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Brackets
+//	Untyped Brackets
 //	Indentation Marks
+//	Typed Brackets
 //	Bracketed Subexpression Pass
 //	Parse Bracketed Subexpression Function
 
@@ -26,8 +27,8 @@
 
 namespace ll { namespace parser { namespace bracketed {
 
-// Brackets
-// --------
+// Untyped Brackets
+// ------- --------
 
 // Bracket definition.
 //
@@ -160,6 +161,211 @@ ll::parser::bracketed::indentation_mark
 	  const ll::parser::table::new_flags
 	      & new_selectors,
 	  ll::parser::table::key_table bracket_table );
+
+// Typed Brackets
+// ----- --------
+
+// Typed bracket definition.
+
+struct typed_opening_struct;
+typedef min::packed_struct_updptr
+	    <typed_opening_struct>
+        typed_opening;
+extern const uns32 & TYPED_OPENING;
+    // Subtype of min::packed_struct
+    //		       <typed_opening_struct>.
+
+struct typed_middle_struct;
+typedef min::packed_struct_updptr
+	    <typed_middle_struct>
+        typed_middle;
+extern const uns32 & TYPED_MIDDLE;
+    // Subtype of min::packed_struct
+    //		       <typed_middle_struct>.
+
+struct typed_closing_struct;
+typedef min::packed_struct_updptr
+	    <typed_closing_struct>
+        typed_closing;
+extern const uns32 & TYPED_CLOSING;
+    // Subtype of min::packed_struct
+    //		       <typed_closing_struct>.
+
+struct typed_attribute_begin_struct;
+typedef min::packed_struct_updptr
+	    <typed_attribute_begin_struct>
+        typed_attribute_begin;
+extern const uns32 & TYPED_ATTRIBUTE_BEGIN;
+    // Subtype of min::packed_struct
+    //		       <typed_attribute_begin_struct>.
+
+struct typed_attribute_equal_struct;
+typedef min::packed_struct_updptr
+	    <typed_attribute_equal_struct>
+        typed_attribute_equal;
+extern const uns32 & TYPED_ATTRIBUTE_EQUAL;
+    // Subtype of min::packed_struct
+    //		       <typed_attribute_equal_struct>.
+
+struct typed_attribute_separator_struct;
+typedef min::packed_struct_updptr
+	    <typed_attribute_separator_struct>
+        typed_attribute_separator;
+extern const uns32 & TYPED_ATTRIBUTE_SEPARATOR;
+    // Subtype of
+    //     min::packed_struct
+    //	       <typed_attribute_separator_struct>.
+
+struct typed_attribute_negator_struct;
+typedef min::packed_struct_updptr
+	    <typed_attribute_negator_struct>
+        typed_attribute_negator;
+extern const uns32 & TYPED_ATTRIBUTE_NEGATOR;
+    // Subtype of
+    //     min::packed_struct
+    //	       <typed_attribute_negator_struct>.
+
+struct typed_opening_struct :
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_OPENING.
+
+    const ll::parser::bracketed::typed_closing
+          typed_closing;
+        // The opposing bracket of the opening bracket.
+
+    ll::parser::table::new_flags new_selectors;
+    	// New selectors associated with this opening
+	// bracket.
+
+};
+
+struct typed_middle_struct : 
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_MIDDLE.
+
+    const ll::parser::bracketed::typed_opening
+          typed_opening;
+        // The opening bracket for the typed middle.
+};
+
+struct typed_closing_struct : 
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_CLOSING.
+
+    const ll::parser::bracketed::typed_opening
+          typed_opening;
+        // The opposing bracket of the closing bracket.
+};
+
+struct typed_attribute_begin_struct : 
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_ATTRIBUTE_BEGIN.
+
+    const ll::parser::bracketed::typed_opening
+          typed_opening;
+        // The opening bracket for the attribute_begin.
+};
+
+struct typed_attribute_equal_struct : 
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_ATTRIBUTE_EQUAL.
+
+    const ll::parser::bracketed::typed_opening
+          typed_opening;
+        // The opening bracket for the attribute_equal.
+};
+
+struct typed_attribute_separator_struct : 
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // SEPARATOR.
+
+    const ll::parser::bracketed::typed_opening
+          typed_opening;
+        // The opening bracket for the attribute_
+	// separator.
+};
+
+struct typed_attribute_negator_struct : 
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // NEGATOR.
+
+    const ll::parser::bracketed::typed_opening
+          typed_opening;
+        // The opening bracket for the attribute_
+	// negator.
+};
+
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::typed_opening )
+MIN_REF ( ll::parser::bracketed::typed_closing,
+          typed_closing,
+          ll::parser::bracketed::typed_opening )
+
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::typed_middle )
+MIN_REF ( ll::parser::bracketed::typed_opening,
+          typed_opening,
+          ll::parser::bracketed::typed_middle )
+
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::typed_closing )
+MIN_REF ( ll::parser::bracketed::typed_opening,
+          typed_opening,
+          ll::parser::bracketed::typed_closing )
+
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::typed_attribute_begin )
+MIN_REF ( ll::parser::bracketed::typed_opening,
+          typed_opening,
+          ll::parser::bracketed::typed_attribute_begin )
+
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::typed_attribute_equal )
+MIN_REF ( ll::parser::bracketed::typed_opening,
+          typed_opening,
+          ll::parser::bracketed::typed_attribute_equal )
+
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed
+	            ::typed_attribute_separator )
+MIN_REF ( ll::parser::bracketed::typed_opening,
+          typed_opening,
+          ll::parser::bracketed
+	            ::typed_attribute_separator )
+
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed
+	            ::typed_attribute_negator )
+MIN_REF ( ll::parser::bracketed::typed_opening,
+          typed_opening,
+          ll::parser::bracketed
+	            ::typed_attribute_negator )
+
+ll::parser::bracketed::typed_opening
+    push_typed_brackets
+	( min::gen typed_opening,
+	  min::gen typed_middle,
+	  min::gen typed_closing,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  const ll::parser::table::new_flags
+	      & new_selectors,
+	  min::gen typed_attribute_begin,
+	  min::gen typed_attribute_equal,
+	  min::gen typed_attribute_separator,
+	  min::gen typed_attribute_negator,
+	  ll::parser::table::key_table bracket_table );
+
 
 // Bracketed Subexpression Pass
 // --------- ------------- ----

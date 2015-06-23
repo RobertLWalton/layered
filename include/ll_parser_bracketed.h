@@ -441,7 +441,7 @@ struct typed_attribute_multivalue_separator_struct :
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_ATTRIBUTE_
-    // MULTIVALUE_OPENING.
+    // MULTIVALUE_SEPARATOR.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -453,7 +453,7 @@ struct typed_attribute_multivalue_closing_struct :
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_ATTRIBUTE_
-    // MULTIVALUE_OPENING.
+    // MULTIVALUE_CLOSING.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;

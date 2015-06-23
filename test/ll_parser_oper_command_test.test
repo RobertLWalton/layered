@@ -738,69 +738,69 @@ parser test ( x y ++ -- ++ -- )
 parser define operator "<--" [code] nofix
        with precedence 0
        with declare reformatter
-parser define operator bracket "{" ... "}" [code] afix
+parser define operator bracket "{{" ... "}}" [code] afix
        with precedence 0
 parser define operator indentation mark ":" [code] afix
        with precedence 0
 ======= TEST: parser test
                   {"": .operator = "<--", .terminator = ")",
                        .initiator = "("|<-- {|foo bar|} {|boo bat|}
-                       {fee fie fo fum}|}
+                       {{fee fie fo fum}}|}
 ------- line 188:
-parser test ( foo bar <-- boo bat { fee fie fo fum } )
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 188:
-parser test ( foo bar <-- boo bat { fee fie fo fum } )
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 188:
-parser test ( foo bar <-- boo bat { fee fie fo fum } )
+parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
               ^^^^^^^
 ------- line 188:
-parser test ( foo bar <-- boo bat { fee fie fo fum } )
+parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
                           ^^^^^^^
 ------- line 188:
-parser test ( foo bar <-- boo bat { fee fie fo fum } )
-                                  ^^^^^^^^^^^^^^^^^^
+parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
+                                  ^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "<--", .terminator = ")",
                        .initiator = "("|<-- {|foo bar|} {}
-                       {fee fie fo fum}|}
+                       {{fee fie fo fum}}|}
 ------- line 189:
-parser test ( foo bar <-- { fee fie fo fum } )
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( foo bar <-- {{ fee fie fo fum }} )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 189:
-parser test ( foo bar <-- { fee fie fo fum } )
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( foo bar <-- {{ fee fie fo fum }} )
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 189:
-parser test ( foo bar <-- { fee fie fo fum } )
+parser test ( foo bar <-- {{ fee fie fo fum }} )
               ^^^^^^^
 ------- line 189:
-parser test ( foo bar <-- { fee fie fo fum } )
+parser test ( foo bar <-- {{ fee fie fo fum }} )
                          ^
 ------- line 189:
-parser test ( foo bar <-- { fee fie fo fum } )
-                          ^^^^^^^^^^^^^^^^^^
+parser test ( foo bar <-- {{ fee fie fo fum }} )
+                          ^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "<--", .terminator = ")",
                        .initiator = "("|<-- {} {|boo bat|}
-                       {fee fie fo fum}|}
+                       {{fee fie fo fum}}|}
 ------- line 190:
-parser test ( <-- boo bat { fee fie fo fum } )
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( <-- boo bat {{ fee fie fo fum }} )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 190:
-parser test ( <-- boo bat { fee fie fo fum } )
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test ( <-- boo bat {{ fee fie fo fum }} )
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 190:
-parser test ( <-- boo bat { fee fie fo fum } )
+parser test ( <-- boo bat {{ fee fie fo fum }} )
               ^
 ------- line 190:
-parser test ( <-- boo bat { fee fie fo fum } )
+parser test ( <-- boo bat {{ fee fie fo fum }} )
                   ^^^^^^^
 ------- line 190:
-parser test ( <-- boo bat { fee fie fo fum } )
-                          ^^^^^^^^^^^^^^^^^^
+parser test ( <-- boo bat {{ fee fie fo fum }} )
+                          ^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "<--", .terminator = ")",
@@ -991,6 +991,6 @@ parser print operator "":
     block standard: bracket ":" ... [$ MISSING $] [code]
                     afix
                     with precedence 0
-    block standard: bracket "{" ... "}" [code]
+    block standard: bracket [< "{" "{" >] ... [< "}" "}" >] [code]
                     afix
                     with precedence 0

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 14 04:27:59 EDT 2015
+// Date:	Tue Jun 23 06:06:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,6 +65,11 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::locatable_gen closing_brace
         ( min::new_str_gen ( "}" ) );
 
+    min::locatable_gen opening_double_brace
+        ( min::new_lab_gen ( "{", "{" ) );
+    min::locatable_gen closing_double_brace
+        ( min::new_lab_gen ( "}", "}" ) );
+
     min::locatable_gen opening_quote
         ( min::new_str_gen ( "`" ) );
     min::locatable_gen closing_quote
@@ -74,6 +79,20 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_str_gen ( ":" ) );
     min::locatable_gen semicolon
         ( min::new_str_gen ( ";" ) );
+    min::locatable_gen comma
+        ( min::new_str_gen ( "," ) );
+    min::locatable_gen bar
+        ( min::new_str_gen ( "|" ) );
+    min::locatable_gen equal
+        ( min::new_str_gen ( "=" ) );
+
+    min::locatable_gen no
+        ( min::new_str_gen ( "no" ) );
+
+    min::locatable_gen opening_brace_star
+        ( min::new_lab_gen ( "{", "*" ) );
+    min::locatable_gen star_closing_brace
+        ( min::new_lab_gen ( "*", "}" ) );
 
     parser->selectors = code;
 
@@ -96,8 +115,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  false,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
-        ( opening_brace,
-          closing_brace,
+        ( opening_double_brace,
+          closing_double_brace,
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( math, code + text, 0 ),
@@ -117,5 +136,15 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
+	  bracketed_pass->bracket_table );
+
+    BRA::push_typed_brackets
+        ( opening_brace, bar, closing_brace,
+	  code + math + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  colon, equal, comma, no,
+	  opening_square, comma, closing_square,
+	  opening_brace_star, comma, star_closing_brace,
 	  bracketed_pass->bracket_table );
 }

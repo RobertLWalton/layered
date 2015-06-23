@@ -83,32 +83,38 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {p q}
+    {{p q}}
 @10 = p q:
-          .terminator = "}"
-          .initiator = "{"
+          .terminator = [< "}" "}" >]
+          .initiator = [< "{" "{" >]
           .position[H] = {}
     line 19:
-     (x + `y z {p q}' - [ g h ]).
-               ^^^^^
+     (x + `y z {{p q}}' - [ g h ]).
+               ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    `y z {p q}'
+    `y z {{p q}}'
 @11 = y z @10:
           .terminator = "'"
           .initiator = "`"
           .position[H] = {}
     line 19:
-     (x + `y z {p q}' - [ g h ]).
-          ^^^^^^^^^^^
+     (x + `y z {{p q}}' - [ g h ]).
+          ^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::typed_attribute_flags_opening_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "["
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::typed_attribute_flags_closing_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "]"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
@@ -118,94 +124,101 @@ BRACKETED EXPRESSION:
           .initiator = "["
           .position[H] = {}
     line 19:
-     (x + `y z {p q}' - [ g h ]).
-                        ^^^^^^^
+     (x + `y z {{p q}}' - [ g h ]).
+                          ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    (x + `y z {p q}' - [g h])
+    (x + `y z {{p q}}' - [g h])
 @13 = x + @11 - @12:
           .terminator = ")"
           .initiator = "("
           .position[H] = {}
     line 19:
-     (x + `y z {p q}' - [ g h ]).
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     (x + `y z {{p q}}' - [ g h ]).
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains more subsubexpressions (x + `y z {p q}' - [g h])
-        "."
+    This line contains more subsubexpressions
+        (x + `y z {{p q}}' - [g h]) "."
 @14 = This line contains more subsubexpressions @13 ".":
           .type = "<LF>"
           .position[H] = {}
     lines 18-19:
 This line contains more subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     (x + `y z {p q}' - [ g h ]).
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     (x + `y z {{p q}}' - [ g h ]).
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: missing closing bracket "}" inserted before ")"; line 21:
-     (x + { y z )
-                ^
+ERROR: missing closing bracket [< "}" "}" >] inserted before ")";
+       line 21:
+     (x + {{ y z )
+                 ^
 BRACKETED EXPRESSION:
-    {y z}
+    {{y z}}
 @15 = y z:
-          .terminator = "}"
-          .initiator = "{"
+          .terminator = [< "}" "}" >]
+          .initiator = [< "{" "{" >]
           .position[H] = {}
     line 21:
-     (x + { y z )
-          ^^^^^
+     (x + {{ y z )
+          ^^^^^^
 BRACKETED EXPRESSION:
-    (x + {y z})
+    (x + {{y z}})
 @16 = x + @15:
           .terminator = ")"
           .initiator = "("
           .position[H] = {}
     line 21:
-     (x + { y z )
-     ^^^^^^^^^^^^
+     (x + {{ y z )
+     ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains a missing closing bracket (x + {y z})
+    This line contains a missing closing bracket (x + {{y z}})
 @17 = This line contains a missing closing bracket @16:
           .type = "<LF>"
           .position[H] = {}
     lines 20-21:
 This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     (x + { y z )
-^^^^^^^^^^^^^^^^^
+     (x + {{ y z )
+^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::typed_closing_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::typed_closing_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
 ERROR: missing closing bracket ")" inserted before end of line; line 23:
-     (x + y }
-             ^
+     (x + y }}
+              ^
 BRACKETED EXPRESSION:
-    (x + y "}")
-@18 = x + y "}":
+    (x + y "}" "}")
+@18 = x + y "}" "}":
           .terminator = ")"
           .initiator = "("
           .position[H] = {}
     line 23:
-     (x + y }
-     ^^^^^^^^
+     (x + y }}
+     ^^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains an incorrect closing bracket (x + y "}")
+    This line contains an incorrect closing bracket (x + y "}" "}")
 @19 = This line contains an incorrect closing bracket @18:
           .type = "<LF>"
           .position[H] = {}
     lines 22-23:
 This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     (x + y }
-^^^^^^^^^^^^^
+     (x + y }}
+^^^^^^^^^^^^^^
 ERROR: lexeme indent 1 too near paragraph indent 0; line 25:
  a token with insufficient indent
  ^
@@ -219,6 +232,9 @@ This line includes
 ^^^^^^^^^^^^^^^^^^
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attribute_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -263,6 +279,12 @@ This line starts an indented paragraph:
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attribute_equal_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attribute_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -307,6 +329,9 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attribute_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -389,7 +414,7 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<-"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "<+"
      OF SUBTYPE ll::parser::table::opening_bracket_type
@@ -402,25 +427,25 @@ BRACKETED EXPRESSION:
           .initiator = "<+"
           .position[H] = {}
     line 37:
-     { <+ x +> <- y ->} `<+ x +> <- y ->'
-       ^^^^^^^
+     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+        ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<-"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<-"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {<+ x +> <- y ->}
+    {{<+ x +> <- y ->}}
 @36 = @35 <- y ->:
-          .terminator = "}"
-          .initiator = "{"
+          .terminator = [< "}" "}" >]
+          .initiator = [< "{" "{" >]
           .position[H] = {}
     line 37:
-     { <+ x +> <- y ->} `<+ x +> <- y ->'
-     ^^^^^^^^^^^^^^^^^^
+     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+     ^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<+"
@@ -440,8 +465,8 @@ BRACKETED EXPRESSION:
           .initiator = "<-"
           .position[H] = {}
     line 37:
-     { <+ x +> <- y ->} `<+ x +> <- y ->'
-                                 ^^^^^^^
+     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+                                   ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
@@ -451,10 +476,10 @@ BRACKETED EXPRESSION:
           .initiator = "`"
           .position[H] = {}
     line 37:
-     { <+ x +> <- y ->} `<+ x +> <- y ->'
-                        ^^^^^^^^^^^^^^^^^
+     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+                          ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This tests selector changes --- <+ x +> <- y -> {<+ x +> <- y ->}
+    This tests selector changes --- <+ x +> <- y -> {{<+ x +> <- y ->}}
         `<+ x +> <- y ->'
 @39 = This tests selector changes --- <+ x +> <- y -> @36 @38:
           .type = "<LF>"
@@ -462,5 +487,5 @@ BRACKETED EXPRESSION:
     lines 36-37:
 This tests selector changes --- <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     { <+ x +> <- y ->} `<+ x +> <- y ->'
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 14 05:10:50 EDT 2015
+// Date:	Mon Jun 22 22:37:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -604,6 +604,176 @@ BRA::typed_opening
 	           (TAB::root) attribute_equal );
 	TAB::push ( bracket_table,
 	           (TAB::root) attribute_separator );
+    }
+
+    if ( typed_attribute_negator != min::MISSING() )
+    {
+	min::locatable_var
+		<BRA::typed_attribute_negator>
+	    attribute_negator
+		( ::typed_attribute_negator_type
+		    .new_stub() );
+
+	label_ref(attribute_negator)
+	    = typed_attribute_negator;
+
+	typed_attribute_negator_ref(opening)
+	    = attribute_negator;
+	typed_opening_ref(attribute_negator)
+	    = opening;
+
+	attribute_negator->selectors   = TAB::ALL_FLAGS;
+
+	attribute_negator->block_level   = block_level;
+
+	attribute_negator->position   = position;
+
+	TAB::push ( bracket_table,
+	           (TAB::root) attribute_negator );
+    }
+
+    if (    typed_attribute_flags_opening
+         != min::MISSING() )
+    {
+	min::locatable_var
+		<BRA::typed_attribute_flags_opening>
+	    attribute_flags_opening
+		( ::typed_attribute_flags_opening_type
+		    .new_stub() );
+	min::locatable_var
+		<BRA::typed_attribute_flags_separator>
+	    attribute_flags_separator
+		( ::typed_attribute_flags_separator_type
+		    .new_stub() );
+	min::locatable_var
+		<BRA::typed_attribute_flags_closing>
+	    attribute_flags_closing
+		( ::typed_attribute_flags_closing_type
+		    .new_stub() );
+
+	label_ref(attribute_flags_opening)
+	    = typed_attribute_flags_opening;
+	label_ref(attribute_flags_separator)
+	    = typed_attribute_flags_separator;
+	label_ref(attribute_flags_closing)
+	    = typed_attribute_flags_closing;
+
+	typed_attribute_flags_opening_ref(opening)
+	    = attribute_flags_opening;
+	typed_attribute_flags_separator_ref(opening)
+	    = attribute_flags_separator;
+	typed_attribute_flags_closing_ref(opening)
+	    = attribute_flags_closing;
+	typed_opening_ref(attribute_flags_opening)
+	    = opening;
+	typed_opening_ref(attribute_flags_separator)
+	    = opening;
+	typed_opening_ref(attribute_flags_closing)
+	    = opening;
+
+	attribute_flags_opening->selectors
+	    = TAB::ALL_FLAGS;
+	attribute_flags_separator->selectors
+	    = TAB::ALL_FLAGS;
+	attribute_flags_closing->selectors
+	    = TAB::ALL_FLAGS;
+
+	attribute_flags_opening->block_level
+	    = block_level;
+	attribute_flags_separator->block_level
+	    = block_level;
+	attribute_flags_closing->block_level
+	    = block_level;
+
+	attribute_flags_opening->position   = position;
+	attribute_flags_separator->position = position;
+	attribute_flags_closing->position   = position;
+
+	TAB::push
+	    ( bracket_table,
+	      (TAB::root) attribute_flags_opening );
+	TAB::push
+	    ( bracket_table,
+	      (TAB::root) attribute_flags_separator );
+	TAB::push
+	    ( bracket_table,
+	      (TAB::root) attribute_flags_closing );
+    }
+
+    if (    typed_attribute_multivalue_opening
+         != min::MISSING() )
+    {
+	min::locatable_var
+	       <BRA::typed_attribute_multivalue_opening>
+	  attribute_multivalue_opening
+	   ( ::typed_attribute_multivalue_opening_type
+		    .new_stub() );
+	min::locatable_var
+	     <BRA::typed_attribute_multivalue_separator>
+	  attribute_multivalue_separator
+	   ( ::typed_attribute_multivalue_separator_type
+		    .new_stub() );
+	min::locatable_var
+	       <BRA::typed_attribute_multivalue_closing>
+	    attribute_multivalue_closing
+	     ( ::typed_attribute_multivalue_closing_type
+		    .new_stub() );
+
+	label_ref(attribute_multivalue_opening)
+	    = typed_attribute_multivalue_opening;
+	label_ref(attribute_multivalue_separator)
+	    = typed_attribute_multivalue_separator;
+	label_ref(attribute_multivalue_closing)
+	    = typed_attribute_multivalue_closing;
+
+	typed_attribute_multivalue_opening_ref(opening)
+	    = attribute_multivalue_opening;
+	typed_attribute_multivalue_separator_ref
+		(opening)
+	    = attribute_multivalue_separator;
+	typed_attribute_multivalue_closing_ref(opening)
+	    = attribute_multivalue_closing;
+	typed_opening_ref(attribute_multivalue_opening)
+	    = opening;
+	typed_opening_ref
+		(attribute_multivalue_separator)
+	    = opening;
+	typed_opening_ref(attribute_multivalue_closing)
+	    = opening;
+
+	attribute_multivalue_opening->selectors
+	    = TAB::ALL_FLAGS;
+	attribute_multivalue_separator->selectors
+	    = TAB::ALL_FLAGS;
+	attribute_multivalue_closing->selectors
+	    = TAB::ALL_FLAGS;
+
+	attribute_multivalue_opening->block_level
+	    = block_level;
+	attribute_multivalue_separator->block_level
+	    = block_level;
+	attribute_multivalue_closing->block_level
+	    = block_level;
+
+	attribute_multivalue_opening->position
+	    = position;
+	attribute_multivalue_separator->position
+	    = position;
+	attribute_multivalue_closing->position
+	    = position;
+
+	TAB::push
+	    ( bracket_table,
+	      (TAB::root)
+	      attribute_multivalue_opening );
+	TAB::push
+	    ( bracket_table,
+	      (TAB::root)
+	      attribute_multivalue_separator );
+	TAB::push
+	    ( bracket_table,
+	      (TAB::root)
+	      attribute_multivalue_closing );
     }
 
     return opening;

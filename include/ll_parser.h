@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  1 05:34:18 EST 2015
+// Date:	Tue Jun 23 14:41:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -897,6 +897,7 @@ namespace bracketed {
 	    indentation_mark;
 }
 
+const uns32 NO_LINE_INDENT = 0xFFFFFFFF;
 struct parser_struct
 {
     uns32 control;
@@ -1039,6 +1040,13 @@ struct parser_struct
         // Number of finished tokens at the beginning
 	// of the token list.  The `parse' function
 	// produces finished tokens and calls `output'.
+
+    uns32 line_indent;
+	// Indent of the current line that may have
+	// continuation lines, if the next line has
+	// a greater indent, it is a continuation line.
+	// Equals NO_LINE_INDENT if continuation lines
+	// are not allowed.
 };
 
 inline min::uns32 block_level

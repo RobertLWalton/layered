@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 8, 2015
+June 24, 2015
  
 \end{center}
 
@@ -1066,25 +1066,32 @@ arguments or return value, except that after this function executes,
 the global area remains allocated and its variables can be referenced
 by other code.  The syntax is:
 \begin{indpar}
-\emkey{global-area}
-    ::= \begin{tabular}[t]{l}
+\emkey{global-area-block} ::= \\
+\hspace*{3em}\begin{tabular}[t]{@{}l}
 	\TT{*UNCHECKED*}\QMARK{} \TT{global} {\em global-area-name} \TT{:} \\
 	\TT{~~~~}{\em executable-statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
+Several such blocks may have the same {\em global-area-name},
+as long as no {\em variable-name} appears in more than one block.
+
 In order to be accessed a global area must be named in an `\TT{extern}'
 statement:
 \begin{indpar}
-\emkey{extern-statement}
-    ::= \begin{tabular}[t]{l}
+\emkey{extern-global-block} ::= \\
+\hspace*{3em}\begin{tabular}[t]{@{}l}
 	\TT{extern} {\em global-area-abbreviation}
-	            \TT{is} {\em global-area-name} \TT{:} \\
+	            \TT{is global} {\em global-area-name} \TT{:} \\
 	\TT{~~~~}{\em extern-variable-statement}\STAR{} \\
 	\end{tabular}
 \\[1ex]
-\emkey{extern-variable statement}
-    ::= \TT{extern} {\em variable-abbreviation} \TT{is} {\em variable-name}
+\emkey{extern-variable-statement} \\
+\hspace*{3em}\begin{tabular}[t]{@{}rl}
+    ::= & {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    $|$ & {\em variable-abbreviation} \TT{is}
+          {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    \end{tabular}
 \end{indpar}
 
 A variable named \TT{V} in a global area with {\em global-area-abbreviation}
@@ -1094,13 +1101,30 @@ may be used to name the variable.  Abbreviations are only affective
 within the source code file containing the `\TT{extern}' statements
 that define them.
 
-TBD: memory within global area: stub offset addresses.
+If \TT{A.V} is not defined, it is not a compile or link time error
+(though there may be warning messages if requested), but accessing
+\TT{A.V} will cause a runtime error (typically a segmentation fault).
+
+
+Memory within a global area can be allocated by:
+
+\begin{indpar}\begin{verbatim}
+( global adr address ) =
+    global_allocate ( unsadr N, unsadr O, unsadr A )
+( global adr address ) = global_allocate ( unsadr N )
+\end{verbatim}\end{indpar}
+
+The \TT{global\_allocate} function plays the same role for
+global areas as the \TT{stack\_allo\-cate} function does for
+stacks, accept that the address gets the \TT{global} qualifier
+instead of the \TT{stack} qualifier.  The \TT{global} qualifier
+has no special properties and normally has no effect on code.
 
 The code of a global area is executed when the file containing it is
 loaded, and the memory of the area is allocated and defined at that
 time.  Global areas may be deallocated.  References to a global area
-that is not yet allocated or has been deallocated cause segmentation
-faults.
+that is not yet allocated or has been deallocated cause runtime
+errors (typically segmentation faults).
 
 \section{Clusters}
 \label{CLUSTERS}

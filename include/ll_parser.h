@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 23 14:41:54 EDT 2015
+// Date:	Thu Jun 25 15:25:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,7 @@
 //	Parser Closures
 //	Contexts
 //	Parser
+//	Reformatters
 //	Parser Functions
 
 // Usage and Setup
@@ -1191,6 +1192,116 @@ void init_ostream
 //
 void parse ( ll::parser::parser parser =
 		 default_parser );
+
+// Reformatters
+// ------------
+
+// There are several reformatter stacks set up by pro-
+// gram initialization which list all the reformatters.
+// For example, there is one stack for operator refor-
+// matters and one for bracket reformatters.
+//
+// A reformatter and a vector of reformatter arguments
+// may be associated with an operator, bracket pair,
+// or other syntactic construct.
+
+typedef min::packed_vec_ptr<min::gen>
+	reformatter_arguments;
+    // Argument list for a reformatter.
+
+typedef bool ( * reformatter_function )
+        ( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  ll::parser::table::flags trace_flags,
+	  ll::parser::reformatter_arguments
+	  	reformatter_arguments,
+	  min::phrase_position & position );
+    //
+    // A reformatter_function reformats the tokens from
+    // first to next->previous.  Trace_flags are passed
+    // to `compact', if the function calls that.
+    // `position' is the position of the tokens.
+    // Pass is the operator pass, and parser and
+    // selectors are the current parser and selectors.
+    // Reformatter arguments are passed to the reformat-
+    // ter function.
+    //
+    // The function may change `first'.  Note that if
+    // this is done, a recalculated position would be
+    // incorrect, which is why `position' is calculated
+    // before the function is called.
+    //
+    // If true is returned, the caller of the function
+    // will immediately call ll:: parser::compact (even
+    // if first->next == next).  For the operator pass,
+    // this call makes a BRACKETABLE token with no
+    // syntax attributes, but with the given `position'
+    // as the .position attribute and with the value
+    // of the original first operator token as the
+    // .operator attribute.  For the bracketed pass,
+    // this call makes a BRACKETED token with the
+    // brackets as .initiator and .terminator.
+
+struct reformatter_struct;
+typedef min::packed_struct_updptr<reformatter_struct>
+        reformatter;
+extern const uns32 & REFORMATTER;
+    // Subtype of
+    // min::packed_struct<reformatter_struct>.
+struct reformatter_struct
+{
+    min::uns32 control;
+
+    ll::parser::reformatter next;
+    min::gen name;
+    min::uns32 flags;
+        // Used by some passes to check the legality
+	// of associating a reformatter with a bracket
+	// or operator or whatever.  For the operator
+	// pass, these are operator flags (PREFIX,
+	// INFIX, etc.) such that an operator may not
+	// associate with a reformatter that does not
+	// have one of the operator's flags.
+    min::uns32 minimum_arguments, maximum_arguments;
+        // Minimum and maximum number of arguments.
+    ll::parser::reformatter_function
+        reformatter_function;
+};
+MIN_REF ( ll::parser::reformatter, next,
+          ll::parser::reformatter )
+MIN_REF ( min::gen, name,
+          ll::parser::reformatter )
+
+// Look up reformatter name in reformatter stack, and
+// return reformatter if found, or NULL_STUB if not
+// found.
+//
+inline ll::parser::reformatter find_reformatter
+	( min::gen name,
+	  ll::parser::reformatter stack )
+{
+    ll::parser::reformatter r = stack;
+    while ( r != min::NULL_STUB )
+    {
+        if ( r->name == name ) return r;
+	r = r->next;
+    }
+    return min::NULL_STUB;
+}
+
+// Push a new reformatter into the reformatter stack.
+//
+void push_reformatter
+    ( min::gen name,
+      min::uns32 flags,
+      min::uns32 minimum_arguments, 
+      min::uns32 maximum_arguments,
+      ll::parser::reformatter_function
+          reformatter_function,
+      ll::parser::reformatter stack );
 
 // Parser Functions
 // ------ ---------

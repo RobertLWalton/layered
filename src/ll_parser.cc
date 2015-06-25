@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 06:43:24 EDT 2015
+// Date:	Thu Jun 25 15:48:32 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,7 @@
 //	Parser Closures
 //	Contexts
 //	Parser
+//	Reformatters
 //	Parser Functions
 
 // Usage and Setup
@@ -1137,6 +1138,44 @@ void PAR::parse ( PAR::parser parser )
 	if ( pass->end_parse != NULL )
 	    ( * pass->end_parse ) ( parser, pass );
     }
+}
+
+// Reformatters
+// ------------
+
+static min::uns32 reformatter_gen_disp[] = {
+    min::DISP ( & PAR::reformatter_struct::name ),
+    min::DISP_END };
+
+static min::uns32 reformatter_stub_disp[] = {
+    min::DISP ( & PAR::reformatter_struct::next ),
+    min::DISP_END };
+
+static min::packed_struct<PAR::reformatter_struct>
+    reformatter_type
+        ( "ll::parser::reformatter_type",
+	  ::reformatter_gen_disp,
+	  ::reformatter_stub_disp );
+const min::uns32 & PAR::REFORMATTER =
+    ::reformatter_type.subtype;
+
+void PAR::push_reformatter
+    ( min::gen name,
+      min::uns32 flags,
+      min::uns32 minimum_arguments, 
+      min::uns32 maximum_arguments,
+      PAR::reformatter_function reformatter_function,
+      min::ref<PAR::reformatter> stack )
+{
+    min::locatable_var<PAR::reformatter> r
+        ( ::reformatter_type.new_stub() );
+    PAR::next_ref(r) = stack;
+    PAR::name_ref(r) = name;
+    r->flags = flags;
+    r->minimum_arguments = minimum_arguments;
+    r->maximum_arguments = maximum_arguments;
+    r->reformatter_function = reformatter_function;
+    stack = r;
 }
 
 // Parser Functions

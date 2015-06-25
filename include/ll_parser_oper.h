@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 16 06:12:48 EST 2014
+// Date:	Thu Jun 25 13:37:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,6 +52,10 @@ typedef min::packed_struct_updptr<oper_struct> oper;
 extern const uns32 & OPER;
     // Subtype of min::packed_struct<oper_struct>.
 
+typedef min::packed_vec_ptr<min::gen>
+	reformatter_arguments;
+    // Argument list for a reformatter.
+
 typedef bool ( * reformatter_function )
         ( ll::parser::parser parser,
 	  ll::parser::pass pass,
@@ -59,7 +63,8 @@ typedef bool ( * reformatter_function )
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  ll::parser::table::flags trace_flags,
-	  ll::parser::oper::oper first_oper,
+	  ll::parser::oper::reformatter_arguments
+	  	reformatter_arguments,
 	  min::phrase_position & position );
     //
     // A reformatter_function reformats the tokens from
@@ -173,8 +178,8 @@ struct oper_struct
 	// oper_table).
     ll::parser::oper::reformatter reformatter;
     	// NULL if none.
-    const min::packed_vec_ptr<min::gen>
-	    reformatter_arguments;
+    const ll::parser::oper::reformatter_arguments
+    	    reformatter_arguments;
         // Vector of arguments each a min string or
 	// label.  NULL if none.
 };
@@ -201,7 +206,7 @@ void push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  ll::parser::oper::reformatter reformatter,
-	  min::packed_vec_ptr<min::gen>
+	  ll::parser::oper::reformatter_arguments
 	      reformatter_arguments,
 	  ll::parser::table::key_table oper_table );
 

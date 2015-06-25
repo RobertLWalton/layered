@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 15:25:49 EDT 2015
+// Date:	Thu Jun 25 15:55:09 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1301,7 +1301,7 @@ void push_reformatter
       min::uns32 maximum_arguments,
       ll::parser::reformatter_function
           reformatter_function,
-      ll::parser::reformatter stack );
+      min::ref<ll::parser::reformatter> stack );
 
 // Parser Functions
 // ------ ---------

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 11:16:13 EDT 2015
+// Date:	Thu Jun 25 16:04:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -106,7 +106,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  4000,
-	  OP::find_reformatter ( separator ),
+	  PAR::find_reformatter
+	      ( separator,
+	        OP::reformatter_stack ),
 	  separator_arguments,
 	  oper_pass->oper_table );
 
@@ -117,7 +119,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
-	  OP::find_reformatter ( right_associative ),
+	  PAR::find_reformatter
+	      ( right_associative,
+	        OP::reformatter_stack ),
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -128,7 +132,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
-	  OP::find_reformatter ( right_associative ),
+	  PAR::find_reformatter
+	      ( right_associative,
+	        OP::reformatter_stack ),
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -139,7 +145,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
-	  OP::find_reformatter ( right_associative ),
+	  PAR::find_reformatter
+	      ( right_associative,
+	        OP::reformatter_stack ),
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -150,7 +158,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
-	  OP::find_reformatter ( right_associative ),
+	  PAR::find_reformatter
+	      ( right_associative,
+	        OP::reformatter_stack ),
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -161,7 +171,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  9000,
-	  OP::find_reformatter ( right_associative ),
+	  PAR::find_reformatter
+	      ( right_associative,
+	        OP::reformatter_stack ),
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -172,7 +184,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
-	  OP::find_reformatter ( infix_and ),
+	  PAR::find_reformatter
+	      ( infix_and,
+	        OP::reformatter_stack ),
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -183,7 +197,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
-	  OP::find_reformatter ( infix_and ),
+	  PAR::find_reformatter
+	      ( infix_and,
+	        OP::reformatter_stack ),
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -194,7 +210,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
-	  OP::find_reformatter ( infix_and ),
+	  PAR::find_reformatter
+	      ( infix_and,
+	        OP::reformatter_stack ),
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -205,7 +223,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
-	  OP::find_reformatter ( infix_and ),
+	  PAR::find_reformatter
+	      ( infix_and,
+	        OP::reformatter_stack ),
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -216,7 +236,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
-	  OP::find_reformatter ( infix_and ),
+	  PAR::find_reformatter
+	      ( infix_and,
+	        OP::reformatter_stack ),
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -227,7 +249,9 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  15000,
-	  OP::find_reformatter ( infix_and ),
+	  PAR::find_reformatter
+	      ( infix_and,
+	        OP::reformatter_stack ),
 	  and_arguments,
 	  oper_pass->oper_table );
 

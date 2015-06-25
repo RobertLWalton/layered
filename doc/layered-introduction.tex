@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 21, 2015
+June 25, 2015
  
 \end{center}
 
@@ -4011,21 +4011,24 @@ With these things in mind, the reformatters are:
 
 \bigskip
 
-\ttmkey{separator}{reformatter} \hfill \OP{;} ~~~ \OP{,}
+\ttmkey{separator}{reformatter} \TT{(} {\em separator} \TT{)}
+\hfill \OP{;} ~~~ \OP{,}
+
 
 \begin{indpar}[0.5em]
 May only be used with \TT{nofix} operators.
 
 There must be at least one operator, and all operator values must
-be identical.  Necessarily any two operands are separated by an operator,
+be identical.  It is required that any two operands be separated by an operator,
 but operators my be consecutive and may begin or end the subexpression.
 
 Empty list operands are inserted to make all operators
 infix.  Then the operators are deleted, the resulting list of
 operands is given a \ttmkey{.separator}{produced by parsing}
-attribute with value of the operator token,
+attribute with value of the {\em separator} argument to the reformatter,
 and this is returned as the result of the reformatting.  Examples
-with `\TT{,}' as the operator are:
+with `\TT{,}' as both the operator and the {\em separator} argument to the
+reformatter are:
 
 \hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
 \TT{x , y} & $\Longrightarrow$ & \TT{x y}

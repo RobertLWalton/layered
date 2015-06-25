@@ -184,7 +184,7 @@ parser test (x = y += z w *= p q r = t v)
 ======= END TEST
 parser define operator "," [code, math] nofix
        with precedence 2000
-       with separator reformatter
+       with separator reformatter ( "," )
 ======= TEST: parser test (x, y1, {|z w|}, {}, 3, {})
 ------- line 87:
 parser test (x, y1, z w,, 3,)
@@ -887,7 +887,7 @@ parser print operator "":
     block standard: operator "," [code, math]
                     nofix
                     with precedence 2000
-                    with reformatter separator
+                    with reformatter separator ( "," )
     block standard: operator "-" [code, math]
                     prefix
                     with precedence 10000

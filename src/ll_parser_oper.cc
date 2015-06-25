@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  4 04:16:29 EDT 2015
+// Date:	Thu Jun 25 11:12:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -775,15 +775,17 @@ static bool separator_reformatter_function
 {
     MIN_REQUIRE ( first != next );
 
-    min::gen separator = first_oper->label;
     bool separator_should_be_next = false;
         // Equivalent meaning: the last token was an
 	// operand.
+    min::gen separator = min::NONE();
     for ( PAR::token t = first; t != next; )
     {
         if ( t->type == PAR::OPERATOR )
 	{
-	    if ( separator != t->value )
+	    if ( separator == min::NONE() )
+	        separator = t->value;
+	    else if ( separator != t->value )
 	    {
 		parser->printer
 		    << min::bom
@@ -838,7 +840,8 @@ static bool separator_reformatter_function
     }
 
     PAR::attr separator_attr
-        ( min::dot_separator, separator );
+        ( min::dot_separator,
+	  first_oper->reformatter_arguments[0] );
 
     PAR::compact
         ( parser, pass->next, selectors,
@@ -1654,7 +1657,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
     OP::push_reformatter
-        ( separator, OP::NOFIX, 0, 0,
+        ( separator, OP::NOFIX, 1, 1,
 	  ::separator_reformatter_function );
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );

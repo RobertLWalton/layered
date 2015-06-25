@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 11:12:15 EDT 2015
+// Date:	Thu Jun 25 13:41:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,7 +101,7 @@ void OP::push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  OP::reformatter reformatter,
-	  min::packed_vec_ptr<min::gen>
+	  OP::reformatter_arguments
 	      reformatter_arguments,
 	  TAB::key_table oper_table )
 {
@@ -673,7 +673,8 @@ static void oper_parse ( PAR::parser parser,
 			     ( parser, pass, selectors,
 			       D.first, current,
 			       reformatter_trace_flags,
-			       first_oper,
+			       first_oper->
+			         reformatter_arguments,
 			       position ) )
 			PAR::compact
 			    ( parser, pass->next,
@@ -770,7 +771,8 @@ static bool separator_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
     MIN_REQUIRE ( first != next );
@@ -841,7 +843,7 @@ static bool separator_reformatter_function
 
     PAR::attr separator_attr
         ( min::dot_separator,
-	  first_oper->reformatter_arguments[0] );
+	  reformatter_arguments[0] );
 
     PAR::compact
         ( parser, pass->next, selectors,
@@ -859,7 +861,8 @@ static bool declare_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
     MIN_REQUIRE ( first != next );
@@ -955,7 +958,8 @@ static bool right_associative_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
     MIN_REQUIRE ( first != next );
@@ -1021,7 +1025,8 @@ static bool unary_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
 
@@ -1147,7 +1152,8 @@ static bool binary_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
     MIN_REQUIRE ( first != next );
@@ -1272,7 +1278,8 @@ static bool infix_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
     MIN_REQUIRE ( first != next );
@@ -1339,7 +1346,8 @@ static bool infix_and_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
     MIN_REQUIRE ( first != next );
@@ -1485,8 +1493,7 @@ static bool infix_and_reformatter_function
         min::phrase_position first_position =
 	    { first->position.begin,
 	      first->position.begin };
-	min::gen and_op =
-	    first_oper->reformatter_arguments[0];
+	min::gen and_op = reformatter_arguments[0];
 	PAR::token t =
 	    PAR::new_token ( PAR::OPERATOR  );
 	PAR::put_before ( first_ref(parser), first, t );
@@ -1518,7 +1525,8 @@ static bool sum_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  TAB::flags trace_flags,
-	  OP::oper first_oper,
+	  OP::reformatter_arguments
+	      reformatter_arguments,
 	  min::phrase_position & position )
 {
     MIN_REQUIRE ( first != next );
@@ -1527,10 +1535,8 @@ static bool sum_reformatter_function
     MIN_ASSERT ( first->next != next,
                  "unexpected expression end" );
 
-    min::gen plus_op =
-	first_oper->reformatter_arguments[0];
-    min::gen minus_op =
-	first_oper->reformatter_arguments[1];
+    min::gen plus_op = reformatter_arguments[0];
+    min::gen minus_op = reformatter_arguments[1];
 
     // As operators must be infix, operands and opera-
     // tors must alternate with operands first and last.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 15:55:09 EDT 2015
+// Date:	Fri Jun 26 07:13:30 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -174,6 +174,7 @@ enum // Token types (see below).
     BRACKETED		= 0xFFFFFFFF,
     BRACKETABLE		= 0xFFFFFFFE,
     OPERATOR		= 0xFFFFFFFD,
+    DERIVED		= 0xFFFFFFFC,
     MAX_LEXEME		= 0x7FFFFFFF
 };
 inline bool is_lexeme ( min::uns32 token_type )
@@ -193,22 +194,39 @@ struct token_struct
 	//
     	//	BRACKETED
 	//	BRACKETABLE
-	//	    Bracketed expressions have
-	//	    .initiator or .terminator
-	//	    attributes, and bracketable
-	//	    expressions do not.  These
-	//	    can be combined with each other.
+	//	    BRACKETED expressions have a MIN
+	//	    object value with no .separator
+	//	    attribute, and BRACKETABLE expres-
+	//	    sions have a MIN object value
+	//	    with no attributes other than
+	//	    .separator.  A BRACKETED MIN object
+	//	    whose only element is a BRACKETABLE
+	//	    MIN object is combined with this
+	//	    element.
 	//
-	// For composites:
+	// For recognized operators:
 	//
 	//	OPERATOR
+	//	    Non-bracketed operators have as
+	//	    value the label of operator, and
+	//	    bracketed operators have as value
+	//	    the MIN object whose .initiator
+	//	    indicates it is an operator.
+	//
+	// For tokens derived from syntax, such as the
+	// label value derived from [< x y >]:
+	//
+	// 	DERIVED
+	// 	    The value is derived.
 
     const min::gen value;
-        // Value for some lexeme types, for expressions,
-	// and for OPERATORs.  MISSING if no value.
+        // Value for some lexeme types, and MISSING for
+	// others that have strings instead.  See the
+	// type above for non-lexeme type values.
 
     const ll::parser::string string;
-        // Character string for some lexeme types.
+        // Character string for lexeme types that have
+	// no value.
 
     min::phrase_position position;
         // Position of the first character of the token
@@ -1215,19 +1233,20 @@ typedef bool ( * reformatter_function )
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,
+	  min::phrase_position & position,
 	  ll::parser::table::flags trace_flags,
 	  ll::parser::reformatter_arguments
-	  	reformatter_arguments,
-	  min::phrase_position & position );
+	  	reformatter_arguments );
     //
     // A reformatter_function reformats the tokens from
     // first to next->previous.  Trace_flags are passed
     // to `compact', if the function calls that.
-    // `position' is the position of the tokens.
-    // Pass is the operator pass, and parser and
+    // `position' is the position of the tokens.  Pass
+    // is the reformatting pass (pass->next is passed
+    // to `compact' if that is called), and parser and
     // selectors are the current parser and selectors.
-    // Reformatter arguments are passed to the reformat-
-    // ter function.
+    // Reformatter arguments are arguments for this
+    // function.
     //
     // The function may change `first'.  Note that if
     // this is done, a recalculated position would be
@@ -1243,7 +1262,10 @@ typedef bool ( * reformatter_function )
     // of the original first operator token as the
     // .operator attribute.  For the bracketed pass,
     // this call makes a BRACKETED token with the
-    // brackets as .initiator and .terminator.
+    // brackets as .initiator and .terminator.  In
+    // all cases parser, pass->next, selectors, first,
+    // next, position, and trace_flags are passed to the
+    // `compact' function.
 
 struct reformatter_struct;
 typedef min::packed_struct_updptr<reformatter_struct>
@@ -1486,11 +1508,11 @@ void compact
 	( ll::parser::parser parser,
 	  ll::parser::pass,
 	  ll::parser::table::flags selectors,
-	  min::uns32 type,
-	  ll::parser::table::flags trace_flags,
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  min::phrase_position position,
+	  ll::parser::table::flags trace_flags,
+	  min::uns32 type,
 	  min::uns32 m = 0,
 	  ll::parser::attr * attributes = NULL,
 	  min::uns32 n = 0 );

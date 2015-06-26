@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 22 22:37:25 EDT 2015
+// Date:	Fri Jun 26 15:24:38 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,6 +17,7 @@
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Bracketed Subexpression Parser
+//	Bracketed Reformatters
 //	Bracketed Pass Command Function
 
 // Usage and Setup
@@ -954,7 +955,7 @@ static min::gen make_label
 
     // Optimization.
     //
-    if ( n == 1 && first->value != min::MISSING() )
+    if ( n == 1 && min::is_name ( first->value ) )
         return first->value;
 
     min::gen label[n];
@@ -1301,10 +1302,10 @@ bool BRA::parse_bracketed_subexpression
 				( parser,
 				  pass->next,
 				  selectors,
-				  PAR::BRACKETED,
-				  trace_flags,
 				  first, next,
 				  position,
+				  trace_flags,
+				  PAR::BRACKETED,
 				  n, attributes );
 			}
 
@@ -1361,9 +1362,10 @@ bool BRA::parse_bracketed_subexpression
 
 		PAR::compact
 		    ( parser, pass->next,
-		      selectors, PAR::BRACKETED,
-		      trace_flags,
+		      selectors,
 		      first, next, position,
+		      trace_flags,
+		      PAR::BRACKETED,
 		      1, attributes );
 
 		// Terminate subexpression if closing
@@ -1633,24 +1635,39 @@ bool BRA::parse_bracketed_subexpression
 			    ( parser, first,
 			      opening_bracket->label );
 
-		    PAR::attr attributes[2] =
-			{ PAR::attr
-			      ( min::dot_initiator,
-			        opening_bracket->
-				    label ),
-			  PAR::attr
-			        ( min::dot_terminator,
-			          opening_bracket->
-			              closing_bracket->
-				          label ) };
+		    if (    opening_bracket->reformatter
+		         == min::NULL_STUB
+			 ||
+			 ( * opening_bracket->
+			       reformatter->
+			       reformatter_function )
+		             ( parser, (PAR::pass) pass,
+			       selectors,
+			       first, current, position,
+			       trace_flags,
+			       opening_bracket->
+			         reformatter_arguments )
+		       )
+		    {
+			PAR::attr attributes[2] =
+			    { PAR::attr
+				  ( min::dot_initiator,
+				    opening_bracket->
+					label ),
+			      PAR::attr
+				  ( min::dot_terminator,
+				    opening_bracket->
+				      closing_bracket->
+					      label ) };
 
-		    PAR::compact
-		        ( parser, pass->next,
-			  selectors,
-			  PAR::BRACKETED,
-			  trace_flags,
-			  first, next, position,
-			  2, attributes, 1 );
+			PAR::compact
+			    ( parser, pass->next,
+			      selectors,
+			      first, next, position,
+			      trace_flags,
+			      PAR::BRACKETED,
+			      2, attributes, 1 );
+		    }
 
 		    if (    cstack.closing_next
 			 == min::NULL_STUB )
@@ -1689,24 +1706,40 @@ bool BRA::parse_bracketed_subexpression
 			    ( parser, first,
 			      opening_bracket->label );
 
-		    PAR::attr attributes[2] =
-			{ PAR::attr
-			      ( min::dot_initiator,
-			        opening_bracket->
-				    label ),
-			  PAR::attr
-			        ( min::dot_terminator,
-			        opening_bracket->
-			            closing_bracket->
-				        label ) };
+		    if (    opening_bracket->reformatter
+		         == min::NULL_STUB
+			 ||
+			 ( * opening_bracket->
+			       reformatter->
+			       reformatter_function )
+		             ( parser, (PAR::pass) pass,
+			       selectors,
+			       first, current,
+			       position,
+			       trace_flags,
+			       opening_bracket->
+			         reformatter_arguments )
+		       )
+		    {
+			PAR::attr attributes[2] =
+			    { PAR::attr
+				  ( min::dot_initiator,
+				    opening_bracket->
+					label ),
+			      PAR::attr
+				  ( min::dot_terminator,
+				    opening_bracket->
+				      closing_bracket->
+					    label ) };
 
-		    PAR::compact
-		        ( parser, pass->next,
-			  selectors,
-			  PAR::BRACKETED,
-			  trace_flags,
-			  first, current, position,
-			  2, attributes, 1 );
+			PAR::compact
+			    ( parser, pass->next,
+			      selectors,
+			      first, current, position,
+			      trace_flags,
+			      PAR::BRACKETED,
+			      2, attributes, 1 );
+		    }
 		    break;
 		}
 	    }
@@ -1796,6 +1829,12 @@ bool BRA::parse_bracketed_subexpression
 
     return false;
 }
+
+// Bracketed Reformatters
+// --------- ------------
+
+min::locatable_var<PAR::reformatter>
+	BRA::reformatter_stack;
 
 // Bracketed Pass Command Function
 // --------- ---- ------- --------

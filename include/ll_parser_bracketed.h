@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 22 11:56:21 EDT 2015
+// Date:	Fri Jun 26 06:17:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,10 @@
 # include <ll_parser.h>
 
 namespace ll { namespace parser { namespace bracketed {
+
+extern min::locatable_var<ll::parser::reformatter>
+		reformatter_stack;
+
 
 // Untyped Brackets
 // ------- --------
@@ -58,6 +62,12 @@ struct opening_bracket_struct :
     ll::parser::table::new_flags new_selectors;
     	// New selectors associated with this opening
 	// bracket.
+
+    const ll::parser::reformatter reformatter;
+    const ll::parser::reformatter_arguments
+        reformatter_arguments;
+	// Reformater and its arguments, or (both) NULL_
+	// STUB if none.
 
     bool full_lines;
 

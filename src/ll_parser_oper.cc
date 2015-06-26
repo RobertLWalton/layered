@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 13:41:20 EDT 2015
+// Date:	Fri Jun 26 15:32:19 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -672,17 +672,18 @@ static void oper_parse ( PAR::parser parser,
 			       ->reformatter_function )
 			     ( parser, pass, selectors,
 			       D.first, current,
+			       position,
 			       reformatter_trace_flags,
 			       first_oper->
-			         reformatter_arguments,
-			       position ) )
+			         reformatter_arguments )
+		       )
 			PAR::compact
 			    ( parser, pass->next,
 			      selectors,
-			      PAR::BRACKETABLE,
-			      reformatter_trace_flags,
 			      D.first, current,
 			      position,
+			      reformatter_trace_flags,
+			      PAR::BRACKETABLE,
 			      1, & attr );
 		}
 		else
@@ -703,10 +704,10 @@ static void oper_parse ( PAR::parser parser,
 			PAR::compact
 			    ( parser, pass->next,
 			      selectors,
-			      PAR::BRACKETABLE,
-			      reformatter_trace_flags,
 			      D.first, current,
-			      position );
+			      position,
+			      reformatter_trace_flags,
+			      PAR::BRACKETABLE );
 		    }
 		}
 	    }
@@ -770,10 +771,10 @@ static bool separator_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
     MIN_REQUIRE ( first != next );
 
@@ -847,8 +848,8 @@ static bool separator_reformatter_function
 
     PAR::compact
         ( parser, pass->next, selectors,
-	  PAR::BRACKETABLE, trace_flags,
 	  first, next, position,
+	  trace_flags, PAR::BRACKETABLE,
 	  1, & separator_attr );
 
     return false;
@@ -860,10 +861,10 @@ static bool declare_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
     MIN_REQUIRE ( first != next );
 
@@ -957,10 +958,10 @@ static bool right_associative_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
     MIN_REQUIRE ( first != next );
 
@@ -1008,8 +1009,8 @@ static bool right_associative_reformatter_function
 	    ( PAR::dot_oper, oper->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      PAR::BRACKETABLE, trace_flags,
 	      t, next, position,
+	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
 
 	if ( t_is_first ) first = t;
@@ -1024,10 +1025,10 @@ static bool unary_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
 
     while ( first->type != PAR::OPERATOR )
@@ -1151,10 +1152,10 @@ static bool binary_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
     MIN_REQUIRE ( first != next );
 
@@ -1277,10 +1278,10 @@ static bool infix_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
     MIN_REQUIRE ( first != next );
 
@@ -1345,10 +1346,10 @@ static bool infix_and_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
     MIN_REQUIRE ( first != next );
 
@@ -1450,16 +1451,16 @@ static bool infix_and_reformatter_function
 	    operand2 = operand2->previous->previous;
 	    PAR::compact
 		( parser, pass->next, selectors,
-		  PAR::BRACKETABLE, trace_flags,
 		  operand2, t, position2,
+		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
 
 	    // Compact next-operand1 = ( $ T )
 	    //
 	    PAR::compact
 		( parser, pass->next, selectors,
-		  PAR::BRACKETABLE, trace_flags,
 		  t, t->next->next, position2,
+		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
 	}
 
@@ -1478,8 +1479,8 @@ static bool infix_and_reformatter_function
 	    ( PAR::dot_oper, op->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      PAR::BRACKETABLE, trace_flags,
 	      op, next_operand1, position,
+	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
 	if ( is_first ) first = op;
 
@@ -1510,8 +1511,8 @@ static bool infix_and_reformatter_function
 	    ( PAR::dot_oper, and_op );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      PAR::BRACKETABLE, trace_flags,
 	      first, next, position,
+	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
     }
 
@@ -1524,10 +1525,10 @@ static bool sum_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
+	  min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  PAR::reformatter_arguments
-	       reformatter_arguments,
-	  min::phrase_position & position )
+	       reformatter_arguments )
 {
     MIN_REQUIRE ( first != next );
     MIN_ASSERT ( first->type != PAR::OPERATOR,
@@ -1597,8 +1598,8 @@ static bool sum_reformatter_function
 		( PAR::dot_oper, minus_op );
 	    PAR::compact
 		( parser, pass->next, selectors,
-		  PAR::BRACKETABLE, trace_flags,
 		  t, t->next->next, position,
+		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
 	}
 

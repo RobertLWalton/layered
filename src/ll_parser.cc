@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 15:48:32 EDT 2015
+// Date:	Fri Jun 26 16:10:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1074,8 +1074,8 @@ void PAR::parse ( PAR::parser parser )
 	    PAR::compact
 		( parser, parser->pass_stack->next,
 	          selectors,
-		  PAR::BRACKETED, trace_flags,
 		  first, current, position,
+		  trace_flags, PAR::BRACKETED,
 		  n, attributes );
 
 	    min::gen result = min::FAILURE();
@@ -1499,9 +1499,10 @@ void PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::table::flags selectors,
-	  min::uns32 type, TAB::flags trace_flags,
 	  PAR::token & first, PAR::token next,
 	  min::phrase_position position,
+	  TAB::flags trace_flags,
+	  min::uns32 type,
 	  min::uns32 m,
 	  PAR::attr * attributes,
 	  min::uns32 n )

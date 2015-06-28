@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 26 16:10:54 EDT 2015
+// Date:	Sun Jun 28 15:48:44 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -699,7 +699,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::PARSER_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      false,
+	      min::NULL_STUB, min::NULL_STUB, 0,
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -707,7 +707,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::PARSER_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      false,
+	      min::NULL_STUB, min::NULL_STUB, 0,
 	      bracketed_pass->bracket_table );
 
 	if ( define_standard )

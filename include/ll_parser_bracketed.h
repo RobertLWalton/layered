@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 26 06:17:15 EDT 2015
+// Date:	Sun Jun 28 15:25:39 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,11 @@ typedef min::packed_struct_updptr
 extern const uns32 & CLOSING_BRACKET;
     // Subtype of min::packed_struct
     //		       <closing_bracket_struct>.
+enum {
+    // Option Flags
+    //
+    FULL_LINES		= 1
+};
 struct opening_bracket_struct :
 	public ll::parser::table::root_struct
 {
@@ -69,7 +74,8 @@ struct opening_bracket_struct :
 	// Reformater and its arguments, or (both) NULL_
 	// STUB if none.
 
-    bool full_lines;
+    uns32 options;
+        // Option flags, e.g., FULL_LINES.
 
 };
 struct closing_bracket_struct : 
@@ -87,6 +93,12 @@ MIN_REF ( min::gen, label,
 MIN_REF ( ll::parser::bracketed::closing_bracket,
           closing_bracket,
           ll::parser::bracketed::opening_bracket )
+MIN_REF ( ll::parser::reformatter,
+          reformatter,
+          ll::parser::bracketed::opening_bracket )
+MIN_REF ( ll::parser::reformatter_arguments,
+          reformatter_arguments,
+          ll::parser::bracketed::opening_bracket )
 
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::closing_bracket )
@@ -103,7 +115,10 @@ ll::parser::bracketed::opening_bracket
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
-	  bool full_lines,
+	  ll::parser::reformatter reformatter,
+	  ll::parser::reformatter_arguments
+	      reformatter_arguments,
+	  uns32 options,
 	  ll::parser::table::key_table bracket_table );
 
 
@@ -810,7 +825,7 @@ ll::parser::pass new_pass ( void );
 // indent, the `top_level_indentation_mark' which has
 // indentation separator `;', and bracket_stack == NULL.
 //
-// If an opening bracket is found with its `full_lines'
+// If an opening bracket is found with its `FULL_LINES'
 // feature on, the resulting recursive call to this
 // function has a disabled `indent', NULL_STUB indenta-
 // tion mark, and has a bracket stack consisting solely

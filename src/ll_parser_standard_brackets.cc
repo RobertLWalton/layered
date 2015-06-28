@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 23 06:06:23 EDT 2015
+// Date:	Sun Jun 28 15:47:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,7 +104,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  false,
+	  min::NULL_STUB, min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_square,
@@ -112,7 +112,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  false,
+	  min::NULL_STUB, min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_double_brace,
@@ -120,7 +120,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( math, code + text, 0 ),
-	  false,
+	  min::NULL_STUB, min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_quote,
@@ -128,7 +128,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( text, code + math, 0 ),
-	  false,
+	  min::NULL_STUB, min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark

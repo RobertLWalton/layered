@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 26 15:24:38 EDT 2015
+// Date:	Sun Jun 28 15:28:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -100,7 +100,10 @@ BRA::opening_bracket
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
-	  bool full_lines,
+	  PAR::reformatter reformatter,
+	  PAR::reformatter_arguments
+	      reformatter_arguments,
+	  min::uns32 options,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::opening_bracket> opening
@@ -124,7 +127,10 @@ BRA::opening_bracket
     closing->position = position;
 
     opening->new_selectors = new_selectors;
-    opening->full_lines = full_lines;
+    reformatter_ref(opening) = reformatter;
+    reformatter_arguments_ref(opening) =
+        reformatter_arguments;
+    opening->options = options;
 
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
@@ -1176,6 +1182,7 @@ bool BRA::parse_bracketed_subexpression
 		    ( parser->printer,
 		      parser->input_file,
 		      iic_position );
+		++ parser->error_count;
 	    }
 
 	    if ( indentation_found != min::NULL_STUB )
@@ -1548,7 +1555,8 @@ bool BRA::parse_bracketed_subexpression
 				    .xor_flags;
 
 		bool full_lines =
-		    opening_bracket->full_lines;
+		    (   opening_bracket->options
+		      & BRA::FULL_LINES );
 
 		BRA::bracket_stack cstack
 		    ( full_lines ? NULL :
@@ -1833,8 +1841,110 @@ bool BRA::parse_bracketed_subexpression
 // Bracketed Reformatters
 // --------- ------------
 
+static bool label_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  min::phrase_position & position,
+	  TAB::flags trace_flags,
+	  PAR::reformatter_arguments
+	       reformatter_arguments )
+{
+    if ( first == next )
+    {
+	PAR::token t = new_token ( PAR::DERIVED );
+	put_before ( PAR::first_ref(parser), next, t );
+	t->position = position;
+	min::gen vec[1];
+	PAR::value_ref(t) = min::new_lab_gen ( vec, 0 );
+	first = t;
+	return false;
+    }
+
+    min::unsptr count = 0;
+    for ( PAR::token t = first; t != next; )
+    {
+	if ( min::is_name ( t->value ) )
+	{
+	    ++ count;
+	    t = t->next;
+	}
+        else if ( t->type == LEXSTD::quoted_string_t
+	          ||
+	          t->type == LEXSTD::numeric_t )
+	{
+	    t->type = PAR::DERIVED;
+	    PAR::value_ref(t) = min::new_str_gen
+			( min::begin_ptr_of
+			      ( t->string ),
+			  t->string->length );
+	    PAR::string_ref(t) =
+		PAR::free_string ( t->string );
+	    ++ count;
+	    t = t->next;
+	}
+	else
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: subexpression "
+		<< min::pgen ( t->value )
+		<< " illegal for label element"
+		   " - ignored;"
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 t->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  t->position );
+	    ++ parser->error_count;
+
+	    t = t->next;
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      t->previous ) );
+	}
+    }
+
+
+    min::gen vec[count];
+    min::unsptr i = 0;
+    for ( PAR::token t = first; t != next;
+                     t = t->next )
+	vec[i++] = t->value;
+    PAR::value_ref(first) =
+        min::new_lab_gen ( vec, count );
+    for ( PAR::token t = first->next; t != next; )
+    {
+	t = t->next;
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  t->previous ) );
+    }
+
+    return false;
+}
+
 min::locatable_var<PAR::reformatter>
-	BRA::reformatter_stack;
+    BRA::reformatter_stack ( min::NULL_STUB );
+
+static void reformatter_stack_initialize ( void )
+{
+    min::locatable_gen label
+        ( min::new_str_gen ( "label" ) );
+    PAR::push_reformatter
+        ( label, 0, 0, 0,
+	  ::label_reformatter_function,
+	  BRA::reformatter_stack );
+}
+static min::initializer reformatter_initializer
+    ( ::reformatter_stack_initialize );
 
 // Bracketed Pass Command Function
 // --------- ---- ------- --------
@@ -2115,7 +2225,8 @@ static min::gen bracketed_pass_command
 			  parser );
 		}
 
-		if ( opening_bracket->full_lines )
+		if (   opening_bracket->options
+		     & BRA::FULL_LINES )
 		    parser->printer
 			<< min::indent
 			<< "with full lines";
@@ -2194,7 +2305,7 @@ static min::gen bracketed_pass_command
     {
     case ::BRACKET:
     {
-	bool full_lines = false;
+	min::uns32 options = 0;
 	TAB::new_flags new_selectors;
 	    // Inited to zeroes.
 	while ( i < size && vp[i] == PAR::with )
@@ -2227,7 +2338,7 @@ static min::gen bracketed_pass_command
 		      vp[i+1] == ::lines )
 	    {
 		i += 2;
-		full_lines = true;
+		options = BRA::FULL_LINES;
 	    }
 	    else
 		return PAR::parse_error
@@ -2245,7 +2356,10 @@ static min::gen bracketed_pass_command
 	      selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      new_selectors, full_lines,
+	      new_selectors,
+	      min::NULL_STUB,
+	      min::NULL_STUB,
+	      options,
 	      bracketed_pass->bracket_table );
 
 	break;

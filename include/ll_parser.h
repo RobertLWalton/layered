@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 29 06:54:21 EDT 2015
+// Date:	Mon Jun 29 12:43:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -192,17 +192,25 @@ struct token_struct
 	//
 	// For expressions:
 	//
-    	//	BRACKETED
+	//	BRACKETED
 	//	BRACKETABLE
-	//	    BRACKETED expressions have a MIN
-	//	    object value with no .separator
-	//	    attribute, and BRACKETABLE expres-
-	//	    sions have a MIN object value
-	//	    with no attributes other than
-	//	    .separator.  A BRACKETED MIN object
-	//	    whose only element is a BRACKETABLE
-	//	    MIN object is combined with this
-	//	    element.
+	//	    BRACKETABLE tokens have a MIN object
+	//	    value without either an .inititor or
+	//	    a .terminator.  BRACKETED tokens
+	//	    have MIN object values with any
+	//	    attributes.
+	//
+	//	    If a BRACKETED token is being creat-
+	//	    ed whose value is a MIN object with
+	//	    no attributes other than .initiator
+	//	    and .terminator and with only one
+	//	    element that is the value of a
+	//	    BRACKETABLE token, then instead of
+	//	    creating a new token, the BRACKET-
+	//	    ABLE token has its type changed to
+	//	    BRACKETED and any .initiator or
+	//	    .terminator attributes added to its
+	//	    value.
 	//
 	// For recognized operators:
 	//
@@ -1266,6 +1274,10 @@ typedef bool ( * reformatter_function )
     // all cases parser, pass->next, selectors, first,
     // next, position, and trace_flags are passed to the
     // `compact' function.
+    //
+    // For the bracketed pass, the list of tokens passed
+    // to the reformatted does NOT include the brackets,
+    // but the position does include them.
 
 struct reformatter_struct;
 typedef min::packed_struct_updptr<reformatter_struct>
@@ -1487,12 +1499,12 @@ void put_error_operator_after
 // argument is BRACKETED.  Then instead of making a new
 // BRACKETED token, this function simply adds the m
 // attributes to the BRACKETABLE token which is changed
-// to be a BRACKETED token.  The position of this token
-// is also reset.
+// to be a BRACKETED token.  The positions of this token
+// and of its MIN object value are also reset.
 //
-// If TRACE_ELEMENTS/DETAILS/LINES flags are presence in
-// the `trace_flags' argument, they cause the new
-// expression to be output as the flags indicate.
+// The trace_subexpression function is called with the
+// final output subexpression token to process any
+// TRACE_SUBEXPRESSION_... trace_flags.
 //
 struct attr
 {

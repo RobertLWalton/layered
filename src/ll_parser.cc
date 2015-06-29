@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 28 15:48:44 EDT 2015
+// Date:	Mon Jun 29 07:04:06 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1610,50 +1610,56 @@ void PAR::compact
 	first->position = position;
     }
 
-    trace_flags &= (   PAR::TRACE_SUBEXPRESSION_ELEMENTS
-	             + PAR::TRACE_SUBEXPRESSION_DETAILS
-	             + PAR::TRACE_SUBEXPRESSION_LINES );
+    PAR::trace_subexpression
+        ( parser, first, trace_flags );
+}
 
-    if ( trace_flags )
+void PAR::internal::trace_subexpression
+	( PAR::parser parser,
+	  PAR::token token,
+	  min::uns32 trace_flags )
+{
+    parser->printer
+	<< min::bol << min::save_indent
+	<< min::adjust_indent ( 4 )
+	<< ( token->type == PAR::BRACKETED ?
+	     "BRACKETED EXPRESSION: " :
+	     token->type == PAR::BRACKETABLE ?
+	     "BRACKETABLE EXPRESSION: " :
+	     token->type == PAR::DERIVED ?
+	     "DERIVED EXPRESSION: " :
+	     "(UNKNOWN TYPE) EXPRESSION: " );
+
+    if (   trace_flags
+	 & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
+	parser->printer
+	    << min::indent
+	    << min::bom
+	    << min::adjust_indent ( 4 )
+	    << min::set_gen_format
+	       ( parser->subexpression_gen_format )
+	    << min::pgen ( token->value )
+	    << min::eom;
+    if (   trace_flags
+	 & PAR::TRACE_SUBEXPRESSION_DETAILS )
+	parser->printer
+	    << min::map_pgen ( token->value );
+
+    if (   trace_flags
+	 & PAR::TRACE_SUBEXPRESSION_LINES )
     {
 	parser->printer
-	    << min::bol << min::save_indent
-	    << min::adjust_indent ( 4 )
-	    << ( first->type == PAR::BRACKETED ?
-		 "BRACKETED EXPRESSION: " :
-		 "BRACKETABLE EXPRESSION: " );
-
-	if (   trace_flags
-	     & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
-	    parser->printer
-		<< min::indent
-		<< min::bom
-		<< min::adjust_indent ( 4 )
-		<< min::set_gen_format
-		   ( parser->subexpression_gen_format )
-		<< min::pgen ( first->value )
-		<< min::eom;
-	if (   trace_flags
-	     & PAR::TRACE_SUBEXPRESSION_DETAILS )
-	    parser->printer
-		<< min::map_pgen ( first->value );
-
-	if (   trace_flags
-	     & PAR::TRACE_SUBEXPRESSION_LINES )
-	{
-	    parser->printer
-		<< min::spaces_if_before_indent
-	        << min::pline_numbers
-		    ( parser->input_file,
-		      position )
-	        << ":" << min::eol;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file, position );
-	}
-
-	parser->printer << min::restore_indent;
+	    << min::spaces_if_before_indent
+	    << min::pline_numbers
+		( parser->input_file,
+		  token->position )
+	    << ":" << min::eol;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file, token->position );
     }
+
+    parser->printer << min::restore_indent;
 }
 
 PAR::token PAR::find_separator

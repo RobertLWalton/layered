@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 26 07:13:30 EDT 2015
+// Date:	Mon Jun 29 06:54:21 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1516,6 +1516,31 @@ void compact
 	  min::uns32 m = 0,
 	  ll::parser::attr * attributes = NULL,
 	  min::uns32 n = 0 );
+
+// The following function prints TRACE_SUBEXPRESSION_...
+// tracing information for a token that has just been
+// created by the `compact' function or a reformatter.
+//
+namespace internal {
+    void trace_subexpression
+	( ll::parser::parser parser,
+	  ll::parser::token token,
+	  min::uns32 trace_flags );
+}
+inline void trace_subexpression
+	( ll::parser::parser parser,
+	  ll::parser::token token,
+	  min::uns32 trace_flags )
+{
+    trace_flags &=
+        (   ll::parser::TRACE_SUBEXPRESSION_ELEMENTS
+          + ll::parser::TRACE_SUBEXPRESSION_DETAILS
+          + ll::parser::TRACE_SUBEXPRESSION_LINES );
+
+    if ( trace_flags )
+        internal::trace_subexpression
+	    ( parser, token, trace_flags );
+}
 
 // In a token sequence, find the next token subsequence
 // that matches a given separator, or find the end of

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 28 15:28:23 EDT 2015
+// Date:	Mon Jun 29 12:07:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1852,16 +1852,6 @@ static bool label_reformatter_function
 	  PAR::reformatter_arguments
 	       reformatter_arguments )
 {
-    if ( first == next )
-    {
-	PAR::token t = new_token ( PAR::DERIVED );
-	put_before ( PAR::first_ref(parser), next, t );
-	t->position = position;
-	min::gen vec[1];
-	PAR::value_ref(t) = min::new_lab_gen ( vec, 0 );
-	first = t;
-	return false;
-    }
 
     min::unsptr count = 0;
     for ( PAR::token t = first; t != next; )
@@ -1903,6 +1893,8 @@ static bool label_reformatter_function
 		  t->position );
 	    ++ parser->error_count;
 
+	    if ( t == first )
+	        first = t->next;
 	    t = t->next;
 	    PAR::free
 		( PAR::remove
@@ -1911,22 +1903,40 @@ static bool label_reformatter_function
 	}
     }
 
-
-    min::gen vec[count];
-    min::unsptr i = 0;
-    for ( PAR::token t = first; t != next;
-                     t = t->next )
-	vec[i++] = t->value;
-    PAR::value_ref(first) =
-        min::new_lab_gen ( vec, count );
-    for ( PAR::token t = first->next; t != next; )
+    if ( count == 0 )
     {
-	t = t->next;
-	PAR::free
-	    ( PAR::remove
-		( first_ref(parser),
-		  t->previous ) );
+	PAR::token t = new_token ( PAR::DERIVED );
+	put_before ( PAR::first_ref(parser), next, t );
+	t->position = position;
+	min::gen vec[1];
+	PAR::value_ref(t) = min::new_lab_gen ( vec, 0 );
+	first = t;
     }
+    else
+    {
+	min::gen vec[count];
+	min::unsptr i = 0;
+	for ( PAR::token t = first; t != next;
+			 t = t->next )
+	    vec[i++] = t->value;
+	PAR::value_ref(first) =
+	    min::new_lab_gen ( vec, count );
+
+	// Don't deallocate tokens until their values
+	// have been put in gc protected label.
+	//
+	for ( PAR::token t = first->next; t != next; )
+	{
+	    t = t->next;
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      t->previous ) );
+	}
+    }
+
+    PAR::trace_subexpression
+	( parser, first, trace_flags );
 
     return false;
 }

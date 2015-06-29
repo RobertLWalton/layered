@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 29 12:07:03 EDT 2015
+// Date:	Mon Jun 29 15:07:13 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1921,6 +1921,8 @@ static bool label_reformatter_function
 	    vec[i++] = t->value;
 	PAR::value_ref(first) =
 	    min::new_lab_gen ( vec, count );
+	first->type = PAR::DERIVED;
+	first->position = position;
 
 	// Don't deallocate tokens until their values
 	// have been put in gc protected label.

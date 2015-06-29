@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 28 15:47:20 EDT 2015
+// Date:	Mon Jun 29 14:56:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,6 +75,13 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::locatable_gen closing_quote
         ( min::new_str_gen ( "'" ) );
 
+    min::locatable_gen opening_square_angle
+        ( min::new_lab_gen ( "[", "<" ) );
+    min::locatable_gen angle_closing_square
+        ( min::new_lab_gen ( ">", "]" ) );
+    min::locatable_gen label
+        ( min::new_str_gen ( "label" ) );
+
     min::locatable_gen colon
         ( min::new_str_gen ( ":" ) );
     min::locatable_gen semicolon
@@ -129,6 +136,16 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( text, code + math, 0 ),
 	  min::NULL_STUB, min::NULL_STUB, 0,
+	  bracketed_pass->bracket_table );
+    BRA::push_brackets
+        ( opening_square_angle,
+          angle_closing_square,
+	  code + math + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( math, code + text, 0 ),
+	  PAR::find_reformatter
+	      ( label, BRA::reformatter_stack ),
+	  min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark

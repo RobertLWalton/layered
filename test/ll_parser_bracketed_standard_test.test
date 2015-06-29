@@ -489,3 +489,34 @@ This tests selector changes --- <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::typed_attribute_flags_opening_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "["
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::typed_attribute_flags_closing_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "]"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    [< x y "hello" {# 5.6 #} z >]
+@40 = < x y @41 @42 z >:
+          .terminator = "]"
+          .initiator = "["
+          .position[H] = {}
+@41 = hello:
+          .type = "<Q>"
+@42 = 5.6:
+          .type = "#"
+    line 38:
+This is a label [< x y "hello" 5.6 z >]
+                ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is a label [< x y "hello" {# 5.6 #} z >]
+@43 = This is a label @40:
+          .type = "<LF>"
+          .position[H] = {}
+    line 38:
+This is a label [< x y "hello" 5.6 z >]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

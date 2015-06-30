@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 15:16:27 EDT 2015
+// Date:	Tue Jun 30 06:20:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1090,7 +1090,7 @@ static min::gen execute_test
 		<< min::flush_id_map;
 
 	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
-	    parser->printer << min::map_pgen ( obj );
+	    min::print_mapped ( parser->printer,  obj );
 
 	vp = obj;  // Reopen vp.
     }

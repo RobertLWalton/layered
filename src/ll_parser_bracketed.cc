@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 29 15:07:13 EDT 2015
+// Date:	Tue Jun 30 16:56:13 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1882,7 +1882,7 @@ static bool label_reformatter_function
 		<< "ERROR: subexpression "
 		<< min::pgen ( t->value )
 		<< " illegal for label element"
-		   " - ignored;"
+		   " - ignored; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 t->position )

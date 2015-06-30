@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 29 07:04:06 EDT 2015
+// Date:	Tue Jun 30 16:52:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1640,10 +1640,10 @@ void PAR::internal::trace_subexpression
 	       ( parser->subexpression_gen_format )
 	    << min::pgen ( token->value )
 	    << min::eom;
+
     if (   trace_flags
 	 & PAR::TRACE_SUBEXPRESSION_DETAILS )
-	parser->printer
-	    << min::map_pgen ( token->value );
+	print_mapped ( parser->printer, token->value );
 
     if (   trace_flags
 	 & PAR::TRACE_SUBEXPRESSION_LINES )

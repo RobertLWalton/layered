@@ -489,34 +489,55 @@ This tests selector changes --- <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
-     OF SUBTYPE ll::parser::table::typed_attribute_flags_opening_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "["
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
-     OF SUBTYPE ll::parser::table::typed_attribute_flags_closing_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "]"
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION:
-    [< x y "hello" {# 5.6 #} z >]
-@40 = < x y @41 @42 z >:
-          .terminator = "]"
-          .initiator = "["
-          .position[H] = {}
-@41 = hello:
-          .type = "<Q>"
-@42 = 5.6:
-          .type = "#"
+DERIVED EXPRESSION:
+    [< x y hello 5.6 z >]
+@40 = [< x y hello 5.6 z >]
     line 38:
 This is a label [< x y "hello" 5.6 z >]
                 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a label [< x y "hello" {# 5.6 #} z >]
-@43 = This is a label @40:
+    This is a label [< x y hello 5.6 z >]
+@41 = This is a label [< x y hello 5.6 z >]:
           .type = "<LF>"
           .position[H] = {}
     line 38:
 This is a label [< x y "hello" 5.6 z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "<" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    (y)
+@42 = y:
+          .terminator = ")"
+          .initiator = "("
+          .position[H] = {}
+    line 39:
+This is another label [< x ( y ) z >]
+                           ^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: subexpression (y) illegal for label element - ignored; line 39:
+This is another label [< x ( y ) z >]
+                           ^^^^^
+DERIVED EXPRESSION:
+    [< x z >]
+@43 = [< x z >]
+    line 39:
+This is another label [< x ( y ) z >]
+                      ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is another label [< x z >]
+@44 = This is another label [< x z >]:
+          .type = "<LF>"
+          .position[H] = {}
+    line 39:
+This is another label [< x ( y ) z >]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

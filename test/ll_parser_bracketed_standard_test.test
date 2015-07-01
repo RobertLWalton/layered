@@ -509,35 +509,69 @@ This is a label [< x y "hello" 5.6 z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "("
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "("
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION:
-    (y)
-@42 = y:
-          .terminator = ")"
-          .initiator = "("
-          .position[H] = {}
-    line 39:
-This is another label [< x ( y ) z >]
-                           ^^^^^
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ")"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ")"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: subexpression (y) illegal for label element - ignored; line 39:
-This is another label [< x ( y ) z >]
-                           ^^^^^
 DERIVED EXPRESSION:
-    [< x z >]
-@43 = [< x z >]
+    [< x "(" y ")" z >]
+@42 = [< x "(" y ")" z >]
     line 39:
 This is another label [< x ( y ) z >]
                       ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is another label [< x z >]
-@44 = This is another label [< x z >]:
+    This is another label [< x "(" y ")" z >]
+@43 = This is another label [< x "(" y ")" z >]:
           .type = "<LF>"
           .position[H] = {}
     line 39:
 This is another label [< x ( y ) z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "<" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "<" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+DERIVED EXPRESSION:
+    [< 1 2 >]
+@44 = [< 1 2 >]
+    line 40:
+And these are nested labels [< x [< 1 2 >] y [< a b >] >]
+                                 ^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "<" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+DERIVED EXPRESSION:
+    [< a b >]
+@45 = [< a b >]
+    line 40:
+And these are nested labels [< x [< 1 2 >] y [< a b >] >]
+                                             ^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+DERIVED EXPRESSION:
+    [< x [< 1 2 >] y [< a b >] >]
+@46 = [< x [< 1 2 >] y [< a b >] >]
+    line 40:
+And these are nested labels [< x [< 1 2 >] y [< a b >] >]
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And these are nested labels [< x [< 1 2 >] y [< a b >] >]
+@47 = And these are nested labels [< x [< 1 2 >] y [< a b >] >]:
+          .type = "<LF>"
+          .position[H] = {}
+    line 40:
+And these are nested labels [< x [< 1 2 >] y [< a b >] >]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

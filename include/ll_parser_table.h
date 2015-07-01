@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 15 04:06:50 EST 2013
+// Date:	Tue Jun 30 21:58:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,7 +68,7 @@ struct new_flags
 	  xor_flags ( xor_flags ) {}
 };
 
-const flags ALL_FLAGS = (flags) -1;
+const flags ALL_FLAGS = (flags) -1ll;
 
 inline bool is_empty
     ( const ll::parser::table::new_flags & new_flags )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 29 14:56:34 EDT 2015
+// Date:	Wed Jul  1 03:46:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_str_gen ( "math" ) );
     min::locatable_gen text_name
         ( min::new_str_gen ( "text" ) );
+    min::locatable_gen label_name
+        ( min::new_str_gen ( "label" ) );
 
     TAB::flags code =
         1ull << TAB::find_name
@@ -49,6 +51,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
     TAB::flags text =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, text_name );
+    TAB::flags label =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, label_name );
 
     min::locatable_gen opening_parenthesis
         ( min::new_str_gen ( "(" ) );
@@ -79,8 +84,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_lab_gen ( "[", "<" ) );
     min::locatable_gen angle_closing_square
         ( min::new_lab_gen ( ">", "]" ) );
-    min::locatable_gen label
-        ( min::new_str_gen ( "label" ) );
 
     min::locatable_gen colon
         ( min::new_str_gen ( ":" ) );
@@ -101,7 +104,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::locatable_gen star_closing_brace
         ( min::new_lab_gen ( "*", "}" ) );
 
-    parser->selectors = code;
+    parser->selectors = code + label;
 
     min::uns32 block_level =
         PAR::block_level ( parser );
@@ -140,11 +143,11 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( opening_square_angle,
           angle_closing_square,
-	  code + math + text,
+	  label,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( math, code + text, 0 ),
+	  TAB::new_flags ( 0, TAB::ALL_FLAGS ^ label, 0 ),
 	  PAR::find_reformatter
-	      ( label, BRA::reformatter_stack ),
+	      ( label_name, BRA::reformatter_stack ),
 	  min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
 

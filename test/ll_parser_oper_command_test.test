@@ -1,4 +1,5 @@
 parser print selector "":
+    block standard: label
     block standard: text
     block standard: math
     block standard: code
@@ -6,7 +7,7 @@ parser print selector "":
 parser print pass:
     top
 parser print context "":
-    block standard: default [code]
+    block standard: default [code, label]
     block TOP LEVEL: default []
     block TOP LEVEL: parser [parser]
     block TOP LEVEL: parser test []
@@ -17,6 +18,7 @@ parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]
 parser print selector "":
+    block standard: label
     block standard: text
     block standard: math
     block standard: code

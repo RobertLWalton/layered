@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 30 06:20:49 EDT 2015
+// Date:	Sat Jul  4 14:54:36 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -195,7 +195,7 @@ struct token_struct
 	//	BRACKETED
 	//	BRACKETABLE
 	//	    BRACKETABLE tokens have a MIN object
-	//	    value without either an .inititor or
+	//	    value without either an .initiator or
 	//	    a .terminator.  BRACKETED tokens
 	//	    have MIN object values with any
 	//	    attributes.
@@ -225,7 +225,8 @@ struct token_struct
 	// label value derived from [< x y >]:
 	//
 	// 	DERIVED
-	// 	    The value is derived.
+	// 	    The value is derived but is not
+	// 	    a MIN object.
 
     const min::gen value;
         // Value for some lexeme types, and MISSING for

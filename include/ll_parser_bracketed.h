@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 28 15:25:39 EDT 2015
+// Date:	Sat Jul  4 14:54:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -193,6 +193,7 @@ ll::parser::bracketed::indentation_mark
 // Typed bracket definition.
 
 struct typed_opening_struct;
+    // Subclass of opening_bracket.
 typedef min::packed_struct_updptr
 	    <typed_opening_struct>
         typed_opening;
@@ -208,13 +209,7 @@ extern const uns32 & TYPED_MIDDLE;
     // Subtype of min::packed_struct
     //		       <typed_middle_struct>.
 
-struct typed_closing_struct;
-typedef min::packed_struct_updptr
-	    <typed_closing_struct>
-        typed_closing;
-extern const uns32 & TYPED_CLOSING;
-    // Subtype of min::packed_struct
-    //		       <typed_closing_struct>.
+// Typed_opening is closed by closing_bracket.
 
 struct typed_attribute_begin_struct;
 typedef min::packed_struct_updptr
@@ -306,14 +301,14 @@ extern const uns32 & TYPED_ATTRIBUTE_MULTIVALUE_CLOSING;
     //	   <typed_attribute_multivalue_closing_struct>.
 
 struct typed_opening_struct :
-	public ll::parser::table::root_struct
+	public ll::parser::bracketed
+	                 ::opening_bracket_struct
 {
     // Packed_struct subtype is TYPED_OPENING.
 
     const ll::parser::bracketed::typed_middle
           typed_middle;
-    const ll::parser::bracketed::typed_closing
-          typed_closing;
+    // Typed closing is closed by closing_bracket.
     const ll::parser::bracketed::typed_attribute_begin
           typed_attribute_begin;
     const ll::parser::bracketed::typed_attribute_equal
@@ -343,11 +338,6 @@ struct typed_opening_struct :
             ::typed_attribute_multivalue_closing
           typed_attribute_multivalue_closing;
         // The other components of the typed bracket.
-
-    ll::parser::table::new_flags new_selectors;
-    	// New selectors associated with this opening
-	// bracket.
-
 };
 
 struct typed_middle_struct : 
@@ -358,16 +348,6 @@ struct typed_middle_struct :
     const ll::parser::bracketed::typed_opening
           typed_opening;
         // The opening bracket for the typed middle.
-};
-
-struct typed_closing_struct : 
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is TYPED_CLOSING.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opposing bracket of the closing bracket.
 };
 
 struct typed_attribute_begin_struct : 
@@ -491,8 +471,8 @@ MIN_REF ( min::gen, label,
 MIN_REF ( ll::parser::bracketed::typed_middle,
           typed_middle,
           ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::bracketed::typed_closing,
-          typed_closing,
+MIN_REF ( ll::parser::bracketed::closing_bracket,
+          closing_bracket,
           ll::parser::bracketed::typed_opening )
 MIN_REF ( ll::parser::bracketed::typed_attribute_begin,
           typed_attribute_begin,
@@ -538,12 +518,6 @@ MIN_REF ( min::gen, label,
 MIN_REF ( ll::parser::bracketed::typed_opening,
           typed_opening,
           ll::parser::bracketed::typed_middle )
-
-MIN_REF ( min::gen, label,
-          ll::parser::bracketed::typed_closing )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed::typed_closing )
 
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::typed_attribute_begin )

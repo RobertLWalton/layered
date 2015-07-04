@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 30 16:56:13 EDT 2015
+// Date:	Sat Jul  4 16:13:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -216,7 +216,7 @@ static min::uns32 typed_opening_stub_disp[] = {
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_middle ),
     min::DISP ( & BRA::typed_opening_struct
-                     ::typed_closing ),
+                     ::closing_bracket ),
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_attribute_begin ),
     min::DISP ( & BRA::typed_opening_struct
@@ -246,7 +246,8 @@ static min::uns32 typed_opening_stub_disp[] = {
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_opening_struct, TAB::root_struct>
+	<BRA::typed_opening_struct,
+	 BRA::opening_bracket_struct>
     typed_opening_type
 	( "ll::parser::table::typed_opening_type",
 	  TAB::root_gen_disp,
@@ -268,21 +269,6 @@ static min::packed_struct_with_base
 	  ::typed_middle_stub_disp );
 const min::uns32 & BRA::TYPED_MIDDLE =
     typed_middle_type.subtype;
-
-static min::uns32 typed_closing_stub_disp[] = {
-    min::DISP ( & BRA::typed_closing_struct::next ),
-    min::DISP ( & BRA::typed_closing_struct
-                     ::typed_opening ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<BRA::typed_closing_struct, TAB::root_struct>
-    typed_closing_type
-	( "ll::parser::table::typed_closing_type",
-	  TAB::root_gen_disp,
-	  ::typed_closing_stub_disp );
-const min::uns32 & BRA::TYPED_CLOSING =
-    typed_closing_type.subtype;
 
 static min::uns32 typed_attribute_begin_stub_disp[] = {
     min::DISP ( & BRA::typed_attribute_begin_struct
@@ -525,17 +511,18 @@ BRA::typed_opening
         ( ::typed_opening_type.new_stub() );
     min::locatable_var<BRA::typed_middle> middle
         ( ::typed_middle_type.new_stub() );
-    min::locatable_var<BRA::typed_closing> closing
-        ( ::typed_closing_type.new_stub() );
+    min::locatable_var<BRA::closing_bracket> closing
+        ( ::closing_bracket_type.new_stub() );
 
     label_ref(opening) = typed_opening;
     label_ref(middle)  = typed_middle;
     label_ref(closing) = typed_closing;
 
     typed_middle_ref(opening)  = middle;
-    typed_closing_ref(opening) = closing;
+    closing_bracket_ref(opening) = closing;
     typed_opening_ref(middle)  = opening;
-    typed_opening_ref(closing) = opening;
+    opening_bracket_ref(closing) =
+        (BRA::opening_bracket) opening;
 
     opening->selectors = selectors;
     middle->selectors  = TAB::ALL_FLAGS;

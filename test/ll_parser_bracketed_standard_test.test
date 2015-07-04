@@ -192,10 +192,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::typed_closing_type
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::typed_closing_type
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
 ERROR: missing closing bracket ")" inserted before end of line; line 23:
      (x + y }}

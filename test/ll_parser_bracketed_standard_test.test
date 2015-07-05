@@ -575,3 +575,30 @@ BRACKETED EXPRESSION:
     line 40:
 And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {x "|" 1 2 3 "|"}
+@48 = x "|" 1 2 3 "|":
+          .terminator = "}"
+          .initiator = "{"
+          .position[H] = {}
+    line 41:
+This line contains a typed subexpression {x|1 2 3|}
+                                         ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This line contains a typed subexpression {x "|" 1 2 3 "|"}
+@49 = This line contains a typed subexpression @48:
+          .type = "<LF>"
+          .position[H] = {}
+    line 41:
+This line contains a typed subexpression {x|1 2 3|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

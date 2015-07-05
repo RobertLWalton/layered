@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 14:54:48 EDT 2015
+// Date:	Sun Jul  5 15:32:32 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -201,6 +201,11 @@ extern const uns32 & TYPED_OPENING;
     // Subtype of min::packed_struct
     //		       <typed_opening_struct>.
 
+// Typed_opening is closed by closing_bracket.
+
+// The following are put in a key_table that is private
+// to a typed_opening.
+//
 struct typed_middle_struct;
 typedef min::packed_struct_updptr
 	    <typed_middle_struct>
@@ -208,8 +213,6 @@ typedef min::packed_struct_updptr
 extern const uns32 & TYPED_MIDDLE;
     // Subtype of min::packed_struct
     //		       <typed_middle_struct>.
-
-// Typed_opening is closed by closing_bracket.
 
 struct typed_attribute_begin_struct;
 typedef min::packed_struct_updptr
@@ -305,10 +308,21 @@ struct typed_opening_struct :
 	                 ::opening_bracket_struct
 {
     // Packed_struct subtype is TYPED_OPENING.
+    // Typed_opening is closed by closing_bracket.
+    
+    const ll::parser::table::key_table key_table;
+        // This key_table contains the following compo-
+	// nents which are used by the typed_bracketed_
+	// reformatter when it scans the contents of a
+	// typed bracketed subexpression.
 
+    // The following components are recorded here only
+    // so they can be output by the parser print
+    // command.  They are NOT used during parsing -
+    // the key_table is used instead.
+    //
     const ll::parser::bracketed::typed_middle
           typed_middle;
-    // Typed closing is closed by closing_bracket.
     const ll::parser::bracketed::typed_attribute_begin
           typed_attribute_begin;
     const ll::parser::bracketed::typed_attribute_equal
@@ -337,7 +351,6 @@ struct typed_opening_struct :
     const ll::parser::bracketed
             ::typed_attribute_multivalue_closing
           typed_attribute_multivalue_closing;
-        // The other components of the typed bracket.
 };
 
 struct typed_middle_struct : 
@@ -467,6 +480,9 @@ struct typed_attribute_multivalue_closing_struct :
 };
 
 MIN_REF ( min::gen, label,
+          ll::parser::bracketed::typed_opening )
+MIN_REF ( ll::parser::table::key_table,
+          key_table,
           ll::parser::bracketed::typed_opening )
 MIN_REF ( ll::parser::bracketed::typed_middle,
           typed_middle,

@@ -108,13 +108,7 @@ BRACKETED EXPRESSION:
      (x + `y z {{p q}}' - [ g h ]).
           ^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
-     OF SUBTYPE ll::parser::table::typed_attribute_flags_opening_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "["
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
-     OF SUBTYPE ll::parser::table::typed_attribute_flags_closing_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "]"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
@@ -233,9 +227,6 @@ This line includes
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attribute_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
     First line "."
@@ -279,12 +270,6 @@ This line starts an indented paragraph:
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
-     OF SUBTYPE ll::parser::table::typed_attribute_equal_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attribute_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -329,9 +314,6 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attribute_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -577,12 +559,6 @@ And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:

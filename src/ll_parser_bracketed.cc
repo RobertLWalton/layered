@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  5 06:17:25 EDT 2015
+// Date:	Sun Jul  5 15:37:13 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -213,6 +213,8 @@ BRA::indentation_mark
 
 static min::uns32 typed_opening_stub_disp[] = {
     min::DISP ( & BRA::typed_opening_struct::next ),
+    min::DISP ( & BRA::typed_opening_struct
+                     ::key_table ),
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_middle ),
     min::DISP ( & BRA::typed_opening_struct
@@ -509,38 +511,46 @@ BRA::typed_opening
 {
     min::locatable_var<BRA::typed_opening> opening
         ( ::typed_opening_type.new_stub() );
-    min::locatable_var<BRA::typed_middle> middle
-        ( ::typed_middle_type.new_stub() );
     min::locatable_var<BRA::closing_bracket> closing
         ( ::closing_bracket_type.new_stub() );
 
     label_ref(opening) = typed_opening;
-    label_ref(middle)  = typed_middle;
     label_ref(closing) = typed_closing;
 
-    typed_middle_ref(opening)  = middle;
     closing_bracket_ref(opening) = closing;
-    typed_opening_ref(middle)  = opening;
     opening_bracket_ref(closing) =
         (BRA::opening_bracket) opening;
 
+    min::locatable_var<TAB::key_table> key_table
+        ( TAB::create_key_table ( 64 ) );
+    key_table_ref(opening) = key_table;
+
     opening->selectors = selectors;
-    middle->selectors  = TAB::ALL_FLAGS;
     closing->selectors = TAB::ALL_FLAGS;
 
     opening->block_level = block_level;
-    middle->block_level  = block_level;
     closing->block_level = block_level;
 
     opening->position = position;
-    middle->position  = position;
     closing->position = position;
 
     opening->new_selectors = new_selectors;
 
     TAB::push ( bracket_table, (TAB::root) opening );
-    TAB::push ( bracket_table, (TAB::root) middle );
     TAB::push ( bracket_table, (TAB::root) closing );
+
+    min::locatable_var<BRA::typed_middle> middle
+        ( ::typed_middle_type.new_stub() );
+    label_ref(middle)  = typed_middle;
+
+    typed_middle_ref(opening)  = middle;
+    typed_opening_ref(middle)  = opening;
+
+    middle->selectors  = TAB::ALL_FLAGS;
+    middle->block_level  = block_level;
+    middle->position  = position;
+
+    TAB::push ( key_table, (TAB::root) middle );
 
     if ( typed_attribute_begin != min::MISSING() )
     {
@@ -592,11 +602,11 @@ BRA::typed_opening
 	attribute_equal->position     = position;
 	attribute_separator->position = position;
 
-	TAB::push ( bracket_table,
+	TAB::push ( key_table,
 	           (TAB::root) attribute_begin );
-	TAB::push ( bracket_table,
+	TAB::push ( key_table,
 	           (TAB::root) attribute_equal );
-	TAB::push ( bracket_table,
+	TAB::push ( key_table,
 	           (TAB::root) attribute_separator );
     }
 
@@ -622,7 +632,7 @@ BRA::typed_opening
 
 	attribute_negator->position   = position;
 
-	TAB::push ( bracket_table,
+	TAB::push ( key_table,
 	           (TAB::root) attribute_negator );
     }
 
@@ -684,13 +694,13 @@ BRA::typed_opening
 	attribute_flags_closing->position   = position;
 
 	TAB::push
-	    ( bracket_table,
+	    ( key_table,
 	      (TAB::root) attribute_flags_opening );
 	TAB::push
-	    ( bracket_table,
+	    ( key_table,
 	      (TAB::root) attribute_flags_separator );
 	TAB::push
-	    ( bracket_table,
+	    ( key_table,
 	      (TAB::root) attribute_flags_closing );
     }
 
@@ -757,15 +767,15 @@ BRA::typed_opening
 	    = position;
 
 	TAB::push
-	    ( bracket_table,
+	    ( key_table,
 	      (TAB::root)
 	      attribute_multivalue_opening );
 	TAB::push
-	    ( bracket_table,
+	    ( key_table,
 	      (TAB::root)
 	      attribute_multivalue_separator );
 	TAB::push
-	    ( bracket_table,
+	    ( key_table,
 	      (TAB::root)
 	      attribute_multivalue_closing );
     }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 16:13:10 EDT 2015
+// Date:	Sun Jul  5 06:17:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1522,7 +1522,9 @@ bool BRA::parse_bracketed_subexpression
 			         ( root ) )
 		    << min::eol;
 
-	    if ( subtype == BRA::OPENING_BRACKET
+	    if ( ( subtype == BRA::OPENING_BRACKET
+	           ||
+		   subtype == BRA::TYPED_OPENING )
 	         &&
 		 ( selectors & root->selectors ) != 0 )
 	    {

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 14:54:36 EDT 2015
+// Date:	Sun Jul  5 15:44:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -195,8 +195,8 @@ struct token_struct
 	//	BRACKETED
 	//	BRACKETABLE
 	//	    BRACKETABLE tokens have a MIN object
-	//	    value without either an .initiator or
-	//	    a .terminator.  BRACKETED tokens
+	//	    value without either an .initiator
+	//	    or a .terminator.  BRACKETED tokens
 	//	    have MIN object values with any
 	//	    attributes.
 	//

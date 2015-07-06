@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  5 15:37:13 EDT 2015
+// Date:	Mon Jul  6 06:21:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1652,8 +1652,8 @@ bool BRA::parse_bracketed_subexpression
 			       selectors,
 			       first, current, position,
 			       trace_flags,
-			       opening_bracket->
-			         reformatter_arguments )
+			       (TAB::root)
+			           opening_bracket )
 		       )
 		    {
 			PAR::attr attributes[2] =
@@ -1724,8 +1724,8 @@ bool BRA::parse_bracketed_subexpression
 			       first, current,
 			       position,
 			       trace_flags,
-			       opening_bracket->
-			         reformatter_arguments )
+			       (TAB::root)
+				   opening_bracket )
 		       )
 		    {
 			PAR::attr attributes[2] =
@@ -1848,8 +1848,7 @@ static bool label_reformatter_function
 	  PAR::token next,
 	  min::phrase_position & position,
 	  TAB::flags trace_flags,
-	  PAR::reformatter_arguments
-	       reformatter_arguments )
+	  TAB::root entry )
 {
 
     min::unsptr count = 0;
@@ -1942,6 +1941,50 @@ static bool label_reformatter_function
     return false;
 }
 
+static bool typed_bracketed_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  min::phrase_position & position,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    BRA::typed_opening typed_opening =
+        (BRA::typed_opening) entry;
+    TAB::key_table key_table = typed_opening->key_table;
+    PAR::token current = first;
+    TAB::key_prefix key_prefix;
+    while ( true )
+    {
+        while ( current != next )
+	{
+	    PAR::token saved_current = current;
+	    TAB::root root =
+		find_entry ( parser, current, key_prefix,
+			     TAB::ALL_FLAGS,
+			     key_table, next );
+	    if ( root == min::NULL_STUB )
+	    {
+	        // No active bracket table entry found.
+
+		current = saved_current->next;
+		continue;
+	    }
+
+	    min::uns32 subtype =
+		min::packed_subtype_of ( root );
+	}
+
+    }
+
+    PAR::trace_subexpression
+	( parser, first, trace_flags );
+
+    return false;
+}
+
 min::locatable_var<PAR::reformatter>
     BRA::reformatter_stack ( min::NULL_STUB );
 
@@ -1952,6 +1995,13 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( label, 0, 0, 0,
 	  ::label_reformatter_function,
+	  BRA::reformatter_stack );
+
+    min::locatable_gen typed_bracketed
+        ( min::new_lab_gen ( "typed", "bracketed" ) );
+    PAR::push_reformatter
+        ( typed_bracketed, 0, 0, 0,
+	  ::typed_bracketed_reformatter_function,
 	  BRA::reformatter_stack );
 }
 static min::initializer reformatter_initializer

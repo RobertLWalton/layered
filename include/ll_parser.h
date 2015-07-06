@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  5 15:44:22 EDT 2015
+// Date:	Mon Jul  6 06:19:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1232,10 +1232,6 @@ void parse ( ll::parser::parser parser =
 // may be associated with an operator, bracket pair,
 // or other syntactic construct.
 
-typedef min::packed_vec_ptr<min::gen>
-	reformatter_arguments;
-    // Argument list for a reformatter.
-
 typedef bool ( * reformatter_function )
         ( ll::parser::parser parser,
 	  ll::parser::pass pass,
@@ -1244,8 +1240,7 @@ typedef bool ( * reformatter_function )
 	  ll::parser::token next,
 	  min::phrase_position & position,
 	  ll::parser::table::flags trace_flags,
-	  ll::parser::reformatter_arguments
-	  	reformatter_arguments );
+	  ll::parser::table::root entry );
     //
     // A reformatter_function reformats the tokens from
     // first to next->previous.  Trace_flags are passed
@@ -1254,8 +1249,9 @@ typedef bool ( * reformatter_function )
     // is the reformatting pass (pass->next is passed
     // to `compact' if that is called), and parser and
     // selectors are the current parser and selectors.
-    // Reformatter arguments are arguments for this
-    // function.
+    // Entry is the key table entry that contained the
+    // reformatter being called.  This entry contains
+    // various kinds of reformatter arguments.
     //
     // The function may change `first'.  Note that if
     // this is done, a recalculated position would be
@@ -1279,6 +1275,12 @@ typedef bool ( * reformatter_function )
     // For the bracketed pass, the list of tokens passed
     // to the reformatted does NOT include the brackets,
     // but the position does include them.
+
+typedef min::packed_vec_ptr<min::gen>
+	reformatter_arguments;
+    // Argument list for a reformatter.  Contained in
+    // the key table entry that specifies the
+    // reformatter.
 
 struct reformatter_struct;
 typedef min::packed_struct_updptr<reformatter_struct>

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  6 06:21:18 EDT 2015
+// Date:	Mon Jul  6 23:00:17 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1954,6 +1954,46 @@ static bool typed_bracketed_reformatter_function
     BRA::typed_opening typed_opening =
         (BRA::typed_opening) entry;
     TAB::key_table key_table = typed_opening->key_table;
+
+    // Types of tokens after 1st pass.
+    //
+    const min::uns32 TYPE = PAR::TEMPORARY_TT + 0;
+        // .type value
+    const min::uns32 ATTR_LABEL = PAR::TEMPORARY_TT + 1;
+    const min::uns32 ATTR_VALUE = PAR::TEMPORARY_TT + 2;
+        // Attribute label and value.
+    const min::uns32 ATTR_TRUE = PAR::TEMPORARY_TT + 1;
+    const min::uns32 ATTR_FALSE = PAR::TEMPORARY_TT + 2;
+        // Attribute label for attribute with TRUE or
+	// FALSE value.
+    //
+    // Other token types are object elements.
+    //
+    // Each ATTR_LABEL token is followed by a corres-
+    // ponding ATTR_VALUE token.  ATTR_TRUE and ATTR_
+    // FALSE tokens are attribute labels that have NO
+    // following ATTR_VALUE token; their values are
+    // implied and are either TRUE or FALSE.
+    //
+    // ATTR_FALSE token values are attribute labels that
+    // do NOT include the attribute negator, but the
+    // position of these tokens DOES include the
+    // attribute negator.
+    //
+    // There is only one TYPE token.  Error messages
+    // concerning type mismatches are generated during
+    //
+    // If there are two ATTR_LABEL/TRUE/FALSE tokens
+    // with the same attribute label, it is an error
+    // detected during the second pass.
+
+    min::unsptr attr_count = 0;
+        // Count of attribute labels.
+    min::unsptr element_count = 0;
+        // Count of object elements.
+    PAR::token type_token = min::NULL_STUB;
+        // TYPE token.  First type encountered.
+
     PAR::token current = first;
     TAB::key_prefix key_prefix;
     while ( true )

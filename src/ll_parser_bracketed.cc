@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  6 23:00:17 EDT 2015
+// Date:	Tue Jul  7 16:26:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -938,61 +938,113 @@ PAR::pass BRA::new_pass ( void )
 // These are all static or inline; if any are useful
 // elsewhere they can be put in the PAR namespace.
 
-// Given a token sequence with n tokens, return a label
-// whose elements are the values of the tokens.  If
-// there are 0 tokens, return min::MISSING().  If there
-// is just one, return its value.  Otherwise return a
-// min::gen label.
+// Given the token sequence from `first' to `next', make
+// a label containing these tokens.  Convert quoted
+// string and numeric tokens to strings.  Announce
+// non-name components as errors and replace their
+// values with "ERRONEOUS-LABEL-COMPONENT".  If there
+// are 0 label components, make an empty label, but if
+// there is exactly one component, use the value of that
+// component as the label, rather than making a label.
 //
-// If any of the tokens are quoted strings or non-
-// natural numbers, convert these to have values equal
-// to their their strings and free their strings.
+// All tokens but the first are removed, and the type
+// of the first token is set to DERIVED, the label is
+// returned as the value of the first token, and the
+// position of this first token is set to include all
+// the tokens that made the label.  If the label is
+// empty, a new first token is made and inserted before
+// `next', and the `first' argument is updated to point
+// at the new token, and the position is set to the
+// empty string just before `next'.  This is the only
+// case where `first' is updated.
 //
-// It is a programming error if any token is not a word,
-// number, or quoted string.
-//
-static min::gen make_label
-	( PAR::token first, min::uns32 n )
+static void make_label
+    ( PAR::parser parser,
+      PAR::token & first,
+      PAR::token next )
 {
-    if ( n == 0 ) return min::MISSING();
+    min::unsptr count = 0;
+    min::phrase_position position =
+        { first->position.begin,
+	  first->position.begin };
+        // For the empty label case first == next so
+	// this is the position just before next.
 
-    // Optimization.
-    //
-    if ( n == 1 && min::is_name ( first->value ) )
-        return first->value;
-
-    min::gen label[n];
-
-    for ( min::uns32 i = 0; i < n;
-          ++ i, first = first->next )
+    for ( PAR::token t = first; t != next;
+          ++ count, t = t->next )
     {
-        if ( first->value == min::MISSING() )
-	{
-	    MIN_REQUIRE
-	        ( first->type == LEXSTD::numeric_t
-		  ||
-		     first->type
-		  == LEXSTD::quoted_string_t );
+	position.end = t->position.end;
 
-	    PAR::value_ref(first) =
-		min::new_str_gen
-		    ( min::begin_ptr_of
-		          ( first->string ),
-		      first->string->length );
-	    PAR::string_ref(first) =
-	        PAR::free_string ( first->string );
+	if ( min::is_name ( t->value ) ) continue;
+        else if ( t->type == LEXSTD::quoted_string_t
+	          ||
+	          t->type == LEXSTD::numeric_t )
+	{
+	    t->type = PAR::DERIVED;
+	    PAR::value_ref(t) = min::new_str_gen
+			( min::begin_ptr_of
+			      ( t->string ),
+			  t->string->length );
+	    PAR::string_ref(t) =
+		PAR::free_string ( t->string );
 	}
 	else
-	    MIN_REQUIRE
-	        ( first->type == LEXSTD::word_t
-		  ||
-		     first->type
-		  == LEXSTD::natural_t );
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 7 )
+		<< "ERROR: subexpression "
+		<< min::pgen ( t->value )
+		<< " illegal for label element"
+		   " - changed to"
+		   " ERRONEOUS-LABEL-COMPONENT; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 t->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  t->position );
+	    ++ parser->error_count;
 
-	label[i] = first->value;
+	    t->type = PAR::DERIVED;
+	    value_ref(t) = min::new_str_gen
+	        ( "ERRONEOUS-LABEL-COMPONENT" );
+	}
     }
-    if ( n == 1 ) return label[0];
-    else return min::new_lab_gen ( label, n );
+
+    if ( count == 0 )
+    {
+	first = new_token ( PAR::DERIVED );
+	put_before ( PAR::first_ref(parser),
+	             next, first );
+	PAR::value_ref(first) = min::empty_lab;
+    }
+    else if ( count != 1 )
+    {
+	min::gen vec[count];
+	min::unsptr i = 0;
+	for ( PAR::token t = first; t != next;
+			 t = t->next )
+	    vec[i++] = t->value;
+	PAR::value_ref(first) =
+	    min::new_lab_gen ( vec, count );
+
+	// Don't deallocate tokens until their values
+	// have been put in gc protected label.
+	//
+	for ( PAR::token t = first->next; t != next; )
+	{
+	    t = t->next;
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      t->previous ) );
+	}
+    }
+
+    first->type = PAR::DERIVED;
+    first->position = position;
 }
 
 // Complain that token indent is too near indent.
@@ -1850,7 +1902,6 @@ static bool label_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-
     min::unsptr count = 0;
     for ( PAR::token t = first; t != next; )
     {
@@ -1941,6 +1992,33 @@ static bool label_reformatter_function
     return false;
 }
 
+inline min::uns32 get_next
+        ( PAR::parser parser,
+	  PAR::token & start,
+	  PAR::token & current,
+	  PAR::token next,
+	  TAB::key_table key_table )
+{
+    start = current;
+    TAB::root root = min::NULL_STUB;
+    TAB::key_prefix key_prefix;
+    while ( current != next )
+    {
+	PAR::token saved_current = current;
+	TAB::root root =
+	    find_entry ( parser, current, key_prefix,
+			 TAB::ALL_FLAGS,
+			 key_table, next );
+	if ( root == min::NULL_STUB )
+	    current = saved_current->next;
+	else
+	    break;
+    }
+
+    return root == min::NULL_STUB ? 0 :
+	   min::packed_subtype_of ( root );
+}
+
 static bool typed_bracketed_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1951,6 +2029,16 @@ static bool typed_bracketed_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
+    if ( first == next )
+    {
+	first = new_token ( PAR::DERIVED );
+	put_before ( PAR::first_ref(parser),
+	             next, first );
+	PAR::value_ref(first) = min::new_obj_gen ( 0 );
+	first->position = position;
+	return false;
+    }
+
     BRA::typed_opening typed_opening =
         (BRA::typed_opening) entry;
     TAB::key_table key_table = typed_opening->key_table;
@@ -1995,29 +2083,36 @@ static bool typed_bracketed_reformatter_function
         // TYPE token.  First type encountered.
 
     PAR::token current = first;
-    TAB::key_prefix key_prefix;
-    while ( true )
+    PAR::token start;
+    min::uns32 key;
+
+#   define NEXT \
+	key = get_next ( parser, start, current, \
+	                   next, key_table )
+    NEXT;
+    if ( key == 0 )
     {
-        while ( current != next )
-	{
-	    PAR::token saved_current = current;
-	    TAB::root root =
-		find_entry ( parser, current, key_prefix,
-			     TAB::ALL_FLAGS,
-			     key_table, next );
-	    if ( root == min::NULL_STUB )
-	    {
-	        // No active bracket table entry found.
+        MIN_REQUIRE ( start != current );
+	    // Empty object handled above
 
-		current = saved_current->next;
-		continue;
-	    }
-
-	    min::uns32 subtype =
-		min::packed_subtype_of ( root );
-	}
-
+	make_label ( parser, start, current );
+	start->type = TYPE;
+	type_token = start;
+	goto DONE;
     }
+    else if ( key == BRA::TYPED_MIDDLE )
+    {
+        if ( start != current )
+	{
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      current->previous ) );
+	    // TBD most remove all tokens of middle.
+	}
+    }
+
+DONE:
 
     PAR::trace_subexpression
 	( parser, first, trace_flags );

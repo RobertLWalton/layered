@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  5 15:32:32 EDT 2015
+// Date:	Wed Jul  8 06:42:07 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -218,7 +218,7 @@ struct typed_attribute_begin_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_begin_struct>
         typed_attribute_begin;
-extern const uns32 & TYPED_ATTRIBUTE_BEGIN;
+extern const uns32 & TYPED_ATTR_BEGIN;
     // Subtype of min::packed_struct
     //		       <typed_attribute_begin_struct>.
 
@@ -226,7 +226,7 @@ struct typed_attribute_equal_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_equal_struct>
         typed_attribute_equal;
-extern const uns32 & TYPED_ATTRIBUTE_EQUAL;
+extern const uns32 & TYPED_ATTR_EQUAL;
     // Subtype of min::packed_struct
     //		       <typed_attribute_equal_struct>.
 
@@ -234,7 +234,7 @@ struct typed_attribute_separator_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_separator_struct>
         typed_attribute_separator;
-extern const uns32 & TYPED_ATTRIBUTE_SEPARATOR;
+extern const uns32 & TYPED_ATTR_SEPARATOR;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attribute_separator_struct>.
@@ -243,7 +243,7 @@ struct typed_attribute_negator_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_negator_struct>
         typed_attribute_negator;
-extern const uns32 & TYPED_ATTRIBUTE_NEGATOR;
+extern const uns32 & TYPED_ATTR_NEGATOR;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attribute_negator_struct>.
@@ -252,7 +252,7 @@ struct typed_attribute_flags_opening_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_flags_opening_struct>
         typed_attribute_flags_opening;
-extern const uns32 & TYPED_ATTRIBUTE_FLAGS_OPENING;
+extern const uns32 & TYPED_ATTR_FLAGS_OPENING;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attribute_flags_opening_struct>.
@@ -261,7 +261,7 @@ struct typed_attribute_flags_separator_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_flags_separator_struct>
         typed_attribute_flags_separator;
-extern const uns32 & TYPED_ATTRIBUTE_FLAGS_SEPARATOR;
+extern const uns32 & TYPED_ATTR_FLAGS_SEPARATOR;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attribute_flags_separator_struct>.
@@ -270,7 +270,7 @@ struct typed_attribute_flags_closing_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_flags_closing_struct>
         typed_attribute_flags_closing;
-extern const uns32 & TYPED_ATTRIBUTE_FLAGS_CLOSING;
+extern const uns32 & TYPED_ATTR_FLAGS_CLOSING;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attribute_flags_closing_struct>.
@@ -279,7 +279,7 @@ struct typed_attribute_multivalue_opening_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_multivalue_opening_struct>
         typed_attribute_multivalue_opening;
-extern const uns32 & TYPED_ATTRIBUTE_MULTIVALUE_OPENING;
+extern const uns32 & TYPED_ATTR_MULTIVALUE_OPENING;
     // Subtype of
     //   min::packed_struct
     //	   <typed_attribute_multivalue_opening_struct>.
@@ -289,7 +289,7 @@ typedef min::packed_struct_updptr
 	   <typed_attribute_multivalue_separator_struct>
         typed_attribute_multivalue_separator;
 extern const uns32 &
-	TYPED_ATTRIBUTE_MULTIVALUE_SEPARATOR;
+	TYPED_ATTR_MULTIVALUE_SEPARATOR;
     // Subtype of
     //   min::packed_struct
     //	  <typed_attribute_multivalue_separator_struct>.
@@ -298,7 +298,7 @@ struct typed_attribute_multivalue_closing_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_multivalue_closing_struct>
         typed_attribute_multivalue_closing;
-extern const uns32 & TYPED_ATTRIBUTE_MULTIVALUE_CLOSING;
+extern const uns32 & TYPED_ATTR_MULTIVALUE_CLOSING;
     // Subtype of
     //   min::packed_struct
     //	   <typed_attribute_multivalue_closing_struct>.
@@ -366,7 +366,7 @@ struct typed_middle_struct :
 struct typed_attribute_begin_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_BEGIN.
+    // Packed_struct subtype is TYPED_ATTR_BEGIN.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -376,7 +376,7 @@ struct typed_attribute_begin_struct :
 struct typed_attribute_equal_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_EQUAL.
+    // Packed_struct subtype is TYPED_ATTR_EQUAL.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -386,7 +386,7 @@ struct typed_attribute_equal_struct :
 struct typed_attribute_separator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // SEPARATOR.
 
     const ll::parser::bracketed::typed_opening
@@ -398,7 +398,7 @@ struct typed_attribute_separator_struct :
 struct typed_attribute_negator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // NEGATOR.
 
     const ll::parser::bracketed::typed_opening
@@ -410,7 +410,7 @@ struct typed_attribute_negator_struct :
 struct typed_attribute_flags_opening_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // FLAGS_OPENING.
 
     const ll::parser::bracketed::typed_opening
@@ -422,7 +422,7 @@ struct typed_attribute_flags_opening_struct :
 struct typed_attribute_flags_separator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // FLAGS_SEPARATOR.
 
     const ll::parser::bracketed::typed_opening
@@ -434,7 +434,7 @@ struct typed_attribute_flags_separator_struct :
 struct typed_attribute_flags_closing_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // FLAGS_CLOSING.
 
     const ll::parser::bracketed::typed_opening
@@ -446,7 +446,7 @@ struct typed_attribute_flags_closing_struct :
 struct typed_attribute_multivalue_opening_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // MULTIVALUE_OPENING.
 
     const ll::parser::bracketed::typed_opening
@@ -458,7 +458,7 @@ struct typed_attribute_multivalue_opening_struct :
 struct typed_attribute_multivalue_separator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // MULTIVALUE_SEPARATOR.
 
     const ll::parser::bracketed::typed_opening
@@ -470,7 +470,7 @@ struct typed_attribute_multivalue_separator_struct :
 struct typed_attribute_multivalue_closing_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTRIBUTE_
+    // Packed_struct subtype is TYPED_ATTR_
     // MULTIVALUE_CLOSING.
 
     const ll::parser::bracketed::typed_opening

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  8 06:41:57 EDT 2015
+// Date:	Wed Jul  8 12:00:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -942,10 +942,12 @@ PAR::pass BRA::new_pass ( void )
 // a label containing these tokens.  Convert quoted
 // string and numeric tokens to strings.  Announce
 // non-name components as errors and replace their
-// values with "ERRONEOUS-LABEL-COMPONENT".  If there
-// are 0 label components, make an empty label, but if
-// there is exactly one component, use the value of that
-// component as the label, rather than making a label.
+// values with "ERRONEOUS-LABEL-COMPONENT".
+//
+// If there are 0 label components, make an empty label,
+// and if there is exactly 1 component, use the value of
+// that component as the label, rather than making a
+// label.
 //
 // All tokens but the first are removed, and the type
 // of the first token is set to DERIVED, the label is
@@ -992,9 +994,9 @@ static void make_label
 	{
 	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: subexpression "
+		<< "ERROR: subexpression `"
 		<< min::pgen ( t->value )
-		<< " illegal for label element"
+		<< "' illegal for label element"
 		   " - changed to"
 		   " ERRONEOUS-LABEL-COMPONENT; "
 		<< min::pline_numbers
@@ -1027,6 +1029,7 @@ static void make_label
 	for ( PAR::token t = first; t != next;
 			 t = t->next )
 	    vec[i++] = t->value;
+	MIN_REQUIRE ( i == count );
 	PAR::value_ref(first) =
 	    min::new_lab_gen ( vec, count );
 
@@ -1902,89 +1905,8 @@ static bool label_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    min::unsptr count = 0;
-    for ( PAR::token t = first; t != next; )
-    {
-	if ( min::is_name ( t->value ) )
-	{
-	    ++ count;
-	    t = t->next;
-	}
-        else if ( t->type == LEXSTD::quoted_string_t
-	          ||
-	          t->type == LEXSTD::numeric_t )
-	{
-	    t->type = PAR::DERIVED;
-	    PAR::value_ref(t) = min::new_str_gen
-			( min::begin_ptr_of
-			      ( t->string ),
-			  t->string->length );
-	    PAR::string_ref(t) =
-		PAR::free_string ( t->string );
-	    ++ count;
-	    t = t->next;
-	}
-	else
-	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: subexpression "
-		<< min::pgen ( t->value )
-		<< " illegal for label element"
-		   " - ignored; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 t->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  t->position );
-	    ++ parser->error_count;
-
-	    if ( t == first )
-	        first = t->next;
-	    t = t->next;
-	    PAR::free
-		( PAR::remove
-		    ( first_ref(parser),
-		      t->previous ) );
-	}
-    }
-
-    if ( count == 0 )
-    {
-	PAR::token t = new_token ( PAR::DERIVED );
-	put_before ( PAR::first_ref(parser), next, t );
-	t->position = position;
-	min::gen vec[1];
-	PAR::value_ref(t) = min::new_lab_gen ( vec, 0 );
-	first = t;
-    }
-    else
-    {
-	min::gen vec[count];
-	min::unsptr i = 0;
-	for ( PAR::token t = first; t != next;
-			 t = t->next )
-	    vec[i++] = t->value;
-	PAR::value_ref(first) =
-	    min::new_lab_gen ( vec, count );
-	first->type = PAR::DERIVED;
-	first->position = position;
-
-	// Don't deallocate tokens until their values
-	// have been put in gc protected label.
-	//
-	for ( PAR::token t = first->next; t != next; )
-	{
-	    t = t->next;
-	    PAR::free
-		( PAR::remove
-		    ( first_ref(parser),
-		      t->previous ) );
-	}
-    }
+    make_label ( parser, first, next );
+    first->position = position;
 
     PAR::trace_subexpression
 	( parser, first, trace_flags );
@@ -2001,8 +1923,8 @@ inline min::uns32 get_next
 	  min::gen & label,
 	  TAB::key_table key_table )
 {
-    start = current;
-    saved_current = current;
+    start = saved_current = current;
+
     TAB::root root = min::NULL_STUB;
     TAB::key_prefix key_prefix;
     while ( current != next )
@@ -2143,10 +2065,10 @@ static bool typed_bracketed_reformatter_function
     PAR::token type_token = min::NULL_STUB;
         // TYPE token.  First type encountered.
 
-    PAR::token current = first;
     PAR::token start;
-    min::uns32 key;
     PAR::token saved_current;
+    PAR::token current = first;
+    min::uns32 key;
     min::gen label;
 
 #   define NEXT \

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  7 16:26:42 EDT 2015
+// Date:	Wed Jul  8 06:41:57 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -287,7 +287,7 @@ static min::packed_struct_with_base
 	    "::table::typed_attribute_begin_type",
 	  TAB::root_gen_disp,
 	  ::typed_attribute_begin_stub_disp );
-const min::uns32 & BRA::TYPED_ATTRIBUTE_BEGIN =
+const min::uns32 & BRA::TYPED_ATTR_BEGIN =
     typed_attribute_begin_type.subtype;
 
 static min::uns32 typed_attribute_equal_stub_disp[] = {
@@ -305,7 +305,7 @@ static min::packed_struct_with_base
 	    "::table::typed_attribute_equal_type",
 	  TAB::root_gen_disp,
 	  ::typed_attribute_equal_stub_disp );
-const min::uns32 & BRA::TYPED_ATTRIBUTE_EQUAL =
+const min::uns32 & BRA::TYPED_ATTR_EQUAL =
     typed_attribute_equal_type.subtype;
 
 static min::uns32
@@ -324,7 +324,7 @@ static min::packed_struct_with_base
 	    "::table::typed_attribute_separator_type",
 	  TAB::root_gen_disp,
 	  ::typed_attribute_separator_stub_disp );
-const min::uns32 & BRA::TYPED_ATTRIBUTE_SEPARATOR =
+const min::uns32 & BRA::TYPED_ATTR_SEPARATOR =
     typed_attribute_separator_type.subtype;
 
 static min::uns32
@@ -343,7 +343,7 @@ static min::packed_struct_with_base
 	    "::table::typed_attribute_negator_type",
 	  TAB::root_gen_disp,
 	  ::typed_attribute_negator_stub_disp );
-const min::uns32 & BRA::TYPED_ATTRIBUTE_NEGATOR =
+const min::uns32 & BRA::TYPED_ATTR_NEGATOR =
     typed_attribute_negator_type.subtype;
 
 static min::uns32
@@ -364,7 +364,7 @@ static min::packed_struct_with_base
 	    "::typed_attribute_flags_opening_type",
 	  TAB::root_gen_disp,
 	  ::typed_attribute_flags_opening_stub_disp );
-const min::uns32 & BRA::TYPED_ATTRIBUTE_FLAGS_OPENING =
+const min::uns32 & BRA::TYPED_ATTR_FLAGS_OPENING =
     typed_attribute_flags_opening_type.subtype;
 
 static min::uns32
@@ -386,7 +386,7 @@ static min::packed_struct_with_base
 	  TAB::root_gen_disp,
 	  ::typed_attribute_flags_separator_stub_disp );
 const min::uns32 &
-	BRA::TYPED_ATTRIBUTE_FLAGS_SEPARATOR =
+	BRA::TYPED_ATTR_FLAGS_SEPARATOR =
     typed_attribute_flags_separator_type.subtype;
 
 static min::uns32
@@ -407,7 +407,7 @@ static min::packed_struct_with_base
 	    "::typed_attribute_flags_closing_type",
 	  TAB::root_gen_disp,
 	  ::typed_attribute_flags_closing_stub_disp );
-const min::uns32 & BRA::TYPED_ATTRIBUTE_FLAGS_CLOSING =
+const min::uns32 & BRA::TYPED_ATTR_FLAGS_CLOSING =
     typed_attribute_flags_closing_type.subtype;
 
 static min::uns32
@@ -433,7 +433,7 @@ static min::packed_struct_with_base
 	::typed_attribute_multivalue_opening_stub_disp
       );
 const min::uns32 &
-	BRA::TYPED_ATTRIBUTE_MULTIVALUE_OPENING =
+	BRA::TYPED_ATTR_MULTIVALUE_OPENING =
     typed_attribute_multivalue_opening_type.subtype;
 
 static min::uns32
@@ -459,7 +459,7 @@ static min::packed_struct_with_base
 	::typed_attribute_multivalue_separator_stub_disp
       );
 const min::uns32 &
-	BRA::TYPED_ATTRIBUTE_MULTIVALUE_SEPARATOR =
+	BRA::TYPED_ATTR_MULTIVALUE_SEPARATOR =
     typed_attribute_multivalue_separator_type.subtype;
 
 static min::uns32
@@ -485,7 +485,7 @@ static min::packed_struct_with_base
 	  ::typed_attribute_multivalue_closing_stub_disp
 	);
 const min::uns32 &
-	BRA::TYPED_ATTRIBUTE_MULTIVALUE_CLOSING =
+	BRA::TYPED_ATTR_MULTIVALUE_CLOSING =
     typed_attribute_multivalue_closing_type.subtype;
 
 BRA::typed_opening
@@ -1995,28 +1995,87 @@ static bool label_reformatter_function
 inline min::uns32 get_next
         ( PAR::parser parser,
 	  PAR::token & start,
+	  PAR::token & saved_current,
 	  PAR::token & current,
 	  PAR::token next,
+	  min::gen & label,
 	  TAB::key_table key_table )
 {
     start = current;
+    saved_current = current;
     TAB::root root = min::NULL_STUB;
     TAB::key_prefix key_prefix;
     while ( current != next )
     {
-	PAR::token saved_current = current;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
 			 TAB::ALL_FLAGS,
 			 key_table, next );
 	if ( root == min::NULL_STUB )
-	    current = saved_current->next;
+	    saved_current = current
+	                  = saved_current->next;
 	else
 	    break;
     }
 
-    return root == min::NULL_STUB ? 0 :
-	   min::packed_subtype_of ( root );
+    if ( root == min::NULL_STUB )
+        return 0;
+    else
+    {
+        label = root->label;
+	return min::packed_subtype_of ( root );
+    }
+}
+
+inline void remove ( PAR::parser parser, 
+		     PAR::token & first,
+		     PAR::token & start,
+                     PAR::token & saved_current,
+		     PAR::token current )
+{
+    while ( saved_current != current )
+    {
+	if ( saved_current == first )
+	    first = saved_current->next;
+	if ( saved_current == start )
+	    start = saved_current->next;
+        saved_current = saved_current->next;
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  saved_current->previous ) );
+    }
+}
+
+inline void punctuation_error
+        ( PAR::parser parser,
+	  PAR::token & first,
+	  PAR::token & start,
+	  PAR::token & saved_current,
+	  PAR::token current,
+	  min::gen label )
+{
+    min::phrase_position position =
+        { saved_current->position.begin,
+	  current->previous->position.end };
+
+    parser->printer
+	<< min::bom << min::set_indent ( 7 )
+	<< "ERROR: unexpected punctuation `"
+	<< min::pgen_name ( label )
+	<< "' - deleted and ignored; "
+	<< min::pline_numbers
+	       ( parser->input_file,
+		 position )
+	<< ":" << min::eom;
+    min::print_phrase_lines
+	( parser->printer,
+	  parser->input_file,
+	  position );
+    ++ parser->error_count;
+
+    ::remove ( parser, first, start,
+               saved_current, current );
 }
 
 static bool typed_bracketed_reformatter_function
@@ -2079,38 +2138,75 @@ static bool typed_bracketed_reformatter_function
         // Count of attribute labels.
     min::unsptr element_count = 0;
         // Count of object elements.
+    bool middle_found = false;
+        // True after TYPED_MIDDLE.
     PAR::token type_token = min::NULL_STUB;
         // TYPE token.  First type encountered.
 
     PAR::token current = first;
     PAR::token start;
     min::uns32 key;
+    PAR::token saved_current;
+    min::gen label;
 
 #   define NEXT \
-	key = get_next ( parser, start, current, \
-	                   next, key_table )
-    NEXT;
-    if ( key == 0 )
-    {
-        MIN_REQUIRE ( start != current );
-	    // Empty object handled above
-
-	make_label ( parser, start, current );
-	start->type = TYPE;
-	type_token = start;
-	goto DONE;
-    }
-    else if ( key == BRA::TYPED_MIDDLE )
-    {
-        if ( start != current )
-	{
-	    PAR::free
-		( PAR::remove
-		    ( first_ref(parser),
-		      current->previous ) );
-	    // TBD most remove all tokens of middle.
+	key = get_next ( parser, start, saved_current, \
+	                 current, next, label, \
+			 key_table )
+#   define LABEL(t) \
+	{ \
+	    make_label ( parser, \
+	                 start, saved_current ); \
+	    start->type = t; \
 	}
+#   define PUNCTUATION_ERROR \
+	::punctuation_error \
+	    ( parser, first, start, saved_current, \
+	      current, label )
+#   define REMOVE \
+	if ( key != 0 ) \
+	    ::remove ( parser, first, start, \
+	               saved_current, current )
+
+    // Start Pass 1:
+    //
+    // {}		goto DONE
+    // {|		middle_found = true;
+    //                  goto ELEMENTS
+    // {<type>}		type_token = ...;
+    // 			goto DONE
+    // {<type>|		type_token = ...;
+    // 			middle_found = true;
+    // 			goto ELEMENTS
+    // {<type>:		type_token = ...;
+    // 			goto ATTRIBUTES
+    while ( true )
+    {
+	NEXT;
+	if ( key == 0
+	     ||
+	     key == BRA::TYPED_ATTR_BEGIN
+	     ||
+	     key == BRA::TYPED_MIDDLE )
+	{
+	    if ( start != saved_current )
+	    {
+		LABEL(TYPE);
+		type_token = start;
+	    }
+	    REMOVE;
+	    if ( key == 0 ) goto DONE;
+	    else if ( key == BRA::TYPED_ATTR_BEGIN )
+	        goto ATTRIBUTES;
+	    else
+	        goto ELEMENTS;
+	}
+	else PUNCTUATION_ERROR;
     }
+
+ATTRIBUTES:
+
+ELEMENTS:
 
 DONE:
 
@@ -2118,6 +2214,11 @@ DONE:
 	( parser, first, trace_flags );
 
     return false;
+
+#   undef NEXT
+#   undef LABEL
+#   undef PUNCTUATION_ERROR
+#   undef REMOVE
 }
 
 min::locatable_var<PAR::reformatter>

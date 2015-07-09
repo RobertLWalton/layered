@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  9 06:31:09 EDT 2015
+// Date:	Thu Jul  9 06:33:57 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1912,6 +1912,24 @@ static bool label_reformatter_function
     return false;
 }
 
+// Skip to next key (punctuation mark).  Return token
+// after key in `current', first token of key in
+// `key_first', token where skip started in `start'.
+// `next' is next token after tokens that may be
+// skipped or part of key (i.e., end of token sequence
+// marker).
+//
+// If key found, return its subtype, and return its
+// label in `label'.  But if key not found (so
+// key_first and current are set == next), return 0.
+//
+// Key_table contains the keys.  It is assumed that
+// selector flags are not being used and all keys have
+// ALL_FLAGS set at their selector flags.
+//
+// It is also assumed that no key is an initial segment
+// of any other key.
+//
 inline min::uns32 get_next
         ( PAR::parser parser,
 	  PAR::token & start,
@@ -1932,8 +1950,7 @@ inline min::uns32 get_next
 			 TAB::ALL_FLAGS,
 			 key_table, next );
 	if ( root == min::NULL_STUB )
-	    key_first = current
-	                  = key_first->next;
+	    key_first = current = key_first->next;
 	else
 	    break;
     }
@@ -2040,7 +2057,8 @@ static bool typed_bracketed_reformatter_function
         // Attribute label for attribute with TRUE or
 	// FALSE value.
     //
-    // Other token types are object elements.
+    // Other token types are object elements after 1st
+    // pass.
     //
     // Each ATTR_LABEL token is followed by a corres-
     // ponding ATTR_VALUE token.  ATTR_TRUE and ATTR_
@@ -2188,6 +2206,9 @@ ATTRIBUTES:
 	           key == 0 )
 	{
 	    min::uns32 type = ATTR_TRUE;
+	    min::phrase_position position =
+		{ start->position.begin,
+		  key_first->previous->position.end };
 	    if ( after_negator != min::NULL_STUB
 	         &&
 		 after_negator != current )
@@ -2228,6 +2249,7 @@ ATTRIBUTES:
 	    }
 	    REMOVE;
 	    LABEL(type);
+	    start->position = position;
 	    ++ attr_count;
 	    if ( key == BRA::TYPED_ATTR_BEGIN )
 	        goto END_TYPE;
@@ -2316,7 +2338,7 @@ ATTRIBUTE_VALUE:
 		parser->printer
 		    << min::bom << min::set_indent ( 7 )
 		    << "ERROR: missing attribute value;"
-		       " TRUE assumed; "
+		       " FALSE assumed; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     position )
@@ -2329,7 +2351,7 @@ ATTRIBUTE_VALUE:
 		MIN_REQUIRE
 		    (    start->previous->type
 		      == ATTR_LABEL );
-		start->previous->type = ATTR_TRUE;
+		start->previous->type = ATTR_FALSE;
 	    }
 	    else if ( start->next == current
 	              &&
@@ -2453,6 +2475,9 @@ AFTER_ELEMENTS:
 	           key == BRA::TYPED_ATTR_SEP )
 	{
 	    min::uns32 type = ATTR_TRUE;
+	    min::phrase_position position =
+		{ start->position.begin,
+		  key_first->previous->position.end };
 	    if ( after_negator != min::NULL_STUB
 	         &&
 		 after_negator != current )
@@ -2470,6 +2495,7 @@ AFTER_ELEMENTS:
 	    }
 	    REMOVE;
 	    LABEL(type);
+	    start->position = position;
 	    ++ attr_count;
 	    if ( key == BRA::TYPED_ATTR_BEGIN )
 	        goto END_TYPE;

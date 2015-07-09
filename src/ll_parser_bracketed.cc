@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  8 16:44:14 EDT 2015
+// Date:	Thu Jul  9 06:21:26 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -168,7 +168,7 @@ static min::packed_struct_with_base
 	( "ll::parser::table::line_separator_type",
 	  TAB::root_gen_disp,
 	  ::line_separator_stub_disp );
-const min::uns32 & BRA::LINE_SEPARATOR =
+const min::uns32 & BRA::LINE_SEP =
     line_separator_type.subtype;
 
 BRA::indentation_mark
@@ -324,7 +324,7 @@ static min::packed_struct_with_base
 	    "::table::typed_attribute_separator_type",
 	  TAB::root_gen_disp,
 	  ::typed_attribute_separator_stub_disp );
-const min::uns32 & BRA::TYPED_ATTR_SEPARATOR =
+const min::uns32 & BRA::TYPED_ATTR_SEP =
     typed_attribute_separator_type.subtype;
 
 static min::uns32
@@ -386,7 +386,7 @@ static min::packed_struct_with_base
 	  TAB::root_gen_disp,
 	  ::typed_attribute_flags_separator_stub_disp );
 const min::uns32 &
-	BRA::TYPED_ATTR_FLAGS_SEPARATOR =
+	BRA::TYPED_ATTR_FLAGS_SEP =
     typed_attribute_flags_separator_type.subtype;
 
 static min::uns32
@@ -459,7 +459,7 @@ static min::packed_struct_with_base
 	::typed_attribute_multivalue_separator_stub_disp
       );
 const min::uns32 &
-	BRA::TYPED_ATTR_MULTIVALUE_SEPARATOR =
+	BRA::TYPED_ATTR_MULTIVALUE_SEP =
     typed_attribute_multivalue_separator_type.subtype;
 
 static min::uns32
@@ -1862,7 +1862,7 @@ bool BRA::parse_bracketed_subexpression
 		// or end of file; reject key.
 	    }
 	    else if (    subtype
-	              == BRA::LINE_SEPARATOR )
+	              == BRA::LINE_SEP )
 	    {
 		BRA::line_separator
 		    line_separator =
@@ -2179,7 +2179,7 @@ ATTRIBUTES:
 	             &&
 		     ! after_elements )
 	           ||
-	           key == BRA::TYPED_ATTR_SEPARATOR
+	           key == BRA::TYPED_ATTR_SEP
 	           ||
 	           key == 0 )
 	{
@@ -2227,7 +2227,7 @@ ATTRIBUTES:
 	    ++ attr_count;
 	    if ( key == BRA::TYPED_ATTR_BEGIN )
 	        goto END_TYPE;
-	    else if ( key == BRA::TYPED_ATTR_SEPARATOR )
+	    else if ( key == BRA::TYPED_ATTR_SEP )
 	        goto ATTRIBUTES;
 	    else if ( key == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
@@ -2290,7 +2290,7 @@ ATTRIBUTE_VALUE:
     while ( true )
     {
 	NEXT;
-	if ( key == BRA::TYPED_ATTR_SEPARATOR
+	if ( key == BRA::TYPED_ATTR_SEP
 	     ||
 	     ( key == BRA::TYPED_MIDDLE
 	       &&
@@ -2339,7 +2339,7 @@ ATTRIBUTE_VALUE:
 
 	    if ( key == BRA::TYPED_ATTR_BEGIN )
 	        goto END_TYPE;
-	    else if ( key == BRA::TYPED_ATTR_SEPARATOR )
+	    else if ( key == BRA::TYPED_ATTR_SEP )
 	        goto ATTRIBUTES;
 	    else if ( key == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
@@ -2446,7 +2446,7 @@ AFTER_ELEMENTS:
 	}
 	else if  ( key == BRA::TYPED_ATTR_BEGIN
 	           ||
-	           key == BRA::TYPED_ATTR_SEPARATOR )
+	           key == BRA::TYPED_ATTR_SEP )
 	{
 	    min::uns32 type = ATTR_TRUE;
 	    if ( after_negator != min::NULL_STUB

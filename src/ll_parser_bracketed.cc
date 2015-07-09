@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  9 06:21:26 EDT 2015
+// Date:	Thu Jul  9 06:31:09 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1542,10 +1542,9 @@ bool BRA::parse_bracketed_subexpression
 
 	// If lookup key in bracket table.
 	//
-	PAR::token saved_current = current;
-	    // Assume for the moment that we will find
-	    // an active bracket table entry.
-
+	PAR::token key_first = current;
+	    // First token of key, or == current if
+	    // there is no key.
 	TAB::key_prefix key_prefix;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
@@ -1566,7 +1565,7 @@ bool BRA::parse_bracketed_subexpression
 	    {
 	        // No active bracket table entry found.
 
-		current = saved_current->next;
+		current = key_first->next;
 		break;
 	    }
 
@@ -1823,8 +1822,7 @@ bool BRA::parse_bracketed_subexpression
 		             ->closing_bracket
 			 == closing_bracket )
 		    {
-		        p->closing_first =
-			    saved_current;
+		        p->closing_first = key_first;
 			p->closing_next = current;
 
 			for ( BRA::bracket_stack *
@@ -1833,7 +1831,7 @@ bool BRA::parse_bracketed_subexpression
 			      q = q->previous )
 			    q->closing_first =
 			        q->closing_next =
-				    saved_current;
+				    key_first;
 
 			return false;
 		    }
@@ -1917,13 +1915,13 @@ static bool label_reformatter_function
 inline min::uns32 get_next
         ( PAR::parser parser,
 	  PAR::token & start,
-	  PAR::token & saved_current,
+	  PAR::token & key_first,
 	  PAR::token & current,
 	  PAR::token next,
 	  min::gen & label,
 	  TAB::key_table key_table )
 {
-    start = saved_current = current;
+    start = key_first = current;
 
     TAB::root root = min::NULL_STUB;
     TAB::key_prefix key_prefix;
@@ -1934,8 +1932,8 @@ inline min::uns32 get_next
 			 TAB::ALL_FLAGS,
 			 key_table, next );
 	if ( root == min::NULL_STUB )
-	    saved_current = current
-	                  = saved_current->next;
+	    key_first = current
+	                  = key_first->next;
 	else
 	    break;
     }
@@ -1949,36 +1947,42 @@ inline min::uns32 get_next
     }
 }
 
+// Delete the punctuation just found.  Update first,
+// start, and key_first as necessary.
+//
 inline void remove ( PAR::parser parser, 
 		     PAR::token & first,
 		     PAR::token & start,
-                     PAR::token & saved_current,
+                     PAR::token & key_first,
 		     PAR::token current )
 {
-    while ( saved_current != current )
+    if ( key_first == first ) first = current;
+    if ( key_first == start ) start = current;
+
+    while ( key_first != current )
     {
-	if ( saved_current == first )
-	    first = saved_current->next;
-	if ( saved_current == start )
-	    start = saved_current->next;
-        saved_current = saved_current->next;
+        key_first = key_first->next;
 	PAR::free
 	    ( PAR::remove
 		( first_ref(parser),
-		  saved_current->previous ) );
+		  key_first->previous ) );
     }
 }
 
+// Announce the punctuation just found is illegal and
+// will be ignored, and delete it.   Update first,
+// start, and key_first as necessary.
+//
 inline void punctuation_error
         ( PAR::parser parser,
 	  PAR::token & first,
 	  PAR::token & start,
-	  PAR::token & saved_current,
+	  PAR::token & key_first,
 	  PAR::token current,
 	  min::gen label )
 {
     min::phrase_position position =
-        { saved_current->position.begin,
+        { key_first->position.begin,
 	  current->previous->position.end };
 
     parser->printer
@@ -1997,7 +2001,7 @@ inline void punctuation_error
     ++ parser->error_count;
 
     ::remove ( parser, first, start,
-               saved_current, current );
+               key_first, current );
 }
 
 static bool typed_bracketed_reformatter_function
@@ -2070,29 +2074,29 @@ static bool typed_bracketed_reformatter_function
         // TYPE token.  First type encountered.
 
     PAR::token start;
-    PAR::token saved_current;
+    PAR::token key_first;
     PAR::token current = first;
     min::uns32 key;
     min::gen label;
 
 #   define NEXT \
-	key = get_next ( parser, start, saved_current, \
+	key = get_next ( parser, start, key_first, \
 	                 current, next, label, \
 			 key_table )
 #   define LABEL(t) \
 	{ \
 	    make_label ( parser, \
-	                 start, saved_current ); \
+	                 start, key_first ); \
 	    start->type = t; \
 	}
 #   define PUNCTUATION_ERROR \
 	::punctuation_error \
-	    ( parser, first, start, saved_current, \
+	    ( parser, first, start, key_first, \
 	      current, label )
 #   define REMOVE \
 	if ( key != 0 ) \
 	    ::remove ( parser, first, start, \
-	               saved_current, current )
+	               key_first, current )
 
     // Start Pass 1:
     //
@@ -2113,7 +2117,7 @@ static bool typed_bracketed_reformatter_function
 	     ||
 	     key == BRA::TYPED_MIDDLE )
 	{
-	    if ( start != saved_current )
+	    if ( start != key_first )
 	    {
 		LABEL(TYPE);
 		type_token = start;
@@ -2166,10 +2170,10 @@ ATTRIBUTES:
 	NEXT;
 	if ( key == BRA::TYPED_ATTR_NEGATOR )
 	{
-	    if ( start == saved_current )
+	    if ( start == key_first )
 	        after_negator = current;
 	    else
-	        current = saved_current->next;
+	        current = key_first->next;
 	}
 	else if  ( ( key == BRA::TYPED_ATTR_BEGIN
 	             &&
@@ -2194,13 +2198,13 @@ ATTRIBUTES:
 			   after_negator );
 		type = ATTR_FALSE;
 	    }
-	    else if ( start == saved_current )
+	    else if ( start == key_first )
 	    {
 	        if ( key == 0 )
 		{
 		    min::phrase_position position =
-			{ saved_current->position.begin,
-			  saved_current->position.begin
+			{ key_first->position.begin,
+			  key_first->position.begin
 			};
 		    parser->printer
 			<< min::bom
@@ -2236,8 +2240,8 @@ ATTRIBUTES:
 		MIN_REQUIRE ( key == 0 );
 
 		min::phrase_position position =
-		    { saved_current->position.begin,
-		      saved_current->position.begin
+		    { key_first->position.begin,
+		      key_first->position.begin
 		    };
 		parser->printer
 		    << min::bom
@@ -2259,7 +2263,7 @@ ATTRIBUTES:
 	}
 	else if  ( key == BRA::TYPED_ATTR_EQUAL )
 	{
-	    if ( start == saved_current )
+	    if ( start == key_first )
 	    {
 	        PUNCTUATION_ERROR;
 		continue;
@@ -2420,7 +2424,7 @@ ELEMENTS:
 	{
 	    // Ignore other keys.
 	    //
-	    current = saved_current->next;
+	    current = key_first->next;
 	}
     }
 
@@ -2439,10 +2443,10 @@ AFTER_ELEMENTS:
 	NEXT;
 	if ( key == BRA::TYPED_ATTR_NEGATOR )
 	{
-	    if ( start == saved_current )
+	    if ( start == key_first )
 	        after_negator = current;
 	    else
-	        current = saved_current->next;
+	        current = key_first->next;
 	}
 	else if  ( key == BRA::TYPED_ATTR_BEGIN
 	           ||
@@ -2459,7 +2463,7 @@ AFTER_ELEMENTS:
 			   after_negator );
 		type = ATTR_FALSE;
 	    }
-	    else if ( start == saved_current )
+	    else if ( start == key_first )
 	    {
 	        PUNCTUATION_ERROR;
 		continue;
@@ -2474,7 +2478,7 @@ AFTER_ELEMENTS:
 	}
 	else if  ( key == BRA::TYPED_ATTR_EQUAL )
 	{
-	    if ( start == saved_current )
+	    if ( start == key_first )
 	    {
 	        PUNCTUATION_ERROR;
 		continue;
@@ -2486,7 +2490,7 @@ AFTER_ELEMENTS:
 	}
 	else if  ( key == 0 )
 	{
-	    if ( start != saved_current )
+	    if ( start != key_first )
 	    {
 		LABEL(TYPE);
 		if ( type_token != min::NULL_STUB )
@@ -2537,7 +2541,7 @@ END_TYPE:
 	NEXT;
 	if ( key == 0 )
 	{
-	    if ( start == saved_current )
+	    if ( start == key_first )
 	    {
 		min::phrase_position position =
 		    { current->position.begin,

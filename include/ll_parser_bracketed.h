@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  8 06:42:07 EDT 2015
+// Date:	Thu Jul  9 06:17:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -139,7 +139,7 @@ struct line_separator_struct;
 typedef min::packed_struct_updptr
 	    <line_separator_struct>
         line_separator;
-extern const uns32 & LINE_SEPARATOR;
+extern const uns32 & LINE_SEP;
     // Subtype of min::packed_struct
     //		       <line_separator_struct>.
 
@@ -161,7 +161,7 @@ MIN_REF ( ll::parser::bracketed::line_separator,
 struct line_separator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is LINE_SEPARATOR.
+    // Packed_struct subtype is LINE_SEP.
 
     const ll::parser::bracketed::indentation_mark
     	    indentation_mark;
@@ -234,7 +234,7 @@ struct typed_attribute_separator_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_separator_struct>
         typed_attribute_separator;
-extern const uns32 & TYPED_ATTR_SEPARATOR;
+extern const uns32 & TYPED_ATTR_SEP;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attribute_separator_struct>.
@@ -261,7 +261,7 @@ struct typed_attribute_flags_separator_struct;
 typedef min::packed_struct_updptr
 	    <typed_attribute_flags_separator_struct>
         typed_attribute_flags_separator;
-extern const uns32 & TYPED_ATTR_FLAGS_SEPARATOR;
+extern const uns32 & TYPED_ATTR_FLAGS_SEP;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attribute_flags_separator_struct>.
@@ -289,7 +289,7 @@ typedef min::packed_struct_updptr
 	   <typed_attribute_multivalue_separator_struct>
         typed_attribute_multivalue_separator;
 extern const uns32 &
-	TYPED_ATTR_MULTIVALUE_SEPARATOR;
+	TYPED_ATTR_MULTIVALUE_SEP;
     // Subtype of
     //   min::packed_struct
     //	  <typed_attribute_multivalue_separator_struct>.
@@ -386,8 +386,7 @@ struct typed_attribute_equal_struct :
 struct typed_attribute_separator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // SEPARATOR.
+    // Packed_struct subtype is TYPED_ATTR_SEP.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -398,8 +397,7 @@ struct typed_attribute_separator_struct :
 struct typed_attribute_negator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // NEGATOR.
+    // Packed_struct subtype is TYPED_ATTR_NEGATOR.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -410,8 +408,8 @@ struct typed_attribute_negator_struct :
 struct typed_attribute_flags_opening_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // FLAGS_OPENING.
+    // Packed_struct subtype is TYPED_ATTR_FLAGS_
+    // OPENING.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -422,8 +420,7 @@ struct typed_attribute_flags_opening_struct :
 struct typed_attribute_flags_separator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // FLAGS_SEPARATOR.
+    // Packed_struct subtype is TYPED_ATTR_FLAGS_SEP.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -434,8 +431,8 @@ struct typed_attribute_flags_separator_struct :
 struct typed_attribute_flags_closing_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // FLAGS_CLOSING.
+    // Packed_struct subtype is TYPED_ATTR_FLAGS_
+    // CLOSING.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -446,8 +443,8 @@ struct typed_attribute_flags_closing_struct :
 struct typed_attribute_multivalue_opening_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // MULTIVALUE_OPENING.
+    // Packed_struct subtype is TYPED_ATTR_MULTIVALUE_
+    // OPENING.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -458,8 +455,8 @@ struct typed_attribute_multivalue_opening_struct :
 struct typed_attribute_multivalue_separator_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // MULTIVALUE_SEPARATOR.
+    // Packed_struct subtype is TYPED_ATTR_MULTIVALUE_
+    // SEP.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;
@@ -470,8 +467,8 @@ struct typed_attribute_multivalue_separator_struct :
 struct typed_attribute_multivalue_closing_struct : 
 	public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is TYPED_ATTR_
-    // MULTIVALUE_CLOSING.
+    // Packed_struct subtype is TYPED_ATTR_MULTIVALUE_
+    // CLOSING.
 
     const ll::parser::bracketed::typed_opening
           typed_opening;

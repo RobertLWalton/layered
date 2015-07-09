@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  9 06:33:57 EDT 2015
+// Date:	Thu Jul  9 16:24:38 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -953,8 +953,10 @@ PAR::pass BRA::new_pass ( void )
 // of the first token is set to DERIVED, the label is
 // returned as the value of the first token, and the
 // position of this first token is set to include all
-// the tokens that made the label.  If the label is
-// empty, a new first token is made and inserted before
+// the tokens that made the label.
+//
+// If `first' == `next' (and therefore the label is
+// empty), a new first token is made and inserted before
 // `next', and the `first' argument is updated to point
 // at the new token, and the position is set to the
 // empty string just before `next'.  This is the only
@@ -2021,6 +2023,33 @@ inline void punctuation_error
                key_first, current );
 }
 
+// Announce `missing <message>' error with position
+// just before current.
+//
+static void missing_error
+        ( PAR::parser parser,
+	  PAR::token current,
+	  const char * message )
+{
+    min::phrase_position position =
+        { current->position.begin,
+	  current->position.begin };
+
+    parser->printer
+	<< min::bom << min::set_indent ( 7 )
+	<< "ERROR: missing " << message
+	<< "; "
+	<< min::pline_numbers
+	       ( parser->input_file,
+		 position )
+	<< ":" << min::eom;
+    min::print_phrase_lines
+	( parser->printer,
+	  parser->input_file,
+	  position );
+    ++ parser->error_count;
+}
+
 static bool typed_bracketed_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -2085,12 +2114,17 @@ static bool typed_bracketed_reformatter_function
     bool after_elements = false;
         // True if after TYPED_MIDDLE surrounded
 	// elements.
+    bool after_attribute = false;
+        // True if attribute has been found since
+	// after_elements was set true.
     PAR::token after_negator;
         // If attr negator found, first token after
 	// negator.
     PAR::token type_token = min::NULL_STUB;
         // TYPE token.  First type encountered.
 
+    // Data for macros below:
+    //
     PAR::token start;
     PAR::token key_first;
     PAR::token current = first;
@@ -2103,6 +2137,7 @@ static bool typed_bracketed_reformatter_function
 			 key_table )
 #   define LABEL(t) \
 	{ \
+	    MIN_REQUIRE ( start != key_first ); \
 	    make_label ( parser, \
 	                 start, key_first ); \
 	    start->type = t; \
@@ -2129,6 +2164,7 @@ static bool typed_bracketed_reformatter_function
     while ( true )
     {
 	NEXT;
+
 	if ( key == 0
 	     ||
 	     key == BRA::TYPED_ATTR_BEGIN
@@ -2140,12 +2176,15 @@ static bool typed_bracketed_reformatter_function
 		LABEL(TYPE);
 		type_token = start;
 	    }
+
 	    REMOVE;
-	    if ( key == 0 ) goto DONE;
+
+	    if ( key == BRA::TYPED_MIDDLE )
+	        goto ELEMENTS;
 	    else if ( key == BRA::TYPED_ATTR_BEGIN )
 	        goto ATTRIBUTES;
 	    else
-	        goto ELEMENTS;
+		goto DONE;
 	}
 	else PUNCTUATION_ERROR;
     }
@@ -2173,7 +2212,10 @@ ATTRIBUTES:
     // If after_elements:
     //
     //     <attr-negator>? <attr-label> :
-    //	 		goto ATTRIBUTE_VALUE
+    //	 		goto END_TYPE
+    //
+    // If after_elements and after_attribute:
+    //
     //     <attr-negator>? <attr-label> }
     //                  MISSING END TYPE ERROR
     // 			goto DONE
@@ -2181,6 +2223,12 @@ ATTRIBUTES:
     //                  MISSING ATTR ERROR
     //                  MISSING END TYPE ERROR
     // 			goto DONE
+    //
+    // If after_elements and ! after_attribute:
+    //
+    //     <type> } 	goto END_TYPE_FOUND
+    //
+    //     } 		goto DONE
     //
     after_negator = min::NULL_STUB;
     while ( true )
@@ -2203,7 +2251,11 @@ ATTRIBUTES:
 	           ||
 	           key == BRA::TYPED_ATTR_SEP
 	           ||
-	           key == 0 )
+	           ( key == 0
+		     &&
+		     ( ! after_elements
+		       ||
+		       after_attribute ) ) )
 	{
 	    min::uns32 type = ATTR_TRUE;
 	    min::phrase_position position =
@@ -2217,31 +2269,20 @@ ATTRIBUTES:
 		::remove ( parser, first, start,
 	                   negator_current,
 			   after_negator );
+		    // 3rd and 4th argument must be
+		    // separate memory variables
+
 		type = ATTR_FALSE;
 	    }
 	    else if ( start == key_first )
 	    {
 	        if ( key == 0 )
 		{
-		    min::phrase_position position =
-			{ key_first->position.begin,
-			  key_first->position.begin
-			};
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: missing attribute"
-			<< ( after_elements ?
-			     " and end type; " : "; " )
-			<< min::pline_numbers
-			       ( parser->input_file,
-				 position )
-			<< ":" << min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  parser->input_file,
-			  position );
-		    ++ parser->error_count;
+		    missing_error
+		        ( parser, key_first,
+			  after_elements ?
+			  "attribute and end type" :
+			  "attribute" );
 		    goto DONE;
 		}
 	        PUNCTUATION_ERROR;
@@ -2250,34 +2291,24 @@ ATTRIBUTES:
 	    REMOVE;
 	    LABEL(type);
 	    start->position = position;
+
 	    ++ attr_count;
-	    if ( key == BRA::TYPED_ATTR_BEGIN )
-	        goto END_TYPE;
-	    else if ( key == BRA::TYPED_ATTR_SEP )
+	    after_attribute = after_elements;
+
+	    if ( key == BRA::TYPED_ATTR_SEP )
 	        goto ATTRIBUTES;
+	    else if ( key == BRA::TYPED_ATTR_BEGIN )
+	        goto END_TYPE;
 	    else if ( key == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
 	    else if ( after_elements )
 	    {
 		MIN_REQUIRE ( key == 0 );
+		MIN_REQUIRE ( after_attribute );
 
-		min::phrase_position position =
-		    { key_first->position.begin,
-		      key_first->position.begin
-		    };
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: missing end type; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      position );
-		++ parser->error_count;
+		missing_error
+		    ( parser, current, "end type" );
+
 		goto DONE;
 	    }
 	    else
@@ -2293,7 +2324,15 @@ ATTRIBUTES:
 	    REMOVE;
 	    LABEL(ATTR_LABEL);
 	    ++ attr_count;
+	    after_attribute = after_elements;
 	    goto ATTRIBUTE_VALUE;
+	}
+	else if ( key == 0 )
+	{
+	    if ( start != key_first )
+	        goto END_TYPE_FOUND;
+
+	    goto DONE;
 	}
 	else PUNCTUATION_ERROR;
     }
@@ -2313,6 +2352,9 @@ ATTRIBUTE_VALUE:
     //     <value> }	MISSING END TYPE ERROR
     //     		goto DONE
     //
+    // If <value> is empty add
+    // 	    MISSING ATTRIBUTE VALUE ERROR; FALSE ASSUMED
+    //
     while ( true )
     {
 	NEXT;
@@ -2331,23 +2373,11 @@ ATTRIBUTE_VALUE:
 	    REMOVE;
 	    if ( start == current )
 	    {
-		min::phrase_position position =
-		    { current->position.begin,
-		      current->position.begin };
+		missing_error
+		    ( parser, current,
+		      "attribute value;"
+		      " FALSE assumed" );
 
-		parser->printer
-		    << min::bom << min::set_indent ( 7 )
-		    << "ERROR: missing attribute value;"
-		       " FALSE assumed; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      position );
-		++ parser->error_count;
 		MIN_REQUIRE
 		    (    start->previous->type
 		      == ATTR_LABEL );
@@ -2358,10 +2388,7 @@ ATTRIBUTE_VALUE:
 		      start->value != min::MISSING() )
 	        start->type = ATTR_VALUE;
 	    else
-	    {
 		LABEL ( ATTR_VALUE );
-	        start->type = ATTR_VALUE;
-	    }
 
 	    if ( key == BRA::TYPED_ATTR_BEGIN )
 	        goto END_TYPE;
@@ -2369,18 +2396,54 @@ ATTRIBUTE_VALUE:
 	        goto ATTRIBUTES;
 	    else if ( key == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
-	    else if ( after_elements )
+	    else
 	    {
 		MIN_REQUIRE ( key == 0 );
+		if ( after_elements )
+		    missing_error
+			( parser, current, "end type" );
+		goto DONE;
+	    }
+	}
+	else PUNCTUATION_ERROR;
+    }
 
+ELEMENTS:
+
+    // <element>* |	goto ATTRIBUTES
+    // <element>* }	MISSING | ERROR
+    // 			goto DONE
+    //
+    after_elements = true;
+    while ( true )
+    {
+	NEXT;
+
+	if ( key == BRA::TYPED_MIDDLE
+	     ||
+	     key == 0 )
+	{
+	    REMOVE;
+	    for ( PAR::token t = start;
+	          t != current; t = t->next )
+	        ++ element_count;
+	    if ( key == BRA::TYPED_MIDDLE )
+		goto ATTRIBUTES;
+	    else
+	    {
 		min::phrase_position position =
 		    { current->position.begin,
-		      current->position.begin
-		    };
+		      current->position.begin };
+		label = typed_opening->typed_middle
+		                     ->label;
+
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
-		    << "ERROR: missing end type; "
+		    << "ERROR: premature end of typed"
+		       " bracketed subexpression; `"
+		    << min::pgen_name ( label )
+		    << "' inserted; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     position )
@@ -2390,57 +2453,9 @@ ATTRIBUTE_VALUE:
 		      parser->input_file,
 		      position );
 		++ parser->error_count;
+
 		goto DONE;
 	    }
-	    else
-	        goto DONE;
-	}
-    }
-
-ELEMENTS:
-
-    // <element>* |	goto AFTER_ELEMENTS
-    // <element>* }	MISSING | ERROR
-    // 			goto DONE
-    //
-    while ( true )
-    {
-	NEXT;
-	if ( key == BRA::TYPED_MIDDLE )
-	{
-	    REMOVE;
-	    for ( PAR::token t = start;
-	          t != current; t = t->next )
-	        ++ element_count;
-	    goto AFTER_ELEMENTS;
-	}
-	else if ( key == 0 )
-	{
-	    min::phrase_position position =
-		{ current->position.begin,
-		  current->position.begin };
-	    label = typed_opening->typed_middle->label;
-
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: premature end of typed"
-		   " bracketed subexpression; `"
-		<< min::pgen_name ( label )
-		<< "' inserted; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  position );
-	    ++ parser->error_count;
-
-	    for ( PAR::token t = start;
-	          t != current; t = t->next )
-	        ++ element_count;
-	    goto DONE;
 	}
 	else
 	{
@@ -2448,114 +2463,6 @@ ELEMENTS:
 	    //
 	    current = key_first->next;
 	}
-    }
-
-AFTER_ELEMENTS:
-
-    // }
-    // <type> }
-    // <attr-negator>? <attr-label> :
-    // <attr-negator>? <attr-label> ,
-    // <attr-negator>? <attr-label> =
-    //
-    after_elements = true;
-    after_negator = min::NULL_STUB;
-    while ( true )
-    {
-	NEXT;
-	if ( key == BRA::TYPED_ATTR_NEGATOR )
-	{
-	    if ( start == key_first )
-	        after_negator = current;
-	    else
-	        current = key_first->next;
-	}
-	else if  ( key == BRA::TYPED_ATTR_BEGIN
-	           ||
-	           key == BRA::TYPED_ATTR_SEP )
-	{
-	    min::uns32 type = ATTR_TRUE;
-	    min::phrase_position position =
-		{ start->position.begin,
-		  key_first->previous->position.end };
-	    if ( after_negator != min::NULL_STUB
-	         &&
-		 after_negator != current )
-	    {
-		PAR::token negator_current = start;
-		::remove ( parser, first, start, \
-	                   negator_current,
-			   after_negator );
-		type = ATTR_FALSE;
-	    }
-	    else if ( start == key_first )
-	    {
-	        PUNCTUATION_ERROR;
-		continue;
-	    }
-	    REMOVE;
-	    LABEL(type);
-	    start->position = position;
-	    ++ attr_count;
-	    if ( key == BRA::TYPED_ATTR_BEGIN )
-	        goto END_TYPE;
-	    else
-	        goto ATTRIBUTES;
-	}
-	else if  ( key == BRA::TYPED_ATTR_EQUAL )
-	{
-	    if ( start == key_first )
-	    {
-	        PUNCTUATION_ERROR;
-		continue;
-	    }
-	    REMOVE;
-	    LABEL(ATTR_LABEL);
-	    ++ attr_count;
-	    goto ATTRIBUTE_VALUE;
-	}
-	else if  ( key == 0 )
-	{
-	    if ( start != key_first )
-	    {
-		LABEL(TYPE);
-		if ( type_token != min::NULL_STUB )
-		{
-		    if (    type_token->value
-		         != start->value )
-		    {
-			parser->printer
-			    << min::bom
-			    << min::set_indent ( 7 )
-			    << "ERROR: end type `"
-			    << min::pgen_name
-			         ( start->value )
-			    << "' != begin type `"
-			    << min::pgen_name
-			         ( type_token->value )
-			    << "'; end type ignored; " 
-			    << min::pline_numbers
-				   ( parser->input_file,
-				     start->position )
-			    << ":" << min::eom;
-			min::print_phrase_lines
-			    ( parser->printer,
-			      parser->input_file,
-			      start->position );
-			++ parser->error_count;
-		    }
-		    PAR::free
-			( PAR::remove
-			    ( first_ref(parser),
-			      start ) );
-		}
-		else
-		    type_token = start;
-	    }
-	    goto DONE;
-
-	}
-	else PUNCTUATION_ERROR;
     }
 
 END_TYPE:
@@ -2569,63 +2476,58 @@ END_TYPE:
 	{
 	    if ( start == key_first )
 	    {
-		min::phrase_position position =
-		    { current->position.begin,
-		      current->position.begin
-		    };
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: missing end type; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      position );
-		++ parser->error_count;
+		missing_error
+		    ( parser, current, "end type" );
 		goto DONE;
 	    }
-
-	    LABEL(TYPE);
-	    if ( type_token != min::NULL_STUB )
-	    {
-		if (    type_token->value
-		     != start->value )
-		{
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: end type `"
-			<< min::pgen_name
-			     ( start->value )
-			<< "' != begin type `"
-			<< min::pgen_name
-			     ( type_token->value )
-			<< "'; end type ignored; " 
-			<< min::pline_numbers
-			       ( parser->input_file,
-				 start->position )
-			<< ":" << min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  parser->input_file,
-			  start->position );
-		    ++ parser->error_count;
-		}
-		PAR::free
-		    ( PAR::remove
-			( first_ref(parser),
-			  start ) );
-	    }
 	    else
-		type_token = start;
-	    goto DONE;
+	        goto END_TYPE_FOUND;
 	}
 	else PUNCTUATION_ERROR;
     }
+
+END_TYPE_FOUND:
+
+    LABEL(TYPE);
+
+    if ( type_token == min::NULL_STUB )
+	type_token = start;
+    else
+    {
+	if (    type_token->value
+	     != start->value )
+	{
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: end type `"
+		<< min::pgen_name
+		     ( start->value )
+		<< "' != begin type `"
+		<< min::pgen_name
+		     ( type_token->value )
+		<< "'; end type `"
+		<< min::pgen_name
+		     ( start->value )
+		<< "' ignored; " 
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 start->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  start->position );
+	    ++ parser->error_count;
+	}
+
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  start ) );
+    }
+
+    goto DONE;
 
 DONE:
 

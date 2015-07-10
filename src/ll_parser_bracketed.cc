@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  9 16:24:38 EDT 2015
+// Date:	Fri Jul 10 10:34:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2060,20 +2060,6 @@ static bool typed_bracketed_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    if ( first == next )
-    {
-	first = new_token ( PAR::DERIVED );
-	put_before ( PAR::first_ref(parser),
-	             next, first );
-	PAR::value_ref(first) = min::new_obj_gen ( 0 );
-	first->position = position;
-	return false;
-    }
-
-    BRA::typed_opening typed_opening =
-        (BRA::typed_opening) entry;
-    TAB::key_table key_table = typed_opening->key_table;
-
     // Types of tokens after 1st pass.
     //
     const min::uns32 TYPE =       PAR::TEMPORARY_TT + 0;
@@ -2123,6 +2109,10 @@ static bool typed_bracketed_reformatter_function
     PAR::token type_token = min::NULL_STUB;
         // TYPE token.  First type encountered.
 
+    BRA::typed_opening typed_opening =
+        (BRA::typed_opening) entry;
+    TAB::key_table key_table = typed_opening->key_table;
+
     // Data for macros below:
     //
     PAR::token start;
@@ -2130,6 +2120,11 @@ static bool typed_bracketed_reformatter_function
     PAR::token current = first;
     min::uns32 key;
     min::gen label;
+
+    if ( first == next ) goto DONE;
+        // Shortcut for {}
+	// Cannot put this before variable declarations
+	// above.
 
 #   define NEXT \
 	key = get_next ( parser, start, key_first, \
@@ -2529,17 +2524,129 @@ END_TYPE_FOUND:
 
     goto DONE;
 
+#   undef NEXT
+#   undef LABEL
+#   undef PUNCTUATION_ERROR
+#   undef REMOVE
+
 DONE:
+
+    // Second Pass
+    //
+    min::locatable_gen exp;
+    min::locatable_var
+	    <min::phrase_position_vec_insptr>
+	pos;
+
+    ++ attr_count;	// For .position
+    if ( type_token != min::NULL_STUB )
+	++ attr_count;	// For .type
+
+    // Hash table size.
+    //
+    min::uns32 h = attr_count;
+    if ( h > 128 ) h = 128;
+
+    exp = min::new_obj_gen (   3*( attr_count + 2 )
+                             + element_count, h );
+
+    min::init ( pos, parser->input_file,
+		position, element_count );
+
+    min::obj_vec_insptr expvp ( exp );
+    min::attr_insptr expap ( expvp );
+    min::locate ( expap, min::dot_position );
+    min::set ( expap, min::new_stub_gen ( pos ) );
+    min::set_flag
+	( expap, min::standard_attr_hide_flag );
+
+    for ( PAR::token current = first;
+	  current != next; )
+    {
+	min::locatable_gen label;
+	min::locatable_gen value;
+	min::gen old_value;
+        if ( current->type == TYPE )
+	{
+	    label = min::dot_type;
+	    value = current->value;
+	}
+	else if ( current->type == ATTR_LABEL )
+	{
+	    label = current->value;
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			current->previous ) );
+	    MIN_REQUIRE ( current->type == ATTR_VALUE );
+	    value = current->value;
+	}
+        else if ( current->type == ATTR_FALSE )
+	{
+	    label = current->value;
+	    value = min::FALSE;
+	}
+        else if ( current->type == ATTR_TRUE )
+	{
+	    label = current->value;
+	    value = min::TRUE;
+	}
+	else
+	{
+	    // current is vector element
+	    //
+	    min::attr_push(expvp) = current->value;
+	    min::push ( pos ) = current->position;
+	    goto NEXT_ITEM;
+	}
+
+	min::locate ( expap, label );
+	old_value = min::get ( expap );
+	if ( old_value == min::NONE() )
+	    min::set ( expap, value );
+	else
+	{
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 7 )
+		<< "ERROR: attribute `"
+		<< min::pgen_name ( label )
+		<< "' appears more than once;"
+		   " non-first value `"
+		<< min::pgen ( old_value )
+		<< "' ignored; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 current->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  current->position );
+	    ++ parser->error_count;
+	}
+
+NEXT_ITEM:
+
+	current = current->next;
+	PAR::free
+	    ( PAR::remove
+		  ( PAR::first_ref(parser),
+		    current->previous ) );
+    }
+
+    first = PAR::new_token ( PAR::BRACKETED );
+    PAR::put_before
+	( first_ref(parser), next, first );
+
+    PAR::value_ref(first) = exp;
+    first->position = position;
 
     PAR::trace_subexpression
 	( parser, first, trace_flags );
 
     return false;
-
-#   undef NEXT
-#   undef LABEL
-#   undef PUNCTUATION_ERROR
-#   undef REMOVE
 }
 
 min::locatable_var<PAR::reformatter>

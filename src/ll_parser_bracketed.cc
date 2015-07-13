@@ -2072,11 +2072,12 @@ static bool typed_bracketed_reformatter_function
         // .type value
     const min::uns32 ATTR_LABEL = PAR::TEMPORARY_TT + 1;
     const min::uns32 ATTR_VALUE = PAR::TEMPORARY_TT + 2;
-        // Attribute label and value.
-    const min::uns32 ATTR_TRUE =  PAR::TEMPORARY_TT + 1;
-    const min::uns32 ATTR_FALSE = PAR::TEMPORARY_TT + 2;
+        // Attribute label and value.  Must be
+	// consecutive tokens.
+    const min::uns32 ATTR_TRUE =  PAR::TEMPORARY_TT + 3;
+    const min::uns32 ATTR_FALSE = PAR::TEMPORARY_TT + 4;
         // Attribute label for attribute with TRUE or
-	// FALSE value.
+	// FALSE value implied.
     //
     // Other token types are object elements after 1st
     // pass.
@@ -2092,8 +2093,12 @@ static bool typed_bracketed_reformatter_function
     // position of these tokens DOES include the
     // attribute negator.
     //
-    // There is only one TYPE token.  Error messages
-    // concerning type mismatches are generated during
+    // There can be a type at the beginning, the `begin
+    // type', and also at the end, the `end type'.  But
+    // there can be only one TYPE token.  If both types
+    // are given, only the `begin type' generates a TYPE
+    // token, and error messages concerning type mis-
+    // matches are generated when end type is found.
     //
     // If there are two ATTR_LABEL/TRUE/FALSE tokens
     // with the same attribute label, it is an error
@@ -2114,6 +2119,7 @@ static bool typed_bracketed_reformatter_function
 	// negator.
     PAR::token type_token = min::NULL_STUB;
         // TYPE token.  First type encountered.
+	// See above.
 
     BRA::typed_opening typed_opening =
         (BRA::typed_opening) entry;
@@ -2166,7 +2172,16 @@ static bool typed_bracketed_reformatter_function
 	    ::remove ( parser, first, start, \
 	               key_first, current )
 
-    // Start Pass 1:
+    // In syntax below
+    //
+    //     {	denotes	    typed_opening
+    //     :	denotes	    typed_attr_begin
+    //     =	denotes	    typed_attr_equal
+    //     ,	denotes	    typed_attr_sep
+    //     |	denotes	    typed_middle
+    //     }	denotes	    closing_bracket
+    //
+    // Start Pass 1 at beginning of subexpression.
     //
     // {}		goto DONE
     // {|		goto ELEMENTS
@@ -2208,6 +2223,10 @@ static bool typed_bracketed_reformatter_function
 
 ATTRIBUTES:
 
+    // Come here if:
+    //     Before elements and after : or ,
+    //     After elements and after | or ,
+    //
     // <attr-negator>? <attr-label> ,
     // 			goto ATTRIBUTES
     // <attr-label> =
@@ -2229,6 +2248,9 @@ ATTRIBUTES:
     // If after_elements:
     //
     //     <attr-negator>? <attr-label> :
+    //	 		goto END_TYPE
+    //     :
+    //                  MISSING ATTR ERROR
     //	 		goto END_TYPE
     //
     // If after_elements and after_attribute:
@@ -2258,6 +2280,8 @@ ATTRIBUTES:
 	        after_negator = current;
 	    else
 	        current = key_first->next;
+		    // Ignore negator that is not
+		    // at beginning of label.
 	}
 	else if  ( (    key_subtype
 	             == BRA::TYPED_ATTR_BEGIN
@@ -2295,17 +2319,27 @@ ATTRIBUTES:
 	    }
 	    else if ( start == key_first )
 	    {
-	        if ( key_subtype == 0 )
+	        if (    key_subtype
+		     == BRA::TYPED_ATTR_SEP )
 		{
-		    missing_error
-		        ( parser, key_first,
-			  after_elements ?
-			  "attribute and end type" :
-			  "attribute" );
-		    goto DONE;
+		    PUNCTUATION_ERROR;
+		    continue;
 		}
-	        PUNCTUATION_ERROR;
-		continue;
+		missing_error
+		    ( parser, key_first,
+		         key_subtype == 0
+		      && after_elements ?
+		      "attribute and end type" :
+		      "attribute" );
+
+		if (    key_subtype 
+		          == BRA::TYPED_MIDDLE )
+		    goto ELEMENTS;
+		else if (    key_subtype 
+		          == BRA::TYPED_ATTR_BEGIN )
+		    goto END_TYPE;
+		else
+		    goto DONE;
 	    }
 	    REMOVE;
 	    LABEL(type);
@@ -2359,6 +2393,8 @@ ATTRIBUTES:
 
 ATTRIBUTE_VALUE:
 
+    // Come here if after =
+    //
     // <value> ,	goto ATTRIBUTES
     //
     // If ! after_elements:
@@ -2432,6 +2468,8 @@ ATTRIBUTE_VALUE:
 
 ELEMENTS:
 
+    // Come here if after | and before elements
+    //
     // <element>* |	goto ATTRIBUTES
     // <element>* }	MISSING | ERROR
     // 			goto DONE
@@ -2489,6 +2527,8 @@ ELEMENTS:
 
 END_TYPE:
 
+    // Come here if after : and after elements
+    //
     // <type>}		goto DONE
     // 
     start = current;
@@ -2511,6 +2551,9 @@ END_TYPE:
 
 END_TYPE_FOUND:
 
+    // Come here when end type found, with start set
+    // to first token and current to token after type.
+    //
     LABEL(TYPE);
 
     if ( type_token == min::NULL_STUB )
@@ -2529,10 +2572,7 @@ END_TYPE_FOUND:
 		<< "' != begin type `"
 		<< min::pgen_name
 		     ( type_token->value )
-		<< "'; end type `"
-		<< min::pgen_name
-		     ( start->value )
-		<< "' ignored; " 
+		<< "'; end type ignored; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 start->position )
@@ -2601,6 +2641,7 @@ DONE:
 	}
 	else if ( current->type == ATTR_LABEL )
 	{
+	    MIN_REQUIRE ( current != next );
 	    label = current->value;
 	    current = current->next;
 	    PAR::free
@@ -2624,14 +2665,25 @@ DONE:
 	{
 	    // current is vector element
 	    //
+	    if ( current->value == min::MISSING() )
+	    {
+		current->type = PAR::DERIVED;
+		PAR::value_ref(current) =
+		    min::new_str_gen
+			( min::begin_ptr_of
+			      ( current->string ),
+			  current->string->length );
+		PAR::string_ref(current) =
+		    PAR::free_string
+		        ( current->string );
+	    }
 	    min::attr_push(expvp) = current->value;
 	    min::push ( pos ) = current->position;
 	    goto NEXT_ITEM;
 	}
 
 	min::locate ( expap, label );
-	old_value = min::get ( expap );
-	if ( old_value == min::NONE() )
+	if ( min::get ( expap ) == min::NONE() )
 	    min::set ( expap, value );
 	else
 	{
@@ -2641,8 +2693,8 @@ DONE:
 		<< "ERROR: attribute `"
 		<< min::pgen_name ( label )
 		<< "' appears more than once;"
-		   " non-first value `"
-		<< min::pgen ( old_value )
+		   " later value `"
+		<< min::pgen ( value )
 		<< "' ignored; "
 		<< min::pline_numbers
 		       ( parser->input_file,

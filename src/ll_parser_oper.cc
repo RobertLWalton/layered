@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  6 06:27:28 EDT 2015
+// Date:	Mon Jul 13 05:53:01 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -770,7 +770,7 @@ static bool separator_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -861,7 +861,7 @@ static bool declare_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -957,7 +957,7 @@ static bool right_associative_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -989,7 +989,7 @@ static bool right_associative_reformatter_function
 	             "operand expected but operator"
 		     " found" );
 
-        min::phrase_position position =
+        min::phrase_position subposition =
 	    { t->position.begin,
 	      t->next->next->position.end };
 
@@ -1003,11 +1003,13 @@ static bool right_associative_reformatter_function
 	bool t_is_first = ( t == first );
 	t = t->previous;
 
+	if ( t_is_first ) subposition = position;
+
 	PAR::attr oper_attr
 	    ( PAR::dot_oper, oper->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      t, next, position,
+	      t, next, subposition,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
 
@@ -1023,7 +1025,7 @@ static bool unary_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1149,7 +1151,7 @@ static bool binary_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1274,7 +1276,7 @@ static bool infix_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1341,7 +1343,7 @@ static bool infix_and_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1367,6 +1369,8 @@ static bool infix_and_reformatter_function
     // ($ T) where T is the next temporary variable
     // number.
     //
+    bool insert_and = false;
+        // True if AND is to be inserted.
     for ( PAR::token operand1 = first;
           operand1 != next ; )
     {
@@ -1386,7 +1390,7 @@ static bool infix_and_reformatter_function
 	             "operand expected but operator"
 		     " found" );
 
-        min::phrase_position position =
+        min::phrase_position position1 =
 	    { operand1->position.begin,
 	      operand2->position.end };
 
@@ -1396,6 +1400,8 @@ static bool infix_and_reformatter_function
 	//
 	if ( operand2->next != next )
 	{
+	    insert_and = true;
+
 	    // Insert tokens for $ and T before
 	    // operand2.
 	    //
@@ -1457,6 +1463,7 @@ static bool infix_and_reformatter_function
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
 	}
+	else if ( ! insert_and ) position1 = position;
 
 	bool is_first = ( operand1 == first );
 	PAR::token next_operand1 = operand2->next;
@@ -1473,7 +1480,7 @@ static bool infix_and_reformatter_function
 	    ( PAR::dot_oper, op->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
-	      op, next_operand1, position,
+	      op, next_operand1, position1,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
 	if ( is_first ) first = op;
@@ -1483,7 +1490,7 @@ static bool infix_and_reformatter_function
 
     OP::oper op = (OP::oper) entry;
 
-    if ( first->next != next )
+    if ( insert_and )
     {
         // More than one operator.  Insert and_op.
 	//
@@ -1500,9 +1507,6 @@ static bool infix_and_reformatter_function
 
 	// Compact.
 	//
-        min::phrase_position position =
-	    { first->position.begin,
-	      next->previous->position.end };
 	PAR::attr oper_attr
 	    ( PAR::dot_oper, and_op );
 	PAR::compact
@@ -1521,7 +1525,7 @@ static bool sum_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {

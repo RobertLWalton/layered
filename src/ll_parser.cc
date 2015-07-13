@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  7 05:04:18 EDT 2015
+// Date:	Mon Jul 13 05:31:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1501,7 +1501,7 @@ void PAR::compact
 	  PAR::pass pass,
 	  PAR::table::flags selectors,
 	  PAR::token & first, PAR::token next,
-	  min::phrase_position position,
+	  const min::phrase_position position,
 	  TAB::flags trace_flags,
 	  min::uns32 type,
 	  min::uns32 m,

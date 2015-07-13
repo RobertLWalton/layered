@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 10 10:34:03 EDT 2015
+// Date:	Mon Jul 13 05:07:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1901,7 +1901,7 @@ static bool label_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1916,32 +1916,33 @@ static bool label_reformatter_function
 
 // Skip to next key (punctuation mark).  Return token
 // after key in `current', first token of key in
-// `key_first', token where skip started in `start'.
-// `next' is next token after tokens that may be
-// skipped or part of key (i.e., end of token sequence
-// marker).
+// `key_first', count of number of tokens skipped
+// NOT counting key tokens in `skip_count'.  `next' is
+// next token after tokens that may be skipped or part
+// of key (i.e., end of token sequence marker).
 //
 // If key found, return its subtype, and return its
-// label in `label'.  But if key not found (so
+// label in `key_label'.  But if key not found (so
 // key_first and current are set == next), return 0.
 //
 // Key_table contains the keys.  It is assumed that
-// selector flags are not being used and all keys have
-// ALL_FLAGS set at their selector flags.
+// selector flags are not being used and all key table
+// entries have ALL_FLAGS set as their selector flags.
 //
 // It is also assumed that no key is an initial segment
 // of any other key.
 //
-inline min::uns32 get_next
+inline min::uns32 get_next_key
         ( PAR::parser parser,
-	  PAR::token & start,
 	  PAR::token & key_first,
 	  PAR::token & current,
 	  PAR::token next,
-	  min::gen & label,
+	  min::unsptr & skip_count,
+	  min::gen & key_label,
 	  TAB::key_table key_table )
 {
-    start = key_first = current;
+    key_first = current;
+    skip_count = 0;
 
     TAB::root root = min::NULL_STUB;
     TAB::key_prefix key_prefix;
@@ -1952,7 +1953,10 @@ inline min::uns32 get_next
 			 TAB::ALL_FLAGS,
 			 key_table, next );
 	if ( root == min::NULL_STUB )
+	{
 	    key_first = current = key_first->next;
+	    ++ skip_count;
+	}
 	else
 	    break;
     }
@@ -1961,7 +1965,7 @@ inline min::uns32 get_next
         return 0;
     else
     {
-        label = root->label;
+        key_label = root->label;
 	return min::packed_subtype_of ( root );
     }
 }
@@ -1998,8 +2002,10 @@ inline void punctuation_error
 	  PAR::token & start,
 	  PAR::token & key_first,
 	  PAR::token current,
-	  min::gen label )
+	  min::gen key_label )
 {
+    MIN_REQUIRE ( key_first != current );
+
     min::phrase_position position =
         { key_first->position.begin,
 	  current->previous->position.end };
@@ -2007,7 +2013,7 @@ inline void punctuation_error
     parser->printer
 	<< min::bom << min::set_indent ( 7 )
 	<< "ERROR: unexpected punctuation `"
-	<< min::pgen_name ( label )
+	<< min::pgen_name ( key_label )
 	<< "' - deleted and ignored; "
 	<< min::pline_numbers
 	       ( parser->input_file,
@@ -2056,7 +2062,7 @@ static bool typed_bracketed_reformatter_function
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -2116,10 +2122,22 @@ static bool typed_bracketed_reformatter_function
     // Data for macros below:
     //
     PAR::token start;
+    	// == current at start of scan; NOT set by NEXT!
+    min::unsptr skip_count;
+        // Count of tokens skipped by NEXT; except does
+	// NOT include key.
     PAR::token key_first;
+        // First token of key found by NEXT, or ==
+	// current if no key found.
     PAR::token current = first;
-    min::uns32 key;
-    min::gen label;
+        // Next token to be scanned.
+    min::uns32 key_subtype;
+	// Subtype of key found by NEXT, or 0 if no key
+	// found; i.e., end of subexpression found
+	// instead.
+    min::gen key_label;
+        // Label of key found by NEXT, or unused if no
+	// key found.
 
     if ( first == next ) goto DONE;
         // Shortcut for {}
@@ -2127,9 +2145,11 @@ static bool typed_bracketed_reformatter_function
 	// above.
 
 #   define NEXT \
-	key = get_next ( parser, start, key_first, \
-	                 current, next, label, \
-			 key_table )
+	key_subtype = \
+	    get_next_key ( parser, key_first, \
+	                   current, next, \
+		           skip_count, key_label, \
+			   key_table )
 #   define LABEL(t) \
 	{ \
 	    MIN_REQUIRE ( start != key_first ); \
@@ -2140,9 +2160,9 @@ static bool typed_bracketed_reformatter_function
 #   define PUNCTUATION_ERROR \
 	::punctuation_error \
 	    ( parser, first, start, key_first, \
-	      current, label )
+	      current, key_label )
 #   define REMOVE \
-	if ( key != 0 ) \
+	if ( key_subtype != 0 ) \
 	    ::remove ( parser, first, start, \
 	               key_first, current )
 
@@ -2156,15 +2176,16 @@ static bool typed_bracketed_reformatter_function
     // 			goto ELEMENTS
     // {<type>:		type_token = ...;
     // 			goto ATTRIBUTES
+    start = current;
     while ( true )
     {
 	NEXT;
 
-	if ( key == 0
+	if ( key_subtype == 0
 	     ||
-	     key == BRA::TYPED_ATTR_BEGIN
+	     key_subtype == BRA::TYPED_ATTR_BEGIN
 	     ||
-	     key == BRA::TYPED_MIDDLE )
+	     key_subtype == BRA::TYPED_MIDDLE )
 	{
 	    if ( start != key_first )
 	    {
@@ -2174,9 +2195,10 @@ static bool typed_bracketed_reformatter_function
 
 	    REMOVE;
 
-	    if ( key == BRA::TYPED_MIDDLE )
+	    if ( key_subtype == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
-	    else if ( key == BRA::TYPED_ATTR_BEGIN )
+	    else if (    key_subtype
+	              == BRA::TYPED_ATTR_BEGIN )
 	        goto ATTRIBUTES;
 	    else
 		goto DONE;
@@ -2226,27 +2248,29 @@ ATTRIBUTES:
     //     } 		goto DONE
     //
     after_negator = min::NULL_STUB;
+    start = current;
     while ( true )
     {
 	NEXT;
-	if ( key == BRA::TYPED_ATTR_NEGATOR )
+	if ( key_subtype == BRA::TYPED_ATTR_NEGATOR )
 	{
 	    if ( start == key_first )
 	        after_negator = current;
 	    else
 	        current = key_first->next;
 	}
-	else if  ( ( key == BRA::TYPED_ATTR_BEGIN
+	else if  ( (    key_subtype
+	             == BRA::TYPED_ATTR_BEGIN
 	             &&
 		     after_elements )
 	           ||
-	           ( key == BRA::TYPED_MIDDLE
+	           ( key_subtype == BRA::TYPED_MIDDLE
 	             &&
 		     ! after_elements )
 	           ||
-	           key == BRA::TYPED_ATTR_SEP
+	           key_subtype == BRA::TYPED_ATTR_SEP
 	           ||
-	           ( key == 0
+	           ( key_subtype == 0
 		     &&
 		     ( ! after_elements
 		       ||
@@ -2271,7 +2295,7 @@ ATTRIBUTES:
 	    }
 	    else if ( start == key_first )
 	    {
-	        if ( key == 0 )
+	        if ( key_subtype == 0 )
 		{
 		    missing_error
 		        ( parser, key_first,
@@ -2290,15 +2314,16 @@ ATTRIBUTES:
 	    ++ attr_count;
 	    after_attribute = after_elements;
 
-	    if ( key == BRA::TYPED_ATTR_SEP )
+	    if ( key_subtype == BRA::TYPED_ATTR_SEP )
 	        goto ATTRIBUTES;
-	    else if ( key == BRA::TYPED_ATTR_BEGIN )
+	    else if (    key_subtype
+	              == BRA::TYPED_ATTR_BEGIN )
 	        goto END_TYPE;
-	    else if ( key == BRA::TYPED_MIDDLE )
+	    else if ( key_subtype == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
 	    else if ( after_elements )
 	    {
-		MIN_REQUIRE ( key == 0 );
+		MIN_REQUIRE ( key_subtype == 0 );
 		MIN_REQUIRE ( after_attribute );
 
 		missing_error
@@ -2309,7 +2334,7 @@ ATTRIBUTES:
 	    else
 	        goto DONE;
 	}
-	else if  ( key == BRA::TYPED_ATTR_EQUAL )
+	else if ( key_subtype == BRA::TYPED_ATTR_EQUAL )
 	{
 	    if ( start == key_first )
 	    {
@@ -2322,7 +2347,7 @@ ATTRIBUTES:
 	    after_attribute = after_elements;
 	    goto ATTRIBUTE_VALUE;
 	}
-	else if ( key == 0 )
+	else if ( key_subtype == 0 )
 	{
 	    if ( start != key_first )
 	        goto END_TYPE_FOUND;
@@ -2350,20 +2375,21 @@ ATTRIBUTE_VALUE:
     // If <value> is empty add
     // 	    MISSING ATTRIBUTE VALUE ERROR; FALSE ASSUMED
     //
+    start = current;
     while ( true )
     {
 	NEXT;
-	if ( key == BRA::TYPED_ATTR_SEP
+	if ( key_subtype == BRA::TYPED_ATTR_SEP
 	     ||
-	     ( key == BRA::TYPED_MIDDLE
+	     ( key_subtype == BRA::TYPED_MIDDLE
 	       &&
 	       ! after_elements )
 	     ||
-	     ( key == BRA::TYPED_ATTR_BEGIN
+	     ( key_subtype == BRA::TYPED_ATTR_BEGIN
 	       &&
 	       after_elements )
 	     ||
-	     key == 0 )
+	     key_subtype == 0 )
 	{
 	    REMOVE;
 	    if ( start == current )
@@ -2385,15 +2411,16 @@ ATTRIBUTE_VALUE:
 	    else
 		LABEL ( ATTR_VALUE );
 
-	    if ( key == BRA::TYPED_ATTR_BEGIN )
+	    if ( key_subtype == BRA::TYPED_ATTR_BEGIN )
 	        goto END_TYPE;
-	    else if ( key == BRA::TYPED_ATTR_SEP )
+	    else if (    key_subtype
+	              == BRA::TYPED_ATTR_SEP )
 	        goto ATTRIBUTES;
-	    else if ( key == BRA::TYPED_MIDDLE )
+	    else if ( key_subtype == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
 	    else
 	    {
-		MIN_REQUIRE ( key == 0 );
+		MIN_REQUIRE ( key_subtype == 0 );
 		if ( after_elements )
 		    missing_error
 			( parser, current, "end type" );
@@ -2410,34 +2437,33 @@ ELEMENTS:
     // 			goto DONE
     //
     after_elements = true;
+    start = current;
     while ( true )
     {
 	NEXT;
 
-	if ( key == BRA::TYPED_MIDDLE
+	if ( key_subtype == BRA::TYPED_MIDDLE
 	     ||
-	     key == 0 )
+	     key_subtype == 0 )
 	{
+	    element_count += skip_count;
 	    REMOVE;
-	    for ( PAR::token t = start;
-	          t != current; t = t->next )
-	        ++ element_count;
-	    if ( key == BRA::TYPED_MIDDLE )
+	    if ( key_subtype == BRA::TYPED_MIDDLE )
 		goto ATTRIBUTES;
 	    else
 	    {
 		min::phrase_position position =
 		    { current->position.begin,
 		      current->position.begin };
-		label = typed_opening->typed_middle
-		                     ->label;
+		key_label = typed_opening->typed_middle
+		                         ->label;
 
 		parser->printer
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: premature end of typed"
 		       " bracketed subexpression; `"
-		    << min::pgen_name ( label )
+		    << min::pgen_name ( key_label )
 		    << "' inserted; "
 		    << min::pline_numbers
 			   ( parser->input_file,
@@ -2457,6 +2483,7 @@ ELEMENTS:
 	    // Ignore other keys.
 	    //
 	    current = key_first->next;
+	    element_count += skip_count + 1;
 	}
     }
 
@@ -2464,10 +2491,11 @@ END_TYPE:
 
     // <type>}		goto DONE
     // 
+    start = current;
     while ( true )
     {
 	NEXT;
-	if ( key == 0 )
+	if ( key_subtype == 0 )
 	{
 	    if ( start == key_first )
 	    {

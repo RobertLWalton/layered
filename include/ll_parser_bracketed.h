@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  9 06:17:42 EDT 2015
+// Date:	Mon Jul 13 07:25:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -700,7 +700,9 @@ ll::parser::pass new_pass ( void );
 // The parsed subexpression is NOT compacted and tokens
 // in it are left untouched with the following excep-
 // tions.  Line breaks and comments are deleted.  After
-// doing this, consecutive quoted strings are merged.
+// doing this, consecutive quoted strings are merged if
+// the second is in the same line as the first or in
+// a continuation line following the line of the first.
 // SUBSUBexpressions are identified and replaced by
 // BRACKETED tokens.
 //

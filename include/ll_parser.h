@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  6 22:47:25 EDT 2015
+// Date:	Mon Jul 13 05:30:08 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1241,7 +1241,7 @@ typedef bool ( * reformatter_function )
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,
-	  min::phrase_position & position,
+	  const min::phrase_position & position,
 	  ll::parser::table::flags trace_flags,
 	  ll::parser::table::root entry );
     //
@@ -1528,7 +1528,7 @@ void compact
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & first,
 	  ll::parser::token next,
-	  min::phrase_position position,
+	  const min::phrase_position position,
 	  ll::parser::table::flags trace_flags,
 	  min::uns32 type,
 	  min::uns32 m = 0,

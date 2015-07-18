@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 13 07:25:28 EDT 2015
+// Date:	Sat Jul 18 14:39:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -478,6 +478,12 @@ struct typed_attribute_multivalue_closing_struct :
 
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::typed_opening )
+MIN_REF ( ll::parser::reformatter,
+          reformatter,
+          ll::parser::bracketed::typed_opening )
+MIN_REF ( ll::parser::reformatter_arguments,
+          reformatter_arguments,
+          ll::parser::bracketed::typed_opening )
 MIN_REF ( ll::parser::table::key_table,
           key_table,
           ll::parser::bracketed::typed_opening )
@@ -618,6 +624,10 @@ ll::parser::bracketed::typed_opening
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
+	  ll::parser::reformatter reformatter,
+	  ll::parser::reformatter_arguments
+	      reformatter_arguments,
+	  uns32 options,
 	  min::gen typed_attribute_begin,
 	  min::gen typed_attribute_equal,
 	  min::gen typed_attribute_separator,

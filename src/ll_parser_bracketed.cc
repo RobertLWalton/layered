@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 13 05:07:49 EDT 2015
+// Date:	Sat Jul 18 14:38:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,6 +66,10 @@ static min::uns32 opening_bracket_stub_disp[] = {
     min::DISP ( & BRA::opening_bracket_struct::next ),
     min::DISP ( & BRA::opening_bracket_struct
                      ::closing_bracket ),
+    min::DISP ( & BRA::opening_bracket_struct
+                     ::reformatter ),
+    min::DISP ( & BRA::opening_bracket_struct
+                     ::reformatter_arguments ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -213,6 +217,12 @@ BRA::indentation_mark
 
 static min::uns32 typed_opening_stub_disp[] = {
     min::DISP ( & BRA::typed_opening_struct::next ),
+    min::DISP ( & BRA::typed_opening_struct
+                     ::closing_bracket ),
+    min::DISP ( & BRA::typed_opening_struct
+                     ::reformatter ),
+    min::DISP ( & BRA::typed_opening_struct
+                     ::reformatter_arguments ),
     min::DISP ( & BRA::typed_opening_struct
                      ::key_table ),
     min::DISP ( & BRA::typed_opening_struct
@@ -497,6 +507,10 @@ BRA::typed_opening
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
+	  PAR::reformatter reformatter,
+	  PAR::reformatter_arguments
+	      reformatter_arguments,
+	  min::uns32 options,
 	  min::gen typed_attribute_begin,
 	  min::gen typed_attribute_equal,
 	  min::gen typed_attribute_separator,
@@ -535,6 +549,12 @@ BRA::typed_opening
     closing->position = position;
 
     opening->new_selectors = new_selectors;
+
+    reformatter_ref(opening) = reformatter;
+    reformatter_arguments_ref(opening) =
+        reformatter_arguments;
+
+    opening->options = options;
 
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
@@ -1948,7 +1968,7 @@ inline min::uns32 get_next_key
     TAB::key_prefix key_prefix;
     while ( current != next )
     {
-	TAB::root root =
+	root =
 	    find_entry ( parser, current, key_prefix,
 			 TAB::ALL_FLAGS,
 			 key_table, next );
@@ -2202,13 +2222,13 @@ static bool typed_bracketed_reformatter_function
 	     ||
 	     key_subtype == BRA::TYPED_MIDDLE )
 	{
+	    REMOVE;
+
 	    if ( start != key_first )
 	    {
 		LABEL(TYPE);
 		type_token = start;
 	    }
-
-	    REMOVE;
 
 	    if ( key_subtype == BRA::TYPED_MIDDLE )
 	        goto ELEMENTS;
@@ -2715,6 +2735,10 @@ NEXT_ITEM:
 		  ( PAR::first_ref(parser),
 		    current->previous ) );
     }
+
+    expvp = min::NULL_STUB;
+        // Necessary so trace_subexpression can open
+	// pointer to object.
 
     first = PAR::new_token ( PAR::BRACKETED );
     PAR::put_before

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 13 05:30:08 EDT 2015
+// Date:	Sun Jul 19 11:08:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -172,9 +172,12 @@ typedef min::packed_struct_updptr<token_struct>
 enum // Token types (see below).
 {
     BRACKETED		= 0xFFFFFFFF,
-    BRACKETABLE		= 0xFFFFFFFE,
-    OPERATOR		= 0xFFFFFFFD,
-    DERIVED		= 0xFFFFFFFC,
+    BRACKETING		= 0xFFFFFFFE,
+      // Not an actual token type: see `compact'.
+    BRACKETABLE		= 0xFFFFFFFD,
+    OPERATOR		= 0xFFFFFFFC,
+    DERIVED		= 0xFFFFFFFB,
+
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
       // by reformatters for temporary token types.
@@ -196,24 +199,22 @@ struct token_struct
 	// For expressions:
 	//
 	//	BRACKETED
+	//	BRACKETING
 	//	BRACKETABLE
 	//	    BRACKETABLE tokens have a MIN object
-	//	    value without either an .initiator
-	//	    or a .terminator.  BRACKETED tokens
+	//	    value without a .type, .initiator,
+	//	    or .terminator.  BRACKETED tokens
 	//	    have MIN object values with any
-	//	    attributes.
-	//
-	//	    If a BRACKETED token is being creat-
-	//	    ed whose value is a MIN object with
-	//	    no attributes other than .initiator
-	//	    and .terminator and with only one
-	//	    element that is the value of a
-	//	    BRACKETABLE token, then instead of
-	//	    creating a new token, the BRACKET-
-	//	    ABLE token has its type changed to
-	//	    BRACKETED and any .initiator or
-	//	    .terminator attributes added to its
-	//	    value.
+	//	    attributes.  BRACKETING is a pseudo-
+	//	    token type passed to the `compact'
+	//	    function to indicate that token is
+	//	    to be BRACKETED but it has no attri-
+	//	    butes but .type, .initiator, and/or
+	//	    .terminator, so if it has a single
+	//	    BRACETABLE element, it can be merged
+	//	    into the value of that element
+	//	    instead of becoming a separate
+	//	    token.
 	//
 	// For recognized operators:
 	//
@@ -1269,8 +1270,9 @@ typedef bool ( * reformatter_function )
     // as the .position attribute and with the value
     // of the original first operator token as the
     // .operator attribute.  For the bracketed pass,
-    // this call makes a BRACKETED token with the
-    // brackets as .initiator and .terminator.  In
+    // this call is a BRACKETING call that makes a
+    // BRACKETED token with the brackets as .initiator
+    // and .terminator, but with NO .type attribute.  In
     // all cases parser, pass->next, selectors, first,
     // next, position, and trace_flags are passed to the
     // `compact' function.
@@ -1490,7 +1492,13 @@ void put_error_operator_after
 // token from the given argument.  The resulting
 // expression token is in first == next->previous.
 // Its type is given in the type argument, and must
-// be either BRACKETED or BRACKETABLE.
+// be either BRACKETED or BRACKETABLE.  The type argu-
+// ment can also be BRACKETING as a special case: see
+// below.
+//
+// If the type argument is BRACKETABLE, the m attributes
+// MUST NOT include any .type, .initiator, or .termina-
+// tor attributes.
 //
 // Any token in the expression being output that has a
 // MISSING token value must be a non-natural number or
@@ -1499,14 +1507,22 @@ void put_error_operator_after
 // as a string general value and whose .initiator is #
 // for a number or " for a quoted string.
 //
-// An exception to the above is made if the tokens to
+// An exception to the above is made if the type argu-
+// ment is given as BRACKETING.  Then if the tokens to
 // be put in the new expression consist of just a single
-// expression token of BRACKETABLE type and the type
-// argument is BRACKETED.  Then instead of making a new
-// BRACKETED token, this function simply adds the m
-// attributes to the BRACKETABLE token which is changed
-// to be a BRACKETED token.  The positions of this token
-// and of its MIN object value are also reset.
+// token of BRACKETABLE type, instead of making a new
+// token, this function simply adds the m attributes to
+// the BRACKETABLE token, whose type is changed to
+// BRACKETED.  The positions of this token and of its
+// MIN object value are also reset.
+//
+// But if the type argument is given as BRACKETING and
+// the conditions of the last paragraph are not meet,
+// then the type argument is changed to BRACKETED.
+//
+// If the type argument is BRACKETING, the m attributes
+// can only include .type, .initiator, and/or .termina-
+// tor attributes.
 //
 // The trace_subexpression function is called with the
 // final output subexpression token to process any

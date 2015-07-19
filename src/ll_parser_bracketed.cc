@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 18 14:38:54 EDT 2015
+// Date:	Sun Jul 19 15:53:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1386,7 +1386,7 @@ bool BRA::parse_bracketed_subexpression
 				  first, next,
 				  position,
 				  trace_flags,
-				  PAR::BRACKETED,
+				  PAR::BRACKETING,
 				  n, attributes );
 			}
 
@@ -1446,7 +1446,7 @@ bool BRA::parse_bracketed_subexpression
 		      selectors,
 		      first, next, position,
 		      trace_flags,
-		      PAR::BRACKETED,
+		      PAR::BRACKETING,
 		      1, attributes );
 
 		// Terminate subexpression if closing
@@ -1748,7 +1748,7 @@ bool BRA::parse_bracketed_subexpression
 			      selectors,
 			      first, next, position,
 			      trace_flags,
-			      PAR::BRACKETED,
+			      PAR::BRACKETING,
 			      2, attributes, 1 );
 		    }
 
@@ -1820,7 +1820,7 @@ bool BRA::parse_bracketed_subexpression
 			      selectors,
 			      first, current, position,
 			      trace_flags,
-			      PAR::BRACKETED,
+			      PAR::BRACKETING,
 			      2, attributes, 1 );
 		    }
 		    break;

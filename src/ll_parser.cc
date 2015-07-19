@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 13 05:31:15 EDT 2015
+// Date:	Sun Jul 19 15:53:12 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1075,7 +1075,7 @@ void PAR::parse ( PAR::parser parser )
 		( parser, parser->pass_stack->next,
 	          selectors,
 		  first, current, position,
-		  trace_flags, PAR::BRACKETED,
+		  trace_flags, PAR::BRACKETING,
 		  n, attributes );
 
 	    min::gen result = min::FAILURE();
@@ -1515,7 +1515,7 @@ void PAR::compact
          &&
 	 first->type == PAR::BRACKETABLE
 	 &&
-	 type == PAR::BRACKETED )
+	 type == PAR::BRACKETING )
     {
 	min::obj_vec_insptr vp ( first->value );
 	min::attr_insptr ap ( vp );
@@ -1538,6 +1538,9 @@ void PAR::compact
     }
     else
     {
+        if ( type == PAR::BRACKETING )
+	    type = PAR::BRACKETED;
+
 	// Temporary min::gen locatable.
 	//
 	min::locatable_gen exp;

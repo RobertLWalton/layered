@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 25, 2015
+July 19, 2015
  
 \end{center}
 
@@ -1923,50 +1923,36 @@ A token has the following components:
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& \TT{BRACKETED} and \TT{BRACKETABLE} tokens
-		  are used to represent subexpressions.
+		  are used to represent subexpressions, and have
+		  MIN objects at their value.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& The value of a \TT{BRACKETED} token
-		  is a MIN object which may have
-		  attributes such as \TT{.initiator} or \TT{.terminator}.
-		  The following attributes of a \TT{BRACKETED} token
-		  \TT{value} are directly related to syntax and are called 
-		  `\key{syntax attribute}s':
-		  \begin{center}
-		  \tt
-		  \begin{tabular}{l}
-		  .type \\
-		  .initiator \\
-		  .terminator \\
-		  .separator \\
-		  \end{tabular}
-		  \end{center}
+		& The value of a \TT{BRACKETED} token may have
+		  any attributes, including
+		  \TT{.initiator}, and \TT{.terminator}.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& A \TT{BRACKETABLE} token
 		  is equivalent to (and an optimization of) a \TT{BRACKETED}
-		  token whose MIN object value has no syntax attributes other
-		  than possibly the \TT{.separator} attribute.  If such a token
-		  is to become the only element of a containing bracketed
-		  subexpression, instead of creating a new
-		  \TT{BRACKETED} token, the bracketed subexpression's
-		  syntax attributes (which do not include a \TT{.separator}
-		  attribute) are added to the \TT{BRACKETABLE} token (which
-		  has no syntax attributes other than a possible
-		  \TT{.separator} attribute),
-		  the type of that token is changed to \TT{BRACKETED}, and
-		  the \TT{.position} attribute of that token
-		  is changed to include the added syntax attributes.
-		  The non-syntax attributes of the
-		  \TT{BRACKETABLE} token are left as is.
+		  token whose MIN object value does \underline{not} have
+		  either an \TT{.initiator} or \TT{.terminator} attribute.
+		  If such a token is to become the only element of a
+		  containing subexpression that has no attributes other
+		  than \TT{.initiator} or \TT{.terminator}, 
+		  then instead of creating a new
+		  \TT{BRACKETED} token, any \TT{.initiator} or
+		  or \TT{.terminator} are added to the \TT{BRACKETABLE}
+		  token, whose type is changed to \TT{BRACKETED}, and
+		  whose token position and \TT{.position} attribute are
+		  updated to that of its containing subexpression.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& Empty subexpressions are recorded as \TT{BRACKETABLE}
 		  subexpressions whose MIN object has no elements and
-		  no syntax attri\-butes.
+		  no attributes other than \TT{.position}.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}

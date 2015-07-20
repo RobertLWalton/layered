@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 19 15:53:25 EDT 2015
+// Date:	Mon Jul 20 10:55:45 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -148,7 +148,7 @@ BRA::opening_bracket
 static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::next ),
     min::DISP ( & BRA::indentation_mark_struct
-                     ::line_separator ),
+                     ::line_sep ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -160,20 +160,20 @@ static min::packed_struct_with_base
 const min::uns32 & BRA::INDENTATION_MARK =
     indentation_mark_type.subtype;
 
-static min::uns32 line_separator_stub_disp[] = {
-    min::DISP ( & BRA::line_separator_struct::next ),
-    min::DISP ( & BRA::line_separator_struct
+static min::uns32 line_sep_stub_disp[] = {
+    min::DISP ( & BRA::line_sep_struct::next ),
+    min::DISP ( & BRA::line_sep_struct
                      ::indentation_mark ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::line_separator_struct, TAB::root_struct>
-    line_separator_type
-	( "ll::parser::table::line_separator_type",
+	<BRA::line_sep_struct, TAB::root_struct>
+    line_sep_type
+	( "ll::parser::table::line_sep_type",
 	  TAB::root_gen_disp,
-	  ::line_separator_stub_disp );
+	  ::line_sep_stub_disp );
 const min::uns32 & BRA::LINE_SEP =
-    line_separator_type.subtype;
+    line_sep_type.subtype;
 
 BRA::indentation_mark
     BRA::push_indentation_mark
@@ -196,15 +196,15 @@ BRA::indentation_mark
 
     if ( separator_label != min::MISSING() )
     {
-	min::locatable_var<BRA::line_separator>
+	min::locatable_var<BRA::line_sep>
 	    separator
-	    ( ::line_separator_type.new_stub() );
+	    ( ::line_sep_type.new_stub() );
 	label_ref(separator) = separator_label;
 	separator->selectors = TAB::ALL_FLAGS;
 	separator->block_level = block_level;
 	separator->position = position;
 	indentation_mark_ref(separator) = imark;
-	line_separator_ref(imark) = separator;
+	line_sep_ref(imark) = separator;
 	TAB::push ( bracket_table,
 	            (TAB::root) separator );
     }
@@ -230,31 +230,31 @@ static min::uns32 typed_opening_stub_disp[] = {
     min::DISP ( & BRA::typed_opening_struct
                      ::closing_bracket ),
     min::DISP ( & BRA::typed_opening_struct
-                     ::typed_attribute_begin ),
+                     ::typed_attr_begin ),
     min::DISP ( & BRA::typed_opening_struct
-                     ::typed_attribute_equal ),
+                     ::typed_attr_equal ),
     min::DISP ( & BRA::typed_opening_struct
-                     ::typed_attribute_separator ),
+                     ::typed_attr_sep ),
     min::DISP ( & BRA::typed_opening_struct
-                     ::typed_attribute_negator ),
+                     ::typed_attr_negator ),
     min::DISP
         ( & BRA::typed_opening_struct
-               ::typed_attribute_flags_opening ),
+               ::typed_attr_flags_opening ),
     min::DISP
         ( & BRA::typed_opening_struct
-               ::typed_attribute_flags_separator ),
+               ::typed_attr_flags_sep ),
     min::DISP
         ( & BRA::typed_opening_struct
-               ::typed_attribute_flags_closing ),
+               ::typed_attr_flags_closing ),
     min::DISP
         ( & BRA::typed_opening_struct
-               ::typed_attribute_multivalue_opening ),
+               ::typed_attr_multivalue_opening ),
     min::DISP
         ( & BRA::typed_opening_struct
-               ::typed_attribute_multivalue_separator ),
+               ::typed_attr_multivalue_sep ),
     min::DISP
         ( & BRA::typed_opening_struct
-               ::typed_attribute_multivalue_closing ),
+               ::typed_attr_multivalue_closing ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -282,221 +282,221 @@ static min::packed_struct_with_base
 const min::uns32 & BRA::TYPED_MIDDLE =
     typed_middle_type.subtype;
 
-static min::uns32 typed_attribute_begin_stub_disp[] = {
-    min::DISP ( & BRA::typed_attribute_begin_struct
+static min::uns32 typed_attr_begin_stub_disp[] = {
+    min::DISP ( & BRA::typed_attr_begin_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attribute_begin_struct
+    min::DISP ( & BRA::typed_attr_begin_struct
                      ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_begin_struct,
+	<BRA::typed_attr_begin_struct,
 	 TAB::root_struct>
-    typed_attribute_begin_type
+    typed_attr_begin_type
 	( "ll::parser"
-	    "::table::typed_attribute_begin_type",
+	    "::table::typed_attr_begin_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_begin_stub_disp );
+	  ::typed_attr_begin_stub_disp );
 const min::uns32 & BRA::TYPED_ATTR_BEGIN =
-    typed_attribute_begin_type.subtype;
+    typed_attr_begin_type.subtype;
 
-static min::uns32 typed_attribute_equal_stub_disp[] = {
-    min::DISP ( & BRA::typed_attribute_equal_struct
+static min::uns32 typed_attr_equal_stub_disp[] = {
+    min::DISP ( & BRA::typed_attr_equal_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attribute_equal_struct
+    min::DISP ( & BRA::typed_attr_equal_struct
                      ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_equal_struct,
+	<BRA::typed_attr_equal_struct,
 	 TAB::root_struct>
-    typed_attribute_equal_type
+    typed_attr_equal_type
 	( "ll::parser"
-	    "::table::typed_attribute_equal_type",
+	    "::table::typed_attr_equal_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_equal_stub_disp );
+	  ::typed_attr_equal_stub_disp );
 const min::uns32 & BRA::TYPED_ATTR_EQUAL =
-    typed_attribute_equal_type.subtype;
+    typed_attr_equal_type.subtype;
 
 static min::uns32
-	typed_attribute_separator_stub_disp[] = {
-    min::DISP ( & BRA::typed_attribute_separator_struct
+	typed_attr_sep_stub_disp[] = {
+    min::DISP ( & BRA::typed_attr_sep_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attribute_separator_struct
+    min::DISP ( & BRA::typed_attr_sep_struct
                      ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_separator_struct,
+	<BRA::typed_attr_sep_struct,
 	 TAB::root_struct>
-    typed_attribute_separator_type
+    typed_attr_sep_type
 	( "ll::parser"
-	    "::table::typed_attribute_separator_type",
+	    "::table::typed_attr_sep_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_separator_stub_disp );
+	  ::typed_attr_sep_stub_disp );
 const min::uns32 & BRA::TYPED_ATTR_SEP =
-    typed_attribute_separator_type.subtype;
+    typed_attr_sep_type.subtype;
 
 static min::uns32
-	typed_attribute_negator_stub_disp[] = {
-    min::DISP ( & BRA::typed_attribute_negator_struct
+	typed_attr_negator_stub_disp[] = {
+    min::DISP ( & BRA::typed_attr_negator_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attribute_negator_struct
+    min::DISP ( & BRA::typed_attr_negator_struct
                      ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_negator_struct,
+	<BRA::typed_attr_negator_struct,
 	 TAB::root_struct>
-    typed_attribute_negator_type
+    typed_attr_negator_type
 	( "ll::parser"
-	    "::table::typed_attribute_negator_type",
+	    "::table::typed_attr_negator_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_negator_stub_disp );
+	  ::typed_attr_negator_stub_disp );
 const min::uns32 & BRA::TYPED_ATTR_NEGATOR =
-    typed_attribute_negator_type.subtype;
+    typed_attr_negator_type.subtype;
 
 static min::uns32
-	typed_attribute_flags_opening_stub_disp[] = {
+	typed_attr_flags_opening_stub_disp[] = {
     min::DISP
-        ( & BRA::typed_attribute_flags_opening_struct
+        ( & BRA::typed_attr_flags_opening_struct
                ::next ),
     min::DISP
-        ( & BRA::typed_attribute_flags_opening_struct
+        ( & BRA::typed_attr_flags_opening_struct
                ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_flags_opening_struct,
+	<BRA::typed_attr_flags_opening_struct,
 	 TAB::root_struct>
-    typed_attribute_flags_opening_type
+    typed_attr_flags_opening_type
 	( "ll::parser::table"
-	    "::typed_attribute_flags_opening_type",
+	    "::typed_attr_flags_opening_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_flags_opening_stub_disp );
+	  ::typed_attr_flags_opening_stub_disp );
 const min::uns32 & BRA::TYPED_ATTR_FLAGS_OPENING =
-    typed_attribute_flags_opening_type.subtype;
+    typed_attr_flags_opening_type.subtype;
 
 static min::uns32
-	typed_attribute_flags_separator_stub_disp[] = {
+	typed_attr_flags_sep_stub_disp[] = {
     min::DISP
-        ( & BRA::typed_attribute_flags_separator_struct
+        ( & BRA::typed_attr_flags_sep_struct
                ::next ),
     min::DISP
-        ( & BRA::typed_attribute_flags_separator_struct
+        ( & BRA::typed_attr_flags_sep_struct
                ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_flags_separator_struct,
+	<BRA::typed_attr_flags_sep_struct,
 	 TAB::root_struct>
-    typed_attribute_flags_separator_type
+    typed_attr_flags_sep_type
 	( "ll::parser::table"
-	    "::typed_attribute_flags_separator_type",
+	    "::typed_attr_flags_sep_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_flags_separator_stub_disp );
+	  ::typed_attr_flags_sep_stub_disp );
 const min::uns32 &
 	BRA::TYPED_ATTR_FLAGS_SEP =
-    typed_attribute_flags_separator_type.subtype;
+    typed_attr_flags_sep_type.subtype;
 
 static min::uns32
-	typed_attribute_flags_closing_stub_disp[] = {
+	typed_attr_flags_closing_stub_disp[] = {
     min::DISP
-        ( & BRA::typed_attribute_flags_closing_struct
+        ( & BRA::typed_attr_flags_closing_struct
                ::next ),
     min::DISP
-        ( & BRA::typed_attribute_flags_closing_struct
+        ( & BRA::typed_attr_flags_closing_struct
                ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_flags_closing_struct,
+	<BRA::typed_attr_flags_closing_struct,
 	 TAB::root_struct>
-    typed_attribute_flags_closing_type
+    typed_attr_flags_closing_type
 	( "ll::parser::table"
-	    "::typed_attribute_flags_closing_type",
+	    "::typed_attr_flags_closing_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_flags_closing_stub_disp );
+	  ::typed_attr_flags_closing_stub_disp );
 const min::uns32 & BRA::TYPED_ATTR_FLAGS_CLOSING =
-    typed_attribute_flags_closing_type.subtype;
+    typed_attr_flags_closing_type.subtype;
 
 static min::uns32
-	typed_attribute_multivalue_opening_stub_disp[]
+	typed_attr_multivalue_opening_stub_disp[]
 	    = {
     min::DISP
         ( & BRA
-	    ::typed_attribute_multivalue_opening_struct
+	    ::typed_attr_multivalue_opening_struct
             ::next ),
     min::DISP
         ( & BRA
-	    ::typed_attribute_multivalue_opening_struct
+	    ::typed_attr_multivalue_opening_struct
             ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_multivalue_opening_struct,
+	<BRA::typed_attr_multivalue_opening_struct,
 	 TAB::root_struct>
-    typed_attribute_multivalue_opening_type
+    typed_attr_multivalue_opening_type
       ( "ll::parser::table"
-	  "::typed_attribute_multivalue_opening_type",
+	  "::typed_attr_multivalue_opening_type",
 	TAB::root_gen_disp,
-	::typed_attribute_multivalue_opening_stub_disp
+	::typed_attr_multivalue_opening_stub_disp
       );
 const min::uns32 &
 	BRA::TYPED_ATTR_MULTIVALUE_OPENING =
-    typed_attribute_multivalue_opening_type.subtype;
+    typed_attr_multivalue_opening_type.subtype;
 
 static min::uns32
-	typed_attribute_multivalue_separator_stub_disp[]
+	typed_attr_multivalue_sep_stub_disp[]
 	    = {
     min::DISP
       ( & BRA
-	  ::typed_attribute_multivalue_separator_struct
+	  ::typed_attr_multivalue_sep_struct
           ::next ),
     min::DISP
       ( & BRA
-	  ::typed_attribute_multivalue_separator_struct
+	  ::typed_attr_multivalue_sep_struct
           ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-      <BRA::typed_attribute_multivalue_separator_struct,
+      <BRA::typed_attr_multivalue_sep_struct,
        TAB::root_struct>
-    typed_attribute_multivalue_separator_type
+    typed_attr_multivalue_sep_type
       ( "ll::parser::table"
-	  "::typed_attribute_multivalue_separator_type",
+	  "::typed_attr_multivalue_sep_type",
 	TAB::root_gen_disp,
-	::typed_attribute_multivalue_separator_stub_disp
+	::typed_attr_multivalue_sep_stub_disp
       );
 const min::uns32 &
 	BRA::TYPED_ATTR_MULTIVALUE_SEP =
-    typed_attribute_multivalue_separator_type.subtype;
+    typed_attr_multivalue_sep_type.subtype;
 
 static min::uns32
-	typed_attribute_multivalue_closing_stub_disp[]
+	typed_attr_multivalue_closing_stub_disp[]
 	    = {
     min::DISP
         ( & BRA
-	    ::typed_attribute_multivalue_closing_struct
+	    ::typed_attr_multivalue_closing_struct
             ::next ),
     min::DISP
         ( & BRA
-	    ::typed_attribute_multivalue_closing_struct
+	    ::typed_attr_multivalue_closing_struct
             ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::typed_attribute_multivalue_closing_struct,
+	<BRA::typed_attr_multivalue_closing_struct,
 	 TAB::root_struct>
-    typed_attribute_multivalue_closing_type
+    typed_attr_multivalue_closing_type
 	( "ll::parser::table"
-	    "::typed_attribute_multivalue_closing_type",
+	    "::typed_attr_multivalue_closing_type",
 	  TAB::root_gen_disp,
-	  ::typed_attribute_multivalue_closing_stub_disp
+	  ::typed_attr_multivalue_closing_stub_disp
 	);
 const min::uns32 &
 	BRA::TYPED_ATTR_MULTIVALUE_CLOSING =
-    typed_attribute_multivalue_closing_type.subtype;
+    typed_attr_multivalue_closing_type.subtype;
 
 BRA::typed_opening
     BRA::push_typed_brackets
@@ -511,16 +511,16 @@ BRA::typed_opening
 	  PAR::reformatter_arguments
 	      reformatter_arguments,
 	  min::uns32 options,
-	  min::gen typed_attribute_begin,
-	  min::gen typed_attribute_equal,
-	  min::gen typed_attribute_separator,
-	  min::gen typed_attribute_negator,
-	  min::gen typed_attribute_flags_opening,
-	  min::gen typed_attribute_flags_separator,
-	  min::gen typed_attribute_flags_closing,
-	  min::gen typed_attribute_multivalue_opening,
-	  min::gen typed_attribute_multivalue_separator,
-	  min::gen typed_attribute_multivalue_closing,
+	  min::gen typed_attr_begin,
+	  min::gen typed_attr_equal,
+	  min::gen typed_attr_sep,
+	  min::gen typed_attr_negator,
+	  min::gen typed_attr_flags_opening,
+	  min::gen typed_attr_flags_sep,
+	  min::gen typed_attr_flags_closing,
+	  min::gen typed_attr_multivalue_opening,
+	  min::gen typed_attr_multivalue_sep,
+	  min::gen typed_attr_multivalue_closing,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::typed_opening> opening
@@ -572,232 +572,230 @@ BRA::typed_opening
 
     TAB::push ( key_table, (TAB::root) middle );
 
-    if ( typed_attribute_begin != min::MISSING() )
+    if ( typed_attr_begin != min::MISSING() )
     {
 	min::locatable_var
-		<BRA::typed_attribute_begin>
-	    attribute_begin
-		( ::typed_attribute_begin_type
+		<BRA::typed_attr_begin>
+	    attr_begin
+		( ::typed_attr_begin_type
 		    .new_stub() );
 	min::locatable_var
-		<BRA::typed_attribute_equal>
-	    attribute_equal
-		( ::typed_attribute_equal_type
+		<BRA::typed_attr_equal>
+	    attr_equal
+		( ::typed_attr_equal_type
 		    .new_stub() );
 	min::locatable_var
-		<BRA::typed_attribute_separator>
-	    attribute_separator
-		( ::typed_attribute_separator_type
+		<BRA::typed_attr_sep>
+	    attr_sep
+		( ::typed_attr_sep_type
 		    .new_stub() );
 
-	label_ref(attribute_begin)
-	    = typed_attribute_begin;
-	label_ref(attribute_equal)
-	    = typed_attribute_equal;
-	label_ref(attribute_separator)
-	    = typed_attribute_separator;
+	label_ref(attr_begin)
+	    = typed_attr_begin;
+	label_ref(attr_equal)
+	    = typed_attr_equal;
+	label_ref(attr_sep)
+	    = typed_attr_sep;
 
-	typed_attribute_begin_ref(opening)
-	    = attribute_begin;
-	typed_attribute_equal_ref(opening)
-	    = attribute_equal;
-	typed_attribute_separator_ref(opening)
-	    = attribute_separator;
-	typed_opening_ref(attribute_begin)
+	typed_attr_begin_ref(opening)
+	    = attr_begin;
+	typed_attr_equal_ref(opening)
+	    = attr_equal;
+	typed_attr_sep_ref(opening)
+	    = attr_sep;
+	typed_opening_ref(attr_begin)
 	    = opening;
-	typed_opening_ref(attribute_equal)
+	typed_opening_ref(attr_equal)
 	    = opening;
-	typed_opening_ref(attribute_separator)
+	typed_opening_ref(attr_sep)
 	    = opening;
 
-	attribute_begin->selectors     = TAB::ALL_FLAGS;
-	attribute_equal->selectors     = TAB::ALL_FLAGS;
-	attribute_separator->selectors = TAB::ALL_FLAGS;
+	attr_begin->selectors     = TAB::ALL_FLAGS;
+	attr_equal->selectors     = TAB::ALL_FLAGS;
+	attr_sep->selectors 	  = TAB::ALL_FLAGS;
 
-	attribute_begin->block_level     = block_level;
-	attribute_equal->block_level     = block_level;
-	attribute_separator->block_level = block_level;
+	attr_begin->block_level   = block_level;
+	attr_equal->block_level   = block_level;
+	attr_sep->block_level 	  = block_level;
 
-	attribute_begin->position     = position;
-	attribute_equal->position     = position;
-	attribute_separator->position = position;
+	attr_begin->position      = position;
+	attr_equal->position      = position;
+	attr_sep->position 	  = position;
 
 	TAB::push ( key_table,
-	           (TAB::root) attribute_begin );
+	           (TAB::root) attr_begin );
 	TAB::push ( key_table,
-	           (TAB::root) attribute_equal );
+	           (TAB::root) attr_equal );
 	TAB::push ( key_table,
-	           (TAB::root) attribute_separator );
+	           (TAB::root) attr_sep );
     }
 
-    if ( typed_attribute_negator != min::MISSING() )
+    if ( typed_attr_negator != min::MISSING() )
     {
 	min::locatable_var
-		<BRA::typed_attribute_negator>
-	    attribute_negator
-		( ::typed_attribute_negator_type
+		<BRA::typed_attr_negator>
+	    attr_negator
+		( ::typed_attr_negator_type
 		    .new_stub() );
 
-	label_ref(attribute_negator)
-	    = typed_attribute_negator;
+	label_ref(attr_negator)
+	    = typed_attr_negator;
 
-	typed_attribute_negator_ref(opening)
-	    = attribute_negator;
-	typed_opening_ref(attribute_negator)
+	typed_attr_negator_ref(opening)
+	    = attr_negator;
+	typed_opening_ref(attr_negator)
 	    = opening;
 
-	attribute_negator->selectors   = TAB::ALL_FLAGS;
+	attr_negator->selectors   = TAB::ALL_FLAGS;
 
-	attribute_negator->block_level   = block_level;
+	attr_negator->block_level   = block_level;
 
-	attribute_negator->position   = position;
+	attr_negator->position   = position;
 
 	TAB::push ( key_table,
-	           (TAB::root) attribute_negator );
+	           (TAB::root) attr_negator );
     }
 
-    if (    typed_attribute_flags_opening
+    if (    typed_attr_flags_opening
          != min::MISSING() )
     {
 	min::locatable_var
-		<BRA::typed_attribute_flags_opening>
-	    attribute_flags_opening
-		( ::typed_attribute_flags_opening_type
+		<BRA::typed_attr_flags_opening>
+	    attr_flags_opening
+		( ::typed_attr_flags_opening_type
 		    .new_stub() );
 	min::locatable_var
-		<BRA::typed_attribute_flags_separator>
-	    attribute_flags_separator
-		( ::typed_attribute_flags_separator_type
+		<BRA::typed_attr_flags_sep>
+	    attr_flags_sep
+		( ::typed_attr_flags_sep_type
 		    .new_stub() );
 	min::locatable_var
-		<BRA::typed_attribute_flags_closing>
-	    attribute_flags_closing
-		( ::typed_attribute_flags_closing_type
+		<BRA::typed_attr_flags_closing>
+	    attr_flags_closing
+		( ::typed_attr_flags_closing_type
 		    .new_stub() );
 
-	label_ref(attribute_flags_opening)
-	    = typed_attribute_flags_opening;
-	label_ref(attribute_flags_separator)
-	    = typed_attribute_flags_separator;
-	label_ref(attribute_flags_closing)
-	    = typed_attribute_flags_closing;
+	label_ref(attr_flags_opening)
+	    = typed_attr_flags_opening;
+	label_ref(attr_flags_sep)
+	    = typed_attr_flags_sep;
+	label_ref(attr_flags_closing)
+	    = typed_attr_flags_closing;
 
-	typed_attribute_flags_opening_ref(opening)
-	    = attribute_flags_opening;
-	typed_attribute_flags_separator_ref(opening)
-	    = attribute_flags_separator;
-	typed_attribute_flags_closing_ref(opening)
-	    = attribute_flags_closing;
-	typed_opening_ref(attribute_flags_opening)
+	typed_attr_flags_opening_ref(opening)
+	    = attr_flags_opening;
+	typed_attr_flags_sep_ref(opening)
+	    = attr_flags_sep;
+	typed_attr_flags_closing_ref(opening)
+	    = attr_flags_closing;
+	typed_opening_ref(attr_flags_opening)
 	    = opening;
-	typed_opening_ref(attribute_flags_separator)
+	typed_opening_ref(attr_flags_sep)
 	    = opening;
-	typed_opening_ref(attribute_flags_closing)
+	typed_opening_ref(attr_flags_closing)
 	    = opening;
 
-	attribute_flags_opening->selectors
-	    = TAB::ALL_FLAGS;
-	attribute_flags_separator->selectors
-	    = TAB::ALL_FLAGS;
-	attribute_flags_closing->selectors
-	    = TAB::ALL_FLAGS;
+	attr_flags_opening->selectors = TAB::ALL_FLAGS;
+	attr_flags_sep->selectors     = TAB::ALL_FLAGS;
+	attr_flags_closing->selectors = TAB::ALL_FLAGS;
 
-	attribute_flags_opening->block_level
-	    = block_level;
-	attribute_flags_separator->block_level
-	    = block_level;
-	attribute_flags_closing->block_level
-	    = block_level;
+	attr_flags_opening->block_level = block_level;
+	attr_flags_sep->block_level     = block_level;
+	attr_flags_closing->block_level = block_level;
 
-	attribute_flags_opening->position   = position;
-	attribute_flags_separator->position = position;
-	attribute_flags_closing->position   = position;
+	attr_flags_opening->position    = position;
+	attr_flags_sep->position        = position;
+	attr_flags_closing->position    = position;
 
+# ifdef NONE_SUCH
 	TAB::push
 	    ( key_table,
-	      (TAB::root) attribute_flags_opening );
+	      (TAB::root) attr_flags_opening );
 	TAB::push
 	    ( key_table,
-	      (TAB::root) attribute_flags_separator );
+	      (TAB::root) attr_flags_sep );
 	TAB::push
 	    ( key_table,
-	      (TAB::root) attribute_flags_closing );
+	      (TAB::root) attr_flags_closing );
+# endif // NONE_SUCH
     }
 
-    if (    typed_attribute_multivalue_opening
+    if (    typed_attr_multivalue_opening
          != min::MISSING() )
     {
 	min::locatable_var
-	       <BRA::typed_attribute_multivalue_opening>
-	  attribute_multivalue_opening
-	   ( ::typed_attribute_multivalue_opening_type
+	       <BRA::typed_attr_multivalue_opening>
+	  attr_multivalue_opening
+	   ( ::typed_attr_multivalue_opening_type
 		    .new_stub() );
 	min::locatable_var
-	     <BRA::typed_attribute_multivalue_separator>
-	  attribute_multivalue_separator
-	   ( ::typed_attribute_multivalue_separator_type
+	     <BRA::typed_attr_multivalue_sep>
+	  attr_multivalue_sep
+	   ( ::typed_attr_multivalue_sep_type
 		    .new_stub() );
 	min::locatable_var
-	       <BRA::typed_attribute_multivalue_closing>
-	    attribute_multivalue_closing
-	     ( ::typed_attribute_multivalue_closing_type
+	       <BRA::typed_attr_multivalue_closing>
+	    attr_multivalue_closing
+	     ( ::typed_attr_multivalue_closing_type
 		    .new_stub() );
 
-	label_ref(attribute_multivalue_opening)
-	    = typed_attribute_multivalue_opening;
-	label_ref(attribute_multivalue_separator)
-	    = typed_attribute_multivalue_separator;
-	label_ref(attribute_multivalue_closing)
-	    = typed_attribute_multivalue_closing;
+	label_ref(attr_multivalue_opening)
+	    = typed_attr_multivalue_opening;
+	label_ref(attr_multivalue_sep)
+	    = typed_attr_multivalue_sep;
+	label_ref(attr_multivalue_closing)
+	    = typed_attr_multivalue_closing;
 
-	typed_attribute_multivalue_opening_ref(opening)
-	    = attribute_multivalue_opening;
-	typed_attribute_multivalue_separator_ref
+	typed_attr_multivalue_opening_ref(opening)
+	    = attr_multivalue_opening;
+	typed_attr_multivalue_sep_ref
 		(opening)
-	    = attribute_multivalue_separator;
-	typed_attribute_multivalue_closing_ref(opening)
-	    = attribute_multivalue_closing;
-	typed_opening_ref(attribute_multivalue_opening)
+	    = attr_multivalue_sep;
+	typed_attr_multivalue_closing_ref(opening)
+	    = attr_multivalue_closing;
+	typed_opening_ref(attr_multivalue_opening)
 	    = opening;
 	typed_opening_ref
-		(attribute_multivalue_separator)
+		(attr_multivalue_sep)
 	    = opening;
-	typed_opening_ref(attribute_multivalue_closing)
+	typed_opening_ref(attr_multivalue_closing)
 	    = opening;
 
-	attribute_multivalue_opening->selectors
+	attr_multivalue_opening->selectors
 	    = TAB::ALL_FLAGS;
-	attribute_multivalue_separator->selectors
+	attr_multivalue_sep->selectors
 	    = TAB::ALL_FLAGS;
-	attribute_multivalue_closing->selectors
+	attr_multivalue_closing->selectors
 	    = TAB::ALL_FLAGS;
 
-	attribute_multivalue_opening->block_level
+	attr_multivalue_opening->block_level
 	    = block_level;
-	attribute_multivalue_separator->block_level
+	attr_multivalue_sep->block_level
 	    = block_level;
-	attribute_multivalue_closing->block_level
+	attr_multivalue_closing->block_level
 	    = block_level;
 
-	attribute_multivalue_opening->position
+	attr_multivalue_opening->position
 	    = position;
-	attribute_multivalue_separator->position
+	attr_multivalue_sep->position
 	    = position;
-	attribute_multivalue_closing->position
+	attr_multivalue_closing->position
 	    = position;
 
+# ifdef NONE_SUCH
 	TAB::push
 	    ( key_table,
 	      (TAB::root)
-	      attribute_multivalue_opening );
+	      attr_multivalue_opening );
 	TAB::push
 	    ( key_table,
 	      (TAB::root)
-	      attribute_multivalue_separator );
+	      attr_multivalue_sep );
 	TAB::push
 	    ( key_table,
 	      (TAB::root)
-	      attribute_multivalue_closing );
+	      attr_multivalue_closing );
+# endif // NONE_SUCH
     }
 
     return opening;
@@ -1016,9 +1014,9 @@ static void make_label
 	{
 	    parser->printer
 		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: subexpression `"
-		<< min::pgen ( t->value )
-		<< "' illegal for label element"
+		<< "ERROR: subexpression "
+		<< min::pgen_quote ( t->value )
+		<< " illegal for label element"
 		   " - changed to"
 		   " ERRONEOUS-LABEL-COMPONENT; "
 		<< min::pline_numbers
@@ -1362,8 +1360,7 @@ bool BRA::parse_bracketed_subexpression
 			    {
 			        min::gen terminator =
 				  indentation_found
-				  ->
-				  line_separator->label;
+				  ->line_sep->label;
 
 			        PAR::remove
 				    ( parser,
@@ -1884,10 +1881,9 @@ bool BRA::parse_bracketed_subexpression
 	    else if (    subtype
 	              == BRA::LINE_SEP )
 	    {
-		BRA::line_separator
-		    line_separator =
-			(BRA::line_separator) root;
-                if (    line_separator->indentation_mark
+		BRA::line_sep line_sep =
+			(BRA::line_sep) root;
+                if (    line_sep->indentation_mark
 		     == indentation_mark )
 		    return true;
 
@@ -2032,9 +2028,9 @@ inline void punctuation_error
 
     parser->printer
 	<< min::bom << min::set_indent ( 7 )
-	<< "ERROR: unexpected punctuation `"
-	<< min::pgen_name ( key_label )
-	<< "' - deleted and ignored; "
+	<< "ERROR: unexpected punctuation "
+	<< min::pgen_quote ( key_label )
+	<< " - deleted and ignored; "
 	<< min::pline_numbers
 	       ( parser->input_file,
 		 position )
@@ -2520,9 +2516,9 @@ ELEMENTS:
 		    << min::bom
 		    << min::set_indent ( 7 )
 		    << "ERROR: premature end of typed"
-		       " bracketed subexpression; `"
-		    << min::pgen_name ( key_label )
-		    << "' inserted; "
+		       " bracketed subexpression; "
+		    << min::pgen_quote ( key_label )
+		    << " inserted; "
 		    << min::pline_numbers
 			   ( parser->input_file,
 			     position )
@@ -2586,13 +2582,13 @@ END_TYPE_FOUND:
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 7 )
-		<< "ERROR: end type `"
-		<< min::pgen_name
+		<< "ERROR: end type "
+		<< min::pgen_quote
 		     ( start->value )
-		<< "' != begin type `"
-		<< min::pgen_name
+		<< " != begin type "
+		<< min::pgen_quote
 		     ( type_token->value )
-		<< "'; end type ignored; "
+		<< "; end type ignored; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 start->position )
@@ -2710,12 +2706,12 @@ DONE:
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 7 )
-		<< "ERROR: attribute `"
-		<< min::pgen_name ( label )
-		<< "' appears more than once;"
-		   " later value `"
-		<< min::pgen ( value )
-		<< "' ignored; "
+		<< "ERROR: attribute "
+		<< min::pgen_quote ( label )
+		<< " appears more than once;"
+		   " later value "
+		<< min::pgen_quote ( value )
+		<< " ignored; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 current->position )
@@ -3064,18 +3060,18 @@ static min::gen bracketed_pass_command
 	    {
 		BRA::indentation_mark indentation_mark =
 		    (BRA::indentation_mark) root;
-		BRA::line_separator line_separator =
-		    indentation_mark->line_separator;
+		BRA::line_sep line_sep =
+		    indentation_mark->line_sep;
 
 		parser->printer
 		    << "indentation mark "
 		    << min::pgen_quote
 		        ( indentation_mark->label );
-		if ( line_separator != min::NULL_STUB )
+		if ( line_sep != min::NULL_STUB )
 		    parser->printer
 		        << " ... "
 			<< min::pgen_quote
-			    ( line_separator->label );
+			    ( line_sep->label );
 		parser->printer
 		    << " " << min::set_break;
 		COM::print_flags
@@ -3297,19 +3293,19 @@ static min::gen bracketed_pass_command
 
 		BRA::indentation_mark indentation_mark =
 		    (BRA::indentation_mark) root;
-		BRA::line_separator line_separator =
-		    indentation_mark->line_separator;
-		if ( line_separator == min::NULL_STUB
+		BRA::line_sep line_sep =
+		    indentation_mark->line_sep;
+		if ( line_sep == min::NULL_STUB
 		     &&
 		     number_of_names == 2 )
 		    continue;
-		if ( line_separator != min::NULL_STUB
+		if ( line_sep != min::NULL_STUB
 		     &&
 		     number_of_names == 1 )
 		    continue;
-		if ( line_separator != min::NULL_STUB
+		if ( line_sep != min::NULL_STUB
 		     &&
-		     line_separator->label != name[1] )
+		     line_sep->label != name[1] )
 		    continue;
 
 		break;

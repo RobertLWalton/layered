@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 19 15:53:12 EDT 2015
+// Date:	Mon Jul 20 16:43:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1037,7 +1037,7 @@ void PAR::parse ( PAR::parser parser )
 		//
 		min::gen terminator =
 		    parser->top_level_indentation_mark
-			     ->line_separator->label;
+			     ->line_sep->label;
 		PAR::remove
 		    ( parser, current, terminator );
 

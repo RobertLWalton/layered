@@ -1,8 +1,8 @@
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_separator_type
+     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_separator_type
+     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     This is a line;
 @1 = This is a line:
@@ -81,10 +81,19 @@ This line contains subsubexpressions (x 5 "foo")
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "`"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "`"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY [< "{" "{" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "{" "{" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
@@ -96,6 +105,9 @@ BRACKETED EXPRESSION:
     line 19:
      (x + `y z {{p q}}' - [ g h ]).
                ^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "'"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
@@ -144,6 +156,9 @@ This line contains more subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY [< "{" "{" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "{" "{" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
@@ -182,6 +197,9 @@ This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
@@ -325,7 +343,7 @@ BRACKETED EXPRESSION:
    Fifth line.
    ^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_separator_type
+     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     Sixth line A;
 @30 = Sixth line A:
@@ -396,6 +414,9 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<-"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY [< "{" "{" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "{" "{" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "<+"
@@ -419,6 +440,9 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {{<+ x +> <- y ->}}
 @36 = @35 <- y ->:
@@ -428,6 +452,9 @@ BRACKETED EXPRESSION:
     line 37:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "`"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "`"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<+"
@@ -449,6 +476,9 @@ BRACKETED EXPRESSION:
     line 37:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
                                    ^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "'"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
@@ -491,29 +521,34 @@ This is a label [< x y "hello" 5.6 z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "("
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "("
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "("
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "("
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ")"
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ")"
+BRACKETED EXPRESSION:
+    (y)
+@42 = y:
+          .terminator = ")"
+          .initiator = "("
+          .position[H] = {}
+    line 39:
+This is another label [< x ( y ) z >]
+                           ^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: subexpression (y) illegal for label element - changed to
+       ERRONEOUS-LABEL-COMPONENT; line 39:
+This is another label [< x ( y ) z >]
+                           ^^^^^
 DERIVED EXPRESSION:
-    [< x "(" y ")" z >]
-@42 = [< x "(" y ")" z >]
+    [< x ERRONEOUS-LABEL-COMPONENT z >]
+@43 = [< x ERRONEOUS-LABEL-COMPONENT z >]
     line 39:
 This is another label [< x ( y ) z >]
                       ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is another label [< x "(" y ")" z >]
-@43 = This is another label [< x "(" y ")" z >]:
+    This is another label [< x ERRONEOUS-LABEL-COMPONENT z >]
+@44 = This is another label [< x ERRONEOUS-LABEL-COMPONENT z >]:
           .type = "<LF>"
           .position[H] = {}
     line 39:
@@ -527,7 +562,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< 1 2 >]
-@44 = [< 1 2 >]
+@45 = [< 1 2 >]
     line 40:
 And these are nested labels [< x [< 1 2 >] y [< a b >] >]
                                  ^^^^^^^^^
@@ -537,7 +572,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< a b >]
-@45 = [< a b >]
+@46 = [< a b >]
     line 40:
 And these are nested labels [< x [< 1 2 >] y [< a b >] >]
                                              ^^^^^^^^^
@@ -545,13 +580,13 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< x [< 1 2 >] y [< a b >] >]
-@46 = [< x [< 1 2 >] y [< a b >] >]
+@47 = [< x [< 1 2 >] y [< a b >] >]
     line 40:
 And these are nested labels [< x [< 1 2 >] y [< a b >] >]
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     And these are nested labels [< x [< 1 2 >] y [< a b >] >]
-@47 = And these are nested labels [< x [< 1 2 >] y [< a b >] >]:
+@48 = And these are nested labels [< x [< 1 2 >] y [< a b >] >]:
           .type = "<LF>"
           .position[H] = {}
     line 40:
@@ -563,7 +598,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {x|1 2 3|x}
-@48 = 1 2 3:
+@49 = 1 2 3:
           .type = "x"
           .position[H] = {}
     line 41:
@@ -571,9 +606,38 @@ This line contains a typed subexpression {x|1 2 3|}
                                          ^^^^^^^^^^
 BRACKETED EXPRESSION:
     This line contains a typed subexpression {x|1 2 3|x}
-@49 = This line contains a typed subexpression @48:
+@50 = This line contains a typed subexpression @49:
           .type = "<LF>"
           .position[H] = {}
     line 41:
 This line contains a typed subexpression {x|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
+@51 = 1 2 3:
+          y = "6"
+          z = [< "b" "c" "5" "d" >]
+          .position[H] = {}
+          w
+          .type = "x"
+    line 43:
+    {x: w, y = 6, z = b c 5 d|1 2 3|}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    Another typed subexpression
+        {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
+@52 = Another typed subexpression @51:
+          .type = "<LF>"
+          .position[H] = {}
+    lines 42-43:
+Another typed subexpression
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {x: w, y = 6, z = b c 5 d|1 2 3|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

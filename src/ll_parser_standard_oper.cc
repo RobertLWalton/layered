@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 16:04:34 EDT 2015
+// Date:	Mon Jul 20 15:51:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,6 +41,8 @@ OP::oper_pass PARSTD::init_oper
         ( min::new_str_gen ( "code" ) );
     min::locatable_gen math_name
         ( min::new_str_gen ( "math" ) );
+    min::locatable_gen data_name
+        ( min::new_str_gen ( "data" ) );
 
     TAB::flags code =
         1ull << TAB::find_name
@@ -48,8 +50,11 @@ OP::oper_pass PARSTD::init_oper
     TAB::flags math =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, math_name );
+    TAB::flags data =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, data_name );
 
-    oper_pass->selectors = code | math;
+    oper_pass->selectors = code | math | data;
 
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );
@@ -102,7 +107,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( comma,
 	  min::MISSING(),
-	  code + math,
+	  code + math + data,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  4000,

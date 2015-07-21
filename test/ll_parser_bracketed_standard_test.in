@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 20 17:02:13 EDT 2015
+// Date:	Mon Jul 20 23:02:25 EDT 2015
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -41,3 +41,4 @@ And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 This line contains a typed subexpression {x|1 2 3|}
 Another typed subexpression
     {x: w, y = 6, z = b c 5 d|1 2 3|}
+And another- {| x y z |b = (1 2 3), no c : t}

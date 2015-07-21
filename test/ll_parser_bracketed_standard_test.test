@@ -641,3 +641,41 @@ Another typed subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {x: w, y = 6, z = b c 5 d|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    (1 2 3)
+@53 = 1 2 3:
+          .terminator = ")"
+          .initiator = "("
+          .position[H] = {}
+    line 44:
+And another- {| x y z |b = (1 2 3), no c : t}
+                           ^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {t: b = (1 2 3), no c|x y z|t}
+@54 = x y z:
+          .type = "t"
+          b = (1 2 3)
+          no c
+          .position[H] = {}
+    line 44:
+And another- {| x y z |b = (1 2 3), no c : t}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And another- {t: b = (1 2 3), no c|x y z|t}
+@55 = And another- @54:
+          .type = "<LF>"
+          .position[H] = {}
+    line 44:
+And another- {| x y z |b = (1 2 3), no c : t}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

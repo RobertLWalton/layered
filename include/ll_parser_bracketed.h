@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 18 14:39:22 EDT 2015
+// Date:	Tue Jul 21 14:32:08 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -245,61 +245,6 @@ extern const uns32 & TYPED_ATTR_NEGATOR;
     //     min::packed_struct
     //	       <typed_attr_negator_struct>.
 
-struct typed_attr_flags_opening_struct;
-typedef min::packed_struct_updptr
-	    <typed_attr_flags_opening_struct>
-        typed_attr_flags_opening;
-extern const uns32 & TYPED_ATTR_FLAGS_OPENING;
-    // Subtype of
-    //     min::packed_struct
-    //	       <typed_attr_flags_opening_struct>.
-
-struct typed_attr_flags_sep_struct;
-typedef min::packed_struct_updptr
-	    <typed_attr_flags_sep_struct>
-        typed_attr_flags_sep;
-extern const uns32 & TYPED_ATTR_FLAGS_SEP;
-    // Subtype of
-    //     min::packed_struct
-    //	       <typed_attr_flags_sep_struct>.
-
-struct typed_attr_flags_closing_struct;
-typedef min::packed_struct_updptr
-	    <typed_attr_flags_closing_struct>
-        typed_attr_flags_closing;
-extern const uns32 & TYPED_ATTR_FLAGS_CLOSING;
-    // Subtype of
-    //     min::packed_struct
-    //	       <typed_attr_flags_closing_struct>.
-
-struct typed_attr_multivalue_opening_struct;
-typedef min::packed_struct_updptr
-	    <typed_attr_multivalue_opening_struct>
-        typed_attr_multivalue_opening;
-extern const uns32 & TYPED_ATTR_MULTIVALUE_OPENING;
-    // Subtype of
-    //   min::packed_struct
-    //	   <typed_attr_multivalue_opening_struct>.
-
-struct typed_attr_multivalue_sep_struct;
-typedef min::packed_struct_updptr
-	   <typed_attr_multivalue_sep_struct>
-        typed_attr_multivalue_sep;
-extern const uns32 &
-	TYPED_ATTR_MULTIVALUE_SEP;
-    // Subtype of
-    //   min::packed_struct
-    //	  <typed_attr_multivalue_sep_struct>.
-
-struct typed_attr_multivalue_closing_struct;
-typedef min::packed_struct_updptr
-	    <typed_attr_multivalue_closing_struct>
-        typed_attr_multivalue_closing;
-extern const uns32 & TYPED_ATTR_MULTIVALUE_CLOSING;
-    // Subtype of
-    //   min::packed_struct
-    //	   <typed_attr_multivalue_closing_struct>.
-
 struct typed_opening_struct :
 	public ll::parser::bracketed
 	                 ::opening_bracket_struct
@@ -329,24 +274,8 @@ struct typed_opening_struct :
     const ll::parser::bracketed
                     ::typed_attr_negator
           typed_attr_negator;
-    const ll::parser::bracketed
-                    ::typed_attr_flags_opening
-          typed_attr_flags_opening;
-    const ll::parser::bracketed
-                    ::typed_attr_flags_sep
-          typed_attr_flags_sep;
-    const ll::parser::bracketed
-                    ::typed_attr_flags_closing
-          typed_attr_flags_closing;
-    const ll::parser::bracketed
-            ::typed_attr_multivalue_opening
-          typed_attr_multivalue_opening;
-    const ll::parser::bracketed
-            ::typed_attr_multivalue_sep
-          typed_attr_multivalue_sep;
-    const ll::parser::bracketed
-            ::typed_attr_multivalue_closing
-          typed_attr_multivalue_closing;
+    const min::gen typed_attr_flags_initiator;
+    const min::gen typed_attr_multivalue_initiator;
 };
 
 struct typed_middle_struct : 
@@ -401,76 +330,6 @@ struct typed_attr_negator_struct :
 	// negator.
 };
 
-struct typed_attr_flags_opening_struct : 
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is TYPED_ATTR_FLAGS_
-    // OPENING.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// flags_opening.
-};
-
-struct typed_attr_flags_sep_struct : 
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is TYPED_ATTR_FLAGS_SEP.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// flags_sep.
-};
-
-struct typed_attr_flags_closing_struct : 
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is TYPED_ATTR_FLAGS_
-    // CLOSING.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// flags_closing.
-};
-
-struct typed_attr_multivalue_opening_struct : 
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is TYPED_ATTR_MULTIVALUE_
-    // OPENING.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// multivalue_opening.
-};
-
-struct typed_attr_multivalue_sep_struct : 
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is TYPED_ATTR_MULTIVALUE_
-    // SEP.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// multivalue_sep.
-};
-
-struct typed_attr_multivalue_closing_struct : 
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is TYPED_ATTR_MULTIVALUE_
-    // CLOSING.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// multivalue_closing.
-};
 
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::typed_opening )
@@ -502,28 +361,11 @@ MIN_REF ( ll::parser::bracketed
                     ::typed_attr_negator,
           typed_attr_negator,
           ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::bracketed
-                    ::typed_attr_flags_opening,
-          typed_attr_flags_opening,
+MIN_REF ( min::gen,
+          typed_attr_flags_initiator,
           ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::bracketed::typed_attr_flags_sep,
-          typed_attr_flags_sep,
-          ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::bracketed
-                    ::typed_attr_flags_closing,
-          typed_attr_flags_closing,
-          ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::bracketed
-            ::typed_attr_multivalue_opening,
-          typed_attr_multivalue_opening,
-          ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::bracketed
-            ::typed_attr_multivalue_sep,
-          typed_attr_multivalue_sep,
-          ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::bracketed
-            ::typed_attr_multivalue_closing,
-          typed_attr_multivalue_closing,
+MIN_REF ( min::gen,
+          typed_attr_multivalue_initiator,
           ll::parser::bracketed::typed_opening )
 
 MIN_REF ( min::gen, label,
@@ -557,54 +399,6 @@ MIN_REF ( ll::parser::bracketed::typed_opening,
           typed_opening,
           ll::parser::bracketed
 	            ::typed_attr_negator )
-
-MIN_REF ( min::gen, label,
-          ll::parser::bracketed
-	            ::typed_attr_flags_opening )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed
-	            ::typed_attr_flags_opening )
-
-MIN_REF ( min::gen, label,
-          ll::parser::bracketed
-	            ::typed_attr_flags_sep )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed
-	            ::typed_attr_flags_sep )
-
-MIN_REF ( min::gen, label,
-          ll::parser::bracketed
-	            ::typed_attr_flags_closing )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed
-	            ::typed_attr_flags_closing )
-
-MIN_REF ( min::gen, label,
-          ll::parser::bracketed
-	    ::typed_attr_multivalue_opening )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed
-	    ::typed_attr_multivalue_opening )
-
-MIN_REF ( min::gen, label,
-          ll::parser::bracketed
-	    ::typed_attr_multivalue_sep )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed
-	    ::typed_attr_multivalue_sep )
-
-MIN_REF ( min::gen, label,
-          ll::parser::bracketed
-	    ::typed_attr_multivalue_closing )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed
-	    ::typed_attr_multivalue_closing )
 
 ll::parser::bracketed::typed_opening
     push_typed_brackets
@@ -624,12 +418,8 @@ ll::parser::bracketed::typed_opening
 	  min::gen typed_attr_equal,
 	  min::gen typed_attr_sep,
 	  min::gen typed_attr_negator,
-	  min::gen typed_attr_flags_opening,
-	  min::gen typed_attr_flags_sep,
-	  min::gen typed_attr_flags_closing,
-	  min::gen typed_attr_multivalue_opening,
-	  min::gen typed_attr_multivalue_sep,
-	  min::gen typed_attr_multivalue_closing,
+	  min::gen typed_attr_flags_initiator,
+	  min::gen typed_attr_multivalue_initiator,
 	  ll::parser::table::key_table bracket_table );
 
 

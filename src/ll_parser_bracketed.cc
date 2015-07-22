@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 21 14:46:27 EDT 2015
+// Date:	Wed Jul 22 07:31:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1717,6 +1717,41 @@ inline void remove ( PAR::parser parser,
     }
 }
 
+// Turn the sequence of tokens from first through
+// next->previous into a label valued token (of type to
+// be set by caller) and a sequence of flags_type tokens
+// containing flags for the label.  The flags tokens are
+// identified by being BRACKETED tokens with .initiator
+// == flags_initiator that are after the label token.
+// However, the `first' token is assumed to NOT be a
+// flags token.  Flags token types are changed to flags_
+// type.
+//
+inline void make_label_with_flags
+	( PAR::parser parser,
+	  PAR::token & first,
+	  PAR::token next,
+	  min::gen flags_initiator,
+	  min::uns32 flags_type )
+{
+    while ( first != next
+            &&
+	    first->next != next
+	    &&
+	    next->previous->type == PAR::BRACKETED )
+    {
+	min::obj_vec_insptr vp
+		( next->previous->value );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_initiator );
+	if ( min::get ( ap ) != flags_initiator )
+	    break;
+	next = next->previous;
+	next->type = flags_type;
+    }
+    make_label ( parser, first, next );
+}
+
 // Announce the punctuation just found is illegal and
 // will be ignored, and delete it.   Update first,
 // start, and key_first as necessary.
@@ -1796,13 +1831,17 @@ static bool typed_bracketed_reformatter_function
     const min::uns32 TYPE =       PAR::TEMPORARY_TT + 0;
         // .type value
     const min::uns32 ATTR_LABEL = PAR::TEMPORARY_TT + 1;
-    const min::uns32 ATTR_VALUE = PAR::TEMPORARY_TT + 2;
-        // Attribute label and value.  Must be
-	// consecutive tokens.
-    const min::uns32 ATTR_TRUE =  PAR::TEMPORARY_TT + 3;
-    const min::uns32 ATTR_FALSE = PAR::TEMPORARY_TT + 4;
+    const min::uns32 ATTR_FLAGS = PAR::TEMPORARY_TT + 2;
+    const min::uns32 ATTR_VALUE = PAR::TEMPORARY_TT + 3;
+        // Attribute label, flags, and value.  Must be
+	// consecutive tokens in that order.  There is
+	// only 1 label token, 0 or more flags tokens,
+	// and 1 value token.
+    const min::uns32 ATTR_TRUE =  PAR::TEMPORARY_TT + 4;
+    const min::uns32 ATTR_FALSE = PAR::TEMPORARY_TT + 5;
         // Attribute label for attribute with TRUE or
-	// FALSE value implied.
+	// FALSE value implied.  May be followed by
+	// ATTR_FLAGS tokens.
     //
     // Other token types are object elements after 1st
     // pass.
@@ -1849,6 +1888,8 @@ static bool typed_bracketed_reformatter_function
     BRA::typed_opening typed_opening =
         (BRA::typed_opening) entry;
     TAB::key_table key_table = typed_opening->key_table;
+    min::gen flags_initiator =
+        typed_opening->typed_attr_flags_initiator;
 
     // Data for macros below:
     //
@@ -1886,6 +1927,15 @@ static bool typed_bracketed_reformatter_function
 	    MIN_REQUIRE ( start != key_first ); \
 	    make_label ( parser, \
 	                 start, key_first ); \
+	    start->type = t; \
+	}
+#   define LABEL_WITH_FLAGS(t) \
+	{ \
+	    MIN_REQUIRE ( start != key_first ); \
+	    make_label_with_flags \
+	        ( parser, start, key_first, \
+		  flags_initiator, \
+		  ATTR_FLAGS ); \
 	    start->type = t; \
 	}
 #   define PUNCTUATION_ERROR \
@@ -1952,16 +2002,16 @@ ATTRIBUTES:
     //     Before elements and after : or ,
     //     After elements and after | or ,
     //
-    // <attr-negator>? <attr-label> ,
+    // <attr-negator>? <attr-label> <attr-flags>* ,
     // 			goto ATTRIBUTES
-    // <attr-label> =
+    // <attr-label> <attr-flags>* =
     // 			goto ATTRIBUTE_VALUE
     //
     // If ! after_elements:
     //
-    // <attr-negator>? <attr-label> |
+    // <attr-negator>? <attr-label> <attr-flags>* |
     // 			goto ELEMENTS
-    // <attr-negator>? <attr-label> }
+    // <attr-negator>? <attr-label> <attr-flags>* }
     // 			goto DONE
     // |
     //                  MISSING ATTR ERROR
@@ -1972,7 +2022,7 @@ ATTRIBUTES:
     //
     // If after_elements:
     //
-    //     <attr-negator>? <attr-label> :
+    //     <attr-negator>? <attr-label> <attr-flags>* :
     //	 		goto END_TYPE
     //     :
     //                  MISSING ATTR ERROR
@@ -1980,7 +2030,7 @@ ATTRIBUTES:
     //
     // If after_elements and after_attribute:
     //
-    //     <attr-negator>? <attr-label> }
+    //     <attr-negator>? <attr-label> <attr-flags>* }
     //                  MISSING END TYPE ERROR
     // 			goto DONE
     //     }
@@ -2067,7 +2117,7 @@ ATTRIBUTES:
 		    goto DONE;
 	    }
 	    REMOVE;
-	    LABEL(type);
+	    LABEL_WITH_FLAGS(type);
 	    start->position = position;
 
 	    ++ attr_count;
@@ -2101,7 +2151,7 @@ ATTRIBUTES:
 		continue;
 	    }
 	    REMOVE;
-	    LABEL(ATTR_LABEL);
+	    LABEL_WITH_FLAGS(ATTR_LABEL);
 	    ++ attr_count;
 	    after_attribute = after_elements;
 	    goto ATTRIBUTE_VALUE;

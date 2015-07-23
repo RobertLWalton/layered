@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 22 07:31:00 EDT 2015
+// Date:	Thu Jul 23 12:03:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1816,6 +1816,33 @@ static void missing_error
     ++ parser->error_count;
 }
 
+static void set_attr_flags
+	( PAR::parser parser,
+	  PAR::token current,
+	  PAR::token next,
+	  min::attr_insptr expap,
+	  min::gen label,
+	  min::uns32 attr_flags_type )
+{
+    min::locate ( expap, label );
+    while ( current->next->type == attr_flags_type )
+    {
+        MIN_REQUIRE ( current->next != next );
+	min::obj_vec_insptr vp ( current->next->value );
+
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    min::gen flags = vp[i];
+	}
+
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  current->next ) );
+    }
+}
+
 static bool typed_bracketed_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -2403,12 +2430,18 @@ DONE:
     min::set_flag
 	( expap, min::standard_attr_hide_flag );
 
+#   define SET_ATTR_FLAGS \
+	if ( current->next->type == ATTR_FLAGS ) \
+	    ::set_attr_flags \
+	        ( parser, current, next, \
+		  expap, label, ATTR_FLAGS )
+
+    min::locatable_gen label;
+    min::locatable_gen value;
+    min::gen old_value;
     for ( PAR::token current = first;
 	  current != next; )
     {
-	min::locatable_gen label;
-	min::locatable_gen value;
-	min::gen old_value;
         if ( current->type == TYPE )
 	{
 	    label = min::dot_type;
@@ -2418,6 +2451,7 @@ DONE:
 	{
 	    MIN_REQUIRE ( current != next );
 	    label = current->value;
+	    SET_ATTR_FLAGS;
 	    current = current->next;
 	    PAR::free
 		( PAR::remove
@@ -2430,11 +2464,13 @@ DONE:
 	{
 	    label = current->value;
 	    value = min::FALSE;
+	    SET_ATTR_FLAGS;
 	}
         else if ( current->type == ATTR_TRUE )
 	{
 	    label = current->value;
 	    value = min::TRUE;
+	    SET_ATTR_FLAGS;
 	}
 	else
 	{

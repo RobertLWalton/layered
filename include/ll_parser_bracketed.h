@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 21 14:32:08 EDT 2015
+// Date:	Fri Jul 24 16:09:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -275,6 +275,7 @@ struct typed_opening_struct :
                     ::typed_attr_negator
           typed_attr_negator;
     const min::gen typed_attr_flags_initiator;
+    const min::flag_parser * typed_attr_flag_parser;
     const min::gen typed_attr_multivalue_initiator;
 };
 
@@ -419,6 +420,8 @@ ll::parser::bracketed::typed_opening
 	  min::gen typed_attr_sep,
 	  min::gen typed_attr_negator,
 	  min::gen typed_attr_flags_initiator,
+	  const min::flag_parser *
+		   typed_attr_flag_parser,
 	  min::gen typed_attr_multivalue_initiator,
 	  ll::parser::table::key_table bracket_table );
 

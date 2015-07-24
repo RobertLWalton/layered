@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 23 12:03:16 EDT 2015
+// Date:	Fri Jul 24 16:12:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -366,6 +366,8 @@ BRA::typed_opening
 	  min::gen typed_attr_sep,
 	  min::gen typed_attr_negator,
 	  min::gen typed_attr_flags_initiator,
+	  const min::flag_parser *
+	           typed_attr_flag_parser,
 	  min::gen typed_attr_multivalue_initiator,
 	  TAB::key_table bracket_table )
 {
@@ -504,6 +506,8 @@ BRA::typed_opening
 
     typed_attr_flags_initiator_ref(opening) =
         typed_attr_flags_initiator;
+    opening->typed_attr_flag_parser =
+    	typed_attr_flag_parser;
     typed_attr_multivalue_initiator_ref(opening) =
         typed_attr_multivalue_initiator;
 
@@ -1822,7 +1826,8 @@ static void set_attr_flags
 	  PAR::token next,
 	  min::attr_insptr expap,
 	  min::gen label,
-	  min::uns32 attr_flags_type )
+	  min::uns32 attr_flags_type,
+	  const min::flag_parser * flag_parser )
 {
     min::locate ( expap, label );
     while ( current->next->type == attr_flags_type )
@@ -1834,6 +1839,19 @@ static void set_attr_flags
 	      i < min::size_of ( vp ); ++ i )
 	{
 	    min::gen flags = vp[i];
+	    if ( min::is_str ( flags ) )
+	    {
+	        min::str_ptr sp ( flags );
+	        min::unsptr len = min::strlen ( sp );
+	        char text_buffer[len+1];
+	        min::strcpy ( text_buffer, sp );
+	        min::uns32 flags[len];
+	        len = min::parse_flags
+	            ( flags, text_buffer, flag_parser );
+	        for ( min::unsptr i = 0; i < len; ++ i )
+	            min::set_flag ( expap, flags[i] );
+		// TBD: error messages
+	    }
 	}
 
 	PAR::free
@@ -1917,6 +1935,8 @@ static bool typed_bracketed_reformatter_function
     TAB::key_table key_table = typed_opening->key_table;
     min::gen flags_initiator =
         typed_opening->typed_attr_flags_initiator;
+    const min::flag_parser * attr_flag_parser =
+        typed_opening->typed_attr_flag_parser;
 
     // Data for macros below:
     //
@@ -2434,7 +2454,8 @@ DONE:
 	if ( current->next->type == ATTR_FLAGS ) \
 	    ::set_attr_flags \
 	        ( parser, current, next, \
-		  expap, label, ATTR_FLAGS )
+		  expap, label, ATTR_FLAGS, \
+		  attr_flag_parser )
 
     min::locatable_gen label;
     min::locatable_gen value;

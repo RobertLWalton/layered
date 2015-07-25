@@ -701,13 +701,12 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {t: b[ABC] = (1 2 3), c[+] = "FALSE", d[-] = "TRUE", no f, g|x y
-        z|t}
+    {t: b[ABC] = (1 2 3), no c[+], d[-], no f, g|x y z|t}
 @57 = x y z:
           b[ABC] = (1 2 3)
-          c[+] = "FALSE"
+          no c[+]
           .type = "t"
-          d[-] = "TRUE"
+          d[-]
           no f
           g
           .position[H] = {}
@@ -717,9 +716,7 @@ And another- {| x y z |b[ABC] = (1 2 3),
                        no c[+], d[-], no f, g : t}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    And another-
-        {t: b[ABC] = (1 2 3), c[+] = "FALSE", d[-] = "TRUE", no f, g|x y
-            z|t}
+    And another- {t: b[ABC] = (1 2 3), no c[+], d[-], no f, g|x y z|t}
 @58 = And another- @57:
           .type = "<LF>"
           .position[H] = {}

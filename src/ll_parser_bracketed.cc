@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 16:12:37 EDT 2015
+// Date:	Sat Jul 25 16:33:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1838,19 +1838,83 @@ static void set_attr_flags
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
-	    min::gen flags = vp[i];
-	    if ( min::is_str ( flags ) )
+	    min::gen flags_text = vp[i];
+	    if ( min::is_obj ( flags_text ) )
 	    {
-	        min::str_ptr sp ( flags );
+		min::obj_vec_insptr vp ( flags_text );
+		min::attr_insptr ap ( vp );
+		min::locate ( ap, min::dot_type );
+		min::gen type = get ( ap );
+		if ( type == min::doublequote
+		     ||
+		     type == min::number_sign )
+		    flags_text = vp[0];
+	    }
+
+	    if ( min::is_str ( flags_text ) )
+	    {
+	        min::str_ptr sp ( flags_text );
 	        min::unsptr len = min::strlen ( sp );
 	        char text_buffer[len+1];
 	        min::strcpy ( text_buffer, sp );
 	        min::uns32 flags[len];
 	        len = min::parse_flags
 	            ( flags, text_buffer, flag_parser );
-	        for ( min::unsptr i = 0; i < len; ++ i )
-	            min::set_flag ( expap, flags[i] );
-		// TBD: error messages
+	        for ( min::unsptr j = 0; j < len; ++ j )
+	            min::set_flag ( expap, flags[j] );
+		
+		if ( text_buffer[0] != 0 )
+		{
+		    min::attr_insptr ap ( vp );
+		    min::locate
+		        ( ap, min::dot_position );
+		    min::phrase_position_vec_insptr
+		        pos = min::get ( ap );
+		    min::phrase_position position =
+		        pos[i];
+		    parser->printer
+			<< min::bom
+			<< min::set_indent ( 7 )
+			<< "ERROR: bad flag(s) "
+			<< text_buffer
+			<< " in "
+			<< min::pgen_quote
+			       ( flags_text )
+			<< "; "
+			<< min::pline_numbers
+			       ( parser->input_file,
+				 position )
+			<< ":" << min::eom;
+		    min::print_phrase_lines
+			( parser->printer,
+			  parser->input_file,
+			  position );
+		    ++ parser->error_count;
+		}
+	    }
+	    else
+	    {
+		min::attr_insptr ap ( vp );
+		min::locate ( ap, min::dot_position );
+		min::phrase_position_vec_insptr
+		    pos = min::get ( ap );
+		min::phrase_position position = pos[i];
+		parser->printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: bad flags specifier "
+		    << min::pgen_quote
+			   ( flags_text )
+		    << "; "
+		    << min::pline_numbers
+			   ( parser->input_file,
+			     position )
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      position );
+		++ parser->error_count;
 	    }
 	}
 

@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 19, 2015
+August 1, 2015
  
 \end{center}
 
@@ -1887,7 +1887,8 @@ A token has the following components:
         	          A lexeme type. \\
         	          \ttmkey{OPERATOR}{token type} \\
         	          \ttmkey{BRACKETED}{token type} \\
-        	          \ttmkey{BRACKETABLE}{token type} \\[1ex]
+        	          \ttmkey{BRACKETABLE}{token type} \\
+        	          \ttmkey{DERIVED}{token type} \\[1ex]
 			  \end{tabular}
 \\[1ex]
 		& For a lexeme, the translation of the
@@ -1906,7 +1907,8 @@ A token has the following components:
 		  \TT{value} nor \TT{string}.
 		  Standardly whitespace and comment lexemes are
 		  not translated into tokens, and erroneous lexemes are
-		  announced when input but not translated into tokens.
+		  announced when read by the parser
+		  but are not translated into tokens.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1958,7 +1960,16 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& \TT{BRACKETED} and \TT{BRACKETABLE} tokens are called
+		& A \TT{DERIVED} token is a non-lexeme that which has
+		  a token \TT{value} that is \underline{not} a MIN object.
+		  For example, a label subexpression reformatter may
+		  produce a \TT{DERIVED} token with a value that is
+		  a MIN label.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+		& \TT{BRACKETED}, \TT{BRACKETABLE}, and \TT{DERIVED}
+		  tokens are called
 		  \skey{expression token}s and \TT{OPERATOR} and lexeme
 		  tokens are called non-expression tokens.
 \end{tabular}
@@ -1966,8 +1977,15 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value}{of token}
 		& The token \TT{value}, as described above.  This is
-		  a MIN string, label, or object.  Naturals are encoded
-		  as MIN strings.
+		  a MIN string, label, or object.
+\\[1ex]
+		& Note that naturals have values that are MIN
+		  strings equal to their lexemes,
+		  and are \underline{not} MIN numbers.
+		  This allows very large natural lexemes,
+		  and does not try to exploit the 1-1 correspondence
+		  between not-too-large natural lexemes and
+		  non-negative integral MIN numbers.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1988,15 +2006,20 @@ A token has the following components:
 		  and the first character after the token in the
 		  input text.  A character position records a line number
 		  and the byte offset within a UTF-8 encoding
-		  of the line.
+		  of the line.  The column containing the character
+		  can then be computed from the line itself and the
+		  byte offset.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{indent}{of token}
-	        & The indentation of the token from the beginning
-                  of the line, for the first token of a line only.
-		  Calculated assuming a single space character is
-		  1 column and horizontal tabs are every 8 columns.
+	        & The indentation (beginning column)
+		  of the token, for the first token of a line only.
+		  Calculated assuming characeters in UNICODE category
+		  Zs are 1 column space characters (this includes
+		  the single space and non-breaking single space
+		  characters), horizontal tabs are every 8 columns,
+		  and other control and space characters take 0 columns.
 		  A special missing value if the token is not the
 		  first token on a line.
 		\\[1ex]
@@ -2013,7 +2036,7 @@ needed.
 
 As the parser identifies subexpressions, the tokens in the
 subexpression are replaced by a single expression token (of
-type \TT{BRACKETED} or \TT{BRACKETABLE})
+type \TT{BRACKETED}, \TT{BRACKETABLE}, or \TT{DERIVED})
 that encodes the subexpression.
 Although at the top level an entire
 input file can be considered to be a list of paragraphs,
@@ -2048,7 +2071,7 @@ components:
 \\[1ex]
 		& A \key{symbol} is a MIN string equal to the
 		  lexeme string of a word, mark, separator,
-		  or natural lexeme.  Quoted string
+		  or natural lexeme.  Quoted string and numeric
 		  lexemes are not symbols.
 \\[1ex]
 		& Labels are symbol table `\skey{key}s', that is, they
@@ -2058,10 +2081,6 @@ components:
 		  a MIN string.  Otherwise it is represented by
 		  a MIN label whose elements are MIN strings
 		  equal to the symbols.
-\\[1ex]
-		& Note that naturals are represented by MIN
-		  strings equal to their lexeme translation strings,
-		  and are \underline{not} represented as MIN numbers.
 \end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2071,7 +2090,7 @@ components:
 		  definitions of types particular to the pass.
 		  For example, the bracketed subexpression recognition
 		  pass has \TT{opening bracket}, \TT{closing bracket},
-		  \TT{indentation mark}, and \TT{indentation separator}
+		  \TT{indentation mark}, and \TT{line separator}
 		  type definitions, among others.
 \end{tabular}
 

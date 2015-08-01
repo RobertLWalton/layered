@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 11 05:52:43 EDT 2015
+// Date:	Sat Aug  1 15:01:52 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -786,17 +786,26 @@ static bool default_input_get
 
 	ic.offset += bytes_read;
 	if ( ic.indent != AFTER_GRAPHIC )
-	    switch ( unicode )
 	{
-	case ' ' : ++ ic.indent;
-	           break;
-	case '\t': ic.indent += 8 - ic.indent % 8;
-	           break;
-	case '\f':
-	case '\v':
-		   break;
-	default:
-		   ic.indent = AFTER_GRAPHIC;
+	    min::uns16 i = min::Uindex ( unicode );
+	    if ( i >= min::unicode::index_limit )
+	        ic.indent = AFTER_GRAPHIC;
+	    else
+	    {
+		// We use min::standard_flags to find
+		// out if `unicode' is in a graphic
+		// category (L, M, P, or S) or in
+		// category Zs.
+		//
+	        min::uns32 flags =
+		    min::standard_char_flags[i];
+		if ( flags & min::IS_GRAPHIC )
+		    ic.indent = AFTER_GRAPHIC;
+		else if ( unicode == '\t' )
+	            ic.indent += 8 - ic.indent % 8;
+		else if ( flags & min::IS_HSPACE )
+	            ++ ic.indent;
+	    }
 	}
     }
 

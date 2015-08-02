@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 16:12:57 EDT 2015
+// Date:	Sun Aug  2 13:04:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -106,7 +106,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::locatable_gen opening_brace_star
         ( min::new_lab_gen ( "{", "*" ) );
 
-    parser->selectors = code;
+    parser->selectors = code | PAR::ALWAYS_SELECTOR;
 
     min::uns32 block_level =
         PAR::block_level ( parser );

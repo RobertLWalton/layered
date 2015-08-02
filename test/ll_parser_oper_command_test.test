@@ -9,7 +9,7 @@ parser print pass:
 parser print context "":
     block standard: default [code]
     block TOP LEVEL: default []
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [+ parser, - code, - math, - text, - data]
     block TOP LEVEL: parser test []
 parser print pass:
     top

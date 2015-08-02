@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 25 16:33:02 EDT 2015
+// Date:	Sun Aug  2 12:44:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -122,7 +122,7 @@ BRA::opening_bracket
     opening_bracket_ref(closing) = opening;
 
     opening->selectors = selectors;
-    closing->selectors = TAB::ALL_FLAGS;
+    closing->selectors = PAR::ALWAYS_SELECTOR;
 
     opening->block_level = block_level;
     closing->block_level = block_level;
@@ -200,7 +200,7 @@ BRA::indentation_mark
 	    separator
 	    ( ::line_sep_type.new_stub() );
 	label_ref(separator) = separator_label;
-	separator->selectors = TAB::ALL_FLAGS;
+	separator->selectors = PAR::ALWAYS_SELECTOR;
 	separator->block_level = block_level;
 	separator->position = position;
 	indentation_mark_ref(separator) = imark;
@@ -388,7 +388,7 @@ BRA::typed_opening
     key_table_ref(opening) = key_table;
 
     opening->selectors = selectors;
-    closing->selectors = TAB::ALL_FLAGS;
+    closing->selectors = PAR::ALWAYS_SELECTOR;
 
     opening->block_level = block_level;
     closing->block_level = block_level;
@@ -414,7 +414,7 @@ BRA::typed_opening
     typed_middle_ref(opening)  = middle;
     typed_opening_ref(middle)  = opening;
 
-    middle->selectors  = TAB::ALL_FLAGS;
+    middle->selectors  = PAR::ALWAYS_SELECTOR;
     middle->block_level  = block_level;
     middle->position  = position;
 
@@ -458,17 +458,17 @@ BRA::typed_opening
 	typed_opening_ref(attr_sep)
 	    = opening;
 
-	attr_begin->selectors     = TAB::ALL_FLAGS;
-	attr_equal->selectors     = TAB::ALL_FLAGS;
-	attr_sep->selectors 	  = TAB::ALL_FLAGS;
+	attr_begin->selectors    = PAR::ALWAYS_SELECTOR;
+	attr_equal->selectors    = PAR::ALWAYS_SELECTOR;
+	attr_sep->selectors 	 = PAR::ALWAYS_SELECTOR;
 
-	attr_begin->block_level   = block_level;
-	attr_equal->block_level   = block_level;
-	attr_sep->block_level 	  = block_level;
+	attr_begin->block_level  = block_level;
+	attr_equal->block_level  = block_level;
+	attr_sep->block_level 	 = block_level;
 
-	attr_begin->position      = position;
-	attr_equal->position      = position;
-	attr_sep->position 	  = position;
+	attr_begin->position     = position;
+	attr_equal->position     = position;
+	attr_sep->position 	 = position;
 
 	TAB::push ( key_table,
 	           (TAB::root) attr_begin );
@@ -494,11 +494,11 @@ BRA::typed_opening
 	typed_opening_ref(attr_negator)
 	    = opening;
 
-	attr_negator->selectors   = TAB::ALL_FLAGS;
+	attr_negator->selectors  = PAR::ALWAYS_SELECTOR;
 
-	attr_negator->block_level   = block_level;
+	attr_negator->block_level = block_level;
 
-	attr_negator->position   = position;
+	attr_negator->position    = position;
 
 	TAB::push ( key_table,
 	           (TAB::root) attr_negator );
@@ -1008,6 +1008,8 @@ bool BRA::parse_bracketed_subexpression
 		    new_selectors ^=
 			indentation_found->new_selectors
 					 .xor_flags;
+		    new_selectors |=
+		        PAR::ALWAYS_SELECTOR;
 
 		    min::int32 paragraph_indent =
 		        current->next->indent;
@@ -1282,7 +1284,6 @@ bool BRA::parse_bracketed_subexpression
 	    find_entry ( parser, current, key_prefix,
 			 TAB::ALL_FLAGS,
 			 pass->bracket_table );
-
 	while ( true )
 	{
 	    // Each iteration of this loop examines the
@@ -1338,6 +1339,8 @@ bool BRA::parse_bracketed_subexpression
 		new_selectors ^=
 		    opening_bracket->new_selectors
 				    .xor_flags;
+		new_selectors |=
+		    PAR::ALWAYS_SELECTOR;
 
 		bool full_lines =
 		    (   opening_bracket->options
@@ -1656,7 +1659,8 @@ static bool label_reformatter_function
 //
 // Key_table contains the keys.  It is assumed that
 // selector flags are not being used and all key table
-// entries have ALL_FLAGS set as their selector flags.
+// entries have ALWAYS_SELECTOR set as their selector
+// flags.
 //
 // It is also assumed that no key is an initial segment
 // of any other key.
@@ -1679,7 +1683,7 @@ inline min::uns32 get_next_key
     {
 	root =
 	    find_entry ( parser, current, key_prefix,
-			 TAB::ALL_FLAGS,
+			 PAR::ALWAYS_SELECTOR,
 			 key_table, next );
 	if ( root == min::NULL_STUB )
 	{

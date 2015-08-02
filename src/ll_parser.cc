@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 20 16:43:22 EDT 2015
+// Date:	Sun Aug  2 12:30:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,6 +47,7 @@ min::locatable_gen PAR::right_parenthesis;
 min::locatable_gen PAR::left_square;
 min::locatable_gen PAR::right_square;
 min::locatable_gen PAR::comma;
+min::locatable_gen PAR::always_lexeme;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::standard_lexeme;
 min::locatable_gen PAR::error_operator;
@@ -97,6 +98,7 @@ static void initialize ( void )
     PAR::right_square = min::new_str_gen ( "]" );
     PAR::comma = min::new_str_gen ( "," );
 
+    PAR::always_lexeme = min::new_str_gen ( "always" );
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
     PAR::standard_lexeme =
         min::new_str_gen ( "standard" );
@@ -650,23 +652,31 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    ( selector_name_table_ref(parser) );
 
 	MIN_REQUIRE
+	    (    PAR::ALWAYS_SELECTOR
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::always_lexeme ) );
+	MIN_REQUIRE
 	    (    PAR::PARSER_SELECTOR
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::parser_lexeme ) );
+
+	parser->selectors = PAR::ALWAYS_SELECTOR;
 
 	PAR::context_table_ref(parser) =
 	    TAB::create_key_table ( 256 );
 
 	PAR::push_context
 	    ( PAR::parser_lexeme,
-	      0,
+	      PAR::ALWAYS_SELECTOR,
 	      0,
 	      PAR::top_level_position,
 	      TAB::new_flags
 	          ( PAR::PARSER_SELECTOR,
 		      TAB::ALL_FLAGS
-		    - PAR::PARSER_SELECTOR,
+		    - PAR::PARSER_SELECTOR
+		    - PAR::ALWAYS_SELECTOR,
 		    0 ),
 	      parser->context_table );
 
@@ -675,7 +685,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	PAR::push_context
 	    ( parser_test,
-	      0,
+	      PAR::ALWAYS_SELECTOR,
 	      0,
 	      PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
@@ -997,6 +1007,8 @@ void PAR::parse ( PAR::parser parser )
 		    context->new_selectors.not_flags;
 		selectors ^=
 		    context->new_selectors.xor_flags;
+		selectors |=
+		    PAR::ALWAYS_SELECTOR;
 	    }
 	}
 

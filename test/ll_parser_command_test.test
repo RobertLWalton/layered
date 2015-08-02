@@ -12,7 +12,7 @@ parser print selector "":
 parser print context "":
     block standard: default [code]
     block TOP LEVEL: default []
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [+ parser, - code, - my selector]
     block TOP LEVEL: parser test []
 parser print trace:
     [ - warnings, - parser input, - parser output, + parser commands,
@@ -69,21 +69,21 @@ parser print trace:
 parser print context "":
     block standard: default [code]
     block TOP LEVEL: default []
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [+ parser, - code, - my selector]
     block TOP LEVEL: parser test []
 parser define context "default"
        with parsing selectors [parser, my selector]
 parser print context "":
     block standard: default [parser, my selector]
     block TOP LEVEL: default []
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [+ parser, - code, - my selector]
     block TOP LEVEL: parser test []
 parser define context "default"
        with parsing selectors [code]
 parser print context "":
     block standard: default [code]
     block TOP LEVEL: default []
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [+ parser, - code, - my selector]
     block TOP LEVEL: parser test []
 ======= TEST: parser test "[" x <+ y +> z "{" u "," v "," w "}" m "(" n
                   "(" p ")" ")" "]"
@@ -151,7 +151,7 @@ parser print context "parser<SP>test<SP>special":
 parser print context "parser<SP>test":
     block TOP LEVEL: parser test []
 parser print context "parser":
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [+ parser, - code, - my selector]
     block TOP LEVEL: parser test []
 ======= TEST: parser test special "[" x <+ y +> z "{" u "," v "," w "}"
                   m "(" n "(" p ")" ")" "]"

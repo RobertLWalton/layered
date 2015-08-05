@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  2 12:44:15 EDT 2015
+// Date:	Wed Aug  5 15:21:27 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -832,6 +832,140 @@ inline min::int32 relative_indent
 
 // Bracketed Subexpression Parser
 // --------- ------------- ------
+
+// Outline of parse_bracketed_subexpression:
+//
+//   indentation_mark indentation_found = NONE
+//   loop:
+//     if current->type is end-of-file:
+//       return false
+//     if current->type is line-break:
+//       remove following line-breaks and full
+//              line comments, issuing warning
+//              messages for insufficiently
+//              indented comments
+//       if indentation_found != NONE:
+//         if paragraph has some lines:
+//           compute new_selectors from
+//                   current selectors and
+//                   indentation_found
+//           delete current line-break	            
+//           paragraph_indent = current->indent
+//
+//           loop to parse paragraph lines:
+//               parse_bracketed_subexpression with
+//                   paragraph_indent, indentation_
+//                   found, new_selectors, bracket
+//                   stack; moves current to end of
+//                   line; remember line ended by
+//                   a separator
+//               if bracket stack top closed:
+//                   require that there was no line
+//                           ending separator
+//               compact line found with .type = <LF>
+//                       and .terminator = any line
+//                       ending separator found;
+//                       if line ending separator
+//                       found remove it first
+//               end loop if top of bracket stack
+//                   closed, or current->type is end-of-
+//                   file, or current->next has indent
+//                   less than paragraph_indent
+//               delete current line-break and continue
+//                      loop
+//
+//           remove indentation mark
+//           compact paragraph lines with .type =
+//                   indentation_found label
+//	     if bracket stack top closed or current->
+//	        type is end-of-file:
+//	          return false
+//	     indentation_found = NONE
+// 	 
+// 	 // Continue line-break processing
+// 	 // current->type is line-break and next
+// 	 // token is not a line-break or comment
+// 	 //
+// 	 if current->next->type is end-of-file:
+// 	    return false
+// 	 if current->next does not begin an indented
+// 	    continuation line:
+// 	      return false
+// 	 remove current line-break
+// 	 iterate top level loop; going to continuation
+// 	         line
+//
+//    // continue top level loop if no line-break
+//    //          found
+//    //
+//    if current->type is a comment, delete comment
+//       and iterate top level loop
+//    if current->type is quoted string:
+//      if current->previous->type is quoted string:
+//         merge quoted strings
+//      current = current->next
+//      iterate top level loop
+//    
+//    lookup key in bracket pass bracket table
+//    loop to refine key until it is selected:
+//
+//      if key == NONE:
+//        current = current->next
+//        iterate top level loop
+//
+//      if key is selected opening bracket or typed
+//         opening:
+//        compute new_selectors from existing selectors
+//                and key
+//        create new bracket stack entry with opening
+//               bracket = key
+//        if key has full lines option, create new
+//           bracket stack with new entry as its only
+//           entry
+//        else push new entry into existing stack
+//        parse_bracketed_subexpression with
+//          new_selectors, no indentaton_mark,
+//          new bracket stack, and indent = indent
+//          argument to top level, unless full lines
+//          option given, in which case indent = -2;
+//          closing found is recorded in closing
+//          stack
+//        if closing was found that did not match
+//           top of closing stack, print error
+//           message
+//        call opening bracket reformatter if any,
+//             and if none or if requested by
+//             reformatter, compact with .initiator
+//             and .terminator being the opening
+//             and closing bracket (the latter
+//             taken from the symbol table and
+//             not the input)
+//        if closing found was line break before
+//           insuffiently indented line:
+//          iterate top level loop
+//        else if closing bracket was found that did not
+//           match top of closing stack:
+//          return false
+//        else
+//          iterate top level loop
+//
+//      if key is closing bracket in bracket stack:
+//        close bracket stack entry that matches key
+//        close all higher stack entries indication
+//          their closing brackets were not found
+//        return false
+//
+//      if key is selected indentation mark and
+//         current->type is end-of-file or line break:
+//        indentation_found = key
+//        iterate top level loop
+//
+//      if key is line separator matching indentation_
+//         mark argument:
+//        return true
+//
+//      reject key
+//      iterate loop to refine key
 
 bool BRA::parse_bracketed_subexpression
 	( PAR::parser parser,

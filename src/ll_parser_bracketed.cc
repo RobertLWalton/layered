@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  5 15:21:27 EDT 2015
+// Date:	Fri Aug  7 14:16:44 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -414,7 +414,7 @@ BRA::typed_opening
     typed_middle_ref(opening)  = middle;
     typed_opening_ref(middle)  = opening;
 
-    middle->selectors  = PAR::ALWAYS_SELECTOR;
+    middle->selectors  = BRA::MIDDLE_SELECTOR;
     middle->block_level  = block_level;
     middle->position  = position;
 
@@ -458,9 +458,9 @@ BRA::typed_opening
 	typed_opening_ref(attr_sep)
 	    = opening;
 
-	attr_begin->selectors    = PAR::ALWAYS_SELECTOR;
-	attr_equal->selectors    = PAR::ALWAYS_SELECTOR;
-	attr_sep->selectors 	 = PAR::ALWAYS_SELECTOR;
+	attr_begin->selectors    = BRA::ATTR_SELECTOR;
+	attr_equal->selectors    = BRA::ATTR_SELECTOR;
+	attr_sep->selectors 	 = BRA::ATTR_SELECTOR;
 
 	attr_begin->block_level  = block_level;
 	attr_equal->block_level  = block_level;
@@ -494,7 +494,7 @@ BRA::typed_opening
 	typed_opening_ref(attr_negator)
 	    = opening;
 
-	attr_negator->selectors  = PAR::ALWAYS_SELECTOR;
+	attr_negator->selectors = BRA::NEGATOR_SELECTOR;
 
 	attr_negator->block_level = block_level;
 
@@ -1791,19 +1791,19 @@ static bool label_reformatter_function
 // label in `key_label'.  But if key not found (so
 // key_first and current are set == next), return 0.
 //
-// Key_table contains the keys.  It is assumed that
-// selector flags are not being used and all key table
-// entries have ALWAYS_SELECTOR set as their selector
-// flags.
-//
-// It is also assumed that no key is an initial segment
-// of any other key.
+// Key_table contains the keys with various selectors.
+// Only keys with a selector that is also in the
+// `selectors' argument are recognized.  If a key
+// is not initially recognized, selectors is reset
+// to skip_selectors with skip_count is incremented.
 //
 inline min::uns32 get_next_key
         ( PAR::parser parser,
 	  PAR::token & key_first,
 	  PAR::token & current,
 	  PAR::token next,
+	  TAB::flags selectors,
+	  TAB::flags skip_selectors,
 	  min::unsptr & skip_count,
 	  min::gen & key_label,
 	  TAB::key_table key_table )
@@ -1817,12 +1817,13 @@ inline min::uns32 get_next_key
     {
 	root =
 	    find_entry ( parser, current, key_prefix,
-			 PAR::ALWAYS_SELECTOR,
+			 selectors,
 			 key_table, next );
 	if ( root == min::NULL_STUB )
 	{
 	    key_first = current = key_first->next;
 	    ++ skip_count;
+	    selectors = skip_selectors;
 	}
 	else
 	    break;
@@ -2131,6 +2132,8 @@ static bool typed_bracketed_reformatter_function
     PAR::token type_token = min::NULL_STUB;
         // TYPE token.  First type encountered.
 	// See above.
+    TAB::flags next_selectors;
+        // Selectors in particular contexts.
 
     BRA::typed_opening typed_opening =
         (BRA::typed_opening) entry;
@@ -2165,10 +2168,18 @@ static bool typed_bracketed_reformatter_function
 	// Cannot put this before variable declarations
 	// above.
 
-#   define NEXT \
+#   define NEXT(selectors) \
 	key_subtype = \
 	    get_next_key ( parser, key_first, \
 	                   current, next, \
+			   selectors, selectors, \
+		           skip_count, key_label, \
+			   key_table )
+#   define NEXT2(selectors,skip_selectors) \
+	key_subtype = \
+	    get_next_key ( parser, key_first, \
+	                   current, next, \
+			   selectors, skip_selectors, \
 		           skip_count, key_label, \
 			   key_table )
 #   define LABEL(t) \
@@ -2218,7 +2229,8 @@ static bool typed_bracketed_reformatter_function
     start = current;
     while ( true )
     {
-	NEXT;
+	NEXT (   BRA::MIDDLE_SELECTOR
+	       + BRA::ATTR_SELECTOR );
 
 	if ( key_subtype == 0
 	     ||
@@ -2295,18 +2307,18 @@ ATTRIBUTES:
     //
     after_negator = min::NULL_STUB;
     start = current;
+    next_selectors = BRA::MIDDLE_SELECTOR
+	           + BRA::ATTR_SELECTOR
+	           + BRA::NEGATOR_SELECTOR;
     while ( true )
     {
-	NEXT;
+	NEXT2 ( next_selectors,
+		  BRA::MIDDLE_SELECTOR
+	        + BRA::ATTR_SELECTOR );
+	next_selectors = BRA::MIDDLE_SELECTOR
+	               + BRA::ATTR_SELECTOR;
 	if ( key_subtype == BRA::TYPED_ATTR_NEGATOR )
-	{
-	    if ( start == key_first )
-	        after_negator = current;
-	    else
-	        current = key_first->next;
-		    // Ignore negator that is not
-		    // at beginning of label.
-	}
+	    after_negator = current;
 	else if  ( (    key_subtype
 	             == BRA::TYPED_ATTR_BEGIN
 	             &&
@@ -2438,7 +2450,8 @@ ATTRIBUTE_VALUE:
     start = current;
     while ( true )
     {
-	NEXT;
+	NEXT (   BRA::MIDDLE_SELECTOR
+	       + BRA::ATTR_SELECTOR );
 	if ( key_subtype == BRA::TYPED_ATTR_SEP
 	     ||
 	     ( key_subtype == BRA::TYPED_MIDDLE
@@ -2500,53 +2513,43 @@ ELEMENTS:
     //
     after_elements = true;
     start = current;
-    while ( true )
+
+    NEXT ( BRA::MIDDLE_SELECTOR );
+
+    MIN_REQUIRE ( key_subtype == BRA::TYPED_MIDDLE
+	          ||
+	          key_subtype == 0 );
+
+    element_count = skip_count;
+    REMOVE;
+    if ( key_subtype == BRA::TYPED_MIDDLE )
+	goto ATTRIBUTES;
+    else
     {
-	NEXT;
+	min::phrase_position position =
+	    { current->position.begin,
+	      current->position.begin };
+	key_label = typed_opening->typed_middle
+				 ->label;
 
-	if ( key_subtype == BRA::TYPED_MIDDLE
-	     ||
-	     key_subtype == 0 )
-	{
-	    element_count += skip_count;
-	    REMOVE;
-	    if ( key_subtype == BRA::TYPED_MIDDLE )
-		goto ATTRIBUTES;
-	    else
-	    {
-		min::phrase_position position =
-		    { current->position.begin,
-		      current->position.begin };
-		key_label = typed_opening->typed_middle
-		                         ->label;
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( 7 )
+	    << "ERROR: premature end of typed"
+	       " bracketed subexpression; "
+	    << min::pgen_quote ( key_label )
+	    << " inserted; "
+	    << min::pline_numbers
+		   ( parser->input_file,
+		     position )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      position );
+	++ parser->error_count;
 
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: premature end of typed"
-		       " bracketed subexpression; "
-		    << min::pgen_quote ( key_label )
-		    << " inserted; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      position );
-		++ parser->error_count;
-
-		goto DONE;
-	    }
-	}
-	else
-	{
-	    // Ignore other keys.
-	    //
-	    current = key_first->next;
-	    element_count += skip_count + 1;
-	}
+	goto DONE;
     }
 
 END_TYPE:
@@ -2558,7 +2561,8 @@ END_TYPE:
     start = current;
     while ( true )
     {
-	NEXT;
+	NEXT (   BRA::MIDDLE_SELECTOR
+	       + BRA::ATTR_SELECTOR );
 	if ( key_subtype == 0 )
 	{
 	    if ( start == key_first )

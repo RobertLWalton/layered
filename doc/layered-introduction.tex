@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 1, 2015
+August 7, 2015
  
 \end{center}
 
@@ -3108,12 +3108,12 @@ where \ldots{} denotes a list of elements:
 \TT{\{my type: my attribute = 5, my option = FALSE|} ~~~\ldots~~~
     \TT{|my type\}} \\
 \TT{\{my type|} ~~~\ldots~~~
-    \TT{|my type: my attribute = 5, my option\}} \\
-\TT{\{|} ~~~\ldots~~~ \TT{|my type: my attribute = 5, my option\}} \\
+    \TT{|my attribute = 5, my option: my type\}} \\
+\TT{\{|} ~~~\ldots~~~ \TT{|my attribute = 5, my option: my type\}} \\
 \TT{\{|} ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{||\}} \\
 \TT{\{\}} \\
-\TT{\{"": my attribute = 5, not my option|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{"": my attribute = 5, no my option|} ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{*} ~~~\ldots~~~ \TT{*\}} \\
 \end{center}
 
@@ -3122,14 +3122,16 @@ The basic form is
 \TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~
     \TT{|my type\}} \\
 \end{center}
-from which various parts can be omitted.  The attributes can be moved to
-the end (but may not be at both beginning and end).
+from which various parts can be omitted.  Some or all of the
+attributes can be moved to the end.
 The attribute value `\TT{= TRUE}' can be omitted (as in
 `\TT{my option}'), and the attribute value `\TT{= FALSE}' can be represented
 by omitting it and prefacing the attribute label with `\TT{no}'
 (as in `\TT{no my option}').
-The type can be omitted from either beginning or end if there are no attributes
-after it.  If there are no elements, `\TT{|~|}' can be collapsed into
+The type can be omitted from either beginning if there are no attributes
+after it, and can be omitted from the end if there are no attributes
+before it, but of course cannot be omitted from both beginning and
+end.  If there are no elements, `\TT{|~|}' can be collapsed into
 a single lexeme `\TT{||}'.  A missing type is denoted
 by \TT{""} and may be omitted if there are no attributes.
 `\TT{\{||\}}' can be collapsed into `\TT{\{\}}'.  If the type is
@@ -3143,13 +3145,16 @@ The general syntax is:
 \begin{indpar}[0.1in]
 \emkey{typed-bracketed-subexpression} \\
 \hspace*{3em}\begin{tabular}[t]{@{}rl}
-	::= & {\em typed-opening} {\em type-label} {\em attributes}\QMARK{}
-	      {\em typed-elements}
-	      {\em type-label}\QMARK{}
+	::= & {\em typed-opening} {\em type-label}
+	      {\em opening-attributes}\QMARK{}
+	      {\em typed-elements} \\
+	    & {\em closing-attributes}\QMARK{} {\em type-label}
 	      {\em typed-closing} \\
-	$|$ & {\em typed-opening} {\em type-label}\QMARK{}
-	      {\em typed-elements}
-	      {\em type-label} {\em attributes}\QMARK{}
+	$|$ & {\em typed-opening} {\em type-label}
+	      {\em opening-attributes}\QMARK{}
+	      {\em typed-elements} {\em typed-closing} \\
+	$|$ & {\em typed-opening} {\em typed-elements}
+	      {\em closing-attributes}\QMARK{} {\em type-label}
 	      {\em typed-closing} \\
 	$|$ & {\em typed-opening} {\em typed-elements}\QMARK{}
 	      {\em typed-closing} \\
@@ -3160,14 +3165,18 @@ The general syntax is:
 \\[0.5ex]
 \emkey{typed-elements}
 	\begin{tabular}[t]{@{}rl}
-	::= & {\em typed-middle} {\em element-list} {\em typed-middle} \\
+	::= & {\em typed-middle} {\em element-list}
+	      {\em typed-middle} \\
 	$|$ & {\em doubled-typed-middle}
 	\end{tabular}
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
-\emkey{attributes} ::= {\em typed-attribute-begin}
-		       {\em attribute-list}\QMARK{}
+\emkey{opening-attributes} ::= {\em typed-attribute-begin}
+		               {\em attribute-list}\QMARK{}
+\\[0.5ex]
+\emkey{closing-attributes} ::= {\em attribute-list}\QMARK{}
+                               {\em typed-attribute-begin}
 \\[0.5ex]
 \emkey{attribute-list} ::= {\em attribute}
 	\{ {\em typed-attribute-separator} {\em attribute} \}\STAR{}
@@ -3184,7 +3193,7 @@ The general syntax is:
 			{\em attribute-label} \\
 			\end{tabular} \\
                   ::= & {\em attribute-label} \\
-                  ::= & {\em typed-attribute-negative} {\em attribute-label} \\
+                  ::= & {\em typed-attribute-negator} {\em attribute-label} \\
 		  \end{tabular}
 \\[0.5ex]
 \emkey{label} ::= {\em label-component}\PLUS{}
@@ -3211,7 +3220,7 @@ The general syntax is:
     \begin{tabular}[t]{@{}rl}
     ::= & {\em word} or {\em mark} containing only letters
 			    and/or \TT{@\#\$\%\&*-+=<>/} \\
-    $|$ & {\em attribute-flags-index} \\
+    $|$ & {\em attribute-flag-index} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{attribute-flag-index} ::= {\em natural}
@@ -3255,7 +3264,7 @@ The general syntax is:
 \emkey{typed-attribute-equal} ::= ditto
     ~~~~~ [e.g., `\TT{=}']
 \\[0.5ex]
-\emkey{typed-attribute-negative} ::= ditto
+\emkey{typed-attribute-negator} ::= ditto
     ~~~~~ [e.g., `\TT{no}']
 \\[0.5ex]
 \emkey{typed-attribute-flags-opening} ::= ditto
@@ -3280,7 +3289,7 @@ The general syntax is:
 \end{indpar}
 
 The {\em typed-opening/middle/closing} and
-{\em typed-attribute-begin/separator/equal/negative} 
+{\em typed-attribute-begin/separator/equal/negator} 
 are symbol table keys
 from which typed opening and closing
 brackets are constructed.  They are specified by a
@@ -3291,7 +3300,7 @@ which is:
 \TT{parser define typed bracket "\{"~...~"|"~...~"|"~...~"\}"} \\
 \TT{~~~~[text]~} \\
 \TT{~~~~with attributes ":"~...~"="~...~","} \\
-\TT{~~~~with attribute negative "no"} \\
+\TT{~~~~with attribute negator "no"} \\
 \TT{~~~~with attribute flags "["~...~","~...~"]"} \\
 \TT{~~~~with attribute multivalue "{*"~...~","~...~"*}"} \\
 \TT{~~~~}\ldots
@@ -3307,7 +3316,7 @@ which specifies
 `\TT{:}' to be the {\em typed-attribute-begin} \\
 `\TT{=}' to be the {\em typed-attribute-equal} \\
 `\TT{,}' to be the {\em typed-attribute-separator} \\
-`\TT{no}' to be the {\em typed-attribute-negative} \\
+`\TT{no}' to be the {\em typed-attribute-negator} \\
 `\TT{[}' to be the {\em typed-attribute-flags-opening} \\
 `\TT{,}' to be the {\em typed-attribute-flags-separator} \\
 `\TT{]}' to be the {\em typed-attribute-flags-closing} \\
@@ -3331,7 +3340,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{define typed bracket} {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
-	  {}[ \TT{with attribute negative} {\em typed-attribute-negative} ] \\
+	  {}[ \TT{with attribute negator} {\em typed-attribute-negator} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine typed bracket}{typed bracket!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3362,7 +3371,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{typed-closing} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{typed-attribute-negative} ::= {\em quoted-name}
+\emkey{typed-attribute-negator} ::= {\em quoted-name}
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}

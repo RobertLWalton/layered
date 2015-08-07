@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 16:09:02 EDT 2015
+// Date:	Fri Aug  7 15:06:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -244,6 +244,17 @@ extern const uns32 & TYPED_ATTR_NEGATOR;
     // Subtype of
     //     min::packed_struct
     //	       <typed_attr_negator_struct>.
+
+// Selectors for key_table below.
+//
+enum {
+    MIDDLE_SELECTOR	= 1ull << 0,
+        // For TYPED_MIDDLE
+    ATTR_SELECTOR	= 1ull << 1,
+        // For TYPED_ATTR_BEGIN/EQUAL/SEP
+    NEGATOR_SELECTOR	= 1ull << 2
+        // For TYPED_ATTR_NEGATOR
+};
 
 struct typed_opening_struct :
 	public ll::parser::bracketed

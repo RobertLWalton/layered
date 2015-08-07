@@ -3288,11 +3288,64 @@ The general syntax is:
 \emkey{type-mark} ::= {\em mark}
 \end{indpar}
 
-The {\em typed-opening/middle/closing} and
-{\em typed-attribute-begin/separator/equal/negator} 
-are symbol table keys
-from which typed opening and closing
-brackets are constructed.  They are specified by a
+A typed bracketed expression is converted to a
+MIN object whose list elements are the components of the
+subexpression between {\em typed-middles}.  The
+{\em type-label} or {\em type-mark} becomes the \TT{.type}
+attribute of this object.  Any {\em attributes} given in the
+typed bracketed expression become attributes of the object.
+
+If two {\em typed-middle} lexemes with no intervening space
+are lexically scanned as a single lexeme, then this new
+{\em doubled-typed-middle} lexeme can be used in place of
+two {\em typed-middle} lexemes with an intervening space to
+represent an empty list.
+
+If a typed bracketed subexpression ends pre-maturely,
+a parsing error is
+announced and missing but required {\em typed-middle}'s and {\em typed-closings}
+are inserted in the input
+just after the pre-maturely ended subexpression.  Such a pre-mature end can be
+discovered by finding the {\em closing-bracket} of a containing
+untyped bracketed subexpression, the {\em typed-closing}
+of a containing typed bracketed subexpression with a different
+{\em typed-closing}, the end of the paragraph line
+containing the typed bracketed subexpression,
+or an end of file.
+
+Within the {\em element-list}, only the {\em typed-middle} and
+{\em typed-closing} are recognized, and both end the
+{\em element-list} (but ending with a {\em typed-closing} is
+a parser error).  Outside, {\em typed-attribute-begin/equal/separator}
+are also recognized, and if out of place, a parsing error is announced.
+
+The following are keys in the bracketed subexpression
+parser symbol table:
+\begin{center}
+{\em typed-opening} \\
+{\em typed-middle} \\
+{\em typed-closing} \\
+\end{center}
+The {\em typed-opening} and {\em typed-closing} are used to
+delimit the {\em typed-bracketed-subexpression}.
+The {\em typed-middle} is used to change selectors for
+subexpressions recognized as part of the {\em element-list}.
+
+The following are keys in a separate symbol used to post-process
+a {\em typed-bracketed-subexpression} after it has been delmited:
+\begin{center}
+{\em typed-middle} \\
+{\em typed-attribute-begin} \\
+{\em typed-attribute-separator} \\
+{\em typed-attribute-equal} \\
+{\em typed-attribute-negator} \\
+\end{center}
+
+TBD
+
+{\em typed-attribute-flags-opening/separator/closing}, \\
+and {\em typed-attribute-multivalue-opening/separator/closing}
+are symbol table keys specified by a
 \ttkey{parser defined typed bracket} parser definition, an example of
 which is:
 \begin{center}
@@ -3303,7 +3356,6 @@ which is:
 \TT{~~~~with attribute negator "no"} \\
 \TT{~~~~with attribute flags "["~...~","~...~"]"} \\
 \TT{~~~~with attribute multivalue "{*"~...~","~...~"*}"} \\
-\TT{~~~~}\ldots
 \end{tabular}
 \end{center}
 which specifies
@@ -3325,6 +3377,10 @@ which specifies
 `\TT{*\}}' to be the {\em typed-attribute-multivalue-closing} \\
 \end{tabular}
 \end{center}
+
+Note that if a {\em typed-middle} is given in a {\em typed-bracket-name},
+the {\em typed-middle} must be repeated twice and both copies must
+be identical.
 
 The general syntax of {\em parser-typed-bracket-commands} is:
 
@@ -3375,34 +3431,6 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
-
-Note that if a {\em typed-middle} is given in a {\em typed-bracket-name},
-the {\em typed-middle} must be repeated twice and both copies must
-be identical.
-
-A typed bracketed expression is converted to a
-MIN object whose list elements are the components of the
-subexpression between {\em typed-middles}.  The
-{\em type-label} or {\em type-mark} becomes the \TT{.type}
-attribute of this object.  Any attributes given in the
-typed bracketed expression become attributes of the object.
-
-If two {\em typed-middle} lexemes with no intervening space
-are lexically scanned as a single lexeme, then this new
-{\em doubled-typed-middle} lexeme can be used in place of
-two {\em typed-middle} lexemes with an intervening space
-(representing an empty list).
-
-If a typed bracketed subexpression ends pre-maturely,
-its {\em typed-closing} is discovered, a parsing error is
-announced and missing but required {\em typed-middle}'s and {\em typed-closings}
-are inserted in the input
-just after the pre-maturely ended subexpression.  Such a pre-mature end can be
-discovered by finding the {\em closing-bracket} of a containing
-untyped bracketed subexpression, the {\em typed-closing}
-of a containing typed bracketed subexpression, the end of the paragraph line
-containing the typed bracketed subexpression,
-or an end of file.
 
 \subsubsection{Typed Prefix Separators}
 \label{TYPED-PREFIX-SEPARATORS}

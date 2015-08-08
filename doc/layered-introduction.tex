@@ -2571,7 +2571,6 @@ sequences of words, numbers, quoted strings, and
 bracketed subexpressions, and thence form typed brackets
 and typed prefix separators.
 
-TBD
 In bracketed subexpression recognition, 
 multi-lexeme symbol table keys are not recognized in the
 input if their lexemes are not all on the same line.
@@ -2594,7 +2593,7 @@ For untyped brackets that only
 attributes are the syntax attributes \TT{.initiator} and \TT{.terminator}
 plus a \TT{.type} attribute derived from these.  For typed brackets
 the only syntax attribute is the \TT{.type} attribute, but arbitrary
-non-syntax attributes may be encoded in the typed brackets.
+non-syntax attributes may be encoded within the typed brackets.
 
 Subexpressions may occur among the list of tokens that determine the
 object elements or the value of a non-syntax attribute.
@@ -2632,16 +2631,27 @@ The MIN object that is the value of a \TT{BRACKETED} token and
 represents a subexpression may have the following `\skey{syntax attribute}s':
 
 \begin{indpar}[0.4in]
+\hspace*{-0.2in}\ttdmkey{type}{subexpression attribute}\\
+    A MIN string, or a MIN label whose elements are MIN strings,
+    that equals
+    \begin{center}
+    \begin{tabular}{ll}
+       & the {\em type-label} of a typed bracketed subexpression, \\
+    or & \TT{""} for a typed bracketed subexpression with no
+         {\em type-label}, \\
+    or & the {\em indentation-mark-name} of an indented subexpression, \\
+    or & \TT{"<LF>"} for a line \\
+    or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme.
+    \end{tabular}
+    \end{center}
+\medskip
 \hspace*{-0.2in}\ttdmkey{initiator}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
     that equals
     \begin{center}
     \begin{tabular}{ll}
-       & the {\em opening-bracket-name} of a bracketed subexpression, \\
-    or & the {\em indentation-mark-name} of an indented subexpression, \\
-    or & the {\em typed-opening} of a typed bracketed subexpression, \\
-    or & the {\em typed-opening} of a typed operator, \\
-    or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme.
+       & the {\em opening-bracket-name} of
+         an untyped bracketed subexpression, \\
     \end{tabular}
     \end{center}
 \medskip
@@ -2650,50 +2660,22 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     that equals
     \begin{center}
     \begin{tabular}{ll}
-       & the {\em closing-bracket-name} of a bracketed subexpression, \\
-    or & \TT{"<NL>"} if the subexpression is an new-line terminated
-         indented line \\
-       & in an indented paragraph, \\
-    or & the {\em line-separator-name} used to separate lines of an
-         indented paragraph, \\
-    or & the {\em typed-closing} of a typed bracketed subexpression, \\
-    or & the {\em typed-closing} of a typed operator. \\
+       & the {\em closing-bracket-name} of
+         an untyped bracketed subexpression, \\
+    or & the {\em line-separator-name} (e.g. \TT{";"})
+         used to terminate a `line' \\
     \end{tabular}
     \end{center}
 \medskip
 \hspace*{-0.2in}\ttdmkey{separator}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    that equals an operator, such as `\TT{,}' that acts as a
-    separator in a subexpression.
-\\[2ex]
-\hspace*{-0.2in}\ttdmkey{middle}{subexpression attribute}\\
-    A MIN string, or a MIN label whose elements are MIN strings,
-    that equals the {\em typed-middle} of a typed bracketed subexpression.
-\\[2ex]
-\hspace*{-0.2in}\ttdmkey{name}{subexpression attribute}\\
-    A MIN string, or a MIN label whose elements are MIN strings,
-    that equals the {\em bracket-name} of a typed bracketed subexpression
-    or the {\em operator-name} of a {\em typed-operator}.
-\\[2ex]
-\hspace*{-0.2in}\ttdmkey{arguments}{subexpression attribute}\\
-    A MIN object whose elements are the arguments of the
-    {\em opening-typed-bracket} of a typed bracketed subexpression,
-    or of a {\em typed-operator}.  The object is formatted like the
-    \TT{value} of a \TT{BRACKETED} token, except that it has no syntax
-    attributes.  Each argument is either a bracketed subexpression
-    or a quoted string.
-\\[2ex]
-\hspace*{-0.2in}\ttdmkey{keys}{subexpression attribute}\\
-    A MIN object whose elements are the keys of the
-    {\em opening-typed-bracket} of a typed bracketed subexpression,
-    or of a {\em typed-operator}.  The keys are the elements of
-    the object, and the object's only syntax attributes are
-    \TT{.initiator} and \TT{.separator} both of which equal the
-    {\em typed-key-separator} of the {\em opening-typed-bracket}
-    or {\em typed-operator}.
-    The keys and attributes
-    are all either MIN strings or MIN labels with MIN string
-    elements.
+    that equals
+    \begin{center}
+    \begin{tabular}{ll}
+       & the operator (e.g., \TT{","}) that acts as a
+         separator in a subexpression.
+    \end{tabular}
+    \end{center}
 
 \end{indpar}
 
@@ -3294,6 +3276,15 @@ subexpression between {\em typed-middles}.  The
 {\em type-label} or {\em type-mark} becomes the \TT{.type}
 attribute of this object.  Any {\em attributes} given in the
 typed bracketed expression become attributes of the object.
+An attribute with just a {\em typed-attribute-label} and neither
+a {\em typed-attribute-value} or {\em typed-attribute-negator} prefix
+gets the implied value \TT{TRUE}.
+An attribute with a {\em typed-attribute-negator}
+and {\em typed-attribute-label} but no {\em typed-attribute-value}
+gets the implied value \TT{FALSE}.
+
+Note that the MIN object is \underline{not} given \TT{.initiator}
+or \TT{.terminator} attributes.
 
 If two {\em typed-middle} lexemes with no intervening space
 are lexically scanned as a single lexeme, then this new
@@ -3318,6 +3309,19 @@ Within the {\em element-list}, only the {\em typed-middle} and
 {\em element-list} (but ending with a {\em typed-closing} is
 a parser error).  Outside, {\em typed-attribute-begin/equal/separator}
 are also recognized, and if out of place, a parsing error is announced.
+
+When a {\em typed-opening} is recognized, the current parser
+selector set is saved in a stack and
+a new set is computed by modifying the saved set
+according to {\em element-selectors} associated with the
+{\em typed-opening} (see the \TT{parser define typed bracket}
+command below).  The modified selector set becomes the current
+parser selector set while scanning the {\em element-list}.
+But while scanning the type label and attributes, the
+current parser selector set is set to the {\em attribute-selectors}
+associated with the {\em typed-opening} (also see below).
+The saved selector set is restored after the subexpression ending
+{\em typed-closing} is recognized.
 
 A {\em typed-opening} is specified by a
 \ttikey{parser define typed bracket}{typed bracket!parser define}
@@ -3357,8 +3361,7 @@ which specifies
 \end{tabular}
 \end{center}
 
-Note that if a {\em typed-middle} is given in a {\em typed-bracket-name},
-the {\em typed-middle} must be repeated twice and both copies must
+Note that the {\em typed-middle} must be repeated twice and both copies must
 be identical.
 
 The general syntax of {\em parser-typed-bracket-commands} is:
@@ -3529,6 +3532,38 @@ Alternative implementations are acceptable as long
 as the punctuation is recognized where required in the
 various contexts.
 
+The definition
+\begin{indpar}\begin{verbatim}
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+                    [parser]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags "[" ... ", ... "]"
+       with attribute multivalue "{*" ... ", ... "*}"
+       with element selectors [data]
+       with attribute selectors [data]
+       allowing prefixes
+\end{verbatim}\end{indpar}
+is builtin.
+
+The definition
+\begin{indpar}\begin{verbatim}
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+                    [code,math,text]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags "[" ... ", ... "]"
+       with attribute multivalue "{*" ... ", ... "*}"
+       // there are no element selectors
+       with attribute selectors [data]
+       allowing prefixes
+\end{verbatim}\end{indpar}
+is included by the standard parser at the beginning of
+its `\TT{standard}' parser block.  Since there are no
+{\em element-selectors}, the parser context selectors
+for the {\em element-list} of a {\em typed-bracketed-subexpression}
+recognized by this definition are the same as the parser context selectors
+just outside the subexpression.
 
 \subsubsection{Typed Prefix Separators}
 \label{TYPED-PREFIX-SEPARATORS}

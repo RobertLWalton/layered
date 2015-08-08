@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 7, 2015
+August 8, 2015
  
 \end{center}
 
@@ -3319,35 +3319,10 @@ Within the {\em element-list}, only the {\em typed-middle} and
 a parser error).  Outside, {\em typed-attribute-begin/equal/separator}
 are also recognized, and if out of place, a parsing error is announced.
 
-The following are keys in the bracketed subexpression
-parser symbol table:
-\begin{center}
-{\em typed-opening} \\
-{\em typed-middle} \\
-{\em typed-closing} \\
-\end{center}
-The {\em typed-opening} and {\em typed-closing} are used to
-delimit the {\em typed-bracketed-subexpression}.
-The {\em typed-middle} is used to change selectors for
-subexpressions recognized as part of the {\em element-list}.
+A {\em typed-opening} is specified by a
+\ttikey{parser define typed bracket}{typed bracket!parser define}
+parser command.  An example is:
 
-The following are keys in a separate symbol used to post-process
-a {\em typed-bracketed-subexpression} after it has been delmited:
-\begin{center}
-{\em typed-middle} \\
-{\em typed-attribute-begin} \\
-{\em typed-attribute-separator} \\
-{\em typed-attribute-equal} \\
-{\em typed-attribute-negator} \\
-\end{center}
-
-TBD
-
-{\em typed-attribute-flags-opening/separator/closing}, \\
-and {\em typed-attribute-multivalue-opening/separator/closing}
-are symbol table keys specified by a
-\ttkey{parser defined typed bracket} parser definition, an example of
-which is:
 \begin{center}
 \begin{tabular}{l}
 \TT{parser define typed bracket "\{"~...~"|"~...~"|"~...~"\}"} \\
@@ -3355,7 +3330,9 @@ which is:
 \TT{~~~~with attributes ":"~...~"="~...~","} \\
 \TT{~~~~with attribute negator "no"} \\
 \TT{~~~~with attribute flags "["~...~","~...~"]"} \\
-\TT{~~~~with attribute multivalue "{*"~...~","~...~"*}"} \\
+\TT{~~~~with attribute multivalue "\{*"~...~","~...~"*\}"} \\
+\TT{~~~~with element selectors [- data]} \\
+\TT{~~~~with attribute selectors [data]} \\
 \end{tabular}
 \end{center}
 which specifies
@@ -3375,6 +3352,8 @@ which specifies
 `\TT{\{*}' to be the {\em typed-attribute-multivalue-opening} \\
 `\TT{,}' to be the {\em typed-attribute-multivalue-separator} \\
 `\TT{*\}}' to be the {\em typed-attribute-multivalue-closing} \\
+`\TT{[- data]}' to be the {\em element-selectors} \\
+`\TT{[data]}' to be the {\em attribute-selectors} \\
 \end{tabular}
 \end{center}
 
@@ -3396,7 +3375,18 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{define typed bracket} {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
-	  {}[ \TT{with attribute negator} {\em typed-attribute-negator} ] \\
+	  {}[ \TT{with attributes} {\em typed-attribute-punctuation} ] \\
+	  {}[ \TT{with attribute-negator} {\em typed-attribute-negator} ] \\
+	  {}[ \TT{with attribute flags}
+	      {\em typed-attribute-flags-punctuation} ] \\
+	  {}[ \TT{with} \begin{tabular}[t]{l}
+	                \TT{attribute multivalue} \\
+	                {\em typed-attribute-multivalue-punctuation} ]
+			\end{tabular} \\
+	  {}[ \TT{with element selectors}
+	      {\em typed-element-selectors} ] \\
+	  {}[ \TT{with attribute selectors}
+	      {\em typed-attribute-selectors} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine typed bracket}{typed bracket!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3405,17 +3395,23 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{typed-bracket-name} \\
+\emkey{typed-bracket-name} ::= \\
     \hspace*{0.2in}
-     ::= \begin{tabular}[t]{@{}l@{}}
-	 {\em typed-opening} \TT{...} {\em typed-attribute-begin} \\
-	 \TT{...} {\em typed-attribute-equal}
-	 \TT{...} {\em typed-attribute-separator} \\
-         \TT{...} {\em typed-middle} \TT{...} {\em typed-middle} \\
-	 \TT{...} {\em typed-closing}
-	 \end{tabular}
+     {\em typed-opening} \TT{...}
+     \TT{...} {\em typed-middle} \TT{...} {\em typed-middle}
+     \TT{...} {\em typed-closing}
 \\[0.5ex]
 \emkey{typed-opening} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-middle} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-closing} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-attribute-punctuation} ::= \\
+    \hspace*{0.2in}
+     {\em typed-attribute-begin}
+     \TT{...} {\em typed-attribute-equal}
+     \TT{...} {\em typed-attribute-separator}
 \\[0.5ex]
 \emkey{typed-attribute-begin} ::= {\em quoted-name}
 \\[0.5ex]
@@ -3423,14 +3419,116 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{typed-attribute-separator} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{typed-middle} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{typed-closing} ::= {\em quoted-name}
-\\[0.5ex]
 \emkey{typed-attribute-negator} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-attribute-flags-punctuation} ::= \\
+    \hspace*{0.2in}
+     {\em typed-attribute-flags-opening}
+     \begin{tabular}[t]{l}
+     \TT{...} {\em typed-attribute-flags-separator} \\
+     \TT{...} {\em typed-attribute-flags-closing}
+     \end{tabular}
+\\[0.5ex]
+\emkey{typed-attribute-flags-opening} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-attribute-flags-separator} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-attribute-flags-closing} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-attribute-multivalue-punctuation} ::= \\
+    \hspace*{0.2in}
+     {\em typed-attribute-multivalue-opening}
+     \begin{tabular}[t]{l}
+     \TT{...} {\em typed-attribute-multivalue-separator} \\
+     \TT{...} {\em typed-attribute-multivalue-closing}
+     \end{tabular}
+\\[0.5ex]
+\emkey{typed-attribute-multivalue-opening} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-attribute-multivalue-separator} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-attribute-multivalue-closing} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{typed-element-selectors} ::= {\em parser-flag-spec}
+\\[0.5ex]
+\emkey{typed-attribute-selectors} ::= {\em parser-flag-list}
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
+
+A {\em typed-bracketed-subexpression} is first parsed by the
+bracketed subexpression parser, which recognizes:
+
+\begin{itemize}
+
+\item The {\em typed-opening} and {\em typed-closing} that delimit
+the subexpression.  The {\em typed-middle} is also recognized for
+the sole purpose of changing the parsing context selectors during
+the parse.
+
+\item The {\em typed-attribute-flags-punctuation}
+and {\em typed-attribute-multivalue-punctuation}, that are used
+to delimit bracketed subexpressions outside the {\em element-list}.
+
+\end{itemize}
+
+During this parse the operator parser pass operates on subsubexpressions,
+and specifically, parses {\em typed-attribute-flags/multivalue-separators}
+outside the {\em element-list}.
+
+After the bracketed subexpression parser has finished, it calls
+a special typed subexpression reformatter that has its own symbol
+table which includes the {\em typed-middle} and
+{\em typed-attribute-punctuation}.  This reformatted makes the
+MIN object adding the type, attributes, and elements it discovers.
+
+To make all this work, the various punctuation marks defined by
+a {\em parser-typed-bracket-command} are distributed among 3 symbol
+tables as follows:
+
+\begin{center}
+\begin{tabular}{lll}
+Symbol \\
+Table & Punctuation & Selectors
+\\[1ex]
+Bracketed
+    & {\em typed-opening} & {\em parsing-selectors} \\
+Subexpression
+    & {\em typed-middle} & \TT{always} \\
+Parser
+    & {\em typed-closing} & \TT{always} \\
+    & {\em typed-attribute-flags-opening}
+    & {\em typed-attribute-selectors} \\
+    & {\em typed-attribute-flags-separator} & \TT{always} \\
+    & {\em typed-attribute-flags-closing} & \TT{always} \\
+    & {\em typed-attribute-multivalue-opening}
+    & {\em typed-attribute-selectors} \\
+    & {\em typed-attribute-multivalue-separator} & \TT{always} \\
+    & {\em typed-attribute-multivalue-closing} & \TT{always}
+\\[1ex]
+Operator
+    & {\em typed-attribute-flags-separator}
+    & {\em typed-attribute-selectors} \\
+Parser
+    & {\em typed-multivalue-flags-separator}
+    & {\em typed-attribute-selectors} \\
+\\[1ex]
+Internal
+    & {\em typed-middle} & (internal) \\
+Typed
+    & {\em typed-attribute-begin} & (internal) \\
+Subexpression
+    & {\em typed-attribute-equal} & (internal) \\
+Reformatter
+    & {\em typed-attribute-separator} & (internal) \\
+
+\end{tabular}
+\end{center}
+
+Alternative implementations are acceptable as long
+as the punctuation is recognized where required in the
+various contexts.
+
 
 \subsubsection{Typed Prefix Separators}
 \label{TYPED-PREFIX-SEPARATORS}

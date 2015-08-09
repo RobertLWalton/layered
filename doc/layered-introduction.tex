@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 8, 2015
+August 9, 2015
  
 \end{center}
 
@@ -3390,6 +3390,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	      {\em typed-element-selectors} ] \\
 	  {}[ \TT{with attribute selectors}
 	      {\em typed-attribute-selectors} ] \\
+	  {}[ \TT{with prefix separator allowed} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine typed bracket}{typed bracket!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3458,6 +3459,10 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
+
+Here the `\TT{with prefix separator allowed}' option premits the use of
+the typed brackets for {\em typed-prefix-separators} described in
+Section \itemref{TYPED-PREFIX-SEPARATORS}.
 
 A {\em typed-bracketed-subexpression} is first parsed by the
 bracketed subexpression parser, which recognizes:
@@ -3542,7 +3547,7 @@ parser define typed bracket "{" ... "|" ... "|" ... "}"
        with attribute multivalue "{*" ... ", ... "*}"
        with element selectors [data]
        with attribute selectors [data]
-       allowing prefixes
+       with prefix separators allowed
 \end{verbatim}\end{indpar}
 is builtin.
 
@@ -3556,7 +3561,7 @@ parser define typed bracket "{" ... "|" ... "|" ... "}"
        with attribute multivalue "{*" ... ", ... "*}"
        // there are no element selectors
        with attribute selectors [data]
-       allowing prefixes
+       with prefix separators allowed
 \end{verbatim}\end{indpar}
 is included by the standard parser at the beginning of
 its `\TT{standard}' parser block.  Since there are no
@@ -3587,7 +3592,7 @@ The general syntax is:
 \begin{indpar}[0.1in]
 \emkey{typed-prefix-separator}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em typed-opening} {\em type-label} {\em attributes}\QMARK{}
+    ::= & {\em typed-opening} {\em type-label} {\em opening-attributes}\QMARK{}
 	                      {\em typed-closing} \\
     $|$ & {\em typed-opening} {\em type-mark} {\em typed-closing} \\
     \end{tabular}
@@ -3659,7 +3664,9 @@ is just alternate syntax for
 \TT{\{T| X Y Z |\}}
 \end{center}
 
-
+The `\TT{with prefix separators allowed}' option to a
+{\em parser-typed-backet-command} enables use of the command
+defined punctuation to construct {\em typed-prefix-separators}.
 
 \subsubsection{The Print Bracket Command}
 

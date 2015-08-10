@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  7 15:06:23 EDT 2015
+// Date:	Mon Aug 10 15:42:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -263,6 +263,11 @@ struct typed_opening_struct :
     // Packed_struct subtype is TYPED_OPENING.
     // Typed_opening is closed by closing_bracket.
     
+    // Element selectors are in opening_bracket_struct::
+    // new_selectors.  Attribute selectors are here:
+    //
+    ll::parser::table::flags attr_selectors;
+
     const ll::parser::table::key_table key_table;
         // This key_table contains the following compo-
 	// nents which are used by the typed_bracketed_
@@ -285,6 +290,10 @@ struct typed_opening_struct :
     const ll::parser::bracketed
                     ::typed_attr_negator
           typed_attr_negator;
+
+    // Components used to process attribute flags and
+    // multivalues.
+    //
     const min::gen typed_attr_flags_initiator;
     const min::flag_parser * typed_attr_flag_parser;
     const min::gen typed_attr_multivalue_initiator;
@@ -421,7 +430,8 @@ ll::parser::bracketed::typed_opening
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
-	      & new_selectors,
+	      & element_selectors,
+	  ll::parser::table::flags attr_selectors,
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
 	      reformatter_arguments,
@@ -599,6 +609,15 @@ ll::parser::pass new_pass ( void );
 // that is a pair consisting first of the .initiator
 // label and second the .terminator label.  For typed
 // brackets just the .type is set.
+//
+// If the subexpression is a typed bracketed subexpres-
+// sion, this is recognized by the indentation_mark
+// argument being NULL_STUB and the top of the bracket
+// stack opening bracket being a typed_opening.  In this
+// case the selectors argument is the element selectors,
+// the attribute selectors are in the typed_opening,
+// and the typed_middle is detected and used to change
+// selectors.
 //
 // Sub-subexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list

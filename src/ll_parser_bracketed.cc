@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 10 15:53:01 EDT 2015
+// Date:	Tue Aug 11 06:48:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -409,18 +409,25 @@ BRA::typed_opening
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
 
-    min::locatable_var<BRA::typed_middle> middle
+    min::locatable_var<BRA::typed_middle> middle1
         ( ::typed_middle_type.new_stub() );
-    label_ref(middle)  = typed_middle;
+    min::locatable_var<BRA::typed_middle> middle2
+        ( ::typed_middle_type.new_stub() );
+    label_ref(middle1)  = typed_middle;
+    label_ref(middle2)  = typed_middle;
 
-    typed_middle_ref(opening)  = middle;
-    typed_opening_ref(middle)  = opening;
+    typed_middle_ref(opening)  = middle1;
+    typed_opening_ref(middle1)  = opening;
 
-    middle->selectors  = BRA::MIDDLE_SELECTOR;
-    middle->block_level  = block_level;
-    middle->position  = position;
+    middle1->selectors  = PAR::ALWAYS_SELECTOR;
+    middle2->selectors  = BRA::MIDDLE_SELECTOR;
+    middle1->block_level  = block_level;
+    middle2->block_level  = block_level;
+    middle1->position  = position;
+    middle2->position  = position;
 
-    TAB::push ( key_table, (TAB::root) middle );
+    TAB::push ( bracket_table, (TAB::root) middle1 );
+    TAB::push ( key_table, (TAB::root) middle2 );
 
     if ( typed_attr_begin != min::MISSING() )
     {
@@ -996,7 +1003,7 @@ bool BRA::parse_bracketed_subexpression
     //
     BRA::typed_opening typed_opening = min::NULL_STUB;
     TAB::flags saved_selectors;
-    if ( indentation_mark != min::NULL_STUB
+    if ( indentation_mark == min::NULL_STUB
          &&
 	 bracket_stack_p != NULL )
     {
@@ -1735,6 +1742,35 @@ bool BRA::parse_bracketed_subexpression
 
 		// Closing bracket does not match any
 		// bracket stack entry; reject key.
+	    }
+	    else if (    subtype
+	              == BRA::TYPED_MIDDLE )
+	    {
+		if ( typed_opening != min::NULL_STUB
+		     &&
+		        typed_opening->typed_middle
+		     == (BRA::typed_middle) root )
+		{
+		    if ( saved_selectors != 0 )
+		    {
+			// Beginning of element list
+			//
+			selectors = saved_selectors;
+			saved_selectors = 0;
+		    }
+		    else
+		    {
+			// End of element list
+			//
+			saved_selectors = selectors;
+			selectors =
+			      typed_opening->
+			          attr_selectors
+			    | PAR::ALWAYS_SELECTOR;
+		    }
+
+		    break;
+		}
 	    }
 	    else if ( subtype == BRA::INDENTATION_MARK
 	              &&

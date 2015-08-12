@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  2 12:30:59 EDT 2015
+// Date:	Wed Aug 12 03:35:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,9 +46,15 @@ min::locatable_gen PAR::left_parenthesis;
 min::locatable_gen PAR::right_parenthesis;
 min::locatable_gen PAR::left_square;
 min::locatable_gen PAR::right_square;
+min::locatable_gen PAR::left_curly;
+min::locatable_gen PAR::right_curly;
 min::locatable_gen PAR::comma;
+min::locatable_gen PAR::colon;
+min::locatable_gen PAR::equal;
+min::locatable_gen PAR::vbar;
 min::locatable_gen PAR::always_lexeme;
 min::locatable_gen PAR::parser_lexeme;
+min::locatable_gen PAR::data_lexeme;
 min::locatable_gen PAR::standard_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
@@ -96,10 +102,16 @@ static void initialize ( void )
     PAR::right_parenthesis = min::new_str_gen ( ")" );
     PAR::left_square = min::new_str_gen ( "[" );
     PAR::right_square = min::new_str_gen ( "]" );
+    PAR::left_curly = min::new_str_gen ( "{" );
+    PAR::right_curly = min::new_str_gen ( "}" );
     PAR::comma = min::new_str_gen ( "," );
+    PAR::colon = min::new_str_gen ( ":" );
+    PAR::equal = min::new_str_gen ( "=" );
+    PAR::vbar = min::new_str_gen ( "|" );
 
     PAR::always_lexeme = min::new_str_gen ( "always" );
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
+    PAR::data_lexeme = min::new_str_gen ( "data" );
     PAR::standard_lexeme =
         min::new_str_gen ( "standard" );
 
@@ -661,6 +673,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::parser_lexeme ) );
+	MIN_REQUIRE
+	    (    PAR::DATA_SELECTOR
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::data_lexeme ) );
 
 	parser->selectors = PAR::ALWAYS_SELECTOR;
 
@@ -718,6 +735,33 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      min::NULL_STUB, min::NULL_STUB, 0,
+	      bracketed_pass->bracket_table );
+
+	min::locatable_gen no
+	    ( min::new_str_gen ( "no" ) );
+	min::locatable_gen curly_star
+	    ( min::new_lab_gen ( "{", "*" ) );
+	min::locatable_gen typed_bracketed_name
+	    ( min::new_lab_gen ( "typed", "bracketed" ) );
+	BRA::push_typed_brackets
+	    ( PAR::left_curly, PAR::vbar,
+	      PAR::right_curly,
+	      PAR::PARSER_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags
+		  ( PAR::DATA_SELECTOR,
+		    TAB::ALL_FLAGS ^ PAR::DATA_SELECTOR,
+		    0 ),
+	      PAR::DATA_SELECTOR,
+	      PAR::find_reformatter
+		  ( typed_bracketed_name,
+		    BRA::reformatter_stack ),
+	      min::NULL_STUB, 0,
+	      PAR::colon, PAR::equal, PAR::comma,
+	      no,
+	      PAR::left_square,
+	      min::standard_attr_flag_parser,
+	      curly_star,
 	      bracketed_pass->bracket_table );
 
 	if ( define_standard )

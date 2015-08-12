@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 10 15:54:51 EDT 2015
+// Date:	Wed Aug 12 04:18:01 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,21 +59,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
         1ull << TAB::find_name
 	    ( parser->selector_name_table, data_name );
 
-    min::locatable_gen opening_parenthesis
-        ( min::new_str_gen ( "(" ) );
-    min::locatable_gen closing_parenthesis
-        ( min::new_str_gen ( ")" ) );
-
-    min::locatable_gen opening_square
-        ( min::new_str_gen ( "[" ) );
-    min::locatable_gen closing_square
-        ( min::new_str_gen ( "]" ) );
-
-    min::locatable_gen opening_brace
-        ( min::new_str_gen ( "{" ) );
-    min::locatable_gen closing_brace
-        ( min::new_str_gen ( "}" ) );
-
     min::locatable_gen opening_double_brace
         ( min::new_lab_gen ( "{", "{" ) );
     min::locatable_gen closing_double_brace
@@ -89,17 +74,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::locatable_gen angle_closing_square
         ( min::new_lab_gen ( ">", "]" ) );
 
-    min::locatable_gen colon
-        ( min::new_str_gen ( ":" ) );
-    min::locatable_gen semicolon
-        ( min::new_str_gen ( ";" ) );
-    min::locatable_gen comma
-        ( min::new_str_gen ( "," ) );
-    min::locatable_gen bar
-        ( min::new_str_gen ( "|" ) );
-    min::locatable_gen equal
-        ( min::new_str_gen ( "=" ) );
-
     min::locatable_gen no
         ( min::new_str_gen ( "no" ) );
 
@@ -111,16 +85,16 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::uns32 block_level =
         PAR::block_level ( parser );
     BRA::push_brackets
-        ( opening_parenthesis,
-	  closing_parenthesis,
+        ( PAR::left_parenthesis,
+	  PAR::right_parenthesis,
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  min::NULL_STUB, min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
-        ( opening_square,
-          closing_square,
+        ( PAR::left_square,
+          PAR::right_square,
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
@@ -171,25 +145,24 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark
-        ( colon, semicolon,
+        ( PAR::colon, PAR::semicolon,
 	  code,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  bracketed_pass->bracket_table );
 
     BRA::push_typed_brackets
-        ( opening_brace, bar, closing_brace,
+        ( PAR::left_curly, PAR::vbar, PAR::right_curly,
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( data, TAB::ALL_FLAGS ^ data, 0 ),
+	  TAB::new_flags ( 0, 0, 0 ),
 	  data,
 	  PAR::find_reformatter
 	      ( typed_bracketed_name,
 	        BRA::reformatter_stack ),
 	  min::NULL_STUB, 0,
-	  colon, equal, comma, no,
-	  opening_square,
+	  PAR::colon, PAR::equal, PAR::comma, no,
+	  PAR::left_square,
 	  min::standard_attr_flag_parser,
 	  opening_brace_star,
 	  bracketed_pass->bracket_table );

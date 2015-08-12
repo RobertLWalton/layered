@@ -1,15 +1,15 @@
 parser print selector "":
-    block standard: data
     block standard: text
     block standard: math
     block standard: code
+    block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print pass:
     top
 parser print context "":
     block standard: default [code]
     block TOP LEVEL: default []
-    block TOP LEVEL: parser [+ parser, - code, - math, - text, - data]
+    block TOP LEVEL: parser [+ parser, - data, - code, - math, - text]
     block TOP LEVEL: parser test []
 parser print pass:
     top
@@ -18,10 +18,10 @@ parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]
 parser print selector "":
-    block standard: data
     block standard: text
     block standard: math
     block standard: code
+    block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print operator "":
     not found

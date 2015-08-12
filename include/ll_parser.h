@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  2 12:29:13 EDT 2015
+// Date:	Tue Aug 11 11:36:36 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,9 +50,15 @@ namespace ll { namespace parser {
 			// )
 	left_square,    // [
 	right_square,   // ]
+	left_curly,     // }
+	right_curly,    // {
 	comma,		// ,
+	colon,		// :
+	equal,		// =
+	vbar,		// |
 	always_lexeme,	// always
 	parser_lexeme,	// parser
+	data_lexeme,	// data
 	standard_lexeme,// standard
 	error_operator,	// ERROR'OPERATOR
 	error_operand,	// ERROR'OPERAND
@@ -918,7 +924,8 @@ enum {
 
     ALWAYS_SELECTOR			= 1ull << 0,
         // Hidden selector that is always on.
-    PARSER_SELECTOR			= 1ull << 1
+    PARSER_SELECTOR			= 1ull << 1,
+    DATA_SELECTOR			= 1ull << 2
 };
 
 namespace bracketed {

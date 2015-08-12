@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 12 03:32:27 EDT 2015
+// Date:	Wed Aug 12 13:54:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,7 +68,7 @@ int main ( int argc, const char * argv[] )
     ASSERT (    TAB::find ( opening_brace,
 		            TAB::ALL_FLAGS,
     			    bracket_table )
-	     != min::NULL_STUB );
+	     == min::NULL_STUB );
 
     min::phrase_position pp;
 

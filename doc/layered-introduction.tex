@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 9, 2015
+August 12, 2015
  
 \end{center}
 
@@ -2852,18 +2852,24 @@ of an associated {\em opening-bracket}.
 
 The definition
 \begin{indpar}\begin{verbatim}
+parser define bracket "(" ... ")" [parser]
 parser define bracket "[" ... "]" [parser]
 \end{verbatim}\end{indpar}
 is builtin.
 
 The definitions
 \begin{indpar}\begin{verbatim}
-parser define bracket "(" ... ")" [code,math,text]
-parser define bracket "[" ... "]" [code,math,text]
-parser define bracket "{" ... "}" [code,math,text]
+parser define bracket "(" ... ")" [code, math, text, data]
+parser define bracket "[" ... "]" [code, math, text, data]
+parser define bracket "{{" ... "}}" [code, math, text]
        with parsing selectors [ + math, - code, - text]
-parser define bracket "`" ... "'" [code,math,text]
+parser define bracket "{{" ... "}}" [data]
+parser define bracket "`" ... "'" [code, math, text]
        with parsing selectors [ + text, - code, - math]
+parser define bracket "`" ... "'" [data]
+parser define bracket "[<" ... ">]" [code, math, text, data]
+       with parsing selectors [data]
+       with reformatter label
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.
@@ -3073,6 +3079,13 @@ if it appears on a line by itself and is less indented than the first
 following non-comment non-blank line.
 Comments at the beginning or end of a file cannot be
 in error.
+
+The definition
+\begin{indpar}\begin{verbatim}
+parser define indentation mark ":" ... ";" [code]
+\end{verbatim}\end{indpar}
+is included by the standard parser at the beginning of
+its `\TT{standard}' parser block.
 
 \subsubsection{Typed Bracketed Subexpressions}
 \label{TYPED-BRACKETED-SUBEXPRESSIONS}
@@ -3540,21 +3553,7 @@ various contexts.
 The definition
 \begin{indpar}\begin{verbatim}
 parser define typed bracket "{" ... "|" ... "|" ... "}"
-                    [parser]
-       with attributes ":" ... "=" ... ","
-       with attribute negator "no"
-       with attribute flags "[" ... ", ... "]"
-       with attribute multivalue "{*" ... ", ... "*}"
-       with element selectors [data]
-       with attribute selectors [data]
-       with prefix separators allowed
-\end{verbatim}\end{indpar}
-is builtin.
-
-The definition
-\begin{indpar}\begin{verbatim}
-parser define typed bracket "{" ... "|" ... "|" ... "}"
-                    [code,math,text]
+                    [code, math, text, data]
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
        with attribute flags "[" ... ", ... "]"

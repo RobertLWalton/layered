@@ -373,7 +373,8 @@ The following \underline{unchecked} (\itemref{UNCHECKED-BLOCKS})
 conversion operator is defined:
 \begin{center}
 
-$t2$ ~~ \TT{<{}<**} ~~ $t1${\em -type-value}
+$t2$ ~~ \TT{<{}<**} ~~ $t1${\em -type-value}%
+\label{<<**}
 
 for any two builtin number types $t1$ and $t2$
 
@@ -439,7 +440,7 @@ compile-time type.
 A defined type with an integer underlying type
 may have \skey{enumeration value}s.  These are unique integer
 values assigned to enumeration constant names during compilation,
-and then reassigned to possibly different values during linking.
+and then reassigned to possibly different unique integer values during linking.
 
 A statement of the following form defines an \key{enumeration type}
 that has enumeration values:
@@ -489,6 +490,20 @@ value of the underlying type.  If {\em enum-range} is not given,
 it is assumed to be `\TT[0 ...]'.  It is an error if `\TT{next enum}'
 would return a value beyond the {\em last-enum} value in a range.
 
+Unchecked \TT{<<**} (\pagref{<<**}) may be used to convert
+an enumeration value to an integer type.  Normally the integer
+returned will be the link time value of the enumeration value.
+However, if used in a compile-time expression, it will be the
+compile time value of the enumeration value.
+
+Unchecked \TT{<<**} (\pagref{<<**}) can also be used to convert
+an integer to an enumeration value.  For this to work sensibly,
+the integer value should be \underline{outside} the specified
+range of the enumeration value's type.  An implication of this
+is that the compiler and run-time system cannot assume that
+an enumeration value is within the range of the
+enumeration value's type.
+
 \subsection{Type Values}
 \label{TYPE-VALUES}
 
@@ -524,7 +539,7 @@ The address of a value of type \TT{T} in RAM should
 optimally be a multiple of the \TT{alignment}.
 The alignment of builtin types is usually their size.
 
-\hspace*{-0.3in}{\tt (type B) = \ttkey{base of}
+\hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
 			( type T )} \\
 Returns the parent type \TT{B} of the type \TT{T}.  For defined
 types this is the associated builtin type.  For builtin types, it is

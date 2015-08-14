@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 24, 2015
+August 14, 2015
  
 \end{center}
 
@@ -185,7 +185,7 @@ differs in the following ways:
 \begin{enumerate}
 
 \item
-L-Language facilitates isolating untype-safe code into small inline functions.
+L-Language facilitates isolating non-type-safe code into small inline functions.
 
 \item
 All L-Language data types are builtin number types or subtypes of
@@ -193,7 +193,7 @@ builtin number types.  All data managed directly by L-Language consists
 of single numbers allocated to the stack.
 
 Other memory is handled by code
-encapsulated in small untype-safe inline functions by the programmer.
+encapsulated in small non-type-safe inline functions by the programmer.
 Memory references other than those to single stack allocated numbers
 are treated in a manner reminiscent of input/output.
 
@@ -204,8 +204,9 @@ argument values, such as the value of a `\TT{type}' valued
 argument, can be used to select overloaded functions.
 
 \item
-All L-Language functions are inline.  Programmer written untype-safe
-functions are used to implement out-of-line function calls.
+All L-Language functions are inline.  Out-of-line functions can be
+called using a block syntax that mirrors the overhead involved in
+manipulating an argument stack in memory.
 
 \item
 L-Language associates formatting functions
@@ -238,7 +239,7 @@ There is one builtin define typed, the `\TT{type}' type.
 \label{NUMBER-TYPES}
 
 Numbers are sequences of bits, and each number is one of
-four types, unsigned integer, signed integer, floating point number,
+four kinds, unsigned integer, signed integer, floating point number,
 and address:
 
 \begin{indpar}
@@ -378,9 +379,23 @@ for any two builtin number types $t1$ and $t2$
 
 \end{center}
 
-Here the results are undefined if the value cannot be expressed
-as type $t2$, and approximate if the value can be expressed
-with low order numeric bits lost.
+Here the results are undefined if the $t1$-value cannot be expressed
+as type $t2$, except in the following cases:
+\begin{itemize}
+\item If $t1$ is a floating point type
+and $t2$ is an integer type large enough to hold the integral part
+of the number being converted, the fractional part of
+the floating point number is discarded, thereby rounding toward
+zero.
+\item If $t2$ is a floating point type large
+enough to hold an exact representation of the highest order
+part of the $t1$-value, the result is the rounded $t1$-value,
+where the method of rounding is indeterminate.
+\item If $t1$ is an integer type and $t2$ is an unsigned type that cannot
+hold the value being converted, the result is the $t2$ value that
+equals module $2^n$ the $t1$-value, where $n$ is the length in bits
+of $t2$.
+\end{itemize}
 
 
 \subsection{The Void Type}

@@ -35,27 +35,29 @@ parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
 ======= END TEST
 parser define operator "/" [code, math] infix
-       with binary reformatter with precedence -100
+       with binary reformatter ( "/" )
+       with precedence -100
 parser print operator "/":
     block block: operator "/" [code, math]
                  infix
                  with precedence -100
-                 with reformatter binary
+                 with reformatter binary ( "/" )
 parser define operator "^" [code, math] infix
-       with binary reformatter with precedence +100
+       with binary reformatter ( "^" )
+       with precedence +100
 ======= TEST: parser test
                   {"": .operator = "/", .terminator = ")", .initiator =
                        "("|/ x {"": .operator = "^"|^ y {|z w|}|}|}
-------- line 31:
+------- line 33:
 parser test ( x / y ^ z w )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 31:
+------- line 33:
 parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
-------- line 31:
+------- line 33:
 parser test ( x / y ^ z w )
                   ^^^^^^^
-------- line 31:
+------- line 33:
 parser test ( x / y ^ z w )
                       ^^^
 ======= END TEST
@@ -63,31 +65,31 @@ parser print operator "":
     block block: operator "/" [code, math]
                  infix
                  with precedence -100
-                 with reformatter binary
+                 with reformatter binary ( "/" )
     block block: operator "^" [code, math]
                  infix
                  with precedence 100
-                 with reformatter binary
+                 with reformatter binary ( "^" )
 parser undefine operator "/" [code, math] infix
        with precedence -100
 parser print operator "/":
     block block: operator "/" []
                  infix
                  with precedence -100
-                 with reformatter binary
+                 with reformatter binary ( "/" )
 ======= TEST: parser test
                   {"": .operator = "^", .terminator = ")", .initiator =
                        "("|^ {|x / y|} {|z w|}|}
-------- line 36:
+------- line 38:
 parser test ( x / y ^ z w )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 36:
+------- line 38:
 parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
-------- line 36:
+------- line 38:
 parser test ( x / y ^ z w )
               ^^^^^
-------- line 36:
+------- line 38:
 parser test ( x / y ^ z w )
                       ^^^
 ======= END TEST
@@ -95,63 +97,63 @@ parser end block
 parser print operator "":
     not found
 ======= TEST: parser test (x / y ^ z w)
-------- line 39:
+------- line 41:
 parser test ( x / y ^ z w )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 39:
+------- line 41:
 parser test ( x / y ^ z w )
             ^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 44: expected `with precedence ...' after:
-       with binary reformatter
-                   ^^^^^^^^^^^
-ERROR: in line 45: expected operator flags after:
+ERROR: in line 46: expected `with precedence ...' after:
+       with binary reformatter ( "+" )
+                               ^^^^^^^
+ERROR: in line 47: expected operator flags after:
 parser define operator "+" [code, math]
                            ^^^^^^^^^^^^
-ERROR: in line 48: operator flags nofix and infix are incompatible:
+ERROR: in line 50: operator flags nofix and infix are incompatible:
 parser define operator "+" [code, math] infix nofix
                                         ^^^^^^^^^^^
-ERROR: in lines 51-53: `right associative' reformatter incompatible with
+ERROR: in lines 53-55: `right associative' reformatter incompatible with
        nofix operator flag(s):
 parser define operator "+" [code, math] nofix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with precedence 3000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-       with right associative reformatter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 56: undefined reformatter name:
-       with none such reformatter
+       with right associative reformatter ( "+" )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line 58: undefined reformatter name:
+       with none such reformatter ( "+" )
             ^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 57: expected `with precedence ...' after:
+ERROR: in line 59: expected `with precedence ...' after:
 parser undefine operator "+" [code, math] infix
                                           ^^^^^
-ERROR: in lines 58-60: did NOT expect `with ... reformatter':
+ERROR: in lines 60-62: did NOT expect `with ... reformatter':
 parser undefine operator "+" [code, math] infix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with precedence 3000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-       with binary reformatter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 61: expected operator flags after:
+       with binary reformatter ( "+" )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line 63: expected operator flags after:
 parser undefine operator "+" [code, math]
                              ^^^^^^^^^^^^
 parser print operator "":
     not found
 parser define operator "=" [code, math] infix
        with precedence 1000
-       with right associative reformatter
+       with right associative reformatter ( "=" )
 parser define operator "+=" [code, math] infix
        with precedence 1000
-       with right associative reformatter
+       with right associative reformatter ( "=" )
 parser define operator "-=" [code, math] infix
        with precedence 1000
-       with right associative reformatter
+       with right associative reformatter ( "=" )
 parser define operator "*=" [code, math] infix
        with precedence 1000
-       with right associative reformatter
+       with right associative reformatter ( "=" )
 parser define operator "/=" [code, math] infix
        with precedence 1000
-       with right associative reformatter
+       with right associative reformatter ( "=" )
 ======= TEST: parser test
                   {"": .operator = "=", .terminator = ")", .initiator =
                        "("|= x
@@ -159,83 +161,83 @@ parser define operator "/=" [code, math] infix
                             {"": .operator = "*="|*= {|z w|}
                                  {"": .operator = "="|= {|p q r|}
                                       {|t v|}|}|}|}|}
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
                  ^^^^^^^^^^^^^^^^^^^^^^^
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
                       ^^^^^^^^^^^^^^^^^^
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
                       ^^^
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
                              ^^^^^^^^^^^
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
                              ^^^^^
-------- line 82:
+------- line 84:
 parser test (x = y += z w *= p q r = t v)
                                      ^^^
 ======= END TEST
 parser define operator "," [code, math] nofix
        with precedence 2000
-       with separator reformatter ( "," )
+       with separator reformatter ( ",", "," )
 ======= TEST: parser test (x, y1, {|z w|}, {}, 3, {})
-------- line 87:
+------- line 89:
 parser test (x, y1, z w,, 3,)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 87:
+------- line 89:
 parser test (x, y1, z w,, 3,)
             ^^^^^^^^^^^^^^^^^
-------- line 87:
+------- line 89:
 parser test (x, y1, z w,, 3,)
                     ^^^
-------- line 87:
+------- line 89:
 parser test (x, y1, z w,, 3,)
                         ^
-------- line 87:
+------- line 89:
 parser test (x, y1, z w,, 3,)
                             ^
 ======= END TEST
 parser define operator "BUT NOT" [code, math] infix
        with precedence 3000
-       with binary reformatter
+       with binary reformatter ( "logical" )
 parser define operator "AND" [code, math] infix
        with precedence 3100
-       with infix reformatter
+       with infix reformatter ( "logical" )
 parser define operator "OR" [code, math] infix
        with precedence 3100
-       with infix reformatter
+       with infix reformatter ( "logical" )
 parser define operator "NOT" [code, math] nofix
        with precedence 3100
-       with unary reformatter
+       with unary reformatter ( "logical" )
 ======= TEST: parser test
                   {"": .operator = [< "BUT" "NOT" >], .terminator = ")",
                        .initiator = "("|[< BUT NOT >]
                        {"": .operator = "OR"|OR x y|}
                        {"": .operator = "AND"|AND z w|}|}
-------- line 101:
+------- line 103:
 parser test (x OR y BUT NOT z AND w)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 101:
+------- line 103:
 parser test (x OR y BUT NOT z AND w)
             ^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 101:
+------- line 103:
 parser test (x OR y BUT NOT z AND w)
              ^^^^^^
-------- line 101:
+------- line 103:
 parser test (x OR y BUT NOT z AND w)
                             ^^^^^^^
 ======= END TEST
 ERROR: wrong operator `OR' changed to `AND'; all operators must be the
-       same in this subexpression; line 102:
+       same in this subexpression; line 104:
 parser test (x OR y BUT NOT z AND w OR p)
                             ^^^^^^^^^^^^
 ======= TEST: parser test
@@ -243,147 +245,147 @@ parser test (x OR y BUT NOT z AND w OR p)
                        .initiator = "("|[< BUT NOT >]
                        {"": .operator = "OR"|OR x y|}
                        {"": .operator = "AND"|AND z w p|}|}
-------- line 102:
+------- line 104:
 parser test (x OR y BUT NOT z AND w OR p)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 102:
+------- line 104:
 parser test (x OR y BUT NOT z AND w OR p)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 102:
+------- line 104:
 parser test (x OR y BUT NOT z AND w OR p)
              ^^^^^^
-------- line 102:
+------- line 104:
 parser test (x OR y BUT NOT z AND w OR p)
                             ^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "NOT", .terminator = ")",
                        .initiator = "("|NOT {|x y|}|}
-------- line 103:
+------- line 105:
 parser test (NOT x y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 103:
+------- line 105:
 parser test (NOT x y)
             ^^^^^^^^^
-------- line 103:
+------- line 105:
 parser test (NOT x y)
                  ^^^
 ======= END TEST
-ERROR: expected an operator and got `x'; deleted; line 104:
+ERROR: expected an operator and got `x'; deleted; line 106:
 parser test (x NOT y)
              ^
 ======= TEST: parser test
                   {"": .operator = "NOT", .terminator = ")",
                        .initiator = "("|NOT y|}
-------- line 104:
+------- line 106:
 parser test (x NOT y)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 104:
+------- line 106:
 parser test (x NOT y)
             ^^^^^^^^^
 ======= END TEST
-ERROR: extra stuff at end of unary expression; deleted; line 105:
+ERROR: extra stuff at end of unary expression; deleted; line 107:
 parser test (NOT x AND y)
                    ^^^^^
 ======= TEST: parser test
                   {"": .operator = "NOT", .terminator = ")",
                        .initiator = "("|NOT x|}
-------- line 105:
+------- line 107:
 parser test (NOT x AND y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 105:
+------- line 107:
 parser test (NOT x AND y)
             ^^^^^^^^^^^^^
 ======= END TEST
-ERROR: missing operand inserted; line 106:
+ERROR: missing operand inserted; line 108:
 parser test (x AND NOT y)
                   ^
 ERROR: wrong operator `NOT' changed to `AND'; all operators must be the
-       same in this subexpression; line 106:
+       same in this subexpression; line 108:
 parser test (x AND NOT y)
              ^^^^^^^^^^^
 ======= TEST: parser test
                   {"": .operator = "AND", .terminator = ")",
                        .initiator = "("|AND x ERROR'OPERAND y|}
-------- line 106:
+------- line 108:
 parser test (x AND NOT y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 106:
+------- line 108:
 parser test (x AND NOT y)
             ^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "AND", .terminator = ")",
                        .initiator = "("|AND x {|AND y|}|}
-------- line 107:
+------- line 109:
 parser test (x AND AND y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 107:
+------- line 109:
 parser test (x AND AND y)
             ^^^^^^^^^^^^^
-------- line 107:
+------- line 109:
 parser test (x AND AND y)
                    ^^^^^
 ======= END TEST
-ERROR: expected operand and got `NOT'; deleted; line 108:
+ERROR: expected operand and got `NOT'; deleted; line 110:
 parser test (NOT NOT x y)
                  ^^^
 ======= TEST: parser test
                   {"": .operator = "NOT", .terminator = ")",
                        .initiator = "("|NOT {|x y|}|}
-------- line 108:
+------- line 110:
 parser test (NOT NOT x y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 108:
+------- line 110:
 parser test (NOT NOT x y)
             ^^^^^^^^^^^^^
-------- line 108:
+------- line 110:
 parser test (NOT NOT x y)
                      ^^^
 ======= END TEST
-ERROR: expected operand and got `NOT'; deleted; line 109:
+ERROR: expected operand and got `NOT'; deleted; line 111:
 parser test (NOT NOT)
                  ^^^
-ERROR: expected operand after `NOT'; inserted ERROR'OPERAND; line 109:
+ERROR: expected operand after `NOT'; inserted ERROR'OPERAND; line 111:
 parser test (NOT NOT)
              ^^^
 ======= TEST: parser test
                   {"": .operator = "NOT", .terminator = ")",
                        .initiator = "("|NOT ERROR'OPERAND|}
-------- line 109:
+------- line 111:
 parser test (NOT NOT)
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 109:
+------- line 111:
 parser test (NOT NOT)
             ^^^^^^^^^
 ======= END TEST
 parser define operator "==" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator "/=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator "!=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator "<" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator "<=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator "=<" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator ">" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator ">=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 parser define operator "=>" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "AND" )
+       with infix and reformatter ( "==", "AND" )
 ======= TEST: parser test
                   {"": .operator = "AND", .terminator = ")",
                        .initiator = "("|AND
@@ -399,98 +401,98 @@ parser define operator "=>" [code, math] infix
                             {"": .operator = "$"|$ 3 {|p q|}|}|}
                        {"": .operator = "=<"|=<
                             {"": .operator = "$"|$ 3|} {|u v|}|}|}
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
               ^^^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                   ^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                   ^^^^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                   ^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                        ^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                        ^^^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                        ^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                            ^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                            ^^^^^^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                            ^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^^^^^^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                                 ^^^
-------- line 138:
+------- line 140:
 parser test ( x < y <= z > w != p q =< u v )
                                        ^^^
 ======= END TEST
 parser define operator "+" [code, math] infix
        with precedence 5000
-       with sum reformatter ( "+", "-" )
+       with sum reformatter ( "+", "+", "-" )
 parser define operator "-" [code, math] infix
        with precedence 5000
-       with sum reformatter ( "+", "-" )
+       with sum reformatter ( "+", "+", "-" )
 ======= TEST: parser test
                   {"": .operator = "+", .terminator = ")", .initiator =
                        "("|+ x y {"": .operator = "-"|- z|} w
                        {"": .operator = "-"|- v|}
                        {"": .operator = "-"|- u|}|}
-------- line 146:
+------- line 148:
 parser test ( x + y - z + w - v - u )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 146:
+------- line 148:
 parser test ( x + y - z + w - v - u )
             ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 146:
+------- line 148:
 parser test ( x + y - z + w - v - u )
                     ^^^
-------- line 146:
+------- line 148:
 parser test ( x + y - z + w - v - u )
                             ^^^
-------- line 146:
+------- line 148:
 parser test ( x + y - z + w - v - u )
                                 ^^^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "+", .terminator = ")", .initiator =
                        "("|+ {|- x|} y {"": .operator = "-"|- z|}|}
-------- line 147:
+------- line 149:
 parser test ( - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 147:
+------- line 149:
 parser test ( - x + y - z )
             ^^^^^^^^^^^^^^^
-------- line 147:
+------- line 149:
 parser test ( - x + y - z )
               ^^^
-------- line 147:
+------- line 149:
 parser test ( - x + y - z )
                       ^^^
 ======= END TEST
@@ -502,70 +504,70 @@ parser test ( - x + y - z )
                                  {"": .operator = "+"|+ y 5|}|}|}
                        {"": .operator = "<="|<=
                             {"": .operator = "$"|$ 4|} z|}|}
-------- line 148:
+------- line 150:
 parser test ( x < y + 5 <= z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 148:
+------- line 150:
 parser test ( x < y + 5 <= z )
             ^^^^^^^^^^^^^^^^^^
-------- line 148:
+------- line 150:
 parser test ( x < y + 5 <= z )
               ^^^^^^^^^
-------- line 148:
+------- line 150:
 parser test ( x < y + 5 <= z )
                   ^^^^^
-------- line 148:
+------- line 150:
 parser test ( x < y + 5 <= z )
                   ^^^^^
-------- line 148:
+------- line 150:
 parser test ( x < y + 5 <= z )
                   ^^^^^^^^^^
-------- line 148:
+------- line 150:
 parser test ( x < y + 5 <= z )
                   ^^^^^
 ======= END TEST
 parser define operator "/" [code, math] infix
        with precedence 5100
-       with binary reformatter
+       with binary reformatter ( "/" )
 parser define operator "*" [code, math] infix
        with precedence 5200
-       with infix reformatter
+       with infix reformatter ( "*" )
 parser define operator "^" [code, math] infix
        with precedence 5300
-       with binary reformatter
+       with binary reformatter ( "^" )
 ======= TEST: parser test
                   {"": .operator = "/", .terminator = ")", .initiator =
                        "("|/ {"": .operator = "*"|* x y|}
                        {"": .operator = "*"|* {|z q|} {|m p|}|}|}
-------- line 159:
+------- line 161:
 parser test ( x * y / z q * m p )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 159:
+------- line 161:
 parser test ( x * y / z q * m p )
             ^^^^^^^^^^^^^^^^^^^^^
-------- line 159:
+------- line 161:
 parser test ( x * y / z q * m p )
               ^^^^^
-------- line 159:
+------- line 161:
 parser test ( x * y / z q * m p )
                       ^^^^^^^^^
-------- line 159:
+------- line 161:
 parser test ( x * y / z q * m p )
                       ^^^
-------- line 159:
+------- line 161:
 parser test ( x * y / z q * m p )
                             ^^^
 ======= END TEST
-ERROR: extra stuff at end of binary expression; deleted; line 160:
+ERROR: extra stuff at end of binary expression; deleted; line 162:
 parser test ( x / y / z )
                     ^^^
 ======= TEST: parser test
                   {"": .operator = "/", .terminator = ")", .initiator =
                        "("|/ x y|}
-------- line 160:
+------- line 162:
 parser test ( x / y / z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 160:
+------- line 162:
 parser test ( x / y / z )
             ^^^^^^^^^^^^^
 ======= END TEST
@@ -576,22 +578,22 @@ parser test ( x / y / z )
                             {"": .operator = "^"|^ x 2|}
                             {"": .operator = "^"|^ y 2|}|}
                        {"": .operator = "*"|* y z|}|}
-------- line 161:
+------- line 163:
 parser test ( x ^ 2 * y ^ 2 / y * z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 161:
+------- line 163:
 parser test ( x ^ 2 * y ^ 2 / y * z )
             ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 161:
+------- line 163:
 parser test ( x ^ 2 * y ^ 2 / y * z )
               ^^^^^^^^^^^^^
-------- line 161:
+------- line 163:
 parser test ( x ^ 2 * y ^ 2 / y * z )
               ^^^^^
-------- line 161:
+------- line 163:
 parser test ( x ^ 2 * y ^ 2 / y * z )
                       ^^^^^
-------- line 161:
+------- line 163:
 parser test ( x ^ 2 * y ^ 2 / y * z )
                               ^^^^^
 ======= END TEST
@@ -605,16 +607,16 @@ parser define operator "@" [code, math] prefix
                   {"": .operator = "+", .terminator = ")", .initiator =
                        "("|+ {"": .operator = "-"|- x|} y
                        {"": .operator = "-"|- z|}|}
-------- line 169:
+------- line 171:
 parser test ( - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 169:
+------- line 171:
 parser test ( - x + y - z )
             ^^^^^^^^^^^^^^^
-------- line 169:
+------- line 171:
 parser test ( - x + y - z )
               ^^^
-------- line 169:
+------- line 171:
 parser test ( - x + y - z )
                       ^^^
 ======= END TEST
@@ -624,19 +626,19 @@ parser test ( - x + y - z )
                        {"": .operator = "*"|* p
                             {"": .operator = "-"|- x|}|} y
                        {"": .operator = "-"|- z|}|}
-------- line 170:
+------- line 172:
 parser test ( p * - x + y - z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 170:
+------- line 172:
 parser test ( p * - x + y - z )
             ^^^^^^^^^^^^^^^^^^^
-------- line 170:
+------- line 172:
 parser test ( p * - x + y - z )
               ^^^^^^^
-------- line 170:
+------- line 172:
 parser test ( p * - x + y - z )
                   ^^^
-------- line 170:
+------- line 172:
 parser test ( p * - x + y - z )
                           ^^^
 ======= END TEST
@@ -645,19 +647,19 @@ parser test ( p * - x + y - z )
                        "("|+ {"": .operator = "@"|@ x|} y
                        {"": .operator = "-"|-
                             {"": .operator = "@"|@ z|}|}|}
-------- line 171:
+------- line 173:
 parser test ( @ x + y - @ z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 171:
+------- line 173:
 parser test ( @ x + y - @ z )
             ^^^^^^^^^^^^^^^^^
-------- line 171:
+------- line 173:
 parser test ( @ x + y - @ z )
               ^^^
-------- line 171:
+------- line 173:
 parser test ( @ x + y - @ z )
                       ^^^^^
-------- line 171:
+------- line 173:
 parser test ( @ x + y - @ z )
                         ^^^
 ======= END TEST
@@ -667,22 +669,22 @@ parser test ( @ x + y - @ z )
                        {"": .operator = "-"|-
                             {"": .operator = "+"|+
                                  {"": .operator = "-"|- {|x y|}|}|}|}|}
-------- line 172:
+------- line 174:
 parser test ( + - + - x y )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 172:
+------- line 174:
 parser test ( + - + - x y )
             ^^^^^^^^^^^^^^^
-------- line 172:
+------- line 174:
 parser test ( + - + - x y )
                 ^^^^^^^^^
-------- line 172:
+------- line 174:
 parser test ( + - + - x y )
                   ^^^^^^^
-------- line 172:
+------- line 174:
 parser test ( + - + - x y )
                     ^^^^^
-------- line 172:
+------- line 174:
 parser test ( + - + - x y )
                       ^^^
 ======= END TEST
@@ -695,19 +697,19 @@ parser define operator "--" [code, math] postfix
                        "("|+ {"": .operator = "++"|x ++|} y
                        {"": .operator = "-"|-
                             {"": .operator = "--"|z --|}|}|}
-------- line 178:
+------- line 180:
 parser test ( x ++ + y - z -- )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 178:
+------- line 180:
 parser test ( x ++ + y - z -- )
             ^^^^^^^^^^^^^^^^^^^
-------- line 178:
+------- line 180:
 parser test ( x ++ + y - z -- )
               ^^^^
-------- line 178:
+------- line 180:
 parser test ( x ++ + y - z -- )
                        ^^^^^^
-------- line 178:
+------- line 180:
 parser test ( x ++ + y - z -- )
                          ^^^^
 ======= END TEST
@@ -718,28 +720,28 @@ parser test ( x ++ + y - z -- )
                             {"": .operator = "--"|
                                  {"": .operator = "++"|{|x y|} ++|} --|}
                             ++|} --|}
-------- line 179:
+------- line 181:
 parser test ( x y ++ -- ++ -- )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 179:
+------- line 181:
 parser test ( x y ++ -- ++ -- )
             ^^^^^^^^^^^^^^^^^^^
-------- line 179:
+------- line 181:
 parser test ( x y ++ -- ++ -- )
               ^^^^^^^^^^^^
-------- line 179:
+------- line 181:
 parser test ( x y ++ -- ++ -- )
               ^^^^^^^^^
-------- line 179:
+------- line 181:
 parser test ( x y ++ -- ++ -- )
               ^^^^^^
-------- line 179:
+------- line 181:
 parser test ( x y ++ -- ++ -- )
               ^^^
 ======= END TEST
 parser define operator "<--" [code] nofix
        with precedence 0
-       with declare reformatter
+       with declare reformatter ( "<--" )
 parser define operator bracket "{{" ... "}}" [code] afix
        with precedence 0
 parser define operator indentation mark ":" [code] afix
@@ -748,19 +750,19 @@ parser define operator indentation mark ":" [code] afix
                   {"": .operator = "<--", .terminator = ")",
                        .initiator = "("|<-- {|foo bar|} {|boo bat|}
                        {{fee fie fo fum}}|}
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
               ^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
                           ^^^^^^^
-------- line 188:
+------- line 190:
 parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
                                   ^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -768,19 +770,19 @@ parser test ( foo bar <-- boo bat {{ fee fie fo fum }} )
                   {"": .operator = "<--", .terminator = ")",
                        .initiator = "("|<-- {|foo bar|} {}
                        {{fee fie fo fum}}|}
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- {{ fee fie fo fum }} )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- {{ fee fie fo fum }} )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- {{ fee fie fo fum }} )
               ^^^^^^^
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- {{ fee fie fo fum }} )
                          ^
-------- line 189:
+------- line 191:
 parser test ( foo bar <-- {{ fee fie fo fum }} )
                           ^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -788,35 +790,35 @@ parser test ( foo bar <-- {{ fee fie fo fum }} )
                   {"": .operator = "<--", .terminator = ")",
                        .initiator = "("|<-- {} {|boo bat|}
                        {{fee fie fo fum}}|}
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat {{ fee fie fo fum }} )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat {{ fee fie fo fum }} )
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat {{ fee fie fo fum }} )
               ^
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat {{ fee fie fo fum }} )
                   ^^^^^^^
-------- line 190:
+------- line 192:
 parser test ( <-- boo bat {{ fee fie fo fum }} )
                           ^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "<--", .terminator = ")",
                        .initiator = "("|<-- {|foo bar|} {}|}
-------- line 191:
+------- line 193:
 parser test ( foo bar <-- )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 191:
+------- line 193:
 parser test ( foo bar <-- )
             ^^^^^^^^^^^^^^^
-------- line 191:
+------- line 193:
 parser test ( foo bar <-- )
               ^^^^^^^
-------- line 191:
+------- line 193:
 parser test ( foo bar <-- )
                          ^
 ======= END TEST
@@ -825,7 +827,7 @@ parser test ( foo bar <-- )
                            {|boo bat
                              {: {"<LF>"|fee fie fo fum|"<LF>"}
                                 {"<LF>"|he ha ho hum|"<LF>"} :}|}|"<LF>"}
-------- lines 192-195:
+------- lines 194-197:
 parser test:
 ^^^^^^^^^^^^
     foo bar <-- boo bat:
@@ -834,7 +836,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- lines 192-195:
+------- lines 194-197:
 parser test:
            ^
     foo bar <-- boo bat:
@@ -843,34 +845,34 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- lines 193-195:
+------- lines 195-197:
     foo bar <-- boo bat:
     ^^^^^^^^^^^^^^^^^^^^
         fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- line 193:
+------- line 195:
     foo bar <-- boo bat:
     ^^^^^^^
-------- lines 193-195:
+------- lines 195-197:
     foo bar <-- boo bat:
                 ^^^^^^^^
         fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- lines 193-195:
+------- lines 195-197:
     foo bar <-- boo bat:
                        ^
         fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
 ^^^^^^^^^^^^^^^^^^^^
-------- line 194:
+------- line 196:
         fee fie fo fum
         ^^^^^^^^^^^^^^
-------- line 195:
+------- line 197:
         he ha ho hum
         ^^^^^^^^^^^^
 ======= END TEST
@@ -878,118 +880,118 @@ parser print operator "":
     block standard: operator "*" [code, math]
                     infix
                     with precedence 5200
-                    with reformatter infix
+                    with reformatter infix ( "*" )
     block standard: operator "+" [code, math]
                     prefix
                     with precedence 10000
     block standard: operator "+" [code, math]
                     infix
                     with precedence 5000
-                    with reformatter sum ( "+", "-" )
+                    with reformatter sum ( "+", "+", "-" )
     block standard: operator "," [code, math]
                     nofix
                     with precedence 2000
-                    with reformatter separator ( "," )
+                    with reformatter separator ( ",", "," )
     block standard: operator "-" [code, math]
                     prefix
                     with precedence 10000
     block standard: operator "-" [code, math]
                     infix
                     with precedence 5000
-                    with reformatter sum ( "+", "-" )
+                    with reformatter sum ( "+", "+", "-" )
     block standard: operator "/" [code, math]
                     infix
                     with precedence 5100
-                    with reformatter binary
+                    with reformatter binary ( "/" )
     block standard: operator "<" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "=" [code, math]
                     infix
                     with precedence 1000
-                    with reformatter right associative
+                    with reformatter right associative ( "=" )
     block standard: operator ">" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "@" [code, math]
                     prefix
                     with precedence 10000
     block standard: operator "!=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "^" [code, math]
                     infix
                     with precedence 5300
-                    with reformatter binary
+                    with reformatter binary ( "^" )
     block standard: operator "NOT" [code, math]
                     nofix
                     with precedence 3100
-                    with reformatter unary
+                    with reformatter unary ( "logical" )
     block standard: operator "<--" [code]
                     nofix
                     with precedence 0
-                    with reformatter declare
+                    with reformatter declare ( "<--" )
     block standard: operator [< "BUT" "NOT" >] [code, math]
                     infix
                     with precedence 3000
-                    with reformatter binary
+                    with reformatter binary ( "logical" )
     block standard: operator "*=" [code, math]
                     infix
                     with precedence 1000
-                    with reformatter right associative
+                    with reformatter right associative ( "=" )
     block standard: operator "++" [code, math]
                     postfix
                     with precedence 10001
     block standard: operator "+=" [code, math]
                     infix
                     with precedence 1000
-                    with reformatter right associative
+                    with reformatter right associative ( "=" )
     block standard: operator "<=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "AND" [code, math]
                     infix
                     with precedence 3100
-                    with reformatter infix
+                    with reformatter infix ( "logical" )
     block standard: operator "=<" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "==" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "--" [code, math]
                     postfix
                     with precedence 10001
     block standard: operator "=>" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "-=" [code, math]
                     infix
                     with precedence 1000
-                    with reformatter right associative
+                    with reformatter right associative ( "=" )
     block standard: operator ">=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "OR" [code, math]
                     infix
                     with precedence 3100
-                    with reformatter infix
+                    with reformatter infix ( "logical" )
     block standard: operator "/=" [code, math]
                     infix
                     with precedence 4000
-                    with reformatter infix and ( "AND" )
+                    with reformatter infix and ( "==", "AND" )
     block standard: operator "/=" [code, math]
                     infix
                     with precedence 1000
-                    with reformatter right associative
+                    with reformatter right associative ( "=" )
     block standard: bracket ":" ... [$ MISSING $] [code]
                     afix
                     with precedence 0

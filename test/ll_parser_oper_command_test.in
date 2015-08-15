@@ -182,7 +182,7 @@ parser test ( x y ++ -- ++ -- )
 
 parser define operator "<--" [code] nofix
        with precedence 0
-       with declare reformatter
+       with declare reformatter ( "<--" )
 parser define operator bracket "{{" ... "}}" [code] afix
        with precedence 0
 parser define operator indentation mark ":" [code] afix

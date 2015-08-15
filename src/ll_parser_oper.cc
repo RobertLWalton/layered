@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 15 06:00:34 EDT 2015
+// Date:	Sat Aug 15 13:10:31 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -660,10 +660,6 @@ static void oper_parse ( PAR::parser parser,
 
 		if ( first_oper != min::NULL_STUB )
 		{
-		    PAR::attr attr
-			( PAR::dot_oper,
-			  first_oper->label );
-
 		    min::locatable_gen reformatter_type
 		        ( min::MISSING() );
 		    if (    first_oper->reformatter
@@ -679,6 +675,11 @@ static void oper_parse ( PAR::parser parser,
 			       reformatter_trace_flags,
 			       (TAB::root) first_oper )
 		       )
+		    {
+			PAR::attr attr
+			    ( min::dot_type,
+			      reformatter_type );
+
 			PAR::compact
 			    ( parser, pass->next,
 			      selectors,
@@ -686,7 +687,11 @@ static void oper_parse ( PAR::parser parser,
 			      position,
 			      reformatter_trace_flags,
 			      PAR::BRACKETABLE,
-			      1, & attr );
+			         reformatter_type
+			      != min::MISSING() ?
+			         1 : 0,
+			      & attr );
+		    }
 		}
 		else
 		{

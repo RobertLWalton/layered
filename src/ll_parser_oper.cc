@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 13 05:53:01 EDT 2015
+// Date:	Sat Aug 15 06:00:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -664,6 +664,8 @@ static void oper_parse ( PAR::parser parser,
 			( PAR::dot_oper,
 			  first_oper->label );
 
+		    min::locatable_gen reformatter_type
+		        ( min::MISSING() );
 		    if (    first_oper->reformatter
 		         == min::NULL_STUB
 			 ||
@@ -673,6 +675,7 @@ static void oper_parse ( PAR::parser parser,
 			     ( parser, pass, selectors,
 			       D.first, current,
 			       position,
+			       reformatter_type,
 			       reformatter_trace_flags,
 			       (TAB::root) first_oper )
 		       )
@@ -771,10 +774,13 @@ static bool separator_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
 
     bool separator_should_be_next = false;
         // Equivalent meaning: the last token was an
@@ -840,11 +846,9 @@ static bool separator_reformatter_function
 	}
     }
 
-    OP::oper op = (OP::oper) entry;
-
     PAR::attr separator_attr
         ( min::dot_separator,
-	  op->reformatter_arguments[0] );
+	  op->reformatter_arguments[1] );
 
     PAR::compact
         ( parser, pass->next, selectors,
@@ -862,10 +866,13 @@ static bool declare_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
 
     // We need to be careful to insert empty operands
     // using put_empty_before/after the operator so
@@ -958,10 +965,13 @@ static bool right_associative_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -1026,9 +1036,13 @@ static bool unary_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
+    MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
 
     while ( first->type != PAR::OPERATOR )
     {
@@ -1152,10 +1166,13 @@ static bool binary_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
 
     // We need to be careful to insert error operands
     // using put_error_operand_before/after the operator
@@ -1277,10 +1294,13 @@ static bool infix_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
 
     // As operators must be infix, operands and
     // operators must alternate with operands first and
@@ -1344,10 +1364,13 @@ static bool infix_and_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
 
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
@@ -1488,8 +1511,6 @@ static bool infix_and_reformatter_function
 	operand1 = next_operand1;
     }
 
-    OP::oper op = (OP::oper) entry;
-
     if ( insert_and )
     {
         // More than one operator.  Insert and_op.
@@ -1497,7 +1518,7 @@ static bool infix_and_reformatter_function
         min::phrase_position first_position =
 	    { first->position.begin,
 	      first->position.begin };
-	min::gen and_op = op->reformatter_arguments[0];
+	min::gen and_op = op->reformatter_arguments[1];
 	PAR::token t =
 	    PAR::new_token ( PAR::OPERATOR  );
 	PAR::put_before ( first_ref(parser), first, t );
@@ -1526,19 +1547,21 @@ static bool sum_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
+    OP::oper op = (OP::oper) entry;
+    type = op->reformatter_arguments[0];
+
     MIN_ASSERT ( first->type != PAR::OPERATOR,
                  "first element should be operand" );
     MIN_ASSERT ( first->next != next,
                  "unexpected expression end" );
 
-    OP::oper op = (OP::oper) entry;
-
-    min::gen plus_op = op->reformatter_arguments[0];
-    min::gen minus_op = op->reformatter_arguments[1];
+    min::gen plus_op = op->reformatter_arguments[1];
+    min::gen minus_op = op->reformatter_arguments[2];
 
     // As operators must be infix, operands and opera-
     // tors must alternate with operands first and last.
@@ -1631,56 +1654,56 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
     PAR::push_reformatter
-        ( separator, OP::NOFIX, 1, 1,
+        ( separator, OP::NOFIX, 2, 2,
 	  ::separator_reformatter_function,
 	  OP::reformatter_stack );
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
     PAR::push_reformatter
         ( declare,
-	  OP::NOFIX + OP::PREFIX + OP::INFIX, 0, 0,
+	  OP::NOFIX + OP::PREFIX + OP::INFIX, 1, 1,
 	  ::declare_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     PAR::push_reformatter
-        ( right_associative, OP::INFIX, 0, 0,
+        ( right_associative, OP::INFIX, 1, 1,
 	  ::right_associative_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen prefix
         ( min::new_str_gen ( "unary" ) );
     PAR::push_reformatter
-        ( prefix, OP::PREFIX + OP::NOFIX, 0, 0,
+        ( prefix, OP::PREFIX + OP::NOFIX, 1, 1,
 	  ::unary_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
     PAR::push_reformatter
-        ( binary, OP::INFIX + OP::NOFIX, 0, 0,
+        ( binary, OP::INFIX + OP::NOFIX, 1, 1,
 	  ::binary_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen infix
         ( min::new_str_gen ( "infix" ) );
     PAR::push_reformatter
-        ( infix, OP::INFIX, 0, 0,
+        ( infix, OP::INFIX, 1, 1,
 	  ::infix_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen infix_and
         ( min::new_lab_gen ( "infix", "and" ) );
     PAR::push_reformatter
-        ( infix_and, OP::INFIX, 1, 1,
+        ( infix_and, OP::INFIX, 2, 2,
 	  ::infix_and_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen sum
         ( min::new_str_gen ( "sum" ) );
     PAR::push_reformatter
-        ( sum, OP::INFIX, 2, 2,
+        ( sum, OP::INFIX, 3, 3,
 	  ::sum_reformatter_function,
 	  OP::reformatter_stack );
 }

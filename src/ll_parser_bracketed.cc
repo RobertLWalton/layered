@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 11 06:48:10 EDT 2015
+// Date:	Sat Aug 15 05:59:30 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1599,6 +1599,8 @@ bool BRA::parse_bracketed_subexpression
 			    ( parser, first,
 			      opening_bracket->label );
 
+		    min::locatable_gen reformatter_type
+		        ( min::MISSING() );
 		    if (    opening_bracket->reformatter
 		         == min::NULL_STUB
 			 ||
@@ -1608,6 +1610,7 @@ bool BRA::parse_bracketed_subexpression
 		             ( parser, (PAR::pass) pass,
 			       selectors,
 			       first, current, position,
+			       reformatter_type,
 			       trace_flags,
 			       (TAB::root)
 			           opening_bracket )
@@ -1670,6 +1673,8 @@ bool BRA::parse_bracketed_subexpression
 			    ( parser, first,
 			      opening_bracket->label );
 
+		    min::locatable_gen reformatter_type
+		        ( min::MISSING() );
 		    if (    opening_bracket->reformatter
 		         == min::NULL_STUB
 			 ||
@@ -1680,6 +1685,7 @@ bool BRA::parse_bracketed_subexpression
 			       selectors,
 			       first, current,
 			       position,
+			       reformatter_type,
 			       trace_flags,
 			       (TAB::root)
 				   opening_bracket )
@@ -1831,6 +1837,7 @@ static bool label_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -2134,6 +2141,7 @@ static bool typed_bracketed_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {

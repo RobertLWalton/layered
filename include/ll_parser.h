@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 11 11:36:36 EDT 2015
+// Date:	Sat Aug 15 06:05:36 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1253,6 +1253,7 @@ typedef bool ( * reformatter_function )
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  const min::phrase_position & position,
+	  min::ref<min::gen> type,
 	  ll::parser::table::flags trace_flags,
 	  ll::parser::table::root entry );
     //

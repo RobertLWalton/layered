@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 14, 2015
+August 15, 2015
  
 \end{center}
 
@@ -575,11 +575,13 @@ Function definitions have the form:
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
             \TT{=} {\em input-variable-list} \\
+    $|$ & {\em other} as per Section \itemref{FUNCTION-PROTOTYPES-AND-CALLS}
     \end{tabular}
 \end{indpar}
 
 A function call with a {\em result-variable-list}
 is in effect replaced by a {\em block-assignment-statement}
+(Section \itemref{BlOCK-ASSIGNMENT-STATEMENTS})
 with the {\em function-definition's} {\em result-variable-list} becoming the 
 {\em block-assignment-statement's} {\em variable-list} and the
 {\em function-definition's} {\em executable-statements} becoming the 
@@ -599,8 +601,11 @@ or {\em input-variable-list}.  Specifically
 \begin{center}
 {\tt F(a1,a2,...)~=~(b1,b2,...)} \\
 is syntactic sugar for \\
-{\tt F(a1,a2,...,b1,b2,...)} \\
+{\tt F(a1,a2,...)(b1,b2,...)} \\
 \end{center}
+
+where use is made of the fact that a function can have multiple
+argument lists (Section \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
 
 An argument or return variable can have the `\TT{type}' type.
 If an argument variable has type `\TT{type}', its value can be used as the

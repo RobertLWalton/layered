@@ -84,15 +84,25 @@ OP::oper_pass PARSTD::init_oper
         ( min::new_str_gen ( "<" ) );
     min::locatable_gen and_op
         ( min::new_str_gen ( "AND" ) );
+
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
         separator_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
     min::push ( separator_arguments ) = comma;
+    min::push ( separator_arguments ) = comma;
+
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        equal_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
+    min::push ( equal_arguments ) = equal;
+
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
         and_arguments
 	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( and_arguments ) = equal_equal;
     min::push ( and_arguments ) = and_op;
 
     min::locatable_gen infix_and
@@ -127,7 +137,7 @@ OP::oper_pass PARSTD::init_oper
 	  PAR::find_reformatter
 	      ( right_associative,
 	        OP::reformatter_stack ),
-	  min::NULL_STUB,
+	  equal_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -140,7 +150,7 @@ OP::oper_pass PARSTD::init_oper
 	  PAR::find_reformatter
 	      ( right_associative,
 	        OP::reformatter_stack ),
-	  min::NULL_STUB,
+	  equal_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -153,7 +163,7 @@ OP::oper_pass PARSTD::init_oper
 	  PAR::find_reformatter
 	      ( right_associative,
 	        OP::reformatter_stack ),
-	  min::NULL_STUB,
+	  equal_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -166,7 +176,7 @@ OP::oper_pass PARSTD::init_oper
 	  PAR::find_reformatter
 	      ( right_associative,
 	        OP::reformatter_stack ),
-	  min::NULL_STUB,
+	  equal_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -179,7 +189,7 @@ OP::oper_pass PARSTD::init_oper
 	  PAR::find_reformatter
 	      ( right_associative,
 	        OP::reformatter_stack ),
-	  min::NULL_STUB,
+	  equal_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper

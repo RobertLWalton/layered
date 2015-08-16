@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 12 13:56:48 EDT 2015
+// Date:	Sun Aug 16 06:53:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -258,6 +258,7 @@ void PAR::resize ( PAR::string string )
 static min::uns32 token_gen_disp[] =
 {
     min::DISP ( & PAR::token_struct::value ),
+    min::DISP ( & PAR::token_struct::value_type ),
     min::DISP_END
 };
 
@@ -318,6 +319,7 @@ PAR::token PAR::new_token ( min::uns32 type )
         ( PAR::internal::allocated_list_first, token );
 
     value_ref(token) = min::MISSING();
+    value_type_ref(token) = min::MISSING();
     string_ref(token) = NULL_STUB;
     token->type = type;
     return token;

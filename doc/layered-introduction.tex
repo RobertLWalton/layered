@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 12, 2015
+August 15, 2015
  
 \end{center}
 
@@ -4194,7 +4194,7 @@ With these things in mind, the reformatters are:
 
 \bigskip
 
-\ttmkey{separator}{reformatter} \TT{(} {\em separator} \TT{)}
+\ttmkey{separator}{reformatter} \{ \TT{(} {\em separator} \TT{)} \}\QMARK{}
 \hfill \OP{;} ~~~ \OP{,}
 
 
@@ -4207,31 +4207,33 @@ but operators my be consecutive and may begin or end the subexpression.
 
 Empty list operands are inserted to make all operators
 infix.  Then the operators are deleted, the resulting list of
-operands is given a \ttmkey{.separator}{produced by parsing}
-attribute with value of the {\em separator} argument to the reformatter,
-and this is returned as the result of the reformatting.  Examples
-with `\TT{,}' as both the operator and the {\em separator} argument to the
+operands is packaged as a BRACKABLE MIN object with
+a \ttmkey{.sep\-a\-ra\-tor}{produced by parsing}
+attribute value equal to the {\em separator} argument to the reformatter,
+if that exists, or the label of the operator otherwise.
+Examples
+with `\TT{,}' as both the operator and optional {\em separator} argument to the
 reformatter are:
 
 \hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
 \TT{x , y} & $\Longrightarrow$ & \TT{x y}
 					& with \TT{.separator} \TT{","} \\
-\TT{, y} & $\Longrightarrow$ & \TT{() y}
+\TT{, y} & $\Longrightarrow$ & \TT{\{\} y}
 					& with \TT{.separator} \TT{","} \\
-\TT{x ,} & $\Longrightarrow$ & \TT{x ()}
+\TT{x ,} & $\Longrightarrow$ & \TT{x \{\}}
 					& with \TT{.separator} \TT{","} \\
-\TT{x ,, y} & $\Longrightarrow$ & \TT{x () y}
+\TT{x ,, y} & $\Longrightarrow$ & \TT{x \{\} y}
 					& with \TT{.separator} \TT{","} \\
 \end{tabular}
 \end{indpar}
 
 \bigskip
 
-\ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \NBOP{\{\}} ~~~ \OP{:}
+\ttmkey{declare}{reformatter} \{ \TT{(} {\em type} \TT{)} \}\QMARK{}
+\hfill \NBOP{<-{}-} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
 May only be used with \TT{nofix}, \TT{prefix}, or \TT{infix} operators.
-
 
 All operators but the first must be bracketed subexpressions,
 and any operands must be just before or just after the first operator.
@@ -4245,31 +4247,43 @@ bracketed operators are converted to operands.
 Indented subexpressions are treated as bracketed subexpressions and
 may be bracketed operators.
 
-For example, if \TT{<-{}-} is a nofix operator with this reformatter, and
-\TT{\{ \}} bracketed subexpressions and \TT{:} indented subexpressions
+The result is a BRACKETED token whose value is a MIN object whose
+\TT{.type} is the reformatter argument if that is given, or the
+label of the final first operator otherwise.
+
+For example, if \TT{<-{}-} is a nofix operator with this reformatter and
+\TT{"<-{}-"} as an optional reformatter argument, and if
+\TT{:} indented subexpressions
 are afix operators of the same precedence:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\TT{x <-{}- y \{ z \}} & $\Longrightarrow$ & \TT{<-{}- x y \{ z \}} \\
-\TT{x <-{}- \{ z \}} & $\Longrightarrow$ & \TT{<-{}- x () \{ z \}} \\
-\TT{<-{}- y \{ z \}} & $\Longrightarrow$ & \TT{<-{}- () y \{ z \}} \\
-\TT{x <-{}-} & $\Longrightarrow$ & \TT{<-{}- x ()}
+\TT{x <-{}- y} & $\Longrightarrow$ & \TT{<-{}- x y} \\
+\TT{<-{}- y} & $\Longrightarrow$ & \TT{<-{}- \{\} y} \\
+\TT{x <-{}-} & $\Longrightarrow$ & \TT{<-{}- x \{\}}
 \\[1ex]
 \begin{tabular}{@{}l@{}}
 \TT{x~<-{}-~u v w:} \\
 \TT{~~~~~~z}
 \end{tabular}
 & $\Longrightarrow$ &
-\begin{tabular}{@{}l@{}}
-\TT{<-{}- x ( u v w ):} \\
-\TT{~~~~z}
-\end{tabular}
+\TT{<-{}- x ( u v w ) \{: x :\}}
 \end{tabular}
 
-Note that because \TT{\{ \}} bracketed subexpressions are afix operators
+Note that because indented paragraphs are afix operators
 with same precedence as \TT{<-{}-},
-`\TT{x <-{}- y \{ z \}}' does \underline{not}
-end up as `\TT{<-{}- x ( y \{ z \} )}'.
+\begin{center}
+\begin{tabular}{l}
+\TT{x <-{}- y:} \\
+\TT{~~~~\ldots}
+\end{tabular}
+\end{center}
+does \underline{not}
+end up as
+\begin{center}
+\begin{tabular}{l}
+\TT{<-{}- x ( y \{: \ldots{} :\} )}
+\end{tabular}
+\end{center}
 
 \end{indpar}
 

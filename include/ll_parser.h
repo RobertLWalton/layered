@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 16 06:52:57 EDT 2015
+// Date:	Sun Aug 16 15:53:52 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -246,9 +246,10 @@ struct token_struct
 
     const min::gen value_type;
         // For a BRACKETED token, either the .type of
-	// a MIN object if there is one, or a label
-	// [< I T >] where I is the .initiator and T the
-	// .terminator if there is no .type.
+	// a MIN object token value, if there is one, or
+	// otherwise the .initiator, if there is one, or
+	// otherwise MISSING.  For other tokens,
+	// MISSING.
 
     const ll::parser::string string;
         // Character string for lexeme types that have

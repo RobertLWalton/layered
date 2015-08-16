@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 13 05:53:01 EDT 2015
+// Date:	Sun Aug 16 17:58:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -332,47 +332,17 @@ static void oper_parse ( PAR::parser parser,
 
 	    TAB::key_prefix key_prefix;
 	    TAB::root root = min::NULL_STUB;
-	    min::gen initiator, terminator;
 	    
 	    if ( bracketed )
 	    {
-	        {
-		    min::obj_vec_ptr vp
-		        ( current->value );
-		    min::attr_ptr ap ( vp );
-
-		    min::locate
-		        ( ap, min::dot_initiator );
-		    initiator = min::get ( ap );
-		    min::locate
-		        ( ap, min::dot_terminator );
-		    terminator = min::get ( ap );
-
-		    // Destroy object pointers to make
-		    // object current->value non-
-		    // OBJ_PRIVATE.
-		}
-
-		if ( initiator == min::NONE() )
-		    root = min::NULL_STUB;
-		else
+		if (    current->value_type
+		     != min::MISSING() )
+		{
 		    root = TAB::find
-			( initiator, selectors,
+			( current->value_type,
+			  selectors,
 			  oper_pass->
 			      oper_bracket_table );
-		if ( terminator == min::NONE() )
-		    terminator = min::MISSING();
-		oper = (OP::oper) root;
-		while ( oper != min::NULL_STUB
-		        &&
-			(    (   oper->selectors
-			       & selectors )
-			  == 0
-			  ||
-			     oper->terminator
-			  != terminator ) )
-		{
-		    root = root->next;
 		    oper = (OP::oper) root;
 		}
 	    }
@@ -439,19 +409,8 @@ static void oper_parse ( PAR::parser parser,
 	    {
 	        if ( bracketed )
 		{
-		    do
-		    {
-			root = root->next;
-			oper = (OP::oper) root;
-		    }
-		    while ( oper != min::NULL_STUB
-			    &&
-			    (    (   oper->selectors
-				   & selectors )
-			      == 0
-			      ||
-			         oper->terminator
-			      != terminator ) );
+		    root = min::NULL_STUB;
+		    oper = min::NULL_STUB;
 		}
 		else
 		{

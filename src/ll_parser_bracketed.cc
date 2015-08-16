@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 11 06:48:10 EDT 2015
+// Date:	Sun Aug 16 16:09:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,7 +16,7 @@
 //	Typed Brackets
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
-//	Bracketed Subexpression Parser
+//	Parse Bracketed Subexpression Function
 //	Bracketed Reformatters
 //	Bracketed Pass Command Function
 
@@ -839,8 +839,8 @@ inline min::int32 relative_indent
     return relative_indent;
 }
 
-// Bracketed Subexpression Parser
-// --------- ------------- ------
+// Parse Bracketed Subexpression Function
+// ----- --------- ------------- --------
 
 // Outline of parse_bracketed_subexpression:
 //
@@ -1268,6 +1268,9 @@ bool BRA::parse_bracketed_subexpression
 				  trace_flags,
 				  PAR::BRACKETING,
 				  n, attributes );
+
+			    value_type_ref(first) =
+			        PAR::new_line;
 			}
 
 			// See if there are more lines
@@ -1328,6 +1331,9 @@ bool BRA::parse_bracketed_subexpression
 		      trace_flags,
 		      PAR::BRACKETING,
 		      1, attributes );
+
+		value_type_ref(first) =
+		    indentation_found->label;
 
 		// Terminate subexpression if closing
 		// bracket was found during indentation
@@ -1631,6 +1637,9 @@ bool BRA::parse_bracketed_subexpression
 			      trace_flags,
 			      PAR::BRACKETING,
 			      2, attributes, 1 );
+
+			value_type_ref(first) =
+		    	    opening_bracket->label;
 		    }
 
 		    if (    cstack.closing_next
@@ -1703,6 +1712,9 @@ bool BRA::parse_bracketed_subexpression
 			      trace_flags,
 			      PAR::BRACKETING,
 			      2, attributes, 1 );
+
+			value_type_ref(first) =
+		    	    opening_bracket->label;
 		    }
 		    break;
 		}
@@ -2729,6 +2741,7 @@ DONE:
     min::locatable_gen label;
     min::locatable_gen value;
     min::gen old_value;
+    min::gen value_type = min::MISSING();
     for ( PAR::token current = first;
 	  current != next; )
     {
@@ -2736,6 +2749,7 @@ DONE:
 	{
 	    label = min::dot_type;
 	    value = current->value;
+	    value_type = current->value;
 	}
 	else if ( current->type == ATTR_LABEL )
 	{
@@ -2827,6 +2841,7 @@ NEXT_ITEM:
 
     PAR::value_ref(first) = exp;
     first->position = position;
+    PAR::value_type_ref(first) = value_type;
 
     PAR::trace_subexpression
 	( parser, first, trace_flags );

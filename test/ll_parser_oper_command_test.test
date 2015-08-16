@@ -821,10 +821,9 @@ parser test ( foo bar <-- )
                          ^
 ======= END TEST
 ======= TEST: parser test:
-                  {"<LF>": .operator = "<--"|<-- {|foo bar|}
-                           {|boo bat
-                             {: {"<LF>"|fee fie fo fum|"<LF>"}
-                                {"<LF>"|he ha ho hum|"<LF>"} :}|}|"<LF>"}
+                  {"<LF>": .operator = "<--"|<-- {|foo bar|} {|boo bat|}
+                           {: {"<LF>"|fee fie fo fum|"<LF>"}
+                              {"<LF>"|he ha ho hum|"<LF>"} :}|"<LF>"}
 ------- lines 192-195:
 parser test:
 ^^^^^^^^^^^^
@@ -853,13 +852,9 @@ parser test:
 ------- line 193:
     foo bar <-- boo bat:
     ^^^^^^^
-------- lines 193-195:
+------- line 193:
     foo bar <-- boo bat:
-                ^^^^^^^^
-        fee fie fo fum
-^^^^^^^^^^^^^^^^^^^^^^
-        he ha ho hum
-^^^^^^^^^^^^^^^^^^^^
+                ^^^^^^^
 ------- lines 193-195:
     foo bar <-- boo bat:
                        ^

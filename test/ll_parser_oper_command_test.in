@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 15 22:27:03 EDT 2015
+// Date:	Thu Jun 25 11:17:42 EDT 2015
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -24,12 +24,10 @@ parser print operator ""
 parser begin block
 parser test ( x / y ^ z w )
 parser define operator "/" [code, math] infix
-       with binary reformatter ( "/" )
-       with precedence -100
+       with binary reformatter with precedence -100
 parser print operator "/"
 parser define operator "^" [code, math] infix
-       with binary reformatter ( "^" )
-       with precedence +100
+       with binary reformatter with precedence +100
 parser test ( x / y ^ z w )
 parser print operator ""
 parser undefine operator "/" [code, math] infix
@@ -43,23 +41,23 @@ parser test ( x / y ^ z w )
 // Test erroneous defines and undefines
 //
 parser define operator "+" [code, math] infix
-       with binary reformatter ( "+" )
+       with binary reformatter
 parser define operator "+" [code, math]
        with precedence 3000
-       with binary reformatter ( "+" )
+       with binary reformatter
 parser define operator "+" [code, math] infix nofix
        with precedence 3000
-       with binary reformatter ( "+" )
+       with binary reformatter
 parser define operator "+" [code, math] nofix
        with precedence 3000
-       with right associative reformatter ( "+" )
+       with right associative reformatter
 parser define operator "+" [code, math] nofix
        with precedence 3000
-       with none such reformatter ( "+" )
+       with none such reformatter
 parser undefine operator "+" [code, math] infix
 parser undefine operator "+" [code, math] infix
        with precedence 3000
-       with binary reformatter ( "+" )
+       with binary reformatter
 parser undefine operator "+" [code, math]
        with precedence 3000
 parser print operator ""
@@ -68,38 +66,38 @@ parser print operator ""
 
 parser define operator "=" [code, math] infix
        with precedence 1000
-       with right associative reformatter ( "=" )
+       with right associative reformatter
 parser define operator "+=" [code, math] infix
        with precedence 1000
-       with right associative reformatter ( "=" )
+       with right associative reformatter
 parser define operator "-=" [code, math] infix
        with precedence 1000
-       with right associative reformatter ( "=" )
+       with right associative reformatter
 parser define operator "*=" [code, math] infix
        with precedence 1000
-       with right associative reformatter ( "=" )
+       with right associative reformatter
 parser define operator "/=" [code, math] infix
        with precedence 1000
-       with right associative reformatter ( "=" )
+       with right associative reformatter
 parser test (x = y += z w *= p q r = t v)
 
 parser define operator "," [code, math] nofix
        with precedence 2000
-       with separator reformatter
+       with separator reformatter ( "," )
 parser test (x, y1, z w,, 3,)
 
 parser define operator "BUT NOT" [code, math] infix
        with precedence 3000
-       with binary reformatter ( "logical" )
+       with binary reformatter
 parser define operator "AND" [code, math] infix
        with precedence 3100
-       with infix reformatter ( "logical" )
+       with infix reformatter
 parser define operator "OR" [code, math] infix
        with precedence 3100
-       with infix reformatter ( "logical" )
+       with infix reformatter
 parser define operator "NOT" [code, math] nofix
        with precedence 3100
-       with unary reformatter ( "logical" )
+       with unary reformatter
 parser test (x OR y BUT NOT z AND w)
 parser test (x OR y BUT NOT z AND w OR p)
 parser test (NOT x y)
@@ -112,52 +110,52 @@ parser test (NOT NOT)
 
 parser define operator "==" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "/=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "!=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "<" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "<=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "=<" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator ">" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator ">=" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser define operator "=>" [code, math] infix
        with precedence 4000
-       with infix and reformatter ( "==", "AND" )
+       with infix and reformatter ( "AND" )
 parser test ( x < y <= z > w != p q =< u v )
 
 parser define operator "+" [code, math] infix
        with precedence 5000
-       with sum reformatter ( "+", "+", "-" )
+       with sum reformatter ( "+", "-" )
 parser define operator "-" [code, math] infix
        with precedence 5000
-       with sum reformatter ( "+", "+", "-" )
+       with sum reformatter ( "+", "-" )
 parser test ( x + y - z + w - v - u )
 parser test ( - x + y - z )
 parser test ( x < y + 5 <= z )
 
 parser define operator "/" [code, math] infix
        with precedence 5100
-       with binary reformatter ( "/" )
+       with binary reformatter
 parser define operator "*" [code, math] infix
        with precedence 5200
-       with infix reformatter ( "*" )
+       with infix reformatter
 parser define operator "^" [code, math] infix
        with precedence 5300
-       with binary reformatter ( "^" )
+       with binary reformatter
 parser test ( x * y / z q * m p )
 parser test ( x / y / z )
 parser test ( x ^ 2 * y ^ 2 / y * z )

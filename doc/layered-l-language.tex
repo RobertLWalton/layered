@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 15, 2015
+August 16, 2015
  
 \end{center}
 
@@ -369,7 +369,7 @@ where $x>y$
 For all these implicit conversions no information is lost from
 the value when it is converted to the new type.
 
-The following \underline{unchecked} (\itemref{UNCHECKED-BLOCKS})
+The following \underline{unchecked} (\itemref{UNCHECKED-EXPRESSIONS-AND-BLOCKS})
 conversion operator is defined:
 \begin{center}
 
@@ -422,7 +422,7 @@ Here the builtin type is called the \key{underlying type} of the
 
 A value of a defined type may be converted to or from its underlying
 type by the \underline{unchecked}
-\underline{unchecked} (\itemref{UNCHECKED-BLOCKS})
+\underline{unchecked} (\itemref{UNCHECKED-EXPRESSIONS-AND-BLOCKS})
 \TT{<{}<**} operators:
 \begin{center}
 \begin{tabular}{rcl}
@@ -633,13 +633,27 @@ of `\TT{add}' can be implied, as in
 int32 z = add ( x, y )
 \end{verbatim}\end{indpar}
 
-\section{Unchecked Blocks}
-\label{UNCHECKED-BLOCKS}
+\section{Unchecked Expressions and Blocks}
+\label{UNCHECKED-EXPRESSIONS-AND-BLOCKS}
 
 Unchecked operations, such as certain type conversions mentioned above,
-can only be executed in an \mkey{unchecked}{code block}
-code block.  If this block does not assign any variables outside
-of itself, it has the form:
+can only be executed in an
+\mkey{unchecked}{expression}\index{unchecked!code block}
+expression or code block.
+
+An unchecked expression has the form
+
+\begin{indpar}
+\emkey{unchecked-expression}
+    ::= \TT{*UNCHECKED*} \TT{(} {\em expression} \TT{)}
+\end{indpar}
+
+as if \TT{*UNCHECKED*} were a function.  The meaning
+is that the argument {\em expression} of this \TT{*UNCHECKED*} pseudo-function
+is unchecked, i.e., can execute unchecked operations.
+
+An unchecked code block that does not assign any variables outside
+of itself has the form:
 
 \begin{indpar}
 \emkey{unchecked-block}
@@ -649,13 +663,13 @@ of itself, it has the form:
 	\end{tabular}
 \end{indpar}
 
+Other code blocks, which are describe below, can have the
+`\TT{*UNCHECKED*}' block qualifier.  In an unchecked code block
+all the {\em executable-statements} are unchecked.
+
 A fully \key{type checked} piece of code will not contain any
 unchecked code blocks.  A goal of the L-Language is to migrate
 all unchecked code into small inline data access functions.
-
-By adding the `\TT{*UNCHECKED}' qualification to a
-block assignment statement, the {\em executable-statements}
-in the block can be made unchecked.
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -663,14 +677,15 @@ in the block can be made unchecked.
 In the following {\em expressions} produce a list of one
 or more values of well defined types.
 
-Function executions have stack frames that contain \underline{all}
+Function executions have stacks that contain \underline{all}
 their variables.
 These variables are allocated and their values are computed by
 assignment statements:
 
 \begin{indpar}
 \emkey{value-assignment-statement}
-    ::= {\em variable-list} \TT{=} {\em expression}
+    ::= \{ {\em variable-list} \TT{=} \}\QMARK{} \TT{*UNCHECKED*}\QMARK{}
+        {\em expression}
 \\[0.5ex]
 \emkey{variable-list}
     \begin{tabular}[t]{@{}rl}
@@ -697,18 +712,17 @@ convertable to the variable's type.  If the {\em expression} produces
 too many values, the excess values at the end of the value list will be
 discarded.
 
-See \itemref{QUALIFIERS} for a discussion of {\em qualifiers}.
-
 The {\em expression} may only input values that are constants or are
 the values of other variables in the same function execution
-stack frame (including
+stack (including
 arguments passed to the function execution).  In particular,
-no input can come from RAM memory outside the function execution stack frame.
+no input can come from RAM memory outside the function execution stack.
+See Section \itemref{STACK-MANAGEMENT} for information about stacks.
 
 Implicitly when a variable value is set this way, the value is first
 computed in a register, then stored in the stack, and for some time
 afterwards the value is left in the register which becomes a cache
-on the stack value.  This is hidden from the programmer.
+on the stack value.  This cacheing is hidden from the programmer.
 
 If a variable value is copied from another variable, usually the
 new variable simply becomes a compile-time alias for the old variable.
@@ -733,6 +747,17 @@ name, type, and qualifiers as the previous variable is allocated.
 Note that `\TT{next}' behaves differently for loop interation
 variables (see below) than it does for other variables.
 
+All assignment statements have a special case where there are
+no variables being assigned, the {\em variables-list} is omitted,
+and the \TT{=} is also omitted.  In this case the
+{\em value-assignment-statement} reduces to just an {\em expression}
+(possibly \TT{*UNCHECKED*}) that executes for side effects (such as
+input/output or non-stack memory modification).
+
+All assignment statements may have the \TT{*UNCHECKED*} statement
+qualifier which means that the executable code in the statement
+is unchecked.
+
 \subsection{Block Assignment Statements}
 \label{BlOCK-ASSIGNMENT-STATEMENTS}
 
@@ -741,10 +766,14 @@ Another variant of the assignment statement is\index{block assignment}:
 \begin{indpar}
 \emkey{block-assignment-statement}
     ::= \begin{tabular}[t]{l}
-        {\em variable-list} \TT{=} \TT{*UNCHECKED*}\QMARK \TT{:} \\
+        \{ {\em variable-list} \TT{=} \}\QMARK{} \TT{*UNCHECKED*}\QMARK{}
+	\TT{block}\QMARK{} \TT{:} \\
 	\TT{~~~~}{\em executable-statement}\STAR{}
 	\end{tabular}
 \end{indpar}
+
+where \TT{block} may be omitted as long as either \TT{=} or
+\TT{*UNCHECKED*} is not omitted.
 
 The {\em executable-statements} in the block can include
 {\em assignment-statements} in which {\em variable-declarations}
@@ -756,7 +785,7 @@ in the {\em block-assignment-statement's} {\em variable-list}.
 Furthermore, every variable in the
 {\em block-assignment-statement's} {\em variable-list}
 \underline{must} be assigned a value
-by one of the {\em executable-statements}.
+by exactly one of the {\em executable-statements}.
 Also the values of the variables in the {\em variable-list} cannot
 be input to any of the {\em executable-statements}.
 
@@ -770,9 +799,10 @@ block.
 are similar to block assignment statements:
 
 \begin{indpar}
-\emkey{conditional-assignment-statement}
-    ::= \begin{tabular}[t]{l}
-        {\em variable-list} \TT{=} \TT{*UNCHECKED*}\QMARK \TT{if:} \\
+\emkey{conditional-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em variable-list} \TT{=} \}\QMARK{}
+	    \TT{*UNCHECKED*}\QMARK \TT{if:} \\
 	\TT{~~~~}\TT{default:} \\
 	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
 	\TT{~~~~}\TT{default:} \\
@@ -795,13 +825,15 @@ first true condition (a.k.a the \key{subblock} of that condition)
 are executed, or if no condition is true, the {\em executable-statements}
 of the `\TT{else}' subblock are executed.  Each separate subblock of
 {\em executable-statements} must set \underline{every} variable
-in the {\em condition-assignment-statement's} {\em variable-list},
-with exceptions for defaults described next.
+in the {\em condition-assignment-statement's} {\em variable-list} exactly
+once, with exceptions for defaults described next.
 
-A {\em conditional-assignment-statement} may have one or
+A {\em conditional-assignment-statement} with a
+{\em variable-list} may have one or
 more `\ttkey{default}\TT{:}' subblocks.  Each assigns one or more
 variables in the {\em variable-list}.  A default subblock
-executes after another subblock executes if and only if all of the
+executes after another subblock executes if and only if
+\underline{all} of the
 {\em variable-list} variables set by the default subblock have
 \underline{not} been set yet.  This means that multiple subblocks
 may execute, but only the first can be a non-default subblock.
@@ -835,9 +867,13 @@ float64 result = max ( float64 x, float64 y, float64 z ):
 \end{verbatim}\end{indpar}
 
 where \TT{NaN} means `\key{not-a-number}' and is the missing
-value for \TT{float64} variables.  \TT{x~>~y} is false if
-\TT{y} is less than \TT{x} \underline{or} if either \TT{x}
-or \TT{y} is a \TT{NaN}.
+value for \TT{float64} variables.  \TT{x~>~y} is true if
+and only if neither \TT{x} nor \TT{y} is a \TT{NaN} and
+\TT{x} is strictly greater than \TT{y}.  Thus if any of
+\TT{x}, \TT{y}, or \TT{z} in the above conditional assignment
+is a \TT{NaN}, none of the non-\TT{default} {\em conditional-expressions}
+will be true, and the \TT{default} will be evaluated to set
+the \TT{result} to a \TT{NaN}.
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -849,8 +885,8 @@ and conditional assignment statements:
 \begin{indpar}
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        {\em result-variable-list}
-	    \TT{=} \TT{*UNCHECKED*}\QMARK \TT{loop}
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
+	           \TT{*UNCHECKED*}\QMARK \TT{loop}
 	           {\em iteration-variable-list}\TT{:} \\
 	\TT{~~~~}\TT{initially}\TT{:} \\
 	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
@@ -908,7 +944,8 @@ are used to call out-of-line functions:
 \begin{indpar}
 \emkey{call-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        {\em variable-list} \TT{=} {\em call-assignment-option}\STAR
+        \{ {\em variable-list} \TT{=} \}\QMARK{}
+	        {\em call-assignment-option}\STAR
 		~\TT{call}~ {\em function-expression} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{}
 	\end{tabular} \\[1ex]

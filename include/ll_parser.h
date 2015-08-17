@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 16 15:53:52 EDT 2015
+// Date:	Mon Aug 17 15:58:14 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -182,8 +182,9 @@ enum // Token types (see below).
     BRACKETING		= 0xFFFFFFFE,
       // Not an actual token type: see `compact'.
     BRACKETABLE		= 0xFFFFFFFD,
-    OPERATOR		= 0xFFFFFFFC,
-    DERIVED		= 0xFFFFFFFB,
+    PREFIX		= 0xFFFFFFFC,
+    OPERATOR		= 0xFFFFFFFB,
+    DERIVED		= 0xFFFFFFFA,
 
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
@@ -222,6 +223,14 @@ struct token_struct
 	//	    into the value of that element
 	//	    instead of becoming a separate
 	//	    token.
+	//
+	//	PREFIX
+	//	    PREFIX tokens are suitable for use
+	//	    as prefix separators; their value
+	//	    is a MIN object with a .type, no
+	//	    .initiator, no .terminator, and
+	//	    no elements.  The MIN value may have
+	//	    other properties.
 	//
 	// For recognized operators:
 	//

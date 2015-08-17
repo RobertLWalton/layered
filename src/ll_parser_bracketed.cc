@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 16 16:09:25 EDT 2015
+// Date:	Mon Aug 17 16:12:01 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2196,8 +2196,7 @@ static bool typed_bracketed_reformatter_function
     min::unsptr element_count = 0;
         // Count of object elements.
     bool after_elements = false;
-        // True if after TYPED_MIDDLE surrounded
-	// elements.
+        // True if after TYPED_MIDDLE.
     bool after_attribute = false;
         // True if attribute has been found since
 	// after_elements was set true.
@@ -2835,7 +2834,9 @@ NEXT_ITEM:
         // Necessary so trace_subexpression can open
 	// pointer to object.
 
-    first = PAR::new_token ( PAR::BRACKETED );
+    first = PAR::new_token ( after_elements ?
+                             PAR::BRACKETED :
+			     PAR::PREFIX );
     PAR::put_before
 	( first_ref(parser), next, first );
 

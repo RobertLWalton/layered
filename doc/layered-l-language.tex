@@ -949,38 +949,58 @@ are used to call out-of-line functions:
 		~\TT{call}~ {\em function-expression} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{}
 	\end{tabular} \\[1ex]
-\emkey{call-assignment-option} ::=
-	\TT{*UNCHECKED*} $|$ \TT{*REVERSE*} $|$ \TT{*NO-RELOAD*}
+\emkey{call-assignment-option}
+	\begin{tabular}[t]{rl}
+	::= & \TT{*UNCHECKED*} $|$ \TT{*REVERSE*} $|$ \TT{*NO-RELOAD*} \\
+	$|$ & \TT{*NO-MATCH*}
+	\end{tabular}
 \end{indpar}
 
 The {\em function-expression} evaluates to a function to be called,
 and its type \TT{T} must have the \TT{adr} type as its underlying type.
-The values of the variables created by the assignment statements
-are the arguments to the function, in top to bottom, left to right
-order.  The results of the function call are stored in the
+The values of the variables created by the {\em assignment-statements}
+are the arguments to the function.
+The results of the function call are stored in the
 {\em variable-list} variables.
 
 A call assignment must be \TT{*UNCHECKED*} unless \TT{T} is declared
 by a function type declaration of the form:
 \begin{center}
-\TT{function type} {\em result-variable-list } \TT{=}
-    {\em call-assignment-option}\STAR{}
-    {\em defined-type-name}
-    {\em argument-variable-list}
 \end{center}
 
-This makes \TT{adr} the underlying type, and declares the prototype
-for the function call after the manner of section \itemref{FUNCTIONS}.
-Then a call assignment statement is type-checked like an inline function
-call whose arguments are the variable names in the call subblock.
+\begin{indpar}
+\emkey{function-type-declaration} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+		\TT{function type}
+		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
+		\TT{~~~~~~~~}{\em call-assignment-option}\STAR{}
+		    {\em defined-type-name}\TT{:} \\
+		\TT{~~~~}{\em argument-variable-list}\STAR{}
+	\end{tabular}
+\end{indpar}
 
-Normally arguments are passed to the function
-in top to bottom, left to right order.  However the
+This makes \TT{adr} the underlying type, and declares the prototype
+for the function.
+Then a call assignment block is type-checked by matching
+the variable names in the call assignment block
+to those in the prototype.  Thus the order of variables
+in the call block does not matter.  Also, a call block argument
+may be of different
+type than corresponding prototype argument if there is an implied
+conversion from the call block
+argument type to the prototype argument type,
+in which case the implied conversion will be invoked.
+
+If there is no function prototype (so the call is \TT{*UNCHECKED*}),
+of if the \TT{*NO-MATCH*} option is given, there is no matching of
+argument variable names to prototype variable names.  In this case
+normally arguments are passed to the function in the order they
+appear in the call block,
+top to bottom, left to right.  However, in this case the
 \TT{*REVERSE*} option reverses this order.
 
-
 Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
-is inserted automatically
+is executed automatically
 upon returning from the called function, but the
 \TT{*NO-RELOAD*} option suppresses this.
 
@@ -1005,10 +1025,11 @@ And each global area has a stack that is not in any other stack.
 
 Conceptually, the assignment statements in a block each allocate memory for
 their variable to the block stack and copy values to these
-variables.  As noted above, the memory and associated copies may be
+variables.  As noted above (Section \itemref{ASSIGNMENT-STATEMENTS}),
+the memory and associated copies may be
 optimized away in some cases.
 
-Stacks relocatable and can be moved.  Substacks cannot move independently,
+Stacks are relocatable and can be moved.  Substacks cannot move independently,
 but move whenever their containing stack moves.
 
 There are a couple of situations in which stacks move.
@@ -1020,7 +1041,7 @@ more free memory available.
 
 In a program being debugged, stacks may be saved after they are no
 longer needed by the program, in order to permit them to be analyzed
-by a debbuger if the program detects and error.  In this situations
+by a debbugger if the program detects and error.  In this situation
 stacks are allocated to a very big circular buffer, and overwritten
 after they are no longer needed by the program.  It may happen that
 a stack whose block is still running is in the way of a allocating

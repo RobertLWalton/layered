@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 18 07:25:50 EDT 2015
+// Date:	Tue Aug 18 15:48:07 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -858,6 +858,12 @@ inline min::int32 relative_indent
 //       return false
 //
 //     if current->type is line-break:
+//
+//       // Note: line-break processing either removes
+//       // line break and any possible following
+//       // paragraph and iterates top level loop or
+//       // it returns to caller; it never falls through
+//
 //       remove following line-breaks and full
 //              line comments, issuing warning
 //              messages for insufficiently
@@ -871,6 +877,7 @@ inline min::int32 relative_indent
 //           paragraph_indent = current->indent
 //
 //           loop to parse paragraph lines:
+//
 //               parse_bracketed_subexpression with
 //                   paragraph_indent, indentation_
 //                   mark argument = indentation_
@@ -879,28 +886,34 @@ inline min::int32 relative_indent
 //                   line; remember if line ended by
 //                   a line separator (instead of an
 //                   end of line, end of file, etc.)
+//
 //               if bracket stack top closed:
 //                   require that there was no line
 //                           ending separator and
 //                           adjust end of line to
 //                           before closing backet
+//
 //               if line is not empty:
 //                 compact line found with .type = <LF>
 //                         and .terminator = any line
 //                         ending separator found;
 //                         if line ending separator
 //                         found remove it first
+//
 //               if separator found, continue loop
 //               end loop if top of bracket stack
 //                   closed, or current->type is end-of-
-//                   file, or current->next has indent
-//                   less than paragraph_indent
+//                   file, or current->next is end-of-
+//                   file or has indent less than
+//                   paragraph_indent
+//
 //               delete current line-break and continue
-//                      loop
+//                      loop to get next paragraph line
 //
 //           remove indentation mark
 //           compact paragraph lines with .type =
 //                   indentation_found label
+//
 //	     if bracket stack top closed or current->
 //	        type is end-of-file:
 //	          return false
@@ -915,9 +928,9 @@ inline min::int32 relative_indent
 // 	 if current->next does not begin an indented
 // 	    continuation line:
 // 	      return false
-// 	 remove current line-break
-// 	 iterate top level loop; going to continuation
-// 	         line
+// 	 remove current line-break, go to next token,
+// 	        and iterate top level loop as next
+// 	        line is a continuation line
 //
 //    // continue top level loop if no line-break
 //    //          found
@@ -1162,12 +1175,11 @@ bool BRA::parse_bracketed_subexpression
 		// (does not == parser->first).
 		//
 		PAR::token mark_end = current->previous;
-		PAR::token next = current;
 		    // Tokens that bracket lines to be
 		    // scanned.  mark_end is the last
 		    // token of the indentation mark,
-		    // and next will be the first token
-		    // after the paragraph.
+		    // and current will be the first
+		    // token after the paragraph.
 
 		// Scan lines of paragraph.
 		//
@@ -1233,27 +1245,35 @@ bool BRA::parse_bracketed_subexpression
 				  bracket_stack_p );
 			PAR::token first =
 			    previous->next;
-			next = current;
 
 			if ( BRA::is_closed
 			         ( bracket_stack_p ) )
 			{
+			    // Line was terminated by
+			    // outer closing bracket.
+			    // Set line end to beginning
+			    // of that bracket.
+			    //
 			    MIN_REQUIRE
 			        ( ! separator_found );
-			    next = bracket_stack_p
+			    current = bracket_stack_p
 			              ->closing_first;
 			}
 
-			// Compact line subsubexp.
+			// Compact line subsubexp if it
+			// is not empty and does not
+			// have a separator (if it has
+			// a separator, separator is
+			// just before `current').
 			//
-			if ( first != next )
+			if ( first != current )
 			{
 			    min::phrase_position
 			        position;
 			    position.begin =
 			        first->position.begin;
 			    position.end =
-			        next->previous
+			        current->previous
 				    ->position.end;
 
 			    PAR::attr attributes[2];
@@ -1271,7 +1291,7 @@ bool BRA::parse_bracketed_subexpression
 
 			        PAR::remove
 				    ( parser,
-				      next,
+				      current,
 				      terminator );
 				first = previous->next;
 				    // In case first was
@@ -1287,7 +1307,7 @@ bool BRA::parse_bracketed_subexpression
 				( parser,
 				  pass->next,
 				  selectors,
-				  first, next,
+				  first, current,
 				  position,
 				  trace_flags,
 				  PAR::BRACKETING,
@@ -1307,18 +1327,29 @@ bool BRA::parse_bracketed_subexpression
 			          ( bracket_stack_p )
 			      ||
 			         current->type
-			      == LEXSTD::end_of_file_t
-			      ||
-			         current->next->type
-			      == LEXSTD::end_of_file_t 
-			      ||
-			      ( current->next->indent
-			        !=
-				LEX::AFTER_GRAPHIC
-				&&
-			          (int)
-				  current->next->indent
-			        < paragraph_indent ) )
+			      == LEXSTD::end_of_file_t )
+			    break;
+
+			if (    current->next
+			     == parser->first )
+			{
+			    parser->input->add_tokens
+				( parser, parser->input );
+			    MIN_REQUIRE
+				(    current->next
+				  != parser->first );
+			}
+
+			if (    current->next->type
+			     == LEXSTD::end_of_file_t 
+			     ||
+			     ( current->next->indent
+			       !=
+			       LEX::AFTER_GRAPHIC
+			       &&
+			         (int)
+				 current->next->indent
+			       < paragraph_indent ) )
 			    break;
 
 			// Delete line break.
@@ -1329,8 +1360,6 @@ bool BRA::parse_bracketed_subexpression
 				( first_ref(parser),
 				  current->previous ) );
 		    }
-
-		    MIN_REQUIRE ( next == current );
 		}
 
 		PAR::token first = mark_end->next;
@@ -1339,8 +1368,8 @@ bool BRA::parse_bracketed_subexpression
 		    PAR::remove
 			( parser, first,
 			  indentation_found->label );
-		position.end = next->previous
-		                   ->position.end;
+		position.end = current->previous
+		                      ->position.end;
 
 		PAR::attr attributes[1] =
 		    { PAR::attr
@@ -1351,7 +1380,7 @@ bool BRA::parse_bracketed_subexpression
 		PAR::compact
 		    ( parser, pass->next,
 		      selectors,
-		      first, next, position,
+		      first, current, position,
 		      trace_flags,
 		      PAR::BRACKETING,
 		      1, attributes );
@@ -1385,6 +1414,7 @@ bool BRA::parse_bracketed_subexpression
 	    MIN_REQUIRE (    current->type
 	                  == LEXSTD::line_break_t );
 	    next = current->next;
+	    MIN_REQUIRE ( next != parser->first );
 	    MIN_REQUIRE (    next->type
 	                  != LEXSTD::line_break_t
 		          &&

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 17 16:12:01 EDT 2015
+// Date:	Tue Aug 18 07:25:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -843,11 +843,20 @@ inline min::int32 relative_indent
 // ----- --------- ------------- --------
 
 // Outline of parse_bracketed_subexpression:
+// (omits tracing code and code to read more input)
+//
+//   if top of bracket stack is typed_opening
+//          and indentation_mark argument is NULL:
+//     save selectors argument and reset it to
+//          typed_opening->attr_selectors
 //
 //   indentation_mark indentation_found = NONE
+//
 //   loop:
+//
 //     if current->type is end-of-file:
 //       return false
+//
 //     if current->type is line-break:
 //       remove following line-breaks and full
 //              line comments, issuing warning
@@ -864,18 +873,24 @@ inline min::int32 relative_indent
 //           loop to parse paragraph lines:
 //               parse_bracketed_subexpression with
 //                   paragraph_indent, indentation_
+//                   mark argument = indentation_
 //                   found, new_selectors, bracket
 //                   stack; moves current to end of
-//                   line; remember line ended by
-//                   a separator
+//                   line; remember if line ended by
+//                   a line separator (instead of an
+//                   end of line, end of file, etc.)
 //               if bracket stack top closed:
 //                   require that there was no line
-//                           ending separator
-//               compact line found with .type = <LF>
-//                       and .terminator = any line
-//                       ending separator found;
-//                       if line ending separator
-//                       found remove it first
+//                           ending separator and
+//                           adjust end of line to
+//                           before closing backet
+//               if line is not empty:
+//                 compact line found with .type = <LF>
+//                         and .terminator = any line
+//                         ending separator found;
+//                         if line ending separator
+//                         found remove it first
+//               if separator found, continue loop
 //               end loop if top of bracket stack
 //                   closed, or current->type is end-of-
 //                   file, or current->next has indent
@@ -1048,6 +1063,8 @@ bool BRA::parse_bracketed_subexpression
 		( parser, parser->input );
 	    MIN_REQUIRE
 		( current->next != parser->first );
+	    continue;
+	        // In case we read end of file.
 	}
 
 	// Process line breaks.
@@ -1140,13 +1157,17 @@ bool BRA::parse_bracketed_subexpression
 
 	    if ( indentation_found != min::NULL_STUB )
 	    {
-		// Tokens that bracket lines to be
-		// scanned.  mark_end is the last token
-		// of the indentation mark, and next is
-		// the first token after the paragraph.
+	        // Current is the line break we did not
+		// remove, and current->next exists
+		// (does not == parser->first).
 		//
 		PAR::token mark_end = current->previous;
 		PAR::token next = current;
+		    // Tokens that bracket lines to be
+		    // scanned.  mark_end is the last
+		    // token of the indentation mark,
+		    // and next will be the first token
+		    // after the paragraph.
 
 		// Scan lines of paragraph.
 		//
@@ -1194,9 +1215,11 @@ bool BRA::parse_bracketed_subexpression
 			    ( first_ref(parser),
 			      current->previous ) );
 
+		    // Loop to parse paragraph lines.
+		    //
 		    while ( true )
 		    {
-			// Find a paragraph line.
+			// Move current to end of line.
 			//
 			PAR::token previous =
 			    current->previous;
@@ -1211,6 +1234,7 @@ bool BRA::parse_bracketed_subexpression
 			PAR::token first =
 			    previous->next;
 			next = current;
+
 			if ( BRA::is_closed
 			         ( bracket_stack_p ) )
 			{

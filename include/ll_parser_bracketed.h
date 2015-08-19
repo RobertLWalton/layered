@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 18 21:11:55 EDT 2015
+// Date:	Wed Aug 19 02:23:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -647,28 +647,49 @@ ll::parser::pass new_pass ( void );
 //
 struct bracket_stack
 {
+    // Either opening_bracket != NULL_STUB or prefix_
+    // type != MISSING.
+
     ll::parser::bracketed
               ::opening_bracket opening_bracket;
         // If not NULL_STUB, this identifies the opening
 	// bracket whose recognition made this entry.
 
+    min::gen prefix_type;
+        // If not MISSING, this identifies the .type of
+	// the prefix separator whose recognition made
+	// this entry.
+
     ll::parser::token closing_first, closing_next;
         // If these are NULL_STUB, this entry is open.
-	// Otherwise if first != next, they are the
+	//
+	// Otherwise if opening_bracket != NULL_STUB,
+	// then if first != next, these entries are the
 	// first token of the closing bracket that
 	// closed this entry, and the next token AFTER
 	// this bracket, but if first == next, the
 	// closing bracket that terminated this entry
 	// was missing and should be inserted just
 	// before next.
+	//
+	// Otherwise if prefix_type != MISSING, then if
+	// first != next, these entries are the the
+	// PREFIX token that closed this entry and the
+	// next token AFTER this PREFIX token, but if
+	// first == next, this entry was closed by
+	// something other than a PREFIX token.  In
+	// order for a PREFIX token to close an entry,
+	// its .type must equal the prefix_type.
 
     ll::parser::bracketed::bracket_stack * previous;
-        // Stack is NULL terminated.
+        // Previous entry in stack.  Stack is NULL
+	// terminated.
 
     bracket_stack
 	    ( ll::parser::bracketed
 	                ::bracket_stack * previous )
         : opening_bracket ( min::NULL_STUB ),
+	  prefix_type ( min::MISSING() ),
           closing_first ( min::NULL_STUB ),
           closing_next ( min::NULL_STUB ),
 	  previous ( previous ) {}

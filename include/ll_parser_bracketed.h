@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 10 15:42:23 EDT 2015
+// Date:	Tue Aug 18 21:11:55 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -688,6 +688,8 @@ bool parse_bracketed_subexpression
 	  min::int32 indent,
 	  ll::parser::bracketed::indentation_mark
 	      indentation_mark,
+	  ll::parser::bracketed::typed_opening
+	      typed_opening,
 	  bracket_stack * bracket_stack_p  = NULL );
 
 } } }

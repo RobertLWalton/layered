@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 18 15:48:07 EDT 2015
+// Date:	Tue Aug 18 21:12:24 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1010,6 +1010,7 @@ bool BRA::parse_bracketed_subexpression
 	  PAR::token & current,
 	  min::int32 indent,
 	  BRA::indentation_mark indentation_mark,
+	  BRA::typed_opening typed_opening,
 	  BRA::bracket_stack * bracket_stack_p )
 {
     BRA::bracketed_pass pass =
@@ -1021,29 +1022,20 @@ bool BRA::parse_bracketed_subexpression
 	// line and current->previous token is the last
 	// token of an indentation mark.
 
-    // Discover if the subexpression we are scanning is
-    // a typed bracketed subexpression, and if yes:
+    // If the subexpression we are scanning is a typed
+    // bracketed subexpression:
     //
     //     save selectors
     //     recompute selectors
     //     use the fact that saved_selectors is not 0
     //         to indicate we are not in element-list
     //
-    BRA::typed_opening typed_opening = min::NULL_STUB;
     TAB::flags saved_selectors;
-    if ( indentation_mark == min::NULL_STUB
-         &&
-	 bracket_stack_p != NULL )
+    if ( typed_opening != min::NULL_STUB )
     {
-        typed_opening =
-	    (BRA::typed_opening)
-	    bracket_stack_p->opening_bracket;
-	if ( typed_opening != min::NULL_STUB )
-	{
-	    saved_selectors = selectors;
-	    selectors = typed_opening->attr_selectors
-	              | PAR::ALWAYS_SELECTOR;
-	}
+	saved_selectors = selectors;
+	selectors = typed_opening->attr_selectors
+		  | PAR::ALWAYS_SELECTOR;
     }
 
     TAB::flags trace_flags = parser->trace_flags;
@@ -1242,6 +1234,7 @@ bool BRA::parse_bracketed_subexpression
 				  current,
 				  paragraph_indent,
 				  indentation_found,
+				  min::NULL_STUB,
 				  bracket_stack_p );
 			PAR::token first =
 			    previous->next;
@@ -1588,6 +1581,10 @@ bool BRA::parse_bracketed_subexpression
 			  - pass->indentation_offset :
 			  indent,
 		      min::NULL_STUB,
+		      subtype == BRA::TYPED_OPENING ?
+		          (BRA::typed_opening) root :
+			  (BRA::typed_opening)
+			      min::NULL_STUB,
 		      & cstack );
 		PAR::token first = previous->next;
 

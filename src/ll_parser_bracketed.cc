@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 18 21:12:24 EDT 2015
+// Date:	Thu Aug 20 05:39:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1586,7 +1586,11 @@ bool BRA::parse_bracketed_subexpression
 			  (BRA::typed_opening)
 			      min::NULL_STUB,
 		      & cstack );
+
 		PAR::token first = previous->next;
+		PAR::token next = current;
+		min::phrase_position position;
+		    // Arguments for compact.
 
 		if (    cstack.closing_next
 		     == cstack.closing_first )
@@ -1601,11 +1605,11 @@ bool BRA::parse_bracketed_subexpression
 		    // before which closing bracket
 		    // should be inserted.
 		    //
-		    PAR::token next =
-			(    cstack.closing_next
-			  == min::NULL_STUB ?
-			  current :
-			  cstack.closing_next );
+		    if (   cstack.closing_next
+			 != min::NULL_STUB )
+			next = cstack.closing_next;
+		    position.end =
+			next->previous->position.end;
 
 		    parser->printer
 			<< min::bom
@@ -1647,65 +1651,77 @@ bool BRA::parse_bracketed_subexpression
 			  parser->input_file,
 			  next->position );
 		    ++ parser->error_count;
-
-		    min::phrase_position position;
+		}
+		else
+		{
+		    MIN_REQUIRE (    cstack.closing_next
+		                  == current );
 		    position.end =
-			next->previous->position.end;
-		    position.begin =
-			PAR::remove
-			    ( parser, first,
-			      opening_bracket->label );
+			current->previous->position.end;
 
-		    if (    opening_bracket->reformatter
-		         == min::NULL_STUB
-			 ||
-			 ( * opening_bracket->
-			       reformatter->
-			       reformatter_function )
-		             ( parser, (PAR::pass) pass,
-			       selectors,
-			       first, current, position,
-			       trace_flags,
-			       (TAB::root)
-			           opening_bracket )
-		       )
-		    {
-			PAR::attr attributes[2] =
-			    { PAR::attr
-				  ( min::dot_initiator,
-				    opening_bracket->
-					label ),
-			      PAR::attr
-				  ( min::dot_terminator,
-				    opening_bracket->
-				      closing_bracket->
-					      label ) };
+		    PAR::remove ( parser, current,
+			          cstack.opening_bracket
+			              ->closing_bracket
+				      ->label );
+		}
 
-			PAR::compact
-			    ( parser, pass->next,
-			      selectors,
-			      first, next, position,
-			      trace_flags,
-			      PAR::BRACKETING,
-			      2, attributes, 1 );
+		position.begin =
+		    PAR::remove
+			( parser, first,
+			  opening_bracket->label );
 
-			value_type_ref(first) =
-		    	    opening_bracket->label;
-		    }
+		if (    opening_bracket->reformatter
+		     == min::NULL_STUB
+		     ||
+		     ( * opening_bracket->
+			   reformatter->
+			   reformatter_function )
+			 ( parser, (PAR::pass) pass,
+			   selectors,
+			   first, next, position,
+			   trace_flags,
+			   (TAB::root)
+			       opening_bracket )
+		   )
+		{
+		    PAR::attr attributes[2] =
+			{ PAR::attr
+			      ( min::dot_initiator,
+				opening_bracket->
+				    label ),
+			  PAR::attr
+			      ( min::dot_terminator,
+				opening_bracket->
+				  closing_bracket->
+					  label ) };
 
-		    if (    cstack.closing_next
-			 == min::NULL_STUB )
-		    {
-			// Found a line break before
-			// non-indented line or an end
-			// of file when a closing
-			// bracket was expected.  Go
-			// to appropriate code above
-			// to process.
-			//
-			break;
-		    }
+		    PAR::compact
+			( parser, pass->next,
+			  selectors,
+			  first, next, position,
+			  trace_flags,
+			  PAR::BRACKETING,
+			  2, attributes, 1 );
 
+		    value_type_ref(first) =
+			opening_bracket->label;
+		}
+
+		if (    cstack.closing_next
+		     == min::NULL_STUB )
+		{
+		    // Found a line break before
+		    // non-indented line or an end
+		    // of file when a closing
+		    // bracket was expected.  Go
+		    // to appropriate code above
+		    // to process.
+		    //
+		    break;
+		}
+		else if (    cstack.closing_next
+		          == cstack.closing_first )
+		{
 		    // Found a closing bracket that is
 		    // not ours.  It must be in the
 		    // bracket_stack and so needs to
@@ -1714,61 +1730,7 @@ bool BRA::parse_bracketed_subexpression
 		    return false;
 		}
 		else
-		{
-		    MIN_REQUIRE (    cstack.closing_next
-		                  == current );
-
-		    min::phrase_position position;
-		    position.end =
-			current->previous->position.end;
-		    PAR::remove ( parser, current,
-			          cstack.opening_bracket
-			              ->closing_bracket
-				      ->label );
-		    position.begin =
-			PAR::remove
-			    ( parser, first,
-			      opening_bracket->label );
-
-		    if (    opening_bracket->reformatter
-		         == min::NULL_STUB
-			 ||
-			 ( * opening_bracket->
-			       reformatter->
-			       reformatter_function )
-		             ( parser, (PAR::pass) pass,
-			       selectors,
-			       first, current,
-			       position,
-			       trace_flags,
-			       (TAB::root)
-				   opening_bracket )
-		       )
-		    {
-			PAR::attr attributes[2] =
-			    { PAR::attr
-				  ( min::dot_initiator,
-				    opening_bracket->
-					label ),
-			      PAR::attr
-				  ( min::dot_terminator,
-				    opening_bracket->
-				      closing_bracket->
-					    label ) };
-
-			PAR::compact
-			    ( parser, pass->next,
-			      selectors,
-			      first, current, position,
-			      trace_flags,
-			      PAR::BRACKETING,
-			      2, attributes, 1 );
-
-			value_type_ref(first) =
-		    	    opening_bracket->label;
-		    }
 		    break;
-		}
 	    }
 
 	    else if ( subtype == BRA::CLOSING_BRACKET )

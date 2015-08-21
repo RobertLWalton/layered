@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 19 02:23:49 EDT 2015
+// Date:	Fri Aug 21 15:59:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -662,6 +662,8 @@ struct bracket_stack
 
     ll::parser::token closing_first, closing_next;
         // If these are NULL_STUB, this entry is open.
+	// The bracketed subexpression may be closed
+	// anyway by a non-indented line or end of file.
 	//
 	// Otherwise if opening_bracket != NULL_STUB,
 	// then if first != next, these entries are the
@@ -673,13 +675,15 @@ struct bracket_stack
 	// before next.
 	//
 	// Otherwise if prefix_type != MISSING, then if
-	// first != next, these entries are the the
+	// first != next, these entries are the single
 	// PREFIX token that closed this entry and the
 	// next token AFTER this PREFIX token, but if
 	// first == next, this entry was closed by
-	// something other than a PREFIX token.  In
-	// order for a PREFIX token to close an entry,
-	// its .type must equal the prefix_type.
+	// something other than a PREFIX token with
+	// matching prefix_type (it may be closed by a
+	// closing_bracket or a PREFIX token that
+	// matches a stack entry farther from the top of
+	// the stack).
 
     ll::parser::bracketed::bracket_stack * previous;
         // Previous entry in stack.  Stack is NULL

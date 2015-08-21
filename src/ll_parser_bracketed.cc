@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 20 05:39:35 EDT 2015
+// Date:	Fri Aug 21 15:59:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1038,6 +1038,12 @@ bool BRA::parse_bracketed_subexpression
 		  | PAR::ALWAYS_SELECTOR;
     }
 
+    bool at_start = true;
+        // At start of subexpression where prefix
+	// separator is legal and combining a quoted
+	// string with a previous quoted string is
+	// NOT allowed.
+
     TAB::flags trace_flags = parser->trace_flags;
     if ( trace_flags & pass->trace_subexpressions )
     {
@@ -1380,6 +1386,7 @@ bool BRA::parse_bracketed_subexpression
 
 		value_type_ref(first) =
 		    indentation_found->label;
+		at_start = false;
 
 		// Terminate subexpression if closing
 		// bracket was found during indentation
@@ -1467,13 +1474,14 @@ bool BRA::parse_bracketed_subexpression
 	//
 	if ( current->type == LEXSTD::quoted_string_t )
 	{
-	    if ( current != parser->first
+	    if ( ! at_start
 	         &&
 		    current->previous->type
 		 == LEXSTD::quoted_string_t )
 	    {
 	        // Merge current and current->previous,
-		// which are both quoted strings.
+		// which are both quoted strings within
+		// the subexpression.
 		//
 	        min::push
 		    ( (PAR::string_insptr)
@@ -1490,7 +1498,10 @@ bool BRA::parse_bracketed_subexpression
 			  current->previous ) );
 	    }
 	    else
+	    {
 		current = current->next;
+		at_start = false;
+	    }
 
 	    continue;
 	}
@@ -1520,6 +1531,7 @@ bool BRA::parse_bracketed_subexpression
 	        // No active bracket table entry found.
 
 		current = key_first->next;
+		at_start = false;
 		break;
 	    }
 
@@ -1706,6 +1718,29 @@ bool BRA::parse_bracketed_subexpression
 		    value_type_ref(first) =
 			opening_bracket->label;
 		}
+		else if (    opening_bracket->reformatter
+		          != min::NULL_STUB
+			  &&
+			     next->previous->type
+			  == PAR::PREFIX )
+		{
+		    parser->printer
+		        << "FOUND PREFIX SEPARATOR "
+			<< ( at_start ?
+			     "AT START" : "IN MIDDLE" )
+			<< " OF SUBEXPRESSION; "
+			<< min::pline_numbers
+			       ( parser->input_file,
+				 next->previous
+				     ->position )
+			<< ":" << min::eom;
+		    min::print_phrase_lines
+			( parser->printer,
+			  parser->input_file,
+			  next->previous->position );
+		}
+
+		at_start = false;
 
 		if (    cstack.closing_next
 		     == min::NULL_STUB )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 21 15:59:48 EDT 2015
+// Date:	Sat Aug 22 03:52:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1733,7 +1733,7 @@ bool BRA::parse_bracketed_subexpression
 			       ( parser->input_file,
 				 next->previous
 				     ->position )
-			<< ":" << min::eom;
+			<< ":" << min::eol;
 		    min::print_phrase_lines
 			( parser->printer,
 			  parser->input_file,

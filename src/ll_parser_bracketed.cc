@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 22 03:52:50 EDT 2015
+// Date:	Sun Aug 23 11:05:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1724,20 +1724,155 @@ bool BRA::parse_bracketed_subexpression
 			     next->previous->type
 			  == PAR::PREFIX )
 		{
-		    parser->printer
-		        << "FOUND PREFIX SEPARATOR "
-			<< ( at_start ?
-			     "AT START" : "IN MIDDLE" )
-			<< " OF SUBEXPRESSION; "
-			<< min::pline_numbers
-			       ( parser->input_file,
-				 next->previous
-				     ->position )
-			<< ":" << min::eol;
-		    min::print_phrase_lines
-			( parser->printer,
-			  parser->input_file,
-			  next->previous->position );
+
+		    PAR::token prefix_sep =
+		        next->previous;
+		    min::gen prefix_type =
+		        prefix_sep->value_type;
+
+		    for ( BRA::bracket_stack * p =
+			      bracket_stack_p;
+			  p != NULL;
+			  p = p->previous )
+		    {
+			if (    p->prefix_type
+			     == prefix_type )
+			{
+			    p->closing_first =
+			        next->previous;
+			    p->closing_next = next;
+
+			    for ( BRA::bracket_stack *
+				      q = bracket_stack_p;
+				  q != p;
+				  q = q->previous )
+				q->closing_first =
+				    q->closing_next =
+					next->previous;
+
+			    return false;
+			}
+			else if (    p->opening_bracket
+			          != min::NULL_STUB )
+			    break;
+		    }
+
+		    if ( ! at_start )
+		    {
+			parser->printer
+			    << min::bom
+			    << min::set_indent ( 7 )
+			    << "ERROR: prefix"
+			       " separator in middle"
+			       " of expression -"
+			       " deleted and ignored; "
+			    << min::pline_numbers
+				 ( parser->input_file,
+				   prefix_sep->position
+				 )
+			    << ":" << min::eom;
+			min::print_phrase_lines
+			    ( parser->printer,
+			      parser->input_file,
+			      prefix_sep->position );
+			++ parser->error_count;
+
+			PAR::free
+			    ( PAR::remove
+				( first_ref(parser),
+				  prefix_sep ) );
+		    }
+		    else if (    cstack.closing_next
+			      == min::NULL_STUB )
+		    {
+			// Found a line break before
+			// non-indented line or an end
+			// of file when a closing
+			// bracket was expected.  Go
+			// to appropriate code above
+			// to process.
+			//
+			break;
+		    }
+		    else if (    cstack.closing_next
+			      == cstack.closing_first )
+		    {
+			// Found a closing bracket that is
+			// not ours.  It must be in the
+			// bracket_stack and so needs to
+			// be kicked to our caller.
+			//
+			return false;
+		    }
+		    else while ( true )
+		    {
+		        MIN_REQUIRE ( next == current );
+			typedef
+		         min::phrase_position_vec_insptr
+			 pos_insptr;
+
+			BRA::bracket_stack cstack2
+			    ( bracket_stack_p );
+			cstack2.prefix_type =
+			    prefix_type;
+
+			BRA::parse_bracketed_subexpression
+			    ( parser, selectors,
+			      current,
+			      indent,
+			      indentation_mark,
+			      min::NULL_STUB,
+			      & cstack2 );
+
+			min::obj_vec_insptr vp
+			    ( prefix_sep->value );
+			pos_insptr pos =
+			    (pos_insptr)
+			    min::position_of ( vp );
+
+			min::phrase_position position =
+			    { prefix_sep->position.begin,
+			      current->previous
+			             ->position.end };
+			pos->position = position;
+
+			next = prefix_sep->next;
+			while ( next != current )
+			{
+			    min::gen elements[100];
+			    min::phrase_position
+			        positions[100];
+			    min::unsptr count = 0;
+			    while ( next != current
+			            &&
+				    count < 100 )
+			    {
+			        elements[count] = 
+				    next->value;
+			        positions[count] =
+				    next->position;
+				++ count;
+				next = next->next;
+			    }
+			    min::attr_push
+			        ( vp, count, elements );
+			    min::push
+			        ( pos, count, positions );
+			}
+
+			while (    prefix_sep->next
+			        != current )
+			    PAR::free
+				( PAR::remove
+				    ( first_ref(parser),
+				      current->previous
+				    ) );
+
+			if (    cstack2.closing_next
+			     == cstack2.closing_first )
+			    break;
+			    // TBD??
+		    }
 		}
 
 		at_start = false;

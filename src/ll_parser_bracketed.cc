@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 24 07:09:25 EDT 2015
+// Date:	Mon Aug 24 13:20:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1809,8 +1809,6 @@ bool BRA::parse_bracketed_subexpression
 		      // To avoid a too long line
 		    else while ( true )
 		    {
-		        MIN_REQUIRE ( next == current );
-
 			typedef
 		         min::phrase_position_vec_insptr
 			 pos_insptr;
@@ -1841,9 +1839,10 @@ bool BRA::parse_bracketed_subexpression
 
 			min::phrase_position position =
 			    { prefix_sep->position.begin,
-			      current->previous
-			             ->position.end };
+			      next->previous
+			          ->position.end };
 			pos->position = position;
+			prefix_sep->position = position;
 
 			PAR::token t = prefix_sep->next;
 			while ( t != next )
@@ -1882,9 +1881,21 @@ bool BRA::parse_bracketed_subexpression
 				      next->previous
 				    ) );
 
+			vp = min::NULL_STUB;
+			    // Necessary so trace_sub-
+			    // expression can open
+			    // pointer to object.
+
+			PAR::trace_subexpression
+			    ( parser, prefix_sep,
+			      trace_flags );
+
 			if (    cstack2.closing_next
 			     == cstack2.closing_first )
 			    return separator_found;
+
+			prefix_sep =
+			    cstack2.closing_first;
 		    }
 		}
 

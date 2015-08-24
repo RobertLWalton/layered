@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 22 03:44:08 EDT 2015
+// Date:	Mon Aug 24 11:05:58 EDT 2015
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -45,3 +45,4 @@ And another- {| x y z |b[ABC_,200] = (1 2 3),
                        no c[+], d[-], no f, g : t}
 And one more {| |b["A", 201,202, [5]]: t}
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+{X} a b c {X}{Y} d e {Y} f g {X} h k

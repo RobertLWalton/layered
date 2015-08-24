@@ -1016,3 +1016,119 @@ BRACKETED EXPRESSION:
     line 48:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@78 =:
+          .type = "X"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+PREFIX EXPRESSION:
+    {X|a b c|X}
+@78 = a b c:
+          .type = "X"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X};
+@79 = @78:
+          .terminator = ";"
+          .type = "<LF>"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@80 =:
+          .type = "X"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+           ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {Y||Y}
+@81 =:
+          .type = "Y"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+              ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+PREFIX EXPRESSION:
+    {Y|f g|Y}
+@81 = f g:
+          .type = "Y"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+              ^^^^^^^
+PREFIX EXPRESSION:
+    {X|{Y|f g|Y}|X}
+@80 = @81:
+          .type = "X"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+           ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|{Y|f g|Y}|X};
+@82 = @80:
+          .terminator = ";"
+          .type = "<LF>"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+           ^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@83 =:
+          .type = "X"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+                       ^^^
+PREFIX EXPRESSION:
+    {X|h k|X}
+@83 = h k:
+          .type = "X"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+                       ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|h k|X}
+@84 = @83:
+          .type = "<LF>"
+          .position[H] = {}
+    line 49:
+{X} a b c; {X}{Y} f g; {X} h k
+                       ^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 21 15:59:28 EDT 2015
+// Date:	Mon Aug 24 14:28:47 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -511,7 +511,10 @@ ll::parser::pass new_pass ( void );
 
 // Move `current' to the end of the current bracketed
 // subexpression, calling parser->input if more tokens
-// are needed.
+// are needed.  Return the end position of any line
+// separator found (the line separator is deleted), or
+// return min::MISSING_POSITION if no line separator
+// found.
 //
 // The parsed subexpression is NOT compacted and tokens
 // in it are left untouched with the following excep-
@@ -562,29 +565,31 @@ ll::parser::pass new_pass ( void );
 // of the closing bracket is `closed', any other
 // entries between this entry and the top of the stack
 // are marked `closed', `current' is positioned just
-// after the found closing bracket, and false is
-// returned.
+// after the found closing bracket, and min::MISSING_
+// POSITION is returned.
 //
 // If the subexpression is terminated a line separator,
 // the line separator must be that of the `indentation_
 // mark' argument, and it must be outside SUBSUBexpres-
 // sions.  In this case `current' is positioned just
-// after the line separator, and true is returned.
-// If the `indentation_mark' argument is NULL_STUB,
-// this feature is disabled.
+// after the line separator, but the line separator
+// is removed, and the end position of the line sepa-
+// rator is returned.  If the `indentation_mark' argu-
+// ment is NULL_STUB, this feature is disabled.
 //
 // If the subexpression is terminated by a line break
 // whose first following non-comment, non-line break
 // token has indent <= the `indent' argument, then
 // `current' is positioned at the line break, all 
 // line break and comment tokens following this are
-// deleted, false is returned, and NO bracket entries
-// are closed.  If `indent' equals MINUS parser->
-// indentation_offset, this feature is disabled.
+// deleted, min::MISSING_POSITION is returned, and NO
+// bracket entries are closed.  If `indent' equals MINUS
+// parser->indentation_offset, this feature is disabled.
 //
 // If the subexpression is terminated by an end-of-file,
-// `current' is positioned at the end-of-file, false is
-// returned, and NO bracket entries are closed.
+// `current' is positioned at the end-of-file, min::
+// MISSING_POSITION is returned, and NO bracket entries
+// are closed.
 //
 // This function calls itself recursively if it finds
 // an opening bracket or an indentation mark.  The
@@ -706,7 +711,7 @@ inline bool is_closed ( ll::parser::bracketed
            && p->closing_first != min::NULL_STUB;
 }
 
-bool parse_bracketed_subexpression
+min::position parse_bracketed_subexpression
 	( ll::parser::parser parser,
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & current,

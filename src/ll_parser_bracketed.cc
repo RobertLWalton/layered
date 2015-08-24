@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 24 13:20:51 EDT 2015
+// Date:	Mon Aug 24 14:02:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -855,7 +855,7 @@ inline min::int32 relative_indent
 //   loop:
 //
 //     if current->type is end-of-file:
-//       return false
+//       return min::MISSING_POSITION
 //
 //     if current->type is line-break:
 //
@@ -916,7 +916,7 @@ inline min::int32 relative_indent
 //
 //	     if bracket stack top closed or current->
 //	        type is end-of-file:
-//	          return false
+//	          return min::MISSING_POSITION
 //	     indentation_found = NONE
 // 	 
 // 	 // Continue line-break processing
@@ -924,10 +924,10 @@ inline min::int32 relative_indent
 // 	 // token is not a line-break or comment
 // 	 //
 // 	 if current->next->type is end-of-file:
-// 	    return false
+// 	    return min::MISSING_POSITION
 // 	 if current->next does not begin an indented
 // 	    continuation line:
-// 	      return false
+// 	      return min::MISSING_POSITION
 // 	 remove current line-break, go to next token,
 // 	        and iterate top level loop as next
 // 	        line is a continuation line
@@ -982,7 +982,7 @@ inline min::int32 relative_indent
 //          iterate top level loop
 //        else if closing bracket was found that did not
 //           match top of closing stack:
-//          return false
+//          return min::MISSING_POSITION
 //        else
 //          iterate top level loop
 //
@@ -990,7 +990,7 @@ inline min::int32 relative_indent
 //        close bracket stack entry that matches key
 //        close all higher stack entries indication
 //          their closing brackets were not found
-//        return false
+//        return min::MISSING_POSITION
 //
 //      if key is selected indentation mark and
 //         current->type is end-of-file or line break:
@@ -999,12 +999,12 @@ inline min::int32 relative_indent
 //
 //      if key is line separator matching indentation_
 //         mark argument:
-//        return true
+//        return end position of separator
 //
 //      reject key
 //      iterate loop to refine key
 
-bool BRA::parse_bracketed_subexpression
+min::position BRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
 	  PAR::token & current,
@@ -1064,7 +1064,7 @@ bool BRA::parse_bracketed_subexpression
         // Truncate if end of file.
 	//
 	if ( current->type == LEXSTD::end_of_file_t )
-	    return false;
+	    return min::MISSING_POSITION;
 
 	// Ensure there is a next token.
 	//
@@ -1233,7 +1233,7 @@ bool BRA::parse_bracketed_subexpression
 			//
 			PAR::token previous =
 			    current->previous;
-			bool separator_found =
+			min::position separator_found =
 			  BRA::
 			   parse_bracketed_subexpression
 				( parser, new_selectors,
@@ -1260,12 +1260,12 @@ bool BRA::parse_bracketed_subexpression
 			}
 
 			// Compact line subsubexp if it
-			// is not empty and does not
-			// have a separator (if it has
-			// a separator, separator is
-			// just before `current').
+			// is not empty or has a
+			// separator.
 			//
-			if ( first != current )
+			if ( first != current
+			     ||
+			     separator_found )
 			{
 			    min::phrase_position
 			        position;
@@ -1288,18 +1288,13 @@ bool BRA::parse_bracketed_subexpression
 				  indentation_found
 				  ->line_sep->label;
 
-			        PAR::remove
-				    ( parser,
-				      current,
-				      terminator );
-				first = previous->next;
-				    // In case first was
-				    // removed.
 				attributes[n++] =
 				    PAR::attr
 				      ( min::
 				        dot_terminator,
 					terminator );
+				position.end =
+				    separator_found;
 			    }
 
 			    PAR::compact
@@ -1333,7 +1328,8 @@ bool BRA::parse_bracketed_subexpression
 			     == parser->first )
 			{
 			    parser->input->add_tokens
-				( parser, parser->input );
+				( parser,
+				  parser->input );
 			    MIN_REQUIRE
 				(    current->next
 				  != parser->first );
@@ -1397,7 +1393,7 @@ bool BRA::parse_bracketed_subexpression
 		     ||
 		        current->type
 		     == LEXSTD::end_of_file_t )
-		    return false;
+		    return min::MISSING_POSITION;
 
 		// Otherwise fall through to process
 		// line break at current that is after
@@ -1425,7 +1421,7 @@ bool BRA::parse_bracketed_subexpression
 	    // followed by an end of file.
 	    //
 	    if ( next->type == LEXSTD::end_of_file_t )
-		return false;
+		return min::MISSING_POSITION;
 
 	    // Now next is neither a line break or end
 	    // of file or comment.
@@ -1440,7 +1436,7 @@ bool BRA::parse_bracketed_subexpression
 			    pass->indentation_offset,
 			    next, indent )
 		 <= 0 )
-		return false;
+		return min::MISSING_POSITION;
 
 	    // Remove line break and move to next token.
 	    //
@@ -1718,7 +1714,8 @@ bool BRA::parse_bracketed_subexpression
 		    value_type_ref(first) =
 			opening_bracket->label;
 		}
-		else if (    opening_bracket->reformatter
+		else if (    opening_bracket
+		                 ->reformatter
 		          != min::NULL_STUB
 			  &&
 			     next->previous->type
@@ -1743,14 +1740,15 @@ bool BRA::parse_bracketed_subexpression
 			    p->closing_next = next;
 
 			    for ( BRA::bracket_stack *
-				      q = bracket_stack_p;
+				    q = bracket_stack_p;
 				  q != p;
 				  q = q->previous )
 				q->closing_first =
 				    q->closing_next =
 					next->previous;
 
-			    return false;
+			    return
+			        min::MISSING_POSITION;
 			}
 			else if (    p->opening_bracket
 			          != min::NULL_STUB )
@@ -1797,12 +1795,13 @@ bool BRA::parse_bracketed_subexpression
 		    else if (    cstack.closing_next
 			      == cstack.closing_first )
 		    {
-			// Found a closing bracket that is
-			// not ours.  It must be in the
-			// bracket_stack and so needs to
-			// be kicked to our caller.
+			// Found a closing bracket that
+			// is not ours.  It must be in
+			// the bracket_stack and so
+			// needs to be kicked to our
+			// caller.
 			//
-			return false;
+			return min::MISSING_POSITION;
 		    }
 #		    define PARSE_BRA_SUBEXP \
 		      BRA::parse_bracketed_subexpression
@@ -1818,7 +1817,7 @@ bool BRA::parse_bracketed_subexpression
 			cstack2.prefix_type =
 			    prefix_type;
 
-			bool separator_found =
+			min::position separator_found =
 			    PARSE_BRA_SUBEXP
 				( parser, selectors,
 				  current,
@@ -1838,7 +1837,8 @@ bool BRA::parse_bracketed_subexpression
 			    next = current;
 
 			min::phrase_position position =
-			    { prefix_sep->position.begin,
+			    { prefix_sep->
+			          position.begin,
 			      next->previous
 			          ->position.end };
 			pos->position = position;
@@ -1870,7 +1870,8 @@ bool BRA::parse_bracketed_subexpression
 			    min::attr_push
 			        ( vp, count, elements );
 			    min::push
-			        ( pos, count, positions );
+			        ( pos, count,
+				  positions );
 			}
 
 			while (    prefix_sep->next
@@ -1921,7 +1922,7 @@ bool BRA::parse_bracketed_subexpression
 		    // bracket_stack and so needs to
 		    // be kicked to our caller.
 		    //
-		    return false;
+		    return min::MISSING_POSITION;
 		}
 		else
 		    break;
@@ -1955,7 +1956,7 @@ bool BRA::parse_bracketed_subexpression
 			        q->closing_next =
 				    key_first;
 
-			return false;
+			return min::MISSING_POSITION;
 		    }
 		}
 
@@ -2017,7 +2018,14 @@ bool BRA::parse_bracketed_subexpression
 			(BRA::line_sep) root;
                 if (    line_sep->indentation_mark
 		     == indentation_mark )
-		    return true;
+		{
+		    min::position separator_found =
+		        current->previous
+			       ->position.end;
+		    PAR::remove ( parser, current,
+		                  root->label );
+		    return separator_found ;
+		}
 
 		// Indentation separator does not match
 		// indentation_mark argument; reject
@@ -2037,7 +2045,7 @@ bool BRA::parse_bracketed_subexpression
 	}
     }
 
-    return false;
+    return min::MISSING_POSITION;
 }
 
 // Bracketed Reformatters

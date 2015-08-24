@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 22 03:55:46 EDT 2015
+// Date:	Mon Aug 24 14:05:36 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1031,7 +1031,7 @@ void PAR::parse ( PAR::parser parser )
 	    }
 	}
 
-	bool separator_found =
+	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
 		  current,
@@ -1045,9 +1045,10 @@ void PAR::parse ( PAR::parser parser )
 	    parser->first :
 	    previous->next;
 
-        // If subexpression is not empty, compact it.
+        // If subexpression is not empty, or separator
+	// found, compact it.
 	//
-	if ( first != current )
+	if ( first != current || separator_found )
 	{
 
 	    min::phrase_position position =
@@ -1070,12 +1071,10 @@ void PAR::parse ( PAR::parser parser )
 		min::gen terminator =
 		    parser->top_level_indentation_mark
 			     ->line_sep->label;
-		PAR::remove
-		    ( parser, current, terminator );
-
 		attributes[n++] =
 		    PAR::attr ( min::dot_terminator,
 				terminator );
+		position.end = separator_found;
 	    }
 
 	    min::gen g = first->value;

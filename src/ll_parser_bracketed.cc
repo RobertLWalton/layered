@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 24 03:21:58 EDT 2015
+// Date:	Mon Aug 24 07:09:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1884,8 +1884,7 @@ bool BRA::parse_bracketed_subexpression
 
 			if (    cstack2.closing_next
 			     == cstack2.closing_first )
-			    break;
-			    // TBD??
+			    return separator_found;
 		    }
 		}
 

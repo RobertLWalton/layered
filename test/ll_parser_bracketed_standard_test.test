@@ -802,3 +802,93 @@ BRACKETED EXPRESSION:
         line 46:
 And one more {| |b["A", 201,202, [5]]: t}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {W||W}
+@65 =:
+          .type = "W"
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                     ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@66 =:
+          .type = "X"
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                             ^^^
+ERROR: prefix separator in middle of expression - deleted and ignored;
+       line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                             ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {Y||Y}
+@67 =:
+          .type = "Y"
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                                      ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    ({Y|6 7|Y})
+@68 = @67:
+          .terminator = ")"
+          .initiator = "("
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                                     ^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {Z||Z}
+@69 =:
+          .type = "Z"
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                                               ^^^
+ERROR: prefix separator in middle of expression - deleted and ignored;
+       line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                                               ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    ({W|2 3 4 5 ({Y|6 7|Y})|W})
+@70 = @65:
+          .terminator = ")"
+          .initiator = "("
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    A prefix expression ({W|2 3 4 5 ({Y|6 7|Y})|W})
+@71 = A prefix expression @70:
+          .type = "<LF>"
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

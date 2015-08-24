@@ -848,6 +848,14 @@ A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                       ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {Y|6 7|Y}
+@67 = 6 7:
+          .type = "Y"
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                                      ^^^^^^^
 BRACKETED EXPRESSION:
     ({Y|6 7|Y})
 @68 = @67:
@@ -875,6 +883,14 @@ A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {W|2 3 4 5 ({Y|6 7|Y})|W}
+@65 = 2 3 4 5 @68:
+          .type = "W"
+          .position[H] = {}
+    line 47:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ({W|2 3 4 5 ({Y|6 7|Y})|W})
 @70 = @65:
@@ -892,3 +908,111 @@ BRACKETED EXPRESSION:
     line 47:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@72 =:
+          .type = "X"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@73 =:
+          .type = "X"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+          ^^^
+PREFIX EXPRESSION:
+    {X|a b c|X}
+@72 = a b c:
+          .type = "X"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {Y||Y}
+@74 =:
+          .type = "Y"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+             ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {Y||Y}
+@75 =:
+          .type = "Y"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                     ^^^
+PREFIX EXPRESSION:
+    {Y|d e|Y}
+@74 = d e:
+          .type = "Y"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+             ^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@76 =:
+          .type = "X"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                             ^^^
+PREFIX EXPRESSION:
+    {Y|f g|Y}
+@75 = f g:
+          .type = "Y"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                     ^^^^^^^
+PREFIX EXPRESSION:
+    {X|{Y|d e|Y} {Y|f g|Y}|X}
+@73 = @74 @75:
+          .type = "X"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+          ^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {X|h k|X}
+@76 = h k:
+          .type = "X"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                             ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X} {X|{Y|d e|Y} {Y|f g|Y}|X} {X|h k|X}
+@77 = @72 @73 @76:
+          .type = "<LF>"
+          .position[H] = {}
+    line 48:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 23 11:05:16 EDT 2015
+// Date:	Mon Aug 24 03:21:58 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1804,9 +1804,13 @@ bool BRA::parse_bracketed_subexpression
 			//
 			return false;
 		    }
+#		    define PARSE_BRA_SUBEXP \
+		      BRA::parse_bracketed_subexpression
+		      // To avoid a too long line
 		    else while ( true )
 		    {
 		        MIN_REQUIRE ( next == current );
+
 			typedef
 		         min::phrase_position_vec_insptr
 			 pos_insptr;
@@ -1816,13 +1820,14 @@ bool BRA::parse_bracketed_subexpression
 			cstack2.prefix_type =
 			    prefix_type;
 
-			BRA::parse_bracketed_subexpression
-			    ( parser, selectors,
-			      current,
-			      indent,
-			      indentation_mark,
-			      min::NULL_STUB,
-			      & cstack2 );
+			bool separator_found =
+			    PARSE_BRA_SUBEXP
+				( parser, selectors,
+				  current,
+				  indent,
+				  indentation_mark,
+				  min::NULL_STUB,
+				  & cstack2 );
 
 			min::obj_vec_insptr vp
 			    ( prefix_sep->value );
@@ -1830,29 +1835,38 @@ bool BRA::parse_bracketed_subexpression
 			    (pos_insptr)
 			    min::position_of ( vp );
 
+			next = cstack2.closing_first;
+			if ( next == min::NULL_STUB )
+			    next = current;
+
 			min::phrase_position position =
 			    { prefix_sep->position.begin,
 			      current->previous
 			             ->position.end };
 			pos->position = position;
 
-			next = prefix_sep->next;
-			while ( next != current )
+			PAR::token t = prefix_sep->next;
+			while ( t != next )
 			{
 			    min::gen elements[100];
 			    min::phrase_position
 			        positions[100];
 			    min::unsptr count = 0;
-			    while ( next != current
+			    while ( t != next
 			            &&
 				    count < 100 )
 			    {
+				if (    t->value
+				     == min::MISSING() )
+				    PAR::convert_token
+				        ( t );
+
 			        elements[count] = 
-				    next->value;
+				    t->value;
 			        positions[count] =
-				    next->position;
+				    t->position;
 				++ count;
-				next = next->next;
+				t = t->next;
 			    }
 			    min::attr_push
 			        ( vp, count, elements );
@@ -1861,11 +1875,11 @@ bool BRA::parse_bracketed_subexpression
 			}
 
 			while (    prefix_sep->next
-			        != current )
+			        != next )
 			    PAR::free
 				( PAR::remove
 				    ( first_ref(parser),
-				      current->previous
+				      next->previous
 				    ) );
 
 			if (    cstack2.closing_next

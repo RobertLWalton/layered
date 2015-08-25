@@ -848,7 +848,7 @@ A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                       ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {Y|6 7|Y}
 @67 = 6 7:
           .type = "Y"
@@ -883,7 +883,7 @@ A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {W|2 3 4 5 ({Y|6 7|Y})|W}
 @65 = 2 3 4 5 @68:
           .type = "W"
@@ -932,7 +932,7 @@ PREFIX EXPRESSION:
     line 48:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
           ^^^
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {X|a b c|X}
 @72 = a b c:
           .type = "X"
@@ -964,7 +964,7 @@ PREFIX EXPRESSION:
     line 48:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                      ^^^
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {Y|d e|Y}
 @74 = d e:
           .type = "Y"
@@ -984,7 +984,7 @@ PREFIX EXPRESSION:
     line 48:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                              ^^^
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {Y|f g|Y}
 @75 = f g:
           .type = "Y"
@@ -992,7 +992,7 @@ PREFIX EXPRESSION:
     line 48:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                      ^^^^^^^
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {X|{Y|d e|Y} {Y|f g|Y}|X}
 @73 = @74 @75:
           .type = "X"
@@ -1000,7 +1000,7 @@ PREFIX EXPRESSION:
     line 48:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
           ^^^^^^^^^^^^^^^^^^
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {X|h k|X}
 @76 = h k:
           .type = "X"
@@ -1033,7 +1033,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {X|a b c|X}
 @78 = a b c:
           .type = "X"
@@ -1079,7 +1079,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {Y|f g|Y}
 @81 = f g:
           .type = "Y"
@@ -1087,7 +1087,7 @@ PREFIX EXPRESSION:
     line 49:
 {X} a b c; {X}{Y} f g; {X} h k
               ^^^^^^^
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X}
 @80 = @81:
           .type = "X"
@@ -1116,7 +1116,7 @@ PREFIX EXPRESSION:
     line 49:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^
-PREFIX EXPRESSION:
+BRACKETED EXPRESSION:
     {X|h k|X}
 @83 = h k:
           .type = "X"

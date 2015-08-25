@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 24 14:02:48 EDT 2015
+// Date:	Tue Aug 25 05:15:56 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -845,8 +845,7 @@ inline min::int32 relative_indent
 // Outline of parse_bracketed_subexpression:
 // (omits tracing code and code to read more input)
 //
-//   if top of bracket stack is typed_opening
-//          and indentation_mark argument is NULL:
+//   if typed_opening argument != NULL_STUB:
 //     save selectors argument and reset it to
 //          typed_opening->attr_selectors
 //
@@ -1009,7 +1008,7 @@ min::position BRA::parse_bracketed_subexpression
 	  TAB::flags selectors,
 	  PAR::token & current,
 	  min::int32 indent,
-	  BRA::indentation_mark indentation_mark,
+	  BRA::line_sep line_sep,
 	  BRA::typed_opening typed_opening,
 	  BRA::bracket_stack * bracket_stack_p )
 {
@@ -1239,7 +1238,8 @@ min::position BRA::parse_bracketed_subexpression
 				( parser, new_selectors,
 				  current,
 				  paragraph_indent,
-				  indentation_found,
+				  indentation_found
+				      ->line_sep,
 				  min::NULL_STUB,
 				  bracket_stack_p );
 			PAR::token first =
@@ -1520,7 +1520,7 @@ min::position BRA::parse_bracketed_subexpression
 	    // not necessarily selected closing bracket
 	    // or line separator that matches a symbol
 	    // active because of the bracket_stack or
-	    // indentation_mark arguments.
+	    // line_sep arguments.
 	    //
 	    if ( root == min::NULL_STUB )
 	    {
@@ -1786,10 +1786,12 @@ min::position BRA::parse_bracketed_subexpression
 			// Found a line break before
 			// non-indented line or an end
 			// of file when a closing
-			// bracket was expected.  Go
-			// to appropriate code above
-			// to process.
+			// bracket was expected.  Prefix
+			// separator has no elements.
+			// Go to code above to process.
 			//
+			prefix_sep->type =
+			    PAR::BRACKETED;
 			break;
 		    }
 		    else if (    cstack.closing_next
@@ -1801,6 +1803,8 @@ min::position BRA::parse_bracketed_subexpression
 			// needs to be kicked to our
 			// caller.
 			//
+			prefix_sep->type =
+			    PAR::BRACKETED;
 			return min::MISSING_POSITION;
 		    }
 #		    define PARSE_BRA_SUBEXP \
@@ -1822,7 +1826,7 @@ min::position BRA::parse_bracketed_subexpression
 				( parser, selectors,
 				  current,
 				  indent,
-				  indentation_mark,
+				  line_sep,
 				  min::NULL_STUB,
 				  & cstack2 );
 
@@ -1886,6 +1890,9 @@ min::position BRA::parse_bracketed_subexpression
 			    // Necessary so trace_sub-
 			    // expression can open
 			    // pointer to object.
+
+			prefix_sep->type =
+			    PAR::BRACKETED;
 
 			PAR::trace_subexpression
 			    ( parser, prefix_sep,
@@ -2011,25 +2018,15 @@ min::position BRA::parse_bracketed_subexpression
 		// Indentation mark not at end of line
 		// or end of file; reject key.
 	    }
-	    else if (    subtype
-	              == BRA::LINE_SEP )
+	    else if ( subtype == BRA::LINE_SEP
+	              &&
+                      line_sep == (BRA::line_sep) root )
 	    {
-		BRA::line_sep line_sep =
-			(BRA::line_sep) root;
-                if (    line_sep->indentation_mark
-		     == indentation_mark )
-		{
-		    min::position separator_found =
-		        current->previous
-			       ->position.end;
-		    PAR::remove ( parser, current,
-		                  root->label );
-		    return separator_found ;
-		}
-
-		// Indentation separator does not match
-		// indentation_mark argument; reject
-		// key.
+		min::position separator_found =
+		    current->previous->position.end;
+		PAR::remove
+		    ( parser, current, root->label );
+		return separator_found ;
 	    }
 
 	    if ( trace_flags & PAR::TRACE_KEYS )

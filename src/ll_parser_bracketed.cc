@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 25 05:15:56 EDT 2015
+// Date:	Tue Aug 25 22:41:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1003,6 +1003,21 @@ inline min::int32 relative_indent
 //      reject key
 //      iterate loop to refine key
 
+// Ensure there is a next token.
+//
+inline void ensure_next
+	( PAR::parser parser, PAR::token current )
+{
+    if ( current->next == parser->first
+         &&
+	 current->type != LEXSTD::end_of_file_t )
+    {
+	parser->input->add_tokens
+	    ( parser, parser->input );
+	MIN_REQUIRE
+	    ( current->next != parser->first );
+    }
+}
 min::position BRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
@@ -1060,56 +1075,76 @@ min::position BRA::parse_bracketed_subexpression
 
     while ( true )
     {
-        // Truncate if end of file.
+        // Skip comments and line breaks so that either
+	// nothing is skipped and current is not a line
+	// break or current is a line break followed by
+	// a non-line-break, non-comment token.
 	//
-	if ( current->type == LEXSTD::end_of_file_t )
-	    return min::MISSING_POSITION;
-
-	// Ensure there is a next token.
+	// We assume every comment is followed by a line
+	// break or end of file.  End of files not
+	// preceeded by a line break are errors.
+	// Comments skipped that are indented less than
+	// the first non-blank non-comment line are
+	// errors.  These errors are ignored but cause
+	// warning messages.
 	//
-	if ( current->next == parser->first )
+        PAR::token first = current;
+	if ( current->type == LEXSTD::comment_t )
 	{
-	    parser->input->add_tokens
-		( parser, parser->input );
-	    MIN_REQUIRE
-		( current->next != parser->first );
-	    continue;
-	        // In case we read end of file.
+	    ensure_next ( parser, current );
+	    current = current->next;
+	}
+	while ( current->type == LEXSTD::line_break_t )
+	{
+	    ensure_next ( parser, current );
+	    min::uns32 type = current->next->type;
+	    if ( type == LEXSTD::line_break_t )
+	    {
+	        // Skip line break if it is followed by
+		// another line break.
+		//
+	        current = current->next;
+		continue;
+	    }
+	    else if ( type != LEXSTD::comment_t )
+	        break;
+
+	    // If line break is followed by a comment,
+	    // skip both.
+	    //
+	    current = current->next;
+	    ensure_next ( parser, current );
+	    current = current->next;
 	}
 
-	// Process line breaks.
+	// Delete what has been skipped.
 	//
-	if ( current->type == LEXSTD::line_break_t )
+	if ( first != current )
 	{
-	    // Move forward to next token that is not
-	    // a line break or full line comment.
+	    // The last thing skipped was either a
+	    // comment or a line break followed by a
+	    // line break.  In either case we have:
 	    //
-	    PAR::token next = current->next;
-	    while ( true )
-	    {
-		if ( next->type != LEXSTD::line_break_t
-		     &&
-		     next->type != LEXSTD::comment_t )
-		    break;
+	    MIN_REQUIRE
+	      ( current->type == LEXSTD::line_break_t
+		||
+	        current->type == LEXSTD::end_of_file_t
+	      );
 
-		if ( next->next == parser->first )
-		{
-		    parser->input->add_tokens
-			( parser, parser->input );
-		    MIN_REQUIRE
-		        (    next->next
-			  != parser->first );
-		}
-		next = next->next;
+	    ensure_next ( parser, current );
+	    min::uns32 current_indent = 0;
+	    if ( current->type != LEXSTD::end_of_file_t
+		 &&
+	            current->next->type
+		 != LEXSTD::end_of_file_t )
+	    {
+	        current_indent = current->next->indent;
+		MIN_REQUIRE (    current_indent
+		              != LEX::AFTER_GRAPHIC );
 	    }
 
-	    min::uns32 next_indent =
-	        next->type == LEXSTD::end_of_file_t ?
-		0 :
-		next->indent;
-
 	    // Delete the line breaks and full line
-	    // comments skipped (keeping the line break
+	    // comments skipped (keeping any line break
 	    // at `current') and find the bounds of any
 	    // comments that are not indented as much
 	    // as the indent of next.
@@ -1120,28 +1155,27 @@ min::position BRA::parse_bracketed_subexpression
 		// comments.  Includes begin of first
 		// such and end of last such.
 
-	    while ( current->next != next )
+	    while ( first != current )
 	    {
-		if (    current->next->type
-		     == LEXSTD::comment_t
+		if ( first->type == LEXSTD::comment_t
 		     &&
-		       current->next->indent
-		     < next_indent )
+		     first->indent != LEX::AFTER_GRAPHIC
+		     &&
+		     first->indent < current_indent )
 		{
 		    if ( ! iic_exists )
 		    {
 		        iic_exists = true;
 			iic_position.begin =
-			    current->next
-			           ->position.begin;
+			    first->position.begin;
 		    }
 		    iic_position.end =
-		        current->next->position.end;
+		        first->position.end;
 		}
-		    
+		first = first->next;
 		PAR::free
 		    ( PAR::remove ( first_ref(parser),
-				    current->next ) );
+				    first->previous ) );
 	    }
 
 	    // Issue warning for any insufficiently
@@ -1164,57 +1198,222 @@ min::position BRA::parse_bracketed_subexpression
 		      iic_position );
 		++ parser->error_count;
 	    }
+	}
 
-	    if ( indentation_found != min::NULL_STUB )
+	// Issue warning if end of file not immediately
+	// preceeded by a line break.
+	//
+	if ( current->type == LEXSTD::end_of_file_t )
+	{
+	    min::phrase_position position = { 0, 0 };
+	    if ( current != parser->first )
+	        position.begin = position.end =
+		    current->previous->position.end;
+
+	    parser->printer
+		<< min::bom
+		<< min::set_indent ( 9 )
+		<< "WARNING: end of file not"
+		   " immediately preceeded by an end"
+		   " of line; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  position );
+	    ++ parser->error_count;
+	}
+
+	if ( indentation_found != min::NULL_STUB )
+	{
+	    // We come here to process an indented
+	    // paragraph.  The indentation was found
+	    // below but processing was deferred until
+	    // after skip above could be done.
+	    //
+	    MIN_REQUIRE
+	      ( current->type == LEXSTD::line_break_t
+		||
+	        current->type == LEXSTD::end_of_file_t
+	      );
+
+	    PAR::token mark_end = current->previous;
+	        // Last token of indentation mark.
+	    min::int32 indentation_offset =
+		pass->indentation_offset;
+
+	    // Scan lines of paragraph.  Current will
+	    // become the first line break or end of
+	    // file after the paragraph.
+	    //
+	    // First be sure paragraph has some
+	    // lines.
+	    //
+	    if (    current->type
+		 != LEXSTD::end_of_file_t
+		 &&
+	            current->next->type
+		 != LEXSTD::end_of_file_t
+		 &&
+		    relative_indent
+		        ( parser,
+		          indentation_offset,
+		          current->next, indent )
+		 > 0 )
 	    {
-	        // Current is the line break we did not
-		// remove, and current->next exists
-		// (does not == parser->first).
+		// Compute selectors and paragraph
+		// indent for indented subparagraph.
 		//
-		PAR::token mark_end = current->previous;
-		    // Tokens that bracket lines to be
-		    // scanned.  mark_end is the last
-		    // token of the indentation mark,
-		    // and current will be the first
-		    // token after the paragraph.
+		TAB::flags new_selectors =
+		    selectors;
+		new_selectors |=
+		    indentation_found->new_selectors
+				     .or_flags;
+		new_selectors &= ~
+		    indentation_found->new_selectors
+				     .not_flags;
+		new_selectors ^=
+		    indentation_found->new_selectors
+				     .xor_flags;
+		new_selectors |=
+		    PAR::ALWAYS_SELECTOR;
 
-		// Scan lines of paragraph.
+		min::int32 paragraph_indent =
+		    current->next->indent;
+
+		MIN_REQUIRE
+		    (    (unsigned) paragraph_indent
+		      != LEX::AFTER_GRAPHIC );
+
+		// Delete line break.
 		//
-		// First be sure paragraph has some
-		// lines.
+		current = current->next;
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  current->previous ) );
+
+		// Loop to parse paragraph lines.
 		//
-		if (    current->next->type
-		     != LEXSTD::end_of_file_t
-		     &&
-		     relative_indent
-		         ( parser,
-			   pass->indentation_offset,
-			   current->next, indent )
-			 > 0 )
+		while ( true )
 		{
-		    // Compute selectors and paragraph
-		    // indent for indented subparagraph.
+		    // Move current to end of line.
 		    //
-		    TAB::flags new_selectors =
-			selectors;
-		    new_selectors |=
-			indentation_found->new_selectors
-					 .or_flags;
-		    new_selectors &= ~
-			indentation_found->new_selectors
-					 .not_flags;
-		    new_selectors ^=
-			indentation_found->new_selectors
-					 .xor_flags;
-		    new_selectors |=
-		        PAR::ALWAYS_SELECTOR;
+		    PAR::token previous =
+			current->previous;
+		    min::position separator_found =
+		      BRA::
+		       parse_bracketed_subexpression
+			    ( parser, new_selectors,
+			      current,
+			      paragraph_indent,
+			      indentation_found
+				  ->line_sep,
+			      min::NULL_STUB,
+			      bracket_stack_p );
+		    PAR::token first = previous->next;
+		    PAR::token next = current;
 
-		    min::int32 paragraph_indent =
-		        current->next->indent;
+		    if ( BRA::is_closed
+			     ( bracket_stack_p ) )
+		    {
+			// Line was terminated by
+			// outer closing bracket.
+			// Set line end to beginning
+			// of that bracket.
+			//
+			MIN_REQUIRE
+			    ( ! separator_found );
+			next = bracket_stack_p
+				  ->closing_first;
+		    }
 
-		    MIN_REQUIRE
-		        (    (unsigned) paragraph_indent
-			  != LEX::AFTER_GRAPHIC );
+		    // Compact line subsubexp if it
+		    // is not empty or has a
+		    // separator.
+		    //
+		    if ( first != next
+			 ||
+			 separator_found )
+		    {
+			min::phrase_position
+			    position;
+			position.begin =
+			    first->position.begin;
+			position.end =
+			    next->previous
+				->position.end;
+
+			PAR::attr attributes[2];
+			unsigned n = 0;
+			attributes[n++] =
+			    PAR::attr
+			      ( min::dot_type,
+				PAR::new_line );
+
+			if ( separator_found )
+			{
+			    min::gen terminator =
+			      indentation_found
+			      ->line_sep->label;
+
+			    attributes[n++] =
+				PAR::attr
+				  ( min::
+				    dot_terminator,
+				    terminator );
+			    position.end =
+				separator_found;
+			}
+
+			PAR::compact
+			    ( parser,
+			      pass->next,
+			      selectors,
+			      first, next,
+			      position,
+			      trace_flags,
+			      PAR::BRACKETING,
+			      n, attributes );
+
+			value_type_ref(first) =
+			    PAR::new_line;
+		    }
+
+		    // See if there are more lines
+		    // in the paragraph.
+		    //
+		    if ( separator_found )
+			continue;
+		    else if
+			( BRA::is_closed
+			      ( bracket_stack_p )
+			  ||
+			     current->type
+			  == LEXSTD::end_of_file_t )
+			break;
+
+		    ensure_next ( parser, current );
+		    if (    current->type
+			 == LEXSTD::end_of_file_t 
+			 ||
+			    current->next->type
+			 == LEXSTD::end_of_file_t 
+			 ||
+			 ( current->next->indent
+			   !=
+			   LEX::AFTER_GRAPHIC
+		           &&
+	                     relative_indent
+		                 ( parser,
+			           indentation_offset,
+			           current->next,
+				   paragraph_indent )
+		           < 0 ) )
+			break;
 
 		    // Delete line break.
 		    //
@@ -1223,239 +1422,86 @@ min::position BRA::parse_bracketed_subexpression
 			( PAR::remove
 			    ( first_ref(parser),
 			      current->previous ) );
-
-		    // Loop to parse paragraph lines.
-		    //
-		    while ( true )
-		    {
-			// Move current to end of line.
-			//
-			PAR::token previous =
-			    current->previous;
-			min::position separator_found =
-			  BRA::
-			   parse_bracketed_subexpression
-				( parser, new_selectors,
-				  current,
-				  paragraph_indent,
-				  indentation_found
-				      ->line_sep,
-				  min::NULL_STUB,
-				  bracket_stack_p );
-			PAR::token first =
-			    previous->next;
-
-			if ( BRA::is_closed
-			         ( bracket_stack_p ) )
-			{
-			    // Line was terminated by
-			    // outer closing bracket.
-			    // Set line end to beginning
-			    // of that bracket.
-			    //
-			    MIN_REQUIRE
-			        ( ! separator_found );
-			    current = bracket_stack_p
-			              ->closing_first;
-			}
-
-			// Compact line subsubexp if it
-			// is not empty or has a
-			// separator.
-			//
-			if ( first != current
-			     ||
-			     separator_found )
-			{
-			    min::phrase_position
-			        position;
-			    position.begin =
-			        first->position.begin;
-			    position.end =
-			        current->previous
-				    ->position.end;
-
-			    PAR::attr attributes[2];
-			    unsigned n = 0;
-			    attributes[n++] =
-			        PAR::attr
-			          ( min::dot_type,
-				    PAR::new_line );
-
-			    if ( separator_found )
-			    {
-			        min::gen terminator =
-				  indentation_found
-				  ->line_sep->label;
-
-				attributes[n++] =
-				    PAR::attr
-				      ( min::
-				        dot_terminator,
-					terminator );
-				position.end =
-				    separator_found;
-			    }
-
-			    PAR::compact
-				( parser,
-				  pass->next,
-				  selectors,
-				  first, current,
-				  position,
-				  trace_flags,
-				  PAR::BRACKETING,
-				  n, attributes );
-
-			    value_type_ref(first) =
-			        PAR::new_line;
-			}
-
-			// See if there are more lines
-			// in the paragraph.
-			//
-			if ( separator_found )
-			    continue;
-			else if
-			    ( BRA::is_closed
-			          ( bracket_stack_p )
-			      ||
-			         current->type
-			      == LEXSTD::end_of_file_t )
-			    break;
-
-			if (    current->next
-			     == parser->first )
-			{
-			    parser->input->add_tokens
-				( parser,
-				  parser->input );
-			    MIN_REQUIRE
-				(    current->next
-				  != parser->first );
-			}
-
-			if (    current->next->type
-			     == LEXSTD::end_of_file_t 
-			     ||
-			     ( current->next->indent
-			       !=
-			       LEX::AFTER_GRAPHIC
-			       &&
-			         (int)
-				 current->next->indent
-			       < paragraph_indent ) )
-			    break;
-
-			// Delete line break.
-			//
-			current = current->next;
-			PAR::free
-			    ( PAR::remove
-				( first_ref(parser),
-				  current->previous ) );
-		    }
 		}
-
-		PAR::token first = mark_end->next;
-		min::phrase_position position;
-		position.begin =
-		    PAR::remove
-			( parser, first,
-			  indentation_found->label );
-		position.end = current->previous
-		                      ->position.end;
-
-		PAR::attr attributes[1] =
-		    { PAR::attr
-		          ( min::dot_type,
-			    indentation_found->
-			        label ) };
-
-		PAR::compact
-		    ( parser, pass->next,
-		      selectors,
-		      first, current, position,
-		      trace_flags,
-		      PAR::BRACKETING,
-		      1, attributes );
-
-		value_type_ref(first) =
-		    indentation_found->label;
-		at_start = false;
-
-		// Terminate subexpression if closing
-		// bracket was found during indentation
-		// processing, or if current token is an
-		// end of file.
-		// 
-		if ( BRA::is_closed ( bracket_stack_p )
-		     ||
-		        current->type
-		     == LEXSTD::end_of_file_t )
-		    return min::MISSING_POSITION;
-
-		// Otherwise fall through to process
-		// line break at current that is after
-		// indented lines.
-		//
-		indentation_found = min::NULL_STUB;
 	    }
 
-	    // If indentation was found, current may
-	    // have changed.  In any case, it is a
-	    // line break followed by a token that is
-	    // not a line break or comment.
-	    //
-	    MIN_REQUIRE (    current->type
-	                  == LEXSTD::line_break_t );
-	    next = current->next;
-	    MIN_REQUIRE ( next != parser->first );
-	    MIN_REQUIRE (    next->type
-	                  != LEXSTD::line_break_t
-		          &&
-		             next->type
-		          != LEXSTD::comment_t );
+	    PAR::token first = mark_end->next;
+	    min::phrase_position position;
+	    position.begin =
+		PAR::remove
+		    ( parser, first,
+		      indentation_found->label );
+	    position.end = current->previous
+				  ->position.end;
 
-	    // Truncate expression if line break is
-	    // followed by an end of file.
-	    //
-	    if ( next->type == LEXSTD::end_of_file_t )
+	    PAR::attr attributes[1] =
+		{ PAR::attr
+		      ( min::dot_type,
+			indentation_found->
+			    label ) };
+
+	    PAR::compact
+		( parser, pass->next,
+		  selectors,
+		  first, current, position,
+		  trace_flags,
+		  PAR::BRACKETING,
+		  1, attributes );
+
+	    value_type_ref(first) =
+		indentation_found->label;
+	    at_start = false;
+
+	    // Terminate subexpression if closing
+	    // bracket was found during indentation
+	    // processing.
+	    // 
+	    if ( BRA::is_closed ( bracket_stack_p ) )
 		return min::MISSING_POSITION;
 
-	    // Now next is neither a line break or end
-	    // of file or comment.
+	    // Otherwise fall through to process
+	    // line break at current that is after
+	    // indented lines.
+	    //
+	    indentation_found = min::NULL_STUB;
+	}
+
+	if ( current->type == LEXSTD::line_break_t )
+	{
+	    ensure_next ( parser, current );
+	    PAR::token next = current->next;
+	    MIN_REQUIRE
+	        ( next->type != LEXSTD::line_break_t
+		  &&
+		  next->type != LEXSTD::comment_t );
+
+	    if ( next->type == LEXSTD::end_of_file_t )
+		return min::MISSING_POSITION;
 
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.
 	    //
-	    if ( next->indent != LEX::AFTER_GRAPHIC
-	         &&
-		    relative_indent
+	    MIN_REQUIRE
+	        ( next->indent != LEX::AFTER_GRAPHIC );
+	    if (    relative_indent
 		          ( parser,
 			    pass->indentation_offset,
 			    next, indent )
 		 <= 0 )
 		return min::MISSING_POSITION;
 
-	    // Remove line break and move to next token.
+	    // Next is first part of continution line.
+	    // Remove line feed and iterate to level
+	    // loop.
 	    //
 	    PAR::free ( PAR::remove ( first_ref(parser),
 		                      current ) );
 	    current = next;
 	    continue;
 	}
-	else if ( current->type == LEXSTD::comment_t )
-	{
-	    // Comment that follows non-comment tokens
-	    // on a line.  Remove and continue.
-
-	    current = current->next;
-	    PAR::free
-		( PAR::remove ( first_ref(parser),
-		                current->previous ) );
-	    continue;
-	}
+	else if (    current->type
+	          == LEXSTD::end_of_file_t )
+	    return min::MISSING_POSITION;
 
 	MIN_REQUIRE
 	    ( indentation_found == min::NULL_STUB );
@@ -2006,6 +2052,9 @@ min::position BRA::parse_bracketed_subexpression
 	    {
                 if (    current->type
 		     == LEXSTD::line_break_t
+		     ||
+		        current->type
+		     == LEXSTD::comment_t
 		     ||
 		        current->type
 		     == LEXSTD::end_of_file_t )

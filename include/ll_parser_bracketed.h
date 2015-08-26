@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 25 05:00:19 EDT 2015
+// Date:	Wed Aug 26 15:46:39 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -565,17 +565,27 @@ ll::parser::pass new_pass ( void );
 //
 // A closing bracket can close prefix separator entries
 // and also bracket entries whose closing brackets are
-// missing.  Similarly an end of file, or line whose
-// indent is not greater than the `indent' argument,
-// or a recognized line separator, can close many
-// entries, and if a bracketed entry is so closed, its
-// closing bracket is missing and will be inserted.
+// missing.
+//
+// An end of file, a line whose indent is not greater
+// than the `indent' argument, or a recognized line
+// separator matching the `line_sep' argument, causes
+// this function to return WITHOUT closing ANY bracket
+// stack entries.  A return without any closed bracket
+// stack entries is caused by an end file if current
+// is an end of file token.  It is caused by a line
+// with indent not greater than the `indent' argument if
+// current is a line break.  And it is caused by a line
+// separator if the returned value is the position of
+// the line separator and not min::MISSING_POSITION, in
+// which case current is the token after the deleted
+// line separator.
 //
 // Closing brackets are only recognized if their
 // corresponding opening brackets are in the bracket
 // stack.  Prefix separators are recognized as closing
 // subexpressions only if a prefix separator with the
-// same label appears in the bracket stack above any
+// same .type appears in the bracket stack above any
 // bracket entry in that stack.
 //
 // If the subexpression is terminated a line separator,
@@ -592,12 +602,13 @@ ll::parser::pass new_pass ( void );
 //
 // If the subexpression is terminated by a line break
 // whose first following non-comment, non-line break
-// token has indent <= the `indent' argument, then
+// token T has indent <= the `indent' argument, then
 // `current' is positioned at the line break, all 
 // line break and comment tokens following this are
-// deleted, min::MISSING_POSITION is returned, and NO
-// bracket entries are closed.  If `indent' equals MINUS
-// parser->indentation_offset, this feature is disabled.
+// deleted, current->next is token T, min::MISSING_
+// POSITION is returned, and NO bracket entries are
+// closed.  If `indent' equals MINUS parser->indenta-
+// tion_offset, this feature is disabled.
 //
 // If the subexpression is terminated by an end-of-file,
 // `current' is positioned at the end-of-file, min::
@@ -609,26 +620,8 @@ ll::parser::pass new_pass ( void );
 // prefix separator at the beginning of the subexpres-
 // sion.  The `selectors' argument determines which
 // opening bracket and indentation mark definitions are
-// active.  When this function calls itself recursively,
-// upon return it wraps all the tokens of the sub-sub-
-// expression found into a single BRACKETED or PREFIX
-// token (even if this is an empty list).  It also
-// replaces quoted strings in the wrapped sub-subexpres-
-// sion by expressions whose sole elements are the
-// translation strings of the quoted string lexemes and
-// whose .types are " or #.
-//
-// The `selectors' argument has no affect on closing
-// bracket or line separator recognition.
-// 
-// More specifically, bracketed sub-subexpressions are
-// converted to a list.  For untyped brackets, the
-// .initiator and .terminator of this list are set to
-// the labels of the opening and closing brackets of the
-// sub-subexpression, and the .type is set to a label
-// that is a pair consisting first of the .initiator
-// label and second the .terminator label.  For typed
-// brackets just the .type is set.
+// active.  The `selectors' argument has no affect on
+// closing bracket or line separator recognition.
 //
 // If the subexpression is a typed bracketed subexpres-
 // sion, the `typed_opening' argument is not NULL_STUB,
@@ -636,8 +629,32 @@ ll::parser::pass new_pass ( void );
 // sion.  In this case the selectors argument is the
 // element selectors, the attribute selectors are in the
 // typed_opening, and the typed_middle is detected and
-// used to change selectors.
+// used to change selectors.  Selectors have no affect
+// on typed_middle recognition.
 //
+// When this function calls itself recursively to parse
+// a bracketed sub-subexpression, upon return it calls
+// any reformatter associated with the opening_bracket
+// that started the sub-subexpression, and either the
+// reformatter or a subsequence call to `compact' wraps
+// all the tokens of the sub-subexpression into a single
+// BRACKETED or PREFIX token (even if this is an empty
+// list).  It also converts tokens with MISSING value
+// (quoted strings and numerics) in the result as per
+// `convert_token'.  If the opening_bracket is not a
+// typed_opening, the resulting MIN object is given
+// the opening and closing brackets as its .initiator
+// and .terminator, and is NOT given a .type attribute.
+// If the opening_bracket is a typed_opening, the
+// MIN object is given a .type attribute, but NO
+// .initiator or .terminator.
+//
+// If an opening_bracket has its `FULL_LINES' option on,
+// the recursive call to this function has a disabled
+// `indent', NULL_STUB line_sep argument, and a bracket
+// stack consisting solely of one entry for the opening
+// bracket.
+// 
 // Sub-subexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list
 // is a list of lines and has the indentation mark label
@@ -653,14 +670,8 @@ ll::parser::pass new_pass ( void );
 // a line break.
 //
 // This function is called at the top level with zero
-// indent, the `top_level_indentation_mark' which has
-// indentation separator `;', and bracket_stack == NULL.
-//
-// If an opening bracket is found with its `FULL_LINES'
-// feature on, the resulting recursive call to this
-// function has a disabled `indent', NULL_STUB line_sep
-// argument, and has a bracket stack consisting solely
-// of one entry for the opening bracket.
+// indent, the `top_level_indentation_mark->line_sep'
+// which is `;', and bracket_stack == NULL.
 //
 struct bracket_stack
 {

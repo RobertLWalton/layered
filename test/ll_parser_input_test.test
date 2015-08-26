@@ -498,6 +498,6 @@ ERROR: premature end of file; line 39:
 END_OF_FILE: line 39:
 "premature end of file<END-OF-FILE>
                       ^
-ERROR: line break missing from end of file; line 39:
+WARNING: line break missing from end of file; line 39:
 "premature end of file<END-OF-FILE>
                       ^

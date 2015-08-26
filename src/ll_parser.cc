@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 25 05:17:33 EDT 2015
+// Date:	Wed Aug 26 14:43:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -902,11 +902,6 @@ void PAR::parse ( PAR::parser parser )
 	    ( * pass->begin_parse ) ( parser, pass );
     }
 
-    // True if last lexeme was a line break, so an end-
-    // of-file is OK.
-    //
-    bool eof_ok = true;
-
     // Go to the first non-line-break non-comment token.
     //
     parser->input->add_tokens
@@ -917,9 +912,6 @@ void PAR::parse ( PAR::parser parser )
             ||
 	    current->type == LEXSTD::comment_t )
     {
-	eof_ok =
-	    ( current->type == LEXSTD::line_break_t );
-
 	if ( current->next == parser->first )
 	{
 	    parser->input->add_tokens
@@ -952,26 +944,7 @@ void PAR::parse ( PAR::parser parser )
         // If end of file terminate loop.
 	//
         if ( current->type == LEXSTD::end_of_file_t )
-	{
-	    if ( ! eof_ok )
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: line break missing"
-		       " from end of file; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     current->position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      current->position );
-		++ parser->error_count;
-	    }
 	    break;
-	}
 
 	// If first lexeme check its indent is 0.
 	//
@@ -1158,9 +1131,7 @@ void PAR::parse ( PAR::parser parser )
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
 			        current->previous ) );
-	    eof_ok = true;
 	}
-	else eof_ok = false;
     }
 
     for ( PAR::pass pass = parser->pass_stack;

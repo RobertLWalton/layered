@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 25 22:41:22 EDT 2015
+// Date:	Wed Aug 26 11:29:43 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1213,9 +1213,8 @@ min::position BRA::parse_bracketed_subexpression
 	    parser->printer
 		<< min::bom
 		<< min::set_indent ( 9 )
-		<< "WARNING: end of file not"
-		   " immediately preceeded by an end"
-		   " of line; "
+		<< "WARNING: line break missing from"
+		   " end of file; "
 		<< min::pline_numbers
 		       ( parser->input_file,
 			 position )
@@ -1476,7 +1475,13 @@ min::position BRA::parse_bracketed_subexpression
 		  next->type != LEXSTD::comment_t );
 
 	    if ( next->type == LEXSTD::end_of_file_t )
+	    {
+		PAR::free
+		    ( PAR::remove ( first_ref(parser),
+				    current ) );
+		current = next;
 		return min::MISSING_POSITION;
+	    }
 
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.

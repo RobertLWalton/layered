@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 16, 2015
+August 27, 2015
  
 \end{center}
 
@@ -1035,7 +1035,7 @@ but move whenever their containing stack moves.
 There are a couple of situations in which stacks move.
 
 Memory of runtime determined size can be allocated to the end of
-a stack by the \TT{allocate} function described below, and this may
+a stack by the `\TT{allocate to stack}' function described below, and this may
 require that the stack be moved to a memory region where there is
 more free memory available.
 
@@ -1058,7 +1058,7 @@ them when they are deallocated gives a memory fault.
 
 
 \subsection{Unwind Blocks}
-\label{Unwind Blocks}
+\label{UNWIND-BLOCKS}
 
 \ikey{Unwind blocks}{unwind block} are executed only when their
 containing block terminates:
@@ -1083,44 +1083,55 @@ an unwind block that closes the file.  This ensures that the file
 will be closed even if the block that opened it terminates later
 prematurely with an error, such as a memory fault.
 
-Unwind blocks are used to implement the \TT{*CATCH*} statement that
-complements the \TT{*THROW*} statement:
+\subsection{Throw and Catch}
+\label{THROW-AND-CATCH}
+
+\TT{*THROW*} and \TT{*CATCH*} statements are used to implement
+exceptions, i.e., abnormal termination.
 
 \begin{indpar}
 \emkey{throw-statement} ::= \TT{*THROW*} \\[1ex]
 \emkey{catch-statement} ::= \TT{*CATCH*}
 \end{indpar}
 
-A block can terminate \ikey{normally}{normal block termination}
-or \ikey{abnormally}{abnormal block termination}.  Normal termination
-only occurs at the end of the block.  Abnormal termination occurs
-when the block executes a \TT{*THROW*} statement.
+The \TT{*THROW*} statement cause its containing block to
+\ikey{terminate abnormally}{abnormal termination}.
+When a block terminates abnormally, its containing
+block is also terminated abnormally.
 
-If a block terminates normally, then after its \TT{unwind} subblocks
-execute in reverse order, execution continues after the normally
-terminating block in the block that contains it.
+\ikey{Normal termination}{normal termination}
+of a block occurs at the end of the block if
+the block has not executed a \TT{*THROW*} or an abnormally
+terminating subblock.
 
-If a block terminates abnormally, then after its \underline{enabled}
-\TT{unwind} subblocks
-execute in reverse order,
-the block that contains the abnormally terminating block itself
-terminates abnormally.
+Any enabled \TT{*UNWIND*} subblocks of an abnormally terminating
+block are executed in reverse order, just as they would be if
+the block were terminating normally.  No other part of the block
+is executed.
 
-The \TT{*CATCH*} statement changes this by forcing the block containing
-the smallest \TT{unwind} block containing the \TT{*CATCH*} statement
-to terminate normally, even if it was otherwise terminating abnormally.
-Thus a \TT{*CATCH*} statement can be used allow an \TT{unwind} block
-to allow continuation after its containing block even if there are
-errors causing an abnormal termination of that containing block.
-
-Before a \TT{*THROW*} statement is executed, the program should record
-in memory the reason for the throw.  An \TT{unwind} block can then
-look for this, and if it is satisfied that it can recover the error,
-execute a \TT{*CATCH*} statement.
+If an \TT{*UNWIND*} block that is abnormally terminating
+executes a \TT{*CATCH*} statement, the termination of the block
+is changed from abnormal to normal.  This means, in particular,
+that the block's containing block will resume when the now
+normally terminating block finishes terminating.
 
 Machine errors, i.e. memory segment faults, invoke callable functions
 which can record error information and execute a \TT{*THROW*}.
+Similarly detected programming or data errors can record
+error information and execute a \TT{*THROW*}.  An \TT{*UNWIND*}
+block can look at recorded error information and decide whether
+or not to execute a \TT{*CATCH*}.
 
+If a block has variables it must assign then these need not be
+assigned if the block terminates abnormally, as they will not
+be visible to enabled \TT{*UNWIND*} blocks.  However, if a block
+that is terminating abnormally executes a \TT{*CATCH*} statement,
+all variables that the block must assign must be given values, even
+though part of the block may not have executed.  The compiler
+will check this, and will only permit code that complies in a
+straight forward manner, so it may be best to assign all such
+variables in the \TT{*UNWIND*} block that contains the \TT{*CATCH*}
+statement.
 
 \subsection{Stack Memory Allocation}
 \label{STACK-MEMORY-ALLOCATION}
@@ -1129,7 +1140,7 @@ The \ttkey{stack\_allocate} function allocates \TT{N} bytes of
 memory to the current stack and returns its address:
 
 \begin{indpar}\begin{verbatim}
-( stack adr address ) = stack_allocate ( unsadr N )
+( stack adr address ) = allocate to stack ( unsadr N )
 \end{verbatim}\end{indpar}\label{STACK-ALLOCATE}
 
 The memory is freed when the \TT{address} variable is freed, that is,
@@ -1143,7 +1154,7 @@ If you want a different alignment you can use:
 
 \begin{indpar}\begin{verbatim}
 ( stack adr address ) =
-    stack_allocate ( unsadr N, unsadr O, unsadr A )
+    allocate to stack ( unsadr N, unsadr O, unsadr A )
 \end{verbatim}\end{indpar}
 
 where \TT{A} must be a power of 2.  This will align the \TT{O+1}'st
@@ -1151,7 +1162,7 @@ byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
 
 
-\section{Global Areas}
+\subsection{Global Areas}
 \label{GLOBAL-AREAS}
 
 A global area is like the stack frame of a function that has no
@@ -1167,7 +1178,7 @@ by other code.  The syntax is:
 \end{indpar}
 
 Several such blocks may have the same {\em global-area-name},
-as long as no {\em variable-name} appears in more than one block.
+as long as no {\em variable-name} appears in more than one of these block.
 
 In order to be accessed a global area must be named in an `\TT{extern}'
 statement:
@@ -1187,12 +1198,20 @@ statement:
     \end{tabular}
 \end{indpar}
 
-A variable named \TT{V} in a global area with {\em global-area-abbreviation}
+A variable with {\em variable-name}
+\TT{V} in a global area with {\em global-area-abbreviation}
 \TT{A} may be named as \TT{A.V}, or if the variable has its own
-abbreviation \TT{VA}, that by itself (and \underline{not} \TT{A.VA})
+{\em variable-abbreviation} \TT{VA},
+which by itself (and \underline{not} \TT{A.VA})
 may be used to name the variable.  Abbreviations are only affective
 within the source code file containing the `\TT{extern}' statements
 that define them.
+
+The {\em type-name} and {\em qualifiers} of a variable in an
+{\em extern-variable-statement} must match the {\em type-name}
+and {\em qualifiers} of the variable in its {\em global-area-block},
+except that TBD.
+
 
 If \TT{A.V} is not defined, it is not a compile or link time error
 (though there may be warning messages if requested), but accessing
@@ -1203,8 +1222,8 @@ Memory within a global area can be allocated by:
 
 \begin{indpar}\begin{verbatim}
 ( global adr address ) =
-    global_allocate ( unsadr N, unsadr O, unsadr A )
-( global adr address ) = global_allocate ( unsadr N )
+    allocate to global ( unsadr N, unsadr O, unsadr A )
+( global adr address ) = allocate to global ( unsadr N )
 \end{verbatim}\end{indpar}
 
 The \TT{global\_allocate} function plays the same role for
@@ -1214,7 +1233,7 @@ instead of the \TT{stack} qualifier.  The \TT{global} qualifier
 has no special properties and normally has no effect on code.
 
 The code of a global area is executed when the file containing it is
-loaded, and the memory of the area is allocated and defined at that
+loaded, and the stack of the area is allocated and defined at that
 time.  Global areas may be deallocated.  References to a global area
 that is not yet allocated or has been deallocated cause runtime
 errors (typically segmentation faults).
@@ -1260,7 +1279,8 @@ can be considered
 as the \mkey{root}{of subcluster} of a subtree of cluster members, and
 the subtree is called a \key{subcluster}.
 
-The main feature of clusters is that members are passed to or returned
+The main feature of clusters and subclusters
+is that members are passed to or returned
 from functions implicitly when their the root variable is named
 explicitly.  For example:
 \begin{indpar}\begin{verbatim}
@@ -1270,26 +1290,27 @@ type pointer pair is void
     //   adr pp.end points just AFTER the last element
     //   type pp.type is type of element
 
-// Function to allocate a vector of n T's.
+// Function to allocate a vector of n T's to the stack.
 //
-( mem pointer pair pp,
-  adr pp.begin, adr pp.end, type pp.type ) =
-        allocate ( type T, uns32 n ):
+( pointer pair pp,
+  stack adr pp.begin, stack adr pp.end, type pp.type ) =
+        allocate to stack ( type T, uns32 n ):
     pp.type = T
+    require ( zero value OK ( T ) )
     unsadr length = size of ( T ) * n
-    pp.begin = allocate ( length )
+    pp.begin = allocate to stack ( length )
     pp.end = pp.begin + length
 
 
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
-( mem pp.type out, adr out.adr  ) =
-        "*" ( mem pointer pair pp,
-              type pp.type, adr pp.begin, adr pp.end ):
+( mem pp.type out, stack adr out.adr  ) =
+        "*" ( stack pointer pair pp,
+              type pp.type, stack pp.begin, stack pp.end ):
     out.adr = if:
         pp.begin < pp.end:
-            out.adr = pp.begin
+            *UNCHECKED* out.adr = pp.begin
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1297,12 +1318,12 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
-"*" ( mem pointer pair pp,
-      adr pp.begin, adr pp.end, type pp.type ) =
+"*" ( pointer pair pp,
+      stack adr pp.begin, stack adr pp.end, type pp.type ) =
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            unchecked: in --> pp.begin
+            *UNCHECKED* in --> pp.begin
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1310,22 +1331,22 @@ type pointer pair is void
 // Prefix operator to increment the begin pointer of a
 // pointer pair.  Note the result is a NEW pointer pair.
 //
-( mem pointer pair pp2,
-  adr pp2.begin, adr pp2.end, type pp2.type ) =
-        "++" ( mem pointer pair pp,
+( pointer pair pp2,
+  stack adr pp2.begin, stack adr pp2.end, type pp2.type ) =
+        "++" ( pointer pair pp,
                type pp.type,
-               adr pp.begin, adr pp.end ):
+               stack adr pp.begin, stack adr pp.end ):
       pp2.begin = pp.begin + size of ( T )
       pp2.end = pp.end
       pp2.type = pp.type
 
 // Assignment operator for pointer pairs.
 //
-( mem pointer pair pp2,
-  adr pp2.begin, adr pp2.end, type pp2.type ) =
-        "=" ( mem pointer pair pp,
+( pointer pair pp2,
+  stack adr pp2.begin, stack adr pp2.end, type pp2.type ) =
+        "=" ( pointer pair pp,
               type pp.type,
-              adr pp.begin, adr pp.end ):
+              stack adr pp.begin, stack adr pp.end ):
       pp2.begin = pp.begin
       pp2.end = pp.end
       pp2.type = pp.type
@@ -1337,19 +1358,19 @@ type pointer pair is void
     // Vector of 2 int32's is allocated and the elements
     // are set equal to 100 and 101.
     //
-    mem pointer pair pp = allocate ( int32, 2 )
+    pointer pair pp = allocate to stack ( int32, 2 )
     * pp = 100
     next pp = ++ pp
     * pp = 101
     . . . .
     // Vector of 1000 float64's is summed.
     //
-    mem pointer pair ppf = allocate ( float64, 1000 )
+    pointer pair ppf = allocate to stack ( float64, 1000 )
     ... set 1000 elements ...
     float64 sum = loop ( float64 partial sum,
-                         mem pointer pair ppf2,
-                         adr ppf2.begin,
-                         adr ppf2.end,
+                         pointer pair ppf2,
+                         stack adr ppf2.begin,
+                         stack adr ppf2.end,
                          type ppf2.type ):
         initially:
             partial sum = 0
@@ -1380,10 +1401,9 @@ A variable of \TT{void} type has no actual value
 and must not be assigned one.  Such variables are only useful
 as cluster and subcluster roots.
 
-In the above example `\TT{mem}' is a qualifier
+In the above example `\TT{mem}' and `\TT{stack} are qualifiers
 which can be applied to variables.
-A qualifier applied to a cluster root is applied automatically
-to the cluster members.  See \itemref{QUALIFIERS}.
+See \itemref{QUALIFIERS}.
 
 The `\TT{mem}' qualifier has the special property that given a variable
 \TT{v} of type \TT{T} and qualifier \TT{mem}, then if \TT{v} is allocated,
@@ -1392,6 +1412,12 @@ assigned a value, the base \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
 See \itemref{THE-MEM-QUALIFIER}.
+
+The `\TT{stack}' qualifier has the property that given a variable
+with this qualifier may \underline{not} be matched to an argument
+that does not have the `\TT{stack}' qualifier.  Thus only
+functions whose arguments have the `\TT{stack}' qualifier may
+input values that have this qualifier.
 
 \section{Qualifiers}
 \label{QUALIFIERS}

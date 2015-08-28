@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 27, 2015
+August 28, 2015
  
 \end{center}
 
@@ -575,13 +575,13 @@ Function definitions have the form:
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
             \TT{=} {\em input-variable-list} \\
-    $|$ & {\em other} as per Section \itemref{FUNCTION-PROTOTYPES-AND-CALLS}
+    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}
     \end{tabular}
 \end{indpar}
 
 A function call with a {\em result-variable-list}
 is in effect replaced by a {\em block-assignment-statement}
-(Section \itemref{BlOCK-ASSIGNMENT-STATEMENTS})
+(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
 with the {\em function-definition's} {\em result-variable-list} becoming the 
 {\em block-assignment-statement's} {\em variable-list} and the
 {\em function-definition's} {\em executable-statements} becoming the 
@@ -605,7 +605,7 @@ is syntactic sugar for \\
 \end{center}
 
 where use is made of the fact that a function can have multiple
-argument lists (Section \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
+argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
 
 An argument or return variable can have the `\TT{type}' type.
 If an argument variable has type `\TT{type}', its value can be used as the
@@ -717,7 +717,7 @@ the values of other variables in the same function execution
 stack (including
 arguments passed to the function execution).  In particular,
 no input can come from RAM memory outside the function execution stack.
-See Section \itemref{STACK-MANAGEMENT} for information about stacks.
+See Section~\itemref{STACK-MANAGEMENT} for information about stacks.
 
 Implicitly when a variable value is set this way, the value is first
 computed in a register, then stored in the stack, and for some time
@@ -1025,34 +1025,62 @@ And each global area has a stack that is not in any other stack.
 
 Conceptually, the assignment statements in a block each allocate memory for
 their variable to the block stack and copy values to these
-variables.  As noted above (Section \itemref{ASSIGNMENT-STATEMENTS}),
+variables.  As noted above (Section~\itemref{ASSIGNMENT-STATEMENTS}),
 the memory and associated copies may be
 optimized away in some cases.
 
-Stacks are relocatable and can be moved.  Substacks cannot move independently,
-but move whenever their containing stack moves.
+Stacks are either free or bound.  A bound stack is a substack that is
+not deallocated from memory until its smallest containing free stack is
+deallocated.  The main reason this is important is that stack addresses
+can be passed out of a block with a bound stack to its containing block,
+but cannot be passed out of a block with a free stack to its containing
+or calling block.  This is implemented by not allowing certain
+variables in to have the `\TT{stack}' qualifier: see
+Section~\itemref{THE-STACK-QUALIFIER}.
 
-There are a couple of situations in which stacks move.
+Stacks of function block executions are free, which is implemented by
+not allowing the variables in the {\em variable-list}
+of a {\em call-assignment-statement} to have the `\TT{stack}' qualifier.
+
+Stacks of loop iterations are free, which is implemented by not
+allowing the variables in the {\em iteration-variable-list} 
+f a {\em loop-assignment-statement} to have the `\TT{stack}'
+qualifier.
+
+Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
+but are never deallocated and make no use of the `\TT{stack}'
+qualifier.
+
+All other stacks are bound.  Memory allocated to them is actually
+allocated to their smallest containing free stack, and not deallocated
+until that free stack is deallocated.
+
+Free stacks are relocatable and can be moved.
+Substacks cannot move independently,
+but move whenever their smallest containing free stack moves.
+
+There are a couple of situations in which free stacks move.
 
 Memory of runtime determined size can be allocated to the end of
-a stack by the `\TT{allocate to stack}' function described below, and this may
-require that the stack be moved to a memory region where there is
-more free memory available.
+a stack by the `\TT{allocate to stack}' and `\TT{allocate to global}'
+functions described below, and such may
+require that the smallest containing free stack
+be moved to a memory region where there is more free memory available.
 
-In a program being debugged, stacks may be saved after they are no
+In a program being debugged, free stacks may be saved after they are no
 longer needed by the program, in order to permit them to be analyzed
 by a debbugger if the program detects and error.  In this situation
-stacks are allocated to a very big circular buffer, and overwritten
+free stacks are allocated to a very big circular buffer, and overwritten
 after they are no longer needed by the program.  It may happen that
-a stack whose block is still running is in the way of a allocating
+a free stack whose block is still running is in the way of a allocating
 a new stack to the circular buffer, in which case the still running
-block's stack may be moved.
+block's free stack may be moved.
 
 Lastly, global area stacks (\pagref{GLOBAL-AREAS})
 may be deallocated when programs that
 can reference them are still running, or may not yet be allocated
-when these programs run.  Such global area stacks are treated as if
-they were allocated to inaccessible memory, so deallocating them
+when these programs run.  Deallocated global area stacks are treated as if
+they were allocated to inaccessible memory, so deallocating these stacks
 is like moving them to inaccessible memory, and referencing
 them when they are deallocated gives a memory fault.
 
@@ -1413,41 +1441,43 @@ assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
 See \itemref{THE-MEM-QUALIFIER}.
 
-The `\TT{stack}' qualifier has the property that given a variable
-with this qualifier may \underline{not} be matched to an argument
-that does not have the `\TT{stack}' qualifier.  Thus only
-functions whose arguments have the `\TT{stack}' qualifier may
-input values that have this qualifier.
+The `\TT{stack}' qualifier has the property that values with
+this qualifier may not be passed out of a block with a free
+stack.  See Sections~\itemref{STACK-MANAGEMENT} and
+\itemref{THE-STACK-QUALIFIER}.
 
 \section{Qualifiers}
 \label{QUALIFIERS}
 
 Variables may be qualified by \skey{qualifier}s, such as the
-\TT{mem} qualifier in the example above.
+`\TT{mem}' and `\TT{stack}' qualifiers in the example above.
 
 Syntactically {\em qualifiers} immediately preceed {\em type-names}
 that are before {\em variable-names}.
 
 Some qualifiers are \skey{protection qualifier}s and some are not.
 Some qualifiers are \key{inverted} but most are not.
-The kinds of qualifiers may be declared by:
-\begin{center}
-\ttkey{qualifier} {\em defined-qualifier-name} \\
-\ttkey{protection qualifier} {\em defined-protection-qualifier-name} \\
-\ttkey{inverted qualifier} {\em defined-qualifier-name} \\
-\ttkey{inverted protection qualifier} {\em defined-protection-qualifier-name} \\
-\end{center}
+Some qualifiers are \key{inherited} but most are not.
 
-A qualifier applied to the root variable of a cluster or subcluster
-is automatically applied to all the member variables in the cluster
-or subcluster.
+The qualifiers may be declared by:
+\begin{indpar}
+\emkey{qualifier-declaration} ::=
+    {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
+           {\em defined-qualifier-name} \\
+\emkey{qualifier-attribute} ::=
+    \TT{protection} $|$ \TT{inverted} $|$ \TT{inherited}
+\end{indpar}
 
 In order for a function
 prototype (argument or result) variable to match an actual variable,
 if the prototype variable has a non-inverted qualifier, the actual
-variable must have this qualifier, and if the prototype variable
+variable must have this non-inverted qualifier.
+
+In order for a function
+prototype (argument or result) variable to match an actual variable,
+and if the prototype variable
 does \underline{not} have an inverted qualifier, the actual variable
-must \underline{not} have this qualifier.
+must \underline{not} have this inverted qualifier.
 
 If a variable is initialized by being matched to a prototype result variable
 of a function, the variable is implicitly given all the protection qualifiers
@@ -1456,8 +1486,14 @@ variable may acquire
 a protection qualifier.  Thus protection qualifiers may only be explicitly
 given for prototype variables.
 
+If an inherited qualifier is applied to the root variable of a cluster
+or subcluster, this inherited qualifier is automatically applied to all
+the member variables in the cluster or subcluster.  This is not done
+for non-inherited qualifiers.
+
 As an example of the above rules, the \TT{mem} qualifier is
-a non-inverted protection qualifier, so if \TT{t} is a type and \TT{v} a
+a non-inverted, non-inherited
+protection qualifier, so if \TT{t} is a type and \TT{v} a
 variable, and the {\em value-assignment-statement} allocating \TT{v} has the
 form `\TT{t v = }{\em expression}' where \TT{v} is matched
 with some result variable that has the \TT{mem} qualifier of some
@@ -1468,10 +1504,11 @@ whether or not that prototype variable has the \TT{mem} qualifier,
 and thus the value of \TT{v} can be freely used.
 
 As another example of the above rules, the \TT{stack} qualifier is
-an inverted protection qualifier given the result variable of
-a call to \TT{stack\_allocate} function (\pagref{STACK-ALLOCATE}).
+an inverted protection non-inherited qualifier given the result variable of
+a call to `\TT{allocate to stack}' function (\pagref{STACK-ALLOCATE}).
 Values with this qualifier can only be passed to prototype variables
-have also have the qualifier.
+have also have the qualifier.  This prohibits passing stack addresses
+to functions that would store them in global or heap memory.
 
 Three qualifiers, \TT{mem}, \TT{stack},
 and \TT{trace}, are builtin and have special
@@ -1499,7 +1536,8 @@ qualifier values in \TT{\{\{~\}\}} brackets.  For example,
 
 A {\em function-prototype} can have implicit \TT{qualifiers} arguments.
 These are implicitly given as their value the smallest set of qualifiers
-that allows the {\em function-prototype} to match a call.  For example:
+that includes the qualifiers in the actual argument and that
+allows the {\em function-prototype} to match a call.  For example:
 
 \begin{indpar}\begin{verbatim}
 Q T result = foo ( type T, qualifiers Q, Q T value )
@@ -1508,9 +1546,10 @@ Q T result = foo ( type T, qualifiers Q, Q T value )
 //
 qualifier bar
 bar int32 x = ...
-int32 y = foo ( x )      // Illegal, y has no bar qualifier.
-                         // Would be OK if bar were a
-                         // protection qualifier.
+int32 y = foo ( x )     
+    // Q = {{bar}} as x is qualified by bar.  Call is then
+    // illegal because y has no bar qualifier.  Would be
+    // legal if bar were a protection qualifier.
 bar int32 z = foo ( x )  // Legal.
 \end{verbatim}\end{indpar}
 
@@ -1518,7 +1557,9 @@ Function prototypes can have at their end a condition in \TT{[[~]]}
 brackets that must be satisfied in order for the prototype to match
 a call.  This condition may use qualifier values and sets, with
 \TT{\&} denoting set `AND' and `\TT{\textasciitilde}' denoting
-set complement (in the universe of all possible qualifiers).
+set complement (in the universe of all possible qualifiers),
+`\TT{==}' denoting set equality, `\TT{!=}' denoting set inequalify,
+and `\TT{<=}' denoting set subset.
 An example is:
 
 \begin{indpar}\begin{verbatim}
@@ -1531,10 +1572,9 @@ qualifier bar
 qualifier boo
 bar int32 x = ...
 boo int32 y = ...
-bar int32 z = foo ( x )  // Illegal, Q must contain bar to
-                         // match x and z values, but
-                         // condition prohibits Q from
-                         // containing bar.
+bar int32 z = foo ( x )
+    // Illegal, Q must contain bar as x and z do,
+    // but condition prohibits Q from containing bar.
 boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
 \end{verbatim}\end{indpar}
 
@@ -1563,42 +1603,18 @@ their result variables.
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}
 
-The \ttkey{stack} qualifier is an inverted protection qualifier
-attached to the address returned by builtin stack memory
-allocation functions.  It is used in conjunction with the 
-copy-down, copy-up operations
-to keep a stack address from being copied to variables higher
-in the stack than the stack address.
+The `\ttkey{stack}' qualifier is an inverted, non-inherited protection qualifier
+attached to addresses returned by builtin `\TT{allocate to stack}'
+function.  It is used to keep stack addresses from being stored in
+non-stack memory and in stacks who lifetime exceeds that of the
+memory the stack address points at.
 
-A copy-down operation is executed by a statement to copy
-a value into a variable that is in the same block as the
-statement context, or is in a subblock of that block
-(e.g., an argument variable).
+The special property of the `\TT{stack}' qualifier is that it cannot
+be used to qualify variables in the {\em result-variable-list}
+of a {\em call-assignment-statement} or variables in the
+{\em iteration-variable-list} of a {\em loop-assigment-statement}.
 
-A copy-up operation is executed by a statement to copy
-a value into a variable that may not be in the same block
-as the statement context, or a subblock of that block
-(e.g., a result variable).
-
-These operations are controlled by function prototypes,
-which can be declared by the programmer but are by default:
-
-\begin{indpar}\begin{verbatim}
-Q T result = copy down
-    ( type T, qualifiers Q, Q T value )
-Q T result = copy up
-    ( type T, qualifiers Q, Q T value )
-    [[ Q & {stack} == {} ]]
-\end{verbatim}\end{indpar}
-
-These allow copies except a `\TT{copy up}' value may
-\underline{not} have a `\TT{stack}' qualifier.
-
-Although the `\TT{copy down}' and `\TT{copy up}' operations
-can be given {\em function-prototypes}, they cannot be given
-function bodies, and during execution merely copy the value to
-the result without conversions or invocations of other implied
-operators.
+See Section~\itemref{STACK-MANAGEMENT} for more information.
 
 \subsection{The Trace Qualifier}
 \label{THE-TRACE-QUALIFIER}

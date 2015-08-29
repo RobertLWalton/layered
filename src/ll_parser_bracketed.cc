@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 28 20:54:41 EDT 2015
+// Date:	Sat Aug 29 05:23:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -981,70 +981,154 @@ inline min::int32 relative_indent
 //         iterate top level loop
 //
 //       if key is selected opening bracket or typed
-//          opening:
+//              opening:
 //
-//         compute new_selectors from existing selectors
-//                 and key
+//          compute new_selectors from existing
+//                  selectors and key
 //
-//         create new bracket stack entry with opening
-//                bracket = key
-//         if key has full lines option, create new
-//            bracket stack with new entry as its only
-//            entry
-//         else push new entry into existing stack
+//          create new bracket stack entry with opening
+//                 bracket = key
+//          if key has full lines option, create new
+//             bracket stack with new entry as its only
+//             entry
+//          else push new entry into existing stack
 //
-//         parse_bracketed_subexpression with
-//           new_selectors, no line_sep, new bracket
-//           stack, and indent = indent argument,
-//           unless full lines option given, in which
-//           case indent = -2, and typed_opening if
-//           this is for a typed opening;
+//          parse_bracketed_subexpression with
+//            new_selectors, no line_sep, new bracket
+//            stack, and indent = indent argument,
+//            unless full lines option given, in which
+//            case indent = -2, and typed_opening if
+//            this is for a typed opening
 //
-//         if closing was found that did not match
-//            top of closing stack, print error
-//            message and adjust end of subexpression
-//            to just before closing found
-//         else remove closing bracket
+//          if closing was found that did not match
+//             top of closing stack, print error
+//             message and adjust end of subexpression
+//             to just before closing found
+//          else remove closing bracket
 //
-//         remove opening bracket
+//          remove opening bracket
+//          pop bracket stack entry
 //
-//         call opening bracket reformatter if any,
-//              and if none or if requested by
-//              reformatter, compact with .initiator
-//              and .terminator being the opening
-//              and closing bracket (the latter
-//              taken from the symbol table and
-//              not the input), compact token type
-//              BRACKETING, new_selectors
-//         else if there was a reformatter and it
-//              returned a PREFIX token (and did NOT
-//              request compaction):
+//          call opening bracket reformatter if any,
+//               and if none or if requested by
+//               reformatter, compact with .initiator
+//               and .terminator being the opening
+//               and closing bracket (the latter
+//               taken from the symbol table and
+//               not the input), compact token type
+//               BRACKETING, new_selectors, NO line_sep
 //
-//         if closing found was line break before
-//            insuffiently indented line:
-//           iterate top level loop
-//         else if closing bracket was found that did
-//              not match top of closing stack:
-//           return MISSING_POSITION
-//         else
-//           iterate top level loop
+//          else if there was a reformatter and it
+//                  returned a PREFIX token (and did NOT
+//                  request compaction):
+//
+//		 if PREFIX token label matches a prefix
+//		           entry in the bracket stack
+//		           that is above all bracket
+//		           entries in that stack:
+//		    close the found prefix entry and
+//		          all entries above it in the
+//		          stack
+//                  return MISSING_POSITION
+//
+//               if ! at_start:
+//                  announce error
+//                  delete PREFIX token
+//               else if prefix separator terminated
+//                    by non-indented line or end of
+//                    file (top cstack entry not
+//                    closed):
+//                  change PREFIX token type to
+//                         BRACKETED
+//                  iterate top level loop
+//               else if prefix separator terminated by
+//                       closing bracket other than its
+//                       own:
+//                  change PREFIX token type to
+//                         BRACKETED
+//                  return MISSING_POSITION
+//               else loop find elements of PREFIX
+//                         token:
+//
+//                    push prefix entry into bracket
+//                         stack with label from PREFIX
+//                         token
+//                    parse_bracketed_subexpression with
+//                         selectors argument, line_sep
+//                         argument, indent argument,
+//                         and new bracket stack;
+//                         remember if line_sep found
+//
+//                    add values of tokens found to
+//                        PREFIX token, converting any
+//                        quoted strings found to sub-
+//                        sub-subexpressions first
+//
+//                   delete tokens added as PREFIX token
+//                          elements
+//
+//                   change PREFIX token type to
+//                          BRACKETED
+//
+//                   if top bracket stack entry was not
+//                          closed by a prefix separator
+//                          with the same label as the
+//                          PREFIX token:
+//                      return position of any found
+//                             line_sep, or MISSING_
+//                             POSITION if none found
+//
+//                   reset the current PREFIX token
+//                         to the token that closed the
+//                         top bracket stack entry
+//                   pop the bracket stack
+//                   iterate loop to find elements of
+//                           new PREFIX token
+//                  
+//	    at_start = false
+//
+//          if bracketed sub-subexpression was
+//                       terminated by a line break
+//                       before insuffiently indented
+//                       line or an end of file:
+//             iterate top level loop
+//          else if closing bracket was found that did
+//                  not match top of closing stack:
+//               return MISSING_POSITION
+//          else
+//            iterate top level loop
 //
 //       if key is closing bracket in bracket stack:
-//         close bracket stack entry that matches key
-//         close all higher stack entries indication
-//           their closing brackets were not found
-//         return MISSING_POSITION
+//          close bracket stack entry that matches key
+//          close all higher stack entries indicating
+//            that their closing brackets were not found
+//          return MISSING_POSITION
+//
+//       if key is typed middle matching typed_opening->
+//              typed_middle:
+//          if first such:
+//             restore saved selectors
+//          if second such:
+//             reset selectors to typed_opening->
+//                                attr_selectors
+//	    if other such:
+//	       delete typed middle
+//	       announce error
+//
+//          iterate top level loop
 //
 //       if key is selected indentation mark and
-//          current is end-of-file or line break:
-//         indentation_found = key
-//         iterate top level loop
+//              current is end of file or line break
+//              or comment:
+//          indentation_found = key
+//          iterate top level loop
 //
-//       if key is line separator matching indentation_
-//          mark argument:
-//         return end position of separator
+//       if key is line separator matching line_sep
+//              argument:
+//          return end position of separator
 //
-//       reject key
+//       // reject key
+//       //
 //       iterate loop to refine key
 
 // Ensure there is a next token.
@@ -1089,11 +1173,13 @@ min::position BRA::parse_bracketed_subexpression
     //         to indicate we are not in element-list
     //
     TAB::flags saved_selectors;
+    unsigned typed_middle_count;
     if ( typed_opening != min::NULL_STUB )
     {
 	saved_selectors = selectors;
 	selectors = typed_opening->attr_selectors
 		  | PAR::ALWAYS_SELECTOR;
+	typed_middle_count = 0;
     }
 
     bool at_start = true;
@@ -2071,14 +2157,14 @@ min::position BRA::parse_bracketed_subexpression
 		        typed_opening->typed_middle
 		     == (BRA::typed_middle) root )
 		{
-		    if ( saved_selectors != 0 )
+		    if ( typed_middle_count == 0 )
 		    {
 			// Beginning of element list
 			//
 			selectors = saved_selectors;
 			saved_selectors = 0;
 		    }
-		    else
+		    else if ( typed_middle_count == 1 )
 		    {
 			// End of element list
 			//
@@ -2088,6 +2174,37 @@ min::position BRA::parse_bracketed_subexpression
 			          attr_selectors
 			    | PAR::ALWAYS_SELECTOR;
 		    }
+		    else if ( typed_middle_count >= 2 )
+		    {
+			min::phrase_position position;
+			position.end =
+			    current->previous
+			           ->position.end;
+			position.begin =
+			    PAR::remove
+				( parser, current,
+				  root->label );
+
+			parser->printer
+			    << min::bom
+			    << min::set_indent ( 7 )
+			    << "ERROR: extra typed"
+			       " middle "
+			    << root->label
+			    << " found - deleted and"
+			       " ignored; "
+			    << min::pline_numbers
+				 ( parser->input_file,
+				   position )
+			    << ":" << min::eom;
+			min::print_phrase_lines
+			    ( parser->printer,
+			      parser->input_file,
+			      position );
+			++ parser->error_count;
+		    }
+
+		    ++ typed_middle_count;
 
 		    break;
 		}

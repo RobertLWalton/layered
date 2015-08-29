@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 26 15:46:39 EDT 2015
+// Date:	Sat Aug 29 14:30:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -523,8 +523,8 @@ ll::parser::pass new_pass ( void );
 // the second is in the same line as the first or in
 // a continuation line following the line of the first.
 // Any subexpression terminating line separator is also
-// deleted.  Sub-subexpressions are identified and
-// replaced by BRACKETED tokens.
+// deleted.  Sub-subexpressions are identified and each
+// is replaced by a single BRACKETED token.
 //
 // It is assumed that there are always more tokens
 // available via parser->input until an end-of-file
@@ -572,14 +572,14 @@ ll::parser::pass new_pass ( void );
 // separator matching the `line_sep' argument, causes
 // this function to return WITHOUT closing ANY bracket
 // stack entries.  A return without any closed bracket
-// stack entries is caused by an end file if current
+// stack entries is caused by an end file if `current'
 // is an end of file token.  It is caused by a line
 // with indent not greater than the `indent' argument if
-// current is a line break.  And it is caused by a line
-// separator if the returned value is the position of
-// the line separator and not min::MISSING_POSITION, in
-// which case current is the token after the deleted
-// line separator.
+// `current' is a line break.  And it is caused by a
+// line separator if the returned value is the position
+// of the line separator and not min::MISSING_POSITION,
+// in which case `current; is the token after the
+// deleted line separator.
 //
 // Closing brackets are only recognized if their
 // corresponding opening brackets are in the bracket
@@ -593,12 +593,13 @@ ll::parser::pass new_pass ( void );
 // argument.  In this case `current' is positioned just
 // after the line separator, but the line separator
 // is removed, and the end position of the line sepa-
-// rator is returned.  If the `line_sep' argument is
-// NULL_STUB, this feature is disabled.  By default,
-// the line_sep argument is not used for parsing
-// bracketed sub-subexpressions, but is used for parsing
-// prefix separator sub-subexpressions.  There is an
-// opening bracket option to override this default.
+// rator is returned.  NO bracket entries are closed.
+// If the `line_sep' argument is NULL_STUB, this feature
+// is disabled.  By default, the line_sep argument is
+// not used for parsing bracketed sub-subexpressions,
+// but is used for parsing prefix separator sub-sub-
+// expressions.  There is an opening bracket option to
+// override this default.
 //
 // If the subexpression is terminated by a line break
 // whose first following non-comment, non-line break
@@ -626,11 +627,13 @@ ll::parser::pass new_pass ( void );
 // If the subexpression is a typed bracketed subexpres-
 // sion, the `typed_opening' argument is not NULL_STUB,
 // and is the typed_opening that prefixes the subexpres-
-// sion.  In this case the selectors argument is the
-// element selectors, the attribute selectors are in the
-// typed_opening, and the typed_middle is detected and
-// used to change selectors.  Selectors have no affect
-// on typed_middle recognition.
+// sion.  In this case typed_opening->attr_selectors is
+// used in place of the selectors argument before the
+// first typed_middle corresponding to the typed_open-
+// ing, and after the second such typed_middle.  Between
+// the typed_middles the original selectors argument is
+// used.  Selectors have no affect on typed_middle
+// recognition.
 //
 // When this function calls itself recursively to parse
 // a bracketed sub-subexpression, upon return it calls
@@ -661,8 +664,8 @@ ll::parser::pass new_pass ( void );
 // as its .type.  The inner lists are paragraph line
 // subexpressions and have "\n" as their .type, and if
 // they end with a line separator, have that as their
-// .terminator.  Inner lists that would be empty with
-// just a "\n" .type and no .terminator are deleted.
+// .terminator.  Inner lists that would be empty, with
+// just a "\n" .type and no .terminator, are deleted.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme

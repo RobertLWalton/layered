@@ -81,14 +81,8 @@ This line contains subsubexpressions (x 5 "foo")
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "`"
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "`"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY [< "{" "{" >]
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "{" "{" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "}" "}" >]
@@ -156,9 +150,6 @@ This line contains more subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY [< "{" "{" >]
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "{" "{" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
@@ -402,21 +393,12 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    Seventh line.
 ^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<+"
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<+"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "+>"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "+>"
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<-"
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<-"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY [< "{" "{" >]
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "{" "{" >]
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "<+"
@@ -432,9 +414,6 @@ BRACKETED EXPRESSION:
     line 37:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
         ^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<-"
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<-"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "->"
@@ -452,14 +431,8 @@ BRACKETED EXPRESSION:
     line 37:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "`"
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "`"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY "<+"
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "<+"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "+>"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "+>"
@@ -618,9 +591,6 @@ This line contains a typed subexpression {x|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
@@ -707,9 +677,6 @@ BRACKETED EXPRESSION:
     line 45:
                        no c[+], d[-], no f, g : t}
                                  ^^^
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: bad flag(s) _ in "ABC_,200"; line 44:
@@ -777,9 +744,6 @@ BRACKETED EXPRESSION:
     line 46:
 And one more {| |b["A", 201,202, [5]]: t}
                   ^^^^^^^^^^^^^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND UNSELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: bad flags specifier [5]; line 46:

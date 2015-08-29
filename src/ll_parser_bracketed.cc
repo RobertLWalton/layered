@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 28 11:04:56 EDT 2015
+// Date:	Fri Aug 28 20:54:41 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -977,35 +977,49 @@ inline min::int32 relative_indent
 //
 //       if key == NONE:
 //         current = current->next
+//         at_start = false
 //         iterate top level loop
 //
 //       if key is selected opening bracket or typed
 //          opening:
+//
 //         compute new_selectors from existing selectors
 //                 and key
+//
 //         create new bracket stack entry with opening
 //                bracket = key
 //         if key has full lines option, create new
 //            bracket stack with new entry as its only
 //            entry
 //         else push new entry into existing stack
+//
 //         parse_bracketed_subexpression with
-//           new_selectors, no indentaton_mark,
-//           new bracket stack, and indent = indent
-//           argument to top level, unless full lines
-//           option given, in which case indent = -2;
-//           closing found is recorded in closing
-//           stack
+//           new_selectors, no line_sep, new bracket
+//           stack, and indent = indent argument,
+//           unless full lines option given, in which
+//           case indent = -2, and typed_opening if
+//           this is for a typed opening;
+//
 //         if closing was found that did not match
 //            top of closing stack, print error
-//            message
+//            message and adjust end of subexpression
+//            to just before closing found
+//         else remove closing bracket
+//
+//         remove opening bracket
+//
 //         call opening bracket reformatter if any,
 //              and if none or if requested by
 //              reformatter, compact with .initiator
 //              and .terminator being the opening
 //              and closing bracket (the latter
 //              taken from the symbol table and
-//              not the input)
+//              not the input), compact token type
+//              BRACKETING, new_selectors
+//         else if there was a reformatter and it
+//              returned a PREFIX token (and did NOT
+//              request compaction):
+//
 //         if closing found was line break before
 //            insuffiently indented line:
 //           iterate top level loop
@@ -1596,7 +1610,7 @@ min::position BRA::parse_bracketed_subexpression
 	TAB::key_prefix key_prefix;
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
-			 TAB::ALL_FLAGS,
+			 selectors,
 			 pass->bracket_table );
 	while ( true )
 	{
@@ -1623,10 +1637,7 @@ min::position BRA::parse_bracketed_subexpression
 	    if ( trace_flags & PAR::TRACE_KEYS )
 	        parser->printer
 		    << "BRACKETED SUBEXPRESSION PARSER"
-		       " FOUND "
-		    << ( root->selectors & selectors ?
-		         "SELECTED KEY " :
-			 "UNSELECTED KEY " )
+		       " FOUND SELECTED KEY "
 		    << min::pgen_quote ( root->label )
 		    << min::indent << " OF SUBTYPE "
 		    << min::name_of_packed_subtype
@@ -1636,9 +1647,7 @@ min::position BRA::parse_bracketed_subexpression
 
 	    if ( ( subtype == BRA::OPENING_BRACKET
 	           ||
-		   subtype == BRA::TYPED_OPENING )
-	         &&
-		 ( selectors & root->selectors ) != 0 )
+		   subtype == BRA::TYPED_OPENING ) )
 	    {
 		BRA::opening_bracket opening_bracket =
 		    (BRA::opening_bracket) root;
@@ -1727,11 +1736,11 @@ min::position BRA::parse_bracketed_subexpression
 		              == LEXSTD::end_of_file_t )
 		        parser->printer
 			    << "end of file; ";
-		    else if
-		        (    next->type
-		          == LEXSTD::quoted_string_t )
-		        parser->printer
-			    << "\"... \"; ";
+		    else 
+		        MIN_ABORT
+			    ( "closing bracket found"
+			      " with non-name valued"
+			      " token" );
 
 		    parser->printer
 			<< min::pline_numbers
@@ -2082,11 +2091,11 @@ min::position BRA::parse_bracketed_subexpression
 
 		    break;
 		}
+
+		// Typed middle does not match typed_
+		// opening; reject key.
 	    }
-	    else if ( subtype == BRA::INDENTATION_MARK
-	              &&
-		         ( selectors & root->selectors )
-		      != 0 )
+	    else if ( subtype == BRA::INDENTATION_MARK )
 	    {
                 if (    current->type
 		     == LEXSTD::line_break_t
@@ -2125,7 +2134,7 @@ min::position BRA::parse_bracketed_subexpression
 
 	    root = PAR::find_next_entry
 	               ( parser, current, key_prefix,
-			 TAB::ALL_FLAGS, root );
+			 selectors, root );
 	}
     }
 

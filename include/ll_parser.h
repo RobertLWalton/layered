@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 17 15:58:14 EDT 2015
+// Date:	Sun Aug 30 22:35:41 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,7 +56,6 @@ namespace ll { namespace parser {
 	colon,		// :
 	equal,		// =
 	vbar,		// |
-	always_lexeme,	// always
 	parser_lexeme,	// parser
 	data_lexeme,	// data
 	standard_lexeme,// standard

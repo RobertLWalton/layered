@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 26 14:43:34 EDT 2015
+// Date:	Sun Aug 30 22:36:04 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,7 +52,6 @@ min::locatable_gen PAR::comma;
 min::locatable_gen PAR::colon;
 min::locatable_gen PAR::equal;
 min::locatable_gen PAR::vbar;
-min::locatable_gen PAR::always_lexeme;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::data_lexeme;
 min::locatable_gen PAR::standard_lexeme;
@@ -109,7 +108,6 @@ static void initialize ( void )
     PAR::equal = min::new_str_gen ( "=" );
     PAR::vbar = min::new_str_gen ( "|" );
 
-    PAR::always_lexeme = min::new_str_gen ( "always" );
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
     PAR::data_lexeme = min::new_str_gen ( "data" );
     PAR::standard_lexeme =
@@ -669,7 +667,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    (    PAR::ALWAYS_SELECTOR
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::always_lexeme ) );
+			min::MISSING() ) );
 	MIN_REQUIRE
 	    (    PAR::PARSER_SELECTOR
 	      == 1ull << TAB::push_name

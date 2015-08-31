@@ -47,3 +47,4 @@ And one more {| |b["A", 201,202, [5]]: t}
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 {X} a b c; {X}{Y} f g; {X} h k
+parser print bracket ""

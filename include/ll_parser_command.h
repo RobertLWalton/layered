@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 13 03:53:38 EST 2014
+// Date:	Sun Aug 30 22:36:41 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,7 +143,8 @@ void print_new_flags
 	  ll::parser::parser parser,
 	  bool allow_flag_list = false );
 
-// Print flag list.
+// Print flag list.  Flags with min::MISSING() name are
+// ignored.
 //
 void print_flags
 	( ll::parser::table::flags flags,

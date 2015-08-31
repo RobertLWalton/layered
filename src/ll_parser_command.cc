@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  2 14:41:28 EDT 2015
+// Date:	Sun Aug 30 22:31:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -444,6 +444,9 @@ void COM::print_new_flags
 	for ( min::unsptr i = 0;
 	      i < name_table->length; ++ i )
 	{
+	    if ( name_table[i] == min::MISSING() )
+	        continue;
+
 	    min::uns64 mask = 1ull << i;
 	    if ( mask & suppress ) continue;
 

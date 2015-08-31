@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 29 05:23:54 EDT 2015
+// Date:	Mon Aug 31 05:14:01 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3524,6 +3524,8 @@ static min::gen bracketed_pass_command
 
 	    if ( subtype != BRA::OPENING_BRACKET
 	         &&
+		 subtype != BRA::TYPED_OPENING
+	         &&
 		 subtype != BRA::INDENTATION_MARK )
 	        continue;
 
@@ -3539,18 +3541,41 @@ static min::gen bracketed_pass_command
 		<< min::pgen_name ( block_name )
 		<< ": " << min::save_indent;
 
-	    if ( subtype == BRA::OPENING_BRACKET )
+	    if ( subtype == BRA::OPENING_BRACKET
+	         ||
+		 subtype == BRA::TYPED_OPENING )
 	    {
 		BRA::opening_bracket opening_bracket =
 		    (BRA::opening_bracket) root;
 		BRA::closing_bracket closing_bracket =
 		    opening_bracket->closing_bracket;
 
+		BRA::typed_opening typed_opening =
+		    (BRA::typed_opening) root;
+
 		parser->printer
 		    << "bracket "
 		    << min::pgen_quote
 		           ( opening_bracket->label )
-		    << " ... "
+		    << " ... ";
+
+		if ( typed_opening != min::NULL_STUB
+		     &&
+		        typed_opening->typed_middle
+		     != min::NULL_STUB )
+		    parser->printer
+		        << min::pgen_quote
+			       ( typed_opening->
+			             typed_middle->
+				     label )
+		        << " ... "
+		        << min::pgen_quote
+			       ( typed_opening->
+			             typed_middle->
+				     label )
+		        << " ... ";
+
+		parser->printer
 		    << min::pgen_quote
 		           ( closing_bracket->label )
 		    << " " << min::set_break;

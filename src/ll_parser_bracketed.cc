@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 31 05:14:01 EDT 2015
+// Date:	Tue Sep  1 03:47:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3606,6 +3606,46 @@ static min::gen bracketed_pass_command
 		    parser->printer
 			<< min::indent
 			<< "with full lines";
+
+#		define PLABEL(x) min::pgen_quote \
+		    ( typed_opening->x->label )
+
+		if ( typed_opening != min::NULL_STUB )
+		{
+		    parser->printer
+		        << min::indent
+			<< "with attribute"
+			   " selectors ";
+		    COM::print_flags
+			( typed_opening->attr_selectors,
+			  parser->
+			      selector_name_table,
+			  parser );
+		}
+
+		if ( typed_opening != min::NULL_STUB
+		     &&
+		        typed_opening->typed_attr_begin
+		     != min::NULL_STUB )
+		    parser->printer
+			<< min::indent
+			<< "with attributes "
+			<< PLABEL ( typed_attr_begin )
+			<< " ... "
+			<< PLABEL ( typed_attr_equal )
+			<< " ... "
+			<< PLABEL ( typed_attr_sep );
+
+		if ( typed_opening != min::NULL_STUB
+		     &&
+		        typed_opening->
+			    typed_attr_negator
+		     != min::NULL_STUB )
+		    parser->printer
+			<< min::indent
+			<< "with attribute negator "
+			<< PLABEL
+			     ( typed_attr_negator );
 	    }
 	    else if ( subtype == BRA::INDENTATION_MARK )
 	    {

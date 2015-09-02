@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep  1 03:47:42 EDT 2015
+// Date:	Wed Sep  2 14:35:14 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3607,8 +3607,9 @@ static min::gen bracketed_pass_command
 			<< min::indent
 			<< "with full lines";
 
-#		define PLABEL(x) min::pgen_quote \
-		    ( typed_opening->x->label )
+#		define TOATTR(x) \
+                    typed_opening->typed_attr_ ## x
+#		define PQ(x) min::pgen_quote ( x )
 
 		if ( typed_opening != min::NULL_STUB )
 		{
@@ -3618,34 +3619,56 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_flags
 			( typed_opening->attr_selectors,
-			  parser->
-			      selector_name_table,
+			  parser->selector_name_table,
 			  parser );
+
+		    if (    TOATTR(begin)
+		         != min::NULL_STUB )
+			parser->printer
+			    << min::indent
+			    << "with attributes "
+			    << PQ ( TOATTR
+			              (begin->label) )
+			    << " ... "
+			    << PQ ( TOATTR
+			              (equal->label) )
+			    << " ... "
+			    << PQ ( TOATTR
+			              (sep->label) );
+
+		    if (    TOATTR(negator)
+			 != min::NULL_STUB )
+			parser->printer
+			    << min::indent
+			    << "with attribute negator "
+			    << PQ ( TOATTR
+			              (negator->label)
+				  );
+
+		    if (    TOATTR(flags_initiator)
+		         != min::MISSING() )
+			parser->printer
+			    << min::indent
+			    << "with attribute flags"
+			    << " initiator "
+			    << PQ ( TOATTR
+			              (flags_initiator)
+				  );
+
+		    if (    TOATTR(multivalue_initiator)
+		         != min::MISSING() )
+			parser->printer
+			  << min::indent
+			  << "with attribute"
+			     " multivalue initiator "
+			  << PQ
+			     ( TOATTR
+				 (multivalue_initiator)
+			     );
 		}
 
-		if ( typed_opening != min::NULL_STUB
-		     &&
-		        typed_opening->typed_attr_begin
-		     != min::NULL_STUB )
-		    parser->printer
-			<< min::indent
-			<< "with attributes "
-			<< PLABEL ( typed_attr_begin )
-			<< " ... "
-			<< PLABEL ( typed_attr_equal )
-			<< " ... "
-			<< PLABEL ( typed_attr_sep );
-
-		if ( typed_opening != min::NULL_STUB
-		     &&
-		        typed_opening->
-			    typed_attr_negator
-		     != min::NULL_STUB )
-		    parser->printer
-			<< min::indent
-			<< "with attribute negator "
-			<< PLABEL
-			     ( typed_attr_negator );
+#		undef PQ
+#		undef TOATTR
 	    }
 	    else if ( subtype == BRA::INDENTATION_MARK )
 	    {

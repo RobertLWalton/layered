@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 12 04:18:01 EDT 2015
+// Date:	Wed Sep  2 15:25:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,6 +79,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
 
     min::locatable_gen opening_brace_star
         ( min::new_lab_gen ( "{", "*" ) );
+    min::locatable_gen closing_star_brace
+        ( min::new_lab_gen ( "*", "}" ) );
 
     parser->selectors = code | PAR::ALWAYS_SELECTOR;
 
@@ -142,6 +144,14 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  PAR::find_reformatter
 	      ( label_name, BRA::reformatter_stack ),
 	  min::NULL_STUB, 0,
+	  bracketed_pass->bracket_table );
+    BRA::push_brackets
+        ( opening_brace_star,
+          closing_star_brace,
+	  data,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  min::NULL_STUB, min::NULL_STUB, 0,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark

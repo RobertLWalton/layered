@@ -1096,3 +1096,41 @@ BRACKETED EXPRESSION:
     line 49:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^^^^^
+BRACKETED EXPRESSION:
+    parser print bracket ""
+@85 = parser print bracket @86:
+          .type = "<LF>"
+          .position[H] = {}
+@86 = "":
+          .type = "<Q>"
+    line 50:
+parser print bracket ""
+^^^^^^^^^^^^^^^^^^^^^^^
+parser print bracket "":
+    block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
+                     [data, code, math, text]
+                     with parsing selectors [- parser, + data, - code,
+                                             - math, - text]
+    block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+    block TOP LEVEL: bracket "(" ... ")" [data, code, math, text]
+    block TOP LEVEL: bracket "(" ... ")" [parser]
+    block TOP LEVEL: indentation mark ":" ... ";" [code]
+    block TOP LEVEL: bracket "[" ... "]" [data, code, math, text]
+    block TOP LEVEL: bracket "[" ... "]" [parser]
+    block TOP LEVEL: bracket "`" ... "'" [data]
+    block TOP LEVEL: bracket "`" ... "'" [code, math, text]
+                     with parsing selectors [- code, - math, + text]
+    block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+    block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >]
+                     [code, math, text]
+                     with parsing selectors [- code, + math, - text]
+    block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
+                     [data, code, math, text]
+                     with attribute selectors [data]
+                     with attributes ":" ... "=" ... ","
+                     with attribute negator "no"
+                     with attribute flags initiator "["
+                     with attribute multivalue initiator [< "{" "*" >]
+    block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
+    block TOP LEVEL: bracket "<+" ... "+>" [math]
+    block TOP LEVEL: bracket "<-" ... "->" [text]

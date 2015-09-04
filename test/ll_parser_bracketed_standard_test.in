@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  4 06:15:43 EDT 2015
+// Date:	Fri Sep  4 07:21:20 EDT 2015
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -47,8 +47,8 @@ And one more {| |b["A", 201,202, [5]]: t}
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 {X} a b c; {X}{Y} f g; {X} h k
-{* a b c *}
+{- a b c -}
 {< a b c >}
-{* a b c}
-{*}
+{- a b c}
+{-}
 parser print bracket ""

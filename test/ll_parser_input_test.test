@@ -264,7 +264,7 @@ NUMERIC: "<89>": line 19:
 QUOTED_STRING: "'": line 19:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                   ^^
-ERROR: premature end of string; line 19:
+ERROR: string ended by line break or end of file; line 19:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                     ^
 LINE_BREAK: line 19:
@@ -480,7 +480,7 @@ LINE_BREAK: line 37:
 QUOTED_STRING: "premature␣end␣of␣line": line 38:
 "premature end of line
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of string; line 38:
+ERROR: string ended by line break or end of file; line 38:
 "premature end of line
                       ^
 LINE_BREAK: line 38:
@@ -489,15 +489,12 @@ LINE_BREAK: line 38:
 QUOTED_STRING: "premature␣end␣of␣file": line 39:
 "premature end of file<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: premature end of string; line 39:
+ERROR: string ended by line break or end of file; line 39:
 "premature end of file<END-OF-FILE>
                       ^
-ERROR: premature end of file; line 39:
+ERROR: end of file not preceeded by a line break; line 39:
 "premature end of file<END-OF-FILE>
                       ^
 END_OF_FILE: line 39:
-"premature end of file<END-OF-FILE>
-                      ^
-WARNING: line break missing from end of file; line 39:
 "premature end of file<END-OF-FILE>
                       ^

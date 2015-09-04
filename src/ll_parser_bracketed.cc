@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  2 14:35:14 EDT 2015
+// Date:	Fri Sep  4 03:57:24 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -873,8 +873,9 @@ inline min::int32 relative_indent
 //            indent than the current_indent
 //
 //     if current is end of file, the end of file cannot
-//        be after a line break, so print a WARNING
-//        message about it
+//        be after a line break, but do nothing because
+//        error message has already been printed by
+//        add_tokens.
 //
 //     if indentation_found != NONE:
 //        // indentation was found below, but we defer
@@ -1330,31 +1331,13 @@ min::position BRA::parse_bracketed_subexpression
 	    }
 	}
 
-	// Issue warning if end of file not immediately
-	// preceeded by a line break.
+	// We might issue warning if end of file not
+	// immediately preceeded by a line break, but
+	// an error message has already been issued by
+	// add_tokens.
 	//
-	if ( current->type == LEXSTD::end_of_file_t )
-	{
-	    min::phrase_position position = { 0, 0 };
-	    if ( current != parser->first )
-	        position.begin = position.end =
-		    current->previous->position.end;
-
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 9 )
-		<< "WARNING: line break missing from"
-		   " end of file; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  position );
-	    ++ parser->error_count;
-	}
+	// if ( current->type == LEXSTD::end_of_file_t )
+	//      print warning
 
 	if ( indentation_found != min::NULL_STUB )
 	{

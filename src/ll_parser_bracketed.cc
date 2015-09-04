@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  4 03:57:24 EDT 2015
+// Date:	Fri Sep  4 04:08:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -842,6 +842,9 @@ inline min::int32 relative_indent
 // Parse Bracketed Subexpression Function
 // ----- --------- ------------- --------
 
+// NOTE: We assume EVERY comment is immediately followed
+// by a line break or end of file.
+//
 // Outline of parse_bracketed_subexpression:
 // (omits tracing code and code to read more input)
 //
@@ -1170,11 +1173,10 @@ min::position BRA::parse_bracketed_subexpression
     //
     //     save selectors
     //     recompute selectors
-    //     use the fact that saved_selectors is not 0
-    //         to indicate we are not in element-list
     //
     TAB::flags saved_selectors;
     unsigned typed_middle_count;
+    bool has_mark_type = false;
     if ( typed_opening != min::NULL_STUB )
     {
 	saved_selectors = selectors;
@@ -1695,6 +1697,16 @@ min::position BRA::parse_bracketed_subexpression
 	    {
 	        // No active bracket table entry found.
 
+		if ( at_start
+		     &&
+		     typed_opening != min::NULL_STUB
+		     &&
+		     current->type == LEXSTD::mark_t )
+		{
+		    selectors = saved_selectors;
+		    has_mark_type = true;
+		}
+
 		current = key_first->next;
 		at_start = false;
 		break;
@@ -1840,20 +1852,116 @@ min::position BRA::parse_bracketed_subexpression
 			( parser, first,
 			  opening_bracket->label );
 
-		if (    opening_bracket->reformatter
-		     == min::NULL_STUB
-		     ||
-		     ( * opening_bracket->
-			   reformatter->
-			   reformatter_function )
-			 ( parser, (PAR::pass) pass,
-			   new_selectors,
-			   first, next, position,
-			   trace_flags,
-			   (TAB::root)
-			       opening_bracket )
-		   )
+                if ( subtype == BRA::TYPED_OPENING
+		     &&
+		     first != next
+		     &&
+		     first->type == LEXSTD::mark_t )
 		{
+		    // Typed bracketed subexpression
+		    // with mark type.
+
+		    min::locatable_gen mark_type
+		        ( first->value );
+		    first = first->next;
+		    PAR::free
+			( PAR::remove
+			    ( first_ref(parser),
+			      first->previous ) );
+
+		    if ( first != next )
+		    {
+		        if (    next->previous->type
+			     != LEXSTD::mark_t )
+			{
+			    min::phrase_position
+			        position =
+			        { next->previous
+				      ->position.end,
+			          next->previous
+				      ->position.end };
+
+			    parser->printer
+				<< min::bom
+				<< min::set_indent ( 7 )
+				<< "ERROR: "
+				<< min::pgen_quote
+				     ( mark_type )
+				<< " missing at end of"
+				   " typed bracketed"
+				   " expression;"
+				   " inserted; "
+				<< min::pline_numbers
+				     ( parser->input_file,
+				       position )
+				<< ":" << min::eom;
+			    min::print_phrase_lines
+				( parser->printer,
+				  parser->input_file,
+				  position );
+			    ++ parser->error_count;
+			}
+			else
+			{
+			    if (    next->previous
+			                ->value
+			         != mark_type )
+			    {
+			        min::gen v[2] =
+				    { mark_type,
+				      next->previous
+				          ->value };
+				mark_type =
+				    min::new_lab_gen
+				        ( v, 2 );
+			    }
+			    if (    first
+			         == next->previous )
+			        first = next;
+			    PAR::free
+				( PAR::remove
+				    ( first_ref(parser),
+				      next->previous )
+			        );
+			}
+		    }
+
+		    PAR::attr attributes[1] =
+			{ PAR::attr ( min::dot_type,
+				      mark_type ) };
+
+		    PAR::compact
+			( parser, pass->next,
+			  new_selectors,
+			  first, next, position,
+			  trace_flags,
+			  PAR::BRACKETING,
+			  1, attributes, 1 );
+
+		    value_type_ref(first) =
+			opening_bracket->label;
+		}
+		else if (    opening_bracket
+		                 ->reformatter
+		          == min::NULL_STUB
+		          ||
+		          ( * opening_bracket->
+			        reformatter->
+			        reformatter_function )
+			      ( parser,
+			        (PAR::pass) pass,
+			        new_selectors,
+			        first, next, position,
+			        trace_flags,
+			        (TAB::root)
+			            opening_bracket )
+		        )
+		{
+		    // Untyped bracketed subexpression
+		    // without reformatter, or with
+		    // reformatter requesting compac-
+		    // tion.
+
 		    PAR::attr attributes[2] =
 			{ PAR::attr
 			      ( min::dot_initiator,
@@ -1883,6 +1991,7 @@ min::position BRA::parse_bracketed_subexpression
 			     next->previous->type
 			  == PAR::PREFIX )
 		{
+		    // Prefix separator.
 
 		    PAR::token prefix_sep =
 		        next->previous;
@@ -2138,20 +2247,20 @@ min::position BRA::parse_bracketed_subexpression
 		if ( typed_opening != min::NULL_STUB
 		     &&
 		        typed_opening->typed_middle
-		     == (BRA::typed_middle) root )
+		     == (BRA::typed_middle) root
+		     &&
+		     ! has_mark_type )
 		{
 		    if ( typed_middle_count == 0 )
 		    {
 			// Beginning of element list
 			//
 			selectors = saved_selectors;
-			saved_selectors = 0;
 		    }
 		    else if ( typed_middle_count == 1 )
 		    {
 			// End of element list
 			//
-			saved_selectors = selectors;
 			selectors =
 			      typed_opening->
 			          attr_selectors

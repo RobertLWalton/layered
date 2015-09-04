@@ -1096,14 +1096,104 @@ BRACKETED EXPRESSION:
     line 49:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "*" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "*" "}" >]
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    parser print bracket ""
-@85 = parser print bracket @86:
+    {* a b c *}
+@85 = a b c:
+          .type = "*"
+          .position[H] = {}
+    line 50:
+{* a b c *}
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {* a b c *}
+@86 = @85:
           .type = "<LF>"
           .position[H] = {}
-@86 = "":
-          .type = "<Q>"
     line 50:
+{* a b c *}
+^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {< a b c >}
+@87 = a b c:
+          .type = [< "<" ">" >]
+          .position[H] = {}
+    line 51:
+{< a b c >}
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {< a b c >}
+@88 = @87:
+          .type = "<LF>"
+          .position[H] = {}
+    line 51:
+{< a b c >}
+^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: "*" missing at end of typed bracketed expression; inserted;
+       line 52:
+{* a b c}
+        ^
+BRACKETED EXPRESSION:
+    {* a b c *}
+@89 = a b c:
+          .type = "*"
+          .position[H] = {}
+    line 52:
+{* a b c}
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {* a b c *}
+@90 = @89:
+          .type = "<LF>"
+          .position[H] = {}
+    line 52:
+{* a b c}
+^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "*" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "*" "}" >]
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {*  *}
+@91 =:
+          .type = "*"
+          .position[H] = {}
+    line 53:
+{*}
+^^^
+BRACKETED EXPRESSION:
+    {*  *}
+@92 = @91:
+          .type = "<LF>"
+          .position[H] = {}
+    line 53:
+{*}
+^^^
+BRACKETED EXPRESSION:
+    parser print bracket ""
+@93 = parser print bracket @94:
+          .type = "<LF>"
+          .position[H] = {}
+@94 = "":
+          .type = "<Q>"
+    line 54:
 parser print bracket ""
 ^^^^^^^^^^^^^^^^^^^^^^^
 parser print bracket "":

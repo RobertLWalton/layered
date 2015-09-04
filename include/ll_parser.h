@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 30 22:35:41 EDT 2015
+// Date:	Fri Sep  4 05:31:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1550,6 +1550,10 @@ void put_error_operator_after
 // If the type argument is BRACKETING, the m attributes
 // can only include .type, .initiator, and/or .termina-
 // tor attributes.
+//
+// Space is allocated in the new object for the m
+// attributes, 1 .position attribute, and n attributes
+// to be added later.
 //
 // The trace_subexpression function is called with the
 // final output subexpression token to process any

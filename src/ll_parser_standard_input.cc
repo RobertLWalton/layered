@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 10 03:54:59 EDT 2015
+// Date:	Fri Sep  4 03:50:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -141,7 +141,6 @@ static min::uns32 input_add_tokens
 	    LEX::scan ( first, next, scanner );
 
 	const char * message = NULL;
-	bool skip = true;
 	switch ( type )
 	{
 	case LEX::SCAN_ERROR:
@@ -154,11 +153,12 @@ static min::uns32 input_add_tokens
 	    continue;
 
 	case LEXSTD::premature_end_of_string_t:
-	    message = "ERROR: premature end of"
-	              " string; ";
+	    message = "ERROR: string ended by"
+	              " line break or end of file; ";
 	    break;
 	case LEXSTD::premature_end_of_file_t:
-	    message = "ERROR: premature end of file; ";
+	    message = "ERROR: end of file not preceeded"
+	              " by a line break; ";
 	    break;
 	case LEXSTD::misplaced_vertical_t:
 	    message = "ERROR: vertical control"
@@ -187,7 +187,9 @@ static min::uns32 input_add_tokens
 	    LEX::print_phrase_lines
 	        ( printer, scanner, first, next );
 
-	    if ( skip ) continue;
+	    ++ parser->error_count;
+
+	    continue;
 	}
 
 	token = PAR::new_token( type );

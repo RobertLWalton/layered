@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 19:36:39 EDT 2015
+// Date:	Fri Sep  4 04:01:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -71,10 +71,11 @@ namespace ll { namespace lexeme { namespace standard {
     // Erroneous Lexeme Types:
     //
     const uns32 premature_end_of_string_t	= 11;
-        // A line break was encountered in a quoted
-	// string.  The quoted string is ended as if by
-	// ", and this 0-length lexeme is output just
-	// before the line break.
+        // A line break or end of file was encountered
+	// in a quoted string.  The quoted string is
+	// ended as if by ", and this 0-length lexeme
+	// is output just before the line break or
+	// end of file.
     const uns32 premature_end_of_file_t		= 12;
         // End of file not following a line break.
 	// Includes case of empty input.  This 0-length

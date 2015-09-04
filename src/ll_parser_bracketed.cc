@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  4 04:08:37 EDT 2015
+// Date:	Fri Sep  4 07:19:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1856,7 +1856,9 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     first != next
 		     &&
-		     first->type == LEXSTD::mark_t )
+		     first->type == LEXSTD::mark_t
+		     &&
+		     first->next != next )
 		{
 		    // Typed bracketed subexpression
 		    // with mark type.

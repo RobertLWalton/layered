@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 29 14:30:20 EDT 2015
+// Date:	Sun Sep  6 13:34:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,11 +50,6 @@ typedef min::packed_struct_updptr
 extern const uns32 & CLOSING_BRACKET;
     // Subtype of min::packed_struct
     //		       <closing_bracket_struct>.
-enum {
-    // Option Flags
-    //
-    FULL_LINES		= 1
-};
 struct opening_bracket_struct :
 	public ll::parser::table::root_struct
 {

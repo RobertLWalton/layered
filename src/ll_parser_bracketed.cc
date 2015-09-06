@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  4 07:19:16 EDT 2015
+// Date:	Sun Sep  6 13:38:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1747,7 +1747,7 @@ min::position BRA::parse_bracketed_subexpression
 
 		bool full_lines =
 		    (   opening_bracket->options
-		      & BRA::FULL_LINES );
+		      & PAR::FULL_LINES );
 
 		BRA::bracket_stack cstack
 		    ( full_lines ? NULL :
@@ -3696,7 +3696,7 @@ static min::gen bracketed_pass_command
 		}
 
 		if (   opening_bracket->options
-		     & BRA::FULL_LINES )
+		     & PAR::FULL_LINES )
 		    parser->printer
 			<< min::indent
 			<< "with full lines";
@@ -3871,7 +3871,7 @@ static min::gen bracketed_pass_command
 		      vp[i+1] == ::lines )
 	    {
 		i += 2;
-		options = BRA::FULL_LINES;
+		options = PAR::FULL_LINES;
 	    }
 	    else
 		return PAR::parse_error

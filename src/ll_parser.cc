@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 30 22:36:04 EDT 2015
+// Date:	Sun Sep  6 13:41:11 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -680,6 +680,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 			PAR::data_lexeme ) );
 
 	parser->selectors = PAR::ALWAYS_SELECTOR;
+	parser->options = 0;
+	PAR::prefix_separator_ref(parser) =
+	    min::MISSING();
 
 	PAR::context_table_ref(parser) =
 	    TAB::create_key_table ( 256 );

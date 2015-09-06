@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  4 05:31:00 EDT 2015
+// Date:	Sun Sep  6 13:37:56 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -956,6 +956,11 @@ namespace bracketed {
 	    indentation_mark;
 }
 
+enum {
+    // Option Flags
+    //
+    FULL_LINES		= 1
+};
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;
 struct parser_struct
 {
@@ -1057,7 +1062,10 @@ struct parser_struct
         // Selector name table.
 
     ll::parser::table::flags selectors;
-        // Top level selectors.
+    min::uns32 options;
+    const min::gen prefix_separator;
+        // Top level selectors, options,
+	// prefix_separator.
 
     const ll::parser::table::key_table context_table;
         // Context symbol table.
@@ -1150,6 +1158,8 @@ MIN_REF ( ll::parser::table::block_stack,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::name_table,
 		selector_name_table,
+          ll::parser::parser )
+MIN_REF ( min::gen, prefix_separator,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::key_table,
 		context_table,

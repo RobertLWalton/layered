@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  4 03:50:48 EDT 2015
+// Date:	Mon Sep  7 15:16:41 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,10 +31,24 @@
 // Standard Input Parser
 // -------- ----- ------
 
+static min::uns32 erroneous_atom_stub_disp[] = {
+    min::DISP ( & PARSTD::erroneous_atom_struct
+                        ::parser ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<PARSTD::erroneous_atom_struct,
+	 LEX::erroneous_atom_struct>
+    erroneous_atom_type
+	( "ll::parser::standard::erroneous_atom_type",
+	  NULL, ::erroneous_atom_stub_disp );
+const min::uns32 & PARSTD::ERRONEOUS_ATOM =
+    ::erroneous_atom_type.subtype;
+
 min::locatable_var<PAR::input>
     PARSTD::input;
-min::locatable_var<LEX::erroneous_atom>
-    PARSTD::erroneous_atom;
+min::locatable_var<PARSTD::erroneous_atom>
+    PARSTD::default_erroneous_atom;
 
 static min::uns32 input_add_tokens
 	( PAR::parser parser,
@@ -56,8 +70,15 @@ void PARSTD::init_input
     PAR::init ( PARSTD::input,
                 ::input_add_tokens,
 		::input_init );
-    LEX::init ( PARSTD::erroneous_atom,
-                ::erroneous_atom_announce );
+
+    PARSTD::default_erroneous_atom =
+        ::erroneous_atom_type.new_stub();
+    PARSTD::default_erroneous_atom->announce =
+        ::erroneous_atom_announce;
+    PARSTD::default_erroneous_atom->mode = LEX::NORMAL;
+    PARSTD::default_erroneous_atom->count = 0;
+    PARSTD::parser_ref(PARSTD::default_erroneous_atom) =
+        parser;
 
     PAR::init ( parser );
     LEXSTD::init_standard_program();
@@ -66,7 +87,8 @@ void PARSTD::init_input
           LEXSTD::default_program );
     input_ref(parser) = PARSTD::input;
     LEX::erroneous_atom_ref(parser->scanner) =
-        PARSTD::erroneous_atom;
+        (LEX::erroneous_atom)
+	PARSTD::default_erroneous_atom;
 }
 
 // Erroneous Atom Announce
@@ -78,43 +100,46 @@ static void erroneous_atom_announce
 	  LEX::erroneous_atom erroneous_atom )
 {
     const char * message;
+    bool warning = false;
     switch ( type )
     {
     case LEXSTD::misplaced_vertical_t:
-	message = "ERROR: vertical control character"
-	          " sequence with no line feed; ";
+	message = "vertical control character"
+	          " sequence with no line feed";
+	warning = true;
 	break;
     case LEXSTD::illegal_control_t:
-	message = "ERROR: illegal control"
-	          " character sequence; ";
+	message = "illegal control"
+	          " character sequence";
 	break;
     case LEXSTD::unrecognized_character_t:
-	message = "ERROR: unrecognized"
-	          " character sequence; ";
+	message = "unrecognized"
+	          " character sequence";
 	break;
     case LEXSTD::unrecognized_escape_t:
-	message = "ERROR: unrecognized escape"
-	          " sequence; ";
+	message = "unrecognized escape"
+	          " sequence";
 	break;
     case LEXSTD::misplaced_horizontal_t:
-	message = "ERROR: horizontal characters other"
-	          " than single space; ";
+	message = "horizontal characters other"
+	          " than single space";
 	break;
     default:
-	message = "ERROR: system error: unrecognized"
-	          " erroneous atom type; ";
+	message = "system error: unrecognized"
+	          " erroneous atom type";
 	break;
     }
 
-    scanner->printer
-        << min::bom
-	<< min::set_indent ( 7 )
-	<< message
-	<< LEX::pline_numbers
-	        ( scanner, first, next )
-	<< ":" << min::eom;
-    LEX::print_phrase_lines
-        ( scanner->printer, scanner, first, next );
+    PAR::parser parser =
+        ((PARSTD::erroneous_atom) erroneous_atom)
+	    ->parser;
+    min::phrase_position position =
+        LEX::phrase_position ( scanner, first, next );
+
+    if ( warning )
+	PAR::parse_warn ( parser, position, message );
+    else
+	PAR::parse_error ( parser, position, message );
 }
 
 // Add Tokens

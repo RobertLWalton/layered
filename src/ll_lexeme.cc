@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  1 15:01:52 EDT 2015
+// Date:	Mon Sep  7 15:37:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2241,6 +2241,30 @@ min::pline_numbers LEX::pline_numbers
 		( scanner->input_file, position );
 }
 
+min::phrase_position LEX::phrase_position
+	( LEX::scanner scanner,
+	  min::uns32 first,
+	  min::uns32 next )
+{
+    LEX::input_buffer input_buffer =
+        scanner->input_buffer;
+
+    min::phrase_position position;
+
+    position.begin =
+        first < input_buffer->length ?
+	    (min::position) input_buffer[first] :
+	    scanner->next_position;
+
+    position.end =
+        next < input_buffer->length ?
+	    (min::position) input_buffer[next] :
+	    scanner->next_position;
+
+    return position;
+}
+
+
 void LEX::print_phrase_lines
 	( min::printer printer,
 	  LEX::scanner scanner,
@@ -2251,19 +2275,8 @@ void LEX::print_phrase_lines
 	  const char * end_of_file,
 	  const char * unavailable_line )
 {
-    LEX::input_buffer input_buffer =
-        scanner->input_buffer;
-
-    min::phrase_position position;
-    position.begin =
-        first < input_buffer->length ?
-	    (min::position) input_buffer[first] :
-	    scanner->next_position;
-
-    position.end =
-        next < input_buffer->length ?
-	    (min::position) input_buffer[next] :
-	    scanner->next_position;
+    min::phrase_position position =
+        LEX::phrase_position ( scanner, first, next );
 
     min::print_phrase_lines
         ( printer, scanner->input_file, position, mark,

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 11 05:50:36 EDT 2015
+// Date:	Mon Sep  7 15:36:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1136,11 +1136,17 @@ namespace ll { namespace lexeme {
 	    ( ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next );
 
-    // Call min::print_phrase_lines using the beginning
-    // and ending positions of the lexeme in scanner->
-    // input_buffer[first .. next-1].  If input_
-    // buffer[first] or input_buffer[next-1] does not
-    // exist, use scanner->next_position instead.
+    // Return min::phrase_position of phrase in
+    // scanner->input_buffer[first .. next-1].  If
+    // input_buffer[first] or input_buffer[next-1] does
+    // not exist, use scanner->next_position instead.
+    //
+    min::phrase_position phrase_position
+        ( ll::lexeme::scanner scanner,
+	  uns32 first, uns32 next );
+
+    // Call min::print_phrase_lines using above phrase
+    // position.
     //
     void print_phrase_lines
 	    ( min::printer,

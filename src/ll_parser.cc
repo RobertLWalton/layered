@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  6 13:41:11 EDT 2015
+// Date:	Sun Sep  6 21:03:58 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1007,7 +1007,7 @@ void PAR::parse ( PAR::parser parser )
 
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
-		( parser, selectors,
+		( parser, selectors, 0,
 		  current,
 		  0,
 		  parser->top_level_indentation_mark

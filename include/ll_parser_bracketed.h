@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  6 13:34:34 EDT 2015
+// Date:	Sun Sep  6 20:29:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -735,6 +735,7 @@ inline bool is_closed ( ll::parser::bracketed
 min::position parse_bracketed_subexpression
 	( ll::parser::parser parser,
 	  ll::parser::table::flags selectors,
+	  min::uns32 options,
 	  ll::parser::token & current,
 	  min::int32 indent,
 	  ll::parser::bracketed::line_sep

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 11 16:43:37 EDT 2015
+// Date:	Mon Sep  7 14:40:21 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,8 +32,24 @@
 
 namespace ll { namespace parser { namespace standard {
 
-extern min::locatable_var<ll::lexeme::erroneous_atom>
-    erroneous_atom;
+struct erroneous_atom_struct;
+    // Subclass of ll::lexeme::erroneous_atom.
+typedef min::packed_struct_updptr
+	    <erroneous_atom_struct>
+        erroneous_atom;
+extern const uns32 & ERRONEOUS_ATOM;
+    // Subtype of ll::lexeme::ERRONEOUS_ATOM.
+struct erroneous_atom_struct :
+    public ll::lexeme::erroneous_atom_struct
+{
+    const ll::parser::parser parser;
+};
+MIN_REF ( ll::parser::parser, parser,
+          ll::parser::standard::erroneous_atom )
+
+extern min::locatable_var
+	<ll::parser::standard::erroneous_atom>
+    default_erroneous_atom;
 
 extern min::locatable_var<ll::parser::input>
     input;

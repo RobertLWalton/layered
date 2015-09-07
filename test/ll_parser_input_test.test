@@ -387,7 +387,7 @@ control A␁B␂C␃
 LINE_BREAK: line 26:
 control A␁B␂C␃
               ^
-ERROR: unrecognized escape sequence; line 27:
+ERROR: in line 27: unrecognized escape sequence:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                             ^^^^
 QUOTED_STRING: "<Q>␊␍␉␈␌␋␥␣â␁": line 27:
@@ -438,7 +438,7 @@ QUOTED_STRING: "␘␙␚␛␜␝␞␟␡": line 34:
 LINE_BREAK: line 34:
 "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
                                            ^
-ERROR: illegal control character sequence; line 35:
+ERROR: in line 35: illegal control character sequence:
 "misplaced control ␁"
                    ^
 QUOTED_STRING: "misplaced␣control␣␁": line 35:

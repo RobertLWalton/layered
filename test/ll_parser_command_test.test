@@ -17,7 +17,7 @@ parser print context "":
     block TOP LEVEL: parser [+ parser, - data, - code, - my selector]
     block TOP LEVEL: parser test []
 parser print trace:
-    [ - warnings, - parser input, - parser output, + parser commands,
+    [ + warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser trace [+ parser input]
@@ -46,7 +46,7 @@ LINE_BREAK: line 20:
 parser trace [- parser input]
                              ^
 parser print trace:
-    [ - warnings, + parser input, - parser output, + parser commands,
+    [ + warnings, + parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 WORD: "parser": line 21:
@@ -65,7 +65,7 @@ parser print trace
 ^
 parser trace [- parser input]
 parser print trace:
-    [ - warnings, - parser input, - parser output, + parser commands,
+    [ + warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser print context "":

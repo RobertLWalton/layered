@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  6 13:37:56 EDT 2015
+// Date:	Mon Sep  7 05:07:06 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -616,10 +616,15 @@ namespace pass_function {
     // If first == end the subexpression is or became
     // empty.
     //
-    // Error messages are sent to parser->printer.
-    // Errors are counted in parser->error_count.
-    // Returns true if no fatal errors, and false if
-    // there is a fatal error.
+    // Error and warning messages are sent to parser->
+    // printer.  Warnings are errors that likely do not
+    // affect correctness very much, such as failure to
+    // end a file with a line break.  Warnings only
+    // print messages if TRACE_WARNINGS is on, which it
+    // is by default.  Errors are counted in parser->
+    // error_count and warnings in parser->warning_
+    // count.  Returns true if no fatal errors, and
+    // false if there is a fatal error.
     //
     // After the pass runs on the subexpression, it must
     // call the next pass in the parser pass stack
@@ -657,7 +662,8 @@ namespace pass_function {
     // Return min::SUCCESS() on success, min::FAILURE()
     // if command was not recognized, and min::ERROR()
     // if an error message was printed.  Increment
-    // parser->error_count on printing an error message.
+    // parser->warning/error_count on printing an error/
+    // warning message.
     //
     typedef min::gen ( * parser_command )
 	    ( ll::parser::parser parser,
@@ -1087,10 +1093,14 @@ struct parser_struct
 	// ted from the list or replaced in the list.
 
     uns64 error_count;
-        // Number of parser error messages output so
-	// far.  To determine if there is an error
-	// in the parse of a given expression, check to
-	// see if this is incremented.
+    uns64 warning_count;
+        // Number of parser error/warning messages
+	// output so far.  To determine if there is an
+	// error/warning in the parse of a given expres-
+	// sion, check to see if error/warning_count is
+	// incremented.  Warning_count is incremented
+	// even if TRACE_WARNING is off so that warning
+	// messages are not printed.
 
     uns64 max_error_count;
         // Maximum allowed value of error_count.  When
@@ -1771,10 +1781,23 @@ min::gen parse_error
 	  const min::op & message2,
 	  const char * message3 = "" );
 
+// Ditto but message4 is a printer operation and it is
+// followed by message5.  Message4 can be min::pgen...
+// for example.
+//
+min::gen parse_error
+	( ll::parser::parser parser,
+	  const min::phrase_position & pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3,
+	  const min::op & message4,
+	  const char * message5 = "" );
+
 // Same as above but produces a warning message and not
 // an error message, but only if parser TRACE_WARNINGS
-// flag is on.  Does NOT increment parser->error_
-// count.
+// flag is on.  Increments parser->warning_count evern
+// if TRACE_WARNINGS is off.
 //
 void parse_warn
 	( ll::parser::parser parser,
@@ -1787,6 +1810,14 @@ void parse_warn
 	  const char * message1,
 	  const min::op & message2,
 	  const char * message3 = "" );
+void parse_warn
+	( ll::parser::parser parser,
+	  const min::phrase_position & pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3,
+	  const min::op & message4,
+	  const char * message5 = "" );
 
 } }
 

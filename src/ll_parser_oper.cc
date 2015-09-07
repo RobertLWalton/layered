@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 16 17:58:23 EDT 2015
+// Date:	Mon Sep  7 06:47:52 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -512,22 +512,12 @@ static void oper_parse ( PAR::parser parser,
 	    oper_precedence = D.precedence - 1;
 	    D.first = current;
 
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: missing"
-		   " operator of precedence "
-		<< oper_precedence
-		<< " inserted; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 current->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  current->position );
-	    ++ parser->error_count;
+	    char message[200];
+	    sprintf ( message,
+	              "missing operator of precedence"
+	              " %d inserted", oper_precedence );
+	    parse_error ( parser, current->position,
+	                  message );
 	}
 	else if ( oper != min::NULL_STUB )
 	{
@@ -579,19 +569,9 @@ static void oper_parse ( PAR::parser parser,
 	        ( parser, current->previous );
 	    D.first = current->previous;
 
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: missing operand inserted; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 D.first->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  D.first->position );
-	    ++ parser->error_count;
+	    PAR::parse_error
+	        ( parser, D.first->position,
+		  "missing operand inserted" );
 	}
 
 	// Close previous subexpressions until
@@ -746,25 +726,12 @@ static bool separator_reformatter_function
 	    if ( separator == min::NONE() )
 	        separator = t->value;
 	    else if ( separator != t->value )
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: wrong separator `"
-		    << min::pgen_name ( t->value )
-		    << "' changed to `"
-		    << min::pgen_name ( separator )
-		    << "'; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     t->position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      t->position );
-		++ parser->error_count;
-	    }
+	        PAR::parse_error
+		    ( parser, t->position,
+		      "wrong separator ",
+		      min::pgen_quote ( t->value ),
+		      " changed to ",
+		      min::pgen_quote ( separator ) );
 
 	    if ( ! separator_should_be_next )
 	    {
@@ -877,22 +844,12 @@ static bool declare_reformatter_function
 	     ||
 	     ! min::is_obj ( t->value ) )
 	{
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: expected bracketed"
-		   " expression and got `"
-		<< min::pgen_name ( t->value )
-		<< "'; deleted; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 t->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  t->position );
-	    ++ parser->error_count;
+	    PAR::parse_error
+	        ( parser, t->position,
+		  "expected bracketed expression and"
+		  " got ",
+		  min::pgen_quote ( t->value ),
+		  "; deleted" );
 
 	    t = t->next;
 	    PAR::free
@@ -994,21 +951,11 @@ static bool unary_reformatter_function
 	MIN_ASSERT ( first != next,
 	             "unexpected expression end" );
 
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: expected an operator and got `"
-	    << min::pgen_name ( first->value )
-	    << "'; deleted; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     first->position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      first->position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, first->position,
+	      "expected an operator and got ",
+	      min::pgen_quote ( first->value ),
+	      "; deleted" );
 
 	first = first->next;
 	PAR::free
@@ -1021,21 +968,11 @@ static bool unary_reformatter_function
 
     while ( t != next && t->type == PAR::OPERATOR )
     {
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: expected operand and got `"
-	    << min::pgen_name ( t->value )
-	    << "'; deleted; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     t->position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      t->position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, t->position,
+	      "expected an operand and got ",
+	      min::pgen_quote ( t->value ),
+	      "; deleted" );
 
 	t = t->next;
 	PAR::free
@@ -1048,21 +985,11 @@ static bool unary_reformatter_function
     {
 	t = t->previous;
 
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: expected operand after `"
-	    << min::pgen_name ( t->value )
-	    << "'; inserted ERROR'OPERAND; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     t->position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      t->position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, t->position,
+	      "expected an operand after ",
+	      min::pgen_quote ( t->value ),
+	      "; inserted ERROR'OPERAND" );
 
 	PAR::put_error_operand_after ( parser, t );
 	t = t->next;
@@ -1076,20 +1003,10 @@ static bool unary_reformatter_function
         min::phrase_position position =
 	    { t->position.begin,
 	      next->previous->position.end };
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: extra stuff at end of unary"
-	       " expression; deleted; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, position,
+	      "extra stuff at end of unary"
+	       " expression; deleted" );
 
 	while ( t != next )
 	{
@@ -1128,21 +1045,11 @@ static bool binary_reformatter_function
     //
     if ( t->type == PAR::OPERATOR )
     {
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: expected operand before `"
-	    << min::pgen_name ( t->value )
-	    << "'; inserted ERROR'OPERAND; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     t->position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      t->position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, t->position,
+	      "expected operand before ",
+	      min::pgen_quote ( t->value ),
+	      "; inserted ERROR'OPERAND" );
 
 	PAR::put_error_operand_before ( parser, t );
 	first = t->previous;
@@ -1164,21 +1071,11 @@ static bool binary_reformatter_function
     {
 	t = t->previous;
 
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: expected operand after `"
-	    << min::pgen_name ( t->value )
-	    << "'; inserted ERROR'OPERAND; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     t->position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      t->position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, t->position,
+	      "expected operand after ",
+	      min::pgen_quote ( t->value ),
+	      "; inserted ERROR'OPERAND" );
 
 	PAR::put_error_operand_after ( parser, t );
 	t = t->next;
@@ -1201,20 +1098,10 @@ static bool binary_reformatter_function
         min::phrase_position position =
 	    { t->position.begin,
 	      next->previous->position.end };
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: extra stuff at end of binary"
-	       " expression; deleted; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, position,
+	      "extra stuff at end of binary"
+	       " expression; deleted" );
 
 	while ( t != next )
 	{
@@ -1257,28 +1144,19 @@ static bool infix_reformatter_function
         MIN_ASSERT ( t->next->type == PAR::OPERATOR,
 	             "operator expected but operand"
 		     " found" );
+
 	if ( t->next->value != first->next->value )
-	{
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: wrong operator `"
-		<< min::pgen_name ( t->next->value )
-		<< "' changed to `"
-		<< min::pgen_name ( first->next->value )
-		<< "'; all operators"
-		   " must be the same in this"
-		   " subexpression; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  position );
-	    ++ parser->error_count;
-	}
+	    PAR::parse_error
+	        ( parser, position,
+		  "wrong operator ",
+		  min::pgen_quote ( t->next->value ),
+		  " changed to ",
+		  min::pgen_quote
+		      ( first->next->value ),
+		  "; all operators"
+		  " must be the same in this"
+		  " subexpression" );
+
         PAR::free
 	    ( PAR::remove
 		  ( PAR::first_ref(parser), t->next ) );

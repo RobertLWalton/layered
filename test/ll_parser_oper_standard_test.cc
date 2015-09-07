@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 16 07:07:20 EST 2015
+// Date:	Mon Sep  7 05:05:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,11 +41,11 @@ int main ( int argc, const char * argv[] )
     PAR::init_line_display
         ( PAR::default_parser,
 	    min::DISPLAY_PICTURE );
-    PAR::default_parser->trace_flags =
+    PAR::default_parser->trace_flags |=
     	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
     	+ PAR::TRACE_SUBEXPRESSION_LINES;
     if ( debug )
-	PAR::default_parser->trace_flags =
+	PAR::default_parser->trace_flags |=
 	    bracketed_pass->trace_subexpressions
 	    +
 	    oper_pass->trace_subexpressions;

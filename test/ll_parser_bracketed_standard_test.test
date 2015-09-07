@@ -154,8 +154,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: missing closing bracket [< "}" "}" >] inserted before ")";
-       line 21:
+ERROR: in line 21: missing closing bracket [< "}" "}" >] inserted
+       before ")":
      (x + {{ y z )
                  ^
 BRACKETED EXPRESSION:
@@ -200,7 +200,8 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
-ERROR: missing closing bracket ")" inserted before end of line; line 23:
+ERROR: in line 23: missing closing bracket ")" inserted before end of
+       line:
      (x + y }}
               ^
 BRACKETED EXPRESSION:
@@ -222,7 +223,7 @@ This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      (x + y }}
 ^^^^^^^^^^^^^^
-ERROR: lexeme indent 1 too near paragraph indent 0; line 25:
+WARNING: in line 25: lexeme indent 1 too near paragraph indent 0:
  a token with insufficient indent
  ^
 BRACKETED EXPRESSION:
@@ -509,8 +510,8 @@ This is another label [< x ( y ) z >]
                            ^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: subexpression (y) illegal for label element - changed to
-       ERRONEOUS-LABEL-COMPONENT; line 39:
+ERROR: in line 39: subexpression (y) illegal for label element; changed
+       to ERRONEOUS-LABEL-COMPONENT:
 This is another label [< x ( y ) z >]
                            ^^^^^
 DERIVED EXPRESSION:
@@ -679,7 +680,7 @@ BRACKETED EXPRESSION:
                                  ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: bad flag(s) _ in "ABC_,200"; line 44:
+ERROR: in line 44: bad flag(s) "_" in "ABC_,200":
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                          ^^^^^^^^
 BRACKETED EXPRESSION:
@@ -746,7 +747,7 @@ And one more {| |b["A", 201,202, [5]]: t}
                   ^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: bad flags specifier [5]; line 46:
+ERROR: in line 46: bad flags specifier [5]:
 And one more {| |b["A", 201,202, [5]]: t}
                                  ^^^
 BRACKETED EXPRESSION:
@@ -792,8 +793,8 @@ PREFIX EXPRESSION:
     line 47:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                              ^^^
-ERROR: prefix separator in middle of expression - deleted and ignored;
-       line 47:
+ERROR: in line 47: prefix separator in middle of expression; deleted and
+       ignored:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                              ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
@@ -841,8 +842,8 @@ PREFIX EXPRESSION:
     line 47:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
-ERROR: prefix separator in middle of expression - deleted and ignored;
-       line 47:
+ERROR: in line 47: prefix separator in middle of expression; deleted and
+       ignored:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
@@ -1140,8 +1141,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: "-" missing at end of typed bracketed expression; inserted;
-       line 52:
+ERROR: in line 52: "-" missing at end of typed bracketed expression;
+       inserted:
 {- a b c}
         ^
 BRACKETED EXPRESSION:

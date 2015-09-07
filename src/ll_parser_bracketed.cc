@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  6 20:30:22 EDT 2015
+// Date:	Mon Sep  7 04:51:11 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -734,22 +734,13 @@ static void make_label
 	}
 	else
 	{
-	    parser->printer
-		<< min::bom << min::set_indent ( 7 )
-		<< "ERROR: subexpression "
-		<< min::pgen_quote ( t->value )
-		<< " illegal for label element"
-		   " - changed to"
-		   " ERRONEOUS-LABEL-COMPONENT; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 t->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  t->position );
-	    ++ parser->error_count;
+	    PAR::parse_error
+	        ( parser, t->position,
+		  "subexpression ",
+		  min::pgen_quote ( t->value ),
+		  " illegal for label element;"
+		  " changed to"
+		  " ERRONEOUS-LABEL-COMPONENT" );
 
 	    t->type = PAR::DERIVED;
 	    value_ref(t) = min::new_str_gen
@@ -799,22 +790,12 @@ static void complain_near_indent
 	  PAR::token token,
 	  min::int32 indent )
 {
-    parser->printer
-	<< min::bom << min::set_indent ( 7 )
-	<< "ERROR: lexeme indent "
-	<< token->indent
-	<< " too near paragraph indent "
-	<< indent
-	<< "; "
-	<< min::pline_numbers
-	       ( parser->input_file,
-		 token->position )
-	<< ":" << min::eom;
-    min::print_phrase_lines
-	( parser->printer,
-	  parser->input_file,
-	  token->position );
-    ++ parser->error_count;
+    char buffer[200];
+    sprintf ( buffer, "lexeme indent %d too near"
+                      " paragraph indent %d",
+		      token->indent, indent );
+    PAR::parse_warn
+        ( parser, token->position, buffer );
 }
 
 // Return token indent - indent and complain if token
@@ -1316,22 +1297,10 @@ min::position BRA::parse_bracketed_subexpression
 	    // indented comments.
 	    //
 	    if ( iic_exists )
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 9 )
-		    << "WARNING: comments NOT indented"
-		       " as much as following line; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     iic_position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      iic_position );
-		++ parser->error_count;
-	    }
+	        PAR::parse_warn
+		    ( parser, iic_position,
+		      "comments NOT indented"
+		       " as much as following line" );
 	}
 
 	// We might issue warning if end of file not
@@ -1796,46 +1765,45 @@ min::position BRA::parse_bracketed_subexpression
 		    position.end =
 			next->previous->position.end;
 
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: missing"
-			   " closing bracket "
-			<< min::pgen_quote
-			     ( opening_bracket->
-			       closing_bracket->
-				   label )
-			<< " inserted before ";
-
 		    if ( next->value != min::MISSING() )
-		        parser->printer
-			    << min::pgen_quote
-			      ( next->value )
-			    << "; ";
-		    else if (    next->type
-		              == LEXSTD::line_break_t )
-		        parser->printer
-			    << "end of line; ";
-		    else if (    next->type
-		              == LEXSTD::end_of_file_t )
-		        parser->printer
-			    << "end of file; ";
-		    else 
-		        MIN_ABORT
-			    ( "closing bracket found"
-			      " with non-name valued"
-			      " token" );
-
-		    parser->printer
-			<< min::pline_numbers
-			       ( parser->input_file,
-				 next->position )
-			<< ":" << min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  parser->input_file,
-			  next->position );
-		    ++ parser->error_count;
+		        PAR::parse_error
+			    ( parser, next->position,
+			      "missing closing"
+			      " bracket ",
+			      min::pgen_quote
+			          ( opening_bracket->
+			            closing_bracket->
+				        label ),
+			      " inserted before ",
+			      min::pgen_quote
+			          ( next->value ) );
+		    else
+		    {
+			const char * message;
+			switch ( next->type ) {
+			case LEXSTD::line_break_t:
+			    message = " inserted before"
+			              " end of line";
+			    break;
+			case LEXSTD::end_of_file_t:
+			    message = " inserted before"
+			              " end of file";
+			default:
+			    MIN_ABORT
+				( "closing bracket"
+				  " found with non-name"
+				  " valued token" );
+			}
+		        PAR::parse_error
+			    ( parser, next->position,
+			      "missing closing"
+			      " bracket ",
+			      min::pgen_quote
+			          ( opening_bracket->
+			            closing_bracket->
+				        label ),
+			      message );
+		    }
 		}
 		else
 		{
@@ -1886,25 +1854,15 @@ min::position BRA::parse_bracketed_subexpression
 			          next->previous
 				      ->position.end };
 
-			    parser->printer
-				<< min::bom
-				<< min::set_indent ( 7 )
-				<< "ERROR: "
-				<< min::pgen_quote
-				     ( mark_type )
-				<< " missing at end of"
-				   " typed bracketed"
-				   " expression;"
-				   " inserted; "
-				<< min::pline_numbers
-				     ( parser->input_file,
-				       position )
-				<< ":" << min::eom;
-			    min::print_phrase_lines
-				( parser->printer,
-				  parser->input_file,
-				  position );
-			    ++ parser->error_count;
+			    PAR::parse_error
+			        ( parser, position,
+				  "",
+				  min::pgen_quote
+				     ( mark_type ),
+				  " missing at end of"
+				  " typed bracketed"
+				  " expression;"
+				  " inserted" );
 			}
 			else
 			{
@@ -2033,24 +1991,12 @@ min::position BRA::parse_bracketed_subexpression
 
 		    if ( ! at_start )
 		    {
-			parser->printer
-			    << min::bom
-			    << min::set_indent ( 7 )
-			    << "ERROR: prefix"
-			       " separator in middle"
-			       " of expression -"
-			       " deleted and ignored; "
-			    << min::pline_numbers
-				 ( parser->input_file,
-				   prefix_sep->position
-				 )
-			    << ":" << min::eom;
-			min::print_phrase_lines
-			    ( parser->printer,
-			      parser->input_file,
-			      prefix_sep->position );
-			++ parser->error_count;
-
+			PAR::parse_error
+			    ( parser,
+			      prefix_sep->position,
+			      "prefix separator in"
+			      " middle of expression;"
+			      " deleted and ignored" );
 			PAR::free
 			    ( PAR::remove
 				( first_ref(parser),
@@ -2282,23 +2228,13 @@ min::position BRA::parse_bracketed_subexpression
 				( parser, current,
 				  root->label );
 
-			parser->printer
-			    << min::bom
-			    << min::set_indent ( 7 )
-			    << "ERROR: extra typed"
-			       " middle "
-			    << root->label
-			    << " found - deleted and"
-			       " ignored; "
-			    << min::pline_numbers
-				 ( parser->input_file,
-				   position )
-			    << ":" << min::eom;
-			min::print_phrase_lines
-			    ( parser->printer,
-			      parser->input_file,
-			      position );
-			++ parser->error_count;
+			PAR::parse_error
+			    ( parser, position,
+			      "extra typed middle ",
+			      min::pgen_quote
+			          ( root->label ),
+			      " found; deleted and"
+			      " ignored" );
 		    }
 
 		    ++ typed_middle_count;
@@ -2510,20 +2446,11 @@ inline void punctuation_error
         { key_first->position.begin,
 	  current->previous->position.end };
 
-    parser->printer
-	<< min::bom << min::set_indent ( 7 )
-	<< "ERROR: unexpected punctuation "
-	<< min::pgen_quote ( key_label )
-	<< " - deleted and ignored; "
-	<< min::pline_numbers
-	       ( parser->input_file,
-		 position )
-	<< ":" << min::eom;
-    min::print_phrase_lines
-	( parser->printer,
-	  parser->input_file,
-	  position );
-    ++ parser->error_count;
+    PAR::parse_error
+        ( parser, position,
+	  "unexpected punctuation ",
+	  min::pgen_quote ( key_label ),
+	  " found; deleted and ignored" );
 
     ::remove ( parser, first, start,
                key_first, current );
@@ -2541,19 +2468,9 @@ static void missing_error
         { current->position.begin,
 	  current->position.begin };
 
-    parser->printer
-	<< min::bom << min::set_indent ( 7 )
-	<< "ERROR: missing " << message
-	<< "; "
-	<< min::pline_numbers
-	       ( parser->input_file,
-		 position )
-	<< ":" << min::eom;
-    min::print_phrase_lines
-	( parser->printer,
-	  parser->input_file,
-	  position );
-    ++ parser->error_count;
+    PAR::parse_error
+        ( parser, position,
+	  "missing ", message );
 }
 
 static void set_attr_flags
@@ -2608,24 +2525,14 @@ static void set_attr_flags
 		        pos = min::get ( ap );
 		    min::phrase_position position =
 		        pos[i];
-		    parser->printer
-			<< min::bom
-			<< min::set_indent ( 7 )
-			<< "ERROR: bad flag(s) "
-			<< text_buffer
-			<< " in "
-			<< min::pgen_quote
-			       ( flags_text )
-			<< "; "
-			<< min::pline_numbers
-			       ( parser->input_file,
-				 position )
-			<< ":" << min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  parser->input_file,
-			  position );
-		    ++ parser->error_count;
+		    char buffer[len+200];
+		    sprintf ( buffer,
+		              "bad flag(s) \"%s\" in ",
+			      text_buffer );
+		    parse_error ( parser, position,
+		                  buffer,
+			          min::pgen_quote
+			              ( flags_text ) );
 		}
 	    }
 	    else
@@ -2635,22 +2542,10 @@ static void set_attr_flags
 		min::phrase_position_vec_insptr
 		    pos = min::get ( ap );
 		min::phrase_position position = pos[i];
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: bad flags specifier "
-		    << min::pgen_quote
-			   ( flags_text )
-		    << "; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      position );
-		++ parser->error_count;
+		PAR::parse_error
+		    ( parser, position,
+		      "bad flags specifier ",
+		       min::pgen_quote ( flags_text ) );
 	    }
 	}
 
@@ -3128,22 +3023,12 @@ ELEMENTS:
 	key_label = typed_opening->typed_middle
 				 ->label;
 
-	parser->printer
-	    << min::bom
-	    << min::set_indent ( 7 )
-	    << "ERROR: premature end of typed"
-	       " bracketed subexpression; "
-	    << min::pgen_quote ( key_label )
-	    << " inserted; "
-	    << min::pline_numbers
-		   ( parser->input_file,
-		     position )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      position );
-	++ parser->error_count;
+	PAR::parse_error
+	    ( parser, position,
+	      "premature end of typed bracketed"
+	      " subexpression; ",
+	      min::pgen_quote ( key_label ),
+	      " inserted" );
 
 	goto DONE;
     }
@@ -3186,27 +3071,15 @@ END_TYPE_FOUND:
     {
 	if (    type_token->value
 	     != start->value )
-	{
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: end type "
-		<< min::pgen_quote
-		     ( start->value )
-		<< " != begin type "
-		<< min::pgen_quote
-		     ( type_token->value )
-		<< "; end type ignored; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 start->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  start->position );
-	    ++ parser->error_count;
-	}
+	    PAR::parse_error
+	        ( parser, start->position,
+		  "end type ",
+		  min::pgen_quote
+		     ( start->value ),
+		  " != begin type ",
+		  min::pgen_quote
+		     ( type_token->value ),
+		  "; end type ignored" );
 
 	PAR::free
 	    ( PAR::remove
@@ -3322,26 +3195,14 @@ DONE:
 	if ( min::get ( expap ) == min::NONE() )
 	    min::set ( expap, value );
 	else
-	{
-	    parser->printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< "ERROR: attribute "
-		<< min::pgen_quote ( label )
-		<< " appears more than once;"
-		   " later value "
-		<< min::pgen_quote ( value )
-		<< " ignored; "
-		<< min::pline_numbers
-		       ( parser->input_file,
-			 current->position )
-		<< ":" << min::eom;
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  current->position );
-	    ++ parser->error_count;
-	}
+	    PAR::parse_error
+	        ( parser, current->position,
+		  "attribute ",
+		   min::pgen_quote ( label ),
+		  " appears more than once;"
+		   " later value ",
+		  min::pgen_quote ( value ),
+		  " ignored" );
 
 NEXT_ITEM:
 

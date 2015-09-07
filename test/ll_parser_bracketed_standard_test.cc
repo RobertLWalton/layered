@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 28 15:55:42 EDT 2015
+// Date:	Mon Sep  7 05:03:47 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,7 @@ int main ( int argc, const char * argv[] )
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass)
 	PAR::default_parser->pass_stack;
-    PAR::default_parser->trace_flags =
+    PAR::default_parser->trace_flags |=
         bracketed_pass->trace_subexpressions
 	+
 	PAR::TRACE_SUBEXPRESSION_ELEMENTS

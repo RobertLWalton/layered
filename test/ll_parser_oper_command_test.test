@@ -234,8 +234,8 @@ parser test (x OR y BUT NOT z AND w)
 parser test (x OR y BUT NOT z AND w)
                             ^^^^^^^
 ======= END TEST
-ERROR: wrong operator `OR' changed to `AND'; all operators must be the
-       same in this subexpression; line 102:
+ERROR: in line 102: wrong operator "OR" changed to "AND"; all operators
+       must be the same in this subexpression:
 parser test (x OR y BUT NOT z AND w OR p)
                             ^^^^^^^^^^^^
 ======= TEST: parser test
@@ -269,7 +269,7 @@ parser test (NOT x y)
 parser test (NOT x y)
                  ^^^
 ======= END TEST
-ERROR: expected an operator and got `x'; deleted; line 104:
+ERROR: in line 104: expected an operator and got "x"; deleted:
 parser test (x NOT y)
              ^
 ======= TEST: parser test
@@ -282,7 +282,7 @@ parser test (x NOT y)
 parser test (x NOT y)
             ^^^^^^^^^
 ======= END TEST
-ERROR: extra stuff at end of unary expression; deleted; line 105:
+ERROR: in line 105: extra stuff at end of unary expression; deleted:
 parser test (NOT x AND y)
                    ^^^^^
 ======= TEST: parser test
@@ -295,11 +295,11 @@ parser test (NOT x AND y)
 parser test (NOT x AND y)
             ^^^^^^^^^^^^^
 ======= END TEST
-ERROR: missing operand inserted; line 106:
+ERROR: in line 106: missing operand inserted:
 parser test (x AND NOT y)
                   ^
-ERROR: wrong operator `NOT' changed to `AND'; all operators must be the
-       same in this subexpression; line 106:
+ERROR: in line 106: wrong operator "NOT" changed to "AND"; all operators
+       must be the same in this subexpression:
 parser test (x AND NOT y)
              ^^^^^^^^^^^
 ======= TEST: parser test
@@ -325,7 +325,7 @@ parser test (x AND AND y)
 parser test (x AND AND y)
                    ^^^^^
 ======= END TEST
-ERROR: expected operand and got `NOT'; deleted; line 108:
+ERROR: in line 108: expected an operand and got "NOT"; deleted:
 parser test (NOT NOT x y)
                  ^^^
 ======= TEST: parser test
@@ -341,10 +341,11 @@ parser test (NOT NOT x y)
 parser test (NOT NOT x y)
                      ^^^
 ======= END TEST
-ERROR: expected operand and got `NOT'; deleted; line 109:
+ERROR: in line 109: expected an operand and got "NOT"; deleted:
 parser test (NOT NOT)
                  ^^^
-ERROR: expected operand after `NOT'; inserted ERROR'OPERAND; line 109:
+ERROR: in line 109: expected an operand after "NOT"; inserted
+       ERROR'OPERAND:
 parser test (NOT NOT)
              ^^^
 ======= TEST: parser test
@@ -556,7 +557,7 @@ parser test ( x * y / z q * m p )
 parser test ( x * y / z q * m p )
                             ^^^
 ======= END TEST
-ERROR: extra stuff at end of binary expression; deleted; line 160:
+ERROR: in line 160: extra stuff at end of binary expression; deleted:
 parser test ( x / y / z )
                     ^^^
 ======= TEST: parser test

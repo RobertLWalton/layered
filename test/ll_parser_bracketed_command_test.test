@@ -345,7 +345,7 @@ parser test ( ```
 ''' )
 ^^^
 ======= END TEST
-ERROR: missing closing bracket "'" inserted before ")"; line 89:
+ERROR: in line 89: missing closing bracket "'" inserted before ")":
 parser test ( ` ) ' )
                 ^
 ======= TEST: parser test (`') "'" ")"
@@ -359,10 +359,12 @@ parser test ( ` ) ' )
 parser test ( ` ) ' )
               ^
 ======= END TEST
-ERROR: missing closing bracket "'" inserted before end of line; line 90:
+ERROR: in line 90: missing closing bracket "'" inserted before end of
+       line:
 parser test ( `
                ^
-ERROR: missing closing bracket ")" inserted before end of line; line 90:
+ERROR: in line 90: missing closing bracket ")" inserted before end of
+       line:
 parser test ( `
                ^
 ======= TEST: parser test (`')
@@ -382,16 +384,16 @@ parser print indentation offset:
     block block 1: 4
     block standard: 2
     block TOP LEVEL: 2
-ERROR: lexeme indent 1 too near paragraph indent 0; line 98:
+WARNING: in line 98: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^^^^
-ERROR: lexeme indent 2 too near paragraph indent 0; line 100:
+WARNING: in line 100: lexeme indent 2 too near paragraph indent 0:
   line with indent 2
   ^^^^
 parser end block 1
 parser print indentation offset:
     block standard: 2
     block TOP LEVEL: 2
-ERROR: lexeme indent 1 too near paragraph indent 0; line 107:
+WARNING: in line 107: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  6 21:03:58 EDT 2015
+// Date:	Mon Sep  7 04:49:05 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -608,6 +608,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
     if ( parser == NULL_STUB )
     {
         parser = ::parser_type.new_stub();
+	parser->error_count = 0;
+	parser->warning_count = 0;
 	parser->max_error_count = 100;
 	parser->subexpression_gen_format =
 	    min::line_gen_format;
@@ -654,6 +656,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::keys ) );
+	parser->trace_flags = PAR::TRACE_WARNINGS;
 
 	TAB::init_undefined_stack
 	    ( undefined_stack_ref(parser) );
@@ -783,6 +786,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
     }
 
     parser->error_count = 0;
+    parser->warning_count = 0;
     parser->max_error_count = 100;
 }
 
@@ -953,22 +957,10 @@ void PAR::parse ( PAR::parser parser )
 	{
 	    first_lexeme = false;
 	    if ( current->indent != 0 )
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: first non-comment lexeme"
-		       " is indented; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     current->position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      current->position );
-		++ parser->error_count;
-	    }
+	        PAR::parse_error
+		    ( parser, current->position,
+		      "first non-comment lexeme"
+		      " is indented" );
 	}
 
 	// Get subexpression.  First is the first token
@@ -1831,8 +1823,33 @@ min::gen PAR::parse_error
 	            << "ERROR: in "
 		    << min::pline_numbers
 			   ( parser->input_file, pp )
-	            << ": " << message1 << message2
+	            << ": "
+		    << message1 << message2
 		    << message3 << ":" << min::eom;
+    min::print_phrase_lines
+        ( parser->printer, parser->input_file, pp );
+    ++ parser->error_count;
+    return min::ERROR();
+}
+
+min::gen PAR::parse_error
+	( PAR::parser parser,
+	  const min::phrase_position & pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3,
+	  const min::op & message4,
+	  const char * message5 )
+{
+    parser->printer << min::bom
+                    << min::set_indent ( 7 )
+	            << "ERROR: in "
+		    << min::pline_numbers
+			   ( parser->input_file, pp )
+	            << ": "
+		    << message1 << message2
+		    << message3 << message4
+		    << message5 << ":" << min::eom;
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
     ++ parser->error_count;
@@ -1876,8 +1893,35 @@ void PAR::parse_warn
 	            << "WARNING: in "
 		    << min::pline_numbers
 			   ( parser->input_file, pp )
-	            << ": " << message1 << message2
+	            << ": "
+		    << message1 << message2
 		    << message3 << ":" << min::eom;
+    min::print_phrase_lines
+        ( parser->printer, parser->input_file, pp );
+}
+
+void PAR::parse_warn
+	( PAR::parser parser,
+	  const min::phrase_position & pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3,
+	  const min::op & message4,
+	  const char * message5 )
+{
+    if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
+         == 0 )
+        return;
+
+    parser->printer << min::bom
+                    << min::set_indent ( 9 )
+	            << "WARNING: in "
+		    << min::pline_numbers
+			   ( parser->input_file, pp )
+	            << ": "
+		    << message1 << message2
+		    << message3 << message4
+		    << message5 << ":" << min::eom;
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
 }

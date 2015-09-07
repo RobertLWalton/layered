@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  6 13:38:35 EDT 2015
+// Date:	Sun Sep  6 20:30:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1153,6 +1153,7 @@ inline void ensure_next
 min::position BRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
+	  min::uns32 options,
 	  PAR::token & current,
 	  min::int32 indent,
 	  BRA::line_sep line_sep,
@@ -1421,7 +1422,8 @@ min::position BRA::parse_bracketed_subexpression
 		    min::position separator_found =
 		      BRA::
 		       parse_bracketed_subexpression
-			    ( parser, new_selectors,
+			    ( parser,
+			      new_selectors, 0,
 			      current,
 			      paragraph_indent,
 			      indentation_found
@@ -1610,7 +1612,8 @@ min::position BRA::parse_bracketed_subexpression
 		          ( parser,
 			    pass->indentation_offset,
 			    next, indent )
-		 <= 0 )
+		 < ( options & PAR::FULL_LINES ?
+		         0 : 1 ) )
 		return min::MISSING_POSITION;
 
 	    // Next is first part of continution line.
@@ -1758,10 +1761,10 @@ min::position BRA::parse_bracketed_subexpression
 		PAR::token previous = current->previous;
 		BRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
-		      current,
-		      full_lines ?
-			  - pass->indentation_offset :
-			  indent,
+		      opening_bracket->options
+		      |
+		      ( options & PAR::FULL_LINES ),
+		      current, indent,
 		      min::NULL_STUB,
 		      subtype == BRA::TYPED_OPENING ?
 		          (BRA::typed_opening) root :
@@ -2096,9 +2099,9 @@ min::position BRA::parse_bracketed_subexpression
 
 			min::position separator_found =
 			    PARSE_BRA_SUBEXP
-				( parser, selectors,
-				  current,
-				  indent,
+				( parser,
+				  selectors, options,
+				  current, indent,
 				  line_sep,
 				  min::NULL_STUB,
 				  & cstack2 );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  7 04:51:11 EDT 2015
+// Date:	Wed Sep  9 16:01:13 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1575,15 +1575,26 @@ min::position BRA::parse_bracketed_subexpression
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.
 	    //
-	    MIN_REQUIRE
-	        ( next->indent != LEX::AFTER_GRAPHIC );
-	    if (    relative_indent
-		          ( parser,
-			    pass->indentation_offset,
-			    next, indent )
-		 < ( options & PAR::FULL_LINES ?
-		         0 : 1 ) )
-		return min::MISSING_POSITION;
+	    if (   ~ options
+	         & (   PAR::IGNORE_LE_INDENT
+	             + PAR::IGNORE_LT_INDENT ) )
+	    {
+		MIN_REQUIRE
+		    (    next->indent
+		      != LEX::AFTER_GRAPHIC );
+		int32 rindent =
+		    relative_indent
+			( parser,
+			  pass->indentation_offset,
+			  next, indent );
+		if ( (   ~ options
+		       & PAR::IGNORE_LE_INDENT )
+		     &&
+		     rindent <= 0 )
+		    return min::MISSING_POSITION;
+		else if ( rindent < 0 )
+		    return min::MISSING_POSITION;
+	    }
 
 	    // Next is first part of continution line.
 	    // Remove line feed and continue with next
@@ -1719,7 +1730,7 @@ min::position BRA::parse_bracketed_subexpression
 
 		bool full_lines =
 		    (   opening_bracket->options
-		      & PAR::FULL_LINES );
+		      & PAR::IGNORE_OTHER_CLOSINGS );
 
 		BRA::bracket_stack cstack
 		    ( full_lines ? NULL :
@@ -1730,9 +1741,8 @@ min::position BRA::parse_bracketed_subexpression
 		PAR::token previous = current->previous;
 		BRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
-		      opening_bracket->options
-		      |
-		      ( options & PAR::FULL_LINES ),
+		        opening_bracket->options
+		      | options,
 		      current, indent,
 		      min::NULL_STUB,
 		      subtype == BRA::TYPED_OPENING ?

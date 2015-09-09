@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  7 05:07:06 EDT 2015
+// Date:	Wed Sep  9 16:02:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -965,7 +965,18 @@ namespace bracketed {
 enum {
     // Option Flags
     //
-    FULL_LINES		= 1
+    IGNORE_LINE_SEPARATOR	= 	( 1 << 0 ),
+    IGNORE_LE_INDENT		= 	( 1 << 1 ),
+    IGNORE_LT_INDENT		= 	( 1 << 2 ),
+    IGNORE_END_OF_PARAGRAPH	= 	( 1 << 3 ),
+    IGNORE_OTHER_CLOSINGS	= 	( 1 << 4 ),
+
+    FULL_LINES =
+          IGNORE_LINE_SEPARATOR
+	+ IGNORE_LE_INDENT
+	+ IGNORE_LT_INDENT
+	+ IGNORE_END_OF_PARAGRAPH
+	+ IGNORE_OTHER_CLOSINGS
 };
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;
 struct parser_struct

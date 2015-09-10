@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 02:39:06 EDT 2015
+// Date:	Thu Sep 10 02:47:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -683,7 +683,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 			PAR::data_lexeme ) );
 
 	parser->selectors = PAR::ALWAYS_SELECTOR;
-	parser->options = PAR::IGNORE_LE_INDENT
+	parser->options = PAR::IGNORE_EQ_INDENT
 	                + PAR::IGNORE_END_OF_PARAGRAPH;
 	PAR::prefix_separator_ref(parser) =
 	    min::MISSING();

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 02:38:21 EDT 2015
+// Date:	Thu Sep 10 03:07:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -965,15 +965,15 @@ namespace bracketed {
 enum {
     // Option Flags
     //
-    IGNORE_LINE_SEPARATOR	= 	( 1 << 0 ),
-    IGNORE_LE_INDENT		= 	( 1 << 1 ),
+    IGNORE_LINE_SEP		= 	( 1 << 0 ),
+    IGNORE_EQ_INDENT		= 	( 1 << 1 ),
     IGNORE_LT_INDENT		= 	( 1 << 2 ),
     IGNORE_END_OF_PARAGRAPH	= 	( 1 << 3 ),
     IGNORE_OTHER_CLOSINGS	= 	( 1 << 4 ),
 
     FULL_LINES =
-          IGNORE_LINE_SEPARATOR
-	+ IGNORE_LE_INDENT
+          IGNORE_LINE_SEP
+	+ IGNORE_EQ_INDENT
 	+ IGNORE_LT_INDENT
 	+ IGNORE_END_OF_PARAGRAPH
 	+ IGNORE_OTHER_CLOSINGS

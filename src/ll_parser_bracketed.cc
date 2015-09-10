@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  9 16:01:13 EDT 2015
+// Date:	Thu Sep 10 02:19:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2480,7 +2480,7 @@ static void missing_error
 
     PAR::parse_error
         ( parser, position,
-	  "missing ", message );
+	  "missing ", min::pnop, message );
 }
 
 static void set_attr_flags

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  7 06:47:52 EDT 2015
+// Date:	Thu Sep 10 02:24:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -462,10 +462,10 @@ static void oper_parse ( PAR::parser parser,
 		    parser->printer
 			<< min::bom
 			<< min::set_indent ( 7 )
-			<< "OPERATOR `"
-			<< min::pgen_name
+			<< "OPERATOR "
+			<< min::pgen_quote
 			       ( current->value )
-			<< "' found; "
+			<< " found; "
 			<< min::pline_numbers
 			       ( parser->input_file,
 				 current->position )
@@ -512,12 +512,13 @@ static void oper_parse ( PAR::parser parser,
 	    oper_precedence = D.precedence - 1;
 	    D.first = current;
 
-	    char message[200];
-	    sprintf ( message,
-	              "missing operator of precedence"
-	              " %d inserted", oper_precedence );
 	    parse_error ( parser, current->position,
-	                  message );
+	                  "",
+	                  min::printf_op
+			      ( "missing operator of"
+			        " precedence %d"
+				" inserted",
+				oper_precedence ) );
 	}
 	else if ( oper != min::NULL_STUB )
 	{
@@ -1396,30 +1397,17 @@ static bool sum_reformatter_function
 	if ( op != minus_op )
 	{
 	    if ( op != plus_op )
-	    {
-		parser->printer
-		    << min::bom
-		    << min::set_indent ( 7 )
-		    << "ERROR: wrong operator `"
-		    << min::pgen_name ( t->value )
-		    << "' changed to `"
-		    << min::pgen_name ( plus_op )
-		    << "'; all operators in this"
-		       " subexpression must be `"
-		    << min::pgen_name ( plus_op )
-		    << "' or `"
-		    << min::pgen_name ( minus_op )
-		    << "'; "
-		    << min::pline_numbers
-			   ( parser->input_file,
-			     t->position )
-		    << ":" << min::eom;
-		min::print_phrase_lines
-		    ( parser->printer,
-		      parser->input_file,
-		      t->position );
-		++ parser->error_count;
-	    }
+		PAR::parse_error
+		    ( parser, t->position,
+		      "wrong operator ",
+		      min::pgen_quote ( t->value ),
+		      " changed to ",
+		      min::pgen_quote ( plus_op ),
+		      "; all operators in this"
+		      " subexpression must be ",
+		      min::pgen_quote ( plus_op ),
+		      " or ",
+		      min::pgen_quote ( minus_op ) );
 
 	    t = t->next;
 	    PAR::free
@@ -1832,9 +1820,9 @@ static min::gen oper_pass_command
 	if ( oper_flags & new_oper_flag )
 	    return PAR::parse_error
 		( parser, ppvec[i],
-		  "operator flag `",
-		  min::pgen_name ( vp[i] ),
-		  "' appears twice" );
+		  "operator flag ",
+		  min::pgen_quote ( vp[i] ),
+		  " appears twice" );
 
 	oper_flags |= new_oper_flag;
 	++ i;
@@ -1955,7 +1943,7 @@ static min::gen oper_pass_command
 		    char buffer[200];
 		    char * s = buffer;
 		    s += sprintf
-		        ( s, "' reformatter"
+		        ( s, " reformatter"
 			     " incompatible with" );
 		    if ( illegal_flags & OP::PREFIX )
 		        s += sprintf ( s, " prefix" );
@@ -1971,8 +1959,8 @@ static min::gen oper_pass_command
 		        ( s, " operator flag(s)" );
 		    return PAR::parse_error
 			    ( parser, ppvec->position,
-			      "`",
-			      min::pgen_name ( name ),
+			      "",
+			      min::pgen_quote ( name ),
 			      buffer );
 		}
 

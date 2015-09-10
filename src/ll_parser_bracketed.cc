@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 02:19:48 EDT 2015
+// Date:	Thu Sep 10 03:07:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1188,6 +1188,7 @@ min::position BRA::parse_bracketed_subexpression
     else
         trace_flags = 0;
 
+    bool paragraph_end_found = false;
     while ( true )
     {
         // Skip comments and line breaks so that either
@@ -1219,6 +1220,7 @@ min::position BRA::parse_bracketed_subexpression
 		// another line break.
 		//
 	        current = current->next;
+		paragraph_end_found = true;
 		continue;
 	    }
 	    else if ( type != LEXSTD::comment_t )
@@ -1552,6 +1554,7 @@ min::position BRA::parse_bracketed_subexpression
 	    // indented lines.
 	    //
 	    indentation_found = min::NULL_STUB;
+	    paragraph_end_found = true;
 	}
 
 	if ( current->type == LEXSTD::line_break_t )
@@ -1572,11 +1575,18 @@ min::position BRA::parse_bracketed_subexpression
 		return min::MISSING_POSITION;
 	    }
 
+	    if ( paragraph_end_found
+	         &&
+		    (   options
+		      & PAR::IGNORE_END_OF_PARAGRAPH )
+	         == 0 )
+		    return min::MISSING_POSITION;
+
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.
 	    //
 	    if (   ~ options
-	         & (   PAR::IGNORE_LE_INDENT
+	         & (   PAR::IGNORE_EQ_INDENT
 	             + PAR::IGNORE_LT_INDENT ) )
 	    {
 		MIN_REQUIRE
@@ -1588,11 +1598,14 @@ min::position BRA::parse_bracketed_subexpression
 			  pass->indentation_offset,
 			  next, indent );
 		if ( (   ~ options
-		       & PAR::IGNORE_LE_INDENT )
+		       & PAR::IGNORE_EQ_INDENT )
 		     &&
-		     rindent <= 0 )
+		     rindent == 0 )
 		    return min::MISSING_POSITION;
-		else if ( rindent < 0 )
+		else if ( (   ~ options
+		            & PAR::IGNORE_LT_INDENT )
+		     &&
+		     rindent < 0 )
 		    return min::MISSING_POSITION;
 	    }
 
@@ -2276,7 +2289,11 @@ min::position BRA::parse_bracketed_subexpression
 	    }
 	    else if ( subtype == BRA::LINE_SEP
 	              &&
-                      line_sep == (BRA::line_sep) root )
+                      line_sep == (BRA::line_sep) root
+		      &&
+		         (   options
+			   & PAR::IGNORE_LINE_SEP )
+		      == 0 )
 	    {
 		min::position separator_found =
 		    current->previous->position.end;

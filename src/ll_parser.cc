@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  9 15:51:30 EDT 2015
+// Date:	Thu Sep 10 02:39:06 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1797,50 +1797,14 @@ min::gen PAR::parse_error
 	( PAR::parser parser,
 	  const min::phrase_position & pp,
 	  const char * message1,
-	  const char * message2 )
-{
-    parser->printer << min::bom
-                    << min::set_indent ( 7 )
-	            << "ERROR: in "
-		    << min::pline_numbers
-			   ( parser->input_file, pp )
-	            << ": " << message1 << message2
-		    << ":" << min::eom;
-    min::print_phrase_lines
-        ( parser->printer, parser->input_file, pp );
-    ++ parser->error_count;
-    return min::ERROR();
-}
-
-min::gen PAR::parse_error
-	( PAR::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
-	  const min::op & message2,
-	  const char * message3 )
-{
-    parser->printer << min::bom
-                    << min::set_indent ( 7 )
-	            << "ERROR: in "
-		    << min::pline_numbers
-			   ( parser->input_file, pp )
-	            << ": "
-		    << message1 << message2
-		    << message3 << ":" << min::eom;
-    min::print_phrase_lines
-        ( parser->printer, parser->input_file, pp );
-    ++ parser->error_count;
-    return min::ERROR();
-}
-
-min::gen PAR::parse_error
-	( PAR::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
 	  const min::op & message2,
 	  const char * message3,
 	  const min::op & message4,
-	  const char * message5 )
+	  const char * message5,
+	  const min::op & message6,
+	  const char * message7,
+	  const min::op & message8,
+	  const char * message9 )
 {
     parser->printer << min::bom
                     << min::set_indent ( 7 )
@@ -1850,7 +1814,9 @@ min::gen PAR::parse_error
 	            << ": "
 		    << message1 << message2
 		    << message3 << message4
-		    << message5 << ":" << min::eom;
+		    << message5 << message6
+		    << message7 << message8
+		    << message9 << ":" << min::eom;
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
     ++ parser->error_count;
@@ -1861,54 +1827,14 @@ void PAR::parse_warn
 	( PAR::parser parser,
 	  const min::phrase_position & pp,
 	  const char * message1,
-	  const char * message2 )
-{
-    if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
-         == 0 )
-        return;
-
-    parser->printer << min::bom
-                    << min::set_indent ( 9 )
-	            << "WARNING: in "
-		    << min::pline_numbers
-			   ( parser->input_file, pp )
-	            << ": " << message1 << message2
-		    << ":" << min::eom;
-    min::print_phrase_lines
-        ( parser->printer, parser->input_file, pp );
-}
-
-void PAR::parse_warn
-	( PAR::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
-	  const min::op & message2,
-	  const char * message3 )
-{
-    if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
-         == 0 )
-        return;
-
-    parser->printer << min::bom
-                    << min::set_indent ( 9 )
-	            << "WARNING: in "
-		    << min::pline_numbers
-			   ( parser->input_file, pp )
-	            << ": "
-		    << message1 << message2
-		    << message3 << ":" << min::eom;
-    min::print_phrase_lines
-        ( parser->printer, parser->input_file, pp );
-}
-
-void PAR::parse_warn
-	( PAR::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
 	  const min::op & message2,
 	  const char * message3,
 	  const min::op & message4,
-	  const char * message5 )
+	  const char * message5,
+	  const min::op & message6,
+	  const char * message7,
+	  const min::op & message8,
+	  const char * message9 )
 {
     if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
          == 0 )
@@ -1922,7 +1848,9 @@ void PAR::parse_warn
 	            << ": "
 		    << message1 << message2
 		    << message3 << message4
-		    << message5 << ":" << min::eom;
+		    << message5 << message6
+		    << message7 << message8
+		    << message9 << ":" << min::eom;
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
 }

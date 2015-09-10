@@ -111,8 +111,8 @@ parser define operator "+" [code, math]
 ERROR: in line 48: operator flags nofix and infix are incompatible:
 parser define operator "+" [code, math] infix nofix
                                         ^^^^^^^^^^^
-ERROR: in lines 51-53: `right associative' reformatter incompatible with
-       nofix operator flag(s):
+ERROR: in lines 51-53: [< "right" "associative" >] reformatter
+       incompatible with nofix operator flag(s):
 parser define operator "+" [code, math] nofix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with precedence 3000

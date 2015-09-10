@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  9 16:02:35 EDT 2015
+// Date:	Thu Sep 10 02:38:21 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1768,7 +1768,7 @@ void convert_token ( ll::parser::token token );
 
 // Prints
 //
-//   ERROR: in <file:line-#> <message1><message2>:
+//   ERROR: in <file:line-#> <message1><message2>...:
 //     <file-lines-with-pp underscored>
 //
 // and returns min::ERROR().  Uses parser->printer
@@ -1779,31 +1779,14 @@ min::gen parse_error
 	( ll::parser::parser parser,
 	  const min::phrase_position & pp,
 	  const char * message1,
-	  const char * message2 = "" );
-
-// Ditto but message2 is a printer operation and it is
-// followed by message3.  Message2 can be min::pgen...
-// for example.
-//
-min::gen parse_error
-	( ll::parser::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
-	  const min::op & message2,
-	  const char * message3 = "" );
-
-// Ditto but message4 is a printer operation and it is
-// followed by message5.  Message4 can be min::pgen...
-// for example.
-//
-min::gen parse_error
-	( ll::parser::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
-	  const min::op & message2,
-	  const char * message3,
-	  const min::op & message4,
-	  const char * message5 = "" );
+	  const min::op & message2 = min::pnop,
+	  const char * message3 = "",
+	  const min::op & message4 = min::pnop,
+	  const char * message5 = "",
+	  const min::op & message6 = min::pnop,
+	  const char * message7 = "",
+	  const min::op & message8 = min::pnop,
+	  const char * message9 = "" );
 
 // Same as above but produces a warning message and not
 // an error message, but only if parser TRACE_WARNINGS
@@ -1814,21 +1797,14 @@ void parse_warn
 	( ll::parser::parser parser,
 	  const min::phrase_position & pp,
 	  const char * message1,
-	  const char * message2 = "" );
-void parse_warn
-	( ll::parser::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
-	  const min::op & message2,
-	  const char * message3 = "" );
-void parse_warn
-	( ll::parser::parser parser,
-	  const min::phrase_position & pp,
-	  const char * message1,
-	  const min::op & message2,
-	  const char * message3,
-	  const min::op & message4,
-	  const char * message5 = "" );
+	  const min::op & message2 = min::pnop,
+	  const char * message3 = "",
+	  const min::op & message4 = min::pnop,
+	  const char * message5 = "",
+	  const min::op & message6 = min::pnop,
+	  const char * message7 = "",
+	  const min::op & message8 = min::pnop,
+	  const char * message9 = "" );
 
 } }
 

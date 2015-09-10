@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 30 22:31:00 EDT 2015
+// Date:	Thu Sep 10 02:18:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -231,6 +231,7 @@ static int scan_flag
 	          "expected file name" :
 	          "expected `+', `-', `^',"
 		  " or flag name",
+	      min::pnop,
 	      i == 0 ? " at beginning of" :
 	               " after" );
 	return -1;
@@ -251,6 +252,7 @@ static int scan_flag
 	      i == 1 ? ppvec->position :
 	               ppvec[i-2],
 	      "expected flag name",
+	      min::pnop,
 	      i == 1 ? " at beginning of" :
 	                "after" );
 	return -1;
@@ -263,6 +265,7 @@ static int scan_flag
 	      i == 0 ? ppvec->position :
 	               ppvec[i-1],
 	      "expected `+', `-', `^",
+	      min::pnop,
 	      i == 0 ? " at beginning of" :
 	               " after" );
 	return -1;
@@ -278,6 +281,7 @@ static int scan_flag
 	      i == 0 ? ppvec->position :
 	               ppvec[i-1],
 	      "expected flag name",
+	      min::pnop,
 	      i == 0 ? " at beginning of" :
 	               " after" );
 	return -1;

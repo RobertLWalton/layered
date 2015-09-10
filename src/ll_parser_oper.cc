@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 02:24:18 EDT 2015
+// Date:	Thu Sep 10 04:06:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -514,7 +514,7 @@ static void oper_parse ( PAR::parser parser,
 
 	    parse_error ( parser, current->position,
 	                  "",
-	                  min::printf_op
+	                  min::printf_op<200>
 			      ( "missing operator of"
 			        " precedence %d"
 				" inserted",

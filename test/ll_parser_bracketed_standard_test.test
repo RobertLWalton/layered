@@ -1165,6 +1165,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+WARNING: in line 53: name element "-" is a mark or separator and
+         therefore should be quoted:
+{-}
+ ^
 PREFIX EXPRESSION:
     {-  -}
 @91 =:

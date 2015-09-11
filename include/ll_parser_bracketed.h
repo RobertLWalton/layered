@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  6 20:29:46 EDT 2015
+// Date:	Fri Sep 11 06:33:55 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -292,6 +292,19 @@ struct typed_opening_struct :
     const min::gen typed_attr_flags_initiator;
     const min::flag_parser * typed_attr_flag_parser;
     const min::gen typed_attr_multivalue_initiator;
+
+    const ll::parser::table::key_table type_map;
+        // This key_table maps types of prefix separa-
+	// tors made with this typed_opening onto
+	// opening_bracket structures which supply
+	// options and new_selectors for the prefix
+	// separator.
+	//
+	// This type_map may be shared by several
+	// typed_openings.  If specified as NULL_STUB
+	// when a typed_opening is created, a new
+	// type_map key_table is created for the
+	// typed_opening.
 };
 
 struct typed_middle_struct : 
@@ -383,6 +396,9 @@ MIN_REF ( min::gen,
 MIN_REF ( min::gen,
           typed_attr_multivalue_initiator,
           ll::parser::bracketed::typed_opening )
+MIN_REF ( ll::parser::table::key_table,
+          type_map,
+          ll::parser::bracketed::typed_opening )
 
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::typed_middle )
@@ -439,6 +455,7 @@ ll::parser::bracketed::typed_opening
 	  const min::flag_parser *
 		   typed_attr_flag_parser,
 	  min::gen typed_attr_multivalue_initiator,
+	  ll::parser::table::key_table type_map,
 	  ll::parser::table::key_table bracket_table );
 
 

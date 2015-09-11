@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 03:07:35 EDT 2015
+// Date:	Fri Sep 11 06:33:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -246,6 +246,8 @@ static min::uns32 typed_opening_stub_disp[] = {
                      ::typed_attr_sep ),
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_attr_negator ),
+    min::DISP ( & BRA::typed_opening_struct
+                     ::type_map ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -370,6 +372,7 @@ BRA::typed_opening
 	  const min::flag_parser *
 	           typed_attr_flag_parser,
 	  min::gen typed_attr_multivalue_initiator,
+	  TAB::key_table type_map,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::typed_opening> opening
@@ -385,7 +388,7 @@ BRA::typed_opening
         (BRA::opening_bracket) opening;
 
     min::locatable_var<TAB::key_table> key_table
-        ( TAB::create_key_table ( 64 ) );
+        ( TAB::create_key_table ( 32 ) );
     key_table_ref(opening) = key_table;
 
     opening->selectors = selectors;
@@ -519,6 +522,12 @@ BRA::typed_opening
     	typed_attr_flag_parser;
     typed_attr_multivalue_initiator_ref(opening) =
         typed_attr_multivalue_initiator;
+
+    if ( type_map == min::NULL_STUB )
+        type_map_ref(opening) =
+	    TAB::create_key_table ( 1024 );
+    else
+        type_map_ref(opening) = type_map;
 
     return opening;
 }
@@ -665,7 +674,7 @@ PAR::pass BRA::new_pass ( void )
         ::bracketed_pass_command;
     bracketed_pass->indentation_offset = 2;
     bracket_table_ref(bracketed_pass) =
-	TAB::create_key_table ( 256 );
+	TAB::create_key_table ( 1024 );
     indentation_offset_stack_ref(bracketed_pass) =
         ::indentation_offset_stack_type.new_stub ( 16 );
 

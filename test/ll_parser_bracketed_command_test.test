@@ -305,12 +305,12 @@ parser print bracket "":
                     [code]
                     with full lines
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
-    block standard: indentation mark [< "+" ":" >] ... "::" [code]
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
                     with full lines
+    block standard: indentation mark [< "+" ":" >] ... "::" [code]
 ======= TEST: parser test (```")"''')
 ------- line 85:
 parser test ( ``` ) ''' )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 11 12:57:03 EDT 2015
+// Date:	Fri Sep 11 15:50:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2037,6 +2037,9 @@ min::position BRA::parse_bracketed_subexpression
 			    break;
 		    }
 
+		    // Prefix separator is not in the
+		    // stack of open prefix separators.
+
 		    if ( ! at_start )
 		    {
 			PAR::parse_error
@@ -2053,12 +2056,10 @@ min::position BRA::parse_bracketed_subexpression
 		    else if (    cstack.closing_next
 			      == min::NULL_STUB )
 		    {
-			// Found a line break before
-			// non-indented line or an end
-			// of file when a closing
-			// bracket was expected.  Prefix
-			// separator has no elements.
-			// Go to code above to process.
+			// Found end of line, paragraph,
+			// file, etc.  Prefix separator
+			// has no elements.  Go to code
+			// above to process.
 			//
 			prefix_sep->type =
 			    PAR::BRACKETED;
@@ -2071,7 +2072,8 @@ min::position BRA::parse_bracketed_subexpression
 			// is not ours.  It must be in
 			// the bracket_stack and so
 			// needs to be kicked to our
-			// caller.
+			// caller.  Prefix separator
+			// has no elements.
 			//
 			prefix_sep->type =
 			    PAR::BRACKETED;
@@ -2082,9 +2084,56 @@ min::position BRA::parse_bracketed_subexpression
 		      // To avoid a too long line
 		    else while ( true )
 		    {
+		        // Prefix separator is head of
+			// a possibly non-empty sub-sub-
+			// expression.
+
 			typedef
 		         min::phrase_position_vec_insptr
 			 pos_insptr;
+
+			BRA::typed_opening
+				typed_opening =
+			    (BRA::typed_opening) root;
+			MIN_REQUIRE
+			    (    typed_opening
+			      != min::NULL_STUB );
+
+			TAB::root mapped_root = TAB::find
+			    ( prefix_type,
+			      selectors,
+			      typed_opening->type_map );
+
+			TAB::flags new_selectors =
+			    selectors;
+			min::uns32 new_options =
+			    options;
+
+			if (    mapped_root
+			     != min::NULL_STUB )
+			{
+			    BRA::opening_bracket
+				    opening =
+				(BRA::opening_bracket)
+				mapped_root;
+			    MIN_REQUIRE
+			        (    opening
+				  != min::NULL_STUB );
+			    new_selectors |=
+				opening->new_selectors
+					    .or_flags;
+			    new_selectors &= ~
+				opening->new_selectors
+					    .not_flags;
+			    new_selectors ^=
+				opening->new_selectors
+					    .xor_flags;
+			    new_selectors |=
+			        PAR::ALWAYS_SELECTOR;
+
+			    new_options |=
+			        opening->options;
+			}
 
 			BRA::bracket_stack cstack2
 			    ( bracket_stack_p );
@@ -2094,7 +2143,8 @@ min::position BRA::parse_bracketed_subexpression
 			min::position separator_found =
 			    PARSE_BRA_SUBEXP
 				( parser,
-				  selectors, options,
+				  new_selectors,
+				  new_options,
 				  current, indent,
 				  line_sep,
 				  min::NULL_STUB,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 11 06:33:48 EDT 2015
+// Date:	Fri Sep 11 12:57:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -728,11 +728,23 @@ static void make_label
     {
 	position.end = t->position.end;
 
-	if ( min::is_name ( t->value ) ) continue;
-        else if ( t->type == LEXSTD::quoted_string_t
-	          ||
-	          t->type == LEXSTD::numeric_t )
+	switch ( t->type )
 	{
+	case LEXSTD::mark_t:
+	case LEXSTD::separator_t:
+	    PAR::parse_warn
+	        ( parser, t->position,
+		  "name element ",
+		  min::pgen_quote ( t->value ),
+		  " is a mark or separator and"
+		  " therefore should be quoted" );
+
+	case LEXSTD::word_t:
+	case LEXSTD::natural_t:
+	    continue;
+
+	case LEXSTD::quoted_string_t:
+	case LEXSTD::numeric_t:
 	    t->type = PAR::DERIVED;
 	    PAR::value_ref(t) = min::new_str_gen
 			( min::begin_ptr_of
@@ -740,9 +752,13 @@ static void make_label
 			  t->string->length );
 	    PAR::string_ref(t) =
 		PAR::free_string ( t->string );
-	}
-	else
-	{
+	    break;
+
+	case PAR::DERIVED:
+	    if ( min::is_lab ( t->value ) )
+	        continue;
+
+	default:
 	    PAR::parse_error
 	        ( parser, t->position,
 		  "subexpression ",

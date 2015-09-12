@@ -22,6 +22,12 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: data
     block TOP LEVEL: parser
+    block TOP LEVEL: end at outer closing
+    block TOP LEVEL: end at line separator
+    block TOP LEVEL: end at paragraph break
+    block TOP LEVEL: end at lt indent
+    block TOP LEVEL: end at le indent
+    block TOP LEVEL: end at line break
 parser print context "default":
     block standard: default [code]
     block TOP LEVEL: default []

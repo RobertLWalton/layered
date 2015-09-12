@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 03:07:23 EDT 2015
+// Date:	Sat Sep 12 11:01:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,6 +56,12 @@ namespace ll { namespace parser {
 	colon,		// :
 	equal,		// =
 	vbar,		// |
+	ealbreak,	// end at line break
+	ealeindent,	// end at le indent
+	ealtindent,	// end at lt indent
+	eapbreak,	// end at paragraph break
+	ealsep,		// end at line separator
+	eaoclosing,	// end at outer closings
 	parser_lexeme,	// parser
 	data_lexeme,	// data
 	standard_lexeme,// standard
@@ -944,11 +950,37 @@ enum {
 enum {
     // Built in selectors that have compiled values.
     // Other selectors are assigned values dynamically.
+    //
+    // Values are hidden and may be changed.
 
     ALWAYS_SELECTOR			= 1ull << 0,
         // Hidden selector that is always on.
-    PARSER_SELECTOR			= 1ull << 1,
-    DATA_SELECTOR			= 1ull << 2
+
+    // Enders:
+    //
+    LBREAK_ENDER			= 1ull << 1,
+    LEINDENT_ENDER			= 1ull << 2,
+    LTINDENT_ENDER			= 1ull << 3,
+    PBREAK_ENDER			= 1ull << 4,
+    LSEP_ENDER				= 1ull << 5,
+    OCLOSING_ENDER			= 1ull << 6,
+
+    ALL_ENDERS = LBREAK_ENDER
+	       + LEINDENT_ENDER
+	       + LTINDENT_ENDER
+	       + PBREAK_ENDER
+	       + LSEP_ENDER
+	       + OCLOSING_ENDER,
+
+    // Builtin Selectors:
+    //
+    PARSER_SELECTOR			= 1ull << 7,
+    DATA_SELECTOR			= 1ull << 8,
+
+    TOP_LEVEL_SELECTORS = LEINDENT_ENDER
+	                + LSEP_ENDER
+	                + OCLOSING_ENDER
+			+ PARSER_SELECTOR
 };
 
 namespace bracketed {

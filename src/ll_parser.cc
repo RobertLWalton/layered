@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 02:47:54 EDT 2015
+// Date:	Sat Sep 12 14:46:24 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,6 +52,12 @@ min::locatable_gen PAR::comma;
 min::locatable_gen PAR::colon;
 min::locatable_gen PAR::equal;
 min::locatable_gen PAR::vbar;
+min::locatable_gen PAR::ealbreak;
+min::locatable_gen PAR::ealeindent;
+min::locatable_gen PAR::ealtindent;
+min::locatable_gen PAR::eapbreak;
+min::locatable_gen PAR::ealsep;
+min::locatable_gen PAR::eaoclosing;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::data_lexeme;
 min::locatable_gen PAR::standard_lexeme;
@@ -107,6 +113,25 @@ static void initialize ( void )
     PAR::colon = min::new_str_gen ( ":" );
     PAR::equal = min::new_str_gen ( "=" );
     PAR::vbar = min::new_str_gen ( "|" );
+
+    PAR::ealbreak =
+    	min::new_lab_gen
+	    ( "end", "at", "line", "break" );
+    PAR::ealeindent =
+    	min::new_lab_gen
+	    ( "end", "at", "le", "indent" );
+    PAR::ealtindent =
+    	min::new_lab_gen
+	    ( "end", "at", "lt", "indent" );
+    PAR::eapbreak =
+    	min::new_lab_gen
+	    ( "end", "at", "paragraph", "break" );
+    PAR::ealsep =
+    	min::new_lab_gen
+	    ( "end", "at", "line", "separator" );
+    PAR::eaoclosing =
+    	min::new_lab_gen
+	    ( "end", "at", "outer", "closing" );
 
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
     PAR::data_lexeme = min::new_str_gen ( "data" );
@@ -671,6 +696,38 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			min::MISSING() ) );
+
+	MIN_REQUIRE
+	    (    PAR::LBREAK_ENDER
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::ealbreak ) );
+	MIN_REQUIRE
+	    (    PAR::LEINDENT_ENDER
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::ealeindent ) );
+	MIN_REQUIRE
+	    (    PAR::LTINDENT_ENDER
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::ealtindent ) );
+	MIN_REQUIRE
+	    (    PAR::PBREAK_ENDER
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::eapbreak ) );
+	MIN_REQUIRE
+	    (    PAR::LSEP_ENDER
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::ealsep ) );
+	MIN_REQUIRE
+	    (    PAR::OCLOSING_ENDER
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::eaoclosing ) );
+
 	MIN_REQUIRE
 	    (    PAR::PARSER_SELECTOR
 	      == 1ull << TAB::push_name
@@ -697,9 +754,10 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0,
 	      PAR::top_level_position,
 	      TAB::new_flags
-	          ( PAR::PARSER_SELECTOR,
+	          (   PAR::TOP_LEVEL_SELECTORS
+		    + PAR::ALWAYS_SELECTOR,
 		      TAB::ALL_FLAGS
-		    - PAR::PARSER_SELECTOR
+		    - PAR::TOP_LEVEL_SELECTORS
 		    - PAR::ALWAYS_SELECTOR,
 		    0 ),
 	      parser->context_table );

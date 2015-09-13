@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  2 13:04:26 EDT 2015
+// Date:	Sat Sep 12 21:14:44 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,7 +39,8 @@ void PARSTD::init_block ( PAR::parser parser )
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
 
-    parser->selectors =
+    parser->selectors &= PAR::ALL_OPT;
+    parser->selectors |=
         1ull << TAB::find_name
 	    ( parser->selector_name_table, code_name )
 	| PAR::ALWAYS_SELECTOR;

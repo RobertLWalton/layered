@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 13 03:28:17 EDT 2015
+// Date:	Sun Sep 13 03:32:43 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -107,7 +107,6 @@ BRA::opening_bracket
 	  PAR::reformatter reformatter,
 	  PAR::reformatter_arguments
 	      reformatter_arguments,
-	  min::uns32 options,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::opening_bracket> opening
@@ -134,7 +133,6 @@ BRA::opening_bracket
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
         reformatter_arguments;
-    opening->options = options;
 
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
@@ -363,7 +361,6 @@ BRA::typed_opening
 	  PAR::reformatter reformatter,
 	  PAR::reformatter_arguments
 	      reformatter_arguments,
-	  min::uns32 options,
 	  min::gen typed_attr_begin,
 	  min::gen typed_attr_equal,
 	  min::gen typed_attr_sep,
@@ -406,8 +403,6 @@ BRA::typed_opening
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
         reformatter_arguments;
-
-    opening->options = options;
 
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
@@ -1159,7 +1154,6 @@ inline void ensure_next
 min::position BRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
-	  min::uns32 options,
 	  PAR::token & current,
 	  min::int32 indent,
 	  BRA::line_sep line_sep,
@@ -1419,7 +1413,7 @@ min::position BRA::parse_bracketed_subexpression
 		      BRA::
 		       parse_bracketed_subexpression
 			    ( parser,
-			      new_selectors, 0,
+			      new_selectors,
 			      current,
 			      paragraph_indent,
 			      indentation_found
@@ -1772,8 +1766,6 @@ min::position BRA::parse_bracketed_subexpression
 		PAR::token previous = current->previous;
 		BRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
-		        opening_bracket->options
-		      | options,
 		      current, indent,
 		      min::NULL_STUB,
 		      subtype == BRA::TYPED_OPENING ?
@@ -2099,8 +2091,6 @@ min::position BRA::parse_bracketed_subexpression
 
 			TAB::flags new_selectors =
 			    selectors;
-			min::uns32 new_options =
-			    options;
 
 			if (    mapped_root
 			     != min::NULL_STUB )
@@ -2124,8 +2114,6 @@ min::position BRA::parse_bracketed_subexpression
 			    new_selectors |=
 			        PAR::ALWAYS_SELECTOR;
 
-			    new_options |=
-			        opening->options;
 			}
 
 			BRA::bracket_stack cstack2
@@ -2137,7 +2125,6 @@ min::position BRA::parse_bracketed_subexpression
 			    PARSE_BRA_SUBEXP
 				( parser,
 				  new_selectors,
-				  new_options,
 				  current, indent,
 				  line_sep,
 				  min::NULL_STUB,
@@ -3790,7 +3777,6 @@ static min::gen bracketed_pass_command
     {
     case ::BRACKET:
     {
-	min::uns32 options = 0;
 	TAB::new_flags new_selectors;
 	    // Inited to zeroes.
 	while ( i < size && vp[i] == PAR::with )
@@ -3835,7 +3821,6 @@ static min::gen bracketed_pass_command
 	      new_selectors,
 	      min::NULL_STUB,
 	      min::NULL_STUB,
-	      options,
 	      bracketed_pass->bracket_table );
 
 	break;

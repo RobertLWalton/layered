@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 12 13:54:16 EDT 2015
+// Date:	Sun Sep 13 03:43:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,7 +78,7 @@ int main ( int argc, const char * argv[] )
 	  64,
 	  0, pp,
 	  TAB::new_flags(2,4,8),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracket_table );
 
     BRA::opening_bracket oparen = (BRA::opening_bracket)

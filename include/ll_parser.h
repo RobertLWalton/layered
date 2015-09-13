@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 13 03:31:27 EDT 2015
+// Date:	Sun Sep 13 06:45:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1091,7 +1091,9 @@ struct parser_struct
 
     const ll::parser::table::name_table
     	    selector_name_table;
-        // Selector name table.
+    const ll::parser::table::key_table
+    	    selector_group_table;
+        // Selector name and group tables.
 
     ll::parser::table::flags selectors;
     const min::gen prefix_separator;
@@ -1192,6 +1194,9 @@ MIN_REF ( ll::parser::table::block_stack,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::name_table,
 		selector_name_table,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::key_table,
+		selector_group_table,
           ll::parser::parser )
 MIN_REF ( min::gen, prefix_separator,
           ll::parser::parser )

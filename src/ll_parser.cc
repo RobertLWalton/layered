@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 13 03:33:53 EDT 2015
+// Date:	Sun Sep 13 06:47:43 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -614,6 +614,8 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::block_stack ),
     min::DISP ( & PAR::parser_struct
                      ::selector_name_table ),
+    min::DISP ( & PAR::parser_struct
+                     ::selector_group_table ),
     min::DISP ( & PAR::parser_struct::context_table ),
     min::DISP ( & PAR::parser_struct
                      ::top_level_indentation_mark ),
@@ -690,6 +692,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
+	PAR::selector_group_table_ref(parser) =
+	    TAB::create_key_table ( 32 );
 
 	MIN_REQUIRE
 	    (    PAR::ALWAYS_SELECTOR

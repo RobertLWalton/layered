@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 20:15:30 EDT 2015
+// Date:	Sun Sep 13 03:38:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,7 +93,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( PAR::left_square,
@@ -101,7 +101,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_double_brace,
@@ -109,7 +109,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( math, code + text, 0 ),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_double_brace,
@@ -117,7 +117,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_quote,
@@ -125,7 +125,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( text, code + math, 0 ),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_quote,
@@ -133,7 +133,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_square_angle,
@@ -145,7 +145,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	              ^ PAR::ALL_OPT, 0 ),
 	  PAR::find_reformatter
 	      ( label_name, BRA::reformatter_stack ),
-	  min::NULL_STUB, 0,
+	  min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_brace_star,
@@ -153,7 +153,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB, 0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark
@@ -172,7 +172,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  PAR::find_reformatter
 	      ( typed_bracketed_name,
 	        BRA::reformatter_stack ),
-	  min::NULL_STUB, 0,
+	  min::NULL_STUB,
 	  PAR::colon, PAR::equal, PAR::comma, no,
 	  PAR::left_square,
 	  min::standard_attr_flag_parser,

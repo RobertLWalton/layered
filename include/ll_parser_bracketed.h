@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 11 06:33:55 EDT 2015
+// Date:	Sun Sep 13 03:31:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,10 +68,6 @@ struct opening_bracket_struct :
         reformatter_arguments;
 	// Reformater and its arguments, or (both) NULL_
 	// STUB if none.
-
-    uns32 options;
-        // Option flags, e.g., FULL_LINES.
-
 };
 struct closing_bracket_struct : 
 	public ll::parser::table::root_struct
@@ -113,7 +109,6 @@ ll::parser::bracketed::opening_bracket
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
 	      reformatter_arguments,
-	  uns32 options,
 	  ll::parser::table::key_table bracket_table );
 
 
@@ -297,8 +292,7 @@ struct typed_opening_struct :
         // This key_table maps types of prefix separa-
 	// tors made with this typed_opening onto
 	// opening_bracket structures which supply
-	// options and new_selectors for the prefix
-	// separator.
+	// new_selectors for the prefix separator.
 	//
 	// This type_map may be shared by several
 	// typed_openings.  If specified as NULL_STUB
@@ -446,7 +440,6 @@ ll::parser::bracketed::typed_opening
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
 	      reformatter_arguments,
-	  uns32 options,
 	  min::gen typed_attr_begin,
 	  min::gen typed_attr_equal,
 	  min::gen typed_attr_sep,
@@ -752,7 +745,6 @@ inline bool is_closed ( ll::parser::bracketed
 min::position parse_bracketed_subexpression
 	( ll::parser::parser parser,
 	  ll::parser::table::flags selectors,
-	  min::uns32 options,
 	  ll::parser::token & current,
 	  min::int32 indent,
 	  ll::parser::bracketed::line_sep

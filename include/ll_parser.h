@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 20:13:16 EDT 2015
+// Date:	Sun Sep 13 03:31:27 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -993,22 +993,6 @@ namespace bracketed {
 	    indentation_mark;
 }
 
-enum {
-    // Option Flags
-    //
-    IGNORE_LINE_SEP		= 	( 1 << 0 ),
-    IGNORE_EQ_INDENT		= 	( 1 << 1 ),
-    IGNORE_LT_INDENT		= 	( 1 << 2 ),
-    IGNORE_END_OF_PARAGRAPH	= 	( 1 << 3 ),
-    IGNORE_OTHER_CLOSINGS	= 	( 1 << 4 ),
-
-    FULL_LINES =
-          IGNORE_LINE_SEP
-	+ IGNORE_EQ_INDENT
-	+ IGNORE_LT_INDENT
-	+ IGNORE_END_OF_PARAGRAPH
-	+ IGNORE_OTHER_CLOSINGS
-};
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;
 struct parser_struct
 {
@@ -1110,10 +1094,8 @@ struct parser_struct
         // Selector name table.
 
     ll::parser::table::flags selectors;
-    min::uns32 options;
     const min::gen prefix_separator;
-        // Top level selectors, options,
-	// prefix_separator.
+        // Top level selectors and prefix_separator.
 
     const ll::parser::table::key_table context_table;
         // Context symbol table.

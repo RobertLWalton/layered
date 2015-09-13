@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 20:15:07 EDT 2015
+// Date:	Sun Sep 13 03:33:53 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -741,8 +741,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	parser->selectors = PAR::TOP_LEVEL_SELECTORS
 	                  + PAR::ALWAYS_SELECTOR;
-	parser->options = PAR::IGNORE_EQ_INDENT
-	                + PAR::IGNORE_END_OF_PARAGRAPH;
 	PAR::prefix_separator_ref(parser) =
 	    min::MISSING();
 
@@ -794,7 +792,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::PARSER_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      min::NULL_STUB, min::NULL_STUB, 0,
+	      min::NULL_STUB, min::NULL_STUB,
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -802,7 +800,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::PARSER_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      min::NULL_STUB, min::NULL_STUB, 0,
+	      min::NULL_STUB, min::NULL_STUB,
 	      bracketed_pass->bracket_table );
 
 	if ( define_standard )
@@ -1061,7 +1059,7 @@ void PAR::parse ( PAR::parser parser )
 
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
-		( parser, selectors, 0,
+		( parser, selectors,
 		  current,
 		  0,
 		  parser->top_level_indentation_mark

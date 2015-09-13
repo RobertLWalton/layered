@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 14:46:24 EDT 2015
+// Date:	Sat Sep 12 20:15:07 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -698,32 +698,32 @@ void PAR::init ( min::ref<PAR::parser> parser,
 			min::MISSING() ) );
 
 	MIN_REQUIRE
-	    (    PAR::LBREAK_ENDER
+	    (    PAR::EALBREAK_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::ealbreak ) );
 	MIN_REQUIRE
-	    (    PAR::LEINDENT_ENDER
+	    (    PAR::EALEINDENT_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::ealeindent ) );
 	MIN_REQUIRE
-	    (    PAR::LTINDENT_ENDER
+	    (    PAR::EALTINDENT_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::ealtindent ) );
 	MIN_REQUIRE
-	    (    PAR::PBREAK_ENDER
+	    (    PAR::EAPBREAK_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::eapbreak ) );
 	MIN_REQUIRE
-	    (    PAR::LSEP_ENDER
+	    (    PAR::EALSEP_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::ealsep ) );
 	MIN_REQUIRE
-	    (    PAR::OCLOSING_ENDER
+	    (    PAR::EAOCLOSING_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::eaoclosing ) );
@@ -739,7 +739,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		      ( parser->selector_name_table,
 			PAR::data_lexeme ) );
 
-	parser->selectors = PAR::ALWAYS_SELECTOR;
+	parser->selectors = PAR::TOP_LEVEL_SELECTORS
+	                  + PAR::ALWAYS_SELECTOR;
 	parser->options = PAR::IGNORE_EQ_INDENT
 	                + PAR::IGNORE_END_OF_PARAGRAPH;
 	PAR::prefix_separator_ref(parser) =
@@ -755,9 +756,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::top_level_position,
 	      TAB::new_flags
 	          (   PAR::TOP_LEVEL_SELECTORS
+		    + PAR::PARSER_SELECTOR
 		    + PAR::ALWAYS_SELECTOR,
 		      TAB::ALL_FLAGS
 		    - PAR::TOP_LEVEL_SELECTORS
+		    - PAR::PARSER_SELECTOR
 		    - PAR::ALWAYS_SELECTOR,
 		    0 ),
 	      parser->context_table );

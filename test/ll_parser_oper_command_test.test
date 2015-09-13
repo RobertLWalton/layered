@@ -13,8 +13,10 @@ parser print selector "":
 parser print pass:
     top
 parser print context "":
-    block standard: default [code]
-    block TOP LEVEL: default []
+    block standard: default [end at le indent, end at line separator,
+                             end at outer closing, code]
+    block TOP LEVEL: default [end at le indent, end at line separator,
+                              end at outer closing]
     block TOP LEVEL: parser [end at le indent, end at line separator,
                              end at outer closing, parser]
     block TOP LEVEL: parser test []

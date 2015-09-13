@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 11 15:50:25 EDT 2015
+// Date:	Sun Sep 13 03:28:17 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1602,17 +1602,16 @@ min::position BRA::parse_bracketed_subexpression
 
 	    if ( paragraph_end_found
 	         &&
-		    (   options
-		      & PAR::IGNORE_END_OF_PARAGRAPH )
-	         == 0 )
+		 (   selectors
+		   & PAR::EAPBREAK_OPT ) )
 		    return min::MISSING_POSITION;
 
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.
 	    //
-	    if (   ~ options
-	         & (   PAR::IGNORE_EQ_INDENT
-	             + PAR::IGNORE_LT_INDENT ) )
+	    if (   selectors
+	         & (   PAR::EALEINDENT_OPT
+	             | PAR::EALTINDENT_OPT ) )
 	    {
 		MIN_REQUIRE
 		    (    next->indent
@@ -1622,15 +1621,12 @@ min::position BRA::parse_bracketed_subexpression
 			( parser,
 			  pass->indentation_offset,
 			  next, indent );
-		if ( (   ~ options
-		       & PAR::IGNORE_EQ_INDENT )
-		     &&
-		     rindent == 0 )
+		if ( rindent < 0 )
 		    return min::MISSING_POSITION;
-		else if ( (   ~ options
-		            & PAR::IGNORE_LT_INDENT )
-		     &&
-		     rindent < 0 )
+		else if ( rindent <= 0
+		          &&
+		          (   selectors
+		            & PAR::EALEINDENT_OPT ) )
 		    return min::MISSING_POSITION;
 	    }
 
@@ -1766,13 +1762,10 @@ min::position BRA::parse_bracketed_subexpression
 				    .xor_flags;
 		new_selectors |= PAR::ALWAYS_SELECTOR;
 
-		bool full_lines =
-		    (   opening_bracket->options
-		      & PAR::IGNORE_OTHER_CLOSINGS );
-
 		BRA::bracket_stack cstack
-		    ( full_lines ? NULL :
-		                   bracket_stack_p );
+		    (   new_selectors
+		      & PAR::EAOCLOSING_OPT  ?
+		      bracket_stack_p : NULL );
 		cstack.opening_bracket =
 		    opening_bracket;
 
@@ -1789,7 +1782,6 @@ min::position BRA::parse_bracketed_subexpression
 			      min::NULL_STUB,
 		      & cstack );
 
-		PAR::token first = previous->next;
 		PAR::token next = current;
 		min::phrase_position position;
 		    // Arguments for compact.
@@ -1866,6 +1858,7 @@ min::position BRA::parse_bracketed_subexpression
 				      ->label );
 		}
 
+		PAR::token first = previous->next;
 		position.begin =
 		    PAR::remove
 			( parser, first,
@@ -2366,9 +2359,8 @@ min::position BRA::parse_bracketed_subexpression
 	              &&
                       line_sep == (BRA::line_sep) root
 		      &&
-		         (   options
-			   & PAR::IGNORE_LINE_SEP )
-		      == 0 )
+		      (   selectors
+		        & PAR::EALSEP_OPT ) )
 	    {
 		min::position separator_found =
 		    current->previous->position.end;
@@ -3661,12 +3653,6 @@ static min::gen bracketed_pass_command
 			  parser );
 		}
 
-		if (   opening_bracket->options
-		     & PAR::FULL_LINES )
-		    parser->printer
-			<< min::indent
-			<< "with full lines";
-
 #		define TOATTR(x) \
                     typed_opening->typed_attr_ ## x
 #		define PQ(x) min::pgen_quote ( x )
@@ -3829,15 +3815,6 @@ static min::gen bracketed_pass_command
 			( parser, ppvec[i-1],
 			  "expected bracketed selector"
 			  " modifier list after" );
-	    }
-	    else if ( i + 1 < size
-		      &&
-		      vp[i] == ::full
-		      &&
-		      vp[i+1] == ::lines )
-	    {
-		i += 2;
-		options = PAR::FULL_LINES;
 	    }
 	    else
 		return PAR::parse_error

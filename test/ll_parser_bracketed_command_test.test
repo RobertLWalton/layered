@@ -9,8 +9,10 @@ ERROR: in line 14: expected quoted name after:
 parser define bracket "[+" ...
                            ^^^
 parser print context "default":
-    block standard: default [code]
-    block TOP LEVEL: default []
+    block standard: default [end at le indent, end at line separator,
+                             end at outer closing, code]
+    block TOP LEVEL: default [end at le indent, end at line separator,
+                              end at outer closing]
 parser define selector text
 parser define selector code
 parser define selector math
@@ -29,8 +31,10 @@ parser print selector "":
     block TOP LEVEL: end at le indent
     block TOP LEVEL: end at line break
 parser print context "default":
-    block standard: default [code]
-    block TOP LEVEL: default []
+    block standard: default [end at le indent, end at line separator,
+                             end at outer closing, code]
+    block TOP LEVEL: default [end at le indent, end at line separator,
+                              end at outer closing]
 parser define bracket "(" ... ")" [code, math, text]
 parser define bracket "[" ... "]" [code, math, text]
 parser print bracket "[":
@@ -47,21 +51,19 @@ parser define bracket "<+" ... "+>" [text + operator]
                                      ^^^^
 parser define bracket "<+" ... "+>" [code, operator 1]
        with parsing selectors [^ code, - math, + operator 1]
-       with full lines
 parser print bracket "<+":
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
-                    with full lines
 parser trace [ + subexpression lines,
                + subexpression elements]
 ======= TEST: parser test "abcdef"
-------- lines 36-37:
+------- lines 35-36:
 parser test "abc"
 ^^^^^^^^^^^^^^^^^
             "def"
 ^^^^^^^^^^^^^^^^^
-------- lines 36-37:
+------- lines 35-36:
 parser test "abc"
             ^^^^^
             "def"
@@ -70,57 +72,57 @@ parser test "abc"
 ======= TEST: parser test:
                   "abc"
                   "def"
-------- lines 38-40:
+------- lines 37-39:
 parser test:
 ^^^^^^^^^^^^
         "abc"
 ^^^^^^^^^^^^^
         "def"
 ^^^^^^^^^^^^^
-------- lines 38-40:
+------- lines 37-39:
 parser test:
            ^
         "abc"
 ^^^^^^^^^^^^^
         "def"
 ^^^^^^^^^^^^^
-------- line 39:
+------- line 38:
+        "abc"
+        ^^^^^
+------- line 38:
         "abc"
         ^^^^^
 ------- line 39:
-        "abc"
-        ^^^^^
-------- line 40:
         "def"
         ^^^^^
-------- line 40:
+------- line 39:
         "def"
         ^^^^^
 ======= END TEST
 ======= TEST: parser test <+ hi there +> <+ hi "[" embedded "]" there +>
-------- line 42:
+------- line 41:
 parser test <+ hi there +> <+ hi [embedded] there +>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 42:
+------- line 41:
 parser test <+ hi there +> <+ hi [embedded] there +>
             ^^^^^^^^^^^^^^
-------- line 42:
+------- line 41:
 parser test <+ hi there +> <+ hi [embedded] there +>
                            ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser define bracket "[X" ... "X]" [code, operator 1]
        with parsing selectors [- code, + operator 1]
 ======= TEST: parser test [a [b c] c] [X a "[" b c "]" d X]
-------- line 45:
+------- line 44:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 45:
+------- line 44:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
             ^^^^^^^^^^^^^^^
-------- line 45:
+------- line 44:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
                 ^^^^^^^
-------- line 45:
+------- line 44:
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
                             ^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -128,7 +130,7 @@ parser test [ a [ b c ] c ] [X a [ b c ] d X]
                   line 1
                   line {# 2a #} "::" line {# 2b #}; line {# 2c #}
                   last line
-------- lines 46-49:
+------- lines 45-48:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     line 1
@@ -137,7 +139,7 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- lines 46-49:
+------- lines 45-48:
 parser test this is a paragraph +:
                                  ^
     line 1
@@ -146,25 +148,25 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- line 47:
+------- line 46:
     line 1
     ^^^^^^
-------- line 48:
+------- line 47:
     line 2a:: line 2b; line 2c
     ^^^^^^^^^^^^^^^^^^
-------- line 48:
+------- line 47:
     line 2a:: line 2b; line 2c
          ^^
-------- line 48:
+------- line 47:
     line 2a:: line 2b; line 2c
                    ^^
-------- line 48:
+------- line 47:
     line 2a:: line 2b; line 2c
                        ^^^^^^^
-------- line 48:
+------- line 47:
     line 2a:: line 2b; line 2c
                             ^^
-------- line 49:
+------- line 48:
     last line
     ^^^^^^^^^
 ======= END TEST
@@ -174,7 +176,7 @@ parser define indentation mark "+:" ... "::" [code]
                      {"<LF>": .terminator = "::"|line {# 2a #}|"<LF>"}
                      {"<LF>"|line {# 2b #} ";" line {# 2c #}|"<LF>"}
                      {"<LF>"|last line|"<LF>"} :}
-------- lines 51-54:
+------- lines 50-53:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     line 1
@@ -183,7 +185,7 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- lines 51-54:
+------- lines 50-53:
 parser test this is a paragraph +:
                                 ^^
     line 1
@@ -192,34 +194,34 @@ parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     last line
 ^^^^^^^^^^^^^
-------- line 52:
+------- line 51:
     line 1
     ^^^^^^
-------- line 53:
+------- line 52:
     line 2a:: line 2b; line 2c
     ^^^^^^^^^
-------- line 53:
+------- line 52:
     line 2a:: line 2b; line 2c
          ^^
-------- line 53:
+------- line 52:
     line 2a:: line 2b; line 2c
               ^^^^^^^^^^^^^^^^
-------- line 53:
+------- line 52:
     line 2a:: line 2b; line 2c
                    ^^
-------- line 53:
+------- line 52:
     line 2a:: line 2b; line 2c
                             ^^
-------- line 54:
+------- line 53:
     last line
     ^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test <X "|" hi there "|" X>
-------- line 55:
+------- line 54:
 parser test  <X| hi there |X>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 56: unrecognized flag name:
+ERROR: in line 55: unrecognized flag name:
 parser trace [+ foo]
                 ^^^
 parser trace [+ parser commands]
@@ -228,75 +230,77 @@ parser trace [+ warnings]
 parser begin block 1
 parser define bracket "<*" ... "*>" [code]
 ======= TEST: parser test <* hi there A *>
-------- line 63:
+------- line 62:
 parser test <* hi there A *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 63:
+------- line 62:
 parser test <* hi there A *>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 64: innermost block name does not match `block x':
+ERROR: in line 63: innermost block name does not match `block x':
 parser end block x
 ^^^^^^^^^^^^^^^^^^
 ======= TEST: parser test <* hi there B *>
-------- line 65:
+------- line 64:
 parser test <* hi there B *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 65:
+------- line 64:
 parser test <* hi there B *>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1
 ======= TEST: parser test <* hi there C *>
-------- line 67:
+------- line 66:
 parser test <* hi there C *>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 68: innermost block name does not match `block 1':
+ERROR: in line 67: innermost block name does not match `block 1':
 parser end block 1
 ^^^^^^^^^^^^^^^^^^
 parser define bracket "<|" ... "|>" [code]
 ======= TEST: parser test < |hi there D| >
-------- line 70:
+------- line 69:
 parser test <| hi there D |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 70:
+------- line 69:
 parser test <| hi there D |>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
 parser begin block 1
 parser undefine bracket "<|" ... "|>" [code]
 ======= TEST: parser test < "|" hi there E "|" >
-------- line 73:
+------- line 72:
 parser test <| hi there E |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-WARNING: in line 74: undefine found no definition:
+WARNING: in line 73: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]
 parser end block 1
 ======= TEST: parser test < |hi there F| >
-------- line 76:
+------- line 75:
 parser test <| hi there F |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 76:
+------- line 75:
 parser test <| hi there F |>
             ^^^^^^^^^^^^^^^^
 ======= END TEST
 parser undefine bracket "<|" ... "|>" [code]
 ======= TEST: parser test < "|" hi there F "|" >
-------- line 78:
+------- line 77:
 parser test <| hi there F |>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-WARNING: in line 79: undefine found no definition:
+WARNING: in line 78: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]
 parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
-       with full lines
+       with parsing selectors [- end at outer closing,
+                               - end at le indent,
+                               - end at line separator]
 parser print bracket "":
     block standard: bracket [< "[" "X" >] ... [< "X" "]" >]
                     [code, operator 1]
@@ -309,41 +313,42 @@ parser print bracket "":
     block standard: bracket "`" ... "'" [code]
     block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
                     [code]
-                    with full lines
+                    with parsing selectors [- end at le indent,
+                                            - end at line separator,
+                                            - end at outer closing]
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
-                    with full lines
     block standard: indentation mark [< "+" ":" >] ... "::" [code]
 ======= TEST: parser test (```")"''')
-------- line 85:
+------- line 86:
 parser test ( ``` ) ''' )
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 85:
+------- line 86:
 parser test ( ``` ) ''' )
             ^^^^^^^^^^^^^
-------- line 85:
+------- line 86:
 parser test ( ``` ) ''' )
               ^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test (```")"''')
-------- lines 86-88:
+------- lines 87-89:
 parser test ( ```
 ^^^^^^^^^^^^^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines 86-88:
+------- lines 87-89:
 parser test ( ```
             ^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines 86-88:
+------- lines 87-89:
 parser test ( ```
               ^^^
 )
@@ -351,36 +356,36 @@ parser test ( ```
 ''' )
 ^^^
 ======= END TEST
-ERROR: in line 89: missing closing bracket "'" inserted before ")":
+ERROR: in line 90: missing closing bracket "'" inserted before ")":
 parser test ( ` ) ' )
                 ^
 ======= TEST: parser test (`') "'" ")"
-------- line 89:
+------- line 90:
 parser test ( ` ) ' )
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 89:
+------- line 90:
 parser test ( ` ) ' )
             ^^^^^
-------- line 89:
+------- line 90:
 parser test ( ` ) ' )
               ^
 ======= END TEST
-ERROR: in line 90: missing closing bracket "'" inserted before end of
+ERROR: in line 91: missing closing bracket "'" inserted before end of
        line:
 parser test ( `
                ^
-ERROR: in line 90: missing closing bracket ")" inserted before end of
+ERROR: in line 91: missing closing bracket ")" inserted before end of
        line:
 parser test ( `
                ^
 ======= TEST: parser test (`')
-------- line 90:
+------- line 91:
 parser test ( `
 ^^^^^^^^^^^^^^^
-------- line 90:
+------- line 91:
 parser test ( `
             ^^^
-------- line 90:
+------- line 91:
 parser test ( `
               ^
 ======= END TEST
@@ -390,16 +395,16 @@ parser print indentation offset:
     block block 1: 4
     block standard: 2
     block TOP LEVEL: 2
-WARNING: in line 98: lexeme indent 1 too near paragraph indent 0:
+WARNING: in line 99: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^^^^
-WARNING: in line 100: lexeme indent 2 too near paragraph indent 0:
+WARNING: in line 101: lexeme indent 2 too near paragraph indent 0:
   line with indent 2
   ^^^^
 parser end block 1
 parser print indentation offset:
     block standard: 2
     block TOP LEVEL: 2
-WARNING: in line 107: lexeme indent 1 too near paragraph indent 0:
+WARNING: in line 108: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^^^^

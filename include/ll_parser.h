@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 11:01:23 EDT 2015
+// Date:	Sat Sep 12 20:13:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -956,31 +956,30 @@ enum {
     ALWAYS_SELECTOR			= 1ull << 0,
         // Hidden selector that is always on.
 
-    // Enders:
+    // Options:
     //
-    LBREAK_ENDER			= 1ull << 1,
-    LEINDENT_ENDER			= 1ull << 2,
-    LTINDENT_ENDER			= 1ull << 3,
-    PBREAK_ENDER			= 1ull << 4,
-    LSEP_ENDER				= 1ull << 5,
-    OCLOSING_ENDER			= 1ull << 6,
+    EALBREAK_OPT			= 1ull << 1,
+    EALEINDENT_OPT			= 1ull << 2,
+    EALTINDENT_OPT			= 1ull << 3,
+    EAPBREAK_OPT			= 1ull << 4,
+    EALSEP_OPT				= 1ull << 5,
+    EAOCLOSING_OPT			= 1ull << 6,
 
-    ALL_ENDERS = LBREAK_ENDER
-	       + LEINDENT_ENDER
-	       + LTINDENT_ENDER
-	       + PBREAK_ENDER
-	       + LSEP_ENDER
-	       + OCLOSING_ENDER,
+    ALL_OPT    = EALBREAK_OPT
+	       + EALEINDENT_OPT
+	       + EALTINDENT_OPT
+	       + EAPBREAK_OPT
+	       + EALSEP_OPT
+	       + EAOCLOSING_OPT,
 
     // Builtin Selectors:
     //
     PARSER_SELECTOR			= 1ull << 7,
     DATA_SELECTOR			= 1ull << 8,
 
-    TOP_LEVEL_SELECTORS = LEINDENT_ENDER
-	                + LSEP_ENDER
-	                + OCLOSING_ENDER
-			+ PARSER_SELECTOR
+    TOP_LEVEL_SELECTORS = EALEINDENT_OPT
+	                + EALSEP_OPT
+	                + EAOCLOSING_OPT
 };
 
 namespace bracketed {

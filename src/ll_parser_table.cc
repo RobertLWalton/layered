@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 12 11:16:50 EST 2015
+// Date:	Mon Sep 14 07:08:06 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,7 @@
 //	Usage and Setup
 //	Name Tables
 //	Roots
-//	Key Prefixes
+//	Key Tables
 //	Undefineds
 //	Blocks
 
@@ -61,8 +61,8 @@ static min::packed_struct<TAB::root_struct>
 	( "ll::parser::table::root_type",
 	  TAB::root_gen_disp, ::root_stub_disp );
 
-// Key Prefixes
-// --- --------
+// Key Tables
+// --- ------
 
 static min::uns32 key_prefix_gen_disp[] = {
     min::DISP ( & TAB::key_prefix_struct::key_element ),
@@ -233,6 +233,21 @@ void TAB::push
         find_key_prefix ( key, key_table, true );
     next_ref(entry) = kprefix->first;
     first_ref(kprefix) = entry;
+}
+
+TAB::root push_root
+	( min::gen label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  ll::parser::table::key_table key_table )
+{
+    TAB::root root = ::root_type.new_stub();
+    root->selectors = selectors;
+    root->block_level = block_level;
+    root->position = position;
+    TAB::push ( key_table, root );
+    return root;
 }
 
 void TAB::end_block

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 04:20:53 EDT 2015
+// Date:	Mon Sep 14 06:40:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -692,8 +692,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	TAB::init_name_table
 	    ( selector_name_table_ref(parser) );
-	PAR::selector_group_name_table_ref(parser) =
-	    TAB::create_key_table ( 32 );
 
 	MIN_REQUIRE
 	    (    PAR::ALWAYS_SELECTOR
@@ -743,7 +741,10 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		      ( parser->selector_name_table,
 			PAR::data_lexeme ) );
 
-	parser->selectors = PAR::TOP_LEVEL_SELECTORS
+	PAR::selector_group_name_table_ref(parser) =
+	    TAB::create_key_table ( 32 );
+
+	parser->selectors = PAR::DEFAULT_OPTIONS
 	                  + PAR::ALWAYS_SELECTOR;
 	PAR::prefix_separator_ref(parser) =
 	    min::MISSING();
@@ -757,11 +758,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0,
 	      PAR::top_level_position,
 	      TAB::new_flags
-	          (   PAR::TOP_LEVEL_SELECTORS
+	          (   PAR::DEFAULT_OPTIONS
 		    + PAR::PARSER_SELECTOR
 		    + PAR::ALWAYS_SELECTOR,
 		      TAB::ALL_FLAGS
-		    - PAR::TOP_LEVEL_SELECTORS
+		    - PAR::DEFAULT_OPTIONS
 		    - PAR::PARSER_SELECTOR
 		    - PAR::ALWAYS_SELECTOR,
 		    0 ),

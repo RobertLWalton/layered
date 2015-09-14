@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 04:20:26 EDT 2015
+// Date:	Mon Sep 14 06:39:33 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -965,21 +965,25 @@ enum {
     EALSEP_OPT				= 1ull << 5,
     EAOCLOSING_OPT			= 1ull << 6,
 
-    ALL_OPT    = EALBREAK_OPT
-	       + EALEINDENT_OPT
-	       + EALTINDENT_OPT
-	       + EAPBREAK_OPT
-	       + EALSEP_OPT
-	       + EAOCLOSING_OPT,
+    ALL_EA_OPT    = EALBREAK_OPT
+	          + EALEINDENT_OPT
+	          + EALTINDENT_OPT
+	          + EAPBREAK_OPT
+	          + EALSEP_OPT
+	          + EAOCLOSING_OPT,
+
+    ALL_OPT       = ALL_EA_OPT,
+
+    DEFAULT_OPTIONS = EALEINDENT_OPT
+	            + EALSEP_OPT
+	            + EAOCLOSING_OPT,
 
     // Builtin Selectors:
     //
+    ALL_SELECTORS 			= -1ull << 7,
+
     PARSER_SELECTOR			= 1ull << 7,
     DATA_SELECTOR			= 1ull << 8,
-
-    TOP_LEVEL_SELECTORS = EALEINDENT_OPT
-	                + EALSEP_OPT
-	                + EAOCLOSING_OPT
 };
 
 namespace bracketed {
@@ -1092,7 +1096,7 @@ struct parser_struct
     const ll::parser::table::name_table
     	    selector_name_table;
     const ll::parser::table::key_table
-    	    selector_group_name_table;
+            selector_group_name_table;
         // Selector name and group tables.
 
     ll::parser::table::flags selectors;
@@ -1498,7 +1502,7 @@ ll::parser::table::root find_entry
 // to this `find_next_entry' function.
 //
 // Only hash entries which have a selector bit on are
-// considered.  ALL_SELECTORS can be used to consider
+// considered.  ALWAYS_SELECTOR can be used to consider
 // all entries.
 //
 // The entries are searched in the order longest first,

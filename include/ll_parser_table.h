@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 30 21:58:51 EDT 2015
+// Date:	Mon Sep 14 07:07:53 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -305,6 +305,19 @@ ll::parser::table::root find
 //
 void push ( ll::parser::table::key_table key_table,
             ll::parser::table::root entry );
+
+// Push a pure root into a key table.  Used to map
+// keys to selectors (as for the group name table).
+// Usually subtypes of root are pushed by the code
+// that defines the subtype.
+//
+ll::parser::table::root
+    push_root
+	( min::gen label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  ll::parser::table::key_table key_table );
 
 // Remove from the key table all hash entries that have
 // entry block_level > block_level argument.  Be sure to

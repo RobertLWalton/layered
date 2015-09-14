@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 02:18:10 EDT 2015
+// Date:	Mon Sep 14 05:02:44 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -176,45 +176,50 @@ min::gen COM::scan_names
     return min::SUCCESS();
 }
 
-// Look up a flag in a flag name table and return its
-// index.  If it is not there, print an error message
-// and return -1.  Position is the position of the
-// flag in parser->input_file, for the error message.
-//
-static int lookup_flag
-    ( min::gen flag,
-      TAB::name_table name_table,
-      PAR::parser parser,
-      min::phrase_position pp )
-{
-    int j = TAB::get_index ( name_table, flag );
-
-    if ( j == -1 )
-        PAR::parse_error
-	    ( parser, pp, "unrecognized flag name" );
-
-    return j;
-}
-
 // Scan a `flag-name' or an `operator flag-name' for
-// scan_new_flags below.  Update index i and return
-// op and flag.  If no op, set op to min::MISSING().
-// Return index of flag name in name_table.  If error,
-// including flag name not being in table, print error
-// message and return -1.  ppvec is position of vp
-// object, and ppvec->file == parser->input_file is
-// required.
+// scan_new_flags below.  Update index i, new_flags,
+// group_new_flags, allow_flag_list, and allow_flag_
+// modifier_list, and return true if no error.  If
+// error, including flag name not being in tables,
+// print error message and return false.
 //
-static int scan_flag
+// ppvec is position of vp object, and ppvec->file
+// == parser->input_file is required.
+//
+// If the flag name is found in the group_name_table,
+// the associated flag set is OR'ed into group_new_
+// flags.  If flag name is not found in the group_name_
+// table, but is found in the name_table, the flag is
+// OR'ed into new_flags.  The group_name_table may be
+// NULL_STUB, indicating that it is empty.
+//
+// If the flag is preceded by an operator, +, -, or ^,
+// then if allows_flag_modifier_list is true, the
+// found flag set is OR'ed into the associated component
+// of new_flags or group_new_flags, i.e., into the
+// or_flags, not_flags, or xor_flags component, and
+// allow_flag_list is set to false.  It is an error if
+// there is an operator and allows_flag_modifier_list
+// is false.
+//
+// If the flag is NOT preceeded by an operator, then if
+// allows_flag_list is true, the found flag set is
+// OR'ed into the or_flags component, and allow_flag_
+// modifier_list is set to false.  Is it an error if
+// there is NO operator and allows_flag_list is false.
+//
+static bool scan_flag
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::phrase_position_vec ppvec,
-	  min::gen & op,
+	  TAB::new_flags & new_flags,
+	  TAB::new_flags & group_new_flags,
+	  bool & allow_flag_list,
+	  bool & allow_flag_modifier_list,
 	  TAB::name_table name_table,
-	  PAR::parser parser,
-	  bool allow_flag_list,
-	  bool allow_flag_modifier_list )
+	  TAB::key_table group_name_table,
+	  PAR::parser parser )
 {
-    op = min::MISSING();
+    min::gen op = min::MISSING();
     min::unsptr size = min::size_of ( vp );
 
     MIN_REQUIRE ( ppvec->file == parser->input_file );
@@ -228,21 +233,19 @@ static int scan_flag
 	      ! allow_flag_list ?
 	          "expected `+', `-', `^" :
 	      ! allow_flag_modifier_list ?
-	          "expected file name" :
+	          "expected flag name" :
 	          "expected `+', `-', `^',"
 		  " or flag name",
 	      min::pnop,
 	      i == 0 ? " at beginning of" :
 	               " after" );
-	return -1;
+	return false;
     }
 
-    if ( vp[i] == PAR::plus )
-        op = PAR::plus, ++ i;
-    else if ( vp[i] == PAR::minus )
-        op = PAR::minus, ++ i;
-    else if ( vp[i] == ::exclusive_or )
-        op = ::exclusive_or, ++ i;
+    if (    vp[i] == PAR::plus
+         || vp[i] == PAR::minus
+	 || vp[i] == ::exclusive_or )
+        op = vp[i], ++ i;
 
     if (    ! allow_flag_modifier_list
          && op != min::MISSING() )
@@ -255,7 +258,7 @@ static int scan_flag
 	      min::pnop,
 	      i == 1 ? " at beginning of" :
 	                "after" );
-	return -1;
+	return false;
     }
     else if (    ! allow_flag_list
               && op == min::MISSING() )
@@ -268,13 +271,17 @@ static int scan_flag
 	      min::pnop,
 	      i == 0 ? " at beginning of" :
 	               " after" );
-	return -1;
+	return false;
     }
+    else if ( op == min::MISSING() )
+        allow_flag_modifier_list = false;
+    else
+        allow_flag_list = false;
 
     min::uns32 ibegin = i;
-    min::locatable_gen flag
+    min::locatable_gen flag_name
         ( COM::scan_simple_name ( vp, i ) );
-    if ( flag == min::MISSING() )
+    if ( flag_name == min::MISSING() )
     {
 	PAR::parse_error
 	    ( parser,
@@ -284,15 +291,53 @@ static int scan_flag
 	      min::pnop,
 	      i == 0 ? " at beginning of" :
 	               " after" );
-	return -1;
+	return false;
     }
 
-    min::phrase_position pp;
-    pp.begin = (&ppvec[ibegin])->begin;
-    pp.end = (&ppvec[i-1])->end;
+    min::phrase_position position;
+    position.begin = (&ppvec[ibegin])->begin;
+    position.end = (&ppvec[i-1])->end;
 
-    return ::lookup_flag
-        ( flag, name_table, parser, pp );
+    TAB::new_flags * p = NULL;
+    TAB::flags f;
+    if ( group_name_table != min::NULL_STUB )
+    {
+        TAB::key_prefix key_prefix =
+	    TAB::find_key_prefix
+	        ( flag_name, group_name_table );
+        if ( key_prefix != min::NULL_STUB
+	     &&
+	     key_prefix->first != min::NULL_STUB )
+	{
+	    f = key_prefix->first->selectors;
+	    p = & group_new_flags;
+	}
+    }
+
+    if ( p == NULL )
+    {
+	int j = TAB::get_index
+	            ( name_table, flag_name );
+
+	if ( j == -1 )
+	{
+	    PAR::parse_error
+		( parser, position,
+		  "unrecognized flag name" );
+	    return false;
+	}
+	f = 1ull << j;
+	p = & new_flags;
+    }
+
+    if ( op == PAR::minus )
+        p->not_flags |= f;
+    else if ( op == ::exclusive_or )
+        p->xor_flags |= f;
+    else
+        p->or_flags |= f;
+
+    return true;
 }
 
 // Like scan_new_flags but has separate indicators to
@@ -303,6 +348,7 @@ static min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::new_flags & new_flags,
 	  TAB::name_table name_table,
+	  TAB::key_table group_name_table,
 	  PAR::parser parser,
 	  bool allow_flag_list,
 	  bool allow_flag_modifier_list )
@@ -343,6 +389,8 @@ static min::gen scan_new_flags
     new_flags.or_flags = 0;
     new_flags.not_flags = 0;
     new_flags.xor_flags = 0;
+    TAB::new_flags new_group_flags;
+
     min::unsptr size = min::size_of ( subvp );
     if ( size != 0 )
     {
@@ -352,26 +400,14 @@ static min::gen scan_new_flags
 	min::uns32 i = 0;
 	while ( true )
 	{
-	    min::gen op = min::MISSING();
-	    int j = ::scan_flag
-	        ( subvp, i, ppvec, op, name_table,
-		  parser, allow_flag_list,
-		  allow_flag_modifier_list );
-	    if ( j == -1 ) return min::ERROR();
-	    if ( op == min::MISSING() )
-	        allow_flag_modifier_list = false;
-	    else
-	        allow_flag_list = false;
-
-	    if ( op == PAR::minus )
-		new_flags.not_flags |=
-		    (min::uns64) 1 << j;
-	    else if ( op == ::exclusive_or )
-		new_flags.xor_flags |=
-		    (min::uns64) 1 << j;
-	    else
-		new_flags.or_flags |=
-		    (min::uns64) 1 << j;
+	    if ( ! ::scan_flag
+		       ( subvp, i, ppvec,
+		         new_flags, new_group_flags,
+		         allow_flag_list,
+		         allow_flag_modifier_list,
+		         name_table, group_name_table,
+		         parser ) )
+		return min::ERROR();
 
 	    if ( i == size ) break;
 
@@ -382,6 +418,18 @@ static min::gen scan_new_flags
 	    ++ i;
 	}
     }
+
+    TAB::flags mask =
+    	  new_flags.or_flags
+	| new_flags.not_flags
+	| new_flags.xor_flags;
+    mask = ~ mask;
+    new_flags.or_flags |=
+        new_group_flags.or_flags & mask;
+    new_flags.not_flags |=
+        new_group_flags.not_flags & mask;
+    new_flags.xor_flags |=
+        new_group_flags.xor_flags & mask;
 
     // Note that an empty list that could be either a
     // flag list or a flag modifier list is treated as
@@ -397,12 +445,14 @@ min::gen COM::scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::flags & flags,
 	  TAB::name_table name_table,
+	  TAB::key_table group_name_table,
 	  PAR::parser parser )
 {
     TAB::new_flags new_flags;
     min::gen result = ::scan_new_flags
         ( vp, i, new_flags,
-	  name_table, parser, true, false );
+	  name_table, group_name_table,
+	  parser, true, false );
     flags = new_flags.or_flags;
     return result;
 }
@@ -411,12 +461,14 @@ min::gen COM::scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  TAB::new_flags & new_flags,
 	  TAB::name_table name_table,
+	  TAB::key_table group_name_table,
 	  PAR::parser parser,
 	  bool allow_flag_list )
 {
     return ::scan_new_flags
         ( vp, i, new_flags,
-	  name_table, parser, allow_flag_list, true );
+	  name_table, group_name_table,
+	  parser, allow_flag_list, true );
 }
 
 void COM::print_new_flags
@@ -553,6 +605,7 @@ static min::gen execute_pass
 	min::gen result = COM::scan_flags
 		    ( vp, i, selectors,
 		      parser->selector_name_table,
+		      parser->selector_group_name_table,
 		      parser );
 	if ( result == min::ERROR() )
 	    return result;
@@ -979,11 +1032,13 @@ static min::gen execute_context
 	    result = COM::scan_flags
 		( vp, i, selectors,
 		  parser->selector_name_table,
+		  parser->selector_group_name_table,
 		  parser );
 	else
 	    result = COM::scan_new_flags
 		( vp, i, new_flags,
 		  parser->selector_name_table,
+		  parser->selector_group_name_table,
 		  parser, true );
 	if ( result == min::ERROR() )
 	    return min::ERROR();
@@ -1174,6 +1229,7 @@ static min::gen execute_trace
     min::gen result = COM::scan_new_flags
         ( vp, i, new_flags,
 	  parser->trace_flag_name_table,
+	  min::NULL_STUB,
 	  parser, true );
     if ( result == min::ERROR() )
         return min::ERROR();

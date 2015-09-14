@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 10 04:06:49 EDT 2015
+// Date:	Mon Sep 14 04:23:53 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1786,7 +1786,9 @@ static min::gen oper_pass_command
     TAB::flags selectors;
     min::gen sresult = COM::scan_flags
 	    ( vp, i, selectors,
-	      parser->selector_name_table, parser );
+	      parser->selector_name_table,
+	      parser->selector_group_name_table,
+	      parser );
     if ( sresult == min::ERROR() )
 	return min::ERROR();
     else if ( sresult == min::MISSING() )

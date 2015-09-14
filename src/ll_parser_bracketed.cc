@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 04:22:07 EDT 2015
+// Date:	Mon Sep 14 07:25:04 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2084,10 +2084,12 @@ min::position BRA::parse_bracketed_subexpression
 			    (    typed_opening
 			      != min::NULL_STUB );
 
-			TAB::root mapped_root = TAB::find
-			    ( prefix_type,
-			      selectors,
-			      typed_opening->type_map );
+			TAB::root mapped_root =
+			    TAB::find
+				( prefix_type,
+				  selectors,
+				  typed_opening
+				      ->type_map );
 
 			TAB::flags new_selectors =
 			    selectors;

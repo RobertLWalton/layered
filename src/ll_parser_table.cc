@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 07:08:06 EDT 2015
+// Date:	Mon Sep 14 11:25:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -235,7 +235,7 @@ void TAB::push
     first_ref(kprefix) = entry;
 }
 
-TAB::root push_root
+TAB::root TAB::push_root
 	( min::gen label,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
@@ -243,6 +243,7 @@ TAB::root push_root
 	  ll::parser::table::key_table key_table )
 {
     TAB::root root = ::root_type.new_stub();
+    label_ref ( root ) = label;
     root->selectors = selectors;
     root->block_level = block_level;
     root->position = position;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 06:39:33 EDT 2015
+// Date:	Mon Sep 14 11:17:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,6 +62,10 @@ namespace ll { namespace parser {
 	eapbreak,	// end at paragraph break
 	ealsep,		// end at line separator
 	eaoclosing,	// end at outer closings
+	all_opt,	// all options
+	all_ea_opt,	// all end at options
+	default_opt,	// default options
+	all_selectors,	// all selectors
 	parser_lexeme,	// parser
 	data_lexeme,	// data
 	standard_lexeme,// standard
@@ -974,9 +978,9 @@ enum {
 
     ALL_OPT       = ALL_EA_OPT,
 
-    DEFAULT_OPTIONS = EALEINDENT_OPT
-	            + EALSEP_OPT
-	            + EAOCLOSING_OPT,
+    DEFAULT_OPT = EALEINDENT_OPT
+	        + EALSEP_OPT
+	        + EAOCLOSING_OPT,
 
     // Builtin Selectors:
     //

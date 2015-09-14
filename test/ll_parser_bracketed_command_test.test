@@ -298,9 +298,7 @@ parser undefine bracket "<|" ... "|>" [code]
 parser undefine bracket "<|" ... "|>" [code]
 parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
-       with parsing selectors [- end at outer closing,
-                               - end at le indent,
-                               - end at line separator]
+       with parsing selectors [- all end at options]
 parser print bracket "":
     block standard: bracket [< "[" "X" >] ... [< "X" "]" >]
                     [code, operator 1]
@@ -313,7 +311,10 @@ parser print bracket "":
     block standard: bracket "`" ... "'" [code]
     block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
                     [code]
-                    with parsing selectors [- end at le indent,
+                    with parsing selectors [- end at line break,
+                                            - end at le indent,
+                                            - end at lt indent,
+                                            - end at paragraph break,
                                             - end at line separator,
                                             - end at outer closing]
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
@@ -323,32 +324,32 @@ parser print bracket "":
                                             + operator 1]
     block standard: indentation mark [< "+" ":" >] ... "::" [code]
 ======= TEST: parser test (```")"''')
-------- line 86:
+------- line 84:
 parser test ( ``` ) ''' )
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 86:
+------- line 84:
 parser test ( ``` ) ''' )
             ^^^^^^^^^^^^^
-------- line 86:
+------- line 84:
 parser test ( ``` ) ''' )
               ^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test (```")"''')
-------- lines 87-89:
+------- lines 85-87:
 parser test ( ```
 ^^^^^^^^^^^^^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines 87-89:
+------- lines 85-87:
 parser test ( ```
             ^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines 87-89:
+------- lines 85-87:
 parser test ( ```
               ^^^
 )
@@ -356,36 +357,36 @@ parser test ( ```
 ''' )
 ^^^
 ======= END TEST
-ERROR: in line 90: missing closing bracket "'" inserted before ")":
+ERROR: in line 88: missing closing bracket "'" inserted before ")":
 parser test ( ` ) ' )
                 ^
 ======= TEST: parser test (`') "'" ")"
-------- line 90:
+------- line 88:
 parser test ( ` ) ' )
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 90:
+------- line 88:
 parser test ( ` ) ' )
             ^^^^^
-------- line 90:
+------- line 88:
 parser test ( ` ) ' )
               ^
 ======= END TEST
-ERROR: in line 91: missing closing bracket "'" inserted before end of
+ERROR: in line 89: missing closing bracket "'" inserted before end of
        line:
 parser test ( `
                ^
-ERROR: in line 91: missing closing bracket ")" inserted before end of
+ERROR: in line 89: missing closing bracket ")" inserted before end of
        line:
 parser test ( `
                ^
 ======= TEST: parser test (`')
-------- line 91:
+------- line 89:
 parser test ( `
 ^^^^^^^^^^^^^^^
-------- line 91:
+------- line 89:
 parser test ( `
             ^^^
-------- line 91:
+------- line 89:
 parser test ( `
               ^
 ======= END TEST
@@ -395,16 +396,16 @@ parser print indentation offset:
     block block 1: 4
     block standard: 2
     block TOP LEVEL: 2
-WARNING: in line 99: lexeme indent 1 too near paragraph indent 0:
+WARNING: in line 97: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^^^^
-WARNING: in line 101: lexeme indent 2 too near paragraph indent 0:
+WARNING: in line 99: lexeme indent 2 too near paragraph indent 0:
   line with indent 2
   ^^^^
 parser end block 1
 parser print indentation offset:
     block standard: 2
     block TOP LEVEL: 2
-WARNING: in line 108: lexeme indent 1 too near paragraph indent 0:
+WARNING: in line 106: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^^^^

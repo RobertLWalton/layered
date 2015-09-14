@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 06:40:22 EDT 2015
+// Date:	Mon Sep 14 11:15:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,6 +58,10 @@ min::locatable_gen PAR::ealtindent;
 min::locatable_gen PAR::eapbreak;
 min::locatable_gen PAR::ealsep;
 min::locatable_gen PAR::eaoclosing;
+min::locatable_gen PAR::all_opt;
+min::locatable_gen PAR::all_ea_opt;
+min::locatable_gen PAR::default_opt;
+min::locatable_gen PAR::all_selectors;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::data_lexeme;
 min::locatable_gen PAR::standard_lexeme;
@@ -132,6 +136,17 @@ static void initialize ( void )
     PAR::eaoclosing =
     	min::new_lab_gen
 	    ( "end", "at", "outer", "closing" );
+
+
+    PAR::all_opt =
+        min::new_lab_gen ( "all", "options" );
+    PAR::all_ea_opt =
+        min::new_lab_gen ( "all", "end", "at",
+	                   "options" );
+    PAR::default_opt =
+        min::new_lab_gen ( "default", "options" );
+    PAR::all_selectors =
+        min::new_lab_gen ( "all", "selectors" );
 
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
     PAR::data_lexeme = min::new_str_gen ( "data" );
@@ -744,7 +759,24 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	PAR::selector_group_name_table_ref(parser) =
 	    TAB::create_key_table ( 32 );
 
-	parser->selectors = PAR::DEFAULT_OPTIONS
+	TAB::push_root
+	    ( PAR::all_opt, PAR::ALL_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
+	    ( PAR::all_ea_opt, PAR::ALL_EA_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
+	    ( PAR::default_opt, PAR::DEFAULT_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
+	    ( PAR::all_selectors, PAR::ALL_SELECTORS,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+
+	parser->selectors = PAR::DEFAULT_OPT
 	                  + PAR::ALWAYS_SELECTOR;
 	PAR::prefix_separator_ref(parser) =
 	    min::MISSING();
@@ -758,11 +790,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0,
 	      PAR::top_level_position,
 	      TAB::new_flags
-	          (   PAR::DEFAULT_OPTIONS
+	          (   PAR::DEFAULT_OPT
 		    + PAR::PARSER_SELECTOR
 		    + PAR::ALWAYS_SELECTOR,
 		      TAB::ALL_FLAGS
-		    - PAR::DEFAULT_OPTIONS
+		    - PAR::DEFAULT_OPT
 		    - PAR::PARSER_SELECTOR
 		    - PAR::ALWAYS_SELECTOR,
 		    0 ),

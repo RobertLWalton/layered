@@ -93,9 +93,7 @@ parser print context "":
     block TOP LEVEL: parser test []
 parser define context "default"
        with parsing selectors [parser, my selector,
-                               end at le indent,
-                               end at line separator,
-                               end at outer closing]
+                               default options]
 parser print context "":
     block standard: default [end at le indent, end at line separator,
                              end at outer closing, parser, my selector]
@@ -105,10 +103,7 @@ parser print context "":
                              end at outer closing, parser]
     block TOP LEVEL: parser test []
 parser define context "default"
-       with parsing selectors [code,
-                               end at le indent,
-                               end at line separator,
-                               end at outer closing]
+       with parsing selectors [code, default options]
 parser print context "":
     block standard: default [end at le indent, end at line separator,
                              end at outer closing, code]
@@ -122,7 +117,7 @@ parser print context "":
 ======= END TEST
 parser trace [+ subexpression lines]
 ======= TEST:
-------- line 39:
+------- line 34:
 parser test [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -149,32 +144,29 @@ parser trace [- subexpression details]
 parser trace [+ subexpression lines]
 ======= TEST: parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n
                   "(" p ")" ")" "]"
-------- line 48:
+------- line 43:
 parser test [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser begin special
 parser define context "parser test special"
-       with parsing selectors [parser,
-                               end at le indent,
-                               end at line separator,
-                               end at outer closing]
+       with parsing selectors [parser, default options]
 parser print context "parser<SP>test<SP>special":
     block special: parser test special [end at le indent,
                                         end at line separator,
                                         end at outer closing, parser]
 ======= TEST: parser test special
                   [x <+ y +> z "{" "|" 4 "|" w "}" m (n (p))]
-------- line 57:
+------- line 49:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 57:
+------- line 49:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 57:
+------- line 49:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                                            ^^^^^^^
-------- line 57:
+------- line 49:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                                               ^^^
 ======= END TEST
@@ -196,7 +188,7 @@ parser print context "parser":
     block TOP LEVEL: parser test []
 ======= TEST: parser test special "[" x <+ y +> z "{" "|" 4 "|" w "}" m
                   "(" n "(" p ")" ")" "]"
-------- line 63:
+------- line 55:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

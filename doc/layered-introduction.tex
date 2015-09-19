@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 12, 2015
+September 19, 2015
  
 \end{center}
 
@@ -1888,6 +1888,7 @@ A token has the following components:
         	          \ttmkey{OPERATOR}{token type} \\
         	          \ttmkey{BRACKETED}{token type} \\
         	          \ttmkey{BRACKETABLE}{token type} \\
+        	          \ttmkey{PREFIX}{token type} \\
         	          \ttmkey{DERIVED}{token type} \\[1ex]
 			  \end{tabular}
 \\[1ex]
@@ -1931,7 +1932,7 @@ A token has the following components:
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& The value of a \TT{BRACKETED} token may have
-		  any attributes, including
+		  any attributes, including \TT{.type},
 		  \TT{.initiator}, and \TT{.terminator}.
 \end{tabular}
 \\[1ex]  
@@ -1958,7 +1959,18 @@ A token has the following components:
 		  subexpressions whose MIN object has no elements and
 		  no attributes other than \TT{.position}.
 \end{tabular}
-\\[1ex]  
+\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
+		& A \TT{PREFIX} token is a \TT{BRACKETED} token that has
+		  been identified as a prefix separator.  It can be
+		  converted to a \TT{BRACKETED} token when its identity
+		  as a prefix separator is no longer useful.
+		  It necessarily has a \TT{.type}, which is recorded in
+		  the \TT{value\_type} component of the token,
+		  and does \underline{not} have an \TT{.initiator}
+		  or \TT{.terminator}.
+\end{tabular}
+\\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 		& A \TT{DERIVED} token is a non-lexeme that which has
 		  a token \TT{value} that is \underline{not} a MIN object.
@@ -1968,7 +1980,8 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& \TT{BRACKETED}, \TT{BRACKETABLE}, and \TT{DERIVED}
+		& \TT{BRACKETED}, \TT{BRACKETABLE}, \TT{PREFIX},
+		  and \TT{DERIVED}
 		  tokens are called
 		  \skey{expression token}s and \TT{OPERATOR} and lexeme
 		  tokens are called non-expression tokens.
@@ -1977,7 +1990,8 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value}{of token}
 		& The token \TT{value}, as described above.  This is
-		  a MIN string, label, or object.
+		  a MIN string, label, or object.  For tokens that
+		  do not have values, this is \TT{MISSING}.
 \\[1ex]
 		& Note that naturals have values that are MIN
 		  strings equal to their lexemes,
@@ -1986,6 +2000,21 @@ A token has the following components:
 		  and does not try to exploit the 1-1 correspondence
 		  between not-too-large natural lexemes and
 		  non-negative integral MIN numbers.
+\end{tabular}
+\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
+\ttmkey{value\_type}{of token}
+		& For a \TT{BRACKETED} token, either the \TT{.type}
+		  of the token \TT{value} if there is one, or otherwise
+		  the \TT{.initiator} of the token \TT{value} if there
+		  is one, or otherwise \TT{MISSING}.  For \TT{PREFIX}
+		  tokens, the \TT{.type} of the token \TT{value} if
+		  there is one, or otherwise \TT{MISSING}.  For
+		  other token types, \TT{MISSING}.
+\\[1ex]
+		& Since this token component can be computed from other
+		  token components, it exists purely to optimize finding
+		  a \TT{.type} or \TT{.initiator} during parsing.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2036,7 +2065,7 @@ needed.
 
 As the parser identifies subexpressions, the tokens in the
 subexpression are replaced by a single expression token (of
-type \TT{BRACKETED}, \TT{BRACKETABLE}, or \TT{DERIVED})
+type \TT{BRACKETED}, \TT{BRACKETABLE}, \TT{PREFIX}, or \TT{DERIVED})
 that encodes the subexpression.
 Although at the top level an entire
 input file can be considered to be a list of paragraphs,

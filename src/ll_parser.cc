@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 11:15:18 EDT 2015
+// Date:	Mon Sep 14 11:47:52 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,10 +58,10 @@ min::locatable_gen PAR::ealtindent;
 min::locatable_gen PAR::eapbreak;
 min::locatable_gen PAR::ealsep;
 min::locatable_gen PAR::eaoclosing;
-min::locatable_gen PAR::all_opt;
+min::locatable_gen PAR::other_opt;
 min::locatable_gen PAR::all_ea_opt;
 min::locatable_gen PAR::default_opt;
-min::locatable_gen PAR::all_selectors;
+min::locatable_gen PAR::other_selectors;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::data_lexeme;
 min::locatable_gen PAR::standard_lexeme;
@@ -138,15 +138,15 @@ static void initialize ( void )
 	    ( "end", "at", "outer", "closing" );
 
 
-    PAR::all_opt =
-        min::new_lab_gen ( "all", "options" );
+    PAR::other_opt =
+        min::new_lab_gen ( "other", "options" );
     PAR::all_ea_opt =
         min::new_lab_gen ( "all", "end", "at",
 	                   "options" );
     PAR::default_opt =
         min::new_lab_gen ( "default", "options" );
-    PAR::all_selectors =
-        min::new_lab_gen ( "all", "selectors" );
+    PAR::other_selectors =
+        min::new_lab_gen ( "other", "selectors" );
 
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
     PAR::data_lexeme = min::new_str_gen ( "data" );
@@ -760,7 +760,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    TAB::create_key_table ( 32 );
 
 	TAB::push_root
-	    ( PAR::all_opt, PAR::ALL_OPT,
+	    ( PAR::other_opt, PAR::ALL_OPT,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root
@@ -772,7 +772,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root
-	    ( PAR::all_selectors, PAR::ALL_SELECTORS,
+	    ( PAR::other_selectors, PAR::ALL_SELECTORS,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 

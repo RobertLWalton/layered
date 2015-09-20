@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 19, 2015
+September 20, 2015
  
 \end{center}
 
@@ -2014,7 +2014,7 @@ A token has the following components:
 \\[1ex]
 		& Since this token component can be computed from other
 		  token components, it exists purely to optimize finding
-		  a \TT{.type} or \TT{.initiator} during parsing.
+		  either a \TT{.type} or \TT{.initiator} during parsing.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2185,6 +2185,14 @@ the line, or by the absence of any such key.
 There are no other mechanisms for setting or changing the
 parsing selectors.
 
+Some of the parsing selectors are builtin, and most of these are
+used not to select symbol table entries, but as options controlling
+features built into the parser.  For example, some of these
+options control whether line continuations are allowed and how must
+these must be indented relative to the continued line.  Builtin
+selectors are described
+in Section~\itemref{BUILTIN-PARSER-SELECTOR/OPTIONS}.
+
 The parser symbol tables act like stacks; as new parsing
 definitions are encountered, their effects are `pushed' into the
 symbol tables.  These stacks can be popped, removing
@@ -2200,6 +2208,88 @@ from symbol tables,
 where pushing corresponds to clearing selectors from some entries
 and popping corresponds to restoring those selectors to their
 previous state.
+
+\subsubsection{Builtin Parser Selector/Options}
+\label{BUILTIN-PARSER-SELECTOR/OPTIONS}
+
+The following selectors are builtin.  Most are used to control
+parser features, and these are referred to as \skey{parser option}s
+(as well as being parser selectors).  One is used exclusively
+to select symbol table entries, and another is used both for
+control and selection and is referred to as a \key{parser
+selector/\EOL option}:
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.2in}\ttmkey{parser}{parser selector/option} \\
+    If this is on when a top level line is parsed, the line
+    is treated as a parser command.  This selector/option is
+    also used as a symbol table entry selector to ensure
+    that the line is parsed appropriately for a parser command.
+
+\hspace*{-0.2in}\ttmkey{data}{parser selector} \\
+    This selects symbol table entries that parse raw data.  Is
+    it used to enable symbol table entries that parse prefix
+    separators and the type/attributes parts of builtin typed
+    brackets.
+
+\hspace*{-0.2in}\ttmkey{end at line break}{parser option} \\
+    This parser option causes a simple line break to end a logical line.
+    In this case continuation lines are not possible.
+
+\hspace*{-0.2in}\ttmkey{end at paragraph break}{parser option} \\
+    This parser option causes a blank line to end a logical line.
+    Whether or not lines that are not indented as much as the
+    paragraph indent also end logical lines is controlled by other
+    options.
+
+    If this option is not present, blank lines have not affect
+    on parsed input.
+
+\hspace*{-0.2in}\ttmkey{end at le indent}{parser option} \\
+    This parser option causes the beginning of a line with indent less than
+    \underline{or equal to} the paragraph indent to end a logical line.
+    This means that logical lines can be continued by input lines
+    with indent greater than the paragraph indent, assuming other
+    options permit.
+
+    This option is on by default at top level and in indented paragraphs.
+
+\hspace*{-0.2in}\ttmkey{end at lt indent}{parser option} \\
+    This parser option causes the beginning of a line with indent less than
+    the paragraph indent to end a logical line.
+    This means that logical lines can be continued by input lines
+    with indent \underline{equal to} or greater
+    than the paragraph indent, assuming other
+    options permit.
+
+\hspace*{-0.2in}\ttmkey{end at line separator}{parser option} \\
+    This parser option causes a line separator to end a logical line.
+    The applicable line separator is that of either the top level
+    when not inside an indented paragraph,
+    or of the smallest containing indented paragraph when inside
+    an indented paragraph.
+
+    This option is on by default at top level and also
+    in indented paragraphs that have a defined line separator.
+
+\hspace*{-0.2in}\ttmkey{end at other closing}{parser option} \\
+    This parser option allows a bracketed subexpression to be
+    ended by the closing bracket of a containing bracketed subexpression.
+    E.g., in `\TT{[x(y]}' the `\TT{]}' is permitted to end the
+    subexpression `\TT{(y}' by automatically inserting a `\TT{)}'
+    before the `\TT{]}', while also announcing an error.
+
+    This option is unusual in that the computation of this
+    option by the `new selectors' of a bracketed or indented
+    paragraph subexpression
+    always assumes this option is on in the containing subexpression.
+
+    This is the default for bracketed subexpressions, but not for
+    indented paragraphs.
+
+
+\end{indpar}
 
 \subsection{Parser Commands}
 

@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 20, 2015
+September 21, 2015
  
 \end{center}
 
@@ -1961,13 +1961,15 @@ A token has the following components:
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-		& A \TT{PREFIX} token is a \TT{BRACKETED} token that has
+		& A \TT{PREFIX} token is essentially a
+		  \TT{BRACKETED} token that has
 		  been identified as a prefix separator.  It can be
 		  converted to a \TT{BRACKETED} token when its identity
 		  as a prefix separator is no longer useful.
-		  It necessarily has a \TT{.type}, which is recorded in
+		  A \TT{PREFIX} token necessarily has a \TT{.type},
+		  which is recorded in
 		  the \TT{value\_type} component of the token,
-		  and does \underline{not} have an \TT{.initiator}
+		  but the token does \underline{not} have an \TT{.initiator}
 		  or \TT{.terminator}.
 \end{tabular}
 \\[1ex]
@@ -2004,13 +2006,10 @@ A token has the following components:
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value\_type}{of token}
-		& For a \TT{BRACKETED} token, either the \TT{.type}
-		  of the token \TT{value} if there is one, or otherwise
-		  the \TT{.initiator} of the token \TT{value} if there
-		  is one, or otherwise \TT{MISSING}.  For \TT{PREFIX}
-		  tokens, the \TT{.type} of the token \TT{value} if
-		  there is one, or otherwise \TT{MISSING}.  For
-		  other token types, \TT{MISSING}.
+		& For a \TT{BRACKETED} token, the \TT{.initiator}
+		  of the token \TT{value} if there is one.  For a
+		  \TT{PREFIX} token, the \TT{.type} of the token
+		  \TT{value} if there is one.  Otherwise \TT{MISSING}.
 \\[1ex]
 		& Since this token component can be computed from other
 		  token components, it exists purely to optimize finding
@@ -2287,6 +2286,20 @@ selector/\EOL option}:
 
     This is the default for bracketed subexpressions, but not for
     indented paragraphs.
+
+\hspace*{-0.2in}\ttmkey{paragraph header}{parser option} \\
+    If a prefix separator appears in a paragraph beginning
+    position (after a blank line and any following comment lines)
+    and its type has this parser option, then the prefix separator
+    becomes the current paragraph header.
+
+\hspace*{-0.2in}\ttmkey{paragraph enable}{parser option} \\
+    If a paragraph does not begin with a paragraph header
+    prefix separator as per the \TT{para\-graph header} option,
+    and the \TT{paragraph enable} option is in effect,
+    then the current paragraph header is implicitly prepended
+    to the paragraph (unless there is no current paragraph
+    header).
 
 
 \end{indpar}

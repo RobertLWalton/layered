@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 07:25:04 EDT 2015
+// Date:	Mon Sep 21 11:21:47 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1021,7 +1021,9 @@ inline min::int32 relative_indent
 //               and closing bracket (the latter
 //               taken from the symbol table and
 //               not the input), compact token type
-//               BRACKETING, new_selectors, NO line_sep
+//               BRACKETING, new_selectors, NO line_sep;
+//               and after compacting, set value_type to
+//               .initiator (opening_bracket->label).
 //
 //          else if there was a reformatter and it
 //                  returned a PREFIX token (and did NOT
@@ -1044,13 +1046,15 @@ inline min::int32 relative_indent
 //                    file (top cstack entry not
 //                    closed):
 //                  change PREFIX token type to
-//                         BRACKETED
+//                         BRACKETED and value_type
+//                         to MISSING
 //                  iterate top level loop
 //               else if prefix separator terminated by
 //                       closing bracket other than its
 //                       own:
 //                  change PREFIX token type to
-//                         BRACKETED
+//                         BRACKETED and value_type
+//                         to MISSING
 //                  return MISSING_POSITION
 //               else loop find elements of PREFIX
 //                         token:
@@ -1073,7 +1077,8 @@ inline min::int32 relative_indent
 //                          elements
 //
 //                   change PREFIX token type to
-//                          BRACKETED
+//                          BRACKETED and value_type
+//                          to MISSING
 //
 //                   if top bracket stack entry was not
 //                          closed by a prefix separator
@@ -1484,9 +1489,6 @@ min::position BRA::parse_bracketed_subexpression
 			      trace_flags,
 			      PAR::BRACKETING,
 			      n, attributes );
-
-			value_type_ref(first) =
-			    PAR::new_line;
 		    }
 
 		    // See if there are more lines
@@ -1557,8 +1559,6 @@ min::position BRA::parse_bracketed_subexpression
 		  PAR::BRACKETING,
 		  1, attributes );
 
-	    value_type_ref(first) =
-		indentation_found->label;
 	    at_start = false;
 
 	    // Terminate subexpression if closing
@@ -2048,6 +2048,8 @@ min::position BRA::parse_bracketed_subexpression
 			//
 			prefix_sep->type =
 			    PAR::BRACKETED;
+			value_type_ref(prefix_sep) =
+			    min::MISSING();
 			break;
 		    }
 		    else if (    cstack.closing_next
@@ -2062,6 +2064,8 @@ min::position BRA::parse_bracketed_subexpression
 			//
 			prefix_sep->type =
 			    PAR::BRACKETED;
+			value_type_ref(prefix_sep) =
+			    min::MISSING();
 			return min::MISSING_POSITION;
 		    }
 #		    define PARSE_BRA_SUBEXP \
@@ -2195,6 +2199,8 @@ min::position BRA::parse_bracketed_subexpression
 
 			prefix_sep->type =
 			    PAR::BRACKETED;
+			value_type_ref(prefix_sep) =
+			    min::MISSING();
 
 			PAR::trace_subexpression
 			    ( parser, prefix_sep,
@@ -3308,7 +3314,8 @@ NEXT_ITEM:
 
     PAR::value_ref(first) = exp;
     first->position = position;
-    PAR::value_type_ref(first) = value_type;
+    if ( first->type == PAR::PREFIX )
+	PAR::value_type_ref(first) = value_type;
 
     PAR::trace_subexpression
 	( parser, first, trace_flags );

@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 21, 2015
+September 22, 2015
  
 \end{center}
 
@@ -1842,23 +1842,22 @@ of tokens.  A token is either a lexeme, a subexpression, or an operator.
 The top level parser pass, the bracketed subexpression recognition pass,
 recognizes:
 \begin{itemize}
-\item Top level paragraphs, bounded by blank lines, and optionally
-introduced by `typed prefix separators' such as
-`\TT{\{p\}}' and `\TT{\{code\}}'.
+\item Logical lines, terminated either by line breaks with or without
+possible indented continuation lines, or by logical line separators
+(e.g.~`\TT{;}'), or by blank lines.  Note that logical
+lines terminated by blank lines are also called non-indented paragraphs.
 \item Typed separated subexpressions that are introduced by 
 `typed prefix separators' such as
-`\TT{\{s\}}' but which are not top level paragraphs.
+`\TT{\{s\}}'.
 \item Bracketed subexpressions bounded by brackets
 such as `\TT{(}' and `\TT{)}'.
 \item Typed bracketed subexpressions bounded by typed brackets
 such as `\TT{\{b|}' and `\TT{|b\}}'.
 \item Indented paragraphs, introduced by line-ending
 indentation marks such as `\TT{:}', and terminated by the end of indentation.
-\item
-Lines in paragraphs which have line elements, such as indented paragraphs.
-These may be continued
-with indented lines, and are terminated by the next non-indented line,
-or by a line separator such as `\TT{;}'.
+An indented paragraph is a part of a logical
+line, typically at the end if it containing logical line,
+and in turn of contains logical lines of its own.
 \end{itemize}
 
 The non-top-level passes
@@ -1867,16 +1866,20 @@ for example, the operator pass operates on bracketed subexpressions
 and recognizes
 subexpressions bounded by operators.
 
-Prefix separators and brackets can be used to change syntax, so, for example,
+Prefix separators, brackets, and indentation marks
+can be used to change syntax, so, for example,
 the syntax within a \TT{\{p\}} paragraph may differ from the
 the syntax within a \TT{\{code\}} paragraph, and
 the syntax within a \TT{[ ]} bracketed subexpression may differ from
-the syntax within a \TT{` '} bracketed subexpression.
+the syntax within a \TT{` '} bracketed subexpression, and
+the syntax within a `\TT{:}' introduced indented paragraph may differ
+from the syntax of its containing logical line.
 
-Parsing reduces each recognized subexpression, including each paragraph,
-to a single expression token.
+Parsing reduces each recognized subexpression, including each top level
+logical line, to a single expression token.
 
 \subsection{Tokens}
+\label{TOKENS}
 
 A token has the following components:
 
@@ -2067,17 +2070,76 @@ subexpression are replaced by a single expression token (of
 type \TT{BRACKETED}, \TT{BRACKETABLE}, \TT{PREFIX}, or \TT{DERIVED})
 that encodes the subexpression.
 Although at the top level an entire
-input file can be considered to be a list of paragraphs,
+input file can be considered to be a list of logical lines (see below),
 the parser \underline{never}
-forms a single token that would represent it, but instead
-delivers either top level paragraph tokens or top level line tokens
+forms a single token that would represent this list, but instead
+delivers either top level logical line tokens
 one at a time for subsequent
 processing.  These top level tokens are placed at the
 beginning of the token stream, and as they are never again accessed
 by the parser, they may be removed from the token stream at any time
 by post-parser processing.
 
+\subsection{Logical Lines}
+\label{LOGICAL-LINES}
+
+A \key{logical line} is a sequence of tokens that ends with one
+of the following as controlled by parser options described in
+Section~\itemref{BUILTIN-PARSER-SELECTOR/OPTIONS}:
+
+\begin{itemize}
+\item A line break followed by a line with indent equal to or less
+than the current indent.
+\item A line break followed by a line with indent less
+than the current indent.
+\item Any line break.
+\item Any blank line.
+\item A line separator, e.g.~`\TT{;}'.
+\item The end of file.
+\end{itemize}
+
+The above makes use of the notion of a \key{current indent}.  At top
+level this is just \TT{0}.  An indented paragraph changes the current
+indent to the indent of the first token of the first logical line
+within the indented paragraph (which is the first token after the
+indentation mark provided the indented paragraph includes any
+tokens after the indentation mark).  See
+Section~\itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS} for indented paragraph
+details.
+
+Note that in applying the above comments and lines containing
+just a comment are ignored.  Thus a `blank line' means any sequence
+of comment line and blank lines containing at least one blank line.
+
+Prefix separators, brackets, and indentation marks, all of which
+can be used to change syntax, can change the options that control
+what terminates a logical line.  Thus if at top level logical
+lines end with a line break followed by a non-indented line,
+but the opening bracket \TT{`{}`{}`} changes the parser options so that
+the current logical line is continued by any physical line regardless of
+indent (and the corresponding closing bracket \TT{'{}'{}'} restores
+the top level options), then the input:
+\begin{indpar}\begin{verbatim}
+This logical line contains ```
+This quoted
+paragraph is inside a logical
+line!''',
+    which is a subexpression.
+\end{verbatim}\end{indpar}
+
+is parsed to the logical line
+\begin{indpar}\begin{verbatim}
+This logical line contains @ which is a subexpression.
+\end{verbatim}\end{indpar}
+
+where \TT{@} represents the subexpression
+
+\begin{indpar}\begin{verbatim}
+```This is a quoted paragraph is inside a logical line!'''
+\end{verbatim}\end{indpar}
+
 \subsection{Parser Symbol Table}
+\label{PARSER-SYMBOL-TABLE}
 
 Sequences of lexemes encoded as tokens are looked up in
 \skey{parser symbol table}s.
@@ -2239,27 +2301,28 @@ selector/\EOL option}:
 \hspace*{-0.2in}\ttmkey{end at paragraph break}{parser option} \\
     This parser option causes a blank line to end a logical line.
     Whether or not lines that are not indented as much as the
-    paragraph indent also end logical lines is controlled by other
-    options.
+    current indent also end logical lines is controlled by other
+    options, but if not, a logical line is the same as a paragraph
+    where paragraphs are separated by blank lines.
 
-    If this option is not present, blank lines have not affect
+    If this option is not present, blank lines have no affect
     on parsed input.
 
 \hspace*{-0.2in}\ttmkey{end at le indent}{parser option} \\
     This parser option causes the beginning of a line with indent less than
-    \underline{or equal to} the paragraph indent to end a logical line.
+    \underline{or equal to} the current indent to end a logical line.
     This means that logical lines can be continued by input lines
-    with indent greater than the paragraph indent, assuming other
+    with indent greater than the current indent, assuming other
     options permit.
 
     This option is on by default at top level and in indented paragraphs.
 
 \hspace*{-0.2in}\ttmkey{end at lt indent}{parser option} \\
     This parser option causes the beginning of a line with indent less than
-    the paragraph indent to end a logical line.
+    the current indent to end a logical line.
     This means that logical lines can be continued by input lines
     with indent \underline{equal to} or greater
-    than the paragraph indent, assuming other
+    than the current indent, assuming other
     options permit.
 
 \hspace*{-0.2in}\ttmkey{end at line separator}{parser option} \\
@@ -2656,20 +2719,24 @@ latter, not just an initial subsequence.
 \subsection{The Bracketed Subexpression Recognition Pass}
 
 The bracketed subexpression recognition pass recognizes:
-\begin{indpar}[1.0in]
-\hspace*{-0.5in}brackets (e.g.~`\TT{(}' and `\TT{)}')
+\begin{indpar}[0.5in]
+\hspace*{-0.25in}logical lines, which may end with a line break,
+    be continued by an indented line, or be a whole paragraph
+    that ends with a blank line \\
+\hspace*{-0.25in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
-\hspace*{-0.5in}indentation marks (e.g.~`\TT{:}')
+\hspace*{-0.25in}indentation marks (e.g.~`\TT{:}')
     and line separators (e.g.~`\TT{;}'),
-    indented paragraphs, and indented paragraph lines \\
-\hspace*{-0.5in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
+    indented paragraphs, and indented paragraph logical lines \\
+\hspace*{-0.25in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
       and typed bracketed subexpressions \\
-\hspace*{-0.5in}typed prefix separators (e.g.~`\TT{\{p\}}')
+\hspace*{-0.25in}typed prefix separators (e.g.~`\TT{\{p\}}')
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
 consecutive quoted strings if they are on the same
-(possibly continued) line.  Thus
+logical line.  Thus if logical lines end with a line break
+but permit indented continuation lines, then
 \begin{indpar}\begin{verbatim}
 "This is a longer sentence"
     " than we would like."
@@ -2681,7 +2748,7 @@ is equivalent to
 "And this is a second sentence."
 \end{verbatim}\end{indpar}
 This is useful for
-breaking long quoted string lexemes across line boundaries.
+breaking long quoted string lexemes across physical line boundaries.
 But there is an important case where there is not an exact equivalence
 between the glued and unglued versions.  \TT{"<" "LF" ">"} is
 \underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
@@ -2689,19 +2756,15 @@ quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
-Brackets, indentation marks, and line separators are
-symbol table keys.  However typed brackets and typed prefix separators are
-not.  Instead, a typed bracket or typed prefix separator is formed by using
-typed openings (e.g.~`\TT{\{}'),
-typed property introducers (e.g.~`\TT{:}'),
-typed property equators (e.g.~`\TT{=}'),
-typed property separators (e.g.~`\TT{,}'),
-typed middles (e.g.~`\TT{|}'),
-and typed closings (e.g.~`\TT{\}}'), which are all symbol table
-keys, to surround or separate
-sequences of words, numbers, quoted strings, and
-bracketed subexpressions, and thence form typed brackets
-and typed prefix separators.
+TBD Brackets, indentation marks, and line separators are
+bracketed parser pass symbol table keys.
+Typed bracket openings (e.g.~`\TT{\{}'),
+middles (e.g.~`\TT{|}'),
+and closings (e.g.~`\TT{\}}') are also 
+bracketed parser pass symbol table keys, and bracketed
+subexpressions are used to represent attribute flags
+(e.g.~within `\TT{[~]}') and multiple values
+(e.g.~within `\TT{\{*~*\}}').
 
 In bracketed subexpression recognition, 
 multi-lexeme symbol table keys are not recognized in the
@@ -3007,6 +3070,7 @@ are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.
 
 \subsubsection{Indented Paragraph Subexpressions}
+\label{INDENTED-PARAGRAPH-SUBEXPRESIONS}
 
 The following is an example
 \key{indented paragraph subexpression}

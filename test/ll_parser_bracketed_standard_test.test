@@ -1206,23 +1206,33 @@ parser print bracket ""
 parser print bracket "":
     block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                      [data, code, math, text]
-                     with parsing selectors [- parser, + data, - code,
+                     with parsing selectors [+ end at outer closing,
+                                             - parser, + data, - code,
                                              - math, - text]
     block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                     with parsing selectors [+ end at outer closing]
     block TOP LEVEL: bracket "(" ... ")" [data, code, math, text]
+                     with parsing selectors [+ end at outer closing]
     block TOP LEVEL: bracket "(" ... ")" [parser]
     block TOP LEVEL: indentation mark ":" ... ";" [code]
+                     with parsing selectors [- end at outer closing]
     block TOP LEVEL: bracket "[" ... "]" [data, code, math, text]
+                     with parsing selectors [+ end at outer closing]
     block TOP LEVEL: bracket "[" ... "]" [parser]
     block TOP LEVEL: bracket "`" ... "'" [data]
+                     with parsing selectors [+ end at outer closing]
     block TOP LEVEL: bracket "`" ... "'" [code, math, text]
-                     with parsing selectors [- code, - math, + text]
+                     with parsing selectors [+ end at outer closing,
+                                             - code, - math, + text]
     block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+                     with parsing selectors [+ end at outer closing]
     block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >]
                      [code, math, text]
-                     with parsing selectors [- code, + math, - text]
+                     with parsing selectors [+ end at outer closing,
+                                             - code, + math, - text]
     block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
                      [data, code, math, text]
+                     with parsing selectors [+ end at outer closing]
                      with attribute selectors [data]
                      with attributes ":" ... "=" ... ","
                      with attribute negator "no"

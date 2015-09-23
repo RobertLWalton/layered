@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 22, 2015
+September 23, 2015
  
 \end{center}
 
@@ -2238,19 +2238,20 @@ Thus there can be at most 64 distinct selectors used by any set of
 parser definitions.  For convenience, the selectors that can be
 currently used are given names that are sequences of symbols.
 
-The parsing selectors may change when an explicit opening bracket
+The parsing selectors may change when an explicit opening bracket,
+indentation mark, or prefix separator
 is recognized, and remain changed until the associated explicit closing
-bracket is recognized.  The initial parsing selectors used to scan a
-top level line are determined by a context key at the beginning of
-the line, or by the absence of any such key.
+bracket, end of indented paragraph, or end of prefix separator list
+is recognized.  The parser also has top level set of selectors
+used to begin parsing.
+
 There are no other mechanisms for setting or changing the
 parsing selectors.
 
 Some of the parsing selectors are builtin, and most of these are
 used not to select symbol table entries, but as options controlling
 features built into the parser.  For example, some of these
-options control whether line continuations are allowed and how must
-these must be indented relative to the continued line.  Builtin
+options control when a logical line ends.  Builtin
 selectors are described
 in Section~\itemref{BUILTIN-PARSER-SELECTOR/OPTIONS}.
 
@@ -2283,7 +2284,7 @@ selector/\EOL option}:
 \begin{indpar}[0.5in]
 
 \hspace*{-0.2in}\ttmkey{parser}{parser selector/option} \\
-    If this is on when a top level line is parsed, the line
+    If this is on when a top level logical line is parsed, the line
     is treated as a parser command.  This selector/option is
     also used as a symbol table entry selector to ensure
     that the line is parsed appropriately for a parser command.
@@ -2302,8 +2303,8 @@ selector/\EOL option}:
     This parser option causes a blank line to end a logical line.
     Whether or not lines that are not indented as much as the
     current indent also end logical lines is controlled by other
-    options, but if not, a logical line is the same as a paragraph
-    where paragraphs are separated by blank lines.
+    options, but if not, a logical line is the same as a unindented paragraph
+    where unindented paragraphs are separated by blank lines.
 
     If this option is not present, blank lines have no affect
     on parsed input.
@@ -2328,7 +2329,7 @@ selector/\EOL option}:
 \hspace*{-0.2in}\ttmkey{end at line separator}{parser option} \\
     This parser option causes a line separator to end a logical line.
     The applicable line separator is that of either the top level
-    when not inside an indented paragraph,
+    when not inside an indented paragraph (default is `\TT{;}'),
     or of the smallest containing indented paragraph when inside
     an indented paragraph.
 
@@ -2336,19 +2337,15 @@ selector/\EOL option}:
     in indented paragraphs that have a defined line separator.
 
 \hspace*{-0.2in}\ttmkey{end at other closing}{parser option} \\
-    This parser option allows a bracketed subexpression to be
+    This parser option allows a bracketed subexpression or
+    indented paragraph to be
     ended by the closing bracket of a containing bracketed subexpression.
     E.g., in `\TT{[x(y]}' the `\TT{]}' is permitted to end the
     subexpression `\TT{(y}' by automatically inserting a `\TT{)}'
     before the `\TT{]}', while also announcing an error.
 
-    This option is unusual in that the computation of this
-    option by the `new selectors' of a bracketed or indented
-    paragraph subexpression
-    always assumes this option is on in the containing subexpression.
-
-    This is the default for bracketed subexpressions, but not for
-    indented paragraphs.
+    This is the default for standard bracketed subexpressions,
+    but not for standard indented paragraphs.
 
 \hspace*{-0.2in}\ttmkey{paragraph header}{parser option} \\
     If a prefix separator appears in a paragraph beginning

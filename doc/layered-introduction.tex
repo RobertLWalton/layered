@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 23, 2015
+September 24, 2015
  
 \end{center}
 
@@ -2728,6 +2728,7 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.25in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
       and typed bracketed subexpressions \\
 \hspace*{-0.25in}typed prefix separators (e.g.~`\TT{\{p\}}')
+      and prefix lists
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
@@ -2753,15 +2754,19 @@ quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
-TBD Brackets, indentation marks, and line separators are
-bracketed parser pass symbol table keys.
-Typed bracket openings (e.g.~`\TT{\{}'),
-middles (e.g.~`\TT{|}'),
-and closings (e.g.~`\TT{\}}') are also 
-bracketed parser pass symbol table keys, and bracketed
-subexpressions are used to represent attribute flags
-(e.g.~within `\TT{[~]}') and multiple values
-(e.g.~within `\TT{\{*~*\}}').
+The bracketed parser pass has its own symbol table containing:
+\begin{indpar}[0.5in]
+\hspace*{-0.25in}opening brackets (e.g.~`\TT{(}') and their
+    corresponding closing brackets (e.g.~`\TT{)}') \\
+\hspace*{-0.25in}indentation marks (e.g.~`\TT{:}')
+    and any corresponding line separators (e.g.~`\TT{;}') \\
+\hspace*{-0.25in}typed openings (e.g.~`\TT{\{}') and their
+      corresponding typed closings (e.g.~`\TT{\}}') \\
+      and typed middles (e.g.~`\TT{|}')
+\end{indpar}
+
+There is also a separate symbol table for each typed opening:
+see Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}.
 
 In bracketed subexpression recognition, 
 multi-lexeme symbol table keys are not recognized in the
@@ -2769,23 +2774,21 @@ input if their lexemes are not all on the same line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
-TBD
 The output of the parser is a sequence of \TT{BRACKETED} tokens,
-one per top level line.  The value of one of these tokens is a
-MIN object with a \TT{.type} equal to the MIN string
-\TT{"<NL>"} and optionally a \TT{.terminator} equal
-to the line separator at the top level (e.g., \TT{";"}),
-but with no other syntax attributes.
+one per top level logical line.  The value of one of these tokens encodes
+the logical line.
 
 In general, the bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
 are MIN objects with attributes determined by the brackets
 and elements dermined by tokens between the brackets.
 For untyped brackets that only
-attributes are the syntax attributes \TT{.initiator} and \TT{.terminator}
-plus a \TT{.type} attribute derived from these.  For typed brackets
+syntax attributes are \TT{.initiator} and \TT{.terminator}, and the
+only non-syntax attribute is the \TT{.position} attribute.
+For typed brackets
 the only syntax attribute is the \TT{.type} attribute, but arbitrary
-non-syntax attributes may be encoded within the typed brackets.
+non-syntax attributes may be encoded within the typed brackets,
+in addition to the \TT{.position} attribute.
 
 Subexpressions may occur among the list of tokens that determine the
 object elements or the value of a non-syntax attribute.
@@ -2896,6 +2899,7 @@ The following subsections describe these different kinds of commands
 and the subexpressions they control.
 
 \subsubsection{Bracketed Subexpressions}
+\label{BRACKETED-SUBEXPRESSIONS}
 
 The following are examples of
 \ikey{untyped bracketed expressions}{bracketed expressions!untyped},

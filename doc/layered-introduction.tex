@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 24, 2015
+September 28, 2015
  
 \end{center}
 
@@ -2769,14 +2769,28 @@ There is also a separate symbol table for each typed opening:
 see Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}.
 
 In bracketed subexpression recognition, 
-multi-lexeme symbol table keys are not recognized in the
-input if their lexemes are not all on the same line.
+multi-lexeme keys in the bracketed pass symbol table
+are not recognized in the
+input if their lexemes are not all on the same physical line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
-The output of the parser is a sequence of \TT{BRACKETED} tokens,
-one per top level logical line.  The value of one of these tokens encodes
-the logical line.
+However the separate symbol table for a typed opening is used
+during a second pass over the typed subexpression or prefix,
+and so keys in that table are recognized if their lexemes
+are not all on the same physical line: again
+see Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS} for details.
+
+Like other parser passes, the bracketed subexpression recognition pass uses
+parser selectors.  However, the bracketed subexpression recognition pass
+is the only pass that can change these selectors.  Details are in
+the following subsections.
+
+In addition the bracketed subexpression recognition pass maintains
+the parser current paragraph indent, which indicates how much
+lines in the current paragraph should be indented.
+
+TBD
 
 In general, the bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
@@ -2879,6 +2893,10 @@ a \ttdmkey{position}{of MIN object} attribute that is a
 \TT{min::\EOL phrase\_\EOL position\_\EOL vec} giving the positions
 of the lexemes which the MIN object and its elements represent.
 This is not considered to be a syntax attribute.
+
+The output of the parser is a sequence of \TT{BRACKETED} tokens,
+one per top level logical line.  The value of one of these tokens encodes
+the logical line.
 
 The parser commands specific to the bracketed subexpression recognizer
 are further divided into those specific to the different kinds of subexpression

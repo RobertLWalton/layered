@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 28, 2015
+September 30, 2015
  
 \end{center}
 
@@ -2353,14 +2353,22 @@ selector/\EOL option}:
     and its type has this parser option, then the prefix separator
     becomes the current paragraph header.
 
-\hspace*{-0.2in}\ttmkey{paragraph enable}{parser option} \\
+\hspace*{-0.2in}\ttmkey{paragraph repeat}{parser option} \\
     If a paragraph does not begin with a paragraph header
     prefix separator as per the \TT{para\-graph header} option,
-    and the \TT{paragraph enable} option is in effect,
+    and the \TT{paragraph repeat} option is in effect,
     then the current paragraph header is implicitly prepended
     to the paragraph (unless there is no current paragraph
     header).
 
+
+\hspace*{-0.2in}\ttmkey{paragraph indent}{parser option} \\
+    If this option is turned on by a (explicit or implicit)
+    paragraph header prefix separator, the indent of the
+    next token after this prefix separator becomes the new
+    paragraph indent, and the paragraph ends just before
+    the next physical line beginning non-comment token that
+    has lesser indent than this paragraph indent.
 
 \end{indpar}
 
@@ -2788,7 +2796,11 @@ the following subsections.
 
 In addition the bracketed subexpression recognition pass maintains
 the parser current paragraph indent, which indicates how much
-lines in the current paragraph should be indented.
+lines in the current paragraph should be indented.  This indent
+may be changed by an indentation mark
+(see Section~\itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS})
+or a pargraph header prefix separator
+(see Section~\itemref{TYPED-PREFIX-SEPARATORS}).
 
 TBD
 

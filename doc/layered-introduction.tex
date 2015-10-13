@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 30, 2015
+October 13, 2015
  
 \end{center}
 
@@ -2725,9 +2725,10 @@ latter, not just an initial subsequence.
 
 The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[0.5in]
-\hspace*{-0.25in}logical lines, which may end with a line break,
-    be continued by an indented line, or be a whole paragraph
-    that ends with a blank line \\
+\hspace*{-0.25in}logical lines, which may end with any line break,
+    or with a line break not followed by an indented line,
+    or with a line break followed by a counter-indented line,
+    or with any blank line \\
 \hspace*{-0.25in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
 \hspace*{-0.25in}indentation marks (e.g.~`\TT{:}')
@@ -2802,8 +2803,6 @@ may be changed by an indentation mark
 or a pargraph header prefix separator
 (see Section~\itemref{TYPED-PREFIX-SEPARATORS}).
 
-TBD
-
 In general, the bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
 are MIN objects with attributes determined by the brackets
@@ -2816,10 +2815,14 @@ the only syntax attribute is the \TT{.type} attribute, but arbitrary
 non-syntax attributes may be encoded within the typed brackets,
 in addition to the \TT{.position} attribute.
 
-Subexpressions may occur among the list of tokens that determine the
+TBD
+
+Sub-subexpressions may occur among the list of tokens that determine either the
 object elements or the value of a non-syntax attribute.
-These are reduced by the parser to \TT{BACKETTED} tokens
-with a \TT{value} before the MIN object is formed.
+Before their containing object is formed,
+these are reduced by the parser to \TT{BACKETED} or \TT{BRACKETABLE} tokens
+with a MIN object \TT{value}, or to \TT{DERIVED} tokens with a non-MIN-object
+\TT{value} (e.g., a label).
 Quoted string lexemes must be handled
 differently because they have no token \TT{value}.  These are
 represented by MIN objects

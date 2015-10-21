@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 13, 2015
+October 20, 2015
  
 \end{center}
 
@@ -2815,8 +2815,6 @@ the only syntax attribute is the \TT{.type} attribute, but arbitrary
 non-syntax attributes may be encoded within the typed brackets,
 in addition to the \TT{.position} attribute.
 
-TBD
-
 Sub-subexpressions may occur among the list of tokens that determine either the
 object elements or the value of a non-syntax attribute.
 Before their containing object is formed,
@@ -2837,9 +2835,9 @@ parser test (x 5 "foo")
 \end{verbatim}\end{indpar}
 causes the parser to output a \TT{BRACKETED} token whose \TT{value} is
 \begin{indpar}\begin{verbatim}
-{"<LF>"| parser test
-         {"": .initiator "(", .terminator = ")"|
-              x 5 {"<Q>"|foo|} |} |}
+{"": .initiator = "<STX>", .terminator = "<LF>"|
+     parser test {"": .initiator = "(", .terminator = ")"|
+                      x 5 {"<Q>"|foo|} |} |}
 \end{verbatim}\end{indpar}
 where a MIN object is represented by
 \begin{center}
@@ -2863,8 +2861,6 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
        & the {\em type-label} of a typed bracketed subexpression, \\
     or & \TT{""} for a typed bracketed subexpression with no
          {\em type-label}, \\
-    or & the {\em indentation-mark-name} of an indented subexpression, \\
-    or & \TT{"<LF>"} for a line \\
     or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme.
     \end{tabular}
     \end{center}
@@ -2876,6 +2872,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     \begin{tabular}{ll}
        & the {\em opening-bracket-name} of
          an untyped bracketed subexpression, \\
+    or & the {\em indentation-mark-name} of an indented paragraph, \\
+    or & \TT{"<STX>"} for a logical line \\
     \end{tabular}
     \end{center}
 \medskip
@@ -2886,20 +2884,18 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     \begin{tabular}{ll}
        & the {\em closing-bracket-name} of
          an untyped bracketed subexpression, \\
-    or & the {\em line-separator-name} (e.g. \TT{";"})
-         used to terminate a `line' \\
+    or & \TT{"<ETX>"} for an indented paragraph \\
+    or & the terminator of a logical line: \\
+       & ~~~ either \TT{"<LF>"}, \\
+       & ~~~ or a {\em line-separator-name} (e.g. \TT{";"}) \\
     \end{tabular}
     \end{center}
 \medskip
 \hspace*{-0.2in}\ttdmkey{separator}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    that equals
-    \begin{center}
-    \begin{tabular}{ll}
-       & the operator (e.g., \TT{","}) that acts as a
-         separator in a subexpression.
-    \end{tabular}
-    \end{center}
+    that equals \\
+    the operator (e.g., \TT{","}) that acts as a
+    separator in a subexpression.
 
 \end{indpar}
 

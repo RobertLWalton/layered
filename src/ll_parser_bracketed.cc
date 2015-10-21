@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 21 11:21:47 EDT 2015
+// Date:	Wed Oct 21 14:51:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -915,8 +915,8 @@ inline min::int32 relative_indent
 //                           before closing backet
 //
 //               if line is not empty or line_sep found:
-//                  compact line found with .type =
-//                          <LF>, .terminator = line_sep
+//                  compact line found with .initiator =
+//                          <STX>, .terminator = line_sep
 //                          if that found, compact token
 //                          type BRACKETING, and new_
 //                          selectors
@@ -938,10 +938,10 @@ inline min::int32 relative_indent
 //           //
 //           remove indentation mark
 //
-//           compact paragraph lines with .type =
-//                   indentation_found->label, compact
-//                   token type BRACKETING, new_
-//                   selectors
+//           compact paragraph lines with .initiator =
+//                   indentation_found->label,
+//                   .terminator = <ETX>, compact token
+//                   type BRACKETING, new_selectors
 //           at_start = false
 //
 //	     if bracket stack top closed
@@ -1462,7 +1462,11 @@ min::position BRA::parse_bracketed_subexpression
 			unsigned n = 0;
 			attributes[n++] =
 			    PAR::attr
-			      ( min::dot_type,
+			      ( min::dot_initiator,
+				PAR::stx );
+			attributes[n++] =
+			    PAR::attr
+			      ( min::dot_terminator,
 				PAR::new_line );
 
 			if ( separator_found )
@@ -1545,11 +1549,14 @@ min::position BRA::parse_bracketed_subexpression
 	    position.end = current->previous
 				  ->position.end;
 
-	    PAR::attr attributes[1] =
+	    PAR::attr attributes[2] =
 		{ PAR::attr
-		      ( min::dot_type,
+		      ( min::dot_initiator,
 			indentation_found->
-			    label ) };
+			    label ),
+		  PAR::attr
+		      ( min::dot_terminator,
+		        PAR::etx ) };
 
 	    PAR::compact
 		( parser, pass->next,
@@ -1557,7 +1564,7 @@ min::position BRA::parse_bracketed_subexpression
 		  first, current, position,
 		  trace_flags,
 		  PAR::BRACKETING,
-		  1, attributes );
+		  2, attributes );
 
 	    at_start = false;
 

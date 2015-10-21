@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 21 14:51:46 EDT 2015
+// Date:	Wed Oct 21 19:30:26 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1464,10 +1464,6 @@ min::position BRA::parse_bracketed_subexpression
 			    PAR::attr
 			      ( min::dot_initiator,
 				PAR::stx );
-			attributes[n++] =
-			    PAR::attr
-			      ( min::dot_terminator,
-				PAR::new_line );
 
 			if ( separator_found )
 			{
@@ -1483,6 +1479,11 @@ min::position BRA::parse_bracketed_subexpression
 			    position.end =
 				separator_found;
 			}
+			else
+			    attributes[n++] =
+				PAR::attr
+				  ( min::dot_terminator,
+				    PAR::new_line );
 
 			PAR::compact
 			    ( parser,
@@ -1493,6 +1494,9 @@ min::position BRA::parse_bracketed_subexpression
 			      trace_flags,
 			      PAR::BRACKETING,
 			      n, attributes );
+
+			value_type_ref(first) =
+			    PAR::stx;
 		    }
 
 		    // See if there are more lines
@@ -1565,6 +1569,9 @@ min::position BRA::parse_bracketed_subexpression
 		  trace_flags,
 		  PAR::BRACKETING,
 		  2, attributes );
+
+	    value_type_ref(first) =
+		indentation_found->label;
 
 	    at_start = false;
 
@@ -1940,9 +1947,6 @@ min::position BRA::parse_bracketed_subexpression
 			  trace_flags,
 			  PAR::BRACKETING,
 			  1, attributes, 1 );
-
-		    value_type_ref(first) =
-			opening_bracket->label;
 		}
 		else if (    opening_bracket
 		                 ->reformatter

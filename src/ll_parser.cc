@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 21 15:00:03 EDT 2015
+// Date:	Wed Oct 21 15:47:47 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1126,7 +1126,10 @@ void PAR::parse ( PAR::parser parser )
 	    PAR::attr attributes[2];
 	    unsigned n = 0;
 	    attributes[n++] =
-		PAR::attr ( min::dot_type,
+		PAR::attr ( min::dot_initiator,
+	                    PAR::stx );
+	    attributes[n++] =
+		PAR::attr ( min::dot_terminator,
 	                    PAR::new_line );
 
 	    if ( separator_found )
@@ -1794,12 +1797,13 @@ PAR::token PAR::find_separator
     return first;
 }
 
-min::gen PAR::get_type ( min::gen v )
+min::gen PAR::get_attribute
+	( min::gen v, min::gen label )
 {
     if ( ! min::is_obj ( v ) ) return min::MISSING();
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
-    min::locate ( ap, min::dot_type );
+    min::locate ( ap, label );
     min::gen result = min::get ( ap );
     if ( result == min::NONE()
          ||
@@ -1822,7 +1826,8 @@ min::gen PAR::scan_name_string_label
 
     min::gen element = vp[i];
 
-    if ( get_type ( element ) != PAR::doublequote )
+    if (    get_attribute ( element, min::dot_type )
+         != PAR::doublequote )
         return min::MISSING();
 
     min::obj_vec_ptr ep = element;

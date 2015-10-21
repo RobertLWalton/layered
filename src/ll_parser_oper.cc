@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 04:23:53 EDT 2015
+// Date:	Wed Oct 21 15:42:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1890,9 +1890,9 @@ static min::gen oper_pass_command
 	    min::gen pg = min::MISSING();
 	    if ( i < size )
 	    {
-		if ( PAR::get_type ( vp[i] )
-		          ==
-			  PAR::number_sign )
+		if (    PAR::get_attribute
+		            ( vp[i], min::dot_type )
+		     == PAR::number_sign )
 		{
 		    min::obj_vec_ptr pvp = vp[i];
 		    if ( min::size_of ( pvp ) == 1 )

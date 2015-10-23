@@ -7,7 +7,7 @@ BRACKETED EXPRESSION:
     This is a line;
 @1 = This is a line:
          .terminator = ";"
-         .type = "<LF>"
+         .initiator = [$ LOGICAL_LINE $]
          .position[H] = {}
     line 11:
 This is a line;
@@ -15,8 +15,9 @@ This is a line;
 BRACKETED EXPRESSION:
     This is a line containing a "quoted<SP>string" "."
 @2 = This is a line containing a @3 ".":
-         .type = "<LF>"
+         .terminator = "<LF>"
          .position[H] = {}
+         .initiator = [$ LOGICAL_LINE $]
 @3 = "quoted<SP>string":
          .type = "<Q>"
     line 12:
@@ -25,8 +26,9 @@ This is a line containing a "quoted string".
 BRACKETED EXPRESSION:
     This is a line containing a large number 12345678901234567890 "."
 @4 = This is a line containing a large number 12345678901234567890 ".":
-         .type = "<LF>"
+         .terminator = "<LF>"
          .position[H] = {}
+         .initiator = [$ LOGICAL_LINE $]
     lines 13-14:
 This is a line containing a large number
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -49,8 +51,9 @@ BRACKETED EXPRESSION:
     This is a line containing a parenthesized subexpression (hi there)
         "."
 @6 = This is a line containing a parenthesized subexpression @5 ".":
-         .type = "<LF>"
+         .terminator = "<LF>"
          .position[H] = {}
+         .initiator = [$ LOGICAL_LINE $]
     lines 15-16:
 This is a line containing a parenthesized subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,8 +77,9 @@ This line contains subsubexpressions (x 5 "foo")
 BRACKETED EXPRESSION:
     This line contains subsubexpressions (x 5 "foo")
 @9 = This line contains subsubexpressions @7:
-         .type = "<LF>"
+         .terminator = "<LF>"
          .position[H] = {}
+         .initiator = [$ LOGICAL_LINE $]
     line 17:
 This line contains subsubexpressions (x 5 "foo")
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -141,8 +145,9 @@ BRACKETED EXPRESSION:
     This line contains more subsubexpressions
         (x + `y z {{p q}}' - [g h]) "."
 @14 = This line contains more subsubexpressions @13 ".":
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 18-19:
 This line contains more subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -179,8 +184,9 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     This line contains a missing closing bracket (x + {{y z}})
 @17 = This line contains a missing closing bracket @16:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 20-21:
 This line contains a missing closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -216,8 +222,9 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     This line contains an incorrect closing bracket (x + y "}" "}")
 @19 = This line contains an incorrect closing bracket @18:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 22-23:
 This line contains an incorrect closing bracket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -229,8 +236,9 @@ WARNING: in line 25: lexeme indent 1 too near paragraph indent 0:
 BRACKETED EXPRESSION:
     This line includes a token with insufficient indent
 @20 = This line includes a token with insufficient indent:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 24-25:
 This line includes
 ^^^^^^^^^^^^^^^^^^
@@ -241,24 +249,31 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
 BRACKETED EXPRESSION:
     First line "."
 @21 = First line ".":
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 27:
    First line.
    ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Second line "."
 @22 = Second line ".":
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 28:
    Second line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {: {"<LF>"|First line "."|"<LF>"} {"<LF>"|Second line "."|"<LF>"} :}
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              First line "."|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              Second line "."|}|}
 @23 = @21 @22:
-          .type = ":"
+          .terminator = [$ INDENTED_PARAGRAPH $]
           .position[H] = {}
+          .initiator = ":"
     lines 26-28:
 This line starts an indented paragraph:
                                       ^
@@ -271,8 +286,9 @@ BRACKETED EXPRESSION:
         First line "."
         Second line "."
 @24 = This line starts an indented paragraph @23:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 26-28:
 This line starts an indented paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -285,24 +301,31 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
 BRACKETED EXPRESSION:
     Third line "."
 @25 = Third line ".":
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 30:
    Third line.
    ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Fourth line "."
 @26 = Fourth line ".":
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 31:
    Fourth line.
    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {: {"<LF>"|Third line "."|"<LF>"} {"<LF>"|Fourth line "."|"<LF>"} :}
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              Third line "."|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              Fourth line "."|}|}
 @27 = @25 @26:
-          .type = ":"
+          .terminator = [$ INDENTED_PARAGRAPH $]
           .position[H] = {}
+          .initiator = ":"
     lines 29-31:
 Ditto with split =:
                   ^
@@ -315,8 +338,9 @@ BRACKETED EXPRESSION:
         Third line "."
         Fourth line "."
 @28 = Ditto with split = @27:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 29-31:
 Ditto with split =:
 ^^^^^^^^^^^^^^^^^^^
@@ -329,8 +353,9 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
 BRACKETED EXPRESSION:
     Fifth line "."
 @29 = Fifth line ".":
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 33:
    Fifth line.
    ^^^^^^^^^^^
@@ -340,34 +365,43 @@ BRACKETED EXPRESSION:
     Sixth line A;
 @30 = Sixth line A:
           .terminator = ";"
-          .type = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 34:
    Sixth line A; Sixth line B
    ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Sixth line B
 @31 = Sixth line B:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 34:
    Sixth line A; Sixth line B
                  ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Seventh line "."
 @32 = Seventh line ".":
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 35:
    Seventh line.
    ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {: {"<LF>"|Fifth line "."|"<LF>"}
-       {"<LF>": .terminator = ";"|Sixth line A|"<LF>"}
-       {"<LF>"|Sixth line B|"<LF>"} {"<LF>"|Seventh line "."|"<LF>"} :}
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              Fifth line "."|}
+         {"": .terminator = ";", .initiator = [$ LOGICAL_LINE $]|Sixth
+              line A|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              Sixth line B|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              Seventh line "."|}|}
 @33 = @29 @30 @31 @32:
-          .type = ":"
+          .terminator = [$ INDENTED_PARAGRAPH $]
           .position[H] = {}
+          .initiator = ":"
     lines 32-35:
 Ditto with separator:
                     ^
@@ -383,8 +417,9 @@ BRACKETED EXPRESSION:
         Sixth line A; Sixth line B
         Seventh line "."
 @34 = Ditto with separator @33:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 32-35:
 Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^
@@ -468,8 +503,9 @@ BRACKETED EXPRESSION:
     This tests selector changes --- <+ x +> <- y -> {{<+ x +> <- y ->}}
         `<+ x +> <- y ->'
 @39 = This tests selector changes --- <+ x +> <- y -> @36 @38:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 36-37:
 This tests selector changes --- <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -488,8 +524,9 @@ This is a label [< x y "hello" 5.6 z >]
 BRACKETED EXPRESSION:
     This is a label [< x y hello 5.6 z >]
 @41 = This is a label [< x y hello 5.6 z >]:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 38:
 This is a label [< x y "hello" 5.6 z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -523,8 +560,9 @@ This is another label [< x ( y ) z >]
 BRACKETED EXPRESSION:
     This is another label [< x ERRONEOUS-LABEL-COMPONENT z >]
 @44 = This is another label [< x ERRONEOUS-LABEL-COMPONENT z >]:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 39:
 This is another label [< x ( y ) z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -561,8 +599,9 @@ And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 BRACKETED EXPRESSION:
     And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 @48 = And these are nested labels [< x [< 1 2 >] y [< a b >] >]:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 40:
 And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -585,8 +624,9 @@ This line contains a typed subexpression {x|1 2 3|}
 BRACKETED EXPRESSION:
     This line contains a typed subexpression {x|1 2 3|x}
 @50 = This line contains a typed subexpression @49:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 41:
 This line contains a typed subexpression {x|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -613,8 +653,9 @@ BRACKETED EXPRESSION:
     Another typed subexpression
         {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
 @52 = Another typed subexpression @51:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 42-43:
 Another typed subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -702,8 +743,9 @@ BRACKETED EXPRESSION:
     And another-
         {t: b[ABC,200] = (1 2 3), no c[+], d[-], no f, g|x y z|t}
 @58 = And another- @57:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     lines 44-45:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -762,8 +804,9 @@ And one more {| |b["A", 201,202, [5]]: t}
 BRACKETED EXPRESSION:
     And one more {t: b[A,201,202]||t}
 @64 = And one more @63:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
         line 46:
 And one more {| |b["A", 201,202, [5]]: t}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -868,8 +911,9 @@ A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 BRACKETED EXPRESSION:
     A prefix expression ({W|2 3 4 5 ({Y|6 7|Y})|W})
 @71 = A prefix expression @70:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 47:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -976,8 +1020,9 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {X|a b c|X} {X|{Y|d e|Y} {Y|f g|Y}|X} {X|h k|X}
 @77 = @72 @73 @76:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 48:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1010,7 +1055,7 @@ BRACKETED EXPRESSION:
     {X|a b c|X};
 @79 = @78:
           .terminator = ";"
-          .type = "<LF>"
+          .initiator = [$ LOGICAL_LINE $]
           .position[H] = {}
     line 49:
 {X} a b c; {X}{Y} f g; {X} h k
@@ -1064,7 +1109,7 @@ BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X};
 @82 = @80:
           .terminator = ";"
-          .type = "<LF>"
+          .initiator = [$ LOGICAL_LINE $]
           .position[H] = {}
     line 49:
 {X} a b c; {X}{Y} f g; {X} h k
@@ -1092,8 +1137,9 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {X|h k|X}
 @84 = @83:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 49:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^^^^^
@@ -1112,8 +1158,9 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {- a b c -}
 @86 = @85:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 50:
 {- a b c -}
 ^^^^^^^^^^^
@@ -1132,8 +1179,9 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {< a b c >}
 @88 = @87:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 51:
 {< a b c >}
 ^^^^^^^^^^^
@@ -1156,8 +1204,9 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {- a b c -}
 @90 = @89:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 52:
 {- a b c}
 ^^^^^^^^^
@@ -1188,16 +1237,18 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {-  -}
 @92 = @91:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
     line 53:
 {-}
 ^^^
 BRACKETED EXPRESSION:
     parser print bracket ""
 @93 = parser print bracket @94:
-          .type = "<LF>"
+          .terminator = "<LF>"
           .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
 @94 = "":
           .type = "<Q>"
     line 54:

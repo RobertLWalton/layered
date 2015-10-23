@@ -126,16 +126,18 @@ parser trace [+ subexpression details]
 ======= TEST:
 @1 = parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")"
              ")" "]":
-         .type = "<LF>"
+         .terminator = "<LF>"
          .position[H] = {}
+         .initiator = [$ LOGICAL_LINE $]
 ======= END TEST
 parser trace [+ subexpression elements]
 ======= TEST: parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n
                   "(" p ")" ")" "]"
 @2 = parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")"
              ")" "]":
-         .type = "<LF>"
+         .terminator = "<LF>"
          .position[H] = {}
+         .initiator = [$ LOGICAL_LINE $]
 ======= END TEST
 parser trace [- subexpression details]
 ======= TEST: parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n

@@ -171,11 +171,10 @@ parser test this is a paragraph +:
     ^^^^^^^^^
 ======= END TEST
 parser define indentation mark "+:" ... "::" [code]
-======= TEST: parser test this is a paragraph
-                  {+ {"<LF>"|line 1|"<LF>"}
-                     {"<LF>": .terminator = "::"|line {# 2a #}|"<LF>"}
-                     {"<LF>"|line {# 2b #} ";" line {# 2c #}|"<LF>"}
-                     {"<LF>"|last line|"<LF>"} :}
+======= TEST: parser test this is a paragraph+:
+                  line 1
+                  line {# 2a #}:: line {# 2b #} ";" line {# 2c #}
+                  last line
 ------- lines 50-53:
 parser test this is a paragraph +:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

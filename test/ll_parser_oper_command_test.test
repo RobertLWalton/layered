@@ -837,9 +837,15 @@ parser test ( foo bar <-- )
                          ^
 ======= END TEST
 ======= TEST: parser test:
-                  {"<LF>": .operator = "<--"|<-- {|foo bar|} {|boo bat|}
-                           {: {"<LF>"|fee fie fo fum|"<LF>"}
-                              {"<LF>"|he ha ho hum|"<LF>"} :}|"<LF>"}
+                  {"": .operator = "<--", .terminator = "<LF>",
+                       .initiator = [$ LOGICAL_LINE $]|<-- {|foo bar|}
+                       {|boo bat|}
+                       {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                            .initiator = ":"|
+                            {"": .terminator = "<LF>", .initiator =
+                                 [$ LOGICAL_LINE $]|fee fie fo fum|}
+                            {"": .terminator = "<LF>", .initiator =
+                                 [$ LOGICAL_LINE $]|he ha ho hum|}|}|}
 ------- lines 192-195:
 parser test:
 ^^^^^^^^^^^^

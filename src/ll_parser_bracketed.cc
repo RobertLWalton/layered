@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 21 19:30:26 EDT 2015
+// Date:	Fri Oct 23 05:39:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1463,7 +1463,7 @@ min::position BRA::parse_bracketed_subexpression
 			attributes[n++] =
 			    PAR::attr
 			      ( min::dot_initiator,
-				PAR::stx );
+				min::LOGICAL_LINE() );
 
 			if ( separator_found )
 			{
@@ -1496,7 +1496,7 @@ min::position BRA::parse_bracketed_subexpression
 			      n, attributes );
 
 			value_type_ref(first) =
-			    PAR::stx;
+			    min::LOGICAL_LINE();
 		    }
 
 		    // See if there are more lines
@@ -1560,7 +1560,7 @@ min::position BRA::parse_bracketed_subexpression
 			    label ),
 		  PAR::attr
 		      ( min::dot_terminator,
-		        PAR::etx ) };
+		        min::INDENTED_PARAGRAPH() ) };
 
 	    PAR::compact
 		( parser, pass->next,

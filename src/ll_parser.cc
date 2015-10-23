@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 21 15:47:47 EDT 2015
+// Date:	Fri Oct 23 05:37:17 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,8 +41,6 @@ min::locatable_gen PAR::dot_oper;
 min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
 min::locatable_gen PAR::new_line;
-min::locatable_gen PAR::stx;
-min::locatable_gen PAR::etx;
 min::locatable_gen PAR::semicolon;
 min::locatable_gen PAR::left_parenthesis;
 min::locatable_gen PAR::right_parenthesis;
@@ -108,8 +106,6 @@ static void initialize ( void )
     PAR::doublequote = min::new_str_gen ( "\"" );
     PAR::number_sign = min::new_str_gen ( "#" );
     PAR::new_line = min::new_str_gen ( "\n" );
-    PAR::stx = min::new_str_gen ( "\02" );
-    PAR::etx = min::new_str_gen ( "\03" );
     PAR::semicolon = min::new_str_gen ( ";" );
     PAR::left_parenthesis = min::new_str_gen ( "(" );
     PAR::right_parenthesis = min::new_str_gen ( ")" );
@@ -1127,7 +1123,7 @@ void PAR::parse ( PAR::parser parser )
 	    unsigned n = 0;
 	    attributes[n++] =
 		PAR::attr ( min::dot_initiator,
-	                    PAR::stx );
+	                    min::LOGICAL_LINE() );
 	    attributes[n++] =
 		PAR::attr ( min::dot_terminator,
 	                    PAR::new_line );

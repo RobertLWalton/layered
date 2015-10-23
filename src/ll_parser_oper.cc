@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 21 15:42:34 EDT 2015
+// Date:	Fri Oct 23 05:59:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -335,8 +335,8 @@ static void oper_parse ( PAR::parser parser,
 	    
 	    if ( bracketed )
 	    {
-		if (    current->value_type
-		     != min::MISSING() )
+		if ( min::is_name
+		         ( current->value_type ) )
 		{
 		    root = TAB::find
 			( current->value_type,

@@ -3071,10 +3071,9 @@ its {\em closing-bracket} is discovered, a parsing error is
 announced and the {\em closing-bracket} is inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket} of a containing
-bracketed subexpression, the {\em typed-closing-bracket}
-of a containing typed bracketed subexpression, the end of the paragraph line
-containing the bracketed subexpression,
-or an end of file.
+{\em untyped-bracketed-subexpression} or {\em typed-bracketed-subexpression},
+or the end of the logical line
+containing the {\em untyped-bracketed-subexpression}.
 
 An exception to this is made if the bracket definition has the
 \ttmkey{full lines}{in bracket definition} property.  In this case

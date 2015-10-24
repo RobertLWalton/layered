@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 20, 2015
+October 24, 2015
  
 \end{center}
 
@@ -2835,7 +2835,7 @@ parser test (x 5 "foo")
 \end{verbatim}\end{indpar}
 causes the parser to output a \TT{BRACKETED} token whose \TT{value} is
 \begin{indpar}\begin{verbatim}
-{"": .initiator = "<STX>", .terminator = "<LF>"|
+{"": .initiator = [$ LOGICAL_LINE $], .terminator = "<LF>"|
      parser test {"": .initiator = "(", .terminator = ")"|
                       x 5 {"<Q>"|foo|} |} |}
 \end{verbatim}\end{indpar}
@@ -2873,7 +2873,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
        & the {\em opening-bracket-name} of
          an untyped bracketed subexpression, \\
     or & the {\em indentation-mark-name} of an indented paragraph, \\
-    or & \TT{"<STX>"} for a logical line \\
+    or & \TT{min::LOGICAL\_LINE()} for a logical line \\
     \end{tabular}
     \end{center}
 \medskip
@@ -2884,7 +2884,7 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
     \begin{tabular}{ll}
        & the {\em closing-bracket-name} of
          an untyped bracketed subexpression, \\
-    or & \TT{"<ETX>"} for an indented paragraph \\
+    or & \TT{min::INDENTED\_PARAGRAPH()} for an indented paragraph \\
     or & the terminator of a logical line: \\
        & ~~~ either \TT{"<LF>"}, \\
        & ~~~ or a {\em line-separator-name} (e.g. \TT{";"}) \\
@@ -2909,6 +2909,28 @@ The output of the parser is a sequence of \TT{BRACKETED} tokens,
 one per top level logical line.  The value of one of these tokens encodes
 the logical line.
 
+Syntactically a {\em bracketed-subexpression} takes one of several forms:
+
+\begin{indpar}[0.1in]
+\emkey{bracketed-subexpression}
+    \begin{tabular}[t]{@{}rll@{}}
+    ::= & {\em untyped-bracketed-subexpression}
+        & see \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS} \\
+    $|$ & {\em indented-paragraph-subexpression}
+	& see \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS} \\
+    $|$ & {\em typed-bracketed-subexpression}
+        & see \itemref{TYPED-BRACKETED-SUBEXPRESSIONS} \\
+    $|$ & {\em prefixed-subexpression}
+	& see \itemref{TYPED-PREFIX-SEPARATORS} \\
+    \end{tabular}
+\end{indpar}
+
+However, some of these forms can only be recognized in particular
+contexts, e.g., {\em indented-para\-graph-subexpressions} can only be
+recognized if they begin at the end of a line and are the last
+element in their containing expression or are top level.
+See the indicated sections for details.
+
 The parser commands specific to the bracketed subexpression recognizer
 are further divided into those specific to the different kinds of subexpression
 recognized by this recognizer:
@@ -2927,8 +2949,8 @@ recognized by this recognizer:
 The following subsections describe these different kinds of commands
 and the subexpressions they control.
 
-\subsubsection{Bracketed Subexpressions}
-\label{BRACKETED-SUBEXPRESSIONS}
+\subsubsection{Untyped Bracketed Subexpressions}
+\label{UNTYPED-BRACKETED-SUBEXPRESSIONS}
 
 The following are examples of
 \ikey{untyped bracketed expressions}{bracketed expressions!untyped},
@@ -2943,7 +2965,7 @@ where \ldots{} denotes a list of elements:
 The general syntax is:
 
 \begin{indpar}[0.1in]
-\emkey{untyped-bracketed-expression} ::=
+\emkey{untyped-bracketed-subexpression} ::=
 	{\em opening-bracket} {\em element-list} {\em closing-bracket}
 \\[0.5ex]
 \emkey{opening-bracket} ::=
@@ -2971,12 +2993,13 @@ The general syntax is:
 \\[0.5ex]
 \emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
                     {\em separator} $|$ {\em quoted-string} $|$
-		    {\em bracketed-expression}
+		    {\em bracketed-subexpression}
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
-      An {\em untyped-bracketed-expression} {\em element-list}
+      An {\em untyped-bracketed-subexpression} {\em element-list}
       is normally terminated by the expression's {\em closing-bracket}.
-      It may be abnormally terminated by an outer {\em bracketed-expression's}
+      It may be abnormally terminated by an outer
+      {\em bracketed-subexpression's}
       {\em closing-bracket}, {\em typed-middle}, {\em typed-closing},
       or {\em non-continuation-line-break}, but \underline{not}
       by a {\em line-separator}.
@@ -3137,7 +3160,7 @@ respect to the paragraph indentation.
 The general syntax is:
 
 \begin{indpar}[0.1in]
-\emkey{indented-paragraph-expression} ::=
+\emkey{indented-paragraph-subexpression} ::=
 	\begin{tabular}[t]{@{}l}
 	{\em indentation-mark} {\em line-break} \\
 	~~~~ {\em paragraph-line-group}\STAR{} \\
@@ -3454,7 +3477,7 @@ The general syntax is:
 	& {\em attribute-multivalue-closing} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{value} ::= {\em label} $|$ {\em bracketed-expression}
+\emkey{value} ::= {\em label} $|$ {\em bracketed-subexpression}
 \\[0.5ex]
 \emkey{typed-opening} ::=
    \begin{tabular}[t]{@{}l}
@@ -3799,7 +3822,7 @@ just outside the subexpression.
 \label{TYPED-PREFIX-SEPARATORS}
 
 A \key{typed prefix separator}
-has the same syntax as an {\em typed-bracketed-expression}
+has the same syntax as an {\em typed-bracketed-subexpression}
 but without the {\em element-list}, meaning there are no
 {\em typed-middles} (e.g., `\TT{|}'s) or {\em elements}.
 Some examples are:

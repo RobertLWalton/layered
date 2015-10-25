@@ -369,7 +369,7 @@ where $x>y$
 For all these implicit conversions no information is lost from
 the value when it is converted to the new type.
 
-The following \underline{unchecked} (\itemref{UNCHECKED-EXPRESSIONS-AND-BLOCKS})
+The following \underline{unchecked}
 conversion operator is defined:
 \begin{center}
 
@@ -483,7 +483,7 @@ Here the builtin type is called the \key{underlying type} of the
 
 A value of a defined type may be converted to or from its underlying
 type by the
-\underline{unchecked} (\itemref{UNCHECKED-EXPRESSIONS-AND-BLOCKS})
+\underline{unchecked}
 operations:
 \begin{center}
 \begin{tabular}{rcl}
@@ -659,124 +659,6 @@ These values may change when more code is compiled or linked.
 One should never assume that a value of type \TT{T} is necessarily within
 the range given by these values.
 \end{indpar}
-
-\section{Functions}
-\label{FUNCTIONS}
-
-All functions are inline.  An inline function can call out-of-line
-code in either a classical or non-classical manner.
-
-Function definitions have the form:
-
-\begin{indpar}
-\emkey{function-definition}
-    ::= \begin{tabular}[t]{l}
-        {\em function-prototype}\TT{:} \\
-	~~~~ {\em executable-statement}\STAR{} \\
-	\end{tabular}
-\\[1ex]
-\emkey{function-prototype}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em result-variable-list} \TT{=} {\em function-name}
-	    {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
-            \TT{=} {\em input-variable-list} \\
-    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}
-    \end{tabular}
-\end{indpar}
-
-A function call with a {\em result-variable-list}
-is in effect replaced by a {\em block-assignment-statement}
-(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
-with the {\em function-definition's} {\em result-variable-list} becoming the 
-{\em block-assignment-statement's} {\em variable-list} and the
-{\em function-definition's} {\em executable-statements} becoming the 
-{\em block-assignment-statement's} {\em executable-statements}.
-Actual argument values from the function call are assigned to variables in
-the definition {\em argument-variable-list}.  The values produced in
-the {\em result-variable-list's} variables become the values of the
-function call when it is used as part of an {\em expression}.
-
-A function call without any {\em result-variable-list} or
-{\em input-variable-list} is just like a function call with an empty
-{\em result-variable-list}.
-
-A function call with an {\em input-variable-list} is just syntactic
-sugar for a function call with neither a {\em result-variable-list}
-or {\em input-variable-list}.  Specifically
-\begin{center}
-{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
-is syntactic sugar for \\
-{\tt F(a1,a2,...)(b1,b2,...)} \\
-\end{center}
-
-where use is made of the fact that a function can have multiple
-argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
-
-An argument or return variable can have the `\TT{type}' type.
-If an argument variable has type `\TT{type}', its value can be used as the
-type of other argument variables that are
-after it in the {\em argument-variable-list},
-or of any result variable.  For example:
-
-\begin{indpar}\begin{verbatim}
-( T result ) = add ( type T, T v1, T v2 ):
-    result = v1 + v2
-
-// Example usage
-//
-int32 x = ...
-int32 y = ...
-int32 z = add ( int32, x, y )
-\end{verbatim}\end{indpar}
-
-Much more complex {\em function-prototypes} can be written:
-see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
-Also the first argument \TT{T}
-of `\TT{add}' can be implied, as in
-
-\begin{indpar}\begin{verbatim}
-int32 z = add ( x, y )
-\end{verbatim}\end{indpar}
-
-\section{Unchecked Expressions and Blocks}
-\label{UNCHECKED-EXPRESSIONS-AND-BLOCKS}
-
-Unchecked operations, such as certain type conversions mentioned above,
-can only be executed in an
-\mkey{unchecked}{expression}\index{unchecked!code block}
-expression or code block.
-
-An unchecked expression has the form
-
-\begin{indpar}
-\emkey{unchecked-expression}
-    ::= \TT{*UNCHECKED*} \TT{(} {\em expression} \TT{)}
-\end{indpar}
-
-as if \TT{*UNCHECKED*} were a function.  The meaning
-is that the argument {\em expression} of this \TT{*UNCHECKED*} pseudo-function
-is unchecked, i.e., can execute unchecked operations.
-
-An unchecked code block that does not assign any variables outside
-of itself has the form:
-
-\begin{indpar}
-\emkey{unchecked-block}
-    ::= \begin{tabular}[t]{l}
-	\TT{*UNCHECKED*}\TT{:} \\
-	\TT{~~~~}{\em executable-statement}\STAR{} \\
-	\end{tabular}
-\end{indpar}
-
-Other code blocks, which are describe below, can have the
-`\TT{*UNCHECKED*}' block qualifier.  In an unchecked code block
-all the {\em executable-statements} are unchecked.
-
-A fully \key{type checked} piece of code will not contain any
-unchecked code blocks.  A goal of the L-Language is to migrate
-all unchecked code into small inline data access functions.
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -1118,6 +1000,86 @@ may alter the call linkage used.
 Options other than \TT{*UNCHECKED*} can be given in a function type
 definition and will then be applied to all calls to functions of the
 defined type.
+
+\section{Functions}
+\label{FUNCTIONS}
+
+All functions are inline.  An inline function can call out-of-line
+code in either a classical or non-classical manner.
+
+Function definitions have the form:
+
+\begin{indpar}
+\emkey{function-definition}
+    ::= \begin{tabular}[t]{l}
+        {\em function-prototype}\TT{:} \\
+	~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{function-prototype}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em result-variable-list} \TT{=} {\em function-name}
+	    {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
+            \TT{=} {\em input-variable-list} \\
+    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}
+    \end{tabular}
+\end{indpar}
+
+A function call with a {\em result-variable-list}
+is in effect replaced by a {\em block-assignment-statement}
+(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
+with the {\em function-definition's} {\em result-variable-list} becoming the 
+{\em block-assignment-statement's} {\em variable-list} and the
+{\em function-definition's} {\em executable-statements} becoming the 
+{\em block-assignment-statement's} {\em executable-statements}.
+Actual argument values from the function call are assigned to variables in
+the definition {\em argument-variable-list}.  The values produced in
+the {\em result-variable-list's} variables become the values of the
+function call when it is used as part of an {\em expression}.
+
+A function call without any {\em result-variable-list} or
+{\em input-variable-list} is just like a function call with an empty
+{\em result-variable-list}.
+
+A function call with an {\em input-variable-list} is just syntactic
+sugar for a function call with neither a {\em result-variable-list}
+or {\em input-variable-list}.  Specifically
+\begin{center}
+{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
+is syntactic sugar for \\
+{\tt F(a1,a2,...)(b1,b2,...)} \\
+\end{center}
+
+where use is made of the fact that a function can have multiple
+argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
+
+An argument or return variable can have the `\TT{type}' type.
+If an argument variable has type `\TT{type}', its value can be used as the
+type of other argument variables that are
+after it in the {\em argument-variable-list},
+or of any result variable.  For example:
+
+\begin{indpar}\begin{verbatim}
+( T result ) = add ( type T, T v1, T v2 ):
+    result = v1 + v2
+
+// Example usage
+//
+int32 x = ...
+int32 y = ...
+int32 z = add ( int32, x, y )
+\end{verbatim}\end{indpar}
+
+Much more complex {\em function-prototypes} can be written:
+see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+Also the first argument \TT{T}
+of `\TT{add}' can be implied, as in
+
+\begin{indpar}\begin{verbatim}
+int32 z = add ( x, y )
+\end{verbatim}\end{indpar}
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}

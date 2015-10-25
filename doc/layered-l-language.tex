@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 28, 2015
+October 25, 2015
  
 \end{center}
 
@@ -373,31 +373,87 @@ The following \underline{unchecked} (\itemref{UNCHECKED-EXPRESSIONS-AND-BLOCKS})
 conversion operator is defined:
 \begin{center}
 
-$t2$ ~~ \TT{<{}<**} ~~ $t1${\em -type-value}%
+\TT{*UNCHECKED*} $t2$ ~~ \TT{<{}<++} ~~ $t1${\em -type-value}%
 \label{<<**}
 
-for any two builtin number types $t1$ and $t2$
+for any two builtin number types $t1$ and $t2$.
 
 \end{center}
 
-Here the results are undefined if the $t1$-value cannot be expressed
-as type $t2$, except in the following cases:
+The operator is always defined, but the
+result of execution is undefined unless one of the following
+cases applies:
 \begin{itemize}
-\item If $t1$ is a floating point type
+\item The implicit conversion `$t2$ \TT{<{}<++} $t1${\em -type-value}'
+is defined.
+\item $t1$ is a floating point type
 and $t2$ is an integer type large enough to hold the integral part
-of the number being converted, the fractional part of
+of the number being converted.  The fractional part of
 the floating point number is discarded, thereby rounding toward
 zero.
-\item If $t2$ is a floating point type large
+\item $t2$ is a floating point type large
 enough to hold an exact representation of the highest order
-part of the $t1$-value, the result is the rounded $t1$-value,
+part of the $t1$-value
+(i.e., the highest order digits where the
+number of digits represented exactly depends only on the size of $t2$).
+The result is the rounded $t1$-value,
 where the method of rounding is indeterminate.
-\item If $t1$ is an integer type and $t2$ is an unsigned type that cannot
-hold the value being converted, the result is the $t2$ value that
-equals module $2^n$ the $t1$-value, where $n$ is the length in bits
+\item $t2$ is an integer type not large enough
+to hold the integer part of the value being converted.
+The result is the $t2$ value that
+equals module $2^n$ the integer part of the $t1$-value, with any
+factional part being discarded (round toward zero),
+where $n$ is the length in bits
 of $t2$.
 \end{itemize}
 
+Numeric constants are treated as if they had their own type,
+\key{numeric-constant}.\footnote{Otherwise we would have problems
+representing \TT{256}.  If we used \TT{uns16} we could not implicitly
+convert to \TT{int16}, and if we used \TT{int16} we could not implicitly
+convert to \TT{uns16}.}
+The implicit conversion:
+\begin{center}
+$t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant}
+\end{center}
+is defined whenever either:
+\begin{itemize}
+\item No information about the size, sign, and
+precision of the number is lost by representing the number
+as a $t2$ type value.
+\item $t2$ is a floating point type large enough to hold an
+exact representation of the highest order part of the
+{\em numeric-constant}
+(i.e., the highest order digits where the
+number of digits represented exactly depends only on the size of $t2$).
+The result is the rounded
+{\em numeric-constant},
+where the method of rounding is indeterminate.
+\end{itemize}
+
+The \underline{unchecked} conversion is defined:
+\begin{center}
+\TT{*UNCHECKED*} $t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant}
+\end{center}
+provided one of the following cases applies:
+\begin{itemize}
+\item The implicit conversion `$t2$ \TT{<{}<++} {\em numeric-constat}'
+is defined.
+\item The {\em numeric-constant} is floating point with
+a fractional part,
+and $t2$ is an integer type large enough to hold the integral part
+of the number being converted.  The fractional part of
+the floating point number is discarded, thereby rounding toward
+zero.
+\item $t2$ is an integer type that cannot
+hold the integral part of the value being converted.
+Any fractional part of the
+{\em numeric-constant} is discarded, and the result is the $t2$ value that
+equals module $2^n$ the remaining integral part of the {\em numeric-constant},
+where $n$ is the length in bits of $t2$.
+\end{itemize}
+
+TBD: Check IEEE conversions that produce NaNs.
 
 \subsection{The Void Type}
 \label{THE-VOID-TYPE}
@@ -408,6 +464,11 @@ uses, for example, as base variable in clusters (\pagref{CLUSTERS}).
 When used as the base variable of a cluster, an assignment statement
 may appear to be assigning a value to a \TT{void} variable, but
 in fact it is assigning values to cluster members.
+
+The following implicit conversion is always defined:
+\begin{center}
+\TT{void} ~~ \TT{<{}<++} ~~ {\em any-value}
+\end{center}
 
 
 \subsection{Defined Types}
@@ -421,13 +482,15 @@ Here the builtin type is called the \key{underlying type} of the
 \key{defined type}.
 
 A value of a defined type may be converted to or from its underlying
-type by the \underline{unchecked}
+type by the
 \underline{unchecked} (\itemref{UNCHECKED-EXPRESSIONS-AND-BLOCKS})
-\TT{<{}<**} operators:
+operations:
 \begin{center}
 \begin{tabular}{rcl}
-{\em builtin-type-name} & \TT{<{}<**} & {\em defined-type-value} \\
-{\em defined-type-name} & \TT{<{}<**} & {\em builtin-type-value} \\
+\TT{*UNCHECKED*} {\em builtin-type-name}
+	& \TT{<{}<++} & {\em defined-type-value} \\
+\TT{*UNCHECKED*} {\em defined-type-name}
+	& \TT{<{}<++} & {\em builtin-type-value} \\
 \end{tabular}
 \end{center}
 These operators do not change the actual value, but merely its
@@ -454,6 +517,7 @@ where
 \emkey{enum-range}
     & ::= & \TT{[} {\em first-enum} \TT{...} {\em last-enum} \TT{]} \\
     & $|$ & \TT{[} {\em first-enum} \TT{...} \TT{]} \\
+    & $|$ & \TT{[} \TT{...} {\em first-enum} \TT{]} \\
 \emkey{first-enum}
     & ::= & {\em compile-time-integer-expression} \\
 \emkey{last-enum}
@@ -469,11 +533,13 @@ Enumeration values can be assigned by statements of the form
 
 Within a compilation the compiler assigns the value {\em first-enum}
 to the first constant named in an {\em enum-assignment} statement for
-the given type, and then
-assigns values in increasing order if {\em first-enum} < {\em last-enum},
-or in decreasing order if {\em first-enum} > {\em last-enum}, to
-constants named in subsequent {\em enum-assignment} statements for
-the given type.  The assignments occur when the statements are
+the given type, and then for subsequent
+{\em enum-assignment} statements for the type
+assigns values in increasing order if {\em first-enum} < {\em last-enum}
+or the range `\TT{[} {\em first-enum} \TT{...} \TT{]}' was given,
+or in decreasing order if {\em first-enum} > {\em last-enum}
+or the range `\TT{[} \TT{...} {\em first-enum} \TT{]}' was given.
+The assignments occur when the statements are
 compiled, not when they are executed.
 
 Within a linked load the process is the same, but the values assigned
@@ -486,19 +552,31 @@ These values should only be tested for equality, and not for
 relative order.
 
 If {\em last-enum} is not given, it is assumed to be the maximum
-value of the underlying type.  If {\em enum-range} is not given,
-it is assumed to be `\TT[0 ...]'.  It is an error if `\TT{next enum}'
+value of the underlying type
+if the range was given as `\TT{[} {\em first-enum} \TT{...} \TT{]}',
+and the minimum value of the underlying type
+if the range was given as `\TT{[} \TT{...} {\em first-enum} \TT{]}'.
+If {\em enum-range} is not given,
+it is assumed to be `\TT[0 ...]'.  It is an error if `\TT{next~enum}'
 would return a value beyond the {\em last-enum} value in a range.
 
-Unchecked \TT{<<**} (\pagref{<<**}) may be used to convert
-an enumeration value to an integer type.  Normally the integer
+The unchecked conversions
+\begin{center}
+\begin{tabular}{rcl}
+\TT{*UNCHECKED*} {\em builtin-type-name}
+	& \TT{<{}<++} & {\em defined-type-value} \\
+\TT{*UNCHECKED*} {\em defined-type-name}
+	& \TT{<{}<++} & {\em builtin-type-value} \\
+\end{tabular}
+\end{center}
+may be used to convert between enumeration values and integer values.
+Normally the integer
 returned will be the link time value of the enumeration value.
 However, if used in a compile-time expression, it will be the
 compile time value of the enumeration value.
 
-Unchecked \TT{<<**} (\pagref{<<**}) can also be used to convert
-an integer to an enumeration value.  For this to work sensibly,
-the integer value should be \underline{outside} the specified
+Integer values being converted to enumeration values can be
+\underline{outside} the specified
 range of the enumeration value's type.  An implication of this
 is that the compiler and run-time system cannot assume that
 an enumeration value is within the range of the
@@ -545,12 +623,41 @@ Returns the parent type \TT{B} of the type \TT{T}.  For defined
 types this is the associated builtin type.  For builtin types, it is
 \TT{T} itself.
 
-\hspace*{-0.3in}{\tt (T value) = \ttkey{min enum of}
+\hspace*{-0.3in}{\tt (T value) = \ttkey{min of}
 			( type T )} \\
-\hspace*{-0.3in}{\tt (T value) = \ttkey{max enum of}
+\hspace*{-0.3in}{\tt (T value) = \ttkey{max of}
 			( type T )} \\
-Returns the minimum or maximum value of an enumeration type \TT{T}.
+Returns the minimum or maximum value of a type \TT{T}.
+These are defined only for number types and enumeration types,
+and for enumeration types the values returned correspond to the
+minimum and maximum of the underlying type, and not the assigned
+enumeration values.
+
+\hspace*{-0.3in}{\tt (T value) = \ttkey{min limit of}
+			( type T )} \\
+\hspace*{-0.3in}{\tt (T value) = \ttkey{max limit of}
+			( type T )} \\
+Returns the minimum or maximum values of an enumeration type \TT{T}.
+These are the values given or implied in the type's {\em enum-range}.
 It is a compile time error if \TT{T} is not an enumeration type.
+
+\hspace*{-0.3in}{\tt (T value) = \ttkey{min assigned of}
+			( type T )} \\
+\hspace*{-0.3in}{\tt (T value) = \ttkey{max assigned of}
+			( type T )} \\
+Returns the minimum or maximum values actually assigned to an
+enumeration type \TT{T} by an {\em enum-assignment}.  Values
+assigned by unchecked conversions are not considered.  If
+no values have been assigned, {\em first-enum} is returned as
+one of the assigned values and the other assigned value is such
+that the difference of assigned values is \TT{-1}.
+In any case the maximum assigned value minus the minimum assigned value
+plus \TT{1} is the number of assigned values.
+It is a compile time error if \TT{T} is not an enumeration type.
+
+These values may change when more code is compiled or linked.
+One should never assume that a value of type \TT{T} is necessarily within
+the range given by these values.
 \end{indpar}
 
 \section{Functions}

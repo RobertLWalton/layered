@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 25, 2015
+October 26, 2015
  
 \end{center}
 
@@ -272,6 +272,11 @@ and address:
 \ttkey{intadr}		& signed integer & size of address \\
 \ttkey{adr}		& signed or unsigned integer & size of address \\
 \end{tabular}
+
+\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\ttkey{unswrd}		& unsigned integer & size of machine word \\
+\ttkey{intwrd}		& signed integer & size of machine word \\
+\end{tabular}
 \end{indpar}
 
 These are the \key{built in number types}:
@@ -283,7 +288,8 @@ These are the \key{built in number types}:
     $|$ & \TT{int8} $|$ \TT{int16} $|$ \TT{int32} $|$ \TT{int64}
                     $|$ \TT{int128} \\
     $|$ & \TT{float16} $|$ \TT{float32} $|$ \TT{float64} $|$ \TT{float128} \\
-    $|$ & \TT{unsadr} $|$ \TT{intadr} $|$ \TT{adr} \\
+    $|$ & \TT{unsadr} $|$ \TT{intadr} $|$ \TT{adr}
+                      $|$ \TT{unswrd} $|$ \TT{intwrd} \\
     \end{tabular}
 \end{indpar}
 
@@ -515,9 +521,9 @@ where
 \begin{center}
 \begin{tabular}{rrl}
 \emkey{enum-range}
-    & ::= & \TT{[} {\em first-enum} \TT{...} {\em last-enum} \TT{]} \\
-    & $|$ & \TT{[} {\em first-enum} \TT{...} \TT{]} \\
-    & $|$ & \TT{[} \TT{...} {\em first-enum} \TT{]} \\
+    & ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
+    & $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
+    & $|$ & \TT{[} \TT{..} {\em first-enum} \TT{]} \\
 \emkey{first-enum}
     & ::= & {\em compile-time-integer-expression} \\
 \emkey{last-enum}
@@ -536,9 +542,9 @@ to the first constant named in an {\em enum-assignment} statement for
 the given type, and then for subsequent
 {\em enum-assignment} statements for the type
 assigns values in increasing order if {\em first-enum} < {\em last-enum}
-or the range `\TT{[} {\em first-enum} \TT{...} \TT{]}' was given,
+or the range `\TT{[} {\em first-enum} \TT{..} \TT{]}' was given,
 or in decreasing order if {\em first-enum} > {\em last-enum}
-or the range `\TT{[} \TT{...} {\em first-enum} \TT{]}' was given.
+or the range `\TT{[} \TT{..} {\em first-enum} \TT{]}' was given.
 The assignments occur when the statements are
 compiled, not when they are executed.
 
@@ -553,11 +559,11 @@ relative order.
 
 If {\em last-enum} is not given, it is assumed to be the maximum
 value of the underlying type
-if the range was given as `\TT{[} {\em first-enum} \TT{...} \TT{]}',
+if the range was given as `\TT{[} {\em first-enum} \TT{..} \TT{]}',
 and the minimum value of the underlying type
-if the range was given as `\TT{[} \TT{...} {\em first-enum} \TT{]}'.
+if the range was given as `\TT{[} \TT{..} {\em first-enum} \TT{]}'.
 If {\em enum-range} is not given,
-it is assumed to be `\TT[0 ...]'.  It is an error if `\TT{next~enum}'
+it is assumed to be `\TT[0 ..]'.  It is an error if `\TT{next~enum}'
 would return a value beyond the {\em last-enum} value in a range.
 
 The unchecked conversions
@@ -582,13 +588,22 @@ is that the compiler and run-time system cannot assume that
 an enumeration value is within the range of the
 enumeration value's type.
 
+The following are builtin enumeration types:
+\begin{indpar}
+\TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0 .. 1]} \\
+\ttkey{false}\TT{~= next bool // 0} \\
+\ttkey{true}\TT{~~= next bool // 1} \\
+\TT{type~}\ttkey{type}\TT{~is unswrd with enum [1 ..]} \\
+\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [1 ..]}
+\end{indpar}
+
 \subsection{Type Values}
 \label{TYPE-VALUES}
 
-The type `\TT{type}' is an enumeration type implicitly declared
-after the manner of
+The type `\TT{type}' is a builtin enumeration type declared
+by
 \begin{center}
-\TT{type type is uns32 with enum [0 ...]}
+\TT{type type is unswrd with enum [1 ..]}
 \end{center}
 Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
@@ -609,13 +624,15 @@ This is done automatically for the following functions:
 \hspace*{-0.3in}{\tt (unsadr size) = \ttkey{size of}
 			( type T )} \\
 Returns \TT{size}, the number of bytes in a value of type \TT{T}.
+For defined types it is the size of their underlying type.
 
 \hspace*{-0.3in}{\tt (unsadr alignment) = \ttkey{alignment of}
 			( type T )} \\
 Returns \TT{alignment}, a strictly positive integer.
 The address of a value of type \TT{T} in RAM should
 optimally be a multiple of the \TT{alignment}.
-The alignment of builtin types is usually their size.
+The alignment of builtin types is their size.
+For defined types it is the alignment of their underlying type.
 
 \hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
 			( type T )} \\
@@ -658,13 +675,101 @@ It is a compile time error if \TT{T} is not an enumeration type.
 These values may change when more code is compiled or linked.
 One should never assume that a value of type \TT{T} is necessarily within
 the range given by these values.
+
+\hspace*{-0.3in}{\tt (bool value) = \ttkey{zero value OK}
+			( type T )} \\
+Returns true if the zero value is an OK value for a variable
+of the type, and false
+otherwise.  Defined to return \TT{true} for builtin number types.
+Must be defined by user for defined types.  For use by allocators,
+such as a user defined function that allocates a vector whose
+elements are of type \TT{T} that wishes to give the elements the
+zero initial value.
 \end{indpar}
+
+\section{Functions}
+\label{FUNCTIONS}
+
+All functions are inline.  An inline function can call an out-of-line
+function by using
+a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS}).
+
+Function definitions have the form:
+
+\begin{indpar}
+\emkey{function-definition}
+    ::= \begin{tabular}[t]{l}
+        {\em function-prototype}\TT{:} \\
+	~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{function-prototype}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em result-variable-list} \TT{=} {\em function-name}
+	    {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
+            \TT{=} {\em input-variable-list} \\
+    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}
+    \end{tabular}
+\end{indpar}
+
+A function call with a {\em result-variable-list}
+is in effect replaced by a {\em block-assignment-statement}
+(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
+with the {\em function-definition's} {\em result-variable-list} becoming the 
+{\em block-assignment-statement's} {\em variable-list} and the
+{\em function-definition's} {\em executable-statements} becoming the 
+{\em block-assignment-statement's} {\em executable-statements}.
+Actual argument values from the function call are assigned to variables in
+the definition {\em argument-variable-list}.  The values produced in
+the {\em result-variable-list's} variables become the values of the
+function call when it is used as part of an {\em expression}.
+
+A function call without any {\em result-variable-list}
+is just like a function call with an empty
+{\em result-variable-list}.
+
+A function call with an {\em input-variable-list} is just syntactic
+sugar for a function call with neither a {\em result-variable-list}
+or {\em input-variable-list}.  Specifically
+\begin{center}
+{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
+is syntactic sugar for \\
+{\tt F(a1,a2,...)(b1,b2,...)} \\
+\end{center}
+
+where use is made of the fact that a function can have multiple
+argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
+
+An argument or return variable can have the `\TT{type}' type.
+If an argument variable has type `\TT{type}', its value can be used as the
+type of other argument variables that are
+after it in the {\em argument-variable-list},
+or of any result variable.  For example:
+
+\begin{indpar}\begin{verbatim}
+( T result ) = add ( type T, T v1, T v2 ):
+    result = v1 + v2
+
+// Example usage
+//
+int32 x = ...
+int32 y = ...
+int32 z = add ( int32, x, y )
+\end{verbatim}\end{indpar}
+
+Much more complex {\em function-prototypes} can be written:
+see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+Also type arguments can be implied, e.g., the first argument \TT{T}
+in a call to `\TT{add}' as in:
+
+\begin{indpar}\begin{verbatim}
+int32 z = add ( x, y )
+\end{verbatim}\end{indpar}
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
-
-In the following {\em expressions} produce a list of one
-or more values of well defined types.
 
 Function executions have stacks that contain \underline{all}
 their variables.
@@ -673,7 +778,7 @@ assignment statements:
 
 \begin{indpar}
 \emkey{value-assignment-statement}
-    ::= \{ {\em variable-list} \TT{=} \}\QMARK{} \TT{*UNCHECKED*}\QMARK{}
+    ::= \{ {\em variable-list} \TT{=} \}\QMARK{}
         {\em expression}
 \\[0.5ex]
 \emkey{variable-list}
@@ -1000,86 +1105,6 @@ may alter the call linkage used.
 Options other than \TT{*UNCHECKED*} can be given in a function type
 definition and will then be applied to all calls to functions of the
 defined type.
-
-\section{Functions}
-\label{FUNCTIONS}
-
-All functions are inline.  An inline function can call out-of-line
-code in either a classical or non-classical manner.
-
-Function definitions have the form:
-
-\begin{indpar}
-\emkey{function-definition}
-    ::= \begin{tabular}[t]{l}
-        {\em function-prototype}\TT{:} \\
-	~~~~ {\em executable-statement}\STAR{} \\
-	\end{tabular}
-\\[1ex]
-\emkey{function-prototype}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em result-variable-list} \TT{=} {\em function-name}
-	    {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
-            \TT{=} {\em input-variable-list} \\
-    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}
-    \end{tabular}
-\end{indpar}
-
-A function call with a {\em result-variable-list}
-is in effect replaced by a {\em block-assignment-statement}
-(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
-with the {\em function-definition's} {\em result-variable-list} becoming the 
-{\em block-assignment-statement's} {\em variable-list} and the
-{\em function-definition's} {\em executable-statements} becoming the 
-{\em block-assignment-statement's} {\em executable-statements}.
-Actual argument values from the function call are assigned to variables in
-the definition {\em argument-variable-list}.  The values produced in
-the {\em result-variable-list's} variables become the values of the
-function call when it is used as part of an {\em expression}.
-
-A function call without any {\em result-variable-list} or
-{\em input-variable-list} is just like a function call with an empty
-{\em result-variable-list}.
-
-A function call with an {\em input-variable-list} is just syntactic
-sugar for a function call with neither a {\em result-variable-list}
-or {\em input-variable-list}.  Specifically
-\begin{center}
-{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
-is syntactic sugar for \\
-{\tt F(a1,a2,...)(b1,b2,...)} \\
-\end{center}
-
-where use is made of the fact that a function can have multiple
-argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
-
-An argument or return variable can have the `\TT{type}' type.
-If an argument variable has type `\TT{type}', its value can be used as the
-type of other argument variables that are
-after it in the {\em argument-variable-list},
-or of any result variable.  For example:
-
-\begin{indpar}\begin{verbatim}
-( T result ) = add ( type T, T v1, T v2 ):
-    result = v1 + v2
-
-// Example usage
-//
-int32 x = ...
-int32 y = ...
-int32 z = add ( int32, x, y )
-\end{verbatim}\end{indpar}
-
-Much more complex {\em function-prototypes} can be written:
-see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
-Also the first argument \TT{T}
-of `\TT{add}' can be implied, as in
-
-\begin{indpar}\begin{verbatim}
-int32 z = add ( x, y )
-\end{verbatim}\end{indpar}
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}
@@ -1591,7 +1616,7 @@ descibed below.
 The type `\ttkey{qualifier}' is an enumeration type implicitely
 declared after the manner of
 \begin{center}
-\TT{type qualifier is uns32 with enum [0 ...]}
+\TT{type qualifier is uns32 with enum [1 ..]}
 \end{center}
 Each qualifier is associated with a unique enumeration value
 of type `\TT{qualifier}', and this value can be used at both
@@ -1646,6 +1671,9 @@ bar int32 z = foo ( x )
     // but condition prohibits Q from containing bar.
 boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
 \end{verbatim}\end{indpar}
+
+\subsection{The \TT{*UNCHECKED*} Qualifier}
+\label{THE-UNCHECKED-QUALIFIER}
 
 \subsection{The Memory Qualifier}
 \label{THE-MEM-QUALIFIER}

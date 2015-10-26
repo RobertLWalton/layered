@@ -801,10 +801,15 @@ to the stack and stores values from the {\em expression} in the variables
 ({\em qualifiers} are not described until section \itemref{QUALIFIERS}).
 The {\em expression} produces a list of values, and this list must have
 at least as many elements as there are variables.  Each variable is
-assigned its value in order, and this value must be implicitly
-convertable to the variable's type.  If the {\em expression} produces
+assigned its value in order.  If the {\em expression} produces
 too many values, the excess values at the end of the value list will be
 discarded.
+
+The value assigned to each variable
+must be implicitly convertable to the variable's type, unless
+the variable has the \TT{*UNCHECKED*} qualifier, in which case
+the value must be convertable by unchecked conversion to the
+variable's type.
 
 The {\em expression} may only input values that are constants or are
 the values of other variables in the same function execution
@@ -845,12 +850,8 @@ All assignment statements have a special case where there are
 no variables being assigned, the {\em variables-list} is omitted,
 and the \TT{=} is also omitted.  In this case the
 {\em value-assignment-statement} reduces to just an {\em expression}
-(possibly \TT{*UNCHECKED*}) that executes for side effects (such as
+that executes for side effects (such as
 input/output or non-stack memory modification).
-
-All assignment statements may have the \TT{*UNCHECKED*} statement
-qualifier which means that the executable code in the statement
-is unchecked.
 
 \subsection{Block Assignment Statements}
 \label{BlOCK-ASSIGNMENT-STATEMENTS}
@@ -860,14 +861,13 @@ Another variant of the assignment statement is\index{block assignment}:
 \begin{indpar}
 \emkey{block-assignment-statement}
     ::= \begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{} \TT{*UNCHECKED*}\QMARK{}
+        \{ {\em variable-list} \TT{=} \}\QMARK{}
 	\TT{block}\QMARK{} \TT{:} \\
 	\TT{~~~~}{\em executable-statement}\STAR{}
 	\end{tabular}
 \end{indpar}
 
-where \TT{block} may be omitted as long as either \TT{=} or
-\TT{*UNCHECKED*} is not omitted.
+where \TT{block} may be omitted as long as \TT{=} is not omitted.
 
 The {\em executable-statements} in the block can include
 {\em assignment-statements} in which {\em variable-declarations}
@@ -886,6 +886,13 @@ be input to any of the {\em executable-statements}.
 Variables allocated in the block are not visible outside the
 block.
 
+An assignment statement inside a block may assign to a variable name of the
+form `\TT{next} $v$' only if $v$ is allocated inside the
+stack of the block by another assignment statement in the block,
+or `\TT{next} $v$' is one of the variables in the block's
+{\em variable-list}.  In particular $v$ cannot be allocated before
+the block.
+
 \subsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
 
@@ -895,8 +902,7 @@ are similar to block assignment statements:
 \begin{indpar}
 \emkey{conditional-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{}
-	    \TT{*UNCHECKED*}\QMARK \TT{if:} \\
+        \{ {\em variable-list} \TT{=} \}\QMARK{} \TT{if:} \\
 	\TT{~~~~}\TT{default:} \\
 	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
 	\TT{~~~~}\TT{default:} \\
@@ -925,15 +931,13 @@ once, with exceptions for defaults described next.
 A {\em conditional-assignment-statement} with a
 {\em variable-list} may have one or
 more `\ttkey{default}\TT{:}' subblocks.  Each assigns one or more
-variables in the {\em variable-list}.  A default subblock
-executes after another subblock executes if and only if
-\underline{all} of the
+variables in the {\em variable-list}.  After any non-default subblocks
+that are going to execute have executed, if there are any unset
+variables in the {\em variable-list}, enabled default subblocks are executed
+in order.  A default subblock is enabled if and
+only if \underline{all} of the
 {\em variable-list} variables set by the default subblock have
-\underline{not} been set yet.  This means that multiple subblocks
-may execute, but only the first can be a non-default subblock.
-If this happens, the non-default subblock executes first, and
-the order in which the default subblocks execute
-is the order that they appear in the `\TT{if}' subblock.
+\underline{not} been set yet.
 
 No two default subblocks may set the same {\em variable-list}
 variable.  This rule is purely to prevent overly clever code that
@@ -949,7 +953,7 @@ subblock.
 An example is:
 \begin{indpar}\begin{verbatim}
 float64 result = max ( float64 x, float64 y, float64 z ):
-    result =
+    result = if:
         default:
             result = NaN
         x > y and x > z:
@@ -980,7 +984,7 @@ and conditional assignment statements:
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
-	           \TT{*UNCHECKED*}\QMARK \TT{loop}
+	          \TT{loop}
 	           {\em iteration-variable-list}\TT{:} \\
 	\TT{~~~~}\TT{initially}\TT{:} \\
 	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
@@ -993,24 +997,25 @@ and conditional assignment statements:
 
 This is somewhat like the conditional assignment statement
 except the subblocks are repeated.  The
-subblocks qualified by `\TT{initially}'
-execute before the first repetition, and they must
+subblock qualified by `\TT{initially}'
+executes before the first repetition, and it must
 set all the variables in the {\em iteration-variable-list}.
-The subblocks qualified by `\TT{while}
-{\em condition-expression}' only execute if the
+The subblock qualified by `\TT{while}
+{\em condition-expression}' only executes if the
 {\em condition-expression} evaluates to true, and
 for every variable \TT{v} in the {\em iteration-variable-list}
-they must set the variable `\TT{next v}' or `\TT{next next v}',
+it must set the variable `\TT{next v}' or `\TT{next next v}',
 as indicated below.
 Lastly, when
 the {\em condition-expression} evaluates to false, the
-subblocks qualified by `\TT{finally}'
-execute, and they must set all the variables in the
+subblock qualified by `\TT{finally}'
+executes, and it must set all the variables in the
 {\em result-variable-list}.  At this point the loop stops
 executing.
 
 Loops are always in effect unravelled so multiple copies of
-the loop exist at one time.  `\TT{next v}' refers to \TT{v} in the
+the `\TT{while}' subblock exist at one time.
+`\TT{next v}' refers to \TT{v} in the
 next iteration of the loop, which exists simultaneously with
 the current iteration.  `\TT{next next v}' refers to \TT{v}
 in the next iteration to the next iteration of the loop, which
@@ -1023,10 +1028,19 @@ or the \TT{initially} subblock sets both \TT{v} and `\TT{next v}'
 and the `\TT{while}' subblock sets `\TT{next next v}'.
 
 There are always at least 4 iterations of the loop with variables
-in the current function execution frame stack: the current iteration,
+simultaneously in the current execution frame stack: the current iteration,
 the previous iteration (if any), and the next two iterations.
 When the third iteration of the loop starts, the first
 iteration can be discarded, and so forth.
+
+The stacks of loop subblocks may be deallocated by the time the
+\TT{loop} block finished executing.
+The stack of a loop iteration subblock may be deallocated by the time the
+iteration subblock finishes executing.
+However, deallocation of some of these stacks may be deferred by
+an implementation, which may allow debuggers to look at them
+in some circumstances.
+See \itemref{STACK-MANAGEMENT}.
 
 
 \subsection{Call Assignment Statements}
@@ -1046,7 +1060,6 @@ are used to call out-of-line functions:
 \emkey{call-assignment-option}
 	\begin{tabular}[t]{rl}
 	::= & \TT{*UNCHECKED*} $|$ \TT{*REVERSE*} $|$ \TT{*NO-RELOAD*} \\
-	$|$ & \TT{*NO-MATCH*}
 	\end{tabular}
 \end{indpar}
 
@@ -1057,8 +1070,9 @@ are the arguments to the function.
 The results of the function call are stored in the
 {\em variable-list} variables.
 
-A call assignment must be \TT{*UNCHECKED*} unless \TT{T} is declared
-by a function type declaration of the form:
+A call assignment must have the \TT{*UNCHECKED*} option
+unless \TT{T} is declared by an out-of-line
+function type declaration of the form:
 \begin{center}
 \end{center}
 
@@ -1073,7 +1087,8 @@ by a function type declaration of the form:
 	\end{tabular}
 \end{indpar}
 
-This makes \TT{adr} the underlying type, and declares the prototype
+This makes \TT{adr} the underlying type of the new
+defined type, and declares the prototype
 for the function.
 Then a call assignment block is type-checked by matching
 the variable names in the call assignment block
@@ -1086,31 +1101,62 @@ argument type to the prototype argument type,
 in which case the implied conversion will be invoked.
 
 If there is no function prototype (so the call is \TT{*UNCHECKED*}),
-of if the \TT{*NO-MATCH*} option is given, there is no matching of
+there is no matching of
 argument variable names to prototype variable names.  In this case
 normally arguments are passed to the function in the order they
 appear in the call block,
-top to bottom, left to right.  However, in this case the
-\TT{*REVERSE*} option reverses this order.
+top to bottom, left to right, which is the order in which they
+are computed.  However, in this case the
+\TT{*REVERSE*} option reverses the order in which the argument
+are passed, so the first computed is the last passed.
 
 Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
 is executed automatically
 upon returning from the called function, but the
 \TT{*NO-RELOAD*} option suppresses this.
 
+The \TT{*REVERSE*} and \TT{*NO-RELOAD*} options require the \TT{*UNCHECKED*}
+option.
+
 Normally the standard call linkage for the computer environment of
-the program is used.  Other implementation specific options
+the program is used.  Other implementation specific call options
 may alter the call linkage used.
 
-Options other than \TT{*UNCHECKED*} can be given in a function type
-definition and will then be applied to all calls to functions of the
-defined type.
+\subsection{Assembly Assignment Statements}
+\label{ASSEMBLY-ASSIGNMENT-STATEMENTS}
+
+\ikey{Assembly assignment statements}{assembly assignment statement}
+are used to embed assembler instructions in compiled code:
+
+\begin{indpar}
+\emkey{assembly-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{} \\
+	\TT{~~~~} \TT{*UNCHECKED*~*ASSEMBLY*}
+	          {\em argument-variable-list}\TT{:} \\
+	\TT{~~~~~~~~~}{\em assembler-instruction}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+The variables, both argument and result, are placed in registers
+and their names become register names for the assembler instructions.
+Assembler instructions are only permitted to reference these
+registers, by load and store assembler instructions may be used.
+The assembly instructions are written in the syntax of one of the
+target machine assemblers.
+
+The variables may have additional qualifiers specifying which
+are names of registers or groups of registers.  In this case
+the variables will be allocated to the specified registers or
+register groups.  Otherwise they will be allocated to target
+machine specified register groups based on variable type.
+
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}
 
 Each execution thread has a stack that is not in any other
-stack.  Each external function
+stack.  Each out-of-line function
 execution is a block execution that has a stack which is
 by default a substack of the thread in which the function
 execution is running.  Each subblock in turn has a stack
@@ -1118,7 +1164,7 @@ which is by default a substack of the stack of its containing block.
 And each global area has a stack that is not in any other stack.
 
 Conceptually, the assignment statements in a block each allocate memory for
-their variable to the block stack and copy values to these
+their variable to the current block stack and copy values to these
 variables.  As noted above (Section~\itemref{ASSIGNMENT-STATEMENTS}),
 the memory and associated copies may be
 optimized away in some cases.
@@ -1132,13 +1178,15 @@ or calling block.  This is implemented by not allowing certain
 variables in to have the `\TT{stack}' qualifier: see
 Section~\itemref{THE-STACK-QUALIFIER}.
 
-Stacks of function block executions are free, which is implemented by
+Stacks of out-of-line block executions are free, which is implemented by
 not allowing the variables in the {\em variable-list}
 of a {\em call-assignment-statement} to have the `\TT{stack}' qualifier.
 
-Stacks of loop iterations are free, which is implemented by not
-allowing the variables in the {\em iteration-variable-list} 
-f a {\em loop-assignment-statement} to have the `\TT{stack}'
+Stacks of loop subblocks are free,
+which is implemented by not
+allowing the variables in the {\em variable-list}
+and {\em iteration-variable-list} 
+of a {\em loop-assignment-statement} to have the `\TT{stack}'
 qualifier.
 
 Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,

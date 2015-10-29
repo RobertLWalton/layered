@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 24, 2015
+October 27, 2015
  
 \end{center}
 
@@ -3031,7 +3031,8 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 		    {\em bracket-name} {\em selectors}} \\
 	& \hspace*{3em} & [ \TT{with parsing selectors}
 	                    {\em new-selectors} ] \\
-        &               & [ \TT{with full lines} ] \\
+        &               & [ \TT{with options}
+	                    {\em untyped-bracket-options} ] \\
     $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
                                     {bracket!parser undefine}
 		    {\em bracket-name} {\em selectors}} \\
@@ -3047,6 +3048,8 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \emkey{closing-bracket} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-modifier-list}
+\\[0.5ex]
+\emkey{untyped-bracket-options} ::= {\em parser-flag-list}
 
 \end{indpar}
 

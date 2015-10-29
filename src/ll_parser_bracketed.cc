@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 05:39:48 EDT 2015
+// Date:	Thu Oct 29 02:41:57 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1424,7 +1424,9 @@ min::position BRA::parse_bracketed_subexpression
 			      indentation_found
 				  ->line_sep,
 			      min::NULL_STUB,
-			      bracket_stack_p );
+				new_selectors
+			      & PAR::EAOCLOSING_OPT  ?
+			      bracket_stack_p : NULL );
 		    PAR::token first = previous->next;
 		    PAR::token next = current;
 
@@ -3888,6 +3890,13 @@ static min::gen bracketed_pass_command
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected `with' after" );
+
+	TAB::flags options = PAR::EALEINDENT_OPT
+	                   + PAR::EALSEP_OPT;
+	new_selectors.or_flags |= options;
+	new_selectors.not_flags |= PAR::ALL_OPT;
+	new_selectors.not_flags &= ~ options;
+	new_selectors.xor_flags &= ~ PAR::ALL_OPT;
 
 	BRA::push_indentation_mark
 	    ( name[0],

@@ -13,8 +13,17 @@ parser print selector "":
     block TOP LEVEL: parser
 parser print context "":
     block standard: default [code]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: default []
+                             options [end at le indent,
+                                      end at line separator,
+                                      end at outer closing]
     block TOP LEVEL: parser [parser]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: parser test []
 parser print trace:
     [ + warnings, - parser input, - parser output, + parser commands,
@@ -70,23 +79,50 @@ parser print trace:
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser print context "":
     block standard: default [code]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: default []
+                             options [end at le indent,
+                                      end at line separator,
+                                      end at outer closing]
     block TOP LEVEL: parser [parser]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: parser test []
 parser define context "default"
        with parsing selectors [parser, my selector,
                                default options]
 parser print context "":
     block standard: default [parser, my selector]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: default []
+                             options [end at le indent,
+                                      end at line separator,
+                                      end at outer closing]
     block TOP LEVEL: parser [parser]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: parser test []
 parser define context "default"
        with parsing selectors [code, default options]
 parser print context "":
     block standard: default [code]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: default []
+                             options [end at le indent,
+                                      end at line separator,
+                                      end at outer closing]
     block TOP LEVEL: parser [parser]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: parser test []
 ======= TEST: parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n
                   "(" p ")" ")" "]"
@@ -131,6 +167,9 @@ parser define context "parser test special"
        with parsing selectors [parser, default options]
 parser print context "parser<SP>test<SP>special":
     block special: parser test special [parser]
+                                       options [+ end at le indent,
+                                                + end at line separator,
+                                                + end at outer closing]
 ======= TEST: parser test special
                   [x <+ y +> z "{" "|" 4 "|" w "}" m (n (p))]
 ------- line 49:
@@ -148,8 +187,17 @@ parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
 ======= END TEST
 parser print context "default":
     block special: default [code]
+                           options [end at le indent,
+                                    end at line separator,
+                                    end at outer closing]
     block standard: default [code]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: default []
+                             options [end at le indent,
+                                      end at line separator,
+                                      end at outer closing]
 parser end special
 parser print context "parser<SP>test<SP>special":
     not found
@@ -157,6 +205,9 @@ parser print context "parser<SP>test":
     block TOP LEVEL: parser test []
 parser print context "parser":
     block TOP LEVEL: parser [parser]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: parser test []
 ======= TEST: parser test special "[" x <+ y +> z "{" "|" 4 "|" w "}" m
                   "(" n "(" p ")" ")" "]"

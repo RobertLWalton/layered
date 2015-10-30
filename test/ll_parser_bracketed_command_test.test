@@ -10,7 +10,13 @@ parser define bracket "[+" ...
                            ^^^
 parser print context "default":
     block standard: default [code]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: default []
+                             options [end at le indent,
+                                      end at line separator,
+                                      end at outer closing]
 parser define selector text
 parser define selector code
 parser define selector math
@@ -24,7 +30,13 @@ parser print selector "":
     block TOP LEVEL: parser
 parser print context "default":
     block standard: default [code]
+                            options [end at le indent,
+                                     end at line separator,
+                                     end at outer closing]
     block TOP LEVEL: default []
+                             options [end at le indent,
+                                      end at line separator,
+                                      end at outer closing]
 parser define bracket "(" ... ")" [code, math, text]
 parser define bracket "[" ... "]" [code, math, text]
 parser print bracket "[":

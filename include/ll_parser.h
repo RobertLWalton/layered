@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 04:06:34 EDT 2015
+// Date:	Fri Oct 30 06:26:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -975,9 +975,11 @@ enum {
 	          + EALSEP_OPT
 	          + EAOCLOSING_OPT,
 
-    DEFAULT_OPT = EALEINDENT_OPT
-	        + EALSEP_OPT
-	        + EAOCLOSING_OPT,
+    DEFAULT_EA_OPT = EALEINDENT_OPT
+	           + EALSEP_OPT
+	           + EAOCLOSING_OPT,
+
+    DEFAULT_OPT = DEFAULT_EA_OPT,
 
     // Selectors:
     //

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 06:30:56 EDT 2015
+// Date:	Fri Oct 30 14:51:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1547,13 +1547,24 @@ min::position BRA::parse_bracketed_subexpression
 	    // paragraph.
 	    //
 	    PAR::token first = mark_end->next;
+	    PAR::token next = current;
+	    if ( BRA::is_closed
+		     ( bracket_stack_p ) )
+	    {
+		// Paragraph was terminated by outer
+		// closing bracket.  Set paragraph end
+		// to beginning of that bracket.
+		//
+		next = bracket_stack_p
+			  ->closing_first;
+	    }
 	    min::phrase_position position;
 	    position.begin =
 		PAR::remove
 		    ( parser, first,
 		      indentation_found->label );
-	    position.end = current->previous
-				  ->position.end;
+	    position.end = next->previous
+			       ->position.end;
 
 	    PAR::attr attributes[2] =
 		{ PAR::attr
@@ -1567,7 +1578,7 @@ min::position BRA::parse_bracketed_subexpression
 	    PAR::compact
 		( parser, pass->next,
 		  new_selectors,
-		  first, current, position,
+		  first, next, position,
 		  trace_flags,
 		  PAR::BRACKETING,
 		  2, attributes );

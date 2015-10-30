@@ -50,7 +50,7 @@ parser print bracket ":":
                                           - end at lt indent,
                                           - end at paragraph break,
                                           + end at line separator,
-                                          - end at outer closing]
+                                          + end at outer closing]
 ERROR: in line 27: unrecognized flag/option name:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
@@ -318,7 +318,7 @@ parser print bracket "":
                                           - end at lt indent,
                                           - end at paragraph break,
                                           + end at line separator,
-                                          - end at outer closing]
+                                          + end at outer closing]
     block standard: bracket "[" ... "]" [code, text, math]
     block TOP LEVEL: bracket "[" ... "]" [parser]
     block standard: bracket "`" ... "'" [code]
@@ -341,7 +341,7 @@ parser print bracket "":
                                           - end at lt indent,
                                           - end at paragraph break,
                                           + end at line separator,
-                                          - end at outer closing]
+                                          + end at outer closing]
 ======= TEST: parser test (```")"''')
 ------- line 84:
 parser test ( ``` ) ''' )
@@ -433,9 +433,8 @@ WARNING: in line 106: lexeme indent 1 too near paragraph indent 0:
                    {"": .terminator = [$ INDENTED_PARAGRAPH $],
                         .initiator = ":"|
                         {"": .terminator = "<LF>", .initiator =
-                             [$ LOGICAL_LINE $]|goodbye ")" there|}
-                        {"": .terminator = "<LF>", .initiator =
-                             [$ LOGICAL_LINE $]|hi there|}|}) end
+                             [$ LOGICAL_LINE $]|goodbye|}|}) there hi
+                      there ")" end
 ------- lines 112-116:
 parser test:
 ^^^^^^^^^^^^
@@ -467,26 +466,17 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
           ) end
 ^^^^^^^^^^^^^^^
-------- lines 113-116:
+------- lines 113-114:
         ( hello:
         ^^^^^^^^
             goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
-          ) end
-^^^^^^^^^^^
-------- lines 113-115:
+^^^^^^^^^^^^^^^^^^^^^
+------- lines 113-114:
         ( hello:
                ^
             goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
 ------- line 114:
             goodbye ) there
-            ^^^^^^^^^^^^^^^
-------- line 115:
-            hi there
-            ^^^^^^^^
+            ^^^^^^^
 ======= END TEST

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 04:12:15 EDT 2015
+// Date:	Fri Oct 30 06:30:56 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3989,8 +3989,7 @@ static min::gen bracketed_pass_command
 
 	if ( TAB::all_flags ( new_options ) == 0 )
 	{
-	    new_options.or_flags = PAR::EALEINDENT_OPT
-	                         + PAR::EALSEP_OPT;
+	    new_options.or_flags = PAR::DEFAULT_EA_OPT;
 	    new_options.not_flags =
 	        PAR::ALL_OPT & ~ new_options.or_flags;
 	}

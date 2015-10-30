@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 03:27:22 EDT 2015
+// Date:	Fri Oct 30 06:06:07 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -996,12 +996,27 @@ static min::gen execute_context
 		                << "block "
 				<< min::pgen_name
 				     ( block_name )
-				<< ": default ";
+				<< ": default "
+				<< min::save_indent;
+
+
 		COM::print_flags
 		    ( flags & ~ PAR::ALWAYS_SELECTOR,
 		      PAR::ALL_SELECTORS,
 		      parser->selector_name_table,
 		      parser );
+
+		parser->printer
+		    << " "
+		    << min::set_break
+		    << "options ";
+		COM::print_flags
+		    ( flags,
+		      PAR::ALL_OPT,
+		      parser->selector_name_table,
+		      parser );
+
+		parser->printer << min::restore_indent;
 
 		++ count;
 
@@ -1038,12 +1053,31 @@ static min::gen execute_context
 		    << min::pgen_name ( block_name )
 		    << ": "
 		    << min::pgen_name ( context->label )
-		    << " ";
+		    << " "
+		    << min::save_indent;
+
 		COM::print_new_flags
 		    ( context->new_selectors,
 		      PAR::ALL_SELECTORS,
 		      parser->selector_name_table,
 		      parser, true );
+
+		if ( TAB::all_flags
+		         ( context->new_selectors )
+		     &
+		     PAR::ALL_OPT )
+		{
+		    parser->printer
+		        << " "
+			<< min::set_break
+		        << "options ";
+		    COM::print_new_flags
+			( context->new_selectors,
+			  PAR::ALL_OPT,
+			  parser->selector_name_table,
+			  parser, true );
+		}
+		parser->printer << min::restore_indent;
 
 		++ count;
 	    }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 04:41:46 EDT 2015
+// Date:	Fri Oct 30 03:26:53 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,7 +101,8 @@ min::gen scan_names
 // subexpression, just return min::FAILURE().
 // If it is a []-bracketed subexpression with an error,
 // print error messages to parser->printer, increment i,
-// and return min::ERROR().
+// and return min::ERROR().  It is an error if any flag
+// is not an allowed_flag.
 //
 // It is assumed that the []-bracketed subexpression
 // does NOT have a separator and any comma separators
@@ -110,6 +111,7 @@ min::gen scan_names
 min::gen scan_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::flags & flags,
+	  ll::parser::table::flags allowed_flags,
 	  ll::parser::table::name_table name_table,
 	  ll::parser::table::key_table group_name_table,
 	  ll::parser::parser parser );
@@ -123,6 +125,7 @@ min::gen scan_flags
 min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::table::new_flags & new_flags,
+	  ll::parser::table::flags allowed_flags,
 	  ll::parser::table::name_table name_table,
 	  ll::parser::table::key_table group_name_table,
 	  ll::parser::parser parser,
@@ -138,18 +141,23 @@ min::gen scan_new_flags
 // Illegal modifier lists result in more than one
 // operator for the same flag name (e.g., `+^').
 //
+// Only the subset of the flags sets (or/not/xor_flags)
+// selected by allowed_flags is considered.
+//
 void print_new_flags
 	( const ll::parser::table::new_flags
 	    & new_flags,
+	  ll::parser::table::flags allowed_flags,
 	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser,
 	  bool allow_flag_list = false );
 
-// Print flag list.  Flags with min::MISSING() name are
-// ignored.
+// Print flag list.  Flags with min::MISSING() name and
+// flags not in allowed_flags are ignored.
 //
 void print_flags
 	( ll::parser::table::flags flags,
+	  ll::parser::table::flags allowed_flags,
 	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser );
 

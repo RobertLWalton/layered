@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 05:36:44 EDT 2015
+// Date:	Fri Oct 30 04:06:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,6 +80,7 @@ namespace ll { namespace parser {
 	pass_lexeme,	// pass
 	selector,	// selector
 	selectors,	// selectors
+	options,	// options
 	context_lexeme,	// context
 	default_lexeme,	// default
 	with,		// with
@@ -956,17 +957,16 @@ enum {
     //
     // Values are hidden and may be changed.
 
-    ALWAYS_SELECTOR			= 1ull << 0,
-        // Hidden selector that is always on.
-
     // Options:
     //
-    EALBREAK_OPT			= 1ull << 1,
-    EALEINDENT_OPT			= 1ull << 2,
-    EALTINDENT_OPT			= 1ull << 3,
-    EAPBREAK_OPT			= 1ull << 4,
-    EALSEP_OPT				= 1ull << 5,
-    EAOCLOSING_OPT			= 1ull << 6,
+    ALL_OPT       			= 0xFFFFull,
+
+    EALBREAK_OPT			= 1ull << 0,
+    EALEINDENT_OPT			= 1ull << 1,
+    EALTINDENT_OPT			= 1ull << 2,
+    EAPBREAK_OPT			= 1ull << 3,
+    EALSEP_OPT				= 1ull << 4,
+    EAOCLOSING_OPT			= 1ull << 5,
 
     ALL_EA_OPT    = EALBREAK_OPT
 	          + EALEINDENT_OPT
@@ -975,18 +975,21 @@ enum {
 	          + EALSEP_OPT
 	          + EAOCLOSING_OPT,
 
-    ALL_OPT       = ALL_EA_OPT,
-
     DEFAULT_OPT = EALEINDENT_OPT
 	        + EALSEP_OPT
 	        + EAOCLOSING_OPT,
 
-    // Builtin Selectors:
+    // Selectors:
     //
-    ALL_SELECTORS 			= -1ull << 7,
+    ALL_SELECTORS 			= -1ull << 16,
 
-    PARSER_SELECTOR			= 1ull << 7,
-    DATA_SELECTOR			= 1ull << 8,
+    ALWAYS_SELECTOR			= 1ull << 16,
+        // Hidden selector that is always on.
+
+    // Builtin selectors:
+    //
+    PARSER_SELECTOR			= 1ull << 17,
+    DATA_SELECTOR			= 1ull << 18,
 };
 
 namespace bracketed {

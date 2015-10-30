@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 05:37:17 EDT 2015
+// Date:	Fri Oct 30 04:21:13 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -76,6 +76,7 @@ min::locatable_gen PAR::print;
 min::locatable_gen PAR::pass_lexeme;
 min::locatable_gen PAR::selector;
 min::locatable_gen PAR::selectors;
+min::locatable_gen PAR::options;
 min::locatable_gen PAR::context_lexeme;
 min::locatable_gen PAR::default_lexeme;
 min::locatable_gen PAR::with;
@@ -167,6 +168,7 @@ static void initialize ( void )
     PAR::pass_lexeme = min::new_str_gen ( "pass" );
     PAR::selector = min::new_str_gen ( "selector" );
     PAR::selectors = min::new_str_gen ( "selectors" );
+    PAR::options = min::new_str_gen ( "options" );
     PAR::context_lexeme =
         min::new_str_gen ( "context" );
     PAR::default_lexeme =
@@ -709,12 +711,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    ( selector_name_table_ref(parser) );
 
 	MIN_REQUIRE
-	    (    PAR::ALWAYS_SELECTOR
-	      == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			min::MISSING() ) );
-
-	MIN_REQUIRE
 	    (    PAR::EALBREAK_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
@@ -744,6 +740,18 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::eaoclosing ) );
+
+	while ( parser->selector_name_table->length
+	        < 16 )
+	    TAB::push_name
+		( parser->selector_name_table,
+		  min::MISSING() );
+
+	MIN_REQUIRE
+	    (    PAR::ALWAYS_SELECTOR
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			min::MISSING() ) );
 
 	MIN_REQUIRE
 	    (    PAR::PARSER_SELECTOR

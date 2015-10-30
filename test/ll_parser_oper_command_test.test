@@ -4,21 +4,12 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: data
     block TOP LEVEL: parser
-    block TOP LEVEL: end at outer closing
-    block TOP LEVEL: end at line separator
-    block TOP LEVEL: end at paragraph break
-    block TOP LEVEL: end at lt indent
-    block TOP LEVEL: end at le indent
-    block TOP LEVEL: end at line break
 parser print pass:
     top
 parser print context "":
-    block standard: default [end at le indent, end at line separator,
-                             end at outer closing, code]
-    block TOP LEVEL: default [end at le indent, end at line separator,
-                              end at outer closing]
-    block TOP LEVEL: parser [end at le indent, end at line separator,
-                             end at outer closing, parser]
+    block standard: default [code]
+    block TOP LEVEL: default []
+    block TOP LEVEL: parser [parser]
     block TOP LEVEL: parser test []
 parser print pass:
     top
@@ -32,12 +23,6 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: data
     block TOP LEVEL: parser
-    block TOP LEVEL: end at outer closing
-    block TOP LEVEL: end at line separator
-    block TOP LEVEL: end at paragraph break
-    block TOP LEVEL: end at lt indent
-    block TOP LEVEL: end at le indent
-    block TOP LEVEL: end at line break
 parser print operator "":
     not found
 parser begin block

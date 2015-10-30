@@ -9,10 +9,8 @@ ERROR: in line 14: expected quoted name after:
 parser define bracket "[+" ...
                            ^^^
 parser print context "default":
-    block standard: default [end at le indent, end at line separator,
-                             end at outer closing, code]
-    block TOP LEVEL: default [end at le indent, end at line separator,
-                              end at outer closing]
+    block standard: default [code]
+    block TOP LEVEL: default []
 parser define selector text
 parser define selector code
 parser define selector math
@@ -24,17 +22,9 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: data
     block TOP LEVEL: parser
-    block TOP LEVEL: end at outer closing
-    block TOP LEVEL: end at line separator
-    block TOP LEVEL: end at paragraph break
-    block TOP LEVEL: end at lt indent
-    block TOP LEVEL: end at le indent
-    block TOP LEVEL: end at line break
 parser print context "default":
-    block standard: default [end at le indent, end at line separator,
-                             end at outer closing, code]
-    block TOP LEVEL: default [end at le indent, end at line separator,
-                              end at outer closing]
+    block standard: default [code]
+    block TOP LEVEL: default []
 parser define bracket "(" ... ")" [code, math, text]
 parser define bracket "[" ... "]" [code, math, text]
 parser print bracket "[":
@@ -43,13 +33,13 @@ parser print bracket "[":
 parser define indentation mark ":" ... ";" [code, math, text]
 parser print bracket ":":
     block standard: indentation mark ":" ... ";" [code, text, math]
-                    with parsing selectors [- end at line break,
-                                            + end at le indent,
-                                            - end at lt indent,
-                                            - end at paragraph break,
-                                            + end at line separator,
-                                            - end at outer closing]
-ERROR: in line 27: unrecognized flag name:
+                    with parsing options [- end at line break,
+                                          + end at le indent,
+                                          - end at lt indent,
+                                          - end at paragraph break,
+                                          + end at line separator,
+                                          - end at outer closing]
+ERROR: in line 27: unrecognized flag/option name:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
 ERROR: in line 28: expected `,' after:
@@ -226,7 +216,7 @@ parser test this is a paragraph +:
 parser test  <X| hi there |X>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
-ERROR: in line 55: unrecognized flag name:
+ERROR: in line 55: unrecognized flag/option name:
 parser trace [+ foo]
                 ^^^
 parser trace [+ parser commands]
@@ -303,7 +293,7 @@ parser undefine bracket "<|" ... "|>" [code]
 parser undefine bracket "<|" ... "|>" [code]
 parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
-       with parsing selectors [- all end at options]
+       with parsing options [- all end at options]
 parser print bracket "":
     block standard: bracket [< "[" "X" >] ... [< "X" "]" >]
                     [code, operator 1]
@@ -311,35 +301,35 @@ parser print bracket "":
     block standard: bracket "(" ... ")" [code, text, math]
     block TOP LEVEL: bracket "(" ... ")" [parser]
     block standard: indentation mark ":" ... ";" [code, text, math]
-                    with parsing selectors [- end at line break,
-                                            + end at le indent,
-                                            - end at lt indent,
-                                            - end at paragraph break,
-                                            + end at line separator,
-                                            - end at outer closing]
+                    with parsing options [- end at line break,
+                                          + end at le indent,
+                                          - end at lt indent,
+                                          - end at paragraph break,
+                                          + end at line separator,
+                                          - end at outer closing]
     block standard: bracket "[" ... "]" [code, text, math]
     block TOP LEVEL: bracket "[" ... "]" [parser]
     block standard: bracket "`" ... "'" [code]
     block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
                     [code]
-                    with parsing selectors [- end at line break,
-                                            - end at le indent,
-                                            - end at lt indent,
-                                            - end at paragraph break,
-                                            - end at line separator,
-                                            - end at outer closing]
+                    with parsing options [- end at line break,
+                                          - end at le indent,
+                                          - end at lt indent,
+                                          - end at paragraph break,
+                                          - end at line separator,
+                                          - end at outer closing]
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
     block standard: indentation mark [< "+" ":" >] ... "::" [code]
-                    with parsing selectors [- end at line break,
-                                            + end at le indent,
-                                            - end at lt indent,
-                                            - end at paragraph break,
-                                            + end at line separator,
-                                            - end at outer closing]
+                    with parsing options [- end at line break,
+                                          + end at le indent,
+                                          - end at lt indent,
+                                          - end at paragraph break,
+                                          + end at line separator,
+                                          - end at outer closing]
 ======= TEST: parser test (```")"''')
 ------- line 84:
 parser test ( ``` ) ''' )

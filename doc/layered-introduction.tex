@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 27, 2015
+October 31, 2015
  
 \end{center}
 
@@ -1856,7 +1856,7 @@ such as `\TT{\{b|}' and `\TT{|b\}}'.
 \item Indented paragraphs, introduced by line-ending
 indentation marks such as `\TT{:}', and terminated by the end of indentation.
 An indented paragraph is a part of a logical
-line, typically at the end if it containing logical line,
+line, typically at the end of its containing logical line,
 and in turn of contains logical lines of its own.
 \end{itemize}
 
@@ -1874,6 +1874,8 @@ the syntax within a \TT{[ ]} bracketed subexpression may differ from
 the syntax within a \TT{` '} bracketed subexpression, and
 the syntax within a `\TT{:}' introduced indented paragraph may differ
 from the syntax of its containing logical line.
+This is an important feature of the multi-pass organization of
+the parser.
 
 Parsing reduces each recognized subexpression, including each top level
 logical line, to a single expression token.
@@ -1943,15 +1945,16 @@ A token has the following components:
 		& A \TT{BRACKETABLE} token
 		  is equivalent to (and an optimization of) a \TT{BRACKETED}
 		  token whose MIN object value does \underline{not} have
-		  a \TT{.type}, \TT{.initiator}, and/or \TT{.terminator}
+		  a \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 		  attribute.
 		  If such a token is to become the only element of a
 		  containing subexpression that will have no attributes other
-		  than \TT{.type}, \TT{.initiator}, and/or \TT{.terminator}, 
+		  than \TT{.type}, \TT{.initiator}, or \TT{.terminator}, 
 		  then instead of creating a new
 		  \TT{BRACKETED} token, any \TT{.type}, \TT{.initiator},
-		  or \TT{.terminator} are added to the \TT{BRACKETABLE}.
-		  The token type of this \TT{BRACKETABLE} token is then
+		  or \TT{.terminator} from the containing subexpression
+		  is added to the \TT{BRACKETABLE} token,
+		  the token type of this token is then
 		  changed to \TT{BRACKETED}, and
 		  its token position and \TT{.position} attribute are
 		  updated to the position of its containing subexpression.
@@ -1964,7 +1967,7 @@ A token has the following components:
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
-		& A \TT{PREFIX} token is essentially a
+		& A \TT{PREFIX} token is a
 		  \TT{BRACKETED} token that has
 		  been identified as a prefix separator.  It can be
 		  converted to a \TT{BRACKETED} token when its identity
@@ -1981,7 +1984,7 @@ A token has the following components:
 		  a token \TT{value} that is \underline{not} a MIN object.
 		  For example, a label subexpression reformatter may
 		  produce a \TT{DERIVED} token with a value that is
-		  a MIN label.
+		  a MIN label or a MIN special value.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1995,8 +1998,10 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value}{of token}
 		& The token \TT{value}, as described above.  This is
-		  a MIN string, label, or object.  For tokens that
-		  do not have values, this is \TT{MISSING}.
+		  a MIN string, label, special value, or object.
+		  For tokens that do not have values, this is \TT{MISSING}
+		  (but for \TT{DERIVED} type tokens the token my have
+		  a value that equals \TT{MISSING}).
 \\[1ex]
 		& Note that naturals have values that are MIN
 		  strings equal to their lexemes,
@@ -2028,6 +2033,9 @@ A token has the following components:
 		  garbage collection and memory reuse more
 		  efficient than it would be if MIN strings
 		  were used, but makes lookup less efficient.
+\\[1ex]
+		& For all other tokens this equals
+		  \TT{min::\EOL NULL\_\EOL STUB}.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2046,7 +2054,7 @@ A token has the following components:
 \ttmkey{indent}{of token}
 	        & The indentation (beginning column)
 		  of the token, for the first token of a line only.
-		  Calculated assuming characeters in UNICODE category
+		  Calculated assuming characters in UNICODE category
 		  Zs are 1 column space characters (this includes
 		  the single space and non-breaking single space
 		  characters), horizontal tabs are every 8 columns,
@@ -2073,7 +2081,7 @@ Although at the top level an entire
 input file can be considered to be a list of logical lines (see below),
 the parser \underline{never}
 forms a single token that would represent this list, but instead
-delivers either top level logical line tokens
+delivers top level logical line tokens
 one at a time for subsequent
 processing.  These top level tokens are placed at the
 beginning of the token stream, and as they are never again accessed

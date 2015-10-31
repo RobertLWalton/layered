@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 04:21:13 EDT 2015
+// Date:	Sat Oct 31 07:19:55 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1660,7 +1660,7 @@ void PAR::compact
 	      current != next;
 	      ++ t, current = current->next )
 	{
-	    if ( current->value == min::MISSING() )
+	    if ( current->string != min::NULL_STUB )
 		PAR::convert_token ( current );
 	}
 
@@ -1703,8 +1703,6 @@ void PAR::compact
 
 	while ( m -- )
 	{
-	    MIN_REQUIRE (    attributes->value
-	                  != min::MISSING() );
 	    min::locate ( expap, attributes->name );
 	    min::set ( expap, attributes->value );
 	    ++ attributes;
@@ -1865,7 +1863,7 @@ min::gen PAR::scan_name_string_label
 
 void PAR::convert_token ( PAR::token token )
 {
-    MIN_REQUIRE ( token->value == min::MISSING() );
+    MIN_REQUIRE ( token->string != min::NULL_STUB );
 
     min::gen type;
 

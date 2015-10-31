@@ -305,7 +305,7 @@ parser undefine bracket "<|" ... "|>" [code]
 parser undefine bracket "<|" ... "|>" [code]
 parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
-       with parsing options [- all end at options]
+       with parsing options []
 parser print bracket "":
     block standard: bracket [< "[" "X" >] ... [< "X" "]" >]
                     [code, operator 1]

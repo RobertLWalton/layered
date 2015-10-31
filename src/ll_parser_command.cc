@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 06:06:07 EDT 2015
+// Date:	Sat Oct 31 02:01:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -445,7 +445,8 @@ static min::gen scan_new_flags
     	  new_flags.or_flags
 	| new_flags.not_flags
 	| new_flags.xor_flags;
-    mask = ~ mask;
+    if ( mask == 0 ) mask = allowed_flags;
+
     new_flags.or_flags |=
         new_group_flags.or_flags & mask;
     new_flags.not_flags |=
@@ -1091,61 +1092,105 @@ static min::gen execute_context
 	return COM::PRINTED;
     }
 
-    TAB::flags selectors;
-    TAB::new_flags new_flags;
-    if ( size >= i + 4
-         &&
-	 vp[i] == PAR::with
-	 &&
-	 vp[i+1] == PAR::parsing
-	 &&
-	 vp[i+2] == PAR::selectors )
+    TAB::new_flags new_selectors;
+    TAB::new_flags new_options;
+	// Inited to zeroes.
+    TAB::flags selectors = 0;
+    TAB::flags options = 0;
+    min::uns32 saved_i = i;
+    while ( i < size && vp[i] == PAR::with )
     {
-	i += 3;
-	min::gen result;
-	if ( name == PAR::default_lexeme )
-	    result = COM::scan_flags
-		( vp, i, selectors, PAR::ALL_SELECTORS,
-		  parser->selector_name_table,
-		  parser->selector_group_name_table,
-		  parser );
+	++ i;
+	if ( i + 1 < size
+	     &&
+	     vp[i] == PAR::parsing
+	     &&
+	     vp[i+1] == PAR::selectors )
+	{
+	    i += 2;
+	    min::gen result;
+	    if ( name == PAR::default_lexeme )
+		result = COM::scan_flags
+		    ( vp, i, selectors,
+		      PAR::ALL_SELECTORS,
+		      parser->selector_name_table,
+		      parser->selector_group_name_table,
+		      parser );
+	    else
+		result = COM::scan_new_flags
+		    ( vp, i, new_selectors,
+		      PAR::ALL_SELECTORS,
+		      parser->selector_name_table,
+		      parser->selector_group_name_table,
+		      parser, true );
+	    if ( result == min::ERROR() )
+		return min::ERROR();
+	    else if ( result == min::FAILURE() )
+		return PAR::parse_error
+		    ( parser, ppvec[1],
+		      "expected bracketed selector"
+		      " (modifier) list after" );
+	}
 	else
-	    result = COM::scan_new_flags
-		( vp, i, new_flags, PAR::ALL_SELECTORS,
-		  parser->selector_name_table,
-		  parser->selector_group_name_table,
-		  parser, true );
-	if ( result == min::ERROR() )
-	    return min::ERROR();
-	else if ( result == min::FAILURE() )
+	if ( i + 1 < size
+	     &&
+	     vp[i] == PAR::parsing
+	     &&
+	     vp[i+1] == PAR::options )
+	{
+	    i += 2;
+	    min::gen result;
+	    if ( name == PAR::default_lexeme )
+		result = COM::scan_flags
+		    ( vp, i, options,
+		      PAR::ALL_OPT,
+		      parser->selector_name_table,
+		      parser->selector_group_name_table,
+		      parser );
+	    else
+		result = COM::scan_new_flags
+		    ( vp, i, new_options,
+		      PAR::ALL_OPT,
+		      parser->selector_name_table,
+		      parser->selector_group_name_table,
+		      parser, true );
+	    if ( result == min::ERROR() )
+		return min::ERROR();
+	    else if ( result == min::FAILURE() )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected bracketed options"
+		      " (modifier) list after" );
+	}
+	else
 	    return PAR::parse_error
-		( parser, ppvec[1],
-		  "expected bracketed flag (modifier)"
-		  " list after" );
+		( parser, ppvec[i-1],
+		  "expected `parsing selectors'"
+		  " or `parsing options' after" );
     }
-    else if ( name != PAR::default_lexeme )
-    {
-        new_flags.or_flags = 0;
-        new_flags.not_flags = 0;
-        new_flags.xor_flags = 0;
-    }
-    else
+
+    if ( i == saved_i )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected `with parsing selectors'"
-	      " after" );
+	      "expected `with' after" );
 
     if ( name == PAR::default_lexeme )
-        parser->selectors = selectors;
+        parser->selectors = selectors | options;
     else
     {
 	min::phrase_position pp;
 	pp.begin = (&ppvec[0])->begin;
 	pp.end = (&ppvec[i-1])->end;
+	new_selectors.or_flags |=
+	    new_options.or_flags;
+	new_selectors.not_flags |=
+	    new_options.not_flags;
+	new_selectors.xor_flags |=
+	    new_options.xor_flags;
 
 	PAR::push_context
 	    ( name, 0, PAR::block_level ( parser ), pp,
-	      new_flags, parser->context_table );
+	      new_selectors, parser->context_table );
     }
 
     if ( i < size )

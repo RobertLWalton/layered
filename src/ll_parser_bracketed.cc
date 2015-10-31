@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 31 06:36:00 EDT 2015
+// Date:	Sat Oct 31 07:26:41 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2189,8 +2189,8 @@ min::position BRA::parse_bracketed_subexpression
 			            &&
 				    count < 100 )
 			    {
-				if (    t->value
-				     == min::MISSING() )
+				if (    t->string
+				     != min::NULL_STUB )
 				    PAR::convert_token
 				        ( t );
 
@@ -3287,7 +3287,7 @@ DONE:
 	{
 	    // current is vector element
 	    //
-	    if ( current->value == min::MISSING() )
+	    if ( current->string != min::NULL_STUB )
 	    {
 		current->type = PAR::DERIVED;
 		PAR::value_ref(current) =

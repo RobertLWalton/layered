@@ -429,13 +429,61 @@ WARNING: in line 106: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^^^^
 ======= TEST: parser test:
+                  well
+                      (hello
+                       {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                            .initiator = ":"|
+                            {"": .terminator = "<LF>", .initiator =
+                                 [$ LOGICAL_LINE $]|goodbye|}|}) there
+                  hi there
+------- lines 112-115:
+parser test:
+^^^^^^^^^^^^
+        well ( hello:
+^^^^^^^^^^^^^^^^^^^^^
+                goodbye ) there
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        hi there
+^^^^^^^^^^^^^^^^
+------- lines 112-115:
+parser test:
+           ^
+        well ( hello:
+^^^^^^^^^^^^^^^^^^^^^
+                goodbye ) there
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        hi there
+^^^^^^^^^^^^^^^^
+------- lines 113-114:
+        well ( hello:
+        ^^^^^^^^^^^^^
+                goodbye ) there
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines 113-114:
+        well ( hello:
+             ^^^^^^^^
+                goodbye ) there
+^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines 113-114:
+        well ( hello:
+                    ^
+                goodbye ) there
+^^^^^^^^^^^^^^^^^^^^^^^
+------- line 114:
+                goodbye ) there
+                ^^^^^^^
+------- line 115:
+        hi there
+        ^^^^^^^^
+======= END TEST
+======= TEST: parser test:
                   (hello
                    {"": .terminator = [$ INDENTED_PARAGRAPH $],
                         .initiator = ":"|
                         {"": .terminator = "<LF>", .initiator =
                              [$ LOGICAL_LINE $]|goodbye|}|}) there hi
                       there ")" end
-------- lines 112-116:
+------- lines 117-121:
 parser test:
 ^^^^^^^^^^^^
         ( hello:
@@ -446,7 +494,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
           ) end
 ^^^^^^^^^^^^^^^
-------- lines 112-116:
+------- lines 117-121:
 parser test:
            ^
         ( hello:
@@ -457,7 +505,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
           ) end
 ^^^^^^^^^^^^^^^
-------- lines 113-116:
+------- lines 118-121:
         ( hello:
         ^^^^^^^^
             goodbye ) there
@@ -466,17 +514,83 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
           ) end
 ^^^^^^^^^^^^^^^
-------- lines 113-114:
+------- lines 118-119:
         ( hello:
         ^^^^^^^^
             goodbye ) there
 ^^^^^^^^^^^^^^^^^^^^^
-------- lines 113-114:
+------- lines 118-119:
         ( hello:
                ^
             goodbye ) there
 ^^^^^^^^^^^^^^^^^^^
-------- line 114:
+------- line 119:
             goodbye ) there
             ^^^^^^^
+======= END TEST
+ERROR: in line 126: missing closing bracket ")" inserted before end of
+       line:
+            hi there
+                    ^
+======= TEST: parser test:
+                  (hello
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .terminator = "<LF>", .initiator =
+                             [$ LOGICAL_LINE $]|goodbye there|}
+                        {"": .terminator = "<LF>", .initiator =
+                             [$ LOGICAL_LINE $]|hi there|}|})
+                  ")" end
+------- lines 123-127:
+parser test:
+^^^^^^^^^^^^
+        ( hello:
+^^^^^^^^^^^^^^^^
+            goodbye there
+^^^^^^^^^^^^^^^^^^^^^^^^^
+            hi there
+^^^^^^^^^^^^^^^^^^^^
+        ) end
+^^^^^^^^^^^^^
+------- lines 123-127:
+parser test:
+           ^
+        ( hello:
+^^^^^^^^^^^^^^^^
+            goodbye there
+^^^^^^^^^^^^^^^^^^^^^^^^^
+            hi there
+^^^^^^^^^^^^^^^^^^^^
+        ) end
+^^^^^^^^^^^^^
+------- lines 124-126:
+        ( hello:
+        ^^^^^^^^
+            goodbye there
+^^^^^^^^^^^^^^^^^^^^^^^^^
+            hi there
+^^^^^^^^^^^^^^^^^^^^
+------- lines 124-126:
+        ( hello:
+        ^^^^^^^^
+            goodbye there
+^^^^^^^^^^^^^^^^^^^^^^^^^
+            hi there
+^^^^^^^^^^^^^^^^^^^^
+------- lines 124-126:
+        ( hello:
+               ^
+            goodbye there
+^^^^^^^^^^^^^^^^^^^^^^^^^
+            hi there
+^^^^^^^^^^^^^^^^^^^^
+------- line 125:
+            goodbye there
+            ^^^^^^^^^^^^^
+------- line 126:
+            hi there
+            ^^^^^^^^
+------- line 127:
+        ) end
+        ^^^^^
 ======= END TEST

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 31 02:01:37 EDT 2015
+// Date:	Sat Oct 31 06:36:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -445,7 +445,8 @@ static min::gen scan_new_flags
     	  new_flags.or_flags
 	| new_flags.not_flags
 	| new_flags.xor_flags;
-    if ( mask == 0 ) mask = allowed_flags;
+
+    mask = ~ mask;
 
     new_flags.or_flags |=
         new_group_flags.or_flags & mask;
@@ -456,9 +457,9 @@ static min::gen scan_new_flags
 
     // Note that an empty list that could be either a
     // flag list or a flag modifier list is treated as
-    // a flag modifier list.
+    // a flag list.
     //
-    if ( ! allow_flag_modifier_list )
+    if ( allow_flag_list )
         new_flags.not_flags =
 	   (  ~ new_flags.or_flags & allowed_flags );
 

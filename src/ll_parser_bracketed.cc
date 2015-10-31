@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 14:51:10 EDT 2015
+// Date:	Sat Oct 31 06:36:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3869,7 +3869,7 @@ static min::gen bracketed_pass_command
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
-			  parser );
+			  parser, true );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::FAILURE() )
@@ -3893,7 +3893,7 @@ static min::gen bracketed_pass_command
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
-			  parser );
+			  parser, true );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::FAILURE() )
@@ -3954,7 +3954,7 @@ static min::gen bracketed_pass_command
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
-			  parser );
+			  parser, true );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::FAILURE() )
@@ -3978,7 +3978,7 @@ static min::gen bracketed_pass_command
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
-			  parser );
+			  parser, true );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::FAILURE() )

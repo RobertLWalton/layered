@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 31, 2015
+November 1, 2015
  
 \end{center}
 
@@ -2188,7 +2188,7 @@ The parser options that control when a logical line ends are:
     This option is on by default at top level and also
     in indented paragraphs that have a defined line separator.
 
-\hspace*{-0.2in}\ttmkey{end at other closing}{parser option} \\
+\hspace*{-0.2in}\ttmkey{end at outer closing}{parser option} \\
     This parser option allows a bracketed subexpression or
     indented paragraph to be
     ended by the closing bracket of a containing bracketed subexpression.
@@ -2199,6 +2199,20 @@ The parser options that control when a logical line ends are:
     This option is on by default at top level and in indented paragraphs.
 
 \end{indpar}
+
+Two option groups are also defined:
+
+\begin{center}
+\begin{tabular}{ll}
+\ttmkey{default options}{parser option group}
+				& \TT{end at le indent} \\
+				& \TT{end at line separator} \\
+				& \TT{end at outer closing}
+\\[2ex]
+\ttmkey{other end at options}{parser option group}
+				& all `\TT{end at}' options
+\end{tabular}
+\end{center}
 
 \subsection{Parser Symbol Table}
 \label{PARSER-SYMBOL-TABLE}
@@ -2327,6 +2341,15 @@ The following parsing selectors are builtin:
     brackets.
 
 \end{indpar}
+
+One selector group is also defined:
+
+\begin{center}
+\begin{tabular}{ll}
+\ttmkey{other selectors}{parser selector group}
+				& all selectors
+\end{tabular}
+\end{center}
 
 The parser symbol tables act like stacks; as new parsing
 definitions are encountered, their effects are `pushed' into the

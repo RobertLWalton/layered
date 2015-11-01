@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 31 06:36:54 EDT 2015
+// Date:	Sun Nov  1 01:50:52 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -336,15 +336,15 @@ static bool scan_flag
 	}
 	f = 1ull << j;
 	p = & new_flags;
+    }
 
-	if ( ( f & allowed_flags ) == 0 )
-	{
-	    PAR::parse_error
-		( parser, position,
-		  "flag/option name not recognized in"
-		  " this context" );
-	    return false;
-	}
+    if ( ( f & allowed_flags ) != f )
+    {
+	PAR::parse_error
+	    ( parser, position,
+	      "flag/option name not recognized in this"
+	      " context" );
+	return false;
     }
 
     if ( op == PAR::minus )

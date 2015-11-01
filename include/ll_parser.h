@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 06:26:54 EDT 2015
+// Date:	Sun Nov  1 02:23:16 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,8 +62,7 @@ namespace ll { namespace parser {
 	eapbreak,	// end at paragraph break
 	ealsep,		// end at line separator
 	eaoclosing,	// end at outer closings
-	other_opt,	// other options
-	all_ea_opt,	// all end at options
+	other_ea_opt,	// other end at options
 	default_opt,	// default options
 	other_selectors, // other selectors
 	parser_lexeme,	// parser

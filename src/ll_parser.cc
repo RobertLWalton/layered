@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 31 07:19:55 EDT 2015
+// Date:	Sun Nov  1 02:23:27 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,8 +58,7 @@ min::locatable_gen PAR::ealtindent;
 min::locatable_gen PAR::eapbreak;
 min::locatable_gen PAR::ealsep;
 min::locatable_gen PAR::eaoclosing;
-min::locatable_gen PAR::other_opt;
-min::locatable_gen PAR::all_ea_opt;
+min::locatable_gen PAR::other_ea_opt;
 min::locatable_gen PAR::default_opt;
 min::locatable_gen PAR::other_selectors;
 min::locatable_gen PAR::parser_lexeme;
@@ -139,10 +138,8 @@ static void initialize ( void )
 	    ( "end", "at", "outer", "closing" );
 
 
-    PAR::other_opt =
-        min::new_lab_gen ( "other", "options" );
-    PAR::all_ea_opt =
-        min::new_lab_gen ( "all", "end", "at",
+    PAR::other_ea_opt =
+        min::new_lab_gen ( "other", "end", "at",
 	                   "options" );
     PAR::default_opt =
         min::new_lab_gen ( "default", "options" );
@@ -768,11 +765,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    TAB::create_key_table ( 32 );
 
 	TAB::push_root
-	    ( PAR::other_opt, PAR::ALL_OPT,
-	      0, PAR::top_level_position,
-	      parser->selector_group_name_table );
-	TAB::push_root
-	    ( PAR::all_ea_opt, PAR::ALL_EA_OPT,
+	    ( PAR::other_ea_opt, PAR::ALL_EA_OPT,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root

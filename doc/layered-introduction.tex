@@ -2143,7 +2143,8 @@ where \TT{@} represents the subexpression
 ```This is a quoted paragraph is inside a logical line!'''
 \end{verbatim}\end{indpar}
 
-The parser options that control when a logical line ends are:
+The \skey{parsering end at option}s\label{PARSING-END-AT-OPTIONS}
+control when a logical line ends are:
 
 \begin{indpar}[0.5in]
 
@@ -2304,7 +2305,8 @@ matched labels can span line boundaries,
 but cannot cross bracketed subexpression
 boundaries.
 
-The context of a symbol table lookup includes a set of \skey{parsing selector}s.
+The context of a symbol table lookup includes a set of
+\skey{parsing selector}s.\label{PARSING-SELECTORS}
 In order to be active, a symbol table entry's set of selectors
 must have some selector in common with the parsing selectors.
 A selector set is represented as a 48-bit unsigned integer value
@@ -2367,42 +2369,6 @@ where pushing corresponds to clearing selectors from some entries
 and popping corresponds to restoring those selectors to their
 previous state.
 
-\subsubsection{Builtin Parser Selector/Options}
-\label{BUILTIN-PARSER-SELECTOR/OPTIONS}
-
-The following selectors are builtin.  Most are used to control
-parser features, and these are referred to as \skey{parser option}s
-(as well as being parser selectors).  One is used exclusively
-to select symbol table entries, and another is used both for
-control and selection and is referred to as a \key{parser
-selector/\EOL option}:
-
-\begin{indpar}[0.5in]
-
-\hspace*{-0.2in}\ttmkey{paragraph header}{parser option} \\
-    If a prefix separator appears in a paragraph beginning
-    position (after a blank line and any following comment lines)
-    and its type has this parser option, then the prefix separator
-    becomes the current paragraph header.
-
-\hspace*{-0.2in}\ttmkey{paragraph repeat}{parser option} \\
-    If a paragraph does not begin with a paragraph header
-    prefix separator as per the \TT{para\-graph header} option,
-    and the \TT{paragraph repeat} option is in effect,
-    then the current paragraph header is implicitly prepended
-    to the paragraph (unless there is no current paragraph
-    header).
-
-
-\hspace*{-0.2in}\ttmkey{paragraph indent}{parser option} \\
-    If this option is turned on by a (explicit or implicit)
-    paragraph header prefix separator, the indent of the
-    next token after this prefix separator becomes the new
-    paragraph indent, and the paragraph ends just before
-    the next physical line beginning non-comment token that
-    has lesser indent than this paragraph indent.
-
-\end{indpar}
 
 \subsection{Parser Commands}
 
@@ -2465,13 +2431,13 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 \\[0.6ex]
 \emkey{parser-test-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{parser trace}{trace!parser} {\em parser-flag-spec} \\
+    ::= & \ttikey{parsing trace}{trace!parser} {\em parser-flag-spec} \\
     $|$ & \ttikey{parser print trace}{trace!parser print} \\
     $|$ & \ttikey{parser test}{test!parser} \ldots \\
     \end{tabular}
 \label{PARSER-TEST-COMMAND}
 \\[0.6ex]
-\emkey{parser-trace-flag} ::= see page \pageref{PARSER-TRACE-FLAGS}
+\emkey{parser-trace-flag} ::= see page \pageref{PARSING-TRACE-FLAGS}
 \\[0.6ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
@@ -2534,9 +2500,15 @@ The {\em block-name} merely serves as an error check; it is
 not possible to have one `\TT{parser end}' command end more than
 one parser block.
 
-The parser has two sets of \emkey{parser-flags}\index{flags!parser}:
-the parser trace flags and the
-selectors.  Each set has up to 64 named flags.  A set of parser flags can be
+The parser has serveral sets of \emkey{parser-flags}\index{flags!parser}:
+\begin{center}
+\begin{tabular}{lll}
+parsing selectors 	& 48 bits	& \pagref{PARSING-SELECTORS} \\
+parsing end at options	& 8 bits	& \pagref{PARSING-END-AT-OPTIONS} \\
+parsing trace flags	& 64 bits	& \pagref{PARSING-TRACE-FLAGS} \\
+\end{tabular}
+\end{center}
+A set of parser flags can be
 specified by giving a {\em parser-flag-list} or a
 {\em parser-flag-modifier-list}.
 
@@ -2555,47 +2527,63 @@ These pairs are interpreted as follows:
 
 In either the case of a {\em parser-flag-list} or
 {\em parser-flag-modifier-list} no flag may be named more than once.
- 
+
+Each particular kind of flag can also have flag groups, which are names
+of sets of flags.  If a flag group name is used, it is effectively
+replaced by the names of all the flags in the group, \underline{except}
+those flags explicitly named in the {\em parser-flag-list} or
+{\em parser-flag-modifier-list} in which the flag group name appears.
+So for example, the flag modifier list
+\begin{center}
+\TT{[+ other end at options, - end at paragraph break]}
+\end{center}
+is equivalent to a {\em parser-flag-list} listing all end-at options
+except \TT{end at paragraph break}.  This is because the group name
+\TT{other end at options} denotes the set of all end-at options, but
+since \TT{end at paragraph break} is explicitly mentioned in this
+{\em parser-flag-modifier-list}, it is deleted from the set in this
+context.
+
 The current set of
-\skey{parser trace flag}s\index{trace flag!parser}\index{flag!parser trace}
-may be given or modified by the `\ttkey{parser trace}' command.
+\skey{parsing trace flag}s\index{trace flag!parser}\index{flag!parsing trace}
+may be given or modified by the `\ttkey{parsing trace}' command.
 The trace flags cause trace printouts to the printer the parser uses
 for error messages.  The trace flag names are builtin and are listed
-in on page \pageref{PARSER-TRACE-FLAGS}.
+in on page \pageref{PARSING-TRACE-FLAGS}.
 
 The `\ttkey{parser print trace}' command prints the current set of
-parser trace flags.
+parsing trace flags.
 
 \begin{boxedfigure}[!p]
 
 \begin{indpar}[0.4in]
-\hspace*{-0.2in}\ttmkey{parser input}{parser trace flag} ~
+\hspace*{-0.2in}\ttmkey{parser input}{parsing trace flag} ~
     When the parser reads a token from the input,
     a description of the token is printed.
 
-\hspace*{-0.2in}\ttmkey{parser output}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{parser output}{parsing trace flag}
     When the parser produces a output line token, the token value
     is printed.
 
-\hspace*{-0.2in}\ttmkey{parser commands}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{parser commands}{parsing trace flag}
     Upon successfully finishing the execution of a parser command,
     the command is printed (if the command is in error the error
     printout will print the command).
 
-\hspace*{-0.2in}\ttmkey{bracketed subexpressions}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{bracketed subexpressions}{parsing trace flag}
     Enables tracing for the parser bracketed subexpression recognition pass.
 
-\hspace*{-0.2in}\ttmkey{operator subexpressions}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{operator subexpressions}{parsing trace flag}
     Enables tracing for the parser operator recognition pass.
 
-\hspace*{-0.2in}\ttmkey{subexpression lines}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{subexpression lines}{parsing trace flag}
     The printing of a value by the `\TT{parser output}' or
     `\ldots{} \TT{subexpressions}' trace flags, or the
     \TT{parser test} command, includes
     the lines containing the value with the value producing subexpression
     within these lines underlined.
 
-\hspace*{-0.2in}\ttmkey{subexpression elements}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{subexpression elements}{parsing trace flag}
     The printing of a value by the `\TT{parser output}' or
     `\ldots{} \TT{subexpressions}' trace flags, or the
     \TT{parser test} command, includes
@@ -2603,13 +2591,13 @@ parser trace flags.
     graphic representations of non-graphic characters
     shown.  This is the default.
 
-\hspace*{-0.2in}\ttmkey{subexpression details}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{subexpression details}{parsing trace flag}
     The printing of a value by the `\TT{parser output}' or
     `\ldots{} \TT{subexpressions}' trace flags, or the
     \TT{parser test} command, includes
     a detailed rendition of the value with all attributes shown.
 
-\hspace*{-0.2in}\ttmkey{keys}{parser trace flag}
+\hspace*{-0.2in}\ttmkey{keys}{parsing trace flag}
     During execution of a subexpression by a trace-enabled parser 
     pass, the keys found in the pass symbol tables are printed.
     If a key is rejected after being found, a rejection message
@@ -2619,8 +2607,8 @@ parser trace flags.
 
 \bigskip
 
-\centerline{\bf Parser Trace Flags}
-\label{PARSER-TRACE-FLAGS}
+\centerline{\bf Parsing Trace Flags}
+\label{PARSING-TRACE-FLAGS}
 \end{boxedfigure}
 
 The `\ttkey{parser test}' command just causes the parse of itself
@@ -2636,7 +2624,7 @@ Other selector names must be defined by the {\em parser-selector-command}:
 \end{center}
 When the parser block containing a selector name definition
 command ends, the selector name is erased.
-There may be at most 64 selectors defined at any one time.
+There may be at most 48 selectors defined at any one time.
 
 The \key{standard parser} creates a single initial parsing block
 named `\ttikey{standard}{parsing block}' and defines in it the selectors
@@ -3949,6 +3937,35 @@ is just alternate syntax for
 The `\TT{with prefix separators allowed}' option to a
 {\em parser-typed-backet-command} enables use of the command
 defined punctuation to construct {\em typed-prefix-separators}.
+
+TBD
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.2in}\ttmkey{paragraph header}{parser option} \\
+    If a prefix separator appears in a paragraph beginning
+    position (after a blank line and any following comment lines)
+    and its type has this parser option, then the prefix separator
+    becomes the current paragraph header.
+
+\hspace*{-0.2in}\ttmkey{paragraph repeat}{parser option} \\
+    If a paragraph does not begin with a paragraph header
+    prefix separator as per the \TT{para\-graph header} option,
+    and the \TT{paragraph repeat} option is in effect,
+    then the current paragraph header is implicitly prepended
+    to the paragraph (unless there is no current paragraph
+    header).
+
+
+\hspace*{-0.2in}\ttmkey{paragraph indent}{parser option} \\
+    If this option is turned on by a (explicit or implicit)
+    paragraph header prefix separator, the indent of the
+    next token after this prefix separator becomes the new
+    paragraph indent, and the paragraph ends just before
+    the next physical line beginning non-comment token that
+    has lesser indent than this paragraph indent.
+
+\end{indpar}
 
 \subsubsection{The Print Bracket Command}
 

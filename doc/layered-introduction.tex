@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 1, 2015
+November 2, 2015
  
 \end{center}
 
@@ -2617,7 +2617,7 @@ are executed, any text placed after the words `\TT{parser test}' will
 be parsed and the resulting printout will indicate the details of that
 parse.
 
-The only builtin selector name is `\ttikey{parser}{selector name}'.
+The only builtin selector names are `\TT{parser}' and `\TT{data}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
     \TT{parser define selector} {\em selector}
@@ -2644,8 +2644,7 @@ associated with the {\em context-name}.  There are two builtin
 \em Context-Name & \em Parser-Flag-Spec \\
 \hline
 \ttkey{parser}  & \tt [parser] \\
-\ttkey{parser test}  & none; equivalent to an empty
-                      {\em parser-flag-modifier-list}
+\ttkey{parser test}  & none
 \end{tabular}
 \end{center}
 
@@ -2662,12 +2661,14 @@ by the parser, and \underline{is} included in the parser output for the line.
 
 New {\em context-names} can be defined by the {\em parser-context-command}:
 \begin{center}
-    \TT{parser define context} {\em context-name}
-        [ \TT{with parsing selectors} {\em parser-flag-spec} ]
+    \TT{parser define context}
+    \begin{tabular}[t]{l}
+    {\em context-name} \\{}
+    [ \TT{with parsing selectors} {\em parser-flag-spec} ]
+    \end{tabular}
 \end{center}
 If no {\em parser-flag-spec} is given, the {\em context-name} does
-not modify the top level selectors, as if the {\em parser-flag-spec}
-were an empty {\em parser-flag-modifier-list}.  An example of this
+not modify the top level selectors.  An example of this
 is the builtin `\TT{parser test}' {\em context-name}.
 
 The `\ttikey{default}{context-name}' {\em context-name} is special
@@ -2739,7 +2740,8 @@ Its syntax is
 \end{center}
 The {\em partial-name} and {\em name} are both treated as sequences
 of complete lexemes, and the former can be any subsequence of the
-latter, not just an initial subsequence.
+latter, not just an initial subsequence.  There is \underline{no}
+partial lexeme matching.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 

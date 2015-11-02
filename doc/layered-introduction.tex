@@ -2750,7 +2750,10 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.25in}logical lines, which may end with any line break,
     or with a line break not followed by an indented line,
     or with a line break followed by a counter-indented line,
-    or with any blank line \\
+    or with a line separator (e.g.~`\TT{,}'),
+    or with any blank line, or with the closing bracket
+    (e.g., `\TT{)}') of
+    a bracketed expression that contains the logical line \\
 \hspace*{-0.25in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
 \hspace*{-0.25in}indentation marks (e.g.~`\TT{:}')
@@ -2763,7 +2766,7 @@ The bracketed subexpression recognition pass recognizes:
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
-consecutive quoted strings if they are on the same
+consecutive quoted strings if they are in the same
 logical line.  Thus if logical lines end with a line break
 but permit indented continuation lines, then
 \begin{indpar}\begin{verbatim}
@@ -2813,8 +2816,9 @@ are not all on the same physical line: again
 see Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS} for details.
 
 Like other parser passes, the bracketed subexpression recognition pass uses
-parser selectors.  However, the bracketed subexpression recognition pass
-is the only pass that can change these selectors.  Details are in
+parsing selectors and parsing options.
+However, the bracketed subexpression recognition pass
+is the only pass that can change these selectors and options.  Details are in
 the following subsections.
 
 In addition the bracketed subexpression recognition pass maintains

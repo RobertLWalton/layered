@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 2, 2015
+November 3, 2015
  
 \end{center}
 
@@ -512,10 +512,10 @@ normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the Unicode
 Replacement Character (hex code \TT{FFFD}).
 
-The algorithm for scanning a lexeme is given on page
-\pageref{LEXICAL-SCANNING-ALGORITHM}.
+The algorithm for scanning a lexeme is given on in
+Figure~\itemref{LEXICAL-SCANNING-ALGORITHM}.
 
-\begin{figure*}[!p]
+\begin{boxedfigure}[!p]
 \begin{center}
 \begin{tabular}{l}
 To scan a lexeme: \\
@@ -572,8 +572,9 @@ To scan a lexeme: \\
     \end{tabular}
 \end{tabular}
 \end{center}
+\caption{Algorithm for Scanning a Lexeme}
 \label{LEXICAL-SCANNING-ALGORITHM}
-\end{figure*}
+\end{boxedfigure}
 
 
 A single \mkey{instruction}{in lexical program} can do the following:
@@ -762,8 +763,8 @@ lexeme on a line is also used syntactically to determine
 indentation.  Line numbers are used syntactically to identify line ends
 and blank lines.
 
-The lexemes in a lexical program are specified on page
-\pageref{LEXEME-PROGRAM-LEXEMES}.  This specification assumes there
+The lexemes in a lexical program are specified in
+Figure~\itemref{LEXEME-PROGRAM-LEXEMES}.  This specification assumes there
 are no illegal characters in the input; see page \pageref{ILLEGAL-CHARACTERS}
 above to account for such characters.
 
@@ -810,7 +811,7 @@ a hexadecimal UNICODE character code, which must begin with a digit.
 Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
 a form feed.
 
-\begin{figure*}[!p]
+\begin{boxedfigure}[!p]
 \begin{indpar}
 
 \emkey{lexeme}
@@ -890,8 +891,9 @@ a form feed.
 \label{COMMENT}
 
 \end{indpar}
+\caption{Lexeme Program Lexemes}
 \label{LEXEME-PROGRAM-LEXEMES}
-\end{figure*}
+\end{boxedfigure}
 
 The definition of a {\em middle-lexeme} is unusual: it is what is left over
 after removing {\em leading-separators} and {\em trailing-separators}
@@ -912,11 +914,11 @@ the right to left removal of {\em trailing-separators} from a
 as an atom that is backed up over and rescanned:
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 
-The syntax of a lexical program is specified on
-\pagref{LEXEME-PROGRAM-SYNTAX-1} and
-\pagref{LEXEME-PROGRAM-SYNTAX-2}.
+The syntax of a lexical program is specified in
+Figures~\itemref{LEXEME-PROGRAM-SYNTAX-1}
+and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 
-\begin{figure*}[!p]
+\begin{boxedfigure}[!p]
 \begin{indpar}
 \emkey{name} ::= 
 	\{ {\em word} $|$ {\em number} $|$ {\em quoted-string} \}\STAR{}
@@ -1006,10 +1008,11 @@ The syntax of a lexical program is specified on
 \emkey{lexical-table-name} ::=
     {\em name} except \TT{scan error} or \TT{none}
 \end{indpar}
+\caption{Lexeme Program Syntax: Part I}
 \label{LEXEME-PROGRAM-SYNTAX-1}
-\end{figure*}
+\end{boxedfigure}
 
-\begin{figure*}[!t]
+\begin{boxedfigure}[!t]
 \begin{indpar}
 \emkey{default-instruction-group}
 	::= {\em empty} $|$ {\em instruction-group}
@@ -1072,16 +1075,17 @@ The syntax of a lexical program is specified on
 \\[0.3ex]
 \emkey{translation-string} ::= {\em quoted-string}
 \end{indpar}
+\caption{Lexeme Program Syntax: Part II}
 \label{LEXEME-PROGRAM-SYNTAX-2}
-\end{figure*}
+\end{boxedfigure}
 
 An example lexical program that recognizes
 whitespace and quoted strings is given
-on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+in Figure~\itemref{EXAMPLE-LEXEME-PROGRAM}.
 \TT{<LF>} is the only {\em character-representative} recognized
 in quoted strings by this example.
 
-\begin{figure*}[!p]
+\begin{boxedfigure}[!p]
 \addtolength{\baselineskip}{-0.4ex}
 \begin{indpar}\begin{verbatim}
 begin example lexical program;
@@ -1128,8 +1132,9 @@ end premature end of file master table;
 
 end premature tables lexical program;
 \end{verbatim}\end{indpar}
+\caption{Example Lexeme Program}
 \label{EXAMPLE-LEXEME-PROGRAM}
-\end{figure*}
+\end{boxedfigure}
 
 A \emkey{lexical-program} consists of a sequence of units that are
 {\em character-\EOL pattern-\EOL defi\-ni\-tions},

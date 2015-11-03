@@ -195,7 +195,6 @@
 	 \end{minipage}
 	 \end{lrbox}
 
-	 \vspace*{-15ex}
 	 \centering
 	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
 	 \end{figure*}}
@@ -2143,8 +2142,12 @@ where \TT{@} represents the subexpression
 ```This is a quoted paragraph is inside a logical line!'''
 \end{verbatim}\end{indpar}
 
-The \skey{parsering end at option}s\label{PARSING-END-AT-OPTIONS}
-control when a logical line ends are:
+The \skey{parsering end at option}s
+control when a logical line ends and are defined in
+Figures~\itemref{PARSING-END-AT-OPTIONS-1}
+and~\itemref{PARSING-END-AT-OPTIONS-2}.
+
+\begin{boxedfigure}[!p]
 
 \begin{indpar}[0.5in]
 
@@ -2201,6 +2204,15 @@ control when a logical line ends are:
 
 \end{indpar}
 
+\medskip
+
+\caption{\bf Parsing End-At Options: Part I}
+\label{PARSING-END-AT-OPTIONS-1}
+
+\end{boxedfigure}
+
+\begin{boxedfigure}[!t]
+
 Two option groups are also defined:
 
 \begin{center}
@@ -2214,6 +2226,13 @@ Two option groups are also defined:
 				& all `\TT{end at}' options
 \end{tabular}
 \end{center}
+
+\medskip
+
+\caption{\bf Parsing End-At Options: Part II}
+\label{PARSING-END-AT-OPTIONS-2}
+
+\end{boxedfigure}
 
 \subsection{Parser Symbol Table}
 \label{PARSER-SYMBOL-TABLE}
@@ -2375,7 +2394,7 @@ previous state.
 A parser command is a top level line that changes parser tables.
 The syntax of a parser commands in general and in particular those
 associated parser block definition, parser testing, selector definition,
-and parser contexts is specified on \pagref{PARSER-COMMANDS}.
+and parser contexts is specified in Figure~\itemref{PARSER-COMMANDS}.
 
 \begin{boxedfigure}[!p]
 \emkey{parser-command}
@@ -2462,9 +2481,9 @@ and parser contexts is specified on \pagref{PARSER-COMMANDS}.
 
 \medskip
 
-\centerline{\bf Parser Command Syntax}
-
+\caption{\bf Parser Command Syntax}
 \label{PARSER-COMMANDS}
+
 \end{boxedfigure}
 
 A parser command is a top level input line by itself, and is
@@ -2504,7 +2523,7 @@ The parser has serveral sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{center}
 \begin{tabular}{lll}
 parsing selectors 	& 48 bits	& \pagref{PARSING-SELECTORS} \\
-parsing end at options	& 8 bits	& \pagref{PARSING-END-AT-OPTIONS} \\
+parsing end at options	& 8 bits	& \pagref{PARSING-END-AT-OPTIONS-1} \\
 parsing trace flags	& 64 bits	& \pagref{PARSING-TRACE-FLAGS} \\
 \end{tabular}
 \end{center}
@@ -2549,7 +2568,7 @@ The current set of
 may be given or modified by the `\ttkey{parsing trace}' command.
 The trace flags cause trace printouts to the printer the parser uses
 for error messages.  The trace flag names are builtin and are listed
-in on page \pageref{PARSING-TRACE-FLAGS}.
+in Figure~\itemref{PARSING-TRACE-FLAGS}.
 
 The `\ttkey{parser print trace}' command prints the current set of
 parsing trace flags.
@@ -2607,7 +2626,7 @@ parsing trace flags.
 
 \bigskip
 
-\centerline{\bf Parsing Trace Flags}
+\caption{\bf Parsing Trace Flags}
 \label{PARSING-TRACE-FLAGS}
 \end{boxedfigure}
 
@@ -2834,10 +2853,11 @@ subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
 are MIN objects with attributes determined by the brackets
 and elements dermined by tokens between the brackets.
 For untyped brackets the only
-syntax attributes are \TT{.initiator} and \TT{.terminator}, and the
+syntax attributes are \TT{.initiator}, \TT{.terminator}, and
+\TT{.separator}, and the
 only non-syntax attribute is the \TT{.position} attribute.
 For typed brackets
-the only syntax attribute is the \TT{.type} attribute, but arbitrary
+the only syntax attributes are \TT{.type} and \TT{.separator}, but arbitrary
 non-syntax attributes may be encoded within the typed brackets,
 in addition to the \TT{.position} attribute.
 
@@ -2932,8 +2952,8 @@ of the lexemes which the MIN object and its elements represent.
 This is not considered to be a syntax attribute.
 
 The output of the parser is a sequence of \TT{BRACKETED} tokens,
-one per top level logical line.  The value of one of these tokens encodes
-the logical line.
+one per top level logical line.  For each of these tokens,
+its `\TT{value}' encodes its logical line.
 
 Syntactically a {\em bracketed-subexpression} takes one of several forms:
 
@@ -2954,7 +2974,7 @@ Syntactically a {\em bracketed-subexpression} takes one of several forms:
 However, some of these forms can only be recognized in particular
 contexts, e.g., {\em indented-para\-graph-subexpressions} can only be
 recognized if they begin at the end of a line and are the last
-element in their containing expression or are top level.
+element in their containing expression.
 See the indicated sections for details.
 
 The parser commands specific to the bracketed subexpression recognizer
@@ -2972,8 +2992,9 @@ recognized by this recognizer:
 \label{PARSER-BRACKETED-COMMAND}
 \end{indpar}
 
-The following subsections describe these different kinds of commands
-and the subexpressions they control.
+The following subsections describe the different kinds of
+{\em bracketed-subexpressions} and the {\em parser-bracketed-commands}
+that control their recognition.
 
 \subsubsection{Untyped Bracketed Subexpressions}
 \label{UNTYPED-BRACKETED-SUBEXPRESSIONS}

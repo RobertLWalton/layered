@@ -3219,16 +3219,17 @@ the line after the outer paragraph
 
 An \key{indented paragraph subexpression}
 begins with an {\em indentation-mark} (e.g. `\TT{:}')
-which must be at the end of
-a line.  This is followed by an \key{indented paragraph}
-consisting of zero or more \skey{paragraph line}s,
-each beginning at the same indentation which
-is called the \key{paragraph indentation}.  The paragraph indentation
-is defined as the indentation of the first paragraph line of the paragraph,
-and must be greater than the indentation of the line containing the
-{\em indentation-mark}.
-A paragraph line may have a continuation lines that are indented with
-respect to the paragraph indentation.
+which must be at the end of a physical line.
+This is followed by an \key{indented paragraph}
+consisting of zero or more logical lines called \skey{paragraph line}s.
+The paragraph has a \key{paragraph indentation},
+which is the indentation of the
+first non-blank, non-comment physical line after the
+line containing the indentation mark, if this indentation
+is greater than the indentation of the physical line containing
+the indentation mark.  But if this indentation is less than or equal
+to the indentation of the physical line containing the indentation
+mark, the paragraph is empty, and has no paragraph lines.
 
 The general syntax is:
 
@@ -3236,32 +3237,22 @@ The general syntax is:
 \emkey{indented-paragraph-subexpression} ::=
 	\begin{tabular}[t]{@{}l}
 	{\em indentation-mark} {\em line-break} \\
-	~~~~ {\em paragraph-line-group}\STAR{} \\
+	~~~~ {\em paragraph-line}\STAR{} \\
 	{\em paragraph-end}
 	\end{tabular}
 \\[0.5ex]
-\emkey{paragraph-line-group}
-	\begin{tabular}[t]{@{}rl}
-	::= & {\em separated-paragraph-line}\STAR{}
-	      {\em non-separated-paragraph-line} \\
-	$|$ & {\em separated-paragraph-line}\PLUS{} \\
-	\end{tabular}
+\emkey{paragraph-line} ::= logical line, possibly ended by
+                           a {\em line-separator}
 \\[0.5ex]
-Note: \begin{minipage}[t]{5.8in}
-      A {\em paragraph-line-group} must begin at the paragraph indent
-      and may contain continuation lines: see text.
-      \end{minipage}
-\\[0.5ex]
-\emkey{paragraph-end} ::= beginning of a line whose indent is less than
-			  the paragraph indent
-\\[0.5ex]
-\emkey{separated-paragraph-line} ::= {\em element-list} {\em line-separator}
-\\[0.5ex]
-\emkey{non-separated-paragraph-line} ::=
-    {\em element-list} {\em non-continuation-line-break}
-\\[0.5ex]
-\emkey{non-continuation-line-break} ::= {\em line-break} not followed by a
-				   continuation line
+\emkey{paragraph-end} ::= \\
+\hspace*{3em}\begin{tabular}[t]{l}
+             beginning of a line whose indentation is less than
+			  the paragraph indentation; \\
+	     or is less than the indentation of the physical line
+			  containing \\
+	     the {\em indentation-mark} if the paragraph
+	                  is empty
+	     \end{tabular}
 \\[0.5ex]
 \emkey{indentation-mark} ::=
    \begin{tabular}[t]{@{}l}
@@ -3274,20 +3265,12 @@ Note: \begin{minipage}[t]{5.8in}
 \\[0.5ex]
 \emkey{line-separator} ::= ditto
     ~~~~~ [e.g., `\TT{;}']
-\\[0.5ex]
-\emkey{element-list} ::= see \pagref{ELEMENT-LIST}
-\\[0.5ex]
-Note: \begin{minipage}[t]{5.6in}
-      A {\em paragraph-line} {\em element-list} is terminated by the
-      first {\em line-separator} or {\em non-continuation-line-break}.
-      \end{minipage}
 \end{indpar}
 
-A {\em paragraph-line-group} may be continued by continuation lines
-which a lines indented more than the indentation of the beginning
-of the {\em paragraph-line-group}.  Another way of putting it is
-that {\em line-breaks} before a continuation line are deleted before
-parsing is done.
+{\em Paragraph-lines} are Logical lines that end according to
+the setting of the end-at options;
+See~\pagref{PARSING-END-AT-OPTIONS-1}.  The setting of these options can be
+controlled by the specification of the {\em indentation-mark}.
 
 An {\em indentation-mark} is specified by a
 \ttikey{parser define indentation mark}{indentation mark!parser define}

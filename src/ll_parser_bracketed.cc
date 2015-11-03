@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 31 07:26:41 EDT 2015
+// Date:	Tue Nov  3 07:16:51 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -915,8 +915,9 @@ inline min::int32 relative_indent
 //                           before closing backet
 //
 //               if line is not empty or line_sep found:
-//                  compact line found with .initiator =
-//                          <STX>, .terminator = line_sep
+//                  compact line found with
+//                          .initiator = <STX>,
+//                          .terminator = line_sep
 //                          if that found, compact token
 //                          type BRACKETING, and new_
 //                          selectors

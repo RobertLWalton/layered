@@ -1259,31 +1259,38 @@ parser print bracket "":
                      [data, code, math, text]
                      with parsing selectors [- parser, + data, - code,
                                              - math, - text]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket "(" ... ")" [data, code, math, text]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket "(" ... ")" [parser]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: indentation mark ":" ... ";" [code]
-                     with parsing options [- end at outer closing]
+                     with parsing options [- end at line break,
+                                           + end at le indent,
+                                           - end at lt indent,
+                                           - end at paragraph break,
+                                           + end at line separator,
+                                           + end at outer closing]
     block TOP LEVEL: bracket "[" ... "]" [data, code, math, text]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket "[" ... "]" [parser]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket "`" ... "'" [data]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket "`" ... "'" [code, math, text]
                      with parsing selectors [- code, - math, + text]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >]
                      [code, math, text]
                      with parsing selectors [- code, + math, - text]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
     block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
                      [data, code, math, text]
-                     with parsing options [+ end at outer closing]
+                     with parsing options [- end at line separator]
                      with attribute selectors [data]
                      with attributes ":" ... "=" ... ","
                      with attribute negator "no"

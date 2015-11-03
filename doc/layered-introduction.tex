@@ -3084,7 +3084,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 	& \hspace*{3em} & [ \TT{with parsing selectors}
 	                    {\em new-selectors} ] \\
         &               & [ \TT{with options}
-	                    {\em untyped-bracket-options} ] \\
+	                    {\em untyped-bracket-end-at-options} ] \\
     $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
                                     {bracket!parser undefine}
 		    {\em bracket-name} {\em selectors}} \\
@@ -3099,9 +3099,10 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{closing-bracket} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{new-selectors} ::= {\em parser-flag-modifier-list}
+\emkey{new-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
-\emkey{untyped-bracket-options} ::= {\em parser-flag-list}
+\emkey{untyped-bracket-end-at-options} ::= {\em parser-flag-spec}
+	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 
 \end{indpar}
 
@@ -3130,48 +3131,66 @@ discovered by finding the {\em closing-bracket} of a containing
 or the end of the logical line
 containing the {\em untyped-bracketed-subexpression}.
 
-An exception to this is made if the bracket definition has the
-\ttmkey{full lines}{in bracket definition} property.  In this case
-it is expected that the subexpression will consist of one or
-more full input lines.  While the subexpression is being scanned,
-use of indentation is turned off, and only the {\em closing-bracket}
-associated with the full lines {\em opening-bracket}, or an
-end-of-file,
-can terminate the subexpression.  During parsing of a
-`\TT{full lines}' subexpression, the parser only knows about
-subexpressions and paragraphs that are included completely inside the
-`\TT{full lines}' subexpression.
-
 When an {\em opening-bracket} is recognized, the current parser
-selector set is saved in a stack and
+selector set and options are saved in a stack.  Then if the
+bracket definition contains {\em new-selectors},
 a new set is computed by modifying the saved set
-according to the {\em new-selectors} in the bracket definition.
-The saved selector set is restored after the {\em closing-bracket}
+according to the {\em new-selectors}.
+Similarly if the bracket definition contains {\em untyped-bracket-options},
+these become the new end-at options.
+The saved selector set and options are restored after the {\em closing-bracket}
 is recognized.  However {\em closing-bracket}
 recognition does not depend
 upon the current parser selectors, but only on previous recognition
 of an associated {\em opening-bracket}.
 
-The definition
+An example using {\em untyped-bracket-options} to permit
+\TT{`{}`{}`\ldots'{}'{}'}
+to bracket arbitrary text with arbitrary indentation is:
+\begin{indpar}\begin{verbatim}
+parser define bracket "```" ... "'''" [code]
+       with parsing options []
+( An indented paragraph:
+    ```This logical line continues on no
+matter what, even with a spurious ), until
+  the following is encountered- '''
+    Second line of indented paragraph.
+    ) // End of () bracketed subexpression
+\end{verbatim}\end{indpar}
+
+
+The definitions
 \begin{indpar}\begin{verbatim}
 parser define bracket "(" ... ")" [parser]
+       with options [- end at line separator]
 parser define bracket "[" ... "]" [parser]
+       with options [- end at line separator]
 \end{verbatim}\end{indpar}
-is builtin.
+are builtin.
 
 The definitions
 \begin{indpar}\begin{verbatim}
 parser define bracket "(" ... ")" [code, math, text, data]
+       with options [- end at line separator]
 parser define bracket "[" ... "]" [code, math, text, data]
+       with options [- end at line separator]
 parser define bracket "{{" ... "}}" [code, math, text]
        with parsing selectors [ + math, - code, - text]
+       with options [- end at line separator]
 parser define bracket "{{" ... "}}" [data]
+       with options [- end at line separator]
 parser define bracket "`" ... "'" [code, math, text]
        with parsing selectors [ + text, - code, - math]
+       with options [- end at line separator]
 parser define bracket "`" ... "'" [data]
+       with options [- end at line separator]
 parser define bracket "[<" ... ">]" [code, math, text, data]
        with parsing selectors [data]
+       with options [- end at line separator]
        with reformatter label
+parser define bracket "{*" ... "*}" [data]
+       with options [- end at line separator]
+       with parsing selectors [data]
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.

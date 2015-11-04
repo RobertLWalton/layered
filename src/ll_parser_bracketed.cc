@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  3 07:16:51 EST 2015
+// Date:	Wed Nov  4 04:20:16 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1422,8 +1422,12 @@ min::position BRA::parse_bracketed_subexpression
 			      new_selectors,
 			      current,
 			      paragraph_indent,
+				new_selectors
+			      & PAR::EALSEP_OPT  ?
 			      indentation_found
-				  ->line_sep,
+				  ->line_sep :
+			      (BRA::line_sep)
+			          min::NULL_STUB,
 			      min::NULL_STUB,
 				new_selectors
 			      & PAR::EAOCLOSING_OPT  ?
@@ -1795,7 +1799,10 @@ min::position BRA::parse_bracketed_subexpression
 		BRA::parse_bracketed_subexpression
 		    ( parser, new_selectors,
 		      current, indent,
-		      min::NULL_STUB,
+		        new_selectors
+		      & PAR::EALSEP_OPT  ?
+		      line_sep :
+		      (BRA::line_sep) min::NULL_STUB,
 		      subtype == BRA::TYPED_OPENING ?
 		          (BRA::typed_opening) root :
 			  (BRA::typed_opening)
@@ -2157,7 +2164,11 @@ min::position BRA::parse_bracketed_subexpression
 				( parser,
 				  new_selectors,
 				  current, indent,
-				  line_sep,
+				    new_selectors
+				  & PAR::EALSEP_OPT ?
+				  line_sep :
+				  (BRA::line_sep)
+				      min::NULL_STUB,
 				  min::NULL_STUB,
 				  & cstack2 );
 

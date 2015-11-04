@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 3, 2015
+November 4, 2015
  
 \end{center}
 
@@ -2160,6 +2160,7 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}.
     This parser option causes a simple line break to end a logical line.
     In this case continuation lines are not possible.
 
+\vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at paragraph break}{parser option} \\
     This parser option causes a blank line to end a logical line.
     Whether or not lines that are not indented as much as the
@@ -2170,6 +2171,7 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}.
     If this option is not present, blank lines have no affect
     on parsed input.
 
+\vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at le indent}{parser option} \\
     This parser option causes the beginning of a line with indent less than
     \underline{or equal to} the current indent to end a logical line.
@@ -2177,8 +2179,7 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}.
     with indent greater than the current indent, assuming other
     options permit.
 
-    This option is on by default at top level and in indented paragraphs.
-
+\vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at lt indent}{parser option} \\
     This parser option causes the beginning of a line with indent less than
     the current indent to end a logical line.
@@ -2187,16 +2188,22 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}.
     than the current indent, assuming other
     options permit.
 
-\hspace*{-0.2in}\ttmkey{end at line separator}{parser option} \\
-    This parser option causes a line separator to end a logical line.
-    The applicable line separator is that of either the top level
+\vspace*{-0.05in}
+\hspace*{-0.2in}\ttmkey{end at line separator}{parser option}
+\label{END-AT-LINE-SEPARATOR} \\
+    This parser option allows a line separator to end a logical line.
+    The line separator controlled is that of either the top level
     when not inside an indented paragraph (default is `\TT{;}'),
     or of the smallest containing indented paragraph when inside
     an indented paragraph.
 
-    This option is on by default at top level and also
-    in indented paragraphs that have a defined line separator.
+    If this option is off or is turned off by an opening bracket
+    or indentation mark or prefix separator,
+    the controlled line separator will not
+    be recognized anywhere in the the bracketed subexpression,
+    indented paragraph, or prefix list.
 
+\vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at outer closing}{parser option} \\
     This parser option allows a bracketed subexpression or
     indented paragraph to be
@@ -2205,7 +2212,12 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}.
     subexpression `\TT{(y}' by automatically inserting a `\TT{)}'
     before the `\TT{]}', while also announcing an error.
 
-    This option is on by default at top level and in indented paragraphs.
+    If this option is off or is turned off by an opening bracket
+    or indentation mark or prefix separator,
+    no closing bracket outer to the bracketed
+    subexpression, indented paragraph, or prefix list will
+    be recognized anywhere in the the bracketed subexpression,
+    indented paragraph, or prefix list.
 
 \end{indpar}
 
@@ -2231,6 +2243,8 @@ Two option groups are also defined:
 				& all `\TT{end at}' options
 \end{tabular}
 \end{center}
+
+\TT{Default options} are also the parser top level options.
 
 \medskip
 
@@ -2771,21 +2785,21 @@ partial lexeme matching.
 
 The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[0.5in]
-\hspace*{-0.25in}logical lines, which may end with any line break,
+\hspace*{-0.2in}logical lines, which may end with any line break,
     or with a line break not followed by an indented line,
     or with a line break followed by a counter-indented line,
     or with a line separator (e.g.~`\TT{,}'),
     or with any blank line, or with the closing bracket
     (e.g., `\TT{)}') of
     a bracketed expression that contains the logical line \\
-\hspace*{-0.25in}brackets (e.g.~`\TT{(}' and `\TT{)}')
+\hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
-\hspace*{-0.25in}indentation marks (e.g.~`\TT{:}')
+\hspace*{-0.2in}indentation marks (e.g.~`\TT{:}')
     and line separators (e.g.~`\TT{;}'),
     indented paragraphs, and indented paragraph logical lines \\
-\hspace*{-0.25in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
+\hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
       and typed bracketed subexpressions \\
-\hspace*{-0.25in}typed prefix separators (e.g.~`\TT{\{p\}}')
+\hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
       and prefix lists
 \end{indpar}
 
@@ -2814,11 +2828,11 @@ being a line feed.
 
 The bracketed parser pass has its own symbol table containing:
 \begin{indpar}[0.5in]
-\hspace*{-0.25in}opening brackets (e.g.~`\TT{(}') and their
+\hspace*{-0.2in}opening brackets (e.g.~`\TT{(}') and their
     corresponding closing brackets (e.g.~`\TT{)}') \\
-\hspace*{-0.25in}indentation marks (e.g.~`\TT{:}')
+\hspace*{-0.2in}indentation marks (e.g.~`\TT{:}')
     and any corresponding line separators (e.g.~`\TT{;}') \\
-\hspace*{-0.25in}typed openings (e.g.~`\TT{\{}') and their
+\hspace*{-0.2in}typed openings (e.g.~`\TT{\{}') and their
       corresponding typed closings (e.g.~`\TT{\}}') \\
       and typed middles (e.g.~`\TT{|}')
 \end{indpar}
@@ -3083,8 +3097,8 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 		    {\em bracket-name} {\em selectors}} \\
 	& \hspace*{3em} & [ \TT{with parsing selectors}
 	                    {\em new-selectors} ] \\
-        &               & [ \TT{with options}
-	                    {\em untyped-bracket-end-at-options} ] \\
+        &               & [ \TT{with parsing options}
+	                    {\em end-at-options} ] \\
     $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
                                     {bracket!parser undefine}
 		    {\em bracket-name} {\em selectors}} \\
@@ -3101,7 +3115,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
-\emkey{untyped-bracket-end-at-options} ::= {\em parser-flag-spec}
+\emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 
 \end{indpar}
@@ -3136,7 +3150,7 @@ selector set and options are saved in a stack.  Then if the
 bracket definition contains {\em new-selectors},
 a new set is computed by modifying the saved set
 according to the {\em new-selectors}.
-Similarly if the bracket definition contains {\em untyped-bracket-options},
+Similarly if the bracket definition contains {\em end-at-options},
 these become the new end-at options.
 The saved selector set and options are restored after the {\em closing-bracket}
 is recognized.  However {\em closing-bracket}
@@ -3144,7 +3158,7 @@ recognition does not depend
 upon the current parser selectors, but only on previous recognition
 of an associated {\em opening-bracket}.
 
-An example using {\em untyped-bracket-options} to permit
+An example using {\em end-at-options} to permit
 \TT{`{}`{}`\ldots'{}'{}'}
 to bracket arbitrary text with arbitrary indentation is:
 \begin{indpar}\begin{verbatim}
@@ -3162,34 +3176,34 @@ matter what, even with a spurious ), until
 The definitions
 \begin{indpar}\begin{verbatim}
 parser define bracket "(" ... ")" [parser]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 parser define bracket "[" ... "]" [parser]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 \end{verbatim}\end{indpar}
 are builtin.
 
 The definitions
 \begin{indpar}\begin{verbatim}
 parser define bracket "(" ... ")" [code, math, text, data]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 parser define bracket "[" ... "]" [code, math, text, data]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 parser define bracket "{{" ... "}}" [code, math, text]
        with parsing selectors [ + math, - code, - text]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 parser define bracket "{{" ... "}}" [data]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 parser define bracket "`" ... "'" [code, math, text]
        with parsing selectors [ + text, - code, - math]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 parser define bracket "`" ... "'" [data]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
 parser define bracket "[<" ... ">]" [code, math, text, data]
        with parsing selectors [data]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
        with reformatter label
 parser define bracket "{*" ... "*}" [data]
-       with options [- end at line separator]
+       with parsing options [- end at line separator]
        with parsing selectors [data]
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of
@@ -3221,15 +3235,23 @@ An \key{indented paragraph subexpression}
 begins with an {\em indentation-mark} (e.g. `\TT{:}')
 which must be at the end of a physical line.
 This is followed by an \key{indented paragraph}
-consisting of zero or more logical lines called \skey{paragraph line}s.
-The paragraph has a \key{paragraph indentation},
-which is the indentation of the
+consisting of zero or more non-empty
+(see \pagref{NON-EMPTY-PARAGRAPH-LINE-RULE})
+logical lines called \skey{paragraph line}s.
+The paragraph has a \key{paragraph indent},
+which is the indent of the
 first non-blank, non-comment physical line after the
-line containing the indentation mark, if this indentation
-is greater than the indentation of the physical line containing
-the indentation mark.  But if this indentation is less than or equal
-to the indentation of the physical line containing the indentation
-mark, the paragraph is empty, and has no paragraph lines.
+line containing the indentation mark, if this indent
+is greater than the current indent.
+But if this indent is less than or equal
+to the current indent,
+the paragraph is empty, and has no paragraph lines.
+
+At the beginning of the paragraph,
+the \key{current indent} is set to the paragraph indent,
+and at the end of the paragraph, the current indent is
+restored to its previous value.  The top level
+current indent is \TT{0}.
 
 The general syntax is:
 
@@ -3244,15 +3266,9 @@ The general syntax is:
 \emkey{paragraph-line} ::= logical line, possibly ended by
                            a {\em line-separator}
 \\[0.5ex]
-\emkey{paragraph-end} ::= \\
-\hspace*{3em}\begin{tabular}[t]{l}
-             beginning of a line whose indentation is less than
-			  the paragraph indentation; \\
-	     or is less than the indentation of the physical line
-			  containing \\
-	     the {\em indentation-mark} if the paragraph
-	                  is empty
-	     \end{tabular}
+\emkey{paragraph-end} ::=
+             beginning of a line whose indent is less than
+			  the current indent
 \\[0.5ex]
 \emkey{indentation-mark} ::=
    \begin{tabular}[t]{@{}l}
@@ -3296,6 +3312,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \TT{indentation mark}
 	  {\em indentation-name} {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
+	  {}[ \TT{with parsing options} {\em end-at-options} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3316,55 +3333,76 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \\[0.5ex]
 \emkey{line-separator} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{new-selectors} ::= {\em parser-flag-modifier-list}
+\emkey{new-selectors} ::= {\em parser-flag-spec}
+\\[0.5ex]
+\emkey{end-at-options} ::= {\em parser-flag-spec}
+	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
 \end{indpar}
 
-The {\em line-separator} may be used to separate
-paragraph lines, as long as it is outside subexpressions
-(untyped bracketed, typed bracketed, or indented subparagraph)
+The {\em line-separator} may be used to end
+paragraph lines, as long as the \TT{end at line sepa\-ra\-tor}
+(\pagref{END-AT-LINE-SEPARATOR}) option permits.  Standardly
+line separators are only recognized outside subexpressions
+(untyped bracketed, typed bracketed, prefix list, or indented subparagraph)
 in the paragraph.
 
 Each paragraph line is converted to a MIN object whose elements are
 the components of the line, treated as subexpression components, except for
 any {\em line-separator} that ends the line.  This
-object is given a \TT{.type} attribute value
-equal to \TT{"<NL>"}, and if it ends with a {\em line-separator},
-it is also given a \TT{.terminator} attribute equal to the
-{\em line-separator}.
+object is given a \TT{.initiator} attribute value
+equal to \TT{min::\EOL LOGICAL\_\EOL LINE()}.
+If it ends with a {\em line-separator},
+it is given a \TT{.terminator} attribute equal to the
+{\em line-separator}, and otherwise it is given a
+\TT{.terminator} attribute equal to \TT{"<LF>"}.
 
-However, an empty paragraph line with no ending
-{\em line-separator} is ignored as if it did not exist.
+However, an \key{empty logical line} with no ending
+{\em line-separator} is ignored as if it did not exist%
+\label{NON-EMPTY-PARAGRAPH-LINE-RULE}.
+This rule allows physical lines such as
+\begin{center}
+\tt This logical line is followed by an empty logical line;
+\end{center}
+to represent a single paragraph line, instead of two paragraph lines
+the second of which is empty.  There is no other way of creating
+an empty logical line within a paragraph, and all paragraph lines
+are non-empty.
 
 The paragraph as a whole is converted to a MIN object whose elements
-are the paragraph lines, and whose \TT{.type} attribute
-is the {\em indentation-mark} that introduced the paragraph.
+are the paragraph lines, whose \TT{.initiator} attribute
+is the {\em indentation-mark} that introduced the paragraph,
+and whose \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
 A paragraph may be empty (have no paragraph lines).
 
 If while parsing an indented paragraph a line is encountered whose
-indentation is different from the paragraph indentation,
+indent is different from the current indent,
 but the difference is less than $N$ columns (default $N=2$),
 an error is announced.
 No corrective action is taken; the line is accepted as either ending
-the paragraph if its indentation is less than the paragraph
-indentation, or continuing the current paragraph line if its indentation
-is greater than the paragraph indentation.  Here $N$ is called the
+the paragraph if its indent is less than the current
+indent, or continuing the current paragraph line if its indent
+is greater than the current indent.  Here $N$ is called the
 \key{parser indentation offset}, and is a parser parameter that can be
 changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
 end of the block.  The indentation offsets of the current blocks
 can be printed by the \TT{parser print indentation offset} command.
 
-When an {\em indentation-mark} is recognized, the current parser
-selector set is saved in a stack and
-a new set is computed by modifying the saved set
-according to the {\em new-selectors} in the indentation mark definition.
-The saved selector set is restored after the end of paragraph
-is recognized.  However {\em line-separator}
-recognition does not depend
-upon the current parser selectors, but only on previous recognition
-of an associated {\em indentation-mark}.
+When an {\em indentation-mark} is recognized, the current parsing
+selector set, parsing options, and line separator are saved in a stack.
+Then a new selector set and new options are computed by modifying the saved set
+according to the {\em new-selectors} and the saved options according
+to the {\em end-at-options} in the indentation mark definition,
+and a new line separator is set according to that definition.
+The saved selector set, options, and line separator
+are restored after the end of paragraph is recognized.
+Note that if no {\em new-selectors} are given, the selectors
+are not modified, if no {\em end-at-options} 
+are given, the options are not modified, and if no
+{\em line-separator} is given, no line separator can end
+a paragraph line.
 
 \ikey{Top level parsing}{top level parsing}
 of a file recognizes paragraph lines as if the whole
@@ -3373,8 +3411,8 @@ these are \underline{not} combined into a paragraph MIN object, but
 are instead processed as they are produced.  In particular, if they
 are parser commands, they are processed by the parser to make
 modifications in the parser tables.  Also, the initial
-\key{top level paragraph indent}
-is set to zero, and an error is announced if the first non-comment,
+\key{top level current indent}\index{current indent!top level}
+is set to \TT{0}, and an error is announced if the first non-comment,
 non-line-break, non-end-of-file
 lexeme in the file has non-zero indent.
 
@@ -3388,6 +3426,7 @@ in error.
 The definition
 \begin{indpar}\begin{verbatim}
 parser define indentation mark ":" ... ";" [code]
+       with parsing options [default options]
 \end{verbatim}\end{indpar}
 is included by the standard parser at the beginning of
 its `\TT{standard}' parser block.

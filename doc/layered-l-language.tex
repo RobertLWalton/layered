@@ -1342,14 +1342,14 @@ statement.
 \label{STACK-MEMORY-ALLOCATION}
 
 The \ttkey{stack\_allocate} function allocates \TT{N} bytes of
-memory to the current stack and returns its address:
+memory to the current free stack and returns its address:
 
 \begin{indpar}\begin{verbatim}
 ( stack adr address ) = allocate to stack ( unsadr N )
 \end{verbatim}\end{indpar}\label{STACK-ALLOCATE}
 
-The memory is freed when the \TT{address} variable is freed, that is,
-at the end of the subblock containing the call to \TT{stack\_allocate}.
+The memory is freed when the free stack to which it is allocated
+is freed.
 To indicate this the address is given the \TT{stack} qualifier:
 see \itemref{THE-STACK-QUALIFIER}.
 
@@ -1377,13 +1377,13 @@ by other code.  The syntax is:
 \begin{indpar}
 \emkey{global-area-block} ::= \\
 \hspace*{3em}\begin{tabular}[t]{@{}l}
-	\TT{*UNCHECKED*}\QMARK{} \TT{global} {\em global-area-name} \TT{:} \\
+	\TT{global} {\em global-area-name} \TT{:} \\
 	\TT{~~~~}{\em executable-statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
 Several such blocks may have the same {\em global-area-name},
-as long as no {\em variable-name} appears in more than one of these block.
+as long as no {\em variable-name} appears in more than one of these blocks.
 
 In order to be accessed a global area must be named in an `\TT{extern}'
 statement:
@@ -1407,7 +1407,7 @@ A variable with {\em variable-name}
 \TT{V} in a global area with {\em global-area-abbreviation}
 \TT{A} may be named as \TT{A.V}, or if the variable has its own
 {\em variable-abbreviation} \TT{VA},
-which by itself (and \underline{not} \TT{A.VA})
+this by itself (and \underline{not} \TT{A.VA})
 may be used to name the variable.  Abbreviations are only affective
 within the source code file containing the `\TT{extern}' statements
 that define them.
@@ -1440,7 +1440,7 @@ has no special properties and normally has no effect on code.
 The code of a global area is executed when the file containing it is
 loaded, and the stack of the area is allocated and defined at that
 time.  Global areas may be deallocated.  References to a global area
-that is not yet allocated or has been deallocated cause runtime
+that is not yet allocated or that has been deallocated cause runtime
 errors (typically segmentation faults).
 
 \section{Clusters}
@@ -1510,12 +1510,12 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
-( mem pp.type out, stack adr out.adr  ) =
+( mem pp.type out, *UNCHECKED* stack adr out.adr  ) =
         "*" ( stack pointer pair pp,
               type pp.type, stack pp.begin, stack pp.end ):
     out.adr = if:
         pp.begin < pp.end:
-            *UNCHECKED* out.adr = pp.begin
+            out.adr = pp.begin
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1528,7 +1528,7 @@ type pointer pair is void
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            *UNCHECKED* in --> pp.begin
+            in *UNCHECKED* ---> pp.begin
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1608,7 +1608,8 @@ See \itemref{QUALIFIERS}.
 
 The `\TT{mem}' qualifier has the special property that given a variable
 \TT{v} of type \TT{T} and qualifier \TT{mem}, then if \TT{v} is allocated,
-and \TT{v.adr} of type \TT{adr} is allocated and
+and \TT{v.adr} of type \TT{adr} and qualifier \TT{*UNCHECKED*}
+is allocated and
 assigned a value, the base \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.

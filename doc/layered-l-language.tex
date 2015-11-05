@@ -1681,10 +1681,10 @@ As another example of the above rules, the \TT{stack} qualifier is
 an inverted protection non-inherited qualifier given the result variable of
 a call to `\TT{allocate to stack}' function (\pagref{STACK-ALLOCATE}).
 Values with this qualifier can only be passed to prototype variables
-have also have the qualifier.  This prohibits passing stack addresses
+that also have the qualifier.  This prohibits passing stack addresses
 to functions that would store them in global or heap memory.
 
-Three qualifiers, \TT{mem}, \TT{stack},
+Four qualifiers, \TT{mem}, \TT{stack}, \TT{*UNCHECKED*},
 and \TT{trace}, are builtin and have special
 effects described below.
 In addition any qualifier can be used with the special \TT{reload} statement
@@ -1693,7 +1693,7 @@ descibed below.
 \subsection{Qualifier Values}
 \label{QUALIFIER-VALUES}
 
-The type `\ttkey{qualifier}' is an enumeration type implicitely
+The type `\ttkey{qualifier}' is an enumeration type implicitly
 declared after the manner of
 \begin{center}
 \TT{type qualifier is uns32 with enum [1 ..]}
@@ -1704,9 +1704,9 @@ compile and run time to test whether two `\TT{qualifier}'s are
 equal.
 
 The type `\ttkey{qualifiers}' denotes a set of qualifier values.
-Constants equal to such sets are denoted by the names of the
+Constants equal to such sets are denoted by the comma separated names of the
 qualifier values in \TT{\{\{~\}\}} brackets.  For example,
-`\TT{\{\{stack mem\}\}}'.
+`\TT{\{\{stack, mem\}\}}'.
 
 A {\em function-prototype} can have implicit \TT{qualifiers} arguments.
 These are implicitly given as their value the smallest set of qualifiers
@@ -1732,7 +1732,7 @@ brackets that must be satisfied in order for the prototype to match
 a call.  This condition may use qualifier values and sets, with
 \TT{\&} denoting set `AND' and `\TT{\textasciitilde}' denoting
 set complement (in the universe of all possible qualifiers),
-`\TT{==}' denoting set equality, `\TT{!=}' denoting set inequalify,
+`\TT{==}' denoting set equality, `\TT{!=}' denoting set inequality,
 and `\TT{<=}' denoting set subset.
 An example is:
 
@@ -1752,9 +1752,6 @@ bar int32 z = foo ( x )
 boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
 \end{verbatim}\end{indpar}
 
-\subsection{The \TT{*UNCHECKED*} Qualifier}
-\label{THE-UNCHECKED-QUALIFIER}
-
 \subsection{The Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
 
@@ -1770,7 +1767,9 @@ must be created as matches to result variables of a function.
 So only functions can effect a load of RAM contents to a variable.
 
 It is further required that both \TT{v} and \TT{v.adr} be created
-by the same function call assignment statement.
+by the same function call assignment statement, and that
+\TT{v.adr} be given the \TT{*UNCHECKED*} qualifier by that function
+call asssignment statement.
 The function must assign a value to
 \TT{v.adr}, but not to \TT{v}.  Thus all memory reads are hidden
 inside functions which have the \TT{mem} qualifier on some of
@@ -1780,18 +1779,22 @@ their result variables.
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}
 
-The `\ttkey{stack}' qualifier is an inverted, non-inherited protection qualifier
-attached to addresses returned by builtin `\TT{allocate to stack}'
+The `\ttkey{stack}' qualifier is an inverted, non-inherited,
+protection qualifier
+attached to addresses returned by the builtin `\TT{allocate to stack}'
 function.  It is used to keep stack addresses from being stored in
 non-stack memory and in stacks who lifetime exceeds that of the
 memory the stack address points at.
 
 The special property of the `\TT{stack}' qualifier is that it cannot
 be used to qualify variables in the {\em result-variable-list}
-of a {\em call-assignment-statement} or variables in the
-{\em iteration-variable-list} of a {\em loop-assigment-statement}.
+of a {\em call-assignment-statement} or {\em loop-assigment-statement},
+or iteration variables in a {\em loop-assigment-statement}.
 
 See Section~\itemref{STACK-MANAGEMENT} for more information.
+
+\subsection{The \TT{*UNCHECKED*} Qualifier}
+\label{THE-UNCHECKED-QUALIFIER}
 
 \subsection{The Trace Qualifier}
 \label{THE-TRACE-QUALIFIER}

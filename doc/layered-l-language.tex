@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 4, 2015
+November 5, 2015
  
 \end{center}
 
@@ -1796,6 +1796,17 @@ See Section~\itemref{STACK-MANAGEMENT} for more information.
 \subsection{The \TT{*UNCHECKED*} Qualifier}
 \label{THE-UNCHECKED-QUALIFIER}
 
+The \TT{*UNCHECKED*} qualifier is a non-inverted, non-inherited,
+protection qualifier that must qualify the \TT{v.adr} variable
+associated with a variable \TT{v} that has the \TT{mem} qualifier.
+See Section~\itemref{THE-MEM-QUALIFIER}.
+
+The lexeme \TT{*UNCHECKED*} lexeme has many other uses.  It cannot
+be part of a variable name, but can be part of a non-variable name,
+e.g., a function name or a statement name such as
+`\TT{*UN\-CHECK\-ED* *ASSEMBLER*}'.  In these other uses it is
+\underline{not} a qualifier.
+
 \subsection{The Trace Qualifier}
 \label{THE-TRACE-QUALIFIER}
 
@@ -1817,27 +1828,27 @@ Variable values are recomputed in the same order as they were
 originally computed.  How each variable is recomputed depends upon
 how it was originally computed.
 
-If the variable \TT{v} was originally computed by being loaded from
-RAM, using the statement `{\em type} \TT{v}' to allocate the variable,
-it is assumed that RAM has changed.  The statement `\TT{next v}' is
-generated at the point of the \TT{reload} statement in order
-to reload the variable.  As \TT{v.adr}
-has all the qualifiers of \TT{v} and was 
-computed first, it is recomputed before \TT{v} is reloaded.
+If the variable \TT{v} has the `\TT{mem}' qualifier and was loaded
+from RAM by setting the \TT{v.adr} address variable, then the value
+in RAM is assumed to have changed, and is declared to be out-of-date.
+If \TT{v.adr} is unchanged or
+can be recomputed, then \TT{v} is reloaded from RAM.
 
 If the variable \TT{v} was originally computed by
 a {\em value-assignment-statement}
 of the form `{\em type} \TT{v =} {\em expression}', then if
-no input to {\em expression} has been recomputed, the variable value does not
-need to be recomputed, but if some input has changed, the
-statement `\TT{next v =} {\em expression}' is generated at the
-point of the \TT{reload} statement.
+no input to {\em expression} is out-of-date, \TT{v} is not out-of-date.
+Otherwise if all the inputs that are out-of-date can be recomputed,
+\TT{v} is recomputed.  However, \TT{v} is not recomputed if this
+recompuation requires evaluation of loops or out-of-line calls or
+writes to RAM;
+but it will be recomputed if evaluation can be done with a conditional
+statement subblock that does not involve loops or out-of-line calls or
+writes to RAM,
+even if other subblocks of the conditional statement do involve such.
 
 If a recomputed variable value is not used after the \TT{reload} statement,
-the automatically generated
-statements that recompute its value are suppressed.
-
-TBD: conditional assignment, loop assignment, side effects
+if is not recomputed.
 
 \section{Function Prototypes and Calls}
 \label{FUNCTION-PROTOTYPES-AND-CALLS}

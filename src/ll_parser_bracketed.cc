@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  4 04:20:16 EST 2015
+// Date:	Fri Nov  6 10:17:45 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -852,9 +852,12 @@ inline min::int32 relative_indent
 //   if typed_opening argument != NULL_STUB:
 //     save selectors argument and reset it to
 //          typed_opening->attr_selectors
+//     typed_middle_count = 0
+//     has_mark_type = false
 //
 //   indentation_mark indentation_found = NONE
 //   at_start = true
+//   paragraph_end_found = false
 //
 //   loop:
 //
@@ -862,10 +865,8 @@ inline min::int32 relative_indent
 //          line break that is followed by a line break,
 //          and every pair of tokens consisting of a new
 //          line followed by a comment; if something was
-//          skipped, then current is now either the
-//          first token of a non-comment, non-blank
-//          line, or is a line break followed by an end
-//          of file, or is an end of file
+//          skipped, then current is now either a line
+//          break or end of file
 //
 //     if current is at a line break followed by a non-
 //        eof token, set the current_indent to the
@@ -882,10 +883,10 @@ inline min::int32 relative_indent
 //        add_tokens.
 //
 //     if indentation_found != NONE:
-//        // indentation was found below, but we defer
-//        // processing it until we could skip stuff
-//        // after line break to discover paragraph
-//        // indentation
+//        // indentation was found below, but we
+//        // deferred processing it until we could skip
+//        // stuff after its following line break to
+//        // discover paragraph indentation
 //
 //        compute new_selectors from current selectors
 //                and indentation_found
@@ -1180,16 +1181,19 @@ min::position BRA::parse_bracketed_subexpression
     //
     //     save selectors
     //     recompute selectors
+    //     typed_middle_count = 0
+    //     has_mark_type = false
     //
     TAB::flags saved_selectors;
     unsigned typed_middle_count;
-    bool has_mark_type = false;
+    bool has_mark_type;
     if ( typed_opening != min::NULL_STUB )
     {
 	saved_selectors = selectors;
 	selectors = typed_opening->attr_selectors
 		  | PAR::ALWAYS_SELECTOR;
 	typed_middle_count = 0;
+	has_mark_type = false;
     }
 
     bool at_start = true;

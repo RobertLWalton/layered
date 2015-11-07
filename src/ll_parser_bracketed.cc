@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  6 19:22:08 EST 2015
+// Date:	Sat Nov  7 01:49:46 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -848,7 +848,7 @@ inline min::int32 relative_indent
 //
 // Outline of parse_bracketed_subexpression:
 // (omits tracing code, code to read more input, code
-// to set .position attirbutes)
+// to set .position attributes)
 //
 //   if typed_opening argument != NULL_STUB:
 //     save selectors argument and reset it to
@@ -884,13 +884,13 @@ inline min::int32 relative_indent
 //        add_tokens.
 //
 //     if indentation_found != NONE:
-//        // indentation was found below, but we
+//        // Indentation was found below, but we
 //        // deferred processing it until we could skip
 //        // stuff after its following line break to
 //        // discover paragraph indentation; current is
 //        // line break or end of file and is followed
 //        // by an end of file or a non-line-break, non-
-//        // end-of-file, non-comment token
+//        // end-of-file, non-comment token.
 //
 //        compute new_selectors from current selectors
 //                and indentation_found
@@ -974,12 +974,10 @@ inline min::int32 relative_indent
 //	     indentation_found = NONE
 //	     paragraph_end_found = true
 // 	 
-//     // Continue after any indented paragraph.
-//     // current is end of file or line break that
-//     // is not followed by a line break or comment
-//     //
-//     if current->next is end-of-file:
-//        return MISSING_POSITION
+//     // Continuation after any indented paragraph,
+//     // or if there was no indented paragraph.
+//     // If current is a line break, it is not
+//     // followed by a line break or comment.
 //
 //     if current is line break:
 //
@@ -987,10 +985,22 @@ inline min::int32 relative_indent
 //           delete current (the line break)
 //           return MISSING_POSITION
 //
+//	  if paragraph_end_found and
+//	     selectors & EAPBREAK,
+//	     return MISSING_POSITION
+//
 //        if current->indent is at or before indent
-//           argument, return MISSING_POSITION
+//           argument, and selectors & EALEINDENT,
+//           return MISSING_POSITION
+//
+//        if current->indent is before indent
+//           argument, and selectors & EALTINDENT,
+//           return MISSING_POSITION
 //
 //        delete current (the line break)
+//
+//     else if current is end of file:
+//          return MISSING_POSITION
 //
 //     // Continue with non-comment, non-line-break,
 //     // non-eof token.
@@ -1638,6 +1648,10 @@ min::position BRA::parse_bracketed_subexpression
 	    paragraph_end_found = true;
 	}
 
+	// Continuation after any indented paragraph
+	// has been found, or if there was no indented
+	// paragraph.
+	//
 	if ( current->type == LEXSTD::line_break_t )
 	{
 	    ensure_next ( parser, current );

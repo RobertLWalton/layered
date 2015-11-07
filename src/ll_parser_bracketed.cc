@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  6 10:17:45 EST 2015
+// Date:	Fri Nov  6 19:22:08 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -847,7 +847,8 @@ inline min::int32 relative_indent
 // by a line break or end of file.
 //
 // Outline of parse_bracketed_subexpression:
-// (omits tracing code and code to read more input)
+// (omits tracing code, code to read more input, code
+// to set .position attirbutes)
 //
 //   if typed_opening argument != NULL_STUB:
 //     save selectors argument and reset it to
@@ -886,14 +887,18 @@ inline min::int32 relative_indent
 //        // indentation was found below, but we
 //        // deferred processing it until we could skip
 //        // stuff after its following line break to
-//        // discover paragraph indentation
+//        // discover paragraph indentation; current is
+//        // line break or end of file and is followed
+//        // by an end of file or a non-line-break, non-
+//        // end-of-file, non-comment token
 //
 //        compute new_selectors from current selectors
 //                and indentation_found
 //
 //        if paragraph has some lines (i.e., current is
-//           line break followed by non-eof token whose
-//           indent is greater than indent argument):
+//           line break followed by non-eof, non-comment
+//           token whose indent is greater than indent
+//           argument):
 //
 //           delete current line-break	            
 //
@@ -904,31 +909,42 @@ inline min::int32 relative_indent
 //               // Move to end of paragraph line.
 //               //
 //               parse_bracketed_subexpression with
-//                   paragraph_indent, line_sep argument
-//                   = indentation_found->line_sep,
-//                   new_selectors, bracket stack;
-//                   remember if line ended by line_sep
+//                   paragraph_indent, new_selectors,
+//                   indentation_found->line_sep
+//                     if new_selectors & EALSEP,
+//                   bracket stack
+//                     if new_selectors & EAOCLOSING;
+//                   remember if line ended by line
+//                            separator
 //
 //               if bracket stack top closed:
 //                   require that there was no line
 //                           ending separator and
 //                           adjust end of line to
-//                           before closing backet
+//                           just before closing bracket
 //
-//               if line is not empty or line_sep found:
-//                  compact line found with
-//                          .initiator = <STX>,
-//                          .terminator = line_sep
-//                          if that found, compact token
-//                          type BRACKETING, and new_
-//                          selectors
+//               if line is not empty or line separator
+//                       ended line:
+//                  compact line found
+//                           with new_selectors,
+//                          .initiator = LOGICAL_LINE,
+//                          .terminator = line separator
+//                             if found, else <LF>,
+//                          token type = BRACKETING,
+//                          token value_type =
+//                              LOGICAL_LINE
 //
 //               if separator found, continue loop to
 //                  next paragraph line
 //
 //               end loop if top of bracket stack
-//                   closed, or current is end-of-file,
-//                   or current->next is end-of-file or
+//                   closed, or current is end-of-file
+//
+//		 require that current is line break, and
+//		     current->next is not line break or
+//		     comment
+//
+//               end loop if current->next is eof or
 //                   has indent less than paragraph_
 //                   indent
 //
@@ -938,17 +954,25 @@ inline min::int32 relative_indent
 //           // Compact paragraph lines into a
 //           // paragraph.
 //           //
+//           if bracket stack top closed:
+//              adjust end of paragraph to just before
+//              closing bracket
+//
 //           remove indentation mark
 //
-//           compact paragraph lines with .initiator =
-//                   indentation_found->label,
-//                   .terminator = <ETX>, compact token
-//                   type BRACKETING, new_selectors
+//           compact paragraph lines with new_selectors,
+//                   .initiator =
+//                       indentation_found->label,
+//                   .terminator = INDENTED_PARAGRAPH,
+//                   token type = BRACKETING,
+//                   token value_type =
+//                       indentation_found->label,
 //           at_start = false
 //
 //	     if bracket stack top closed
 //	          return MISSING_POSITION
 //	     indentation_found = NONE
+//	     paragraph_end_found = true
 // 	 
 //     // Continue after any indented paragraph.
 //     // current is end of file or line break that
@@ -1523,28 +1547,30 @@ min::position BRA::parse_bracketed_subexpression
 			  == LEXSTD::end_of_file_t )
 			break;
 
+		    MIN_REQUIRE
+		        (    current->type
+			  == LEXSTD::line_break_t );
 		    ensure_next ( parser, current );
-		    if (    current->next->type
+		    next = current->next;
+		    MIN_REQUIRE
+			( next->type != LEXSTD::line_break_t
+			  &&
+			  next->type != LEXSTD::comment_t );
+
+		    if (    next->type
 			 == LEXSTD::end_of_file_t 
 			 ||
-			 ( current->next->indent
-			   !=
-			   LEX::AFTER_GRAPHIC
-		           &&
-	                     relative_indent
+			 (   relative_indent
 		                 ( parser,
 			           indentation_offset,
-			           current->next,
+			           next,
 				   paragraph_indent )
 		           < 0 ) )
 			break;
 
 		    // Delete line break.
 		    //
-		    MIN_REQUIRE
-		        (    current->type
-			  == LEXSTD::line_break_t );
-		    current = current->next;
+		    current = next;
 		    PAR::free
 			( PAR::remove
 			    ( first_ref(parser),

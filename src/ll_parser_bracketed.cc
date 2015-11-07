@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  7 01:49:46 EST 2015
+// Date:	Sat Nov  7 03:21:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1014,9 +1014,17 @@ inline min::int32 relative_indent
 //        iterate top level loop
 //    
 //     lookup key in bracket pass bracket table
+//
 //     loop to refine key until it is selected:
 //
 //       if key == NONE:
+//
+//         if at_start and
+//                     typed_opening argument != NONE
+//                     and current is mark:
+//            selectors = saved selectors
+//            has_mark_type = true
+//
 //         current = current->next
 //         at_start = false
 //         iterate top level loop
@@ -1029,17 +1037,22 @@ inline min::int32 relative_indent
 //
 //          create new bracket stack entry with opening
 //                 bracket = key
-//          if key has full lines option, create new
-//             bracket stack with new entry as its only
-//             entry
-//          else push new entry into existing stack
+//          if new_selectors & EAOCLOSING
+//             push new entry into existing bracket
+//                  stack
+//          else
+//             create new bracket stack with new entry
+//                    as its only entry
 //
 //          parse_bracketed_subexpression with
-//            new_selectors, no line_sep, new bracket
-//            stack, and indent = indent argument,
-//            unless full lines option given, in which
-//            case indent = -2, and typed_opening if
-//            this is for a typed opening
+//            new_selectors, bracket stack,
+//            indent argument,
+//            line_sep argument
+//                if new_selectors & EALSEP,
+//            typed_opening = key
+//                if key is typed opening,
+//
+// TBD
 //
 //          if closing was found that did not match
 //             top of closing stack, print error

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  7 03:21:09 EST 2015
+// Date:	Sat Nov  7 10:53:46 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1052,16 +1052,20 @@ inline min::int32 relative_indent
 //            typed_opening = key
 //                if key is typed opening,
 //
-// TBD
-//
 //          if closing was found that did not match
-//             top of closing stack, print error
-//             message and adjust end of subexpression
-//             to just before closing found
+//             top of closing stack, or logical line
+//             end was found, print error message and
+//             adjust end of subexpression to just
+//             before any found closing
 //          else remove closing bracket
 //
 //          remove opening bracket
-//          pop bracket stack entry
+//
+//          if key is typed opening, subexpression has
+//             at least two elements, and first is a
+//             mark:
+//		// typed brackets with mark type
+//		TBD
 //
 //          call opening bracket reformatter if any,
 //               and if none or if requested by
@@ -1952,9 +1956,7 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     first != next
 		     &&
-		     first->type == LEXSTD::mark_t
-		     &&
-		     first->next != next )
+		     first->type == LEXSTD::mark_t )
 		{
 		    // Typed bracketed subexpression
 		    // with mark type.

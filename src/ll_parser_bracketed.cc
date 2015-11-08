@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  7 10:53:46 EST 2015
+// Date:	Sat Nov  7 19:03:07 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1062,14 +1062,50 @@ inline min::int32 relative_indent
 //          remove opening bracket
 //
 //          if key is typed opening, subexpression has
-//             at least two elements, and first is a
+//             at least one element, and the first is a
 //             mark:
 //		// typed brackets with mark type
-//		TBD
+//              //
+//              mark_type = value of first element
+//              remove typed opening that preceeds
+//                     subexpression
+//              if there are any elements left in the
+//                       subexpression:
+//		   if last subexpression element is not
+//		      a mark, print error message
+//		   else:
+//		       if last subexpression element's
+//		          value v does not equal
+//		          mark_type, set mark_type =
+//		              [< mark_type v >]
+//		       remove last subexpression element
+//              compact subexpression with
+//                      new_selectors,
+//                      .type = mark_type,
+//                      token type = BRACKETING,
+//                      token value_type = mark_type
+//		 
+//          else call opening bracket reformatter if any,
+//                    and if none or if requested by
+//                    reformatter:
+//              compact subexpression with
+//                      new_selectors,
+//                      .initiator = key opening
+//                      .terminator = key closing
+//                      token type = BRACKETING,
+//                      token value_type = key opening
 //
-//          call opening bracket reformatter if any,
-//               and if none or if requested by
-//               reformatter, compact with .initiator
+//          else reformatter was called and did not
+//                           request compaction, and
+//                           if returned token has
+//                           PREFIX type:
+//               // Reformatter returned prefix
+//               // separator
+//               //
+//
+//                           TBD
+//              
+//
 //               and .terminator being the opening
 //               and closing bracket (the latter
 //               taken from the symbol table and
@@ -2027,6 +2063,8 @@ min::position BRA::parse_bracketed_subexpression
 			  trace_flags,
 			  PAR::BRACKETING,
 			  1, attributes, 1 );
+
+		    value_type_ref(first) = mark_type;
 		}
 		else if (    opening_bracket
 		                 ->reformatter
@@ -2075,13 +2113,14 @@ min::position BRA::parse_bracketed_subexpression
 		                 ->reformatter
 		          != min::NULL_STUB
 			  &&
-			     next->previous->type
+			     first->type
 			  == PAR::PREFIX )
 		{
 		    // Prefix separator.
 
-		    PAR::token prefix_sep =
-		        next->previous;
+		    MIN_REQUIRE
+		        ( first == next->previous );
+		    PAR::token prefix_sep = first;
 		    min::gen prefix_type =
 		        prefix_sep->value_type;
 
@@ -2093,8 +2132,7 @@ min::position BRA::parse_bracketed_subexpression
 			if (    p->prefix_type
 			     == prefix_type )
 			{
-			    p->closing_first =
-			        next->previous;
+			    p->closing_first = first;
 			    p->closing_next = next;
 
 			    for ( BRA::bracket_stack *
@@ -2103,7 +2141,7 @@ min::position BRA::parse_bracketed_subexpression
 				  q = q->previous )
 				q->closing_first =
 				    q->closing_next =
-					next->previous;
+					prefix_sep;
 
 			    return
 			        min::MISSING_POSITION;

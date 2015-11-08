@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  7 19:03:07 EST 2015
+// Date:	Sun Nov  8 05:12:34 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1102,6 +1102,30 @@ inline min::int32 relative_indent
 //               // Reformatter returned prefix
 //               // separator
 //               //
+//               if bracket stack contains prefix
+//                          with matching type:
+//		    close matching entry
+//		    close entries above matching
+//		          entry
+//		    return MISSING_POSITION
+//		 else if not at_start:
+//		    print error message
+//		    remove PREFIX token
+//		 else if top of bracket stack closed
+//		      by line or paragraph end or a
+//		      closing bracket that is not ours:
+//		    // PREFIX is last thing in its
+//		    // subexpression, so its already
+//		    // a complete subexpression; kick
+//		    // up to our caller.
+//		    //
+//		    change token type to BRACKETED and
+//		           token value_type to MISSING
+//		    return MISSING_POSITION
+//		 else loop:
+//		    // First PREFIX token with its type.
+//		    // Find succeeding subexpressions.
+//		    //
 //
 //                           TBD
 //              
@@ -2168,28 +2192,13 @@ min::position BRA::parse_bracketed_subexpression
 				  prefix_sep ) );
 		    }
 		    else if (    cstack.closing_next
-			      == min::NULL_STUB )
-		    {
-			// Found end of line, paragraph,
-			// file, etc.  Prefix separator
-			// has no elements.  Go to code
-			// above to process.
-			//
-			prefix_sep->type =
-			    PAR::BRACKETED;
-			value_type_ref(prefix_sep) =
-			    min::MISSING();
-			break;
-		    }
-		    else if (    cstack.closing_next
 			      == cstack.closing_first )
 		    {
 			// Found a closing bracket that
-			// is not ours.  It must be in
-			// the bracket_stack and so
-			// needs to be kicked to our
-			// caller.  Prefix separator
-			// has no elements.
+			// is not ours, or line end,
+			// or paragraph end.  Kick up
+			// to our caller.  Prefix
+			// separator has no elements.
 			//
 			prefix_sep->type =
 			    PAR::BRACKETED;

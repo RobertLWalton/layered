@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  8 05:12:34 EST 2015
+// Date:	Mon Nov  9 03:55:20 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1085,9 +1085,9 @@ inline min::int32 relative_indent
 //                      token type = BRACKETING,
 //                      token value_type = mark_type
 //		 
-//          else call opening bracket reformatter if any,
-//                    and if none or if requested by
-//                    reformatter:
+//          else call opening bracket reformatter if
+//                    any, and if none or if requested
+//                    by reformatter:
 //              compact subexpression with
 //                      new_selectors,
 //                      .initiator = key opening
@@ -1123,8 +1123,8 @@ inline min::int32 relative_indent
 //		           token value_type to MISSING
 //		    return MISSING_POSITION
 //		 else loop:
-//		    // First PREFIX token with its type.
-//		    // Find succeeding subexpressions.
+//		    // Find prefix-list subexpressions
+//		    // headed by PREFIX token.
 //		    //
 //
 //                           TBD
@@ -1640,9 +1640,11 @@ min::position BRA::parse_bracketed_subexpression
 		    ensure_next ( parser, current );
 		    next = current->next;
 		    MIN_REQUIRE
-			( next->type != LEXSTD::line_break_t
+			(    next->type
+			  != LEXSTD::line_break_t
 			  &&
-			  next->type != LEXSTD::comment_t );
+			     next->type
+			  != LEXSTD::comment_t );
 
 		    if (    next->type
 			 == LEXSTD::end_of_file_t 
@@ -2209,7 +2211,7 @@ min::position BRA::parse_bracketed_subexpression
 #		    define PARSE_BRA_SUBEXP \
 		      BRA::parse_bracketed_subexpression
 		      // To avoid a too long line
-		    else while ( true )
+		    else
 		    {
 		        // Prefix separator is head of
 			// a possibly non-empty sub-sub-
@@ -2260,100 +2262,113 @@ min::position BRA::parse_bracketed_subexpression
 
 			}
 
-			BRA::bracket_stack cstack2
-			    ( bracket_stack_p );
-			cstack2.prefix_type =
-			    prefix_type;
-
-			min::position separator_found =
-			    PARSE_BRA_SUBEXP
-				( parser,
-				  new_selectors,
-				  current, indent,
-				    new_selectors
-				  & PAR::EALSEP_OPT ?
-				  line_sep :
-				  (BRA::line_sep)
-				      min::NULL_STUB,
-				  min::NULL_STUB,
-				  & cstack2 );
-
-			min::obj_vec_insptr vp
-			    ( prefix_sep->value );
-			pos_insptr pos =
-			    (pos_insptr)
-			    min::position_of ( vp );
-
-			next = cstack2.closing_first;
-			if ( next == min::NULL_STUB )
-			    next = current;
-
-			min::phrase_position position =
-			    { prefix_sep->
-			          position.begin,
-			      next->previous
-			          ->position.end };
-			pos->position = position;
-			prefix_sep->position = position;
-
-			PAR::token t = prefix_sep->next;
-			while ( t != next )
+			while ( true )
 			{
-			    min::gen elements[100];
+			    BRA::bracket_stack cstack2
+				( bracket_stack_p );
+			    cstack2.prefix_type =
+				prefix_type;
+
+			    min::position
+			    	separator_found =
+				PARSE_BRA_SUBEXP
+				  ( parser,
+				    new_selectors,
+				    current, indent,
+				      new_selectors
+				    & PAR::EALSEP_OPT ?
+				    line_sep :
+				    (BRA::line_sep)
+				      min::NULL_STUB,
+				    min::NULL_STUB,
+				    & cstack2 );
+
+			    min::obj_vec_insptr vp
+				( prefix_sep->value );
+			    pos_insptr pos =
+				(pos_insptr)
+				min::position_of ( vp );
+
+			    next =
+			        cstack2.closing_first;
+			    if (    next
+			         == min::NULL_STUB )
+				next = current;
+
 			    min::phrase_position
-			        positions[100];
-			    min::unsptr count = 0;
-			    while ( t != next
-			            &&
-				    count < 100 )
+			        position =
+				{ prefix_sep->
+				      position.begin,
+				  next->previous
+				      ->position.end };
+			    pos->position = position;
+			    prefix_sep->position =
+			        position;
+
+			    PAR::token t =
+			        prefix_sep->next;
+			    while ( t != next )
 			    {
+			      min::gen elements[100];
+			      min::phrase_position
+				    positions[100];
+			      min::unsptr count = 0;
+			      while ( t != next
+				      &&
+				      count < 100 )
+			      {
 				if (    t->string
 				     != min::NULL_STUB )
-				    PAR::convert_token
-				        ( t );
+				  PAR::convert_token
+				          ( t );
 
-			        elements[count] = 
-				    t->value;
-			        positions[count] =
-				    t->position;
+				elements[count] =
+					t->value;
+				positions[count] =
+					t->position;
 				++ count;
 				t = t->next;
-			    }
-			    min::attr_push
-			        ( vp, count, elements );
-			    min::push
-			        ( pos, count,
+			      }
+			      min::attr_push
+				( vp, count, elements );
+			      min::push
+				( pos, count,
 				  positions );
+			    }
+
+			    while (    prefix_sep->next
+				    != next )
+				PAR::free
+				  ( PAR::remove
+				      ( first_ref
+				            (parser),
+					next->previous
+				      ) );
+
+			    vp = min::NULL_STUB;
+				// Necessary so trace_
+				// subexpression can
+				// open pointer to
+				// object.
+
+			    prefix_sep->type =
+				PAR::BRACKETED;
+			    value_type_ref(prefix_sep) =
+				min::MISSING();
+
+			    PAR::trace_subexpression
+				( parser, prefix_sep,
+				  trace_flags );
+
+			    if (    cstack2
+			              .closing_next
+				 == cstack2
+				      .closing_first )
+				return separator_found;
+
+			    prefix_sep =
+				cstack2.closing_first;
 			}
-
-			while (    prefix_sep->next
-			        != next )
-			    PAR::free
-				( PAR::remove
-				    ( first_ref(parser),
-				      next->previous
-				    ) );
-
-			vp = min::NULL_STUB;
-			    // Necessary so trace_sub-
-			    // expression can open
-			    // pointer to object.
-
-			prefix_sep->type =
-			    PAR::BRACKETED;
-			value_type_ref(prefix_sep) =
-			    min::MISSING();
-
-			PAR::trace_subexpression
-			    ( parser, prefix_sep,
-			      trace_flags );
-
-			if (    cstack2.closing_next
-			     == cstack2.closing_first )
-			    return separator_found;
-
-			prefix_sep =
-			    cstack2.closing_first;
 		    }
 		}
 

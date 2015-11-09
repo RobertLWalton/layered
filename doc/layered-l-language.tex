@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 5, 2015
+November 9, 2015
  
 \end{center}
 
@@ -482,10 +482,13 @@ The following implicit conversion is always defined:
 
 A statement of the following form defines a type:
 \begin{center}
-\TT{type} {\em defined-type-name} \TT{is} {\em builtin-type-name}
+\TT{type} {\em qualifier}\STAR{} {\em defined-type-name}
+          \TT{is} {\em builtin-type-name}
 \end{center}
 Here the builtin type is called the \key{underlying type} of the
-\key{defined type}.
+\key{defined type}, and any {\em qualifiers} are attached to every
+variable or argument declared to have the defined type (see
+section \itemref{QUALIFIERS} for more on this).
 
 A value of a defined type may be converted to or from its underlying
 type by the
@@ -514,7 +517,8 @@ and then reassigned to possibly different unique integer values during linking.
 A statement of the following form defines an \key{enumeration type}
 that has enumeration values:
 \begin{center}
-\TT{type} {\em defined-type-name} \TT{is} {\em builtin-type-name}
+\TT{type} {\em qualifier}\STAR{} {\em defined-type-name}
+    \TT{is} {\em builtin-type-name}
     \TT{with enum} {\em enum-range}\QMARK{}
 \end{center}
 where
@@ -614,9 +618,9 @@ Functions can be overloaded based on the number and types
 of their arguments and also on the values of arguments that
 are known at compile time.  Thus different functions with
 the common prototype
-\begin{indpar}\begin{verbatim}
-(unsadr length) = size of ( type T )
-\end{verbatim}\end{indpar}
+\begin{center}
+\TT{(unsadr length) = size of ( type T )}
+\end{center}
 may be defined for different values of \TT{T}.  
 This is done automatically for the following functions:
 
@@ -734,9 +738,9 @@ A function call with an {\em input-variable-list} is just syntactic
 sugar for a function call with neither a {\em result-variable-list}
 or {\em input-variable-list}.  Specifically
 \begin{center}
-{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
+\TT{F(a1,a2,...)~=~(b1,b2,...)} \\
 is syntactic sugar for \\
-{\tt F(a1,a2,...)(b1,b2,...)} \\
+\TT{F(a1,a2,...)(b1,b2,...)} \\
 \end{center}
 
 where use is made of the fact that a function can have multiple
@@ -1629,15 +1633,24 @@ Variables may be qualified by \skey{qualifier}s, such as the
 Syntactically {\em qualifiers} immediately preceed {\em type-names}
 that are before {\em variable-names}.
 
+If {\em qualifiers} are given in front of the {\em defined-type-name}
+of a statement that defines the later, then these qualifiers are
+added to every variable that has the defined type.
+See section~\itemref{TRACE-QUALIFIERS} for an example.
+
 Some qualifiers are \skey{protection qualifier}s and some are not.
 Some qualifiers are \key{inverted} but most are not.
 Some qualifiers are \key{inherited} but most are not.
 
 The qualifiers may be declared by:
 \begin{indpar}
-\emkey{qualifier-declaration} ::=
-    {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
+\emkey{qualifier-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
            {\em defined-qualifier-name} \\
+    $|$ & {\em trace-qualifier-declaration}
+    	  ~~~ [see \pagref{TRACE-QUALIFIERS}]
+    \end{tabular} \\
 \emkey{qualifier-attribute} ::=
     \TT{protection} $|$ \TT{inverted} $|$ \TT{inherited}
 \end{indpar}
@@ -1807,8 +1820,52 @@ e.g., a function name or a statement name such as
 `\TT{*UN\-CHECK\-ED* *ASSEMBLER*}'.  In these other uses it is
 \underline{not} a qualifier.
 
-\subsection{The Trace Qualifier}
-\label{THE-TRACE-QUALIFIER}
+\subsection{Trace Qualifiers}
+\label{TRACE-QUALIFIERS}
+
+A \key{trace qualifier} permits values to be marked so that they
+can be found (i.e., `traced') by garbage collectors
+(and occassionally debuggers)
+when they are stored in the
+stack.  A trace qualifier may be declared by:
+
+\begin{indpar}
+\emkey{trace-qualifier-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{trace qualifier}
+           {\em defined-qualifier-name} \\
+        & ~~~~~ \TT{with base type}~~{\em type-name}
+    \end{tabular}
+\end{indpar}
+
+The base type of a trace qualifier may be determined by the
+function with the prototype:
+\begin{center}
+{\tt (type T) = \ttkey{base type of} ( qualifier Q )}
+\end{center}
+The value of any variable with a trace qualifier must be
+\TT{*UNCHECKED*} convertable to a value of the base type.
+
+It is common to add a trace qualifier to the statement that
+defines a type you want to trace.  An example in which the
+qualifier is \TT{Q} and the type is \TT{T} is:
+\begin{indpar}\begin{verbatim}
+trace qualifier Q with base type adr
+type Q T is adr
+\end{verbatim}\end{indpar}
+which causes all value of type \TT{T} in the stack to be
+traced.
+
+More specifically, when a value \TT{V} of a variable with the trace
+qualifier \TT{Q} is added to a stack, \TT{V} converted to the
+base type of \TT{Q} is also
+pushed into a (virtual or physical) \TT{Q}-stack of values with
+the trace qualifier \TT{Q}.
+When the stack containing \TT{V} is freed, the corresponding
+value in the \TT{Q}-stack is popped.  There is a \TT{Q}-stack
+associated with every process and every global area.
+Using functions in the
+subroutine library (see TBD), these \TT{Q}-stacks can be read.
 
 \subsection{The Reload Statement}
 \label{THE-RELOAD-COMMAND}

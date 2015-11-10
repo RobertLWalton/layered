@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 10 00:26:55 EST 2015
+// Date:	Tue Nov 10 11:58:52 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1051,6 +1051,7 @@ inline min::int32 relative_indent
 //                if new_selectors & EALSEP,
 //            typed_opening = key
 //                if key is typed opening,
+//	      set separator_found = result
 //
 //          if closing was found that did not match
 //             top of closing stack, or logical line
@@ -1086,8 +1087,8 @@ inline min::int32 relative_indent
 //                      token value_type = mark_type
 //		 
 //          else call opening bracket reformatter if
-//                    any, and if none or if requested
-//                    by reformatter:
+//                    any, and if none or if compaction
+//                    requested by reformatter:
 //              compact subexpression with
 //                      new_selectors,
 //                      .initiator = key opening
@@ -1108,7 +1109,7 @@ inline min::int32 relative_indent
 //		    close matching entry
 //		    close entries above matching
 //		          entry
-//		    return MISSING_POSITION
+//		    return separator_found
 //		 else if not at_start:
 //		    print error message
 //		    remove PREFIX token
@@ -1122,7 +1123,7 @@ inline min::int32 relative_indent
 //		    //
 //		    change token type to BRACKETED and
 //		           token value_type to MISSING
-//		    return MISSING_POSITION
+//		    return separator_found
 //		 else:
 //		    // Find prefix-list subexpressions
 //		    // headed by PREFIX token.
@@ -1139,7 +1140,8 @@ inline min::int32 relative_indent
 //          		    with new_selectors, bracket
 //          		    stack, indent argument,
 //                          line_sep argument
-//                            if new_selectors & EALSEP
+//                            if new_selectors & EALSEP,
+//                          set separator_found = result
 //                      adjust PREFIX token position to
 //                          include scanned tokens
 //                      add scanned tokens as elements
@@ -1153,27 +1155,23 @@ inline min::int32 relative_indent
 //                         than another PREFIX token
 //                         with the same type as the
 //                         current PREFIX token,
-//                         pop bracket stack and break
+//                         pop bracket stack and
+//                         return separator_found
 //                      else replace PREFIX token by
 //                           the token at the top of
 //                           the bracket stack, pop
 //                           bracket stack, and loop
 //              
-//	TBD
-//
-//                  
 //	    at_start = false
 //
-//          if bracketed sub-subexpression was
-//                       terminated by a line break
-//                       before insuffiently indented
-//                       line or an end of file:
-//             iterate top level loop
-//          else if closing bracket was found that did
-//                  not match top of closing stack:
-//               return MISSING_POSITION
+//          if closing bracket was found that did
+//                     not match top of closing stack,
+//                     or logical line end found:
+//               return separator_found
 //          else
 //            iterate top level loop
+//
+//       TBD
 //
 //       if key is closing bracket in bracket stack:
 //          close bracket stack entry that matches key
@@ -1873,18 +1871,19 @@ min::position BRA::parse_bracketed_subexpression
 		    opening_bracket;
 
 		PAR::token previous = current->previous;
-		BRA::parse_bracketed_subexpression
-		    ( parser, new_selectors,
-		      current, indent,
-		        new_selectors
-		      & PAR::EALSEP_OPT  ?
-		      line_sep :
-		      (BRA::line_sep) min::NULL_STUB,
-		      subtype == BRA::TYPED_OPENING ?
-		          (BRA::typed_opening) root :
-			  (BRA::typed_opening)
-			      min::NULL_STUB,
-		      & cstack );
+		min::position separator_found =
+		    BRA::parse_bracketed_subexpression
+		      ( parser, new_selectors,
+			current, indent,
+			  new_selectors
+			& PAR::EALSEP_OPT  ?
+			line_sep :
+			(BRA::line_sep) min::NULL_STUB,
+			subtype == BRA::TYPED_OPENING ?
+			    (BRA::typed_opening) root :
+			    (BRA::typed_opening)
+				min::NULL_STUB,
+			& cstack );
 
 		PAR::token next = current;
 		min::phrase_position position;
@@ -2123,8 +2122,7 @@ min::position BRA::parse_bracketed_subexpression
 				    q->closing_next =
 					prefix_sep;
 
-			    return
-			        min::MISSING_POSITION;
+			    return separator_found;
 			}
 			else if (    p->opening_bracket
 			          != min::NULL_STUB )
@@ -2160,7 +2158,7 @@ min::position BRA::parse_bracketed_subexpression
 			    PAR::BRACKETED;
 			value_type_ref(prefix_sep) =
 			    min::MISSING();
-			return min::MISSING_POSITION;
+			return separator_found;
 		    }
 #		    define PARSE_BRA_SUBEXP \
 		      BRA::parse_bracketed_subexpression
@@ -2223,8 +2221,7 @@ min::position BRA::parse_bracketed_subexpression
 			    cstack2.prefix_type =
 				prefix_type;
 
-			    min::position
-			    	separator_found =
+			    separator_found =
 				PARSE_BRA_SUBEXP
 				  ( parser,
 				    new_selectors,
@@ -2326,29 +2323,20 @@ min::position BRA::parse_bracketed_subexpression
 		    }
 		}
 
+		// Come here after compacting; note that
+		// PREFIX headed subexpressions return
+		// instead of coming here.
+
 		at_start = false;
 
 		if (    cstack.closing_next
-		     == min::NULL_STUB )
-		{
-		    // Found a line break before
-		    // non-indented line or an end
-		    // of file when a closing
-		    // bracket was expected.  Go
-		    // to appropriate code above
-		    // to process.
-		    //
-		    break;
-		}
-		else if (    cstack.closing_next
-		          == cstack.closing_first )
+		     == cstack.closing_first )
 		{
 		    // Found a closing bracket that is
-		    // not ours.  It must be in the
-		    // bracket_stack and so needs to
-		    // be kicked to our caller.
+		    // not ours or line end.  Kick to
+		    // caller.
 		    //
-		    return min::MISSING_POSITION;
+		    return separator_found;
 		}
 		else
 		    break;

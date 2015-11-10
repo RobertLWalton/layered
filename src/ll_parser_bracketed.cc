@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  9 03:55:20 EST 2015
+// Date:	Tue Nov 10 00:26:55 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1100,7 +1100,8 @@ inline min::int32 relative_indent
 //                           if returned token has
 //                           PREFIX type:
 //               // Reformatter returned prefix
-//               // separator
+//               // separator; key must be a typed
+//               // opening
 //               //
 //               if bracket stack contains prefix
 //                          with matching type:
@@ -1122,91 +1123,44 @@ inline min::int32 relative_indent
 //		    change token type to BRACKETED and
 //		           token value_type to MISSING
 //		    return MISSING_POSITION
-//		 else loop:
+//		 else:
 //		    // Find prefix-list subexpressions
 //		    // headed by PREFIX token.
 //		    //
-//
-//                           TBD
+//		    require key to be a typed_opening
+//		    new_selectors = selectors modified
+//		       by any typed_opening->type_map
+//		       entry found for the PREFIX token
+//		       type
+//		    loop:
+//		        push the PREFIX token type into
+//		             the bracket stack
+//          		parse_bracketed_subexpression
+//          		    with new_selectors, bracket
+//          		    stack, indent argument,
+//                          line_sep argument
+//                            if new_selectors & EALSEP
+//                      adjust PREFIX token position to
+//                          include scanned tokens
+//                      add scanned tokens as elements
+//                          to PREFIX token MIN value
+//                      delete scanned tokens
+//                      set PREFIX token type to
+//                          BRACKETED and value_type to
+//                          MISSING
+//                      if top of bracket stack is
+//                         closed by something other
+//                         than another PREFIX token
+//                         with the same type as the
+//                         current PREFIX token,
+//                         pop bracket stack and break
+//                      else replace PREFIX token by
+//                           the token at the top of
+//                           the bracket stack, pop
+//                           bracket stack, and loop
 //              
+//	TBD
 //
-//               and .terminator being the opening
-//               and closing bracket (the latter
-//               taken from the symbol table and
-//               not the input), compact token type
-//               BRACKETING, new_selectors, NO line_sep;
-//               and after compacting, set value_type to
-//               .initiator (opening_bracket->label).
-//
-//          else if there was a reformatter and it
-//                  returned a PREFIX token (and did NOT
-//                  request compaction):
-//
-//		 if PREFIX token label matches a prefix
-//		           entry in the bracket stack
-//		           that is above all bracket
-//		           entries in that stack:
-//		    close the found prefix entry and
-//		          all entries above it in the
-//		          stack
-//                  return MISSING_POSITION
-//
-//               if ! at_start:
-//                  announce error
-//                  delete PREFIX token
-//               else if prefix separator terminated
-//                    by non-indented line or end of
-//                    file (top cstack entry not
-//                    closed):
-//                  change PREFIX token type to
-//                         BRACKETED and value_type
-//                         to MISSING
-//                  iterate top level loop
-//               else if prefix separator terminated by
-//                       closing bracket other than its
-//                       own:
-//                  change PREFIX token type to
-//                         BRACKETED and value_type
-//                         to MISSING
-//                  return MISSING_POSITION
-//               else loop find elements of PREFIX
-//                         token:
-//
-//                    push prefix entry into bracket
-//                         stack with label from PREFIX
-//                         token
-//                    parse_bracketed_subexpression with
-//                         selectors argument, line_sep
-//                         argument, indent argument,
-//                         and new bracket stack;
-//                         remember if line_sep found
-//
-//                    add values of tokens found to
-//                        PREFIX token, converting any
-//                        quoted strings found to sub-
-//                        sub-subexpressions first
-//
-//                   delete tokens added as PREFIX token
-//                          elements
-//
-//                   change PREFIX token type to
-//                          BRACKETED and value_type
-//                          to MISSING
-//
-//                   if top bracket stack entry was not
-//                          closed by a prefix separator
-//                          with the same label as the
-//                          PREFIX token:
-//                      return position of any found
-//                             line_sep, or MISSING_
-//                             POSITION if none found
-//
-//                   reset the current PREFIX token
-//                         to the token that closed the
-//                         top bracket stack entry
-//                   pop the bracket stack
-//                   iterate loop to find elements of
-//                           new PREFIX token
 //                  
 //	    at_start = false
 //

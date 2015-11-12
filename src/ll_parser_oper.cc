@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 30 04:13:12 EDT 2015
+// Date:	Thu Nov 12 11:46:29 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1791,11 +1791,12 @@ static min::gen oper_pass_command
 	      parser );
     if ( sresult == min::ERROR() )
 	return min::ERROR();
-    else if ( sresult == min::MISSING() )
+    else if ( sresult == min::FAILURE() )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected bracketed selector list"
 	      " after" );
+    else MIN_REQUIRE ( sresult == min::SUCCESS() );
 
     // Scan operator flags.
     //

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 12 06:38:10 EST 2015
+// Date:	Thu Nov 12 11:45:08 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,12 @@
 
 static min::locatable_gen bracket;
 static min::locatable_gen indentation;
+static min::locatable_gen typed;
+static min::locatable_gen element;
+static min::locatable_gen attribute;
+static min::locatable_gen flags;
+static min::locatable_gen multivalue;
+static min::locatable_gen initiator;
 static min::locatable_gen mark;
 static min::locatable_gen full;
 static min::locatable_gen lines;
@@ -48,6 +54,12 @@ static void initialize ( void )
     ::bracket = min::new_str_gen ( "bracket" );
     ::indentation = min::new_str_gen
 			    ( "indentation" );
+    ::typed = min::new_str_gen ( "typed" );
+    ::element = min::new_str_gen ( "element" );
+    ::attribute = min::new_str_gen ( "attribute" );
+    ::flags = min::new_str_gen ( "flags" );
+    ::multivalue = min::new_str_gen ( "multivalue" );
+    ::initiator = min::new_str_gen ( "initiator" );
     ::mark = min::new_str_gen ( "mark" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
@@ -3452,7 +3464,8 @@ static min::initializer reformatter_initializer
 
 enum definition_type
     { BRACKET,
-      INDENTATION_MARK };
+      INDENTATION_MARK,
+      TYPED_BRACKET };
 
 static min::gen bracketed_pass_command
 	( PAR::parser parser,
@@ -3580,6 +3593,17 @@ static min::gen bracketed_pass_command
 	type = ::INDENTATION_MARK;
 	min_names = 1;
 	max_names = 2;
+	i += 2;
+    }
+    else if ( vp[i] == ::typed
+              &&
+	      i + 1 < size
+	      &&
+	      vp[i + 1] == ::bracket )
+    {
+	type = ::TYPED_BRACKET;
+	min_names = 2;
+	max_names = 4;
 	i += 2;
     }
     else
@@ -3917,11 +3941,13 @@ static min::gen bracketed_pass_command
 	      parser );
     if ( sresult == min::ERROR() )
 	return min::ERROR();
-    else if ( sresult == min::MISSING() )
+    else if ( sresult == min::FAILURE() )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected bracketed selector list"
 	      " after" );
+    else MIN_REQUIRE
+             ( sresult == min::SUCCESS() );
 
     if ( command == PAR::define ) switch ( type )
     {
@@ -4100,6 +4126,102 @@ static min::gen bracketed_pass_command
 	      ppvec->position,
 	      new_selectors,
 	      bracketed_pass->bracket_table );
+
+	break;
+    }
+    case ::TYPED_BRACKET:
+    {
+	TAB::new_flags new_element_selectors;
+	TAB::new_flags new_attribute_selectors;
+	TAB::new_flags new_options;
+	    // Inited to zeroes.
+	min::locatable_gen attribute_name[4];
+	unsigned number_of_attribute_names = 0;
+	min::locatable_gen
+	    attribute_negator,
+	    attribute_flags_initiator,
+	    attribute_multivalue_initiator;
+	while ( i < size && vp[i] == PAR::with )
+	{
+	    ++ i;
+	    if ( i + 1 < size
+		 &&
+		 ( vp[i] == ::element
+		   ||
+		   vp[i] == ::attribute )
+		 &&
+		 vp[i+1] == PAR::selectors )
+	    {
+	        TAB::new_flags & new_selectors =
+		    ( vp[i] == ::element ?
+		      new_element_selectors :
+		      new_attribute_selectors );
+	        
+		i += 2;
+		min::gen result =
+		    COM::scan_new_flags
+			( vp, i, new_selectors,
+			  PAR::ALL_SELECTORS,
+	                  parser->selector_name_table,
+			  parser->
+			    selector_group_name_table,
+			  parser, true );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::FAILURE() )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected bracketed selector"
+			  " modifier list after" );
+	    }
+	    else
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == PAR::parsing
+		 &&
+		 vp[i+1] == PAR::options )
+	    {
+		i += 2;
+		min::gen result =
+		    COM::scan_new_flags
+			( vp, i, new_options,
+			  PAR::ALL_OPT,
+	                  parser->selector_name_table,
+			  parser->
+			    selector_group_name_table,
+			  parser, true );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::FAILURE() )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected bracketed options"
+			  " (modifier) list after" );
+	    }
+	    else
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected `parsing selectors'"
+		      " or `parsing options' after" );
+	}
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `with' after" );
+
+	if ( TAB::all_flags ( new_options ) == 0 )
+	{
+	    new_options.or_flags = PAR::DEFAULT_EA_OPT;
+	    new_options.not_flags =
+	        PAR::ALL_OPT & ~ new_options.or_flags;
+	}
+
+	new_element_selectors.or_flags |=
+	    new_options.or_flags;
+	new_element_selectors.not_flags |=
+	    new_options.not_flags;
+	new_element_selectors.xor_flags |=
+	    new_options.xor_flags;
 
 	break;
     }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 11 18:42:12 EST 2015
+// Date:	Thu Nov 12 06:38:10 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1254,8 +1254,9 @@ min::position BRA::parse_bracketed_subexpression
     if ( typed_opening != min::NULL_STUB )
     {
 	saved_selectors = selectors;
-	selectors = typed_opening->attr_selectors
-		  | PAR::ALWAYS_SELECTOR;
+	selectors &= PAR::ALL_OPT;
+	selectors |= typed_opening->attr_selectors
+		   | PAR::ALWAYS_SELECTOR;
 	typed_middle_count = 0;
 	has_mark_type = false;
     }
@@ -2398,7 +2399,8 @@ min::position BRA::parse_bracketed_subexpression
 		    {
 			// End of element list
 			//
-			selectors =
+			selectors &= PAR::ALL_OPT;
+			selectors |=
 			      typed_opening->
 			          attr_selectors
 			    | PAR::ALWAYS_SELECTOR;

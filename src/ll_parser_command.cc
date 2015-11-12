@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  1 01:50:52 EST 2015
+// Date:	Thu Nov 12 11:48:06 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -653,6 +653,7 @@ static min::gen execute_pass
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected parsing selectors after" );
+	else MIN_REQUIRE ( result == min::SUCCESS() );
 
 	if ( vp[i] == PAR::after
 	     ||
@@ -1131,6 +1132,8 @@ static min::gen execute_context
 		    ( parser, ppvec[1],
 		      "expected bracketed selector"
 		      " (modifier) list after" );
+	    else MIN_REQUIRE
+	             ( result == min::SUCCESS() );
 	}
 	else
 	if ( i + 1 < size
@@ -1162,6 +1165,8 @@ static min::gen execute_context
 		    ( parser, ppvec[i-1],
 		      "expected bracketed options"
 		      " (modifier) list after" );
+	    else MIN_REQUIRE
+	    	     ( result == min::SUCCESS() );
 	}
 	else
 	    return PAR::parse_error

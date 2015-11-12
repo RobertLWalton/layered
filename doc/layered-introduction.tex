@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 11, 2015
+November 12, 2015
  
 \end{center}
 
@@ -3643,13 +3643,17 @@ and {\em typed-attribute-label} but no {\em typed-attribute-value}
 gets the implied value \TT{FALSE}.
 
 Note that the MIN object is \underline{not} given \TT{.initiator}
-or \TT{.terminator} attributes.
+or \TT{.terminator} attributes.  Also no additional parser passes,
+such as the operator pass, are applied to the {\em element-list},
+though the bracketed subexpression pass is used to form
+bracketed subexpressions in the {\em element-list}, and
+other passes may be applied inside these bracketed subexpressions.
 
 If two {\em typed-middle} lexemes with no intervening space
 are lexically scanned as a single lexeme, then this new
-{\em doubled-typed-middle} lexeme can be used in place of
-two {\em typed-middle} lexemes with an intervening space to
-represent an empty list.
+{\em doubled-typed-middle} lexeme can be used
+to represent an empty list in place of
+two {\em typed-middle} lexemes with an intervening space.
 
 If a typed bracketed subexpression ends pre-maturely,
 a parsing error is
@@ -3663,23 +3667,21 @@ of a containing typed bracketed subexpression with a different
 containing the typed bracketed subexpression,
 or an end of file.
 
-Within the {\em element-list}, only the {\em typed-middle} and
-{\em typed-closing} are recognized, and both end the
-{\em element-list} (but ending with a {\em typed-closing} is
-a parser error).  Outside, {\em typed-attribute-begin/equal/separator}
-are also recognized, and if out of place, a parsing error is announced.
-
-When a {\em typed-opening} is recognized, the current parser
-selector set is saved in a stack and
-a new set is computed by modifying the saved set
-according to {\em element-selectors} associated with the
-{\em typed-opening} (see the \TT{parser define typed bracket}
-command below).  The modified selector set becomes the current
-parser selector set while scanning the {\em element-list}.
+When a {\em typed-opening} is recognized, the current parsing
+selector set and options are saved in a stack and
+a new selector set and new options are computed by modifying the saved set
+and options
+according to {\em element-selectors} and {\em end-at-options}
+associated with the {\em typed-opening}
+(see the \TT{parser define typed bracket}
+command below).  The modified selector set and options become the current
+parsing selector set and options while scanning the {\em element-list}.
 But while scanning the type label and attributes, the
-current parser selector set is set to the {\em attribute-selectors}
-associated with the {\em typed-opening} (also see below).
-The saved selector set is restored after the subexpression ending
+current parsing selector set is set to the {\em attribute-selectors}
+associated with the {\em typed-opening} (also see below), while the
+{\em end-at-options} remain the same as those use to scan the
+{\em element-list}.
+The saved selector set and options are restored after the subexpression ending
 {\em typed-closing} is recognized.
 
 A {\em typed-opening} is specified by a
@@ -3696,6 +3698,7 @@ parser command.  An example is:
 \TT{~~~~with attribute multivalue "\{*"~...~","~...~"*\}"} \\
 \TT{~~~~with element selectors [- data]} \\
 \TT{~~~~with attribute selectors [data]} \\
+\TT{~~~~with parsing options [- end at line separator]} \\
 \end{tabular}
 \end{center}
 which specifies
@@ -3717,6 +3720,7 @@ which specifies
 `\TT{*\}}' to be the {\em typed-attribute-multivalue-closing} \\
 `\TT{[- data]}' to be the {\em element-selectors} \\
 `\TT{[data]}' to be the {\em attribute-selectors} \\
+`\TT{[- end at line separator]}' to be the {\em end-at-options} \\
 \end{tabular}
 \end{center}
 
@@ -3749,6 +3753,8 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	      {\em typed-element-selectors} ] \\
 	  {}[ \TT{with attribute selectors}
 	      {\em typed-attribute-selectors} ] \\
+	  {}[ \TT{with parsing options}
+	      {\em end-at-options} ] \\
 	  {}[ \TT{with prefix separator allowed} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine typed bracket}{typed bracket!parser undefine}
@@ -3815,6 +3821,9 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \emkey{typed-element-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
 \emkey{typed-attribute-selectors} ::= {\em parser-flag-list}
+\\[0.5ex]
+\emkey{end-at-options} ::= {\em parser-flag-spec}
+	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
@@ -3906,6 +3915,7 @@ parser define typed bracket "{" ... "|" ... "|" ... "}"
        with attribute multivalue "{*" ... ", ... "*}"
        // there are no element selectors
        with attribute selectors [data]
+       with parsing options [- end at line separator]
        with prefix separators allowed
 \end{verbatim}\end{indpar}
 is included by the standard parser at the beginning of

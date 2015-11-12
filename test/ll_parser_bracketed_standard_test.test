@@ -667,17 +667,48 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
+@53 = 1 2 3:
+          y = "6"
+          z = [< "b" "c" "5" "d" >]
+          .position[H] = {}
+          w
+          .type = "x"
+    line 45:
+    {x: w, z = b c 5 d|1 2 3|y = 6 : x}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    Yet another typed subexpression
+        {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
+@54 = Yet another typed subexpression @53:
+          .terminator = "<LF>"
+          .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
+    lines 44-45:
+Yet another typed subexpression
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {x: w, z = b c 5 d|1 2 3|y = 6 : x}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     [ABC_,200]
-@53 = ABC_,200:
+@55 = ABC_,200:
           .terminator = "]"
           .initiator = "["
           .position[H] = {}
-    line 44:
+    line 46:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                         ^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
@@ -686,11 +717,11 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     (1 2 3)
-@54 = 1 2 3:
+@56 = 1 2 3:
           .terminator = ")"
           .initiator = "("
           .position[H] = {}
-    line 44:
+    line 46:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                                      ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
@@ -699,11 +730,11 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     [+]
-@55 = +:
+@57 = +:
           .terminator = "]"
           .initiator = "["
           .position[H] = {}
-    line 45:
+    line 47:
                        no c[+], d[-], no f, g : t}
                            ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
@@ -712,21 +743,21 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     [-]
-@56 = -:
+@58 = -:
           .terminator = "]"
           .initiator = "["
           .position[H] = {}
-    line 45:
+    line 47:
                        no c[+], d[-], no f, g : t}
                                  ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 44: bad flag(s) "_" in "ABC_,200":
+ERROR: in line 46: bad flag(s) "_" in "ABC_,200":
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                          ^^^^^^^^
 BRACKETED EXPRESSION:
     {t: b[ABC,200] = (1 2 3), no c[+], d[-], no f, g|x y z|t}
-@57 = x y z:
+@59 = x y z:
           b[ABC,200] = (1 2 3)
           no c[+]
           .type = "t"
@@ -734,7 +765,7 @@ BRACKETED EXPRESSION:
           no f
           g
           .position[H] = {}
-    lines 44-45:
+    lines 46-47:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                        no c[+], d[-], no f, g : t}
@@ -742,11 +773,11 @@ And another- {| x y z |b[ABC_,200] = (1 2 3),
 BRACKETED EXPRESSION:
     And another-
         {t: b[ABC,200] = (1 2 3), no c[+], d[-], no f, g|x y z|t}
-@58 = And another- @57:
+@60 = And another- @59:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    lines 44-45:
+    lines 46-47:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                        no c[+], d[-], no f, g : t}
@@ -765,49 +796,49 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     [5]
-@59 = 5:
+@61 = 5:
           .terminator = "]"
           .initiator = "["
           .position[H] = {}
-    line 46:
+    line 48:
 And one more {| |b["A", 201,202, [5]]: t}
                                  ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     ["A" "," {# 201,202 #} "," [5]]
-@60 = @61 "," @62 "," @59:
+@62 = @63 "," @64 "," @61:
           .terminator = "]"
           .initiator = "["
           .position[H] = {}
-@61 = A:
+@63 = A:
           .type = "<Q>"
-@62 = 201,202:
+@64 = 201,202:
           .type = "#"
-    line 46:
+    line 48:
 And one more {| |b["A", 201,202, [5]]: t}
                   ^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 46: bad flags specifier [5]:
+ERROR: in line 48: bad flags specifier [5]:
 And one more {| |b["A", 201,202, [5]]: t}
                                  ^^^
 BRACKETED EXPRESSION:
     {t: b[A,201,202]||t}
-@63 =:
+@65 =:
           .type = "t"
           .position[H] = {}
           b[A,201,202]
-        line 46:
+        line 48:
 And one more {| |b["A", 201,202, [5]]: t}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     And one more {t: b[A,201,202]||t}
-@64 = And one more @63:
+@66 = And one more @65:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-        line 46:
+        line 48:
 And one more {| |b["A", 201,202, [5]]: t}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
@@ -818,10 +849,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {W||W}
-@65 =:
+@67 =:
           .type = "W"
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                      ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -830,13 +861,13 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {X||X}
-@66 =:
+@68 =:
           .type = "X"
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                              ^^^
-ERROR: in line 47: prefix separator in middle of expression; deleted and
+ERROR: in line 49: prefix separator in middle of expression; deleted and
        ignored:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                              ^^^
@@ -848,29 +879,29 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {Y||Y}
-@67 =:
+@69 =:
           .type = "Y"
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                       ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {Y|6 7|Y}
-@67 = 6 7:
+@69 = 6 7:
           .type = "Y"
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                       ^^^^^^^
 BRACKETED EXPRESSION:
     ({Y|6 7|Y})
-@68 = @67:
+@70 = @69:
           .terminator = ")"
           .initiator = "("
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                      ^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -879,13 +910,13 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {Z||Z}
-@69 =:
+@71 =:
           .type = "Z"
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
-ERROR: in line 47: prefix separator in middle of expression; deleted and
+ERROR: in line 49: prefix separator in middle of expression; deleted and
        ignored:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
@@ -893,28 +924,28 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {W|2 3 4 5 ({Y|6 7|Y})|W}
-@65 = 2 3 4 5 @68:
+@67 = 2 3 4 5 @70:
           .type = "W"
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                      ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ({W|2 3 4 5 ({Y|6 7|Y})|W})
-@70 = @65:
+@72 = @67:
           .terminator = ")"
           .initiator = "("
           .position[H] = {}
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     A prefix expression ({W|2 3 4 5 ({Y|6 7|Y})|W})
-@71 = A prefix expression @70:
+@73 = A prefix expression @72:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    line 47:
+    line 49:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -923,10 +954,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {X||X}
-@72 =:
+@74 =:
           .type = "X"
           .position[H] = {}
-    line 48:
+    line 50:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -935,18 +966,18 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {X||X}
-@73 =:
+@75 =:
           .type = "X"
           .position[H] = {}
-    line 48:
+    line 50:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
           ^^^
 BRACKETED EXPRESSION:
     {X|a b c|X}
-@72 = a b c:
+@74 = a b c:
           .type = "X"
           .position[H] = {}
-    line 48:
+    line 50:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 ^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -955,10 +986,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {Y||Y}
-@74 =:
+@76 =:
           .type = "Y"
           .position[H] = {}
-    line 48:
+    line 50:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
              ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -967,65 +998,20 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {Y||Y}
-@75 =:
+@77 =:
           .type = "Y"
           .position[H] = {}
-    line 48:
+    line 50:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                      ^^^
 BRACKETED EXPRESSION:
     {Y|d e|Y}
-@74 = d e:
+@76 = d e:
           .type = "Y"
           .position[H] = {}
-    line 48:
+    line 50:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
              ^^^^^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {X||X}
-@76 =:
-          .type = "X"
-          .position[H] = {}
-    line 48:
-{X} a b c {X}{Y} d e {Y} f g {X} h k
-                             ^^^
-BRACKETED EXPRESSION:
-    {Y|f g|Y}
-@75 = f g:
-          .type = "Y"
-          .position[H] = {}
-    line 48:
-{X} a b c {X}{Y} d e {Y} f g {X} h k
-                     ^^^^^^^
-BRACKETED EXPRESSION:
-    {X|{Y|d e|Y} {Y|f g|Y}|X}
-@73 = @74 @75:
-          .type = "X"
-          .position[H] = {}
-    line 48:
-{X} a b c {X}{Y} d e {Y} f g {X} h k
-          ^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {X|h k|X}
-@76 = h k:
-          .type = "X"
-          .position[H] = {}
-    line 48:
-{X} a b c {X}{Y} d e {Y} f g {X} h k
-                             ^^^^^^^
-BRACKETED EXPRESSION:
-    {X|a b c|X} {X|{Y|d e|Y} {Y|f g|Y}|X} {X|h k|X}
-@77 = @72 @73 @76:
-          .terminator = "<LF>"
-          .position[H] = {}
-          .initiator = [$ LOGICAL_LINE $]
-    line 48:
-{X} a b c {X}{Y} d e {Y} f g {X} h k
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
@@ -1035,31 +1021,42 @@ PREFIX EXPRESSION:
 @78 =:
           .type = "X"
           .position[H] = {}
-    line 49:
-{X} a b c; {X}{Y} f g; {X} h k
-^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
+    line 50:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                             ^^^
 BRACKETED EXPRESSION:
-    {X|a b c|X}
-@78 = a b c:
+    {Y|f g|Y}
+@77 = f g:
+          .type = "Y"
+          .position[H] = {}
+    line 50:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                     ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|{Y|d e|Y} {Y|f g|Y}|X}
+@75 = @76 @77:
           .type = "X"
           .position[H] = {}
-    line 49:
-{X} a b c; {X}{Y} f g; {X} h k
-^^^^^^^^^
+    line 50:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+          ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {X|a b c|X};
-@79 = @78:
-          .terminator = ";"
-          .initiator = [$ LOGICAL_LINE $]
+    {X|h k|X}
+@78 = h k:
+          .type = "X"
           .position[H] = {}
-    line 49:
-{X} a b c; {X}{Y} f g; {X} h k
-^^^^^^^^^^
+    line 50:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                             ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X} {X|{Y|d e|Y} {Y|f g|Y}|X} {X|h k|X}
+@79 = @74 @75 @78:
+          .terminator = "<LF>"
+          .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
+    line 50:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
@@ -1069,7 +1066,41 @@ PREFIX EXPRESSION:
 @80 =:
           .type = "X"
           .position[H] = {}
-    line 49:
+    line 51:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED EXPRESSION:
+    {X|a b c|X}
+@80 = a b c:
+          .type = "X"
+          .position[H] = {}
+    line 51:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X};
+@81 = @80:
+          .terminator = ";"
+          .initiator = [$ LOGICAL_LINE $]
+          .position[H] = {}
+    line 51:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@82 =:
+          .type = "X"
+          .position[H] = {}
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
            ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -1078,10 +1109,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {Y||Y}
-@81 =:
+@83 =:
           .type = "Y"
           .position[H] = {}
-    line 49:
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
               ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
@@ -1091,27 +1122,27 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     {Y|f g|Y}
-@81 = f g:
+@83 = f g:
           .type = "Y"
           .position[H] = {}
-    line 49:
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
               ^^^^^^^
 BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X}
-@80 = @81:
+@82 = @83:
           .type = "X"
           .position[H] = {}
-    line 49:
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
            ^^^^^^^^^^
 BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X};
-@82 = @80:
+@84 = @82:
           .terminator = ";"
           .initiator = [$ LOGICAL_LINE $]
           .position[H] = {}
-    line 49:
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
            ^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -1120,27 +1151,27 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
     {X||X}
-@83 =:
+@85 =:
           .type = "X"
           .position[H] = {}
-    line 49:
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^
 BRACKETED EXPRESSION:
     {X|h k|X}
-@83 = h k:
+@85 = h k:
           .type = "X"
           .position[H] = {}
-    line 49:
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^^^^^
 BRACKETED EXPRESSION:
     {X|h k|X}
-@84 = @83:
+@86 = @85:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    line 49:
+    line 51:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -1149,19 +1180,19 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {- a b c -}
-@85 = a b c:
+@87 = a b c:
           .type = "-"
           .position[H] = {}
-    line 50:
+    line 52:
 {- a b c -}
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {- a b c -}
-@86 = @85:
+@88 = @87:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    line 50:
+    line 52:
 {- a b c -}
 ^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -1170,44 +1201,44 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {< a b c >}
-@87 = a b c:
+@89 = a b c:
           .type = [< "<" ">" >]
           .position[H] = {}
-    line 51:
+    line 53:
 {< a b c >}
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {< a b c >}
-@88 = @87:
+@90 = @89:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    line 51:
+    line 53:
 {< a b c >}
 ^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 52: "-" missing at end of typed bracketed expression;
+ERROR: in line 54: "-" missing at end of typed bracketed expression;
        inserted:
 {- a b c}
         ^
 BRACKETED EXPRESSION:
     {- a b c -}
-@89 = a b c:
+@91 = a b c:
           .type = "-"
           .position[H] = {}
-    line 52:
+    line 54:
 {- a b c}
 ^^^^^^^^^
 BRACKETED EXPRESSION:
     {- a b c -}
-@90 = @89:
+@92 = @91:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    line 52:
+    line 54:
 {- a b c}
 ^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -1216,30 +1247,30 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {-  -}
-@91 =:
+@93 =:
           .type = "-"
           .position[H] = {}
-    line 53:
+    line 55:
 {-}
 ^^^
 BRACKETED EXPRESSION:
     {-  -}
-@92 = @91:
+@94 = @93:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    line 53:
+    line 55:
 {-}
 ^^^
 BRACKETED EXPRESSION:
     parser print bracket ""
-@93 = parser print bracket @94:
+@95 = parser print bracket @96:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-@94 = "":
+@96 = "":
           .type = "<Q>"
-    line 54:
+    line 56:
 parser print bracket ""
 ^^^^^^^^^^^^^^^^^^^^^^^
 parser print bracket "":

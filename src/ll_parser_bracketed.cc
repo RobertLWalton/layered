@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 10 11:58:52 EST 2015
+// Date:	Wed Nov 11 18:42:12 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1171,19 +1171,19 @@ inline min::int32 relative_indent
 //          else
 //            iterate top level loop
 //
-//       TBD
-//
 //       if key is closing bracket in bracket stack:
 //          close bracket stack entry that matches key
 //          close all higher stack entries indicating
 //            that their closing brackets were not found
 //          return MISSING_POSITION
 //
-//       if key is typed middle matching typed_opening->
-//              typed_middle:
+//       if key is typed middle matching typed_middle
+//              component of typed_opening argument
+//              and subexpression did not begin with a
+//              mark type (has_mark_type == false):
 //          if first such:
 //             restore saved selectors
-//          if second such:
+//          else if second such:
 //             reset selectors to typed_opening->
 //                                attr_selectors
 //	    if other such:
@@ -1199,8 +1199,9 @@ inline min::int32 relative_indent
 //          iterate top level loop
 //
 //       if key is line separator matching line_sep
-//              argument:
-//          return end position of separator
+//              argument and selectors & EALSEP:
+//          remove line separator
+//          return end position of removed separator
 //
 //       // reject key
 //       //

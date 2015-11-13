@@ -38,10 +38,12 @@ static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen typed;
 static min::locatable_gen element;
+static min::locatable_gen attributes;
 static min::locatable_gen attribute;
 static min::locatable_gen flags;
 static min::locatable_gen multivalue;
 static min::locatable_gen initiator;
+static min::locatable_gen negator;
 static min::locatable_gen mark;
 static min::locatable_gen full;
 static min::locatable_gen lines;
@@ -56,10 +58,12 @@ static void initialize ( void )
 			    ( "indentation" );
     ::typed = min::new_str_gen ( "typed" );
     ::element = min::new_str_gen ( "element" );
+    ::attributes = min::new_str_gen ( "attributes" );
     ::attribute = min::new_str_gen ( "attribute" );
     ::flags = min::new_str_gen ( "flags" );
     ::multivalue = min::new_str_gen ( "multivalue" );
     ::initiator = min::new_str_gen ( "initiator" );
+    ::negator = min::new_str_gen ( "negator" );
     ::mark = min::new_str_gen ( "mark" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
@@ -3614,40 +3618,42 @@ static min::gen bracketed_pass_command
     min::locatable_gen name[max_names+1];
     unsigned number_of_names = 0;
 
+#   define SCAN_NAME(variable, partial_name_ok) \
+        variable = \
+	  PAR::scan_name_string_label \
+	    ( vp, i, parser, \
+	    \
+	        ( 1ull << LEXSTD::mark_t ) \
+	      + ( 1ull << LEXSTD::separator_t ) \
+	      + ( 1ull << LEXSTD::word_t ) \
+	      + ( 1ull << LEXSTD::natural_t ) \
+	      + ( 1ull << LEXSTD::numeric_t ), \
+	    \
+	        ( 1ull << LEXSTD::horizontal_space_t ) \
+	      + ( 1ull << LEXSTD:: \
+		          premature_end_of_file_t ) \
+	      + ( 1ull << LEXSTD::end_of_file_t ), \
+	    \
+	        ( 1ull << LEXSTD:: \
+		          premature_end_of_file_t ) \
+	      + ( 1ull << LEXSTD::end_of_file_t ), \
+	      partial_name_ok ); \
+	\
+	if ( variable == min::ERROR() ) \
+	    return min::ERROR(); \
+	else if ( variable == min::MISSING() ) \
+	    return PAR::parse_error \
+	        ( parser, ppvec[i-1], \
+		  "expected quoted name after" );
+
     while ( true )
     {
 	// Scan a name.
 	//
-	name[number_of_names] =
-	    PAR::scan_name_string_label
-	        ( vp, i, parser,
+	SCAN_NAME ( name[number_of_names],
+	            command == PAR::print );
 
-	            ( 1ull << LEXSTD::mark_t )
-	          + ( 1ull << LEXSTD::separator_t )
-	          + ( 1ull << LEXSTD::word_t )
-	          + ( 1ull << LEXSTD::natural_t )
-	          + ( 1ull << LEXSTD::numeric_t ),
-
-	            ( 1ull << LEXSTD::
-		                  horizontal_space_t )
-	          + ( 1ull << LEXSTD::
-		              premature_end_of_file_t )
-	          + ( 1ull << LEXSTD::end_of_file_t ),
-
-	            ( 1ull << LEXSTD::
-		              premature_end_of_file_t )
-	          + ( 1ull << LEXSTD::end_of_file_t ),
-		  command == PAR::print );
-
-	if ( name[number_of_names] == min::ERROR() )
-	    return min::ERROR();
-	else if (    name[number_of_names]
-	          == min::MISSING() )
-	    return PAR::parse_error
-	        ( parser, ppvec[i-1],
-		  "expected quoted name after" );
-	else
-	    ++ number_of_names;
+	++ number_of_names;
 
 	if ( number_of_names > max_names )
 	    return PAR::parse_error
@@ -4135,9 +4141,10 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_attribute_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
-	min::locatable_gen attribute_name[4];
-	unsigned number_of_attribute_names = 0;
 	min::locatable_gen
+	    attribute_begin,
+	    attribute_equal,
+	    attribute_separator,
 	    attribute_negator,
 	    attribute_flags_initiator,
 	    attribute_multivalue_initiator;
@@ -4152,8 +4159,10 @@ static min::gen bracketed_pass_command
 		 &&
 		 vp[i+1] == PAR::selectors )
 	    {
+		bool is_element =
+		    ( vp[i] == ::element );
 	        TAB::new_flags & new_selectors =
-		    ( vp[i] == ::element ?
+		    ( is_element ?
 		      new_element_selectors :
 		      new_attribute_selectors );
 	        
@@ -4165,14 +4174,17 @@ static min::gen bracketed_pass_command
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
-			  parser, true );
+			  parser, is_element );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::FAILURE() )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
+			  is_element ?
 			  "expected bracketed selector"
-			  " modifier list after" );
+			  " modifier list after" :
+			  "expected bracketed selector"
+			  " list after" );
 	    }
 	    else
 	    if ( i + 1 < size
@@ -4199,10 +4211,74 @@ static min::gen bracketed_pass_command
 			  " (modifier) list after" );
 	    }
 	    else
-		return PAR::parse_error
-		    ( parser, ppvec[i-1],
-		      "expected `parsing selectors'"
-		      " or `parsing options' after" );
+	    if ( i + 2 < size
+		 &&
+		 vp[i] == ::attribute
+		 &&
+		 ( vp[i+1] == ::flags
+		   ||
+		   vp[i+1] == ::multivalue )
+		 &&
+		 vp[i+2] == ::initiator )
+	    {
+		min::locatable_gen & v =
+		    ( vp[i+1] == ::flags ?
+		      attribute_flags_initiator :
+		      attribute_multivalue_initiator );
+		i += 3;
+		SCAN_NAME ( v, false );
+	    }
+	    else
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == ::attribute
+		 &&
+		 vp[i+1] == ::negator )
+	    {
+		i += 2;
+
+		SCAN_NAME ( attribute_negator, false );
+	    }
+	    else
+	    if ( i < size
+		 &&
+		 vp[i] == ::attributes )
+	    {
+		i += 1;
+
+		SCAN_NAME ( attribute_begin, false );
+
+		if ( i >= size
+		     ||
+		     vp[i] != PAR::dotdotdot )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected ... after" );
+		i += 1;
+
+		SCAN_NAME ( attribute_equal, false );
+
+		if ( i >= size
+		     ||
+		     vp[i] != PAR::dotdotdot )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected ... after" );
+		i += 1;
+
+		SCAN_NAME
+		    ( attribute_separator, false );
+	    }
+	    else return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `attributes',"
+		  " or `attribute negator',"
+		  " or `attribute flags initiator',"
+		  " or `attribute multivalue"
+		       " initiator',"
+		  " or `element selectors',"
+		  " or `attribute selectors',"
+		  " or `parsing options' after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error

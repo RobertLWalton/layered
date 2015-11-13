@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 12 11:45:08 EST 2015
+// Date:	Fri Nov 13 11:51:57 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,7 @@
 # define COM ll::parser::command
 # define BRA ll::parser::bracketed
 
+static bool initialize_called = false;
 static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen typed;
@@ -44,6 +45,7 @@ static min::locatable_gen flags;
 static min::locatable_gen multivalue;
 static min::locatable_gen initiator;
 static min::locatable_gen negator;
+static min::locatable_gen typed_bracketed;
 static min::locatable_gen mark;
 static min::locatable_gen full;
 static min::locatable_gen lines;
@@ -53,6 +55,9 @@ static min::locatable_gen top;
 
 static void initialize ( void )
 {
+    if ( initialize_called ) return;
+    initialize_called = true;
+
     ::bracket = min::new_str_gen ( "bracket" );
     ::indentation = min::new_str_gen
 			    ( "indentation" );
@@ -64,6 +69,8 @@ static void initialize ( void )
     ::multivalue = min::new_str_gen ( "multivalue" );
     ::initiator = min::new_str_gen ( "initiator" );
     ::negator = min::new_str_gen ( "negator" );
+    ::typed_bracketed =
+        min::new_lab_gen ( "typed", "bracketed" );
     ::mark = min::new_str_gen ( "mark" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
@@ -3446,6 +3453,8 @@ min::locatable_var<PAR::reformatter>
 
 static void reformatter_stack_initialize ( void )
 {
+    ::initialize();
+
     min::locatable_gen label
         ( min::new_str_gen ( "label" ) );
     PAR::push_reformatter
@@ -3453,10 +3462,8 @@ static void reformatter_stack_initialize ( void )
 	  ::label_reformatter_function,
 	  BRA::reformatter_stack );
 
-    min::locatable_gen typed_bracketed
-        ( min::new_lab_gen ( "typed", "bracketed" ) );
     PAR::push_reformatter
-        ( typed_bracketed, 0, 0, 0,
+        ( ::typed_bracketed, 0, 0, 0,
 	  ::typed_bracketed_reformatter_function,
 	  BRA::reformatter_stack );
 }
@@ -4137,17 +4144,29 @@ static min::gen bracketed_pass_command
     }
     case ::TYPED_BRACKET:
     {
+	if ( number_of_names != 2
+	     &&
+	     number_of_names != 4 )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected 2 or 4 but not 3 names"
+		  " ending with" );
+	bool has_middle = ( number_of_names == 4 );
+
 	TAB::new_flags new_element_selectors;
 	TAB::new_flags new_attribute_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
 	min::locatable_gen
-	    attribute_begin,
-	    attribute_equal,
-	    attribute_separator,
-	    attribute_negator,
-	    attribute_flags_initiator,
-	    attribute_multivalue_initiator;
+	    attribute_begin ( min::MISSING() ),
+	    attribute_equal ( min::MISSING() ),
+	    attribute_separator ( min::MISSING() ),
+	    attribute_negator ( min::MISSING() ),
+	    attribute_flags_initiator
+	    	( min::MISSING() ),
+	    attribute_multivalue_initiator
+	        ( min::MISSING() );
+
 	while ( i < size && vp[i] == PAR::with )
 	{
 	    ++ i;
@@ -4285,12 +4304,13 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "expected `with' after" );
 
-	if ( TAB::all_flags ( new_options ) == 0 )
-	{
-	    new_options.or_flags = PAR::DEFAULT_EA_OPT;
-	    new_options.not_flags =
-	        PAR::ALL_OPT & ~ new_options.or_flags;
-	}
+	if (    TAB::all_flags
+	            ( new_attribute_selectors )
+	     == 0 )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `with attribute selectors'"
+		  " after" );
 
 	new_element_selectors.or_flags |=
 	    new_options.or_flags;
@@ -4298,6 +4318,29 @@ static min::gen bracketed_pass_command
 	    new_options.not_flags;
 	new_element_selectors.xor_flags |=
 	    new_options.xor_flags;
+
+	BRA::push_typed_brackets
+	    ( name[0],
+	      has_middle ? name[1] : min::MISSING(),
+	      name[1+2*has_middle],
+	      selectors,
+	      PAR::block_level ( parser ),
+	      ppvec->position,
+	      new_element_selectors,
+	      new_attribute_selectors.or_flags,
+	      PAR::find_reformatter
+		  ( ::typed_bracketed,
+		    BRA::reformatter_stack ),
+	      min::NULL_STUB,
+	      attribute_begin,
+	      attribute_equal,
+	      attribute_separator,
+	      attribute_negator,
+	      attribute_flags_initiator,
+	      min::standard_attr_flag_parser,
+	      attribute_multivalue_initiator,
+	      min::NULL_STUB,
+	      bracketed_pass->bracket_table );
 
 	break;
     }

@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 12, 2015
+November 13, 2015
  
 \end{center}
 
@@ -3692,13 +3692,13 @@ parser command.  An example is:
 \begin{tabular}{l}
 \TT{parser define typed bracket "\{"~...~"|"~...~"|"~...~"\}"} \\
 \TT{~~~~[text]~} \\
+\TT{~~~~with element selectors [- data]} \\
+\TT{~~~~with parsing options [- end at line separator]} \\
+\TT{~~~~with attribute selectors [data]} \\
 \TT{~~~~with attributes ":"~...~"="~...~","} \\
 \TT{~~~~with attribute negator "no"} \\
-\TT{~~~~with attribute flags "["~...~","~...~"]"} \\
-\TT{~~~~with attribute multivalue "\{*"~...~","~...~"*\}"} \\
-\TT{~~~~with element selectors [- data]} \\
-\TT{~~~~with attribute selectors [data]} \\
-\TT{~~~~with parsing options [- end at line separator]} \\
+\TT{~~~~with attribute flags initiator "["} \\
+\TT{~~~~with attribute multivalue initiator "\{*"} \\
 \end{tabular}
 \end{center}
 which specifies
@@ -3708,19 +3708,15 @@ which specifies
 `\TT{|}' to be a {\em typed-middle} \\
 `\TT{\}}' to be a {\em typed-closing} \\
 `\TT{text}' to be the sole definition selector \\
+`\TT{[- data]}' to be the {\em element-selectors} \\
+`\TT{[- end at line separator]}' to be the {\em end-at-options} \\
+`\TT{[data]}' to be the {\em attribute-selectors} \\
 `\TT{:}' to be the {\em typed-attribute-begin} \\
 `\TT{=}' to be the {\em typed-attribute-equal} \\
 `\TT{,}' to be the {\em typed-attribute-separator} \\
 `\TT{no}' to be the {\em typed-attribute-negator} \\
 `\TT{[}' to be the {\em typed-attribute-flags-opening} \\
-`\TT{,}' to be the {\em typed-attribute-flags-separator} \\
-`\TT{]}' to be the {\em typed-attribute-flags-closing} \\
 `\TT{\{*}' to be the {\em typed-attribute-multivalue-opening} \\
-`\TT{,}' to be the {\em typed-attribute-multivalue-separator} \\
-`\TT{*\}}' to be the {\em typed-attribute-multivalue-closing} \\
-`\TT{[- data]}' to be the {\em element-selectors} \\
-`\TT{[data]}' to be the {\em attribute-selectors} \\
-`\TT{[- end at line separator]}' to be the {\em end-at-options} \\
 \end{tabular}
 \end{center}
 
@@ -3741,14 +3737,6 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{define typed bracket} {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
-	  {}[ \TT{with attributes} {\em typed-attribute-punctuation} ] \\
-	  {}[ \TT{with attribute negator} {\em typed-attribute-negator} ] \\
-	  {}[ \TT{with attribute flags}
-	      {\em typed-attribute-flags-punctuation} ] \\
-	  {}[ \TT{with} \begin{tabular}[t]{l}
-	                \TT{attribute multivalue} \\
-	                {\em typed-attribute-multivalue-punctuation} ]
-			\end{tabular} \\
 	  {}[ \TT{with element selectors}
 	      {\em typed-element-selectors} ] \\
 	  {}[ \TT{with attribute selectors}
@@ -3756,6 +3744,16 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  {}[ \TT{with parsing options}
 	      {\em end-at-options} ] \\
 	  {}[ \TT{with prefix separator allowed} ] \\
+	  {}[ \TT{with attributes} {\em typed-attribute-punctuation} ] \\
+	  {}[ \TT{with attribute negator} {\em typed-attribute-negator} ] \\
+	  {}[ \TT{with} \begin{tabular}[t]{l}
+	                \TT{attribute flags initiator} \\
+	                {\em typed-attribute-flags-opening} ]
+			\end{tabular} \\
+	  {}[ \TT{with} \begin{tabular}[t]{l}
+	                \TT{attribute multivalue initiator} \\
+	                {\em typed-attribute-multivalue-opening} ]
+			\end{tabular} \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine typed bracket}{typed bracket!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3776,6 +3774,13 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{typed-closing} ::= {\em quoted-name}
 \\[0.5ex]
+\emkey{typed-element-selectors} ::= {\em parser-flag-spec}
+\\[0.5ex]
+\emkey{end-at-options} ::= {\em parser-flag-spec}
+	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+\\[0.5ex]
+\emkey{typed-attribute-selectors} ::= {\em parser-flag-list}
+\\[0.5ex]
 \emkey{typed-attribute-punctuation} ::= \\
     \hspace*{0.2in}
      {\em typed-attribute-begin}
@@ -3790,40 +3795,9 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{typed-attribute-negator} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{typed-attribute-flags-punctuation} ::= \\
-    \hspace*{0.2in}
-     {\em typed-attribute-flags-opening}
-     \begin{tabular}[t]{l}
-     \TT{...} {\em typed-attribute-flags-separator} \\
-     \TT{...} {\em typed-attribute-flags-closing}
-     \end{tabular}
-\\[0.5ex]
 \emkey{typed-attribute-flags-opening} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{typed-attribute-flags-separator} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{typed-attribute-multivalue-punctuation} ::= \\
-    \hspace*{0.2in}
-     {\em typed-attribute-multivalue-opening}
-     \begin{tabular}[t]{l}
-     \TT{...} {\em typed-attribute-multivalue-separator} \\
-     \TT{...} {\em typed-attribute-multivalue-closing}
-     \end{tabular}
-\\[0.5ex]
 \emkey{typed-attribute-multivalue-opening} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{typed-attribute-multivalue-separator} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{typed-attribute-multivalue-closing} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{typed-element-selectors} ::= {\em parser-flag-spec}
-\\[0.5ex]
-\emkey{typed-attribute-selectors} ::= {\em parser-flag-list}
-\\[0.5ex]
-\emkey{end-at-options} ::= {\em parser-flag-spec}
-	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}

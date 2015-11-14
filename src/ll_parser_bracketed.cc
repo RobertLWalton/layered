@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 14 00:10:19 EST 2015
+// Date:	Sat Nov 14 02:51:50 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,7 +47,7 @@ static min::locatable_gen initiator;
 static min::locatable_gen negator;
 static min::locatable_gen typed_bracketed;
 static min::locatable_gen prefix;
-static min::locatable_gen separator;
+static min::locatable_gen separators;
 static min::locatable_gen allowed;
 static min::locatable_gen mark;
 static min::locatable_gen full;
@@ -75,7 +75,7 @@ static void initialize ( void )
     ::typed_bracketed =
         min::new_lab_gen ( "typed", "bracketed" );
     ::prefix = min::new_str_gen ( "prefix" );
-    ::separator = min::new_str_gen ( "separator" );
+    ::separators = min::new_str_gen ( "separators" );
     ::allowed = min::new_str_gen ( "allowed" );
     ::mark = min::new_str_gen ( "mark" );
     ::full = min::new_str_gen ( "full" );
@@ -3877,6 +3877,12 @@ static min::gen bracketed_pass_command
 			     ( TOATTR
 				 (multivalue_initiator)
 			     );
+		    if (    typed_opening->type_map
+		         != min::NULL_STUB )
+			parser->printer
+			  << min::indent
+			  << "with prefix"
+			     " separators allowed";
 		}
 
 #		undef PQ
@@ -4330,7 +4336,7 @@ static min::gen bracketed_pass_command
 		 &&
 		 vp[i] == ::prefix
 		 &&
-		 vp[i+1] == ::separator
+		 vp[i+1] == ::separators
 		 &&
 		 vp[i+2] == ::allowed )
 	    {
@@ -4349,7 +4355,7 @@ static min::gen bracketed_pass_command
 		  " or `element selectors',"
 		  " or `attribute selectors',"
 		  " or `parsing options',"
-		  " or `prefix separator allowed'"
+		  " or `prefix separators allowed'"
 		  " after" );
 	}
 	if ( i < size )

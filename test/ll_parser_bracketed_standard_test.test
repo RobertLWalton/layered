@@ -1315,6 +1315,7 @@ parser print bracket "":
                      with attribute negator "no"
                      with attribute flags initiator "["
                      with attribute multivalue initiator [< "{" "*" >]
+                     with prefix separators allowed
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block TOP LEVEL: bracket "<+" ... "+>" [math]
     block TOP LEVEL: bracket "<-" ... "->" [text]

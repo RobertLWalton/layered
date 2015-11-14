@@ -3699,6 +3699,7 @@ parser command.  An example is:
 \TT{~~~~with attribute negator "no"} \\
 \TT{~~~~with attribute flags initiator "["} \\
 \TT{~~~~with attribute multivalue initiator "\{*"} \\
+\TT{~~~~with prefix separator allowed} \\
 \end{tabular}
 \end{center}
 which specifies
@@ -3717,6 +3718,10 @@ which specifies
 `\TT{no}' to be the {\em typed-attribute-negator} \\
 `\TT{[}' to be the {\em typed-attribute-flags-opening} \\
 `\TT{\{*}' to be the {\em typed-attribute-multivalue-opening} \\
+that {\em typed-bracketed-subexpressions} with the give {\em typed-opening}
+and no elements \\
+are to be treated as {\em typed-prefix-separators}
+(see Section~\itemref{TYPED-PREFIX-SEPARATORS}).
 \end{tabular}
 \end{center}
 

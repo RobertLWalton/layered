@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 13 11:51:57 EST 2015
+// Date:	Fri Nov 13 18:22:30 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,6 +46,9 @@ static min::locatable_gen multivalue;
 static min::locatable_gen initiator;
 static min::locatable_gen negator;
 static min::locatable_gen typed_bracketed;
+static min::locatable_gen prefix;
+static min::locatable_gen separator;
+static min::locatable_gen allowed;
 static min::locatable_gen mark;
 static min::locatable_gen full;
 static min::locatable_gen lines;
@@ -71,6 +74,9 @@ static void initialize ( void )
     ::negator = min::new_str_gen ( "negator" );
     ::typed_bracketed =
         min::new_lab_gen ( "typed", "bracketed" );
+    ::prefix = min::new_str_gen ( "prefix" );
+    ::separator = min::new_str_gen ( "separator" );
+    ::allowed = min::new_str_gen ( "allowed" );
     ::mark = min::new_str_gen ( "mark" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
@@ -541,11 +547,7 @@ BRA::typed_opening
     typed_attr_multivalue_initiator_ref(opening) =
         typed_attr_multivalue_initiator;
 
-    if ( type_map == min::NULL_STUB )
-        type_map_ref(opening) =
-	    TAB::create_key_table ( 1024 );
-    else
-        type_map_ref(opening) = type_map;
+    type_map_ref(opening) = type_map;
 
     return opening;
 }
@@ -1147,6 +1149,10 @@ inline min::int32 relative_indent
 //		    change token type to BRACKETED and
 //		           token value_type to MISSING
 //		    return separator_found
+//		 else if typed_opening->type_map not
+//		      defined (is NULL_STUB):
+//		    change token type to BRACKETED and
+//		           token value_type to MISSING
 //		 else:
 //		    // Find prefix-list subexpressions
 //		    // headed by PREFIX token.
@@ -2122,6 +2128,11 @@ min::position BRA::parse_bracketed_subexpression
 		{
 		    // Prefix separator.
 
+		    BRA::typed_opening typed_opening =
+			(BRA::typed_opening) root;
+		    MIN_REQUIRE (    typed_opening
+			          != min::NULL_STUB );
+
 		    MIN_REQUIRE
 		        ( first == next->previous );
 		    PAR::token prefix_sep = first;
@@ -2185,6 +2196,15 @@ min::position BRA::parse_bracketed_subexpression
 			    min::MISSING();
 			return separator_found;
 		    }
+		    else if ( typed_opening->type_map
+			      ==
+			      min::NULL_STUB )
+		    {
+			prefix_sep->type =
+			    PAR::BRACKETED;
+			value_type_ref(prefix_sep) =
+			    min::MISSING();
+		    }
 #		    define PARSE_BRA_SUBEXP \
 		      BRA::parse_bracketed_subexpression
 		      // To avoid a too long line
@@ -2197,13 +2217,6 @@ min::position BRA::parse_bracketed_subexpression
 			typedef
 		         min::phrase_position_vec_insptr
 			 pos_insptr;
-
-			BRA::typed_opening
-				typed_opening =
-			    (BRA::typed_opening) root;
-			MIN_REQUIRE
-			    (    typed_opening
-			      != min::NULL_STUB );
 
 			TAB::root mapped_root =
 			    TAB::find
@@ -4166,6 +4179,8 @@ static min::gen bracketed_pass_command
 	    	( min::MISSING() ),
 	    attribute_multivalue_initiator
 	        ( min::MISSING() );
+	min::locatable_var<TAB::key_table> type_map
+	    ( min::NULL_STUB );
 
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -4288,6 +4303,19 @@ static min::gen bracketed_pass_command
 		SCAN_NAME
 		    ( attribute_separator, false );
 	    }
+	    if ( i + 2 < size
+		 &&
+		 vp[i] == ::prefix
+		 &&
+		 vp[i+1] == ::separator
+		 &&
+		 vp[i+2] == ::allowed )
+	    {
+		i += 3;
+
+		type_map =
+		    TAB::create_key_table ( 1024 );
+	    }
 	    else return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected `attributes',"
@@ -4297,7 +4325,9 @@ static min::gen bracketed_pass_command
 		       " initiator',"
 		  " or `element selectors',"
 		  " or `attribute selectors',"
-		  " or `parsing options' after" );
+		  " or `parsing options',"
+		  " or `prefix separator allowed'"
+		  " after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error
@@ -4339,7 +4369,7 @@ static min::gen bracketed_pass_command
 	      attribute_flags_initiator,
 	      min::standard_attr_flag_parser,
 	      attribute_multivalue_initiator,
-	      min::NULL_STUB,
+	      type_map,
 	      bracketed_pass->bracket_table );
 
 	break;

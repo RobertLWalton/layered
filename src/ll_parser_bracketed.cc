@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 13 18:22:30 EST 2015
+// Date:	Sat Nov 14 00:10:19 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3975,6 +3975,34 @@ static min::gen bracketed_pass_command
     else MIN_REQUIRE
              ( sresult == min::SUCCESS() );
 
+    if ( type == ::TYPED_BRACKET )
+    {
+	if ( number_of_names != 2
+	     &&
+	     number_of_names != 4 )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected 2 or 4 but not 3 names"
+		  " ending with" );
+	if ( number_of_names == 4
+	     &&
+	     name[1] != name[2] )
+	{
+	    // ppvec[..] is a min::ref and must be
+	    // copied into a local variable before
+	    // its .begin or .end can be extracted.
+	    //
+	    min::phrase_position pos1 = ppvec[i-3];
+	    min::phrase_position pos2 = ppvec[i-2];
+	    min::phrase_position pos =
+	        { pos1.begin, pos2.end };
+	    return PAR::parse_error
+		( parser, pos,
+		  "two typed middle names are not"
+		  " equal" );
+	}
+    }
+
     if ( command == PAR::define ) switch ( type )
     {
     case ::BRACKET:
@@ -4157,13 +4185,8 @@ static min::gen bracketed_pass_command
     }
     case ::TYPED_BRACKET:
     {
-	if ( number_of_names != 2
-	     &&
-	     number_of_names != 4 )
-	    return PAR::parse_error
-		( parser, ppvec[i-1],
-		  "expected 2 or 4 but not 3 names"
-		  " ending with" );
+	// Name errors are checked above.
+
 	bool has_middle = ( number_of_names == 4 );
 
 	TAB::new_flags new_element_selectors;
@@ -4441,6 +4464,37 @@ static min::gen bracketed_pass_command
 		     &&
 		     line_sep->label != name[1] )
 		    continue;
+
+		break;
+	    }
+	    case ::TYPED_BRACKET:
+	    {
+		if ( subtype != BRA::TYPED_OPENING )
+		    continue;
+
+		BRA::typed_opening typed_opening =
+		    (BRA::typed_opening) root;
+		BRA::typed_middle typed_middle =
+		    typed_opening->typed_middle;
+		BRA::closing_bracket typed_closing =
+		    typed_opening->closing_bracket;
+
+		if ( number_of_names == 4 )
+		{
+		    if ( typed_middle->label != name[1]
+		         ||
+			 typed_closing->label != name[3]
+		       )
+		        continue;
+		}
+		else
+		{
+		    if ( typed_middle != min::NULL_STUB
+		         ||
+			 typed_closing->label != name[1]
+		       )
+		        continue;
+		}
 
 		break;
 	    }

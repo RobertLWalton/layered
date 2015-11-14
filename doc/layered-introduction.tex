@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 13, 2015
+November 14, 2015
  
 \end{center}
 
@@ -3767,11 +3767,13 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{typed-bracket-name} ::= \\
-    \hspace*{0.2in}
-     {\em typed-opening} \TT{...}
-     \TT{...} {\em typed-middle} \TT{...} {\em typed-middle}
-     \TT{...} {\em typed-closing}
+\emkey{typed-bracket-name}  \\
+\hspace*{0.2in}\begin{tabular}[t]{rl}
+    ::= & {\em typed-opening} \TT{...}
+          \TT{...} {\em typed-middle} \TT{...} {\em typed-middle}
+          \TT{...} {\em typed-closing} \\
+    $|$ & {\em typed-opening} \TT{...} {\em typed-closing} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{typed-opening} ::= {\em quoted-name}
 \\[0.5ex]

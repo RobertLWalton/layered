@@ -3834,31 +3834,19 @@ and after the second {\em typed-middle}, and the
 a builtin (reformatter) pass, which recognizes, outside
 the {\em element-list},
 {\em typed-attribute-begin/equal/separator/negators}
-and bracketed subexpressions whose \TT{.initiators} are
+and in appropriate contexts bracketed subexpressions whose \TT{.initiators} are
 {\em typed-attribute-flags/multivalue-initiators}.
 
-\item Additional passes, which are applied to
+\item Additional passes (e.g., the operator parsing pass), which are applied to
 {\em untyped-bracketed-subexpressions}
 and {\em indented-paragraphs}, are \underline{not}
 applied to {\em typed-bracketed-subexpressions}.  However
 these passes are applied to
 {\em untyped-bracketed-subexpressions}
-and {\em indented-paragraphs} that appear \underline{inside}
+and {\em indented-para\-graphs} that appear \underline{inside}
 a {\em typed-bracketed-subexpression}.
 
 \end{itemize}
-
-TBD
-
-During this parse the operator parser pass operates on subsubexpressions,
-and specifically, parses {\em typed-attribute-flags/multivalue-separators}
-outside the {\em element-list}.
-
-After the bracketed subexpression parser has finished, it calls
-a special typed subexpression reformatter that has its own symbol
-table which includes the {\em typed-middle} and
-{\em typed-attribute-punctuation}.  This reformatted makes the
-MIN object adding the type, attributes, and elements it discovers.
 
 To make all this work, the various punctuation marks defined by
 a {\em parser-typed-bracket-command} are distributed among 3 symbol
@@ -3877,28 +3865,26 @@ Parser
     & {\em typed-closing} & \TT{always} \\
     & {\em typed-attribute-flags-opening}
     & {\em typed-attribute-selectors} \\
-    & {\em typed-attribute-flags-separator} & \TT{always} \\
     & {\em typed-attribute-flags-closing} & \TT{always} \\
     & {\em typed-attribute-multivalue-opening}
     & {\em typed-attribute-selectors} \\
-    & {\em typed-attribute-multivalue-separator} & \TT{always} \\
     & {\em typed-attribute-multivalue-closing} & \TT{always}
 \\[1ex]
 Operator
     & {\em typed-attribute-flags-separator}
     & {\em typed-attribute-selectors} \\
 Parser
-    & {\em typed-multivalue-flags-separator}
+    & {\em typed-attribute-multivalue-separator}
     & {\em typed-attribute-selectors} \\
 \\[1ex]
 Internal
-    & {\em typed-middle} & (internal) \\
+    & {\em typed-middle} & \TT{always} \\
 Typed
-    & {\em typed-attribute-begin} & (internal) \\
+    & {\em typed-attribute-begin} & \TT{always} \\
 Subexpression
-    & {\em typed-attribute-equal} & (internal) \\
+    & {\em typed-attribute-equal} & \TT{always} \\
 Reformatter
-    & {\em typed-attribute-separator} & (internal) \\
+    & {\em typed-attribute-separator} & \TT{always} \\
 
 \end{tabular}
 \end{center}

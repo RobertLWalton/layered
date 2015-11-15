@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 14, 2015
+November 15, 2015
  
 \end{center}
 
@@ -3954,6 +3954,11 @@ The general syntax is:
     \end{tabular}
 \end{indpar}
 
+The `\TT{with prefix separators allowed}' option to a
+{\em parser-typed-backet-command} (see \pagref{PARSER-TYPED-BRACKET-COMMAND})
+enables use of the command
+defined punctuation to construct {\em typed-prefix-separators}.
+
 A {\em typed-prefix-separator} is converted to a MIN object which has the
 same structure as a typed bracketed subexpression with an empty list.
 
@@ -4020,11 +4025,6 @@ is just alternate syntax for
 \TT{\{T| X Y Z |\}}
 \end{center}
 
-The `\TT{with prefix separators allowed}' option to a
-{\em parser-typed-backet-command} enables use of the command
-defined punctuation to construct {\em typed-prefix-separators}.
-
-TBD
 
 \begin{indpar}[0.5in]
 

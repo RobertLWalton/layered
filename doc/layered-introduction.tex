@@ -3893,25 +3893,38 @@ Alternative implementations are acceptable as long
 as the punctuation is recognized where required in the
 various contexts.
 
-The definition
+The definitions
 \begin{indpar}\begin{verbatim}
 parser define typed bracket "{" ... "|" ... "|" ... "}"
                     [code, math, text, data]
+       // there are no element selectors
+       with parsing options [- end at line separator]
+       with attribute selectors [data]
+       with prefix separators allowed
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
-       with attribute flags "[" ... ", ... "]"
-       with attribute multivalue "{*" ... ", ... "*}"
-       // there are no element selectors
-       with attribute selectors [data]
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+parser define bracket "[" ... "]" [code, math, text, data]
        with parsing options [- end at line separator]
-       with prefix separators allowed
+parser define bracket "{*" ... "*}" [data]
+       with parsing options [- end at line separator]
+       with parsing selectors [data]
+parser define operator "," [code, math, data] nofix
+       with precedence 4000
+       with separator reformatter ( "," )
 \end{verbatim}\end{indpar}
-is included by the standard parser at the beginning of
+are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.  Since there are no
-{\em element-selectors}, the parser context selectors
+{\em element-selectors} in the typed bracket definition,
+the parsing selectors
 for the {\em element-list} of a {\em typed-bracketed-subexpression}
-recognized by this definition are the same as the parser context selectors
-just outside the subexpression.
+recognized by this definition are the same as the parsing selectors
+just outside the typed bracketed subexpression.
+The untyped bracket definitions for `\TT{[\ldots]}' and
+`\TT{\{*\ldots*\}}' and the operator definition for `\TT{,}',
+all with the `\TT{data}' selector, are used to parse
+attribute flags and multivalue lists.
 
 \subsubsection{Typed Prefix Separators}
 \label{TYPED-PREFIX-SEPARATORS}

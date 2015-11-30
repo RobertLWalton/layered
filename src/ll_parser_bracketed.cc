@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 30 06:35:58 EST 2015
+// Date:	Mon Nov 30 11:25:27 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,7 @@
 # include <ll_parser.h>
 # include <ll_parser_command.h>
 # include <ll_parser_bracketed.h>
+# define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -2540,6 +2541,37 @@ static bool label_reformatter_function
     return false;
 }
 
+// Copy of min::standard_special_names but with min::gen
+// string elements instead of min::ustring elements.
+//
+//    if v = MUP::new_special_gen ( i )
+//    then ::special_names[0xFFFFFF - i] is name of v
+//
+static min::locatable_var
+           <min::packed_vec_ptr<min::gen> >
+    special_names;
+
+static void special_names_initialize ( void )
+{
+    min::packed_vec_ptr<min::ustring>
+        unames = min::standard_special_names;
+    min::locatable_var
+	       <min::packed_vec_insptr<min::gen> >
+	gnames
+	( min::gen_packed_vec_type.new_stub ( 10 ) );
+    ::special_names = gnames;
+    for ( unsigned i = 0; i < unames->length; ++ i )
+    {
+	min::locatable_gen n =
+	    min::new_str_gen
+	        ( min::ustring_chars ( unames[i] ) );
+        min::push ( gnames ) = n;
+    }
+}
+
+static min::initializer special_names_initializer
+	    ( ::special_names_initialize );
+
 static bool special_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -2551,6 +2583,29 @@ static bool special_reformatter_function
 	  TAB::root entry )
 {
     make_label ( parser, first, next );
+
+    unsigned i;
+    for ( i = 0; i < ::special_names->length; ++ i )
+    {
+        if ( first->value == ::special_names[i] )
+	    break;
+    }
+
+    if ( i < ::special_names->length )
+        value_ref(first) = MUP::new_special_gen
+			       ( 0xFFFFFF - i );
+    else
+    {
+	PAR::parse_error
+	    ( parser, first->position,
+	      "subexpression ",
+	      min::pgen_quote ( first->value ),
+	      " unrecognized special name;"
+	      " changed to ERROR" );
+
+	value_ref(first) = min::ERROR();
+    }
+
     first->position = position;
 
     PAR::trace_subexpression

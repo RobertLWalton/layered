@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 15, 2015
+November 30, 2015
  
 \end{center}
 
@@ -3099,6 +3099,10 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 	                    {\em new-selectors} ] \\
         &               & [ \TT{with parsing options}
 	                    {\em end-at-options} ] \\
+        &               & [ \TT{with}
+			    {\em reformatter-name}
+			    \TT{reformatter}
+			    {\em reformatter-arguments} ] \\
     $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
                                     {bracket!parser undefine}
 		    {\em bracket-name} {\em selectors}} \\
@@ -3201,7 +3205,7 @@ parser define bracket "`" ... "'" [data]
 parser define bracket "[<" ... ">]" [code, math, text, data]
        with parsing selectors [data]
        with parsing options [- end at line separator]
-       with reformatter label
+       with label reformatter
 parser define bracket "{*" ... "*}" [data]
        with parsing options [- end at line separator]
        with parsing selectors [data]
@@ -4248,25 +4252,27 @@ Reformatter
 
 The syntax of operator definitions is:
 
-\begin{indpar}
+\begin{indpar}[0.1in]
 \emkey{parser-operator-definition} \\
-    \hspace*{0.5in}\begin{tabular}{rl}
-    ::= & \ttkey{parser define operator}
+    \hspace*{0.2in}\begin{tabular}{rl}
+    ::= & \TT{parser}\ttindex{parser define operator}~%
 	    \begin{tabular}[t]{@{}l@{}}
-	    {\em operator-name} {\em parsing-selectors} \\
-	    {\em operator-flag} {\em operator-flag}\,\STAR{} \\
+	    \TT{define operator}
+	        \begin{tabular}[t]{l}
+		{\em operator-name} {\em parsing-selectors} \\
+		{\em operator-flag} {\em operator-flag}\,\STAR{} \\
+		\end{tabular} \\
 	    \TT{with precedence} {\em precedence} \\
-	    {}[ \TT{with}
-	                   \begin{tabular}[t]{l}
-			   \tt reformatter \\
-			   ~~~~ {\em reformatter-name} \\
-			   ~~~~~~~~ {\em reformatter-arguments} ] \\
-	                   \end{tabular} \\
+	    {}[ \TT{with} {\em reformatter-name} \TT{reformatter}
+			  {\em reformatter-arguments} ] \\
 	    \end{tabular} \\
-    $|$ & \ttkey{parser undefine operator}
+    $|$ & \TT{parser}\ttindex{parser undefine operator}~%
 	    \begin{tabular}[t]{@{}l@{}}
-	    {\em operator-name} {\em parsing-selectors} \\
-	    {\em operator-flag} {\em operator-flag}\,\STAR{} \\
+	    \TT{undefine operator}
+	        \begin{tabular}[t]{l}
+		{\em operator-name} {\em parsing-selectors} \\
+		{\em operator-flag} {\em operator-flag}\,\STAR{} \\
+		\end{tabular} \\
 	    \TT{with precedence} {\em precedence} \\
 	    \end{tabular} \\
     \end{tabular}

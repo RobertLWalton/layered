@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 14 02:51:50 EST 2015
+// Date:	Mon Nov 30 00:25:47 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3818,6 +3818,41 @@ static min::gen bracketed_pass_command
 			  parser );
 		}
 
+		if ( typed_opening == min::NULL_STUB
+		     &&
+		        opening_bracket->reformatter
+		     != min::NULL_STUB )
+		{
+		    parser->printer
+			<< min::indent
+			<< "with "
+			<< min::pgen_name
+			       ( opening_bracket->
+			             reformatter->name )
+			<< " reformatter";
+
+		    min::packed_vec_ptr<min::gen> args =
+			opening_bracket->
+			    reformatter_arguments;
+		    if ( args != min::NULL_STUB )
+		    {
+			parser->printer
+			    << " ( " << min::set_break;
+			for ( min::uns32 i = 0;
+			      i < args->length; ++ i )
+			{
+			    if ( i != 0 )
+				parser->printer
+				    << ", "
+				    << min::set_break;
+			    parser->printer
+				<< min::pgen_quote
+				       ( args[i] );
+			}
+			parser->printer << " )";
+		    }
+		}
+
 #		define TOATTR(x) \
                     typed_opening->typed_attr_ ## x
 #		define PQ(x) min::pgen_quote ( x )
@@ -4016,6 +4051,10 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
+	PAR::reformatter reformatter = min::NULL_STUB;
+	min::locatable_var
+		< PAR::reformatter_arguments >
+	    reformatter_arguments ( min::NULL_STUB );
 	while ( i < size && vp[i] == PAR::with )
 	{
 	    ++ i;
@@ -4066,11 +4105,86 @@ static min::gen bracketed_pass_command
 			  "expected bracketed options"
 			  " (modifier) list after" );
 	    }
+	    else if ( i < size )
+	    {
+		min::uns32 j = i;
+		min::locatable_gen name
+		  ( COM::scan_simple_name
+			( vp, j,
+			  PAR::reformatter_lexeme ) );
+		if (    j < size
+		     &&    vp[j]
+		        == PAR::reformatter_lexeme )
+		{
+		    min::phrase_position position =
+			{ (&ppvec[i])->begin,
+			  (&ppvec[j])->end };
+		    reformatter =
+			PAR::find_reformatter
+			    ( name,
+			      BRA::reformatter_stack );
+		    if ( reformatter == min::NULL_STUB )
+		    {
+			return PAR::parse_error
+			    ( parser, position,
+			      "undefined reformatter"
+			      " name" );
+		    }
+
+		    i = j + 1;
+
+		    name = COM::scan_names
+			( vp, i, reformatter_arguments,
+			      parser );
+		    if ( name == min::ERROR() )
+			return min::ERROR();
+		    if (    reformatter_arguments
+			 == min::NULL_STUB )
+		    {
+			if (   reformatter->
+			           minimum_arguments
+			     > 0 )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "reformatter"
+				      " arguments"
+				      " missing" );
+		    }
+		    else
+		    {
+			position.end =
+			    (&ppvec[i-1])->end;
+
+			if (   reformatter_arguments->
+			           length
+			     < reformatter->
+				   minimum_arguments )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "too few"
+				      " reformatter"
+				      " arguments" );
+			if (   reformatter_arguments->
+			           length
+			     > reformatter->
+				   maximum_arguments )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "too many"
+				      " reformatter"
+				      " arguments" );
+		    }
+
+		    continue;
+		}
+	    }
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
-		      "expected `parsing selectors'"
-		      " or `full lines' after" );
+		      "expected `parsing selectors',"
+		      " `parsing options',"
+		      " or `... reformatter ...'"
+		      " after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error
@@ -4090,8 +4204,8 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
-	      min::NULL_STUB,
-	      min::NULL_STUB,
+	      reformatter,
+	      reformatter_arguments,
 	      bracketed_pass->bracket_table );
 
 	break;

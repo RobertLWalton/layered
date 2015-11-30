@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 30 00:25:47 EST 2015
+// Date:	Mon Nov 30 06:35:58 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2540,6 +2540,25 @@ static bool label_reformatter_function
     return false;
 }
 
+static bool special_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    make_label ( parser, first, next );
+    first->position = position;
+
+    PAR::trace_subexpression
+	( parser, first, trace_flags );
+
+    return false;
+}
+
 // Skip to next key (punctuation mark).  Return token
 // after key in `current', first token of key in
 // `key_first', count of number of tokens skipped
@@ -3473,6 +3492,13 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( label, 0, 0, 0,
 	  ::label_reformatter_function,
+	  BRA::reformatter_stack );
+
+    min::locatable_gen special
+        ( min::new_str_gen ( "special" ) );
+    PAR::push_reformatter
+        ( special, 0, 0, 0,
+	  ::special_reformatter_function,
 	  BRA::reformatter_stack );
 
     PAR::push_reformatter

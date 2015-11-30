@@ -1918,7 +1918,7 @@ static min::gen oper_pass_command
 	    min::uns32 j = i;
 	    min::locatable_gen name
 	      ( COM::scan_simple_name
-	            ( vp, j, PAR::reformatter_lexeme ) );
+	          ( vp, j, PAR::reformatter_lexeme ) );
 	    if (    j < size
 		 && vp[j] == PAR::reformatter_lexeme )
 	    {

@@ -491,7 +491,7 @@ parser test [? MISSING ?]
 ======= END TEST
 parser define bracket "[?" ... "?]" [code]
        with special reformatter
-======= TEST: parser test MISSING
+======= TEST: parser test [$ MISSING $]
 ------- line 102:
 parser test [? MISSING ?]
 ^^^^^^^^^^^^^^^^^^^^^^^^^

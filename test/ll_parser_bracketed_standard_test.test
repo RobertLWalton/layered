@@ -1279,6 +1279,7 @@ parser print bracket "":
                      with parsing selectors [- parser, + data, - code,
                                              - math, - text]
                      with parsing options [- end at line separator]
+                     with label reformatter
     block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                      with parsing options [- end at line separator]
     block TOP LEVEL: bracket "(" ... ")" [data, code, math, text]

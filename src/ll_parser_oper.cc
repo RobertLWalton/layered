@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 12 11:46:29 EST 2015
+// Date:	Mon Nov 30 00:37:40 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,6 @@ static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen mark;
 static min::locatable_gen precedence;
-static min::locatable_gen reformatter;
 
 static void initialize ( void )
 {
@@ -64,7 +63,6 @@ static void initialize ( void )
     ::indentation = min::new_str_gen ( "indentation" );
     ::mark = min::new_str_gen ( "mark" );
     ::precedence = min::new_str_gen ( "precedence" );
-    ::reformatter = min::new_str_gen ( "reformatter" );
 
     PAR::push_new_pass ( ::oper, OP::new_pass );
 }
@@ -1583,9 +1581,10 @@ void static print_op
     {
 	parser->printer
 	    << min::indent
-	    << "with reformatter "
+	    << "with "
 	    << min::pgen_name
-	           ( op->reformatter->name );
+	           ( op->reformatter->name )
+	    << " reformatter";
 
 	min::packed_vec_ptr<min::gen> args =
 	    op->reformatter_arguments;
@@ -1919,9 +1918,9 @@ static min::gen oper_pass_command
 	    min::uns32 j = i;
 	    min::locatable_gen name
 	      ( COM::scan_simple_name
-	            ( vp, j, ::reformatter ) );
+	            ( vp, j, PAR::reformatter_lexeme ) );
 	    if (    j < size
-		 && vp[j] == ::reformatter )
+		 && vp[j] == PAR::reformatter_lexeme )
 	    {
 		min::phrase_position position =
 		    { (&ppvec[i])->begin,

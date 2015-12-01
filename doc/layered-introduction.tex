@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 30, 2015
+December 1, 2015
  
 \end{center}
 
@@ -3132,13 +3132,15 @@ in which the type, in this case `\TT{b}',
 is arbitrary.  See Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
 for a description of typed brackets.
 
-A bracketed subexpression is converted to a \TT{BRACKETED}
+In the absence of a reformatter,
+a bracketed subexpression is converted to a \TT{BRACKETED}
 token whose \TT{value} is a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
 {\em opening-bracket} becomes the \TT{.initiator}
 attribute of this object, and the {\em closing-bracket}
 becomes the \TT{.terminator} attribute of the object.
+See below for {\em untyped-bracketed-subexpression} reformatters.
 
 If a bracketed subexpression ends pre-maturely, before
 its {\em closing-bracket} is discovered, a parsing error is
@@ -3176,6 +3178,38 @@ matter what, even with a spurious ), until
     ) // End of () bracketed subexpression
 \end{verbatim}\end{indpar}
 
+Several reformatters are provided that change the MIN value
+represented by an {\em untyped-bracketed-subexpression}:
+
+\begin{indpar}
+
+\ttmkey{label}{reformatter} \hfill e.g.:~\ttmkey{[<~>]}{reformatting}
+
+\begin{indpar}[0.5em]
+Requires that the expression element values be MIN strings or
+numbers or labels.
+
+The subexpression is converted to a \TT{DERIVED}
+token whose \TT{value} is the value of the single element
+of the subexpression if the subexpression has exactly one
+element, and whose value is otherwise the MIN label made from the
+subexpression element values (an empty label is possible).
+\end{indpar}
+
+\ttmkey{special}{reformatter} \hfill e.g.:~\ttmkey{[\$~\$]}{reformatting}
+
+\begin{indpar}[0.5em]
+Requires that the expression consist of a single element with a string
+value that names a MIN special value (e.g., `\TT{MISSING}' or
+`\TT{INDENTED\_PARAGRAPH}').
+
+The subexpression is converted to a \TT{DERIVED}
+token whose \TT{value} is the special value named.
+\end{indpar}
+
+\end{indpar}
+
+
 
 The definitions
 \begin{indpar}\begin{verbatim}
@@ -3206,6 +3240,10 @@ parser define bracket "[<" ... ">]" [code, math, text, data]
        with parsing selectors [data]
        with parsing options [- end at line separator]
        with label reformatter
+parser define bracket "[$" ... "$]" [code, math, text, data]
+       with parsing selectors [data]
+       with parsing options [- end at line separator]
+       with separator reformatter
 parser define bracket "{*" ... "*}" [data]
        with parsing options [- end at line separator]
        with parsing selectors [data]

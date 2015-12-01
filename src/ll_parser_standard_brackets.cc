@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 13 18:12:32 EST 2015
+// Date:	Tue Dec  1 01:24:59 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,6 +43,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_str_gen ( "data" ) );
     min::locatable_gen label_name
         ( min::new_str_gen ( "label" ) );
+    min::locatable_gen special_name
+        ( min::new_str_gen ( "special" ) );
     min::locatable_gen typed_bracketed_name
         ( min::new_lab_gen ( "typed", "bracketed" ) );
 
@@ -73,6 +75,11 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_lab_gen ( "[", "<" ) );
     min::locatable_gen angle_closing_square
         ( min::new_lab_gen ( ">", "]" ) );
+
+    min::locatable_gen opening_square_dollar
+        ( min::new_lab_gen ( "[", "$" ) );
+    min::locatable_gen dollar_closing_square
+        ( min::new_lab_gen ( "$", "]" ) );
 
     min::locatable_gen no
         ( min::new_str_gen ( "no" ) );
@@ -150,6 +157,19 @@ void PARSTD::init_brackets ( PAR::parser parser )
 		      0 ),
 	  PAR::find_reformatter
 	      ( label_name, BRA::reformatter_stack ),
+	  min::NULL_STUB,
+	  bracketed_pass->bracket_table );
+    BRA::push_brackets
+        ( opening_square_dollar,
+          dollar_closing_square,
+	  code + math + text + data,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( data,   PAR::EALSEP_OPT
+	              + ( PAR::ALL_SELECTORS ^ data ),
+		      0 ),
+	  PAR::find_reformatter
+	      ( special_name, BRA::reformatter_stack ),
 	  min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets

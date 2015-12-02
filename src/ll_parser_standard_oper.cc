@@ -26,7 +26,7 @@
 # define OP ll::parser::oper
 
 // Standard Operators
-// -------- --------_
+// -------- ---------
 
 OP::oper_pass PARSTD::init_oper
 	( PAR::parser parser,

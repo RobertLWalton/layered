@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 21 04:22:45 EDT 2015
+// Date:	Tue Dec  1 21:27:54 EST 2015
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -16,4 +16,5 @@ parser test {{ x1 = y2, z2 += z5 }}
 parser test {{ x < y < z }}
 parser test [ x = ( y < z ) ]
 parser test [ x = w < y < z ]
-parser test {|1 2 3|b = (a,b,c), no d, e, f = (m; n; p): t}
+parser test {|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
+parser test {X: Y = {* A, B, C *} | 1 2 3 |}

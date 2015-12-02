@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 30 11:25:27 EST 2015
+// Date:	Wed Dec  2 04:19:51 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3494,7 +3494,33 @@ DONE:
 
 	min::locate ( expap, label );
 	if ( min::get ( expap ) == min::NONE() )
-	    min::set ( expap, value );
+	{
+	    if ( ! min::is_obj ( value ) )
+		min::set ( expap, value );
+	    else
+	    {
+		min::gen multi_init =
+		    typed_opening->
+			typed_attr_multivalue_initiator;
+		min::obj_vec_insptr valvp ( value );
+		min::attr_insptr valap ( valvp );
+		min::locate
+		    ( valap, min::dot_initiator );
+		if ( min::get ( valap ) != multi_init )
+		    min::set ( expap, value );
+		else
+		{
+		    min::unsptr n =
+		        min::attr_size_of ( valvp );
+		    min::gen values[n];
+		    for ( min::unsptr i = 0; i < n;
+		                             ++ i )
+			values[i] =
+			    min::attr ( valvp, i );
+		    min::set ( expap, values, n );
+		}
+	    }
+	}
 	else
 	    PAR::parse_error
 	        ( parser, current->position,

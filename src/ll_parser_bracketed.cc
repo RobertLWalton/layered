@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  2 04:19:51 EST 2015
+// Date:	Thu Dec  3 05:26:36 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,9 @@
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define BRA ll::parser::bracketed
+
+const min::position BRA::PARAGRAPH_END =
+    { 0xFFFFFFFF, 0xFFFFFFFE };
 
 static bool initialize_called = false;
 static min::locatable_gen bracket;
@@ -884,16 +887,18 @@ inline min::int32 relative_indent
 //
 //   indentation_mark indentation_found = NONE
 //   at_start = true
-//   paragraph_end_found = false
 //
 //   loop:
+//
+//     paragraph_end_found = false
 //
 //     skip any initial comment token, and then every
 //          line break that is followed by a line break,
 //          and every pair of tokens consisting of a new
 //          line followed by a comment; if something was
 //          skipped, then current is now either a line
-//          break or end of file
+//          break or end of file; if a blank line is
+//          skipped, set paragraph_end_found = true
 //
 //     if current is at a line break followed by a non-
 //        eof token, set the current_indent to the
@@ -941,7 +946,12 @@ inline min::int32 relative_indent
 //                   bracket stack
 //                     if new_selectors & EAOCLOSING;
 //                   remember if line ended by line
-//                            separator
+//                            separator or paragraph
+//                            end found
+//
+//	         paragraph_end_found = true if paragraph
+//	                               end found; false
+//	                               otherwise
 //
 //               if bracket stack top closed:
 //                   require that there was no line
@@ -998,7 +1008,6 @@ inline min::int32 relative_indent
 //	     if bracket stack top closed
 //	          return MISSING_POSITION
 //	     indentation_found = NONE
-//	     paragraph_end_found = true
 // 	 
 //     // Continuation after any indented paragraph,
 //     // or if there was no indented paragraph.
@@ -1013,7 +1022,7 @@ inline min::int32 relative_indent
 //
 //	  if paragraph_end_found and
 //	     selectors & EAPBREAK,
-//	     return MISSING_POSITION
+//	     return PARAGRAPH_END
 //
 //        if current->indent is at or before indent
 //           argument, and selectors & EALEINDENT,
@@ -1312,9 +1321,10 @@ min::position BRA::parse_bracketed_subexpression
     else
         trace_flags = 0;
 
-    bool paragraph_end_found = false;
     while ( true )
     {
+	bool paragraph_end_found = false;
+
         // Skip comments and line breaks so that either
 	// nothing is skipped and current is not a line
 	// break or current is a line break followed by
@@ -1533,6 +1543,9 @@ min::position BRA::parse_bracketed_subexpression
 			      bracket_stack_p : NULL );
 		    PAR::token first = previous->next;
 		    PAR::token next = current;
+		    paragraph_end_found =
+		        (    separator_found
+			  == BRA::PARAGRAPH_END );
 
 		    if ( BRA::is_closed
 			     ( bracket_stack_p ) )
@@ -1708,12 +1721,11 @@ min::position BRA::parse_bracketed_subexpression
 	    // indented lines.
 	    //
 	    indentation_found = min::NULL_STUB;
-	    paragraph_end_found = true;
 	}
 
 	// Continuation after any indented paragraph
-	// has been found, or if there was no indented
-	// paragraph.
+	// has been processed, or if there was no
+	// indented paragraph.
 	//
 	if ( current->type == LEXSTD::line_break_t )
 	{
@@ -1737,7 +1749,7 @@ min::position BRA::parse_bracketed_subexpression
 	         &&
 		 (   selectors
 		   & PAR::EAPBREAK_OPT ) )
-		    return min::MISSING_POSITION;
+		    return BRA::PARAGRAPH_END;
 
 	    // Truncate subexpression if next token
 	    // indent is at or before indent argument.

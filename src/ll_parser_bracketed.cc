@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  3 05:26:36 EST 2015
+// Date:	Thu Dec  3 18:15:54 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -890,15 +890,13 @@ inline min::int32 relative_indent
 //
 //   loop:
 //
-//     paragraph_end_found = false
-//
 //     skip any initial comment token, and then every
 //          line break that is followed by a line break,
 //          and every pair of tokens consisting of a new
 //          line followed by a comment; if something was
 //          skipped, then current is now either a line
 //          break or end of file; if a blank line is
-//          skipped, set paragraph_end_found = true
+//          skipped, set parser->at_head = true
 //
 //     if current is at a line break followed by a non-
 //        eof token, set the current_indent to the
@@ -948,10 +946,6 @@ inline min::int32 relative_indent
 //                   remember if line ended by line
 //                            separator or paragraph
 //                            end found
-//
-//	         paragraph_end_found = true if paragraph
-//	                               end found; false
-//	                               otherwise
 //
 //               if bracket stack top closed:
 //                   require that there was no line
@@ -1020,8 +1014,8 @@ inline min::int32 relative_indent
 //           delete current (the line break)
 //           return MISSING_POSITION
 //
-//	  if paragraph_end_found and
-//	     selectors & EAPBREAK,
+//	  if ! at_start and parser->at_head
+//	     and selectors & EAPBREAK,
 //	     return PARAGRAPH_END
 //
 //        if current->indent is at or before indent
@@ -1040,6 +1034,8 @@ inline min::int32 relative_indent
 //     // Continue with non-comment, non-line-break,
 //     // non-eof token.
 //     //
+//     parser->at_head = false
+//
 //     if current is quoted string:
 //        if ! at_start and current->previous is quoted
 //                          string:
@@ -1323,8 +1319,6 @@ min::position BRA::parse_bracketed_subexpression
 
     while ( true )
     {
-	bool paragraph_end_found = false;
-
         // Skip comments and line breaks so that either
 	// nothing is skipped and current is not a line
 	// break or current is a line break followed by
@@ -1354,7 +1348,7 @@ min::position BRA::parse_bracketed_subexpression
 		// another line break.
 		//
 	        current = current->next;
-		paragraph_end_found = true;
+		parser->at_head = true;
 		continue;
 	    }
 	    else if ( type != LEXSTD::comment_t )
@@ -1543,9 +1537,6 @@ min::position BRA::parse_bracketed_subexpression
 			      bracket_stack_p : NULL );
 		    PAR::token first = previous->next;
 		    PAR::token next = current;
-		    paragraph_end_found =
-		        (    separator_found
-			  == BRA::PARAGRAPH_END );
 
 		    if ( BRA::is_closed
 			     ( bracket_stack_p ) )
@@ -1745,7 +1736,9 @@ min::position BRA::parse_bracketed_subexpression
 		return min::MISSING_POSITION;
 	    }
 
-	    if ( paragraph_end_found
+	    if ( ! at_start
+	         &&
+		 parser->at_head
 	         &&
 		 (   selectors
 		   & PAR::EAPBREAK_OPT ) )
@@ -1787,6 +1780,11 @@ min::position BRA::parse_bracketed_subexpression
 	else if (    current->type
 	          == LEXSTD::end_of_file_t )
 	    return min::MISSING_POSITION;
+
+	// Continue with non-comment, non-line-break,
+	// non-eof token.
+	//
+	parser->at_head = false;
 
 	MIN_REQUIRE
 	    ( indentation_found == min::NULL_STUB );

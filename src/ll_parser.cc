@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 30 01:10:02 EST 2015
+// Date:	Thu Dec  3 16:57:41 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -652,6 +652,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
     if ( parser == NULL_STUB )
     {
         parser = ::parser_type.new_stub();
+	first_ref(parser) = min::NULL_STUB;
+	parser->at_head = false;
 	parser->error_count = 0;
 	parser->warning_count = 0;
 	parser->max_error_count = 100;
@@ -886,6 +888,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	    ( * pass->reset ) ( parser, pass );
     }
 
+    parser->at_head = false;
     parser->error_count = 0;
     parser->warning_count = 0;
     parser->max_error_count = 100;

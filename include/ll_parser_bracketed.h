@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 13 03:31:50 EDT 2015
+// Date:	Thu Dec  3 05:26:48 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -518,8 +518,9 @@ ll::parser::pass new_pass ( void );
 // subexpression, calling parser->input if more tokens
 // are needed.  Return the end position of any line
 // separator found (the line separator is deleted), or
-// return min::MISSING_POSITION if no line separator
-// found.
+// PARAGRAPH_END if current token is a line feed pre-
+// ceeded by a blank line with possible intervening
+// comment lines, or min::MISSING_POSITION otherwise.
 //
 // The parsed subexpression is NOT compacted and tokens
 // in it are left untouched with the following excep-
@@ -580,11 +581,12 @@ ll::parser::pass new_pass ( void );
 // stack entries is caused by an end file if `current'
 // is an end of file token.  It is caused by a line
 // with indent not greater than the `indent' argument if
-// `current' is a line break.  And it is caused by a
-// line separator if the returned value is the position
-// of the line separator and not min::MISSING_POSITION,
-// in which case `current; is the token after the
-// deleted line separator.
+// `current' is a line break, in which case MISSING_
+// POSITION or PARAGRAPH_END is returned (see above).
+// And it is caused by a line separator if the returned
+// value is the position of the line separator, in which
+// case `current; is the token after the deleted line
+// separator.
 //
 // Closing brackets are only recognized if their
 // corresponding opening brackets are in the bracket
@@ -681,6 +683,8 @@ ll::parser::pass new_pass ( void );
 // indent, the `top_level_indentation_mark->line_sep'
 // which is `;', and bracket_stack == NULL.
 //
+extern const min::position PARAGRAPH_END;
+
 struct bracket_stack
 {
     // Either opening_bracket != NULL_STUB or prefix_

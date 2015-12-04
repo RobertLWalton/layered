@@ -23,10 +23,10 @@ LINE_BREAK: line 4:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 COMMENT: line 5:
-// Date:        Sun Jun  7 04:47:37 EDT 2015
+// Date:        Fri Dec  4 02:15:06 EST 2015
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line 5:
-// Date:        Sun Jun  7 04:47:37 EDT 2015
+// Date:        Fri Dec  4 02:15:06 EST 2015
                                             ^
 COMMENT: line 6:
 //
@@ -477,24 +477,41 @@ NUMERIC: "=<9=<8": line 37:
 LINE_BREAK: line 37:
 =<9=<8
       ^
-QUOTED_STRING: "premature␣end␣of␣line": line 38:
+COMMENT: line 38:
+// blank line follows
+^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: lines 38-39:
+// blank line follows
+                     ^
+<BLANK-LINE>
+^
+COMMENT: line 40:
+// blank line with spaces follows
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE_BREAK: line 40:
+// blank line with spaces follows
+                                 ^
+LINE_BREAK: line 41:
+<BLANK-LINE>
+     ^
+QUOTED_STRING: "premature␣end␣of␣line": line 42:
 "premature end of line
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: string ended by line break or end of file; line 38:
+ERROR: string ended by line break or end of file; line 42:
 "premature end of line
                       ^
-LINE_BREAK: line 38:
+LINE_BREAK: line 42:
 "premature end of line
                       ^
-QUOTED_STRING: "premature␣end␣of␣file": line 39:
+QUOTED_STRING: "premature␣end␣of␣file": line 43:
 "premature end of file<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^
-ERROR: string ended by line break or end of file; line 39:
+ERROR: string ended by line break or end of file; line 43:
 "premature end of file<END-OF-FILE>
                       ^
-ERROR: end of file not preceeded by a line break; line 39:
+ERROR: end of file not preceeded by a line break; line 43:
 "premature end of file<END-OF-FILE>
                       ^
-END_OF_FILE: line 39:
+END_OF_FILE: line 43:
 "premature end of file<END-OF-FILE>
                       ^

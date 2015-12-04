@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 11:53:52 EDT 2015
+// Date:	Fri Dec  4 07:23:38 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -140,45 +140,59 @@ static void set_codes
 {
     LEX::scanner scanner = LEX::default_scanner;
 
-    uns32 line =
-        first < scanner->input_buffer->length ?
-        (&scanner->input_buffer[first])->line :
-	(&scanner->next_position)->line;
-    if ( ::next_line <= line ) set_line ( line );
-
     min::printer printer = scanner->printer;
     const min::print_format & print_format =
         printer->print_format;
 
-    uns32 begin_column =
-        min::print_line_column
-	    ( scanner->input_file,
-	      first < scanner->input_buffer->length ?
-	        (min::position)
-		    scanner->input_buffer[first] :
-	        scanner->next_position,
-	      scanner->input_file->line_display,
-	      print_format );
-    uns32 end_column =
-        min::print_line_column
-	    ( scanner->input_file,
-              next < scanner->input_buffer->length ?
-                (min::position)
-		    scanner->input_buffer[next] :
-		scanner->next_position,
-	      scanner->input_file->line_display,
-	      print_format );
+    min::position begin_pos =
+        first < scanner->input_buffer->length ?
+        (min::position) scanner->input_buffer[first] :
+	scanner->next_position;
+    min::position end_pos =
+        next < scanner->input_buffer->length ?
+        (min::position) scanner->input_buffer[next] :
+	scanner->next_position;
 
-    if ( end_column <= begin_column )
-	    end_column = ::line_width;
-    if ( end_column <= begin_column )
+    do
+    {
+	if ( ::next_line <= begin_pos.line )
+	    set_line ( begin_pos.line );
+
+	uns32 begin_column =
+	    min::print_line_column
+		( scanner->input_file,
+		  begin_pos,
+		  scanner->input_file->line_display,
+		  print_format );
+	uns32 end_column =
+	    begin_pos.line < end_pos.line ?
+	    ::line_width :
+	    min::print_line_column
+		( scanner->input_file,
+		  end_pos,
+		  scanner->input_file->line_display,
+		  print_format );
+
+	// Handle zero length lexeme.  This may be
+	// overwritten by following lexeme, but will
+	// not be if at end of line.
+	//
+	if ( end_column == begin_column )
 	    end_column = begin_column + 1;
 
-    while ( codes->length < end_column )
-        min::push(codes) = ' ';
-    for ( uns32 i = begin_column; i < end_column; ++ i )
-        codes[i] = ( type <= ::max_type ?
-	             ::type_codes[type] : ' ' );
+	while ( codes->length < end_column )
+	    min::push(codes) = ' ';
+	for ( uns32 i = begin_column; i < end_column; ++ i )
+	    codes[i] = ( type <= ::max_type ?
+			 ::type_codes[type] : ' ' );
+
+	if ( begin_pos.line == end_pos.line )
+	    break;
+	
+	++ begin_pos.line;
+	begin_pos.offset = 0;
+
+    } while ( begin_pos < end_pos );
 }
 
 static min::locatable_var<LEX::erroneous_atom>

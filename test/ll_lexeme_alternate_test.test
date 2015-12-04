@@ -17,6 +17,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccb
 //␣for␣this␣data.␤
 cccccccccccccccccb
 ␤
+b
 //␣This␣file␣was␣copied␣from␣ll_lexeme_standard_test.in␤
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccb
 //␣on␣Tue␣May␣19␣15:44:38␣EDT␣2015.␣␣See␣the␣earlier␤
@@ -26,6 +27,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccb
 //␣file.␤
 ccccccccb
 ␤
+b
 abc␣3.4+z␣(x,y)␤
 wwwh###mwhswswsb
 "hi"␣"ho<HT>x␣y<>z<LF>"␤

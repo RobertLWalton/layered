@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 1, 2015
+December 3, 2015
  
 \end{center}
 
@@ -414,9 +414,10 @@ Atom patterns can also contain the special indicator
 \TT{<repeat>} that allows an immediately preceding character pattern
 to be repeated zero or more times.  Thus the pattern
 \begin{center}
-\TT{"<hex-digit><hex-digit><repeat>"}
+\TT{"<hex-digit><repeat>"}
 \end{center}
-recognizes any sequence of 2 or more \TT{<hex-digit>}'s.
+recognizes any sequence of 1 or more \TT{<hex-digit>}'s (a single
+\TT{<hex-digit>} followed by zero or more repetitions).
 
 The atom patterns of a single lexical table must not conflict:
 no character string can be recognized by two atom patterns of the

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 10 04:44:16 EDT 2015
+// Date:	Fri Dec  4 01:27:28 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,8 +87,10 @@ lex
 cc	    begin_program
 cc		( type_names, type_codes, MAX_TYPE );
 cc
-cc	    uns32 main;
-cc	    NDL::new_table ( main, MASTER );
+cc	    uns32 begin_line;
+cc	    NDL::new_table ( begin_line, MASTER );
+cc	    uns32 within_line;
+cc	    NDL::new_table ( within_line, MASTER );
 cc
 cc	    uns32 separator;
 cc	    NDL::new_table ( separator, separator_t );
@@ -285,9 +287,22 @@ cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 cc
 
 lex
-lex	begin main master table;
+lex	begin begin line master table;
 lex
-cc	    NDL::begin_table ( main );
+cc	    NDL::begin_table ( begin_line );
+cc
+
+lex	   goto within line
+lex	end begin line master table;
+lex
+cc		   NDL::go ( within_line );
+cc	    	NDL::end_table();
+cc
+
+lex
+lex	begin within line master table;
+lex
+cc	    NDL::begin_table ( within_line );
 cc
 
 lex	   "//" goto comment;
@@ -468,7 +483,7 @@ cc
 lex	   output premature end of file goto end of file
 lex		// End of file not following a line
 lex		// break
-lex	end main master table;
+lex	end within line master table;
 lex
 cc		   NDL::output
 cc			( premature_end_of_file_t );
@@ -496,8 +511,9 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "<LF>" keep 0 goto main
-lex	   "<vertical><repeat><LF>" keep 0 goto main
+lex	   "<LF>" keep 0 goto within line
+lex	   "<vertical><repeat><LF>" keep 0
+lex				    goto within line
 lex	   "<vertical><repeat>"
 lex		error mispaced vertical
 lex	   "<illegal-control><repeat>"
@@ -506,14 +522,14 @@ lex	   "<others><repeat>"
 lex		error unrecognized character
 cc		   NDL::begin_dispatch ( "\n" );
 cc		       NDL::keep ( 0 );
-cc		       NDL::go ( main );
+cc		       NDL::go ( within_line );
 cc		   NDL::end_dispatch();
 cc
 cc		   NDL::begin_dispatch ( vertical );
 cc		       NDL::REPEAT();
 cc		       NDL::begin_dispatch ( "\n" );
 cc		           NDL::keep ( 0 );
-cc		           NDL::go ( main );
+cc		           NDL::go ( within_line );
 cc		       NDL::end_dispatch();
 cc		       NDL::erroneous_atom
 cc			   ( misplaced_vertical_t );
@@ -533,11 +549,11 @@ cc			   ( unrecognized_character_t );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   goto main
+lex	   goto within line
 lex	      // which will output premature end of file
 lex	end comment lexeme table;
 lex
-cc	           NDL::go ( main );
+cc	           NDL::go ( within_line );
 cc	    NDL::end_table();
 cc
 
@@ -559,10 +575,10 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   goto main;
+lex	   goto within line;
 lex	end misplaced vertical lexeme table;
 lex
-cc	    	   NDL::go ( main );
+cc	    	   NDL::go ( within_line );
 cc
 cc	    NDL::end_table();
 cc
@@ -582,11 +598,11 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "<others>" keep 0 goto main
+lex	   "<others>" keep 0 goto begin line
 lex
 cc	           NDL::begin_dispatch ( OTHERS );
 cc		       NDL::keep ( 0 );
-cc	    	       NDL::go ( main );
+cc	    	       NDL::go ( begin_line );
 cc		   NDL::end_dispatch();
 cc
 
@@ -639,11 +655,11 @@ cc		      NDL::go ( finish_separators );
 cc	    	   NDL::end_dispatch();
 cc
 
-lex	   output NONE goto main;
+lex	   output NONE goto within line;
 lex	end separator lexeme table;
 lex
 cc	    	   NDL::output ( NONE );
-cc	    	   NDL::go ( main );
+cc	    	   NDL::go ( within_line );
 cc	    NDL::end_table();
 cc
 
@@ -695,10 +711,10 @@ cc		       NDL::go ( finish_separators );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   goto main;
+lex	   goto within line;
 lex	end finish middle sublexeme table;
 lex
-cc	    	   NDL::go ( main );
+cc	    	   NDL::go ( within_line );
 cc	    NDL::end_table();
 cc
 
@@ -737,8 +753,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<trailing><repeat><letter>"
-lex			output word goto
-lex			finish middle;
+lex			output word
+lex			goto finish middle;
 lex	   "<trailing><repeat><digit>"
 lex			output numeric
 lex			goto finish middle;
@@ -771,10 +787,10 @@ cc		       NDL::go ( finish_separators );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   goto main;
+lex	   goto within line;
 lex	end mark lexeme table;
 lex
-cc	    	   NDL::go ( main );
+cc	    	   NDL::go ( within_line );
 cc	    NDL::end_table();
 cc
 
@@ -812,11 +828,11 @@ cc		       NDL::go ( finish_separators );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   output natural goto main;
+lex	   output natural goto within line;
 lex	end leading zero sublexeme table;
 lex
 cc	    	   NDL::output ( natural_t );
-cc	    	   NDL::go ( main );
+cc	    	   NDL::go ( within_line );
 cc	    NDL::end_table();
 cc
 
@@ -867,10 +883,10 @@ cc		       NDL::go ( finish_separators );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   goto main;
+lex	   goto within line;
 lex	end natural lexeme table;
 lex
-cc	    	   NDL::go ( main );
+cc	    	   NDL::go ( within_line );
 cc	    NDL::end_table();
 cc
 
@@ -880,12 +896,12 @@ lex
 cc	    NDL::begin_table ( quoted_string );
 cc
 
-lex	    "<Q>" translate to "" goto main;
+lex	    "<Q>" translate to "" goto within line;
 lex	            // End quoted string.
 lex
 cc	           NDL::begin_dispatch ( "\"" );
 cc		      NDL::translate_to ( "" );
-cc		      NDL::go ( main );
+cc		      NDL::go ( within_line );
 cc		   NDL::end_dispatch();
 cc
 
@@ -1030,12 +1046,13 @@ cc	    NDL::begin_table
 cc		( premature_end_of_string );
 cc
 
-lex	    output premature end of string goto main;
+lex	    output premature end of string
+lex	    goto within line;
 lex	end premature end of string master table;
 lex
 cc	        NDL::output
 cc		    ( premature_end_of_string_t );
-cc		NDL::go ( main );
+cc		NDL::go ( within_line );
 cc	    NDL::end_table();
 cc
 

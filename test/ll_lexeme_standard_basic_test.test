@@ -21,6 +21,10 @@
     ######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
+            ####: GOTO(####)
+    ######: TABLE
+            Mode: MASTER
+            Dispatcher ID: ####
             ####: OUTPUT(12), GOTO(####)
     ######: TABLE
             Mode: SEPARATOR
@@ -30,7 +34,7 @@
             Mode: MASTER
             Dispatcher ID: #####
             #####: GOTO(####)
-    ######: TABLE
+   #######: TABLE
             Mode: NONE
             Dispatcher ID: #####
             #####: GOTO(####)
@@ -73,6 +77,9 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
+   #######: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
    #######: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
@@ -3033,16 +3040,16 @@
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 11
             <LF>
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
  #########: DISPATCHER

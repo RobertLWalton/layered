@@ -182,7 +182,8 @@ static void set_codes
 
 	while ( codes->length < end_column )
 	    min::push(codes) = ' ';
-	for ( uns32 i = begin_column; i < end_column; ++ i )
+	for ( uns32 i = begin_column; i < end_column;
+	                              ++ i )
 	    codes[i] = ( type <= ::max_type ?
 			 ::type_codes[type] : ' ' );
 

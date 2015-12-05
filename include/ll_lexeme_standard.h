@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  4 04:01:51 EDT 2015
+// Date:	Sat Dec  5 05:37:22 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,23 +60,39 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 horizontal_space_t		= 8;
         // Sequence of horizontal space chracters
 	// (characters in category Zs characters and
-	// horizontal tabs).
-    const uns32 line_break_t			= 9;
+	// horizontal tabs).  May not be empty.  Also
+	// the lexeme must not be in one of the
+	// following two categories.
+    const uns32 horizontal_before_comment_t	= 9;
+	// Ditto, but just before a comment on a
+	// line that contains nothing but a comment.
+	// There is always one of these lexemes on such
+	// a line.  May be empty.
+    const uns32 horizontal_before_non_comment_t	= 10;
+	// Ditto, but just before the first graphic
+	// character on a line that contains a
+	// graphic character that is not in a comment.
+	// There is always one of these lexemes on such
+	// a line.  Used to communicate the indentation
+	// of the line while allowing the lexeme table
+	// to be switched just before the first graphic
+	// character on the line.  May be empty.
+    const uns32 line_break_t			= 11;
         // Sequence of carriage returns, line feeds,
 	// vertical tabs, and form feeds containing
 	// at least one line feed.
-    const uns32 end_of_file_t			= 10;
+    const uns32 end_of_file_t			= 12;
         // Virtual 0-length lexeme at end of file.
 
     // Erroneous Lexeme Types:
     //
-    const uns32 premature_end_of_string_t	= 11;
+    const uns32 premature_end_of_string_t	= 13;
         // A line break or end of file was encountered
 	// in a quoted string.  The quoted string is
 	// ended as if by ", and this 0-length lexeme
 	// is output just before the line break or
 	// end of file.
-    const uns32 premature_end_of_file_t		= 12;
+    const uns32 premature_end_of_file_t		= 14;
         // End of file not following a line break.
 	// Includes case of empty input.  This 0-length
 	// lexeme is output just before the end of file
@@ -95,32 +111,32 @@ namespace ll { namespace lexeme { namespace standard {
     //     as erroneous atoms in effect allows them
     //     in comments and quoted strings.
     //
-    const uns32 misplaced_vertical_t		= 13;
+    const uns32 misplaced_vertical_t		= 15;
         // Sequence of carriage returns, vertical tabs,
 	// and form feeds that does not abutt a line
 	// feed.
-    const uns32 illegal_control_t		= 14;
+    const uns32 illegal_control_t		= 16;
         // Sequence of control characters that are not
 	// legal in any lexeme.
-    const uns32 unrecognized_character_t	= 15;
+    const uns32 unrecognized_character_t	= 17;
         // Sequence of unrecognized characters
 	// (characters with no recognized general
 	// category) that are not legal in any lexeme.
 
     // Erroneous Atom Types:
     //
-    const uns32 unrecognized_escape_t		= 16;
+    const uns32 unrecognized_escape_t		= 18;
         // Any unrecognized <...> sequence in a quoted
 	// string where ... is all upper case letters
 	// and digits.  Translated to <UUC>.
-    const uns32 misplaced_horizontal_t		= 17;
+    const uns32 misplaced_horizontal_t		= 19;
         // A sequence of horizontal characters other
 	// than single space in a quoted string.
 	// Translated to itself.  Such a sequence is
 	// legal and not erroneous if it is part of a
 	// horizontal space or comment lexeme.
 
-    const unsigned MAX_TYPE = 17;
+    const unsigned MAX_TYPE = 19;
 
     extern const char * const type_names[MAX_TYPE+1];
 

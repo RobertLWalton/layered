@@ -1,6 +1,6 @@
        ###: PROGRAM
             Initial Table ID[0]:####
-            Max Type: 17
+            Max Type: 19
                  1: WORD
                  2: NATURAL
                  3: NUMERIC
@@ -9,23 +9,25 @@
                  6: SEPARATOR
                  7: COMMENT
                  8: HORIZONTAL_SPACE
-                 9: LINE_BREAK
-                10: END_OF_FILE
-                11: PREMATURE_END_OF_STRING
-                12: PREMATURE_END_OF_FILE
-                13: MISPLACED_VERTICAL
-                14: ILLEGAL_CONTROL
-                15: UNRECOGNIZED_CHARACTER
-                16: UNRECOGNIZED_ESCAPE
-                17: MISPLACED_HORIZONTAL
+                 9: HORIZONTAL_BEFORE_COMMENT
+                10: HORIZONTAL_BEFORE_NON_COMMENT
+                11: LINE_BREAK
+                12: END_OF_FILE
+                13: PREMATURE_END_OF_STRING
+                14: PREMATURE_END_OF_FILE
+                15: MISPLACED_VERTICAL
+                16: ILLEGAL_CONTROL
+                17: UNRECOGNIZED_CHARACTER
+                18: UNRECOGNIZED_ESCAPE
+                19: MISPLACED_HORIZONTAL
     ######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
-            ####: OUTPUT(12), GOTO(####)
-    ######: TABLE
+            ####: OUTPUT(14), GOTO(####)
+   #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(12), GOTO(####)
+            #####: OUTPUT(14), GOTO(####)
    #######: TABLE
             Mode: NONE
             Dispatcher ID: ####
@@ -73,11 +75,11 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(11), GOTO(####)
+            #####: OUTPUT(13), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(10), GOTO(####)
+            #####: OUTPUT(12), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
@@ -88,7 +90,7 @@
             Max CType: 1
             Ctype Map Size: 48
             /
-                ####: KEEP(1), OUTPUT(8), GOTO(####)
+                ####: KEEP(1), OUTPUT(9), GOTO(####)
                 Dispatcher ID: ####
    #######: DISPATCHER
             Max CType: 0
@@ -97,7 +99,7 @@
             Max CType: 2
             Ctype Map Size: 944
             /
-                ####: KEEP(1), OUTPUT(8), GOTO(####)
+                ####: KEEP(1), OUTPUT(10), GOTO(####)
                 Dispatcher ID: ####
             !-. 0-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A>
             <38C> <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F>
@@ -262,7 +264,7 @@
             <1F780>-<1F7D4> <1F800>-<1F80B> <1F810>-<1F847>
             <1F850>-<1F859> <1F860>-<1F887> <1F890>-<1F8AD> <20000>
             <2A6D6> <2A700> <2B734> <2B740> <2B81D> <2F800>-<2FA1D>
-                ####: KEEP(1), OUTPUT(8), GOTO(####)
+                ####: KEEP(1), OUTPUT(10), GOTO(####)
                 Dispatcher ID: ####
    #######: DISPATCHER
             Max CType: 0
@@ -271,7 +273,7 @@
             Max CType: 1
             Ctype Map Size: 48
             /
-                ####: KEEP(0), OUTPUT(8), GOTO(####)
+                ####: KEEP(0), OUTPUT(9), GOTO(####)
                 Dispatcher ID: ####
    #######: DISPATCHER
             Max CType: 0
@@ -441,14 +443,14 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                ####: OUTPUT(15)
+                ####: OUTPUT(17)
                 Dispatcher ID: ####
             <HT> <SP> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP>
             <3000> [repeat(INFINITY)]
                 ####: OUTPUT(8)
                 Dispatcher ID: ####
             /
-                ####: KEEP(0), OUTPUT(8), GOTO(####)
+                ####: KEEP(0), OUTPUT(10), GOTO(####)
                 Dispatcher ID: ####
             !-. 0-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A>
             <38C> <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F>
@@ -613,20 +615,20 @@
             <1F780>-<1F7D4> <1F800>-<1F80B> <1F810>-<1F847>
             <1F850>-<1F859> <1F860>-<1F887> <1F890>-<1F8AD> <20000>
             <2A6D6> <2A700> <2B734> <2B740> <2B81D> <2F800>-<2FA1D>
-                ####: KEEP(0), OUTPUT(8), GOTO(####)
+                ####: KEEP(0), OUTPUT(10), GOTO(####)
                 Dispatcher ID: ####
             <LF>
                 ####: GOTO(####)
                 Dispatcher ID: ####
             <VT>-<CR> [repeat(INFINITY)]
-                ####: OUTPUT(13)
+                ####: OUTPUT(15)
                 Dispatcher ID: ####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                ####: OUTPUT(14)
+                ####: OUTPUT(16)
                 Dispatcher ID: ####
    #######: DISPATCHER
             Max CType: 0
@@ -1125,7 +1127,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: OUTPUT(15)
+                #####: OUTPUT(17)
                 Dispatcher ID: #####
             /
                 #####: GOTO(####)
@@ -1145,7 +1147,7 @@
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: OUTPUT(14)
+                #####: OUTPUT(16)
                 Dispatcher ID: #####
             (-) [ ] ` { } <0AB> <0BB> <0F3A>-<0F3D> <169B>-<169C>
             <2018>-<201F> <2039>-<203A> <2045>-<2046> <207D>-<207E>
@@ -1623,7 +1625,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(15)
+                #####: ERRONEOUS_ATOM(17)
                 Dispatcher ID: #####
             <HT> <SP>-~ <NBSP>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A>
             <38C> <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F>
@@ -1794,14 +1796,14 @@
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(13)
+                #####: ERRONEOUS_ATOM(15)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(14)
+                #####: ERRONEOUS_ATOM(16)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -3552,7 +3554,7 @@
             Ctype Map Size: 63
             >
                 #####: TRANSLATE_HEX(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(16)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(18)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
@@ -3573,14 +3575,14 @@
             Ctype Map Size: 63
             >
                 #####: TRANSLATE_NAME(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(16)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(18)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
             Ctype Map Size: 91
             >
                 #####: TRANSLATE_NAME(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(16)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(18)
                 Dispatcher ID: #####
             0-9 A-Z [repeat(INFINITY)]
                 Dispatcher ID: #####
@@ -3762,7 +3764,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(15)
+                #####: ERRONEOUS_ATOM(17)
                 Dispatcher ID: #####
             "
                 #####: TRANSLATE_TO(0), GOTO(####)
@@ -3940,18 +3942,18 @@
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(13)
+                #####: ERRONEOUS_ATOM(15)
                 Dispatcher ID: #####
             <HT> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP>
             <3000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(17)
+                #####: ERRONEOUS_ATOM(19)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(14)
+                #####: ERRONEOUS_ATOM(16)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 0
@@ -3962,35 +3964,35 @@
  #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-HORIZONTAL_SPACE 0(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 0(0)0: <empty>
 COMMENT 0(0)0: //␣Layered␣Languages␣Standard␣Lexical␣Analyzer␣Test␣Data
 LINE_BREAK 0(56): ␊
-HORIZONTAL_SPACE 1(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 1(0)0: <empty>
 COMMENT 1(0)0: //
 LINE_BREAK 1(2): ␊
-HORIZONTAL_SPACE 2(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 2(0)0: <empty>
 COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in
 LINE_BREAK 2(35): ␊
-HORIZONTAL_SPACE 3(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 3(0)0: <empty>
 COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
 LINE_BREAK 3(38): ␊
-HORIZONTAL_SPACE 4(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 4(0)0: <empty>
 COMMENT 4(0)0: //␣Date:␉Fri␣Dec␣␣4␣02:15:06␣EST␣2015
 LINE_BREAK 4(37): ␊
-HORIZONTAL_SPACE 5(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 5(0)0: <empty>
 COMMENT 5(0)0: //
 LINE_BREAK 5(2): ␊
-HORIZONTAL_SPACE 6(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 6(0)0: <empty>
 COMMENT 6(0)0: //␣The␣authors␣have␣placed␣this␣data␣in␣the␣public
 LINE_BREAK 6(50): ␊
-HORIZONTAL_SPACE 7(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 7(0)0: <empty>
 COMMENT 7(0)0: //␣domain;␣they␣make␣no␣warranty␣and␣accept␣no␣liability
 LINE_BREAK 7(56): ␊
-HORIZONTAL_SPACE 8(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 8(0)0: <empty>
 COMMENT 8(0)0: //␣for␣this␣data.
 LINE_BREAK 8(17): ␊
 LINE_BREAK 9(0)0: ␊
-HORIZONTAL_SPACE 10(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 10(0)0: <empty>
 WORD 10(0)0: abc
 HORIZONTAL_SPACE 10(3): ␣
 NUMERIC 10(4): 3.4+z
@@ -3999,12 +4001,12 @@ SEPARATOR 10(10): (
 WORD 10(11): x,y
 SEPARATOR 10(14): )
 LINE_BREAK 10(15): ␊
-HORIZONTAL_SPACE 11(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 11(0)0: <empty>
 QUOTED_STRING 11(0)0: "hi" translated to: hi
 HORIZONTAL_SPACE 11(4): ␣
 QUOTED_STRING 11(5): "ho<HT>x␣y<>z<LF>" translated to: ho␉x␣y<>z␊
 LINE_BREAK 11(23): ␊
-HORIZONTAL_SPACE 12(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 12(0)0: <empty>
 WORD 12(0)0: 'tis
 HORIZONTAL_SPACE 12(4): ␣
 WORD 12(5): noth'ng
@@ -4018,7 +4020,7 @@ HORIZONTAL_SPACE 12(20): ␣
 WORD 12(21): h'dache
 SEPARATOR 12(28): .
 LINE_BREAK 12(29): ␊
-HORIZONTAL_SPACE 13(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 13(0)0: <empty>
 WORD 13(0)0: a.1.2.3..b...c
 HORIZONTAL_SPACE 13(14): ␣
 WORD 13(15): e5f
@@ -4028,7 +4030,7 @@ SEPARATOR 13(24): (
 NUMERIC 13(25): 5z
 SEPARATOR 13(27): )
 LINE_BREAK 13(28): ␊
-HORIZONTAL_SPACE 14(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 14(0)0: <empty>
 NUMERIC 14(0)0: 12.3
 HORIZONTAL_SPACE 14(4): ␣
 NUMERIC 14(5): .4
@@ -4045,7 +4047,7 @@ SEPARATOR 14(18): ||
 NUMERIC 14(20): 4:5::6:A:B
 SEPARATOR 14(30): :
 LINE_BREAK 14(31): ␊
-HORIZONTAL_SPACE 15(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 15(0)0: <empty>
 NUMERIC 15(0)0: 1,23,456
 HORIZONTAL_SPACE 15(8): ␣
 NUMERIC 15(9): 1,234/6,789
@@ -4054,7 +4056,7 @@ NUMERIC 15(21): 1/2/3/4,5/6,7,8/9
 HORIZONTAL_SPACE 15(38): ␣
 NUMERIC 15(39): 8888.12,3,4
 LINE_BREAK 15(50): ␊
-HORIZONTAL_SPACE 16(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 16(0)0: <empty>
 NUMERIC 16(0)0: /3
 HORIZONTAL_SPACE 16(2): ␣
 NUMERIC 16(3): 6.34.56/
@@ -4074,13 +4076,13 @@ HORIZONTAL_SPACE 16(33): ␣
 NUMERIC 16(34): '1'2'3'4
 SEPARATOR 16(42): '
 LINE_BREAK 16(43): ␊
-HORIZONTAL_SPACE 17(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 17(0)0: <empty>
 MARK 17(0)0: +-*~@#$%^&=<>_!?./
 SEPARATOR 17(18): :
 QUOTED_STRING 17(19): "foo" translated to: foo
 WORD 17(24): x<79><LF>
 LINE_BREAK 17(33): ␊
-HORIZONTAL_SPACE 18(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 18(0)0: <empty>
 WORD 18(0)0: .foo
 HORIZONTAL_SPACE 18(4): ␣
 WORD 18(5): /foo
@@ -4104,7 +4106,7 @@ HORIZONTAL_SPACE 18(49): ␣
 QUOTED_STRING 18(50): "' translated to: '
 PREMATURE_END_OF_STRING 18(52): <empty>
 LINE_BREAK 18(52): ␊
-HORIZONTAL_SPACE 19(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 19(0)0: <empty>
 WORD 19(0)0: a
 SEPARATOR 19(1): (
 WORD 19(2): b,c
@@ -4128,27 +4130,27 @@ HORIZONTAL_SPACE 19(30): ␣
 WORD 19(31): fum
 SEPARATOR 19(34): '
 LINE_BREAK 19(35): ␊
-HORIZONTAL_SPACE 20(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 20(0)0: <empty>
 COMMENT 20(0)0: //␣form␣feed␣
 LINE_BREAK 20(13): ␌␊
-HORIZONTAL_SPACE 21(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 21(0)0: <empty>
 COMMENT 21(0)0: //␣vertical␣tab␣
 LINE_BREAK 21(16): ␋␊
-HORIZONTAL_SPACE 22(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 22(0)0: <empty>
 COMMENT 22(0)0: //␣carriage␣return␣
 LINE_BREAK 22(19): ␍␊
-HORIZONTAL_SPACE 23(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 23(0)0: <empty>
 WORD 23(0)0: z
 HORIZONTAL_SPACE 23(1): ␉
 WORD 23(2): x
 HORIZONTAL_SPACE 23(3): ␣
 COMMENT 23(4): //␣horizontal␣tab
 LINE_BREAK 23(21): ␊
-HORIZONTAL_SPACE 24(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 24(0)0: <empty>
 WORD 24(0)0: all
 HORIZONTAL_SPACE 24(3): ␣␉
 LINE_BREAK 24(5): ␌␋␍␊
-HORIZONTAL_SPACE 25(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 25(0)0: <empty>
 WORD 25(0)0: control
 HORIZONTAL_SPACE 25(7): ␣
 WORD 25(8): A
@@ -4158,44 +4160,44 @@ ILLEGAL_CONTROL 25(11): ␂
 WORD 25(12): C
 ILLEGAL_CONTROL 25(13): ␃
 LINE_BREAK 25(14): ␊
-HORIZONTAL_SPACE 26(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 26(0)0: <empty>
 ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE 26(28): <XX>
 QUOTED_STRING 26(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
      translated to: "␊␍␉␈␌␋␥␣â␁
 LINE_BREAK 26(45): ␊
-HORIZONTAL_SPACE 27(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 27(0)0: <empty>
 QUOTED_STRING 27(0)0: "<0041><00000042>C␣D<00000045><0046>G"
      translated to: ABC␣DEFG
 LINE_BREAK 27(38): ␊
-HORIZONTAL_SPACE 28(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 28(0)0: <empty>
 QUOTED_STRING 28(0)0: "<0041><000000B5>C␣D<000000E3><0006>G"
      translated to: AµC␣Dã␆G
 LINE_BREAK 28(38): ␊
-HORIZONTAL_SPACE 29(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 29(0)0: <empty>
 QUOTED_STRING 29(0)0: "<0001>" translated to: ␁
 LINE_BREAK 29(8): ␊
-HORIZONTAL_SPACE 30(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 30(0)0: <empty>
 QUOTED_STRING 30(0)0: "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
      translated to: ␀␁␂␃␄␅␆␇
 LINE_BREAK 30(42): ␊
-HORIZONTAL_SPACE 31(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 31(0)0: <empty>
 QUOTED_STRING 31(0)0: "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
      translated to: ␈␉␊␊␋␌␍␎␏
 LINE_BREAK 31(38): ␊
-HORIZONTAL_SPACE 32(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 32(0)0: <empty>
 QUOTED_STRING 32(0)0: "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
      translated to: ␐␑␒␓␔␕␖␗
 LINE_BREAK 32(42): ␊
-HORIZONTAL_SPACE 33(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 33(0)0: <empty>
 QUOTED_STRING 33(0)0: "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
      translated to: ␘␙␚␛␜␝␞␟␡
 LINE_BREAK 33(43): ␊
-HORIZONTAL_SPACE 34(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 34(0)0: <empty>
 ERRONEOUS ATOM: ILLEGAL_CONTROL 34(19): ␁
 QUOTED_STRING 34(0)0: "misplaced␣control␣␁"
      translated to: misplaced␣control␣␁
 LINE_BREAK 34(21): ␊
-HORIZONTAL_SPACE 35(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 35(0)0: <empty>
 WORD 35(0)0: misplaced
 HORIZONTAL_SPACE 35(9): ␣
 WORD 35(10): space
@@ -4210,24 +4212,24 @@ MISPLACED_VERTICAL 35(27): ␍
 HORIZONTAL_SPACE 35(28): ␣
 WORD 35(29): here
 LINE_BREAK 35(33): ␊
-HORIZONTAL_SPACE 36(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 36(0)0: <empty>
 NUMERIC 36(0)0: =<9=<8
 LINE_BREAK 36(6): ␊
-HORIZONTAL_SPACE 37(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 37(0)0: <empty>
 COMMENT 37(0)0: //␣blank␣line␣follows
 LINE_BREAK 37(21): ␊
 LINE_BREAK 38(0)0: ␊
-HORIZONTAL_SPACE 39(0)0: <empty>
+HORIZONTAL_BEFORE_COMMENT 39(0)0: <empty>
 COMMENT 39(0)0: //␣blank␣line␣with␣spaces␣follows
 LINE_BREAK 39(33): ␊
 HORIZONTAL_SPACE 40(0)0: ␣␣␣␣␣
 LINE_BREAK 40(5)5: ␊
-HORIZONTAL_SPACE 41(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 41(0)0: <empty>
 QUOTED_STRING 41(0)0: "premature␣end␣of␣line
      translated to: premature␣end␣of␣line
 PREMATURE_END_OF_STRING 41(22): <empty>
 LINE_BREAK 41(22): ␊
-HORIZONTAL_SPACE 42(0)0: <empty>
+HORIZONTAL_BEFORE_NON_COMMENT 42(0)0: <empty>
 QUOTED_STRING 42(0)0: "premature␣end␣of␣file
      translated to: premature␣end␣of␣file
 PREMATURE_END_OF_STRING 42(22): <empty>

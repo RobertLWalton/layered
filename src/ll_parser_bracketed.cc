@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  3 18:15:54 EST 2015
+// Date:	Sat Dec  5 11:35:03 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,11 @@
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define BRA ll::parser::bracketed
+
+# define h_before_comment_t \
+         horizontal_before_comment_t
+# define h_before_non_comment_t \
+         horizontal_before_non_comment_t
 
 const min::position BRA::PARAGRAPH_END =
     { 0xFFFFFFFF, 0xFFFFFFFE };
@@ -3766,7 +3771,12 @@ static min::gen bracketed_pass_command
 	      + ( 1ull << LEXSTD::natural_t ) \
 	      + ( 1ull << LEXSTD::numeric_t ), \
 	    \
-	        ( 1ull << LEXSTD::horizontal_space_t ) \
+		( 1ull << LEXSTD:: \
+			  horizontal_space_t ) \
+	      + ( 1ull << LEXSTD:: \
+			  h_before_comment_t ) \
+	      + ( 1ull << LEXSTD:: \
+			  h_before_non_comment_t ) \
 	      + ( 1ull << LEXSTD:: \
 		          premature_end_of_file_t ) \
 	      + ( 1ull << LEXSTD::end_of_file_t ), \

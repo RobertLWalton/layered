@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  7 15:36:51 EDT 2015
+// Date:	Sat Dec  5 03:25:26 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,6 +80,20 @@ namespace ll { namespace lexeme {
 	    // to AFTER_GRAPHIC if there is a non-white-
 	    // space character on the line before this
 	    // character.
+	    //
+	    // The indent is calculated by looking at
+	    // min::standard_char_flags.  The indent is
+	    // initialized to 0 at the beginning of a
+	    // line.  A character with min::IS_GRAPHIC
+	    // flag changes the indent to AFTER_GRAPHIC,
+	    // and then the indent is not changed again
+	    // until the beginning of the next line.
+	    // Otherwise the '\t' character adds
+	    // 8 - indent % 8 to the indent, other char-
+	    // acters with min::IS_HSPACE flag increment
+	    // the indent by +1, and characters without
+	    // the min::IS_HSPACE or min::IS_GRAPHIC
+	    // flags do not change the indent.
 
 	uns32	character;
     };

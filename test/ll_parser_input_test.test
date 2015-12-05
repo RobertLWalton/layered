@@ -49,9 +49,10 @@ LINE_BREAK: line 8:
 COMMENT: line 9:
 // for this data.
 ^^^^^^^^^^^^^^^^^
-LINE_BREAK: lines 9-10:
+LINE_BREAK: line 9:
 // for this data.
                  ^
+LINE_BREAK: line 10:
 <BLANK-LINE>
 ^
 WORD: "abc": line 11:
@@ -480,9 +481,10 @@ LINE_BREAK: line 37:
 COMMENT: line 38:
 // blank line follows
 ^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: lines 38-39:
+LINE_BREAK: line 38:
 // blank line follows
                      ^
+LINE_BREAK: line 39:
 <BLANK-LINE>
 ^
 COMMENT: line 40:

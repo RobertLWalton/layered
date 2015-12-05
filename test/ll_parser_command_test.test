@@ -67,11 +67,9 @@ parser print trace
 WORD: "trace": line 21:
 parser print trace
              ^^^^^
-LINE_BREAK: lines 21-22:
+LINE_BREAK: line 21:
 parser print trace
                   ^
-<BLANK-LINE>
-^
 parser trace [- parser input]
 parser print trace:
     [ + warnings, - parser input, - parser output, + parser commands,

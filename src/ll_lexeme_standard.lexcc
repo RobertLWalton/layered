@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  4 01:27:28 EST 2015
+// Date:	Fri Dec  4 18:24:04 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -84,6 +84,12 @@ cc
 lex
 lex	begin standard lexical program;
 lex
+cc	// Changing these TBD
+cc	# define h_before_comment_t \
+cc	         horizontal_space_t
+cc	# define h_before_non_comment_t \
+cc	         horizontal_space_t
+cc
 cc	    begin_program
 cc		( type_names, type_codes, MAX_TYPE );
 cc
@@ -91,6 +97,9 @@ cc	    uns32 begin_line;
 cc	    NDL::new_table ( begin_line, MASTER );
 cc	    uns32 within_line;
 cc	    NDL::new_table ( within_line, MASTER );
+cc
+cc	    uns32 horizontal_space;
+cc	    NDL::new_table ( horizontal_space );
 cc
 cc	    uns32 separator;
 cc	    NDL::new_table ( separator, separator_t );
@@ -132,6 +141,10 @@ cc
 lex	"<horizontal>" = "<UNICODE-CATEGORY-Zs>"
 lex		       | "<HT>";
 lex
+cc	# define HORIZONTAL \
+cc	           NDL::add_category ( "Zs" ); \
+cc	           NDL::add_char ( '\t' )
+cc
 
 lex	"<misplaced-horizontal>" =
 lex		  "<UNICODE-CATEGORY-Zs>"
@@ -141,7 +154,7 @@ lex
 cc	# define MISPLACED_HORIZONTAL \
 cc	           NDL::add_category ( "Zs" ); \
 cc	           NDL::add_char ( '\t' ); \
-cc	           NDL::sub_char ( ' ' );
+cc	           NDL::sub_char ( ' ' )
 cc
 
 lex	"<vertical>" = "<CR>" | "<VT>" | "<FF>"
@@ -161,6 +174,13 @@ cc	           NDL::add_category ( "M" ); \
 cc	           NDL::add_category ( "N" ); \
 cc	           NDL::add_category ( "P" ); \
 cc	           NDL::add_category ( "S" )
+cc
+
+lex	"<non-/-graphic>" = "<graphic> & ~ "/";
+lex
+cc	# define NON_SLASH_GRAPHIC \
+cc	           GRAPHIC; \
+cc	           NDL::sub_char ( '/' )
 cc
 
 lex	"<control>" = "<UNICODE-CATEGORY-C>"
@@ -292,11 +312,160 @@ lex
 cc	    NDL::begin_table ( begin_line );
 cc
 
-lex	   goto within line
+lex	   "<horizontal><repeat>//"
+lex			keep 1
+lex			output horizontal before comment
+lex			goto horizontal space
+lex	   "<horizontal><repeat>/"
+lex			keep 1
+lex			output horizontal before
+lex				          non-comment
+lex			goto horizontal space
+lex	   "<horizontal><repeat><non-/-graphic>"
+lex			keep 1
+lex			output horizontal before
+lex				          non-comment
+lex			goto horizontal space
+lex	   "<horizontal><repeat>"
+lex			output horizontal space
+lex
+cc		   NDL::begin_dispatch();
+cc		      HORIZONTAL;
+cc		      NDL::REPEAT();
+cc
+cc		      NDL::begin_dispatch ( "/" );
+cc		         NDL::begin_dispatch ( "/" );
+cc		            NDL::keep ( 1 );
+cc		            NDL::output
+cc			       ( h_before_comment_t );
+cc		            NDL::go
+cc			       ( horizontal_space );
+cc		         NDL::end_dispatch();
+cc		         NDL::keep ( 1 );
+cc		         NDL::output
+cc			    ( h_before_non_comment_t );
+cc		         NDL::go ( horizontal_space );
+cc		      NDL::end_dispatch();
+cc
+cc		      NDL::begin_dispatch();
+cc		         NON_SLASH_GRAPHIC;
+cc		         NDL::keep ( 1 );
+cc		         NDL::output
+cc			    ( h_before_non_comment_t );
+cc		         NDL::go ( horizontal_space );
+cc		      NDL::end_dispatch();
+cc
+cc		      NDL::output
+cc			    ( horizontal_space_t );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "//" keep 0
+lex		output horizontal before comment
+lex		goto within line	
+lex	   "/"  keep 0
+lex		output horizontal before non-comment
+lex		goto within line	
+lex	   "<non-/-graphic>"
+lex		keep 0
+lex		output horizontal before non-comment
+lex		goto within line
+lex
+cc		   NDL::begin_dispatch ( "/" );
+cc		      NDL::begin_dispatch ( "/" );
+cc		         NDL::keep ( 0 );
+cc		         NDL::output
+cc			       ( h_before_comment_t );
+cc		         NDL::go ( within_line );
+cc		      NDL::end_dispatch();
+cc		      NDL::keep ( 0 );
+cc		      NDL::output
+cc			    ( h_before_non_comment_t );
+cc		      NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch();
+cc		      NON_SLASH_GRAPHIC;
+cc		      NDL::keep ( 0 );
+cc		      NDL::output
+cc			    ( h_before_non_comment_t );
+cc		      NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<LF>" goto line break
+lex
+cc		   NDL::begin_dispatch ( "\n" );
+cc		      NDL::go ( line_break );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<vertical><repeat><LF>" goto line break
+lex	   "<vertical><repeat>"
+lex			output misplaced vertical
+lex
+cc		   NDL::begin_dispatch ( vertical );
+cc		      NDL::REPEAT();
+cc		      NDL::begin_dispatch ( "\n" );
+cc		         NDL::go ( line_break );
+cc		      NDL::end_dispatch();
+cc		      NDL::output
+cc		            ( misplaced_vertical_t );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<illegal-control><repeat>"
+lex	        output illegal control
+lex
+cc		   NDL::begin_dispatch(); 
+cc		      ILLEGAL_CONTROL;
+cc		      NDL::REPEAT();
+cc		      NDL::output
+cc			  ( illegal_control_t );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<others><repeat>"
+lex		error unrecognized character
+lex
+cc	    	   NDL::begin_dispatch ( OTHERS );
+cc		      NDL::REPEAT();
+cc		      NDL::output
+cc			( unrecognized_character_t );
+cc	    	   NDL::end_dispatch();
+cc
+
+lex	   output premature end of file goto end of file
+lex		// End of file not following a line
+lex		// break
 lex	end begin line master table;
 lex
-cc		   NDL::go ( within_line );
-cc	    	NDL::end_table();
+cc		   NDL::output
+cc			( premature_end_of_file_t );
+cc		   NDL::go ( end_of_file );
+cc
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin horizontal space sublexeme table;
+lex
+cc	    NDL::begin_table ( horizontal_space );
+cc
+
+lex	   "<horizontal>" accept;
+lex
+cc		   NDL::begin_dispatch();
+cc		      HORIZONTAL;
+cc		      NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   goto within line;
+lex	end horizontal space sublexeme table;
+lex
+cc	    	   NDL::go ( within_line );
+cc
+cc	    NDL::end_table();
 cc
 
 lex
@@ -346,8 +515,8 @@ lex
 cc		   NDL::begin_dispatch(); 
 cc		      ILLEGAL_CONTROL;
 cc		      NDL::REPEAT();
-cc		      NDL::output \
-cc			  ( illegal_control_t ); \
+cc		      NDL::output
+cc			  ( illegal_control_t );
 cc		   NDL::end_dispatch();
 cc
 
@@ -488,7 +657,8 @@ lex
 cc		   NDL::output
 cc			( premature_end_of_file_t );
 cc		   NDL::go ( end_of_file );
-cc	    	NDL::end_table();
+cc
+cc	    NDL::end_table();
 cc
 
 lex
@@ -554,6 +724,7 @@ lex	      // which will output premature end of file
 lex	end comment lexeme table;
 lex
 cc	           NDL::go ( within_line );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -589,11 +760,9 @@ lex
 cc	    NDL::begin_table ( line_break );
 cc
 
-lex	   "<LF>" accept;
 lex	   "<vertical>" accept;
 lex
 cc	           NDL::begin_dispatch ( vertical );
-cc		       NDL::add_char ( '\n' );
 cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
@@ -610,6 +779,7 @@ lex	    goto end of file
 lex	end line break lexeme table;
 lex
 cc	        NDL::go ( end_of_file );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -660,6 +830,7 @@ lex	end separator lexeme table;
 lex
 cc	    	   NDL::output ( NONE );
 cc	    	   NDL::go ( within_line );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -676,6 +847,7 @@ lex	   goto separator;
 lex	end finish separators master table;
 lex
 cc	    	   NDL::go ( separator );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -715,6 +887,7 @@ lex	   goto within line;
 lex	end finish middle sublexeme table;
 lex
 cc	    	   NDL::go ( within_line );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -791,6 +964,7 @@ lex	   goto within line;
 lex	end mark lexeme table;
 lex
 cc	    	   NDL::go ( within_line );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -833,6 +1007,7 @@ lex	end leading zero sublexeme table;
 lex
 cc	    	   NDL::output ( natural_t );
 cc	    	   NDL::go ( within_line );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -887,6 +1062,7 @@ lex	   goto within line;
 lex	end natural lexeme table;
 lex
 cc	    	   NDL::go ( within_line );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -1036,6 +1212,7 @@ lex	    goto premature end of string;
 lex	end quoted string lexeme table;
 lex
 cc		    NDL::go ( premature_end_of_string );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -1053,6 +1230,7 @@ lex
 cc	        NDL::output
 cc		    ( premature_end_of_string_t );
 cc		NDL::go ( within_line );
+cc
 cc	    NDL::end_table();
 cc
 
@@ -1064,6 +1242,7 @@ lex
 cc	    NDL::begin_table ( end_of_file );
 cc	        NDL::output ( end_of_file_t );
 cc	        NDL::go ( stop );
+cc
 cc	    NDL::end_table();
 cc
 

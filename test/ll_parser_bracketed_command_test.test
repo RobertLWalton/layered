@@ -395,14 +395,14 @@ parser test ( ` ) ' )
 parser test ( ` ) ' )
               ^
 ======= END TEST
-ERROR: in line 89: missing closing bracket "'" inserted before end of
-       line:
-parser test ( `
-               ^
-ERROR: in line 89: missing closing bracket ")" inserted before end of
-       line:
-parser test ( `
-               ^
+ERROR: in line 90: missing closing bracket "'" inserted just before
+       here:
+)
+^
+ERROR: in line 90: missing closing bracket ")" inserted just before
+       here:
+)
+^
 ======= TEST: parser test (`')
 ------- line 89:
 parser test ( `
@@ -504,17 +504,17 @@ parser print indentation offset:
     block TOP LEVEL: 2
 WARNING: in line 108: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
- ^^^^
+ ^
 WARNING: in line 110: lexeme indent 2 too near paragraph indent 0:
   line with indent 2
-  ^^^^
+  ^
 parser end block 1
 parser print indentation offset:
     block standard: 2
     block TOP LEVEL: 2
 WARNING: in line 117: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
- ^^^^
+ ^
 ======= TEST: parser test:
                   well
                       (hello
@@ -615,10 +615,10 @@ parser test:
             goodbye ) there
             ^^^^^^^
 ======= END TEST
-ERROR: in line 137: missing closing bracket ")" inserted before end of
-       line:
-            hi there
-                    ^
+ERROR: in line 138: missing closing bracket ")" inserted just before
+       here:
+        ) end
+        ^
 ======= TEST: parser test:
                   (hello
                    {"": .terminator = [$ INDENTED_PARAGRAPH $],

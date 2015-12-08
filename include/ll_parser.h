@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  3 16:49:14 EST 2015
+// Date:	Mon Dec  7 02:36:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -280,17 +280,12 @@ struct token_struct
 	// or the end of input.
 
     min::uns32 indent;
-        // Indent of the first character of the token.
-	// Used for the first token on a line by the
-	// bracketed expression parser.
-	//
-	// Equal to LEX::AFTER_GRAPHIC if there is a
-	// non-whitespace character before the token
-	// in the line containing the token.  Otherwise
-	// computed by assuming single spaces are 1
-	// column wide, tabs are set every 8 columns,
-	// and other characters (e.g., form feeds and
-	// vertical tabs) take 0 columns.
+        // Indent of the first character AFTER the
+	// token, or of the end of input.  Used in the
+	// horizontal_before_..._t tokens to determine
+	// line indent.  See ll_lexeme.h for details
+	// of how character and end of input indent is
+	// computed.
 
     const ll::parser::token next, previous;
         // Doubly linked list pointers for tokens.

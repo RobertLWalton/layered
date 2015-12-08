@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  3 16:57:41 EST 2015
+// Date:	Tue Dec  8 03:55:37 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1011,15 +1011,17 @@ void PAR::parse ( PAR::parser parser )
 	    ( * pass->begin_parse ) ( parser, pass );
     }
 
-    // Go to the first non-line-break non-comment token.
+    // Go to the first horizontal_before_non_comment_t
+    // or end_of_file_t token.
     //
     parser->input->add_tokens
 	( parser, parser->input );
     PAR::token current = parser->first;
     MIN_REQUIRE ( current != NULL_STUB );
-    while ( current->type == LEXSTD::line_break_t
-            ||
-	    current->type == LEXSTD::comment_t )
+    while (    current->type
+            != LEXSTD::horizontal_before_non_comment_t
+            &&
+	    current->type != LEXSTD::end_of_file_t )
     {
 	if ( current->next == parser->first )
 	{
@@ -1055,26 +1057,41 @@ void PAR::parse ( PAR::parser parser )
         if ( current->type == LEXSTD::end_of_file_t )
 	    break;
 
-	// If first lexeme check its indent is 0.
+	// If horizontal before non-comment, then if
+	// first lexeme, complain if its indent is not
+	// 0, and delete it in any case.
 	//
-	if ( first_lexeme )
+	if (    current->type
+	     == LEXSTD::horizontal_before_non_comment_t )
 	{
-	    first_lexeme = false;
-	    if ( current->indent != 0 )
-	        PAR::parse_error
-		    ( parser, current->position,
+	    if ( first_lexeme && current->indent != 0 )
+	    {
+		min::phrase_position position =
+		    current->position;
+		position.begin = position.end;
+		PAR::parse_error
+		    ( parser, position,
 		      "first non-comment lexeme"
 		      " is indented" );
+	    }
+
+	    if ( current->next == parser->first )
+	    {
+		parser->input->add_tokens
+		    ( parser, parser->input );
+		MIN_REQUIRE (    current->next
+			      != parser->first );
+	    }
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				current->previous ) );
 	}
+	first_lexeme = false;
 
 	// Get subexpression.  First is the first token
 	// of the subexpression.
-	//
-	PAR::token previous =
-	    current == parser->first ?
-	    (PAR::token) NULL_STUB :
-	    current->previous;
-
 
 	TAB::flags selectors = parser->selectors;
 
@@ -1101,6 +1118,10 @@ void PAR::parse ( PAR::parser parser )
 	    }
 	}
 
+	PAR::token previous =
+	    ( current == parser->first ?
+	      (PAR::token) min::NULL_STUB :
+	      current->previous );
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
@@ -1112,9 +1133,8 @@ void PAR::parse ( PAR::parser parser )
 		  NULL );
 
 	PAR::token first =
-	    previous == NULL_STUB ?
-	    parser->first :
-	    previous->next;
+	    ( previous == min::NULL_STUB ?
+	      parser->first : previous->next );
 
         // If subexpression is not empty, or separator
 	// found, compact it.
@@ -1209,28 +1229,6 @@ void PAR::parse ( PAR::parser parser )
 		    ( PAR::remove
 			( PAR::first_ref ( parser ),
 			  current->previous ) );
-	}
-
-        // As there is no bracket stack, the token after
-	// the subexpression is either a line break, end
-	// of file, or token after an indentation sepa-
-	// rator.  In the case of a line break, it must
-	// be deleted.  End of file's are OK only at the
-	// beginning or after such line deleted breaks.
-	//
-        if ( current->type == LEXSTD::line_break_t )
-	{
-	    if ( current->next == parser->first )
-	    {
-		parser->input->add_tokens
-		    ( parser, parser->input );
-		MIN_REQUIRE (    current->next
-			      != parser->first );
-	    }
-	    current = current->next;
-	    PAR::free
-		( PAR::remove ( first_ref(parser),
-			        current->previous ) );
 	}
     }
 

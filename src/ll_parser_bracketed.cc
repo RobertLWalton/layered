@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 11:35:03 EST 2015
+// Date:	Tue Dec  8 04:00:00 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -837,21 +837,6 @@ static void make_label
     first->position = position;
 }
 
-// Complain that token indent is too near indent.
-//
-static void complain_near_indent
-	( PAR::parser parser,
-	  PAR::token token,
-	  min::int32 indent )
-{
-    char buffer[200];
-    sprintf ( buffer, "lexeme indent %d too near"
-                      " paragraph indent %d",
-		      token->indent, indent );
-    PAR::parse_warn
-        ( parser, token->position, buffer );
-}
-
 // Return token indent - indent and complain if token
 // indent is too near indent.  Assert token has an
 // indent.
@@ -862,15 +847,23 @@ inline min::int32 relative_indent
 	  PAR::token token,
 	  min::int32 indent )
 {
-    MIN_REQUIRE ( token->indent != LEX::AFTER_GRAPHIC );
+    MIN_REQUIRE (    token->type
+                  == LEXSTD::h_before_non_comment_t );
 
     int relative_indent =
         (min::int32) token->indent - indent;
     if (    relative_indent != 0
 	 && relative_indent < indentation_offset 
 	 && relative_indent > - indentation_offset )
-        ::complain_near_indent
-	    ( parser, token, indent );
+    {
+	char buffer[200];
+	sprintf ( buffer, "lexeme indent %d too near"
+			  " paragraph indent %d",
+			  token->indent, indent );
+	min::phrase_position position = token->position;
+	position.begin = position.end;
+	PAR::parse_warn ( parser, position, buffer );
+    }
     return relative_indent;
 }
 
@@ -895,50 +888,40 @@ inline min::int32 relative_indent
 //
 //   loop:
 //
-//     skip any initial comment token, and then every
-//          line break that is followed by a line break,
-//          and every pair of tokens consisting of a new
-//          line followed by a comment; if something was
-//          skipped, then current is now either a line
-//          break or end of file; if a blank line is
+//     skip line break, comment, and horizontal_before_
+//          comment tokens; if a blank line is
 //          skipped, set parser->at_head = true
 //
-//     if current is at a line break followed by a non-
-//        eof token, set the current_indent to the
-//        indent of this non-eof token; else set the
-//        current_indent to 0
+//     if current is at horizontal_before_non_comment
+//        token, set the current_indent to the indent of
+//        this token; else set the current_indent to 0
 //
 //     delete what has been skipped, but print a WARNING
 //            message if any comment deleted had less
-//            indent than the current_indent
-//
-//     if current is end of file, the end of file cannot
-//        be after a line break, but do nothing because
-//        error message has already been printed by
-//        add_tokens.
+//            indent than the current_indent, using
+//            horizontal_before_comment tokens to
+//            determine comment indent
 //
 //     if indentation_found != NONE:
 //        // Indentation was found below, but we
 //        // deferred processing it until we could skip
-//        // stuff after its following line break to
-//        // discover paragraph indentation; current is
-//        // line break or end of file and is followed
-//        // by an end of file or a non-line-break, non-
-//        // end-of-file, non-comment token.
+//        // stuff as above to discover paragraph inden-
+//        // tation; current is first horizontal_before_
+//        // non_comment or eof following indentation
+//        // mark.
 //
 //        compute new_selectors from current selectors
 //                and indentation_found
 //
 //        if paragraph has some lines (i.e., current is
-//           line break followed by non-eof, non-comment
-//           token whose indent is greater than indent
-//           argument):
-//
-//           delete current line-break	            
+//           a horizontal_before_non_comment whose in-
+//           dent is greater than the indent argument):
 //
 //           paragraph_indent = current->indent
 //
 //           loop to parse paragraph lines:
+//
+//		 current = current->next
 //
 //               // Move to end of paragraph line.
 //               //
@@ -949,8 +932,11 @@ inline min::int32 relative_indent
 //                   bracket stack
 //                     if new_selectors & EAOCLOSING;
 //                   remember if line ended by line
-//                            separator or paragraph
-//                            end found
+//                            separator
+//
+//		 remove horizontal before non comment
+//		        token that was just before
+//		        paragraph line
 //
 //               if bracket stack top closed:
 //                   require that there was no line
@@ -975,16 +961,13 @@ inline min::int32 relative_indent
 //               end loop if top of bracket stack
 //                   closed, or current is end-of-file
 //
-//		 require that current is line break, and
-//		     current->next is not line break or
-//		     comment
+//		 require that current is horizontal_
+//		     before_non_comment
 //
-//               end loop if current->next is eof or
-//                   has indent less than paragraph_
-//                   indent
+//               end loop if current has has indent less
+//                   than paragraph_indent
 //
-//               delete current line-break and continue
-//                      loop to get next paragraph line
+//               loop to get next paragraph line
 //
 //           // Compact paragraph lines into a
 //           // paragraph.
@@ -1013,31 +996,28 @@ inline min::int32 relative_indent
 //     // If current is a line break, it is not
 //     // followed by a line break or comment.
 //
-//     if current is line break:
+//     if current is horizontal_before_non_comment or
+//                   end-of-file:
 //
-//        if current->next is end of file:
-//           delete current (the line break)
-//           return MISSING_POSITION
-//
-//	  if ! at_start and parser->at_head
-//	     and selectors & EAPBREAK,
+//        if ! at_start and (parser->at_head or current
+//             is eof) and selectors & EAPBREAK:
 //	     return PARAGRAPH_END
 //
-//        if current->indent is at or before indent
-//           argument, and selectors & EALEINDENT,
+//        else if current is end-of-file:
 //           return MISSING_POSITION
 //
-//        if current->indent is before indent
-//           argument, and selectors & EALTINDENT,
+//        else if current->indent is at or before indent
+//                argument, and selectors & EALEINDENT:
+//              return MISSING_POSITION
+//
+//        if current->indent is before indent argument,
+//                    and selectors & EALTINDENT:
 //           return MISSING_POSITION
 //
-//        delete current (the line break)
-//
-//     else if current is end of file:
-//          return MISSING_POSITION
+//        delete a horizontal_before_non_comment
 //
 //     // Continue with non-comment, non-line-break,
-//     // non-eof token.
+//     // non-horizontal-before-xxx, non-eof token.
 //     //
 //     parser->at_head = false
 //
@@ -1058,8 +1038,8 @@ inline min::int32 relative_indent
 //         if at_start and
 //                     typed_opening argument != NONE
 //                     and current is mark:
-//            selectors = saved selectors
 //            has_mark_type = true
+//            selectors = saved selectors
 //
 //         current = current->next
 //         at_start = false
@@ -1324,80 +1304,61 @@ min::position BRA::parse_bracketed_subexpression
 
     while ( true )
     {
-        // Skip comments and line breaks so that either
-	// nothing is skipped and current is not a line
-	// break or current is a line break followed by
-	// a non-line-break, non-comment token.
+        // Skip comments, line breaks, and horizontal
+	// before comments, so that either nothing is
+	// skipped and current is a horizontal before
+	// non-comment or end-of-file.
 	//
-	// We assume every comment is followed by a line
-	// break or end of file.  End of files not
-	// preceeded by a line break are errors.
 	// Comments skipped that are indented less than
-	// the first non-blank non-comment line are
-	// errors.  These errors are ignored but cause
-	// warning messages.
+	// the indent of any following horizontal before
+	// non-comment are errors.  These errors are
+	// ignored but cause warning messages.
 	//
         PAR::token first = current;
-	if ( current->type == LEXSTD::comment_t )
+	min::uns32 type = current->type;
+	while ( type == LEXSTD::line_break_t
+	        ||
+		type == LEXSTD::comment_t
+		||
+	        type == LEXSTD::h_before_comment_t )
 	{
-	    ensure_next ( parser, current );
-	    current = current->next;
-	}
-	while ( current->type == LEXSTD::line_break_t )
-	{
-	    ensure_next ( parser, current );
-	    min::uns32 type = current->next->type;
-	    if ( type == LEXSTD::line_break_t )
-	    {
-	        // Skip line break if it is followed by
-		// another line break.
-		//
-	        current = current->next;
-		parser->at_head = true;
-		continue;
-	    }
-	    else if ( type != LEXSTD::comment_t )
-	        break;
+	    min::uns32 previous_type = type;
 
-	    // If line break is followed by a comment,
-	    // skip both.
-	    //
-	    current = current->next;
 	    ensure_next ( parser, current );
 	    current = current->next;
+	    type = current->type;
+
+	    if ( previous_type == LEXSTD::line_break_t
+	         &&
+		 type == LEXSTD::line_break_t )
+		parser->at_head = true;
 	}
 
 	// Delete what has been skipped.
 	//
+	// We might issue warning for end of file not
+	// immediately preceeded by a line break, but
+	// an error message has already been issued by
+	// add_tokens.
+	//
 	if ( first != current )
 	{
-	    // The last thing skipped was either a
-	    // comment or a line break followed by a
-	    // line break.  In either case we have:
+	    // If we skipped, we stop at a horizontal
+	    // before non-comment or end of file.
 	    //
 	    MIN_REQUIRE
-	      ( current->type == LEXSTD::line_break_t
+	      ( type == LEXSTD::h_before_non_comment_t
 		||
-	        current->type == LEXSTD::end_of_file_t
+	        type == LEXSTD::end_of_file_t
 	      );
 
-	    ensure_next ( parser, current );
-	    min::uns32 current_indent = 0;
-	    if ( current->type != LEXSTD::end_of_file_t
-		 &&
-	            current->next->type
-		 != LEXSTD::end_of_file_t )
-	    {
-	        current_indent = current->next->indent;
-		MIN_REQUIRE (    current_indent
-		              != LEX::AFTER_GRAPHIC );
-	    }
+	    min::uns32 current_indent =
+	        type == LEXSTD::h_before_non_comment_t ?
+		current->indent : 0;
 
-	    // Delete the line breaks and full line
-	    // comments skipped (keeping any line break
-	    // at `current') and find the bounds of any
+	    // Delete tokens and find the bounds of any
 	    // comments that are not indented as much
-	    // as the indent of next.
+	    // as current_indent.
 	    //
 	    bool iic_exists = false;
 	    min::phrase_position iic_position;
@@ -1407,20 +1368,22 @@ min::position BRA::parse_bracketed_subexpression
 
 	    while ( first != current )
 	    {
-		if ( first->type == LEXSTD::comment_t
-		     &&
-		     first->indent != LEX::AFTER_GRAPHIC
+		if (    first->type
+		     == LEXSTD::h_before_comment_t
 		     &&
 		     first->indent < current_indent )
 		{
+		    MIN_REQUIRE ( first->next->type
+		                  ==
+			          LEXSTD::comment_t );
 		    if ( ! iic_exists )
 		    {
 		        iic_exists = true;
 			iic_position.begin =
-			    first->position.begin;
+			    first->next->position.begin;
 		    }
 		    iic_position.end =
-		        first->position.end;
+		        first->next->position.end;
 		}
 		first = first->next;
 		PAR::free
@@ -1438,14 +1401,6 @@ min::position BRA::parse_bracketed_subexpression
 		       " as much as following line" );
 	}
 
-	// We might issue warning if end of file not
-	// immediately preceeded by a line break, but
-	// an error message has already been issued by
-	// add_tokens.
-	//
-	// if ( current->type == LEXSTD::end_of_file_t )
-	//      print warning
-
 	if ( indentation_found != min::NULL_STUB )
 	{
 	    // We come here to process an indented
@@ -1454,7 +1409,8 @@ min::position BRA::parse_bracketed_subexpression
 	    // after skip above could be done.
 	    //
 	    MIN_REQUIRE
-	      ( current->type == LEXSTD::line_break_t
+	      (    current->type
+	        == LEXSTD::h_before_non_comment_t
 		||
 	        current->type == LEXSTD::end_of_file_t
 	      );
@@ -1487,42 +1443,36 @@ min::position BRA::parse_bracketed_subexpression
 	    // lines.
 	    //
 	    if (    current->type
-		 != LEXSTD::end_of_file_t
+	         == LEXSTD::h_before_non_comment_t
 		 &&
-	            current->next->type
-		 != LEXSTD::end_of_file_t
-		 &&
-		    relative_indent
-		        ( parser,
-		          indentation_offset,
-		          current->next, indent )
+		 relative_indent
+		     ( parser,
+		       indentation_offset,
+		       current, indent )
 		 > 0 )
 	    {
-		// Delete line break.
-		//
-		current = current->next;
-		PAR::free
-		    ( PAR::remove
-			( first_ref(parser),
-			  current->previous ) );
 
 		// Compute paragraph_indent for indented
 		// subparagraph.
 		//
 		min::int32 paragraph_indent =
 		    current->indent;
-		MIN_REQUIRE
-		    (    (unsigned) paragraph_indent
-		      != LEX::AFTER_GRAPHIC );
+
+		// Move current to beginning of line.
+		//
+		ensure_next ( parser, current );
+		current = current->next;
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  current->previous ) );
 
 		// Loop to parse paragraph lines.
 		//
 		while ( true )
 		{
-		    // Move current to end of line.
-		    //
 		    PAR::token previous =
-			current->previous;
+		        current->previous;
 		    min::position separator_found =
 		      BRA::
 		       parse_bracketed_subexpression
@@ -1629,30 +1579,21 @@ min::position BRA::parse_bracketed_subexpression
 
 		    MIN_REQUIRE
 		        (    current->type
-			  == LEXSTD::line_break_t );
-		    ensure_next ( parser, current );
-		    next = current->next;
-		    MIN_REQUIRE
-			(    next->type
-			  != LEXSTD::line_break_t
-			  &&
-			     next->type
-			  != LEXSTD::comment_t );
+			  == LEXSTD::
+			       h_before_non_comment_t );
 
-		    if (    next->type
-			 == LEXSTD::end_of_file_t 
-			 ||
-			 (   relative_indent
-		                 ( parser,
-			           indentation_offset,
-			           next,
-				   paragraph_indent )
-		           < 0 ) )
+		    if (   relative_indent
+		               ( parser,
+			         indentation_offset,
+			         current,
+			         paragraph_indent )
+		         < 0 )
 			break;
 
-		    // Delete line break.
+		    // Loop to get next line.
 		    //
-		    current = next;
+		    ensure_next ( parser, current );
+		    current = current->next;
 		    PAR::free
 			( PAR::remove
 			    ( first_ref(parser),
@@ -1723,47 +1664,38 @@ min::position BRA::parse_bracketed_subexpression
 	// has been processed, or if there was no
 	// indented paragraph.
 	//
-	if ( current->type == LEXSTD::line_break_t )
+	if (    current->type
+	     == LEXSTD::h_before_non_comment_t
+	     ||
+	     current->type == LEXSTD::end_of_file_t )
 	{
-	    ensure_next ( parser, current );
-	    PAR::token next = current->next;
-	    MIN_REQUIRE
-	        ( next->type != LEXSTD::line_break_t
-		  &&
-		  next->type != LEXSTD::comment_t );
-
-	    if ( next->type == LEXSTD::end_of_file_t )
-	    {
-		PAR::free
-		    ( PAR::remove ( first_ref(parser),
-				    current ) );
-		current = next;
-		return min::MISSING_POSITION;
-	    }
-
 	    if ( ! at_start
 	         &&
-		 parser->at_head
+		 ( parser->at_head
+		   ||
+		      current->type
+		   == LEXSTD::end_of_file_t )
 	         &&
 		 (   selectors
 		   & PAR::EAPBREAK_OPT ) )
 		    return BRA::PARAGRAPH_END;
 
-	    // Truncate subexpression if next token
+	    else if (    current->type
+	              == LEXSTD::end_of_file_t )
+		return min::MISSING_POSITION;
+
+	    // Truncate subexpression if current token
 	    // indent is at or before indent argument.
 	    //
 	    if (   selectors
 	         & (   PAR::EALEINDENT_OPT
 	             | PAR::EALTINDENT_OPT ) )
 	    {
-		MIN_REQUIRE
-		    (    next->indent
-		      != LEX::AFTER_GRAPHIC );
 		int32 rindent =
 		    relative_indent
 			( parser,
 			  pass->indentation_offset,
-			  next, indent );
+			  current, indent );
 		if ( rindent < 0 )
 		    return min::MISSING_POSITION;
 		else if ( rindent <= 0
@@ -1778,13 +1710,13 @@ min::position BRA::parse_bracketed_subexpression
 	    // token that is not line feed or comment
 	    // or end of file.
 	    //
-	    PAR::free ( PAR::remove ( first_ref(parser),
-		                      current ) );
-	    current = next;
+	    ensure_next ( parser, current );
+	    current = current->next;
+
+	    PAR::free
+	        ( PAR::remove ( first_ref(parser),
+		                current->previous ) );
 	}
-	else if (    current->type
-	          == LEXSTD::end_of_file_t )
-	    return min::MISSING_POSITION;
 
 	// Continue with non-comment, non-line-break,
 	// non-eof token.
@@ -1794,11 +1726,18 @@ min::position BRA::parse_bracketed_subexpression
 	MIN_REQUIRE
 	    ( indentation_found == min::NULL_STUB );
 	MIN_REQUIRE
-	    ( current->type != LEXSTD::end_of_file_t );
-	MIN_REQUIRE
-	    ( current->type != LEXSTD::line_break_t );
-	MIN_REQUIRE
-	    ( current->type != LEXSTD::comment_t );
+	    ( current->type != LEXSTD::end_of_file_t
+	      &&
+	         current->type
+	      != LEXSTD::h_before_comment_t
+	      &&
+	         current->type
+	      != LEXSTD::h_before_non_comment_t
+	      &&
+	      current->type != LEXSTD::comment_t
+	      &&
+	      current->type != LEXSTD::line_break_t );
+
 
 	// Process quoted strings.
 	//
@@ -1969,30 +1908,19 @@ min::position BRA::parse_bracketed_subexpression
 			          ( next->value ) );
 		    else
 		    {
-			const char * message;
-			switch ( next->type ) {
-			case LEXSTD::line_break_t:
-			    message = " inserted before"
-			              " end of line";
-			    break;
-			case LEXSTD::end_of_file_t:
-			    message = " inserted before"
-			              " end of file";
-			default:
-			    MIN_ABORT
-				( "closing bracket"
-				  " found with non-name"
-				  " valued token" );
-			}
+			min::phrase_position position =
+			    next->position;
+			position.begin = position.end;
 		        PAR::parse_error
-			    ( parser, next->position,
+			    ( parser, position,
 			      "missing closing"
 			      " bracket ",
 			      min::pgen_quote
 			          ( opening_bracket->
 			            closing_bracket->
 				        label ),
-			      message );
+			      " inserted just before"
+			      " here" );
 		    }
 		}
 		else

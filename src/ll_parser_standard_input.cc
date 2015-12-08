@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 11:01:52 EST 2015
+// Date:	Mon Dec  7 03:29:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -175,8 +175,6 @@ static min::uns32 input_add_tokens
 	    return count;
 	}
 	case LEXSTD::horizontal_space_t:
-	case LEXSTD::horizontal_before_comment_t:
-	case LEXSTD::horizontal_before_non_comment_t:
 	    continue;
 
 	case LEXSTD::premature_end_of_string_t:
@@ -229,8 +227,8 @@ static min::uns32 input_add_tokens
 	    input_buffer[next] :
 	    scanner->next_position;
 	token->indent =
-	    first < input_buffer->length ?
-	    (&input_buffer[first])->indent :
+	    next < input_buffer->length ?
+	    (&input_buffer[next])->indent :
 	    scanner->next_indent;
 
 	switch ( type )
@@ -259,6 +257,8 @@ static min::uns32 input_add_tokens
 	}
 	case LEXSTD::comment_t:
 	case LEXSTD::line_break_t:
+	case LEXSTD::horizontal_before_comment_t:
+	case LEXSTD::horizontal_before_non_comment_t:
 	    break;
 	case LEXSTD::end_of_file_t:
 	    parser->eof = true;
@@ -304,7 +304,14 @@ static min::uns32 input_add_tokens
 
 	if ( token->type == LEXSTD::end_of_file_t
 	     ||
-	     token->type == LEXSTD::line_break_t )
+	        token->type
+	     == LEXSTD::horizontal_before_comment_t
+	     ||
+	        token->type
+	     == LEXSTD::horizontal_before_non_comment_t
+	     ||
+	     count >= 100
+	   )
 	    break;
     }
     return count;

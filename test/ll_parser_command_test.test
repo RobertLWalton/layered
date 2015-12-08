@@ -30,6 +30,25 @@ parser print trace:
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser trace [+ parser input]
+WORD: "parser": line 19:
+parser print trace
+^^^^^^
+WORD: "print": line 19:
+parser print trace
+       ^^^^^
+WORD: "trace": line 19:
+parser print trace
+             ^^^^^
+LINE_BREAK: line 19:
+parser print trace
+                  ^
+HORIZONTAL_BEFORE_NON_COMMENT: line 20:
+parser trace [- parser input]
+^
+parser print trace:
+    [ + warnings, + parser input, - parser output, + parser commands,
+      - subexpression elements, - subexpression details,
+      - subexpression lines, - keys, - bracketed subexpressions ]
 WORD: "parser": line 20:
 parser trace [- parser input]
 ^^^^^^
@@ -54,22 +73,9 @@ parser trace [- parser input]
 LINE_BREAK: line 20:
 parser trace [- parser input]
                              ^
-parser print trace:
-    [ + warnings, + parser input, - parser output, + parser commands,
-      - subexpression elements, - subexpression details,
-      - subexpression lines, - keys, - bracketed subexpressions ]
-WORD: "parser": line 21:
+HORIZONTAL_BEFORE_NON_COMMENT: line 21:
 parser print trace
-^^^^^^
-WORD: "print": line 21:
-parser print trace
-       ^^^^^
-WORD: "trace": line 21:
-parser print trace
-             ^^^^^
-LINE_BREAK: line 21:
-parser print trace
-                  ^
+^
 parser trace [- parser input]
 parser print trace:
     [ + warnings, - parser input, - parser output, + parser commands,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  7 14:40:21 EDT 2015
+// Date:	Mon Dec  7 02:24:39 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,6 +83,8 @@ extern min::locatable_var<ll::parser::input>
 // Tokens with the following types do NOT have their
 // lexeme's translation strings recorded in the token:
 //
+//	horizontal_before_comment_t
+//	horizontal_before_non_comment_t
 //	line_break_t
 //	end_of_file_t
 //
@@ -111,17 +113,35 @@ extern min::locatable_var<ll::parser::input>
 //	unrecognized_escape_t
 //	misplaced_horizontal_t
 //
-// Note that indentation and line breaks are implicitly
-// encoded in the token `begin' and `end' positions.
-// Also note that all tokens output by this input
-// closure except the line_break_t tokens are on a
-// single line.  Lastly note that natural_t tokens have
-// min::gen token values that are strings and not
-// numbers, in spite of the 1-1 correspondence between
-// natural lexeme numbers and strings.
+// The token position encodes the position of the token
+// lexeme string, even for tokens whose lexeme transla-
+// tion strings are discarded.  The indent of the first
+// character AFTER the token, or of the end of input, is
+// recorded in the token indent, for use with horizon-
+// tal_before_..._t tokens to determine line indent.
 //
-// This function may only be called if parser or
-// parser->scanner is NULL_STUB.  This function
+// When called this closure function adds tokens until
+// it has added a token of one of the types:
+//
+//	horizontal_before_comment_t
+//	horizontal_before_non_comment_t
+//	end_of_file_t
+//
+// This permits the scanner master table to be switched
+// just before the first non-horizontal-space lexeme
+// on a line is scanned.  This closure function may also
+// stop adding tokens after some reasonable number of
+// tokens, such as 100, have been added, to keep memory
+// usage within bounds (in case input contains a lot
+// of consecutive blank lines).
+//
+// Note that natural_t tokens have min::gen token values
+// that are strings and not numbers, in spite of the 1-1
+// correspondence between natural lexeme numbers and
+// strings.
+//
+// This init_input function may only be called if parser
+// or parser->scanner is NULL_STUB.  This function
 // creates ll::parser::default_standard_erroneous_atom/
 // input and executes:
 //

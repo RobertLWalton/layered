@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  3 05:26:48 EST 2015
+// Date:	Wed Dec  9 02:52:22 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -518,19 +518,24 @@ ll::parser::pass new_pass ( void );
 // subexpression, calling parser->input if more tokens
 // are needed.  Return the end position of any line
 // separator found (the line separator is deleted), or
-// PARAGRAPH_END if current token is a line feed pre-
-// ceeded by a blank line with possible intervening
-// comment lines, or min::MISSING_POSITION otherwise.
+// PARAGRAPH_END if current token is a horizontal before
+// non-comment token preceeded by a blank line with
+// possible intervening comment lines, or and end of
+// file, or min::MISSING_POSITION otherwise.  Note
+// that the first two returns only occur if they are
+// enabled by parsing options.
 //
 // The parsed subexpression is NOT compacted and tokens
 // in it are left untouched with the following excep-
-// tions.  Line breaks and comments are deleted.  After
-// doing this, consecutive quoted strings are merged if
-// the second is in the same line as the first or in
-// a continuation line following the line of the first.
-// Any subexpression terminating line separator is also
-// deleted.  Sub-subexpressions are identified and each
-// is replaced by a single BRACKETED token.
+// tions.  Line breaks, comments, and horizontal before
+// ... tokens are deleted.  After doing this, consecu-
+// tive quoted strings are merged if the second is in
+// the same line as the first or in a continuation line
+// following the line of the first.  Any subexpression
+// terminating line separator is also deleted.  Also
+// sub-subexpressions are identified and each is
+// replaced by a single BRACKETED, BRACKETABLE, or
+// DERIVED token.
 //
 // It is assumed that there are always more tokens
 // available via parser->input until an end-of-file
@@ -539,7 +544,13 @@ ll::parser::pass new_pass ( void );
 // is always a token immediately after the recognized
 // subexpression.  This token is returned as the updated
 // `current' argument value to mark the end of the
-// recognized subexpression.
+// recognized subexpression.  If this token is a hori-
+// zontal before non-comment token, no lexemes beyond
+// the lexeme of this token have been read, so the
+// lexical analyser can be reconfigured to read the
+// non-blank portion of the current line.
+//
+// TBD
 //
 // The token list, beginning with the initial value of
 // `current', is edited by this function.  The caller

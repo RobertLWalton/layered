@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  9 02:52:22 EST 2015
+// Date:	Thu Dec 10 03:39:40 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -550,8 +550,6 @@ ll::parser::pass new_pass ( void );
 // lexical analyser can be reconfigured to read the
 // non-blank portion of the current line.
 //
-// TBD
-//
 // The token list, beginning with the initial value of
 // `current', is edited by this function.  The caller
 // should save `current->previous' before calling this
@@ -584,20 +582,53 @@ ll::parser::pass new_pass ( void );
 // and also bracket entries whose closing brackets are
 // missing.
 //
-// An end of file, a line whose indent is not greater
-// than the `indent' argument, or a recognized line
-// separator matching the `line_sep' argument, causes
-// this function to return WITHOUT closing ANY bracket
-// stack entries.  A return without any closed bracket
-// stack entries is caused by an end file if `current'
-// is an end of file token.  It is caused by a line
-// with indent not greater than the `indent' argument if
-// `current' is a line break, in which case MISSING_
-// POSITION or PARAGRAPH_END is returned (see above).
-// And it is caused by a line separator if the returned
-// value is the position of the line separator, in which
-// case `current; is the token after the deleted line
-// separator.
+// An end of file, a recognized line separator matching
+// the `line_sep' argument, a non-indented line, or a
+// blank line can cause this function to return WITHOUT
+// closing ANY bracket stack entries, depending upon
+// parsing option settings.  The sequence of tokens
+// between the initial value of current->previous and
+// the final value of token is called the returned token
+// sequence, and may or may not be empty.  Given this,
+// a return without any closed bracket stack entries may
+// be caused by the following:
+//
+//   (1) An end file; `current' is an end of file token.
+//       If the EAPBREAK (end at pargraph break) option
+//       is on, PARAGRAPH_END is returned; else MISSING_
+//       POSITION is returned.  The returned token
+//       sequence may be empty.  `current' is the end of
+//       file token.
+//
+//   (2) If a blank line is encountered when the
+//       returned token sequence is NOT empty, and the
+//       EAPBREAK option is on, PARAGRAPH_END is
+//       returned.  `current' is the first horizontal
+//       before non-comment token after the blank line.
+//
+//   (3) If a horizontal before non-comment is encount-
+//       ered with indent == the indent argument and
+//       the EALEINDENT (end at less than or equal to
+//       indent) option is on, MISSING_POSITION is
+//       returned.  The returned token sequence may be
+//       empty.  `current' is the horizontal before non-
+//       comment token.
+//
+//   (4) If a horizontal before non-comment is encount-
+//       ered with indent < the indent argument and the
+//       EALTINDENT (end at less than indent) option OR
+//       the EALEINDENT option is on, MISSING_POSITION
+//       is returned.  The returned token sequence may
+//       be empty.  `current' is the horizontal before
+//       non-comment token.
+//
+//   (5) If a line separator equal to the line_sep
+//       argument is encountered and the EALSEP (end at
+//       line separator) option is on, the end position
+//       of the line separator is returned.  The
+//       returned token sequence may be empty.  The line
+//       separator is deleted, and `current' is set to
+//       immediately after its previous position.
 //
 // Closing brackets are only recognized if their
 // corresponding opening brackets are in the bracket
@@ -606,41 +637,14 @@ ll::parser::pass new_pass ( void );
 // same .type appears in the bracket stack above any
 // bracket entry in that stack.
 //
-// If the subexpression is terminated a line separator,
-// the line separator must be that of the `line_sep'
-// argument.  In this case `current' is positioned just
-// after the line separator, but the line separator
-// is removed, and the end position of the line sepa-
-// rator is returned.  NO bracket entries are closed.
-// If the `line_sep' argument is NULL_STUB, this feature
-// is disabled.  By default, the line_sep argument is
-// not used for parsing bracketed sub-subexpressions,
-// but is used for parsing prefix separator sub-sub-
-// expressions.  There is an opening bracket option to
-// override this default.
-//
-// If the subexpression is terminated by a line break
-// whose first following non-comment, non-line break
-// token T has indent <= the `indent' argument, then
-// `current' is positioned at the line break, all 
-// line break and comment tokens following this are
-// deleted, current->next is token T, min::MISSING_
-// POSITION is returned, and NO bracket entries are
-// closed.  If `indent' equals MINUS parser->indenta-
-// tion_offset, this feature is disabled.
-//
-// If the subexpression is terminated by an end-of-file,
-// `current' is positioned at the end-of-file, min::
-// MISSING_POSITION is returned, and NO bracket entries
-// are closed.
-//
 // This function calls itself recursively if it finds
 // an opening bracket, or an indentation mark, or a
 // prefix separator at the beginning of the subexpres-
 // sion.  The `selectors' argument determines which
 // opening bracket and indentation mark definitions are
 // active.  The `selectors' argument has no affect on
-// closing bracket or line separator recognition.
+// closing bracket, line separator, or typed bracket
+// middle recognition.
 //
 // If the subexpression is a typed bracketed subexpres-
 // sion, the `typed_opening' argument is not NULL_STUB,
@@ -659,10 +663,10 @@ ll::parser::pass new_pass ( void );
 // that started the sub-subexpression, and either the
 // reformatter or a subsequence call to `compact' wraps
 // all the tokens of the sub-subexpression into a single
-// BRACKETED or PREFIX token (even if this is an empty
-// list).  It also converts tokens with MISSING value
-// (quoted strings and numerics) in the result as per
-// `convert_token'.  If the opening_bracket is not a
+// BRACKETED, DERIVED, or PREFIX token (even if this is
+// an empty list).  It also converts tokens with MISSING
+// value (quoted strings and numerics) in the result as
+// per `convert_token'.  If the opening_bracket is not a
 // typed_opening, the resulting MIN object is given
 // the opening and closing brackets as its .initiator
 // and .terminator, and is NOT given a .type attribute.
@@ -670,20 +674,15 @@ ll::parser::pass new_pass ( void );
 // MIN object is given a .type attribute, but NO
 // .initiator or .terminator.
 //
-// If an opening_bracket has its `FULL_LINES' option on,
-// the recursive call to this function has a disabled
-// `indent', NULL_STUB line_sep argument, and a bracket
-// stack consisting solely of one entry for the opening
-// bracket.
-// 
 // Sub-subexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list
 // is a list of lines and has the indentation mark label
-// as its .type.  The inner lists are paragraph line
-// subexpressions and have "\n" as their .type, and if
-// they end with a line separator, have that as their
-// .terminator.  Inner lists that would be empty, with
-// just a "\n" .type and no .terminator, are deleted.
+// as its .initiator and min::INDENTED_PARAGRAPH() as
+// its .terminator.  The inner lists are paragraph line
+// subexpressions and have min::LOGICAL_LINE() as their
+// .initiator and "\n" or the line ending line separator
+// as their .terminator.  Inner lists that would be
+// empty a "\n" .terminator are deleted.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme
@@ -691,8 +690,9 @@ ll::parser::pass new_pass ( void );
 // a line break.
 //
 // This function is called at the top level with zero
-// indent, the `top_level_indentation_mark->line_sep'
-// which is `;', and bracket_stack == NULL.
+// indent, parser->selectors, `top_level_indentation_
+// mark->line_sep' which is `;', and bracket_stack =
+// NULL.
 //
 extern const min::position PARAGRAPH_END;
 

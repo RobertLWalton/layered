@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  8 04:00:00 EST 2015
+// Date:	Thu Dec 10 02:56:03 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -999,8 +999,9 @@ inline min::int32 relative_indent
 //     if current is horizontal_before_non_comment or
 //                   end-of-file:
 //
-//        if ! at_start and (parser->at_head or current
-//             is eof) and selectors & EAPBREAK:
+//        if ( ( ! at_start and parser->at_head )
+//               or current is eof)
+//             and selectors & EAPBREAK:
 //	     return PARAGRAPH_END
 //
 //        else if current is end-of-file:
@@ -1669,9 +1670,7 @@ min::position BRA::parse_bracketed_subexpression
 	     ||
 	     current->type == LEXSTD::end_of_file_t )
 	{
-	    if ( ! at_start
-	         &&
-		 ( parser->at_head
+	    if ( ( ( parser->at_head && ! at_start )
 		   ||
 		      current->type
 		   == LEXSTD::end_of_file_t )

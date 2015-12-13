@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 10 03:39:40 EST 2015
+// Date:	Sun Dec 13 00:45:07 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -518,22 +518,21 @@ ll::parser::pass new_pass ( void );
 // subexpression, calling parser->input if more tokens
 // are needed.  Return the end position of any line
 // separator found (the line separator is deleted), or
-// PARAGRAPH_END if current token is a horizontal before
-// non-comment token preceeded by a blank line with
-// possible intervening comment lines, or and end of
-// file, or min::MISSING_POSITION otherwise.  Note
-// that the first two returns only occur if they are
-// enabled by parsing options.
+// PARAGRAPH_END if current token is an indent token
+// preceeded by a blank line with possible intervening
+// comment lines or an end of file, or min::MISSING_
+// POSITION otherwise.  Note that the first two returns
+// only occur if they are enabled by parsing options.
 //
 // The parsed subexpression is NOT compacted and tokens
 // in it are left untouched with the following excep-
-// tions.  Line breaks, comments, and horizontal before
-// ... tokens are deleted.  After doing this, consecu-
-// tive quoted strings are merged if the second is in
-// the same line as the first or in a continuation line
-// following the line of the first.  Any subexpression
-// terminating line separator is also deleted.  Also
-// sub-subexpressions are identified and each is
+// tions.  Line breaks, comments, indent, and indent
+// before comment tokens are deleted.  After doing this,
+// consecutive quoted strings are merged if the second
+// is in the same line as the first or in a continuation
+// line following the line of the first.  Any subexpres-
+// sion terminating line separator is also deleted.
+// Also sub-subexpressions are identified and each is
 // replaced by a single BRACKETED, BRACKETABLE, or
 // DERIVED token.
 //
@@ -603,24 +602,22 @@ ll::parser::pass new_pass ( void );
 //   (2) If a blank line is encountered when the
 //       returned token sequence is NOT empty, and the
 //       EAPBREAK option is on, PARAGRAPH_END is
-//       returned.  `current' is the first horizontal
-//       before non-comment token after the blank line.
+//       returned.  `current' is the first indent token
+//       after the blank line.
 //
-//   (3) If a horizontal before non-comment is encount-
-//       ered with indent == the indent argument and
-//       the EALEINDENT (end at less than or equal to
-//       indent) option is on, MISSING_POSITION is
-//       returned.  The returned token sequence may be
-//       empty.  `current' is the horizontal before non-
-//       comment token.
+//   (3) If an indent token is encountered with indent
+//       == the indent argument and the EALEINDENT (end
+//       at less than or equal to indent) option is on,
+//       MISSING_POSITION is returned.  The returned
+//       token sequence may be empty.  `current' is the
+//       indent token.
 //
-//   (4) If a horizontal before non-comment is encount-
-//       ered with indent < the indent argument and the
-//       EALTINDENT (end at less than indent) option OR
-//       the EALEINDENT option is on, MISSING_POSITION
-//       is returned.  The returned token sequence may
-//       be empty.  `current' is the horizontal before
-//       non-comment token.
+//   (4) If an indent token is encountered with indent
+//       < the indent argument and the EALTINDENT (end
+//       at less than indent) option OR the EALEINDENT
+//       option is on, MISSING_POSITION is returned.
+//       The returned token sequence may be empty.
+//       `current' is the indent token.
 //
 //   (5) If a line separator equal to the line_sep
 //       argument is encountered and the EALSEP (end at

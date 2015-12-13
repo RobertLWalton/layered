@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  7 02:36:09 EST 2015
+// Date:	Sun Dec 13 00:46:36 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -282,10 +282,10 @@ struct token_struct
     min::uns32 indent;
         // Indent of the first character AFTER the
 	// token, or of the end of input.  Used in the
-	// horizontal_before_..._t tokens to determine
-	// line indent.  See ll_lexeme.h for details
-	// of how character and end of input indent is
-	// computed.
+	// indent_t and indent_before_comment_t tokens
+	// to determine line indent.  See ll_lexeme.h
+	// for details of how character and end of input
+	// indent is computed.
 
     const ll::parser::token next, previous;
         // Doubly linked list pointers for tokens.

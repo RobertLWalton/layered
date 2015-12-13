@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  8 03:55:37 EST 2015
+// Date:	Sun Dec 13 01:03:03 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1011,15 +1011,13 @@ void PAR::parse ( PAR::parser parser )
 	    ( * pass->begin_parse ) ( parser, pass );
     }
 
-    // Go to the first horizontal_before_non_comment_t
-    // or end_of_file_t token.
+    // Go to the first indent_t or end_of_file_t token.
     //
     parser->input->add_tokens
 	( parser, parser->input );
     PAR::token current = parser->first;
     MIN_REQUIRE ( current != NULL_STUB );
-    while (    current->type
-            != LEXSTD::horizontal_before_non_comment_t
+    while ( current->type != LEXSTD::indent_t
             &&
 	    current->type != LEXSTD::end_of_file_t )
     {
@@ -1057,12 +1055,11 @@ void PAR::parse ( PAR::parser parser )
         if ( current->type == LEXSTD::end_of_file_t )
 	    break;
 
-	// If horizontal before non-comment, then if
-	// first lexeme, complain if its indent is not
-	// 0, and delete it in any case.
+	// If indent token, then if first lexeme,
+	// complain if token indent is not 0, and delete
+	// it in any case.
 	//
-	if (    current->type
-	     == LEXSTD::horizontal_before_non_comment_t )
+	if ( current->type == LEXSTD::indent_t )
 	{
 	    if ( first_lexeme && current->indent != 0 )
 	    {

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  7 03:29:09 EST 2015
+// Date:	Sun Dec 13 00:54:19 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -257,8 +257,8 @@ static min::uns32 input_add_tokens
 	}
 	case LEXSTD::comment_t:
 	case LEXSTD::line_break_t:
-	case LEXSTD::horizontal_before_comment_t:
-	case LEXSTD::horizontal_before_non_comment_t:
+	case LEXSTD::indent_t:
+	case LEXSTD::indent_before_comment_t:
 	    break;
 	case LEXSTD::end_of_file_t:
 	    parser->eof = true;
@@ -305,10 +305,10 @@ static min::uns32 input_add_tokens
 	if ( token->type == LEXSTD::end_of_file_t
 	     ||
 	        token->type
-	     == LEXSTD::horizontal_before_comment_t
+	     == LEXSTD::indent_t
 	     ||
 	        token->type
-	     == LEXSTD::horizontal_before_non_comment_t
+	     == LEXSTD::indent_before_comment_t
 	     ||
 	     count >= 100
 	   )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 11:31:25 EST 2015
+// Date:	Sun Dec 13 01:04:35 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,11 +29,6 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 # define COM ll::parser::command
-
-# define h_before_comment_t \
-         horizontal_before_comment_t
-# define h_before_non_comment_t \
-         horizontal_before_non_comment_t
 
 static min::locatable_gen exclusive_or;
 static min::locatable_gen trace;
@@ -143,9 +138,9 @@ min::gen COM::scan_names
 		    ( 1ull << LEXSTD::
 			      horizontal_space_t )
 		  + ( 1ull << LEXSTD::
-		              h_before_comment_t )
+		              indent_before_comment_t )
 		  + ( 1ull << LEXSTD::
-		              h_before_non_comment_t )
+		              indent_t )
 		  + ( 1ull << LEXSTD::
 		              premature_end_of_file_t )
 		  + ( 1ull << LEXSTD::end_of_file_t ),
@@ -832,9 +827,9 @@ static min::gen execute_selectors
 		( 1ull << LEXSTD::
 			  horizontal_space_t )
 	      + ( 1ull << LEXSTD::
-			  h_before_comment_t )
+			  indent_before_comment_t )
 	      + ( 1ull << LEXSTD::
-			  h_before_non_comment_t )
+			  indent_t )
 	      + ( 1ull << LEXSTD::
 		          premature_end_of_file_t )
 	      + ( 1ull << LEXSTD::end_of_file_t ),
@@ -963,9 +958,9 @@ static min::gen execute_context
 		( 1ull << LEXSTD::
 			  horizontal_space_t )
 	      + ( 1ull << LEXSTD::
-			  h_before_comment_t )
+			  indent_before_comment_t )
 	      + ( 1ull << LEXSTD::
-			  h_before_non_comment_t )
+			  indent_t )
 	      + ( 1ull << LEXSTD::
 		          premature_end_of_file_t )
 	      + ( 1ull << LEXSTD::end_of_file_t ),

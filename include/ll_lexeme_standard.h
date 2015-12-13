@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 05:37:22 EST 2015
+// Date:	Sun Dec 13 00:41:00 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,12 +63,12 @@ namespace ll { namespace lexeme { namespace standard {
 	// horizontal tabs).  May not be empty.  Also
 	// the lexeme must not be in one of the
 	// following two categories.
-    const uns32 horizontal_before_comment_t	= 9;
+    const uns32 indent_before_comment_t		= 9;
 	// Ditto, but just before a comment on a
 	// line that contains nothing but a comment.
 	// There is always one of these lexemes on such
 	// a line.  May be empty.
-    const uns32 horizontal_before_non_comment_t	= 10;
+    const uns32 indent_t			= 10;
 	// Ditto, but just before the first graphic
 	// character on a line that contains a
 	// graphic character that is not in a comment.

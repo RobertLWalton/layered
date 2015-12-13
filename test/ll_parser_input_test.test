@@ -1,4 +1,4 @@
-HORIZONTAL_BEFORE_COMMENT: line 1:
+INDENT_BEFORE_COMMENT: line 1:
 // Layered Languages Standard Lexical Analyzer Test Data
 ^
 COMMENT: line 1:
@@ -7,7 +7,7 @@ COMMENT: line 1:
 LINE_BREAK: line 1:
 // Layered Languages Standard Lexical Analyzer Test Data
                                                         ^
-HORIZONTAL_BEFORE_COMMENT: line 2:
+INDENT_BEFORE_COMMENT: line 2:
 //
 ^
 COMMENT: line 2:
@@ -16,7 +16,7 @@ COMMENT: line 2:
 LINE_BREAK: line 2:
 //
   ^
-HORIZONTAL_BEFORE_COMMENT: line 3:
+INDENT_BEFORE_COMMENT: line 3:
 // File:        ll_lexeme_standard_test.in
 ^
 COMMENT: line 3:
@@ -25,7 +25,7 @@ COMMENT: line 3:
 LINE_BREAK: line 3:
 // File:        ll_lexeme_standard_test.in
                                           ^
-HORIZONTAL_BEFORE_COMMENT: line 4:
+INDENT_BEFORE_COMMENT: line 4:
 // Author:      Bob Walton (walton@acm.org)
 ^
 COMMENT: line 4:
@@ -34,7 +34,7 @@ COMMENT: line 4:
 LINE_BREAK: line 4:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
-HORIZONTAL_BEFORE_COMMENT: line 5:
+INDENT_BEFORE_COMMENT: line 5:
 // Date:        Fri Dec  4 02:15:06 EST 2015
 ^
 COMMENT: line 5:
@@ -43,7 +43,7 @@ COMMENT: line 5:
 LINE_BREAK: line 5:
 // Date:        Fri Dec  4 02:15:06 EST 2015
                                             ^
-HORIZONTAL_BEFORE_COMMENT: line 6:
+INDENT_BEFORE_COMMENT: line 6:
 //
 ^
 COMMENT: line 6:
@@ -52,7 +52,7 @@ COMMENT: line 6:
 LINE_BREAK: line 6:
 //
   ^
-HORIZONTAL_BEFORE_COMMENT: line 7:
+INDENT_BEFORE_COMMENT: line 7:
 // The authors have placed this data in the public
 ^
 COMMENT: line 7:
@@ -61,7 +61,7 @@ COMMENT: line 7:
 LINE_BREAK: line 7:
 // The authors have placed this data in the public
                                                   ^
-HORIZONTAL_BEFORE_COMMENT: line 8:
+INDENT_BEFORE_COMMENT: line 8:
 // domain; they make no warranty and accept no liability
 ^
 COMMENT: line 8:
@@ -70,7 +70,7 @@ COMMENT: line 8:
 LINE_BREAK: line 8:
 // domain; they make no warranty and accept no liability
                                                         ^
-HORIZONTAL_BEFORE_COMMENT: line 9:
+INDENT_BEFORE_COMMENT: line 9:
 // for this data.
 ^
 COMMENT: line 9:
@@ -82,7 +82,7 @@ LINE_BREAK: line 9:
 LINE_BREAK: line 10:
 <BLANK-LINE>
 ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 11:
+INDENT: line 11:
 abc 3.4+z (x,y)
 ^
 WORD: "abc": line 11:
@@ -103,7 +103,7 @@ abc 3.4+z (x,y)
 LINE_BREAK: line 11:
 abc 3.4+z (x,y)
                ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 12:
+INDENT: line 12:
 "hi" "ho<HT>x y<>z<LF>"
 ^
 QUOTED_STRING: "hi": line 12:
@@ -115,7 +115,7 @@ QUOTED_STRING: "ho␉x␣y<>z␊": line 12:
 LINE_BREAK: line 12:
 "hi" "ho<HT>x y<>z<LF>"
                        ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 13:
+INDENT: line 13:
 'tis noth'ng `but' a h'dache.
 ^
 WORD: "'tis": line 13:
@@ -145,7 +145,7 @@ SEPARATOR: ".": line 13:
 LINE_BREAK: line 13:
 'tis noth'ng `but' a h'dache.
                              ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 14:
+INDENT: line 14:
 a.1.2.3..b...c e5f x7+y6(5z)
 ^
 WORD: "a.1.2.3..b...c": line 14:
@@ -169,7 +169,7 @@ a.1.2.3..b...c e5f x7+y6(5z)
 LINE_BREAK: line 14:
 a.1.2.3..b...c e5f x7+y6(5z)
                             ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 15:
+INDENT: line 15:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
 ^
 NUMERIC: "12.3": line 15:
@@ -208,7 +208,7 @@ SEPARATOR: ":": line 15:
 LINE_BREAK: line 15:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
                                ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 16:
+INDENT: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
 ^
 NUMERIC: "1,23,456": line 16:
@@ -226,7 +226,7 @@ NUMERIC: "8888.12,3,4": line 16:
 LINE_BREAK: line 16:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                                                   ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 17:
+INDENT: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
 ^
 NUMERIC: "/3": line 17:
@@ -265,7 +265,7 @@ SEPARATOR: "'": line 17:
 LINE_BREAK: line 17:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                                            ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 18:
+INDENT: line 18:
 +-*~@#$%^&=<>_!?./:"foo"x<79><LF>
 ^
 MARK: "+-*~@#$%^&=<>_!?./": line 18:
@@ -283,7 +283,7 @@ WORD: "x<79><LF>": line 18:
 LINE_BREAK: line 18:
 +-*~@#$%^&=<>_!?./:"foo"x<79><LF>
                                  ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 19:
+INDENT: line 19:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
 ^
 WORD: ".foo": line 19:
@@ -325,7 +325,7 @@ ERROR: string ended by line break or end of file; line 19:
 LINE_BREAK: line 19:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                     ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 20:
+INDENT: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
 ^
 WORD: "a": line 20:
@@ -385,7 +385,7 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum'
 LINE_BREAK: line 20:
 a(b,c) d{e;f} g[h,i] ``foobar' fum'
                                    ^
-HORIZONTAL_BEFORE_COMMENT: line 21:
+INDENT_BEFORE_COMMENT: line 21:
 // form feed ␌
 ^
 COMMENT: line 21:
@@ -394,7 +394,7 @@ COMMENT: line 21:
 LINE_BREAK: line 21:
 // form feed ␌
              ^
-HORIZONTAL_BEFORE_COMMENT: line 22:
+INDENT_BEFORE_COMMENT: line 22:
 // vertical tab ␋
 ^
 COMMENT: line 22:
@@ -403,7 +403,7 @@ COMMENT: line 22:
 LINE_BREAK: line 22:
 // vertical tab ␋
                 ^
-HORIZONTAL_BEFORE_COMMENT: line 23:
+INDENT_BEFORE_COMMENT: line 23:
 // carriage return ␍
 ^
 COMMENT: line 23:
@@ -412,7 +412,7 @@ COMMENT: line 23:
 LINE_BREAK: line 23:
 // carriage return ␍
                    ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 24:
+INDENT: line 24:
 z       x // horizontal tab
 ^
 WORD: "z": line 24:
@@ -427,7 +427,7 @@ z       x // horizontal tab
 LINE_BREAK: line 24:
 z       x // horizontal tab
                            ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 25:
+INDENT: line 25:
 all     ␌␋␍
 ^
 WORD: "all": line 25:
@@ -436,7 +436,7 @@ all     ␌␋␍
 LINE_BREAK: line 25:
 all     ␌␋␍
         ^^^
-HORIZONTAL_BEFORE_NON_COMMENT: line 26:
+INDENT: line 26:
 control A␁B␂C␃
 ^
 WORD: "control": line 26:
@@ -463,7 +463,7 @@ control A␁B␂C␃
 LINE_BREAK: line 26:
 control A␁B␂C␃
               ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 27:
+INDENT: line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
 ^
 ERROR: in line 27: unrecognized escape sequence:
@@ -475,7 +475,7 @@ QUOTED_STRING: "<Q>␊␍␉␈␌␋␥␣â␁": line 27:
 LINE_BREAK: line 27:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                                              ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 28:
+INDENT: line 28:
 "<0041><00000042>C D<00000045><0046>G"
 ^
 QUOTED_STRING: "ABC␣DEFG": line 28:
@@ -484,7 +484,7 @@ QUOTED_STRING: "ABC␣DEFG": line 28:
 LINE_BREAK: line 28:
 "<0041><00000042>C D<00000045><0046>G"
                                       ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 29:
+INDENT: line 29:
 "<0041><000000B5>C D<000000E3><0006>G"
 ^
 QUOTED_STRING: "AµC␣Dã␆G": line 29:
@@ -493,7 +493,7 @@ QUOTED_STRING: "AµC␣Dã␆G": line 29:
 LINE_BREAK: line 29:
 "<0041><000000B5>C D<000000E3><0006>G"
                                       ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 30:
+INDENT: line 30:
 "<0001>"
 ^
 QUOTED_STRING: "␁": line 30:
@@ -502,7 +502,7 @@ QUOTED_STRING: "␁": line 30:
 LINE_BREAK: line 30:
 "<0001>"
         ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 31:
+INDENT: line 31:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
 ^
 QUOTED_STRING: "␀␁␂␃␄␅␆␇": line 31:
@@ -511,7 +511,7 @@ QUOTED_STRING: "␀␁␂␃␄␅␆␇": line 31:
 LINE_BREAK: line 31:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
                                           ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 32:
+INDENT: line 32:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
 ^
 QUOTED_STRING: "␈␉␊␊␋␌␍␎␏": line 32:
@@ -520,7 +520,7 @@ QUOTED_STRING: "␈␉␊␊␋␌␍␎␏": line 32:
 LINE_BREAK: line 32:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
                                       ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 33:
+INDENT: line 33:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
 ^
 QUOTED_STRING: "␐␑␒␓␔␕␖␗": line 33:
@@ -529,7 +529,7 @@ QUOTED_STRING: "␐␑␒␓␔␕␖␗": line 33:
 LINE_BREAK: line 33:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
                                           ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 34:
+INDENT: line 34:
 "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
 ^
 QUOTED_STRING: "␘␙␚␛␜␝␞␟␡": line 34:
@@ -538,7 +538,7 @@ QUOTED_STRING: "␘␙␚␛␜␝␞␟␡": line 34:
 LINE_BREAK: line 34:
 "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
                                            ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 35:
+INDENT: line 35:
 "misplaced control ␁"
 ^
 ERROR: in line 35: illegal control character sequence:
@@ -550,7 +550,7 @@ QUOTED_STRING: "misplaced␣control␣␁": line 35:
 LINE_BREAK: line 35:
 "misplaced control ␁"
                      ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 36:
+INDENT: line 36:
 misplaced space ␌ here and ␍ here
 ^
 WORD: "misplaced": line 36:
@@ -577,7 +577,7 @@ misplaced space ␌ here and ␍ here
 LINE_BREAK: line 36:
 misplaced space ␌ here and ␍ here
                                  ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 37:
+INDENT: line 37:
 =<9=<8
 ^
 NUMERIC: "=<9=<8": line 37:
@@ -586,7 +586,7 @@ NUMERIC: "=<9=<8": line 37:
 LINE_BREAK: line 37:
 =<9=<8
       ^
-HORIZONTAL_BEFORE_COMMENT: line 38:
+INDENT_BEFORE_COMMENT: line 38:
 // blank line follows
 ^
 COMMENT: line 38:
@@ -598,7 +598,7 @@ LINE_BREAK: line 38:
 LINE_BREAK: line 39:
 <BLANK-LINE>
 ^
-HORIZONTAL_BEFORE_COMMENT: line 40:
+INDENT_BEFORE_COMMENT: line 40:
 // blank line with spaces follows
 ^
 COMMENT: line 40:
@@ -610,7 +610,7 @@ LINE_BREAK: line 40:
 LINE_BREAK: line 41:
 <BLANK-LINE>
      ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 42:
+INDENT: line 42:
 "premature end of line
 ^
 QUOTED_STRING: "premature␣end␣of␣line": line 42:
@@ -622,7 +622,7 @@ ERROR: string ended by line break or end of file; line 42:
 LINE_BREAK: line 42:
 "premature end of line
                       ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 43:
+INDENT: line 43:
 "premature end of file<END-OF-FILE>
 ^
 QUOTED_STRING: "premature␣end␣of␣file": line 43:

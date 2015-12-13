@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 11:01:05 EST 2015
+// Date:	Sun Dec 13 01:17:57 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,7 @@ cc
 cc	const min::Uchar UUC[1] =
 cc	    { min::UNKNOWN_UCHAR };
 cc
+cc	# define indent_bc_t indent_before_comment_t
 
 // Program Construction
 // ------- ------------
@@ -61,8 +62,8 @@ cc	    "QUOTED_STRING",
 cc	    "SEPARATOR",
 cc	    "COMMENT",
 cc	    "HORIZONTAL_SPACE",
-cc	    "HORIZONTAL_BEFORE_COMMENT",
-cc	    "HORIZONTAL_BEFORE_NON_COMMENT",
+cc	    "INDENT_BEFORE_COMMENT",
+cc	    "INDENT",
 cc	    "LINE_BREAK",
 cc	    "END_OF_FILE",
 cc	    "PREMATURE_END_OF_STRING",
@@ -86,11 +87,6 @@ cc
 lex
 lex	begin standard lexical program;
 lex
-cc	# define h_before_comment_t \
-cc	         horizontal_before_comment_t
-cc	# define h_before_non_comment_t \
-cc	         horizontal_before_non_comment_t
-cc
 cc	    begin_program
 cc		( type_names, type_codes, MAX_TYPE );
 cc
@@ -337,22 +333,19 @@ cc
 cc		      NDL::begin_dispatch ( "/" );
 cc		         NDL::begin_dispatch ( "/" );
 cc		            NDL::keep ( 1 );
-cc		            NDL::output
-cc			       ( h_before_comment_t );
+cc		            NDL::output ( indent_bc_t );
 cc		            NDL::go
 cc			       ( horizontal_space );
 cc		         NDL::end_dispatch();
 cc		         NDL::keep ( 1 );
-cc		         NDL::output
-cc			    ( h_before_non_comment_t );
+cc		         NDL::output ( indent_t );
 cc		         NDL::go ( horizontal_space );
 cc		      NDL::end_dispatch();
 cc
 cc		      NDL::begin_dispatch();
 cc		         NON_SLASH_GRAPHIC;
 cc		         NDL::keep ( 1 );
-cc		         NDL::output
-cc			    ( h_before_non_comment_t );
+cc		         NDL::output ( indent_t );
 cc		         NDL::go ( horizontal_space );
 cc		      NDL::end_dispatch();
 cc
@@ -375,20 +368,17 @@ lex
 cc		   NDL::begin_dispatch ( "/" );
 cc		      NDL::begin_dispatch ( "/" );
 cc		         NDL::keep ( 0 );
-cc		         NDL::output
-cc			       ( h_before_comment_t );
+cc		         NDL::output ( indent_bc_t );
 cc		         NDL::go ( within_line );
 cc		      NDL::end_dispatch();
 cc		      NDL::keep ( 0 );
-cc		      NDL::output
-cc			    ( h_before_non_comment_t );
+cc		      NDL::output ( indent_t );
 cc		      NDL::go ( within_line );
 cc		   NDL::end_dispatch();
 cc		   NDL::begin_dispatch();
 cc		      NON_SLASH_GRAPHIC;
 cc		      NDL::keep ( 0 );
-cc		      NDL::output
-cc			    ( h_before_non_comment_t );
+cc		      NDL::output ( indent_t );
 cc		      NDL::go ( within_line );
 cc		   NDL::end_dispatch();
 cc

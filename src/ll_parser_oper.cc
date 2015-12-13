@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 11:35:32 EST 2015
+// Date:	Sun Dec 13 01:06:19 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,11 +30,6 @@
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define OP ll::parser::oper
-
-# define h_before_comment_t \
-         horizontal_before_comment_t
-# define h_before_non_comment_t \
-         horizontal_before_non_comment_t
 
 min::locatable_gen OP::dollar;
 min::locatable_gen OP::AND;
@@ -1685,9 +1680,9 @@ static min::gen oper_pass_command
 		    ( 1ull << LEXSTD::
 			      horizontal_space_t )
 		  + ( 1ull << LEXSTD::
-		              h_before_comment_t )
+		              indent_before_comment_t )
 		  + ( 1ull << LEXSTD::
-		              h_before_non_comment_t )
+		              indent_t )
 	          + ( 1ull << LEXSTD::
 		              premature_end_of_file_t )
 	          + ( 1ull << LEXSTD::end_of_file_t ),

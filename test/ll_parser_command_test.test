@@ -42,7 +42,7 @@ parser print trace
 LINE_BREAK: line 19:
 parser print trace
                   ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 20:
+INDENT: line 20:
 parser trace [- parser input]
 ^
 parser print trace:
@@ -73,7 +73,7 @@ parser trace [- parser input]
 LINE_BREAK: line 20:
 parser trace [- parser input]
                              ^
-HORIZONTAL_BEFORE_NON_COMMENT: line 21:
+INDENT: line 21:
 parser print trace
 ^
 parser trace [- parser input]

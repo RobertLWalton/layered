@@ -9,8 +9,8 @@
                  6: SEPARATOR
                  7: COMMENT
                  8: HORIZONTAL_SPACE
-                 9: HORIZONTAL_BEFORE_COMMENT
-                10: HORIZONTAL_BEFORE_NON_COMMENT
+                 9: INDENT_BEFORE_COMMENT
+                10: INDENT
                 11: LINE_BREAK
                 12: END_OF_FILE
                 13: PREMATURE_END_OF_STRING
@@ -24,11 +24,11 @@
             Mode: MASTER
             Dispatcher ID: ####
             ####: OUTPUT(14), GOTO(####)
-   #######: TABLE
+    ######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
             #####: OUTPUT(14), GOTO(####)
-   #######: TABLE
+    ######: TABLE
             Mode: NONE
             Dispatcher ID: ####
             ####: GOTO(####)
@@ -3964,35 +3964,35 @@
  #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-HORIZONTAL_BEFORE_COMMENT 0(0)0: <empty>
+INDENT_BEFORE_COMMENT 0(0)0: <empty>
 COMMENT 0(0)0: //␣Layered␣Languages␣Standard␣Lexical␣Analyzer␣Test␣Data
 LINE_BREAK 0(56): ␊
-HORIZONTAL_BEFORE_COMMENT 1(0)0: <empty>
+INDENT_BEFORE_COMMENT 1(0)0: <empty>
 COMMENT 1(0)0: //
 LINE_BREAK 1(2): ␊
-HORIZONTAL_BEFORE_COMMENT 2(0)0: <empty>
+INDENT_BEFORE_COMMENT 2(0)0: <empty>
 COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in
 LINE_BREAK 2(35): ␊
-HORIZONTAL_BEFORE_COMMENT 3(0)0: <empty>
+INDENT_BEFORE_COMMENT 3(0)0: <empty>
 COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
 LINE_BREAK 3(38): ␊
-HORIZONTAL_BEFORE_COMMENT 4(0)0: <empty>
+INDENT_BEFORE_COMMENT 4(0)0: <empty>
 COMMENT 4(0)0: //␣Date:␉Fri␣Dec␣␣4␣02:15:06␣EST␣2015
 LINE_BREAK 4(37): ␊
-HORIZONTAL_BEFORE_COMMENT 5(0)0: <empty>
+INDENT_BEFORE_COMMENT 5(0)0: <empty>
 COMMENT 5(0)0: //
 LINE_BREAK 5(2): ␊
-HORIZONTAL_BEFORE_COMMENT 6(0)0: <empty>
+INDENT_BEFORE_COMMENT 6(0)0: <empty>
 COMMENT 6(0)0: //␣The␣authors␣have␣placed␣this␣data␣in␣the␣public
 LINE_BREAK 6(50): ␊
-HORIZONTAL_BEFORE_COMMENT 7(0)0: <empty>
+INDENT_BEFORE_COMMENT 7(0)0: <empty>
 COMMENT 7(0)0: //␣domain;␣they␣make␣no␣warranty␣and␣accept␣no␣liability
 LINE_BREAK 7(56): ␊
-HORIZONTAL_BEFORE_COMMENT 8(0)0: <empty>
+INDENT_BEFORE_COMMENT 8(0)0: <empty>
 COMMENT 8(0)0: //␣for␣this␣data.
 LINE_BREAK 8(17): ␊
 LINE_BREAK 9(0)0: ␊
-HORIZONTAL_BEFORE_NON_COMMENT 10(0)0: <empty>
+INDENT 10(0)0: <empty>
 WORD 10(0)0: abc
 HORIZONTAL_SPACE 10(3): ␣
 NUMERIC 10(4): 3.4+z
@@ -4001,12 +4001,12 @@ SEPARATOR 10(10): (
 WORD 10(11): x,y
 SEPARATOR 10(14): )
 LINE_BREAK 10(15): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 11(0)0: <empty>
+INDENT 11(0)0: <empty>
 QUOTED_STRING 11(0)0: "hi" translated to: hi
 HORIZONTAL_SPACE 11(4): ␣
 QUOTED_STRING 11(5): "ho<HT>x␣y<>z<LF>" translated to: ho␉x␣y<>z␊
 LINE_BREAK 11(23): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 12(0)0: <empty>
+INDENT 12(0)0: <empty>
 WORD 12(0)0: 'tis
 HORIZONTAL_SPACE 12(4): ␣
 WORD 12(5): noth'ng
@@ -4020,7 +4020,7 @@ HORIZONTAL_SPACE 12(20): ␣
 WORD 12(21): h'dache
 SEPARATOR 12(28): .
 LINE_BREAK 12(29): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 13(0)0: <empty>
+INDENT 13(0)0: <empty>
 WORD 13(0)0: a.1.2.3..b...c
 HORIZONTAL_SPACE 13(14): ␣
 WORD 13(15): e5f
@@ -4030,7 +4030,7 @@ SEPARATOR 13(24): (
 NUMERIC 13(25): 5z
 SEPARATOR 13(27): )
 LINE_BREAK 13(28): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 14(0)0: <empty>
+INDENT 14(0)0: <empty>
 NUMERIC 14(0)0: 12.3
 HORIZONTAL_SPACE 14(4): ␣
 NUMERIC 14(5): .4
@@ -4047,7 +4047,7 @@ SEPARATOR 14(18): ||
 NUMERIC 14(20): 4:5::6:A:B
 SEPARATOR 14(30): :
 LINE_BREAK 14(31): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 15(0)0: <empty>
+INDENT 15(0)0: <empty>
 NUMERIC 15(0)0: 1,23,456
 HORIZONTAL_SPACE 15(8): ␣
 NUMERIC 15(9): 1,234/6,789
@@ -4056,7 +4056,7 @@ NUMERIC 15(21): 1/2/3/4,5/6,7,8/9
 HORIZONTAL_SPACE 15(38): ␣
 NUMERIC 15(39): 8888.12,3,4
 LINE_BREAK 15(50): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 16(0)0: <empty>
+INDENT 16(0)0: <empty>
 NUMERIC 16(0)0: /3
 HORIZONTAL_SPACE 16(2): ␣
 NUMERIC 16(3): 6.34.56/
@@ -4076,13 +4076,13 @@ HORIZONTAL_SPACE 16(33): ␣
 NUMERIC 16(34): '1'2'3'4
 SEPARATOR 16(42): '
 LINE_BREAK 16(43): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 17(0)0: <empty>
+INDENT 17(0)0: <empty>
 MARK 17(0)0: +-*~@#$%^&=<>_!?./
 SEPARATOR 17(18): :
 QUOTED_STRING 17(19): "foo" translated to: foo
 WORD 17(24): x<79><LF>
 LINE_BREAK 17(33): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 18(0)0: <empty>
+INDENT 18(0)0: <empty>
 WORD 18(0)0: .foo
 HORIZONTAL_SPACE 18(4): ␣
 WORD 18(5): /foo
@@ -4106,7 +4106,7 @@ HORIZONTAL_SPACE 18(49): ␣
 QUOTED_STRING 18(50): "' translated to: '
 PREMATURE_END_OF_STRING 18(52): <empty>
 LINE_BREAK 18(52): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 19(0)0: <empty>
+INDENT 19(0)0: <empty>
 WORD 19(0)0: a
 SEPARATOR 19(1): (
 WORD 19(2): b,c
@@ -4130,27 +4130,27 @@ HORIZONTAL_SPACE 19(30): ␣
 WORD 19(31): fum
 SEPARATOR 19(34): '
 LINE_BREAK 19(35): ␊
-HORIZONTAL_BEFORE_COMMENT 20(0)0: <empty>
+INDENT_BEFORE_COMMENT 20(0)0: <empty>
 COMMENT 20(0)0: //␣form␣feed␣
 LINE_BREAK 20(13): ␌␊
-HORIZONTAL_BEFORE_COMMENT 21(0)0: <empty>
+INDENT_BEFORE_COMMENT 21(0)0: <empty>
 COMMENT 21(0)0: //␣vertical␣tab␣
 LINE_BREAK 21(16): ␋␊
-HORIZONTAL_BEFORE_COMMENT 22(0)0: <empty>
+INDENT_BEFORE_COMMENT 22(0)0: <empty>
 COMMENT 22(0)0: //␣carriage␣return␣
 LINE_BREAK 22(19): ␍␊
-HORIZONTAL_BEFORE_NON_COMMENT 23(0)0: <empty>
+INDENT 23(0)0: <empty>
 WORD 23(0)0: z
 HORIZONTAL_SPACE 23(1): ␉
 WORD 23(2): x
 HORIZONTAL_SPACE 23(3): ␣
 COMMENT 23(4): //␣horizontal␣tab
 LINE_BREAK 23(21): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 24(0)0: <empty>
+INDENT 24(0)0: <empty>
 WORD 24(0)0: all
 HORIZONTAL_SPACE 24(3): ␣␉
 LINE_BREAK 24(5): ␌␋␍␊
-HORIZONTAL_BEFORE_NON_COMMENT 25(0)0: <empty>
+INDENT 25(0)0: <empty>
 WORD 25(0)0: control
 HORIZONTAL_SPACE 25(7): ␣
 WORD 25(8): A
@@ -4160,44 +4160,44 @@ ILLEGAL_CONTROL 25(11): ␂
 WORD 25(12): C
 ILLEGAL_CONTROL 25(13): ␃
 LINE_BREAK 25(14): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 26(0)0: <empty>
+INDENT 26(0)0: <empty>
 ERRONEOUS ATOM: UNRECOGNIZED_ESCAPE 26(28): <XX>
 QUOTED_STRING 26(0)0: "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
      translated to: "␊␍␉␈␌␋␥␣â␁
 LINE_BREAK 26(45): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 27(0)0: <empty>
+INDENT 27(0)0: <empty>
 QUOTED_STRING 27(0)0: "<0041><00000042>C␣D<00000045><0046>G"
      translated to: ABC␣DEFG
 LINE_BREAK 27(38): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 28(0)0: <empty>
+INDENT 28(0)0: <empty>
 QUOTED_STRING 28(0)0: "<0041><000000B5>C␣D<000000E3><0006>G"
      translated to: AµC␣Dã␆G
 LINE_BREAK 28(38): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 29(0)0: <empty>
+INDENT 29(0)0: <empty>
 QUOTED_STRING 29(0)0: "<0001>" translated to: ␁
 LINE_BREAK 29(8): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 30(0)0: <empty>
+INDENT 30(0)0: <empty>
 QUOTED_STRING 30(0)0: "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
      translated to: ␀␁␂␃␄␅␆␇
 LINE_BREAK 30(42): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 31(0)0: <empty>
+INDENT 31(0)0: <empty>
 QUOTED_STRING 31(0)0: "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
      translated to: ␈␉␊␊␋␌␍␎␏
 LINE_BREAK 31(38): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 32(0)0: <empty>
+INDENT 32(0)0: <empty>
 QUOTED_STRING 32(0)0: "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
      translated to: ␐␑␒␓␔␕␖␗
 LINE_BREAK 32(42): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 33(0)0: <empty>
+INDENT 33(0)0: <empty>
 QUOTED_STRING 33(0)0: "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
      translated to: ␘␙␚␛␜␝␞␟␡
 LINE_BREAK 33(43): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 34(0)0: <empty>
+INDENT 34(0)0: <empty>
 ERRONEOUS ATOM: ILLEGAL_CONTROL 34(19): ␁
 QUOTED_STRING 34(0)0: "misplaced␣control␣␁"
      translated to: misplaced␣control␣␁
 LINE_BREAK 34(21): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 35(0)0: <empty>
+INDENT 35(0)0: <empty>
 WORD 35(0)0: misplaced
 HORIZONTAL_SPACE 35(9): ␣
 WORD 35(10): space
@@ -4212,24 +4212,24 @@ MISPLACED_VERTICAL 35(27): ␍
 HORIZONTAL_SPACE 35(28): ␣
 WORD 35(29): here
 LINE_BREAK 35(33): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 36(0)0: <empty>
+INDENT 36(0)0: <empty>
 NUMERIC 36(0)0: =<9=<8
 LINE_BREAK 36(6): ␊
-HORIZONTAL_BEFORE_COMMENT 37(0)0: <empty>
+INDENT_BEFORE_COMMENT 37(0)0: <empty>
 COMMENT 37(0)0: //␣blank␣line␣follows
 LINE_BREAK 37(21): ␊
 LINE_BREAK 38(0)0: ␊
-HORIZONTAL_BEFORE_COMMENT 39(0)0: <empty>
+INDENT_BEFORE_COMMENT 39(0)0: <empty>
 COMMENT 39(0)0: //␣blank␣line␣with␣spaces␣follows
 LINE_BREAK 39(33): ␊
 HORIZONTAL_SPACE 40(0)0: ␣␣␣␣␣
 LINE_BREAK 40(5)5: ␊
-HORIZONTAL_BEFORE_NON_COMMENT 41(0)0: <empty>
+INDENT 41(0)0: <empty>
 QUOTED_STRING 41(0)0: "premature␣end␣of␣line
      translated to: premature␣end␣of␣line
 PREMATURE_END_OF_STRING 41(22): <empty>
 LINE_BREAK 41(22): ␊
-HORIZONTAL_BEFORE_NON_COMMENT 42(0)0: <empty>
+INDENT 42(0)0: <empty>
 QUOTED_STRING 42(0)0: "premature␣end␣of␣file
      translated to: premature␣end␣of␣file
 PREMATURE_END_OF_STRING 42(22): <empty>

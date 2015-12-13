@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 3, 2015
+December 13, 2015
  
 \end{center}
 
@@ -319,14 +319,49 @@ more likely to fit together.
 
 The standard scanner operates on an input stream of 32-bit
 UNICODE characters.  Each character is associated with
-a position value that specifies from where the character
-came.  For example, a position value may encode a file name,
-line-within-file number, and column-within-line number.\footnote{
-Currently positions encode a byte-within-line number from which the
-column-within-line number may be derived.}
+a \mkey{position}{of character}\label{POSITION-OF-CHARACTER}
+that specifies the location of the
+character within its file.  Specifically, a position encodes
+a line-within-file number and byte-within-line offset.
 The standard scanner identifies a lexeme as a consecutive sequence
 of input stream UNICODE 32-bit characters with
 corresponding consecutive position values.
+
+The \mkey{line number}{of input character} of a character is 1 plus the
+number of {\em line-feeds} preceeding the character.
+The \mkey{byte offset}{of input character} of a character is the number
+of bytes before the character but after the first {\em line-feed}
+preceeding the character, or after the beginning of input if there
+is no such {\em line-feed}.  The first line in a file has line number \TT{1}
+and the first character in a line has byte offset \TT{0}.
+
+The standard scanner also computes an
+\mkey{indent}{of input character}\label{INDENT-OF-CHARACTER}
+for each input character.  This
+is the sum of the columns taken by all the
+characters before the character and after
+the first {\em line-feed} preceeding the
+character, or after the beginning of input if there is no such {\em line-feed}.
+The first character in a line has indent \TT{0}.
+
+For the purpose of computing indents,
+characters in UNICODE subcategories \TT{Mn} (combining marks)
+and \TT{Me} (enclosing marks),
+and {\em control-characters} that are not
+{\em horizontal-space-characters}, take zero columns.  All other characters
+take one column, except for horizontal tab, which takes from
+1 to 7 columns, with tabs being set every 8 columns in the line,
+so the indent of the character after a horizontal tab
+is always divisible by 8.
+
+However for the purposes of printing a line,
+the column in which a character is printed
+depends upon both the position of the character
+and the format in which the line is printed, and may not be the
+same as the character's indent.  For example,
+horizontal tab may be printed as 1 to 7 blank columns or
+in a single column as
+{\tiny $\stackrel{\textstyle H~~~}{~~~T}$}.
 
 The standard scanner also produces a translation of each
 lexeme.  This may just be a copy of the 32-bit characters
@@ -538,7 +573,7 @@ To scan a lexeme: \\
 	   \end{tabular} \\
         ~~~~~~~~terminate loop \\
         if \TT{current} \TT{lexical} \TT{table} is a lexeme table: \\
-        ~~~~~~~~set \TT{current} \TT{lexical} \TT{lexeme} \TT{type} to the
+        ~~~~~~~~set \TT{current} \TT{lexeme} \TT{type} to the
 	        lexeme table type \\
         find the longest atom beginning at the \TT{input} \TT{position} \\
         ~~~~~~~~that matches an atom pattern in the \TT{current} \TT{lexical}
@@ -684,7 +719,7 @@ feed, etc.), but is not itself a lexeme:
 other than single
 space are illegal inside {\em quoted-string} lexemes (defined below).
 {\em Vertical-space} that has \underline{no} {\em line-feeds} is
-illegal.
+illegal (see below).
 {\em Control-characters} not in {\em white-space} are illegal.
 Characters that have no UNICODE category are {\em unrecognized-characters}
 and are illegal:
@@ -707,7 +742,8 @@ and are illegal:
 \emkey{unrecognized-character} :::=
     \begin{tabular}[t]{l}
     UNICODE character with no UNICODE category or \\
-    with a category not mentioned above
+    with a category other than
+    \TT{L}, \TT{M}, \TT{N}, \TT{P}, \TT{S}, \TT{C}, or \TT{Z}
     \end{tabular}
 \end{indpar}
 
@@ -737,32 +773,13 @@ warning messages.  If the warning messages are turned off, these
 sequences can be included in {\em quoted-strings} and {\em comments}
 just like other characters can be included.
 
-The line number and beginning column of each input character is
-recorded for use in error messages.  The line number is 1 plus the
-number of {\em line-feeds} preceeding the character.  The column
-number of a character is the sum of the columns taken by all the
-characters between the first {\em vertical-space} preceeding the
-character (or beginning of input if there is no {\em vertical-space})
-and the character.
-Characters in UNICODE subcategories \TT{Mn} (combining marks)
-and \TT{Me} (enclosing marks),
-and {\em control-characters} that are not
-{\em horizontal-space-characters} take zero columns.  All other characters
-take one column, except for horizontal tab, which takes from
-1 to 7 columns, with tabs being set every 8 columns in the line,
-so the column number of the character after a horizontal tab
-is always divisible by 8.
-
-Lexemes are tagged with the line number and column of their first
-character and of the first character after the lexeme (which may be
-an imaginary end-of-file character after the end of the input).
-
-Note that line numbers begin at 1 while column numbers begin at 0.
-
-The beginning column of the first
-lexeme on a line is also used syntactically to determine
-indentation.  Line numbers are used syntactically to identify line ends
-and blank lines.
+Lexemes may be tagged with the position
+(\pagref{POSITION-OF-CHARACTER})
+and/or indent (\pagref{INDENT-OF-CHARACTER})
+of their first character
+and of the first character after the lexeme.  The second
+or both of these characters
+may be an imaginary end-of-file character after the end of the input.
 
 The lexemes in a lexical program are specified in
 Figure~\itemref{LEXEME-PROGRAM-LEXEMES}.  This specification assumes there
@@ -778,8 +795,17 @@ and sometimes must be separated by {\em white-space}.
 {\em Comments} are treated as lexemes, but are discarded before the
 lexeme stream is transmitted to the parser.
 
-Consecutive quoted string lexemes are glued together if they are in the
-same (possibly continued) line.  Thus
+The lexemes are organized into \skey{logical line}s.  Most of these
+consist of a single non-indented input line.  Indented lines continue
+the previous logical line.  A `\TT{;}' ends a logical line, as does
+an end of file.  In syntax equations such as
+those of Figure~\itemref{LEXEME-PROGRAM-LEXEMES},
+the end of a logical line is denoted by `\TT{;}', but in examples
+it is usually denoted by line indentation.
+
+\ikey{Consecutive quoted string lexemes}{quoted strings!consecutive}
+are glued together if they are in the
+same logical line.  Thus
 \begin{indpar}\begin{verbatim}
 "This is a longer sentence"
     " than we would like."
@@ -904,14 +930,19 @@ from a {\em lexical-item}.  The lexical scan first scans a
 Also {\em trailing-separators} are removed
 from the end of a {\em lexical-item} by a right-to-left scan, and not
 the usual left-to-right scan which is used for everything else.
-Thus the {\em lexical-item} `\TT{\$\$4,987,,::}' yields the
-{\em leading-separator} `\TT{\$\$}', the {\em middle-lexeme} `\TT{4,987}',
-and the three {\em trailing-separators} `\TT{,}' `\TT{,}' and `\TT{::}'.%
+Thus the {\em lexical-item}
+`\TT{\textquestiondown 4,987?,{},::}' yields the
+{\em leading-separator} `\TT{\textquestiondown}',
+the {\em middle-lexeme} `\TT{4,987}',
+and the four {\em trailing-separators} `\TT{?}',
+`\TT{,}' `\TT{,}' and `\TT{::}'.%
 \footnote{It is possible to use a strictly left to right scan with
 backup over lexical atoms to perform
 the right to left removal of {\em trailing-separators} from a
-{\em lexical-item}, by recoginzing a sequence of
-{\em trailing-separator-characters}
+{\em lexical-item}, by recognizing a sequence of
+{\em trailing-separator-characters} not followed by a
+{\em lexical-item-character} that is not a
+{\em trailing-separator-character}
 as an atom that is backed up over and rescanned:
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 
@@ -1013,7 +1044,7 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 \label{LEXEME-PROGRAM-SYNTAX-1}
 \end{boxedfigure}
 
-\begin{boxedfigure}[!t]
+\begin{boxedfigure}[!p]
 \begin{indpar}
 \emkey{default-instruction-group}
 	::= {\em empty} $|$ {\em instruction-group}

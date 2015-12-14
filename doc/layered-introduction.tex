@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 13, 2015
+December 14, 2015
  
 \end{center}
 
@@ -715,6 +715,44 @@ feed, etc.), but is not itself a lexeme:
 \emkey{vertical-space} :::= {\em vertical-space-character}\PLUS{}
 \end{indpar}
 
+Two kinds of {\em horizontal-space} are given special distinction:
+\begin{indpar}
+\emkey{indent} ::=
+	\begin{tabular}[t]{l}
+        {\em horizontal-space} just before the first \\
+	non-comment {\em graphic} character on a line
+	\end{tabular}
+\\[0.3ex]
+\emkey{indent-before-comment} ::=
+	\begin{tabular}[t]{l}
+	{\em horizontal-space} just before a comment \\
+        on a line containing just a comment
+	\end{tabular}
+\end{indpar}
+
+These \skey{indent lexeme}s are unique in that they can be empty
+(have no characters).  The are used to commumicate the indent of
+the first character after the indent lexeme to the parser.
+If a parser is using line indentation to
+determine when a logical line ends (see \itemref{LOGICAL-LINES}),
+the parser can read lexemes till it reads an indent lexeme
+whose after-lexeme character, the first graphic on the line,
+has an indent not greater than the indent of the logical line being read
+(lines with greater indent are continuation lines).
+
+One kind of {\em vertical-space} is given special distinction:
+\begin{indpar}
+\emkey{line-break} ::=
+	\begin{tabular}[t]{l}
+        {\em vertical-space} containing exactly one {\em line-feed}
+	\end{tabular}
+\end{indpar}
+
+Non-indent, non-line-break {\em whitespace-space} lexemes, such as occur
+in the middle of text or code, are usually ignored
+by the parser, though they are still used during lexical scanning
+to separate other lexemes.
+
 {\em Horizontal-\EOL space-\EOL characters}\label{ILLEGAL-CHARACTERS}
 other than single
 space are illegal inside {\em quoted-string} lexemes (defined below).
@@ -761,8 +799,8 @@ but are otherwise like {\em horizontal-space}:
 \emkey{unrecognized} :::= {\em unrecognized-character}\PLUS{}
 \end{indpar}
 
-{\em Misplaced-horizontal} is only illegal inside a {\em quoted-string},
-but the other three sequences are illegal everywhere.  When illegal
+{\em Misplaced-horizontal} only exists inside a {\em quoted-string},
+but the other three sequences can appear anywhere.  When they occur,
 these strings generate warning messages, but otherwise they behave
 like {\em horizontal-space}.  Specifically, outside {\em quoted-strings}
 and {\em comments} these sequences can be used to separate other lexemes,
@@ -1945,12 +1983,13 @@ A token has the following components:
 		  quoted string and numeric whose tokens
 		  have a \TT{string} equal
 		  to the lexeme translation string,
-		  and line break and end of file whose tokens have neither
+		  and comment, indent, line break, and end of file
+		  whose tokens have neither
 		  \TT{value} nor \TT{string}.
-		  Standardly whitespace and comment lexemes are
-		  not translated into tokens, and erroneous lexemes are
-		  announced when read by the parser
-		  but are not translated into tokens.
+		  Standardly non-indent, non-line-break
+		  whitespace lexemes and erroneous lexemes
+		  (which are announced when read)
+		  are not translated into tokens.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -1983,7 +2022,7 @@ A token has the following components:
 		  token whose MIN object value does \underline{not} have
 		  a \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 		  attribute.
-		  If such a token is to become the only element of a
+		  If such a token is to become the \underline{only} element of a
 		  containing subexpression that will have no attributes other
 		  than \TT{.type}, \TT{.initiator}, or \TT{.terminator}, 
 		  then instead of creating a new
@@ -2018,7 +2057,8 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 		& A \TT{DERIVED} token is a non-lexeme that which has
 		  a token \TT{value} that is \underline{not} a MIN object.
-		  For example, a label subexpression reformatter may
+		  For example, a label or special value
+		  subexpression reformatter may
 		  produce a \TT{DERIVED} token with a value that is
 		  a MIN label or a MIN special value.
 \end{tabular}
@@ -2082,32 +2122,25 @@ A token has the following components:
 		  input text.  A character position records a line number
 		  and the byte offset within a UTF-8 encoding
 		  of the line.  The column containing the character
-		  can then be computed from the line itself and the
-		  byte offset.
+		  can then be computed from the line itself, the format
+		  in which the line is being printed, and the
+		  byte offset of the character.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{indent}{of token}
-	        & The indentation (beginning column)
-		  of the token, for the first token of a line only.
-		  Calculated assuming characters in UNICODE category
-		  Zs are 1 column space characters (this includes
-		  the single space and non-breaking single space
-		  characters), horizontal tabs are every 8 columns,
-		  and other control and space characters take 0 columns.
-		  A special missing value if the token is not the
-		  first token on a line.
-		\\[1ex]
-		& Used by the bracketed subexpression recognizer
-		  to recognize indentation.
+	        & For an indent lexeme only,
+		  the indent of the first character after the lexeme.  See
+		  \pagref{INDENT-OF-CHARACTER}.
 \end{tabular}
 \end{indpar}
 
 Tokens are organized in a doubly threaded list.  A file is translated into
 such a list that ends with a token containing an end-of-file
 lexeme.
-The tokens of a file are not read in all at once, but are read in as
-needed.
+The tokens of a file are not read in all at once.  When more tokens
+are needed, they are read from the file until an indent or end of file
+token has been read.
 
 As the parser identifies subexpressions, the tokens in the
 subexpression are replaced by a single expression token (of
@@ -2131,10 +2164,8 @@ A \key{logical line} is a sequence of tokens that ends with one
 of the following as controlled by parser options described below:
 
 \begin{itemize}
-\item A line break followed by a line with indent equal to or less
-than the current indent.
-\item A line break followed by a line with indent less
-than the current indent.
+\item An indent equal to or less than the current indent.
+\item An indent less than the current indent.
 \item Any line break.
 \item Any blank line.
 \item A line separator, e.g.~`\TT{;}'.
@@ -2143,8 +2174,9 @@ than the current indent.
 
 The above makes use of the notion of a \key{current indent}.  At top
 level this is just \TT{0}.  An indented paragraph changes the current
-indent to the indent of the first token of the first logical line
-within the indented paragraph.  See
+indent to the indent of the first indent token within the indented
+paragraph (this is the indent of the first non-comment graphic character
+in the paragraph).  See
 Section~\itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS} for indented paragraph
 details.
 
@@ -2155,7 +2187,8 @@ of comment line and blank lines containing at least one blank line.
 Prefix separators, brackets, and indentation marks, all of which
 can be used to change syntax, can change the options that control
 what terminates a logical line.  Thus if at top level logical
-lines end with a line break followed by a non-indented line,
+lines end with a line break followed by a non-indented line
+(i.e., an indent token with \TT{0} indent),
 but the opening bracket \TT{`{}`{}`} changes the parser options so that
 the current logical line is continued by any physical line regardless of
 indent (and the corresponding closing bracket \TT{'{}'{}'} restores

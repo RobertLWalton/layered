@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 00:45:07 EST 2015
+// Date:	Wed Dec 16 06:36:01 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -451,6 +451,58 @@ ll::parser::bracketed::typed_opening
 	  ll::parser::table::key_table type_map,
 	  ll::parser::table::key_table bracket_table );
 
+// Data used during typed bracketed subexpression parse.
+//
+struct typed_data
+{
+    ll::parser::bracketed::typed_opening typed_opening;
+        // Typed_opening read just before the call to
+	// parse_bracketed_subexpression.
+    ll::parser::table::flags saved_selectors;
+        // Save of selectors argument to
+	// parse_bracketed_subexpression.
+    min::unsptr middle_count;
+        // Count of typed_middles seen so far.
+    min::unsptr attr_count;
+        // Count of attributes found so far.
+    min::unsptr element_count;
+        // Count of elements found so far.
+    ll::parser::token type_token;
+        // First token containing .type.
+    ll::parser::token after_negator;
+        // First token after negator or NULL_STUB
+	// if no negator found.
+    ll::parser::token elements;
+        // First token of elements, or NULL_STUB if
+	// there are no elements.
+    bool has_mark_type;
+        // True if typed_opening is followed immediately
+	// by a mark.
+    bool after_attribute;
+        // Attribute has been found since the last
+	// typed middle.
+};
+
+// Special token types used during typed bracketed
+// subexpression parse.
+//
+// TEMPORARY_TT is in ll::parser
+//
+const min::uns32 TYPE       = TEMPORARY_TT + 0;
+    // .type value
+const min::uns32 ATTR_LABEL = TEMPORARY_TT + 1;
+const min::uns32 ATTR_FLAGS = TEMPORARY_TT + 2;
+const min::uns32 ATTR_VALUE = TEMPORARY_TT + 3;
+    // Attribute label, flags, and value.  Must be
+    // consecutive tokens in that order.  There is
+    // only 1 label token, 0 or more flags tokens,
+    // and 1 value token.
+const min::uns32 ATTR_TRUE  = TEMPORARY_TT + 4;
+const min::uns32 ATTR_FALSE = TEMPORARY_TT + 5;
+    // Attribute label for attribute with TRUE or
+    // FALSE value implied.  May be followed by
+    // ATTR_FLAGS tokens.
+
 
 // Bracketed Subexpression Pass
 // --------- ------------- ----
@@ -761,8 +813,8 @@ min::position parse_bracketed_subexpression
 	  min::int32 indent,
 	  ll::parser::bracketed::line_sep
 	      line_sep,
-	  ll::parser::bracketed::typed_opening
-	      typed_opening,
+	  ll::parser::bracketed::typed_data
+	      * typed_data,
 	  bracket_stack * bracket_stack_p  = NULL );
 
 } } }

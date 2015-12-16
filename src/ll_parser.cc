@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 01:03:03 EST 2015
+// Date:	Wed Dec 16 06:59:35 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1126,7 +1126,7 @@ void PAR::parse ( PAR::parser parser )
 		  0,
 		  parser->top_level_indentation_mark
 		        ->line_sep,
-		  min::NULL_STUB,
+		  NULL,
 		  NULL );
 
 	PAR::token first =

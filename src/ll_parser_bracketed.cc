@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 07:22:04 EST 2015
+// Date:	Sat Dec 19 11:09:13 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -872,7 +872,7 @@ inline min::int32 relative_indent
 //     save selectors argument and reset it to
 //          typed_opening->attr_selectors
 //     typed_middle_count = 0
-//     has_mark_type = false
+//     mark_type = MISSING
 //
 //   indentation_mark indentation_found = NONE
 //   at_start = true
@@ -1027,7 +1027,7 @@ inline min::int32 relative_indent
 //         if at_start and
 //                     typed_opening argument != NONE
 //                     and current is mark:
-//            has_mark_type = true
+//            mark_type = current->value
 //            selectors = saved selectors
 //
 //         current = current->next
@@ -1189,7 +1189,7 @@ inline min::int32 relative_indent
 //       if key is typed middle matching typed_middle
 //              component of typed_opening argument
 //              and subexpression did not begin with a
-//              mark type (has_mark_type == false):
+//              mark type (mark_type == MISSING):
 //          if first such:
 //             restore saved selectors
 //          else if second such:
@@ -1274,7 +1274,7 @@ static void punctuation_error
 	    ( parser, next, label );
 }
 
-// Make type label.  Set typed_data->type_token.
+// Make type label.
 //
 inline void make_type_label
 	( PAR::parser parser,
@@ -1286,7 +1286,6 @@ inline void make_type_label
 
     ::make_label ( parser, start, next );
 
-    typed_data->type_token = start;
     start->type = BRA::TYPE;
 }
 
@@ -1447,12 +1446,7 @@ min::position BRA::parse_bracketed_subexpression
 	// token of an indentation mark.
 
     // If the subexpression we are scanning is a typed
-    // bracketed subexpression:
-    //
-    //     save selectors
-    //     recompute selectors
-    //     typed_middle_count = 0
-    //     has_mark_type = false
+    // bracketed subexpression, initialize typed_data.
     //
     if ( typed_data != NULL )
     {
@@ -1463,12 +1457,11 @@ min::position BRA::parse_bracketed_subexpression
 		   | PAR::ALWAYS_SELECTOR;
 	typed_data->middle_count = 0;
 	typed_data->attr_count = 0;
-	typed_data->type_token = min::NULL_STUB;
 	typed_data->start_previous = current->previous;
 	typed_data->elements = min::NULL_STUB;
 	typed_data->attributes = min::NULL_STUB;
 	typed_data->subtype = BRA::TYPED_OPENING;
-	typed_data->has_mark_type = false;
+	typed_data->mark_type = min::MISSING();
     }
 
     bool at_start = true;
@@ -1992,7 +1985,8 @@ min::position BRA::parse_bracketed_subexpression
 		{
 		    selectors =
 		        typed_data->saved_selectors;
-		    typed_data->has_mark_type = true;
+		    typed_data->mark_type =
+		        current->value;
 		}
 
 		current = key_first->next;
@@ -2086,18 +2080,17 @@ min::position BRA::parse_bracketed_subexpression
 		    if ( next == min::NULL_STUB )
 		        next = current;
 
-		    if ( tdata.has_mark_type )
+		    if (    tdata.mark_type
+		         != min::MISSING() )
 		    {
 			PAR::token type_token =
-			    tdata.type_token;
-			min::gen mark_type =
-			    type_token->value;
+			    previous->next;
 			if (    next->previous->type
 			     != LEXSTD::mark_t )
 			    ::missing_error
 			        ( parser, next, "",
 				  min::pgen_quote
-				     ( mark_type ),
+				    ( tdata.mark_type ),
 				  " missing at end of"
 				  " typed bracketed"
 				  " expression;"
@@ -2106,10 +2099,10 @@ min::position BRA::parse_bracketed_subexpression
 			{
 			    if (    next->previous
 			                ->value
-				 != mark_type )
+				 != tdata.mark_type )
 			    {
 				min::gen v[2] =
-				    { mark_type,
+				    { tdata.mark_type,
 				      next->previous
 					  ->value };
 				PAR::value_ref
@@ -2453,7 +2446,8 @@ min::position BRA::parse_bracketed_subexpression
 			          ->typed_middle
 		     == (BRA::typed_middle) root
 		     &&
-		     ! typed_data->has_mark_type )
+		        typed_data->mark_type
+		     == min::MISSING() )
 		{
 		    if (    typed_data->middle_count % 2
 		         == 0 )
@@ -2522,7 +2516,8 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		     ! typed_data->has_mark_type )
+		        typed_data->mark_type
+		     == min::MISSING() )
 		{
 		    if (    typed_data->subtype
 		         == BRA::TYPED_OPENING
@@ -2563,7 +2558,8 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		     ! typed_data->has_mark_type )
+		        typed_data->mark_type
+		     == min::MISSING() )
 		{
 		    if ( (    typed_data->subtype
 		           == BRA::TYPED_MIDDLE
@@ -2611,7 +2607,8 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		     ! typed_data->has_mark_type )
+		        typed_data->mark_type
+		     == min::MISSING() )
 		{
 		    if (    typed_data->subtype
 		         == BRA::TYPED_MIDDLE
@@ -2657,7 +2654,8 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		     ! typed_data->has_mark_type )
+		        typed_data->mark_type
+		     == min::MISSING() )
 		{
 		    if ( (    typed_data->subtype
 		           == BRA::TYPED_ATTR_SEP

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 07:21:05 EST 2015
+// Date:	Sat Dec 19 10:27:39 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -465,9 +465,6 @@ struct typed_data
         // Count of typed_middles seen so far.
     min::unsptr attr_count;
         // Count of attributes found so far.
-    ll::parser::token type_token;
-        // First token containing .type, or NULL_STUB
-	// if no such token yet.
     ll::parser::token start_previous;
 	// start_previous->next is the first token after
 	// the last key, or the first token of the typed
@@ -484,9 +481,10 @@ struct typed_data
 	// STUB if none.
     min::uns32 subtype;
         // Subtype of last key found.
-    bool has_mark_type;
-        // True if typed_opening is followed immediately
-	// by a mark.
+    min::gen mark_type;
+        // If typed_opening is followed immediately by a
+	// mark, the value of that mark.  Otherwise
+	// MISSING.
 };
 
 // Special token types used during typed bracketed
@@ -509,7 +507,7 @@ const min::uns32 ATTR_TRUE       = TEMPORARY_TT + 5;
 const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 6;
     // Attribute label for attribute with TRUE or
     // FALSE value implied.  May be followed by
-    // ATTR_FLAGS tokens.
+    // ATTR_FLAGS token.
 
 
 // Bracketed Subexpression Pass

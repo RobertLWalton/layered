@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 07:13:00 EST 2015
+// Date:	Sat Dec 19 10:23:15 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1783,7 +1783,9 @@ inline void remove
 // equal `first' (if first != next).
 //
 // It is required, but not checked, that `after' NOT be
-// one of the tokens being moved.
+// one of the tokens being moved.  It is also required
+// but not checked that parser->first NOT be one of
+// the tokens being moved.
 //
 inline void move_to_before
 	( ll::parser::parser parser,
@@ -1809,6 +1811,7 @@ inline void move_to_before
     next_ref(last) = after;
     previous_ref(after) = last;
 
+    MIN_REQUIRE ( parser->first != first );
     if ( after == parser->first )
         ll::parser::first_ref(parser) = first;
 }

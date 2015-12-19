@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 11:09:13 EST 2015
+// Date:	Sat Dec 19 18:07:55 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1987,6 +1987,7 @@ min::position BRA::parse_bracketed_subexpression
 		        typed_data->saved_selectors;
 		    typed_data->mark_type =
 		        current->value;
+		    current->type = BRA::TYPE;
 		}
 
 		current = key_first->next;
@@ -2037,8 +2038,6 @@ min::position BRA::parse_bracketed_subexpression
 		      bracket_stack_p : NULL );
 		cstack.opening_bracket =
 		    opening_bracket;
-
-
 
 		PAR::token previous = current->previous;
 		min::position separator_found;
@@ -2278,7 +2277,6 @@ min::position BRA::parse_bracketed_subexpression
 		        tdata.elements;
 		    if ( elements == min::NULL_STUB )
 		        elements = next;
-		    PAR::token first = previous->next;
 		    min::unsptr i = 0;
 		    while ( first != elements )
 		    {

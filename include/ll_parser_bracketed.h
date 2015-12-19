@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 16 06:36:01 EST 2015
+// Date:	Sat Dec 19 07:21:05 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -465,22 +465,28 @@ struct typed_data
         // Count of typed_middles seen so far.
     min::unsptr attr_count;
         // Count of attributes found so far.
-    min::unsptr element_count;
-        // Count of elements found so far.
     ll::parser::token type_token;
-        // First token containing .type.
-    ll::parser::token after_negator;
-        // First token after negator or NULL_STUB
-	// if no negator found.
+        // First token containing .type, or NULL_STUB
+	// if no such token yet.
+    ll::parser::token start_previous;
+	// start_previous->next is the first token after
+	// the last key, or the first token of the typed
+	// bracketed subexpression if no key found yet.
+	// Since this token can be changed after
+	// start_previous has been saved, it cannot be
+	// directly saved.
     ll::parser::token elements;
         // First token of elements, or NULL_STUB if
 	// there are no elements.
+    ll::parser::token attributes;
+        // First token of the list of attributes after
+	// the last typed opening or middle, or NULL_
+	// STUB if none.
+    min::uns32 subtype;
+        // Subtype of last key found.
     bool has_mark_type;
         // True if typed_opening is followed immediately
 	// by a mark.
-    bool after_attribute;
-        // Attribute has been found since the last
-	// typed middle.
 };
 
 // Special token types used during typed bracketed
@@ -488,17 +494,19 @@ struct typed_data
 //
 // TEMPORARY_TT is in ll::parser
 //
-const min::uns32 TYPE       = TEMPORARY_TT + 0;
+const min::uns32 TYPE            = TEMPORARY_TT + 0;
     // .type value
-const min::uns32 ATTR_LABEL = TEMPORARY_TT + 1;
-const min::uns32 ATTR_FLAGS = TEMPORARY_TT + 2;
-const min::uns32 ATTR_VALUE = TEMPORARY_TT + 3;
+const min::uns32 ATTR_LABEL      = TEMPORARY_TT + 1;
+const min::uns32 ATTR_FLAGS      = TEMPORARY_TT + 2;
+const min::uns32 ATTR_VALUE      = TEMPORARY_TT + 3;
+const min::uns32 ATTR_MULTIVALUE = TEMPORARY_TT + 4;
     // Attribute label, flags, and value.  Must be
     // consecutive tokens in that order.  There is
-    // only 1 label token, 0 or more flags tokens,
-    // and 1 value token.
-const min::uns32 ATTR_TRUE  = TEMPORARY_TT + 4;
-const min::uns32 ATTR_FALSE = TEMPORARY_TT + 5;
+    // only 1 label token, 0 or 1 flag tokens,
+    // and 1 value token.  The value token can
+    // optionally be a multi-value token.
+const min::uns32 ATTR_TRUE       = TEMPORARY_TT + 5;
+const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 6;
     // Attribute label for attribute with TRUE or
     // FALSE value implied.  May be followed by
     // ATTR_FLAGS tokens.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 00:46:36 EST 2015
+// Date:	Sat Dec 19 07:13:00 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1619,11 +1619,17 @@ struct attr
 {
     min::gen name;
     min::gen value;
+    min::gen multivalue;
+    min::gen flags;
     attr ( min::gen name, min::gen value )
-        : name ( name ), value ( value ) {}
+        : name ( name ), value ( value ),
+	  multivalue ( min::MISSING() ),
+	  flags ( min::MISSING() ) {}
     attr ( void )
         : name ( min::MISSING() ),
-	  value ( min::MISSING() ) {}
+	  value ( min::MISSING() ),
+	  multivalue ( min::MISSING() ),
+	  flags ( min::MISSING() ) {}
 };
 void compact
 	( ll::parser::parser parser,
@@ -1767,6 +1773,44 @@ inline void remove
 		first->previous )
 	  );
     }
+}
+
+// Move the tokens from `first' through the first token
+// before `next' to just before `after'.  Do nothing if
+// first == next.  The `after' token is left untouched.
+//
+// If after == parser->first, the latter is changed to
+// equal `first' (if first != next).
+//
+// It is required, but not checked, that `after' NOT be
+// one of the tokens being moved.
+//
+inline void move_to_before
+	( ll::parser::parser parser,
+	  ll::parser::token after,
+	  ll::parser::token first,
+	  ll::parser::token next )
+{
+    if ( first == next ) return;
+
+    // The following protects the tokens being moved
+    // from the garbage collector and remembers
+    // the last token being moved.
+    //
+    min::locatable_var<ll::parser::token> last
+    	( next->previous );
+
+    next_ref(first->previous) = next;
+    previous_ref(next) = first->previous;
+
+    previous_ref(first) = after->previous;
+    next_ref(after->previous) = first;
+
+    next_ref(last) = after;
+    previous_ref(after) = last;
+
+    if ( after == parser->first )
+        ll::parser::first_ref(parser) = first;
 }
 
 // Return the n'th token before `next', where n is the

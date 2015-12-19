@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 16 06:59:08 EST 2015
+// Date:	Sat Dec 19 07:22:04 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,7 +49,6 @@ static min::locatable_gen flags;
 static min::locatable_gen multivalue;
 static min::locatable_gen initiator;
 static min::locatable_gen negator;
-static min::locatable_gen typed_bracketed;
 static min::locatable_gen prefix;
 static min::locatable_gen separators;
 static min::locatable_gen allowed;
@@ -76,8 +75,6 @@ static void initialize ( void )
     ::multivalue = min::new_str_gen ( "multivalue" );
     ::initiator = min::new_str_gen ( "initiator" );
     ::negator = min::new_str_gen ( "negator" );
-    ::typed_bracketed =
-        min::new_lab_gen ( "typed", "bracketed" );
     ::prefix = min::new_str_gen ( "prefix" );
     ::separators = min::new_str_gen ( "separators" );
     ::allowed = min::new_str_gen ( "allowed" );
@@ -799,7 +796,7 @@ static void make_label
 
     if ( count == 0 )
     {
-	first = new_token ( PAR::DERIVED );
+	first = PAR::new_token ( PAR::DERIVED );
 	put_before ( PAR::first_ref(parser),
 	             next, first );
 	PAR::value_ref(first) = min::empty_lab;
@@ -1234,6 +1231,203 @@ inline void ensure_next
 	    ( current->next != parser->first );
     }
 }
+
+// Announce `missing <message>' error with position
+// just before current.
+//
+static void missing_error
+        ( PAR::parser parser,
+	  PAR::token current,
+	  const char * message1,
+	  const min::op & message2 = min::pnop,
+	  const char * message3 = "" )
+{
+    min::phrase_position position =
+        { current->position.begin,
+	  current->position.begin };
+
+    PAR::parse_error
+        ( parser, position,
+	  "missing ", min::pnop, message1,
+	  message2, message3 );
+}
+
+static void punctuation_error
+	( PAR::parser parser,
+	  PAR::token key_first,
+	  PAR::token next,
+	  min::gen label )
+{
+	MIN_REQUIRE ( key_first != next );
+
+	min::phrase_position position =
+	    { key_first->position.begin,
+	      next->previous->position.end };
+
+	PAR::parse_error
+	    ( parser, position,
+	      "unexpected punctuation ",
+	      min::pgen_quote ( label ),
+	      " found; deleted and ignored" );
+
+	PAR::remove
+	    ( parser, next, label );
+}
+
+// Make type label.  Set typed_data->type_token.
+//
+inline void make_type_label
+	( PAR::parser parser,
+	  BRA::typed_data * typed_data,
+	  PAR::token next )
+{
+    PAR::token start = typed_data->start_previous->next;
+    MIN_REQUIRE ( start != next );
+
+    ::make_label ( parser, start, next );
+
+    typed_data->type_token = start;
+    start->type = BRA::TYPE;
+}
+
+// Make attribute label.  Return true if label made and
+// false if no label made because its missing.
+//
+// If label made, set typed_data->attributes if that is
+// NULL_STUB and increment typed_data->attr_count.
+//
+inline bool make_attribute_label
+	( PAR::parser parser,
+	  BRA::typed_data * typed_data,
+	  PAR::token next )
+{
+    PAR::token start = typed_data->start_previous->next;
+    if ( start == next )
+    {
+	missing_error
+	    ( parser, next, "attribute label" );
+	return false;
+    }
+
+    if ( start == next )
+    {
+	missing_error
+	    ( parser, next, "attribute label" );
+	return false;
+    }
+
+    min::gen initiator =
+        typed_data->typed_opening
+	          ->typed_attr_flags_initiator;
+
+    if ( next->previous != start
+         &&
+	 next->previous->value_type == initiator )
+    {
+	next = next->previous;
+	next->type = BRA::ATTR_FLAGS;
+    }
+
+    ::make_label ( parser, start, next );
+    start->type = BRA::ATTR_LABEL;
+
+    if ( typed_data->attributes == min::NULL_STUB )
+	typed_data->attributes = start;
+
+    ++ typed_data->attr_count;
+
+    return true;
+}
+
+// Finish attribute.  On error either generate error
+// attribute or do not produce a new attribute.
+//
+// If typed_data indicates there are no attributes
+// do nothing.
+//
+inline void finish_attribute
+	( PAR::parser parser,
+	  BRA::typed_data * typed_data,
+	  PAR::token next )
+{
+    min::uns32 subtype = typed_data->subtype;
+    PAR::token start = typed_data->start_previous->next;
+
+    if ( subtype == BRA::TYPED_ATTR_SEP
+         ||
+	 subtype == BRA::TYPED_ATTR_NEGATOR
+	 ||
+	 ( subtype == BRA::TYPED_MIDDLE
+	   &&
+	   start != next ) )
+    {
+        if ( ! ::make_attribute_label
+	           ( parser, typed_data, next ) )
+	    return;
+
+	typed_data->start_previous->next->type =
+	    ( subtype == BRA::TYPED_ATTR_NEGATOR ?
+	      BRA::ATTR_FALSE :
+	      BRA::ATTR_TRUE );
+    }
+    else if ( subtype == BRA::TYPED_ATTR_EQUAL )
+    {
+	if ( start == next )
+	{
+	    missing_error ( parser, next,
+	                    "attribute value" );
+	    start = PAR::new_token ( BRA::ATTR_VALUE );
+	    put_before ( PAR::first_ref(parser),
+			 next, start );
+	    PAR::value_ref(start) =
+	        min::new_str_gen
+		    ( "OMITTED ATTRIBUTE VALUE" );
+	}
+	else if ( start->next == next )
+	{
+	    min::gen initiator =
+		typed_data
+		    ->typed_opening
+		    ->typed_attr_multivalue_initiator;
+	    start->type =
+	        ( start->value_type == initiator ?
+		  BRA::ATTR_MULTIVALUE :
+		  BRA::ATTR_VALUE );
+	}
+	else
+	{
+	    ::make_label
+	        ( parser, start, next );
+	    start->type = BRA::ATTR_VALUE;
+	}
+    }
+}
+
+// If end of non-first attibute group, move it to
+// end of previous attibutes.
+//
+inline void move_attributes
+	( PAR::parser parser,
+	  BRA::typed_data * typed_data,
+	  PAR::token next )
+{
+    if (    typed_data->middle_count
+	 != 0
+	 &&
+	    typed_data->elements
+	 != min::NULL_STUB
+	 &&
+	    typed_data->attributes
+	 != min::NULL_STUB )
+	PAR::move_to_before
+	    ( parser,
+	      typed_data->elements,
+	      typed_data->attributes,
+	      next );
+
+    typed_data->attributes = min::NULL_STUB;
+}
+
 min::position BRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
@@ -1268,6 +1462,12 @@ min::position BRA::parse_bracketed_subexpression
 	                       ->attr_selectors
 		   | PAR::ALWAYS_SELECTOR;
 	typed_data->middle_count = 0;
+	typed_data->attr_count = 0;
+	typed_data->type_token = min::NULL_STUB;
+	typed_data->start_previous = current->previous;
+	typed_data->elements = min::NULL_STUB;
+	typed_data->attributes = min::NULL_STUB;
+	typed_data->subtype = BRA::TYPED_OPENING;
 	typed_data->has_mark_type = false;
     }
 
@@ -1848,6 +2048,7 @@ min::position BRA::parse_bracketed_subexpression
 
 		PAR::token previous = current->previous;
 		min::position separator_found;
+		BRA::typed_data tdata;
 		if ( subtype == BRA::OPENING_BRACKET )
 		{
 		    separator_found =
@@ -1865,8 +2066,7 @@ min::position BRA::parse_bracketed_subexpression
 		else // if (    subtype
 		     //      == BRA::TYPED_OPENING )
 		{
-		    BRA::typed_data typed_data;
-		    typed_data.typed_opening =
+		    tdata.typed_opening =
 			(BRA::typed_opening) root;
 
 		    separator_found =
@@ -1878,8 +2078,84 @@ min::position BRA::parse_bracketed_subexpression
 				line_sep :
 				(BRA::line_sep)
 				min::NULL_STUB,
-			    & typed_data,
+			    & tdata,
 			    & cstack );
+
+		    PAR::token next =
+		        cstack.closing_first;
+		    if ( next == min::NULL_STUB )
+		        next = current;
+
+		    if ( tdata.has_mark_type )
+		    {
+			PAR::token type_token =
+			    tdata.type_token;
+			min::gen mark_type =
+			    type_token->value;
+			if (    next->previous->type
+			     != LEXSTD::mark_t )
+			    ::missing_error
+			        ( parser, next, "",
+				  min::pgen_quote
+				     ( mark_type ),
+				  " missing at end of"
+				  " typed bracketed"
+				  " expression;"
+				  " inserted before:" );
+			else
+			{
+			    if (    next->previous
+			                ->value
+				 != mark_type )
+			    {
+				min::gen v[2] =
+				    { mark_type,
+				      next->previous
+					  ->value };
+				PAR::value_ref
+					(type_token) =
+				    min::new_lab_gen
+					 ( v, 2 );
+			    }
+			    if (    type_token
+				 != next->previous )
+			    {
+			      PAR::free
+			        ( PAR::remove
+				    ( first_ref(parser),
+				      next->previous )
+				);
+			    }
+			}
+		    }
+		    else
+		    if ( tdata.middle_count % 2 == 1 )
+			missing_error
+			    ( parser, next, "",
+			      min::pgen_quote
+			          ( root->label ),
+			      "; inserted before:" );
+		    else
+		    {
+		        if (    tdata.subtype
+			     == BRA::TYPED_OPENING
+			     &&
+			        tdata.start_previous
+				          ->next
+			     != next )
+			    ::make_type_label
+			        ( parser, & tdata,
+				  next );
+		        else
+			{
+			    ::finish_attribute
+				( parser, & tdata,
+				  next );
+			    ::move_attributes
+				( parser, & tdata,
+				  next );
+			}
+		    }
 		}
 
 		PAR::token next = current;
@@ -1953,115 +2229,123 @@ min::position BRA::parse_bracketed_subexpression
 			( parser, first,
 			  opening_bracket->label );
 
-                if ( subtype == BRA::TYPED_OPENING
-		     &&
-		     first != next
-		     &&
-		     first->type == LEXSTD::mark_t )
+		if ( subtype == BRA::OPENING_BRACKET )
 		{
-		    // Typed bracketed subexpression
-		    // with mark type.
-
-		    min::locatable_gen mark_type
-		        ( first->value );
-		    first = first->next;
-		    PAR::free
-			( PAR::remove
-			    ( first_ref(parser),
-			      first->previous ) );
-
-		    if ( first != next )
-		    {
-		        if (    next->previous->type
-			     != LEXSTD::mark_t )
-			{
-			    min::phrase_position
-			        position =
-			        { next->previous
-				      ->position.end,
-			          next->previous
-				      ->position.end };
-
-			    PAR::parse_error
-			        ( parser, position,
-				  "",
-				  min::pgen_quote
-				     ( mark_type ),
-				  " missing at end of"
-				  " typed bracketed"
-				  " expression;"
-				  " inserted" );
-			}
-			else
-			{
-			    if (    next->previous
-			                ->value
-			         != mark_type )
-			    {
-			        min::gen v[2] =
-				    { mark_type,
-				      next->previous
-				          ->value };
-				mark_type =
-				    min::new_lab_gen
-				        ( v, 2 );
-			    }
-			    if (    first
-			         == next->previous )
-			        first = next;
-			    PAR::free
-				( PAR::remove
-				    ( first_ref(parser),
-				      next->previous )
-			        );
-			}
-		    }
-
-		    PAR::attr attributes[1] =
-			{ PAR::attr ( min::dot_type,
-				      mark_type ) };
-
-		    PAR::compact
-			( parser, pass->next,
-			  new_selectors,
-			  first, next, position,
-			  trace_flags,
-			  PAR::BRACKETING,
-			  1, attributes, 1 );
-
-		    value_type_ref(first) = mark_type;
-		}
-		else if (    opening_bracket
+		    if (    opening_bracket
 		                 ->reformatter
-		          == min::NULL_STUB
-		          ||
-		          ( * opening_bracket->
-			        reformatter->
-			        reformatter_function )
-			      ( parser,
-			        (PAR::pass) pass,
-			        new_selectors,
-			        first, next, position,
-			        trace_flags,
-			        (TAB::root)
-			            opening_bracket )
-		        )
-		{
-		    // Untyped bracketed subexpression
-		    // without reformatter, or with
-		    // reformatter requesting compac-
-		    // tion.
+		         == min::NULL_STUB
+		         ||
+		         ( * opening_bracket->
+			       reformatter->
+			       reformatter_function )
+			     ( parser,
+			       (PAR::pass) pass,
+			       new_selectors,
+			       first, next, position,
+			       trace_flags,
+			       (TAB::root)
+			           opening_bracket )
+		       )
+		    {
+			// Untyped bracketed subexpres-
+			// sion without reformatter, or
+			// with reformatter requesting
+			// compaction.
 
-		    PAR::attr attributes[2] =
-			{ PAR::attr
-			      ( min::dot_initiator,
-				opening_bracket->
-				    label ),
-			  PAR::attr
-			      ( min::dot_terminator,
-				opening_bracket->
-				  closing_bracket->
-					  label ) };
+			PAR::attr attributes[2] =
+			    { PAR::attr
+				  ( min::dot_initiator,
+				    opening_bracket->
+					label ),
+			      PAR::attr
+				  ( min::dot_terminator,
+				    opening_bracket->
+				      closing_bracket->
+					      label ) };
+
+			PAR::compact
+			    ( parser, pass->next,
+			      new_selectors,
+			      first, next, position,
+			      trace_flags,
+			      PAR::BRACKETING,
+			      2, attributes, 1 );
+
+			value_type_ref(first) =
+			    opening_bracket->label;
+		    }
+		}
+		else // if (    subtype
+		     //      == BRA::TYPED_OPENING )
+		{
+
+		    PAR::attr attributes
+			[tdata.attr_count+2];
+		    PAR::token elements =
+		        tdata.elements;
+		    if ( elements == min::NULL_STUB )
+		        elements = next;
+		    PAR::token first = previous->next;
+		    min::unsptr i = 0;
+		    while ( first != elements )
+		    {
+		        MIN_REQUIRE
+			  ( i < tdata.attr_count + 2 );
+		        if ( first->type == BRA::TYPE )
+			{
+			    attributes[i].name =
+			        min::dot_type;
+			    attributes[i].value =
+			        first->value;
+			    ++ i;
+			}
+		        else if (    first->type
+			          == BRA::ATTR_LABEL )
+			{
+			    attributes[i].name =
+			        first->value;
+			    ++ i;
+			}
+		        else if (    first->type
+			          == BRA::ATTR_TRUE )
+			{
+			    attributes[i].name =
+			        first->value;
+			    attributes[i].value =
+			        min::TRUE;
+			    ++ i;
+			}
+		        else if (    first->type
+			          == BRA::ATTR_FALSE )
+			{
+			    attributes[i].name =
+			        first->value;
+			    attributes[i].value =
+			        min::TRUE;
+			    ++ i;
+			}
+		        else if (    first->type
+			          == BRA::ATTR_VALUE )
+			    attributes[i-1].value =
+			        first->value;
+		        else if (    first->type
+			          == BRA::
+				     ATTR_MULTIVALUE )
+			    attributes[i-1].multivalue =
+			        first->value;
+		        else if (    first->type
+			          == BRA::ATTR_FLAGS )
+			    attributes[i-1].flags =
+			        first->value;
+
+		        first = first->next;
+			PAR::free
+			    ( PAR::remove
+				( first_ref(parser),
+				  first->previous ) );
+		    }
+		    MIN_REQUIRE
+			( i < tdata.attr_count + 1 );
 
 		    PAR::compact
 			( parser, pass->next,
@@ -2073,244 +2357,6 @@ min::position BRA::parse_bracketed_subexpression
 
 		    value_type_ref(first) =
 			opening_bracket->label;
-		}
-		else if (    opening_bracket
-		                 ->reformatter
-		          != min::NULL_STUB
-			  &&
-			     first->type
-			  == PAR::PREFIX )
-		{
-		    // Prefix separator.
-
-		    BRA::typed_opening typed_opening =
-			(BRA::typed_opening) root;
-		    MIN_REQUIRE (    typed_opening
-			          != min::NULL_STUB );
-
-		    MIN_REQUIRE
-		        ( first == next->previous );
-		    PAR::token prefix_sep = first;
-		    min::gen prefix_type =
-		        prefix_sep->value_type;
-
-		    for ( BRA::bracket_stack * p =
-			      bracket_stack_p;
-			  p != NULL;
-			  p = p->previous )
-		    {
-			if (    p->prefix_type
-			     == prefix_type )
-			{
-			    p->closing_first = first;
-			    p->closing_next = next;
-
-			    for ( BRA::bracket_stack *
-				    q = bracket_stack_p;
-				  q != p;
-				  q = q->previous )
-				q->closing_first =
-				    q->closing_next =
-					prefix_sep;
-
-			    return separator_found;
-			}
-			else if (    p->opening_bracket
-			          != min::NULL_STUB )
-			    break;
-		    }
-
-		    // Prefix separator is not in the
-		    // stack of open prefix separators.
-
-		    if ( ! at_start )
-		    {
-			PAR::parse_error
-			    ( parser,
-			      prefix_sep->position,
-			      "prefix separator in"
-			      " middle of expression;"
-			      " deleted and ignored" );
-			PAR::free
-			    ( PAR::remove
-				( first_ref(parser),
-				  prefix_sep ) );
-		    }
-		    else if (    cstack.closing_next
-			      == cstack.closing_first )
-		    {
-			// Found a closing bracket that
-			// is not ours, or line end,
-			// or paragraph end.  Kick up
-			// to our caller.  Prefix
-			// separator has no elements.
-			//
-			prefix_sep->type =
-			    PAR::BRACKETED;
-			value_type_ref(prefix_sep) =
-			    min::MISSING();
-			return separator_found;
-		    }
-		    else if ( typed_opening->type_map
-			      ==
-			      min::NULL_STUB )
-		    {
-			prefix_sep->type =
-			    PAR::BRACKETED;
-			value_type_ref(prefix_sep) =
-			    min::MISSING();
-		    }
-		    else
-		    {
-		        // Prefix separator is head of
-			// a possibly non-empty sub-sub-
-			// expression.
-
-			typedef
-		         min::phrase_position_vec_insptr
-			 pos_insptr;
-
-			TAB::root mapped_root =
-			    TAB::find
-				( prefix_type,
-				  selectors,
-				  typed_opening
-				      ->type_map );
-
-			TAB::flags new_selectors =
-			    selectors;
-
-			if (    mapped_root
-			     != min::NULL_STUB )
-			{
-			    BRA::opening_bracket
-				    opening =
-				(BRA::opening_bracket)
-				mapped_root;
-			    MIN_REQUIRE
-			        (    opening
-				  != min::NULL_STUB );
-			    new_selectors |=
-				opening->new_selectors
-					    .or_flags;
-			    new_selectors &= ~
-				opening->new_selectors
-					    .not_flags;
-			    new_selectors ^=
-				opening->new_selectors
-					    .xor_flags;
-			    new_selectors |=
-			        PAR::ALWAYS_SELECTOR;
-
-			}
-
-			while ( true )
-			{
-			    BRA::bracket_stack cstack2
-				( bracket_stack_p );
-			    cstack2.prefix_type =
-				prefix_type;
-
-			    separator_found =
-				PARSE_BRA_SUBEXP
-				  ( parser,
-				    new_selectors,
-				    current, indent,
-				      new_selectors
-				    & PAR::EALSEP_OPT ?
-				    line_sep :
-				    (BRA::line_sep)
-				      min::NULL_STUB,
-				    NULL,
-				    & cstack2 );
-
-			    min::obj_vec_insptr vp
-				( prefix_sep->value );
-			    pos_insptr pos =
-				(pos_insptr)
-				min::position_of ( vp );
-
-			    next =
-			        cstack2.closing_first;
-			    if (    next
-			         == min::NULL_STUB )
-				next = current;
-
-			    min::phrase_position
-			        position =
-				{ prefix_sep->
-				      position.begin,
-				  next->previous
-				      ->position.end };
-			    pos->position = position;
-			    prefix_sep->position =
-			        position;
-
-			    PAR::token t =
-			        prefix_sep->next;
-			    while ( t != next )
-			    {
-			      min::gen elements[100];
-			      min::phrase_position
-				    positions[100];
-			      min::unsptr count = 0;
-			      while ( t != next
-				      &&
-				      count < 100 )
-			      {
-				if (    t->string
-				     != min::NULL_STUB )
-				  PAR::convert_token
-				          ( t );
-
-				elements[count] =
-					t->value;
-				positions[count] =
-					t->position;
-				++ count;
-				t = t->next;
-			      }
-			      min::attr_push
-				( vp, count, elements );
-			      min::push
-				( pos, count,
-				  positions );
-			    }
-
-			    while (    prefix_sep->next
-				    != next )
-				PAR::free
-				  ( PAR::remove
-				      ( first_ref
-				            (parser),
-					next->previous
-				      ) );
-
-			    vp = min::NULL_STUB;
-				// Necessary so trace_
-				// subexpression can
-				// open pointer to
-				// object.
-
-			    prefix_sep->type =
-				PAR::BRACKETED;
-			    value_type_ref(prefix_sep) =
-				min::MISSING();
-
-			    PAR::trace_subexpression
-				( parser, prefix_sep,
-				  trace_flags );
-
-			    if (    cstack2
-			              .closing_next
-				 == cstack2
-				      .closing_first )
-				return separator_found;
-
-			    prefix_sep =
-				cstack2.closing_first;
-			}
-		    }
 		}
 
 		// Come here after compacting; note that
@@ -2331,7 +2377,6 @@ min::position BRA::parse_bracketed_subexpression
 		else
 		    break;
 	    }
-
 	    else if ( subtype == BRA::CLOSING_BRACKET )
 	    {
 		BRA::closing_bracket closing_bracket =
@@ -2367,64 +2412,6 @@ min::position BRA::parse_bracketed_subexpression
 		// Closing bracket does not match any
 		// bracket stack entry; reject key.
 	    }
-	    else if (    subtype
-	              == BRA::TYPED_MIDDLE )
-	    {
-		if ( typed_data != NULL
-		     &&
-		        typed_data->typed_opening
-			          ->typed_middle
-		     == (BRA::typed_middle) root
-		     &&
-		     ! typed_data->has_mark_type )
-		{
-		    switch ( typed_data->middle_count )
-		    {
-		    case 0:
-			// Beginning of element list
-			//
-			selectors =
-			    typed_data->saved_selectors;
-			break;
-		    case 1:
-			// End of element list
-			//
-			selectors &= PAR::ALL_OPT;
-			selectors |=
-			      typed_data
-			          ->typed_opening
-			          ->attr_selectors
-			    | PAR::ALWAYS_SELECTOR;
-			break;
-		    default:
-		    {
-			min::phrase_position position;
-			position.end =
-			    current->previous
-			           ->position.end;
-			position.begin =
-			    PAR::remove
-				( parser, current,
-				  root->label );
-
-			PAR::parse_error
-			    ( parser, position,
-			      "extra typed middle ",
-			      min::pgen_quote
-			          ( root->label ),
-			      " found; deleted and"
-			      " ignored" );
-		    }
-		    }
-
-		    ++ typed_data->middle_count;
-
-		    break;
-		}
-
-		// Typed middle does not match typed_
-		// opening; reject key.
-	    }
 	    else if ( subtype == BRA::INDENTATION_MARK )
 	    {
                 if (    current->type
@@ -2457,6 +2444,247 @@ min::position BRA::parse_bracketed_subexpression
 		    ( parser, current, root->label );
 		return separator_found ;
 	    }
+	    else if (    subtype
+	              == BRA::TYPED_MIDDLE )
+	    {
+		if ( typed_data != NULL
+		     &&
+		        typed_data->typed_opening
+			          ->typed_middle
+		     == (BRA::typed_middle) root
+		     &&
+		     ! typed_data->has_mark_type )
+		{
+		    if (    typed_data->middle_count % 2
+		         == 0 )
+		    {
+		        if (    typed_data->subtype
+			     == BRA::TYPED_OPENING
+			     &&
+			        typed_data
+				    ->start_previous
+				    ->next
+			     != key_first )
+			    ::make_type_label
+			        ( parser, typed_data,
+				  key_first );
+		        else
+			{
+			    ::finish_attribute
+				( parser, typed_data,
+				  key_first );
+			    ::move_attributes
+				( parser, typed_data,
+				  key_first );
+			}
+
+			selectors =
+			    typed_data->saved_selectors;
+
+			typed_data->subtype =
+			    BRA::TYPED_MIDDLE;
+		    }
+		    else // if
+		         // typed_data->middle_count % 2
+			 // == 1
+		    {
+			selectors &= PAR::ALL_OPT;
+			selectors |=
+			      typed_data
+			          ->typed_opening
+			          ->attr_selectors
+			    | PAR::ALWAYS_SELECTOR;
+			typed_data->subtype =
+			    BRA::TYPED_ATTR_SEP;
+		    }
+
+		    ++ typed_data->middle_count;
+
+		    PAR::remove ( parser, current,
+			          root->label );
+		    typed_data->start_previous =
+		        current->previous;
+
+		    break;
+		}
+
+		// Typed middle does not match typed_
+		// opening; reject key.
+	    }
+	    else if (    subtype
+	              == BRA::TYPED_ATTR_BEGIN )
+	    {
+		if ( typed_data != NULL
+		     &&
+		        typed_data->typed_opening
+			          ->typed_attr_begin
+		     == (BRA::typed_attr_begin) root
+		     &&
+		     typed_data->middle_count % 2 == 0
+		     &&
+		     ! typed_data->has_mark_type )
+		{
+		    if (    typed_data->subtype
+		         == BRA::TYPED_OPENING
+			 &&
+			    key_first
+			 != typed_data->start_previous
+			              ->next )
+		    {
+			::make_type_label
+			    ( parser, typed_data,
+			      key_first );
+			PAR::remove
+			    ( parser, current,
+			      root->label );
+			typed_data->subtype =
+			    BRA::TYPED_ATTR_SEP;
+			typed_data->start_previous =
+			    current->previous;
+		    }
+		    else
+		        ::punctuation_error
+			    ( parser, key_first,
+			      current, root->label );
+		    break;
+		}
+
+		// Typed_attr_begin does not match
+		// typed_opening; reject key.
+	    }
+	    else if (    subtype
+	              == BRA::TYPED_ATTR_EQUAL )
+	    {
+		if ( typed_data != NULL
+		     &&
+		        typed_data->typed_opening
+			          ->typed_attr_equal
+		     == (BRA::typed_attr_equal) root
+		     &&
+		     typed_data->middle_count % 2 == 0
+		     &&
+		     ! typed_data->has_mark_type )
+		{
+		    if ( (    typed_data->subtype
+		           == BRA::TYPED_MIDDLE
+			   ||
+		              typed_data->subtype
+		           == BRA::TYPED_ATTR_SEP
+			   ||
+		              typed_data->subtype
+		           == BRA::TYPED_ATTR_NEGATOR
+			 )
+			 &&
+			    key_first
+			 != typed_data->start_previous
+			              ->next )
+		    {
+			::make_attribute_label
+			    ( parser, typed_data,
+			      key_first );
+			PAR::remove
+			    ( parser, current,
+			      root->label );
+			typed_data->subtype =
+			    BRA::TYPED_ATTR_EQUAL;
+			typed_data->start_previous =
+			    current->previous;
+		    }
+		    else
+		        ::punctuation_error
+			    ( parser, key_first,
+			      current, root->label );
+		    break;
+		}
+
+		// Typed_attr_equal does not match
+		// typed_opening; reject key.
+	    }
+	    else if (    subtype
+	              == BRA::TYPED_ATTR_SEP )
+	    {
+		if ( typed_data != NULL
+		     &&
+		        typed_data->typed_opening
+			          ->typed_attr_sep
+		     == (BRA::typed_attr_sep) root
+		     &&
+		     typed_data->middle_count % 2 == 0
+		     &&
+		     ! typed_data->has_mark_type )
+		{
+		    if (    typed_data->subtype
+		         == BRA::TYPED_MIDDLE
+			 ||
+		            typed_data->subtype
+		         == BRA::TYPED_ATTR_SEP
+			 ||
+		            typed_data->subtype
+		         == BRA::TYPED_ATTR_EQUAL
+			 ||
+		            typed_data->subtype
+		         == BRA::TYPED_ATTR_NEGATOR )
+		    {
+			::finish_attribute
+			    ( parser, typed_data,
+			      key_first );
+			PAR::remove
+			    ( parser, current,
+			      root->label );
+			typed_data->subtype =
+			    BRA::TYPED_ATTR_SEP;
+			typed_data->start_previous =
+			    current->previous;
+		    }
+		    else
+		        ::punctuation_error
+			    ( parser, key_first,
+			      current, root->label );
+		    break;
+		}
+
+		// Typed_attr_sep does not match
+		// typed_opening; reject key.
+	    }
+	    else if (    subtype
+	              == BRA::TYPED_ATTR_NEGATOR )
+	    {
+		if ( typed_data != NULL
+		     &&
+		        typed_data->typed_opening
+			          ->typed_attr_negator
+		     == (BRA::typed_attr_negator) root
+		     &&
+		     typed_data->middle_count % 2 == 0
+		     &&
+		     ! typed_data->has_mark_type )
+		{
+		    if ( (    typed_data->subtype
+		           == BRA::TYPED_ATTR_SEP
+			   ||
+			      typed_data->subtype
+			   == BRA::TYPED_MIDDLE
+			 )
+			 &&
+			    key_first
+			 == typed_data->start_previous
+			              ->next )
+		    {
+			PAR::remove
+			    ( parser, current,
+			      root->label );
+			typed_data->subtype =
+			    BRA::TYPED_ATTR_NEGATOR;
+			typed_data->start_previous =
+			    current->previous;
+			break;
+		    }
+		}
+
+		// Typed_attr_negator does not match
+		// typed_opening and appear in attribute
+		// label beginning context; reject key.
+	    }
 
 	    if ( trace_flags & PAR::TRACE_KEYS )
 	        parser->printer
@@ -2469,6 +2697,8 @@ min::position BRA::parse_bracketed_subexpression
 	               ( parser, current, key_prefix,
 			 selectors, root );
 	}
+
+	// Loop to next token.
     }
 
     return min::MISSING_POSITION;
@@ -2487,7 +2717,7 @@ static bool label_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    make_label ( parser, first, next );
+    ::make_label ( parser, first, next );
     first->position = position;
 
     PAR::trace_subexpression
@@ -2537,7 +2767,7 @@ static bool special_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    make_label ( parser, first, next );
+    ::make_label ( parser, first, next );
 
     unsigned i;
     for ( i = 0; i < ::special_names->length; ++ i )
@@ -2681,7 +2911,7 @@ inline void make_label_with_flags
 	next = next->previous;
 	next->type = flags_type;
     }
-    make_label ( parser, first, next );
+    ::make_label ( parser, first, next );
 }
 
 // Announce the punctuation just found is illegal and
@@ -2710,23 +2940,6 @@ inline void punctuation_error
 
     ::remove ( parser, first, start,
                key_first, current );
-}
-
-// Announce `missing <message>' error with position
-// just before current.
-//
-static void missing_error
-        ( PAR::parser parser,
-	  PAR::token current,
-	  const char * message )
-{
-    min::phrase_position position =
-        { current->position.begin,
-	  current->position.begin };
-
-    PAR::parse_error
-        ( parser, position,
-	  "missing ", min::pnop, message );
 }
 
 static void set_attr_flags
@@ -2812,697 +3025,6 @@ static void set_attr_flags
     }
 }
 
-static bool typed_bracketed_reformatter_function
-        ( PAR::parser parser,
-	  PAR::pass pass,
-	  TAB::flags selectors,
-	  PAR::token & first,
-	  PAR::token next,
-	  const min::phrase_position & position,
-	  TAB::flags trace_flags,
-	  TAB::root entry )
-{
-    // See ll_parser_bracketed.h for special types of
-    // tokens after 1st pass.
-    //
-    // Other token types are object elements after 1st
-    // pass.
-    //
-    // Each ATTR_LABEL token is followed by a corres-
-    // ponding ATTR_VALUE token.  ATTR_TRUE and ATTR_
-    // FALSE tokens are attribute labels that have NO
-    // following ATTR_VALUE token; their values are
-    // implied and are either TRUE or FALSE.
-    //
-    // ATTR_FALSE token values are attribute labels that
-    // do NOT include the attribute negator, but the
-    // position of these tokens DOES include the
-    // attribute negator.
-    //
-    // There can be a type at the beginning, the `begin
-    // type', and also at the end, the `end type'.  But
-    // there can be only one TYPE token.  If both types
-    // are given, only the `begin type' generates a TYPE
-    // token, and error messages concerning type mis-
-    // matches are generated when end type is found.
-    //
-    // If there are two ATTR_LABEL/TRUE/FALSE tokens
-    // with the same attribute label, it is an error
-    // detected during the second pass.
-
-    min::unsptr attr_count = 0;
-        // Count of attribute labels.
-    min::unsptr element_count = 0;
-        // Count of object elements.
-    bool after_elements = false;
-        // True if after TYPED_MIDDLE.
-    bool after_attribute = false;
-        // True if attribute has been found since
-	// after_elements was set true.
-    PAR::token after_negator;
-        // If attr negator found, first token after
-	// negator.
-    PAR::token type_token = min::NULL_STUB;
-        // TYPE token.  First type encountered.
-	// See above.
-    TAB::flags next_selectors;
-        // Selectors in particular contexts.
-
-    BRA::typed_opening typed_opening =
-        (BRA::typed_opening) entry;
-    TAB::key_table key_table = typed_opening->key_table;
-    min::gen flags_initiator =
-        typed_opening->typed_attr_flags_initiator;
-    const min::flag_parser * attr_flag_parser =
-        typed_opening->typed_attr_flag_parser;
-
-    // Data for macros below:
-    //
-    PAR::token start;
-    	// == current at start of scan; NOT set by NEXT!
-    min::unsptr skip_count;
-        // Count of tokens skipped by NEXT; except does
-	// NOT include key.
-    PAR::token key_first;
-        // First token of key found by NEXT, or ==
-	// current if no key found.
-    PAR::token current = first;
-        // Next token to be scanned.
-    min::uns32 key_subtype;
-	// Subtype of key found by NEXT, or 0 if no key
-	// found; i.e., end of subexpression found
-	// instead.
-    min::gen key_label;
-        // Label of key found by NEXT, or unused if no
-	// key found.
-
-    if ( first == next ) goto DONE;
-        // Shortcut for {}
-	// Cannot put this before variable declarations
-	// above.
-
-#   define NEXT(selectors) \
-	key_subtype = \
-	    get_next_key ( parser, key_first, \
-	                   current, next, \
-			   selectors, selectors, \
-		           skip_count, key_label, \
-			   key_table )
-#   define NEXT2(selectors,skip_selectors) \
-	key_subtype = \
-	    get_next_key ( parser, key_first, \
-	                   current, next, \
-			   selectors, skip_selectors, \
-		           skip_count, key_label, \
-			   key_table )
-#   define LABEL(t) \
-	{ \
-	    MIN_REQUIRE ( start != key_first ); \
-	    make_label ( parser, \
-	                 start, key_first ); \
-	    start->type = t; \
-	}
-#   define LABEL_WITH_FLAGS(t) \
-	{ \
-	    MIN_REQUIRE ( start != key_first ); \
-	    make_label_with_flags \
-	        ( parser, start, key_first, \
-		  flags_initiator, \
-		  BRA::ATTR_FLAGS ); \
-	    start->type = t; \
-	}
-#   define PUNCTUATION_ERROR \
-	::punctuation_error \
-	    ( parser, first, start, key_first, \
-	      current, key_label )
-#   define REMOVE \
-	if ( key_subtype != 0 ) \
-	    ::remove ( parser, first, start, \
-	               key_first, current )
-
-    // In syntax below
-    //
-    //     {	denotes	    typed_opening
-    //     :	denotes	    typed_attr_begin
-    //     =	denotes	    typed_attr_equal
-    //     ,	denotes	    typed_attr_sep
-    //     |	denotes	    typed_middle
-    //     }	denotes	    closing_bracket
-    //
-    // Start Pass 1 at beginning of subexpression.
-    //
-    // {}		goto DONE
-    // {|		goto ELEMENTS
-    // {<type>}		type_token = ...;
-    // 			goto DONE
-    // {<type>|		type_token = ...;
-    // 			goto ELEMENTS
-    // {<type>:		type_token = ...;
-    // 			goto ATTRIBUTES
-    start = current;
-    while ( true )
-    {
-	NEXT (   BRA::MIDDLE_SELECTOR
-	       + BRA::ATTR_SELECTOR );
-
-	if ( key_subtype == 0
-	     ||
-	     key_subtype == BRA::TYPED_ATTR_BEGIN
-	     ||
-	     key_subtype == BRA::TYPED_MIDDLE )
-	{
-	    REMOVE;
-
-	    if ( start != key_first )
-	    {
-		LABEL(BRA::TYPE);
-		type_token = start;
-	    }
-
-	    if ( key_subtype == BRA::TYPED_MIDDLE )
-	        goto ELEMENTS;
-	    else if (    key_subtype
-	              == BRA::TYPED_ATTR_BEGIN )
-	        goto ATTRIBUTES;
-	    else
-		goto DONE;
-	}
-	else PUNCTUATION_ERROR;
-    }
-
-ATTRIBUTES:
-
-    // Come here if:
-    //     Before elements and after : or ,
-    //     After elements and after | or ,
-    //
-    // <attr-negator>? <attr-label> <attr-flags>* ,
-    // 			goto ATTRIBUTES
-    // <attr-label> <attr-flags>* =
-    // 			goto ATTRIBUTE_VALUE
-    //
-    // If ! after_elements:
-    //
-    // <attr-negator>? <attr-label> <attr-flags>* |
-    // 			goto ELEMENTS
-    // <attr-negator>? <attr-label> <attr-flags>* }
-    // 			goto DONE
-    // |
-    //                  MISSING ATTR ERROR
-    //                  goto ELEMENTS
-    // }
-    //                  MISSING ATTR ERROR
-    // 			goto DONE
-    //
-    // If after_elements:
-    //
-    //     <attr-negator>? <attr-label> <attr-flags>* :
-    //	 		goto END_TYPE
-    //     :
-    //                  MISSING ATTR ERROR
-    //	 		goto END_TYPE
-    //
-    // If after_elements and after_attribute:
-    //
-    //     <attr-negator>? <attr-label> <attr-flags>* }
-    //                  MISSING END TYPE ERROR
-    // 			goto DONE
-    //     }
-    //                  MISSING ATTR ERROR
-    //                  MISSING END TYPE ERROR
-    // 			goto DONE
-    //
-    // If after_elements and ! after_attribute:
-    //
-    //     <type> } 	goto END_TYPE_FOUND
-    //
-    //     } 		goto DONE
-    //
-    after_negator = min::NULL_STUB;
-    start = current;
-    next_selectors = BRA::MIDDLE_SELECTOR
-	           + BRA::ATTR_SELECTOR
-	           + BRA::NEGATOR_SELECTOR;
-    while ( true )
-    {
-	NEXT2 ( next_selectors,
-		  BRA::MIDDLE_SELECTOR
-	        + BRA::ATTR_SELECTOR );
-	next_selectors = BRA::MIDDLE_SELECTOR
-	               + BRA::ATTR_SELECTOR;
-	if ( key_subtype == BRA::TYPED_ATTR_NEGATOR )
-	    after_negator = current;
-	else if  ( (    key_subtype
-	             == BRA::TYPED_ATTR_BEGIN
-	             &&
-		     after_elements )
-	           ||
-	           ( key_subtype == BRA::TYPED_MIDDLE
-	             &&
-		     ! after_elements )
-	           ||
-	           key_subtype == BRA::TYPED_ATTR_SEP
-	           ||
-	           ( key_subtype == 0
-		     &&
-		     ( ! after_elements
-		       ||
-		       after_attribute ) ) )
-	{
-	    min::uns32 type = BRA::ATTR_TRUE;
-	    min::phrase_position position =
-		{ start->position.begin,
-		  key_first->previous->position.end };
-	    if ( after_negator != min::NULL_STUB
-	         &&
-		 after_negator != current )
-	    {
-		PAR::token negator_current = start;
-		::remove ( parser, first, start,
-	                   negator_current,
-			   after_negator );
-		    // 3rd and 4th argument must be
-		    // separate memory variables
-
-		type = BRA::ATTR_FALSE;
-	    }
-	    else if ( start == key_first )
-	    {
-	        if (    key_subtype
-		     == BRA::TYPED_ATTR_SEP )
-		{
-		    PUNCTUATION_ERROR;
-		    continue;
-		}
-		missing_error
-		    ( parser, key_first,
-		         key_subtype == 0
-		      && after_elements ?
-		      "attribute and end type" :
-		      "attribute" );
-
-		if (    key_subtype 
-		          == BRA::TYPED_MIDDLE )
-		    goto ELEMENTS;
-		else if (    key_subtype 
-		          == BRA::TYPED_ATTR_BEGIN )
-		    goto END_TYPE;
-		else
-		    goto DONE;
-	    }
-	    REMOVE;
-	    LABEL_WITH_FLAGS(type);
-	    start->position = position;
-
-	    ++ attr_count;
-	    after_attribute = after_elements;
-
-	    if ( key_subtype == BRA::TYPED_ATTR_SEP )
-	        goto ATTRIBUTES;
-	    else if (    key_subtype
-	              == BRA::TYPED_ATTR_BEGIN )
-	        goto END_TYPE;
-	    else if ( key_subtype == BRA::TYPED_MIDDLE )
-	        goto ELEMENTS;
-	    else if ( after_elements )
-	    {
-		MIN_REQUIRE ( key_subtype == 0 );
-		MIN_REQUIRE ( after_attribute );
-
-		missing_error
-		    ( parser, current, "end type" );
-
-		goto DONE;
-	    }
-	    else
-	        goto DONE;
-	}
-	else if ( key_subtype == BRA::TYPED_ATTR_EQUAL )
-	{
-	    if ( start == key_first )
-	    {
-	        PUNCTUATION_ERROR;
-		continue;
-	    }
-	    REMOVE;
-	    LABEL_WITH_FLAGS(BRA::ATTR_LABEL);
-	    ++ attr_count;
-	    after_attribute = after_elements;
-	    goto ATTRIBUTE_VALUE;
-	}
-	else if ( key_subtype == 0 )
-	{
-	    if ( start != key_first )
-	        goto END_TYPE_FOUND;
-
-	    goto DONE;
-	}
-	else PUNCTUATION_ERROR;
-    }
-
-ATTRIBUTE_VALUE:
-
-    // Come here if after =
-    //
-    // <value> ,	goto ATTRIBUTES
-    //
-    // If ! after_elements:
-    //
-    //     <value> |	goto ELEMENTS
-    //     <value> }	goto DONE
-    //
-    // If after_elements:
-    //
-    //     <value> :	goto END_TYPE
-    //     <value> }	MISSING END TYPE ERROR
-    //     		goto DONE
-    //
-    // If <value> is empty add
-    // 	    MISSING ATTRIBUTE VALUE ERROR; FALSE ASSUMED
-    //
-    start = current;
-    while ( true )
-    {
-	NEXT (   BRA::MIDDLE_SELECTOR
-	       + BRA::ATTR_SELECTOR );
-	if ( key_subtype == BRA::TYPED_ATTR_SEP
-	     ||
-	     ( key_subtype == BRA::TYPED_MIDDLE
-	       &&
-	       ! after_elements )
-	     ||
-	     ( key_subtype == BRA::TYPED_ATTR_BEGIN
-	       &&
-	       after_elements )
-	     ||
-	     key_subtype == 0 )
-	{
-	    REMOVE;
-	    if ( start == current )
-	    {
-		missing_error
-		    ( parser, current,
-		      "attribute value;"
-		      " FALSE assumed" );
-
-		MIN_REQUIRE
-		    (    start->previous->type
-		      == BRA::ATTR_LABEL );
-		start->previous->type = BRA::ATTR_FALSE;
-	    }
-	    else if ( start->next == current
-	              &&
-		      start->value != min::MISSING() )
-	        start->type = BRA::ATTR_VALUE;
-	    else
-		LABEL ( BRA::ATTR_VALUE );
-
-	    if ( key_subtype == BRA::TYPED_ATTR_BEGIN )
-	        goto END_TYPE;
-	    else if (    key_subtype
-	              == BRA::TYPED_ATTR_SEP )
-	        goto ATTRIBUTES;
-	    else if ( key_subtype == BRA::TYPED_MIDDLE )
-	        goto ELEMENTS;
-	    else
-	    {
-		MIN_REQUIRE ( key_subtype == 0 );
-		if ( after_elements )
-		    missing_error
-			( parser, current, "end type" );
-		goto DONE;
-	    }
-	}
-	else PUNCTUATION_ERROR;
-    }
-
-ELEMENTS:
-
-    // Come here if after | and before elements
-    //
-    // <element>* |	goto ATTRIBUTES
-    // <element>* }	MISSING | ERROR
-    // 			goto DONE
-    //
-    after_elements = true;
-    start = current;
-
-    NEXT ( BRA::MIDDLE_SELECTOR );
-
-    MIN_REQUIRE ( key_subtype == BRA::TYPED_MIDDLE
-	          ||
-	          key_subtype == 0 );
-
-    element_count = skip_count;
-    REMOVE;
-    if ( key_subtype == BRA::TYPED_MIDDLE )
-	goto ATTRIBUTES;
-    else
-    {
-	min::phrase_position position =
-	    { current->position.begin,
-	      current->position.begin };
-	key_label = typed_opening->typed_middle
-				 ->label;
-
-	PAR::parse_error
-	    ( parser, position,
-	      "premature end of typed bracketed"
-	      " subexpression; ",
-	      min::pgen_quote ( key_label ),
-	      " inserted" );
-
-	goto DONE;
-    }
-
-END_TYPE:
-
-    // Come here if after : and after elements
-    //
-    // <type>}		goto DONE
-    // 
-    start = current;
-    while ( true )
-    {
-	NEXT (   BRA::MIDDLE_SELECTOR
-	       + BRA::ATTR_SELECTOR );
-	if ( key_subtype == 0 )
-	{
-	    if ( start == key_first )
-	    {
-		missing_error
-		    ( parser, current, "end type" );
-		goto DONE;
-	    }
-	    else
-	        goto END_TYPE_FOUND;
-	}
-	else PUNCTUATION_ERROR;
-    }
-
-END_TYPE_FOUND:
-
-    // Come here when end type found, with start set
-    // to first token and current to token after type.
-    //
-    LABEL(BRA::TYPE);
-
-    if ( type_token == min::NULL_STUB )
-	type_token = start;
-    else
-    {
-	if (    type_token->value
-	     != start->value )
-	    PAR::parse_error
-	        ( parser, start->position,
-		  "end type ",
-		  min::pgen_quote
-		     ( start->value ),
-		  " != begin type ",
-		  min::pgen_quote
-		     ( type_token->value ),
-		  "; end type ignored" );
-
-	PAR::free
-	    ( PAR::remove
-		( first_ref(parser),
-		  start ) );
-    }
-
-    goto DONE;
-
-#   undef NEXT
-#   undef LABEL
-#   undef PUNCTUATION_ERROR
-#   undef REMOVE
-
-DONE:
-
-    // Second Pass
-    //
-    min::locatable_gen exp;
-    min::locatable_var
-	    <min::phrase_position_vec_insptr>
-	pos;
-
-    ++ attr_count;	// For .position
-    if ( type_token != min::NULL_STUB )
-	++ attr_count;	// For .type
-
-    // Hash table size.
-    //
-    min::uns32 h = attr_count;
-    if ( h > 128 ) h = 128;
-
-    exp = min::new_obj_gen (   3*( attr_count + 2 )
-                             + element_count, h );
-
-    min::init ( pos, parser->input_file,
-		position, element_count );
-
-    min::obj_vec_insptr expvp ( exp );
-    min::attr_insptr expap ( expvp );
-    min::locate ( expap, min::dot_position );
-    min::set ( expap, min::new_stub_gen ( pos ) );
-    min::set_flag
-	( expap, min::standard_attr_hide_flag );
-
-#   define SET_ATTR_FLAGS \
-	if ( current->next->type == BRA::ATTR_FLAGS ) \
-	    ::set_attr_flags \
-	        ( parser, current, next, \
-		  expap, label, BRA::ATTR_FLAGS, \
-		  attr_flag_parser )
-
-    min::locatable_gen label;
-    min::locatable_gen value;
-    min::gen old_value;
-    min::gen value_type = min::MISSING();
-    for ( PAR::token current = first;
-	  current != next; )
-    {
-        if ( current->type == BRA::TYPE )
-	{
-	    label = min::dot_type;
-	    value = current->value;
-	    value_type = current->value;
-	}
-	else if ( current->type == BRA::ATTR_LABEL )
-	{
-	    MIN_REQUIRE ( current != next );
-	    label = current->value;
-	    SET_ATTR_FLAGS;
-	    current = current->next;
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref(parser),
-			current->previous ) );
-	    MIN_REQUIRE
-	        ( current->type == BRA::ATTR_VALUE );
-	    value = current->value;
-	}
-        else if ( current->type == BRA::ATTR_FALSE )
-	{
-	    label = current->value;
-	    value = min::FALSE;
-	    SET_ATTR_FLAGS;
-	}
-        else if ( current->type == BRA::ATTR_TRUE )
-	{
-	    label = current->value;
-	    value = min::TRUE;
-	    SET_ATTR_FLAGS;
-	}
-	else
-	{
-	    // current is vector element
-	    //
-	    if ( current->string != min::NULL_STUB )
-	    {
-		current->type = PAR::DERIVED;
-		PAR::value_ref(current) =
-		    min::new_str_gen
-			( min::begin_ptr_of
-			      ( current->string ),
-			  current->string->length );
-		PAR::string_ref(current) =
-		    PAR::free_string
-		        ( current->string );
-	    }
-	    min::attr_push(expvp) = current->value;
-	    min::push ( pos ) = current->position;
-	    goto NEXT_ITEM;
-	}
-
-	min::locate ( expap, label );
-	if ( min::get ( expap ) == min::NONE() )
-	{
-	    if ( ! min::is_obj ( value ) )
-		min::set ( expap, value );
-	    else
-	    {
-		min::gen multi_init =
-		    typed_opening->
-			typed_attr_multivalue_initiator;
-		min::obj_vec_insptr valvp ( value );
-		min::attr_insptr valap ( valvp );
-		min::locate
-		    ( valap, min::dot_initiator );
-		if ( min::get ( valap ) != multi_init )
-		    min::set ( expap, value );
-		else
-		{
-		    min::unsptr n =
-		        min::attr_size_of ( valvp );
-		    min::gen values[n];
-		    for ( min::unsptr i = 0; i < n;
-		                             ++ i )
-			values[i] =
-			    min::attr ( valvp, i );
-		    min::set ( expap, values, n );
-		}
-	    }
-	}
-	else
-	    PAR::parse_error
-	        ( parser, current->position,
-		  "attribute ",
-		   min::pgen_quote ( label ),
-		  " appears more than once;"
-		   " later value ",
-		  min::pgen_quote ( value ),
-		  " ignored" );
-
-NEXT_ITEM:
-
-	current = current->next;
-	PAR::free
-	    ( PAR::remove
-		  ( PAR::first_ref(parser),
-		    current->previous ) );
-    }
-
-    expvp = min::NULL_STUB;
-        // Necessary so trace_subexpression can open
-	// pointer to object.
-
-    first = PAR::new_token ( after_elements ?
-                             PAR::BRACKETED :
-			     PAR::PREFIX );
-    PAR::put_before
-	( first_ref(parser), next, first );
-
-    PAR::value_ref(first) = exp;
-    first->position = position;
-    if ( first->type == PAR::PREFIX )
-	PAR::value_type_ref(first) = value_type;
-
-    PAR::trace_subexpression
-	( parser, first, trace_flags );
-
-    return false;
-}
-
 min::locatable_var<PAR::reformatter>
     BRA::reformatter_stack ( min::NULL_STUB );
 
@@ -3522,11 +3044,6 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( special, 0, 0, 0,
 	  ::special_reformatter_function,
-	  BRA::reformatter_stack );
-
-    PAR::push_reformatter
-        ( ::typed_bracketed, 0, 0, 0,
-	  ::typed_bracketed_reformatter_function,
 	  BRA::reformatter_stack );
 }
 static min::initializer reformatter_initializer
@@ -4555,9 +4072,7 @@ static min::gen bracketed_pass_command
 	      ppvec->position,
 	      new_element_selectors,
 	      new_attribute_selectors.or_flags,
-	      PAR::find_reformatter
-		  ( ::typed_bracketed,
-		    BRA::reformatter_stack ),
+	      min::NULL_STUB,
 	      min::NULL_STUB,
 	      attribute_begin,
 	      attribute_equal,

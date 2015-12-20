@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  1 01:24:59 EST 2015
+// Date:	Sun Dec 20 01:21:45 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -200,10 +200,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, PAR::EALSEP_OPT, 0 ),
 	  data,
-	  PAR::find_reformatter
-	      ( typed_bracketed_name,
-	        BRA::reformatter_stack ),
-	  min::NULL_STUB,
 	  PAR::colon, PAR::equal, PAR::comma, no,
 	  PAR::left_square,
 	  min::standard_attr_flag_parser,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 10:27:39 EST 2015
+// Date:	Sun Dec 20 01:11:56 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -190,9 +190,6 @@ extern const uns32 & TYPED_OPENING;
 
 // Typed_opening is closed by closing_bracket.
 
-// The following are put in a key_table that is private
-// to a typed_opening.
-//
 struct typed_middle_struct;
 typedef min::packed_struct_updptr
 	    <typed_middle_struct>
@@ -235,17 +232,6 @@ extern const uns32 & TYPED_ATTR_NEGATOR;
     //     min::packed_struct
     //	       <typed_attr_negator_struct>.
 
-// Selectors for key_table below.
-//
-enum {
-    MIDDLE_SELECTOR	= 1ull << 0,
-        // For TYPED_MIDDLE
-    ATTR_SELECTOR	= 1ull << 1,
-        // For TYPED_ATTR_BEGIN/EQUAL/SEP
-    NEGATOR_SELECTOR	= 1ull << 2
-        // For TYPED_ATTR_NEGATOR
-};
-
 struct typed_opening_struct :
 	public ll::parser::bracketed
 	                 ::opening_bracket_struct
@@ -258,17 +244,6 @@ struct typed_opening_struct :
     //
     ll::parser::table::flags attr_selectors;
 
-    const ll::parser::table::key_table key_table;
-        // This key_table contains the following compo-
-	// nents which are used by the typed_bracketed_
-	// reformatter when it scans the contents of a
-	// typed bracketed subexpression.
-
-    // The following components are recorded here only
-    // so they can be output by the parser print
-    // command.  They are NOT used during parsing -
-    // the key_table is used instead.
-    //
     const ll::parser::bracketed::typed_middle
           typed_middle;
     const ll::parser::bracketed::typed_attr_begin
@@ -362,9 +337,6 @@ MIN_REF ( ll::parser::reformatter,
 MIN_REF ( ll::parser::reformatter_arguments,
           reformatter_arguments,
           ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::table::key_table,
-          key_table,
-          ll::parser::bracketed::typed_opening )
 MIN_REF ( ll::parser::bracketed::typed_middle,
           typed_middle,
           ll::parser::bracketed::typed_opening )
@@ -437,9 +409,6 @@ ll::parser::bracketed::typed_opening
 	  const ll::parser::table::new_flags
 	      & element_selectors,
 	  ll::parser::table::flags attr_selectors,
-	  ll::parser::reformatter reformatter,
-	  ll::parser::reformatter_arguments
-	      reformatter_arguments,
 	  min::gen typed_attr_begin,
 	  min::gen typed_attr_equal,
 	  min::gen typed_attr_sep,

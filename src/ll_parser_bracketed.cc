@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 18:07:55 EST 2015
+// Date:	Sun Dec 20 01:24:07 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -261,8 +261,6 @@ static min::uns32 typed_opening_stub_disp[] = {
     min::DISP ( & BRA::typed_opening_struct
                      ::reformatter_arguments ),
     min::DISP ( & BRA::typed_opening_struct
-                     ::key_table ),
-    min::DISP ( & BRA::typed_opening_struct
                      ::typed_middle ),
     min::DISP ( & BRA::typed_opening_struct
                      ::closing_bracket ),
@@ -388,9 +386,6 @@ BRA::typed_opening
 	  const min::phrase_position & position,
 	  const TAB::new_flags & element_selectors,
 	  TAB::flags attr_selectors,
-	  PAR::reformatter reformatter,
-	  PAR::reformatter_arguments
-	      reformatter_arguments,
 	  min::gen typed_attr_begin,
 	  min::gen typed_attr_equal,
 	  min::gen typed_attr_sep,
@@ -414,10 +409,6 @@ BRA::typed_opening
     opening_bracket_ref(closing) =
         (BRA::opening_bracket) opening;
 
-    min::locatable_var<TAB::key_table> key_table
-        ( TAB::create_key_table ( 32 ) );
-    key_table_ref(opening) = key_table;
-
     opening->selectors = selectors;
     closing->selectors = PAR::ALWAYS_SELECTOR;
 
@@ -430,32 +421,25 @@ BRA::typed_opening
     opening->new_selectors = element_selectors;
     opening->attr_selectors = attr_selectors;
 
-    reformatter_ref(opening) = reformatter;
+    reformatter_ref(opening) = min::NULL_STUB;
     reformatter_arguments_ref(opening) =
-        reformatter_arguments;
+        min::NULL_STUB;
 
     TAB::push ( bracket_table, (TAB::root) opening );
     TAB::push ( bracket_table, (TAB::root) closing );
 
-    min::locatable_var<BRA::typed_middle> middle1
+    min::locatable_var<BRA::typed_middle> middle
         ( ::typed_middle_type.new_stub() );
-    min::locatable_var<BRA::typed_middle> middle2
-        ( ::typed_middle_type.new_stub() );
-    label_ref(middle1)  = typed_middle;
-    label_ref(middle2)  = typed_middle;
+    label_ref(middle)  = typed_middle;
 
-    typed_middle_ref(opening)  = middle1;
-    typed_opening_ref(middle1)  = opening;
+    typed_middle_ref(opening)  = middle;
+    typed_opening_ref(middle)  = opening;
 
-    middle1->selectors  = PAR::ALWAYS_SELECTOR;
-    middle2->selectors  = BRA::MIDDLE_SELECTOR;
-    middle1->block_level  = block_level;
-    middle2->block_level  = block_level;
-    middle1->position  = position;
-    middle2->position  = position;
+    middle->selectors  = PAR::ALWAYS_SELECTOR;
+    middle->block_level  = block_level;
+    middle->position  = position;
 
-    TAB::push ( bracket_table, (TAB::root) middle1 );
-    TAB::push ( key_table, (TAB::root) middle2 );
+    TAB::push ( bracket_table, (TAB::root) middle );
 
     if ( typed_attr_begin != min::MISSING() )
     {
@@ -495,9 +479,9 @@ BRA::typed_opening
 	typed_opening_ref(attr_sep)
 	    = opening;
 
-	attr_begin->selectors    = BRA::ATTR_SELECTOR;
-	attr_equal->selectors    = BRA::ATTR_SELECTOR;
-	attr_sep->selectors 	 = BRA::ATTR_SELECTOR;
+	attr_begin->selectors    = PAR::ALWAYS_SELECTOR;
+	attr_equal->selectors    = PAR::ALWAYS_SELECTOR;
+	attr_sep->selectors 	 = PAR::ALWAYS_SELECTOR;
 
 	attr_begin->block_level  = block_level;
 	attr_equal->block_level  = block_level;
@@ -507,11 +491,11 @@ BRA::typed_opening
 	attr_equal->position     = position;
 	attr_sep->position 	 = position;
 
-	TAB::push ( key_table,
+	TAB::push ( bracket_table,
 	           (TAB::root) attr_begin );
-	TAB::push ( key_table,
+	TAB::push ( bracket_table,
 	           (TAB::root) attr_equal );
-	TAB::push ( key_table,
+	TAB::push ( bracket_table,
 	           (TAB::root) attr_sep );
     }
 
@@ -531,13 +515,13 @@ BRA::typed_opening
 	typed_opening_ref(attr_negator)
 	    = opening;
 
-	attr_negator->selectors = BRA::NEGATOR_SELECTOR;
+	attr_negator->selectors = PAR::ALWAYS_SELECTOR;
 
 	attr_negator->block_level = block_level;
 
 	attr_negator->position    = position;
 
-	TAB::push ( key_table,
+	TAB::push ( bracket_table,
 	           (TAB::root) attr_negator );
     }
 
@@ -2220,6 +2204,8 @@ min::position BRA::parse_bracketed_subexpression
 		    PAR::remove
 			( parser, first,
 			  opening_bracket->label );
+		    // At this point previous is no
+		    // longer valid.
 
 		if ( subtype == BRA::OPENING_BRACKET )
 		{
@@ -2277,77 +2263,87 @@ min::position BRA::parse_bracketed_subexpression
 		        tdata.elements;
 		    if ( elements == min::NULL_STUB )
 		        elements = next;
+		    min::gen type = min::MISSING();
 		    min::unsptr i = 0;
-		    while ( first != elements )
+		    for ( PAR::token t = first;
+		          t != elements; t = t->next )
 		    {
 		        MIN_REQUIRE
 			  ( i < tdata.attr_count + 2 );
-		        if ( first->type == BRA::TYPE )
+		        if ( t->type == BRA::TYPE )
 			{
 			    attributes[i].name =
 			        min::dot_type;
 			    attributes[i].value =
-			        first->value;
+			        t->value;
 			    ++ i;
 			}
-		        else if (    first->type
+		        else if (    t->type
 			          == BRA::ATTR_LABEL )
 			{
 			    attributes[i].name =
-			        first->value;
+			        t->value;
 			    ++ i;
 			}
-		        else if (    first->type
+		        else if (    t->type
 			          == BRA::ATTR_TRUE )
 			{
 			    attributes[i].name =
-			        first->value;
+			        t->value;
 			    attributes[i].value =
 			        min::TRUE;
 			    ++ i;
 			}
-		        else if (    first->type
+		        else if (    t->type
 			          == BRA::ATTR_FALSE )
 			{
 			    attributes[i].name =
-			        first->value;
+			        t->value;
 			    attributes[i].value =
 			        min::TRUE;
 			    ++ i;
 			}
-		        else if (    first->type
+		        else if (    t->type
 			          == BRA::ATTR_VALUE )
 			    attributes[i-1].value =
-			        first->value;
-		        else if (    first->type
+			        t->value;
+		        else if (    t->type
 			          == BRA::
 				     ATTR_MULTIVALUE )
 			    attributes[i-1].multivalue =
-			        first->value;
-		        else if (    first->type
+			        t->value;
+		        else if (    t->type
 			          == BRA::ATTR_FLAGS )
 			    attributes[i-1].flags =
-			        first->value;
+			        t->value;
+parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << attributes[i-1].value << min::eol;
+		    }
+		    MIN_REQUIRE
+			( i <= tdata.attr_count + 1 );
 
+		    PAR::compact
+			( parser, pass->next,
+			  new_selectors,
+			  elements, next, position,
+			  trace_flags,
+			  PAR::BRACKETING,
+			  tdata.attr_count+1,
+			  attributes, 1 );
+
+		    // We delay deleting tokens until
+		    // their values are protected from
+		    // the garbage collector by compact.
+		    //
+		    while ( first != elements )
+		    {
 		        first = first->next;
 			PAR::free
 			    ( PAR::remove
 				( first_ref(parser),
 				  first->previous ) );
 		    }
-		    MIN_REQUIRE
-			( i < tdata.attr_count + 1 );
 
-		    PAR::compact
-			( parser, pass->next,
-			  new_selectors,
-			  first, next, position,
-			  trace_flags,
-			  PAR::BRACKETING,
-			  2, attributes, 1 );
-
-		    value_type_ref(first) =
-			opening_bracket->label;
+		    value_type_ref(first) = type;
 		}
 
 		// Come here after compacting; note that
@@ -2447,6 +2443,9 @@ min::position BRA::parse_bracketed_subexpression
 		        typed_data->mark_type
 		     == min::MISSING() )
 		{
+		    PAR::remove ( parser, current,
+			          root->label );
+
 		    if (    typed_data->middle_count % 2
 		         == 0 )
 		    {
@@ -2456,18 +2455,18 @@ min::position BRA::parse_bracketed_subexpression
 			        typed_data
 				    ->start_previous
 				    ->next
-			     != key_first )
+			     != current )
 			    ::make_type_label
 			        ( parser, typed_data,
-				  key_first );
+				  current );
 		        else
 			{
 			    ::finish_attribute
 				( parser, typed_data,
-				  key_first );
+				  current );
 			    ::move_attributes
 				( parser, typed_data,
-				  key_first );
+				  current );
 			}
 
 			selectors =
@@ -2488,12 +2487,22 @@ min::position BRA::parse_bracketed_subexpression
 			    | PAR::ALWAYS_SELECTOR;
 			typed_data->subtype =
 			    BRA::TYPED_ATTR_SEP;
+
+			if (    typed_data->elements
+			     == min::NULL_STUB
+			     &&
+			        typed_data
+				    ->start_previous
+				    ->next
+			     != current )
+			    typed_data->elements =
+			        typed_data
+				    ->start_previous
+				    ->next;
 		    }
 
 		    ++ typed_data->middle_count;
 
-		    PAR::remove ( parser, current,
-			          root->label );
 		    typed_data->start_previous =
 		        current->previous;
 
@@ -4068,8 +4077,6 @@ static min::gen bracketed_pass_command
 	      ppvec->position,
 	      new_element_selectors,
 	      new_attribute_selectors.or_flags,
-	      min::NULL_STUB,
-	      min::NULL_STUB,
 	      attribute_begin,
 	      attribute_equal,
 	      attribute_separator,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 12:31:45 EST 2015
+// Date:	Mon Dec 21 18:04:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1275,6 +1275,7 @@ inline void make_type_label
     ::make_label ( parser, start, next );
 
     start->type = BRA::TYPE;
+    typed_data->type = start->value;
     ++ typed_data->attr_count;
 }
 
@@ -2119,6 +2120,7 @@ min::position BRA::parse_bracketed_subexpression
 			      "; inserted before:" );
 		    else
 		    {
+parser->printer << "PREVIOUS TYPE " << tdata.type << min::eol;
 		        if (    tdata.subtype
 			     == BRA::TYPED_OPENING
 			     &&
@@ -2138,11 +2140,13 @@ min::position BRA::parse_bracketed_subexpression
 			    ::make_type_label
 			        ( parser, & tdata,
 				  next );
-			    PAR::move_to_before
-				( parser,
-				  tdata.elements,
-				  next->previous,
-				  next );
+			    if (    tdata.elements
+			         != min::NULL_STUB )
+				PAR::move_to_before
+				    ( parser,
+				      tdata.elements,
+				      next->previous,
+				      next );
 			}
 		        else if (    tdata.subtype
 			          == BRA::
@@ -2178,7 +2182,8 @@ min::position BRA::parse_bracketed_subexpression
 				PAR::free
 				  ( PAR::remove
 				    ( first_ref(parser),
-				      next->previous ) );
+				      next->previous )
+				  );
 			    }
 			}
 		        else
@@ -2324,6 +2329,8 @@ min::position BRA::parse_bracketed_subexpression
 		        elements = next;
 		    min::gen type = min::MISSING();
 		    min::unsptr i = 0;
+		    min::uns32 token_type =
+		        PAR::BRACKETING;
 parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 		    for ( PAR::token t = first;
 		          t != elements; t = t->next )
@@ -2345,6 +2352,7 @@ parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 			      ( i < tdata.attr_count );
 			    attributes[i].name =
 			        t->value;
+			    token_type = PAR::BRACKETED;
 			    ++ i;
 			}
 		        else if (    t->type
@@ -2356,6 +2364,7 @@ parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 			        t->value;
 			    attributes[i].value =
 			        min::TRUE;
+			    token_type = PAR::BRACKETED;
 			    ++ i;
 			}
 		        else if (    t->type
@@ -2366,7 +2375,8 @@ parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 			    attributes[i].name =
 			        t->value;
 			    attributes[i].value =
-			        min::TRUE;
+			        min::FALSE;
+			    token_type = PAR::BRACKETED;
 			    ++ i;
 			}
 		        else if (    t->type
@@ -2385,12 +2395,15 @@ parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << attributes[i-1].value << min::eol;
 		    }
 
+		    if ( tdata.middle_count == 0 )
+		        token_type = PAR::PREFIX;
+
 		    PAR::compact
 			( parser, pass->next,
 			  new_selectors,
 			  elements, next, position,
 			  trace_flags,
-			  PAR::BRACKETING,
+			  token_type,
 			  tdata.attr_count,
 			  attributes, 1 );
 
@@ -2607,8 +2620,10 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 		    else if (   typed_data->middle_count
 			      > 0
 			      &&
-			         typed_data->attributes
-			      != min::NULL_STUB )
+				 key_first
+			      != typed_data
+			             ->start_previous
+				     ->next )
 		    {
 			PAR::remove
 			    ( parser, current,

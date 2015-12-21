@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 16 06:59:35 EST 2015
+// Date:	Mon Dec 21 03:37:06 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1625,8 +1625,6 @@ void PAR::compact
 
 	while ( m -- )
 	{
-	    MIN_REQUIRE (    attributes->value
-		          != min::MISSING() );
 	    min::locate ( ap, attributes->name );
 	    min::set ( ap, attributes->value );
 	    ++ attributes;

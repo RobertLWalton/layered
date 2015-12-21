@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 02:44:44 EST 2015
+// Date:	Mon Dec 21 11:33:12 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -451,10 +451,14 @@ struct typed_data
 	// STUB if none.
     min::uns32 subtype;
         // Subtype of last key found.
-    min::gen mark_type;
+    min::gen type;
         // If typed_opening is followed immediately by a
-	// mark, the value of that mark.  Otherwise
-	// MISSING.
+	// mark, the value of that mark.  If it is
+	// followed by another type label, the value of
+	// that type label.  MISSING otherwise.
+    bool has_mark_type;
+        // True if and only if typed_opening is followed
+	// by a mark, which becomes the type.
 };
 
 // Special token types used during typed bracketed

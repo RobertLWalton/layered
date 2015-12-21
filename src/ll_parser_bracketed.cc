@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 11:30:41 EST 2015
+// Date:	Mon Dec 21 12:31:45 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2130,7 +2130,10 @@ min::position BRA::parse_bracketed_subexpression
 				  next );
 		        else if (    tdata.subtype
 			          == BRA::
-				     TYPED_ATTR_BEGIN )
+				     TYPED_ATTR_BEGIN
+				  &&
+				     tdata.type
+				  == min::MISSING() )
 			{
 			    ::make_type_label
 			        ( parser, & tdata,
@@ -2140,6 +2143,43 @@ min::position BRA::parse_bracketed_subexpression
 				  tdata.elements,
 				  next->previous,
 				  next );
+			}
+		        else if (    tdata.subtype
+			          == BRA::
+				     TYPED_ATTR_BEGIN )
+			{
+			    PAR::token start =
+			        tdata.start_previous
+				    ->next;
+			    if ( start == next )
+			        ::missing_error
+				    ( parser, next,
+				      "type" );
+			    else
+			    {
+				::make_label
+				    ( parser, start,
+				      next );
+				if (    next->previous
+				            ->value
+				     != tdata.type )
+				  PAR::parse_error
+				    ( parser,
+				      next->previous
+				          ->position,
+				      "beginning type ",
+				      min::pgen_quote
+				        ( tdata.type ),
+				      " != end type ",
+				      min::pgen_quote
+				        ( next->previous
+					      ->value )
+				    );
+				PAR::free
+				  ( PAR::remove
+				    ( first_ref(parser),
+				      next->previous ) );
+			    }
 			}
 		        else
 			{

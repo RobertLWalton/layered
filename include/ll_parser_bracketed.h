@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 20 01:11:56 EST 2015
+// Date:	Mon Dec 21 02:44:44 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -433,7 +433,8 @@ struct typed_data
     min::unsptr middle_count;
         // Count of typed_middles seen so far.
     min::unsptr attr_count;
-        // Count of attributes found so far.
+        // Count of attributes found so far, including
+	// the .type attribute.
     ll::parser::token start_previous;
 	// start_previous->next is the first token after
 	// the last key, or the first token of the typed

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 20 01:24:07 EST 2015
+// Date:	Mon Dec 21 02:45:07 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1271,6 +1271,7 @@ inline void make_type_label
     ::make_label ( parser, start, next );
 
     start->type = BRA::TYPE;
+    ++ typed_data->attr_count;
 }
 
 // Make attribute label.  Return true if label made and
@@ -1972,6 +1973,7 @@ min::position BRA::parse_bracketed_subexpression
 		    typed_data->mark_type =
 		        current->value;
 		    current->type = BRA::TYPE;
+		    ++ typed_data->attr_count;
 		}
 
 		current = key_first->next;
@@ -2258,20 +2260,21 @@ min::position BRA::parse_bracketed_subexpression
 		{
 
 		    PAR::attr attributes
-			[tdata.attr_count+2];
+			[tdata.attr_count];
 		    PAR::token elements =
 		        tdata.elements;
 		    if ( elements == min::NULL_STUB )
 		        elements = next;
 		    min::gen type = min::MISSING();
 		    min::unsptr i = 0;
+parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 		    for ( PAR::token t = first;
 		          t != elements; t = t->next )
 		    {
-		        MIN_REQUIRE
-			  ( i < tdata.attr_count + 2 );
 		        if ( t->type == BRA::TYPE )
 			{
+			    MIN_REQUIRE
+			      ( i < tdata.attr_count );
 			    attributes[i].name =
 			        min::dot_type;
 			    attributes[i].value =
@@ -2281,6 +2284,8 @@ min::position BRA::parse_bracketed_subexpression
 		        else if (    t->type
 			          == BRA::ATTR_LABEL )
 			{
+			    MIN_REQUIRE
+			      ( i < tdata.attr_count );
 			    attributes[i].name =
 			        t->value;
 			    ++ i;
@@ -2288,6 +2293,8 @@ min::position BRA::parse_bracketed_subexpression
 		        else if (    t->type
 			          == BRA::ATTR_TRUE )
 			{
+			    MIN_REQUIRE
+			      ( i < tdata.attr_count );
 			    attributes[i].name =
 			        t->value;
 			    attributes[i].value =
@@ -2297,6 +2304,8 @@ min::position BRA::parse_bracketed_subexpression
 		        else if (    t->type
 			          == BRA::ATTR_FALSE )
 			{
+			    MIN_REQUIRE
+			      ( i < tdata.attr_count );
 			    attributes[i].name =
 			        t->value;
 			    attributes[i].value =
@@ -2318,8 +2327,6 @@ min::position BRA::parse_bracketed_subexpression
 			        t->value;
 parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << attributes[i-1].value << min::eol;
 		    }
-		    MIN_REQUIRE
-			( i <= tdata.attr_count + 1 );
 
 		    PAR::compact
 			( parser, pass->next,

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue May 19 16:24:08 EDT 2015
+# Date:		Mon Dec 21 03:29:09 EST 2015
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -362,7 +362,7 @@ ll_lexeme_alternate_test.out:		\
 ll_lexeme_name_string_test:		\
 		ll_lexeme_name_string_test.cc \
 		ll_lexeme_test.o \
-		${LEXEME_ALTERNATE_O} \
+		${LEXEME_O} \
 		Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \

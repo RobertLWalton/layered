@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 02:45:07 EST 2015
+// Date:	Mon Dec 21 04:09:04 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1266,7 +1266,11 @@ inline void make_type_label
 	  PAR::token next )
 {
     PAR::token start = typed_data->start_previous->next;
-    MIN_REQUIRE ( start != next );
+    if ( start == next )
+    {
+	missing_error ( parser, next, "type" );
+	return;
+    }
 
     ::make_label ( parser, start, next );
 
@@ -2124,6 +2128,12 @@ min::position BRA::parse_bracketed_subexpression
 			    ::make_type_label
 			        ( parser, & tdata,
 				  next );
+		        else if (    tdata.subtype
+			          == BRA::
+				     TYPED_ATTR_BEGIN )
+			    ::make_type_label
+			        ( parser, & tdata,
+				  next );
 		        else
 			{
 			    ::finish_attribute
@@ -2334,7 +2344,7 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 			  elements, next, position,
 			  trace_flags,
 			  PAR::BRACKETING,
-			  tdata.attr_count+1,
+			  tdata.attr_count,
 			  attributes, 1 );
 
 		    // We delay deleting tokens until
@@ -2478,9 +2488,6 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 
 			selectors =
 			    typed_data->saved_selectors;
-
-			typed_data->subtype =
-			    BRA::TYPED_MIDDLE;
 		    }
 		    else // if
 		         // typed_data->middle_count % 2
@@ -2492,8 +2499,6 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 			          ->typed_opening
 			          ->attr_selectors
 			    | PAR::ALWAYS_SELECTOR;
-			typed_data->subtype =
-			    BRA::TYPED_ATTR_SEP;
 
 			if (    typed_data->elements
 			     == min::NULL_STUB
@@ -2507,6 +2512,9 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 				    ->start_previous
 				    ->next;
 		    }
+
+		    typed_data->subtype =
+			BRA::TYPED_MIDDLE;
 
 		    ++ typed_data->middle_count;
 
@@ -2548,6 +2556,23 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 			      root->label );
 			typed_data->subtype =
 			    BRA::TYPED_ATTR_SEP;
+			typed_data->start_previous =
+			    current->previous;
+		    }
+		    else if (   typed_data->middle_count
+			      > 0
+			      &&
+			         typed_data->attributes
+			      != min::NULL_STUB )
+		    {
+			::finish_attribute
+			    ( parser, typed_data,
+			      current );
+			::move_attributes
+			    ( parser, typed_data,
+			      current );
+			typed_data->subtype =
+			    BRA::TYPED_ATTR_BEGIN;
 			typed_data->start_previous =
 			    current->previous;
 		    }

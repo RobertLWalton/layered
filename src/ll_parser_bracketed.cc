@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 04:09:04 EST 2015
+// Date:	Mon Dec 21 11:30:41 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1450,7 +1450,8 @@ min::position BRA::parse_bracketed_subexpression
 	typed_data->elements = min::NULL_STUB;
 	typed_data->attributes = min::NULL_STUB;
 	typed_data->subtype = BRA::TYPED_OPENING;
-	typed_data->mark_type = min::MISSING();
+	typed_data->type = min::MISSING();
+	typed_data->has_mark_type = false;
     }
 
     bool at_start = true;
@@ -1974,8 +1975,8 @@ min::position BRA::parse_bracketed_subexpression
 		{
 		    selectors =
 		        typed_data->saved_selectors;
-		    typed_data->mark_type =
-		        current->value;
+		    typed_data->type = current->value;
+		    typed_data->has_mark_type = true;
 		    current->type = BRA::TYPE;
 		    ++ typed_data->attr_count;
 		}
@@ -2069,8 +2070,7 @@ min::position BRA::parse_bracketed_subexpression
 		    if ( next == min::NULL_STUB )
 		        next = current;
 
-		    if (    tdata.mark_type
-		         != min::MISSING() )
+		    if ( tdata.has_mark_type )
 		    {
 			PAR::token type_token =
 			    previous->next;
@@ -2079,7 +2079,7 @@ min::position BRA::parse_bracketed_subexpression
 			    ::missing_error
 			        ( parser, next, "",
 				  min::pgen_quote
-				    ( tdata.mark_type ),
+				    ( tdata.type ),
 				  " missing at end of"
 				  " typed bracketed"
 				  " expression;"
@@ -2088,10 +2088,10 @@ min::position BRA::parse_bracketed_subexpression
 			{
 			    if (    next->previous
 			                ->value
-				 != tdata.mark_type )
+				 != tdata.type )
 			    {
 				min::gen v[2] =
-				    { tdata.mark_type,
+				    { tdata.type,
 				      next->previous
 					  ->value };
 				PAR::value_ref
@@ -2131,9 +2131,16 @@ min::position BRA::parse_bracketed_subexpression
 		        else if (    tdata.subtype
 			          == BRA::
 				     TYPED_ATTR_BEGIN )
+			{
 			    ::make_type_label
 			        ( parser, & tdata,
 				  next );
+			    PAR::move_to_before
+				( parser,
+				  tdata.elements,
+				  next->previous,
+				  next );
+			}
 		        else
 			{
 			    ::finish_attribute
@@ -2457,8 +2464,7 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 			          ->typed_middle
 		     == (BRA::typed_middle) root
 		     &&
-		        typed_data->mark_type
-		     == min::MISSING() )
+		     ! typed_data->has_mark_type )
 		{
 		    PAR::remove ( parser, current,
 			          root->label );
@@ -2538,8 +2544,7 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		        typed_data->mark_type
-		     == min::MISSING() )
+		     ! typed_data->has_mark_type )
 		{
 		    if (    typed_data->subtype
 		         == BRA::TYPED_OPENING
@@ -2565,6 +2570,9 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 			         typed_data->attributes
 			      != min::NULL_STUB )
 		    {
+			PAR::remove
+			    ( parser, current,
+			      root->label );
 			::finish_attribute
 			    ( parser, typed_data,
 			      current );
@@ -2597,8 +2605,7 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		        typed_data->mark_type
-		     == min::MISSING() )
+		     ! typed_data->has_mark_type )
 		{
 		    if ( (    typed_data->subtype
 		           == BRA::TYPED_MIDDLE
@@ -2646,8 +2653,7 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		        typed_data->mark_type
-		     == min::MISSING() )
+		     ! typed_data->has_mark_type )
 		{
 		    if (    typed_data->subtype
 		         == BRA::TYPED_MIDDLE
@@ -2693,8 +2699,7 @@ parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << att
 		     &&
 		     typed_data->middle_count % 2 == 0
 		     &&
-		        typed_data->mark_type
-		     == min::MISSING() )
+		     ! typed_data->has_mark_type )
 		{
 		    if ( (    typed_data->subtype
 		           == BRA::TYPED_ATTR_SEP

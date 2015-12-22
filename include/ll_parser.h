@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 10:23:15 EST 2015
+// Date:	Tue Dec 22 03:53:32 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -193,9 +193,10 @@ enum // Token types (see below).
     BRACKETING		= 0xFFFFFFFE,
       // Not an actual token type: see `compact'.
     BRACKETABLE		= 0xFFFFFFFD,
-    PREFIX		= 0xFFFFFFFC,
-    OPERATOR		= 0xFFFFFFFB,
-    DERIVED		= 0xFFFFFFFA,
+    PURELIST		= 0xFFFFFFFC,
+    PREFIX		= 0xFFFFFFFB,
+    OPERATOR		= 0xFFFFFFFA,
+    DERIVED		= 0xFFFFFFF9,
 
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
@@ -234,6 +235,14 @@ struct token_struct
 	//	    into the value of that element
 	//	    instead of becoming a separate
 	//	    token.
+	//
+	//	PURELIST
+	//	    PURELIST tokens have no attirubte.
+	//	    If `compact' is asked to compact a
+	//	    list whose only element is a PURE-
+	//	    LIST token, it will add attributes
+	//	    to that token instead of making
+	//	    a new containing list.
 	//
 	//	PREFIX
 	//	    PREFIX tokens are suitable for use
@@ -1533,7 +1542,7 @@ ll::parser::table::root find_next_entry
 // Put an empty expression token just before a given
 // token t on a list of tokens headed by first.  The
 // empty expression has no elements and only a .position
-// attribute, and is BRACKETABLE.  The position is just
+// attribute, and is PURELIST.  The position is just
 // before t.
 //
 void put_empty_before
@@ -1575,9 +1584,10 @@ void put_error_operator_after
 // token from the given argument.  The resulting
 // expression token is in first == next->previous.
 // Its type is given in the type argument, and must
-// be either BRACKETED or BRACKETABLE.  The type argu-
+// be either BRACKETED, or BRACKETABLE.  The type argu-
 // ment can also be BRACKETING as a special case: see
-// below.
+// below.  Note that the type argument should never be
+// PURELIST.
 //
 // If the type argument is BRACKETABLE, the m attributes
 // MUST NOT include any .type, .initiator, or .termina-
@@ -1590,26 +1600,28 @@ void put_error_operator_after
 // as a string general value and whose .initiator is #
 // for a number or " for a quoted string.
 //
-// An exception to the above is made if the type argu-
-// ment is given as BRACKETING.  Then if the tokens to
-// be put in the new expression consist of just a single
-// token of BRACKETABLE type, instead of making a new
-// token, this function simply adds the m attributes to
-// the BRACKETABLE token, whose type is changed to
-// BRACKETED.  The positions of this token and of its
-// MIN object value are also reset.
+// Space is allocated in the new object for the m
+// attributes, 1 .position attribute, and n attributes
+// to be added later.
 //
-// But if the type argument is given as BRACKETING and
-// the conditions of the last paragraph are not meet,
-// then the type argument is changed to BRACKETED.
+// The type argument is changed to PURELIST if m == 0
+// and otherwise to BRACKETED if the type argument is
+// as BRACKETING.
+//
+// An exception to the above is made if if the tokens to
+// be put in the new expression consist of just a single
+// token, m != 0, and either the single token is of
+// PURELIST type, or the single token is of BRACKETABLE
+// type and the type argument is BRACKETING.  Then
+// instead of making a new token, this function simply
+// adds the m attributes to the PURELIST or BRACKETABLE
+// token, whose type is changed to BRACKETED.  The
+// positions of this token and of its MIN object value
+// are also reset to the position argument.
 //
 // If the type argument is BRACKETING, the m attributes
 // can only include .type, .initiator, and/or .termina-
 // tor attributes.
-//
-// Space is allocated in the new object for the m
-// attributes, 1 .position attribute, and n attributes
-// to be added later.
 //
 // The trace_subexpression function is called with the
 // final output subexpression token to process any

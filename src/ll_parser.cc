@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 22 01:29:28 EST 2015
+// Date:	Tue Dec 22 04:25:03 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1497,7 +1497,7 @@ void PAR::put_empty_before
 	( ll::parser::parser parser,
 	  ll::parser::token t )
 {
-    PAR::token token = new_token ( PAR::BRACKETABLE );
+    PAR::token token = new_token ( PAR::PURELIST );
     put_before ( PAR::first_ref(parser), t, token );
 
     min::phrase_position position =
@@ -1665,6 +1665,20 @@ static void set_attr_flags
     }
 }
 
+static void set_attr_multivalue
+	( PAR::parser parser,
+	  min::attr_insptr expap,
+	  min::gen multivalue )
+{
+    min::obj_vec_ptr vp ( multivalue );
+    min::unsptr n =
+	min::attr_size_of ( vp );
+    min::gen values[n];
+    for ( min::unsptr i = 0; i < n; ++ i )
+	values[i] = min::attr ( vp, i );
+    min::set ( expap, values, n );
+}
+
 void PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -1682,9 +1696,13 @@ void PAR::compact
 
     if ( first->next == next
          &&
-	 first->type == PAR::BRACKETABLE
-	 &&
-	 type == PAR::BRACKETING )
+	 ( ( first->type == PAR::BRACKETABLE
+	     &&
+	     type == PAR::BRACKETING )
+	   ||
+	   first->type == PAR::PURELIST )
+	&&
+	m != 0 )
     {
 	min::obj_vec_insptr vp ( first->value );
 	min::attr_insptr ap ( vp );
@@ -1697,7 +1715,16 @@ void PAR::compact
 	while ( m -- )
 	{
 	    min::locate ( ap, attributes->name );
-	    min::set ( ap, attributes->value );
+	    if (    attributes->multivalue
+	         == min::MISSING() )
+		min::set ( ap, attributes->value );
+	    else
+	        ::set_attr_multivalue
+		    ( parser, ap,
+		      attributes->multivalue );
+	    if ( attributes->flags != min::MISSING() )
+	        ::set_attr_flags ( parser, ap,
+		                   attributes->flags );
 	    ++ attributes;
 	}
 	first->type = PAR::BRACKETED;
@@ -1705,7 +1732,9 @@ void PAR::compact
     }
     else
     {
-        if ( type == PAR::BRACKETING )
+	if ( m == 0 )
+	    type = PAR::PURELIST;
+        else if ( type == PAR::BRACKETING )
 	    type = PAR::BRACKETED;
 
 	// Temporary min::gen locatable.
@@ -1771,16 +1800,9 @@ void PAR::compact
 	         == min::MISSING() )
 		min::set ( expap, attributes->value );
 	    else
-	    {
-	        min::obj_vec_ptr vp
-		    ( attributes->multivalue );
-		min::unsptr n =
-		    min::attr_size_of ( vp );
-		min::gen values[n];
-		for ( min::unsptr i = 0; i < n; ++ i )
-		    values[i] = min::attr ( vp, i );
-		min::set ( expap, values, n );
-	    }
+	        ::set_attr_multivalue
+		    ( parser, expap,
+		      attributes->multivalue );
 	    if ( attributes->flags != min::MISSING() )
 	        ::set_attr_flags ( parser, expap,
 		                   attributes->flags );

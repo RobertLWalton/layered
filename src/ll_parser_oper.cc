@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 01:06:19 EST 2015
+// Date:	Tue Dec 22 02:25:17 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -639,7 +639,7 @@ static void oper_parse ( PAR::parser parser,
 			    current->previous
 			           ->position.end;
 			PAR::compact
-			    ( parser, pass->next,
+			    ( parser, min::NULL_STUB,
 			      selectors,
 			      D.first, current,
 			      position,

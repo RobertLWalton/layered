@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 18:04:09 EST 2015
+// Date:	Tue Dec 22 02:15:33 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2075,16 +2075,20 @@ min::position BRA::parse_bracketed_subexpression
 		    {
 			PAR::token type_token =
 			    previous->next;
-			if (    next->previous->type
-			     != LEXSTD::mark_t )
+			if (    type_token
+			     == next->previous )
+			     /* Do nothing! */;
+			else if (    next->previous
+			                 ->type
+			          != LEXSTD::mark_t )
 			    ::missing_error
 			        ( parser, next, "",
 				  min::pgen_quote
 				    ( tdata.type ),
-				  " missing at end of"
+				  " at end of"
 				  " typed bracketed"
 				  " expression;"
-				  " inserted before:" );
+				  " inserted before" );
 			else
 			{
 			    if (    next->previous
@@ -2110,6 +2114,10 @@ min::position BRA::parse_bracketed_subexpression
 				);
 			    }
 			}
+			if (    type_token
+			     != next->previous )
+			    tdata.elements =
+				type_token->next;
 		    }
 		    else
 		    if ( tdata.middle_count % 2 == 1 )
@@ -2117,10 +2125,9 @@ min::position BRA::parse_bracketed_subexpression
 			    ( parser, next, "",
 			      min::pgen_quote
 			          ( root->label ),
-			      "; inserted before:" );
+			      "; inserted before" );
 		    else
 		    {
-parser->printer << "PREVIOUS TYPE " << tdata.type << min::eol;
 		        if (    tdata.subtype
 			     == BRA::TYPED_OPENING
 			     &&
@@ -2331,7 +2338,6 @@ parser->printer << "PREVIOUS TYPE " << tdata.type << min::eol;
 		    min::unsptr i = 0;
 		    min::uns32 token_type =
 		        PAR::BRACKETING;
-parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 		    for ( PAR::token t = first;
 		          t != elements; t = t->next )
 		    {
@@ -2392,10 +2398,11 @@ parser->printer << "ATTR COUNT " << tdata.attr_count << min::eol;
 			          == BRA::ATTR_FLAGS )
 			    attributes[i-1].flags =
 			        t->value;
-parser->printer << "ATTR " << i-1 << " " << attributes[i-1].name << " = " << attributes[i-1].value << min::eol;
 		    }
 
-		    if ( tdata.middle_count == 0 )
+		    if ( tdata.middle_count == 0
+		         &&
+			 ! tdata.has_mark_type )
 		        token_type = PAR::PREFIX;
 
 		    PAR::compact
@@ -3037,89 +3044,6 @@ inline void punctuation_error
 
     ::remove ( parser, first, start,
                key_first, current );
-}
-
-static void set_attr_flags
-	( PAR::parser parser,
-	  PAR::token current,
-	  PAR::token next,
-	  min::attr_insptr expap,
-	  min::gen label,
-	  min::uns32 attr_flags_type,
-	  const min::flag_parser * flag_parser )
-{
-    min::locate ( expap, label );
-    while ( current->next->type == attr_flags_type )
-    {
-        MIN_REQUIRE ( current->next != next );
-	min::obj_vec_insptr vp ( current->next->value );
-
-	for ( min::unsptr i = 0;
-	      i < min::size_of ( vp ); ++ i )
-	{
-	    min::gen flags_text = vp[i];
-	    if ( min::is_obj ( flags_text ) )
-	    {
-		min::obj_vec_insptr vp ( flags_text );
-		min::attr_insptr ap ( vp );
-		min::locate ( ap, min::dot_type );
-		min::gen type = get ( ap );
-		if ( type == min::doublequote
-		     ||
-		     type == min::number_sign )
-		    flags_text = vp[0];
-	    }
-
-	    if ( min::is_str ( flags_text ) )
-	    {
-	        min::str_ptr sp ( flags_text );
-	        min::unsptr len = min::strlen ( sp );
-	        char text_buffer[len+1];
-	        min::strcpy ( text_buffer, sp );
-	        min::uns32 flags[len];
-	        len = min::parse_flags
-	            ( flags, text_buffer, flag_parser );
-	        for ( min::unsptr j = 0; j < len; ++ j )
-	            min::set_flag ( expap, flags[j] );
-		
-		if ( text_buffer[0] != 0 )
-		{
-		    min::attr_insptr ap ( vp );
-		    min::locate
-		        ( ap, min::dot_position );
-		    min::phrase_position_vec_insptr
-		        pos = min::get ( ap );
-		    min::phrase_position position =
-		        pos[i];
-		    char buffer[len+200];
-		    sprintf ( buffer,
-		              "bad flag(s) \"%s\" in ",
-			      text_buffer );
-		    parse_error ( parser, position,
-		                  buffer,
-			          min::pgen_quote
-			              ( flags_text ) );
-		}
-	    }
-	    else
-	    {
-		min::attr_insptr ap ( vp );
-		min::locate ( ap, min::dot_position );
-		min::phrase_position_vec_insptr
-		    pos = min::get ( ap );
-		min::phrase_position position = pos[i];
-		PAR::parse_error
-		    ( parser, position,
-		      "bad flags specifier ",
-		       min::pgen_quote ( flags_text ) );
-	    }
-	}
-
-	PAR::free
-	    ( PAR::remove
-		( first_ref(parser),
-		  current->next ) );
-    }
 }
 
 min::locatable_var<PAR::reformatter>

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 03:37:06 EST 2015
+// Date:	Tue Dec 22 01:29:28 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -570,7 +570,7 @@ void PAR::push_new_pass
     min::push ( (ll::parser::new_pass_table_type)
                 ll::parser::new_pass_table )
         = e;
-    min::unprotected::acc_write_update 
+    min::unprotected::acc_write_update
 	( ll::parser::new_pass_table, name );
 }
 
@@ -1095,7 +1095,7 @@ void PAR::parse ( PAR::parser parser )
 	{
 	    PAR::token current_save = current;
 	    TAB::key_prefix prefix =
-		PAR::find_key_prefix 
+		PAR::find_key_prefix
 		    ( parser, current,
 		      parser->context_table );
 	    if ( prefix != NULL_STUB )
@@ -1260,7 +1260,7 @@ const min::uns32 & PAR::REFORMATTER =
 void PAR::push_reformatter
     ( min::gen name,
       min::uns32 flags,
-      min::uns32 minimum_arguments, 
+      min::uns32 minimum_arguments,
       min::uns32 maximum_arguments,
       PAR::reformatter_function reformatter_function,
       min::ref<PAR::reformatter> stack )
@@ -1352,7 +1352,7 @@ min::gen PAR::end_block
     TAB::end_block
         ( parser->context_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
-        
+
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
 	  pass != NULL;
@@ -1594,6 +1594,77 @@ void PAR::put_error_operator_after
     token->position = position;
 }
 
+static void set_attr_flags
+	( PAR::parser parser,
+	  min::attr_insptr expap,
+	  min::gen flags,
+	  const min::flag_parser * flag_parser
+	      = min::standard_attr_flag_parser )
+{
+    min::obj_vec_insptr vp ( flags );
+
+    for ( min::unsptr i = 0;
+	  i < min::size_of ( vp ); ++ i )
+    {
+	min::gen flags_text = vp[i];
+	if ( min::is_obj ( flags_text ) )
+	{
+	    min::obj_vec_insptr fvp ( flags_text );
+	    min::attr_insptr fap ( fvp );
+	    min::locate ( fap, min::dot_type );
+	    min::gen type = get ( fap );
+	    if ( type == min::doublequote
+		 ||
+		 type == min::number_sign )
+		flags_text = fvp[0];
+	}
+
+	if ( min::is_str ( flags_text ) )
+	{
+	    min::str_ptr sp ( flags_text );
+	    min::unsptr len = min::strlen ( sp );
+	    char text_buffer[len+1];
+	    min::strcpy ( text_buffer, sp );
+	    min::uns32 flags[len];
+	    len = min::parse_flags
+		( flags, text_buffer, flag_parser );
+	    for ( min::unsptr j = 0; j < len; ++ j )
+		min::set_flag ( expap, flags[j] );
+
+	    if ( text_buffer[0] != 0 )
+	    {
+		min::attr_insptr ap ( vp );
+		min::locate
+		    ( ap, min::dot_position );
+		min::phrase_position_vec_insptr
+		    pos = min::get ( ap );
+		min::phrase_position position =
+		    pos[i];
+		char buffer[len+200];
+		sprintf ( buffer,
+			  "bad flag(s) \"%s\" in ",
+			  text_buffer );
+		parse_error ( parser, position,
+			      buffer,
+			      min::pgen_quote
+				  ( flags_text ) );
+	    }
+	}
+	else
+	{
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
+	    min::phrase_position_vec_insptr
+		pos = min::get ( ap );
+	    min::phrase_position position = pos[i];
+	    PAR::parse_error
+		( parser, position,
+		  "bad flags specifier ",
+		   min::pgen_quote ( flags_text ) );
+	}
+    }
+}
+
 void PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -1696,7 +1767,23 @@ void PAR::compact
 	while ( m -- )
 	{
 	    min::locate ( expap, attributes->name );
-	    min::set ( expap, attributes->value );
+	    if (    attributes->multivalue
+	         == min::MISSING() )
+		min::set ( expap, attributes->value );
+	    else
+	    {
+	        min::obj_vec_ptr vp
+		    ( attributes->multivalue );
+		min::unsptr n =
+		    min::attr_size_of ( vp );
+		min::gen values[n];
+		for ( min::unsptr i = 0; i < n; ++ i )
+		    values[i] = min::attr ( vp, i );
+		min::set ( expap, values, n );
+	    }
+	    if ( attributes->flags != min::MISSING() )
+	        ::set_attr_flags ( parser, expap,
+		                   attributes->flags );
 	    ++ attributes;
 	}
 
@@ -1885,7 +1972,7 @@ void PAR::convert_token ( PAR::token token )
     PAR::string_ref(token) =
 	PAR::free_string ( token->string );
 
-    min::attr_insptr elemap ( elemvp ); 
+    min::attr_insptr elemap ( elemvp );
     min::locate ( elemap, min::dot_type );
     min::set ( elemap, type );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 22 10:56:34 EST 2015
+// Date:	Wed Dec 23 07:12:42 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,7 @@ namespace ll { namespace parser { namespace prefix {
 // ------ ----- -------
 
 struct prefix_struct;
-typedef min::packed_struct_updptr<prefix_struct> oper;
+typedef min::packed_struct_updptr<prefix_struct> prefix;
 extern const uns32 & PREFIX;
     // Subtype of min::packed_struct<prefix_struct>.
 
@@ -42,6 +42,8 @@ struct prefix_struct
     ll::parser::table::new_flags new_selectors;
 };
 
+MIN_REF ( ll::parser::table::root, next,
+          ll::parser::prefix::prefix )
 MIN_REF ( min::gen, label, ll::parser::prefix::prefix )
 
 // Create an prefix definition entry with given

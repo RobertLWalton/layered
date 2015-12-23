@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 22 03:53:32 EST 2015
+// Date:	Wed Dec 23 07:33:52 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -887,6 +887,8 @@ struct context_struct :
 
 };
 
+MIN_REF ( ll::parser::table::root, next,
+          ll::parser::context )
 MIN_REF ( min::gen, label, ll::parser::context )
 
 void push_context

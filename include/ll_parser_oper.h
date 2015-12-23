@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 25 15:48:14 EDT 2015
+// Date:	Wed Dec 23 07:33:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,6 +85,8 @@ struct oper_struct
 	// label.  NULL_STUB if none.
 };
 
+MIN_REF ( ll::parser::table::root, next,
+          ll::parser::oper::oper )
 MIN_REF ( min::gen, label, ll::parser::oper::oper )
 MIN_REF ( min::gen, terminator, ll::parser::oper::oper )
 MIN_REF ( ll::parser::reformatter, reformatter,

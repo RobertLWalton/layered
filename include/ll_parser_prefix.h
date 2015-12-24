@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 23 07:12:42 EST 2015
+// Date:	Wed Dec 23 19:30:55 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,7 +95,12 @@ struct prefix_pass_struct
 {
     // Packed_struct subtype is PREFIX_PASS.
 
+    const ll::parser::table::key_table key_table;
+        // Map of prefix types to new selectors.
+
     const ll::parser::prefix::prefix_stack prefix_stack;
+        // Stack of prefix subexpressions used during
+	// prefix parsing pass.
 
     ll::parser::table::flags trace_subexpressions;
         // Trace flag named `prefix subexpressions'
@@ -109,7 +114,11 @@ MIN_REF ( ll::parser::parser, parser,
           ll::parser::prefix::prefix_pass )
 MIN_REF ( ll::parser::pass, next,
           ll::parser::prefix::prefix_pass )
-MIN_REF ( ll::parser::prefix::prefix_stack, prefix_stack,
+MIN_REF ( ll::parser::table::key_table,
+          key_table,
+          ll::parser::prefix::prefix_pass )
+MIN_REF ( ll::parser::prefix::prefix_stack,
+          prefix_stack,
           ll::parser::prefix::prefix_pass )
 
 // Return a new prefix parser pass.
@@ -119,4 +128,3 @@ ll::parser::pass new_pass ( void );
 } } }
 
 # endif // LL_PARSER_PREFIX_H
-

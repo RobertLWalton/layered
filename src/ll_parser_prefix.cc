@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 26 07:03:10 EST 2015
+// Date:	Sat Dec 26 14:01:39 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -526,8 +526,6 @@ static min::gen prefix_pass_command
     	return COM::PRINTED;
     }
 
-    TBD
-
     // Scan selectors.
     //
     TAB::flags selectors;
@@ -545,263 +543,65 @@ static min::gen prefix_pass_command
 	      " after" );
     else MIN_REQUIRE ( sresult == min::SUCCESS() );
 
-    // Scan prefixator flags.
-    //
-    min::uns32 prefix_flags = 0;
-
-    min::phrase_position prefix_flags_position;
-    prefix_flags_position.begin = (&ppvec[i])->begin;
-
-    while ( i < size )
-    {
-	min::uns32 new_prefix_flag;
-        if ( vp[i] == OP::prefix )
-	    new_prefix_flag = OP::PREFIX;
-        else if ( vp[i] == OP::infix )
-	    new_prefix_flag = OP::INFIX;
-        else if ( vp[i] == OP::postfix )
-	    new_prefix_flag = OP::POSTFIX;
-        else if ( vp[i] == OP::afix )
-	    new_prefix_flag = OP::AFIX;
-        else if ( vp[i] == OP::nofix )
-	    new_prefix_flag = OP::NOFIX;
-	else break;
-
-	if ( prefix_flags & new_prefix_flag )
-	    return PAR::parse_error
-		( parser, ppvec[i],
-		  "prefixator flag ",
-		  min::pgen_quote ( vp[i] ),
-		  " appears twice" );
-
-	prefix_flags |= new_prefix_flag;
-	++ i;
-    }
-
-    if ( prefix_flags == 0 )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected operator flags after" );
-
-    oper_flags_position.end = (&ppvec[i-1])->end;
-
-    if ( ( oper_flags & OP::NOFIX )
-          &&
-	 ( oper_flags & OP::PREFIX ) )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "operator flags nofix and prefix"
-	      " are incompatible" );
-    if ( ( oper_flags & OP::NOFIX )
-          &&
-	 ( oper_flags & OP::INFIX ) )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "operator flags nofix and infix"
-	      " are incompatible" );
-    if ( ( oper_flags & OP::NOFIX )
-          &&
-	 ( oper_flags & OP::POSTFIX ) )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "operator flags nofix and postfix"
-	      " are incompatible" );
-    if ( ( oper_flags & OP::INFIX )
-          &&
-	 ( oper_flags & OP::POSTFIX ) )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "operator flags infix and postfix"
-	      " are incompatible" );
-
-    min::int32 precedence;
-    bool precedence_found = false;
-    PAR::reformatter reformatter = min::NULL_STUB;
-    min::locatable_var
-    	    < PAR::reformatter_arguments >
-        reformatter_arguments ( min::NULL_STUB );
-    while ( i < size && vp[i] == PAR::with )
-    {
-	++ i;
-	if ( i < size
-	     &&
-	     vp[i] == ::precedence )
-	{
-	    ++ i;
-	    int sign = +1;
-	    if ( i >= size )
-		/* do nothing */;
-	    else if ( vp[i] == PAR::plus )
-		sign = +1, ++ i;
-	    else if ( vp[i] == PAR::minus )
-		sign = -1, ++ i;
-	    min::gen pg = min::MISSING();
-	    if ( i < size )
-	    {
-		if (    PAR::get_attribute
-		            ( vp[i], min::dot_type )
-		     == PAR::number_sign )
-		{
-		    min::obj_vec_ptr pvp = vp[i];
-		    if ( min::size_of ( pvp ) == 1 )
-		        pg = pvp[0];
-		}
-		else
-		    pg = vp[i];
-	    }
-	        
-	    if ( ! min::strto ( precedence, pg, 10 ) )
-		return PAR::parse_error
-		    ( parser, ppvec[i-1],
-		      "expected precedence integer"
-		      " after" );
-	    precedence *= sign;
-	    precedence_found = true;
-	    ++ i;
-	    continue;
-
-	}
-	else if ( i < size )
-	{
-	    min::uns32 j = i;
-	    min::locatable_gen name
-	      ( COM::scan_simple_name
-	          ( vp, j, PAR::reformatter_lexeme ) );
-	    if (    j < size
-		 && vp[j] == PAR::reformatter_lexeme )
-	    {
-		min::phrase_position position =
-		    { (&ppvec[i])->begin,
-		      (&ppvec[j])->end };
-		reformatter =
-		    PAR::find_reformatter
-		        ( name,
-			  OP::reformatter_stack );
-		if ( reformatter == min::NULL_STUB )
-		{
-		    return PAR::parse_error
-			( parser, position,
-			  "undefined reformatter"
-			  " name" );
-		}
-
-		min::uns32 illegal_flags =
-		        oper_flags
-		    & ~ reformatter->flags;
-		if ( illegal_flags != 0 )
-		{
-		    char buffer[200];
-		    char * s = buffer;
-		    s += sprintf
-		        ( s, " reformatter"
-			     " incompatible with" );
-		    if ( illegal_flags & OP::PREFIX )
-		        s += sprintf ( s, " prefix" );
-		    if ( illegal_flags & OP::INFIX )
-		        s += sprintf ( s, " infix" );
-		    if ( illegal_flags & OP::POSTFIX )
-		        s += sprintf ( s, " postfix" );
-		    if ( illegal_flags & OP::NOFIX )
-		        s += sprintf ( s, " nofix" );
-		    if ( illegal_flags & OP::AFIX )
-		        s += sprintf ( s, " afix" );
-		    s += sprintf
-		        ( s, " operator flag(s)" );
-		    return PAR::parse_error
-			    ( parser, ppvec->position,
-			      "",
-			      min::pgen_quote ( name ),
-			      buffer );
-		}
-
-		i = j + 1;
-
-		name = COM::scan_names
-		    ( vp, i, reformatter_arguments,
-		          parser );
-		if ( name == min::ERROR() )
-		    return min::ERROR();
-		if (    reformatter_arguments
-		     == min::NULL_STUB )
-		{
-		    if ( reformatter->minimum_arguments
-		         > 0 )
-			return PAR::parse_error
-				( parser, position,
-				  "reformatter"
-				  " arguments"
-				  " missing" );
-		}
-		else
-		{
-		    position.end = (&ppvec[i-1])->end;
-
-		    if (   reformatter_arguments->length
-			 < reformatter->
-			       minimum_arguments )
-			return PAR::parse_error
-				( parser, position,
-				  "too few reformatter"
-				  " arguments" );
-		    if (   reformatter_arguments->length
-			 > reformatter->
-			       maximum_arguments )
-			return PAR::parse_error
-				( parser, position,
-				  "too many reformatter"
-				  " arguments" );
-		}
-
-		continue;
-	    }
-	}
-
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      command == PAR::define ?
-	      "expected `precedence ...' or"
-	      " `... reformatter' after" :
-	      "expected `precedence ...' after" );
-
-    }
-    if ( i < size )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected `with' after" );
-    if ( ! precedence_found )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected `with precedence ...'"
-	      " after" );
-
     if ( command == PAR::define )
     {
-	OP::push_oper
-	    ( name[0], name[1],
-	      selectors,
+	TAB::new_flags new_selectors;
+	while ( i < size && vp[i] == PAR::with )
+	{
+	    ++ i;
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == PAR::parsing
+		 &&
+		 vp[i+1] == PAR::selectors )
+	    {
+		i += 2;
+		min::gen result =
+		    COM::scan_new_flags
+			( vp, i, new_selectors,
+			  PAR::ALL_SELECTORS,
+			  parser->selector_name_table,
+			  parser->
+			    selector_group_name_table,
+			  parser, true );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::FAILURE() )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected bracketed selector"
+			  " modifier list after" );
+	    }
+	    else
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected `parsing selectors'"
+		      " after" );
+	}
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `with' after" );
+
+	OP::push_prefix
+	    ( name[0], selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      oper_flags, precedence,
-	      reformatter, reformatter_arguments,
-	      bracket || indentation_mark ?
-	          oper_pass->oper_bracket_table :
-		  oper_pass->oper_table );
+	      new_selectors,
+	      prefix_pass->prefix_table );
     }
 
     else // if ( command == PAR::undefine )
     {
-	if ( reformatter != min::NULL_STUB )
+
+	if ( i < size )
 	    return PAR::parse_error
-		( parser, ppvec->position,
-		  "did NOT expect"
-		  " `with ... reformatter'" );
+		( parser, ppvec[i-1],
+		  "unexpected stuff after" );
 
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
-	        ( name[0],
-	          bracket || indentation_mark ?
-		      oper_pass->oper_bracket_table :
-		      oper_pass->oper_table );
+	        ( name[0], prefix_pass->prefix_table );
 
 	min::uns32 count = 0;
 
@@ -817,16 +617,8 @@ static min::gen prefix_pass_command
 	    min::uns32 subtype =
 		min::packed_subtype_of ( root );
 
-	    if ( subtype != OP::OPER )
+	    if ( subtype != PRE::PREFIX )
 		continue;
-
-	    OP::oper oper = (OP::oper) root;
-	    if ( oper->precedence != precedence )
-	        continue;
-	    if ( oper->flags != oper_flags )
-	        continue;
-	    if ( oper->terminator != name[1] )
-	        continue;
 
 	    TAB::push_undefined
 	        ( parser->undefined_stack,
@@ -848,4 +640,3 @@ static min::gen prefix_pass_command
 
     return min::SUCCESS();
 }
-

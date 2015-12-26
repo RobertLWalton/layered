@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 23 18:34:13 EST 2015
+// Date:	Sat Dec 26 07:03:10 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -352,27 +352,19 @@ static void prefix_parse ( PAR::parser parser,
 }
 
 
-TBD
+// Prefix Pass Command Function
+// ------ ---- ------- --------
 
-// Operator Pass Command Function
-// -------- ---- ------- --------
-
-static min::gen oper_pass_command
+static min::gen prefix_pass_command
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec )
 {
-    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+    OP::prefix_pass prefix_pass =
+        (OP::prefix_pass) pass;
 
     min::uns32 size = min::size_of ( vp );
-
-    // Scan keywords before names.
-    //
-    bool bracket = false;
-        // True if bracket, false if not.
-    bool indentation_mark = false;
-        // True if indentation mark, false if not.
 
     min::uns32 i = 1;
         // vp[i] is next lexeme or subexpression to
@@ -387,29 +379,12 @@ static min::gen oper_pass_command
 	 command != PAR::print )
         return min::FAILURE();
 
-    if ( i >= size || vp[i++] != ::oper )
+    if ( i >= size || vp[i++] != ::prefix )
         return min::FAILURE();
 
-    if ( i >= size || command == PAR::print )
-        /* Do nothing. */;
-    else if ( vp[i] == ::bracket )
-    {
-	++ i;
-	bracket = true;
-    }
-    else if ( vp[i] == ::indentation
-              &&
-	      i + 1 < size
-	      &&
-	      vp[i+1] == ::mark )
-    {
-        i += 2;
-	indentation_mark = true;
-    }
-
-    // Scan operator names.
+    // Scan prefix type name.
     //
-    min::locatable_gen name[3];
+    min::locatable_gen name[2];
     unsigned number_of_names = 0;
 
     while ( true )
@@ -451,7 +426,7 @@ static min::gen oper_pass_command
 	else
 	    ++ number_of_names;
 
-	if ( number_of_names > 2 )
+	if ( number_of_names > 1 )
 	    return PAR::parse_error
 	        ( parser, ppvec->position,
 		  "too many quoted names in" );
@@ -464,16 +439,10 @@ static min::gen oper_pass_command
 	++ i;
     }
 
-    if ( number_of_names < ( bracket ? 2 : 1 ) )
+    if ( number_of_names < 1 )
 	return PAR::parse_error
 	    ( parser, ppvec->position,
 	      "too few quoted names in" );
-    else if ( ! bracket && number_of_names > 1 )
-	return PAR::parse_error
-	    ( parser, ppvec->position,
-	      "too many quoted names in" );
-    else if ( ! bracket )
-        name[1] = min::MISSING();
 
     if ( command == PAR::print )
     {
@@ -488,38 +457,62 @@ static min::gen oper_pass_command
 	int count = 0;
 
 	{
-	    TAB::key_table_iterator oper_it
-		( oper_pass->oper_table );
+	    TAB::key_table_iterator prefix_it
+		( prefix_pass->prefix_table );
 	    while ( true )
 	    {
-		TAB::root root = oper_it.next();
+		TAB::root root = prefix_it.next();
 		if ( root == min::NULL_STUB ) break;
 
 		if ( min::is_subsequence
 			 ( name[0], root->label ) < 0 )
 		    continue;
 
-		::print_op ( (OP::oper) root,
-		             ::OPERATOR,
-		             parser );
+		PRE::prefix prefix = (PRE::prefix) root;
 
-		++ count;
-	    }
+		min::gen block_name =
+		    PAR::block_name
+			( parser,
+			  prefix->block_level );
+		parser->printer
+		    << min::indent
+		    << "block "
+		    << min::pgen_name ( block_name )
+		    << ": " << min::save_indent;
 
-	    TAB::key_table_iterator bracket_it
-		( oper_pass->oper_bracket_table );
-	    while ( true )
-	    {
-		TAB::root root = bracket_it.next();
-		if ( root == min::NULL_STUB ) break;
+		parser->printer
+		    << "prefix "
+		    << min::pgen_quote ( prefix->label );
 
-		if ( min::is_subsequence
-			 ( name[0], root->label ) < 0 )
-		    continue;
+		parser->printer
+		    << " " << min::set_break;
 
-		::print_op ( (OP::oper) root,
-		             ::BRACKET,
-		             parser );
+		COM::print_flags
+		    ( prefix->selectors,
+		      PAR::ALL_SELECTORS,
+		      parser->selector_name_table,
+		      parser );
+
+		TAB::new_flags new_selectors =
+		    prefix->new_selectors;
+
+		if ( TAB::all_flags ( new_selectors )
+		     &
+		     PAR::ALL_SELECTORS )
+		{
+		    parser->printer
+		        << min::indent
+			<< "with parsing"
+			   " selectors ";
+		    COM::print_new_flags
+			( new_selectors,
+			  PAR::ALL_SELECTORS,
+			  parser->selector_name_table,
+			  parser );
+		}
+
+		parser->printer
+		    << min::restore_indent;
 
 		++ count;
 	    }
@@ -532,6 +525,8 @@ static min::gen oper_pass_command
 
     	return COM::PRINTED;
     }
+
+    TBD
 
     // Scan selectors.
     //
@@ -550,40 +545,40 @@ static min::gen oper_pass_command
 	      " after" );
     else MIN_REQUIRE ( sresult == min::SUCCESS() );
 
-    // Scan operator flags.
+    // Scan prefixator flags.
     //
-    min::uns32 oper_flags = 0;
+    min::uns32 prefix_flags = 0;
 
-    min::phrase_position oper_flags_position;
-    oper_flags_position.begin = (&ppvec[i])->begin;
+    min::phrase_position prefix_flags_position;
+    prefix_flags_position.begin = (&ppvec[i])->begin;
 
     while ( i < size )
     {
-	min::uns32 new_oper_flag;
+	min::uns32 new_prefix_flag;
         if ( vp[i] == OP::prefix )
-	    new_oper_flag = OP::PREFIX;
+	    new_prefix_flag = OP::PREFIX;
         else if ( vp[i] == OP::infix )
-	    new_oper_flag = OP::INFIX;
+	    new_prefix_flag = OP::INFIX;
         else if ( vp[i] == OP::postfix )
-	    new_oper_flag = OP::POSTFIX;
+	    new_prefix_flag = OP::POSTFIX;
         else if ( vp[i] == OP::afix )
-	    new_oper_flag = OP::AFIX;
+	    new_prefix_flag = OP::AFIX;
         else if ( vp[i] == OP::nofix )
-	    new_oper_flag = OP::NOFIX;
+	    new_prefix_flag = OP::NOFIX;
 	else break;
 
-	if ( oper_flags & new_oper_flag )
+	if ( prefix_flags & new_prefix_flag )
 	    return PAR::parse_error
 		( parser, ppvec[i],
-		  "operator flag ",
+		  "prefixator flag ",
 		  min::pgen_quote ( vp[i] ),
 		  " appears twice" );
 
-	oper_flags |= new_oper_flag;
+	prefix_flags |= new_prefix_flag;
 	++ i;
     }
 
-    if ( oper_flags == 0 )
+    if ( prefix_flags == 0 )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected operator flags after" );

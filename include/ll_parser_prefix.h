@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 23 19:30:55 EST 2015
+// Date:	Sun Dec 27 02:46:17 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,8 +61,6 @@ void push_prefix
 // Prefix Pass
 // ------ ----
 
-TBD
-
 // An prefix_stack is part of each prefix_pass.
 //
 struct prefix_stack_struct
@@ -89,13 +87,14 @@ struct prefix_pass_struct;
 typedef min::packed_struct_updptr<prefix_pass_struct>
         prefix_pass;
 extern const uns32 & PREFIX_PASS;
-    // Subtype of min::packed_struct<prefix_pass_struct>.
+    // Subtype of
+    //     min::packed_struct<prefix_pass_struct>.
 struct prefix_pass_struct
     : public ll::parser::pass_struct
 {
     // Packed_struct subtype is PREFIX_PASS.
 
-    const ll::parser::table::key_table key_table;
+    const ll::parser::table::key_table prefix_table;
         // Map of prefix types to new selectors.
 
     const ll::parser::prefix::prefix_stack prefix_stack;
@@ -115,7 +114,7 @@ MIN_REF ( ll::parser::parser, parser,
 MIN_REF ( ll::parser::pass, next,
           ll::parser::prefix::prefix_pass )
 MIN_REF ( ll::parser::table::key_table,
-          key_table,
+          prefix_table,
           ll::parser::prefix::prefix_pass )
 MIN_REF ( ll::parser::prefix::prefix_stack,
           prefix_stack,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 26 14:01:39 EST 2015
+// Date:	Sun Dec 27 02:43:17 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,15 +46,15 @@ static min::initializer initializer ( ::initialize );
 // ------ ----- -------
 
 static min::uns32 prefix_gen_disp[] = {
-    min::DISP ( & OP::prefix_struct::label ),
+    min::DISP ( & PRE::prefix_struct::label ),
     min::DISP_END };
 
 static min::uns32 prefix_stub_disp[] = {
-    min::DISP ( & OP::prefix_struct::next ),
+    min::DISP ( & PRE::prefix_struct::next ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<OP::prefix_struct, TAB::root_struct>
+	<PRE::prefix_struct, TAB::root_struct>
     prefix_type ( "ll::parser::prefix::prefix_type",
 	        ::prefix_gen_disp,
 	        ::prefix_stub_disp );
@@ -65,7 +65,7 @@ void PRE::push_prefix
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  TAB::new_flags new_flags,
+	  TAB::new_flags new_selectors,
 	  TAB::key_table prefix_table )
 {
     min::locatable_var<PRE::prefix> prefix
@@ -75,7 +75,7 @@ void PRE::push_prefix
     prefix->selectors = selectors;
     prefix->block_level = block_level;
     prefix->position = position;
-    prefix->new_flags = new_flags;
+    prefix->new_selectors = new_selectors;
 
     TAB::push ( prefix_table, (TAB::root) prefix );
 }
@@ -91,8 +91,10 @@ static min::uns32 prefix_pass_stub_disp[] =
 {
     min::DISP ( & PRE::prefix_pass_struct::parser ),
     min::DISP ( & PRE::prefix_pass_struct::next ),
-    min::DISP ( & PRE::prefix_pass_struct::prefix_table ),
-    min::DISP ( & PRE::prefix_pass_struct::prefix_stack ),
+    min::DISP ( & PRE::prefix_pass_struct
+                     ::prefix_table ),
+    min::DISP ( & PRE::prefix_pass_struct
+                     ::prefix_stack ),
     min::DISP_END
 };
 
@@ -126,10 +128,13 @@ static void prefix_pass_reset
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
-    PRE::prefix_pass prefix_pass = (PRE::prefix_pass) pass;
+    PRE::prefix_pass prefix_pass =
+        (PRE::prefix_pass) pass;
 
-    TAB::key_table prefix_table = prefix_pass->prefix_table;
-    PRE::prefix_stack prefix_stack = prefix_pass->prefix_stack;
+    TAB::key_table prefix_table =
+        prefix_pass->prefix_table;
+    PRE::prefix_stack prefix_stack =
+        prefix_pass->prefix_stack;
     min::pop ( prefix_stack, prefix_stack->length );
 
     min::uns64 collected_entries,
@@ -146,8 +151,10 @@ static min::gen prefix_pass_end_block
 	  const min::phrase_position & position,
 	  min::gen name )
 {
-    PRE::prefix_pass prefix_pass = (PRE::prefix_pass) pass;
-    TAB::key_table prefix_table = prefix_pass->prefix_table;
+    PRE::prefix_pass prefix_pass =
+        (PRE::prefix_pass) pass;
+    TAB::key_table prefix_table =
+        prefix_pass->prefix_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
@@ -205,11 +212,14 @@ static void prefix_parse ( PAR::parser parser,
 		         PAR::token & first,
 		         PAR::token next )
 {
-    PRE::prefix_pass prefix_pass = (PRE::prefix_pass) pass;
-    PRE::prefix_stack prefix_stack = prefix_pass->prefix_stack;
+    PRE::prefix_pass prefix_pass =
+        (PRE::prefix_pass) pass;
+    PRE::prefix_stack prefix_stack =
+        prefix_pass->prefix_stack;
 
     TAB::flags trace_flags = parser->trace_flags;
-    if ( trace_flags & prefix_pass->trace_subexpressions )
+    if (   trace_flags
+         & prefix_pass->trace_subexpressions )
     {
 	trace_flags &=
 	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
@@ -238,7 +248,7 @@ static void prefix_parse ( PAR::parser parser,
 	//
 	while ( current != next
 		&&
-		current->type != BRA::PREFIX )
+		current->type != PAR::PREFIX )
 	{
 	    at_phrase_beginning = false;
 	    current = current->next;
@@ -255,41 +265,44 @@ static void prefix_parse ( PAR::parser parser,
 	while ( i > initial_length
 	        &&
 		   current->value_type
-		!= prefix_stack[i-1].first->value_type )
+		!= (&prefix_stack[i-1])->first
+		                       ->value_type )
 	    -- i;
 	
 	// If prefix is in the stack or we are a the end
 	// of the expression, close all the previous
-	// subexpressions delimited by the stack entry of
-	// prefix and entries closer to the top of the
-	// stack, or all stack entries if we are at the
-	// end of the expression.
+	// subexpressions delimited by the stack entry
+	// of prefix and entries closer to the top of
+	// the stack, or all stack entries if we are at
+	// the end of the expression.
 	//
 	if ( i > initial_length || current == next )
 	{
 	    at_phrase_beginning = true;
 
 	    min::unsptr j = prefix_stack->length;
-	    while ( j >= i && j > original_length )
+	    while ( j >= i && j > initial_length )
 	    {
-		PAR::token first =
+		PAR::token prefix =
 		    min::pop(prefix_stack).first;
 		j = prefix_stack->length;
 
-		PAR::execute_pass_parse
-		     ( parser, pass->next,
-		       selectors,
-		       first->next, current );
+		PAR::token first = prefix->next;
 
-		if ( first->next != current )
+		if ( first != current )
 		{
+		    PAR::execute_pass_parse
+			 ( parser, pass->next,
+			   selectors,
+			   first, current );
+
 		    min::phrase_position position =
-			{ first->position.begin,
+			{ prefix->position.begin,
 			  current->previous
 			         ->position.end };
 
 		    min::obj_vec_insptr vp
-		    	( first->value );
+		    	( prefix->value );
 		    min::attr_insptr ap ( vp );
 
 		    min::locate
@@ -298,29 +311,29 @@ static void prefix_parse ( PAR::parser parser,
 		        pos = min::get ( ap );
 		    pos->position = position;
 
-		    PAR::token next = first->next;
-		    while ( next != current )
+		    while ( first != current )
 		    {
-			if (    next->string
+			if (    first->string
 			     != min::NULL_STUB )
-			    PAR::convert_token ( next );
+			    PAR::convert_token
+			        ( first );
 
 			min::attr_push(vp) =
-			    next->value;
+			    first->value;
 			min::push ( pos ) =
-			    next->position;
+			    first->position;
 
-			next = next->next;
+			first = first->next;
 			PAR::free
 			    ( PAR::remove
 				  ( PAR::first_ref
 				        (parser),
-				    next->previous ) );
+				    first->previous ) );
 		    }
 		}
 
 		PAR::trace_subexpression
-		    ( parser, first, trace_flags );
+		    ( parser, prefix, trace_flags );
 	    }
 	}
 
@@ -361,8 +374,8 @@ static min::gen prefix_pass_command
 	  min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec )
 {
-    OP::prefix_pass prefix_pass =
-        (OP::prefix_pass) pass;
+    PRE::prefix_pass prefix_pass =
+        (PRE::prefix_pass) pass;
 
     min::uns32 size = min::size_of ( vp );
 
@@ -482,7 +495,8 @@ static min::gen prefix_pass_command
 
 		parser->printer
 		    << "prefix "
-		    << min::pgen_quote ( prefix->label );
+		    << min::pgen_quote
+		           ( prefix->label );
 
 		parser->printer
 		    << " " << min::set_break;
@@ -583,7 +597,7 @@ static min::gen prefix_pass_command
 		( parser, ppvec[i-1],
 		  "expected `with' after" );
 
-	OP::push_prefix
+	PRE::push_prefix
 	    ( name[0], selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,

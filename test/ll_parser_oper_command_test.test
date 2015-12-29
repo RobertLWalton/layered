@@ -1,11 +1,13 @@
 parser print selector "":
     block standard: text
     block standard: math
+    block standard: prefix
     block standard: code
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print pass:
     top
+    prefix [parser, prefix]
 parser print context "":
     block standard: default [code]
                             options [end at le indent,
@@ -23,12 +25,14 @@ parser print context "":
 parser print pass:
     top
     operator [code, math]
+    prefix [parser, prefix]
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]
 parser print selector "":
     block standard: text
     block standard: math
+    block standard: prefix
     block standard: code
     block TOP LEVEL: data
     block TOP LEVEL: parser

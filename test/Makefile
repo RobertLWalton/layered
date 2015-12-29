@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Dec 27 02:26:13 EST 2015
+# Date:		Tue Dec 29 01:28:04 EST 2015
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -86,6 +86,7 @@ PARSER_O =	${LEXEME_O} \
 		ll_parser_table.o \
 		ll_parser_command.o \
 		ll_parser_bracketed.o \
+		ll_parser_prefix.o \
 		ll_parser_oper.o \
 		ll_parser_standard.o \
 		ll_parser_standard_input.o \

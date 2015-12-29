@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 28 19:24:37 EST 2015
+// Date:	Tue Dec 29 01:41:57 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,7 +85,13 @@ void PRE::push_prefix
 
 static min::packed_vec< PRE::prefix_stack_struct >
     prefix_stack_type
-        ( "(ll_parser_prefix.cc)::prefix_stack_type" );
+        ( "ll::parser::prefix::prefix_stack_type" );
+
+static min::uns32 prefix_pass_gen_disp[] =
+{
+    min::DISP ( & PRE::prefix_pass_struct::name ),
+    min::DISP_END
+};
 
 static min::uns32 prefix_pass_stub_disp[] =
 {
@@ -102,7 +108,7 @@ static min::packed_struct_with_base
 	<PRE::prefix_pass_struct, PAR::pass_struct>
     prefix_pass_type
         ( "ll::parser::prefix::prefix_pass_type",
-	  NULL,
+	  ::prefix_pass_gen_disp,
 	  ::prefix_pass_stub_disp );
 const min::uns32 & PRE::PREFIX_PASS =
     ::prefix_pass_type.subtype;

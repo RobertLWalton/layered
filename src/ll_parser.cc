@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 28 19:12:29 EST 2015
+// Date:	Tue Dec 29 01:50:49 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -436,6 +436,12 @@ void PAR::init
     output->init = init;
 }
 
+static min::uns32 pass_gen_disp[] =
+{
+    min::DISP ( & PAR::pass_struct::name ),
+    min::DISP_END
+};
+
 static min::uns32 pass_stub_disp[] = {
     min::DISP ( & PAR::pass_struct::parser ),
     min::DISP ( & PAR::pass_struct::next ),
@@ -443,7 +449,7 @@ static min::uns32 pass_stub_disp[] = {
 
 static min::packed_struct<PAR::pass_struct>
     pass_type ( "ll::parser::pass_type",
-                NULL, ::pass_stub_disp );
+                ::pass_gen_disp, ::pass_stub_disp );
 
 void PAR::place_after
 	( PAR::parser parser,

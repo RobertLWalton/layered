@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 21:14:44 EDT 2015
+// Date:	Tue Dec 29 00:39:28 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,8 +23,8 @@
 # define TAB ll::parser::table
 # define PARSTD ll::parser::standard
 
-// Standard Brackets
-// -------- --------
+// Standard
+// --------
 
 void PARSTD::init_block ( PAR::parser parser )
 {

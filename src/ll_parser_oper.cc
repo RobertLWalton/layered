@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 22 02:25:17 EST 2015
+// Date:	Mon Dec 28 19:23:35 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -227,7 +227,7 @@ static min::gen oper_pass_command
 	  min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec );
 
-PAR::pass OP::new_pass ( void )
+PAR::pass OP::new_pass ( PAR::parser parser )
 {
     min::locatable_var<OP::oper_pass> oper_pass
         ( ::oper_pass_type.new_stub() );

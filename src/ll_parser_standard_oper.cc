@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 20 15:51:02 EDT 2015
+// Date:	Mon Dec 28 19:25:11 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,7 +33,7 @@ OP::oper_pass PARSTD::init_oper
 	  PAR::pass next )
 {
     OP::oper_pass oper_pass =
-        (OP::oper_pass) OP::new_pass();
+        (OP::oper_pass) OP::new_pass ( parser );
 
     PAR::place_before ( parser, (PAR::pass) oper_pass );
 

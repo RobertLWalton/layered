@@ -122,7 +122,7 @@ MIN_REF ( ll::parser::prefix::prefix_stack,
 
 // Return a new prefix parser pass.
 //
-ll::parser::pass new_pass ( void );
+ll::parser::pass new_pass ( ll::parser::parser parser );
 
 } } }
 

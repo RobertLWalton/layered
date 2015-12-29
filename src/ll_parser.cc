@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 22 04:25:03 EST 2015
+// Date:	Mon Dec 28 19:12:29 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -636,6 +636,7 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::context_table ),
     min::DISP ( & PAR::parser_struct
                      ::top_level_indentation_mark ),
+    min::DISP ( & PAR::parser_struct::prefix_table ),
     min::DISP ( & PAR::parser_struct::first ),
     min::DISP_END
 };
@@ -818,7 +819,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      parser->context_table );
 
 	BRA::bracketed_pass bracketed_pass =
-	    (BRA::bracketed_pass) BRA::new_pass();
+	    (BRA::bracketed_pass)
+	    BRA::new_pass ( parser );
 	PAR::place_before ( parser,
 	                   (PAR::pass) bracketed_pass );
 

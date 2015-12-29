@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 23 07:33:09 EST 2015
+// Date:	Mon Dec 28 19:26:32 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -187,7 +187,7 @@ MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
 
 // Return a new operator parser pass.
 //
-ll::parser::pass new_pass ( void );
+ll::parser::pass new_pass ( ll::parser::parser parser );
 
 } } }
 

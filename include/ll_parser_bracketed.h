@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 23 07:32:59 EST 2015
+// Date:	Mon Dec 28 19:26:01 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -562,7 +562,7 @@ MIN_REF ( ll::parser::bracketed
 
 // Return a new bracketed subexpression pass.
 //
-ll::parser::pass new_pass ( void );
+ll::parser::pass new_pass ( ll::parser::parser parser );
 
 // Parse Bracketed Subexpression Function
 // ----- --------- ------------- --------

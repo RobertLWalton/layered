@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 27 02:43:17 EST 2015
+// Date:	Mon Dec 28 19:24:37 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -181,15 +181,18 @@ static min::gen prefix_pass_command
 	  min::obj_vec_ptr & vp,
           min::phrase_position_vec ppvec );
 
-PAR::pass PRE::new_pass ( void )
+PAR::pass PRE::new_pass ( PAR::parser parser )
 {
     min::locatable_var<PRE::prefix_pass> prefix_pass
         ( ::prefix_pass_type.new_stub() );
 
     PRE::name_ref ( prefix_pass ) = ::prefix;
 
+    if ( parser->prefix_table == min::NULL_STUB )
+        prefix_table_ref(parser) =
+	    ( TAB::create_key_table ( 1024 ) );
     PRE::prefix_table_ref ( prefix_pass ) =
-        TAB::create_key_table ( 1024 );
+        parser->prefix_table;
 
     PRE::prefix_stack_ref ( prefix_pass ) =
 	::prefix_stack_type.new_stub ( 100 );

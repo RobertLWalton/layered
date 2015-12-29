@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 01:04:35 EST 2015
+// Date:	Mon Dec 28 19:22:58 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -763,7 +763,7 @@ static min::gen execute_pass
 		( parser, name_pp,
 		  "cannot define `top' pass" );
 	else if ( pass == min::NULL_STUB )
-	    pass = (* new_pass)();
+	    pass = (* new_pass) ( parser );
 	else
 	    PAR::remove ( pass );
 	pass->selectors = selectors;

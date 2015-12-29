@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 23 07:33:52 EST 2015
+// Date:	Mon Dec 28 19:20:00 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,6 +96,16 @@ namespace ll { namespace parser {
     extern min::gen_format name_format;
         // Same as min::default_gen_format except
 	// that {str,lab}_{pre,post}fix are all "".
+
+namespace bracketed {
+
+    // We this small piece of ll_parser_bracketed.h.
+    //
+    struct indentation_mark_struct;
+    typedef min::packed_struct_updptr
+		<indentation_mark_struct>
+	    indentation_mark;
+}
 
 } }
 
@@ -818,7 +828,8 @@ ll::parser::pass find_on_pass_stack
 // tion.  This maps parser pass names to `new_pass'
 // functions that create passes.
 
-typedef ll::parser::pass ( * new_pass ) ( void );
+typedef ll::parser::pass ( * new_pass )
+	( ll::parser::parser parser );
 
 struct new_pass_table_struct
 {
@@ -1001,17 +1012,6 @@ enum {
     DATA_SELECTOR			= 1ull << 18,
 };
 
-namespace bracketed {
-
-    // We need to save the top level indentation mark
-    // for use by the parse function.
-
-    struct indentation_mark_struct;
-    typedef min::packed_struct_updptr
-		<indentation_mark_struct>
-	    indentation_mark;
-}
-
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;
 struct parser_struct
 {
@@ -1126,6 +1126,10 @@ struct parser_struct
 	// Top level indentation mark for parse
 	// function.
 
+    const ll::parser::table::key_table prefix_table;
+        // Prefix table for standard prefix pass and
+	// standard typed_opening.
+
     // Parser state:
 
     const ll::parser::token first;
@@ -1223,6 +1227,9 @@ MIN_REF ( ll::parser::table::key_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::bracketed::indentation_mark,
 		top_level_indentation_mark,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::key_table,
+		prefix_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::token, first,
           ll::parser::parser )

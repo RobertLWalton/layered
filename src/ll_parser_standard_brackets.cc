@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 01:36:22 EST 2015
+// Date:	Tue Dec 29 19:25:57 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,7 +96,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_lab_gen ( "*", "}" ) );
 
     parser->selectors &= PAR::ALL_OPT;
-    parser->selectors |= code | PAR::ALWAYS_SELECTOR;
+    parser->selectors |= code | prefix
+                       | PAR::ALWAYS_SELECTOR;
     PAR::pass prefix_pass =
         PAR::find_on_pass_stack ( parser, prefix_name );
     prefix_pass->selectors = PAR::PARSER_SELECTOR
@@ -210,7 +211,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, PAR::EALSEP_OPT, 0 ),
-	  data,
+	  data + prefix,
 	  PAR::colon, PAR::equal, PAR::comma, no,
 	  PAR::left_square,
 	  min::standard_attr_flag_parser,

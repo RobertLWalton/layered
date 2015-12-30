@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 19:21:30 EST 2015
+// Date:	Wed Dec 30 02:17:44 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -248,6 +248,7 @@ static void prefix_parse ( PAR::parser parser,
     //
     min::unsptr initial_length = prefix_stack->length;
 
+    bool prefix_found = false;
     bool at_phrase_beginning = true;
     PAR::token current = first;
     while ( true )
@@ -339,6 +340,8 @@ static void prefix_parse ( PAR::parser parser,
 				        (parser),
 				    first->previous ) );
 		    }
+		    prefix->position = position;
+		    prefix->type = PAR::BRACKETED;
 		}
 
 		PAR::trace_subexpression
@@ -354,6 +357,7 @@ static void prefix_parse ( PAR::parser parser,
 	        { current, min::MISSING() };
 	    min::push(prefix_stack) = s;
 	    current = current->next;
+	    prefix_found = true;
 	}
 
 	else
@@ -371,6 +375,11 @@ static void prefix_parse ( PAR::parser parser,
 			current->previous ) );
 	}
     }
+
+    if ( ! prefix_found )
+	PAR::execute_pass_parse
+	    ( parser, pass->next, selectors,
+	      first, current );
 }
 
 

@@ -11,7 +11,7 @@ ERROR: in line 14: expected quoted name after:
 parser define bracket "[+" ...
                            ^^^
 parser print context "default":
-    block standard: default [code]
+    block standard: default [prefix, code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -28,10 +28,11 @@ parser print selector "":
     block standard: math
     block standard: text
     block standard: code
+    block standard: prefix
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print context "default":
-    block standard: default [code]
+    block standard: default [prefix, code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]

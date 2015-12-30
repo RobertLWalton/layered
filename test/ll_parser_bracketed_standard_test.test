@@ -245,6 +245,9 @@ This line includes
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
     First line "."
@@ -296,6 +299,12 @@ This line starts an indented paragraph:
 ^^^^^^^^^^^^^^
    Second line.
 ^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -348,6 +357,9 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -632,6 +644,16 @@ This line contains a typed subexpression {x|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
@@ -641,11 +663,11 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
 @51 = 1 2 3:
+          .type = "x"
           y = "6"
           z = [< "b" "c" "5" "d" >]
-          .position[H] = {}
           w
-          .type = "x"
+          .position[H] = {}
     line 49:
     {x: w, y = 6, z = b c 5 d|1 2 3|}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -663,20 +685,30 @@ Another typed subexpression
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
 @53 = 1 2 3:
+          .type = "x"
           y = "6"
           z = [< "b" "c" "5" "d" >]
-          .position[H] = {}
           w
-          .type = "x"
+          .position[H] = {}
     line 51:
     {x: w, z = b c 5 d|1 2 3|y = 6 : x}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -711,6 +743,8 @@ BRACKETED EXPRESSION:
     line 52:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                         ^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
@@ -724,6 +758,10 @@ BRACKETED EXPRESSION:
     line 52:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                                      ^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "no"
+     OF SUBTYPE ll::parser::table::typed_attr_negator_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
@@ -737,6 +775,8 @@ BRACKETED EXPRESSION:
     line 53:
                        no c[+], d[-], no f, g : t}
                            ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
@@ -750,20 +790,28 @@ BRACKETED EXPRESSION:
     line 53:
                        no c[+], d[-], no f, g : t}
                                  ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "no"
+     OF SUBTYPE ll::parser::table::typed_attr_negator_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line 52: bad flag(s) "_" in "ABC_,200":
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                          ^^^^^^^^
 BRACKETED EXPRESSION:
-    {t: b[ABC,200] = (1 2 3), no c[+], d[-], no f, g|x y z|t}
+    {t: d[-], no f, b[ABC,200] = (1 2 3), g, no c[+]|x y z|t}
 @59 = x y z:
-          b[ABC,200] = (1 2 3)
-          no c[+]
           .type = "t"
           d[-]
           no f
+          b[ABC,200] = (1 2 3)
           g
+          no c[+]
           .position[H] = {}
     lines 52-53:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
@@ -772,7 +820,7 @@ And another- {| x y z |b[ABC_,200] = (1 2 3),
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     And another-
-        {t: b[ABC,200] = (1 2 3), no c[+], d[-], no f, g|x y z|t}
+        {t: d[-], no f, b[ABC,200] = (1 2 3), g, no c[+]|x y z|t}
 @60 = And another- @59:
           .terminator = "<LF>"
           .position[H] = {}
@@ -790,6 +838,12 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
@@ -818,6 +872,8 @@ BRACKETED EXPRESSION:
     line 54:
 And one more {| |b["A", 201,202, [5]]: t}
                   ^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line 54: bad flags specifier [5]:
@@ -827,8 +883,8 @@ BRACKETED EXPRESSION:
     {t: b[A,201,202]||t}
 @65 =:
           .type = "t"
-          .position[H] = {}
           b[A,201,202]
+          .position[H] = {}
         line 54:
 And one more {| |b["A", 201,202, [5]]: t}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -865,10 +921,6 @@ PREFIX EXPRESSION:
           .type = "X"
           .position[H] = {}
     line 55:
-A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
-                             ^^^
-ERROR: in line 55: prefix separator in middle of expression; deleted and
-       ignored:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                              ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
@@ -916,12 +968,16 @@ PREFIX EXPRESSION:
     line 55:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
-ERROR: in line 55: prefix separator in middle of expression; deleted and
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line 55: prefix token not at beginning of phrase; deleted and
+       ignored:
+A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                             ^^^
+ERROR: in line 55: prefix token not at beginning of phrase; deleted and
        ignored:
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                                                ^^^
-BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {W|2 3 4 5 ({Y|6 7|Y})|W}
 @67 = 2 3 4 5 @70:
@@ -972,14 +1028,6 @@ PREFIX EXPRESSION:
     line 56:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
           ^^^
-BRACKETED EXPRESSION:
-    {X|a b c|X}
-@74 = a b c:
-          .type = "X"
-          .position[H] = {}
-    line 56:
-{X} a b c {X}{Y} d e {Y} f g {X} h k
-^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
@@ -1004,14 +1052,6 @@ PREFIX EXPRESSION:
     line 56:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                      ^^^
-BRACKETED EXPRESSION:
-    {Y|d e|Y}
-@76 = d e:
-          .type = "Y"
-          .position[H] = {}
-    line 56:
-{X} a b c {X}{Y} d e {Y} f g {X} h k
-             ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
@@ -1024,6 +1064,22 @@ PREFIX EXPRESSION:
     line 56:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                              ^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X}
+@74 = a b c:
+          .type = "X"
+          .position[H] = {}
+    line 56:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {Y|d e|Y}
+@76 = d e:
+          .type = "Y"
+          .position[H] = {}
+    line 56:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+             ^^^^^^^
 BRACKETED EXPRESSION:
     {Y|f g|Y}
 @77 = f g:
@@ -1220,8 +1276,8 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 60: "-" missing at end of typed bracketed expression;
-       inserted:
+ERROR: in line 60: missing "-" at end of typed bracketed expression;
+       inserted before:
 {- a b c}
         ^
 BRACKETED EXPRESSION:
@@ -1425,55 +1481,55 @@ BRACKETED EXPRESSION:
 parser print bracket ""
 ^^^^^^^^^^^^^^^^^^^^^^^
 parser print bracket "":
-    block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
-                     [data, code, math, text]
-                     with parsing selectors [- parser, + data, - code,
-                                             - math, - text]
-                     with parsing options [- end at line separator]
-                     with label reformatter
-    block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "(" ... ")" [data, code, math, text]
-                     with parsing options [- end at line separator]
+    block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
+                    [data, code, math, text]
+                    with parsing selectors [- parser, + data, - prefix,
+                                            - code, - math, - text]
+                    with parsing options [- end at line separator]
+                    with label reformatter
+    block standard: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                    with parsing options [- end at line separator]
+    block standard: bracket "(" ... ")" [data, code, math, text]
+                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "(" ... ")" [parser]
                      with parsing options [- end at line separator]
-    block TOP LEVEL: indentation mark ":" ... ";" [code]
-                     with parsing options [- end at line break,
-                                           + end at le indent,
-                                           - end at lt indent,
-                                           - end at paragraph break,
-                                           + end at line separator,
-                                           + end at outer closing]
-    block TOP LEVEL: bracket "[" ... "]" [data, code, math, text]
-                     with parsing options [- end at line separator]
+    block standard: indentation mark ":" ... ";" [code]
+                    with parsing options [- end at line break,
+                                          + end at le indent,
+                                          - end at lt indent,
+                                          - end at paragraph break,
+                                          + end at line separator,
+                                          + end at outer closing]
+    block standard: bracket "[" ... "]" [data, code, math, text]
+                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "[" ... "]" [parser]
                      with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "`" ... "'" [data]
-                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "`" ... "'" [code, math, text]
-                     with parsing selectors [- code, - math, + text]
-                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >]
-                     [code, math, text]
-                     with parsing selectors [- code, + math, - text]
-                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
-                     [data, code, math, text]
-                     with parsing options [- end at line separator]
-                     with attribute selectors [data]
-                     with attributes ":" ... "=" ... ","
-                     with attribute negator "no"
-                     with attribute flags initiator "["
-                     with attribute multivalue initiator [< "{" "*" >]
-                     with prefix separators allowed
+    block standard: bracket "`" ... "'" [data]
+                    with parsing options [- end at line separator]
+    block standard: bracket "`" ... "'" [code, math, text]
+                    with parsing selectors [- code, - math, + text]
+                    with parsing options [- end at line separator]
+    block standard: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+                    with parsing options [- end at line separator]
+    block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
+                    [code, math, text]
+                    with parsing selectors [- code, + math, - text]
+                    with parsing options [- end at line separator]
+    block standard: bracket "{" ... "|" ... "|" ... "}"
+                    [data, code, math, text]
+                    with parsing options [- end at line separator]
+                    with attribute selectors [data, prefix]
+                    with attributes ":" ... "=" ... ","
+                    with attribute negator "no"
+                    with attribute flags initiator "["
+                    with attribute multivalue initiator [< "{" "*" >]
+                    with prefix separators allowed
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
-    block TOP LEVEL: bracket "<+" ... "+>" [math]
-    block TOP LEVEL: bracket "<-" ... "->" [text]
-    block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
-                     [data, code, math, text]
-                     with parsing selectors [- parser, + data, - code,
-                                             - math, - text]
-                     with parsing options [- end at line separator]
-                     with special reformatter
+    block standard: bracket "<+" ... "+>" [math]
+    block standard: bracket "<-" ... "->" [text]
+    block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
+                    [data, code, math, text]
+                    with parsing selectors [- parser, + data, - prefix,
+                                            - code, - math, - text]
+                    with parsing options [- end at line separator]
+                    with special reformatter

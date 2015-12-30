@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 01:32:41 EST 2015
+// Date:	Tue Dec 29 20:01:00 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2369,6 +2369,7 @@ min::position BRA::parse_bracketed_subexpression
 			        min::dot_type;
 			    attributes[i].value =
 			        t->value;
+			    type = t->value;
 			    ++ i;
 			}
 		        else if (    t->type

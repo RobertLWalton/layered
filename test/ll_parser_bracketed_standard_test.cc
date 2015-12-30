@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 13 03:47:02 EDT 2015
+// Date:	Tue Dec 29 19:19:25 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10,12 +10,14 @@
 
 # include <ll_parser.h>
 # include <ll_parser_bracketed.h>
+# include <ll_parser_prefix.h>
 # include <ll_parser_standard.h>
 # include <iostream>
 # include <cassert>
 # define PAR ll::parser
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
+# define PRE ll::parser::prefix
 # define PARSTD ll::parser::standard
 using std::cout;
 
@@ -24,6 +26,7 @@ int main ( int argc, const char * argv[] )
     min::initialize();
     PAR::init ( PAR::default_parser, false );
     PARSTD::init_input ( PAR::default_parser );
+    PARSTD::init_block ( PAR::default_parser );
     PARSTD::init_brackets ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
@@ -32,8 +35,16 @@ int main ( int argc, const char * argv[] )
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass)
 	PAR::default_parser->pass_stack;
+    min::locatable_gen prefix
+        ( min::new_str_gen ( "prefix" ) );
+    PRE::prefix_pass prefix_pass =
+	(PRE::prefix_pass)
+        PAR::find_on_pass_stack
+	    ( PAR::default_parser, prefix );
     PAR::default_parser->trace_flags |=
         bracketed_pass->trace_subexpressions
+	+
+	prefix_pass->trace_subexpressions
 	+
 	PAR::TRACE_SUBEXPRESSION_ELEMENTS
 	+

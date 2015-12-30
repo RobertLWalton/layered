@@ -1,5 +1,6 @@
 parser print selector "":
     block standard: code
+    block standard: prefix
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser define selector my selector
@@ -9,10 +10,11 @@ parser define selector operator 1 ++ extra stuff
 parser print selector "":
     block standard: my selector
     block standard: code
+    block standard: prefix
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print context "":
-    block standard: default [code]
+    block standard: default [prefix, code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -85,7 +87,7 @@ parser print trace:
       - subexpression lines, - keys, - bracketed subexpressions,
       - prefix subexpressions ]
 parser print context "":
-    block standard: default [code]
+    block standard: default [prefix, code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]

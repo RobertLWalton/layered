@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 20:01:00 EST 2015
+// Date:	Thu Dec 31 02:42:15 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -873,10 +873,17 @@ inline min::int32 relative_indent
 // to set .position attributes)
 //
 //   if typed_opening argument != NULL_STUB:
-//     save selectors argument and reset it to
-//          typed_opening->attr_selectors
-//     typed_middle_count = 0
-//     mark_type = MISSING
+//     initialize typed_data structure:
+//         saved_selectors = selectors argument
+//         middle_count = attr_count = 0
+//         start_previous = current->previous
+//         elements = attributes = NULL_STUB
+//         subtype = TYPED_OPENING
+//         type = MISSING
+//         has_mark_type = false
+//     selectors argument selector bits =
+//         typed_opening->attr_selectors
+//         | ALWAYS_SELECTOR
 //
 //   indentation_mark indentation_found = NONE
 //   at_start = true
@@ -887,13 +894,15 @@ inline min::int32 relative_indent
 //          comment tokens; if a blank line is
 //          skipped, set parser->at_head = true
 //
-//     if current is at indent token, set the current_
-//        indent to the indent of this token; else set
-//        the current_indent to 0
+//     if we skipped some tokens:
 //
-//     delete what has been skipped, but print a WARNING
-//            message if any comment deleted had less
-//            indent than the current_indent, using
+//        current_indent = indent of current token if
+//            this is indent token or to 0 if current
+//            token is end of file
+//
+//        delete what has been skipped, but print a
+//            WARNING message if any comment deleted had
+//            less indent than the current_indent, using
 //            indent_before_comment tokens to determine
 //            comment indent
 //
@@ -912,6 +921,7 @@ inline min::int32 relative_indent
 //           than the indent argument):
 //
 //           paragraph_indent = current->indent
+//	     remove current (indent) token
 //
 //           loop to parse paragraph lines:
 //
@@ -928,14 +938,13 @@ inline min::int32 relative_indent
 //                   remember if line ended by line
 //                            separator
 //
-//		 remove indent token that was just
-//		        before paragraph line
-//
 //               if bracket stack top closed:
 //                   require that there was no line
 //                           ending separator and
 //                           adjust end of line to
-//                           just before closing bracket
+//                           just before closing tokens
+//                           (bracket or indent or
+//                            end of file)
 //
 //               if line is not empty or line separator
 //                       ended line:
@@ -959,6 +968,7 @@ inline min::int32 relative_indent
 //               end loop if current has has indent less
 //                   than paragraph_indent
 //
+//	         remove current (indent) token
 //               loop to get next paragraph line
 //
 //           // Compact paragraph lines into a
@@ -966,9 +976,10 @@ inline min::int32 relative_indent
 //           //
 //           if bracket stack top closed:
 //              adjust end of paragraph to just before
-//              closing bracket
+//              closing tokens
 //
-//           remove indentation mark
+//           remove indentation mark (from just before
+//                  paragraph lines)
 //
 //           compact paragraph lines with new_selectors,
 //                   .initiator =
@@ -977,12 +988,15 @@ inline min::int32 relative_indent
 //                   token type = BRACKETING,
 //                   token value_type =
 //                       indentation_found->label,
+//
 //           at_start = false
 //
 //	     if bracket stack top closed
 //	          return MISSING_POSITION
 //	     indentation_found = NONE
 // 	 
+// TBD
+//
 //     // Continuation after any indented paragraph,
 //     // or if there was no indented paragraph.
 //     // If current is a line break, it is not
@@ -1449,12 +1463,6 @@ min::position BRA::parse_bracketed_subexpression
     BRA::bracketed_pass pass =
         (BRA::bracketed_pass) parser->pass_stack;
 
-    BRA::indentation_mark indentation_found =
-        min::NULL_STUB;
-	// If not NULL_STUB, current token is an end-of-
-	// line and current->previous token is the last
-	// token of an indentation mark.
-
     // If the subexpression we are scanning is a typed
     // bracketed subexpression, initialize typed_data.
     //
@@ -1474,6 +1482,12 @@ min::position BRA::parse_bracketed_subexpression
 	typed_data->type = min::MISSING();
 	typed_data->has_mark_type = false;
     }
+
+    BRA::indentation_mark indentation_found =
+        min::NULL_STUB;
+	// If not NULL_STUB, current token is an end-of-
+	// line and current->previous token is the last
+	// token of an indentation mark.
 
     bool at_start = true;
         // At start of subexpression where prefix
@@ -1597,10 +1611,12 @@ min::position BRA::parse_bracketed_subexpression
 
 	if ( indentation_found != min::NULL_STUB )
 	{
-	    // We come here to process an indented
-	    // paragraph.  The indentation was found
+	    // We come here to process an indented para-
+	    // graph.  The indentation mark was found
 	    // below but processing was deferred until
-	    // after skip above could be done.
+	    // after skip above could be done to move
+	    // past the line break that followed the
+	    // indentation mark.
 	    //
 	    MIN_REQUIRE
 	      ( current->type == LEXSTD::indent_t
@@ -1689,9 +1705,10 @@ min::position BRA::parse_bracketed_subexpression
 			     ( bracket_stack_p ) )
 		    {
 			// Line was terminated by
-			// outer closing bracket.
+			// outer closing bracket,
+			// indent, or end of file.
 			// Set line end to beginning
-			// of that bracket.
+			// of that terminator.
 			//
 			MIN_REQUIRE
 			    ( ! separator_found );

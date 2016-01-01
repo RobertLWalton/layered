@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 31 02:42:15 EST 2015
+// Date:	Fri Jan  1 02:54:14 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -995,12 +995,10 @@ inline min::int32 relative_indent
 //	          return MISSING_POSITION
 //	     indentation_found = NONE
 // 	 
-// TBD
-//
 //     // Continuation after any indented paragraph,
 //     // or if there was no indented paragraph.
-//     // If current is a line break, it is not
-//     // followed by a line break or comment.
+//     // Current is NOT a line-break, comment, or
+//     // indent-before-comment.
 //
 //     if current is indent or end-of-file:
 //
@@ -1043,10 +1041,13 @@ inline min::int32 relative_indent
 //       if key == NONE:
 //
 //         if at_start and
-//                     typed_opening argument != NONE
+//                     typed_data argument != NULL
 //                     and current is mark:
-//            mark_type = current->value
 //            selectors = saved selectors
+//            type = current->value
+//            has_mark_type = true
+//            current->type = TYPE
+//            ++ attr_count
 //
 //         current = current->next
 //         at_start = false
@@ -1067,14 +1068,52 @@ inline min::int32 relative_indent
 //             create new bracket stack with new entry
 //                    as its only entry
 //
-//          parse_bracketed_subexpression with
-//            new_selectors, bracket stack,
-//            indent argument,
-//            line_sep argument
-//                if new_selectors & EALSEP,
-//            typed_opening = key
-//                if key is typed opening,
-//	      set separator_found = result
+//	    if key is opening bracket:
+//
+//            parse_bracketed_subexpression with
+//              new_selectors,
+//              new or existing bracket stack,
+//              indent argument,
+//              line_sep argument
+//                  if new_selectors & EALSEP,
+//	        set separator_found = result
+//
+//	    else if key is typed opening:
+//
+//            parse_bracketed_subexpression with
+//              new_selectors,
+//              new or existing bracket stack,
+//              indent argument,
+//              line_sep argument
+//                  if new_selectors & EALSEP,
+//              typed_data contining typed opening
+//	        set separator_found = result
+//
+//	        if typed_data.has_mark_type:
+//
+//	            type_token = first token of
+//	                         subexpression
+//	            if subexpression does not end
+//	               with a mark, print error message
+//	               and insert typed_token->value
+//	               at end of subexpression
+//	            else if subexpression ends with
+//	               a mark that differs from
+//	               type_token->value, reset
+//	               type_token->value to a label
+//	               whose whose components are the
+//	               marks at the beginning and end
+//	               of the subexpression
+//
+//	            if the subexpression has more then
+//	               one token and ends with a mark,
+//	               delete the ending mark
+//
+//	            if the subexpression now has more
+//	               than one token, set
+//	               tdata.elements = type_token->next
+//
+// TBD
 //
 //          if closing was found that did not match
 //             top of closing stack, or logical line
@@ -1522,23 +1561,23 @@ min::position BRA::parse_bracketed_subexpression
 	// warning messages.
 	//
         PAR::token first = current;
-	min::uns32 type = current->type;
-	while ( type == LEXSTD::line_break_t
+	min::uns32 t = current->type;
+	while ( t == LEXSTD::line_break_t
 	        ||
-		type == LEXSTD::comment_t
+		t == LEXSTD::comment_t
 		||
-	           type
+	           t
 		== LEXSTD::indent_before_comment_t )
 	{
-	    min::uns32 previous_type = type;
+	    min::uns32 previous_t = t;
 
 	    ensure_next ( parser, current );
 	    current = current->next;
-	    type = current->type;
+	    t = current->type;
 
-	    if ( previous_type == LEXSTD::line_break_t
+	    if ( previous_t == LEXSTD::line_break_t
 	         &&
-		 type == LEXSTD::line_break_t )
+		 t == LEXSTD::line_break_t )
 		parser->at_head = true;
 	}
 
@@ -1555,13 +1594,13 @@ min::position BRA::parse_bracketed_subexpression
 	    // or end of file.
 	    //
 	    MIN_REQUIRE
-	      ( type == LEXSTD::indent_t
+	      ( t == LEXSTD::indent_t
 		||
-	        type == LEXSTD::end_of_file_t
+	        t == LEXSTD::end_of_file_t
 	      );
 
 	    min::uns32 current_indent =
-	        type == LEXSTD::indent_t ?
+	        t == LEXSTD::indent_t ?
 		current->indent : 0;
 
 	    // Delete tokens and find the bounds of any
@@ -1911,9 +1950,10 @@ min::position BRA::parse_bracketed_subexpression
 	    }
 
 	    // Next is first part of continution line.
-	    // Remove line feed and continue with next
-	    // token that is not line feed or comment
-	    // or end of file.
+	    // Remove indent and continue with next
+	    // token that is not indent, comment,
+	    // indent-before-comment, line-break,
+	    // or end-of-file.
 	    //
 	    ensure_next ( parser, current );
 	    current = current->next;
@@ -2112,6 +2152,9 @@ min::position BRA::parse_bracketed_subexpression
 		    {
 			PAR::token type_token =
 			    previous->next;
+			MIN_REQUIRE
+			    (    type_token->value
+			      == tdata.type );
 			if (    type_token
 			     == next->previous )
 			     /* Do nothing! */;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 01:50:49 EST 2015
+// Date:	Sat Jan  2 02:31:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1845,6 +1845,8 @@ void PAR::internal::trace_subexpression
 	     "DERIVED EXPRESSION: " :
 	     token->type == PAR::PREFIX ?
 	     "PREFIX EXPRESSION: " :
+	     token->type == PAR::PURELIST ?
+	     "PURELIST EXPRESSION: " :
 	     "(UNKNOWN TYPE) EXPRESSION: " );
 
     if (   trace_flags

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  1 21:13:35 EST 2015
+// Date:	Sat Jan  2 01:01:46 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,20 @@ And one more {| |b["A", 201,202, [5]]: t}
 A prefix expression ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 {X} a b c; {X}{Y} f g; {X} h k
+{}
+({)
+{W|1 2 3}
+{W|1 2|p = q|3}
+{P:}
+({P2:)
+({:)
+{P: f = F|1 2 3|g = G:}
+({M: f = F|1 2 3)
+({N: f = F|1 2 3|g = G)
+({K: f = F|1 2 3|g =)
+{S: x = A|1 2|y = B|3 4|z = C}
+{T: x = A|1 2|y = B|3 4|z = C: T}
+{T: x = A|1 2|y = B|3 4|z = C: S}
 {- a b c -}
 {< a b c >}
 {- a b c}

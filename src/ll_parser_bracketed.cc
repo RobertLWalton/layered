@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  1 02:54:14 EST 2016
+// Date:	Sat Jan  2 00:25:49 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1089,7 +1089,7 @@ inline min::int32 relative_indent
 //              typed_data contining typed opening
 //	        set separator_found = result
 //
-//	        if typed_data.has_mark_type:
+//	      if typed_data.has_mark_type:
 //
 //	            type_token = first token of
 //	                         subexpression
@@ -1113,7 +1113,48 @@ inline min::int32 relative_indent
 //	               than one token, set
 //	               tdata.elements = type_token->next
 //
-// TBD
+//	      else if typed_data.middle_count is odd,
+//	              insert missing typed middle at
+//	              end of subexpression, set
+//	              typed_data.elements if it is
+//	              NULL_STUB, and print error message
+//
+//	      else:
+//
+//		  // Subexpression finishing that
+//		  // is logically done by TYPED_
+//		  // CLOSING but is instead done
+//		  // here because TYPED_CLOSING may
+//		  // be missing and thus be inserted
+//		  // below to correct its being missing.
+//		  //
+//	          // Note TYPED_ATTR_BEGIN can only
+//	          // happen here if typed attribute
+//	          // beginning was AFTER an attribute,
+//	          // as if it is after a beginning type,
+//		  // typed_data.subtype is set to TYPED_
+//		  // ATTR_SEP instead.
+//
+//	          if typed_data.subtype == TYPED_
+//	             OPENING and subexpression is
+//	             not empty, collect subexpression
+//	             into a single token with label
+//	             value and token type = TYPE
+//
+//	          else if typed_data.subtype = TYPED_
+//	                  ATTR_BEGIN:
+//
+//	               if subexpression end type label
+//	                  is empty, print error message
+//	               else make end type label, check
+//	                    if it matches beginning type
+//	                    label, and if not print
+//	                    error message, but in any
+//	                    case delete end type label
+//		  else finish any unfinished attribute
+//		       at end of subexpression and move
+//		       any attributes after elements to
+//		       just before elements
 //
 //          if closing was found that did not match
 //             top of closing stack, or logical line
@@ -1123,6 +1164,8 @@ inline min::int32 relative_indent
 //          else remove closing bracket
 //
 //          remove opening bracket
+//
+// TBD
 //
 //          if key is typed opening, subexpression has
 //             at least one element, and the first is a
@@ -2201,13 +2244,42 @@ min::position BRA::parse_bracketed_subexpression
 		    }
 		    else
 		    if ( tdata.middle_count % 2 == 1 )
+		    {
 			missing_error
 			    ( parser, next, "",
 			      min::pgen_quote
-			          ( root->label ),
+			          ( tdata.typed_opening
+				      ->typed_middle
+				      ->label ),
 			      "; inserted before" );
+			if (    tdata.elements
+			     == min::NULL_STUB
+			     &&
+			        tdata.start_previous
+				    ->next
+			     != next )
+			    tdata.elements =
+			        tdata.start_previous
+				    ->next;
+		    }
 		    else
 		    {
+		        // Subexpression finishing that
+		        // is logically done by TYPED_
+		        // CLOSING but is instead done
+		        // here because TYPED_CLOSING
+			// may be missing and thus be
+			// inserted below to correct
+			// its being missing.
+
+	                // Note TYPED_ATTR_BEGIN can
+			// only happen here if typed
+			// attribute beginning was AFTER
+			// an attribute, as if it is
+			// after a beginning type,
+			// tdata.subtype is set to
+			// TYPED_ATTR_SEP instead.
+
 		        if (    tdata.subtype
 			     == BRA::TYPED_OPENING
 			     &&
@@ -2264,7 +2336,9 @@ min::position BRA::parse_bracketed_subexpression
 				      " != end type ",
 				      min::pgen_quote
 				        ( next->previous
-					      ->value )
+					      ->value ),
+				      "; end type"
+				      " ignored"
 				    );
 				PAR::free
 				  ( PAR::remove

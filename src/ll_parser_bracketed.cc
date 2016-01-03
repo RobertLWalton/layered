@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  2 03:39:35 EST 2016
+// Date:	Sun Jan  3 07:45:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1141,8 +1141,8 @@ inline min::int32 relative_indent
 //	             into a single token with label
 //	             value and token type = TYPE
 //
-//	          else if typed_data.subtype = TYPED_
-//	                  ATTR_BEGIN:
+//	          else if typed_data.subtype =
+//	                  TYPED_ATTR_BEGIN:
 //
 //	               if subexpression end type label
 //	                  is empty, print error message
@@ -1165,112 +1165,42 @@ inline min::int32 relative_indent
 //
 //          remove opening bracket
 //
-// TBD
+//          if key is opening bracket:
 //
-//          if key is typed opening, subexpression has
-//             at least one element, and the first is a
-//             mark:
-//		// typed brackets with mark type
-//              //
-//              mark_type = value of first element
-//              remove typed opening that preceeds
-//                     subexpression
-//              if there are any elements left in the
-//                       subexpression:
-//		   if last subexpression element is not
-//		      a mark, print error message
-//		   else:
-//		       if last subexpression element's
-//		          value v does not equal
-//		          mark_type, set mark_type =
-//		              [< mark_type v >]
-//		       remove last subexpression element
-//              compact subexpression with
-//                      new_selectors,
-//                      .type = mark_type,
-//                      token type = BRACKETING,
-//                      token value_type = mark_type
-//		 
-//          else call opening bracket reformatter if
-//                    any, and if none or if compaction
-//                    requested by reformatter:
-//              compact subexpression with
-//                      new_selectors,
-//                      .initiator = key opening
-//                      .terminator = key closing
-//                      token type = BRACKETING,
-//                      token value_type = key opening
+//             call opening bracket reformatter if
+//                  any, and if none or if compaction
+//                  requested by reformatter:
+//             compact subexpression with
+//                     new_selectors,
+//                     .initiator = key opening,
+//                     .terminator = key closing,
+//                     token type = BRACKETING,
+//                     token value_type = key opening
 //
-//          else reformatter was called and did not
-//                           request compaction, and
-//                           if returned token has
-//                           PREFIX type:
-//               // Reformatter returned prefix
-//               // separator; key must be a typed
-//               // opening
-//               //
-//               if bracket stack contains prefix
-//                          with matching type:
-//		    close matching entry
-//		    close entries above matching
-//		          entry
-//		    return separator_found
-//		 else if not at_start:
-//		    print error message
-//		    remove PREFIX token
-//		 else if top of bracket stack closed
-//		      by line or paragraph end or a
-//		      closing bracket that is not ours:
-//		    // PREFIX is last thing in its
-//		    // subexpression, so its already
-//		    // a complete subexpression; kick
-//		    // up to our caller.
-//		    //
-//		    change token type to BRACKETED and
-//		           token value_type to MISSING
-//		    return separator_found
-//		 else if typed_opening->type_map not
-//		      defined (is NULL_STUB):
-//		    change token type to BRACKETED and
-//		           token value_type to MISSING
-//		 else:
-//		    // Find prefix-list subexpressions
-//		    // headed by PREFIX token.
-//		    //
-//		    require key to be a typed_opening
-//		    new_selectors = selectors modified
-//		       by any typed_opening->type_map
-//		       entry found for the PREFIX token
-//		       type
-//		    loop:
-//		        push the PREFIX token type into
-//		             the bracket stack
-//          		parse_bracketed_subexpression
-//          		    with new_selectors, bracket
-//          		    stack, indent argument,
-//                          line_sep argument
-//                            if new_selectors & EALSEP,
-//                          set separator_found = result
-//                      adjust PREFIX token position to
-//                          include scanned tokens
-//                      add scanned tokens as elements
-//                          to PREFIX token MIN value
-//                      delete scanned tokens
-//                      set PREFIX token type to
-//                          BRACKETED and value_type to
-//                          MISSING
-//                      if top of bracket stack is
-//                         closed by something other
-//                         than another PREFIX token
-//                         with the same type as the
-//                         current PREFIX token,
-//                         pop bracket stack and
-//                         return separator_found
-//                      else replace PREFIX token by
-//                           the token at the top of
-//                           the bracket stack, pop
-//                           bracket stack, and loop
+//          else if key is typed opening:
 //              
+//               compact subexpression with attributes
+//                       taken from tokens before
+//                       typed_data.elements (those with
+//                       token types TYPE, ATTR_...) and
+//                       elements taken from typed_
+//                       data.element on;
+//                       token type =
+//                             PREFIX if .type attribute
+//                             is present, typed_data.
+//                             middle_count == 0, and
+//                             typed_data.has_mark_type
+//                             is false,
+//                             else BRACKETING if .type
+//                             is the only attribute,
+//                             else BRACKETED
+//                       token value_type = .type
+//                             attribute value if token
+//                             type is PREFIX, else
+//                             MISSING
+//
+//    		  delete tokens from which attributes
+//    		         were taken
 //	    at_start = false
 //
 //          if closing bracket was found that did
@@ -1279,6 +1209,8 @@ inline min::int32 relative_indent
 //               return separator_found
 //          else
 //            iterate top level loop
+//
+// TBD
 //
 //       if key is closing bracket in bracket stack:
 //          close bracket stack entry that matches key
@@ -1560,6 +1492,8 @@ min::position BRA::parse_bracketed_subexpression
 	typed_data->start_previous = current->previous;
 	typed_data->elements = min::NULL_STUB;
 	typed_data->attributes = min::NULL_STUB;
+	typed_data->end_position =
+	    min::MISSING_POSITION;
 	typed_data->subtype = BRA::TYPED_OPENING;
 	typed_data->type = min::MISSING();
 	typed_data->has_mark_type = false;
@@ -2555,10 +2489,14 @@ min::position BRA::parse_bracketed_subexpression
 			        t->value;
 		    }
 
-		    if ( tdata.middle_count == 0
+		    if ( type != min::MISSING()
+		         &&
+			 tdata.middle_count == 0
 		         &&
 			 ! tdata.has_mark_type )
 		        token_type = PAR::PREFIX;
+		    else
+		        type = min::MISSING();
 
 		    bool first_equals_elements =
 		        ( first == elements );
@@ -2589,9 +2527,7 @@ min::position BRA::parse_bracketed_subexpression
 		    value_type_ref(first) = type;
 		}
 
-		// Come here after compacting; note that
-		// PREFIX headed subexpressions return
-		// instead of coming here.
+		// Come here after compacting.
 
 		at_start = false;
 
@@ -2599,8 +2535,8 @@ min::position BRA::parse_bracketed_subexpression
 		     == cstack.closing_first )
 		{
 		    // Found a closing bracket that is
-		    // not ours or line end.  Kick to
-		    // caller.
+		    // not ours or logical line end.
+		    // Kick to caller.
 		    //
 		    return separator_found;
 		}

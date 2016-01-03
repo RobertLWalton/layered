@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 30 02:17:44 EST 2015
+// Date:	Sun Jan  3 07:26:14 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -341,9 +341,9 @@ static void prefix_parse ( PAR::parser parser,
 				    first->previous ) );
 		    }
 		    prefix->position = position;
-		    prefix->type = PAR::BRACKETED;
 		}
 
+		prefix->type = PAR::BRACKETED;
 		PAR::trace_subexpression
 		    ( parser, prefix, trace_flags );
 	    }

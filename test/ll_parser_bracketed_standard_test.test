@@ -1398,7 +1398,7 @@ PREFIX EXPRESSION:
           .position[H] = {}
     line 63:
 ({P2:)
- ^^^
+ ^^^^
 BRACKETED EXPRESSION:
     {P2||P2}
 @96 =:
@@ -1406,7 +1406,7 @@ BRACKETED EXPRESSION:
           .position[H] = {}
     line 63:
 ({P2:)
- ^^^
+ ^^^^
 BRACKETED EXPRESSION:
     ({P2||P2})
 @97 = @96:
@@ -1446,7 +1446,7 @@ PURELIST EXPRESSION:
           .position[H] = {}
     line 64:
 ({:)
- ^
+ ^^
 BRACKETED EXPRESSION:
     ()
 @99 =:
@@ -1576,7 +1576,7 @@ BRACKETED EXPRESSION:
            .position[H] = {}
     line 67:
 ({N: f = F|1 2 3|g = G)
- ^^^^^^^^^^^^^^^
+ ^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ({N: f = "F", g = "G"|1 2 3|N})
 @107 = @106:
@@ -1626,7 +1626,7 @@ BRACKETED EXPRESSION:
            .position[H] = {}
     line 68:
 ({K: f = F|1 2 3|g =)
- ^^^^^^^^^^^^^^^
+ ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ({K: f = "F", g = "OMITTED<SP>ATTRIBUTE<SP>VALUE"|1 2 3|K})
 @110 = @109:

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  3 07:45:06 EST 2016
+// Date:	Sun Jan  3 10:54:40 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1416,6 +1416,11 @@ inline void finish_attribute
 	    start = PAR::new_token ( BRA::ATTR_VALUE );
 	    put_before ( PAR::first_ref(parser),
 			 next, start );
+	    min::phrase_position pos =
+	        { typed_data->end_position,
+	          typed_data->end_position };
+		// Position recorded by ATTR_EQUAL.
+	    start->position = pos;
 	    PAR::value_ref(start) =
 	        min::new_str_gen
 		    ( "OMITTED ATTRIBUTE VALUE" );
@@ -1456,11 +1461,15 @@ inline void move_attributes
 	 &&
 	    typed_data->attributes
 	 != min::NULL_STUB )
+    {
+	typed_data->end_position =
+	    next->previous->position.end;
 	PAR::move_to_before
 	    ( parser,
 	      typed_data->elements,
 	      typed_data->attributes,
 	      next );
+    }
 
     typed_data->attributes = min::NULL_STUB;
 }
@@ -2235,11 +2244,16 @@ min::position BRA::parse_bracketed_subexpression
 				  next );
 			    if (    tdata.elements
 			         != min::NULL_STUB )
+			    {
+				tdata.end_position =
+				    next->previous
+				        ->position.end;
 				PAR::move_to_before
 				    ( parser,
 				      tdata.elements,
 				      next->previous,
 				      next );
+			    }
 			}
 		        else if (    tdata.subtype
 			          == BRA::
@@ -2314,7 +2328,15 @@ min::position BRA::parse_bracketed_subexpression
 			 != min::NULL_STUB )
 			next = cstack.closing_next;
 		    position.end =
-			next->previous->position.end;
+			  next->previous->position.end;
+		    if ( subtype == BRA::TYPED_OPENING
+		         &&
+			 tdata.end_position
+			 &&
+			   tdata.end_position
+			 > position.end )
+		        position.end =
+			    tdata.end_position;
 
 		    if ( next->value != min::MISSING() )
 		        PAR::parse_error
@@ -2621,6 +2643,9 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     ! typed_data->has_mark_type )
 		{
+		    typed_data->end_position =
+		        current->previous->position.end;
+		        
 		    PAR::remove ( parser, current,
 			          root->label );
 
@@ -2701,6 +2726,9 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     ! typed_data->has_mark_type )
 		{
+		    typed_data->end_position =
+		        current->previous->position.end;
+		        
 		    if (    typed_data->subtype
 		         == BRA::TYPED_OPENING
 			 &&
@@ -2764,6 +2792,9 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     ! typed_data->has_mark_type )
 		{
+		    typed_data->end_position =
+		        current->previous->position.end;
+		        
 		    if ( (    typed_data->subtype
 		           == BRA::TYPED_MIDDLE
 			   ||
@@ -2812,6 +2843,9 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     ! typed_data->has_mark_type )
 		{
+		    typed_data->end_position =
+		        current->previous->position.end;
+		        
 		    if (    typed_data->subtype
 		         == BRA::TYPED_MIDDLE
 			 ||
@@ -2858,6 +2892,9 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     ! typed_data->has_mark_type )
 		{
+		    typed_data->end_position =
+		        current->previous->position.end;
+		        
 		    if ( (    typed_data->subtype
 		           == BRA::TYPED_ATTR_SEP
 			   ||

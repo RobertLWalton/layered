@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 28 19:26:01 EST 2015
+// Date:	Sun Jan  3 07:43:57 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -470,6 +470,10 @@ struct typed_data
         // First token of the list of attributes after
 	// the last typed opening or middle, or NULL_
 	// STUB if none.
+    min::position end_position;
+        // End position of typed bracketed subexpres-
+	// sion, or min::MISSING_POSITION if not
+	// determined yet.
     min::uns32 subtype;
         // Subtype of last key found.
     min::gen type;

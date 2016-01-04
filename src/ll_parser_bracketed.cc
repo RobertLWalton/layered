@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  3 10:54:40 EST 2016
+// Date:	Mon Jan  4 12:00:53 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1210,39 +1210,150 @@ inline min::int32 relative_indent
 //          else
 //            iterate top level loop
 //
-// TBD
+//       if key is closing bracket in bracket stack
+//          that matches the closing bracket of an
+//          entry in the bracket stack:
 //
-//       if key is closing bracket in bracket stack:
 //          close bracket stack entry that matches key
 //          close all higher stack entries indicating
 //            that their closing brackets were not found
 //          return MISSING_POSITION
-//
-//       if key is typed middle matching typed_middle
-//              component of typed_opening argument
-//              and subexpression did not begin with a
-//              mark type (mark_type == MISSING):
-//          if first such:
-//             restore saved selectors
-//          else if second such:
-//             reset selectors to typed_opening->
-//                                attr_selectors
-//	    if other such:
-//	       delete typed middle
-//	       announce error
-//
-//          iterate top level loop
 //
 //       if key is selected indentation mark and
 //              current is end of file or line break
 //              or comment:
 //          indentation_found = key
 //          iterate top level loop
+//          // See above for indented paragraph
+//          // processing.
 //
 //       if key is line separator matching line_sep
 //              argument and selectors & EALSEP:
 //          remove line separator
 //          return end position of removed separator
+//
+//       if key is typed middle matching typed_middle
+//              component of typed_opening component
+//              of a non-missing typed_data argument
+//              and typed_data->has_mark_type is false:
+//
+//          remove typed middle key
+//
+//          if typed_data->middle_count is even:
+//             if there is no previous typed key in the
+//                subexpression and there are tokens
+//                between the typed opening and the
+//                typed middle, make these tokens into a
+//                label and replace them with a TYPE
+//                token having the label as token value
+//	       else finish any unfinished attribute just
+//	            before typed middle and move any
+//	            attributes after elements to just
+//	            before elements
+//	       selectors argument =
+//	           typed_data->saved_selectors
+//
+//          else if typed_data->middle_count is odd:
+//             selectors argument =
+//                   typed_data->typed_opening
+//                             ->attr_selectors
+//                 | ALWAYS_SELECTOR
+//             if typed_data->elements == NULL and
+//                there are elements before typed
+//                middle, set typed_data->elements to
+//                point at the first of these
+//
+//          ++ typed_data->middle_count
+//
+//          iterate top level loop
+//
+//       if key is typed attribute begin matching typed_
+//              attr_begin component of typed_opening
+//              component of a non-missing typed_data
+//              argument, and typed_data->middle_count
+//              is even, and typed_data->has_mark_type
+//              is false:
+//
+//          if there is no previous typed key in the
+//             subexpression and there are tokens
+//             between the typed opening and the typed
+//             attribute begin, make these tokens into a
+//             label and replace them with a TYPE token
+//             having the label as token value; then
+//             remove the typed attribute begin key
+//
+//	     else if typed_data->middle_count > 0 and
+//	          there are tokens between the previous
+//	          typed middle and the typed attribute
+//	          begin, finish any unfinished attribute
+//	          just before the typed attribute begin
+//	          and move any attributes after elements
+//	          to just before elements; then remove
+//	          the typed attribute begin key
+//
+//	     else announce typed attribute begin to be a
+//	          a punctuation error that is ignored,
+//	          and remove it
+//
+//       if key is typed attribute equal matching typed_
+//              attr_equal component of typed_opening
+//              component of a non-missing typed_data
+//              argument, and typed_data->middle_count
+//              is even, and typed_data->has_mark_type
+//              is false:
+//
+//          if there is a previous typed key in the sub-
+//             expression that is a typed middle, typed
+//             attribute separator, or typed attribute
+//             negator, and there are tokens between
+//             this previous typed key and the typed
+//             attribute equal, make these tokens into
+//             an attribute label and optional following
+//             flags, and replace them with an ATTR_
+//             LABEL token optionally followed by an
+//             ATTR_FLAGS token; then remove the typed
+//             attribute equal key
+//
+//	     else announce typed attribute equal to be a
+//	          a punctuation error that is ignored,
+//	          and remove it
+//
+//       if key is typed attribute separator matching
+//              typed_attr_sep component of typed_
+//              opening component of a non-missing
+//              typed_data argument, and typed_data->
+//              middle_count is even, and typed_data->
+//              has_mark_type is false:
+//
+//          if there is a previous typed key in the sub-
+//             expression that is a typed middle, typed
+//             attribute separator, or typed attribute
+//             equal, or typed attribute negator, finish
+//	       any unfinished attribute just before the
+//	       typed attribute separator and remove the
+//	       typed attribute separator key
+//
+//	     else announce typed attribute separator to
+//	          be a a punctuation error that is
+//	          ignored, and remove it
+//
+//       if key is typed attribute negator matching
+//              typed_attr_negator component of typed_
+//              opening component of a non-missing
+//              typed_data argument, and typed_data->
+//              middle_count is even, and typed_data->
+//              has_mark_type is false:
+//
+//          if there is a previous typed key in the sub-
+//             expression that is a typed middle or
+//             typed attribute separator, and there are
+//             NO tokens between this previous key and
+//             the typed attribute negator, remove the
+//             typed attribute negator
+//
+//	     else announce typed attribute negator to
+//	          be a a punctuation error that is
+//	          ignored, and remove it
 //
 //       // reject key
 //       //
@@ -2937,7 +3048,7 @@ min::position BRA::parse_bracketed_subexpression
 	// Loop to next token.
     }
 
-    return min::MISSING_POSITION;
+    MIN_ABORT ( "SHOULD NOT COME HERE" );
 }
 
 // Bracketed Reformatters

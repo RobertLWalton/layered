@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  3 07:43:57 EST 2016
+// Date:	Mon Jan  4 01:53:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -473,7 +473,11 @@ struct typed_data
     min::position end_position;
         // End position of typed bracketed subexpres-
 	// sion, or min::MISSING_POSITION if not
-	// determined yet.
+	// determined yet.  Used to determine the end
+	// of a typed bracketed subexpression that
+	// is ended prematurely by the closing
+	// bracket of a containing expression, or
+	// the end of a logical line.
     min::uns32 subtype;
         // Subtype of last key found.
     min::gen type;

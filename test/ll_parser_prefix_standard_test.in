@@ -1,0 +1,13 @@
+// Layered Languages Prefix Standard Parser Test Data
+//
+// File:	ll_parser_prefix_standard_test.in
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Mon Jan  4 18:45:26 EST 2016
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+{X} a b c; {X}{Y} f g; {X} h k

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 28 19:20:00 EST 2015
+// Date:	Tue Jan  5 03:16:32 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1243,6 +1243,11 @@ extern min::phrase_position top_level_position;
 // pointer to it in the argument variable, if the
 // variable's previous value is NULL_STUB.  The variable
 // MUST BE locatable by the garbage collector.
+//
+// When a parser is created, bracketed and prefix passes
+// are created for the parser, with the prefix pass
+// being placed immediately after the bracketed pass
+// in the parser pass stack.
 //
 // When the parser is created, if define_standard is
 // true, a `standard' parser block is begun with the

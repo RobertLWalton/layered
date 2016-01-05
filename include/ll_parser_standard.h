@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 00:47:18 EST 2015
+// Date:	Tue Jan  5 03:12:02 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -173,9 +173,12 @@ void init_block ( ll::parser::parser parser );
 // -------- ------ --------
 
 
-// Set the parser->bracket_table and parser->split_table
-// for the standard set of layered language brackets and
-// indentation marks.
+// Set the parser->bracket_table for the standard set
+// of layered language brackets and indentation marks.
+//
+// Set parser->selectors to `code + prefix'.
+//
+// Set prefix pass selectors to `prefix'.
 //
 void init_brackets ( ll::parser::parser parser );
 

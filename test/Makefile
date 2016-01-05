@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Dec 29 01:28:04 EST 2015
+# Date:		Mon Jan  4 18:47:40 EST 2016
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -41,6 +41,7 @@ PARSER_PROGRAMS = ll_parser_input_test \
 	          ll_parser_command_test \
 	          ll_parser_bracketed_standard_test \
 	          ll_parser_bracketed_command_test \
+	          ll_parser_prefix_standard_test \
 	          ll_parser_oper_standard_test \
 	          ll_parser_oper_command_test
 
@@ -611,6 +612,24 @@ ll_parser_bracketed_standard_test.out:	\
 	rm -f $*.out
 	${RUNENV} $* < \
 	    ll_parser_bracketed_standard_test.in \
+	    > $*.out
+
+ll_parser_prefix_standard_test:		\
+	    ll_parser_prefix_standard_test.cc \
+	    ${PARSER_O} \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ${PARSER_O} \
+	    ll_parser_prefix_standard_test.cc
+
+ll_parser_prefix_standard_test.out:	\
+	    ll_parser_prefix_standard_test \
+	    ll_parser_prefix_standard_test.in
+	rm -f $*.out
+	${RUNENV} $* < \
+	    ll_parser_prefix_standard_test.in \
 	    > $*.out
 
 ll_parser_command_test:		\

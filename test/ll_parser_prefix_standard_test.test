@@ -1,0 +1,149 @@
+BRACKETED EXPRESSION:
+    {Y|6 7|Y}
+@1 = 6 7:
+         .type = "Y"
+         .position[H] = {}
+    line 11:
+({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                  ^^^^^^^
+ERROR: in line 11: prefix token not at beginning of phrase; deleted and
+       ignored:
+({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+         ^^^
+ERROR: in line 11: prefix token not at beginning of phrase; deleted and
+       ignored:
+({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+                           ^^^
+BRACKETED EXPRESSION:
+    {W|2 3 4 5 ({Y|6 7|Y})|W}
+@2 = 2 3 4 5 @3:
+         .type = "W"
+         .position[H] = {}
+@3 = @1:
+         .terminator = ")"
+         .initiator = "("
+         .position[H] = {}
+    line 11:
+({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+ ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({W|2 3 4 5 ({Y|6 7|Y})|W})
+@4 = @5:
+         .terminator = "<LF>"
+         .position[H] = {}
+         .initiator = [$ LOGICAL_LINE $]
+@5 = @2:
+         .terminator = ")"
+         .initiator = "("
+         .position[H] = {}
+    line 11:
+({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X}
+@6 = a b c:
+         .type = "X"
+         .position[H] = {}
+    line 12:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {Y|d e|Y}
+@7 = d e:
+         .type = "Y"
+         .position[H] = {}
+    line 12:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+             ^^^^^^^
+BRACKETED EXPRESSION:
+    {Y|f g|Y}
+@8 = f g:
+         .type = "Y"
+         .position[H] = {}
+    line 12:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                     ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|{Y|d e|Y} {Y|f g|Y}|X}
+@9 = @7 @8:
+         .type = "X"
+         .position[H] = {}
+    line 12:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+          ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|h k|X}
+@10 = h k:
+          .type = "X"
+          .position[H] = {}
+    line 12:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+                             ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X} {X|{Y|d e|Y} {Y|f g|Y}|X} {X|h k|X}
+@11 = @6 @9 @10:
+          .terminator = "<LF>"
+          .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
+    line 12:
+{X} a b c {X}{Y} d e {Y} f g {X} h k
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X}
+@12 = a b c:
+          .type = "X"
+          .position[H] = {}
+    line 13:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|a b c|X};
+@13 = @12:
+          .terminator = ";"
+          .initiator = [$ LOGICAL_LINE $]
+          .position[H] = {}
+    line 13:
+{X} a b c; {X}{Y} f g; {X} h k
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {Y|f g|Y}
+@14 = f g:
+          .type = "Y"
+          .position[H] = {}
+    line 13:
+{X} a b c; {X}{Y} f g; {X} h k
+              ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|{Y|f g|Y}|X}
+@15 = @14:
+          .type = "X"
+          .position[H] = {}
+    line 13:
+{X} a b c; {X}{Y} f g; {X} h k
+           ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|{Y|f g|Y}|X};
+@16 = @15:
+          .terminator = ";"
+          .initiator = [$ LOGICAL_LINE $]
+          .position[H] = {}
+    line 13:
+{X} a b c; {X}{Y} f g; {X} h k
+           ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|h k|X}
+@17 = h k:
+          .type = "X"
+          .position[H] = {}
+    line 13:
+{X} a b c; {X}{Y} f g; {X} h k
+                       ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|h k|X}
+@18 = @17:
+          .terminator = "<LF>"
+          .position[H] = {}
+          .initiator = [$ LOGICAL_LINE $]
+    line 13:
+{X} a b c; {X}{Y} f g; {X} h k
+                       ^^^^^^^

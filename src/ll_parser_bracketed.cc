@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  6 11:36:41 EST 2016
+// Date:	Wed Jan  6 12:20:29 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1510,7 +1510,9 @@ inline void finish_attribute
     min::uns32 subtype = typed_data->subtype;
     PAR::token start = typed_data->start_previous->next;
 
-    if ( subtype == BRA::TYPED_ATTR_SEP
+    if ( subtype == BRA::TYPED_OPENING
+         ||
+	 subtype == BRA::TYPED_ATTR_SEP
          ||
 	 subtype == BRA::TYPED_ATTR_NEGATOR
 	 ||
@@ -2411,7 +2413,8 @@ min::position BRA::parse_bracketed_subexpression
 				  );
 			    }
 			}
-		        else
+		        else if (    tdata.subtype
+			          != BRA::TYPED_OPENING )
 			{
 			    ::finish_attribute
 				( parser, & tdata,
@@ -2780,7 +2783,8 @@ min::position BRA::parse_bracketed_subexpression
 			    ::make_type_label
 			        ( parser, typed_data,
 				  current );
-		        else
+		        else if (    typed_data->subtype
+			          != BRA::TYPED_OPENING )
 			{
 			    ::finish_attribute
 				( parser, typed_data,
@@ -2914,6 +2918,9 @@ min::position BRA::parse_bracketed_subexpression
 		        current->previous->position.end;
 		        
 		    if ( (    typed_data->subtype
+		           == BRA::TYPED_OPENING
+			   ||
+		              typed_data->subtype
 		           == BRA::TYPED_MIDDLE
 			   ||
 		              typed_data->subtype
@@ -2965,6 +2972,9 @@ min::position BRA::parse_bracketed_subexpression
 		        current->previous->position.end;
 		        
 		    if (    typed_data->subtype
+		         == BRA::TYPED_OPENING
+			 ||
+		            typed_data->subtype
 		         == BRA::TYPED_MIDDLE
 			 ||
 		            typed_data->subtype
@@ -3014,6 +3024,9 @@ min::position BRA::parse_bracketed_subexpression
 		        current->previous->position.end;
 		        
 		    if ( (    typed_data->subtype
+			   == BRA::TYPED_OPENING
+			   ||
+			      typed_data->subtype
 		           == BRA::TYPED_ATTR_SEP
 			   ||
 			      typed_data->subtype

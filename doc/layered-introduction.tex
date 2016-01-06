@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 5, 2016
+January 6, 2016
  
 \end{center}
 
@@ -3578,9 +3578,10 @@ The attribute value `\TT{= TRUE}' can be omitted (as in
 by omitting it and prefacing the attribute label with `\TT{no}'
 (as in `\TT{no my option}').
 The type can be omitted from the beginning if there are no attributes
-after it, and can be omitted from the end if there are no attributes
-before it, but of course cannot be omitted from both beginning and
-end.  If there are no elements, `\TT{|~|}' can be collapsed into
+after it, and can be omitted from the end.  If omitted from both
+beginning and end, the type is missing, but there can still be
+attributes at the end.
+If there are no elements, `\TT{|~|}' can be collapsed into
 a single lexeme `\TT{||}'.  A missing type is denoted
 by \TT{""} and may be omitted if there are no attributes.
 `\TT{\{||\}}' can be collapsed into `\TT{\{\}}'.  If the type is

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  4 12:00:53 EST 2016
+// Date:	Wed Jan  6 11:36:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1436,6 +1436,15 @@ inline void make_type_label
     start->type = BRA::TYPE;
     typed_data->type = start->value;
     ++ typed_data->attr_count;
+
+    if ( typed_data->elements != min::NULL_STUB )
+    {
+	typed_data->end_position =
+	    next->previous->position.end;
+	PAR::move_to_before
+	    ( parser, typed_data->elements,
+	      next->previous, next );
+    }
 }
 
 // Make attribute label.  Return true if label made and
@@ -2334,15 +2343,23 @@ min::position BRA::parse_bracketed_subexpression
 			// tdata.subtype is set to
 			// TYPED_ATTR_SEP instead.
 
-		        if (    tdata.subtype
-			     == BRA::TYPED_OPENING
+		        if ( (    tdata.subtype
+			       == BRA::TYPED_OPENING
+			       ||
+			       (    tdata.subtype
+			         == BRA::TYPED_MIDDLE
+				 &&
+				  tdata.middle_count % 2
+				 == 0 ) )
 			     &&
 			        tdata.start_previous
 				          ->next
 			     != next )
+			{
 			    ::make_type_label
 			        ( parser, & tdata,
 				  next );
+			}
 		        else if (    tdata.subtype
 			          == BRA::
 				     TYPED_ATTR_BEGIN
@@ -2353,18 +2370,6 @@ min::position BRA::parse_bracketed_subexpression
 			    ::make_type_label
 			        ( parser, & tdata,
 				  next );
-			    if (    tdata.elements
-			         != min::NULL_STUB )
-			    {
-				tdata.end_position =
-				    next->previous
-				        ->position.end;
-				PAR::move_to_before
-				    ( parser,
-				      tdata.elements,
-				      next->previous,
-				      next );
-			    }
 			}
 		        else if (    tdata.subtype
 			          == BRA::
@@ -2562,14 +2567,17 @@ min::position BRA::parse_bracketed_subexpression
 		    for ( PAR::token t = first;
 		          t != elements; t = t->next )
 		    {
-		        if ( t->type == BRA::TYPE )
+		        if ( t->type == BRA::TYPE
+			     &&
+			        t->value
+			     != min::empty_str )
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
 			    attributes[i].name =
-			        min::dot_type;
+				min::dot_type;
 			    attributes[i].value =
-			        t->value;
+				t->value;
 			    type = t->value;
 			    ++ i;
 			}
@@ -2639,8 +2647,7 @@ min::position BRA::parse_bracketed_subexpression
 			  elements, next, position,
 			  trace_flags,
 			  token_type,
-			  tdata.attr_count,
-			  attributes, 1 );
+			  i, attributes, 1 );
 
 		    // We delay deleting tokens until
 		    // their values are protected from

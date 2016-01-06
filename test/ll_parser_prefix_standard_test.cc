@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  4 18:50:43 EST 2016
+// Date:	Wed Jan  6 11:35:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,9 +32,6 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cin );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
-    BRA::bracketed_pass bracketed_pass =
-        (BRA::bracketed_pass)
-	PAR::default_parser->pass_stack;
     min::locatable_gen prefix
         ( min::new_str_gen ( "prefix" ) );
     PRE::prefix_pass prefix_pass =

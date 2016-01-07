@@ -3554,15 +3554,18 @@ where \ldots{} denotes a list of elements:
 \TT{\{my type||\}} \\
 \TT{\{||my type\}} \\
 \TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~ \TT{|\}} \\
-\TT{\{my type: my attribute = 5, my option = FALSE|} ~~~\ldots~~~
+\TT{\{my type: my attribute = 5, your option = FALSE|} ~~~\ldots~~~
     \TT{|my type\}} \\
+\TT{\{my attribute = 5|} ~~~\ldots~~~
+    \TT{|my option = TRUE: my type\}} \\
 \TT{\{my type|} ~~~\ldots~~~
     \TT{|my attribute = 5, my option: my type\}} \\
 \TT{\{|} ~~~\ldots~~~ \TT{|my attribute = 5, my option: my type\}} \\
 \TT{\{|} ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{||\}} \\
 \TT{\{\}} \\
-\TT{\{"": my attribute = 5, no my option|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{my attribute = 5, no your option|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{"": my attribute = 5, no your option|} ~~~\ldots~~~ \TT{|""\}} \\
 \TT{\{*} ~~~\ldots~~~ \TT{*\}} \\
 \end{center}
 
@@ -3587,6 +3590,37 @@ If omitted from both
 beginning and end, the type is missing, but there can still be
 attributes.  Also \TT{""} may be used as a type label to denote
 a missing type.
+
+An attribute value may be a bracketed subexpression, or a sequence
+of one or more words, naturals, numerics, or quoted strings, each
+representing a MIN string.  In the latter case, if there is only
+one element in the sequence, the MIN string it represents is the
+attribute value, but if there is more than one element, the elements
+are concatenanted into a label and that label is the attribute value.
+
+If, on the other hand, the attribute value is a bracketed subexpression,
+the value of that subexpression is the attribute value, with one exception.
+
+The exception is that when the bracket initiator is the
+`\key{multivalue initiator}' (standardly `\TT{\{*}'), the comma
+separated elements of the bracketed subexpression are each a
+distinct value of the attribute, which has a multi-set of values.
+Elements must be single bracketed expressions, or sequences of
+words, naturals, numerics, or quoted strings that are made into
+labels.  Missing elements, as indicated by the commas, are ignored,
+If there are no values, as in `\TT{\{* *\}}' or `\TT{\{* , *\}}',
+the attribute is not set.
+
+Some examples of attribute values are:
+\begin{center}
+\TT{\{my type: x = 5, y = "5" |} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{my type: x = 5 tomatoes, y = [< 5 tomatoes >] |}
+    ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{my type: x = \{* A, B *\}, y = \{* , "A",{}, B, *\} |}
+    ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{my type: y = \{* ,{}, *\} |} ~~~\ldots~~~ \TT{|\}} \\
+\end{center}
+In each case, the values of \TT{x} and \TT{y} are equal.
 
 If there are no elements, `\TT{|~|}' can be collapsed into
 a single lexeme `\TT{||}'.

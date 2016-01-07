@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  6 12:20:29 EST 2016
+// Date:	Thu Jan  7 02:55:16 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2414,7 +2414,8 @@ min::position BRA::parse_bracketed_subexpression
 			    }
 			}
 		        else if (    tdata.subtype
-			          != BRA::TYPED_OPENING )
+			          != BRA::TYPED_OPENING
+				)
 			{
 			    ::finish_attribute
 				( parser, & tdata,
@@ -2784,7 +2785,8 @@ min::position BRA::parse_bracketed_subexpression
 			        ( parser, typed_data,
 				  current );
 		        else if (    typed_data->subtype
-			          != BRA::TYPED_OPENING )
+			          != BRA::TYPED_OPENING
+				)
 			{
 			    ::finish_attribute
 				( parser, typed_data,
@@ -3166,147 +3168,60 @@ static bool special_reformatter_function
     return false;
 }
 
-// Skip to next key (punctuation mark).  Return token
-// after key in `current', first token of key in
-// `key_first', count of number of tokens skipped
-// NOT counting key tokens in `skip_count'.  `next' is
-// next token after tokens that may be skipped or part
-// of key (i.e., end of token sequence marker).
-//
-// If key found, return its subtype, and return its
-// label in `key_label'.  But if key not found (so
-// key_first and current are set == next), return 0.
-//
-// Key_table contains the keys with various selectors.
-// Only keys with a selector that is also in the
-// `selectors' argument are recognized.  If a key
-// is not initially recognized, selectors is reset
-// to skip_selectors with skip_count is incremented.
-//
-inline min::uns32 get_next_key
+static bool multivalue_reformatter_function
         ( PAR::parser parser,
-	  PAR::token & key_first,
-	  PAR::token & current,
-	  PAR::token next,
+	  PAR::pass pass,
 	  TAB::flags selectors,
-	  TAB::flags skip_selectors,
-	  min::unsptr & skip_count,
-	  min::gen & key_label,
-	  TAB::key_table key_table )
-{
-    key_first = current;
-    skip_count = 0;
-
-    TAB::root root = min::NULL_STUB;
-    TAB::key_prefix key_prefix;
-    while ( current != next )
-    {
-	root =
-	    find_entry ( parser, current, key_prefix,
-			 selectors,
-			 key_table, next );
-	if ( root == min::NULL_STUB )
-	{
-	    key_first = current = key_first->next;
-	    ++ skip_count;
-	    selectors = skip_selectors;
-	}
-	else
-	    break;
-    }
-
-    if ( root == min::NULL_STUB )
-        return 0;
-    else
-    {
-        key_label = root->label;
-	return min::packed_subtype_of ( root );
-    }
-}
-
-// Delete the punctuation just found.  Update first,
-// start, and key_first as necessary.
-//
-inline void remove ( PAR::parser parser, 
-		     PAR::token & first,
-		     PAR::token & start,
-                     PAR::token & key_first,
-		     PAR::token current )
-{
-    if ( key_first == first ) first = current;
-    if ( key_first == start ) start = current;
-
-    while ( key_first != current )
-    {
-        key_first = key_first->next;
-	PAR::free
-	    ( PAR::remove
-		( first_ref(parser),
-		  key_first->previous ) );
-    }
-}
-
-// Turn the sequence of tokens from first through
-// next->previous into a label valued token (of type to
-// be set by caller) and a sequence of flags_type tokens
-// containing flags for the label.  The flags tokens are
-// identified by being BRACKETED tokens with .initiator
-// == flags_initiator that are after the label token.
-// However, the `first' token is assumed to NOT be a
-// flags token.  Flags token types are changed to flags_
-// type.
-//
-inline void make_label_with_flags
-	( PAR::parser parser,
 	  PAR::token & first,
 	  PAR::token next,
-	  min::gen flags_initiator,
-	  min::uns32 flags_type )
+	  const min::phrase_position & position,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
 {
-    while ( first != next
-            &&
-	    first->next != next
-	    &&
-	    next->previous->type == PAR::BRACKETED )
+    BRA::opening_bracket opening_bracket =
+        (BRA::opening_bracket) entry;
+    min::gen separator =
+        opening_bracket->reformatter_arguments[0];
+
+    min::unsptr count = 0;
+    PAR::token start = first;
+    PAR::token t = first;
+    while ( true )
     {
-	min::obj_vec_insptr vp
-		( next->previous->value );
-	min::attr_insptr ap ( vp );
-	min::locate ( ap, min::dot_initiator );
-	if ( min::get ( ap ) != flags_initiator )
-	    break;
-	next = next->previous;
-	next->type = flags_type;
+        if ( t == next || t->value == separator )
+	{
+	    if ( start != t )
+	    {
+	        if ( start->next != t
+		     ||
+		     start->string != min::NULL_STUB )
+		    ::make_label ( parser, start, t );
+		++ count;
+	    }
+
+	    if ( t == next ) break;
+	    t = t->next;
+	    if ( t->previous == first )
+	        first = t;
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      t->previous ) );
+	    start = t;
+	}
+	else t = t->next;
     }
-    ::make_label ( parser, first, next );
-}
+        
+    PAR::attr separator_attr
+        ( min::dot_separator, separator );
 
-// Announce the punctuation just found is illegal and
-// will be ignored, and delete it.   Update first,
-// start, and key_first as necessary.
-//
-inline void punctuation_error
-        ( PAR::parser parser,
-	  PAR::token & first,
-	  PAR::token & start,
-	  PAR::token & key_first,
-	  PAR::token current,
-	  min::gen key_label )
-{
-    MIN_REQUIRE ( key_first != current );
+    PAR::compact
+        ( parser, min::NULL_STUB, selectors,
+	  first, next, position,
+	  trace_flags, PAR::BRACKETABLE,
+	  1, & separator_attr );
 
-    min::phrase_position position =
-        { key_first->position.begin,
-	  current->previous->position.end };
-
-    PAR::parse_error
-        ( parser, position,
-	  "unexpected punctuation ",
-	  min::pgen_quote ( key_label ),
-	  " found; deleted and ignored" );
-
-    ::remove ( parser, first, start,
-               key_first, current );
+    return true;
 }
 
 min::locatable_var<PAR::reformatter>
@@ -3328,6 +3243,13 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( special, 0, 0, 0,
 	  ::special_reformatter_function,
+	  BRA::reformatter_stack );
+
+    min::locatable_gen multivalue
+        ( min::new_str_gen ( "multivalue" ) );
+    PAR::push_reformatter
+        ( multivalue, 0, 1, 1,
+	  ::multivalue_reformatter_function,
 	  BRA::reformatter_stack );
 }
 static min::initializer reformatter_initializer

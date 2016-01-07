@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  6 12:35:30 EST 2016
+// Date:	Thu Jan  7 03:29:16 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -78,6 +78,10 @@ And one more {| |b["A", 201,202, [5]]: t}
 {y, no p|1 2 3 4|no q, z}
 {no p|1 2 3 4|no q}
 {|1 2 3 4|}
+{x = {* "hi" *}|1 2 3|}
+{x = {* "hi",, there *}|1 2 3|}
+{x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
+{x = {* ,,, *}|1 2 3|}
 {- a b c -}
 {< a b c >}
 {- a b c}

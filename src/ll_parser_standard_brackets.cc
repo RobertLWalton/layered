@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 19:25:57 EST 2015
+// Date:	Thu Jan  7 03:46:40 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,6 +94,16 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_lab_gen ( "{", "*" ) );
     min::locatable_gen closing_star_brace
         ( min::new_lab_gen ( "*", "}" ) );
+
+    min::locatable_gen multivalue
+        ( min::new_str_gen ( "multivalue" ) );
+    min::locatable_gen comma
+        ( min::new_str_gen ( "," ) );
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        multivalue_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( multivalue_arguments ) = comma;
 
     parser->selectors &= PAR::ALL_OPT;
     parser->selectors |= code | prefix
@@ -189,7 +199,10 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, PAR::EALSEP_OPT, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  PAR::find_reformatter
+	      ( multivalue,
+	        BRA::reformatter_stack ),
+	  multivalue_arguments,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark

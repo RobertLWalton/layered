@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 7, 2016
+January 9, 2016
  
 \end{center}
 
@@ -3273,6 +3273,31 @@ value that names a MIN special value (e.g., `\TT{MISSING}' or
 
 The subexpression is converted to a \TT{DERIVED}
 token whose \TT{value} is the special value named.
+\end{indpar}
+
+\ttmkey{multivalue}{reformatter} \TT{(} {\em separator} \TT{)}
+	\hfill e.g.:~\ttmkey{\{*~*\}}{reformatting}
+
+\begin{indpar}[0.5em]
+Requires that the expression element values be MIN strings,
+numbers, labels, bracketed subexpressions, or equal to the
+{\em separator} argument.
+
+The subexpression is divided into components by {\em separator}
+tokens and is converted to a \TT{BRACKETED}
+token whose \TT{value} is a list with one element for each
+of non-missing component.  A component may consist of
+either a single MIN object or a list of strings, numbers, and
+labels which is converted into a MIN string if there is only
+one token in the component and into a MIN label otherwise.
+The \TT{BRACKETED} result token gets the {\em separator} as its
+\TT{.separator} attribute, and the opening and closing brackets
+as its \TT{.initiator} and \TT{.terminator} attributes.
+
+The {\em separator} argument (e.g., \TT{","}) must denote
+a single MIN string, and
+cannot denote a multi-component MIN label (this is purely an implementation
+limitation).
 \end{indpar}
 
 \end{indpar}

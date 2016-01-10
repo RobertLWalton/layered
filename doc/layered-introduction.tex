@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 9, 2016
+January 10, 2016
  
 \end{center}
 
@@ -3339,7 +3339,7 @@ parser define bracket "[$" ... "$]" [code, math, text, data]
        with separator reformatter
 parser define bracket "{*" ... "*}" [data]
        with parsing options [- end at line separator]
-       with parsing selectors [data]
+       with multivalue reformatter ( "," )
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.
@@ -3871,11 +3871,19 @@ If an {\em attribute-label} is followed by {\em attribute-flags},
 the attribute is given the indicated flags.
 
 Note that the MIN object is \underline{not} given \TT{.initiator}
-or \TT{.terminator} attributes.  Also no additional parser passes,
-such as the operator pass, are applied to the {\em element-list},
-though the bracketed subexpression pass is used to form
-bracketed subexpressions in the {\em element-list}, and
-other passes may be applied inside these bracketed subexpressions.
+or \TT{.terminator} attributes, unless they are given as explicit
+attributes as in:
+\begin{center}
+\TT{\{ .initiator = "(", .terminator = ")" | 1 2 3 4 |\}}
+\end{center}
+
+During the scanning of typed subexpression {\em attribute-lists}
+parsing selectors are standardly set to just `\TT{data}' and
+`\TT{prefix}', while during the scanning of typed subexpression
+{\em element-lists} parsing selectors are standardly
+those of the subexpression context.
+Duing both scans options are standardly set to those of the
+context less the `\TT{end at line separator}' option.
 
 If two {\em typed-middle} lexemes with no intervening space
 are lexically scanned as a single lexeme, then this new
@@ -4127,7 +4135,7 @@ parser define typed bracket "{" ... "|" ... "|" ... "}"
                     [code, math, text, data]
        // there are no element selectors
        with parsing options [- end at line separator]
-       with attribute selectors [data]
+       with attribute selectors [data, prefix]
        with prefix separators allowed
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
@@ -4137,10 +4145,7 @@ parser define bracket "[" ... "]" [code, math, text, data]
        with parsing options [- end at line separator]
 parser define bracket "{*" ... "*}" [data]
        with parsing options [- end at line separator]
-       with parsing selectors [data]
-parser define operator "," [code, math, data] nofix
-       with precedence 4000
-       with separator reformatter ( "," )
+       with multivalue reformatter ( "," )
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.  Since there are no

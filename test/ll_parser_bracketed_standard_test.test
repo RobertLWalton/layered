@@ -2352,7 +2352,7 @@ parser print bracket "":
                     [code, math, text]
                     with parsing selectors [- code, + math, - text]
                     with parsing options [- end at line separator]
-    block standard: bracket "{" ... "|" ... "|" ... "}"
+    block standard: bracket "{" ... "|" ... "|" (or "||") ... "}"
                     [data, code, math, text]
                     with parsing options [- end at line separator]
                     with attribute selectors [data, prefix]

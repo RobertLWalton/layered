@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  7 02:55:16 EST 2016
+// Date:	Mon Jan 11 05:57:47 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -263,6 +263,8 @@ static min::uns32 typed_opening_stub_disp[] = {
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_middle ),
     min::DISP ( & BRA::typed_opening_struct
+                     ::typed_double_middle ),
+    min::DISP ( & BRA::typed_opening_struct
                      ::closing_bracket ),
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_attr_begin ),
@@ -300,6 +302,23 @@ static min::packed_struct_with_base
 	  ::typed_middle_stub_disp );
 const min::uns32 & BRA::TYPED_MIDDLE =
     typed_middle_type.subtype;
+
+static min::uns32 typed_double_middle_stub_disp[] = {
+    min::DISP ( & BRA::typed_double_middle_struct
+                     ::next ),
+    min::DISP ( & BRA::typed_double_middle_struct
+                     ::typed_opening ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::typed_double_middle_struct,
+	 TAB::root_struct>
+    typed_double_middle_type
+	( "ll::parser::table::typed_double_middle_type",
+	  TAB::root_gen_disp,
+	  ::typed_double_middle_stub_disp );
+const min::uns32 & BRA::TYPED_DOUBLE_MIDDLE =
+    typed_double_middle_type.subtype;
 
 static min::uns32 typed_attr_begin_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_begin_struct
@@ -380,6 +399,7 @@ BRA::typed_opening
     BRA::push_typed_brackets
 	( min::gen typed_opening,
 	  min::gen typed_middle,
+	  min::gen typed_double_middle,
 	  min::gen typed_closing,
 	  TAB::flags selectors,
 	  min::uns32 block_level,
@@ -440,6 +460,27 @@ BRA::typed_opening
     middle->position  = position;
 
     TAB::push ( bracket_table, (TAB::root) middle );
+
+    if ( typed_double_middle != min::MISSING() )
+    {
+	min::locatable_var<BRA::typed_double_middle>
+		double_middle
+	    ( ::typed_double_middle_type.new_stub() );
+	label_ref(double_middle)
+	    = typed_double_middle;
+
+	typed_double_middle_ref(opening)
+	    = double_middle;
+	typed_opening_ref(double_middle)
+	    = opening;
+
+	double_middle->selectors = PAR::ALWAYS_SELECTOR;
+	double_middle->block_level = block_level;
+	double_middle->position = position;
+
+	TAB::push ( bracket_table,
+	            (TAB::root) double_middle );
+    }
 
     if ( typed_attr_begin != min::MISSING() )
     {
@@ -3536,26 +3577,39 @@ static min::gen bracketed_pass_command
 		           ( opening_bracket->label )
 		    << " ... ";
 
-		if ( typed_opening != min::NULL_STUB
-		     &&
-		        typed_opening->typed_middle
-		     != min::NULL_STUB )
-		    parser->printer
-		        << min::pgen_quote
-			       ( typed_opening->
-			             typed_middle->
-				     label )
-		        << " ... "
-		        << min::pgen_quote
-			       ( typed_opening->
-			             typed_middle->
-				     label )
-		        << " ... ";
+		if ( typed_opening != min::NULL_STUB )
+		{
+		    BRA::typed_middle middle =
+		        typed_opening->typed_middle;
+		    BRA::typed_double_middle
+			    double_middle =
+		        typed_opening->
+			    typed_double_middle;
+		    if ( middle != min::NULL_STUB )
+			parser->printer
+			    << min::pgen_quote
+				   ( middle->label )
+			    << " ... "
+			    << min::pgen_quote
+				   ( middle->label );
+		    if (    double_middle
+		         != min::NULL_STUB )
+			parser->printer
+			    << " (or "
+			    << min::pgen_quote
+				   ( double_middle->
+					 label )
+			    << ")";
+
+		    parser->printer << " ... ";
+
+		}
 
 		parser->printer
 		    << min::pgen_quote
 		           ( closing_bracket->label )
 		    << " " << min::set_break;
+
 		COM::print_flags
 		    ( root->selectors,
 		      PAR::ALL_SELECTORS,
@@ -4269,9 +4323,69 @@ static min::gen bracketed_pass_command
 	new_element_selectors.xor_flags |=
 	    new_options.xor_flags;
 
+	min::locatable_gen
+	    middle ( min::MISSING() ),
+	    double_middle ( min::MISSING() );
+
+	if ( has_middle ) middle = name[1];
+
+	if ( min::is_str ( middle ) )
+	{
+	    min::str_ptr middlep ( middle );
+	    min::unsptr middlel =
+	        min::strlen ( middlep );
+	    char buffer[2*middlel+1];
+	    min::strcpy ( buffer, middlep );
+	    min::strcpy ( buffer + middlel, middlep );
+
+	    if (    parser->name_scanner
+	         == min::NULL_STUB )
+	    {
+		 LEX::init_program
+		     ( name_scanner_ref ( parser ),
+		       parser->scanner->program );
+		 LEX::init_printer
+		     ( name_scanner_ref ( parser ),
+		       parser->scanner->printer );
+	    }
+
+	    LEX::init_input_string
+		( name_scanner_ref ( parser ),
+		  min::new_ptr ( buffer ),
+		  parser->input_file->line_display );
+
+	    double_middle =
+		( LEX::scan_name_string
+		    ( name_scanner_ref ( parser ),
+			( 1ull << LEXSTD::mark_t )
+		      + ( 1ull << LEXSTD::separator_t )
+		      + ( 1ull << LEXSTD::word_t )
+		      + ( 1ull << LEXSTD::natural_t )
+		      + ( 1ull << LEXSTD::numeric_t ),
+
+		      + ( 1ull << LEXSTD::indent_t )
+		      + (    1ull
+		          << LEXSTD::
+			     premature_end_of_file_t )
+		      + (    1ull
+		          << LEXSTD::end_of_file_t ),
+
+			(    1ull
+			  << LEXSTD:: 
+			     premature_end_of_file_t ) 
+		      + ( 1ull << LEXSTD::
+		                  end_of_file_t ),
+
+		      false ) );
+
+	    if ( ! min::is_str ( double_middle ) )
+	        double_middle = min::MISSING();
+	}
+
 	BRA::push_typed_brackets
 	    ( name[0],
-	      has_middle ? name[1] : min::MISSING(),
+	      middle,
+	      double_middle,
 	      name[1+2*has_middle],
 	      selectors,
 	      PAR::block_level ( parser ),

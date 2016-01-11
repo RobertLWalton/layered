@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  7 03:46:40 EST 2016
+// Date:	Mon Jan 11 06:43:31 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,6 +94,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_lab_gen ( "{", "*" ) );
     min::locatable_gen closing_star_brace
         ( min::new_lab_gen ( "*", "}" ) );
+
+    min::locatable_gen double_vbar
+        ( min::new_str_gen ( "||" ) );
 
     min::locatable_gen multivalue
         ( min::new_str_gen ( "multivalue" ) );
@@ -220,7 +223,10 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	    ( TAB::create_key_table ( 1024 ) );
 
     BRA::push_typed_brackets
-        ( PAR::left_curly, PAR::vbar, PAR::right_curly,
+        ( PAR::left_curly,
+	  PAR::vbar,
+	  double_vbar,
+	  PAR::right_curly,
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, PAR::EALSEP_OPT, 0 ),

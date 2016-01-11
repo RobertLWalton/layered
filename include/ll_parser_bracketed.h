@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  4 01:53:41 EST 2016
+// Date:	Mon Jan 11 05:57:31 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -206,6 +206,14 @@ extern const uns32 & TYPED_MIDDLE;
     // Subtype of min::packed_struct
     //		       <typed_middle_struct>.
 
+struct typed_double_middle_struct;
+typedef min::packed_struct_updptr
+	    <typed_double_middle_struct>
+        typed_double_middle;
+extern const uns32 & TYPED_DOUBLE_MIDDLE;
+    // Subtype of min::packed_struct
+    //		       <typed_double_middle_struct>.
+
 struct typed_attr_begin_struct;
 typedef min::packed_struct_updptr
 	    <typed_attr_begin_struct>
@@ -254,6 +262,11 @@ struct typed_opening_struct :
 
     const ll::parser::bracketed::typed_middle
           typed_middle;
+    const ll::parser::bracketed::typed_double_middle
+          typed_double_middle;
+	  // Equals NULL_STUB if not provided because
+	  // concatenating 2 middles does not create
+	  // a single lexeme.
     const ll::parser::bracketed::typed_attr_begin
           typed_attr_begin;
     const ll::parser::bracketed::typed_attr_equal
@@ -292,6 +305,17 @@ struct typed_middle_struct :
     const ll::parser::bracketed::typed_opening
           typed_opening;
         // The opening bracket for the typed middle.
+};
+
+struct typed_double_middle_struct : 
+	public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is TYPED_DOUBLE_MIDDLE.
+
+    const ll::parser::bracketed::typed_opening
+          typed_opening;
+        // The opening bracket for the typed double
+	// middle.
 };
 
 struct typed_attr_begin_struct : 
@@ -350,6 +374,9 @@ MIN_REF ( ll::parser::reformatter_arguments,
 MIN_REF ( ll::parser::bracketed::typed_middle,
           typed_middle,
           ll::parser::bracketed::typed_opening )
+MIN_REF ( ll::parser::bracketed::typed_double_middle,
+          typed_double_middle,
+          ll::parser::bracketed::typed_opening )
 MIN_REF ( ll::parser::bracketed::closing_bracket,
           closing_bracket,
           ll::parser::bracketed::typed_opening )
@@ -383,6 +410,14 @@ MIN_REF ( min::gen, label,
 MIN_REF ( ll::parser::bracketed::typed_opening,
           typed_opening,
           ll::parser::bracketed::typed_middle )
+
+MIN_REF ( ll::parser::table::root, next,
+          ll::parser::bracketed::typed_double_middle )
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::typed_double_middle )
+MIN_REF ( ll::parser::bracketed::typed_opening,
+          typed_opening,
+          ll::parser::bracketed::typed_double_middle )
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::typed_attr_begin )
@@ -423,6 +458,7 @@ ll::parser::bracketed::typed_opening
     push_typed_brackets
 	( min::gen typed_opening,
 	  min::gen typed_middle,
+	  min::gen typed_double_middle,
 	  min::gen typed_closing,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,

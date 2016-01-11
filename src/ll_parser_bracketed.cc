@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 11 05:57:47 EST 2016
+// Date:	Mon Jan 11 10:57:28 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3577,38 +3577,41 @@ static min::gen bracketed_pass_command
 		           ( opening_bracket->label )
 		    << " ... ";
 
+		BRA::typed_double_middle double_middle =
+		    min::NULL_STUB;
 		if ( typed_opening != min::NULL_STUB )
 		{
 		    BRA::typed_middle middle =
 		        typed_opening->typed_middle;
-		    BRA::typed_double_middle
-			    double_middle =
-		        typed_opening->
-			    typed_double_middle;
 		    if ( middle != min::NULL_STUB )
+		    {
 			parser->printer
 			    << min::pgen_quote
 				   ( middle->label )
 			    << " ... "
 			    << min::pgen_quote
-				   ( middle->label );
-		    if (    double_middle
-		         != min::NULL_STUB )
-			parser->printer
-			    << " (or "
-			    << min::pgen_quote
-				   ( double_middle->
-					 label )
-			    << ")";
-
-		    parser->printer << " ... ";
-
+				   ( middle->label )
+			    << " ... ";
+			double_middle =
+			    typed_opening->
+				typed_double_middle;
+		    }
 		}
 
 		parser->printer
 		    << min::pgen_quote
 		           ( closing_bracket->label )
 		    << " " << min::set_break;
+
+		if ( double_middle != min::NULL_STUB )
+		{
+		    parser->printer
+			<< "// "
+			<< min::pgen_quote
+			       ( double_middle->label )
+			<< " is also allowed."
+			<< min::indent;
+		}
 
 		COM::print_flags
 		    ( root->selectors,

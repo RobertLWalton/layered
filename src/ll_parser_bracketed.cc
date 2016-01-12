@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 12 05:22:28 EST 2016
+// Date:	Tue Jan 12 05:31:44 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2796,14 +2796,23 @@ min::position BRA::parse_bracketed_subexpression
 		    ( parser, current, root->label );
 		return separator_found ;
 	    }
-	    else if (    subtype
-	              == BRA::TYPED_MIDDLE )
+	    else if ( subtype == BRA::TYPED_MIDDLE
+		      ||
+		         subtype
+		      == BRA::TYPED_DOUBLE_MIDDLE )
 	    {
 		if ( typed_data != NULL
 		     &&
-		        typed_data->typed_opening
-			          ->typed_middle
-		     == (BRA::typed_middle) root
+		     (    (TAB::root)
+		          typed_data->typed_opening
+			            ->typed_middle
+		       == root
+		       ||
+		          (TAB::root)
+		          typed_data->
+			      typed_opening->
+			      typed_double_middle
+		       == root )
 		     &&
 		     ! typed_data->has_mark_type )
 		{
@@ -2837,21 +2846,11 @@ min::position BRA::parse_bracketed_subexpression
 				( parser, typed_data,
 				  current );
 			}
-
-			selectors =
-			    typed_data->saved_selectors;
 		    }
 		    else // if
 		         // typed_data->middle_count % 2
 			 // == 1
 		    {
-			selectors &= PAR::ALL_OPT;
-			selectors |=
-			      typed_data
-			          ->typed_opening
-			          ->attr_selectors
-			    | PAR::ALWAYS_SELECTOR;
-
 			if (    typed_data->elements
 			     == min::NULL_STUB
 			     &&
@@ -2868,10 +2867,36 @@ min::position BRA::parse_bracketed_subexpression
 		    typed_data->subtype =
 			BRA::TYPED_MIDDLE;
 
-		    ++ typed_data->middle_count;
-
 		    typed_data->start_previous =
 		        current->previous;
+
+		    ++ typed_data->middle_count;
+
+		    if (    subtype
+		         == BRA::TYPED_DOUBLE_MIDDLE )
+		    {
+			++ typed_data->middle_count;
+			break;
+		    }
+
+		    // Do the following only if subtype
+		    // == BRA::TYPED_MIDDLE.
+
+		    if (    typed_data->middle_count % 2
+		         == 0 )
+			selectors =
+			    typed_data->saved_selectors;
+		    else // if
+		         // typed_data->middle_count % 2
+			 // == 1
+		    {
+			selectors &= PAR::ALL_OPT;
+			selectors |=
+			      typed_data
+			          ->typed_opening
+			          ->attr_selectors
+			    | PAR::ALWAYS_SELECTOR;
+		    }
 
 		    break;
 		}

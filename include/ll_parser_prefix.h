@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 27 02:46:17 EST 2015
+// Date:	Tue Jan 12 11:20:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,8 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Operator Table Entries
-//	Operator Pass
+//	Prefix Pass
 
 // Usage and Setup
 // ----- --- -----
@@ -25,38 +24,6 @@
 namespace ll { namespace parser { namespace prefix {
 
 
-
-// Prefix Table Entries
-// ------ ----- -------
-
-struct prefix_struct;
-typedef min::packed_struct_updptr<prefix_struct> prefix;
-extern const uns32 & PREFIX;
-    // Subtype of min::packed_struct<prefix_struct>.
-
-struct prefix_struct
-    : public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is PREFIX.
-
-    ll::parser::table::new_flags new_selectors;
-};
-
-MIN_REF ( ll::parser::table::root, next,
-          ll::parser::prefix::prefix )
-MIN_REF ( min::gen, label, ll::parser::prefix::prefix )
-
-// Create an prefix definition entry with given
-// label and new_selectors, and push it into the
-// given prefix_table.
-//
-void push_prefix
-	( min::gen prefix_label,
-	  ll::parser::table::flags selectors,
-	  min::uns32 block_level,
-	  const min::phrase_position & position,
-	  ll::parser::table::new_flags new_selectors,
-	  ll::parser::table::key_table prefix_table );
 
 // Prefix Pass
 // ------ ----
@@ -94,9 +61,6 @@ struct prefix_pass_struct
 {
     // Packed_struct subtype is PREFIX_PASS.
 
-    const ll::parser::table::key_table prefix_table;
-        // Map of prefix types to new selectors.
-
     const ll::parser::prefix::prefix_stack prefix_stack;
         // Stack of prefix subexpressions used during
 	// prefix parsing pass.
@@ -112,9 +76,6 @@ MIN_REF ( min::gen, name,
 MIN_REF ( ll::parser::parser, parser,
           ll::parser::prefix::prefix_pass )
 MIN_REF ( ll::parser::pass, next,
-          ll::parser::prefix::prefix_pass )
-MIN_REF ( ll::parser::table::key_table,
-          prefix_table,
           ll::parser::prefix::prefix_pass )
 MIN_REF ( ll::parser::prefix::prefix_stack,
           prefix_stack,

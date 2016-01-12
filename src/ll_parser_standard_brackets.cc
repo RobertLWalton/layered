@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 11 06:43:31 EST 2016
+// Date:	Tue Jan 12 12:28:54 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -218,10 +218,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
 			   0 ),
 	  bracketed_pass->bracket_table );
 
-    if ( parser->prefix_table == min::NULL_STUB )
-        prefix_table_ref(parser) =
-	    ( TAB::create_key_table ( 1024 ) );
-
     BRA::push_typed_brackets
         ( PAR::left_curly,
 	  PAR::vbar,
@@ -235,6 +231,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  PAR::left_square,
 	  min::standard_attr_flag_parser,
 	  opening_brace_star,
-	  parser->prefix_table,
+	  true,
 	  bracketed_pass->bracket_table );
 }

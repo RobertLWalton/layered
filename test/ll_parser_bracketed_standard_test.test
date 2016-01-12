@@ -2439,15 +2439,68 @@ BRACKETED EXPRESSION:
     line 100:
 [< [$ MISSING $] >]
 ^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "$" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "$" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+DERIVED EXPRESSION:
+    [$ NONE $]
+@(NONE) = [$ NONE $]
+    line 101:
+{ x = 1, y = [$ NONE $], z = [$ MISSING $] }
+             ^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "$" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "$" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+DERIVED EXPRESSION:
+    [$ MISSING $]
+@(NONE) = [$ MISSING $]
+    line 101:
+{ x = 1, y = [$ NONE $], z = [$ MISSING $] }
+                             ^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    parser print bracket ""
-@161 = parser print bracket @162:
+    {"": x = "1", y = [$ NONE $], z = [$ MISSING $]||}
+@161 =:
+           x = "1"
+           y = [$ NONE $]
+           z = [$ MISSING $]
+           .position[H] = {}
+        line 101:
+{ x = 1, y = [$ NONE $], z = [$ MISSING $] }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": x = "1", y = [$ NONE $], z = [$ MISSING $]||}
+@162 = @161:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-@162 = "":
+        line 101:
+{ x = 1, y = [$ NONE $], z = [$ MISSING $] }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    parser print bracket ""
+@163 = parser print bracket @164:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+@164 = "":
            .type = "<Q>"
-    line 101:
+    line 102:
 parser print bracket ""
 ^^^^^^^^^^^^^^^^^^^^^^^
 parser print bracket "":

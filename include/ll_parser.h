@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  5 03:16:32 EST 2016
+// Date:	Tue Jan 12 11:16:32 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1126,10 +1126,6 @@ struct parser_struct
 	// Top level indentation mark for parse
 	// function.
 
-    const ll::parser::table::key_table prefix_table;
-        // Prefix table for standard prefix pass and
-	// standard typed_opening.
-
     // Parser state:
 
     const ll::parser::token first;
@@ -1227,9 +1223,6 @@ MIN_REF ( ll::parser::table::key_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::bracketed::indentation_mark,
 		top_level_indentation_mark,
-          ll::parser::parser )
-MIN_REF ( ll::parser::table::key_table,
-		prefix_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::token, first,
           ll::parser::parser )

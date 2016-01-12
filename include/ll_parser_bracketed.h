@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 12 04:12:21 EST 2016
+// Date:	Tue Jan 12 11:15:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	Untyped Brackets
 //	Indentation Marks
 //	Typed Brackets
+//	Prefix Table Entries
 //	Bracketed Subexpression Pass
 //	Parse Bracketed Subexpression Function
 
@@ -539,6 +540,40 @@ const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 6;
     // ATTR_FLAGS token.
 
 
+// Prefix Table Entries
+// ------ ----- -------
+
+struct prefix_struct;
+typedef min::packed_struct_updptr<prefix_struct> prefix;
+extern const uns32 & PREFIX;
+    // Subtype of min::packed_struct<prefix_struct>.
+
+struct prefix_struct
+    : public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is PREFIX.
+
+    ll::parser::table::new_flags new_selectors;
+};
+
+MIN_REF ( ll::parser::table::root, next,
+          ll::parser::bracketed::prefix )
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::prefix )
+
+// Create an prefix definition entry with given
+// label and new_selectors, and push it into the
+// given prefix_table.
+//
+void push_prefix
+	( min::gen prefix_label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  ll::parser::table::new_flags new_selectors,
+	  ll::parser::table::key_table prefix_table );
+
+
 // Bracketed Subexpression Pass
 // --------- ------------- ----
 
@@ -559,6 +594,10 @@ struct bracketed_pass_struct
     const ll::parser::table::key_table bracket_table;
         // Hash table for brackets and indentation
 	// marks.
+
+    const ll::parser::table::key_table prefix_table;
+        // Prefix table for logical line beginning
+	// prefaces.
 
     int32 indentation_offset;
         // Amount the indentation of a line has to be
@@ -588,6 +627,8 @@ MIN_REF ( ll::parser::parser, parser,
 MIN_REF ( ll::parser::pass, next,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::table::key_table, bracket_table,
+          ll::parser::bracketed::bracketed_pass )
+MIN_REF ( ll::parser::table::key_table, prefix_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::bracketed
                     ::indentation_offset_stack,

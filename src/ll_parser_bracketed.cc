@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 11 10:57:28 EST 2016
+// Date:	Tue Jan 12 05:22:28 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -274,8 +274,6 @@ static min::uns32 typed_opening_stub_disp[] = {
                      ::typed_attr_sep ),
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_attr_negator ),
-    min::DISP ( & BRA::typed_opening_struct
-                     ::type_map ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -414,7 +412,7 @@ BRA::typed_opening
 	  const min::flag_parser *
 	           typed_attr_flag_parser,
 	  min::gen typed_attr_multivalue_initiator,
-	  TAB::key_table type_map,
+	  bool prefix_separators_allowed,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::typed_opening> opening
@@ -573,7 +571,8 @@ BRA::typed_opening
     typed_attr_multivalue_initiator_ref(opening) =
         typed_attr_multivalue_initiator;
 
-    type_map_ref(opening) = type_map;
+    opening->prefix_separators_allowed =
+        prefix_separators_allowed;
 
     return opening;
 }
@@ -2598,7 +2597,6 @@ min::position BRA::parse_bracketed_subexpression
 		else // if (    subtype
 		     //      == BRA::TYPED_OPENING )
 		{
-
 		    PAR::attr attributes
 			[tdata.attr_count];
 		    PAR::token elements =
@@ -2679,7 +2677,10 @@ min::position BRA::parse_bracketed_subexpression
 		         &&
 			 tdata.middle_count == 0
 		         &&
-			 ! tdata.has_mark_type )
+			 ! tdata.has_mark_type 
+			 &&
+			 tdata.typed_opening->
+			     prefix_separators_allowed )
 		        token_type = PAR::PREFIX;
 		    else
 		        type = min::MISSING();
@@ -3746,8 +3747,8 @@ static min::gen bracketed_pass_command
 			     ( TOATTR
 				 (multivalue_initiator)
 			     );
-		    if (    typed_opening->type_map
-		         != min::NULL_STUB )
+		    if ( typed_opening->
+		             prefix_separators_allowed )
 			parser->printer
 			  << min::indent
 			  << "with prefix"
@@ -4156,8 +4157,7 @@ static min::gen bracketed_pass_command
 	    	( min::MISSING() ),
 	    attribute_multivalue_initiator
 	        ( min::MISSING() );
-	min::locatable_var<TAB::key_table> type_map
-	    ( min::NULL_STUB );
+	bool prefix_separators_allowed = false;
 
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -4289,9 +4289,7 @@ static min::gen bracketed_pass_command
 		 vp[i+2] == ::allowed )
 	    {
 		i += 3;
-
-		type_map =
-		    TAB::create_key_table ( 1024 );
+		prefix_separators_allowed = true;
 	    }
 	    else return PAR::parse_error
 		( parser, ppvec[i-1],
@@ -4402,7 +4400,7 @@ static min::gen bracketed_pass_command
 	      attribute_flags_initiator,
 	      min::standard_attr_flag_parser,
 	      attribute_multivalue_initiator,
-	      type_map,
+	      prefix_separators_allowed,
 	      bracketed_pass->bracket_table );
 
 	break;

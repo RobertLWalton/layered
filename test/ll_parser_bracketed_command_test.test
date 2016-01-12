@@ -497,23 +497,41 @@ parser define bracket "[?" ... "?]" [code]
 parser test [? MISSING ?]
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+======= TEST: parser test [@ x 1 @ y 2 @ w @ z 3 @]
+------- line 103:
+parser test [@ x 1 @ y 2 @ w @ z 3 @]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 103:
+parser test [@ x 1 @ y 2 @ w @ z 3 @]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+parser define bracket "[@" ... "@]" [code]
+       with multivalue reformatter ( "@" )
+======= TEST: parser test [@ [< x 1 >] @ [< y 2 >] @ w @ [< z 3 >] @]
+------- line 106:
+parser test [@ x 1 @ y 2 @ w @ z 3 @]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 106:
+parser test [@ x 1 @ y 2 @ w @ z 3 @]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
 parser begin block 1
 parser define indentation offset 4
 parser print indentation offset:
     block block 1: 4
     block standard: 2
     block TOP LEVEL: 2
-WARNING: in line 108: lexeme indent 1 too near paragraph indent 0:
+WARNING: in line 112: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^
-WARNING: in line 110: lexeme indent 2 too near paragraph indent 0:
+WARNING: in line 114: lexeme indent 2 too near paragraph indent 0:
   line with indent 2
   ^
 parser end block 1
 parser print indentation offset:
     block standard: 2
     block TOP LEVEL: 2
-WARNING: in line 117: lexeme indent 1 too near paragraph indent 0:
+WARNING: in line 121: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^
 ======= TEST: parser test:
@@ -524,7 +542,7 @@ WARNING: in line 117: lexeme indent 1 too near paragraph indent 0:
                             {"": .terminator = "<LF>", .initiator =
                                  [$ LOGICAL_LINE $]|goodbye|}|}) there
                   hi there
-------- lines 123-126:
+------- lines 127-130:
 parser test:
 ^^^^^^^^^^^^
         well ( hello:
@@ -533,7 +551,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         hi there
 ^^^^^^^^^^^^^^^^
-------- lines 123-126:
+------- lines 127-130:
 parser test:
            ^
         well ( hello:
@@ -542,25 +560,25 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         hi there
 ^^^^^^^^^^^^^^^^
-------- lines 124-125:
+------- lines 128-129:
         well ( hello:
         ^^^^^^^^^^^^^
                 goodbye ) there
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines 124-125:
+------- lines 128-129:
         well ( hello:
              ^^^^^^^^
                 goodbye ) there
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines 124-125:
+------- lines 128-129:
         well ( hello:
                     ^
                 goodbye ) there
 ^^^^^^^^^^^^^^^^^^^^^^^
-------- line 125:
+------- line 129:
                 goodbye ) there
                 ^^^^^^^
-------- line 126:
+------- line 130:
         hi there
         ^^^^^^^^
 ======= END TEST
@@ -571,7 +589,7 @@ parser test:
                         {"": .terminator = "<LF>", .initiator =
                              [$ LOGICAL_LINE $]|goodbye|}|}) there hi
                       there ")" end
-------- lines 128-132:
+------- lines 132-136:
 parser test:
 ^^^^^^^^^^^^
         ( hello:
@@ -582,7 +600,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
           ) end
 ^^^^^^^^^^^^^^^
-------- lines 128-132:
+------- lines 132-136:
 parser test:
            ^
         ( hello:
@@ -593,7 +611,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
           ) end
 ^^^^^^^^^^^^^^^
-------- lines 129-132:
+------- lines 133-136:
         ( hello:
         ^^^^^^^^
             goodbye ) there
@@ -602,21 +620,21 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
           ) end
 ^^^^^^^^^^^^^^^
-------- lines 129-130:
+------- lines 133-134:
         ( hello:
         ^^^^^^^^
             goodbye ) there
 ^^^^^^^^^^^^^^^^^^^^^
-------- lines 129-130:
+------- lines 133-134:
         ( hello:
                ^
             goodbye ) there
 ^^^^^^^^^^^^^^^^^^^
-------- line 130:
+------- line 134:
             goodbye ) there
             ^^^^^^^
 ======= END TEST
-ERROR: in line 138: missing closing bracket ")" inserted just before
+ERROR: in line 142: missing closing bracket ")" inserted just before
        here:
         ) end
         ^
@@ -629,7 +647,7 @@ ERROR: in line 138: missing closing bracket ")" inserted just before
                         {"": .terminator = "<LF>", .initiator =
                              [$ LOGICAL_LINE $]|hi there|}|})
                   ")" end
-------- lines 134-138:
+------- lines 138-142:
 parser test:
 ^^^^^^^^^^^^
         ( hello:
@@ -640,7 +658,7 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
         ) end
 ^^^^^^^^^^^^^
-------- lines 134-138:
+------- lines 138-142:
 parser test:
            ^
         ( hello:
@@ -651,34 +669,34 @@ parser test:
 ^^^^^^^^^^^^^^^^^^^^
         ) end
 ^^^^^^^^^^^^^
-------- lines 135-137:
+------- lines 139-141:
         ( hello:
         ^^^^^^^^
             goodbye there
 ^^^^^^^^^^^^^^^^^^^^^^^^^
             hi there
 ^^^^^^^^^^^^^^^^^^^^
-------- lines 135-137:
+------- lines 139-141:
         ( hello:
         ^^^^^^^^
             goodbye there
 ^^^^^^^^^^^^^^^^^^^^^^^^^
             hi there
 ^^^^^^^^^^^^^^^^^^^^
-------- lines 135-137:
+------- lines 139-141:
         ( hello:
                ^
             goodbye there
 ^^^^^^^^^^^^^^^^^^^^^^^^^
             hi there
 ^^^^^^^^^^^^^^^^^^^^
-------- line 136:
+------- line 140:
             goodbye there
             ^^^^^^^^^^^^^
-------- line 137:
+------- line 141:
             hi there
             ^^^^^^^^
-------- line 138:
+------- line 142:
         ) end
         ^^^^^
 ======= END TEST

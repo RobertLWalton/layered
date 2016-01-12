@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 30 06:40:12 EST 2015
+// Date:	Tue Jan 12 05:56:53 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -100,6 +100,10 @@ parser test [? MISSING ?]
 parser define bracket "[?" ... "?]" [code]
        with special reformatter
 parser test [? MISSING ?]
+parser test [@ x 1 @ y 2 @ w @ z 3 @]
+parser define bracket "[@" ... "@]" [code]
+       with multivalue reformatter ( "@" )
+parser test [@ x 1 @ y 2 @ w @ z 3 @]
 
 parser begin block 1
 parser define indentation offset 4

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 12 11:15:07 EST 2016
+// Date:	Wed Jan 13 05:11:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -660,9 +660,16 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // is in the same line as the first or in a continuation
 // line following the line of the first.  Any subexpres-
 // sion terminating line separator is also deleted.
-// Also sub-subexpressions are identified and each is
-// replaced by a single BRACKETED, BRACKETABLE, or
-// DERIVED token.
+// Sub-subexpressions are identified and each is replac-
+// ed by a single BRACKETED, BRACKETABLE, or DERIVED,
+// PURELIST, or PREFIX token.  If the typed_data argu-
+// ment is not NULL, tokens representing attibute labels
+// and values are modified and given temporary token
+// types as per ll_parsing_bracketed.h.  If the line_
+// data argument is not NULL, a PREFIX token that is
+// a copy of the default line_prefix may be inserted
+// at the beginning of a line and used by the prefix
+// parsing pass to return a BRACKETED MIN object.
 //
 // It is assumed that there are always more tokens
 // available via parser->input until an end-of-file
@@ -768,19 +775,20 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // sion.  The `selectors' argument determines which
 // opening bracket and indentation mark definitions are
 // active.  The `selectors' argument has no affect on
-// closing bracket, line separator, or typed bracket
-// middle recognition.
+// closing bracket or line separator recognition.
 //
 // If the subexpression is a typed bracketed subexpres-
-// sion, the `typed_opening' argument is not NULL_STUB,
-// and is the typed_opening that prefixes the subexpres-
-// sion.  In this case typed_opening->attr_selectors is
-// used in place of the selectors argument before the
-// first typed_middle corresponding to the typed_open-
-// ing, and after the second such typed_middle.  Between
-// the typed_middles the original selectors argument is
-// used.  Selectors have no affect on typed_middle
-// recognition.
+// sion, the `typed_data' argument is not NULL, and
+// contains the typed_opening that prefixes the sub-
+// expression.  In this case typed_data->typed_opening->
+// attr_selectors is used in place of the selectors
+// argument before the first typed_middle corresponding
+// to the typed_opening, while scanning type and
+// attribute labels and attribute values.  Then this
+// selectors value is switched with the selectors
+// argument by each typed_middle.  Selectors have no
+// affect on recognition of keys such as typed_middle
+// and typed_attr_....
 //
 // When this function calls itself recursively to parse
 // a bracketed sub-subexpression, upon return it calls
@@ -788,16 +796,18 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // that started the sub-subexpression, and either the
 // reformatter or a subsequence call to `compact' wraps
 // all the tokens of the sub-subexpression into a single
-// BRACKETED, DERIVED, or PREFIX token (even if this is
-// an empty list).  It also converts tokens with MISSING
-// value (quoted strings and numerics) in the result as
-// per `convert_token'.  If the opening_bracket is not a
-// typed_opening, the resulting MIN object is given
-// the opening and closing brackets as its .initiator
-// and .terminator, and is NOT given a .type attribute.
-// If the opening_bracket is a typed_opening, the
-// MIN object is given a .type attribute, but NO
-// .initiator or .terminator.
+// BRACKETED, BRACKATABLE, PURELIST, DERIVED, or PREFIX
+// token (even if this is an empty list).  It also
+// converts string tokens (quoted strings and numerics)
+// in the result as per `convert_token'.  If the
+// opening_bracket is not a typed_opening, the resulting
+// MIN object is given the opening and closing brackets
+// as its .initiator and .terminator, and is NOT given
+// a .type attribute, unless the reformatter creates its
+// own MIN object (e.g., the special reformatter creates
+// a special value).  If the opening_bracket is a
+// typed_opening, the MIN object is given a .type
+// attribute, but NO .initiator or .terminator.
 //
 // Sub-subexpressions introduced by an indentation mark
 // are converted to a list of lists.  The outer list
@@ -881,6 +891,27 @@ inline bool is_closed ( ll::parser::bracketed
     return    p != NULL
            && p->closing_first != min::NULL_STUB;
 }
+
+struct line_data
+{
+    min::locatable_gen line_prefix;
+        // Line prefix to be used if line does not
+	// being with a line_prefix, or MISSING if
+	// none.
+    min::uns32 lexical_master;
+        // Lexical master table index to be used to
+	// scan logical line lexical prefixes, or
+	// 0 if none.
+    ll::parser::table::flags selectors;
+        // Selectors to be set at beginning of line
+	// scan.  Equal to the selectors argument to
+	// the call to parse_bracketed_subexpression
+	// that scans a line, but unlike the selectors
+	// argument, this can be modified by parse_
+	// bracketed_subexpressions and the modified
+	// version used for scanning subsequent lines
+	// in the same pargraph or a the top level.
+};
 
 min::position parse_bracketed_subexpression
 	( ll::parser::parser parser,

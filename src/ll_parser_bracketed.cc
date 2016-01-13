@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 12 11:28:12 EST 2016
+// Date:	Tue Jan 12 20:05:28 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3746,7 +3746,7 @@ static min::gen bracketed_pass_command
 			( new_selectors,
 			  PAR::ALL_SELECTORS,
 			  parser->selector_name_table,
-			  parser );
+			  parser, true );
 		}
 
 		if ( TAB::all_flags ( new_selectors )
@@ -3761,7 +3761,7 @@ static min::gen bracketed_pass_command
 			( new_selectors,
 			  PAR::ALL_OPT,
 			  parser->selector_name_table,
-			  parser );
+			  parser, true );
 		}
 
 		if ( typed_opening == min::NULL_STUB
@@ -3909,7 +3909,7 @@ static min::gen bracketed_pass_command
 			  PAR::ALL_SELECTORS,
 			  parser->
 			      selector_name_table,
-			  parser );
+			  parser, true );
 		}
 
 		if ( TAB::all_flags ( new_selectors )
@@ -3925,7 +3925,7 @@ static min::gen bracketed_pass_command
 			  PAR::ALL_OPT,
 			  parser->
 			      selector_name_table,
-			  parser );
+			  parser, true );
 		}
 	    }
 	    else if ( subtype == BRA::PREFIX )
@@ -3961,7 +3961,7 @@ static min::gen bracketed_pass_command
 			( new_selectors,
 			  PAR::ALL_SELECTORS,
 			  parser->selector_name_table,
-			  parser );
+			  parser, true );
 		}
 	    }
 	    else
@@ -4598,6 +4598,7 @@ static min::gen bracketed_pass_command
 	      ppvec->position,
 	      new_selectors,
 	      bracketed_pass->prefix_table );
+	break;
     }
     default:
 	MIN_ABORT ( "bad parser define type" );

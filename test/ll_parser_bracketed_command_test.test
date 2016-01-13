@@ -49,12 +49,9 @@ parser print bracket "[":
 parser define indentation mark ":" ... ";" [code, math, text]
 parser print bracket ":":
     block standard: indentation mark ":" ... ";" [code, text, math]
-                    with parsing options [- end at line break,
-                                          + end at le indent,
-                                          - end at lt indent,
-                                          - end at paragraph break,
-                                          + end at line separator,
-                                          + end at outer closing]
+                    with parsing options [end at le indent,
+                                          end at line separator,
+                                          end at outer closing]
 ERROR: in line 27: unrecognized flag/option name:
 parser define bracket "[+" ... "+]" [text, operator 2]
                                            ^^^^^^^^^^
@@ -318,36 +315,25 @@ parser print bracket "":
     block TOP LEVEL: bracket "(" ... ")" [parser]
                      with parsing options [- end at line separator]
     block standard: indentation mark ":" ... ";" [code, text, math]
-                    with parsing options [- end at line break,
-                                          + end at le indent,
-                                          - end at lt indent,
-                                          - end at paragraph break,
-                                          + end at line separator,
-                                          + end at outer closing]
+                    with parsing options [end at le indent,
+                                          end at line separator,
+                                          end at outer closing]
     block standard: bracket "[" ... "]" [code, text, math]
     block TOP LEVEL: bracket "[" ... "]" [parser]
                      with parsing options [- end at line separator]
     block standard: bracket "`" ... "'" [code]
     block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
                     [code]
-                    with parsing options [- end at line break,
-                                          - end at le indent,
-                                          - end at lt indent,
-                                          - end at paragraph break,
-                                          - end at line separator,
-                                          - end at outer closing]
+                    with parsing options []
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
     block standard: indentation mark [< "+" ":" >] ... "::" [code]
-                    with parsing options [- end at line break,
-                                          + end at le indent,
-                                          - end at lt indent,
-                                          - end at paragraph break,
-                                          + end at line separator,
-                                          + end at outer closing]
+                    with parsing options [end at le indent,
+                                          end at line separator,
+                                          end at outer closing]
 ======= TEST: parser test (```")"''')
 ------- line 84:
 parser test ( ``` ) ''' )
@@ -700,3 +686,13 @@ parser test:
         ) end
         ^^^^^
 ======= END TEST
+parser print prefix separator "":
+    not found
+parser define prefix separator "X" [code]
+       with parsing selectors [code, math]
+parser print prefix separator "":
+    block standard: prefix "X" [code]
+                    with parsing selectors [code, math]
+parser print prefix separator "X":
+    block standard: prefix "X" [code]
+                    with parsing selectors [code, math]

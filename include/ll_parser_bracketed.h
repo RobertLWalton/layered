@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 13 05:11:38 EST 2016
+// Date:	Wed Jan 13 15:05:52 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -893,15 +893,13 @@ inline bool is_closed ( ll::parser::bracketed
 }
 
 struct line_data
+    // This can ONLY appear IN THE STACK as it contains
+    // a locatable_gen element.
+    //
+    // A non-NULL line_data pointer argument is passed
+    // to parse_bracketed_subexpressions ONLY if the
+    // latter is being asked to delimit a logical line.
 {
-    min::locatable_gen line_prefix;
-        // Line prefix to be used if line does not
-	// being with a line_prefix, or MISSING if
-	// none.
-    min::uns32 lexical_master;
-        // Lexical master table index to be used to
-	// scan logical line lexical prefixes, or
-	// 0 if none.
     ll::parser::table::flags selectors;
         // Selectors to be set at beginning of line
 	// scan.  Equal to the selectors argument to
@@ -910,7 +908,15 @@ struct line_data
 	// argument, this can be modified by parse_
 	// bracketed_subexpressions and the modified
 	// version used for scanning subsequent lines
-	// in the same pargraph or a the top level.
+	// in the same pargraph or at the top level.
+    min::locatable_gen line_prefix;
+        // Line prefix to be used if line does not
+	// being with a line prefix, or MISSING if
+	// none.
+    min::uns32 lexical_master;
+        // Lexical master table index to be used to
+	// scan logical line lexical prefixes, or
+	// 0 if none.
 };
 
 min::position parse_bracketed_subexpression

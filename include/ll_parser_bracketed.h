@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 13 15:05:52 EST 2016
+// Date:	Wed Jan 13 18:51:36 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -928,6 +928,8 @@ min::position parse_bracketed_subexpression
 	      line_sep,
 	  ll::parser::bracketed::typed_data
 	      * typed_data,
+	  ll::parser::bracketed::line_data
+	      * line_data,
 	  bracket_stack * bracket_stack_p  = NULL );
 
 } } }

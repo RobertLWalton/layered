@@ -69,10 +69,6 @@
             Dispatcher ID: #####
             #####: GOTO(####)
    #######: TABLE
-            Mode: MISPLACED_VERTICAL
-            Dispatcher ID: #####
-            #####: GOTO(####)
-   #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
             #####: OUTPUT(13), GOTO(####)
@@ -658,6 +654,12 @@
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 11
+            <LF>
+                #####: GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
@@ -1139,8 +1141,8 @@
             <LF>
                 #####: GOTO(####)
                 Dispatcher ID: #####
-            <VT>-<CR>
-                #####: GOTO(####)
+            <VT>-<CR> [repeat(INFINITY)]
+                #####: OUTPUT(15)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
@@ -1804,21 +1806,6 @@
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
                 #####: ERRONEOUS_ATOM(16)
-                Dispatcher ID: #####
-  ########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-  ########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-  ########: DISPATCHER
-            Max CType: 2
-            Ctype Map Size: 14
-            <LF>
-                #####: GOTO(####)
-                Dispatcher ID: #####
-            <VT>-<CR>
-                #####: ACCEPT
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -3174,7 +3161,7 @@
             ! ' , . :-; ? [repeat(INFINITY)]
                 #####: KEEP(0), OUTPUT(2), GOTO(####)
                 Dispatcher ID: #####
- #########: DISPATCHER
+  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
  #########: DISPATCHER
@@ -3360,7 +3347,7 @@
             <2B81D> <2F800>-<2FA1D>
                 #####: OUTPUT(3), GOTO(####)
                 Dispatcher ID: #####
- #########: DISPATCHER
+  ########: DISPATCHER
             Max CType: 3
             Ctype Map Size: 944
             0-9

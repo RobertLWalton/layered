@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 01:17:57 EST 2015
+// Date:	Sat Jan 16 03:49:43 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,9 +120,6 @@ cc	    NDL::new_table ( comment, comment_t );
 cc
 cc	    uns32 line_break;
 cc	    NDL::new_table ( line_break, line_break_t );
-cc	    uns32 misplaced_vertical;
-cc	    NDL::new_table ( misplaced_vertical,
-cc			     misplaced_vertical_t );
 cc
 cc	    uns32 premature_end_of_string;
 cc	    NDL::new_table
@@ -144,8 +141,7 @@ cc	           NDL::add_char ( '\t' )
 cc
 
 lex	"<misplaced-horizontal>" =
-lex		  "<UNICODE-CATEGORY-Zs>"
-lex		| "<HT>";
+lex		  "<horizontal>"
 lex		& ~ "<SP>";
 lex
 cc	# define MISPLACED_HORIZONTAL \
@@ -311,17 +307,15 @@ cc
 
 lex	   "<horizontal><repeat>//"
 lex			keep 1
-lex			output horizontal before comment
+lex			output indent before comment
 lex			goto horizontal space
 lex	   "<horizontal><repeat>/"
 lex			keep 1
-lex			output horizontal before
-lex				          non-comment
+lex			output indent
 lex			goto horizontal space
 lex	   "<horizontal><repeat><non-/-graphic>"
 lex			keep 1
-lex			output horizontal before
-lex				          non-comment
+lex			output indent
 lex			goto horizontal space
 lex	   "<horizontal><repeat>"
 lex			output horizontal space
@@ -355,14 +349,14 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "//" keep 0
-lex		output horizontal before comment
+lex		output indent before comment
 lex		goto within line	
 lex	   "/"  keep 0
-lex		output horizontal before non-comment
+lex		output indent
 lex		goto within line	
 lex	   "<non-/-graphic>"
 lex		keep 0
-lex		output horizontal before non-comment
+lex		output indent
 lex		goto within line
 lex
 cc		   NDL::begin_dispatch ( "/" );
@@ -489,14 +483,23 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<LF>" goto line break
-lex	   "<vertical>" goto misplaced vertical
 lex
 cc		   NDL::begin_dispatch ( "\n" );
 cc		      NDL::go ( line_break );
 cc		   NDL::end_dispatch();
 cc
+
+lex	   "<vertical><repeat><LF>" goto line break
+lex	   "<vertical><repeat>"
+lex			output misplaced vertical
+lex
 cc		   NDL::begin_dispatch ( vertical );
-cc		      NDL::go ( misplaced_vertical );
+cc		      NDL::REPEAT();
+cc		      NDL::begin_dispatch ( "\n" );
+cc		         NDL::go ( line_break );
+cc		      NDL::end_dispatch();
+cc		      NDL::output
+cc		            ( misplaced_vertical_t );
 cc		   NDL::end_dispatch();
 cc
 
@@ -715,32 +718,6 @@ lex	      // which will output premature end of file
 lex	end comment lexeme table;
 lex
 cc	           NDL::go ( within_line );
-cc
-cc	    NDL::end_table();
-cc
-
-lex
-lex	begin misplaced vertical lexeme table;
-lex
-cc	    NDL::begin_table ( misplaced_vertical );
-cc
-
-lex	   "<LF>" goto line break;
-lex	   "<vertical>" accept;
-lex
-cc	           NDL::begin_dispatch ( "\n" );
-cc		       NDL::go ( line_break );
-cc		   NDL::end_dispatch();
-cc
-cc	           NDL::begin_dispatch ( vertical );
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
-cc
-
-lex	   goto within line;
-lex	end misplaced vertical lexeme table;
-lex
-cc	    	   NDL::go ( within_line );
 cc
 cc	    NDL::end_table();
 cc

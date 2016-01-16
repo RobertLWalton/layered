@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 10, 2016
+January 16, 2016
  
 \end{center}
 
@@ -3124,6 +3124,7 @@ The general syntax is:
     \end{tabular}
 \\[0.5ex]
 \emkey{simple-element-list} ::= {\em element}\STAR{}
+\label{SIMPLE-ELEMENT-LIST}
 \\[0.5ex]
 \emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
                     {\em separator} $|$ {\em quoted-string} $|$
@@ -3604,13 +3605,16 @@ attributes can be moved to the end.
 The attribute value `\TT{= TRUE}' can be omitted (as in
 `\TT{my option}'), and the attribute value `\TT{= FALSE}' can be represented
 by omitting it and prefacing the attribute label with `\TT{no}'
-(as in `\TT{no my option}').
+(as in `\TT{no your option}').
 The type can be omitted from the beginning unless it is followed by
 a single attribute with omitted \TT{TRUE} value, as such an attribute
-will be mistaken for the type.
+will be mistaken for the type (i.e., in \TT{\{X|\ldots|\}}, \TT{X} is
+a type label and \underline{not} an attribute label).
 The type can be omitted from the end unless it is preceeded
 by a single attribute with omitted \TT{TRUE} value, as such an attribute
 will be mistaken for the type.
+(i.e., in \TT{\{|\ldots|X\}}, \TT{X} is
+a type label and \underline{not} an attribute label).
 If omitted from both
 beginning and end, the type is missing, but there can still be
 attributes.  Also \TT{""} may be used as a type label to denote
@@ -3618,7 +3622,7 @@ a missing type.
 
 An attribute value may be a bracketed subexpression, or a sequence
 of one or more words, naturals, numerics, and quoted strings, each
-representing a MIN string (not naturals represent MIN strings and
+representing a MIN string (note naturals represent MIN strings and
 \underline{not} MIN numbers).  In the latter case, if there is only
 one element in the sequence, the MIN string it represents is the
 attribute value, but if there is more than one element, the elements
@@ -3631,7 +3635,7 @@ The exception is that when the brackets are `\TT{\{*~*\}}',
 the comma
 separated elements of the bracketed subexpression are each a
 distinct value of the attribute, which has a multi-set of values.
-Elements must be single bracketed expressions, or sequences of
+Elements must be single bracketed subexpressions, or sequences of
 words, naturals, numerics, and quoted strings that are made into
 labels.  Missing elements, as indicated by the commas, are ignored,
 If there are no values, as in `\TT{\{* *\}}' or `\TT{\{* , *\}}',
@@ -3659,7 +3663,7 @@ the elements may be omitted, in which case the {\em mark} is not
 quoted.
 Similarly if the type is a label consisting of two {\em mark}
 lexemes, and there are no attributes, the `\TT{|}'s may be
-omitted and the two {\em marks} may be places before and
+omitted with the two {\em marks} being placed before and
 after the elements, respectively.
 Except in this last case, type and attribute labels
 cannot contain separators or marks unless these are quoted.
@@ -3780,7 +3784,7 @@ The general syntax is:
     \begin{tabular}[t]{@{}rl}
     ::= & {\em typed-attribute-flags-opening}~~~{\em attribute-flag-item} \\
         & \{ {\em typed-attribute-flags-separator}~~~%
-	  {\em attribute-flag-index} \}\STAR{} \\
+	  {\em attribute-flag-item} \}\STAR{} \\
 	& {\em typed-attribute-flags-closing} \\
     \end{tabular}
 \\[0.5ex]
@@ -3806,7 +3810,8 @@ The general syntax is:
 \\[0.5ex]
 \emkey{typed-opening} ::=
    \begin{tabular}[t]{@{}l}
-   \{ {\em mark} $|$ {\em separator} \}\PLUS{}
+   \{ {\em mark} $|$ {\em separator} $|$ {\em word}
+                 $|$ {\em number} \}\PLUS{}
     ~~~~~ [e.g., `\TT{\{}'] \\
     as defined by a {\em parser-typed-bracket-command}
     (\pagref{PARSER-TYPED-BRACKET-COMMAND})
@@ -3885,11 +3890,13 @@ those of the subexpression context.
 Duing both scans options are standardly set to those of the
 context less the `\TT{end at line separator}' option.
 
-If two {\em typed-middle} lexemes with no intervening space
+If two {\em typed-middles} with no intervening space
 are lexically scanned as a single lexeme, then this new
 {\em doubled-typed-middle} lexeme can be used
 to represent an empty list in place of
 two {\em typed-middle} lexemes with an intervening space.
+Note that in this case the {\em typed-middles} must be single
+lexemes.
 
 If a typed bracketed subexpression ends pre-maturely,
 a parsing error is

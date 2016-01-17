@@ -752,3 +752,11 @@ parser test (T2{T}T2 A B C)
 parser test (T2{T}T2 A B C)
              ^^^^^^^^^^^^^
 ======= END TEST
+======= TEST: parser test {T: NO Z, X, W, NO Y|A B C D|T}
+------- line 170:
+parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 170:
+parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST

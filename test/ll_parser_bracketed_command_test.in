@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 17 06:38:03 EST 2016
+// Date:	Sun Jan 17 11:12:03 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -167,3 +167,4 @@ parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
                 | A B C |T}T2
 parser test (T1{T}T1 A B C)
 parser test (T2{T}T2 A B C)
+parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1

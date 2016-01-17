@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 16 19:29:40 EST 2016
+// Date:	Sun Jan 17 06:38:03 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -162,8 +162,6 @@ parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
        with attribute multivalue initiator "[@"
        with prefix separators allowed
 
-
-parser trace [ + subexpression details]
 parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
 parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
                 | A B C |T}T2

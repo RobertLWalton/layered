@@ -28,7 +28,7 @@ parser print selector "":
     block standard: math
     block standard: text
     block standard: code
-    block standard: prefix
+    block TOP LEVEL: prefix
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print context "default":
@@ -696,3 +696,59 @@ parser print prefix separator "":
 parser print prefix separator "X":
     block standard: prefix "X" [code]
                     with parsing selectors [code, math]
+parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
+       [code, text, math, parser]
+       with element selectors [data, prefix]
+       with attribute selectors [data]
+       with attributes "::" ... "==" ... "#"
+parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
+       [code, text, math, parser]
+       with element selectors [data, prefix]
+       with attribute selectors [data, code]
+       with attributes "::" ... "==" ... "#"
+       with attribute negator "NO"
+       with attribute flags initiator "("
+       with attribute multivalue initiator "[@"
+       with prefix separators allowed
+======= TEST: parser test {T: x = "5", y = "6"|A B C|T}
+------- line 165:
+parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 165:
+parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: parser test {T: x[+-] = "5", y = {* "6", "7" *}|A B C|T}
+------- lines 166-167:
+parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                | A B C |T}T2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines 166-167:
+parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                | A B C |T}T2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+======= TEST: parser test ({T||T} A B C)
+------- line 168:
+parser test (T1{T}T1 A B C)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 168:
+parser test (T1{T}T1 A B C)
+            ^^^^^^^^^^^^^^^
+------- line 168:
+parser test (T1{T}T1 A B C)
+             ^^^^^^^
+======= END TEST
+======= TEST: parser test ({T|A B C|T})
+------- line 169:
+parser test (T2{T}T2 A B C)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 169:
+parser test (T2{T}T2 A B C)
+            ^^^^^^^^^^^^^^^
+------- line 169:
+parser test (T2{T}T2 A B C)
+             ^^^^^^^^^^^^^
+======= END TEST

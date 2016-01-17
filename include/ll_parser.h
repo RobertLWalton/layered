@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 12 11:16:32 EST 2016
+// Date:	Sun Jan 17 02:08:28 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,6 +67,7 @@ namespace ll { namespace parser {
 	other_selectors, // other selectors
 	parser_lexeme,	// parser
 	data_lexeme,	// data
+	prefix_lexeme,	// prefix
 	standard_lexeme,// standard
 	error_operator,	// ERROR'OPERATOR
 	error_operand,	// ERROR'OPERAND
@@ -1010,6 +1011,7 @@ enum {
     //
     PARSER_SELECTOR			= 1ull << 17,
     DATA_SELECTOR			= 1ull << 18,
+    PREFIX_SELECTOR			= 1ull << 19,
 };
 
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;

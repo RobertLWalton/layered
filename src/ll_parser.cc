@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 13 18:52:47 EST 2016
+// Date:	Sun Jan 17 02:10:23 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,6 +63,7 @@ min::locatable_gen PAR::default_opt;
 min::locatable_gen PAR::other_selectors;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::data_lexeme;
+min::locatable_gen PAR::prefix_lexeme;
 min::locatable_gen PAR::standard_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
@@ -149,6 +150,7 @@ static void initialize ( void )
 
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
     PAR::data_lexeme = min::new_str_gen ( "data" );
+    PAR::prefix_lexeme = min::new_str_gen ( "prefix" );
     PAR::standard_lexeme =
         min::new_str_gen ( "standard" );
 
@@ -771,6 +773,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::data_lexeme ) );
+	MIN_REQUIRE
+	    (    PAR::PREFIX_SELECTOR
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::prefix_lexeme ) );
 
 	PAR::selector_group_name_table_ref(parser) =
 	    TAB::create_key_table ( 32 );

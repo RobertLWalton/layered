@@ -2,7 +2,7 @@ parser print selector "":
     block standard: text
     block standard: math
     block standard: code
-    block standard: prefix
+    block TOP LEVEL: prefix
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print pass:
@@ -33,7 +33,7 @@ parser print selector "":
     block standard: text
     block standard: math
     block standard: code
-    block standard: prefix
+    block TOP LEVEL: prefix
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print operator "":

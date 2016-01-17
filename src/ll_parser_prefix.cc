@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 12 11:20:12 EST 2016
+// Date:	Sun Jan 17 02:14:10 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,16 +26,20 @@
 # define TAB ll::parser::table
 # define PRE ll::parser::prefix
 
-static min::locatable_gen prefix;
 static min::locatable_gen prefix_subexpressions;
 
 static void initialize ( void )
 {
-    ::prefix = min::new_str_gen ( "prefix" );
     ::prefix_subexpressions =
         min::new_lab_gen ( "prefix", "subexpressions" );
 
-    PAR::push_new_pass ( ::prefix, PRE::new_pass );
+    // We cannot use PAR::prefix_lexeme here because it
+    // may not have been initialized yet.
+    //
+    min::locatable_gen prefix
+        ( min::new_str_gen ( "prefix" ) );
+    PAR::push_new_pass
+        ( prefix, PRE::new_pass );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -110,7 +114,7 @@ PAR::pass PRE::new_pass ( PAR::parser parser )
     min::locatable_var<PRE::prefix_pass> prefix_pass
         ( ::prefix_pass_type.new_stub() );
 
-    PRE::name_ref ( prefix_pass ) = ::prefix;
+    PRE::name_ref ( prefix_pass ) = PAR::prefix_lexeme;
 
     PRE::prefix_stack_ref ( prefix_pass ) =
 	::prefix_stack_type.new_stub ( 100 );

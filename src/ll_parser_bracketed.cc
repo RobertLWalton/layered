@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 16 18:30:59 EST 2016
+// Date:	Sun Jan 17 02:16:03 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,7 +50,6 @@ static min::locatable_gen flags;
 static min::locatable_gen multivalue;
 static min::locatable_gen initiator;
 static min::locatable_gen negator;
-static min::locatable_gen prefix;
 static min::locatable_gen separator;
 static min::locatable_gen separators;
 static min::locatable_gen allowed;
@@ -77,7 +76,6 @@ static void initialize ( void )
     ::multivalue = min::new_str_gen ( "multivalue" );
     ::initiator = min::new_str_gen ( "initiator" );
     ::negator = min::new_str_gen ( "negator" );
-    ::prefix = min::new_str_gen ( "prefix" );
     ::separator = min::new_str_gen ( "separator" );
     ::separators = min::new_str_gen ( "separators" );
     ::allowed = min::new_str_gen ( "allowed" );
@@ -677,17 +675,18 @@ static void bracketed_pass_place
     bracketed_pass->trace_subexpressions =
         1ull << index;
 
-    if (    PAR::find_on_pass_stack ( parser, ::prefix )
+    if (    PAR::find_on_pass_stack
+                ( parser, PAR::prefix_lexeme )
          == min::NULL_STUB )
     {
 	PAR::new_pass prefix_new_pass =
-	    PAR::find_new_pass ( ::prefix );
+	    PAR::find_new_pass ( PAR::prefix_lexeme );
         PAR::pass prefix_pass =
 	    ( * prefix_new_pass ) ( parser );
 	PAR::place_after
 	    ( parser, (PAR::pass) prefix_pass,
 	              (PAR::pass) bracketed_pass );
-	prefix_pass->selectors = PAR::PARSER_SELECTOR;
+	prefix_pass->selectors = PAR::PREFIX_SELECTOR;
     }
 }
 
@@ -3504,7 +3503,7 @@ static min::gen bracketed_pass_command
     {
         if ( vp[i] == ::bracket )
 	    type = ::BRACKET;
-	else if ( vp[i] == ::prefix
+	else if ( vp[i] == PAR::prefix_lexeme
 	          &&
 		  i + 1 < size
 		  &&
@@ -3549,7 +3548,7 @@ static min::gen bracketed_pass_command
 	max_names = 4;
 	i += 2;
     }
-    else if ( vp[i] == ::prefix
+    else if ( vp[i] == PAR::prefix_lexeme
               &&
 	      i + 1 < size
 	      &&
@@ -4440,7 +4439,7 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 2 < size
 		 &&
-		 vp[i] == ::prefix
+		 vp[i] == PAR::prefix_lexeme
 		 &&
 		 vp[i+1] == ::separators
 		 &&

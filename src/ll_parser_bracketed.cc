@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 13 18:56:20 EST 2016
+// Date:	Sat Jan 16 18:30:59 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1574,7 +1574,9 @@ inline bool make_attribute_label
 
     if ( next->previous != start
          &&
-	 next->previous->value_type == initiator )
+	 next->previous->value_type == initiator
+	 &&
+	 initiator != min::MISSING() )
     {
 	next = next->previous;
 	next->type = BRA::ATTR_FLAGS;
@@ -1649,7 +1651,9 @@ inline void finish_attribute
 		    ->typed_opening
 		    ->typed_attr_multivalue_initiator;
 	    start->type =
-	        ( start->value_type == initiator ?
+	        ( start->value_type == initiator
+		  &&
+		  initiator != min::MISSING() ?
 		  BRA::ATTR_MULTIVALUE :
 		  BRA::ATTR_VALUE );
 	}
@@ -2657,7 +2661,7 @@ min::position BRA::parse_bracketed_subexpression
 		}
 		else // if (    subtype
 		     //      == BRA::TYPED_OPENING )
-		{
+		{ 
 		    PAR::attr attributes
 			[tdata.attr_count];
 		    PAR::token elements =
@@ -4338,7 +4342,7 @@ static min::gen bracketed_pass_command
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
-			  parser, is_element );
+			  parser, true );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::FAILURE() )
@@ -4433,6 +4437,7 @@ static min::gen bracketed_pass_command
 		SCAN_NAME
 		    ( attribute_separator, false );
 	    }
+	    else
 	    if ( i + 2 < size
 		 &&
 		 vp[i] == ::prefix

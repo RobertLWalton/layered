@@ -3747,7 +3747,7 @@ The general syntax is:
 		                 {\em type-label}
 	\end{tabular}
 \\[0.5ex]
-\emkey{attribute-list} ::= {\em attribute}~~~%
+\emkey{attribute-list}\label{ATTRIBUTE-LIST} ::= {\em attribute}~~~%
 	\{ {\em typed-attribute-separator}~~~{\em attribute} \}\STAR{}
 \\[0.5ex]
 \emkey{attribute} \begin{tabular}[t]{@{}rl}
@@ -4126,9 +4126,9 @@ Some examples are:
 \begin{center}
 \TT{\{my type\}} \\
 \TT{\{my type: my attribute = 5, my option = TRUE\}} \\
-\TT{\{my type: my attribute = 5, my option = FALSE\}} \\
+\TT{\{my type: my attribute = 5, your option = FALSE\}} \\
 \TT{\{my type: my attribute = 5, my option\}} \\
-\TT{\{"": my attribute = 5, not my option\}} \\
+\TT{\{my type: my attribute = 5, not your option\}} \\
 \TT{\{*\}} \\
 \end{center}
 
@@ -4137,10 +4137,13 @@ The general syntax is:
 \begin{indpar}[0.1in]
 \emkey{typed-prefix-separator}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em typed-opening} {\em type-label} {\em opening-attributes}\QMARK{}
-	                      {\em typed-closing} \\
-    $|$ & {\em typed-opening} {\em type-mark} {\em typed-closing} \\
-    \end{tabular}
+    ::= & {\em typed-opening}~~~{\em type-label}~~~%
+          {\em opening-attributes}\QMARK{}~~~{\em typed-closing} \\
+    $|$ & {\em typed-opening}~~~{\em type-mark}~~~{\em typed-closing} \\
+    \end{tabular} \\
+\emkey{opening-attributes}
+    ::= {\em typed-attribute-begin}~~~{\em attribute-list} \\
+\emkey{attribute-list} ::= see \pagref{ATTRIBUTE-LIST}
 \end{indpar}
 
 The `\TT{with prefix separators allowed}' option to a

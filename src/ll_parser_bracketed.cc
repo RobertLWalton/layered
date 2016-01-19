@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 17 02:16:03 EST 2016
+// Date:	Tue Jan 19 11:27:15 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2321,6 +2321,7 @@ min::position BRA::parse_bracketed_subexpression
 		PAR::token previous = current->previous;
 		min::position separator_found;
 		BRA::typed_data tdata;
+		bool is_mark_prefix = false;
 		if ( subtype == BRA::OPENING_BRACKET )
 		{
 		    separator_found =
@@ -2369,7 +2370,7 @@ min::position BRA::parse_bracketed_subexpression
 			      == tdata.type );
 			if (    type_token
 			     == next->previous )
-			     /* Do nothing! */;
+			    is_mark_prefix = true;
 			else if (    next->previous
 			                 ->type
 			          != LEXSTD::mark_t )
@@ -2741,7 +2742,9 @@ min::position BRA::parse_bracketed_subexpression
 		         &&
 			 tdata.middle_count == 0
 		         &&
-			 ! tdata.has_mark_type 
+			 ( ! tdata.has_mark_type 
+			   ||
+			   is_mark_prefix )
 			 &&
 			 tdata.typed_opening->
 			     prefix_separators_allowed )

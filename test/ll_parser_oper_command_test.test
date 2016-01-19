@@ -7,7 +7,7 @@ parser print selector "":
     block TOP LEVEL: parser
 parser print pass:
     top
-    prefix [parser, prefix]
+    prefix [prefix]
 parser print context "":
     block standard: default [prefix, code]
                             options [end at le indent,
@@ -25,7 +25,7 @@ parser print context "":
 parser print pass:
     top
     operator [code, math]
-    prefix [parser, prefix]
+    prefix [prefix]
 parser trace [+ parser commands, + warnings ]
 parser trace [+ subexpression elements,
               + subexpression lines ]

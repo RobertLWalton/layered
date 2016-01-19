@@ -2542,7 +2542,7 @@ parser print bracket "":
                     // "||" is also allowed.
                     [data, code, math, text]
                     with parsing options [- end at line separator]
-                    with attribute selectors [data, prefix]
+                    with attribute selectors [data]
                     with attributes ":" ... "=" ... ","
                     with attribute negator "no"
                     with attribute flags initiator "["

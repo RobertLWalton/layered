@@ -2271,6 +2271,14 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {-  -}
+@149 =:
+           .type = "-"
+           .position[H] = {}
+    line 93:
+{-}
+^^^
 BRACKETED EXPRESSION:
     {-  -}
 @149 =:

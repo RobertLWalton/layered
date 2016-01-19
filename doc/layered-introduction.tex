@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 16, 2016
+January 19, 2016
  
 \end{center}
 
@@ -3969,7 +3969,12 @@ are to be treated as {\em typed-prefix-separators}
 \end{center}
 
 Note that the {\em typed-middle} must be repeated twice and both copies must
-be identical.
+be identical.  Also, if {\em typed-middle} denotes
+a single string lexeme which when concatenated
+with itself forms another single string lexeme (as `\TT{|}' concatenated
+with itself forms `\TT{||}'), this second doubled lexeme can be used
+in place of two consecutive {\em typed-middles} (as in `\TT{\{||\}}'
+being used in place of `\TT{\{|~|\}}').
 
 The general syntax of {\em parser-typed-bracket-commands} is:
 
@@ -4062,7 +4067,7 @@ parser define typed bracket "{" ... "|" ... "|" ... "}"
                     [code, math, text, data]
        // there are no element selectors
        with parsing options [- end at line separator]
-       with attribute selectors [data, prefix]
+       with attribute selectors [data]
        with prefix separators allowed
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
@@ -4097,14 +4102,11 @@ so that:
 \TT{\{T: a = 1, b = 2 | X Y | c = 3, d = 4 | Z | \}} \\
 \TT{\{T| X | a = 1, b = 2 | Y | c = 3, d = 4 | Z | \}} \\
 \end{center}
-are all equivalent.  Second, in {\em attribute-flags} the
-items and indices may be mixed in any way and order and
-space is not required after commas, so that:
+are all equivalent.  Second, in {\em attribute-flags}, commas
+do not have to be followed by whitespace, so that:
 \begin{center}
-\TT{\{T: a[PQ@*+, 85, 203] | X Y Z | \}} \\
 \TT{\{T: a[PQ@*+,85,203] | X Y Z | \}} \\
-\TT{\{T: a[85,PQ@*+,203] | X Y Z | \}} \\
-\TT{\{T: a[85,PQ,203,@*+] | X Y Z | \}} \\
+\TT{\{T: a[PQ@*+, 85, 203] | X Y Z | \}} \\
 \TT{\{T: a[203,P,Q,@,85,*,+] | X Y Z | \}} \\
 \TT{\{T: a[203,P, Q,@,85, *,+] | X Y Z | \}} \\
 \end{center}

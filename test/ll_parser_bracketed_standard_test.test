@@ -2500,15 +2500,147 @@ BRACKETED EXPRESSION:
         line 101:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {p||p}
+@163 =:
+           .type = "p"
+           .position[H] = {}
+    line 102:
+{p} {s} This is a sentence.
+^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {s||s}
+@164 =:
+           .type = "s"
+           .position[H] = {}
+    line 102:
+{p} {s} This is a sentence.
+    ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {s||s}
+@165 =:
+           .type = "s"
+           .position[H] = {}
+    line 103:
+    {s} And another.
+    ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {p||p}
+@166 =:
+           .type = "p"
+           .position[H] = {}
+    line 104:
+  {p} {s} And a new {foo} paragraph.
+  ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {s||s}
+@167 =:
+           .type = "s"
+           .position[H] = {}
+    line 104:
+  {p} {s} And a new {foo} paragraph.
+      ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {foo||foo}
+@168 =:
+           .type = "foo"
+           .position[H] = {}
+    line 104:
+  {p} {s} And a new {foo} paragraph.
+                    ^^^^^
 BRACKETED EXPRESSION:
-    parser print bracket ""
-@163 = parser print bracket @164:
+    {s|This is a sentence "."|s}
+@164 = This is a sentence ".":
+           .type = "s"
+           .position[H] = {}
+    line 102:
+{p} {s} This is a sentence.
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s|And another "."|s}
+@165 = And another ".":
+           .type = "s"
+           .position[H] = {}
+    line 103:
+    {s} And another.
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|This is a sentence "."|s} {s|And another "."|s}|p}
+@163 = @164 @165:
+           .type = "p"
+           .position[H] = {}
+    lines 102-103:
+{p} {s} This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s} And another.
+^^^^^^^^^^^^^^^^^^^^
+ERROR: in line 104: prefix token not at beginning of phrase; deleted and
+       ignored:
+  {p} {s} And a new {foo} paragraph.
+                    ^^^^^
+BRACKETED EXPRESSION:
+    {s|And a new paragraph "."|s}
+@167 = And a new paragraph ".":
+           .type = "s"
+           .position[H] = {}
+    line 104:
+  {p} {s} And a new {foo} paragraph.
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|And a new paragraph "."|s}|p}
+@166 = @167:
+           .type = "p"
+           .position[H] = {}
+    line 104:
+  {p} {s} And a new {foo} paragraph.
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|This is a sentence "."|s} {s|And another "."|s}|p}
+        {p|{s|And a new paragraph "."|s}|p}
+@169 = @163 @166:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-@164 = "":
+    lines 102-104:
+{p} {s} This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s} And another.
+^^^^^^^^^^^^^^^^^^^^
+  {p} {s} And a new {foo} paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    parser print bracket ""
+@170 = parser print bracket @171:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+@171 = "":
            .type = "<Q>"
-    line 102:
+    line 105:
 parser print bracket ""
 ^^^^^^^^^^^^^^^^^^^^^^^
 parser print bracket "":

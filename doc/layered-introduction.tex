@@ -4132,7 +4132,7 @@ Some examples are:
 \TT{\{*\}} \\
 \end{center}
 
-The general syntax is:
+The general syntax of a typed prefix separator is:
 
 \begin{indpar}[0.1in]
 \emkey{typed-prefix-separator}
@@ -4188,7 +4188,7 @@ The {\em prefix-0-list} in this example is equivalent to:
              // `{foo}' deleted
 \end{verbatim}\end{indpar}
 
-The general syntax is:
+The general syntax of a prefix-n list is:
 
 \begin{indpar}[0.1in]
 \emkey{prefix-n-list}
@@ -4209,7 +4209,7 @@ Note: \begin{minipage}[t]{5.8in}
 
 The elements of a {\em prefix-n-list} are modified by taking
 each `{\em prefix-n} {\em prefix-(n+1)-list}' component and
-moving the {\em prefix-(n+1)-list} elements to the
+moving the {\em prefix-(n+1)-list} elements to
 the MIN object represented by {\em prefix-n}.  So, for example,
 \begin{center}
 \TT{\{T\} X Y Z}
@@ -4219,31 +4219,21 @@ is just alternate syntax for
 \TT{\{T| X Y Z |\}}
 \end{center}
 
+\subsubsection{Prefix Headers}
+\label{PREFIX-HEADERS}
+
+A \key{prefix header} is a {\em typed-prefix-separator} that
+begins a logical line and has a selected type (according
+to the current parser selectors) in the parser's
+\key{prefix header table}.
+
 
 \begin{indpar}[0.5in]
 
-\hspace*{-0.2in}\ttmkey{paragraph header}{parser option} \\
-    If a prefix separator appears in a paragraph beginning
-    position (after a blank line and any following comment lines)
-    and its type has this parser option, then the prefix separator
-    becomes the current paragraph header.
-
-\hspace*{-0.2in}\ttmkey{paragraph repeat}{parser option} \\
-    If a paragraph does not begin with a paragraph header
-    prefix separator as per the \TT{para\-graph header} option,
-    and the \TT{paragraph repeat} option is in effect,
-    then the current paragraph header is implicitly prepended
-    to the paragraph (unless there is no current paragraph
-    header).
-
-
-\hspace*{-0.2in}\ttmkey{paragraph indent}{parser option} \\
-    If this option is turned on by a (explicit or implicit)
-    paragraph header prefix separator, the indent of the
-    next token after this prefix separator becomes the new
-    paragraph indent, and the paragraph ends just before
-    the next physical line beginning non-comment token that
-    has lesser indent than this paragraph indent.
+\hspace*{-0.2in}\ttmkey{default header}{prefix header type option} \\
+    If a prefix header type has this option flag, then any
+    prefix separator with the type that begins a logical line
+    becomes the default prefix header.
 
 \end{indpar}
 

@@ -2323,40 +2323,24 @@ Two option groups are also defined:
 
 There are two kinds of paragraphs: indented and unindented.
 
-An \key{indented paragraph} has an indentation and ends just
-before the next line that has less indentation, or at the
-end of file.  An indented paragraph must be at the end of a logical
-line.
+An \key{indented paragraph} has a paragraph indent and ends just
+before the next line that has less indent, or at the
+end of file.  An indented paragraph ends a logical line, and
+begins with an indentation mark at the end of a physical line.
+If the paragraph is
+not empty, the paragraph indent is set to the indent of the next
+non-blank, non-comment line following the line containing
+the indentation mark.  The indented paragraph proper is a sequence of
+zero or more logical lines and unindented paragraphs, all of which
+are indented by the paragraph indent.  Any logical line or
+unindented paragraph in this sequence may itself end with an indented
+subparagraph .
 
 An \key{unindented paragraph} ends with the next blank line.
 An unindented paragraph is a sequence of logical lines that
-does not contain any blank line.
-
-An indented paragraph can contain another paragraph: either
-another indented paragraph with greater indentation, or
-an unindented paragraph whose lines have indentation at
-least as great as the indentation of the indented paragraph.
-
-An unindented paragraph can contain an indented paragraph
-at the end of the unindented paragraph's last logical line.
-Such a contained indented paragraph must end with a blank line or
-be followed by an end of file.
-
-There are two kinds of unindented paragraph: single-line and
-multi-line.
-
-A \ikey{single-line}{unindented paragraph} unindented paragraph
-contains a single logical line which is continued across physical
-lines until the next blank line, or end of file, or an indented
-paragraph at the end of the single logical line.
-
-A \ikey{multi-line}{unindented paragraph} contains one or
-more logical lines, each continuable only by a physical line
-with indent greater than the current indent, or not continuable
-at all.  Note that within an unindented paragraph, no logical
-line can include a blank line, aside from blank lines in an
-indented paragraph at the end of the last logical line of
-the unindented paragraph.
+does not contain any blank line.  It may include lines
+which contain only a comment.  Only the last logical line of an
+unindented paragraph may end with an indented subparagraph.
 
 
 \subsection{Parser Symbol Table}

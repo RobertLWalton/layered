@@ -2325,34 +2325,38 @@ There are two kinds of paragraphs: indented and unindented.
 
 An \key{indented paragraph} has an indentation and ends just
 before the next line that has less indentation, or at the
-end of file.
+end of file.  An indented paragraph must be at the end of a logical
+line.
 
 An \key{unindented paragraph} ends with the next blank line.
+An unindented paragraph is a sequence of logical lines that
+does not contain any blank line.
 
 An indented paragraph can contain another paragraph: either
 another indented paragraph with greater indentation, or
 an unindented paragraph whose lines have indentation at
 least as great as the indentation of the indented paragraph.
 
-A logical line in an unindented paragraph can contain an
-indented paragraph.  In this case, if the contained indented
-paragraph contains a blank line, it must be at the end of
-its containing unindented paragraph.
+An unindented paragraph can contain an indented paragraph
+at the end of the unindented paragraph's last logical line.
+Such a contained indented paragraph must end with a blank line or
+be followed by an end of file.
 
 There are two kinds of unindented paragraph: single-line and
 multi-line.
 
 A \ikey{single-line}{unindented paragraph} unindented paragraph
-contains a single
-logical line which is continued across physical lines until
-the next blank line (or end of file or end of containing
-indented paragraph).
+contains a single logical line which is continued across physical
+lines until the next blank line, or end of file, or an indented
+paragraph at the end of the single logical line.
 
 A \ikey{multi-line}{unindented paragraph} contains one or
 more logical lines, each continuable only by a physical line
 with indent greater than the current indent, or not continuable
 at all.  Note that within an unindented paragraph, no logical
-line can include a blank line.
+line can include a blank line, aside from blank lines in an
+indented paragraph at the end of the last logical line of
+the unindented paragraph.
 
 
 \subsection{Parser Symbol Table}

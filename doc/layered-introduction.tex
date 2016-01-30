@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 20, 2016
+January 30, 2016
  
 \end{center}
 
@@ -2317,6 +2317,43 @@ Two option groups are also defined:
 \label{PARSING-END-AT-OPTIONS-2}
 
 \end{boxedfigure}
+
+\subsection{Paragraphs}
+\label{PARAGRAPHS}
+
+There are two kinds of paragraphs: indented and unindented.
+
+An \key{indented paragraph} has an indentation and ends just
+before the next line that has less indentation, or at the
+end of file.
+
+An \key{unindented paragraph} ends with the next blank line.
+
+An indented paragraph can contain another paragraph: either
+another indented paragraph with greater indentation, or
+an unindented paragraph whose lines have indentation at
+least as great as the indentation of the indented paragraph.
+
+A logical line in an unindented paragraph can contain an
+indented paragraph.  In this case, if the contained indented
+paragraph contains a blank line, it must be at the end of
+its containing unindented paragraph.
+
+There are two kinds of unindented paragraph: single-line and
+multi-line.
+
+A \ikey{single-line}{unindented paragraph} unindented paragraph
+contains a single
+logical line which is continued across physical lines until
+the next blank line (or end of file or end of containing
+indented paragraph).
+
+A \ikey{multi-line}{unindented paragraph} contains one or
+more logical lines, each continuable only by a physical line
+with indent greater than the current indent, or not continuable
+at all.  Note that within an unindented paragraph, no logical
+line can include a blank line.
+
 
 \subsection{Parser Symbol Table}
 \label{PARSER-SYMBOL-TABLE}

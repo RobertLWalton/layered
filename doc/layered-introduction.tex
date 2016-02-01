@@ -4315,15 +4315,49 @@ In addition, to be recognized as a paragraph header, the
 type of the prefix separator must be the name of an entry
 in the parser header table that is selected by the current
 parser selectors (see the line beginning algorithm) and
-is marked as a paragraph header (as opposed to begin marked
+is marked as a paragraph header (as opposed to being marked
 as a line header).
 
 If an explicit paragraph header is recognized at the beginning
-of a logical line, it is used to reset the data used
-line beginning algorithm, and then that algorithm looks for
+of a logical line, it is used to reset the context data used by the
+line beginning algorithm (see below), and then that algorithm looks for
 a following line header.  If no explicit paragraph header is
-recognized, the line is outside any unindented paragraph, and
-the algorithm looks for a line header. 
+recognized, the line beginning algorithm considers the possibility
+that there might be an implicit paragraph header, and if so, inserts
+it (see below for detail).  In any case,
+the algorithm continues by looking for a line header. 
+
+The procedure for looking for a line header is analogous to that
+of looking for a paragraph header.  Differences are that any
+entry found in the parser's header table must be marked as a
+line header, and a line header is looked for at the beginning
+of every logical line, even those not a the beginning of an
+indented paragraph and not preceeded by a blank line.
+
+The \key{line beginning algorithm} uses the following context
+\skey{line beginning variable}s:
+
+\begin{indpar}[0.4in]
+\hspace*{-0.2in}\ttmkey{paragraph selectors}{line beginning variable} \\
+    The parsing selectors are set to this value at the beginning
+    of a logical line that is the first logical line of an indented
+    paragraph or is just after a blank line that follows a logical line.
+\medskip
+\hspace*{-0.2in}\ttmkey{paragraph lexical index}{line beginning variable}\\
+    If not \TT{0}, the lexical analyzer master is reset to this value
+    at the beginning
+    of a logical line that is the first logical line of an indented
+    paragraph or is just after a blank line that follows a logical line.
+    A lexeme is then read.  If this lexeme is a header lexeme, it is
+    looked up in the parser's header table, and if selected and a
+    paragraph header, is treated as the type of a paragraph header.
+    See details below.
+\medskip
+\hspace*{-0.2in}\ttmkey{paragraph header}{line beginning variable}\\
+    If not missing an no explicit
+\end{indpar}
+
+
 
 
 

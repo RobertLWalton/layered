@@ -2347,7 +2347,7 @@ with \TT{0} paragraph indent.
 A more detailed description of indented paragraphs is given
 in Section~\itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS}.
 
-An \key{nindented paragraph}
+An \key{unindented paragraph}
 begins with explicit or implicit \skey{paragraph header},
 which is a prefix separator such as the `\TT{\{p\}}'s in
 \begin{indpar}\begin{verbatim}
@@ -2365,18 +2365,23 @@ beginning of a logical line that is itself either at the
 beginning of an indented paragraph or just after a blank line
 that follows another logical line.
 
-At any time there is also a
-`\key{current default paragraph header}', which if present
-(not equal to \TT{MISSING}), is inserted at the beginning of
+While an indented paragraph is being scanned, there is a
+`\key{default paragraph header}', which if
+not \TT{MISSING}, is inserted at the beginning of
 any logical line where a paragraph header can appear but does
 not appear.
+There is also a `\key{paragraph head scanner}' lexical
+master table index, which when not \TT{0} specifies a special
+lexical scan performed at the beginning of the logical
+line that can identify implicit paragraph headers based on
+the first characters in the logical line.
 
 An unindented paragraph ends with the next blank line that
 follows a logical line, or when the indented paragraph that
 contains the unindented paragraph ends (this can be at an
 end of file).
 
-More details on paragraph headers are given in
+Details on paragraph headers are given in
 Section~\itemref{PARAGRAPH-AND-LINE-HEADERS}.
 
 \subsection{Parser Symbol Table}
@@ -4283,11 +4288,46 @@ is just alternate syntax for
 \subsubsection{Paragraph and Line Headers}
 \label{PARAGRAPH-AND-LINE-HEADERS}
 
-A \key{prefix header} is a {\em typed-prefix-separator} that
-begins a logical line and has a selected type (according
-to the current parser selectors) in the parser's
-\key{prefix header table}.
+A \key{paragraph header} is a prefix separator that begins
+an unindented paragraph.  A \key{line header} is a prefix
+separator that begins a logical line.  These can be either
+explicit or implicit.  We consider the explicit case first.
 
+At the beginning of a logical line a \key{line beginning algorithm} described
+in detail below is run to
+identify paragraph and line headers.  In the absence of
+implicit headers, the algorithm parses the beginning of
+the logical line to see if it begins with a prefix separator.
+If yes, the type of this is looked up in the parser
+\key{header table} to see if it is a paragraph or line
+header.  It may or may not be.
+
+The prefix separator can only be a paragraph header if the
+logical line occurs as the first logical line of an indented
+paragraph or occurs just after a blank line that itself is
+just after a logical line in the indented paragraph.  Note
+that here a blank line is any sequence of blank and comment
+lines containing at least one blank line, where a comment
+line is a line containing only a comment, but comment lines
+are not considered to be blank.
+
+In addition, to be recognized as a paragraph header, the
+type of the prefix separator must be the name of an entry
+in the parser header table that is selected by the current
+parser selectors (see the line beginning algorithm) and
+is marked as a paragraph header (as opposed to begin marked
+as a line header).
+
+If an explicit paragraph header is recognized at the beginning
+of a logical line, it is used to reset the data used
+line beginning algorithm, and then that algorithm looks for
+a following line header.  If no explicit paragraph header is
+recognized, the line is outside any unindented paragraph, and
+the algorithm looks for a line header. 
+
+
+
+TBD
 
 \begin{indpar}[0.5in]
 

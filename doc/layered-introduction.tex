@@ -4357,11 +4357,11 @@ The \key{line beginning algorithm} uses the following context
     paragraph header, is treated as the type of a paragraph header.
     See details below.
 \\[1ex]
-\hspace*{-0.2in}\ttmkey{default paragraph header}{line beginning variable}\\
+\hspace*{-0.2in}\ttmkey{paragraph header}{line beginning variable}\\
     If not \TT{MISSING} and no explicit paragraph header is found at the
     beginning of a logical line that is in paragraph beginning position,
     then a prefix separator token whose value is a
-    copy of this default paragraph header is inserted
+    copy of this paragraph header variable may be inserted
     at the beginning of the logical line.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{line selectors}{line beginning variable}\\
@@ -4378,12 +4378,17 @@ The \key{line beginning algorithm} uses the following context
     line header, is treated as the type of a line header.
     See details below.
 \\[1ex]
-\hspace*{-0.2in}\ttmkey{default line header}{line beginning variable}\\
+\hspace*{-0.2in}\ttmkey{line header}{line beginning variable}\\
     If not \TT{MISSING} and no explicit paragraph header is found at the
     beginning of a logical line that is \underline{not} in paragraph beginning
     position, then a prefix separator token whose value is a
-    copy of this default line header is inserted
+    copy of this line header may be inserted
     at the beginning of the logical line.
+\\[1ex]
+\hspace*{-0.2in}\ttmkey{instruction}{line beginning variable}\\
+    An instruction specifying what to do at the beginning of a
+    logical line.  This is only used if no explicit paragraph
+    header or line header is found.
 
 \end{indpar}
 
@@ -4410,10 +4415,36 @@ and may have any string as a value.  If the string is empty, ignore
 the lexeme.  Otherwise look it up in the parser's header table using
 the current parsing selectors, and accepting only entries that
 are paragraph headers if the logical line is in paragraph beginning
-position, or are line header otherwise.
+position, or are line headers otherwise.
 
-If the result of this lookup is an accepted entry, execute the
-instructions specified by this entry (see below).
+If the result of this lookup is an accepted entry, reset all the
+line beginning variables from values in this entry.
+
+\item If the lexical index is \TT{0} or the header lexeme
+returned was empty, scan the beginning of the logical line to see
+if it starts with a prefix separator.  If yes, look up the type
+of the prefix separator in the parser's header table using
+the current parsing selectors, and accepting only entries that
+are paragraph headers if the logical line is in paragraph beginning
+position, or are line headers otherwise.
+
+If the result of this lookup is an accepted entry, reset all the
+line beginning variables from values in this entry.
+
+Note that it is assumed that if the lexical index is not \TT{0}
+and the logical line begins with a prefix separator (e.g.,
+begins with `\TT{\{}'), that the returned header lexeme will be
+empty and therefore ignored.
+
+\item If the last step found an accepted entry that is only a
+paragraph header and not a line header, reset the current parsing
+selectors to the line beginning variable line selectors,
+scan the next part of the logical line to see if it is a second
+prefix header whose type is selected as a line header in the
+parser's header table, and if yes, reset all the line beginning
+variables from values in this entry.
+
+\item Execute the instruction now in the line beginning variables.
 
 \end{enumerate}
 
@@ -4423,14 +4454,6 @@ instructions specified by this entry (see below).
 
 TBD
 
-\begin{indpar}[0.5in]
-
-\hspace*{-0.2in}\ttmkey{default header}{prefix header type option} \\
-    If a prefix header type has this option flag, then any
-    prefix separator with the type that begins a logical line
-    becomes the default prefix header.
-
-\end{indpar}
 
 \subsubsection{The Print Bracket Command}
 

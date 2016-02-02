@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 1, 2016
+February 2, 2016
  
 \end{center}
 
@@ -4334,6 +4334,11 @@ line header, and a line header is looked for at the beginning
 of every logical line, even those not a the beginning of an
 indented paragraph and not preceeded by a blank line.
 
+A logical line is said to be in \key{paragraph beginning position}
+if it is the first logical line of an indented paragraph,
+or is after sequence of blank and comment lines that contains
+a blank line and that follows a logical line.
+
 The \key{line beginning algorithm} uses the following context
 \skey{line beginning variable}s:
 
@@ -4341,14 +4346,12 @@ The \key{line beginning algorithm} uses the following context
 
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line beginning variable}\\
     The parsing selectors are set to this value at the beginning
-    of a logical line that is the first logical line of an indented
-    paragraph or is just after a blank line that follows a logical line.
+    of a logical line that is in paragraph beginning position.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{paragraph lexical index}{line beginning variable}\\
     If not \TT{0}, the lexical analyzer master is reset to this value
-    at the beginning
-    of a logical line that is the first logical line of an indented
-    paragraph or is just after a blank line that follows a logical line.
+    at the beginning of a logical line that is in paragraph beginning
+    position.
     A lexeme is then read.  If this lexeme is a header lexeme, it is
     looked up in the parser's header table, and if selected and a
     paragraph header, is treated as the type of a paragraph header.
@@ -4356,22 +4359,20 @@ The \key{line beginning algorithm} uses the following context
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{default paragraph header}{line beginning variable}\\
     If not \TT{MISSING} and no explicit paragraph header is found at the
-    beginning of a logical line that is the first of its indented
-    paragraph or is after a blank line that follows a logical line
-    in the paragraph, then a prefix separator token whose value is a
+    beginning of a logical line that is in paragraph beginning position,
+    then a prefix separator token whose value is a
     copy of this default paragraph header is inserted
     at the beginning of the logical line.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{line selectors}{line beginning variable}\\
     The parsing selectors are set to this value at the beginning
-    of a logical line that is not the first logical line of an indented
-    paragraph and is not just after a blank line that follows a logical line.
+    of a logical line that is \underline{not} in paragraph beginning
+    position.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line lexical index}{line beginning variable}\\
     If not \TT{0}, the lexical analyzer master is reset to this value
-    at the beginning
-    of a logical line that is not the first logical line of an indented
-    paragraph and is not just after a blank line that follows a logical line.
+    at the beginning of a logical line that is \underline{not} in
+    paragraph beginning position.
     A lexeme is then read.  If this lexeme is a header lexeme, it is
     looked up in the parser's header table, and if selected and a
     line header, is treated as the type of a line header.
@@ -4379,13 +4380,42 @@ The \key{line beginning algorithm} uses the following context
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{default line header}{line beginning variable}\\
     If not \TT{MISSING} and no explicit paragraph header is found at the
-    beginning of a logical line that is not the first of its indented
-    paragraph and is not after a blank line that follows a logical line
-    in the paragraph, then a prefix separator token whose value is a
+    beginning of a logical line that is \underline{not} in paragraph beginning
+    position, then a prefix separator token whose value is a
     copy of this default line header is inserted
     at the beginning of the logical line.
 
 \end{indpar}
+
+The \key{line beginning algorithm} is run at the beginning of
+a logical line and is as follows:
+
+\begin{enumerate}
+
+\item Set the current parsing selectors to the paragraph selectors
+if the line is in paragraph beginning position, or to the
+line selectors otherwise.
+
+\item Set the current lexical index to the paragraph lexical index
+if the line is in paragraph beginning position, or to the
+line lexical index otherwise.
+
+\item If the current lexical index is not \TT{0}, use it to scan
+a lexeme.  In this situation the next character input to the lexical
+scanner will be the first non-whitespace character of a non-blank,
+non-comment line, and the lexeme returned will depend upon the
+next sequence of characters in the input, but the input itself will
+not be consumed.  The returned lexeme must have header lexical type,
+and may have any string as a value.  If the string is empty, ignore
+the lexeme.  Otherwise look it up in the parser's header table using
+the current parsing selectors, and accepting only entries that
+are paragraph headers if the logical line is in paragraph beginning
+position, or are line header otherwise.
+
+If the result of this lookup is an accepted entry, execute the
+instructions specified by this entry (see below).
+
+\end{enumerate}
 
 
 

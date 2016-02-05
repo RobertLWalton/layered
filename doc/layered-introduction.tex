@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 2, 2016
+February 5, 2016
  
 \end{center}
 
@@ -4344,10 +4344,6 @@ The \key{line beginning algorithm} uses the following context
 
 \begin{indpar}[0.4in]
 
-\hspace*{-0.2in}\ttmkey{paragraph selectors}{line beginning variable}\\
-    The parsing selectors are set to this value at the beginning
-    of a logical line that is in paragraph beginning position.
-\\[1ex]
 \hspace*{-0.2in}\ttmkey{paragraph lexical index}{line beginning variable}\\
     If not \TT{0}, the lexical analyzer master is reset to this value
     at the beginning of a logical line that is in paragraph beginning
@@ -4358,17 +4354,12 @@ The \key{line beginning algorithm} uses the following context
     See details below.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{paragraph header}{line beginning variable}\\
-    If not \TT{MISSING} and no explicit paragraph header is found at the
+    If not missing and no explicit paragraph header is found at the
     beginning of a logical line that is in paragraph beginning position,
     then a prefix separator token whose value is a
     copy of this paragraph header variable may be inserted
     at the beginning of the logical line.
 \\[2ex]
-\hspace*{-0.2in}\ttmkey{line selectors}{line beginning variable}\\
-    The parsing selectors are set to this value at the beginning
-    of a logical line that is \underline{not} in paragraph beginning
-    position.
-\\[1ex]
 \hspace*{-0.2in}\ttmkey{line lexical index}{line beginning variable}\\
     If not \TT{0}, the lexical analyzer master is reset to this value
     at the beginning of a logical line that is \underline{not} in
@@ -4379,46 +4370,64 @@ The \key{line beginning algorithm} uses the following context
     See details below.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line header}{line beginning variable}\\
-    If not \TT{MISSING} and no explicit paragraph header is found at the
+    If not missing and no explicit paragraph header is found at the
     beginning of a logical line that is \underline{not} in paragraph beginning
     position, then a prefix separator token whose value is a
     copy of this line header may be inserted
     at the beginning of the logical line.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{line selectors}{line beginning variable}\\
+    The parsing selectors are set to this value at the beginning
+    of a logical line that is \underline{not} in paragraph beginning
+    position.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{instruction}{line beginning variable}\\
     An instruction specifying what to do at the beginning of a
-    logical line.  This is only used if no explicit paragraph
-    header or line header is found.
+    logical line.  Currently this contains only one optional
+    command: `\key{reset}'.
 
 \end{indpar}
 
-The \key{line beginning algorithm} is run at the beginning of
+The line beginning variables are initialized according to the
+indentation mark the introduced the indented paragraph.  For
+top level the indeces are \TT{0}, the headers are missing,
+the line selectors are the parser's default selectors,
+and there are no instructions.
+
+In addition to the line beginning variables, there are selectors
+set by the indentation mark, which do not change while parsing
+the indented paragraph.  We will call these the \key{paragraph
+selectors}.  For top level these are the parser's default selectors.
+
+The \key{line beginning algorithm} run at the beginning of
 a logical line and is as follows:
 
 \begin{enumerate}
 
-\item Set the current parsing selectors to the paragraph selectors
-if the line is in paragraph beginning position, or to the
-line selectors otherwise.
+\item If the logical line is not in paragraph beginning position,
+skip to Step~\ref{LOGICAL-LINE-BEGINNING}.
 
-\item Set the current lexical index to the paragraph lexical index
-if the line is in paragraph beginning position, or to the
-line lexical index otherwise.
-
-\item If the current lexical index is not \TT{0}, use it to scan
+\item If the paragraph lexical index is not \TT{0}, use it to scan
 a lexeme.  In this situation the next character input to the lexical
 scanner will be the first non-whitespace character of a non-blank,
 non-comment line, and the lexeme returned will depend upon the
 next sequence of characters in the input, but the input itself will
 not be consumed.  The returned lexeme must have header lexical type,
-and may have any string as a value.  If the string is empty, ignore
-the lexeme.  Otherwise look it up in the parser's header table using
-the current parsing selectors, and accepting only entries that
-are paragraph headers if the logical line is in paragraph beginning
-position, or are line headers otherwise.
+and may have any string as a value.
 
-If the result of this lookup is an accepted entry, reset all the
-line beginning variables from values in this entry.
+If the string is empty, or the paragraph lexical index was \TT{0},
+skip to Step~\ref{PREFIX-SEPARATOR-SCAN}.
+
+Otherwise look it up in the parser's header table and
+accept an entry if it is a paragaph header entry selected by the
+paragraph selectors.
+
+If no entry is selected, skip to Step~\ref{PREFIX-SEPARATOR-SCAN}.
+
+Otherwise reset all the line beginning variables from values in this entry
+(see below for details).  Then if the paragraph header is not missing,
+insert a \TT{PREFIX} token before the logical line containing a copy
+of the paragraph header as its value.
 
 \item If the lexical index is \TT{0} or the header lexeme
 returned was empty, scan the beginning of the logical line to see
@@ -4443,6 +4452,11 @@ scan the next part of the logical line to see if it is a second
 prefix header whose type is selected as a line header in the
 parser's header table, and if yes, reset all the line beginning
 variables from values in this entry.
+
+\item \label{PREFIX-SEPARATOR-SCAN}
+
+\item \label{LOGICAL-LINE-BEGINNING}
+
 
 \item Execute the instruction now in the line beginning variables.
 

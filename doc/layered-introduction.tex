@@ -4407,7 +4407,18 @@ a logical line and is as follows:
 \item If the logical line is not in paragraph beginning position,
 skip to Step~\ref{LOGICAL-LINE-BEGINNING}.
 
-\item If the paragraph lexical index is not \TT{0}, use it to scan
+\item
+If the instruction contains a \ttkey{reset}, reset all the
+line beginning variables to the values they were set to
+(by the indentation mark) at the
+beginning of the indented paragraph.
+
+\item
+If the paragraph lexical index is \TT{0},
+skip to Step~\ref{PARAGRAPH-HEADER-SCAN}.
+
+\item \label{PARAGRAPH-BEGINNING}
+Use the non-\TT{0} paragraph lexical index to scan
 a lexeme.  In this situation the next character input to the lexical
 scanner will be the first non-whitespace character of a non-blank,
 non-comment line, and the lexeme returned will depend upon the
@@ -4416,49 +4427,107 @@ not be consumed.  The returned lexeme must have header lexical type,
 and may have any string as a value.
 
 If the string is empty, or the paragraph lexical index was \TT{0},
-skip to Step~\ref{PREFIX-SEPARATOR-SCAN}.
-
-Otherwise look it up in the parser's header table and
-accept an entry if it is a paragaph header entry selected by the
-paragraph selectors.
-
-If no entry is selected, skip to Step~\ref{PREFIX-SEPARATOR-SCAN}.
-
-Otherwise reset all the line beginning variables from values in this entry
-(see below for details).  Then if the paragraph header is not missing,
-insert a \TT{PREFIX} token before the logical line containing a copy
-of the paragraph header as its value.
-
-\item If the lexical index is \TT{0} or the header lexeme
-returned was empty, scan the beginning of the logical line to see
-if it starts with a prefix separator.  If yes, look up the type
-of the prefix separator in the parser's header table using
-the current parsing selectors, and accepting only entries that
-are paragraph headers if the logical line is in paragraph beginning
-position, or are line headers otherwise.
-
-If the result of this lookup is an accepted entry, reset all the
-line beginning variables from values in this entry.
+skip to Step~\ref{PARAGRAPH-HEADER-SCAN}.
 
 Note that it is assumed that if the lexical index is not \TT{0}
 and the logical line begins with a prefix separator (e.g.,
-begins with `\TT{\{}'), that the returned header lexeme will be
-empty and therefore ignored.
+begins with `\TT{\{}'), then the returned header lexeme must be
+empty.
 
-\item If the last step found an accepted entry that is only a
-paragraph header and not a line header, reset the current parsing
-selectors to the line beginning variable line selectors,
-scan the next part of the logical line to see if it is a second
-prefix header whose type is selected as a line header in the
-parser's header table, and if yes, reset all the line beginning
-variables from values in this entry.
+Otherwise, if the string is not empty,
+look the string up in the parser's header table and
+accept an entry if it is a paragaph header entry selected by the
+paragraph selectors.
 
-\item \label{PREFIX-SEPARATOR-SCAN}
+If no entry is selected,
+skip to Step~\ref{INSERT-PARAGRAPH-HEADER}.
+
+Otherwise reset all the line beginning variables from values in the
+selected entry
+(see below for details), and go to Step~\ref{INSERT-PARAGRAPH-HEADER}.
+
+\item \label{PARAGRAPH-HEADER-SCAN}
+Parse the beginning of the logical line and produce the first
+token.
+
+If this is a \TT{PREFIX} token, look up the type of its value
+in the parser's header table.  Accept an entry if it has
+paragraph header type and is selected by the paragraph selectors.
+
+If the result of this lookup is an accepted entry, reset all the
+line beginning variables from values in this entry (see details
+below), and go to Step~\ref{LINE-HEADER-SCAN} (thereby implicitly
+taking the value of the line lexical index to be \TT{0} even if it is not).
+
+\item \label{INSERT-PARAGRAPH-HEADER}
+
+If the paragraph header is not missing,
+insert a \TT{PREFIX} token containing a copy of the paragraph header
+at the beginning of the logical line.  This becomes the paragraph header
+token for that line.
 
 \item \label{LOGICAL-LINE-BEGINNING}
+If the line lexical index is \TT{0},
+skip to Step~\ref{LINE-HEADER-SCAN}.
+
+\item
+Use the non-\TT{0} line lexical index to scan
+a lexeme, in the same manner as in Step~\ref{PARAGRAPH-BEGINNING}.
+The returned lexeme must have header lexical type,
+and may have any string as a value.  (Note that if the
+line lexical index equals the paragraph lexical index used in
+Step~\ref{PARAGRAPH-BEGINNING}, the lexeme and its string value
+returned in Step~\ref{PARAGRAPH-BEGINNING} can be used as the
+result of this, without repeating the lexical scan.)
 
 
-\item Execute the instruction now in the line beginning variables.
+If the string is empty,
+skip to Step~\ref{LINE-HEADER-SCAN}.
+
+Otherwise look the string up in the parser's header table and
+accept an entry if it is a line header entry selected by the
+line selectors.
+
+If no entry is selected, skip to Step~\ref{INSERT-LINE-HEADER}.
+
+Otherwise reset just the line header and line selectors
+line beginning variables from values in the
+selected entry (see below for details), and
+go to Step~\ref{INSERT-LINE-HEADER}.
+
+\item \label{LINE-HEADER-SCAN}
+Unless the beginning of the logical line was parsed
+in Step~\ref{PARAGRAPH-HEADER-SCAN} and
+produced a first token that was \underline{not} a paragraph
+header, parse the beginning of the yet-unparsed
+original logical line and produce the first token.
+More explicitly, start the parse just after any \TT{PREFIX} token
+inserted or accepted as a paragraph header, or at the beginning
+of the logical line if there is no inserted or accepted
+paragraph header.
+
+If the first token found is a \TT{PREFIX} token, look up the type of its value
+in the parser's header table.  Accept an entry if it has
+line header type and is selected by the line selectors.
+
+If no entry is selected, skip to Step~\ref{INSERT-LINE-HEADER}.
+
+Otherwise reset just the line header and line selectors
+line beginning variables from values in the
+selected entry (see below for details),
+and skip to Step~\ref{TERMINATE-LINE-BEGINNING}.
+
+\item \label{INSERT-LINE-HEADER}
+
+If the line header is not missing,
+insert a \TT{PREFIX} token containing a copy of the line header
+at the beginning of the logical line.  This becomes the line header
+token for that line.
+
+\item \label{TERMINATE-LINE-BEGINNING}
+Terminate the line beginning algorithm, and continue the parse
+of the logical line.
+
 
 \end{enumerate}
 

@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 5, 2016
+February 6, 2016
  
 \end{center}
 
@@ -4303,41 +4303,37 @@ If yes, the type of this is looked up in the parser
 header.  It may or may not be.
 
 The prefix separator can only be a paragraph header if the
-logical line occurs as the first logical line of an indented
-paragraph or occurs just after a blank line that itself is
-just after a logical line in the indented paragraph.  Note
-that here a blank line is any sequence of blank and comment
-lines containing at least one blank line, where a comment
-line is a line containing only a comment, but comment lines
-are not considered to be blank.
+logical line is in \key{paragraph beginning position}.
+This means it is the first logical line of an indented paragraph,
+or is after sequence of blank and comment lines that contains
+a blank line and that follows a logical line.
+Here a \key{comment line} is a line that contains nothing
+but a single comment.
 
 In addition, to be recognized as a paragraph header, the
 type of the prefix separator must be the name of an entry
-in the parser header table that is selected by the current
-parser selectors (see the line beginning algorithm) and
+in the parser header table that is selected by paragraph
+selectors (see below) and
 is marked as a paragraph header (as opposed to being marked
 as a line header).
 
 If an explicit paragraph header is recognized at the beginning
-of a logical line, it is used to reset the context data used by the
+of a logical line, it is used to reset the line beginning variables
+used by the
 line beginning algorithm (see below), and then that algorithm looks for
 a following line header.  If no explicit paragraph header is
-recognized, the line beginning algorithm considers the possibility
-that there might be an implicit paragraph header, and if so, inserts
-it (see below for detail).  In any case,
-the algorithm continues by looking for a line header. 
+recognized, the line beginning algorithm may insert
+an implicit paragraph header; see below for details.
+In any case, the algorithm continues by looking for a line header. 
 
 The procedure for looking for a line header is analogous to that
 of looking for a paragraph header.  Differences are that any
 entry found in the parser's header table must be marked as a
 line header, and a line header is looked for at the beginning
-of every logical line, even those not a the beginning of an
-indented paragraph and not preceeded by a blank line.
-
-A logical line is said to be in \key{paragraph beginning position}
-if it is the first logical line of an indented paragraph,
-or is after sequence of blank and comment lines that contains
-a blank line and that follows a logical line.
+of every logical line (for lines in paragraph beginning
+position, the line header is looked for after any explicit
+paragraph header), and the line header entry must be selected
+by line selectors (see below).
 
 The \key{line beginning algorithm} uses the following context
 \skey{line beginning variable}s:
@@ -4357,7 +4353,7 @@ The \key{line beginning algorithm} uses the following context
     If not missing and no explicit paragraph header is found at the
     beginning of a logical line that is in paragraph beginning position,
     then a prefix separator token whose value is a
-    copy of this paragraph header variable may be inserted
+    copy of this paragraph header variable is inserted
     at the beginning of the logical line.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{line lexical index}{line beginning variable}\\
@@ -4370,11 +4366,12 @@ The \key{line beginning algorithm} uses the following context
     See details below.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line header}{line beginning variable}\\
-    If not missing and no explicit paragraph header is found at the
-    beginning of a logical line that is \underline{not} in paragraph beginning
-    position, then a prefix separator token whose value is a
-    copy of this line header may be inserted
-    at the beginning of the logical line.
+    If not missing and no explicit line header is found at the
+    beginning of a logical line,
+    then a prefix separator token whose value is a
+    copy of this line header is inserted
+    at the beginning of the logical line (after any paragraph
+    header if the line is in paragraph beginning position).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{line selectors}{line beginning variable}\\
     The parsing selectors are set to this value at the beginning
@@ -4384,13 +4381,13 @@ The \key{line beginning algorithm} uses the following context
 \hspace*{-0.2in}\ttmkey{instruction}{line beginning variable}\\
     An instruction specifying what to do at the beginning of a
     logical line.  Currently this contains only one optional
-    command: `\key{reset}'.
+    command: `\key{paragraph reset}'.
 
 \end{indpar}
 
 The line beginning variables are initialized according to the
-indentation mark the introduced the indented paragraph.  For
-top level the indeces are \TT{0}, the headers are missing,
+indentation mark that introduced the indented paragraph.  For
+top level the indices are \TT{0}, the headers are missing,
 the line selectors are the parser's default selectors,
 and there are no instructions.
 
@@ -4490,8 +4487,8 @@ line selectors.
 
 If no entry is selected, skip to Step~\ref{INSERT-LINE-HEADER}.
 
-Otherwise reset just the line header and line selectors
-line beginning variables from values in the
+Otherwise reset just the line header
+line beginning variable from the value in the
 selected entry (see below for details), and
 go to Step~\ref{INSERT-LINE-HEADER}.
 
@@ -4512,8 +4509,8 @@ line header type and is selected by the line selectors.
 
 If no entry is selected, skip to Step~\ref{INSERT-LINE-HEADER}.
 
-Otherwise reset just the line header and line selectors
-line beginning variables from values in the
+Otherwise reset just the line header
+line beginning variable from a value in the
 selected entry (see below for details),
 and skip to Step~\ref{TERMINATE-LINE-BEGINNING}.
 

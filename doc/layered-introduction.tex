@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 6, 2016
+February 7, 2016
  
 \end{center}
 
@@ -4305,10 +4305,10 @@ header.  It may or may not be.
 The prefix separator can only be a paragraph header if the
 logical line is in \key{paragraph beginning position}.
 This means it is the first logical line of an indented paragraph,
-or is after sequence of blank and comment lines that contains
+or is after a sequence of blank and comment lines that contains
 a blank line and that follows a logical line.
 The \key{top level} is treaded as an indented paragraph with indentation \TT{0}.
-Here a \key{comment line} is a line that contains nothing
+A \key{comment line} is a line that contains nothing
 but a single comment.
 
 In addition, to be recognized as a paragraph header, the
@@ -4342,9 +4342,10 @@ The \key{line beginning algorithm} uses as context the following
 \begin{indpar}[0.4in]
 
 \hspace*{-0.2in}\ttmkey{paragraph lexical index}{line beginning variable}\\
-    If not \TT{0}, the lexical analyzer master is reset to this value
+    The lexical analyzer master is reset to this value
     at the beginning of a logical line that is in paragraph beginning
-    position, header lexeme is then read, and the string returned by
+    position.  Then if this lexical index is not \TT{0},
+    a header lexeme is read, and the string returned by
     this lexeme, if not empty, is looked up in the parser's header
     table to see if a selected paragraph header entry can be found
     and used to generate a paragraph header.  See details below.
@@ -4360,15 +4361,31 @@ The \key{line beginning algorithm} uses as context the following
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{line lexical index}{line beginning variable}\\
     This is similar to the paragraph lexical index, but is used
-    for all logical lines to generate a line header.
+    for all logical lines.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line header}{line beginning variable}\\
     This is similar to the paragraph header, but is used
-    to insert an implicit line header.
+    to possibly insert an implicit line header.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{header line selectors}{line beginning variable}\\
+    Parsing selectors determined by the paragraph header and used
+    as the current parsing selectors to parse headers in the paragraph.
+\\[1ex]
+\hspace*{-0.2in}\ttmkey{header line options}{line beginning variable}\\
+    Parsing options determined by the paragraph header and used
+    as the current parsing options to parse headers in the paragraph.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{line selectors}{line beginning variable}\\
     Parsing selectors determined by the paragraph header and used
-    as the current parsing selectors to parse lines in the paragraph.
+    as the current parsing selectors to parse the non-header
+    portions of lines in the paragraph.  These default to the header
+    line selectors.
+\\[1ex]
+\hspace*{-0.2in}\ttmkey{line options}{line beginning variable}\\
+    Parsing options determined by the paragraph header and used
+    as the current parsing options to parse the non-header portions
+    of lines in the paragraph.  These default to the header
+    line options.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{instruction}{line beginning variable}\\
     An instruction specifying what to do at the beginning of a
@@ -4380,40 +4397,48 @@ The \key{line beginning algorithm} uses as context the following
 The line beginning variables are initialized according to the
 indentation mark that introduced the indented paragraph.  For
 top level the lexical indices are \TT{0}, the headers are missing,
-the line selectors are the parser's default selectors,
+the selectors and options
+are the parser's default selectors and options,
 and there are no instructions.
 
 In addition to the line beginning variables, there are selectors
 set by the indentation mark, which do not change while parsing
-the indented paragraph.  We will call these the \key{paragraph
+the indented paragraph, and which are used to select paragraph
+header entries in the parser's header table.
+We will call these the \key{paragraph
 selectors}.  For top level these are the parser's default selectors.
 
 At the start of the \key{line beginning algorithm} the parser is
 at the beginning of a logical line.  As the algorithm executes,
-the parser may be asked once or twice produce the first token
-of the yet unparsed part of the logical line.
+the parser may be asked to produce the first one or
+two tokens of the the logical line.
 
 The line beginning algorithm is then as follows:
 
 \begin{enumerate}
+
+\item Reset the line selectors and options to equal the header line
+selectors and options (so by default the same selectors and options
+are used to scan the header and non-header portions of the line).
 
 \item If the logical line is not in paragraph beginning position,
 skip to Step~\ref{LOGICAL-LINE-BEGINNING}.
 
 \item
 If the instruction contains a \ttkey{paragraph reset}, reset all the
-    position.
 line beginning variables to the values they were set to
 (by the indentation mark) at the
 beginning of the indented paragraph.
 
-\item
-If the paragraph lexical index is \TT{0},
+\item \label{LEXICAL-INDEX-SET}
+Set the lexical scanner master table index to the paragraph lexical
+index if the line is in paragraph beginning position, and to the
+line lexical index otherwise.  Then if this is \TT{0},
 skip to Step~\ref{PARAGRAPH-HEADER-SCAN}.
 
 \item \label{PARAGRAPH-BEGINNING}
-Use the non-\TT{0} paragraph lexical index to scan
-a lexeme.  In this situation the next character input to the lexical
+Scan a lexeme (using the non-\TT{0} paragraph lexical index).
+In this situation the next character input to the lexical
 scanner will be the first non-whitespace character of a non-blank,
 non-comment line, and the lexeme returned will depend upon the
 next sequence of characters in the input, but the input itself will
@@ -4453,33 +4478,35 @@ below), then reset the paragraph header variable to the copy of
 the value of the \TT{PREFIX} token, and
 lastly go to Step~\ref{LINE-HEADER-SCAN}.
 
-(Note that going to Step~\ref{LINE-HEADER-SCAN} implicitly
-takes the value of the line lexical index to be \TT{0} even if it is not.
-This allows the lexical scanner to scan parts of the
-logical line beyond the paragraph header that was found
-before that paragraph header is processed in this step.)
-
+Note that going to Step~\ref{LINE-HEADER-SCAN} implies that
+the entire logical line will be scanned according to the
+paragraph lexical index, and the line lexical index will be
+ignored.
 
 \item \label{INSERT-PARAGRAPH-HEADER}
 
-If the paragraph header is not missing,
+If the paragraph header variable value is not missing,
 insert a \TT{PREFIX} token containing a copy of the paragraph header
-at the beginning of the logical line.  This becomes the paragraph header
-token for that line.
+variable value at the beginning of the logical line.
+This becomes the paragraph header token for that line.
 
 \item \label{LOGICAL-LINE-BEGINNING}
-If the line lexical index is \TT{0},
+If the lexical index
+set in Step~\label{LEXICAL-INDEX-SET}
+was \TT{0},
 skip to Step~\ref{LINE-HEADER-SCAN}.
 
 \item
-Use the non-\TT{0} line lexical index to scan
-a lexeme, in the same manner as in Step~\ref{PARAGRAPH-BEGINNING}.
+Scan a lexeme (using the non-\TT{0} line lexical index)
+in the same manner as in Step~\ref{PARAGRAPH-BEGINNING}.
 The returned lexeme must have header lexical type,
 and may have any string as a value.  (Note that if the
 line lexical index equals the paragraph lexical index used in
 Step~\ref{PARAGRAPH-BEGINNING}, the lexeme and its string value
 returned in Step~\ref{PARAGRAPH-BEGINNING} can be used as the
-result of this, without repeating the lexical scan.)
+result of this, without repeating the lexical scan.  Note
+also that this step only executes if the parser has not
+attempted to parse any part of the logical line.)
 
 If the string is empty,
 skip to Step~\ref{LINE-HEADER-SCAN}.
@@ -4488,8 +4515,9 @@ Otherwise look the string up in the parser's header table and
 accept an entry if it is a line header entry selected by the
 line selectors.
 
-If an entry was accepted, reset just the line header
-line beginning variable from the value in the
+If an entry was accepted, reset the line header, line selectors,
+and line options
+line beginning variables from the values in the
 accepted entry (see below for details).
 
 Go to Step~\ref{INSERT-LINE-HEADER}.
@@ -4507,21 +4535,23 @@ If this token is a \TT{PREFIX} token, look up the type of its value
 in the parser's header table.  Accept an entry if it has
 line header type and is selected by the line selectors.
 
-If an entry was accepted, reset just the line header
-line beginning variable to a copy of the value of the token
-(ignoring the accepted entry contents),
+If an entry was accepted, reset the line header
+line beginning variable to a copy of the value of the token,
+reset the line selectors and line options
+line beginning variables from the values in the
+accepted entry (see below for details),
 and skip to Step~\ref{TERMINATE-LINE-BEGINNING}.
 
 \item \label{INSERT-LINE-HEADER}
 
-If the line header is not missing,
-insert a \TT{PREFIX} token containing a copy of the line header
+If the line header variable value is not missing,
+insert a \TT{PREFIX} token containing a copy of the line header variable value
 at the beginning of the logical line.  This becomes the line header
 token for that line.
 
 \item \label{TERMINATE-LINE-BEGINNING}
 Terminate the line beginning algorithm, and continue the parse
-of the logical line.
+of the logical line using the line selectors and line options.
 
 
 \end{enumerate}

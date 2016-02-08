@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 7, 2016
+February 8, 2016
  
 \end{center}
 
@@ -4290,82 +4290,111 @@ is just alternate syntax for
 
 A \key{paragraph header} is a prefix separator that begins
 an unindented paragraph.  A \key{line header} is a prefix
-separator that begins a logical line.  These can be either
-explicit or implicit.  We consider the explicit case first.
+separator that begins a logical line.
 
-At the beginning of a logical line a \key{line beginning algorithm} described
-in detail below is run to
-identify paragraph and line headers.  In the absence of
-implicit headers, the algorithm parses the beginning of
-the logical line to see if it begins with a prefix separator.
-If yes, the type of this is looked up in the parser
-\key{header table} to see if the prefix separator is a paragraph or line
-header.  It may or may not be.
+These headers can be in one of three forms:
 
-The prefix separator can only be a paragraph header if the
-logical line is in \key{paragraph beginning position}.
+\begin{center}
+\begin{tabular}{l}
+bracketed headers, which are typed paragraph separators
+		   as per Section~\itemref{TYPED-PREFIX-SEPARATORS} \\
+lexical headers \\
+implicit headers
+\end{tabular}
+\end{center}
+
+A logical line that begins an unindented paragraph is said to be
+in \key{paragraph beginning position}.
 This means it is the first logical line of an indented paragraph,
 or is after a sequence of blank and comment lines that contains
 a blank line and that follows a logical line.
-The \key{top level} is treaded as an indented paragraph with indentation \TT{0}.
+The \key{top level} is treated as an indented paragraph with indentation \TT{0}.
 A \key{comment line} is a line that contains nothing
 but a single comment.
 
-In addition, to be recognized as a paragraph header, the
-prefix separator's type must be the name of an entry
-in the parser header table that is selected by paragraph
-selectors (see below) and
-is marked as a paragraph header (as opposed to being marked
-as a line header).
+At the beginning of each logical line, the lexical scanner master table
+index is reset to the value of a context variable as described below.
+The lexical scanner may then produce two special types of lexeme at
+the beginning of the logical line:
 
-If an explicit paragraph header is recognized at the beginning
-of a logical line, it is used to reset the line beginning variables
-used by the
-line beginning algorithm (see below), and then that algorithm looks for
-a following line header.  If no explicit paragraph header is
-recognized, the line beginning algorithm may insert
-an implicit paragraph header; see below for details.
-In either case, the algorithm continues by looking for a line header. 
+\begin{center}
+\begin{tabular}{l}
+\key{paragraph header lexeme} \\
+\key{line header lexeme} \\
+\end{tabular}
+\end{center}
 
-The procedure for looking for a line header is analogous to that
-of looking for a paragraph header.  Differences are that any
-entry found in the parser's header table must be marked as a
-line header, a line header is looked for at the beginning
-of every logical line (for lines in paragraph beginning
-position, the line header is looked for after any explicit
-paragraph header), and the line header entry must be selected
-by line selectors (see below).
+The lexical scanner produces these \skey{header lexeme}s by looking
+at the first non-whitespace characters of the logical line.  But no
+line characters are actually consumed.  So for example, if the
+line begins with `\TT{========}', a pargraph header lexeme indicating
+a table paragraph might be produced, followed by a line header lexeme
+indication a table line, but none of the line beginning `\TT{=}'
+characters will be skipped over while producing these header lexeme.
+In short, the scanner will peek ahead but not read ahead.
 
-The \key{line beginning algorithm} uses as context the following
-\skey{line beginning variable}s:
+If the logical line is in paragraph beginning position, a paragraph header
+lexeme followed by a line header lexeme may be produced, or either or
+both may be omitted.  If the logical line is not in
+paragraph beginning position, only a line header lexeme may be produced.
+In any case, header lexemes can only be produced at the beginning of
+a logical line and at most one of each type can be produced.
+Also, if either is produced, the logical line may not begin with a typed
+prefix separator opening bracket (e.g., may not begin with `\TT{\{}').
+
+After resetting the the lexical scanner master table index,
+the parser reads the beginning of the logical line and looks for
+headers.  If the line begins with lexical headers, the line cannot contain
+bracketed headers.  If the line does not begin with lexical headers,
+the parser looks for bracketed headers which may or may not be present.
+If neither a present, the parser uses context variables as described
+below to optionally insert implied headers.
+
+Lexical headers have a value that is looked up in the parser's
+\key{header table}.  If there is no selected entry with
+this value, then the lexical header is ignored as if it did not
+exist.  Similarly the type of any prefix separator that might be
+a bracketed header is looked up, and if there is no selected entry with
+this type, then the prefix separator is treated as a non-header.
+
+The parser algorithm that does all this is called
+the \key{line beginning algorithm}.  This algorithm makes use
+of variables called the \skey{line beginning variable}s.
+
+When a bracketed or lexical paragraph header is recognized as
+having a selected header table entry, the line beginning
+variables are reset according to values in that table entry.
+Similarly when a bracketed or lexical line header is recognized as
+having a selected header table entry, the some of the line beginning
+variables are reset according to values in that table entry.
+
+We next list the \skey{line beginning variable}s, and after that
+spell out the line beginning algorithm in detail.
 
 \begin{indpar}[0.4in]
 
 \hspace*{-0.2in}\ttmkey{paragraph lexical index}{line beginning variable}\\
-    The lexical analyzer master is reset to this value
-    at the beginning of a logical line that is in paragraph beginning
-    position.  Then if this lexical index is not \TT{0},
-    a header lexeme is read, and the string returned by
-    this lexeme, if not empty, is looked up in the parser's header
-    table to see if a selected paragraph header entry can be found
-    and used to generate a paragraph header.  See details below.
-\\[1ex]
+\hspace*{-0.2in}\ttmkey{line lexical index}{line beginning variable}\\
+    The lexical analyzer master is reset to one of these values
+    at the beginning of a logical line.  If the line is in paragraph
+    beginning position, the paragraph lexical index is used.  Otherwise
+    the line lexical index is used.
+\\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph header}{line beginning variable}\\
-    If not missing and no explicit paragraph header is found at the
+    If this value is not missing
+    and no bracketed or lexical paragraph header is found at the
     beginning of a logical line that is in paragraph beginning position,
-    and no implicit paragraph header is generated by using the
-    paragraph lexical index,
-    then a prefix separator token whose value is a
+    then a bracketed header token whose value is a
     copy of this paragraph header variable is inserted
     at the beginning of the logical line.
-\\[2ex]
-\hspace*{-0.2in}\ttmkey{line lexical index}{line beginning variable}\\
-    This is similar to the paragraph lexical index, but is used
-    for all logical lines.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line header}{line beginning variable}\\
-    This is similar to the paragraph header, but is used
-    to possibly insert an implicit line header.
+    If this value is not missing
+    and no bracketed or lexical line header is found where one
+    might occur,
+    then a bracketed header token whose value is a
+    copy of this line header variable is inserted
+    where the line header would otherwise be.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{header line selectors}{line beginning variable}\\
     Parsing selectors determined by the paragraph header and used

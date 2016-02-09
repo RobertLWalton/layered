@@ -4303,13 +4303,89 @@ implicit headers
 \end{tabular}
 \end{center}
 
+Unindented paragraphs are contained in indented paragraphs.
+The \key{top level} is treated as an indented paragraph with indentation \TT{0}.
+
+Consider the example:
+\begin{indpar}\begin{verbatim}
+{itemize: indent = 5em, mark = "*"}
+{item}1 chicken 
+{item}1 tablespoon olive oil
+{item}1 tablespoon paprika
+
+a potato
+1 tablespoon butter
+
+=============
+| 1 chicken |
+-------------
+| 1 tablespoon olive oil |
+-
+| 1 tablespoon paprika
+=
+\end{verbatim}\end{indpar}
+
+Here there are 3 unindented paragraphs inside the top level indented
+paragraph.  The first unindented paragraph has bracketed
+paragraph header `\TT{\{itemize\}}' and line headers `\TT{\{item\}}'
+for each of its logical lines.  The second has the same headers but
+they are implied.  The third unindented paragraph has lexical headers:
+the first line begins with `\TT{====}' which causes
+\begin{center}
+\TT{\{table\}\EOL\{line\}}
+\end{center}
+to be inserted at this line's beginning,
+and in subsequent lines `\TT{|}' inserts `\TT{\{row\}}'
+and both `\TT{-}' and `\TT{=}' insert `\TT{\{line\}}'.
+All this assumes there are appropriate entries in the parser's
+header table for `\TT{itemize}', `\TT{item}', `\TT{table}',
+`\TT{line}', and `\TT{row}', and that the lexical scanner has
+been programmed to produce special header lexemes in certain
+contexts.  To be specific about the latter, the scanner at top level must
+produce header lexemes labeled `\TT{table}' and `\TT{line}' upon
+seeing `\TT{====}' at the beginning of logical line following
+a blank line, and then for the remaining logical lines within this
+`\TT{table}' unindented paragraph, produce a header lexeme labeled
+`\TT{row}' for lines beginning with `\TT{|}' and a header lexeme
+labeled `\TT{line}' for lines beginning with `\TT{-}' or `\TT{=}'.
+
+The above example might be used to generate the output:
+
+\begin{indpar}
+\begin{indpar}[5em]
+\begin{itemize}
+\item[*] 1 chicken
+\item[*] 1 tablespoon olive oil
+\item[*] 1 tablespoon paprika
+\end{itemize}
+\end{indpar}
+
+\begin{indpar}[5em]
+\begin{itemize}
+\item[*] 1 potato
+\item[*] 1 tablespoon butter
+\end{itemize}
+\end{indpar}
+
+\begin{tabular}{|l|}
+\hline\hline
+1 chicken
+\\\hline
+1 tablespoon olive oil
+\\\hline
+1 tablespoon paprika
+\\\hline\hline
+\end{tabular}
+
+\end{indpar}
+
+
 A logical line that begins an unindented paragraph is said to be
 in \key{paragraph beginning position}.
 This means it is the first logical line of an indented paragraph,
 or is after a sequence of blank and comment lines that contains
 a blank line and that follows a logical line.
-The \key{top level} is treated as an indented paragraph with indentation \TT{0}.
-A \key{comment line} is a line that contains nothing
+Here a \key{comment line} is a line that contains nothing
 but a single comment.
 
 At the beginning of each logical line, the lexical scanner master table
@@ -4330,8 +4406,9 @@ line characters are actually consumed.  So for example, if the
 line begins with `\TT{========}', a pargraph header lexeme indicating
 a table paragraph might be produced, followed by a line header lexeme
 indication a table line, but none of the line beginning `\TT{=}'
-characters will be skipped over while producing these header lexeme.
-In short, the scanner will peek ahead but not read ahead.
+characters will be skipped over while producing these header lexemes.
+In short, the scanner will peek ahead but not read ahead when
+producing header lexemes.
 
 If the logical line is in paragraph beginning position, a paragraph header
 lexeme followed by a line header lexeme may be produced, or either or
@@ -4347,7 +4424,7 @@ the parser reads the beginning of the logical line and looks for
 headers.  If the line begins with lexical headers, the line cannot contain
 bracketed headers.  If the line does not begin with lexical headers,
 the parser looks for bracketed headers which may or may not be present.
-If neither a present, the parser uses context variables as described
+If neither are present, the parser uses context variables as described
 below to optionally insert implied headers.
 
 Lexical headers have a value that is looked up in the parser's
@@ -4359,13 +4436,13 @@ this type, then the prefix separator is treated as a non-header.
 
 The parser algorithm that does all this is called
 the \key{line beginning algorithm}.  This algorithm makes use
-of variables called the \skey{line beginning variable}s.
+of context variables called the \skey{line beginning variable}s.
 
 When a bracketed or lexical paragraph header is recognized as
 having a selected header table entry, the line beginning
 variables are reset according to values in that table entry.
 Similarly when a bracketed or lexical line header is recognized as
-having a selected header table entry, the some of the line beginning
+having a selected header table entry, some of the line beginning
 variables are reset according to values in that table entry.
 
 We next list the \skey{line beginning variable}s, and after that
@@ -4384,7 +4461,7 @@ spell out the line beginning algorithm in detail.
     If this value is not missing
     and no bracketed or lexical paragraph header is found at the
     beginning of a logical line that is in paragraph beginning position,
-    then a bracketed header token whose value is a
+    then a \TT{PREFIX} token whose value is a
     copy of this paragraph header variable is inserted
     at the beginning of the logical line.
 \\[1ex]
@@ -4392,7 +4469,7 @@ spell out the line beginning algorithm in detail.
     If this value is not missing
     and no bracketed or lexical line header is found where one
     might occur,
-    then a bracketed header token whose value is a
+    then a \TT{PREFIX} token whose value is a
     copy of this line header variable is inserted
     where the line header would otherwise be.
 \\[2ex]
@@ -4407,14 +4484,14 @@ spell out the line beginning algorithm in detail.
     Also the default value for the line options below.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{line selectors}{line beginning variable}\\
-    Parsing selectors determined by the paragraph header and used
-    as the current parsing selectors to parse the non-header
+    Parsing selectors determined by the paragraph and line headers and used
+    as the current parsing selectors to parse the \underline{non-header}
     portions of lines in the paragraph.  These default to the header
     selectors.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line options}{line beginning variable}\\
-    Parsing options determined by the paragraph header and used
-    as the current parsing options to parse the non-header portions
+    Parsing options determined by the paragraph and line headers and used
+    as the current parsing options to parse the \underline{non-header} portions
     of lines in the paragraph.  These default to the header
     options.
 \\[1ex]
@@ -4427,7 +4504,8 @@ spell out the line beginning algorithm in detail.
 
 The line beginning variables are initialized according to the
 indentation mark that introduced the indented paragraph.  For
-top level the lexical indices are \TT{0}, the headers are missing,
+top level the paragraph lexical index is the parser's default
+lexical index, the line lexical index is \TT{0}, the headers are missing,
 the selectors and options
 are the parser's default selectors and options,
 and there are no instructions.  By convention, if the
@@ -4448,6 +4526,11 @@ the line have been scanned.
 The \key{line beginning algorithm} is then as follows:
 
 \begin{enumerate}
+
+\item If the logical line is in paragraph beginning position and
+the instruction variable value contains the paragraph reset command,
+reset all the line beginning variables to their values at the
+beginning of the indented paragraph.
 
 \item Set the lexical scanner master index to the paragraph lexical
 index if the logical line is in paragraph beginning position,
@@ -4474,16 +4557,16 @@ is a paragraph header lexeme:
 If the logical line is in paragraph beginning position,
 look up the lexeme string value (which is not part of the
 input, but is generated by the lexical scanner) in the parser's
-header table.  If an entry marked as a paragraph header is found
+header table.  If a table entry marked as a paragraph header is found
 that is selected by the paragraph selectors, reset all the
 line beginning variables according to values in the table entry
 (see below for details).
 
-Then if the paragraph header variable is not missing,
+Then if the paragraph header variable value is not missing,
 replace the paragraph header lexeme
 by a \TT{PREFIX} lexeme whose value is a copy of the
-paragraph header variable (which may have just been changed).
-Else if the paragraph header variable is missing, just
+paragraph header variable value (which may have just been changed).
+Else if the paragraph header variable value is missing, just
 discard the paragraph header lexeme.
 
 \item
@@ -4499,7 +4582,7 @@ is \underline{not} a paragraph header lexeme and the logical
 line is in paragraph beginning position, and if the paragraph
 header variable value is not missing, insert a \TT{PREFIX}
 lexeme at the beginning of the logical line whose value is a copy of the
-paragraph header variable.
+paragraph header variable value.
 
 \item
 If the first lexeme of the logical line was a paragraph header
@@ -4509,19 +4592,19 @@ look up the line header lexeme's string value (which is not part of the
 input, but is generated by the lexical scanner) in the parser's
 header table.
 
-If an entry marked as a line header is found
+If a table entry marked as a line header is found
 that is selected by the header selectors, reset the
 line header, line selectors, and line options
 line beginning variables according to values in the table entry
 (see below for details).
-If no such entry is found, reset the line selectors an options
+If no such entry is found, reset the line selectors and options
 from the header selectors and options.
 
-Then if the line header variable is not missing,
+Then if the line header variable value is not missing,
 replace the line header lexeme
 by a \TT{PREFIX} lexeme whose value is a copy of the
-line header variable (which may have just been changed).
-Else if the line header variable is missing, just
+line header variable value (which may have just been changed).
+Else if the line header variable value is missing, just
 discard the line header lexeme.
 
 \item
@@ -4536,8 +4619,10 @@ We come to this step only if there are no header lexemes.
 Parse the beginning of the logical line and produce the first
 token.
 
-If this is \underline{not} a \TT{PREFIX} token
-skip to Step~\ref{TERMINATE-LINE-BEGINNING}.
+If this is \underline{not} a \TT{PREFIX} token,
+skip to Step~\ref{INSERT-PARAGRAPH-HEADER} if the logical
+line is in paragraph beginning position, or
+skip to Step~\ref{INSERT-LINE-HEADER} otherwise.
 
 If the line is not in paragraph beginning position,
 skip to Step~\ref{LINE-HEADER-LOOKUP}.
@@ -4566,18 +4651,21 @@ This becomes the paragraph header token for that line.
 Then if there is a \TT{PREFIX} token that was not accepted
 as a paragraph header in Step~\ref{BRACKETED-HEADER-SCAN},
 skip to Step~\ref{LINE-HEADER-LOOKUP}.
+Else (if no \TT{PREFIX} token at all was found
+in Step~\ref{BRACKETED-HEADER-SCAN}),
+skip to Step~\ref{INSERT-LINE-HEADER}.
 
 \item \label{LINE-HEADER-SCAN}
 Parse the beginning of the yet-unparsed
 part of the logical line and produce the next token.
 If this token is \underline{not} a \TT{PREFIX} token,
-skip to Step~\ref{TERMINATE-LINE-BEGINNING}.
+skip to Step~\ref{INSERT-LINE-HEADER}.
 
 \item \label{LINE-HEADER-LOOKUP}
 Look up the type of the value of the \TT{PREFIX} token
 previously found that was not accepted as a paragraph
-header in the parser's header table.  Accept an entry if it has
-line header type and is selected by the line selectors.
+header in the parser's header table.  Accept a table entry if it has
+line header type and is selected by the header selectors.
 
 If an entry was accepted, reset the line header
 line beginning variable to a copy of the value of the token,
@@ -4596,7 +4684,7 @@ token for that line.
 Copy the header selectors and options to the line selectors and options.
 
 \item \label{TERMINATE-LINE-BEGINNING}
-Terminate the line beginning algorithm, and continue the parse
+Terminate the line beginning algorithm, and finish the parse
 of the logical line using the line selectors and line options.
 
 
@@ -4606,7 +4694,7 @@ of the logical line using the line selectors and line options.
 
 
 
-TBD
+TBD (header table)
 
 
 \subsubsection{The Print Bracket Command}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 13 18:51:36 EST 2016
+// Date:	Wed Feb 10 01:56:55 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -892,31 +892,55 @@ inline bool is_closed ( ll::parser::bracketed
            && p->closing_first != min::NULL_STUB;
 }
 
-struct line_data
-    // This can ONLY appear IN THE STACK as it contains
-    // a locatable_gen element.
-    //
-    // A non-NULL line_data pointer argument is passed
-    // to parse_bracketed_subexpressions ONLY if the
-    // latter is being asked to delimit a logical line.
+enum line_linstructions
+    // Line beginning algorithm instructions.
 {
-    ll::parser::table::flags selectors;
-        // Selectors to be set at beginning of line
-	// scan.  Equal to the selectors argument to
-	// the call to parse_bracketed_subexpression
-	// that scans a line, but unlike the selectors
-	// argument, this can be modified by parse_
-	// bracketed_subexpressions and the modified
-	// version used for scanning subsequent lines
-	// in the same pargraph or at the top level.
-    min::locatable_gen line_prefix;
-        // Line prefix to be used if line does not
-	// being with a line prefix, or MISSING if
-	// none.
-    min::uns32 lexical_master;
+    PARAGRAPH_RESET		= 1 << 0
+};
+
+struct line_variables
+    // This can ONLY appear IN THE STACK as it contains
+    // locatable_gen elements.
+    //
+    // A non-NULL line_variables pointer argument is
+    // passed to parse_bracketed_subexpression ONLY if
+    // the latter is being asked to delimit a logical
+    // line.  The data in line_variables can be modified
+    // by such a call to parse_bracketed_subpexression
+    // for use in subsequent parsing.
+{
+    // The selectors argument to parse_bracketed_sub-
+    // expression is the selectors and options set by
+    // the indentation mark for the indented paragraph
+    // containing the line.  These are also referred
+    // to as the paragraph selectors.
+
+    min::uns32 paragraph_master;
+    min::uns32 line_master;
         // Lexical master table index to be used to
-	// scan logical line lexical prefixes, or
-	// 0 if none.
+	// scan a logical line in paragraph beginning
+	// or non-paragraph beginning position,
+	// respectively.  Default to 0.
+
+    min::locatable_gen paragraph_header;
+        // Default header for paragraph with no
+	// explicit bracketed or lexical header.
+	// Defaults to MISSING.
+    min::locatable_gen line_header;
+        // Default line for paragraph with no
+	// explicit bracketed or lexical header.
+	// Defaults to MISSING.
+
+    ll::parser::table::flags header_selectors;
+        // Selectors and options set by paragraph
+	// header.  Defaults to paragraph selectors.
+    ll::parser::table::flags line_selectors;
+        // Selectors and options set by line header.
+	// Defaults to header selectors.
+
+    min::uns32 instructions;
+        // Optional line beginning algorithm instruc-
+	// tions (e.g. PARAGRAPH_RESET).  Defaults to 0.
 };
 
 min::position parse_bracketed_subexpression
@@ -928,8 +952,8 @@ min::position parse_bracketed_subexpression
 	      line_sep,
 	  ll::parser::bracketed::typed_data
 	      * typed_data,
-	  ll::parser::bracketed::line_data
-	      * line_data,
+	  ll::parser::bracketed::line_variables
+	      * line_variables,
 	  bracket_stack * bracket_stack_p  = NULL );
 
 } } }

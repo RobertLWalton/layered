@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 19 11:27:15 EST 2016
+// Date:	Wed Feb 10 02:39:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1701,7 +1701,7 @@ min::position BRA::parse_bracketed_subexpression
 	  min::int32 indent,
 	  BRA::line_sep line_sep,
 	  BRA::typed_data * typed_data,
-	  BRA::line_data * line_data,
+	  BRA::line_variables * line_variables,
 	  BRA::bracket_stack * bracket_stack_p )
 {
     BRA::bracketed_pass pass =
@@ -1923,8 +1923,19 @@ min::position BRA::parse_bracketed_subexpression
 
 		// Loop to parse paragraph lines.
 		//
-		BRA::line_data line_data;
-		line_data.selectors = new_selectors;
+		BRA::line_variables line_variables;
+		line_variables.paragraph_master = 0;
+		line_variables.line_master = 0;
+		line_variables.paragraph_header =
+		    min::MISSING();
+		line_variables.line_header =
+		    min::MISSING();
+		line_variables.header_selectors =
+		    new_selectors;
+		line_variables.line_selectors =
+		    new_selectors;
+		line_variables.instructions = 0;
+
 		while ( true )
 		{
 		    PAR::token previous =
@@ -1933,7 +1944,7 @@ min::position BRA::parse_bracketed_subexpression
 		      BRA::
 		       parse_bracketed_subexpression
 			    ( parser,
-			      line_data.selectors,
+			      new_selectors,
 			      current,
 			      paragraph_indent,
 				new_selectors
@@ -1943,7 +1954,7 @@ min::position BRA::parse_bracketed_subexpression
 			      (BRA::line_sep)
 			          min::NULL_STUB,
 			      NULL,
-			      & line_data,
+			      & line_variables,
 				new_selectors
 			      & PAR::EAOCLOSING_OPT  ?
 			      bracket_stack_p : NULL );

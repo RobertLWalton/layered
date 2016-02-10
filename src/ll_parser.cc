@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 17 02:10:23 EST 2016
+// Date:	Wed Feb 10 02:32:20 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1051,8 +1051,16 @@ void PAR::parse ( PAR::parser parser )
     // Top level loop.
     //
     bool first_lexeme = true;
-    BRA::line_data line_data;
-    line_data.selectors = parser->selectors;
+
+    BRA::line_variables line_variables;
+    line_variables.paragraph_master = 0;
+    line_variables.line_master = 0;
+    line_variables.paragraph_header = min::MISSING();
+    line_variables.line_header = min::MISSING();
+    line_variables.header_selectors = parser->selectors;
+    line_variables.line_selectors = parser->selectors;
+    line_variables.instructions = 0;
+
     while ( true )
     {
         if (   parser->error_count
@@ -1106,8 +1114,7 @@ void PAR::parse ( PAR::parser parser )
 	// Get subexpression.  First is the first token
 	// of the subexpression.
 
-	TAB::flags selectors = line_data.selectors;
-
+	TAB::flags selectors = parser->selectors;
 	{
 	    PAR::token current_save = current;
 	    TAB::key_prefix prefix =
@@ -1143,7 +1150,7 @@ void PAR::parse ( PAR::parser parser )
 		  parser->top_level_indentation_mark
 		        ->line_sep,
 		  NULL,
-		  & line_data );
+		  & line_variables );
 
 	PAR::token first =
 	    ( previous == min::NULL_STUB ?

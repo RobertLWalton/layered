@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 10, 2016
+February 12, 2016
  
 \end{center}
 
@@ -3515,6 +3515,10 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  {\em indentation-name} {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
 	  {}[ \TT{with parsing options} {\em end-at-options} ] \\
+	  {}[ \TT{with paragraph master} {\em master-index} ] \\
+	  {}[ \TT{with line master} {\em master-index} ] \\
+	  {}[ \TT{with paragraph header} {\em header} ] \\
+	  {}[ \TT{with line header} {\em header} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3539,6 +3543,11 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \\[0.5ex]
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+\\[0.5ex]
+\emkey{master-index} ::= unsigned integer
+	~~~~~ [see \pagref{LEXICAL-MASTER-INDEX}]
+\\[0.5ex]
+\emkey{header} ::= MIN object with \TT{.type} and no elements
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
 \end{indpar}

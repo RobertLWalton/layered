@@ -3545,9 +3545,11 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{master-index} ::= unsigned integer
-	~~~~~ [see \pagref{LEXICAL-MASTER-INDEX}]
+	~~~~~ [see \pagref{LEXICAL-MASTER-INDECES}
+	       and \pagref{HEADER-MASTERS} ]
 \\[0.5ex]
 \emkey{header} ::= MIN object with \TT{.type} and no elements
+	~~~~~ [see \pagref{HEADERS}]
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
 \end{indpar}
@@ -3586,6 +3588,10 @@ are the paragraph lines, whose \TT{.initiator} attribute
 is the {\em indentation-mark} that introduced the paragraph,
 and whose \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
 A paragraph may be empty (have no paragraph lines).
+
+The {\em master-index} and {\em header} parameters are used in the
+line beginning algorithm to generate implied unindented paragraph
+headers and line headers: see \pagref{LINE-BEGINNING-ALGORITHM}.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
@@ -4532,7 +4538,8 @@ At the start of the \key{line beginning algorithm} the parser is
 at the beginning of a logical line, and none of the lexemes in
 the line have been scanned.
 
-The \key{line beginning algorithm} is then as follows:
+The \key{line beginning algorithm}\label{LINE-BEGINNING-ALGORITHM}
+is then as follows:
 
 \begin{enumerate}
 

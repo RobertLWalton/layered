@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 12, 2016
+February 14, 2016
  
 \end{center}
 
@@ -4755,7 +4755,7 @@ Parser header table entries are defined and undefined by
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{master-index} ::= unsigned integer
-	~~~~~ [see \pagref{LINE-VARIABLES} ]
+	~~~~~ [see \pagref{LINE-VARIABLES}]
 \\[0.5ex]
 \emkey{header} ::= MIN object with \TT{.type} and no elements
 	~~~~~ [see \pagref{LINE-VARIABLES}]
@@ -4763,6 +4763,9 @@ Parser header table entries are defined and undefined by
 \emkey{instructions} ::= {\em parser-flag-list}
 \end{indpar}
 
+All parameters are permitted and used for paragraph headers,
+but only \TT{selectors}, \TT{options}, and the \TT{line header}
+parameters are permitted and used for line headers.
 
 \subsubsection{The Print Bracket Command}
 

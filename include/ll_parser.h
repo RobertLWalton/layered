@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 17 02:08:28 EST 2016
+// Date:	Sun Feb 14 03:17:55 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,6 +68,10 @@ namespace ll { namespace parser {
 	parser_lexeme,	// parser
 	data_lexeme,	// data
 	prefix_lexeme,	// prefix
+	header_lexeme,	// header
+	line_lexeme,	// line
+	paragraph_lexeme,
+			// paragraph
 	standard_lexeme,// standard
 	error_operator,	// ERROR'OPERATOR
 	error_operand,	// ERROR'OPERAND

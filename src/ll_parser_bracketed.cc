@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 03:08:08 EST 2016
+// Date:	Sun Feb 14 04:02:58 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -602,6 +602,11 @@ void BRA::push_header
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  TAB::new_flags new_selectors,
+	  min::gen paragraph_header,
+	  min::gen line_header,
+	  min::uns32 paragraph_master,
+	  min::uns32 line_master,
+	  TAB::flags instructions,
 	  TAB::key_table header_table )
 {
     min::locatable_var<BRA::header> header
@@ -612,6 +617,11 @@ void BRA::push_header
     header->block_level = block_level;
     header->position = position;
     header->new_selectors = new_selectors;
+    paragraph_header_ref(header) = header_label;
+    line_header_ref(header) = header_label;
+    header->paragraph_master = paragraph_master;
+    header->line_master = line_master;
+    header->instructions = instructions;
 
     TAB::push ( header_table, (TAB::root) header );
 }
@@ -4610,6 +4620,9 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
+	      min::MISSING(),
+	      min::MISSING(),
+	      0, 0, 0,
 	      bracketed_pass->header_table );
 	break;
     }

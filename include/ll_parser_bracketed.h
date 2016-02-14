@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 03:04:38 EST 2016
+// Date:	Sun Feb 14 03:58:10 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -554,11 +554,20 @@ struct header_struct
     // Packed_struct subtype is HEADER.
 
     ll::parser::table::new_flags new_selectors;
+    min::gen paragraph_header;
+    min::gen line_header;
+    min::uns32 paragraph_master;
+    min::uns32 line_master;
+    ll::parser::table::flags instructions;
 };
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::header )
 MIN_REF ( min::gen, label,
+          ll::parser::bracketed::header )
+MIN_REF ( min::gen, paragraph_header,
+          ll::parser::bracketed::header )
+MIN_REF ( min::gen, line_header,
           ll::parser::bracketed::header )
 
 // Create an header definition entry with given
@@ -571,6 +580,11 @@ void push_header
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  ll::parser::table::new_flags new_selectors,
+	  min::gen paragraph_header,
+	  min::gen line_header,
+	  min::uns32 paragraph_master,
+	  min::uns32 line_master,
+	  ll::parser::table::flags instructions,
 	  ll::parser::table::key_table header_table );
 
 

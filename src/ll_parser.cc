@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 10 02:32:20 EST 2016
+// Date:	Sun Feb 14 03:19:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,6 +64,9 @@ min::locatable_gen PAR::other_selectors;
 min::locatable_gen PAR::parser_lexeme;
 min::locatable_gen PAR::data_lexeme;
 min::locatable_gen PAR::prefix_lexeme;
+min::locatable_gen PAR::header_lexeme;
+min::locatable_gen PAR::line_lexeme;
+min::locatable_gen PAR::paragraph_lexeme;
 min::locatable_gen PAR::standard_lexeme;
 min::locatable_gen PAR::error_operator;
 min::locatable_gen PAR::error_operand;
@@ -151,6 +154,10 @@ static void initialize ( void )
     PAR::parser_lexeme = min::new_str_gen ( "parser" );
     PAR::data_lexeme = min::new_str_gen ( "data" );
     PAR::prefix_lexeme = min::new_str_gen ( "prefix" );
+    PAR::header_lexeme = min::new_str_gen ( "header" );
+    PAR::line_lexeme = min::new_str_gen ( "line" );
+    PAR::paragraph_lexeme =
+        min::new_str_gen ( "paragraph" );
     PAR::standard_lexeme =
         min::new_str_gen ( "standard" );
 

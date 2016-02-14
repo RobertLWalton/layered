@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 10 01:56:55 EST 2016
+// Date:	Sun Feb 14 03:04:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,7 @@
 //	Untyped Brackets
 //	Indentation Marks
 //	Typed Brackets
-//	Prefix Table Entries
+//	Header Table Entries
 //	Bracketed Subexpression Pass
 //	Parse Bracketed Subexpression Function
 
@@ -540,38 +540,38 @@ const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 6;
     // ATTR_FLAGS token.
 
 
-// Prefix Table Entries
+// Header Table Entries
 // ------ ----- -------
 
-struct prefix_struct;
-typedef min::packed_struct_updptr<prefix_struct> prefix;
-extern const uns32 & PREFIX;
-    // Subtype of min::packed_struct<prefix_struct>.
+struct header_struct;
+typedef min::packed_struct_updptr<header_struct> header;
+extern const uns32 & HEADER;
+    // Subtype of min::packed_struct<header_struct>.
 
-struct prefix_struct
+struct header_struct
     : public ll::parser::table::root_struct
 {
-    // Packed_struct subtype is PREFIX.
+    // Packed_struct subtype is HEADER.
 
     ll::parser::table::new_flags new_selectors;
 };
 
 MIN_REF ( ll::parser::table::root, next,
-          ll::parser::bracketed::prefix )
+          ll::parser::bracketed::header )
 MIN_REF ( min::gen, label,
-          ll::parser::bracketed::prefix )
+          ll::parser::bracketed::header )
 
-// Create an prefix definition entry with given
+// Create an header definition entry with given
 // label and new_selectors, and push it into the
-// given prefix_table.
+// given header_table.
 //
-void push_prefix
-	( min::gen prefix_label,
+void push_header
+	( min::gen header_label,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  ll::parser::table::new_flags new_selectors,
-	  ll::parser::table::key_table prefix_table );
+	  ll::parser::table::key_table header_table );
 
 
 // Bracketed Subexpression Pass
@@ -595,7 +595,7 @@ struct bracketed_pass_struct
         // Hash table for brackets and indentation
 	// marks.
 
-    const ll::parser::table::key_table prefix_table;
+    const ll::parser::table::key_table header_table;
         // Prefix table for logical line beginning
 	// prefaces.
 
@@ -628,7 +628,7 @@ MIN_REF ( ll::parser::pass, next,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::table::key_table, bracket_table,
           ll::parser::bracketed::bracketed_pass )
-MIN_REF ( ll::parser::table::key_table, prefix_table,
+MIN_REF ( ll::parser::table::key_table, header_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::bracketed
                     ::indentation_offset_stack,

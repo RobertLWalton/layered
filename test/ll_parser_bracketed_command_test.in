@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 17 11:12:03 EST 2016
+// Date:	Sun Feb 14 03:31:16 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -141,11 +141,11 @@ parser test:
 	    hi there
 	) end
 
-parser print prefix separator ""
-parser define prefix separator "X" [code]
+parser print header ""
+parser define header "X" [code]
        with parsing selectors [code, math]
-parser print prefix separator ""
-parser print prefix separator "X"
+parser print header ""
+parser print header "X"
 
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
        [code, text, math, parser]

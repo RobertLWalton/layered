@@ -686,15 +686,15 @@ parser test:
         ) end
         ^^^^^
 ======= END TEST
-parser print prefix separator "":
+parser print header "":
     not found
-parser define prefix separator "X" [code]
+parser define header "X" [code]
        with parsing selectors [code, math]
-parser print prefix separator "":
-    block standard: prefix "X" [code]
+parser print header "":
+    block standard: header "X" [code]
                     with parsing selectors [code, math]
-parser print prefix separator "X":
-    block standard: prefix "X" [code]
+parser print header "X":
+    block standard: header "X" [code]
                     with parsing selectors [code, math]
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
        [code, text, math, parser]

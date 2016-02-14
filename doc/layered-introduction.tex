@@ -4544,10 +4544,18 @@ is then as follows:
 
 \begin{enumerate}
 
-\item If the logical line is in paragraph beginning position and
+\item If the logical line is at the beginning of its indented paragraph,
+or if the logical line is in paragraph beginning position and
 the instruction variable value contains the paragraph reset command,
-reset all the line variables to their values at the
-beginning of the indented paragraph.
+then reset all the line variables as specified by the indentation
+mark the introduced the indented paragraph.  In particular, all
+selector and option line variables are reset by modifying the
+selectors and options in effect when the indentation mark was found
+by the selector and option changes associated with the indentation mark:
+see the parser indentation mark command on
+\pagref{PARSER-INDENTATION-MARK-COMMAND}.  This means that the paragraph
+selectors, header selectors, and line selectors are all set to the same
+value, and the header and line options are set to the same value.
 
 \item Set the lexical scanner master index to the paragraph lexical
 master if the logical line is in paragraph beginning position,
@@ -4708,12 +4716,8 @@ of the logical line using the line selectors and line options.
 \end{enumerate}
 
 
-
-
-
-TBD (header table)
-
-The general syntax of {\em parser-header-commands} is:
+Parser header table entries are defined and undefined by
+{\em parser-header-commands}:
 
 \begin{indpar}[0.1in]
 \emkey{parser-header-command}%
@@ -4740,6 +4744,8 @@ The general syntax of {\em parser-header-commands} is:
 	  \end{tabular} \\
     \end{tabular}
 \label{HEADER-DEFINITION}
+\\[0.5ex]
+\emkey{header-kind} ::= \TT{paragraph} $|$ \TT{line}
 \\[0.5ex]
 \emkey{header-name} ::= {\em quoted-name}
 \\[0.5ex]

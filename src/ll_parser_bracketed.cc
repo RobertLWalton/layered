@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 04:02:58 EST 2016
+// Date:	Tue Feb 16 04:04:36 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3439,6 +3439,8 @@ static min::gen bracketed_pass_command
         // define, undefine, or print.
     definition_type type;
         // Type of command (see above).
+    min::gen kind = min::MISSING();
+        // Kind of header, if it is a header.
     unsigned min_names, max_names;
         // Minimum and maximum number of names allowed.
 
@@ -3565,12 +3567,19 @@ static min::gen bracketed_pass_command
 	max_names = 4;
 	i += 2;
     }
-    else if ( vp[i] == PAR::header_lexeme )
+    else if ( ( vp[i] == PAR::paragraph_lexeme
+		||
+		vp[i] == PAR::line_lexeme )
+	       &&
+	       i + 1 < size
+	       &&
+	       vp[i+1] == PAR::header_lexeme )
     {
 	type = ::HEADER;
+	kind = vp[i];
 	min_names = 1;
 	max_names = 1;
-	++ i;
+	i += 2;
     }
     else
         return min::FAILURE();
@@ -3955,7 +3964,10 @@ static min::gen bracketed_pass_command
 		BRA::header header = (BRA::header) root;
 
 		parser->printer
-		    << "header "
+		    << ( header->instructions
+		         & BRA::LINE_HEADER ?
+			 "line" : "paragraph" )
+		    << " header "
 		    << min::pgen_quote
 		           ( header->label );
 
@@ -4578,6 +4590,10 @@ static min::gen bracketed_pass_command
     case ::HEADER:
     {
 	TAB::new_flags new_selectors;
+	min::uns32 instructions =
+	    ( kind == PAR::paragraph_lexeme ? 0 :
+	      BRA::LINE_HEADER );
+
 	while ( i < size && vp[i] == PAR::with )
 	{
 	    ++ i;
@@ -4622,7 +4638,8 @@ static min::gen bracketed_pass_command
 	      new_selectors,
 	      min::MISSING(),
 	      min::MISSING(),
-	      0, 0, 0,
+	      0, 0,
+	      instructions,
 	      bracketed_pass->header_table );
 	break;
     }

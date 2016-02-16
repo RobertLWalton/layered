@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 14, 2016
+February 16, 2016
  
 \end{center}
 
@@ -4734,7 +4734,7 @@ Parser header table entries are defined and undefined by
 	  {}[ \TT{with line master} {\em master-index} ] \\
 	  {}[ \TT{with paragraph header} {\em header} ] \\
 	  {}[ \TT{with line header} {\em header} ] \\
-	  {}[ \TT{with instructions} {\em instructions} ] \\
+	  {}[ \TT{with keep} {\em yes-or-no}\QMARK{} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine}{undefine header}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -4760,14 +4760,17 @@ Parser header table entries are defined and undefined by
 \emkey{header} ::= MIN object with \TT{.type} and no elements
 	~~~~~ [see \pagref{LINE-VARIABLES}]
 \\[0.5ex]
-\emkey{instructions} ::= {\em parser-flag-list}
+\emkey{yes-or-no} ::= \TT{yes} $|$ \TT{no} 
 \end{indpar}
 
 All parameters are permitted and used for paragraph headers,
-but only \TT{selectors}, \TT{options}, and the \TT{line header}
-parameters are permitted and used for line headers.
+but only the \TT{selectors}, \TT{options}, \TT{line header},
+and \TT{keep} parameters are permitted and used for line headers.
 
-\subsubsection{The Print Bracket Command}
+`\TT{with keep}' without a following {\em yes-or-no} defaults to `\TT{yes}',
+while the absence of any `\TT{with keep}' defaults to `\TT{no}'.
+
+\subsubsection{The Print Bracket and Header Commands}
 
 A {\em parser-print-bracket-command} has the syntax:
 
@@ -4793,6 +4796,21 @@ gluing-indentation-mark-name \\
 typed-opening
 \end{indpar}
 
+A {\em parser-print-header-command} has the syntax:
+
+\begin{indpar}
+\emkey{parser-print-header-command}%
+\label{PARSER-PRINT-HEADER-COMMAND}
+\\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{parser print header}{parser print header}
+	  {\em partial-name} \\
+    \end{tabular}
+\end{indpar}
+
+All bracket header symbol table entries are printed whose header name
+component includes the {\em partial-name}.
 
 \subsection{Parser Passes}
 

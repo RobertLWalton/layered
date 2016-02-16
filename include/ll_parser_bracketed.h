@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 03:58:10 EST 2016
+// Date:	Tue Feb 16 02:42:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -548,6 +548,15 @@ typedef min::packed_struct_updptr<header_struct> header;
 extern const uns32 & HEADER;
     // Subtype of min::packed_struct<header_struct>.
 
+enum line_linstructions
+    // Line beginning algorithm header kind (default is
+    // paragraph) and instructions.
+{
+    LINE_HEADER			= 1 << 0,
+    PARAGRAPH_KEEP		= 1 << 1,
+    LINE_KEEP			= 1 << 2
+};
+
 struct header_struct
     : public ll::parser::table::root_struct
 {
@@ -558,7 +567,7 @@ struct header_struct
     min::gen line_header;
     min::uns32 paragraph_master;
     min::uns32 line_master;
-    ll::parser::table::flags instructions;
+    min::uns32 instructions;
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -906,12 +915,6 @@ inline bool is_closed ( ll::parser::bracketed
            && p->closing_first != min::NULL_STUB;
 }
 
-enum line_linstructions
-    // Line beginning algorithm instructions.
-{
-    PARAGRAPH_RESET		= 1 << 0
-};
-
 struct line_variables
     // This can ONLY appear IN THE STACK as it contains
     // locatable_gen elements.
@@ -954,7 +957,7 @@ struct line_variables
 
     min::uns32 instructions;
         // Optional line beginning algorithm instruc-
-	// tions (e.g. PARAGRAPH_RESET).  Defaults to 0.
+	// tions (e.g. PARAGRAPH_KEEP).  Defaults to 0.
 };
 
 min::position parse_bracketed_subexpression

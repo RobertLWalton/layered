@@ -3962,6 +3962,11 @@ static min::gen bracketed_pass_command
 	    else if ( subtype == BRA::HEADER )
 	    {
 		BRA::header header = (BRA::header) root;
+		min::uns32 keep =
+		    ( header->instructions
+		      & BRA::LINE_HEADER ?
+		      BRA::LINE_KEEP :
+		      BRA::PARAGRAPH_KEEP );
 
 		parser->printer
 		    << ( header->instructions
@@ -3997,6 +4002,11 @@ static min::gen bracketed_pass_command
 			  parser->selector_name_table,
 			  parser, true );
 		}
+
+		if ( header->instructions & keep )
+		    parser->printer
+		        << min::indent
+			<< "with keep";
 	    }
 	    else
 	    {
@@ -4620,11 +4630,35 @@ static min::gen bracketed_pass_command
 			  "expected bracketed selector"
 			  " modifier list after" );
 	    }
+	    else if ( i < size
+		      &&
+		      vp[i] == PAR::keep_lexeme )
+	    {
+		++ i;
+		min::uns32 keep =
+		    ( kind == PAR::paragraph_lexeme ?
+		      BRA::PARAGRAPH_KEEP :
+		      BRA::LINE_KEEP );
+
+		if ( i == size )
+		    instructions |= keep;
+		else if ( i < size )
+		{
+		    if ( vp[i] == PAR::yes_lexeme )
+			instructions |= keep;
+		    else if ( vp[i] != PAR::no_lexeme )
+		    {
+			instructions |= keep;
+		    	-- i;
+		    }
+		    ++ i;
+		}
+	    }
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected `parsing selectors'"
-		      " after" );
+		      " or `keep' after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error

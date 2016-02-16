@@ -692,11 +692,24 @@ parser define paragraph header "X" [code]
        with parsing selectors [code, math]
 parser define line header "Y" [code]
        with parsing selectors [+ text]
+       with keep
+parser define paragraph header "Z" [math]
+       with parsing selectors [code]
+       with keep no
+parser define line header "W" [math]
+       with parsing selectors [code]
+       with keep yes
 parser print header "":
+    block standard: line header "W" [math]
+                    with parsing selectors [code]
+                    with keep
     block standard: paragraph header "X" [code]
                     with parsing selectors [code, math]
     block standard: line header "Y" [code]
                     with parsing selectors [+ text]
+                    with keep
+    block standard: paragraph header "Z" [math]
+                    with parsing selectors [code]
 parser print header "X":
     block standard: paragraph header "X" [code]
                     with parsing selectors [code, math]
@@ -715,52 +728,52 @@ parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
        with attribute multivalue initiator "[@"
        with prefix separators allowed
 ======= TEST: parser test {T: x = "5", y = "6"|A B C|T}
-------- line 167:
+------- line 174:
 parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 167:
+------- line 174:
 parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test {T: x[+-] = "5", y = {* "6", "7" *}|A B C|T}
-------- lines 168-169:
+------- lines 175-176:
 parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 | A B C |T}T2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines 168-169:
+------- lines 175-176:
 parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 | A B C |T}T2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test ({T||T} A B C)
-------- line 170:
+------- line 177:
 parser test (T1{T}T1 A B C)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 170:
+------- line 177:
 parser test (T1{T}T1 A B C)
             ^^^^^^^^^^^^^^^
-------- line 170:
+------- line 177:
 parser test (T1{T}T1 A B C)
              ^^^^^^^
 ======= END TEST
 ======= TEST: parser test ({T|A B C|T})
-------- line 171:
+------- line 178:
 parser test (T2{T}T2 A B C)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 171:
+------- line 178:
 parser test (T2{T}T2 A B C)
             ^^^^^^^^^^^^^^^
-------- line 171:
+------- line 178:
 parser test (T2{T}T2 A B C)
              ^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test {T: NO Z, X, W, NO Y|A B C D|T}
-------- line 172:
+------- line 179:
 parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 172:
+------- line 179:
 parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

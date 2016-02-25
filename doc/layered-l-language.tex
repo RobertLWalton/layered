@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 9, 2015
+February 25, 2016
  
 \end{center}
 
@@ -231,9 +231,10 @@ multi-file source code in a well-ordered and type-safe manner.
 \section{Types}
 \label{TYPES}
 
-The basic builtin types are the number and \TT{void} types.
+The basic builtin types are the number types and the \TT{void} type.
 All defined types are subtypes of these types.
-There is one builtin define typed, the `\TT{type}' type.
+There are two builtin defined subtypes, the `\TT{type}' type and
+the `\TT{qualifier}' type.
 
 \subsection{Number Types}
 \label{NUMBER-TYPES}
@@ -558,8 +559,10 @@ so that all such assignments for a given type within a linked load
 will be distinct.  The assignments occur when the code containing
 the statements is linked, not when that code is executed.
 
-These values should only be tested for equality, and not for
-relative order.
+These values can only be tested for equality, and not for
+relative order.  They can be tested for relative order by
+using unchecked conversions, though relative order may differ
+somewhat from one program execution to the next.
 
 If {\em last-enum} is not given, it is assumed to be the maximum
 value of the underlying type
@@ -594,11 +597,11 @@ enumeration value's type.
 
 The following are builtin enumeration types:
 \begin{indpar}
-\TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0 .. 1]} \\
+\TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0~..~1]} \\
 \ttkey{false}\TT{~= next bool // 0} \\
 \ttkey{true}\TT{~~= next bool // 1} \\
-\TT{type~}\ttkey{type}\TT{~is unswrd with enum [1 ..]} \\
-\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [1 ..]}
+\TT{type~}\ttkey{type}\TT{~is unswrd with enum [1~..]} \\
+\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [1~..]}
 \end{indpar}
 
 \subsection{Type Values}
@@ -1186,6 +1189,28 @@ the variables will be allocated to the specified registers or
 register groups.  Otherwise they will be allocated to target
 machine specified register groups based on variable type.
 
+\subsection{Compile-Time Assignment Statements}
+\label{COMPILE-TIME-ASSIGNMENT-STATEMENTS}
+
+\ikey{Compile-time assignment statements}{compile-time assignment statement}
+run only once, when they are compiled, and produce variable values
+at compile time:
+
+\begin{indpar}
+\emkey{compile-time-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em variable-list} \TT{=} \}\QMARK{} ~~~ \ttkey{compile-time:} \\
+	\TT{~~~~}{\em executable-statement}\STAR{}
+	\end{tabular}
+\end{indpar}
+
+A compile-time block has its own stack, which is freed when the
+block finishes executing.
+
+Compile time blocks may only use compile time variables and values,
+but may use visible inline functions, out-of-line functions
+that have been declared to be compile-time, and global areas
+that have been declared to be compile-time.
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}

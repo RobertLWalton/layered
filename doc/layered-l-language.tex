@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 25, 2016
+February 26, 2016
  
 \end{center}
 
@@ -888,18 +888,16 @@ Furthermore, every variable in the
 {\em block-assignment-statement's} {\em variable-list}
 \underline{must} be assigned a value
 by exactly one of the {\em executable-statements}.
-Also the values of the variables in the {\em variable-list} cannot
-be input to any of the {\em executable-statements}.
+Also the value of one of these variables cannot
+be input to any of the {\em executable-statements} until the
+variable has been assigned a value by a previous one of the
+{\em executable-statements}.
 
 Variables allocated in the block are not visible outside the
-block.
-
-An assignment statement inside a block may assign to a variable name of the
-form `\TT{next} $v$' only if $v$ is allocated inside the
-stack of the block by another assignment statement in the block,
-or `\TT{next} $v$' is one of the variables in the block's
-{\em variable-list}.  In particular $v$ cannot be allocated before
-the block.
+block.  They may \underline{not} have the same name as a variable
+\TT{v} visible outside the block,  but may have the name `\TT{next v}'
+to indicate the next value of \TT{v} within the block.
+However, this `\TT{next v}' will not be visible outside the block.
 
 \subsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
@@ -953,8 +951,11 @@ uses the execution of earlier default blocks to disable the
 execution of later default blocks.
 
 Every variable in the {\em variable-list} \underline{must} be set by some
-single subblock that executes, variables in the
-{\em variable-list} cannot be read by subblock {\em executable-statements},
+single subblock that executes.  A variable in the
+{\em variable-list} cannot be read by a subblock {\em executable-statement}
+unless it is set by a previous {\em executable-statement} in the
+same subblock.
+
 and variables declared in the subblocks are not visible outside their
 subblock.
 
@@ -1059,8 +1060,8 @@ either the \TT{initially} subblock sets \TT{v}
 and the `\TT{while}' subblock sets `\TT{next v}',
 or the \TT{initially} subblock sets both \TT{v} and `\TT{next v}'
 and the `\TT{while}' subblock sets `\TT{next next v}'.
-Values of `\TT{next next v}' may be stored in the memory
-of an iteration that will never be executed.
+Values of `\TT{next v}' and `\TT{next next v}' may be stored in
+the stack memory of an iteration that will never be executed.
 
 The \TT{finally} subblock executes at the end using the iteration
 variable values that would be used for an additional iteration,
@@ -1072,14 +1073,12 @@ the previous iteration (if any), and the next two iterations.
 When the third iteration of the loop starts, the first
 iteration can be discarded, and so forth.
 
-The stacks of loop subblocks may be deallocated by the time the
-\TT{loop} block finished executing.
-The stack of a loop iteration subblock may be deallocated by the time the
+The stack (\itemref{STACK-MANAGEMENT})
+of a loop iteration subblock may be deallocated by the time the
 iteration subblock finishes executing.
 However, deallocation of some of these stacks may be deferred by
 an implementation, which may allow debuggers to look at them
 in some circumstances.
-See \itemref{STACK-MANAGEMENT}.
 
 
 \subsection{Call Assignment Statements}
@@ -1205,6 +1204,47 @@ by adding internally generated {\em function-type-name}
 and {\em function-name},
 and then this statement is executed as a {call-assign\-ment-statement}
 using the {\em function-name} and deleting the {\em executable-statements}.
+
+\subsection{Compile-and-Run Assignment Statements}
+\label{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}
+
+A \key{compile-and-run assignment statement} computes a set of
+variables that have values constant in a block, then compiles
+the block using these constant values to optimize the compilation,
+and lastly runs the block:
+
+\begin{indpar}
+\emkey{compile-and-run-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em variable-list} \TT{=} \}\QMARK{}
+		~\ttkey{compile-and-run} \TT{:} \\
+	\TT{~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~do:} \\
+	\TT{~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+The variable values are set by the {\em assignment-statements}.
+Then the {\em executable-statements} are compiled, using
+the variable values to optimize the compilation.  Then the
+compiled code is executed.  The variables in the {\em variable-list}
+must have different names from the variables set by the
+{\em assigment-statements}, and the {\em variable-list}
+variables are set by the {\em executable-statements} as for
+a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
+If a variable \TT{v} is set by an {\em assignment-statement},
+`\TT{next v}' can be set by an {\em executable-statement}, but
+this will be a new variable whose value will not be available during
+the compilation.
+
+When the compile-and-run assigment statement is executed, the compiled
+code may be saved in a table indexed by the values of the
+variables set by the {\em assignment-statements}.  When the
+compile-and-run assigment statement is re-executed, if these
+variables have the same value they had during a previous execution,
+the compilation may be bypassed and the previously compiled code used.
+This optimization is permitted but not required.
+
 
 \subsection{Assembly Assignment Statements}
 \label{ASSEMBLY-ASSIGNMENT-STATEMENTS}

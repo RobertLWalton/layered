@@ -683,15 +683,14 @@ These values may change when more code is compiled or linked.
 One should never assume that a value of type \TT{T} is necessarily within
 the range given by these values.
 
-\hspace*{-0.3in}{\tt (bool value) = \ttkey{zero value OK}
+\hspace*{-0.3in}{\tt (T value) = \ttkey{default value of}
 			( type T )} \\
-Returns true if the zero value is an OK value for a variable
-of the type, and false
-otherwise.  Defined to return \TT{true} for builtin number types.
+Returns a suitable default value for type \TT{T}.
+Defined to return \TT{0} for builtin number types.
 Must be defined by user for defined types.  For use by allocators,
 such as a user defined function that allocates a vector whose
-elements are of type \TT{T} that wishes to give the elements the
-zero initial value.
+elements are of type \TT{T}, and the function wishes to give the elements an
+initial default value.
 \end{indpar}
 
 \section{Functions}
@@ -699,7 +698,9 @@ zero initial value.
 
 All functions are inline.  An inline function can call an out-of-line
 function by using
-a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS}).
+a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS})
+or the out-of-line assignment statement
+(\itemref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}).
 
 Function definitions have the form:
 
@@ -869,12 +870,12 @@ Another variant of the assignment statement is\index{block assignment}:
 \emkey{block-assignment-statement}
     ::= \begin{tabular}[t]{l}
         \{ {\em variable-list} \TT{=} \}\QMARK{}
-	\ttkey{block}\QMARK{} \TT{:} \\
+	\ttkey{do}\QMARK{} \TT{:} \\
 	\TT{~~~~}{\em executable-statement}\STAR{}
 	\end{tabular}
 \end{indpar}
 
-where \TT{block} may be omitted as long as \TT{=} is not omitted.
+where `\TT{do}' may be omitted as long as \TT{=} is not omitted.
 
 The {\em executable-statements} in the block can include
 {\em assignment-statements} in which {\em variable-declarations}
@@ -1111,8 +1112,6 @@ The results of the function call are stored in the
 A call assignment must have the \TT{*UNCHECKED*} option
 unless \TT{T} is declared by an out-of-line
 function type declaration of the form:
-\begin{center}
-\end{center}
 
 \begin{indpar}
 \emkey{function-type-declaration} ::= \\
@@ -1138,6 +1137,28 @@ conversion from the call block
 argument type to the prototype argument type,
 in which case the implied conversion will be invoked.
 
+Out-of-line functions are defined by declarations of the form:
+
+\begin{indpar}
+\emkey{out-of-line-function-declaration} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+		\TT{function}
+		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
+		\TT{~~~~~~~~}{\em call-assignment-option}\STAR{}
+		    {\em function-type-name} {\em function-name}\TT{:} \\
+		\TT{~~~~}{\em argument-variable-list}\STAR{} \\
+		\TT{~~~~do:} \\
+		\TT{~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+This defines {\em function-name} to be both a compile-time and run-time
+constant (with different values at compile and run time) of type
+{\em function-type-name} and also declares {\em function-type-name}
+after the manner of a {\em function-type-declaration}.  When the function
+is called, the {\em executable-statements} execute to produces the
+result variable values from the argument variable values.
+
 If there is no function prototype (so the call is \TT{*UNCHECKED*}),
 there is no matching of
 argument variable names to prototype variable names.  In this case
@@ -1159,6 +1180,31 @@ option.
 Normally the standard call linkage for the computer environment of
 the program is used.  Other implementation specific call options
 may alter the call linkage used.
+
+\subsection{Out-of-Line Assignment Statements}
+\label{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}
+
+An \key{out-of-line assignment statement} is like a combination of
+an {\em call-assignment-statement} with
+an {\em out-of-line-function-definition}:
+
+\begin{indpar}
+\emkey{out-of-line-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em variable-list} \TT{=} \}\QMARK{}
+	        {\em call-assignment-option}\STAR
+		~\ttkey{out-of-line} \TT{:} \\
+	\TT{~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~do:} \\
+	\TT{~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+An {\em out-of-line-function-declaration} is constructed from this statement
+by adding internally generated {\em function-type-name}
+and {\em function-name},
+and then this statement is executed as a {call-assign\-ment-statement}
+using the {\em function-name} and deleting the {\em executable-statements}.
 
 \subsection{Assembly Assignment Statements}
 \label{ASSEMBLY-ASSIGNMENT-STATEMENTS}
@@ -1934,6 +1980,9 @@ if is not recomputed.
 
 \section{Function Prototypes and Calls}
 \label{FUNCTION-PROTOTYPES-AND-CALLS}
+
+Implicit types and qualifiers.
+Type sets.  Conditions using qualifier and type sets.
 
 \section{TBD}
 

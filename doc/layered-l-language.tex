@@ -1905,22 +1905,41 @@ boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
 \label{THE-MEM-QUALIFIER}
 
 The \ttkey{mem} qualifier is a non-inverted protection qualifier that behaves
-in a special way when a variable \TT{v} has this qualifier and
-there is a variable \TT{v.adr} of type \TT{adr}.  Then the
+in a special way when it is given to a variable \TT{v}.
+In this situation \TT{v} is a copy of a RAM memory value and
+must be the root of a subcluster that
+has either:
+\begin{enumerate}
+\item
+A variable \TT{v.adr} of type \TT{adr} that is the RAM address of \TT{v}.
+
+\item
+A variable \TT{v.offset} of type \TT{intadr} or \TT{unsadr} and
+a variable \TT{v.base} of type \TT{adr} and qualifier \TT{mem}.
+In this case the RAM address of \TT{v} is \TT{v.base+v.offset} and
+\TT{v.base} must recursively be the root of a subcluster obeying
+these rules (so there must be either a \TT{v.base.adr} variable
+or \TT{v.base.offset} and \TT{v.base.base} variables, etc.).
+\end{enumerate}
+Then the
 variable \TT{v} must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
-from RAM address \TT{v.adr}.
+from its RAM address.
 
-Because \TT{mem} is a protection qualifier, \TT{v} and \TT{v.adr}
+Because \TT{mem} is a protection qualifier, \TT{v} and the required
+members of the cluster of which \TT{v} is a root
 must be created as matches to result variables of a function.
 So only functions can effect a load of RAM contents to a variable.
 
-It is further required that both \TT{v} and \TT{v.adr} be created
-by the same function call assignment statement, and that
-\TT{v.adr} be given the \TT{*UNCHECKED*} qualifier by that function
+It is further required that both \TT{v} and the required members of
+the cluster of which \TT{v} is a root be created
+by the same function call assignment statement, and that the required
+\TT{.offset} and \TT{.adr} variables in that cluster
+be given the \TT{*UNCHECKED*} qualifier by that function
 call asssignment statement.
-The function must assign a value to
-\TT{v.adr}, but not to \TT{v}.  Thus all memory reads are hidden
+The function must assign a value to these \TT{*UNCHECKED*} variables
+(but not the \TT{mem} qualified \TT{v} and \TT{.base} variables).
+Thus all memory reads are hidden
 inside functions which have the \TT{mem} qualifier on some of
 their result variables.
 

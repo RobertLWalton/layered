@@ -559,10 +559,11 @@ so that all such assignments for a given type within a linked load
 will be distinct.  The assignments occur when the code containing
 the statements is linked, not when that code is executed.
 
-These values can only be tested for equality, and not for
+These values can only be tested for equality and not for
 relative order.  They can be tested for relative order by
-using unchecked conversions, though relative order may differ
-somewhat from one program execution to the next.
+using unchecked conversions, and values created by compilation
+of a single module are guaranteed to be sequential in the order
+in which the `\TT{next enum}' expressions are compiled.
 
 If {\em last-enum} is not given, it is assumed to be the maximum
 value of the underlying type
@@ -1915,11 +1916,12 @@ A variable \TT{v.adr} of type \TT{adr} that is the RAM address of \TT{v}.
 
 \item
 A variable \TT{v.offset} of type \TT{intadr} or \TT{unsadr} and
-a variable \TT{v.base} of type \TT{adr} and qualifier \TT{mem}.
+a variable \TT{v.offset.base} of type \TT{adr} and qualifier \TT{mem}.
 In this case the RAM address of \TT{v} is \TT{v.base+v.offset} and
-\TT{v.base} must recursively be the root of a subcluster obeying
-these rules (so there must be either a \TT{v.base.adr} variable
-or \TT{v.base.offset} and \TT{v.base.base} variables, etc.).
+\TT{v.offset.base} must recursively be the root of a subcluster obeying
+these rules (so there must be either a \TT{v.offset.base.adr} variable
+or \TT{v.offset.base.offset} and \TT{v.offset.base.offset.base}
+variables, etc.).
 \end{enumerate}
 Then the
 variable \TT{v} must \underline{not} be given a value by an

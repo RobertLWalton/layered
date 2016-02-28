@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 27, 2016
+February 28, 2016
  
 \end{center}
 
@@ -1362,9 +1362,11 @@ Substacks cannot move independently,
 but move whenever their smallest containing free stack moves.
 Any stack address is relative to its containing free stack,
 which is the current free stack at the time executable code uses
-the stack address.  Thus builtin memory read-write functions add the
-current free stack address to any \TT{adr} value with the
-`\TT{stack}' qualifier that they use to access memory.
+the stack address.  To accommodate this builtin memory read-write
+functions with not only accept an \TT{adr} value as a RAM address,
+but also accept a RAM address consisting of an \TT{unsadr}
+offset within the stack and a stack base address that is itself
+stored in RAM.  See Section~\itemref{THE-MEM-QUALIFIER} for details.
 
 There are a couple of situations in which free stacks move.
 
@@ -1476,15 +1478,31 @@ statement.
 \label{STACK-MEMORY-ALLOCATION}
 
 The `\ttkey{allocate to stack}' function allocates \TT{N} bytes of
-memory to the current free stack and returns its address:
+memory to the current free stack and returns its offset within
+the stack and the address of the stack base address:
 
 \begin{indpar}\begin{verbatim}
-( stack adr address ) = allocate to stack ( unsadr N )
+( stack *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
+allocate to stack ( unsadr N )
 \end{verbatim}\end{indpar}\label{ALLOCATE-TO-STACK}
 
+Here `\TT{offset}' is the offset of the \TT{N} bytes within the
+stack, `\TT{offset.base}' is the base address of the stack, and
+stack, `\TT{offset.base.adr}' is the address of where this
+base address is stored in RAM.  The first and last of these
+are fixed but `\TT{offset.base}' may change when the stack is
+moved.
+
+The returned values are a cluster: see Section~\itemref{CLUSTERS}.
+Also used are the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER})
+and `\TT{*UNCHECKED*}' qualifier (see \itemref{THE-UNCHECKED-QUALIFIER}).
+
 The memory is freed when the free stack to which it is allocated
-is freed.
-To indicate this the address is given the \TT{stack} qualifier:
+is freed.  The memory containing the \TT{offset.base} value is
+also freed at this time.  The `\TT{stack}' qualifier is used to
+ensure that addresses of these values cannot survive the free stack:
 see \itemref{THE-STACK-QUALIFIER}.
 
 The memory allocated is always alligned on an \TT{8} byte boundary.
@@ -1492,7 +1510,9 @@ The memory allocated is always alligned on an \TT{8} byte boundary.
 If you want a different alignment you can use:
 
 \begin{indpar}\begin{verbatim}
-( stack adr address ) =
+( stack *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
     allocate to stack ( unsadr N, unsadr O, unsadr A )
 \end{verbatim}\end{indpar}
 
@@ -1562,25 +1582,30 @@ If \TT{A.V} is not defined, it is not a compile or link time error
 Memory within a global area can be allocated by:
 
 \begin{indpar}\begin{verbatim}
-( global adr address ) =
+( global *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
+    allocate to global ( unsadr N )
+( global *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
     allocate to global ( unsadr N, unsadr O, unsadr A )
-( global adr address ) = allocate to global ( unsadr N )
 \end{verbatim}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
 
-Here \TT{A} must a a power of \TT{2} but has no
-upper limit other than that imposed by the hardware and operating system.
+Here \TT{A} must a power of \TT{2} not greater than \TT{64}.
+Global areas are allocated on a \TT{64} byte boundary and
+may be moved during execution.
 
 The `\TT{allocate to global}' function plays the same role for
 global areas as the `\TT{allocate to stack}' function does for
 stacks, accept that the address gets the \TT{global} qualifier
 instead of the \TT{stack} qualifier.  The \TT{global} qualifier
 has no special properties and normally has no effect on code.
-Unlike stack addresses, global addresses are absolute and not
-relative.
 
 The code of a global area block is executed when the file containing it is
 loaded, and the stack of the area is allocated and defined at that
-time.  Global areas may be deallocated.  References to a global area
+time.  Global areas may be deallocated or moved during execution.
+References to a global area
 that is not yet allocated or that has been deallocated cause runtime
 errors (typically segmentation faults).
 
@@ -1632,31 +1657,46 @@ explicitly.  For example:
 \begin{indpar}\begin{verbatim}
 type pointer pair is void
     // if pointer pair pp then
-    //   adr pp.begin points at the first element
-    //   adr pp.end points just AFTER the last element
+    //   intadr pp.begin points at the first element
+    //   intadr pp.end points just AFTER the last element
+    //   adr pp.base is the address of the base address
     //   type pp.type is type of element
 
 // Function to allocate a vector of n T's to the stack.
 //
-( pointer pair pp,
-  stack adr pp.begin, stack adr pp.end, type pp.type ) =
+( stack pointer pair pp,
+  unsadr pp.begin,
+  unsadr pp.end,
+  adr pp.base,
+  type pp.type ) =
         allocate to stack ( type T, uns32 n ):
     pp.type = T
     require ( zero value OK ( T ) )
     unsadr length = size of ( T ) * n
-    pp.begin = allocate to stack ( length )
-    pp.end = pp.begin + length
+    ( unsadr offset, mem adr offset.base,
+                     adr offset.base.adr ) =
+        allocate to stack ( length )
+    pp.begin = offset
+    pp.end = offset + length
+    pp.base = offset.base.adr
 
 
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
-( mem pp.type out, *UNCHECKED* stack adr out.adr  ) =
+( mem pp.type out,
+  *UNCHECKED* stack out.offset,
+  mem adr out.offset.base,
+  *UNCHECKED* out.offset.base.adr ) =
         "*" ( stack pointer pair pp,
-              type pp.type, stack pp.begin, stack pp.end ):
-    out.adr = if:
+              type pp.type,
+	      unsadr pp.begin,
+	      unsadr pp.end,
+	      adr pp.base ):
+    ( out.offset, out.base.adr ) = if:
         pp.begin < pp.end:
-            out.adr = pp.begin
+            ( out.offset, out.offset.base.adr ) =
+	        ( pp.begin, pp.base )
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1664,12 +1704,16 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
-"*" ( pointer pair pp,
-      stack adr pp.begin, stack adr pp.end, type pp.type ) =
+"*" ( stack pointer pair pp,
+      unsadr pp.begin, unsadr pp.end, adr pp.base,
+      type pp.type ) =
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            in *UNCHECKED* ---> pp.begin
+	    unsadr offset = pp.begin
+	    adr mem offset.base
+	    adr offset.base.adr = pp.base
+            in *UNCHECKED* ---> offset
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1677,24 +1721,32 @@ type pointer pair is void
 // Prefix operator to increment the begin pointer of a
 // pointer pair.  Note the result is a NEW pointer pair.
 //
-( pointer pair pp2,
-  stack adr pp2.begin, stack adr pp2.end, type pp2.type ) =
-        "++" ( pointer pair pp,
+( stack pointer pair pp2,
+  unsadr pp2.begin, unsadr pp2.end,
+  adr pp2.base, type pp2.type )
+        "++" ( stack pointer pair pp,
                type pp.type,
-               stack adr pp.begin, stack adr pp.end ):
+               unsadr pp.begin, unsadr pp.end,
+	       adr pp.base ):
       pp2.begin = pp.begin + size of ( T )
       pp2.end = pp.end
+      pp2.base = pp.base
       pp2.type = pp.type
 
 // Assignment operator for pointer pairs.
 //
-( pointer pair pp2,
-  stack adr pp2.begin, stack adr pp2.end, type pp2.type ) =
-        "=" ( pointer pair pp,
+( stack pointer pair pp2,
+  unsadr pp2.begin,
+  unsadr pp2.end,
+  adr pp2.base,
+  type pp2.type ) =
+        "=" ( stack pointer pair pp,
               type pp.type,
-              stack adr pp.begin, stack adr pp.end ):
+              unsadr pp.begin, unsadr pp.end,
+	      adr pp.base ):
       pp2.begin = pp.begin
       pp2.end = pp.end
+      pp2.base = pp.base
       pp2.type = pp.type
 
 // Example usage:
@@ -1949,10 +2001,11 @@ their result variables.
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}
 
-The `\ttkey{stack}' qualifier is an inverted, non-inherited,
+The `\ttkey{stack}' qualifier is an inverted, inherited,
 protection qualifier
-attached to addresses returned by the builtin `\TT{allocate to stack}'
-function.  It is used to keep stack addresses from being stored in
+attached to offsets and addresses
+returned by the builtin `\TT{allocate to stack}'
+function.  It is used to keep these from being stored in
 non-stack memory and in stacks who lifetime exceeds that of the
 memory the stack address points at.
 
@@ -1971,7 +2024,8 @@ See Section~\itemref{STACK-MANAGEMENT} for more information.
 \label{THE-UNCHECKED-QUALIFIER}
 
 The \TT{*UNCHECKED*} qualifier is a non-inverted, non-inherited,
-protection qualifier that must qualify the \TT{v.adr} variable
+protection qualifier that must qualify the \TT{v.adr} or
+\TT{v.offset} variables
 associated with a variable \TT{v} that has the \TT{mem} qualifier.
 See Section~\itemref{THE-MEM-QUALIFIER}.
 

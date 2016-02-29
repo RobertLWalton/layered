@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 28, 2016
+February 29, 2016
  
 \end{center}
 
@@ -504,7 +504,8 @@ operations:
 \end{tabular}
 \end{center}
 These operators do not change the actual value, but merely its
-compile-time type.
+compile-time type.  Unchecked conversions in one direction only
+may be defined as desired.
 
 
 \subsection{Enumeration Values}
@@ -518,13 +519,21 @@ and then reassigned to possibly different unique integer values during linking.
 A statement of the following form defines an \key{enumeration type}
 that has enumeration values:
 \begin{center}
-\TT{type} {\em qualifier}\STAR{} {\em defined-type-name}
-    \TT{is} {\em builtin-type-name}
-    \TT{with enum} {\em enum-range}\QMARK{}
+\TT{type} {\em qualifier}\STAR{} {\em defined-enum-type-name}
+    \begin{tabular}[t]{l}
+    \TT{is} {\em base-enum-type-name} \\
+    \TT{with enum} {\em enum-range}\QMARK{} \\
+    \{ \TT{without implicit conversion} \}\QMARK
+    \end{tabular}
 \end{center}
 where
 \begin{center}
 \begin{tabular}{rrl}
+\emkey{base-enum-type-name}
+    & ::= & {\em builtin-number-type-name} \\
+    & $|$ & {\em enum-direction} {\em defined-enum-type-name} \\
+\emkey{enum-direction}
+    & ::= & \TT{next} $|$ \TT{previous} \\
 \emkey{enum-range}
     & ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
     & $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
@@ -536,22 +545,38 @@ where
 \end{tabular}
 \end{center}
 
+Here {\em first-enum} must be less than or equal to {\em last-enum}.
+If {\em last-enum} is not given, it is assumed to be the maximum
+value of the base enumeration type.
+If {\em first-enum} is not given, it is assumed to be the minimum
+value of the base enumeration type.
+If {\em enum-range} is not given,
+it is assumed to be `\TT[0 ..]'.
+
+
 Enumeration values can be assigned by statements of the form
 \begin{indpar}
 \emkey{enum-assignment}
-    ::= {\em type-name} {\em constant-name} \TT{=} \TT{next enum}
+    ::= {\em type-name} {\em constant-name} \TT{=} \TT{next enum} \\
+\emkey{enum-assignment}
+    ::= {\em type-name} {\em constant-name} \TT{=} \TT{previous enum}
 \end{indpar}
 
 Within a compilation the compiler assigns the value {\em first-enum}
-to the first constant named in an {\em enum-assignment} statement for
-the given type, and then for subsequent
-{\em enum-assignment} statements for the type
-assigns values in increasing order if {\em first-enum} < {\em last-enum}
-or the range `\TT{[} {\em first-enum} \TT{..} \TT{]}' was given,
-or in decreasing order if {\em first-enum} > {\em last-enum}
-or the range `\TT{[} \TT{..} {\em first-enum} \TT{]}' was given.
-The assignments occur when the statements are
-compiled, not when they are executed.
+to the first constant named in a `\TT{next enum}'
+{\em enum-assignment} statement for
+the given type, and then for subsequent such statements
+assigns values in increasing order.
+It is an error if `\TT{next~enum}'
+would return a value beyond the {\em last-enum} value in a range.
+
+Similarly the compiler assigns the value {\em last-enum}
+to the first constant named in a `\TT{previous enum}'
+{\em enum-assignment} statement for
+the given type, and then for subsequent such statements
+assigns values in decreasing order.
+It is an error if `\TT{previous~enum}'
+would return a value below the {\em first-enum} value in a range.
 
 Within a linked load the process is the same, but the values assigned
 to a constant may differ from those assigned during compilation,
@@ -559,42 +584,50 @@ so that all such assignments for a given type within a linked load
 will be distinct.  The assignments occur when the code containing
 the statements is linked, not when that code is executed.
 
-These values can only be tested for equality and not for
-relative order.  They can be tested for relative order by
-using unchecked conversions, and values created by compilation
-of a single module are guaranteed to be sequential in the order
-in which the `\TT{next enum}' expressions are compiled.
+Within a compilation module, all assignments to an enumeration type
+are done in the same order during linking as during compilation.
+Thus values assigned within the same module can be assumed to be
+in the same order at compile and link times.  Also,
+compile and link values
+can be assumed to be the same if all values of the enumeration type
+are assigned in the same compilation module.
 
-If {\em last-enum} is not given, it is assumed to be the maximum
-value of the underlying type
-if the range was given as `\TT{[} {\em first-enum} \TT{..} \TT{]}',
-and the minimum value of the underlying type
-if the range was given as `\TT{[} \TT{..} {\em first-enum} \TT{]}'.
-If {\em enum-range} is not given,
-it is assumed to be `\TT[0 ..]'.  It is an error if `\TT{next~enum}'
-would return a value beyond the {\em last-enum} value in a range.
+When the {\em base-enum-type-name} names another enumeration type,
+the {\em enum-range} given is mapped to a subrange of the
+base enumeration type.  More specifically,
+\begin{center}
+\TT{type X is next Y with enum [m~...~n]}
+\end{center}
+allocates
+the next \TT{n - m + 1} values of \TT{Y} as per `\TT{next enum}'
+and maps them to the values
+of \TT{X} beginning with \TT{m} and ending with \TT{n}.
+If `\TT{next}' is replaced by `\TT{previous}', the action is the
+same but the values of \TT{Y} are allocate as per `\TT{previous enum}'
+and mapped to the values
+of \TT{X} beginning with \TT{n} and ending with \TT{m}, so the order
+of values of \TT{X} is always the same as their order when they
+are viewed as values of \TT{Y}.
 
-The unchecked conversions
+The conversions
 \begin{center}
 \begin{tabular}{rcl}
-\TT{*UNCHECKED*} {\em builtin-type-name}
-	& \TT{<{}<++} & {\em defined-type-value} \\
-\TT{*UNCHECKED*} {\em defined-type-name}
-	& \TT{<{}<++} & {\em builtin-type-value} \\
+{\em base-enum-type-name}
+	& \TT{<{}<++} & {\em defined-enum-type-value} \\
+\TT{*UNCHECKED*} {\em base-enum-type-name}
+	& \TT{<{}<++} & {\em defined-enum-type-value} \\
+\TT{*UNCHECKED*} {\em defined-enum-type-name}
+	& \TT{<{}<++} & {\em base-enum-type-value} \\
 \end{tabular}
 \end{center}
-may be used to convert between enumeration values and integer values.
-Normally the integer
-returned will be the link time value of the enumeration value.
-However, if used in a compile-time expression, it will be the
-compile time value of the enumeration value.
+may be used to convert between enumeration values and their base enumeration
+values.
+It is an error if the result of one of these conversions is outside
+the range of the result enumeration type.
 
-Integer values being converted to enumeration values can be
-\underline{outside} the specified
-range of the enumeration value's type.  An implication of this
-is that the compiler and run-time system cannot assume that
-an enumeration value is within the range of the
-enumeration value's type.
+The implicit conversion is \underline{not} defined if the
+`\TT{without implicit conversion}' option is given in the
+enumeration type definition.
 
 The following are builtin enumeration types:
 \begin{indpar}

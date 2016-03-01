@@ -521,8 +521,8 @@ that has enumeration values:
 \begin{center}
 \TT{type} {\em qualifier}\STAR{} {\em defined-enum-type-name}
     \begin{tabular}[t]{l}
-    \TT{is} {\em base-enum-type-name} \\
-    \TT{with enum} {\em enum-range}\QMARK{} \\
+    \TT{is}~~~{\em base-enum-type-name} \\
+    \TT{with enum range}~~~{\em enum-range} \\
     \{ \TT{without implicit conversion} \}\QMARK
     \end{tabular}
 \end{center}
@@ -547,19 +547,16 @@ where
 
 Here {\em first-enum} must be less than or equal to {\em last-enum}.
 If {\em last-enum} is not given, it is assumed to be the maximum
-value of the base enumeration type.
+value provided by the base enumeration type.
 If {\em first-enum} is not given, it is assumed to be the minimum
-value of the base enumeration type.
-If {\em enum-range} is not given,
-it is assumed to be `\TT[0 ..]'.
-
+value provided by the base enumeration type.
 
 Enumeration values can be assigned by statements of the form
 \begin{indpar}
 \emkey{enum-assignment}
-    ::= {\em type-name} {\em constant-name} \TT{=} \TT{next enum} \\
+    ::= {\em enum-type-name} {\em constant-name} \TT{=} \TT{next enum} \\
 \emkey{enum-assignment}
-    ::= {\em type-name} {\em constant-name} \TT{=} \TT{previous enum}
+    ::= {\em enum-type-name} {\em constant-name} \TT{=} \TT{previous enum}
 \end{indpar}
 
 Within a compilation the compiler assigns the value {\em first-enum}
@@ -577,6 +574,9 @@ the given type, and then for subsequent such statements
 assigns values in decreasing order.
 It is an error if `\TT{previous~enum}'
 would return a value below the {\em first-enum} value in a range.
+
+It is also an error if for a given type the same value is returned
+by some \TT{next~enum} and also by some \TT{previous~enum}.
 
 Within a linked load the process is the same, but the values assigned
 to a constant may differ from those assigned during compilation,
@@ -632,10 +632,13 @@ enumeration type definition.
 The following are builtin enumeration types:
 \begin{indpar}
 \TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0~..~1]} \\
-\ttkey{false}\TT{~= next bool // 0} \\
-\ttkey{true}\TT{~~= next bool // 1} \\
-\TT{type~}\ttkey{type}\TT{~is unswrd with enum [1~..]} \\
-\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [1~..]}
+\TT{bool}~\ttkey{false}\TT{~= next enum // 0} \\
+\TT{bool}~\ttkey{true}\TT{~~= next enum // 1} \\
+\TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
+\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
+\TT{type}~\ttkey{missing}\TT{~= next enum // 0} \\
+\TT{type}~\ttkey{type}\TT{~= next enum // 1} \\
+\TT{type}~\ttkey{qualifier}\TT{~= next enum // 2}
 \end{indpar}
 
 \subsection{Type Values}

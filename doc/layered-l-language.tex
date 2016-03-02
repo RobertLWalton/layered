@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 29, 2016
+March 2, 2016
  
 \end{center}
 
@@ -640,6 +640,83 @@ The following are builtin enumeration types:
 \TT{type}~\ttkey{type}\TT{~= next enum // 1} \\
 \TT{type}~\ttkey{qualifier}\TT{~= next enum // 2}
 \end{indpar}
+
+\subsection{Enumeration Sets}
+\label{Enumeration-Sets}
+
+An enumeration set is a set of enumeration values.  The syntax
+for enumeration set constants is:
+\begin{indpar}
+\emkey{enum-set-constant}
+    \begin{tabular}[t]{@{}cl}
+    ::= &\TT{\{\{~\}\}} \\
+    $|$ &\TT{\{\{} {\em enum-set-item}
+                   \{ \TT{,} {\em enum-set-item} \}\STAR{} \TT{\}\}} \\
+    \end{tabular} \\
+\emkey{enum-set-item}
+    ::= {\em enum-value} $|$ {\em enum-range} \\
+\emkey{enum-range}
+    \begin{tabular}[t]{@{}cl}
+    ::= & {\em enum-value}~~~\TT{..}~~~{\em enum-value} \\
+    $|$ & {\em enum-value}~~~\TT{..} \\
+    $|$ & \TT{..}~~~{\em enum-value} \\
+    \end{tabular} \\
+\emkey{enum-value} ::= {\em compile-time-enum-expression}
+\end{indpar}
+
+If the {\em enum-values} in an {\em enum-set-constant} have different
+enumeration types, implicit conversions from these to their base types
+are inserted until all have the same defined enumeration type,
+which is called the `\key{common enumeration type}' of the set.
+As few implicit conversions as possible are inserted.  It is an error
+if this cannot be done because some of the types have no implicit
+conversion defined for them, or if after implict conversion the
+common tpe is not a defined enumeration type.
+Importantly, note that the common type cannot be a builtin integer
+type.
+
+An {\em enum-range} designates the two values given and all
+values in between.
+After implict conversion, the first {\em enum-value} in an {\em enum-range}
+must \underline{not} be greater than the second {\em enum-value}
+in the {\em enum-range}.  If the first or second {\em enum-value} of
+an {\em enum-range} is omitted, it is taken to be the lower or upper
+limit of the enumeration type of the non-omitted {\em enum-value}.
+
+The order in which values are given in an {\em enum-set-constant}
+does not matter.  Overlapping and adjoining ranges are implictly
+combined.\footnote{Internally an enumeration set may be stored as a
+sorted list of integers with binary indicators specifying when all
+the values between one integer and the next integer are to be included in set.}
+Thus
+\begin{indpar}\begin{verbatim}
+type X is uns8 with enum range [1 .. 20]
+X X1 is next enum
+X X2 is next enum
+. . . . . . . . . .
+X X20 is next enum
+
+// Then:
+//
+//    {{ X1, X5, X2, X10 .. X16, X19 .. X20, X15 .. X18 }}
+// == {{ X1, X2, X5, X10 .. X20 }}
+\end{verbatim}\end{indpar}
+
+Enumeration set values are used in logical expressions that
+condition function lookup.  For example,
+\begin{indpar}\begin{verbatim}
+T v = signed max ( type T, T v1, T v2 )
+      [[ T in {{ int8, int16, int32, int64, int128 }} ]]:
+    . . . . . . . . . . .
+\end{verbatim}\end{indpar}
+
+defines a function that takes only signed integer type
+arguments, and not unsigned integer type arguments.
+The logical expression inside \TT{[[~]]} must be satisfied
+for the function definition to match a function call, and
+the type argument \TT{T}, which is implicit and need not be
+given in the function call, must be in the give set of
+types, where types are values of the enumeration type `\TT{type}'.
 
 \subsection{Type Values}
 \label{TYPE-VALUES}

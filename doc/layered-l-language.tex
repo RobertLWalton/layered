@@ -892,6 +892,7 @@ The qualifiers may be declared by:
     \begin{tabular}[t]{rl}
     ::= & \ttkey{required protection} \\
     $|$ & \ttkey{prohibited protection} \\
+    $|$ & \ttkey{implied protection} \\
     $|$ & \ttkey{inherited} \\
     \end{tabular}
 \end{indpar}
@@ -903,9 +904,10 @@ any actual variable matched to the argument of \TT{F} or \TT{G}
 must have the `\TT{bar}' qualifier.
 
 If a function prototype result variable has a protection
-qualifier (required or prohibited), any actual variable matched to
-this will be implicitly given the protection qualifier.  Furthermore,
-this is the \underline{only way} a variable may
+qualifier (required, prohibited, or implied),
+any actual variable matched to
+this will be implicitly given the protection qualifier.
+Furthermore, this is the \underline{only way} a variable may
 acquire a protection qualifier.  In the above example,
 variables matched to the result prototype variable of \TT{F}
 are given the `\TT{bar}' qualifier, but this is not true of
@@ -922,13 +924,16 @@ must \underline{not} have the protection qualifier.  Thus in the above example,
 any actual variable matched to the argument of \TT{H}
 must \underline{not} have the `\TT{off}' qualifier.
 
+Note that the presence of implied protection qualifiers on prototype
+argument variables has no affect on actual argument variables.
+
 Inherited qualifiers affect cluster variables and their behavior is
 specified on page~\pagref{INHERITED-QUALIFIER}. 
 
 The builtin qualifiers are in effect declared by:
 \begin{indpar}
-\TT{qualifier~}\ttkey{mem} \\
-\TT{prohibited~protection~qualifier}~\ttkey{stack} \\
+\TT{implied~protection~qualifier~}\ttkey{mem} \\
+\TT{prohibited~protection~qualifier~}\ttkey{stack} \\
 \TT{qualifier~}\ttkey{*UNCHECKED*} \\
 \TT{qualifier~}\ttkey{trace}
 \end{indpar}

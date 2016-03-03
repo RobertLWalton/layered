@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 2, 2016
+March 3, 2016
  
 \end{center}
 
@@ -822,13 +822,14 @@ Syntactically {\em qualifier-names} immediately preceed the {\em type-names}
 that are before {\em variable-names}.  Some introductory examples are:
 \begin{indpar}\begin{verbatim}
 qualifier foo
-protection qualifier bar
+required protection qualifier bar
 foo bar int32 result = F ( foo bar int32 value ):
     // Declares function F that computes a result of type
-    // int32 and qualifiers foo and bar from a value of
-    // type int32 and qualifiers foo and bar.  Also
-    // automatically adds qualifier bar to result because
-    // bar is a protection qualifier.
+    // int32 and qualifier bar from a value of type int32
+    // and qualifier bar.  Requires actual argument to have
+    // qualifier bar (but not foo), and automatically adds
+    // qualifier bar (but not foo) to the actual result
+    // variable.
     //
     ... [Function body omitted] ...
 
@@ -836,45 +837,47 @@ foo bar int32 result = F ( foo bar int32 value ):
 //
 foo bar int32 x1 = ...
 foo int32 x2 = ...
-foo bar int32 y1 = F ( x1 )
-    // Legal.
-foo bar int32 y2 = F ( x2 )
-    // Illegal: x2 has no bar qualifier.
-bar int32 y3 = F ( x1 )
-    // Illegal: y3 has no foo qualifier.
-foo int32 y4 = F ( x1 )
+bar int32 x3 = ...
+foo bar int32 y1 = F ( x1 )  // Legal; x1 has bar.
+foo bar int32 y2 = F ( x2 )  // Illegal; x2 has no bar.
+foo bar int32 y3 = F ( x3 )  // Legal; x3 has bar.
+int32 y4 = F ( x1 )
     // Legal: y4 is given bar qualifier automatically
     // because bar is a protection qualifier and y4 is
-    // a result variable.
+    // a result variable.  y4 does not need or get
+    // foo qualifier.
 
-inverted protection qualifier oof
-oof int32 result = G ( int32 value ):
-    // Declares function G that DISALLOWS arguments with
-    // qualifier oof because oof is inverted, and
-    // automatically adds oof to result as off is a
+foo int32 result = G ( foo bar int32 value ):
+    // Same as F but result is not given bar qualifier.
+foo int32 y5 = G ( x1 )      // Legal.
+bar int32 y6 = G ( x1 )
+    // Illegal; y6 may only get a bar qualifier if it matches
+    // a function result prototype variable with a bar
+    // qualifier.
+
+prohibited protection qualifier oof
+oof int32 result = H ( int32 value ):
+    // Declares function H that DISALLOWS arguments with
+    // qualifier oof because oof is prohibited, but
+    // automatically adds oof to result as oof is a
     // protection qualifier.
     //
     ... [Function body omitted] ...
 
 int32 x10 = ...
 oof int32 x11 ...
-int32 y10 = G ( x10 )
+int32 y10 = H ( x10 )
     // Legal; x10 does NOT have oof qualifier; oof is
     // a protection qualifier and is automatically
     // given to result y10.
-int32 y11 = G ( x10 )
-    // Illegal; x10 does NOT have oof qualifier, which
-    // is inverted.
+int32 y11 = H ( x11 )
+    // Illegal; x11 has oof qualifier, which is prohibited,
+    // but prototype value argument does not have this
+    // qualifier.
+int32 y12 = H ( y10 )
+    // Illegal; y10 was given oof qualifier automatically
+    // by H.
 \end{verbatim}\end{indpar}
-
-If {\em qualifiers} are given in front of the {\em defined-type-name}
-of a statement that defines the later, then these qualifiers are
-added to every variable that has the defined type.
-See section~\itemref{TRACE-QUALIFIERS} for an example.
-
-Some qualifiers are \skey{protection qualifier}s and some are not.
-Some qualifiers are \key{inverted} but most are not.
-Some qualifiers are \key{inherited} but most are not.
 
 The qualifiers may be declared by:
 \begin{indpar}
@@ -885,60 +888,50 @@ The qualifiers may be declared by:
     $|$ & {\em trace-qualifier-declaration}
     	  ~~~ [see \pagref{TRACE-QUALIFIERS}]
     \end{tabular} \\
-\emkey{qualifier-attribute} ::=
-    \TT{protection} $|$ \TT{inverted} $|$ \TT{inherited}
+\emkey{qualifier-attribute}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{required protection} \\
+    $|$ & \ttkey{prohibited protection} \\
+    $|$ & \ttkey{inherited} \\
+    \end{tabular}
 \end{indpar}
 
-In order for a function
-prototype (argument or result) variable to match an actual variable,
-if the prototype variable has a non-inverted qualifier, the actual
-variable must have this non-inverted qualifier.
+If a function prototype argument variable has a required
+protection qualifier, any actual variable matched to this
+must have the protection qualifier.  Thus in the above example,
+any actual variable matched to the argument of \TT{F} or \TT{G}
+must have the `\TT{bar}' qualifier.
 
-In order for a function
-prototype (argument or result) variable to match an actual variable,
-and if the prototype variable
-does \underline{not} have an inverted qualifier, the actual variable
-must \underline{not} have this inverted qualifier.
+If a function prototype result variable has a protection
+qualifier (required or prohibited), any actual variable matched to
+this will be implicitly given the protection qualifier.  Furthermore,
+this is the \underline{only way} a variable may
+acquire a protection qualifier.  In the above example,
+variables matched to the result prototype variable of \TT{F}
+are given the `\TT{bar}' qualifier, but this is not true of
+variables matched to the result prototype variable of \TT{G}.
 
-If a variable is initialized by being matched to a prototype result variable
-of a function, the variable is implicitly given all the protection qualifiers
-of the prototype variable.  This is the only way a non-prototype
-variable may acquire
-a protection qualifier.  Thus protection qualifiers may only be explicitly
-given for prototype variables.
+In the above example there are no rules regarding the `TT{foo}'
+qualifier, which can be attached to any variable as the
+user wishes, but is not required or prohibited of argument variables or
+implied for result variables.
 
-If an inherited qualifier is applied to the root variable of a cluster
-or subcluster, this inherited qualifier is automatically applied to all
-the member variables in the cluster or subcluster.  This is not done
-for non-inherited qualifiers.
+If a function prototype argument variable has a prohibited
+protection qualifier, any actual variable matched to this
+must \underline{not} have the protection qualifier.  Thus in the above example,
+any actual variable matched to the argument of \TT{H}
+must \underline{not} have the `\TT{off}' qualifier.
 
-As an example of the above rules, the \TT{mem} qualifier is
-a non-inverted, non-inherited
-protection qualifier, so if \TT{t} is a type and \TT{v} a
-variable, and the {\em value-assignment-statement} allocating \TT{v} has the
-form `\TT{t v = }{\em expression}' where \TT{v} is matched
-with some result variable that has the \TT{mem} qualifier of some
-function called in {\em expression}, then \TT{v} will be implicitly
-given the \TT{mem} qualifier.  Because \TT{mem} is non-inverting,
-\TT{v} can then be matched to any prototype variable of the same type
-whether or not that prototype variable has the \TT{mem} qualifier,
-and thus the value of \TT{v} can be freely used.
+Inherited qualifiers affect cluster variables and their behavior is
+specified on page~\pagref{INHERITED-QUALIFIER}. 
 
-As another example of the above rules, the \TT{stack} qualifier is
-an inverted protection non-inherited qualifier given the result variable of
-a call to `\TT{allocate to stack}' function (\pagref{ALLOCATE-TO-STACK}).
-Values with this qualifier can only be passed to prototype variables
-that also have the qualifier.  This prohibits passing stack addresses
-to functions that would store them in global or heap memory.
-
-Four qualifiers, \TT{mem}, \TT{stack}, \TT{*UNCHECKED*},
-and \TT{trace}, are builtin and have special
-effects described below.
-In addition any qualifier can be used with the special \TT{reload} statement
-descibed below.
-
-\subsection{Qualifier Values}
-\label{QUALIFIER-VALUES}
+The builtin qualifiers are in effect declared by:
+\begin{indpar}
+\TT{qualifier~}\ttkey{mem} \\
+\TT{prohibited~protection~qualifier}~\ttkey{stack} \\
+\TT{qualifier~}\ttkey{*UNCHECKED*} \\
+\TT{qualifier~}\ttkey{trace}
+\end{indpar}
 
 The type `\ttkey{qualifier}' is an enumeration type implicitly
 declared after the manner of
@@ -949,55 +942,6 @@ Each qualifier is associated with a unique enumeration value
 of type `\TT{qualifier}', and this value can be used at both
 compile and run time to test whether two `\TT{qualifier}'s are
 equal.
-
-The type `\ttkey{qualifiers}' denotes a set of qualifier values.
-Constants equal to such sets are denoted by the comma separated names of the
-qualifier values in \TT{\{\{~\}\}} brackets.  For example,
-`\TT{\{\{stack, mem\}\}}'.
-
-A {\em function-prototype} can have implicit \TT{qualifiers} arguments.
-These are implicitly given as their value the smallest set of qualifiers
-that includes the qualifiers in the actual argument and that
-allows the {\em function-prototype} to match a call.  For example:
-
-\begin{indpar}\begin{verbatim}
-Q T result = foo ( type T, qualifiers Q, Q T value )
-
-// Example usage:
-//
-qualifier bar
-bar int32 x = ...
-int32 y = foo ( x )     
-    // Q = {{bar}} as x is qualified by bar.  Call is then
-    // illegal because y has no bar qualifier.  Would be
-    // legal if bar were a protection qualifier.
-bar int32 z = foo ( x )  // Legal.
-\end{verbatim}\end{indpar}
-
-Function prototypes can have at their end a condition in \TT{[[~]]}
-brackets that must be satisfied in order for the prototype to match
-a call.  This condition may use qualifier values and sets, with
-\TT{\&} denoting set `AND' and `\TT{\textasciitilde}' denoting
-set complement (in the universe of all possible qualifiers),
-`\TT{==}' denoting set equality, `\TT{!=}' denoting set inequality,
-and `\TT{<=}' denoting set subset.
-An example is:
-
-\begin{indpar}\begin{verbatim}
-Q T result = fum ( type T, qualifiers Q, Q T value )
-    [[ Q & {{bar}} == {{}} ]]
-
-// Example usage:
-//
-qualifier bar
-qualifier boo
-bar int32 x = ...
-boo int32 y = ...
-bar int32 z = foo ( x )
-    // Illegal, Q must contain bar as x and z do,
-    // but condition prohibits Q from containing bar.
-boo int32 w = foo ( y )  // Legal. Q == {{boo}}.
-\end{verbatim}\end{indpar}
 
 \section{Functions}
 \label{FUNCTIONS}
@@ -2117,6 +2061,14 @@ The `\TT{stack}' qualifier has the property that values with
 this qualifier may not be passed out of a block with a free
 stack.  See Sections~\itemref{STACK-MANAGEMENT} and
 \itemref{THE-STACK-QUALIFIER}.
+
+TBD
+
+If an \key{inherited qualifier}\label{INHERITED-QUALIFIER}
+is applied to the root variable of a cluster
+or subcluster, this inherited qualifier is automatically applied to all
+the member variables in the cluster or subcluster.  This is not done
+for non-inherited qualifiers.
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}

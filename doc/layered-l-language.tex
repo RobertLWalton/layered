@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 3, 2016
+March 4, 2016
  
 \end{center}
 
@@ -984,8 +984,12 @@ Function definitions have the form:
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
             \TT{=} {\em input-variable-list} \\
-    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}
+    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
+    $|$ & {\em function-prototype}
+          \TT{[[} {\em qualifying-expression} \TT{]]} \\
     \end{tabular}
+\\[1ex]
+\emkey{qualifying-expression} ::= {\em call-compile-time-logical-expression}
 \end{indpar}
 
 A function call with a {\em result-variable-list}

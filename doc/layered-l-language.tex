@@ -989,7 +989,11 @@ Function definitions have the form:
           \TT{[[} {\em qualifying-expression} \TT{]]} \\
     \end{tabular}
 \\[1ex]
-\emkey{qualifying-expression} ::= {\em call-compile-time-logical-expression}
+\emkey{qualifying-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em call-compile-time-logical-expression} \\
+    $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression}
+    \end{tabular}
 \end{indpar}
 
 A function call with a {\em result-variable-list}
@@ -1037,14 +1041,48 @@ int32 y = ...
 int32 z = add ( int32, x, y )
 \end{verbatim}\end{indpar}
 
-Much more complex {\em function-prototypes} can be written:
-see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
-Also type arguments can be implied, e.g., the first argument \TT{T}
+Type arguments can be implied, e.g., the first argument \TT{T}
 in a call to `\TT{add}' as in:
 
 \begin{indpar}\begin{verbatim}
 int32 z = add ( x, y )
 \end{verbatim}\end{indpar}
+
+Conditions can be written at the end of a {\em function-prototype},
+as in:
+\begin{indpar}\begin{verbatim}
+types signed-integer-types =
+    {{ int8, int16, int32, int64, int128 }}
+
+( T result ) = add ( type T, T v1, T v2 )
+    [[ T in signed-integer-types ]]:
+    result = v1 + v2
+\end{verbatim}\end{indpar}
+
+which would define `\TT{add}' only for signed integer types.
+The conditions must be evaluatable whenever a call to the
+function is compiled.
+
+If an argument variable has type `\TT{qualifiers}',
+its value can be used as some of the qualifiers
+of other argument variables that are
+after it in the {\em argument-variable-list},
+or of any result variable.  For example:
+\begin{indpar}\begin{verbatim}
+( Qr pointer result ) =
+    increment ( qualfiers Q, Q pointer value )
+    [[ Qr is Q & {{ stack }} ]]:
+    result = v1 + v2
+\end{verbatim}\end{indpar}
+
+A `\TT{qualifiers}' variable takes as its value a set of
+qualifiers.
+Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
+and \TT{Qr} is just an abbreviation of the more complex
+qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
+
+Much more complex {\em function-prototypes} can be written:
+see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}

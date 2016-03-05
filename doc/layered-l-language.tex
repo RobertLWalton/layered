@@ -1630,7 +1630,7 @@ name of the base variable using the syntax:
 \end{indpar}
 
 Thus a cluster
-is like a structure, but it is a set of variables and not a
+is like a C/C++ structure, but it is a set of variables and not a
 piece of memory.
 
 More specifically, the members of the cluster can be named by
@@ -1653,29 +1653,36 @@ from functions implicitly when their the root variable is named
 explicitly.  For example:
 \begin{indpar}\begin{verbatim}
 type pointer pair is void
-    // if pointer pair pp then
-    //   intadr pp.begin points at the first element
-    //   intadr pp.end points just AFTER the last element
-    //   adr pp.base is the address of the base address
+    // if pp is a pointer pair then:
+    //   unsadr pp.begin is the offset of the first element
+    //   unsadr pp.end points is the offset just
+    //                 AFTER the last element
+    //   adr pp.base is the base address that is added
+    //               to the offsets
+    //   adr pp.base.adr is the address of pp.base
     //   type pp.type is type of element
 
 // Function to allocate a vector of n T's to the stack.
 //
-( stack pointer pair pp,
-  unsadr pp.begin,
-  unsadr pp.end,
-  adr pp.base,
+( pointer pair pp,
+  stack unsadr pp.begin,
+  stack unsadr pp.end,
+  mem stack adr pp.base,
+  stack adr pp.base.adr,
   type pp.type ) =
         allocate to stack ( type T, uns32 n ):
-    pp.type = T
     require ( zero value OK ( T ) )
+    pp.type = T
     unsadr length = size of ( T ) * n
-    ( unsadr offset, mem adr offset.base,
-                     adr offset.base.adr ) =
-        allocate to stack ( length )
+    unsadr offset = allocate to stack ( length )
+        // This sets:
+	//     stack unsadr offset
+	//     mem stack adr offset.base
+	//     stack adr offset.base.adr
+
     pp.begin = offset
     pp.end = offset + length
-    pp.base = offset.base.adr
+    pp.base.adr = offset.base.adr
 
 
 // Prefix operator to dereference a pointer pair to read
@@ -1683,17 +1690,17 @@ type pointer pair is void
 //
 ( mem pp.type out,
   *UNCHECKED* stack out.offset,
-  mem adr out.offset.base,
-  *UNCHECKED* out.offset.base.adr ) =
-        "*" ( stack pointer pair pp,
+  stack mem adr out.offset.base,
+  *UNCHECKED* stack out.offset.base.adr ) =
+        "*" ( pointer pair pp,
               type pp.type,
-	      unsadr pp.begin,
-	      unsadr pp.end,
-	      adr pp.base ):
-    ( out.offset, out.base.adr ) = if:
+              stack unsadr pp.begin,
+              stack unsadr pp.end,
+              stack adr pp.base.adr ):
+    ( out.offset, out.offset.base.adr ) = if:
         pp.begin < pp.end:
-            ( out.offset, out.offset.base.adr ) =
-	        ( pp.begin, pp.base )
+            out.offset = pp.begin
+            out.offset.base.adr = pp.base.addr
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1701,16 +1708,18 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
-"*" ( stack pointer pair pp,
-      unsadr pp.begin, unsadr pp.end, adr pp.base,
+"*" ( pointer pair pp,
+      stack unsadr pp.begin,
+      stack unsadr pp.end,
+      stack adr pp.base.adr,
       type pp.type ) =
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-	    unsadr offset = pp.begin
-	    adr mem offset.base
-	    adr offset.base.adr = pp.base
-            in *UNCHECKED* ---> offset
+            *UNCHECKED* unsadr offset = pp.begin
+            adr mem offset.base
+            *UNCHECKED* adr offset.base.adr = pp.base
+            in ---> offset
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1718,32 +1727,38 @@ type pointer pair is void
 // Prefix operator to increment the begin pointer of a
 // pointer pair.  Note the result is a NEW pointer pair.
 //
-( stack pointer pair pp2,
-  unsadr pp2.begin, unsadr pp2.end,
-  adr pp2.base, type pp2.type )
-        "++" ( stack pointer pair pp,
+( pointer pair pp2,
+  stack unsadr pp2.begin,
+  stack unsadr pp2.end,
+  stack mem adr pp2.base,
+  stack adr pp2.base.adr,
+  type pp2.type )
+        "++" ( pointer pair pp,
                type pp.type,
-               unsadr pp.begin, unsadr pp.end,
-	       adr pp.base ):
+               stack unsadr pp.begin,
+	       stack unsadr pp.end,
+               stack adr pp.base.adr ):
       pp2.begin = pp.begin + size of ( T )
       pp2.end = pp.end
-      pp2.base = pp.base
+      pp2.base.adr = pp.base.adr
       pp2.type = pp.type
 
 // Assignment operator for pointer pairs.
 //
-( stack pointer pair pp2,
-  unsadr pp2.begin,
-  unsadr pp2.end,
-  adr pp2.base,
-  type pp2.type ) =
-        "=" ( stack pointer pair pp,
-              type pp.type,
-              unsadr pp.begin, unsadr pp.end,
-	      adr pp.base ):
+( pointer pair pp2,
+  stack unsadr pp2.begin,
+  stack unsadr pp2.end,
+  stack mem adr pp2.base,
+  stack adr pp2.base.adr,
+  type pp2.type )
+        "=" ( pointer pair pp,
+               type pp.type,
+               stack unsadr pp.begin,
+	       stack unsadr pp.end,
+               stack adr pp.base.adr ):
       pp2.begin = pp.begin
       pp2.end = pp.end
-      pp2.base = pp.base
+      pp2.base.adr = pp.base.adr
       pp2.type = pp.type
 
 // Example usage:
@@ -1765,7 +1780,7 @@ type pointer pair is void
     float64 sum = loop:
         initially:
             float64 partial sum = 0
-            pointer pari ppf2 = ppf
+            pointer pair ppf2 = ppf
         while ppf2.begin < ppf2.end:
             next partial sum = partial sum + * ppf2
             next ppf2 = ++ ppf2
@@ -1773,46 +1788,67 @@ type pointer pair is void
             sum = partial sum
 \end{verbatim}\end{indpar}
 
+Note that although the functions defining operations on a pointer pairs
+are a long winded, usage of pointer pairs is compact and easy.
+This is a general characteristic of the L-Language, and derives
+from the fact that the functions automatically manage the members
+of a cluster.
+
 Cluster member names may be used as prototype parameter
 names, with the root of these names also being a prototype
 parameter.  This specifies that the parameters are related
 by being in the same cluster.
 
-When this is done for arguments, the cluster root must
+When this is done for prototype arguments, the cluster root must
 also be an argument, and the cluster member values
 will be derived from the root, and \underline{must}
-be omitted in calls.
+be omitted in calls.  If the cluster members do not exist,
+the function prototype does not match the call.
 
-When this is done for results, the cluster root must similarly
+When this is done for prototype results, the cluster root must similarly
 be a result, and the values of the designated
 members of the cluster are set from the results.
 Again the cluster members \underline{must} be omitted in calls.
+Note that in this case any qualifiers on the omitted cluster
+members will be set by the prototypes.
 
 A variable of \TT{void} type has no actual value
 and must not be assigned one.  Such variables are only useful
 as cluster and subcluster roots.
 
-In the above example `\TT{mem}' and `\TT{stack} are qualifiers
+In the above example `\TT{mem}' and `\TT{stack} are special builtin qualifiers
 which can be applied to variables.
-See \itemref{QUALIFIERS}.
+See \itemref{BUILTIN-QUALIFIERS}.
 
 The `\TT{mem}' qualifier has the special property that given a variable
-\TT{v} of type \TT{T} and qualifier \TT{mem}, then if \TT{v} is allocated,
+\TT{v} of qualifier \TT{mem}, then if \TT{v} is allocated,
 and \TT{v.adr} of type \TT{adr} and qualifier \TT{*UNCHECKED*}
 is allocated and
 assigned a value, the base \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
-See \itemref{THE-MEM-QUALIFIER}.
+This is how \TT{out.offset\EOL .base} gets its value from \TT{out.offset.base.adr}.
+
+In a similar but more complex fashion, if \TT{v.offset} of type
+\TT{unsadr} (type \TT{intadr} can also be used) and \TT{*UNCHECKED*}
+qualifier is allocated, and also \TT{v.offset.base} of type \TT{adr}
+and either \TT{*UNCHECKED*} or \TT{mem} qualifier is allocated,
+and both are assigned values (the latter possibly by allocating
+and assigning \TT{v.offset.base.adr}), then
+the base \TT{v} will also be automatically
+assigned as its value the value read from RAM address \TT{v.offset+v.base}.
+This is how \TT{out} gets its value from \TT{out.offset}
+and \TT{out.offset.base}.
+
+For details on the `\TT{mem}' qualifier see \itemref{THE-MEM-QUALIFIER}.
 
 The `\TT{stack}' qualifier has the property that values with
 this qualifier may not be passed out of a block with a free
-stack.  See Sections~\itemref{STACK-MANAGEMENT} and
-\itemref{THE-STACK-QUALIFIER}.
+stack.  See Sections~\itemref{THE-STACK-QUALIFIER} and
+\itemref{STACK-MANAGEMENT}.
 
-TBD
-
-If an \key{inherited qualifier}\label{INHERITED-QUALIFIER}
+A qualifier may be \ikey{inherited}{qualifier}\label{INHERITED-QUALIFIER}.
+If an inherited qualifier
 is applied to the root variable of a cluster
 or subcluster, this inherited qualifier is automatically applied to all
 the member variables in the cluster or subcluster.  This is not done
@@ -2304,6 +2340,9 @@ errors (typically segmentation faults).
 
 Implicit types and qualifiers.
 Type sets.  Conditions using qualifier and type sets.
+
+Better matches must override worse matches.  Fewer implicit
+conversions is better.  More cluster member matches is better.
 
 \section{TBD}
 

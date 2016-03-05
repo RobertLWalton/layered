@@ -1664,11 +1664,11 @@ type pointer pair is void
 
 // Function to allocate a vector of n T's to the stack.
 //
-( pointer pair pp,
-  stack unsadr pp.begin,
-  stack unsadr pp.end,
-  mem stack adr pp.base,
-  stack adr pp.base.adr,
+( stack pointer pair pp,
+  unsadr pp.begin,
+  unsadr pp.end,
+  mem adr pp.base,
+  adr pp.base.adr,
   type pp.type ) =
         allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
@@ -1677,8 +1677,8 @@ type pointer pair is void
     unsadr offset = allocate to stack ( length )
         // This sets:
 	//     stack unsadr offset
-	//     mem stack adr offset.base
-	//     stack adr offset.base.adr
+	//     mem adr offset.base
+	//     adr offset.base.adr
 
     pp.begin = offset
     pp.end = offset + length
@@ -1690,13 +1690,13 @@ type pointer pair is void
 //
 ( mem pp.type out,
   *UNCHECKED* stack out.offset,
-  stack mem adr out.offset.base,
-  *UNCHECKED* stack out.offset.base.adr ) =
-        "*" ( pointer pair pp,
+  mem adr out.offset.base,
+  *UNCHECKED* out.offset.base.adr ) =
+        "*" ( stack pointer pair pp,
               type pp.type,
-              stack unsadr pp.begin,
-              stack unsadr pp.end,
-              stack adr pp.base.adr ):
+              unsadr pp.begin,
+              unsadr pp.end,
+              adr pp.base.adr ):
     ( out.offset, out.offset.base.adr ) = if:
         pp.begin < pp.end:
             out.offset = pp.begin
@@ -1708,10 +1708,10 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
-"*" ( pointer pair pp,
-      stack unsadr pp.begin,
-      stack unsadr pp.end,
-      stack adr pp.base.adr,
+"*" ( stack pointer pair pp,
+      unsadr pp.begin,
+      unsadr pp.end,
+      adr pp.base.adr,
       type pp.type ) =
         ( pp.type in ):
     if:
@@ -1727,17 +1727,17 @@ type pointer pair is void
 // Prefix operator to increment the begin pointer of a
 // pointer pair.  Note the result is a NEW pointer pair.
 //
-( pointer pair pp2,
-  stack unsadr pp2.begin,
-  stack unsadr pp2.end,
-  stack mem adr pp2.base,
-  stack adr pp2.base.adr,
+( stack pointer pair pp2,
+  unsadr pp2.begin,
+  unsadr pp2.end,
+  mem adr pp2.base,
+  adr pp2.base.adr,
   type pp2.type )
-        "++" ( pointer pair pp,
+        "++" ( stack pointer pair pp,
                type pp.type,
-               stack unsadr pp.begin,
-	       stack unsadr pp.end,
-               stack adr pp.base.adr ):
+               unsadr pp.begin,
+	       unsadr pp.end,
+               adr pp.base.adr ):
       pp2.begin = pp.begin + size of ( T )
       pp2.end = pp.end
       pp2.base.adr = pp.base.adr
@@ -1745,17 +1745,17 @@ type pointer pair is void
 
 // Assignment operator for pointer pairs.
 //
-( pointer pair pp2,
-  stack unsadr pp2.begin,
-  stack unsadr pp2.end,
-  stack mem adr pp2.base,
-  stack adr pp2.base.adr,
+( stack pointer pair pp2,
+  unsadr pp2.begin,
+  unsadr pp2.end,
+  mem adr pp2.base,
+  adr pp2.base.adr,
   type pp2.type )
-        "=" ( pointer pair pp,
-               type pp.type,
-               stack unsadr pp.begin,
-	       stack unsadr pp.end,
-               stack adr pp.base.adr ):
+        "=" ( stack pointer pair pp,
+              type pp.type,
+              unsadr pp.begin,
+	      unsadr pp.end,
+              adr pp.base.adr ):
       pp2.begin = pp.begin
       pp2.end = pp.end
       pp2.base.adr = pp.base.adr
@@ -1853,6 +1853,8 @@ is applied to the root variable of a cluster
 or subcluster, this inherited qualifier is automatically applied to all
 the member variables in the cluster or subcluster.  This is not done
 for non-inherited qualifiers.
+
+The `\TT{stack}' qualifier is inherited.
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}

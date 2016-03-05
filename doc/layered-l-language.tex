@@ -945,7 +945,7 @@ The builtin qualifiers are in effect declared by:
 \begin{indpar}
 \TT{protected~qualifier~}\ttkey{mem} \\
 \TT{prohibited~protected~qualifier~}\ttkey{stack} \\
-\TT{required qualifier~}\ttkey{*UNCHECKED*} \\
+\TT{protected qualifier~}\ttkey{*UNCHECKED*} \\
 \TT{qualifier~}\ttkey{trace}
 \end{indpar}
 
@@ -1655,11 +1655,12 @@ explicitly.  For example:
 type pointer pair is void
     // if pp is a pointer pair then:
     //   unsadr pp.begin is the offset of the first element
-    //   unsadr pp.end points is the offset just
-    //                 AFTER the last element
-    //   adr pp.base is the base address that is added
-    //               to the offsets
-    //   adr pp.base.adr is the address of pp.base
+    //   unsadr pp.end is the offset just AFTER the
+    //                 last element
+    //   mem adr pp.base is the base address that is added
+    //                   to the offsets
+    //   *UNCHECKED* adr pp.base.adr is the address of
+    //                               pp.base
     //   type pp.type is type of element
 
 // Function to allocate a vector of n T's to the stack.
@@ -1668,7 +1669,7 @@ type pointer pair is void
   unsadr pp.begin,
   unsadr pp.end,
   mem adr pp.base,
-  adr pp.base.adr,
+  *UNCHECKED* adr pp.base.adr,
   type pp.type ) =
         allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
@@ -1676,31 +1677,31 @@ type pointer pair is void
     unsadr length = size of ( T ) * n
     unsadr offset = allocate to stack ( length )
         // This sets:
-	//     stack unsadr offset
-	//     mem adr offset.base
-	//     adr offset.base.adr
+        //     stack unsadr offset
+        //     mem adr offset.base
+        //     *UNCHECKED* adr offset.base.adr
 
     pp.begin = offset
     pp.end = offset + length
-    pp.base.adr = offset.base.adr
+    pp.base.adr *UNCHECKED* = offset.base.adr
 
 
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
 ( mem pp.type out,
-  *UNCHECKED* stack out.offset,
+  stack *UNCHECKED* out.offset,
   mem adr out.offset.base,
   *UNCHECKED* out.offset.base.adr ) =
         "*" ( stack pointer pair pp,
               type pp.type,
               unsadr pp.begin,
               unsadr pp.end,
-              adr pp.base.adr ):
+              *UNCHECKED* adr pp.base.adr ):
     ( out.offset, out.offset.base.adr ) = if:
         pp.begin < pp.end:
-            out.offset = pp.begin
-            out.offset.base.adr = pp.base.addr
+            out.offset *UNCHECKED* = pp.begin
+            out.offset.base.adr *UNCHECKED* = pp.base.addr
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1711,15 +1712,17 @@ type pointer pair is void
 "*" ( stack pointer pair pp,
       unsadr pp.begin,
       unsadr pp.end,
+      adr pp.base,
       adr pp.base.adr,
       type pp.type ) =
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            *UNCHECKED* unsadr offset = pp.begin
-            adr mem offset.base
-            *UNCHECKED* adr offset.base.adr = pp.base
-            in ---> offset
+            unsadr offset *UNCHECKED* = pp.begin
+            mem adr offset.base
+            adr offset.base.adr
+                *UNCHECKED* = pp.base.adr
+            in *UNCHECKED* ---> offset
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1731,16 +1734,16 @@ type pointer pair is void
   unsadr pp2.begin,
   unsadr pp2.end,
   mem adr pp2.base,
-  adr pp2.base.adr,
-  type pp2.type )
+  *UNCHECKED* adr pp2.base.adr,
+  type pp2.type ) =
         "++" ( stack pointer pair pp,
                type pp.type,
                unsadr pp.begin,
-	       unsadr pp.end,
+               unsadr pp.end,
                adr pp.base.adr ):
       pp2.begin = pp.begin + size of ( T )
       pp2.end = pp.end
-      pp2.base.adr = pp.base.adr
+      pp2.base.adr *UNCHECKED* = pp.base.adr
       pp2.type = pp.type
 
 // Assignment operator for pointer pairs.
@@ -1749,16 +1752,16 @@ type pointer pair is void
   unsadr pp2.begin,
   unsadr pp2.end,
   mem adr pp2.base,
-  adr pp2.base.adr,
+  *UNCHECKED* adr pp2.base.adr,
   type pp2.type )
-        "=" ( stack pointer pair pp,
-              type pp.type,
-              unsadr pp.begin,
-	      unsadr pp.end,
-              adr pp.base.adr ):
+        = ( stack pointer pair pp,
+            type pp.type,
+            unsadr pp.begin,
+            unsadr pp.end,
+            adr pp.base.adr ):
       pp2.begin = pp.begin
       pp2.end = pp.end
-      pp2.base.adr = pp.base.adr
+      pp2.base.adr *UNCHECKED* = pp.base.adr
       pp2.type = pp.type
 
 // Example usage:

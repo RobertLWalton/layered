@@ -380,7 +380,7 @@ The following \underline{unchecked}
 conversion operator is defined:
 \begin{center}
 
-\TT{*UNCHECKED*} $t2$ ~~ \TT{<{}<++} ~~ $t1${\em -type-value}%
+$t2$ ~~ \TT{*UNCHECKED*~<{}<++} ~~ $t1${\em -type-value}%
 \label{<<**}
 
 for any two builtin number types $t1$ and $t2$.
@@ -440,7 +440,7 @@ where the method of rounding is indeterminate.
 
 The \underline{unchecked} conversion is defined:
 \begin{center}
-\TT{*UNCHECKED*} $t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant}
+$t2$ ~~ \TT{*UNCHECKED*~<{}<++} ~~ {\em numeric-constant}
 \end{center}
 provided one of the following cases applies:
 \begin{itemize}
@@ -497,10 +497,10 @@ type by the
 operations:
 \begin{center}
 \begin{tabular}{rcl}
-\TT{*UNCHECKED*} {\em builtin-type-name}
-	& \TT{<{}<++} & {\em defined-type-value} \\
-\TT{*UNCHECKED*} {\em defined-type-name}
-	& \TT{<{}<++} & {\em builtin-type-value} \\
+{\em builtin-type-name}
+	& \TT{*UNCHECKED*~<{}<++} & {\em defined-type-value} \\
+{\em defined-type-name}
+	& \TT{*UNCHECKED*~<{}<++} & {\em builtin-type-value} \\
 \end{tabular}
 \end{center}
 These operators do not change the actual value, but merely its
@@ -614,10 +614,10 @@ The conversions
 \begin{tabular}{rcl}
 {\em base-enum-type-name}
 	& \TT{<{}<++} & {\em defined-enum-type-value} \\
-\TT{*UNCHECKED*} {\em base-enum-type-name}
-	& \TT{<{}<++} & {\em defined-enum-type-value} \\
-\TT{*UNCHECKED*} {\em defined-enum-type-name}
-	& \TT{<{}<++} & {\em base-enum-type-value} \\
+{\em base-enum-type-name}
+	& \TT{*UNCHECKED*~<{}<++} & {\em defined-enum-type-value} \\
+{\em defined-enum-type-name}
+	& \TT{*UNCHECKED*~<{}<++} & {\em base-enum-type-value} \\
 \end{tabular}
 \end{center}
 may be used to convert between enumeration values and their base enumeration
@@ -1874,39 +1874,31 @@ must be the root of a subcluster that
 has either:
 \begin{enumerate}
 \item
-A variable \TT{v.adr} of type \TT{adr} that is the RAM address of \TT{v}.
+A variable \TT{v.adr} of type \TT{adr} with either of the qualifiers
+\TT{mem} or \TT{*UNCHECKED*} that is the RAM address of \TT{v}.
 
 \item
 A variable \TT{v.offset} of type \TT{intadr} or \TT{unsadr} and
-a variable \TT{v.offset.base} of type \TT{adr} and qualifier \TT{mem}.
-In this case the RAM address of \TT{v} is \TT{v.base+v.offset} and
-\TT{v.offset.base} must recursively be the root of a subcluster obeying
+qualifier \TT{*UNCHECKED*}, and
+a variable \TT{v.offset.base} of type \TT{adr} and qualifier \TT{mem}
+or \TT{*UNCHECKED*}.
+In this case the RAM address of \TT{v} is \TT{v.base+v.offset}.
+If \TT{v.offset.base} has qualifier \TT{mem} it must recursively be
+the root of a subcluster obeying
 these rules (so there must be either a \TT{v.offset.base.adr} variable
-or \TT{v.offset.base.offset} and \TT{v.offset.base.offset.base}
+or \TT{v.offset.base.offset} and \TT{v.offset\EOL .base\EOL .offset\EOL .base}
 variables, etc.).
 \end{enumerate}
-Then the
+The the
 variable \TT{v} must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
 from its RAM address.
 
-Because \TT{mem} is a protected qualifier, \TT{v} and the required
+Because \TT{mem} and \TT{*UNCHECKED*} are protected qualifiers,
+\TT{v} and the required
 members of the cluster of which \TT{v} is a root
 must be created as matches to result variables of a function.
 So only functions can effect a load of RAM contents to a variable.
-
-It is further required that both \TT{v} and the required members of
-the cluster of which \TT{v} is a root be created
-by the same function call assignment statement, and that the required
-\TT{.offset} and \TT{.adr} variables in that cluster
-be given the \TT{*UNCHECKED*} qualifier by that function
-call asssignment statement.
-The function must assign a value to these \TT{*UNCHECKED*} variables
-(but not the \TT{mem} qualified \TT{v} and \TT{.base} variables).
-Thus all memory reads are hidden
-inside functions which have the \TT{mem} qualifier on some of
-their result variables.
-
 
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}
@@ -1915,7 +1907,8 @@ The `\ttkey{stack}' qualifier is an inherited, prohibited,
 protected qualifier
 attached to offsets and addresses
 returned by the builtin `\TT{allocate to stack}'
-function.  It is used to keep these from being stored in
+function (\pagref{ALLOCATE-TO-STACK}).
+It is used to keep these from being stored in
 non-stack memory and in stacks who lifetime exceeds that of the
 memory the stack address points at.
 
@@ -1926,23 +1919,24 @@ of a {\em call-assignment-statement},
 {\em compile-time-assigment-statement},
 or iteration variables in a {\em loop-assigment-statement}.
 This is so that stack addresses pointing into a free stack
-cannot outlive the free stack: see \pagref{FREE-STACK}.
-
+cannot outlive the free stack.
 See Section~\itemref{STACK-MANAGEMENT} for more information.
 
 \subsection{The \TT{*UNCHECKED*} Qualifier}
 \label{THE-UNCHECKED-QUALIFIER}
 
-The \TT{*UNCHECKED*} qualifier is a non-inverted, non-inherited,
+The \TT{*UNCHECKED*} qualifier is a
 protected qualifier that must qualify the \TT{v.adr} or
 \TT{v.offset} variables
 associated with a variable \TT{v} that has the \TT{mem} qualifier.
 See Section~\itemref{THE-MEM-QUALIFIER}.
 
-The lexeme \TT{*UNCHECKED*} lexeme has many other uses.  It cannot
-be part of a variable name, but can be part of a non-variable name,
-e.g., a function name or a statement name such as
-`\TT{*UN\-CHECK\-ED* *ASSEMBLER*}'.  In these other uses it is
+The lexeme \TT{*UNCHECKED*} lexeme is commonly the initial part of the
+names of functions and operators that produce \TT{*UNCHECKED*}
+results.  For example, the operators `\TT{*UNCHECKED* =}'
+and `\TT{*UNCHECKED* <{}<++}' which are distinct from the
+operators `\TT{=}' and `\TT{<{}<++}'.
+When used thusly, \TT{*UNCHECKED*} is
 \underline{not} a qualifier.
 
 \subsection{Trace Qualifiers}
@@ -1978,7 +1972,7 @@ qualifier is \TT{Q} and the type is \TT{T} is:
 trace qualifier Q with base type adr
 type Q T is adr
 \end{verbatim}\end{indpar}
-which causes all value of type \TT{T} in the stack to be
+which causes all values of type \TT{T} in the stack to be
 traced.
 
 More specifically, when a value \TT{V} of a variable with the trace
@@ -2012,7 +2006,7 @@ how it was originally computed.
 
 If the variable \TT{v} has the `\TT{mem}' qualifier and was loaded
 from RAM by setting the \TT{v.adr} address variable, then the value
-in RAM is assumed to have changed, and is declared to be out-of-date.
+in RAM is assumed to have changed, and \TT{v} is declared to be out-of-date.
 If \TT{v.adr} is unchanged or
 can be recomputed, then \TT{v} is reloaded from RAM.
 
@@ -2030,7 +2024,7 @@ writes to RAM,
 even if other subblocks of the conditional statement do involve such.
 
 If a recomputed variable value is not used after the \TT{reload} statement,
-if is not recomputed.
+it is not recomputed.
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}

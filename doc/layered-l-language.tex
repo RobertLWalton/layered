@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 4, 2016
+March 5, 2016
  
 \end{center}
 
@@ -1606,316 +1606,6 @@ but may use visible inline functions, out-of-line functions
 that have been declared to be compile-time, and global areas
 that have been declared to be compile-time.
 
-\section{Stack Management}
-\label{STACK-MANAGEMENT}
-
-Each execution thread has a stack that is not in any other
-stack.  Each out-of-line function
-execution is a block execution that has a stack which is
-by default a substack of the thread in which the function
-execution is running.  Each subblock in turn has a stack
-which is by default a substack of the stack of its containing block.
-And each global area has a stack that is not in any other stack.
-
-Conceptually, the assignment statements in a block each allocate memory for
-their variable to the current block stack and copy values to these
-variables.  As noted above (Section~\itemref{ASSIGNMENT-STATEMENTS}),
-the memory and associated copies may be
-optimized away in some cases.
-
-Stacks are either free or bound.\label{FREE-STACK}
-A bound stack is a substack that is
-not deallocated from memory until its smallest containing free stack is
-deallocated.  The main reason this is important is that stack addresses
-can be passed out of a block with a bound stack to its containing block,
-but cannot be passed out of a block with a free stack to its containing
-or calling block.  This is implemented by not allowing certain
-variables in to have the `\TT{stack}' qualifier: see
-Section~\itemref{THE-STACK-QUALIFIER}.
-
-Stacks of out-of-line function executions
-(\pagref{OUT-OF-LINE-FUNCTIONS}),
-out-of-line assigment statement blocks
-(\pagref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}),
-and
-compile-time assignment statement blocks
-(\pagref{COMPILE-TIME-ASSIGNMENT-STATEMENTS})
-are free, as is implemented by
-not allowing the variables in the {\em variable-list}
-of a {\em call-assignment-statement},
-{\em out-of-line-assigment-statement}, or
-{\em compile-time-assigment-statement},
-to have the `\TT{stack}' qualifier.
-
-Stacks of loop subblocks are free,
-which is implemented by not
-allowing the variables in the {\em result-variable-list}
-and the iteration variables
-of a {\em loop-assignment-statement} to have the `\TT{stack}'
-qualifier.
-
-Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
-but are never deallocated and make no use of the `\TT{stack}'
-qualifier.
-
-All other stacks are bound.  Memory allocated to them
-by the `\TT{allocate to stack}' function (\pagref{ALLOCATE-TO-STACK})
-is actually
-allocated to their smallest containing free stack, and not deallocated
-until that free stack is deallocated.
-
-Free stacks are relocatable and can be moved.
-Substacks cannot move independently,
-but move whenever their smallest containing free stack moves.
-Any stack address is relative to its containing free stack,
-which is the current free stack at the time executable code uses
-the stack address.  To accommodate this builtin memory read-write
-functions with not only accept an \TT{adr} value as a RAM address,
-but also accept a RAM address consisting of an \TT{unsadr}
-offset within the stack and a stack base address that is itself
-stored in RAM.  See Section~\itemref{THE-MEM-QUALIFIER} for details.
-
-There are a couple of situations in which free stacks move.
-
-Memory of runtime determined size can be allocated to the end of
-a stack by the `\TT{allocate to stack}' and `\TT{allocate to global}'
-functions described below, and such may
-require that the smallest containing free stack
-be moved to a memory region where there is more free memory available.
-
-In a program being debugged, free stacks may be saved after they are no
-longer needed by the program, in order to permit them to be analyzed
-by a debbugger if the program detects and error.  In this situation
-free stacks are allocated to a very big circular buffer, and overwritten
-after they are no longer needed by the program.  It may happen that
-a free stack whose block is still running is in the way of a allocating
-a new stack to the circular buffer, in which case the still running
-block's free stack may be moved.
-
-Lastly, global area stacks (\pagref{GLOBAL-AREAS})
-may be deallocated when programs that
-can reference them are still running, or may not yet be allocated
-when these programs run.  Deallocated global area stacks are treated as if
-they were allocated to inaccessible memory, so deallocating these stacks
-is like moving them to inaccessible memory, and referencing
-them when they are deallocated gives a memory fault.
-
-
-\subsection{Unwind Blocks}
-\label{UNWIND-BLOCKS}
-
-\ikey{Unwind blocks}{unwind block} are executed only when their
-containing block terminates:
-
-\begin{indpar}
-\emkey{unwind-block}
-    ::= \begin{tabular}[t]{l}
-	\ttkey{*UNWIND*}\TT{:} \\
-	\TT{~~~~}{\em executable-statement}\STAR{} \\
-	\end{tabular}
-\end{indpar}
-
-Specifically, when an unwind block is encountered while
-executing its containing block, the unwind block is marked
-as enabled, but is skipped.  Then when the containing block
-terminates, all its enabled unwind blocks are executed in
-the reverse order of that in which they were enabled.
-
-Unwind blocks are used to close or deallocate things that were opened.
-For example, right after a statement that opens a file there may be
-an unwind block that closes the file.  This ensures that the file
-will be closed even if the block that opened it terminates later
-prematurely with an error, such as a memory fault.
-
-\subsection{Throw and Catch}
-\label{THROW-AND-CATCH}
-
-\TT{*THROW*} and \TT{*CATCH*} statements are used to implement
-exceptions, i.e., abnormal termination.
-
-\begin{indpar}
-\emkey{throw-statement} ::= \TT{*THROW*} \\[1ex]
-\emkey{catch-statement} ::= \TT{*CATCH*}
-\end{indpar}
-
-The \TT{*THROW*} statement causes its containing block to
-\ikey{terminate abnormally}{abnormal termination}.
-When a block terminates abnormally, its containing
-block is also terminated abnormally.
-
-\ikey{Normal termination}{normal termination}
-of a block occurs at the end of the block if
-the block has not executed a \TT{*THROW*} or an abnormally
-terminating subblock.
-
-Any enabled \TT{*UNWIND*} subblocks of an abnormally terminating
-block are executed in reverse order, just as they would be if
-the block were terminating normally.  No other part of the block
-is executed.
-
-If an \TT{*UNWIND*} subblock executing in an abnormally terminating
-containing block \TT{B}
-executes a \TT{*CATCH*} statement, the termination of this
-containing block \TT{B}
-is changed from abnormal to normal.  This means
-that \TT{B}'s containing block \TT{C} will resume when the now
-normally terminating block \TT{B} finishes terminating.
-However, \TT{B} will not execute anything but \TT{*UNWIND*}
-subblocks, as it is still terminating.
-
-Machine errors, i.e. memory segment faults, invoke callable functions
-which can record error information and execute a \TT{*THROW*}.
-Similarly detected programming or data errors can record
-error information and execute a \TT{*THROW*}.  An \TT{*UNWIND*}
-block can look at recorded error information and decide whether
-or not to execute a \TT{*CATCH*}.
-
-If a block has variables it must assign then these need not be
-assigned if the block terminates abnormally, as they will not
-be visible to enabled \TT{*UNWIND*} blocks.  However, if a block
-that is terminating abnormally executes a \TT{*CATCH*} statement,
-all variables that the block must assign must be given values, even
-though part of the block may not have executed.  The compiler
-will check this, and will only permit code that complies in a
-straight forward manner, so it may be best to assign all such
-variables in the \TT{*UNWIND*} block that contains the \TT{*CATCH*}
-statement.
-
-\subsection{Stack Memory Allocation}
-\label{STACK-MEMORY-ALLOCATION}
-
-The `\ttkey{allocate to stack}' function allocates \TT{N} bytes of
-memory to the current free stack and returns its offset within
-the stack and the address of the stack base address:
-
-\begin{indpar}\begin{verbatim}
-( stack *UNCHECKED* unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-allocate to stack ( unsadr N )
-\end{verbatim}\end{indpar}\label{ALLOCATE-TO-STACK}
-
-Here `\TT{offset}' is the offset of the \TT{N} bytes within the
-stack, `\TT{offset.base}' is the base address of the stack, and
-stack, `\TT{offset.base.adr}' is the address of where this
-base address is stored in RAM.  The first and last of these
-are fixed but `\TT{offset.base}' may change when the stack is
-moved.
-
-The returned values are a cluster: see Section~\itemref{CLUSTERS}.
-Also used are the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER})
-and `\TT{*UNCHECKED*}' qualifier (see \itemref{THE-UNCHECKED-QUALIFIER}).
-
-The memory is freed when the free stack to which it is allocated
-is freed.  The memory containing the \TT{offset.base} value is
-also freed at this time.  The `\TT{stack}' qualifier is used to
-ensure that addresses of these values cannot survive the free stack:
-see \itemref{THE-STACK-QUALIFIER}.
-
-The memory allocated is always alligned on an \TT{8} byte boundary.
-
-If you want a different alignment you can use:
-
-\begin{indpar}\begin{verbatim}
-( stack *UNCHECKED* unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-    allocate to stack ( unsadr N, unsadr O, unsadr A )
-\end{verbatim}\end{indpar}
-
-where \TT{A} must be a power of \TT{2} not greater than \TT{64}.
-This will align the \TT{O+1}'st
-byte of the allocated memory block
-at an address which is a multiple of \TT{A}\,.
-Free stacks are always allocated on a \TT{64} byte boundary.
-
-
-\subsection{Global Areas}
-\label{GLOBAL-AREAS}
-
-A global area is like the stack frame of a function that has no
-arguments or return value, except that after this function executes,
-the global area remains allocated and its variables can be referenced
-by other code.  The syntax is:
-\begin{indpar}
-\emkey{global-area-block} ::= \\
-\hspace*{3em}\begin{tabular}[t]{@{}l}
-	\TT{global} {\em global-area-name} \TT{:} \\
-	\TT{~~~~}{\em executable-statement}\STAR{} \\
-	\end{tabular}
-\end{indpar}
-
-Several such blocks may have the same {\em global-area-name},
-as long as no {\em variable-name} appears in more than one of these blocks.
-
-In order to be accessed a global area must be named in an `\TT{extern}'
-statement:
-\begin{indpar}
-\emkey{extern-global-block} ::= \\
-\hspace*{3em}\begin{tabular}[t]{@{}l}
-	\TT{extern} {\em global-area-abbreviation}
-	            \TT{is global} {\em global-area-name} \TT{:} \\
-	\TT{~~~~}{\em extern-variable-statement}\STAR{} \\
-	\end{tabular}
-\\[1ex]
-\emkey{extern-variable-statement} \\
-\hspace*{3em}\begin{tabular}[t]{@{}rl}
-    ::= & {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
-    $|$ & {\em variable-abbreviation} \TT{is}
-          {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
-    \end{tabular}
-\end{indpar}
-
-A variable with {\em variable-name}
-\TT{V} in a global area with {\em global-area-abbreviation}
-\TT{A} may be named as \TT{A.V}, or if the variable has its own
-{\em variable-abbreviation} \TT{VA},
-this by itself (and \underline{not} \TT{A.VA})
-may be used to name the variable.  Abbreviations are only affective
-within the source code file containing the `\TT{extern}' statements
-that define them.
-
-The {\em type-name} and {\em qualifiers} of a variable in an
-{\em extern-variable-statement} must match the {\em type-name}
-and {\em qualifiers} of the variable in its {\em global-area-block},
-except that TBD.
-
-
-If \TT{A.V} is not defined, it is not a compile or link time error
-(though there may be warning messages if requested), but accessing
-\TT{A.V} will cause a runtime error (typically a segmentation fault).
-
-
-Memory within a global area can be allocated by:
-
-\begin{indpar}\begin{verbatim}
-( global *UNCHECKED* unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-    allocate to global ( unsadr N )
-( global *UNCHECKED* unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-    allocate to global ( unsadr N, unsadr O, unsadr A )
-\end{verbatim}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
-
-Here \TT{A} must a power of \TT{2} not greater than \TT{64}.
-Global areas are allocated on a \TT{64} byte boundary and
-may be moved during execution.
-
-The `\TT{allocate to global}' function plays the same role for
-global areas as the `\TT{allocate to stack}' function does for
-stacks, accept that the address gets the \TT{global} qualifier
-instead of the \TT{stack} qualifier.  The \TT{global} qualifier
-has no special properties and normally has no effect on code.
-
-The code of a global area block is executed when the file containing it is
-loaded, and the stack of the area is allocated and defined at that
-time.  Global areas may be deallocated or moved during execution.
-References to a global area
-that is not yet allocated or that has been deallocated cause runtime
-errors (typically segmentation faults).
-
 \section{Clusters}
 \label{CLUSTERS}
 
@@ -2298,6 +1988,316 @@ even if other subblocks of the conditional statement do involve such.
 
 If a recomputed variable value is not used after the \TT{reload} statement,
 if is not recomputed.
+
+\section{Stack Management}
+\label{STACK-MANAGEMENT}
+
+Each execution thread has a stack that is not in any other
+stack.  Each out-of-line function
+execution is a block execution that has a stack which is
+by default a substack of the thread in which the function
+execution is running.  Each subblock in turn has a stack
+which is by default a substack of the stack of its containing block.
+And each global area has a stack that is not in any other stack.
+
+Conceptually, the assignment statements in a block each allocate memory for
+their variable to the current block stack and copy values to these
+variables.  As noted above (Section~\itemref{ASSIGNMENT-STATEMENTS}),
+the memory and associated copies may be
+optimized away in some cases.
+
+Stacks are either free or bound.\label{FREE-STACK}
+A bound stack is a substack that is
+not deallocated from memory until its smallest containing free stack is
+deallocated.  The main reason this is important is that stack addresses
+can be passed out of a block with a bound stack to its containing block,
+but cannot be passed out of a block with a free stack to its containing
+or calling block.  This is implemented by not allowing certain
+variables in to have the `\TT{stack}' qualifier: see
+Section~\itemref{THE-STACK-QUALIFIER}.
+
+Stacks of out-of-line function executions
+(\pagref{OUT-OF-LINE-FUNCTIONS}),
+out-of-line assigment statement blocks
+(\pagref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}),
+and
+compile-time assignment statement blocks
+(\pagref{COMPILE-TIME-ASSIGNMENT-STATEMENTS})
+are free, as is implemented by
+not allowing the variables in the {\em variable-list}
+of a {\em call-assignment-statement},
+{\em out-of-line-assigment-statement}, or
+{\em compile-time-assigment-statement},
+to have the `\TT{stack}' qualifier.
+
+Stacks of loop subblocks are free,
+which is implemented by not
+allowing the variables in the {\em result-variable-list}
+and the iteration variables
+of a {\em loop-assignment-statement} to have the `\TT{stack}'
+qualifier.
+
+Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
+but are never deallocated and make no use of the `\TT{stack}'
+qualifier.
+
+All other stacks are bound.  Memory allocated to them
+by the `\TT{allocate to stack}' function (\pagref{ALLOCATE-TO-STACK})
+is actually
+allocated to their smallest containing free stack, and not deallocated
+until that free stack is deallocated.
+
+Free stacks are relocatable and can be moved.
+Substacks cannot move independently,
+but move whenever their smallest containing free stack moves.
+Any stack address is relative to its containing free stack,
+which is the current free stack at the time executable code uses
+the stack address.  To accommodate this builtin memory read-write
+functions with not only accept an \TT{adr} value as a RAM address,
+but also accept a RAM address consisting of an \TT{unsadr}
+offset within the stack and a stack base address that is itself
+stored in RAM.  See Section~\itemref{THE-MEM-QUALIFIER} for details.
+
+There are a couple of situations in which free stacks move.
+
+Memory of runtime determined size can be allocated to the end of
+a stack by the `\TT{allocate to stack}' and `\TT{allocate to global}'
+functions described below, and such may
+require that the smallest containing free stack
+be moved to a memory region where there is more free memory available.
+
+In a program being debugged, free stacks may be saved after they are no
+longer needed by the program, in order to permit them to be analyzed
+by a debbugger if the program detects and error.  In this situation
+free stacks are allocated to a very big circular buffer, and overwritten
+after they are no longer needed by the program.  It may happen that
+a free stack whose block is still running is in the way of a allocating
+a new stack to the circular buffer, in which case the still running
+block's free stack may be moved.
+
+Lastly, global area stacks (\pagref{GLOBAL-AREAS})
+may be deallocated when programs that
+can reference them are still running, or may not yet be allocated
+when these programs run.  Deallocated global area stacks are treated as if
+they were allocated to inaccessible memory, so deallocating these stacks
+is like moving them to inaccessible memory, and referencing
+them when they are deallocated gives a memory fault.
+
+
+\subsection{Unwind Blocks}
+\label{UNWIND-BLOCKS}
+
+\ikey{Unwind blocks}{unwind block} are executed only when their
+containing block terminates:
+
+\begin{indpar}
+\emkey{unwind-block}
+    ::= \begin{tabular}[t]{l}
+	\ttkey{*UNWIND*}\TT{:} \\
+	\TT{~~~~}{\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+Specifically, when an unwind block is encountered while
+executing its containing block, the unwind block is marked
+as enabled, but is skipped.  Then when the containing block
+terminates, all its enabled unwind blocks are executed in
+the reverse order of that in which they were enabled.
+
+Unwind blocks are used to close or deallocate things that were opened.
+For example, right after a statement that opens a file there may be
+an unwind block that closes the file.  This ensures that the file
+will be closed even if the block that opened it terminates later
+prematurely with an error, such as a memory fault.
+
+\subsection{Throw and Catch}
+\label{THROW-AND-CATCH}
+
+\TT{*THROW*} and \TT{*CATCH*} statements are used to implement
+exceptions, i.e., abnormal termination.
+
+\begin{indpar}
+\emkey{throw-statement} ::= \TT{*THROW*} \\[1ex]
+\emkey{catch-statement} ::= \TT{*CATCH*}
+\end{indpar}
+
+The \TT{*THROW*} statement causes its containing block to
+\ikey{terminate abnormally}{abnormal termination}.
+When a block terminates abnormally, its containing
+block is also terminated abnormally.
+
+\ikey{Normal termination}{normal termination}
+of a block occurs at the end of the block if
+the block has not executed a \TT{*THROW*} or an abnormally
+terminating subblock.
+
+Any enabled \TT{*UNWIND*} subblocks of an abnormally terminating
+block are executed in reverse order, just as they would be if
+the block were terminating normally.  No other part of the block
+is executed.
+
+If an \TT{*UNWIND*} subblock executing in an abnormally terminating
+containing block \TT{B}
+executes a \TT{*CATCH*} statement, the termination of this
+containing block \TT{B}
+is changed from abnormal to normal.  This means
+that \TT{B}'s containing block \TT{C} will resume when the now
+normally terminating block \TT{B} finishes terminating.
+However, \TT{B} will not execute anything but \TT{*UNWIND*}
+subblocks, as it is still terminating.
+
+Machine errors, i.e. memory segment faults, invoke callable functions
+which can record error information and execute a \TT{*THROW*}.
+Similarly detected programming or data errors can record
+error information and execute a \TT{*THROW*}.  An \TT{*UNWIND*}
+block can look at recorded error information and decide whether
+or not to execute a \TT{*CATCH*}.
+
+If a block has variables it must assign then these need not be
+assigned if the block terminates abnormally, as they will not
+be visible to enabled \TT{*UNWIND*} blocks.  However, if a block
+that is terminating abnormally executes a \TT{*CATCH*} statement,
+all variables that the block must assign must be given values, even
+though part of the block may not have executed.  The compiler
+will check this, and will only permit code that complies in a
+straight forward manner, so it may be best to assign all such
+variables in the \TT{*UNWIND*} block that contains the \TT{*CATCH*}
+statement.
+
+\subsection{Stack Memory Allocation}
+\label{STACK-MEMORY-ALLOCATION}
+
+The `\ttkey{allocate to stack}' function allocates \TT{N} bytes of
+memory to the current free stack and returns its offset within
+the stack and the address of the stack base address:
+
+\begin{indpar}\begin{verbatim}
+( stack *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
+allocate to stack ( unsadr N )
+\end{verbatim}\end{indpar}\label{ALLOCATE-TO-STACK}
+
+Here `\TT{offset}' is the offset of the \TT{N} bytes within the
+stack, `\TT{offset.base}' is the base address of the stack, and
+stack, `\TT{offset.base.adr}' is the address of where this
+base address is stored in RAM.  The first and last of these
+are fixed but `\TT{offset.base}' may change when the stack is
+moved.
+
+The returned values are a cluster: see Section~\itemref{CLUSTERS}.
+Also used are the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER})
+and `\TT{*UNCHECKED*}' qualifier (see \itemref{THE-UNCHECKED-QUALIFIER}).
+
+The memory is freed when the free stack to which it is allocated
+is freed.  The memory containing the \TT{offset.base} value is
+also freed at this time.  The `\TT{stack}' qualifier is used to
+ensure that addresses of these values cannot survive the free stack:
+see \itemref{THE-STACK-QUALIFIER}.
+
+The memory allocated is always alligned on an \TT{8} byte boundary.
+
+If you want a different alignment you can use:
+
+\begin{indpar}\begin{verbatim}
+( stack *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
+    allocate to stack ( unsadr N, unsadr O, unsadr A )
+\end{verbatim}\end{indpar}
+
+where \TT{A} must be a power of \TT{2} not greater than \TT{64}.
+This will align the \TT{O+1}'st
+byte of the allocated memory block
+at an address which is a multiple of \TT{A}\,.
+Free stacks are always allocated on a \TT{64} byte boundary.
+
+
+\subsection{Global Areas}
+\label{GLOBAL-AREAS}
+
+A global area is like the stack frame of a function that has no
+arguments or return value, except that after this function executes,
+the global area remains allocated and its variables can be referenced
+by other code.  The syntax is:
+\begin{indpar}
+\emkey{global-area-block} ::= \\
+\hspace*{3em}\begin{tabular}[t]{@{}l}
+	\TT{global} {\em global-area-name} \TT{:} \\
+	\TT{~~~~}{\em executable-statement}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+Several such blocks may have the same {\em global-area-name},
+as long as no {\em variable-name} appears in more than one of these blocks.
+
+In order to be accessed a global area must be named in an `\TT{extern}'
+statement:
+\begin{indpar}
+\emkey{extern-global-block} ::= \\
+\hspace*{3em}\begin{tabular}[t]{@{}l}
+	\TT{extern} {\em global-area-abbreviation}
+	            \TT{is global} {\em global-area-name} \TT{:} \\
+	\TT{~~~~}{\em extern-variable-statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{extern-variable-statement} \\
+\hspace*{3em}\begin{tabular}[t]{@{}rl}
+    ::= & {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    $|$ & {\em variable-abbreviation} \TT{is}
+          {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    \end{tabular}
+\end{indpar}
+
+A variable with {\em variable-name}
+\TT{V} in a global area with {\em global-area-abbreviation}
+\TT{A} may be named as \TT{A.V}, or if the variable has its own
+{\em variable-abbreviation} \TT{VA},
+this by itself (and \underline{not} \TT{A.VA})
+may be used to name the variable.  Abbreviations are only affective
+within the source code file containing the `\TT{extern}' statements
+that define them.
+
+The {\em type-name} and {\em qualifiers} of a variable in an
+{\em extern-variable-statement} must match the {\em type-name}
+and {\em qualifiers} of the variable in its {\em global-area-block},
+except that TBD.
+
+
+If \TT{A.V} is not defined, it is not a compile or link time error
+(though there may be warning messages if requested), but accessing
+\TT{A.V} will cause a runtime error (typically a segmentation fault).
+
+
+Memory within a global area can be allocated by:
+
+\begin{indpar}\begin{verbatim}
+( global *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
+    allocate to global ( unsadr N )
+( global *UNCHECKED* unsadr offset,
+  mem adr offset.base,
+  *UNCHECKED* adr offset.base.adr  ) =
+    allocate to global ( unsadr N, unsadr O, unsadr A )
+\end{verbatim}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
+
+Here \TT{A} must a power of \TT{2} not greater than \TT{64}.
+Global areas are allocated on a \TT{64} byte boundary and
+may be moved during execution.
+
+The `\TT{allocate to global}' function plays the same role for
+global areas as the `\TT{allocate to stack}' function does for
+stacks, accept that the address gets the \TT{global} qualifier
+instead of the \TT{stack} qualifier.  The \TT{global} qualifier
+has no special properties and normally has no effect on code.
+
+The code of a global area block is executed when the file containing it is
+loaded, and the stack of the area is allocated and defined at that
+time.  Global areas may be deallocated or moved during execution.
+References to a global area
+that is not yet allocated or that has been deallocated cause runtime
+errors (typically segmentation faults).
 
 \section{Function Prototypes and Calls}
 \label{FUNCTION-PROTOTYPES-AND-CALLS}

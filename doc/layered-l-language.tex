@@ -944,7 +944,7 @@ specified on page~\pagref{INHERITED-QUALIFIER}.
 The builtin qualifiers are in effect declared by:
 \begin{indpar}
 \TT{protected~qualifier~}\ttkey{mem} \\
-\TT{prohibited~protected~qualifier~}\ttkey{stack} \\
+\TT{prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
 \TT{protected qualifier~}\ttkey{*UNCHECKED*} \\
 \TT{qualifier~}\ttkey{trace}
 \end{indpar}
@@ -1697,7 +1697,7 @@ type pointer pair is void
               type pp.type,
               unsadr pp.begin,
               unsadr pp.end,
-              *UNCHECKED* adr pp.base.adr ):
+              adr pp.base.adr ):
     ( out.offset, out.offset.base.adr ) = if:
         pp.begin < pp.end:
             out.offset *UNCHECKED* = pp.begin
@@ -1811,7 +1811,8 @@ the function prototype does not match the call.
 When this is done for prototype results, the cluster root must similarly
 be a result, and the values of the designated
 members of the cluster are set from the results.
-Again the cluster members \underline{must} be omitted in calls.
+Again the cluster members \underline{must} be omitted in calls,
+but will be automatically created.
 Note that in this case any qualifiers on the omitted cluster
 members will be set by the prototypes.
 
@@ -1827,7 +1828,7 @@ The `\TT{mem}' qualifier has the special property that given a variable
 \TT{v} of qualifier \TT{mem}, then if \TT{v} is allocated,
 and \TT{v.adr} of type \TT{adr} and qualifier \TT{*UNCHECKED*}
 is allocated and
-assigned a value, the base \TT{v} will also be automatically
+assigned a value, the root \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
 This is how \TT{out.offset\EOL .base} gets its value from \TT{out.offset.base.adr}.
@@ -1838,7 +1839,7 @@ qualifier is allocated, and also \TT{v.offset.base} of type \TT{adr}
 and either \TT{*UNCHECKED*} or \TT{mem} qualifier is allocated,
 and both are assigned values (the latter possibly by allocating
 and assigning \TT{v.offset.base.adr}), then
-the base \TT{v} will also be automatically
+the root \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.offset+v.base}.
 This is how \TT{out} gets its value from \TT{out.offset}
 and \TT{out.offset.base}.
@@ -1847,7 +1848,8 @@ For details on the `\TT{mem}' qualifier see \itemref{THE-MEM-QUALIFIER}.
 
 The `\TT{stack}' qualifier has the property that values with
 this qualifier may not be passed out of a block with a free
-stack.  See Sections~\itemref{THE-STACK-QUALIFIER} and
+stack.  This keeps stack addresses from escaping contexts in
+which they are valid.  See Sections~\itemref{THE-STACK-QUALIFIER} and
 \itemref{STACK-MANAGEMENT}.
 
 A qualifier may be \ikey{inherited}{qualifier}\label{INHERITED-QUALIFIER}.

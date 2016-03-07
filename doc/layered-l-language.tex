@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 5, 2016
+March 7, 2016
  
 \end{center}
 
@@ -1536,11 +1536,11 @@ The variable values are set by the {\em assignment-statements}.
 Then the {\em executable-statements} are compiled, using
 the variable values to optimize the compilation.  Then the
 compiled code is executed.  The variables in the {\em variable-list}
-must have different names from the variables set by the
-{\em assigment-statements}, and the {\em variable-list}
-variables are set by the {\em executable-statements} as for
+may be set by either
+{\em assigment-statements} or {\em executable-statements} as for
 a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
-If a variable \TT{v} is set by an {\em assignment-statement},
+If a variable \TT{v} not in the {\em variable-list}
+is set by an {\em assignment-statement},
 `\TT{next v}' can be set by an {\em executable-statement}, but
 this will be a new variable whose value will not be available during
 the compilation.
@@ -1976,10 +1976,10 @@ which causes all values of type \TT{T} in the stack to be
 traced.
 
 More specifically, when a value \TT{V} of a variable with the trace
-qualifier \TT{Q} is added to a stack, \TT{V} converted to the
-base type of \TT{Q} is also
-pushed into a (virtual or physical) \TT{Q}-stack of values with
-the trace qualifier \TT{Q}.
+qualifier \TT{Q} and base type \TT{B} is added to a stack,
+\TT{V} converted to type \TT{B} is also
+pushed into a (virtual or physical) \TT{Q}-stack of values of
+type \TT{B}.
 When the stack containing \TT{V} is freed, the corresponding
 value in the \TT{Q}-stack is popped.  There is a \TT{Q}-stack
 associated with every process and every global area.
@@ -2209,7 +2209,7 @@ memory to the current free stack and returns its offset within
 the stack and the address of the stack base address:
 
 \begin{indpar}\begin{verbatim}
-( stack *UNCHECKED* unsadr offset,
+( stack unsadr offset,
   mem adr offset.base,
   *UNCHECKED* adr offset.base.adr  ) =
 allocate to stack ( unsadr N )
@@ -2228,7 +2228,7 @@ and `\TT{*UNCHECKED*}' qualifier (see \itemref{THE-UNCHECKED-QUALIFIER}).
 
 The memory is freed when the free stack to which it is allocated
 is freed.  The memory containing the \TT{offset.base} value is
-also freed at this time.  The `\TT{stack}' qualifier is used to
+also freed at this time.  The inherited `\TT{stack}' qualifier is used to
 ensure that addresses of these values cannot survive the free stack:
 see \itemref{THE-STACK-QUALIFIER}.
 
@@ -2291,29 +2291,28 @@ A variable with {\em variable-name}
 \TT{A} may be named as \TT{A.V}, or if the variable has its own
 {\em variable-abbreviation} \TT{VA},
 this by itself (and \underline{not} \TT{A.VA})
-may be used to name the variable.  Abbreviations are only affective
-within the source code file containing the `\TT{extern}' statements
-that define them.
+may be used to name the variable.  An abbreviation is only affective
+following the `\TT{extern}' statement that defines it within
+the same source code file as this `\TT{extern}' statement.
 
-The {\em type-name} and {\em qualifiers} of a variable in an
-{\em extern-variable-statement} must match the {\em type-name}
-and {\em qualifiers} of the variable in its {\em global-area-block},
-except that TBD.
-
+A variable in an
+{\em extern-variable-statement} must match its corresponding
+{\em global-area-block} variable with respect to type and qualifiers
+in the same manner as a function prototype argument variable
+matches an actuall function call variable.
 
 If \TT{A.V} is not defined, it is not a compile or link time error
 (though there may be warning messages if requested), but accessing
 \TT{A.V} will cause a runtime error (typically a segmentation fault).
 
-
 Memory within a global area can be allocated by:
 
 \begin{indpar}\begin{verbatim}
-( global *UNCHECKED* unsadr offset,
+( global unsadr offset,
   mem adr offset.base,
   *UNCHECKED* adr offset.base.adr  ) =
     allocate to global ( unsadr N )
-( global *UNCHECKED* unsadr offset,
+( global unsadr offset,
   mem adr offset.base,
   *UNCHECKED* adr offset.base.adr  ) =
     allocate to global ( unsadr N, unsadr O, unsadr A )
@@ -2327,7 +2326,8 @@ The `\TT{allocate to global}' function plays the same role for
 global areas as the `\TT{allocate to stack}' function does for
 stacks, accept that the address gets the \TT{global} qualifier
 instead of the \TT{stack} qualifier.  The \TT{global} qualifier
-has no special properties and normally has no effect on code.
+is a protected qualifier with \underline{none} of the special `\TT{stack}'
+qualifier properties, normally has no effect on code.
 
 The code of a global area block is executed when the file containing it is
 loaded, and the stack of the area is allocated and defined at that

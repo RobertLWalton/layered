@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 7, 2016
+March 13, 2016
  
 \end{center}
 
@@ -380,7 +380,7 @@ The following \underline{unchecked}
 conversion operator is defined:
 \begin{center}
 
-$t2$ ~~ \TT{*UNCHECKED*~<{}<++} ~~ $t1${\em -type-value}%
+\TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ $t1${\em -type-value} ~~\TT{)}%
 \label{<<**}
 
 for any two builtin number types $t1$ and $t2$.
@@ -440,7 +440,7 @@ where the method of rounding is indeterminate.
 
 The \underline{unchecked} conversion is defined:
 \begin{center}
-$t2$ ~~ \TT{*UNCHECKED*~<{}<++} ~~ {\em numeric-constant}
+\TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant} ~~\TT{)}%
 \end{center}
 provided one of the following cases applies:
 \begin{itemize}
@@ -497,10 +497,10 @@ type by the
 operations:
 \begin{center}
 \begin{tabular}{rcl}
-{\em builtin-type-name}
-	& \TT{*UNCHECKED*~<{}<++} & {\em defined-type-value} \\
-{\em defined-type-name}
-	& \TT{*UNCHECKED*~<{}<++} & {\em builtin-type-value} \\
+\TT{*UNCHECKED*~(~~~}{\em builtin-type-name}
+	& \TT{<{}<++} & {\em defined-type-value}\TT{~)}\\
+\TT{*UNCHECKED*~(~~~}{\em defined-type-name}
+	& \TT{<{}<++} & {\em builtin-type-value}\TT{~)}\\
 \end{tabular}
 \end{center}
 These operators do not change the actual value, but merely its
@@ -614,10 +614,10 @@ The conversions
 \begin{tabular}{rcl}
 {\em base-enum-type-name}
 	& \TT{<{}<++} & {\em defined-enum-type-value} \\
-{\em base-enum-type-name}
-	& \TT{*UNCHECKED*~<{}<++} & {\em defined-enum-type-value} \\
-{\em defined-enum-type-name}
-	& \TT{*UNCHECKED*~<{}<++} & {\em base-enum-type-value} \\
+{\TT{*UNCHECKED*~(~~~}\em base-enum-type-name}
+	& \TT{<{}<++} & {\em defined-enum-type-value}\TT{~~~)} \\
+{\TT{*UNCHECKED*~(~~~}\em defined-enum-type-name}
+	& \TT{<{}<++} & {\em base-enum-type-value}\TT{~~~)} \\
 \end{tabular}
 \end{center}
 may be used to convert between enumeration values and their base enumeration
@@ -945,7 +945,7 @@ The builtin qualifiers are in effect declared by:
 \begin{indpar}
 \TT{protected~qualifier~}\ttkey{mem} \\
 \TT{prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
-\TT{protected qualifier~}\ttkey{*UNCHECKED*} \\
+\TT{restricted qualifier~}\ttkey{*UNCHECKED*} \\
 \TT{qualifier~}\ttkey{trace}
 \end{indpar}
 
@@ -1683,7 +1683,7 @@ type pointer pair is void
 
     pp.begin = offset
     pp.end = offset + length
-    pp.base.adr *UNCHECKED* = offset.base.adr
+    pp.base.adr = offset.base.adr
 
 
 // Prefix operator to dereference a pointer pair to read
@@ -1700,8 +1700,8 @@ type pointer pair is void
               adr pp.base.adr ):
     ( out.offset, out.offset.base.adr ) = if:
         pp.begin < pp.end:
-            out.offset *UNCHECKED* = pp.begin
-            out.offset.base.adr *UNCHECKED* = pp.base.addr
+            out.offset = pp.begin
+            out.offset.base.adr = pp.base.addr
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1718,11 +1718,10 @@ type pointer pair is void
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            unsadr offset *UNCHECKED* = pp.begin
+            *UNCHECKED* unsadr offset = pp.begin
             mem adr offset.base
-            adr offset.base.adr
-                *UNCHECKED* = pp.base.adr
-            in *UNCHECKED* ---> offset
+            *UNCHECKED* adr offset.base.adr = pp.base.adr
+            in ---> offset
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -1743,7 +1742,7 @@ type pointer pair is void
                adr pp.base.adr ):
       pp2.begin = pp.begin + size of ( T )
       pp2.end = pp.end
-      pp2.base.adr *UNCHECKED* = pp.base.adr
+      pp2.base.adr = pp.base.adr
       pp2.type = pp.type
 
 // Assignment operator for pointer pairs.
@@ -1761,7 +1760,7 @@ type pointer pair is void
             adr pp.base.adr ):
       pp2.begin = pp.begin
       pp2.end = pp.end
-      pp2.base.adr *UNCHECKED* = pp.base.adr
+      pp2.base.adr = pp.base.adr
       pp2.type = pp.type
 
 // Example usage:
@@ -1831,18 +1830,20 @@ is allocated and
 assigned a value, the root \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
-This is how \TT{out.offset\EOL .base} gets its value from \TT{out.offset.base.adr}.
+This is how \TT{out.offset\EOL .base} gets its value from
+\TT{out.offset.base.adr}.
 
 In a similar but more complex fashion, if \TT{v.offset} of type
 \TT{unsadr} (type \TT{intadr} can also be used) and \TT{*UNCHECKED*}
 qualifier is allocated, and also \TT{v.offset.base} of type \TT{adr}
 and either \TT{*UNCHECKED*} or \TT{mem} qualifier is allocated,
 and both are assigned values (the latter possibly by allocating
-and assigning \TT{v.offset.base.adr}), then
+and assigning \TT{v.offset.base.adr} of type \TT{adr} and
+qualifier \TT{*UNCHECKED*}), then
 the root \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.offset+v.base}.
 This is how \TT{out} gets its value from \TT{out.offset}
-and \TT{out.offset.base}.
+and \TT{out\EOL .offset\EOL .base}.
 
 For details on the `\TT{mem}' qualifier see \itemref{THE-MEM-QUALIFIER}.
 
@@ -1926,18 +1927,19 @@ See Section~\itemref{STACK-MANAGEMENT} for more information.
 \label{THE-UNCHECKED-QUALIFIER}
 
 The \TT{*UNCHECKED*} qualifier is a
-protected qualifier that must qualify the \TT{v.adr} or
+restricted qualifier that must qualify the \TT{v.adr} or
 \TT{v.offset} variables
 associated with a variable \TT{v} that has the \TT{mem} qualifier.
 See Section~\itemref{THE-MEM-QUALIFIER}.
 
-The lexeme \TT{*UNCHECKED*} lexeme is commonly the initial part of the
-names of functions and operators that produce \TT{*UNCHECKED*}
-results.  For example, the operators `\TT{*UNCHECKED* =}'
-and `\TT{*UNCHECKED* <{}<++}' which are distinct from the
-operators `\TT{=}' and `\TT{<{}<++}'.
-When used thusly, \TT{*UNCHECKED*} is
-\underline{not} a qualifier.
+The \TT{*UNCHECKED*} qualifier is also required for the result variable
+of an unchecked conversion.  When used for a result variable of an
+assignment, the value assigned need only be convertable to the type
+of the variable by an unchecked conversion, instead of by a checked
+conversion.
+
+The lexeme \TT{*UNCHECKED*} lexeme is also used as the initial part some
+names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement.
 
 \subsection{Trace Qualifiers}
 \label{TRACE-QUALIFIERS}
@@ -2237,7 +2239,7 @@ The memory allocated is always alligned on an \TT{8} byte boundary.
 If you want a different alignment you can use:
 
 \begin{indpar}\begin{verbatim}
-( stack *UNCHECKED* unsadr offset,
+( stack unsadr offset,
   mem adr offset.base,
   *UNCHECKED* adr offset.base.adr  ) =
     allocate to stack ( unsadr N, unsadr O, unsadr A )

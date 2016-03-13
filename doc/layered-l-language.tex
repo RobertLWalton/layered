@@ -460,7 +460,10 @@ equals module $2^n$ the remaining integral part of the {\em numeric-constant},
 where $n$ is the length in bits of $t2$.
 \end{itemize}
 
-TBD: Check IEEE conversions that produce NaNs.
+Conversions that produce IEEE NaNs set an accured exception flag,
+which does not cause an immediate exception, but is separately
+tested after a sequence of operations to see if any produced
+a NaN, and why the NaN was produced.
 
 \subsection{The Void Type}
 \label{THE-VOID-TYPE}
@@ -481,7 +484,7 @@ The following implicit conversion is always defined:
 \subsection{Defined Types}
 \label{DEFINED-TYPES}
 
-A statement of the following form defines a type:
+A declaration statement of the following form defines a type:
 \begin{center}
 \TT{type} {\em qualifier}\STAR{} {\em defined-type-name}
           \TT{is} {\em builtin-type-name}
@@ -516,7 +519,7 @@ may have \skey{enumeration value}s.  These are unique integer
 values assigned to enumeration constant names during compilation,
 and then reassigned to possibly different unique integer values during linking.
 
-A statement of the following form defines an \key{enumeration type}
+A declaration statement of the following form defines an \key{enumeration type}
 that has enumeration values:
 \begin{center}
 \TT{type} {\em qualifier}\STAR{} {\em defined-enum-type-name}
@@ -551,12 +554,12 @@ value provided by the base enumeration type.
 If {\em first-enum} is not given, it is assumed to be the minimum
 value provided by the base enumeration type.
 
-Enumeration values can be assigned by statements of the form
+Enumeration values can be assigned by declaration statements of the form
 \begin{indpar}
 \emkey{enum-assignment}
-    ::= {\em enum-type-name} {\em constant-name} \TT{=} \TT{next enum} \\
+    ::= {\em enum-type-name} {\em constant-name} \TT{is} \TT{next enum} \\
 \emkey{enum-assignment}
-    ::= {\em enum-type-name} {\em constant-name} \TT{=} \TT{previous enum}
+    ::= {\em enum-type-name} {\em constant-name} \TT{is} \TT{previous enum}
 \end{indpar}
 
 Within a compilation the compiler assigns the value {\em first-enum}
@@ -632,13 +635,13 @@ enumeration type definition.
 The following are builtin enumeration types:
 \begin{indpar}
 \TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0~..~1]} \\
-\TT{bool}~\ttkey{false}\TT{~= next enum // 0} \\
-\TT{bool}~\ttkey{true}\TT{~~= next enum // 1} \\
+\TT{bool}~\ttkey{false}\TT{~is next enum // 0} \\
+\TT{bool}~\ttkey{true}\TT{~~is next enum // 1} \\
 \TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
 \TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
-\TT{type}~\ttkey{missing}\TT{~= next enum // 0} \\
-\TT{type}~\ttkey{type}\TT{~= next enum // 1} \\
-\TT{type}~\ttkey{qualifier}\TT{~= next enum // 2}
+\TT{type}~\ttkey{missing}\TT{~is next enum // 0} \\
+\TT{type}~\ttkey{type}\TT{~is next enum // 1} \\
+\TT{type}~\ttkey{qualifier}\TT{~is next enum // 2}
 \end{indpar}
 
 \subsection{Enumeration Sets}
@@ -671,7 +674,7 @@ which is called the `\key{common enumeration type}' of the set.
 As few implicit conversions as possible are inserted.  It is an error
 if this cannot be done because some of the types have no implicit
 conversion defined for them, or if after implict conversion the
-common tpe is not a defined enumeration type.
+common type is not a defined enumeration type.
 Importantly, note that the common type cannot be a builtin integer
 type.
 
@@ -687,7 +690,8 @@ The order in which values are given in an {\em enum-set-constant}
 does not matter.  Overlapping and adjoining ranges are implictly
 combined.\footnote{Internally an enumeration set may be stored as a
 sorted list of integers with binary indicators specifying when all
-the values between one integer and the next integer are to be included in set.}
+the values between one integer and the next integer are to be included
+in the set.}
 Thus
 \begin{indpar}\begin{verbatim}
 type X is uns8 with enum range [1 .. 20]
@@ -716,7 +720,8 @@ The logical expression inside \TT{[[~]]} must be satisfied
 for the function definition to match a function call, and
 the type argument \TT{T}, which is implicit and need not be
 given in the function call, must be in the give set of
-types, where types are values of the enumeration type `\TT{type}'.
+types, where types are values of the enumeration type `\TT{type}'
+(see Section~\itemref{TYPE-VALUES}).
 
 \subsection{Type Values}
 \label{TYPE-VALUES}
@@ -826,9 +831,9 @@ required protected qualifier bar
 foo bar int32 result = F ( foo bar int32 value ):
     // Declares function F that computes a result of type
     // int32 and qualifier bar from a value of type int32
-    // and qualifier bar.  Requires actual argument to have
+    // and qualifier bar.  Requires call argument to have
     // qualifier bar (but not foo), and automatically adds
-    // qualifier bar (but not foo) to the actual result
+    // qualifier bar (but not foo) to the call result
     // variable.
     //
     ... [Function body omitted] ...
@@ -902,39 +907,41 @@ The qualifiers may be declared by:
 \end{indpar}
 
 If a function prototype variable (argument or result) has
-a required qualifier, any actual variable matched to this
+a required qualifier, any call variable matched to this
 prototype variable must have the required qualifier.
 
 If a function prototype variable (argument or result)
 does \underline{not}
-have a prohibited qualifier, any actual variable matched to this
+have a prohibited qualifier, any call variable matched to this
 prototype variable must \underline{not} have the prohibited qualifier.
 
-A qualifier cannot be both required and prohibited.
+A qualifier \underline{can} be both required and prohibited.
+Given a function prototype variable with such a qualifier,
+the matching call variable will always have to have the qualifier.
 
 If a function prototype result variable has a protected
-qualifier, any actual variable matched to this
+qualifier, any call variable matched to this
 prototype variable will be given the protected qualifier
 (if it does not already have it).  Furthermore, no variable
 may have the protected qualifier unless it is matched to
 a function result variable with the qualifier.
 
 In the above example, 
-any actual variable matched to the argument of \TT{F} or \TT{G}
+any call variable matched to the argument of \TT{F} or \TT{G}
 must have the `\TT{bar}' qualifier, which is required.
-Any actual variable matched to the result of \TT{F} will be
+Any call variable matched to the result of \TT{F} will be
 given the `\TT{bar}' qualifier, which is protected.  But this
 last is not true of \TT{G}.
 
-In the above example there are no rules regarding the `TT{foo}'
+In the above example there are no rules regarding the `\TT{foo}'
 qualifier, which can be attached to any variable as the
 user wishes, as its not required, prohibited, or protected.
 
 In the above example, 
-any actual variable matched to the argument of \TT{H} must
+any call variable matched to the argument of \TT{H} must
 \underline{not} have the `\TT{oof}' qualifier, as that
 is a prohibited qualifier.
-Any actual variable matched to the result of \TT{H} will
+Any call variable matched to the result of \TT{H} will
 be given the `\TT{oof}' qualifier, as that
 is a protected qualifier.
 
@@ -2301,7 +2308,7 @@ A variable in an
 {\em extern-variable-statement} must match its corresponding
 {\em global-area-block} variable with respect to type and qualifiers
 in the same manner as a function prototype argument variable
-matches an actuall function call variable.
+matches a function call variable.
 
 If \TT{A.V} is not defined, it is not a compile or link time error
 (though there may be warning messages if requested), but accessing

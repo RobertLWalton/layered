@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 13, 2016
+March 14, 2016
  
 \end{center}
 
@@ -965,6 +965,84 @@ Each qualifier is associated with a unique enumeration value
 of type `\TT{qualifier}', and this value can be used at both
 compile and run time to test whether two `\TT{qualifier}'s are
 equal.
+
+\section{Names and Abbreviations}
+\label{NAMES-AND-ABBREVIATIONS}
+
+A \key{name} is a sequence of lexemes used to name things like
+variables and functions.
+
+\begin{indpar}
+{\em name} ::=
+    {\em base-name} {\em member-selector}$^\star$ \\[1ex]
+{\em base-name} ::= {\em simple-name} \\[1ex]
+{\em simple-name} ::= {\em simple-name-item}\PLUS{} \\[1ex]
+{\em simple-name-item} ::=
+    {\em word} $|$ {\em mark} $|$ {\em quoted-name-item} \\[1ex]
+{\em quoted-name-item} ::=
+    \TT{"}-quoted {\em separator}, {\em mark}, or {\em word} \\[1ex]
+{\em member-selector} \begin{tabular}[t]{@{}rl}
+    ::= & \TT{.}{\em member-name} \\
+    $|$ & \TT{[}{\em member-index-list}\TT{]}
+    \end{tabular} \\[1ex]
+{\em member-name} ::= {\em simple-name} \\[1ex]
+{\em member-index-list} \begin{tabular}[t]{@{}rl}
+    ::= & {\em member-index} \\
+    $|$ & {\em member-index} \TT{,} {\em member-index-list}
+    \end{tabular} \\[1ex]
+{\em member-index} ::= {\em integer-constant-expression}
+\end{indpar}
+
+A variable of type \ttkey{name} can store a name.  Name
+constants are made by \TT{`~'} quoting a {\em name}.
+Names can be concatenated by the \TT{+} operator.  An
+example is:
+\begin{indpar}\begin{verbatim}
+name n = `my name'
+name n2 = `her name.husband[3]'
+name n3 = n + n2  // n3 now = `my name her name.husband[3]'
+\end{verbatim}\end{indpar}
+
+A variable may be declared to be an abbreviation.  When a name
+appears in code being compiled, and the name references a
+variable that is an abbreviation, the value of the variable is
+subsituted for the name.  This is done recursively.  For
+example:
+\begin{indpar}\begin{verbatim}
+int32 i = 5
+int32 j = 6
+name ni = `i'
+name nj = `j'
+name nnj = `nj'
+abbreviation ni
+int32 p = ni  // same as p = i
+int32 q = nj  // Illegal type conversion: same as q = `j'.
+abbreviation nj
+int32 r = nj  // same as r = j (now nj => j)
+int32 s = nnj // same as s = j (nnj => nj => j)
+\end{verbatim}\end{indpar}
+
+A name declaration can be used to abbreviate a \TT{name} variable
+assigment followed by an abbreviation declaration:
+\begin{indpar}\begin{verbatim}
+name ni is i  // same as: name ni = `i'; abbreviation ni
+\end{verbatim}\end{indpar}
+
+The syntax of these declarations is:
+
+\begin{indpar}
+{\em abbreviation-declaration-statement} ::=
+    \TT{abbreviation} ~~ {\em name} ~~ \{ \TT{,} {\em name} \}\STAR{} \\[1ex]
+{\em name-declaration-statement} ::=
+    \TT{name} ~~ {\em abbreviating-name} ~~ \TT{is} ~~ {\em abbreviated-name}
+\end{indpar}
+
+An {\em abbreviation-declaration-statement} must name variables whose
+names are in scope, where a variable name is in scope from the point
+where the variable is assigned a value until the end of the block
+containing the variable assignment.  The abbreviation scope ends when
+the variable name scope ends.
+
 
 \section{Functions}
 \label{FUNCTIONS}

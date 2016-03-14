@@ -975,12 +975,12 @@ variables and functions.
 \begin{indpar}
 {\em name} ::=
     {\em base-name} {\em member-selector}$^\star$ \\[1ex]
-{\em base-name} ::= {\em simple-name} \\[1ex]
+{\em base-name} ::= {\em simple-name} $|$ {\em member-selector} \\[1ex]
 {\em simple-name} ::= {\em simple-name-item}\PLUS{} \\[1ex]
 {\em simple-name-item} ::=
     {\em word} $|$ {\em mark} $|$ {\em quoted-name-item} \\[1ex]
 {\em quoted-name-item} ::=
-    \TT{"}-quoted {\em separator}, {\em mark}, or {\em word} \\[1ex]
+    double quoted (\TT{"~"}) {\em separator}, {\em mark}, or {\em word} \\[1ex]
 {\em member-selector} \begin{tabular}[t]{@{}rl}
     ::= & \TT{.}{\em member-name} \\
     $|$ & \TT{[}{\em member-index-list}\TT{]}
@@ -993,14 +993,17 @@ variables and functions.
 {\em member-index} ::= {\em integer-constant-expression}
 \end{indpar}
 
-A variable of type \ttkey{name} can store a name.  Name
-constants are made by \TT{`~'} quoting a {\em name}.
-Names can be concatenated by the \TT{+} operator.  An
+A variable of type \ttkey{name} can store either a {\em name}
+or a {\em member-selectors}.  Name
+constants are made by \TT{`~'} quoting a {\em name}
+or {\em member-selectors}.  A {\em name} value and a
+{\em member-selectors} value can be concatenated by the \TT{+} operator.  An
 example is:
 \begin{indpar}\begin{verbatim}
-name n = `my name'
-name n2 = `her name.husband[3]'
-name n3 = n + n2  // n3 now = `my name her name.husband[3]'
+name n1 = `my name'
+name n2 = `.husband'
+name n3 = `[3]'
+name n = n1 + n2 + n3  // n now = `my name .husband [3]'
 \end{verbatim}\end{indpar}
 
 A variable may be declared to be an abbreviation.  When a name
@@ -1025,7 +1028,8 @@ int32 s = nnj // same as s = j (nnj => nj => j)
 A name declaration can be used to abbreviate a \TT{name} variable
 assigment followed by an abbreviation declaration:
 \begin{indpar}\begin{verbatim}
-name ni is i  // same as: name ni = `i'; abbreviation ni
+name ni is i  // same as: name ni = `i'
+              //          abbreviation ni
 \end{verbatim}\end{indpar}
 
 The syntax of these declarations is:

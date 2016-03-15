@@ -974,34 +974,39 @@ variables and functions.
 
 \begin{indpar}
 {\em name} \begin{tabular}[t]{@{}rl}
-    ::= & {\em base-name} {\em member-selector}\STAR{} \\
-    $|$ & {\em member-selector}\PLUS{} \\
+    ::=  & {\em base-name} {\em member-selector}\STAR{} \\
+    $|$  & {\em member-selector}\PLUS{} \\
     \end{tabular} \\[1ex]
-{\em base-name} ::= {\em simple-name} not beginning with `\TT{.}' \\[1ex]
-{\em simple-name} ::= {\em simple-name-item}\PLUS{} \\[1ex]
-{\em simple-name-item} ::=
-    {\em word} $|$ {\em mark} $|$ {\em quoted-name-item} \\[1ex]
-{\em quoted-name-item} ::=
-    double quoted (\TT{"~"}) {\em separator}, {\em mark}, or {\em word} \\[1ex]
-{\em member-selector} \begin{tabular}[t]{@{}rl}
-    ::= & {\em member-name} \\
-    $|$ & \TT{[}{\em member-index-list}\TT{]}
-    \end{tabular} \\[1ex]
-{\em member-name} ::= {\em simple-name} beginning with `\TT{.}' \\[1ex]
+{\em name-component} ::= {\em base-name} $|$ {\em member-selector} \\
+{\em base-name} ::= {\em simple-name} not containing any `\TT{.}'s \\
+{\em member-name} ::=
+    {\em simple-name} containing just one `\TT{.}' at its beginning \\[1ex]
+{\em member-selector} ::= {\em member-name} {\em member-subscript}\STAR{} \\
+{\em member-subscript} ::= \TT{[}{\em member-index-list}\TT{]} \\
 {\em member-index-list} \begin{tabular}[t]{@{}rl}
     ::= & {\em member-index} \\
     $|$ & {\em member-index} \TT{,} {\em member-index-list}
-    \end{tabular} \\[1ex]
-{\em member-index} ::= {\em integer-constant-expression}
+    \end{tabular} \\
+{\em member-index} ::= {\em integer-constant-expression} \\[1ex]
+{\em simple-name} ::= {\em simple-name-item}\PLUS{} \\
+{\em simple-name-item} \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} $|$ {\em mark} $|$ {\em quoted-name-item} \\
+        & [see text about splitting {\em words} with embedded `\TT{.}'s]
+    \end{tabular} \\
+{\em quoted-name-item} ::=
+    double quoted (\TT{"~"}) {\em separator}, {\em mark}, or {\em word}
 \end{indpar}
 
 The difference between a {\em base-name} and a {\em member-name}
 is that the first character of a {\em member-name} is `\TT{.}',
 and the first character of a {\em base-name} is \underline{not}
-`\TT{.}'.  Furthermore, a lexeme of a {\em name} that contains
+`\TT{.}'.  Furthermore, a {\em word} of any {\em simple-name} that contains
 an embedded period `\TT{.}', is split just before the period,
 unless the second result lexeme is a {\em numeric} (i.e., contains
-a digit not preceded by a letter within the lexeme).
+a digit not preceded by a letter within the numeric lexeme).\footnote{
+Thus the lexeme is split before an embedded period if and only if
+the first letter or digit after the period is a letter and not
+a digit, or there is no letter or digit after the period.}
 
 Thus \\
 \centerline{\TT{bills.wife.1.weight}}
@@ -1010,23 +1015,42 @@ is split into \\
 
 
 A variable of type \ttkey{name} can store a {\em name}.
-Name constants are made by \TT{`~'} quoting a {\em name}.
-Two {\em name} values can be
+Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
+Two \TT{name} values can be
 concatenated by the \TT{+} operator if the second begins with
 a {\em member-selector}.  An
 example is:
 \begin{indpar}\begin{verbatim}
-name n1 = `my name'
-name n2 = `.husband'
-name n3 = `[3]'
-name n = n1 + n2 + n3  // n now = `my name .husband [3]'
+name n1 = `jill'
+name n2 = `.daughter[3]'
+name n = n1 + n2  // n now = `jill .daughter[3]'
+                  // or equivalently `jill.daughter[3]'
 \end{verbatim}\end{indpar}
 
 A variable may be declared to be an abbreviation.  When a name
 appears in code being compiled, and the name references a
 variable that is an abbreviation, the value of the variable is
-subsituted for the name.  This is done recursively.  For
-example:
+subsituted for the name.
+
+More specifically, if a contiguous part
+of a {\em name} names a
+variable that is an
+abbreviation, the contiguous part is replaced, and then this rule
+is applied recursively.
+The contigous part must begin at the beginning of the {\em name} or
+a the beginning of a {\em member-selector} in the name, and must end
+at the end of the {\em name} or just before a {\em member-selector}
+in the name (i.e., the part must be a contiguous sequence of the
+{\em name-components} in the {\em name}).
+If there is more than one contiguous part
+that might be replaced, one beginning first, and among these
+the longest, is replaced.
+
+Note that abbreviations whose names begin with a {\em base-name}
+can only replace an initial part of a {\em name}, with preference
+given to the longest abbreviation.  This is the most common case.
+
+For example:
 \begin{indpar}\begin{verbatim}
 int32 i = 5
 int32 j = 6

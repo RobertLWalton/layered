@@ -1088,131 +1088,6 @@ containing the variable assignment.  The abbreviation scope ends when
 the variable name scope ends.
 
 
-\section{Functions}
-\label{FUNCTIONS}
-
-All functions are inline.  An inline function can call an out-of-line
-function by using
-a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS})
-or the out-of-line assignment statement
-(\itemref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}).
-
-Function definitions have the form:
-
-\begin{indpar}
-\emkey{function-definition}
-    ::= \begin{tabular}[t]{l}
-        {\em function-prototype}\TT{:} \\
-	~~~~ {\em executable-statement}\STAR{} \\
-	\end{tabular}
-\\[1ex]
-\emkey{function-prototype}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em result-variable-list} \TT{=} {\em function-name}
-	    {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
-            \TT{=} {\em input-variable-list} \\
-    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
-    $|$ & {\em function-prototype}
-          \TT{[[} {\em qualifying-expression} \TT{]]} \\
-    \end{tabular}
-\\[1ex]
-\emkey{qualifying-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em call-compile-time-logical-expression} \\
-    $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression}
-    \end{tabular}
-\end{indpar}
-
-A function call with a {\em result-variable-list}
-is in effect replaced by a {\em block-assignment-statement}
-(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
-with the {\em function-definition's} {\em result-variable-list} becoming the 
-{\em block-assignment-statement's} {\em variable-list} and the
-{\em function-definition's} {\em executable-statements} becoming the 
-{\em block-assignment-statement's} {\em executable-statements}.
-Actual argument values from the function call are assigned to variables in
-the definition {\em argument-variable-list}.  The values produced in
-the {\em result-variable-list's} variables become the values of the
-function call when it is used as part of an {\em expression}.
-
-A function call without any {\em result-variable-list}
-is just like a function call with an empty
-{\em result-variable-list}.
-
-A function call with an {\em input-variable-list} is just syntactic
-sugar for a function call with neither a {\em result-variable-list}
-or {\em input-variable-list}.  Specifically
-\begin{center}
-\TT{F(a1,a2,...)~=~(b1,b2,...)} \\
-is syntactic sugar for \\
-\TT{F(a1,a2,...)(b1,b2,...)} \\
-\end{center}
-
-where use is made of the fact that a function can have multiple
-argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
-
-An argument or return variable can have the `\TT{type}' type.
-If an argument variable has type `\TT{type}', its value can be used as the
-type of other argument variables that are
-after it in the {\em argument-variable-list},
-or of any result variable.  For example:
-
-\begin{indpar}\begin{verbatim}
-( T result ) = add ( type T, T v1, T v2 ):
-    result = v1 + v2
-
-// Example usage
-//
-int32 x = ...
-int32 y = ...
-int32 z = add ( int32, x, y )
-\end{verbatim}\end{indpar}
-
-Type arguments can be implied, e.g., the first argument \TT{T}
-in a call to `\TT{add}' as in:
-
-\begin{indpar}\begin{verbatim}
-int32 z = add ( x, y )
-\end{verbatim}\end{indpar}
-
-Conditions can be written at the end of a {\em function-prototype},
-as in:
-\begin{indpar}\begin{verbatim}
-types signed-integer-types =
-    {{ int8, int16, int32, int64, int128 }}
-
-( T result ) = add ( type T, T v1, T v2 )
-    [[ T in signed-integer-types ]]:
-    result = v1 + v2
-\end{verbatim}\end{indpar}
-
-which would define `\TT{add}' only for signed integer types.
-The conditions must be evaluatable whenever a call to the
-function is compiled.
-
-If an argument variable has type `\TT{qualifiers}',
-its value can be used as some of the qualifiers
-of other argument variables that are
-after it in the {\em argument-variable-list},
-or of any result variable.  For example:
-\begin{indpar}\begin{verbatim}
-( Qr pointer result ) =
-    increment ( qualfiers Q, Q pointer value )
-    [[ Qr is Q & {{ stack }} ]]:
-    result = v1 + v2
-\end{verbatim}\end{indpar}
-
-A `\TT{qualifiers}' variable takes as its value a set of
-qualifiers.
-Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
-and \TT{Qr} is just an abbreviation of the more complex
-qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
-
-Much more complex {\em function-prototypes} can be written:
-see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
-
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
@@ -1734,6 +1609,149 @@ Compile time blocks may only use compile time variables and values,
 but may use visible inline functions, out-of-line functions
 that have been declared to be compile-time, and global areas
 that have been declared to be compile-time.
+
+\section{Functions}
+\label{FUNCTIONS}
+
+All functions are inline.  An inline function can call an out-of-line
+function by using
+a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS})
+or the out-of-line assignment statement
+(\itemref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}).
+
+Function definitions have the form:
+
+\begin{indpar}
+\emkey{function-definition}
+    ::= \begin{tabular}[t]{l}
+        {\em function-prototype}\TT{:} \\
+	~~~~ {\em executable-statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{function-prototype}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em result-variable-list} \TT{=} {\em function-name}
+	    {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
+            \TT{=} {\em input-variable-list} \\
+    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
+    $|$ & {\em function-prototype}
+          \TT{[[} {\em qualifying-expression} \TT{]]} \\
+    \end{tabular}
+\\[1ex]
+\emkey{qualifying-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em call-compile-time-logical-expression} \\
+    $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression}
+    \end{tabular}
+\end{indpar}
+
+A function call with a {\em result-variable-list}
+is in effect replaced by a {\em block-assignment-statement}
+(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
+with the {\em function-definition's} {\em result-variable-list} becoming the 
+{\em block-assignment-statement's} {\em variable-list} and the
+{\em function-definition's} {\em executable-statements} becoming the 
+{\em block-assignment-statement's} {\em executable-statements}.
+Actual argument values from the function call are assigned to variables in
+the definition {\em argument-variable-list}.  The values produced in
+the {\em result-variable-list's} variables become the values of the
+function call when it is used as part of an {\em expression}.
+
+A function call without any {\em result-variable-list}
+is just like a function call with an empty
+{\em result-variable-list}.
+
+A function call with an {\em input-variable-list} is just syntactic
+sugar for a function call with neither a {\em result-variable-list}
+or {\em input-variable-list}.  Specifically
+\begin{center}
+\TT{F(a1,a2,...)~=~(b1,b2,...)} \\
+is syntactic sugar for \\
+\TT{F(a1,a2,...)(b1,b2,...)} \\
+\end{center}
+
+where use is made of the fact that a function can have multiple
+argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
+
+An argument or return variable can have the `\TT{type}' type.
+If an argument variable has type `\TT{type}', its value can be used as the
+type of other argument variables that are
+after it in the {\em argument-variable-list},
+or of any result variable.  For example:
+
+\begin{indpar}\begin{verbatim}
+( T result ) = add ( type T, T v1, T v2 ):
+    result = v1 + v2
+
+// Example usage
+//
+int32 x = ...
+int32 y = ...
+int32 z = add ( int32, x, y )
+\end{verbatim}\end{indpar}
+
+Type arguments can be implied, e.g., the first argument \TT{T}
+in a call to `\TT{add}' as in:
+
+\begin{indpar}\begin{verbatim}
+int32 z = add ( x, y )
+\end{verbatim}\end{indpar}
+
+Conditions can be written at the end of a {\em function-prototype},
+as in:
+\begin{indpar}\begin{verbatim}
+types signed-integer-types =
+    {{ int8, int16, int32, int64, int128 }}
+
+( T result ) = add ( type T, T v1, T v2 )
+    [[ T in signed-integer-types ]]:
+    result = v1 + v2
+\end{verbatim}\end{indpar}
+
+which would define `\TT{add}' only for signed integer types.
+The conditions must be evaluatable whenever a call to the
+function is compiled.
+
+If an argument variable has type `\TT{qualifiers}',
+its value can be used as some of the qualifiers
+of other argument variables that are
+after it in the {\em argument-variable-list},
+or of any result variable.  For example:
+\begin{indpar}\begin{verbatim}
+( Qr pointer result ) =
+    increment ( qualfiers Q, Q pointer value )
+    [[ Qr is Q & {{ stack }} ]]:
+    result = v1 + v2
+\end{verbatim}\end{indpar}
+
+A `\TT{qualifiers}' variable takes as its value a set of
+qualifiers.
+Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
+and \TT{Qr} is just an abbreviation of the more complex
+qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
+
+Much more complex {\em function-prototypes} can be written:
+see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+
+\section{Generics}
+\label{GENERICS}
+
+A \key{generic} is like an inline function except that:
+\begin{enumerate}
+\item All the arguments in a generic call must have compile-time values.
+\item The generic call has no results.
+\item The code in the generic block runs at compile-time and
+      assigns its variables compile-time values.
+\item There is an extra `\TT{include}' block consisting of
+      declaration statements that replaces the generic call
+      in the code that contains it.  These declarations may
+      contain the names of call arguments and computed block variables,
+      including abbreviations, and these are replaced by their values
+      in the declaration statements that replace the generic call.
+\end{enumerate}
+
 
 \section{Clusters}
 \label{CLUSTERS}

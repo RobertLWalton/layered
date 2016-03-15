@@ -973,27 +973,30 @@ A \key{name} is a sequence of lexemes used to name things like
 variables and functions.
 
 \begin{indpar}
-{\em name} \begin{tabular}[t]{@{}rl}
+\emkey{name} \begin{tabular}[t]{@{}rl}
     ::=  & {\em base-name} {\em member-selector}\STAR{} \\
     $|$  & {\em member-selector}\PLUS{} \\
     \end{tabular} \\[1ex]
-{\em name-component} ::= {\em base-name} $|$ {\em member-selector} \\
-{\em base-name} ::= {\em simple-name} not containing any `\TT{.}'s \\
-{\em member-name} ::=
-    {\em simple-name} containing just one `\TT{.}' at its beginning \\[1ex]
-{\em member-selector} ::= {\em member-name} {\em member-subscript}\STAR{} \\
-{\em member-subscript} ::= \TT{[}{\em member-index-list}\TT{]} \\
-{\em member-index-list} \begin{tabular}[t]{@{}rl}
+\emkey{name-component} ::= {\em base-name} $|$ {\em member-selector} \\
+\emkey{base-name} ::= {\em simple-name} not containing any `\TT{.}'s \\
+\emkey{member-name} \begin{tabular}[t]{@{}rl}
+    ::= & {\em simple-name} containing just one `\TT{.}'
+          that begins its first lexeme \\
+	& which must be a {\em word} or {\em mark} with more than one character
+    \end{tabular} \\[1ex]
+\emkey{member-selector} ::= {\em member-name} {\em member-subscript}\STAR{} \\
+\emkey{member-subscript} ::= \TT{[}{\em member-index-list}\TT{]} \\
+\emkey{member-index-list} \begin{tabular}[t]{@{}rl}
     ::= & {\em member-index} \\
     $|$ & {\em member-index} \TT{,} {\em member-index-list}
     \end{tabular} \\
-{\em member-index} ::= {\em integer-constant-expression} \\[1ex]
-{\em simple-name} ::= {\em simple-name-item}\PLUS{} \\
-{\em simple-name-item} \begin{tabular}[t]{@{}rl}
+\emkey{member-index} ::= {\em integer-constant-expression} \\[1ex]
+\emkey{simple-name} ::= {\em simple-name-item}\PLUS{} \\
+\emkey{simple-name-item} \begin{tabular}[t]{@{}rl}
     ::= & {\em word} $|$ {\em mark} $|$ {\em quoted-name-item} \\
         & [see text about splitting {\em words} with embedded `\TT{.}'s]
     \end{tabular} \\
-{\em quoted-name-item} ::=
+\emkey{quoted-name-item} ::=
     double quoted (\TT{"~"}) {\em separator}, {\em mark}, or {\em word}
 \end{indpar}
 
@@ -1039,11 +1042,13 @@ abbreviation, the contiguous part is replaced, and then this rule
 is applied recursively.
 The contigous part must begin at the beginning of the {\em name} or
 a the beginning of a {\em member-selector} in the name, and must end
-at the end of the {\em name} or just before a {\em member-selector}
+at the end of the {\em name}, just before a {\em member-selector},
+or just before a {\em member-subscript}
 in the name (i.e., the part must be a contiguous sequence of the
-{\em name-components} in the {\em name}).
+{\em name-components} in the {\em name} with ending {\em member-subscripts}
+optionally omitted).
 If there is more than one contiguous part
-that might be replaced, one beginning first, and among these
+that might be replaced, ones beginning first, and among these
 the longest, is replaced.
 
 Note that abbreviations whose names begin with a {\em base-name}
@@ -1051,19 +1056,26 @@ can only replace an initial part of a {\em name}, with preference
 given to the longest abbreviation.  This is the most common case.
 
 For example:
-\begin{indpar}\begin{verbatim}
-int32 i = 5
-int32 j = 6
+\begin{indpar}[0.1in]\begin{verbatim}
 name ni = `i'
 name nj = `j'
 name nnj = `nj'
 abbreviation ni
-int32 p = ni  // same as p = i
-int32 q = nj  // Illegal type conversion: same as q = `j'.
-abbreviation nj
-int32 r = nj  // same as r = j (now nj => j)
-int32 s = nnj // same as s = j (nnj => nj => j)
+int32 ni = 5       // Legal: same as i = 5
+int32 nj = 6       // Illegal variable overlay: same as nj = 6.
+abbreviation nj, nnj
+int32 nj = 6       // Legal: same as j = 6
+int32 r = nnj      // Legal: same as r = j (now nnj => nj => j)
+int32 nnj.p = 4    // Legal: same as j.p = 4
+name .p = `.q'
+int32 nnj.p = 4    // Illegal variable overlay: same as j.p = 4
+abbreviation .p
+int32 nnj.p = 4    // Legal: same as j.q = 4
+int32 nnj.p[0] = 4 // Legal: same as j.q[0] = 4
 \end{verbatim}\end{indpar}
+
+Note here that variables may have names that contain {\em member-selectors}:
+see Section~\itemref{CLUSTERS} for more details.
 
 A name declaration can be used to abbreviate a \TT{name} variable
 assigment followed by an abbreviation declaration:
@@ -1082,10 +1094,8 @@ The syntax of these declarations is:
 \end{indpar}
 
 An {\em abbreviation-declaration-statement} must name variables whose
-names are in scope, where a variable name is in scope from the point
-where the variable is assigned a value until the end of the block
-containing the variable assignment.  The abbreviation scope ends when
-the variable name scope ends.
+names are in scope (see Section~\itemref{SCOPES}) and whose type is
+`\TT{name}'.
 
 
 \section{Assignment Statements}
@@ -1609,6 +1619,11 @@ Compile time blocks may only use compile time variables and values,
 but may use visible inline functions, out-of-line functions
 that have been declared to be compile-time, and global areas
 that have been declared to be compile-time.
+
+\section{Scopes}
+\label{SCOPES}
+
+TBD
 
 \section{Functions}
 \label{FUNCTIONS}

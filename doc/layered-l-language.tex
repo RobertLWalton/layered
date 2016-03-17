@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 14, 2016
+March 17, 2016
  
 \end{center}
 
@@ -1030,7 +1030,8 @@ name n = n1 + n2  // n now = `jill .daughter[3]'
                   // or equivalently `jill.daughter[3]'
 \end{verbatim}\end{indpar}
 
-A variable may be declared to be an abbreviation.  When a name
+A variable may be declared to be an \key{abbreviation} by prefacing
+the `\ttkey{abbreviating}' qualifier to its `\TT{name}' type.  When a name
 appears in code being compiled, and the name references a
 variable that is an abbreviation, the value of the variable is
 subsituted for the name.
@@ -1058,20 +1059,18 @@ given to the longest abbreviation.  This is the most common case.
 For example:
 \begin{indpar}[0.1in]\begin{verbatim}
 name ni = `i'
-name nj = `j'
-name nnj = `nj'
-abbreviation ni
-int32 ni = 5       // Legal: same as i = 5
-int32 nj = 6       // Illegal variable overlay: same as nj = 6.
-abbreviation nj, nnj
+abbreviating name nj = `j'
+abbreviating name nnj = `nj'
+int32 nj = 5       // Legal: same as j = 5
+int32 ni = 6       // Illegal variable overlay: same as ni = 6.
 int32 nj = 6       // Legal: same as j = 6
-int32 r = nnj      // Legal: same as r = j (now nnj => nj => j)
+int32 r = nnj      // Legal: same as r = j (nnj => nj => j)
 int32 nnj.p = 4    // Legal: same as j.p = 4
 name .p = `.q'
 int32 nnj.p = 4    // Illegal variable overlay: same as j.p = 4
-abbreviation .p
-int32 nnj.p = 4    // Legal: same as j.q = 4
-int32 nnj.p[0] = 4 // Legal: same as j.q[0] = 4
+abbreviating name .r = `.q'
+int32 nnj.r = 4    // Legal: same as j.q = 4
+int32 nnj.r[0] = 4 // Legal: same as j.q[0] = 4
 \end{verbatim}\end{indpar}
 
 Note here that variables may have names that contain {\em member-selectors}:
@@ -1080,28 +1079,31 @@ see Section~\itemref{CLUSTERS} for more details.
 A name declaration can be used to abbreviate a \TT{name} variable
 assigment followed by an abbreviation declaration:
 \begin{indpar}\begin{verbatim}
-name ni is i  // same as: name ni = `i'
-              //          abbreviation ni
+name ni is i  // same as: abbreviating name ni = `i'
 \end{verbatim}\end{indpar}
 
-The syntax of these declarations is:
+A statement of the form `\TT{abbreviating name} {\em n} \TT{=} \ldots'
+is an assignment statement: see Section~\itemref{ASSIGNMENT-STATEMENTS}
+for more details.  The general syntax of the abbreviation declaration is:
 
 \begin{indpar}
 {\em abbreviation-declaration-statement} ::=
-    \TT{abbreviation} ~~ {\em name} ~~ \{ \TT{,} {\em name} \}\STAR{} \\[1ex]
-{\em name-declaration-statement} ::=
-    \TT{name} ~~ {\em abbreviating-name} ~~ \TT{is} ~~ {\em abbreviated-name}
+    \TT{name} ~ {\em abbreviating-name} ~ \TT{is} ~ {\em abbreviated-name}
 \end{indpar}
 
-An {\em abbreviation-declaration-statement} must name variables whose
-names are in scope (see Section~\itemref{SCOPES}) and whose type is
-`\TT{name}'.
+If an abbreviation is referenced in code being compiled, the value
+of the abbreviation variable must be available to the compilation.
+This does \underline{not} mean the value of every abbreviation
+variable must be compile-time, as such a variable may be computed
+at run-time and then used in a `\TT{compile-and-run}' assignment
+statement: see Section~\itemref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}.
 
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
-Function executions have stacks that contain \underline{all}
+Code is executed in blocks, which are described in more detail
+below, and block executions have stacks that contain \underline{all}
 their variables.
 These variables are allocated and their values are computed by
 assignment statements:
@@ -1145,8 +1147,11 @@ The {\em expression} may only input values that are constants or are
 the values of other variables in the same function execution
 stack (including
 arguments passed to the function execution).  In particular,
-no input can come from RAM memory outside the function execution stack.
-See Section~\itemref{STACK-MANAGEMENT} for information about stacks.
+no input can come \underline{directly}
+from RAM memory outside the function execution stack
+(but see \pagref{MEM} and Section~\itemref{THE-MEM-QUALIFIER}
+for ways to load RAM values into stack variables).
+See Section~\itemref{STACK-MANAGEMENT} for more information about stacks.
 
 Implicitly when a variable value is set this way, the value is first
 computed in a register, then stored in the stack, and for some time
@@ -1169,9 +1174,12 @@ name.  Thus variables are only assigned values once.
 
 However, if an assignment statement uses the word `\TT{next}' in
 place of the {\em qualifiers} and {\em type-name}
-of a variable being assigned a value, and
-if the variable previously exists, a new variable with the same
-name, type, and qualifiers as the previous variable is allocated.
+of a variable being assigned a value, then the named variable must
+have been previously assigned a value within the same block,
+and a new variable with the same
+name, type, and qualifiers as the previous variable is allocated,
+and the new variable supercedes the previous variable in subsequent code within
+the block.
 
 Note that `\TT{next}' behaves differently for loop interation
 variables (see below) than it does for other variables.
@@ -1193,33 +1201,32 @@ Another variant of the assignment statement is\index{block assignment}:
     ::= \begin{tabular}[t]{l}
         \{ {\em variable-list} \TT{=} \}\QMARK{}
 	\ttkey{do}\QMARK{} \TT{:} \\
-	\TT{~~~~}{\em executable-statement}\STAR{}
+	\TT{~~~~}{\em statement}\STAR{}
 	\end{tabular}
 \end{indpar}
 
 where `\TT{do}' may be omitted as long as \TT{=} is not omitted.
 
-The {\em executable-statements} in the block can include
+The {\em statements} in the block can include
 {\em assignment-statements} in which {\em variable-declarations}
 are replaced by simple {\em variable-names}
 if these variables have the same name as a variable
 in the {\em block-assignment-statement's} {\em variable-list}.
-These {\em executable-statements} assign values to the variables
+These {\em statements} assign values to the variables
 in the {\em block-assignment-statement's} {\em variable-list}.
 Furthermore, every variable in the
 {\em block-assignment-statement's} {\em variable-list}
 \underline{must} be assigned a value
-by exactly one of the {\em executable-statements}.
+by exactly one of the {\em statements} in the block.
 Also the value of one of these variables cannot
-be input to any of the {\em executable-statements} until the
-variable has been assigned a value by a previous one of the
-{\em executable-statements}.
+be input to any of the {\em statements} in the block until the
+variable has been assigned a value by a previous one of these
+{\em statements}.
 
 Variables allocated in the block are not visible outside the
 block.  They may \underline{not} have the same name as a variable
-\TT{v} visible outside the block,  but may have the name `\TT{next v}'
-to indicate the next value of \TT{v} within the block.
-However, this `\TT{next v}' will not be visible outside the block.
+\TT{v} visible outside the block,  and they may \underline{not}
+have the name `\TT{next v}' where  \TT{v} is visible outside the block.
 
 \subsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
@@ -1232,27 +1239,27 @@ are similar to block assignment statements:
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em variable-list} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
 	\TT{~~~~}\ttkey{default}\TT{:} \\
-	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\TT{default:} \\
-	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
 	\TT{~~~~}{\em condition-expression}\TT{:} \\
-	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}{\em condition-expression}\TT{:} \\
-	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
 	\TT{~~~~}\ttkey{else}\TT{:} \\
-	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
 In this case the {\em condition-expressions} are evaluated in order
 until either one evaluates to true or the `\TT{else}' condition is
-reached, and then the {\em executable-statements} subject to the
+reached, and then the {\em statements} subject to the
 first true condition (a.k.a the \key{subblock} of that condition)
-are executed, or if no condition is true, the {\em executable-statements}
+are executed, or if no condition is true, the {\em statements}
 of the `\TT{else}' subblock are executed.  Each separate subblock of
-{\em executable-statements} must set \underline{every} variable
+{\em statements} must set \underline{every} variable
 in the {\em condition-assignment-statement's} {\em variable-list} exactly
 once, with exceptions for defaults described next.
 
@@ -1274,8 +1281,8 @@ execution of later default blocks.
 
 Every variable in the {\em variable-list} \underline{must} be set by some
 single subblock that executes.  A variable in the
-{\em variable-list} cannot be read by a subblock {\em executable-statement}
-unless it is set by a previous {\em executable-statement} in the
+{\em variable-list} cannot be read by a subblock {\em statement}
+unless it is set by a previous {\em statement} in the
 same subblock.
 
 and variables declared in the subblocks are not visible outside their
@@ -1287,18 +1294,18 @@ float64 result = max ( float64 x, float64 y, float64 z ):
     result = if:
         default:
             result = NaN
-        x > y and x > z:
+        x => y and x => z:
             result = x
-        y > z && y > x:
+        y => z && y => x:
             result = y
-        z > y && z > x:
+        z => y && z => x:
             result = z
 \end{verbatim}\end{indpar}
 
 where \TT{NaN} means `\key{not-a-number}' and is the missing
-value for \TT{float64} variables.  \TT{x~>~y} is true if
+value for \TT{float64} variables.  \TT{x~=>~y} is true if
 and only if neither \TT{x} nor \TT{y} is a \TT{NaN} and
-\TT{x} is strictly greater than \TT{y}.  Thus if any of
+\TT{x} is equal to or greater than \TT{y}.  Thus if any of
 \TT{x}, \TT{y}, or \TT{z} in the above conditional assignment
 is a \TT{NaN}, none of the non-\TT{default} {\em conditional-expressions}
 will be true, and the \TT{default} will be evaluated to set
@@ -1337,9 +1344,9 @@ The general syntax of loop assignment statements is:
 	\TT{~~~~}\ttkey{initially}\TT{:} \\
 	\TT{~~~~~~~~~}{\em assignment-statement}\STAR{} \\
 	\TT{~~~~}\ttkey{while} {\em condition-expression}\TT{:} \\
-	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\ttkey{finally}\TT{:} \\
-	\TT{~~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
@@ -1419,7 +1426,9 @@ are used to call out-of-line functions:
 	\end{tabular} \\[1ex]
 \emkey{call-assignment-option}
 	\begin{tabular}[t]{rl}
-	::= & \TT{*UNCHECKED*} $|$ \TT{*REVERSE*} $|$ \TT{*NO-RELOAD*} \\
+	::= & \ttkey{*UNCHECKED*} $|$ \ttkey{*REVERSE*}
+	                          $|$ \ttkey{*NO-RELOAD*} \\
+	$|$ & \ttkey{*COMPILE-TIME*} $|$ \ttkey{*COMPILE-TIME-ONLY*}
 	\end{tabular}
 \end{indpar}
 
@@ -1450,13 +1459,18 @@ defined type, and declares the prototype
 for the function.
 Then a call assignment block is type-checked by matching
 the variable names in the call assignment block
-to those in the prototype.  Thus the order of variables
-in the call block does not matter.  Also, a call block argument
+to those in the prototype.  Thus in this case the order of variables
+in the call block does not matter as their values will be
+reordered according to the prototype.  Also, in this case
+a call block argument
 may be of different
 type than corresponding prototype argument if there is an implied
 conversion from the call block
 argument type to the prototype argument type,
 in which case the implied conversion will be invoked.
+(Note, however, that if the prototype argument has the
+\TT{*UNCHECKED*} qualifier, an unchecked conversion may be implied,
+which can have unintended consequences.)
 
 Out-of-line functions are defined by declarations of the form:
 
@@ -1469,7 +1483,7 @@ Out-of-line functions are defined by declarations of the form:
 		    {\em function-type-name} {\em function-name}\TT{:} \\
 		\TT{~~~~}{\em argument-variable-list}\STAR{} \\
 		\TT{~~~~do:} \\
-		\TT{~~~~~~~~}{\em executable-statement}\STAR{} \\
+		\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}\label{OUT-OF-LINE-FUNCTIONS}
 
@@ -1477,7 +1491,7 @@ This defines {\em function-name} to be both a compile-time and run-time
 constant (with different values at compile and run time) of type
 {\em function-type-name} and also declares {\em function-type-name}
 after the manner of a {\em function-type-declaration}.  When the function
-is called, the {\em executable-statements} execute to produces the
+is called, the {\em statements} of its `\TT{do}' subblock execute to produce the
 result variable values from the argument variable values.
 
 If there is no function prototype (so the call is \TT{*UNCHECKED*}),
@@ -1495,18 +1509,31 @@ is executed automatically
 upon returning from the called function, but the
 \ttkey{*NO-RELOAD*} option suppresses this.
 
-The \TT{*REVERSE*} and \TT{*NO-RELOAD*} options require the \TT{*UNCHECKED*}
-option.
+A \TT{*COMPILE-TIME*} out-of-line function will be callable at
+compile time.  It may not reference Global Areas that are
+not compile-time (see Section~\itemref{GLOBAL-AREAS}).
+See Section~\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}.
+
+A \TT{*COMPILE-TIME*} out-of-line function will also be callable at
+run time.  But a
+\TT{*COMPILE-\EOL TIME-\EOL ONLY*} out-of-line function will only be callable
+at compile time.
+
+The \TT{*REVERSE*} option requires the \TT{*UNCHECKED*}
+option and the absence of a funtion prototype.
 
 Normally the standard call linkage for the computer environment of
 the program is used.  Other implementation specific call options
 may alter the call linkage used.
 
+Note that functions are standardly inline, and not out-of-line.
+Inline functions are described later in Section~\itemref{FUNCTIONS}.
+
 \subsection{Out-of-Line Assignment Statements}
 \label{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}
 
 An \key{out-of-line assignment statement} is like a combination of
-an {\em call-assignment-statement} with
+a {\em call-assignment-statement} with
 an {\em out-of-line-function-definition}:
 
 \begin{indpar}
@@ -1517,7 +1544,7 @@ an {\em out-of-line-function-definition}:
 		~\ttkey{out-of-line} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{} \\
 	\TT{~~~~do:} \\
-	\TT{~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
@@ -1525,7 +1552,18 @@ An {\em out-of-line-function-declaration} is constructed from this statement
 by adding internally generated {\em function-type-name}
 and {\em function-name},
 and then this statement is executed as a {call-assign\-ment-statement}
-using the {\em function-name} and deleting the {\em executable-statements}.
+using the {\em function-name} and deleting the `\TT{do}' subblock
+{\em statements}.
+
+{\em Out-of-line-assignment-statements} are generally included in
+inline functions which preprocess arguments and may use various
+{\em out-of-line-assignment-statements} to handle complex subcases.
+When compiled multiple times in different contexts, the same
+{\em out-of-line-assignment-statement} may be optimized in different
+ways, and produce different out-of-line functions.  When it produces
+the same out-of-line function more than once, this out-of-line function will
+\underline{not} be duplicated.
+
 
 \subsection{Compile-and-Run Assignment Statements}
 \label{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}
@@ -1542,30 +1580,31 @@ and lastly runs the block:
 		~\ttkey{compile-and-run} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{} \\
 	\TT{~~~~do:} \\
-	\TT{~~~~~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
 The variable values are set by the {\em assignment-statements}.
-Then the {\em executable-statements} are compiled, using
+Then the `\TT{do}' subblock {\em statements} are compiled, using
 the variable values to optimize the compilation.  Then the
 compiled code is executed.  The variables in the {\em variable-list}
 may be set by either
-{\em assigment-statements} or {\em executable-statements} as for
+{\em assigment-statements} or `\TT{do}' subblock {\em statements} as for
 a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
 If a variable \TT{v} not in the {\em variable-list}
 is set by an {\em assignment-statement},
-`\TT{next v}' can be set by an {\em executable-statement}, but
+`\TT{next v}' can be set by a `\TT{do}' subblock {\em statement}, but
 this will be a new variable whose value will not be available during
 the compilation.
 
 When the compile-and-run assigment statement is executed, the compiled
-code may be saved in a table indexed by the values of the
+code will be saved in a table indexed by the values of the
 variables set by the {\em assignment-statements}.  When the
 compile-and-run assigment statement is re-executed, if these
 variables have the same value they had during a previous execution,
-the compilation may be bypassed and the previously compiled code used.
-This optimization is permitted but not required.
+the compilation will be bypassed and the previously compiled code used.
+This optimization is required, but such previously compiled code
+may be discarded if it has not been used in a long time.
 
 
 \subsection{Assembly Assignment Statements}
@@ -1577,18 +1616,20 @@ are used to embed assembler instructions in compiled code:
 \begin{indpar}
 \emkey{assembly-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em result-variable-list} \TT{=} \}\QMARK{} \\
-	\TT{~~~~} \TT{*UNCHECKED*}~\ttkey{*ASSEMBLY*} ~
-	          {\em argument-variable-list}\TT{:} \\
-	\TT{~~~~~~~~~}{\em assembler-instruction}\STAR{} \\
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
+	    ~\TT{*UNCHECKED*}~\ttkey{*ASSEMBLY*:} \\
+	\TT{~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~do:} \\
+	\TT{~~~~~~~~}{\em assembler-instruction}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
-The variables, both argument and result, are placed in registers
+The variables, both those produced by the {\em assignment-statements}
+and the result variables, are placed in registers
 and their names become register names for the assembler instructions.
 Assembler instructions are only permitted to reference these
 registers, but load and store assembler instructions may be used.
-The assembly instructions are written in the syntax of one of the
+The assembler instructions are written in the syntax of one of the
 target machine assemblers.
 
 The variables may have additional qualifiers which
@@ -1608,7 +1649,7 @@ at compile time:
 \emkey{compile-time-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em variable-list} \TT{=} \}\QMARK{} ~~~ \ttkey{compile-time:} \\
-	\TT{~~~~}{\em executable-statement}\STAR{}
+	\TT{~~~~}{\em statement}\STAR{}
 	\end{tabular}
 \end{indpar}
 
@@ -1640,7 +1681,7 @@ Function definitions have the form:
 \emkey{function-definition}
     ::= \begin{tabular}[t]{l}
         {\em function-prototype}\TT{:} \\
-	~~~~ {\em executable-statement}\STAR{} \\
+	~~~~ {\em statement}\STAR{} \\
 	\end{tabular}
 \\[1ex]
 \emkey{function-prototype}
@@ -1667,8 +1708,8 @@ is in effect replaced by a {\em block-assignment-statement}
 (Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
 with the {\em function-definition's} {\em result-variable-list} becoming the 
 {\em block-assignment-statement's} {\em variable-list} and the
-{\em function-definition's} {\em executable-statements} becoming the 
-{\em block-assignment-statement's} {\em executable-statements}.
+{\em function-definition's} subblock {\em statements} becoming the 
+{\em block-assignment-statement's} subblock {\em statements}.
 Actual argument values from the function call are assigned to variables in
 the definition {\em argument-variable-list}.  The values produced in
 the {\em result-variable-list's} variables become the values of the
@@ -1985,7 +2026,8 @@ In the above example `\TT{mem}' and `\TT{stack} are special builtin qualifiers
 which can be applied to variables.
 See \itemref{BUILTIN-QUALIFIERS}.
 
-The `\TT{mem}' qualifier has the special property that given a variable
+The `\TT{mem}' qualifier\label{MEM}
+has the special property that given a variable
 \TT{v} of qualifier \TT{mem}, then if \TT{v} is allocated,
 and \TT{v.adr} of type \TT{adr} and qualifier \TT{*UNCHECKED*}
 is allocated and
@@ -2295,7 +2337,7 @@ containing block terminates:
 \emkey{unwind-block}
     ::= \begin{tabular}[t]{l}
 	\ttkey{*UNWIND*}\TT{:} \\
-	\TT{~~~~}{\em executable-statement}\STAR{} \\
+	\TT{~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
@@ -2424,9 +2466,12 @@ by other code.  The syntax is:
 \begin{indpar}
 \emkey{global-area-block} ::= \\
 \hspace*{3em}\begin{tabular}[t]{@{}l}
+	{\em global-area-option}\STAR{}
 	\TT{global} {\em global-area-name} \TT{:} \\
-	\TT{~~~~}{\em executable-statement}\STAR{} \\
-	\end{tabular}
+	\TT{~~~~}{\em statement}\STAR{} \\
+	\end{tabular} \\
+\emkey{global-area-option} ::= \ttkey{*COMPILE-TIME*}
+                           $|$ \ttkey{*COMPILE-TIME-ONLY*}
 \end{indpar}
 
 Several such blocks may have the same {\em global-area-name},
@@ -2499,6 +2544,8 @@ time.  Global areas may be deallocated or moved during execution.
 References to a global area
 that is not yet allocated or that has been deallocated cause runtime
 errors (typically segmentation faults).
+
+TBD: compile-time
 
 \section{Function Prototypes and Calls}
 \label{FUNCTION-PROTOTYPES-AND-CALLS}

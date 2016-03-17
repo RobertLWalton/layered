@@ -486,7 +486,7 @@ The following implicit conversion is always defined:
 
 A declaration statement of the following form defines a type:
 \begin{center}
-\TT{type} {\em qualifier}\STAR{} {\em defined-type-name}
+\TT{type} {\em qualifier-name}\STAR{} {\em defined-type-name}
           \TT{is} {\em builtin-type-name}
 \end{center}
 Here the builtin type is called the \key{underlying type} of the
@@ -522,7 +522,7 @@ and then reassigned to possibly different unique integer values during linking.
 A declaration statement of the following form defines an \key{enumeration type}
 that has enumeration values:
 \begin{center}
-\TT{type} {\em qualifier}\STAR{} {\em defined-enum-type-name}
+\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}
     \begin{tabular}[t]{l}
     \TT{is}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
@@ -1110,10 +1110,10 @@ assignment statements:
 
 \begin{indpar}
 \emkey{value-assignment-statement}
-    ::= \{ {\em variable-list} \TT{=} \}\QMARK{}
+    ::= \{ {\em result-variable-list} \TT{=} \}\QMARK{}
         {\em expression}
 \\[0.5ex]
-\emkey{variable-list}
+\emkey{result-variable-list}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em variable-declaration} \\
     $|$ & \TT{(~}{\em variable-declaration}
@@ -1122,7 +1122,7 @@ assignment statements:
 \\[0.5ex]
 \emkey{variable-declaration}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     $|$ & \ttkey{next} {\em variable-name}
     \end{tabular}
 \end{indpar}
@@ -1199,7 +1199,7 @@ Another variant of the assignment statement is\index{block assignment}:
 \begin{indpar}
 \emkey{block-assignment-statement}
     ::= \begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{}
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 	\ttkey{do}\QMARK{} \TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{}
 	\end{tabular}
@@ -1211,11 +1211,11 @@ The {\em statements} in the block can include
 {\em assignment-statements} in which {\em variable-declarations}
 are replaced by simple {\em variable-names}
 if these variables have the same name as a variable
-in the {\em block-assignment-statement's} {\em variable-list}.
+in the {\em block-assignment-statement's} {\em result-variable-list}.
 These {\em statements} assign values to the variables
-in the {\em block-assignment-statement's} {\em variable-list}.
+in the {\em block-assignment-statement's} {\em result-variable-list}.
 Furthermore, every variable in the
-{\em block-assignment-statement's} {\em variable-list}
+{\em block-assignment-statement's} {\em result-variable-list}
 \underline{must} be assigned a value
 by exactly one of the {\em statements} in the block.
 Also the value of one of these variables cannot
@@ -1237,7 +1237,7 @@ are similar to block assignment statements:
 \begin{indpar}
 \emkey{conditional-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
 	\TT{~~~~}\ttkey{default}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\TT{default:} \\
@@ -1260,28 +1260,29 @@ first true condition (a.k.a the \key{subblock} of that condition)
 are executed, or if no condition is true, the {\em statements}
 of the `\TT{else}' subblock are executed.  Each separate subblock of
 {\em statements} must set \underline{every} variable
-in the {\em condition-assignment-statement's} {\em variable-list} exactly
+in the {\em condition-assignment-statement's} {\em result-variable-list} exactly
 once, with exceptions for defaults described next.
 
 A {\em conditional-assignment-statement} with a
-{\em variable-list} may have one or
-more `\ttkey{default}\TT{:}' subblocks.  Each assigns one or more
-variables in the {\em variable-list}.  After any non-default subblocks
+{\em result-variable-list} may have
+`\ttkey{default}\TT{:}' subblocks.  Each assigns one or more
+variables in the {\em result-variable-list}.  After any non-default subblocks
 that are going to execute have executed, if there are any unset
-variables in the {\em variable-list}, enabled default subblocks are executed
+variables in the {\em result-variable-list},
+enabled default subblocks are executed
 in order.  A default subblock is enabled if and
 only if \underline{all} of the
-{\em variable-list} variables set by the default subblock have
+{\em result-variable-list} variables set by the default subblock have
 \underline{not} been set yet.
 
-No two default subblocks may set the same {\em variable-list}
+No two default subblocks may set the same {\em result-variable-list}
 variable.  This rule is purely to prevent overly clever code that
 uses the execution of earlier default blocks to disable the
 execution of later default blocks.
 
-Every variable in the {\em variable-list} \underline{must} be set by some
+Every variable in the {\em result-variable-list} \underline{must} be set by some
 single subblock that executes.  A variable in the
-{\em variable-list} cannot be read by a subblock {\em statement}
+{\em result-variable-list} cannot be read by a subblock {\em statement}
 unless it is set by a previous {\em statement} in the
 same subblock.
 
@@ -1419,7 +1420,7 @@ are used to call out-of-line functions:
 \begin{indpar}
 \emkey{call-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{}
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 	        {\em call-assignment-option}\STAR
 		~\ttkey{call}~ {\em function-expression} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{}
@@ -1437,7 +1438,7 @@ and its type \TT{T} must have the \TT{adr} type as its underlying type.
 The values of the variables created by the {\em assignment-statements}
 are the arguments to the function.
 The results of the function call are stored in the
-{\em variable-list} variables.
+{\em result-variable-list} variables.
 
 A call assignment must have the \TT{*UNCHECKED*} option
 unless \TT{T} is declared by an out-of-line
@@ -1534,12 +1535,12 @@ Inline functions are described later in Section~\itemref{FUNCTIONS}.
 
 An \key{out-of-line assignment statement} is like a combination of
 a {\em call-assignment-statement} with
-an {\em out-of-line-function-definition}:
+an {\em out-of-line-function-declaration}:
 
 \begin{indpar}
 \emkey{out-of-line-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{}
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 	        {\em call-assignment-option}\STAR
 		~\ttkey{out-of-line} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{} \\
@@ -1576,7 +1577,7 @@ and lastly runs the block:
 \begin{indpar}
 \emkey{compile-and-run-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{}
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 		~\ttkey{compile-and-run} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{} \\
 	\TT{~~~~do:} \\
@@ -1587,11 +1588,11 @@ and lastly runs the block:
 The variable values are set by the {\em assignment-statements}.
 Then the `\TT{do}' subblock {\em statements} are compiled, using
 the variable values to optimize the compilation.  Then the
-compiled code is executed.  The variables in the {\em variable-list}
+compiled code is executed.  The variables in the {\em result-variable-list}
 may be set by either
 {\em assigment-statements} or `\TT{do}' subblock {\em statements} as for
 a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
-If a variable \TT{v} not in the {\em variable-list}
+If a variable \TT{v} not in the {\em result-variable-list}
 is set by an {\em assignment-statement},
 `\TT{next v}' can be set by a `\TT{do}' subblock {\em statement}, but
 this will be a new variable whose value will not be available during
@@ -1648,7 +1649,8 @@ at compile time:
 \begin{indpar}
 \emkey{compile-time-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em variable-list} \TT{=} \}\QMARK{} ~~~ \ttkey{compile-time:} \\
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
+	    ~~~ \ttkey{compile-time:} \\
 	\TT{~~~~}{\em statement}\STAR{}
 	\end{tabular}
 \end{indpar}
@@ -1664,7 +1666,30 @@ that have been declared to be compile-time.
 \section{Scopes}
 \label{SCOPES}
 
-TBD
+A \key{declaration} is a statement the defines a name which
+can be referenced in code.  Assignment statements also
+introduce the names of their result variables, and serve
+as declarations.
+
+Declarations are statements in blocks.  A declaration has
+a \key{scope}, that is the set of statements in which any
+name defined by the declaration is recognized.  The scope
+of a declaration begins with the declaration itself, and
+lasts to the end of largest block containing the declaration.
+The scope of a name is the scope of the declaration that defines
+it.
+
+Two different declarations of the same name may \underline{not}
+have overlapping scope.
+
+The scope of a name consists of statements and subblocks.
+By the last rule, a name may not be
+redeclared in a subblock that is in the name's scope.
+
+A result variable named `\TT{next v}' is not the same variable
+or name as `\TT{v}', but, as a special case, `\TT{next v}'
+cannot be declared in a subblock that is in the scope
+of `\TT{v}.
 
 \section{Functions}
 \label{FUNCTIONS}
@@ -1678,7 +1703,7 @@ or the out-of-line assignment statement
 Function definitions have the form:
 
 \begin{indpar}
-\emkey{function-definition}
+\emkey{function-declaration}
     ::= \begin{tabular}[t]{l}
         {\em function-prototype}\TT{:} \\
 	~~~~ {\em statement}\STAR{} \\
@@ -1706,14 +1731,18 @@ Function definitions have the form:
 A function call with a {\em result-variable-list}
 is in effect replaced by a {\em block-assignment-statement}
 (Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
-with the {\em function-definition's} {\em result-variable-list} becoming the 
-{\em block-assignment-statement's} {\em variable-list} and the
-{\em function-definition's} subblock {\em statements} becoming the 
-{\em block-assignment-statement's} subblock {\em statements}.
+with the {\em function-declaration's} {\em result-variable-list} becoming the 
+{\em result-variable-list} of the {\em block-assignment-statement} and the
+{\em function-declaration's} subblock {\em statements} becoming the 
+{\em block-\EOL assign\-ment-\EOL state\-ment's} subblock {\em statements}.
 Actual argument values from the function call are assigned to variables in
 the definition {\em argument-variable-list}.  The values produced in
 the {\em result-variable-list's} variables become the values of the
 function call when it is used as part of an {\em expression}.
+
+When this is done, the names declared by {\em statements} in the
+function block are in effect changed so they will not conflict
+with names the call is within scope of.
 
 A function call without any {\em result-variable-list}
 is just like a function call with an empty
@@ -1771,10 +1800,9 @@ The conditions must be evaluatable whenever a call to the
 function is compiled.
 
 If an argument variable has type `\TT{qualifiers}',
-its value can be used as some of the qualifiers
-of other argument variables that are
-after it in the {\em argument-variable-list},
-or of any result variable.  For example:
+is can be used to denote the qualifiers of any variable
+after it in the {\em argument-variable-list}.
+For example:
 \begin{indpar}\begin{verbatim}
 ( Qr pointer result ) =
     increment ( qualfiers Q, Q pointer value )
@@ -1787,6 +1815,45 @@ qualifiers.
 Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
 and \TT{Qr} is just an abbreviation of the more complex
 qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
+
+When a function call is used as an argument to another function
+call, a temporary variable is created to hold the first result
+variable of the inner function call, and the other result variables
+of this are discarded (unless they are part of a cluster whose root
+is the first result variable: see Section~\itemref{CLUSTERS}).
+This temporary must be assigned a type
+and qualifiers.  Depending upon these assignments, it may or
+may not be possible to find function prototypes that can be
+matched to the function calls in a statement.
+
+The qualifiers assigned are always just the protected
+qualifiers of the first result variable of the prototype matched
+to an inner function call.
+
+If there are several matches with different type assignments, the
+following rule is used.  Let $i$ index the temporary variables,
+and $i\mapsto T_i$ be a type assignment.  Define a partial order
+on such type assignments to be
+\begin{center}
+$i\mapsto T^1_i~~~<~~~i\mapsto T^2_i$
+\end{center}
+if and only if for every $i$, values of type $T^2_i$ are implicitly
+convertible to values of type $T^1_i$.  Then if the set of
+possible type assigments has a minimum, that is used, and if
+the minimum yields a unique matching of statement calls to
+prototypes, the statement compiles without error.  Otherwise
+the statement is ambiguous and its compilation is in error.
+
+The type and some qualifiers of the results of inner calls can
+be dictated by writing the inner call in the form:
+\begin{center}
+{\em qualifier-name}\STAR{} {\em type-name} \TT{(} {\em inner-call} \TT{)}
+\end{center}
+
+This specifies the type and some of the qualifiers of the inner call
+temporary result.  This temporary will also be given any protected
+qualifiers of the result variable of any prototype matched to the
+inner call.
 
 Much more complex {\em function-prototypes} can be written:
 see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
@@ -2267,7 +2334,7 @@ and
 compile-time assignment statement blocks
 (\pagref{COMPILE-TIME-ASSIGNMENT-STATEMENTS})
 are free, as is implemented by
-not allowing the variables in the {\em variable-list}
+not allowing the variables in the {\em result-variable-list}
 of a {\em call-assignment-statement},
 {\em out-of-line-assigment-statement}, or
 {\em compile-time-assigment-statement},
@@ -2489,9 +2556,9 @@ statement:
 \\[1ex]
 \emkey{extern-variable-statement} \\
 \hspace*{3em}\begin{tabular}[t]{@{}rl}
-    ::= & {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     $|$ & {\em variable-abbreviation} \TT{is}
-          {\em qualifier}\STAR{} {\em type-name} {\em variable-name} \\
+          {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     \end{tabular}
 \end{indpar}
 

@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 17, 2016
+March 18, 2016
  
 \end{center}
 
@@ -1113,14 +1113,15 @@ assignment statements:
     ::= \{ {\em result-variable-list} \TT{=} \}\QMARK{}
         {\em expression}
 \\[0.5ex]
-\emkey{result-variable-list}
+\emkey{result-variable-list}\label{RESULT-VARIABLE-LIST}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em variable-declaration} \\
-    $|$ & \TT{(~}{\em variable-declaration}
-          \{ \TT{,} {\em variable-declaration} \}\STAR{} \TT{)} \\
+    ::= & {\em result-variable-declaration} \\
+    $|$ & \TT{(~}{\em result-variable-declaration} \\
+        & ~~~~~~~~~~
+	  \{ \TT{,} {\em result-variable-declaration} \}\STAR{} \TT{)} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{variable-declaration}
+\emkey{result-variable-declaration}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     $|$ & \ttkey{next} {\em variable-name}
@@ -1451,8 +1452,13 @@ function type declaration of the form:
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
 		\TT{~~~~~~~~}{\em call-assignment-option}\STAR{}
 		    {\em defined-type-name}\TT{:} \\
-		\TT{~~~~}{\em argument-variable-list}\STAR{}
+		\TT{~~~~}{\em argument-variable-declaration}\STAR{}
 	\end{tabular}
+\\[0.5ex]
+\emkey{argument-variable-declaration}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
+    \end{tabular}
 \end{indpar}
 
 This makes \TT{adr} the underlying type of the new
@@ -1482,7 +1488,7 @@ Out-of-line functions are defined by declarations of the form:
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
 		\TT{~~~~~~~~}{\em call-assignment-option}\STAR{}
 		    {\em function-type-name} {\em function-name}\TT{:} \\
-		\TT{~~~~}{\em argument-variable-list}\STAR{} \\
+		\TT{~~~~}{\em argument-variable-declaration}\STAR{} \\
 		\TT{~~~~do:} \\
 		\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
@@ -1700,7 +1706,7 @@ a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS})
 or the out-of-line assignment statement
 (\itemref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}).
 
-Function definitions have the form:
+Function declarations have the form:
 
 \begin{indpar}
 \emkey{function-declaration}
@@ -1721,10 +1727,25 @@ Function definitions have the form:
           \TT{[[} {\em qualifying-expression} \TT{]]} \\
     \end{tabular}
 \\[1ex]
-\emkey{qualifying-expression}
+\emkey{qualifying-expression}\label{QUALIFYING-EXPRESSION}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em call-compile-time-logical-expression} \\
     $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression}
+    \end{tabular}
+\\[1ex]
+\emkey{result-variable-list} ::= see \pagref{RESULT-VARIABLE-LIST} \\
+\\[1ex]
+\emkey{argument-variable-list}\label{ARGUMENT-VARIABLE-LIST}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em argument-variable-declaration} \\
+    $|$ & \TT{(~}{\em argument-variable-declaration} \\
+        & ~~~~~~~~~~
+	  \{ \TT{,} {\em argument-variable-declaration} \}\STAR{} \TT{)} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{argument-variable-declaration}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     \end{tabular}
 \end{indpar}
 
@@ -1800,8 +1821,10 @@ The conditions must be evaluatable whenever a call to the
 function is compiled.
 
 If an argument variable has type `\TT{qualifiers}',
-is can be used to denote the qualifiers of any variable
-after it in the {\em argument-variable-list}.
+its value is a set of qualifiers,
+it can be used to denote the qualifiers of any variable
+after it in the {\em argument-variable-list}, and it can be
+used to compute qualifiers of either argument or result variables.
 For example:
 \begin{indpar}\begin{verbatim}
 ( Qr pointer result ) =
@@ -1810,8 +1833,6 @@ For example:
     result = v1 + v2
 \end{verbatim}\end{indpar}
 
-A `\TT{qualifiers}' variable takes as its value a set of
-qualifiers.
 Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
 and \TT{Qr} is just an abbreviation of the more complex
 qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
@@ -1819,7 +1840,8 @@ qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
 When a function call is used as an argument to another function
 call, a temporary variable is created to hold the first result
 variable of the inner function call, and the other result variables
-of this are discarded (unless they are part of a cluster whose root
+of the inner call are discarded (unless they are hidden parts
+of a cluster whose root
 is the first result variable: see Section~\itemref{CLUSTERS}).
 This temporary must be assigned a type
 and qualifiers.  Depending upon these assignments, it may or
@@ -1835,7 +1857,7 @@ following rule is used.  Let $i$ index the temporary variables,
 and $i\mapsto T_i$ be a type assignment.  Define a partial order
 on such type assignments to be
 \begin{center}
-$i\mapsto T^1_i~~~<~~~i\mapsto T^2_i$
+$i\mapsto T^1_i~~~\leq~~~i\mapsto T^2_i$
 \end{center}
 if and only if for every $i$, values of type $T^2_i$ are implicitly
 convertible to values of type $T^1_i$.  Then if the set of
@@ -1847,11 +1869,13 @@ the statement is ambiguous and its compilation is in error.
 The type and some qualifiers of the results of inner calls can
 be dictated by writing the inner call in the form:
 \begin{center}
-{\em qualifier-name}\STAR{} {\em type-name} \TT{(} {\em inner-call} \TT{)}
+{\em qualifier-name}\STAR{} {\em type-name}\QMARK{}
+    \TT{(} {\em inner-call} \TT{)}
 \end{center}
 
-This specifies the type and some of the qualifiers of the inner call
-temporary result.  This temporary will also be given any protected
+This may specify the type and some of the qualifiers of the inner call
+temporary result.  If the type is not specified, it will be computed
+as in the proceding paragraphs.  The temporary will also be given any protected
 qualifiers of the result variable of any prototype matched to the
 inner call.
 
@@ -1868,12 +1892,37 @@ A \key{generic} is like an inline function except that:
 \item The code in the generic block runs at compile-time and
       assigns its variables compile-time values.
 \item There is an extra `\TT{include}' block consisting of
-      declaration statements that replaces the generic call
-      in the code that contains it.  These declarations may
+      statements that replace the generic call
+      in the code that contains the call.  These statements may
       contain the names of call arguments and computed block variables,
-      including abbreviations, and these are replaced by their values
-      in the declaration statements that replace the generic call.
+      including abbreviations, and these are replaced
+      in the statements that replace the generic call
+      by their values.
 \end{enumerate}
+
+Generic declarations have the form:
+
+\begin{indpar}
+\emkey{generic-declaration}
+    ::= \begin{tabular}[t]{l}
+        {\em generic-prototype}\TT{:} \\
+	\TT{~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~include:} \\
+	\TT{~~~~~~~~}{\em statement}\STAR{} \\
+	\end{tabular}
+\\[1ex]
+\emkey{generic-prototype}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \TT{generic} {\em generic-name}
+	    {\em argument-variable-list}\QMARK{} \\
+    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
+    $|$ & {\em generic-prototype}
+          \TT{[[} {\em qualifying-expression} \TT{]]} \\
+    \end{tabular}
+\\[1ex]
+{\em qualifying-expression} ::= see \pagref{QUALIFYING-EXPRESSION}
+\end{indpar}
+
 
 
 \section{Clusters}

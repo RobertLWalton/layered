@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 18, 2016
+March 20, 2016
  
 \end{center}
 
@@ -1888,7 +1888,7 @@ see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
 A \key{generic} is like an inline function except that:
 \begin{enumerate}
 \item All the arguments in a generic call must have compile-time values.
-\item The generic call has no results.
+\item The generic call has no result variables.
 \item The code in the generic block runs at compile-time and
       assigns its variables compile-time values.
 \item There is an extra `\TT{include}' block consisting of
@@ -1922,6 +1922,27 @@ Generic declarations have the form:
 \\[1ex]
 {\em qualifying-expression} ::= see \pagref{QUALIFYING-EXPRESSION}
 \end{indpar}
+
+An example is:
+\begin{indpar}\begin{verbatim}
+generic min-max functions ( type T ):
+    include:
+        T result = min ( T x, T y ):
+            result = if:
+                x <= y:
+                    result = x
+                y <= x:
+                    result = y
+                else
+                    result = NaN
+	T result = max ( T x, T y ):
+	    result = - max ( -x, -y )
+
+min-max functions ( int64 )
+int64 u = ...
+int64 v = min ( u, -1,000,000 )
+int64 w = max ( u, 1,000,000 )
+\end{verbatim}\end{indpar}
 
 
 

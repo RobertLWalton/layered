@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 16 02:42:27 EST 2016
+// Date:	Tue Mar 22 02:11:00 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -944,7 +944,7 @@ struct line_variables
 	// explicit bracketed or lexical header.
 	// Defaults to MISSING.
     min::locatable_gen line_header;
-        // Default line for paragraph with no
+        // Default header for line with no
 	// explicit bracketed or lexical header.
 	// Defaults to MISSING.
 

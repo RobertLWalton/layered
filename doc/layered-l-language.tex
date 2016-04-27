@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 20, 2016
+April 27, 2016
  
 \end{center}
 
@@ -172,7 +172,8 @@ March 20, 2016
 This document describes the Lower Layer Programming Language, or
 L-Language.  See the Introduction to the Layered
 Programming Languages for basic syntax and for an overview of the related
-Middle Layer M-Language and Higher Layer H-Language.
+Middle Layer M-Language and Higher Layer H-Language (these overviews
+have not yet been written).
 
 The L-Language is intended to be a target language for compilers of
 higher level languages.  As such it is optimized first to be an easy to 
@@ -207,11 +208,6 @@ argument, can be used to select overloaded functions.
 All L-Language functions are inline.  Out-of-line functions can be
 called using a block syntax that mirrors the overhead involved in
 manipulating an argument stack in memory.
-
-\item
-L-Language associates formatting functions
-with data types for use in displaying and in some cases inputting
-data during debugging.
 
 \item
 L-Language uses a single-assignment style of program structure
@@ -387,9 +383,7 @@ for any two builtin number types $t1$ and $t2$.
 
 \end{center}
 
-The operator is always defined, but the
-result of execution is undefined unless one of the following
-cases applies:
+The operator is always defined, and the result is as follows:
 \begin{itemize}
 \item The implicit conversion `$t2$ \TT{<{}<++} $t1${\em -type-value}'
 is defined.
@@ -398,13 +392,19 @@ and $t2$ is an integer type large enough to hold the integral part
 of the number being converted.  The fractional part of
 the floating point number is discarded, thereby rounding toward
 zero.
-\item $t2$ is a floating point type large
-enough to hold an exact representation of the highest order
-part of the $t1$-value
-(i.e., the highest order digits where the
-number of digits represented exactly depends only on the size of $t2$).
+\item $t2$ is a floating point type,
+and the $t1$-value is a number within the range values representable
+by a $t2$ value.
 The result is the rounded $t1$-value,
 where the method of rounding is indeterminate.
+\item $t2$ is a floating point type,
+and the $t1$-value is a number outside the range values representable
+by a $t2$ value.
+The result is plus infinity, \TT{+Inf}, or minus infinity, \TT{-Inf},
+according to the sign of the $t1$-value.
+\item $t2$ is a floating point type,
+and the $t1$-value is a floating point \TT{NaN}.
+The result is a floating point \TT{NaN}.
 \item $t2$ is an integer type not large enough
 to hold the integer part of the value being converted.
 The result is the $t2$ value that
@@ -412,6 +412,12 @@ equals module $2^n$ the integer part of the $t1$-value, with any
 factional part being discarded (round toward zero),
 where $n$ is the length in bits
 of $t2$.
+\item $t2$ is an integer type,
+and the $t1$-value is a floating point infinity, \TT{+Inf} or \TT{-Inf},
+or a floating point \TT{NaN}.
+The result is an arbitrary value, but a \TT{NaN} exception flag is set.
+
+[TBD: check this]
 \end{itemize}
 
 Numeric constants are treated as if they had their own type,
@@ -428,13 +434,9 @@ is defined whenever either:
 \item No information about the size, sign, and
 precision of the number is lost by representing the number
 as a $t2$ type value.
-\item $t2$ is a floating point type large enough to hold an
-exact representation of the highest order part of the
-{\em numeric-constant}
-(i.e., the highest order digits where the
-number of digits represented exactly depends only on the size of $t2$).
-The result is the rounded
-{\em numeric-constant},
+\item $t2$ is a floating point type,
+and the {\em numeric-constant} is within the range values representable
+by a $t2$ value.  The result is the rounded {\em numeric-constant},
 where the method of rounding is indeterminate.
 \end{itemize}
 
@@ -444,7 +446,7 @@ The \underline{unchecked} conversion is defined:
 \end{center}
 provided one of the following cases applies:
 \begin{itemize}
-\item The implicit conversion `$t2$ \TT{<{}<++} {\em numeric-constat}'
+\item The implicit conversion `$t2$ \TT{<{}<++} {\em numeric-constant}'
 is defined.
 \item The {\em numeric-constant} is floating point with
 a fractional part,
@@ -456,7 +458,8 @@ zero.
 hold the integral part of the value being converted.
 Any fractional part of the
 {\em numeric-constant} is discarded, and the result is the $t2$ value that
-equals module $2^n$ the remaining integral part of the {\em numeric-constant},
+equals module $2^n$ the integral part of the {\em numeric-constant},
+with the fractional part discarded thereby rounding toward zero,
 where $n$ is the length in bits of $t2$.
 \end{itemize}
 

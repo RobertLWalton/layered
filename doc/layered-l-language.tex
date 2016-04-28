@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 27, 2016
+April 28, 2016
  
 \end{center}
 
@@ -376,16 +376,16 @@ The following \underline{unchecked}
 conversion operator is defined:
 \begin{center}
 
-\TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ $t1${\em -type-value} ~~\TT{)}%
+\TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ $t1${\em -value} ~~\TT{)}%
 \label{<<**}
 
 for any two builtin number types $t1$ and $t2$.
 
 \end{center}
 
-The operator is always defined, and the result is as follows:
+The \TT{*UNCHECKED*} operator is defined as follows:
 \begin{itemize}
-\item The implicit conversion `$t2$ \TT{<{}<++} $t1${\em -type-value}'
+\item The implicit conversion `$t2$ \TT{<{}<++} $t1${\em -value}'
 is defined.
 \item $t1$ is a floating point type
 and $t2$ is an integer type large enough to hold the integral part
@@ -404,20 +404,18 @@ The result is plus infinity, \TT{+Inf}, or minus infinity, \TT{-Inf},
 according to the sign of the $t1$-value.
 \item $t2$ is a floating point type,
 and the $t1$-value is a floating point \TT{NaN}.
-The result is a floating point \TT{NaN}.
-\item $t2$ is an integer type not large enough
-to hold the integer part of the value being converted.
+The result is a floating point \TT{NaN}, but precisely which \TT{NaN}
+is undefined.
+\item $t2$ and $t1$ are integer types and the $t1$-value is too large
+to be represented as a $t2$ value.
 The result is the $t2$ value that
-equals module $2^n$ the integer part of the $t1$-value, with any
-factional part being discarded (round toward zero),
-where $n$ is the length in bits
-of $t2$.
-\item $t2$ is an integer type,
-and the $t1$-value is a floating point infinity, \TT{+Inf} or \TT{-Inf},
-or a floating point \TT{NaN}.
-The result is an arbitrary value, but a \TT{NaN} exception flag is set.
-
-[TBD: check this]
+equals module $2^n$ the integer part of the $t1$-value,
+where $n$ is the length in bits of $t2$.
+\item $t2$ is an integer type and $t1$ is a floating point type,
+the $t1$-value cannot be represented as a $t2$ value because its
+absolute value is too large, or because it is not a number but is
+\TT{+Inf}, \TT{-Inf}, or a \TT{NaN}.  The result is undefined, but
+the floating point \key{invalid operation} flag is set.
 \end{itemize}
 
 Numeric constants are treated as if they had their own type,
@@ -436,8 +434,9 @@ precision of the number is lost by representing the number
 as a $t2$ type value.
 \item $t2$ is a floating point type,
 and the {\em numeric-constant} is within the range values representable
-by a $t2$ value.  The result is the rounded {\em numeric-constant},
-where the method of rounding is indeterminate.
+by a $t2$ value.  The result is the {\em numeric-constant} rounded to
+the nearest representable $t2$ value, where if there are two identically
+nearest values, the one with a zero low order bit is chosen.
 \end{itemize}
 
 The \underline{unchecked} conversion is defined:

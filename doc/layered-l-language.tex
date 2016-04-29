@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 28, 2016
+April 29, 2016
  
 \end{center}
 
@@ -373,7 +373,7 @@ For all these implicit conversions no information is lost from
 the value when it is converted to the new type.
 
 The following \underline{unchecked}
-conversion operator is defined:
+conversion operator is defined provided $t2$ is known at compile time:
 \begin{center}
 
 \TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ $t1${\em -value} ~~\TT{)}%
@@ -393,12 +393,12 @@ of the number being converted.  The fractional part of
 the floating point number is discarded, thereby rounding toward
 zero.
 \item $t2$ is a floating point type,
-and the $t1$-value is a number within the range values representable
+and the $t1$-value is a number within the range of values representable
 by a $t2$ value.
 The result is the rounded $t1$-value,
 where the method of rounding is indeterminate.
 \item $t2$ is a floating point type,
-and the $t1$-value is a number outside the range values representable
+and the $t1$-value is a number outside the range of values representable
 by a $t2$ value.
 The result is plus infinity, \TT{+Inf}, or minus infinity, \TT{-Inf},
 according to the sign of the $t1$-value.
@@ -409,7 +409,7 @@ is undefined.
 \item $t2$ and $t1$ are integer types and the $t1$-value is too large
 to be represented as a $t2$ value.
 The result is the $t2$ value that
-equals module $2^n$ the integer part of the $t1$-value,
+equals modulo $2^n$ the integer part of the $t1$-value,
 where $n$ is the length in bits of $t2$.
 \item $t2$ is an integer type and $t1$ is a floating point type,
 the $t1$-value cannot be represented as a $t2$ value because its
@@ -427,23 +427,24 @@ The implicit conversion:
 \begin{center}
 $t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant}
 \end{center}
-is defined whenever either:
+is defined when $t2$ is known at compile time and either:
 \begin{itemize}
 \item No information about the size, sign, and
 precision of the number is lost by representing the number
 as a $t2$ type value.
 \item $t2$ is a floating point type,
-and the {\em numeric-constant} is within the range values representable
+and the {\em numeric-constant} is within the range of values representable
 by a $t2$ value.  The result is the {\em numeric-constant} rounded to
 the nearest representable $t2$ value, where if there are two identically
 nearest values, the one with a zero low order bit is chosen.
 \end{itemize}
 
-The \underline{unchecked} conversion is defined:
+The \underline{unchecked} conversion:
 \begin{center}
 \TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant} ~~\TT{)}%
 \end{center}
-provided one of the following cases applies:
+is defined if $t2$ is known at compile time
+and one of the following cases applies:
 \begin{itemize}
 \item The implicit conversion `$t2$ \TT{<{}<++} {\em numeric-constant}'
 is defined.
@@ -453,19 +454,22 @@ and $t2$ is an integer type large enough to hold the integral part
 of the number being converted.  The fractional part of
 the floating point number is discarded, thereby rounding toward
 zero.
-\item $t2$ is an integer type that cannot
-hold the integral part of the value being converted.
-Any fractional part of the
-{\em numeric-constant} is discarded, and the result is the $t2$ value that
-equals module $2^n$ the integral part of the {\em numeric-constant},
-with the fractional part discarded thereby rounding toward zero,
-where $n$ is the length in bits of $t2$.
+\item $t2$ is a floating point type,
+and the {\em numeric-constant} is outside the range of values representable
+by a $t2$ value.
+The result is plus infinity, \TT{+Inf}, or minus infinity, \TT{-Inf},
+according to the sign of the {\em numeric-constant}.
+\item $t2$ is an integer type
+and the {\em numeric-constant} is outside the range of values representable
+by a $t2$ value.
+The result is the $t2$ value that
+equals modulo $2^n$ the {\em numeric-constant}.
+\item $t2$ is an integer type,
+and the {\em numeric-constant} is floating point and
+outside the range of values representable
+by a $t2$ value.
+A compile error is signalled.
 \end{itemize}
-
-Conversions that produce IEEE NaNs set an accured exception flag,
-which does not cause an immediate exception, but is separately
-tested after a sequence of operations to see if any produced
-a NaN, and why the NaN was produced.
 
 \subsection{The Void Type}
 \label{THE-VOID-TYPE}
@@ -517,8 +521,11 @@ may be defined as desired.
 \label{Enumeration-VALUES}
 
 A defined type with an integer underlying type
-may have \skey{enumeration value}s.  These are unique integer
-values assigned to enumeration constant names during compilation,
+may have \skey{enumeration value}s.  These are
+enumeration constant names
+assigned
+unique integer values
+during compilation,
 and then reassigned to possibly different unique integer values during linking.
 
 A declaration statement of the following form defines an \key{enumeration type}
@@ -636,15 +643,24 @@ enumeration type definition.
 
 The following are builtin enumeration types:
 \begin{indpar}
+\TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
+\TT{type}~\ttkey{missing}\TT{~is next enum // 0} \\
+\TT{type}~\ttkey{type}\TT{~is next enum // 1}
+\\[1ex]
+\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
+\TT{qualifier}~\ttkey{missing}\TT{~is next enum // 0}
+\\[1ex]
 \TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0~..~1]} \\
 \TT{bool}~\ttkey{false}\TT{~is next enum // 0} \\
-\TT{bool}~\ttkey{true}\TT{~~is next enum // 1} \\
-\TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
-\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
-\TT{type}~\ttkey{missing}\TT{~is next enum // 0} \\
-\TT{type}~\ttkey{type}\TT{~is next enum // 1} \\
-\TT{type}~\ttkey{qualifier}\TT{~is next enum // 2}
+\TT{bool}~\ttkey{true}\TT{~~is next enum // 1}
 \end{indpar}
+
+Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
+are given unspecified `\TT{type}' enumeration values.
+Similarly builtin qualifiers, such as `\TT{mem}', are given
+unspecified `\TT{qualifier}' enumeration values.  The \TT{*UNCHECKED*}
+conversion above can be used to find the numeric value of any
+enumeration constant.
 
 \subsection{Enumeration Sets}
 \label{Enumeration-Sets}
@@ -764,7 +780,7 @@ For defined types it is the alignment of their underlying type.
 
 \hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
 			( type T )} \\
-Returns the parent type \TT{B} of the type \TT{T}.  For defined
+Returns the base type \TT{B} of the type \TT{T}.  For defined
 types this is the associated builtin type.  For builtin types, it is
 \TT{T} itself.
 
@@ -813,6 +829,9 @@ such as a user defined function that allocates a vector whose
 elements are of type \TT{T}, and the function wishes to give the elements an
 initial default value.
 \end{indpar}
+
+For all these functions it is a compile time error if their argument
+does not have a compile time value.
 
 \section{Qualifiers}
 \label{QUALIFIERS}
@@ -876,18 +895,14 @@ oof int32 result = H ( int32 value ):
     ... [Function body omitted] ...
 
 int32 x10 = ...
-oof int32 x11 ...
 int32 y10 = H ( x10 )
     // Legal; x10 does NOT have oof qualifier; oof is
     // a protected qualifier and is automatically
     // given to result y10.
-int32 y11 = H ( x11 )
-    // Illegal; x11 has oof qualifier, which is prohibited,
+int32 y11 = H ( y10 )
+    // Illegal; y10 has oof qualifier, which is prohibited,
     // but prototype value argument does not have this
     // qualifier.
-int32 y12 = H ( y10 )
-    // Illegal; y10 was given oof qualifier automatically
-    // by H.
 \end{verbatim}\end{indpar}
 
 The qualifiers may be declared by:
@@ -919,7 +934,9 @@ prototype variable must \underline{not} have the prohibited qualifier.
 
 A qualifier \underline{can} be both required and prohibited.
 Given a function prototype variable with such a qualifier,
-the matching call variable will always have to have the qualifier.
+a matching call variable must always have to have the qualifier,
+and given a function prototype variable without such a qualifier,
+a matching call variable must never have the qualifier.
 
 If a function prototype result variable has a protected
 qualifier, any call variable matched to this
@@ -1838,6 +1855,14 @@ For example:
 Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
 and \TT{Qr} is just an abbreviation of the more complex
 qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
+
+Arguments of type `\TT{qualifiers}' may be implied if they
+denote the qualifiers of a given argument.  So in the above,
+the \TT{Q} argument may be implied.
+
+If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
+but are given explicitly instead, their values must be available
+at compile time.
 
 When a function call is used as an argument to another function
 call, a temporary variable is created to hold the first result

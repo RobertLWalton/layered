@@ -1112,7 +1112,7 @@ These variables are allocated and their values are computed by
 assignment statements:
 
 \begin{indpar}
-\emkey{value-assignment-statement}
+\emkey{simple-assignment-statement}
     ::= \{ {\em result-variable-list} \TT{=} \}\QMARK{}
         {\em expression}
 \\[0.5ex]
@@ -1191,9 +1191,25 @@ variables (see below) than it does for other variables.
 All assignment statements have a special case where there are
 no variables being assigned, the {\em variables-list} is omitted,
 and the \TT{=} is also omitted.  In this case the
-{\em value-assignment-statement} reduces to just an {\em expression}
+{\em simple-assignment-statement} reduces to just an {\em expression}
 that executes for side effects (such as
 input/output or non-stack memory modification).
+
+Some examples of {\em simple-assignment-statements} are:
+\begin{indpar}\begin{verbatim}
+int32 x = 1
+int32 y = x + 1
+next x = 10 * x         // Now x == 10
+next y = x + 1          // Now y == 11
+int32 z = 257
+*UNCHECKED* int8 u = z  // *UNCHECKED* conversion used:
+                        // Now u == 1
+float64 m = 1.7
+int32 i = m             // Illegal: undefined implicit
+                        // conversion
+*UNCHECKED* int32 j = m // *UNCHECKED* conversion used:
+                        // now j == 1
+\end{verbatim}\end{indpar}
 
 \subsection{Block Assignment Statements}
 \label{BlOCK-ASSIGNMENT-STATEMENTS}
@@ -2365,7 +2381,7 @@ If \TT{v.adr} is unchanged or
 can be recomputed, then \TT{v} is reloaded from RAM.
 
 If the variable \TT{v} was originally computed by
-a {\em value-assignment-statement}
+an {\em assignment-statement}
 of the form `{\em type} \TT{v =} {\em expression}', then if
 no input to {\em expression} is out-of-date, \TT{v} is not out-of-date.
 Otherwise if all the inputs that are out-of-date can be recomputed,

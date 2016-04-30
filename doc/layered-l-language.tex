@@ -658,7 +658,7 @@ The following are builtin enumeration types:
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
 are given unspecified `\TT{type}' enumeration values.
 Similarly builtin qualifiers, such as `\TT{mem}', are given
-unspecified `\TT{qualifier}' enumeration values.  The \TT{*UNCHECKED*}
+unspecified `\TT{quali\-fier}' enumeration values.  The \TT{*UNCHECKED*}
 conversion above can be used to find the numeric value of any
 enumeration constant.
 
@@ -1011,7 +1011,7 @@ variables and functions.
     ::= & {\em member-index} \\
     $|$ & {\em member-index} \TT{,} {\em member-index-list}
     \end{tabular} \\
-\emkey{member-index} ::= {\em integer-constant-expression} \\[1ex]
+\emkey{member-index} ::= {\em integer-constant-expression}
 \end{indpar}
 
 [We have not yet defined lexemes.  Roughly, separators are single
@@ -1079,7 +1079,8 @@ abbreviation nj = `j'
 abbreviation nnj = `nj'
 int32 nj = 5       // Legal: same as j = 5
 int32 ni = 6       // Illegal variable overlay: same as ni = 6.
-int32 nj = 6       // Legal: same as j = 6
+next nj = 6        // Legal variable overlay:
+                   //       same as next j = 6
 int32 r = nnj      // Legal: same as r = j (nnj => nj => j)
 int32 nnj.p = 4    // Legal: same as j.p = 4
 name .p = `.q'

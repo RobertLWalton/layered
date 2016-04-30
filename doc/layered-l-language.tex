@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 29, 2016
+April 30, 2016
  
 \end{center}
 
@@ -992,49 +992,47 @@ A \key{name} is a sequence of lexemes used to name things like
 variables and functions.
 
 \begin{indpar}
-\emkey{name} \begin{tabular}[t]{@{}rl}
-    ::=  & {\em base-name} {\em member-selector}\STAR{} \\
-    $|$  & {\em member-selector}\PLUS{} \\
-    \end{tabular} \\[1ex]
-\emkey{name-component} ::= {\em base-name} $|$ {\em member-selector} \\
-\emkey{base-name} ::= {\em simple-name} not containing any `\TT{.}'s \\
-\emkey{member-name} \begin{tabular}[t]{@{}rl}
-    ::= & {\em simple-name} containing just one `\TT{.}'
-          that begins its first lexeme \\
-	& which must be a {\em word} or {\em mark} with more than one character
-    \end{tabular} \\[1ex]
-\emkey{member-selector} ::= {\em member-name} {\em member-subscript}\STAR{} \\
+\emkey{name} ::= {\em name-component} {\em member-selector}\STAR{} \\
+\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
+\emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
+\emkey{name-component} ::=
+    {\em name-item} {\em continuing-name-item}\STAR{} \\
+\emkey{continuing-name-item} := {\em name-item} not containing `\TT{.}' \\
+\emkey{name-item} \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} with no embedded or ending `\TT{.}'s \\
+        & [see text about splitting words with embedded `\TT{.}'s] \\
+    $|$ & {\em quoted-mark} with no embedded or ending `\TT{.}'s \\
+    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
+    \end{tabular} \\
+\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
+\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
 \emkey{member-subscript} ::= \TT{[}{\em member-index-list}\TT{]} \\
 \emkey{member-index-list} \begin{tabular}[t]{@{}rl}
     ::= & {\em member-index} \\
     $|$ & {\em member-index} \TT{,} {\em member-index-list}
     \end{tabular} \\
 \emkey{member-index} ::= {\em integer-constant-expression} \\[1ex]
-\emkey{simple-name} ::= {\em simple-name-item}\PLUS{} \\
-\emkey{simple-name-item} \begin{tabular}[t]{@{}rl}
-    ::= & {\em word} $|$ {\em mark} $|$ {\em quoted-name-item} \\
-        & [see text about splitting {\em words} with embedded `\TT{.}'s]
-    \end{tabular} \\
-\emkey{quoted-name-item} ::=
-    double quoted (\TT{"~"}) {\em separator}, {\em mark}, or {\em word}
 \end{indpar}
 
-The difference between a {\em base-name} and a {\em member-name}
-is that the first character of a {\em member-name} is `\TT{.}',
-and the first character of a {\em base-name} is \underline{not}
-`\TT{.}'.  Furthermore, a {\em word} of any {\em simple-name} that contains
-an embedded period `\TT{.}', is split just before the period,
-unless the second result lexeme is a {\em numeric} (i.e., contains
-a digit not preceded by a letter within the numeric lexeme).\footnote{
-Thus the lexeme is split before an embedded period if and only if
-the first letter or digit after the period is a letter and not
-a digit, or there is no letter or digit after the period.}
+[We have not yet defined lexemes.  Roughly, separators are single
+characters such as `\TT{(}' `\TT{)}' and `\TT{,}', marks are lexemes
+that are not separators and do not contain letters or digits or `\TT{\#}',
+words are lexemes that contain a letter before any digit, and
+numerics are lexemes that contain either a digit before any letter
+or contain `\TT{\#}'.]
 
-Thus \\
-\centerline{\TT{bills.wife.1.weight}}
-is split into \\
-\centerline{\TT{bills~~~.wife.1~~~.weight}}
-
+{\em Words} containing embedded `\TT{.}'s are split into
+{\em name-items} which can only contain `\TT{.}'s at their beginning.
+Thus
+\begin{center}
+\TT{bills.wife.1.weight}
+\end{center}
+is split into
+\begin{center}
+\TT{bills~~~.wife~~~.1~~~.weight}
+\end{center}
+However, `\TT{.1}' is not a legal {\em name-item} and so cannot
+be part of a {\em name}.
 
 A variable of type \ttkey{name} can store a {\em name}.
 Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
@@ -1049,37 +1047,36 @@ name n = n1 + n2  // n now = `jill .daughter[3]'
                   // or equivalently `jill.daughter[3]'
 \end{verbatim}\end{indpar}
 
-A variable may be declared to be an \key{abbreviation} by prefacing
-the `\ttkey{abbreviating}' qualifier to its `\TT{name}' type.  When a name
-appears in code being compiled, and the name references a
-variable that is an abbreviation, the value of the variable is
-subsituted for the name.
+{\em Variable-names} are {em names}.
 
-More specifically, if a contiguous part
-of a {\em name} names a
-variable that is an
-abbreviation, the contiguous part is replaced, and then this rule
-is applied recursively.
-The contigous part must begin at the beginning of the {\em name} or
-a the beginning of a {\em member-selector} in the name, and must end
-at the end of the {\em name}, just before a {\em member-selector},
-or just before a {\em member-subscript}
-in the name (i.e., the part must be a contiguous sequence of the
-{\em name-components} in the {\em name} with ending {\em member-subscripts}
-optionally omitted).
-If there is more than one contiguous part
-that might be replaced, ones beginning first, and among these
-the longest, is replaced.
-
-Note that abbreviations whose names begin with a {\em base-name}
-can only replace an initial part of a {\em name}, with preference
-given to the longest abbreviation.  This is the most common case.
+An `\ttkey{abbreviation}' is name that is replaced in code by its value.
+More specifically,
+\begin{indpar}
+\TT{type~}\ttkey{abbreviation}\TT{~is name}
+\end{indpar}
+is builtin, and given
+\begin{center}
+\TT{abbreviation V = `N'}
+\end{center}
+for any variable \TT{V} and name \TT{N}, any occurrance of
+the name \TT{V} as a subname of
+a name in code within the scope of \TT{V} is replace by \TT{N} during
+compilation.  Here a `\key{subname}' is a sequence of {\em name-components}
+and {\em member-subscripts} within a name (i.e., a subname cannot
+contain a \underline{partial} {\em name-component}).
+If there is more than one replaceable subname
+in a name, ones beginning first, and among these
+the longest, is replaced.  After replacement, the complete name is
+reinspected for possible additional abbreviations: that is, abbreviation
+replacement in names is recursive.  However, abbreviation replacement
+is done after other parsing; abbreviations may replace operators, but
+only after the operators have been used to insert implied parentheses.
 
 For example:
 \begin{indpar}[0.1in]\begin{verbatim}
 name ni = `i'
-abbreviating name nj = `j'
-abbreviating name nnj = `nj'
+abbreviation nj = `j'
+abbreviation nnj = `nj'
 int32 nj = 5       // Legal: same as j = 5
 int32 ni = 6       // Illegal variable overlay: same as ni = 6.
 int32 nj = 6       // Legal: same as j = 6
@@ -1087,28 +1084,14 @@ int32 r = nnj      // Legal: same as r = j (nnj => nj => j)
 int32 nnj.p = 4    // Legal: same as j.p = 4
 name .p = `.q'
 int32 nnj.p = 4    // Illegal variable overlay: same as j.p = 4
-abbreviating name .r = `.q'
+abbreviation .r = `.q'
 int32 nnj.r = 4    // Legal: same as j.q = 4
 int32 nnj.r[0] = 4 // Legal: same as j.q[0] = 4
 \end{verbatim}\end{indpar}
 
-Note here that variables may have names that contain {\em member-selectors}:
+Note here that variables with names that contain {\em member-selectors}
+may be cluster variables:
 see Section~\itemref{CLUSTERS} for more details.
-
-A name declaration can be used to abbreviate a \TT{name} variable
-assigment followed by an abbreviation declaration:
-\begin{indpar}\begin{verbatim}
-name ni is i  // same as: abbreviating name ni = `i'
-\end{verbatim}\end{indpar}
-
-A statement of the form `\TT{abbreviating name} {\em n} \TT{=} \ldots'
-is an assignment statement: see Section~\itemref{ASSIGNMENT-STATEMENTS}
-for more details.  The general syntax of the abbreviation declaration is:
-
-\begin{indpar}
-{\em abbreviation-declaration-statement} ::=
-    \TT{name} ~ {\em abbreviating-name} ~ \TT{is} ~ {\em abbreviated-name}
-\end{indpar}
 
 If an abbreviation is referenced in code being compiled, the value
 of the abbreviation variable must be available to the compilation.

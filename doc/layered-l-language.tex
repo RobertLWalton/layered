@@ -1248,6 +1248,24 @@ block.  They may \underline{not} have the same name as a variable
 \TT{v} visible outside the block,  and they may \underline{not}
 have the name `\TT{next v}' where  \TT{v} is visible outside the block.
 
+An example of a {\em block-assignment-statements} is:
+\begin{indpar}\begin{verbatim}
+int32 x = 1
+float64 y = 1.67
+int64 z, *UNCHECKED* uns8 w, next x =:
+
+    z = 16,777,216   // Legal, z is result variable
+    x = 265          // Illegal, x is NOT result variable
+    float64 y = 2.6  // Illegal, y is visible outside block
+    uns8 v = 55      // Legal, v is NOT visible outside block
+    next x = 266     // Legal, next x is result variable,
+                     //        now x == 266
+    next y = 2.6     // Illegal, y is visible outside block
+                     //          and next y is not result
+                     //          variable
+    w = x            // Legal, sets w to 2 as x is now 266
+\end{verbatim}\end{indpar}
+
 \subsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
 
@@ -1305,9 +1323,6 @@ single subblock that executes.  A variable in the
 {\em result-variable-list} cannot be read by a subblock {\em statement}
 unless it is set by a previous {\em statement} in the
 same subblock.
-
-and variables declared in the subblocks are not visible outside their
-subblock.
 
 An example is:
 \begin{indpar}\begin{verbatim}
@@ -1373,7 +1388,7 @@ The general syntax of loop assignment statements is:
 
 This is somewhat like the conditional assignment statement
 except the `\TT{while}' subblock is iterated and there are iteration
-variables defined by the \TT{initially} subblock.
+variables defined by the `\TT{initially}' subblock.
 
 The \skey{iteration variable}s are the
 {\em result-variables} of the
@@ -1406,9 +1421,9 @@ in the next iteration to the next iteration of the loop, which
 also exists simultaneously with the current iteration.
 
 For a given iteration variable \TT{v},
-either the \TT{initially} subblock sets \TT{v}
+either the `\TT{initially}' subblock sets \TT{v}
 and the `\TT{while}' subblock sets `\TT{next v}',
-or the \TT{initially} subblock sets both \TT{v} and `\TT{next v}'
+or the `\TT{initially}' subblock sets both \TT{v} and `\TT{next v}'
 and the `\TT{while}' subblock sets `\TT{next next v}'.
 Values of `\TT{next v}' and `\TT{next next v}' may be stored in
 the stack memory of an iteration that will never be executed.
@@ -1424,7 +1439,7 @@ When the third iteration of the loop starts, the first
 iteration can be discarded, and so forth.
 
 The stack (\itemref{STACK-MANAGEMENT})
-of a loop iteration subblock may be deallocated by the time the
+of a loop iteration subblock may be deallocated when the
 iteration subblock finishes executing.
 However, deallocation of some of these stacks may be deferred by
 an implementation, which may allow debuggers to look at them
@@ -1433,6 +1448,9 @@ in some circumstances.
 
 \subsection{Call Assignment Statements}
 \label{CALL-ASSIGNMENT-STATEMENTS}
+
+Note that functions are most commonly inline, and not out-of-line.
+Inline functions are described later in Section~\itemref{FUNCTIONS}.
 
 \ikey{Call assignment statements}{call assignment}
 are used to call out-of-line functions:
@@ -1527,7 +1545,7 @@ normally arguments are passed to the function in the order they
 appear in the call block,
 top to bottom, left to right, which is the order in which they
 are computed.  However, in this case the
-\ttkey{*REVERSE*} option reverses the order in which the argument
+\ttkey{*REVERSE*} option reverses the order in which the arguments
 are passed, so the first computed is the last passed.
 
 Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
@@ -1546,14 +1564,11 @@ run time.  But a
 at compile time.
 
 The \TT{*REVERSE*} option requires the \TT{*UNCHECKED*}
-option and the absence of a funtion prototype.
+option and the absence of a function prototype.
 
 Normally the standard call linkage for the computer environment of
 the program is used.  Other implementation specific call options
 may alter the call linkage used.
-
-Note that functions are standardly inline, and not out-of-line.
-Inline functions are described later in Section~\itemref{FUNCTIONS}.
 
 \subsection{Out-of-Line Assignment Statements}
 \label{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}
@@ -1575,9 +1590,11 @@ an {\em out-of-line-function-declaration}:
 \end{indpar}
 
 An {\em out-of-line-function-declaration} is constructed from this statement
-by adding internally generated {\em function-type-name}
-and {\em function-name},
-and then this statement is executed as a {call-assign\-ment-statement}
+by replacing the `\TT{out-\EOL of-\EOL line}' keyword by
+an internally generated {\em function-type-name}
+and {\em function-name}, and converting each {\em assignment-statement}
+to an {\em argument-variable-declaration}.
+Then this statement is executed as a {\em call-assign\-ment-statement}
 using the {\em function-name} and deleting the `\TT{do}' subblock
 {\em statements}.
 
@@ -1615,7 +1632,7 @@ Then the `\TT{do}' subblock {\em statements} are compiled, using
 the variable values to optimize the compilation.  Then the
 compiled code is executed.  The variables in the {\em result-variable-list}
 may be set by either
-{\em assigment-statements} or `\TT{do}' subblock {\em statements} as for
+{\em assignment-statements} or `\TT{do}' subblock {\em statements} as for
 a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
 If a variable \TT{v} not in the {\em result-variable-list}
 is set by an {\em assignment-statement},
@@ -1623,10 +1640,10 @@ is set by an {\em assignment-statement},
 this will be a new variable whose value will not be available during
 the compilation.
 
-When the compile-and-run assigment statement is executed, the compiled
+When the compile-and-run assignment statement is executed, the compiled
 code will be saved in a table indexed by the values of the
 variables set by the {\em assignment-statements}.  When the
-compile-and-run assigment statement is re-executed, if these
+compile-and-run assignment statement is re-executed, if these
 variables have the same value they had during a previous execution,
 the compilation will be bypassed and the previously compiled code used.
 This optimization is required, but such previously compiled code
@@ -1664,6 +1681,9 @@ the variables will be allocated to the specified registers or
 register groups.  Otherwise they will be allocated to target
 machine specified register groups based on variable type.
 
+If intermediate registers are needed, they should be listed at the
+end of the {\em result-variable-list}.
+
 \subsection{Compile-Time Assignment Statements}
 \label{COMPILE-TIME-ASSIGNMENT-STATEMENTS}
 
@@ -1694,27 +1714,27 @@ that have been declared to be compile-time.
 A \key{declaration} is a statement the defines a name which
 can be referenced in code.  Assignment statements also
 introduce the names of their result variables, and serve
-as declarations.
+as declarations of these result variables.
 
 Declarations are statements in blocks.  A declaration has
 a \key{scope}, that is the set of statements in which any
 name defined by the declaration is recognized.  The scope
 of a declaration begins with the declaration itself, and
-lasts to the end of largest block containing the declaration.
+lasts to the end of smallest block containing the declaration.
 The scope of a name is the scope of the declaration that defines
 it.
 
 Two different declarations of the same name may \underline{not}
-have overlapping scope.
+have overlapping scope, except when the second declaration is
+for `\TT{next} {\em variable-name}' and both declarations are
+in the same smallest containing block.
 
 The scope of a name consists of statements and subblocks.
 By the last rule, a name may not be
 redeclared in a subblock that is in the name's scope.
-
-A result variable named `\TT{next v}' is not the same variable
-or name as `\TT{v}', but, as a special case, `\TT{next v}'
+A corollary of this is that `\TT{next v}'
 cannot be declared in a subblock that is in the scope
-of `\TT{v}.
+of `\TT{v}'.
 
 \section{Functions}
 \label{FUNCTIONS}
@@ -1864,6 +1884,12 @@ If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
 but are given explicitly instead, their values must be available
 at compile time.
 
+Much more complex {\em function-prototypes} can be written:
+see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+
+\subsection{Temporary Variables}
+\label{TEMPORARY-VARIABLES}
+
 When a function call is used as an argument to another function
 call, a temporary variable is created to hold the first result
 variable of the inner function call, and the other result variables
@@ -1888,7 +1914,7 @@ $i\mapsto T^1_i~~~\leq~~~i\mapsto T^2_i$
 \end{center}
 if and only if for every $i$, values of type $T^2_i$ are implicitly
 convertible to values of type $T^1_i$.  Then if the set of
-possible type assigments has a minimum, that is used, and if
+possible type assignments has a minimum, that is used, and if
 the minimum yields a unique matching of statement calls to
 prototypes, the statement compiles without error.  Otherwise
 the statement is ambiguous and its compilation is in error.
@@ -1905,9 +1931,6 @@ temporary result.  If the type is not specified, it will be computed
 as in the proceding paragraphs.  The temporary will also be given any protected
 qualifiers of the result variable of any prototype matched to the
 inner call.
-
-Much more complex {\em function-prototypes} can be written:
-see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
 
 \section{Generics}
 \label{GENERICS}
@@ -2284,9 +2307,9 @@ memory the stack address points at.
 The special property of the `\TT{stack}' qualifier is that it cannot
 be used to qualify variables in the {\em result-variable-list}
 of a {\em call-assignment-statement},
-{\em out-of-line-assigment-statement}, or
-{\em compile-time-assigment-statement},
-or iteration variables in a {\em loop-assigment-statement}.
+{\em out-of-line-assignment-statement}, or
+{\em compile-time-assignment-statement},
+or iteration variables in a {\em loop-assignment-statement}.
 This is so that stack addresses pointing into a free stack
 cannot outlive the free stack.
 See Section~\itemref{STACK-MANAGEMENT} for more information.
@@ -2425,7 +2448,7 @@ Section~\itemref{THE-STACK-QUALIFIER}.
 
 Stacks of out-of-line function executions
 (\pagref{OUT-OF-LINE-FUNCTIONS}),
-out-of-line assigment statement blocks
+out-of-line assignment statement blocks
 (\pagref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}),
 and
 compile-time assignment statement blocks
@@ -2433,8 +2456,8 @@ compile-time assignment statement blocks
 are free, as is implemented by
 not allowing the variables in the {\em result-variable-list}
 of a {\em call-assignment-statement},
-{\em out-of-line-assigment-statement}, or
-{\em compile-time-assigment-statement},
+{\em out-of-line-assignment-statement}, or
+{\em compile-time-assignment-statement},
 to have the `\TT{stack}' qualifier.
 
 Stacks of loop subblocks are free,

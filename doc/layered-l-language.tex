@@ -991,7 +991,7 @@ equal.
 A \key{name} is a sequence of lexemes used to name things like
 variables and functions.
 
-\begin{indpar}
+\begin{indpar}\label{NAMES}
 \emkey{name} ::= {\em name-component} {\em member-selector}\STAR{} \\
 \emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
 \emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
@@ -1047,7 +1047,8 @@ name n = n1 + n2  // n now = `jill .daughter[3]'
                   // or equivalently `jill.daughter[3]'
 \end{verbatim}\end{indpar}
 
-{\em Variable-names} are {em names}.
+{\em Variable-names}, {\em type-names}, {\em qualifier-names},
+{\em function-names}, etc.~are {\em names}.
 
 An `\ttkey{abbreviation}' is name that is replaced in code by its value.
 More specifically,
@@ -1884,6 +1885,32 @@ If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
 but are given explicitly instead, their values must be available
 at compile time.
 
+Since they are inline, functions can use abbreviation arguments as function
+names.  An example is:
+\begin{indpar}\begin{verbatim}
+( T r1, T r2 ) =
+	sort2 ( type T, T x, T y, abbreviation less-than ):
+    if:
+        less-than ( x, y ):
+	    r1 = x; r2 = y
+	else
+	    r1 = y; r2 = x
+
+// Function that is like < except it makes a NaN less than
+// a non-Nan ( < is false if either argument is NaN ).
+//
+bool r = less-than-float64 ( float64 x, float64 y )
+    r = if:
+        is-Nan ( x ): r = true
+	x < y:        r = true
+	else:	      r = false
+
+float64 b1 = 5.37857
+float64 b2 = 5.37289
+( float64 c1, float64 c2 ) =
+    sort2 ( b1, b2, `less-than-float64' )
+\end{verbatim}\end{indpar}
+
 Much more complex {\em function-prototypes} can be written:
 see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
 
@@ -1943,11 +1970,10 @@ A \key{generic} is like an inline function except that:
       assigns its variables compile-time values.
 \item There is an extra `\TT{include}' block consisting of
       statements that replace the generic call
-      in the code that contains the call.  These statements may
+      in the code that contains the call.  These included statements may
       contain the names of call arguments and computed block variables,
       including abbreviations, and these are replaced
-      in the statements that replace the generic call
-      by their values.
+      in the included statements by their values.
 \end{enumerate}
 
 Generic declarations have the form:
@@ -1985,8 +2011,8 @@ generic min-max functions ( type T ):
                     result = y
                 else
                     result = NaN
-	T result = max ( T x, T y ):
-	    result = - max ( -x, -y )
+        T result = max ( T x, T y ):
+            result = - min ( -x, -y )
 
 min-max functions ( int64 )
 int64 u = ...
@@ -2002,29 +2028,15 @@ int64 w = max ( u, 1,000,000 )
 A \key{cluster} is a group of related variables.  One variable of
 the cluster is the \mkey{base variable}{of cluster} of the cluster, and the
 other variables have names that are derived from the
-name of the base variable using the syntax:
-
-
-\begin{indpar}
-{\em variable-name} ::=
-    {\em base-name} {\em member-selector}$^\star$ \\[1ex]
-{\em member-selector} \begin{tabular}[t]{@{}rl}
-    ::= & \TT{.}{\em member-name} \\
-    $|$ & \TT{[}{\em member-index-list}\TT{]}
-    \end{tabular} \\[1ex]
-{\em member-index-list} \begin{tabular}[t]{@{}rl}
-    ::= & {\em member-index} \\
-    $|$ & {\em member-index} \TT{,} {\em member-index-list}
-    \end{tabular} \\[1ex]
-{\em member-index} ::= {\em integer-constant-expression}
-\end{indpar}
+name of the base variable adding {\em member-selectors}
+to the end of the base variable name.  See \pagref{NAMES}.
 
 Thus a cluster
 is like a C/C++ structure, but it is a set of variables and not a
 piece of memory.
 
 More specifically, the members of the cluster can be named by
-adding either a member name preceded by `\TT{.}' or a
+adding either a member name beginning with a `\TT{.}' or a
 `\TT{[]}' bracketed list of
 integer constant subscripts to
 either the base variable name of the cluster or to another member name
@@ -2091,7 +2103,7 @@ type pointer pair is void
     ( out.offset, out.offset.base.adr ) = if:
         pp.begin < pp.end:
             out.offset = pp.begin
-            out.offset.base.adr = pp.base.addr
+            out.offset.base.adr = pp.base.adr
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -2102,7 +2114,6 @@ type pointer pair is void
 "*" ( stack pointer pair pp,
       unsadr pp.begin,
       unsadr pp.end,
-      adr pp.base,
       adr pp.base.adr,
       type pp.type ) =
         ( pp.type in ):
@@ -2130,7 +2141,7 @@ type pointer pair is void
                unsadr pp.begin,
                unsadr pp.end,
                adr pp.base.adr ):
-      pp2.begin = pp.begin + size of ( T )
+      pp2.begin = pp.begin + size of ( pp.type )
       pp2.end = pp.end
       pp2.base.adr = pp.base.adr
       pp2.type = pp.type
@@ -2194,7 +2205,8 @@ by being in the same cluster.
 When this is done for prototype arguments, the cluster root must
 also be an argument, and the cluster member values
 will be derived from the root, and \underline{must}
-be omitted in calls.  If the cluster members do not exist,
+be omitted in calls.  If the cluster members named as arguments
+in the function prototype do not exist,
 the function prototype does not match the call.
 
 When this is done for prototype results, the cluster root must similarly
@@ -2286,7 +2298,7 @@ variable \TT{v} must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
 from its RAM address.
 
-Because \TT{mem} and \TT{*UNCHECKED*} are protected qualifiers,
+Because \TT{mem} is a protected qualifier,
 \TT{v} and the required
 members of the cluster of which \TT{v} is a root
 must be created as matches to result variables of a function.
@@ -2397,13 +2409,15 @@ Variable values are recomputed in the same order as they were
 originally computed.  How each variable is recomputed depends upon
 how it was originally computed.
 
-If the variable \TT{v} has the `\TT{mem}' qualifier and was loaded
-from RAM by setting the \TT{v.adr} address variable, then the value
+As a special case, if one of the qualifiers given is `\TT{mem}', and
+a variable \TT{v} has the `\TT{mem}' qualifier and is the base of
+a cluster that causes \TT{v} to be loaded from memory
+(as per Section~\itemref{THE-MEM-QUALIFIER}), then the value
 in RAM is assumed to have changed, and \TT{v} is declared to be out-of-date.
-If \TT{v.adr} is unchanged or
-can be recomputed, then \TT{v} is reloaded from RAM.
+After the appropriate members of the \TT{v} cluster have been recomputed,
+\TT{v} is reloaded from RAM.
 
-If the variable \TT{v} was originally computed by
+If a variable \TT{v} was originally computed by
 an {\em assignment-statement}
 of the form `{\em type} \TT{v =} {\em expression}', then if
 no input to {\em expression} is out-of-date, \TT{v} is not out-of-date.
@@ -2416,7 +2430,7 @@ statement subblock that does not involve loops or out-of-line calls or
 writes to RAM,
 even if other subblocks of the conditional statement do involve such.
 
-If a recomputed variable value is not used after the \TT{reload} statement,
+If an out-of-date variable value is not used after the \TT{reload} statement,
 it is not recomputed.
 
 \section{Stack Management}
@@ -2442,8 +2456,8 @@ not deallocated from memory until its smallest containing free stack is
 deallocated.  The main reason this is important is that stack addresses
 can be passed out of a block with a bound stack to its containing block,
 but cannot be passed out of a block with a free stack to its containing
-or calling block.  This is implemented by not allowing certain
-variables in to have the `\TT{stack}' qualifier: see
+or calling block.  This is implemented by giving certain
+variables the `\TT{stack}' qualifier: see
 Section~\itemref{THE-STACK-QUALIFIER}.
 
 Stacks of out-of-line function executions
@@ -2453,12 +2467,11 @@ out-of-line assignment statement blocks
 and
 compile-time assignment statement blocks
 (\pagref{COMPILE-TIME-ASSIGNMENT-STATEMENTS})
-are free, as is implemented by
-not allowing the variables in the {\em result-variable-list}
+are free, and variables in the {\em result-variable-list}
 of a {\em call-assignment-statement},
 {\em out-of-line-assignment-statement}, or
 {\em compile-time-assignment-statement},
-to have the `\TT{stack}' qualifier.
+may \underline{not} have the `\TT{stack}' qualifier.
 
 Stacks of loop subblocks are free,
 which is implemented by not
@@ -2483,7 +2496,7 @@ but move whenever their smallest containing free stack moves.
 Any stack address is relative to its containing free stack,
 which is the current free stack at the time executable code uses
 the stack address.  To accommodate this builtin memory read-write
-functions with not only accept an \TT{adr} value as a RAM address,
+functions will not only accept an \TT{adr} value as a RAM address,
 but also accept a RAM address consisting of an \TT{unsadr}
 offset within the stack and a stack base address that is itself
 stored in RAM.  See Section~\itemref{THE-MEM-QUALIFIER} for details.
@@ -2498,10 +2511,10 @@ be moved to a memory region where there is more free memory available.
 
 In a program being debugged, free stacks may be saved after they are no
 longer needed by the program, in order to permit them to be analyzed
-by a debbugger if the program detects and error.  In this situation
+by a debbugger if the program detects an error.  In this situation
 free stacks are allocated to a very big circular buffer, and overwritten
 after they are no longer needed by the program.  It may happen that
-a free stack whose block is still running is in the way of a allocating
+a free stack whose block is still running is in the way of allocating
 a new stack to the circular buffer, in which case the still running
 block's free stack may be moved.
 

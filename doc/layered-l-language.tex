@@ -969,9 +969,9 @@ specified on page~\pagref{INHERITED-QUALIFIER}.
 
 The builtin qualifiers are in effect declared by:
 \begin{indpar}
-\TT{protected~qualifier~}\ttkey{mem} \\
+\TT{qualifier~}\ttkey{mem} \\
 \TT{prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
-\TT{restricted qualifier~}\ttkey{*UNCHECKED*} \\
+\TT{required qualifier~}\ttkey{*UNCHECKED*} \\
 \TT{qualifier~}\ttkey{trace}
 \end{indpar}
 
@@ -2119,10 +2119,11 @@ type pointer pair is void
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            *UNCHECKED* unsadr offset = pp.begin
-            mem adr offset.base
-            *UNCHECKED* adr offset.base.adr = pp.base.adr
-            in ---> offset
+	    pp.type v = in
+            *UNCHECKED* unsadr v.offset = pp.begin
+            mem adr v.base
+            *UNCHECKED* adr v.base.adr = pp.base.adr
+            *WRITE* v
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -2284,25 +2285,19 @@ A variable \TT{v.adr} of type \TT{adr} with either of the qualifiers
 \item
 A variable \TT{v.offset} of type \TT{intadr} or \TT{unsadr} and
 qualifier \TT{*UNCHECKED*}, and
-a variable \TT{v.offset.base} of type \TT{adr} and qualifier \TT{mem}
+a variable \TT{v.base} of type \TT{adr} and qualifier \TT{mem}
 or \TT{*UNCHECKED*}.
 In this case the RAM address of \TT{v} is \TT{v.base+v.offset}.
-If \TT{v.offset.base} has qualifier \TT{mem} it must recursively be
+If \TT{v.base} has qualifier \TT{mem} it must recursively be
 the root of a subcluster obeying
-these rules (so there must be either a \TT{v.offset.base.adr} variable
-or \TT{v.offset.base.offset} and \TT{v.offset\EOL .base\EOL .offset\EOL .base}
+these rules (so there must be either a \TT{v.base.adr} variable
+or \TT{v.base.offset} and \TT{v.base\EOL .base}
 variables, etc.).
 \end{enumerate}
 The the
 variable \TT{v} must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
-from its RAM address.
-
-Because \TT{mem} is a protected qualifier,
-\TT{v} and the required
-members of the cluster of which \TT{v} is a root
-must be created as matches to result variables of a function.
-So only functions can effect a load of RAM contents to a variable.
+from its RAM address.  It is called a `\key{RAM cache variable}'.
 
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}
@@ -2330,7 +2325,7 @@ See Section~\itemref{STACK-MANAGEMENT} for more information.
 \label{THE-UNCHECKED-QUALIFIER}
 
 The \TT{*UNCHECKED*} qualifier is a
-restricted qualifier that must qualify the \TT{v.adr} or
+required qualifier that must qualify the \TT{v.adr} or
 \TT{v.offset} variables
 associated with a variable \TT{v} that has the \TT{mem} qualifier.
 See Section~\itemref{THE-MEM-QUALIFIER}.
@@ -2432,6 +2427,173 @@ even if other subblocks of the conditional statement do involve such.
 
 If an out-of-date variable value is not used after the \TT{reload} statement,
 it is not recomputed.
+
+\section{Memory Write Statements}
+\label{MEMORY-WRITE-STATEMENTS}
+
+Statements that write memory make use of the same cluster structure
+as \TT{mem} qualifier variables which are used to read memory;
+see Section~\itemref{THE-MEM-QUALIFIER}.
+
+Specifically, memory needs to be addressed.  This is done by a
+variable \TT{v} of some type which is called the `\key{RAM cache variable}'
+and a RAM address associated with \TT{v} by either:
+\begin{enumerate}
+\item
+A variable \TT{v.adr} of type \TT{adr} with either of the qualifiers
+\TT{mem} or \TT{*UNCHECKED*} that is the RAM address associated with \TT{v}.
+
+\item
+A variable \TT{v.offset} of type \TT{intadr} or \TT{unsadr} and
+qualifier \TT{*UNCHECKED*}, and
+a variable \TT{v.base} of type \TT{adr} and qualifier \TT{mem}
+or \TT{*UNCHECKED*}.
+In this case the RAM address associated with \TT{v} is \TT{v.base+v.offset}.
+If \TT{v.base} has qualifier \TT{mem} it must recursively be
+the root of a subcluster obeying
+these rules (so there must be either a \TT{v.base.adr} variable
+or \TT{v.base.offset} and \TT{v.base\EOL .base}
+variables, etc.).
+\end{enumerate}
+Note that for write statements the RAM cache variable \TT{v} need
+\underline{not} have the \TT{mem} qualifier.
+
+\subsection{Single Value Write Statements}
+\label{SINGLE-VALUE-WRITE-STATEMENTS}
+
+The form of a single valued write statement is:
+
+\begin{indpar}
+\emkey{single-value-write-statement} ::= \TT{*WRITE*} {\em write-variable}
+\end{indpar}
+
+The {\em write-variable} is a RAM cache variable.
+The statement `\TT{*WRITE* v}' simply writes the value of \TT{v} into
+the address associated with \TT{v}.
+
+\subsection{Memory Copy Statements}
+\label{MEMORY-COPY-STATEMENTS}
+
+The form of a memory copy statement is:
+
+\begin{indpar}
+\emkey{memory-copy-statement} ::=
+    \TT{*COPY*} {\em source-variable} {\em destination-variable}
+    		{\em length-variable}
+\end{indpar}
+The {\em source-variable} and {\em destination-variable} are
+RAM cache variables of types and qualifiers such that values
+of the {\em source-variable} may be converted to values of the
+{\em destination-variable}.  Unless the {\em destination-variable}
+has the \TT{*UNCHECKED*} qualifier, this conversion must be implicit.
+
+The {\em length-variable} must be an unsigned integer type.
+
+The `\TT{*COPY*}' statement
+uses the source address associated with the {\em source-variable},
+the destination address associated with the {\em destination-variable}
+and the length stored in the {\em length-variable},
+but does not alter any variable.
+As long as the length is not zero,
+the statement reads from the source address a value of
+the {\em source-variable}'s type, converts that value the the
+the {\em desination-variable}'s type, and writes the value to the
+destination address.  It then decrements the length, adds the
+length of the {\em source-variable}'s type to the source address,
+and adds the length of the {\em destination-variable}'s type to the
+destination address.
+
+If the source and destination overlap the results of the copy are
+undefined, for it may read multiple values from the source before
+writing any to the destination, or only read one value at a time.
+
+\subsection{Memory Set Statements}
+\label{MEMORY-SET-STATEMENTS}
+
+The form of a memory set statement is:
+
+\begin{indpar}
+\emkey{memory-set-statement} ::=
+    \TT{*SET*} {\em source-variable} {\em destination-variable}
+    		{\em length-variable}
+\end{indpar}
+The action is similar to that of the {\em memory-copy-statement},
+except that the {\em source-variable} is not a RAM cache variable,
+and the value of this variable itself is used as the source value
+to be converted to the {\em destination-variable}'s type and
+written.
+
+\subsection{Atomic Memory Statements}
+\label{ATOMIC-MEMORY-STATEMENTS}
+
+An \key{atomic-memory-statement} is a generalization of
+the classic compare-and-set instruction.  It is a block assignment
+statement that executes a sequence of specialized instructions:
+
+\begin{indpar}
+\emkey{atomic-memory-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \TT{uns32 result = }\ttkey{*ATOMIC*} \TT{:} \\
+	\TT{~~~~}{\em lock-instruction}\STAR{} \\
+	\TT{~~~~}{\em compare-instruction}\STAR{} \\
+	\TT{~~~~}{\em write-instruction}\STAR{} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{lock-instruction} ::= \ttkey{*LOCK*} {\em lock-variable} \\
+\emkey{compare-instruction} ::= \ttkey{*COMPARE*} {\em compare-variable} \\
+\emkey{write-instruction} ::= \\
+\hspace*{0.2in}\begin{tabular}[t]{rl}
+        & \TT{*WRITE*} {\em write-variable} \\
+    $|$ & \TT{*COPY*} {\em source-variable} {\em destination-variable}
+    		      {\em length-variable} \\
+    $|$ & \TT{*SET*} {\em source-variable} {\em destination-variable}
+    		     {\em length-variable} \\
+    \end{tabular}
+\end{indpar}
+
+The special instructions,
+which make use of clusters (Section~\itemref{CLUSTERS}),
+and are as follows:
+\begin{indpar}[0.4in]
+\hspace*{-0.2in}{\em \bf Lock-Instruction}.
+The {\em lock-variable} is of type \TT{uns32}
+and identifies the lock.
+The lock is a binary test-and-set lock provided by the
+underlying system.  Locks are allocated to sets of processes
+that share memory, so that if any process in the set gets
+the lock, other processes in the set cannot.
+
+The lock instruction sets the lock and succeeds if the lock
+was not already set, and otherwise just fails.
+
+When the {\em atomic-assignment-statement} terminates, either
+successfully or when it fails, all locks gotten are released in
+reverse order.
+
+\hspace*{-0.2in}{\em \bf Compare-Instruction}.
+The {\em compare-variable} is a RAM cache variable (which need
+not have the \TT{mem} qualifier).  The compare
+instruction reads the value at the associated address and compares
+it to the value of the {\em compare-variable}.  The instruction
+succeeds if the values are equal, and fails otherwise.
+
+
+\hspace*{-0.2in}{\em \bf Write-Instructions}.
+These do what they normally do, except they are all dry-run 
+before any actually execute.  During the dry-run one of these
+instruction fails if any memory reference it makes would fail
+were the instruction actually executed.  In particular, if any
+piece of memory is paged out or not in RAM, the dry-run fails.
+\end{indpar}
+
+The `\TT{result}' value returned by the {\em atomic-memory-statement}
+equals \TT{0} if the statement succeeds, or is the number of the
+first failed instruction in the statement block if the statement
+fails.
+
+Interrupts are disabled during the execution of an
+{\em atomic-memory-statement} so the statement will execute as
+fast as the underlying hardware will allow.
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}

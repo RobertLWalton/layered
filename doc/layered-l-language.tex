@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 30, 2016
+May 2, 2016
  
 \end{center}
 
@@ -2755,16 +2755,26 @@ global areas as the `\TT{allocate to stack}' function does for
 stacks, accept that the address gets the \TT{global} qualifier
 instead of the \TT{stack} qualifier.  The \TT{global} qualifier
 is a protected qualifier with \underline{none} of the special `\TT{stack}'
-qualifier properties, normally has no effect on code.
+qualifier properties, and normally has no effect on code.
 
-The code of a global area block is executed when the file containing it is
+Global areas are run time by default.
+The code of a run time
+global area block is executed when the file containing it is
 loaded, and the stack of the area is allocated and defined at that
 time.  Global areas may be deallocated or moved during execution.
 References to a global area
 that is not yet allocated or that has been deallocated cause runtime
 errors (typically segmentation faults).
 
-TBD: compile-time
+Global areas may also be made compile time, or both compile and run time,
+by use of the \TT{*COM\-PILE-\EOL TIME-\EOL ONLY*} or \TT{*COMPILE-\EOL TIME*}
+{\em global-\EOL area-\EOL options} above.  For a compile time
+global area, global area blocks are executed in the compiler immediately
+after the block compiles, and the global area stack exists in the compiler.
+If the global area is also run time, its
+block code will be re-executed in the run time enviroment when the
+file containing it is linked, and might produce a different stack contents
+for the area than the compile time version of the area.
 
 \section{Function Prototypes and Calls}
 \label{FUNCTION-PROTOTYPES-AND-CALLS}

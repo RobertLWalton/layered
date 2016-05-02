@@ -2603,9 +2603,28 @@ that is terminating abnormally executes a \TT{*CATCH*} statement,
 all variables that the block must assign must be given values, even
 though part of the block may not have executed.  The compiler
 will check this, and will only permit code that complies in a
-straight forward manner, so it may be best to assign all such
-variables in the \TT{*UNWIND*} block that contains the \TT{*CATCH*}
-statement.
+straight forward manner.
+
+There are two ways to ensure correct code.  The first is to 
+set all block result variables either in or before the
+\TT{*UNWIND*} block that contains the \TT{*CATCH*} statement.
+The second is to use the special variable
+\ttkey{*LAST-ENABLED-UNWIND*} inside the \TT{*UNWIND*} block.
+This variable is \TT{true} if and only if the \TT{*UNWIND*}
+block is the last \TT{*UNWIND*} block enabled in its containing
+block, and so if the varible is \TT{true}, any containing
+result variables set after the \TT{*UNWIND*} block need to be
+set.  The compiler will accept a statement of the form:
+\begin{indpar}\begin{verbatim}
+if:
+    *LAST-ENABLED-UNWIND*:
+        result-variable-1 = ...
+        result-variable-2 = ...
+	. . . . . . . . . . . .
+\end{verbatim}\end{indpar}
+where the result variables set are those set after the \TT{*UNWIND*}
+as satisying the requirement that all result variable be set.
+
 
 \subsection{Stack Memory Allocation}
 \label{STACK-MEMORY-ALLOCATION}

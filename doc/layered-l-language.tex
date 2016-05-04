@@ -3004,7 +3004,12 @@ The extended syntax is:
     ::= & {\em opening-argument-bracket} {\em argument-variable-declaration} \\
 	& \{ {\em argument-separator}
 	     {\em argument-variable-declaration} \}\STAR{} \\
+	& \{ {\em argument-separator}
+	     \TT{...} \}\QMARK{} \\
 	& {\em closing-argument-bracket} \\
+	& [{\em argument-brackets} must match] \\
+    $|$ & {\em opening-argument-bracket} \TT{...}
+	  {\em closing-argument-bracket} \\
 	& [{\em argument-brackets} must match] \\
     \end{tabular}
 \\[0.5ex]

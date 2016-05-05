@@ -2986,18 +2986,23 @@ The extended syntax is:
 \\[0.5ex]
 \emkey{function-term}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em function-factor}\PLUS{} {\em function-term-modifier}\QMARK{}
+    ::= & {\em function-term-name} \\
+        & ~~ \{ {\em argument-variable-list}\PLUS{}
+	        {\em function-term-name} \}\STAR{}  \\
+        & ~~ {\em argument-variable-list}\STAR{}
+	     {\em function-term-modifier}\QMARK{} \\
+    $|$ & \{ {\em argument-variable-list}\PLUS{}
+	     {\em function-term-name} \}\STAR{}  \\
+        & ~~ {\em argument-variable-list}\PLUS{}
+	     {\em function-term-modifier}\QMARK{} \\
+    $|$ & \{ {\em argument-variable-list}\PLUS{}
+	     {\em function-term-name} \}\PLUS{}  \\
+        & ~~ {\em function-term-modifier}\QMARK{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{function-factor}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em function-factor-name} \\
-    $|$ & {\em argument-variable-list} \\
-    \end{tabular}
+\emkey{function-term-modifier} ::= \TT{?} $|$ \TT{...} $|$ \TT{...~?}
 \\[0.5ex]
-\emkey{function-term-modifier} ::= \TT{?} $|$ \TT{...}
-\\[0.5ex]
-\emkey{function-factor-name} ::= {\em name} see \pagref{NAMES}
+\emkey{function-term-name} ::= {\em name} see \pagref{NAMES}
 \\[1ex]
 \emkey{argument-variable-list}
     \begin{tabular}[t]{@{}rl}
@@ -3025,6 +3030,21 @@ The extended syntax is:
     $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
     \end{tabular}
 \end{indpar}
+
+Matching a function call to a {\em function-pattern} begins as follows.
+The {\em function-pattern} is changed to by omitting some
+{\em function-terms}, replicating others, and reordering the resulting
+list of {\em function-terms}.
+Then the `\TT{|}'s and {\em function-term-modifiers} are deleted.
+At this point the function call and the resulting pattern must match,
+in that
+{\em function-term-names} must match exactly, after adjustments are
+made as described below for alternatives and booleans, and
+argument list brackets must match exactly,
+while the {\em argument-variable-lists} match as described below.
+To make this work,
+no two {\em function-terms} in a {\em function-pattern} may begin with
+the same {\em function-term-name} or {\em opening-argument-bracket}.
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}

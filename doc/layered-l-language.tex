@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 4, 2016
+May 5, 2016
  
 \end{center}
 
@@ -3040,17 +3040,31 @@ The extended syntax is:
 Matching a function call to a {\em function-pattern} begins as follows.
 The {\em function-pattern} is changed to by omitting some
 {\em function-terms}, replicating others, and reordering the resulting
-list of {\em function-terms}.  However, the first {\em function-term}
+list of {\em function-terms}.
+However, the first {\em function-term}
 in the {\em function-pattern} is never deleted or moved in the ordering.
+
+Any {\em pattern-name} that has
+{\em alternative-names} specified by a {\em qualifying-expression}
+are replaced by one of its {\em alternative-names}.
+If any {\em function-term} has the form
+\begin{center}
+{\em pattern-name} \TT{( bool } {\em variable-name} \TT{) ?}
+\end{center}
+the term may be replaced by either
+`{\em pattern-name}' or `\TT{no} {\em pattern-name}', in which
+cases the variable will be assigned the values \TT{true} or \TT{false}
+respectively.
 
 Then the `\TT{|}'s and {\em function-term-modifiers} are deleted.
 The result is called the `\key{unfolded}' pattern.
 
 At this point the function call and the unfolded pattern must match,
 in that
-{\em pattern-names} must match exactly, after adjustments are
-made as described below for alternatives and booleans, and
-{\em opening/closing-argument-brackets} must match exactly,
+{\em pattern-names} must match exactly, any `\TT{no}' introduced
+in the unfolded pattern must match exactly,
+and
+{\em opening/\EOL closing-argument-brackets} must match exactly,
 while the remaining parts of {\em argu\-ment-variable-lists}
 must match as described below.
 
@@ -3073,8 +3087,8 @@ the following builtin functions:
 
 \hspace*{-0.3in}{\tt (unsadr size) = \ttmkey{count}{of {\tt pattern name}}
 			( pattern name N )} \\
-Number of repetitions of the {\em pattern-term} containing the
-pattern name in the unfolded pattern.  \TT{0} if the {\em pattern-term}
+Number of repetitions of the {\em function-term} containing the
+pattern name in the unfolded pattern.  \TT{0} if the {\em function-term}
 was deleted.
 
 \end{indpar}

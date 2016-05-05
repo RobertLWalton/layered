@@ -2986,23 +2986,23 @@ The extended syntax is:
 \\[0.5ex]
 \emkey{function-term}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em function-term-name} \\
+    ::= & {\em pattern-name} \\
         & ~~ \{ {\em argument-variable-list}\PLUS{}
-	        {\em function-term-name} \}\STAR{}  \\
+	        {\em pattern-name} \}\STAR{}  \\
         & ~~ {\em argument-variable-list}\STAR{}
 	     {\em function-term-modifier}\QMARK{} \\
     $|$ & \{ {\em argument-variable-list}\PLUS{}
-	     {\em function-term-name} \}\STAR{}  \\
+	     {\em pattern-name} \}\STAR{}  \\
         & ~~ {\em argument-variable-list}\PLUS{}
 	     {\em function-term-modifier}\QMARK{} \\
     $|$ & \{ {\em argument-variable-list}\PLUS{}
-	     {\em function-term-name} \}\PLUS{}  \\
+	     {\em pattern-name} \}\PLUS{}  \\
         & ~~ {\em function-term-modifier}\QMARK{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{function-term-modifier} ::= \TT{?} $|$ \TT{...} $|$ \TT{...~?}
 \\[0.5ex]
-\emkey{function-term-name} ::= {\em name} see \pagref{NAMES}
+\emkey{pattern-name} ::= {\em name} see \pagref{NAMES}
 \\[1ex]
 \emkey{argument-variable-list}
     \begin{tabular}[t]{@{}rl}
@@ -3022,29 +3022,62 @@ The extended syntax is:
     \begin{tabular}[t]{@{}rl}
     ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{opening-argument-bracket} ::= \TT{(} $|$ \TT{[} $|$ \TT{\{}
+\\[0.5ex]
+\emkey{closing-argument-bracket} ::= \TT{)} $|$ \TT{]} $|$ \TT{\}}
 \\[1ex]
 \emkey{qualifying-expression}\label{QUALIFYING-EXPRESSION}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em call-compile-time-logical-expression} \\
     $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression} \\
-    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
+    $|$ & {\em pattern-name} \TT{is} \\
+        & ~~~~~~~~
+          {\em alternative-name} \{ \TT{|} {\em alternative-name} \}\PLUS{}
     \end{tabular}
 \end{indpar}
 
 Matching a function call to a {\em function-pattern} begins as follows.
 The {\em function-pattern} is changed to by omitting some
 {\em function-terms}, replicating others, and reordering the resulting
-list of {\em function-terms}.
+list of {\em function-terms}.  However, the first {\em function-term}
+in the {\em function-pattern} is never deleted or moved in the ordering.
+
 Then the `\TT{|}'s and {\em function-term-modifiers} are deleted.
-At this point the function call and the resulting pattern must match,
+The result is called the `\key{unfolded}' pattern.
+
+At this point the function call and the unfolded pattern must match,
 in that
-{\em function-term-names} must match exactly, after adjustments are
+{\em pattern-names} must match exactly, after adjustments are
 made as described below for alternatives and booleans, and
-argument list brackets must match exactly,
-while the {\em argument-variable-lists} match as described below.
-To make this work,
-no two {\em function-terms} in a {\em function-pattern} may begin with
-the same {\em function-term-name} or {\em opening-argument-bracket}.
+{\em opening/closing-argument-brackets} must match exactly,
+while the remaining parts of {\em argu\-ment-variable-lists}
+must match as described below.
+
+To make the unfolded pattern unique,
+no two {\em pattern-names} in a {\em function-pattern} may be the same,
+and no two {\em opening-argument-brackets} that \underline{begin}
+some {\em function-term} may be the same.
+
+The {\em function-term-modifiers} determine whether a {\em function-term}
+may be replicated or deleted.  If \TT{?} is in the modifier, the term
+may be deleted.  If \TT{...} is in the modifier, the term may be replicated.
+The first {\em function-term} may \underline{not} have a modifier containing
+\TT{?}.
+
+Within the body of a function, the {\em pattern-names} become
+distinct constants of type `\ttkey{pattern name}'.  These are used in
+the following builtin functions:
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.3in}{\tt (unsadr size) = \ttmkey{count}{of {\tt pattern name}}
+			( pattern name N )} \\
+Number of repetitions of the {\em pattern-term} containing the
+pattern name in the unfolded pattern.  \TT{0} if the {\em pattern-term}
+was deleted.
+
+\end{indpar}
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}

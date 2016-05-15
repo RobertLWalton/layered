@@ -520,20 +520,21 @@ may be defined as desired.
 \subsection{Enumeration Values}
 \label{Enumeration-VALUES}
 
-A defined type with an integer base type
-may have \skey{enumeration value}s.  These are
-enumeration constant names
-assigned
-unique integer values
-during compilation,
-and then reassigned to possibly different unique integer values during linking.
+An \key{enumeration type} is a defined type whose values are
+integers assigned to \skey{enumeration constant}s.
+Each enumeration constant is assigned a value during compilation
+that is an integer unique relative to all enumeration
+constants of its enumeration type that are being compiled together.
+Then during linking the enumeration constant is assigned a possibly
+different value that is an integer unique relative to all enumeration
+constants of its enumeration type that are being linked together.
 
 A declaration statement of the following form defines an \key{enumeration type}
 that has enumeration values:
 \begin{center}
 \TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}
     \begin{tabular}[t]{l}
-    \TT{is}~~~{\em base-enum-type-name} \\
+    \TT{is}~~~{\em enum-direction}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
     \{ \TT{without implicit conversion} \}\QMARK
     \end{tabular}
@@ -543,7 +544,7 @@ where
 \begin{tabular}{rrl}
 \emkey{base-enum-type-name}
     & ::= & {\em builtin-number-type-name} \\
-    & $|$ & {\em enum-direction} {\em defined-enum-type-name} \\
+    & $|$ & {\em defined-enum-type-name} \\
 \emkey{enum-direction}
     & ::= & \TT{next} $|$ \TT{previous} \\
 \emkey{enum-range}

@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 5, 2016
+May 15, 2016
  
 \end{center}
 
@@ -205,7 +205,7 @@ argument values, such as the value of a `\TT{type}' valued
 argument, can be used to select overloaded functions.
 
 \item
-All L-Language functions are inline.  Out-of-line functions can be
+Most L-Language functions are inline.  Out-of-line functions can be
 called using a block syntax that mirrors the overhead involved in
 manipulating an argument stack in memory.
 
@@ -215,6 +215,14 @@ to encourage
 efficient code that leaves an audit trail for debugging in the stack.
 Partial evaluation of expressions and inline code is supported without
 compromising debuggability.
+
+\item
+L-Language allows code to be compiled at run-time just before
+it is run, for extra efficiency.
+
+\item
+L-Language allows code to be compiled into the compiler, to support
+language enhancements.
 
 \item
 L-Language uses the Layered Language Module Structure to manage
@@ -229,15 +237,14 @@ multi-file source code in a well-ordered and type-safe manner.
 
 The basic builtin types are the number types and the \TT{void} type.
 All defined types are subtypes of these types.
-There are two builtin defined subtypes, the `\TT{type}' type and
-the `\TT{qualifier}' type.
+One of the builtin defined subtypes is the `\TT{type}' type.
 
 \subsection{Number Types}
 \label{NUMBER-TYPES}
 
 Numbers are sequences of bits, and each number is one of
 four kinds, unsigned integer, signed integer, floating point number,
-and address:
+or address:
 
 \begin{indpar}
 \begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
@@ -355,14 +362,13 @@ whether we consider addresses to be unsigned or signed.}
 The following \underline{implicit} conversion operators are defined:
 \begin{center}
 
-\begin{tabular}{rcl}
-\hspace*{2.0in} & & \hspace*{2.0in} \\[-2ex]
-\TT{uns}$x$ & \TT{<{}<++} & \TT{uns}$y${\em -value} \\
-\TT{int}$x$ & \TT{<{}<++} & \TT{uns}$y${\em -value} \\
-\TT{float}$x$ & \TT{<{}<++} & \TT{uns}$y${\em -value} \\
-\TT{int}$x$ & \TT{<{}<++} & \TT{int}$y${\em -value} \\
-\TT{float}$x$ & \TT{<{}<++} & \TT{int}$y${\em -value} \\
-\TT{float}$x$ & \TT{<{}<++} & \TT{float}$y${\em -value} \\
+\begin{tabular}{r@{~}l}
+\TT{uns}$x$ & \TT{(} \TT{uns}$y${\em -value} \TT{)} \\
+\TT{int}$x$ & \TT{(} \TT{uns}$y${\em -value} \TT{)} \\
+\TT{float}$x$ & \TT{(} \TT{uns}$y${\em -value} \TT{)} \\
+\TT{int}$x$ & \TT{(} \TT{int}$y${\em -value} \TT{)} \\
+\TT{float}$x$ & \TT{(} \TT{int}$y${\em -value} \TT{)} \\
+\TT{float}$x$ & \TT{(} \TT{float}$y${\em -value} \TT{)} \\
 \end{tabular}
 
 where $x>y$
@@ -376,22 +382,17 @@ The following \underline{unchecked}
 conversion operator is defined provided $t2$ is known at compile time:
 \begin{center}
 
-\TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ $t1${\em -value} ~~\TT{)}%
+\TT{*UNCHECKED*~}$t2$~~\TT{(} ~~ $t1${\em -value} ~~\TT{)}%
 \label{<<**}
 
 for any two builtin number types $t1$ and $t2$.
 
 \end{center}
 
-The \TT{*UNCHECKED*} operator is defined as follows:
+The \TT{*UNCHECKED*} conversion operator is defined as follows:
 \begin{itemize}
-\item The implicit conversion `$t2$ \TT{<{}<++} $t1${\em -value}'
-is defined.
-\item $t1$ is a floating point type
-and $t2$ is an integer type large enough to hold the integral part
-of the number being converted.  The fractional part of
-the floating point number is discarded, thereby rounding toward
-zero.
+\item The implicit conversion `$t2$ \TT{(} $t1${\em -value} \TT{)}'
+if that is defined.
 \item $t2$ is a floating point type,
 and the $t1$-value is a number within the range of values representable
 by a $t2$ value.
@@ -409,8 +410,13 @@ is undefined.
 \item $t2$ and $t1$ are integer types and the $t1$-value is too large
 to be represented as a $t2$ value.
 The result is the $t2$ value that
-equals modulo $2^n$ the integer part of the $t1$-value,
+equals modulo $2^n$ the {\em numeric-constant}, where $n$ is the
+number of bits in a $t2$ value.
 where $n$ is the length in bits of $t2$.
+\item $t2$ is an integer type and $t1$ is a floating point type, and
+the $t1$-value rounded toward zero to an integer
+can be represented as a $t2$ value,
+the result is this rounded $t1$-value.
 \item $t2$ is an integer type and $t1$ is a floating point type,
 the $t1$-value cannot be represented as a $t2$ value because its
 absolute value is too large, or because it is not a number but is
@@ -425,7 +431,7 @@ convert to \TT{int16}, and if we used \TT{int16} we could not implicitly
 convert to \TT{uns16}.}
 The implicit conversion:
 \begin{center}
-$t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant}
+$t2$ \TT{(} {\em numeric-constant} \TT{)}
 \end{center}
 is defined when $t2$ is known at compile time and either:
 \begin{itemize}
@@ -436,34 +442,35 @@ as a $t2$ type value.
 and the {\em numeric-constant} is within the range of values representable
 by a $t2$ value.  The result is the {\em numeric-constant} rounded to
 the nearest representable $t2$ value, where if there are two identically
-nearest values, the one with a zero low order bit is chosen.
+nearest values, the one with a zero lowest order bit is chosen.
 \end{itemize}
 
 The \underline{unchecked} conversion:
 \begin{center}
-\TT{*UNCHECKED*~(} ~~$t2$ ~~ \TT{<{}<++} ~~ {\em numeric-constant} ~~\TT{)}%
+\TT{*UNCHECKED*} $t2$ \TT{(} {\em numeric-constant} \TT{)}
 \end{center}
 is defined if $t2$ is known at compile time
 and one of the following cases applies:
 \begin{itemize}
-\item The implicit conversion `$t2$ \TT{<{}<++} {\em numeric-constant}'
-is defined.
-\item The {\em numeric-constant} is floating point with
-a fractional part,
-and $t2$ is an integer type large enough to hold the integral part
-of the number being converted.  The fractional part of
-the floating point number is discarded, thereby rounding toward
-zero.
+\item The implicit conversion `$t2$ \TT{(} {\em numeric-constant} \TT{)}'
+if that is defined.
 \item $t2$ is a floating point type,
 and the {\em numeric-constant} is outside the range of values representable
 by a $t2$ value.
 The result is plus infinity, \TT{+Inf}, or minus infinity, \TT{-Inf},
 according to the sign of the {\em numeric-constant}.
+\item $t2$ is an integer type, the {\em numeric-constant}
+has a fractional part, and
+the {\em numeric-constant} rounded toward zero to an integer
+can be represented as a $t2$ value,
+the result is this rounded {\em numeric-constant}.
 \item $t2$ is an integer type
-and the {\em numeric-constant} is outside the range of values representable
+and the {\em numeric-constant} is an integer
+outside the range of values representable
 by a $t2$ value.
 The result is the $t2$ value that
-equals modulo $2^n$ the {\em numeric-constant}.
+equals modulo $2^n$ the {\em numeric-constant}, where $n$ is the
+number of bits in a $t2$ value.
 \item $t2$ is an integer type,
 and the {\em numeric-constant} is floating point and
 outside the range of values representable
@@ -481,46 +488,39 @@ When used as the base variable of a cluster, an assignment statement
 may appear to be assigning a value to a \TT{void} variable, but
 in fact it is assigning values to cluster members.
 
-The following implicit conversion is always defined:
-\begin{center}
-\TT{void} ~~ \TT{<{}<++} ~~ {\em any-value}
-\end{center}
-
-
 \subsection{Defined Types}
 \label{DEFINED-TYPES}
 
 A declaration statement of the following form defines a type:
 \begin{center}
 \TT{type} {\em qualifier-name}\STAR{} {\em defined-type-name}
-          \TT{is} {\em builtin-type-name}
+          \TT{is} {\em base-type-name}
 \end{center}
-Here the builtin type is called the \key{underlying type} of the
-\key{defined type}, and any {\em qualifiers} are attached to every
+Any {\em qualifiers} in the declaration are attached to every
 variable or argument declared to have the defined type (see
 section \itemref{QUALIFIERS} for more on this).
 
-A value of a defined type may be converted to or from its underlying
+A value of a defined type may be converted to or from its base
 type by the
 \underline{unchecked}
 operations:
 \begin{center}
-\begin{tabular}{rcl}
-\TT{*UNCHECKED*~(~~~}{\em builtin-type-name}
-	& \TT{<{}<++} & {\em defined-type-value}\TT{~)}\\
-\TT{*UNCHECKED*~(~~~}{\em defined-type-name}
-	& \TT{<{}<++} & {\em builtin-type-value}\TT{~)}\\
+\begin{tabular}{r@{~}l}
+\TT{*UNCHECKED*} {\em base-type-name}
+	& \TT{(} {\em defined-type-value} \TT{)}\\
+\TT{*UNCHECKED*} {\em defined-type-name}
+	& \TT{(} {\em base-type-value} \TT{)}\\
 \end{tabular}
 \end{center}
 These operators do not change the actual value, but merely its
-compile-time type.  Unchecked conversions in one direction only
+compile-time type.  Implied conversions in one direction only
 may be defined as desired.
 
 
 \subsection{Enumeration Values}
 \label{Enumeration-VALUES}
 
-A defined type with an integer underlying type
+A defined type with an integer base type
 may have \skey{enumeration value}s.  These are
 enumeration constant names
 assigned
@@ -768,7 +768,7 @@ This is done automatically for the following functions:
 \hspace*{-0.3in}{\tt (unsadr size) = \ttkey{size of}
 			( type T )} \\
 Returns \TT{size}, the number of bytes in a value of type \TT{T}.
-For defined types it is the size of their underlying type.
+For defined types it is the size of their base type.
 
 \hspace*{-0.3in}{\tt (unsadr alignment) = \ttkey{alignment of}
 			( type T )} \\
@@ -776,7 +776,7 @@ Returns \TT{alignment}, a strictly positive integer.
 The address of a value of type \TT{T} in RAM should
 optimally be a multiple of the \TT{alignment}.
 The alignment of builtin types is their size.
-For defined types it is the alignment of their underlying type.
+For defined types it is the alignment of their base type.
 
 \hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
 			( type T )} \\
@@ -791,7 +791,7 @@ types this is the associated builtin type.  For builtin types, it is
 Returns the minimum or maximum value of a type \TT{T}.
 These are defined only for number types and enumeration types,
 and for enumeration types the values returned correspond to the
-minimum and maximum of the underlying type, and not the assigned
+minimum and maximum of the base type, and not the assigned
 enumeration values.
 
 \hspace*{-0.3in}{\tt (T value) = \ttkey{min limit of}
@@ -1473,7 +1473,7 @@ are used to call out-of-line functions:
 \end{indpar}
 
 The {\em function-expression} evaluates to a function to be called,
-and its type \TT{T} must have the \TT{adr} type as its underlying type.
+and its type \TT{T} must have the \TT{adr} type as its base type.
 The values of the variables created by the {\em assignment-statements}
 are the arguments to the function.
 The results of the function call are stored in the
@@ -1499,7 +1499,7 @@ function type declaration of the form:
     \end{tabular}
 \end{indpar}
 
-This makes \TT{adr} the underlying type of the new
+This makes \TT{adr} the base type of the new
 defined type, and declares the prototype
 for the function.
 Then a call assignment block is type-checked by matching

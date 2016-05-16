@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 15, 2016
+May 16, 2016
  
 \end{center}
 
@@ -534,7 +534,7 @@ that has enumeration values:
 \begin{center}
 \TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}
     \begin{tabular}[t]{l}
-    \TT{is}~~~{\em enum-direction}~~~{\em base-enum-type-name} \\
+    \TT{is}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
     \{ \TT{without implicit conversion} \}\QMARK
     \end{tabular}
@@ -544,7 +544,7 @@ where
 \begin{tabular}{rrl}
 \emkey{base-enum-type-name}
     & ::= & {\em builtin-number-type-name} \\
-    & $|$ & {\em defined-enum-type-name} \\
+    & $|$ & {\em enum-direction}~~~{\em defined-enum-type-name} \\
 \emkey{enum-direction}
     & ::= & \TT{next} $|$ \TT{previous} \\
 \emkey{enum-range}
@@ -624,13 +624,13 @@ are viewed as values of \TT{Y}.
 
 The conversions
 \begin{center}
-\begin{tabular}{rcl}
+\begin{tabular}{rl}
 {\em base-enum-type-name}
-	& \TT{<{}<++} & {\em defined-enum-type-value} \\
-{\TT{*UNCHECKED*~(~~~}\em base-enum-type-name}
-	& \TT{<{}<++} & {\em defined-enum-type-value}\TT{~~~)} \\
-{\TT{*UNCHECKED*~(~~~}\em defined-enum-type-name}
-	& \TT{<{}<++} & {\em base-enum-type-value}\TT{~~~)} \\
+	& \TT{(} {\em defined-enum-type-value} \TT{)} \\
+\TT{*UNCHECKED*} {\em base-enum-type-name}
+	& \TT{(} {\em defined-enum-type-value} \TT{)} \\
+\TT{*UNCHECKED*} {\em defined-enum-type-name}
+	& \TT{(} {\em base-enum-type-value} \TT{)} \\
 \end{tabular}
 \end{center}
 may be used to convert between enumeration values and their base enumeration
@@ -641,6 +641,49 @@ the range of the result enumeration type.
 The implicit conversion is \underline{not} defined if the
 `\TT{without implicit conversion}' option is given in the
 enumeration type definition.
+
+The \key{underlying type} of a type \TT{T} is \TT{T} itself if
+\TT{T} is a builtin integer type or \TT{void}, and is the underlying
+type of the base type of \TT{T} if \TT{T} is a defined type
+(see \pagref{UNDERLYING-TYPE}).
+Thus every enumeration type \TT{E} has an underlying integer
+type \TT{I}.  Given these, the following are defined:
+
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}{\tt (I i-value) = \ttkey{integer of}
+			( E e-value )} \\
+Returns the integer associated with the \TT{e-value} by the
+`\TT{with enum range}' clause in the definition of \TT{E},
+if \TT{E} is an enumeration type.  Returns the \TT{e-value}
+itself if \TT{E} is a builtin integer type.
+\end{indpar}
+
+The value returned by this function may be different than
+the value returned by implicit conversion of the \TT{e-value} to type \TT{I},
+assuming the later is defined, i.e., that `\TT{without implicit conversion}'
+clauses were omitted from the definitions.  If \TT{B} is the base
+type of \TT{E}, then
+\begin{center}
+\TT{I(e-value) == I(B(e-value))} which may not equal \TT{integer of (e-value)}
+\end{center}
+This is exemplified by:
+\begin{indpar}\begin{verbatim}
+type E1 is int32 with enum range [1 .. 20]
+E1 C1 = previous enum
+    // Now integer of (C1) == 20 == int32(C1)
+type E2 is previous E1 with enum range [1 .. 10]
+    // E2(1) ---> E1(19) and E2(10) ---> E1(9)
+E2 C2 = next enum 
+    // Now integer of (C2) == 1,
+    // integer of ( E1(C2) ) == 19 = int32(C2)
+type E3 is previous E2 with enum range [1 .. 5]
+    // E3(1) ---> E2(10) ---> E1(9)
+    // E3(5) ---> E2(6)  ---> E1(14)
+E3 C3 = next enum 
+    // Now integer of (C3) == 1,
+    // integer of ( E2(C3) ) == 10,
+    // integer of ( E1(E2(C3)) ) = 9 = int32(C3)
+\end{verbatim}\end{indpar}
 
 The following are builtin enumeration types:
 \begin{indpar}
@@ -659,8 +702,9 @@ The following are builtin enumeration types:
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
 are given unspecified `\TT{type}' enumeration values.
 Similarly builtin qualifiers, such as `\TT{mem}', are given
-unspecified `\TT{quali\-fier}' enumeration values.  The \TT{*UNCHECKED*}
-conversion above can be used to find the numeric value of any
+unspecified `\TT{quali\-fier}' enumeration values.  Conversions and
+`\TT{integer of}' functions above
+can be used to find the integer values of any
 enumeration constant.
 
 \subsection{Enumeration Sets}
@@ -784,6 +828,14 @@ For defined types it is the alignment of their base type.
 Returns the base type \TT{B} of the type \TT{T}.  For defined
 types this is the associated builtin type.  For builtin types, it is
 \TT{T} itself.
+
+\hspace*{-0.3in}{\tt (type U) = \ttkey{underlying type of}
+			( type T )}\label{UNDERLYING-TYPE} \\
+Returns \TT{T} if \TT{T} is a builtin integer type or \TT{void}.
+Otherwise returns 
+\begin{center}
+\TT{underlying type of ( base type of ( T ) )}
+\end{center}
 
 \hspace*{-0.3in}{\tt (T value) = \ttkey{min of}
 			( type T )} \\

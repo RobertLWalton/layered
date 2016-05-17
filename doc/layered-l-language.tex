@@ -985,12 +985,12 @@ The qualifiers may be declared by:
 \end{indpar}
 
 If a function prototype variable (argument or result) has
-a required qualifier, any call variable matched to this
+a \key{required qualifier}, any call variable matched to this
 prototype variable must have the required qualifier.
 
 If a function prototype variable (argument or result)
 does \underline{not}
-have a prohibited qualifier, any call variable matched to this
+have a \key{prohibited qualifier}, any call variable matched to this
 prototype variable must \underline{not} have the prohibited qualifier.
 
 A qualifier \underline{can} be both required and prohibited.
@@ -999,8 +999,8 @@ a matching call variable must always have to have the qualifier,
 and given a function prototype variable without such a qualifier,
 a matching call variable must never have the qualifier.
 
-If a function prototype result variable has a protected
-qualifier, any call variable matched to this
+If a function prototype result variable has a \key{protected
+qualifier}, any call variable matched to this
 prototype variable will be given the protected qualifier
 (if it does not already have it).  Furthermore, no variable
 may have the protected qualifier unless it is matched to
@@ -1018,6 +1018,22 @@ to any variable, as they are \underline{not} protected.
 
 Inherited qualifiers affect cluster variables and their behavior is
 specified on page~\pagref{INHERITED-QUALIFIER}. 
+
+Given a simple assignment of one variable value to another of the
+form
+\begin{center}
+{\em result-qualifier}\STAR{} {\em result-variable} \TT{=}
+    {\em source-qualifier}\STAR{} {\em source-variable}
+\end{center}
+the following rules apply:
+\begin{enumerate}
+\item If there is a required {\em source-qualifier} \TT{Q}, it
+must also be a {\em result-qualifier}.
+\item If there is a prohibited {\em result-qualifier} \TT{Q}, it
+must also be a {\em source-qualifier}.
+\item If there is a protected {\em source-qualifier} \TT{Q}, it
+is automatically added as a {\em result-qualifier}.
+\end{enumerate}
 
 The builtin qualifiers are in effect declared by:
 \begin{indpar}

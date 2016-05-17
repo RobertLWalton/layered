@@ -933,62 +933,37 @@ types.
 Syntactically {\em qualifier-names} immediately preceed the {\em type-names}
 that are before {\em variable-names}.  Some introductory examples are:
 \begin{indpar}\begin{verbatim}
-qualifier foo
-required protected qualifier bar
-foo bar int32 result = F ( foo bar int32 value ):
+qualifier fee
+required qualifier fie
+fee int32 result = F ( fee fie int32 value ):
     // Declares function F that computes a result of type
-    // int32 and qualifier bar from a value of type int32
-    // and qualifier bar.  Requires call argument to have
-    // qualifier bar (but not foo), and automatically adds
-    // qualifier bar (but not foo) to the call result
-    // variable.
+    // int32 from a value of type int32 and qualifier fie.
+    // Requires call argument to have qualifier fie, but
+    // not fee.
     //
     ... [Function body omitted] ...
 
 // Example usage:
 //
-foo bar int32 x1 = ...
-foo int32 x2 = ...
-bar int32 x3 = ...
-foo bar int32 y1 = F ( x1 )  // Legal; x1 has required bar.
-foo bar int32 y2 = F ( x2 )  // Illegal; x2 does not have
-                             // required bar.
-foo bar int32 y3 = F ( x3 )  // Legal; x3 has required bar.
-int32 y4 = F ( x1 )
-    // Legal: y4 is given bar qualifier automatically
-    // because bar is a protected qualifier and y4 is
-    // a result variable.  y4 does not need or get
-    // foo qualifier.
-
-foo int32 result = G ( foo bar int32 value ):
-    // Same as F but result is not given bar qualifier.
+fie int32 x1 = ...
+fee int32 x2 = ...
+int32 y1 = F ( x1 )          // Legal; x1 has required fie.
+int32 y2 = F ( x2 )          // Illegal; x2 does not have
+                             // required fie.
+protected prohibited qualifier fo
+fo int32 result = G ( int32 value ):
+    // Declares function G that computes a result of type
+    // int32 from a value of type int32 that does NOT have
+    // qualifier fo, which is prohibited.  Attaches fo, which
+    // is also protected, to the result.
     //
     ... [Function body omitted] ...
 
-foo int32 y5 = G ( x1 )      // Legal.
-bar int32 y6 = G ( x1 )
-    // Illegal; y6 may only get a bar qualifier if it matches
-    // a function result prototype variable with a bar
-    // qualifier.
-
-prohibited protected qualifier oof
-oof int32 result = H ( int32 value ):
-    // Declares function H that DISALLOWS arguments with
-    // qualifier oof because oof is prohibited, but
-    // automatically adds oof to result as oof is a
-    // protected qualifier.
-    //
-    ... [Function body omitted] ...
-
-int32 x10 = ...
-int32 y10 = H ( x10 )
-    // Legal; x10 does NOT have oof qualifier; oof is
-    // a protected qualifier and is automatically
-    // given to result y10.
-int32 y11 = H ( y10 )
-    // Illegal; y10 has oof qualifier, which is prohibited,
-    // but prototype value argument does not have this
-    // qualifier.
+fee int32 y3 = G ( x1 )      // Legal; y3 also acquires fo.
+fee int32 y4 = G ( y3 )      // Illegal; y3 has implied
+                             // qualifier fo.
+fo  int32 y5 = 9             // Illegal; fo is protected.
+fo  int32 y6 = y3            // Legal; y3 has implied fo.
 \end{verbatim}\end{indpar}
 
 The qualifiers may be declared by:
@@ -1032,23 +1007,14 @@ may have the protected qualifier unless it is matched to
 a function result variable with the qualifier.
 
 In the above example, 
-any call variable matched to the argument of \TT{F} or \TT{G}
-must have the `\TT{bar}' qualifier, which is required.
-Any call variable matched to the result of \TT{F} will be
-given the `\TT{bar}' qualifier, which is protected.  But this
-last is not true of \TT{G}.
-
-In the above example there are no rules regarding the `\TT{foo}'
-qualifier, which can be attached to any variable as the
-user wishes, as its not required, prohibited, or protected.
-
-In the above example, 
-any call variable matched to the argument of \TT{H} must
-\underline{not} have the `\TT{oof}' qualifier, as that
-is a prohibited qualifier.
-Any call variable matched to the result of \TT{H} will
-be given the `\TT{oof}' qualifier, as that
-is a protected qualifier.
+any call variable matched to the argument of \TT{F}
+must have the `\TT{fie}' qualifier, which is required.
+Any call variable matched to the argument of \TT{G}
+must \underline{not} have the `\TT{fo}' qualifier, which is prohibited.
+The `\TT{fo}' qualifier can only be placed on a variable that is
+the result of a function like \TT{G} which attaches it to its result,
+as `\TT{fo}' is protected.  `\TT{fee}' and `\TT{fie}' can be attached
+to any variable, as they are \underline{not} protected.
 
 Inherited qualifiers affect cluster variables and their behavior is
 specified on page~\pagref{INHERITED-QUALIFIER}. 

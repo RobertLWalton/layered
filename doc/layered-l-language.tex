@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 16, 2016
+May 17, 2016
  
 \end{center}
 
@@ -687,12 +687,12 @@ E3 C3 = next enum
 
 The following are uiltin enumeration types:
 \begin{indpar}
-\TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
-\TT{type}~\ttkey{missing}\TT{~is next enum // 0} \\
-\TT{type}~\ttkey{type}\TT{~is next enum // 1}
+\TT{type~type~is unswrd with enum [0~..]} \\
+\TT{type~missing~is next enum // 0} \\
+\TT{type~type~is next enum // 1}
 \\[1ex]
-\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
-\TT{qualifier}~\ttkey{missing}\TT{~is next enum // 0}
+\TT{type~qualifier~is unswrd with enum [0~..]} \\
+\TT{qualifier~missing~is next enum // 0}
 \\[1ex]
 \TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0~..~1]} \\
 \TT{bool}~\ttkey{false}\TT{~is next enum // 0} \\
@@ -814,10 +814,12 @@ $x$ \TT{-} $e$	& The set $x$ with $e$ deleted. \\
 \label{TYPE-VALUES}
 
 The type `\TT{type}' is a builtin enumeration type declared
-by
-\begin{center}
-\TT{type type is unswrd with enum [1 ..]}
-\end{center}
+by the builtin equivalent of:
+\begin{indpar}
+\TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
+\TT{type}~\ttkey{missing}\TT{~is next enum // 0} \\
+\TT{type}~\ttkey{type}\TT{~is next enum // 1}
+\end{indpar}
 Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
 compile and run time to test whether two `\TT{type}'s are
@@ -834,19 +836,6 @@ may be defined for different values of \TT{T}.
 This is done automatically for the following functions:
 
 \begin{indpar}[0.5in]
-\hspace*{-0.3in}{\tt (unsadr size) = \ttkey{size of}
-			( type T )} \\
-Returns \TT{size}, the number of bytes in a value of type \TT{T}.
-For defined types it is the size of their base type.
-
-\hspace*{-0.3in}{\tt (unsadr alignment) = \ttkey{alignment of}
-			( type T )} \\
-Returns \TT{alignment}, a strictly positive integer.
-The address of a value of type \TT{T} in RAM should
-optimally be a multiple of the \TT{alignment}.
-The alignment of builtin types is their size.
-For defined types it is the alignment of their base type.
-
 \hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
 			( type T )} \\
 Returns the base type \TT{B} of the type \TT{T}.  For defined
@@ -861,23 +850,28 @@ Otherwise returns
 \TT{underlying type of ( base type of ( T ) )}
 \end{center}
 
+\hspace*{-0.3in}{\tt (unsadr size) = \ttkey{size of}
+			( type T )} \\
+Returns \TT{size}, the number of bytes in a value of type \TT{T}.
+For defined types it is the size of their underlying type
+(the size of \TT{void} is \TT{0}).
+
+\hspace*{-0.3in}{\tt (unsadr alignment) = \ttkey{alignment of}
+			( type T )} \\
+Returns \TT{alignment}, a strictly positive integer.
+The address of a value of type \TT{T} in RAM should
+optimally be a multiple of the \TT{alignment}.
+The alignment of builtin types is their size.
+For defined types it is the alignment of their underlying type.
+
 \hspace*{-0.3in}{\tt (T value) = \ttkey{min of}
 			( type T )} \\
 \hspace*{-0.3in}{\tt (T value) = \ttkey{max of}
 			( type T )} \\
 Returns the minimum or maximum value of a type \TT{T}.
 These are defined only for number types and enumeration types,
-and for enumeration types the values returned correspond to the
-minimum and maximum of the base type, and not the assigned
-enumeration values.
-
-\hspace*{-0.3in}{\tt (T value) = \ttkey{min limit of}
-			( type T )} \\
-\hspace*{-0.3in}{\tt (T value) = \ttkey{max limit of}
-			( type T )} \\
-Returns the minimum or maximum values of an enumeration type \TT{T}.
-These are the values given or implied in the type's {\em enum-range}.
-It is a compile time error if \TT{T} is not an enumeration type.
+and for enumeration types the values returned are the limits of
+the type's {\em enum-range}.
 
 \hspace*{-0.3in}{\tt (T value) = \ttkey{min assigned of}
 			( type T )} \\
@@ -894,8 +888,23 @@ plus \TT{1} is the number of assigned values.
 It is a compile time error if \TT{T} is not an enumeration type.
 
 These values may change when more code is compiled or linked.
-One should never assume that a value of type \TT{T} is necessarily within
+You may only assume that constants of type \TT{T} whose values have
+already been compiled or linked are within
 the range given by these values.
+
+\hspace*{-0.3in}{\tt (int8 s, U c) = \ttkey{coefficients of}
+			( type T )} \\
+\TT{T} must be an enumeration or builtin integer
+type with underlying type \TT{U}.
+Then for every value \TT{v} of type \TT{T}:
+\begin{center}
+\TT{U(v) == s * integer of (v) + c}
+\end{center}
+which is guarenteed to be within the range of \TT{U} (else the
+enumeration type declarations involved would be in error).  It is
+always true that \TT{s} equals \TT{+1} or \TT{-1}.  For builtin
+integer types \TT{U} and \TT{T} are the same, \TT{s == +1},
+and \TT{c == 0}.
 
 \hspace*{-0.3in}{\tt (T value) = \ttkey{default value of}
 			( type T )} \\
@@ -907,8 +916,8 @@ elements are of type \TT{T}, and the function wishes to give the elements an
 initial default value.
 \end{indpar}
 
-For all these functions it is a compile time error if their argument
-does not have a compile time value.
+For all these functions it is a compile time error if their arguments
+do not have a compile time value.
 
 \section{Qualifiers}
 \label{QUALIFIERS}
@@ -1052,11 +1061,12 @@ The builtin qualifiers are in effect declared by:
 \TT{qualifier~}\ttkey{trace}
 \end{indpar}
 
-The type `\ttkey{qualifier}' is an enumeration type implicitly
+The type `\ttkey{qualifier}' is a builtin enumeration type implicitly
 declared after the manner of
-\begin{center}
-\TT{type qualifier is uns32 with enum [1 ..]}
-\end{center}
+\begin{indpar}
+\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
+\TT{qualifier}~\ttkey{missing}\TT{~is next enum // 0}
+\end{indpar}
 Each qualifier is associated with a unique enumeration value
 of type `\TT{qualifier}', and this value can be used at both
 compile and run time to test whether two `\TT{qualifier}'s are

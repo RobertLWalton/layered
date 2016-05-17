@@ -1022,10 +1022,15 @@ specified on page~\pagref{INHERITED-QUALIFIER}.
 Given a simple assignment of one variable value to another of the
 form
 \begin{center}
-{\em result-qualifier}\STAR{} {\em result-variable} \TT{=}
-    {\em source-qualifier}\STAR{} {\em source-variable}
+{\em result-qualifier}\STAR{}~~{\em result-type}~~{\em result-variable}%
+    ~~\TT{=}~~%
+    {\em source-qualifier}\STAR{}~~{\em source-type}~~{\em source-variable}
 \end{center}
-the following rules apply:
+the following rules apply by default if the {\em result-type} is the
+same as the {\em source-type} or there is a builtin conversion, implied
+or \TT{*UNCHECKED*}, from the {\em source-type} to the {\em result-type}
+(in the \TT{*UNCHECKED*}
+case, \TT{*UNCHECKED*} must be a {\em result-qualifier}):
 \begin{enumerate}
 \item If there is a required {\em source-qualifier} \TT{Q}, it
 must also be a {\em result-qualifier}.

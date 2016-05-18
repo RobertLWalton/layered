@@ -733,8 +733,12 @@ for enumeration set constants is:
 If the {\em enum-values} in an {\em enum-set-constant} have different
 enumeration types, implicit conversions from these to their base types
 are inserted until all have the same defined enumeration type,
-which is called the `\key{common enumeration type}' of the set.
-As few implicit conversions as possible are inserted.  It is an error
+which is called the
+`\key{common enumeration type}'\label{COMMON-ENUMERATION-TYPE}
+of the set.
+This is the most specific least general type to which all the set
+values can be converted (see \pagref{CONVERSION-RELATION}).
+It is an error
 if this cannot be done because some of the types have no implicit
 conversion defined for them, or if after implict conversion the
 common type is not a defined enumeration type.
@@ -796,7 +800,7 @@ The underlying type of all the elements of an enumeration set must be
 the same, and this is the underlying type of the set.
 If $x$ and $y$ are enumeration set types and $e$ is an enumeration value
 and all have the same underlying type, then the following operations
-are defined:
+are defined if the result exists:
 \begin{center}
 \begin{tabular}{l@{\hspace*{0.5in}}p{4.0in}}
 $x$ \TT{+} $y$	& The union of $x$ and $y$. \\
@@ -809,6 +813,10 @@ $x$ \TT{+} $e$	& Ditto. \\
 $x$ \TT{-} $e$	& The set $x$ with $e$ deleted. \\
 \end{tabular}
 \end{center}
+Note that if the result is an enumeration set, it cannot exist
+if it would have no common enumeration type:
+see \pagref{COMMON-ENUMERATION-TYPE}.  If it result does not
+exist, the operation producing it is in error.
 
 \subsection{Type Values}
 \label{TYPE-VALUES}
@@ -824,6 +832,26 @@ Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
 compile and run time to test whether two `\TT{type}'s are
 equal.
+
+Values of one type \TT{T1} can be converted implicitly to another
+type \TT{T2} if and only if an inline function with prototype:
+\begin{center}
+\TT{Q T2} {\em result-variable}%
+    ~~\TT{=}~~\TT{( qualifiers Q, Q T1} {\em source-variable} \TT{)}
+\end{center}
+is defined.  In this case we say the \TT{T1} is \mkey{more specific}{types}
+than \TT{T2}, or \TT{T2} is \mkey{more general}{types} than \TT{T1}, or
+\begin{center}
+\TT{T1~~>~~T2}
+\end{center}%
+\label{CONVERSION-RELATION}
+The transitive closure of the \TT{>} relation between types is
+required to be a partial order,
+or equivalently, the directed graph
+\begin{center}
+\TT{T1 ---> T2} ~~~~~ if and only if ~~~~~ \TT{T1~~>~~T2}
+\end{center}
+is required to be acyclic.
 
 Functions can be overloaded based on the number and types
 of their arguments and also on the values of arguments that
@@ -914,6 +942,11 @@ Must be defined by user for defined types.  For use by allocators,
 such as a user defined function that allocates a vector whose
 elements are of type \TT{T}, and the function wishes to give the elements an
 initial default value.
+
+\hspace*{-0.3in}{\tt (bool value) = ( type T1 ) \ttkey{>} ( type T2 )} \\
+Returns \TT{true} if and only if \TT{T1 > T2} in the sense that values
+of type \TT{T1} can be implicitly converted to values of type \TT{T2}
+(see \pagref{CONVERSION-RELATION}).
 \end{indpar}
 
 For all these functions it is a compile time error if their arguments
@@ -1159,10 +1192,12 @@ next nj = 6        // Legal variable overlay:
                    //       same as next j = 6
 int32 r = nnj      // Legal: same as r = j (nnj => nj => j)
 abbreviation "+.+" = `+'
-int32 i = "+.+" ( 4, 5 )
-    // Legal; same as "+" ( 4, 5) which is what 4 + 5 becomes
+int32 i = ( 4 ) +.+ ( 5 )
+    // Legal; ( 4 ) "+" ( 5 ) which is what 4 + 5 becomes
     // after parsing.  However, 4 +.+ 5 will be illegal as
-    // the parser will not treat +.+ as an operator.
+    // the parser will not treat +.+ as an operator, will
+    // not insert implied parentheses, and therefore post-
+    // parsing will not recognize +.+ as a name.
 \end{verbatim}\end{indpar}
 
 If an abbreviation is referenced in code being compiled, the value

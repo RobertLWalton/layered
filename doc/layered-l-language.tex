@@ -1240,7 +1240,7 @@ assignment statements:
 This allocates new variables of the given {\em variable-names}, types,
 and qualifiers
 to the stack and stores values from the {\em expression} in the variables
-({\em qualifiers} are not described until section \itemref{QUALIFIERS}).
+({\em qualifiers} are described in section \itemref{QUALIFIERS}).
 The {\em expression} produces a list of values, and this list must have
 at least as many elements as there are variables.  Each variable is
 assigned its value in order.  If the {\em expression} produces
@@ -1354,7 +1354,7 @@ block.  They may \underline{not} have the same name as a variable
 \TT{v} visible outside the block,  and they may \underline{not}
 have the name `\TT{next v}' where  \TT{v} is visible outside the block.
 
-An example of a {\em block-assignment-statements} is:
+An example of a {\em block-assignment-statement} is:
 \begin{indpar}\begin{verbatim}
 int32 x = 1
 float64 y = 1.67
@@ -1369,7 +1369,8 @@ int64 z, *UNCHECKED* uns8 w, next x =:
     next y = 2.6     // Illegal, y is visible outside block
                      //          and next y is not result
                      //          variable
-    w = x            // Legal, sets w to 2 as x is now 266
+    w = x            // Legal, sets w to 10 as x is now 266
+                     //        and w is *UNCHECKED*
 \end{verbatim}\end{indpar}
 
 \subsection{Conditional Assignment Statements}
@@ -1550,6 +1551,22 @@ iteration subblock finishes executing.
 However, deallocation of some of these stacks may be deferred by
 an implementation, which may allow debuggers to look at them
 in some circumstances.
+
+Any iteration variable \TT{v} \underline{cannot} be referenced
+within either the `\TT{initially}' or `\TT{while}' blocks
+after `\TT{next v}' has been assigned in the block.
+However `\TT{next v}' can be referenced.
+
+Similarly `\TT{next v}' cannot be referenced
+after `\TT{next next v}' has been assigned in the block.
+However `\TT{next next v}' can be referenced.
+
+These rules exist to reduce confusion with the non-iteration
+case where the forbidden references have a very different meaning.%
+\footnote{Perhaps we should use `\TT{new v}' for non-iteration
+variables, forbid `\TT{new v}' for iteration variables, and
+allow unrestricted access to \TT{v} and `\TT{next v}' after the
+latter is assigned.}
 
 
 \subsection{Call Assignment Statements}

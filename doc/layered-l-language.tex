@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 17, 2016
+May 18, 2016
  
 \end{center}
 
@@ -1085,7 +1085,7 @@ variables and functions.
     ::= & {\em member-index} \\
     $|$ & {\em member-index} \TT{,} {\em member-index-list}
     \end{tabular} \\
-\emkey{member-index} ::= {\em integer-constant-expression}
+\emkey{member-index} ::= {\em compile-time-integer-expression}
 \end{indpar}
 
 [We have not yet defined lexemes.  Roughly, separators are single
@@ -1134,14 +1134,15 @@ is builtin, and given
 \TT{abbreviation V = `N'}
 \end{center}
 for any variable \TT{V} and name \TT{N}, any occurrance of
-the name \TT{V} as a subname of
+the name \TT{V} as an \underline{initial} subname of
 a name in code within the scope of \TT{V} is replace by \TT{N} during
 compilation.  Here a `\key{subname}' is a sequence of {\em name-components}
 and {\em member-subscripts} within a name (i.e., a subname cannot
-contain a \underline{partial} {\em name-component}).
-If there is more than one replaceable subname
-in a name, ones beginning first, and among these
-the longest, is replaced.  After replacement, the complete name is
+contain a \underline{partial} {\em name-component}),
+and an `\key{initial subname}' is a subname that begins at the beginning
+of the name that contains it.
+If there is more than one replaceable initial subname
+in a name, the longest is replaced.  After replacement, the complete name is
 reinspected for possible additional abbreviations: that is, abbreviation
 replacement in names is recursive.  However, abbreviation replacement
 is done after other parsing; abbreviations may replace operators, but
@@ -1157,17 +1158,12 @@ int32 ni = 6       // Illegal variable overlay: same as ni = 6.
 next nj = 6        // Legal variable overlay:
                    //       same as next j = 6
 int32 r = nnj      // Legal: same as r = j (nnj => nj => j)
-int32 nnj.p = 4    // Legal: same as j.p = 4
-name .p = `.q'
-int32 nnj.p = 4    // Illegal variable overlay: same as j.p = 4
-abbreviation .r = `.q'
-int32 nnj.r = 4    // Legal: same as j.q = 4
-int32 nnj.r[0] = 4 // Legal: same as j.q[0] = 4
+abbreviation "+.+" = `+'
+int32 i = "+.+" ( 4, 5 )
+    // Legal; same as "+" ( 4, 5) which is what 4 + 5 becomes
+    // after parsing.  However, 4 +.+ 5 will be illegal as
+    // the parser will not treat +.+ as an operator.
 \end{verbatim}\end{indpar}
-
-Note here that variables with names that contain {\em member-selectors}
-may be cluster variables:
-see Section~\itemref{CLUSTERS} for more details.
 
 If an abbreviation is referenced in code being compiled, the value
 of the abbreviation variable must be available to the compilation.
@@ -1877,7 +1873,10 @@ function call when it is used as part of an {\em expression}.
 
 When this is done, the names declared by {\em statements} in the
 function block are in effect changed so they will not conflict
-with names the call is within scope of.
+with names the call is within scope of.  Also, names not declared
+in the function block but used in the block are resolved
+in the context of the function block declaration itself,
+and not in the context of a call to the function.
 
 A function call without any {\em result-variable-list}
 is just like a function call with an empty
@@ -1963,12 +1962,12 @@ Since they are inline, functions can use abbreviation arguments as function
 names.  An example is:
 \begin{indpar}\begin{verbatim}
 ( T r1, T r2 ) =
-	sort2 ( type T, T x, T y, abbreviation less-than ):
+        sort2 ( type T, T x, T y, abbreviation less-than ):
     if:
         less-than ( x, y ):
-	    r1 = x; r2 = y
-	else
-	    r1 = y; r2 = x
+            r1 = x; r2 = y
+        else
+            r1 = y; r2 = x
 
 // Function that is like < except it makes a NaN less than
 // a non-Nan ( < is false if either argument is NaN ).
@@ -1976,13 +1975,40 @@ names.  An example is:
 bool r = less-than-float64 ( float64 x, float64 y )
     r = if:
         is-Nan ( x ): r = true
-	x < y:        r = true
-	else:	      r = false
+        x < y:        r = true
+        else:         r = false
 
 float64 b1 = 5.37857
 float64 b2 = 5.37289
 ( float64 c1, float64 c2 ) =
     sort2 ( b1, b2, `less-than-float64' )
+\end{verbatim}\end{indpar}
+
+However, as names in a function block are resolved in the context
+of the function block declaration, and not in the context of a
+call, the following fails:
+\begin{indpar}\begin{verbatim}
+( T r1, T r2 ) = sort2 ( type T, T x, T y ):
+    if:
+        less-than ( x, y ):
+            r1 = x; r2 = y
+        else
+            r1 = y; r2 = x
+
+// Function that is like < except it makes a NaN less than
+// a non-Nan ( < is false if either argument is NaN ).
+//
+bool r = less-than-float64 ( float64 x, float64 y )
+    r = if:
+        is-Nan ( x ): r = true
+        x < y:        r = true
+        else:         r = false
+
+float64 b1 = 5.37857
+float64 b2 = 5.37289
+( float64 c1, float64 c2 ) = sort2 ( b1, b2  )
+    // Illegal because `less-than' in function block is
+    // not defined when function block was declared.
 \end{verbatim}\end{indpar}
 
 Much more complex {\em function-prototypes} can be written:

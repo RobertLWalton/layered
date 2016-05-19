@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 18, 2016
+May 19, 2016
  
 \end{center}
 
@@ -1585,7 +1585,8 @@ are used to call out-of-line functions:
 	        {\em call-assignment-option}\STAR
 		~\ttkey{call}~ {\em function-expression} \TT{:} \\
 	\TT{~~~~}{\em assignment-statement}\STAR{}
-	\end{tabular} \\[1ex]
+	\end{tabular}
+\\[1ex]
 \emkey{call-assignment-option}
 	\begin{tabular}[t]{rl}
 	::= & \ttkey{*UNCHECKED*} $|$ \ttkey{*REVERSE*}
@@ -1603,14 +1604,36 @@ The results of the function call are stored in the
 
 A call assignment must have the \TT{*UNCHECKED*} option
 unless \TT{T} is declared by an out-of-line
-function type declaration of the form:
+function type declaration described below.  If there is no
+such declaration, the arguments are presented to the out-of-line
+function in the order they are listed in the {\em call-assigment-statement}.
+unless the \TT{*REVERSE*} option is given, in which case this order
+is reversed.
+
+If there is an out-of-line function declaration, the \TT{*UNCHECKED*}
+and \TT{*REVERSE*} options are ignored and have no effect.
+
+Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
+is executed automatically
+upon returning from the called function, but the
+\ttkey{*NO-RELOAD*} option suppresses this.
+
+If the \TT{*COMPILE-TIME*} option is given, the call
+will be made at compile time only if the argument values are available
+at compile time, and will otherwise be made at run time.  When the call
+is made determines whether any result variable values are determined
+at compile time.  If the \TT{*COMPILE-TIME-ONLY*} option is given,
+the call is made at compile time, and the argument values must be
+available at compile time.
+
+An out-of-line function type declaration has the form:
 
 \begin{indpar}
 \emkey{function-type-declaration} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
 		\TT{function type}
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
-		\TT{~~~~~~~~}{\em call-assignment-option}\STAR{}
+		\TT{~~~~~~~~}{\em function-type-declaration-option}\STAR{}
 		    {\em defined-type-name}\TT{:} \\
 		\TT{~~~~}{\em argument-variable-declaration}\STAR{}
 	\end{tabular}
@@ -1619,6 +1642,13 @@ function type declaration of the form:
     \begin{tabular}[t]{@{}rl}
     ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{function-type-declaration-option}
+	\begin{tabular}[t]{rl}
+	::= & \ttkey{*NO-RELOAD*} \\
+	$|$ & \ttkey{*COMPILE-TIME*} \\
+	$|$ & \ttkey{*COMPILE-TIME-ONLY*}
+	\end{tabular}
 \end{indpar}
 
 This makes \TT{adr} the base type of the new
@@ -1635,9 +1665,9 @@ type than corresponding prototype argument if there is an implied
 conversion from the call block
 argument type to the prototype argument type,
 in which case the implied conversion will be invoked.
-(Note, however, that if the prototype argument has the
-\TT{*UNCHECKED*} qualifier, an unchecked conversion may be implied,
-which can have unintended consequences.)
+Note that the conversion \underline{must be implied}, and not
+\TT{*UNCHECKED*}, even if the prototype argument has the
+\TT{*UNCHECKED*} qualifier.
 
 Out-of-line functions are defined by declarations of the form:
 
@@ -1646,8 +1676,9 @@ Out-of-line functions are defined by declarations of the form:
 \hspace*{0.5in}\begin{tabular}[t]{l}
 		\TT{function}
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
-		\TT{~~~~~~~~}{\em call-assignment-option}\STAR{}
-		    {\em function-type-name} {\em function-name}\TT{:} \\
+		\TT{~~~~~~~~}{\em function-type-declaration-option}\STAR{} \\
+		\TT{~~~~~~~~}{\em function-type-name} ~~
+		             {\em function-name}\TT{:} \\
 		\TT{~~~~}{\em argument-variable-declaration}\STAR{} \\
 		\TT{~~~~do:} \\
 		\TT{~~~~~~~~}{\em statement}\STAR{} \\
@@ -1661,33 +1692,19 @@ after the manner of a {\em function-type-declaration}.  When the function
 is called, the {\em statements} of its `\TT{do}' subblock execute to produce the
 result variable values from the argument variable values.
 
-If there is no function prototype (so the call is \TT{*UNCHECKED*}),
-there is no matching of
-argument variable names to prototype variable names.  In this case
-normally arguments are passed to the function in the order they
-appear in the call block,
-top to bottom, left to right, which is the order in which they
-are computed.  However, in this case the
-\ttkey{*REVERSE*} option reverses the order in which the arguments
-are passed, so the first computed is the last passed.
-
-Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
-is executed automatically
-upon returning from the called function, but the
-\ttkey{*NO-RELOAD*} option suppresses this.
-
-A \TT{*COMPILE-TIME*} out-of-line function will be callable at
-compile time.  It may not reference Global Areas that are
-not compile-time (see Section~\itemref{GLOBAL-AREAS}).
+For the function to be callable at compile time, the
+\TT{*COMPILE-TIME*} or \TT{*COMPILE-\EOL TIME-\EOL ONLY*} options must be given.
+Then the function may not reference Global Areas that are
+do not have the same options (see Section~\itemref{GLOBAL-AREAS}).
 See Section~\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}.
-
-A \TT{*COMPILE-TIME*} out-of-line function will also be callable at
-run time.  But a
-\TT{*COMPILE-\EOL TIME-\EOL ONLY*} out-of-line function will only be callable
+A \TT{*COMPILE-\EOL TIME*} out-of-line function will also be callable at
+run time, but a \TT{*COMPILE-\EOL TIME-\EOL ONLY*}
+out-of-line function will only be callable
 at compile time.
 
-The \TT{*REVERSE*} option requires the \TT{*UNCHECKED*}
-option and the absence of a function prototype.
+A function type may be declared multiple times.  All these declarations
+must be identical except for ordering of options and qualifiers
+and names of argument varibles.
 
 Normally the standard call linkage for the computer environment of
 the program is used.  Other implementation specific call options

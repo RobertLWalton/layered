@@ -1573,7 +1573,7 @@ latter is assigned.}
 \label{CALL-ASSIGNMENT-STATEMENTS}
 
 Note that functions are most commonly inline, and not out-of-line.
-Inline functions are described later in Section~\itemref{FUNCTIONS}.
+Inline functions are described later in Section~\itemref{INLINE-FUNCTIONS}.
 
 \ikey{Call assignment statements}{call assignment}
 are used to call out-of-line functions:
@@ -1584,7 +1584,7 @@ are used to call out-of-line functions:
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 	        {\em call-assignment-option}\STAR
 		~\ttkey{call}~ {\em function-expression} \TT{:} \\
-	\TT{~~~~}{\em assignment-statement}\STAR{}
+	\TT{~~~~}{\em argument-assignment-statement}\STAR{}
 	\end{tabular}
 \\[1ex]
 \emkey{call-assignment-option}
@@ -1593,11 +1593,18 @@ are used to call out-of-line functions:
 	                          $|$ \ttkey{*NO-RELOAD*} \\
 	$|$ & \ttkey{*COMPILE-TIME*} $|$ \ttkey{*COMPILE-TIME-ONLY*}
 	\end{tabular}
+\\[1ex]
+\emkey{argument-assignment-statement} ::=
+    \begin{tabular}[t]{l}
+    {\em assignment-statement} in which \\
+    `\TT{next} {\em variable-name}' \\
+    is not a result variable
+    \end{tabular}
 \end{indpar}
 
 The {\em function-expression} evaluates to a function to be called,
 and its type \TT{T} must have the \TT{adr} type as its base type.
-The values of the variables created by the {\em assignment-statements}
+The values of the variables created by the {\em argument-assignment-statements}
 are the arguments to the function.
 The results of the function call are stored in the
 {\em result-variable-list} variables.
@@ -1633,7 +1640,7 @@ An out-of-line function type declaration has the form:
 \hspace*{0.5in}\begin{tabular}[t]{l}
 		\TT{function type}
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
-		\TT{~~~~~~~~}{\em function-type-declaration-option}\STAR{}
+		\TT{~~~~~~~~}{\em function-declaration-option}\STAR{}
 		    {\em defined-type-name}\TT{:} \\
 		\TT{~~~~}{\em argument-variable-declaration}\STAR{}
 	\end{tabular}
@@ -1643,7 +1650,7 @@ An out-of-line function type declaration has the form:
     ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{function-type-declaration-option}
+\emkey{function-declaration-option}
 	\begin{tabular}[t]{rl}
 	::= & \ttkey{*NO-RELOAD*} \\
 	$|$ & \ttkey{*COMPILE-TIME*} \\
@@ -1676,7 +1683,7 @@ Out-of-line functions are defined by declarations of the form:
 \hspace*{0.5in}\begin{tabular}[t]{l}
 		\TT{function}
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
-		\TT{~~~~~~~~}{\em function-type-declaration-option}\STAR{} \\
+		\TT{~~~~~~~~}{\em function-declaration-option}\STAR{} \\
 		\TT{~~~~~~~~}{\em function-type-name} ~~
 		             {\em function-name}\TT{:} \\
 		\TT{~~~~}{\em argument-variable-declaration}\STAR{} \\
@@ -1721,9 +1728,9 @@ an {\em out-of-line-function-declaration}:
 \emkey{out-of-line-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
-	        {\em call-assignment-option}\STAR
+	        {\em function-declaration-option}\STAR
 		~\ttkey{out-of-line} \TT{:} \\
-	\TT{~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~}{\em argument-assignment-statement}\STAR{} \\
 	\TT{~~~~do:} \\
 	\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
@@ -1732,11 +1739,11 @@ an {\em out-of-line-function-declaration}:
 An {\em out-of-line-function-declaration} is constructed from this statement
 by replacing the `\TT{out-\EOL of-\EOL line}' keyword by
 an internally generated {\em function-type-name}
-and {\em function-name}, and converting each {\em assignment-statement}
+and {\em function-name}, and converting each {\em argument-assignment-statement}
 to an {\em argument-variable-declaration}.
+
 Then this statement is executed as a {\em call-assign\-ment-statement}
-using the {\em function-name} and deleting the `\TT{do}' subblock
-{\em statements}.
+using the {\em function-name} and deleting the `\TT{do}' subblock.
 
 {\em Out-of-line-assignment-statements} are generally included in
 inline functions which preprocess arguments and may use various
@@ -1761,28 +1768,28 @@ and lastly runs the block:
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 		~\ttkey{compile-and-run} \TT{:} \\
-	\TT{~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~}{\em argument-assignment-statement}\STAR{} \\
 	\TT{~~~~do:} \\
 	\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
-The variable values are set by the {\em assignment-statements}.
+The variable values are set by the {\em argument-assignment-statements}.
 Then the `\TT{do}' subblock {\em statements} are compiled, using
 the variable values to optimize the compilation.  Then the
 compiled code is executed.  The variables in the {\em result-variable-list}
-may be set by either
-{\em assignment-statements} or `\TT{do}' subblock {\em statements} as for
+may be set by either {\em argument-assignment-statements} or
+`\TT{do}' subblock {\em statements} as for
 a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
 If a variable \TT{v} not in the {\em result-variable-list}
-is set by an {\em assignment-statement},
+is set by an {\em argument-assignment-statement},
 `\TT{next v}' can be set by a `\TT{do}' subblock {\em statement}, but
 this will be a new variable whose value will not be available during
 the compilation.
 
 When the compile-and-run assignment statement is executed, the compiled
 code will be saved in a table indexed by the values of the
-variables set by the {\em assignment-statements}.  When the
+variables set by the {\em argument-assignment-statements}.  When the
 compile-and-run assignment statement is re-executed, if these
 variables have the same value they had during a previous execution,
 the compilation will be bypassed and the previously compiled code used.
@@ -1801,13 +1808,15 @@ are used to embed assembler instructions in compiled code:
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 	    ~\TT{*UNCHECKED*}~\ttkey{*ASSEMBLY*:} \\
-	\TT{~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~}{\em argument-assignment-statement}\STAR{} \\
+	\TT{~~~~}{\em argument-variable-declaration}\STAR{} \\
 	\TT{~~~~do:} \\
 	\TT{~~~~~~~~}{\em assembler-instruction}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
-The variables, both those produced by the {\em assignment-statements}
+The variables, those produced by the {\em argument-assignment-statements},
+the {\em argument-variable-declarations},
 and the result variables, are placed in registers
 and their names become register names for the assembler instructions.
 Assembler instructions are only permitted to reference these
@@ -1821,8 +1830,12 @@ the variables will be allocated to the specified registers or
 register groups.  Otherwise they will be allocated to target
 machine specified register groups based on variable type.
 
-If intermediate registers are needed, they should be listed at the
-end of the {\em result-variable-list}.
+The {\em argument-variable-declarations} list intermediate
+variables.  Only the variables named in the {\em argument-assignment-statements}
+are given initial values.  Unlike normal code, values of variables
+of an {\em assembly-assignment-statement} can be overwritten by the
+{\em assembler-instructions}, and there is no check to be sure that
+result variables receive any value.
 
 \subsection{Compile-Time Assignment Statements}
 \label{COMPILE-TIME-ASSIGNMENT-STATEMENTS}
@@ -1859,7 +1872,7 @@ as declarations of these result variables.
 Declarations are statements in blocks.  A declaration has
 a \key{scope}, that is the set of statements in which any
 name defined by the declaration is recognized.  The scope
-of a declaration begins with the declaration itself, and
+of a declaration begins just after the declaration itself, and
 lasts to the end of smallest block containing the declaration.
 The scope of a name is the scope of the declaration that defines
 it.
@@ -1876,16 +1889,16 @@ A corollary of this is that `\TT{next v}'
 cannot be declared in a subblock that is in the scope
 of `\TT{v}'.
 
-\section{Functions}
-\label{FUNCTIONS}
+\section{Inline Functions}
+\label{INLINE-FUNCTIONS}
 
-All functions are inline.  An inline function can call an out-of-line
+Most functions are inline.  An inline function can call an out-of-line
 function by using
 a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS})
 or the out-of-line assignment statement
 (\itemref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}).
 
-Function declarations have the form:
+Inline function declarations have the form:
 
 \begin{indpar}
 \emkey{function-declaration}
@@ -2012,7 +2025,7 @@ For example:
 ( Qr pointer result ) =
     increment ( qualfiers Q, Q pointer value )
     [[ Qr is Q & {{ stack }} ]]:
-    result = v1 + v2
+    . . . . . . . . . .
 \end{verbatim}\end{indpar}
 
 Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
@@ -2020,7 +2033,8 @@ and \TT{Qr} is just an abbreviation of the more complex
 qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
 
 Arguments of type `\TT{qualifiers}' may be implied if they
-denote the qualifiers of a given argument.  So in the above,
+denote the qualifiers of a given argument appearing later in the
+argument list.  So in the above,
 the \TT{Q} argument may be implied.
 
 If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
@@ -2080,8 +2094,14 @@ float64 b2 = 5.37289
     // not defined when function block was declared.
 \end{verbatim}\end{indpar}
 
-Much more complex {\em function-prototypes} can be written:
-see Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+More complex {\em function-prototypes} can be written:
+see Function Prototypes and Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
+In particular, implied conversions have the prototype:
+\begin{center}
+\TT{Q T2} {\em result-variable}%
+    ~~\TT{=}~~\TT{( qualifiers Q, Q T1} {\em source-variable} \TT{)}
+\end{center}
+for particular types \TT{T1} and \TT{T2}.
 
 \subsection{Temporary Variables}
 \label{TEMPORARY-VARIABLES}
@@ -3120,7 +3140,7 @@ for the area than the compile time version of the area.
 \label{FUNCTION-PROTOTYPES-AND-CALLS}
 
 In this section we elaborate on the {\em function-prototypes} that were
-introduced in Section~\itemref{FUNCTIONS}.   Here we replace
+introduced in Section~\itemref{INLINE-FUNCTIONS}.   Here we replace
 \begin{center}
 {\em function-name} {\em argument-variable-list}\QMARK{}
 \end{center}

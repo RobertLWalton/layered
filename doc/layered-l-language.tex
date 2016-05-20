@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 19, 2016
+May 20, 2016
  
 \end{center}
 
@@ -2106,7 +2106,29 @@ for particular types \TT{T1} and \TT{T2}.
 \subsection{Temporary Variables}
 \label{TEMPORARY-VARIABLES}
 
-When a function call is used as an argument to another function
+Consider the expression
+\begin{center}
+\TT{F(G(...))}
+\end{center}
+in which function \TT{F} gets as an argument the result of
+function \TT{G}.  To execute this, a temporary variable \TT{Vi}
+is introduced and the code is change to
+\begin{center}
+\begin{tabular}{l}
+\TT{Qi Ti Vi = G(...)} \\
+\TT{F(t)}
+\end{tabular}
+\end{center}
+
+where \TT{Ti} is the type and \TT{Qi} the qualifiers of \TT{Vi}.
+
+To make this work, \TT{Ti} and \TT{Qi} must be chosen.
+Also, there may be many different function prototypes that
+syntactically match the call \TT{F(...)} and the call \TT{G(...)},
+and each such `\key{prototype match}' must be considered.
+
+
+When a function call B is used as an argument to another function C
 call, a temporary variable is created to hold the first result
 variable of the inner function call, and the other result variables
 of the inner call are discarded (unless they are hidden parts
@@ -2117,9 +2139,15 @@ and qualifiers.  Depending upon these assignments, it may or
 may not be possible to find function prototypes that can be
 matched to the function calls in a statement.
 
-The qualifiers assigned are always just the protected
-qualifiers of the first result variable of the prototype matched
-to an inner function call.
+If the prototype argument of function call C has well defined
+type and qualifiers, these are used at the type and qualifiers
+of the temporary variable.  If the type is left undefined (its
+implied), the type of the result variable of function call B is
+used.  If the qualifiers are left undefined (they are implied),
+the qualifiers of the result variable of function call B are used.
+
+However, function calls can be matched to different function
+prototypes.  A match fails if 
 
 If there are several matches with different type assignments, the
 following rule is used.  Let $i$ index the temporary variables,

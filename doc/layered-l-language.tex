@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 20, 2016
+May 21, 2016
  
 \end{center}
 
@@ -1052,27 +1052,6 @@ to any variable, as they are \underline{not} protected.
 Inherited qualifiers affect cluster variables and their behavior is
 specified on page~\pagref{INHERITED-QUALIFIER}. 
 
-Given a simple assignment of one variable value to another of the
-form
-\begin{center}
-{\em result-qualifier}\STAR{}~~{\em result-type}~~{\em result-variable}%
-    ~~\TT{=}~~%
-    {\em source-qualifier}\STAR{}~~{\em source-type}~~{\em source-variable}
-\end{center}
-the following rules apply by default if the {\em result-type} is the
-same as the {\em source-type} or there is a builtin conversion, implied
-or \TT{*UNCHECKED*}, from the {\em source-type} to the {\em result-type}
-(in the \TT{*UNCHECKED*}
-case, \TT{*UNCHECKED*} must be a {\em result-qualifier}):
-\begin{enumerate}
-\item If there is a required {\em source-qualifier} \TT{Q}, it
-must also be a {\em result-qualifier}.
-\item If there is a prohibited {\em result-qualifier} \TT{Q}, it
-must also be a {\em source-qualifier}.
-\item If there is a protected {\em source-qualifier} \TT{Q}, it
-is automatically added as a {\em result-qualifier}.
-\end{enumerate}
-
 The builtin qualifiers are in effect declared by:
 \begin{indpar}
 \TT{protected~qualifier~}\ttkey{mem} \\
@@ -1316,6 +1295,56 @@ int32 i = m             // Illegal: undefined implicit
 *UNCHECKED* int32 j = m // *UNCHECKED* conversion used:
                         // now j == 1
 \end{verbatim}\end{indpar}
+
+\subsection{Conversion Assignment Statements}
+
+Assignment of the value of one variable \TT{v-src} to another
+variable \TT{v-des} is a \emkey{conversion-assignment-statement} if
+the types or qualifiers of \TT{v-des} and \TT{v-src} differ:
+\begin{center}
+\begin{tabular}{l}
+\TT{QS-src T-src v-src = ...} \\
+\TT{QS-des T-des v-des = v-src} \\
+\end{tabular}
+\end{center}
+
+where \TT{QS-}$xxx$ are the qualifiers of \TT{v-}$xxx$ and
+\TT{T-}$xxx$ are the types of \TT{v-}$xxx$.  Such statements are
+executed according to the following rules:
+
+\begin{enumerate}
+\item If there is a protected qualifier \TT{Q} in \TT{QS-src}, it
+is automatically added to \TT{QS-des}.
+\item If there is a required qualifier \TT{Q} in \TT{QS-src}, it
+must also be in \TT{QS-des} (or also be a protected qualifier).
+\item If there is a prohibited qualifier \TT{Q} in \TT{QS-des}, it
+must also be in \TT{QS-src}.
+\item If \TT{T-src} and \TT{T-des} are not the same and an implied
+conversion with prototype:
+\begin{center}
+\TT{Q T-des} {\em result-variable}%
+    ~~\TT{=}~~\TT{( qualifiers Q, Q T-src} {\em source-variable} \TT{)}
+\end{center}
+is defined, that conversion is applied to \TT{v-src} to produce the
+value of \TT{v-des}.
+\item If \TT{T-src} and \TT{T-des} are not the same and there is
+no implied conversion defined, but there is a function prototype
+that matches
+\begin{center}
+\TT{Q-des T-des} {\em result-variable}%
+    ~~\TT{=}~~\TT{( Q-src T-src} {\em source-variable} \TT{)}
+\end{center}
+this conversion is applied.  In the case the function prototype
+has the form
+\begin{center}
+\TT{Q *UNCHECKED* T-des} {\em result-variable}%
+    ~~\TT{=}~~\TT{( qualifiers Q, Q T-src} {\em source-variable} \TT{)}
+\end{center}
+this is referred to as an \TT{*UNCHECKED*} conversion.
+\end{enumerate}
+
+Various builtin implied and \TT{*UNCHECKED*} conversions are described
+in this document.
 
 \subsection{Block Assignment Statements}
 \label{BlOCK-ASSIGNMENT-STATEMENTS}

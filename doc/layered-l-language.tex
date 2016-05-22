@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 21, 2016
+May 22, 2016
  
 \end{center}
 
@@ -1189,6 +1189,93 @@ statement: see Section~\itemref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}.
 \section{Conversions}
 \label{CONVERSIONS}
 
+Conversions of a value of one data type \TT{T-src} to a value of another
+data type \TT{T-des} play a very important role in a typed language.
+
+\subsection{Implied Conversions}
+\label{IMPLIED-CONVERSIONS}
+
+Particularly important are \skey{implied conversion}s.  If an inline function
+exists with prototype:
+\begin{center}
+\TT{QS T-des} {\em result-variable}%
+    ~~\TT{=}~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)}
+\end{center}
+then this function defines an implied conversion from values of
+type \TT{T-src} to values of type \TT{T-des}.
+
+An ordering is induced on types by implicit conversions.  Let
+\TT{T1}$\succ$\TT{T2} mean that there is an implicit conversion from
+values of type \TT{T1} to values of type \TT{T2}.  Let \TT{T1~=>~T2}
+be the transitive closure of \TT{T1}$\succ$\TT{T2}, which means
+that a value of type \TT{T1} may be converted to a value
+of type \TT{T2} by applying zero or more implicit conversions.
+Then we \underline{require}
+that \TT{T1~=>~T2} be a partial order, which means that:
+\begin{itemize}
+\item \TT{T1~=>~T2} is reflexive.  \TT{T1~>=~T1}.
+\item \TT{T1~=>~T2} is transitive.  \TT{T1~>=~T2} and \TT{T2~>=~T3}
+imply that \TT{T1~=>~T3}.
+\item \TT{T1~=>~T2} is anti-symmetric.  \TT{T1~>=~T2} and \TT{T2~>=~T1}
+imply that \TT{T1~==~T2}.
+\end{itemize}
+
+Importantly, we \underline{require} that
+if values of type \TT{T1} can be implicitly converted to
+values of a different type type \TT{T2}, then values of type \TT{T2}
+\underline{cannot} be implicitly converted to values of type \TT{T1}.
+
+We define the \key{implicit conversion graph} to be the directed
+graph whose nodes are types and which has an arrow from \TT{T1} to
+\TT{T2} if and only if there is an inline function defined with
+prototype:
+\begin{center}
+\TT{QS T-des} {\em result-variable}%
+    ~~\TT{=}~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)}
+\end{center}
+Or equivalently, there is an implicit conversion function defined
+whose argument is of type \TT{T1} and whose result is of type \TT{T2}.
+Then \TT{T1~=>~T2} if and only if there is a (possibly zero length)
+path in this graph from \TT{T1} to \TT{T2}.
+
+In addition we \underline{require} that all paths
+from \TT{T1} to \TT{T2} give the same result.
+So, for example, if one can implicitly convert a \TT{T1} value directly to
+either a \TT{T2} or \TT{T3} value, and one can implicitly convert
+a \TT{T2} value to a \TT{T3} value, then converting a \TT{T1} value
+to a \TT{T2} value and then converting that to a \TT{T3} value
+gives the same resulting value as converting the \TT{T1} value
+directly to a \TT{T3} value.
+
+Various builtin implied conversions are described
+in this document.
+
+\subsection{Directed Conversions}
+\label{DIRECTED-CONVERSIONS}
+
+In addition to applied conversions, \skey{directed conversion}s may
+be defined by inline functions with the prototypes that constrain
+the qualifiers involved.  An example is
+\begin{center}
+\TT{QS-des T-des} {\em result-variable}%
+    ~~\TT{=}~~\TT{( QS-src T-src} {\em source-variable} \TT{)}
+\end{center}
+where \TT{QS-src} and \TT{QS-des} are explicit lists of qualifiers.
+Another example is
+\begin{center}
+\begin{tabular}{l}
+\TT{QS *UNCHECKED* T-des} {\em result-variable} ~~\TT{=} \\
+~~~~~~~~~~~~~~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)} \\
+\end{tabular}
+\end{center}
+which defines an \TT{*UNCHECKED*} conversion.
+
+Various builtin \TT{*UNCHECKED*} conversions are described
+in this document.
+
+\subsection{Conversion Assignments}
+\label{CONVERSION-ASSIGNMENTS}
+
 Assignment of the value of one variable \TT{v-src} to another
 variable \TT{v-des} is a \emkey{conversion-assignment-statement} if
 the types or qualifiers of \TT{v-des} and \TT{v-src} differ:
@@ -1210,37 +1297,145 @@ is automatically added to \TT{QS-des}.
 must also be in \TT{QS-des} (or also be a protected qualifier).
 \item If there is a prohibited qualifier \TT{Q} in \TT{QS-des}, it
 must also be in \TT{QS-src}.
-\item If \TT{T-src} and \TT{T-des} are not the same and a
-conversion with prototype:
-\begin{center}
-\TT{QS T-des} {\em result-variable}%
-    ~~\TT{=}~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)}
-\end{center}
-is defined, that conversion is applied to \TT{v-src} to produce the
-value of \TT{v-des}.  The conversion is invoked with \TT{QS == QS-src},
-and is called an \key{implied conversion}.
-\item If \TT{T-src} and \TT{T-des} are not the same and there is
-no implied conversion defined, but there is a function prototype
-that matches
-\begin{center}
-\TT{QS-des T-des} {\em result-variable}%
-    ~~\TT{=}~~\TT{( QS-src T-src} {\em source-variable} \TT{)}
-\end{center}
-this conversion is applied.  Such a conversion is called a
-\key{directed conversion}.
-
-In the case the function prototype
-has the form
-\begin{center}
-\TT{QS *UNCHECKED* T-des} {\em result-variable}%
-    ~~\TT{=}~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)}
-\end{center}
-this is referred to as an \TT{*UNCHECKED*} conversion.
+\item If \TT{T-src} and \TT{T-des} are not the same and \TT{T1~=>T2},
+meaning that an implicit conversions are defined that convert values
+of type \TT{T1} to values of type \TT{T2}, these conversions are
+applied to \TT{v-src} to produce the value of \TT{v-des}.
+The conversions are invoked with \TT{QS == QS-src}.
+\item
+\label{DIRECT-CONVERSION-ASSIGMENTS}
+If \TT{T-src} and \TT{T-des} are not the same and \TT{T1~=>T2}
+\underline{is false}, but a directed conversion exists from
+\TT{QS-src T-src} to \TT{QS-des T-des}, that conversion is applied.
 \end{enumerate}
 
-Various builtin implied and \TT{*UNCHECKED*} conversions are described
-in this document.
 
+\subsection{Temporary Variables}
+\label{TEMPORARY-VARIABLES}
+
+Consider the code:
+
+\begin{center}
+\begin{tabular}{l}
+\TT{QS-F-result T-F-result F-result =} \\
+\TT{~~~~~~~~~~~~F ( QS-F-argument T-F-argument F-argument)} \\
+\TT{QS-G-result T-G-result G-result =} \\
+\TT{~~~~~~~~~~~~G ( QS-G-argument T-G-argument G-argument)} \\
+\TT{QS-src T-src v-src = ...} \\
+\TT{QS-des T-des v-des = F ( G ( v-src ) )} \\
+\end{tabular}
+\end{center}
+
+This is compiled by introducing temporary variables \TT{tmp-}$xxx$:
+
+\begin{center}
+\begin{tabular}{l}
+\TT{QS-src T-src v-src = ...} \\
+\TT{QS-G-argument T-G-argument tmp-G-argument = v-src} \\
+\TT{QS-G-result T-G-result tmp-G-result = G ( tmp-G-argument )} \\
+\TT{QS-F-argument T-F-argument tmp-F-argument = tmp-G-result} \\
+\TT{QS-F-result T-F-result tmp-F-result = F ( tmp-F-argument )} \\
+\TT{QS-des T-des v-des = tmp-F-result} \\
+\end{tabular}
+\end{center}
+
+There are two special rules applied to this situation.
+
+The first is:
+\begin{indpar}
+\ikey{No Direct Conversions.}{no direct conversions} Direct
+conversions from one temporary variable to another are not
+allowed.  Only implicit conversions are allowed.
+\end{indpar}
+Thus in the assignment conversions between two temporary
+variables that are introduced by compilation,
+Rule~\ref{DIRECT-CONVERSION-ASSIGMENTS}
+of Section~\itemref{CONVERSION-ASSIGNMENTS} is \underline{not}
+applicable.  Examples involving the No Direct Conversions Rule
+are given in the Directing Conversions Section~\itemref{DIRECTING-CONVERSIONS}.
+
+The second special rule applies if the functions, \TT{F} and \TT{G}
+in the above code, have more than one definition, and therefore more
+than one prototype.
+See the Conversion Disambiguation Section~\itemref{CONVERSION-DISAMBIGUATION}.
+
+\subsection{Directing Conversions}
+\label{DIRECTING-CONVERSIONS}
+
+\subsection{Conversion Disambiguation}
+\label{CONVERSION-DISAMBIGUATION}
+
+TBD
+
+Consider the expression
+\begin{center}
+\TT{F(G(...))}
+\end{center}
+in which function \TT{F} gets as an argument the result of
+function \TT{G}.  To execute this, a temporary variable \TT{Vi}
+is introduced and the code is change to
+\begin{center}
+\begin{tabular}{l}
+\TT{Qi Ti Vi = G(...)} \\
+\TT{F(t)}
+\end{tabular}
+\end{center}
+
+where \TT{Ti} is the type and \TT{Qi} the qualifiers of \TT{Vi}.
+
+To make this work, \TT{Ti} and \TT{Qi} must be chosen.
+Also, there may be many different function prototypes that
+syntactically match the call \TT{F(...)} and the call \TT{G(...)},
+and each such `\key{prototype match}' must be considered.
+
+
+When a function call B is used as an argument to another function C
+call, a temporary variable is created to hold the first result
+variable of the inner function call, and the other result variables
+of the inner call are discarded (unless they are hidden parts
+of a cluster whose root
+is the first result variable: see Section~\itemref{CLUSTERS}).
+This temporary must be assigned a type
+and qualifiers.  Depending upon these assignments, it may or
+may not be possible to find function prototypes that can be
+matched to the function calls in a statement.
+
+If the prototype argument of function call C has well defined
+type and qualifiers, these are used at the type and qualifiers
+of the temporary variable.  If the type is left undefined (its
+implied), the type of the result variable of function call B is
+used.  If the qualifiers are left undefined (they are implied),
+the qualifiers of the result variable of function call B are used.
+
+However, function calls can be matched to different function
+prototypes.  A match fails if 
+
+If there are several matches with different type assignments, the
+following rule is used.  Let $i$ index the temporary variables,
+and $i\mapsto T_i$ be a type assignment.  Define a partial order
+on such type assignments to be
+\begin{center}
+$i\mapsto T^1_i~~~\leq~~~i\mapsto T^2_i$
+\end{center}
+if and only if for every $i$, values of type $T^2_i$ are implicitly
+convertible to values of type $T^1_i$.  Then if the set of
+possible type assignments has a minimum, that is used, and if
+the minimum yields a unique matching of statement calls to
+prototypes, the statement compiles without error.  Otherwise
+the statement is ambiguous and its compilation is in error.
+
+The type and some qualifiers of the results of inner calls can
+be dictated by writing the inner call in the form:
+\begin{center}
+{\em qualifier-name}\STAR{} {\em type-name}\QMARK{}
+    \TT{(} {\em inner-call} \TT{)}
+\end{center}
+
+This may specify the type and some of the qualifiers of the inner call
+temporary result.  If the type is not specified, it will be computed
+as in the proceding paragraphs.  The temporary will also be given any protected
+qualifiers of the result variable of any prototype matched to the
+inner call.
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -2137,78 +2332,6 @@ In particular, implied conversions have the prototype:
 \end{center}
 for particular types \TT{T1} and \TT{T2}.
 
-\subsection{Temporary Variables}
-\label{TEMPORARY-VARIABLES}
-
-Consider the expression
-\begin{center}
-\TT{F(G(...))}
-\end{center}
-in which function \TT{F} gets as an argument the result of
-function \TT{G}.  To execute this, a temporary variable \TT{Vi}
-is introduced and the code is change to
-\begin{center}
-\begin{tabular}{l}
-\TT{Qi Ti Vi = G(...)} \\
-\TT{F(t)}
-\end{tabular}
-\end{center}
-
-where \TT{Ti} is the type and \TT{Qi} the qualifiers of \TT{Vi}.
-
-To make this work, \TT{Ti} and \TT{Qi} must be chosen.
-Also, there may be many different function prototypes that
-syntactically match the call \TT{F(...)} and the call \TT{G(...)},
-and each such `\key{prototype match}' must be considered.
-
-
-When a function call B is used as an argument to another function C
-call, a temporary variable is created to hold the first result
-variable of the inner function call, and the other result variables
-of the inner call are discarded (unless they are hidden parts
-of a cluster whose root
-is the first result variable: see Section~\itemref{CLUSTERS}).
-This temporary must be assigned a type
-and qualifiers.  Depending upon these assignments, it may or
-may not be possible to find function prototypes that can be
-matched to the function calls in a statement.
-
-If the prototype argument of function call C has well defined
-type and qualifiers, these are used at the type and qualifiers
-of the temporary variable.  If the type is left undefined (its
-implied), the type of the result variable of function call B is
-used.  If the qualifiers are left undefined (they are implied),
-the qualifiers of the result variable of function call B are used.
-
-However, function calls can be matched to different function
-prototypes.  A match fails if 
-
-If there are several matches with different type assignments, the
-following rule is used.  Let $i$ index the temporary variables,
-and $i\mapsto T_i$ be a type assignment.  Define a partial order
-on such type assignments to be
-\begin{center}
-$i\mapsto T^1_i~~~\leq~~~i\mapsto T^2_i$
-\end{center}
-if and only if for every $i$, values of type $T^2_i$ are implicitly
-convertible to values of type $T^1_i$.  Then if the set of
-possible type assignments has a minimum, that is used, and if
-the minimum yields a unique matching of statement calls to
-prototypes, the statement compiles without error.  Otherwise
-the statement is ambiguous and its compilation is in error.
-
-The type and some qualifiers of the results of inner calls can
-be dictated by writing the inner call in the form:
-\begin{center}
-{\em qualifier-name}\STAR{} {\em type-name}\QMARK{}
-    \TT{(} {\em inner-call} \TT{)}
-\end{center}
-
-This may specify the type and some of the qualifiers of the inner call
-temporary result.  If the type is not specified, it will be computed
-as in the proceding paragraphs.  The temporary will also be given any protected
-qualifiers of the result variable of any prototype matched to the
-inner call.
 
 \section{Generics}
 \label{GENERICS}

@@ -1317,10 +1317,10 @@ Consider the code:
 
 \begin{center}
 \begin{tabular}{l}
-\TT{function QS-F-result T-F-result F-result =} \\
-\TT{~~~~~~~~~F ( QS-F-argument T-F-argument F-argument)} \\
-\TT{function QS-G-result T-G-result G-result =} \\
-\TT{~~~~~~~~~G ( QS-G-argument T-G-argument G-argument)} \\
+\TT{prototype QS-F-result T-F-result F-result =} \\
+\TT{~~~~~~~~~~F ( QS-F-argument T-F-argument F-argument)} \\
+\TT{prototype QS-G-result T-G-result G-result =} \\
+\TT{~~~~~~~~~~G ( QS-G-argument T-G-argument G-argument)} \\
 \TT{QS-src T-src v-src = ...} \\
 \TT{QS-des T-des v-des = F ( G ( v-src ) )} \\
 \end{tabular}
@@ -1383,10 +1383,10 @@ No Direct Conversions rule does \underline{not} apply.
 As an example, consider the code:
 \begin{indpar}\begin{verbatim}
 // Prototypes of builtin "+" operator:
-function int64 result = ( int64 argument 1 )
-                    "+" ( int64 argument 2)
-function float64 result = ( float64 argument 1 )
-                      "+" ( float64 argument 2)
+prototype int64 result = ( int64 argument 1 )
+                     "+" ( int64 argument 2)
+prototype float64 result = ( float64 argument 1 )
+                       "+" ( float64 argument 2)
 int64 x = ...
 int64 y = ...
 *UNCHECKED* float64 s = x + y
@@ -1416,10 +1416,10 @@ float64 t = tmp x + tmp y
 Consider the code:
 \begin{indpar}\begin{verbatim}
 // Prototypes of builtin "+" operator:
-function int32 result = ( int32 argument 1 )
-                    "+" ( int32 argument 2)
-function float64 result = ( float64 argument 1 )
-                      "+" ( float64 argument 2)
+prototype int32 result = ( int32 argument 1 )
+                     "+" ( int32 argument 2)
+prototype float64 result = ( float64 argument 1 )
+                       "+" ( float64 argument 2)
 int32 x = ...
 int32 y = ...
 float64 s = x + y
@@ -2390,7 +2390,15 @@ In particular, implied conversions have the prototype:
 \TT{Q T2} {\em result-variable}%
     ~~\TT{=}~~\TT{( qualifiers Q, Q T1} {\em source-variable} \TT{)}
 \end{center}
-for particular types \TT{T1} and \TT{T2}.
+for particular types \TT{T1} and \TT{T2}, and binary operators have prototypes
+like
+\begin{center}
+\TT{T1} {\em result-variable}%
+    ~~\TT{=}~~\TT{( T2} {\em argument-variable-1} \TT{)}
+    ~~\TT{"}{\em operator}\TT{"}~~\TT{( T2} {\em argument-variable-2} \TT{)}
+\end{center}
+for a particular types \TT{T1} and \TT{T2}
+and binary operator \TT{"}{\em operator}\TT{"}.
 
 
 \section{Generics}
@@ -2462,7 +2470,7 @@ int64 w = max ( u, 1,000,000 )
 A \key{cluster} is a group of related variables.  One variable of
 the cluster is the \mkey{base variable}{of cluster} of the cluster, and the
 other variables have names that are derived from the
-name of the base variable adding {\em member-selectors}
+name of the base variable by adding {\em member-selectors}
 to the end of the base variable name.  See \pagref{NAMES}.
 
 Thus a cluster
@@ -2524,45 +2532,32 @@ type pointer pair is void
 // memory.
 //
 ( mem pp.type out,
-  stack *UNCHECKED* out.offset,
-  stack mem adr out.offset.base,
-  *UNCHECKED* out.offset.base.adr ) =
+  *UNCHECKED* out.adr ) =
         "*" ( stack pointer pair pp,
               type pp.type,
               unsadr pp.begin,
               unsadr pp.end,
-              *UNCHECKED* adr pp.base.adr ):
-    ( out.offset, out.base.adr ) = if:
+              *UNCHECKED* adr pp.begin.base ):
+    if:
         pp.begin < pp.end:
-            out.offset = pp.begin
-            out.offset.base.adr = pp.begin.base.adr
+            out.adr = pp.begin + pp.begin.base
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
-
-// Note: the following function is builtin:
-//
-// ( *UNCHECKED* unsadr offset2,
-//   mem adr offset2.base,
-//   *UNCHECKED* adr offset2.base.adr ) =
-//     "*" ( *UNCHECKED* unsadr offset,
-//           *UNCHECKED* offset.base.adr ):
-//     offset2 = offset
-//     offset2.base.adr = offset.base.adr
 
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
 "*" ( stack pointer pair pp,
+      type pp.type,
       unsadr pp.begin,
       unsadr pp.end,
-      mem adr pp.begin.base,
-      *UNCHECKED* adr pp.begin.base.adr,
-      type pp.type ) =
+      adr pp.begin.base )
         ( pp.type in ):
     if:
         pp.begin < pp.end:
-            *WRITE* in pp.begin
+            adr destination = pp.begin + pp.begin.base
+            *WRITE* in destination
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -2650,14 +2645,39 @@ in the function prototype do not exist,
 the function prototype does not match the call.
 
 When this is done for prototype results, the cluster root must similarly
-be a result, and the designated
+be a either a result or argument, and the designated
 members of the cluster are created and set from the results.
 Again the cluster members \underline{must} be omitted in calls,
 but will be automatically created.
 Note that when this is done any qualifiers on the omitted cluster
 members will be set by the prototypes.
 
+Also, if all result variables are cluster members, then calls
+using the prototypes will have no explicit result variables,
+but will create new members of existing clusters.  For example:
+\begin{indpar}\begin{verbatim}
+( bool v.nonneg ) = test sign ( int32 v ):
+    if:
+        v >= 0:
+            v.nonneg = true
+        else:
+            v.nonneg = false
+
+int32 x = 89
+int32 y = -5
+test sign ( x )
+test sign ( y )
+// Now x.nonneg exits and is true
+// and y.nonneg exits and is false.
+\end{verbatim}\end{indpar}
+
 Cluster members may only be created as function call results.
+
+A cluster member may be explicitly passed as a result variable
+or argument if it is the root of a subcluster that is being
+created or used.  The matching prototype variable will
+be a cluster root, and \underline{not} a cluster member,
+within the prototype.
 
 A variable of \TT{void} type has no actual value
 and must not be assigned one.  Such variables are only useful
@@ -2675,20 +2695,9 @@ is allocated and
 assigned a value, the root \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
-This is how \TT{out.offset\EOL .base} gets its value from
-\TT{out.offset.base.adr}.
-
-In a similar but more complex fashion, if \TT{v.offset} of type
-\TT{unsadr} (type \TT{intadr} can also be used) and \TT{*UNCHECKED*}
-qualifier is allocated, and also \TT{v.offset.base} of type \TT{adr}
-and either \TT{*UNCHECKED*} or \TT{mem} qualifier is allocated,
-and both are assigned values (the latter possibly by allocating
-and assigning \TT{v.offset.base.adr} of type \TT{adr} and
-qualifier \TT{*UNCHECKED*}), then
-the root \TT{v} will also be automatically
-assigned as its value the value read from RAM address \TT{v.offset+v.base}.
-This is how \TT{out} gets its value from \TT{out.offset}
-and \TT{out\EOL .offset\EOL .base}.
+This is how \TT{out.} gets its value from
+\TT{out.adr}, and how \TT{pp.begin.base} gets its value from
+\TT{pp.begin.base.adr}.
 
 For details on the `\TT{mem}' qualifier see \itemref{THE-MEM-QUALIFIER}.
 
@@ -2710,6 +2719,9 @@ The `\TT{stack}' qualifier is inherited.
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
+The builtin qualifiers are \TT{mem}, \TT{stack}, and \TT{*UNCHECKED*}.
+There is also a special class of qualifiers called trace qualifiers.
+
 \subsection{The Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
 
@@ -2726,13 +2738,13 @@ A variable \TT{v.adr} of type \TT{adr} with either of the qualifiers
 \item
 A variable \TT{v.offset} of type \TT{intadr} or \TT{unsadr} and
 qualifier \TT{*UNCHECKED*}, and
-a variable \TT{v.base} of type \TT{adr} and qualifier \TT{mem}
+a variable \TT{v.offset.base} of type \TT{adr} and qualifier \TT{mem}
 or \TT{*UNCHECKED*}.
-In this case the RAM address of \TT{v} is \TT{v.base+v.offset}.
-If \TT{v.base} has qualifier \TT{mem} it must recursively be
+In this case the RAM address of \TT{v} is \TT{v.offset+v.offset.base}.
+If \TT{v.offset.base} has qualifier \TT{mem} it must recursively be
 the root of a subcluster obeying
-these rules (so there must be either a \TT{v.base.adr} variable
-or \TT{v.base.offset} and \TT{v.base\EOL .base}
+these rules (so there must be either a \TT{v.offset.base.adr} variable
+or \TT{v.offset.base.offset} and \TT{v.offset.base\EOL .offset.base}
 variables, etc.).
 \end{enumerate}
 The the
@@ -2767,6 +2779,21 @@ or iteration variables in a {\em loop-assignment-statement}.
 This is so that stack addresses pointing into a free stack
 cannot outlive the free stack.
 See Section~\itemref{STACK-MANAGEMENT} for more information.
+
+Also, as a prohibited qualifier, a \TT{stack} value cannot be
+passed as an argument to a function that does not expect a
+\TT{stack} value.  For example:
+\begin{indpar}\begin{verbatim}
+stack adr sa = ...
+adr ta = ...
+function adr result = F ( adr arg )
+function adr result = G ( stack adr arg )
+adr xa = F ( sa ) // Illegal; F's arg does not have
+                  // stack qualifier.
+adr ya = G ( sa ) // Legal; G's arg has stack qualifier.
+adr za = G ( ta ) // Legal; G's arg's stack qualifier has
+                  // no effect (its not required).
+\end{verbatim}\end{indpar}
 
 \subsection{The \TT{*UNCHECKED*} Qualifier}
 \label{THE-UNCHECKED-QUALIFIER}
@@ -2809,7 +2836,7 @@ function with the prototype:
 \begin{center}
 {\tt (type T) = \ttkey{base type of} ( qualifier Q )}
 \end{center}
-The value of any variable with a trace qualifier must be
+The value of any variable with the trace qualifier must be
 \TT{*UNCHECKED*} convertable to a value of the base type.
 
 It is common to add a trace qualifier to the statement that
@@ -2851,13 +2878,16 @@ Variable values are recomputed in the same order as they were
 originally computed.  How each variable is recomputed depends upon
 how it was originally computed.
 
-As a special case, if one of the qualifiers given is `\TT{mem}', and
-a variable \TT{v} has the `\TT{mem}' qualifier and is the base of
+As a special case, if a variable to be reloaded
+\TT{v} has the `\TT{mem}' qualifier and is the base of
 a cluster that causes \TT{v} to be loaded from memory
 (as per Section~\itemref{THE-MEM-QUALIFIER}), then the value
 in RAM is assumed to have changed, and \TT{v} is declared to be out-of-date.
-After the appropriate members of the \TT{v} cluster have been recomputed,
+After the necessary members of the \TT{v} cluster have been recomputed,
 \TT{v} is reloaded from RAM.
+
+Thus the statement `\TT{reload mem}' can be used to declare all
+variables that act as software caches of memory to be out of date.
 
 If a variable \TT{v} was originally computed by
 an {\em assignment-statement}
@@ -2983,10 +3013,11 @@ statement that executes a sequence of specialized instructions:
 	\end{tabular}
 \\[0.5ex]
 \emkey{lock-instruction} ::= \ttkey{*LOCK*} {\em lock-variable} \\
-\emkey{compare-instruction} ::= \ttkey{*COMPARE*} {\em compare-variable} \\
+\emkey{compare-instruction} ::= \ttkey{*COMPARE*} {\em compare-variable}
+						  {\em address-variable} \\
 \emkey{write-instruction} ::= \\
 \hspace*{0.2in}\begin{tabular}[t]{rl}
-        & \TT{*WRITE*} {\em valur-variable} {\em address-variable} \\
+        & \TT{*WRITE*} {\em value-variable} {\em address-variable} \\
     $|$ & \TT{*COPY*} {\em source-variable} {\em destination-variable}
     		      {\em length-variable} \\
     $|$ & \TT{*SET*} {\em value-variable} {\em address-variable}
@@ -3016,7 +3047,8 @@ reverse order.
 \hspace*{-0.2in}{\em \bf Compare-Instruction}.
 The {\em compare-variable} is a RAM cache variable (which need
 not have the \TT{mem} qualifier).  The compare
-instruction reads the value at the associated address and compares
+instruction reads the value at the {\em address-variable} designated
+address and compares
 it to the value of the {\em compare-variable}.  The instruction
 succeeds if the values are equal, and fails otherwise.
 
@@ -3034,9 +3066,18 @@ equals \TT{0} if the statement succeeds, or is the number of the
 first failed instruction in the statement block if the statement
 fails.
 
-Interrupts are disabled during the execution of an
+Interrupts of all kinds are disabled during the execution of an
 {\em atomic-memory-statement} so the statement will execute as
-fast as the underlying hardware will allow.
+fast as the underlying hardware will allow.  However, this means
+that memory paging is disabled, so instructions will fail if
+they page fault.  This is the reason for the dry-run of the
+{\em write-instructions}, to be sure they will not fail
+when they actually write data.
+
+A system may put restrictions of the size of the value in
+a {\em length-variable}, and on the number of instructions
+in an \TT{*ATOMIC*} block, in order to ensure that interrupts
+are not disabled for very long.
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}

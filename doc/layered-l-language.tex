@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 22, 2016
+May 23, 2016
  
 \end{center}
 
@@ -1317,10 +1317,10 @@ Consider the code:
 
 \begin{center}
 \begin{tabular}{l}
-\TT{QS-F-result T-F-result F-result =} \\
-\TT{~~~~~~~~~~~~F ( QS-F-argument T-F-argument F-argument)} \\
-\TT{QS-G-result T-G-result G-result =} \\
-\TT{~~~~~~~~~~~~G ( QS-G-argument T-G-argument G-argument)} \\
+\TT{function QS-F-result T-F-result F-result =} \\
+\TT{~~~~~~~~~F ( QS-F-argument T-F-argument F-argument)} \\
+\TT{function QS-G-result T-G-result G-result =} \\
+\TT{~~~~~~~~~G ( QS-G-argument T-G-argument G-argument)} \\
 \TT{QS-src T-src v-src = ...} \\
 \TT{QS-des T-des v-des = F ( G ( v-src ) )} \\
 \end{tabular}
@@ -1357,85 +1357,145 @@ are given in the Directing Conversions Section~\itemref{DIRECTING-CONVERSIONS}.
 The second special rule applies if the functions, \TT{F} and \TT{G}
 in the above code, have more than one definition, and therefore more
 than one prototype.
-See the Conversion Disambiguation Section~\itemref{CONVERSION-DISAMBIGUATION}.
+This is the Conversion Disambiguation Rule described in
+Section~\itemref{CONVERSION-DISAMBIGUATION}.
 
 \subsection{Directing Conversions}
 \label{DIRECTING-CONVERSIONS}
 
+A \key{directing conversion} is an expression of the form:
+\begin{center}
+{\em qualifier}\STAR{} {\em type}\QMARK{} \TT{(} {\em subexpression} \TT{)}
+\end{center}
+
+in which at least one {\em qualifier} or the {\em type} is present.
+The result of the directing expression is the value of the
+temporary variable \TT{tmp} in:
+\begin{center}
+{\em qualifier}\STAR{} {\em type} \TT{tmp =} {\em subexpression}
+~~~ [direct conversion allowed]
+\end{center}
+where if {\em type} was not given in the directing expression,
+the type of the {\em subexpression} is used.  In this assignment,
+direct conversions \underline{are allowed}; that is, the
+No Direct Conversions rule does \underline{not} apply.
+
+As an example, consider the code:
+\begin{indpar}\begin{verbatim}
+// Prototypes of builtin "+" operator:
+function int64 result = ( int64 argument 1 )
+                    "+" ( int64 argument 2)
+function float64 result = ( float64 argument 1 )
+                      "+" ( float64 argument 2)
+int64 x = ...
+int64 y = ...
+*UNCHECKED* float64 s = x + y
+float64 t = *UNCHECKED* float64 ( x )
+          + *UNCHECKED* float64 ( y )
+\end{verbatim}\end{indpar}
+
+Here there are two definitions of \TT{"+"}, one for \TT{int64}
+values and one for \TT{float64} values.
+\TT{s} is computed by adding \TT{x} and \TT{y} as \TT{int64}
+values, which has the disadvantage that if the result overflows,
+it will be truncated to 64 bits.  \TT{t} on the other hand is
+computed by first converting \TT{x} and \TT{y} to \TT{float64}
+values and then adding, so overflows will not exist.  The last
+statement of the above code is equivalent to:
+\begin{indpar}\begin{verbatim}
+// Prototypes of builtin "+" operator:
+*UNCHECKED* float64 tmp x = x  // Direct conversion allowed.
+*UNCHECKED* float64 tmp y = y  // Direct conversion allowed.
+float64 t = tmp x + tmp y
+\end{verbatim}\end{indpar}
+
+
 \subsection{Conversion Disambiguation}
 \label{CONVERSION-DISAMBIGUATION}
 
-TBD
+Consider the code:
+\begin{indpar}\begin{verbatim}
+// Prototypes of builtin "+" operator:
+function int32 result = ( int32 argument 1 )
+                    "+" ( int32 argument 2)
+function float64 result = ( float64 argument 1 )
+                      "+" ( float64 argument 2)
+int32 x = ...
+int32 y = ...
+float64 s = x + y
+\end{verbatim}\end{indpar}
 
-Consider the expression
-\begin{center}
-\TT{F(G(...))}
-\end{center}
-in which function \TT{F} gets as an argument the result of
-function \TT{G}.  To execute this, a temporary variable \TT{Vi}
-is introduced and the code is change to
-\begin{center}
-\begin{tabular}{l}
-\TT{Qi Ti Vi = G(...)} \\
-\TT{F(t)}
-\end{tabular}
-\end{center}
+Here \TT{s} is computed by
+\begin{indpar}\begin{verbatim}
+int32 tmp s = x + y
+float64 s = tmp s
+\end{verbatim}\end{indpar}
+using an implicit conversion of the result of \TT{"+"}.
+But why not compute it by
+\begin{indpar}\begin{verbatim}
+float64 tmp x = x
+float64 tmp y = y
+float64 s = tmp x + tmp y
+\end{verbatim}\end{indpar}
+using implicit conversions of the arguments of \TT{"+"}?
 
-where \TT{Ti} is the type and \TT{Qi} the qualifiers of \TT{Vi}.
+The answer is the
+\begin{indpar}
+\ikey{Conversion Disambiguation.}{conversion disambiguation}%
+\index{disambiguation!conversion} Roughly, delaying conversions is
+preferred.  For a precise specification of this rule, see text.
+\end{indpar}
 
-To make this work, \TT{Ti} and \TT{Qi} must be chosen.
-Also, there may be many different function prototypes that
-syntactically match the call \TT{F(...)} and the call \TT{G(...)},
-and each such `\key{prototype match}' must be considered.
+In general, the first compilation step after parsing a statement
+is to match its subexpressions to function prototypes and introduce
+temporary variables as per Section~\itemref{TEMPORARY-VARIABLES}.
+There may be many ways to match subexpressions to function prototypes,
+but usually these all introduce the same temporary variables.
+So in the above example, the code becomes
+\begin{indpar}\begin{verbatim}
+T tmp x = x
+T tmp y = y
+T tmp s = tmp x + tmp y
+float64 s = tmp s
+\end{verbatim}\end{indpar}
+where \TT{T} is either \TT{int32} or \TT{float64}.  It is possible
+that different subexpression/prototype matches introduces different
+sets of temporary variables, but such cases are anomalies caused by
+poor name choices, and are treated as compilation errors.
 
+In this case we prefer \TT{T == ins32} because \TT{ins32 => float64},
+as per the implicit conversion ordering of types introduced in
+Section~\itemref{IMPLIED-CONVERSIONS}.
 
-When a function call B is used as an argument to another function C
-call, a temporary variable is created to hold the first result
-variable of the inner function call, and the other result variables
-of the inner call are discarded (unless they are hidden parts
-of a cluster whose root
-is the first result variable: see Section~\itemref{CLUSTERS}).
-This temporary must be assigned a type
-and qualifiers.  Depending upon these assignments, it may or
-may not be possible to find function prototypes that can be
-matched to the function calls in a statement.
+In general, we have a set of temporary variables \TT{tmp$_i$}
+and for each matching $j$ an assigment of types
+\TT{tmp$_i$~$\mapsto$~T$_{j,i}$}.  We say that a matching $j$ is
+\mkey{more specific}{matching}
+than a matching $k$ if and only if \TT{T$_{j,i}$~=>~T$_{k,i}$}
+for every $i$.  A matching is \mkey{most specific} if it is
+more specific than every other matching.  If there is a most
+specific matching, it is chosen; otherwise the statement is
+ambiguous and its compilation is in error.
 
-If the prototype argument of function call C has well defined
-type and qualifiers, these are used at the type and qualifiers
-of the temporary variable.  If the type is left undefined (its
-implied), the type of the result variable of function call B is
-used.  If the qualifiers are left undefined (they are implied),
-the qualifiers of the result variable of function call B are used.
-
-However, function calls can be matched to different function
-prototypes.  A match fails if 
-
-If there are several matches with different type assignments, the
-following rule is used.  Let $i$ index the temporary variables,
-and $i\mapsto T_i$ be a type assignment.  Define a partial order
-on such type assignments to be
-\begin{center}
-$i\mapsto T^1_i~~~\leq~~~i\mapsto T^2_i$
-\end{center}
-if and only if for every $i$, values of type $T^2_i$ are implicitly
-convertible to values of type $T^1_i$.  Then if the set of
-possible type assignments has a minimum, that is used, and if
-the minimum yields a unique matching of statement calls to
-prototypes, the statement compiles without error.  Otherwise
-the statement is ambiguous and its compilation is in error.
-
-The type and some qualifiers of the results of inner calls can
-be dictated by writing the inner call in the form:
-\begin{center}
-{\em qualifier-name}\STAR{} {\em type-name}\QMARK{}
-    \TT{(} {\em inner-call} \TT{)}
-\end{center}
-
-This may specify the type and some of the qualifiers of the inner call
-temporary result.  If the type is not specified, it will be computed
-as in the proceding paragraphs.  The temporary will also be given any protected
-qualifiers of the result variable of any prototype matched to the
-inner call.
+As a last example, consider
+\begin{indpar}\begin{verbatim}
+int32 x = ...
+int32 y = ...
+float64 s = float64 ( x ) + y
+\end{verbatim}\end{indpar}
+which because of the directed conversion compiles as
+\begin{indpar}\begin{verbatim}
+float64 direct tmp x = x
+float64 s = direct tmp x + y
+\end{verbatim}\end{indpar}
+which has only one matching
+\begin{indpar}\begin{verbatim}
+float64 tmp x = direct tmp x    // Only implict conversions
+                                // allowed.
+float64 tmp y = y               // Ditto.
+float64 tmp s = tmp x + tmp y   // Only float64 "+" matches.
+float64 s = tmp s
+\end{verbatim}\end{indpar}
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}

@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 23, 2016
+May 24, 2016
  
 \end{center}
 
@@ -1057,7 +1057,7 @@ The builtin qualifiers are in effect declared by:
 \TT{protected~qualifier~}\ttkey{mem} \\
 \TT{prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
 \TT{required qualifier~}\ttkey{*UNCHECKED*} \\
-\TT{qualifier~}\ttkey{trace}
+\TT{protected~inherited~qualifier~}\ttkey{global}
 \end{indpar}
 
 The type `\ttkey{qualifier}' is a builtin enumeration type implicitly
@@ -2000,7 +2000,7 @@ at compile time.
 
 A function type may be declared multiple times.  All these declarations
 must be identical except for ordering of options and qualifiers
-and names of argument varibles.
+and names of argument variables.
 
 Normally the standard call linkage for the computer environment of
 the program is used.  Other implementation specific call options
@@ -2719,7 +2719,8 @@ The `\TT{stack}' qualifier is inherited.
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
-The builtin qualifiers are \TT{mem}, \TT{stack}, and \TT{*UNCHECKED*}.
+The builtin qualifiers are \TT{mem}, \TT{stack}, \TT{*UNCHECKED*},
+and \TT{global}.
 There is also a special class of qualifiers called trace qualifiers.
 
 \subsection{The Memory Qualifier}
@@ -3119,11 +3120,10 @@ of a {\em call-assignment-statement},
 {\em compile-time-assignment-statement},
 may \underline{not} have the `\TT{stack}' qualifier.
 
-Stacks of loop subblocks are free,
-which is implemented by not
-allowing the variables in the {\em result-variable-list}
-and the iteration variables
-of a {\em loop-assignment-statement} to have the `\TT{stack}'
+Stacks of loop subblocks are free, and
+variables in the {\em result-variable-list}
+and iteration variables
+of a {\em loop-assignment-statement} may not have the `\TT{stack}'
 qualifier.
 
 Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
@@ -3242,14 +3242,15 @@ error information and execute a \TT{*THROW*}.  An \TT{*UNWIND*}
 block can look at recorded error information and decide whether
 or not to execute a \TT{*CATCH*}.
 
-If a block has variables it must assign then these need not be
+If a block has result variables it must assign, then these need not be
 assigned if the block terminates abnormally, as they will not
-be visible to enabled \TT{*UNWIND*} blocks.  However, if a block
-that is terminating abnormally executes a \TT{*CATCH*} statement,
-all variables that the block must assign must be given values, even
-though part of the block may not have executed.  The compiler
-will check this, and will only permit code that complies in a
-straight forward manner.
+be visible to enabled \TT{*UNWIND*} blocks.  However, if a block \TT{B}
+that is terminating abnormally executes a \TT{*CATCH*} statement in
+one of its \TT{*UNWIND*} subblocks,
+all result variables that block \TT{B} must assign must be given values, even
+though part of block \TT{B} may not have executed.  The compiler
+will check this, and will only permit code that passes straight forward
+compiler checks.
 
 There are two ways to ensure correct code.  The first is to 
 set all block result variables either in or before the
@@ -3258,8 +3259,8 @@ The second is to use the special variable
 \ttkey{*LAST-ENABLED-UNWIND*} inside the \TT{*UNWIND*} block.
 This variable is \TT{true} if and only if the \TT{*UNWIND*}
 block is the last \TT{*UNWIND*} block enabled in its containing
-block, and so if the varible is \TT{true}, any containing
-result variables set after the \TT{*UNWIND*} block need to be
+block, and so if the variable is \TT{true}, any containing
+block result variables set after the \TT{*UNWIND*} block need to be
 set.  The compiler will accept a statement of the form:
 \begin{indpar}\begin{verbatim}
 if:
@@ -3269,7 +3270,7 @@ if:
 	. . . . . . . . . . . .
 \end{verbatim}\end{indpar}
 where the result variables set are those set after the \TT{*UNWIND*}
-as satisying the requirement that all result variable be set.
+block, thus satisying the requirement that all result variables be set.
 
 
 \subsection{Stack Memory Allocation}
@@ -3279,12 +3280,12 @@ The `\ttkey{allocate to stack}' function allocates \TT{N} bytes of
 memory to the current free stack and returns its offset within
 the stack and the address of the stack base address:
 
-\begin{indpar}\begin{verbatim}
-( stack unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-allocate to stack ( unsadr N )
-\end{verbatim}\end{indpar}\label{ALLOCATE-TO-STACK}
+\begin{indpar}\tt\begin{tabular}{l}
+( stack unsadr offset, \\
+~~mem adr offset.base, \\
+~~*UNCHECKED* adr offset.base.adr  ) = \\
+~~~~\ttkey{allocate to stack} ( unsadr N ) \\
+\end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
 
 Here `\TT{offset}' is the offset of the \TT{N} bytes within the
 stack, `\TT{offset.base}' is the base address of the stack, and
@@ -3307,12 +3308,12 @@ The memory allocated is always alligned on an \TT{8} byte boundary.
 
 If you want a different alignment you can use:
 
-\begin{indpar}\begin{verbatim}
-( stack unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-    allocate to stack ( unsadr N, unsadr O, unsadr A )
-\end{verbatim}\end{indpar}
+\begin{indpar}\tt\begin{tabular}{l}
+( stack unsadr offset, \\
+~~mem adr offset.base, \\
+~~*UNCHECKED* adr offset.base.adr  ) = \\
+~~~~\ttkey{allocate to stack} ( unsadr N, unsadr O, unsadr A ) \\
+\end{tabular}\end{indpar}
 
 where \TT{A} must be a power of \TT{2} not greater than \TT{64}.
 This will align the \TT{O+1}'st
@@ -3365,9 +3366,8 @@ A variable with {\em variable-name}
 \TT{A} may be named as \TT{A.V}, or if the variable has its own
 {\em variable-abbreviation} \TT{VA},
 this by itself (and \underline{not} \TT{A.VA})
-may be used to name the variable.  An abbreviation is only affective
-following the `\TT{extern}' statement that defines it within
-the same source code file as this `\TT{extern}' statement.
+may be used to name the variable.  An abbreviation is only effective
+withing the scope of the `\TT{extern}' statement that defines it.
 
 A variable in an
 {\em extern-variable-statement} must match its corresponding
@@ -3381,16 +3381,16 @@ If \TT{A.V} is not defined, it is not a compile or link time error
 
 Memory within a global area can be allocated by:
 
-\begin{indpar}\begin{verbatim}
-( global unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-    allocate to global ( unsadr N )
-( global unsadr offset,
-  mem adr offset.base,
-  *UNCHECKED* adr offset.base.adr  ) =
-    allocate to global ( unsadr N, unsadr O, unsadr A )
-\end{verbatim}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
+\begin{indpar}\tt\begin{tabular}{l}
+( global unsadr offset, \\
+~~mem adr offset.base, \\
+~~*UNCHECKED* adr offset.base.adr  ) = \\
+~~~~\ttkey{allocate to global} ( unsadr N ) \\[1ex]
+( global unsadr offset, \\
+~~mem adr offset.base, \\
+~~*UNCHECKED* adr offset.base.adr  ) = \\
+~~~~\ttkey{allocate to global} ( unsadr N, unsadr O, unsadr A ) \\
+\end{tabular}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
 
 Here \TT{A} must a power of \TT{2} not greater than \TT{64}.
 Global areas are allocated on a \TT{64} byte boundary and
@@ -3400,14 +3400,16 @@ The `\TT{allocate to global}' function plays the same role for
 global areas as the `\TT{allocate to stack}' function does for
 stacks, accept that the address gets the \TT{global} qualifier
 instead of the \TT{stack} qualifier.  The \TT{global} qualifier
-is a protected qualifier with \underline{none} of the special `\TT{stack}'
+is a protected, inherited qualifier
+with \underline{none} of the special `\TT{stack}'
 qualifier properties, and normally has no effect on code.
 
 Global areas are run time by default.
 The code of a run time
 global area block is executed when the file containing it is
-loaded, and the stack of the area is allocated and defined at that
-time.  Global areas may be deallocated or moved during execution.
+loaded, and the stack of the area is allocated and defined when
+the global area block is executed.
+Global areas may be deallocated or moved during execution.
 References to a global area
 that is not yet allocated or that has been deallocated cause runtime
 errors (typically segmentation faults).
@@ -3456,7 +3458,7 @@ The extended syntax is:
 \emkey{function-pattern}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em function-term}
-          \{ \TT{|} {\em function-term} \}\STAR{} \\
+          \{ \TT{\textasciitilde} {\em function-term} \}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{function-term}
@@ -3481,14 +3483,15 @@ The extended syntax is:
 \\[1ex]
 \emkey{argument-variable-list}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em opening-argument-bracket} {\em argument-variable-declaration} \\
-	& \{ {\em argument-separator}
+    ::= & {\em opening-argument-bracket}~~~%
+          {\em argument-variable-declaration} \\
+	& \{ {\em argument-separator}~~~%
 	     {\em argument-variable-declaration} \}\STAR{} \\
 	& \{ {\em argument-separator}
 	     \TT{...} \}\QMARK{} \\
 	& {\em closing-argument-bracket} \\
 	& [{\em argument-brackets} must match] \\
-    $|$ & {\em opening-argument-bracket} \TT{...}
+    $|$ & {\em opening-argument-bracket}~~~\TT{...}\QMARK{}~~~%
 	  {\em closing-argument-bracket} \\
 	& [{\em argument-brackets} must match] \\
     \end{tabular}
@@ -3531,7 +3534,7 @@ the term may be replaced by either
 cases the variable will be assigned the values \TT{true} or \TT{false}
 respectively.
 
-Then the `\TT{|}'s and {\em function-term-modifiers} are deleted.
+Then the `\TT{\textasciitilde}'s and {\em function-term-modifiers} are deleted.
 The result is called the `\key{unfolded}' pattern.
 
 At this point the function call and the unfolded pattern must match,
@@ -3562,9 +3565,20 @@ the following builtin functions:
 
 \hspace*{-0.3in}{\tt (unsadr size) = \ttmkey{count}{of {\tt pattern name}}
 			( pattern name N )} \\
-Number of repetitions of the {\em function-term} containing the
-pattern name in the unfolded pattern.  \TT{0} if the {\em function-term}
+Number of repetitions of the {\em function-term} that begins with the
+pattern name in the unfolded pattern.  The pattern name may be
+\TT{"("}, \TT{"["}, or \TT{"\{"} if the {\em function-term} begins
+with an {\em argument-variable-list} that begins with the corresponding
+{\em opening-argument-bracket}.  \TT{0} if the {\em function-term}
 was deleted.
+
+TBD Variable argument list.
+
+TBD Implied arguments.
+
+TBD Conversion functions.
+
+TBD Operator syntax.
 
 \end{indpar}
 

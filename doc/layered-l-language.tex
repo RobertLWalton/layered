@@ -555,21 +555,24 @@ that has enumeration values:
     \begin{tabular}[t]{l}
     \TT{is}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
-    \{ \TT{without implicit conversion} \}\QMARK
+    \{ \TT{without implicit conversion} \}\QMARK \\
+    \{ \TT{without comparison operators} \}\QMARK
     \end{tabular}
 \end{center}
 where
 \begin{center}
 \begin{tabular}{rrl}
 \emkey{base-enum-type-name}
-    & ::= & {\em builtin-number-type-name} \\
-    & $|$ & {\em enum-direction}~~~{\em defined-enum-type-name} \\
+    & ::= & {\em enum-direction}\QMARK{}~~~{\em builtin-integer-type-name} \\
+    & $|$ & {\em enum-direction}\QMARK{}~~~{\em defined-enum-type-name} \\
 \emkey{enum-direction}
     & ::= & \TT{next} $|$ \TT{previous} \\
+\emkey{builtin-integer-type-name}
+    & ::= & {\em builtin-number-type-name} naming an integer type \\
 \emkey{enum-range}
     & ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
     & $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
-    & $|$ & \TT{[} \TT{..} {\em first-enum} \TT{]} \\
+    & $|$ & \TT{[} \TT{..} {\em last-enum} \TT{]} \\
 \emkey{first-enum}
     & ::= & {\em compile-time-integer-expression} \\
 \emkey{last-enum}
@@ -577,11 +580,15 @@ where
 \end{tabular}
 \end{center}
 
-Here {\em first-enum} must be less than or equal to {\em last-enum}.
+Here {\em first-enum} and {\em last-enum} are integer values assigned
+to the newly defined enum type (and not integer values assigned to
+base enum type values).
+{\em First-enum} must be less than or equal to {\em last-enum}.
 If {\em last-enum} is not given, it is assumed to be the maximum
-value provided by the base enumeration type.
-If {\em first-enum} is not given, it is assumed to be the minimum
-value provided by the base enumeration type.
+value permitted by the base enumeration type according to rules given
+below.
+Similarly if {\em first-enum} is not given, it is assumed to be the minimum
+value permitted by the base enumeration type.
 
 Enumeration values can be assigned by declaration statements of the form
 \begin{indpar}
@@ -624,14 +631,15 @@ compile and link values
 can be assumed to be the same if all values of the enumeration type
 are assigned in the same compilation module.
 
-When the {\em base-enum-type-name} names another enumeration type,
-the {\em enum-range} given is mapped to a subrange of the
+The {\em enum-range} given in an enum declaration statement
+is mapped to a subrange of the
 base enumeration type.  More specifically,
 \begin{center}
 \TT{type X is next Y with enum [m~...~n]}
 \end{center}
 allocates
-the next \TT{n - m + 1} values of \TT{Y} as per `\TT{next enum}'
+the next ~\TT{n - m + 1}~ values of \TT{Y} as per `\TT{next enum}'
+applied to the type \TT{Y} (not the type \TT{X}),
 and maps them to the values
 of \TT{X} beginning with \TT{m} and ending with \TT{n}.
 If `\TT{next}' is replaced by `\TT{previous}', the action is the
@@ -640,6 +648,15 @@ and mapped to the values
 of \TT{X} beginning with \TT{n} and ending with \TT{m}, so the order
 of values of \TT{X} is always the same as their order when they
 are viewed as values of \TT{Y}.
+
+TBD
+
+Builtin integer types are treated as enum types with enum range
+equal to the integer type value range.  Thus we have for example:
+\begin{indpar}\begin{verbatim}
+type non negative int32 is previous int32 with enum range [0 .. 20]
+\end{verbatim}\end{indpar}
+
 
 The conversions
 \begin{center}
